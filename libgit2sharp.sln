@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libgit2wrap", "libgit2wrap\libgit2.wrap.vcxproj", "{45FF8275-1165-4FEE-B16A-6D270E14A455}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "libgit2sharp", "libgit2sharp\libgit2sharp.csproj", "{EE6ED99F-CB12-4683-B055-D28FC7357A34}"
+	ProjectSection(ProjectDependencies) = postProject
+		{45FF8275-1165-4FEE-B16A-6D270E14A455} = {45FF8275-1165-4FEE-B16A-6D270E14A455}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "libgit2sharp.Tests", "libgit2sharp.Tests\libgit2sharp.Tests.csproj", "{286E63EB-04DD-4ADE-88D6-041B57800761}"
 EndProject
