@@ -99,6 +99,11 @@ namespace libgit2sharp
             return ReadInternal(objectId, reader, builder);
         }
 
+        public bool Exists(string objectId)
+        {
+            return LibGit2Api.wrapped_git_odb_exists(_repositoryPtr, objectId);
+        }
+
         private delegate OperationResult DatabaseReader(out git_rawobj rawobj, IntPtr repository, string objectId);
 
         private TType ReadInternal<TType>(string objectId, DatabaseReader reader, Func<git_rawobj, TType> builder)

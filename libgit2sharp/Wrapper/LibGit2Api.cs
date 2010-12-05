@@ -17,6 +17,9 @@ namespace libgit2sharp.Wrapper
         public static extern void wrapped_git_repository_free([In] IntPtr repository);
 
         [DllImport(Libgit2)]
+        public static extern bool wrapped_git_odb_exists([In] IntPtr repository, [In] string objectId);
+
+        [DllImport(Libgit2)]
         public static extern OperationResult wrapped_git_odb_read_header(out git_rawobj rawObject, [In] IntPtr repository, [In] string objectId);
 
         [DllImport(Libgit2)]

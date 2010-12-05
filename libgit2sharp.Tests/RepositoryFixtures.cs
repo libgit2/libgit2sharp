@@ -89,5 +89,33 @@ namespace libgit2sharp.Tests
                 StringAssert.EndsWith("testing\n", content);
             }
         }
+
+        [Test]
+        public void AnExistingObjectCanBeFound()
+        {
+            const string objectId = "8496071c1b46c854b31185ea97743be6a8774479";
+            bool hasBeenFound;
+
+            using (var repo = new Repository(PathToRepository))
+            {
+                hasBeenFound = repo.Exists(objectId);
+            }
+
+            Assert.AreEqual(true, hasBeenFound);
+        }
+
+        [Test]
+        public void AnNonExistingObjectCanNotBeFound()
+        {
+            const string objectId = "a496071c1b46c854b31185ea97743be6a8774471";
+            bool hasBeenFound;
+
+            using (var repo = new Repository(PathToRepository))
+            {
+                hasBeenFound = repo.Exists(objectId);
+            }
+
+            Assert.AreEqual(false, hasBeenFound);
+        }
     }
 }
