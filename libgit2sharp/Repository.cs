@@ -41,7 +41,7 @@ namespace libgit2net
             #endregion Parameters Validation
 
             wrapped_git_repository_details repositoryDetails;
-            OperationResult result = LibGit2Api.wrapped_git_repository_open(out repositoryDetails, out _repositoryPtr, repositoryDirectory);
+            OperationResult result = LibGit2Api.wrapped_git_repository_open2(out repositoryDetails, out _repositoryPtr, repositoryDirectory, databaseDirectory, index, workingDirectory);
             _repositoryPtr = repositoryDetails.repository;
 
             if (result != OperationResult.GIT_SUCCESS)
