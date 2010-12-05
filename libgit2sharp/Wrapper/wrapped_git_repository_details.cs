@@ -4,13 +4,23 @@ using System.Runtime.InteropServices;
 namespace libgit2net.Wrapper
 {
     [StructLayout(LayoutKind.Sequential)]
-    internal struct wrapped_git_repository_details
+    internal struct wrapped_git_repository
     {
-        public IntPtr path_repository;
-        public IntPtr path_index;
-        public IntPtr path_odb;
-        public IntPtr path_workdir;
-        public IntPtr repository;
+        public IntPtr database;
+        public IntPtr index;
+        public IntPtr objects;
+
+        [MarshalAs(UnmanagedType.LPStr)]
+        public string path_repository;
+     
+        [MarshalAs(UnmanagedType.LPStr)]
+        public string path_index;
+        
+        [MarshalAs(UnmanagedType.LPStr)]
+        public string path_odb;
+        
+        [MarshalAs(UnmanagedType.LPStr)]
+        public string path_workdir;
 
         [MarshalAs(UnmanagedType.U1)]
         public bool is_bare;

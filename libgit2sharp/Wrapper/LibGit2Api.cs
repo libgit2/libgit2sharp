@@ -8,10 +8,10 @@ namespace libgit2net.Wrapper
         private const string Libgit2 = "libgit2wrap.dll";
 
         [DllImport(Libgit2)]
-        public static extern OperationResult wrapped_git_repository_open(out wrapped_git_repository_details repositoryDetails, out IntPtr repoPtr, [In] string path);
+        public static extern OperationResult wrapped_git_repository_open(out IntPtr repoPtr, [In] string path);
 
         [DllImport(Libgit2)]
-        public static extern OperationResult wrapped_git_repository_open2(out wrapped_git_repository_details repositoryDetails, out IntPtr repoPtr, [In] string gitDir, [In] string gitObjectDirectory, [In] string gitIndexFile, [In] string gitWorkTree);
+        public static extern OperationResult wrapped_git_repository_open2(out IntPtr repoPtr, [In] string gitDir, [In] string gitObjectDirectory, [In] string gitIndexFile, [In] string gitWorkTree);
 
         [DllImport(Libgit2)]
         public static extern void wrapped_git_repository_free([In] IntPtr repository);

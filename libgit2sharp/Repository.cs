@@ -40,16 +40,14 @@ namespace libgit2net
 
             #endregion Parameters Validation
 
-            wrapped_git_repository_details repositoryDetails;
-            OperationResult result = LibGit2Api.wrapped_git_repository_open2(out repositoryDetails, out _repositoryPtr, repositoryDirectory, databaseDirectory, index, workingDirectory);
-            _repositoryPtr = repositoryDetails.repository;
+            OperationResult result = LibGit2Api.wrapped_git_repository_open2(out _repositoryPtr, repositoryDirectory, databaseDirectory, index, workingDirectory);
 
             if (result != OperationResult.GIT_SUCCESS)
             {
                 throw new Exception(Enum.GetName(typeof(OperationResult), result));
             }
 
-            _details = BuildFrom(repositoryDetails);
+            _details = BuildFrom(_repositoryPtr);
         }
 
         public Repository(string repositoryDirectory)
@@ -63,26 +61,21 @@ namespace libgit2net
 
             #endregion Parameters Validation
 
-            wrapped_git_repository_details repositoryDetails;
-            OperationResult result = LibGit2Api.wrapped_git_repository_open(out repositoryDetails, out _repositoryPtr, repositoryDirectory);
-            _repositoryPtr = repositoryDetails.repository;
+            OperationResult result = LibGit2Api.wrapped_git_repository_open(out _repositoryPtr, repositoryDirectory);
 
             if (result != OperationResult.GIT_SUCCESS)
             {
                 throw new Exception(Enum.GetName(typeof(OperationResult), result));
             }
 
-            _details = BuildFrom(repositoryDetails);
+            _details = BuildFrom(_repositoryPtr);
         }
 
-        private static RepositoryDetails BuildFrom(wrapped_git_repository_details repositoryDetails)
+        private static RepositoryDetails BuildFrom(IntPtr repository)
         {
-            string index = Marshal.PtrToStringAnsi(repositoryDetails.path_index);
-            string databaseDirectory = Marshal.PtrToStringAnsi(repositoryDetails.path_odb);
-            string repositoryDirectory = Marshal.PtrToStringAnsi(repositoryDetails.path_repository);
-            string workingDirectory = Marshal.PtrToStringAnsi(repositoryDetails.path_workdir);
+            var repo = (wrapped_git_repository)Marshal.PtrToStructure(repository, typeof(wrapped_git_repository));
 
-            return new RepositoryDetails(repositoryDirectory, index, databaseDirectory, workingDirectory, repositoryDetails.is_bare);
+            return new RepositoryDetails(repo.path_repository, repo.path_index, repo.path_odb, repo.path_workdir, repo.is_bare);
         }
 
         public GitObject Lookup(string objectId)
