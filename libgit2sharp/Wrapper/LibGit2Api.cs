@@ -19,5 +19,7 @@ namespace libgit2sharp.Wrapper
         [DllImport(Libgit2)]
         public static extern OperationResult wrapped_git_odb_read_header(out git_rawobj rawObject, [In] IntPtr repository, [In] string objectId);
 
+        [DllImport(Libgit2)]
+        public static extern OperationResult wrapped_git_odb_read(out git_rawobj rawObject, [In] IntPtr repository, [In] string objectId);
     }
 }

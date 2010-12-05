@@ -40,3 +40,22 @@ int wrapped_git_odb_read_header(git_rawobj* obj_out, git_repository* repo, const
 
 	return error;
 }
+
+int wrapped_git_odb_read(git_rawobj* obj_out, git_repository* repo, const char *raw_id)
+{
+	git_odb *odb;
+	git_oid id;
+	int error;
+
+	odb = git_repository_database(repo);
+
+	error = git_oid_mkstr(&id, raw_id);
+	if (error != GIT_SUCCESS)
+		return error;
+
+	error = git_odb_read(obj_out, odb, &id);
+	if (error != GIT_SUCCESS)
+		return error;
+
+	return error;
+}

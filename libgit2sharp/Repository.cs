@@ -85,21 +85,54 @@ namespace libgit2sharp
 
         public Header ReadHeader(string objectId)
         {
-            git_rawobj rawObj;
+            DatabaseReader reader = LibGit2Api.wrapped_git_odb_read_header;
+            Func<git_rawobj, Header> builder = (rawObj) => (BuildHeaderFrom(objectId, rawObj));
 
-            OperationResult result = LibGit2Api.wrapped_git_odb_read_header(out rawObj, _repositoryPtr, objectId);
+            return ReadInternal(objectId, reader, builder);
+        }
+
+        public RawObject Read(string objectId)
+        {
+            DatabaseReader reader = LibGit2Api.wrapped_git_odb_read;
+            Func<git_rawobj, RawObject> builder = (rawObj) => (BuildRawObjectFrom(objectId, rawObj));
+
+            return ReadInternal(objectId, reader, builder);
+        }
+
+        private delegate OperationResult DatabaseReader(out git_rawobj rawobj, IntPtr repository, string objectId);
+
+        private TType ReadInternal<TType>(string objectId, DatabaseReader reader, Func<git_rawobj, TType> builder)
+        {
+            git_rawobj rawObj;
+            OperationResult result = reader(out rawObj, _repositoryPtr, objectId);
 
             switch (result)
             {
                 case OperationResult.GIT_SUCCESS:
-                    return new Header(objectId, (ObjectType)rawObj.type, rawObj.len.ToUInt64());
+                    return builder(rawObj);
 
                 case OperationResult.GIT_ENOTFOUND:
-                    return null;
+                    return default(TType);
 
                 default:
                     throw new Exception(Enum.GetName(typeof(OperationResult), result));
             }
+
+        }
+
+        private static RawObject BuildRawObjectFrom(string objectId, git_rawobj rawObj)
+        {
+            Header header = BuildHeaderFrom(objectId, rawObj);
+            var data = new byte[header.Length];
+
+            //TODO: Casting the length to an int may lead to not copy the whole data. This should be converted to a loop.
+            Marshal.Copy(rawObj.data, data, 0, (int)header.Length);
+            return new RawObject(header, data);
+        }
+
+        private static Header BuildHeaderFrom(string objectId, git_rawobj rawObj)
+        {
+            return new Header(objectId, (ObjectType)rawObj.type, rawObj.len.ToUInt64());
         }
 
         void IDisposable.Dispose()
