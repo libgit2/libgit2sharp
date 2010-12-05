@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace libgit2net.Wrapper
+namespace libgit2sharp.Wrapper
 {
     internal static class LibGit2Api
     {

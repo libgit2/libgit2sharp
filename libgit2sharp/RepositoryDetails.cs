@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace libgit2net
+namespace libgit2sharp
 {
     public class RepositoryDetails
     {

@@ -1,4 +1,4 @@
-﻿namespace libgit2net
+﻿namespace libgit2sharp
 {
     public enum ObjectType
     {

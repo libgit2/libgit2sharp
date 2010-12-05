@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
-using System.Text;
 
-namespace libgit2net.Wrapper
+namespace libgit2sharp.Wrapper
 {
     [StructLayout(LayoutKind.Sequential)]
     internal struct git_rawobj

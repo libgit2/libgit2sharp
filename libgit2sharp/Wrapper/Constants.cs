@@ -1,4 +1,4 @@
-﻿namespace libgit2net.Wrapper
+﻿namespace libgit2sharp.Wrapper
 {
     public static class Constants
     {

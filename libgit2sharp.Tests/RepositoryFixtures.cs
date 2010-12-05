@@ -1,8 +1,7 @@
 ﻿using NUnit.Framework;
 using System.IO;
-using NUnit.Framework.Constraints;
 
-namespace libgit2net.Tests
+namespace libgit2sharp.Tests
 {
     [TestFixture]
     public class RepositoryFixtures

@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Runtime.InteropServices;
-using libgit2net.Wrapper;
+using libgit2sharp.Wrapper;
 
-namespace libgit2net
+namespace libgit2sharp
 {
     public class Repository : IDisposable
     {
