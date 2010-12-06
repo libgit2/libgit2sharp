@@ -96,6 +96,7 @@ namespace libgit2sharp
             DatabaseReader reader = LibGit2Api.wrapped_git_odb_read;
             Func<git_rawobj, RawObject> builder = (rawObj) => (BuildRawObjectFrom(objectId, rawObj));
 
+            //TODO: RawObject should be freed when the Repository is disposed (cf. https://github.com/libgit2/libgit2/blob/6fd195d76c7f52baae5540e287affe2259900d36/tests/t0205-readheader.c#L202)
             return ReadInternal(objectId, reader, builder);
         }
 
