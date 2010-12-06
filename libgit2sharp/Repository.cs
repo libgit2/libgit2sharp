@@ -73,7 +73,7 @@ namespace libgit2sharp
 
         private static RepositoryDetails BuildFrom(IntPtr repository)
         {
-            var repo = (wrapped_git_repository)Marshal.PtrToStructure(repository, typeof(wrapped_git_repository));
+            var repo = (git_repository)Marshal.PtrToStructure(repository, typeof(git_repository));
 
             return new RepositoryDetails(repo.path_repository, repo.path_index, repo.path_odb, repo.path_workdir, repo.is_bare);
         }

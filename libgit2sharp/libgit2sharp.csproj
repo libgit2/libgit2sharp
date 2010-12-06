@@ -47,7 +47,7 @@
     <Compile Include="Header.cs" />
     <Compile Include="Wrapper\git_otype.cs" />
     <Compile Include="Wrapper\git_rawobj.cs" />
-    <Compile Include="Wrapper\wrapped_git_repository_details.cs" />
+    <Compile Include="Wrapper\git_repository.cs" />
     <Compile Include="Wrapper\LibGit2Api.cs" />
     <Compile Include="ObjectType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

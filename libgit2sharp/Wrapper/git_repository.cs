@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 namespace libgit2sharp.Wrapper
 {
     [StructLayout(LayoutKind.Sequential)]
-    internal struct wrapped_git_repository
+    internal struct git_repository
     {
         public IntPtr database;
         public IntPtr index;
