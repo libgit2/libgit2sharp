@@ -17,9 +17,36 @@ int wrapped_git_repository_open2(git_repository** repo_out, const char *git_dir,
 	*repo_out = repo;
 	return error;
 }
+
 void wrapped_git_repository_free(git_repository* repo)
 {
 	git_repository_free(repo);
+}
+
+int wrapped_git_repository_lookup(git_object** obj_out, git_repository* repo, const char* raw_id, git_otype type)
+{
+	git_oid id;
+	git_odb *odb;
+	int error = GIT_SUCCESS;
+
+	odb = git_repository_database(repo);
+
+	error = git_oid_mkstr(&id, raw_id);
+	if (error != GIT_SUCCESS)
+		return error;
+
+	error = git_repository_lookup(obj_out, repo, &id, type);
+	if (error != GIT_SUCCESS)
+		return error;
+
+	if (type == GIT_OBJ_COMMIT)
+	{
+		// Warning! Hacky... This forces the full parse of the commit :-/
+		const char *message;
+		message = git_commit_message((git_commit*)(*obj_out));
+	}
+
+	return error;
 }
 
 int wrapped_git_odb_exists(git_repository* repo, const char* raw_id)
