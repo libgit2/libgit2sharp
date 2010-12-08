@@ -7,8 +7,8 @@ namespace libgit2sharp
     public class Repository : IResolver, IDisposable, IObjectHeaderReader
     {
         private IntPtr _repositoryPtr = IntPtr.Zero;
-        private readonly RepositoryDetails _details;
-        private readonly IResolver _resolver;
+        private RepositoryDetails _details;
+        private IResolver _resolver;
 
         public RepositoryDetails Details
         {
@@ -41,15 +41,7 @@ namespace libgit2sharp
 
             #endregion Parameters Validation
 
-            OperationResult result = LibGit2Api.wrapped_git_repository_open2(out _repositoryPtr, repositoryDirectory, databaseDirectory, index, workingDirectory);
-
-            if (result != OperationResult.GIT_SUCCESS)
-            {
-                throw new Exception(Enum.GetName(typeof(OperationResult), result));
-            }
-
-            _resolver = new ObjectResolver(_repositoryPtr, this);
-            _details = BuildRepositoryDetails(_repositoryPtr);
+            OpenRepository(() => LibGit2Api.wrapped_git_repository_open2(out _repositoryPtr, repositoryDirectory, databaseDirectory, index, workingDirectory));
         }
 
         public Repository(string repositoryDirectory)
@@ -63,7 +55,12 @@ namespace libgit2sharp
 
             #endregion Parameters Validation
 
-            OperationResult result = LibGit2Api.wrapped_git_repository_open(out _repositoryPtr, repositoryDirectory);
+            OpenRepository(() => LibGit2Api.wrapped_git_repository_open(out _repositoryPtr, repositoryDirectory));
+        }
+
+        private void OpenRepository(Func<OperationResult> opener)
+        {
+            OperationResult result = opener();
 
             if (result != OperationResult.GIT_SUCCESS)
             {
