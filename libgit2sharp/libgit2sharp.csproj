@@ -69,6 +69,9 @@
     <Compile Include="Repository.cs" />
     <Compile Include="Wrapper\OperationResult.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="backlog.md" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>xcopy "$(SolutionDir)deps\*.*" . /Y</PreBuildEvent>
