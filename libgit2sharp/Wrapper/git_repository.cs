@@ -24,5 +24,10 @@ namespace libgit2sharp.Wrapper
 
         [MarshalAs(UnmanagedType.U1)]
         public bool is_bare;
+
+        internal RepositoryDetails Build()
+        {
+            return new RepositoryDetails(path_repository, path_index, path_odb, path_workdir, is_bare);
+        }
     }
 }

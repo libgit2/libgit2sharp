@@ -47,7 +47,7 @@ namespace libgit2sharp
                 throw new Exception(Enum.GetName(typeof(OperationResult), result));
             }
 
-            _details = BuildFrom(_repositoryPtr);
+            _details = BuildRepositoryDetails(_repositoryPtr);
         }
 
         public Repository(string repositoryDirectory)
@@ -68,14 +68,14 @@ namespace libgit2sharp
                 throw new Exception(Enum.GetName(typeof(OperationResult), result));
             }
 
-            _details = BuildFrom(_repositoryPtr);
+            _details = BuildRepositoryDetails(_repositoryPtr);
         }
 
-        private static RepositoryDetails BuildFrom(IntPtr repository)
+        private static RepositoryDetails BuildRepositoryDetails(IntPtr repository)
         {
             var repo = (git_repository)Marshal.PtrToStructure(repository, typeof(git_repository));
 
-            return new RepositoryDetails(repo.path_repository, repo.path_index, repo.path_odb, repo.path_workdir, repo.is_bare);
+            return repo.Build();
         }
 
         public GitObject Lookup(string objectId)
@@ -86,7 +86,7 @@ namespace libgit2sharp
         public Header ReadHeader(string objectId)
         {
             DatabaseReader reader = LibGit2Api.wrapped_git_odb_read_header;
-            Func<git_rawobj, Header> builder = (rawObj) => (BuildHeaderFrom(objectId, rawObj));
+            Func<git_rawobj, Header> builder = (rawObj) => rawObj.BuildHeader(objectId);
 
             return ReadInternal(objectId, reader, builder);
         }
@@ -94,7 +94,7 @@ namespace libgit2sharp
         public RawObject Read(string objectId)
         {
             DatabaseReader reader = LibGit2Api.wrapped_git_odb_read;
-            Func<git_rawobj, RawObject> builder = (rawObj) => (BuildRawObjectFrom(objectId, rawObj));
+            Func<git_rawobj, RawObject> builder = (rawObj) => rawObj.Build(objectId);
 
             //TODO: RawObject should be freed when the Repository is disposed (cf. https://github.com/libgit2/libgit2/blob/6fd195d76c7f52baae5540e287affe2259900d36/tests/t0205-readheader.c#L202)
             return ReadInternal(objectId, reader, builder);
@@ -124,21 +124,6 @@ namespace libgit2sharp
                     throw new Exception(Enum.GetName(typeof(OperationResult), result));
             }
 
-        }
-
-        private static RawObject BuildRawObjectFrom(string objectId, git_rawobj rawObj)
-        {
-            Header header = BuildHeaderFrom(objectId, rawObj);
-            var data = new byte[header.Length];
-
-            //TODO: Casting the length to an int may lead to not copy the whole data. This should be converted to a loop.
-            Marshal.Copy(rawObj.data, data, 0, (int)header.Length);
-            return new RawObject(header, data);
-        }
-
-        private static Header BuildHeaderFrom(string objectId, git_rawobj rawObj)
-        {
-            return new Header(objectId, (ObjectType)rawObj.type, rawObj.len.ToUInt64());
         }
 
         void IDisposable.Dispose()
