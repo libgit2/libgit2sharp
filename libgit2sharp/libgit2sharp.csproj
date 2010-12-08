@@ -42,6 +42,7 @@
   <ItemGroup>
     <Compile Include="Blob.cs" />
     <Compile Include="Commit.cs" />
+    <Compile Include="ObjectId.cs" />
     <Compile Include="Person.cs" />
     <Compile Include="RawObject.cs" />
     <Compile Include="RepositoryDetails.cs" />
