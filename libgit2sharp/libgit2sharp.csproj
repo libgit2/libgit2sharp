@@ -40,8 +40,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Blob.cs" />
+    <Compile Include="Commit.cs" />
+    <Compile Include="Person.cs" />
     <Compile Include="RawObject.cs" />
     <Compile Include="RepositoryDetails.cs" />
+    <Compile Include="Tag.cs" />
+    <Compile Include="Tree.cs" />
     <Compile Include="Wrapper\Constants.cs" />
     <Compile Include="GitObject.cs" />
     <Compile Include="Header.cs" />

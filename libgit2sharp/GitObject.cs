@@ -2,8 +2,13 @@
 {
     public class GitObject
     {
-        public object Id { get; set; }
+        public GitObject(string objectId, ObjectType type)
+        {
+            Id = objectId;
+            Type = type;
+        }
+
+        public object Id { get; private set; }
+        public ObjectType Type { get; private set; }
     }
 }
-
-

@@ -80,7 +80,7 @@ namespace libgit2sharp
 
         public GitObject Lookup(string objectId)
         {
-            return new GitObject() { Id = objectId };
+            return new GitObject(objectId, ObjectType.Commit);
         }
 
         public Header ReadHeader(string objectId)
