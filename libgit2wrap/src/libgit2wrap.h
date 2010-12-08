@@ -1,8 +1,7 @@
 #ifndef INCLUDE_libgit2_wrap_h__
 #define INCLUDE_libgit2_wrap_h__
 
-#include <git/common.h>
-#include <git/repository.h>
+#include <git2.h>
 
 typedef struct wrapped_git_repository {
 	size_t db;
