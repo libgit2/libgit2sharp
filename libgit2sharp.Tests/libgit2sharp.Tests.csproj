@@ -43,6 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EpochHelperFixture.cs" />
     <Compile Include="RepositoryFixtures.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
