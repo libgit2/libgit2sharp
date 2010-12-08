@@ -1,16 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using System.Runtime.InteropServices;
 using libgit2sharp.Wrapper;
 
 namespace libgit2sharp
 {
-    public class Repository : IDisposable
+    public class Repository : IResolver, IDisposable, IObjectHeaderReader
     {
         private IntPtr _repositoryPtr = IntPtr.Zero;
         private readonly RepositoryDetails _details;
+        private readonly IResolver _resolver;
 
         public RepositoryDetails Details
         {
@@ -50,6 +48,7 @@ namespace libgit2sharp
                 throw new Exception(Enum.GetName(typeof(OperationResult), result));
             }
 
+            _resolver = new ObjectResolver(_repositoryPtr, this);
             _details = BuildRepositoryDetails(_repositoryPtr);
         }
 
@@ -71,6 +70,7 @@ namespace libgit2sharp
                 throw new Exception(Enum.GetName(typeof(OperationResult), result));
             }
 
+            _resolver = new ObjectResolver(_repositoryPtr, this);
             _details = BuildRepositoryDetails(_repositoryPtr);
         }
 
@@ -141,108 +141,17 @@ namespace libgit2sharp
 
         public GitObject Resolve(string objectId)
         {
-            return Resolve<GitObject>(objectId);
+            return _resolver.Resolve(objectId);
         }
 
         public TType Resolve<TType>(string objectId)
         {
-            return (TType)Resolve(objectId, typeof(TType));
-        }
-
-        private static readonly IDictionary<ObjectType, Type> resolveMapper = new Dictionary<ObjectType, Type>
-                                                                  {
-                                                                      {ObjectType.Blob, typeof(Blob)},
-                                                                      {ObjectType.Commit, typeof(Commit)},
-                                                                      {ObjectType.Tag, typeof(Tag)},
-                                                                      {ObjectType.Tree, typeof(Tree)},
-                                                                  };
-
-        private static readonly IDictionary<Type, ObjectType> reverseResolveMapper =
-            resolveMapper.ToDictionary(kv => kv.Value, kv => kv.Key);
-
-        private static readonly IDictionary<Type, Func<string, IntPtr, object>> builderMapper = new Dictionary<Type, Func<string, IntPtr, object>>
-                                                                  {
-                                                                      {typeof(Blob), BuildBlob},
-                                                                      {typeof(Commit), BuildCommit},
-                                                                      {typeof(Tag), BuildTag},
-                                                                      {typeof(Tree), BuildTree},
-                                                                  };
-
-        private Type GuessTypeToResolve(string objectId)
-        {
-            Header header = ReadHeader(objectId);
-
-            if (header == null)
-            {
-                return null;
-            }
-
-            return resolveMapper[header.Type];
+            return _resolver.Resolve<TType>(objectId);
         }
 
         public object Resolve(string objectId, Type expectedType)
         {
-            if (!typeof(GitObject).IsAssignableFrom(expectedType))
-            {
-                throw new ArgumentException("Only types deriving from GitObject are allowed.", "expectedType");
-            }
-
-            Type outputType = expectedType;
-            if (outputType == typeof(GitObject))
-            {
-                Type guessedType = GuessTypeToResolve(objectId);
-
-                if (guessedType == null)
-                {
-                    return null;
-                }
-
-                outputType = guessedType;
-            }
-
-            ObjectType expectedObjectType = reverseResolveMapper[outputType];
-
-            IntPtr gitObjectPtr;
-            OperationResult result = LibGit2Api.wrapped_git_repository_lookup(out gitObjectPtr, _repositoryPtr, objectId, (git_otype)expectedObjectType);
-
-            switch (result)
-            {
-                case OperationResult.GIT_SUCCESS:
-                    return builderMapper[outputType](objectId, gitObjectPtr);
-
-                case OperationResult.GIT_ENOTFOUND:
-                //TODO: Should we free gitObjectPtr if OperationResult.GIT_EINVALIDTYPE is returned ?
-                case OperationResult.GIT_EINVALIDTYPE:
-                    return null;
-
-                default:
-                    throw new Exception(Enum.GetName(typeof(OperationResult), result));
-            }
-        }
-
-        private static object BuildTree(string objectId, IntPtr gitObjectPtr)
-        {
-            var gitTree = (git_tree)Marshal.PtrToStructure(gitObjectPtr, typeof(git_tree));
-            return gitTree.Build();
-        }
-
-        private static object BuildCommit(string objectId, IntPtr gitObjectPtr)
-        {
-            var gitCommit = (git_commit)Marshal.PtrToStructure(gitObjectPtr, typeof(git_commit));
-            return gitCommit.Build();
-        }
-
-        private static object BuildBlob(string objectId, IntPtr gitObjectPtr)
-        {
-            throw new NotImplementedException();
-            //var gitBlob = (git_blob)Marshal.PtrToStructure(gitObjectPtr, typeof(git_blob));
-            //return gitBlob.Build();
-        }
-
-        private static object BuildTag(string objectId, IntPtr gitObjectPtr)
-        {
-            var gitTag = (git_tag)Marshal.PtrToStructure(gitObjectPtr, typeof(git_tag));
-            return gitTag.Build();
+            return _resolver.Resolve(objectId, expectedType);
         }
 
         private static RepositoryDetails BuildRepositoryDetails(IntPtr gitRepositoryPtr)

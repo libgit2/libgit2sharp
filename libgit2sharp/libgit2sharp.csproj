@@ -43,7 +43,10 @@
     <Compile Include="Blob.cs" />
     <Compile Include="Commit.cs" />
     <Compile Include="EpochHelper.cs" />
+    <Compile Include="IObjectHeaderReader.cs" />
+    <Compile Include="IResolver.cs" />
     <Compile Include="ObjectId.cs" />
+    <Compile Include="ObjectResolver.cs" />
     <Compile Include="Person.cs" />
     <Compile Include="RawObject.cs" />
     <Compile Include="RepositoryDetails.cs" />
