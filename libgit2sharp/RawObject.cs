@@ -1,18 +1,14 @@
 ﻿namespace libgit2sharp
 {
-    public class RawObject
+    public class RawObject : GitObject
     {
-        private readonly Header _header;
-
-        public RawObject(Header header, byte[] data)
+        public RawObject(Header header, byte[] data) : base(header.Id, header.Type)
         {
-            _header = header;
             Data = data;
+            Length = header.Length;
         }
 
-        public string Id { get { return _header.Id; } }
-        public ObjectType Type { get { return _header.Type; } }
-        public ulong Length { get { return _header.Length; } }
+        public ulong Length { get; private set; }
         public byte[] Data { get; private set; }
     }
 }
