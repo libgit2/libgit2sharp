@@ -1,16 +1,29 @@
-﻿namespace libgit2sharp
+﻿using System;
+
+namespace libgit2sharp
 {
     public class Person
     {
-        public Person(string name, string email, ulong time)
+        public Person(string name, string email, DateTimeOffset time)
         {
             Name = name;
             Email = email;
             Time = time;
         }
 
-        public string Name { get; private set; }   /**< Full name */
-        public string Email { get; private set; }  /**< Email address */
-        public ulong Time { get; private set; }     /**< Time when this person committed the change */
+        /// <summary>
+        /// Full name
+        /// </summary>
+        public string Name { get; private set; }
+        
+        /// <summary>
+        /// Email address
+        /// </summary>
+        public string Email { get; private set; }
+
+        /// <summary>
+        /// Time when this person committed the change
+        /// </summary>
+        public DateTimeOffset Time { get; private set; }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System;
+using System.Runtime.InteropServices;
 
 namespace libgit2sharp.Wrapper
 {
@@ -15,7 +16,7 @@ namespace libgit2sharp.Wrapper
 
         internal Person Build()
         {
-            return new Person(name, email, time);
+            return new Person(name, email, EpochHelper.ToDateTimeOffset((int)time));
         }
     }
 }

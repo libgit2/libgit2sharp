@@ -10,7 +10,6 @@
 ### Core
 
  - Extract resolving behavior to an ObjectResolver class
- - Convert ulong time to UTC based DateTimeOffset
 
 ### Wrapper
 

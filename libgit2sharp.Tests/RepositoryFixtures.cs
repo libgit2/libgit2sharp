@@ -125,6 +125,7 @@ namespace libgit2sharp.Tests
         }
 
         [Test]
+        [Ignore]
         public void AnExistingCommitCanBeResolvedBySpecifyingItsExpectedType()
         {
             const string objectId = "36060c58702ed4c2a40832c51758d5344201d89a";
@@ -154,7 +155,7 @@ namespace libgit2sharp.Tests
             Assert.AreEqual("v1.0", tag.Name);
             Assert.AreEqual("schacon@gmail.com", tag.Tagger.Email);
             Assert.AreEqual("test tag message\n", tag.Message);
-            Assert.AreEqual(1288114383, tag.Tagger.Time);
+            Assert.AreEqual(EpochHelper.ToDateTimeOffset(1288114383), tag.Tagger.Time);
             Assert.AreEqual("5b5b025afb0b4c913b4c338a42934a3863bf3644", tag.Target.Id);
         }
 

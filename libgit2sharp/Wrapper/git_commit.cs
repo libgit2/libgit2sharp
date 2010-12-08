@@ -36,7 +36,7 @@ namespace libgit2sharp.Wrapper
             var gitTree = (git_tree)Marshal.PtrToStructure(tree, typeof(git_tree));
             Tree commitTree = gitTree.Build();
 
-            return new Commit(ObjectId.ToString(commit.id.id), commitAuthor, commitCommitter, time, message, message_short, commitTree);
+            return new Commit(ObjectId.ToString(commit.id.id), commitAuthor, commitCommitter, EpochHelper.ToDateTimeOffset((int)time), message, message_short, commitTree);
         }
     }
 }
