@@ -16,7 +16,7 @@ namespace libgit2sharp.Wrapper
 
         internal Person Build()
         {
-            return new Person(name, email, EpochHelper.ToDateTimeOffset((int)time));
+            return new Person(name, email, Epoch.ToDateTimeOffset((int)time));
         }
     }
 }

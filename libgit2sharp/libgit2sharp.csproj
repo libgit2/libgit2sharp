@@ -42,7 +42,7 @@
   <ItemGroup>
     <Compile Include="Blob.cs" />
     <Compile Include="Commit.cs" />
-    <Compile Include="EpochHelper.cs" />
+    <Compile Include="Epoch.cs" />
     <Compile Include="IObjectHeaderReader.cs" />
     <Compile Include="IResolver.cs" />
     <Compile Include="ObjectId.cs" />

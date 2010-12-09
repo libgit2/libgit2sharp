@@ -4,13 +4,13 @@ using NUnit.Framework;
 namespace libgit2sharp.Tests
 {
     [TestFixture]
-    public class EpochHelperFixture
+    public class EpochFixture
     {
         [TestCase(0)]
         [TestCase(17)]
         public void ToDateDateTimeOffset_ShouldReturnAUtcBasedDateTimeOffset(Int32 secondsSinceEpoch)
         {
-            DateTimeOffset when = EpochHelper.ToDateTimeOffset(secondsSinceEpoch);
+            DateTimeOffset when = Epoch.ToDateTimeOffset(secondsSinceEpoch);
             Assert.AreEqual(TimeSpan.Zero, when.Offset);
             Assert.AreEqual(DateTimeKind.Utc, when.UtcDateTime.Kind);
         }
@@ -20,7 +20,7 @@ namespace libgit2sharp.Tests
         [TestCase(1288114383, "Tue, 26 Oct 2010 17:33:03 GMT")]
         public void ToDateDateTimeOffset_ShouldCorrectlyConvert(Int32 secondsSinceEpoch, string expected)
         {
-            DateTimeOffset when = EpochHelper.ToDateTimeOffset(secondsSinceEpoch);
+            DateTimeOffset when = Epoch.ToDateTimeOffset(secondsSinceEpoch);
             var expectedDate = DateTimeOffset.Parse(expected);
             Assert.AreEqual(expectedDate, when);
         }
