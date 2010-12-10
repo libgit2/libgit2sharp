@@ -49,5 +49,21 @@ namespace libgit2sharp.Tests
             Int32 when = Epoch.ToInt32(date);
             Assert.AreEqual(expected, when);
         }
+
+        [TestCase("Wed, 08 Dec 2010 09:52:32 GMT", 1291801952, 0)]
+        [TestCase("Fri, 13 Feb 2009 23:31:30 GMT", 1234567890, 0)]
+        [TestCase("Tue, 26 Oct 2010 17:33:03 GMT", 1288114383, 0)]
+        [TestCase("Sat, 14 Feb 2009 00:31:30 +0100", 1234567890, 60)]
+        [TestCase("Sat, 15 Aug 2009 20:12:58 -0330", 1250379778, -210)]
+        [TestCase("Sat, 15 Aug 2009 23:42:58 GMT", 1250379778, 0)]
+        [TestCase("Sun, 16 Aug 2009 00:42:58 +0100", 1250379778, 60)]
+        public void ToGitDate_ShouldCorrectlyConvert(string formattedDate, Int32 expectedSeconds, Int32 expectedOffset)
+        {
+            var date = DateTimeOffset.Parse(formattedDate);
+
+            GitDate when = Epoch.ToGitDate(date);
+            Assert.AreEqual(expectedSeconds, when.UnixTimeStamp);
+            Assert.AreEqual(expectedOffset, when.TimeZoneOffset);
+        }
     }
 }

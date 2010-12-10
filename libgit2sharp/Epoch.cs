@@ -24,5 +24,10 @@ namespace libgit2sharp
             return (Int32)utcDate.Subtract(EpochDateTimeOffset).TotalSeconds;
         }
 
+        public static GitDate ToGitDate(DateTimeOffset date)
+        {
+            Int32 secondsSinceEpoch = ToInt32(date);
+            return new GitDate(secondsSinceEpoch, (int)date.Offset.TotalMinutes);
+        }
     }
 }
