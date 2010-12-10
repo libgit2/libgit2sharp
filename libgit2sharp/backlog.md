@@ -1,4 +1,4 @@
-# Backlog
+﻿# Backlog
 
 ### Tests
 
@@ -9,6 +9,14 @@
 
 ### Core
 
+ - Handle timezone information in Commit and Person
+
 ### Wrapper
 
- - Ensure an object is correctly freed when looked up with invalid git_otype
+### Documentation
+
+ - Write some sample API usage simiar to  http://libgit2.github.com/api.html (C# language pack definition available @ http://shjs.sourceforge.net/)
+ 
+ ## Miscellaneous
+
+ - Test CMake build (cf. https://github.com/libgit2/libgit2/pull/22)
