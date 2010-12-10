@@ -11,10 +11,18 @@ namespace libgit2sharp
             return EpochDateTimeOffset.AddSeconds(secondsSinceEpoch);
         }
 
+        public static DateTimeOffset ToDateTimeOffset(int secondsSinceEpoch, int timeZoneOffsetInMinutes)
+        {
+            var utcDateTime = ToDateTimeOffset(secondsSinceEpoch);
+            TimeSpan offset = TimeSpan.FromMinutes(timeZoneOffsetInMinutes);
+            return new DateTimeOffset(utcDateTime.DateTime.Add(offset), offset);
+        }
+
         public static Int32 ToInt32(DateTimeOffset date)
         {
             DateTimeOffset utcDate = date.ToUniversalTime();
             return (Int32)utcDate.Subtract(EpochDateTimeOffset).TotalSeconds;
         }
+
     }
 }

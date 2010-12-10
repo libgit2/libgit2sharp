@@ -18,11 +18,21 @@ namespace libgit2sharp.Tests
         [TestCase(1291801952, "Wed, 08 Dec 2010 09:52:32 GMT")]
         [TestCase(1234567890, "Fri, 13 Feb 2009 23:31:30 GMT")]
         [TestCase(1288114383, "Tue, 26 Oct 2010 17:33:03 GMT")]
-        public void ToDateDateTimeOffset_ShouldCorrectlyConvert(Int32 secondsSinceEpoch, string expected)
+        public void ToDateDateTimeOffset_ShouldCorrectlyConvertAPlainUtcDate(Int32 secondsSinceEpoch, string expected)
         {
             DateTimeOffset when = Epoch.ToDateTimeOffset(secondsSinceEpoch);
             var expectedDate = DateTimeOffset.Parse(expected);
             Assert.AreEqual(expectedDate, when);
+            Assert.AreEqual(TimeSpan.Zero, when.Offset);
+        }
+
+        [TestCase(1250379778, -210, "Sat, 15 Aug 2009 20:12:58 -0330")]
+        public void ToDateDateTimeOffset_ShouldCorrectlyConvertAUtcDateWithATimeZoneOffset(Int32 secondsSinceEpoch, Int32 offset, string expected)
+        {
+            DateTimeOffset when = Epoch.ToDateTimeOffset(secondsSinceEpoch, offset);
+            var expectedDate = DateTimeOffset.Parse(expected);
+            Assert.AreEqual(expectedDate, when);
+            Assert.AreEqual(expectedDate.Offset, when.Offset);
         }
 
         [TestCase("Wed, 08 Dec 2010 09:52:32 GMT", 1291801952)]
