@@ -1,4 +1,4 @@
-﻿# Backlog
+# Backlog
 
 ### Tests
 
@@ -17,6 +17,6 @@
 
  - Write some sample API usage simiar to  http://libgit2.github.com/api.html (C# language pack definition available @ http://shjs.sourceforge.net/)
  
- ## Miscellaneous
+### Miscellaneous
 
  - Test CMake build (cf. https://github.com/libgit2/libgit2/pull/22)
