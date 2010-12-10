@@ -43,6 +43,7 @@
     <Compile Include="Blob.cs" />
     <Compile Include="Commit.cs" />
     <Compile Include="Epoch.cs" />
+    <Compile Include="GitDate.cs" />
     <Compile Include="IObjectHeaderReader.cs" />
     <Compile Include="IResolver.cs" />
     <Compile Include="ObjectId.cs" />
