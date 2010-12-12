@@ -16,7 +16,7 @@ namespace libgit2sharp.Wrapper
 
         internal Signature Build()
         {
-            return new Signature(name, email, Epoch.ToDateTimeOffset((int)time));
+            return new Signature(name, email, (DateTimeOffset)new GitDate((int)time));
         }
     }
 }

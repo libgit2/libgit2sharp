@@ -37,7 +37,7 @@ namespace libgit2sharp.Wrapper
             var gitTree = (git_tree)Marshal.PtrToStructure(tree, typeof(git_tree));
             Tree commitTree = gitTree.Build();
 
-            Debug.Assert(Epoch.ToDateTimeOffset((int)time) == commitCommitter.When);
+            Debug.Assert(Equals((DateTimeOffset)new GitDate((Int32)time), commitCommitter.When));
 
             return new Commit(ObjectId.ToString(commit.id.id), commitAuthor, commitCommitter, message, message_short, commitTree);
         }

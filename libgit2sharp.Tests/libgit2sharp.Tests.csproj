@@ -43,7 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="EpochFixture.cs" />
+    <Compile Include="GitDateFixture.cs" />
     <Compile Include="ObjectIdFixture.cs" />
     <Compile Include="RepositoryFixtures.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
