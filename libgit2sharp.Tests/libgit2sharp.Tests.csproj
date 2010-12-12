@@ -47,6 +47,7 @@
     <Compile Include="ObjectIdFixture.cs" />
     <Compile Include="RepositoryFixtures.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="WhenOpeningARepository.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\libgit2sharp\libgit2sharp.csproj">
