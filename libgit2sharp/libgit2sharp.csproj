@@ -48,7 +48,7 @@
     <Compile Include="IResolver.cs" />
     <Compile Include="ObjectId.cs" />
     <Compile Include="ObjectResolver.cs" />
-    <Compile Include="Person.cs" />
+    <Compile Include="Signature.cs" />
     <Compile Include="RawObject.cs" />
     <Compile Include="RepositoryDetails.cs" />
     <Compile Include="Tag.cs" />

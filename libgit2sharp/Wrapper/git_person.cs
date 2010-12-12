@@ -14,9 +14,9 @@ namespace libgit2sharp.Wrapper
 
         public ulong time;
 
-        internal Person Build()
+        internal Signature Build()
         {
-            return new Person(name, email, Epoch.ToDateTimeOffset((int)time));
+            return new Signature(name, email, Epoch.ToDateTimeOffset((int)time));
         }
     }
 }

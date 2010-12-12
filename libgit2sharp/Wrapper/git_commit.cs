@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 namespace libgit2sharp.Wrapper
@@ -25,18 +26,20 @@ namespace libgit2sharp.Wrapper
 
         internal Commit Build()
         {
-            Person commitAuthor = null;
+            Signature commitAuthor = null;
 
             var gitAuthor = (git_person)Marshal.PtrToStructure(author, typeof(git_person));
             commitAuthor = gitAuthor.Build();
 
             var gitCommitter = (git_person)Marshal.PtrToStructure(committer, typeof(git_person));
-            Person commitCommitter = gitCommitter.Build();
+            Signature commitCommitter = gitCommitter.Build();
 
             var gitTree = (git_tree)Marshal.PtrToStructure(tree, typeof(git_tree));
             Tree commitTree = gitTree.Build();
 
-            return new Commit(ObjectId.ToString(commit.id.id), commitAuthor, commitCommitter, Epoch.ToDateTimeOffset((int)time), message, message_short, commitTree);
+            Debug.Assert(Epoch.ToDateTimeOffset((int)time) == commitCommitter.When);
+
+            return new Commit(ObjectId.ToString(commit.id.id), commitAuthor, commitCommitter, message, message_short, commitTree);
         }
     }
 }

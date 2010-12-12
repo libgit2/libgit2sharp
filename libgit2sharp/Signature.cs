@@ -2,13 +2,13 @@
 
 namespace libgit2sharp
 {
-    public class Person
+    public class Signature
     {
-        public Person(string name, string email, DateTimeOffset time)
+        public Signature(string name, string email, DateTimeOffset when)
         {
             Name = name;
             Email = email;
-            Time = time;
+            When = when;
         }
 
         /// <summary>
@@ -24,6 +24,6 @@ namespace libgit2sharp
         /// <summary>
         /// Time when this person committed the change
         /// </summary>
-        public DateTimeOffset Time { get; private set; }
+        public DateTimeOffset When { get; private set; }
     }
 }
