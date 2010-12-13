@@ -3,19 +3,6 @@
 
 #include <git2.h>
 
-typedef struct wrapped_git_repository {
-	size_t db;
-	size_t index;
-	size_t objects;
-	
-	char *path_repository;
-	char *path_index;
-	char *path_odb;
-	char *path_workdir;
-
-	unsigned is_bare:1;
-} wrapped_git_repository ;
-
 GIT_BEGIN_DECL
 
 GIT_EXTERN(int) wrapped_git_repository_open(git_repository** repo_out, const char* path);
@@ -24,7 +11,8 @@ GIT_EXTERN(void) wrapped_git_repository_free(git_repository* repo);
 GIT_EXTERN(int) wrapped_git_repository_lookup(git_object** obj_out, git_repository* repo, const char* raw_id, git_otype type);
 GIT_EXTERN(int) wrapped_git_odb_exists(git_repository* repo, const char* raw_id);
 GIT_EXTERN(int) wrapped_git_odb_read_header(git_rawobj* obj_out, git_repository* repo, const char* raw_id);
-GIT_EXTERN(int) wrapped_git_odb_read(git_rawobj* obj_out, git_repository* repo, const char* raw_id);
+GIT_EXTERN(int) wrapped_git_odb_read(git_rawobj** obj_out, git_repository* repo, const char* raw_id);
+GIT_EXTERN(int) wrapped_git_apply_tag(git_tag* tag_out, git_repository* repo, const char *raw_target_id, const char *tag_name, const char *tag_message, const char *tagger_name, const char *tagger_email, time_t tagger_time);
 
 GIT_END_DECL
 

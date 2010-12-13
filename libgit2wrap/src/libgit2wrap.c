@@ -101,3 +101,37 @@ int wrapped_git_odb_read(git_rawobj* obj_out, git_repository* repo, const char *
 
 	return error;
 }
+
+int wrapped_git_apply_tag(git_tag** tag_out, git_repository* repo, const char *raw_target_id, const char *tag_name, const char *tag_message, const char *tagger_name, const char *tagger_email, time_t tagger_time)
+{
+	git_oid id;
+	int error;
+	git_object* target;
+	git_tag* tag;
+
+	error = git_oid_mkstr(&id, raw_target_id);
+	if (error != GIT_SUCCESS)
+		return error;
+
+	error = git_repository_lookup(&target, repo, &id, GIT_OBJ_ANY);
+	if (error != GIT_SUCCESS)
+		return error;
+
+	error = git_tag_new(&tag, repo);
+	if (error != GIT_SUCCESS)
+		return error;
+
+	git_tag_set_tagger(tag, tagger_name, tagger_email, tagger_time);
+	git_tag_set_name(tag, tag_name);
+	git_tag_set_target(tag, target);
+	
+	git_tag_set_message(tag, tag_message);
+
+	error = git_object_write((git_object*)tag);
+	if (error != GIT_SUCCESS)
+		return error;
+
+	*tag_out = tag;
+
+	return error;
+}

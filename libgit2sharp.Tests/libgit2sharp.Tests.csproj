@@ -43,6 +43,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ApplyingATag.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="GitDateFixture.cs" />
     <Compile Include="ObjectIdFixture.cs" />
     <Compile Include="ReadOnlyRepositoryFixtureBase.cs" />

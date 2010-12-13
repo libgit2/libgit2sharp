@@ -90,5 +90,20 @@ namespace libgit2sharp
         {
             return _resolver.Resolve(objectId, expectedType);
         }
+
+        public Tag ApplyTag(string targetId, string tagName, string tagMessage, Signature signature)
+        {
+            // TODO: To be refactored.
+            IntPtr tag;
+            OperationResult t = LibGit2Api.wrapped_git_apply_tag(out tag ,_lifecycleManager.RepositoryPtr, targetId, tagName, tagMessage, signature.Name, signature.Email, (ulong)((GitDate)signature.When).UnixTimeStamp);
+            return (Tag)BuildTag(tag);
+        }
+
+        private static object BuildTag(IntPtr gitObjectPtr)
+        {
+            // TODO: Duplicated from ObjectResolver
+            var gitTag = (git_tag)Marshal.PtrToStructure(gitObjectPtr, typeof(git_tag));
+            return gitTag.Build();
+        }
     }
 }
