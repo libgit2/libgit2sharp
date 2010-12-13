@@ -64,6 +64,7 @@ namespace libgit2sharp
 
             if (result != OperationResult.GIT_SUCCESS)
             {
+                _repositoryPtr = IntPtr.Zero;
                 throw new Exception(Enum.GetName(typeof(OperationResult), result));
             }
 
