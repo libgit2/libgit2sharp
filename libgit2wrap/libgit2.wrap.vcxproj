@@ -46,12 +46,12 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>..\..\libgit2/src;$(IncludePath)</IncludePath>
+    <IncludePath>..\..\libgit2/src;$(IncludePath);..\incs</IncludePath>
     <OutDir>..\build\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>..\..\libgit2/src;$(IncludePath)</IncludePath>
+    <IncludePath>..\..\libgit2/src;$(IncludePath);..\incs</IncludePath>
     <OutDir>..\build\$(Configuration)\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
