@@ -5,7 +5,7 @@ using NUnit.Framework;
 namespace libgit2sharp.Tests
 {
     [TestFixture]
-    public class InstanciatingARepository
+    public class InstantiatingARepository
     {
         const string PathToRepository = "../../Resources/testrepo.git";
 
