@@ -5,10 +5,8 @@ using System.IO;
 namespace libgit2sharp.Tests
 {
     [TestFixture]
-    public class RepositoryFixtures
+    public class RepositoryFixtures : ReadOnlyRepositoryFixtureBase
     {
-        const string PathToRepository = "../../Resources/testrepo.git";
-
         [Test]
         public void Ctor_RetrieveDetails()
         {

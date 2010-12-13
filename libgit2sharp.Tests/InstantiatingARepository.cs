@@ -5,10 +5,8 @@ using NUnit.Framework;
 namespace libgit2sharp.Tests
 {
     [TestFixture]
-    public class InstantiatingARepository
+    public class InstantiatingARepository : ReadOnlyRepositoryFixtureBase
     {
-        const string PathToRepository = "../../Resources/testrepo.git";
-
         [Test]
         public void ShouldThrowIfPassedANonValidGitDirectory()
         {
