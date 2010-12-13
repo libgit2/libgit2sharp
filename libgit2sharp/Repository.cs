@@ -6,80 +6,28 @@ namespace libgit2sharp
 {
     public class Repository : IResolver, IDisposable, IObjectHeaderReader
     {
-        private IntPtr _repositoryPtr = IntPtr.Zero;
-        private RepositoryDetails _details;
-        private IResolver _resolver;
+        private readonly IResolver _resolver;
+        private readonly ILifecycleManager _lifecycleManager;
 
         public RepositoryDetails Details
         {
-            get { return _details; }
+            get { return _lifecycleManager.Details; }
         }
 
         public Repository(string repositoryDirectory, string databaseDirectory, string index, string workingDirectory)
         {
-            #region Parameters Validation
+            _lifecycleManager = new RepositoryLifecycleManager(repositoryDirectory, databaseDirectory, index,
+                                                            workingDirectory);
 
-            if (string.IsNullOrEmpty(repositoryDirectory))
-            {
-                throw new ArgumentNullException("repositoryDirectory");
-            }
-
-            if (string.IsNullOrEmpty(databaseDirectory))
-            {
-                throw new ArgumentNullException("databaseDirectory");
-            }
-
-            if (string.IsNullOrEmpty(index))
-            {
-                throw new ArgumentNullException("index");
-            }
-
-            if (string.IsNullOrEmpty(workingDirectory))
-            {
-                throw new ArgumentNullException("workingDirectory");
-            }
-
-            #endregion Parameters Validation
-
-            OpenRepository(() => LibGit2Api.wrapped_git_repository_open2(out _repositoryPtr, repositoryDirectory, databaseDirectory, index, workingDirectory));
-        }
+            _resolver = new ObjectResolver(_lifecycleManager.RepositoryPtr, this);
+       }
 
         public Repository(string repositoryDirectory)
         {
-            #region Parameters Validation
+            _lifecycleManager = new RepositoryLifecycleManager(repositoryDirectory);
 
-            if (string.IsNullOrEmpty(repositoryDirectory))
-            {
-                throw new ArgumentNullException(repositoryDirectory);
-            }
-
-            #endregion Parameters Validation
-
-            OpenRepository(() => LibGit2Api.wrapped_git_repository_open(out _repositoryPtr, repositoryDirectory));
-        }
-
-        private void OpenRepository(Func<OperationResult> opener)
-        {
-            OperationResult result = opener();
-
-            if (result == OperationResult.GIT_SUCCESS)
-            {
-                _resolver = new ObjectResolver(_repositoryPtr, this);
-                _details = BuildRepositoryDetails(_repositoryPtr);
-                return;
-            }
-
-            _repositoryPtr = IntPtr.Zero;
-
-            switch (result)
-            {
-                case OperationResult.GIT_ENOTAREPO:
-                    throw new NotAValidRepositoryException();
-
-                default:
-                    throw new Exception(Enum.GetName(typeof(OperationResult), result));
-            }
-        }
+            _resolver = new ObjectResolver(_lifecycleManager.RepositoryPtr, this);
+       }
 
         public Header ReadHeader(string objectId)
         {
@@ -100,7 +48,7 @@ namespace libgit2sharp
 
         public bool Exists(string objectId)
         {
-            return LibGit2Api.wrapped_git_odb_exists(_repositoryPtr, objectId);
+            return LibGit2Api.wrapped_git_odb_exists(_lifecycleManager.RepositoryPtr, objectId);
         }
 
         private delegate OperationResult DatabaseReader(out git_rawobj rawobj, IntPtr repository, string objectId);
@@ -108,7 +56,7 @@ namespace libgit2sharp
         private TType ReadInternal<TType>(string objectId, DatabaseReader reader, Func<git_rawobj, TType> builder)
         {
             git_rawobj rawObj;
-            OperationResult result = reader(out rawObj, _repositoryPtr, objectId);
+            OperationResult result = reader(out rawObj, _lifecycleManager.RepositoryPtr, objectId);
 
             switch (result)
             {
@@ -121,29 +69,11 @@ namespace libgit2sharp
                 default:
                     throw new Exception(Enum.GetName(typeof(OperationResult), result));
             }
-
         }
 
         void IDisposable.Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (_repositoryPtr == (IntPtr)0)
-            {
-                return;
-            }
-
-            LibGit2Api.wrapped_git_repository_free(_repositoryPtr);
-            _repositoryPtr = (IntPtr)0;
-        }
-
-        ~Repository()
-        {
-            Dispose(false);
+            _lifecycleManager.Dispose();
         }
 
         public GitObject Resolve(string objectId)
@@ -160,12 +90,5 @@ namespace libgit2sharp
         {
             return _resolver.Resolve(objectId, expectedType);
         }
-
-        private static RepositoryDetails BuildRepositoryDetails(IntPtr gitRepositoryPtr)
-        {
-            var gitRepo = (git_repository)Marshal.PtrToStructure(gitRepositoryPtr, typeof(git_repository));
-            return gitRepo.Build();
-        }
-
     }
 }

@@ -44,11 +44,13 @@
     <Compile Include="Commit.cs" />
     <Compile Include="Epoch.cs" />
     <Compile Include="GitDate.cs" />
+    <Compile Include="ILifecycleManager.cs" />
     <Compile Include="IObjectHeaderReader.cs" />
     <Compile Include="IResolver.cs" />
     <Compile Include="NotAValidRepositoryException.cs" />
     <Compile Include="ObjectId.cs" />
     <Compile Include="ObjectResolver.cs" />
+    <Compile Include="RepositoryLifecycleManager.cs" />
     <Compile Include="Signature.cs" />
     <Compile Include="RawObject.cs" />
     <Compile Include="RepositoryDetails.cs" />
