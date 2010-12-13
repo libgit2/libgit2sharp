@@ -8,7 +8,7 @@
             Type = type;
         }
 
-        public object Id { get; private set; }
+        public string Id { get; private set; }
         public ObjectType Type { get; private set; }
     }
 }
