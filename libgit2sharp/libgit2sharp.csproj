@@ -46,6 +46,7 @@
     <Compile Include="GitDate.cs" />
     <Compile Include="IObjectHeaderReader.cs" />
     <Compile Include="IResolver.cs" />
+    <Compile Include="NotAValidRepositoryException.cs" />
     <Compile Include="ObjectId.cs" />
     <Compile Include="ObjectResolver.cs" />
     <Compile Include="Signature.cs" />

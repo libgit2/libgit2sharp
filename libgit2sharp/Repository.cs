@@ -62,14 +62,23 @@ namespace libgit2sharp
         {
             OperationResult result = opener();
 
-            if (result != OperationResult.GIT_SUCCESS)
+            if (result == OperationResult.GIT_SUCCESS)
             {
-                _repositoryPtr = IntPtr.Zero;
-                throw new Exception(Enum.GetName(typeof(OperationResult), result));
+                _resolver = new ObjectResolver(_repositoryPtr, this);
+                _details = BuildRepositoryDetails(_repositoryPtr);
+                return;
             }
 
-            _resolver = new ObjectResolver(_repositoryPtr, this);
-            _details = BuildRepositoryDetails(_repositoryPtr);
+            _repositoryPtr = IntPtr.Zero;
+
+            switch (result)
+            {
+                case OperationResult.GIT_ENOTAREPO:
+                    throw new NotAValidRepositoryException();
+
+                default:
+                    throw new Exception(Enum.GetName(typeof(OperationResult), result));
+            }
         }
 
         public Header ReadHeader(string objectId)
