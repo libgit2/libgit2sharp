@@ -2,11 +2,6 @@
 
 ### Tests
 
- - Repository instanciation
-  - Ensure relative paths work
-  - Ensure absolute paths work
-  - Ensure a path ending with a "\" works
-
 ### Core
 
  - Handle timezone information in Commit and Person

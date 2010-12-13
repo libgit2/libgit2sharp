@@ -24,19 +24,49 @@ namespace libgit2sharp.Tests
         }
 
         [Test]
-        [Ignore]
-        public void ShouldAllowPassedRelativeBackslashedPath()
+        public void ShouldAcceptPlatormNativeRelativePath()
         {
-            Assert.Fail("To be finalized.");
+            string repoPath = PathToRepository.Replace('/', Path.DirectorySeparatorChar);
+
+            AssertRepositoryPath(repoPath);
         }
 
         [Test]
-        [Ignore]
-        public void ShouldAllowPassedRelativeBackslahedPathWithaTrailingBackslash()
+        public void ShouldAcceptPlatormNativeAbsolutePath()
         {
-            Assert.Fail("To be finalized.");
+            string repoPath = Path.GetFullPath(PathToRepository);
+
+            AssertRepositoryPath(repoPath);
         }
 
-    
+        [Test]
+        public void ShouldAcceptPlatormNativeRelativePathWithATrailingDirectorySeparatorChar()
+        {
+            string repoPath = PathToRepository.Replace('/', Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar;
+
+            AssertRepositoryPath(repoPath);
+        }
+
+        [Test]
+        public void ShouldAcceptPlatormNativeAbsolutePathWithATrailingDirectorySeparatorChar()
+        {
+            string repoPath = Path.GetFullPath(PathToRepository) + Path.DirectorySeparatorChar;
+
+            AssertRepositoryPath(repoPath);
+        }
+
+        private static void AssertRepositoryPath(string repoPath)
+        {
+            var expected = new DirectoryInfo(repoPath);
+
+            DirectoryInfo current;
+            
+            using (var repo = new Repository(repoPath))
+            {
+                current = new DirectoryInfo(repo.Details.RepositoryDirectory);
+            }
+
+            Assert.AreEqual(expected, current);
+        }
     }
 }

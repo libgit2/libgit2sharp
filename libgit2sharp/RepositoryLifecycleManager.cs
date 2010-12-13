@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Runtime.InteropServices;
 using libgit2sharp.Wrapper;
 
@@ -30,7 +31,7 @@ namespace libgit2sharp
 
             #endregion Parameters Validation
 
-            OpenRepository(() => LibGit2Api.wrapped_git_repository_open(out _repositoryPtr, repositoryDirectory));
+            OpenRepository(() => LibGit2Api.wrapped_git_repository_open(out _repositoryPtr, Posixify(repositoryDirectory)));
         }
 
         public RepositoryLifecycleManager(string repositoryDirectory, string databaseDirectory, string index, string workingDirectory)
@@ -59,8 +60,20 @@ namespace libgit2sharp
 
             #endregion Parameters Validation
 
-            OpenRepository(() => LibGit2Api.wrapped_git_repository_open2(out _repositoryPtr, repositoryDirectory, databaseDirectory, index, workingDirectory));
+            OpenRepository(() => LibGit2Api.wrapped_git_repository_open2(out _repositoryPtr, Posixify(repositoryDirectory),
+                                                        Posixify(databaseDirectory), Posixify(index), Posixify(workingDirectory)));
         }
+
+        private static string Posixify(string path)
+        {
+            if (Path.DirectorySeparatorChar == '/')
+            {
+                return path;
+            }
+
+            return path.Replace(Path.DirectorySeparatorChar, '/');
+        }
+
 
         private void OpenRepository(Func<OperationResult> opener)
         {
