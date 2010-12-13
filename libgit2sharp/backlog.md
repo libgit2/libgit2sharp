@@ -10,6 +10,7 @@
 ### Core
 
  - Handle timezone information in Commit and Person
+ - Refactor the error handling (OutputResult -> Exceptions)
 
 ### Wrapper
 
@@ -20,3 +21,5 @@
 ### Miscellaneous
 
  - Test CMake build (cf. https://github.com/libgit2/libgit2/pull/22)
+ - Run the tests on a Mono platform (would require proper handling of libgit2 its dependencies binaries)
+ 
