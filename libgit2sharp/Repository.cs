@@ -101,9 +101,19 @@ namespace libgit2sharp
         {
             // TODO: To be refactored.
             IntPtr tag;
-            OperationResult t = LibGit2Api.wrapped_git_apply_tag(out tag, _lifecycleManager.RepositoryPtr, targetId, tagName, tagMessage, signature.Name, signature.Email, (ulong)((GitDate)signature.When).UnixTimeStamp);
-            
-            return (Tag)_builder.BuildFrom(tag, ObjectType.Tag);
+            OperationResult result = LibGit2Api.wrapped_git_apply_tag(out tag, _lifecycleManager.RepositoryPtr, targetId, tagName, tagMessage, signature.Name, signature.Email, (ulong)((GitDate)signature.When).UnixTimeStamp);
+
+            switch (result)
+            {
+                case OperationResult.GIT_SUCCESS:
+                    return (Tag)_builder.BuildFrom(tag, ObjectType.Tag);
+
+                case OperationResult.GIT_ENOTFOUND:
+                    throw new ObjectNotFoundException();
+
+                default:
+                    throw new Exception(Enum.GetName(typeof(OperationResult), result));
+            }
         }
     }
 }
