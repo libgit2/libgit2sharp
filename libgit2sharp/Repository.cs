@@ -8,26 +8,32 @@ namespace libgit2sharp
     {
         private readonly IResolver _resolver;
         private readonly ILifecycleManager _lifecycleManager;
+        private readonly IBuilder _builder;
 
         public RepositoryDetails Details
         {
             get { return _lifecycleManager.Details; }
         }
 
-        public Repository(string repositoryDirectory, string databaseDirectory, string index, string workingDirectory)
-        {
-            _lifecycleManager = new RepositoryLifecycleManager(repositoryDirectory, databaseDirectory, index,
-                                                            workingDirectory);
 
-            _resolver = new ObjectResolver(_lifecycleManager.RepositoryPtr, this);
-       }
+        public Repository(string repositoryDirectory, string databaseDirectory, string index, string workingDirectory)
+            : this(new RepositoryLifecycleManager(repositoryDirectory, databaseDirectory, index, workingDirectory))
+        {
+
+        }
 
         public Repository(string repositoryDirectory)
+            : this(new RepositoryLifecycleManager(repositoryDirectory))
         {
-            _lifecycleManager = new RepositoryLifecycleManager(repositoryDirectory);
 
-            _resolver = new ObjectResolver(_lifecycleManager.RepositoryPtr, this);
-       }
+        }
+
+        private Repository(ILifecycleManager lifecycleManager)
+        {
+            _lifecycleManager = lifecycleManager;
+            _builder = new ObjectBuilder();
+            _resolver = new ObjectResolver(_lifecycleManager.RepositoryPtr, this, _builder);
+        }
 
         public Header ReadHeader(string objectId)
         {
@@ -95,15 +101,9 @@ namespace libgit2sharp
         {
             // TODO: To be refactored.
             IntPtr tag;
-            OperationResult t = LibGit2Api.wrapped_git_apply_tag(out tag ,_lifecycleManager.RepositoryPtr, targetId, tagName, tagMessage, signature.Name, signature.Email, (ulong)((GitDate)signature.When).UnixTimeStamp);
-            return (Tag)BuildTag(tag);
-        }
-
-        private static object BuildTag(IntPtr gitObjectPtr)
-        {
-            // TODO: Duplicated from ObjectResolver
-            var gitTag = (git_tag)Marshal.PtrToStructure(gitObjectPtr, typeof(git_tag));
-            return gitTag.Build();
+            OperationResult t = LibGit2Api.wrapped_git_apply_tag(out tag, _lifecycleManager.RepositoryPtr, targetId, tagName, tagMessage, signature.Name, signature.Email, (ulong)((GitDate)signature.When).UnixTimeStamp);
+            
+            return (Tag)_builder.BuildFrom(tag, ObjectType.Tag);
         }
     }
 }

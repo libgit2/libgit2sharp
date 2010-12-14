@@ -15,10 +15,5 @@ namespace libgit2sharp.Wrapper
 
         [MarshalAs(UnmanagedType.U1)]
         public bool modified;
-
-        internal GitObject Build()
-        {
-            return new GitObject(ObjectId.ToString(id.id), (ObjectType)source.raw.type);
-        }
     }
 }

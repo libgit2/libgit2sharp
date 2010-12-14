@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
 using libgit2sharp.Wrapper;
 
 namespace libgit2sharp
@@ -10,6 +9,7 @@ namespace libgit2sharp
     {
         private readonly IntPtr _repositoryPtr = IntPtr.Zero;
         private readonly IObjectHeaderReader _objectHeaderReader;
+        private readonly IBuilder _builder;
 
         private static readonly IDictionary<ObjectType, Type> TypeMapper = new Dictionary<ObjectType, Type>
                                                                   {
@@ -22,16 +22,10 @@ namespace libgit2sharp
         private static readonly IDictionary<Type, ObjectType> ReverseTypeMapper =
             TypeMapper.ToDictionary(kv => kv.Value, kv => kv.Key);
 
-        private static readonly IDictionary<Type, Func<string, IntPtr, object>> BuilderMapper = new Dictionary<Type, Func<string, IntPtr, object>>
-                                                                  {
-                                                                      {typeof(Blob), BuildBlob},
-                                                                      {typeof(Commit), BuildCommit},
-                                                                      {typeof(Tag), BuildTag},
-                                                                      {typeof(Tree), BuildTree},
-                                                                  };
-
-        public ObjectResolver(IntPtr repositoryPtr, IObjectHeaderReader objectHeaderReader)
+        public ObjectResolver(IntPtr repositoryPtr, IObjectHeaderReader objectHeaderReader, IBuilder builder)
         {
+            #region Parameters Validation
+            
             if (repositoryPtr == IntPtr.Zero)
             {
                 throw new ArgumentNullException("repositoryPtr");
@@ -42,7 +36,15 @@ namespace libgit2sharp
                 throw new ArgumentNullException("objectHeaderReader");
             }
 
+            if (builder == null)
+            {
+                throw new ArgumentNullException("builder");
+            }
+
+            #endregion
+            
             _repositoryPtr = repositoryPtr;
+            _builder = builder;
             _objectHeaderReader = objectHeaderReader;
         }
 
@@ -86,10 +88,9 @@ namespace libgit2sharp
             switch (result)
             {
                 case OperationResult.GIT_SUCCESS:
-                    return BuilderMapper[outputType](objectId, gitObjectPtr);
+                    return _builder.BuildFrom(gitObjectPtr, expectedObjectType);
 
                 case OperationResult.GIT_ENOTFOUND:
-                //TODO: Should we free gitObjectPtr if OperationResult.GIT_EINVALIDTYPE is returned ?
                 case OperationResult.GIT_EINVALIDTYPE:
                     return null;
 
@@ -109,31 +110,5 @@ namespace libgit2sharp
 
             return TypeMapper[header.Type];
         }
-
-        private static object BuildTree(string objectId, IntPtr gitObjectPtr)
-        {
-            var gitTree = (git_tree)Marshal.PtrToStructure(gitObjectPtr, typeof(git_tree));
-            return gitTree.Build();
-        }
-
-        private static object BuildCommit(string objectId, IntPtr gitObjectPtr)
-        {
-            var gitCommit = (git_commit)Marshal.PtrToStructure(gitObjectPtr, typeof(git_commit));
-            return gitCommit.Build();
-        }
-
-        private static object BuildBlob(string objectId, IntPtr gitObjectPtr)
-        {
-            throw new NotImplementedException();
-            //var gitBlob = (git_blob)Marshal.PtrToStructure(gitObjectPtr, typeof(git_blob));
-            //return gitBlob.Build();
-        }
-
-        private static object BuildTag(string objectId, IntPtr gitObjectPtr)
-        {
-            var gitTag = (git_tag)Marshal.PtrToStructure(gitObjectPtr, typeof(git_tag));
-            return gitTag.Build();
-        }
-
     }
 }

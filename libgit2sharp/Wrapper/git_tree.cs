@@ -7,10 +7,5 @@ namespace libgit2sharp.Wrapper
     {
         public git_object tree;
         public git_vector entries;
-
-        internal Tree Build()
-        {
-            return new Tree(ObjectId.ToString(tree.id.id));
-        }
     }
 }

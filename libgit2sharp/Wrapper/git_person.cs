@@ -13,10 +13,5 @@ namespace libgit2sharp.Wrapper
         public string email;
 
         public ulong time;
-
-        internal Signature Build()
-        {
-            return new Signature(name, email, (DateTimeOffset)new GitDate((int)time));
-        }
     }
 }
