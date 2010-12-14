@@ -1,4 +1,5 @@
 #include "libgit2wrap.h"
+#include <assert.h>
 
 int wrapped_git_repository_open(git_repository** repo_out, const char* path)
 {
@@ -28,6 +29,8 @@ int wrapped_git_repository_lookup(git_object** obj_out, git_repository* repo, co
 	git_oid id;
 	git_odb *odb;
 	int error = GIT_SUCCESS;
+	git_tag* tag;
+	git_object* target;
 
 	odb = git_repository_database(repo);
 
@@ -39,11 +42,23 @@ int wrapped_git_repository_lookup(git_object** obj_out, git_repository* repo, co
 	if (error != GIT_SUCCESS)
 		return error;
 
-	if (type == GIT_OBJ_COMMIT)
+	if (git_object_type(*obj_out) == GIT_OBJ_COMMIT)
 	{
 		// Warning! Hacky... This forces the full parse of the commit :-/
 		const char *message;
 		message = git_commit_message((git_commit*)(*obj_out));
+	} 
+	else if (git_object_type(*obj_out) == GIT_OBJ_TAG)
+	{
+		tag = (git_tag*)(*obj_out);
+		target = (git_object*)git_tag_target(tag);
+
+		if (git_object_type(target) == GIT_OBJ_COMMIT)
+		{
+			// Warning! Hacky... This forces the full parse of the commit :-/
+			const char *message;
+			message = git_commit_message((git_commit*)(target));
+		}
 	}
 
 	return error;
@@ -83,7 +98,7 @@ int wrapped_git_odb_read_header(git_rawobj* obj_out, git_repository* repo, const
 	return error;
 }
 
-int wrapped_git_odb_read(git_rawobj* obj_out, git_repository* repo, const char *raw_id)
+int wrapped_git_odb_read(git_rawobj* obj_out, git_repository* repo, const char* raw_id)
 {
 	git_odb *odb;
 	git_oid id;
@@ -117,6 +132,13 @@ int wrapped_git_apply_tag(git_tag** tag_out, git_repository* repo, const char *r
 	if (error != GIT_SUCCESS)
 		return error;
 
+	if (git_object_type(target) == GIT_OBJ_COMMIT)
+	{
+		// Warning! Hacky... This forces the full parse of the commit :-/
+		const char *message;
+		message = git_commit_message((git_commit*)(target));
+	}
+
 	error = git_tag_new(&tag, repo);
 	if (error != GIT_SUCCESS)
 		return error;
@@ -124,7 +146,6 @@ int wrapped_git_apply_tag(git_tag** tag_out, git_repository* repo, const char *r
 	git_tag_set_tagger(tag, tagger_name, tagger_email, tagger_time);
 	git_tag_set_name(tag, tag_name);
 	git_tag_set_target(tag, target);
-	
 	git_tag_set_message(tag, tag_message);
 
 	error = git_object_write((git_object*)tag);

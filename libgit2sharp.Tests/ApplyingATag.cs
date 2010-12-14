@@ -18,14 +18,31 @@ namespace libgit2sharp.Tests
                 appliedTag = repo.ApplyTag(targetId, "tagged", "messaged", signature);
             }
 
+            var target = appliedTag.Target as Commit;
+            Assert.IsNotNull(target);
+
+            Assert.IsNotNull(target.Author);
+            Assert.IsNotNull(target.Committer);
+            Assert.IsNotNull(target.Message);
+
             Tag retrievedTag;
             using (var repo = new Repository(PathToRepository))
             {
                 retrievedTag = repo.Resolve<Tag>(appliedTag.Id);
             }
 
+            var target2 = retrievedTag.Target as Commit;
+            Assert.IsNotNull(target2);
+
+            Assert.IsNotNull(target2.Author);
+            Assert.IsNotNull(target2.Committer);
+            Assert.IsNotNull(target2.Message);
+
+
             Assert.AreEqual(appliedTag.Id, retrievedTag.Id);
             // TODO: Finalize comparison
+
+            //
         }
     }
 }
