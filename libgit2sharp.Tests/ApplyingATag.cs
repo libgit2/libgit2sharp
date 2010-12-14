@@ -17,7 +17,44 @@ namespace libgit2sharp.Tests
             {
                 Assert.Throws<ObjectNotFoundException>(() => repo.ApplyTag(invalidTargetId, "tagged", "messaged", _signature));
             }
+        }
 
+        [Test]
+        public void ShouldReturnATag()
+        {
+            const string targetId = "8496071c1b46c854b31185ea97743be6a8774479";
+
+            Tag appliedTag;
+
+            const string tagName = "tagged";
+            const string tagMessage = "messaged";
+
+            using (var repo = new Repository(PathToRepository))
+            {
+                appliedTag = repo.ApplyTag(targetId, tagName, tagMessage, _signature);
+            }
+
+            Assert.IsNotNull(appliedTag);
+            Assert.IsNotNullOrEmpty(appliedTag.Id);
+            Assert.AreEqual(ObjectType.Tag, appliedTag.Type);
+            Assert.AreEqual(targetId, appliedTag.Target.Id);
+            AssertSignature(_signature, appliedTag.Tagger);
+        }
+
+        private static void AssertSignature(Signature expected, Signature current)
+        {
+            Assert.AreEqual(expected.Email, current.Email);
+            Assert.AreEqual(expected.Name, current.Name);
+            Assert.AreEqual(((GitDate)expected.When).UnixTimeStamp, ((GitDate)current.When).UnixTimeStamp);
+            
+            // TODO: Uncomment this when timezone offset handling is implemented in libgit2
+            //Assert.AreEqual(expected.When, current.When);
+        }
+
+        [Test]
+        public void ShouldReturnATagEmbeddingTheTargetGitObject()
+        {
+            Assert.Ignore();
         }
 
         [Test]
