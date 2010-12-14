@@ -6,6 +6,7 @@
 
  - Handle timezone information in Commit and Person
  - Refactor the error handling (OutputResult -> Exceptions)
+ - Refactor GitObject based types building
 
 ### Wrapper
 
