@@ -6,7 +6,8 @@
 
  - Handle timezone information in Commit and Person
  - Refactor the error handling (OutputResult -> Exceptions)
-
+ - Launch Code Analysis
+ 
 ### Wrapper
 
  - Crying for refactoring
