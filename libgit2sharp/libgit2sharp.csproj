@@ -59,6 +59,7 @@
     <Compile Include="GitObject.cs" />
     <Compile Include="Header.cs" />
     <Compile Include="Wrapper\Constants.cs" />
+    <Compile Include="ObjectBuilder.cs" />
     <Compile Include="Wrapper\git_commit.cs" />
     <Compile Include="Wrapper\git_object.cs" />
     <Compile Include="Wrapper\git_odb_source.cs" />
@@ -70,6 +71,7 @@
     <Compile Include="Wrapper\git_tag.cs" />
     <Compile Include="Wrapper\git_tree.cs" />
     <Compile Include="Wrapper\git_vector.cs" />
+    <Compile Include="IBuilder.cs" />
     <Compile Include="Wrapper\LibGit2Api.cs" />
     <Compile Include="ObjectType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
