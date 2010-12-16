@@ -77,6 +77,11 @@ namespace libgit2sharp
             }
         }
 
+        public static string Init(string path, bool isBare)
+        {
+            throw new NotImplementedException();
+        }
+
         void IDisposable.Dispose()
         {
             _lifecycleManager.Dispose();
