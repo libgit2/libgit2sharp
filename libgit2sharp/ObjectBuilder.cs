@@ -67,7 +67,7 @@ namespace libgit2sharp
                 return null; // TODO: Fix full parsing of commits.
             }
 
-            var gitPerson = (git_person)Marshal.PtrToStructure(gitObjectPtr, typeof(git_person));
+            var gitPerson = (git_signature)Marshal.PtrToStructure(gitObjectPtr, typeof(git_signature));
             return new Signature(gitPerson.name, gitPerson.email, (DateTimeOffset)new GitDate((int)gitPerson.time, gitPerson.offset));
         }
 

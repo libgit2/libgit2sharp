@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 namespace libgit2sharp.Wrapper
 {
     [StructLayout(LayoutKind.Sequential)]
-    internal struct git_person
+    internal struct git_signature
     {
         [MarshalAs(UnmanagedType.LPStr)]
         public string name;
@@ -13,7 +13,6 @@ namespace libgit2sharp.Wrapper
         public string email;
 
         public ulong time;
-        
         public int offset;
     }
 }
