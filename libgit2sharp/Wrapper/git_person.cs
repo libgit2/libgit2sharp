@@ -13,5 +13,7 @@ namespace libgit2sharp.Wrapper
         public string email;
 
         public ulong time;
+        
+        public int offset;
     }
 }

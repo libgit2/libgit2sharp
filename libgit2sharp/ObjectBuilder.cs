@@ -43,8 +43,6 @@ namespace libgit2sharp
             Signature commitCommitter = BuildSignature(gitCommit.committer);
             var commitTree = (Tree)BuildTree(gitCommit.tree);
 
-            Debug.Assert(Equals((DateTimeOffset)new GitDate((Int32)(gitCommit.time)), commitCommitter.When));
-
             return new Commit(ObjectId.ToString(gitCommit.commit.id.id), commitAuthor, commitCommitter, gitCommit.message, gitCommit.message_short, commitTree);
         }
 
@@ -70,7 +68,7 @@ namespace libgit2sharp
             }
 
             var gitPerson = (git_person)Marshal.PtrToStructure(gitObjectPtr, typeof(git_person));
-            return new Signature(gitPerson.name, gitPerson.email, (DateTimeOffset)new GitDate((int)gitPerson.time));
+            return new Signature(gitPerson.name, gitPerson.email, (DateTimeOffset)new GitDate((int)gitPerson.time, gitPerson.offset));
         }
 
         private static GitObject BuildGitObject(IntPtr gitObjectPtr)

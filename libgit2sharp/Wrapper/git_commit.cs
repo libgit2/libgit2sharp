@@ -8,7 +8,6 @@ namespace libgit2sharp.Wrapper
     internal struct git_commit
     {
         public git_object commit;
-        public ulong time;
         public git_vector parents;
 
         public IntPtr tree;

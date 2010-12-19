@@ -106,7 +106,8 @@ namespace libgit2sharp
         {
             // TODO: To be refactored.
             IntPtr tag;
-            OperationResult result = LibGit2Api.wrapped_git_apply_tag(out tag, _lifecycleManager.RepositoryPtr, targetId, tagName, tagMessage, signature.Name, signature.Email, (ulong)((GitDate)signature.When).UnixTimeStamp);
+            var when = (GitDate)signature.When;
+            OperationResult result = LibGit2Api.wrapped_git_apply_tag(out tag, _lifecycleManager.RepositoryPtr, targetId, tagName, tagMessage, signature.Name, signature.Email, (ulong)when.UnixTimeStamp, when.TimeZoneOffset);
 
             switch (result)
             {

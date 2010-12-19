@@ -24,21 +24,13 @@ void wrapped_git_repository_free(git_repository* repo)
 	git_repository_free(repo);
 }
 
-int wrapped_git_repository_lookup(git_object** obj_out, git_repository* repo, const char* raw_id, git_otype type)
+int wrapped_git_repository_lookup__internal(git_object** obj_out, git_repository* repo, const git_oid* id, git_otype type)
 {
-	git_oid id;
-	git_odb *odb;
-	int error = GIT_SUCCESS;
 	git_tag* tag;
 	git_object* target;
+	int error = GIT_SUCCESS;
 
-	odb = git_repository_database(repo);
-
-	error = git_oid_mkstr(&id, raw_id);
-	if (error != GIT_SUCCESS)
-		return error;
-
-	error = git_repository_lookup(obj_out, repo, &id, type);
+	error = git_repository_lookup(obj_out, repo, id, type);
 	if (error != GIT_SUCCESS)
 		return error;
 
@@ -47,8 +39,10 @@ int wrapped_git_repository_lookup(git_object** obj_out, git_repository* repo, co
 		// Warning! Hacky... This forces the full parse of the commit :-/
 		const char *message;
 		message = git_commit_message((git_commit*)(*obj_out));
+		return error;
 	} 
-	else if (git_object_type(*obj_out) == GIT_OBJ_TAG)
+
+	if (git_object_type(*obj_out) == GIT_OBJ_TAG)
 	{
 		tag = (git_tag*)(*obj_out);
 		target = (git_object*)git_tag_target(tag);
@@ -60,6 +54,19 @@ int wrapped_git_repository_lookup(git_object** obj_out, git_repository* repo, co
 			message = git_commit_message((git_commit*)(target));
 		}
 	}
+
+	return error;
+}
+int wrapped_git_repository_lookup(git_object** obj_out, git_repository* repo, const char* raw_id, git_otype type)
+{
+	git_oid id;
+	int error = GIT_SUCCESS;
+
+	error = git_oid_mkstr(&id, raw_id);
+	if (error != GIT_SUCCESS)
+		return error;
+
+	error = wrapped_git_repository_lookup__internal(obj_out, repo, &id, type);
 
 	return error;
 }
@@ -117,33 +124,30 @@ int wrapped_git_odb_read(git_rawobj* obj_out, git_repository* repo, const char* 
 	return error;
 }
 
-int wrapped_git_apply_tag(git_tag** tag_out, git_repository* repo, const char *raw_target_id, const char *tag_name, const char *tag_message, const char *tagger_name, const char *tagger_email, time_t tagger_time)
+int wrapped_git_apply_tag(git_tag** tag_out, git_repository* repo, const char *raw_target_id, const char *tag_name, const char *tag_message, const char *tagger_name, const char *tagger_email, time_t tagger_time, int tagger_timezone_offset)
 {
 	git_oid id;
-	int error;
+	int error = GIT_SUCCESS;
 	git_object* target;
 	git_tag* tag;
+
+	const git_signature* tagger;
 
 	error = git_oid_mkstr(&id, raw_target_id);
 	if (error != GIT_SUCCESS)
 		return error;
 
-	error = git_repository_lookup(&target, repo, &id, GIT_OBJ_ANY);
+	error = wrapped_git_repository_lookup__internal(&target, repo, &id, GIT_OBJ_ANY);
 	if (error != GIT_SUCCESS)
 		return error;
-
-	if (git_object_type(target) == GIT_OBJ_COMMIT)
-	{
-		// Warning! Hacky... This forces the full parse of the commit :-/
-		const char *message;
-		message = git_commit_message((git_commit*)(target));
-	}
 
 	error = git_tag_new(&tag, repo);
 	if (error != GIT_SUCCESS)
 		return error;
 
-	git_tag_set_tagger(tag, tagger_name, tagger_email, tagger_time);
+	tagger = git_signature_new(tagger_name, tagger_email, tagger_time, tagger_timezone_offset);
+
+	git_tag_set_tagger(tag, tagger);
 	git_tag_set_name(tag, tag_name);
 	git_tag_set_target(tag, target);
 	git_tag_set_message(tag, tag_message);

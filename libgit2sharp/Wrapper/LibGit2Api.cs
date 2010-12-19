@@ -30,6 +30,6 @@ namespace libgit2sharp.Wrapper
 
         [DllImport(Libgit2)]
         // TODO: Try to use a git_person struct
-        public static extern OperationResult wrapped_git_apply_tag(out IntPtr tagPtr, [In] IntPtr repository, [In] string targetId, [In] string tagName, [In] string tagMessage, [In] string taggerName, [In] string taggerEmail, ulong taggerTime);
+        public static extern OperationResult wrapped_git_apply_tag(out IntPtr tagPtr, [In] IntPtr repository, [In] string targetId, [In] string tagName, [In] string tagMessage, [In] string taggerName, [In] string taggerEmail, [In] ulong taggerTime, [In] int taggerTimezoneOffset);
     }
 }
