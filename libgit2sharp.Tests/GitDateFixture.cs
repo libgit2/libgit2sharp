@@ -10,10 +10,10 @@ namespace libgit2sharp.Tests
         [TestCase(17)]
         public void UnixTimestampShouldBeCastIntoAUtcBasedDateTimeOffset(Int32 secondsSinceEpoch)
         {
-            var date = new GitDate(secondsSinceEpoch);
+            var date = new GitDate(secondsSinceEpoch, 0);
             Assert.AreEqual(0, date.TimeZoneOffset);
 
-            var when = (DateTimeOffset)date;
+            var when = date.ToDateTimeOffset();
 
             Assert.AreEqual(TimeSpan.Zero, when.Offset);
             Assert.AreEqual(DateTimeKind.Utc, when.UtcDateTime.Kind);
@@ -46,11 +46,11 @@ namespace libgit2sharp.Tests
         {
             var expectedDate = DateTimeOffset.Parse(expected);
 
-            var date = new GitDate(secondsSinceEpoch);
+            var date = new GitDate(secondsSinceEpoch, 0);
             Assert.AreEqual(0, date.TimeZoneOffset);
             Assert.AreEqual(secondsSinceEpoch, date.UnixTimeStamp);
 
-            var when = (DateTimeOffset)date;
+            var when = date.ToDateTimeOffset();
 
             Assert.AreEqual(expectedDate, when);
             Assert.AreEqual(TimeSpan.Zero, when.Offset);
@@ -65,7 +65,7 @@ namespace libgit2sharp.Tests
             Assert.AreEqual(offset, date.TimeZoneOffset);
             Assert.AreEqual(secondsSinceEpoch, date.UnixTimeStamp);
 
-            var when = (DateTimeOffset)date;
+            var when = date.ToDateTimeOffset();
 
             Assert.AreEqual(expectedDate, when);
             Assert.AreEqual(expectedDate.Offset, when.Offset);
@@ -82,7 +82,7 @@ namespace libgit2sharp.Tests
         {
             var when = DateTimeOffset.Parse(formattedDate);
 
-            var date = (GitDate)when;
+            var date = when.ToGitDate();
 
             Assert.AreEqual(expectedSeconds, date.UnixTimeStamp);
             Assert.AreEqual(expectedOffset, date.TimeZoneOffset);

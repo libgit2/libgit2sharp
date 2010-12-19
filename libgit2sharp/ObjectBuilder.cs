@@ -68,7 +68,7 @@ namespace libgit2sharp
             }
 
             var gitPerson = (git_signature)Marshal.PtrToStructure(gitObjectPtr, typeof(git_signature));
-            return new Signature(gitPerson.name, gitPerson.email, (DateTimeOffset)new GitDate((int)gitPerson.time, gitPerson.offset));
+            return new Signature(gitPerson.name, gitPerson.email, new GitDate((int)gitPerson.time, gitPerson.offset));
         }
 
         private static GitObject BuildGitObject(IntPtr gitObjectPtr)

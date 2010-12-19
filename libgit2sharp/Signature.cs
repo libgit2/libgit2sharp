@@ -11,6 +11,10 @@ namespace libgit2sharp
             When = when;
         }
 
+        public Signature(string name, string email, GitDate when) : this (name, email, when.ToDateTimeOffset())
+        {
+        }
+
         /// <summary>
         /// Full name
         /// </summary>

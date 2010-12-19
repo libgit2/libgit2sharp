@@ -42,6 +42,7 @@
   <ItemGroup>
     <Compile Include="Blob.cs" />
     <Compile Include="Commit.cs" />
+    <Compile Include="DateTimeOffsetExtensions.cs" />
     <Compile Include="Epoch.cs" />
     <Compile Include="GitDate.cs" />
     <Compile Include="ILifecycleManager.cs" />

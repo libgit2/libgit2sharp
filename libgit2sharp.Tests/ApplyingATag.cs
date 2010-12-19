@@ -45,10 +45,7 @@ namespace libgit2sharp.Tests
         {
             Assert.AreEqual(expected.Email, current.Email);
             Assert.AreEqual(expected.Name, current.Name);
-            Assert.AreEqual(((GitDate)expected.When).UnixTimeStamp, ((GitDate)current.When).UnixTimeStamp);
-            
-            // TODO: Uncomment this when timezone offset handling is implemented in libgit2
-            //Assert.AreEqual(expected.When, current.When);
+            Assert.AreEqual(expected.When.ToGitDate(), current.When.ToGitDate());
         }
 
         [Test]
