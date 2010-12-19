@@ -4,10 +4,10 @@
 
 ### Core
 
- - Handle timezone information in Commit and Person
  - Refactor the error handling (OutputResult -> Exceptions)
  - Launch Code Analysis
- 
+ - Implement Repository.Init() once it's available in libgit2
+
 ### Wrapper
 
  - Crying for refactoring
