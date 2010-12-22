@@ -6,7 +6,7 @@ namespace libgit2sharp
     {
         public Signature Author { get; private set; }
         public Signature Committer { get; private set; }
-        public DateTimeOffset when { get; private set; }
+        public DateTimeOffset When { get; private set; }
         public string Message { get; private set; }
         public string MessageShort { get; private set; }
         public Tree Tree { get; private set; }
@@ -16,7 +16,7 @@ namespace libgit2sharp
         {
             Author = author;
             Committer = committer;
-            when = committer.When;
+            When = committer.When;
             Message = message;
             MessageShort = messageShort;
             Tree = tree;
