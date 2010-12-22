@@ -43,7 +43,18 @@ namespace libgit2sharp
             Signature commitCommitter = BuildSignature(gitCommit.committer);
             var commitTree = (Tree)BuildTree(gitCommit.tree);
 
-            return new Commit(ObjectId.ToString(gitCommit.commit.id.id), commitAuthor, commitCommitter, gitCommit.message, gitCommit.message_short, commitTree);
+            var numberOfParents = (int)gitCommit.parents.length;
+            IList<GitObject> parents = new List<GitObject>(numberOfParents);
+
+            for (int i = 0; i < numberOfParents; i++)
+            {
+                IntPtr nextParentPtrPtr = IntPtr.Add(gitCommit.parents.contents, i * Marshal.SizeOf(typeof(IntPtr)));
+                IntPtr parentPtr = Marshal.ReadIntPtr(nextParentPtrPtr);
+                var parentGitObject = BuildGitObject(parentPtr);
+                parents.Add(parentGitObject);
+            }
+
+            return new Commit(ObjectId.ToString(gitCommit.commit.id.id), commitAuthor, commitCommitter, gitCommit.message, gitCommit.message_short, commitTree, parents);
         }
 
         private static GitObject BuildTree(IntPtr gitObjectPtr)

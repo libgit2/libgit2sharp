@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using NUnit.Framework;
 using System.IO;
 
@@ -155,6 +156,13 @@ namespace libgit2sharp.Tests
             Assert.AreEqual("test tag message\n", tag.Message);
             Assert.AreEqual(new GitDate(1288114383, -120), tag.Tagger.When.ToGitDate());
             Assert.AreEqual("5b5b025afb0b4c913b4c338a42934a3863bf3644", tag.Target.Id);
+            Assert.AreEqual(ObjectType.Commit, tag.Target.Type);
+
+            var targetCommit = (Commit) tag.Target;
+            Assert.AreEqual(1, targetCommit.Parents.Count());
+            Assert.AreEqual("8496071c1b46c854b31185ea97743be6a8774479", targetCommit.Parents.First().Id);
+            Assert.AreEqual(ObjectType.Commit, targetCommit.Parents.First().Type);
+
         }
 
         [TestCase("0c37a5391bbff43c37f0d0371823a5509eed5b1d", typeof(Tag))]
