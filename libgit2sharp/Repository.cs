@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using libgit2sharp.Wrapper;
 
@@ -34,6 +35,12 @@ namespace libgit2sharp
             _builder = new ObjectBuilder();
             _resolver = new ObjectResolver(_lifecycleManager.RepositoryPtr, this, _builder);
         }
+
+        public Branch Head { get { throw new NotImplementedException();} }
+
+        public IList<Ref> Tags { get { throw new NotImplementedException(); } }
+
+        public IList<Branch> Branches { get { throw new NotImplementedException(); } }
 
         public Header ReadHeader(string objectId)
         {

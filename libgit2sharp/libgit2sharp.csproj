@@ -41,12 +41,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Blob.cs" />
+    <Compile Include="Branch.cs" />
     <Compile Include="Commit.cs" />
     <Compile Include="DateTimeOffsetExtensions.cs" />
     <Compile Include="Epoch.cs" />
     <Compile Include="GitDate.cs" />
     <Compile Include="ILifecycleManager.cs" />
     <Compile Include="IObjectHeaderReader.cs" />
+    <Compile Include="Ref.cs" />
     <Compile Include="IResolver.cs" />
     <Compile Include="NotAValidRepositoryException.cs" />
     <Compile Include="ObjectId.cs" />
