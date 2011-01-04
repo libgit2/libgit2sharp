@@ -5,32 +5,25 @@ using NUnit.Framework;
 
 namespace libgit2sharp.Tests
 {
-    public class ReadWriteRepositoryFixtureBase : ReadOnlyRepositoryFixtureBase
+    public class ReadWriteRepositoryFixtureBase : RepositoryToBeCreatedFixtureBase
     {
-        private const string TestRepositoriesDirectoryName = "TestRepos";
-        private static readonly string _testRepositoriesDirectoryPath = RetrieveTestRepositoriesDirectory();
+        private const string readOnlyGitRepository = "../../Resources/testrepo.git";
+
         private string _pathToRepository;
         
-        protected override string PathToRepository { get { return _pathToRepository; } }
+        protected string PathToRepository { get { return _pathToRepository; } }
 
         [SetUp]
-        public void Setup()
+        public override void Setup()
         {
-            // Create temporary working directory
-            string workDirpath = Path.Combine(_testRepositoriesDirectoryPath, this.GetType().Name, Guid.NewGuid().ToString().Substring(0, 8));
+            base.Setup();
 
-            var source = new DirectoryInfo(base.PathToRepository);
-            var tempRepository = new DirectoryInfo(Path.Combine(workDirpath, source.Name));
+            var source = new DirectoryInfo(readOnlyGitRepository);
+            var tempRepository = new DirectoryInfo(Path.Combine(PathToTempDirectory, source.Name));
 
             CopyFilesRecursively(source, tempRepository);
 
             _pathToRepository = tempRepository.FullName;
-        }
-
-        [TestFixtureTearDown]
-        public void TestFixtureTearDown()
-        {
-            DeleteDirectory(_testRepositoriesDirectoryPath);
         }
 
         public static void CopyFilesRecursively(DirectoryInfo source, DirectoryInfo target)
@@ -41,43 +34,6 @@ namespace libgit2sharp.Tests
                 CopyFilesRecursively(dir, target.CreateSubdirectory(dir.Name));
             foreach (FileInfo file in source.GetFiles())
                 file.CopyTo(Path.Combine(target.FullName, file.Name));
-        }
-
-        static private string RetrieveTestRepositoriesDirectory()
-        {
-            return Path.Combine(RetrieveAssemblyDirectory(), TestRepositoriesDirectoryName);
-        }
-
-        static private string RetrieveAssemblyDirectory()
-        {
-            // From http://stackoverflow.com/questions/52797/c-how-do-i-get-the-path-of-the-assembly-the-code-is-in/283917#283917
-
-            string codeBase = Assembly.GetExecutingAssembly().CodeBase;
-            var uri = new UriBuilder(codeBase);
-            string path = Uri.UnescapeDataString(uri.Path);
-            return Path.GetDirectoryName(path);
-        }
-
-        private static void DeleteDirectory(string directoryPath)
-        {
-            // From http://stackoverflow.com/questions/329355/cannot-delete-directory-with-directory-deletepath-true/329502#329502
-
-            string[] files = Directory.GetFiles(directoryPath);
-            string[] dirs = Directory.GetDirectories(directoryPath);
-
-            foreach (string file in files)
-            {
-                File.SetAttributes(file, FileAttributes.Normal);
-                File.Delete(file);
-            }
-
-            foreach (string dir in dirs)
-            {
-                DeleteDirectory(dir);
-            }
-
-            File.SetAttributes(directoryPath, FileAttributes.Normal);
-            Directory.Delete(directoryPath, false);
         }
     }
 }

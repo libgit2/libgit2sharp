@@ -8,6 +8,9 @@ namespace libgit2sharp.Wrapper
         private const string Libgit2 = "libgit2wrap.dll";
 
         [DllImport(Libgit2)]
+        public static extern OperationResult wrapped_git_repository_init(out IntPtr repoPtr, [In] string path, [In] bool isBare);
+
+        [DllImport(Libgit2)]
         public static extern OperationResult wrapped_git_repository_open(out IntPtr repoPtr, [In] string path);
 
         [DllImport(Libgit2)]

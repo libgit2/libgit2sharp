@@ -1,6 +1,17 @@
 #include "libgit2wrap.h"
 #include <assert.h>
 
+int wrapped_git_repository_init(git_repository** repo_out, const char* path, unsigned int is_bare)
+{
+	git_repository *repo;
+	int error = git_repository_init(&repo, path, is_bare);
+	if (error < GIT_SUCCESS)
+		return error;
+
+	*repo_out = repo;
+	return error;
+}
+
 int wrapped_git_repository_open(git_repository** repo_out, const char* path)
 {
 	git_repository *repo;

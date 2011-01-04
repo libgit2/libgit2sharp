@@ -20,13 +20,28 @@ namespace libgit2sharp
             get { return _details; }
         }
 
+        public RepositoryLifecycleManager(string initializationDirectory, bool isBare)
+        {
+            #region Parameters Validation
+
+            if (string.IsNullOrEmpty("initializationDirectory"))
+            {
+                throw new ArgumentNullException("initializationDirectory");
+            }
+
+            #endregion Parameters Validation
+
+            OpenRepository(() => LibGit2Api.wrapped_git_repository_init(out _repositoryPtr, Posixify(initializationDirectory), isBare));
+        }
+
+
         public RepositoryLifecycleManager(string repositoryDirectory)
         {
             #region Parameters Validation
 
             if (string.IsNullOrEmpty(repositoryDirectory))
             {
-                throw new ArgumentNullException(repositoryDirectory);
+                throw new ArgumentNullException("repositoryDirectory");
             }
 
             #endregion Parameters Validation

@@ -86,7 +86,14 @@ namespace libgit2sharp
 
         public static string Init(string path, bool isBare)
         {
-            throw new NotImplementedException();
+            string repositoryDirectory;
+
+            using (var lifecycleManager = new RepositoryLifecycleManager(path, isBare))
+            {
+                repositoryDirectory = lifecycleManager.Details.RepositoryDirectory;
+            }
+
+            return repositoryDirectory;
         }
 
         void IDisposable.Dispose()

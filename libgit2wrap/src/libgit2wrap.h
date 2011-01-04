@@ -5,6 +5,7 @@
 
 GIT_BEGIN_DECL
 
+GIT_EXTERN(int) wrapped_git_repository_init(git_repository** repo_out, const char* path, unsigned int is_bare);
 GIT_EXTERN(int) wrapped_git_repository_open(git_repository** repo_out, const char* path);
 GIT_EXTERN(int) wrapped_git_repository_open2(git_repository** repo_out, const char *git_dir, const char *git_object_directory, const char *git_index_file, const char *git_work_tree);
 GIT_EXTERN(void) wrapped_git_repository_free(git_repository* repo);
