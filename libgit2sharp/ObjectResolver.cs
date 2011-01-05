@@ -8,7 +8,6 @@ namespace libgit2sharp
     public class ObjectResolver : IResolver
     {
         private readonly IntPtr _repositoryPtr = IntPtr.Zero;
-        private readonly IObjectHeaderReader _objectHeaderReader;
         private readonly IBuilder _builder;
 
         private static readonly IDictionary<ObjectType, Type> TypeMapper = new Dictionary<ObjectType, Type>
@@ -22,18 +21,13 @@ namespace libgit2sharp
         private static readonly IDictionary<Type, ObjectType> ReverseTypeMapper =
             TypeMapper.ToDictionary(kv => kv.Value, kv => kv.Key);
 
-        public ObjectResolver(IntPtr repositoryPtr, IObjectHeaderReader objectHeaderReader, IBuilder builder)
+        public ObjectResolver(IntPtr repositoryPtr, IBuilder builder)
         {
             #region Parameters Validation
-            
+
             if (repositoryPtr == IntPtr.Zero)
             {
                 throw new ArgumentNullException("repositoryPtr");
-            }
-
-            if (objectHeaderReader == null)
-            {
-                throw new ArgumentNullException("objectHeaderReader");
             }
 
             if (builder == null)
@@ -42,10 +36,9 @@ namespace libgit2sharp
             }
 
             #endregion
-            
+
             _repositoryPtr = repositoryPtr;
             _builder = builder;
-            _objectHeaderReader = objectHeaderReader;
         }
 
         public GitObject Resolve(string objectId)
@@ -65,30 +58,27 @@ namespace libgit2sharp
                 throw new ArgumentException("Only types deriving from GitObject are allowed.", "expectedType");
             }
 
-            Type outputType = expectedType;
-            if (outputType == typeof(GitObject))
+            var expected = git_otype.GIT_OBJ_ANY;
+
+            if (expectedType != typeof(GitObject))
             {
-                Type guessedType = GuessTypeToResolve(objectId);
-
-                if (guessedType == null)
-                {
-                    return null;
-                }
-
-                outputType = guessedType;
+                expected = (git_otype)ReverseTypeMapper[expectedType];
             }
 
-            ObjectType expectedObjectType = ReverseTypeMapper[outputType];
-
             IntPtr gitObjectPtr;
-            OperationResult result = LibGit2Api.wrapped_git_repository_lookup(out gitObjectPtr, _repositoryPtr,
-                                                                              objectId,
-                                                                              (git_otype)expectedObjectType);
+
+            git_otype retrieved;
+            OperationResult result = LibGit2Api.wrapped_git_repository_lookup(out gitObjectPtr, out retrieved, _repositoryPtr, objectId);
+
+            if (result == OperationResult.GIT_SUCCESS && expected != git_otype.GIT_OBJ_ANY && retrieved != expected)
+            {
+                result = OperationResult.GIT_ENOTFOUND;
+            }
 
             switch (result)
             {
                 case OperationResult.GIT_SUCCESS:
-                    return _builder.BuildFrom(gitObjectPtr, expectedObjectType);
+                    return _builder.BuildFrom(gitObjectPtr, (ObjectType)retrieved);
 
                 case OperationResult.GIT_ENOTFOUND:
                 case OperationResult.GIT_EINVALIDTYPE:
@@ -97,18 +87,6 @@ namespace libgit2sharp
                 default:
                     throw new Exception(Enum.GetName(typeof(OperationResult), result));
             }
-        }
-
-        private Type GuessTypeToResolve(string objectId)
-        {
-            Header header = _objectHeaderReader.ReadHeader(objectId);
-
-            if (header == null)
-            {
-                return null;
-            }
-
-            return TypeMapper[header.Type];
         }
     }
 }

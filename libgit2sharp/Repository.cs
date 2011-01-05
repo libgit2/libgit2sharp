@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using libgit2sharp.Wrapper;
 
 namespace libgit2sharp
 {
-    public class Repository : IResolver, IDisposable, IObjectHeaderReader
+    public class Repository : IResolver, IDisposable
     {
         private readonly IResolver _resolver;
         private readonly ILifecycleManager _lifecycleManager;
@@ -15,7 +14,6 @@ namespace libgit2sharp
         {
             get { return _lifecycleManager.Details; }
         }
-
 
         public Repository(string repositoryDirectory, string databaseDirectory, string index, string workingDirectory)
             : this(new RepositoryLifecycleManager(repositoryDirectory, databaseDirectory, index, workingDirectory))
@@ -33,7 +31,7 @@ namespace libgit2sharp
         {
             _lifecycleManager = lifecycleManager;
             _builder = new ObjectBuilder();
-            _resolver = new ObjectResolver(_lifecycleManager.RepositoryPtr, this, _builder);
+            _resolver = new ObjectResolver(_lifecycleManager.RepositoryPtr, _builder);
         }
 
         public Branch Head { get { throw new NotImplementedException();} }

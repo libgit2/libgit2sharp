@@ -47,7 +47,6 @@
     <Compile Include="Epoch.cs" />
     <Compile Include="GitDate.cs" />
     <Compile Include="ILifecycleManager.cs" />
-    <Compile Include="IObjectHeaderReader.cs" />
     <Compile Include="Ref.cs" />
     <Compile Include="IResolver.cs" />
     <Compile Include="NotAValidRepositoryException.cs" />

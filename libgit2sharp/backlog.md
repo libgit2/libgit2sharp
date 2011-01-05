@@ -4,7 +4,6 @@
 
 ### Core
 
- - Resolve: Get rid of read_header call() when type is not specified. Within the wrapper method, send the object type as an out param to help with the C -> C# marshaling
  - Refactor the error handling (OutputResult -> Exceptions)
  - Launch Code Analysis
  - Implement resolving of references once it's available in libgit2

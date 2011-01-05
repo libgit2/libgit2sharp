@@ -68,7 +68,7 @@ int wrapped_git_repository_lookup__internal(git_object** obj_out, git_repository
 
 	return error;
 }
-int wrapped_git_repository_lookup(git_object** obj_out, git_repository* repo, const char* raw_id, git_otype type)
+int wrapped_git_repository_lookup(git_object** obj_out, git_otype *type_out, git_repository* repo, const char* raw_id)
 {
 	git_oid id;
 	int error = GIT_SUCCESS;
@@ -77,8 +77,11 @@ int wrapped_git_repository_lookup(git_object** obj_out, git_repository* repo, co
 	if (error != GIT_SUCCESS)
 		return error;
 
-	error = wrapped_git_repository_lookup__internal(obj_out, repo, &id, type);
+	error = wrapped_git_repository_lookup__internal(obj_out, repo, &id, GIT_OBJ_ANY);
+	if (error < GIT_SUCCESS)
+		return error;
 
+	*type_out = git_object_type(*obj_out);
 	return error;
 }
 
