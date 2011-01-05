@@ -8,7 +8,6 @@
  - Refactor the error handling (OutputResult -> Exceptions)
  - Launch Code Analysis
  - Implement resolving of references once it's available in libgit2
- - Implement ObjectId.IsValid(sha1)
  - Port new OperationResult values
  - Use git_strerror() to feed raised exceptions with a meaningful message.
 

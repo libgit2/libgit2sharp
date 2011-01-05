@@ -27,5 +27,19 @@ namespace libgit2sharp.Tests
 
             CollectionAssert.AreEqual(id, rawId);
         }
+
+        [TestCase("0c37a5391bbff43c37f0d0371823a5509eed5b1d", true)]
+        [TestCase("16a0123456789abcdef4b775213c23a8bd74f5e0", true)]
+        [TestCase("16a0123456789abcdef4b775213c23a8bd74f5e", false)]
+        [TestCase("16a0123456789abcdef4b775213c23a8bd74f5e01", false)]
+        [TestCase("16=0123456789abcdef4b775213c23a8bd74f5e0", false)]
+        [TestCase("", false)]
+        [TestCase(null, false)]
+        public void IsValid(string objectId, bool expected)
+        {
+            bool result = ObjectId.IsValid(objectId);
+
+            Assert.AreEqual(expected, result);
+        }
     }
 }

@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Linq;
 using libgit2sharp.Wrapper;
 
 namespace libgit2sharp
 {
     public static class ObjectId
     {
-        private static readonly char[] HexDigits = "0123456789abcdef".ToCharArray();
+        private static readonly string HexDigits = "0123456789abcdef";
         private static readonly byte[] ReverseHexDigits = BuildReverseHexDigits();
 
         private static byte[] BuildReverseHexDigits()
@@ -26,9 +27,14 @@ namespace libgit2sharp
             return bytes;
         }
 
+        private static readonly Func<int, byte> ByteConverter = i => ReverseHexDigits[i - '0'];
+
         public static string ToString(byte[] id)
         {
-            Debug.Assert(id != null && id.Length == Constants.GIT_OID_RAWSZ);
+            if (id == null || id.Length != Constants.GIT_OID_RAWSZ)
+            {
+                throw new ArgumentException("id");
+            }
 
             // Inspired from http://stackoverflow.com/questions/623104/c-byte-to-hex-string/3974535#3974535
 
@@ -49,7 +55,10 @@ namespace libgit2sharp
 
         public static byte[] ToByteArray(string id)
         {
-            Debug.Assert(id != null && id.Length == Constants.GIT_OID_HEXSZ);
+            if (string.IsNullOrEmpty(id) || id.Length != Constants.GIT_OID_HEXSZ)
+            {
+                throw new ArgumentException("id");
+            }
 
             var bytes = new byte[Constants.GIT_OID_RAWSZ];
 
@@ -64,6 +73,19 @@ namespace libgit2sharp
             return bytes;
         }
 
-        private static readonly Func<int, byte> ByteConverter = i => ReverseHexDigits[i - '0'];
+        public static bool IsValid(string objectId)
+        {
+            if (string.IsNullOrEmpty(objectId))
+            {
+                return false;
+            }
+
+            if (objectId.Length != Constants.GIT_OID_HEXSZ)
+            {
+                return false;
+            }
+
+            return objectId.All(c => HexDigits.Contains(c.ToString()));
+        }
     }
 }
