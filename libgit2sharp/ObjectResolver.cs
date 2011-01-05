@@ -70,7 +70,9 @@ namespace libgit2sharp
             git_otype retrieved;
             OperationResult result = LibGit2Api.wrapped_git_repository_lookup(out gitObjectPtr, out retrieved, _repositoryPtr, objectId);
 
-            if (result == OperationResult.GIT_SUCCESS && expected != git_otype.GIT_OBJ_ANY && retrieved != expected)
+            var expectedTypeHasBeenRetrieved = expected == git_otype.GIT_OBJ_ANY || retrieved == expected;
+
+            if (result == OperationResult.GIT_SUCCESS && !expectedTypeHasBeenRetrieved)
             {
                 result = OperationResult.GIT_ENOTFOUND;
             }
