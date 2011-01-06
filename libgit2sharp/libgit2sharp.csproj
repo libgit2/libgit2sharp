@@ -41,7 +41,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Blob.cs" />
-    <Compile Include="Branch.cs" />
     <Compile Include="Commit.cs" />
     <Compile Include="DateTimeOffsetExtensions.cs" />
     <Compile Include="Epoch.cs" />

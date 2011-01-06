@@ -34,11 +34,10 @@ namespace libgit2sharp
             _resolver = new ObjectResolver(_lifecycleManager.RepositoryPtr, _builder);
         }
 
-        public Branch Head { get { throw new NotImplementedException();} }
-
-        public IList<Ref> Tags { get { throw new NotImplementedException(); } }
-
-        public IList<Branch> Branches { get { throw new NotImplementedException(); } }
+        public IList<Ref> RetrieveRefs()
+        {
+            throw new NotImplementedException();
+        } 
 
         public Header ReadHeader(string objectId)
         {
