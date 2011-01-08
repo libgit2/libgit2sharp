@@ -5,7 +5,7 @@ using libgit2sharp.Wrapper;
 
 namespace libgit2sharp
 {
-    public class ObjectResolver : IResolver
+    public class ObjectResolver : IObjectResolver
     {
         private readonly IntPtr _repositoryPtr = IntPtr.Zero;
         private readonly IBuilder _builder;

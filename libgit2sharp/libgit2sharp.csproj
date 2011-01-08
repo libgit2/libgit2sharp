@@ -47,7 +47,7 @@
     <Compile Include="GitDate.cs" />
     <Compile Include="ILifecycleManager.cs" />
     <Compile Include="Ref.cs" />
-    <Compile Include="IResolver.cs" />
+    <Compile Include="IObjectResolver.cs" />
     <Compile Include="NotAValidRepositoryException.cs" />
     <Compile Include="ObjectId.cs" />
     <Compile Include="ObjectNotFoundException.cs" />

@@ -4,9 +4,9 @@ using libgit2sharp.Wrapper;
 
 namespace libgit2sharp
 {
-    public class Repository : IResolver, IDisposable
+    public class Repository : IObjectResolver, IDisposable
     {
-        private readonly IResolver _resolver;
+        private readonly IObjectResolver _objectResolver;
         private readonly ILifecycleManager _lifecycleManager;
         private readonly IBuilder _builder;
 
@@ -31,7 +31,7 @@ namespace libgit2sharp
         {
             _lifecycleManager = lifecycleManager;
             _builder = new ObjectBuilder();
-            _resolver = new ObjectResolver(_lifecycleManager.RepositoryPtr, _builder);
+            _objectResolver = new ObjectResolver(_lifecycleManager.RepositoryPtr, _builder);
         }
 
         public IList<Ref> RetrieveRefs()
@@ -100,7 +100,7 @@ namespace libgit2sharp
 
         public object Resolve(string objectId, Type expectedType)
         {
-            return _resolver.Resolve(objectId, expectedType);
+            return _objectResolver.Resolve(objectId, expectedType);
         }
 
         public Tag ApplyTag(string targetId, string tagName, string tagMessage, Signature signature)

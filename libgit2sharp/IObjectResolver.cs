@@ -2,7 +2,7 @@
 
 namespace libgit2sharp
 {
-    public interface IResolver
+    public interface IObjectResolver
     {
         object Resolve(string objectId, Type expectedType);
     }
