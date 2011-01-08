@@ -41,16 +41,6 @@ namespace libgit2sharp
             _builder = builder;
         }
 
-        public GitObject Resolve(string objectId)
-        {
-            return Resolve<GitObject>(objectId);
-        }
-
-        public TType Resolve<TType>(string objectId)
-        {
-            return (TType)Resolve(objectId, typeof(TType));
-        }
-
         public object Resolve(string objectId, Type expectedType)
         {
             if (!typeof(GitObject).IsAssignableFrom(expectedType))

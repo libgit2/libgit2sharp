@@ -53,6 +53,7 @@
     <Compile Include="ObjectNotFoundException.cs" />
     <Compile Include="ObjectResolver.cs" />
     <Compile Include="RepositoryLifecycleManager.cs" />
+    <Compile Include="ResolverExtensions.cs" />
     <Compile Include="Signature.cs" />
     <Compile Include="RawObject.cs" />
     <Compile Include="RepositoryDetails.cs" />

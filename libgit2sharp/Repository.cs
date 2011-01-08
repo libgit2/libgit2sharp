@@ -98,16 +98,6 @@ namespace libgit2sharp
             _lifecycleManager.Dispose();
         }
 
-        public GitObject Resolve(string objectId)
-        {
-            return _resolver.Resolve(objectId);
-        }
-
-        public TType Resolve<TType>(string objectId)
-        {
-            return _resolver.Resolve<TType>(objectId);
-        }
-
         public object Resolve(string objectId, Type expectedType)
         {
             return _resolver.Resolve(objectId, expectedType);
