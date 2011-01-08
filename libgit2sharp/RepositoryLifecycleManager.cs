@@ -34,7 +34,6 @@ namespace libgit2sharp
             OpenRepository(() => LibGit2Api.wrapped_git_repository_init(out _repositoryPtr, Posixify(initializationDirectory), isBare));
         }
 
-
         public RepositoryLifecycleManager(string repositoryDirectory)
         {
             #region Parameters Validation
@@ -81,14 +80,13 @@ namespace libgit2sharp
 
         private static string Posixify(string path)
         {
-            if (Path.DirectorySeparatorChar == '/')
+            if (Path.DirectorySeparatorChar == Constants.DirectorySeparatorChar)
             {
                 return path;
             }
 
-            return path.Replace(Path.DirectorySeparatorChar, '/');
+            return path.Replace(Path.DirectorySeparatorChar, Constants.DirectorySeparatorChar);
         }
-
 
         private void OpenRepository(Func<OperationResult> opener)
         {
@@ -111,7 +109,7 @@ namespace libgit2sharp
                     throw new Exception(Enum.GetName(typeof(OperationResult), result));
             }
         }
-        
+
         private static RepositoryDetails BuildRepositoryDetails(IntPtr gitRepositoryPtr)
         {
             var gitRepo = (git_repository)Marshal.PtrToStructure(gitRepositoryPtr, typeof(git_repository));
@@ -126,13 +124,13 @@ namespace libgit2sharp
 
         protected virtual void Dispose(bool disposing)
         {
-            if (_repositoryPtr == (IntPtr)0)
+            if (_repositoryPtr == IntPtr.Zero)
             {
                 return;
             }
 
             LibGit2Api.wrapped_git_repository_free(_repositoryPtr);
-            _repositoryPtr = (IntPtr)0;
+            _repositoryPtr = IntPtr.Zero;
         }
 
         ~RepositoryLifecycleManager()
