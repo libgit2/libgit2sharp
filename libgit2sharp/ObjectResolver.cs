@@ -58,7 +58,7 @@ namespace libgit2sharp
             IntPtr gitObjectPtr;
 
             git_otype retrieved;
-            OperationResult result = LibGit2Api.wrapped_git_repository_lookup(out gitObjectPtr, out retrieved, _repositoryPtr, objectId);
+            OperationResult result = NativeMethods.wrapped_git_repository_lookup(out gitObjectPtr, out retrieved, _repositoryPtr, objectId);
 
             var expectedTypeHasBeenRetrieved = expected == git_otype.GIT_OBJ_ANY || retrieved == expected;
 

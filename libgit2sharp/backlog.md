@@ -5,7 +5,7 @@
 ### Core
 
  - Refactor the error handling (OutputResult -> Exceptions)
- - Launch Code Analysis
+ - Launch Code Analysis (Issues related to interop and marshaling will be worked on once we're able to succesffully exchange non ascii encoded data with libgit2)
  - Implement resolving of references once it's available in libgit2
  - Port new OperationResult values
  - Use git_strerror() to feed raised exceptions with a meaningful message.

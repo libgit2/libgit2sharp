@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace libgit2sharp.Wrapper
 {
-    internal static class LibGit2Api
+    internal static class NativeMethods
     {
         private const string Libgit2 = "libgit2wrap.dll";
 

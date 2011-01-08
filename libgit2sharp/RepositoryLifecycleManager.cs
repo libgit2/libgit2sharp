@@ -5,7 +5,7 @@ using libgit2sharp.Wrapper;
 
 namespace libgit2sharp
 {
-    public class RepositoryLifecycleManager : ILifecycleManager
+    public sealed class RepositoryLifecycleManager : ILifecycleManager
     {
         private IntPtr _repositoryPtr = IntPtr.Zero;
         private RepositoryDetails _details;
@@ -31,7 +31,7 @@ namespace libgit2sharp
 
             #endregion Parameters Validation
 
-            OpenRepository(() => LibGit2Api.wrapped_git_repository_init(out _repositoryPtr, Posixify(initializationDirectory), isBare));
+            OpenRepository(() => NativeMethods.wrapped_git_repository_init(out _repositoryPtr, Posixify(initializationDirectory), isBare));
         }
 
         public RepositoryLifecycleManager(string repositoryDirectory)
@@ -45,7 +45,7 @@ namespace libgit2sharp
 
             #endregion Parameters Validation
 
-            OpenRepository(() => LibGit2Api.wrapped_git_repository_open(out _repositoryPtr, Posixify(repositoryDirectory)));
+            OpenRepository(() => NativeMethods.wrapped_git_repository_open(out _repositoryPtr, Posixify(repositoryDirectory)));
         }
 
         public RepositoryLifecycleManager(string repositoryDirectory, string databaseDirectory, string index, string workingDirectory)
@@ -74,7 +74,7 @@ namespace libgit2sharp
 
             #endregion Parameters Validation
 
-            OpenRepository(() => LibGit2Api.wrapped_git_repository_open2(out _repositoryPtr, Posixify(repositoryDirectory),
+            OpenRepository(() => NativeMethods.wrapped_git_repository_open2(out _repositoryPtr, Posixify(repositoryDirectory),
                                                         Posixify(databaseDirectory), Posixify(index), Posixify(workingDirectory)));
         }
 
@@ -116,20 +116,20 @@ namespace libgit2sharp
             return gitRepo.Build();
         }
 
-        void IDisposable.Dispose()
+        public void Dispose()
         {
             Dispose(true);
             GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (_repositoryPtr == IntPtr.Zero)
             {
                 return;
             }
 
-            LibGit2Api.wrapped_git_repository_free(_repositoryPtr);
+            NativeMethods.wrapped_git_repository_free(_repositoryPtr);
             _repositoryPtr = IntPtr.Zero;
         }
 
