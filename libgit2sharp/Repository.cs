@@ -9,6 +9,7 @@ namespace libgit2sharp
         private readonly IObjectResolver _objectResolver;
         private readonly ILifecycleManager _lifecycleManager;
         private readonly IBuilder _builder;
+        private readonly IRefsResolver _refsResolver;
 
         public RepositoryDetails Details
         {
@@ -32,6 +33,7 @@ namespace libgit2sharp
             _lifecycleManager = lifecycleManager;
             _builder = new ObjectBuilder();
             _objectResolver = new ObjectResolver(_lifecycleManager.RepositoryPtr, _builder);
+            _refsResolver = new RefsResolver();
         }
 
         public IList<Ref> RetrieveRefs()
@@ -98,9 +100,20 @@ namespace libgit2sharp
             _lifecycleManager.Dispose();
         }
 
-        public object Resolve(string objectId, Type expectedType)
+        public object Resolve(string identifier, Type expectedType)
         {
-            return _objectResolver.Resolve(objectId, expectedType);
+            if (ObjectId.IsValid(identifier))
+            {
+                return _objectResolver.Resolve(identifier, expectedType);
+            }
+
+            Ref reference = _refsResolver.Resolve(identifier);
+            if (reference == null)
+            {
+                return null;
+            }
+
+            return _objectResolver.Resolve(reference.Target, expectedType);
         }
 
         public Tag ApplyTag(string targetId, string tagName, string tagMessage, Signature signature)
