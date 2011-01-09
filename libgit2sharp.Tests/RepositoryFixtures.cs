@@ -110,6 +110,35 @@ namespace libgit2sharp.Tests
         }
 
         [Test]
+        public void AnExistingCommitCanBeResolvedThroughChainedTags()
+        {
+            // Inspired from https://github.com/libgit2/libgit2/blob/44908fe763b1a2097b65c86130ac679c458df7d2/tests/t0801-readtag.c
+
+            const string tag1Id = "1b5afc78d2e84abf3018361245ce77079e978702";
+            const string tag2Id = "0c37a5391bbff43c37f0d0371823a5509eed5b1d";
+
+            using (var repo = new Repository(PathToRepository))
+            {
+                var tag1 = repo.Resolve<Tag>(tag1Id);
+                Assert.IsNotNull(tag1);
+                Assert.AreEqual("chained", tag1.Name);
+                Assert.AreEqual(tag1Id, tag1.Id);
+
+                Assert.IsNotNull(tag1.Target);
+                Assert.AreEqual(ObjectType.Tag, tag1.Target.Type);
+
+                var tag2 = (Tag) tag1.Target;
+                Assert.AreEqual(tag2Id, tag2.Id);
+
+                Assert.IsNotNull(tag2.Target);
+                Assert.AreEqual(ObjectType.Commit, tag2.Target.Type);
+
+                var commit = (Commit) tag2.Target;
+                Assert.IsNotNull(commit.Author);
+            }
+        }
+
+        [Test]
         public void AnExistingTagCanBeResolvedBySpecifyingItsExpectedType()
         {
             const string objectId = "0c37a5391bbff43c37f0d0371823a5509eed5b1d";
