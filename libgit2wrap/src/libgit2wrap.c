@@ -35,6 +35,36 @@ void wrapped_git_repository_free(git_repository* repo)
 	git_repository_free(repo);
 }
 
+static void force_commit_parse(git_commit* commit)
+{
+	// Warning! Hacky... This forces the full parse of the commit :-/
+	const char *message;
+	message = git_commit_message(commit);
+}
+
+static void cascade_force_full_commit_parse(git_object *object)
+{
+	switch(git_object_type(object))
+	{
+	case GIT_OBJ_TAG:
+		cascade_force_full_commit_parse((git_object*)git_tag_target((git_tag*)object));
+		break;
+
+	case GIT_OBJ_COMMIT:
+		force_commit_parse((git_commit *)object);
+		break;
+
+	case GIT_OBJ_BLOB:
+		/* Fallthrough */
+	case GIT_OBJ_TREE:
+		/* Fallthrough */
+	default:
+		break;
+	}
+
+	return;
+}
+
 int wrapped_git_repository_lookup__internal(git_object** obj_out, git_repository* repo, const git_oid* id, git_otype type)
 {
 	git_tag* tag;
@@ -45,26 +75,7 @@ int wrapped_git_repository_lookup__internal(git_object** obj_out, git_repository
 	if (error != GIT_SUCCESS)
 		return error;
 
-	if (git_object_type(*obj_out) == GIT_OBJ_COMMIT)
-	{
-		// Warning! Hacky... This forces the full parse of the commit :-/
-		const char *message;
-		message = git_commit_message((git_commit*)(*obj_out));
-		return error;
-	} 
-
-	if (git_object_type(*obj_out) == GIT_OBJ_TAG)
-	{
-		tag = (git_tag*)(*obj_out);
-		target = (git_object*)git_tag_target(tag);
-
-		if (git_object_type(target) == GIT_OBJ_COMMIT)
-		{
-			// Warning! Hacky... This forces the full parse of the commit :-/
-			const char *message;
-			message = git_commit_message((git_commit*)(target));
-		}
-	}
+	cascade_force_full_commit_parse(*obj_out);
 
 	return error;
 }
