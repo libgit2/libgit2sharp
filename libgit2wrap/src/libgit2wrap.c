@@ -67,11 +67,9 @@ static void cascade_force_full_commit_parse(git_object *object)
 
 int wrapped_git_repository_lookup__internal(git_object** obj_out, git_repository* repo, const git_oid* id, git_otype type)
 {
-	git_tag* tag;
-	git_object* target;
 	int error = GIT_SUCCESS;
 
-	error = git_repository_lookup(obj_out, repo, id, type);
+	error = git_object_lookup(obj_out, repo, id, type);
 	if (error != GIT_SUCCESS)
 		return error;
 

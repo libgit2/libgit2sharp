@@ -7,7 +7,7 @@ namespace LibGit2Sharp.Tests
 {
     public class ReadWriteRepositoryFixtureBase : RepositoryToBeCreatedFixtureBase
     {
-        private const string readOnlyGitRepository = "../../Resources/testrepo.git";
+        private const string readOnlyGitRepository = "./Resources/testrepo.git";
 
         private string _pathToRepository;
         

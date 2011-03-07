@@ -9,9 +9,9 @@ namespace LibGit2Sharp.Wrapper
         public uint _alloc_size;
 
         public IntPtr _cmp;
-        public IntPtr _srch;
         public IntPtr contents;
 
         public uint length;
+        public int sorted;
     }
 }
