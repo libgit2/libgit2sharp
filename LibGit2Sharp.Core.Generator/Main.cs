@@ -382,8 +382,8 @@ namespace LibGit2Sharp.Core.Generator
 			}
 		}
 
-		private static string SourceDirectory = "../libgit2/include/git2/";
-		private static string XmlOutput       = "../Resources/libgit2.xml";
+		private static string SourceDirectory = "../../libgit2/include/git2/";
+		private static string XmlOutput       = "../../Resources/libgit2.xml";
 
 		public static void Main(string[] args)
 		{
