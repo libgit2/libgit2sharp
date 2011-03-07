@@ -91,7 +91,7 @@ namespace LibGit2Sharp.Tests
         [Test]
         public void AnExistingTagCanBeResolvedWithoutSpecifyingItsExpectedType()
         {
-            const string objectId = "0c37a5391bbff43c37f0d0371823a5509eed5b1d";
+            const string objectId = "7b4384978d2493e851f9cca7858815fac9b10980";
             GitObject gitObject;
 
             using (var repo = new Repository(PathToRepository))
@@ -106,7 +106,7 @@ namespace LibGit2Sharp.Tests
 
             var tag = gitObject as Tag;
 
-            AssertTag0c37a53(objectId, tag);
+            AssertTag7b43849(objectId, tag);
         }
 
         [Test]
@@ -114,14 +114,14 @@ namespace LibGit2Sharp.Tests
         {
             // Inspired from https://github.com/libgit2/libgit2/blob/44908fe763b1a2097b65c86130ac679c458df7d2/tests/t0801-readtag.c
 
-            const string tag1Id = "1b5afc78d2e84abf3018361245ce77079e978702";
-            const string tag2Id = "0c37a5391bbff43c37f0d0371823a5509eed5b1d";
+            const string tag1Id = "b25fa35b38051e4ae45d4222e795f9df2e43f1d1";
+            const string tag2Id = "7b4384978d2493e851f9cca7858815fac9b10980";
 
             using (var repo = new Repository(PathToRepository))
             {
                 var tag1 = repo.Resolve<Tag>(tag1Id);
                 Assert.IsNotNull(tag1);
-                Assert.AreEqual("chained", tag1.Name);
+                Assert.AreEqual("test", tag1.Name);
                 Assert.AreEqual(tag1Id, tag1.Id);
 
                 Assert.IsNotNull(tag1.Target);
@@ -141,7 +141,7 @@ namespace LibGit2Sharp.Tests
         [Test]
         public void AnExistingTagCanBeResolvedBySpecifyingItsExpectedType()
         {
-            const string objectId = "0c37a5391bbff43c37f0d0371823a5509eed5b1d";
+            const string objectId = "7b4384978d2493e851f9cca7858815fac9b10980";
             Tag tag;
 
             using (var repo = new Repository(PathToRepository))
@@ -149,7 +149,7 @@ namespace LibGit2Sharp.Tests
                 tag = repo.Resolve<Tag>(objectId);
             }
 
-            AssertTag0c37a53(objectId, tag);
+            AssertTag7b43849(objectId, tag);
         }
 
         [Test]
@@ -175,26 +175,26 @@ namespace LibGit2Sharp.Tests
             Assert.Fail("To be finalized.");
         }
 
-        private static void AssertTag0c37a53(string objectId, Tag tag)
+        private static void AssertTag7b43849(string objectId, Tag tag)
         {
             Assert.IsNotNull(tag);
             Assert.AreEqual(objectId, tag.Id);
             Assert.AreEqual(ObjectType.Tag, tag.Type);
-            Assert.AreEqual("v1.0", tag.Name);
-            Assert.AreEqual("schacon@gmail.com", tag.Tagger.Email);
-            Assert.AreEqual("test tag message\n", tag.Message);
-            Assert.AreEqual(new GitDate(1288114383, -120), tag.Tagger.When.ToGitDate());
-            Assert.AreEqual("5b5b025afb0b4c913b4c338a42934a3863bf3644", tag.Target.Id);
+            Assert.AreEqual("e90810b", tag.Name);
+            Assert.AreEqual("tanoku@gmail.com", tag.Tagger.Email);
+            Assert.AreEqual("This is a very simple tag.\n", tag.Message);
+            Assert.AreEqual(new GitDate(1281578357, 120), tag.Tagger.When.ToGitDate());
+            Assert.AreEqual("e90810b8df3e80c413d903f631643c716887138d", tag.Target.Id);
             Assert.AreEqual(ObjectType.Commit, tag.Target.Type);
 
             var targetCommit = (Commit) tag.Target;
             Assert.AreEqual(1, targetCommit.Parents.Count());
-            Assert.AreEqual("8496071c1b46c854b31185ea97743be6a8774479", targetCommit.Parents.First().Id);
+            Assert.AreEqual("6dcf9bf7541ee10456529833502442f385010c3d", targetCommit.Parents.First().Id);
             Assert.AreEqual(ObjectType.Commit, targetCommit.Parents.First().Type);
 
         }
 
-        [TestCase("0c37a5391bbff43c37f0d0371823a5509eed5b1d", typeof(Tag))]
+        [TestCase("7b4384978d2493e851f9cca7858815fac9b10980", typeof(Tag))]
         [TestCase("8496071c1b46c854b31185ea97743be6a8774479", typeof(Commit))]
         public void ShouldResolveWhenSpecifyingAValidObjectIdAndAValidExpectedType(string objectId, Type expectedType)
         {
@@ -210,8 +210,8 @@ namespace LibGit2Sharp.Tests
             Assert.AreEqual(objectId, ((GitObject)(gitObject)).Id);
         }
 
-        [TestCase("0c37a5391bbff43c37f0d0371823a5509eed5b1d", typeof(Tag))]
-        [TestCase("8496071c1b46c854b31185ea97743be6a8774479", typeof(Commit))]
+        [TestCase("7b4384978d2493e851f9cca7858815fac9b10980", typeof(Tag))]
+        [TestCase("c47800c7266a2be04c571c04d5a6614691ea99bd", typeof(Commit))]
         public void ShouldResolveWhenSpecifyingAValidObjectId(string objectId, Type expectedType)
         {
             object gitObject;
@@ -238,7 +238,7 @@ namespace LibGit2Sharp.Tests
             Assert.IsNull(gitObject);
         }
 
-        [TestCase("0c37a5391bbff43c37f0d0371823a5509eed5b1d", typeof(Commit))]
+        [TestCase("7b4384978d2493e851f9cca7858815fac9b10980", typeof(Commit))]
         public void ShouldNotResolveWhenSpecifyingAValidObjectIdAndAnInvalidExpectedType(string objectId, Type expectedType)
         {
             object gitObject;
