@@ -48,7 +48,7 @@ namespace LibGit2Sharp
 
             for (int i = 0; i < numberOfParents; i++)
             {
-                IntPtr nextParentPtrPtr = IntPtr.Add(gitCommit.parents.contents, i * Marshal.SizeOf(typeof(IntPtr)));
+                IntPtr nextParentPtrPtr = new IntPtr(gitCommit.parents.contents.ToInt64() + i * Marshal.SizeOf(typeof(IntPtr)));
                 IntPtr parentPtr = Marshal.ReadIntPtr(nextParentPtrPtr);
                 var parentGitObject = BuildGitObject(parentPtr);
                 parents.Add(parentGitObject);
