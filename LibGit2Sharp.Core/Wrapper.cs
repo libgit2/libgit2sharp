@@ -122,12 +122,11 @@ namespace LibGit2Sharp.Core
 
 	unsafe internal struct git_vector
 	{
-		public int _alloc_size;
+		public uint _alloc_size;
 		public void *_cmp;
-		public void *_srch;
-		
 		public void **contents;
-		public int length;
+		public uint length;
+		public int sorted;
 	};
 
 	unsafe internal struct git_index
