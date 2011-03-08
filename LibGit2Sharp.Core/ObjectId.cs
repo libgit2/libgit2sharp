@@ -80,8 +80,9 @@ namespace LibGit2Sharp.Core
 		{
 			fixed (git_oid *poid = &oid)
 			{
-				IntPtr ptr = Marshal.AllocHGlobal(HexSize);
-				return NativeMethods.git_oid_to_string((sbyte *)ptr.ToPointer(), HexSize, poid);
+				// +1 for holding the string terminator
+				IntPtr ptr = Marshal.AllocHGlobal(HexSize + 1);
+				return NativeMethods.git_oid_to_string((sbyte *)ptr.ToPointer(), HexSize + 1, poid);
 			}
 		}
 	}
