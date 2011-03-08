@@ -98,12 +98,26 @@ namespace LibGit2Sharp.Core
 		public Tree Tree
 		{
 			get {
-				void *tree = NativeMethods.git_commit_tree(commit);
+				git_tree *tree = NativeMethods.git_commit_tree(commit);
 
 				if (tree == null)
 					return null;
 
-				return new Tree((git_object *)tree);
+				return new Tree(tree);
+			}
+		}
+		
+		public Signature Author
+		{
+			get {
+				return new Signature(commit->author);
+			}
+		}
+		
+		public Signature Committer
+		{
+			get {
+				return new Signature(commit->committer);
 			}
 		}
 	}

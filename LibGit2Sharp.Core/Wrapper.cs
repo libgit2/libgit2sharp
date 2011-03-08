@@ -162,9 +162,9 @@ namespace LibGit2Sharp.Core
 	{
 		public git_object obj;
 		public git_vector parents;
-		public void *tree;
-		public void *author;
-		public void *committer;
+		public git_tree *tree;
+		public git_signature *author;
+		public git_signature *committer;
 		public sbyte *message;
 		public sbyte *message_short;
 		public int full_parse;
