@@ -36,6 +36,7 @@ namespace LibGit2Sharp.Core
 		internal GitObject(git_object *obj)
 		{
 			this.obj = obj;
+			Pointer = new IntPtr(obj);
 		}
 
 		internal GitObject(Repository repository, git_otype type)
@@ -48,6 +49,8 @@ namespace LibGit2Sharp.Core
 			}
 			GitError.Check(ret);
 		}
+		
+		public IntPtr Pointer { get; protected set; }
 
 		public ObjectId ObjectId
 		{
