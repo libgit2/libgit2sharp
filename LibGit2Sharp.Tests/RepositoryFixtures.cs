@@ -106,7 +106,7 @@ namespace LibGit2Sharp.Tests
 
             var tag = gitObject as Tag;
 
-            AssertTag7b43849(objectId, tag);
+            AssertTag_7b43849(objectId, tag);
         }
 
         [Test]
@@ -149,14 +149,13 @@ namespace LibGit2Sharp.Tests
                 tag = repo.Resolve<Tag>(objectId);
             }
 
-            AssertTag7b43849(objectId, tag);
+            AssertTag_7b43849(objectId, tag);
         }
 
         [Test]
-        [Ignore]
         public void AnExistingCommitCanBeResolvedBySpecifyingItsExpectedType()
         {
-            const string objectId = "36060c58702ed4c2a40832c51758d5344201d89a";
+            const string objectId = "a4a7dce85cf63874e984719f4fdd239f5145052f";
             Commit commit;
 
             using (var repo = new Repository(PathToRepository))
@@ -164,18 +163,24 @@ namespace LibGit2Sharp.Tests
                 commit = repo.Resolve<Commit>(objectId);
             }
 
-            AssertCommit36060c5(objectId, commit);
+            AssertCommit_a4a7dce(objectId, commit);
         }
 
-        private static void AssertCommit36060c5(string objectId, Commit commit)
+        private static void AssertCommit_a4a7dce(string objectId, Commit commit)
         {
             Assert.IsNotNull(commit);
             Assert.AreEqual(objectId, commit.Id);
             Assert.AreEqual(ObjectType.Commit, commit.Type);
-            Assert.Fail("To be finalized.");
+            Assert.AreEqual("schacon@gmail.com", commit.Author.Email);
+            Assert.AreEqual("Scott Chacon", commit.Committer.Name);
+            Assert.AreEqual("Merge branch 'master' into br2\n", commit.Message);
+            Assert.AreEqual("Merge branch 'master' into br2", commit.MessageShort);
+            Assert.AreEqual(new GitDate(1274814023, -420), commit.Committer.When.ToGitDate());
+            Assert.AreEqual(2, commit.Parents.Count());
+
         }
 
-        private static void AssertTag7b43849(string objectId, Tag tag)
+        private static void AssertTag_7b43849(string objectId, Tag tag)
         {
             Assert.IsNotNull(tag);
             Assert.AreEqual(objectId, tag.Id);
