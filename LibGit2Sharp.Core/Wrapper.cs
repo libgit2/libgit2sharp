@@ -28,7 +28,8 @@ using System.Runtime.InteropServices;
 
 namespace LibGit2Sharp.Core
 {
-    internal enum git_rtype : int {
+    public enum git_rtype : int
+    {
         GIT_REF_INVALID  = -1,
         GIT_REF_OID      =  1,
         GIT_REF_SYMBOLIC =  2,

@@ -64,6 +64,13 @@ namespace LibGit2Sharp.Core
             GitError.Check(ret);
         }
 
+        public git_rtype Type
+        {
+            get {
+                return NativeMethods.git_reference_type(reference);
+            }
+        }
+
         internal static Reference Create(git_reference *reference)
         {
             switch (NativeMethods.git_reference_type(reference))
