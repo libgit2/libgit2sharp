@@ -55,6 +55,20 @@ namespace LibGit2Sharp.Core
 				return new string(signature->email);
 			}
 		}
+		
+		public int Time
+		{
+			get {
+				return signature->time;
+			}
+		}
+		
+		public int Offset
+		{
+			get {
+				return signature->offset;
+			}
+		}
 
 		public Signature Clone()
 		{

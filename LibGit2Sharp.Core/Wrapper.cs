@@ -76,6 +76,7 @@ namespace LibGit2Sharp.Core
 		public sbyte *name;
 		public sbyte *email;
 		public int time;
+		public int offset;
 	}
 
 	unsafe internal struct git_index_entry
