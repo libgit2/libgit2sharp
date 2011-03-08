@@ -62,7 +62,7 @@
   <ItemGroup>
     <ProjectReference Include="..\LibGit2Sharp\LibGit2Sharp.csproj">
       <Project>{EE6ED99F-CB12-4683-B055-D28FC7357A34}</Project>
-      <Name>libgit2net</Name>
+      <Name>LibGit2Sharp</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
