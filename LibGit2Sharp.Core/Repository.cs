@@ -38,13 +38,21 @@ namespace LibGit2Sharp.Core
 
 		public Repository(string path)
 		{
-			int ret = NativeMethods.git_repository_open(ref repository, path);
+			int ret;
+			fixed (git_repository **repo = &repository)
+			{
+				ret = NativeMethods.git_repository_open(repo, path);
+			}
 			GitError.Check(ret);
 		}
 		
 		public Repository(string gitDir, string objcetDirectory, string indexFile, string workTree)
 		{
-			int ret = NativeMethods.git_repository_open2(ref repository, gitDir, objcetDirectory, indexFile, workTree);
+			int ret;
+			fixed (git_repository **repo = &repository)
+			{
+				ret = NativeMethods.git_repository_open2(repo, gitDir, objcetDirectory, indexFile, workTree);
+			}
 			GitError.Check(ret);
 		}
 
@@ -52,7 +60,7 @@ namespace LibGit2Sharp.Core
 		{
 			git_repository *repo = null;
 
-			int ret = NativeMethods.git_repository_init(ref repo, path, (uint)(bare ? 1 : 0));
+			int ret = NativeMethods.git_repository_init(&repo, path, (uint)(bare ? 1 : 0));
 			GitError.Check(ret);
 
 			return new Repository(repo);
@@ -67,7 +75,7 @@ namespace LibGit2Sharp.Core
 		{
 			get {
 				git_index *index = null;
-				int ret = NativeMethods.git_repository_index(ref index, repository);
+				int ret = NativeMethods.git_repository_index(&index, repository);
 				GitError.Check(ret);
 				NativeMethods.git_index_read(index);
 				return new Index(index);
@@ -108,7 +116,7 @@ namespace LibGit2Sharp.Core
 		{
 			git_reference *reference = null;
 
-			int ret = NativeMethods.git_reference_lookup(ref reference, repository, name);
+			int ret = NativeMethods.git_reference_lookup(&reference, repository, name);
 			GitError.Check(ret);
 
 			if (reference == null)
@@ -120,7 +128,7 @@ namespace LibGit2Sharp.Core
 		public Index OpenIndex()
 		{
 			git_index *index = null;
-			int ret = NativeMethods.git_index_open_inrepo(ref index, repository);
+			int ret = NativeMethods.git_index_open_inrepo(&index, repository);
 			GitError.Check(ret);
 
 			if (index == null)

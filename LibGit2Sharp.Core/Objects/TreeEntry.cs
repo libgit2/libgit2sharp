@@ -71,7 +71,7 @@ namespace LibGit2Sharp.Core
 		public GitObject GetObject()
 		{
 			git_object *obj = null;
-			NativeMethods.git_tree_entry_2object(ref obj, entry);
+			NativeMethods.git_tree_entry_2object(&obj, entry);
 
 			if (obj == null)
 				return null;
@@ -82,7 +82,7 @@ namespace LibGit2Sharp.Core
 		public T Get<T>() where T : GitObject
 		{
 			git_object *obj = null;
-			NativeMethods.git_tree_entry_2object(ref obj, entry);
+			NativeMethods.git_tree_entry_2object(&obj, entry);
 
 			if (obj == null)
 				return default(T);

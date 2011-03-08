@@ -40,7 +40,12 @@ namespace LibGit2Sharp.Core
 
 		internal GitObject(Repository repository, git_otype type)
 		{
-			int ret = NativeMethods.git_object_new(ref obj, repository.repository, type);
+			int ret;
+			
+			fixed (git_object **obj = &this.obj)
+			{
+				ret = NativeMethods.git_object_new(obj, repository.repository, type);
+			}
 			GitError.Check(ret);
 		}
 

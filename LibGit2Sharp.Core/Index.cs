@@ -40,7 +40,11 @@ namespace LibGit2Sharp.Core
 
 		public Index(string indexPath)
 		{
-			int ret = NativeMethods.git_index_open_bare(ref index, indexPath);
+			int ret;
+			fixed (git_index **pindex = &index)
+			{
+				ret = NativeMethods.git_index_open_bare(pindex, indexPath);
+			}
 			GitError.Check(ret);
 		}
 

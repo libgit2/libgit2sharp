@@ -120,14 +120,6 @@ namespace LibGit2Sharp.Core.Generator
 				break;
 			}
 
-			if (Pointer == 2)
-			{
-				Pointer--;
-				string ret = ToString();
-				Pointer++;
-				return "ref " + ret;
-			}
-
 			Object = obj;
 			return ToString();
 		}

@@ -39,7 +39,7 @@ namespace LibGit2Sharp.Core
 		{
 			git_reference *resolved_ref = null;
 
-			int ret = NativeMethods.git_reference_resolve(ref resolved_ref, reference);
+			int ret = NativeMethods.git_reference_resolve(&resolved_ref, reference);
 			GitError.Check(ret);
 
 			return Reference.Create(resolved_ref) as ObjectIdReference;
@@ -89,10 +89,14 @@ namespace LibGit2Sharp.Core
 
 		public SymbolicReference(Repository repository, string name, string target)
 		{
-			int ret = NativeMethods.git_reference_create_symbolic(ref reference, repository.repository, name, target);
+			int ret;
+			fixed (git_reference **reference = &this.reference)
+			{
+				ret = NativeMethods.git_reference_create_symbolic(reference, repository.repository, name, target);
+			}
 			GitError.Check(ret);
-			if (reference == null)
-				throw new Exception();
+			if (this.reference == null)
+				throw new GitException();
 		}
 
 		public string Target
