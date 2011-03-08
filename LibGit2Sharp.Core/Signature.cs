@@ -41,7 +41,10 @@ namespace LibGit2Sharp.Core
             : this(NativeMethods.git_signature_new(name, email, 0, 0))
         {
         }
-        
+
+        // indicates if it is managed by a repository or not
+        internal bool Managed { get; set; }
+
         public string Name
         {
             get {
@@ -74,12 +77,18 @@ namespace LibGit2Sharp.Core
         {
             return new Signature(NativeMethods.git_signature_dup(signature));
         }
+
+        public void Free()
+        {
+            NativeMethods.git_signature_free(signature);
+            signature = null;
+        }
     
         #region IDisposable implementation
         public void Dispose()
         {
-            if (signature == null)
-                NativeMethods.git_signature_free(signature);
+            if (!Managed)
+                Free();
         }
         #endregion
     }
