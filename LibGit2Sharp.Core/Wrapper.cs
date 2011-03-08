@@ -65,6 +65,9 @@ namespace LibGit2Sharp.Core
 
 	unsafe internal struct git_rawobj
 	{
+		public IntPtr data;
+		public uint len1;
+		public git_otype type;
 	}
 
 	unsafe internal struct git_reference

@@ -55,6 +55,8 @@
     <Compile Include="Objects\Tag.cs" />
     <Compile Include="Exceptions\InvalidReferenceException.cs" />
     <Compile Include="Exceptions\GitException.cs" />
+    <Compile Include="RawObject.cs" />
+    <Compile Include="Database.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
