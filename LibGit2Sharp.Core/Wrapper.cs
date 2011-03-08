@@ -182,15 +182,19 @@ namespace LibGit2Sharp.Core
 
 	unsafe internal struct git_repository
 	{
-		public void *git_odb;
-		public void *index;
-		public void *objects;
+		public git_odb *git_odb;
+		public git_index *index;
 		
-		public void *references;
-		public char *path_repository;
-		public char *path_index;
-  		public char *path_odb;
-  		public char *path_workdir;
+		public void *objects;
+		public git_vector memory_objects;
+		
+		public void *pointer1;
+		public void *pointer2;
+		
+		public sbyte *path_repository;
+		public sbyte *path_index;
+  		public sbyte *path_odb;
+  		public sbyte *path_workdir;
 		
 		public int is_bare;
 	}

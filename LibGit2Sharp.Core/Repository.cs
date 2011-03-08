@@ -142,6 +142,56 @@ namespace LibGit2Sharp.Core
 			Blob.WriteFile(writtenId, this, path);
 		}
 
+		public string RepositoryDirectory
+		{
+			get {
+				if (repository->path_repository == null)
+					return string.Empty;
+				return new string(repository->path_repository);
+			}
+		}
+		
+		public string IndexFile
+		{
+			get {
+				if (repository->path_index == null)
+					return string.Empty;
+				return new string(repository->path_index);
+			}
+		}
+		
+		public string DatabaseDirectory
+		{
+			get {
+				if (repository->path_odb == null)
+					return string.Empty;
+				return new string(repository->path_odb);
+			}
+		}
+		
+		public string WorkingDirectory
+		{
+			get {
+				if (repository->path_workdir == null)
+					return string.Empty;
+				return new string(repository->path_workdir);
+			}
+		}
+		
+		public bool IsBare
+		{
+			get {
+				return (repository->is_bare > 0);
+			}
+		}
+		
+		public Database Database
+		{
+			get {
+				return new Database(NativeMethods.git_repository_database(repository));
+			}
+		}
+		
 		#region IDisposable implementation
 		public void Dispose()
 		{
