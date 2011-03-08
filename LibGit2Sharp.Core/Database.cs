@@ -59,8 +59,7 @@ namespace LibGit2Sharp.Core
         public RawObject ReadHeader(ObjectId id)
         {
             git_rawobj ro = new git_rawobj();
-    
-            int ret = NativeMethods.git_odb_read_header(ref ro, database, &id.oid);
+            int ret = NativeMethods.git_odb_read_header(&ro, database, &id.oid);
             GitError.Check(ret);
             return new RawObject(ro);
         }
