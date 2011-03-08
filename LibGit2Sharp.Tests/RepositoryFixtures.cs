@@ -188,7 +188,10 @@ namespace LibGit2Sharp.Tests
             Assert.AreEqual("e90810b", tag.Name);
             Assert.AreEqual("tanoku@gmail.com", tag.Tagger.Email);
             Assert.AreEqual("This is a very simple tag.\n", tag.Message);
+            Assert.IsNotNull(tag.Tagger);
+            Assert.IsNotNull(tag.Tagger.When);
             Assert.AreEqual(new GitDate(1281578357, 120), tag.Tagger.When.ToGitDate());
+            Assert.IsNotNull(tag.Target);
             Assert.AreEqual("e90810b8df3e80c413d903f631643c716887138d", tag.Target.Id);
             Assert.AreEqual(ObjectType.Commit, tag.Target.Type);
 
