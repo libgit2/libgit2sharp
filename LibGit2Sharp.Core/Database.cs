@@ -27,43 +27,42 @@ using System;
 
 namespace LibGit2Sharp.Core
 {
-	unsafe public class Database
-	{
-		internal git_odb *database;
-		
-		internal Database(git_odb *database)
-		{
-			this.database = database;
-		}
-		
-		public Database(string objectsDir)
-		{
-			int ret;
-			fixed (git_odb **database = &this.database)
-			{
-				ret = NativeMethods.git_odb_open(database, objectsDir);
-			}
-			GitError.Check(ret);
-		}
-		
-		public bool Exists(ObjectId id)
-		{
-			return (NativeMethods.git_odb_exists(database, &id.oid) > 0);
-		}
-
-		public void Close()
-		{
-			NativeMethods.git_odb_close(database);
-		}
-		
-		public RawObject ReadHeader(ObjectId id)
-		{
-			git_rawobj ro = new git_rawobj();
-			
-			int ret = NativeMethods.git_odb_read_header(ref ro, database, &id.oid);
-			GitError.Check(ret);
-			return new RawObject(ro);
-		}
-	}
+    unsafe public class Database
+    {
+        internal git_odb *database;
+    
+        internal Database(git_odb *database)
+        {
+            this.database = database;
+        }
+    
+        public Database(string objectsDir)
+        {
+            int ret;
+            fixed (git_odb **database = &this.database)
+            {
+                ret = NativeMethods.git_odb_open(database, objectsDir);
+            }
+            GitError.Check(ret);
+        }
+    
+        public bool Exists(ObjectId id)
+        {
+            return (NativeMethods.git_odb_exists(database, &id.oid) > 0);
+        }
+    
+        public void Close()
+        {
+            NativeMethods.git_odb_close(database);
+        }
+    
+        public RawObject ReadHeader(ObjectId id)
+        {
+            git_rawobj ro = new git_rawobj();
+    
+            int ret = NativeMethods.git_odb_read_header(ref ro, database, &id.oid);
+            GitError.Check(ret);
+            return new RawObject(ro);
+        }
+    }
 }
-

@@ -114,16 +114,16 @@ namespace LibGit2Sharp.Core
 		{
 			switch (type)
 			{
-			case git_otype.GIT_OBJ_BLOB:
-				return typeof(Blob);
-			case git_otype.GIT_OBJ_COMMIT:
-				return typeof(Commit);
-			case git_otype.GIT_OBJ_TREE:
-				return typeof(Tree);
-			case git_otype.GIT_OBJ_TAG:
-				return typeof(Tag);
-			default:
-				return null;
+    			case git_otype.GIT_OBJ_BLOB:
+    				return typeof(Blob);
+    			case git_otype.GIT_OBJ_COMMIT:
+    				return typeof(Commit);
+    			case git_otype.GIT_OBJ_TREE:
+    				return typeof(Tree);
+    			case git_otype.GIT_OBJ_TAG:
+    				return typeof(Tag);
+    			default:
+    				return null;
 			}
 		}
 
@@ -136,18 +136,18 @@ namespace LibGit2Sharp.Core
 		{
 			switch (NativeMethods.git_object_type(obj))
 			{
-			case git_otype.GIT_OBJ_BAD:
-				throw new ArgumentException("The object must not be a bad object");
-			case git_otype.GIT_OBJ_BLOB:
-				return new Blob(obj);
-			case git_otype.GIT_OBJ_COMMIT:
-				return new Commit(obj);
-			case git_otype.GIT_OBJ_TREE:
-				return new Tree(obj);
-			case git_otype.GIT_OBJ_TAG:
-				return new Tag(obj);
-			default:
-				return new GitObject(obj);
+    			case git_otype.GIT_OBJ_BAD:
+    				throw new ArgumentException("The object must not be a bad object");
+    			case git_otype.GIT_OBJ_BLOB:
+    				return new Blob(obj);
+    			case git_otype.GIT_OBJ_COMMIT:
+    				return new Commit(obj);
+    			case git_otype.GIT_OBJ_TREE:
+    				return new Tree(obj);
+    			case git_otype.GIT_OBJ_TAG:
+    				return new Tag(obj);
+    			default:
+    				return new GitObject(obj);
 			}
 		}
 

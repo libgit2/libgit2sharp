@@ -30,372 +30,372 @@ using System.Runtime.InteropServices;
 
 namespace LibGit2Sharp.Core
 {
-	unsafe internal class NativeMethods
-	{
-		private const string libgit2 = "libgit2.dll";
+    unsafe internal class NativeMethods
+    {
+        private const string libgit2 = "libgit2.dll";
 
 
-		[DllImport(libgit2)]
-		public static extern int git_blob_set_rawcontent_fromfile(git_blob *blob, string filename);
+        [DllImport(libgit2)]
+        public static extern int git_blob_set_rawcontent_fromfile(git_blob *blob, string filename);
 
-		[DllImport(libgit2)]
-		public static extern int git_blob_set_rawcontent(git_blob *blob, void *buffer, uint len);
+        [DllImport(libgit2)]
+        public static extern int git_blob_set_rawcontent(git_blob *blob, void *buffer, uint len);
 
-		[DllImport(libgit2)]
-		public static extern sbyte *git_blob_rawcontent(git_blob *blob);
+        [DllImport(libgit2)]
+        public static extern sbyte *git_blob_rawcontent(git_blob *blob);
 
-		[DllImport(libgit2)]
-		public static extern int git_blob_rawsize(git_blob *blob);
+        [DllImport(libgit2)]
+        public static extern int git_blob_rawsize(git_blob *blob);
 
-		[DllImport(libgit2)]
-		public static extern int git_blob_writefile(git_oid *written_id, git_repository *repo, string path);
+        [DllImport(libgit2)]
+        public static extern int git_blob_writefile(git_oid *written_id, git_repository *repo, string path);
 
-		[DllImport(libgit2)]
-		public static extern git_oid *git_commit_id(git_commit *commit);
+        [DllImport(libgit2)]
+        public static extern git_oid *git_commit_id(git_commit *commit);
 
-		[DllImport(libgit2)]
-		public static extern sbyte *git_commit_message_short(git_commit *commit);
+        [DllImport(libgit2)]
+        public static extern sbyte *git_commit_message_short(git_commit *commit);
 
-		[DllImport(libgit2)]
-		public static extern sbyte *git_commit_message(git_commit *commit);
+        [DllImport(libgit2)]
+        public static extern sbyte *git_commit_message(git_commit *commit);
 
-		[DllImport(libgit2)]
-		public static extern long git_commit_time(git_commit *commit);
+        [DllImport(libgit2)]
+        public static extern long git_commit_time(git_commit *commit);
 
-		[DllImport(libgit2)]
-		public static extern int git_commit_time_offset(git_commit *commit);
+        [DllImport(libgit2)]
+        public static extern int git_commit_time_offset(git_commit *commit);
 
-		[DllImport(libgit2)]
-		public static extern git_signature *git_commit_committer(git_commit *commit);
+        [DllImport(libgit2)]
+        public static extern git_signature *git_commit_committer(git_commit *commit);
 
-		[DllImport(libgit2)]
-		public static extern git_signature *git_commit_author(git_commit *commit);
+        [DllImport(libgit2)]
+        public static extern git_signature *git_commit_author(git_commit *commit);
 
-		[DllImport(libgit2)]
-		public static extern git_tree *git_commit_tree(git_commit *commit);
+        [DllImport(libgit2)]
+        public static extern git_tree *git_commit_tree(git_commit *commit);
 
-		[DllImport(libgit2)]
-		public static extern uint git_commit_parentcount(git_commit *commit);
+        [DllImport(libgit2)]
+        public static extern uint git_commit_parentcount(git_commit *commit);
 
-		[DllImport(libgit2)]
-		public static extern git_commit *git_commit_parent(git_commit *commit, uint n);
+        [DllImport(libgit2)]
+        public static extern git_commit *git_commit_parent(git_commit *commit, uint n);
 
-		[DllImport(libgit2)]
-		public static extern int git_commit_add_parent(git_commit *commit, git_commit *new_parent);
+        [DllImport(libgit2)]
+        public static extern int git_commit_add_parent(git_commit *commit, git_commit *new_parent);
 
-		[DllImport(libgit2)]
-		public static extern void git_commit_set_message(git_commit *commit, string message);
+        [DllImport(libgit2)]
+        public static extern void git_commit_set_message(git_commit *commit, string message);
 
-		[DllImport(libgit2)]
-		public static extern void git_commit_set_committer(git_commit *commit, git_signature *committer_sig);
+        [DllImport(libgit2)]
+        public static extern void git_commit_set_committer(git_commit *commit, git_signature *committer_sig);
 
-		[DllImport(libgit2)]
-		public static extern void git_commit_set_author(git_commit *commit, git_signature *author_sig);
+        [DllImport(libgit2)]
+        public static extern void git_commit_set_author(git_commit *commit, git_signature *author_sig);
 
-		[DllImport(libgit2)]
-		public static extern void git_commit_set_tree(git_commit *commit, git_tree *tree);
+        [DllImport(libgit2)]
+        public static extern void git_commit_set_tree(git_commit *commit, git_tree *tree);
 
-		[DllImport(libgit2)]
-		public static extern sbyte *git_strerror(int num);
+        [DllImport(libgit2)]
+        public static extern sbyte *git_strerror(int num);
 
-		[DllImport(libgit2)]
-		public static extern int git_index_open_bare(git_index **index, string index_path);
+        [DllImport(libgit2)]
+        public static extern int git_index_open_bare(git_index **index, string index_path);
 
-		[DllImport(libgit2)]
-		public static extern int git_index_open_inrepo(git_index **index, git_repository *repo);
+        [DllImport(libgit2)]
+        public static extern int git_index_open_inrepo(git_index **index, git_repository *repo);
 
-		[DllImport(libgit2)]
-		public static extern void git_index_clear(git_index *index);
+        [DllImport(libgit2)]
+        public static extern void git_index_clear(git_index *index);
 
-		[DllImport(libgit2)]
-		public static extern void git_index_free(git_index *index);
+        [DllImport(libgit2)]
+        public static extern void git_index_free(git_index *index);
 
-		[DllImport(libgit2)]
-		public static extern int git_index_read(git_index *index);
+        [DllImport(libgit2)]
+        public static extern int git_index_read(git_index *index);
 
-		[DllImport(libgit2)]
-		public static extern int git_index_write(git_index *index);
+        [DllImport(libgit2)]
+        public static extern int git_index_write(git_index *index);
 
-		[DllImport(libgit2)]
-		public static extern int git_index_find(git_index *index, string path);
+        [DllImport(libgit2)]
+        public static extern int git_index_find(git_index *index, string path);
 
-		[DllImport(libgit2)]
-		public static extern int git_index_add(git_index *index, string path, int stage);
+        [DllImport(libgit2)]
+        public static extern int git_index_add(git_index *index, string path, int stage);
 
-		[DllImport(libgit2)]
-		public static extern int git_index_remove(git_index *index, int position);
+        [DllImport(libgit2)]
+        public static extern int git_index_remove(git_index *index, int position);
 
-		[DllImport(libgit2)]
-		public static extern int git_index_insert(git_index *index, git_index_entry *source_entry);
+        [DllImport(libgit2)]
+        public static extern int git_index_insert(git_index *index, git_index_entry *source_entry);
 
-		[DllImport(libgit2)]
-		public static extern git_index_entry *git_index_get(git_index *index, int n);
+        [DllImport(libgit2)]
+        public static extern git_index_entry *git_index_get(git_index *index, int n);
 
-		[DllImport(libgit2)]
-		public static extern uint git_index_entrycount(git_index *index);
+        [DllImport(libgit2)]
+        public static extern uint git_index_entrycount(git_index *index);
 
-		[DllImport(libgit2)]
-		public static extern int git_object_lookup(git_object **obj, git_repository *repo, git_oid *id, git_otype type);
+        [DllImport(libgit2)]
+        public static extern int git_object_lookup(git_object **obj, git_repository *repo, git_oid *id, git_otype type);
 
-		[DllImport(libgit2)]
-		public static extern int git_object_new(git_object **obj, git_repository *repo, git_otype type);
+        [DllImport(libgit2)]
+        public static extern int git_object_new(git_object **obj, git_repository *repo, git_otype type);
 
-		[DllImport(libgit2)]
-		public static extern int git_object_write(git_object *obj);
+        [DllImport(libgit2)]
+        public static extern int git_object_write(git_object *obj);
 
-		[DllImport(libgit2)]
-		public static extern git_oid *git_object_id(git_object *obj);
+        [DllImport(libgit2)]
+        public static extern git_oid *git_object_id(git_object *obj);
 
-		[DllImport(libgit2)]
-		public static extern git_otype git_object_type(git_object *obj);
+        [DllImport(libgit2)]
+        public static extern git_otype git_object_type(git_object *obj);
 
-		[DllImport(libgit2)]
-		public static extern git_repository *git_object_owner(git_object *obj);
+        [DllImport(libgit2)]
+        public static extern git_repository *git_object_owner(git_object *obj);
 
-		[DllImport(libgit2)]
-		public static extern void git_object_close(git_object *obj);
+        [DllImport(libgit2)]
+        public static extern void git_object_close(git_object *obj);
 
-		[DllImport(libgit2)]
-		public static extern sbyte *git_object_type2string(git_otype type);
+        [DllImport(libgit2)]
+        public static extern sbyte *git_object_type2string(git_otype type);
 
-		[DllImport(libgit2)]
-		public static extern git_otype git_object_string2type(string str);
+        [DllImport(libgit2)]
+        public static extern git_otype git_object_string2type(string str);
 
-		[DllImport(libgit2)]
-		public static extern int git_object_typeisloose(git_otype type);
+        [DllImport(libgit2)]
+        public static extern int git_object_typeisloose(git_otype type);
 
-		[DllImport(libgit2)]
-		public static extern uint git_object__size(git_otype type);
+        [DllImport(libgit2)]
+        public static extern uint git_object__size(git_otype type);
 
-		[DllImport(libgit2)]
-		public static extern int git_odb_new(git_odb **outt);
+        [DllImport(libgit2)]
+        public static extern int git_odb_new(git_odb **outt);
 
-		[DllImport(libgit2)]
-		public static extern int git_odb_open(git_odb **outt, string objects_dir);
+        [DllImport(libgit2)]
+        public static extern int git_odb_open(git_odb **outt, string objects_dir);
 
-		[DllImport(libgit2)]
-		public static extern int git_odb_add_backend(git_odb *odb, git_odb_backend *backend, int priority);
+        [DllImport(libgit2)]
+        public static extern int git_odb_add_backend(git_odb *odb, git_odb_backend *backend, int priority);
 
-		[DllImport(libgit2)]
-		public static extern int git_odb_add_alternate(git_odb *odb, git_odb_backend *backend, int priority);
+        [DllImport(libgit2)]
+        public static extern int git_odb_add_alternate(git_odb *odb, git_odb_backend *backend, int priority);
 
-		[DllImport(libgit2)]
-		public static extern void git_odb_close(git_odb *db);
+        [DllImport(libgit2)]
+        public static extern void git_odb_close(git_odb *db);
 
-		[DllImport(libgit2)]
-		public static extern int git_odb_read(git_rawobj *outt, git_odb *db, git_oid *id);
+        [DllImport(libgit2)]
+        public static extern int git_odb_read(git_rawobj *outt, git_odb *db, git_oid *id);
 
-		[DllImport(libgit2)]
-		public static extern int git_odb_read_header(ref git_rawobj outt, git_odb *database, git_oid *id);
+        [DllImport(libgit2)]
+        public static extern int git_odb_read_header(git_rawobj *outt, git_odb *db, git_oid *id);
 
-		[DllImport(libgit2)]
-		public static extern int git_odb_write(git_oid *id, git_odb *db, git_rawobj *obj);
+        [DllImport(libgit2)]
+        public static extern int git_odb_write(git_oid *id, git_odb *db, git_rawobj *obj);
 
-		[DllImport(libgit2)]
-		public static extern int git_odb_exists(git_odb *database, git_oid *id);
+        [DllImport(libgit2)]
+        public static extern int git_odb_exists(git_odb *db, git_oid *id);
 
-		[DllImport(libgit2)]
-		public static extern int git_rawobj_hash(git_oid *id, git_rawobj *obj);
+        [DllImport(libgit2)]
+        public static extern int git_rawobj_hash(git_oid *id, git_rawobj *obj);
 
-		[DllImport(libgit2)]
-		public static extern void git_rawobj_close(git_rawobj *obj);
+        [DllImport(libgit2)]
+        public static extern void git_rawobj_close(git_rawobj *obj);
 
-		[DllImport(libgit2)]
-		public static extern int git_oid_mkstr(git_oid *outt, string str);
+        [DllImport(libgit2)]
+        public static extern int git_oid_mkstr(git_oid *outt, string str);
 
-		[DllImport(libgit2)]
-		public static extern void git_oid_mkraw(git_oid *outt, string raw);
+        [DllImport(libgit2)]
+        public static extern void git_oid_mkraw(git_oid *outt, string raw);
 
-		[DllImport(libgit2)]
-		public static extern void git_oid_fmt(sbyte *str, git_oid *oid);
+        [DllImport(libgit2)]
+        public static extern void git_oid_fmt(sbyte *str, git_oid *oid);
 
-		[DllImport(libgit2)]
-		public static extern void git_oid_pathfmt(sbyte *str, git_oid *oid);
+        [DllImport(libgit2)]
+        public static extern void git_oid_pathfmt(sbyte *str, git_oid *oid);
 
-		[DllImport(libgit2)]
-		public static extern string git_oid_allocfmt(git_oid *oid);
+        [DllImport(libgit2)]
+        public static extern string git_oid_allocfmt(git_oid *oid);
 
-		[DllImport(libgit2)]
-		public static extern string git_oid_to_string(sbyte *outt, uint n, git_oid *oid);
+        [DllImport(libgit2)]
+        public static extern string git_oid_to_string(sbyte *outt, uint n, git_oid *oid);
 
-		[DllImport(libgit2)]
-		public static extern void git_oid_cpy(git_oid *outt, git_oid *src);
+        [DllImport(libgit2)]
+        public static extern void git_oid_cpy(git_oid *outt, git_oid *src);
 
-		[DllImport(libgit2)]
-		public static extern int git_oid_cmp(git_oid *a, git_oid *b);
+        [DllImport(libgit2)]
+        public static extern int git_oid_cmp(git_oid *a, git_oid *b);
 
-		[DllImport(libgit2)]
-		public static extern int git_reference_lookup(git_reference **reference_out, git_repository *repo, string name);
+        [DllImport(libgit2)]
+        public static extern int git_reference_lookup(git_reference **reference_out, git_repository *repo, string name);
 
-		[DllImport(libgit2)]
-		public static extern int git_reference_create_symbolic(git_reference **ref_out, git_repository *repo, string name, string target);
+        [DllImport(libgit2)]
+        public static extern int git_reference_create_symbolic(git_reference **ref_out, git_repository *repo, string name, string target);
 
-		[DllImport(libgit2)]
-		public static extern int git_reference_create_oid(git_reference **ref_out, git_repository *repo, string name, git_oid *id);
+        [DllImport(libgit2)]
+        public static extern int git_reference_create_oid(git_reference **ref_out, git_repository *repo, string name, git_oid *id);
 
-		[DllImport(libgit2)]
-		public static extern git_oid *git_reference_oid(git_reference *reference);
+        [DllImport(libgit2)]
+        public static extern git_oid *git_reference_oid(git_reference *reference);
 
-		[DllImport(libgit2)]
-		public static extern sbyte *git_reference_target(git_reference *reference);
+        [DllImport(libgit2)]
+        public static extern sbyte *git_reference_target(git_reference *reference);
 
-		[DllImport(libgit2)]
-		public static extern git_rtype git_reference_type(git_reference *reference);
+        [DllImport(libgit2)]
+        public static extern git_rtype git_reference_type(git_reference *reference);
 
-		[DllImport(libgit2)]
-		public static extern sbyte *git_reference_name(git_reference *reference);
+        [DllImport(libgit2)]
+        public static extern sbyte *git_reference_name(git_reference *reference);
 
-		[DllImport(libgit2)]
-		public static extern int git_reference_resolve(git_reference **resolved_ref, git_reference *reference);
+        [DllImport(libgit2)]
+        public static extern int git_reference_resolve(git_reference **resolved_ref, git_reference *reference);
 
-		[DllImport(libgit2)]
-		public static extern git_repository *git_reference_owner(git_reference *reference);
+        [DllImport(libgit2)]
+        public static extern git_repository *git_reference_owner(git_reference *reference);
 
-		[DllImport(libgit2)]
-		public static extern int git_reference_set_target(git_reference *reference, string target);
+        [DllImport(libgit2)]
+        public static extern int git_reference_set_target(git_reference *reference, string target);
 
-		[DllImport(libgit2)]
-		public static extern int git_reference_set_oid(git_reference *reference, git_oid *id);
+        [DllImport(libgit2)]
+        public static extern int git_reference_set_oid(git_reference *reference, git_oid *id);
 
-		[DllImport(libgit2)]
-		public static extern int git_reference_rename(git_reference *reference, string new_name);
+        [DllImport(libgit2)]
+        public static extern int git_reference_rename(git_reference *reference, string new_name);
 
-		[DllImport(libgit2)]
-		public static extern int git_reference_delete(git_reference *reference);
+        [DllImport(libgit2)]
+        public static extern int git_reference_delete(git_reference *reference);
 
-		[DllImport(libgit2)]
-		public static extern int git_reference_packall(git_repository *repo);
+        [DllImport(libgit2)]
+        public static extern int git_reference_packall(git_repository *repo);
 
-		[DllImport(libgit2)]
-		public static extern int git_repository_open(git_repository **repository, string path);
+        [DllImport(libgit2)]
+        public static extern int git_repository_open(git_repository **repository, string path);
 
-		[DllImport(libgit2)]
-		public static extern int git_repository_open2(git_repository **repository, string git_dir, string git_object_directory, string git_index_file, string git_work_tree);
+        [DllImport(libgit2)]
+        public static extern int git_repository_open2(git_repository **repository, string git_dir, string git_object_directory, string git_index_file, string git_work_tree);
 
-		[DllImport(libgit2)]
-		public static extern int git_repository_open3(git_repository **repository, string git_dir, git_odb *object_database, string git_index_file, string git_work_tree);
+        [DllImport(libgit2)]
+        public static extern int git_repository_open3(git_repository **repository, string git_dir, git_odb *object_database, string git_index_file, string git_work_tree);
 
-		[DllImport(libgit2)]
-		public static extern git_odb *git_repository_database(git_repository *repo);
+        [DllImport(libgit2)]
+        public static extern git_odb *git_repository_database(git_repository *repo);
 
-		[DllImport(libgit2)]
-		public static extern int git_repository_index(git_index **index, git_repository *repo);
+        [DllImport(libgit2)]
+        public static extern int git_repository_index(git_index **index, git_repository *repo);
 
-		[DllImport(libgit2)]
-		public static extern void git_repository_free(git_repository *repo);
+        [DllImport(libgit2)]
+        public static extern void git_repository_free(git_repository *repo);
 
-		[DllImport(libgit2)]
-		public static extern void git_repository_free__no_gc(git_repository *repo);
+        [DllImport(libgit2)]
+        public static extern void git_repository_free__no_gc(git_repository *repo);
 
-		[DllImport(libgit2)]
-		public static extern int git_repository_init(git_repository **repo_out, string path, uint is_bare);
+        [DllImport(libgit2)]
+        public static extern int git_repository_init(git_repository **repo_out, string path, uint is_bare);
 
-		[DllImport(libgit2)]
-		public static extern int git_revwalk_new(git_revwalk **walker, git_repository *repo);
+        [DllImport(libgit2)]
+        public static extern int git_revwalk_new(git_revwalk **walker, git_repository *repo);
 
-		[DllImport(libgit2)]
-		public static extern void git_revwalk_reset(git_revwalk *walker);
+        [DllImport(libgit2)]
+        public static extern void git_revwalk_reset(git_revwalk *walker);
 
-		[DllImport(libgit2)]
-		public static extern int git_revwalk_push(git_revwalk *walk, git_commit *commit);
+        [DllImport(libgit2)]
+        public static extern int git_revwalk_push(git_revwalk *walk, git_commit *commit);
 
-		[DllImport(libgit2)]
-		public static extern int git_revwalk_hide(git_revwalk *walk, git_commit *commit);
+        [DllImport(libgit2)]
+        public static extern int git_revwalk_hide(git_revwalk *walk, git_commit *commit);
 
-		[DllImport(libgit2)]
-		public static extern int git_revwalk_next(git_commit **commit, git_revwalk *walk);
+        [DllImport(libgit2)]
+        public static extern int git_revwalk_next(git_commit **commit, git_revwalk *walk);
 
-		[DllImport(libgit2)]
-		public static extern int git_revwalk_sorting(git_revwalk *walk, uint sort_mode);
+        [DllImport(libgit2)]
+        public static extern int git_revwalk_sorting(git_revwalk *walk, uint sort_mode);
 
-		[DllImport(libgit2)]
-		public static extern void git_revwalk_free(git_revwalk *walk);
+        [DllImport(libgit2)]
+        public static extern void git_revwalk_free(git_revwalk *walk);
 
-		[DllImport(libgit2)]
-		public static extern git_repository *git_revwalk_repository(git_revwalk *walk);
+        [DllImport(libgit2)]
+        public static extern git_repository *git_revwalk_repository(git_revwalk *walk);
 
-		[DllImport(libgit2)]
-		public static extern git_signature *git_signature_new(string name, string email, long time, int offset);
+        [DllImport(libgit2)]
+        public static extern git_signature *git_signature_new(string name, string email, long time, int offset);
 
-		[DllImport(libgit2)]
-		public static extern git_signature *git_signature_dup(git_signature *sig);
+        [DllImport(libgit2)]
+        public static extern git_signature *git_signature_dup(git_signature *sig);
 
-		[DllImport(libgit2)]
-		public static extern void git_signature_free(git_signature *sig);
+        [DllImport(libgit2)]
+        public static extern void git_signature_free(git_signature *sig);
 
-		[DllImport(libgit2)]
-		public static extern git_oid *git_tag_id(git_tag *tag);
+        [DllImport(libgit2)]
+        public static extern git_oid *git_tag_id(git_tag *tag);
 
-		[DllImport(libgit2)]
-		public static extern git_object *git_tag_target(git_tag *t);
+        [DllImport(libgit2)]
+        public static extern git_object *git_tag_target(git_tag *t);
 
-		[DllImport(libgit2)]
-		public static extern git_otype git_tag_type(git_tag *t);
+        [DllImport(libgit2)]
+        public static extern git_otype git_tag_type(git_tag *t);
 
-		[DllImport(libgit2)]
-		public static extern sbyte *git_tag_name(git_tag *t);
+        [DllImport(libgit2)]
+        public static extern sbyte *git_tag_name(git_tag *t);
 
-		[DllImport(libgit2)]
-		public static extern git_signature *git_tag_tagger(git_tag *t);
+        [DllImport(libgit2)]
+        public static extern git_signature *git_tag_tagger(git_tag *t);
 
-		[DllImport(libgit2)]
-		public static extern sbyte *git_tag_message(git_tag *t);
+        [DllImport(libgit2)]
+        public static extern sbyte *git_tag_message(git_tag *t);
 
-		[DllImport(libgit2)]
-		public static extern void git_tag_set_target(git_tag *tag, git_object *target);
+        [DllImport(libgit2)]
+        public static extern void git_tag_set_target(git_tag *tag, git_object *target);
 
-		[DllImport(libgit2)]
-		public static extern void git_tag_set_name(git_tag *tag, string name);
+        [DllImport(libgit2)]
+        public static extern void git_tag_set_name(git_tag *tag, string name);
 
-		[DllImport(libgit2)]
-		public static extern void git_tag_set_tagger(git_tag *tag, git_signature *tagger_sig);
+        [DllImport(libgit2)]
+        public static extern void git_tag_set_tagger(git_tag *tag, git_signature *tagger_sig);
 
-		[DllImport(libgit2)]
-		public static extern void git_tag_set_message(git_tag *tag, string message);
+        [DllImport(libgit2)]
+        public static extern void git_tag_set_message(git_tag *tag, string message);
 
-		[DllImport(libgit2)]
-		public static extern git_oid *git_tree_id(git_tree *tree);
+        [DllImport(libgit2)]
+        public static extern git_oid *git_tree_id(git_tree *tree);
 
-		[DllImport(libgit2)]
-		public static extern uint git_tree_entrycount(git_tree *tree);
+        [DllImport(libgit2)]
+        public static extern uint git_tree_entrycount(git_tree *tree);
 
-		[DllImport(libgit2)]
-		public static extern git_tree_entry *git_tree_entry_byname(git_tree *tree, string filename);
+        [DllImport(libgit2)]
+        public static extern git_tree_entry *git_tree_entry_byname(git_tree *tree, string filename);
 
-		[DllImport(libgit2)]
-		public static extern git_tree_entry *git_tree_entry_byindex(git_tree *tree, int idx);
+        [DllImport(libgit2)]
+        public static extern git_tree_entry *git_tree_entry_byindex(git_tree *tree, int idx);
 
-		[DllImport(libgit2)]
-		public static extern uint git_tree_entry_attributes(git_tree_entry *entry);
+        [DllImport(libgit2)]
+        public static extern uint git_tree_entry_attributes(git_tree_entry *entry);
 
-		[DllImport(libgit2)]
-		public static extern sbyte *git_tree_entry_name(git_tree_entry *entry);
+        [DllImport(libgit2)]
+        public static extern sbyte *git_tree_entry_name(git_tree_entry *entry);
 
-		[DllImport(libgit2)]
-		public static extern git_oid *git_tree_entry_id(git_tree_entry *entry);
+        [DllImport(libgit2)]
+        public static extern git_oid *git_tree_entry_id(git_tree_entry *entry);
 
-		[DllImport(libgit2)]
-		public static extern int git_tree_entry_2object(git_object **obj, git_tree_entry *entry);
+        [DllImport(libgit2)]
+        public static extern int git_tree_entry_2object(git_object **obj, git_tree_entry *entry);
 
-		[DllImport(libgit2)]
-		public static extern int git_tree_add_entry(git_tree_entry **entry_out, git_tree *tree, git_oid *id, string filename, int attributes);
+        [DllImport(libgit2)]
+        public static extern int git_tree_add_entry(git_tree_entry **entry_out, git_tree *tree, git_oid *id, string filename, int attributes);
 
-		[DllImport(libgit2)]
-		public static extern int git_tree_remove_entry_byindex(git_tree *tree, int idx);
+        [DllImport(libgit2)]
+        public static extern int git_tree_remove_entry_byindex(git_tree *tree, int idx);
 
-		[DllImport(libgit2)]
-		public static extern int git_tree_remove_entry_byname(git_tree *tree, string filename);
+        [DllImport(libgit2)]
+        public static extern int git_tree_remove_entry_byname(git_tree *tree, string filename);
 
-		[DllImport(libgit2)]
-		public static extern void git_tree_clear_entries(git_tree *tree);
+        [DllImport(libgit2)]
+        public static extern void git_tree_clear_entries(git_tree *tree);
 
-		[DllImport(libgit2)]
-		public static extern void git_tree_entry_set_id(git_tree_entry *entry, git_oid *oid);
+        [DllImport(libgit2)]
+        public static extern void git_tree_entry_set_id(git_tree_entry *entry, git_oid *oid);
 
-		[DllImport(libgit2)]
-		public static extern void git_tree_entry_set_name(git_tree_entry *entry, string name);
+        [DllImport(libgit2)]
+        public static extern void git_tree_entry_set_name(git_tree_entry *entry, string name);
 
-		[DllImport(libgit2)]
-		public static extern void git_tree_entry_set_attributes(git_tree_entry *entry, int attr);
-	}
+        [DllImport(libgit2)]
+        public static extern void git_tree_entry_set_attributes(git_tree_entry *entry, int attr);
+    }
 }

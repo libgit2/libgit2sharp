@@ -27,7 +27,7 @@ using System;
 
 namespace LibGit2Sharp.Core
 {
-	public class InvalidReferenceException : GitException
-	{
-	}
+    public class InvalidReferenceException : GitException
+    {
+    }
 }

@@ -28,35 +28,34 @@ using System.Runtime.InteropServices;
 
 namespace LibGit2Sharp.Core
 {
-	unsafe public class RawObject
-	{
-		internal git_rawobj rawobj;
-		
-		internal RawObject(git_rawobj rawobj)
-		{
-			this.rawobj = rawobj;
-		}
-		
-		public uint Length
-		{
-			get {
-				return rawobj.len1;
-			}
-		}
-		
-		public git_otype Type
-		{
-			get {
-				return rawobj.type;
-			}
-		}
-		
-		public byte[] GetData()
-		{
-			Console.WriteLine (rawobj.data);
-			byte[] rawData = new byte[Length];
-			Marshal.Copy(rawobj.data, rawData, 0, (int)Length);
-			return rawData;
-		}
-	}
+    unsafe public class RawObject
+    {
+        internal git_rawobj rawobj;
+    
+        internal RawObject(git_rawobj rawobj)
+        {
+            this.rawobj = rawobj;
+        }
+    
+        public uint Length
+        {
+            get {
+                return rawobj.len1;
+            }
+        }
+    
+        public git_otype Type
+        {
+            get {
+                return rawobj.type;
+            }
+        }
+    
+        public byte[] GetData()
+        {
+            byte[] rawData = new byte[Length];
+            Marshal.Copy(rawobj.data, rawData, 0, (int)Length);
+            return rawData;
+        }
+    }
 }

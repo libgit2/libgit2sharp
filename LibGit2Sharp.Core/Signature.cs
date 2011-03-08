@@ -27,61 +27,60 @@ using System;
 
 namespace LibGit2Sharp.Core
 {
-	// TODO: implement the time fields
-	unsafe public class Signature : IDisposable
-	{
-		internal git_signature *signature = null;
-
-		internal Signature(git_signature *signature)
-		{
-			this.signature = signature;
-		}
-
-		public Signature(string name, string email)
-			: this(NativeMethods.git_signature_new(name, email, 0, 0))
-		{
-		}
-
-		public string Name
-		{
-			get {
-				return new string(signature->name);
-			}
-		}
-
-		public string Email
-		{
-			get {
-				return new string(signature->email);
-			}
-		}
-		
-		public int Time
-		{
-			get {
-				return signature->time;
-			}
-		}
-		
-		public int Offset
-		{
-			get {
-				return signature->offset;
-			}
-		}
-
-		public Signature Clone()
-		{
-			return new Signature(NativeMethods.git_signature_dup(signature));
-		}
-
-		#region IDisposable implementation
-		public void Dispose()
-		{
-			if (signature == null)
-				NativeMethods.git_signature_free(signature);
-
-		}
-		#endregion
-	}
+    // TODO: implement the time fields
+    unsafe public class Signature : IDisposable
+    {
+        internal git_signature *signature = null;
+    
+        internal Signature(git_signature *signature)
+        {
+            this.signature = signature;
+        }
+    
+        public Signature(string name, string email)
+            : this(NativeMethods.git_signature_new(name, email, 0, 0))
+        {
+        }
+        
+        public string Name
+        {
+            get {
+                return new string(signature->name);
+            }
+        }
+        
+        public string Email
+        {
+            get {
+                return new string(signature->email);
+            }
+        }
+    
+        public int Time
+        {
+            get {
+                return signature->time;
+            }
+        }
+    
+        public int Offset
+        {
+            get {
+                return signature->offset;
+            }
+        }
+    
+        public Signature Clone()
+        {
+            return new Signature(NativeMethods.git_signature_dup(signature));
+        }
+    
+        #region IDisposable implementation
+        public void Dispose()
+        {
+            if (signature == null)
+                NativeMethods.git_signature_free(signature);
+        }
+        #endregion
+    }
 }

@@ -29,133 +29,133 @@ using System.Collections.Generic;
 
 namespace LibGit2Sharp.Core
 {
-	unsafe public class Index : IEnumerable<IndexEntry>, IDisposable
-	{
-		private git_index *index = null;
+    unsafe public class Index : IEnumerable<IndexEntry>, IDisposable
+    {
+        private git_index *index = null;
+    
+        internal Index(git_index *index)
+        {
+            this.index = index;
+        }
 
-		internal Index(git_index *index)
-		{
-			this.index = index;
-		}
-
-		public Index(string indexPath)
-		{
-			int ret;
-			fixed (git_index **pindex = &index)
-			{
-				ret = NativeMethods.git_index_open_bare(pindex, indexPath);
-			}
-			GitError.Check(ret);
-		}
-
-		public uint Count
-		{
-			get {
-				return NativeMethods.git_index_entrycount(index);
-			}
-		}
-
-		public void Read()
-		{
-			NativeMethods.git_index_read(index);
-		}
-
-		public void Write()
-		{
-			NativeMethods.git_index_write(index);
-		}
-
-		public Repository Repository
-		{
-			get {
-				if (index->repository == null)
-					return null;
-
-				return new Repository(index->repository);
-			}
-		}
-
-		public IndexEntry Get(uint n)
-		{
-			git_index_entry *entry = NativeMethods.git_index_get(index, (int)n);
-
-			if (entry == null)
-				return null;
-
-			return new IndexEntry(entry);
-		}
-
-		public IndexEntry this[uint index]
-		{
-			get {
-				return Get(index);
-			}
-		}
-
-		public int Get(string path)
-		{
-			return NativeMethods.git_index_find(index, path);
-		}
-
-		public int this[string path]
-		{
-			get {
-				return Get(path);
-			}
-		}
-
-		public string FilePath
-		{
-			get {
-				return new string(index->index_file_path);
-			}
-		}
-
-		public void Clear()
-		{
-			NativeMethods.git_index_clear(index);
-		}
-
-		public void Add(string path, int stage)
-		{
-			int ret = NativeMethods.git_index_add(index, path, stage);
-			GitError.Check(ret);
-		}
-
-		public void Remove(int position)
-		{
-			int ret = NativeMethods.git_index_remove(index, position);
-			GitError.Check(ret);
-		}
-
-		public void Insert(IndexEntry indexEntry)
-		{
-			int ret = NativeMethods.git_index_insert(index, indexEntry.index_entry);
-			GitError.Check(ret);
-		}
-
-		#region IEnumerable implementation
-		public IEnumerator<IndexEntry> GetEnumerator()
-		{
-			uint count = Count;
-			for (uint i = 0; i < count; i++)
-			{
-				yield return Get(i);
-			}
-		}
-
-		IEnumerator IEnumerable.GetEnumerator()
-		{
-			return (IEnumerator)this.GetEnumerator();
-		}
-		#endregion
-
-		#region IDisposable implementation
-		public void Dispose()
-		{
-			if (index != null)
-				NativeMethods.git_index_free(index);
-		}
-		#endregion
-	}
+        public Index(string indexPath)
+        {
+            int ret;
+            fixed (git_index **pindex = &index)
+            {
+                ret = NativeMethods.git_index_open_bare(pindex, indexPath);
+            }
+            GitError.Check(ret);
+        }
+        
+        public uint Count
+        {
+            get {
+                return NativeMethods.git_index_entrycount(index);
+            }
+        }
+        
+        public void Read()
+        {
+            NativeMethods.git_index_read(index);
+        }
+        
+        public void Write()
+        {
+            NativeMethods.git_index_write(index);
+        }
+        
+        public Repository Repository
+        {
+            get {
+                if (index->repository == null)
+                    return null;
+    
+                return new Repository(index->repository);
+            }
+        }
+    
+        public IndexEntry Get(uint n)
+        {
+            git_index_entry *entry = NativeMethods.git_index_get(index, (int)n);
+    
+            if (entry == null)
+                return null;
+    
+            return new IndexEntry(entry);
+        }
+    
+        public IndexEntry this[uint index]
+        {
+            get {
+                return Get(index);
+            }
+        }
+    
+        public int Get(string path)
+        {
+            return NativeMethods.git_index_find(index, path);
+        }
+        
+        public int this[string path]
+        {
+            get {
+                return Get(path);
+            }
+        }
+        
+        public string FilePath
+        {
+            get {
+                return new string(index->index_file_path);
+            }
+        }
+    
+        public void Clear()
+        {
+            NativeMethods.git_index_clear(index);
+        }
+    
+        public void Add(string path, int stage)
+        {
+            int ret = NativeMethods.git_index_add(index, path, stage);
+            GitError.Check(ret);
+        }
+    
+        public void Remove(int position)
+        {
+            int ret = NativeMethods.git_index_remove(index, position);
+            GitError.Check(ret);
+        }
+    
+        public void Insert(IndexEntry indexEntry)
+        {
+            int ret = NativeMethods.git_index_insert(index, indexEntry.index_entry);
+            GitError.Check(ret);
+        }
+    
+        #region IEnumerable implementation
+        public IEnumerator<IndexEntry> GetEnumerator()
+        {
+            uint count = Count;
+            for (uint i = 0; i < count; i++)
+            {
+                yield return Get(i);
+            }
+        }
+    
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return (IEnumerator)this.GetEnumerator();
+        }
+        #endregion
+    
+        #region IDisposable implementation
+        public void Dispose()
+        {
+            if (index != null)
+                NativeMethods.git_index_free(index);
+        }
+        #endregion
+    }
 }

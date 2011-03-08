@@ -29,56 +29,56 @@ using System.Collections.Generic;
 
 namespace LibGit2Sharp.Core
 {
-	unsafe public class Blob : GitObject
-	{
-		internal git_blob *blob;
+    unsafe public class Blob : GitObject
+    {
+        internal git_blob *blob;
 
-		internal Blob(git_object *obj)
-			: this((git_blob *)obj)
-		{
-		}
+        internal Blob(git_object *obj)
+            : this((git_blob *)obj)
+        {
+        }
 
-		internal Blob(git_blob *blob)
-			: base((git_object *)blob)
-		{
-			this.blob = blob;
-		}
+        internal Blob(git_blob *blob)
+            : base((git_object *)blob)
+        {
+            this.blob = blob;
+        }
 
-		public Blob(Repository repository)
-			: base(repository, git_otype.GIT_OBJ_BLOB)
-		{
-			this.blob = (git_blob *)obj;
-		}
+        public Blob(Repository repository)
+            : base(repository, git_otype.GIT_OBJ_BLOB)
+        {
+            this.blob = (git_blob *)obj;
+        }
 
-		public void SetRawContentFromFile(string filename)
-		{
-			int ret = NativeMethods.git_blob_set_rawcontent_fromfile(blob, filename);
-			GitError.Check(ret);
-		}
+        public void SetRawContentFromFile(string filename)
+        {
+            int ret = NativeMethods.git_blob_set_rawcontent_fromfile(blob, filename);
+            GitError.Check(ret);
+        }
 
-		// TODO: implement a lot of overload methods for this!
-		public void SetRawContent()
-		{
-			throw new NotImplementedException();
-		}
+        // TODO: implement a lot of overload methods for this!
+        public void SetRawContent()
+        {
+            throw new NotImplementedException();
+        }
 
-		private void *GetRawContent()
-		{
-			// TODO: this has to be fixed first in the type definitions of libgit2
-			// return NativeMethods.git_blob_rawcontent(blob);
-			return null;
-		}
+        private void *GetRawContent()
+        {
+            // TODO: this has to be fixed first in the type definitions of libgit2
+            // return NativeMethods.git_blob_rawcontent(blob);
+            throw new NotImplementedException();
+        }
 
-		public int Size
-		{
-			get {
-				return NativeMethods.git_blob_rawsize(blob);
-			}
-		}
+        public int Size
+        {
+            get {
+                return NativeMethods.git_blob_rawsize(blob);
+            }
+        }
 
-		public static void WriteFile(ObjectId writtenId, Repository repository, string path)
-		{
-			NativeMethods.git_blob_writefile(&writtenId.oid, repository.repository, path);
-		}
-	}
+        public static void WriteFile(ObjectId writtenId, Repository repository, string path)
+        {
+            NativeMethods.git_blob_writefile(&writtenId.oid, repository.repository, path);
+        }
+    }
 }

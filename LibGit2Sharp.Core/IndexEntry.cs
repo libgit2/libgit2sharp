@@ -29,42 +29,41 @@ using System.Collections.Generic;
 
 namespace LibGit2Sharp.Core
 {
-	unsafe public class IndexEntry
-	{
-		internal git_index_entry *index_entry = null;
+    unsafe public class IndexEntry
+    {
+        internal git_index_entry *index_entry = null;
+    
+        internal IndexEntry(git_index_entry *index_entry)
+        {
+            this.index_entry = index_entry;
+        }
+    
+        public string Path
+        {
+            get {
+                return new string(index_entry->path);
+            }
+        }
+    
+        public long FileSize
+        {
+            get {
+                return index_entry->file_size2 << sizeof(int) | index_entry->file_size1;
+            }
+        }
 
-		internal IndexEntry(git_index_entry *index_entry)
-		{
-			this.index_entry = index_entry;
-		}
+        public DateTime MTime
+        {
+            get {
+                return index_entry->mtime.ToDateTime();
+            }
+        }
 
-		public string Path
-		{
-			get {
-				return new string(index_entry->path);
-			}
-		}
-
-		public long FileSize
-		{
-			get {
-				return index_entry->file_size2 << sizeof(int) | index_entry->file_size1;
-			}
-
-		}
-
-		public DateTime MTime
-		{
-			get {
-				return index_entry->mtime.ToDateTime();
-			}
-		}
-
-		public DateTime CTime
-		{
-			get {
-				return index_entry->ctime.ToDateTime();
-			}
-		}
-	}
+        public DateTime CTime
+        {
+            get {
+                return index_entry->ctime.ToDateTime();
+            }
+        }
+    }
 }

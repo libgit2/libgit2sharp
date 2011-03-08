@@ -27,15 +27,14 @@ using System;
 
 namespace LibGit2Sharp.Core
 {
-	public static class HelperExtensions
-	{
-		internal static DateTime ToDateTime(this git_index_time time)
-		{
-			DateTime dt = new DateTime(1900, 1, 1);
-			dt += TimeSpan.FromSeconds(time.time);
-			dt += TimeSpan.FromTicks(time.nanoseconds);
-			return dt;
-		}
-
-	}
+    public static class HelperExtensions
+    {
+        internal static DateTime ToDateTime(this git_index_time time)
+        {
+            DateTime dt = new DateTime(1900, 1, 1);
+            dt += TimeSpan.FromSeconds(time.time);
+            dt += TimeSpan.FromTicks(time.nanoseconds);
+            return dt;
+        }
+    }
 }

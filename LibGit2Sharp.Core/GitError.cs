@@ -27,20 +27,20 @@ using System;
 
 namespace LibGit2Sharp.Core
 {
-	public static class GitError
-	{
-		unsafe internal static string Message(int error)
-		{
-			if (error < 0)
-				return new string(NativeMethods.git_strerror(error));
-
-			return null;
-		}
-
-		unsafe internal static void Check(int error)
-		{
-			if (error < 0)
-				throw new GitException(Message(error));
-		}
-	}
+    public static class GitError
+    {
+        unsafe internal static string Message(int error)
+        {
+            if (error < 0)
+                return new string(NativeMethods.git_strerror(error));
+    
+            return null;
+        }
+    
+        unsafe internal static void Check(int error)
+        {
+            if (error < 0)
+                throw new GitException(Message(error));
+        }
+    }
 }
