@@ -2,8 +2,13 @@
 {
     public class Ref
     {
-        public string CanonicalName { get; set; }
-        public string Name { get; set; }
-        public string Target { get; set; }
+        public Ref(string canonicalName, string target)
+        {
+            CanonicalName = canonicalName;
+            Target = target;
+        }
+
+        public string CanonicalName { get; private set; }
+        public string Target { get; private set; }
     }
 }

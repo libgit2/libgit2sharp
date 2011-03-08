@@ -33,7 +33,7 @@ namespace LibGit2Sharp
             _lifecycleManager = lifecycleManager;
             _builder = new ObjectBuilder();
             _objectResolver = new ObjectResolver(_lifecycleManager.RepositoryPtr, _builder);
-            _refsResolver = new RefsResolver();
+            _refsResolver = new RefsResolver(_lifecycleManager.RepositoryPtr);
         }
 
         public IList<Ref> RetrieveRefs()
@@ -107,7 +107,7 @@ namespace LibGit2Sharp
                 return _objectResolver.Resolve(identifier, expectedType);
             }
 
-            Ref reference = _refsResolver.Resolve(identifier);
+            Ref reference = _refsResolver.Resolve(identifier, true);
             if (reference == null)
             {
                 return null;

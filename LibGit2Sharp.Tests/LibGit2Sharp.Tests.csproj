@@ -46,6 +46,7 @@
     <Compile Include="ApplyingATag.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="ResolvingAHeadReference.cs" />
     <Compile Include="GitDateFixture.cs" />
     <Compile Include="InitializingARepository.cs" />
     <Compile Include="ObjectIdFixture.cs" />
@@ -55,6 +56,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="InstantiatingARepository.cs" />
     <Compile Include="RepositoryToBeCreatedFixtureBase.cs" />
+    <Compile Include="ResolvingATagReference.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\LibGit2Sharp\LibGit2Sharp.csproj">

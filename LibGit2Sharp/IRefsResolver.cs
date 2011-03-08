@@ -2,6 +2,6 @@
 {
     public interface IRefsResolver
     {
-        Ref Resolve(string referenceName);
+        Ref Resolve(string referenceName, bool shouldRecursivelyPeel);
     }
 }

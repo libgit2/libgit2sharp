@@ -70,6 +70,7 @@
     <Compile Include="Wrapper\git_odb_source.cs" />
     <Compile Include="Wrapper\git_oid.cs" />
     <Compile Include="Wrapper\git_otype.cs" />
+    <Compile Include="Wrapper\git_reference.cs" />
     <Compile Include="Wrapper\git_signature.cs" />
     <Compile Include="Wrapper\git_rawobj.cs" />
     <Compile Include="Wrapper\git_repository.cs" />

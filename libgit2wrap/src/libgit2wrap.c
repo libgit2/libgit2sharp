@@ -77,6 +77,7 @@ int wrapped_git_repository_lookup__internal(git_object** obj_out, git_repository
 
 	return error;
 }
+
 int wrapped_git_repository_lookup(git_object** obj_out, git_otype *type_out, git_repository* repo, const char* raw_id)
 {
 	git_oid id;
@@ -91,6 +92,26 @@ int wrapped_git_repository_lookup(git_object** obj_out, git_otype *type_out, git
 		return error;
 
 	*type_out = git_object_type(*obj_out);
+	return error;
+}
+
+int wrapped_git_reference_lookup(git_reference** ref_out, git_rtype *type_out,  git_repository* repo, const char* reference_name, int should_recursively_peel)
+{
+	git_reference *reference, *resolved_ref;
+	int error = GIT_SUCCESS;
+
+	error = git_reference_lookup(&reference, repo, reference_name);
+	if (error < GIT_SUCCESS)
+		return error;
+	
+	if (should_recursively_peel) {
+		error = git_reference_resolve(&resolved_ref, reference);
+		if (error < GIT_SUCCESS)
+			return error;
+	}
+
+	*type_out = git_reference_type(resolved_ref);
+	*ref_out = resolved_ref;
 	return error;
 }
 

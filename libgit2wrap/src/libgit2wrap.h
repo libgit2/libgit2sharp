@@ -14,7 +14,7 @@ GIT_EXTERN(int) wrapped_git_odb_exists(git_repository* repo, const char* raw_id)
 GIT_EXTERN(int) wrapped_git_odb_read_header(git_rawobj* obj_out, git_repository* repo, const char* raw_id);
 GIT_EXTERN(int) wrapped_git_odb_read(git_rawobj* obj_out, git_repository* repo, const char* raw_id);
 GIT_EXTERN(int) wrapped_git_apply_tag(git_tag** tag_out, git_repository* repo, const char *raw_target_id, const char *tag_name, const char *tag_message, const char *tagger_name, const char *tagger_email, time_t tagger_time, int tagger_timezone_offset);
-
+GIT_EXTERN(int) wrapped_git_reference_lookup(git_reference** ref_out, git_rtype *type_out,  git_repository* repo, const char* reference_name, int should_recursively_peel);
 GIT_END_DECL
 
 #endif
