@@ -64,20 +64,7 @@
     <Compile Include="Header.cs" />
     <Compile Include="Wrapper\Constants.cs" />
     <Compile Include="ObjectBuilder.cs" />
-    <Compile Include="Wrapper\git_commit.cs" />
-    <Compile Include="Wrapper\git_object.cs" />
-    <Compile Include="Wrapper\git_odb_source.cs" />
-    <Compile Include="Wrapper\git_oid.cs" />
-    <Compile Include="Wrapper\git_otype.cs" />
-    <Compile Include="Wrapper\git_reference.cs" />
-    <Compile Include="Wrapper\git_signature.cs" />
-    <Compile Include="Wrapper\git_rawobj.cs" />
-    <Compile Include="Wrapper\git_repository.cs" />
-    <Compile Include="Wrapper\git_tag.cs" />
-    <Compile Include="Wrapper\git_tree.cs" />
-    <Compile Include="Wrapper\git_vector.cs" />
     <Compile Include="IBuilder.cs" />
-    <Compile Include="Wrapper\NativeMethods.cs" />
     <Compile Include="ObjectType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repository.cs" />
@@ -85,6 +72,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="backlog.md" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\LibGit2Sharp.Core\LibGit2Sharp.Core.csproj">
+      <Project>{206E2795-0BA9-477A-80FB-2936933B09D1}</Project>
+      <Name>LibGit2Sharp.Core</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

@@ -7,18 +7,9 @@ namespace LibGit2Sharp
 {
     public sealed class RepositoryLifecycleManager : ILifecycleManager
     {
-        private IntPtr _repositoryPtr = IntPtr.Zero;
-        private RepositoryDetails _details;
-
-        public IntPtr RepositoryPtr
-        {
-            get { return _repositoryPtr; }
-        }
-
-        public RepositoryDetails Details
-        {
-            get { return _details; }
-        }
+        public Core.Repository CoreRepository { get; private set; }
+		
+        public RepositoryDetails Details { get; private set; }
 
         public RepositoryLifecycleManager(string initializationDirectory, bool isBare)
         {
@@ -31,7 +22,7 @@ namespace LibGit2Sharp
 
             #endregion Parameters Validation
 
-            OpenRepository(() => NativeMethods.wrapped_git_repository_init(out _repositoryPtr, Posixify(initializationDirectory), isBare));
+            OpenRepository(Core.Repository.Init(Posixify(initializationDirectory), isBare));
         }
 
         public RepositoryLifecycleManager(string repositoryDirectory)
@@ -45,7 +36,7 @@ namespace LibGit2Sharp
 
             #endregion Parameters Validation
 
-            OpenRepository(() => NativeMethods.wrapped_git_repository_open(out _repositoryPtr, Posixify(repositoryDirectory)));
+            OpenRepository(new Core.Repository(Posixify(repositoryDirectory)));
         }
 
         public RepositoryLifecycleManager(string repositoryDirectory, string databaseDirectory, string index, string workingDirectory)
@@ -74,8 +65,10 @@ namespace LibGit2Sharp
 
             #endregion Parameters Validation
 
-            OpenRepository(() => NativeMethods.wrapped_git_repository_open2(out _repositoryPtr, Posixify(repositoryDirectory),
-                                                        Posixify(databaseDirectory), Posixify(index), Posixify(workingDirectory)));
+            OpenRepository(new Core.Repository(Posixify(repositoryDirectory),
+                                               Posixify(databaseDirectory),
+                                               Posixify(index),
+                                               Posixify(workingDirectory)));
         }
 
         private static string Posixify(string path)
@@ -88,32 +81,19 @@ namespace LibGit2Sharp
             return path.Replace(Path.DirectorySeparatorChar, Constants.DirectorySeparatorChar);
         }
 
-        private void OpenRepository(Func<OperationResult> opener)
+        private void OpenRepository(Core.Repository repository)
         {
-            OperationResult result = opener();
-
-            if (result == OperationResult.GIT_SUCCESS)
-            {
-                _details = BuildRepositoryDetails(_repositoryPtr);
-                return;
-            }
-
-            _repositoryPtr = IntPtr.Zero;
-
-            switch (result)
-            {
-                case OperationResult.GIT_ENOTAREPO:
-                    throw new NotAValidRepositoryException();
-
-                default:
-                    throw new Exception(Enum.GetName(typeof(OperationResult), result));
-            }
+            CoreRepository = repository;
+            Details = BuildRepositoryDetails(repository);
         }
 
-        private static RepositoryDetails BuildRepositoryDetails(IntPtr gitRepositoryPtr)
+        private static RepositoryDetails BuildRepositoryDetails(Core.Repository coreRepository)
         {
-            var gitRepo = (git_repository)Marshal.PtrToStructure(gitRepositoryPtr, typeof(git_repository));
-            return gitRepo.Build();
+            return new RepositoryDetails(coreRepository.RepositoryDirectory,
+                                         coreRepository.IndexFile,
+                                         coreRepository.DatabaseDirectory,
+                                         coreRepository.WorkingDirectory,
+                                         coreRepository.IsBare);
         }
 
         public void Dispose()
@@ -124,13 +104,11 @@ namespace LibGit2Sharp
 
         private void Dispose(bool disposing)
         {
-            if (_repositoryPtr == IntPtr.Zero)
+            if (CoreRepository != null)
             {
-                return;
+            	CoreRepository.Dispose();
+            	CoreRepository = null;
             }
-
-            NativeMethods.wrapped_git_repository_free(_repositoryPtr);
-            _repositoryPtr = IntPtr.Zero;
         }
 
         ~RepositoryLifecycleManager()

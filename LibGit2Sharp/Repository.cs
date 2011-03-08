@@ -36,50 +36,41 @@ namespace LibGit2Sharp
         {
             _lifecycleManager = lifecycleManager;
             _builder = new ObjectBuilder();
-            _objectResolver = new ObjectResolver(_lifecycleManager.RepositoryPtr, _builder);
-            _referenceManager = new ReferenceManager(_lifecycleManager.RepositoryPtr);
+            _objectResolver = new ObjectResolver(_lifecycleManager.CoreRepository, _builder);
+            _referenceManager = new ReferenceManager(_lifecycleManager.CoreRepository);
         }
 
         public Header ReadHeader(string objectId)
         {
-            DatabaseReader reader = NativeMethods.wrapped_git_odb_read_header;
-            Func<git_rawobj, Header> builder = rawObj => rawObj.BuildHeader(objectId);
-
-            return ReadInternal(objectId, reader, builder);
+            Func<Core.RawObject, Header> builder = rawObj => { 
+                return new Header(objectId, (ObjectType)rawObj.Type, rawObj.Length);
+            };
+			
+            return ReadInternal(objectId, builder);
         }
 
         public RawObject Read(string objectId)
         {
-            DatabaseReader reader = NativeMethods.wrapped_git_odb_read;
-            Func<git_rawobj, RawObject> builder = rawObj => rawObj.Build(objectId);
-
             //TODO: RawObject should be freed when the Repository is disposed (cf. https://github.com/libgit2/libgit2/blob/6fd195d76c7f52baae5540e287affe2259900d36/tests/t0205-readheader.c#L202)
-            return ReadInternal(objectId, reader, builder);
+            
+            Func<Core.RawObject, RawObject> builder = rawObj => {
+                Header header = new Header(objectId, (ObjectType)rawObj.Type, rawObj.Length);
+                return new RawObject(header, rawObj.GetData());
+            };
+
+            return ReadInternal(objectId, builder);
         }
 
         public bool Exists(string objectId)
         {
-            return NativeMethods.wrapped_git_odb_exists(_lifecycleManager.RepositoryPtr, objectId);
+            return _lifecycleManager.CoreRepository.Database.Exists(new Core.ObjectId(objectId));
         }
-
-        private delegate OperationResult DatabaseReader(out git_rawobj rawobj, IntPtr repository, string objectId);
-
-        private TType ReadInternal<TType>(string objectId, DatabaseReader reader, Func<git_rawobj, TType> builder)
+		
+        private TType ReadInternal<TType>(string objectid, Func<Core.RawObject, TType> builder) 
         {
-            git_rawobj rawObj;
-            OperationResult result = reader(out rawObj, _lifecycleManager.RepositoryPtr, objectId);
-
-            switch (result)
-            {
-                case OperationResult.GIT_SUCCESS:
-                    return builder(rawObj);
-
-                case OperationResult.GIT_ENOTFOUND:
-                    return default(TType);
-
-                default:
-                    throw new Exception(Enum.GetName(typeof(OperationResult), result));
-            }
+            var rawObj = _lifecycleManager.CoreRepository.Database.ReadHeader(new Core.ObjectId(objectid));
+            
+            return builder(rawObj);
         }
 
         public static string Init(string path, bool isBare)
@@ -117,22 +108,19 @@ namespace LibGit2Sharp
 
         public Tag ApplyTag(string targetId, string tagName, string tagMessage, Signature signature)
         {
-            // TODO: To be refactored.
-            IntPtr tag;
-            var when = signature.When.ToGitDate();
-            OperationResult result = NativeMethods.wrapped_git_apply_tag(out tag, _lifecycleManager.RepositoryPtr, targetId, tagName, tagMessage, signature.Name, signature.Email, (ulong)when.UnixTimeStamp, when.TimeZoneOffset);
+            Core.Repository coreRepository = _lifecycleManager.CoreRepository;
+            
+            Core.Tag tag = new Core.Tag(coreRepository);
+            tag.Name = tagName;
+            tag.Message = tagMessage;
+            tag.Target = coreRepository.Lookup(new Core.ObjectId(targetId));
+            // TODO: add time
+            tag.Tagger = new Core.Signature(signature.Name, signature.Email);
 
-            switch (result)
-            {
-                case OperationResult.GIT_SUCCESS:
-                    return (Tag)_builder.BuildFrom(tag, ObjectType.Tag);
+            // TODO: catch and rethrow exceptions
+            tag.Write();
 
-                case OperationResult.GIT_ENOTFOUND:
-                    throw new ObjectNotFoundException();
-
-                default:
-                    throw new Exception(Enum.GetName(typeof(OperationResult), result));
-            }
+            return (Tag)_builder.BuildFrom(tag);
         }
     }
 }

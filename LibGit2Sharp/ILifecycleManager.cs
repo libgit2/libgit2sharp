@@ -4,7 +4,7 @@ namespace LibGit2Sharp
 {
     public interface ILifecycleManager : IDisposable
     {
-        IntPtr RepositoryPtr { get; }
+        Core.Repository CoreRepository { get; }
         RepositoryDetails Details { get; }
     }
 }

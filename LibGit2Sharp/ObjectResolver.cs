@@ -7,7 +7,7 @@ namespace LibGit2Sharp
 {
     public class ObjectResolver : IObjectResolver
     {
-        private readonly IntPtr _repositoryPtr = IntPtr.Zero;
+        private readonly Core.Repository _coreRepository = null;
         private readonly IBuilder _builder;
 
         private static readonly IDictionary<ObjectType, Type> TypeMapper = new Dictionary<ObjectType, Type>
@@ -21,11 +21,12 @@ namespace LibGit2Sharp
         private static readonly IDictionary<Type, ObjectType> ReverseTypeMapper =
             TypeMapper.ToDictionary(kv => kv.Value, kv => kv.Key);
 
-        public ObjectResolver(IntPtr repositoryPtr, IBuilder builder)
+        public ObjectResolver(Core.Repository coreRepository, IBuilder builder)
         {
+			
             #region Parameters Validation
 
-            if (repositoryPtr == IntPtr.Zero)
+            if (coreRepository == null)
             {
                 throw new ArgumentNullException("repositoryPtr");
             }
@@ -37,48 +38,35 @@ namespace LibGit2Sharp
 
             #endregion
 
-            _repositoryPtr = repositoryPtr;
+			_coreRepository = coreRepository;
             _builder = builder;
         }
 
         public object Resolve(string objectId, Type expectedType)
         {
+			
             if (!typeof(GitObject).IsAssignableFrom(expectedType))
             {
                 throw new ArgumentException("Only types deriving from GitObject are allowed.", "expectedType");
             }
-
-            var expected = git_otype.GIT_OBJ_ANY;
+            
+            var expected = Core.git_otype.GIT_OBJ_ANY;
 
             if (expectedType != typeof(GitObject))
             {
-                expected = (git_otype)ReverseTypeMapper[expectedType];
+                expected = (Core.git_otype)ReverseTypeMapper[expectedType];
             }
-
-            IntPtr gitObjectPtr;
-
-            git_otype retrieved;
-            OperationResult result = NativeMethods.wrapped_git_repository_lookup(out gitObjectPtr, out retrieved, _repositoryPtr, objectId);
-
-            var expectedTypeHasBeenRetrieved = expected == git_otype.GIT_OBJ_ANY || retrieved == expected;
-
-            if (result == OperationResult.GIT_SUCCESS && !expectedTypeHasBeenRetrieved)
+            
+            Core.GitObject obj = _coreRepository.Lookup(new Core.ObjectId(objectId));
+            
+            var expectedTypeHasBeenRetrieved = expected == Core.git_otype.GIT_OBJ_ANY || obj.Type == expected;
+            
+            if (!expectedTypeHasBeenRetrieved)
             {
-                result = OperationResult.GIT_ENOTFOUND;
+                return null;
             }
-
-            switch (result)
-            {
-                case OperationResult.GIT_SUCCESS:
-                    return _builder.BuildFrom(gitObjectPtr, (ObjectType)retrieved);
-
-                case OperationResult.GIT_ENOTFOUND:
-                case OperationResult.GIT_EINVALIDTYPE:
-                    return null;
-
-                default:
-                    throw new Exception(Enum.GetName(typeof(OperationResult), result));
-            }
+            
+            return _builder.BuildFrom(obj);
         }
     }
 }

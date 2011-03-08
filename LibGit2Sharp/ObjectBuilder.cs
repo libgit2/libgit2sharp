@@ -8,16 +8,16 @@ namespace LibGit2Sharp
 {
     public class ObjectBuilder : IBuilder
     {
-        private readonly IDictionary<ObjectType, Func<IntPtr, GitObject>> _builderMapper;
+        private readonly IDictionary<ObjectType, Func<Core.GitObject, GitObject>> _builderMapper;
 
         public ObjectBuilder()
         {
             _builderMapper = InitMapper();
         }
 
-        private IDictionary<ObjectType, Func<IntPtr, GitObject>> InitMapper()
+        private IDictionary<ObjectType, Func<Core.GitObject, GitObject>> InitMapper()
         {
-            var map =  new Dictionary<ObjectType, Func<IntPtr, GitObject>>();
+            var map =  new Dictionary<ObjectType, Func<Core.GitObject, GitObject>>();
             map.Add(ObjectType.Commit, BuildCommit);
             map.Add(ObjectType.Tag, BuildTag);
             map.Add(ObjectType.Tree, BuildTree);
@@ -25,82 +25,70 @@ namespace LibGit2Sharp
             return map;
         }
 
-        private GitObject BuildTag(IntPtr gitObjectPtr)
+        private GitObject BuildTag(Core.GitObject gitObject)
         {
-            var gitTag = (git_tag)Marshal.PtrToStructure(gitObjectPtr, typeof(git_tag));
+            var coreTag = gitObject as Core.Tag;
             
-            Signature tagTagger = BuildSignature(gitTag.tagger);
-            GitObject tagTarget = BuildFrom(gitTag.target, (ObjectType)gitTag.type);
-
-            return new Tag(ObjectId.ToString(gitTag.tag.id.id), gitTag.tag_name, tagTarget, tagTagger, gitTag.message);
+            Signature tagTagger = BuildSignature(coreTag.Tagger);
+            GitObject tagTarget = BuildFrom(coreTag.Target);
+            
+            return new Tag(coreTag.ObjectId.ToString(), coreTag.Name, tagTarget, tagTagger, coreTag.Message);
         }
 
-        private static GitObject BuildCommit(IntPtr gitObjectPtr)
+        private static GitObject BuildCommit(Core.GitObject gitObject)
         {
-            var gitCommit = (git_commit)Marshal.PtrToStructure(gitObjectPtr, typeof(git_commit));
-
-            Signature commitAuthor = BuildSignature(gitCommit.author);
-            Signature commitCommitter = BuildSignature(gitCommit.committer);
-            var commitTree = (Tree)BuildTree(gitCommit.tree);
-
-            var numberOfParents = (int)gitCommit.parents.length;
-            IList<GitObject> parents = new List<GitObject>(numberOfParents);
-
-            for (int i = 0; i < numberOfParents; i++)
-            {
-                IntPtr nextParentPtrPtr = new IntPtr(gitCommit.parents.contents.ToInt64() + i * Marshal.SizeOf(typeof(IntPtr)));
-                IntPtr parentPtr = Marshal.ReadIntPtr(nextParentPtrPtr);
-                var parentGitObject = BuildGitObject(parentPtr);
-                parents.Add(parentGitObject);
-            }
-
-            return new Commit(ObjectId.ToString(gitCommit.commit.id.id), commitAuthor, commitCommitter, gitCommit.message, gitCommit.message_short, commitTree, parents);
+            Core.Commit commit = gitObject as Core.Commit;
+            Signature commitAuthor = BuildSignature(commit.Author);
+            Signature commitCommitter = BuildSignature(commit.Committer);
+            Tree commitTree = (Tree)BuildTree(commit.Tree);
+            // TODO: Do we really have to read all the commit parents, like the
+            // old code did? Take the linux repo, and you are will be loading stuff
+            // for ours. Last argument is now an empty list, it has to be changed
+            // after making a decision.
+            return new Commit(gitObject.ObjectId.ToString(), commitAuthor, commitCommitter, commit.Message, commit.MessageShort, commitTree, new List<GitObject>());
         }
 
-        private static GitObject BuildTree(IntPtr gitObjectPtr)
+        private static GitObject BuildTree(Core.GitObject gitObject)
         {
-            var gitTree = (git_tree)Marshal.PtrToStructure(gitObjectPtr, typeof(git_tree));
-            return new Tree(ObjectId.ToString(gitTree.tree.id.id));
+            return new Tree((gitObject as Core.Tree).ObjectId.ToString());
         }
 
 
-        private static GitObject BuildBlob(IntPtr gitObjectPtr)
+        private static GitObject BuildBlob(Core.GitObject gitObjectPtr)
         {
             throw new NotImplementedException();
-            //var gitBlob = (git_blob)Marshal.PtrToStructure(gitObjectPtr, typeof(git_blob));
-            //return new Blob(...)
         }
 
-        private static Signature BuildSignature(IntPtr gitObjectPtr)
+        private static Signature BuildSignature(Core.Signature sig)
         {
-            if (gitObjectPtr == IntPtr.Zero)
+            if (sig == null)
             {
                 return null; // TODO: Fix full parsing of commits.
             }
-
-            var gitPerson = (git_signature)Marshal.PtrToStructure(gitObjectPtr, typeof(git_signature));
-            return new Signature(gitPerson.name, gitPerson.email, new GitDate((int)gitPerson.time, gitPerson.offset));
+            
+            return new Signature(sig.Name, sig.Email, new GitDate((int)sig.Time, sig.Offset));
         }
 
-        private static GitObject BuildGitObject(IntPtr gitObjectPtr)
+        private static GitObject BuildGitObject(Core.GitObject gitObject)
         {
-            var gitObject = (git_object)Marshal.PtrToStructure(gitObjectPtr, typeof(git_object));
-            return new GitObject(ObjectId.ToString(gitObject.id.id), (ObjectType)gitObject.source.raw.type);
+            return new GitObject(gitObject.ObjectId.ToString(), (ObjectType)gitObject.Type);
         }
 
-        public GitObject BuildFrom(IntPtr gitObjectPtr, ObjectType type)
+        public GitObject BuildFrom(Core.GitObject obj)
         {
-            if (gitObjectPtr == IntPtr.Zero)
+            if (obj == null)
             {
-                throw new ArgumentNullException("gitObjectPtr");
+                throw new ArgumentNullException("obj");
             }
 
+            ObjectType type = (ObjectType)obj.Type;
+            
             if (!_builderMapper.Keys.Contains(type))
             {
-                return BuildGitObject(gitObjectPtr);
+                return BuildGitObject(obj);
             }
 
-            return _builderMapper[type](gitObjectPtr);
+            return _builderMapper[type](obj);
         }
     }
 }

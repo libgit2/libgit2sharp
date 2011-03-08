@@ -32,7 +32,7 @@ namespace LibGit2Sharp.Core
 {
     unsafe internal class NativeMethods
     {
-        private const string libgit2 = "libgit2.dll";
+        private const string libgit2 = "git2.dll";
 
 
         [DllImport(libgit2)]

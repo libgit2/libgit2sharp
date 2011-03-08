@@ -1,26 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using LibGit2Sharp.Wrapper;
 
 namespace LibGit2Sharp
 {
     public class ReferenceManager : IReferenceManager
     {
-        private readonly IntPtr _repositoryPtr = IntPtr.Zero;
+        private readonly Core.Repository _coreRepository;
 
-        public ReferenceManager(IntPtr repositoryPtr)
+        public ReferenceManager(Core.Repository coreRepository)
         {
             #region Parameters Validation
 
-            if (repositoryPtr == IntPtr.Zero)
+            if (coreRepository == null)
             {
-                throw new ArgumentNullException("repositoryPtr");
+                throw new ArgumentNullException("coreRepository");
             }
 
             #endregion
 
-            _repositoryPtr = repositoryPtr;
+            _coreRepository = coreRepository;
         }
 
         public IList<Ref> RetrieveAll()
@@ -35,38 +34,30 @@ namespace LibGit2Sharp
 
         public Ref Lookup(string referenceName, bool shouldEagerlyPeel)
         {
-            IntPtr referencePtr;
+            Core.Reference reference = _coreRepository.ReferenceLookup(referenceName);
 
-            git_rtype retrieved;
-            OperationResult result = NativeMethods.wrapped_git_reference_lookup(out referencePtr, out retrieved, _repositoryPtr, referenceName, shouldEagerlyPeel);
-
-            switch (result)
+            if (!shouldEagerlyPeel)
             {
-                case OperationResult.GIT_SUCCESS:
-                    return BuildFrom(referencePtr, referenceName, retrieved);
-
-                case OperationResult.GIT_ENOTFOUND:
-                    return null;
-
-                default:
-                    throw new Exception(Enum.GetName(typeof(OperationResult), result));
+                return BuildFrom(reference, referenceName);
             }
+
+            Core.ObjectIdReference oidReference = reference.Resolve();
+            return BuildFrom(oidReference, referenceName);
+
         }
 
-        private static Ref BuildFrom(IntPtr referencePtr, string referenceName, git_rtype referenceType)
+        private static Ref BuildFrom(Core.Reference reference, string referenceName)
         {
-            switch (referenceType)
+            switch (reference.Type)
             {
-                case git_rtype.GIT_REF_OID:
-                    var oidRef = (git_reference_oid)Marshal.PtrToStructure(referencePtr, typeof(git_reference_oid));
-                    return new Ref(referenceName, ObjectId.ToString(oidRef.oid.id));
+                case Core.git_rtype.GIT_REF_OID:
+                    return new Ref(referenceName, ((Core.ObjectIdReference)reference).ObjectId.ToString());
 
-                case git_rtype.GIT_REF_SYMBOLIC:
-                    var symRef = (git_reference_symbolic)Marshal.PtrToStructure(referencePtr, typeof(git_reference_symbolic));
-                    return new Ref(referenceName, symRef.target);
+                case Core.git_rtype.GIT_REF_SYMBOLIC:
+                    return new Ref(referenceName, ((Core.SymbolicReference)reference).Target);
 
                 default:
-                    throw new ArgumentException(string.Format("Unexpected value {0}.", Enum.GetName(typeof(git_rtype), referenceType)), "referenceType");
+                    throw new Exception(string.Format("Unexpected reference type ({0}).", Enum.GetName(typeof(Core.git_rtype), reference.Type)));
             }
         }
     }
