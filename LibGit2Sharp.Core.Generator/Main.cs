@@ -404,7 +404,7 @@ namespace LibGit2Sharp.Core.Generator
             tw.WriteLine("{");
             tw.WriteLine("    unsafe internal class NativeMethods");
             tw.WriteLine("    {");
-            tw.WriteLine("        private const string libgit2 = \"libgit2.dll\";");
+            tw.WriteLine("        private const string libgit2 = \"git2.dll\";");
             tw.WriteLine();
 
             foreach (string function in functions)
