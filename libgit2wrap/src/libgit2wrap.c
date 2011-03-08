@@ -104,6 +104,8 @@ int wrapped_git_reference_lookup(git_reference** ref_out, git_rtype *type_out,  
 	if (error < GIT_SUCCESS)
 		return error;
 	
+	resolved_ref = reference;
+
 	if (should_recursively_peel) {
 		error = git_reference_resolve(&resolved_ref, reference);
 		if (error < GIT_SUCCESS)

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using LibGit2Sharp.Wrapper;
 
 namespace LibGit2Sharp
@@ -9,11 +8,16 @@ namespace LibGit2Sharp
         private readonly IObjectResolver _objectResolver;
         private readonly ILifecycleManager _lifecycleManager;
         private readonly IBuilder _builder;
-        private readonly IRefsResolver _refsResolver;
+        private readonly IReferenceManager _referenceManager;
 
         public RepositoryDetails Details
         {
             get { return _lifecycleManager.Details; }
+        }
+
+        public IReferenceManager Refs
+        {
+            get { return _referenceManager; }
         }
 
         public Repository(string repositoryDirectory, string databaseDirectory, string index, string workingDirectory)
@@ -33,13 +37,8 @@ namespace LibGit2Sharp
             _lifecycleManager = lifecycleManager;
             _builder = new ObjectBuilder();
             _objectResolver = new ObjectResolver(_lifecycleManager.RepositoryPtr, _builder);
-            _refsResolver = new RefsResolver(_lifecycleManager.RepositoryPtr);
+            _referenceManager = new ReferenceManager(_lifecycleManager.RepositoryPtr);
         }
-
-        public IList<Ref> RetrieveRefs()
-        {
-            throw new NotImplementedException();
-        } 
 
         public Header ReadHeader(string objectId)
         {
@@ -107,7 +106,7 @@ namespace LibGit2Sharp
                 return _objectResolver.Resolve(identifier, expectedType);
             }
 
-            Ref reference = _refsResolver.Resolve(identifier, true);
+            Ref reference = Refs.Lookup(identifier, true);
             if (reference == null)
             {
                 return null;

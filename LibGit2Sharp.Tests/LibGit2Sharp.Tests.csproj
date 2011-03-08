@@ -46,6 +46,7 @@
     <Compile Include="ApplyingATag.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="LookingUpAHeadReference.cs" />
     <Compile Include="ResolvingAHeadReference.cs" />
     <Compile Include="GitDateFixture.cs" />
     <Compile Include="InitializingARepository.cs" />

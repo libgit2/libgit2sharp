@@ -11,7 +11,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(PathToRepository))
             {
-                var gitObject = repo.Resolve(reference);
+                GitObject gitObject = repo.Resolve(reference);
                 Assert.IsNotNull(gitObject);
                 Assert.IsAssignableFrom(typeof(Commit), gitObject);
                 Assert.AreEqual(ObjectType.Commit, gitObject.Type);
