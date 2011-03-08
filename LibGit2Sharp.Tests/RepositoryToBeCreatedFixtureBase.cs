@@ -16,7 +16,7 @@ namespace LibGit2Sharp.Tests
         [SetUp]
         public virtual void Setup()
         {
-            string workDirpath = Path.Combine(_testRepositoriesDirectoryPath, this.GetType().Name, Guid.NewGuid().ToString().Substring(0, 8));
+            string workDirpath = Path.Combine(Path.Combine(_testRepositoriesDirectoryPath, this.GetType().Name), Guid.NewGuid().ToString().Substring(0, 8));
 
             Directory.CreateDirectory(workDirpath);
 
