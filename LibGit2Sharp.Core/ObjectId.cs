@@ -28,12 +28,12 @@ using System.Runtime.InteropServices;
 
 namespace LibGit2Sharp.Core
 {
-	unsafe public class ObjectId
+	unsafe public struct ObjectId
 	{
 		public const int RawSize = 20;
 		public const int HexSize = RawSize * 2;
 
-		internal git_oid oid = new git_oid();
+		internal git_oid oid;
 
 		internal ObjectId(git_oid *oid)
 		{
@@ -59,11 +59,7 @@ namespace LibGit2Sharp.Core
 
 		public static int Compare(ObjectId a, ObjectId b)
 		{
-			fixed (git_oid *ap = &a.oid)
-			fixed (git_oid *bp = &b.oid)
-			{
-				return NativeMethods.git_oid_cmp(ap, bp);
-			}
+			return NativeMethods.git_oid_cmp(&a.oid, &b.oid);
 		}
 
 		public static int Compare(string a, string b)

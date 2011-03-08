@@ -116,9 +116,9 @@ namespace LibGit2Sharp.Core
 
 		public ObjectIdReference(Repository repository, string name, ObjectId oid)
 		{
-			fixed (git_oid *poid = &oid.oid)
+			fixed (git_reference **reference = &this.reference)
 			{
-				int ret = NativeMethods.git_reference_create_oid(ref reference, repository.repository, name, poid);
+				int ret = NativeMethods.git_reference_create_oid(reference, repository.repository, name, &oid.oid);
 				GitError.Check(ret);
 			}
 		}
@@ -129,10 +129,7 @@ namespace LibGit2Sharp.Core
 				return new ObjectId(NativeMethods.git_reference_oid(reference));
 			}
 			set {
-				fixed (git_oid *poid = &value.oid)
-				{
-					NativeMethods.git_reference_set_oid(reference, poid);
-				}
+				NativeMethods.git_reference_set_oid(reference, &value.oid);
 			}
 		}
 	}

@@ -82,11 +82,9 @@ namespace LibGit2Sharp.Core
 		public GitObject Lookup(ObjectId oid, git_otype type)
 		{
 			git_object *obj = null;
-			fixed (git_oid *p = &oid.oid)
-			{
-				int ret = NativeMethods.git_object_lookup(ref obj, repository, p, type);
-				GitError.Check(ret);
-			}
+			int ret = NativeMethods.git_object_lookup(&obj, repository, &oid.oid, type);
+			
+			GitError.Check(ret);
 
 			if (obj == null)
 				return null;
@@ -97,11 +95,8 @@ namespace LibGit2Sharp.Core
 		public T Lookup<T>(ObjectId oid) where T : GitObject
 		{
 			git_object *obj = null;
-			fixed (git_oid *p = &oid.oid)
-			{
-				int ret = NativeMethods.git_object_lookup(ref obj, repository, p, GitObject.GetType(typeof(T)));
-				GitError.Check(ret);
-			}
+			int ret = NativeMethods.git_object_lookup(&obj, repository, &oid.oid, GitObject.GetType(typeof(T)));
+			GitError.Check(ret);
 
 			if (obj == null)
 				return default(T);

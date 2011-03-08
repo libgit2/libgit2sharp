@@ -44,10 +44,7 @@ namespace LibGit2Sharp.Core
 				return new ObjectId(NativeMethods.git_tree_entry_id(entry));
 			}
 			set {
-				fixed (git_oid *poid = &value.oid)
-				{
-					NativeMethods.git_tree_entry_set_id(entry, poid);
-				}
+				NativeMethods.git_tree_entry_set_id(entry, &value.oid);
 			}
 		}
 

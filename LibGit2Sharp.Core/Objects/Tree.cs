@@ -84,11 +84,8 @@ namespace LibGit2Sharp.Core
 		public TreeEntry Add(ObjectId oid, string filename, int attributes)
 		{
 			git_tree_entry *tree_entry = null;
-			fixed (git_oid *poid = &oid.oid)
-			{
-				int ret = NativeMethods.git_tree_add_entry(ref tree_entry, tree, poid, filename, attributes);
-				GitError.Check(ret);
-			}
+			int ret = NativeMethods.git_tree_add_entry(&tree_entry, tree, &oid.oid, filename, attributes);
+			GitError.Check(ret);
 			return new TreeEntry(tree_entry);
 		}
 

@@ -78,10 +78,7 @@ namespace LibGit2Sharp.Core
 
 		public static void WriteFile(ObjectId writtenId, Repository repository, string path)
 		{
-			fixed (git_oid *poid = &writtenId.oid)
-			{
-				NativeMethods.git_blob_writefile(poid, repository.repository, path);
-			}
+			NativeMethods.git_blob_writefile(&writtenId.oid, repository.repository, path);
 		}
 	}
 }
