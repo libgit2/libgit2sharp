@@ -77,10 +77,5 @@ mostly nick named txdv or bentkus on every major irc network.
 
 License
 =======
-libgit2sharp is under GPL2 **with linking exemption**. This means you
-can link to the library with any program, commercial, open source or
-other.  However, you cannot modify libgit2 and distribute it without
-supplying the source.
-
-See the COPYING file for the full license text.
+MIT License. Read LICENSE file.
 
