@@ -71,7 +71,7 @@ namespace LibGit2Sharp
                 return new Header(objectId, (ObjectType)rawObj.Type, rawObj.Length);
             };
 			
-            return ReadInternal(objectId, builder);
+            return ReadHeaderInternal(objectId, builder);
         }
 
         public RawObject Read(string objectId)
@@ -91,9 +91,16 @@ namespace LibGit2Sharp
             return _lifecycleManager.CoreRepository.Database.Exists(new Core.ObjectId(objectId));
         }
 		
-        private TType ReadInternal<TType>(string objectid, Func<Core.RawObject, TType> builder) 
+        private TType ReadHeaderInternal<TType>(string objectid, Func<Core.RawObject, TType> builder)
         {
             var rawObj = _lifecycleManager.CoreRepository.Database.ReadHeader(new Core.ObjectId(objectid));
+
+            return builder(rawObj);
+        }
+
+        private TType ReadInternal<TType>(string objectid, Func<Core.RawObject, TType> builder)
+        {
+            var rawObj = _lifecycleManager.CoreRepository.Database.Read(new Core.ObjectId(objectid));
             
             return builder(rawObj);
         }
