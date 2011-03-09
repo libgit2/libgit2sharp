@@ -52,6 +52,9 @@ namespace LibGit2Sharp.Core
     
         public byte[] GetData()
         {
+            if (rawobj.data == IntPtr.Zero)
+                return null;
+
             byte[] rawData = new byte[Length];
             Marshal.Copy(rawobj.data, rawData, 0, (int)Length);
             return rawData;
