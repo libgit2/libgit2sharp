@@ -62,6 +62,15 @@ NativeMethods.cs for LibGit2.Core. You can do it via the command line:
 
 Or just use "Run this item" from your IDE.
 
+Coding Guidelines
+=================
+
+We are using the default Microsoft/MSDN guidlines for coding.
+Please don't forget that our tab consists of 4 spaces and every
+text file should have a new line at the ending.
+The later rule makes it easier for patch tools used by vanilla
+git to retrieve patch hunks.
+
 Authors
 =======
 
