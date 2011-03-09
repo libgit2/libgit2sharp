@@ -190,6 +190,30 @@ namespace LibGit2Sharp.Core
                 return new Database(NativeMethods.git_repository_database(repository));
             }
         }
+
+        public ObjectId HeadObjectId
+        {
+            get {
+                return ReferenceLookup("HEAD").Resolve().ObjectId;
+            }
+        }
+
+        public GitObject GetHead()
+        {
+            return Lookup(HeadObjectId);
+        }
+
+        public T GetHead<T>() where T : GitObject
+        {
+            return Lookup<T>(HeadObjectId);
+        }
+
+        public Commit Head
+        {
+            get {
+                return GetHead<Commit>();
+            }
+        }
         
         #region IDisposable implementation
         public void Dispose()
