@@ -5,8 +5,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibGit2Sharp", "LibGit2Shar
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibGit2Sharp.Tests", "LibGit2Sharp.Tests\LibGit2Sharp.Tests.csproj", "{286E63EB-04DD-4ADE-88D6-041B57800761}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibGit2Sharp.Core.Generator", "LibGit2Sharp.Core.Generator\LibGit2Sharp.Core.Generator.csproj", "{2F434CB5-FB41-4B43-83E4-79C9B57DF622}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -37,18 +35,6 @@ Global
 		{286E63EB-04DD-4ADE-88D6-041B57800761}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{286E63EB-04DD-4ADE-88D6-041B57800761}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{286E63EB-04DD-4ADE-88D6-041B57800761}.Release|Win32.ActiveCfg = Release|Any CPU
-		{2F434CB5-FB41-4B43-83E4-79C9B57DF622}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2F434CB5-FB41-4B43-83E4-79C9B57DF622}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2F434CB5-FB41-4B43-83E4-79C9B57DF622}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{2F434CB5-FB41-4B43-83E4-79C9B57DF622}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{2F434CB5-FB41-4B43-83E4-79C9B57DF622}.Debug|Win32.ActiveCfg = Debug|Any CPU
-		{2F434CB5-FB41-4B43-83E4-79C9B57DF622}.Debug|Win32.Build.0 = Debug|Any CPU
-		{2F434CB5-FB41-4B43-83E4-79C9B57DF622}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2F434CB5-FB41-4B43-83E4-79C9B57DF622}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2F434CB5-FB41-4B43-83E4-79C9B57DF622}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{2F434CB5-FB41-4B43-83E4-79C9B57DF622}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{2F434CB5-FB41-4B43-83E4-79C9B57DF622}.Release|Win32.ActiveCfg = Release|Any CPU
-		{2F434CB5-FB41-4B43-83E4-79C9B57DF622}.Release|Win32.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
