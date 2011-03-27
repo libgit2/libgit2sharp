@@ -9,7 +9,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>LibGit2Sharp.Tests</RootNamespace>
-    <AssemblyName>LibGit2Sharp.Tests</AssemblyName>
+    <AssemblyName>LibGit2Sharp.Tests.Net35</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
