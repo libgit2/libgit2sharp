@@ -45,6 +45,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Constants.cs" />
+    <Compile Include="GitOidFixture.cs" />
     <Compile Include="TestHelpers\AssertExtensions.cs" />
     <Compile Include="TestHelpers\DirectoryHelper.cs" />
     <Compile Include="ReadOnlyRepositoryFixtureBase.cs" />

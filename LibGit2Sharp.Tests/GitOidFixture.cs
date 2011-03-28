@@ -24,34 +24,25 @@
 
 #endregion
 
-using System;
-using System.Runtime.InteropServices;
+using NUnit.Framework;
 
-namespace LibGit2Sharp
+namespace LibGit2Sharp.Tests
 {
-    internal class NativeMethods
+    [TestFixture]
+    public class GitOidFixture
     {
-        private const string libgit2 = "git2.dll";
+        [Test]
+        public void CanConvertOidToSha()
+        {
+            var oid = new GitOid {Id = new byte[] {206, 8, 254, 72, 132, 101, 15, 6, 123, 213, 112, 59, 106, 89, 168, 179, 179, 201, 154, 9}};
+            oid.ToSha().ShouldEqual("ce08fe4884650f067bd5703b6a59a8b3b3c99a09");
+            oid.ToString().ShouldEqual("ce08fe4884650f067bd5703b6a59a8b3b3c99a09");
+        }
 
-        [DllImport(libgit2, SetLastError = true)]
-        public static extern void git_odb_object_close(IntPtr obj);
-
-        [DllImport(libgit2, SetLastError = true)]
-        public static extern void git_oid_fmt(byte[] str, ref GitOid oid);
-
-        [DllImport(libgit2, SetLastError = true)]
-        public static extern int git_oid_mkstr(out GitOid oid, string str);
-
-        [DllImport(libgit2, SetLastError = true)]
-        public static extern IntPtr git_repository_database(IntPtr repository);
-
-        [DllImport(libgit2, SetLastError = true)]
-        public static extern void git_repository_free(IntPtr repository);
-
-        [DllImport(libgit2, SetLastError = true)]
-        public static extern int git_repository_init(out IntPtr repository, string path, bool isBare);
-
-        [DllImport(libgit2, SetLastError = true)]
-        public static extern int git_repository_open(out IntPtr repository, string path);
+        [Test]
+        public void CanConvertShaToOid()
+        {
+            GitOid.FromSha("ce08fe4884650f067bd5703b6a59a8b3b3c99a09").Id.ShouldEqual(new byte[] {206, 8, 254, 72, 132, 101, 15, 6, 123, 213, 112, 59, 106, 89, 168, 179, 179, 201, 154, 9});
+        }
     }
 }
