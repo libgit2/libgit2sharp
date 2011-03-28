@@ -36,6 +36,7 @@ namespace LibGit2Sharp
     /// </summary>
     public class Repository : IDisposable
     {
+        private const char posixDirectorySeparatorChar = '/';
         private readonly RepositoryOptions options;
         private readonly IntPtr repo = IntPtr.Zero;
         private bool disposed;
@@ -57,7 +58,7 @@ namespace LibGit2Sharp
             this.options = options ?? new RepositoryOptions();
 
             Path = path;
-            PosixPath = path.Replace(System.IO.Path.DirectorySeparatorChar, System.IO.Path.AltDirectorySeparatorChar);
+            PosixPath = path.Replace(System.IO.Path.DirectorySeparatorChar, posixDirectorySeparatorChar);
 
             if (!this.options.CreateIfNeeded && !Directory.Exists(path))
                 throw new ArgumentException(Resources.RepositoryDoesNotExist, "path");
@@ -125,6 +126,38 @@ namespace LibGit2Sharp
         /// </summary>
         public string PosixPath { get; private set; }
 
+        #region IDisposable Members
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        #endregion
+
+        private void Dispose(bool disposing)
+        {
+            // Check to see if Dispose has already been called.
+            if (!disposed)
+            {
+                // If disposing equals true, dispose all managed
+                // and unmanaged resources.
+                if (disposing)
+                {
+                    // Dispose managed resources.
+                }
+
+                // Call the appropriate methods to clean up
+                // unmanaged resources here.
+                if (repo != IntPtr.Zero)
+                    NativeMethods.git_repository_free(repo);
+
+                // Note disposing has been done.
+                disposed = true;
+            }
+        }
+
         /// <summary>
         ///   Tells if the specified <see cref = "GitOid" /> exists in the repository.
         /// 
@@ -156,6 +189,14 @@ namespace LibGit2Sharp
 
             var oid = GitOid.FromSha(sha);
             return Exists(oid);
+        }
+
+        ~Repository()
+        {
+            // Do not re-create Dispose clean-up code here.
+            // Calling Dispose(false) is optimal in terms of
+            // readability and maintainability.
+            Dispose(false);
         }
 
         private GitObject Lookup(GitOid oid, GitObjectType type = GitObjectType.Any, bool throwIfNotFound = true)
@@ -257,46 +298,6 @@ namespace LibGit2Sharp
         public GitObject TryLookup(GitOid oid, GitObjectType type = GitObjectType.Any)
         {
             return Lookup(oid, type, false);
-        }
-
-        #region IDisposable Members
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        #endregion
-
-        private void Dispose(bool disposing)
-        {
-            // Check to see if Dispose has already been called.
-            if (!disposed)
-            {
-                // If disposing equals true, dispose all managed
-                // and unmanaged resources.
-                if (disposing)
-                {
-                    // Dispose managed resources.
-                }
-
-                // Call the appropriate methods to clean up
-                // unmanaged resources here.
-                if (repo != IntPtr.Zero)
-                    NativeMethods.git_repository_free(repo);
-
-                // Note disposing has been done.
-                disposed = true;
-            }
-        }
-
-        ~Repository()
-        {
-            // Do not re-create Dispose clean-up code here.
-            // Calling Dispose(false) is optimal in terms of
-            // readability and maintainability.
-            Dispose(false);
         }
     }
 }
