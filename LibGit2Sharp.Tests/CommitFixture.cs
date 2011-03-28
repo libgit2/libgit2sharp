@@ -86,6 +86,24 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
+        public void CanEnumerateCommitsWithReverseTopoSorting()
+        {
+            using (var repo = new Repository(Constants.TestRepoPath))
+            {
+                var commits = repo.Commits.StartingAt("a4a7dce85cf63874e984719f4fdd239f5145052f").SortBy(GitSortOptions.Topo | GitSortOptions.Reverse).ToList();
+                foreach (var commit in commits)
+                {
+                    commit.ShouldNotBeNull();
+                    foreach (var p in commit.Parents)
+                    {
+                        var parent = commits.Single(x => x.Oid == p.Oid);
+                        Assert.Greater(commits.IndexOf(commit), commits.IndexOf(parent));
+                    }
+                }
+            }
+        }
+
+        [Test]
         public void CanEnumerateCommitsWithTimeSorting()
         {
             int count = 0;
@@ -110,7 +128,7 @@ namespace LibGit2Sharp.Tests
                 foreach (var commit in commits)
                 {
                     commit.ShouldNotBeNull();
-                    foreach(var p in commit.Parents)
+                    foreach (var p in commit.Parents)
                     {
                         var parent = commits.Single(x => x.Oid == p.Oid);
                         Assert.Less(commits.IndexOf(commit), commits.IndexOf(parent));
@@ -118,25 +136,6 @@ namespace LibGit2Sharp.Tests
                 }
             }
         }
-
-        [Test]
-        public void CanEnumerateCommitsWithReverseTopoSorting()
-        {
-            using (var repo = new Repository(Constants.TestRepoPath))
-            {
-                var commits = repo.Commits.StartingAt("a4a7dce85cf63874e984719f4fdd239f5145052f").SortBy(GitSortOptions.Topo | GitSortOptions.Reverse).ToList();
-                foreach (var commit in commits)
-                {
-                    commit.ShouldNotBeNull();
-                    foreach (var p in commit.Parents)
-                    {
-                        var parent = commits.Single(x => x.Oid == p.Oid);
-                        Assert.Greater(commits.IndexOf(commit), commits.IndexOf(parent));
-                    }
-                }
-            }
-        }
-
 
         [Test]
         public void CanLookupCommitAlt()
@@ -185,6 +184,18 @@ namespace LibGit2Sharp.Tests
                 commit.Committer.Name.ShouldEqual("Scott Chacon");
                 commit.Committer.Email.ShouldEqual("schacon@gmail.com");
                 commit.Committer.When.ToSecondsSinceEpoch().ShouldEqual(1273360386);
+
+                commit.Parents.Count.ShouldEqual(0);
+            }
+        }
+
+        [Test]
+        public void CanReadCommitWithMultipleParents()
+        {
+            using (var repo = new Repository(Constants.TestRepoPath))
+            {
+                var commit = repo.Lookup<Commit>("a4a7dce85cf63874e984719f4fdd239f5145052f");
+                commit.Parents.Count.ShouldEqual(2);
             }
         }
 
