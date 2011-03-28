@@ -35,6 +35,36 @@ namespace LibGit2Sharp.Tests
     {
         private const string newRepoPath = "new_repo";
 
+        [TestCase]
+        public void CanTellIfObjectsExistInRepository()
+        {
+            using (var repo = new Repository(Constants.TestRepoPath))
+            {
+                repo.Exists("8496071c1b46c854b31185ea97743be6a8774479").ShouldBeTrue();
+                repo.Exists("1385f264afb75a56a5bec74243be9b367ba4ca08").ShouldBeTrue();
+                repo.Exists("ce08fe4884650f067bd5703b6a59a8b3b3c99a09").ShouldBeFalse();
+                repo.Exists("8496071c1c46c854b31185ea97743be6a8774479").ShouldBeFalse();
+            }
+        }
+
+        [Test]
+        public void CallingExistsWithNullThrows()
+        {
+            using (var repo = new Repository(Constants.TestRepoPath))
+            {
+                Assert.Throws<ArgumentNullException>(() => repo.Exists(null));
+            }
+        }
+
+        [Test]
+        public void CallingExistsWithEmptyThrows()
+        {
+            using (var repo = new Repository(Constants.TestRepoPath))
+            {
+                Assert.Throws<ArgumentException>(() => repo.Exists(string.Empty));
+            }
+        }
+
         [Test]
         public void CanCreateRepo()
         {

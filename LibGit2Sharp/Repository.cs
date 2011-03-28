@@ -48,6 +48,11 @@ namespace LibGit2Sharp
 #else
     /// <summary>
     ///   Initializes a new instance of the <see cref = "Repository" /> class.
+    /// 
+    ///   Exceptions:
+    ///     ArgumentException
+    ///     ArgumentNullException
+    ///     TODO: ApplicationException is thrown for all git errors right now
     /// </summary>
     /// <param name = "path">The path to the git repository to open.</param>
     /// <param name = "options">The options.</param>
@@ -126,6 +131,39 @@ namespace LibGit2Sharp
         ///   Gets the posix path to the git repository.
         /// </summary>
         public string PosixPath { get; private set; }
+
+        /// <summary>
+        /// Tells if the specified <see cref="GitOid"/> exists in the repository.
+        /// 
+        ///   Exceptions:
+        ///     ArgumentNullException
+        /// </summary>
+        /// <param name="oid">The oid.</param>
+        /// <returns></returns>
+        public bool Exists(GitOid oid)
+        {
+            Ensure.ArgumentNotNull(oid, "oid");
+
+            var odb = NativeMethods.git_repository_database(repo);
+            return NativeMethods.git_odb_exists(odb, ref oid);
+        }
+
+        /// <summary>
+        /// Tells if the specified sha exists in the repository.
+        /// 
+        ///   Exceptions:
+        ///     ArgumentException
+        ///     ArgumentNullException
+        /// </summary>
+        /// <param name="sha">The sha.</param>
+        /// <returns></returns>
+        public bool Exists(string sha)
+        {
+            Ensure.ArgumentNotNullOrEmptyString(sha, "sha");
+
+            var oid = GitOid.FromSha(sha);
+            return Exists(oid);
+        }
 
         #region IDisposable Members
 

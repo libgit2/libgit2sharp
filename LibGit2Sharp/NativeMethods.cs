@@ -34,6 +34,9 @@ namespace LibGit2Sharp
         private const string libgit2 = "git2.dll";
 
         [DllImport(libgit2, SetLastError = true)]
+        public static extern bool git_odb_exists(IntPtr db, ref GitOid id);
+
+        [DllImport(libgit2, SetLastError = true)]
         public static extern void git_odb_object_close(IntPtr obj);
 
         [DllImport(libgit2, SetLastError = true)]
