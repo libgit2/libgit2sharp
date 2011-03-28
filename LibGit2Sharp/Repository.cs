@@ -46,16 +46,16 @@ namespace LibGit2Sharp
 
         public Repository(string path, RepositoryOptions options)
 #else
-    /// <summary>
-    ///   Initializes a new instance of the <see cref = "Repository" /> class.
-    /// 
-    ///   Exceptions:
-    ///     ArgumentException
-    ///     ArgumentNullException
-    ///     TODO: ApplicationException is thrown for all git errors right now
-    /// </summary>
-    /// <param name = "path">The path to the git repository to open.</param>
-    /// <param name = "options">The options.</param>
+        /// <summary>
+        ///   Initializes a new instance of the <see cref = "Repository" /> class.
+        /// 
+        ///   Exceptions:
+        ///   ArgumentException
+        ///   ArgumentNullException
+        ///   TODO: ApplicationException is thrown for all git errors right now
+        /// </summary>
+        /// <param name = "path">The path to the git repository to open.</param>
+        /// <param name = "options">The options.</param>
         public Repository(string path, RepositoryOptions options = null)
 #endif
         {
@@ -133,12 +133,12 @@ namespace LibGit2Sharp
         public string PosixPath { get; private set; }
 
         /// <summary>
-        /// Tells if the specified <see cref="GitOid"/> exists in the repository.
+        ///   Tells if the specified <see cref = "GitOid" /> exists in the repository.
         /// 
         ///   Exceptions:
-        ///     ArgumentNullException
+        ///   ArgumentNullException
         /// </summary>
-        /// <param name="oid">The oid.</param>
+        /// <param name = "oid">The oid.</param>
         /// <returns></returns>
         public bool Exists(GitOid oid)
         {
@@ -149,13 +149,13 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Tells if the specified sha exists in the repository.
+        ///   Tells if the specified sha exists in the repository.
         /// 
         ///   Exceptions:
-        ///     ArgumentException
-        ///     ArgumentNullException
+        ///   ArgumentException
+        ///   ArgumentNullException
         /// </summary>
-        /// <param name="sha">The sha.</param>
+        /// <param name = "sha">The sha.</param>
         /// <returns></returns>
         public bool Exists(string sha)
         {
