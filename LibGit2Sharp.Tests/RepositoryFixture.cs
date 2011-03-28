@@ -32,50 +32,6 @@ using NUnit.Framework;
 namespace LibGit2Sharp.Tests
 {
     [TestFixture]
-    public class CommitFixture
-    {
-        private const string sha = "8496071c1b46c854b31185ea97743be6a8774479";
-
-        [Test]
-        public void CanLookupCommitGeneric()
-        {
-            using (var repo = new Repository(Constants.TestRepoPath))
-            {
-                var commit = repo.Lookup<Commit>(sha);
-                commit.Message.ShouldEqual("testing\n");
-                commit.MessageShort.ShouldEqual("testing");
-                commit.Sha.ShouldEqual(sha);
-            }
-        }
-
-        [Test]
-        public void CanReadCommitData()
-        {
-            using (var repo = new Repository(Constants.TestRepoPath))
-            {
-                var obj = repo.Lookup(sha);
-                obj.ShouldNotBeNull();
-                obj.GetType().ShouldEqual(typeof(Commit));
-
-                var commit = (Commit)obj;
-                commit.Message.ShouldEqual("testing\n");
-                commit.MessageShort.ShouldEqual("testing");
-                commit.Sha.ShouldEqual(sha);
-
-                commit.Author.ShouldNotBeNull();
-                commit.Author.Name.ShouldEqual("Scott Chacon");
-                commit.Author.Email.ShouldEqual("schacon@gmail.com");
-                commit.Author.When.ToSecondsSinceEpoch().ShouldEqual(1273360386);
-
-                commit.Committer.ShouldNotBeNull();
-                commit.Committer.Name.ShouldEqual("Scott Chacon");
-                commit.Committer.Email.ShouldEqual("schacon@gmail.com");
-                commit.Committer.When.ToSecondsSinceEpoch().ShouldEqual(1273360386);
-            }
-        }
-    }
-
-    [TestFixture]
     public class RepositoryFixture
     {
         private const string newRepoPath = "new_repo";
@@ -117,9 +73,20 @@ namespace LibGit2Sharp.Tests
         public void CanCreateRepo()
         {
             using (new SelfCleaningDirectory(newRepoPath))
-            using (new Repository(newRepoPath, new RepositoryOptions { CreateIfNeeded = true }))
+            using (new Repository(newRepoPath, new RepositoryOptions {CreateIfNeeded = true}))
             {
                 Directory.Exists(newRepoPath).ShouldBeTrue();
+            }
+        }
+
+        [Test]
+        public void CanDisposeObjects()
+        {
+            using (var repo = new Repository(Constants.TestRepoPath))
+            {
+                using (var commit = repo.Lookup(commitSha))
+                {
+                }
             }
         }
 
@@ -153,18 +120,6 @@ namespace LibGit2Sharp.Tests
                 commit.GetHashCode().ShouldEqual(commit2.GetHashCode());
             }
         }
-
-        [Test]
-        public void CanDisposeObjects()
-        {
-            using (var repo = new Repository(Constants.TestRepoPath))
-            {
-                using (var commit = repo.Lookup(commitSha))
-                {
-                }
-            }
-        }
-
 
         [Test]
         public void CanOpenRepoWithFullPath()
