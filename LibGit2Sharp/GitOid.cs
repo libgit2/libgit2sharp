@@ -24,6 +24,7 @@
 
 #endregion
 
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -35,10 +36,15 @@ namespace LibGit2Sharp
     public struct GitOid
     {
         /// <summary>
-        /// The raw binary 20 byte Id.
+        ///   The raw binary 20 byte Id.
         /// </summary>
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 20)] 
         public byte[] Id;
+
+        public bool Equals(GitOid other)
+        {
+            return NativeMethods.git_oid_cmp(ref this, ref other) == 0;
+        }
 
         /// <summary>
         ///   Create a new <see cref = "GitOid" /> from a sha1.
@@ -51,6 +57,11 @@ namespace LibGit2Sharp
             var result = NativeMethods.git_oid_mkstr(out oid, sha);
             Ensure.Success(result);
             return oid;
+        }
+
+        public override int GetHashCode()
+        {
+            return (Id != null ? Id.Sum(i => i) : 0);
         }
 
         /// <summary>

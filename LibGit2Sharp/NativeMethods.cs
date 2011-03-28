@@ -34,6 +34,38 @@ namespace LibGit2Sharp
         private const string libgit2 = "git2.dll";
 
         [DllImport(libgit2, SetLastError = true)]
+        public static extern IntPtr git_commit_author(IntPtr commit);
+
+        [DllImport(libgit2, SetLastError = true)]
+        public static extern IntPtr git_commit_committer(IntPtr commit);
+
+        [DllImport(libgit2, SetLastError = true)]
+        public static extern int git_commit_create_o(out GitOid oid, IntPtr repo, string updateRef, IntPtr author, IntPtr committer, string message, IntPtr tree, int parentCount, IntPtr parents);
+
+        [DllImport(libgit2, SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.AnsiBStr)]
+        public static extern string git_commit_message(IntPtr commit);
+
+        [DllImport(libgit2, SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.AnsiBStr)]
+        public static extern string git_commit_message_short(IntPtr commit);
+
+        [DllImport(libgit2, SetLastError = true)]
+        public static extern int git_commit_tree(out IntPtr tree, IntPtr commit);
+
+        [DllImport(libgit2, SetLastError = true)]
+        public static extern void git_object_close(IntPtr obj);
+
+        [DllImport(libgit2, SetLastError = true)]
+        public static extern IntPtr git_object_id(IntPtr obj);
+
+        [DllImport(libgit2, SetLastError = true)]
+        public static extern int git_object_lookup(out IntPtr obj, IntPtr repo, ref GitOid id, GitObjectType type);
+
+        [DllImport(libgit2, SetLastError = true)]
+        public static extern GitObjectType git_object_type(IntPtr obj);
+
+        [DllImport(libgit2, SetLastError = true)]
         public static extern bool git_odb_exists(IntPtr db, ref GitOid id);
 
         [DllImport(libgit2, SetLastError = true)]
@@ -46,6 +78,9 @@ namespace LibGit2Sharp
         public static extern int git_oid_mkstr(out GitOid oid, string str);
 
         [DllImport(libgit2, SetLastError = true)]
+        public static extern int git_oid_cmp(ref GitOid a, ref GitOid b);
+
+        [DllImport(libgit2, SetLastError = true)]
         public static extern IntPtr git_repository_database(IntPtr repository);
 
         [DllImport(libgit2, SetLastError = true)]
@@ -56,5 +91,11 @@ namespace LibGit2Sharp
 
         [DllImport(libgit2, SetLastError = true)]
         public static extern int git_repository_open(out IntPtr repository, string path);
+
+        [DllImport(libgit2, SetLastError = true)]
+        public static extern void git_signature_free(IntPtr signature);
+
+        [DllImport(libgit2, SetLastError = true)]
+        public static extern IntPtr git_signature_new(string name, string email, long time, int offset);
     }
 }

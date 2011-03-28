@@ -25,11 +25,56 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using NUnit.Framework;
 
 namespace LibGit2Sharp.Tests
 {
+    [TestFixture]
+    public class CommitFixture
+    {
+        private const string sha = "8496071c1b46c854b31185ea97743be6a8774479";
+
+        [Test]
+        public void CanLookupCommitGeneric()
+        {
+            using (var repo = new Repository(Constants.TestRepoPath))
+            {
+                var commit = repo.Lookup<Commit>(sha);
+                commit.Message.ShouldEqual("testing\n");
+                commit.MessageShort.ShouldEqual("testing");
+                commit.Sha.ShouldEqual(sha);
+            }
+        }
+
+        [Test]
+        public void CanReadCommitData()
+        {
+            using (var repo = new Repository(Constants.TestRepoPath))
+            {
+                var obj = repo.Lookup(sha);
+                obj.ShouldNotBeNull();
+                obj.GetType().ShouldEqual(typeof(Commit));
+
+                var commit = (Commit)obj;
+                commit.Message.ShouldEqual("testing\n");
+                commit.MessageShort.ShouldEqual("testing");
+                commit.Sha.ShouldEqual(sha);
+
+                commit.Author.ShouldNotBeNull();
+                commit.Author.Name.ShouldEqual("Scott Chacon");
+                commit.Author.Email.ShouldEqual("schacon@gmail.com");
+                commit.Author.When.ToSecondsSinceEpoch().ShouldEqual(1273360386);
+
+                commit.Committer.ShouldNotBeNull();
+                commit.Committer.Name.ShouldEqual("Scott Chacon");
+                commit.Committer.Email.ShouldEqual("schacon@gmail.com");
+                commit.Committer.When.ToSecondsSinceEpoch().ShouldEqual(1273360386);
+            }
+        }
+    }
+
     [TestFixture]
     public class RepositoryFixture
     {
@@ -47,14 +92,8 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
-        public void CallingExistsWithNullThrows()
-        {
-            using (var repo = new Repository(Constants.TestRepoPath))
-            {
-                Assert.Throws<ArgumentNullException>(() => repo.Exists(null));
-            }
-        }
+        private const string commitSha = "8496071c1b46c854b31185ea97743be6a8774479";
+        private const string notFoundSha = "ce08fe4884650f067bd5703b6a59a8b3b3c99a09";
 
         [Test]
         public void CallingExistsWithEmptyThrows()
@@ -66,14 +105,66 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
+        public void CallingExistsWithNullThrows()
+        {
+            using (var repo = new Repository(Constants.TestRepoPath))
+            {
+                Assert.Throws<ArgumentNullException>(() => repo.Exists(null));
+            }
+        }
+
+        [Test]
         public void CanCreateRepo()
         {
             using (new SelfCleaningDirectory(newRepoPath))
-            using (new Repository(newRepoPath, new RepositoryOptions {CreateIfNeeded = true}))
+            using (new Repository(newRepoPath, new RepositoryOptions { CreateIfNeeded = true }))
             {
                 Directory.Exists(newRepoPath).ShouldBeTrue();
             }
         }
+
+        [Test]
+        public void CanLookupObjects()
+        {
+            using (var repo = new Repository(Constants.TestRepoPath))
+            {
+                repo.Lookup(commitSha).ShouldNotBeNull();
+                repo.TryLookup(commitSha).ShouldNotBeNull();
+                repo.Lookup<Commit>(commitSha).ShouldNotBeNull();
+                repo.TryLookup<Commit>(commitSha).ShouldNotBeNull();
+                repo.Lookup<GitObject>(commitSha).ShouldNotBeNull();
+                repo.TryLookup<GitObject>(commitSha).ShouldNotBeNull();
+
+                Assert.Throws<KeyNotFoundException>(() => repo.Lookup(notFoundSha));
+                Assert.Throws<KeyNotFoundException>(() => repo.Lookup<GitObject>(notFoundSha));
+                repo.TryLookup(notFoundSha).ShouldBeNull();
+                repo.TryLookup<GitObject>(notFoundSha).ShouldBeNull();
+            }
+        }
+
+        [Test]
+        public void CanLookupSameObjectTwiceAndTheyAreEqual()
+        {
+            using (var repo = new Repository(Constants.TestRepoPath))
+            {
+                var commit = repo.Lookup(commitSha);
+                var commit2 = repo.TryLookup(commitSha);
+                commit.Equals(commit2).ShouldBeTrue();
+                commit.GetHashCode().ShouldEqual(commit2.GetHashCode());
+            }
+        }
+
+        [Test]
+        public void CanDisposeObjects()
+        {
+            using (var repo = new Repository(Constants.TestRepoPath))
+            {
+                using (var commit = repo.Lookup(commitSha))
+                {
+                }
+            }
+        }
+
 
         [Test]
         public void CanOpenRepoWithFullPath()
@@ -89,6 +180,40 @@ namespace LibGit2Sharp.Tests
         {
             using (new Repository(Constants.TestRepoPath))
             {
+            }
+        }
+
+        [Test]
+        [Ignore("TODO: fix libgit2 error handling for this to work.")]
+        public void LookupObjectByWrongTypeThrows()
+        {
+            using (var repo = new Repository(Constants.TestRepoPath))
+            {
+                repo.Lookup<Tag>(commitSha);
+            }
+        }
+
+        [Test]
+        public void LookupWithEmptyStringThrows()
+        {
+            using (var repo = new Repository(Constants.TestRepoPath))
+            {
+                Assert.Throws<ArgumentException>(() => repo.Lookup(string.Empty));
+                Assert.Throws<ArgumentException>(() => repo.Lookup<GitObject>(string.Empty));
+                Assert.Throws<ArgumentException>(() => repo.TryLookup(string.Empty));
+                Assert.Throws<ArgumentException>(() => repo.TryLookup<GitObject>(string.Empty));
+            }
+        }
+
+        [Test]
+        public void LookupWithNullThrows()
+        {
+            using (var repo = new Repository(Constants.TestRepoPath))
+            {
+                Assert.Throws<ArgumentNullException>(() => repo.Lookup(null));
+                Assert.Throws<ArgumentNullException>(() => repo.TryLookup(null));
+                Assert.Throws<ArgumentNullException>(() => repo.Lookup<Commit>(null));
+                Assert.Throws<ArgumentNullException>(() => repo.TryLookup<Commit>(null));
             }
         }
 
