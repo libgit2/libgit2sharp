@@ -74,7 +74,7 @@ namespace LibGit2Sharp
                 {
                     IntPtr parentCommit;
                     parents = new List<Commit>();
-                    for (uint i = 0; NativeMethods.git_commit_parent(out parentCommit, Obj, i) == (int) GitErrorCodes.GIT_SUCCESS; i++)
+                    for (uint i = 0; NativeMethods.git_commit_parent(out parentCommit, Obj, i) == (int) GitErrorCode.GIT_SUCCESS; i++)
                     {
                         parents.Add(new Commit(parentCommit));
                     }

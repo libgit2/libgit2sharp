@@ -66,7 +66,7 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNullOrEmptyString(target, "target");
 
             GitOid oid;
-            if (NativeMethods.git_oid_mkstr(out oid, target) == (int) GitErrorCodes.GIT_SUCCESS)
+            if (NativeMethods.git_oid_mkstr(out oid, target) == (int) GitErrorCode.GIT_SUCCESS)
             {
                 return Create(name, oid);
             }

@@ -121,7 +121,7 @@ namespace LibGit2Sharp
             {
                 GitOid oid;
                 var res = NativeMethods.git_revwalk_next(out oid, walker);
-                if (res == (int) GitErrorCodes.GIT_EREVWALKOVER) return false;
+                if (res == (int) GitErrorCode.GIT_EREVWALKOVER) return false;
 
                 Current = repo.Lookup<Commit>(oid);
 

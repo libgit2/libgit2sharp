@@ -49,7 +49,7 @@
     <Compile Include="CommitCollection.cs" />
     <Compile Include="Ensure.cs" />
     <Compile Include="Epoch.cs" />
-    <Compile Include="GitErrorCodes.cs" />
+    <Compile Include="GitErrorCode.cs" />
     <Compile Include="GitObject.cs" />
     <Compile Include="GitObjectType.cs" />
     <Compile Include="GitObjectTypeMap.cs" />

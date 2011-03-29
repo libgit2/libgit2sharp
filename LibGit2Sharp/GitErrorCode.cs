@@ -26,7 +26,7 @@
 
 namespace LibGit2Sharp
 {
-    public enum GitErrorCodes
+    public enum GitErrorCode
     {
         /** Operation completed successfully. */
         GIT_SUCCESS = 0,

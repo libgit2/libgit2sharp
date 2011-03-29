@@ -184,7 +184,7 @@ namespace LibGit2Sharp
 
             IntPtr obj;
             var res = NativeMethods.git_object_lookup(out obj, repo, ref oid, type);
-            if (res == (int) GitErrorCodes.GIT_ENOTFOUND)
+            if (res == (int) GitErrorCode.GIT_ENOTFOUND)
             {
                 if (throwIfNotFound)
                 {
