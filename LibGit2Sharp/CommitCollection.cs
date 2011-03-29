@@ -30,6 +30,9 @@ using System.Collections.Generic;
 
 namespace LibGit2Sharp
 {
+    /// <summary>
+    ///   A collection of commits in a <see cref = "Repository" />
+    /// </summary>
     public class CommitCollection : IEnumerable<Commit>
     {
         private readonly Repository repo;
@@ -37,6 +40,10 @@ namespace LibGit2Sharp
         private string pushedSha;
         private GitSortOptions sortOptions = GitSortOptions.None;
 
+        /// <summary>
+        ///   Initializes a new instance of the <see cref = "CommitCollection" /> class.
+        /// </summary>
+        /// <param name = "repo">The repo.</param>
         public CommitCollection(Repository repo)
         {
             this.repo = repo;
@@ -47,6 +54,9 @@ namespace LibGit2Sharp
             get { return enumerator ?? (enumerator = new CommitEnumerator(repo)); }
         }
 
+        /// <summary>
+        ///   Gets the <see cref = "LibGit2Sharp.Commit" /> with the specified sha. (This is identical to calling Lookup/<Commit />(sha) on the repo)
+        /// </summary>
         public Commit this[string sha]
         {
             get { return repo.Lookup<Commit>(sha); }
@@ -73,12 +83,22 @@ namespace LibGit2Sharp
 
         #endregion
 
+        /// <summary>
+        ///   Sorts <see cref = "CommitCollection" /> with the specified options.
+        /// </summary>
+        /// <param name = "options">The options.</param>
+        /// <returns></returns>
         public CommitCollection SortBy(GitSortOptions options)
         {
             sortOptions = options;
             return this;
         }
 
+        /// <summary>
+        ///   Starts enumeratoring the <see cref = "CommitCollection" /> at the specified branch.
+        /// </summary>
+        /// <param name = "branch">The branch.</param>
+        /// <returns></returns>
         public CommitCollection StartingAt(Branch branch)
         {
             Ensure.ArgumentNotNull(branch, "branch");
@@ -87,6 +107,11 @@ namespace LibGit2Sharp
             return this;
         }
 
+        /// <summary>
+        ///   Starts enumeratoring the <see cref = "CommitCollection" /> at the specified reference.
+        /// </summary>
+        /// <param name = "reference">The reference.</param>
+        /// <returns></returns>
         public CommitCollection StartingAt(Reference reference)
         {
             Ensure.ArgumentNotNull(reference, "reference");
@@ -96,6 +121,11 @@ namespace LibGit2Sharp
             return this;
         }
 
+        /// <summary>
+        ///   Starts enumeratoring the <see cref = "CommitCollection" /> at the specified sha.
+        /// </summary>
+        /// <param name = "sha">The sha.</param>
+        /// <returns></returns>
         public CommitCollection StartingAt(string sha)
         {
             Ensure.ArgumentNotNullOrEmptyString(sha, "sha");
