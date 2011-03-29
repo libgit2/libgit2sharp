@@ -32,15 +32,25 @@ using System.Linq;
 
 namespace LibGit2Sharp
 {
+    /// <summary>
+    ///   The collection of Branches in a <see cref = "Repository" />
+    /// </summary>
     public class BranchCollection : IEnumerable<Branch>
     {
         private readonly Repository repo;
 
+        /// <summary>
+        ///   Initializes a new instance of the <see cref = "BranchCollection" /> class.
+        /// </summary>
+        /// <param name = "repo">The repo.</param>
         public BranchCollection(Repository repo)
         {
             this.repo = repo;
         }
 
+        /// <summary>
+        ///   Gets the <see cref = "LibGit2Sharp.Branch" /> with the specified name.
+        /// </summary>
         public Branch this[string name]
         {
             get

@@ -28,12 +28,30 @@ using System;
 
 namespace LibGit2Sharp
 {
+    /// <summary>
+    ///   A branch is a special kind of reference
+    /// </summary>
     public class Branch
     {
-        public string RemoteName { get; set; }
-        public string Name { get; set; }
-        public DirectReference Reference { get; set; }
-        public BranchType Type { get; set; }
+        /// <summary>
+        ///   Gets the name of the remote (null for local branches).
+        /// </summary>
+        public string RemoteName { get; private set; }
+
+        /// <summary>
+        ///   Gets the name of this branch.
+        /// </summary>
+        public string Name { get; private set; }
+
+        /// <summary>
+        ///   Gets the reference for this branch.
+        /// </summary>
+        public DirectReference Reference { get; private set; }
+
+        /// <summary>
+        ///   Gets the type of this branch.
+        /// </summary>
+        public BranchType Type { get; private set; }
 
         internal static Branch CreateBranchFromReference(Reference reference)
         {
