@@ -46,6 +46,8 @@ namespace LibGit2Sharp
         /// </summary>
         public GitReferenceType Type { get; private set; }
 
+        public CommitCollection Commits { get; private set; }
+
         internal static Reference CreateFromPtr(IntPtr ptr, Repository repo)
         {
             var name = NativeMethods.git_reference_name(ptr);
@@ -55,14 +57,14 @@ namespace LibGit2Sharp
                 IntPtr resolveRef;
                 NativeMethods.git_reference_resolve(out resolveRef, ptr);
                 var reference = CreateFromPtr(resolveRef, repo);
-                return new SymbolicReference {Name = name, Type = type, Target = reference, referencePtr = ptr};
+                return new SymbolicReference {Name = name, Type = type, Target = reference, referencePtr = ptr, Commits = repo.Commits};
             }
             if (type == GitReferenceType.Oid)
             {
                 var oidPtr = NativeMethods.git_reference_oid(ptr);
                 var oid = (GitOid) Marshal.PtrToStructure(oidPtr, typeof (GitOid));
                 var target = repo.Lookup(oid);
-                return new DirectReference {Name = name, Type = type, Target = target, referencePtr = ptr};
+                return new DirectReference {Name = name, Type = type, Target = target, referencePtr = ptr, Commits = repo.Commits};
             }
             throw new NotImplementedException();
         }

@@ -38,6 +38,7 @@ namespace LibGit2Sharp
     public class Repository : IDisposable
     {
         private const char posixDirectorySeparatorChar = '/';
+        private readonly BranchCollection branches;
         private readonly CommitCollection commits;
         private readonly RepositoryOptions options;
         private readonly ReferenceCollection refs;
@@ -79,6 +80,7 @@ namespace LibGit2Sharp
             }
             commits = new CommitCollection(this);
             refs = new ReferenceCollection(this);
+            branches = new BranchCollection(this);
         }
 
         internal IntPtr RepoPtr
@@ -94,6 +96,11 @@ namespace LibGit2Sharp
         public CommitCollection Commits
         {
             get { return commits; }
+        }
+
+        public BranchCollection Branches
+        {
+            get { return branches; }
         }
 
         /// <summary>

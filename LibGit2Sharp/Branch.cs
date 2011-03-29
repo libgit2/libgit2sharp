@@ -24,43 +24,41 @@
 
 #endregion
 
-using System.Collections.Generic;
-using System.Linq;
-using NUnit.Framework;
+using System;
 
-namespace LibGit2Sharp.Tests
+namespace LibGit2Sharp
 {
-    [TestFixture]
-    public class BranchFixture
+    public class Branch
     {
-        private readonly List<string> expectedBranches = new List<string> {"packed-test", "packed", "br2", "master", "test"};
+        public string RemoteName { get; set; }
+        public string Name { get; set; }
+        public DirectReference Reference { get; set; }
+        public BranchType Type { get; set; }
 
-        [Test]
-        public void CanListAllBranches()
+        internal static Branch CreateBranchFromReference(Reference reference)
         {
-            using (var repo = new Repository(Constants.TestRepoPath))
+            var tokens = reference.Name.Split('/');
+            if (tokens.Length < 2)
             {
-                foreach (var r in repo.Branches)
-                {
-                    Assert.Contains(r.Name, expectedBranches);
-                }
-
-                repo.Branches.Count().ShouldEqual(5);
+                throw new ArgumentException(string.Format("Unexpected ref name: {0}", reference.Name));
             }
-        }
 
-        [Test]
-        public void CanLookupLocalBranch()
-        {
-            using (var repo = new Repository(Constants.TestRepoPath))
+            if (tokens[tokens.Length - 2] == "heads")
             {
-                var master = repo.Branches["master"];
-                master.ShouldNotBeNull();
-                master.Type.ShouldEqual(BranchType.Local);
-                master.Name.ShouldEqual("master");
-                master.Reference.Name.ShouldEqual("refs/heads/master");
-                master.Reference.Target.Sha.ShouldEqual("be3563ae3f795b2b4353bcce3a527ad0a4f7f644");
+                return new Branch
+                           {
+                               Name = tokens[tokens.Length - 1],
+                               Reference = (DirectReference) reference,
+                               Type = BranchType.Local
+                           };
             }
+            return new Branch
+                       {
+                           Name = string.Join("/", tokens, tokens.Length - 2, 2),
+                           RemoteName = tokens[tokens.Length - 2],
+                           Reference = (DirectReference) reference,
+                           Type = BranchType.Remote
+                       };
         }
     }
 }
