@@ -62,6 +62,11 @@ namespace LibGit2Sharp.Tests
             Assert.AreEqual(compareTo, compareFrom);
         }
 
+        public static void ShouldEqual<T>(this T compareFrom, T compareTo)
+        {
+            Assert.AreEqual(compareTo, compareFrom);
+        }
+
         public static void ShouldNotBeNull(this object currentObject)
         {
             Assert.IsNotNull(currentObject);
