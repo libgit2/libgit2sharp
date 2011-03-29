@@ -32,9 +32,43 @@ using NUnit.Framework;
 namespace LibGit2Sharp.Tests
 {
     [TestFixture]
-    public class ReferenceFixture
+    public class ReferenceFixture : ReadWriteRepositoryFixtureBase
     {
         private readonly List<string> expectedRefs = new List<string> {"refs/heads/packed-test", "refs/heads/packed", "refs/heads/br2", "refs/heads/master", "refs/heads/test", "refs/tags/test", "refs/tags/very-simple"};
+
+        [Test]
+        public void CanCreateReferenceFromSha()
+        {
+            const string name = "refs/heads/unit_test";
+            using (var repo = new Repository(PathToReadWriteRepository))
+            {
+                var newRef = repo.Refs.Create(name, "be3563ae3f795b2b4353bcce3a527ad0a4f7f644");
+                newRef.ShouldNotBeNull();
+                newRef.Name.ShouldEqual(name);
+                newRef.Target.ShouldNotBeNull();
+                newRef.Target.Sha.ShouldEqual("be3563ae3f795b2b4353bcce3a527ad0a4f7f644");
+                repo.Refs.SingleOrDefault(p => p.Name == name).ShouldNotBeNull();
+
+                newRef.Delete();
+            }
+        }
+
+        [Test]
+        public void CanCreateReferenceFromSymbol()
+        {
+            const string name = "refs/heads/unit_test";
+            using (var repo = new Repository(PathToReadWriteRepository))
+            {
+                var newRef = repo.Refs.Create(name, "refs/heads/master");
+                newRef.ShouldNotBeNull();
+                newRef.Name.ShouldEqual(name);
+                newRef.Target.ShouldNotBeNull();
+                newRef.Target.Sha.ShouldEqual("be3563ae3f795b2b4353bcce3a527ad0a4f7f644");
+                repo.Refs.SingleOrDefault(p => p.Name == name).ShouldNotBeNull();
+
+                newRef.Delete();
+            }
+        }
 
         [Test]
         public void CanListAllReferences()
@@ -57,13 +91,16 @@ namespace LibGit2Sharp.Tests
             {
                 var head = repo.Refs["HEAD"];
                 head.ShouldNotBeNull();
-                head.Name.ShouldEqual("refs/heads/master");
+                // todo: unsure about this strategy of always peeling back refs
+                //head.Name.ShouldEqual("refs/heads/master");
+                head.Name.ShouldEqual("HEAD");
                 head.Target.ShouldNotBeNull();
                 head.Target.Sha.ShouldEqual("be3563ae3f795b2b4353bcce3a527ad0a4f7f644");
                 Assert.IsInstanceOf<Commit>(head.Target);
 
                 var head2 = repo.Refs.Head();
-                head2.Name.ShouldEqual("refs/heads/master");
+                //head2.Name.ShouldEqual("refs/heads/master");
+                head2.Name.ShouldEqual("HEAD");
                 head2.Target.ShouldNotBeNull();
                 Assert.IsInstanceOf<Commit>(head2.Target);
 
@@ -82,6 +119,42 @@ namespace LibGit2Sharp.Tests
                 master.Target.ShouldNotBeNull();
                 master.Target.Sha.ShouldEqual("be3563ae3f795b2b4353bcce3a527ad0a4f7f644");
                 Assert.IsInstanceOf<Commit>(master.Target);
+            }
+        }
+
+        [Test]
+        public void CreateWithEmptyStringForTargetThrows()
+        {
+            using (var repo = new Repository(PathToReadWriteRepository))
+            {
+                Assert.Throws<ArgumentException>(() => repo.Refs.Create("refs/heads/newref", string.Empty));
+            }
+        }
+
+        [Test]
+        public void CreateWithEmptyStringThrows()
+        {
+            using (var repo = new Repository(PathToReadWriteRepository))
+            {
+                Assert.Throws<ArgumentException>(() => repo.Refs.Create(string.Empty, "refs/heads/master"));
+            }
+        }
+
+        [Test]
+        public void CreateWithNullForTargetThrows()
+        {
+            using (var repo = new Repository(PathToReadWriteRepository))
+            {
+                Assert.Throws<ArgumentNullException>(() => repo.Refs.Create("refs/heads/newref", null));
+            }
+        }
+
+        [Test]
+        public void CreateWithNullStringThrows()
+        {
+            using (var repo = new Repository(PathToReadWriteRepository))
+            {
+                Assert.Throws<ArgumentNullException>(() => repo.Refs.Create(null, "refs/heads/master"));
             }
         }
 

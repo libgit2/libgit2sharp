@@ -1,5 +1,6 @@
 <Configuration>
   <NamespaceFolders>
     <SkipFolder>286E63EB-04DD-4ADE-88D6-041B57800761/d:TestHelpers</SkipFolder>
+    <SkipFolder>286E63EB-04DD-4ADE-88D6-041B57800761/d:BaseFixtures</SkipFolder>
   </NamespaceFolders>
 </Configuration>

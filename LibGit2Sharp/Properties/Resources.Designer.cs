@@ -70,6 +70,15 @@ namespace LibGit2Sharp.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Object {0} does not exists in the repository.
+        /// </summary>
+        internal static string ObjectNotFoundInRepository {
+            get {
+                return ResourceManager.GetString("ObjectNotFoundInRepository", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The repository does not exist. You can create a repository by calling new Repository(path, createRepository:true) .
         /// </summary>
         internal static string RepositoryDoesNotExist {

@@ -43,11 +43,7 @@ namespace LibGit2Sharp
 
         public Reference this[string name]
         {
-            get
-            {
-                Ensure.ArgumentNotNullOrEmptyString(name, "name");
-                return Resolve(name);
-            }
+            get { return Resolve(name); }
         }
 
         #region IEnumerable<Reference> Members
@@ -64,18 +60,34 @@ namespace LibGit2Sharp
 
         #endregion
 
-        //public Reference CreateFrom(string name)
-        //{
-        //    GitOid oid;
-        //    if (NativeMethods.git_oid_mkstr(out oid, name) == (int) GitErrorCodes.GIT_SUCCESS)
-        //    {
-        //    }
-        //    else
-        //    {
-        //    }
+        public Reference Create(string name, string target)
+        {
+            Ensure.ArgumentNotNullOrEmptyString(name, "name");
+            Ensure.ArgumentNotNullOrEmptyString(target, "target");
 
-        //    throw new NotImplementedException();
-        //}
+            GitOid oid;
+            if (NativeMethods.git_oid_mkstr(out oid, target) == (int) GitErrorCodes.GIT_SUCCESS)
+            {
+                return Create(name, oid);
+            }
+
+            IntPtr reference;
+            var res = NativeMethods.git_reference_create_symbolic(out reference, repo.RepoPtr, name, target);
+            Ensure.Success(res);
+
+            return Reference.CreateFromPtr(reference, repo);
+        }
+
+        public Reference Create(string name, GitOid oid)
+        {
+            Ensure.ArgumentNotNullOrEmptyString(name, "name");
+
+            IntPtr reference;
+            var res = NativeMethods.git_reference_create_oid(out reference, repo.RepoPtr, name, ref oid);
+            Ensure.Success(res);
+
+            return Reference.CreateFromPtr(reference, repo);
+        }
 
         public Reference Head()
         {
@@ -84,6 +96,8 @@ namespace LibGit2Sharp
 
         public Reference Resolve(string name)
         {
+            Ensure.ArgumentNotNullOrEmptyString(name, "name");
+
             IntPtr reference;
             var res = NativeMethods.git_reference_lookup(out reference, repo.RepoPtr, name);
             Ensure.Success(res);

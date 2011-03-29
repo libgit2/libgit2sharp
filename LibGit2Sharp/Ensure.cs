@@ -70,8 +70,10 @@ namespace LibGit2Sharp
         public static void Success(int result)
         {
             if (result < 0)
+            {
                 throw new ApplicationException(
-                    "There was an error in libgit2, but error handling sucks right now, so I can't tell you what it was.");
+                    String.Format("There was an error in libgit2, but error handling sucks right now, so I can't tell you what it was. Error code = {0}", result));
+            }
         }
 
         /// <summary>

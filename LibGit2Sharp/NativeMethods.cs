@@ -56,6 +56,15 @@ namespace LibGit2Sharp
         private const string libgit2 = "git2.dll";
 
         [DllImport(libgit2, SetLastError = true)]
+        public static extern int git_reference_delete(IntPtr reference);
+
+        [DllImport(libgit2, SetLastError = true)]
+        public static extern int git_reference_create_oid(out IntPtr reference, IntPtr repo, string name, ref GitOid oid);
+
+        [DllImport(libgit2, SetLastError = true)]
+        public static extern int git_reference_create_symbolic(out IntPtr reference, IntPtr repo, string name, string target);
+
+        [DllImport(libgit2, SetLastError = true)]
         public static extern IntPtr git_commit_author(IntPtr commit);
 
         [DllImport(libgit2, SetLastError = true)]

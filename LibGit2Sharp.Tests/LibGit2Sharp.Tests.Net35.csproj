@@ -43,6 +43,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BaseFixtures\ReadWriteRepositoryFixtureBase.cs" />
+    <Compile Include="BaseFixtures\RepositoryToBeCreatedFixtureBase.cs" />
     <Compile Include="CommitFixture.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="EpochFixture.cs" />

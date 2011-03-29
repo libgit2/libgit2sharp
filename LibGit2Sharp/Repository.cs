@@ -26,6 +26,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using LibGit2Sharp.Properties;
 
@@ -187,7 +188,7 @@ namespace LibGit2Sharp
             {
                 if (throwIfNotFound)
                 {
-                    throw new KeyNotFoundException();
+                    throw new KeyNotFoundException(string.Format(CultureInfo.CurrentCulture, Resources.ObjectNotFoundInRepository, oid));
                 }
                 return null;
             }

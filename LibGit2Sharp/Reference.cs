@@ -31,11 +31,12 @@ namespace LibGit2Sharp
 {
     public class Reference
     {
+        public IntPtr ReferencePtr;
         public string Name { get; private set; }
         public GitReferenceType Type { get; set; }
         public GitObject Target { get; private set; }
 
-        internal static Reference CreateFromPtr(IntPtr ptr, Repository repo)
+        internal static Reference CreateFromPtr(IntPtr ptr, Repository repo, string topLevelName = null)
         {
             var name = NativeMethods.git_reference_name(ptr);
             var type = NativeMethods.git_reference_type(ptr);
@@ -43,16 +44,22 @@ namespace LibGit2Sharp
             {
                 IntPtr resolveRef;
                 NativeMethods.git_reference_resolve(out resolveRef, ptr);
-                return CreateFromPtr(resolveRef, repo);
+                return CreateFromPtr(resolveRef, repo, name);
             }
             if (type == GitReferenceType.Oid)
             {
                 var oidPtr = NativeMethods.git_reference_oid(ptr);
                 var oid = (GitOid) Marshal.PtrToStructure(oidPtr, typeof (GitOid));
                 var target = repo.Lookup(oid);
-                return new Reference {Name = name, Type = type, Target = target};
+                return new Reference {Name = topLevelName ?? name, Type = type, Target = target, ReferencePtr = ptr};
             }
             throw new NotImplementedException();
+        }
+
+        public void Delete()
+        {
+            var res = NativeMethods.git_reference_delete(ReferencePtr);
+            Ensure.Success(res);
         }
 
         public override bool Equals(object obj)

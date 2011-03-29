@@ -48,7 +48,9 @@
     <Compile Include="Constants.cs" />
     <Compile Include="EpochFixture.cs" />
     <Compile Include="GitOidFixture.cs" />
+    <Compile Include="BaseFixtures\ReadWriteRepositoryFixtureBase.cs" />
     <Compile Include="ReferenceFixture.cs" />
+    <Compile Include="BaseFixtures\RepositoryToBeCreatedFixtureBase.cs" />
     <Compile Include="TestHelpers\AssertExtensions.cs" />
     <Compile Include="TestHelpers\DirectoryHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
