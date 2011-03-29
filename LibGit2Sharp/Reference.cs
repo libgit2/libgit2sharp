@@ -34,7 +34,13 @@ namespace LibGit2Sharp
     /// </summary>
     public abstract class Reference
     {
+        private readonly Repository repo;
         private IntPtr referencePtr;
+
+        protected Reference(Repository repo)
+        {
+            this.repo = repo;
+        }
 
         /// <summary>
         ///   Gets the name of this reference.
@@ -46,8 +52,6 @@ namespace LibGit2Sharp
         /// </summary>
         public GitReferenceType Type { get; private set; }
 
-        public CommitCollection Commits { get; private set; }
-
         internal static Reference CreateFromPtr(IntPtr ptr, Repository repo)
         {
             var name = NativeMethods.git_reference_name(ptr);
@@ -57,14 +61,14 @@ namespace LibGit2Sharp
                 IntPtr resolveRef;
                 NativeMethods.git_reference_resolve(out resolveRef, ptr);
                 var reference = CreateFromPtr(resolveRef, repo);
-                return new SymbolicReference {Name = name, Type = type, Target = reference, referencePtr = ptr, Commits = repo.Commits};
+                return new SymbolicReference(repo) {Name = name, Type = type, Target = reference, referencePtr = ptr};
             }
             if (type == GitReferenceType.Oid)
             {
                 var oidPtr = NativeMethods.git_reference_oid(ptr);
                 var oid = (GitOid) Marshal.PtrToStructure(oidPtr, typeof (GitOid));
                 var target = repo.Lookup(oid);
-                return new DirectReference {Name = name, Type = type, Target = target, referencePtr = ptr, Commits = repo.Commits};
+                return new DirectReference(repo) {Name = name, Type = type, Target = target, referencePtr = ptr};
             }
             throw new NotImplementedException();
         }
@@ -93,6 +97,21 @@ namespace LibGit2Sharp
         public override int GetHashCode()
         {
             return (Name != null ? Name.GetHashCode() : 0);
+        }
+
+        /// <summary>
+        ///   Resolves to direct reference.
+        /// </summary>
+        /// <returns></returns>
+        public DirectReference ResolveToDirectReference()
+        {
+            return ResolveToDirectReference(this);
+        }
+
+        private static DirectReference ResolveToDirectReference(Reference reference)
+        {
+            if (reference is DirectReference) return (DirectReference) reference;
+            return ResolveToDirectReference(((SymbolicReference) reference).Target);
         }
     }
 }

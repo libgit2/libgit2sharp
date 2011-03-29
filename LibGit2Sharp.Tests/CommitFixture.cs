@@ -38,7 +38,6 @@ namespace LibGit2Sharp.Tests
         private readonly List<string> expectedShas = new List<string> {"a4a7d", "c4780", "9fd73", "4a202", "5b5b0", "84960"};
 
         [Test]
-        [Ignore("TODO: Need to be able to lookup HEAD for this to work")]
         public void CanEnumerateCommits()
         {
             int count = 0;
@@ -50,7 +49,7 @@ namespace LibGit2Sharp.Tests
                     count++;
                 }
             }
-            count.ShouldEqual(3);
+            count.ShouldEqual(6);
         }
 
         [Test]
@@ -213,7 +212,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(Constants.TestRepoPath))
             {
-                Assert.Throws<ArgumentNullException>(() => repo.Commits.StartingAt(null));
+                Assert.Throws<ArgumentNullException>(() => repo.Commits.StartingAt((string)null));
             }
         }
     }

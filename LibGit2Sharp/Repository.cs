@@ -95,7 +95,7 @@ namespace LibGit2Sharp
 
         public CommitCollection Commits
         {
-            get { return commits; }
+            get { return commits.StartingAt(Refs.Head()); }
         }
 
         public BranchCollection Branches

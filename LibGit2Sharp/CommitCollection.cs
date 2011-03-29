@@ -79,6 +79,23 @@ namespace LibGit2Sharp
             return this;
         }
 
+        public CommitCollection StartingAt(Branch branch)
+        {
+            Ensure.ArgumentNotNull(branch, "branch");
+
+            pushedSha = branch.Reference.Target.Sha;
+            return this;
+        }
+
+        public CommitCollection StartingAt(Reference reference)
+        {
+            Ensure.ArgumentNotNull(reference, "reference");
+
+            var directReference = reference.ResolveToDirectReference();
+            pushedSha = directReference.Target.Sha;
+            return this;
+        }
+
         public CommitCollection StartingAt(string sha)
         {
             Ensure.ArgumentNotNullOrEmptyString(sha, "sha");

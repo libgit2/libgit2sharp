@@ -58,11 +58,11 @@ namespace LibGit2Sharp
                 var tokens = name.Split('/');
                 if (tokens.Length == 1)
                 {
-                    return Branch.CreateBranchFromReference(repo.Refs[string.Format(CultureInfo.InvariantCulture, "refs/heads/{0}", name)]);
+                    return Branch.CreateBranchFromReference(repo.Refs[string.Format(CultureInfo.InvariantCulture, "refs/heads/{0}", name)], repo);
                 }
                 if (tokens.Length == 2)
                 {
-                    return Branch.CreateBranchFromReference(repo.Refs[string.Format(CultureInfo.InvariantCulture, "refs/{0}", name)]);
+                    return Branch.CreateBranchFromReference(repo.Refs[string.Format(CultureInfo.InvariantCulture, "refs/{0}", name)], repo);
                 }
                 throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Unable to parse branch name: {0}. Expecting local branches in the form <branchname> and remotes in the form <remote>/<branchname>.", name));
             }
@@ -74,7 +74,7 @@ namespace LibGit2Sharp
         {
             var list = repo.Refs
                 .Where(IsABranch)
-                .Select(Branch.CreateBranchFromReference);
+                .Select(p => Branch.CreateBranchFromReference(p, repo));
             return list.GetEnumerator();
         }
 
