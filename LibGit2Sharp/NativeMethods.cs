@@ -25,6 +25,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
 namespace LibGit2Sharp
@@ -43,8 +44,8 @@ namespace LibGit2Sharp
 
         internal struct git_strarray
         {
-            public IntPtr size;
             public sbyte** strings;
+            public IntPtr size;
         }
 
         #endregion

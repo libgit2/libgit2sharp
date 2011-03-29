@@ -37,7 +37,6 @@ namespace LibGit2Sharp.Tests
         private readonly List<string> expectedRefs = new List<string> {"refs/heads/packed-test", "refs/heads/packed", "refs/heads/br2", "refs/heads/master", "refs/heads/test", "refs/tags/test", "refs/tags/very-simple"};
 
         [Test]
-        [Ignore("TODO: something is not working in the list all right now. try new list_cb() function")]
         public void CanListAllReferences()
         {
             using (var repo = new Repository(Constants.TestRepoPath))
