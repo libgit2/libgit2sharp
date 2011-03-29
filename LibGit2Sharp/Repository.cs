@@ -12,7 +12,6 @@ namespace LibGit2Sharp
         private const char posixDirectorySeparatorChar = '/';
         private readonly BranchCollection branches;
         private readonly CommitCollection commits;
-        private readonly RepositoryOptions options;
         private readonly ReferenceCollection refs;
         private readonly IntPtr repo = IntPtr.Zero;
 
@@ -27,32 +26,43 @@ namespace LibGit2Sharp
         ///   TODO: ApplicationException is thrown for all git errors right now
         /// </summary>
         /// <param name = "path">The path to the git repository to open.</param>
-        /// <param name = "options">The options.</param>
-        public Repository(string path, RepositoryOptions options = null)
+        public Repository(string path)
         {
             Path = path;
-            Ensure.ArgumentNotNull(path, "path");
-            this.options = options ?? new RepositoryOptions();
+            Ensure.ArgumentNotNullOrEmptyString(path, "path");
+
+            if (!Directory.Exists(path))
+                throw new ArgumentException("path");
 
             Path = path;
             PosixPath = path.Replace(System.IO.Path.DirectorySeparatorChar, posixDirectorySeparatorChar);
 
-            if (!this.options.CreateIfNeeded && !Directory.Exists(path))
-                throw new ArgumentException("The repository does not exist. You can create a repository by calling new Repository(path, createRepository:true)", "path");
+            var res = NativeMethods.git_repository_open(out repo, PosixPath);
+            Ensure.Success(res);
 
-            if (this.options.CreateIfNeeded)
-            {
-                var res = NativeMethods.git_repository_init(out repo, PosixPath, this.options.IsBareRepository);
-                Ensure.Success(res);
-            }
-            else
-            {
-                var res = NativeMethods.git_repository_open(out repo, PosixPath);
-                Ensure.Success(res);
-            }
             commits = new CommitCollection(this);
             refs = new ReferenceCollection(this);
             branches = new BranchCollection(this);
+        }
+
+        /// <summary>
+        /// Init a repo at the specified path
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <param name="bare"></param>
+        /// <returns></returns>
+        public static string Init(string path, bool bare = false)
+        {
+            Ensure.ArgumentNotNullOrEmptyString(path, "path");
+
+            var posixPath = path.Replace(System.IO.Path.DirectorySeparatorChar, posixDirectorySeparatorChar);
+
+            IntPtr repo;
+            var res = NativeMethods.git_repository_init(out repo, posixPath, bare);
+            Ensure.Success(res);
+            NativeMethods.git_repository_free(repo);
+
+            return path;
         }
 
         internal IntPtr RepoPtr
@@ -163,7 +173,7 @@ namespace LibGit2Sharp
 
             IntPtr obj;
             var res = NativeMethods.git_object_lookup(out obj, repo, ref oid, type);
-            if (res == (int) GitErrorCode.GIT_ENOTFOUND)
+            if (res == (int)GitErrorCode.GIT_ENOTFOUND)
             {
                 if (throwIfNotFound)
                 {
@@ -216,7 +226,7 @@ namespace LibGit2Sharp
         /// <returns>the <see cref = "GitObject" />.</returns>
         public T Lookup<T>(string sha) where T : GitObject
         {
-            return (T) Lookup(sha, GitObject.TypeToTypeMap[typeof (T)]);
+            return (T)Lookup(sha, GitObject.TypeToTypeMap[typeof(T)]);
         }
 
         /// <summary>
@@ -227,7 +237,7 @@ namespace LibGit2Sharp
         /// <returns></returns>
         public T Lookup<T>(GitOid oid) where T : GitObject
         {
-            return (T) Lookup(oid, GitObject.TypeToTypeMap[typeof (T)]);
+            return (T)Lookup(oid, GitObject.TypeToTypeMap[typeof(T)]);
         }
 
         /// <summary>
@@ -238,7 +248,7 @@ namespace LibGit2Sharp
         /// <returns></returns>
         public T TryLookup<T>(string sha) where T : GitObject
         {
-            return (T) TryLookup(sha, GitObject.TypeToTypeMap[typeof (T)]);
+            return (T)TryLookup(sha, GitObject.TypeToTypeMap[typeof(T)]);
         }
 
         /// <summary>

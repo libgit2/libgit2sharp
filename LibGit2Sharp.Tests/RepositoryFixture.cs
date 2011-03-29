@@ -35,9 +35,12 @@ namespace LibGit2Sharp.Tests
         public void CanCreateRepo()
         {
             using (new SelfCleaningDirectory(newRepoPath))
-            using (new Repository(newRepoPath, new RepositoryOptions {CreateIfNeeded = true}))
             {
-                Directory.Exists(newRepoPath).ShouldBeTrue();
+                var dir = Repository.Init(newRepoPath);
+                Directory.Exists(dir).ShouldBeTrue();
+                using (new Repository(Path.Combine(dir, ".git")))
+                {
+                }
             }
         }
 
@@ -110,6 +113,18 @@ namespace LibGit2Sharp.Tests
                 repo.HasObject("ce08fe4884650f067bd5703b6a59a8b3b3c99a09").ShouldBeFalse();
                 repo.HasObject("8496071c1c46c854b31185ea97743be6a8774479").ShouldBeFalse();
             }
+        }
+
+        [Test]
+        public void CreateRepoWithEmptyStringThrows()
+        {
+            Assert.Throws<ArgumentException>(() => Repository.Init(string.Empty));
+        }
+
+        [Test]
+        public void CreateRepoWithNullThrows()
+        {
+            Assert.Throws<ArgumentNullException>(() => Repository.Init(null));
         }
 
         [Test]

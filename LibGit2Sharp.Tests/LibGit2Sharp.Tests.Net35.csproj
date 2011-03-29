@@ -43,8 +43,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BaseFixtures\ReadWriteRepositoryFixtureBase.cs" />
-    <Compile Include="BaseFixtures\RepositoryToBeCreatedFixtureBase.cs" />
     <Compile Include="BranchFixture.cs" />
     <Compile Include="CommitFixture.cs" />
     <Compile Include="Constants.cs" />
@@ -56,6 +54,7 @@
     <Compile Include="TestHelpers\AssertExtensions.cs" />
     <Compile Include="TestHelpers\DirectoryHelper.cs" />
     <Compile Include="TestHelpers\SelfCleaningDirectory.cs" />
+    <Compile Include="TestHelpers\TemporaryRepositoryPath.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\LibGit2Sharp\LibGit2Sharp.Net35.csproj">

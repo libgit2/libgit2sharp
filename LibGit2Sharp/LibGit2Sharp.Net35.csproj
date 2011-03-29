@@ -69,7 +69,6 @@
     <Compile Include="Repository.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="RepositoryOptions.cs" />
     <Compile Include="Signature.cs" />
     <Compile Include="SymbolicReference.cs" />
     <Compile Include="Tag.cs" />

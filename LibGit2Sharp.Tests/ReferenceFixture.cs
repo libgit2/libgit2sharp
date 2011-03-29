@@ -6,7 +6,7 @@ using NUnit.Framework;
 namespace LibGit2Sharp.Tests
 {
     [TestFixture]
-    public class ReferenceFixture : ReadWriteRepositoryFixtureBase
+    public class ReferenceFixture
     {
         private readonly List<string> expectedRefs = new List<string> {"refs/heads/packed-test", "refs/heads/packed", "refs/heads/br2", "refs/heads/master", "refs/heads/test", "refs/tags/test", "refs/tags/very-simple"};
 
@@ -14,7 +14,8 @@ namespace LibGit2Sharp.Tests
         public void CanCreateReferenceFromSha()
         {
             const string name = "refs/heads/unit_test";
-            using (var repo = new Repository(PathToReadWriteRepository))
+            using (var path = new TemporaryRepositoryPath())
+            using (var repo = new Repository(path.RepositoryPath))
             {
                 var newRef = (DirectReference) repo.Refs.Create(name, "be3563ae3f795b2b4353bcce3a527ad0a4f7f644");
                 newRef.ShouldNotBeNull();
@@ -31,7 +32,8 @@ namespace LibGit2Sharp.Tests
         public void CanCreateReferenceFromSymbol()
         {
             const string name = "refs/heads/unit_test";
-            using (var repo = new Repository(PathToReadWriteRepository))
+            using (var path = new TemporaryRepositoryPath())
+            using (var repo = new Repository(path.RepositoryPath))
             {
                 var newRef = (SymbolicReference) repo.Refs.Create(name, "refs/heads/master");
                 newRef.ShouldNotBeNull();
@@ -111,7 +113,8 @@ namespace LibGit2Sharp.Tests
         [Test]
         public void CreateWithEmptyStringForTargetThrows()
         {
-            using (var repo = new Repository(PathToReadWriteRepository))
+            using (var path = new TemporaryRepositoryPath())
+            using (var repo = new Repository(path.RepositoryPath))
             {
                 Assert.Throws<ArgumentException>(() => repo.Refs.Create("refs/heads/newref", string.Empty));
             }
@@ -120,7 +123,8 @@ namespace LibGit2Sharp.Tests
         [Test]
         public void CreateWithEmptyStringThrows()
         {
-            using (var repo = new Repository(PathToReadWriteRepository))
+            using (var path = new TemporaryRepositoryPath())
+            using (var repo = new Repository(path.RepositoryPath))
             {
                 Assert.Throws<ArgumentException>(() => repo.Refs.Create(string.Empty, "refs/heads/master"));
             }
@@ -129,7 +133,8 @@ namespace LibGit2Sharp.Tests
         [Test]
         public void CreateWithNullForTargetThrows()
         {
-            using (var repo = new Repository(PathToReadWriteRepository))
+            using (var path = new TemporaryRepositoryPath())
+            using (var repo = new Repository(path.RepositoryPath))
             {
                 Assert.Throws<ArgumentNullException>(() => repo.Refs.Create("refs/heads/newref", null));
             }
@@ -138,7 +143,8 @@ namespace LibGit2Sharp.Tests
         [Test]
         public void CreateWithNullStringThrows()
         {
-            using (var repo = new Repository(PathToReadWriteRepository))
+            using (var path = new TemporaryRepositoryPath())
+            using (var repo = new Repository(path.RepositoryPath))
             {
                 Assert.Throws<ArgumentNullException>(() => repo.Refs.Create(null, "refs/heads/master"));
             }

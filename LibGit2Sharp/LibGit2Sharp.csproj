@@ -67,7 +67,6 @@
     <Compile Include="Reference.cs" />
     <Compile Include="ReferenceCollection.cs" />
     <Compile Include="Repository.cs" />
-    <Compile Include="RepositoryOptions.cs" />
     <Compile Include="Signature.cs" />
     <Compile Include="SymbolicReference.cs" />
     <Compile Include="Tag.cs" />
