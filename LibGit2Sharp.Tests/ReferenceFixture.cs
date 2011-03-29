@@ -34,7 +34,7 @@ namespace LibGit2Sharp.Tests
     [TestFixture]
     public class ReferenceFixture : ReadWriteRepositoryFixtureBase
     {
-        private readonly List<string> expectedRefs = new List<string> {"refs/heads/packed-test", "refs/heads/packed", "refs/heads/br2", "refs/heads/master", "refs/heads/test", "refs/tags/test", "refs/tags/very-simple"};
+        private readonly List<string> expectedRefs = new List<string> { "refs/heads/packed-test", "refs/heads/packed", "refs/heads/br2", "refs/heads/master", "refs/heads/test", "refs/tags/test", "refs/tags/very-simple" };
 
         [Test]
         public void CanCreateReferenceFromSha()
@@ -42,7 +42,7 @@ namespace LibGit2Sharp.Tests
             const string name = "refs/heads/unit_test";
             using (var repo = new Repository(PathToReadWriteRepository))
             {
-                var newRef = repo.Refs.Create(name, "be3563ae3f795b2b4353bcce3a527ad0a4f7f644");
+                var newRef = (DirectReference)repo.Refs.Create(name, "be3563ae3f795b2b4353bcce3a527ad0a4f7f644");
                 newRef.ShouldNotBeNull();
                 newRef.Name.ShouldEqual(name);
                 newRef.Target.ShouldNotBeNull();
@@ -59,11 +59,11 @@ namespace LibGit2Sharp.Tests
             const string name = "refs/heads/unit_test";
             using (var repo = new Repository(PathToReadWriteRepository))
             {
-                var newRef = repo.Refs.Create(name, "refs/heads/master");
+                var newRef = (SymbolicReference)repo.Refs.Create(name, "refs/heads/master");
                 newRef.ShouldNotBeNull();
                 newRef.Name.ShouldEqual(name);
                 newRef.Target.ShouldNotBeNull();
-                newRef.Target.Sha.ShouldEqual("be3563ae3f795b2b4353bcce3a527ad0a4f7f644");
+                ((DirectReference)newRef.Target).Target.Sha.ShouldEqual("be3563ae3f795b2b4353bcce3a527ad0a4f7f644");
                 repo.Refs.SingleOrDefault(p => p.Name == name).ShouldNotBeNull();
 
                 newRef.Delete();
@@ -89,20 +89,18 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(Constants.TestRepoPath))
             {
-                var head = repo.Refs["HEAD"];
+                var head = (SymbolicReference)repo.Refs["HEAD"];
                 head.ShouldNotBeNull();
-                // todo: unsure about this strategy of always peeling back refs
-                //head.Name.ShouldEqual("refs/heads/master");
                 head.Name.ShouldEqual("HEAD");
                 head.Target.ShouldNotBeNull();
-                head.Target.Sha.ShouldEqual("be3563ae3f795b2b4353bcce3a527ad0a4f7f644");
-                Assert.IsInstanceOf<Commit>(head.Target);
+                head.Target.Name.ShouldEqual("refs/heads/master");
+                ((DirectReference)head.Target).Target.Sha.ShouldEqual("be3563ae3f795b2b4353bcce3a527ad0a4f7f644");
+                Assert.IsInstanceOf<Commit>(((DirectReference)head.Target).Target);
 
-                var head2 = repo.Refs.Head();
-                //head2.Name.ShouldEqual("refs/heads/master");
+                var head2 = (SymbolicReference)repo.Refs.Head();
                 head2.Name.ShouldEqual("HEAD");
                 head2.Target.ShouldNotBeNull();
-                Assert.IsInstanceOf<Commit>(head2.Target);
+                Assert.IsInstanceOf<Commit>(((DirectReference)head.Target).Target);
 
                 head.Equals(head2).ShouldBeTrue();
             }
@@ -113,7 +111,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(Constants.TestRepoPath))
             {
-                var master = repo.Refs["refs/heads/master"];
+                var master = (DirectReference)repo.Refs["refs/heads/master"];
                 master.ShouldNotBeNull();
                 master.Name.ShouldEqual("refs/heads/master");
                 master.Target.ShouldNotBeNull();

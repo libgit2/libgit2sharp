@@ -47,9 +47,10 @@
     <Compile Include="Blob.cs" />
     <Compile Include="Commit.cs" />
     <Compile Include="CommitCollection.cs" />
+    <Compile Include="DirectReference.cs" />
     <Compile Include="Ensure.cs" />
     <Compile Include="Epoch.cs" />
-    <Compile Include="GitErrorCodes.cs" />
+    <Compile Include="GitErrorCode.cs" />
     <Compile Include="GitObject.cs" />
     <Compile Include="GitObjectType.cs" />
     <Compile Include="GitObjectTypeMap.cs" />
@@ -68,6 +69,7 @@
     </Compile>
     <Compile Include="RepositoryOptions.cs" />
     <Compile Include="Signature.cs" />
+    <Compile Include="SymbolicReference.cs" />
     <Compile Include="Tag.cs" />
     <Compile Include="Tree.cs" />
   </ItemGroup>

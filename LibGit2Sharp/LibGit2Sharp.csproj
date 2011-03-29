@@ -47,6 +47,7 @@
     <Compile Include="Blob.cs" />
     <Compile Include="Commit.cs" />
     <Compile Include="CommitCollection.cs" />
+    <Compile Include="DirectReference.cs" />
     <Compile Include="Ensure.cs" />
     <Compile Include="Epoch.cs" />
     <Compile Include="GitErrorCode.cs" />
@@ -70,6 +71,7 @@
     <Compile Include="Repository.cs" />
     <Compile Include="RepositoryOptions.cs" />
     <Compile Include="Signature.cs" />
+    <Compile Include="SymbolicReference.cs" />
     <Compile Include="Tag.cs" />
     <Compile Include="Tree.cs" />
     <None Include="Resources\Resources.Designer.cs" />

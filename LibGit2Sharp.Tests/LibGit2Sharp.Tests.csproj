@@ -44,6 +44,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BranchFixture.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="CommitFixture.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="EpochFixture.cs" />
