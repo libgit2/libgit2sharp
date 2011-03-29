@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Globalization;
-using LibGit2Sharp.Properties;
 
 namespace LibGit2Sharp
 {
@@ -33,7 +31,7 @@ namespace LibGit2Sharp
 
             if (argumentValue.Trim().Length == 0)
             {
-                throw new ArgumentException(Resources.EmptyString, argumentName);
+                throw new ArgumentException("String cannot be empty", argumentName);
             }
         }
 
@@ -47,21 +45,6 @@ namespace LibGit2Sharp
             {
                 throw new ApplicationException(
                     String.Format("There was an error in libgit2, but error handling sucks right now, so I can't tell you what it was. Error code = {0}", result));
-            }
-        }
-
-        /// <summary>
-        ///   Checks that the type is assignable.
-        /// </summary>
-        /// <param name = "toType"></param>
-        /// <param name = "fromType"></param>
-        public static void TypeIsAssignableFromType(Type toType, Type fromType)
-        {
-            if (toType.IsAssignableFrom(fromType) == false)
-            {
-                throw new ArgumentException(
-                    string.Format(CultureInfo.CurrentCulture,
-                                  Resources.TypeNotAssignable, fromType, toType));
             }
         }
     }

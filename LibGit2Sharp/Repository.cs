@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
-using LibGit2Sharp.Properties;
 
 namespace LibGit2Sharp
 {
@@ -40,7 +38,7 @@ namespace LibGit2Sharp
             PosixPath = path.Replace(System.IO.Path.DirectorySeparatorChar, posixDirectorySeparatorChar);
 
             if (!this.options.CreateIfNeeded && !Directory.Exists(path))
-                throw new ArgumentException(Resources.RepositoryDoesNotExist, "path");
+                throw new ArgumentException("The repository does not exist. You can create a repository by calling new Repository(path, createRepository:true)", "path");
 
             if (this.options.CreateIfNeeded)
             {
@@ -169,7 +167,7 @@ namespace LibGit2Sharp
             {
                 if (throwIfNotFound)
                 {
-                    throw new KeyNotFoundException(string.Format(CultureInfo.CurrentCulture, Resources.ObjectNotFoundInRepository, oid));
+                    throw new KeyNotFoundException(string.Format("Object {0} does not exists in the repository", oid));
                 }
                 return null;
             }

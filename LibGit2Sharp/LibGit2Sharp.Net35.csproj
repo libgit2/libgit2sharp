@@ -64,7 +64,6 @@
     <Compile Include="GitTime.cs" />
     <Compile Include="NativeMethods.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Properties\Resources.Designer.cs" />
     <Compile Include="Reference.cs" />
     <Compile Include="ReferenceCollection.cs" />
     <Compile Include="Repository.cs">
@@ -82,9 +81,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="backlog.md" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Properties\Resources.resx" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="..\Lib\git2.dll">
