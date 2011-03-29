@@ -77,7 +77,6 @@
     <Compile Include="SymbolicReference.cs" />
     <Compile Include="Tag.cs" />
     <Compile Include="Tree.cs" />
-    <None Include="Resources\Resources.Designer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Lib\git2.lib">
