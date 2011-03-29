@@ -30,17 +30,30 @@ using System.Collections.Generic;
 
 namespace LibGit2Sharp
 {
+    /// <summary>
+    /// The Collection of references in a <see cref="Repository"/>
+    /// </summary>
     public class ReferenceCollection : IEnumerable<Reference>
     {
+        /// <summary>
+        /// A special Reference name to refer to the 'HEAD'
+        /// </summary>
         public const string HEAD = "HEAD";
 
         private readonly Repository repo;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ReferenceCollection"/> class.
+        /// </summary>
+        /// <param name="repo">The repo.</param>
         public ReferenceCollection(Repository repo)
         {
             this.repo = repo;
         }
 
+        /// <summary>
+        /// Gets the <see cref="LibGit2Sharp.Reference"/> with the specified name.
+        /// </summary>
         public Reference this[string name]
         {
             get { return Resolve(name); }
@@ -60,6 +73,12 @@ namespace LibGit2Sharp
 
         #endregion
 
+        /// <summary>
+        /// Creates a reference with the specified name and target
+        /// </summary>
+        /// <param name="name">The name of the reference to create.</param>
+        /// <param name="target">The target which can be either a sha or the name of another reference.</param>
+        /// <returns>A new <see cref="Reference"/>.</returns>
         public Reference Create(string name, string target)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
@@ -78,22 +97,37 @@ namespace LibGit2Sharp
             return Reference.CreateFromPtr(reference, repo);
         }
 
-        public Reference Create(string name, GitOid oid)
+        /// <summary>
+        /// Creates a reference with the specified name and target
+        /// </summary>
+        /// <param name="name">The name of the reference to create.</param>
+        /// <param name="target">The oid of the target.</param>
+        /// <returns>A new <see cref="Reference"/>.</returns>
+        public Reference Create(string name, GitOid target)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
 
             IntPtr reference;
-            var res = NativeMethods.git_reference_create_oid(out reference, repo.RepoPtr, name, ref oid);
+            var res = NativeMethods.git_reference_create_oid(out reference, repo.RepoPtr, name, ref target);
             Ensure.Success(res);
 
             return Reference.CreateFromPtr(reference, repo);
         }
 
+        /// <summary>
+        /// Shortcut to return the reference to HEAD
+        /// </summary>
+        /// <returns></returns>
         public Reference Head()
         {
             return this[HEAD];
         }
 
+        /// <summary>
+        /// Gets the <see cref="LibGit2Sharp.Reference"/> with the specified name.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <returns></returns>
         public Reference Resolve(string name)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");

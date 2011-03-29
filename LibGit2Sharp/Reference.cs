@@ -29,10 +29,21 @@ using System.Runtime.InteropServices;
 
 namespace LibGit2Sharp
 {
+    /// <summary>
+    ///   A Reference to another git object
+    /// </summary>
     public abstract class Reference
     {
-        public IntPtr ReferencePtr;
+        private IntPtr referencePtr;
+
+        /// <summary>
+        ///   Gets the name of this reference.
+        /// </summary>
         public string Name { get; private set; }
+
+        /// <summary>
+        ///   Gets the type of this reference.
+        /// </summary>
         public GitReferenceType Type { get; private set; }
 
         internal static Reference CreateFromPtr(IntPtr ptr, Repository repo)
@@ -44,21 +55,24 @@ namespace LibGit2Sharp
                 IntPtr resolveRef;
                 NativeMethods.git_reference_resolve(out resolveRef, ptr);
                 var reference = CreateFromPtr(resolveRef, repo);
-                return new SymbolicReference { Name = name, Type = type, Target = reference, ReferencePtr = ptr };
+                return new SymbolicReference {Name = name, Type = type, Target = reference, referencePtr = ptr};
             }
             if (type == GitReferenceType.Oid)
             {
                 var oidPtr = NativeMethods.git_reference_oid(ptr);
-                var oid = (GitOid)Marshal.PtrToStructure(oidPtr, typeof(GitOid));
+                var oid = (GitOid) Marshal.PtrToStructure(oidPtr, typeof (GitOid));
                 var target = repo.Lookup(oid);
-                return new DirectReference { Name = name, Type = type, Target = target, ReferencePtr = ptr };
+                return new DirectReference {Name = name, Type = type, Target = target, referencePtr = ptr};
             }
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        ///   Deletes this reference.
+        /// </summary>
         public void Delete()
         {
-            var res = NativeMethods.git_reference_delete(ReferencePtr);
+            var res = NativeMethods.git_reference_delete(referencePtr);
             Ensure.Success(res);
         }
 
