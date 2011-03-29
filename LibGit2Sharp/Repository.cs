@@ -152,7 +152,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name = "oid">The oid.</param>
         /// <returns></returns>
-        public bool Exists(GitOid oid)
+        public bool HasObject(GitOid oid)
         {
             Ensure.ArgumentNotNull(oid, "oid");
 
@@ -169,12 +169,12 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name = "sha">The sha.</param>
         /// <returns></returns>
-        public bool Exists(string sha)
+        public bool HasObject(string sha)
         {
             Ensure.ArgumentNotNullOrEmptyString(sha, "sha");
 
             var oid = GitOid.FromSha(sha);
-            return Exists(oid);
+            return HasObject(oid);
         }
 
         ~Repository()

@@ -41,10 +41,10 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(Constants.TestRepoPath))
             {
-                repo.Exists("8496071c1b46c854b31185ea97743be6a8774479").ShouldBeTrue();
-                repo.Exists("1385f264afb75a56a5bec74243be9b367ba4ca08").ShouldBeTrue();
-                repo.Exists("ce08fe4884650f067bd5703b6a59a8b3b3c99a09").ShouldBeFalse();
-                repo.Exists("8496071c1c46c854b31185ea97743be6a8774479").ShouldBeFalse();
+                repo.HasObject("8496071c1b46c854b31185ea97743be6a8774479").ShouldBeTrue();
+                repo.HasObject("1385f264afb75a56a5bec74243be9b367ba4ca08").ShouldBeTrue();
+                repo.HasObject("ce08fe4884650f067bd5703b6a59a8b3b3c99a09").ShouldBeFalse();
+                repo.HasObject("8496071c1c46c854b31185ea97743be6a8774479").ShouldBeFalse();
             }
         }
 
@@ -56,7 +56,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(Constants.TestRepoPath))
             {
-                Assert.Throws<ArgumentException>(() => repo.Exists(string.Empty));
+                Assert.Throws<ArgumentException>(() => repo.HasObject(string.Empty));
             }
         }
 
@@ -65,7 +65,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(Constants.TestRepoPath))
             {
-                Assert.Throws<ArgumentNullException>(() => repo.Exists(null));
+                Assert.Throws<ArgumentNullException>(() => repo.HasObject(null));
             }
         }
 
