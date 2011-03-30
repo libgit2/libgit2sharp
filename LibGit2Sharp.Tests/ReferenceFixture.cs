@@ -136,7 +136,7 @@ namespace LibGit2Sharp.Tests
             using (var path = new TemporaryRepositoryPath())
             using (var repo = new Repository(path.RepositoryPath))
             {
-                Assert.Throws<ArgumentNullException>(() => repo.Refs.Create("refs/heads/newref", null));
+                Assert.Throws<ArgumentNullException>(() => repo.Refs.Create("refs/heads/newref", (string)null));
             }
         }
 

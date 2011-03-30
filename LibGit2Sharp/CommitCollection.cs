@@ -144,7 +144,7 @@ namespace LibGit2Sharp
                 var res = NativeMethods.git_revwalk_next(out oid, walker);
                 if (res == (int) GitErrorCode.GIT_EREVWALKOVER) return false;
 
-                Current = repo.Lookup<Commit>(oid);
+                Current = repo.Lookup<Commit>(new ObjectId(oid));
 
                 return true;
             }
@@ -187,7 +187,8 @@ namespace LibGit2Sharp
 
             public void Push(string sha)
             {
-                var oid = GitOid.FromSha(sha);
+                var id = new ObjectId(sha);
+                var oid = id.Oid;
                 int res = NativeMethods.git_revwalk_push(walker, ref oid);
                 Ensure.Success(res);
             }

@@ -27,7 +27,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(Constants.TestRepoPath))
             {
-                Assert.Throws<ArgumentNullException>(() => repo.HasObject(null));
+                Assert.Throws<ArgumentNullException>(() => repo.HasObject((string)null));
             }
         }
 
@@ -154,9 +154,9 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(Constants.TestRepoPath))
             {
-                Assert.Throws<ArgumentNullException>(() => repo.Lookup(null));
-                Assert.Throws<ArgumentNullException>(() => repo.TryLookup(null));
-                Assert.Throws<ArgumentNullException>(() => repo.Lookup<Commit>(null));
+                Assert.Throws<ArgumentNullException>(() => repo.Lookup((string)null));
+                Assert.Throws<ArgumentNullException>(() => repo.TryLookup((string)null));
+                Assert.Throws<ArgumentNullException>(() => repo.Lookup<Commit>((string)null));
                 Assert.Throws<ArgumentNullException>(() => repo.TryLookup<Commit>(null));
             }
         }

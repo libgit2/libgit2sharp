@@ -140,13 +140,14 @@ namespace LibGit2Sharp
         ///   Exceptions:
         ///   ArgumentNullException
         /// </summary>
-        /// <param name = "oid">The oid.</param>
+        /// <param name = "id">The id.</param>
         /// <returns></returns>
-        public bool HasObject(GitOid oid)
+        public bool HasObject(ObjectId id)
         {
-            Ensure.ArgumentNotNull(oid, "oid");
+            Ensure.ArgumentNotNull(id, "id");
 
             var odb = NativeMethods.git_repository_database(repo);
+            var oid = id.Oid;
             return NativeMethods.git_odb_exists(odb, ref oid);
         }
 
@@ -163,27 +164,27 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(sha, "sha");
 
-            var oid = GitOid.FromSha(sha);
-            return HasObject(oid);
+            return HasObject(new ObjectId(sha));
         }
 
-        private GitObject Lookup(GitOid oid, GitObjectType type = GitObjectType.Any, bool throwIfNotFound = true)
+        private GitObject Lookup(ObjectId id, GitObjectType type = GitObjectType.Any, bool throwIfNotFound = true)
         {
-            Ensure.ArgumentNotNull(oid, "oid");
+            Ensure.ArgumentNotNull(id, "id");
 
+            var oid = id.Oid;
             IntPtr obj;
             var res = NativeMethods.git_object_lookup(out obj, repo, ref oid, type);
             if (res == (int)GitErrorCode.GIT_ENOTFOUND)
             {
                 if (throwIfNotFound)
                 {
-                    throw new KeyNotFoundException(string.Format("Object {0} does not exists in the repository", oid));
+                    throw new KeyNotFoundException(string.Format("Object {0} does not exists in the repository", id));
                 }
                 return null;
             }
             Ensure.Success(res);
 
-            return GitObject.CreateFromPtr(obj, oid, this);
+            return GitObject.CreateFromPtr(obj, id, this);
         }
 
         /// <summary>
@@ -192,12 +193,12 @@ namespace LibGit2Sharp
         ///   Exceptions:
         ///   ArgumentNullException
         /// </summary>
-        /// <param name = "oid">The oid.</param>
+        /// <param name = "id">The id.</param>
         /// <param name = "type">The <see cref = "GitObjectType" /> of the object to lookup.</param>
         /// <returns></returns>
-        public GitObject Lookup(GitOid oid, GitObjectType type = GitObjectType.Any)
+        public GitObject Lookup(ObjectId id, GitObjectType type = GitObjectType.Any)
         {
-            return Lookup(oid, type, true);
+            return Lookup(id, type, true);
         }
 
         /// <summary>
@@ -214,8 +215,7 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(sha, "sha");
 
-            var oid = GitOid.FromSha(sha);
-            return Lookup(oid, type);
+            return Lookup(new ObjectId(sha), type);
         }
 
         /// <summary>
@@ -233,11 +233,11 @@ namespace LibGit2Sharp
         ///   Lookup an object by it's <see cref = "GitOid" />. An exception will be thrown if the object is not found.
         /// </summary>
         /// <typeparam name = "T"></typeparam>
-        /// <param name = "oid">The oid.</param>
+        /// <param name = "id">The id.</param>
         /// <returns></returns>
-        public T Lookup<T>(GitOid oid) where T : GitObject
+        public T Lookup<T>(ObjectId id) where T : GitObject
         {
-            return (T)Lookup(oid, GitObject.TypeToTypeMap[typeof(T)]);
+            return (T)Lookup(id, GitObject.TypeToTypeMap[typeof(T)]);
         }
 
         /// <summary>
@@ -264,19 +264,18 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(sha, "sha");
 
-            var oid = GitOid.FromSha(sha);
-            return TryLookup(oid, type);
+            return TryLookup(new ObjectId(sha), type);
         }
 
         /// <summary>
         ///   Try to lookup an object by it's <see cref = "GitOid" />. If an object is not found null will be returned.
         /// </summary>
-        /// <param name = "oid">The oid to lookup.</param>
+        /// <param name = "id">The id to lookup.</param>
         /// <param name = "type"></param>
         /// <returns>the <see cref = "GitObject" /> or null if it was not found.</returns>
-        public GitObject TryLookup(GitOid oid, GitObjectType type = GitObjectType.Any)
+        public GitObject TryLookup(ObjectId id, GitObjectType type = GitObjectType.Any)
         {
-            return Lookup(oid, type, false);
+            return Lookup(id, type, false);
         }
     }
 }

@@ -15,8 +15,8 @@ namespace LibGit2Sharp
         private string messageShort;
         private List<Commit> parents;
 
-        internal Commit(IntPtr obj, GitOid? oid = null)
-            : base(obj, oid)
+        internal Commit(IntPtr obj, ObjectId id = null)
+            : base(obj, id)
         {
         }
 

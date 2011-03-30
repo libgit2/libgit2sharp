@@ -69,7 +69,7 @@ namespace LibGit2Sharp.Tests
                     commit.ShouldNotBeNull();
                     foreach (var p in commit.Parents)
                     {
-                        var parent = commits.Single(x => x.Oid == p.Oid);
+                        var parent = commits.Single(x => x.Id == p.Id);
                         Assert.Greater(commits.IndexOf(commit), commits.IndexOf(parent));
                     }
                 }
@@ -103,7 +103,7 @@ namespace LibGit2Sharp.Tests
                     commit.ShouldNotBeNull();
                     foreach (var p in commit.Parents)
                     {
-                        var parent = commits.Single(x => x.Oid == p.Oid);
+                        var parent = commits.Single(x => x.Id == p.Id);
                         Assert.Less(commits.IndexOf(commit), commits.IndexOf(parent));
                     }
                 }

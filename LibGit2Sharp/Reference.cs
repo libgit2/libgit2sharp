@@ -41,7 +41,7 @@ namespace LibGit2Sharp
             {
                 var oidPtr = NativeMethods.git_reference_oid(ptr);
                 var oid = (GitOid) Marshal.PtrToStructure(oidPtr, typeof (GitOid));
-                var target = repo.Lookup(oid);
+                var target = repo.Lookup(new ObjectId(oid));
                 return new DirectReference(repo) {Name = name, Type = type, Target = target, referencePtr = ptr};
             }
             throw new NotImplementedException();

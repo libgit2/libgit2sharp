@@ -61,7 +61,7 @@ namespace LibGit2Sharp
             GitOid oid;
             if (NativeMethods.git_oid_mkstr(out oid, target) == (int) GitErrorCode.GIT_SUCCESS)
             {
-                return Create(name, oid);
+                return Create(name, new ObjectId(oid));
             }
 
             IntPtr reference;
@@ -77,12 +77,13 @@ namespace LibGit2Sharp
         /// <param name = "name">The name of the reference to create.</param>
         /// <param name = "target">The oid of the target.</param>
         /// <returns>A new <see cref = "Reference" />.</returns>
-        public Reference Create(string name, GitOid target)
+        public Reference Create(string name, ObjectId target)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
 
+            var oid = target.Oid;
             IntPtr reference;
-            var res = NativeMethods.git_reference_create_oid(out reference, repo.RepoPtr, name, ref target);
+            var res = NativeMethods.git_reference_create_oid(out reference, repo.RepoPtr, name, ref oid);
             Ensure.Success(res);
 
             return Reference.CreateFromPtr(reference, repo);

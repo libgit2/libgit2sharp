@@ -17,32 +17,23 @@ namespace LibGit2Sharp
 
         protected IntPtr Obj = IntPtr.Zero;
         private bool disposed;
-        private GitOid? oid;
 
-        private string sha;
-
-        protected GitObject(IntPtr obj, GitOid? oid = null)
+        protected GitObject(IntPtr obj, ObjectId id = null)
         {
-            this.oid = oid;
             Obj = obj;
+            if (id == null)
+            {
+                var ptr = NativeMethods.git_object_id(Obj);
+                id = new ObjectId((GitOid)Marshal.PtrToStructure(ptr, typeof(GitOid)));
+            }
+            Id = id;
         }
 
-        public GitOid Oid
-        {
-            get
-            {
-                if (!oid.HasValue)
-                {
-                    var ptr = NativeMethods.git_object_id(Obj);
-                    oid = (GitOid) Marshal.PtrToStructure(ptr, typeof (GitOid));
-                }
-                return oid.Value;
-            }
-        }
+        public ObjectId Id { get; private set; }
 
         public string Sha
         {
-            get { return sha ?? (sha = Oid.ToSha()); }
+            get { return Id.Sha; }
         }
 
         #region IDisposable Members
@@ -55,21 +46,21 @@ namespace LibGit2Sharp
 
         #endregion
 
-        internal static GitObject CreateFromPtr(IntPtr obj, GitOid oid, Repository repo)
+        internal static GitObject CreateFromPtr(IntPtr obj, ObjectId id, Repository repo)
         {
             var type = NativeMethods.git_object_type(obj);
             switch (type)
             {
                 case GitObjectType.Commit:
-                    return new Commit(obj, oid);
+                    return new Commit(obj, id);
                 case GitObjectType.Tree:
-                    return new Tree(obj, oid);
+                    return new Tree(obj, id);
                 case GitObjectType.Tag:
-                    return new Tag(obj, oid);
+                    return new Tag(obj, id);
                 case GitObjectType.Blob:
-                    return new Blob(obj, oid);
+                    return new Blob(obj, id);
                 default:
-                    return new GitObject(obj, oid);
+                    return new GitObject(obj, id);
             }
         }
 
@@ -98,15 +89,15 @@ namespace LibGit2Sharp
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != typeof (GitObject)) return false;
-            return Equals((GitObject) obj);
+            if (obj.GetType() != typeof(GitObject)) return false;
+            return Equals((GitObject)obj);
         }
 
         public bool Equals(GitObject other)
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
-            return other.Oid.Equals(Oid);
+            return other.Id.Equals(Id);
         }
 
         ~GitObject()
@@ -119,7 +110,7 @@ namespace LibGit2Sharp
 
         public override int GetHashCode()
         {
-            return Oid.GetHashCode();
+            return Id.GetHashCode();
         }
     }
 }
