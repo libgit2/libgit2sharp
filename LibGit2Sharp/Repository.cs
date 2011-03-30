@@ -37,8 +37,10 @@ namespace LibGit2Sharp
     public class Repository : IDisposable
     {
         private const char posixDirectorySeparatorChar = '/';
+        private readonly CommitCollection commits;
         private readonly RepositoryOptions options;
         private readonly IntPtr repo = IntPtr.Zero;
+
         private bool disposed;
 
         /// <summary>
@@ -62,58 +64,16 @@ namespace LibGit2Sharp
 
             if (!this.options.CreateIfNeeded && !Directory.Exists(path))
                 throw new ArgumentException(Resources.RepositoryDoesNotExist, "path");
-
-<<<<<<< HEAD
-        public Header ReadHeader(string objectId)
-        {
-            Func<Core.RawObject, Header> builder = rawObj => { 
-                return new Header(objectId, (ObjectType)rawObj.Type, rawObj.Length);
-            };
-			
-            return ReadHeaderInternal(objectId, builder);
         }
 
-        public RawObject Read(string objectId)
+        internal IntPtr RepoPtr
         {
-            //TODO: RawObject should be freed when the Repository is disposed (cf. https://github.com/libgit2/libgit2/blob/6fd195d76c7f52baae5540e287affe2259900d36/tests/t0205-readheader.c#L202)
-            
-            Func<Core.RawObject, RawObject> builder = rawObj => {
-                Header header = new Header(objectId, (ObjectType)rawObj.Type, rawObj.Length);
-                return new RawObject(header, rawObj.GetData());
-            };
-
-            return ReadInternal(objectId, builder);
+            get { return repo; }
         }
 
-        public bool Exists(string objectId)
+        public CommitCollection Commits
         {
-            return _lifecycleManager.CoreRepository.Database.Exists(new Core.ObjectId(objectId));
-=======
-            if (this.options.CreateIfNeeded)
-            {
-                var res = NativeMethods.git_repository_init(out repo, PosixPath, this.options.IsBareRepository);
-                Ensure.Success(res);
-            }
-            else
-            {
-                var res = NativeMethods.git_repository_open(out repo, PosixPath);
-                Ensure.Success(res);
-            }
->>>>>>> 777a6eb... can open and create a repository using new interop
-        }
-		
-        private TType ReadHeaderInternal<TType>(string objectid, Func<Core.RawObject, TType> builder)
-        {
-            var rawObj = _lifecycleManager.CoreRepository.Database.ReadHeader(new Core.ObjectId(objectid));
-
-            return builder(rawObj);
-        }
-
-        private TType ReadInternal<TType>(string objectid, Func<Core.RawObject, TType> builder)
-        {
-            var rawObj = _lifecycleManager.CoreRepository.Database.Read(new Core.ObjectId(objectid));
-            
-            return builder(rawObj);
+            get { return commits; }
         }
 
         /// <summary>
@@ -150,8 +110,7 @@ namespace LibGit2Sharp
 
                 // Call the appropriate methods to clean up
                 // unmanaged resources here.
-                if (repo != IntPtr.Zero)
-                    NativeMethods.git_repository_free(repo);
+                NativeMethods.git_repository_free(repo);
 
                 // Note disposing has been done.
                 disposed = true;
@@ -259,6 +218,17 @@ namespace LibGit2Sharp
         public T Lookup<T>(string sha) where T : GitObject
         {
             return (T) Lookup(sha, GitObject.TypeToTypeMap[typeof (T)]);
+        }
+
+        /// <summary>
+        ///   Lookup an object by it's <see cref = "GitOid" />. An exception will be thrown if the object is not found.
+        /// </summary>
+        /// <typeparam name = "T"></typeparam>
+        /// <param name = "oid">The oid.</param>
+        /// <returns></returns>
+        public T Lookup<T>(GitOid oid) where T : GitObject
+        {
+            return (T) Lookup(oid, GitObject.TypeToTypeMap[typeof (T)]);
         }
 
         /// <summary>

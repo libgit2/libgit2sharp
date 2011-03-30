@@ -28,11 +28,12 @@ using System;
 
 namespace LibGit2Sharp
 {
-    public class Tag : GitObject
+    [Flags]
+    public enum GitSortOptions
     {
-        internal Tag(IntPtr obj, GitOid? oid = null)
-            : base(obj, oid)
-        {
-        }
+        None = 0,
+        Topo = (1 << 0),
+        Time = (1 << 1),
+        Reverse = (1 << 2)
     }
 }

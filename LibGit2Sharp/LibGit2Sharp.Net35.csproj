@@ -46,6 +46,7 @@
   <ItemGroup>
     <Compile Include="Blob.cs" />
     <Compile Include="Commit.cs" />
+    <Compile Include="CommitCollection.cs" />
     <Compile Include="Ensure.cs" />
     <Compile Include="Epoch.cs" />
     <Compile Include="GitErrorCodes.cs" />
@@ -54,6 +55,7 @@
     <Compile Include="GitObjectTypeMap.cs" />
     <Compile Include="GitOid.cs" />
     <Compile Include="GitSignature.cs" />
+    <Compile Include="GitSortOptions.cs" />
     <Compile Include="GitTime.cs" />
     <Compile Include="NativeMethods.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -46,6 +46,13 @@ namespace LibGit2Sharp
             return NativeMethods.git_oid_cmp(ref this, ref other) == 0;
         }
 
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (obj.GetType() != typeof (GitOid)) return false;
+            return Equals((GitOid) obj);
+        }
+
         /// <summary>
         ///   Create a new <see cref = "GitOid" /> from a sha1.
         /// </summary>
@@ -78,6 +85,16 @@ namespace LibGit2Sharp
         public override string ToString()
         {
             return ToSha();
+        }
+
+        public static bool operator ==(GitOid a, GitOid b)
+        {
+            return a.Equals(b);
+        }
+
+        public static bool operator !=(GitOid a, GitOid b)
+        {
+            return !(a == b);
         }
     }
 }

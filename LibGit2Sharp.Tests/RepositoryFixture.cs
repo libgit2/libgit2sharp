@@ -36,7 +36,7 @@ namespace LibGit2Sharp.Tests
     {
         private const string newRepoPath = "new_repo";
 
-        [TestCase]
+        [Test]
         public void CanTellIfObjectsExistInRepository()
         {
             using (var repo = new Repository(Constants.TestRepoPath))

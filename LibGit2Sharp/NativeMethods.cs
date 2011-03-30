@@ -50,6 +50,12 @@ namespace LibGit2Sharp
         [return: MarshalAs(UnmanagedType.AnsiBStr)]
         public static extern string git_commit_message_short(IntPtr commit);
 
+        [DllImport(libgit2)]
+        public static extern int git_commit_parent(out IntPtr parentCommit, IntPtr commit, uint n);
+
+        [DllImport(libgit2)]
+        public static extern uint git_commit_parentcount(IntPtr commit);
+
         [DllImport(libgit2, SetLastError = true)]
         public static extern int git_commit_tree(out IntPtr tree, IntPtr commit);
 
@@ -72,13 +78,13 @@ namespace LibGit2Sharp
         public static extern void git_odb_object_close(IntPtr obj);
 
         [DllImport(libgit2, SetLastError = true)]
+        public static extern int git_oid_cmp(ref GitOid a, ref GitOid b);
+
+        [DllImport(libgit2, SetLastError = true)]
         public static extern void git_oid_fmt(byte[] str, ref GitOid oid);
 
         [DllImport(libgit2, SetLastError = true)]
         public static extern int git_oid_mkstr(out GitOid oid, string str);
-
-        [DllImport(libgit2, SetLastError = true)]
-        public static extern int git_oid_cmp(ref GitOid a, ref GitOid b);
 
         [DllImport(libgit2, SetLastError = true)]
         public static extern IntPtr git_repository_database(IntPtr repository);
@@ -91,6 +97,24 @@ namespace LibGit2Sharp
 
         [DllImport(libgit2, SetLastError = true)]
         public static extern int git_repository_open(out IntPtr repository, string path);
+
+        [DllImport(libgit2)]
+        public static extern void git_revwalk_free(IntPtr walker);
+
+        [DllImport(libgit2)]
+        public static extern int git_revwalk_new(out IntPtr walker, IntPtr repo);
+
+        [DllImport(libgit2)]
+        public static extern int git_revwalk_next(out GitOid oid, IntPtr walker);
+
+        [DllImport(libgit2)]
+        public static extern int git_revwalk_push(IntPtr walker, ref GitOid oid);
+
+        [DllImport(libgit2)]
+        public static extern void git_revwalk_reset(IntPtr walker);
+
+        [DllImport(libgit2)]
+        public static extern void git_revwalk_sorting(IntPtr walk, GitSortOptions sort);
 
         [DllImport(libgit2, SetLastError = true)]
         public static extern void git_signature_free(IntPtr signature);

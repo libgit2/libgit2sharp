@@ -30,8 +30,8 @@ namespace LibGit2Sharp
 {
     public class Tree : GitObject
     {
-        internal Tree(IntPtr obj, GitOid oid, Repository repo)
-            : base(obj, oid, repo)
+        internal Tree(IntPtr obj, GitOid? oid = null)
+            : base(obj, oid)
         {
         }
     }

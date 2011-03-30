@@ -41,32 +41,34 @@ namespace LibGit2Sharp
                     {typeof (GitObject), GitObjectType.Any},
                 };
 
-        protected readonly Repository Repo;
         protected IntPtr Obj = IntPtr.Zero;
         private bool disposed;
+        private GitOid? oid;
 
         private string sha;
 
-        protected GitObject(IntPtr obj, GitOid oid, Repository repo)
+        protected GitObject(IntPtr obj, GitOid? oid = null)
         {
-            Oid = oid;
+            this.oid = oid;
             Obj = obj;
-            Repo = repo;
         }
 
-        public GitOid Oid { get; private set; }
-
-        public string Sha
+        public GitOid Oid
         {
             get
             {
-                if (sha != null) return sha;
-
-                var ptr = NativeMethods.git_object_id(Obj);
-                var oid = (GitOid) Marshal.PtrToStructure(ptr, typeof (GitOid));
-                sha = oid.ToSha();
-                return sha;
+                if (!oid.HasValue)
+                {
+                    var ptr = NativeMethods.git_object_id(Obj);
+                    oid = (GitOid) Marshal.PtrToStructure(ptr, typeof (GitOid));
+                }
+                return oid.Value;
             }
+        }
+
+        public string Sha
+        {
+            get { return sha ?? (sha = Oid.ToSha()); }
         }
 
         #region IDisposable Members
@@ -85,15 +87,15 @@ namespace LibGit2Sharp
             switch (type)
             {
                 case GitObjectType.Commit:
-                    return new Commit(obj, oid, repo);
+                    return new Commit(obj, oid);
                 case GitObjectType.Tree:
-                    return new Tree(obj, oid, repo);
+                    return new Tree(obj, oid);
                 case GitObjectType.Tag:
-                    return new Tag(obj, oid, repo);
+                    return new Tag(obj, oid);
                 case GitObjectType.Blob:
-                    return new Blob(obj, oid, repo);
+                    return new Blob(obj, oid);
                 default:
-                    return new GitObject(obj, oid, repo);
+                    return new GitObject(obj, oid);
             }
         }
 
@@ -111,8 +113,7 @@ namespace LibGit2Sharp
 
                 // Call the appropriate methods to clean up
                 // unmanaged resources here.
-                if (Obj != IntPtr.Zero)
-                    NativeMethods.git_object_close(Obj);
+                NativeMethods.git_object_close(Obj);
 
                 // Note disposing has been done.
                 disposed = true;

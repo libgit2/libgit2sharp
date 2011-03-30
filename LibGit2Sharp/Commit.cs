@@ -25,6 +25,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 
 namespace LibGit2Sharp
 {
@@ -38,9 +39,10 @@ namespace LibGit2Sharp
         private Signature committer;
         private string message;
         private string messageShort;
+        private List<Commit> parents;
 
-        internal Commit(IntPtr obj, GitOid oid, Repository repo)
-            : base(obj, oid, repo)
+        internal Commit(IntPtr obj, GitOid? oid = null)
+            : base(obj, oid)
         {
         }
 
@@ -62,6 +64,23 @@ namespace LibGit2Sharp
         public Signature Committer
         {
             get { return committer ?? (committer = new Signature(NativeMethods.git_commit_committer(Obj))); }
+        }
+
+        public List<Commit> Parents
+        {
+            get
+            {
+                if (parents == null)
+                {
+                    IntPtr parentCommit;
+                    parents = new List<Commit>();
+                    for (uint i = 0; NativeMethods.git_commit_parent(out parentCommit, Obj, i) == (int) GitErrorCodes.GIT_SUCCESS; i++)
+                    {
+                        parents.Add(new Commit(parentCommit));
+                    }
+                }
+                return parents;
+            }
         }
     }
 }
