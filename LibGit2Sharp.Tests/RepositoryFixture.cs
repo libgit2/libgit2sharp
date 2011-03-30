@@ -27,7 +27,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(Constants.TestRepoPath))
             {
-                Assert.Throws<ArgumentNullException>(() => repo.HasObject((string)null));
+                Assert.Throws<ArgumentNullException>(() => repo.HasObject((string) null));
             }
         }
 
@@ -52,6 +52,15 @@ namespace LibGit2Sharp.Tests
                 using (var commit = repo.Lookup(commitSha))
                 {
                 }
+            }
+        }
+
+        [Test]
+        public void CanLookupByReference()
+        {
+            using (var repo = new Repository(Constants.TestRepoPath))
+            {
+                repo.Lookup("refs/heads/master").ShouldNotBeNull();
             }
         }
 
@@ -154,9 +163,9 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(Constants.TestRepoPath))
             {
-                Assert.Throws<ArgumentNullException>(() => repo.Lookup((string)null));
-                Assert.Throws<ArgumentNullException>(() => repo.TryLookup((string)null));
-                Assert.Throws<ArgumentNullException>(() => repo.Lookup<Commit>((string)null));
+                Assert.Throws<ArgumentNullException>(() => repo.Lookup((string) null));
+                Assert.Throws<ArgumentNullException>(() => repo.TryLookup((string) null));
+                Assert.Throws<ArgumentNullException>(() => repo.Lookup<Commit>((string) null));
                 Assert.Throws<ArgumentNullException>(() => repo.TryLookup<Commit>(null));
             }
         }

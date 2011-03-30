@@ -212,31 +212,37 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Lookup an object by it's sha. An exception will be thrown if the object is not found.
+        ///   Lookup an object by it's shaOrRef. An exception will be thrown if the object is not found.
         /// 
         ///   Exceptions:
         ///   ArgumentException
         ///   ArgumentNullException
         /// </summary>
-        /// <param name = "sha">The sha to lookup.</param>
+        /// <param name = "shaOrRef">The shaOrRef to lookup.</param>
         /// <param name = "type"></param>
         /// <returns>the <see cref = "GitObject" />.</returns>
-        public GitObject Lookup(string sha, GitObjectType type = GitObjectType.Any)
+        public GitObject Lookup(string shaOrRef, GitObjectType type = GitObjectType.Any)
         {
-            Ensure.ArgumentNotNullOrEmptyString(sha, "sha");
+            Ensure.ArgumentNotNullOrEmptyString(shaOrRef, "shaOrRef");
 
-            return Lookup(new ObjectId(sha), type);
+            GitOid oid;
+            if (NativeMethods.git_oid_mkstr(out oid, shaOrRef) == (int)GitErrorCode.GIT_SUCCESS)
+            {
+                return Lookup(new ObjectId(shaOrRef), type);
+            }
+            var reference = Refs[shaOrRef];
+            return Lookup(reference.ResolveToDirectReference().Target.Id, type);
         }
 
         /// <summary>
-        ///   Lookup an object by it's sha. An exception will be thrown if the object is not found.
+        ///   Lookup an object by it's sha or a reference name. An exception will be thrown if the object is not found.
         /// </summary>
         /// <typeparam name = "T"></typeparam>
-        /// <param name = "sha">The sha to lookup.</param>
+        /// <param name = "shaOrRef">The shaOrRef to lookup.</param>
         /// <returns>the <see cref = "GitObject" />.</returns>
-        public T Lookup<T>(string sha) where T : GitObject
+        public T Lookup<T>(string shaOrRef) where T : GitObject
         {
-            return (T)Lookup(sha, GitObject.TypeToTypeMap[typeof(T)]);
+            return (T)Lookup(shaOrRef, GitObject.TypeToTypeMap[typeof(T)]);
         }
 
         /// <summary>
@@ -251,30 +257,30 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Trys to lookup an object by it's sha.
+        ///   Trys to lookup an object by it's sha or a reference name.
         /// </summary>
         /// <typeparam name = "T"></typeparam>
-        /// <param name = "sha">The sha to lookup.</param>
+        /// <param name = "shaOrRef">The shaOrRef to lookup.</param>
         /// <returns></returns>
-        public T TryLookup<T>(string sha) where T : GitObject
+        public T TryLookup<T>(string shaOrRef) where T : GitObject
         {
-            return (T)TryLookup(sha, GitObject.TypeToTypeMap[typeof(T)]);
+            return (T)TryLookup(shaOrRef, GitObject.TypeToTypeMap[typeof(T)]);
         }
 
         /// <summary>
-        ///   Try to lookup an object by it's sha. If an object is not found null will be returned.
+        ///   Try to lookup an object by it's sha or a reference name. If an object is not found null will be returned.
         /// 
         ///   Exceptions:
         ///   ArgumentNullException
         /// </summary>
-        /// <param name = "sha">The sha to lookup.</param>
+        /// <param name = "shaOrRef">The shaOrRef to lookup.</param>
         /// <param name = "type"></param>
         /// <returns>the <see cref = "GitObject" /> or null if it was not found.</returns>
-        public GitObject TryLookup(string sha, GitObjectType type = GitObjectType.Any)
+        public GitObject TryLookup(string shaOrRef, GitObjectType type = GitObjectType.Any)
         {
-            Ensure.ArgumentNotNullOrEmptyString(sha, "sha");
+            Ensure.ArgumentNotNullOrEmptyString(shaOrRef, "shaOrRef");
 
-            return TryLookup(new ObjectId(sha), type);
+            return TryLookup(new ObjectId(shaOrRef), type);
         }
 
         /// <summary>
