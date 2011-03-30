@@ -9,7 +9,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>LibGit2Sharp</RootNamespace>
-    <AssemblyName>LibGit2Sharp</AssemblyName>
+    <AssemblyName>LibGit2Sharp.Net35</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -18,7 +18,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;NET35</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
@@ -64,7 +64,6 @@
     <Compile Include="Core\Objects\Tag.cs" />
     <Compile Include="Core\Objects\Tree.cs" />
     <Compile Include="Core\Objects\TreeEntry.cs" />
-    <Compile Include="Core\RawObject.cs" />
     <Compile Include="Core\Repository.cs" />
     <Compile Include="Core\RevisionWalker.cs" />
     <Compile Include="Core\Signature.cs" />
@@ -92,6 +91,7 @@
     <Compile Include="Core\References\Reference.cs" />
     <Compile Include="Core\References\SymbolicReference.cs" />
     <Compile Include="Core\References\ObjectIdReference.cs" />
+    <Compile Include="Core\DatabaseObject.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Lib\git2.lib">
@@ -100,6 +100,7 @@
     </None>
     <None Include="backlog.md" />
   </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Content Include="..\Lib\git2.dll">
       <Link>git2.dll</Link>
