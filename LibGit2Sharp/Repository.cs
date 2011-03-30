@@ -70,16 +70,26 @@ namespace LibGit2Sharp
             get { return repo; }
         }
 
+        /// <summary>
+        /// Lookup and enumerate references in the repository.
+        /// </summary>
         public ReferenceCollection Refs
         {
             get { return refs; }
         }
 
+        /// <summary>
+        /// Lookup and enumerate commits in the repository. 
+        /// Iterating this collection directly starts walking from the HEAD.
+        /// </summary>
         public CommitCollection Commits
         {
             get { return commits.StartingAt(Refs.Head()); }
         }
 
+        /// <summary>
+        /// Lookup and enumerate branches in the repository.
+        /// </summary>
         public BranchCollection Branches
         {
             get { return branches; }
