@@ -27,19 +27,7 @@ namespace LibGit2Sharp
         /// </summary>
         public Branch this[string name]
         {
-            get
-            {
-                var tokens = name.Split('/');
-                if (tokens.Length == 1)
-                {
-                    return Branch.CreateBranchFromReference(repo.Refs[string.Format(CultureInfo.InvariantCulture, "refs/heads/{0}", name)], repo);
-                }
-                if (tokens.Length == 2)
-                {
-                    return Branch.CreateBranchFromReference(repo.Refs[string.Format(CultureInfo.InvariantCulture, "refs/{0}", name)], repo);
-                }
-                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Unable to parse branch name: {0}. Expecting local branches in the form <branchname> and remotes in the form <remote>/<branchname>.", name));
-            }
+            get { return Branch.CreateBranchFromReference(repo.Refs[ParseName(name)], repo); }
         }
 
         #region IEnumerable<Branch> Members
@@ -59,10 +47,70 @@ namespace LibGit2Sharp
 
         #endregion
 
+        /// <summary>
+        ///   Create a new local branch with the specified name
+        /// </summary>
+        /// <param name = "name">The name of the branch.</param>
+        /// <param name = "target">The target sha, ref or branch name.</param>
+        /// <returns></returns>
+        public Branch Create(string name, string target)
+        {
+            Ensure.ArgumentNotNullOrEmptyString(target, "target");
+
+            GitOid oid;
+            if(NativeMethods.git_oid_mkstr(out oid, target) == (int)GitErrorCode.GIT_SUCCESS)
+            {
+                return Create(name, new ObjectId(oid));
+            }
+
+            var reference = repo.Refs.Create(EnsureValidBranchName(name), ParseName(target));
+            return Branch.CreateBranchFromReference(reference, repo);
+        }
+
+        /// <summary>
+        ///   Create a new local branch with the specified name.
+        /// </summary>
+        /// <param name = "name">The name of the branch.</param>
+        /// <param name = "target">The target.</param>
+        /// <returns></returns>
+        public Branch Create(string name, ObjectId target)
+        {
+            Ensure.ArgumentNotNull(target, "target");
+
+            var reference = repo.Refs.Create(EnsureValidBranchName(name), target);
+            return Branch.CreateBranchFromReference(reference, repo);
+        }
+
+        private static string EnsureValidBranchName(string name)
+        {
+            Ensure.ArgumentNotNullOrEmptyString(name, "name");
+
+            if (name.Contains("/"))
+            {
+                throw new ArgumentException("Branch names cannot contain the character '/'.");
+            }
+
+            return string.Format(CultureInfo.InvariantCulture, "refs/heads/{0}", name);
+        }
+
         private static bool IsABranch(Reference reference)
         {
-            return reference.Type == GitReferenceType.Oid
-                   && !reference.Name.StartsWith("refs/tags/");
+            return /*reference.Type == GitReferenceType.Oid
+                   &&*/ !reference.Name.StartsWith("refs/tags/");
+        }
+
+        private static string ParseName(string name)
+        {
+            var tokens = name.Split('/');
+            if (tokens.Length == 1)
+            {
+                return string.Format(CultureInfo.InvariantCulture, "refs/heads/{0}", name);
+            }
+            if (tokens.Length == 2)
+            {
+                return string.Format(CultureInfo.InvariantCulture, "refs/{0}", name);
+            }
+            throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Unable to parse branch name: {0}. Expecting local branches in the form <branchname> and remotes in the form <remote>/<branchname>.", name));
         }
     }
 }

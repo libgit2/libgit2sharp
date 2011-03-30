@@ -59,7 +59,7 @@ namespace LibGit2Sharp
                 return new Branch(repo)
                            {
                                Name = tokens[tokens.Length - 1],
-                               Reference = (DirectReference) reference,
+                               Reference = reference.ResolveToDirectReference(),
                                Type = BranchType.Local
                            };
             }
@@ -67,9 +67,17 @@ namespace LibGit2Sharp
                        {
                            Name = string.Join("/", tokens, tokens.Length - 2, 2),
                            RemoteName = tokens[tokens.Length - 2],
-                           Reference = (DirectReference) reference,
+                           Reference = reference.ResolveToDirectReference(),
                            Type = BranchType.Remote
                        };
+        }
+
+        /// <summary>
+        /// Deletes this branch.
+        /// </summary>
+        public void Delete()
+        {
+            Reference.Delete();
         }
     }
 }
