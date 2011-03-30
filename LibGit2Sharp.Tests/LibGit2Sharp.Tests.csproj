@@ -52,6 +52,7 @@
     <Compile Include="EpochFixture.cs" />
     <Compile Include="ObjectIdFixture.cs" />
     <Compile Include="ReferenceFixture.cs" />
+    <Compile Include="TagFixture.cs" />
     <Compile Include="TestHelpers\AssertExtensions.cs" />
     <Compile Include="TestHelpers\DirectoryHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

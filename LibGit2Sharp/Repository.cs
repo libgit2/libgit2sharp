@@ -12,10 +12,9 @@ namespace LibGit2Sharp
         private const char posixDirectorySeparatorChar = '/';
         private readonly BranchCollection branches;
         private readonly CommitCollection commits;
-        private readonly ReferenceCollection refs;
         private readonly RepositorySafeHandle handle;
-
-        private bool disposed;
+        private readonly ReferenceCollection refs;
+        private readonly TagCollection tags;
 
         /// <summary>
         ///   Initializes a new instance of the <see cref = "Repository" /> class.
@@ -46,26 +45,7 @@ namespace LibGit2Sharp
             commits = new CommitCollection(this);
             refs = new ReferenceCollection(this);
             branches = new BranchCollection(this);
-        }
-
-        /// <summary>
-        /// Init a repo at the specified path
-        /// </summary>
-        /// <param name="path">The path.</param>
-        /// <param name="bare"></param>
-        /// <returns></returns>
-        public static string Init(string path, bool bare = false)
-        {
-            Ensure.ArgumentNotNullOrEmptyString(path, "path");
-
-            var posixPath = path.Replace(System.IO.Path.DirectorySeparatorChar, posixDirectorySeparatorChar);
-
-            RepositorySafeHandle repo;
-            var res = NativeMethods.git_repository_init(out repo, posixPath, bare);
-            Ensure.Success(res);
-            repo.Dispose();
-
-            return path;
+            tags = new TagCollection(this);
         }
 
         internal RepositorySafeHandle Handle
@@ -74,7 +54,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Lookup and enumerate references in the repository.
+        ///   Lookup and enumerate references in the repository.
         /// </summary>
         public ReferenceCollection Refs
         {
@@ -82,8 +62,8 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Lookup and enumerate commits in the repository. 
-        /// Iterating this collection directly starts walking from the HEAD.
+        ///   Lookup and enumerate commits in the repository. 
+        ///   Iterating this collection directly starts walking from the HEAD.
         /// </summary>
         public CommitCollection Commits
         {
@@ -91,11 +71,19 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Lookup and enumerate branches in the repository.
+        ///   Lookup and enumerate branches in the repository.
         /// </summary>
         public BranchCollection Branches
         {
             get { return branches; }
+        }
+
+        /// <summary>
+        ///   Lookup and enumerate tags in the repository.
+        /// </summary>
+        public TagCollection Tags
+        {
+            get { return tags; }
         }
 
         /// <summary>
@@ -120,7 +108,7 @@ namespace LibGit2Sharp
 
         protected virtual void Dispose(bool disposing)
         {
-            if(handle != null && !handle.IsInvalid)
+            if (handle != null && !handle.IsInvalid)
             {
                 handle.Dispose();
             }
@@ -159,6 +147,26 @@ namespace LibGit2Sharp
             return HasObject(new ObjectId(sha));
         }
 
+        /// <summary>
+        ///   Init a repo at the specified path
+        /// </summary>
+        /// <param name = "path">The path.</param>
+        /// <param name = "bare"></param>
+        /// <returns></returns>
+        public static string Init(string path, bool bare = false)
+        {
+            Ensure.ArgumentNotNullOrEmptyString(path, "path");
+
+            var posixPath = path.Replace(System.IO.Path.DirectorySeparatorChar, posixDirectorySeparatorChar);
+
+            RepositorySafeHandle repo;
+            var res = NativeMethods.git_repository_init(out repo, posixPath, bare);
+            Ensure.Success(res);
+            repo.Dispose();
+
+            return path;
+        }
+
         private GitObject Lookup(ObjectId id, GitObjectType type = GitObjectType.Any, bool throwIfNotFound = true)
         {
             Ensure.ArgumentNotNull(id, "id");
@@ -166,7 +174,7 @@ namespace LibGit2Sharp
             var oid = id.Oid;
             IntPtr obj;
             var res = NativeMethods.git_object_lookup(out obj, handle, ref oid, type);
-            if (res == (int)GitErrorCode.GIT_ENOTFOUND)
+            if (res == (int) GitErrorCode.GIT_ENOTFOUND)
             {
                 if (throwIfNotFound)
                 {
@@ -208,7 +216,7 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNullOrEmptyString(shaOrRef, "shaOrRef");
 
             GitOid oid;
-            if (NativeMethods.git_oid_mkstr(out oid, shaOrRef) == (int)GitErrorCode.GIT_SUCCESS)
+            if (NativeMethods.git_oid_mkstr(out oid, shaOrRef) == (int) GitErrorCode.GIT_SUCCESS)
             {
                 return Lookup(new ObjectId(shaOrRef), type);
             }
@@ -224,7 +232,7 @@ namespace LibGit2Sharp
         /// <returns>the <see cref = "GitObject" />.</returns>
         public T Lookup<T>(string shaOrRef) where T : GitObject
         {
-            return (T)Lookup(shaOrRef, GitObject.TypeToTypeMap[typeof(T)]);
+            return (T) Lookup(shaOrRef, GitObject.TypeToTypeMap[typeof (T)]);
         }
 
         /// <summary>
@@ -235,7 +243,7 @@ namespace LibGit2Sharp
         /// <returns></returns>
         public T Lookup<T>(ObjectId id) where T : GitObject
         {
-            return (T)Lookup(id, GitObject.TypeToTypeMap[typeof(T)]);
+            return (T) Lookup(id, GitObject.TypeToTypeMap[typeof (T)]);
         }
 
         /// <summary>
@@ -246,7 +254,7 @@ namespace LibGit2Sharp
         /// <returns></returns>
         public T TryLookup<T>(string shaOrRef) where T : GitObject
         {
-            return (T)TryLookup(shaOrRef, GitObject.TypeToTypeMap[typeof(T)]);
+            return (T) TryLookup(shaOrRef, GitObject.TypeToTypeMap[typeof (T)]);
         }
 
         /// <summary>

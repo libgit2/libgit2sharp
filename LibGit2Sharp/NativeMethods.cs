@@ -3,27 +3,6 @@ using System.Runtime.InteropServices;
 
 namespace LibGit2Sharp
 {
-    internal unsafe class UnSafeNativeMethods
-    {
-        private const string libgit2 = "git2.dll";
-
-        [DllImport(libgit2)]
-        public static extern int git_reference_listall(git_strarray* array, RepositorySafeHandle repo, GitReferenceType flags);
-
-        [DllImport(libgit2)]
-        public static extern void git_strarray_free(git_strarray* array);
-
-        #region Nested type: git_strarray
-
-        internal struct git_strarray
-        {
-            public sbyte** strings;
-            public IntPtr size;
-        }
-
-        #endregion
-    }
-
     internal class NativeMethods
     {
         private const string libgit2 = "git2.dll";
@@ -145,5 +124,22 @@ namespace LibGit2Sharp
 
         [DllImport(libgit2, SetLastError = true)]
         public static extern IntPtr git_signature_new(string name, string email, long time, int offset);
+
+        [DllImport(libgit2, SetLastError = true)]
+        public static extern int git_tag_create(out GitOid oid, RepositorySafeHandle repo, string name, ref GitOid target, GitObjectType type, GitSignature signature, string message);
+
+        [DllImport(libgit2, SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.AnsiBStr)]
+        public static extern string git_tag_message(IntPtr tag);
+
+        [DllImport(libgit2, SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.AnsiBStr)]
+        public static extern string git_tag_name(IntPtr tag);
+
+        [DllImport(libgit2, SetLastError = true)]
+        public static extern IntPtr git_tag_tagger(IntPtr tag);
+
+        [DllImport(libgit2, SetLastError = true)]
+        public static extern IntPtr git_tag_target_oid(IntPtr tag);
     }
 }

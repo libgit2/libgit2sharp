@@ -74,7 +74,9 @@
     <Compile Include="Signature.cs" />
     <Compile Include="SymbolicReference.cs" />
     <Compile Include="Tag.cs" />
+    <Compile Include="TagCollection.cs" />
     <Compile Include="Tree.cs" />
+    <Compile Include="UnSafeNativeMethods.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Lib\git2.lib">

@@ -8,12 +8,12 @@ namespace LibGit2Sharp
     /// </summary>
     public class Signature
     {
-        private readonly GitSignature sig = new GitSignature();
+        private readonly GitSignature handle = new GitSignature();
         private DateTimeOffset? when;
 
         internal Signature(IntPtr signaturePtr, bool ownedByRepo = true)
         {
-            Marshal.PtrToStructure(signaturePtr, sig);
+            Marshal.PtrToStructure(signaturePtr, handle);
             if (!ownedByRepo)
             {
                 NativeMethods.git_signature_free(signaturePtr);
@@ -31,12 +31,17 @@ namespace LibGit2Sharp
         {
         }
 
+        internal GitSignature Handle
+        {
+            get { return handle; }
+        }
+
         /// <summary>
         ///   Gets the name.
         /// </summary>
         public string Name
         {
-            get { return sig.Name; }
+            get { return handle.Name; }
         }
 
         /// <summary>
@@ -44,7 +49,7 @@ namespace LibGit2Sharp
         /// </summary>
         public string Email
         {
-            get { return sig.Email; }
+            get { return handle.Email; }
         }
 
         /// <summary>
@@ -56,7 +61,7 @@ namespace LibGit2Sharp
             {
                 if (when == null)
                 {
-                    when = Epoch.ToDateTimeOffset(sig.When.Time, sig.When.Offset);
+                    when = Epoch.ToDateTimeOffset(handle.When.Time, handle.When.Offset);
                 }
                 return when.Value;
             }
