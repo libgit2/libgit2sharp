@@ -8,13 +8,7 @@ namespace LibGit2Sharp
     /// </summary>
     public abstract class Reference
     {
-        private readonly Repository repo;
         private IntPtr referencePtr;
-
-        protected Reference(Repository repo)
-        {
-            this.repo = repo;
-        }
 
         /// <summary>
         ///   Gets the name of this reference.
@@ -35,14 +29,14 @@ namespace LibGit2Sharp
                 IntPtr resolveRef;
                 NativeMethods.git_reference_resolve(out resolveRef, ptr);
                 var reference = CreateFromPtr(resolveRef, repo);
-                return new SymbolicReference(repo) {Name = name, Type = type, Target = reference, referencePtr = ptr};
+                return new SymbolicReference {Name = name, Type = type, Target = reference, referencePtr = ptr};
             }
             if (type == GitReferenceType.Oid)
             {
                 var oidPtr = NativeMethods.git_reference_oid(ptr);
                 var oid = (GitOid) Marshal.PtrToStructure(oidPtr, typeof (GitOid));
                 var target = repo.Lookup(new ObjectId(oid));
-                return new DirectReference(repo) {Name = name, Type = type, Target = target, referencePtr = ptr};
+                return new DirectReference {Name = name, Type = type, Target = target, referencePtr = ptr};
             }
             throw new NotImplementedException();
         }
