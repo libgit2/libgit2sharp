@@ -43,25 +43,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Api\ApplyingATag.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Api\LookingUpAHeadReference.cs" />
-    <Compile Include="Api\ResolvingAHeadReference.cs" />
-    <Compile Include="Api\InitializingARepository.cs" />
-    <Compile Include="Api\ObjectIdFixture.cs" />
-    <Compile Include="Api\RetrievingAllReferences.cs" />
-    <Compile Include="Core\DatabaseFixture.cs" />
-    <Compile Include="Core\EpochFixture.cs" />
-    <Compile Include="Core\IndexTests.cs" />
-    <Compile Include="Core\SignatureTest.cs" />
+    <Compile Include="AssertExtensions.cs" />
     <Compile Include="ReadOnlyRepositoryFixtureBase.cs" />
     <Compile Include="ReadWriteRepositoryFixtureBase.cs" />
-    <Compile Include="Api\RepositoryFixtures.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Api\InstantiatingARepository.cs" />
+    <Compile Include="RepositoryFixture.cs" />
     <Compile Include="RepositoryToBeCreatedFixtureBase.cs" />
-    <Compile Include="Api\ResolvingATagReference.cs" />
     <Compile Include="TestHelper.cs" />
   </ItemGroup>
   <ItemGroup>
