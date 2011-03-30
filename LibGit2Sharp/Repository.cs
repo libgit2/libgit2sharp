@@ -1,69 +1,70 @@
-﻿/*
- * The MIT License
- *
- * Copyright (c) 2011 LibGit2Sharp committers
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- */
+﻿#region  Copyright (c) 2011 LibGit2Sharp committers
+
+//  The MIT License
+//  
+//  Copyright (c) 2011 LibGit2Sharp committers
+//  
+//  Permission is hereby granted, free of charge, to any person obtaining a copy
+//  of this software and associated documentation files (the "Software"), to deal
+//  in the Software without restriction, including without limitation the rights
+//  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//  copies of the Software, and to permit persons to whom the Software is
+//  furnished to do so, subject to the following conditions:
+//  
+//  The above copyright notice and this permission notice shall be included in
+//  all copies or substantial portions of the Software.
+//  
+//  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+//  THE SOFTWARE.
+
+#endregion
 
 using System;
-using LibGit2Sharp.Core;
+using System.IO;
+using LibGit2Sharp.Properties;
 
 namespace LibGit2Sharp
 {
-    public sealed class Repository : IObjectResolver, IDisposable
+    /// <summary>
+    ///   A Repository is the primary interface into a git repository
+    /// </summary>
+    public class Repository : IDisposable
     {
-        private readonly ObjectResolver _objectResolver;
-        private readonly RepositoryLifecycleManager _lifecycleManager;
-        private readonly ObjectBuilder _builder;
-        private readonly ReferenceManager _referenceManager;
+        private readonly RepositoryOptions options;
+        private readonly IntPtr repo = IntPtr.Zero;
+        private bool disposed;
 
-        public RepositoryDetails Details
+#if NET35
+        public Repository(string path) : this(path, null)
         {
-            get { return _lifecycleManager.Details; }
         }
 
-        public ReferenceManager Refs
+        public Repository(string path, RepositoryOptions options)
+#else
+    /// <summary>
+    ///   Initializes a new instance of the <see cref = "Repository" /> class.
+    /// </summary>
+    /// <param name = "path">The path to the git repository to open.</param>
+    /// <param name = "options">The options.</param>
+        public Repository(string path, RepositoryOptions options = null)
+#endif
         {
-            get { return _referenceManager; }
-        }
+            Path = path;
+            Ensure.ArgumentNotNull(path, "path");
+            this.options = options ?? new RepositoryOptions();
 
-        public Repository(string repositoryDirectory, string databaseDirectory, string index, string workingDirectory)
-            : this(new RepositoryLifecycleManager(repositoryDirectory, databaseDirectory, index, workingDirectory))
-        {
+            Path = path;
+            PosixPath = path.Replace(System.IO.Path.DirectorySeparatorChar, System.IO.Path.AltDirectorySeparatorChar);
 
-        }
+            if (!this.options.CreateIfNeeded && !Directory.Exists(path))
+                throw new ArgumentException(Resources.RepositoryDoesNotExist, "path");
 
-        public Repository(string repositoryDirectory)
-            : this(new RepositoryLifecycleManager(repositoryDirectory))
-        {
-
-        }
-
-        private Repository(RepositoryLifecycleManager lifecycleManager)
-        {
-            _lifecycleManager = lifecycleManager;
-            _builder = new ObjectBuilder();
-            _objectResolver = new ObjectResolver(_lifecycleManager.CoreRepository, _builder);
-            _referenceManager = new ReferenceManager(_lifecycleManager.CoreRepository);
-        }
-
+<<<<<<< HEAD
         public Header ReadHeader(string objectId)
         {
             Func<Core.RawObject, Header> builder = rawObj => { 
@@ -88,6 +89,18 @@ namespace LibGit2Sharp
         public bool Exists(string objectId)
         {
             return _lifecycleManager.CoreRepository.Database.Exists(new Core.ObjectId(objectId));
+=======
+            if (this.options.CreateIfNeeded)
+            {
+                var res = NativeMethods.git_repository_init(out repo, PosixPath, this.options.IsBareRepository);
+                Ensure.Success(res);
+            }
+            else
+            {
+                var res = NativeMethods.git_repository_open(out repo, PosixPath);
+                Ensure.Success(res);
+            }
+>>>>>>> 777a6eb... can open and create a repository using new interop
         }
 		
         private TType ReadHeaderInternal<TType>(string objectid, Func<Core.RawObject, TType> builder)
@@ -104,75 +117,54 @@ namespace LibGit2Sharp
             return builder(rawObj);
         }
 
-        public static string Init(string path, bool isBare)
-        {
-            string repositoryDirectory;
+        /// <summary>
+        ///   Gets the path to the git repository.
+        /// </summary>
+        public string Path { get; private set; }
 
-            using (var lifecycleManager = new RepositoryLifecycleManager(path, isBare))
-            {
-                repositoryDirectory = lifecycleManager.Details.RepositoryDirectory;
-            }
+        /// <summary>
+        ///   Gets the posix path to the git repository.
+        /// </summary>
+        public string PosixPath { get; private set; }
 
-            return repositoryDirectory;
-        }
+        #region IDisposable Members
 
         public void Dispose()
         {
-            _lifecycleManager.Dispose();
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
-        public object Resolve(string identifier, Type expectedType)
+        #endregion
+
+        private void Dispose(bool disposing)
         {
-            if (ObjectId.IsValid(identifier))
+            // Check to see if Dispose has already been called.
+            if (!disposed)
             {
-                return _objectResolver.Resolve(identifier, expectedType);
-            }
+                // If disposing equals true, dispose all managed
+                // and unmanaged resources.
+                if (disposing)
+                {
+                    // Dispose managed resources.
+                }
 
-            Ref reference = Refs.Lookup(identifier, true);
-            if (reference == null)
-            {
-                return null;
-            }
+                // Call the appropriate methods to clean up
+                // unmanaged resources here.
+                if (repo != IntPtr.Zero)
+                    NativeMethods.git_repository_free(repo);
 
-            return _objectResolver.Resolve(reference.Target, expectedType);
+                // Note disposing has been done.
+                disposed = true;
+            }
         }
 
-        public Tag ApplyTag(string targetId, string tagName, string tagMessage, Signature signature)
+        ~Repository()
         {
-            Core.Repository coreRepository = _lifecycleManager.CoreRepository;
-
-            if (DoesReferenceExist(tagName)) //TODO: Remove when tag_create() implement checking of existing conflicting reference
-            {
-                throw new InvalidReferenceNameException();
-            }
-
-            Core.GitObject target = coreRepository.Lookup(new Core.ObjectId(targetId)); //TODO: Remove when tag_create() implement checking of target existence
-            var tagger = new Core.Signature(signature.Name, signature.Email, signature.When);
-
-            var tagOid = Core.Tag.Create(coreRepository,
-                                      tagName,
-                                      target.ObjectId,
-                                      target.Type,
-                                      tagger,
-                                      tagMessage);
-
-            tagger.Free();
-
-            return (Tag)_builder.BuildFrom(coreRepository.Lookup(tagOid, git_otype.GIT_OBJ_TAG));
-        }
-
-        private bool DoesReferenceExist(string tagName)
-        {
-            try
-            {
-                Refs.Lookup("refs/tags/" + tagName, false);
-            }
-            catch (ObjectNotFoundException e)
-            {
-                return false;
-            }
-
-            return true;
+            // Do not re-create Dispose clean-up code here.
+            // Calling Dispose(false) is optimal in terms of
+            // readability and maintainability.
+            Dispose(false);
         }
     }
 }

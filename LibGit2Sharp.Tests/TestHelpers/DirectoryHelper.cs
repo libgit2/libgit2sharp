@@ -24,60 +24,38 @@
 
 #endregion
 
-using System;
 using System.IO;
-using NUnit.Framework;
 
 namespace LibGit2Sharp.Tests
 {
-    [TestFixture]
-    public class RepositoryFixture
+    public static class DirectoryHelper
     {
-        private const string newRepoPath = "new_repo";
-
-        [Test]
-        public void CanCreateRepo()
+        public static void CopyDirectory(string sourcePath, string destPath)
         {
-            using (new SelfCleaningDirectory(newRepoPath))
-            using (new Repository(newRepoPath, new RepositoryOptions {CreateIfNeeded = true}))
+            if (!Directory.Exists(destPath))
             {
-                Directory.Exists(newRepoPath).ShouldBeTrue();
+                Directory.CreateDirectory(destPath);
+            }
+
+            foreach (var file in Directory.GetFiles(sourcePath))
+            {
+                if (file == null) continue;
+                string dest = Path.Combine(destPath, Path.GetFileName(file));
+                File.Copy(file, dest);
+            }
+
+            foreach (var folder in Directory.GetDirectories(sourcePath))
+            {
+                if (folder == null) continue;
+                string dest = Path.Combine(destPath, Path.GetFileName(folder));
+                CopyDirectory(folder, dest);
             }
         }
 
-        [Test]
-        public void CanOpenRepoWithFullPath()
+        public static void DeleteIfExists(string directory)
         {
-            var path = Path.GetFullPath(Constants.TestRepoPath);
-            using (new Repository(path))
-            {
-            }
-        }
-
-        [Test]
-        public void CanOpenRepository()
-        {
-            using (new Repository(Constants.TestRepoPath))
-            {
-            }
-        }
-
-        [Test]
-        public void OpenNonExistentRepoThrows()
-        {
-            Assert.Throws<ArgumentException>(() => { new Repository("a_bad_path"); });
-        }
-
-        [Test]
-        public void OpeningRepositoryWithEmptyPathThrows()
-        {
-            Assert.Throws<ArgumentException>(() => new Repository(string.Empty));
-        }
-
-        [Test]
-        public void OpeningRepositoryWithNullPathThrows()
-        {
-            Assert.Throws<ArgumentNullException>(() => new Repository(null));
+            if (Directory.Exists(directory))
+                Directory.Delete(directory, true);
         }
     }
 }

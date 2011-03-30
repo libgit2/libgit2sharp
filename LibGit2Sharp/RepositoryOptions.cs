@@ -24,25 +24,27 @@
 
 #endregion
 
-using System;
-
 namespace LibGit2Sharp
 {
-    public static class Epoch
+    /// <summary>
+    ///   Optional parameters that can be defined when opening or creating a <see cref="Repository"/>
+    /// </summary>
+    public class RepositoryOptions
     {
-        private static readonly DateTimeOffset EpochDateTimeOffset = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero);
+        /// <summary>
+        ///   Gets or sets a value indicating whether to create a new git repository if one does not exist at the specified path.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if a repository should be created (if needed); otherwise, <c>false</c>.
+        /// </value>
+        public bool CreateIfNeeded { get; set; }
 
-        public static DateTimeOffset ToDateTimeOffset(long secondsSinceEpoch, int timeZoneOffsetInMinutes)
-        {
-            var utcDateTime = EpochDateTimeOffset.AddSeconds(secondsSinceEpoch);
-            var offset = TimeSpan.FromMinutes(timeZoneOffsetInMinutes);
-            return new DateTimeOffset(utcDateTime.DateTime.Add(offset), offset);
-        }
-
-        public static Int32 ToSecondsSinceEpoch(this DateTimeOffset date)
-        {
-            var utcDate = date.ToUniversalTime();
-            return (Int32) utcDate.Subtract(EpochDateTimeOffset).TotalSeconds;
-        }
+        /// <summary>
+        ///   Gets or sets a value indicating whether this is a bare git repository or whether a bare repository should be created.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if this is a bare repository; otherwise, <c>false</c>.
+        /// </value>
+        public bool IsBareRepository { get; set; }
     }
 }

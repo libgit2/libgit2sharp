@@ -25,59 +25,26 @@
 #endregion
 
 using System;
-using System.IO;
-using NUnit.Framework;
 
 namespace LibGit2Sharp.Tests
 {
-    [TestFixture]
-    public class RepositoryFixture
+    public class SelfCleaningDirectory : IDisposable
     {
-        private const string newRepoPath = "new_repo";
+        private readonly string path;
 
-        [Test]
-        public void CanCreateRepo()
+        public SelfCleaningDirectory(string path)
         {
-            using (new SelfCleaningDirectory(newRepoPath))
-            using (new Repository(newRepoPath, new RepositoryOptions {CreateIfNeeded = true}))
-            {
-                Directory.Exists(newRepoPath).ShouldBeTrue();
-            }
+            this.path = path;
+            DirectoryHelper.DeleteIfExists(path);
         }
 
-        [Test]
-        public void CanOpenRepoWithFullPath()
+        #region IDisposable Members
+
+        public void Dispose()
         {
-            var path = Path.GetFullPath(Constants.TestRepoPath);
-            using (new Repository(path))
-            {
-            }
+            DirectoryHelper.DeleteIfExists(path);
         }
 
-        [Test]
-        public void CanOpenRepository()
-        {
-            using (new Repository(Constants.TestRepoPath))
-            {
-            }
-        }
-
-        [Test]
-        public void OpenNonExistentRepoThrows()
-        {
-            Assert.Throws<ArgumentException>(() => { new Repository("a_bad_path"); });
-        }
-
-        [Test]
-        public void OpeningRepositoryWithEmptyPathThrows()
-        {
-            Assert.Throws<ArgumentException>(() => new Repository(string.Empty));
-        }
-
-        [Test]
-        public void OpeningRepositoryWithNullPathThrows()
-        {
-            Assert.Throws<ArgumentNullException>(() => new Repository(null));
-        }
+        #endregion
     }
 }

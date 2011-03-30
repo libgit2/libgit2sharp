@@ -25,24 +25,27 @@
 #endregion
 
 using System;
+using System.Runtime.InteropServices;
 
 namespace LibGit2Sharp
 {
-    public static class Epoch
+    internal class NativeMethods
     {
-        private static readonly DateTimeOffset EpochDateTimeOffset = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero);
+        private const string libgit2 = "git2.dll";
 
-        public static DateTimeOffset ToDateTimeOffset(long secondsSinceEpoch, int timeZoneOffsetInMinutes)
-        {
-            var utcDateTime = EpochDateTimeOffset.AddSeconds(secondsSinceEpoch);
-            var offset = TimeSpan.FromMinutes(timeZoneOffsetInMinutes);
-            return new DateTimeOffset(utcDateTime.DateTime.Add(offset), offset);
-        }
+        [DllImport(libgit2, SetLastError = true)]
+        public static extern void git_odb_object_close(IntPtr obj);
 
-        public static Int32 ToSecondsSinceEpoch(this DateTimeOffset date)
-        {
-            var utcDate = date.ToUniversalTime();
-            return (Int32) utcDate.Subtract(EpochDateTimeOffset).TotalSeconds;
-        }
+        [DllImport(libgit2, SetLastError = true)]
+        public static extern IntPtr git_repository_database(IntPtr repository);
+
+        [DllImport(libgit2, SetLastError = true)]
+        public static extern void git_repository_free(IntPtr repository);
+
+        [DllImport(libgit2, SetLastError = true)]
+        public static extern int git_repository_init(out IntPtr repository, string path, bool isBare);
+
+        [DllImport(libgit2, SetLastError = true)]
+        public static extern int git_repository_open(out IntPtr repository, string path);
     }
 }
