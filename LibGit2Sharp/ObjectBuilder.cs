@@ -1,23 +1,47 @@
-﻿using System;
+﻿/*
+ * The MIT License
+ *
+ * Copyright (c) 2011 LibGit2Sharp committers
+ * Copyright (c) 2011 Andrius Bentkus
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
+using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Runtime.InteropServices;
-using LibGit2Sharp.Wrapper;
+using System.Linq;
+using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
 {
-    public class ObjectBuilder : IBuilder
+    public class ObjectBuilder
     {
-        private readonly IDictionary<ObjectType, Func<IntPtr, GitObject>> _builderMapper;
+        private readonly IDictionary<ObjectType, Func<Core.GitObject, GitObject>> _builderMapper;
 
         public ObjectBuilder()
         {
             _builderMapper = InitMapper();
         }
 
-        private IDictionary<ObjectType, Func<IntPtr, GitObject>> InitMapper()
+        private IDictionary<ObjectType, Func<Core.GitObject, GitObject>> InitMapper()
         {
-            var map =  new Dictionary<ObjectType, Func<IntPtr, GitObject>>();
+            var map =  new Dictionary<ObjectType, Func<Core.GitObject, GitObject>>();
             map.Add(ObjectType.Commit, BuildCommit);
             map.Add(ObjectType.Tag, BuildTag);
             map.Add(ObjectType.Tree, BuildTree);
@@ -25,82 +49,69 @@ namespace LibGit2Sharp
             return map;
         }
 
-        private GitObject BuildTag(IntPtr gitObjectPtr)
+        private GitObject BuildTag(Core.GitObject gitObject)
         {
-            var gitTag = (git_tag)Marshal.PtrToStructure(gitObjectPtr, typeof(git_tag));
+            var coreTag = (Core.Tag)gitObject;
             
-            Signature tagTagger = BuildSignature(gitTag.tagger);
-            GitObject tagTarget = BuildFrom(gitTag.target, (ObjectType)gitTag.type);
-
-            return new Tag(ObjectId.ToString(gitTag.tag.id.id), gitTag.tag_name, tagTarget, tagTagger, gitTag.message);
+            Signature tagTagger = BuildSignature(coreTag.Tagger);
+            GitObject tagTarget = BuildFrom(coreTag.Target);
+            
+            return new Tag(coreTag.ObjectId.ToString(), coreTag.Name, tagTarget, tagTagger, coreTag.Message);
         }
 
-        private static GitObject BuildCommit(IntPtr gitObjectPtr)
+        private static GitObject BuildCommit(Core.GitObject gitObject)
         {
-            var gitCommit = (git_commit)Marshal.PtrToStructure(gitObjectPtr, typeof(git_commit));
+            var commit = (Core.Commit)gitObject;
+            Signature commitAuthor = BuildSignature(commit.Author);
+            Signature commitCommitter = BuildSignature(commit.Committer);
+            var commitTree = (Tree)BuildTree(commit.Tree);
 
-            Signature commitAuthor = BuildSignature(gitCommit.author);
-            Signature commitCommitter = BuildSignature(gitCommit.committer);
-            var commitTree = (Tree)BuildTree(gitCommit.tree);
+            var list = commit.Parents.Select(BuildGitObject).ToList();
 
-            var numberOfParents = (int)gitCommit.parents.length;
-            IList<GitObject> parents = new List<GitObject>(numberOfParents);
-
-            for (int i = 0; i < numberOfParents; i++)
-            {
-                IntPtr nextParentPtrPtr = IntPtr.Add(gitCommit.parents.contents, i * Marshal.SizeOf(typeof(IntPtr)));
-                IntPtr parentPtr = Marshal.ReadIntPtr(nextParentPtrPtr);
-                var parentGitObject = BuildGitObject(parentPtr);
-                parents.Add(parentGitObject);
-            }
-
-            return new Commit(ObjectId.ToString(gitCommit.commit.id.id), commitAuthor, commitCommitter, gitCommit.message, gitCommit.message_short, commitTree, parents);
+            return new Commit(gitObject.ObjectId.ToString(), commitAuthor, commitCommitter, commit.Message, commit.MessageShort, commitTree, list);
         }
 
-        private static GitObject BuildTree(IntPtr gitObjectPtr)
+        private static GitObject BuildTree(Core.GitObject gitObject)
         {
-            var gitTree = (git_tree)Marshal.PtrToStructure(gitObjectPtr, typeof(git_tree));
-            return new Tree(ObjectId.ToString(gitTree.tree.id.id));
+            return new Tree(gitObject.ObjectId.ToString());
         }
 
-
-        private static GitObject BuildBlob(IntPtr gitObjectPtr)
+        private static GitObject BuildBlob(Core.GitObject gitObjectPtr)
         {
             throw new NotImplementedException();
-            //var gitBlob = (git_blob)Marshal.PtrToStructure(gitObjectPtr, typeof(git_blob));
-            //return new Blob(...)
         }
 
-        private static Signature BuildSignature(IntPtr gitObjectPtr)
-        {
-            if (gitObjectPtr == IntPtr.Zero)
-            {
-                return null; // TODO: Fix full parsing of commits.
-            }
-
-            var gitPerson = (git_signature)Marshal.PtrToStructure(gitObjectPtr, typeof(git_signature));
-            return new Signature(gitPerson.name, gitPerson.email, new GitDate((int)gitPerson.time, gitPerson.offset));
+        private static Signature BuildSignature(Core.Signature sig)
+        {           
+            return new Signature(sig.Name, sig.Email, sig.When);
         }
 
-        private static GitObject BuildGitObject(IntPtr gitObjectPtr)
+        private static GitObject BuildGitObject(Core.GitObject gitObject)
         {
-            var gitObject = (git_object)Marshal.PtrToStructure(gitObjectPtr, typeof(git_object));
-            return new GitObject(ObjectId.ToString(gitObject.id.id), (ObjectType)gitObject.source.raw.type);
+            return new GitObject(gitObject.ObjectId.ToString(), (ObjectType)gitObject.Type);
         }
 
-        public GitObject BuildFrom(IntPtr gitObjectPtr, ObjectType type)
+        public unsafe GitObject BuildFrom(Core.GitObject obj)
         {
-            if (gitObjectPtr == IntPtr.Zero)
+            if (obj == null)
             {
-                throw new ArgumentNullException("gitObjectPtr");
+                throw new ArgumentNullException("obj");
             }
 
-            if (!_builderMapper.Keys.Contains(type))
+            var type = (ObjectType)obj.Type;
+
+            Func<Core.GitObject, GitObject> builder = BuildGitObject;
+            
+            if (_builderMapper.Keys.Contains(type))
             {
-                return BuildGitObject(gitObjectPtr);
+                builder = _builderMapper[type];
             }
 
-            return _builderMapper[type](gitObjectPtr);
+            GitObject gitObject = builder(obj);
+            
+            NativeMethods.git_object_close(obj.obj);
+            
+            return gitObject;
         }
     }
 }

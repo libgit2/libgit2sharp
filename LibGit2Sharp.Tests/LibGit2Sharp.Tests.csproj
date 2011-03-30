@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>LibGit2Sharp.Tests</RootNamespace>
     <AssemblyName>LibGit2Sharp.Tests</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -31,37 +31,45 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="nunit.framework">
-      <HintPath>..\libs\nunit.framework.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="nunit.framework, Version=2.5.8.10295, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77">
+      <HintPath>..\libs\nunit.framework.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ApplyingATag.cs">
+    <Compile Include="Api\ApplyingATag.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="GitDateFixture.cs" />
-    <Compile Include="InitializingARepository.cs" />
-    <Compile Include="ObjectIdFixture.cs" />
+    <Compile Include="Api\LookingUpAHeadReference.cs" />
+    <Compile Include="Api\ResolvingAHeadReference.cs" />
+    <Compile Include="Api\InitializingARepository.cs" />
+    <Compile Include="Api\ObjectIdFixture.cs" />
+    <Compile Include="Api\RetrievingAllReferences.cs" />
+    <Compile Include="Core\DatabaseFixture.cs" />
+    <Compile Include="Core\EpochFixture.cs" />
+    <Compile Include="Core\IndexTests.cs" />
+    <Compile Include="Core\SignatureTest.cs" />
     <Compile Include="ReadOnlyRepositoryFixtureBase.cs" />
     <Compile Include="ReadWriteRepositoryFixtureBase.cs" />
-    <Compile Include="RepositoryFixtures.cs" />
+    <Compile Include="Api\RepositoryFixtures.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="InstantiatingARepository.cs" />
+    <Compile Include="Api\InstantiatingARepository.cs" />
     <Compile Include="RepositoryToBeCreatedFixtureBase.cs" />
+    <Compile Include="Api\ResolvingATagReference.cs" />
+    <Compile Include="TestHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\LibGit2Sharp\LibGit2Sharp.csproj">
       <Project>{EE6ED99F-CB12-4683-B055-D28FC7357A34}</Project>
-      <Name>libgit2net</Name>
+      <Name>LibGit2Sharp</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>xcopy "$(SolutionDir)/Resources/*.*" "./Resources" /Y /E /F /I</PreBuildEvent>

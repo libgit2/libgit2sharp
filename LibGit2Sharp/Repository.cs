@@ -1,19 +1,47 @@
-﻿using System;
-using System.Collections.Generic;
-using LibGit2Sharp.Wrapper;
+﻿/*
+ * The MIT License
+ *
+ * Copyright (c) 2011 LibGit2Sharp committers
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
+using System;
+using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
 {
     public sealed class Repository : IObjectResolver, IDisposable
     {
-        private readonly IObjectResolver _objectResolver;
-        private readonly ILifecycleManager _lifecycleManager;
-        private readonly IBuilder _builder;
-        private readonly IRefsResolver _refsResolver;
+        private readonly ObjectResolver _objectResolver;
+        private readonly RepositoryLifecycleManager _lifecycleManager;
+        private readonly ObjectBuilder _builder;
+        private readonly ReferenceManager _referenceManager;
 
         public RepositoryDetails Details
         {
             get { return _lifecycleManager.Details; }
+        }
+
+        public ReferenceManager Refs
+        {
+            get { return _referenceManager; }
         }
 
         public Repository(string repositoryDirectory, string databaseDirectory, string index, string workingDirectory)
@@ -28,59 +56,52 @@ namespace LibGit2Sharp
 
         }
 
-        private Repository(ILifecycleManager lifecycleManager)
+        private Repository(RepositoryLifecycleManager lifecycleManager)
         {
             _lifecycleManager = lifecycleManager;
             _builder = new ObjectBuilder();
-            _objectResolver = new ObjectResolver(_lifecycleManager.RepositoryPtr, _builder);
-            _refsResolver = new RefsResolver();
+            _objectResolver = new ObjectResolver(_lifecycleManager.CoreRepository, _builder);
+            _referenceManager = new ReferenceManager(_lifecycleManager.CoreRepository);
         }
-
-        public IList<Ref> RetrieveRefs()
-        {
-            throw new NotImplementedException();
-        } 
 
         public Header ReadHeader(string objectId)
         {
-            DatabaseReader reader = NativeMethods.wrapped_git_odb_read_header;
-            Func<git_rawobj, Header> builder = rawObj => rawObj.BuildHeader(objectId);
-
-            return ReadInternal(objectId, reader, builder);
+            Func<Core.RawObject, Header> builder = rawObj => { 
+                return new Header(objectId, (ObjectType)rawObj.Type, rawObj.Length);
+            };
+			
+            return ReadHeaderInternal(objectId, builder);
         }
 
         public RawObject Read(string objectId)
         {
-            DatabaseReader reader = NativeMethods.wrapped_git_odb_read;
-            Func<git_rawobj, RawObject> builder = rawObj => rawObj.Build(objectId);
-
             //TODO: RawObject should be freed when the Repository is disposed (cf. https://github.com/libgit2/libgit2/blob/6fd195d76c7f52baae5540e287affe2259900d36/tests/t0205-readheader.c#L202)
-            return ReadInternal(objectId, reader, builder);
+            
+            Func<Core.RawObject, RawObject> builder = rawObj => {
+                Header header = new Header(objectId, (ObjectType)rawObj.Type, rawObj.Length);
+                return new RawObject(header, rawObj.GetData());
+            };
+
+            return ReadInternal(objectId, builder);
         }
 
         public bool Exists(string objectId)
         {
-            return NativeMethods.wrapped_git_odb_exists(_lifecycleManager.RepositoryPtr, objectId);
+            return _lifecycleManager.CoreRepository.Database.Exists(new Core.ObjectId(objectId));
+        }
+		
+        private TType ReadHeaderInternal<TType>(string objectid, Func<Core.RawObject, TType> builder)
+        {
+            var rawObj = _lifecycleManager.CoreRepository.Database.ReadHeader(new Core.ObjectId(objectid));
+
+            return builder(rawObj);
         }
 
-        private delegate OperationResult DatabaseReader(out git_rawobj rawobj, IntPtr repository, string objectId);
-
-        private TType ReadInternal<TType>(string objectId, DatabaseReader reader, Func<git_rawobj, TType> builder)
+        private TType ReadInternal<TType>(string objectid, Func<Core.RawObject, TType> builder)
         {
-            git_rawobj rawObj;
-            OperationResult result = reader(out rawObj, _lifecycleManager.RepositoryPtr, objectId);
-
-            switch (result)
-            {
-                case OperationResult.GIT_SUCCESS:
-                    return builder(rawObj);
-
-                case OperationResult.GIT_ENOTFOUND:
-                    return default(TType);
-
-                default:
-                    throw new Exception(Enum.GetName(typeof(OperationResult), result));
-            }
+            var rawObj = _lifecycleManager.CoreRepository.Database.Read(new Core.ObjectId(objectid));
+            
+            return builder(rawObj);
         }
 
         public static string Init(string path, bool isBare)
@@ -107,7 +128,7 @@ namespace LibGit2Sharp
                 return _objectResolver.Resolve(identifier, expectedType);
             }
 
-            Ref reference = _refsResolver.Resolve(identifier);
+            Ref reference = Refs.Lookup(identifier, true);
             if (reference == null)
             {
                 return null;
@@ -118,22 +139,40 @@ namespace LibGit2Sharp
 
         public Tag ApplyTag(string targetId, string tagName, string tagMessage, Signature signature)
         {
-            // TODO: To be refactored.
-            IntPtr tag;
-            var when = signature.When.ToGitDate();
-            OperationResult result = NativeMethods.wrapped_git_apply_tag(out tag, _lifecycleManager.RepositoryPtr, targetId, tagName, tagMessage, signature.Name, signature.Email, (ulong)when.UnixTimeStamp, when.TimeZoneOffset);
+            Core.Repository coreRepository = _lifecycleManager.CoreRepository;
 
-            switch (result)
+            if (DoesReferenceExist(tagName)) //TODO: Remove when tag_create() implement checking of existing conflicting reference
             {
-                case OperationResult.GIT_SUCCESS:
-                    return (Tag)_builder.BuildFrom(tag, ObjectType.Tag);
-
-                case OperationResult.GIT_ENOTFOUND:
-                    throw new ObjectNotFoundException();
-
-                default:
-                    throw new Exception(Enum.GetName(typeof(OperationResult), result));
+                throw new InvalidReferenceNameException();
             }
+
+            Core.GitObject target = coreRepository.Lookup(new Core.ObjectId(targetId)); //TODO: Remove when tag_create() implement checking of target existence
+            var tagger = new Core.Signature(signature.Name, signature.Email, signature.When);
+
+            var tagOid = Core.Tag.Create(coreRepository,
+                                      tagName,
+                                      target.ObjectId,
+                                      target.Type,
+                                      tagger,
+                                      tagMessage);
+
+            tagger.Free();
+
+            return (Tag)_builder.BuildFrom(coreRepository.Lookup(tagOid, git_otype.GIT_OBJ_TAG));
+        }
+
+        private bool DoesReferenceExist(string tagName)
+        {
+            try
+            {
+                Refs.Lookup("refs/tags/" + tagName, false);
+            }
+            catch (ObjectNotFoundException e)
+            {
+                return false;
+            }
+
+            return true;
         }
     }
 }
