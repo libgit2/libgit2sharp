@@ -45,17 +45,6 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
-        public void CanDisposeObjects()
-        {
-            using (var repo = new Repository(Constants.TestRepoPath))
-            {
-                using (var commit = repo.Lookup(commitSha))
-                {
-                }
-            }
-        }
-
-        [Test]
         public void CanLookupByReference()
         {
             using (var repo = new Repository(Constants.TestRepoPath))

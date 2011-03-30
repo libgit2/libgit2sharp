@@ -3,7 +3,10 @@ using System.Runtime.InteropServices;
 
 namespace LibGit2Sharp
 {
-    public class GitObject : IDisposable
+    /// <summary>
+    ///   A GitObject
+    /// </summary>
+    public class GitObject
     {
         public static GitObjectTypeMap TypeToTypeMap =
             new GitObjectTypeMap
@@ -15,73 +18,51 @@ namespace LibGit2Sharp
                     {typeof (GitObject), GitObjectType.Any},
                 };
 
-        protected IntPtr Obj = IntPtr.Zero;
-        private bool disposed;
-
         protected GitObject(IntPtr obj, ObjectId id = null)
         {
-            Obj = obj;
             if (id == null)
             {
-                var ptr = NativeMethods.git_object_id(Obj);
-                id = new ObjectId((GitOid)Marshal.PtrToStructure(ptr, typeof(GitOid)));
+                var ptr = NativeMethods.git_object_id(obj);
+                id = new ObjectId((GitOid) Marshal.PtrToStructure(ptr, typeof (GitOid)));
             }
             Id = id;
         }
 
+        /// <summary>
+        ///   Gets the id of this object
+        /// </summary>
         public ObjectId Id { get; private set; }
 
+        /// <summary>
+        ///   Gets the 40 character sha1 of this object.
+        /// </summary>
         public string Sha
         {
             get { return Id.Sha; }
         }
 
-        #region IDisposable Members
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        #endregion
-
         internal static GitObject CreateFromPtr(IntPtr obj, ObjectId id, Repository repo)
         {
-            var type = NativeMethods.git_object_type(obj);
-            switch (type)
+            try
             {
-                case GitObjectType.Commit:
-                    return new Commit(obj, id);
-                case GitObjectType.Tree:
-                    return new Tree(obj, id);
-                case GitObjectType.Tag:
-                    return new Tag(obj, id);
-                case GitObjectType.Blob:
-                    return new Blob(obj, id);
-                default:
-                    return new GitObject(obj, id);
-            }
-        }
-
-        private void Dispose(bool disposing)
-        {
-            // Check to see if Dispose has already been called.
-            if (!disposed)
-            {
-                // If disposing equals true, dispose all managed
-                // and unmanaged resources.
-                if (disposing)
+                var type = NativeMethods.git_object_type(obj);
+                switch (type)
                 {
-                    // Dispose managed resources.
+                    case GitObjectType.Commit:
+                        return new Commit(obj, repo, id);
+                    case GitObjectType.Tree:
+                        return new Tree(obj, id);
+                    case GitObjectType.Tag:
+                        return new Tag(obj, id);
+                    case GitObjectType.Blob:
+                        return new Blob(obj, id);
+                    default:
+                        return new GitObject(obj, id);
                 }
-
-                // Call the appropriate methods to clean up
-                // unmanaged resources here.
-                NativeMethods.git_object_close(Obj);
-
-                // Note disposing has been done.
-                disposed = true;
+            }
+            finally
+            {
+                NativeMethods.git_object_close(obj);
             }
         }
 
@@ -89,8 +70,8 @@ namespace LibGit2Sharp
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != typeof(GitObject)) return false;
-            return Equals((GitObject)obj);
+            if (obj.GetType() != typeof (GitObject)) return false;
+            return Equals((GitObject) obj);
         }
 
         public bool Equals(GitObject other)
@@ -98,14 +79,6 @@ namespace LibGit2Sharp
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
             return other.Id.Equals(Id);
-        }
-
-        ~GitObject()
-        {
-            // Do not re-create Dispose clean-up code here.
-            // Calling Dispose(false) is optimal in terms of
-            // readability and maintainability.
-            Dispose(false);
         }
 
         public override int GetHashCode()
