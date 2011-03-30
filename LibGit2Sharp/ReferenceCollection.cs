@@ -37,7 +37,7 @@ namespace LibGit2Sharp
 
         public IEnumerator<Reference> GetEnumerator()
         {
-            return GitReferenceHelper.List(this, repo.RepoPtr, GitReferenceType.ListAll).GetEnumerator();
+            return GitReferenceHelper.List(this, repo.Handle, GitReferenceType.ListAll).GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -65,7 +65,7 @@ namespace LibGit2Sharp
             }
 
             IntPtr reference;
-            var res = NativeMethods.git_reference_create_symbolic(out reference, repo.RepoPtr, name, target);
+            var res = NativeMethods.git_reference_create_symbolic(out reference, repo.Handle, name, target);
             Ensure.Success(res);
 
             return Reference.CreateFromPtr(reference, repo);
@@ -83,7 +83,7 @@ namespace LibGit2Sharp
 
             var oid = target.Oid;
             IntPtr reference;
-            var res = NativeMethods.git_reference_create_oid(out reference, repo.RepoPtr, name, ref oid);
+            var res = NativeMethods.git_reference_create_oid(out reference, repo.Handle, name, ref oid);
             Ensure.Success(res);
 
             return Reference.CreateFromPtr(reference, repo);
@@ -108,7 +108,7 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
 
             IntPtr reference;
-            var res = NativeMethods.git_reference_lookup(out reference, repo.RepoPtr, name);
+            var res = NativeMethods.git_reference_lookup(out reference, repo.Handle, name);
             Ensure.Success(res);
 
             return Reference.CreateFromPtr(reference, repo);
@@ -118,7 +118,7 @@ namespace LibGit2Sharp
 
         private static unsafe class GitReferenceHelper
         {
-            public static List<Reference> List(ReferenceCollection owner, IntPtr repo, GitReferenceType types)
+            public static List<Reference> List(ReferenceCollection owner, RepositorySafeHandle repo, GitReferenceType types)
             {
                 UnSafeNativeMethods.git_strarray strArray;
                 var res = UnSafeNativeMethods.git_reference_listall(&strArray, repo, types);

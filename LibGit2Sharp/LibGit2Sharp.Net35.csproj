@@ -70,6 +70,7 @@
     <Compile Include="Repository.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="RepositorySafeHandle.cs" />
     <Compile Include="Signature.cs" />
     <Compile Include="SymbolicReference.cs" />
     <Compile Include="Tag.cs" />

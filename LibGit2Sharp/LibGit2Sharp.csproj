@@ -68,6 +68,7 @@
     <Compile Include="Reference.cs" />
     <Compile Include="ReferenceCollection.cs" />
     <Compile Include="Repository.cs" />
+    <Compile Include="RepositorySafeHandle.cs" />
     <Compile Include="Signature.cs" />
     <Compile Include="SymbolicReference.cs" />
     <Compile Include="Tag.cs" />
@@ -86,9 +87,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Core\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

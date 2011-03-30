@@ -56,7 +56,7 @@ namespace LibGit2Sharp
                 {
                     var oid = Id.Oid;
                     IntPtr obj;
-                    var res = NativeMethods.git_object_lookup(out obj, repo.RepoPtr, ref oid, GitObjectType.Commit);
+                    var res = NativeMethods.git_object_lookup(out obj, repo.Handle, ref oid, GitObjectType.Commit);
                     Ensure.Success(res);
 
                     try

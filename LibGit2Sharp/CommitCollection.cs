@@ -119,7 +119,7 @@ namespace LibGit2Sharp
             public CommitEnumerator(Repository repo)
             {
                 this.repo = repo;
-                int res = NativeMethods.git_revwalk_new(out walker, repo.RepoPtr);
+                int res = NativeMethods.git_revwalk_new(out walker, repo.Handle);
                 Ensure.Success(res);
             }
 

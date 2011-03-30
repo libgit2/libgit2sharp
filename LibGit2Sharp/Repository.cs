@@ -13,7 +13,7 @@ namespace LibGit2Sharp
         private readonly BranchCollection branches;
         private readonly CommitCollection commits;
         private readonly ReferenceCollection refs;
-        private readonly IntPtr repo = IntPtr.Zero;
+        private readonly RepositorySafeHandle handle;
 
         private bool disposed;
 
@@ -37,8 +37,11 @@ namespace LibGit2Sharp
             Path = path;
             PosixPath = path.Replace(System.IO.Path.DirectorySeparatorChar, posixDirectorySeparatorChar);
 
-            var res = NativeMethods.git_repository_open(out repo, PosixPath);
+            RepositorySafeHandle tempHandle;
+            var res = NativeMethods.git_repository_open(out tempHandle, PosixPath);
             Ensure.Success(res);
+
+            handle = tempHandle;
 
             commits = new CommitCollection(this);
             refs = new ReferenceCollection(this);
@@ -57,17 +60,17 @@ namespace LibGit2Sharp
 
             var posixPath = path.Replace(System.IO.Path.DirectorySeparatorChar, posixDirectorySeparatorChar);
 
-            IntPtr repo;
+            RepositorySafeHandle repo;
             var res = NativeMethods.git_repository_init(out repo, posixPath, bare);
             Ensure.Success(res);
-            NativeMethods.git_repository_free(repo);
+            repo.Dispose();
 
             return path;
         }
 
-        internal IntPtr RepoPtr
+        internal RepositorySafeHandle Handle
         {
-            get { return repo; }
+            get { return handle; }
         }
 
         /// <summary>
@@ -115,33 +118,12 @@ namespace LibGit2Sharp
 
         #endregion
 
-        private void Dispose(bool disposing)
+        protected virtual void Dispose(bool disposing)
         {
-            // Check to see if Dispose has already been called.
-            if (!disposed)
+            if(handle != null && !handle.IsInvalid)
             {
-                // If disposing equals true, dispose all managed
-                // and unmanaged resources.
-                if (disposing)
-                {
-                    // Dispose managed resources.
-                }
-
-                // Call the appropriate methods to clean up
-                // unmanaged resources here.
-                NativeMethods.git_repository_free(repo);
-
-                // Note disposing has been done.
-                disposed = true;
+                handle.Dispose();
             }
-        }
-
-        ~Repository()
-        {
-            // Do not re-create Dispose clean-up code here.
-            // Calling Dispose(false) is optimal in terms of
-            // readability and maintainability.
-            Dispose(false);
         }
 
         /// <summary>
@@ -156,7 +138,7 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNull(id, "id");
 
-            var odb = NativeMethods.git_repository_database(repo);
+            var odb = NativeMethods.git_repository_database(handle);
             var oid = id.Oid;
             return NativeMethods.git_odb_exists(odb, ref oid);
         }
@@ -183,7 +165,7 @@ namespace LibGit2Sharp
 
             var oid = id.Oid;
             IntPtr obj;
-            var res = NativeMethods.git_object_lookup(out obj, repo, ref oid, type);
+            var res = NativeMethods.git_object_lookup(out obj, handle, ref oid, type);
             if (res == (int)GitErrorCode.GIT_ENOTFOUND)
             {
                 if (throwIfNotFound)

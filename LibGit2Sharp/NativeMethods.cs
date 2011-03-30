@@ -8,7 +8,7 @@ namespace LibGit2Sharp
         private const string libgit2 = "git2.dll";
 
         [DllImport(libgit2)]
-        public static extern int git_reference_listall(git_strarray* array, IntPtr repo, GitReferenceType flags);
+        public static extern int git_reference_listall(git_strarray* array, RepositorySafeHandle repo, GitReferenceType flags);
 
         [DllImport(libgit2)]
         public static extern void git_strarray_free(git_strarray* array);
@@ -35,7 +35,7 @@ namespace LibGit2Sharp
         public static extern IntPtr git_commit_committer(IntPtr commit);
 
         [DllImport(libgit2, SetLastError = true)]
-        public static extern int git_commit_create_o(out GitOid oid, IntPtr repo, string updateRef, IntPtr author, IntPtr committer, string message, IntPtr tree, int parentCount, IntPtr parents);
+        public static extern int git_commit_create_o(out GitOid oid, RepositorySafeHandle repo, string updateRef, IntPtr author, IntPtr committer, string message, IntPtr tree, int parentCount, IntPtr parents);
 
         [DllImport(libgit2, SetLastError = true)]
         [return: MarshalAs(UnmanagedType.AnsiBStr)]
@@ -61,7 +61,7 @@ namespace LibGit2Sharp
         public static extern IntPtr git_object_id(IntPtr obj);
 
         [DllImport(libgit2, SetLastError = true)]
-        public static extern int git_object_lookup(out IntPtr obj, IntPtr repo, ref GitOid id, GitObjectType type);
+        public static extern int git_object_lookup(out IntPtr obj, RepositorySafeHandle repo, ref GitOid id, GitObjectType type);
 
         [DllImport(libgit2, SetLastError = true)]
         public static extern GitObjectType git_object_type(IntPtr obj);
@@ -82,16 +82,16 @@ namespace LibGit2Sharp
         public static extern int git_oid_mkstr(out GitOid oid, string str);
 
         [DllImport(libgit2, SetLastError = true)]
-        public static extern int git_reference_create_oid(out IntPtr reference, IntPtr repo, string name, ref GitOid oid);
+        public static extern int git_reference_create_oid(out IntPtr reference, RepositorySafeHandle repo, string name, ref GitOid oid);
 
         [DllImport(libgit2, SetLastError = true)]
-        public static extern int git_reference_create_symbolic(out IntPtr reference, IntPtr repo, string name, string target);
+        public static extern int git_reference_create_symbolic(out IntPtr reference, RepositorySafeHandle repo, string name, string target);
 
         [DllImport(libgit2, SetLastError = true)]
         public static extern int git_reference_delete(IntPtr reference);
 
         [DllImport(libgit2)]
-        public static extern int git_reference_lookup(out IntPtr reference, IntPtr repo, string name);
+        public static extern int git_reference_lookup(out IntPtr reference, RepositorySafeHandle repo, string name);
 
         [DllImport(libgit2)]
         [return: MarshalAs(UnmanagedType.AnsiBStr)]
@@ -111,22 +111,22 @@ namespace LibGit2Sharp
         public static extern GitReferenceType git_reference_type(IntPtr reference);
 
         [DllImport(libgit2, SetLastError = true)]
-        public static extern IntPtr git_repository_database(IntPtr repository);
+        public static extern IntPtr git_repository_database(RepositorySafeHandle repository);
 
         [DllImport(libgit2, SetLastError = true)]
         public static extern void git_repository_free(IntPtr repository);
 
         [DllImport(libgit2, SetLastError = true)]
-        public static extern int git_repository_init(out IntPtr repository, string path, bool isBare);
+        public static extern int git_repository_init(out RepositorySafeHandle repository, string path, bool isBare);
 
         [DllImport(libgit2, SetLastError = true)]
-        public static extern int git_repository_open(out IntPtr repository, string path);
+        public static extern int git_repository_open(out RepositorySafeHandle repository, string path);
 
         [DllImport(libgit2)]
         public static extern void git_revwalk_free(IntPtr walker);
 
         [DllImport(libgit2)]
-        public static extern int git_revwalk_new(out IntPtr walker, IntPtr repo);
+        public static extern int git_revwalk_new(out IntPtr walker, RepositorySafeHandle repo);
 
         [DllImport(libgit2)]
         public static extern int git_revwalk_next(out GitOid oid, IntPtr walker);
