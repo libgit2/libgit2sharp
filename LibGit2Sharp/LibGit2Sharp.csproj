@@ -51,18 +51,18 @@
     <Compile Include="Commit.cs" />
     <Compile Include="CommitCollection.cs" />
     <Compile Include="DirectReference.cs" />
-    <Compile Include="Ensure.cs" />
-    <Compile Include="Epoch.cs" />
-    <Compile Include="GitErrorCode.cs" />
+    <Compile Include="Core\Ensure.cs" />
+    <Compile Include="Core\Epoch.cs" />
+    <Compile Include="Core\GitErrorCode.cs" />
     <Compile Include="GitObject.cs" />
     <Compile Include="GitObjectType.cs" />
-    <Compile Include="GitObjectTypeMap.cs" />
-    <Compile Include="GitOid.cs" />
-    <Compile Include="GitReferenceType.cs" />
-    <Compile Include="GitSignature.cs" />
-    <Compile Include="GitTime.cs" />
+    <Compile Include="Core\GitObjectTypeMap.cs" />
+    <Compile Include="Core\GitOid.cs" />
+    <Compile Include="Core\GitReferenceType.cs" />
+    <Compile Include="Core\GitSignature.cs" />
+    <Compile Include="Core\GitTime.cs" />
     <Compile Include="GitSortOptions.cs" />
-    <Compile Include="NativeMethods.cs" />
+    <Compile Include="Core\NativeMethods.cs" />
     <Compile Include="ObjectId.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Reference.cs" />
@@ -74,7 +74,7 @@
     <Compile Include="Tag.cs" />
     <Compile Include="TagCollection.cs" />
     <Compile Include="Tree.cs" />
-    <Compile Include="UnSafeNativeMethods.cs" />
+    <Compile Include="Core\UnSafeNativeMethods.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Lib\git2.lib">

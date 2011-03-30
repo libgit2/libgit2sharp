@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace LibGit2Sharp
+namespace LibGit2Sharp.Core
 {
     internal class NativeMethods
     {

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
 {

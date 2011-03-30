@@ -1,4 +1,5 @@
-﻿using Microsoft.Win32.SafeHandles;
+﻿using LibGit2Sharp.Core;
+using Microsoft.Win32.SafeHandles;
 
 namespace LibGit2Sharp
 {

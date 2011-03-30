@@ -1,4 +1,4 @@
-﻿namespace LibGit2Sharp
+﻿namespace LibGit2Sharp.Core
 {
     public enum GitErrorCode
     {

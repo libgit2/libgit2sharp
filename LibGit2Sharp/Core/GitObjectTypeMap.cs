@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace LibGit2Sharp
+namespace LibGit2Sharp.Core
 {
     public class GitObjectTypeMap : Dictionary<Type, GitObjectType>
     {

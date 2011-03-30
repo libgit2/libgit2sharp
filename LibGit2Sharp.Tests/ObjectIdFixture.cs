@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using LibGit2Sharp.Core;
+using NUnit.Framework;
 
 namespace LibGit2Sharp.Tests
 {

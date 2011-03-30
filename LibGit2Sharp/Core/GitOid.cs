@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace LibGit2Sharp
+namespace LibGit2Sharp.Core
 {
     /// <summary>
     ///   Represents a unique id in git which is the sha1 hash of this id's content.
