@@ -29,6 +29,27 @@ using System.Runtime.InteropServices;
 
 namespace LibGit2Sharp
 {
+    internal unsafe class UnSafeNativeMethods
+    {
+        private const string libgit2 = "git2.dll";
+
+        [DllImport(libgit2)]
+        public static extern int git_reference_listall(git_strarray* array, IntPtr repo, GitReferenceType flags);
+
+        [DllImport(libgit2)]
+        public static extern void git_strarray_free(git_strarray* array);
+
+        #region Nested type: git_strarray
+
+        internal struct git_strarray
+        {
+            public IntPtr size;
+            public sbyte** strings;
+        }
+
+        #endregion
+    }
+
     internal class NativeMethods
     {
         private const string libgit2 = "git2.dll";
@@ -85,6 +106,26 @@ namespace LibGit2Sharp
 
         [DllImport(libgit2, SetLastError = true)]
         public static extern int git_oid_mkstr(out GitOid oid, string str);
+
+        [DllImport(libgit2)]
+        public static extern int git_reference_lookup(out IntPtr reference, IntPtr repo, string name);
+
+        [DllImport(libgit2)]
+        [return: MarshalAs(UnmanagedType.AnsiBStr)]
+        public static extern string git_reference_name(IntPtr reference);
+
+        [DllImport(libgit2)]
+        public static extern IntPtr git_reference_oid(IntPtr reference);
+
+        [DllImport(libgit2)]
+        public static extern int git_reference_resolve(out IntPtr resolvedReference, IntPtr reference);
+
+        [DllImport(libgit2)]
+        [return: MarshalAs(UnmanagedType.AnsiBStr)]
+        public static extern string git_reference_target(IntPtr reference);
+
+        [DllImport(libgit2)]
+        public static extern GitReferenceType git_reference_type(IntPtr reference);
 
         [DllImport(libgit2, SetLastError = true)]
         public static extern IntPtr git_repository_database(IntPtr repository);

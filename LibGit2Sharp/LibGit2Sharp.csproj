@@ -54,6 +54,7 @@
     <Compile Include="GitObjectType.cs" />
     <Compile Include="GitObjectTypeMap.cs" />
     <Compile Include="GitOid.cs" />
+    <Compile Include="GitReferenceType.cs" />
     <Compile Include="GitSignature.cs" />
     <Compile Include="GitTime.cs" />
     <Compile Include="GitSortOptions.cs" />
@@ -64,6 +65,8 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="Reference.cs" />
+    <Compile Include="ReferenceCollection.cs" />
     <Compile Include="Repository.cs" />
     <Compile Include="RepositoryOptions.cs" />
     <Compile Include="Signature.cs" />

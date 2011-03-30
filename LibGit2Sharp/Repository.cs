@@ -39,6 +39,7 @@ namespace LibGit2Sharp
         private const char posixDirectorySeparatorChar = '/';
         private readonly CommitCollection commits;
         private readonly RepositoryOptions options;
+        private readonly ReferenceCollection refs;
         private readonly IntPtr repo = IntPtr.Zero;
 
         private bool disposed;
@@ -64,11 +65,29 @@ namespace LibGit2Sharp
 
             if (!this.options.CreateIfNeeded && !Directory.Exists(path))
                 throw new ArgumentException(Resources.RepositoryDoesNotExist, "path");
+
+            if (this.options.CreateIfNeeded)
+            {
+                var res = NativeMethods.git_repository_init(out repo, PosixPath, this.options.IsBareRepository);
+                Ensure.Success(res);
+            }
+            else
+            {
+                var res = NativeMethods.git_repository_open(out repo, PosixPath);
+                Ensure.Success(res);
+            }
+            commits = new CommitCollection(this);
+            refs = new ReferenceCollection(this);
         }
 
         internal IntPtr RepoPtr
         {
             get { return repo; }
+        }
+
+        public ReferenceCollection Refs
+        {
+            get { return refs; }
         }
 
         public CommitCollection Commits
