@@ -14,7 +14,7 @@ namespace LibGit2Sharp.Tests.TestHelpers
                 file.CopyTo(Path.Combine(target.FullName, file.Name));
         }
 
-        private static void DeleteDirectory(string directoryPath)
+        public static void DeleteDirectory(string directoryPath)
         {
             // From http://stackoverflow.com/questions/329355/cannot-delete-directory-with-directory-deletepath-true/329502#329502
 
@@ -34,12 +34,6 @@ namespace LibGit2Sharp.Tests.TestHelpers
 
             File.SetAttributes(directoryPath, FileAttributes.Normal);
             Directory.Delete(directoryPath, false);
-        }
-
-        public static void DeleteIfExists(string directory)
-        {
-            if (Directory.Exists(directory))
-                DeleteDirectory(directory);
         }
     }
 }

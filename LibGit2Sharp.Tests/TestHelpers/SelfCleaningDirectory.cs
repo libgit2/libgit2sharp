@@ -15,8 +15,6 @@ namespace LibGit2Sharp.Tests.TestHelpers
             }
             
             _path = path;
-
-            DirectoryHelper.DeleteIfExists(path);
         }
 
         protected string DirectoryPath { get { return _path; } }
@@ -30,7 +28,7 @@ namespace LibGit2Sharp.Tests.TestHelpers
                 throw new InvalidOperationException("Directory '{0}' doesn't exist any longer.");
             }
 
-            DirectoryHelper.DeleteIfExists(_path);
+            DirectoryHelper.DeleteDirectory(_path);
         }
 
         #endregion
