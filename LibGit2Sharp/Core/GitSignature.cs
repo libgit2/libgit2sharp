@@ -3,7 +3,7 @@
 namespace LibGit2Sharp.Core
 {
     [StructLayout(LayoutKind.Sequential)]
-    public class GitSignature
+    internal class GitSignature
     {
         public string Name;
         public string Email;

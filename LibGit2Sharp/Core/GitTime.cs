@@ -3,7 +3,7 @@
 namespace LibGit2Sharp.Core
 {
     [StructLayout(LayoutKind.Sequential)]
-    public class GitTime
+    internal class GitTime
     {
         public long Time;
         public int Offset;

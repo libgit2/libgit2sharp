@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace LibGit2Sharp.Core
 {
-    public class GitObjectTypeMap : Dictionary<Type, GitObjectType>
+    internal class GitObjectTypeMap : Dictionary<Type, GitObjectType>
     {
         public new GitObjectType this[Type type]
         {

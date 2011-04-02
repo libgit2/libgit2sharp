@@ -19,7 +19,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Gets the type of this reference.
         /// </summary>
-        public GitReferenceType Type { get; private set; }
+        internal GitReferenceType Type { get; private set; }
 
         internal static Reference CreateFromPtr(IntPtr ptr, Repository repo)
         {

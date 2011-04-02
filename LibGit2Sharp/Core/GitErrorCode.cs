@@ -1,6 +1,6 @@
 ﻿namespace LibGit2Sharp.Core
 {
-    public enum GitErrorCode
+    internal enum GitErrorCode
     {
         /** Operation completed successfully. */
         GIT_SUCCESS = 0,

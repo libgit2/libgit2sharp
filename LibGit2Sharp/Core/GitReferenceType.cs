@@ -3,7 +3,7 @@
 namespace LibGit2Sharp.Core
 {
     [Flags]
-    public enum GitReferenceType
+    internal enum GitReferenceType
     {
         Invalid = 0,
         Oid = 1,

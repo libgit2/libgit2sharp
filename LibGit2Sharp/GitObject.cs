@@ -9,7 +9,7 @@ namespace LibGit2Sharp
     /// </summary>
     public class GitObject
     {
-        public static GitObjectTypeMap TypeToTypeMap =
+        internal static GitObjectTypeMap TypeToTypeMap =
             new GitObjectTypeMap
                 {
                     {typeof (Commit), GitObjectType.Commit},
