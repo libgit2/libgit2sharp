@@ -7,7 +7,7 @@ namespace LibGit2Sharp
     /// <summary>
     ///   A GitObject
     /// </summary>
-    public class GitObject
+    public class GitObject : IEquatable<GitObject>
     {
         internal static GitObjectTypeMap TypeToTypeMap =
             new GitObjectTypeMap
@@ -69,22 +69,42 @@ namespace LibGit2Sharp
 
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != typeof (GitObject)) return false;
-            return Equals((GitObject) obj);
+            return Equals(obj as GitObject);
         }
 
         public bool Equals(GitObject other)
         {
-            if (ReferenceEquals(null, other)) return false;
-            if (ReferenceEquals(this, other)) return true;
-            return other.Id.Equals(Id);
+            if (ReferenceEquals(null, other))
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, other))
+            {
+                return true;
+            }
+            
+            if (GetType() != other.GetType())
+            {
+                return false;
+            }
+
+            return Equals(Id, other.Id);
         }
 
         public override int GetHashCode()
         {
             return Id.GetHashCode();
+        }
+
+        public static bool operator ==(GitObject left, GitObject right)
+        {
+            return Equals(left, right);
+        }
+
+        public static bool operator !=(GitObject left, GitObject right)
+        {
+            return !Equals(left, right);
         }
     }
 }
