@@ -4,26 +4,14 @@ namespace LibGit2Sharp.Tests.TestHelpers
 {
     public static class DirectoryHelper
     {
-        public static void CopyDirectory(string sourcePath, string destPath)
+        public static void CopyFilesRecursively(DirectoryInfo source, DirectoryInfo target)
         {
-            if (!Directory.Exists(destPath))
-            {
-                Directory.CreateDirectory(destPath);
-            }
+            // From http://stackoverflow.com/questions/58744/best-way-to-copy-the-entire-contents-of-a-directory-in-c/58779#58779
 
-            foreach (var file in Directory.GetFiles(sourcePath))
-            {
-                if (file == null) continue;
-                string dest = Path.Combine(destPath, Path.GetFileName(file));
-                File.Copy(file, dest);
-            }
-
-            foreach (var folder in Directory.GetDirectories(sourcePath))
-            {
-                if (folder == null) continue;
-                string dest = Path.Combine(destPath, Path.GetFileName(folder));
-                CopyDirectory(folder, dest);
-            }
+            foreach (var dir in source.GetDirectories())
+                CopyFilesRecursively(dir, target.CreateSubdirectory(dir.Name));
+            foreach (var file in source.GetFiles())
+                file.CopyTo(Path.Combine(target.FullName, file.Name));
         }
 
         private static void DeleteDirectory(string directoryPath)

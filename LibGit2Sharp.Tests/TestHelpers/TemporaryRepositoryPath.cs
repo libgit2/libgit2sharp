@@ -5,14 +5,17 @@ namespace LibGit2Sharp.Tests.TestHelpers
 {
     public class TemporaryRepositoryPath : IDisposable
     {
+        private readonly string _tempRepoToDelete;
+
         public TemporaryRepositoryPath()
         {
             var tempDirectory = Path.Combine(Constants.TemporaryReposPath, Guid.NewGuid().ToString().Substring(0, 8));
 
             var source = new DirectoryInfo(Constants.TestRepoPath);
             var tempRepository = new DirectoryInfo(Path.Combine(tempDirectory, source.Name));
+            _tempRepoToDelete = tempRepository.Parent.FullName;
 
-            CopyFilesRecursively(source, tempRepository);
+            DirectoryHelper.CopyFilesRecursively(source, tempRepository);
 
             RepositoryPath = tempRepository.FullName;
         }
@@ -23,17 +26,7 @@ namespace LibGit2Sharp.Tests.TestHelpers
 
         public void Dispose()
         {
-            DirectoryHelper.DeleteIfExists(RepositoryPath);
-        }
-
-        public static void CopyFilesRecursively(DirectoryInfo source, DirectoryInfo target)
-        {
-            // From http://stackoverflow.com/questions/58744/best-way-to-copy-the-entire-contents-of-a-directory-in-c/58779#58779
-
-            foreach (var dir in source.GetDirectories())
-                CopyFilesRecursively(dir, target.CreateSubdirectory(dir.Name));
-            foreach (var file in source.GetFiles())
-                file.CopyTo(Path.Combine(target.FullName, file.Name));
+            DirectoryHelper.DeleteIfExists(_tempRepoToDelete);
         }
 
         #endregion
