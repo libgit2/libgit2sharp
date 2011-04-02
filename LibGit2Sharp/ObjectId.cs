@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System;
+using System.Text;
 using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
@@ -6,7 +7,7 @@ namespace LibGit2Sharp
     /// <summary>
     /// Uniquely identifies a <see cref="GitObject"/>.
     /// </summary>
-    public class ObjectId
+    public class ObjectId : IEquatable<ObjectId>
     {
         private readonly GitOid _oid;
         private const int _rawSize = 20;
@@ -83,22 +84,32 @@ namespace LibGit2Sharp
 
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != typeof (ObjectId)) return false;
-            return Equals((ObjectId) obj);
+            return Equals(obj as ObjectId);
         }
 
         public bool Equals(ObjectId other)
         {
-            if (ReferenceEquals(null, other)) return false;
-            if (ReferenceEquals(this, other)) return true;
-            return Equals(other.Sha, Sha);
+            if (ReferenceEquals(null, other))
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, other))
+            {
+                return true;
+            }
+
+            if (GetType() != other.GetType())
+            {
+                return false;
+            }
+
+            return Equals(Sha, other.Sha);
         }
 
         public override int GetHashCode()
         {
-            return (Sha != null ? Sha.GetHashCode() : 0);
+            return Sha.GetHashCode();
         }
 
         public override string ToString()

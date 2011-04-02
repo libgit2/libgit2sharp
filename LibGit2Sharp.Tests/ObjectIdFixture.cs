@@ -36,20 +36,42 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
-        public void SameObjectsAreEqual()
+        public void SimilarObjectIdsAreEqual()
         {
             var a = new ObjectId("ce08fe4884650f067bd5703b6a59a8b3b3c99a09");
             var b = new ObjectId("ce08fe4884650f067bd5703b6a59a8b3b3c99a09");
             (a.Equals(b)).ShouldBeTrue();
+            (b.Equals(a)).ShouldBeTrue();
             (a == b).ShouldBeTrue();
+            (a != b).ShouldBeFalse();
         }
 
         [Test]
-        public void SameObjectsHaveSameHashCode()
+        public void DifferentObjectIdsAreEqual()
+        {
+            var a = new ObjectId("ce08fe4884650f067bd5703b6a59a8b3b3c99a09");
+            var b = new ObjectId("de08fe4884650f067bd5703b6a59a8b3b3c99a09");
+            (a.Equals(b)).ShouldBeFalse();
+            (b.Equals(a)).ShouldBeFalse();
+            (a == b).ShouldBeFalse();
+            (a != b).ShouldBeTrue();
+        }
+
+        [Test]
+        public void SimilarObjectIdsHaveSameHashCode()
         {
             var a = new ObjectId("ce08fe4884650f067bd5703b6a59a8b3b3c99a09");
             var b = new ObjectId("ce08fe4884650f067bd5703b6a59a8b3b3c99a09");
             a.GetHashCode().ShouldEqual(b.GetHashCode());
+        }
+
+
+        [Test]
+        public void DifferentObjectIdsDoesNotHaveSameHashCode()
+        {
+            var a = new ObjectId("ce08fe4884650f067bd5703b6a59a8b3b3c99a09");
+            var b = new ObjectId("de08fe4884650f067bd5703b6a59a8b3b3c99a09");
+            a.GetHashCode().ShouldNotEqual(b.GetHashCode());
         }
     }
 }
