@@ -127,12 +127,11 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
-        [Ignore("TODO: fix libgit2 error handling for this to work.")]
         public void LookupObjectByWrongTypeThrows()
         {
             using (var repo = new Repository(Constants.TestRepoPath))
             {
-                repo.Lookup<Tag>(commitSha);
+                Assert.Throws<KeyNotFoundException>(() => repo.Lookup<Tag>(commitSha));
             }
         }
 

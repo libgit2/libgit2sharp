@@ -175,14 +175,16 @@ namespace LibGit2Sharp
             var oid = id.Oid;
             IntPtr obj;
             var res = NativeMethods.git_object_lookup(out obj, handle, ref oid, type);
-            if (res == (int) GitErrorCode.GIT_ENOTFOUND)
+            if (res == (int)GitErrorCode.GIT_ENOTFOUND || res == (int)GitErrorCode.GIT_EINVALIDTYPE)
             {
                 if (throwIfNotFound)
                 {
-                    throw new KeyNotFoundException(string.Format("Object {0} does not exists in the repository", id));
+                    throw new KeyNotFoundException(string.Format("{0} {1} does not exists in the repository", type != GitObjectType.Any ? Enum.GetName(typeof(GitObjectType), type) : "Object", id));
                 }
+
                 return null;
             }
+
             Ensure.Success(res);
 
             return GitObject.CreateFromPtr(obj, id, this);
