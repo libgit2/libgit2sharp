@@ -1,7 +1,7 @@
 ﻿using System;
 using NUnit.Framework;
 
-namespace LibGit2Sharp.Tests
+namespace LibGit2Sharp.Tests.TestHelpers
 {
     public static class AssertExtensions
     {

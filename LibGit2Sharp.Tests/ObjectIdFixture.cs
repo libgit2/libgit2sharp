@@ -1,4 +1,5 @@
 ﻿using System;
+using LibGit2Sharp.Tests.TestHelpers;
 using NUnit.Framework;
 
 namespace LibGit2Sharp.Tests

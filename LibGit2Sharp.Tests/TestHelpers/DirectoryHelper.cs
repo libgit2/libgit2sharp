@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-namespace LibGit2Sharp.Tests
+namespace LibGit2Sharp.Tests.TestHelpers
 {
     public static class DirectoryHelper
     {
