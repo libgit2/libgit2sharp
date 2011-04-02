@@ -11,7 +11,7 @@ namespace LibGit2Sharp.Tests
     [TestFixture]
     public class TagFixture
     {
-        private readonly List<string> expectedTags = new List<string> {"test", "very-simple"};
+        private readonly List<string> expectedTags = new List<string> { "test", "e90810b" };
 
         private static readonly Signature signature = new Signature("Tim Clem", "timothy.clem@gail.com", DateTimeOffset.UtcNow);
 
@@ -38,7 +38,6 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
-        [Ignore("TODO: the very-simple tag is coming back with an odd name.")]
         public void CanListTags()
         {
             using (var repo = new Repository(Constants.TestRepoPath))

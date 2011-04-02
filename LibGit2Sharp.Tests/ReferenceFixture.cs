@@ -9,7 +9,7 @@ namespace LibGit2Sharp.Tests
     [TestFixture]
     public class ReferenceFixture
     {
-        private readonly List<string> expectedRefs = new List<string> {"refs/heads/packed-test", "refs/heads/packed", "refs/heads/br2", "refs/heads/master", "refs/heads/test", "refs/tags/test", "refs/tags/very-simple"};
+        private readonly List<string> expectedRefs = new List<string> { "refs/heads/packed-test", "refs/heads/packed", "refs/heads/br2", "refs/heads/master", "refs/heads/test", "refs/tags/test", "refs/tags/e90810b" };
 
         [Test]
         public void CanCreateReferenceFromSha()
