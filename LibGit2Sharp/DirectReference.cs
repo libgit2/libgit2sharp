@@ -9,5 +9,10 @@
         ///   Gets the target of this <see cref = "DirectReference" />
         /// </summary>
         public GitObject Target { get; internal set; }
+
+        public override object ProvideAdditionalEqualityComponent()
+        {
+            return Target;
+        }
     }
 }

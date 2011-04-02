@@ -9,5 +9,10 @@
         ///   Gets the target of this <see cref = "SymbolicReference" />
         /// </summary>
         public Reference Target { get; internal set; }
+
+        public override object ProvideAdditionalEqualityComponent()
+        {
+            return Target;
+        }
     }
 }

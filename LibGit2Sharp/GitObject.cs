@@ -94,7 +94,7 @@ namespace LibGit2Sharp
 
         public override int GetHashCode()
         {
-            return Id.GetHashCode();
+            return Id.GetHashCode(); //TODO: Maybe should we combine with GetType.GetHashCode()
         }
 
         public static bool operator ==(GitObject left, GitObject right)
