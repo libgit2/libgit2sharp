@@ -3,9 +3,9 @@ using System.IO;
 
 namespace LibGit2Sharp.Tests.TestHelpers
 {
-    public class TemporaryRepositoryPath : SelfCleaningDirectory
+    public class TemporaryCloneOfTestRepo : SelfCleaningDirectory
     {
-        public TemporaryRepositoryPath() : base(BuildTempPath())
+        public TemporaryCloneOfTestRepo() : base(BuildTempPath())
         {
             var source = new DirectoryInfo(Constants.TestRepoPath);
             var tempRepository = new DirectoryInfo(Path.Combine(DirectoryPath, source.Name));

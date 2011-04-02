@@ -55,7 +55,7 @@
     <Compile Include="TestHelpers\AssertExtensions.cs" />
     <Compile Include="TestHelpers\DirectoryHelper.cs" />
     <Compile Include="TestHelpers\SelfCleaningDirectory.cs" />
-    <Compile Include="TestHelpers\TemporaryRepositoryPath.cs" />
+    <Compile Include="TestHelpers\TemporaryCloneOfTestRepo.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\LibGit2Sharp\LibGit2Sharp.Net35.csproj">

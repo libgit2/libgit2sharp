@@ -18,7 +18,7 @@ namespace LibGit2Sharp.Tests
         [Test]
         public void CanCreateTag()
         {
-            using (var path = new TemporaryRepositoryPath())
+            using (var path = new TemporaryCloneOfTestRepo())
             using (var repo = new Repository(path.RepositoryPath))
             {
                 var newTag = repo.Tags.Create("unit_test", "refs/heads/master", signature, "a new tag");
@@ -29,7 +29,7 @@ namespace LibGit2Sharp.Tests
         [Test]
         public void CanCreateTagFromSha()
         {
-            using (var path = new TemporaryRepositoryPath())
+            using (var path = new TemporaryCloneOfTestRepo())
             using (var repo = new Repository(path.RepositoryPath))
             {
                 var newTag = repo.Tags.Create("unit_test", "b25fa35b38051e4ae45d4222e795f9df2e43f1d1", signature, "a new tag");

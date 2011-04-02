@@ -15,7 +15,7 @@ namespace LibGit2Sharp.Tests
         public void CanCreateReferenceFromSha()
         {
             const string name = "refs/heads/unit_test";
-            using (var path = new TemporaryRepositoryPath())
+            using (var path = new TemporaryCloneOfTestRepo())
             using (var repo = new Repository(path.RepositoryPath))
             {
                 var newRef = (DirectReference) repo.Refs.Create(name, "be3563ae3f795b2b4353bcce3a527ad0a4f7f644");
@@ -33,7 +33,7 @@ namespace LibGit2Sharp.Tests
         public void CanCreateReferenceFromSymbol()
         {
             const string name = "refs/heads/unit_test";
-            using (var path = new TemporaryRepositoryPath())
+            using (var path = new TemporaryCloneOfTestRepo())
             using (var repo = new Repository(path.RepositoryPath))
             {
                 var newRef = (SymbolicReference) repo.Refs.Create(name, "refs/heads/master");
@@ -114,7 +114,7 @@ namespace LibGit2Sharp.Tests
         [Test]
         public void CreateWithEmptyStringForTargetThrows()
         {
-            using (var path = new TemporaryRepositoryPath())
+            using (var path = new TemporaryCloneOfTestRepo())
             using (var repo = new Repository(path.RepositoryPath))
             {
                 Assert.Throws<ArgumentException>(() => repo.Refs.Create("refs/heads/newref", string.Empty));
@@ -124,7 +124,7 @@ namespace LibGit2Sharp.Tests
         [Test]
         public void CreateWithEmptyStringThrows()
         {
-            using (var path = new TemporaryRepositoryPath())
+            using (var path = new TemporaryCloneOfTestRepo())
             using (var repo = new Repository(path.RepositoryPath))
             {
                 Assert.Throws<ArgumentException>(() => repo.Refs.Create(string.Empty, "refs/heads/master"));
@@ -134,7 +134,7 @@ namespace LibGit2Sharp.Tests
         [Test]
         public void CreateWithNullForTargetThrows()
         {
-            using (var path = new TemporaryRepositoryPath())
+            using (var path = new TemporaryCloneOfTestRepo())
             using (var repo = new Repository(path.RepositoryPath))
             {
                 Assert.Throws<ArgumentNullException>(() => repo.Refs.Create("refs/heads/newref", (string)null));
@@ -144,7 +144,7 @@ namespace LibGit2Sharp.Tests
         [Test]
         public void CreateWithNullStringThrows()
         {
-            using (var path = new TemporaryRepositoryPath())
+            using (var path = new TemporaryCloneOfTestRepo())
             using (var repo = new Repository(path.RepositoryPath))
             {
                 Assert.Throws<ArgumentNullException>(() => repo.Refs.Create(null, "refs/heads/master"));

@@ -14,7 +14,7 @@ namespace LibGit2Sharp.Tests
         [Test]
         public void CanCreateBranch()
         {
-            using (var path = new TemporaryRepositoryPath())
+            using (var path = new TemporaryCloneOfTestRepo())
             using (var repo = new Repository(path.RepositoryPath))
             {
                 const string name = "unit_test";
@@ -32,7 +32,7 @@ namespace LibGit2Sharp.Tests
         [Test]
         public void CanCreateBranchFromAnotherBranch()
         {
-            using (var path = new TemporaryRepositoryPath())
+            using (var path = new TemporaryCloneOfTestRepo())
             using (var repo = new Repository(path.RepositoryPath))
             {
                 const string name = "unit_test";

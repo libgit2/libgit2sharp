@@ -58,7 +58,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RepositoryFixture.cs" />
     <Compile Include="TestHelpers\SelfCleaningDirectory.cs" />
-    <Compile Include="TestHelpers\TemporaryRepositoryPath.cs" />
+    <Compile Include="TestHelpers\TemporaryCloneOfTestRepo.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\LibGit2Sharp\LibGit2Sharp.csproj">
