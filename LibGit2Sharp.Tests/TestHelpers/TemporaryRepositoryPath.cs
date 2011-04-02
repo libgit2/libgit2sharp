@@ -3,32 +3,22 @@ using System.IO;
 
 namespace LibGit2Sharp.Tests.TestHelpers
 {
-    public class TemporaryRepositoryPath : IDisposable
+    public class TemporaryRepositoryPath : SelfCleaningDirectory
     {
-        private readonly string _tempRepoToDelete;
-
-        public TemporaryRepositoryPath()
+        public TemporaryRepositoryPath() : base(BuildTempPath())
         {
-            var tempDirectory = Path.Combine(Constants.TemporaryReposPath, Guid.NewGuid().ToString().Substring(0, 8));
-
             var source = new DirectoryInfo(Constants.TestRepoPath);
-            var tempRepository = new DirectoryInfo(Path.Combine(tempDirectory, source.Name));
-            _tempRepoToDelete = tempRepository.Parent.FullName;
-
-            DirectoryHelper.CopyFilesRecursively(source, tempRepository);
+            var tempRepository = new DirectoryInfo(Path.Combine(DirectoryPath, source.Name));
 
             RepositoryPath = tempRepository.FullName;
+            DirectoryHelper.CopyFilesRecursively(source, tempRepository);
+        }
+
+        private static string BuildTempPath()
+        {
+            return Path.Combine(Constants.TemporaryReposPath, Guid.NewGuid().ToString().Substring(0, 8));
         }
 
         public string RepositoryPath { get; private set; }
-
-        #region IDisposable Members
-
-        public void Dispose()
-        {
-            DirectoryHelper.DeleteIfExists(_tempRepoToDelete);
-        }
-
-        #endregion
     }
 }

@@ -19,6 +19,8 @@ namespace LibGit2Sharp.Tests.TestHelpers
             DirectoryHelper.DeleteIfExists(path);
         }
 
+        protected string DirectoryPath { get { return _path; } }
+
         #region IDisposable Members
 
         public void Dispose()
