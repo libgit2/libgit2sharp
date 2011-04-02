@@ -1,14 +1,21 @@
 ﻿using System;
+using System.IO;
 
 namespace LibGit2Sharp.Tests.TestHelpers
 {
     public class SelfCleaningDirectory : IDisposable
     {
-        private readonly string path;
+        private readonly string _path;
 
         public SelfCleaningDirectory(string path)
         {
-            this.path = path;
+            if (Directory.Exists(path))
+            {
+                throw new InvalidOperationException("Directory '{0}' already exists.");
+            }
+            
+            _path = path;
+
             DirectoryHelper.DeleteIfExists(path);
         }
 
@@ -16,7 +23,12 @@ namespace LibGit2Sharp.Tests.TestHelpers
 
         public void Dispose()
         {
-            DirectoryHelper.DeleteIfExists(path);
+            if (!Directory.Exists(_path))
+            {
+                throw new InvalidOperationException("Directory '{0}' doesn't exist any longer.");
+            }
+
+            DirectoryHelper.DeleteIfExists(_path);
         }
 
         #endregion
