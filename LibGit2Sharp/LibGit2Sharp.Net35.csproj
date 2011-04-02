@@ -79,10 +79,6 @@
     <Compile Include="Tree.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\Lib\git2.lib">
-      <Link>git2.lib</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Include="backlog.md" />
   </ItemGroup>
   <ItemGroup>
