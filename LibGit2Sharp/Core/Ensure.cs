@@ -5,7 +5,7 @@ namespace LibGit2Sharp.Core
     /// <summary>
     ///   Ensure input parameters
     /// </summary>
-    public static class Ensure
+    internal static class Ensure
     {
         /// <summary>
         ///   Checks an argument to ensure it isn't null.
@@ -46,6 +46,22 @@ namespace LibGit2Sharp.Core
                 throw new ApplicationException(
                     String.Format("There was an error in libgit2, but error handling sucks right now, so I can't tell you what it was. Error code = {0}", result));
             }
+        }
+
+        /// <summary>
+        ///   Checks an argument by applying provided checker.
+        /// </summary>
+        /// <param name = "argumentValue">The argument value to check.</param>
+        /// <param name = "checker">The predicate which has to be satisfied</param>
+        /// <param name = "argumentName">The name of the argument.</param>
+        public static void ArgumentConformsTo<T>(T argumentValue, Func<T, bool> checker, string argumentName)
+        {
+            if (checker(argumentValue))
+            {
+                return;
+            }
+            
+            throw new ArgumentException(argumentName);
         }
     }
 }

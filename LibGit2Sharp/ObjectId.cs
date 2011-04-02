@@ -8,19 +8,31 @@ namespace LibGit2Sharp
     /// </summary>
     public class ObjectId
     {
-        private readonly GitOid oid;
+        private readonly GitOid _oid;
+        private const int _rawSize = 20;
+        private const int _hexSize = _rawSize * 2;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ObjectId"/> class.
         /// </summary>
         /// <param name="oid">The oid.</param>
-        public ObjectId(GitOid oid)
+        internal ObjectId(GitOid oid)
         {
-            this.oid = oid;
+            _oid = oid;
+            Sha = Stringify(_oid);
+        }
 
-            var hex = new byte[40];
-            NativeMethods.git_oid_fmt(hex, ref this.oid);
-            Sha = Encoding.UTF8.GetString(hex);
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ObjectId"/> class.
+        /// </summary>
+        /// <param name="rawId">The byte array.</param>
+        public ObjectId(byte[] rawId)
+        {
+            Ensure.ArgumentNotNull(rawId, "rawId");
+            Ensure.ArgumentConformsTo(rawId, b => b.Length == _rawSize, "rawId");
+            
+            _oid = new GitOid {Id = rawId};
+            Sha = Stringify(_oid);
         }
 
         /// <summary>
@@ -29,13 +41,16 @@ namespace LibGit2Sharp
         /// <param name="sha">The sha.</param>
         public ObjectId(string sha)
         {
-            oid = CreateFromSha(sha);
+            Ensure.ArgumentNotNullOrEmptyString(sha, "sha");
+            Ensure.ArgumentConformsTo(sha, s => s.Length == _hexSize, "sha");
+
+            _oid = CreateFromSha(sha);
             Sha = sha;
         }
 
         internal GitOid Oid
         {
-            get { return oid; }
+            get { return _oid; }
         }
 
         /// <summary>
@@ -43,7 +58,7 @@ namespace LibGit2Sharp
         /// </summary>
         public byte[] RawId
         {
-            get { return oid.Id; }
+            get { return _oid.Id; }
         }
 
         /// <summary>
@@ -57,6 +72,13 @@ namespace LibGit2Sharp
             var result = NativeMethods.git_oid_mkstr(out oid, sha);
             Ensure.Success(result);
             return oid;
+        }
+
+        private static string Stringify(GitOid oid)
+        {
+            var hex = new byte[_hexSize];
+            NativeMethods.git_oid_fmt(hex, ref oid);
+            return Encoding.UTF8.GetString(hex);
         }
 
         public override bool Equals(object obj)
