@@ -2,14 +2,16 @@
 
 ### LibGit2Sharp
 
- - Review Reference equality implementation
  - Refactor the error handling (OutputResult -> Exceptions)
  - Launch Code Analysis (Issues related to interop and marshaling will be worked on once we're able to succesffully exchange non ascii encoded data with libgit2)
  - When properly exported use git_strerror() to feed raised exceptions with a meaningful message.
+ - ReferenceCollection: Add ReferenceCollection.Delete(string referenceName). Optionaly, add ReferenceCollection.Delete(Reference reference). This should perform a ref lookup by name, then if exists, perform the deletion
+ - Reference: Remove _referencePtr
 
 ### Tests
 
  - Add GitObject equality test suite
+ - Add Reference equality test suite
  - Ensure former API tests are ported and passing
 
 ### Documentation
