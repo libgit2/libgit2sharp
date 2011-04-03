@@ -7,6 +7,8 @@
  - When properly exported use git_strerror() to feed raised exceptions with a meaningful message.
  - ReferenceCollection: Add ReferenceCollection.Delete(string referenceName). Optionaly, add ReferenceCollection.Delete(Reference reference). This should perform a ref lookup by name, then if exists, perform the deletion
  - Reference: Remove _referencePtr
+ - Favor the internal static factory method approach (eg. Reference.CreateFromPtr) over the constructor approach (Tag, Signature, ..)
+ - Ensure that types that are not supposed to be built by the Consumer do not expose a constructor.
 
 ### Tests
 
