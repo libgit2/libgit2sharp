@@ -8,6 +8,7 @@
  - ReferenceCollection: Add ReferenceCollection.Delete(string referenceName). Optionaly, add ReferenceCollection.Delete(Reference reference). This should perform a ref lookup by name, then if exists, perform the deletion
  - Reference: Remove _referencePtr
  - Favor the internal static factory method approach (eg. Reference.CreateFromPtr) over the constructor approach (Tag, Signature, ..)
+ - Favor overloads over optional parameters
  - Ensure that types that are not supposed to be built by the Consumer do not expose a constructor.
  - Escape as early as possible from a method. Fight against the arrowhead effect (cf. http://elegantcode.com/2009/08/14/observations-on-the-if-statement/)
  - LookUp should not throw when no entry match, bur return null. It's rather a Query-like method that one provides with parameters. Indexers should be discussed, though.
