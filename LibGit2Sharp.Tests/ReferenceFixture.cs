@@ -74,7 +74,7 @@ namespace LibGit2Sharp.Tests
                 ((DirectReference) head.Target).Target.Sha.ShouldEqual("be3563ae3f795b2b4353bcce3a527ad0a4f7f644");
                 Assert.IsInstanceOf<Commit>(((DirectReference) head.Target).Target);
 
-                var head2 = (SymbolicReference) repo.Refs.Head();
+                var head2 = (SymbolicReference) repo.Refs.Head;
                 head2.Name.ShouldEqual("HEAD");
                 head2.Target.ShouldNotBeNull();
                 Assert.IsInstanceOf<Commit>(((DirectReference) head.Target).Target);

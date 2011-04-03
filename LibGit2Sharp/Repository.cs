@@ -68,7 +68,7 @@ namespace LibGit2Sharp
         /// </summary>
         public CommitCollection Commits
         {
-            get { return commits.StartingAt(Refs.Head()); }
+            get { return commits.StartingAt(Refs.Head); }
         }
 
         /// <summary>

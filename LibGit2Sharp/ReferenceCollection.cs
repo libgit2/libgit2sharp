@@ -94,9 +94,9 @@ namespace LibGit2Sharp
         ///   Shortcut to return the reference to HEAD
         /// </summary>
         /// <returns></returns>
-        public Reference Head()
+        public Reference Head
         {
-            return this[HEAD];
+            get { return this[HEAD]; }
         }
 
         /// <summary>
