@@ -42,10 +42,10 @@ namespace LibGit2Sharp
         /// <param name="sha">The sha.</param>
         public ObjectId(string sha)
         {
-            Ensure.ArgumentNotNullOrEmptyString(sha, "sha");
-            Ensure.ArgumentConformsTo(sha, s => s.Length == _hexSize, "sha");
+            Ensure.ArgumentNotNullOrEmptyString(sha, "sha"); //TODO: To be pushed downward into CreateFromSha()
+            Ensure.ArgumentConformsTo(sha, s => s.Length == _hexSize, "sha");   //TODO: To be pushed downward into CreateFromSha()
 
-            _oid = CreateFromSha(sha);
+            _oid = CreateFromSha(sha, true).GetValueOrDefault();
             Sha = sha;
         }
 
@@ -67,10 +67,28 @@ namespace LibGit2Sharp
         /// </summary>
         public string Sha { get; private set; }
 
-        private static GitOid CreateFromSha(string sha)
+        internal static ObjectId CreateFromMaybeSha(string sha)
+        {
+            GitOid? oid = CreateFromSha(sha, false);
+         
+            if (!oid.HasValue)
+            {
+                return null;
+            }
+
+            return new ObjectId(oid.Value);
+        }
+
+        private static GitOid? CreateFromSha(string sha, bool shouldThrow)
         {
             GitOid oid;
             var result = NativeMethods.git_oid_mkstr(out oid, sha);
+
+            if (!shouldThrow && result != (int)GitErrorCode.GIT_SUCCESS)
+            {
+                return null;
+            }
+
             Ensure.Success(result);
             return oid;
         }

@@ -218,11 +218,12 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(shaOrRef, "shaOrRef");
 
-            GitOid oid;
-            if (NativeMethods.git_oid_mkstr(out oid, shaOrRef) == (int) GitErrorCode.GIT_SUCCESS)
+            ObjectId id = ObjectId.CreateFromMaybeSha(shaOrRef);
+            if (id != null)
             {
-                return Lookup(new ObjectId(shaOrRef), type);
+                return Lookup(id, type);
             }
+
             var reference = Refs[shaOrRef];
             return Lookup(reference.ResolveToDirectReference().Target.Id, type);
         }

@@ -59,10 +59,10 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
             Ensure.ArgumentNotNullOrEmptyString(target, "target");
 
-            GitOid oid;
-            if (NativeMethods.git_oid_mkstr(out oid, target) == (int) GitErrorCode.GIT_SUCCESS)
+            ObjectId id = ObjectId.CreateFromMaybeSha(target);
+            if (id != null)
             {
-                return Create(name, new ObjectId(oid));
+                return Create(name, id);
             }
 
             IntPtr reference;
