@@ -60,16 +60,11 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(Constants.TestRepoPath))
             {
                 repo.Lookup(commitSha).ShouldNotBeNull();
-                repo.TryLookup(commitSha).ShouldNotBeNull();
                 repo.Lookup<Commit>(commitSha).ShouldNotBeNull();
-                repo.TryLookup<Commit>(commitSha).ShouldNotBeNull();
                 repo.Lookup<GitObject>(commitSha).ShouldNotBeNull();
-                repo.TryLookup<GitObject>(commitSha).ShouldNotBeNull();
 
-                Assert.Throws<KeyNotFoundException>(() => repo.Lookup(notFoundSha));
-                Assert.Throws<KeyNotFoundException>(() => repo.Lookup<GitObject>(notFoundSha));
-                repo.TryLookup(notFoundSha).ShouldBeNull();
-                repo.TryLookup<GitObject>(notFoundSha).ShouldBeNull();
+                repo.Lookup(notFoundSha).ShouldBeNull();
+                repo.Lookup<GitObject>(notFoundSha).ShouldBeNull();
             }
         }
 
@@ -79,7 +74,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(Constants.TestRepoPath))
             {
                 var commit = repo.Lookup(commitSha);
-                var commit2 = repo.TryLookup(commitSha);
+                var commit2 = repo.Lookup(commitSha);
                 commit.Equals(commit2).ShouldBeTrue();
                 commit.GetHashCode().ShouldEqual(commit2.GetHashCode());
             }
@@ -142,8 +137,6 @@ namespace LibGit2Sharp.Tests
             {
                 Assert.Throws<ArgumentException>(() => repo.Lookup(string.Empty));
                 Assert.Throws<ArgumentException>(() => repo.Lookup<GitObject>(string.Empty));
-                Assert.Throws<ArgumentException>(() => repo.TryLookup(string.Empty));
-                Assert.Throws<ArgumentException>(() => repo.TryLookup<GitObject>(string.Empty));
             }
         }
 
@@ -152,10 +145,10 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(Constants.TestRepoPath))
             {
-                Assert.Throws<ArgumentNullException>(() => repo.Lookup((string) null));
-                Assert.Throws<ArgumentNullException>(() => repo.TryLookup((string) null));
-                Assert.Throws<ArgumentNullException>(() => repo.Lookup<Commit>((string) null));
-                Assert.Throws<ArgumentNullException>(() => repo.TryLookup<Commit>(null));
+                Assert.Throws<ArgumentNullException>(() => repo.Lookup((string)null));
+                Assert.Throws<ArgumentNullException>(() => repo.Lookup((ObjectId)null));
+                Assert.Throws<ArgumentNullException>(() => repo.Lookup<Commit>((string)null));
+                Assert.Throws<ArgumentNullException>(() => repo.Lookup<Commit>((ObjectId)null));
             }
         }
 
