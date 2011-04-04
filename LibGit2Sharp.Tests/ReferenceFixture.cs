@@ -43,9 +43,28 @@ namespace LibGit2Sharp.Tests
                 ((DirectReference) newRef.Target).Target.Sha.ShouldEqual("be3563ae3f795b2b4353bcce3a527ad0a4f7f644");
                 repo.Refs.SingleOrDefault(p => p.Name == name).ShouldNotBeNull();
 
-                newRef.Delete();
+                repo.Refs.Delete(newRef.Name);
             }
         }
+
+        [Test]
+        public void DeleteWithNullNameThrows()
+        {
+            using (var repo = new Repository(Constants.TestRepoPath))
+            {
+                Assert.Throws<ArgumentNullException>(() => repo.Refs.Delete(null));
+            }
+        }
+
+        [Test]
+        public void DeleteWithEmptyNameThrows()
+        {
+            using (var repo = new Repository(Constants.TestRepoPath))
+            {
+                Assert.Throws<ArgumentException>(() => repo.Refs.Delete(string.Empty));
+            }
+        }
+
 
         [Test]
         public void CanListAllReferences()

@@ -77,7 +77,7 @@ namespace LibGit2Sharp
         /// </summary>
         public void Delete()
         {
-            Reference.Delete();
+            repo.Refs.Delete(Reference.Name);
         }
     }
 }

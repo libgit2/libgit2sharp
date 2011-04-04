@@ -91,6 +91,20 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        /// Delete a reference with the specified name
+        /// </summary>
+        public void Delete(string name)
+        {
+            Ensure.ArgumentNotNullOrEmptyString(name, "name");
+
+            IntPtr reference;
+            var res = NativeMethods.git_reference_lookup(out reference, repo.Handle, name);
+            Ensure.Success(res);
+            res = NativeMethods.git_reference_delete(reference);
+            Ensure.Success(res);
+        }
+
+        /// <summary>
         ///   Shortcut to return the reference to HEAD
         /// </summary>
         /// <returns></returns>

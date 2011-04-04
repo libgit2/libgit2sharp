@@ -9,7 +9,7 @@ namespace LibGit2Sharp
     /// </summary>
     public abstract class Reference : IEquatable<Reference>
     {
-        private IntPtr _referencePtr;
+        private Repository repo;
 
         /// <summary>
         ///   Gets the name of this reference.
@@ -21,40 +21,7 @@ namespace LibGit2Sharp
         /// </summary>
         internal GitReferenceType Type { get; private set; }
 
-        internal static Reference CreateFromPtr(IntPtr ptr, Repository repo)
-        {
-            var name = NativeMethods.git_reference_name(ptr);
-            var type = NativeMethods.git_reference_type(ptr);
-            if (type == GitReferenceType.Symbolic)
-            {
-                IntPtr resolveRef;
-                NativeMethods.git_reference_resolve(out resolveRef, ptr);
-                var reference = CreateFromPtr(resolveRef, repo);
-                return new SymbolicReference {Name = name, Type = type, Target = reference, _referencePtr = ptr};
-            }
-            if (type == GitReferenceType.Oid)
-            {
-                var oidPtr = NativeMethods.git_reference_oid(ptr);
-                var oid = (GitOid) Marshal.PtrToStructure(oidPtr, typeof (GitOid));
-                var target = repo.Lookup(new ObjectId(oid));
-                return new DirectReference {Name = name, Type = type, Target = target, _referencePtr = ptr};
-            }
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        ///   Deletes this reference.
-        /// </summary>
-        public void Delete()
-        {
-            var res = NativeMethods.git_reference_delete(_referencePtr);
-            Ensure.Success(res);
-        }
-
-        public override bool Equals(object obj)
-        {
-            return Equals(obj as Reference);
-        }
+        #region IEquatable<Reference> Members
 
         public bool Equals(Reference other)
         {
@@ -81,7 +48,41 @@ namespace LibGit2Sharp
             return Equals(ProvideAdditionalEqualityComponent(), other.ProvideAdditionalEqualityComponent());
         }
 
-        public abstract object ProvideAdditionalEqualityComponent();
+        #endregion
+
+        internal static Reference CreateFromPtr(IntPtr ptr, Repository repo)
+        {
+            var name = NativeMethods.git_reference_name(ptr);
+            var type = NativeMethods.git_reference_type(ptr);
+            if (type == GitReferenceType.Symbolic)
+            {
+                IntPtr resolveRef;
+                NativeMethods.git_reference_resolve(out resolveRef, ptr);
+                var reference = CreateFromPtr(resolveRef, repo);
+                return new SymbolicReference {Name = name, Type = type, Target = reference, repo = repo};
+            }
+            if (type == GitReferenceType.Oid)
+            {
+                var oidPtr = NativeMethods.git_reference_oid(ptr);
+                var oid = (GitOid) Marshal.PtrToStructure(oidPtr, typeof (GitOid));
+                var target = repo.Lookup(new ObjectId(oid));
+                return new DirectReference {Name = name, Type = type, Target = target, repo = repo};
+            }
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        ///   Deletes this reference.
+        /// </summary>
+        public void Delete()
+        {
+            repo.Refs.Delete(Name);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return Equals(obj as Reference);
+        }
 
         public override int GetHashCode()
         {
@@ -89,22 +90,14 @@ namespace LibGit2Sharp
 
             unchecked
             {
-                hashCode = (hashCode * 397) ^ Name.GetHashCode();
-                hashCode = (hashCode * 397) ^ ProvideAdditionalEqualityComponent().GetHashCode();
+                hashCode = (hashCode*397) ^ Name.GetHashCode();
+                hashCode = (hashCode*397) ^ ProvideAdditionalEqualityComponent().GetHashCode();
             }
 
             return hashCode;
         }
 
-        public static bool operator ==(Reference left, Reference right)
-        {
-            return Equals(left, right);
-        }
-
-        public static bool operator !=(Reference left, Reference right)
-        {
-            return !Equals(left, right);
-        }
+        public abstract object ProvideAdditionalEqualityComponent();
 
         /// <summary>
         ///   Resolves to direct reference.
@@ -119,6 +112,16 @@ namespace LibGit2Sharp
         {
             if (reference is DirectReference) return (DirectReference) reference;
             return ResolveToDirectReference(((SymbolicReference) reference).Target);
+        }
+
+        public static bool operator ==(Reference left, Reference right)
+        {
+            return Equals(left, right);
+        }
+
+        public static bool operator !=(Reference left, Reference right)
+        {
+            return !Equals(left, right);
         }
     }
 }
