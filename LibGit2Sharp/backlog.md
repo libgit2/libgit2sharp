@@ -5,16 +5,17 @@
  - Refactor the error handling (OutputResult -> Exceptions)
  - Launch Code Analysis (Issues related to interop and marshaling will be worked on once we're able to succesffully exchange non ascii encoded data with libgit2)
  - When properly exported use git_strerror() to feed raised exceptions with a meaningful message.
- - ReferenceCollection: Add ReferenceCollection.Delete(string referenceName). Optionaly, add ReferenceCollection.Delete(Reference reference). This should perform a ref lookup by name, then if exists, perform the deletion
- - Reference: Remove _referencePtr
+ - Remove Reference.Delete() and Branch.Delete()
+ - Add BranchCollection.Delete(string name)
  - Favor the internal static factory method approach (eg. Reference.CreateFromPtr) over the constructor approach (Tag, Signature, ..)
  - Favor overloads over optional parameters
  - Ensure that types that are not supposed to be built by the Consumer do not expose a constructor.
  - Escape as early as possible from a method. Fight against the arrowhead effect (cf. http://elegantcode.com/2009/08/14/observations-on-the-if-statement/)
- - LookUp should not throw when no entry match, bur return null. It's rather a Query-like method that one provides with parameters. Indexers should be discussed, though.
+ - Retrieve the git_repository.path_repository value and exposes it as the Repository.Path property. The libgit2 path is prettyfied and forced converted to an absolute representation
 
 ### Tests
 
+ - Add tests ensuring the behavior of indexers when being passed unknown sha and refs
  - Add GitObject equality test suite
  - Add Reference equality test suite
  - Ensure former API tests are ported and passing
