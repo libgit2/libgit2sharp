@@ -71,6 +71,7 @@
     <Compile Include="Repository.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="RepositoryExtensions.cs" />
     <Compile Include="RepositorySafeHandle.cs" />
     <Compile Include="Signature.cs" />
     <Compile Include="SymbolicReference.cs" />

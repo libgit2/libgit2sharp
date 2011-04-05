@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using LibGit2Sharp.Core;
 
@@ -189,51 +188,6 @@ namespace LibGit2Sharp
             Ensure.Success(res);
 
             return GitObject.CreateFromPtr(obj, id, this);
-        }
-
-        /// <summary>
-        ///   Try to lookup an object by its sha or a reference name.
-        /// </summary>
-        /// <typeparam name = "T"></typeparam>
-        /// <param name = "shaOrRef">The shaOrRef to lookup.</param>
-        /// <returns></returns>
-        public T Lookup<T>(string shaOrRef) where T : GitObject
-        {
-            return (T) Lookup(shaOrRef, GitObject.TypeToTypeMap[typeof (T)]);
-        }
-
-        /// <summary>
-        ///   Try to lookup an object by its <see cref = "ObjectId" />.
-        /// </summary>
-        /// <typeparam name = "T"></typeparam>
-        /// <param name = "id">The id.</param>
-        /// <returns></returns>
-        public T Lookup<T>(ObjectId id) where T : GitObject
-        {
-            return (T) Lookup(id, GitObject.TypeToTypeMap[typeof (T)]);
-        }
-
-        /// <summary>
-        ///   Try to lookup an object by its sha or a reference name and <see cref="GitObjectType"/>. If no matching object is found, null will be returned.
-        /// 
-        ///   Exceptions:
-        ///   ArgumentNullException
-        /// </summary>
-        /// <param name = "shaOrRef">The shaOrRef to lookup.</param>
-        /// <param name = "type"></param>
-        /// <returns>the <see cref = "GitObject" /> or null if it was not found.</returns>
-        public GitObject Lookup(string shaOrRef, GitObjectType type = GitObjectType.Any)
-        {
-            Ensure.ArgumentNotNullOrEmptyString(shaOrRef, "shaOrRef");
-
-            ObjectId id = ObjectId.CreateFromMaybeSha(shaOrRef);
-            if (id != null)
-            {
-                return Lookup(id, type);
-            }
-
-            var reference = Refs[shaOrRef];
-            return Lookup(reference.ResolveToDirectReference().Target.Id, type);
         }
     }
 }
