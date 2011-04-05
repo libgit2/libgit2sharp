@@ -27,17 +27,13 @@ namespace LibGit2Sharp
         /// <param name = "path">The path to the git repository to open.</param>
         public Repository(string path)
         {
-            Path = path;
             Ensure.ArgumentNotNullOrEmptyString(path, "path");
 
-            if (!Directory.Exists(path))
-                throw new ArgumentException("path");
-
             Path = path;
-            PosixPath = path.Replace(System.IO.Path.DirectorySeparatorChar, posixDirectorySeparatorChar);
+            string posixPath = path.Replace(System.IO.Path.DirectorySeparatorChar, posixDirectorySeparatorChar);
 
             RepositorySafeHandle tempHandle;
-            var res = NativeMethods.git_repository_open(out tempHandle, PosixPath);
+            var res = NativeMethods.git_repository_open(out tempHandle, posixPath);
             Ensure.Success(res);
 
             handle = tempHandle;
@@ -90,11 +86,6 @@ namespace LibGit2Sharp
         ///   Gets the path to the git repository.
         /// </summary>
         public string Path { get; private set; }
-
-        /// <summary>
-        ///   Gets the posix path to the git repository.
-        /// </summary>
-        public string PosixPath { get; private set; }
 
         #region IDisposable Members
 
