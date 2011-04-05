@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using LibGit2Sharp.Tests.TestHelpers;
 using NUnit.Framework;
@@ -12,7 +11,7 @@ namespace LibGit2Sharp.Tests
         private const string newRepoPath = "new_repo";
 
         private const string commitSha = "8496071c1b46c854b31185ea97743be6a8774479";
-        private const string notFoundSha = "ce08fe4884650f067bd5703b6a59a8b3b3c99a09";
+        private const string notFoundSha = "deadbeefdeadbeefdeadbeefdeadbeefdeadbeef";
 
         [Test]
         public void CallingExistsWithEmptyThrows()
@@ -62,9 +61,6 @@ namespace LibGit2Sharp.Tests
                 repo.Lookup(commitSha).ShouldNotBeNull();
                 repo.Lookup<Commit>(commitSha).ShouldNotBeNull();
                 repo.Lookup<GitObject>(commitSha).ShouldNotBeNull();
-
-                repo.Lookup(notFoundSha).ShouldBeNull();
-                repo.Lookup<GitObject>(notFoundSha).ShouldBeNull();
             }
         }
 
@@ -122,11 +118,23 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
-        public void LookupObjectByWrongTypeThrows()
+        public void LookupObjectByWrongTypeReturnsNull()
         {
             using (var repo = new Repository(Constants.TestRepoPath))
             {
-                Assert.Throws<KeyNotFoundException>(() => repo.Lookup<Tag>(commitSha));
+                repo.Lookup(commitSha).ShouldNotBeNull();
+                repo.Lookup<Commit>(commitSha).ShouldNotBeNull();
+                repo.Lookup<Tag>(commitSha).ShouldBeNull();
+            }
+        }
+
+        [Test]
+        public void LookupObjectByWrongShaReturnsNull()
+        {
+            using (var repo = new Repository(Constants.TestRepoPath))
+            {
+                repo.Lookup(notFoundSha).ShouldBeNull();
+                repo.Lookup<GitObject>(notFoundSha).ShouldBeNull();
             }
         }
 

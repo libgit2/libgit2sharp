@@ -169,7 +169,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Try to lookup an object by it's <see cref = "ObjectId" />. If an object is not found null will be returned.
+        ///   Try to lookup an object by its <see cref = "ObjectId" /> and <see cref="GitObjectType"/>. If no matching object is found, null will be returned.
         /// </summary>
         /// <param name = "id">The id to lookup.</param>
         /// <param name = "type"></param>
@@ -181,13 +181,9 @@ namespace LibGit2Sharp
             var oid = id.Oid;
             IntPtr obj;
             var res = NativeMethods.git_object_lookup(out obj, handle, ref oid, type);
-            if (res == (int) GitErrorCode.GIT_ENOTFOUND)
+            if (res == (int) GitErrorCode.GIT_ENOTFOUND || res == (int) GitErrorCode.GIT_EINVALIDTYPE)
             {
                 return null;
-            }
-            if (res == (int) GitErrorCode.GIT_EINVALIDTYPE)
-            {
-                throw new KeyNotFoundException(string.Format("{0} {1} does not exists in the repository", type != GitObjectType.Any ? Enum.GetName(typeof (GitObjectType), type) : "Object", id));
             }
 
             Ensure.Success(res);
@@ -196,7 +192,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Trys to lookup an object by it's sha or a reference name.
+        ///   Try to lookup an object by its sha or a reference name.
         /// </summary>
         /// <typeparam name = "T"></typeparam>
         /// <param name = "shaOrRef">The shaOrRef to lookup.</param>
@@ -207,7 +203,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Trys to lookup an object by it's <see cref = "ObjectId" />.
+        ///   Try to lookup an object by its <see cref = "ObjectId" />.
         /// </summary>
         /// <typeparam name = "T"></typeparam>
         /// <param name = "id">The id.</param>
@@ -218,7 +214,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Try to lookup an object by it's sha or a reference name. If an object is not found null will be returned.
+        ///   Try to lookup an object by its sha or a reference name and <see cref="GitObjectType"/>. If no matching object is found, null will be returned.
         /// 
         ///   Exceptions:
         ///   ArgumentNullException
