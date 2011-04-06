@@ -21,6 +21,7 @@ namespace LibGit2Sharp.Tests
                 var newBranch = repo.Branches.Create(name, "be3563ae3f795b2b4353bcce3a527ad0a4f7f644");
                 newBranch.ShouldNotBeNull();
                 newBranch.Name.ShouldEqual(name);
+                newBranch.CanonicalName.ShouldEqual("refs/heads/" + name);
                 newBranch.Reference.Target.ShouldNotBeNull();
                 newBranch.Reference.Target.Sha.ShouldEqual("be3563ae3f795b2b4353bcce3a527ad0a4f7f644");
                 repo.Branches.SingleOrDefault(p => p.Name == name).ShouldNotBeNull();
@@ -39,6 +40,7 @@ namespace LibGit2Sharp.Tests
                 var newBranch = repo.Branches.Create(name, "master");
                 newBranch.ShouldNotBeNull();
                 newBranch.Name.ShouldEqual(name);
+                newBranch.CanonicalName.ShouldEqual("refs/heads/" + name);
                 newBranch.Reference.Target.ShouldNotBeNull();
                 newBranch.Reference.Target.Sha.ShouldEqual("be3563ae3f795b2b4353bcce3a527ad0a4f7f644");
                 repo.Branches.SingleOrDefault(p => p.Name == name).ShouldNotBeNull();
@@ -70,6 +72,7 @@ namespace LibGit2Sharp.Tests
                 master.ShouldNotBeNull();
                 master.Type.ShouldEqual(BranchType.Local);
                 master.Name.ShouldEqual("master");
+                master.CanonicalName.ShouldEqual("refs/heads/master");
                 master.Reference.Name.ShouldEqual("refs/heads/master");
                 master.Reference.Target.Sha.ShouldEqual("be3563ae3f795b2b4353bcce3a527ad0a4f7f644");
             }

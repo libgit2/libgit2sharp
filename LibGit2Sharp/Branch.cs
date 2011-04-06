@@ -29,6 +29,11 @@ namespace LibGit2Sharp
         public string Name { get; private set; }
 
         /// <summary>
+        ///   Gets the full name of this branch.
+        /// </summary>
+        public string CanonicalName { get; private set; }
+
+        /// <summary>
         ///   Gets the reference for this branch.
         /// </summary>
         public DirectReference Reference { get; private set; }
@@ -58,6 +63,7 @@ namespace LibGit2Sharp
             {
                 return new Branch(repo)
                            {
+                               CanonicalName = reference.Name,
                                Name = tokens[tokens.Length - 1],
                                Reference = reference.ResolveToDirectReference(),
                                Type = BranchType.Local
@@ -65,6 +71,7 @@ namespace LibGit2Sharp
             }
             return new Branch(repo)
                        {
+                           CanonicalName = reference.Name,
                            Name = string.Join("/", tokens, tokens.Length - 2, 2),
                            RemoteName = tokens[tokens.Length - 2],
                            Reference = reference.ResolveToDirectReference(),
