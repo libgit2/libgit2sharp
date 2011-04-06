@@ -14,6 +14,7 @@
  - Ensure that types that are not supposed to be built by the Consumer do not expose a constructor.
  - Escape as early as possible from a method. Fight against the arrowhead effect (cf. http://elegantcode.com/2009/08/14/observations-on-the-if-statement/)
  - Retrieve the git_repository.path_repository value and exposes it as the Repository.Path property. The libgit2 path is prettyfied and forced converted to an absolute representation
+ - Why Microsoft.Win32.SafeHandles.SafeHandleZeroOrMinusOneIsInvalid rather than System.Runtime.InteropServices.SafeHandle?
 
 ### Tests
 
