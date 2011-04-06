@@ -54,21 +54,24 @@ namespace LibGit2Sharp
         {
             var name = NativeMethods.git_reference_name(ptr);
             var type = NativeMethods.git_reference_type(ptr);
-            if (type == GitReferenceType.Symbolic)
+            
+            switch (type)
             {
-                IntPtr resolveRef;
-                NativeMethods.git_reference_resolve(out resolveRef, ptr);
-                var reference = CreateFromPtr(resolveRef, repo);
-                return new SymbolicReference {Name = name, Type = type, Target = reference, repo = repo};
+                case GitReferenceType.Symbolic:
+                    IntPtr resolveRef;
+                    NativeMethods.git_reference_resolve(out resolveRef, ptr);
+                    var reference = CreateFromPtr(resolveRef, repo);
+                    return new SymbolicReference {Name = name, Type = type, Target = reference, repo = repo};
+
+                case GitReferenceType.Oid:
+                    var oidPtr = NativeMethods.git_reference_oid(ptr);
+                    var oid = (GitOid) Marshal.PtrToStructure(oidPtr, typeof (GitOid));
+                    var target = repo.Lookup(new ObjectId(oid));
+                    return new DirectReference {Name = name, Type = type, Target = target, repo = repo};
+                
+                default:
+                    throw new InvalidOperationException();
             }
-            if (type == GitReferenceType.Oid)
-            {
-                var oidPtr = NativeMethods.git_reference_oid(ptr);
-                var oid = (GitOid) Marshal.PtrToStructure(oidPtr, typeof (GitOid));
-                var target = repo.Lookup(new ObjectId(oid));
-                return new DirectReference {Name = name, Type = type, Target = target, repo = repo};
-            }
-            throw new NotImplementedException();
         }
 
         /// <summary>
