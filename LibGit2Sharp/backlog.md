@@ -8,7 +8,6 @@
  - Remove Reference.Delete() and Branch.Delete()
  - Add BranchCollection.Delete(string name)
  - Replace Branch.Reference with a Branch.Tip property. To be decided: Tip could be either an ObjectId or a Commit
- - Maybe Branch and tags could benefit from a CanonicalName property (ie. a string containg the full name of the reference)
  - Favor the internal static factory method approach (eg. Reference.CreateFromPtr) over the constructor approach (Tag, Signature, ..)
  - Favor overloads over optional parameters
  - Ensure that types that are not supposed to be built by the Consumer do not expose a constructor.

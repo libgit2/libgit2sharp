@@ -78,7 +78,7 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNull(branch, "branch");
 
-            pushedSha = branch.Reference.Target.Sha;
+            pushedSha = branch.Tip.Sha;
             return this;
         }
 

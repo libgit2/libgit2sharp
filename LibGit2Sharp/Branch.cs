@@ -34,6 +34,11 @@ namespace LibGit2Sharp
         public string CanonicalName { get; private set; }
 
         /// <summary>
+        ///   Gets the commit id that this branch points to.
+        /// </summary>
+        public ObjectId Tip { get; private set; }
+
+        /// <summary>
         ///   Gets the reference for this branch.
         /// </summary>
         public DirectReference Reference { get; private set; }
@@ -66,6 +71,7 @@ namespace LibGit2Sharp
                                CanonicalName = reference.Name,
                                Name = tokens[tokens.Length - 1],
                                Reference = reference.ResolveToDirectReference(),
+                               Tip = reference.ResolveToDirectReference().Target.Id,
                                Type = BranchType.Local
                            };
             }
@@ -75,6 +81,7 @@ namespace LibGit2Sharp
                            Name = string.Join("/", tokens, tokens.Length - 2, 2),
                            RemoteName = tokens[tokens.Length - 2],
                            Reference = reference.ResolveToDirectReference(),
+                           Tip = reference.ResolveToDirectReference().Target.Id,
                            Type = BranchType.Remote
                        };
         }
