@@ -10,7 +10,7 @@
         /// </summary>
         public Reference Target { get; internal set; }
 
-        public override object ProvideAdditionalEqualityComponent()
+        protected override object ProvideAdditionalEqualityComponent()
         {
             return Target;
         }

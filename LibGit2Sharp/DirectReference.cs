@@ -10,7 +10,7 @@
         /// </summary>
         public GitObject Target { get; internal set; }
 
-        public override object ProvideAdditionalEqualityComponent()
+        protected override object ProvideAdditionalEqualityComponent()
         {
             return Target;
         }

@@ -97,7 +97,7 @@ namespace LibGit2Sharp
             return hashCode;
         }
 
-        public abstract object ProvideAdditionalEqualityComponent();
+        protected abstract object ProvideAdditionalEqualityComponent();
 
         /// <summary>
         ///   Resolves to direct reference.
