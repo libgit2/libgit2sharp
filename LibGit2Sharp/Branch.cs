@@ -39,11 +39,6 @@ namespace LibGit2Sharp
         public ObjectId Tip { get; private set; }
 
         /// <summary>
-        ///   Gets the reference for this branch.
-        /// </summary>
-        public DirectReference Reference { get; private set; }
-
-        /// <summary>
         ///   Gets the commits on this branch. (Starts walking from the References's target).
         /// </summary>
         public CommitCollection Commits
@@ -70,7 +65,6 @@ namespace LibGit2Sharp
                            {
                                CanonicalName = reference.Name,
                                Name = tokens[tokens.Length - 1],
-                               Reference = reference.ResolveToDirectReference(),
                                Tip = reference.ResolveToDirectReference().Target.Id,
                                Type = BranchType.Local
                            };
@@ -80,7 +74,6 @@ namespace LibGit2Sharp
                            CanonicalName = reference.Name,
                            Name = string.Join("/", tokens, tokens.Length - 2, 2),
                            RemoteName = tokens[tokens.Length - 2],
-                           Reference = reference.ResolveToDirectReference(),
                            Tip = reference.ResolveToDirectReference().Target.Id,
                            Type = BranchType.Remote
                        };
@@ -91,7 +84,7 @@ namespace LibGit2Sharp
         /// </summary>
         public void Delete()
         {
-            repo.Refs.Delete(Reference.Name);
+            repo.Refs.Delete(CanonicalName);
         }
     }
 }
