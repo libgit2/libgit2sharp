@@ -16,11 +16,6 @@ namespace LibGit2Sharp
         /// </summary>
         public string Name { get; private set; }
 
-        /// <summary>
-        ///   Gets the type of this reference.
-        /// </summary>
-        internal GitReferenceType Type { get; private set; }
-
         #region IEquatable<Reference> Members
 
         public bool Equals(Reference other)
@@ -61,13 +56,13 @@ namespace LibGit2Sharp
                     IntPtr resolveRef;
                     NativeMethods.git_reference_resolve(out resolveRef, ptr);
                     var reference = CreateFromPtr(resolveRef, repo);
-                    return new SymbolicReference {Name = name, Type = type, Target = reference, repo = repo};
+                    return new SymbolicReference {Name = name, Target = reference, repo = repo};
 
                 case GitReferenceType.Oid:
                     var oidPtr = NativeMethods.git_reference_oid(ptr);
                     var oid = (GitOid) Marshal.PtrToStructure(oidPtr, typeof (GitOid));
                     var target = repo.Lookup(new ObjectId(oid));
-                    return new DirectReference {Name = name, Type = type, Target = target, repo = repo};
+                    return new DirectReference {Name = name, Target = target, repo = repo};
                 
                 default:
                     throw new InvalidOperationException();
