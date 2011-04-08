@@ -25,7 +25,7 @@ namespace LibGit2Sharp.Tests
                 newRef.Target.Sha.ShouldEqual("be3563ae3f795b2b4353bcce3a527ad0a4f7f644");
                 repo.Refs.SingleOrDefault(p => p.Name == name).ShouldNotBeNull();
 
-                newRef.Delete();
+                repo.Refs.Delete(newRef.Name);
             }
         }
 

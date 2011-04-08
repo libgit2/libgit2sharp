@@ -78,13 +78,5 @@ namespace LibGit2Sharp
                            Type = BranchType.Remote
                        };
         }
-
-        /// <summary>
-        /// Deletes this branch.
-        /// </summary>
-        public void Delete()
-        {
-            repo.Refs.Delete(CanonicalName);
-        }
     }
 }

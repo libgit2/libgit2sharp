@@ -26,7 +26,7 @@ namespace LibGit2Sharp.Tests
                 newBranch.Tip.Sha.ShouldEqual("be3563ae3f795b2b4353bcce3a527ad0a4f7f644");
                 repo.Branches.SingleOrDefault(p => p.Name == name).ShouldNotBeNull();
 
-                newBranch.Delete();
+                repo.Refs.Delete(newBranch.CanonicalName);  //TODO: To be replaced with repo.Branches.Delete(newBranch.Name)
             }
         }
 
@@ -45,7 +45,7 @@ namespace LibGit2Sharp.Tests
                 newBranch.Tip.Sha.ShouldEqual("be3563ae3f795b2b4353bcce3a527ad0a4f7f644");
                 repo.Branches.SingleOrDefault(p => p.Name == name).ShouldNotBeNull();
 
-                newBranch.Delete();
+                repo.Refs.Delete(newBranch.CanonicalName);  //TODO: To be replaced with repo.Branches.Delete(newBranch.Name)
             }
         }
 
