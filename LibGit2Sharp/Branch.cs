@@ -36,7 +36,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Gets the commit id that this branch points to.
         /// </summary>
-        public ObjectId Tip { get; private set; }
+        public Commit Tip { get; private set; }
 
         /// <summary>
         ///   Gets the commits on this branch. (Starts walking from the References's target).
@@ -59,13 +59,15 @@ namespace LibGit2Sharp
                 throw new ArgumentException(string.Format("Unexpected ref name: {0}", reference.Name));
             }
 
+            var commit = repo.Lookup<Commit>(reference.ResolveToDirectReference().Target.Id);
+
             if (tokens[tokens.Length - 2] == "heads")
             {
                 return new Branch(repo)
                            {
                                CanonicalName = reference.Name,
                                Name = tokens[tokens.Length - 1],
-                               Tip = reference.ResolveToDirectReference().Target.Id,
+                               Tip = commit,
                                Type = BranchType.Local
                            };
             }
@@ -74,7 +76,7 @@ namespace LibGit2Sharp
                            CanonicalName = reference.Name,
                            Name = string.Join("/", tokens, tokens.Length - 2, 2),
                            RemoteName = tokens[tokens.Length - 2],
-                           Tip = reference.ResolveToDirectReference().Target.Id,
+                           Tip = commit,
                            Type = BranchType.Remote
                        };
         }
