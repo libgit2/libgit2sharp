@@ -5,15 +5,13 @@
  - Refactor the error handling (OutputResult -> Exceptions)
  - Launch Code Analysis (Issues related to interop and marshaling will be worked on once we're able to succesffully exchange non ascii encoded data with libgit2)
  - When properly exported use git_strerror() to feed raised exceptions with a meaningful message.
- - Remove Reference.Delete() and Branch.Delete()
+ - Add Resharper settings file
  - Add BranchCollection.Delete(string name)
- - Replace Branch.Reference with a Branch.Tip property. To be decided: Tip could be either an ObjectId or a Commit
  - Favor the internal static factory method approach (eg. Reference.CreateFromPtr) over the constructor approach (Tag, Signature, ..)
  - Favor overloads over optional parameters
  - Ensure that types that are not supposed to be built by the Consumer do not expose a constructor.
  - Escape as early as possible from a method. Fight against the arrowhead effect (cf. http://elegantcode.com/2009/08/14/observations-on-the-if-statement/)
  - Retrieve the git_repository.path_repository value and exposes it as the Repository.Path property. The libgit2 path is prettyfied and forced converted to an absolute representation
- - Why Microsoft.Win32.SafeHandles.SafeHandleZeroOrMinusOneIsInvalid rather than System.Runtime.InteropServices.SafeHandle?
 
 ### Tests
 
