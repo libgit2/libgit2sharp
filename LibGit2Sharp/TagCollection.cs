@@ -67,6 +67,12 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNullOrEmptyString(message, "message");
 
             var objectToTag = repo.Lookup(target);
+
+            if (objectToTag == null)
+            {
+                throw new ApplicationException(String.Format("No object identified by '{0}' can be found in the repository.", target));
+            }
+
             var targetOid = objectToTag.Id.Oid;
             GitOid oid;
             var res = NativeMethods.git_tag_create(out oid, repo.Handle, name, ref targetOid, GitObject.TypeToTypeMap[objectToTag.GetType()], tagger.Handle, message);
