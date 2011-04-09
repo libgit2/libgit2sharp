@@ -75,5 +75,11 @@
 
         /** The state of the reference is not valid */
         GIT_EINVALIDREFSTATE = (GIT_ERROR - 21),
+
+        /** This feature has not been implemented yet */
+        GIT_ENOTIMPLEMENTED = (GIT_ERROR - 22),
+
+        /** A reference with this name already exists */
+        GIT_EEXISTS = (GIT_ERROR - 23),
     }
 }
