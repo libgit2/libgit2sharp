@@ -91,16 +91,7 @@ namespace LibGit2Sharp
         ///   Resolves to direct reference.
         /// </summary>
         /// <returns></returns>
-        public DirectReference ResolveToDirectReference()
-        {
-            return ResolveToDirectReference(this);
-        }
-
-        private static DirectReference ResolveToDirectReference(Reference reference)
-        {
-            if (reference is DirectReference) return (DirectReference) reference;
-            return ResolveToDirectReference(((SymbolicReference) reference).Target);
-        }
+        public abstract DirectReference ResolveToDirectReference();
 
         public static bool operator ==(Reference left, Reference right)
         {

@@ -14,5 +14,10 @@
         {
             return Target;
         }
+
+        public override DirectReference ResolveToDirectReference()
+        {
+            return this;
+        }
     }
 }
