@@ -8,33 +8,17 @@ EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
-		Debug|Mixed Platforms = Debug|Mixed Platforms
-		Debug|Win32 = Debug|Win32
 		Release|Any CPU = Release|Any CPU
-		Release|Mixed Platforms = Release|Mixed Platforms
-		Release|Win32 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{EE6ED99F-CB12-4683-B055-D28FC7357A34}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{EE6ED99F-CB12-4683-B055-D28FC7357A34}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EE6ED99F-CB12-4683-B055-D28FC7357A34}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{EE6ED99F-CB12-4683-B055-D28FC7357A34}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{EE6ED99F-CB12-4683-B055-D28FC7357A34}.Debug|Win32.ActiveCfg = Debug|Any CPU
 		{EE6ED99F-CB12-4683-B055-D28FC7357A34}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EE6ED99F-CB12-4683-B055-D28FC7357A34}.Release|Any CPU.Build.0 = Release|Any CPU
-		{EE6ED99F-CB12-4683-B055-D28FC7357A34}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{EE6ED99F-CB12-4683-B055-D28FC7357A34}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{EE6ED99F-CB12-4683-B055-D28FC7357A34}.Release|Win32.ActiveCfg = Release|Any CPU
 		{286E63EB-04DD-4ADE-88D6-041B57800761}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{286E63EB-04DD-4ADE-88D6-041B57800761}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{286E63EB-04DD-4ADE-88D6-041B57800761}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{286E63EB-04DD-4ADE-88D6-041B57800761}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{286E63EB-04DD-4ADE-88D6-041B57800761}.Debug|Win32.ActiveCfg = Debug|Any CPU
 		{286E63EB-04DD-4ADE-88D6-041B57800761}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{286E63EB-04DD-4ADE-88D6-041B57800761}.Release|Any CPU.Build.0 = Release|Any CPU
-		{286E63EB-04DD-4ADE-88D6-041B57800761}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{286E63EB-04DD-4ADE-88D6-041B57800761}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{286E63EB-04DD-4ADE-88D6-041B57800761}.Release|Win32.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
