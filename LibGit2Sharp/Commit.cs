@@ -62,11 +62,17 @@ namespace LibGit2Sharp
 
                     try
                     {
-                        IntPtr parentCommit;
                         parents = new List<Commit>();
-                        for (uint i = 0; NativeMethods.git_commit_parent(out parentCommit, obj, i) == (int) GitErrorCode.GIT_SUCCESS; i++)
+
+                        uint parentsCount = NativeMethods.git_commit_parentcount(obj);
+
+                        for (uint i = 0; i < parentsCount; i++)
                         {
+                            IntPtr parentCommit;
+                            res = NativeMethods.git_commit_parent(out parentCommit, obj, i);
+                            Ensure.Success(res);
                             parents.Add(new Commit(parentCommit, repo));
+                            NativeMethods.git_object_close(parentCommit);
                         }
                     }
                     finally

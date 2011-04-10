@@ -188,7 +188,12 @@ namespace LibGit2Sharp
 
             Ensure.Success(res);
 
-            return GitObject.CreateFromPtr(obj, id, this);
+            GitObject gitObject = GitObject.CreateFromPtr(obj, id, this);
+
+            //TODO: Uncommenting the code below makes test CanReadCommitWithMultipleParents() fail. To be investigated.
+            //NativeMethods.git_object_close(obj);
+
+            return gitObject;
         }
     }
 }
