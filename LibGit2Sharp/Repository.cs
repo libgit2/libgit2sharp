@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp

@@ -160,7 +160,7 @@ namespace LibGit2Sharp.Tests
                 commit.Committer.Email.ShouldEqual("schacon@gmail.com");
                 commit.Committer.When.ToSecondsSinceEpoch().ShouldEqual(1273360386);
 
-                commit.Parents.Count.ShouldEqual(0);
+                commit.Parents.Count().ShouldEqual(0);
             }
         }
 
@@ -170,7 +170,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(Constants.TestRepoPath))
             {
                 var commit = repo.Lookup<Commit>("a4a7dce85cf63874e984719f4fdd239f5145052f");
-                commit.Parents.Count.ShouldEqual(2);
+                commit.Parents.Count().ShouldEqual(2);
             }
         }
 

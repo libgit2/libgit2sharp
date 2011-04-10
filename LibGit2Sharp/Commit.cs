@@ -9,21 +9,12 @@ namespace LibGit2Sharp
     /// </summary>
     public class Commit : GitObject
     {
-        //public Commit(Repository repo, Signature author, Signature committer, string message = null, Tree tree = null, IEnumerable<Commit> parents = null, string updateRefName = null)
-        //{
-        //}
-
         private readonly Repository repo;
         private List<Commit> parents;
-
-        internal Commit(IntPtr obj, Repository repo, ObjectId id = null)
-            : base(obj, id)
+        
+        internal Commit(ObjectId id, Repository repo) : base(id)
         {
             this.repo = repo;
-            Message = NativeMethods.git_commit_message(obj);
-            MessageShort = NativeMethods.git_commit_message_short(obj);
-            Author = new Signature(NativeMethods.git_commit_author(obj));
-            Committer = new Signature(NativeMethods.git_commit_committer(obj));
         }
 
         /// <summary>
@@ -49,39 +40,49 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Gets the parents of this commit. This property is lazy loaded and can throw an exception if the commit no longer exists in the repo.
         /// </summary>
-        public List<Commit> Parents
+        public IEnumerable<Commit> Parents
         {
-            get
+            get { return parents ?? (parents = RetrieveParentsOfCommit(Id.Oid)); }
+        }
+
+        private List<Commit> RetrieveParentsOfCommit(GitOid oid)
+        {
+            IntPtr obj;
+            var res = NativeMethods.git_object_lookup(out obj, repo.Handle, ref oid, GitObjectType.Commit);
+            Ensure.Success(res);
+
+            try
             {
-                if (parents == null)
+                parents = new List<Commit>();
+
+                uint parentsCount = NativeMethods.git_commit_parentcount(obj);
+
+                for (uint i = 0; i < parentsCount; i++)
                 {
-                    var oid = Id.Oid;
-                    IntPtr obj;
-                    var res = NativeMethods.git_object_lookup(out obj, repo.Handle, ref oid, GitObjectType.Commit);
+                    IntPtr parentCommit;
+                    res = NativeMethods.git_commit_parent(out parentCommit, obj, i);
                     Ensure.Success(res);
-
-                    try
-                    {
-                        parents = new List<Commit>();
-
-                        uint parentsCount = NativeMethods.git_commit_parentcount(obj);
-
-                        for (uint i = 0; i < parentsCount; i++)
-                        {
-                            IntPtr parentCommit;
-                            res = NativeMethods.git_commit_parent(out parentCommit, obj, i);
-                            Ensure.Success(res);
-                            parents.Add(new Commit(parentCommit, repo));
-                            NativeMethods.git_object_close(parentCommit);
-                        }
-                    }
-                    finally
-                    {
-                        NativeMethods.git_object_close(obj);
-                    }
+                    parents.Add(BuildFromPtr(parentCommit, RetrieveObjectIfOf(parentCommit), repo));
+                    NativeMethods.git_object_close(parentCommit);
                 }
-                return parents;
             }
+            finally
+            {
+                NativeMethods.git_object_close(obj);
+            }
+
+            return parents;
+        }
+
+        internal static Commit BuildFromPtr(IntPtr obj, ObjectId id, Repository repo)
+        {
+            return new Commit(id, repo)
+            {
+                Message = NativeMethods.git_commit_message(obj),
+                MessageShort = NativeMethods.git_commit_message_short(obj),
+                Author = new Signature(NativeMethods.git_commit_author(obj)),
+                Committer = new Signature(NativeMethods.git_commit_committer(obj)),
+            };
         }
     }
 }

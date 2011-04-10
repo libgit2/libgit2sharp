@@ -9,16 +9,9 @@ namespace LibGit2Sharp
     /// </summary>
     public class Tag : GitObject
     {
-        internal Tag(IntPtr obj, ObjectId id = null)
-            : base(obj, id)
+        internal Tag(ObjectId id)
+            : base(id)
         {
-            Message = NativeMethods.git_tag_message(obj);
-            Name = NativeMethods.git_tag_name(obj);
-            Tagger = new Signature(NativeMethods.git_tag_tagger(obj));
-
-            var oidPtr = NativeMethods.git_tag_target_oid(obj);
-            var oid = (GitOid) Marshal.PtrToStructure(oidPtr, typeof (GitOid));
-            TargetId = new ObjectId(oid);
         }
 
         /// <summary>
@@ -40,6 +33,20 @@ namespace LibGit2Sharp
         ///   Gets the tagger.
         /// </summary>
         public Signature Tagger { get; private set; }
+
+        internal static Tag BuildFromPtr(IntPtr obj, ObjectId id)
+        {
+            var oidPtr = NativeMethods.git_tag_target_oid(obj);
+            var oid = (GitOid)Marshal.PtrToStructure(oidPtr, typeof(GitOid));
+
+            return new Tag(id)
+                       {
+                           Message = NativeMethods.git_tag_message(obj),
+                           Name = NativeMethods.git_tag_name(obj),
+                           Tagger = new Signature(NativeMethods.git_tag_tagger(obj)),
+                           TargetId = new ObjectId(oid)
+                       };
+        }
 
         internal static Tag CreateTagFromReference(Reference reference, Repository repo)
         {

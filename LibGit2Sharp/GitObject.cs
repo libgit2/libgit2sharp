@@ -19,13 +19,8 @@ namespace LibGit2Sharp
                     {typeof (GitObject), GitObjectType.Any},
                 };
 
-        protected GitObject(IntPtr obj, ObjectId id = null)
+        protected GitObject(ObjectId id)
         {
-            if (id == null)
-            {
-                var ptr = NativeMethods.git_object_id(obj);
-                id = new ObjectId((GitOid) Marshal.PtrToStructure(ptr, typeof (GitOid)));
-            }
             Id = id;
         }
 
@@ -50,21 +45,27 @@ namespace LibGit2Sharp
                 switch (type)
                 {
                     case GitObjectType.Commit:
-                        return new Commit(obj, repo, id);
+                        return Commit.BuildFromPtr(obj, id, repo);
                     case GitObjectType.Tree:
-                        return new Tree(obj, id);
+                        return new Tree(id);
                     case GitObjectType.Tag:
-                        return new Tag(obj, id);
+                        return Tag.BuildFromPtr(obj, id);
                     case GitObjectType.Blob:
-                        return new Blob(obj, id);
+                        return new Blob(id);
                     default:
-                        return new GitObject(obj, id);
+                        return new GitObject(id);
                 }
             }
             finally
             {
                 NativeMethods.git_object_close(obj);
             }
+        }
+
+        internal static ObjectId RetrieveObjectIfOf(IntPtr obj)
+        {
+            var ptr = NativeMethods.git_object_id(obj);
+            return new ObjectId((GitOid)Marshal.PtrToStructure(ptr, typeof(GitOid)));
         }
 
         public override bool Equals(object obj)
@@ -83,7 +84,7 @@ namespace LibGit2Sharp
             {
                 return true;
             }
-            
+
             if (GetType() != other.GetType())
             {
                 return false;
