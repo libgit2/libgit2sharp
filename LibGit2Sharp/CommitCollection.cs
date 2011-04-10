@@ -111,7 +111,7 @@ namespace LibGit2Sharp
 
         #region Nested type: CommitEnumerator
 
-        public class CommitEnumerator : IEnumerator<Commit>
+        private class CommitEnumerator : IEnumerator<Commit>
         {
             private readonly Repository repo;
             private readonly IntPtr walker = IntPtr.Zero;
