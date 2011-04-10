@@ -9,9 +9,9 @@ namespace LibGit2Sharp
     /// </summary>
     public class ObjectId : IEquatable<ObjectId>
     {
-        private readonly GitOid _oid;
-        private const int _rawSize = 20;
-        private const int _hexSize = _rawSize * 2;
+        private readonly GitOid oid;
+        private const int rawSize = 20;
+        private const int hexSize = rawSize * 2;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ObjectId"/> class.
@@ -19,8 +19,8 @@ namespace LibGit2Sharp
         /// <param name="oid">The oid.</param>
         internal ObjectId(GitOid oid)
         {
-            _oid = oid;
-            Sha = Stringify(_oid);
+            this.oid = oid;
+            Sha = Stringify(this.oid);
         }
 
         /// <summary>
@@ -30,10 +30,10 @@ namespace LibGit2Sharp
         public ObjectId(byte[] rawId)
         {
             Ensure.ArgumentNotNull(rawId, "rawId");
-            Ensure.ArgumentConformsTo(rawId, b => b.Length == _rawSize, "rawId");
+            Ensure.ArgumentConformsTo(rawId, b => b.Length == rawSize, "rawId");
             
-            _oid = new GitOid {Id = rawId};
-            Sha = Stringify(_oid);
+            oid = new GitOid {Id = rawId};
+            Sha = Stringify(oid);
         }
 
         /// <summary>
@@ -43,15 +43,15 @@ namespace LibGit2Sharp
         public ObjectId(string sha)
         {
             Ensure.ArgumentNotNullOrEmptyString(sha, "sha"); //TODO: To be pushed downward into CreateFromSha()
-            Ensure.ArgumentConformsTo(sha, s => s.Length == _hexSize, "sha");   //TODO: To be pushed downward into CreateFromSha()
+            Ensure.ArgumentConformsTo(sha, s => s.Length == hexSize, "sha");   //TODO: To be pushed downward into CreateFromSha()
 
-            _oid = CreateFromSha(sha, true).GetValueOrDefault();
+            oid = CreateFromSha(sha, true).GetValueOrDefault();
             Sha = sha;
         }
 
         internal GitOid Oid
         {
-            get { return _oid; }
+            get { return oid; }
         }
 
         /// <summary>
@@ -59,7 +59,7 @@ namespace LibGit2Sharp
         /// </summary>
         public byte[] RawId
         {
-            get { return _oid.Id; }
+            get { return oid.Id; }
         }
 
         /// <summary>
@@ -95,7 +95,7 @@ namespace LibGit2Sharp
 
         private static string Stringify(GitOid oid)
         {
-            var hex = new byte[_hexSize];
+            var hex = new byte[hexSize];
             NativeMethods.git_oid_fmt(hex, ref oid);
             return Encoding.UTF8.GetString(hex);
         }
