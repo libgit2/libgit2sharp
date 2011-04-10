@@ -6,13 +6,13 @@
  - Launch Code Analysis (Issues related to interop and marshaling will be worked on once we're able to succesffully exchange non ascii encoded data with libgit2)
  - When properly exported use git_strerror() to feed raised exceptions with a meaningful message.
  - Remove usage of ApplicationException
+ - https://bugzilla.novell.com/show_bug.cgi?id=566247 prevents MonoDevelop users from benefiting from optional parameters while still target at 3.5
  - Add Resharper settings file
  - Add BranchCollection.Delete(string name)
  - Favor the internal static factory method approach (eg. Reference.CreateFromPtr) over the constructor approach (Tag, Signature, ..)
  - Favor overloads over optional parameters
  - Ensure that types that are not supposed to be built by the Consumer do not expose a constructor.
  - Escape as early as possible from a method. Fight against the arrowhead effect (cf. http://elegantcode.com/2009/08/14/observations-on-the-if-statement/)
- - Retrieve the git_repository.path_repository value and exposes it as the Repository.Path property. The libgit2 path is prettyfied and forced converted to an absolute representation
 
 ### Tests
 
