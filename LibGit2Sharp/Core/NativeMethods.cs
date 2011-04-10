@@ -102,6 +102,14 @@ namespace LibGit2Sharp.Core
         public static extern int git_repository_open(out RepositorySafeHandle repository, string path);
 
         [DllImport(libgit2)]
+        [return: MarshalAs(UnmanagedType.AnsiBStr)]
+        public static extern string git_repository_path(RepositorySafeHandle repository);
+        
+        [DllImport(libgit2)]
+        [return: MarshalAs(UnmanagedType.AnsiBStr)]
+        public static extern string git_repository_workdir(RepositorySafeHandle repository);
+
+        [DllImport(libgit2)]
         public static extern void git_revwalk_free(IntPtr walker);
 
         [DllImport(libgit2)]

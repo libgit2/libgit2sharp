@@ -32,14 +32,31 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
-        public void CanCreateRepo()
+        public void CanCreateStandardRepo()
         {
             using (new SelfCleaningDirectory(newRepoPath))
             {
                 var dir = Repository.Init(newRepoPath);
                 Directory.Exists(dir).ShouldBeTrue();
-                using (new Repository(Path.Combine(dir, ".git")))
+                using (var repo = new Repository(Path.Combine(dir, ".git")))
                 {
+                    repo.Path.ShouldNotBeNull();
+                    repo.WorkingDirectory.ShouldNotBeNull();
+                }
+            }
+        }
+
+        [Test]
+        public void CanCreateBareRepo()
+        {
+            using (new SelfCleaningDirectory(newRepoPath))
+            {
+                var dir = Repository.Init(newRepoPath, true);
+                Directory.Exists(dir).ShouldBeTrue();
+                using (var repo = new Repository(dir))
+                {
+                    repo.Path.ShouldNotBeNull();
+                    repo.WorkingDirectory.ShouldBeNull();
                 }
             }
         }

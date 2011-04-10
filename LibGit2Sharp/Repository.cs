@@ -29,14 +29,16 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(path, "path");
 
-            Path = path;
             string posixPath = path.Replace(System.IO.Path.DirectorySeparatorChar, posixDirectorySeparatorChar);
 
-            RepositorySafeHandle tempHandle;
-            var res = NativeMethods.git_repository_open(out tempHandle, posixPath);
+            var res = NativeMethods.git_repository_open(out handle, posixPath);
             Ensure.Success(res);
 
-            handle = tempHandle;
+            string normalizedPath = NativeMethods.git_repository_path(handle);
+            string normalizedWorkDir = NativeMethods.git_repository_workdir(handle);
+
+            Path = normalizedPath.Replace(posixDirectorySeparatorChar, System.IO.Path.DirectorySeparatorChar);
+            WorkingDirectory = (normalizedWorkDir == null) ? null : normalizedWorkDir.Replace(posixDirectorySeparatorChar, System.IO.Path.DirectorySeparatorChar);
 
             commits = new CommitCollection(this);
             refs = new ReferenceCollection(this);
@@ -83,9 +85,17 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Gets the path to the git repository.
+        ///   Gets the normalized path to the git repository.
         /// </summary>
         public string Path { get; private set; }
+
+        /// <summary>
+        ///   Gets the normalized path to the working directory.
+        /// <para>
+        ///   Is the repository is bare, null is returned.
+        /// </para>
+        /// </summary>
+        public string WorkingDirectory { get; private set; }
 
         #region IDisposable Members
 
