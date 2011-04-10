@@ -48,7 +48,7 @@ namespace LibGit2Sharp
                        };
         }
 
-        internal static Tag CreateTagFromReference(Reference reference, Repository repo)
+        internal static Tag CreateTagFromReference(Reference reference)
         {
             return reference.ResolveToDirectReference().Target as Tag;
         }

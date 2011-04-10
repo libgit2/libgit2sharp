@@ -32,7 +32,7 @@ namespace LibGit2Sharp
                 EnsureTagName(name);
 
                 var reference = repo.Refs[string.Format("refs/tags/{0}", name)];
-                return Tag.CreateTagFromReference(reference, repo);
+                return Tag.CreateTagFromReference(reference);
             }
         }
 
@@ -40,7 +40,7 @@ namespace LibGit2Sharp
 
         public IEnumerator<Tag> GetEnumerator()
         {
-            var list = repo.Refs.Where(IsATag).Select(p => Tag.CreateTagFromReference(p, repo));
+            var list = repo.Refs.Where(IsATag).Select(Tag.CreateTagFromReference);
             return list.GetEnumerator();
         }
 

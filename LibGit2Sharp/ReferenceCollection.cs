@@ -13,7 +13,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   A special Reference name to refer to the 'HEAD'
         /// </summary>
-        public const string HEAD = "HEAD";
+        private const string headReferenceName = "HEAD";
 
         private readonly Repository repo;
 
@@ -110,7 +110,7 @@ namespace LibGit2Sharp
         /// <returns></returns>
         public Reference Head
         {
-            get { return this[HEAD]; }
+            get { return this[headReferenceName]; }
         }
 
         /// <summary>
