@@ -9,7 +9,10 @@
  - https://bugzilla.novell.com/show_bug.cgi?id=566247 prevents MonoDevelop users from benefiting from optional parameters while still target at 3.5
  - Add Resharper settings file
  - Add BranchCollection.Delete(string name)
- - Favor the internal static factory method approach (eg. Reference.CreateFromPtr) over the constructor approach (Tag, Signature, ..)
+ - The freeing of a newly created signature pointer doesn't "feel" to be done at the right place.
+ - Should we throw when trying to delete a reference which can not be found?
+ - Add reference renaming (ReferenceCollection.Move())
+ - Add shouldOverwrite flag to TagCollection.Create()
  - Favor overloads over optional parameters
  - Ensure that types that are not supposed to be built by the Consumer do not expose a constructor.
  - Escape as early as possible from a method. Fight against the arrowhead effect (cf. http://elegantcode.com/2009/08/14/observations-on-the-if-statement/)
