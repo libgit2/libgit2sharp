@@ -56,8 +56,6 @@ namespace LibGit2Sharp
         /// <returns></returns>
         public Branch Create(string name, string target)
         {
-            Ensure.ArgumentNotNullOrEmptyString(target, "target");
-
             ObjectId id = ObjectId.CreateFromMaybeSha(target);
             if(id != null)
             {

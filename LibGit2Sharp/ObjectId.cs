@@ -31,8 +31,8 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNull(rawId, "rawId");
             Ensure.ArgumentConformsTo(rawId, b => b.Length == rawSize, "rawId");
-            
-            oid = new GitOid {Id = rawId};
+
+            oid = new GitOid { Id = rawId };
             Sha = Stringify(oid);
         }
 
@@ -42,9 +42,6 @@ namespace LibGit2Sharp
         /// <param name="sha">The sha.</param>
         public ObjectId(string sha)
         {
-            Ensure.ArgumentNotNullOrEmptyString(sha, "sha"); //TODO: To be pushed downward into CreateFromSha()
-            Ensure.ArgumentConformsTo(sha, s => s.Length == hexSize, "sha");   //TODO: To be pushed downward into CreateFromSha()
-
             oid = CreateFromSha(sha, true).GetValueOrDefault();
             Sha = sha;
         }
@@ -70,7 +67,7 @@ namespace LibGit2Sharp
         internal static ObjectId CreateFromMaybeSha(string sha)
         {
             GitOid? oid = CreateFromSha(sha, false);
-         
+
             if (!oid.HasValue)
             {
                 return null;
@@ -81,6 +78,18 @@ namespace LibGit2Sharp
 
         private static GitOid? CreateFromSha(string sha, bool shouldThrow)
         {
+            Ensure.ArgumentNotNullOrEmptyString(sha, "sha");
+
+            if (sha.Length != hexSize)
+            {
+                if (!shouldThrow)
+                {
+                    return null;
+                }
+
+                throw new ArgumentException(string.Format("'{0}' is not a valid sha. Expected length should equal {1}.", sha, hexSize));
+            }
+
             GitOid oid;
             var result = NativeMethods.git_oid_mkstr(out oid, sha);
 

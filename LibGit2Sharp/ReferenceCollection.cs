@@ -57,7 +57,6 @@ namespace LibGit2Sharp
         public Reference Create(string name, string target)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
-            Ensure.ArgumentNotNullOrEmptyString(target, "target");
 
             ObjectId id = ObjectId.CreateFromMaybeSha(target);
             if (id != null)

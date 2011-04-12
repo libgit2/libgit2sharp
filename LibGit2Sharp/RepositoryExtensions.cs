@@ -40,8 +40,6 @@ namespace LibGit2Sharp
         /// <returns>the <see cref = "GitObject" /> or null if it was not found.</returns>
         public static GitObject Lookup(this Repository repository, string shaOrRef, GitObjectType type = GitObjectType.Any)
         {
-            Ensure.ArgumentNotNullOrEmptyString(shaOrRef, "shaOrRef");
-
             ObjectId id = ObjectId.CreateFromMaybeSha(shaOrRef);
             if (id != null)
             {
