@@ -32,3 +32,6 @@ build/
 *.userprefs
 *.swp
 %temp%
+*.ipch
+*.sdf
+*.orig
