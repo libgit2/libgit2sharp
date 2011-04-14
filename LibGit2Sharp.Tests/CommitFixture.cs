@@ -25,7 +25,7 @@ namespace LibGit2Sharp.Tests
                     count++;
                 }
             }
-            count.ShouldEqual(6);
+            count.ShouldEqual(7);
         }
 
         [Test]

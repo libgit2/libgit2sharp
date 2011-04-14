@@ -149,5 +149,24 @@ namespace LibGit2Sharp.Core
 
         [DllImport(libgit2, SetLastError = true)]
         public static extern IntPtr git_tag_target_oid(IntPtr tag);
+
+        /* Tree */
+
+        [DllImport(libgit2, SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.AnsiBStr)]
+        public static extern string git_tree_entry_name(IntPtr entry);
+        
+        [DllImport(libgit2, SetLastError = true)]
+        public static extern IntPtr git_tree_entry_byindex(IntPtr tree, int idx);
+
+        [DllImport(libgit2, SetLastError = true)]
+        public static extern IntPtr git_tree_entry_byname(IntPtr tree, int filename);
+        
+        [DllImport(libgit2, SetLastError = true)]
+        public static extern int git_tree_entrycount(IntPtr tree);
+
+        [DllImport(libgit2, SetLastError = true)]
+        public static extern IntPtr git_tree_entry_id(IntPtr tree);
+
     }
 }

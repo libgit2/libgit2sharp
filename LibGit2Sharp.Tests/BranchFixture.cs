@@ -42,7 +42,7 @@ namespace LibGit2Sharp.Tests
                 newBranch.Name.ShouldEqual(name);
                 newBranch.CanonicalName.ShouldEqual("refs/heads/" + name);
                 newBranch.Tip.ShouldNotBeNull();
-                newBranch.Tip.Sha.ShouldEqual("be3563ae3f795b2b4353bcce3a527ad0a4f7f644");
+                newBranch.Tip.Sha.ShouldEqual("4c062a6361ae6959e06292c1fa5e2822d9c96345");
                 repo.Branches.SingleOrDefault(p => p.Name == name).ShouldNotBeNull();
 
                 repo.Refs.Delete(newBranch.CanonicalName);  //TODO: To be replaced with repo.Branches.Delete(newBranch.Name)
@@ -73,7 +73,7 @@ namespace LibGit2Sharp.Tests
                 master.Type.ShouldEqual(BranchType.Local);
                 master.Name.ShouldEqual("master");
                 master.CanonicalName.ShouldEqual("refs/heads/master");
-                master.Tip.Sha.ShouldEqual("be3563ae3f795b2b4353bcce3a527ad0a4f7f644");
+                master.Tip.Sha.ShouldEqual("4c062a6361ae6959e06292c1fa5e2822d9c96345");
             }
         }
 
@@ -93,7 +93,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(Constants.TestRepoPath))
             {
                 var master = repo.Branches["master"];
-                master.Commits.Count().ShouldEqual(6);
+                master.Commits.Count().ShouldEqual(7);
             }
         }
 
