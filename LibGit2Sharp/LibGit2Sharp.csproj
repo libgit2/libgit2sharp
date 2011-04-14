@@ -24,6 +24,7 @@
     <WarningLevel>4</WarningLevel>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -34,6 +35,7 @@
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <PlatformTarget>x86</PlatformTarget>
     <DocumentationFile>bin\Release\LibGit2Sharp.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
@@ -54,6 +56,7 @@
     <Compile Include="Core\GitSignature.cs" />
     <Compile Include="Core\GitTime.cs" />
     <Compile Include="Core\NativeMethods.cs" />
+    <Compile Include="Core\ObjectSafeWrapper.cs" />
     <Compile Include="Core\UnSafeNativeMethods.cs" />
     <Compile Include="DirectReference.cs" />
     <Compile Include="GitObject.cs" />
@@ -76,6 +79,7 @@
     <Compile Include="TagAnnotation.cs" />
     <Compile Include="TagCollection.cs" />
     <Compile Include="Tree.cs" />
+    <Compile Include="TreeEntry.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="backlog.md" />

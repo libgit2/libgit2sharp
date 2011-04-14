@@ -40,7 +40,7 @@ namespace LibGit2Sharp.Tests
                 newRef.ShouldNotBeNull();
                 newRef.CanonicalName.ShouldEqual(name);
                 newRef.Target.ShouldNotBeNull();
-                ((DirectReference) newRef.Target).Target.Sha.ShouldEqual("be3563ae3f795b2b4353bcce3a527ad0a4f7f644");
+                ((DirectReference)newRef.Target).Target.Sha.ShouldEqual("4c062a6361ae6959e06292c1fa5e2822d9c96345");
                 repo.Refs.SingleOrDefault(p => p.CanonicalName == name).ShouldNotBeNull();
 
                 repo.Refs.Delete(newRef.CanonicalName);
@@ -90,7 +90,7 @@ namespace LibGit2Sharp.Tests
                 head.CanonicalName.ShouldEqual("HEAD");
                 head.Target.ShouldNotBeNull();
                 head.Target.CanonicalName.ShouldEqual("refs/heads/master");
-                ((DirectReference) head.Target).Target.Sha.ShouldEqual("be3563ae3f795b2b4353bcce3a527ad0a4f7f644");
+                ((DirectReference)head.Target).Target.Sha.ShouldEqual("4c062a6361ae6959e06292c1fa5e2822d9c96345");
                 Assert.IsInstanceOf<Commit>(((DirectReference) head.Target).Target);
 
                 var head2 = (SymbolicReference) repo.Refs.Head;
@@ -139,7 +139,7 @@ namespace LibGit2Sharp.Tests
                 master.ShouldNotBeNull();
                 master.CanonicalName.ShouldEqual("refs/heads/master");
                 master.Target.ShouldNotBeNull();
-                master.Target.Sha.ShouldEqual("be3563ae3f795b2b4353bcce3a527ad0a4f7f644");
+                master.Target.Sha.ShouldEqual("4c062a6361ae6959e06292c1fa5e2822d9c96345");
                 Assert.IsInstanceOf<Commit>(master.Target);
             }
         }

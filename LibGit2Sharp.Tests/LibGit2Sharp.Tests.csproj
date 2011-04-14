@@ -21,8 +21,8 @@
     <DefineConstants>TRACE;DEBUG;NET35</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>
-    </DocumentationFile>
+    <PlatformTarget>x86</PlatformTarget>
+    <DocumentationFile/>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -31,8 +31,8 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>
-    </DocumentationFile>
+    <PlatformTarget>x86</PlatformTarget>
+    <DocumentationFile/>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="nunit.framework">
@@ -41,6 +41,7 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BlobFixture.cs" />
     <Compile Include="BranchFixture.cs" />
     <Compile Include="CommitFixture.cs" />
     <Compile Include="Constants.cs" />
@@ -54,6 +55,7 @@
     <Compile Include="TestHelpers\DirectoryHelper.cs" />
     <Compile Include="TestHelpers\SelfCleaningDirectory.cs" />
     <Compile Include="TestHelpers\TemporaryCloneOfTestRepo.cs" />
+    <Compile Include="TreeFixture.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\LibGit2Sharp\LibGit2Sharp.csproj">
