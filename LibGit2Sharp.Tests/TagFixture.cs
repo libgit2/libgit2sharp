@@ -19,18 +19,31 @@ namespace LibGit2Sharp.Tests
         private const string tagE90810BSha = "7b4384978d2493e851f9cca7858815fac9b10980";
 
         [Test]
-        public void CanCreateTag()
+        public void CanCreateAnAnnotatedTagFromABranchName()
         {
             using (var path = new TemporaryCloneOfTestRepo())
             using (var repo = new Repository(path.RepositoryPath))
             {
                 var newTag = repo.Tags.Create("unit_test", "refs/heads/master", signatureTim, "a new tag");
+                newTag.IsAnnotated.ShouldBeTrue();
                 newTag.ShouldNotBeNull();
             }
         }
 
         [Test]
-        public void CreateTagIsDeterministic()
+        public void CanCreateALightweightTagFromABranchName()
+        {
+            using (var path = new TemporaryCloneOfTestRepo())
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                var newTag = repo.Tags.Create("i_am_lightweight", "refs/heads/master");
+                newTag.IsAnnotated.ShouldBeFalse();
+                newTag.ShouldNotBeNull();
+            }
+        }
+
+        [Test]
+        public void CreateAnAnnotatedTagIsDeterministic()
         {
             const string tagName = "nullTAGen";
             const string tagMessage = "I've been tagged!";
@@ -46,12 +59,26 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
-        public void CanCreateTagFromSha()
+        public void CanCreateAnAnnotatedTagFromSha()
         {
             using (var path = new TemporaryCloneOfTestRepo())
             using (var repo = new Repository(path.RepositoryPath))
             {
                 var newTag = repo.Tags.Create("unit_test", tagTestSha, signatureTim, "a new tag");
+                newTag.IsAnnotated.ShouldBeTrue();
+                newTag.ShouldNotBeNull();
+            }
+        }
+
+
+        [Test]
+        public void CanCreateALightWeightTagFromSha()
+        {
+            using (var path = new TemporaryCloneOfTestRepo())
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                var newTag = repo.Tags.Create("i_am_lightweight", commitE90810BSha);
+                newTag.IsAnnotated.ShouldBeFalse();
                 newTag.ShouldNotBeNull();
             }
         }

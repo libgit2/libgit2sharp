@@ -9,7 +9,6 @@
  - https://bugzilla.novell.com/show_bug.cgi?id=566247 prevents MonoDevelop users from benefiting from optional parameters while still target at 3.5
  - Add Resharper settings file
  - Add BranchCollection.Delete(string name)
- - Add TagCollection.Create(string name, string target) to allow creation of lightweight tags
  - The freeing of a newly created signature pointer doesn't "feel" to be done at the right place.
  - Should we throw when trying to delete a reference which can not be found?
  - Add reference renaming (ReferenceCollection.Move())

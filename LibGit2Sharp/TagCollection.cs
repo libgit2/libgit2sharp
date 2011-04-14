@@ -29,9 +29,7 @@ namespace LibGit2Sharp
         {
             get
             {
-                EnsureTagName(name);
-
-                var reference = repo.Refs[string.Format("refs/tags/{0}", name)];
+                var reference = repo.Refs[FullReferenceNameFrom(name)];
                 return Tag.BuildFromReference(reference);
             }
         }
@@ -52,7 +50,7 @@ namespace LibGit2Sharp
         #endregion
 
         /// <summary>
-        ///   Creates a tag with the specified name.
+        ///   Creates an annotated tag with the specified name.
         /// </summary>
         /// <param name = "name">The name.</param>
         /// <param name = "target">The target.</param>
@@ -66,12 +64,7 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(tagger, "tagger");
             Ensure.ArgumentNotNullOrEmptyString(message, "message");
 
-            var objectToTag = repo.Lookup(target);
-
-            if (objectToTag == null)
-            {
-                throw new ApplicationException(String.Format("No object identified by '{0}' can be found in the repository.", target));
-            }
+            GitObject objectToTag = RetrieveObjectToTag(target);
 
             var targetOid = objectToTag.Id.Oid;
             GitOid oid;
@@ -81,10 +74,45 @@ namespace LibGit2Sharp
             return this[name];
         }
 
+        /// <summary>
+        ///   Creates a lightweight tag with the specified name.
+        /// </summary>
+        /// <param name = "name">The name.</param>
+        /// <param name = "target">The target.</param>
+        /// <returns></returns>
+        public Tag Create(string name, string target)
+        {
+            Ensure.ArgumentNotNullOrEmptyString(target, "target");
+
+            GitObject objectToTag = RetrieveObjectToTag(target);
+
+            Reference tagRef = repo.Refs.Create(FullReferenceNameFrom(name), objectToTag.Id);   //TODO: To be replaced by native libgit2 tag_create_lightweight() when available.
+
+            return Tag.BuildFromReference(tagRef);
+        }
+
+        private GitObject RetrieveObjectToTag(string target)
+        {
+            var objectToTag = repo.Lookup(target);
+
+            if (objectToTag == null)
+            {
+                throw new ApplicationException(String.Format("No object identified by '{0}' can be found in the repository.", target));
+            }
+
+            return objectToTag;
+        }
+
         private static void EnsureTagName(string name)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
             if (name.Contains("/")) throw new ArgumentException("Tag name cannot contain the character '/'.");
+        }
+        
+        private static string FullReferenceNameFrom(string name)
+        {
+            EnsureTagName(name);
+            return string.Format("refs/tags/{0}", name);
         }
 
         private static bool IsATag(Reference reference)

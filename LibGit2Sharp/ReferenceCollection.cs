@@ -72,7 +72,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Creates a reference with the specified name and target
+        ///   Creates a direct reference with the specified name and target
         /// </summary>
         /// <param name = "name">The name of the reference to create.</param>
         /// <param name = "target">The oid of the target.</param>
