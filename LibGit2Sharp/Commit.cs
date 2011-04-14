@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
@@ -11,7 +12,8 @@ namespace LibGit2Sharp
     {
         private readonly Repository repo;
         private List<Commit> parents;
-        
+        private Tree tree;
+
         internal Commit(ObjectId id, Repository repo) : base(id)
         {
             this.repo = repo;
@@ -36,6 +38,10 @@ namespace LibGit2Sharp
         ///   Gets the committer.
         /// </summary>
         public Signature Committer { get; private set; }
+
+        public ObjectId TreeSha { get; private set; }
+
+        public Tree Tree { get { return tree ?? (tree = repo.Lookup<Tree>(TreeSha)); } }
 
         /// <summary>
         ///   Gets the parents of this commit. This property is lazy loaded and can throw an exception if the commit no longer exists in the repo.
@@ -81,6 +87,7 @@ namespace LibGit2Sharp
                 MessageShort = NativeMethods.git_commit_message_short(obj),
                 Author = new Signature(NativeMethods.git_commit_author(obj)),
                 Committer = new Signature(NativeMethods.git_commit_committer(obj)),
+                TreeSha =  new ObjectId((GitOid) Marshal.PtrToStructure(NativeMethods.git_commit_tree_oid(obj), typeof (GitOid)))
             };
         }
     }
