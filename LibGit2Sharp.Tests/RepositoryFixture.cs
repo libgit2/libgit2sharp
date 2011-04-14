@@ -62,11 +62,35 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
-        public void CanLookupByReference()
+        public void CanLookupACommitByTheNameOfABranch()
         {
             using (var repo = new Repository(Constants.TestRepoPath))
             {
-                repo.Lookup("refs/heads/master").ShouldNotBeNull();
+                var gitObject = repo.Lookup("refs/heads/master");
+                gitObject.ShouldNotBeNull();
+                Assert.IsInstanceOf<Commit>(gitObject);
+            }
+        }
+
+        [Test]
+        public void CanLookupACommitByTheNameOfALightweightTag()
+        {
+            using (var repo = new Repository(Constants.TestRepoPath))
+            {
+                var gitObject = repo.Lookup("refs/tags/lw");
+                gitObject.ShouldNotBeNull();
+                Assert.IsInstanceOf<Commit>(gitObject);
+            }
+        }
+
+        [Test]
+        public void CanLookupATagAnnotationByTheNameOfAnAnnotatedTag()
+        {
+            using (var repo = new Repository(Constants.TestRepoPath))
+            {
+                var gitObject = repo.Lookup("refs/tags/e90810b");
+                gitObject.ShouldNotBeNull();
+                Assert.IsInstanceOf<TagAnnotation>(gitObject);
             }
         }
 
