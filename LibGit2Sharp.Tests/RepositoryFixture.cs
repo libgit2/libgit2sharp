@@ -141,7 +141,7 @@ namespace LibGit2Sharp.Tests
             {
                 repo.Lookup(commitSha).ShouldNotBeNull();
                 repo.Lookup<Commit>(commitSha).ShouldNotBeNull();
-                repo.Lookup<Tag>(commitSha).ShouldBeNull();
+                repo.Lookup<TagAnnotation>(commitSha).ShouldBeNull();
             }
         }
 

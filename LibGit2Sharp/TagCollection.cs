@@ -23,7 +23,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Gets the <see cref = "LibGit2Sharp.Tag" /> with the specified name.
+        ///   Gets the <see cref = "Tag" /> with the specified name.
         /// </summary>
         public Tag this[string name]
         {
@@ -32,7 +32,7 @@ namespace LibGit2Sharp
                 EnsureTagName(name);
 
                 var reference = repo.Refs[string.Format("refs/tags/{0}", name)];
-                return Tag.CreateTagFromReference(reference);
+                return Tag.BuildFromReference(reference);
             }
         }
 
@@ -40,7 +40,7 @@ namespace LibGit2Sharp
 
         public IEnumerator<Tag> GetEnumerator()
         {
-            var list = repo.Refs.Where(IsATag).Select(Tag.CreateTagFromReference);
+            var list = repo.Refs.Where(IsATag).Select(Tag.BuildFromReference);
             return list.GetEnumerator();
         }
 
@@ -78,7 +78,7 @@ namespace LibGit2Sharp
             var res = NativeMethods.git_tag_create(out oid, repo.Handle, name, ref targetOid, GitObject.TypeToTypeMap[objectToTag.GetType()], tagger.Handle, message);
             Ensure.Success(res);
 
-            return repo.Lookup<Tag>(new ObjectId(oid));
+            return this[name];
         }
 
         private static void EnsureTagName(string name)

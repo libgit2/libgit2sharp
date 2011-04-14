@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.InteropServices;
 using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
@@ -7,50 +6,31 @@ namespace LibGit2Sharp
     /// <summary>
     ///   A Tag
     /// </summary>
-    public class Tag : GitObject
+    public class Tag : DirectReference
     {
-        internal Tag(ObjectId id)
-            : base(id)
-        {
-        }
-
         /// <summary>
         ///   Gets the name of this tag.
         /// </summary>
-        public string Name { get; private set; }
+        public override string Name { get { return Shorten(base.Name); } }
 
-        /// <summary>
-        ///   Gets the message of this tag.
-        /// </summary>
-        public string Message { get; private set; }
+        public TagAnnotation Annotation { get; private set; }
 
-        /// <summary>
-        ///   Gets the target id that this tag points to.
-        /// </summary>
-        public ObjectId TargetId { get; private set; }
-
-        /// <summary>
-        ///   Gets the tagger.
-        /// </summary>
-        public Signature Tagger { get; private set; }
-
-        internal static Tag BuildFromPtr(IntPtr obj, ObjectId id)
+        private static string Shorten(string referenceName)
         {
-            var oidPtr = NativeMethods.git_tag_target_oid(obj);
-            var oid = (GitOid)Marshal.PtrToStructure(oidPtr, typeof(GitOid));
-
-            return new Tag(id)
-                       {
-                           Message = NativeMethods.git_tag_message(obj),
-                           Name = NativeMethods.git_tag_name(obj),
-                           Tagger = new Signature(NativeMethods.git_tag_tagger(obj)),
-                           TargetId = new ObjectId(oid)
-                       };
+            Ensure.ArgumentConformsTo(referenceName, s => s.StartsWith("refs/tags/", StringComparison.Ordinal), "referenceName");
+            return referenceName.Substring("refs/tags/".Length);
         }
 
-        internal static Tag CreateTagFromReference(Reference reference)
+        /// <summary>
+        ///   Indicates whether the tag holds any metadata.
+        /// </summary>
+        public bool IsAnnotated { get { return Annotation != null; } }
+
+        internal static Tag BuildFromReference(Reference reference)
         {
-            return reference.ResolveToDirectReference().Target as Tag;
+            GitObject target = reference.ResolveToDirectReference().Target;
+
+            return new Tag { Name = reference.Name, Target = target, Annotation = target as TagAnnotation};
         }
     }
 }

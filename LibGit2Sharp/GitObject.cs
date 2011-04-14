@@ -15,7 +15,7 @@ namespace LibGit2Sharp
                     {typeof (Commit), GitObjectType.Commit},
                     {typeof (Tree), GitObjectType.Tree},
                     {typeof (Blob), GitObjectType.Blob},
-                    {typeof (Tag), GitObjectType.Tag},
+                    {typeof (TagAnnotation), GitObjectType.Tag},
                     {typeof (GitObject), GitObjectType.Any},
                 };
 
@@ -49,7 +49,7 @@ namespace LibGit2Sharp
                     case GitObjectType.Tree:
                         return new Tree(id);
                     case GitObjectType.Tag:
-                        return Tag.BuildFromPtr(obj, id);
+                        return TagAnnotation.BuildFromPtr(obj, id);
                     case GitObjectType.Blob:
                         return new Blob(id);
                     default:

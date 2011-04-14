@@ -12,7 +12,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Gets the name of this reference.
         /// </summary>
-        public string Name { get; private set; }
+        public virtual string Name { get; protected set; }
 
         #region IEquatable<Reference> Members
 

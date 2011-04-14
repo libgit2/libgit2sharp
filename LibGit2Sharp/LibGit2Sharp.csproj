@@ -71,6 +71,7 @@
     <Compile Include="Signature.cs" />
     <Compile Include="SymbolicReference.cs" />
     <Compile Include="Tag.cs" />
+    <Compile Include="TagAnnotation.cs" />
     <Compile Include="TagCollection.cs" />
     <Compile Include="Tree.cs" />
   </ItemGroup>

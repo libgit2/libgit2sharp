@@ -9,7 +9,7 @@ namespace LibGit2Sharp.Tests
     [TestFixture]
     public class ReferenceFixture
     {
-        private readonly List<string> expectedRefs = new List<string> { "refs/heads/packed-test", "refs/heads/packed", "refs/heads/br2", "refs/heads/master", "refs/heads/test", "refs/tags/test", "refs/tags/e90810b" };
+        private readonly List<string> expectedRefs = new List<string> { "refs/heads/packed-test", "refs/heads/packed", "refs/heads/br2", "refs/heads/master", "refs/heads/test", "refs/tags/test", "refs/tags/e90810b", "refs/tags/lw" };
 
         [Test]
         public void CanCreateReferenceFromSha()
@@ -76,7 +76,7 @@ namespace LibGit2Sharp.Tests
                     Assert.Contains(r.Name, expectedRefs);
                 }
 
-                repo.Refs.Count().ShouldEqual(7);
+                repo.Refs.Count().ShouldEqual(8);
             }
         }
 
@@ -103,16 +103,30 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
-        public void CanResolveReferenceToTag()
+        public void CanResolveReferenceToAnAnnotatedTag()
         {
             using (var repo = new Repository(Constants.TestRepoPath))
             {
-                var master = (DirectReference) repo.Refs["refs/tags/test"];
-                master.ShouldNotBeNull();
-                master.Name.ShouldEqual("refs/tags/test");
-                master.Target.ShouldNotBeNull();
-                master.Target.Sha.ShouldEqual("b25fa35b38051e4ae45d4222e795f9df2e43f1d1");
-                Assert.IsInstanceOf<Tag>(master.Target);
+                var annTag = (DirectReference)repo.Refs["refs/tags/test"];
+                annTag.ShouldNotBeNull();
+                annTag.Name.ShouldEqual("refs/tags/test");
+                annTag.Target.ShouldNotBeNull();
+                annTag.Target.Sha.ShouldEqual("b25fa35b38051e4ae45d4222e795f9df2e43f1d1");
+                Assert.IsInstanceOf<TagAnnotation>(annTag.Target);
+            }
+        }
+
+        [Test]
+        public void CanResolveReferenceToALightweightTag()
+        {
+            using (var repo = new Repository(Constants.TestRepoPath))
+            {
+                var lwTag = (DirectReference)repo.Refs["refs/tags/lw"];
+                lwTag.ShouldNotBeNull();
+                lwTag.Name.ShouldEqual("refs/tags/lw");
+                lwTag.Target.ShouldNotBeNull();
+                lwTag.Target.Sha.ShouldEqual("e90810b8df3e80c413d903f631643c716887138d");
+                Assert.IsInstanceOf<Commit>(lwTag.Target);
             }
         }
 
