@@ -69,5 +69,15 @@ namespace LibGit2Sharp.Tests
                 Assert.That(tree[1].Name, Is.EqualTo("README"));
             }
         }
+
+        [Test]
+        public void CanGetEntryByName()
+        {
+            using (var repo = new Repository(Constants.TestRepoPath))
+            {
+                var tree = repo.Lookup<Tree>(sha);
+                Assert.That(tree["README"].Sha, Is.EqualTo("a8233120f6ad708f843d861ce2b7228ec4e3dec6"));
+            }
+        }
     }
 }

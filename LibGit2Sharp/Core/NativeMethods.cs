@@ -160,7 +160,7 @@ namespace LibGit2Sharp.Core
         public static extern IntPtr git_tree_entry_byindex(IntPtr tree, int idx);
 
         [DllImport(libgit2, SetLastError = true)]
-        public static extern IntPtr git_tree_entry_byname(IntPtr tree, int filename);
+        public static extern IntPtr git_tree_entry_byname(IntPtr tree, string filename);
         
         [DllImport(libgit2, SetLastError = true)]
         public static extern int git_tree_entrycount(IntPtr tree);

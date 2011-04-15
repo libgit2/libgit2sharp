@@ -32,5 +32,14 @@ namespace LibGit2Sharp
                 return new TreeEntry(obj);
             }
         }
+
+        public TreeEntry this[string name]
+        {
+            get
+            {
+                var obj = NativeMethods.git_tree_entry_byname(_tree, name);
+                return new TreeEntry(obj);
+            }
+        }
     }
 }
