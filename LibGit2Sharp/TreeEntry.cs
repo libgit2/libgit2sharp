@@ -8,6 +8,7 @@ namespace LibGit2Sharp
     {
         private IntPtr _entry;
         private readonly Repository _repo;
+        public int Attributes { get { return NativeMethods.git_tree_entry_attributes(_entry); } }
 
         public TreeEntry(IntPtr intPtr, Repository repo) : base(null)
         {

@@ -171,5 +171,7 @@ namespace LibGit2Sharp.Core
         [DllImport(libgit2, SetLastError = true)]
         public static extern int git_tree_entry_2object(out IntPtr obj, RepositorySafeHandle repo, IntPtr entry);
 
+        [DllImport(libgit2, SetLastError = true)]
+        public static extern int git_tree_entry_attributes(IntPtr entry);
     }
 }

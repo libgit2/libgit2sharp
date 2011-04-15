@@ -94,6 +94,17 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
+        public void CanReadEntryAttributes()
+        {
+            using (var repo = new Repository(Constants.TestRepoPath))
+            {
+                var tree = repo.Lookup<Tree>(sha);
+                var attr = tree["README"].Attributes;
+                Assert.That(attr, Is.EqualTo(33188));
+            }
+        }
+
+        [Test]
         public void CanConvertEntryToEntry()
         {
             using (var repo = new Repository(Constants.TestRepoPath))
