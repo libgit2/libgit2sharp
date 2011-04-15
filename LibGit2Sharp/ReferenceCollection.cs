@@ -38,7 +38,7 @@ namespace LibGit2Sharp
 
         public IEnumerator<Reference> GetEnumerator()
         {
-            return GitReferenceHelper.List(this, repo.Handle, GitReferenceType.ListAll).GetEnumerator();
+            return Libgit2UnsafeHelper.ListAllRefs(this, repo.Handle, GitReferenceType.ListAll).GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -127,36 +127,5 @@ namespace LibGit2Sharp
 
             return Reference.CreateFromPtr(reference, repo);
         }
-
-        #region Nested type: GitReferenceHelper
-
-        private static unsafe class GitReferenceHelper
-        {
-            public static List<Reference> List(ReferenceCollection owner, RepositorySafeHandle repo, GitReferenceType types)
-            {
-                UnSafeNativeMethods.git_strarray strArray;
-                var res = UnSafeNativeMethods.git_reference_listall(&strArray, repo, types);
-                Ensure.Success(res);
-
-                var list = new List<Reference>();
-
-                try
-                {
-                    for (uint i = 0; i < strArray.size.ToInt32(); i++)
-                    {
-                        var name = new string(strArray.strings[i]);
-                        list.Add(owner.Resolve(name));
-                    }
-                }
-                finally
-                {
-                    UnSafeNativeMethods.git_strarray_free(&strArray);
-                }
-
-                return list;
-            }
-        }
-
-        #endregion
     }
 }

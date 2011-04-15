@@ -132,6 +132,24 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
+        public void CanLookupATagByItsCanonicalName()
+        {
+            using (var repo = new Repository(Constants.TestRepoPath))
+            {
+                var tag = repo.Tags["refs/tags/lw"];
+                tag.ShouldNotBeNull();
+                tag.Name.ShouldEqual("lw");
+
+                var tag2 = repo.Tags["refs/tags/lw"];
+                tag2.ShouldNotBeNull();
+                tag2.Name.ShouldEqual("lw");
+
+                tag2.ShouldEqual(tag);
+                (tag2 == tag).ShouldBeTrue();
+            }
+        }
+
+        [Test]
         public void CreateTagWithEmptyMessageThrows()
         {
             using (var repo = new Repository(Constants.TestRepoPath))
