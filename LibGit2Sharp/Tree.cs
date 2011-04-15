@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
 {
-    public class Tree : GitObject
+    public class Tree : GitObject, IEnumerable<TreeEntry>
     {
         private IntPtr _tree;
         private Repository _repo;
@@ -42,6 +44,20 @@ namespace LibGit2Sharp
                 var obj = NativeMethods.git_tree_entry_byname(_tree, name);
                 return new TreeEntry(obj, _repo);
             }
+        }
+
+        public IEnumerator<TreeEntry> GetEnumerator()
+        {
+            int max = GetCount();
+            for (int i = 0; i < max; i++)
+            {
+                yield return this[i];
+            }
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
         }
     }
 }
