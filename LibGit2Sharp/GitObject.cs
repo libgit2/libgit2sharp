@@ -27,7 +27,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Gets the id of this object
         /// </summary>
-        public ObjectId Id { get; private set; }
+        public ObjectId Id { get; protected set; }
 
         /// <summary>
         ///   Gets the 40 character sha1 of this object.
@@ -47,7 +47,7 @@ namespace LibGit2Sharp
                     case GitObjectType.Commit:
                         return Commit.BuildFromPtr(obj, id, repo);
                     case GitObjectType.Tree:
-                        return Tree.BuildFromPtr(obj, id);
+                        return Tree.BuildFromPtr(obj, id, repo);
                     case GitObjectType.Tag:
                         return TagAnnotation.BuildFromPtr(obj, id);
                     case GitObjectType.Blob:

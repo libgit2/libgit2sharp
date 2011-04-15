@@ -79,5 +79,27 @@ namespace LibGit2Sharp.Tests
                 Assert.That(tree["README"].Sha, Is.EqualTo("a8233120f6ad708f843d861ce2b7228ec4e3dec6"));
             }
         }
+
+        [Test]
+        public void CanConvertEntryToBlob()
+        {
+            using (var repo = new Repository(Constants.TestRepoPath))
+            {
+                var tree = repo.Lookup<Tree>(sha);
+                var blob = tree["README"].Object as Blob;
+                blob.ShouldNotBeNull();
+            }
+        }
+
+        [Test]
+        public void CanConvertEntryToEntry()
+        {
+            using (var repo = new Repository(Constants.TestRepoPath))
+            {
+                var tree = repo.Lookup<Tree>(sha);
+                var subtree = tree[0].Object as Tree;
+                subtree.ShouldNotBeNull();
+            }
+        }
     }
 }
