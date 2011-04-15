@@ -51,7 +51,7 @@ namespace LibGit2Sharp
                     case GitObjectType.Tag:
                         return TagAnnotation.BuildFromPtr(obj, id);
                     case GitObjectType.Blob:
-                        return new Blob(id);
+                        return new Blob(obj, id);
                     default:
                         return new GitObject(id);
                 }
