@@ -15,11 +15,6 @@ namespace LibGit2Sharp
         {
         }
 
-        public int GetCount ()
-        { 
-                return NativeMethods.git_tree_entrycount(_tree);
-        }
-
         internal static Tree BuildFromPtr(IntPtr obj, ObjectId id, Repository repo)
         {
             var tree = new Tree(id);
@@ -27,6 +22,8 @@ namespace LibGit2Sharp
             tree._repo = repo;
             return tree;
         }
+
+        public int Count { get { return NativeMethods.git_tree_entrycount(_tree); } }
 
         public TreeEntry this[int i]
         {
@@ -48,7 +45,7 @@ namespace LibGit2Sharp
 
         public IEnumerator<TreeEntry> GetEnumerator()
         {
-            int max = GetCount();
+            int max = Count;
             for (int i = 0; i < max; i++)
             {
                 yield return this[i];

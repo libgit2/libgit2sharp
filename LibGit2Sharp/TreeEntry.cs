@@ -8,7 +8,6 @@ namespace LibGit2Sharp
     {
         private IntPtr _entry;
         private readonly Repository _repo;
-        public int Attributes { get { return NativeMethods.git_tree_entry_attributes(_entry); } }
 
         public TreeEntry(IntPtr intPtr, Repository repo) : base(null)
         {
@@ -17,9 +16,12 @@ namespace LibGit2Sharp
             IntPtr gitTreeEntryId = NativeMethods.git_tree_entry_id(_entry);
 
             Id = new ObjectId((GitOid)Marshal.PtrToStructure(gitTreeEntryId, typeof(GitOid)));
+            Attributes = NativeMethods.git_tree_entry_attributes(_entry);
+            Name = NativeMethods.git_tree_entry_name(_entry);
         }
 
-        public string Name { get { return NativeMethods.git_tree_entry_name(_entry); } }
+        public int Attributes { get; private set; }
+        public string Name { get; private set; }
 
         public GitObject Object
         {

@@ -1,5 +1,4 @@
 ﻿using System.Linq;
-using System.Text;
 using LibGit2Sharp.Tests.TestHelpers;
 using NUnit.Framework;
 
@@ -36,7 +35,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(Constants.TestRepoPath))
             {
                 var tree = repo.Lookup<Tree>(sha);
-                var count = tree.GetCount();
+                var count = tree.Count;
                 Assert.That(count, Is.EqualTo(4));
             }
         }
@@ -121,7 +120,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(Constants.TestRepoPath))
             {
                 var tree = repo.Lookup<Tree>(sha);
-                Assert.That(tree.Count(), Is.EqualTo(tree.GetCount()));
+                Assert.That(tree.Count(), Is.EqualTo(tree.Count));
                 var list = string.Join(":", tree.Select(te => te.Name).ToArray());
                 Assert.That(list, Is.EqualTo("1:README:branch_file.txt:new.txt"));
             }
