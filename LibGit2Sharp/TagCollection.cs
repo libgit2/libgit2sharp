@@ -58,7 +58,7 @@ namespace LibGit2Sharp
         /// <returns></returns>
         public Tag Create(string name, string target, Signature tagger, string message)
         {
-            EnsureTagName(name);
+            Ensure.ArgumentNotNullOrEmptyString(name, "name");
             Ensure.ArgumentNotNullOrEmptyString(target, "target");
             Ensure.ArgumentNotNull(tagger, "tagger");
             Ensure.ArgumentNotNullOrEmptyString(message, "message");
@@ -102,12 +102,6 @@ namespace LibGit2Sharp
             return objectToTag;
         }
 
-        private static void EnsureTagName(string name)
-        {
-            Ensure.ArgumentNotNullOrEmptyString(name, "name");
-            if (name.Contains("/")) throw new ArgumentException("Tag name cannot contain the character '/'.");
-        }
-        
         private static string NormalizeToCanonicalName(string name)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");

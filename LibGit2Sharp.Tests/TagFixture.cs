@@ -65,8 +65,8 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path.RepositoryPath))
             {
                 var newTag = repo.Tags.Create("unit_test", tagTestSha, signatureTim, "a new tag");
-                newTag.IsAnnotated.ShouldBeTrue();
                 newTag.ShouldNotBeNull();
+                newTag.IsAnnotated.ShouldBeTrue();
             }
         }
 
@@ -78,10 +78,31 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path.RepositoryPath))
             {
                 var newTag = repo.Tags.Create("i_am_lightweight", commitE90810BSha);
-                newTag.IsAnnotated.ShouldBeFalse();
                 newTag.ShouldNotBeNull();
+                newTag.IsAnnotated.ShouldBeFalse();
             }
         }
+
+        [Test]
+        public void CanCreateATagWithNameContainingASlash()
+        {
+            using (var path = new TemporaryCloneOfTestRepo())
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                const string lwTagName = "i/am/deep";
+                var lwTag = repo.Tags.Create(lwTagName, commitE90810BSha);
+                lwTag.ShouldNotBeNull();
+                lwTag.IsAnnotated.ShouldBeFalse();
+                lwTag.Name.ShouldEqual(lwTagName);
+
+                const string anTagName = lwTagName + "_as_well";
+                var anTag = repo.Tags.Create(anTagName, commitE90810BSha, signatureNtk, "a nice message");
+                anTag.ShouldNotBeNull();
+                anTag.IsAnnotated.ShouldBeTrue();
+                anTag.Name.ShouldEqual(anTagName);
+            }
+        }
+
 
         [Test]
         public void CanListTags()
