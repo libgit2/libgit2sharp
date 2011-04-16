@@ -34,6 +34,9 @@ namespace LibGit2Sharp.Core
         public static extern int git_commit_tree(out IntPtr tree, IntPtr commit);
 
         [DllImport(libgit2, SetLastError = true)]
+        public static extern IntPtr git_commit_tree_oid(IntPtr commit);
+
+        [DllImport(libgit2, SetLastError = true)]
         public static extern void git_object_close(IntPtr obj);
 
         [DllImport(libgit2, SetLastError = true)]
