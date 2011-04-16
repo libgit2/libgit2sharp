@@ -7,7 +7,7 @@ namespace LibGit2Sharp.Tests
     [TestFixture]
     public class TreeFixture
     {
-        private const string sha = "f1ab0b7ba5a5691b76a5715cffd58c21e9149bee";
+        private const string sha = "581f9824ecaf824221bd36edf5430f2739a7c4f5";
 
         [Test]
         public void TreeDataIsPresent()
