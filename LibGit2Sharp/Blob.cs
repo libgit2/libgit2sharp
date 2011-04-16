@@ -7,25 +7,36 @@ namespace LibGit2Sharp
 {
     public class Blob : GitObject
     {
-        private readonly IntPtr _intPtrBlob;
+        private readonly Repository _repo;
 
-        internal Blob(IntPtr intPtrBlob, ObjectId id)
+        internal Blob(Repository repo, ObjectId id)
             : base(id)
         {
-            _intPtrBlob = intPtrBlob;
+            _repo = repo;
         }
 
-        public int Size { get { return NativeMethods.git_blob_rawsize(_intPtrBlob); } }
+        public int Size { get; set; }
 
         public byte[] Content
         {
             get
             {
-                var size = Size;
-                var ptr = NativeMethods.git_blob_rawcontent(_intPtrBlob);
-                var arr = new byte[size];
-                Marshal.Copy(ptr, arr, 0, size);
-                return arr;
+                IntPtr obj;
+                var oid = Id.Oid;
+                var res = NativeMethods.git_object_lookup(out obj, _repo.Handle, ref oid, GitObjectType.Blob);
+                Ensure.Success(res);
+                try
+                {
+                    var ptr = NativeMethods.git_blob_rawcontent(obj);
+                    var arr = new byte[Size];
+                    Marshal.Copy(ptr, arr, 0, Size);
+                    return arr;
+                }
+                finally
+                {
+                    NativeMethods.git_object_close(obj);
+                }
+
             }
         }
 
@@ -37,6 +48,15 @@ namespace LibGit2Sharp
         public string ContentAsUnicode()
         {
             return Encoding.Unicode.GetString(Content);
+        }
+
+        public static Blob BuildFromPtr(IntPtr obj, ObjectId id, Repository repo)
+        {
+            var blob = new Blob(repo, id)
+                           {
+                               Size = NativeMethods.git_blob_rawsize(obj)
+                           };
+            return blob;
         }
     }
 }

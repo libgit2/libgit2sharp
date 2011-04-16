@@ -5,7 +5,7 @@ using NUnit.Framework;
 namespace LibGit2Sharp.Tests
 {
     [TestFixture]
-    public class BlobFixtuer
+    public class BlobFixture
     {
         [Test]
          public void CanLookUpBlob()
