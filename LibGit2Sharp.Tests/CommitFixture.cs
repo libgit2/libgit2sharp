@@ -160,6 +160,8 @@ namespace LibGit2Sharp.Tests
                 commit.Committer.Email.ShouldEqual("schacon@gmail.com");
                 commit.Committer.When.ToSecondsSinceEpoch().ShouldEqual(1273360386);
 
+                commit.TreeSha.Sha.ShouldEqual("181037049a54a1eb5fab404658a3a250b44335d7");
+
                 commit.Parents.Count().ShouldEqual(0);
             }
         }
