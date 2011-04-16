@@ -45,6 +45,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BlobFixture.cs" />
     <Compile Include="BranchFixture.cs" />
     <Compile Include="CommitFixture.cs" />
     <Compile Include="Constants.cs" />

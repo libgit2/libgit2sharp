@@ -149,6 +149,13 @@ namespace LibGit2Sharp.Core
 
         [DllImport(libgit2, SetLastError = true)]
         public static extern IntPtr git_tag_target_oid(IntPtr tag);
+		
+        /* Blob */
+        [DllImport(libgit2, SetLastError = true)]
+        public static extern int git_blob_rawsize(IntPtr blob);
+
+        [DllImport(libgit2, SetLastError = true)]
+        public static extern IntPtr git_blob_rawcontent(IntPtr blob);
 
         /* Tree */
 
