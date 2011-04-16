@@ -20,12 +20,12 @@ namespace LibGit2Sharp.Tests
             {
                 var newRef = (DirectReference) repo.Refs.Create(name, "be3563ae3f795b2b4353bcce3a527ad0a4f7f644");
                 newRef.ShouldNotBeNull();
-                newRef.Name.ShouldEqual(name);
+                newRef.CanonicalName.ShouldEqual(name);
                 newRef.Target.ShouldNotBeNull();
                 newRef.Target.Sha.ShouldEqual("be3563ae3f795b2b4353bcce3a527ad0a4f7f644");
-                repo.Refs.SingleOrDefault(p => p.Name == name).ShouldNotBeNull();
+                repo.Refs.SingleOrDefault(p => p.CanonicalName == name).ShouldNotBeNull();
 
-                repo.Refs.Delete(newRef.Name);
+                repo.Refs.Delete(newRef.CanonicalName);
             }
         }
 
@@ -38,12 +38,12 @@ namespace LibGit2Sharp.Tests
             {
                 var newRef = (SymbolicReference) repo.Refs.Create(name, "refs/heads/master");
                 newRef.ShouldNotBeNull();
-                newRef.Name.ShouldEqual(name);
+                newRef.CanonicalName.ShouldEqual(name);
                 newRef.Target.ShouldNotBeNull();
                 ((DirectReference) newRef.Target).Target.Sha.ShouldEqual("be3563ae3f795b2b4353bcce3a527ad0a4f7f644");
-                repo.Refs.SingleOrDefault(p => p.Name == name).ShouldNotBeNull();
+                repo.Refs.SingleOrDefault(p => p.CanonicalName == name).ShouldNotBeNull();
 
-                repo.Refs.Delete(newRef.Name);
+                repo.Refs.Delete(newRef.CanonicalName);
             }
         }
 
@@ -73,7 +73,7 @@ namespace LibGit2Sharp.Tests
             {
                 foreach (var r in repo.Refs)
                 {
-                    Assert.Contains(r.Name, expectedRefs);
+                    Assert.Contains(r.CanonicalName, expectedRefs);
                 }
 
                 repo.Refs.Count().ShouldEqual(8);
@@ -87,14 +87,14 @@ namespace LibGit2Sharp.Tests
             {
                 var head = (SymbolicReference) repo.Refs["HEAD"];
                 head.ShouldNotBeNull();
-                head.Name.ShouldEqual("HEAD");
+                head.CanonicalName.ShouldEqual("HEAD");
                 head.Target.ShouldNotBeNull();
-                head.Target.Name.ShouldEqual("refs/heads/master");
+                head.Target.CanonicalName.ShouldEqual("refs/heads/master");
                 ((DirectReference) head.Target).Target.Sha.ShouldEqual("be3563ae3f795b2b4353bcce3a527ad0a4f7f644");
                 Assert.IsInstanceOf<Commit>(((DirectReference) head.Target).Target);
 
                 var head2 = (SymbolicReference) repo.Refs.Head;
-                head2.Name.ShouldEqual("HEAD");
+                head2.CanonicalName.ShouldEqual("HEAD");
                 head2.Target.ShouldNotBeNull();
                 Assert.IsInstanceOf<Commit>(((DirectReference) head.Target).Target);
 
@@ -109,7 +109,7 @@ namespace LibGit2Sharp.Tests
             {
                 var annTag = (DirectReference)repo.Refs["refs/tags/test"];
                 annTag.ShouldNotBeNull();
-                annTag.Name.ShouldEqual("refs/tags/test");
+                annTag.CanonicalName.ShouldEqual("refs/tags/test");
                 annTag.Target.ShouldNotBeNull();
                 annTag.Target.Sha.ShouldEqual("b25fa35b38051e4ae45d4222e795f9df2e43f1d1");
                 Assert.IsInstanceOf<TagAnnotation>(annTag.Target);
@@ -123,7 +123,7 @@ namespace LibGit2Sharp.Tests
             {
                 var lwTag = (DirectReference)repo.Refs["refs/tags/lw"];
                 lwTag.ShouldNotBeNull();
-                lwTag.Name.ShouldEqual("refs/tags/lw");
+                lwTag.CanonicalName.ShouldEqual("refs/tags/lw");
                 lwTag.Target.ShouldNotBeNull();
                 lwTag.Target.Sha.ShouldEqual("e90810b8df3e80c413d903f631643c716887138d");
                 Assert.IsInstanceOf<Commit>(lwTag.Target);
@@ -137,7 +137,7 @@ namespace LibGit2Sharp.Tests
             {
                 var master = (DirectReference) repo.Refs["refs/heads/master"];
                 master.ShouldNotBeNull();
-                master.Name.ShouldEqual("refs/heads/master");
+                master.CanonicalName.ShouldEqual("refs/heads/master");
                 master.Target.ShouldNotBeNull();
                 master.Target.Sha.ShouldEqual("be3563ae3f795b2b4353bcce3a527ad0a4f7f644");
                 Assert.IsInstanceOf<Commit>(master.Target);

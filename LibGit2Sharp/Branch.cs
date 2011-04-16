@@ -53,10 +53,10 @@ namespace LibGit2Sharp
 
         internal static Branch CreateBranchFromReference(Reference reference, Repository repo)
         {
-            var tokens = reference.Name.Split('/');
+            var tokens = reference.CanonicalName.Split('/');
             if (tokens.Length < 2)
             {
-                throw new ArgumentException(string.Format("Unexpected ref name: {0}", reference.Name));
+                throw new ArgumentException(string.Format("Unexpected ref name: {0}", reference.CanonicalName));
             }
 
             var commit = repo.Lookup<Commit>(reference.ResolveToDirectReference().Target.Id);
@@ -65,7 +65,7 @@ namespace LibGit2Sharp
             {
                 return new Branch(repo)
                            {
-                               CanonicalName = reference.Name,
+                               CanonicalName = reference.CanonicalName,
                                Name = tokens[tokens.Length - 1],
                                Tip = commit,
                                Type = BranchType.Local
@@ -73,7 +73,7 @@ namespace LibGit2Sharp
             }
             return new Branch(repo)
                        {
-                           CanonicalName = reference.Name,
+                           CanonicalName = reference.CanonicalName,
                            Name = string.Join("/", tokens, tokens.Length - 2, 2),
                            RemoteName = tokens[tokens.Length - 2],
                            Tip = commit,

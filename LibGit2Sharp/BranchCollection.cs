@@ -95,7 +95,7 @@ namespace LibGit2Sharp
         private static bool IsABranch(Reference reference)
         {
             return /*reference.Type == GitReferenceType.Oid
-                   &&*/ !reference.Name.StartsWith("refs/tags/");
+                   &&*/ !reference.CanonicalName.StartsWith("refs/tags/");
         }
 
         private static string ParseName(string name)

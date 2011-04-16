@@ -11,7 +11,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Gets the name of this tag.
         /// </summary>
-        public override string Name { get { return Shorten(base.Name); } }
+        public string Name { get { return Shorten(CanonicalName); } }
 
         public TagAnnotation Annotation { get; private set; }
 
@@ -30,7 +30,7 @@ namespace LibGit2Sharp
         {
             GitObject target = reference.ResolveToDirectReference().Target;
 
-            return new Tag { Name = reference.Name, Target = target, Annotation = target as TagAnnotation};
+            return new Tag { CanonicalName = reference.CanonicalName, Target = target, Annotation = target as TagAnnotation};
         }
     }
 }

@@ -10,9 +10,9 @@ namespace LibGit2Sharp
     public abstract class Reference : IEquatable<Reference>
     {
         /// <summary>
-        ///   Gets the name of this reference.
+        ///   Gets the full name of this reference.
         /// </summary>
-        public virtual string Name { get; protected set; }
+        public string CanonicalName { get; protected set; }
 
         #region IEquatable<Reference> Members
 
@@ -33,7 +33,7 @@ namespace LibGit2Sharp
                 return false;
             }
 
-            if (!Equals(Name, other.Name))
+            if (!Equals(CanonicalName, other.CanonicalName))
             {
                 return false;
             }
@@ -54,13 +54,13 @@ namespace LibGit2Sharp
                     IntPtr resolveRef;
                     NativeMethods.git_reference_resolve(out resolveRef, ptr);
                     var reference = CreateFromPtr(resolveRef, repo);
-                    return new SymbolicReference {Name = name, Target = reference};
+                    return new SymbolicReference {CanonicalName = name, Target = reference};
 
                 case GitReferenceType.Oid:
                     var oidPtr = NativeMethods.git_reference_oid(ptr);
                     var oid = (GitOid) Marshal.PtrToStructure(oidPtr, typeof (GitOid));
                     var target = repo.Lookup(new ObjectId(oid));
-                    return new DirectReference {Name = name, Target = target};
+                    return new DirectReference {CanonicalName = name, Target = target};
                 
                 default:
                     throw new InvalidOperationException();
@@ -78,7 +78,7 @@ namespace LibGit2Sharp
 
             unchecked
             {
-                hashCode = (hashCode*397) ^ Name.GetHashCode();
+                hashCode = (hashCode*397) ^ CanonicalName.GetHashCode();
                 hashCode = (hashCode*397) ^ ProvideAdditionalEqualityComponent().GetHashCode();
             }
 
