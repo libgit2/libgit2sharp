@@ -9,8 +9,8 @@ namespace LibGit2Sharp
     /// </summary>
     public class TagAnnotation : GitObject
     {
-        internal TagAnnotation(ObjectId id)
-            : base(id)
+        internal TagAnnotation(ObjectId id, IntPtr obj)
+            : base(obj, id)
         {
         }
 
@@ -39,7 +39,7 @@ namespace LibGit2Sharp
             var oidPtr = NativeMethods.git_tag_target_oid(obj);
             var oid = (GitOid)Marshal.PtrToStructure(oidPtr, typeof(GitOid));
 
-            return new TagAnnotation(id)
+            return new TagAnnotation(id, obj)
                        {
                            Message = NativeMethods.git_tag_message(obj),
                            Name = NativeMethods.git_tag_name(obj),

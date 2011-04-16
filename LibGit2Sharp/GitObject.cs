@@ -19,15 +19,18 @@ namespace LibGit2Sharp
                     {typeof (GitObject), GitObjectType.Any},
                 };
 
-        protected GitObject(ObjectId id)
+        public IntPtr Obj { get; private set; }
+
+        protected GitObject(IntPtr obj, ObjectId id)
         {
             Id = id;
+            Obj = obj;
         }
 
         /// <summary>
         ///   Gets the id of this object
         /// </summary>
-        public ObjectId Id { get; protected set; }
+        public ObjectId Id { get; private set; }
 
         /// <summary>
         ///   Gets the 40 character sha1 of this object.
@@ -39,27 +42,21 @@ namespace LibGit2Sharp
 
         internal static GitObject CreateFromPtr(IntPtr obj, ObjectId id, Repository repo)
         {
-            try
+            var type = NativeMethods.git_object_type(obj);
+            switch (type)
             {
-                var type = NativeMethods.git_object_type(obj);
-                switch (type)
-                {
-                    case GitObjectType.Commit:
-                        return Commit.BuildFromPtr(obj, id, repo);
-                    case GitObjectType.Tree:
-                        return Tree.BuildFromPtr(obj, id, repo);
-                    case GitObjectType.Tag:
-                        return TagAnnotation.BuildFromPtr(obj, id);
-                    case GitObjectType.Blob:
-                        return Blob.BuildFromPtr(obj, id, repo);
-                    default:
-                        return new GitObject(id);
-                }
+                case GitObjectType.Commit:
+                    return Commit.BuildFromPtr(obj, id, repo);
+                case GitObjectType.Tree:
+                    return Tree.BuildFromPtr(obj, id, repo);
+                case GitObjectType.Tag:
+                    return TagAnnotation.BuildFromPtr(obj, id);
+                case GitObjectType.Blob:
+                    return Blob.BuildFromPtr(obj, id);
+                default:
+                    return new GitObject(obj, id);
             }
-            finally
-            {
-                NativeMethods.git_object_close(obj);
-            }
+
         }
 
         internal static ObjectId RetrieveObjectIfOf(IntPtr obj)
@@ -113,6 +110,26 @@ namespace LibGit2Sharp
         public static bool operator !=(GitObject left, GitObject right)
         {
             return !Equals(left, right);
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (Obj != IntPtr.Zero)
+            {
+                NativeMethods.git_object_close(Obj);
+                Obj = IntPtr.Zero;
+            }
+        }
+
+        ~GitObject()
+        {
+            Dispose(false);
         }
     }
 }

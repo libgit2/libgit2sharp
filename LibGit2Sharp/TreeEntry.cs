@@ -4,35 +4,32 @@ using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
 {
-    public class TreeEntry : GitObject
+    public class TreeEntry
     {
         private IntPtr _entry;
         private readonly Repository _repo;
 
-        public TreeEntry(IntPtr intPtr, Repository repo) : base(null)
+        public TreeEntry(IntPtr obj, Repository repo)
         {
-            _entry = intPtr;
+            _entry = obj;
             _repo = repo;
-            IntPtr gitTreeEntryId = NativeMethods.git_tree_entry_id(_entry);
-
-            Id = new ObjectId((GitOid)Marshal.PtrToStructure(gitTreeEntryId, typeof(GitOid)));
             Attributes = NativeMethods.git_tree_entry_attributes(_entry);
             Name = NativeMethods.git_tree_entry_name(_entry);
+            Target = new ObjectId((GitOid) Marshal.PtrToStructure(NativeMethods.git_tree_entry_id(obj), typeof (GitOid)));
         }
+
+        public ObjectId Target { get; private set; }
+
+        public Blob Blob { get { return _repo.Lookup<Blob>(Target); } }
+        public Tree Tree { get { return _repo.Lookup<Tree>(Target); } }
+
 
         public int Attributes { get; private set; }
         public string Name { get; private set; }
 
         public GitObject Object
         {
-            get
-            {
-                IntPtr obj;
-                var res = NativeMethods.git_tree_entry_2object(out obj, _repo.Handle, _entry);
-                Ensure.Success(res);
-                var resObj = CreateFromPtr(obj, RetrieveObjectIfOf(obj), _repo);
-                return resObj;
-            }
+            get { return _repo.Lookup(Target); }
         }
     }
 }

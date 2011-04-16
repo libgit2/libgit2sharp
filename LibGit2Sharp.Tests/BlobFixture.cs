@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.IO;
+using System.Text;
 using LibGit2Sharp.Tests.TestHelpers;
 using NUnit.Framework;
 
@@ -36,6 +37,19 @@ namespace LibGit2Sharp.Tests
                 var bytes = blob.Content;
                 Assert.That(bytes.Length, Is.EqualTo(10));
                 var content = Encoding.UTF8.GetString(bytes);
+                Assert.That(content, Is.EqualTo("hey there\n"));
+            }            
+        }
+
+        [Test]
+        public void CanReadBlobStream()
+        {
+            using (var repo = new Repository(Constants.TestRepoPath))
+            {
+                var blob = repo.Lookup<Blob>("a8233120f6ad708f843d861ce2b7228ec4e3dec6");
+                var bytes = blob.ContentStream;
+                var tr = new StreamReader(bytes, Encoding.UTF8);
+                var content = tr.ReadToEnd();
                 Assert.That(content, Is.EqualTo("hey there\n"));
             }            
         }

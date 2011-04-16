@@ -12,9 +12,8 @@ namespace LibGit2Sharp
     {
         private readonly Repository repo;
         private List<Commit> parents;
-        private Tree tree;
 
-        internal Commit(ObjectId id, Repository repo) : base(id)
+        internal Commit(IntPtr obj, ObjectId id, Repository repo) : base(obj, id)
         {
             this.repo = repo;
         }
@@ -41,39 +40,29 @@ namespace LibGit2Sharp
 
         public ObjectId TreeSha { get; private set; }
 
-        public Tree Tree { get { return tree ?? (tree = repo.Lookup<Tree>(TreeSha)); } }
+        public Tree Tree { get { return repo.Lookup<Tree>(TreeSha); } }
 
         /// <summary>
         ///   Gets the parents of this commit. This property is lazy loaded and can throw an exception if the commit no longer exists in the repo.
         /// </summary>
         public IEnumerable<Commit> Parents
         {
-            get { return parents ?? (parents = RetrieveParentsOfCommit(Id.Oid)); }
+            get { return parents ?? (parents = RetrieveParentsOfCommit()); }
         }
 
-        private List<Commit> RetrieveParentsOfCommit(GitOid oid)
+        private List<Commit> RetrieveParentsOfCommit()
         {
-            IntPtr obj;
-            var res = NativeMethods.git_object_lookup(out obj, repo.Handle, ref oid, GitObjectType.Commit);
-            Ensure.Success(res);
 
-            try
+            parents = new List<Commit>();
+
+            uint parentsCount = NativeMethods.git_commit_parentcount(Obj);
+
+            for (uint i = 0; i < parentsCount; i++)
             {
-                parents = new List<Commit>();
-
-                uint parentsCount = NativeMethods.git_commit_parentcount(obj);
-
-                for (uint i = 0; i < parentsCount; i++)
-                {
-                    IntPtr parentCommit;
-                    res = NativeMethods.git_commit_parent(out parentCommit, obj, i);
-                    Ensure.Success(res);
-                    parents.Add((Commit)CreateFromPtr(parentCommit, RetrieveObjectIfOf(parentCommit), repo));
-                }
-            }
-            finally
-            {
-                NativeMethods.git_object_close(obj);
+                IntPtr parentCommit;
+                var res = NativeMethods.git_commit_parent(out parentCommit, Obj, i);
+                Ensure.Success(res);
+                parents.Add((Commit) CreateFromPtr(parentCommit, RetrieveObjectIfOf(parentCommit), repo));
             }
 
             return parents;
@@ -81,7 +70,7 @@ namespace LibGit2Sharp
 
         internal static Commit BuildFromPtr(IntPtr obj, ObjectId id, Repository repo)
         {
-            return new Commit(id, repo)
+            return new Commit(obj, id, repo)
             {
                 Message = NativeMethods.git_commit_message(obj),
                 MessageShort = NativeMethods.git_commit_message_short(obj),
@@ -90,5 +79,6 @@ namespace LibGit2Sharp
                 TreeSha =  new ObjectId((GitOid) Marshal.PtrToStructure(NativeMethods.git_commit_tree_oid(obj), typeof (GitOid)))
             };
         }
+
     }
 }
