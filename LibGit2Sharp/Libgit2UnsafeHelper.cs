@@ -1,39 +1,39 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
 {
     internal static unsafe class Libgit2UnsafeHelper
     {
-        public static IList<Reference> ListAllRefs(ReferenceCollection owner, RepositorySafeHandle repo, GitReferenceType types)
+        public static IList<string> ListAllReferenceNames(RepositorySafeHandle repo, GitReferenceType types)
         {
             UnSafeNativeMethods.git_strarray strArray;
             var res = UnSafeNativeMethods.git_reference_listall(&strArray, repo, types);
             Ensure.Success(res);
 
-            return BuildListOf(&strArray, name => owner[name]);
+            return BuildListOf(&strArray);
         }
 
-        public static IList<Tag> ListAllTags(TagCollection owner, RepositorySafeHandle repo)
+        public static IList<string> ListAllTagNames(RepositorySafeHandle repo)
         {
             UnSafeNativeMethods.git_strarray strArray;
             var res = UnSafeNativeMethods.git_tag_list(&strArray, repo);
             Ensure.Success(res);
 
-            return BuildListOf(&strArray, name => owner[name]);
+            return BuildListOf(&strArray);
         }
 
-        private static IList<T> BuildListOf<T>(UnSafeNativeMethods.git_strarray* strArray, Func<string, T> instanceBuilder)
+        private static IList<string> BuildListOf(UnSafeNativeMethods.git_strarray* strArray)
         {
-            var list = new List<T>();
+            var list = new List<string>();
 
             try
             {
-                for (uint i = 0; i < strArray->size.ToInt32(); i++)
+                int numberOfEntries = strArray->size.ToInt32();
+                for (uint i = 0; i < numberOfEntries; i++)
                 {
                     var name = new string(strArray->strings[i]);
-                    list.Add(instanceBuilder(name));
+                    list.Add(name);
                 }
             }
             finally

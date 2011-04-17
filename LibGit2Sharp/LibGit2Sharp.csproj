@@ -42,7 +42,6 @@
     <Compile Include="Blob.cs" />
     <Compile Include="Branch.cs" />
     <Compile Include="BranchCollection.cs" />
-    <Compile Include="BranchType.cs" />
     <Compile Include="Commit.cs" />
     <Compile Include="CommitCollection.cs" />
     <Compile Include="Core\Ensure.cs" />
@@ -59,6 +58,7 @@
     <Compile Include="GitObject.cs" />
     <Compile Include="GitObjectType.cs" />
     <Compile Include="GitSortOptions.cs" />
+    <Compile Include="LambdaEqualityHelper.cs" />
     <Compile Include="Libgit2UnsafeHelper.cs" />
     <Compile Include="ObjectId.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

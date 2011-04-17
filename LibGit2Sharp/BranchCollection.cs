@@ -28,17 +28,17 @@ namespace LibGit2Sharp
         /// </summary>
         public Branch this[string name]
         {
-            get { return Branch.CreateBranchFromReference(repo.Refs[ParseName(name)], repo); }
+            get { return repo.Refs.Resolve<Branch>(NormalizeToCanonicalName(name)); }
         }
 
         #region IEnumerable<Branch> Members
 
         public IEnumerator<Branch> GetEnumerator()
         {
-            var list = repo.Refs
-                .Where(IsABranch)
-                .Select(p => Branch.CreateBranchFromReference(p, repo));
-            return list.GetEnumerator();
+            return Libgit2UnsafeHelper.ListAllReferenceNames(repo.Handle, GitReferenceType.ListAll)
+                .Where(LooksLikeABranchName)
+                .Select(n => this[n])
+                .GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -52,7 +52,7 @@ namespace LibGit2Sharp
         ///   Create a new local branch with the specified name
         /// </summary>
         /// <param name = "name">The name of the branch.</param>
-        /// <param name = "target">The target sha, ref or branch name.</param>
+        /// <param name = "target">The target sha or branch name.</param>
         /// <returns></returns>
         public Branch Create(string name, string target)
         {
@@ -62,8 +62,9 @@ namespace LibGit2Sharp
                 return Create(name, id);
             }
 
-            var reference = repo.Refs.Create(EnsureValidBranchName(name), ParseName(target));
-            return Branch.CreateBranchFromReference(reference, repo);
+            repo.Refs.Create(NormalizeToCanonicalName(name), NormalizeToCanonicalName(target));
+            
+            return this[name];
         }
 
         /// <summary>
@@ -76,40 +77,26 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNull(target, "target");
 
-            var reference = repo.Refs.Create(EnsureValidBranchName(name), target);
-            return Branch.CreateBranchFromReference(reference, repo);
+            repo.Refs.Create(NormalizeToCanonicalName(name), target);
+            
+            return this[name];
         }
 
-        private static string EnsureValidBranchName(string name)
+        private static bool LooksLikeABranchName(string referenceName)
+        {
+            return referenceName.StartsWith("refs/heads/", StringComparison.Ordinal) || referenceName.StartsWith("refs/remotes/", StringComparison.Ordinal);
+        }
+
+        private static string NormalizeToCanonicalName(string name)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
 
-            if (name.Contains("/"))
+            if (LooksLikeABranchName(name))
             {
-                throw new ArgumentException("Branch names cannot contain the character '/'.");
+                return name;
             }
 
-            return string.Format(CultureInfo.InvariantCulture, "refs/heads/{0}", name);
-        }
-
-        private static bool IsABranch(Reference reference)
-        {
-            return /*reference.Type == GitReferenceType.Oid
-                   &&*/ !reference.CanonicalName.StartsWith("refs/tags/");
-        }
-
-        private static string ParseName(string name)
-        {
-            var tokens = name.Split('/');
-            if (tokens.Length == 1)
-            {
-                return string.Format(CultureInfo.InvariantCulture, "refs/heads/{0}", name);
-            }
-            if (tokens.Length == 2)
-            {
-                return string.Format(CultureInfo.InvariantCulture, "refs/{0}", name);
-            }
-            throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Unable to parse branch name: {0}. Expecting local branches in the form <branchname> and remotes in the form <remote>/<branchname>.", name));
+            return string.Format("refs/heads/{0}", name);
         }
     }
 }

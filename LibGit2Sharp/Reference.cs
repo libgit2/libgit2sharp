@@ -9,89 +9,86 @@ namespace LibGit2Sharp
     /// </summary>
     public abstract class Reference : IEquatable<Reference>
     {
+        private static readonly LambdaEqualityHelper<Reference> equalityHelper =
+            new LambdaEqualityHelper<Reference>(new Func<Reference, object>[] { x => x.CanonicalName, x => x.ProvideAdditionalEqualityComponent() });
+
         /// <summary>
         ///   Gets the full name of this reference.
         /// </summary>
         public string CanonicalName { get; protected set; }
 
-        #region IEquatable<Reference> Members
-
-        public bool Equals(Reference other)
-        {
-            if (ReferenceEquals(null, other))
-            {
-                return false;
-            }
-
-            if (ReferenceEquals(this, other))
-            {
-                return true;
-            }
-
-            if (GetType() != other.GetType())
-            {
-                return false;
-            }
-
-            if (!Equals(CanonicalName, other.CanonicalName))
-            {
-                return false;
-            }
-
-            return Equals(ProvideAdditionalEqualityComponent(), other.ProvideAdditionalEqualityComponent());
-        }
-
-        #endregion
-
-        internal static Reference CreateFromPtr(IntPtr ptr, Repository repo)
+        internal static T BuildFromPtr<T>(IntPtr ptr, Repository repo) where T : class
         {
             var name = NativeMethods.git_reference_name(ptr);
             var type = NativeMethods.git_reference_type(ptr);
-            
+
+            Reference reference;
+
             switch (type)
             {
                 case GitReferenceType.Symbolic:
                     IntPtr resolveRef;
                     NativeMethods.git_reference_resolve(out resolveRef, ptr);
-                    var reference = CreateFromPtr(resolveRef, repo);
-                    return new SymbolicReference {CanonicalName = name, Target = reference};
+                    var targetRef = BuildFromPtr<Reference>(resolveRef, repo);
+                    reference =  new SymbolicReference { CanonicalName = name, Target = targetRef };
+                    break;
 
                 case GitReferenceType.Oid:
                     var oidPtr = NativeMethods.git_reference_oid(ptr);
-                    var oid = (GitOid) Marshal.PtrToStructure(oidPtr, typeof (GitOid));
+                    var oid = (GitOid)Marshal.PtrToStructure(oidPtr, typeof(GitOid));
                     var target = repo.Lookup(new ObjectId(oid));
-                    return new DirectReference {CanonicalName = name, Target = target};
-                
+                    reference = new DirectReference { CanonicalName = name, Target = target };
+                    break;
+
                 default:
                     throw new InvalidOperationException();
             }
+
+            if (typeof(Reference).IsAssignableFrom(typeof(T)))
+            {
+                return reference as T;
+            }
+
+            GitObject targetGitObject = repo.Lookup(reference.ResolveToDirectReference().Target.Id);
+            
+            if (Equals(typeof(T), typeof(Tag)))
+            {
+                return new Tag(reference.CanonicalName, targetGitObject, targetGitObject as TagAnnotation) as T;
+            }
+
+           if (Equals(typeof(T), typeof(Branch)))
+            {
+                return new Branch(reference.CanonicalName, targetGitObject as Commit, repo) as T;
+            }
+
+            throw new InvalidOperationException(
+                string.Format("Unable to build a new instance of '{0}' from a reference of type '{1}'.",
+                              typeof (T),
+                              Enum.GetName(typeof (GitReferenceType), type)));
         }
+
+        /// <summary>
+        ///   Resolves to direct reference.
+        /// </summary>
+        /// <returns></returns>
+        public abstract DirectReference ResolveToDirectReference(); 
+        
+        protected abstract object ProvideAdditionalEqualityComponent();
 
         public override bool Equals(object obj)
         {
             return Equals(obj as Reference);
         }
 
+        public bool Equals(Reference other)
+        {
+            return equalityHelper.Equals(this, other);
+        }
+        
         public override int GetHashCode()
         {
-            int hashCode = GetType().GetHashCode();
-
-            unchecked
-            {
-                hashCode = (hashCode*397) ^ CanonicalName.GetHashCode();
-                hashCode = (hashCode*397) ^ ProvideAdditionalEqualityComponent().GetHashCode();
-            }
-
-            return hashCode;
+            return equalityHelper.GetHashCode(this);
         }
-
-        protected abstract object ProvideAdditionalEqualityComponent();
-
-        /// <summary>
-        ///   Resolves to direct reference.
-        /// </summary>
-        /// <returns></returns>
-        public abstract DirectReference ResolveToDirectReference();
 
         public static bool operator ==(Reference left, Reference right)
         {

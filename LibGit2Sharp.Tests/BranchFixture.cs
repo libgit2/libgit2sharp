@@ -70,10 +70,28 @@ namespace LibGit2Sharp.Tests
             {
                 var master = repo.Branches["master"];
                 master.ShouldNotBeNull();
-                master.Type.ShouldEqual(BranchType.Local);
+                master.IsRemote.ShouldBeFalse();
                 master.Name.ShouldEqual("master");
                 master.CanonicalName.ShouldEqual("refs/heads/master");
                 master.Tip.Sha.ShouldEqual("be3563ae3f795b2b4353bcce3a527ad0a4f7f644");
+            }
+        }
+
+        [Test]
+        public void CanLookupABranchByItsCanonicalName()
+        {
+            using (var repo = new Repository(Constants.TestRepoPath))
+            {
+                var branch = repo.Branches["refs/heads/br2"];
+                branch.ShouldNotBeNull();
+                branch.Name.ShouldEqual("br2");
+
+                var branch2 = repo.Branches["refs/heads/br2"];
+                branch2.ShouldNotBeNull();
+                branch2.Name.ShouldEqual("br2");
+
+                branch2.ShouldEqual(branch);
+                (branch2 == branch).ShouldBeTrue();
             }
         }
 

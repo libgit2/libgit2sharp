@@ -29,8 +29,7 @@ namespace LibGit2Sharp
         {
             get
             {
-                var reference = repo.Refs[NormalizeToCanonicalName(name)];
-                return Tag.BuildFromReference(reference);
+                return repo.Refs.Resolve<Tag>(NormalizeToCanonicalName(name));
             }
         }
 
@@ -38,7 +37,10 @@ namespace LibGit2Sharp
 
         public IEnumerator<Tag> GetEnumerator()
         {
-            return Libgit2UnsafeHelper.ListAllTags(this, repo.Handle).GetEnumerator();
+            return Libgit2UnsafeHelper
+                .ListAllTagNames(repo.Handle)
+                .Select(n => this[n])
+                .GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -85,9 +87,9 @@ namespace LibGit2Sharp
 
             GitObject objectToTag = RetrieveObjectToTag(target);
 
-            Reference tagRef = repo.Refs.Create(NormalizeToCanonicalName(name), objectToTag.Id);   //TODO: To be replaced by native libgit2 tag_create_lightweight() when available.
+            repo.Refs.Create(NormalizeToCanonicalName(name), objectToTag.Id);   //TODO: To be replaced by native libgit2 tag_create_lightweight() when available.
 
-            return Tag.BuildFromReference(tagRef);
+            return this[name];
         }
 
         private GitObject RetrieveObjectToTag(string target)

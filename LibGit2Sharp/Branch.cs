@@ -1,37 +1,42 @@
 ﻿using System;
+using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
 {
     /// <summary>
     ///   A branch is a special kind of reference
     /// </summary>
-    public class Branch
+    public class Branch : IEquatable<Branch>
     {
         private readonly Repository repo;
+
+        private static readonly LambdaEqualityHelper<Branch> equalityHelper =
+            new LambdaEqualityHelper<Branch>(new Func<Branch, object>[] {x => x.CanonicalName, x => x.Tip});
 
         /// <summary>
         ///   Initializes a new instance of the <see cref = "Branch" /> class.
         /// </summary>
+        /// <param name="tip">The commit which is pointed at by this Branch</param>
         /// <param name = "repo">The repo.</param>
-        internal Branch(Repository repo)
+        /// <param name="canonicalName">The full name of the reference</param>
+        internal Branch(string canonicalName, Commit tip, Repository repo)
         {
             this.repo = repo;
+            CanonicalName = canonicalName;
+            Tip = tip;
         }
-
-        /// <summary>
-        ///   Gets the name of the remote (null for local branches).
-        /// </summary>
-        public string RemoteName { get; private set; }
-
-        /// <summary>
-        ///   Gets the name of this branch.
-        /// </summary>
-        public string Name { get; private set; }
 
         /// <summary>
         ///   Gets the full name of this branch.
         /// </summary>
         public string CanonicalName { get; private set; }
+
+        /// <summary>
+        ///   Gets the name of this branch.
+        /// </summary>
+        public string Name { get { return ShortenName(CanonicalName); } }
+
+        public bool IsRemote { get { return IsRemoteBranch(CanonicalName); } }
 
         /// <summary>
         ///   Gets the commit id that this branch points to.
@@ -46,39 +51,41 @@ namespace LibGit2Sharp
             get { return repo.Commits.StartingAt(this); }
         }
 
-        /// <summary>
-        ///   Gets the type of this branch.
-        /// </summary>
-        public BranchType Type { get; private set; }
-
-        internal static Branch CreateBranchFromReference(Reference reference, Repository repo)
+        private static bool IsRemoteBranch(string canonicalName)
         {
-            var tokens = reference.CanonicalName.Split('/');
-            if (tokens.Length < 2)
-            {
-                throw new ArgumentException(string.Format("Unexpected ref name: {0}", reference.CanonicalName));
-            }
+            return canonicalName.StartsWith("refs/remotes/");
+        }
+        
+        private static string ShortenName(string branchName)
+        {
+            Ensure.ArgumentConformsTo(branchName, s => s.StartsWith("refs/heads/", StringComparison.Ordinal),
+                           "referenceName");
+            return branchName.Substring("refs/heads/".Length); ;
+        }
 
-            var commit = repo.Lookup<Commit>(reference.ResolveToDirectReference().Target.Id);
+        public override bool Equals(object obj)
+        {
+            return Equals(obj as Branch);
+        }
 
-            if (tokens[tokens.Length - 2] == "heads")
-            {
-                return new Branch(repo)
-                           {
-                               CanonicalName = reference.CanonicalName,
-                               Name = tokens[tokens.Length - 1],
-                               Tip = commit,
-                               Type = BranchType.Local
-                           };
-            }
-            return new Branch(repo)
-                       {
-                           CanonicalName = reference.CanonicalName,
-                           Name = string.Join("/", tokens, tokens.Length - 2, 2),
-                           RemoteName = tokens[tokens.Length - 2],
-                           Tip = commit,
-                           Type = BranchType.Remote
-                       };
+        public bool Equals(Branch other)
+        {
+            return equalityHelper.Equals(this, other);
+        }
+
+        public override int GetHashCode()
+        {
+            return equalityHelper.GetHashCode(this);
+        }
+
+        public static bool operator ==(Branch left, Branch right)
+        {
+            return Equals(left, right);
+        }
+
+        public static bool operator !=(Branch left, Branch right)
+        {
+            return !Equals(left, right);
         }
     }
 }
