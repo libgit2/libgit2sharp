@@ -27,7 +27,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Gets the id of this object
         /// </summary>
-        public ObjectId Id { get; protected set; }
+        public ObjectId Id { get; private set; }
 
         /// <summary>
         ///   Gets the 40 character sha1 of this object.

@@ -7,7 +7,6 @@ namespace LibGit2Sharp
 {
     public class Tree : GitObject, IEnumerable<TreeEntry>
     {
-        private IntPtr _tree;
         private Repository _repo;
 
         internal Tree(ObjectId id)
@@ -15,22 +14,17 @@ namespace LibGit2Sharp
         {
         }
 
-        internal static Tree BuildFromPtr(IntPtr obj, ObjectId id, Repository repo)
-        {
-            var tree = new Tree(id);
-            tree._tree = obj;
-            tree._repo = repo;
-            return tree;
-        }
-
-        public int Count { get { return NativeMethods.git_tree_entrycount(_tree); } }
+        public int Count { get; private set; }
 
         public TreeEntry this[int i]
         {
             get
             {
-                var obj = NativeMethods.git_tree_entry_byindex(_tree, i);
-                return new TreeEntry(obj, _repo);
+                using (var obj = new ObjectSafeWrapper(Id, _repo))
+                                                      {
+                                                          IntPtr e = NativeMethods.git_tree_entry_byindex(obj.Obj, i);
+                                                          return new TreeEntry(e, _repo);
+                                                      }
             }
         }
 
@@ -38,23 +32,39 @@ namespace LibGit2Sharp
         {
             get
             {
-                var obj = NativeMethods.git_tree_entry_byname(_tree, name);
-                return new TreeEntry(obj, _repo);
+                using (var obj = new ObjectSafeWrapper(Id, _repo))
+                                                      {
+                                                          IntPtr e = NativeMethods.git_tree_entry_byname(obj.Obj, name);
+                                                          return new TreeEntry(e, _repo);
+                                                      }
             }
         }
 
+        #region IEnumerable<TreeEntry> Members
+
         public IEnumerator<TreeEntry> GetEnumerator()
         {
-            int max = Count;
-            for (int i = 0; i < max; i++)
+            using(var obj = new ObjectSafeWrapper(Id, _repo))
             {
-                yield return this[i];
+                for (int i = 0; i < Count; i++)
+                {
+                    IntPtr e = NativeMethods.git_tree_entry_byindex(obj.Obj, i);
+                    yield return new TreeEntry(e, _repo);
+                }    
             }
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
+        }
+
+        #endregion
+
+        internal static Tree BuildFromPtr(IntPtr obj, ObjectId id, Repository repo)
+        {
+            var tree = new Tree(id) {_repo = repo, Count = NativeMethods.git_tree_entrycount(obj)};
+            return tree;
         }
     }
 }

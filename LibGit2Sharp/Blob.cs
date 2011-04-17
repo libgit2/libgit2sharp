@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 using LibGit2Sharp.Core;
@@ -21,24 +22,30 @@ namespace LibGit2Sharp
         {
             get
             {
-                IntPtr obj;
-                var oid = Id.Oid;
-                var res = NativeMethods.git_object_lookup(out obj, _repo.Handle, ref oid, GitObjectType.Blob);
-                Ensure.Success(res);
-                try
+                using (var obj = new ObjectSafeWrapper(Id, _repo))
                 {
-                    var ptr = NativeMethods.git_blob_rawcontent(obj);
                     var arr = new byte[Size];
-                    Marshal.Copy(ptr, arr, 0, Size);
+                    Marshal.Copy(NativeMethods.git_blob_rawcontent(obj.Obj), arr, 0, Size);
                     return arr;
                 }
-                finally
-                {
-                    NativeMethods.git_object_close(obj);
-                }
-
             }
         }
+
+        public Stream ContentStream
+        {
+            get
+            {
+                using (var obj = new ObjectSafeWrapper(Id, _repo))
+                {
+                    IntPtr ptr = NativeMethods.git_blob_rawcontent(obj.Obj);
+                    unsafe
+                    {
+                        return new UnmanagedMemoryStream((byte*) ptr.ToPointer(), Size);
+                    }
+                }
+            }
+        }
+
 
         public string ContentAsUtf8()
         {

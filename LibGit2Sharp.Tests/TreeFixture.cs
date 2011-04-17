@@ -57,7 +57,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(Constants.TestRepoPath))
             {
                 var tree = repo.Lookup<Tree>(sha);
-                Assert.That(tree[1].Sha, Is.EqualTo("a8233120f6ad708f843d861ce2b7228ec4e3dec6"));
+                Assert.That(tree[1].Target.Sha, Is.EqualTo("a8233120f6ad708f843d861ce2b7228ec4e3dec6"));
             }
         }
 
@@ -77,7 +77,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(Constants.TestRepoPath))
             {
                 var tree = repo.Lookup<Tree>(sha);
-                Assert.That(tree["README"].Sha, Is.EqualTo("a8233120f6ad708f843d861ce2b7228ec4e3dec6"));
+                Assert.That(tree["README"].Target.Sha, Is.EqualTo("a8233120f6ad708f843d861ce2b7228ec4e3dec6"));
             }
         }
 
