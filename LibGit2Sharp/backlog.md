@@ -2,6 +2,7 @@
 
 ### LibGit2Sharp
 
+ - Turn duplicated strings "refs/xxx" into properties of a generic Constants helper type
  - Refactor the error handling (OutputResult -> Exceptions)
  - Launch Code Analysis (Issues related to interop and marshaling will be worked on once we're able to succesffully exchange non ascii encoded data with libgit2)
  - When properly exported use git_strerror() to feed raised exceptions with a meaningful message.

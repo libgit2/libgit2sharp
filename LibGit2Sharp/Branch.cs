@@ -55,12 +55,20 @@ namespace LibGit2Sharp
         {
             return canonicalName.StartsWith("refs/remotes/");
         }
-        
+
         private static string ShortenName(string branchName)
         {
-            Ensure.ArgumentConformsTo(branchName, s => s.StartsWith("refs/heads/", StringComparison.Ordinal),
-                           "referenceName");
-            return branchName.Substring("refs/heads/".Length); ;
+            if (branchName.StartsWith("refs/heads/"))
+            {
+                return branchName.Substring("refs/heads/".Length);
+            }
+
+            if (branchName.StartsWith("refs/remotes/"))
+            {
+                return branchName.Substring("refs/remotes/".Length);
+            }
+
+            throw new ArgumentException(string.Format("'{0}' does not look like a valid branch name.", branchName));
         }
 
         public override bool Equals(object obj)
