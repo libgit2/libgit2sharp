@@ -13,9 +13,11 @@ namespace LibGit2Sharp
         private readonly Repository repo;
         private List<Commit> parents;
         private Tree tree;
+        private readonly ObjectId treeId;
 
-        internal Commit(ObjectId id, Repository repo) : base(id)
+        internal Commit(ObjectId id, ObjectId treeId, Repository repo) : base(id)
         {
+            this.treeId = treeId;
             this.repo = repo;
         }
 
@@ -39,9 +41,7 @@ namespace LibGit2Sharp
         /// </summary>
         public Signature Committer { get; private set; }
 
-        public ObjectId TreeSha { get; private set; }
-
-        public Tree Tree { get { return tree ?? (tree = repo.Lookup<Tree>(TreeSha)); } }
+        public Tree Tree { get { return tree ?? (tree = repo.Lookup<Tree>(treeId)); } }
 
         /// <summary>
         ///   Gets the parents of this commit. This property is lazy loaded and can throw an exception if the commit no longer exists in the repo.
@@ -81,13 +81,15 @@ namespace LibGit2Sharp
 
         internal static Commit BuildFromPtr(IntPtr obj, ObjectId id, Repository repo)
         {
-            return new Commit(id, repo)
+            var treeId =
+                new ObjectId((GitOid) Marshal.PtrToStructure(NativeMethods.git_commit_tree_oid(obj), typeof (GitOid)));
+
+            return new Commit(id, treeId, repo)
             {
                 Message = NativeMethods.git_commit_message(obj),
                 MessageShort = NativeMethods.git_commit_message_short(obj),
                 Author = new Signature(NativeMethods.git_commit_author(obj)),
                 Committer = new Signature(NativeMethods.git_commit_committer(obj)),
-                TreeSha =  new ObjectId((GitOid) Marshal.PtrToStructure(NativeMethods.git_commit_tree_oid(obj), typeof (GitOid)))
             };
         }
     }
