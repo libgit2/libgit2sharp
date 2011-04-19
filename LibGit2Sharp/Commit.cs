@@ -62,7 +62,7 @@ namespace LibGit2Sharp
                     IntPtr parentCommit;
                     res = NativeMethods.git_commit_parent(out parentCommit, obj, i);
                     Ensure.Success(res);
-                    parents.Add((Commit)CreateFromPtr(parentCommit, RetrieveObjectIfOf(parentCommit), repo));
+                    parents.Add((Commit)CreateFromPtr(parentCommit, ObjectIdOf(parentCommit), repo));
                 }
             }
             finally

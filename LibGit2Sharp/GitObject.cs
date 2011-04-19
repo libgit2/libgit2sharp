@@ -65,7 +65,7 @@ namespace LibGit2Sharp
             }
         }
 
-        internal static ObjectId RetrieveObjectIfOf(IntPtr obj)
+        internal static ObjectId ObjectIdOf(IntPtr obj)
         {
             var ptr = NativeMethods.git_object_id(obj);
             return new ObjectId((GitOid)Marshal.PtrToStructure(ptr, typeof(GitOid)));
