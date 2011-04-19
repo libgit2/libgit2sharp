@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
@@ -31,14 +32,17 @@ namespace LibGit2Sharp
         /// </summary>
         public Reference this[string name]
         {
-            get { return Resolve(name); }
+            get { return Resolve<Reference>(name); }
         }
 
         #region IEnumerable<Reference> Members
 
         public IEnumerator<Reference> GetEnumerator()
         {
-            return GitReferenceHelper.List(this, repo.Handle, GitReferenceType.ListAll).GetEnumerator();
+            return Libgit2UnsafeHelper
+                .ListAllReferenceNames(repo.Handle, GitReferenceType.ListAll)
+                .Select(n => this[n])
+                .GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -68,7 +72,7 @@ namespace LibGit2Sharp
             var res = NativeMethods.git_reference_create_symbolic(out reference, repo.Handle, name, target);
             Ensure.Success(res);
 
-            return Reference.CreateFromPtr(reference, repo);
+            return Reference.BuildFromPtr<Reference>(reference, repo);
         }
 
         /// <summary>
@@ -86,7 +90,7 @@ namespace LibGit2Sharp
             var res = NativeMethods.git_reference_create_oid(out reference, repo.Handle, name, ref oid);
             Ensure.Success(res);
 
-            return Reference.CreateFromPtr(reference, repo);
+            return Reference.BuildFromPtr<Reference>(reference, repo);
         }
 
         /// <summary>
@@ -117,7 +121,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name = "name">The name.</param>
         /// <returns></returns>
-        public Reference Resolve(string name)
+        internal T Resolve<T>(string name) where T : class
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
 
@@ -125,38 +129,7 @@ namespace LibGit2Sharp
             var res = NativeMethods.git_reference_lookup(out reference, repo.Handle, name);
             Ensure.Success(res);
 
-            return Reference.CreateFromPtr(reference, repo);
+            return Reference.BuildFromPtr<T>(reference, repo);
         }
-
-        #region Nested type: GitReferenceHelper
-
-        private static unsafe class GitReferenceHelper
-        {
-            public static List<Reference> List(ReferenceCollection owner, RepositorySafeHandle repo, GitReferenceType types)
-            {
-                UnSafeNativeMethods.git_strarray strArray;
-                var res = UnSafeNativeMethods.git_reference_listall(&strArray, repo, types);
-                Ensure.Success(res);
-
-                var list = new List<Reference>();
-
-                try
-                {
-                    for (uint i = 0; i < strArray.size.ToInt32(); i++)
-                    {
-                        var name = new string(strArray.strings[i]);
-                        list.Add(owner.Resolve(name));
-                    }
-                }
-                finally
-                {
-                    UnSafeNativeMethods.git_strarray_free(&strArray);
-                }
-
-                return list;
-            }
-        }
-
-        #endregion
     }
 }

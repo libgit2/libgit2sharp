@@ -19,6 +19,9 @@ namespace LibGit2Sharp
                     {typeof (GitObject), GitObjectType.Any},
                 };
 
+        private static readonly LambdaEqualityHelper<GitObject> equalityHelper =
+            new LambdaEqualityHelper<GitObject>(new Func<GitObject, object>[] {x => x.Id});
+
         protected GitObject(ObjectId id)
         {
             Id = id;
@@ -75,34 +78,12 @@ namespace LibGit2Sharp
 
         public bool Equals(GitObject other)
         {
-            if (ReferenceEquals(null, other))
-            {
-                return false;
-            }
-
-            if (ReferenceEquals(this, other))
-            {
-                return true;
-            }
-
-            if (GetType() != other.GetType())
-            {
-                return false;
-            }
-
-            return Equals(Id, other.Id);
+            return equalityHelper.Equals(this, other);
         }
 
         public override int GetHashCode()
         {
-            int hashCode = GetType().GetHashCode();
-
-            unchecked
-            {
-                hashCode = (hashCode * 397) ^ Id.GetHashCode();
-            }
-
-            return hashCode;
+            return equalityHelper.GetHashCode(this);
         }
 
         public static bool operator ==(GitObject left, GitObject right)

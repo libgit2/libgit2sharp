@@ -29,8 +29,7 @@ namespace LibGit2Sharp
         {
             get
             {
-                var reference = repo.Refs[FullReferenceNameFrom(name)];
-                return Tag.BuildFromReference(reference);
+                return repo.Refs.Resolve<Tag>(NormalizeToCanonicalName(name));
             }
         }
 
@@ -38,8 +37,10 @@ namespace LibGit2Sharp
 
         public IEnumerator<Tag> GetEnumerator()
         {
-            var list = repo.Refs.Where(IsATag).Select(Tag.BuildFromReference);
-            return list.GetEnumerator();
+            return Libgit2UnsafeHelper
+                .ListAllTagNames(repo.Handle)
+                .Select(n => this[n])
+                .GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -59,7 +60,7 @@ namespace LibGit2Sharp
         /// <returns></returns>
         public Tag Create(string name, string target, Signature tagger, string message)
         {
-            EnsureTagName(name);
+            Ensure.ArgumentNotNullOrEmptyString(name, "name");
             Ensure.ArgumentNotNullOrEmptyString(target, "target");
             Ensure.ArgumentNotNull(tagger, "tagger");
             Ensure.ArgumentNotNullOrEmptyString(message, "message");
@@ -86,9 +87,9 @@ namespace LibGit2Sharp
 
             GitObject objectToTag = RetrieveObjectToTag(target);
 
-            Reference tagRef = repo.Refs.Create(FullReferenceNameFrom(name), objectToTag.Id);   //TODO: To be replaced by native libgit2 tag_create_lightweight() when available.
+            repo.Refs.Create(NormalizeToCanonicalName(name), objectToTag.Id);   //TODO: To be replaced by native libgit2 tag_create_lightweight() when available.
 
-            return Tag.BuildFromReference(tagRef);
+            return this[name];
         }
 
         private GitObject RetrieveObjectToTag(string target)
@@ -103,21 +104,16 @@ namespace LibGit2Sharp
             return objectToTag;
         }
 
-        private static void EnsureTagName(string name)
+        private static string NormalizeToCanonicalName(string name)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
-            if (name.Contains("/")) throw new ArgumentException("Tag name cannot contain the character '/'.");
-        }
-        
-        private static string FullReferenceNameFrom(string name)
-        {
-            EnsureTagName(name);
-            return string.Format("refs/tags/{0}", name);
-        }
 
-        private static bool IsATag(Reference reference)
-        {
-            return reference.Name.StartsWith("refs/tags/");
+            if (name.StartsWith("refs/tags/", StringComparison.Ordinal))
+            {
+                return name;
+            }
+
+            return string.Format("refs/tags/{0}", name);
         }
     }
 }
