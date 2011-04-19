@@ -2,26 +2,31 @@
 
 namespace LibGit2Sharp.Core
 {
-    public class ObjectSafeWrapper : IDisposable
+    internal class ObjectSafeWrapper : IDisposable
     {
-        private IntPtr _obj;
-        public IntPtr Obj
-        {
-            get { return _obj; }
-        }
+        private IntPtr objectPtr;
 
         public ObjectSafeWrapper(ObjectId id, Repository repo)
         {
             var oid = id.Oid;
-            var res = NativeMethods.git_object_lookup(out _obj, repo.Handle, ref oid, GitObjectType.Any);
+            var res = NativeMethods.git_object_lookup(out objectPtr, repo.Handle, ref oid, GitObjectType.Any);
             Ensure.Success(res);
         }
 
+        public IntPtr ObjectPtr
+        {
+            get { return objectPtr; }
+        }
+        
         public void Dispose()
         {
-            if (_obj == IntPtr.Zero) return;
-            NativeMethods.git_object_close(_obj);
-            _obj = IntPtr.Zero;
+            if (objectPtr == IntPtr.Zero)
+            {
+                return;
+            }
+
+            NativeMethods.git_object_close(objectPtr);
+            objectPtr = IntPtr.Zero;
         }
     }
 }

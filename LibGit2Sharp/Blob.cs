@@ -8,12 +8,12 @@ namespace LibGit2Sharp
 {
     public class Blob : GitObject
     {
-        private readonly Repository _repo;
+        private readonly Repository repo;
 
         internal Blob(Repository repo, ObjectId id)
             : base(id)
         {
-            _repo = repo;
+            this.repo = repo;
         }
 
         public int Size { get; set; }
@@ -22,10 +22,10 @@ namespace LibGit2Sharp
         {
             get
             {
-                using (var obj = new ObjectSafeWrapper(Id, _repo))
+                using (var obj = new ObjectSafeWrapper(Id, repo))
                 {
                     var arr = new byte[Size];
-                    Marshal.Copy(NativeMethods.git_blob_rawcontent(obj.Obj), arr, 0, Size);
+                    Marshal.Copy(NativeMethods.git_blob_rawcontent(obj.ObjectPtr), arr, 0, Size);
                     return arr;
                 }
             }
@@ -35,9 +35,9 @@ namespace LibGit2Sharp
         {
             get
             {
-                using (var obj = new ObjectSafeWrapper(Id, _repo))
+                using (var obj = new ObjectSafeWrapper(Id, repo))
                 {
-                    IntPtr ptr = NativeMethods.git_blob_rawcontent(obj.Obj);
+                    IntPtr ptr = NativeMethods.git_blob_rawcontent(obj.ObjectPtr);
                     unsafe
                     {
                         return new UnmanagedMemoryStream((byte*) ptr.ToPointer(), Size);
@@ -45,7 +45,6 @@ namespace LibGit2Sharp
                 }
             }
         }
-
 
         public string ContentAsUtf8()
         {

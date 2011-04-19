@@ -22,7 +22,7 @@ namespace LibGit2Sharp
             {
                 using (var obj = new ObjectSafeWrapper(Id, _repo))
                                                       {
-                                                          IntPtr e = NativeMethods.git_tree_entry_byindex(obj.Obj, i);
+                                                          IntPtr e = NativeMethods.git_tree_entry_byindex(obj.ObjectPtr, i);
                                                           return new TreeEntry(e, _repo);
                                                       }
             }
@@ -34,7 +34,7 @@ namespace LibGit2Sharp
             {
                 using (var obj = new ObjectSafeWrapper(Id, _repo))
                                                       {
-                                                          IntPtr e = NativeMethods.git_tree_entry_byname(obj.Obj, name);
+                                                          IntPtr e = NativeMethods.git_tree_entry_byname(obj.ObjectPtr, name);
                                                           return new TreeEntry(e, _repo);
                                                       }
             }
@@ -48,7 +48,7 @@ namespace LibGit2Sharp
             {
                 for (int i = 0; i < Count; i++)
                 {
-                    IntPtr e = NativeMethods.git_tree_entry_byindex(obj.Obj, i);
+                    IntPtr e = NativeMethods.git_tree_entry_byindex(obj.ObjectPtr, i);
                     yield return new TreeEntry(e, _repo);
                 }    
             }
