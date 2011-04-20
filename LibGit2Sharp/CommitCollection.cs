@@ -11,7 +11,6 @@ namespace LibGit2Sharp
     public class CommitCollection : IEnumerable<Commit>
     {
         private readonly Repository repo;
-        private CommitEnumerator enumerator;
         private string pushedSha;
         private GitSortOptions sortOptions = GitSortOptions.None;
 
@@ -22,11 +21,6 @@ namespace LibGit2Sharp
         public CommitCollection(Repository repo)
         {
             this.repo = repo;
-        }
-
-        private CommitEnumerator Enumerator
-        {
-            get { return enumerator ?? (enumerator = new CommitEnumerator(repo)); }
         }
 
         /// <summary>
@@ -41,14 +35,15 @@ namespace LibGit2Sharp
 
         public IEnumerator<Commit> GetEnumerator()
         {
-            Enumerator.Sort(sortOptions);
+            var enumerator = new CommitEnumerator(repo);
+            enumerator.Sort(sortOptions);
             if (string.IsNullOrEmpty(pushedSha))
             {
                 throw new NotImplementedException();
             }
 
-            Enumerator.Push(pushedSha);
-            return Enumerator;
+            enumerator.Push(pushedSha);
+            return enumerator;
         }
 
         IEnumerator IEnumerable.GetEnumerator()
