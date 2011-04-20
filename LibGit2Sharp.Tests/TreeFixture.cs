@@ -40,43 +40,28 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
-        public void CanGetEntryByIndex()
-        {
-            using (var repo = new Repository(Constants.TestRepoPath))
-            {
-                var tree = repo.Lookup<Tree>(sha);
-                tree[0].ShouldNotBeNull();
-                tree[1].ShouldNotBeNull();
-            }
-        }
-
-        [Test]
-        public void CanGetShaFromTreeEntry()
-        {
-            using (var repo = new Repository(Constants.TestRepoPath))
-            {
-                var tree = repo.Lookup<Tree>(sha);
-                tree[1].Target.Sha.ShouldEqual("a8233120f6ad708f843d861ce2b7228ec4e3dec6");
-            }
-        }
-
-        [Test]
-        public void CanGetNameFromTreeEntry()
-        {
-            using (var repo = new Repository(Constants.TestRepoPath))
-            {
-                var tree = repo.Lookup<Tree>(sha);
-                tree[1].Name.ShouldEqual("README");
-            }
-        }
-
-        [Test]
         public void CanGetEntryByName()
         {
             using (var repo = new Repository(Constants.TestRepoPath))
             {
                 var tree = repo.Lookup<Tree>(sha);
-                tree["README"].Target.Sha.ShouldEqual("a8233120f6ad708f843d861ce2b7228ec4e3dec6");
+                TreeEntry treeEntry = tree["README"];
+                treeEntry.Target.Sha.ShouldEqual("a8233120f6ad708f843d861ce2b7228ec4e3dec6");
+                treeEntry.Name.ShouldEqual("README");
+            }
+        }
+
+        [Test]
+        [Ignore("TreeEntry doesn't implement IEquatable<TreeEntry> yet")]
+        public void CanCompareTwoTreeEntries()
+        {
+            using (var repo = new Repository(Constants.TestRepoPath))
+            {
+                var tree = repo.Lookup<Tree>(sha);
+                TreeEntry treeEntry1 = tree["README"];
+                TreeEntry treeEntry2 = tree["README"];
+                treeEntry1.ShouldEqual(treeEntry2);
+                (treeEntry1 == treeEntry2).ShouldBeTrue();
             }
         }
 
@@ -88,13 +73,8 @@ namespace LibGit2Sharp.Tests
                 var tree = repo.Lookup<Tree>(sha);
                 TreeEntry treeEntry = tree["README"];
 
-                var blob = treeEntry.Object as Blob;
+                var blob = treeEntry.Target as Blob;
                 blob.ShouldNotBeNull();
-
-                treeEntry.Blob.ShouldEqual(blob);
-
-                var subTree = treeEntry.Object as Tree;
-                subTree.ShouldBeNull();
             }
         }
 
@@ -114,27 +94,42 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(Constants.TestRepoPath))
             {
                 var tree = repo.Lookup<Tree>(sha);
-                TreeEntry treeEntry = tree[0];
+                TreeEntry treeEntry = tree["1"];
 
-                var subtree = treeEntry.Object as Tree;
+                var subtree = treeEntry.Target as Tree;
                 subtree.ShouldNotBeNull();
-
-                //treeEntry.Tree.ShouldEqual(subtree);
-
-                var blob = treeEntry.Object as Blob;
-                blob.ShouldBeNull();
             }
         }
 
         [Test]
-        public void CanEnumerateTree()
+        public void CanEnumerateTreeEntries()
         {
             using (var repo = new Repository(Constants.TestRepoPath))
             {
                 var tree = repo.Lookup<Tree>(sha);
                 tree.Count().ShouldEqual(tree.Count);
 
-                CollectionAssert.AreEquivalent(new[]{"1", "README", "branch_file.txt", "new.txt"}, tree.Select(te => te.Name).ToArray());
+                CollectionAssert.AreEquivalent(new[] { "1", "README", "branch_file.txt", "new.txt" }, tree.Select(te => te.Name).ToArray());
+            }
+        }
+
+        [Test]
+        public void CanEnumerateSubTrees()
+        {
+            using (var repo = new Repository(Constants.TestRepoPath))
+            {
+                var tree = repo.Lookup<Tree>(sha);
+                tree.Trees.Count().ShouldEqual(1);
+            }
+        }
+
+        [Test]
+        public void CanEnumerateBlobs()
+        {
+            using (var repo = new Repository(Constants.TestRepoPath))
+            {
+                var tree = repo.Lookup<Tree>(sha);
+                tree.Files.Count().ShouldEqual(3);
             }
         }
     }

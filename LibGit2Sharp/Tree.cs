@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
@@ -16,18 +17,6 @@ namespace LibGit2Sharp
 
         public int Count { get; private set; }
 
-        public TreeEntry this[int i]
-        {
-            get
-            {
-                using (var obj = new ObjectSafeWrapper(Id, _repo))
-                                                      {
-                                                          IntPtr e = NativeMethods.git_tree_entry_byindex(obj.ObjectPtr, i);
-                                                          return new TreeEntry(e, _repo);
-                                                      }
-            }
-        }
-
         public TreeEntry this[string name]
         {
             get
@@ -37,6 +26,22 @@ namespace LibGit2Sharp
                                                           IntPtr e = NativeMethods.git_tree_entry_byname(obj.ObjectPtr, name);
                                                           return new TreeEntry(e, _repo);
                                                       }
+            }
+        }
+
+        public IEnumerable<Tree> Trees
+        {
+            get
+            {
+                return this.Select(e => e.Target).OfType<Tree>();
+            }
+        }
+
+        public IEnumerable<Blob> Files
+        {
+            get
+            {
+                return this.Select(e => e.Target).OfType<Blob>();
             }
         }
 
