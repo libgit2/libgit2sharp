@@ -4,12 +4,14 @@ LibGit2Sharp is an thin .Net layer (well.. we _try_ to keep it as thin as possib
 
 It provides a very opiniated API which should be very easy to use and discover.
 
-## Contributing guide
+## Quick contributing guide
 
  - Fork and clone locally
  - Configure your repo to convert line endings on commit so they are always LF in the repo:
  - Create a topic specific branch. Add some nice feature. Do not forget the tests ;-)
  - Send a Pull Request to spread the fun!
+
+More thorough information available in the [wiki](https://github.com/libgit2/libgit2sharp/wiki).
 
 ## Authors
 

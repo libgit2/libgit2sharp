@@ -12,8 +12,6 @@
  - Add BranchCollection.Delete(string name)
  - The freeing of a newly created signature pointer doesn't "feel" to be done at the right place.
  - Should we throw when trying to delete a reference which can not be found?
- - Add reference renaming (ReferenceCollection.Move())
- - Add shouldOverwrite flag to TagCollection.Create()
  - Favor overloads over optional parameters
  - Ensure that types that are not supposed to be built by the Consumer do not expose a constructor.
  - Escape as early as possible from a method. Fight against the arrowhead effect (cf. http://elegantcode.com/2009/08/14/observations-on-the-if-statement/)
@@ -31,5 +29,5 @@
  
 ### Miscellaneous
 
- - Run the tests on a Mono platform (would require proper handling of libgit2 its dependencies binaries)
+ - Run the tests on a Mono platform
  
