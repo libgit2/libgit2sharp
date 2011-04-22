@@ -82,9 +82,6 @@
     <Compile Include="TreeEntry.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="backlog.md" />
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="..\Lib\git2.dll">
       <Link>git2.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
