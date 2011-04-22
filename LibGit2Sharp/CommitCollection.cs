@@ -31,6 +31,22 @@ namespace LibGit2Sharp
             get { return repo.Lookup<Commit>(sha); }
         }
 
+        /// <summary>
+        ///   Gets the Count of commits (This is a fast count that does not hydrate real commit objects)
+        /// </summary>
+        public int Count
+        {
+            get
+            {
+                var enumerator = new CommitEnumerator(repo, true);
+                enumerator.Sort(sortOptions);
+                enumerator.Push(pushedSha);
+                var count = 0;
+                while (enumerator.MoveNext()) count++;
+                return count;
+            }
+        }
+
         #region IEnumerable<Commit> Members
 
         public IEnumerator<Commit> GetEnumerator()
@@ -108,13 +124,15 @@ namespace LibGit2Sharp
 
         private class CommitEnumerator : IEnumerator<Commit>
         {
+            private readonly bool forCountOnly;
             private readonly Repository repo;
             private readonly IntPtr walker = IntPtr.Zero;
             private bool disposed;
 
-            public CommitEnumerator(Repository repo)
+            public CommitEnumerator(Repository repo, bool forCountOnly = false)
             {
                 this.repo = repo;
+                this.forCountOnly = forCountOnly;
                 int res = NativeMethods.git_revwalk_new(out walker, repo.Handle);
                 Ensure.Success(res);
             }
@@ -140,8 +158,10 @@ namespace LibGit2Sharp
                 var res = NativeMethods.git_revwalk_next(out oid, walker);
                 if (res == (int) GitErrorCode.GIT_EREVWALKOVER) return false;
 
-                Current = repo.Lookup<Commit>(new ObjectId(oid));
-
+                if (!forCountOnly)
+                {
+                    Current = repo.Lookup<Commit>(new ObjectId(oid));
+                }
                 return true;
             }
 

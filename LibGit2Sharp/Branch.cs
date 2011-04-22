@@ -11,7 +11,7 @@ namespace LibGit2Sharp
         private readonly Repository repo;
 
         private static readonly LambdaEqualityHelper<Branch> equalityHelper =
-            new LambdaEqualityHelper<Branch>(new Func<Branch, object>[] {x => x.CanonicalName, x => x.Tip});
+            new LambdaEqualityHelper<Branch>(new Func<Branch, object>[] { x => x.CanonicalName, x => x.Tip });
 
         /// <summary>
         ///   Initializes a new instance of the <see cref = "Branch" /> class.
@@ -36,7 +36,24 @@ namespace LibGit2Sharp
         /// </summary>
         public string Name { get { return ShortenName(CanonicalName); } }
 
+        /// <summary>
+        /// Gets a value indicating whether this instance is a remote.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if this instance is remote; otherwise, <c>false</c>.
+        /// </value>
         public bool IsRemote { get { return IsRemoteBranch(CanonicalName); } }
+
+        /// <summary>
+        /// Gets a value indicating whether this instance is current branch (HEAD) in the repository.
+        /// </summary>
+        /// <value>
+        /// 	<c>true</c> if this instance is current branch; otherwise, <c>false</c>.
+        /// </value>
+        public bool IsCurrentBranch
+        {
+            get { return CanonicalName == repo.Refs.Head.ResolveToDirectReference().CanonicalName; }
+        }
 
         /// <summary>
         ///   Gets the commit id that this branch points to.
