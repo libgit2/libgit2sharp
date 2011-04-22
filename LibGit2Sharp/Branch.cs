@@ -71,26 +71,52 @@ namespace LibGit2Sharp
             throw new ArgumentException(string.Format("'{0}' does not look like a valid branch name.", branchName));
         }
 
+        /// <summary>
+        /// Determines whether the specified <see cref="Object"/> is equal to the current <see cref="Branch"/>.
+        /// </summary>
+        /// <param name="obj">The <see cref="Object"/> to compare with the current <see cref="Branch"/>.</param>
+        /// <returns>True if the specified <see cref="Object"/> is equal to the current <see cref="Branch"/>; otherwise, false.</returns>
         public override bool Equals(object obj)
         {
             return Equals(obj as Branch);
         }
 
+        /// <summary>
+        /// Determines whether the specified <see cref="Branch"/> is equal to the current <see cref="Branch"/>.
+        /// </summary>
+        /// <param name="other">The <see cref="Branch"/> to compare with the current <see cref="Branch"/>.</param>
+        /// <returns>True if the specified <see cref="Branch"/> is equal to the current <see cref="Branch"/>; otherwise, false.</returns>
         public bool Equals(Branch other)
         {
             return equalityHelper.Equals(this, other);
         }
 
+        /// <summary>
+        /// Returns the hash code for this instance.
+        /// </summary>
+        /// <returns>A 32-bit signed integer hash code.</returns>
         public override int GetHashCode()
         {
             return equalityHelper.GetHashCode(this);
         }
 
+        /// <summary>
+        /// Tests if two <see cref="Branch"/> are equal.
+        /// </summary>
+        /// <param name="left">First <see cref="Branch"/> to compare.</param>
+        /// <param name="right">Second <see cref="Branch"/> to compare.</param>
+        /// <returns>True if the two objects are equal; false otherwise.</returns>
         public static bool operator ==(Branch left, Branch right)
         {
             return Equals(left, right);
         }
 
+        /// <summary>
+        /// Tests if two <see cref="Branch"/> are different.
+        /// </summary>
+        /// <param name="left">First <see cref="Branch"/> to compare.</param>
+        /// <param name="right">Second <see cref="Branch"/> to compare.</param>
+        /// <returns>True if the two objects are different; false otherwise.</returns>
         public static bool operator !=(Branch left, Branch right)
         {
             return !Equals(left, right);

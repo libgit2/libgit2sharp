@@ -13,6 +13,9 @@ namespace LibGit2Sharp
         private const int rawSize = 20;
         private const int hexSize = rawSize * 2;
 
+        private static readonly LambdaEqualityHelper<ObjectId> equalityHelper =
+            new LambdaEqualityHelper<ObjectId>(new Func<ObjectId, object>[] { x => x.Sha });
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ObjectId"/> class.
         /// </summary>
@@ -109,34 +112,33 @@ namespace LibGit2Sharp
             return Encoding.UTF8.GetString(hex);
         }
 
+        /// <summary>
+        /// Determines whether the specified <see cref="Object"/> is equal to the current <see cref="ObjectId"/>.
+        /// </summary>
+        /// <param name="obj">The <see cref="Object"/> to compare with the current <see cref="ObjectId"/>.</param>
+        /// <returns>True if the specified <see cref="Object"/> is equal to the current <see cref="ObjectId"/>; otherwise, false.</returns>
         public override bool Equals(object obj)
         {
             return Equals(obj as ObjectId);
         }
 
+        /// <summary>
+        /// Determines whether the specified <see cref="ObjectId"/> is equal to the current <see cref="ObjectId"/>.
+        /// </summary>
+        /// <param name="other">The <see cref="ObjectId"/> to compare with the current <see cref="ObjectId"/>.</param>
+        /// <returns>True if the specified <see cref="ObjectId"/> is equal to the current <see cref="ObjectId"/>; otherwise, false.</returns>
         public bool Equals(ObjectId other)
         {
-            if (ReferenceEquals(null, other))
-            {
-                return false;
-            }
-
-            if (ReferenceEquals(this, other))
-            {
-                return true;
-            }
-
-            if (GetType() != other.GetType())
-            {
-                return false;
-            }
-
-            return Equals(Sha, other.Sha);
+            return equalityHelper.Equals(this, other);
         }
 
+        /// <summary>
+        /// Returns the hash code for this instance.
+        /// </summary>
+        /// <returns>A 32-bit signed integer hash code.</returns>
         public override int GetHashCode()
         {
-            return Sha.GetHashCode();
+            return equalityHelper.GetHashCode(this);
         }
 
         public override string ToString()
@@ -144,11 +146,23 @@ namespace LibGit2Sharp
             return Sha;
         }
 
+        /// <summary>
+        /// Tests if two <see cref="ObjectId"/> are equal.
+        /// </summary>
+        /// <param name="left">First <see cref="ObjectId"/> to compare.</param>
+        /// <param name="right">Second <see cref="ObjectId"/> to compare.</param>
+        /// <returns>True if the two objects are equal; false otherwise.</returns>
         public static bool operator ==(ObjectId left, ObjectId right)
         {
             return Equals(left, right);
         }
 
+        /// <summary>
+        /// Tests if two <see cref="ObjectId"/> are different.
+        /// </summary>
+        /// <param name="left">First <see cref="ObjectId"/> to compare.</param>
+        /// <param name="right">Second <see cref="ObjectId"/> to compare.</param>
+        /// <returns>True if the two objects are different; false otherwise.</returns>
         public static bool operator !=(ObjectId left, ObjectId right)
         {
             return !Equals(left, right);

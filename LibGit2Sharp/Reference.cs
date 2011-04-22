@@ -68,33 +68,59 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Resolves to direct reference.
+        /// Recursively peels the target of the reference until a direct reference is encountered.
         /// </summary>
         /// <returns></returns>
         public abstract DirectReference ResolveToDirectReference(); 
         
         protected abstract object ProvideAdditionalEqualityComponent();
 
+        /// <summary>
+        /// Determines whether the specified <see cref="Object"/> is equal to the current <see cref="Reference"/>.
+        /// </summary>
+        /// <param name="obj">The <see cref="Object"/> to compare with the current <see cref="Reference"/>.</param>
+        /// <returns>True if the specified <see cref="Object"/> is equal to the current <see cref="Reference"/>; otherwise, false.</returns>
         public override bool Equals(object obj)
         {
             return Equals(obj as Reference);
         }
 
+        /// <summary>
+        /// Determines whether the specified <see cref="Reference"/> is equal to the current <see cref="Reference"/>.
+        /// </summary>
+        /// <param name="other">The <see cref="Reference"/> to compare with the current <see cref="Reference"/>.</param>
+        /// <returns>True if the specified <see cref="Reference"/> is equal to the current <see cref="Reference"/>; otherwise, false.</returns>
         public bool Equals(Reference other)
         {
             return equalityHelper.Equals(this, other);
         }
-        
+
+        /// <summary>
+        /// Returns the hash code for this instance.
+        /// </summary>
+        /// <returns>A 32-bit signed integer hash code.</returns>
         public override int GetHashCode()
         {
             return equalityHelper.GetHashCode(this);
         }
 
+        /// <summary>
+        /// Tests if two <see cref="Reference"/> are equal.
+        /// </summary>
+        /// <param name="left">First <see cref="Reference"/> to compare.</param>
+        /// <param name="right">Second <see cref="Reference"/> to compare.</param>
+        /// <returns>True if the two objects are equal; false otherwise.</returns>
         public static bool operator ==(Reference left, Reference right)
         {
             return Equals(left, right);
         }
 
+        /// <summary>
+        /// Tests if two <see cref="Reference"/> are different.
+        /// </summary>
+        /// <param name="left">First <see cref="Reference"/> to compare.</param>
+        /// <param name="right">Second <see cref="Reference"/> to compare.</param>
+        /// <returns>True if the two objects are different; false otherwise.</returns>
         public static bool operator !=(Reference left, Reference right)
         {
             return !Equals(left, right);
