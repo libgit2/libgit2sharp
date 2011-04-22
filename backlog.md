@@ -8,7 +8,6 @@
  - When properly exported use git_strerror() to feed raised exceptions with a meaningful message.
  - Remove usage of ApplicationException
  - https://bugzilla.novell.com/show_bug.cgi?id=566247 prevents MonoDevelop users from benefiting from optional parameters while still target at 3.5
- - Add Resharper settings file
  - Add BranchCollection.Delete(string name)
  - The freeing of a newly created signature pointer doesn't "feel" to be done at the right place.
  - Should we throw when trying to delete a reference which can not be found?
