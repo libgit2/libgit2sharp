@@ -62,8 +62,8 @@
     <Compile Include="GitObject.cs" />
     <Compile Include="GitObjectType.cs" />
     <Compile Include="GitSortOptions.cs" />
-    <Compile Include="LambdaEqualityHelper.cs" />
-    <Compile Include="Libgit2UnsafeHelper.cs" />
+    <Compile Include="Core\LambdaEqualityHelper.cs" />
+    <Compile Include="Core\Libgit2UnsafeHelper.cs" />
     <Compile Include="ObjectId.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Reference.cs" />

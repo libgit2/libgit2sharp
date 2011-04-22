@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace LibGit2Sharp
+namespace LibGit2Sharp.Core
 {
     internal class LambdaEqualityHelper<T>
     {

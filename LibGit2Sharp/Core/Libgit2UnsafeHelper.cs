@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
-using LibGit2Sharp.Core;
 
-namespace LibGit2Sharp
+namespace LibGit2Sharp.Core
 {
     internal static unsafe class Libgit2UnsafeHelper
     {
