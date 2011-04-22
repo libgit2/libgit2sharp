@@ -71,26 +71,52 @@ namespace LibGit2Sharp
             return new ObjectId((GitOid)Marshal.PtrToStructure(ptr, typeof(GitOid)));
         }
 
+        /// <summary>
+        /// Determines whether the specified <see cref="Object"/> is equal to the current <see cref="GitObject"/>.
+        /// </summary>
+        /// <param name="obj">The <see cref="Object"/> to compare with the current <see cref="GitObject"/>.</param>
+        /// <returns>True if the specified <see cref="Object"/> is equal to the current <see cref="GitObject"/>; otherwise, false.</returns>
         public override bool Equals(object obj)
         {
             return Equals(obj as GitObject);
         }
-
+        
+        /// <summary>
+        /// Determines whether the specified <see cref="GitObject"/> is equal to the current <see cref="GitObject"/>.
+        /// </summary>
+        /// <param name="other">The <see cref="GitObject"/> to compare with the current <see cref="GitObject"/>.</param>
+        /// <returns>True if the specified <see cref="GitObject"/> is equal to the current <see cref="GitObject"/>; otherwise, false.</returns>
         public bool Equals(GitObject other)
         {
             return equalityHelper.Equals(this, other);
         }
 
+        /// <summary>
+        /// Returns the hash code for this instance.
+        /// </summary>
+        /// <returns>A 32-bit signed integer hash code.</returns>
         public override int GetHashCode()
         {
             return equalityHelper.GetHashCode(this);
         }
 
+        /// <summary>
+        /// Tests if two <see cref="GitObject"/> are equal.
+        /// </summary>
+        /// <param name="left">First <see cref="GitObject"/> to compare.</param>
+        /// <param name="right">Second <see cref="GitObject"/> to compare.</param>
+        /// <returns>True if the two objects are equal; false otherwise.</returns>
         public static bool operator ==(GitObject left, GitObject right)
         {
             return Equals(left, right);
         }
 
+        /// <summary>
+        /// Tests if two <see cref="GitObject"/> are different.
+        /// </summary>
+        /// <param name="left">First <see cref="GitObject"/> to compare.</param>
+        /// <param name="right">Second <see cref="GitObject"/> to compare.</param>
+        /// <returns>True if the two objects are different; false otherwise.</returns>
         public static bool operator !=(GitObject left, GitObject right)
         {
             return !Equals(left, right);

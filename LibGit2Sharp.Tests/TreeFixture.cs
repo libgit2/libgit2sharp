@@ -52,7 +52,6 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
-        [Ignore("TreeEntry doesn't implement IEquatable<TreeEntry> yet")]
         public void CanCompareTwoTreeEntries()
         {
             using (var repo = new Repository(Constants.TestRepoPath))
