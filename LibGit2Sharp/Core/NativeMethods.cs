@@ -91,6 +91,12 @@ namespace LibGit2Sharp.Core
         [DllImport(libgit2)]
         public static extern int git_reference_resolve(out IntPtr resolvedReference, IntPtr reference);
 
+        [DllImport(libgit2, SetLastError = true)]
+        public static extern int git_reference_set_oid(IntPtr reference, ref GitOid id);
+
+        [DllImport(libgit2, SetLastError = true)]
+        public static extern int git_reference_set_target(IntPtr reference, string target);
+
         [DllImport(libgit2)]
         [return: MarshalAs(UnmanagedType.AnsiBStr)]
         public static extern string git_reference_target(IntPtr reference);

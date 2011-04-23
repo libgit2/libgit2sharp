@@ -131,5 +131,37 @@ namespace LibGit2Sharp
 
             return Reference.BuildFromPtr<T>(reference, repo);
         }
+
+        /// <summary>
+        ///   Updates the target on a reference.
+        /// </summary>
+        /// <param name = "name">The name of the reference.</param>
+        /// <param name = "target">The target which can be either a sha or the name of another reference.</param>
+        public void UpdateTarget(string name, string target)
+        {
+            Ensure.ArgumentNotNullOrEmptyString(name, "name");
+            Ensure.ArgumentNotNullOrEmptyString(target, "target");
+
+            IntPtr reference;
+            var res = NativeMethods.git_reference_lookup(out reference, repo.Handle, name);
+            Ensure.Success(res);
+
+            var id = ObjectId.CreateFromMaybeSha(target);
+            var type = NativeMethods.git_reference_type(reference);
+            switch (type)
+            {
+                case GitReferenceType.Oid:
+                    if (id == null) throw new ArgumentException(String.Format("The reference specified by {0} is an Oid reference, you must provide a sha as the target.", name), "target");
+                    var oid = id.Oid;
+                    res = NativeMethods.git_reference_set_oid(reference, ref oid);
+                    break;
+                case GitReferenceType.Symbolic:
+                    if (id != null) throw new ArgumentException(String.Format("The reference specified by {0} is an Symbolic reference, you must provide a symbol as the target.", name), "target");
+                    res = NativeMethods.git_reference_set_target(reference, target);
+                    break;
+            }
+
+            Ensure.Success(res);
+        }
     }
 }
