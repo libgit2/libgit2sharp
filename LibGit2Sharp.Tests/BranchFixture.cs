@@ -26,7 +26,7 @@ namespace LibGit2Sharp.Tests
                 newBranch.Tip.Sha.ShouldEqual("be3563ae3f795b2b4353bcce3a527ad0a4f7f644");
                 repo.Branches.SingleOrDefault(p => p.Name == name).ShouldNotBeNull();
 
-                repo.Refs.Delete(newBranch.CanonicalName);  //TODO: To be replaced with repo.Branches.Delete(newBranch.Name)
+                repo.Refs.Delete(newBranch.CanonicalName); //TODO: To be replaced with repo.Branches.Delete(newBranch.Name)
             }
         }
 
@@ -46,49 +46,7 @@ namespace LibGit2Sharp.Tests
                 newBranch.Tip.Sha.ShouldEqual("4c062a6361ae6959e06292c1fa5e2822d9c96345");
                 repo.Branches.SingleOrDefault(p => p.Name == name).ShouldNotBeNull();
 
-                repo.Refs.Delete(newBranch.CanonicalName);  //TODO: To be replaced with repo.Branches.Delete(newBranch.Name)
-            }
-        }
-
-        [Test]
-        public void TwoBranchesPointingAtTheSameCommitAreNotBothCurrent()
-        {
-            using (var path = new TemporaryCloneOfTestRepo())
-            using (var repo = new Repository(path.RepositoryPath))
-            {
-                var master = repo.Branches["refs/heads/master"];
-
-                var newBranch = repo.Branches.Create("clone-of-master", master.Tip.Sha);
-                newBranch.IsCurrentRepositoryHead.ShouldBeFalse();
-            }
-        }
-
-        [Test]
-        public void OnlyOneBranchIsTheHead()
-        {
-            using (var repo = new Repository(Constants.TestRepoPath))
-            {
-                Branch head = null;
-
-                foreach (var branch in repo.Branches)
-                {
-                    bool isHead = branch.IsCurrentRepositoryHead;
-                    
-                    if (!isHead)
-                    {
-                        continue;
-                    }
-
-                    if (head == null)
-                    {
-                        head = branch;
-                        continue;
-                    }
-
-                    Assert.Fail("Both '{0}' and '{1}' appear to be Head.", head.CanonicalName, branch.CanonicalName);
-                }
-
-                head.ShouldNotBeNull();
+                repo.Refs.Delete(newBranch.CanonicalName); //TODO: To be replaced with repo.Branches.Delete(newBranch.Name)
             }
         }
 
@@ -107,21 +65,6 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
-        public void CanLookupLocalBranch()
-        {
-            using (var repo = new Repository(Constants.TestRepoPath))
-            {
-                var master = repo.Branches["master"];
-                master.ShouldNotBeNull();
-                master.IsRemote.ShouldBeFalse();
-                master.Name.ShouldEqual("master");
-                master.CanonicalName.ShouldEqual("refs/heads/master");
-                master.IsCurrentRepositoryHead.ShouldBeTrue();
-                master.Tip.Sha.ShouldEqual("4c062a6361ae6959e06292c1fa5e2822d9c96345");
-            }
-        }
-
-        [Test]
         public void CanLookupABranchByItsCanonicalName()
         {
             using (var repo = new Repository(Constants.TestRepoPath))
@@ -136,6 +79,21 @@ namespace LibGit2Sharp.Tests
 
                 branch2.ShouldEqual(branch);
                 (branch2 == branch).ShouldBeTrue();
+            }
+        }
+
+        [Test]
+        public void CanLookupLocalBranch()
+        {
+            using (var repo = new Repository(Constants.TestRepoPath))
+            {
+                var master = repo.Branches["master"];
+                master.ShouldNotBeNull();
+                master.IsRemote.ShouldBeFalse();
+                master.Name.ShouldEqual("master");
+                master.CanonicalName.ShouldEqual("refs/heads/master");
+                master.IsCurrentRepositoryHead.ShouldBeTrue();
+                master.Tip.Sha.ShouldEqual("4c062a6361ae6959e06292c1fa5e2822d9c96345");
             }
         }
 
@@ -193,6 +151,48 @@ namespace LibGit2Sharp.Tests
             {
                 Assert.Throws<ArgumentNullException>(() => repo.Branches.Create("bad_branch", (string) null));
                 Assert.Throws<ArgumentNullException>(() => repo.Branches.Create("bad_branch", (ObjectId) null));
+            }
+        }
+
+        [Test]
+        public void OnlyOneBranchIsTheHead()
+        {
+            using (var repo = new Repository(Constants.TestRepoPath))
+            {
+                Branch head = null;
+
+                foreach (var branch in repo.Branches)
+                {
+                    bool isHead = branch.IsCurrentRepositoryHead;
+
+                    if (!isHead)
+                    {
+                        continue;
+                    }
+
+                    if (head == null)
+                    {
+                        head = branch;
+                        continue;
+                    }
+
+                    Assert.Fail("Both '{0}' and '{1}' appear to be Head.", head.CanonicalName, branch.CanonicalName);
+                }
+
+                head.ShouldNotBeNull();
+            }
+        }
+
+        [Test]
+        public void TwoBranchesPointingAtTheSameCommitAreNotBothCurrent()
+        {
+            using (var path = new TemporaryCloneOfTestRepo())
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                var master = repo.Branches["refs/heads/master"];
+
+                var newBranch = repo.Branches.Create("clone-of-master", master.Tip.Sha);
+                newBranch.IsCurrentRepositoryHead.ShouldBeFalse();
             }
         }
     }
