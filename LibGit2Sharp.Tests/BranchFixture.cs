@@ -41,7 +41,7 @@ namespace LibGit2Sharp.Tests
                 newBranch.ShouldNotBeNull();
                 newBranch.Name.ShouldEqual(name);
                 newBranch.CanonicalName.ShouldEqual("refs/heads/" + name);
-                newBranch.IsCurrentBranch.ShouldBeFalse();
+                newBranch.IsCurrentRepositoryHead.ShouldBeFalse();
                 newBranch.Tip.ShouldNotBeNull();
                 newBranch.Tip.Sha.ShouldEqual("4c062a6361ae6959e06292c1fa5e2822d9c96345");
                 repo.Branches.SingleOrDefault(p => p.Name == name).ShouldNotBeNull();
@@ -59,7 +59,36 @@ namespace LibGit2Sharp.Tests
                 var master = repo.Branches["refs/heads/master"];
 
                 var newBranch = repo.Branches.Create("clone-of-master", master.Tip.Sha);
-                newBranch.IsCurrentBranch.ShouldBeFalse();
+                newBranch.IsCurrentRepositoryHead.ShouldBeFalse();
+            }
+        }
+
+        [Test]
+        public void OnlyOneBranchIsTheHead()
+        {
+            using (var repo = new Repository(Constants.TestRepoPath))
+            {
+                Branch head = null;
+
+                foreach (var branch in repo.Branches)
+                {
+                    bool isHead = branch.IsCurrentRepositoryHead;
+                    
+                    if (!isHead)
+                    {
+                        continue;
+                    }
+
+                    if (head == null)
+                    {
+                        head = branch;
+                        continue;
+                    }
+
+                    Assert.Fail("Both '{0}' and '{1}' appear to be Head.", head.CanonicalName, branch.CanonicalName);
+                }
+
+                head.ShouldNotBeNull();
             }
         }
 
@@ -87,7 +116,7 @@ namespace LibGit2Sharp.Tests
                 master.IsRemote.ShouldBeFalse();
                 master.Name.ShouldEqual("master");
                 master.CanonicalName.ShouldEqual("refs/heads/master");
-                master.IsCurrentBranch.ShouldBeTrue();
+                master.IsCurrentRepositoryHead.ShouldBeTrue();
                 master.Tip.Sha.ShouldEqual("4c062a6361ae6959e06292c1fa5e2822d9c96345");
             }
         }

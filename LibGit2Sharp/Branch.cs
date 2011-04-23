@@ -50,7 +50,7 @@ namespace LibGit2Sharp
         /// <value>
         /// 	<c>true</c> if this instance is current branch; otherwise, <c>false</c>.
         /// </value>
-        public bool IsCurrentBranch
+        public bool IsCurrentRepositoryHead
         {
             get { return CanonicalName == repo.Refs.Head.ResolveToDirectReference().CanonicalName; }
         }
