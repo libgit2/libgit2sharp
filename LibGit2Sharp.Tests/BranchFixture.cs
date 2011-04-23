@@ -41,11 +41,25 @@ namespace LibGit2Sharp.Tests
                 newBranch.ShouldNotBeNull();
                 newBranch.Name.ShouldEqual(name);
                 newBranch.CanonicalName.ShouldEqual("refs/heads/" + name);
+                newBranch.IsCurrentBranch.ShouldBeFalse();
                 newBranch.Tip.ShouldNotBeNull();
                 newBranch.Tip.Sha.ShouldEqual("4c062a6361ae6959e06292c1fa5e2822d9c96345");
                 repo.Branches.SingleOrDefault(p => p.Name == name).ShouldNotBeNull();
 
                 repo.Refs.Delete(newBranch.CanonicalName);  //TODO: To be replaced with repo.Branches.Delete(newBranch.Name)
+            }
+        }
+
+        [Test]
+        public void TwoBranchesPointingAtTheSameCommitAreNotBothCurrent()
+        {
+            using (var path = new TemporaryCloneOfTestRepo())
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                var master = repo.Branches["refs/heads/master"];
+
+                var newBranch = repo.Branches.Create("clone-of-master", master.Tip.Sha);
+                newBranch.IsCurrentBranch.ShouldBeFalse();
             }
         }
 
@@ -73,6 +87,7 @@ namespace LibGit2Sharp.Tests
                 master.IsRemote.ShouldBeFalse();
                 master.Name.ShouldEqual("master");
                 master.CanonicalName.ShouldEqual("refs/heads/master");
+                master.IsCurrentBranch.ShouldBeTrue();
                 master.Tip.Sha.ShouldEqual("4c062a6361ae6959e06292c1fa5e2822d9c96345");
             }
         }
