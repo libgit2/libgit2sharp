@@ -8,6 +8,12 @@ namespace LibGit2Sharp.Core
         private const string libgit2 = "git2.dll";
 
         [DllImport(libgit2, SetLastError = true)]
+        public static extern IntPtr git_blob_rawcontent(IntPtr blob);
+
+        [DllImport(libgit2, SetLastError = true)]
+        public static extern int git_blob_rawsize(IntPtr blob);
+
+        [DllImport(libgit2, SetLastError = true)]
         public static extern IntPtr git_commit_author(IntPtr commit);
 
         [DllImport(libgit2, SetLastError = true)]
@@ -107,7 +113,7 @@ namespace LibGit2Sharp.Core
         [DllImport(libgit2)]
         [return: MarshalAs(UnmanagedType.AnsiBStr)]
         public static extern string git_repository_path(RepositorySafeHandle repository);
-        
+
         [DllImport(libgit2)]
         [return: MarshalAs(UnmanagedType.AnsiBStr)]
         public static extern string git_repository_workdir(RepositorySafeHandle repository);
@@ -152,36 +158,27 @@ namespace LibGit2Sharp.Core
 
         [DllImport(libgit2, SetLastError = true)]
         public static extern IntPtr git_tag_target_oid(IntPtr tag);
-		
-        /* Blob */
-        [DllImport(libgit2, SetLastError = true)]
-        public static extern int git_blob_rawsize(IntPtr blob);
-
-        [DllImport(libgit2, SetLastError = true)]
-        public static extern IntPtr git_blob_rawcontent(IntPtr blob);
-
-        /* Tree */
-
-        [DllImport(libgit2, SetLastError = true)]
-        [return: MarshalAs(UnmanagedType.AnsiBStr)]
-        public static extern string git_tree_entry_name(IntPtr entry);
-        
-        [DllImport(libgit2, SetLastError = true)]
-        public static extern IntPtr git_tree_entry_byindex(IntPtr tree, int idx);
-
-        [DllImport(libgit2, SetLastError = true)]
-        public static extern IntPtr git_tree_entry_byname(IntPtr tree, string filename);
-        
-        [DllImport(libgit2, SetLastError = true)]
-        public static extern int git_tree_entrycount(IntPtr tree);
-
-        [DllImport(libgit2, SetLastError = true)]
-        public static extern IntPtr git_tree_entry_id(IntPtr tree);
 
         [DllImport(libgit2, SetLastError = true)]
         public static extern int git_tree_entry_2object(out IntPtr obj, RepositorySafeHandle repo, IntPtr entry);
 
         [DllImport(libgit2, SetLastError = true)]
         public static extern int git_tree_entry_attributes(IntPtr entry);
+
+        [DllImport(libgit2, SetLastError = true)]
+        public static extern IntPtr git_tree_entry_byindex(IntPtr tree, int idx);
+
+        [DllImport(libgit2, SetLastError = true)]
+        public static extern IntPtr git_tree_entry_byname(IntPtr tree, string filename);
+
+        [DllImport(libgit2, SetLastError = true)]
+        public static extern IntPtr git_tree_entry_id(IntPtr tree);
+
+        [DllImport(libgit2, SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.AnsiBStr)]
+        public static extern string git_tree_entry_name(IntPtr entry);
+
+        [DllImport(libgit2, SetLastError = true)]
+        public static extern int git_tree_entrycount(IntPtr tree);
     }
 }

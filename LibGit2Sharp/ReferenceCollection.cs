@@ -35,6 +35,15 @@ namespace LibGit2Sharp
             get { return Resolve<Reference>(name); }
         }
 
+        /// <summary>
+        ///   Shortcut to return the reference to HEAD
+        /// </summary>
+        /// <returns></returns>
+        public Reference Head
+        {
+            get { return this[headReferenceName]; }
+        }
+
         #region IEnumerable<Reference> Members
 
         public IEnumerator<Reference> GetEnumerator()
@@ -94,7 +103,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Delete a reference with the specified name
+        ///   Delete a reference with the specified name
         /// </summary>
         public void Delete(string name)
         {
@@ -105,15 +114,6 @@ namespace LibGit2Sharp
             Ensure.Success(res);
             res = NativeMethods.git_reference_delete(reference);
             Ensure.Success(res);
-        }
-
-        /// <summary>
-        ///   Shortcut to return the reference to HEAD
-        /// </summary>
-        /// <returns></returns>
-        public Reference Head
-        {
-            get { return this[headReferenceName]; }
         }
 
         /// <summary>
