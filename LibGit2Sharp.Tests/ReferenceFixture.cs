@@ -9,7 +9,7 @@ namespace LibGit2Sharp.Tests
     [TestFixture]
     public class ReferenceFixture
     {
-        private readonly List<string> expectedRefs = new List<string> { "refs/heads/packed-test", "refs/heads/packed", "refs/heads/br2", "refs/heads/master", "refs/heads/test", "refs/tags/test", "refs/tags/e90810b", "refs/tags/lw" };
+        private readonly List<string> expectedRefs = new List<string> {"refs/heads/packed-test", "refs/heads/packed", "refs/heads/br2", "refs/heads/master", "refs/heads/test", "refs/tags/test", "refs/tags/e90810b", "refs/tags/lw"};
 
         [Test]
         public void CanCreateReferenceFromSha()
@@ -40,31 +40,12 @@ namespace LibGit2Sharp.Tests
                 newRef.ShouldNotBeNull();
                 newRef.CanonicalName.ShouldEqual(name);
                 newRef.Target.ShouldNotBeNull();
-                ((DirectReference)newRef.Target).Target.Sha.ShouldEqual("4c062a6361ae6959e06292c1fa5e2822d9c96345");
+                ((DirectReference) newRef.Target).Target.Sha.ShouldEqual("4c062a6361ae6959e06292c1fa5e2822d9c96345");
                 repo.Refs.SingleOrDefault(p => p.CanonicalName == name).ShouldNotBeNull();
 
                 repo.Refs.Delete(newRef.CanonicalName);
             }
         }
-
-        [Test]
-        public void DeleteWithNullNameThrows()
-        {
-            using (var repo = new Repository(Constants.TestRepoPath))
-            {
-                Assert.Throws<ArgumentNullException>(() => repo.Refs.Delete(null));
-            }
-        }
-
-        [Test]
-        public void DeleteWithEmptyNameThrows()
-        {
-            using (var repo = new Repository(Constants.TestRepoPath))
-            {
-                Assert.Throws<ArgumentException>(() => repo.Refs.Delete(string.Empty));
-            }
-        }
-
 
         [Test]
         public void CanListAllReferences()
@@ -90,7 +71,7 @@ namespace LibGit2Sharp.Tests
                 head.CanonicalName.ShouldEqual("HEAD");
                 head.Target.ShouldNotBeNull();
                 head.Target.CanonicalName.ShouldEqual("refs/heads/master");
-                ((DirectReference)head.Target).Target.Sha.ShouldEqual("4c062a6361ae6959e06292c1fa5e2822d9c96345");
+                ((DirectReference) head.Target).Target.Sha.ShouldEqual("4c062a6361ae6959e06292c1fa5e2822d9c96345");
                 Assert.IsInstanceOf<Commit>(((DirectReference) head.Target).Target);
 
                 var head2 = (SymbolicReference) repo.Refs.Head;
@@ -103,30 +84,30 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
-        public void CanResolveReferenceToAnAnnotatedTag()
-        {
-            using (var repo = new Repository(Constants.TestRepoPath))
-            {
-                var annTag = (DirectReference)repo.Refs["refs/tags/test"];
-                annTag.ShouldNotBeNull();
-                annTag.CanonicalName.ShouldEqual("refs/tags/test");
-                annTag.Target.ShouldNotBeNull();
-                annTag.Target.Sha.ShouldEqual("b25fa35b38051e4ae45d4222e795f9df2e43f1d1");
-                Assert.IsInstanceOf<TagAnnotation>(annTag.Target);
-            }
-        }
-
-        [Test]
         public void CanResolveReferenceToALightweightTag()
         {
             using (var repo = new Repository(Constants.TestRepoPath))
             {
-                var lwTag = (DirectReference)repo.Refs["refs/tags/lw"];
+                var lwTag = (DirectReference) repo.Refs["refs/tags/lw"];
                 lwTag.ShouldNotBeNull();
                 lwTag.CanonicalName.ShouldEqual("refs/tags/lw");
                 lwTag.Target.ShouldNotBeNull();
                 lwTag.Target.Sha.ShouldEqual("e90810b8df3e80c413d903f631643c716887138d");
                 Assert.IsInstanceOf<Commit>(lwTag.Target);
+            }
+        }
+
+        [Test]
+        public void CanResolveReferenceToAnAnnotatedTag()
+        {
+            using (var repo = new Repository(Constants.TestRepoPath))
+            {
+                var annTag = (DirectReference) repo.Refs["refs/tags/test"];
+                annTag.ShouldNotBeNull();
+                annTag.CanonicalName.ShouldEqual("refs/tags/test");
+                annTag.Target.ShouldNotBeNull();
+                annTag.Target.Sha.ShouldEqual("b25fa35b38051e4ae45d4222e795f9df2e43f1d1");
+                Assert.IsInstanceOf<TagAnnotation>(annTag.Target);
             }
         }
 
@@ -141,6 +122,43 @@ namespace LibGit2Sharp.Tests
                 master.Target.ShouldNotBeNull();
                 master.Target.Sha.ShouldEqual("4c062a6361ae6959e06292c1fa5e2822d9c96345");
                 Assert.IsInstanceOf<Commit>(master.Target);
+            }
+        }
+
+        [Test]
+        public void CanUpdateTargetOnReference()
+        {
+            const string masterRef = "refs/heads/master";
+            using (var path = new TemporaryCloneOfTestRepo())
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                var sha = repo.Refs["refs/heads/test"].ResolveToDirectReference().Target.Sha;
+                var master = repo.Refs[masterRef];
+                master.ResolveToDirectReference().Target.Sha.ShouldNotEqual(sha);
+
+                repo.Refs.UpdateTarget(masterRef, sha);
+
+                master = repo.Refs[masterRef];
+                master.ResolveToDirectReference().Target.Sha.ShouldEqual(sha);
+            }
+        }
+
+        [Test]
+        public void CanUpdateTargetOnSymolicReference()
+        {
+            const string name = "refs/heads/unit_test";
+            using (var path = new TemporaryCloneOfTestRepo())
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                var newRef = (SymbolicReference) repo.Refs.Create(name, "refs/heads/master");
+                newRef.ShouldNotBeNull();
+
+                repo.Refs.UpdateTarget(newRef.CanonicalName, "refs/heads/test");
+
+                newRef = (SymbolicReference) repo.Refs[newRef.CanonicalName];
+                newRef.ResolveToDirectReference().Target.ShouldEqual(repo.Refs["refs/heads/test"].ResolveToDirectReference().Target);
+
+                repo.Refs.Delete(newRef.CanonicalName);
             }
         }
 
@@ -170,7 +188,7 @@ namespace LibGit2Sharp.Tests
             using (var path = new TemporaryCloneOfTestRepo())
             using (var repo = new Repository(path.RepositoryPath))
             {
-                Assert.Throws<ArgumentNullException>(() => repo.Refs.Create("refs/heads/newref", (string)null));
+                Assert.Throws<ArgumentNullException>(() => repo.Refs.Create("refs/heads/newref", (string) null));
             }
         }
 
@@ -181,6 +199,24 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path.RepositoryPath))
             {
                 Assert.Throws<ArgumentNullException>(() => repo.Refs.Create(null, "refs/heads/master"));
+            }
+        }
+
+        [Test]
+        public void DeleteWithEmptyNameThrows()
+        {
+            using (var repo = new Repository(Constants.TestRepoPath))
+            {
+                Assert.Throws<ArgumentException>(() => repo.Refs.Delete(string.Empty));
+            }
+        }
+
+        [Test]
+        public void DeleteWithNullNameThrows()
+        {
+            using (var repo = new Repository(Constants.TestRepoPath))
+            {
+                Assert.Throws<ArgumentNullException>(() => repo.Refs.Delete(null));
             }
         }
 
@@ -199,6 +235,47 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(Constants.TestRepoPath))
             {
                 Assert.Throws<ArgumentNullException>(() => { var head = repo.Refs[null]; });
+            }
+        }
+
+        [Test]
+        public void TryingToUpdateADirectRefWithSymbolFails()
+        {
+            const string name = "refs/heads/unit_test";
+            using (var path = new TemporaryCloneOfTestRepo())
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                var newRef = (SymbolicReference) repo.Refs.Create(name, "refs/heads/master");
+                newRef.ShouldNotBeNull();
+
+                Assert.Throws<ArgumentException>(
+                    () => repo.Refs.UpdateTarget(newRef.CanonicalName, repo.Refs["refs/heads/test"].ResolveToDirectReference().Target.Sha));
+
+                repo.Refs.Delete(newRef.CanonicalName);
+            }
+        }
+
+        [Test]
+        public void TryingToUpdateASymbolicRefWithOidFails()
+        {
+            const string masterRef = "refs/heads/master";
+            using (var path = new TemporaryCloneOfTestRepo())
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                Assert.Throws<ArgumentException>(() => repo.Refs.UpdateTarget(masterRef, "refs/heads/test"));
+            }
+        }
+
+        [Test]
+        public void UpdateReferenceTargetWithBadParametersFails()
+        {
+            using (var path = new TemporaryCloneOfTestRepo())
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                Assert.Throws<ArgumentException>(() => repo.Refs.UpdateTarget(string.Empty, "refs/heads/packed"));
+                Assert.Throws<ArgumentException>(() => repo.Refs.UpdateTarget("master", string.Empty));
+                Assert.Throws<ArgumentNullException>(() => repo.Refs.UpdateTarget(null, "refs/heads/packed"));
+                Assert.Throws<ArgumentNullException>(() => repo.Refs.UpdateTarget("master", null));
             }
         }
     }
