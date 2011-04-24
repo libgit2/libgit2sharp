@@ -42,7 +42,7 @@ namespace LibGit2Sharp.Tests
                 newBranch.Tip.Sha.ShouldEqual("be3563ae3f795b2b4353bcce3a527ad0a4f7f644");
                 repo.Branches.SingleOrDefault(p => p.Name == name).ShouldNotBeNull();
 
-                repo.Refs.Delete(newBranch.CanonicalName); //TODO: To be replaced with repo.Branches.Delete(newBranch.Name)
+                repo.Branches.Delete(newBranch.Name);
             }
         }
 
@@ -62,7 +62,7 @@ namespace LibGit2Sharp.Tests
                 newBranch.Tip.Sha.ShouldEqual("4c062a6361ae6959e06292c1fa5e2822d9c96345");
                 repo.Branches.SingleOrDefault(p => p.Name == name).ShouldNotBeNull();
 
-                repo.Refs.Delete(newBranch.CanonicalName); //TODO: To be replaced with repo.Branches.Delete(newBranch.Name)
+                repo.Branches.Delete(newBranch.Name);
             }
         }
 
@@ -178,6 +178,17 @@ namespace LibGit2Sharp.Tests
             {
                 Assert.Throws<ArgumentNullException>(() => repo.Branches.Create("bad_branch", (string) null));
                 Assert.Throws<ArgumentNullException>(() => repo.Branches.Create("bad_branch", (ObjectId) null));
+            }
+        }
+
+        [Test]
+        public void DeletingBranchWithBadParamsThrows()
+        {
+            using (var path = new TemporaryCloneOfTestRepo())
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                Assert.Throws<ArgumentException>(() => repo.Branches.Delete(string.Empty));
+                Assert.Throws<ArgumentNullException>(() => repo.Branches.Delete(null));
             }
         }
 

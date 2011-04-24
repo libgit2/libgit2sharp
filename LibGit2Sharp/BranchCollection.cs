@@ -48,9 +48,9 @@ namespace LibGit2Sharp
         #endregion
 
         /// <summary>
-        /// Checkout the branch with the specified by name.
+        ///   Checkout the branch with the specified by name.
         /// </summary>
-        /// <param name="name">The name of the branch to checkout.</param>
+        /// <param name = "name">The name of the branch to checkout.</param>
         /// <returns></returns>
         public Branch Checkout(string name)
         {
@@ -93,6 +93,17 @@ namespace LibGit2Sharp
             repo.Refs.Create(NormalizeToCanonicalName(name), target);
 
             return this[name];
+        }
+
+        /// <summary>
+        ///   Deletes the branch with the specified name.
+        /// </summary>
+        /// <param name = "name">The name of the branch to delete.</param>
+        public void Delete(string name)
+        {
+            Ensure.ArgumentNotNullOrEmptyString(name, "name");
+
+            repo.Refs.Delete(this[name].CanonicalName);
         }
 
         private static bool LooksLikeABranchName(string referenceName)
