@@ -26,9 +26,10 @@ Thumbs.db
 obj/
 [Rr]elease*/
 _ReSharper*/
+*.ReSharper
+*.ReSharper.user
 [Tt]est[Rr]esult*
 build/
 *.pidb
 *.userprefs
 *.swp
-%temp%

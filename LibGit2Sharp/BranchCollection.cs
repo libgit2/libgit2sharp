@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using LibGit2Sharp.Core;
 
@@ -49,6 +48,20 @@ namespace LibGit2Sharp
         #endregion
 
         /// <summary>
+        /// Checkout the branch with the specified by name.
+        /// </summary>
+        /// <param name="name">The name of the branch to checkout.</param>
+        /// <returns></returns>
+        public Branch Checkout(string name)
+        {
+            Ensure.ArgumentNotNullOrEmptyString(name, "name");
+
+            repo.Refs.UpdateTarget("HEAD", this[name].CanonicalName);
+
+            return this[name];
+        }
+
+        /// <summary>
         ///   Create a new local branch with the specified name
         /// </summary>
         /// <param name = "name">The name of the branch.</param>
@@ -57,13 +70,13 @@ namespace LibGit2Sharp
         public Branch Create(string name, string target)
         {
             ObjectId id = ObjectId.CreateFromMaybeSha(target);
-            if(id != null)
+            if (id != null)
             {
                 return Create(name, id);
             }
 
             repo.Refs.Create(NormalizeToCanonicalName(name), NormalizeToCanonicalName(target));
-            
+
             return this[name];
         }
 
@@ -78,7 +91,7 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(target, "target");
 
             repo.Refs.Create(NormalizeToCanonicalName(name), target);
-            
+
             return this[name];
         }
 
