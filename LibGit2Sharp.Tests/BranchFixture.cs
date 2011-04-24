@@ -12,6 +12,22 @@ namespace LibGit2Sharp.Tests
         private readonly List<string> expectedBranches = new List<string> {"packed-test", "packed", "br2", "master", "test"};
 
         [Test]
+        public void CanCheckoutAnExistingBranch()
+        {
+            using (var path = new TemporaryCloneOfTestRepo())
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                var master = repo.Branches["master"];
+                master.IsCurrentRepositoryHead.ShouldBeTrue();
+
+                var test = repo.Branches.Checkout("test");
+
+                test.IsCurrentRepositoryHead.ShouldBeTrue();
+                master.IsCurrentRepositoryHead.ShouldBeFalse();
+            }
+        }
+
+        [Test]
         public void CanCreateBranch()
         {
             using (var path = new TemporaryCloneOfTestRepo())
@@ -114,6 +130,17 @@ namespace LibGit2Sharp.Tests
             {
                 var master = repo.Branches["master"];
                 master.Commits.Count().ShouldEqual(7);
+            }
+        }
+
+        [Test]
+        public void CheckoutBranchWithBadParamsThrows()
+        {
+            using (var path = new TemporaryCloneOfTestRepo())
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                Assert.Throws<ArgumentException>(() => repo.Branches.Checkout(string.Empty));
+                Assert.Throws<ArgumentNullException>(() => repo.Branches.Checkout(null));
             }
         }
 

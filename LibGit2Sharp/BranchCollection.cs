@@ -48,6 +48,20 @@ namespace LibGit2Sharp
         #endregion
 
         /// <summary>
+        /// Checkout the branch with the specified by name.
+        /// </summary>
+        /// <param name="name">The name of the branch to checkout.</param>
+        /// <returns></returns>
+        public Branch Checkout(string name)
+        {
+            Ensure.ArgumentNotNullOrEmptyString(name, "name");
+
+            repo.Refs.UpdateTarget("HEAD", this[name].CanonicalName);
+
+            return this[name];
+        }
+
+        /// <summary>
         ///   Create a new local branch with the specified name
         /// </summary>
         /// <param name = "name">The name of the branch.</param>
