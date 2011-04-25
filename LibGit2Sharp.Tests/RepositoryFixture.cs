@@ -42,9 +42,9 @@ namespace LibGit2Sharp.Tests
 
                 using (var repo = new Repository(dir))
                 {
-                    repo.Details.Path.ShouldNotBeNull();
-                    repo.Details.WorkingDirectory.ShouldNotBeNull();
-                    repo.Details.IsBare.ShouldBeFalse();
+                    repo.Info.Path.ShouldNotBeNull();
+                    repo.Info.WorkingDirectory.ShouldNotBeNull();
+                    repo.Info.IsBare.ShouldBeFalse();
                 }
             }
         }
@@ -60,9 +60,9 @@ namespace LibGit2Sharp.Tests
 
                 using (var repo = new Repository(dir))
                 {
-                    repo.Details.Path.ShouldNotBeNull();
-                    repo.Details.WorkingDirectory.ShouldBeNull();
-                    repo.Details.IsBare.ShouldBeTrue();
+                    repo.Info.Path.ShouldNotBeNull();
+                    repo.Info.WorkingDirectory.ShouldBeNull();
+                    repo.Info.IsBare.ShouldBeTrue();
                 }
             }
         }

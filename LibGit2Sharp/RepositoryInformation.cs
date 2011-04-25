@@ -6,11 +6,11 @@ namespace LibGit2Sharp
     /// <summary>
     ///   Provides high level information about a repository.
     /// </summary>
-    public class RepositoryDetails
+    public class RepositoryInformation
     {
         private readonly Repository repo;
 
-        internal RepositoryDetails(Repository repo, string posixPath, string posixWorkingDirectoryPath, bool isBare)
+        internal RepositoryInformation(Repository repo, string posixPath, string posixWorkingDirectoryPath, bool isBare)
         {
             this.repo = repo;
             Path = PosixPathHelper.ToNative(posixPath);

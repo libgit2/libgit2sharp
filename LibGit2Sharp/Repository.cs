@@ -33,7 +33,7 @@ namespace LibGit2Sharp
             string normalizedPath = NativeMethods.git_repository_path(handle);
             string normalizedWorkDir = NativeMethods.git_repository_workdir(handle);
 
-            Details = new RepositoryDetails(this, normalizedPath, normalizedWorkDir, normalizedWorkDir == null);
+            Info = new RepositoryInformation(this, normalizedPath, normalizedWorkDir, normalizedWorkDir == null);
 
             commits = new CommitCollection(this);
             refs = new ReferenceCollection(this);
@@ -82,7 +82,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Provides high level information about this repository.
         /// </summary>
-        public RepositoryDetails Details { get; set; }
+        public RepositoryInformation Info { get; set; }
 
         #region IDisposable Members
 
