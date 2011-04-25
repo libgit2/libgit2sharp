@@ -14,11 +14,11 @@ namespace LibGit2Sharp.Tests.TestHelpers
             DirectoryHelper.CopyFilesRecursively(source, tempRepository);
         }
 
+        public string RepositoryPath { get; private set; }
+
         private static string BuildTempPath()
         {
             return Path.Combine(Constants.TemporaryReposPath, Guid.NewGuid().ToString().Substring(0, 8));
         }
-
-        public string RepositoryPath { get; private set; }
     }
 }

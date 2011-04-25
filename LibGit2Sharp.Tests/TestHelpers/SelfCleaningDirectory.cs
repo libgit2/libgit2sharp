@@ -13,11 +13,14 @@ namespace LibGit2Sharp.Tests.TestHelpers
             {
                 throw new InvalidOperationException("Directory '{0}' already exists.");
             }
-            
+
             this.path = path;
         }
 
-        protected string DirectoryPath { get { return path; } }
+        protected string DirectoryPath
+        {
+            get { return path; }
+        }
 
         #region IDisposable Members
 

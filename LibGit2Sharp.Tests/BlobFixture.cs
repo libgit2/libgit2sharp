@@ -9,14 +9,16 @@ namespace LibGit2Sharp.Tests
     public class BlobFixture
     {
         [Test]
-         public void CanLookUpBlob()
-         {
-             using (var repo = new Repository(Constants.TestRepoPath))
-             {
-                 var blob = repo.Lookup<Blob>("a8233120f6ad708f843d861ce2b7228ec4e3dec6");
-                 blob.ShouldNotBeNull();
-             }
-         }
+        public void CanGetBlobAsUtf8()
+        {
+            using (var repo = new Repository(Constants.TestRepoPath))
+            {
+                var blob = repo.Lookup<Blob>("a8233120f6ad708f843d861ce2b7228ec4e3dec6");
+
+                var text = blob.ContentAsUtf8();
+                text.ShouldEqual("hey there\n");
+            }
+        }
 
         [Test]
         public void CanGetBlobSize()
@@ -25,7 +27,17 @@ namespace LibGit2Sharp.Tests
             {
                 var blob = repo.Lookup<Blob>("a8233120f6ad708f843d861ce2b7228ec4e3dec6");
                 blob.Size.ShouldEqual(10);
-            }            
+            }
+        }
+
+        [Test]
+        public void CanLookUpBlob()
+        {
+            using (var repo = new Repository(Constants.TestRepoPath))
+            {
+                var blob = repo.Lookup<Blob>("a8233120f6ad708f843d861ce2b7228ec4e3dec6");
+                blob.ShouldNotBeNull();
+            }
         }
 
         [Test]
@@ -39,7 +51,7 @@ namespace LibGit2Sharp.Tests
 
                 var content = Encoding.UTF8.GetString(bytes);
                 content.ShouldEqual("hey there\n");
-            }            
+            }
         }
 
         [Test]
@@ -55,18 +67,6 @@ namespace LibGit2Sharp.Tests
                     content.ShouldEqual("hey there\n");
                 }
             }
-        }
-
-        [Test]
-        public void CanGetBlobAsUtf8()
-        {
-            using (var repo = new Repository(Constants.TestRepoPath))
-            {
-                var blob = repo.Lookup<Blob>("a8233120f6ad708f843d861ce2b7228ec4e3dec6");
-                
-                var text = blob.ContentAsUtf8();
-                text.ShouldEqual("hey there\n");
-            }            
         }
     }
 }

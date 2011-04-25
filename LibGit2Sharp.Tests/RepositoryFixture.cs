@@ -27,25 +27,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(Constants.TestRepoPath))
             {
-                Assert.Throws<ArgumentNullException>(() => repo.HasObject((string) null));
-            }
-        }
-
-        [Test]
-        public void CanCreateStandardRepo()
-        {
-            using (new SelfCleaningDirectory(newRepoPath))
-            {
-                var dir = Repository.Init(newRepoPath);
-                Path.IsPathRooted(dir).ShouldBeTrue(); 
-                Directory.Exists(dir).ShouldBeTrue();
-
-                using (var repo = new Repository(dir))
-                {
-                    repo.Info.Path.ShouldNotBeNull();
-                    repo.Info.WorkingDirectory.ShouldNotBeNull();
-                    repo.Info.IsBare.ShouldBeFalse();
-                }
+                Assert.Throws<ArgumentNullException>(() => repo.HasObject(null));
             }
         }
 
@@ -55,7 +37,7 @@ namespace LibGit2Sharp.Tests
             using (new SelfCleaningDirectory(newRepoPath))
             {
                 var dir = Repository.Init(newRepoPath, true);
-                Path.IsPathRooted(dir).ShouldBeTrue(); 
+                Path.IsPathRooted(dir).ShouldBeTrue();
                 Directory.Exists(dir).ShouldBeTrue();
 
                 using (var repo = new Repository(dir))
@@ -63,6 +45,24 @@ namespace LibGit2Sharp.Tests
                     repo.Info.Path.ShouldNotBeNull();
                     repo.Info.WorkingDirectory.ShouldBeNull();
                     repo.Info.IsBare.ShouldBeTrue();
+                }
+            }
+        }
+
+        [Test]
+        public void CanCreateStandardRepo()
+        {
+            using (new SelfCleaningDirectory(newRepoPath))
+            {
+                var dir = Repository.Init(newRepoPath);
+                Path.IsPathRooted(dir).ShouldBeTrue();
+                Directory.Exists(dir).ShouldBeTrue();
+
+                using (var repo = new Repository(dir))
+                {
+                    repo.Info.Path.ShouldNotBeNull();
+                    repo.Info.WorkingDirectory.ShouldNotBeNull();
+                    repo.Info.IsBare.ShouldBeFalse();
                 }
             }
         }
@@ -133,17 +133,17 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
-        public void CanOpenRepository()
+        public void CanOpenRepoWithWindowsPathSeparators()
         {
-            using (new Repository(Constants.TestRepoPath))
+            using (new Repository(@".\Resources\testrepo.git"))
             {
             }
         }
 
         [Test]
-        public void CanOpenRepoWithWindowsPathSeparators()
+        public void CanOpenRepository()
         {
-            using(new Repository(@".\Resources\testrepo.git"))
+            using (new Repository(Constants.TestRepoPath))
             {
             }
         }
@@ -173,6 +173,16 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
+        public void LookupObjectByWrongShaReturnsNull()
+        {
+            using (var repo = new Repository(Constants.TestRepoPath))
+            {
+                repo.Lookup(notFoundSha).ShouldBeNull();
+                repo.Lookup<GitObject>(notFoundSha).ShouldBeNull();
+            }
+        }
+
+        [Test]
         public void LookupObjectByWrongTypeReturnsNull()
         {
             using (var repo = new Repository(Constants.TestRepoPath))
@@ -180,16 +190,6 @@ namespace LibGit2Sharp.Tests
                 repo.Lookup(commitSha).ShouldNotBeNull();
                 repo.Lookup<Commit>(commitSha).ShouldNotBeNull();
                 repo.Lookup<TagAnnotation>(commitSha).ShouldBeNull();
-            }
-        }
-
-        [Test]
-        public void LookupObjectByWrongShaReturnsNull()
-        {
-            using (var repo = new Repository(Constants.TestRepoPath))
-            {
-                repo.Lookup(notFoundSha).ShouldBeNull();
-                repo.Lookup<GitObject>(notFoundSha).ShouldBeNull();
             }
         }
 
@@ -208,10 +208,10 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(Constants.TestRepoPath))
             {
-                Assert.Throws<ArgumentNullException>(() => repo.Lookup((string)null));
-                Assert.Throws<ArgumentNullException>(() => repo.Lookup((ObjectId)null));
-                Assert.Throws<ArgumentNullException>(() => repo.Lookup<Commit>((string)null));
-                Assert.Throws<ArgumentNullException>(() => repo.Lookup<Commit>((ObjectId)null));
+                Assert.Throws<ArgumentNullException>(() => repo.Lookup((string) null));
+                Assert.Throws<ArgumentNullException>(() => repo.Lookup(null));
+                Assert.Throws<ArgumentNullException>(() => repo.Lookup<Commit>((string) null));
+                Assert.Throws<ArgumentNullException>(() => repo.Lookup<Commit>((ObjectId) null));
             }
         }
 

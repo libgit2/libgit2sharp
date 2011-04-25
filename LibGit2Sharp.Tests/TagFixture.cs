@@ -10,7 +10,7 @@ namespace LibGit2Sharp.Tests
     [TestFixture]
     public class TagFixture
     {
-        private readonly List<string> expectedTags = new List<string> { "test", "e90810b", "lw" };
+        private readonly List<string> expectedTags = new List<string> {"test", "e90810b", "lw"};
 
         private static readonly Signature signatureTim = new Signature("Tim Clem", "timothy.clem@gmail.com", DateTimeOffset.UtcNow);
         private static readonly Signature signatureNtk = new Signature("nulltoken", "emeric.fermas@gmail.com", Epoch.ToDateTimeOffset(1300557894, 60));
@@ -19,14 +19,14 @@ namespace LibGit2Sharp.Tests
         private const string tagE90810BSha = "7b4384978d2493e851f9cca7858815fac9b10980";
 
         [Test]
-        public void CanCreateAnAnnotatedTagFromABranchName()
+        public void CanCreateALightWeightTagFromSha()
         {
             using (var path = new TemporaryCloneOfTestRepo())
             using (var repo = new Repository(path.RepositoryPath))
             {
-                var newTag = repo.Tags.Create("unit_test", "refs/heads/master", signatureTim, "a new tag");
-                newTag.IsAnnotated.ShouldBeTrue();
+                var newTag = repo.Tags.Create("i_am_lightweight", commitE90810BSha);
                 newTag.ShouldNotBeNull();
+                newTag.IsAnnotated.ShouldBeFalse();
             }
         }
 
@@ -39,47 +39,6 @@ namespace LibGit2Sharp.Tests
                 var newTag = repo.Tags.Create("i_am_lightweight", "refs/heads/master");
                 newTag.IsAnnotated.ShouldBeFalse();
                 newTag.ShouldNotBeNull();
-            }
-        }
-
-        [Test]
-        public void CreateAnAnnotatedTagIsDeterministic()
-        {
-            const string tagName = "nullTAGen";
-            const string tagMessage = "I've been tagged!";
-
-            using (var path = new TemporaryCloneOfTestRepo())
-            using (var repo = new Repository(path.RepositoryPath))
-            {
-                var newTag = repo.Tags.Create(tagName, commitE90810BSha, signatureNtk, tagMessage);
-                newTag.Target.Sha.ShouldEqual("24f6de34a108d931c6056fc4687637fe36c6bd6b");
-                newTag.IsAnnotated.ShouldBeTrue();
-                newTag.Annotation.Sha.ShouldEqual("24f6de34a108d931c6056fc4687637fe36c6bd6b");
-            }
-        }
-
-        [Test]
-        public void CanCreateAnAnnotatedTagFromSha()
-        {
-            using (var path = new TemporaryCloneOfTestRepo())
-            using (var repo = new Repository(path.RepositoryPath))
-            {
-                var newTag = repo.Tags.Create("unit_test", tagTestSha, signatureTim, "a new tag");
-                newTag.ShouldNotBeNull();
-                newTag.IsAnnotated.ShouldBeTrue();
-            }
-        }
-
-
-        [Test]
-        public void CanCreateALightWeightTagFromSha()
-        {
-            using (var path = new TemporaryCloneOfTestRepo())
-            using (var repo = new Repository(path.RepositoryPath))
-            {
-                var newTag = repo.Tags.Create("i_am_lightweight", commitE90810BSha);
-                newTag.ShouldNotBeNull();
-                newTag.IsAnnotated.ShouldBeFalse();
             }
         }
 
@@ -103,6 +62,29 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        [Test]
+        public void CanCreateAnAnnotatedTagFromABranchName()
+        {
+            using (var path = new TemporaryCloneOfTestRepo())
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                var newTag = repo.Tags.Create("unit_test", "refs/heads/master", signatureTim, "a new tag");
+                newTag.IsAnnotated.ShouldBeTrue();
+                newTag.ShouldNotBeNull();
+            }
+        }
+
+        [Test]
+        public void CanCreateAnAnnotatedTagFromSha()
+        {
+            using (var path = new TemporaryCloneOfTestRepo())
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                var newTag = repo.Tags.Create("unit_test", tagTestSha, signatureTim, "a new tag");
+                newTag.ShouldNotBeNull();
+                newTag.IsAnnotated.ShouldBeTrue();
+            }
+        }
 
         [Test]
         public void CanListTags()
@@ -114,26 +96,6 @@ namespace LibGit2Sharp.Tests
                     expectedTags.Contains(tag.Name).ShouldBeTrue();
                 }
                 repo.Tags.Count().ShouldEqual(3);
-            }
-        }
-
-        [Test]
-        public void CanLookupAnAnnotatedTag()
-        {
-            using (var repo = new Repository(Constants.TestRepoPath))
-            {
-                var tag = repo.Tags["e90810b"];
-                tag.ShouldNotBeNull();
-                tag.Name.ShouldEqual("e90810b");
-                tag.Target.Sha.ShouldEqual(tagE90810BSha);
-
-                tag.IsAnnotated.ShouldBeTrue();
-                tag.Annotation.Sha.ShouldEqual(tagE90810BSha);
-                tag.Annotation.Tagger.Email.ShouldEqual("tanoku@gmail.com");
-                tag.Annotation.Tagger.Name.ShouldEqual("Vicent Marti");
-                tag.Annotation.Tagger.When.ShouldEqual(DateTimeOffset.Parse("2010-08-12 03:59:17 +0200"));
-                tag.Annotation.Message.ShouldEqual("This is a very simple tag.\n");
-                tag.Annotation.TargetId.Sha.ShouldEqual(commitE90810BSha);
             }
         }
 
@@ -171,6 +133,51 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
+        public void CanLookupAnAnnotatedTag()
+        {
+            using (var repo = new Repository(Constants.TestRepoPath))
+            {
+                var tag = repo.Tags["e90810b"];
+                tag.ShouldNotBeNull();
+                tag.Name.ShouldEqual("e90810b");
+                tag.Target.Sha.ShouldEqual(tagE90810BSha);
+
+                tag.IsAnnotated.ShouldBeTrue();
+                tag.Annotation.Sha.ShouldEqual(tagE90810BSha);
+                tag.Annotation.Tagger.Email.ShouldEqual("tanoku@gmail.com");
+                tag.Annotation.Tagger.Name.ShouldEqual("Vicent Marti");
+                tag.Annotation.Tagger.When.ShouldEqual(DateTimeOffset.Parse("2010-08-12 03:59:17 +0200"));
+                tag.Annotation.Message.ShouldEqual("This is a very simple tag.\n");
+                tag.Annotation.TargetId.Sha.ShouldEqual(commitE90810BSha);
+            }
+        }
+
+        [Test]
+        public void CreateAnAnnotatedTagIsDeterministic()
+        {
+            const string tagName = "nullTAGen";
+            const string tagMessage = "I've been tagged!";
+
+            using (var path = new TemporaryCloneOfTestRepo())
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                var newTag = repo.Tags.Create(tagName, commitE90810BSha, signatureNtk, tagMessage);
+                newTag.Target.Sha.ShouldEqual("24f6de34a108d931c6056fc4687637fe36c6bd6b");
+                newTag.IsAnnotated.ShouldBeTrue();
+                newTag.Annotation.Sha.ShouldEqual("24f6de34a108d931c6056fc4687637fe36c6bd6b");
+            }
+        }
+
+        [Test]
+        public void CreateTagWithADuplicateNameThrows()
+        {
+            using (var repo = new Repository(Constants.TestRepoPath))
+            {
+                Assert.Throws<ApplicationException>(() => repo.Tags.Create("test", tagTestSha, signatureTim, "message"));
+            }
+        }
+
+        [Test]
         public void CreateTagWithEmptyMessageThrows()
         {
             using (var repo = new Repository(Constants.TestRepoPath))
@@ -194,6 +201,17 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(Constants.TestRepoPath))
             {
                 Assert.Throws<ArgumentException>(() => repo.Tags.Create("test_tag", string.Empty, signatureTim, "message"));
+            }
+        }
+
+        [Test]
+        public void CreateTagWithNotExistingTargetThrows()
+        {
+            const string invalidTargetId = "deadbeef1b46c854b31185ea97743be6a8774479";
+
+            using (var repo = new Repository(Constants.TestRepoPath))
+            {
+                Assert.Throws<ApplicationException>(() => repo.Tags.Create("test_tag", invalidTargetId, signatureTim, "message"));
             }
         }
 
@@ -248,26 +266,6 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(Constants.TestRepoPath))
             {
                 Assert.Throws<ArgumentNullException>(() => { var t = repo.Tags[null]; });
-            }
-        }
-
-        [Test]
-        public void CreateTagWithNotExistingTargetThrows()
-        {
-            const string invalidTargetId = "deadbeef1b46c854b31185ea97743be6a8774479";
-
-            using (var repo = new Repository(Constants.TestRepoPath))
-            {
-                Assert.Throws<ApplicationException>(() => repo.Tags.Create("test_tag", invalidTargetId, signatureTim, "message"));
-            }
-        }
-
-        [Test]
-        public void CreateTagWithADuplicateNameThrows()
-        {
-            using (var repo = new Repository(Constants.TestRepoPath))
-            {
-                Assert.Throws<ApplicationException>(() => repo.Tags.Create("test", tagTestSha, signatureTim, "message"));
             }
         }
     }
