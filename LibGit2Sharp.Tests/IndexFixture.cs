@@ -38,6 +38,9 @@ namespace LibGit2Sharp.Tests
             {
                 var entry = repo.Index["README"];
                 entry.Path.ShouldEqual("README");
+
+                var entryWithPath = repo.Index["1/branch_file.txt"];
+                entryWithPath.Path.ShouldEqual("1/branch_file.txt");
             }
         }
 
