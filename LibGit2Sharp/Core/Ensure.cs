@@ -41,11 +41,14 @@ namespace LibGit2Sharp.Core
         /// <param name = "result">The result.</param>
         public static void Success(int result)
         {
-            if (result < 0)
+            if (result == 0)
             {
-                throw new ApplicationException(
-                    String.Format("There was an error in libgit2, but error handling sucks right now, so I can't tell you what it was. Error code = {0}", result));
+                return;
             }
+            
+            throw new ApplicationException(
+                String.Format("There was an error in libgit2, but error handling sucks right now, so I can't tell you what it was. Error code = {0} ({1})", Enum.GetName(typeof(GitErrorCode), result)
+, result));
         }
 
         /// <summary>
