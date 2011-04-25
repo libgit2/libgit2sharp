@@ -162,9 +162,12 @@ namespace LibGit2Sharp
             RepositorySafeHandle repo;
             var res = NativeMethods.git_repository_init(out repo, posixPath, bare);
             Ensure.Success(res);
+
+            string normalizedPath = NativeMethods.git_repository_path(repo);
+
             repo.Dispose();
 
-            return path;
+            return normalizedPath.Replace(posixDirectorySeparatorChar, System.IO.Path.DirectorySeparatorChar);
         }
 
         /// <summary>

@@ -37,8 +37,9 @@ namespace LibGit2Sharp.Tests
             using (new SelfCleaningDirectory(newRepoPath))
             {
                 var dir = Repository.Init(newRepoPath);
+                Path.IsPathRooted(dir).ShouldBeTrue(); 
                 Directory.Exists(dir).ShouldBeTrue();
-                using (var repo = new Repository(Path.Combine(dir, ".git")))
+                using (var repo = new Repository(dir))
                 {
                     repo.Path.ShouldNotBeNull();
                     repo.WorkingDirectory.ShouldNotBeNull();
@@ -52,6 +53,7 @@ namespace LibGit2Sharp.Tests
             using (new SelfCleaningDirectory(newRepoPath))
             {
                 var dir = Repository.Init(newRepoPath, true);
+                Path.IsPathRooted(dir).ShouldBeTrue(); 
                 Directory.Exists(dir).ShouldBeTrue();
                 using (var repo = new Repository(dir))
                 {
