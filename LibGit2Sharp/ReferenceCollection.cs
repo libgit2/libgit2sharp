@@ -72,31 +72,20 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
 
             ObjectId id = ObjectId.CreateFromMaybeSha(target);
+
+            IntPtr reference;
+            int res;
+
             if (id != null)
             {
-                return Create(name, id);
+                var oid = id.Oid;
+                res = NativeMethods.git_reference_create_oid(out reference, repo.Handle, name, ref oid);
+            }
+            else
+            {
+                res = NativeMethods.git_reference_create_symbolic(out reference, repo.Handle, name, target);
             }
 
-            IntPtr reference;
-            var res = NativeMethods.git_reference_create_symbolic(out reference, repo.Handle, name, target);
-            Ensure.Success(res);
-
-            return Reference.BuildFromPtr<Reference>(reference, repo);
-        }
-
-        /// <summary>
-        ///   Creates a direct reference with the specified name and target
-        /// </summary>
-        /// <param name = "name">The name of the reference to create.</param>
-        /// <param name = "target">The oid of the target.</param>
-        /// <returns>A new <see cref = "Reference" />.</returns>
-        public Reference Create(string name, ObjectId target)
-        {
-            Ensure.ArgumentNotNullOrEmptyString(name, "name");
-
-            var oid = target.Oid;
-            IntPtr reference;
-            var res = NativeMethods.git_reference_create_oid(out reference, repo.Handle, name, ref oid);
             Ensure.Success(res);
 
             return Reference.BuildFromPtr<Reference>(reference, repo);
@@ -109,10 +98,9 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
 
-            IntPtr reference;
-            var res = NativeMethods.git_reference_lookup(out reference, repo.Handle, name);
-            Ensure.Success(res);
-            res = NativeMethods.git_reference_delete(reference);
+            IntPtr reference = RetrieveReferencePtr(name);
+
+            int res = NativeMethods.git_reference_delete(reference);
             Ensure.Success(res);
         }
 
@@ -125,9 +113,7 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
 
-            IntPtr reference;
-            var res = NativeMethods.git_reference_lookup(out reference, repo.Handle, name);
-            Ensure.Success(res);
+            IntPtr reference = RetrieveReferencePtr(name);
 
             return Reference.BuildFromPtr<T>(reference, repo);
         }
@@ -142,9 +128,8 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
             Ensure.ArgumentNotNullOrEmptyString(target, "target");
 
-            IntPtr reference;
-            var res = NativeMethods.git_reference_lookup(out reference, repo.Handle, name);
-            Ensure.Success(res);
+            IntPtr reference = RetrieveReferencePtr(name);
+            int res;
 
             var id = ObjectId.CreateFromMaybeSha(target);
             var type = NativeMethods.git_reference_type(reference);
@@ -159,9 +144,20 @@ namespace LibGit2Sharp
                     if (id != null) throw new ArgumentException(String.Format("The reference specified by {0} is an Symbolic reference, you must provide a symbol as the target.", name), "target");
                     res = NativeMethods.git_reference_set_target(reference, target);
                     break;
+                default:
+                    throw new InvalidOperationException(string.Format("Reference '{0}' has an un unexpected type ('{1}').", name, Enum.GetName(typeof(GitReferenceType), type)));
             }
 
             Ensure.Success(res);
+        }
+
+        private IntPtr RetrieveReferencePtr(string referenceName)
+        {
+            IntPtr reference;
+            var res = NativeMethods.git_reference_lookup(out reference, repo.Handle, referenceName);
+            Ensure.Success(res);
+
+            return reference;
         }
     }
 }

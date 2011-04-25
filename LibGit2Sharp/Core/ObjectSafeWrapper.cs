@@ -17,8 +17,14 @@ namespace LibGit2Sharp.Core
         {
             get { return objectPtr; }
         }
-        
+
         public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        private void Dispose(bool disposing)
         {
             if (objectPtr == IntPtr.Zero)
             {
@@ -27,6 +33,11 @@ namespace LibGit2Sharp.Core
 
             NativeMethods.git_object_close(objectPtr);
             objectPtr = IntPtr.Zero;
+        }
+
+        ~ObjectSafeWrapper()
+        {
+            Dispose(false);
         }
     }
 }

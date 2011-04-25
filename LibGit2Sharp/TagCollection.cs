@@ -87,7 +87,7 @@ namespace LibGit2Sharp
 
             GitObject objectToTag = RetrieveObjectToTag(target);
 
-            repo.Refs.Create(NormalizeToCanonicalName(name), objectToTag.Id);   //TODO: To be replaced by native libgit2 tag_create_lightweight() when available.
+            repo.Refs.Create(NormalizeToCanonicalName(name), objectToTag.Id.Sha);   //TODO: To be replaced by native libgit2 tag_create_lightweight() when available.
 
             return this[name];
         }

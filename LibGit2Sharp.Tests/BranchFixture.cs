@@ -176,8 +176,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(Constants.TestRepoPath))
             {
-                Assert.Throws<ArgumentNullException>(() => repo.Branches.Create("bad_branch", (string) null));
-                Assert.Throws<ArgumentNullException>(() => repo.Branches.Create("bad_branch", (ObjectId) null));
+                Assert.Throws<ArgumentNullException>(() => repo.Branches.Create("bad_branch", null));
             }
         }
 

@@ -38,11 +38,13 @@ namespace LibGit2Sharp
         {
             get
             {
-                var enumerator = new CommitEnumerator(repo, true);
-                enumerator.Sort(sortOptions);
-                enumerator.Push(pushedSha);
                 var count = 0;
-                while (enumerator.MoveNext()) count++;
+                using (var enumerator = new CommitEnumerator(repo, true))
+                {
+                    enumerator.Sort(sortOptions);
+                    enumerator.Push(pushedSha);
+                    while (enumerator.MoveNext()) count++;
+                }
                 return count;
             }
         }
@@ -51,13 +53,13 @@ namespace LibGit2Sharp
 
         public IEnumerator<Commit> GetEnumerator()
         {
-            var enumerator = new CommitEnumerator(repo);
-            enumerator.Sort(sortOptions);
             if (string.IsNullOrEmpty(pushedSha))
             {
                 throw new NotImplementedException();
-            }
-
+            } 
+            
+            var enumerator = new CommitEnumerator(repo);
+            enumerator.Sort(sortOptions);
             enumerator.Push(pushedSha);
             return enumerator;
         }

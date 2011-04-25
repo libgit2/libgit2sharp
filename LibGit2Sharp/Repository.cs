@@ -8,7 +8,6 @@ namespace LibGit2Sharp
     /// </summary>
     public class Repository : IDisposable
     {
-        private const char posixDirectorySeparatorChar = '/';
         private readonly BranchCollection branches;
         private readonly CommitCollection commits;
         private readonly RepositorySafeHandle handle;
@@ -28,16 +27,13 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(path, "path");
 
-            string posixPath = path.Replace(System.IO.Path.DirectorySeparatorChar, posixDirectorySeparatorChar);
-
-            var res = NativeMethods.git_repository_open(out handle, posixPath);
+            var res = NativeMethods.git_repository_open(out handle, PosixPathHelper.ToPosix(path));
             Ensure.Success(res);
 
             string normalizedPath = NativeMethods.git_repository_path(handle);
             string normalizedWorkDir = NativeMethods.git_repository_workdir(handle);
 
-            Path = normalizedPath.Replace(posixDirectorySeparatorChar, System.IO.Path.DirectorySeparatorChar);
-            WorkingDirectory = (normalizedWorkDir == null) ? null : normalizedWorkDir.Replace(posixDirectorySeparatorChar, System.IO.Path.DirectorySeparatorChar);
+            Info = new RepositoryInformation(this, normalizedPath, normalizedWorkDir, normalizedWorkDir == null);
 
             commits = new CommitCollection(this);
             refs = new ReferenceCollection(this);
@@ -84,17 +80,9 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Gets the normalized path to the git repository.
+        ///   Provides high level information about this repository.
         /// </summary>
-        public string Path { get; private set; }
-
-        /// <summary>
-        ///   Gets the normalized path to the working directory.
-        /// <para>
-        ///   Is the repository is bare, null is returned.
-        /// </para>
-        /// </summary>
-        public string WorkingDirectory { get; private set; }
+        public RepositoryInformation Info { get; set; }
 
         #region IDisposable Members
 
@@ -115,23 +103,6 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Tells if the specified <see cref = "GitOid" /> exists in the repository.
-        /// 
-        ///   Exceptions:
-        ///   ArgumentNullException
-        /// </summary>
-        /// <param name = "id">The id.</param>
-        /// <returns></returns>
-        public bool HasObject(ObjectId id)
-        {
-            Ensure.ArgumentNotNull(id, "id");
-
-            var odb = NativeMethods.git_repository_database(handle);
-            var oid = id.Oid;
-            return NativeMethods.git_odb_exists(odb, ref oid);
-        }
-
-        /// <summary>
         ///   Tells if the specified sha exists in the repository.
         /// 
         ///   Exceptions:
@@ -144,7 +115,11 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(sha, "sha");
 
-            return HasObject(new ObjectId(sha));
+            var id = new ObjectId(sha);
+
+            var odb = NativeMethods.git_repository_database(handle);
+            var oid = id.Oid;
+            return NativeMethods.git_odb_exists(odb, ref oid);
         }
 
         /// <summary>
@@ -152,19 +127,19 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name = "path">The path.</param>
         /// <param name = "bare"></param>
-        /// <returns></returns>
+        /// <returns>Path the git repository.</returns>
         public static string Init(string path, bool bare = false)
         {
             Ensure.ArgumentNotNullOrEmptyString(path, "path");
 
-            var posixPath = path.Replace(System.IO.Path.DirectorySeparatorChar, posixDirectorySeparatorChar);
-
             RepositorySafeHandle repo;
-            var res = NativeMethods.git_repository_init(out repo, posixPath, bare);
+            var res = NativeMethods.git_repository_init(out repo, PosixPathHelper.ToPosix(path), bare);
             Ensure.Success(res);
+
+            string normalizedPath = NativeMethods.git_repository_path(repo);
             repo.Dispose();
 
-            return path;
+            return PosixPathHelper.ToNative(normalizedPath);
         }
 
         /// <summary>
