@@ -78,8 +78,7 @@ namespace LibGit2Sharp
         /// <returns></returns>
         public CommitCollection SortBy(GitSortOptions options)
         {
-            sortOptions = options;
-            return this;
+            return new CommitCollection(repo) { sortOptions = options, pushedSha = pushedSha };
         }
 
         /// <summary>
@@ -91,8 +90,7 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNull(branch, "branch");
 
-            pushedSha = branch.Tip.Sha;
-            return this;
+            return new CommitCollection(repo) { sortOptions = sortOptions, pushedSha = branch.Tip.Sha };
         }
 
         /// <summary>
@@ -104,9 +102,7 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNull(reference, "reference");
 
-            var directReference = reference.ResolveToDirectReference();
-            pushedSha = directReference.Target.Sha;
-            return this;
+            return new CommitCollection(repo) { sortOptions = sortOptions, pushedSha = reference.ResolveToDirectReference().Target.Sha };
         }
 
         /// <summary>
@@ -118,8 +114,7 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(sha, "sha");
 
-            pushedSha = sha;
-            return this;
+            return new CommitCollection(repo) { sortOptions = sortOptions, pushedSha = sha };
         }
 
         #region Nested type: CommitEnumerator
@@ -158,7 +153,7 @@ namespace LibGit2Sharp
             {
                 GitOid oid;
                 var res = NativeMethods.git_revwalk_next(out oid, walker);
-                if (res == (int) GitErrorCode.GIT_EREVWALKOVER) return false;
+                if (res == (int)GitErrorCode.GIT_EREVWALKOVER) return false;
 
                 if (!forCountOnly)
                 {
