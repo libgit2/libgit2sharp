@@ -26,9 +26,9 @@ namespace LibGit2Sharp.Tests.TestHelpers
             Assert.IsNull(currentObject);
         }
 
-        public static void ShouldBeTrue(this bool currentObject)
+        public static void ShouldBeTrue(this bool currentObject, string message = null)
         {
-            Assert.IsTrue(currentObject);
+            Assert.IsTrue(currentObject, message);
         }
 
         public static void ShouldEqual(this object compareFrom, object compareTo)

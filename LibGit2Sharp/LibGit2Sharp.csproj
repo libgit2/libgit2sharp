@@ -63,6 +63,8 @@
     </Compile>
     <Compile Include="Core\UnSafeNativeMethods.cs" />
     <Compile Include="DirectReference.cs" />
+    <Compile Include="Core\GitIndexTime.cs" />
+    <Compile Include="Core\GitIndexEntry.cs" />
     <Compile Include="GitObject.cs" />
     <Compile Include="GitObjectType.cs" />
     <Compile Include="GitSortOptions.cs" />
