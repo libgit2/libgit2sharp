@@ -72,31 +72,20 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
 
             ObjectId id = ObjectId.CreateFromMaybeSha(target);
+
+            IntPtr reference;
+            int res;
+
             if (id != null)
             {
-                return Create(name, id);
+                var oid = id.Oid;
+                res = NativeMethods.git_reference_create_oid(out reference, repo.Handle, name, ref oid);
+            }
+            else
+            {
+                res = NativeMethods.git_reference_create_symbolic(out reference, repo.Handle, name, target);
             }
 
-            IntPtr reference;
-            var res = NativeMethods.git_reference_create_symbolic(out reference, repo.Handle, name, target);
-            Ensure.Success(res);
-
-            return Reference.BuildFromPtr<Reference>(reference, repo);
-        }
-
-        /// <summary>
-        ///   Creates a direct reference with the specified name and target
-        /// </summary>
-        /// <param name = "name">The name of the reference to create.</param>
-        /// <param name = "target">The oid of the target.</param>
-        /// <returns>A new <see cref = "Reference" />.</returns>
-        public Reference Create(string name, ObjectId target)
-        {
-            Ensure.ArgumentNotNullOrEmptyString(name, "name");
-
-            var oid = target.Oid;
-            IntPtr reference;
-            var res = NativeMethods.git_reference_create_oid(out reference, repo.Handle, name, ref oid);
             Ensure.Success(res);
 
             return Reference.BuildFromPtr<Reference>(reference, repo);

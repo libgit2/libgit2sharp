@@ -70,28 +70,13 @@ namespace LibGit2Sharp
         public Branch Create(string name, string target)
         {
             ObjectId id = ObjectId.CreateFromMaybeSha(target);
-            if (id != null)
+           
+            if (id == null)
             {
-                return Create(name, id);
+                target = NormalizeToCanonicalName(target);
             }
-
-            repo.Refs.Create(NormalizeToCanonicalName(name), NormalizeToCanonicalName(target));
-
-            return this[name];
-        }
-
-        /// <summary>
-        ///   Create a new local branch with the specified name.
-        /// </summary>
-        /// <param name = "name">The name of the branch.</param>
-        /// <param name = "target">The target.</param>
-        /// <returns></returns>
-        public Branch Create(string name, ObjectId target)
-        {
-            Ensure.ArgumentNotNull(target, "target");
-
+            
             repo.Refs.Create(NormalizeToCanonicalName(name), target);
-
             return this[name];
         }
 

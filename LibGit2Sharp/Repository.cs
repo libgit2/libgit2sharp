@@ -103,23 +103,6 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Tells if the specified <see cref = "GitOid" /> exists in the repository.
-        /// 
-        ///   Exceptions:
-        ///   ArgumentNullException
-        /// </summary>
-        /// <param name = "id">The id.</param>
-        /// <returns></returns>
-        public bool HasObject(ObjectId id)
-        {
-            Ensure.ArgumentNotNull(id, "id");
-
-            var odb = NativeMethods.git_repository_database(handle);
-            var oid = id.Oid;
-            return NativeMethods.git_odb_exists(odb, ref oid);
-        }
-
-        /// <summary>
         ///   Tells if the specified sha exists in the repository.
         /// 
         ///   Exceptions:
@@ -132,7 +115,11 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(sha, "sha");
 
-            return HasObject(new ObjectId(sha));
+            var id = new ObjectId(sha);
+
+            var odb = NativeMethods.git_repository_database(handle);
+            var oid = id.Oid;
+            return NativeMethods.git_odb_exists(odb, ref oid);
         }
 
         /// <summary>
