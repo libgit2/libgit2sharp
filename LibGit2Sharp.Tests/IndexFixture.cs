@@ -8,7 +8,7 @@ namespace LibGit2Sharp.Tests
     [TestFixture]
     public class IndexFixture
     {
-        private readonly List<string> expectedEntries = new List<string> { "README", "new.txt", "branch_file.txt", "1/branch_file.txt" };
+        private readonly List<string> expectedEntries = new List<string> {"README", "new.txt", "branch_file.txt", "1/branch_file.txt"};
 
         [Test]
         public void CanCountEntriesInIndex()
@@ -26,7 +26,7 @@ namespace LibGit2Sharp.Tests
             {
                 foreach (var entry in repo.Index)
                 {
-                    expectedEntries.Contains(entry.Path).ShouldBeTrue(string.Format("Could not find {0}", entry.Path));
+                    Assert.IsTrue(expectedEntries.Contains(entry.Path), string.Format("Could not find {0}", entry.Path));
                 }
             }
         }
