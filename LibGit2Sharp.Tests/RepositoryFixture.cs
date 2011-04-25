@@ -141,6 +141,14 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
+        public void CanOpenRepoWithWindowsPathSeparators()
+        {
+            using(new Repository(@".\Resources\testrepo.git"))
+            {
+            }
+        }
+
+        [Test]
         public void CanTellIfObjectsExistInRepository()
         {
             using (var repo = new Repository(Constants.TestRepoPath))
