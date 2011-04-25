@@ -112,6 +112,11 @@ namespace LibGit2Sharp
             {
                 handle.Dispose();
             }
+
+            if(Index != null)
+            {
+                Index.Dispose();
+            }
         }
 
         /// <summary>
