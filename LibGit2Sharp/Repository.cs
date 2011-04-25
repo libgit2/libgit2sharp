@@ -33,8 +33,7 @@ namespace LibGit2Sharp
             string normalizedPath = NativeMethods.git_repository_path(handle);
             string normalizedWorkDir = NativeMethods.git_repository_workdir(handle);
 
-            Path = PosixPathHelper.ToNative(normalizedPath);
-            WorkingDirectory = (normalizedWorkDir == null) ? null : PosixPathHelper.ToNative(normalizedWorkDir);
+            Details = new RepositoryDetails(this, normalizedPath, normalizedWorkDir, normalizedWorkDir == null);
 
             commits = new CommitCollection(this);
             refs = new ReferenceCollection(this);
@@ -81,17 +80,9 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Gets the normalized path to the git repository.
+        ///   Provides high level information about this repository.
         /// </summary>
-        public string Path { get; private set; }
-
-        /// <summary>
-        ///   Gets the normalized path to the working directory.
-        /// <para>
-        ///   Is the repository is bare, null is returned.
-        /// </para>
-        /// </summary>
-        public string WorkingDirectory { get; private set; }
+        public RepositoryDetails Details { get; set; }
 
         #region IDisposable Members
 
@@ -149,7 +140,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name = "path">The path.</param>
         /// <param name = "bare"></param>
-        /// <returns></returns>
+        /// <returns>Path the git repository.</returns>
         public static string Init(string path, bool bare = false)
         {
             Ensure.ArgumentNotNullOrEmptyString(path, "path");
@@ -159,7 +150,6 @@ namespace LibGit2Sharp
             Ensure.Success(res);
 
             string normalizedPath = NativeMethods.git_repository_path(repo);
-
             repo.Dispose();
 
             return PosixPathHelper.ToNative(normalizedPath);

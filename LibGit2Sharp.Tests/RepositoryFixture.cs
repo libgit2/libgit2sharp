@@ -39,10 +39,12 @@ namespace LibGit2Sharp.Tests
                 var dir = Repository.Init(newRepoPath);
                 Path.IsPathRooted(dir).ShouldBeTrue(); 
                 Directory.Exists(dir).ShouldBeTrue();
+
                 using (var repo = new Repository(dir))
                 {
-                    repo.Path.ShouldNotBeNull();
-                    repo.WorkingDirectory.ShouldNotBeNull();
+                    repo.Details.Path.ShouldNotBeNull();
+                    repo.Details.WorkingDirectory.ShouldNotBeNull();
+                    repo.Details.IsBare.ShouldBeFalse();
                 }
             }
         }
@@ -55,10 +57,12 @@ namespace LibGit2Sharp.Tests
                 var dir = Repository.Init(newRepoPath, true);
                 Path.IsPathRooted(dir).ShouldBeTrue(); 
                 Directory.Exists(dir).ShouldBeTrue();
+
                 using (var repo = new Repository(dir))
                 {
-                    repo.Path.ShouldNotBeNull();
-                    repo.WorkingDirectory.ShouldBeNull();
+                    repo.Details.Path.ShouldNotBeNull();
+                    repo.Details.WorkingDirectory.ShouldBeNull();
+                    repo.Details.IsBare.ShouldBeTrue();
                 }
             }
         }
