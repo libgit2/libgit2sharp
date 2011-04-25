@@ -14,6 +14,15 @@ namespace LibGit2Sharp.Tests
         private readonly List<string> expectedShas = new List<string> {"a4a7d", "c4780", "9fd73", "4a202", "5b5b0", "84960"};
 
         [Test]
+        public void CanCountCommits()
+        {
+            using (var repo = new Repository(Constants.TestRepoPath))
+            {
+                repo.Commits.Count.ShouldEqual(7);
+            }
+        }
+
+        [Test]
         public void CanEnumerateCommits()
         {
             int count = 0;
