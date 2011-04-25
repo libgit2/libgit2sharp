@@ -11,6 +11,7 @@ namespace LibGit2Sharp
         private readonly BranchCollection branches;
         private readonly CommitCollection commits;
         private readonly RepositorySafeHandle handle;
+        private readonly Index index;
         private readonly ReferenceCollection refs;
         private readonly TagCollection tags;
 
@@ -35,6 +36,9 @@ namespace LibGit2Sharp
 
             Info = new RepositoryInformation(this, normalizedPath, normalizedWorkDir, normalizedWorkDir == null);
 
+            if (!Info.IsBare)
+                index = new Index(this);
+
             commits = new CommitCollection(this);
             refs = new ReferenceCollection(this);
             branches = new BranchCollection(this);
@@ -44,6 +48,14 @@ namespace LibGit2Sharp
         internal RepositorySafeHandle Handle
         {
             get { return handle; }
+        }
+
+        /// <summary>
+        ///   Gets the index.
+        /// </summary>
+        public Index Index
+        {
+            get { return index; }
         }
 
         /// <summary>
@@ -143,7 +155,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Try to lookup an object by its <see cref = "ObjectId" /> and <see cref="GitObjectType"/>. If no matching object is found, null will be returned.
+        ///   Try to lookup an object by its <see cref = "ObjectId" /> and <see cref = "GitObjectType" />. If no matching object is found, null will be returned.
         /// </summary>
         /// <param name = "id">The id to lookup.</param>
         /// <param name = "type"></param>
@@ -155,7 +167,7 @@ namespace LibGit2Sharp
             var oid = id.Oid;
             IntPtr obj;
             var res = NativeMethods.git_object_lookup(out obj, handle, ref oid, type);
-            if (res == (int) GitErrorCode.GIT_ENOTFOUND || res == (int) GitErrorCode.GIT_EINVALIDTYPE)
+            if (res == (int)GitErrorCode.GIT_ENOTFOUND || res == (int)GitErrorCode.GIT_EINVALIDTYPE)
             {
                 return null;
             }
