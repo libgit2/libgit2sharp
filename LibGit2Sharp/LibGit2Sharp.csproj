@@ -82,7 +82,7 @@
     </Compile>
     <Compile Include="RepositoryInformation.cs" />
     <Compile Include="RepositoryExtensions.cs" />
-    <Compile Include="RepositorySafeHandle.cs" />
+    <Compile Include="Core\RepositorySafeHandle.cs" />
     <Compile Include="Signature.cs" />
     <Compile Include="SymbolicReference.cs" />
     <Compile Include="Tag.cs" />
