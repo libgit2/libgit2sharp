@@ -36,6 +36,14 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
+        public void CreatingObjectIdWithWrongNumberOfBytesThrows()
+        {
+            var bytes = new byte[] {206, 8, 254, 72, 132, 101, 15, 6, 123, 213, 112, 59, 106, 89, 168, 179, 179, 201, 154};
+
+            Assert.Throws<ArgumentException>(() => { new ObjectId(bytes); });
+        }
+
+        [Test]
         public void DifferentObjectIdsAreEqual()
         {
             var a = new ObjectId("ce08fe4884650f067bd5703b6a59a8b3b3c99a09");
