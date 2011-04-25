@@ -143,8 +143,12 @@ namespace LibGit2Sharp.Tests
         [Test]
         public void CanOpenRepository()
         {
-            using (new Repository(Constants.TestRepoPath))
+            using (var repo = new Repository(Constants.TestRepoPath))
             {
+                repo.Info.Path.ShouldNotBeNull();
+                repo.Info.WorkingDirectory.ShouldBeNull();
+                repo.Info.IsBare.ShouldBeTrue();
+                repo.Info.IsHeadDetached.ShouldBeFalse();
             }
         }
 
@@ -157,6 +161,23 @@ namespace LibGit2Sharp.Tests
                 repo.HasObject("1385f264afb75a56a5bec74243be9b367ba4ca08").ShouldBeTrue();
                 repo.HasObject("ce08fe4884650f067bd5703b6a59a8b3b3c99a09").ShouldBeFalse();
                 repo.HasObject("8496071c1c46c854b31185ea97743be6a8774479").ShouldBeFalse();
+            }
+        }
+
+        [Test]
+        [Ignore("TODO: Understand why this is failing.")]
+        public void CheckForDetachedHeadOnNewRepo()
+        {
+            using (new SelfCleaningDirectory(newRepoPath))
+            {
+                var dir = Repository.Init(newRepoPath, true);
+                Path.IsPathRooted(dir).ShouldBeTrue();
+                Directory.Exists(dir).ShouldBeTrue();
+
+                using (var repo = new Repository(dir))
+                {
+                    repo.Info.IsHeadDetached.ShouldBeFalse();
+                }
             }
         }
 
