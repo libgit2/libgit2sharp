@@ -8,7 +8,6 @@ namespace LibGit2Sharp
     /// </summary>
     public class Repository : IDisposable
     {
-        private const char posixDirectorySeparatorChar = '/';
         private readonly BranchCollection branches;
         private readonly CommitCollection commits;
         private readonly RepositorySafeHandle handle;
@@ -28,16 +27,14 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(path, "path");
 
-            string posixPath = path.Replace(System.IO.Path.DirectorySeparatorChar, posixDirectorySeparatorChar);
-
-            var res = NativeMethods.git_repository_open(out handle, posixPath);
+            var res = NativeMethods.git_repository_open(out handle, PosixPathHelper.ToPosix(path));
             Ensure.Success(res);
 
             string normalizedPath = NativeMethods.git_repository_path(handle);
             string normalizedWorkDir = NativeMethods.git_repository_workdir(handle);
 
-            Path = normalizedPath.Replace(posixDirectorySeparatorChar, System.IO.Path.DirectorySeparatorChar);
-            WorkingDirectory = (normalizedWorkDir == null) ? null : normalizedWorkDir.Replace(posixDirectorySeparatorChar, System.IO.Path.DirectorySeparatorChar);
+            Path = PosixPathHelper.ToNative(normalizedPath);
+            WorkingDirectory = (normalizedWorkDir == null) ? null : PosixPathHelper.ToNative(normalizedWorkDir);
 
             commits = new CommitCollection(this);
             refs = new ReferenceCollection(this);
@@ -157,17 +154,15 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(path, "path");
 
-            var posixPath = path.Replace(System.IO.Path.DirectorySeparatorChar, posixDirectorySeparatorChar);
-
             RepositorySafeHandle repo;
-            var res = NativeMethods.git_repository_init(out repo, posixPath, bare);
+            var res = NativeMethods.git_repository_init(out repo, PosixPathHelper.ToPosix(path), bare);
             Ensure.Success(res);
 
             string normalizedPath = NativeMethods.git_repository_path(repo);
 
             repo.Dispose();
 
-            return normalizedPath.Replace(posixDirectorySeparatorChar, System.IO.Path.DirectorySeparatorChar);
+            return PosixPathHelper.ToNative(normalizedPath);
         }
 
         /// <summary>
