@@ -45,6 +45,7 @@ namespace LibGit2Sharp.Tests
                     repo.Info.Path.ShouldNotBeNull();
                     repo.Info.WorkingDirectory.ShouldBeNull();
                     repo.Info.IsBare.ShouldBeTrue();
+                    repo.Info.IsEmpty.ShouldBeTrue();
                 }
             }
         }
@@ -63,6 +64,7 @@ namespace LibGit2Sharp.Tests
                     repo.Info.Path.ShouldNotBeNull();
                     repo.Info.WorkingDirectory.ShouldNotBeNull();
                     repo.Info.IsBare.ShouldBeFalse();
+                    repo.Info.IsEmpty.ShouldBeTrue();
                 }
             }
         }
@@ -148,6 +150,7 @@ namespace LibGit2Sharp.Tests
                 repo.Info.Path.ShouldNotBeNull();
                 repo.Info.WorkingDirectory.ShouldBeNull();
                 repo.Info.IsBare.ShouldBeTrue();
+                repo.Info.IsEmpty.ShouldBeFalse();
                 repo.Info.IsHeadDetached.ShouldBeFalse();
             }
         }
@@ -165,7 +168,6 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
-        [Ignore("TODO: Understand why this is failing.")]
         public void CheckForDetachedHeadOnNewRepo()
         {
             using (new SelfCleaningDirectory(newRepoPath))
@@ -176,6 +178,7 @@ namespace LibGit2Sharp.Tests
 
                 using (var repo = new Repository(dir))
                 {
+                    repo.Info.IsEmpty.ShouldBeTrue();
                     repo.Info.IsHeadDetached.ShouldBeFalse();
                 }
             }

@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace LibGit2Sharp.Core
 {
-    public class IndexSafeHandle : SafeHandle
+    internal class IndexSafeHandle : SafeHandle
     {
         public IndexSafeHandle()
             : base(IntPtr.Zero, true)

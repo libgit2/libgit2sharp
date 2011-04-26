@@ -129,6 +129,9 @@ namespace LibGit2Sharp.Core
         public static extern int git_repository_init(out RepositorySafeHandle repository, string path, bool isBare);
 
         [DllImport(libgit2, SetLastError = true)]
+        public static extern bool git_repository_is_empty(RepositorySafeHandle repo);
+
+        [DllImport(libgit2, SetLastError = true)]
         public static extern int git_repository_open(out RepositorySafeHandle repository, string path);
 
         [DllImport(libgit2)]

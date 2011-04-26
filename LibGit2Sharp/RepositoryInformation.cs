@@ -1,5 +1,4 @@
-﻿using System.IO;
-using LibGit2Sharp.Core;
+﻿using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
 {
@@ -16,6 +15,7 @@ namespace LibGit2Sharp
             Path = PosixPathHelper.ToNative(posixPath);
             IsBare = isBare;
             WorkingDirectory = PosixPathHelper.ToNative(posixWorkingDirectoryPath);
+            IsEmpty = NativeMethods.git_repository_is_empty(repo.Handle);
         }
 
         /// <summary>
@@ -25,9 +25,9 @@ namespace LibGit2Sharp
 
         /// <summary>
         ///   Gets the normalized path to the working directory.
-        /// <para>
-        ///   Is the repository is bare, null is returned.
-        /// </para>
+        ///   <para>
+        ///     Is the repository is bare, null is returned.
+        ///   </para>
         /// </summary>
         public string WorkingDirectory { get; private set; }
 
@@ -37,8 +37,23 @@ namespace LibGit2Sharp
         public bool IsBare { get; private set; }
 
         /// <summary>
+        ///   Gets a value indicating whether this repository is empty.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if this repository is empty; otherwise, <c>false</c>.
+        /// </value>
+        public bool IsEmpty { get; private set; }
+
+        /// <summary>
         ///   Indicates whether the Head points to an arbitrary commit instead of the tip of a local banch.
         /// </summary>
-        public bool IsHeadDetached { get { return repo.Refs.Head is DirectReference; } }
+        public bool IsHeadDetached
+        {
+            get
+            {
+                if (repo.Info.IsEmpty) return false; // Detached HEAD doesn't mean anything for an empty repo, just return false
+                return repo.Refs.Head is DirectReference;
+            }
+        }
     }
 }

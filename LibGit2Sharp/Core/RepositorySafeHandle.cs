@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace LibGit2Sharp.Core
 {
-    public class RepositorySafeHandle : SafeHandle
+    internal class RepositorySafeHandle : SafeHandle
     {
         public RepositorySafeHandle() : base(IntPtr.Zero, true)
         {
