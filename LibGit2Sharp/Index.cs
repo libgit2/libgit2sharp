@@ -17,6 +17,11 @@ namespace LibGit2Sharp
             Ensure.Success(res);
         }
 
+        public int Count
+        {
+            get { return (int) NativeMethods.git_index_entrycount(handle); }
+        }
+
         public IndexEntry this[string path]
         {
             get
@@ -36,9 +41,19 @@ namespace LibGit2Sharp
             }
         }
 
-        public int Count
+        public IEnumerable<IndexEntry> Modified
         {
-            get { return (int) NativeMethods.git_index_entrycount(handle); }
+            get { throw new NotImplementedException(); }
+        }
+
+        public IEnumerable<IndexEntry> Staged
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        public IEnumerable<IndexEntry> Untracked
+        {
+            get { throw new NotImplementedException(); }
         }
 
         #region IDisposable Members
@@ -76,6 +91,16 @@ namespace LibGit2Sharp
             {
                 handle.Dispose();
             }
+        }
+
+        public void Stage(string path)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Unstage(string path)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -73,6 +73,7 @@
     <Compile Include="Index.cs" />
     <Compile Include="IndexEntry.cs" />
     <Compile Include="Core\IndexSafeHandle.cs" />
+    <Compile Include="IndexEntryState.cs" />
     <Compile Include="ObjectId.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Reference.cs" />

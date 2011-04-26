@@ -38,6 +38,7 @@
     <Reference Include="nunit.framework">
       <HintPath>..\Lib\NUnit\nunit.framework.dll</HintPath>
     </Reference>
+    <Reference Include="System" />
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
@@ -66,7 +67,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PreBuildEvent>xcopy "$(SolutionDir)Resources/*.*" "$(TargetDir)Resources" /E /I /Y /F /H &gt; NUL</PreBuildEvent>
+    <PreBuildEvent>xcopy "$(SolutionDir)Resources\*.*" "$(TargetDir)Resources" /E /I /Y /F /H &gt; NUL</PreBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using LibGit2Sharp.Tests.TestHelpers;
 using NUnit.Framework;
 
@@ -8,7 +9,26 @@ namespace LibGit2Sharp.Tests
     [TestFixture]
     public class IndexFixture
     {
-        private readonly List<string> expectedEntries = new List<string> {"README", "new.txt", "branch_file.txt", "1/branch_file.txt"};
+        private readonly List<string> expectedEntries = new List<string>
+                                                            {
+                                                                "README",
+                                                                "new.txt",
+                                                                "branch_file.txt",
+                                                                "1/branch_file.txt",
+                                                                //"deleted_staged_file.txt", 
+                                                                "deleted_unstaged_file.txt",
+                                                                "modified_staged_file.txt",
+                                                                "modified_unstaged_file.txt",
+                                                                "new_tracked_file.txt"
+                                                            };
+
+        [TestFixtureSetUp]
+        public void Setup()
+        {
+            if (Directory.Exists(Constants.TestRepoWithWorkingDirPath))
+                DirectoryHelper.DeleteDirectory(Constants.TestRepoWithWorkingDirPath);
+            Directory.Move(Constants.TestRepoWithWorkingDirPathDotGit, Constants.TestRepoWithWorkingDirPath);
+        }
 
         [Test]
         public void CanCountEntriesInIndex()
@@ -32,6 +52,21 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
+        public void CanEnumerateModifiedFiles()
+        {
+        }
+
+        [Test]
+        public void CanEnumerateUntrackedFiles()
+        {
+        }
+
+        [Test]
+        public void CanEnumeratorStagedFiles()
+        {
+        }
+
+        [Test]
         public void CanReadIndexEntry()
         {
             using (var repo = new Repository(Constants.TestRepoWithWorkingDirPath))
@@ -45,6 +80,16 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
+        public void CanStageFile()
+        {
+        }
+
+        [Test]
+        public void CanUnStageFile()
+        {
+        }
+
+        [Test]
         public void ReadIndexWithBadParamsFails()
         {
             using (var repo = new Repository(Constants.TestRepoWithWorkingDirPath))
@@ -52,6 +97,16 @@ namespace LibGit2Sharp.Tests
                 Assert.Throws<ArgumentNullException>(() => { var entry = repo.Index[null]; });
                 Assert.Throws<ArgumentException>(() => { var entry = repo.Index[string.Empty]; });
             }
+        }
+
+        [Test]
+        public void StageFileWithBadParamsThrows()
+        {
+        }
+
+        [Test]
+        public void UnStageFileWithBadParamsFails()
+        {
         }
     }
 }
