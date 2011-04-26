@@ -49,6 +49,15 @@ namespace LibGit2Sharp
         {
             get { return handle; }
         }
+        /// <summary>
+        ///   Shortcut to return the reference to HEAD
+        /// </summary>
+        /// <returns></returns>
+        
+        public Reference Head
+        {
+            get { return Refs["HEAD"]; }
+        }
 
         /// <summary>
         ///   Gets the index.
@@ -72,7 +81,7 @@ namespace LibGit2Sharp
         /// </summary>
         public CommitCollection Commits
         {
-            get { return commits.StartingAt(Refs.Head); }
+            get { return commits.StartingAt(Head); }
         }
 
         /// <summary>

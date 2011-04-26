@@ -11,11 +11,6 @@ namespace LibGit2Sharp
     /// </summary>
     public class ReferenceCollection : IEnumerable<Reference>
     {
-        /// <summary>
-        ///   A special Reference name to refer to the 'HEAD'
-        /// </summary>
-        private const string headReferenceName = "HEAD";
-
         private readonly Repository repo;
 
         /// <summary>
@@ -33,15 +28,6 @@ namespace LibGit2Sharp
         public Reference this[string name]
         {
             get { return Resolve<Reference>(name); }
-        }
-
-        /// <summary>
-        ///   Shortcut to return the reference to HEAD
-        /// </summary>
-        /// <returns></returns>
-        public Reference Head
-        {
-            get { return this[headReferenceName]; }
         }
 
         #region IEnumerable<Reference> Members
