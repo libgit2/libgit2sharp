@@ -26,7 +26,10 @@ namespace LibGit2Sharp.Tests
         public void Setup()
         {
             if (Directory.Exists(Constants.TestRepoWithWorkingDirPath))
-                DirectoryHelper.DeleteDirectory(Constants.TestRepoWithWorkingDirPath);
+            {
+                return;
+            }
+
             Directory.Move(Constants.TestRepoWithWorkingDirPathDotGit, Constants.TestRepoWithWorkingDirPath);
         }
 
