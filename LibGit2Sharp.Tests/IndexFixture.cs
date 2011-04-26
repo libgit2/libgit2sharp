@@ -52,16 +52,19 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
+        [Ignore("Not implemented yet.")]
         public void CanEnumerateModifiedFiles()
         {
         }
 
         [Test]
+        [Ignore("Not implemented yet.")]
         public void CanEnumerateUntrackedFiles()
         {
         }
 
         [Test]
+        [Ignore("Not implemented yet.")]
         public void CanEnumeratorStagedFiles()
         {
         }
@@ -80,11 +83,13 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
+        [Ignore("Not implemented yet.")]
         public void CanStageFile()
         {
         }
 
         [Test]
+        [Ignore("Not implemented yet.")]
         public void CanUnStageFile()
         {
         }
@@ -100,11 +105,13 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
+        [Ignore("Not implemented yet.")]
         public void StageFileWithBadParamsThrows()
         {
         }
 
         [Test]
+        [Ignore("Not implemented yet.")]
         public void UnStageFileWithBadParamsFails()
         {
         }
