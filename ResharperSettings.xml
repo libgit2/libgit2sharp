@@ -220,6 +220,7 @@ II.2.12 <HandlesEvent />
           <Kind Is="indexer"/>
         </Or>
       </Match>
+      <Sort><Name/></Sort>
     </Entry>
     
     <!--interface implementations-->
