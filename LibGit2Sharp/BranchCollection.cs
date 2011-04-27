@@ -54,6 +54,7 @@ namespace LibGit2Sharp
         /// <returns></returns>
         public Branch Checkout(string name)
         {
+            // TODO: This does not yet checkout (write) the working directory
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
 
             repo.Refs.UpdateTarget("HEAD", this[name].CanonicalName);
