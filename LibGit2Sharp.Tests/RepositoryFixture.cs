@@ -135,6 +135,8 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
+        [Platform(Exclude = "Linux,Unix", Reason = "No need to test windows path separators on non-windows platforms")] 
+        // See http://www.nunit.org/index.php?p=platform&r=2.6 for other platforms that can be excluded/included.
         public void CanOpenRepoWithWindowsPathSeparators()
         {
             using (new Repository(@".\Resources\testrepo.git"))
