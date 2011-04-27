@@ -25,12 +25,22 @@ namespace LibGit2Sharp.Tests
         [TestFixtureSetUp]
         public void Setup()
         {
-            if (Directory.Exists(Constants.TestRepoWithWorkingDirPath))
+            const string tempDotGit = "./Resources/testrepo_wd/dot_git";
+
+            bool gitRepoExists = Directory.Exists(Constants.TestRepoWithWorkingDirPath);
+            bool dotGitDirExists = Directory.Exists(tempDotGit);
+
+            if (gitRepoExists )
             {
+                if (dotGitDirExists)
+                {
+                    DirectoryHelper.DeleteDirectory(tempDotGit);                    
+                }
+
                 return;
             }
 
-            Directory.Move(Constants.TestRepoWithWorkingDirPathDotGit, Constants.TestRepoWithWorkingDirPath);
+            Directory.Move(tempDotGit, Constants.TestRepoWithWorkingDirPath);
         }
 
         [Test]
@@ -87,13 +97,42 @@ namespace LibGit2Sharp.Tests
 
         [Test]
         [Ignore("Not implemented yet.")]
-        public void CanStageFile()
+        public void CanStageAModifiedFile()
+        {
+        }
+
+        [Test]
+        public void CanStageANewFile()
+        {
+            using (var path = new TemporaryCloneOfTestRepo(Constants.TestRepoWithWorkingDirPath))
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                var count = repo.Index.Count;
+                const string filename = "unit_test.txt";
+                File.WriteAllText(Path.Combine(repo.Info.WorkingDirectory, filename), "some contents");
+
+                repo.Index.Stage(filename);
+
+                repo.Index.Count.ShouldEqual(count + 1);
+                repo.Index[filename].ShouldNotBeNull();
+            }
+        }
+
+        [Test]
+        [Ignore("Not implemented yet.")]
+        public void CanStageAPath()
         {
         }
 
         [Test]
         [Ignore("Not implemented yet.")]
-        public void CanUnStageFile()
+        public void CanUnStageANewFile()
+        {
+        }
+
+        [Test]
+        [Ignore("Not implemented yet.")]
+        public void CanUnstageAModifiedFile()
         {
         }
 
@@ -108,9 +147,14 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
-        [Ignore("Not implemented yet.")]
         public void StageFileWithBadParamsThrows()
         {
+            using (var path = new TemporaryCloneOfTestRepo(Constants.TestRepoWithWorkingDirPath))
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                Assert.Throws<ArgumentException>(() => repo.Index.Stage(string.Empty));
+                Assert.Throws<ArgumentNullException>(() => repo.Index.Stage(null));
+            }
         }
 
         [Test]

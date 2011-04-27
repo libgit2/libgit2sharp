@@ -95,7 +95,10 @@ namespace LibGit2Sharp
 
         public void Stage(string path)
         {
-            throw new NotImplementedException();
+            Ensure.ArgumentNotNullOrEmptyString(path, "path");
+
+            var res = NativeMethods.git_index_add(handle, path);
+            Ensure.Success(res);
         }
 
         public void Unstage(string path)

@@ -43,6 +43,9 @@ namespace LibGit2Sharp.Core
         public static extern IntPtr git_commit_tree_oid(IntPtr commit);
 
         [DllImport(libgit2, SetLastError = true)]
+        public static extern int git_index_add(IndexSafeHandle index, string path, int stage = 0);
+
+        [DllImport(libgit2, SetLastError = true)]
         public static extern uint git_index_entrycount(IndexSafeHandle index);
 
         [DllImport(libgit2, SetLastError = true)]
