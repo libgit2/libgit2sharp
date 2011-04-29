@@ -91,7 +91,13 @@ namespace LibGit2Sharp.Core
         public static extern int git_reference_create_oid(out IntPtr reference, RepositorySafeHandle repo, string name, ref GitOid oid);
 
         [DllImport(libgit2, SetLastError = true)]
+        public static extern int git_reference_create_oid_f(out IntPtr reference, RepositorySafeHandle repo, string name, ref GitOid oid);
+
+        [DllImport(libgit2, SetLastError = true)]
         public static extern int git_reference_create_symbolic(out IntPtr reference, RepositorySafeHandle repo, string name, string target);
+
+        [DllImport(libgit2, SetLastError = true)]
+        public static extern int git_reference_create_symbolic_f(out IntPtr reference, RepositorySafeHandle repo, string name, string target);
 
         [DllImport(libgit2, SetLastError = true)]
         public static extern int git_reference_delete(IntPtr reference);
