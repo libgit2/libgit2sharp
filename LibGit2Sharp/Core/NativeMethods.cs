@@ -107,6 +107,12 @@ namespace LibGit2Sharp.Core
         public static extern IntPtr git_reference_oid(IntPtr reference);
 
         [DllImport(libgit2)]
+        public static extern int git_reference_rename(IntPtr reference, string newName);
+
+        [DllImport(libgit2)]
+        public static extern int git_reference_rename_f(IntPtr reference, string newName);
+
+        [DllImport(libgit2)]
         public static extern int git_reference_resolve(out IntPtr resolvedReference, IntPtr reference);
 
         [DllImport(libgit2, SetLastError = true)]

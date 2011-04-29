@@ -290,5 +290,91 @@ namespace LibGit2Sharp.Tests
                 Assert.Throws<ArgumentNullException>(() => repo.Refs.UpdateTarget("master", null));
             }
         }
+
+        [Test]
+        public void CanMoveAReference()
+        {
+            using (var path = new TemporaryCloneOfTestRepo())
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                const string newName = "refs/atic/tagtest";
+
+                Reference moved = repo.Refs.Move("refs/tags/test", newName);
+                moved.ShouldNotBeNull();
+                moved.CanonicalName.ShouldEqual(newName);
+            }
+        }
+
+        [Test]
+        public void MovingANonExistingReferenceThrows()
+        {
+            using (var repo = new Repository(Constants.TestRepoPath))
+            {
+                Assert.Throws<ApplicationException>(() => repo.Refs.Move("refs/tags/i-am-void", "refs/atic/tagtest"));
+            }
+        }
+
+        [Test]
+        public void CanMoveAndOverWriteAExistingReference()
+        {
+            using (var path = new TemporaryCloneOfTestRepo())
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                const string oldName = "refs/heads/packed";
+                const string newName = "refs/heads/br2";
+                
+                Reference moved = repo.Refs.Move(oldName, newName, true);
+
+                repo.Refs[oldName].ShouldBeNull();
+                repo.Refs[moved.CanonicalName].ShouldNotBeNull();
+            }
+        }
+
+        [Test]
+        public void BlindlyOverwritingAExistingReferenceThrows()
+        {
+            using (var repo = new Repository(Constants.TestRepoPath))
+            {
+                Assert.Throws<ApplicationException>(() => repo.Refs.Move("refs/heads/packed", "refs/heads/br2"));
+            }
+        }
+
+        [Test]
+        public void MovingAReferenceDoesNotDecreaseTheRefsCount()
+        {
+            using (var path = new TemporaryCloneOfTestRepo())
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                const string oldName = "refs/tags/test";
+                const string newName = "refs/atic/tagtest";
+
+                var refs = repo.Refs.Select(r => r.CanonicalName).ToList();
+                refs.Contains(oldName).ShouldBeTrue();
+
+                repo.Refs.Move(oldName, newName);
+
+                var refs2 = repo.Refs.Select(r => r.CanonicalName).ToList();
+                refs2.Contains(oldName).ShouldBeFalse();
+                refs2.Contains(newName).ShouldBeTrue();
+
+                refs.Count.ShouldEqual(refs2.Count);
+            }
+        }
+
+        [Test]
+        public void CanLookupAMovedReference()
+        {
+            using (var path = new TemporaryCloneOfTestRepo())
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                const string oldName = "refs/tags/test";
+                const string newName = "refs/atic/tagtest";
+
+                Reference moved = repo.Refs.Move(oldName, newName);
+
+                Reference lookedUp = repo.Refs[newName];
+                moved.ShouldEqual(lookedUp);
+            }
+        }
     }
 }
