@@ -68,9 +68,9 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Recursively peels the target of the reference until a direct reference is encountered.
+        ///   Recursively peels the target of the reference until a direct reference is encountered.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The <see cref="DirectReference"/> this <see cref="Reference"/> points to.</returns>
         public abstract DirectReference ResolveToDirectReference(); 
         
         protected abstract object ProvideAdditionalEqualityComponent();

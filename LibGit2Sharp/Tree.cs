@@ -24,7 +24,7 @@ namespace LibGit2Sharp
                 using (var obj = new ObjectSafeWrapper(Id, repo))
                 {
                     IntPtr e = NativeMethods.git_tree_entry_byname(obj.ObjectPtr, name);
-                    return new TreeEntry(e, repo);
+                    return new TreeEntry(e, Id, repo);
                 }
             }
         }
@@ -47,6 +47,10 @@ namespace LibGit2Sharp
 
         #region IEnumerable<TreeEntry> Members
 
+        /// <summary>
+        /// Returns an enumerator that iterates through the collection.
+        /// </summary>
+        /// <returns>An <see cref="IEnumerator{T}"/> object that can be used to iterate through the collection.</returns>
         public IEnumerator<TreeEntry> GetEnumerator()
         {
             using (var obj = new ObjectSafeWrapper(Id, repo))
@@ -54,11 +58,15 @@ namespace LibGit2Sharp
                 for (int i = 0; i < Count; i++)
                 {
                     IntPtr e = NativeMethods.git_tree_entry_byindex(obj.ObjectPtr, i);
-                    yield return new TreeEntry(e, repo);
+                    yield return new TreeEntry(e, Id, repo);
                 }
             }
         }
 
+        /// <summary>
+        /// Returns an enumerator that iterates through the collection.
+        /// </summary>
+        /// <returns>An <see cref="IEnumerator"/> object that can be used to iterate through the collection.</returns>
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();

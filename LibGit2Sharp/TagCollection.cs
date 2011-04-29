@@ -35,6 +35,10 @@ namespace LibGit2Sharp
 
         #region IEnumerable<Tag> Members
 
+        /// <summary>
+        /// Returns an enumerator that iterates through the collection.
+        /// </summary>
+        /// <returns>An <see cref="IEnumerator{T}"/> object that can be used to iterate through the collection.</returns>
         public IEnumerator<Tag> GetEnumerator()
         {
             return Libgit2UnsafeHelper
@@ -43,6 +47,10 @@ namespace LibGit2Sharp
                 .GetEnumerator();
         }
 
+        /// <summary>
+        /// Returns an enumerator that iterates through the collection.
+        /// </summary>
+        /// <returns>An <see cref="IEnumerator"/> object that can be used to iterate through the collection.</returns>
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();

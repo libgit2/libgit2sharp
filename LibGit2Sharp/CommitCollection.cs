@@ -51,6 +51,10 @@ namespace LibGit2Sharp
 
         #region IEnumerable<Commit> Members
 
+        /// <summary>
+        /// Returns an enumerator that iterates through the collection.
+        /// </summary>
+        /// <returns>An <see cref="IEnumerator{T}"/> object that can be used to iterate through the collection.</returns>
         public IEnumerator<Commit> GetEnumerator()
         {
             if (string.IsNullOrEmpty(pushedSha))
@@ -64,6 +68,10 @@ namespace LibGit2Sharp
             return enumerator;
         }
 
+        /// <summary>
+        /// Returns an enumerator that iterates through the collection.
+        /// </summary>
+        /// <returns>An <see cref="IEnumerator"/> object that can be used to iterate through the collection.</returns>
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();

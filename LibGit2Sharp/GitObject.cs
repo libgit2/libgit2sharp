@@ -22,6 +22,10 @@ namespace LibGit2Sharp
         private static readonly LambdaEqualityHelper<GitObject> equalityHelper =
             new LambdaEqualityHelper<GitObject>(new Func<GitObject, object>[] {x => x.Id});
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GitObject"/> class.
+        /// </summary>
+        /// <param name="id">The <see cref="ObjectId"/> it should be identified by.</param>
         protected GitObject(ObjectId id)
         {
             Id = id;

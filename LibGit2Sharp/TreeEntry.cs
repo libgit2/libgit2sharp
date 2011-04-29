@@ -6,15 +6,17 @@ namespace LibGit2Sharp
 {
     public class TreeEntry : IEquatable<TreeEntry>
     {
+        private readonly ObjectId parentTreeId;
         private readonly Repository repo;
         private GitObject target;
         private readonly ObjectId targetOid;
 
         private static readonly LambdaEqualityHelper<TreeEntry> equalityHelper =
-            new LambdaEqualityHelper<TreeEntry>(new Func<TreeEntry, object>[] { x => x.Name, x => x.targetOid }); //TODO: Replace the target oid with the parent Tree oid
+            new LambdaEqualityHelper<TreeEntry>(new Func<TreeEntry, object>[] { x => x.Name, x => x.parentTreeId });
 
-        public TreeEntry(IntPtr obj, Repository repo)
+        public TreeEntry(IntPtr obj, ObjectId parentTreeId, Repository repo)
         {
+            this.parentTreeId = parentTreeId;
             this.repo = repo;
             IntPtr gitTreeEntryId = NativeMethods.git_tree_entry_id(obj);
             targetOid = new ObjectId((GitOid)Marshal.PtrToStructure(gitTreeEntryId, typeof(GitOid)));

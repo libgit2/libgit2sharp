@@ -58,33 +58,18 @@ namespace LibGit2Sharp
 
         #region IDisposable Members
 
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
         public void Dispose()
         {
             Dispose(true);
             GC.SuppressFinalize(this);
         }
 
-        #endregion
-
-        #region IEnumerable<IndexEntry> Members
-
-        public IEnumerator<IndexEntry> GetEnumerator()
-        {
-            var list = new List<IndexEntry>();
-            for (int i = 0; i < Count; i++)
-            {
-                list.Add(this[i]);
-            }
-            return list.GetEnumerator();
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
-
-        #endregion
-
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
         protected virtual void Dispose(bool disposing)
         {
             if (handle != null && !handle.IsInvalid)
@@ -92,6 +77,35 @@ namespace LibGit2Sharp
                 handle.Dispose();
             }
         }
+
+        #endregion
+
+        #region IEnumerable<IndexEntry> Members
+
+        /// <summary>
+        /// Returns an enumerator that iterates through the collection.
+        /// </summary>
+        /// <returns>An <see cref="IEnumerator{T}"/> object that can be used to iterate through the collection.</returns>
+        public IEnumerator<IndexEntry> GetEnumerator()
+        {
+            for (int i = 0; i < Count; i++)
+            {
+                yield return this[i];
+            }
+        }
+
+        /// <summary>
+        /// Returns an enumerator that iterates through the collection.
+        /// </summary>
+        /// <returns>An <see cref="IEnumerator"/> object that can be used to iterate through the collection.</returns>
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
+        #endregion
+
+
 
         public void Stage(string path)
         {

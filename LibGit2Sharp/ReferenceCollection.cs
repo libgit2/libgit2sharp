@@ -25,6 +25,8 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Gets the <see cref = "LibGit2Sharp.Reference" /> with the specified name.
         /// </summary>
+        /// <param name = "name">The canonical name of the reference to resolve.</param>
+        /// <returns>The resolved <see cref = "LibGit2Sharp.Reference" /> if it has been found, null otherwise.</returns>
         public Reference this[string name]
         {
             get { return Resolve<Reference>(name); }
@@ -32,6 +34,10 @@ namespace LibGit2Sharp
 
         #region IEnumerable<Reference> Members
 
+        /// <summary>
+        /// Returns an enumerator that iterates through the collection.
+        /// </summary>
+        /// <returns>An <see cref="IEnumerator{T}"/> object that can be used to iterate through the collection.</returns>
         public IEnumerator<Reference> GetEnumerator()
         {
             return Libgit2UnsafeHelper
@@ -40,6 +46,10 @@ namespace LibGit2Sharp
                 .GetEnumerator();
         }
 
+        /// <summary>
+        /// Returns an enumerator that iterates through the collection.
+        /// </summary>
+        /// <returns>An <see cref="IEnumerator"/> object that can be used to iterate through the collection.</returns>
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
@@ -80,6 +90,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Delete a reference with the specified name
         /// </summary>
+        /// <param name="name">The name of the reference to delete.</param>
         public void Delete(string name)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
@@ -91,15 +102,44 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Gets the <see cref = "LibGit2Sharp.Reference" /> with the specified name.
+        ///   Rename an existing reference with a new name
         /// </summary>
-        /// <param name = "name">The name.</param>
+        /// <param name="oldName">The canonical name of the reference to rename.</param>
+        /// <param name="newName">The new canonical name.</param>
+        /// <param name="allowOverwrite">True to allow silent overwriting a potentially existing reference, false otherwise.</param>
         /// <returns></returns>
+        public Reference Move(string oldName, string newName, bool allowOverwrite = false)
+        {
+            Ensure.ArgumentNotNullOrEmptyString(oldName, "oldName");
+            Ensure.ArgumentNotNullOrEmptyString(newName, "newName");
+
+            IntPtr referencePtr = RetrieveReferencePtr(oldName);
+            int res;
+
+            if (allowOverwrite)
+            {
+                res = NativeMethods.git_reference_rename_f(referencePtr, newName);
+            }
+            else
+            {
+                res = NativeMethods.git_reference_rename(referencePtr, newName);
+            }
+
+            Ensure.Success(res);
+
+            return Reference.BuildFromPtr<Reference>(referencePtr, repo);
+        }
+
         internal T Resolve<T>(string name) where T : class
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
 
-            IntPtr reference = RetrieveReferencePtr(name);
+            IntPtr reference = RetrieveReferencePtr(name, false);
+
+            if (reference == IntPtr.Zero)
+            {
+                return default(T);
+            }
 
             return Reference.BuildFromPtr<T>(reference, repo);
         }
@@ -137,10 +177,16 @@ namespace LibGit2Sharp
             Ensure.Success(res);
         }
 
-        private IntPtr RetrieveReferencePtr(string referenceName)
+        private IntPtr RetrieveReferencePtr(string referenceName, bool shouldThrow = true)
         {
             IntPtr reference;
             var res = NativeMethods.git_reference_lookup(out reference, repo.Handle, referenceName);
+
+            if (!shouldThrow && res == (int)GitErrorCode.GIT_ENOTFOUND)
+            {
+                return IntPtr.Zero;
+            }
+
             Ensure.Success(res);
 
             return reference;

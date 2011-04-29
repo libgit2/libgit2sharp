@@ -107,14 +107,18 @@ namespace LibGit2Sharp
 
         #region IDisposable Members
 
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
         public void Dispose()
         {
             Dispose(true);
             GC.SuppressFinalize(this);
         }
 
-        #endregion
-
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
         protected virtual void Dispose(bool disposing)
         {
             if (handle != null && !handle.IsInvalid)
@@ -122,11 +126,13 @@ namespace LibGit2Sharp
                 handle.Dispose();
             }
 
-            if(Index != null)
+            if (Index != null)
             {
                 Index.Dispose();
             }
         }
+
+        #endregion
 
         /// <summary>
         ///   Tells if the specified sha exists in the repository.
