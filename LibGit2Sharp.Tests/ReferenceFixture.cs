@@ -84,21 +84,46 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
-        [Ignore("Not implemented yet.")]
         public void CanDeleteAReference()
         {
+            using (var path = new TemporaryCloneOfTestRepo())
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                repo.Refs.Delete("refs/heads/packed");
+            }
         }
 
         [Test]
-        [Ignore("Not implemented yet.")]
         public void ADeletedReferenceCannotBeLookedUp()
         {
+            using (var path = new TemporaryCloneOfTestRepo())
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                const string refName = "refs/heads/test";
+
+                repo.Refs.Delete(refName);
+                repo.Refs[refName].ShouldBeNull();
+            }
         }
 
         [Test]
-        [Ignore("Not implemented yet.")]
         public void DeletingAReferenceDecreasesTheRefsCount()
         {
+            using (var path = new TemporaryCloneOfTestRepo())
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                const string refName = "refs/heads/test";
+
+                var refs = repo.Refs.Select(r => r.CanonicalName).ToList();
+                refs.Contains(refName).ShouldBeTrue();
+
+                repo.Refs.Delete(refName);
+
+                var refs2 = repo.Refs.Select(r => r.CanonicalName).ToList();
+                refs2.Contains(refName).ShouldBeFalse();
+
+                refs2.Count.ShouldEqual(refs.Count - 1);
+            }
         }
 
         [Test]
