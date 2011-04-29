@@ -84,6 +84,24 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
+        [Ignore("Not implemented yet.")]
+        public void CanDeleteAReference()
+        {
+        }
+
+        [Test]
+        [Ignore("Not implemented yet.")]
+        public void ADeletedReferenceCannotBeLookedUp()
+        {
+        }
+
+        [Test]
+        [Ignore("Not implemented yet.")]
+        public void DeletingAReferenceDecreasesTheRefsCount()
+        {
+        }
+
+        [Test]
         public void DeleteWithEmptyNameThrows()
         {
             using (var repo = new Repository(Constants.TestRepoPath))
