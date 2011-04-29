@@ -88,12 +88,10 @@ namespace LibGit2Sharp
         /// <returns>An <see cref="IEnumerator{T}"/> object that can be used to iterate through the collection.</returns>
         public IEnumerator<IndexEntry> GetEnumerator()
         {
-            var list = new List<IndexEntry>();
             for (int i = 0; i < Count; i++)
             {
-                list.Add(this[i]); //TODO: yield return?
+                yield return this[i];
             }
-            return list.GetEnumerator();
         }
 
         /// <summary>

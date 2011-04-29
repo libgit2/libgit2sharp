@@ -142,9 +142,9 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///  Returns a <see cref="string"/> that represents the current <see cref="ObjectId"/>.
+        ///  Returns the <see cref="Sha"/>, a <see cref="String"/> representation of the current <see cref="ObjectId"/>.
         /// </summary>
-        /// <returns>A <see cref="string"/> that represents the current <see cref="ObjectId"/>.</returns>
+        /// <returns>The <see cref="Sha"/> that represents the current <see cref="ObjectId"/>.</returns>
         public override string ToString()
         {
             return Sha;
