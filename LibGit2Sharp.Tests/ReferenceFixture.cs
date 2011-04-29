@@ -48,6 +48,60 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
+        public void CreateWithEmptyStringForTargetThrows()
+        {
+            using (var repo = new Repository(Constants.TestRepoPath))
+            {
+                Assert.Throws<ArgumentException>(() => repo.Refs.Create("refs/heads/newref", string.Empty));
+            }
+        }
+
+        [Test]
+        public void CreateWithEmptyStringThrows()
+        {
+            using (var repo = new Repository(Constants.TestRepoPath))
+            {
+                Assert.Throws<ArgumentException>(() => repo.Refs.Create(string.Empty, "refs/heads/master"));
+            }
+        }
+
+        [Test]
+        public void CreateWithNullForTargetThrows()
+        {
+            using (var repo = new Repository(Constants.TestRepoPath))
+            {
+                Assert.Throws<ArgumentNullException>(() => repo.Refs.Create("refs/heads/newref", null));
+            }
+        }
+
+        [Test]
+        public void CreateWithNullStringThrows()
+        {
+            using (var repo = new Repository(Constants.TestRepoPath))
+            {
+                Assert.Throws<ArgumentNullException>(() => repo.Refs.Create(null, "refs/heads/master"));
+            }
+        }
+
+        [Test]
+        public void DeleteWithEmptyNameThrows()
+        {
+            using (var repo = new Repository(Constants.TestRepoPath))
+            {
+                Assert.Throws<ArgumentException>(() => repo.Refs.Delete(string.Empty));
+            }
+        }
+
+        [Test]
+        public void DeleteWithNullNameThrows()
+        {
+            using (var repo = new Repository(Constants.TestRepoPath))
+            {
+                Assert.Throws<ArgumentNullException>(() => repo.Refs.Delete(null));
+            }
+        }
+
+        [Test]
         public void CanListAllReferences()
         {
             using (var repo = new Repository(Constants.TestRepoPath))
@@ -126,101 +180,6 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
-        public void CanUpdateTargetOnReference()
-        {
-            const string masterRef = "refs/heads/master";
-            using (var path = new TemporaryCloneOfTestRepo())
-            using (var repo = new Repository(path.RepositoryPath))
-            {
-                var sha = repo.Refs["refs/heads/test"].ResolveToDirectReference().Target.Sha;
-                var master = repo.Refs[masterRef];
-                master.ResolveToDirectReference().Target.Sha.ShouldNotEqual(sha);
-
-                repo.Refs.UpdateTarget(masterRef, sha);
-
-                master = repo.Refs[masterRef];
-                master.ResolveToDirectReference().Target.Sha.ShouldEqual(sha);
-            }
-        }
-
-        [Test]
-        public void CanUpdateTargetOnSymolicReference()
-        {
-            const string name = "refs/heads/unit_test";
-            using (var path = new TemporaryCloneOfTestRepo())
-            using (var repo = new Repository(path.RepositoryPath))
-            {
-                var newRef = (SymbolicReference) repo.Refs.Create(name, "refs/heads/master");
-                newRef.ShouldNotBeNull();
-
-                repo.Refs.UpdateTarget(newRef.CanonicalName, "refs/heads/test");
-
-                newRef = (SymbolicReference) repo.Refs[newRef.CanonicalName];
-                newRef.ResolveToDirectReference().Target.ShouldEqual(repo.Refs["refs/heads/test"].ResolveToDirectReference().Target);
-
-                repo.Refs.Delete(newRef.CanonicalName);
-            }
-        }
-
-        [Test]
-        public void CreateWithEmptyStringForTargetThrows()
-        {
-            using (var path = new TemporaryCloneOfTestRepo())
-            using (var repo = new Repository(path.RepositoryPath))
-            {
-                Assert.Throws<ArgumentException>(() => repo.Refs.Create("refs/heads/newref", string.Empty));
-            }
-        }
-
-        [Test]
-        public void CreateWithEmptyStringThrows()
-        {
-            using (var path = new TemporaryCloneOfTestRepo())
-            using (var repo = new Repository(path.RepositoryPath))
-            {
-                Assert.Throws<ArgumentException>(() => repo.Refs.Create(string.Empty, "refs/heads/master"));
-            }
-        }
-
-        [Test]
-        public void CreateWithNullForTargetThrows()
-        {
-            using (var path = new TemporaryCloneOfTestRepo())
-            using (var repo = new Repository(path.RepositoryPath))
-            {
-                Assert.Throws<ArgumentNullException>(() => repo.Refs.Create("refs/heads/newref", null));
-            }
-        }
-
-        [Test]
-        public void CreateWithNullStringThrows()
-        {
-            using (var path = new TemporaryCloneOfTestRepo())
-            using (var repo = new Repository(path.RepositoryPath))
-            {
-                Assert.Throws<ArgumentNullException>(() => repo.Refs.Create(null, "refs/heads/master"));
-            }
-        }
-
-        [Test]
-        public void DeleteWithEmptyNameThrows()
-        {
-            using (var repo = new Repository(Constants.TestRepoPath))
-            {
-                Assert.Throws<ArgumentException>(() => repo.Refs.Delete(string.Empty));
-            }
-        }
-
-        [Test]
-        public void DeleteWithNullNameThrows()
-        {
-            using (var repo = new Repository(Constants.TestRepoPath))
-            {
-                Assert.Throws<ArgumentNullException>(() => repo.Refs.Delete(null));
-            }
-        }
-
-        [Test]
         public void ResolvingWithEmptyStringThrows()
         {
             using (var repo = new Repository(Constants.TestRepoPath))
@@ -239,7 +198,44 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
-        public void TryingToUpdateADirectRefWithSymbolFails()
+        public void CanUpdateTargetOnReference()
+        {
+            const string masterRef = "refs/heads/master";
+            using (var path = new TemporaryCloneOfTestRepo())
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                var sha = repo.Refs["refs/heads/test"].ResolveToDirectReference().Target.Sha;
+                var master = repo.Refs[masterRef];
+                master.ResolveToDirectReference().Target.Sha.ShouldNotEqual(sha);
+
+                repo.Refs.UpdateTarget(masterRef, sha);
+
+                master = repo.Refs[masterRef];
+                master.ResolveToDirectReference().Target.Sha.ShouldEqual(sha);
+            }
+        }
+
+        [Test]
+        public void CanUpdateTargetOnSymbolicReference()
+        {
+            const string name = "refs/heads/unit_test";
+            using (var path = new TemporaryCloneOfTestRepo())
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                var newRef = (SymbolicReference) repo.Refs.Create(name, "refs/heads/master");
+                newRef.ShouldNotBeNull();
+
+                repo.Refs.UpdateTarget(newRef.CanonicalName, "refs/heads/test");
+
+                newRef = (SymbolicReference) repo.Refs[newRef.CanonicalName];
+                newRef.ResolveToDirectReference().Target.ShouldEqual(repo.Refs["refs/heads/test"].ResolveToDirectReference().Target);
+
+                repo.Refs.Delete(newRef.CanonicalName);
+            }
+        }
+
+        [Test]
+        public void UpdatingADirectRefWithSymbolFails()
         {
             const string name = "refs/heads/unit_test";
             using (var path = new TemporaryCloneOfTestRepo())
@@ -256,21 +252,19 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
-        public void TryingToUpdateASymbolicRefWithOidFails()
+        public void UpdatingASymbolicRefWithOidFails()
         {
             const string masterRef = "refs/heads/master";
-            using (var path = new TemporaryCloneOfTestRepo())
-            using (var repo = new Repository(path.RepositoryPath))
+            using (var repo = new Repository(Constants.TestRepoPath))
             {
                 Assert.Throws<ArgumentException>(() => repo.Refs.UpdateTarget(masterRef, "refs/heads/test"));
             }
         }
 
         [Test]
-        public void UpdateReferenceTargetWithBadParametersFails()
+        public void UpdatingAReferenceTargetWithBadParametersFails()
         {
-            using (var path = new TemporaryCloneOfTestRepo())
-            using (var repo = new Repository(path.RepositoryPath))
+            using (var repo = new Repository(Constants.TestRepoPath))
             {
                 Assert.Throws<ArgumentException>(() => repo.Refs.UpdateTarget(string.Empty, "refs/heads/packed"));
                 Assert.Throws<ArgumentException>(() => repo.Refs.UpdateTarget("master", string.Empty));
