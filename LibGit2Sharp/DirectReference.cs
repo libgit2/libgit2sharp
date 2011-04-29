@@ -15,6 +15,10 @@
             return Target;
         }
 
+        /// <summary>
+        ///   As a <see cref="DirectReference"/> is already peeled, invoking this will return the same <see cref="DirectReference"/>.
+        /// </summary>
+        /// <returns>This instance.</returns>
         public override DirectReference ResolveToDirectReference()
         {
             return this;

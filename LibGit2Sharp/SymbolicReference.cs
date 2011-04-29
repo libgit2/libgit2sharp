@@ -15,6 +15,10 @@
             return Target;
         }
 
+        /// <summary>
+        ///   Recursively peels the target of the reference until a direct reference is encountered.
+        /// </summary>
+        /// <returns>The <see cref="DirectReference"/> this <see cref="SymbolicReference"/> points to.</returns>
         public override DirectReference ResolveToDirectReference()
         {
             return Target.ResolveToDirectReference();

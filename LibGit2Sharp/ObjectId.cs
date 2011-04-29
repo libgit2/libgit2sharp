@@ -141,6 +141,10 @@ namespace LibGit2Sharp
             return equalityHelper.GetHashCode(this);
         }
 
+        /// <summary>
+        ///  Returns a <see cref="string"/> that represents the current <see cref="ObjectId"/>.
+        /// </summary>
+        /// <returns>A <see cref="string"/> that represents the current <see cref="ObjectId"/>.</returns>
         public override string ToString()
         {
             return Sha;

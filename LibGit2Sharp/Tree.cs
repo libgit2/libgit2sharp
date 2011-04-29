@@ -47,6 +47,10 @@ namespace LibGit2Sharp
 
         #region IEnumerable<TreeEntry> Members
 
+        /// <summary>
+        /// Returns an enumerator that iterates through the collection.
+        /// </summary>
+        /// <returns>An <see cref="IEnumerator{T}"/> object that can be used to iterate through the collection.</returns>
         public IEnumerator<TreeEntry> GetEnumerator()
         {
             using (var obj = new ObjectSafeWrapper(Id, repo))
@@ -59,6 +63,10 @@ namespace LibGit2Sharp
             }
         }
 
+        /// <summary>
+        /// Returns an enumerator that iterates through the collection.
+        /// </summary>
+        /// <returns>An <see cref="IEnumerator"/> object that can be used to iterate through the collection.</returns>
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();

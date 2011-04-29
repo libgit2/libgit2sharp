@@ -21,8 +21,15 @@ namespace LibGit2Sharp
             Annotation = tagAnnotation;
         }
 
+        /// <summary>
+        ///   Gets the optional information associated to this tag.
+        /// <para>When the <see cref="Tag"/> is a lightweight tag, <c>null</c> is returned.</para>
+        /// </summary>
         public TagAnnotation Annotation { get; private set; }
 
+        /// <summary>
+        ///   Gets the full name of this branch.
+        /// </summary>
         public string CanonicalName { get; private set; }
 
         /// <summary>
@@ -30,6 +37,9 @@ namespace LibGit2Sharp
         /// </summary>
         public string Name { get { return Shorten(CanonicalName); } }
 
+        /// <summary>
+        ///   Gets the <see cref="GitObject"/> that this tag points to.
+        /// </summary>
         public GitObject Target { get; private set; }
 
         /// <summary>
