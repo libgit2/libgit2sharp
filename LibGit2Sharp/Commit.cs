@@ -41,6 +41,9 @@ namespace LibGit2Sharp
         /// </summary>
         public Signature Committer { get; private set; }
 
+        /// <summary>
+        ///   Gets the Tree associated to this commit.
+        /// </summary>
         public Tree Tree { get { return tree ?? (tree = repo.Lookup<Tree>(treeId)); } }
 
         /// <summary>
