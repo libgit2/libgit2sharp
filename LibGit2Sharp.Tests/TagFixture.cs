@@ -43,6 +43,18 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
+        public void CanCreateAndOverwriteALightweightTag()
+        {
+            using (var path = new TemporaryCloneOfTestRepo())
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                var newTag = repo.Tags.Create("e90810b", commitE90810BSha, true);
+                newTag.ShouldNotBeNull();
+                newTag.IsAnnotated.ShouldBeFalse();
+            }
+        }
+
+        [Test]
         public void CanCreateATagWithNameContainingASlash()
         {
             using (var path = new TemporaryCloneOfTestRepo())
@@ -87,6 +99,18 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
+        public void CanCreateAndOverwriteAnAnnotatedTag()
+        {
+            using (var path = new TemporaryCloneOfTestRepo())
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                var newTag = repo.Tags.Create("e90810b", tagTestSha, signatureTim, "a new tag", true);
+                newTag.ShouldNotBeNull();
+                newTag.IsAnnotated.ShouldBeTrue();
+            }
+        }
+
+        [Test]
         public void CreatingAnAnnotatedTagIsDeterministic()
         {
             const string tagName = "nullTAGen";
@@ -102,6 +126,26 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        [Test]
+        public void BlindlyCreatingALightweightTagOverAnExistingOneThrows()
+        {
+            using (var path = new TemporaryCloneOfTestRepo())
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                Assert.Throws<ApplicationException>(() => repo.Tags.Create("e90810b", "refs/heads/br2"));
+            }
+        }
+
+        [Test]
+        public void BlindlyCreatingAnAnnotatedTagOverAnExistingOneThrows()
+        {
+            using (var path = new TemporaryCloneOfTestRepo())
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                Assert.Throws<ApplicationException>(() => repo.Tags.Create("e90810b", "refs/heads/br2", signatureNtk, "a nice message"));
+            }
+        }
+        
         [Test]
         public void CreateTagWithADuplicateNameThrows()
         {

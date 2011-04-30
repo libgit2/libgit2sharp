@@ -62,11 +62,12 @@ namespace LibGit2Sharp
         ///   Creates an annotated tag with the specified name.
         /// </summary>
         /// <param name = "name">The name.</param>
-        /// <param name = "target">The target.</param>
+        /// <param name = "target">The target which can be sha or a canonical reference name.</param>
         /// <param name = "tagger">The tagger.</param>
         /// <param name = "message">The message.</param>
+        /// <param name="allowOverwrite">True to allow silent overwriting a potentially existing tag, false otherwise.</param>
         /// <returns></returns>
-        public Tag Create(string name, string target, Signature tagger, string message)
+        public Tag Create(string name, string target, Signature tagger, string message, bool allowOverwrite = false)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
             Ensure.ArgumentNotNullOrEmptyString(target, "target");
@@ -77,7 +78,17 @@ namespace LibGit2Sharp
 
             var targetOid = objectToTag.Id.Oid;
             GitOid oid;
-            var res = NativeMethods.git_tag_create(out oid, repo.Handle, name, ref targetOid, GitObject.TypeToTypeMap[objectToTag.GetType()], tagger.Handle, message);
+            int res;
+
+            if (allowOverwrite)
+            {
+                res = NativeMethods.git_tag_create_f(out oid, repo.Handle, name, ref targetOid, GitObject.TypeToTypeMap[objectToTag.GetType()], tagger.Handle, message);
+            }
+            else
+            {
+                res = NativeMethods.git_tag_create(out oid, repo.Handle, name, ref targetOid, GitObject.TypeToTypeMap[objectToTag.GetType()], tagger.Handle, message);
+            }
+
             Ensure.Success(res);
 
             return this[name];
@@ -87,15 +98,16 @@ namespace LibGit2Sharp
         ///   Creates a lightweight tag with the specified name.
         /// </summary>
         /// <param name = "name">The name.</param>
-        /// <param name = "target">The target.</param>
+        /// <param name = "target">The target which can be sha or a canonical reference name.</param>
+        /// <param name="allowOverwrite">True to allow silent overwriting a potentially existing tag, false otherwise.</param>
         /// <returns></returns>
-        public Tag Create(string name, string target)
+        public Tag Create(string name, string target, bool allowOverwrite = false)
         {
             Ensure.ArgumentNotNullOrEmptyString(target, "target");
 
             GitObject objectToTag = RetrieveObjectToTag(target);
 
-            repo.Refs.Create(NormalizeToCanonicalName(name), objectToTag.Id.Sha);   //TODO: To be replaced by native libgit2 git_tag_create_lightweight() when available.
+            repo.Refs.Create(NormalizeToCanonicalName(name), objectToTag.Id.Sha, allowOverwrite);   //TODO: To be replaced by native libgit2 git_tag_create_lightweight() when available.
 
             return this[name];
         }
