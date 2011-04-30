@@ -18,7 +18,7 @@ namespace LibGit2Sharp
         ///   Initializes a new instance of the <see cref = "CommitCollection" /> class.
         /// </summary>
         /// <param name = "repo">The repo.</param>
-        public CommitCollection(Repository repo)
+        internal CommitCollection(Repository repo)
         {
             this.repo = repo;
         }

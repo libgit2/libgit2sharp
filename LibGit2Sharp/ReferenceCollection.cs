@@ -17,7 +17,7 @@ namespace LibGit2Sharp
         ///   Initializes a new instance of the <see cref = "ReferenceCollection" /> class.
         /// </summary>
         /// <param name = "repo">The repo.</param>
-        public ReferenceCollection(Repository repo)
+        internal ReferenceCollection(Repository repo)
         {
             this.repo = repo;
         }
@@ -58,12 +58,13 @@ namespace LibGit2Sharp
         #endregion
 
         /// <summary>
-        ///   Creates a reference with the specified name and target
+        ///   Creates a direct or symbolic reference with the specified name and target
         /// </summary>
         /// <param name = "name">The name of the reference to create.</param>
-        /// <param name = "target">The target which can be either a sha or the name of another reference.</param>
+        /// <param name = "target">The target which can be either a sha or the canonical name of another reference.</param>
+        /// <param name="allowOverwrite">True to allow silent overwriting a potentially existing reference, false otherwise.</param>
         /// <returns>A new <see cref = "Reference" />.</returns>
-        public Reference Create(string name, string target)
+        public Reference Create(string name, string target, bool allowOverwrite = false)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
 
@@ -74,17 +75,38 @@ namespace LibGit2Sharp
 
             if (id != null)
             {
-                var oid = id.Oid;
-                res = NativeMethods.git_reference_create_oid(out reference, repo.Handle, name, ref oid);
+                res = CreateDirectReference(name, id, allowOverwrite, out reference);
             }
             else
             {
-                res = NativeMethods.git_reference_create_symbolic(out reference, repo.Handle, name, target);
+                res = CreateSymbolicReference(name, target, allowOverwrite, out reference);
             }
 
             Ensure.Success(res);
 
             return Reference.BuildFromPtr<Reference>(reference, repo);
+        }
+
+        private int CreateSymbolicReference(string name, string target, bool allowOverwrite, out IntPtr reference)
+        {
+            if (allowOverwrite)
+            {
+                return NativeMethods.git_reference_create_symbolic_f(out reference, repo.Handle, name, target);
+            }
+
+            return NativeMethods.git_reference_create_symbolic(out reference, repo.Handle, name, target);
+        }
+
+        private int CreateDirectReference(string name, ObjectId targetOid, bool allowOverwrite, out IntPtr reference)
+        {
+            GitOid oid = targetOid.Oid;
+
+            if (allowOverwrite)
+            {
+                return NativeMethods.git_reference_create_oid_f(out reference, repo.Handle, name, ref oid);
+            }
+         
+            return NativeMethods.git_reference_create_oid(out reference, repo.Handle, name, ref oid);
         }
 
         /// <summary>

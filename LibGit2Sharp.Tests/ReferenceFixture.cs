@@ -12,9 +12,10 @@ namespace LibGit2Sharp.Tests
         private readonly List<string> expectedRefs = new List<string> {"refs/heads/packed-test", "refs/heads/packed", "refs/heads/br2", "refs/heads/master", "refs/heads/test", "refs/tags/test", "refs/tags/e90810b", "refs/tags/lw"};
 
         [Test]
-        public void CanCreateReferenceFromSha()
+        public void CanCreateADirectReference()
         {
             const string name = "refs/heads/unit_test";
+
             using (var path = new TemporaryCloneOfTestRepo())
             using (var repo = new Repository(path.RepositoryPath))
             {
@@ -23,27 +24,81 @@ namespace LibGit2Sharp.Tests
                 newRef.CanonicalName.ShouldEqual(name);
                 newRef.Target.ShouldNotBeNull();
                 newRef.Target.Sha.ShouldEqual("be3563ae3f795b2b4353bcce3a527ad0a4f7f644");
-                repo.Refs.SingleOrDefault(p => p.CanonicalName == name).ShouldNotBeNull();
-
-                repo.Refs.Delete(newRef.CanonicalName);
+                repo.Refs[name].ShouldNotBeNull();
             }
         }
 
         [Test]
-        public void CanCreateReferenceFromSymbol()
+        public void CanCreateASymbolicReference()
         {
             const string name = "refs/heads/unit_test";
+            const string target = "refs/heads/master";
+
             using (var path = new TemporaryCloneOfTestRepo())
             using (var repo = new Repository(path.RepositoryPath))
             {
-                var newRef = (SymbolicReference) repo.Refs.Create(name, "refs/heads/master");
+                var newRef = (SymbolicReference) repo.Refs.Create(name, target);
+                newRef.ShouldNotBeNull();
+                newRef.CanonicalName.ShouldEqual(name);
+                newRef.Target.CanonicalName.ShouldEqual(target);
+                newRef.ResolveToDirectReference().Target.Sha.ShouldEqual("4c062a6361ae6959e06292c1fa5e2822d9c96345");
+                repo.Refs[name].ShouldNotBeNull();
+            }
+        }
+
+        [Test]
+        public void BlindlyCreatingADirectReferenceOverAnExistingOneThrows()
+        {
+            using (var path = new TemporaryCloneOfTestRepo())
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                Assert.Throws<ApplicationException>(() => repo.Refs.Create("refs/heads/master", "be3563ae3f795b2b4353bcce3a527ad0a4f7f644"));
+            }
+        }
+
+        [Test]
+        public void BlindlyCreatingASymbolicReferenceOverAnExistingOneThrows()
+        {
+            using (var path = new TemporaryCloneOfTestRepo())
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                Assert.Throws<ApplicationException>(() => repo.Refs.Create("HEAD", "refs/head/br2"));
+            }
+        }
+
+        [Test]
+        public void CanCreateAndOverwriteADirectReference()
+        {
+            const string name = "refs/heads/br2";
+            const string target = "4c062a6361ae6959e06292c1fa5e2822d9c96345";
+
+            using (var path = new TemporaryCloneOfTestRepo())
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                var newRef = (DirectReference)repo.Refs.Create(name, target, true);
                 newRef.ShouldNotBeNull();
                 newRef.CanonicalName.ShouldEqual(name);
                 newRef.Target.ShouldNotBeNull();
-                ((DirectReference) newRef.Target).Target.Sha.ShouldEqual("4c062a6361ae6959e06292c1fa5e2822d9c96345");
-                repo.Refs.SingleOrDefault(p => p.CanonicalName == name).ShouldNotBeNull();
+                newRef.Target.Sha.ShouldEqual(target);
+                ((DirectReference)repo.Refs[name]).Target.Sha.ShouldEqual(target);
+            }
+        }
 
-                repo.Refs.Delete(newRef.CanonicalName);
+        [Test]
+        public void CanCreateAndOverwriteASymbolicReference()
+        {
+            const string name = "HEAD";
+            const string target = "refs/heads/br2";
+
+            using (var path = new TemporaryCloneOfTestRepo())
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                var newRef = (SymbolicReference)repo.Refs.Create(name, target, true);
+                newRef.ShouldNotBeNull();
+                newRef.CanonicalName.ShouldEqual(name);
+                newRef.Target.ShouldNotBeNull();
+                newRef.ResolveToDirectReference().Target.Sha.ShouldEqual("a4a7dce85cf63874e984719f4fdd239f5145052f");
+                ((SymbolicReference)repo.Head).Target.CanonicalName.ShouldEqual(target);
             }
         }
 
