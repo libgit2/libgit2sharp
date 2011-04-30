@@ -186,6 +186,60 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
+        public void CanDeleteATagThroughItsName()
+        {
+            using (var path = new TemporaryCloneOfTestRepo())
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                repo.Tags.Delete("e90810b");
+            }
+        }
+
+
+        [Test]
+        public void CanDeleteATagThroughItsCanonicalName()
+        {
+            using (var path = new TemporaryCloneOfTestRepo())
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                repo.Tags.Delete("refs/tags/e90810b");
+            }
+        }
+
+        [Test]
+        public void ADeletedTagCannotBeLookedUp()
+        {
+            using (var path = new TemporaryCloneOfTestRepo())
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                const string tagName = "e90810b";
+
+                repo.Tags.Delete(tagName);
+                repo.Tags[tagName].ShouldBeNull();
+            }
+        }
+
+        [Test]
+        public void DeletingATagDecreasesTheTagsCount()
+        {
+            using (var path = new TemporaryCloneOfTestRepo())
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                const string tagName = "e90810b";
+
+                var tags = repo.Tags.Select(r => r.Name).ToList();
+                tags.Contains(tagName).ShouldBeTrue();
+
+                repo.Tags.Delete(tagName);
+
+                var tags2 = repo.Tags.Select(r => r.Name).ToList();
+                tags2.Contains(tagName).ShouldBeFalse();
+
+                tags2.Count.ShouldEqual(tags.Count - 1);
+            }
+        }
+
+        [Test]
         public void CanListTags()
         {
             using (var repo = new Repository(Constants.TestRepoPath))

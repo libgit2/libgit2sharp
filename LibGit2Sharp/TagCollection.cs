@@ -100,6 +100,17 @@ namespace LibGit2Sharp
             return this[name];
         }
 
+        /// <summary>
+        ///   Deletes the tag with the specified name.
+        /// </summary>
+        /// <param name = "name">The name of the tag to delete.</param>
+        public void Delete(string name)
+        {
+            Ensure.ArgumentNotNullOrEmptyString(name, "name");
+
+            repo.Refs.Delete(this[name].CanonicalName);
+        }
+
         private GitObject RetrieveObjectToTag(string target)
         {
             var objectToTag = repo.Lookup(target);
