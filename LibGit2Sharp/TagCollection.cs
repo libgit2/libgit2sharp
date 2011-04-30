@@ -17,7 +17,7 @@ namespace LibGit2Sharp
         ///   Initializes a new instance of the <see cref = "TagCollection" /> class.
         /// </summary>
         /// <param name = "repo">The repo.</param>
-        public TagCollection(Repository repo)
+        internal TagCollection(Repository repo)
         {
             this.repo = repo;
         }
@@ -95,7 +95,7 @@ namespace LibGit2Sharp
 
             GitObject objectToTag = RetrieveObjectToTag(target);
 
-            repo.Refs.Create(NormalizeToCanonicalName(name), objectToTag.Id.Sha);   //TODO: To be replaced by native libgit2 tag_create_lightweight() when available.
+            repo.Refs.Create(NormalizeToCanonicalName(name), objectToTag.Id.Sha);   //TODO: To be replaced by native libgit2 git_tag_create_lightweight() when available.
 
             return this[name];
         }
@@ -108,7 +108,7 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
 
-            repo.Refs.Delete(this[name].CanonicalName);
+            repo.Refs.Delete(this[name].CanonicalName);  //TODO: To be replaced by native libgit2 git_tag_delete() when available.
         }
 
         private GitObject RetrieveObjectToTag(string target)

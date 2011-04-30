@@ -17,7 +17,7 @@ namespace LibGit2Sharp
         ///   Initializes a new instance of the <see cref = "BranchCollection" /> class.
         /// </summary>
         /// <param name = "repo">The repo.</param>
-        public BranchCollection(Repository repo)
+        internal BranchCollection(Repository repo)
         {
             this.repo = repo;
         }
@@ -97,7 +97,7 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
 
-            repo.Refs.Delete(this[name].CanonicalName);
+            repo.Refs.Delete(this[name].CanonicalName); //TODO: To be replaced by native libgit2 git_branch_delete() when available.
         }
 
         private static bool LooksLikeABranchName(string referenceName)
