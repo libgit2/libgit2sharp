@@ -158,11 +158,6 @@ namespace LibGit2Sharp
 
             IntPtr reference = RetrieveReferencePtr(name, false);
 
-            if (reference == IntPtr.Zero)
-            {
-                return default(T);
-            }
-
             return Reference.BuildFromPtr<T>(reference, repo);
         }
 

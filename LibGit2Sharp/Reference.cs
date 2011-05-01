@@ -19,6 +19,11 @@ namespace LibGit2Sharp
 
         internal static T BuildFromPtr<T>(IntPtr ptr, Repository repo) where T : class
         {
+            if (ptr == IntPtr.Zero)
+            {
+                return default(T);
+            }
+
             var name = NativeMethods.git_reference_name(ptr);
             var type = NativeMethods.git_reference_type(ptr);
 

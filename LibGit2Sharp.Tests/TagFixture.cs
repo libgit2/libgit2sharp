@@ -10,6 +10,8 @@ namespace LibGit2Sharp.Tests
     [TestFixture]
     public class TagFixture
     {
+        private const string newRepoPath = "new_repo";
+
         private readonly List<string> expectedTags = new List<string> {"test", "e90810b", "lw"};
 
         private static readonly Signature signatureTim = new Signature("Tim Clem", "timothy.clem@gmail.com", DateTimeOffset.UtcNow);
@@ -123,6 +125,21 @@ namespace LibGit2Sharp.Tests
                 newTag.Target.Sha.ShouldEqual("24f6de34a108d931c6056fc4687637fe36c6bd6b");
                 newTag.IsAnnotated.ShouldBeTrue();
                 newTag.Annotation.Sha.ShouldEqual("24f6de34a108d931c6056fc4687637fe36c6bd6b");
+            }
+        }
+
+        [Test]
+        [Description("Ported from cgit (https://github.com/git/git/blob/master/t/t7004-tag.sh)")]
+        public void CreatingATagInAEmptyRepositoryThrows()
+        {
+            using (new SelfCleaningDirectory(newRepoPath))
+            {
+                var dir = Repository.Init(newRepoPath);
+
+                using (var repo = new Repository(dir))
+                {
+                    Assert.Throws<ApplicationException>(() => repo.ApplyTag("mynotag"));
+                }
             }
         }
 
@@ -293,6 +310,22 @@ namespace LibGit2Sharp.Tests
                     expectedTags.Contains(tag.Name).ShouldBeTrue();
                 }
                 repo.Tags.Count().ShouldEqual(3);
+            }
+        }
+
+        [Test]
+        [Description("Ported from cgit (https://github.com/git/git/blob/master/t/t7004-tag.sh)")]
+        public void CanListAllTagsInAEmptyRepository()
+        {
+            using (new SelfCleaningDirectory(newRepoPath))
+            {
+                var dir = Repository.Init(newRepoPath);
+
+                using (var repo = new Repository(dir))
+                {
+                    repo.Info.IsEmpty.ShouldBeTrue();
+                    repo.Tags.Count().ShouldEqual(0);
+                }
             }
         }
 

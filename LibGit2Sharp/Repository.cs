@@ -213,12 +213,17 @@ namespace LibGit2Sharp
 
             var reference = Refs[shaOrReferenceName];
 
-            if (reference == null)
+            if (!IsReferencePeelable(reference))
             {
                 return null;
             }
 
             return Lookup(reference.ResolveToDirectReference().Target.Id, type);
+        }
+
+        private static bool IsReferencePeelable(Reference reference)
+        {
+            return reference != null && ((reference is DirectReference) ||(reference is SymbolicReference && ((SymbolicReference)reference).Target != null));
         }
     }
 }

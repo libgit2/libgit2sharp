@@ -28,5 +28,15 @@
         {
             return (T)repository.Lookup(id, GitObject.TypeToTypeMap[typeof(T)]);
         }
+
+        /// <summary>
+        ///   Creates a lightweight tag with the specified name. This tag will point at the commit pointed at by the <see cref="Repository.Head"/>.
+        /// </summary>
+        /// <param name="repository">The <see cref="Repository"/> being looked up.</param>
+        /// <param name="tagName">The name of the tag to create.</param>
+        public static Tag ApplyTag(this Repository repository, string tagName)
+        {
+            return repository.Tags.Create(tagName, repository.Head.CanonicalName);
+        }
     }
 }
