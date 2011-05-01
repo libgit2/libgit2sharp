@@ -1,7 +1,8 @@
-﻿using LibGit2Sharp.Core;
-
-namespace LibGit2Sharp
+﻿namespace LibGit2Sharp
 {
+    /// <summary>
+    ///   Provides helper overloads to a <see cref="Repository"/>.
+    /// </summary>
     public static class RepositoryExtensions
     {
         /// <summary>
@@ -27,28 +28,5 @@ namespace LibGit2Sharp
         {
             return (T)repository.Lookup(id, GitObject.TypeToTypeMap[typeof(T)]);
         }
-
-        /// <summary>
-        ///   Try to lookup an object by its sha or a reference name and <see cref="GitObjectType"/>. If no matching object is found, null will be returned.
-        /// 
-        ///   Exceptions:
-        ///   ArgumentNullException
-        /// </summary>
-        /// <param name="repository">The <see cref="Repository"/> being looked up.</param>
-        /// <param name = "shaOrRef">The shaOrRef to lookup.</param>
-        /// <param name = "type"></param>
-        /// <returns>the <see cref = "GitObject" /> or null if it was not found.</returns>
-        public static GitObject Lookup(this Repository repository, string shaOrRef, GitObjectType type = GitObjectType.Any)
-        {
-            ObjectId id = ObjectId.CreateFromMaybeSha(shaOrRef);
-            if (id != null)
-            {
-                return repository.Lookup(id, type);
-            }
-
-            var reference = repository.Refs[shaOrRef];
-            return repository.Lookup(reference.ResolveToDirectReference().Target.Id, type);
-        }
-
     }
 }
