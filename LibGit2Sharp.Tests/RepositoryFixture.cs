@@ -150,6 +150,16 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
+        public void LookupObjectByUnknownReferenceNameReturnsNull()
+        {
+            using (var repo = new Repository(Constants.TestRepoPath))
+            {
+                repo.Lookup("refs/heads/chopped/off").ShouldBeNull();
+                repo.Lookup<GitObject>(notFoundSha).ShouldBeNull();
+            }
+        }
+
+        [Test]
         public void LookupWithEmptyStringThrows()
         {
             using (var repo = new Repository(Constants.TestRepoPath))

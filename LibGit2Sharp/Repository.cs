@@ -198,20 +198,26 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Try to lookup an object by its sha or a reference name and <see cref="GitObjectType"/>. If no matching object is found, null will be returned.
+        ///   Try to lookup an object by its sha or a reference canonical name and <see cref="GitObjectType"/>. If no matching object is found, null will be returned.
         /// </summary>
-        /// <param name = "shaOrRef">The shaOrRef to lookup.</param>
-        /// <param name = "type">The kind of GitObject being looked up</param>
+        /// <param name = "shaOrReferenceName">The sha or reference canonical name to lookup.</param>
+        /// <param name = "type">The kind of <see cref="GitObject"/> being looked up</param>
         /// <returns>The <see cref = "GitObject" /> or null if it was not found.</returns>
-        public GitObject Lookup(string shaOrRef, GitObjectType type = GitObjectType.Any)
+        public GitObject Lookup(string shaOrReferenceName, GitObjectType type = GitObjectType.Any)
         {
-            ObjectId id = ObjectId.CreateFromMaybeSha(shaOrRef);
+            ObjectId id = ObjectId.CreateFromMaybeSha(shaOrReferenceName);
             if (id != null)
             {
                 return Lookup(id, type);
             }
 
-            var reference = Refs[shaOrRef];
+            var reference = Refs[shaOrReferenceName];
+
+            if (reference == null)
+            {
+                return null;
+            }
+
             return Lookup(reference.ResolveToDirectReference().Target.Id, type);
         }
     }
