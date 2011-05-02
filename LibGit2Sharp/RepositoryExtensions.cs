@@ -38,5 +38,16 @@
         {
             return repository.Tags.Create(tagName, repository.Head.CanonicalName);
         }
+
+        /// <summary>
+        ///   Creates a lightweight tag with the specified name. This tag will point at the <paramref name="target"/>.
+        /// </summary>
+        /// <param name="repository">The <see cref="Repository"/> being looked up.</param>
+        /// <param name="tagName">The name of the tag to create.</param>
+        /// <param name="target">The canonical reference name or sha which should be pointed at by the Tag.</param>
+        public static Tag ApplyTag(this Repository repository, string tagName, string target)
+        {
+            return repository.Tags.Create(tagName, target);
+        }
     }
 }

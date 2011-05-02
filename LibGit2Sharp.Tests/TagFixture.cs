@@ -19,6 +19,7 @@ namespace LibGit2Sharp.Tests
         private const string tagTestSha = "b25fa35b38051e4ae45d4222e795f9df2e43f1d1";
         private const string commitE90810BSha = "e90810b8df3e80c413d903f631643c716887138d";
         private const string tagE90810BSha = "7b4384978d2493e851f9cca7858815fac9b10980";
+        const string invalidTargetId = "deadbeef1b46c854b31185ea97743be6a8774479";
 
         [Test]
         public void CanCreateALightWeightTagFromSha()
@@ -129,7 +130,7 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
-        [Description("Ported from cgit (https://github.com/git/git/blob/master/t/t7004-tag.sh)")]
+        [Description("Ported from cgit (https://github.com/git/git/blob/1c08bf50cfcf924094eca56c2486a90e2bf1e6e2/t/t7004-tag.sh#L32)")]
         public void CreatingATagInAEmptyRepositoryThrows()
         {
             using (new SelfCleaningDirectory(newRepoPath))
@@ -140,6 +141,88 @@ namespace LibGit2Sharp.Tests
                 {
                     Assert.Throws<ApplicationException>(() => repo.ApplyTag("mynotag"));
                 }
+            }
+        }
+
+        [Test]
+        [Description("Ported from cgit (https://github.com/git/git/blob/1c08bf50cfcf924094eca56c2486a90e2bf1e6e2/t/t7004-tag.sh#L37)")]
+        public void CreatingATagForHeadInAEmptyRepositoryThrows()
+        {
+            using (new SelfCleaningDirectory(newRepoPath))
+            {
+                var dir = Repository.Init(newRepoPath);
+
+                using (var repo = new Repository(dir))
+                {
+                    Assert.Throws<ApplicationException>(() => repo.ApplyTag("mytaghead", "HEAD"));
+                }
+            }
+        }
+
+        [Test]
+        [Description("Ported from cgit (https://github.com/git/git/blob/1c08bf50cfcf924094eca56c2486a90e2bf1e6e2/t/t7004-tag.sh#L42)")]
+        public void CreatingATagForAnUnknowReferenceShouldFail()
+        {
+            using (var path = new TemporaryCloneOfTestRepo())
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                Assert.Throws<ApplicationException>(() => repo.ApplyTag("mytagnorev", "aaaaaaaaaaa"));
+            }
+        }
+
+        [Test]
+        [Description("Ported from cgit (https://github.com/git/git/blob/1c08bf50cfcf924094eca56c2486a90e2bf1e6e2/t/t7004-tag.sh#L42)")]
+        public void CreatingATagForAnUnknowObjectIdShouldFail()
+        {
+            using (var path = new TemporaryCloneOfTestRepo())
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                Assert.Throws<ApplicationException>(() => repo.ApplyTag("mytagnorev", invalidTargetId));
+            }
+        }
+
+        [Test]
+        [Description("Ported from cgit (https://github.com/git/git/blob/1c08bf50cfcf924094eca56c2486a90e2bf1e6e2/t/t7004-tag.sh#L48)")]
+        public void CanCreateATagForImplicitHead()
+        {
+            using (var path = new TemporaryCloneOfTestRepo())
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                var tag = repo.ApplyTag("mytag");
+                tag.ShouldNotBeNull();
+
+                tag.Target.Id.ShouldEqual(repo.Head.ResolveToDirectReference().Target.Id);
+
+                var retrievedTag = repo.Tags[tag.CanonicalName];
+                tag.ShouldEqual(retrievedTag);
+            }
+        }
+
+        [Test]
+        [Description("Ported from cgit (https://github.com/git/git/blob/1c08bf50cfcf924094eca56c2486a90e2bf1e6e2/t/t7004-tag.sh#L87)")]
+        public void CreatingADuplicateTagShouldFail()
+        {
+            using (var path = new TemporaryCloneOfTestRepo())
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                repo.ApplyTag("mytag");
+
+                Assert.Throws<ApplicationException>(() => repo.ApplyTag("mytag"));
+            }
+        }
+
+        [Test]
+        [Description("Ported from cgit (https://github.com/git/git/blob/1c08bf50cfcf924094eca56c2486a90e2bf1e6e2/t/t7004-tag.sh#L90)")]
+        public void CreatingATagWithANonValidNameShouldFail()
+        {
+            using (var path = new TemporaryCloneOfTestRepo())
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                Assert.Throws<ArgumentException>(() => repo.ApplyTag(""));
+                Assert.Throws<ApplicationException>(() => repo.ApplyTag(".othertag"));
+                Assert.Throws<ApplicationException>(() => repo.ApplyTag("other tag"));
+                Assert.Throws<ApplicationException>(() => repo.ApplyTag("othertag^"));
+                Assert.Throws<ApplicationException>(() => repo.ApplyTag("other~tag"));
             }
         }
 
@@ -202,8 +285,6 @@ namespace LibGit2Sharp.Tests
         [Test]
         public void CreateTagWithNotExistingTargetThrows()
         {
-            const string invalidTargetId = "deadbeef1b46c854b31185ea97743be6a8774479";
-
             using (var repo = new Repository(Constants.TestRepoPath))
             {
                 Assert.Throws<ApplicationException>(() => repo.Tags.Create("test_tag", invalidTargetId, signatureTim, "message"));
@@ -314,7 +395,7 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
-        [Description("Ported from cgit (https://github.com/git/git/blob/master/t/t7004-tag.sh)")]
+        [Description("Ported from cgit (https://github.com/git/git/blob/1c08bf50cfcf924094eca56c2486a90e2bf1e6e2/t/t7004-tag.sh#L24)")]
         public void CanListAllTagsInAEmptyRepository()
         {
             using (new SelfCleaningDirectory(newRepoPath))
