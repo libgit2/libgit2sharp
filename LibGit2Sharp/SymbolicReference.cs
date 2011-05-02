@@ -21,7 +21,7 @@
         /// <returns>The <see cref="DirectReference"/> this <see cref="SymbolicReference"/> points to.</returns>
         public override DirectReference ResolveToDirectReference()
         {
-            return Target.ResolveToDirectReference();
+            return (Target == null) ? null : Target.ResolveToDirectReference();
         }
     }
 }

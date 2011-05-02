@@ -24,6 +24,7 @@ namespace LibGit2Sharp.Tests
                 newRef.CanonicalName.ShouldEqual(name);
                 newRef.Target.ShouldNotBeNull();
                 newRef.Target.Sha.ShouldEqual("be3563ae3f795b2b4353bcce3a527ad0a4f7f644");
+                newRef.TargetIdentifier.ShouldEqual(newRef.Target.Sha);
                 repo.Refs[name].ShouldNotBeNull();
             }
         }
@@ -41,6 +42,7 @@ namespace LibGit2Sharp.Tests
                 newRef.ShouldNotBeNull();
                 newRef.CanonicalName.ShouldEqual(name);
                 newRef.Target.CanonicalName.ShouldEqual(target);
+                newRef.TargetIdentifier.ShouldEqual(newRef.Target.CanonicalName);
                 newRef.ResolveToDirectReference().Target.Sha.ShouldEqual("4c062a6361ae6959e06292c1fa5e2822d9c96345");
                 repo.Refs[name].ShouldNotBeNull();
             }

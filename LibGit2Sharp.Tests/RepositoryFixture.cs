@@ -24,10 +24,10 @@ namespace LibGit2Sharp.Tests
 
                 using (var repo = new Repository(dir))
                 {
-                    repo.Info.Path.ShouldNotBeNull();
                     repo.Info.WorkingDirectory.ShouldBeNull();
                     repo.Info.IsBare.ShouldBeTrue();
-                    repo.Info.IsEmpty.ShouldBeTrue();
+
+                    AssertInitializedRepository(repo);
                 }
             }
         }
@@ -43,12 +43,21 @@ namespace LibGit2Sharp.Tests
 
                 using (var repo = new Repository(dir))
                 {
-                    repo.Info.Path.ShouldNotBeNull();
                     repo.Info.WorkingDirectory.ShouldNotBeNull();
                     repo.Info.IsBare.ShouldBeFalse();
-                    repo.Info.IsEmpty.ShouldBeTrue();
+
+                    AssertInitializedRepository(repo);
                 }
             }
+        }
+
+        private static void AssertInitializedRepository(Repository repo)
+        {
+            repo.Info.Path.ShouldNotBeNull();
+            repo.Info.IsEmpty.ShouldBeTrue();
+            repo.Info.IsHeadDetached.ShouldBeFalse();
+            repo.Head.TargetIdentifier.ShouldEqual("refs/heads/master");
+            repo.Head.ResolveToDirectReference().ShouldBeNull();
         }
 
         [Test]
