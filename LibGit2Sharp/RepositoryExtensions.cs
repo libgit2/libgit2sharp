@@ -36,7 +36,7 @@
         /// <param name="tagName">The name of the tag to create.</param>
         public static Tag ApplyTag(this Repository repository, string tagName)
         {
-            return repository.Tags.Create(tagName, repository.Head.CanonicalName);
+            return ApplyTag(repository, tagName, repository.Head.CanonicalName);
         }
 
         /// <summary>

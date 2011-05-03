@@ -227,6 +227,23 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
+        [Description("Ported from cgit (https://github.com/git/git/blob/1c08bf50cfcf924094eca56c2486a90e2bf1e6e2/t/t7004-tag.sh#L101)")]
+        public void CanCreateATagUsingHead()
+        {
+            using (var path = new TemporaryCloneOfTestRepo())
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                var tag = repo.ApplyTag("mytag", "HEAD");
+                tag.ShouldNotBeNull();
+
+                tag.Target.Id.ShouldEqual(repo.Head.ResolveToDirectReference().Target.Id);
+
+                var retrievedTag = repo.Tags[tag.CanonicalName];
+                tag.ShouldEqual(retrievedTag);
+            }
+        }
+
+        [Test]
         public void BlindlyCreatingALightweightTagOverAnExistingOneThrows()
         {
             using (var path = new TemporaryCloneOfTestRepo())
@@ -378,6 +395,16 @@ namespace LibGit2Sharp.Tests
                 tags2.Contains(tagName).ShouldBeFalse();
 
                 tags2.Count.ShouldEqual(tags.Count - 1);
+            }
+        }
+
+        [Test]
+        [Description("Ported from cgit (https://github.com/git/git/blob/1c08bf50cfcf924094eca56c2486a90e2bf1e6e2/t/t7004-tag.sh#L108)")]
+        public void DeletingAnUnknownTagShouldFail()
+        {
+            using (var repo = new Repository(Constants.TestRepoPath))
+            {
+                Assert.Throws<ApplicationException>(() => repo.Tags.Delete("unknown-tag"));
             }
         }
 
