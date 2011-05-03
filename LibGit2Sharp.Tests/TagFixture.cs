@@ -102,6 +102,20 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
+        [Description("Ported from cgit (https://github.com/git/git/blob/1c08bf50cfcf924094eca56c2486a90e2bf1e6e2/t/t7004-tag.sh#L359)")]
+        public void CanCreateAnAnnotatedTagWithAnEmptyMessage()
+        {
+            using (var path = new TemporaryCloneOfTestRepo())
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                var newTag = repo.ApplyTag("empty-annotated-tag", signatureNtk, string.Empty);
+                newTag.ShouldNotBeNull();
+                newTag.IsAnnotated.ShouldBeTrue();
+                newTag.Annotation.Message.ShouldEqual(string.Empty);
+            }
+        }
+
+        [Test]
         public void CanCreateAndOverwriteAnAnnotatedTag()
         {
             using (var path = new TemporaryCloneOfTestRepo())
@@ -273,15 +287,6 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
-        public void CreateTagWithEmptyMessageThrows()
-        {
-            using (var repo = new Repository(Constants.TestRepoPath))
-            {
-                Assert.Throws<ArgumentException>(() => repo.Tags.Create("test_tag", "refs/heads/master", signatureTim, string.Empty));
-            }
-        }
-
-        [Test]
         public void CreateTagWithEmptyNameThrows()
         {
             using (var repo = new Repository(Constants.TestRepoPath))
@@ -434,6 +439,21 @@ namespace LibGit2Sharp.Tests
                     repo.Info.IsEmpty.ShouldBeTrue();
                     repo.Tags.Count().ShouldEqual(0);
                 }
+            }
+        }
+
+        [Test]
+        [Description("Ported from cgit (https://github.com/git/git/blob/1c08bf50cfcf924094eca56c2486a90e2bf1e6e2/t/t7004-tag.sh#L165)")]
+        public void ListAllTagsShouldOutputThemInAnOrderedWay()
+        {
+            using (var repo = new Repository(Constants.TestRepoPath))
+            {
+                List<string> tagNames = repo.Tags.Select(t => t.Name).ToList();
+                
+                var sortedTags = expectedTags;
+                sortedTags.Sort();
+
+                CollectionAssert.AreEqual(sortedTags, tagNames);
             }
         }
 

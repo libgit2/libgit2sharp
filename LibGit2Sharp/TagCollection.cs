@@ -73,7 +73,7 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
             Ensure.ArgumentNotNullOrEmptyString(target, "target");
             Ensure.ArgumentNotNull(tagger, "tagger");
-            Ensure.ArgumentNotNullOrEmptyString(message, "message");
+            Ensure.ArgumentNotNull(message, "message");
 
             GitObject objectToTag = RetrieveObjectToTag(target);
 

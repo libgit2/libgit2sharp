@@ -49,5 +49,17 @@
         {
             return repository.Tags.Create(tagName, target);
         }
+
+        /// <summary>
+        ///   Creates an annotated tag with the specified name. This tag will point at the commit pointed at by the <see cref="Repository.Head"/>.
+        /// </summary>
+        /// <param name="repository">The <see cref="Repository"/> being looked up.</param>
+        /// <param name="tagName">The name of the tag to create.</param>
+        /// <param name="tagger">The identity of the creator of this tag.</param>
+        /// <param name="message">The annotation message.</param>
+        public static Tag ApplyTag(this Repository repository, string tagName, Signature tagger, string message)
+        {
+            return repository.Tags.Create(tagName, repository.Head.CanonicalName, tagger, message);
+        }
     }
 }
