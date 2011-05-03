@@ -126,9 +126,9 @@ namespace LibGit2Sharp
                 handle.Dispose();
             }
 
-            if (Index != null)
+            if (index != null)
             {
-                Index.Dispose();
+                index.Dispose();
             }
         }
 

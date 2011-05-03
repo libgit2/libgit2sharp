@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Runtime.InteropServices;
 using LibGit2Sharp.Core;
 
@@ -70,7 +71,7 @@ namespace LibGit2Sharp
             }
 
             throw new InvalidOperationException(
-                string.Format("Unable to build a new instance of '{0}' from a reference of type '{1}'.",
+                string.Format(CultureInfo.InvariantCulture, "Unable to build a new instance of '{0}' from a reference of type '{1}'.",
                               typeof (T),
                               Enum.GetName(typeof (GitReferenceType), type)));
         }

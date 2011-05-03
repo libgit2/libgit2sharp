@@ -131,7 +131,7 @@ namespace LibGit2Sharp
         {
             private readonly bool forCountOnly;
             private readonly Repository repo;
-            private readonly IntPtr walker = IntPtr.Zero;
+            private readonly IntPtr walker = IntPtr.Zero;   //TODO: Convert to SafeHandle?
             private bool disposed;
 
             public CommitEnumerator(Repository repo, bool forCountOnly = false)
