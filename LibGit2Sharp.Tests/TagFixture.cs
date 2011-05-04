@@ -78,6 +78,18 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
+        public void CreatingATagWithNameMatchingAnAlreadyExistingReferenceHierarchyThows()
+        {
+            using (var path = new TemporaryCloneOfTestRepo())
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                repo.ApplyTag("i/am/deep");
+                Assert.Throws<ApplicationException>(() => repo.ApplyTag("i/am/deep/rooted"));
+                Assert.Throws<ApplicationException>(() => repo.ApplyTag("i/am"));
+            }
+        }
+
+        [Test]
         public void CanCreateAnAnnotatedTagFromABranchName()
         {
             using (var path = new TemporaryCloneOfTestRepo())
@@ -254,6 +266,84 @@ namespace LibGit2Sharp.Tests
 
                 var retrievedTag = repo.Tags[tag.CanonicalName];
                 tag.ShouldEqual(retrievedTag);
+            }
+        }
+
+        [Test]
+        public void CanCreateATagPointingToATree()
+        {
+            using (var path = new TemporaryCloneOfTestRepo())
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                var headCommit = (Commit)repo.Head.ResolveToDirectReference().Target;
+                var tree = headCommit.Tree;
+
+                var tag = repo.ApplyTag("tree-tag", tree.Sha);
+                tag.ShouldNotBeNull();
+                tag.IsAnnotated.ShouldBeFalse();
+                tag.Target.Id.ShouldEqual(tree.Id);
+
+                repo.Lookup(tag.Target.Id).ShouldEqual(tree);
+                repo.Tags[tag.Name].ShouldEqual(tag);
+            }
+        }
+
+        [Test]
+        public void CanCreateATagPointingToABlob()
+        {
+            using (var path = new TemporaryCloneOfTestRepo())
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                var headCommit = (Commit)repo.Head.ResolveToDirectReference().Target;
+                var blob = headCommit.Tree.Files.First();
+
+                var tag = repo.ApplyTag("blob-tag", blob.Sha);
+                tag.ShouldNotBeNull();
+                tag.IsAnnotated.ShouldBeFalse();
+                tag.Target.Id.ShouldEqual(blob.Id);
+
+                repo.Lookup(tag.Target.Id).ShouldEqual(blob);
+                repo.Tags[tag.Name].ShouldEqual(tag);
+            }
+        }
+
+        [Test]
+        public void CreatingALightweightTagPointingToATagAnnotationGeneratesAnAnnotatedTagReusingThePointedAtTagAnnotation()
+        {
+            using (var path = new TemporaryCloneOfTestRepo())
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                var annotatedTag = repo.Tags["e90810b"];
+                var annotation = annotatedTag.Annotation;
+
+                var tag = repo.ApplyTag("lightweight-tag", annotation.Sha);
+                tag.ShouldNotBeNull();
+                tag.IsAnnotated.ShouldBeTrue();
+                tag.Target.Id.ShouldEqual(annotation.Id);
+                tag.Annotation.ShouldEqual(annotation);
+
+                repo.Lookup(tag.Target.Id).ShouldEqual(annotation);
+                repo.Tags[tag.Name].ShouldEqual(tag);
+            }
+        }
+
+        [Test]
+        public void CanCreateAnAnnotatedTagPointingToATagAnnotation()
+        {
+            using (var path = new TemporaryCloneOfTestRepo())
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                var annotatedTag = repo.Tags["e90810b"];
+                var annotation = annotatedTag.Annotation;
+
+                var tag = repo.ApplyTag("annotatedtag-tag", annotation.Sha, signatureNtk, "A new annotation");
+                tag.ShouldNotBeNull();
+                tag.IsAnnotated.ShouldBeTrue();
+                tag.Annotation.TargetId.ShouldEqual(annotation.Id);
+                tag.Annotation.ShouldNotEqual(annotation);
+
+                repo.Lookup(tag.Target.Id).ShouldEqual(tag.Annotation);
+                repo.Tags[tag.Name].ShouldEqual(tag);
             }
         }
 
