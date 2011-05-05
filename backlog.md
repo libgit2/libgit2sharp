@@ -2,6 +2,7 @@
 
 ### LibGit2Sharp
 
+ - Add branch renaming (public Branch Move(string oldName, string newName, bool allowOverwrite = false))
  - Turn duplicated strings "refs/xxx" into properties of a generic Constants helper type
  - Refactor the error handling (OutputResult -> Exceptions)
  - Launch Code Analysis (Issues related to interop and marshaling will be worked on once we're able to succesffully exchange non ascii encoded data with libgit2)
@@ -21,6 +22,8 @@
  - Add GitObject equality test suite
  - Add Reference equality test suite
  - Ensure former API tests are ported and passing
+ - Remove Ignore attribute from ReferenceFixture.CanMoveAReferenceToADeeperReferenceHierarchy() once git_reference_rename() is fixed
+ - Remove Ignore attribute from ReferenceFixture.CanMoveAReferenceToAUpperReferenceHierarchy() once git_reference_rename() is fixed
 
 ### Documentation
 
