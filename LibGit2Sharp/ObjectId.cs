@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Text;
 using LibGit2Sharp.Core;
 
@@ -90,7 +91,7 @@ namespace LibGit2Sharp
                     return null;
                 }
 
-                throw new ArgumentException(string.Format("'{0}' is not a valid sha. Expected length should equal {1}.", sha, hexSize));
+                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "'{0}' is not a valid sha. Expected length should equal {1}.", sha, hexSize));
             }
 
             GitOid oid;

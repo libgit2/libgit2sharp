@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
@@ -109,22 +110,22 @@ namespace LibGit2Sharp
 
         private static bool IsRemoteBranch(string canonicalName)
         {
-            return canonicalName.StartsWith("refs/remotes/");
+            return canonicalName.StartsWith("refs/remotes/", StringComparison.Ordinal);
         }
 
         private static string ShortenName(string branchName)
         {
-            if (branchName.StartsWith("refs/heads/"))
+            if (branchName.StartsWith("refs/heads/", StringComparison.Ordinal))
             {
                 return branchName.Substring("refs/heads/".Length);
             }
 
-            if (branchName.StartsWith("refs/remotes/"))
+            if (branchName.StartsWith("refs/remotes/", StringComparison.Ordinal))
             {
                 return branchName.Substring("refs/remotes/".Length);
             }
 
-            throw new ArgumentException(string.Format("'{0}' does not look like a valid branch name.", branchName));
+            throw new ArgumentException(string.Format(CultureInfo.InvariantCulture,"'{0}' does not look like a valid branch name.", branchName));
         }
 
         /// <summary>

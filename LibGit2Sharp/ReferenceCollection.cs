@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using LibGit2Sharp.Core;
 
@@ -158,11 +159,6 @@ namespace LibGit2Sharp
 
             IntPtr reference = RetrieveReferencePtr(name, false);
 
-            if (reference == IntPtr.Zero)
-            {
-                return default(T);
-            }
-
             return Reference.BuildFromPtr<T>(reference, repo);
         }
 
@@ -184,16 +180,16 @@ namespace LibGit2Sharp
             switch (type)
             {
                 case GitReferenceType.Oid:
-                    if (id == null) throw new ArgumentException(String.Format("The reference specified by {0} is an Oid reference, you must provide a sha as the target.", name), "target");
+                    if (id == null) throw new ArgumentException(String.Format(CultureInfo.InvariantCulture, "The reference specified by {0} is an Oid reference, you must provide a sha as the target.", name), "target");
                     var oid = id.Oid;
                     res = NativeMethods.git_reference_set_oid(reference, ref oid);
                     break;
                 case GitReferenceType.Symbolic:
-                    if (id != null) throw new ArgumentException(String.Format("The reference specified by {0} is an Symbolic reference, you must provide a symbol as the target.", name), "target");
+                    if (id != null) throw new ArgumentException(String.Format(CultureInfo.InvariantCulture, "The reference specified by {0} is an Symbolic reference, you must provide a symbol as the target.", name), "target");
                     res = NativeMethods.git_reference_set_target(reference, target);
                     break;
                 default:
-                    throw new InvalidOperationException(string.Format("Reference '{0}' has an un unexpected type ('{1}').", name, Enum.GetName(typeof(GitReferenceType), type)));
+                    throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "Reference '{0}' has an un unexpected type ('{1}').", name, Enum.GetName(typeof(GitReferenceType), type)));
             }
 
             Ensure.Success(res);

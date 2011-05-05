@@ -24,6 +24,7 @@ namespace LibGit2Sharp.Tests
                 newRef.CanonicalName.ShouldEqual(name);
                 newRef.Target.ShouldNotBeNull();
                 newRef.Target.Sha.ShouldEqual("be3563ae3f795b2b4353bcce3a527ad0a4f7f644");
+                newRef.TargetIdentifier.ShouldEqual(newRef.Target.Sha);
                 repo.Refs[name].ShouldNotBeNull();
             }
         }
@@ -41,6 +42,7 @@ namespace LibGit2Sharp.Tests
                 newRef.ShouldNotBeNull();
                 newRef.CanonicalName.ShouldEqual(name);
                 newRef.Target.CanonicalName.ShouldEqual(target);
+                newRef.TargetIdentifier.ShouldEqual(newRef.Target.CanonicalName);
                 newRef.ResolveToDirectReference().Target.Sha.ShouldEqual("4c062a6361ae6959e06292c1fa5e2822d9c96345");
                 repo.Refs[name].ShouldNotBeNull();
             }
@@ -372,7 +374,39 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
-        public void CanMoveAReference()
+        [Ignore("Currently fails because of feature which is not yet implemented in libgit2")]
+        public void CanMoveAReferenceToADeeperReferenceHierarchy()
+        {
+            using (var path = new TemporaryCloneOfTestRepo())
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                const string newName = "refs/tags/test/deep";
+
+                Reference moved = repo.Refs.Move("refs/tags/test", newName);
+                moved.ShouldNotBeNull();
+                moved.CanonicalName.ShouldEqual(newName);
+            }
+        }
+
+        [Test]
+        [Ignore("Currently fails because of feature which is not yet implemented in libgit2")]
+        public void CanMoveAReferenceToAUpperReferenceHierarchy()
+        {
+            using (var path = new TemporaryCloneOfTestRepo())
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                const string newName = "refs/heads/o/sole";
+                const string oldName = newName + "/mio";
+
+                repo.Refs.Create(oldName, repo.Head.ResolveToDirectReference().TargetIdentifier);
+                Reference moved = repo.Refs.Move(oldName, newName);
+                moved.ShouldNotBeNull();
+                moved.CanonicalName.ShouldEqual(newName);
+            }
+        }
+
+        [Test]
+        public void CanMoveAReferenceToADifferentReferenceHierarchy()
         {
             using (var path = new TemporaryCloneOfTestRepo())
             using (var repo = new Repository(path.RepositoryPath))

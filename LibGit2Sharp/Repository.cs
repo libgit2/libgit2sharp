@@ -126,9 +126,9 @@ namespace LibGit2Sharp
                 handle.Dispose();
             }
 
-            if (Index != null)
+            if (index != null)
             {
-                Index.Dispose();
+                index.Dispose();
             }
         }
 
@@ -178,8 +178,8 @@ namespace LibGit2Sharp
         ///   Try to lookup an object by its <see cref = "ObjectId" /> and <see cref = "GitObjectType" />. If no matching object is found, null will be returned.
         /// </summary>
         /// <param name = "id">The id to lookup.</param>
-        /// <param name = "type"></param>
-        /// <returns>the <see cref = "GitObject" /> or null if it was not found.</returns>
+        /// <param name = "type">The kind of GitObject being looked up</param>
+        /// <returns>The <see cref = "GitObject" /> or null if it was not found.</returns>
         public GitObject Lookup(ObjectId id, GitObjectType type = GitObjectType.Any)
         {
             Ensure.ArgumentNotNull(id, "id");
@@ -195,6 +195,35 @@ namespace LibGit2Sharp
             Ensure.Success(res);
 
             return GitObject.CreateFromPtr(obj, id, this);
+        }
+
+        /// <summary>
+        ///   Try to lookup an object by its sha or a reference canonical name and <see cref="GitObjectType"/>. If no matching object is found, null will be returned.
+        /// </summary>
+        /// <param name = "shaOrReferenceName">The sha or reference canonical name to lookup.</param>
+        /// <param name = "type">The kind of <see cref="GitObject"/> being looked up</param>
+        /// <returns>The <see cref = "GitObject" /> or null if it was not found.</returns>
+        public GitObject Lookup(string shaOrReferenceName, GitObjectType type = GitObjectType.Any)
+        {
+            ObjectId id = ObjectId.CreateFromMaybeSha(shaOrReferenceName);
+            if (id != null)
+            {
+                return Lookup(id, type);
+            }
+
+            var reference = Refs[shaOrReferenceName];
+
+            if (!IsReferencePeelable(reference))
+            {
+                return null;
+            }
+
+            return Lookup(reference.ResolveToDirectReference().Target.Id, type);
+        }
+
+        private static bool IsReferencePeelable(Reference reference)
+        {
+            return reference != null && ((reference is DirectReference) ||(reference is SymbolicReference && ((SymbolicReference)reference).Target != null));
         }
     }
 }

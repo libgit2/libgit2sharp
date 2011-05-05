@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Runtime.InteropServices;
 using LibGit2Sharp.Core;
 
@@ -19,6 +20,11 @@ namespace LibGit2Sharp
 
         internal static T BuildFromPtr<T>(IntPtr ptr, Repository repo) where T : class
         {
+            if (ptr == IntPtr.Zero)
+            {
+                return default(T);
+            }
+
             var name = NativeMethods.git_reference_name(ptr);
             var type = NativeMethods.git_reference_type(ptr);
 
@@ -28,16 +34,19 @@ namespace LibGit2Sharp
             {
                 case GitReferenceType.Symbolic:
                     IntPtr resolveRef;
+                    var targetName = NativeMethods.git_reference_target(ptr);
                     NativeMethods.git_reference_resolve(out resolveRef, ptr);
                     var targetRef = BuildFromPtr<Reference>(resolveRef, repo);
-                    reference =  new SymbolicReference { CanonicalName = name, Target = targetRef };
+                    reference =  new SymbolicReference { CanonicalName = name, Target = targetRef,  TargetIdentifier = targetName};
                     break;
 
                 case GitReferenceType.Oid:
                     var oidPtr = NativeMethods.git_reference_oid(ptr);
                     var oid = (GitOid)Marshal.PtrToStructure(oidPtr, typeof(GitOid));
-                    var target = repo.Lookup(new ObjectId(oid));
-                    reference = new DirectReference { CanonicalName = name, Target = target };
+                    var targetId = new ObjectId(oid);
+
+                    var target = repo.Lookup(targetId);
+                    reference = new DirectReference { CanonicalName = name, Target = target, TargetIdentifier = targetId.Sha};
                     break;
 
                 default:
@@ -62,18 +71,27 @@ namespace LibGit2Sharp
             }
 
             throw new InvalidOperationException(
-                string.Format("Unable to build a new instance of '{0}' from a reference of type '{1}'.",
+                string.Format(CultureInfo.InvariantCulture, "Unable to build a new instance of '{0}' from a reference of type '{1}'.",
                               typeof (T),
                               Enum.GetName(typeof (GitReferenceType), type)));
         }
+
+        protected abstract object ProvideAdditionalEqualityComponent();
 
         /// <summary>
         ///   Recursively peels the target of the reference until a direct reference is encountered.
         /// </summary>
         /// <returns>The <see cref="DirectReference"/> this <see cref="Reference"/> points to.</returns>
-        public abstract DirectReference ResolveToDirectReference(); 
-        
-        protected abstract object ProvideAdditionalEqualityComponent();
+        public abstract DirectReference ResolveToDirectReference();
+
+        /// <summary>
+        /// Gets the target declared by the reference.
+        /// <para>
+        /// If this reference is a <see cref="SymbolicReference"/>, returns the canonical name of the target.
+        /// Otherwise, if this reference is a <see cref="DirectReference"/>, returns the sha of the target.
+        /// </para>
+        /// </summary>
+        public string TargetIdentifier { get; private set; }    //TODO: Maybe find a better name for this property.
 
         /// <summary>
         /// Determines whether the specified <see cref="Object"/> is equal to the current <see cref="Reference"/>.

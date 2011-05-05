@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using LibGit2Sharp.Core;
 
@@ -72,7 +73,7 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
             Ensure.ArgumentNotNullOrEmptyString(target, "target");
             Ensure.ArgumentNotNull(tagger, "tagger");
-            Ensure.ArgumentNotNullOrEmptyString(message, "message");
+            Ensure.ArgumentNotNull(message, "message");
 
             GitObject objectToTag = RetrieveObjectToTag(target);
 
@@ -120,7 +121,14 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
 
-            repo.Refs.Delete(this[name].CanonicalName);  //TODO: To be replaced by native libgit2 git_tag_delete() when available.
+            Tag tag = this[name];
+
+            if (tag == null)
+            {
+                throw new ApplicationException(String.Format(CultureInfo.InvariantCulture, "No tag identified by '{0}' can be found in the repository.", name));
+            }
+
+            repo.Refs.Delete(tag.CanonicalName);  //TODO: To be replaced by native libgit2 git_tag_delete() when available.
         }
 
         private GitObject RetrieveObjectToTag(string target)
@@ -129,7 +137,7 @@ namespace LibGit2Sharp
 
             if (objectToTag == null)
             {
-                throw new ApplicationException(String.Format("No object identified by '{0}' can be found in the repository.", target));
+                throw new ApplicationException(String.Format(CultureInfo.InvariantCulture, "No object identified by '{0}' can be found in the repository.", target));
             }
 
             return objectToTag;
@@ -144,7 +152,7 @@ namespace LibGit2Sharp
                 return name;
             }
 
-            return string.Format("refs/tags/{0}", name);
+            return string.Format(CultureInfo.InvariantCulture, "refs/tags/{0}", name);
         }
     }
 }

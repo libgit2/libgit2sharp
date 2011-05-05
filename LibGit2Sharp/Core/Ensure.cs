@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 
 namespace LibGit2Sharp.Core
 {
@@ -47,7 +48,7 @@ namespace LibGit2Sharp.Core
             }
             
             throw new ApplicationException(
-                String.Format("There was an error in libgit2, but error handling sucks right now, so I can't tell you what it was. Error code = {0} ({1})", Enum.GetName(typeof(GitErrorCode), result)
+                String.Format(CultureInfo.InvariantCulture, "There was an error in libgit2, but error handling sucks right now, so I can't tell you what it was. Error code = {0} ({1})", Enum.GetName(typeof(GitErrorCode), result)
 , result));
         }
 
