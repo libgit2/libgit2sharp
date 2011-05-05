@@ -374,7 +374,39 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
-        public void CanMoveAReference()
+        [Ignore("Currently fails because of feature which is not yet implemented in libgit2")]
+        public void CanMoveAReferenceToADeeperReferenceHierarchy()
+        {
+            using (var path = new TemporaryCloneOfTestRepo())
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                const string newName = "refs/tags/test/deep";
+
+                Reference moved = repo.Refs.Move("refs/tags/test", newName);
+                moved.ShouldNotBeNull();
+                moved.CanonicalName.ShouldEqual(newName);
+            }
+        }
+
+        [Test]
+        [Ignore("Currently fails because of feature which is not yet implemented in libgit2")]
+        public void CanMoveAReferenceToAUpperReferenceHierarchy()
+        {
+            using (var path = new TemporaryCloneOfTestRepo())
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                const string newName = "refs/heads/o/sole";
+                const string oldName = newName + "/mio";
+
+                repo.Refs.Create(oldName, repo.Head.ResolveToDirectReference().TargetIdentifier);
+                Reference moved = repo.Refs.Move(oldName, newName);
+                moved.ShouldNotBeNull();
+                moved.CanonicalName.ShouldEqual(newName);
+            }
+        }
+
+        [Test]
+        public void CanMoveAReferenceToADifferentReferenceHierarchy()
         {
             using (var path = new TemporaryCloneOfTestRepo())
             using (var repo = new Repository(path.RepositoryPath))
