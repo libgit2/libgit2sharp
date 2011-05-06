@@ -61,14 +61,9 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
-        public void CreateRepoWithEmptyStringThrows()
+        public void CreatingRepoWithBadParamsThrows()
         {
             Assert.Throws<ArgumentException>(() => Repository.Init(string.Empty));
-        }
-
-        [Test]
-        public void CreateRepoWithNullThrows()
-        {
             Assert.Throws<ArgumentNullException>(() => Repository.Init(null));
         }
 
@@ -169,20 +164,12 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
-        public void LookupWithEmptyStringThrows()
+        public void LookingUpWithBadParamsThrows()
         {
             using (var repo = new Repository(Constants.TestRepoPath))
             {
                 Assert.Throws<ArgumentException>(() => repo.Lookup(string.Empty));
                 Assert.Throws<ArgumentException>(() => repo.Lookup<GitObject>(string.Empty));
-            }
-        }
-
-        [Test]
-        public void LookupWithNullThrows()
-        {
-            using (var repo = new Repository(Constants.TestRepoPath))
-            {
                 Assert.Throws<ArgumentNullException>(() => repo.Lookup((string)null));
                 Assert.Throws<ArgumentNullException>(() => repo.Lookup((ObjectId)null));
                 Assert.Throws<ArgumentNullException>(() => repo.Lookup<Commit>((string)null));
@@ -220,14 +207,9 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
-        public void OpeningRepositoryWithEmptyPathThrows()
+        public void OpeningRepositoryWithBadParamsThrows()
         {
             Assert.Throws<ArgumentException>(() => new Repository(string.Empty));
-        }
-
-        [Test]
-        public void OpeningRepositoryWithNullPathThrows()
-        {
             Assert.Throws<ArgumentNullException>(() => new Repository(null));
         }
 
@@ -244,19 +226,11 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
-        public void CallingExistsWithEmptyThrows()
+        public void CheckingForObjectExistenceWithBadParamsThrows()
         {
             using (var repo = new Repository(Constants.TestRepoPath))
             {
                 Assert.Throws<ArgumentException>(() => repo.HasObject(string.Empty));
-            }
-        }
-
-        [Test]
-        public void CallingExistsWithNullThrows()
-        {
-            using (var repo = new Repository(Constants.TestRepoPath))
-            {
                 Assert.Throws<ArgumentNullException>(() => repo.HasObject(null));
             }
         }
