@@ -13,6 +13,7 @@ namespace LibGit2Sharp
     public class TagCollection : IEnumerable<Tag>
     {
         private readonly Repository repo;
+        private static readonly string RefsTagsPrefix = "refs/tags/";
 
         /// <summary>
         ///   Initializes a new instance of the <see cref = "TagCollection" /> class.
@@ -116,19 +117,13 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Deletes the tag with the specified name.
         /// </summary>
-        /// <param name = "name">The name of the tag to delete.</param>
+        /// <param name = "name">The short or canonical name of the tag or the to delete.</param>
         public void Delete(string name)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
 
-            Tag tag = this[name];
-
-            if (tag == null)
-            {
-                throw new ApplicationException(String.Format(CultureInfo.InvariantCulture, "No tag identified by '{0}' can be found in the repository.", name));
-            }
-
-            repo.Refs.Delete(tag.CanonicalName);  //TODO: To be replaced by native libgit2 git_tag_delete() when available.
+            int res = NativeMethods.git_tag_delete(repo.Handle, UnCanonicalizeName(name));
+            Ensure.Success(res);
         }
 
         private GitObject RetrieveObjectToTag(string target)
@@ -147,12 +142,24 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
 
-            if (name.StartsWith("refs/tags/", StringComparison.Ordinal))
+            if (name.StartsWith(RefsTagsPrefix, StringComparison.Ordinal))
             {
                 return name;
             }
 
-            return string.Format(CultureInfo.InvariantCulture, "refs/tags/{0}", name);
+            return string.Concat(RefsTagsPrefix, name);
+        }
+
+        private static string UnCanonicalizeName(string name)
+        {
+            Ensure.ArgumentNotNullOrEmptyString(name, "name");
+
+            if (!name.StartsWith(RefsTagsPrefix, StringComparison.Ordinal))
+            {
+                return name;
+            }
+
+            return name.Substring(RefsTagsPrefix.Length);
         }
     }
 }

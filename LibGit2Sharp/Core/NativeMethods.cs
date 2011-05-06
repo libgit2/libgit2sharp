@@ -188,6 +188,9 @@ namespace LibGit2Sharp.Core
         public static extern int git_tag_create_f(out GitOid oid, RepositorySafeHandle repo, string name, ref GitOid target, GitObjectType type, GitSignature signature, string message);
 
         [DllImport(libgit2, SetLastError = true)]
+        public static extern int git_tag_delete(RepositorySafeHandle repo, string tagName);
+
+        [DllImport(libgit2, SetLastError = true)]
         [return: MarshalAs(UnmanagedType.AnsiBStr)]
         public static extern string git_tag_message(IntPtr tag);
 
