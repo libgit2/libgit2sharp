@@ -119,6 +119,23 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
+        public void CanStageANewFileWithAFullPath()
+        {
+            using (var path = new TemporaryCloneOfTestRepo(Constants.TestRepoWithWorkingDirPath))
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                var count = repo.Index.Count;
+                const string filename = "unit_test.txt";
+                string fullPath = Path.Combine(repo.Info.WorkingDirectory, filename);
+                File.WriteAllText(fullPath, "some contents");
+
+                repo.Index.Stage(fullPath);
+
+                repo.Index.Count.ShouldEqual(count + 1);
+                repo.Index[filename].ShouldNotBeNull();
+            }
+        }
+        [Test]
         [Ignore("Not implemented yet.")]
         public void CanStageAPath()
         {
