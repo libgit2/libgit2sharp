@@ -2,6 +2,8 @@
 
 ### LibGit2Sharp
 
+ - Add a Path property to SelfCleaningDirectory
+ - Set up a Assembly versioning strategy
  - Add branch renaming (public Branch Move(string oldName, string newName, bool allowOverwrite = false))
  - Turn duplicated strings "refs/xxx" into properties of a generic Constants helper type
  - Refactor the error handling (OutputResult -> Exceptions)

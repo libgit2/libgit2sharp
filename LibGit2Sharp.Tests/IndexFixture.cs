@@ -119,7 +119,6 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
-        [Ignore("Currently fails because of feature which is not yet implemented in libgit2")]
         public void CanStageANewFileWithAFullPath()
         {
             using (var path = new TemporaryCloneOfTestRepo(Constants.TestRepoWithWorkingDirPath))
@@ -134,6 +133,25 @@ namespace LibGit2Sharp.Tests
 
                 repo.Index.Count.ShouldEqual(count + 1);
                 repo.Index[filename].ShouldNotBeNull();
+            }
+        }
+
+        [Test]
+        public void StagingANewFileWithAFullPathWhichEscapesOutOfTheWorkingDirThrows()
+        {
+            string tempPath = new DirectoryInfo("./temp").FullName;
+
+            using (new SelfCleaningDirectory(tempPath))
+            using (var path = new TemporaryCloneOfTestRepo(Constants.TestRepoWithWorkingDirPath))
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                Directory.CreateDirectory(tempPath);
+
+                const string filename = "unit_test.txt";
+                string fullPath = Path.Combine(tempPath, filename);
+                File.WriteAllText(fullPath, "some contents");
+
+                Assert.Throws<ArgumentException>(() => repo.Index.Stage(fullPath));
             }
         }
 
