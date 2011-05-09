@@ -119,6 +119,7 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
+        [Ignore("Currently fails because of feature which is not yet implemented in libgit2")]
         public void CanStageANewFileWithAFullPath()
         {
             using (var path = new TemporaryCloneOfTestRepo(Constants.TestRepoWithWorkingDirPath))
@@ -135,6 +136,7 @@ namespace LibGit2Sharp.Tests
                 repo.Index[filename].ShouldNotBeNull();
             }
         }
+
         [Test]
         [Ignore("Not implemented yet.")]
         public void CanStageAPath()
