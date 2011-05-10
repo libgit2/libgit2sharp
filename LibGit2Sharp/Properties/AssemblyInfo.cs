@@ -6,14 +6,17 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 
-[assembly: AssemblyTitle("libgit2sharp")]
-[assembly: AssemblyDescription("")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("libgit2sharp")]
-[assembly: AssemblyCopyright("Copyright ©  2011")]
-[assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("")]
+[assembly: AssemblyTitle("LibGit2Sharp")]
+[assembly: AssemblyDescription(".Net bindings for libgit2")]
+
+#if DEBUG
+[assembly: AssemblyConfiguration("Debug")]
+#else
+[assembly: AssemblyConfiguration("Release")]
+#endif
+
+[assembly: AssemblyProduct("LibGit2Sharp")]
+[assembly: AssemblyCopyright("Copyright © 2011 LibGit2Sharp contributors")]
 
 [assembly: CLSCompliant(true)]
 
@@ -38,5 +41,5 @@ using System.Runtime.InteropServices;
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
 
-[assembly: AssemblyVersion("0.1.0.0")]
-[assembly: AssemblyFileVersion("0.1.0.0")]
+[assembly: AssemblyVersion("0.1.0")]
+[assembly: AssemblyFileVersion("0.1.0")]

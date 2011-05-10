@@ -4,6 +4,10 @@ LibGit2Sharp is an thin .Net layer (well.. we _try_ to keep it as thin as possib
 
 It provides a very opiniated API which should be very easy to use and discover.
 
+## Download binaries
+
+ - NuGet [package](http://nuget.org/List/Packages/LibGit2Sharp)
+
 ## Quick contributing guide
 
  - Fork and clone locally
@@ -15,8 +19,8 @@ More thorough information available in the [wiki](https://github.com/libgit2/lib
 
 ## Authors
 
-The LibGit2Sharp [committers](https://github.com/libgit2/libgit2sharp/contributors)
+The LibGit2Sharp [contributors](https://github.com/libgit2/libgit2sharp/contributors)
 
 ## License
 
-The MIT license (Refer to the [LICENSE](https://github.com/libgit2/libgit2sharp/blob/master/LICENSE) file)
+The MIT license (Refer to the [LICENSE.md](https://github.com/libgit2/libgit2sharp/blob/master/LICENSE.md) file)
