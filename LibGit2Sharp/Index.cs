@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
@@ -111,8 +112,25 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(path, "path");
 
-            var res = NativeMethods.git_index_add(handle, path);
+            var res = NativeMethods.git_index_add(handle, BuildRelativePathFrom(path));
             Ensure.Success(res);
+        }
+
+        private string BuildRelativePathFrom(string path)   //TODO: To be removed when libgit2 natively implements this 
+        {
+            if (!Path.IsPathRooted(path))
+            {
+                return path;
+            }
+
+            var normalizedPath = new DirectoryInfo(path).FullName;
+
+            if (!normalizedPath.StartsWith(repo.Info.WorkingDirectory))
+            {
+                throw new ArgumentException(string.Format("Unable to stage file '{0}'. This file is not located under the working directory of the repository ('{1}').", normalizedPath, repo.Info.WorkingDirectory));
+            }
+
+            return normalizedPath.Substring(repo.Info.WorkingDirectory.Length);
         }
 
         public void Unstage(string path)
