@@ -18,6 +18,7 @@ namespace LibGit2Sharp
         /// </summary>
         public string CanonicalName { get; protected set; }
 
+        //TODO: Cries for refactoring. 
         internal static T BuildFromPtr<T>(IntPtr ptr, Repository repo) where T : class
         {
             if (ptr == IntPtr.Zero)
@@ -35,7 +36,16 @@ namespace LibGit2Sharp
                 case GitReferenceType.Symbolic:
                     IntPtr resolveRef;
                     var targetName = NativeMethods.git_reference_target(ptr);
-                    NativeMethods.git_reference_resolve(out resolveRef, ptr);
+                    int res = NativeMethods.git_reference_resolve(out resolveRef, ptr);
+
+                    if (res == (int) GitErrorCode.GIT_ENOTFOUND)
+                    {
+                        reference = new SymbolicReference { CanonicalName = name, Target = null, TargetIdentifier = targetName };
+                        break;
+                    }
+
+                    Ensure.Success(res);
+
                     var targetRef = BuildFromPtr<Reference>(resolveRef, repo);
                     reference =  new SymbolicReference { CanonicalName = name, Target = targetRef,  TargetIdentifier = targetName};
                     break;
