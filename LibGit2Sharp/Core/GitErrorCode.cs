@@ -129,5 +129,25 @@
         /// A reference with this name already exists
         /// </summary>
         GIT_EEXISTS = (GIT_ERROR - 23),
+
+        /// <summary>
+        /// The given integer literal is too large to be parsed
+        /// </summary>
+        GIT_EOVERFLOW = (GIT_ERROR - 24),
+
+        /// <summary>
+        /// The given literal is not a valid number
+        /// </summary>
+        GIT_ENOTNUM = (GIT_ERROR - 25),
+
+        /// <summary>
+        /// Streaming error
+        /// </summary>
+        GIT_ESTREAM = (GIT_ERROR - 26),
+
+        /// <summary>
+        /// invalid arguments to function
+        /// </summary>
+        GIT_EINVALIDARGS = (GIT_ERROR - 27),
     }
 }
