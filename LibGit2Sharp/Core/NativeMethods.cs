@@ -5,8 +5,10 @@ namespace LibGit2Sharp.Core
 {
     internal class NativeMethods
     {
-        private const string libgit2 = "git2.dll";
-
+        const string libgit2 = "git2.dll";
+            
+        private NativeMethods() { }
+        
         [DllImport(libgit2)]
         public static extern IntPtr git_blob_rawcontent(IntPtr blob);
 
@@ -77,6 +79,7 @@ namespace LibGit2Sharp.Core
         public static extern GitObjectType git_object_type(IntPtr obj);
 
         [DllImport(libgit2)]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool git_odb_exists(IntPtr db, ref GitOid id);
 
         [DllImport(libgit2)]
@@ -145,9 +148,10 @@ namespace LibGit2Sharp.Core
         public static extern void git_repository_free(IntPtr repository);
 
         [DllImport(libgit2)]
-        public static extern int git_repository_init(out RepositorySafeHandle repository, string path, bool isBare);
+        public static extern int git_repository_init(out RepositorySafeHandle repository, string path, [MarshalAs(UnmanagedType.Bool)] bool isBare);
 
         [DllImport(libgit2)]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool git_repository_is_empty(RepositorySafeHandle repo);
 
         [DllImport(libgit2)]

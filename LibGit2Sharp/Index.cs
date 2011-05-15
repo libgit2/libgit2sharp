@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using LibGit2Sharp.Core;
 
@@ -125,9 +126,9 @@ namespace LibGit2Sharp
 
             var normalizedPath = new DirectoryInfo(path).FullName;
 
-            if (!normalizedPath.StartsWith(repo.Info.WorkingDirectory))
+            if (!normalizedPath.StartsWith(repo.Info.WorkingDirectory, StringComparison.Ordinal))
             {
-                throw new ArgumentException(string.Format("Unable to stage file '{0}'. This file is not located under the working directory of the repository ('{1}').", normalizedPath, repo.Info.WorkingDirectory));
+                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "Unable to stage file '{0}'. This file is not located under the working directory of the repository ('{1}').", normalizedPath, repo.Info.WorkingDirectory));
             }
 
             return normalizedPath.Substring(repo.Info.WorkingDirectory.Length);
