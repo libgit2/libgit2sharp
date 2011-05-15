@@ -10,8 +10,6 @@ namespace LibGit2Sharp.Tests
     [TestFixture]
     public class TagFixture
     {
-        private const string newRepoPath = "new_repo";
-
         private readonly List<string> expectedTags = new List<string> {"test", "e90810b", "lw"};
 
         private static readonly Signature signatureTim = new Signature("Tim Clem", "timothy.clem@gmail.com", DateTimeOffset.UtcNow);
@@ -159,9 +157,9 @@ namespace LibGit2Sharp.Tests
         [Description("Ported from cgit (https://github.com/git/git/blob/1c08bf50cfcf924094eca56c2486a90e2bf1e6e2/t/t7004-tag.sh#L32)")]
         public void CreatingATagInAEmptyRepositoryThrows()
         {
-            using (new SelfCleaningDirectory(newRepoPath))
+            using (var scd = new SelfCleaningDirectory())
             {
-                var dir = Repository.Init(newRepoPath);
+                var dir = Repository.Init(scd.DirectoryPath);
 
                 using (var repo = new Repository(dir))
                 {
@@ -174,9 +172,9 @@ namespace LibGit2Sharp.Tests
         [Description("Ported from cgit (https://github.com/git/git/blob/1c08bf50cfcf924094eca56c2486a90e2bf1e6e2/t/t7004-tag.sh#L37)")]
         public void CreatingATagForHeadInAEmptyRepositoryThrows()
         {
-            using (new SelfCleaningDirectory(newRepoPath))
+            using (var scd = new SelfCleaningDirectory())
             {
-                var dir = Repository.Init(newRepoPath);
+                var dir = Repository.Init(scd.DirectoryPath);
 
                 using (var repo = new Repository(dir))
                 {
@@ -520,9 +518,9 @@ namespace LibGit2Sharp.Tests
         [Description("Ported from cgit (https://github.com/git/git/blob/1c08bf50cfcf924094eca56c2486a90e2bf1e6e2/t/t7004-tag.sh#L24)")]
         public void CanListAllTagsInAEmptyRepository()
         {
-            using (new SelfCleaningDirectory(newRepoPath))
+            using (var scd = new SelfCleaningDirectory())
             {
-                var dir = Repository.Init(newRepoPath);
+                var dir = Repository.Init(scd.DirectoryPath);
 
                 using (var repo = new Repository(dir))
                 {

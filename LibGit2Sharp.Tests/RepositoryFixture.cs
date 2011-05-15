@@ -8,17 +8,15 @@ namespace LibGit2Sharp.Tests
     [TestFixture]
     public class RepositoryFixture
     {
-        private const string newRepoPath = "new_repo";
-
         private const string commitSha = "8496071c1b46c854b31185ea97743be6a8774479";
         private const string notFoundSha = "deadbeefdeadbeefdeadbeefdeadbeefdeadbeef";
 
         [Test]
         public void CanCreateBareRepo()
         {
-            using (new SelfCleaningDirectory(newRepoPath))
+            using (var scd = new SelfCleaningDirectory())
             {
-                var dir = Repository.Init(newRepoPath, true);
+                var dir = Repository.Init(scd.DirectoryPath, true);
                 Path.IsPathRooted(dir).ShouldBeTrue();
                 Directory.Exists(dir).ShouldBeTrue();
 
@@ -35,9 +33,9 @@ namespace LibGit2Sharp.Tests
         [Test]
         public void CanCreateStandardRepo()
         {
-            using (new SelfCleaningDirectory(newRepoPath))
+            using (var scd = new SelfCleaningDirectory())
             {
-                var dir = Repository.Init(newRepoPath);
+                var dir = Repository.Init(scd.DirectoryPath);
                 Path.IsPathRooted(dir).ShouldBeTrue();
                 Directory.Exists(dir).ShouldBeTrue();
 
@@ -238,9 +236,9 @@ namespace LibGit2Sharp.Tests
         [Test]
         public void CheckForDetachedHeadOnNewRepo()
         {
-            using (new SelfCleaningDirectory(newRepoPath))
+            using (var scd = new SelfCleaningDirectory())
             {
-                var dir = Repository.Init(newRepoPath, true);
+                var dir = Repository.Init(scd.DirectoryPath, true);
                 Path.IsPathRooted(dir).ShouldBeTrue();
                 Directory.Exists(dir).ShouldBeTrue();
 
