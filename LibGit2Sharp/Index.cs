@@ -11,7 +11,7 @@ namespace LibGit2Sharp
         private readonly IndexSafeHandle handle;
         private readonly Repository repo;
 
-        public Index(Repository repo)
+        internal Index(Repository repo)
         {
             this.repo = repo;
             var res = NativeMethods.git_index_open_inrepo(out handle, repo.Handle);
