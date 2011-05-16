@@ -124,7 +124,7 @@ namespace LibGit2Sharp
                 return path;
             }
 
-            var normalizedPath = new DirectoryInfo(path).FullName;
+            var normalizedPath = Path.GetFullPath(path);
 
             if (!normalizedPath.StartsWith(repo.Info.WorkingDirectory, StringComparison.Ordinal))
             {
