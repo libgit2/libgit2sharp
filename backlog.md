@@ -2,6 +2,14 @@
 
 ### LibGit2Sharp
 
+ - Build a LibGit2Sharp.Sample NuGet package
+ - Publish source and PDBs at symbolsource.org (cf. http://blog.davidebbo.com/2011/04/easy-way-to-publish-nuget-packages-with.html and http://nuget.codeplex.com/discussions/257709)
+ - Bind git_revwalk_hide() as CommitCollection.Until()
+ - Throw when revwalker is being passed an unknown object
+ - Change CommitCollection.StartingAt(string sha) into CommitCollection.StartingAt(string referenceNameOrsha)
+ - Fix FluentInterface .StartingAt() and .Until() in order to prevent .StartIngAt().StartingAt(), .Until().Until() and .Until().StartingAt()
+ - Push StartingAt() overloads into extension methods
+ - Add to Epoch a DateTimeOffset extension method ToRelativeFormat() in order to show dates relative to the current time, e.g. "2 hours ago". (cf. https://github.com/git/git/blob/master/date.c#L89)
  - Add branch renaming (public Branch Move(string oldName, string newName, bool allowOverwrite = false))
  - Turn duplicated strings "refs/xxx" into properties of a generic Constants helper type
  - Refactor the error handling (OutputResult -> Exceptions)
@@ -13,6 +21,11 @@
  - Favor overloads over optional parameters (http://msdn.microsoft.com/en-us/library/ms182135.aspx)
  - Ensure that types that are not supposed to be built by the Consumer do not expose a constructor.
  - Escape as early as possible from a method. Fight against the arrowhead effect (cf. http://elegantcode.com/2009/08/14/observations-on-the-if-statement/)
+
+### Wiki
+
+ - How to integrate LibGit2Sharp in an application?
+ - How do I do 'git xxx' with LibGit2Sharp? (cf. https://github.com/libgit2/libgit2sharp/wiki/What's-the-equivalent-to-'git-xxx'%3F)
 
 ### Tests
 
