@@ -12,7 +12,7 @@ namespace LibGit2Sharp
     {
         private readonly Repository repo;
         private string pushedSha;
-        private GitSortOptions sortOptions = GitSortOptions.None;
+        private GitSortOptions sortOptions = GitSortOptions.Time;
 
         /// <summary>
         ///   Initializes a new instance of the <see cref = "CommitCollection" /> class.
