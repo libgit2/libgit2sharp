@@ -9,7 +9,6 @@ namespace LibGit2Sharp.Tests
     public class RepositoryFixture
     {
         private const string commitSha = "8496071c1b46c854b31185ea97743be6a8774479";
-        private const string notFoundSha = "deadbeefdeadbeefdeadbeefdeadbeefdeadbeef";
 
         [Test]
         public void CanCreateBareRepo()
@@ -137,8 +136,8 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(Constants.TestRepoPath))
             {
-                repo.Lookup(notFoundSha).ShouldBeNull();
-                repo.Lookup<GitObject>(notFoundSha).ShouldBeNull();
+                repo.Lookup(Constants.UnknownSha).ShouldBeNull();
+                repo.Lookup<GitObject>(Constants.UnknownSha).ShouldBeNull();
             }
         }
 
@@ -159,7 +158,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(Constants.TestRepoPath))
             {
                 repo.Lookup("refs/heads/chopped/off").ShouldBeNull();
-                repo.Lookup<GitObject>(notFoundSha).ShouldBeNull();
+                repo.Lookup<GitObject>(Constants.UnknownSha).ShouldBeNull();
             }
         }
 

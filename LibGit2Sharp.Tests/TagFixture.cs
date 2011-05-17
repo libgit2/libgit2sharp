@@ -17,7 +17,6 @@ namespace LibGit2Sharp.Tests
         private const string tagTestSha = "b25fa35b38051e4ae45d4222e795f9df2e43f1d1";
         private const string commitE90810BSha = "e90810b8df3e80c413d903f631643c716887138d";
         private const string tagE90810BSha = "7b4384978d2493e851f9cca7858815fac9b10980";
-        const string invalidTargetId = "deadbeef1b46c854b31185ea97743be6a8774479";
 
         [Test]
         public void CanCreateALightWeightTagFromSha()
@@ -201,7 +200,7 @@ namespace LibGit2Sharp.Tests
             using (var path = new TemporaryCloneOfTestRepo())
             using (var repo = new Repository(path.RepositoryPath))
             {
-                Assert.Throws<ApplicationException>(() => repo.ApplyTag("mytagnorev", invalidTargetId));
+                Assert.Throws<ApplicationException>(() => repo.ApplyTag("mytagnorev", Constants.UnknownSha));
             }
         }
 
@@ -397,7 +396,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(Constants.TestRepoPath))
             {
-                Assert.Throws<ApplicationException>(() => repo.Tags.Create("test_tag", invalidTargetId, signatureTim, "message"));
+                Assert.Throws<ApplicationException>(() => repo.Tags.Create("test_tag", Constants.UnknownSha, signatureTim, "message"));
             }
         }
 
