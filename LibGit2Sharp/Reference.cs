@@ -18,7 +18,7 @@ namespace LibGit2Sharp
         /// </summary>
         public string CanonicalName { get; protected set; }
 
-        //TODO: Cries for refactoring. 
+        //TODO: Cries for refactoring... really!
         internal static T BuildFromPtr<T>(IntPtr ptr, Repository repo) where T : class
         {
             if (ptr == IntPtr.Zero)
@@ -30,33 +30,35 @@ namespace LibGit2Sharp
             var type = NativeMethods.git_reference_type(ptr);
 
             Reference reference;
+            string targetIdentifier;
 
             switch (type)
             {
                 case GitReferenceType.Symbolic:
                     IntPtr resolveRef;
-                    var targetName = NativeMethods.git_reference_target(ptr);
+                    targetIdentifier = NativeMethods.git_reference_target(ptr);
                     int res = NativeMethods.git_reference_resolve(out resolveRef, ptr);
 
                     if (res == (int) GitErrorCode.GIT_ENOTFOUND)
                     {
-                        reference = new SymbolicReference { CanonicalName = name, Target = null, TargetIdentifier = targetName };
+                        reference = new SymbolicReference { CanonicalName = name, Target = null, TargetIdentifier = targetIdentifier };
                         break;
                     }
 
                     Ensure.Success(res);
 
                     var targetRef = BuildFromPtr<Reference>(resolveRef, repo);
-                    reference =  new SymbolicReference { CanonicalName = name, Target = targetRef,  TargetIdentifier = targetName};
+                    reference =  new SymbolicReference { CanonicalName = name, Target = targetRef,  TargetIdentifier = targetIdentifier};
                     break;
 
                 case GitReferenceType.Oid:
                     var oidPtr = NativeMethods.git_reference_oid(ptr);
                     var oid = (GitOid)Marshal.PtrToStructure(oidPtr, typeof(GitOid));
                     var targetId = new ObjectId(oid);
+                    targetIdentifier = targetId.Sha;
 
                     var target = repo.Lookup(targetId);
-                    reference = new DirectReference { CanonicalName = name, Target = target, TargetIdentifier = targetId.Sha};
+                    reference = new DirectReference { CanonicalName = name, Target = target, TargetIdentifier = targetIdentifier};
                     break;
 
                 default:
@@ -68,7 +70,7 @@ namespace LibGit2Sharp
                 return reference as T;
             }
 
-            GitObject targetGitObject = repo.Lookup(reference.ResolveToDirectReference().Target.Id);
+            GitObject targetGitObject = repo.Lookup(targetIdentifier);
             
             if (Equals(typeof(T), typeof(Tag)))
             {

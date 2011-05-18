@@ -9,7 +9,7 @@ namespace LibGit2Sharp.Tests
     [TestFixture]
     public class BranchFixture
     {
-        private readonly List<string> expectedBranches = new List<string> {"packed-test", "packed", "br2", "master", "test"};
+        private readonly List<string> expectedBranches = new List<string> {"packed-test", "packed", "br2", "master", "test", "deadbeef"};
 
         [Test]
         public void CanCheckoutAnExistingBranch()
@@ -76,7 +76,7 @@ namespace LibGit2Sharp.Tests
                     Assert.Contains(r.Name, expectedBranches);
                 }
 
-                repo.Branches.Count().ShouldEqual(5);
+                repo.Branches.Count().ShouldEqual(6);
             }
         }
 
