@@ -23,6 +23,21 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
+        public void CanCorrectlyCountCommitsWhenSwitchingToAnotherBranch()
+        {
+            using (var repo = new Repository(Constants.TestRepoPath))
+            {
+                repo.Branches.Checkout("test");
+                repo.Commits.Count.ShouldEqual(2);
+                repo.Commits.First().Id.Sha.ShouldEqual("e90810b8df3e80c413d903f631643c716887138d");
+
+                repo.Branches.Checkout("master");
+                repo.Commits.Count.ShouldEqual(7);
+                repo.Commits.First().Id.Sha.ShouldEqual("4c062a6361ae6959e06292c1fa5e2822d9c96345");
+            }
+        }
+
+        [Test]
         public void CanEnumerateCommits()
         {
             int count = 0;
@@ -38,6 +53,15 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
+        public void DefaultOrderingWhenEnumeratingCommitsIsTimeBased()
+        {
+            using (var repo = new Repository(Constants.TestRepoPath))
+            {
+                repo.Commits.SortedBy.ShouldEqual(GitSortOptions.Time);
+            }
+        }
+
+        [Test]
         public void CanEnumerateCommitsFromSha()
         {
             int count = 0;
@@ -50,6 +74,18 @@ namespace LibGit2Sharp.Tests
                 }
             }
             count.ShouldEqual(6);
+        }
+
+        [Test]
+        [Ignore("Not implemented yet.")]
+        public void BuildingACommitCollectionFromUnknownShaOrInvalidReferenceThrows()
+        {
+            using (var repo = new Repository(Constants.TestRepoPath))
+            {
+                Assert.Throws<ApplicationException>(() => repo.Commits.StartingAt(Constants.UnknownSha));
+                Assert.Throws<ApplicationException>(() => repo.Commits.StartingAt("refs/heads/deadbeef"));
+                Assert.Throws<ApplicationException>(() => repo.Commits.StartingAt(repo.Branches["deadbeef"]));
+            }
         }
 
         [Test]
