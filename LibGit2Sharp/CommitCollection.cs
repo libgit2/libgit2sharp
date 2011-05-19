@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
@@ -40,10 +39,8 @@ namespace LibGit2Sharp
             get
             {
                 var count = 0;
-                using (var enumerator = new CommitEnumerator(repo))
+                using (var enumerator = new CommitEnumerator(repo, new ObjectId(pushedSha), sortOptions))
                 {
-                    enumerator.Sort(sortOptions);
-                    enumerator.Push(pushedSha);
                     while (enumerator.MoveNext()) count++;
                 }
                 return count;
@@ -63,10 +60,7 @@ namespace LibGit2Sharp
                 throw new NotImplementedException();
             }
 
-            var enumerator = new CommitEnumerator(repo);
-            enumerator.Sort(sortOptions);
-            enumerator.Push(pushedSha);
-            return enumerator;
+            return new CommitEnumerator(repo, new ObjectId(pushedSha), sortOptions);
         }
 
         /// <summary>
@@ -134,11 +128,14 @@ namespace LibGit2Sharp
             private readonly RevWalkerSafeHandle handle;
             private ObjectId currentOid;
 
-            public CommitEnumerator(Repository repo)
+            public CommitEnumerator(Repository repo, ObjectId pushedOid, GitSortOptions sortingStrategy)
             {
                 this.repo = repo;
                 int res = NativeMethods.git_revwalk_new(out handle, repo.Handle);
                 Ensure.Success(res);
+
+                Sort(sortingStrategy);
+                Push(pushedOid);
             }
 
             #region IEnumerator<Commit> Members
@@ -201,15 +198,14 @@ namespace LibGit2Sharp
                 handle.Dispose();
             }
 
-            public void Push(string sha)
+            private void Push(ObjectId pushedOid)
             {
-                var id = new ObjectId(sha);
-                var oid = id.Oid;
+                var oid = pushedOid.Oid;
                 int res = NativeMethods.git_revwalk_push(handle, ref oid);
                 Ensure.Success(res);
             }
 
-            public void Sort(GitSortOptions options)
+            private void Sort(GitSortOptions options)
             {
                 NativeMethods.git_revwalk_sorting(handle, options);
             }
