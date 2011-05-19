@@ -7,6 +7,8 @@ namespace LibGit2Sharp.Core
     {
         private const string libgit2 = "git2.dll";
 
+        private UnSafeNativeMethods() { }
+
         [DllImport(libgit2)]
         public static extern int git_reference_listall(git_strarray* array, RepositorySafeHandle repo, GitReferenceType flags);
 

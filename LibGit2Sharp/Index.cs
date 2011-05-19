@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using LibGit2Sharp.Core;
 
@@ -11,7 +12,7 @@ namespace LibGit2Sharp
         private readonly IndexSafeHandle handle;
         private readonly Repository repo;
 
-        public Index(Repository repo)
+        internal Index(Repository repo)
         {
             this.repo = repo;
             var res = NativeMethods.git_index_open_inrepo(out handle, repo.Handle);
@@ -123,11 +124,11 @@ namespace LibGit2Sharp
                 return path;
             }
 
-            var normalizedPath = new DirectoryInfo(path).FullName;
+            var normalizedPath = Path.GetFullPath(path);
 
-            if (!normalizedPath.StartsWith(repo.Info.WorkingDirectory))
+            if (!normalizedPath.StartsWith(repo.Info.WorkingDirectory, StringComparison.Ordinal))
             {
-                throw new ArgumentException(string.Format("Unable to stage file '{0}'. This file is not located under the working directory of the repository ('{1}').", normalizedPath, repo.Info.WorkingDirectory));
+                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "Unable to stage file '{0}'. This file is not located under the working directory of the repository ('{1}').", normalizedPath, repo.Info.WorkingDirectory));
             }
 
             return normalizedPath.Substring(repo.Info.WorkingDirectory.Length);

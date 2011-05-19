@@ -1,10 +1,10 @@
 ﻿namespace LibGit2Sharp.Core
 {
-    internal class IndexSafeHandle : SafeHandleBase
+    internal class RevWalkerSafeHandle : SafeHandleBase
     {
         protected override bool ReleaseHandle()
         {
-            NativeMethods.git_index_free(handle);
+            NativeMethods.git_revwalk_free(handle);
             return true;
         }
     }

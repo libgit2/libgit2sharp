@@ -13,7 +13,7 @@ namespace LibGit2Sharp
     public class TagCollection : IEnumerable<Tag>
     {
         private readonly Repository repo;
-        private static readonly string RefsTagsPrefix = "refs/tags/";
+        private const string refsTagsPrefix = "refs/tags/";
 
         /// <summary>
         ///   Initializes a new instance of the <see cref = "TagCollection" /> class.
@@ -142,24 +142,24 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
 
-            if (name.StartsWith(RefsTagsPrefix, StringComparison.Ordinal))
+            if (name.StartsWith(refsTagsPrefix, StringComparison.Ordinal))
             {
                 return name;
             }
 
-            return string.Concat(RefsTagsPrefix, name);
+            return string.Concat(refsTagsPrefix, name);
         }
 
         private static string UnCanonicalizeName(string name)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
 
-            if (!name.StartsWith(RefsTagsPrefix, StringComparison.Ordinal))
+            if (!name.StartsWith(refsTagsPrefix, StringComparison.Ordinal))
             {
                 return name;
             }
 
-            return name.Substring(RefsTagsPrefix.Length);
+            return name.Substring(refsTagsPrefix.Length);
         }
     }
 }

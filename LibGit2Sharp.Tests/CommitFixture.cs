@@ -23,6 +23,21 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
+        public void CanCorrectlyCountCommitsWhenSwitchingToAnotherBranch()
+        {
+            using (var repo = new Repository(Constants.TestRepoPath))
+            {
+                repo.Branches.Checkout("test");
+                repo.Commits.Count.ShouldEqual(2);
+                repo.Commits.First().Id.Sha.ShouldEqual("e90810b8df3e80c413d903f631643c716887138d");
+
+                repo.Branches.Checkout("master");
+                repo.Commits.Count.ShouldEqual(7);
+                repo.Commits.First().Id.Sha.ShouldEqual("4c062a6361ae6959e06292c1fa5e2822d9c96345");
+            }
+        }
+
+        [Test]
         public void CanEnumerateCommits()
         {
             int count = 0;
@@ -38,6 +53,15 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
+        public void DefaultOrderingWhenEnumeratingCommitsIsTimeBased()
+        {
+            using (var repo = new Repository(Constants.TestRepoPath))
+            {
+                repo.Commits.SortedBy.ShouldEqual(GitSortOptions.Time);
+            }
+        }
+
+        [Test]
         public void CanEnumerateCommitsFromSha()
         {
             int count = 0;
@@ -50,6 +74,18 @@ namespace LibGit2Sharp.Tests
                 }
             }
             count.ShouldEqual(6);
+        }
+
+        [Test]
+        public void BuildingACommitCollectionFromUnknownShaOrInvalidReferenceThrows()
+        {
+            using (var repo = new Repository(Constants.TestRepoPath))
+            {
+                Assert.Throws<ArgumentException>(() => repo.Commits.StartingAt(Constants.UnknownSha));
+                Assert.Throws<ArgumentException>(() => repo.Commits.StartingAt("refs/heads/deadbeef"));
+                Assert.Throws<ArgumentException>(() => repo.Commits.StartingAt(repo.Branches["deadbeef"]));
+                Assert.Throws<ArgumentException>(() => repo.Commits.StartingAt(repo.Refs["refs/heads/deadbeef"]));
+            }
         }
 
         [Test]
@@ -74,7 +110,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(Constants.TestRepoPath))
             {
-                var commits = repo.Commits.StartingAt("a4a7dce85cf63874e984719f4fdd239f5145052f").SortBy(GitSortOptions.Topo | GitSortOptions.Reverse).ToList();
+                var commits = repo.Commits.StartingAt("a4a7dce85cf63874e984719f4fdd239f5145052f").SortBy(GitSortOptions.Topological | GitSortOptions.Reverse).ToList();
                 foreach (var commit in commits)
                 {
                     commit.ShouldNotBeNull();
@@ -108,7 +144,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(Constants.TestRepoPath))
             {
-                var commits = repo.Commits.StartingAt("a4a7dce85cf63874e984719f4fdd239f5145052f").SortBy(GitSortOptions.Topo).ToList();
+                var commits = repo.Commits.StartingAt("a4a7dce85cf63874e984719f4fdd239f5145052f").SortBy(GitSortOptions.Topological).ToList();
                 foreach (var commit in commits)
                 {
                     commit.ShouldNotBeNull();

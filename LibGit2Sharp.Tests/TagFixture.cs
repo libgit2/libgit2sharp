@@ -10,8 +10,6 @@ namespace LibGit2Sharp.Tests
     [TestFixture]
     public class TagFixture
     {
-        private const string newRepoPath = "new_repo";
-
         private readonly List<string> expectedTags = new List<string> {"test", "e90810b", "lw"};
 
         private static readonly Signature signatureTim = new Signature("Tim Clem", "timothy.clem@gmail.com", DateTimeOffset.UtcNow);
@@ -19,7 +17,6 @@ namespace LibGit2Sharp.Tests
         private const string tagTestSha = "b25fa35b38051e4ae45d4222e795f9df2e43f1d1";
         private const string commitE90810BSha = "e90810b8df3e80c413d903f631643c716887138d";
         private const string tagE90810BSha = "7b4384978d2493e851f9cca7858815fac9b10980";
-        const string invalidTargetId = "deadbeef1b46c854b31185ea97743be6a8774479";
 
         [Test]
         public void CanCreateALightWeightTagFromSha()
@@ -159,9 +156,9 @@ namespace LibGit2Sharp.Tests
         [Description("Ported from cgit (https://github.com/git/git/blob/1c08bf50cfcf924094eca56c2486a90e2bf1e6e2/t/t7004-tag.sh#L32)")]
         public void CreatingATagInAEmptyRepositoryThrows()
         {
-            using (new SelfCleaningDirectory(newRepoPath))
+            using (var scd = new SelfCleaningDirectory())
             {
-                var dir = Repository.Init(newRepoPath);
+                var dir = Repository.Init(scd.DirectoryPath);
 
                 using (var repo = new Repository(dir))
                 {
@@ -174,9 +171,9 @@ namespace LibGit2Sharp.Tests
         [Description("Ported from cgit (https://github.com/git/git/blob/1c08bf50cfcf924094eca56c2486a90e2bf1e6e2/t/t7004-tag.sh#L37)")]
         public void CreatingATagForHeadInAEmptyRepositoryThrows()
         {
-            using (new SelfCleaningDirectory(newRepoPath))
+            using (var scd = new SelfCleaningDirectory())
             {
-                var dir = Repository.Init(newRepoPath);
+                var dir = Repository.Init(scd.DirectoryPath);
 
                 using (var repo = new Repository(dir))
                 {
@@ -203,7 +200,7 @@ namespace LibGit2Sharp.Tests
             using (var path = new TemporaryCloneOfTestRepo())
             using (var repo = new Repository(path.RepositoryPath))
             {
-                Assert.Throws<ApplicationException>(() => repo.ApplyTag("mytagnorev", invalidTargetId));
+                Assert.Throws<ApplicationException>(() => repo.ApplyTag("mytagnorev", Constants.UnknownSha));
             }
         }
 
@@ -399,7 +396,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(Constants.TestRepoPath))
             {
-                Assert.Throws<ApplicationException>(() => repo.Tags.Create("test_tag", invalidTargetId, signatureTim, "message"));
+                Assert.Throws<ApplicationException>(() => repo.Tags.Create("test_tag", Constants.UnknownSha, signatureTim, "message"));
             }
         }
 
@@ -520,9 +517,9 @@ namespace LibGit2Sharp.Tests
         [Description("Ported from cgit (https://github.com/git/git/blob/1c08bf50cfcf924094eca56c2486a90e2bf1e6e2/t/t7004-tag.sh#L24)")]
         public void CanListAllTagsInAEmptyRepository()
         {
-            using (new SelfCleaningDirectory(newRepoPath))
+            using (var scd = new SelfCleaningDirectory())
             {
-                var dir = Repository.Init(newRepoPath);
+                var dir = Repository.Init(scd.DirectoryPath);
 
                 using (var repo = new Repository(dir))
                 {

@@ -8,23 +8,21 @@ namespace LibGit2Sharp.Tests
     [TestFixture]
     public class RepositoryFixture
     {
-        private const string newRepoPath = "new_repo";
-
         private const string commitSha = "8496071c1b46c854b31185ea97743be6a8774479";
-        private const string notFoundSha = "deadbeefdeadbeefdeadbeefdeadbeefdeadbeef";
 
         [Test]
         public void CanCreateBareRepo()
         {
-            using (new SelfCleaningDirectory(newRepoPath))
+            using (var scd = new SelfCleaningDirectory())
             {
-                var dir = Repository.Init(newRepoPath, true);
+                var dir = Repository.Init(scd.DirectoryPath, true);
                 Path.IsPathRooted(dir).ShouldBeTrue();
                 Directory.Exists(dir).ShouldBeTrue();
 
                 using (var repo = new Repository(dir))
                 {
                     repo.Info.WorkingDirectory.ShouldBeNull();
+                    repo.Info.Path.ShouldEqual(scd.RootedDirectoryPath + @"\");
                     repo.Info.IsBare.ShouldBeTrue();
 
                     AssertInitializedRepository(repo);
@@ -35,15 +33,16 @@ namespace LibGit2Sharp.Tests
         [Test]
         public void CanCreateStandardRepo()
         {
-            using (new SelfCleaningDirectory(newRepoPath))
+            using (var scd = new SelfCleaningDirectory())
             {
-                var dir = Repository.Init(newRepoPath);
+                var dir = Repository.Init(scd.DirectoryPath);
                 Path.IsPathRooted(dir).ShouldBeTrue();
                 Directory.Exists(dir).ShouldBeTrue();
 
                 using (var repo = new Repository(dir))
                 {
                     repo.Info.WorkingDirectory.ShouldNotBeNull();
+                    repo.Info.Path.ShouldEqual(Path.Combine(scd.RootedDirectoryPath, ".git" + @"\"));
                     repo.Info.IsBare.ShouldBeFalse();
 
                     AssertInitializedRepository(repo);
@@ -137,8 +136,8 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(Constants.TestRepoPath))
             {
-                repo.Lookup(notFoundSha).ShouldBeNull();
-                repo.Lookup<GitObject>(notFoundSha).ShouldBeNull();
+                repo.Lookup(Constants.UnknownSha).ShouldBeNull();
+                repo.Lookup<GitObject>(Constants.UnknownSha).ShouldBeNull();
             }
         }
 
@@ -159,7 +158,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(Constants.TestRepoPath))
             {
                 repo.Lookup("refs/heads/chopped/off").ShouldBeNull();
-                repo.Lookup<GitObject>(notFoundSha).ShouldBeNull();
+                repo.Lookup<GitObject>(Constants.UnknownSha).ShouldBeNull();
             }
         }
 
@@ -238,9 +237,9 @@ namespace LibGit2Sharp.Tests
         [Test]
         public void CheckForDetachedHeadOnNewRepo()
         {
-            using (new SelfCleaningDirectory(newRepoPath))
+            using (var scd = new SelfCleaningDirectory())
             {
-                var dir = Repository.Init(newRepoPath, true);
+                var dir = Repository.Init(scd.DirectoryPath, true);
                 Path.IsPathRooted(dir).ShouldBeTrue();
                 Directory.Exists(dir).ShouldBeTrue();
 

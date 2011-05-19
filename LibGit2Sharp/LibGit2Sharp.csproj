@@ -47,6 +47,7 @@
     <Compile Include="Blob.cs" />
     <Compile Include="Branch.cs" />
     <Compile Include="BranchCollection.cs" />
+    <Compile Include="CommitCollectionExtensions.cs" />
     <Compile Include="Commit.cs" />
     <Compile Include="CommitCollection.cs" />
     <Compile Include="Core\Ensure.cs" />
@@ -62,6 +63,10 @@
     <Compile Include="Core\PosixPathHelper.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Core\RevWalkerSafeHandle.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Core\SafeHandleBase.cs" />
     <Compile Include="Core\UnSafeNativeMethods.cs" />
     <Compile Include="DirectReference.cs" />
     <Compile Include="Core\GitIndexTime.cs" />
@@ -98,6 +103,7 @@
       <Link>git2.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <CodeAnalysisDictionary Include="CustomDictionary.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

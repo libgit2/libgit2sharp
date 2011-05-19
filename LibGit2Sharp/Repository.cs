@@ -17,11 +17,7 @@ namespace LibGit2Sharp
 
         /// <summary>
         ///   Initializes a new instance of the <see cref = "Repository" /> class.
-        /// 
-        ///   Exceptions:
-        ///   ArgumentException
-        ///   ArgumentNullException
-        ///   TODO: ApplicationException is thrown for all git errors right now
+        ///     <para>For a standard repository, <paramref name="path"/> should point to the ".git" folder. For a bare repository, <paramref name="path"/> should directly point to the repository folder.</para>
         /// </summary>
         /// <param name = "path">The path to the git repository to open.</param>
         public Repository(string path)
@@ -155,10 +151,10 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Init a repo at the specified path
+        ///   Init a repo at the specified <paramref name="path"/>.
         /// </summary>
-        /// <param name = "path">The path.</param>
-        /// <param name = "bare"></param>
+        /// <param name = "path">The path to the working folder when initializing a standard ".git" repository. Otherwise, when initializing a bare repository, the path to the expected location of this later.</param>
+        /// <param name = "bare">true to initialize a bare repository. False otherwise, to initialize a standard ".git" repository.</param>
         /// <returns>Path the git repository.</returns>
         public static string Init(string path, bool bare = false)
         {
@@ -218,7 +214,7 @@ namespace LibGit2Sharp
                 return null;
             }
 
-            return Lookup(reference.ResolveToDirectReference().Target.Id, type);
+            return Lookup(reference.ResolveToDirectReference().TargetIdentifier, type);
         }
 
         private static bool IsReferencePeelable(Reference reference)

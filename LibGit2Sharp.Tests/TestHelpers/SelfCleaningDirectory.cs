@@ -5,7 +5,9 @@ namespace LibGit2Sharp.Tests.TestHelpers
 {
     public class SelfCleaningDirectory : IDisposable
     {
-        private readonly string path;
+        public SelfCleaningDirectory() : this(BuildTempPath())
+        {
+        }
 
         public SelfCleaningDirectory(string path)
         {
@@ -14,26 +16,31 @@ namespace LibGit2Sharp.Tests.TestHelpers
                 throw new InvalidOperationException("Directory '{0}' already exists.");
             }
 
-            this.path = path;
+            DirectoryPath = path;
+            RootedDirectoryPath = Path.GetFullPath(path);
         }
 
-        protected string DirectoryPath
-        {
-            get { return path; }
-        }
+
+        public string DirectoryPath { get; private set; }
+        public string RootedDirectoryPath { get; private set; }
 
         #region IDisposable Members
 
         public void Dispose()
         {
-            if (!Directory.Exists(path))
+            if (!Directory.Exists(DirectoryPath))
             {
                 throw new InvalidOperationException("Directory '{0}' doesn't exist any longer.");
             }
 
-            DirectoryHelper.DeleteDirectory(path);
+            DirectoryHelper.DeleteDirectory(DirectoryPath);
         }
 
         #endregion
+
+        protected static string BuildTempPath()
+        {
+            return Path.Combine(Constants.TemporaryReposPath, Guid.NewGuid().ToString().Substring(0, 8));
+        }
     }
 }

@@ -42,14 +42,15 @@ namespace LibGit2Sharp.Core
         /// <param name = "result">The result.</param>
         public static void Success(int result)
         {
-            if (result == 0)
+            if (result == (int) GitErrorCode.GIT_SUCCESS)
             {
                 return;
             }
             
+            string errorMessage = NativeMethods.git_lasterror();
+
             throw new ApplicationException(
-                String.Format(CultureInfo.InvariantCulture, "There was an error in libgit2, but error handling sucks right now, so I can't tell you what it was. Error code = {0} ({1})", Enum.GetName(typeof(GitErrorCode), result)
-, result));
+                String.Format(CultureInfo.InvariantCulture, "An error was raised by libgit2. Error code = {0} ({1}).{2}{3}", Enum.GetName(typeof(GitErrorCode), result), result, Environment.NewLine, errorMessage));
         }
 
         /// <summary>

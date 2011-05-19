@@ -139,16 +139,14 @@ namespace LibGit2Sharp.Tests
         [Test]
         public void StagingANewFileWithAFullPathWhichEscapesOutOfTheWorkingDirThrows()
         {
-            string tempPath = new DirectoryInfo("./temp").FullName;
-
-            using (new SelfCleaningDirectory(tempPath))
+            using (var scd = new SelfCleaningDirectory())
             using (var path = new TemporaryCloneOfTestRepo(Constants.TestRepoWithWorkingDirPath))
             using (var repo = new Repository(path.RepositoryPath))
             {
-                Directory.CreateDirectory(tempPath);
+                var di = Directory.CreateDirectory(scd.DirectoryPath);
 
                 const string filename = "unit_test.txt";
-                string fullPath = Path.Combine(tempPath, filename);
+                string fullPath = Path.Combine(di.FullName, filename);
                 File.WriteAllText(fullPath, "some contents");
 
                 Assert.Throws<ArgumentException>(() => repo.Index.Stage(fullPath));

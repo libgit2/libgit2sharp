@@ -11,16 +11,27 @@ namespace LibGit2Sharp
     public class CommitCollection : IEnumerable<Commit>
     {
         private readonly Repository repo;
-        private string pushedSha;
-        private GitSortOptions sortOptions = GitSortOptions.None;
+        private ObjectId pushedObjectId;
+        private readonly GitSortOptions sortOptions;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref = "CommitCollection"/> class.
+        /// The commits will be enumerated according in reverse chronological order.
+        /// </summary>
+        /// <param name = "repo">The repository.</param>
+        internal CommitCollection(Repository repo) : this (repo, GitSortOptions.Time)
+        {
+        }
 
         /// <summary>
         ///   Initializes a new instance of the <see cref = "CommitCollection" /> class.
         /// </summary>
-        /// <param name = "repo">The repo.</param>
-        internal CommitCollection(Repository repo)
+        /// <param name = "repo">The repository.</param>
+        /// <param name = "sortingStrategy">The sorting strategy which should be applied when enumerating the commits.</param>
+        internal CommitCollection(Repository repo, GitSortOptions sortingStrategy)
         {
             this.repo = repo;
+            sortOptions = sortingStrategy;
         }
 
         /// <summary>
@@ -32,21 +43,27 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Gets the Count of commits (This is a fast count that does not hydrate real commit objects)
+        ///   Gets the count of commits (This is a fast count that does not hydrate real commit objects)
         /// </summary>
         public int Count
         {
             get
             {
                 var count = 0;
-                using (var enumerator = new CommitEnumerator(repo, true))
+                using (var enumerator = new CommitEnumerator(repo, pushedObjectId, sortOptions))
                 {
-                    enumerator.Sort(sortOptions);
-                    enumerator.Push(pushedSha);
                     while (enumerator.MoveNext()) count++;
                 }
                 return count;
             }
+        }
+
+        /// <summary>
+        /// Gets the current sorting strategy applied when enumerating the collection
+        /// </summary>
+        public GitSortOptions SortedBy
+        {
+            get { return sortOptions; }
         }
 
         #region IEnumerable<Commit> Members
@@ -57,15 +74,12 @@ namespace LibGit2Sharp
         /// <returns>An <see cref="IEnumerator{T}"/> object that can be used to iterate through the collection.</returns>
         public IEnumerator<Commit> GetEnumerator()
         {
-            if (string.IsNullOrEmpty(pushedSha))
+            if (pushedObjectId == null)
             {
                 throw new NotImplementedException();
-            } 
-            
-            var enumerator = new CommitEnumerator(repo);
-            enumerator.Sort(sortOptions);
-            enumerator.Push(pushedSha);
-            return enumerator;
+            }
+
+            return new CommitEnumerator(repo, pushedObjectId, sortOptions);
         }
 
         /// <summary>
@@ -80,76 +94,65 @@ namespace LibGit2Sharp
         #endregion
 
         /// <summary>
-        ///   Sorts <see cref = "CommitCollection" /> with the specified options.
+        ///   Sorts <see cref = "CommitCollection" /> according to the specified strategy.
         /// </summary>
-        /// <param name = "options">The options.</param>
+        /// <param name = "sortingStrategy">The sorting strategy to be applied when enumerating the commits.</param>
         /// <returns></returns>
-        public CommitCollection SortBy(GitSortOptions options)
+        public CommitCollection SortBy(GitSortOptions sortingStrategy)
         {
-            return new CommitCollection(repo) { sortOptions = options, pushedSha = pushedSha };
-        }
-
-        /// <summary>
-        ///   Starts enumeratoring the <see cref = "CommitCollection" /> at the specified branch.
-        /// </summary>
-        /// <param name = "branch">The branch.</param>
-        /// <returns></returns>
-        public CommitCollection StartingAt(Branch branch)
-        {
-            Ensure.ArgumentNotNull(branch, "branch");
-
-            return new CommitCollection(repo) { sortOptions = sortOptions, pushedSha = branch.Tip.Sha };
-        }
-
-        /// <summary>
-        ///   Starts enumeratoring the <see cref = "CommitCollection" /> at the specified reference.
-        /// </summary>
-        /// <param name = "reference">The reference.</param>
-        /// <returns></returns>
-        public CommitCollection StartingAt(Reference reference)
-        {
-            Ensure.ArgumentNotNull(reference, "reference");
-
-            return new CommitCollection(repo) { sortOptions = sortOptions, pushedSha = reference.ResolveToDirectReference().Target.Sha };
+            return new CommitCollection(repo, sortingStrategy) { pushedObjectId = pushedObjectId };
         }
 
         /// <summary>
         ///   Starts enumeratoring the <see cref = "CommitCollection" /> at the specified sha.
         /// </summary>
-        /// <param name = "sha">The sha.</param>
+        ///  <param name = "shaOrReferenceName">The sha or reference canonical name to use.</param>
         /// <returns></returns>
-        public CommitCollection StartingAt(string sha)
+        public CommitCollection StartingAt(string shaOrReferenceName)
         {
-            Ensure.ArgumentNotNullOrEmptyString(sha, "sha");
+            Ensure.ArgumentNotNullOrEmptyString(shaOrReferenceName, "shaOrReferenceName");
 
-            return new CommitCollection(repo) { sortOptions = sortOptions, pushedSha = sha };
+            GitObject gitObj = repo.Lookup(shaOrReferenceName);
+
+            if (gitObj == null) // TODO: Should we check the type? Git-log allows TagAnnotation oid as parameter. But what about Blobs and Trees?
+            {
+                throw new ArgumentException(string.Format("No valid object identified as '{0}' has been found in the repository.", shaOrReferenceName), "shaOrReferenceName");
+            }
+
+            return new CommitCollection(repo, sortOptions) { pushedObjectId = gitObj.Id };
         }
 
         #region Nested type: CommitEnumerator
 
         private class CommitEnumerator : IEnumerator<Commit>
         {
-            private readonly bool forCountOnly;
             private readonly Repository repo;
-            private readonly IntPtr walker = IntPtr.Zero;   //TODO: Convert to SafeHandle?
-            private bool disposed;
+            private readonly RevWalkerSafeHandle handle;
+            private ObjectId currentOid;
 
-            public CommitEnumerator(Repository repo, bool forCountOnly = false)
+            public CommitEnumerator(Repository repo, ObjectId pushedOid, GitSortOptions sortingStrategy)
             {
                 this.repo = repo;
-                this.forCountOnly = forCountOnly;
-                int res = NativeMethods.git_revwalk_new(out walker, repo.Handle);
+                int res = NativeMethods.git_revwalk_new(out handle, repo.Handle);
                 Ensure.Success(res);
+
+                Sort(sortingStrategy);
+                Push(pushedOid);
             }
 
             #region IEnumerator<Commit> Members
 
-            public Commit Current { get; private set; }
-
-            public void Dispose()
+            public Commit Current
             {
-                Dispose(true);
-                GC.SuppressFinalize(this);
+                get
+                {
+                    if (currentOid == null)
+                    {
+                        throw new InvalidOperationException();
+                    }
+
+                    return repo.Lookup<Commit>(currentOid);
+                }
             }
 
             object IEnumerator.Current
@@ -160,63 +163,53 @@ namespace LibGit2Sharp
             public bool MoveNext()
             {
                 GitOid oid;
-                var res = NativeMethods.git_revwalk_next(out oid, walker);
-                if (res == (int)GitErrorCode.GIT_EREVWALKOVER) return false;
-
-                if (!forCountOnly)
+                var res = NativeMethods.git_revwalk_next(out oid, handle);
+                
+                if (res == (int)GitErrorCode.GIT_EREVWALKOVER)
                 {
-                    Current = repo.Lookup<Commit>(new ObjectId(oid));
+                    return false;
                 }
+
+                Ensure.Success(res);
+
+                currentOid = new ObjectId(oid);
+
                 return true;
             }
 
             public void Reset()
             {
-                NativeMethods.git_revwalk_reset(walker);
+                NativeMethods.git_revwalk_reset(handle);
             }
 
             #endregion
 
+            public void Dispose()
+            {
+                Dispose(true);
+                GC.SuppressFinalize(this);
+            }
+            
             private void Dispose(bool disposing)
             {
-                // Check to see if Dispose has already been called.
-                if (!disposed)
+                if (handle == null || handle.IsInvalid)
                 {
-                    // If disposing equals true, dispose all managed
-                    // and unmanaged resources.
-                    if (disposing)
-                    {
-                        // Dispose managed resources.
-                    }
-
-                    // Call the appropriate methods to clean up
-                    // unmanaged resources here.
-                    NativeMethods.git_revwalk_free(walker);
-
-                    // Note disposing has been done.
-                    disposed = true;
+                    return;
                 }
+
+                handle.Dispose();
             }
 
-            ~CommitEnumerator()
+            private void Push(ObjectId pushedOid)
             {
-                // Do not re-create Dispose clean-up code here.
-                // Calling Dispose(false) is optimal in terms of
-                // readability and maintainability.
-                Dispose(false);
-            }
-
-            public void Push(string sha)
-            {
-                var id = new ObjectId(sha);
-                var oid = id.Oid;
-                int res = NativeMethods.git_revwalk_push(walker, ref oid);
+                var oid = pushedOid.Oid;
+                int res = NativeMethods.git_revwalk_push(handle, ref oid);
                 Ensure.Success(res);
             }
 
-            public void Sort(GitSortOptions options)
+            private void Sort(GitSortOptions options)
             {
-                NativeMethods.git_revwalk_sorting(walker, options);
+                NativeMethods.git_revwalk_sorting(handle, options);
             }
         }
 
