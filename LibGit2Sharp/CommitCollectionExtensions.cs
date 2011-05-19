@@ -1,4 +1,5 @@
-﻿using LibGit2Sharp.Core;
+﻿using System;
+using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
 {
@@ -14,7 +15,14 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNull(branch, "branch");
 
-            return commitCollection.StartingAt(branch.Tip.Sha);
+            Commit commit = branch.Tip;
+
+            if (commit == null)
+            {
+                throw new ArgumentException(string.Format("No valid object identified as '{0}' has been found in the repository.", branch.CanonicalName), "branch");
+            }
+
+            return commitCollection.StartingAt(commit.Sha);
         }
 
         /// <summary>
@@ -27,7 +35,7 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNull(reference, "reference");
 
-            return commitCollection.StartingAt(reference.ResolveToDirectReference().Target.Sha);
+            return commitCollection.StartingAt(reference.ResolveToDirectReference().CanonicalName);
         }
     }
 }

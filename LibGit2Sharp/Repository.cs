@@ -214,7 +214,7 @@ namespace LibGit2Sharp
                 return null;
             }
 
-            return Lookup(reference.ResolveToDirectReference().Target.Id, type);
+            return Lookup(reference.ResolveToDirectReference().TargetIdentifier, type);
         }
 
         private static bool IsReferencePeelable(Reference reference)

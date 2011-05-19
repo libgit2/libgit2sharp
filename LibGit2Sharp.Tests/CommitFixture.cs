@@ -77,14 +77,14 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
-        [Ignore("Not implemented yet.")]
         public void BuildingACommitCollectionFromUnknownShaOrInvalidReferenceThrows()
         {
             using (var repo = new Repository(Constants.TestRepoPath))
             {
-                Assert.Throws<ApplicationException>(() => repo.Commits.StartingAt(Constants.UnknownSha));
-                Assert.Throws<ApplicationException>(() => repo.Commits.StartingAt("refs/heads/deadbeef"));
-                Assert.Throws<ApplicationException>(() => repo.Commits.StartingAt(repo.Branches["deadbeef"]));
+                Assert.Throws<ArgumentException>(() => repo.Commits.StartingAt(Constants.UnknownSha));
+                Assert.Throws<ArgumentException>(() => repo.Commits.StartingAt("refs/heads/deadbeef"));
+                Assert.Throws<ArgumentException>(() => repo.Commits.StartingAt(repo.Branches["deadbeef"]));
+                Assert.Throws<ArgumentException>(() => repo.Commits.StartingAt(repo.Refs["refs/heads/deadbeef"]));
             }
         }
 
