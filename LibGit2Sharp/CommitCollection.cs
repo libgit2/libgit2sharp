@@ -12,15 +12,26 @@ namespace LibGit2Sharp
     {
         private readonly Repository repo;
         private string pushedSha;
-        private GitSortOptions sortOptions = GitSortOptions.Time;
+        private readonly GitSortOptions sortOptions;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref = "CommitCollection"/> class.
+        /// The commits will be enumerated according in reverse chronological order.
+        /// </summary>
+        /// <param name = "repo">The repository.</param>
+        internal CommitCollection(Repository repo) : this (repo, GitSortOptions.Time)
+        {
+        }
 
         /// <summary>
         ///   Initializes a new instance of the <see cref = "CommitCollection" /> class.
         /// </summary>
-        /// <param name = "repo">The repo.</param>
-        internal CommitCollection(Repository repo)
+        /// <param name = "repo">The repository.</param>
+        /// <param name = "sortingStrategy">The sorting strategy which should be applied when enumerating the commits.</param>
+        internal CommitCollection(Repository repo, GitSortOptions sortingStrategy)
         {
             this.repo = repo;
+            sortOptions = sortingStrategy;
         }
 
         /// <summary>
@@ -32,7 +43,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Gets the Count of commits (This is a fast count that does not hydrate real commit objects)
+        ///   Gets the count of commits (This is a fast count that does not hydrate real commit objects)
         /// </summary>
         public int Count
         {
@@ -45,6 +56,14 @@ namespace LibGit2Sharp
                 }
                 return count;
             }
+        }
+
+        /// <summary>
+        /// Gets the current sorting strategy applied when enumerating the collection
+        /// </summary>
+        public GitSortOptions SortedBy
+        {
+            get { return sortOptions; }
         }
 
         #region IEnumerable<Commit> Members
@@ -75,37 +94,13 @@ namespace LibGit2Sharp
         #endregion
 
         /// <summary>
-        ///   Sorts <see cref = "CommitCollection" /> with the specified options.
+        ///   Sorts <see cref = "CommitCollection" /> according to the specified strategy.
         /// </summary>
-        /// <param name = "options">The options.</param>
+        /// <param name = "sortingStrategy">The sorting strategy to be applied when enumerating the commits.</param>
         /// <returns></returns>
-        public CommitCollection SortBy(GitSortOptions options)
+        public CommitCollection SortBy(GitSortOptions sortingStrategy)
         {
-            return new CommitCollection(repo) { sortOptions = options, pushedSha = pushedSha };
-        }
-
-        /// <summary>
-        ///   Starts enumeratoring the <see cref = "CommitCollection" /> at the specified branch.
-        /// </summary>
-        /// <param name = "branch">The branch.</param>
-        /// <returns></returns>
-        public CommitCollection StartingAt(Branch branch)
-        {
-            Ensure.ArgumentNotNull(branch, "branch");
-
-            return new CommitCollection(repo) { sortOptions = sortOptions, pushedSha = branch.Tip.Sha };
-        }
-
-        /// <summary>
-        ///   Starts enumeratoring the <see cref = "CommitCollection" /> at the specified reference.
-        /// </summary>
-        /// <param name = "reference">The reference.</param>
-        /// <returns></returns>
-        public CommitCollection StartingAt(Reference reference)
-        {
-            Ensure.ArgumentNotNull(reference, "reference");
-
-            return new CommitCollection(repo) { sortOptions = sortOptions, pushedSha = reference.ResolveToDirectReference().Target.Sha };
+            return new CommitCollection(repo, sortingStrategy) { pushedSha = pushedSha };
         }
 
         /// <summary>
@@ -117,7 +112,7 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(sha, "sha");
 
-            return new CommitCollection(repo) { sortOptions = sortOptions, pushedSha = sha };
+            return new CommitCollection(repo, sortOptions) { pushedSha = sha };
         }
 
         #region Nested type: CommitEnumerator
