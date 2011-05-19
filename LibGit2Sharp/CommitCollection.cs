@@ -60,8 +60,8 @@ namespace LibGit2Sharp
             if (string.IsNullOrEmpty(pushedSha))
             {
                 throw new NotImplementedException();
-            } 
-            
+            }
+
             var enumerator = new CommitEnumerator(repo);
             enumerator.Sort(sortOptions);
             enumerator.Push(pushedSha);
@@ -131,14 +131,13 @@ namespace LibGit2Sharp
         {
             private readonly bool forCountOnly;
             private readonly Repository repo;
-            private readonly IntPtr walker = IntPtr.Zero;   //TODO: Convert to SafeHandle?
-            private bool disposed;
+            private readonly RevWalkerSafeHandle handle;
 
             public CommitEnumerator(Repository repo, bool forCountOnly = false)
             {
                 this.repo = repo;
                 this.forCountOnly = forCountOnly;
-                int res = NativeMethods.git_revwalk_new(out walker, repo.Handle);
+                int res = NativeMethods.git_revwalk_new(out handle, repo.Handle);
                 Ensure.Success(res);
             }
 
@@ -160,7 +159,7 @@ namespace LibGit2Sharp
             public bool MoveNext()
             {
                 GitOid oid;
-                var res = NativeMethods.git_revwalk_next(out oid, walker);
+                var res = NativeMethods.git_revwalk_next(out oid, handle);
                 if (res == (int)GitErrorCode.GIT_EREVWALKOVER) return false;
 
                 if (!forCountOnly)
@@ -172,51 +171,32 @@ namespace LibGit2Sharp
 
             public void Reset()
             {
-                NativeMethods.git_revwalk_reset(walker);
+                NativeMethods.git_revwalk_reset(handle);
             }
 
             #endregion
 
             private void Dispose(bool disposing)
             {
-                // Check to see if Dispose has already been called.
-                if (!disposed)
+                if (handle == null || handle.IsInvalid)
                 {
-                    // If disposing equals true, dispose all managed
-                    // and unmanaged resources.
-                    if (disposing)
-                    {
-                        // Dispose managed resources.
-                    }
-
-                    // Call the appropriate methods to clean up
-                    // unmanaged resources here.
-                    NativeMethods.git_revwalk_free(walker);
-
-                    // Note disposing has been done.
-                    disposed = true;
+                    return;
                 }
-            }
 
-            ~CommitEnumerator()
-            {
-                // Do not re-create Dispose clean-up code here.
-                // Calling Dispose(false) is optimal in terms of
-                // readability and maintainability.
-                Dispose(false);
+                handle.Dispose();
             }
 
             public void Push(string sha)
             {
                 var id = new ObjectId(sha);
                 var oid = id.Oid;
-                int res = NativeMethods.git_revwalk_push(walker, ref oid);
+                int res = NativeMethods.git_revwalk_push(handle, ref oid);
                 Ensure.Success(res);
             }
 
             public void Sort(GitSortOptions options)
             {
-                NativeMethods.git_revwalk_sorting(walker, options);
+                NativeMethods.git_revwalk_sorting(handle, options);
             }
         }
 

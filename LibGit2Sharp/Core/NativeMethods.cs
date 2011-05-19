@@ -169,19 +169,19 @@ namespace LibGit2Sharp.Core
         public static extern void git_revwalk_free(IntPtr walker);
 
         [DllImport(libgit2)]
-        public static extern int git_revwalk_new(out IntPtr walker, RepositorySafeHandle repo);
+        public static extern int git_revwalk_new(out RevWalkerSafeHandle walker, RepositorySafeHandle repo);
 
         [DllImport(libgit2)]
-        public static extern int git_revwalk_next(out GitOid oid, IntPtr walker);
+        public static extern int git_revwalk_next(out GitOid oid, RevWalkerSafeHandle walker);
 
         [DllImport(libgit2)]
-        public static extern int git_revwalk_push(IntPtr walker, ref GitOid oid);
+        public static extern int git_revwalk_push(RevWalkerSafeHandle walker, ref GitOid oid);
 
         [DllImport(libgit2)]
-        public static extern void git_revwalk_reset(IntPtr walker);
+        public static extern void git_revwalk_reset(RevWalkerSafeHandle walker);
 
         [DllImport(libgit2)]
-        public static extern void git_revwalk_sorting(IntPtr walk, GitSortOptions sort);
+        public static extern void git_revwalk_sorting(RevWalkerSafeHandle walk, GitSortOptions sort);
 
         [DllImport(libgit2)]
         public static extern void git_signature_free(IntPtr signature);

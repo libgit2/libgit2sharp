@@ -62,6 +62,9 @@
     <Compile Include="Core\PosixPathHelper.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Core\RevWalkerSafeHandle.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Core\SafeHandleBase.cs" />
     <Compile Include="Core\UnSafeNativeMethods.cs" />
     <Compile Include="DirectReference.cs" />
