@@ -15,7 +15,6 @@ namespace LibGit2Sharp
             Path = PosixPathHelper.ToNative(posixPath);
             IsBare = isBare;
             WorkingDirectory = PosixPathHelper.ToNative(posixWorkingDirectoryPath);
-            IsEmpty = NativeMethods.git_repository_is_empty(repo.Handle);
         }
 
         /// <summary>
@@ -42,7 +41,10 @@ namespace LibGit2Sharp
         /// <value>
         ///   <c>true</c> if this repository is empty; otherwise, <c>false</c>.
         /// </value>
-        public bool IsEmpty { get; private set; }
+        public bool IsEmpty
+        {
+            get { return NativeMethods.git_repository_is_empty(repo.Handle); }
+        }
 
         /// <summary>
         ///   Indicates whether the Head points to an arbitrary commit instead of the tip of a local banch.
