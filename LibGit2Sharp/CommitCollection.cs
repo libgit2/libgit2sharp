@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
@@ -39,7 +40,7 @@ namespace LibGit2Sharp
             get
             {
                 var count = 0;
-                using (var enumerator = new CommitEnumerator(repo, true))
+                using (var enumerator = new CommitEnumerator(repo))
                 {
                     enumerator.Sort(sortOptions);
                     enumerator.Push(pushedSha);
@@ -129,26 +130,30 @@ namespace LibGit2Sharp
 
         private class CommitEnumerator : IEnumerator<Commit>
         {
-            private readonly bool forCountOnly;
             private readonly Repository repo;
             private readonly RevWalkerSafeHandle handle;
+            private ObjectId currentOid;
 
-            public CommitEnumerator(Repository repo, bool forCountOnly = false)
+            public CommitEnumerator(Repository repo)
             {
                 this.repo = repo;
-                this.forCountOnly = forCountOnly;
                 int res = NativeMethods.git_revwalk_new(out handle, repo.Handle);
                 Ensure.Success(res);
             }
 
             #region IEnumerator<Commit> Members
 
-            public Commit Current { get; private set; }
-
-            public void Dispose()
+            public Commit Current
             {
-                Dispose(true);
-                GC.SuppressFinalize(this);
+                get
+                {
+                    if (currentOid == null)
+                    {
+                        throw new InvalidOperationException();
+                    }
+
+                    return repo.Lookup<Commit>(currentOid);
+                }
             }
 
             object IEnumerator.Current
@@ -160,12 +165,16 @@ namespace LibGit2Sharp
             {
                 GitOid oid;
                 var res = NativeMethods.git_revwalk_next(out oid, handle);
-                if (res == (int)GitErrorCode.GIT_EREVWALKOVER) return false;
-
-                if (!forCountOnly)
+                
+                if (res == (int)GitErrorCode.GIT_EREVWALKOVER)
                 {
-                    Current = repo.Lookup<Commit>(new ObjectId(oid));
+                    return false;
                 }
+
+                Ensure.Success(res);
+
+                currentOid = new ObjectId(oid);
+
                 return true;
             }
 
@@ -176,6 +185,12 @@ namespace LibGit2Sharp
 
             #endregion
 
+            public void Dispose()
+            {
+                Dispose(true);
+                GC.SuppressFinalize(this);
+            }
+            
             private void Dispose(bool disposing)
             {
                 if (handle == null || handle.IsInvalid)
