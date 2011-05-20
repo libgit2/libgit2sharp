@@ -22,7 +22,7 @@ namespace LibGit2Sharp
             targetOid = new ObjectId((GitOid)Marshal.PtrToStructure(gitTreeEntryId, typeof(GitOid)));
 
             Attributes = NativeMethods.git_tree_entry_attributes(obj);
-            Name = NativeMethods.git_tree_entry_name(obj);
+            Name = NativeMethods.git_tree_entry_name(obj).MarshallAsString();
         }
 
         public int Attributes { get; private set; }

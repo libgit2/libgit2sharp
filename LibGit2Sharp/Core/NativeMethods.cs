@@ -23,12 +23,10 @@ namespace LibGit2Sharp.Core
         public static extern int git_commit_create_o(out GitOid oid, RepositorySafeHandle repo, string updateRef, IntPtr author, IntPtr committer, string message, IntPtr tree, int parentCount, IntPtr parents);
 
         [DllImport(libgit2)]
-        [return: MarshalAs(UnmanagedType.AnsiBStr)]
-        public static extern string git_commit_message(IntPtr commit);
+        public static extern IntPtr git_commit_message(IntPtr commit);
 
         [DllImport(libgit2)]
-        [return: MarshalAs(UnmanagedType.AnsiBStr)]
-        public static extern string git_commit_message_short(IntPtr commit);
+        public static extern IntPtr git_commit_message_short(IntPtr commit);
 
         [DllImport(libgit2)]
         public static extern int git_commit_parent(out IntPtr parentCommit, IntPtr commit, uint n);
@@ -61,8 +59,7 @@ namespace LibGit2Sharp.Core
         public static extern int git_index_open_inrepo(out IndexSafeHandle index, RepositorySafeHandle repo);
         
         [DllImport(libgit2)]
-        [return: MarshalAs(UnmanagedType.AnsiBStr)]
-        public static extern string git_lasterror();
+        public static extern IntPtr git_lasterror();
 
         [DllImport(libgit2)]
         public static extern void git_object_close(IntPtr obj);
@@ -111,8 +108,7 @@ namespace LibGit2Sharp.Core
         public static extern int git_reference_lookup(out IntPtr reference, RepositorySafeHandle repo, string name);
 
         [DllImport(libgit2)]
-        [return: MarshalAs(UnmanagedType.AnsiBStr)]
-        public static extern string git_reference_name(IntPtr reference);
+        public static extern IntPtr git_reference_name(IntPtr reference);
 
         [DllImport(libgit2)]
         public static extern IntPtr git_reference_oid(IntPtr reference);
@@ -133,8 +129,7 @@ namespace LibGit2Sharp.Core
         public static extern int git_reference_set_target(IntPtr reference, string target);
 
         [DllImport(libgit2)]
-        [return: MarshalAs(UnmanagedType.AnsiBStr)]
-        public static extern string git_reference_target(IntPtr reference);
+        public static extern IntPtr git_reference_target(IntPtr reference);
 
         [DllImport(libgit2)]
         public static extern GitReferenceType git_reference_type(IntPtr reference);
@@ -156,12 +151,10 @@ namespace LibGit2Sharp.Core
         public static extern int git_repository_open(out RepositorySafeHandle repository, string path);
 
         [DllImport(libgit2)]
-        [return: MarshalAs(UnmanagedType.AnsiBStr)]
-        public static extern string git_repository_path(RepositorySafeHandle repository);
+        public static extern IntPtr git_repository_path(RepositorySafeHandle repository);
 
         [DllImport(libgit2)]
-        [return: MarshalAs(UnmanagedType.AnsiBStr)]
-        public static extern string git_repository_workdir(RepositorySafeHandle repository);
+        public static extern IntPtr git_repository_workdir(RepositorySafeHandle repository);
 
         [DllImport(libgit2)]
         public static extern void git_revwalk_free(IntPtr walker);
@@ -197,12 +190,10 @@ namespace LibGit2Sharp.Core
         public static extern int git_tag_delete(RepositorySafeHandle repo, string tagName);
 
         [DllImport(libgit2)]
-        [return: MarshalAs(UnmanagedType.AnsiBStr)]
-        public static extern string git_tag_message(IntPtr tag);
+        public static extern IntPtr git_tag_message(IntPtr tag);
 
         [DllImport(libgit2)]
-        [return: MarshalAs(UnmanagedType.AnsiBStr)]
-        public static extern string git_tag_name(IntPtr tag);
+        public static extern IntPtr git_tag_name(IntPtr tag);
 
         [DllImport(libgit2)]
         public static extern IntPtr git_tag_tagger(IntPtr tag);
@@ -226,8 +217,7 @@ namespace LibGit2Sharp.Core
         public static extern IntPtr git_tree_entry_id(IntPtr tree);
 
         [DllImport(libgit2)]
-        [return: MarshalAs(UnmanagedType.AnsiBStr)]
-        public static extern string git_tree_entry_name(IntPtr entry);
+        public static extern IntPtr git_tree_entry_name(IntPtr entry);
 
         [DllImport(libgit2)]
         public static extern int git_tree_entrycount(IntPtr tree);

@@ -89,8 +89,8 @@ namespace LibGit2Sharp
 
             return new Commit(id, treeId, repo)
             {
-                Message = NativeMethods.git_commit_message(obj),
-                MessageShort = NativeMethods.git_commit_message_short(obj),
+                Message = NativeMethods.git_commit_message(obj).MarshallAsString(),
+                MessageShort = NativeMethods.git_commit_message_short(obj).MarshallAsString(),
                 Author = new Signature(NativeMethods.git_commit_author(obj)),
                 Committer = new Signature(NativeMethods.git_commit_committer(obj)),
             };

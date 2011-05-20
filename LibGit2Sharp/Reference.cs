@@ -26,8 +26,8 @@ namespace LibGit2Sharp
                 return default(T);
             }
 
-            var name = NativeMethods.git_reference_name(ptr);
-            var type = NativeMethods.git_reference_type(ptr);
+            string name = NativeMethods.git_reference_name(ptr).MarshallAsString();
+            GitReferenceType type = NativeMethods.git_reference_type(ptr);
 
             Reference reference;
             string targetIdentifier;
@@ -36,7 +36,7 @@ namespace LibGit2Sharp
             {
                 case GitReferenceType.Symbolic:
                     IntPtr resolveRef;
-                    targetIdentifier = NativeMethods.git_reference_target(ptr);
+                    targetIdentifier = NativeMethods.git_reference_target(ptr).MarshallAsString();
                     int res = NativeMethods.git_reference_resolve(out resolveRef, ptr);
 
                     if (res == (int) GitErrorCode.GIT_ENOTFOUND)
