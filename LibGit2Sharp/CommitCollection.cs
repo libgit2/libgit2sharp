@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
@@ -116,7 +117,7 @@ namespace LibGit2Sharp
 
             if (gitObj == null) // TODO: Should we check the type? Git-log allows TagAnnotation oid as parameter. But what about Blobs and Trees?
             {
-                throw new ArgumentException(string.Format("No valid object identified as '{0}' has been found in the repository.", shaOrReferenceName), "shaOrReferenceName");
+                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "No valid object identified as '{0}' has been found in the repository.", shaOrReferenceName), "shaOrReferenceName");
             }
 
             return new CommitCollection(repo, sortOptions) { pushedObjectId = gitObj.Id };

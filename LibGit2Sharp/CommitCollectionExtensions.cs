@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
@@ -19,7 +20,7 @@ namespace LibGit2Sharp
 
             if (commit == null)
             {
-                throw new ArgumentException(string.Format("No valid object identified as '{0}' has been found in the repository.", branch.CanonicalName), "branch");
+                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "No valid object identified as '{0}' has been found in the repository.", branch.CanonicalName), "branch");
             }
 
             return commitCollection.StartingAt(commit.Sha);
