@@ -3,12 +3,10 @@ using System.Runtime.InteropServices;
 
 namespace LibGit2Sharp.Core
 {
-    internal class NativeMethods
+    internal static class NativeMethods
     {
         const string libgit2 = "git2.dll";
             
-        private NativeMethods() { }
-        
         [DllImport(libgit2)]
         public static extern IntPtr git_blob_rawcontent(IntPtr blob);
 
