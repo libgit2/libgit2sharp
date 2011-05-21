@@ -233,22 +233,5 @@ namespace LibGit2Sharp.Tests
                 Assert.Throws<ArgumentNullException>(() => repo.HasObject(null));
             }
         }
-
-        [Test]
-        public void CheckForDetachedHeadOnNewRepo()
-        {
-            using (var scd = new SelfCleaningDirectory())
-            {
-                var dir = Repository.Init(scd.DirectoryPath, true);
-                Path.IsPathRooted(dir).ShouldBeTrue();
-                Directory.Exists(dir).ShouldBeTrue();
-
-                using (var repo = new Repository(dir))
-                {
-                    repo.Info.IsEmpty.ShouldBeTrue();
-                    repo.Info.IsHeadDetached.ShouldBeFalse();
-                }
-            }
-        }
     }
 }
