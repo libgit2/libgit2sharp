@@ -10,11 +10,6 @@
         /// </summary>
         public Reference Target { get; internal set; }
 
-        protected override object ProvideAdditionalEqualityComponent()
-        {
-            return Target;
-        }
-
         /// <summary>
         ///   Recursively peels the target of the reference until a direct reference is encountered.
         /// </summary>

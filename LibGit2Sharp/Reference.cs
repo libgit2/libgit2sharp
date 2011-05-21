@@ -11,7 +11,7 @@ namespace LibGit2Sharp
     public abstract class Reference : IEquatable<Reference>
     {
         private static readonly LambdaEqualityHelper<Reference> equalityHelper =
-            new LambdaEqualityHelper<Reference>(new Func<Reference, object>[] { x => x.CanonicalName, x => x.ProvideAdditionalEqualityComponent() });
+            new LambdaEqualityHelper<Reference>(new Func<Reference, object>[] { x => x.CanonicalName, x => x.TargetIdentifier });
 
         /// <summary>
         ///   Gets the full name of this reference.
@@ -57,8 +57,8 @@ namespace LibGit2Sharp
                     var targetId = new ObjectId(oid);
                     targetIdentifier = targetId.Sha;
 
-                    var target = repo.Lookup(targetId);
-                    reference = new DirectReference { CanonicalName = name, Target = target, TargetIdentifier = targetIdentifier};
+                    var targetResolver = new Func<GitObject>(() => repo.Lookup(targetId));
+                    reference = new DirectReference(targetResolver) { CanonicalName = name, TargetIdentifier = targetIdentifier};
                     break;
 
                 default:
@@ -87,8 +87,6 @@ namespace LibGit2Sharp
                               typeof (T),
                               Enum.GetName(typeof (GitReferenceType), type)));
         }
-
-        protected abstract object ProvideAdditionalEqualityComponent();
 
         /// <summary>
         ///   Recursively peels the target of the reference until a direct reference is encountered.
