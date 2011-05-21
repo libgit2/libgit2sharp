@@ -81,10 +81,10 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(Constants.TestRepoPath))
             {
-                Assert.Throws<ArgumentException>(() => repo.Commits.StartingAt(Constants.UnknownSha));
-                Assert.Throws<ArgumentException>(() => repo.Commits.StartingAt("refs/heads/deadbeef"));
-                Assert.Throws<ArgumentException>(() => repo.Commits.StartingAt(repo.Branches["deadbeef"]));
-                Assert.Throws<ArgumentException>(() => repo.Commits.StartingAt(repo.Refs["refs/heads/deadbeef"]));
+                Assert.Throws<InvalidOperationException>(() => repo.Commits.StartingAt(Constants.UnknownSha));
+                Assert.Throws<InvalidOperationException>(() => repo.Commits.StartingAt("refs/heads/deadbeef"));
+                Assert.Throws<InvalidOperationException>(() => repo.Commits.StartingAt(repo.Branches["deadbeef"]));
+                Assert.Throws<InvalidOperationException>(() => repo.Commits.StartingAt(repo.Refs["refs/heads/deadbeef"]));
             }
         }
 

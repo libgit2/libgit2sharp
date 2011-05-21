@@ -20,7 +20,7 @@ namespace LibGit2Sharp
 
             if (commit == null)
             {
-                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "No valid object identified as '{0}' has been found in the repository.", branch.CanonicalName), "branch");
+                throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "No valid git object pointed at by '{0}' exists in the repository.", branch.CanonicalName));
             }
 
             return commitCollection.StartingAt(commit.Sha);

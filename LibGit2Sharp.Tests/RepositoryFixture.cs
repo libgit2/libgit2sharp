@@ -57,7 +57,7 @@ namespace LibGit2Sharp.Tests
             repo.Info.IsHeadDetached.ShouldBeFalse();
             repo.Head.TargetIdentifier.ShouldEqual("refs/heads/master");
             repo.Head.ResolveToDirectReference().ShouldBeNull();
-            Assert.Throws<ArgumentException>(() => { var c = repo.Commits; });
+            Assert.Throws<InvalidOperationException>(() => { var c = repo.Commits; });
         }
 
         [Test]
