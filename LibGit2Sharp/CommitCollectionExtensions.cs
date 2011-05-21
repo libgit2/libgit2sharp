@@ -36,7 +36,7 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNull(reference, "reference");
 
-            return commitCollection.StartingAt(reference.ResolveToDirectReference().CanonicalName);
+            return commitCollection.StartingAt(reference.CanonicalName);
         }
     }
 }
