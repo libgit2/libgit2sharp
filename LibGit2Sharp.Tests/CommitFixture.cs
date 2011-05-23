@@ -18,7 +18,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(Constants.TestRepoPath))
             {
-                repo.Commits.Count.ShouldEqual(7);
+                repo.Commits.Count().ShouldEqual(7);
             }
         }
 
@@ -28,11 +28,11 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(Constants.TestRepoPath))
             {
                 repo.Branches.Checkout("test");
-                repo.Commits.Count.ShouldEqual(2);
+                repo.Commits.Count().ShouldEqual(2);
                 repo.Commits.First().Id.Sha.ShouldEqual("e90810b8df3e80c413d903f631643c716887138d");
 
                 repo.Branches.Checkout("master");
-                repo.Commits.Count.ShouldEqual(7);
+                repo.Commits.Count().ShouldEqual(7);
                 repo.Commits.First().Id.Sha.ShouldEqual("4c062a6361ae6959e06292c1fa5e2822d9c96345");
             }
         }

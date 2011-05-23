@@ -44,22 +44,6 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Gets the count of commits (This is a fast count that does not hydrate real commit objects)
-        /// </summary>
-        public int Count
-        {
-            get
-            {
-                var count = 0;
-                using (var enumerator = new CommitEnumerator(repo, pushedObjectId, sortOptions))
-                {
-                    while (enumerator.MoveNext()) count++;
-                }
-                return count;
-            }
-        }
-
-        /// <summary>
         /// Gets the current sorting strategy applied when enumerating the collection
         /// </summary>
         public GitSortOptions SortedBy
