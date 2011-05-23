@@ -9,7 +9,7 @@ namespace LibGit2Sharp
     /// <summary>
     ///   A collection of commits in a <see cref = "Repository" />
     /// </summary>
-    public class CommitCollection : IEnumerable<Commit>
+    public class CommitCollection : ICommitCollection
     {
         private readonly Repository repo;
         private ObjectId pushedObjectId;
@@ -33,14 +33,6 @@ namespace LibGit2Sharp
         {
             this.repo = repo;
             sortOptions = sortingStrategy;
-        }
-
-        /// <summary>
-        ///   Gets the <see cref = "LibGit2Sharp.Commit" /> with the specified sha. (This is identical to calling Lookup/<Commit />(sha) on the repo)
-        /// </summary>
-        public Commit this[string sha]
-        {
-            get { return repo.Lookup<Commit>(sha); }
         }
 
         /// <summary>
@@ -79,32 +71,23 @@ namespace LibGit2Sharp
         #endregion
 
         /// <summary>
-        ///   Sorts <see cref = "CommitCollection" /> according to the specified strategy.
+        ///  Returns the list of commits of the repository matching the specified <paramref name="filter"/>.
         /// </summary>
-        /// <param name = "sortingStrategy">The sorting strategy to be applied when enumerating the commits.</param>
-        /// <returns></returns>
-        public CommitCollection SortBy(GitSortOptions sortingStrategy)
+        /// <param name="filter">The options used to control which commits will be returned.</param>
+        /// <returns>A collection of commits, ready to be enumerated.</returns>
+        public ICommitCollection QueryBy(Filter filter)
         {
-            return new CommitCollection(repo, sortingStrategy) { pushedObjectId = pushedObjectId };
-        }
+            Ensure.ArgumentNotNull(filter, "filter");
+            Ensure.ArgumentNotNull(filter.Since, "filter.Since");
 
-        /// <summary>
-        ///   Starts enumeratoring the <see cref = "CommitCollection" /> at the specified sha.
-        /// </summary>
-        ///  <param name = "shaOrReferenceName">The sha or reference canonical name to use.</param>
-        /// <returns></returns>
-        public CommitCollection StartingAt(string shaOrReferenceName)
-        {
-            Ensure.ArgumentNotNullOrEmptyString(shaOrReferenceName, "shaOrReferenceName");
-
-            GitObject gitObj = repo.Lookup(shaOrReferenceName);
+            GitObject gitObj = repo.Lookup(filter.Since.ToString());
 
             if (gitObj == null) // TODO: Should we check the type? Git-log allows TagAnnotation oid as parameter. But what about Blobs and Trees?
             {
-                throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "No valid git object pointed at by '{0}' exists in the repository.", shaOrReferenceName));
+                throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "No valid git object pointed at by '{0}' exists in the repository.", filter.Since));
             }
 
-            return new CommitCollection(repo, sortOptions) { pushedObjectId = gitObj.Id };
+            return new CommitCollection(repo, filter.SortBy) { pushedObjectId = gitObj.Id };
         }
 
         #region Nested type: CommitEnumerator

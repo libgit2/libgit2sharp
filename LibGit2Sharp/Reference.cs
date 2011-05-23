@@ -153,5 +153,14 @@ namespace LibGit2Sharp
         {
             return !Equals(left, right);
         }
+
+        /// <summary>
+        ///  Returns the <see cref="CanonicalName"/>, a <see cref="String"/> representation of the current <see cref="Reference"/>.
+        /// </summary>
+        /// <returns>The <see cref="CanonicalName"/> that represents the current <see cref="Reference"/>.</returns>
+        public override string ToString()
+        {
+            return CanonicalName;
+        }
     }
 }

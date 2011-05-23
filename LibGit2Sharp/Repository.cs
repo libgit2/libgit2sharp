@@ -77,7 +77,7 @@ namespace LibGit2Sharp
         /// </summary>
         public CommitCollection Commits
         {
-            get { return commits.StartingAt(Head); }
+            get { return (CommitCollection)commits.QueryBy(new Filter{Since = Head}); }
         }
 
         /// <summary>
