@@ -31,13 +31,10 @@ namespace LibGit2Sharp
         /// Initializes a new instance of the <see cref="ObjectId"/> class.
         /// </summary>
         /// <param name="rawId">The byte array.</param>
-        public ObjectId(byte[] rawId)
+        public ObjectId(byte[] rawId) : this(new GitOid{Id = rawId} )
         {
             Ensure.ArgumentNotNull(rawId, "rawId");
             Ensure.ArgumentConformsTo(rawId, b => b.Length == rawSize, "rawId");
-
-            oid = new GitOid { Id = rawId };
-            Sha = Stringify(oid);
         }
 
         /// <summary>
@@ -110,7 +107,7 @@ namespace LibGit2Sharp
         {
             var hex = new byte[hexSize];
             NativeMethods.git_oid_fmt(hex, ref oid);
-            return Encoding.UTF8.GetString(hex);
+            return Encoding.ASCII.GetString(hex);
         }
 
         /// <summary>

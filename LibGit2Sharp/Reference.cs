@@ -11,7 +11,7 @@ namespace LibGit2Sharp
     public abstract class Reference : IEquatable<Reference>
     {
         private static readonly LambdaEqualityHelper<Reference> equalityHelper =
-            new LambdaEqualityHelper<Reference>(new Func<Reference, object>[] { x => x.CanonicalName, x => x.ProvideAdditionalEqualityComponent() });
+            new LambdaEqualityHelper<Reference>(new Func<Reference, object>[] { x => x.CanonicalName, x => x.TargetIdentifier });
 
         /// <summary>
         ///   Gets the full name of this reference.
@@ -26,8 +26,8 @@ namespace LibGit2Sharp
                 return default(T);
             }
 
-            var name = NativeMethods.git_reference_name(ptr);
-            var type = NativeMethods.git_reference_type(ptr);
+            string name = NativeMethods.git_reference_name(ptr).MarshallAsString();
+            GitReferenceType type = NativeMethods.git_reference_type(ptr);
 
             Reference reference;
             string targetIdentifier;
@@ -36,7 +36,7 @@ namespace LibGit2Sharp
             {
                 case GitReferenceType.Symbolic:
                     IntPtr resolveRef;
-                    targetIdentifier = NativeMethods.git_reference_target(ptr);
+                    targetIdentifier = NativeMethods.git_reference_target(ptr).MarshallAsString();
                     int res = NativeMethods.git_reference_resolve(out resolveRef, ptr);
 
                     if (res == (int) GitErrorCode.GIT_ENOTFOUND)
@@ -57,8 +57,8 @@ namespace LibGit2Sharp
                     var targetId = new ObjectId(oid);
                     targetIdentifier = targetId.Sha;
 
-                    var target = repo.Lookup(targetId);
-                    reference = new DirectReference { CanonicalName = name, Target = target, TargetIdentifier = targetIdentifier};
+                    var targetResolver = new Func<GitObject>(() => repo.Lookup(targetId));
+                    reference = new DirectReference(targetResolver) { CanonicalName = name, TargetIdentifier = targetIdentifier};
                     break;
 
                 default:
@@ -87,8 +87,6 @@ namespace LibGit2Sharp
                               typeof (T),
                               Enum.GetName(typeof (GitReferenceType), type)));
         }
-
-        protected abstract object ProvideAdditionalEqualityComponent();
 
         /// <summary>
         ///   Recursively peels the target of the reference until a direct reference is encountered.
@@ -154,6 +152,15 @@ namespace LibGit2Sharp
         public static bool operator !=(Reference left, Reference right)
         {
             return !Equals(left, right);
+        }
+
+        /// <summary>
+        ///  Returns the <see cref="CanonicalName"/>, a <see cref="String"/> representation of the current <see cref="Reference"/>.
+        /// </summary>
+        /// <returns>The <see cref="CanonicalName"/> that represents the current <see cref="Reference"/>.</returns>
+        public override string ToString()
+        {
+            return CanonicalName;
         }
     }
 }

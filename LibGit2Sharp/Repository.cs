@@ -27,8 +27,8 @@ namespace LibGit2Sharp
             var res = NativeMethods.git_repository_open(out handle, PosixPathHelper.ToPosix(path));
             Ensure.Success(res);
 
-            string normalizedPath = NativeMethods.git_repository_path(handle);
-            string normalizedWorkDir = NativeMethods.git_repository_workdir(handle);
+            string normalizedPath = NativeMethods.git_repository_path(handle).MarshallAsString();
+            string normalizedWorkDir = NativeMethods.git_repository_workdir(handle).MarshallAsString();
 
             Info = new RepositoryInformation(this, normalizedPath, normalizedWorkDir, normalizedWorkDir == null);
 
@@ -49,7 +49,7 @@ namespace LibGit2Sharp
         ///   Shortcut to return the reference to HEAD
         /// </summary>
         /// <returns></returns>
-        
+
         public Reference Head
         {
             get { return Refs["HEAD"]; }
@@ -75,9 +75,9 @@ namespace LibGit2Sharp
         ///   Lookup and enumerate commits in the repository. 
         ///   Iterating this collection directly starts walking from the HEAD.
         /// </summary>
-        public CommitCollection Commits
+        public IQueryableCommitCollection Commits
         {
-            get { return commits.StartingAt(Head); }
+            get { return (IQueryableCommitCollection)commits.QueryBy(new Filter { Since = Head }); }
         }
 
         /// <summary>
@@ -164,7 +164,7 @@ namespace LibGit2Sharp
             var res = NativeMethods.git_repository_init(out repo, PosixPathHelper.ToPosix(path), bare);
             Ensure.Success(res);
 
-            string normalizedPath = NativeMethods.git_repository_path(repo);
+            string normalizedPath = NativeMethods.git_repository_path(repo).MarshallAsString();
             repo.Dispose();
 
             return PosixPathHelper.ToNative(normalizedPath);
@@ -219,7 +219,7 @@ namespace LibGit2Sharp
 
         private static bool IsReferencePeelable(Reference reference)
         {
-            return reference != null && ((reference is DirectReference) ||(reference is SymbolicReference && ((SymbolicReference)reference).Target != null));
+            return reference != null && ((reference is DirectReference) || (reference is SymbolicReference && ((SymbolicReference)reference).Target != null));
         }
     }
 }

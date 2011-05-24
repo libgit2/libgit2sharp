@@ -47,7 +47,6 @@
     <Compile Include="Blob.cs" />
     <Compile Include="Branch.cs" />
     <Compile Include="BranchCollection.cs" />
-    <Compile Include="CommitCollectionExtensions.cs" />
     <Compile Include="Commit.cs" />
     <Compile Include="CommitCollection.cs" />
     <Compile Include="Core\Ensure.cs" />
@@ -58,6 +57,7 @@
     <Compile Include="Core\GitReferenceType.cs" />
     <Compile Include="Core\GitSignature.cs" />
     <Compile Include="Core\GitTime.cs" />
+    <Compile Include="Core\IntPtrExtensions.cs" />
     <Compile Include="Core\NativeMethods.cs" />
     <Compile Include="Core\ObjectSafeWrapper.cs" />
     <Compile Include="Core\PosixPathHelper.cs">
@@ -71,15 +71,19 @@
     <Compile Include="DirectReference.cs" />
     <Compile Include="Core\GitIndexTime.cs" />
     <Compile Include="Core\GitIndexEntry.cs" />
+    <Compile Include="EmptyCommitCollection.cs" />
     <Compile Include="GitObject.cs" />
     <Compile Include="GitObjectType.cs" />
     <Compile Include="GitSortOptions.cs" />
     <Compile Include="Core\LambdaEqualityHelper.cs" />
     <Compile Include="Core\Libgit2UnsafeHelper.cs" />
+    <Compile Include="ICommitCollection.cs" />
     <Compile Include="Index.cs" />
     <Compile Include="IndexEntry.cs" />
     <Compile Include="Core\IndexSafeHandle.cs" />
     <Compile Include="IndexEntryState.cs" />
+    <Compile Include="Filter.cs" />
+    <Compile Include="IQueryableCommitCollection.cs" />
     <Compile Include="ObjectId.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Reference.cs" />

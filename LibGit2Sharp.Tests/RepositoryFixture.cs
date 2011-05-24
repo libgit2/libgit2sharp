@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
 using NUnit.Framework;
 
@@ -57,6 +58,11 @@ namespace LibGit2Sharp.Tests
             repo.Info.IsHeadDetached.ShouldBeFalse();
             repo.Head.TargetIdentifier.ShouldEqual("refs/heads/master");
             repo.Head.ResolveToDirectReference().ShouldBeNull();
+
+            repo.Commits.Count().ShouldEqual(0);
+            repo.Commits.QueryBy(new Filter { Since = repo.Head }).Count().ShouldEqual(0);
+            repo.Commits.QueryBy(new Filter { Since = "HEAD" }).Count().ShouldEqual(0);
+            repo.Commits.QueryBy(new Filter { Since = "refs/heads/master" }).Count().ShouldEqual(0);
         }
 
         [Test]
@@ -231,23 +237,6 @@ namespace LibGit2Sharp.Tests
             {
                 Assert.Throws<ArgumentException>(() => repo.HasObject(string.Empty));
                 Assert.Throws<ArgumentNullException>(() => repo.HasObject(null));
-            }
-        }
-
-        [Test]
-        public void CheckForDetachedHeadOnNewRepo()
-        {
-            using (var scd = new SelfCleaningDirectory())
-            {
-                var dir = Repository.Init(scd.DirectoryPath, true);
-                Path.IsPathRooted(dir).ShouldBeTrue();
-                Directory.Exists(dir).ShouldBeTrue();
-
-                using (var repo = new Repository(dir))
-                {
-                    repo.Info.IsEmpty.ShouldBeTrue();
-                    repo.Info.IsHeadDetached.ShouldBeFalse();
-                }
             }
         }
     }

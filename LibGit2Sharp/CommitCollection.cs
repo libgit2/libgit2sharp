@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
@@ -8,10 +9,11 @@ namespace LibGit2Sharp
     /// <summary>
     ///   A collection of commits in a <see cref = "Repository" />
     /// </summary>
-    public class CommitCollection : IEnumerable<Commit>
+    public class CommitCollection : IQueryableCommitCollection
     {
         private readonly Repository repo;
         private ObjectId pushedObjectId;
+        private ObjectId hiddenObjectId;
         private readonly GitSortOptions sortOptions;
 
         /// <summary>
@@ -35,30 +37,6 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Gets the <see cref = "LibGit2Sharp.Commit" /> with the specified sha. (This is identical to calling Lookup/<Commit />(sha) on the repo)
-        /// </summary>
-        public Commit this[string sha]
-        {
-            get { return repo.Lookup<Commit>(sha); }
-        }
-
-        /// <summary>
-        ///   Gets the count of commits (This is a fast count that does not hydrate real commit objects)
-        /// </summary>
-        public int Count
-        {
-            get
-            {
-                var count = 0;
-                using (var enumerator = new CommitEnumerator(repo, pushedObjectId, sortOptions))
-                {
-                    while (enumerator.MoveNext()) count++;
-                }
-                return count;
-            }
-        }
-
-        /// <summary>
         /// Gets the current sorting strategy applied when enumerating the collection
         /// </summary>
         public GitSortOptions SortedBy
@@ -76,10 +54,10 @@ namespace LibGit2Sharp
         {
             if (pushedObjectId == null)
             {
-                throw new NotImplementedException();
+                throw new InvalidOperationException();
             }
 
-            return new CommitEnumerator(repo, pushedObjectId, sortOptions);
+            return new CommitEnumerator(repo, pushedObjectId, hiddenObjectId, sortOptions);
         }
 
         /// <summary>
@@ -94,32 +72,49 @@ namespace LibGit2Sharp
         #endregion
 
         /// <summary>
-        ///   Sorts <see cref = "CommitCollection" /> according to the specified strategy.
+        ///  Returns the list of commits of the repository matching the specified <paramref name="filter"/>.
         /// </summary>
-        /// <param name = "sortingStrategy">The sorting strategy to be applied when enumerating the commits.</param>
-        /// <returns></returns>
-        public CommitCollection SortBy(GitSortOptions sortingStrategy)
+        /// <param name="filter">The options used to control which commits will be returned.</param>
+        /// <returns>A collection of commits, ready to be enumerated.</returns>
+        public ICommitCollection QueryBy(Filter filter)
         {
-            return new CommitCollection(repo, sortingStrategy) { pushedObjectId = pushedObjectId };
-        }
+            Ensure.ArgumentNotNull(filter, "filter");
+            Ensure.ArgumentNotNull(filter.Since, "filter.Since");
 
-        /// <summary>
-        ///   Starts enumeratoring the <see cref = "CommitCollection" /> at the specified sha.
-        /// </summary>
-        ///  <param name = "shaOrReferenceName">The sha or reference canonical name to use.</param>
-        /// <returns></returns>
-        public CommitCollection StartingAt(string shaOrReferenceName)
-        {
-            Ensure.ArgumentNotNullOrEmptyString(shaOrReferenceName, "shaOrReferenceName");
+            string sinceIdentifier = filter.Since.ToString();
 
-            GitObject gitObj = repo.Lookup(shaOrReferenceName);
-
-            if (gitObj == null) // TODO: Should we check the type? Git-log allows TagAnnotation oid as parameter. But what about Blobs and Trees?
+            if ((repo.Info.IsEmpty) && PointsAtTheHead(sinceIdentifier))
             {
-                throw new ArgumentException(string.Format("No valid object identified as '{0}' has been found in the repository.", shaOrReferenceName), "shaOrReferenceName");
+                return new EmptyCommitCollection(filter.SortBy);
             }
 
-            return new CommitCollection(repo, sortOptions) { pushedObjectId = gitObj.Id };
+            ObjectId sinceObjectId = RetrieveCommitId(sinceIdentifier);
+            ObjectId untilObjectId = null;
+            
+            if (filter.Until != null)
+            {
+                untilObjectId = RetrieveCommitId(filter.Until.ToString());
+            }
+
+            return new CommitCollection(repo, filter.SortBy) { pushedObjectId = sinceObjectId, hiddenObjectId = untilObjectId};
+        }
+
+        private ObjectId RetrieveCommitId(string shaOrReferenceName)
+        {
+            GitObject gitObj = repo.Lookup(shaOrReferenceName);
+
+            // TODO: Should we check the type? Git-log allows TagAnnotation oid as parameter. But what about Blobs and Trees?
+            if (gitObj == null)
+            {
+                throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "No valid git object pointed at by '{0}' exists in the repository.", shaOrReferenceName));
+            }
+
+            return gitObj.Id;
+        }
+
+        private static bool PointsAtTheHead(string shaOrRefName)
+        {
+            return ("HEAD".Equals(shaOrRefName, StringComparison.Ordinal) || "refs/heads/master".Equals(shaOrRefName, StringComparison.Ordinal));
         }
 
         #region Nested type: CommitEnumerator
@@ -130,7 +125,7 @@ namespace LibGit2Sharp
             private readonly RevWalkerSafeHandle handle;
             private ObjectId currentOid;
 
-            public CommitEnumerator(Repository repo, ObjectId pushedOid, GitSortOptions sortingStrategy)
+            public CommitEnumerator(Repository repo, ObjectId pushedOid, ObjectId hiddenOid, GitSortOptions sortingStrategy)
             {
                 this.repo = repo;
                 int res = NativeMethods.git_revwalk_new(out handle, repo.Handle);
@@ -138,6 +133,7 @@ namespace LibGit2Sharp
 
                 Sort(sortingStrategy);
                 Push(pushedOid);
+                Hide(hiddenOid);
             }
 
             #region IEnumerator<Commit> Members
@@ -204,6 +200,18 @@ namespace LibGit2Sharp
             {
                 var oid = pushedOid.Oid;
                 int res = NativeMethods.git_revwalk_push(handle, ref oid);
+                Ensure.Success(res);
+            }
+
+            private void Hide(ObjectId hiddenOid)
+            {
+                if (hiddenOid == null)
+                {
+                    return;
+                }
+
+                var oid = hiddenOid.Oid;
+                int res = NativeMethods.git_revwalk_hide(handle, ref oid);
                 Ensure.Success(res);
             }
 

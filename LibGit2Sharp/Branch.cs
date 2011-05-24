@@ -70,9 +70,9 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Gets the commits on this branch. (Starts walking from the References's target).
         /// </summary>
-        public CommitCollection Commits
+        public ICommitCollection Commits
         {
-            get { return repo.Commits.StartingAt(this); }
+            get { return repo.Commits.QueryBy(new Filter{Since = this}); }
         }
 
         #region IEquatable<Branch> Members
@@ -148,6 +148,15 @@ namespace LibGit2Sharp
         public static bool operator !=(Branch left, Branch right)
         {
             return !Equals(left, right);
+        }
+
+        /// <summary>
+        ///  Returns the <see cref="CanonicalName"/>, a <see cref="String"/> representation of the current <see cref="Branch"/>.
+        /// </summary>
+        /// <returns>The <see cref="CanonicalName"/> that represents the current <see cref="Branch"/>.</returns>
+        public override string ToString()
+        {
+            return CanonicalName;
         }
     }
 }
