@@ -1,35 +1,35 @@
 <Project DefaultTargets="Test" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-	<UsingTask AssemblyFile="$(MSBuildProjectDirectory)\Lib\MSBuild.Community.Tasks\MSBuild.Community.Tasks.dll" TaskName="NUnit" />
-	<UsingTask AssemblyFile="$(MSBuildProjectDirectory)\Lib\MSBuild.ExtensionPack\MSBuild.ExtensionPack.dll" TaskName="Folder"/>
-	
-    <PropertyGroup>
-        <Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
+  <UsingTask AssemblyFile="$(MSBuildProjectDirectory)\Lib\MSBuild.Community.Tasks\MSBuild.Community.Tasks.dll" TaskName="NUnit" />
+  <UsingTask AssemblyFile="$(MSBuildProjectDirectory)\Lib\MSBuild.ExtensionPack\MSBuild.ExtensionPack.dll" TaskName="Folder"/>
 
-		<LibObjDir>$(MSBuildProjectDirectory)\LibGit2Sharp\obj\</LibObjDir>
-		<TestsObjDir>$(MSBuildProjectDirectory)\LibGit2Sharp.Tests\obj\</TestsObjDir>
-		<OutputDir>$(MSBuildProjectDirectory)\build\</OutputDir>
-	</PropertyGroup>
-	
-    <Target Name="Clean">
-		<Folder TaskAction="RemoveContent" Path="$(LibObjDir)" Condition="Exists('$(LibObjDir)')" />
-		<Folder TaskAction="RemoveContent" Path="$(TestsObjDir)" Condition="Exists('$(TestsObjDir)')" />
-		<Folder TaskAction="RemoveContent" Path="$(OutputDir)" Condition="Exists('$(OutputDir)')" />
+  <PropertyGroup>
+    <Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
 
-		<RemoveDir Directories="$(LibObjDir)" Condition="Exists('$(LibObjDir)')" />
-		<RemoveDir Directories="$(TestsObjDir)" Condition="Exists('$(TestsObjDir)')" />
-		<RemoveDir Directories="$(OutputDir)" Condition="Exists('$(OutputDir)')" />
-	</Target>
-	
-	<Target Name="Build" DependsOnTargets="Clean">
-		<MSBuild
+    <LibObjDir>$(MSBuildProjectDirectory)\LibGit2Sharp\obj\</LibObjDir>
+    <TestsObjDir>$(MSBuildProjectDirectory)\LibGit2Sharp.Tests\obj\</TestsObjDir>
+    <OutputDir>$(MSBuildProjectDirectory)\build\</OutputDir>
+  </PropertyGroup>
+
+  <Target Name="Clean">
+    <Folder TaskAction="RemoveContent" Path="$(LibObjDir)" Condition="Exists('$(LibObjDir)')" />
+    <Folder TaskAction="RemoveContent" Path="$(TestsObjDir)" Condition="Exists('$(TestsObjDir)')" />
+    <Folder TaskAction="RemoveContent" Path="$(OutputDir)" Condition="Exists('$(OutputDir)')" />
+
+    <RemoveDir Directories="$(LibObjDir)" Condition="Exists('$(LibObjDir)')" />
+    <RemoveDir Directories="$(TestsObjDir)" Condition="Exists('$(TestsObjDir)')" />
+    <RemoveDir Directories="$(OutputDir)" Condition="Exists('$(OutputDir)')" />
+  </Target>
+
+  <Target Name="Build" DependsOnTargets="Clean">
+    <MSBuild
 			Projects="LibGit2Sharp.sln"
 			Targets="Build"
 			Properties="Configuration=$(Configuration);TrackFileAccess=false;OutDir=$(OutputDir)" />
-	</Target>
-	
-	<Target Name="Test" DependsOnTargets="Build">
-		<NUnit Assemblies="$(OutputDir)LibGit2Sharp.Tests.dll"
+  </Target>
+
+  <Target Name="Test" DependsOnTargets="Build">
+    <NUnit Assemblies="$(OutputDir)LibGit2Sharp.Tests.dll"
 		       ToolPath="$(MSBuildProjectDirectory)\Lib\NUnit\"
 		       OutputXmlFile="$(OutputDir)Test-result.xml" />
-	</Target>
+  </Target>
 </Project>
