@@ -103,11 +103,13 @@
     <Compile Include="TreeEntry.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\Lib\git2.dll">
-      <Link>git2.dll</Link>
+    <CodeAnalysisDictionary Include="CustomDictionary.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\Lib\git2-0.dll">
+      <Link>git2-0.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <CodeAnalysisDictionary Include="CustomDictionary.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
