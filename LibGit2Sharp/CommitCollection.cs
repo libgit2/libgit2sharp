@@ -13,6 +13,7 @@ namespace LibGit2Sharp
     {
         private readonly Repository repo;
         private ObjectId pushedObjectId;
+        private ObjectId hiddenObjectId;
         private readonly GitSortOptions sortOptions;
 
         /// <summary>
@@ -53,10 +54,10 @@ namespace LibGit2Sharp
         {
             if (pushedObjectId == null)
             {
-                throw new NotImplementedException();
+                throw new InvalidOperationException();
             }
 
-            return new CommitEnumerator(repo, pushedObjectId, sortOptions);
+            return new CommitEnumerator(repo, pushedObjectId, hiddenObjectId, sortOptions);
         }
 
         /// <summary>
@@ -80,21 +81,35 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(filter, "filter");
             Ensure.ArgumentNotNull(filter.Since, "filter.Since");
 
-            string shaOrRefName = filter.Since.ToString();
+            string sinceIdentifier = filter.Since.ToString();
 
-            if ((repo.Info.IsEmpty) && PointsAtTheHead(shaOrRefName))
+            if ((repo.Info.IsEmpty) && PointsAtTheHead(sinceIdentifier))
             {
                 return new EmptyCommitCollection(filter.SortBy);
-            }            
-
-            GitObject gitObj = repo.Lookup(shaOrRefName);
-
-            if (gitObj == null) // TODO: Should we check the type? Git-log allows TagAnnotation oid as parameter. But what about Blobs and Trees?
-            {
-                throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "No valid git object pointed at by '{0}' exists in the repository.", filter.Since));
             }
 
-            return new CommitCollection(repo, filter.SortBy) { pushedObjectId = gitObj.Id };
+            ObjectId sinceObjectId = RetrieveCommitId(sinceIdentifier);
+            ObjectId untilObjectId = null;
+            
+            if (filter.Until != null)
+            {
+                untilObjectId = RetrieveCommitId(filter.Until.ToString());
+            }
+
+            return new CommitCollection(repo, filter.SortBy) { pushedObjectId = sinceObjectId, hiddenObjectId = untilObjectId};
+        }
+
+        private ObjectId RetrieveCommitId(string shaOrReferenceName)
+        {
+            GitObject gitObj = repo.Lookup(shaOrReferenceName);
+
+            // TODO: Should we check the type? Git-log allows TagAnnotation oid as parameter. But what about Blobs and Trees?
+            if (gitObj == null)
+            {
+                throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "No valid git object pointed at by '{0}' exists in the repository.", shaOrReferenceName));
+            }
+
+            return gitObj.Id;
         }
 
         private static bool PointsAtTheHead(string shaOrRefName)
@@ -110,7 +125,7 @@ namespace LibGit2Sharp
             private readonly RevWalkerSafeHandle handle;
             private ObjectId currentOid;
 
-            public CommitEnumerator(Repository repo, ObjectId pushedOid, GitSortOptions sortingStrategy)
+            public CommitEnumerator(Repository repo, ObjectId pushedOid, ObjectId hiddenOid, GitSortOptions sortingStrategy)
             {
                 this.repo = repo;
                 int res = NativeMethods.git_revwalk_new(out handle, repo.Handle);
@@ -118,6 +133,7 @@ namespace LibGit2Sharp
 
                 Sort(sortingStrategy);
                 Push(pushedOid);
+                Hide(hiddenOid);
             }
 
             #region IEnumerator<Commit> Members
@@ -184,6 +200,18 @@ namespace LibGit2Sharp
             {
                 var oid = pushedOid.Oid;
                 int res = NativeMethods.git_revwalk_push(handle, ref oid);
+                Ensure.Success(res);
+            }
+
+            private void Hide(ObjectId hiddenOid)
+            {
+                if (hiddenOid == null)
+                {
+                    return;
+                }
+
+                var oid = hiddenOid.Oid;
+                int res = NativeMethods.git_revwalk_hide(handle, ref oid);
                 Ensure.Success(res);
             }
 

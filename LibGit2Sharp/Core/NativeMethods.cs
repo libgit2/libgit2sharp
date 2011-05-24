@@ -160,6 +160,9 @@ namespace LibGit2Sharp.Core
         public static extern void git_revwalk_free(IntPtr walker);
 
         [DllImport(libgit2)]
+        public static extern int git_revwalk_hide(RevWalkerSafeHandle walker, ref GitOid oid);
+
+        [DllImport(libgit2)]
         public static extern int git_revwalk_new(out RevWalkerSafeHandle walker, RepositorySafeHandle repo);
 
         [DllImport(libgit2)]

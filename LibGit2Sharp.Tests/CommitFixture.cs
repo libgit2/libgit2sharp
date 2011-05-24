@@ -169,6 +169,18 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
+        public void CanEnumerateUsingTwoCommitsAsBoundaries()
+        {
+            using (var repo = new Repository(Constants.TestRepoPath))
+            {
+                var commits = repo.Commits.QueryBy(new Filter { Since = "refs/heads/br2", Until = "refs/heads/packed-test" });
+
+                IEnumerable<string> abbrevShas = commits.Select(c => c.Id.Sha.Substring(0, 7)).ToArray();
+                CollectionAssert.AreEquivalent(new[] { "a4a7dce", "c47800c", "9fd738e" }, abbrevShas);
+            }
+        }
+
+        [Test]
         public void CanLookupCommitGeneric()
         {
             using (var repo = new Repository(Constants.TestRepoPath))

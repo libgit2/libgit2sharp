@@ -30,5 +30,14 @@
         /// </para>
         /// </summary>
         public object Since { get; set; }
+
+
+        /// <summary>
+        /// The pointer to the commit which will be excluded (along with its ancestors) from the enumeration.
+        /// <para>
+        /// Can be either a <see cref="string"/> containing the sha or reference canonical name to use, a <see cref="Branch"/> or a <see cref="Reference"/>.
+        /// </para>
+        /// </summary>
+        public object Until { get; set; }
     }
 }
