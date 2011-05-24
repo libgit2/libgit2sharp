@@ -77,7 +77,7 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
-        public void BuildingACommitCollectionFromUnknownShaOrInvalidReferenceThrows()
+        public void QueryingTheCommitHistoryWithUnknownShaOrInvalidReferenceThrows()
         {
             using (var repo = new Repository(Constants.TestRepoPath))
             {
@@ -85,6 +85,17 @@ namespace LibGit2Sharp.Tests
                 Assert.Throws<InvalidOperationException>(() => repo.Commits.QueryBy(new Filter { Since = "refs/heads/deadbeef"}));
                 Assert.Throws<InvalidOperationException>(() => repo.Commits.QueryBy(new Filter { Since = repo.Branches["deadbeef"]}));
                 Assert.Throws<InvalidOperationException>(() => repo.Commits.QueryBy(new Filter { Since = repo.Refs["refs/heads/deadbeef"] }));
+            }
+        }
+
+        [Test]
+        public void QueryingTheCommitHistoryWithBadParamsThrows()
+        {
+            using (var repo = new Repository(Constants.TestRepoPath))
+            {
+                Assert.Throws<ArgumentException>(() => repo.Commits.QueryBy(new Filter { Since = string.Empty }));
+                Assert.Throws<ArgumentNullException>(() => repo.Commits.QueryBy(new Filter { Since = null }));
+                Assert.Throws<ArgumentNullException>(() => repo.Commits.QueryBy(null));
             }
         }
 
@@ -206,24 +217,6 @@ namespace LibGit2Sharp.Tests
             {
                 var commit = repo.Lookup<Commit>("a4a7dce85cf63874e984719f4fdd239f5145052f");
                 commit.Parents.Count().ShouldEqual(2);
-            }
-        }
-
-        [Test]
-        public void PushingEmptyShaThrows()
-        {
-            using (var repo = new Repository(Constants.TestRepoPath))
-            {
-                Assert.Throws<ArgumentException>(() => repo.Commits.QueryBy(new Filter{Since = string.Empty}));
-            }
-        }
-
-        [Test]
-        public void PushingNullShaThrows()
-        {
-            using (var repo = new Repository(Constants.TestRepoPath))
-            {
-                Assert.Throws<ArgumentNullException>(() => repo.Commits.QueryBy(new Filter { Since = null }));
             }
         }
     }

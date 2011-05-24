@@ -9,7 +9,7 @@ namespace LibGit2Sharp
     /// <summary>
     ///   A collection of commits in a <see cref = "Repository" />
     /// </summary>
-    public class CommitCollection : ICommitCollection
+    public class CommitCollection : IQueryableCommitCollection
     {
         private readonly Repository repo;
         private ObjectId pushedObjectId;
@@ -80,7 +80,14 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(filter, "filter");
             Ensure.ArgumentNotNull(filter.Since, "filter.Since");
 
-            GitObject gitObj = repo.Lookup(filter.Since.ToString());
+            string shaOrRefName = filter.Since.ToString();
+
+            if ((repo.Info.IsEmpty) && PointsAtTheHead(shaOrRefName))
+            {
+                return new EmptyCommitCollection(filter.SortBy);
+            }            
+
+            GitObject gitObj = repo.Lookup(shaOrRefName);
 
             if (gitObj == null) // TODO: Should we check the type? Git-log allows TagAnnotation oid as parameter. But what about Blobs and Trees?
             {
@@ -88,6 +95,11 @@ namespace LibGit2Sharp
             }
 
             return new CommitCollection(repo, filter.SortBy) { pushedObjectId = gitObj.Id };
+        }
+
+        private static bool PointsAtTheHead(string shaOrRefName)
+        {
+            return ("HEAD".Equals(shaOrRefName, StringComparison.Ordinal) || "refs/heads/master".Equals(shaOrRefName, StringComparison.Ordinal));
         }
 
         #region Nested type: CommitEnumerator

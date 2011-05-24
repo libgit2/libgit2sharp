@@ -49,7 +49,7 @@ namespace LibGit2Sharp
         ///   Shortcut to return the reference to HEAD
         /// </summary>
         /// <returns></returns>
-        
+
         public Reference Head
         {
             get { return Refs["HEAD"]; }
@@ -75,9 +75,9 @@ namespace LibGit2Sharp
         ///   Lookup and enumerate commits in the repository. 
         ///   Iterating this collection directly starts walking from the HEAD.
         /// </summary>
-        public CommitCollection Commits
+        public IQueryableCommitCollection Commits
         {
-            get { return (CommitCollection)commits.QueryBy(new Filter{Since = Head}); }
+            get { return (IQueryableCommitCollection)commits.QueryBy(new Filter { Since = Head }); }
         }
 
         /// <summary>
@@ -219,7 +219,7 @@ namespace LibGit2Sharp
 
         private static bool IsReferencePeelable(Reference reference)
         {
-            return reference != null && ((reference is DirectReference) ||(reference is SymbolicReference && ((SymbolicReference)reference).Target != null));
+            return reference != null && ((reference is DirectReference) || (reference is SymbolicReference && ((SymbolicReference)reference).Target != null));
         }
     }
 }

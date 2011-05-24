@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
 using NUnit.Framework;
 
@@ -57,7 +58,11 @@ namespace LibGit2Sharp.Tests
             repo.Info.IsHeadDetached.ShouldBeFalse();
             repo.Head.TargetIdentifier.ShouldEqual("refs/heads/master");
             repo.Head.ResolveToDirectReference().ShouldBeNull();
-            Assert.Throws<InvalidOperationException>(() => { var c = repo.Commits; });
+
+            repo.Commits.Count().ShouldEqual(0);
+            repo.Commits.QueryBy(new Filter { Since = repo.Head }).Count().ShouldEqual(0);
+            repo.Commits.QueryBy(new Filter { Since = "HEAD" }).Count().ShouldEqual(0);
+            repo.Commits.QueryBy(new Filter { Since = "refs/heads/master" }).Count().ShouldEqual(0);
         }
 
         [Test]

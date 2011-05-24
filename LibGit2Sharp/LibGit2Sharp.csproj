@@ -71,6 +71,7 @@
     <Compile Include="DirectReference.cs" />
     <Compile Include="Core\GitIndexTime.cs" />
     <Compile Include="Core\GitIndexEntry.cs" />
+    <Compile Include="EmptyCommitCollection.cs" />
     <Compile Include="GitObject.cs" />
     <Compile Include="GitObjectType.cs" />
     <Compile Include="GitSortOptions.cs" />
@@ -82,6 +83,7 @@
     <Compile Include="Core\IndexSafeHandle.cs" />
     <Compile Include="IndexEntryState.cs" />
     <Compile Include="Filter.cs" />
+    <Compile Include="IQueryableCommitCollection.cs" />
     <Compile Include="ObjectId.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Reference.cs" />
