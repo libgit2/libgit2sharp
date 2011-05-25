@@ -56,6 +56,7 @@ namespace LibGit2Sharp.Tests
             repo.Info.Path.ShouldNotBeNull();
             repo.Info.IsEmpty.ShouldBeTrue();
             repo.Info.IsHeadDetached.ShouldBeFalse();
+            repo.Refs["HEAD"].ShouldNotBeNull();
             repo.Head.TargetIdentifier.ShouldEqual("refs/heads/master");
             repo.Head.ResolveToDirectReference().ShouldBeNull();
 
@@ -63,6 +64,10 @@ namespace LibGit2Sharp.Tests
             repo.Commits.QueryBy(new Filter { Since = repo.Head }).Count().ShouldEqual(0);
             repo.Commits.QueryBy(new Filter { Since = "HEAD" }).Count().ShouldEqual(0);
             repo.Commits.QueryBy(new Filter { Since = "refs/heads/master" }).Count().ShouldEqual(0);
+
+            repo.Branches.Count().ShouldEqual(0);
+            repo.Refs.Count().ShouldEqual(0);
+            repo.Tags.Count().ShouldEqual(0);
         }
 
         [Test]
