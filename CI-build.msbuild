@@ -30,6 +30,7 @@
   <Target Name="Test" DependsOnTargets="Build">
     <NUnit Assemblies="$(OutputDir)LibGit2Sharp.Tests.dll"
 		       ToolPath="$(MSBuildProjectDirectory)\Lib\NUnit\"
+		       Force32Bit="true"
 		       OutputXmlFile="$(OutputDir)Test-result.xml" />
   </Target>
 </Project>
