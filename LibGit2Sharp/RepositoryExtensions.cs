@@ -32,7 +32,7 @@
         /// <summary>
         ///   Creates a lightweight tag with the specified name. This tag will point at the commit pointed at by the <see cref="Repository.Head"/>.
         /// </summary>
-        /// <param name="repository">The <see cref="Repository"/> being looked up.</param>
+        /// <param name="repository">The <see cref="Repository"/> being worked with.</param>
         /// <param name="tagName">The name of the tag to create.</param>
         public static Tag ApplyTag(this Repository repository, string tagName)
         {
@@ -42,7 +42,7 @@
         /// <summary>
         ///   Creates a lightweight tag with the specified name. This tag will point at the <paramref name="target"/>.
         /// </summary>
-        /// <param name="repository">The <see cref="Repository"/> being looked up.</param>
+        /// <param name="repository">The <see cref="Repository"/> being worked with.</param>
         /// <param name="tagName">The name of the tag to create.</param>
         /// <param name="target">The canonical reference name or sha which should be pointed at by the Tag.</param>
         public static Tag ApplyTag(this Repository repository, string tagName, string target)
@@ -53,7 +53,7 @@
         /// <summary>
         ///   Creates an annotated tag with the specified name. This tag will point at the commit pointed at by the <see cref="Repository.Head"/>.
         /// </summary>
-        /// <param name="repository">The <see cref="Repository"/> being looked up.</param>
+        /// <param name="repository">The <see cref="Repository"/> being worked with.</param>
         /// <param name="tagName">The name of the tag to create.</param>
         /// <param name="tagger">The identity of the creator of this tag.</param>
         /// <param name="message">The annotation message.</param>
@@ -65,7 +65,7 @@
         /// <summary>
         ///   Creates an annotated tag with the specified name. This tag will point at the <paramref name="target"/>.
         /// </summary>
-        /// <param name="repository">The <see cref="Repository"/> being looked up.</param>
+        /// <param name="repository">The <see cref="Repository"/> being worked with.</param>
         /// <param name="tagName">The name of the tag to create.</param>
         /// <param name="target">The canonical reference name or sha which should be pointed at by the Tag.</param>
         /// <param name="tagger">The identity of the creator of this tag.</param>
@@ -73,6 +73,27 @@
         public static Tag ApplyTag(this Repository repository, string tagName, string target, Signature tagger, string message)
         {
             return repository.Tags.Create(tagName, target, tagger, message);
+        }
+
+        /// <summary>
+        ///   Creates a branch with the specified name. This branch will point at the commit pointed at by the <see cref="Repository.Head"/>.
+        /// </summary>
+        /// <param name="repository">The <see cref="Repository"/>  being worked with.</param>
+        /// <param name="branchName">The name of the branch to create.</param>
+        public static Branch CreateBranch(this Repository repository, string branchName)
+        {
+            return CreateBranch(repository, branchName, repository.Head.TargetIdentifier);  //TODO: To be replaced by Head.CanonicalName
+        }
+
+        /// <summary>
+        ///   Creates a branch with the specified name. This branch will point at the commit pointed at by the <see cref="Repository.Head"/>.
+        /// </summary>
+        /// <param name="repository">The <see cref="Repository"/>  being worked with.</param>
+        /// <param name="branchName">The name of the branch to create.</param>
+        /// <param name="target">The canonical reference name or sha which should be pointed at by the Branch.</param>
+        public static Branch CreateBranch(this Repository repository, string branchName, string target)
+        {
+            return repository.Branches.Create(branchName, target);
         }
     }
 }
