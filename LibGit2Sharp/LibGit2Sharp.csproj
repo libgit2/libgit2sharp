@@ -106,8 +106,8 @@
     <CodeAnalysisDictionary Include="CustomDictionary.xml" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\Lib\git2-0.dll">
-      <Link>git2-0.dll</Link>
+    <Content Include="..\Lib\git2.dll">
+      <Link>git2.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

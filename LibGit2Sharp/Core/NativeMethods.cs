@@ -5,7 +5,7 @@ namespace LibGit2Sharp.Core
 {
     internal static class NativeMethods
     {
-        const string libgit2 = "git2-0.dll";
+        private const string libgit2 = "git2";
             
         [DllImport(libgit2)]
         public static extern IntPtr git_blob_rawcontent(IntPtr blob);
