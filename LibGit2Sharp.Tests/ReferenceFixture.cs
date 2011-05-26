@@ -309,9 +309,11 @@ namespace LibGit2Sharp.Tests
                 var master = repo.Refs[masterRef];
                 master.ResolveToDirectReference().Target.Sha.ShouldNotEqual(sha);
 
-                repo.Refs.UpdateTarget(masterRef, sha);
+                var updated = repo.Refs.UpdateTarget(masterRef, sha);
 
                 master = repo.Refs[masterRef];
+                master.ShouldEqual(updated);
+
                 master.ResolveToDirectReference().Target.Sha.ShouldEqual(sha);
             }
         }

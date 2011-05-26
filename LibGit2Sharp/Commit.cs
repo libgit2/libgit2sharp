@@ -54,7 +54,7 @@ namespace LibGit2Sharp
             get { return parents ?? (parents = RetrieveParentsOfCommit(Id.Oid)); }
         }
 
-        private List<Commit> RetrieveParentsOfCommit(GitOid oid)
+        private List<Commit> RetrieveParentsOfCommit(GitOid oid)    //TODO: Convert to a ParentEnumerator
         {
             IntPtr obj;
             var res = NativeMethods.git_object_lookup(out obj, repo.Handle, ref oid, GitObjectType.Commit);

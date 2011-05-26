@@ -167,7 +167,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name = "name">The name of the reference.</param>
         /// <param name = "target">The target which can be either a sha or the name of another reference.</param>
-        public void UpdateTarget(string name, string target)
+        public Reference UpdateTarget(string name, string target)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
             Ensure.ArgumentNotNullOrEmptyString(target, "target");
@@ -193,6 +193,8 @@ namespace LibGit2Sharp
             }
 
             Ensure.Success(res);
+
+            return Reference.BuildFromPtr<Reference>(reference, repo);
         }
 
         private IntPtr RetrieveReferencePtr(string referenceName, bool shouldThrow = true)
