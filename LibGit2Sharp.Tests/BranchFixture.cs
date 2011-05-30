@@ -244,5 +244,55 @@ namespace LibGit2Sharp.Tests
                 newBranch.IsCurrentRepositoryHead.ShouldBeFalse();
             }
         }
+
+        [Test]
+        public void CanMoveABranch()
+        {
+            using (var path = new TemporaryCloneOfTestRepo())
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                repo.Branches["br3"].ShouldBeNull();
+
+                var newBranch = repo.Branches.Move("br2", "br3");
+                newBranch.Name.ShouldEqual("br3");
+
+                repo.Branches["br2"].ShouldBeNull();
+                repo.Branches["br3"].ShouldNotBeNull();
+            }
+        }
+        [Test]
+        public void BlindlyMovingABranchOverAnExistingOneThrows()
+        {
+            using (var path = new TemporaryCloneOfTestRepo())
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                Assert.Throws<ApplicationException>(() => repo.Branches.Move("br2", "test"));
+            }
+        }
+
+        [Test]
+        public void CanMoveABranchWhileOverwritingAnExistingOne()
+        {
+            using (var path = new TemporaryCloneOfTestRepo())
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                var test = repo.Branches["test"];
+                test.ShouldNotBeNull();
+
+                var br2 = repo.Branches["br2"];
+                br2.ShouldNotBeNull();
+
+                var newBranch = repo.Branches.Move("br2", "test", true);
+                newBranch.Name.ShouldEqual("test");
+
+                repo.Branches["br2"].ShouldBeNull();
+
+                var newTest = repo.Branches["test"];
+                newTest.ShouldNotBeNull();
+                newTest.ShouldEqual(newBranch);
+
+                newTest.Tip.ShouldEqual(br2.Tip);
+            }
+        }
     }
 }

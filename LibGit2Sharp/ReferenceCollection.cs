@@ -127,16 +127,16 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Rename an existing reference with a new name
         /// </summary>
-        /// <param name="oldName">The canonical name of the reference to rename.</param>
+        /// <param name="currentName">The canonical name of the reference to rename.</param>
         /// <param name="newName">The new canonical name.</param>
         /// <param name="allowOverwrite">True to allow silent overwriting a potentially existing reference, false otherwise.</param>
         /// <returns></returns>
-        public Reference Move(string oldName, string newName, bool allowOverwrite = false)
+        public Reference Move(string currentName, string newName, bool allowOverwrite = false)
         {
-            Ensure.ArgumentNotNullOrEmptyString(oldName, "oldName");
+            Ensure.ArgumentNotNullOrEmptyString(currentName, "currentName");
             Ensure.ArgumentNotNullOrEmptyString(newName, "newName");
 
-            IntPtr referencePtr = RetrieveReferencePtr(oldName);
+            IntPtr referencePtr = RetrieveReferencePtr(currentName);
             int res;
 
             if (allowOverwrite)

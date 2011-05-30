@@ -98,7 +98,25 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
 
-            repo.Refs.Delete(this[name].CanonicalName); //TODO: To be replaced by native libgit2 git_branch_delete() when available.
+            repo.Refs.Delete(NormalizeToCanonicalName(name)); //TODO: To be replaced by native libgit2 git_branch_delete() when available.
+        }
+
+        ///<summary>
+        /// Rename an existing branch with a new name.
+        ///</summary>
+        ///<param name="currentName">The current branch name.</param>
+        ///<param name="newName">The new name of the existing branch should bear.</param>
+        ///<param name="allowOverwrite">True to allow silent overwriting a potentially existing branch, false otherwise.</param>
+        ///<returns></returns>
+        public Branch Move(string currentName, string newName, bool allowOverwrite = false)
+        {
+            Ensure.ArgumentNotNullOrEmptyString(currentName, "name");
+            Ensure.ArgumentNotNullOrEmptyString(newName, "name");
+
+            Reference reference = repo.Refs.Move(NormalizeToCanonicalName(currentName), NormalizeToCanonicalName(newName),
+                           allowOverwrite);
+
+            return this[reference.CanonicalName];
         }
 
         private static bool LooksLikeABranchName(string referenceName)
