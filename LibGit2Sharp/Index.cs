@@ -21,7 +21,7 @@ namespace LibGit2Sharp
 
         public int Count
         {
-            get { return (int) NativeMethods.git_index_entrycount(handle); }
+            get { return (int)NativeMethods.git_index_entrycount(handle); }
         }
 
         public IndexEntry this[string path]
@@ -120,6 +120,17 @@ namespace LibGit2Sharp
             Ensure.Success(res);
         }
 
+        public void Unstage(string path)
+        {
+            Ensure.ArgumentNotNullOrEmptyString(path, "path");
+
+            var res = NativeMethods.git_index_find(handle, BuildRelativePathFrom(path));
+            Ensure.Success(res, true);
+
+            res = NativeMethods.git_index_remove(handle, res);
+            Ensure.Success(res);
+        }
+
         private string BuildRelativePathFrom(string path)   //TODO: To be removed when libgit2 natively implements this 
         {
             if (!Path.IsPathRooted(path))
@@ -135,11 +146,6 @@ namespace LibGit2Sharp
             }
 
             return normalizedPath.Substring(repo.Info.WorkingDirectory.Length);
-        }
-
-        public void Unstage(string path)
-        {
-            throw new NotImplementedException();
         }
     }
 }

@@ -56,6 +56,9 @@ namespace LibGit2Sharp.Core
         public static extern IntPtr git_index_get(IndexSafeHandle index, int n);
 
         [DllImport(libgit2)]
+        public static extern int git_index_remove(IndexSafeHandle index, int n);
+
+        [DllImport(libgit2)]
         public static extern int git_index_open_inrepo(out IndexSafeHandle index, RepositorySafeHandle repo);
         
         [DllImport(libgit2)]

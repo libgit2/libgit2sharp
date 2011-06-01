@@ -160,9 +160,26 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
-        [Ignore("Not implemented yet.")]
-        public void CanUnStageANewFile()
+        public void CanUnstageANewFile()
         {
+            using (var repo = new Repository(Constants.TestRepoWithWorkingDirPath))
+            {
+                var count = repo.Index.Count;
+                repo.Index.Stage("new_untracked_file.txt");
+                repo.Index.Count.ShouldEqual(count + 1);
+
+                repo.Index.Unstage("new_untracked_file.txt");
+                repo.Index.Count.ShouldEqual(count);
+            }
+        }
+
+        [Test]
+        public void UnstagingANonStagedFileThrows()
+        {
+            using (var repo = new Repository(Constants.TestRepoWithWorkingDirPath))
+            {
+                Assert.Throws<ApplicationException>(() => repo.Index.Unstage("shadowcopy_of_a_unseen_ghost.txt"));
+            }
         }
 
         [Test]
@@ -184,8 +201,7 @@ namespace LibGit2Sharp.Tests
         [Test]
         public void StageFileWithBadParamsThrows()
         {
-            using (var path = new TemporaryCloneOfTestRepo(Constants.TestRepoWithWorkingDirPath))
-            using (var repo = new Repository(path.RepositoryPath))
+            using (var repo = new Repository(Constants.TestRepoWithWorkingDirPath))
             {
                 Assert.Throws<ArgumentException>(() => repo.Index.Stage(string.Empty));
                 Assert.Throws<ArgumentNullException>(() => repo.Index.Stage(null));
@@ -193,9 +209,13 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
-        [Ignore("Not implemented yet.")]
-        public void UnStageFileWithBadParamsFails()
+        public void UnstagingFileWithBadParamsThrows()
         {
+            using (var repo = new Repository(Constants.TestRepoWithWorkingDirPath))
+            {
+                Assert.Throws<ArgumentException>(() => repo.Index.Stage(string.Empty));
+                Assert.Throws<ArgumentNullException>(() => repo.Index.Stage(null));
+            }
         }
     }
 }
