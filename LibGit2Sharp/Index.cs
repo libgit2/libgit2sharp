@@ -19,6 +19,11 @@ namespace LibGit2Sharp
             Ensure.Success(res);
         }
 
+        internal IndexSafeHandle Handle
+        {
+            get { return handle; }
+        }
+        
         public int Count
         {
             get { return (int)NativeMethods.git_index_entrycount(handle); }

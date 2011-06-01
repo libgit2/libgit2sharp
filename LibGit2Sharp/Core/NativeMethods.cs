@@ -20,6 +20,9 @@ namespace LibGit2Sharp.Core
         public static extern IntPtr git_commit_committer(IntPtr commit);
 
         [DllImport(libgit2)]
+        public static extern int git_commit_create(out GitOid oid, RepositorySafeHandle repo, string updateRef, GitSignature author, GitSignature committer, string message, ref GitOid treeOid, int parentCount, ref GitOid[] parents);
+
+        [DllImport(libgit2)]
         public static extern int git_commit_create_o(out GitOid oid, RepositorySafeHandle repo, string updateRef, IntPtr author, IntPtr committer, string message, IntPtr tree, int parentCount, IntPtr parents);
 
         [DllImport(libgit2)]
@@ -210,6 +213,9 @@ namespace LibGit2Sharp.Core
 
         [DllImport(libgit2)]
         public static extern IntPtr git_tag_target_oid(IntPtr tag);
+
+        [DllImport(libgit2)]
+        public static extern int git_tree_create_fromindex(out GitOid treeOid, IndexSafeHandle index);
 
         [DllImport(libgit2)]
         public static extern int git_tree_entry_2object(out IntPtr obj, RepositorySafeHandle repo, IntPtr entry);
