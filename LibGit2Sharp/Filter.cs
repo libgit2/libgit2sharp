@@ -11,7 +11,6 @@
         public Filter()
         {
             SortBy = GitSortOptions.Time;
-            Since = "HEAD";
         }
 
         /// <summary>
