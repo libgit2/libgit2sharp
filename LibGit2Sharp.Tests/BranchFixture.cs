@@ -161,7 +161,26 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(Constants.TestRepoPath))
             {
-                Assert.Throws<ArgumentException>(() => repo.Branches.Create(string.Empty, "not_important_sha"));
+                Assert.Throws<ArgumentException>(() => repo.Branches.Create(string.Empty, repo.Head.ResolveToDirectReference().TargetIdentifier));
+            }
+        }
+
+        [Test]
+        [Ignore("Not implemented yet.")]
+        public void CreatingBranchWithUnknownNamedTargetThrows()
+        {
+            using (var repo = new Repository(Constants.TestRepoPath))
+            {
+                Assert.Throws<ArgumentException>(() => repo.Branches.Create("my_new_branch", "my_old_branch"));
+            }
+        }
+
+        [Test]
+        public void CreatingBranchWithUnknownShaTargetThrows()
+        {
+            using (var repo = new Repository(Constants.TestRepoPath))
+            {
+                Assert.Throws<ApplicationException>(() => repo.Branches.Create("my_new_branch", Constants.UnknownSha));
             }
         }
 
@@ -179,7 +198,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(Constants.TestRepoPath))
             {
-                Assert.Throws<ArgumentNullException>(() => repo.Branches.Create(null, "not_important_sha"));
+                Assert.Throws<ArgumentNullException>(() => repo.Branches.Create(null, repo.Head.ResolveToDirectReference().TargetIdentifier));
             }
         }
 
@@ -260,6 +279,7 @@ namespace LibGit2Sharp.Tests
                 repo.Branches["br3"].ShouldNotBeNull();
             }
         }
+
         [Test]
         public void BlindlyMovingABranchOverAnExistingOneThrows()
         {
@@ -292,6 +312,24 @@ namespace LibGit2Sharp.Tests
                 newTest.ShouldEqual(newBranch);
 
                 newTest.Tip.ShouldEqual(br2.Tip);
+            }
+        }
+        
+        [Test]
+        public void CreatingABranchTriggersTheCreationOfADirectReference()
+        {
+            using (var path = new TemporaryCloneOfTestRepo())
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                var newBranch = repo.CreateBranch("clone-of-master");
+                newBranch.IsCurrentRepositoryHead.ShouldBeFalse();
+                
+                var commitId = repo.Head.ResolveToDirectReference().TargetIdentifier;
+                newBranch.Tip.Sha.ShouldEqual(commitId);
+
+                var reference = repo.Refs[newBranch.CanonicalName];
+                reference.ShouldNotBeNull();
+                Assert.IsInstanceOf(typeof (DirectReference), reference);
             }
         }
     }
