@@ -30,7 +30,10 @@ namespace LibGit2Sharp
             {
                 Ensure.ArgumentNotNullOrEmptyString(path, "path");
 
-                return this[NativeMethods.git_index_find(handle, path)];
+                int res = NativeMethods.git_index_find(handle, path);
+                Ensure.Success(res, true);
+
+                return this[res];
             }
         }
 
