@@ -6,7 +6,7 @@ namespace LibGit2Sharp.Core
     internal static class NativeMethods
     {
         private const string libgit2 = "git2";
-            
+
         [DllImport(libgit2)]
         public static extern IntPtr git_blob_rawcontent(IntPtr blob);
 
@@ -60,7 +60,10 @@ namespace LibGit2Sharp.Core
 
         [DllImport(libgit2)]
         public static extern int git_index_open_inrepo(out IndexSafeHandle index, RepositorySafeHandle repo);
-        
+
+        [DllImport(libgit2)]
+        public static extern int git_index_write(IndexSafeHandle index);
+
         [DllImport(libgit2)]
         public static extern IntPtr git_lasterror();
 

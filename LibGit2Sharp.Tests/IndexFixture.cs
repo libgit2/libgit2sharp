@@ -30,11 +30,11 @@ namespace LibGit2Sharp.Tests
             bool gitRepoExists = Directory.Exists(Constants.TestRepoWithWorkingDirPath);
             bool dotGitDirExists = Directory.Exists(tempDotGit);
 
-            if (gitRepoExists )
+            if (gitRepoExists)
             {
                 if (dotGitDirExists)
                 {
-                    DirectoryHelper.DeleteDirectory(tempDotGit);                    
+                    DirectoryHelper.DeleteDirectory(tempDotGit);
                 }
 
                 return;
@@ -115,6 +115,28 @@ namespace LibGit2Sharp.Tests
 
                 repo.Index.Count.ShouldEqual(count + 1);
                 repo.Index[filename].ShouldNotBeNull();
+            }
+        }
+
+        [Test]
+        public void CanStageANewFileInAPersistentManner()
+        {
+            using (var path = new TemporaryCloneOfTestRepo(Constants.TestRepoWithWorkingDirPath))
+            {
+                using (var repo = new Repository(path.RepositoryPath))
+                {
+                    const string filename = "unit_test.txt";
+                    File.WriteAllText(Path.Combine(repo.Info.WorkingDirectory, filename), "some contents");
+
+                    repo.Index.Stage(filename);
+                    repo.Index[filename].ShouldNotBeNull();
+                }
+
+                using (var repo = new Repository(path.RepositoryPath))
+                {
+                    const string filename = "unit_test.txt";
+                    repo.Index[filename].ShouldNotBeNull();
+                }
             }
         }
 

@@ -110,14 +110,14 @@ namespace LibGit2Sharp
 
         #endregion
 
-
-
         public void Stage(string path)
         {
             Ensure.ArgumentNotNullOrEmptyString(path, "path");
 
             var res = NativeMethods.git_index_add(handle, BuildRelativePathFrom(path));
             Ensure.Success(res);
+
+            UpdatePhysicalIndex();
         }
 
         public void Unstage(string path)
@@ -128,6 +128,14 @@ namespace LibGit2Sharp
             Ensure.Success(res, true);
 
             res = NativeMethods.git_index_remove(handle, res);
+            Ensure.Success(res);
+
+            UpdatePhysicalIndex();
+        }
+
+        private void UpdatePhysicalIndex()
+        {
+            int res = NativeMethods.git_index_write(handle);
             Ensure.Success(res);
         }
 
