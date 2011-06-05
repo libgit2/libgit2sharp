@@ -147,9 +147,10 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path.RepositoryPath))
             {
                 var count = repo.Index.Count;
-                const string filename = "unit_test.txt";
+
+                const string filename = "new_untracked_file.txt";
                 string fullPath = Path.Combine(repo.Info.WorkingDirectory, filename);
-                File.WriteAllText(fullPath, "some contents");
+                File.Exists(fullPath).ShouldBeTrue();
 
                 repo.Index.Stage(fullPath);
 
@@ -184,13 +185,19 @@ namespace LibGit2Sharp.Tests
         [Test]
         public void CanUnstageANewFile()
         {
-            using (var repo = new Repository(Constants.TestRepoWithWorkingDirPath))
+            using (var path = new TemporaryCloneOfTestRepo(Constants.TestRepoWithWorkingDirRootPath))
+            using (var repo = new Repository(path.RepositoryPath))
             {
                 var count = repo.Index.Count;
-                repo.Index.Stage("new_untracked_file.txt");
+
+                const string filename = "new_untracked_file.txt";
+                string fullPath = Path.Combine(repo.Info.WorkingDirectory, filename);
+                File.Exists(fullPath).ShouldBeTrue();
+                
+                repo.Index.Stage(filename);
                 repo.Index.Count.ShouldEqual(count + 1);
 
-                repo.Index.Unstage("new_untracked_file.txt");
+                repo.Index.Unstage(filename);
                 repo.Index.Count.ShouldEqual(count);
             }
         }
