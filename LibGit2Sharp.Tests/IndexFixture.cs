@@ -104,7 +104,7 @@ namespace LibGit2Sharp.Tests
         [Test]
         public void CanStageANewFile()
         {
-            using (var path = new TemporaryCloneOfTestRepo(Constants.TestRepoWithWorkingDirPath))
+            using (var path = new TemporaryCloneOfTestRepo(Constants.TestRepoWithWorkingDirRootPath))
             using (var repo = new Repository(path.RepositoryPath))
             {
                 var count = repo.Index.Count;
@@ -143,7 +143,7 @@ namespace LibGit2Sharp.Tests
         [Test]
         public void CanStageANewFileWithAFullPath()
         {
-            using (var path = new TemporaryCloneOfTestRepo(Constants.TestRepoWithWorkingDirPath))
+            using (var path = new TemporaryCloneOfTestRepo(Constants.TestRepoWithWorkingDirRootPath))
             using (var repo = new Repository(path.RepositoryPath))
             {
                 var count = repo.Index.Count;
@@ -162,7 +162,7 @@ namespace LibGit2Sharp.Tests
         public void StagingANewFileWithAFullPathWhichEscapesOutOfTheWorkingDirThrows()
         {
             using (var scd = new SelfCleaningDirectory())
-            using (var path = new TemporaryCloneOfTestRepo(Constants.TestRepoWithWorkingDirPath))
+            using (var path = new TemporaryCloneOfTestRepo(Constants.TestRepoWithWorkingDirRootPath))
             using (var repo = new Repository(path.RepositoryPath))
             {
                 var di = Directory.CreateDirectory(scd.DirectoryPath);
