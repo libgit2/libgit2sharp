@@ -1,6 +1,6 @@
 ﻿namespace LibGit2Sharp
 {
-    public interface IQueryableCommitCollection : ICommitCollection
+    public interface IQueryableCommitCollection : ICommitCollection //TODO: Find a name that's more explicit than IQueryableCommitCollection
     {
         /// <summary>
         ///  Returns the list of commits of the repository matching the specified <paramref name="filter"/>.

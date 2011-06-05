@@ -78,7 +78,7 @@
         /// <summary>
         ///   Creates a branch with the specified name. This branch will point at the commit pointed at by the <see cref="Repository.Head"/>.
         /// </summary>
-        /// <param name="repository">The <see cref="Repository"/>  being worked with.</param>
+        /// <param name="repository">The <see cref="Repository"/> being worked with.</param>
         /// <param name="branchName">The name of the branch to create.</param>
         public static Branch CreateBranch(this Repository repository, string branchName)
         {
@@ -88,7 +88,7 @@
         /// <summary>
         ///   Creates a branch with the specified name. This branch will point at the commit pointed at by the <see cref="Repository.Head"/>.
         /// </summary>
-        /// <param name="repository">The <see cref="Repository"/>  being worked with.</param>
+        /// <param name="repository">The <see cref="Repository"/> being worked with.</param>
         /// <param name="branchName">The name of the branch to create.</param>
         /// <param name="target">The canonical reference name or sha which should be pointed at by the Branch.</param>
         public static Branch CreateBranch(this Repository repository, string branchName, string target)

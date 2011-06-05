@@ -30,11 +30,11 @@ namespace LibGit2Sharp.Tests
             bool gitRepoExists = Directory.Exists(Constants.TestRepoWithWorkingDirPath);
             bool dotGitDirExists = Directory.Exists(tempDotGit);
 
-            if (gitRepoExists )
+            if (gitRepoExists)
             {
                 if (dotGitDirExists)
                 {
-                    DirectoryHelper.DeleteDirectory(tempDotGit);                    
+                    DirectoryHelper.DeleteDirectory(tempDotGit);
                 }
 
                 return;
@@ -104,7 +104,7 @@ namespace LibGit2Sharp.Tests
         [Test]
         public void CanStageANewFile()
         {
-            using (var path = new TemporaryCloneOfTestRepo(Constants.TestRepoWithWorkingDirPath))
+            using (var path = new TemporaryCloneOfTestRepo(Constants.TestRepoWithWorkingDirRootPath))
             using (var repo = new Repository(path.RepositoryPath))
             {
                 var count = repo.Index.Count;
@@ -119,15 +119,38 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
-        public void CanStageANewFileWithAFullPath()
+        public void CanStageANewFileInAPersistentManner()
         {
             using (var path = new TemporaryCloneOfTestRepo(Constants.TestRepoWithWorkingDirPath))
+            {
+                using (var repo = new Repository(path.RepositoryPath))
+                {
+                    const string filename = "unit_test.txt";
+                    File.WriteAllText(Path.Combine(repo.Info.WorkingDirectory, filename), "some contents");
+
+                    repo.Index.Stage(filename);
+                    repo.Index[filename].ShouldNotBeNull();
+                }
+
+                using (var repo = new Repository(path.RepositoryPath))
+                {
+                    const string filename = "unit_test.txt";
+                    repo.Index[filename].ShouldNotBeNull();
+                }
+            }
+        }
+
+        [Test]
+        public void CanStageANewFileWithAFullPath()
+        {
+            using (var path = new TemporaryCloneOfTestRepo(Constants.TestRepoWithWorkingDirRootPath))
             using (var repo = new Repository(path.RepositoryPath))
             {
                 var count = repo.Index.Count;
-                const string filename = "unit_test.txt";
+
+                const string filename = "new_untracked_file.txt";
                 string fullPath = Path.Combine(repo.Info.WorkingDirectory, filename);
-                File.WriteAllText(fullPath, "some contents");
+                File.Exists(fullPath).ShouldBeTrue();
 
                 repo.Index.Stage(fullPath);
 
@@ -140,7 +163,7 @@ namespace LibGit2Sharp.Tests
         public void StagingANewFileWithAFullPathWhichEscapesOutOfTheWorkingDirThrows()
         {
             using (var scd = new SelfCleaningDirectory())
-            using (var path = new TemporaryCloneOfTestRepo(Constants.TestRepoWithWorkingDirPath))
+            using (var path = new TemporaryCloneOfTestRepo(Constants.TestRepoWithWorkingDirRootPath))
             using (var repo = new Repository(path.RepositoryPath))
             {
                 var di = Directory.CreateDirectory(scd.DirectoryPath);
@@ -160,9 +183,32 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
-        [Ignore("Not implemented yet.")]
-        public void CanUnStageANewFile()
+        public void CanUnstageANewFile()
         {
+            using (var path = new TemporaryCloneOfTestRepo(Constants.TestRepoWithWorkingDirRootPath))
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                var count = repo.Index.Count;
+
+                const string filename = "new_untracked_file.txt";
+                string fullPath = Path.Combine(repo.Info.WorkingDirectory, filename);
+                File.Exists(fullPath).ShouldBeTrue();
+                
+                repo.Index.Stage(filename);
+                repo.Index.Count.ShouldEqual(count + 1);
+
+                repo.Index.Unstage(filename);
+                repo.Index.Count.ShouldEqual(count);
+            }
+        }
+
+        [Test]
+        public void UnstagingANonStagedFileThrows()
+        {
+            using (var repo = new Repository(Constants.TestRepoWithWorkingDirPath))
+            {
+                Assert.Throws<ApplicationException>(() => repo.Index.Unstage("shadowcopy_of_a_unseen_ghost.txt"));
+            }
         }
 
         [Test]
@@ -184,8 +230,7 @@ namespace LibGit2Sharp.Tests
         [Test]
         public void StageFileWithBadParamsThrows()
         {
-            using (var path = new TemporaryCloneOfTestRepo(Constants.TestRepoWithWorkingDirPath))
-            using (var repo = new Repository(path.RepositoryPath))
+            using (var repo = new Repository(Constants.TestRepoWithWorkingDirPath))
             {
                 Assert.Throws<ArgumentException>(() => repo.Index.Stage(string.Empty));
                 Assert.Throws<ArgumentNullException>(() => repo.Index.Stage(null));
@@ -193,9 +238,13 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
-        [Ignore("Not implemented yet.")]
-        public void UnStageFileWithBadParamsFails()
+        public void UnstagingFileWithBadParamsThrows()
         {
+            using (var repo = new Repository(Constants.TestRepoWithWorkingDirPath))
+            {
+                Assert.Throws<ArgumentException>(() => repo.Index.Stage(string.Empty));
+                Assert.Throws<ArgumentNullException>(() => repo.Index.Stage(null));
+            }
         }
     }
 }

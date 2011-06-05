@@ -21,7 +21,7 @@ namespace LibGit2Sharp
 
         public int Count
         {
-            get { return (int) NativeMethods.git_index_entrycount(handle); }
+            get { return (int)NativeMethods.git_index_entrycount(handle); }
         }
 
         public IndexEntry this[string path]
@@ -30,7 +30,10 @@ namespace LibGit2Sharp
             {
                 Ensure.ArgumentNotNullOrEmptyString(path, "path");
 
-                return this[NativeMethods.git_index_find(handle, path)];
+                int res = NativeMethods.git_index_find(handle, path);
+                Ensure.Success(res, true);
+
+                return this[res];
             }
         }
 
@@ -107,13 +110,32 @@ namespace LibGit2Sharp
 
         #endregion
 
-
-
         public void Stage(string path)
         {
             Ensure.ArgumentNotNullOrEmptyString(path, "path");
 
             var res = NativeMethods.git_index_add(handle, BuildRelativePathFrom(path));
+            Ensure.Success(res);
+
+            UpdatePhysicalIndex();
+        }
+
+        public void Unstage(string path)
+        {
+            Ensure.ArgumentNotNullOrEmptyString(path, "path");
+
+            var res = NativeMethods.git_index_find(handle, BuildRelativePathFrom(path));
+            Ensure.Success(res, true);
+
+            res = NativeMethods.git_index_remove(handle, res);
+            Ensure.Success(res);
+
+            UpdatePhysicalIndex();
+        }
+
+        private void UpdatePhysicalIndex()
+        {
+            int res = NativeMethods.git_index_write(handle);
             Ensure.Success(res);
         }
 
@@ -132,11 +154,6 @@ namespace LibGit2Sharp
             }
 
             return normalizedPath.Substring(repo.Info.WorkingDirectory.Length);
-        }
-
-        public void Unstage(string path)
-        {
-            throw new NotImplementedException();
         }
     }
 }

@@ -45,7 +45,7 @@
     <Compile Include="BlobFixture.cs" />
     <Compile Include="BranchFixture.cs" />
     <Compile Include="CommitFixture.cs" />
-    <Compile Include="Constants.cs" />
+    <Compile Include="TestHelpers\Constants.cs" />
     <Compile Include="EpochFixture.cs" />
     <Compile Include="IndexFixture.cs" />
     <Compile Include="ObjectIdFixture.cs" />
