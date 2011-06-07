@@ -14,6 +14,8 @@ namespace LibGit2Sharp
         private readonly Index index;
         private readonly ReferenceCollection refs;
         private readonly TagCollection tags;
+        private RepositoryInformation info;
+        private readonly bool isBare;
 
         /// <summary>
         ///   Initializes a new instance of the <see cref = "Repository" /> class.
@@ -27,13 +29,12 @@ namespace LibGit2Sharp
             var res = NativeMethods.git_repository_open(out handle, PosixPathHelper.ToPosix(path));
             Ensure.Success(res);
 
-            string normalizedPath = NativeMethods.git_repository_path(handle, GitRepositoryPathId.GIT_REPO_PATH).MarshallAsString();
-            string normalizedWorkDir = NativeMethods.git_repository_path(handle, GitRepositoryPathId.GIT_REPO_PATH_WORKDIR).MarshallAsString();
+            isBare = NativeMethods.git_repository_is_bare(handle);
 
-            Info = new RepositoryInformation(this, normalizedPath, normalizedWorkDir, normalizedWorkDir == null);
-
-            if (!Info.IsBare)
+            if (!isBare)
+            {
                 index = new Index(this);
+            }
 
             commits = new CommitCollection(this);
             refs = new ReferenceCollection(this);
@@ -45,11 +46,11 @@ namespace LibGit2Sharp
         {
             get { return handle; }
         }
+
         /// <summary>
         ///   Shortcut to return the reference to HEAD
         /// </summary>
         /// <returns></returns>
-
         public Reference Head
         {
             get { return Refs["HEAD"]; }
@@ -99,7 +100,10 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Provides high level information about this repository.
         /// </summary>
-        public RepositoryInformation Info { get; set; }
+        public RepositoryInformation Info 
+        {
+            get { return info ?? (info = new RepositoryInformation(this, isBare)); }
+        }
 
         #region IDisposable Members
 

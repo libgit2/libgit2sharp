@@ -151,6 +151,10 @@ namespace LibGit2Sharp.Core
 
         [DllImport(libgit2)]
         [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool git_repository_is_bare(RepositorySafeHandle handle);
+
+        [DllImport(libgit2)]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool git_repository_is_empty(RepositorySafeHandle repo);
 
         [DllImport(libgit2)]
