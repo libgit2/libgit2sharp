@@ -55,6 +55,7 @@
     <Compile Include="Core\GitObjectTypeMap.cs" />
     <Compile Include="Core\GitOid.cs" />
     <Compile Include="Core\GitReferenceType.cs" />
+    <Compile Include="Core\GitRepositoryPathId.cs" />
     <Compile Include="Core\GitSignature.cs" />
     <Compile Include="Core\GitTime.cs" />
     <Compile Include="Core\IntPtrExtensions.cs" />

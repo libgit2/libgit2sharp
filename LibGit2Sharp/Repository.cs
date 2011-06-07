@@ -27,8 +27,8 @@ namespace LibGit2Sharp
             var res = NativeMethods.git_repository_open(out handle, PosixPathHelper.ToPosix(path));
             Ensure.Success(res);
 
-            string normalizedPath = NativeMethods.git_repository_path(handle).MarshallAsString();
-            string normalizedWorkDir = NativeMethods.git_repository_workdir(handle).MarshallAsString();
+            string normalizedPath = NativeMethods.git_repository_path(handle, GitRepositoryPathId.GIT_REPO_PATH).MarshallAsString();
+            string normalizedWorkDir = NativeMethods.git_repository_path(handle, GitRepositoryPathId.GIT_REPO_PATH_WORKDIR).MarshallAsString();
 
             Info = new RepositoryInformation(this, normalizedPath, normalizedWorkDir, normalizedWorkDir == null);
 
@@ -164,7 +164,7 @@ namespace LibGit2Sharp
             var res = NativeMethods.git_repository_init(out repo, PosixPathHelper.ToPosix(path), bare);
             Ensure.Success(res);
 
-            string normalizedPath = NativeMethods.git_repository_path(repo).MarshallAsString();
+            string normalizedPath = NativeMethods.git_repository_path(repo, GitRepositoryPathId.GIT_REPO_PATH).MarshallAsString();
             repo.Dispose();
 
             return PosixPathHelper.ToNative(normalizedPath);

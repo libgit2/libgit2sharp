@@ -59,9 +59,6 @@ namespace LibGit2Sharp.Core
         public static extern int git_index_remove(IndexSafeHandle index, int n);
 
         [DllImport(libgit2)]
-        public static extern int git_index_open_inrepo(out IndexSafeHandle index, RepositorySafeHandle repo);
-
-        [DllImport(libgit2)]
         public static extern int git_index_write(IndexSafeHandle index);
 
         [DllImport(libgit2)]
@@ -147,6 +144,9 @@ namespace LibGit2Sharp.Core
         public static extern void git_repository_free(IntPtr repository);
 
         [DllImport(libgit2)]
+        public static extern int git_repository_index(out IndexSafeHandle index, RepositorySafeHandle repo);
+
+        [DllImport(libgit2)]
         public static extern int git_repository_init(out RepositorySafeHandle repository, string path, [MarshalAs(UnmanagedType.Bool)] bool isBare);
 
         [DllImport(libgit2)]
@@ -157,10 +157,7 @@ namespace LibGit2Sharp.Core
         public static extern int git_repository_open(out RepositorySafeHandle repository, string path);
 
         [DllImport(libgit2)]
-        public static extern IntPtr git_repository_path(RepositorySafeHandle repository);
-
-        [DllImport(libgit2)]
-        public static extern IntPtr git_repository_workdir(RepositorySafeHandle repository);
+        public static extern IntPtr git_repository_path(RepositorySafeHandle repository, GitRepositoryPathId pathIdentifier);
 
         [DllImport(libgit2)]
         public static extern void git_revwalk_free(IntPtr walker);

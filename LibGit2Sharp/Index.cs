@@ -15,7 +15,7 @@ namespace LibGit2Sharp
         internal Index(Repository repo)
         {
             this.repo = repo;
-            var res = NativeMethods.git_index_open_inrepo(out handle, repo.Handle);
+            var res = NativeMethods.git_repository_index(out handle, repo.Handle);
             Ensure.Success(res);
         }
 
