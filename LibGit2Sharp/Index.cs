@@ -38,11 +38,11 @@ namespace LibGit2Sharp
                 int res = NativeMethods.git_index_find(handle, path);
                 Ensure.Success(res, true);
 
-                return this[res];
+                return this[(uint)res];
             }
         }
 
-        private IndexEntry this[int index]
+        private IndexEntry this[uint index]
         {
             get
             {
@@ -98,7 +98,7 @@ namespace LibGit2Sharp
         /// <returns>An <see cref="IEnumerator{T}"/> object that can be used to iterate through the collection.</returns>
         public IEnumerator<IndexEntry> GetEnumerator()
         {
-            for (int i = 0; i < Count; i++)
+            for (uint i = 0; i < Count; i++)
             {
                 yield return this[i];
             }

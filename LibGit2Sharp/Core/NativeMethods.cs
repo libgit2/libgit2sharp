@@ -56,7 +56,7 @@ namespace LibGit2Sharp.Core
         public static extern void git_index_free(IntPtr index);
 
         [DllImport(libgit2)]
-        public static extern IntPtr git_index_get(IndexSafeHandle index, int n);
+        public static extern IntPtr git_index_get(IndexSafeHandle index, uint n);
 
         [DllImport(libgit2)]
         public static extern int git_index_remove(IndexSafeHandle index, int n);
@@ -224,7 +224,7 @@ namespace LibGit2Sharp.Core
         public static extern int git_tree_entry_attributes(IntPtr entry);
 
         [DllImport(libgit2)]
-        public static extern IntPtr git_tree_entry_byindex(IntPtr tree, int idx);
+        public static extern IntPtr git_tree_entry_byindex(IntPtr tree, uint idx);
 
         [DllImport(libgit2)]
         public static extern IntPtr git_tree_entry_byname(IntPtr tree, string filename);
@@ -236,6 +236,6 @@ namespace LibGit2Sharp.Core
         public static extern IntPtr git_tree_entry_name(IntPtr entry);
 
         [DllImport(libgit2)]
-        public static extern int git_tree_entrycount(IntPtr tree);
+        public static extern uint git_tree_entrycount(IntPtr tree);
     }
 }
