@@ -9,7 +9,7 @@
     <projectUrl>https://github.com/libgit2/libgit2sharp/</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
-    <tags>libgit2 git wrapper bindings API</tags>
+    <tags>libgit2 git wrapper bindings API dvcs vcs</tags>
   </metadata>
   <files>
     <file src="..\Lib\git2.dll" target="NativeBinaries\x86" />
