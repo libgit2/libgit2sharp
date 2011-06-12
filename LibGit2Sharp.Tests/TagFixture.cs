@@ -8,7 +8,7 @@ using NUnit.Framework;
 namespace LibGit2Sharp.Tests
 {
     [TestFixture]
-    public class TagFixture
+    public class TagFixture : BaseFixture
     {
         private readonly List<string> expectedTags = new List<string> {"test", "e90810b", "lw"};
 

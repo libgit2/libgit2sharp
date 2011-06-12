@@ -9,7 +9,7 @@ using NUnit.Framework;
 namespace LibGit2Sharp.Tests
 {
     [TestFixture]
-    public class CommitFixture
+    public class CommitFixture : BaseFixture
     {
         private const string sha = "8496071c1b46c854b31185ea97743be6a8774479";
         private readonly List<string> expectedShas = new List<string> {"a4a7d", "c4780", "9fd73", "4a202", "5b5b0", "84960"};
