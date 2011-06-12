@@ -1,7 +1,6 @@
 ﻿using System.IO;
-using LibGit2Sharp.Tests.TestHelpers;
 
-namespace LibGit2Sharp.Tests
+namespace LibGit2Sharp.Tests.TestHelpers
 {
     public class BaseFixture
     {
