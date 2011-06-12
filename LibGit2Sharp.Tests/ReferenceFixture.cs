@@ -7,7 +7,7 @@ using NUnit.Framework;
 namespace LibGit2Sharp.Tests
 {
     [TestFixture]
-    public class ReferenceFixture
+    public class ReferenceFixture : BaseFixture
     {
         private readonly List<string> expectedRefs = new List<string> { "refs/heads/packed-test", "refs/heads/packed", "refs/heads/br2", "refs/heads/master", "refs/heads/test",
             "refs/heads/deadbeef", "refs/tags/test", "refs/tags/e90810b", "refs/tags/lw" };

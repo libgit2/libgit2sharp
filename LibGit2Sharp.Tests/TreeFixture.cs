@@ -5,7 +5,7 @@ using NUnit.Framework;
 namespace LibGit2Sharp.Tests
 {
     [TestFixture]
-    public class TreeFixture
+    public class TreeFixture : BaseFixture
     {
         private const string sha = "581f9824ecaf824221bd36edf5430f2739a7c4f5";
 

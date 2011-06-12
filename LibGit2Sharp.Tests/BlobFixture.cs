@@ -6,7 +6,7 @@ using NUnit.Framework;
 namespace LibGit2Sharp.Tests
 {
     [TestFixture]
-    public class BlobFixture
+    public class BlobFixture : BaseFixture
     {
         [Test]
         public void CanGetBlobAsUtf8()
