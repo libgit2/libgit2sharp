@@ -8,6 +8,7 @@ using System.Runtime.InteropServices;
 
 [assembly: AssemblyTitle("LibGit2Sharp")]
 [assembly: AssemblyDescription(".Net bindings for libgit2")]
+[assembly: AssemblyCompany("LibGit2Sharp contributors")]
 
 #if DEBUG
 [assembly: AssemblyConfiguration("Debug")]
