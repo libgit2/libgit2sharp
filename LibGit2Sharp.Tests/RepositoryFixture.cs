@@ -7,7 +7,7 @@ using NUnit.Framework;
 namespace LibGit2Sharp.Tests
 {
     [TestFixture]
-    public class RepositoryFixture
+    public class RepositoryFixture : BaseFixture
     {
         private const string commitSha = "8496071c1b46c854b31185ea97743be6a8774479";
 

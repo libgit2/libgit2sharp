@@ -55,7 +55,7 @@ namespace LibGit2Sharp
         {
             using (var obj = new ObjectSafeWrapper(Id, repo))
             {
-                for (int i = 0; i < Count; i++)
+                for (uint i = 0; i < Count; i++)
                 {
                     IntPtr e = NativeMethods.git_tree_entry_byindex(obj.ObjectPtr, i);
                     yield return new TreeEntry(e, Id, repo);
@@ -76,7 +76,7 @@ namespace LibGit2Sharp
 
         internal static Tree BuildFromPtr(IntPtr obj, ObjectId id, Repository repo)
         {
-            var tree = new Tree(id) { repo = repo, Count = NativeMethods.git_tree_entrycount(obj) };
+            var tree = new Tree(id) { repo = repo, Count = (int)NativeMethods.git_tree_entrycount(obj) };
             return tree;
         }
     }

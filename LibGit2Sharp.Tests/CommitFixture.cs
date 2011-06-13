@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Tests.TestHelpers;
@@ -8,7 +9,7 @@ using NUnit.Framework;
 namespace LibGit2Sharp.Tests
 {
     [TestFixture]
-    public class CommitFixture
+    public class CommitFixture : BaseFixture
     {
         private const string sha = "8496071c1b46c854b31185ea97743be6a8774479";
         private readonly List<string> expectedShas = new List<string> {"a4a7d", "c4780", "9fd73", "4a202", "5b5b0", "84960"};
@@ -229,6 +230,55 @@ namespace LibGit2Sharp.Tests
             {
                 var commit = repo.Lookup<Commit>("a4a7dce85cf63874e984719f4fdd239f5145052f");
                 commit.Parents.Count().ShouldEqual(2);
+            }
+        }
+
+        [Test]
+        public void CanCommitALittleBit()
+        {
+            using (var scd = new SelfCleaningDirectory())
+            {
+                var dir = Repository.Init(scd.DirectoryPath);
+                Path.IsPathRooted(dir).ShouldBeTrue();
+                Directory.Exists(dir).ShouldBeTrue();
+
+                using (var repo = new Repository(dir))
+                {
+                    string filePath = Path.Combine(repo.Info.WorkingDirectory, "new.txt");
+
+                    File.WriteAllText(filePath, "null");
+                    repo.Index.Stage("new.txt");
+                    File.AppendAllText(filePath, "token\n");
+                    repo.Index.Stage("new.txt");
+
+                    var author = new Signature("Author N. Ame", "him@there.com", DateTimeOffset.Now.AddSeconds(-10));
+                    var commit = repo.Commit(author, author, "Initial egotistic commit");
+
+                    commit.Parents.Count().ShouldEqual(0);
+                    repo.Info.IsEmpty.ShouldBeFalse();
+
+                    File.WriteAllText(filePath, "nulltoken commits!\n");
+                    repo.Index.Stage("new.txt");
+
+                    var author2 = new Signature(author.Name, author.Email, author.When.AddSeconds(5));
+                    var commit2 = repo.Commit(author2, author2, "Are you trying to fork me?");
+
+                    commit2.Parents.Count().ShouldEqual(1);
+                    commit2.Parents.First().Id.ShouldEqual(commit.Id);
+
+                    repo.CreateBranch("davidfowl-rules", commit.Id.Sha); //TODO: This cries for a shortcut method :-/
+                    repo.Branches.Checkout("davidfowl-rules"); //TODO: This cries for a shortcut method :-/
+
+                    File.WriteAllText(filePath, "davidfowl commits!\n");
+
+                    var author3 = new Signature("David Fowler", "david.fowler@microsoft.com", author.When.AddSeconds(2));
+                    repo.Index.Stage("new.txt");
+
+                    var commit3 = repo.Commit(author3, author3, "I'm going to branch you backwards in time!");
+
+                    commit3.Parents.Count().ShouldEqual(1);
+                    commit3.Parents.First().Id.ShouldEqual(commit.Id);
+                }
             }
         }
     }

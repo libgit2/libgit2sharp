@@ -1,29 +1,43 @@
-<Project DefaultTargets="Test" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Deploy" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <UsingTask AssemblyFile="$(MSBuildProjectDirectory)\Lib\MSBuild.Community.Tasks\MSBuild.Community.Tasks.dll" TaskName="NUnit" />
   <UsingTask AssemblyFile="$(MSBuildProjectDirectory)\Lib\MSBuild.Community.Tasks\MSBuild.Community.Tasks.dll" TaskName="DeleteTree" />
 
   <PropertyGroup>
     <Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
-
+    <RootDir>$(MSBuildProjectDirectory)</RootDir>
     <BuildDirs>$(MSBuildProjectDirectory)\LibGit2Sharp*\**\obj;$(MSBuildProjectDirectory)\LibGit2Sharp*\**\bin</BuildDirs>
-    <OutputDir>$(MSBuildProjectDirectory)\build\</OutputDir>
+    <TestBuildDir>$(RootDir)\LibGit2Sharp.Tests\bin\$(Configuration)</TestBuildDir>
+    <DeployFolder>$(RootDir)\Build</DeployFolder>
   </PropertyGroup>
 
+  <ItemGroup>
+    <OutputFiles Include="$(TestBuildDir)\*.*" />
+  </ItemGroup>
+
   <Target Name="Clean">
-    <DeleteTree Directories="$(BuildDirs);$(OutputDir)" />
+    <DeleteTree Directories="$(BuildDirs);$(DeployFolder)" />
   </Target>
 
-  <Target Name="Build" DependsOnTargets="Clean">
+  <Target Name="Init" DependsOnTargets="Clean">
+    <MakeDir Directories="$(DeployFolder)" />
+  </Target>
+
+  <Target Name="Build" DependsOnTargets="Init">
     <MSBuild
 			Projects="LibGit2Sharp.sln"
 			Targets="Build"
-			Properties="Configuration=$(Configuration);TrackFileAccess=false;OutDir=$(OutputDir)" />
+			Properties="Configuration=$(Configuration);TrackFileAccess=false" />
   </Target>
 
   <Target Name="Test" DependsOnTargets="Build">
-    <NUnit Assemblies="$(OutputDir)LibGit2Sharp.Tests.dll"
+    <NUnit Assemblies="$(TestBuildDir)\LibGit2Sharp.Tests.dll"
 		       ToolPath="$(MSBuildProjectDirectory)\Lib\NUnit\"
 		       Force32Bit="true"
-		       OutputXmlFile="$(OutputDir)Test-result.xml" />
+		       OutputXmlFile="$(DeployFolder)\Test-result.xml" />
+  </Target>
+  
+  <Target Name="Deploy" DependsOnTargets="Test">
+    <Copy SourceFiles="@(OutputFiles)"
+      DestinationFiles="@(OutputFiles->'$(DeployFolder)\%(RecursiveDir)%(Filename)%(Extension)')" />
   </Target>
 </Project>

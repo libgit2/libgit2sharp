@@ -7,7 +7,7 @@ using NUnit.Framework;
 namespace LibGit2Sharp.Tests
 {
     [TestFixture]
-    public class BranchFixture
+    public class BranchFixture : BaseFixture
     {
         private readonly List<string> expectedBranches = new List<string> {"packed-test", "packed", "br2", "master", "test", "deadbeef"};
 
