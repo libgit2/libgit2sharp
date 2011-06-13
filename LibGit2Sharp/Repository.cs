@@ -51,9 +51,19 @@ namespace LibGit2Sharp
         ///   Shortcut to return the reference to HEAD
         /// </summary>
         /// <returns></returns>
-        public Reference Head
+        public Branch Head
         {
-            get { return Refs["HEAD"]; }
+            get
+            {
+                Reference headRef = Refs["HEAD"];
+                
+                if (Info.IsEmpty)
+                {
+                    return new Branch(headRef.TargetIdentifier, null, this);
+                }
+
+                return Refs.Resolve<Branch>(headRef.ResolveToDirectReference().CanonicalName);
+            }
         }
 
         /// <summary>

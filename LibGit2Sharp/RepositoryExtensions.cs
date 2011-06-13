@@ -82,7 +82,7 @@
         /// <param name="branchName">The name of the branch to create.</param>
         public static Branch CreateBranch(this Repository repository, string branchName)
         {
-            return CreateBranch(repository, branchName, repository.Head.TargetIdentifier);  //TODO: To be replaced by Head.CanonicalName
+            return CreateBranch(repository, branchName, repository.Head.CanonicalName);
         }
 
         /// <summary>

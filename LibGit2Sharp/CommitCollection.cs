@@ -109,7 +109,7 @@ namespace LibGit2Sharp
             int res = NativeMethods.git_tree_create_fromindex(out treeOid, repo.Index.Handle);
             Ensure.Success(res);
 
-            Reference head = repo.Head;
+            Reference head = repo.Refs["HEAD"];
             GitOid[] gitOids = RetrieveCommitParent(head);
 
             GitOid commitOid;

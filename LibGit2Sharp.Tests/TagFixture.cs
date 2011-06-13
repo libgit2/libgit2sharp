@@ -214,7 +214,7 @@ namespace LibGit2Sharp.Tests
                 var tag = repo.ApplyTag("mytag");
                 tag.ShouldNotBeNull();
 
-                tag.Target.Id.ShouldEqual(repo.Head.ResolveToDirectReference().Target.Id);
+                tag.Target.Id.ShouldEqual(repo.Head.Tip.Id);
 
                 var retrievedTag = repo.Tags[tag.CanonicalName];
                 tag.ShouldEqual(retrievedTag);
@@ -259,7 +259,7 @@ namespace LibGit2Sharp.Tests
                 var tag = repo.ApplyTag("mytag", "HEAD");
                 tag.ShouldNotBeNull();
 
-                tag.Target.Id.ShouldEqual(repo.Head.ResolveToDirectReference().Target.Id);
+                tag.Target.Id.ShouldEqual(repo.Head.Tip.Id);
 
                 var retrievedTag = repo.Tags[tag.CanonicalName];
                 tag.ShouldEqual(retrievedTag);
@@ -272,7 +272,7 @@ namespace LibGit2Sharp.Tests
             using (var path = new TemporaryCloneOfTestRepo())
             using (var repo = new Repository(path.RepositoryPath))
             {
-                var headCommit = (Commit)repo.Head.ResolveToDirectReference().Target;
+                var headCommit = (Commit)repo.Head.Tip;
                 var tree = headCommit.Tree;
 
                 var tag = repo.ApplyTag("tree-tag", tree.Sha);
@@ -291,7 +291,7 @@ namespace LibGit2Sharp.Tests
             using (var path = new TemporaryCloneOfTestRepo())
             using (var repo = new Repository(path.RepositoryPath))
             {
-                var headCommit = (Commit)repo.Head.ResolveToDirectReference().Target;
+                var headCommit = (Commit)repo.Head.Tip;
                 var blob = headCommit.Tree.Files.First();
 
                 var tag = repo.ApplyTag("blob-tag", blob.Sha);

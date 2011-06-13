@@ -58,7 +58,7 @@ namespace LibGit2Sharp
             get
             {
                 if (repo.Info.IsEmpty) return false; // Detached HEAD doesn't mean anything for an empty repo, just return false
-                return repo.Head is DirectReference;
+                return repo.Refs["HEAD"] is DirectReference;
             }
         }
     }
