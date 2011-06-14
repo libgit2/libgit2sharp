@@ -162,6 +162,35 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
+        [Ignore("Currently fails because of feature which is not yet implemented in libgit2")]
+        public void CanRenameAFile()
+        {
+            using (var path = new TemporaryCloneOfTestRepo(Constants.TestRepoWithWorkingDirRootPath))
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                var count = repo.Index.Count;
+
+                const string oldName = "README";
+                const string newName = "README.txt";
+
+                var odbBlobId = repo.Head.Tip.Tree[oldName].Target.Id;
+                ObjectId indexBlobId = repo.Index[oldName].Id;
+
+                odbBlobId.ShouldEqual(indexBlobId);
+
+                string oldPath = Path.Combine(repo.Info.WorkingDirectory, oldName);
+                string newPath = Path.Combine(repo.Info.WorkingDirectory, newName);
+
+                repo.Index.Unstage(oldName);
+                File.Move(oldPath, newPath);
+                repo.Index.Stage(newPath);
+
+                repo.Index.Count.ShouldEqual(count);
+                repo.Index[newName].Id.ShouldEqual((indexBlobId));
+            }
+        }
+
+        [Test]
         public void CanUnstageANewFile()
         {
             using (var path = new TemporaryCloneOfTestRepo(Constants.TestRepoWithWorkingDirRootPath))
