@@ -9,11 +9,15 @@ namespace LibGit2Sharp
     {
         private readonly Repository repo;
 
-        internal RepositoryInformation(Repository repo, string posixPath, string posixWorkingDirectoryPath, bool isBare)
+        internal RepositoryInformation(Repository repo, bool isBare)
         {
             this.repo = repo;
-            Path = PosixPathHelper.ToNative(posixPath);
             IsBare = isBare;
+
+            string posixPath = NativeMethods.git_repository_path(repo.Handle, GitRepositoryPathId.GIT_REPO_PATH).MarshallAsString();
+            string posixWorkingDirectoryPath = NativeMethods.git_repository_path(repo.Handle, GitRepositoryPathId.GIT_REPO_PATH_WORKDIR).MarshallAsString();
+
+            Path = PosixPathHelper.ToNative(posixPath);
             WorkingDirectory = PosixPathHelper.ToNative(posixWorkingDirectoryPath);
         }
 
@@ -54,7 +58,7 @@ namespace LibGit2Sharp
             get
             {
                 if (repo.Info.IsEmpty) return false; // Detached HEAD doesn't mean anything for an empty repo, just return false
-                return repo.Head is DirectReference;
+                return repo.Refs["HEAD"] is DirectReference;
             }
         }
     }

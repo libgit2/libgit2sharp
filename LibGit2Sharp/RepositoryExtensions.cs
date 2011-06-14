@@ -82,7 +82,7 @@
         /// <param name="branchName">The name of the branch to create.</param>
         public static Branch CreateBranch(this Repository repository, string branchName)
         {
-            return CreateBranch(repository, branchName, repository.Head.TargetIdentifier);  //TODO: To be replaced by Head.CanonicalName
+            return CreateBranch(repository, branchName, repository.Head.CanonicalName);
         }
 
         /// <summary>
@@ -94,6 +94,19 @@
         public static Branch CreateBranch(this Repository repository, string branchName, string target)
         {
             return repository.Branches.Create(branchName, target);
+        }
+
+        /// <summary>
+        ///  Stores the content of the <see cref="Repository.Index"/> as a new <see cref="Commit"/> into the repository.
+        /// </summary>
+        /// <param name="repository">The <see cref="Repository"/> being worked with.</param>
+        /// <param name="author">The <see cref="Signature"/> of who made the change.</param>
+        /// <param name="committer">The <see cref="Signature"/> of who added the change to the repository.</param>
+        /// <param name="message">The description of why a change was made to the repository.</param>
+        /// <returns>The generated <see cref="Commit"/>.</returns>
+        public static Commit Commit(this Repository repository, Signature author, Signature committer, string message)
+        {
+            return repository.Commits.Create(author, committer, message);
         }
     }
 }

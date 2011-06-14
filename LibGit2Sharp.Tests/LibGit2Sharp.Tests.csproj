@@ -42,6 +42,7 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="TestHelpers\BaseFixture.cs" />
     <Compile Include="BlobFixture.cs" />
     <Compile Include="BranchFixture.cs" />
     <Compile Include="CommitFixture.cs" />
@@ -67,7 +68,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PreBuildEvent>xcopy "$(SolutionDir)Resources\*.*" "$(TargetDir)Resources" /E /I /Y /F /H &gt; NUL</PreBuildEvent>
+    <PreBuildEvent>
+    </PreBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

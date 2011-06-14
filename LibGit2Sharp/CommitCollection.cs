@@ -96,6 +96,42 @@ namespace LibGit2Sharp
             return ("HEAD".Equals(shaOrRefName, StringComparison.Ordinal) || "refs/heads/master".Equals(shaOrRefName, StringComparison.Ordinal));
         }
 
+        /// <summary>
+        ///  Stores the content of the <see cref="Repository.Index"/> as a new <see cref="Commit"/> into the repository.
+        /// </summary>
+        /// <param name="author">The <see cref="Signature"/> of who made the change.</param>
+        /// <param name="committer">The <see cref="Signature"/> of who added the change to the repository.</param>
+        /// <param name="message">The description of why a change was made to the repository.</param>
+        /// <returns>The generated <see cref="Commit"/>.</returns>
+        public Commit Create(Signature author, Signature committer, string message)
+        {
+            GitOid treeOid;
+            int res = NativeMethods.git_tree_create_fromindex(out treeOid, repo.Index.Handle);
+            Ensure.Success(res);
+
+            Reference head = repo.Refs["HEAD"];
+            GitOid[] gitOids = RetrieveCommitParent(head);
+
+            GitOid commitOid;
+            res = NativeMethods.git_commit_create(out commitOid, repo.Handle, head.CanonicalName, author.Handle,
+                                                  committer.Handle, message, ref treeOid, gitOids.Count(), ref gitOids);
+            Ensure.Success(res);
+
+            return repo.Lookup<Commit>(new ObjectId(commitOid));
+        }
+
+        private static GitOid[] RetrieveCommitParent(Reference head)
+        {
+            DirectReference oidRef = head.ResolveToDirectReference();
+            if (oidRef == null)
+            {
+                return new GitOid[] { };
+            }
+
+            var headCommitId = new ObjectId(oidRef.TargetIdentifier);
+            return new[] { headCommitId.Oid };
+        }
+
         private class CommitEnumerator : IEnumerator<Commit>
         {
             private readonly Repository repo;

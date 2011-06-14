@@ -7,7 +7,7 @@ using NUnit.Framework;
 namespace LibGit2Sharp.Tests
 {
     [TestFixture]
-    public class IndexFixture
+    public class IndexFixture : BaseFixture
     {
         private readonly List<string> expectedEntries = new List<string>
                                                             {
@@ -21,27 +21,6 @@ namespace LibGit2Sharp.Tests
                                                                 "modified_unstaged_file.txt",
                                                                 "new_tracked_file.txt"
                                                             };
-
-        [TestFixtureSetUp]
-        public void Setup()
-        {
-            const string tempDotGit = "./Resources/testrepo_wd/dot_git";
-
-            bool gitRepoExists = Directory.Exists(Constants.TestRepoWithWorkingDirPath);
-            bool dotGitDirExists = Directory.Exists(tempDotGit);
-
-            if (gitRepoExists)
-            {
-                if (dotGitDirExists)
-                {
-                    DirectoryHelper.DeleteDirectory(tempDotGit);
-                }
-
-                return;
-            }
-
-            Directory.Move(tempDotGit, Constants.TestRepoWithWorkingDirPath);
-        }
 
         [Test]
         public void CanCountEntriesInIndex()
@@ -193,7 +172,7 @@ namespace LibGit2Sharp.Tests
                 const string filename = "new_untracked_file.txt";
                 string fullPath = Path.Combine(repo.Info.WorkingDirectory, filename);
                 File.Exists(fullPath).ShouldBeTrue();
-                
+
                 repo.Index.Stage(filename);
                 repo.Index.Count.ShouldEqual(count + 1);
 

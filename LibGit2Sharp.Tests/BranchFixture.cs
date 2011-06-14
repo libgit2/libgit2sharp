@@ -7,7 +7,7 @@ using NUnit.Framework;
 namespace LibGit2Sharp.Tests
 {
     [TestFixture]
-    public class BranchFixture
+    public class BranchFixture : BaseFixture
     {
         private readonly List<string> expectedBranches = new List<string> {"packed-test", "packed", "br2", "master", "test", "deadbeef"};
 
@@ -161,7 +161,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(Constants.TestRepoPath))
             {
-                Assert.Throws<ArgumentException>(() => repo.Branches.Create(string.Empty, repo.Head.ResolveToDirectReference().TargetIdentifier));
+                Assert.Throws<ArgumentException>(() => repo.Branches.Create(string.Empty, repo.Head.CanonicalName));
             }
         }
 
@@ -198,7 +198,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(Constants.TestRepoPath))
             {
-                Assert.Throws<ArgumentNullException>(() => repo.Branches.Create(null, repo.Head.ResolveToDirectReference().TargetIdentifier));
+                Assert.Throws<ArgumentNullException>(() => repo.Branches.Create(null, repo.Head.CanonicalName));
             }
         }
 
@@ -324,8 +324,8 @@ namespace LibGit2Sharp.Tests
                 var newBranch = repo.CreateBranch("clone-of-master");
                 newBranch.IsCurrentRepositoryHead.ShouldBeFalse();
                 
-                var commitId = repo.Head.ResolveToDirectReference().TargetIdentifier;
-                newBranch.Tip.Sha.ShouldEqual(commitId);
+                var commitId = repo.Head.Tip.Id;
+                newBranch.Tip.Id.ShouldEqual(commitId);
 
                 var reference = repo.Refs[newBranch.CanonicalName];
                 reference.ShouldNotBeNull();

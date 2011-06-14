@@ -39,7 +39,7 @@ namespace LibGit2Sharp
                     targetIdentifier = NativeMethods.git_reference_target(ptr).MarshallAsString();
                     int res = NativeMethods.git_reference_resolve(out resolveRef, ptr);
 
-                    if (res == (int) GitErrorCode.GIT_ENOTFOUND)
+                    if (res == (int)GitErrorCode.GIT_ENOTFOUND)
                     {
                         reference = new SymbolicReference { CanonicalName = name, Target = null, TargetIdentifier = targetIdentifier };
                         break;
@@ -48,7 +48,7 @@ namespace LibGit2Sharp
                     Ensure.Success(res);
 
                     var targetRef = BuildFromPtr<Reference>(resolveRef, repo);
-                    reference =  new SymbolicReference { CanonicalName = name, Target = targetRef,  TargetIdentifier = targetIdentifier};
+                    reference = new SymbolicReference { CanonicalName = name, Target = targetRef, TargetIdentifier = targetIdentifier };
                     break;
 
                 case GitReferenceType.Oid:
@@ -58,7 +58,7 @@ namespace LibGit2Sharp
                     targetIdentifier = targetId.Sha;
 
                     var targetResolver = new Func<GitObject>(() => repo.Lookup(targetId));
-                    reference = new DirectReference(targetResolver) { CanonicalName = name, TargetIdentifier = targetIdentifier};
+                    reference = new DirectReference(targetResolver) { CanonicalName = name, TargetIdentifier = targetIdentifier };
                     break;
 
                 default:
@@ -71,21 +71,21 @@ namespace LibGit2Sharp
             }
 
             GitObject targetGitObject = repo.Lookup(targetIdentifier);
-            
+
             if (Equals(typeof(T), typeof(Tag)))
             {
                 return new Tag(reference.CanonicalName, targetGitObject, targetGitObject as TagAnnotation) as T;
             }
 
-           if (Equals(typeof(T), typeof(Branch)))
+            if (Equals(typeof(T), typeof(Branch)))
             {
                 return new Branch(reference.CanonicalName, targetGitObject as Commit, repo) as T;
             }
 
             throw new InvalidOperationException(
                 string.Format(CultureInfo.InvariantCulture, "Unable to build a new instance of '{0}' from a reference of type '{1}'.",
-                              typeof (T),
-                              Enum.GetName(typeof (GitReferenceType), type)));
+                              typeof(T),
+                              Enum.GetName(typeof(GitReferenceType), type)));
         }
 
         /// <summary>
