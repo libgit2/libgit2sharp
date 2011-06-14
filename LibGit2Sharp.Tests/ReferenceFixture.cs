@@ -7,7 +7,7 @@ using NUnit.Framework;
 namespace LibGit2Sharp.Tests
 {
     [TestFixture]
-    public class ReferenceFixture
+    public class ReferenceFixture : BaseFixture
     {
         private readonly List<string> expectedRefs = new List<string> { "refs/heads/packed-test", "refs/heads/packed", "refs/heads/br2", "refs/heads/master", "refs/heads/test",
             "refs/heads/deadbeef", "refs/tags/test", "refs/tags/e90810b", "refs/tags/lw" };
@@ -101,7 +101,7 @@ namespace LibGit2Sharp.Tests
                 newRef.CanonicalName.ShouldEqual(name);
                 newRef.Target.ShouldNotBeNull();
                 newRef.ResolveToDirectReference().Target.Sha.ShouldEqual("a4a7dce85cf63874e984719f4fdd239f5145052f");
-                ((SymbolicReference)repo.Head).Target.CanonicalName.ShouldEqual(target);
+                ((SymbolicReference)repo.Refs["HEAD"]).Target.CanonicalName.ShouldEqual(target);
             }
         }
 
@@ -226,15 +226,14 @@ namespace LibGit2Sharp.Tests
                 head.CanonicalName.ShouldEqual("HEAD");
                 head.Target.ShouldNotBeNull();
                 head.Target.CanonicalName.ShouldEqual("refs/heads/master");
-                ((DirectReference) head.Target).Target.Sha.ShouldEqual("4c062a6361ae6959e06292c1fa5e2822d9c96345");
+                head.ResolveToDirectReference().Target.Sha.ShouldEqual("4c062a6361ae6959e06292c1fa5e2822d9c96345");
                 Assert.IsInstanceOf<Commit>(((DirectReference) head.Target).Target);
 
-                var head2 = (SymbolicReference) repo.Head;
-                head2.CanonicalName.ShouldEqual("HEAD");
-                head2.Target.ShouldNotBeNull();
-                Assert.IsInstanceOf<Commit>(((DirectReference) head.Target).Target);
+                var head2 = repo.Head;
+                head2.CanonicalName.ShouldEqual("refs/heads/master");
+                head2.Tip.ShouldNotBeNull();
 
-                head.Equals(head2).ShouldBeTrue();
+                head2.Tip.Equals(head.ResolveToDirectReference().Target);
             }
         }
 
@@ -401,7 +400,7 @@ namespace LibGit2Sharp.Tests
                 const string newName = "refs/heads/o/sole";
                 const string oldName = newName + "/mio";
 
-                repo.Refs.Create(oldName, repo.Head.ResolveToDirectReference().TargetIdentifier);
+                repo.Refs.Create(oldName, repo.Head.CanonicalName);
                 Reference moved = repo.Refs.Move(oldName, newName);
                 moved.ShouldNotBeNull();
                 moved.CanonicalName.ShouldEqual(newName);

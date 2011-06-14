@@ -7,7 +7,7 @@ using NUnit.Framework;
 namespace LibGit2Sharp.Tests
 {
     [TestFixture]
-    public class RepositoryFixture
+    public class RepositoryFixture : BaseFixture
     {
         private const string commitSha = "8496071c1b46c854b31185ea97743be6a8774479";
 
@@ -56,9 +56,15 @@ namespace LibGit2Sharp.Tests
             repo.Info.Path.ShouldNotBeNull();
             repo.Info.IsEmpty.ShouldBeTrue();
             repo.Info.IsHeadDetached.ShouldBeFalse();
-            repo.Refs["HEAD"].ShouldNotBeNull();
-            repo.Head.TargetIdentifier.ShouldEqual("refs/heads/master");
-            repo.Head.ResolveToDirectReference().ShouldBeNull();
+
+            var headRef = repo.Refs["HEAD"];
+            headRef.ShouldNotBeNull();
+            headRef.TargetIdentifier.ShouldEqual("refs/heads/master");
+            headRef.ResolveToDirectReference().ShouldBeNull();
+
+            repo.Head.ShouldNotBeNull();
+            repo.Head.CanonicalName.ShouldEqual(headRef.TargetIdentifier);
+            repo.Head.Tip.ShouldBeNull();
 
             repo.Commits.Count().ShouldEqual(0);
             repo.Commits.QueryBy(new Filter { Since = repo.Head }).Count().ShouldEqual(0);

@@ -59,7 +59,7 @@ namespace LibGit2Sharp
         /// </value>
         public bool IsCurrentRepositoryHead
         {
-            get { return repo.Refs[CanonicalName] == repo.Head.ResolveToDirectReference(); }
+            get { return repo.Refs[CanonicalName].ResolveToDirectReference() == repo.Refs["HEAD"].ResolveToDirectReference(); }
         }
 
         /// <summary>
