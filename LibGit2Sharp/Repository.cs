@@ -168,14 +168,14 @@ namespace LibGit2Sharp
         ///   Init a repo at the specified <paramref name="path"/>.
         /// </summary>
         /// <param name = "path">The path to the working folder when initializing a standard ".git" repository. Otherwise, when initializing a bare repository, the path to the expected location of this later.</param>
-        /// <param name = "bare">true to initialize a bare repository. False otherwise, to initialize a standard ".git" repository.</param>
+        /// <param name = "isBare">true to initialize a bare repository. False otherwise, to initialize a standard ".git" repository.</param>
         /// <returns>Path the git repository.</returns>
-        public static string Init(string path, bool bare = false)
+        public static string Init(string path, bool isBare = false)
         {
             Ensure.ArgumentNotNullOrEmptyString(path, "path");
 
             RepositorySafeHandle repo;
-            var res = NativeMethods.git_repository_init(out repo, PosixPathHelper.ToPosix(path), bare);
+            var res = NativeMethods.git_repository_init(out repo, PosixPathHelper.ToPosix(path), isBare);
             Ensure.Success(res);
 
             string normalizedPath = NativeMethods.git_repository_path(repo, GitRepositoryPathId.GIT_REPO_PATH).MarshallAsString();
