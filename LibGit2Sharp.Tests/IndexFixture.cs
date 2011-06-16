@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Text;
 using LibGit2Sharp.Tests.TestHelpers;
 using NUnit.Framework;
 
@@ -162,31 +164,47 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
-        [Ignore("Currently fails because of feature which is not yet implemented in libgit2")]
         public void CanRenameAFile()
         {
-            using (var path = new TemporaryCloneOfTestRepo(Constants.TestRepoWithWorkingDirRootPath))
-            using (var repo = new Repository(path.RepositoryPath))
+            using (var scd = new SelfCleaningDirectory())
             {
-                var count = repo.Index.Count;
+                string dir = Repository.Init(scd.DirectoryPath);
 
-                const string oldName = "README";
-                const string newName = "README.txt";
+                using (var repo = new Repository(dir))
+                {
+                    repo.Index.Count.ShouldEqual(0);
 
-                var odbBlobId = repo.Head.Tip.Tree[oldName].Target.Id;
-                ObjectId indexBlobId = repo.Index[oldName].Id;
+                    const string oldName = "polite.txt";
+                    string oldPath = Path.Combine(repo.Info.WorkingDirectory, oldName);
 
-                odbBlobId.ShouldEqual(indexBlobId);
+                    File.WriteAllText(oldPath, "hello test file\n", Encoding.ASCII);
+                    repo.Index.Stage(oldName);
 
-                string oldPath = Path.Combine(repo.Info.WorkingDirectory, oldName);
-                string newPath = Path.Combine(repo.Info.WorkingDirectory, newName);
+                    // Generated through
+                    // $ echo "hello test file" | git hash-object --stdin
+                    const string expectedHash = "88df547706c30fa19f02f43cb2396e8129acfd9b";
+                    repo.Index[oldName].Id.Sha.ShouldEqual((expectedHash));
 
-                repo.Index.Unstage(oldName);
-                File.Move(oldPath, newPath);
-                repo.Index.Stage(newPath);
+                    repo.Index.Count.ShouldEqual(1);
 
-                repo.Index.Count.ShouldEqual(count);
-                repo.Index[newName].Id.ShouldEqual((indexBlobId));
+                    Signature who = Constants.Signature;
+                    repo.Commit(who, who, "Initial commit");
+
+                    const string newName = "being.frakking.polite.txt";
+                    string newPath = Path.Combine(repo.Info.WorkingDirectory, newName);
+
+                    repo.Index.Unstage(oldName);
+                    File.Move(oldPath, newPath);
+                    repo.Index.Stage(newPath);
+
+                    repo.Index.Count.ShouldEqual(1);
+                    repo.Index[newName].Id.Sha.ShouldEqual((expectedHash));
+
+                    who = who.TimeShift(TimeSpan.FromMinutes(5));
+                    Commit commit = repo.Commit(who, who, "Fix file name");
+
+                    commit.Tree[newName].Target.Id.Sha.ShouldEqual(expectedHash);
+                }
             }
         }
 
