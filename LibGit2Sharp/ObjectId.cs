@@ -92,7 +92,7 @@ namespace LibGit2Sharp
             }
 
             GitOid oid;
-            var result = NativeMethods.git_oid_mkstr(out oid, sha);
+            var result = NativeMethods.git_oid_fromstr(out oid, sha);
 
             if (!shouldThrow && result != (int)GitErrorCode.GIT_SUCCESS)
             {

@@ -93,7 +93,7 @@ namespace LibGit2Sharp.Core
         public static extern void git_oid_fmt(byte[] str, ref GitOid oid);
 
         [DllImport(libgit2)]
-        public static extern int git_oid_mkstr(out GitOid oid, string str);
+        public static extern int git_oid_fromstr(out GitOid oid, string str);
 
         [DllImport(libgit2)]
         public static extern int git_reference_create_oid(out IntPtr reference, RepositorySafeHandle repo, string name, ref GitOid oid);
