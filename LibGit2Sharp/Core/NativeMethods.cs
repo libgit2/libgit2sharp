@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using System.Text;
 
 namespace LibGit2Sharp.Core
 {
@@ -143,6 +144,11 @@ namespace LibGit2Sharp.Core
         [DllImport(libgit2)]
         public static extern IntPtr git_repository_database(RepositorySafeHandle repository);
 
+        [DllImport(libgit2)]
+        public static extern int git_repository_discover(StringBuilder repository_path, int size, string start_path,
+                                                         [MarshalAs(UnmanagedType.Bool)] bool across_fs,
+                                                         string ceiling_dirs);
+        
         [DllImport(libgit2)]
         public static extern void git_repository_free(IntPtr repository);
 

@@ -250,5 +250,40 @@ namespace LibGit2Sharp.Tests
                 Assert.Throws<ArgumentNullException>(() => repo.HasObject(null));
             }
         }
+
+        [Test]
+        public void CanDiscoverABareRepoGivenTheRepoPath()
+        {
+            string path = Repository.Discover(Constants.TestRepoPath);
+            path.ShouldEqual(Path.GetFullPath(Constants.TestRepoPath));
+        }
+
+        [Test]
+        public void CanDiscoverABareRepoGivenASubDirectoryOfTheRepoPath()
+        {
+            string path = Repository.Discover(Path.Combine(Constants.TestRepoPath, "objects/4a"));
+            path.ShouldEqual(Path.GetFullPath(Constants.TestRepoPath));
+        }
+
+        [Test]
+        public void CanDiscoverAStandardRepoGivenTheRepoPath()
+        {
+            string path = Repository.Discover(Constants.TestRepoWithWorkingDirPath);
+            path.ShouldEqual(Path.GetFullPath(Constants.TestRepoWithWorkingDirPath));
+        }
+
+        [Test]
+        public void CanDiscoverAStandardRepoGivenASubDirectoryOfTheRepoPath()
+        {
+            string path = Repository.Discover(Path.Combine(Constants.TestRepoWithWorkingDirPath, "objects/4a"));
+            path.ShouldEqual(Path.GetFullPath(Constants.TestRepoWithWorkingDirPath));
+        }
+
+        [Test]
+        public void CanDiscoverAStandardRepoGivenTheWorkingDirPath()
+        {
+            string path = Repository.Discover(Constants.TestRepoWithWorkingDirRootPath);
+            path.ShouldEqual(Path.GetFullPath(Constants.TestRepoWithWorkingDirPath));
+        }
     }
 }

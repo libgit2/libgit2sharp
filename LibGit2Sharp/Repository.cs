@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
@@ -153,7 +154,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name = "sha">The sha.</param>
         /// <returns></returns>
-        public bool HasObject(string sha)
+        public bool HasObject(string sha)   //TODO: To be removed from front facing API (maybe should we create an Repository.Advanced to hold those kind of functions)?
         {
             Ensure.ArgumentNotNullOrEmptyString(sha, "sha");
 
@@ -234,6 +235,22 @@ namespace LibGit2Sharp
         private static bool IsReferencePeelable(Reference reference)
         {
             return reference != null && ((reference is DirectReference) || (reference is SymbolicReference && ((SymbolicReference)reference).Target != null));
+        }
+
+        /// <summary>
+        /// Probe for a git repository.
+        /// <para>The lookup start from <paramref name="startingPath"/> and walk upward parent directories if nothing has been found.</para> 
+        /// </summary>
+        /// <param name="startingPath">The base path where the lookup starts.</param>
+        /// <returns>The path to the git repository.</returns>
+        public static string Discover(string startingPath)
+        {
+            var buffer = new StringBuilder(4096);
+
+            int result = NativeMethods.git_repository_discover(buffer, buffer.Capacity, PosixPathHelper.ToPosix(startingPath), false, null);
+            Ensure.Success(result);
+
+            return PosixPathHelper.ToNative(buffer.ToString());
         }
     }
 }
