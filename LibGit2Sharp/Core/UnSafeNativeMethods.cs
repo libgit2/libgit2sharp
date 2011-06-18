@@ -8,13 +8,13 @@ namespace LibGit2Sharp.Core
         private const string libgit2 = "git2";
 
         [DllImport(libgit2)]
-        public static extern int git_reference_listall(git_strarray* array, RepositorySafeHandle repo, GitReferenceType flags);
+        public static extern int git_reference_listall(out git_strarray array, RepositorySafeHandle repo, GitReferenceType flags);
 
         [DllImport(libgit2)]
-        public static extern int git_tag_list(git_strarray* array, RepositorySafeHandle repo);
+        public static extern int git_tag_list(out git_strarray array, RepositorySafeHandle repo);
 
         [DllImport(libgit2)]
-        public static extern void git_strarray_free(git_strarray* array);
+        public static extern void git_strarray_free(ref git_strarray array);
 
         #region Nested type: git_strarray
 
