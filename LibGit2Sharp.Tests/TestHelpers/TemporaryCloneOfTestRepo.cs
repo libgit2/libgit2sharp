@@ -4,7 +4,7 @@ namespace LibGit2Sharp.Tests.TestHelpers
 {
     public class TemporaryCloneOfTestRepo : SelfCleaningDirectory
     {
-        public TemporaryCloneOfTestRepo(string sourceDirectoryPath = Constants.TestRepoPath)
+        public TemporaryCloneOfTestRepo(string sourceDirectoryPath = Constants.BareTestRepoPath)
         {
             var source = new DirectoryInfo(sourceDirectoryPath);
 

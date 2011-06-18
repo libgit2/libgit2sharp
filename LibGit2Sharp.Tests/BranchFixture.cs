@@ -81,7 +81,7 @@ namespace LibGit2Sharp.Tests
         [Test]
         public void CanListAllBranches()
         {
-            using (var repo = new Repository(Constants.TestRepoPath))
+            using (var repo = new Repository(Constants.BareTestRepoPath))
             {
                 foreach (var r in repo.Branches)
                 {
@@ -95,7 +95,7 @@ namespace LibGit2Sharp.Tests
         [Test]
         public void CanLookupABranchByItsCanonicalName()
         {
-            using (var repo = new Repository(Constants.TestRepoPath))
+            using (var repo = new Repository(Constants.BareTestRepoPath))
             {
                 var branch = repo.Branches["refs/heads/br2"];
                 branch.ShouldNotBeNull();
@@ -113,7 +113,7 @@ namespace LibGit2Sharp.Tests
         [Test]
         public void CanLookupLocalBranch()
         {
-            using (var repo = new Repository(Constants.TestRepoPath))
+            using (var repo = new Repository(Constants.BareTestRepoPath))
             {
                 var master = repo.Branches["master"];
                 master.ShouldNotBeNull();
@@ -128,7 +128,7 @@ namespace LibGit2Sharp.Tests
         [Test]
         public void CanWalkCommitsFromAnotherBranch()
         {
-            using (var repo = new Repository(Constants.TestRepoPath))
+            using (var repo = new Repository(Constants.BareTestRepoPath))
             {
                 var master = repo.Branches["test"];
                 master.Commits.Count().ShouldEqual(2);
@@ -138,7 +138,7 @@ namespace LibGit2Sharp.Tests
         [Test]
         public void CanWalkCommitsFromBranch()
         {
-            using (var repo = new Repository(Constants.TestRepoPath))
+            using (var repo = new Repository(Constants.BareTestRepoPath))
             {
                 var master = repo.Branches["master"];
                 master.Commits.Count().ShouldEqual(7);
@@ -159,7 +159,7 @@ namespace LibGit2Sharp.Tests
         [Test]
         public void CreatingBranchWithEmptyNameThrows()
         {
-            using (var repo = new Repository(Constants.TestRepoPath))
+            using (var repo = new Repository(Constants.BareTestRepoPath))
             {
                 Assert.Throws<ArgumentException>(() => repo.Branches.Create(string.Empty, repo.Head.CanonicalName));
             }
@@ -169,7 +169,7 @@ namespace LibGit2Sharp.Tests
         [Ignore("Not implemented yet.")]
         public void CreatingBranchWithUnknownNamedTargetThrows()
         {
-            using (var repo = new Repository(Constants.TestRepoPath))
+            using (var repo = new Repository(Constants.BareTestRepoPath))
             {
                 Assert.Throws<ArgumentException>(() => repo.Branches.Create("my_new_branch", "my_old_branch"));
             }
@@ -178,7 +178,7 @@ namespace LibGit2Sharp.Tests
         [Test]
         public void CreatingBranchWithUnknownShaTargetThrows()
         {
-            using (var repo = new Repository(Constants.TestRepoPath))
+            using (var repo = new Repository(Constants.BareTestRepoPath))
             {
                 Assert.Throws<ApplicationException>(() => repo.Branches.Create("my_new_branch", Constants.UnknownSha));
             }
@@ -187,7 +187,7 @@ namespace LibGit2Sharp.Tests
         [Test]
         public void CreatingBranchWithEmptyTargetThrows()
         {
-            using (var repo = new Repository(Constants.TestRepoPath))
+            using (var repo = new Repository(Constants.BareTestRepoPath))
             {
                 Assert.Throws<ArgumentException>(() => repo.Branches.Create("bad_branch", string.Empty));
             }
@@ -196,7 +196,7 @@ namespace LibGit2Sharp.Tests
         [Test]
         public void CreatingBranchWithNullNameThrows()
         {
-            using (var repo = new Repository(Constants.TestRepoPath))
+            using (var repo = new Repository(Constants.BareTestRepoPath))
             {
                 Assert.Throws<ArgumentNullException>(() => repo.Branches.Create(null, repo.Head.CanonicalName));
             }
@@ -205,7 +205,7 @@ namespace LibGit2Sharp.Tests
         [Test]
         public void CreatingBranchWithNullTargetThrows()
         {
-            using (var repo = new Repository(Constants.TestRepoPath))
+            using (var repo = new Repository(Constants.BareTestRepoPath))
             {
                 Assert.Throws<ArgumentNullException>(() => repo.Branches.Create("bad_branch", null));
             }
@@ -225,7 +225,7 @@ namespace LibGit2Sharp.Tests
         [Test]
         public void OnlyOneBranchIsTheHead()
         {
-            using (var repo = new Repository(Constants.TestRepoPath))
+            using (var repo = new Repository(Constants.BareTestRepoPath))
             {
                 Branch head = null;
 

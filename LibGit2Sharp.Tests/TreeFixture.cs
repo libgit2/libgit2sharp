@@ -12,7 +12,7 @@ namespace LibGit2Sharp.Tests
         [Test]
         public void CanCompareTwoTreeEntries()
         {
-            using (var repo = new Repository(Constants.TestRepoPath))
+            using (var repo = new Repository(Constants.BareTestRepoPath))
             {
                 var tree = repo.Lookup<Tree>(sha);
                 TreeEntry treeEntry1 = tree["README"];
@@ -25,7 +25,7 @@ namespace LibGit2Sharp.Tests
         [Test]
         public void CanConvertEntryToBlob()
         {
-            using (var repo = new Repository(Constants.TestRepoPath))
+            using (var repo = new Repository(Constants.BareTestRepoPath))
             {
                 var tree = repo.Lookup<Tree>(sha);
                 TreeEntry treeEntry = tree["README"];
@@ -38,7 +38,7 @@ namespace LibGit2Sharp.Tests
         [Test]
         public void CanConvertEntryToTree()
         {
-            using (var repo = new Repository(Constants.TestRepoPath))
+            using (var repo = new Repository(Constants.BareTestRepoPath))
             {
                 var tree = repo.Lookup<Tree>(sha);
                 TreeEntry treeEntry = tree["1"];
@@ -51,7 +51,7 @@ namespace LibGit2Sharp.Tests
         [Test]
         public void CanEnumerateBlobs()
         {
-            using (var repo = new Repository(Constants.TestRepoPath))
+            using (var repo = new Repository(Constants.BareTestRepoPath))
             {
                 var tree = repo.Lookup<Tree>(sha);
                 tree.Files.Count().ShouldEqual(3);
@@ -61,7 +61,7 @@ namespace LibGit2Sharp.Tests
         [Test]
         public void CanEnumerateSubTrees()
         {
-            using (var repo = new Repository(Constants.TestRepoPath))
+            using (var repo = new Repository(Constants.BareTestRepoPath))
             {
                 var tree = repo.Lookup<Tree>(sha);
                 tree.Trees.Count().ShouldEqual(1);
@@ -71,7 +71,7 @@ namespace LibGit2Sharp.Tests
         [Test]
         public void CanEnumerateTreeEntries()
         {
-            using (var repo = new Repository(Constants.TestRepoPath))
+            using (var repo = new Repository(Constants.BareTestRepoPath))
             {
                 var tree = repo.Lookup<Tree>(sha);
                 tree.Count().ShouldEqual(tree.Count);
@@ -83,7 +83,7 @@ namespace LibGit2Sharp.Tests
         [Test]
         public void CanGetEntryByName()
         {
-            using (var repo = new Repository(Constants.TestRepoPath))
+            using (var repo = new Repository(Constants.BareTestRepoPath))
             {
                 var tree = repo.Lookup<Tree>(sha);
                 TreeEntry treeEntry = tree["README"];
@@ -95,7 +95,7 @@ namespace LibGit2Sharp.Tests
         [Test]
         public void CanGetEntryCountFromTree()
         {
-            using (var repo = new Repository(Constants.TestRepoPath))
+            using (var repo = new Repository(Constants.BareTestRepoPath))
             {
                 var tree = repo.Lookup<Tree>(sha);
                 tree.Count.ShouldEqual(4);
@@ -105,7 +105,7 @@ namespace LibGit2Sharp.Tests
         [Test]
         public void CanReadEntryAttributes()
         {
-            using (var repo = new Repository(Constants.TestRepoPath))
+            using (var repo = new Repository(Constants.BareTestRepoPath))
             {
                 var tree = repo.Lookup<Tree>(sha);
                 tree["README"].Attributes.ShouldEqual(33188);
@@ -115,7 +115,7 @@ namespace LibGit2Sharp.Tests
         [Test]
         public void CanReadTheTreeData()
         {
-            using (var repo = new Repository(Constants.TestRepoPath))
+            using (var repo = new Repository(Constants.BareTestRepoPath))
             {
                 var tree = repo.Lookup<Tree>(sha);
                 tree.ShouldNotBeNull();
@@ -125,7 +125,7 @@ namespace LibGit2Sharp.Tests
         [Test]
         public void TreeDataIsPresent()
         {
-            using (var repo = new Repository(Constants.TestRepoPath))
+            using (var repo = new Repository(Constants.BareTestRepoPath))
             {
                 var tree = repo.Lookup(sha);
                 tree.ShouldNotBeNull();
