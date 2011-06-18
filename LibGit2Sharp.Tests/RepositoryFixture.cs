@@ -51,6 +51,13 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        [Test]
+        public void CreatingRepoWithBadParamsThrows()
+        {
+            Assert.Throws<ArgumentException>(() => Repository.Init(string.Empty));
+            Assert.Throws<ArgumentNullException>(() => Repository.Init(null));
+        }
+
         private static void AssertInitializedRepository(Repository repo)
         {
             repo.Info.Path.ShouldNotBeNull();
@@ -76,11 +83,51 @@ namespace LibGit2Sharp.Tests
             repo.Tags.Count().ShouldEqual(0);
         }
 
+
         [Test]
-        public void CreatingRepoWithBadParamsThrows()
+        public void CanOpenRepoWithFullPath()
         {
-            Assert.Throws<ArgumentException>(() => Repository.Init(string.Empty));
-            Assert.Throws<ArgumentNullException>(() => Repository.Init(null));
+            var path = Path.GetFullPath(Constants.BareTestRepoPath);
+            using (var repo = new Repository(path))
+            {
+                repo.ShouldNotBeNull();
+            }
+        }
+
+        [Test]
+        [Platform(Exclude = "Linux,Unix", Reason = "No need to test windows path separators on non-windows platforms")]
+        // See http://www.nunit.org/index.php?p=platform&r=2.6 for other platforms that can be excluded/included.
+        public void CanOpenRepoWithWindowsPathSeparators()
+        {
+            using (new Repository(@".\Resources\testrepo.git"))
+            {
+            }
+        }
+
+        [Test]
+        public void CanOpenRepository()
+        {
+            using (var repo = new Repository(Constants.BareTestRepoPath))
+            {
+                repo.Info.Path.ShouldNotBeNull();
+                repo.Info.WorkingDirectory.ShouldBeNull();
+                repo.Info.IsBare.ShouldBeTrue();
+                repo.Info.IsEmpty.ShouldBeFalse();
+                repo.Info.IsHeadDetached.ShouldBeFalse();
+            }
+        }
+
+        [Test]
+        public void OpeningNonExistentRepoThrows()
+        {
+            Assert.Throws<ApplicationException>(() => { new Repository("a_bad_path"); });
+        }
+
+        [Test]
+        public void OpeningRepositoryWithBadParamsThrows()
+        {
+            Assert.Throws<ArgumentException>(() => new Repository(string.Empty));
+            Assert.Throws<ArgumentNullException>(() => new Repository(null));
         }
 
         [Test]
@@ -140,15 +187,6 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
-        public void CanOpenRepoWithFullPath()
-        {
-            var path = Path.GetFullPath(Constants.BareTestRepoPath);
-            using (new Repository(path))
-            {
-            }
-        }
-
-        [Test]
         public void LookupObjectByWrongShaReturnsNull()
         {
             using (var repo = new Repository(Constants.BareTestRepoPath))
@@ -194,43 +232,7 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
-        [Platform(Exclude = "Linux,Unix", Reason = "No need to test windows path separators on non-windows platforms")] 
-        // See http://www.nunit.org/index.php?p=platform&r=2.6 for other platforms that can be excluded/included.
-        public void CanOpenRepoWithWindowsPathSeparators()
-        {
-            using (new Repository(@".\Resources\testrepo.git"))
-            {
-            }
-        }
-
-        [Test]
-        public void CanOpenRepository()
-        {
-            using (var repo = new Repository(Constants.BareTestRepoPath))
-            {
-                repo.Info.Path.ShouldNotBeNull();
-                repo.Info.WorkingDirectory.ShouldBeNull();
-                repo.Info.IsBare.ShouldBeTrue();
-                repo.Info.IsEmpty.ShouldBeFalse();
-                repo.Info.IsHeadDetached.ShouldBeFalse();
-            }
-        }
-
-        [Test]
-        public void OpenNonExistentRepoThrows()
-        {
-            Assert.Throws<ApplicationException>(() => { new Repository("a_bad_path"); });
-        }
-
-        [Test]
-        public void OpeningRepositoryWithBadParamsThrows()
-        {
-            Assert.Throws<ArgumentException>(() => new Repository(string.Empty));
-            Assert.Throws<ArgumentNullException>(() => new Repository(null));
-        }
-
-        [Test]
-        public void CanTellIfObjectsExistInRepository()
+        public void CanCheckForObjectExistence()
         {
             using (var repo = new Repository(Constants.BareTestRepoPath))
             {
