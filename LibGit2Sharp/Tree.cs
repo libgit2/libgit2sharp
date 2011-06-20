@@ -33,7 +33,10 @@ namespace LibGit2Sharp
         {
             get
             {
-                return this.Select(e => e.Target).OfType<Tree>();
+                return this
+                    .Where(e => e.Type == GitObjectType.Tree)
+                    .Select(e => e.Target)
+                    .Cast<Tree>();
             }
         }
 
@@ -41,7 +44,10 @@ namespace LibGit2Sharp
         {
             get
             {
-                return this.Select(e => e.Target).OfType<Blob>();
+                return this
+                    .Where(e => e.Type == GitObjectType.Blob)
+                    .Select(e => e.Target)
+                    .Cast<Blob>();
             }
         }
 

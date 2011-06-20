@@ -4,6 +4,9 @@ using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
 {
+    /// <summary>
+    /// Representation of an entry in a <see cref="Tree"/>.
+    /// </summary>
     public class TreeEntry : IEquatable<TreeEntry>
     {
         private readonly ObjectId parentTreeId;
@@ -14,29 +17,46 @@ namespace LibGit2Sharp
         private static readonly LambdaEqualityHelper<TreeEntry> equalityHelper =
             new LambdaEqualityHelper<TreeEntry>(new Func<TreeEntry, object>[] { x => x.Name, x => x.parentTreeId });
 
-        public TreeEntry(IntPtr obj, ObjectId parentTreeId, Repository repo)
+        internal TreeEntry(IntPtr obj, ObjectId parentTreeId, Repository repo)
         {
             this.parentTreeId = parentTreeId;
             this.repo = repo;
             IntPtr gitTreeEntryId = NativeMethods.git_tree_entry_id(obj);
             targetOid = new ObjectId((GitOid)Marshal.PtrToStructure(gitTreeEntryId, typeof(GitOid)));
+            Type = NativeMethods.git_tree_entry_type(obj);
 
             Attributes = NativeMethods.git_tree_entry_attributes(obj);
             Name = NativeMethods.git_tree_entry_name(obj).MarshallAsString();
         }
 
+        /// <summary>
+        /// Gets the UNIX file attributes.
+        /// </summary>
         public int Attributes { get; private set; }
-        
+
+        /// <summary>
+        /// Gets the filename.
+        /// <para>The filename is expressed in a relative form. Path segments are separated with a forward slash."/></para>
+        /// </summary>
         public string Name { get; private set; }
 
+        /// <summary>
+        /// Gets the <see cref="GitObject"/> being pointed at.
+        /// </summary>
         public GitObject Target { get { return target ?? (target = RetreiveTreeEntryTarget()); } }
+
+        /// <summary>
+        /// Gets the <see cref="GitObjectType"/> of the <see cref="Target"/> being pointed at.
+        /// </summary>
+        public GitObjectType Type { get; private set; }
 
         private GitObject RetreiveTreeEntryTarget()
         {
             GitObject treeEntryTarget = repo.Lookup(targetOid);
 
+            //TODO: Warning submodules will appear as targets of type Commit
             Ensure.ArgumentConformsTo(treeEntryTarget.GetType(), t => typeof(Blob).IsAssignableFrom(t) || typeof(Tree).IsAssignableFrom(t), "treeEntryTarget");
-            
+
             return treeEntryTarget;
         }
 

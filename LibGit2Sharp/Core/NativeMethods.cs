@@ -236,10 +236,13 @@ namespace LibGit2Sharp.Core
         public static extern IntPtr git_tree_entry_byname(IntPtr tree, string filename);
 
         [DllImport(libgit2)]
-        public static extern IntPtr git_tree_entry_id(IntPtr tree);
+        public static extern IntPtr git_tree_entry_id(IntPtr entry);
 
         [DllImport(libgit2)]
         public static extern IntPtr git_tree_entry_name(IntPtr entry);
+
+        [DllImport(libgit2)]
+        public static extern GitObjectType git_tree_entry_type(IntPtr entry);
 
         [DllImport(libgit2)]
         public static extern uint git_tree_entrycount(IntPtr tree);
