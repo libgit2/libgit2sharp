@@ -144,7 +144,7 @@
         /// invalid arguments to function
         /// </summary>
         GIT_EINVALIDARGS = -27,
-    
+
         /// <summary>
         /// The specified object has its data corrupted
         /// </summary>
@@ -154,5 +154,10 @@
         /// The given short oid is ambiguous
         /// </summary>
         GIT_EAMBIGUOUSOIDPREFIX = -29,
-}
+
+        /// <summary>
+        /// Skip and passthrough the given ODB backend
+        /// </summary>
+        GIT_EPASSTHROUGH = -30,
+    }
 }
