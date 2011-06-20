@@ -1,6 +1,5 @@
 ﻿using System;
-using System.Globalization;
-using System.Text;
+using System.Linq;
 using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
@@ -12,7 +11,14 @@ namespace LibGit2Sharp
     {
         private readonly GitOid oid;
         private const int rawSize = 20;
-        private const int hexSize = rawSize * 2;
+        private readonly string sha;
+
+        protected const int HexSize = rawSize * 2;
+        protected const int MinHexSize = 4;
+
+        private const string hexDigits = "0123456789abcdef";
+        private static readonly byte[] reverseHexDigits = BuildReverseHexDigits();
+        private static readonly Func<int, byte> byteConverter = i => reverseHexDigits[i - '0'];
 
         private static readonly LambdaEqualityHelper<ObjectId> equalityHelper =
             new LambdaEqualityHelper<ObjectId>(new Func<ObjectId, object>[] { x => x.Sha });
@@ -24,7 +30,7 @@ namespace LibGit2Sharp
         internal ObjectId(GitOid oid)
         {
             this.oid = oid;
-            Sha = Stringify(this.oid);
+            sha = ToString(oid.Id);
         }
 
         /// <summary>
@@ -44,8 +50,15 @@ namespace LibGit2Sharp
         /// <param name="sha">The sha.</param>
         public ObjectId(string sha)
         {
-            oid = CreateFromSha(sha, true).GetValueOrDefault();
-            Sha = sha;
+            GitOid? parsedOid = BuildOidFrom(sha, true, false);
+
+            if (!parsedOid.HasValue)
+            {
+                throw new ArgumentException(string.Format("'{0}' is not a valid Sha-1.", sha));
+            }
+
+            oid = parsedOid.Value;
+            this.sha = sha;
         }
 
         internal GitOid Oid
@@ -64,51 +77,48 @@ namespace LibGit2Sharp
         /// <summary>
         /// Gets the sha.
         /// </summary>
-        public string Sha { get; private set; }
+        public virtual string Sha { get { return sha; } }
 
-        internal static ObjectId CreateFromMaybeSha(string sha)
+        /// <summary>
+        /// Converts the specified string representation of a Sha-1 to its <see cref="ObjectId"/> equivalent and returns a value that indicates whether the conversion succeeded.
+        /// </summary>
+        /// <param name="sha">A string containing a Sha-1 to convert. </param>
+        /// <param name="result">When this method returns, contains the <see cref="ObjectId"/> value equivalent to the Sha-1 contained in <paramref name="sha"/>, if the conversion succeeded, or <code>null</code> if the conversion failed.</param>
+        /// <returns>true if the <paramref name="sha"/> parameter was converted successfully; otherwise, false.</returns>
+        public static bool TryParse(string sha, out ObjectId result)
         {
-            GitOid? oid = CreateFromSha(sha, false);
+            return TryParseInternal(sha, true, out result);
+        }
+
+        internal static bool TryParseInternal(string sha, bool allowShortIdentifier, out ObjectId result)
+        {
+            result = BuildFrom(sha, false, allowShortIdentifier);
+
+            return (result == null) ? false : true;
+        }
+
+        private static GitOid? BuildOidFrom(string sha, bool shouldThrowIfInvalid, bool allowShortIdentifier)
+        {
+            if (!LooksValid(sha, shouldThrowIfInvalid, allowShortIdentifier))
+            {
+                return null;
+            }
+
+            return ToOid(sha);
+        }
+
+        private static ObjectId BuildFrom(string sha, bool shouldThrowIfInvalid, bool allowShortIdentifier)
+        {
+            GitOid? oid = BuildOidFrom(sha, shouldThrowIfInvalid, allowShortIdentifier);
 
             if (!oid.HasValue)
             {
                 return null;
             }
 
-            return new ObjectId(oid.Value);
-        }
+            ObjectId objectId = sha.Length == HexSize ? new ObjectId(oid.Value) : new AbbreviatedObjectId(oid.Value, sha.Length);
 
-        private static GitOid? CreateFromSha(string sha, bool shouldThrow)
-        {
-            Ensure.ArgumentNotNullOrEmptyString(sha, "sha");
-
-            if (sha.Length != hexSize)
-            {
-                if (!shouldThrow)
-                {
-                    return null;
-                }
-
-                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "'{0}' is not a valid sha. Expected length should equal {1}.", sha, hexSize));
-            }
-
-            GitOid oid;
-            var result = NativeMethods.git_oid_fromstr(out oid, sha);
-
-            if (!shouldThrow && result != (int)GitErrorCode.GIT_SUCCESS)
-            {
-                return null;
-            }
-
-            Ensure.Success(result);
-            return oid;
-        }
-
-        private static string Stringify(GitOid oid)
-        {
-            var hex = new byte[hexSize];
-            NativeMethods.git_oid_fmt(hex, ref oid);
-            return Encoding.ASCII.GetString(hex);
+            return objectId;
         }
 
         /// <summary>
@@ -150,6 +160,32 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        ///  Returns the <see cref="Sha"/>, a <see cref="String"/> representation of the current <see cref="ObjectId"/>.
+        /// </summary>
+        /// <param name="prefixLength">The number of chars the <see cref="Sha"/> should be truncated to.</param>
+        /// <returns>The <see cref="Sha"/> that represents the current <see cref="ObjectId"/>.</returns>
+        public string ToString(int prefixLength)
+        {
+            int normalizedLength = NormalizeLength(prefixLength);
+            return Sha.Substring(0, Math.Min(Sha.Length, normalizedLength));
+        }
+
+        private static int NormalizeLength(int prefixLength)
+        {
+            if (prefixLength < MinHexSize)
+            {
+                return MinHexSize;
+            }
+
+            if (prefixLength > HexSize)
+            {
+                return HexSize;
+            }
+
+            return prefixLength;
+        }
+
+        /// <summary>
         /// Tests if two <see cref="ObjectId"/> are equal.
         /// </summary>
         /// <param name="left">First <see cref="ObjectId"/> to compare.</param>
@@ -169,6 +205,100 @@ namespace LibGit2Sharp
         public static bool operator !=(ObjectId left, ObjectId right)
         {
             return !Equals(left, right);
+        }
+
+        private static byte[] BuildReverseHexDigits()
+        {
+            var bytes = new byte['f' - '0' + 1];
+
+            for (int i = 0; i < 10; i++)
+            {
+                bytes[i] = (byte)i;
+            }
+
+            for (int i = 10; i < 16; i++)
+            {
+                bytes[i + 'a' - '0' - 0x0a] = (byte)(i);
+            }
+
+            return bytes;
+        }
+
+        private static string ToString(byte[] id)
+        {
+            if (id == null || id.Length != rawSize)
+            {
+                throw new ArgumentException("id");
+            }
+
+            // Inspired from http://stackoverflow.com/questions/623104/c-byte-to-hex-string/3974535#3974535
+
+            var c = new char[HexSize];
+
+            for (int i = 0; i < HexSize; i++)
+            {
+                int index0 = i >> 1;
+                var b = ((byte)(id[index0] >> 4));
+                c[i++] = hexDigits[b];
+
+                b = ((byte)(id[index0] & 0x0F));
+                c[i] = hexDigits[b];
+            }
+
+            return new string(c);
+        }
+
+        private static GitOid ToOid(string sha)
+        {
+            var bytes = new byte[rawSize];
+
+            if ((sha.Length & 1) == 1)
+            {
+                sha += "0";
+            }
+
+            for (int i = 0; i < sha.Length; i++)
+            {
+                int c1 = byteConverter(sha[i++]) << 4;
+                int c2 = byteConverter(sha[i]);
+
+                bytes[i >> 1] = (byte)(c1 + c2);
+            }
+
+            var oid = new GitOid{Id = bytes};
+            return oid;
+        }
+
+        private static bool LooksValid(string objectId, bool throwIfInvalid, bool allowShortIdentifier)
+        {
+            if (objectId == null)
+            {
+                if (!throwIfInvalid)
+                {
+                    return false;
+                }
+
+                throw new ArgumentNullException(objectId);
+            }
+
+            if (objectId.Length < MinHexSize || objectId.Length > HexSize)
+            {
+                if (!throwIfInvalid)
+                {
+                    return false;
+                }
+
+                string additionalErrorInformation = 
+                    !allowShortIdentifier ? 
+                    string.Format("Its length should be {0}", HexSize) : 
+                    string.Format("Its length should be comprised between {0} and {1}", MinHexSize, HexSize);
+
+                throw new ArgumentException(
+                    string.Format("'{0}' is not a valid object identifier. {1}.", objectId, additionalErrorInformation),
+                    "objectId");
+            }
+
+            return objectId.All(c => hexDigits.Contains(c.ToString()));
         }
     }
 }

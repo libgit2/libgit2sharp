@@ -60,7 +60,7 @@ namespace LibGit2Sharp
                     case GitObjectType.Blob:
                         return Blob.BuildFromPtr(obj, id, repo);
                     default:
-                        return new GitObject(id);
+                        throw new InvalidOperationException(string.Format("Unexpected type '{0}' for object '{1}'.", type, id));
                 }
             }
             finally

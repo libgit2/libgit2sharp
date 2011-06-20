@@ -68,13 +68,14 @@ namespace LibGit2Sharp
         public Reference Create(string name, string target, bool allowOverwrite = false)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
+            Ensure.ArgumentNotNullOrEmptyString(target, "target");
 
-            ObjectId id = ObjectId.CreateFromMaybeSha(target);
-
+            ObjectId id;
+            
             IntPtr reference;
             int res;
 
-            if (id != null)
+            if (ObjectId.TryParse(target, out id))
             {
                 res = CreateDirectReference(name, id, allowOverwrite, out reference);
             }
@@ -175,17 +176,18 @@ namespace LibGit2Sharp
             IntPtr reference = RetrieveReferencePtr(name);
             int res;
 
-            var id = ObjectId.CreateFromMaybeSha(target);
+            ObjectId id;
+            bool isObjectIdentifier = ObjectId.TryParse(target, out id);
             var type = NativeMethods.git_reference_type(reference);
             switch (type)
             {
                 case GitReferenceType.Oid:
-                    if (id == null) throw new ArgumentException(String.Format(CultureInfo.InvariantCulture, "The reference specified by {0} is an Oid reference, you must provide a sha as the target.", name), "target");
+                    if (!isObjectIdentifier) throw new ArgumentException(String.Format(CultureInfo.InvariantCulture, "The reference specified by {0} is an Oid reference, you must provide a sha as the target.", name), "target");
                     var oid = id.Oid;
                     res = NativeMethods.git_reference_set_oid(reference, ref oid);
                     break;
                 case GitReferenceType.Symbolic:
-                    if (id != null) throw new ArgumentException(String.Format(CultureInfo.InvariantCulture, "The reference specified by {0} is an Symbolic reference, you must provide a symbol as the target.", name), "target");
+                    if (isObjectIdentifier) throw new ArgumentException(String.Format(CultureInfo.InvariantCulture, "The reference specified by {0} is an Symbolic reference, you must provide a symbol as the target.", name), "target");
                     res = NativeMethods.git_reference_set_target(reference, target);
                     break;
                 default:

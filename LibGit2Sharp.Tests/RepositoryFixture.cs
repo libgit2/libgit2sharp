@@ -218,6 +218,37 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
+        public void CanLookupWhithShortIdentifers()
+        {
+            const string expectedAbbrevSha = "edfecad";
+            const string expectedSha = expectedAbbrevSha + "02d96c9dbf64f6e238c45ddcfa762eef0";
+
+            using (var scd = new SelfCleaningDirectory())
+            {
+                var dir = Repository.Init(scd.DirectoryPath);
+
+                using (var repo = new Repository(dir))
+                {
+                    string filePath = Path.Combine(repo.Info.WorkingDirectory, "new.txt");
+
+                    File.WriteAllText(filePath, "one ");
+                    repo.Index.Stage(filePath);
+
+                    var author = Constants.Signature;
+                    var commit = repo.Commit(author, author, "Initial commit");
+
+                    commit.Sha.ShouldEqual(expectedSha);
+
+                    var lookedUp1 = repo.Lookup(expectedSha);
+                    lookedUp1.ShouldEqual(commit);
+
+                    var lookedUp2 = repo.Lookup(expectedAbbrevSha);
+                    lookedUp2.ShouldEqual(commit);
+                }
+            }
+        }
+
+        [Test]
         public void LookingUpWithBadParamsThrows()
         {
             using (var repo = new Repository(Constants.BareTestRepoPath))

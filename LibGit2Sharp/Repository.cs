@@ -156,8 +156,6 @@ namespace LibGit2Sharp
         /// <returns></returns>
         public bool HasObject(string sha)   //TODO: To be removed from front facing API (maybe should we create an Repository.Advanced to hold those kind of functions)?
         {
-            Ensure.ArgumentNotNullOrEmptyString(sha, "sha");
-
             var id = new ObjectId(sha);
 
             var odb = NativeMethods.git_repository_database(handle);
@@ -197,13 +195,28 @@ namespace LibGit2Sharp
 
             var oid = id.Oid;
             IntPtr obj;
-            var res = NativeMethods.git_object_lookup(out obj, handle, ref oid, type);
+            int res;
+
+            if (id is AbbreviatedObjectId)
+            {
+                res = NativeMethods.git_object_lookup_prefix(out obj, handle, ref oid, (uint)((AbbreviatedObjectId)id).Length, type);
+            }
+            else
+            {
+                res = NativeMethods.git_object_lookup(out obj, handle, ref oid, type);
+            }
+
             if (res == (int)GitErrorCode.GIT_ENOTFOUND || res == (int)GitErrorCode.GIT_EINVALIDTYPE)
             {
                 return null;
             }
 
             Ensure.Success(res);
+
+            if (id is AbbreviatedObjectId)
+            {
+                id = GitObject.ObjectIdOf(obj);
+            }
 
             return GitObject.CreateFromPtr(obj, id, this);
         }
@@ -216,8 +229,9 @@ namespace LibGit2Sharp
         /// <returns>The <see cref = "GitObject" /> or null if it was not found.</returns>
         public GitObject Lookup(string shaOrReferenceName, GitObjectType type = GitObjectType.Any)
         {
-            ObjectId id = ObjectId.CreateFromMaybeSha(shaOrReferenceName);
-            if (id != null)
+            ObjectId id;
+
+            if (ObjectId.TryParse(shaOrReferenceName, out id))
             {
                 return Lookup(id, type);
             }

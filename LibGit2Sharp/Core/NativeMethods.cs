@@ -78,6 +78,9 @@ namespace LibGit2Sharp.Core
         public static extern int git_object_lookup(out IntPtr obj, RepositorySafeHandle repo, ref GitOid id, GitObjectType type);
 
         [DllImport(libgit2)]
+        public static extern int git_object_lookup_prefix(out IntPtr obj, RepositorySafeHandle repo, ref GitOid id, uint len, GitObjectType type);
+
+        [DllImport(libgit2)]
         public static extern GitObjectType git_object_type(IntPtr obj);
 
         [DllImport(libgit2)]
@@ -89,12 +92,6 @@ namespace LibGit2Sharp.Core
 
         [DllImport(libgit2)]
         public static extern int git_oid_cmp(ref GitOid a, ref GitOid b);
-
-        [DllImport(libgit2)]
-        public static extern void git_oid_fmt(byte[] str, ref GitOid oid);
-
-        [DllImport(libgit2)]
-        public static extern int git_oid_fromstr(out GitOid oid, string str);
 
         [DllImport(libgit2)]
         public static extern int git_reference_create_oid(out IntPtr reference, RepositorySafeHandle repo, string name, ref GitOid oid);
