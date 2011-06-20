@@ -31,7 +31,8 @@ namespace LibGit2Sharp
         /// Initializes a new instance of the <see cref="ObjectId"/> class.
         /// </summary>
         /// <param name="rawId">The byte array.</param>
-        public ObjectId(byte[] rawId) : this(new GitOid{Id = rawId} )
+        public ObjectId(byte[] rawId)
+            : this(new GitOid { Id = rawId })
         {
             Ensure.ArgumentNotNull(rawId, "rawId");
             Ensure.ArgumentConformsTo(rawId, b => b.Length == rawSize, "rawId");
