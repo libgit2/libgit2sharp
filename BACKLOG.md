@@ -3,7 +3,6 @@
 ### LibGit2Sharp
 
  - Build a LibGit2Sharp.Sample NuGet package
- - Publish source and PDBs at symbolsource.org (cf. http://blog.davidebbo.com/2011/04/easy-way-to-publish-nuget-packages-with.html and http://nuget.codeplex.com/discussions/257709)
  - Maybe : Add to Epoch a DateTimeOffset extension method ToRelativeFormat() in order to show dates relative to the current time, e.g. "2 hours ago". (cf. https://github.com/git/git/blob/master/date.c#L89)
  - Turn duplicated strings "refs/xxx" into properties of a generic Constants helper type
  - Refactor the error handling (OutputResult -> Exceptions)
