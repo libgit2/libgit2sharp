@@ -31,6 +31,18 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
+        public void CanCreateALightWeightTagFromAbbreviatedSha()
+        {
+            using (var path = new TemporaryCloneOfTestRepo())
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                var newTag = repo.Tags.Create("i_am_lightweight", commitE90810BSha.Substring(0, 17));
+                newTag.ShouldNotBeNull();
+                newTag.IsAnnotated.ShouldBeFalse();
+            }
+        }
+
+        [Test]
         public void CanCreateALightweightTagFromABranchName()
         {
             using (var path = new TemporaryCloneOfTestRepo())

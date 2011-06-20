@@ -170,11 +170,23 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
-        public void CanEnumerateUsingTwoCommitsAsBoundaries()
+        public void CanEnumerateUsingTwoHeadsAsBoundaries()
         {
             using (var repo = new Repository(Constants.BareTestRepoPath))
             {
                 var commits = repo.Commits.QueryBy(new Filter { Since = "refs/heads/br2", Until = "refs/heads/packed-test" });
+
+                IEnumerable<string> abbrevShas = commits.Select(c => c.Id.Sha.Substring(0, 7)).ToArray();
+                CollectionAssert.AreEquivalent(new[] { "a4a7dce", "c47800c", "9fd738e" }, abbrevShas);
+            }
+        }
+
+        [Test]
+        public void CanEnumerateUsingTwoAbbreviatedShasAsBoundaries()
+        {
+            using (var repo = new Repository(Constants.BareTestRepoPath))
+            {
+                var commits = repo.Commits.QueryBy(new Filter { Since = "a4a7dce", Until = "4a202b3" });
 
                 IEnumerable<string> abbrevShas = commits.Select(c => c.Id.Sha.Substring(0, 7)).ToArray();
                 CollectionAssert.AreEquivalent(new[] { "a4a7dce", "c47800c", "9fd738e" }, abbrevShas);

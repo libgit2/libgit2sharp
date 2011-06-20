@@ -101,6 +101,16 @@ namespace LibGit2Sharp
 
         private int CreateDirectReference(string name, ObjectId targetOid, bool allowOverwrite, out IntPtr reference)
         {
+            if (targetOid is AbbreviatedObjectId)   //TODO: This is hacky... :-/
+            {
+                var obj = repo.Lookup(targetOid);
+                if (obj == null)
+                {
+                    Ensure.Success((int) GitErrorCode.GIT_ENOTFOUND);
+                }
+                targetOid = obj.Id;
+            }   
+         
             GitOid oid = targetOid.Oid;
 
             if (allowOverwrite)

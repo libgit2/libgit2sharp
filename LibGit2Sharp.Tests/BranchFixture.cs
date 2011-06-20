@@ -47,6 +47,19 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
+        public void CanCreateBranchUsingAbbreviatedSha()
+        {
+            using (var path = new TemporaryCloneOfTestRepo())
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                const string name = "unit_test";
+                var newBranch = repo.CreateBranch(name, "be3563a");
+                newBranch.CanonicalName.ShouldEqual("refs/heads/" + name);
+                newBranch.Tip.Sha.ShouldEqual("be3563ae3f795b2b4353bcce3a527ad0a4f7f644");
+            }
+        }
+
+        [Test]
         public void CanCreateBranchFromImplicitHead()
         {
             using (var path = new TemporaryCloneOfTestRepo())
@@ -181,6 +194,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(Constants.BareTestRepoPath))
             {
                 Assert.Throws<ApplicationException>(() => repo.Branches.Create("my_new_branch", Constants.UnknownSha));
+                Assert.Throws<ApplicationException>(() => repo.Branches.Create("my_new_branch", Constants.UnknownSha.Substring(0, 7)));
             }
         }
 
