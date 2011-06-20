@@ -23,7 +23,7 @@ namespace LibGit2Sharp.Tests
                 using (var repo = new Repository(dir))
                 {
                     repo.Info.WorkingDirectory.ShouldBeNull();
-                    repo.Info.Path.ShouldEqual(scd.RootedDirectoryPath + @"\");
+                    repo.Info.Path.ShouldEqual(scd.RootedDirectoryPath + Path.DirectorySeparatorChar);
                     repo.Info.IsBare.ShouldBeTrue();
 
                     AssertInitializedRepository(repo);
@@ -43,7 +43,7 @@ namespace LibGit2Sharp.Tests
                 using (var repo = new Repository(dir))
                 {
                     repo.Info.WorkingDirectory.ShouldNotBeNull();
-                    repo.Info.Path.ShouldEqual(Path.Combine(scd.RootedDirectoryPath, ".git" + @"\"));
+                    repo.Info.Path.ShouldEqual(Path.Combine(scd.RootedDirectoryPath, ".git" + Path.DirectorySeparatorChar));
                     repo.Info.IsBare.ShouldBeFalse();
 
                     AssertInitializedRepository(repo);
