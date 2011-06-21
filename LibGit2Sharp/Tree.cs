@@ -24,6 +24,12 @@ namespace LibGit2Sharp
                 using (var obj = new ObjectSafeWrapper(Id, repo))
                 {
                     IntPtr e = NativeMethods.git_tree_entry_byname(obj.ObjectPtr, name);
+
+                    if (e == IntPtr.Zero)
+                    {
+                        return null;
+                    }
+
                     return new TreeEntry(e, Id, repo);
                 }
             }

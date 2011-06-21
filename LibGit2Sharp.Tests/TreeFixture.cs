@@ -93,6 +93,17 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
+        public void GettingAnUknownTreeEntryReturnsNull()
+        {
+            using (var repo = new Repository(Constants.BareTestRepoPath))
+            {
+                var tree = repo.Lookup<Tree>(sha);
+                TreeEntry treeEntry = tree["I-do-not-exist"];
+                treeEntry.ShouldBeNull();
+            }
+        }
+
+        [Test]
         public void CanGetEntryCountFromTree()
         {
             using (var repo = new Repository(Constants.BareTestRepoPath))
