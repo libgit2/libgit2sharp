@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using System.Text;
 
 namespace LibGit2Sharp.Core
 {
@@ -77,6 +78,9 @@ namespace LibGit2Sharp.Core
         public static extern int git_object_lookup(out IntPtr obj, RepositorySafeHandle repo, ref GitOid id, GitObjectType type);
 
         [DllImport(libgit2)]
+        public static extern int git_object_lookup_prefix(out IntPtr obj, RepositorySafeHandle repo, ref GitOid id, uint len, GitObjectType type);
+
+        [DllImport(libgit2)]
         public static extern GitObjectType git_object_type(IntPtr obj);
 
         [DllImport(libgit2)]
@@ -88,12 +92,6 @@ namespace LibGit2Sharp.Core
 
         [DllImport(libgit2)]
         public static extern int git_oid_cmp(ref GitOid a, ref GitOid b);
-
-        [DllImport(libgit2)]
-        public static extern void git_oid_fmt(byte[] str, ref GitOid oid);
-
-        [DllImport(libgit2)]
-        public static extern int git_oid_mkstr(out GitOid oid, string str);
 
         [DllImport(libgit2)]
         public static extern int git_reference_create_oid(out IntPtr reference, RepositorySafeHandle repo, string name, ref GitOid oid);
@@ -143,6 +141,11 @@ namespace LibGit2Sharp.Core
         [DllImport(libgit2)]
         public static extern IntPtr git_repository_database(RepositorySafeHandle repository);
 
+        [DllImport(libgit2)]
+        public static extern int git_repository_discover(StringBuilder repository_path, int size, string start_path,
+                                                         [MarshalAs(UnmanagedType.Bool)] bool across_fs,
+                                                         string ceiling_dirs);
+        
         [DllImport(libgit2)]
         public static extern void git_repository_free(IntPtr repository);
 
@@ -230,10 +233,13 @@ namespace LibGit2Sharp.Core
         public static extern IntPtr git_tree_entry_byname(IntPtr tree, string filename);
 
         [DllImport(libgit2)]
-        public static extern IntPtr git_tree_entry_id(IntPtr tree);
+        public static extern IntPtr git_tree_entry_id(IntPtr entry);
 
         [DllImport(libgit2)]
         public static extern IntPtr git_tree_entry_name(IntPtr entry);
+
+        [DllImport(libgit2)]
+        public static extern GitObjectType git_tree_entry_type(IntPtr entry);
 
         [DllImport(libgit2)]
         public static extern uint git_tree_entrycount(IntPtr tree);

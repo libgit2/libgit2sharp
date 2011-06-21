@@ -11,7 +11,7 @@ namespace LibGit2Sharp.Tests
         [Test]
         public void CanGetBlobAsUtf8()
         {
-            using (var repo = new Repository(Constants.TestRepoPath))
+            using (var repo = new Repository(Constants.BareTestRepoPath))
             {
                 var blob = repo.Lookup<Blob>("a8233120f6ad708f843d861ce2b7228ec4e3dec6");
 
@@ -23,7 +23,7 @@ namespace LibGit2Sharp.Tests
         [Test]
         public void CanGetBlobSize()
         {
-            using (var repo = new Repository(Constants.TestRepoPath))
+            using (var repo = new Repository(Constants.BareTestRepoPath))
             {
                 var blob = repo.Lookup<Blob>("a8233120f6ad708f843d861ce2b7228ec4e3dec6");
                 blob.Size.ShouldEqual(10);
@@ -33,7 +33,7 @@ namespace LibGit2Sharp.Tests
         [Test]
         public void CanLookUpBlob()
         {
-            using (var repo = new Repository(Constants.TestRepoPath))
+            using (var repo = new Repository(Constants.BareTestRepoPath))
             {
                 var blob = repo.Lookup<Blob>("a8233120f6ad708f843d861ce2b7228ec4e3dec6");
                 blob.ShouldNotBeNull();
@@ -43,7 +43,7 @@ namespace LibGit2Sharp.Tests
         [Test]
         public void CanReadBlobContent()
         {
-            using (var repo = new Repository(Constants.TestRepoPath))
+            using (var repo = new Repository(Constants.BareTestRepoPath))
             {
                 var blob = repo.Lookup<Blob>("a8233120f6ad708f843d861ce2b7228ec4e3dec6");
                 var bytes = blob.Content;
@@ -57,7 +57,7 @@ namespace LibGit2Sharp.Tests
         [Test]
         public void CanReadBlobStream()
         {
-            using (var repo = new Repository(Constants.TestRepoPath))
+            using (var repo = new Repository(Constants.BareTestRepoPath))
             {
                 var blob = repo.Lookup<Blob>("a8233120f6ad708f843d861ce2b7228ec4e3dec6");
 

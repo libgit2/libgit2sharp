@@ -79,9 +79,9 @@ namespace LibGit2Sharp
         /// <returns></returns>
         public Branch Create(string name, string target)
         {
-            ObjectId id = ObjectId.CreateFromMaybeSha(target);
-           
-            if (id == null)
+            ObjectId id;
+
+            if (!ObjectId.TryParse(target, out id))
             {
                 var reference = repo.Refs[NormalizeToCanonicalName(target)].ResolveToDirectReference();
                 target = reference.TargetIdentifier;

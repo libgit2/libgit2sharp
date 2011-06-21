@@ -13,7 +13,6 @@
   </metadata>
   <files>
     <file src="..\Lib\git2.dll" target="NativeBinaries\x86" />
-    <file src="..\Lib\msvcr100.dll" target="NativeBinaries\x86" />
     <file src="..\README.md" target="App_Readme\LibGit2Sharp.README.md" />
     <file src="..\LICENSE.md" target="App_Readme\LibGit2Sharp.LICENSE.md" />
     <file src="..\CHANGELOG.md" target="App_Readme\LibGit2Sharp.CHANGELOG.md" />

@@ -7,37 +7,39 @@ namespace LibGit2Sharp.Core
         public static IList<string> ListAllReferenceNames(RepositorySafeHandle repo, GitReferenceType types)
         {
             UnSafeNativeMethods.git_strarray strArray;
-            var res = UnSafeNativeMethods.git_reference_listall(&strArray, repo, types);
+            var res = UnSafeNativeMethods.git_reference_listall(out strArray, repo, types);
             Ensure.Success(res);
 
-            return BuildListOf(&strArray);
+            return BuildListOf(strArray);
         }
 
         public static IList<string> ListAllTagNames(RepositorySafeHandle repo)
         {
             UnSafeNativeMethods.git_strarray strArray;
-            var res = UnSafeNativeMethods.git_tag_list(&strArray, repo);
+            var res = UnSafeNativeMethods.git_tag_list(out strArray, repo);
             Ensure.Success(res);
 
-            return BuildListOf(&strArray);
+            return BuildListOf(strArray);
         }
 
-        private static IList<string> BuildListOf(UnSafeNativeMethods.git_strarray* strArray)
+        private static IList<string> BuildListOf(UnSafeNativeMethods.git_strarray strArray)
         {
             var list = new List<string>();
 
             try
             {
-                int numberOfEntries = strArray->size.ToInt32();
+                UnSafeNativeMethods.git_strarray* gitStrArray = &strArray;
+
+                int numberOfEntries = gitStrArray->size.ToInt32();
                 for (uint i = 0; i < numberOfEntries; i++)
                 {
-                    var name = new string(strArray->strings[i]);
+                    var name = new string(gitStrArray->strings[i]);
                     list.Add(name);
                 }
             }
             finally
             {
-                UnSafeNativeMethods.git_strarray_free(strArray);
+                UnSafeNativeMethods.git_strarray_free(ref strArray);
             }
 
             return list;

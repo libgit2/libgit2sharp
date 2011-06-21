@@ -263,7 +263,6 @@ namespace LibGit2Sharp
 
                 throw new InvalidOperationException(string.Format("Unexpected kind of identifier '{0}'.", identifier));
             }
-        
         }
     }
 }

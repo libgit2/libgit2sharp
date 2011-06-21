@@ -44,6 +44,7 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AbbreviatedObjectId.cs" />
     <Compile Include="Blob.cs" />
     <Compile Include="Branch.cs" />
     <Compile Include="BranchCollection.cs" />
@@ -108,12 +109,6 @@
   <ItemGroup>
     <None Include="..\Lib\git2.dll">
       <Link>git2.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\Lib\msvcr100.dll">
-      <Link>msvcr100.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

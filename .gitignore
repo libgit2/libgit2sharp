@@ -29,7 +29,7 @@ _ReSharper*/
 *.ReSharper
 *.ReSharper.user
 [Tt]est[Rr]esult*
-build/
+[bB]uild/
 *.pidb
 *.userprefs
 *.swp

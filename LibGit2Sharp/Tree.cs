@@ -24,6 +24,12 @@ namespace LibGit2Sharp
                 using (var obj = new ObjectSafeWrapper(Id, repo))
                 {
                     IntPtr e = NativeMethods.git_tree_entry_byname(obj.ObjectPtr, name);
+
+                    if (e == IntPtr.Zero)
+                    {
+                        return null;
+                    }
+
                     return new TreeEntry(e, Id, repo);
                 }
             }
@@ -33,7 +39,10 @@ namespace LibGit2Sharp
         {
             get
             {
-                return this.Select(e => e.Target).OfType<Tree>();
+                return this
+                    .Where(e => e.Type == GitObjectType.Tree)
+                    .Select(e => e.Target)
+                    .Cast<Tree>();
             }
         }
 
@@ -41,7 +50,10 @@ namespace LibGit2Sharp
         {
             get
             {
-                return this.Select(e => e.Target).OfType<Blob>();
+                return this
+                    .Where(e => e.Type == GitObjectType.Blob)
+                    .Select(e => e.Target)
+                    .Cast<Blob>();
             }
         }
 

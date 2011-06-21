@@ -12,7 +12,7 @@ namespace LibGit2Sharp.Tests.TestHelpers
 
         private static void SetUpTestEnvironment()
         {
-            var source = new DirectoryInfo(@"..\..\..\Resources");
+            var source = new DirectoryInfo(@"../../../Resources");
             var target = new DirectoryInfo(@"Resources");
 
             if (target.Exists)
@@ -25,8 +25,8 @@ namespace LibGit2Sharp.Tests.TestHelpers
             // The test repo under source control has its .git folder renamed to dot_git to avoid confusing git,
             // so we need to rename it back to .git in our copy under the target folder
 
-            string tempDotGit = Path.Combine(Constants.TestRepoWithWorkingDirRootPath, "dot_git");
-            Directory.Move(tempDotGit, Constants.TestRepoWithWorkingDirPath);
+            string tempDotGit = Path.Combine(Constants.StandardTestRepoWorkingDirPath, "dot_git");
+            Directory.Move(tempDotGit, Constants.StandardTestRepoPath);
         }
     }
 }

@@ -23,7 +23,7 @@ namespace LibGit2Sharp.Tests
                 using (var repo = new Repository(dir))
                 {
                     repo.Info.WorkingDirectory.ShouldBeNull();
-                    repo.Info.Path.ShouldEqual(scd.RootedDirectoryPath + @"\");
+                    repo.Info.Path.ShouldEqual(scd.RootedDirectoryPath + Path.DirectorySeparatorChar);
                     repo.Info.IsBare.ShouldBeTrue();
 
                     AssertInitializedRepository(repo);
@@ -43,12 +43,19 @@ namespace LibGit2Sharp.Tests
                 using (var repo = new Repository(dir))
                 {
                     repo.Info.WorkingDirectory.ShouldNotBeNull();
-                    repo.Info.Path.ShouldEqual(Path.Combine(scd.RootedDirectoryPath, ".git" + @"\"));
+                    repo.Info.Path.ShouldEqual(Path.Combine(scd.RootedDirectoryPath, ".git" + Path.DirectorySeparatorChar));
                     repo.Info.IsBare.ShouldBeFalse();
 
                     AssertInitializedRepository(repo);
                 }
             }
+        }
+
+        [Test]
+        public void CreatingRepoWithBadParamsThrows()
+        {
+            Assert.Throws<ArgumentException>(() => Repository.Init(string.Empty));
+            Assert.Throws<ArgumentNullException>(() => Repository.Init(null));
         }
 
         private static void AssertInitializedRepository(Repository repo)
@@ -76,125 +83,19 @@ namespace LibGit2Sharp.Tests
             repo.Tags.Count().ShouldEqual(0);
         }
 
-        [Test]
-        public void CreatingRepoWithBadParamsThrows()
-        {
-            Assert.Throws<ArgumentException>(() => Repository.Init(string.Empty));
-            Assert.Throws<ArgumentNullException>(() => Repository.Init(null));
-        }
-
-        [Test]
-        public void CanLookupACommitByTheNameOfABranch()
-        {
-            using (var repo = new Repository(Constants.TestRepoPath))
-            {
-                var gitObject = repo.Lookup("refs/heads/master");
-                gitObject.ShouldNotBeNull();
-                Assert.IsInstanceOf<Commit>(gitObject);
-            }
-        }
-
-        [Test]
-        public void CanLookupACommitByTheNameOfALightweightTag()
-        {
-            using (var repo = new Repository(Constants.TestRepoPath))
-            {
-                var gitObject = repo.Lookup("refs/tags/lw");
-                gitObject.ShouldNotBeNull();
-                Assert.IsInstanceOf<Commit>(gitObject);
-            }
-        }
-
-        [Test]
-        public void CanLookupATagAnnotationByTheNameOfAnAnnotatedTag()
-        {
-            using (var repo = new Repository(Constants.TestRepoPath))
-            {
-                var gitObject = repo.Lookup("refs/tags/e90810b");
-                gitObject.ShouldNotBeNull();
-                Assert.IsInstanceOf<TagAnnotation>(gitObject);
-            }
-        }
-
-        [Test]
-        public void CanLookupObjects()
-        {
-            using (var repo = new Repository(Constants.TestRepoPath))
-            {
-                repo.Lookup(commitSha).ShouldNotBeNull();
-                repo.Lookup<Commit>(commitSha).ShouldNotBeNull();
-                repo.Lookup<GitObject>(commitSha).ShouldNotBeNull();
-            }
-        }
-
-        [Test]
-        public void CanLookupSameObjectTwiceAndTheyAreEqual()
-        {
-            using (var repo = new Repository(Constants.TestRepoPath))
-            {
-                var commit = repo.Lookup(commitSha);
-                var commit2 = repo.Lookup(commitSha);
-                commit.Equals(commit2).ShouldBeTrue();
-                commit.GetHashCode().ShouldEqual(commit2.GetHashCode());
-            }
-        }
 
         [Test]
         public void CanOpenRepoWithFullPath()
         {
-            var path = Path.GetFullPath(Constants.TestRepoPath);
-            using (new Repository(path))
+            var path = Path.GetFullPath(Constants.BareTestRepoPath);
+            using (var repo = new Repository(path))
             {
+                repo.ShouldNotBeNull();
             }
         }
 
         [Test]
-        public void LookupObjectByWrongShaReturnsNull()
-        {
-            using (var repo = new Repository(Constants.TestRepoPath))
-            {
-                repo.Lookup(Constants.UnknownSha).ShouldBeNull();
-                repo.Lookup<GitObject>(Constants.UnknownSha).ShouldBeNull();
-            }
-        }
-
-        [Test]
-        public void LookupObjectByWrongTypeReturnsNull()
-        {
-            using (var repo = new Repository(Constants.TestRepoPath))
-            {
-                repo.Lookup(commitSha).ShouldNotBeNull();
-                repo.Lookup<Commit>(commitSha).ShouldNotBeNull();
-                repo.Lookup<TagAnnotation>(commitSha).ShouldBeNull();
-            }
-        }
-
-        [Test]
-        public void LookupObjectByUnknownReferenceNameReturnsNull()
-        {
-            using (var repo = new Repository(Constants.TestRepoPath))
-            {
-                repo.Lookup("refs/heads/chopped/off").ShouldBeNull();
-                repo.Lookup<GitObject>(Constants.UnknownSha).ShouldBeNull();
-            }
-        }
-
-        [Test]
-        public void LookingUpWithBadParamsThrows()
-        {
-            using (var repo = new Repository(Constants.TestRepoPath))
-            {
-                Assert.Throws<ArgumentException>(() => repo.Lookup(string.Empty));
-                Assert.Throws<ArgumentException>(() => repo.Lookup<GitObject>(string.Empty));
-                Assert.Throws<ArgumentNullException>(() => repo.Lookup((string)null));
-                Assert.Throws<ArgumentNullException>(() => repo.Lookup((ObjectId)null));
-                Assert.Throws<ArgumentNullException>(() => repo.Lookup<Commit>((string)null));
-                Assert.Throws<ArgumentNullException>(() => repo.Lookup<Commit>((ObjectId)null));
-            }
-        }
-
-        [Test]
-        [Platform(Exclude = "Linux,Unix", Reason = "No need to test windows path separators on non-windows platforms")] 
+        [Platform(Exclude = "Linux,Unix", Reason = "No need to test windows path separators on non-windows platforms")]
         // See http://www.nunit.org/index.php?p=platform&r=2.6 for other platforms that can be excluded/included.
         public void CanOpenRepoWithWindowsPathSeparators()
         {
@@ -206,7 +107,7 @@ namespace LibGit2Sharp.Tests
         [Test]
         public void CanOpenRepository()
         {
-            using (var repo = new Repository(Constants.TestRepoPath))
+            using (var repo = new Repository(Constants.BareTestRepoPath))
             {
                 repo.Info.Path.ShouldNotBeNull();
                 repo.Info.WorkingDirectory.ShouldBeNull();
@@ -217,7 +118,7 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
-        public void OpenNonExistentRepoThrows()
+        public void OpeningNonExistentRepoThrows()
         {
             Assert.Throws<ApplicationException>(() => { new Repository("a_bad_path"); });
         }
@@ -230,9 +131,141 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
-        public void CanTellIfObjectsExistInRepository()
+        public void CanLookupACommitByTheNameOfABranch()
         {
-            using (var repo = new Repository(Constants.TestRepoPath))
+            using (var repo = new Repository(Constants.BareTestRepoPath))
+            {
+                var gitObject = repo.Lookup("refs/heads/master");
+                gitObject.ShouldNotBeNull();
+                Assert.IsInstanceOf<Commit>(gitObject);
+            }
+        }
+
+        [Test]
+        public void CanLookupACommitByTheNameOfALightweightTag()
+        {
+            using (var repo = new Repository(Constants.BareTestRepoPath))
+            {
+                var gitObject = repo.Lookup("refs/tags/lw");
+                gitObject.ShouldNotBeNull();
+                Assert.IsInstanceOf<Commit>(gitObject);
+            }
+        }
+
+        [Test]
+        public void CanLookupATagAnnotationByTheNameOfAnAnnotatedTag()
+        {
+            using (var repo = new Repository(Constants.BareTestRepoPath))
+            {
+                var gitObject = repo.Lookup("refs/tags/e90810b");
+                gitObject.ShouldNotBeNull();
+                Assert.IsInstanceOf<TagAnnotation>(gitObject);
+            }
+        }
+
+        [Test]
+        public void CanLookupObjects()
+        {
+            using (var repo = new Repository(Constants.BareTestRepoPath))
+            {
+                repo.Lookup(commitSha).ShouldNotBeNull();
+                repo.Lookup<Commit>(commitSha).ShouldNotBeNull();
+                repo.Lookup<GitObject>(commitSha).ShouldNotBeNull();
+            }
+        }
+
+        [Test]
+        public void CanLookupSameObjectTwiceAndTheyAreEqual()
+        {
+            using (var repo = new Repository(Constants.BareTestRepoPath))
+            {
+                var commit = repo.Lookup(commitSha);
+                var commit2 = repo.Lookup(commitSha);
+                commit.Equals(commit2).ShouldBeTrue();
+                commit.GetHashCode().ShouldEqual(commit2.GetHashCode());
+            }
+        }
+
+        [Test]
+        public void LookupObjectByWrongShaReturnsNull()
+        {
+            using (var repo = new Repository(Constants.BareTestRepoPath))
+            {
+                repo.Lookup(Constants.UnknownSha).ShouldBeNull();
+                repo.Lookup<GitObject>(Constants.UnknownSha).ShouldBeNull();
+            }
+        }
+
+        [Test]
+        public void LookupObjectByWrongTypeReturnsNull()
+        {
+            using (var repo = new Repository(Constants.BareTestRepoPath))
+            {
+                repo.Lookup(commitSha).ShouldNotBeNull();
+                repo.Lookup<Commit>(commitSha).ShouldNotBeNull();
+                repo.Lookup<TagAnnotation>(commitSha).ShouldBeNull();
+            }
+        }
+
+        [Test]
+        public void LookupObjectByUnknownReferenceNameReturnsNull()
+        {
+            using (var repo = new Repository(Constants.BareTestRepoPath))
+            {
+                repo.Lookup("refs/heads/chopped/off").ShouldBeNull();
+                repo.Lookup<GitObject>(Constants.UnknownSha).ShouldBeNull();
+            }
+        }
+
+        [Test]
+        public void CanLookupWhithShortIdentifers()
+        {
+            const string expectedAbbrevSha = "edfecad";
+            const string expectedSha = expectedAbbrevSha + "02d96c9dbf64f6e238c45ddcfa762eef0";
+
+            using (var scd = new SelfCleaningDirectory())
+            {
+                var dir = Repository.Init(scd.DirectoryPath);
+
+                using (var repo = new Repository(dir))
+                {
+                    string filePath = Path.Combine(repo.Info.WorkingDirectory, "new.txt");
+
+                    File.WriteAllText(filePath, "one ");
+                    repo.Index.Stage(filePath);
+
+                    var author = Constants.Signature;
+                    var commit = repo.Commit(author, author, "Initial commit");
+
+                    commit.Sha.ShouldEqual(expectedSha);
+
+                    var lookedUp1 = repo.Lookup(expectedSha);
+                    lookedUp1.ShouldEqual(commit);
+
+                    var lookedUp2 = repo.Lookup(expectedAbbrevSha);
+                    lookedUp2.ShouldEqual(commit);
+                }
+            }
+        }
+
+        [Test]
+        public void LookingUpWithBadParamsThrows()
+        {
+            using (var repo = new Repository(Constants.BareTestRepoPath))
+            {
+                Assert.Throws<ArgumentException>(() => repo.Lookup(string.Empty));
+                Assert.Throws<ArgumentException>(() => repo.Lookup<GitObject>(string.Empty));
+                Assert.Throws<ArgumentNullException>(() => repo.Lookup((string)null));
+                Assert.Throws<ArgumentNullException>(() => repo.Lookup((ObjectId)null));
+                Assert.Throws<ArgumentNullException>(() => repo.Lookup<Commit>((string)null));
+                Assert.Throws<ArgumentNullException>(() => repo.Lookup<Commit>((ObjectId)null));
+            }
+        }
+
+        [Test]
+        public void CanCheckForObjectExistence()
+        {
+            using (var repo = new Repository(Constants.BareTestRepoPath))
             {
                 repo.HasObject("8496071c1b46c854b31185ea97743be6a8774479").ShouldBeTrue();
                 repo.HasObject("1385f264afb75a56a5bec74243be9b367ba4ca08").ShouldBeTrue();
@@ -244,11 +277,46 @@ namespace LibGit2Sharp.Tests
         [Test]
         public void CheckingForObjectExistenceWithBadParamsThrows()
         {
-            using (var repo = new Repository(Constants.TestRepoPath))
+            using (var repo = new Repository(Constants.BareTestRepoPath))
             {
                 Assert.Throws<ArgumentException>(() => repo.HasObject(string.Empty));
                 Assert.Throws<ArgumentNullException>(() => repo.HasObject(null));
             }
+        }
+
+        [Test]
+        public void CanDiscoverABareRepoGivenTheRepoPath()
+        {
+            string path = Repository.Discover(Constants.BareTestRepoPath);
+            path.ShouldEqual(Path.GetFullPath(Constants.BareTestRepoPath));
+        }
+
+        [Test]
+        public void CanDiscoverABareRepoGivenASubDirectoryOfTheRepoPath()
+        {
+            string path = Repository.Discover(Path.Combine(Constants.BareTestRepoPath, "objects/4a"));
+            path.ShouldEqual(Path.GetFullPath(Constants.BareTestRepoPath));
+        }
+
+        [Test]
+        public void CanDiscoverAStandardRepoGivenTheRepoPath()
+        {
+            string path = Repository.Discover(Constants.StandardTestRepoPath);
+            path.ShouldEqual(Path.GetFullPath(Constants.StandardTestRepoPath));
+        }
+
+        [Test]
+        public void CanDiscoverAStandardRepoGivenASubDirectoryOfTheRepoPath()
+        {
+            string path = Repository.Discover(Path.Combine(Constants.StandardTestRepoPath, "objects/4a"));
+            path.ShouldEqual(Path.GetFullPath(Constants.StandardTestRepoPath));
+        }
+
+        [Test]
+        public void CanDiscoverAStandardRepoGivenTheWorkingDirPath()
+        {
+            string path = Repository.Discover(Constants.StandardTestRepoWorkingDirPath);
+            path.ShouldEqual(Path.GetFullPath(Constants.StandardTestRepoPath));
         }
     }
 }
