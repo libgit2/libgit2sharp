@@ -60,6 +60,7 @@
     <Compile Include="Core\GitSignature.cs" />
     <Compile Include="Core\GitTime.cs" />
     <Compile Include="Core\IntPtrExtensions.cs" />
+    <Compile Include="Core\Lazy.cs" />
     <Compile Include="Core\NativeMethods.cs" />
     <Compile Include="Core\ObjectSafeWrapper.cs" />
     <Compile Include="Core\PosixPathHelper.cs">
