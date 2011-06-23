@@ -11,7 +11,7 @@ namespace LibGit2Sharp
     {
         private readonly ObjectId parentTreeId;
         private readonly Repository repo;
-        private GitObject target;
+        private readonly Lazy<GitObject> target;
         private readonly ObjectId targetOid;
 
         private static readonly LambdaEqualityHelper<TreeEntry> equalityHelper =
@@ -24,6 +24,7 @@ namespace LibGit2Sharp
             IntPtr gitTreeEntryId = NativeMethods.git_tree_entry_id(obj);
             targetOid = new ObjectId((GitOid)Marshal.PtrToStructure(gitTreeEntryId, typeof(GitOid)));
             Type = NativeMethods.git_tree_entry_type(obj);
+            target = new Lazy<GitObject>(RetreiveTreeEntryTarget);
 
             Attributes = NativeMethods.git_tree_entry_attributes(obj);
             Name = NativeMethods.git_tree_entry_name(obj).MarshallAsString();
@@ -43,7 +44,7 @@ namespace LibGit2Sharp
         /// <summary>
         /// Gets the <see cref="GitObject"/> being pointed at.
         /// </summary>
-        public GitObject Target { get { return target ?? (target = RetreiveTreeEntryTarget()); } }
+        public GitObject Target { get { return target.Value; } }
 
         /// <summary>
         /// Gets the <see cref="GitObjectType"/> of the <see cref="Target"/> being pointed at.

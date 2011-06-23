@@ -15,7 +15,7 @@ namespace LibGit2Sharp
         private readonly Index index;
         private readonly ReferenceCollection refs;
         private readonly TagCollection tags;
-        private RepositoryInformation info;
+        private readonly Lazy<RepositoryInformation> info;
         private readonly bool isBare;
 
         /// <summary>
@@ -41,6 +41,7 @@ namespace LibGit2Sharp
             refs = new ReferenceCollection(this);
             branches = new BranchCollection(this);
             tags = new TagCollection(this);
+            info = new Lazy<RepositoryInformation>(() => new RepositoryInformation(this, isBare));
         }
 
         internal RepositorySafeHandle Handle
@@ -111,10 +112,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Provides high level information about this repository.
         /// </summary>
-        public RepositoryInformation Info 
-        {
-            get { return info ?? (info = new RepositoryInformation(this, isBare)); }
-        }
+        public RepositoryInformation Info { get { return info.Value; } }
 
         #region IDisposable Members
 
