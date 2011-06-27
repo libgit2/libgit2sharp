@@ -54,6 +54,21 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
+        public void CanEnumerateCommitsInDetachedHeadState()
+        {
+            using (var path = new TemporaryCloneOfTestRepo())
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                var parentOfHead = repo.Head.Tip.Parents.First().Id;
+
+                repo.Refs.Create("HEAD", parentOfHead.Sha, true);
+                Assert.AreEqual(true, repo.Info.IsHeadDetached);
+
+                repo.Commits.Count().ShouldEqual(6);
+            }
+        }
+
+        [Test]
         public void DefaultOrderingWhenEnumeratingCommitsIsTimeBased()
         {
             using (var repo = new Repository(Constants.BareTestRepoPath))
