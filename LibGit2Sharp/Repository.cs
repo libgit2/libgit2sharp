@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Text;
 using LibGit2Sharp.Core;
 
@@ -178,7 +179,18 @@ namespace LibGit2Sharp
             string normalizedPath = NativeMethods.git_repository_path(repo, GitRepositoryPathId.GIT_REPO_PATH).MarshallAsString();
             repo.Dispose();
 
+            if (!isBare)
+            {
+                HideGitFolder(normalizedPath);
+            }
+
             return PosixPathHelper.ToNative(normalizedPath);
+        }
+
+        private static void HideGitFolder(string gitDirPath)
+        {
+            //TODO: Push this down into libgit2
+            File.SetAttributes(gitDirPath, File.GetAttributes(gitDirPath) | FileAttributes.Hidden);
         }
 
         /// <summary>

@@ -46,9 +46,18 @@ namespace LibGit2Sharp.Tests
                     repo.Info.Path.ShouldEqual(Path.Combine(scd.RootedDirectoryPath, ".git" + Path.DirectorySeparatorChar));
                     repo.Info.IsBare.ShouldBeFalse();
 
+                    AssertIsHidden(repo.Info.Path);
+
                     AssertInitializedRepository(repo);
                 }
             }
+        }
+
+        private static void AssertIsHidden(string repoPath)
+        {
+            var attribs = File.GetAttributes(repoPath);
+            
+            (attribs & FileAttributes.Hidden).ShouldEqual(FileAttributes.Hidden);
         }
 
         [Test]
