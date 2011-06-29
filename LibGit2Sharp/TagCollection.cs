@@ -78,17 +78,11 @@ namespace LibGit2Sharp
 
             GitObject objectToTag = RetrieveObjectToTag(target);
 
-            var targetOid = objectToTag.Id.Oid;
-            GitOid oid;
             int res;
-
-            if (allowOverwrite)
+            using (var objectPtr = new ObjectSafeWrapper(objectToTag.Id, repo))
             {
-                res = NativeMethods.git_tag_create_f(out oid, repo.Handle, name, ref targetOid, GitObject.TypeToTypeMap[objectToTag.GetType()], tagger.Handle, message);
-            }
-            else
-            {
-                res = NativeMethods.git_tag_create(out oid, repo.Handle, name, ref targetOid, GitObject.TypeToTypeMap[objectToTag.GetType()], tagger.Handle, message);
+                GitOid oid;
+                res = NativeMethods.git_tag_create(out oid, repo.Handle, name, objectPtr.ObjectPtr, tagger.Handle, message, allowOverwrite);
             }
 
             Ensure.Success(res);

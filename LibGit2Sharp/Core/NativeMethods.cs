@@ -21,10 +21,7 @@ namespace LibGit2Sharp.Core
         public static extern IntPtr git_commit_committer(IntPtr commit);
 
         [DllImport(libgit2)]
-        public static extern int git_commit_create(out GitOid oid, RepositorySafeHandle repo, string updateRef, GitSignature author, GitSignature committer, string message, ref GitOid treeOid, int parentCount, ref GitOid[] parents);
-
-        [DllImport(libgit2)]
-        public static extern int git_commit_create_o(out GitOid oid, RepositorySafeHandle repo, string updateRef, IntPtr author, IntPtr committer, string message, IntPtr tree, int parentCount, IntPtr parents);
+        public static extern int git_commit_create(out GitOid oid, RepositorySafeHandle repo, string updateRef, GitSignature author, GitSignature committer, string message, IntPtr tree, int parentCount, [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 7)] [In] IntPtr[] parents);
 
         [DllImport(libgit2)]
         public static extern IntPtr git_commit_message(IntPtr commit);
@@ -94,16 +91,10 @@ namespace LibGit2Sharp.Core
         public static extern int git_oid_cmp(ref GitOid a, ref GitOid b);
 
         [DllImport(libgit2)]
-        public static extern int git_reference_create_oid(out IntPtr reference, RepositorySafeHandle repo, string name, ref GitOid oid);
+        public static extern int git_reference_create_oid(out IntPtr reference, RepositorySafeHandle repo, string name, ref GitOid oid, bool force);
 
         [DllImport(libgit2)]
-        public static extern int git_reference_create_oid_f(out IntPtr reference, RepositorySafeHandle repo, string name, ref GitOid oid);
-
-        [DllImport(libgit2)]
-        public static extern int git_reference_create_symbolic(out IntPtr reference, RepositorySafeHandle repo, string name, string target);
-
-        [DllImport(libgit2)]
-        public static extern int git_reference_create_symbolic_f(out IntPtr reference, RepositorySafeHandle repo, string name, string target);
+        public static extern int git_reference_create_symbolic(out IntPtr reference, RepositorySafeHandle repo, string name, string target, bool force);
 
         [DllImport(libgit2)]
         public static extern int git_reference_delete(IntPtr reference);
@@ -118,10 +109,7 @@ namespace LibGit2Sharp.Core
         public static extern IntPtr git_reference_oid(IntPtr reference);
 
         [DllImport(libgit2)]
-        public static extern int git_reference_rename(IntPtr reference, string newName);
-
-        [DllImport(libgit2)]
-        public static extern int git_reference_rename_f(IntPtr reference, string newName);
+        public static extern int git_reference_rename(IntPtr reference, string newName, bool force);
 
         [DllImport(libgit2)]
         public static extern int git_reference_resolve(out IntPtr resolvedReference, IntPtr reference);
@@ -196,10 +184,7 @@ namespace LibGit2Sharp.Core
         public static extern IntPtr git_signature_new(string name, string email, long time, int offset);
 
         [DllImport(libgit2)]
-        public static extern int git_tag_create(out GitOid oid, RepositorySafeHandle repo, string name, ref GitOid target, GitObjectType type, GitSignature signature, string message);
-
-        [DllImport(libgit2)]
-        public static extern int git_tag_create_f(out GitOid oid, RepositorySafeHandle repo, string name, ref GitOid target, GitObjectType type, GitSignature signature, string message);
+        public static extern int git_tag_create(out GitOid oid, RepositorySafeHandle repo, string name, IntPtr target, GitSignature signature, string message, bool force);
 
         [DllImport(libgit2)]
         public static extern int git_tag_delete(RepositorySafeHandle repo, string tagName);

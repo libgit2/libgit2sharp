@@ -297,35 +297,35 @@ namespace LibGit2Sharp.Tests
         public void CanDiscoverABareRepoGivenTheRepoPath()
         {
             string path = Repository.Discover(Constants.BareTestRepoPath);
-            path.ShouldEqual(Path.GetFullPath(Constants.BareTestRepoPath));
+            path.ShouldEqual(Path.GetFullPath(Constants.BareTestRepoPath + Path.DirectorySeparatorChar));
         }
 
         [Test]
         public void CanDiscoverABareRepoGivenASubDirectoryOfTheRepoPath()
         {
             string path = Repository.Discover(Path.Combine(Constants.BareTestRepoPath, "objects/4a"));
-            path.ShouldEqual(Path.GetFullPath(Constants.BareTestRepoPath));
+            path.ShouldEqual(Path.GetFullPath(Constants.BareTestRepoPath + Path.DirectorySeparatorChar));
         }
 
         [Test]
         public void CanDiscoverAStandardRepoGivenTheRepoPath()
         {
             string path = Repository.Discover(Constants.StandardTestRepoPath);
-            path.ShouldEqual(Path.GetFullPath(Constants.StandardTestRepoPath));
+            path.ShouldEqual(Path.GetFullPath(Constants.StandardTestRepoPath + Path.DirectorySeparatorChar));
         }
 
         [Test]
         public void CanDiscoverAStandardRepoGivenASubDirectoryOfTheRepoPath()
         {
             string path = Repository.Discover(Path.Combine(Constants.StandardTestRepoPath, "objects/4a"));
-            path.ShouldEqual(Path.GetFullPath(Constants.StandardTestRepoPath));
+            path.ShouldEqual(Path.GetFullPath(Constants.StandardTestRepoPath + Path.DirectorySeparatorChar));
         }
 
         [Test]
         public void CanDiscoverAStandardRepoGivenTheWorkingDirPath()
         {
             string path = Repository.Discover(Constants.StandardTestRepoWorkingDirPath);
-            path.ShouldEqual(Path.GetFullPath(Constants.StandardTestRepoPath));
+            path.ShouldEqual(Path.GetFullPath(Constants.StandardTestRepoPath + Path.DirectorySeparatorChar));
         }
     }
 }

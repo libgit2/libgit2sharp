@@ -91,12 +91,7 @@ namespace LibGit2Sharp
 
         private int CreateSymbolicReference(string name, string target, bool allowOverwrite, out IntPtr reference)
         {
-            if (allowOverwrite)
-            {
-                return NativeMethods.git_reference_create_symbolic_f(out reference, repo.Handle, name, target);
-            }
-
-            return NativeMethods.git_reference_create_symbolic(out reference, repo.Handle, name, target);
+            return NativeMethods.git_reference_create_symbolic(out reference, repo.Handle, name, target, allowOverwrite);
         }
 
         private int CreateDirectReference(string name, ObjectId targetOid, bool allowOverwrite, out IntPtr reference)
@@ -109,16 +104,11 @@ namespace LibGit2Sharp
                     Ensure.Success((int) GitErrorCode.GIT_ENOTFOUND);
                 }
                 targetOid = obj.Id;
-            }   
-         
-            GitOid oid = targetOid.Oid;
-
-            if (allowOverwrite)
-            {
-                return NativeMethods.git_reference_create_oid_f(out reference, repo.Handle, name, ref oid);
             }
          
-            return NativeMethods.git_reference_create_oid(out reference, repo.Handle, name, ref oid);
+            GitOid oid = targetOid.Oid;
+        
+            return NativeMethods.git_reference_create_oid(out reference, repo.Handle, name, ref oid, allowOverwrite);
         }
 
         /// <summary>
@@ -148,17 +138,8 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNullOrEmptyString(newName, "newName");
 
             IntPtr referencePtr = RetrieveReferencePtr(currentName);
-            int res;
-
-            if (allowOverwrite)
-            {
-                res = NativeMethods.git_reference_rename_f(referencePtr, newName);
-            }
-            else
-            {
-                res = NativeMethods.git_reference_rename(referencePtr, newName);
-            }
-
+            
+            int res = NativeMethods.git_reference_rename(referencePtr, newName, allowOverwrite);
             Ensure.Success(res);
 
             return Reference.BuildFromPtr<Reference>(referencePtr, repo);

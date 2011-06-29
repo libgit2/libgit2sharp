@@ -49,12 +49,6 @@ namespace LibGit2Sharp
         {
             get
             {
-                //TODO: Remove this once git_repository_is_empty() accepts detached head state
-                if (repo.Refs["HEAD"] is DirectReference)
-                {
-                    return false;
-                }
-
                 var res = NativeMethods.git_repository_is_empty(repo.Handle);
                 Ensure.Success(res, true);
 
