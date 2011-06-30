@@ -94,21 +94,30 @@ namespace LibGit2Sharp
             return NativeMethods.git_reference_create_symbolic(out reference, repo.Handle, name, target, allowOverwrite);
         }
 
-        private int CreateDirectReference(string name, ObjectId targetOid, bool allowOverwrite, out IntPtr reference)
+        private int CreateDirectReference(string name, ObjectId targetId, bool allowOverwrite, out IntPtr reference)
         {
-            if (targetOid is AbbreviatedObjectId)   //TODO: This is hacky... :-/
-            {
-                var obj = repo.Lookup(targetOid);
-                if (obj == null)
-                {
-                    Ensure.Success((int) GitErrorCode.GIT_ENOTFOUND);
-                }
-                targetOid = obj.Id;
-            }
+            targetId = Unabbreviate(targetId);
          
-            GitOid oid = targetOid.Oid;
+            GitOid oid = targetId.Oid;
         
             return NativeMethods.git_reference_create_oid(out reference, repo.Handle, name, ref oid, allowOverwrite);
+        }
+
+        private ObjectId Unabbreviate(ObjectId targetId)
+        {
+            if (!(targetId is AbbreviatedObjectId))
+            {
+                return targetId;
+            }
+
+            var obj = repo.Lookup(targetId);
+            
+            if (obj == null)
+            {
+                Ensure.Success((int) GitErrorCode.GIT_ENOTFOUND);
+            }
+
+            return obj.Id;
         }
 
         /// <summary>
