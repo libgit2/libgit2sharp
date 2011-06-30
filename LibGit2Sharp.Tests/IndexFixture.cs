@@ -76,6 +76,16 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
+        public void FetchingAnUnknwonIndexEntryReturnsNull()
+        {
+            using (var repo = new Repository(Constants.StandardTestRepoPath))
+            {
+                var entry = repo.Index["I-do-not-exist.txt"];
+                entry.ShouldBeNull();
+            }
+        }
+
+        [Test]
         [Ignore("Not implemented yet.")]
         public void CanStageAModifiedFile()
         {

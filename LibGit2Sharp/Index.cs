@@ -36,6 +36,12 @@ namespace LibGit2Sharp
                 Ensure.ArgumentNotNullOrEmptyString(path, "path");
 
                 int res = NativeMethods.git_index_find(handle, path);
+
+                if (res == (int)GitErrorCode.GIT_ENOTFOUND)
+                {
+                    return null;
+                }
+
                 Ensure.Success(res, true);
 
                 return this[(uint)res];
