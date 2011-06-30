@@ -138,6 +138,9 @@ namespace LibGit2Sharp.Core
         public static extern void git_repository_free(IntPtr repository);
 
         [DllImport(libgit2)]
+        public static extern int git_repository_head_detached(RepositorySafeHandle repo);
+
+        [DllImport(libgit2)]
         public static extern int git_repository_index(out IndexSafeHandle index, RepositorySafeHandle repo);
 
         [DllImport(libgit2)]
