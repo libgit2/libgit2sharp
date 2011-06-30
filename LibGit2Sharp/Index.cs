@@ -119,8 +119,9 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(path, "path");
 
-            var res = NativeMethods.git_index_add(handle, BuildRelativePathFrom(path));
-            Ensure.Success(res);
+            string relativePath = BuildRelativePathFrom(path);
+
+            AddToIndex(relativePath);
 
             UpdatePhysicalIndex();
         }
@@ -129,13 +130,49 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(path, "path");
 
-            var res = NativeMethods.git_index_find(handle, BuildRelativePathFrom(path));
+            string relativePath = BuildRelativePathFrom(path);
+
+            RemoveFromIndex(relativePath);
+
+            UpdatePhysicalIndex();
+        }
+
+        public void Move(string sourcePath, string destinationPath)
+        {
+            Ensure.ArgumentNotNullOrEmptyString(sourcePath, "sourcepath");
+            Ensure.ArgumentNotNullOrEmptyString(destinationPath, "destinationpath");
+
+            string relativeSourcePath = BuildRelativePathFrom(sourcePath);
+            string relativeDestinationPath = BuildRelativePathFrom(destinationPath);
+
+            string wd = repo.Info.WorkingDirectory;
+            if (Directory.Exists(Path.Combine(wd, relativeSourcePath)))
+            {
+                throw new NotImplementedException();
+            }
+
+            RemoveFromIndex(relativeSourcePath);
+
+            File.Move(Path.Combine(wd, relativeSourcePath), Path.Combine(wd, relativeDestinationPath));
+            
+            AddToIndex(relativeDestinationPath);
+
+            UpdatePhysicalIndex();
+        }
+
+        private void AddToIndex(string path)
+        {
+            var res = NativeMethods.git_index_add(handle, BuildRelativePathFrom(path));
+            Ensure.Success(res);
+        }
+
+        private void RemoveFromIndex(string relativePath)
+        {
+            var res = NativeMethods.git_index_find(handle, relativePath);
             Ensure.Success(res, true);
 
             res = NativeMethods.git_index_remove(handle, res);
             Ensure.Success(res);
-
-            UpdatePhysicalIndex();
         }
 
         private void UpdatePhysicalIndex()

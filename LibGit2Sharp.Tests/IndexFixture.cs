@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
 using LibGit2Sharp.Tests.TestHelpers;
 using NUnit.Framework;
@@ -191,11 +190,8 @@ namespace LibGit2Sharp.Tests
                     repo.Commit(who, who, "Initial commit");
 
                     const string newName = "being.frakking.polite.txt";
-                    string newPath = Path.Combine(repo.Info.WorkingDirectory, newName);
 
-                    repo.Index.Unstage(oldName);
-                    File.Move(oldPath, newPath);
-                    repo.Index.Stage(newPath);
+                    repo.Index.Move(oldName, newName);
 
                     repo.Index.Count.ShouldEqual(1);
                     repo.Index[newName].Id.Sha.ShouldEqual((expectedHash));
