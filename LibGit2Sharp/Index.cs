@@ -140,6 +140,8 @@ namespace LibGit2Sharp
 
             RemoveFromIndex(relativePath);
 
+            RestorePotentialPreviousVersionOf(relativePath);
+
             UpdatePhysicalIndex();
         }
 
@@ -179,6 +181,18 @@ namespace LibGit2Sharp
 
             res = NativeMethods.git_index_remove(handle, res);
             Ensure.Success(res);
+        }
+
+        private void RestorePotentialPreviousVersionOf(string relativePath)
+        {
+            var currentHeadBlob = repo.Head.Tip.Tree[relativePath];
+            if ((currentHeadBlob == null) || currentHeadBlob.Type != GitObjectType.Blob)
+            {
+                return;
+            }
+            
+            File.WriteAllBytes(Path.Combine(repo.Info.WorkingDirectory, relativePath), ((Blob) currentHeadBlob.Target).Content);
+            AddToIndex(relativePath);
         }
 
         private void UpdatePhysicalIndex()
