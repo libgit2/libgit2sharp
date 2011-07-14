@@ -54,6 +54,21 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
+        public void CanEnumerateCommitsInDetachedHeadState()
+        {
+            using (var path = new TemporaryCloneOfTestRepo())
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                var parentOfHead = repo.Head.Tip.Parents.First().Id;
+
+                repo.Refs.Create("HEAD", parentOfHead.Sha, true);
+                Assert.AreEqual(true, repo.Info.IsHeadDetached);
+
+                repo.Commits.Count().ShouldEqual(6);
+            }
+        }
+
+        [Test]
         public void DefaultOrderingWhenEnumeratingCommitsIsTimeBased()
         {
             using (var repo = new Repository(Constants.BareTestRepoPath))
@@ -174,10 +189,22 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(Constants.BareTestRepoPath))
             {
-                var commits = repo.Commits.QueryBy(new Filter { Since = "refs/heads/br2", Until = "refs/heads/packed-test" });
+                var commits = repo.Commits.QueryBy(new Filter { Since = "HEAD", Until = "refs/heads/br2" });
 
-                IEnumerable<string> abbrevShas = commits.Select(c => c.Id.Sha.Substring(0, 7)).ToArray();
-                CollectionAssert.AreEquivalent(new[] { "a4a7dce", "c47800c", "9fd738e" }, abbrevShas);
+                IEnumerable<string> abbrevShas = commits.Select(c => c.Id.ToString(7)).ToArray();
+                CollectionAssert.AreEquivalent(new[] { "4c062a6", "be3563a" }, abbrevShas);
+            }
+        }
+
+        [Test]
+        public void CanEnumerateUsingOneHeadAsBoundaries()
+        {
+            using (var repo = new Repository(Constants.BareTestRepoPath))
+            {
+                var commits = repo.Commits.QueryBy(new Filter { Until = "refs/heads/br2" });
+
+                IEnumerable<string> abbrevShas = commits.Select(c => c.Id.ToString(7)).ToArray();
+                CollectionAssert.AreEquivalent(new[] { "4c062a6", "be3563a" }, abbrevShas);
             }
         }
 
@@ -188,11 +215,11 @@ namespace LibGit2Sharp.Tests
             {
                 var commits = repo.Commits.QueryBy(new Filter { Since = "a4a7dce", Until = "4a202b3" });
 
-                IEnumerable<string> abbrevShas = commits.Select(c => c.Id.Sha.Substring(0, 7)).ToArray();
+                IEnumerable<string> abbrevShas = commits.Select(c => c.Id.ToString(7)).ToArray();
                 CollectionAssert.AreEquivalent(new[] { "a4a7dce", "c47800c", "9fd738e" }, abbrevShas);
             }
         }
-
+        
         [Test]
         public void CanLookupCommitGeneric()
         {

@@ -4,10 +4,15 @@ namespace LibGit2Sharp.Core
 {
     internal class ObjectSafeWrapper : IDisposable
     {
-        private IntPtr objectPtr;
+        private IntPtr objectPtr = IntPtr.Zero;
 
         public ObjectSafeWrapper(ObjectId id, Repository repo)
         {
+            if (id == null)
+            {
+                return;
+            }
+
             var oid = id.Oid;
             var res = NativeMethods.git_object_lookup(out objectPtr, repo.Handle, ref oid, GitObjectType.Any);
             Ensure.Success(res);

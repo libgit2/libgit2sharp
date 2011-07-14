@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Text;
 using LibGit2Sharp.Core;
 
@@ -15,7 +16,7 @@ namespace LibGit2Sharp
         private readonly Index index;
         private readonly ReferenceCollection refs;
         private readonly TagCollection tags;
-        private RepositoryInformation info;
+        private readonly Lazy<RepositoryInformation> info;
         private readonly bool isBare;
 
         /// <summary>
@@ -41,6 +42,7 @@ namespace LibGit2Sharp
             refs = new ReferenceCollection(this);
             branches = new BranchCollection(this);
             tags = new TagCollection(this);
+            info = new Lazy<RepositoryInformation>(() => new RepositoryInformation(this, isBare));
         }
 
         internal RepositorySafeHandle Handle
@@ -111,10 +113,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Provides high level information about this repository.
         /// </summary>
-        public RepositoryInformation Info 
-        {
-            get { return info ?? (info = new RepositoryInformation(this, isBare)); }
-        }
+        public RepositoryInformation Info { get { return info.Value; } }
 
         #region IDisposable Members
 
@@ -180,7 +179,20 @@ namespace LibGit2Sharp
             string normalizedPath = NativeMethods.git_repository_path(repo, GitRepositoryPathId.GIT_REPO_PATH).MarshallAsString();
             repo.Dispose();
 
-            return PosixPathHelper.ToNative(normalizedPath);
+            string nativePath = PosixPathHelper.ToNative(normalizedPath);
+
+            // libgit2 doesn't currently create the git config file, so create a minimal one if we can't find it
+            // See https://github.com/libgit2/libgit2sharp/issues/56 for details
+            string configFile = Path.Combine(nativePath, "config");
+            if (!File.Exists(configFile))
+            {
+                File.WriteAllText(configFile,
+    @"[core]
+	repositoryformatversion = 0
+");
+            }
+
+            return nativePath;
         }
 
         /// <summary>

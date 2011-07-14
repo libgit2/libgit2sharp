@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
 using LibGit2Sharp.Tests.TestHelpers;
 using NUnit.Framework;
@@ -64,7 +63,7 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
-        public void CanReadIndexEntry()
+        public void CanFetchAnIndexEntryByItsName()
         {
             using (var repo = new Repository(Constants.StandardTestRepoPath))
             {
@@ -73,6 +72,16 @@ namespace LibGit2Sharp.Tests
 
                 var entryWithPath = repo.Index["1/branch_file.txt"];
                 entryWithPath.Path.ShouldEqual("1/branch_file.txt");
+            }
+        }
+
+        [Test]
+        public void FetchingAnUnknwonIndexEntryReturnsNull()
+        {
+            using (var repo = new Repository(Constants.StandardTestRepoPath))
+            {
+                var entry = repo.Index["I-do-not-exist.txt"];
+                entry.ShouldBeNull();
             }
         }
 
@@ -90,12 +99,50 @@ namespace LibGit2Sharp.Tests
             {
                 var count = repo.Index.Count;
                 const string filename = "unit_test.txt";
+                repo.Index[filename].ShouldBeNull();
                 File.WriteAllText(Path.Combine(repo.Info.WorkingDirectory, filename), "some contents");
 
                 repo.Index.Stage(filename);
 
                 repo.Index.Count.ShouldEqual(count + 1);
                 repo.Index[filename].ShouldNotBeNull();
+            }
+        }
+
+        [Test]
+        public void StagingANewVersionOfAFileThenUnstagingRevertsTheBlobToTheVersionOfHead()
+        {
+            using (var scd = new SelfCleaningDirectory())
+            {
+                string dir = Repository.Init(scd.DirectoryPath);
+
+                using (var repo = new Repository(dir))
+                {
+                    repo.Index.Count.ShouldEqual(0);
+
+                    const string fileName = "myFile.txt";
+
+                    var fullpath = Path.Combine(repo.Info.WorkingDirectory, fileName);
+                    
+                    const string initialContent = "Hello?";
+                    File.AppendAllText(fullpath, initialContent);
+                    
+                    repo.Index.Stage(fileName);
+                    var blobId = repo.Index[fileName].Id;
+
+                    repo.Commit(Constants.Signature, Constants.Signature, "Initial commit");
+                    repo.Index.Count.ShouldEqual(1);
+
+                    File.AppendAllText(fullpath, "Is there there anybody out there?");
+                    repo.Index.Stage(fileName);
+
+                    repo.Index.Count.ShouldEqual(1);
+                    repo.Index[fileName].Id.ShouldNotEqual((blobId));
+
+                    repo.Index.Unstage(fileName);
+                    repo.Index.Count.ShouldEqual(1);
+                    repo.Index[fileName].Id.ShouldEqual((blobId));
+                }
             }
         }
 
@@ -191,11 +238,8 @@ namespace LibGit2Sharp.Tests
                     repo.Commit(who, who, "Initial commit");
 
                     const string newName = "being.frakking.polite.txt";
-                    string newPath = Path.Combine(repo.Info.WorkingDirectory, newName);
 
-                    repo.Index.Unstage(oldName);
-                    File.Move(oldPath, newPath);
-                    repo.Index.Stage(newPath);
+                    repo.Index.Move(oldName, newName);
 
                     repo.Index.Count.ShouldEqual(1);
                     repo.Index[newName].Id.Sha.ShouldEqual((expectedHash));
