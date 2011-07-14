@@ -181,15 +181,13 @@ namespace LibGit2Sharp
 
             string nativePath = PosixPathHelper.ToNative(normalizedPath);
 
+            // TODO: To be removed once it's being dealt with by libgit2
             // libgit2 doesn't currently create the git config file, so create a minimal one if we can't find it
             // See https://github.com/libgit2/libgit2sharp/issues/56 for details
             string configFile = Path.Combine(nativePath, "config");
             if (!File.Exists(configFile))
             {
-                File.WriteAllText(configFile,
-    @"[core]
-	repositoryformatversion = 0
-");
+                File.WriteAllText(configFile, "[core]\n\trepositoryformatversion = 0\n");
             }
 
             return nativePath;
