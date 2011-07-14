@@ -99,11 +99,19 @@ namespace LibGit2Sharp
         /// <returns></returns>
         public Tag Create(string name, string target, bool allowOverwrite = false)
         {
+            Ensure.ArgumentNotNullOrEmptyString(name, "name");
             Ensure.ArgumentNotNullOrEmptyString(target, "target");
 
             GitObject objectToTag = RetrieveObjectToTag(target);
 
-            repo.Refs.Create(NormalizeToCanonicalName(name), objectToTag.Id.Sha, allowOverwrite);   //TODO: To be replaced by native libgit2 git_tag_create_lightweight() when available.
+            int res;
+            using (var objectPtr = new ObjectSafeWrapper(objectToTag.Id, repo))
+            {
+                GitOid oid;
+                res = NativeMethods.git_tag_create_lightweight(out oid, repo.Handle, name, objectPtr.ObjectPtr, allowOverwrite);
+            }
+
+            Ensure.Success(res);
 
             return this[name];
         }
