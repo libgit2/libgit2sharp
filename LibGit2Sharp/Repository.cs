@@ -179,7 +179,20 @@ namespace LibGit2Sharp
             string normalizedPath = NativeMethods.git_repository_path(repo, GitRepositoryPathId.GIT_REPO_PATH).MarshallAsString();
             repo.Dispose();
 
-            return PosixPathHelper.ToNative(normalizedPath);
+            string nativePath = PosixPathHelper.ToNative(normalizedPath);
+
+            // libgit2 doesn't currently create the git config file, so create a minimal one if we can't find it
+            // See https://github.com/libgit2/libgit2sharp/issues/56 for details
+            string configFile = Path.Combine(nativePath, "config");
+            if (!File.Exists(configFile))
+            {
+                File.WriteAllText(configFile,
+    @"[core]
+	repositoryformatversion = 0
+");
+            }
+
+            return nativePath;
         }
 
         /// <summary>

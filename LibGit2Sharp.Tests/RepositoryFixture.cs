@@ -19,6 +19,7 @@ namespace LibGit2Sharp.Tests
                 var dir = Repository.Init(scd.DirectoryPath, true);
                 Path.IsPathRooted(dir).ShouldBeTrue();
                 Directory.Exists(dir).ShouldBeTrue();
+                CheckGitConfigFile(dir);
 
                 using (var repo = new Repository(dir))
                 {
@@ -39,6 +40,7 @@ namespace LibGit2Sharp.Tests
                 var dir = Repository.Init(scd.DirectoryPath);
                 Path.IsPathRooted(dir).ShouldBeTrue();
                 Directory.Exists(dir).ShouldBeTrue();
+                CheckGitConfigFile(dir);
 
                 using (var repo = new Repository(dir))
                 {
@@ -51,6 +53,15 @@ namespace LibGit2Sharp.Tests
                     AssertInitializedRepository(repo);
                 }
             }
+        }
+
+        private void CheckGitConfigFile(string dir)
+        {
+            string configFilePath = Path.Combine(dir, "config");
+            File.Exists(configFilePath).ShouldBeTrue();
+
+            string contents = File.ReadAllText(configFilePath);
+            contents.IndexOf("repositoryformatversion = 0").ShouldNotEqual(-1);
         }
 
         private static void AssertIsHidden(string repoPath)
