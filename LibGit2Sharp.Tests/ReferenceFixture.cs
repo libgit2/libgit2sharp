@@ -376,7 +376,6 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
-        [Ignore("Currently fails because of feature which is not yet implemented in libgit2")]
         public void CanMoveAReferenceToADeeperReferenceHierarchy()
         {
             using (var path = new TemporaryCloneOfTestRepo())
@@ -391,7 +390,6 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
-        [Ignore("Currently fails because of feature which is not yet implemented in libgit2")]
         public void CanMoveAReferenceToAUpperReferenceHierarchy()
         {
             using (var path = new TemporaryCloneOfTestRepo())
