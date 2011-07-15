@@ -16,7 +16,7 @@ namespace LibGit2Sharp.Tests
                                                                 "new.txt",
                                                                 "branch_file.txt",
                                                                 "1/branch_file.txt",
-                                                                //"deleted_staged_file.txt", 
+                                                                //"deleted_staged_file.txt",
                                                                 "deleted_unstaged_file.txt",
                                                                 "modified_staged_file.txt",
                                                                 "modified_unstaged_file.txt",
@@ -123,10 +123,10 @@ namespace LibGit2Sharp.Tests
                     const string fileName = "myFile.txt";
 
                     var fullpath = Path.Combine(repo.Info.WorkingDirectory, fileName);
-                    
+
                     const string initialContent = "Hello?";
                     File.AppendAllText(fullpath, initialContent);
-                    
+
                     repo.Index.Stage(fileName);
                     var blobId = repo.Index[fileName].Id;
 

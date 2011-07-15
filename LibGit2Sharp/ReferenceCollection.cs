@@ -71,7 +71,7 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNullOrEmptyString(target, "target");
 
             ObjectId id;
-            
+
             IntPtr reference;
             int res;
 
@@ -97,9 +97,9 @@ namespace LibGit2Sharp
         private int CreateDirectReference(string name, ObjectId targetId, bool allowOverwrite, out IntPtr reference)
         {
             targetId = Unabbreviate(targetId);
-         
+
             GitOid oid = targetId.Oid;
-        
+
             return NativeMethods.git_reference_create_oid(out reference, repo.Handle, name, ref oid, allowOverwrite);
         }
 
@@ -111,7 +111,7 @@ namespace LibGit2Sharp
             }
 
             var obj = repo.Lookup(targetId);
-            
+
             if (obj == null)
             {
                 Ensure.Success((int) GitErrorCode.GIT_ENOTFOUND);
@@ -147,7 +147,7 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNullOrEmptyString(newName, "newName");
 
             IntPtr referencePtr = RetrieveReferencePtr(currentName);
-            
+
             int res = NativeMethods.git_reference_rename(referencePtr, newName, allowOverwrite);
             Ensure.Success(res);
 

@@ -87,7 +87,7 @@ namespace LibGit2Sharp
                 var reference = repo.Refs[NormalizeToCanonicalName(target)].ResolveToDirectReference();
                 target = reference.TargetIdentifier;
             }
-            
+
             repo.Refs.Create(NormalizeToCanonicalName(name), target);
             return this[name];
         }

@@ -35,7 +35,7 @@
 		       Force32Bit="true"
 		       OutputXmlFile="$(DeployFolder)\Test-result.xml" />
   </Target>
-  
+
   <Target Name="Deploy" DependsOnTargets="Test">
     <Copy SourceFiles="@(OutputFiles)"
       DestinationFiles="@(OutputFiles->'$(DeployFolder)\%(RecursiveDir)%(Filename)%(Extension)')" />

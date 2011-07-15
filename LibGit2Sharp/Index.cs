@@ -23,7 +23,7 @@ namespace LibGit2Sharp
         {
             get { return handle; }
         }
-        
+
         public int Count
         {
             get { return (int)NativeMethods.git_index_entrycount(handle); }
@@ -162,7 +162,7 @@ namespace LibGit2Sharp
             RemoveFromIndex(relativeSourcePath);
 
             File.Move(Path.Combine(wd, relativeSourcePath), Path.Combine(wd, relativeDestinationPath));
-            
+
             AddToIndex(relativeDestinationPath);
 
             UpdatePhysicalIndex();
@@ -190,7 +190,7 @@ namespace LibGit2Sharp
             {
                 return;
             }
-            
+
             File.WriteAllBytes(Path.Combine(repo.Info.WorkingDirectory, relativePath), ((Blob) currentHeadBlob.Target).Content);
             AddToIndex(relativePath);
         }
@@ -201,7 +201,7 @@ namespace LibGit2Sharp
             Ensure.Success(res);
         }
 
-        private string BuildRelativePathFrom(string path)   //TODO: To be removed when libgit2 natively implements this 
+        private string BuildRelativePathFrom(string path)   //TODO: To be removed when libgit2 natively implements this
         {
             if (!Path.IsPathRooted(path))
             {

@@ -10,7 +10,7 @@ namespace LibGit2Sharp
         private readonly Func<GitObject> targetResolver;
         private bool resolved;
         private GitObject target;
-        
+
         internal DirectReference(Func<GitObject> targetResolver)
         {
             this.targetResolver = targetResolver;

@@ -59,7 +59,7 @@ namespace LibGit2Sharp
             get
             {
                 Reference headRef = Refs["HEAD"];
-                
+
                 if (Info.IsEmpty)
                 {
                     return new Branch(headRef.TargetIdentifier, null, this);
@@ -86,7 +86,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Lookup and enumerate commits in the repository. 
+        ///   Lookup and enumerate commits in the repository.
         ///   Iterating this collection directly starts walking from the HEAD.
         /// </summary>
         public IQueryableCommitCollection Commits
@@ -146,7 +146,7 @@ namespace LibGit2Sharp
 
         /// <summary>
         ///   Tells if the specified sha exists in the repository.
-        /// 
+        ///
         ///   Exceptions:
         ///   ArgumentException
         ///   ArgumentNullException
@@ -263,7 +263,7 @@ namespace LibGit2Sharp
 
         /// <summary>
         /// Probe for a git repository.
-        /// <para>The lookup start from <paramref name="startingPath"/> and walk upward parent directories if nothing has been found.</para> 
+        /// <para>The lookup start from <paramref name="startingPath"/> and walk upward parent directories if nothing has been found.</para>
         /// </summary>
         /// <param name="startingPath">The base path where the lookup starts.</param>
         /// <returns>The path to the git repository.</returns>

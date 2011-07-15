@@ -86,7 +86,7 @@ namespace LibGit2Sharp
 
             return new CommitCollection(repo, filter.SortBy)
                        {
-                           includedIdentifier = filter.Since, 
+                           includedIdentifier = filter.Since,
                            excludedIdentifier = filter.Until
                        };
         }

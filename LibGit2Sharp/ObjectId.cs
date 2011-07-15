@@ -283,9 +283,9 @@ namespace LibGit2Sharp
                     return false;
                 }
 
-                string additionalErrorInformation = 
-                    !allowShortIdentifier ? 
-                    string.Format("Its length should be {0}", HexSize) : 
+                string additionalErrorInformation =
+                    !allowShortIdentifier ?
+                    string.Format("Its length should be {0}", HexSize) :
                     string.Format("Its length should be comprised between {0} and {1}", MinHexSize, HexSize);
 
                 throw new ArgumentException(

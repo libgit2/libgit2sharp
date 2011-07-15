@@ -84,7 +84,7 @@ namespace LibGit2Sharp
         {
             return Equals(obj as GitObject);
         }
-        
+
         /// <summary>
         /// Determines whether the specified <see cref="GitObject"/> is equal to the current <see cref="GitObject"/>.
         /// </summary>

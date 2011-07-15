@@ -10,7 +10,7 @@ namespace LibGit2Sharp.Core
         /// <summary>
         ///   The raw binary 20 byte Id.
         /// </summary>
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 20)] 
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 20)]
         public byte[] Id;
     }
 }

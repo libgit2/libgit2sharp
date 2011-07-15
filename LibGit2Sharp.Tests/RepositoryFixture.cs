@@ -67,7 +67,7 @@ namespace LibGit2Sharp.Tests
         private static void AssertIsHidden(string repoPath)
         {
             var attribs = File.GetAttributes(repoPath);
-            
+
             (attribs & FileAttributes.Hidden).ShouldEqual(FileAttributes.Hidden);
         }
 

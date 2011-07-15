@@ -46,7 +46,7 @@ namespace LibGit2Sharp.Core
         /// </para>
         /// </summary>
         /// <param name = "result">The result to examine.</param>
-        /// <param name="allowPositiveResult">False to only allow success when comparing against 0, 
+        /// <param name="allowPositiveResult">False to only allow success when comparing against 0,
         /// True when positive values are allowed as well.</param>
         public static void Success(int result, bool allowPositiveResult = false)
         {

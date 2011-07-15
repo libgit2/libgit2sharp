@@ -219,7 +219,7 @@ namespace LibGit2Sharp.Tests
                 CollectionAssert.AreEquivalent(new[] { "a4a7dce", "c47800c", "9fd738e" }, abbrevShas);
             }
         }
-        
+
         [Test]
         public void CanLookupCommitGeneric()
         {

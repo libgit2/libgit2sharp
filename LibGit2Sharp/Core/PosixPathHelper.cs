@@ -11,8 +11,8 @@ namespace LibGit2Sharp.Core
             if (posixDirectorySeparatorChar == Path.DirectorySeparatorChar)
             {
                 return nativePath;
-            } 
-            
+            }
+
             if (nativePath == null)
             {
                 return null;

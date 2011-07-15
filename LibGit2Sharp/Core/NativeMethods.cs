@@ -133,7 +133,7 @@ namespace LibGit2Sharp.Core
         public static extern int git_repository_discover(StringBuilder repository_path, int size, string start_path,
                                                          [MarshalAs(UnmanagedType.Bool)] bool across_fs,
                                                          string ceiling_dirs);
-        
+
         [DllImport(libgit2)]
         public static extern void git_repository_free(IntPtr repository);
 

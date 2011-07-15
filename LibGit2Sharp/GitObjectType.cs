@@ -11,7 +11,7 @@
         Any = -2,
 
         /// <summary>
-        /// Object is invalid. 
+        /// Object is invalid.
         /// </summary>
         Bad = -1,
 
@@ -24,27 +24,27 @@
         /// A commit object.
         /// </summary>
         Commit = 1,
-        
+
         /// <summary>
         /// A tree (directory listing) object.
         /// </summary>
         Tree = 2,
-        
+
         /// <summary>
         /// A file revision object.
         /// </summary>
         Blob = 3,
-        
+
         /// <summary>
         /// An annotated tag object.
         /// </summary>
         Tag = 4,
-        
+
         /// <summary>
         /// Reserved for future use.
         /// </summary>
         Ext2 = 5,
-        
+
         /// <summary>
         /// A delta, base is given by an offset.
         /// </summary>
