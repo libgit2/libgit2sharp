@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 // associated with an assembly.
 
 [assembly: AssemblyTitle("LibGit2Sharp")]
-[assembly: AssemblyDescription(".Net bindings for libgit2")]
+[assembly: AssemblyDescription("LibGit2Sharp brings all the might and speed of libgit2, a native Git implementation, to the managed world of .Net and Mono.")]
 [assembly: AssemblyCompany("LibGit2Sharp contributors")]
 
 #if DEBUG
