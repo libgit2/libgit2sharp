@@ -375,7 +375,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Throws<ApplicationException>(() => repo.Tags.Create("e90810b", "refs/heads/br2", signatureNtk, "a nice message"));
             }
         }
-        
+
         [Test]
         public void CreateTagWithADuplicateNameThrows()
         {
@@ -548,7 +548,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(Constants.BareTestRepoPath))
             {
                 List<string> tagNames = repo.Tags.Select(t => t.Name).ToList();
-                
+
                 var sortedTags = expectedTags;
                 sortedTags.Sort();
 

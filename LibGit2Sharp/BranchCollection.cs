@@ -63,6 +63,7 @@ namespace LibGit2Sharp
         /// <returns></returns>
         public Branch Checkout(string name)
         {
+            // TODO: Allow checkout of an arbitrary commit, thus putting HEAD in detached state.
             // TODO: This does not yet checkout (write) the working directory
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
 
@@ -86,7 +87,7 @@ namespace LibGit2Sharp
                 var reference = repo.Refs[NormalizeToCanonicalName(target)].ResolveToDirectReference();
                 target = reference.TargetIdentifier;
             }
-            
+
             repo.Refs.Create(NormalizeToCanonicalName(name), target);
             return this[name];
         }

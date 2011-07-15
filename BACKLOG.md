@@ -29,8 +29,7 @@
  - Add Reference equality test suite
  - Remove Ignore attribute from ReferenceFixture.CanMoveAReferenceToADeeperReferenceHierarchy() once git_reference_rename() is fixed
  - Remove Ignore attribute from ReferenceFixture.CanMoveAReferenceToAUpperReferenceHierarchy() once git_reference_rename() is fixed
- 
+
 ### Miscellaneous
 
  - Run the build on a Unix platform
- 

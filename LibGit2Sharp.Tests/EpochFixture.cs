@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Globalization;
 using LibGit2Sharp.Core;
 using NUnit.Framework;
 

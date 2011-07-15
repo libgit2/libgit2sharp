@@ -1,5 +1,7 @@
 # LibGit2Sharp Changelog
 
+**LibGit2Sharp brings all the might and speed of libgit2, a native Git implementation, to the managed world of .Net and Mono.**
+
  - Source code: <https://github.com/libgit2/libgit2sharp>
  - NuGet package: <http://nuget.org/List/Packages/LibGit2Sharp>
 
@@ -7,6 +9,7 @@
 
 ### Additions
 
+ - Add Repository.Index.Move()
  - Add handling of abbreviated identifiers
  - Add Repository.Discover() (#25)
  - Add TreeEntry.Type
@@ -14,12 +17,16 @@
 ### Changes
 
  - Propagate libgit2 error messages upward
- - Update libgit2 binaries to libgit2/libgit2@2a406ab
+ - Update libgit2 binaries to libgit2/libgit2@33afca4
 
 ### Fixes
 
- - Improved Mono compatibility (#46 and #47)
- - Dependency to msvcr100.dll is no longer required
+ - Prevents GitSharp from throwing when browsing a repository initialized with LibGit2Sharp (#56)
+ - Hide the .git directory when initializing a new standard repository (#53)
+ - Fix Repository.IsEmpty implementation when HEAD is in detached state (#52)
+ - Relaxed handling of bogus signatures (#51)
+ - Improve Mono compatibility (#46 and #47)
+ - Remove dependency to msvcr100.dll
 
 ## v0.3
 
@@ -70,4 +77,3 @@
 ## v0.1.0
 
  - Initial release
-

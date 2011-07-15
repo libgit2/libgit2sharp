@@ -328,7 +328,7 @@ namespace LibGit2Sharp.Tests
                 newTest.Tip.ShouldEqual(br2.Tip);
             }
         }
-        
+
         [Test]
         public void CreatingABranchTriggersTheCreationOfADirectReference()
         {
@@ -337,7 +337,7 @@ namespace LibGit2Sharp.Tests
             {
                 var newBranch = repo.CreateBranch("clone-of-master");
                 newBranch.IsCurrentRepositoryHead.ShouldBeFalse();
-                
+
                 var commitId = repo.Head.Tip.Id;
                 newBranch.Tip.Id.ShouldEqual(commitId);
 

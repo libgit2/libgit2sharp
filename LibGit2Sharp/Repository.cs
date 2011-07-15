@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Text;
 using LibGit2Sharp.Core;
 
@@ -15,7 +16,7 @@ namespace LibGit2Sharp
         private readonly Index index;
         private readonly ReferenceCollection refs;
         private readonly TagCollection tags;
-        private RepositoryInformation info;
+        private readonly Lazy<RepositoryInformation> info;
         private readonly bool isBare;
 
         /// <summary>
@@ -41,6 +42,7 @@ namespace LibGit2Sharp
             refs = new ReferenceCollection(this);
             branches = new BranchCollection(this);
             tags = new TagCollection(this);
+            info = new Lazy<RepositoryInformation>(() => new RepositoryInformation(this, isBare));
         }
 
         internal RepositorySafeHandle Handle
@@ -57,7 +59,7 @@ namespace LibGit2Sharp
             get
             {
                 Reference headRef = Refs["HEAD"];
-                
+
                 if (Info.IsEmpty)
                 {
                     return new Branch(headRef.TargetIdentifier, null, this);
@@ -84,7 +86,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Lookup and enumerate commits in the repository. 
+        ///   Lookup and enumerate commits in the repository.
         ///   Iterating this collection directly starts walking from the HEAD.
         /// </summary>
         public IQueryableCommitCollection Commits
@@ -111,10 +113,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Provides high level information about this repository.
         /// </summary>
-        public RepositoryInformation Info 
-        {
-            get { return info ?? (info = new RepositoryInformation(this, isBare)); }
-        }
+        public RepositoryInformation Info { get { return info.Value; } }
 
         #region IDisposable Members
 
@@ -147,7 +146,7 @@ namespace LibGit2Sharp
 
         /// <summary>
         ///   Tells if the specified sha exists in the repository.
-        /// 
+        ///
         ///   Exceptions:
         ///   ArgumentException
         ///   ArgumentNullException
@@ -180,7 +179,18 @@ namespace LibGit2Sharp
             string normalizedPath = NativeMethods.git_repository_path(repo, GitRepositoryPathId.GIT_REPO_PATH).MarshallAsString();
             repo.Dispose();
 
-            return PosixPathHelper.ToNative(normalizedPath);
+            string nativePath = PosixPathHelper.ToNative(normalizedPath);
+
+            // TODO: To be removed once it's being dealt with by libgit2
+            // libgit2 doesn't currently create the git config file, so create a minimal one if we can't find it
+            // See https://github.com/libgit2/libgit2sharp/issues/56 for details
+            string configFile = Path.Combine(nativePath, "config");
+            if (!File.Exists(configFile))
+            {
+                File.WriteAllText(configFile, "[core]\n\trepositoryformatversion = 0\n");
+            }
+
+            return nativePath;
         }
 
         /// <summary>
@@ -253,7 +263,7 @@ namespace LibGit2Sharp
 
         /// <summary>
         /// Probe for a git repository.
-        /// <para>The lookup start from <paramref name="startingPath"/> and walk upward parent directories if nothing has been found.</para> 
+        /// <para>The lookup start from <paramref name="startingPath"/> and walk upward parent directories if nothing has been found.</para>
         /// </summary>
         /// <param name="startingPath">The base path where the lookup starts.</param>
         /// <returns>The path to the git repository.</returns>

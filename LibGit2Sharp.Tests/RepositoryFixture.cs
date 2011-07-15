@@ -19,6 +19,7 @@ namespace LibGit2Sharp.Tests
                 var dir = Repository.Init(scd.DirectoryPath, true);
                 Path.IsPathRooted(dir).ShouldBeTrue();
                 Directory.Exists(dir).ShouldBeTrue();
+                CheckGitConfigFile(dir);
 
                 using (var repo = new Repository(dir))
                 {
@@ -39,6 +40,7 @@ namespace LibGit2Sharp.Tests
                 var dir = Repository.Init(scd.DirectoryPath);
                 Path.IsPathRooted(dir).ShouldBeTrue();
                 Directory.Exists(dir).ShouldBeTrue();
+                CheckGitConfigFile(dir);
 
                 using (var repo = new Repository(dir))
                 {
@@ -46,9 +48,27 @@ namespace LibGit2Sharp.Tests
                     repo.Info.Path.ShouldEqual(Path.Combine(scd.RootedDirectoryPath, ".git" + Path.DirectorySeparatorChar));
                     repo.Info.IsBare.ShouldBeFalse();
 
+                    AssertIsHidden(repo.Info.Path);
+
                     AssertInitializedRepository(repo);
                 }
             }
+        }
+
+        private void CheckGitConfigFile(string dir)
+        {
+            string configFilePath = Path.Combine(dir, "config");
+            File.Exists(configFilePath).ShouldBeTrue();
+
+            string contents = File.ReadAllText(configFilePath);
+            contents.IndexOf("repositoryformatversion = 0").ShouldNotEqual(-1);
+        }
+
+        private static void AssertIsHidden(string repoPath)
+        {
+            var attribs = File.GetAttributes(repoPath);
+
+            (attribs & FileAttributes.Hidden).ShouldEqual(FileAttributes.Hidden);
         }
 
         [Test]
@@ -288,35 +308,35 @@ namespace LibGit2Sharp.Tests
         public void CanDiscoverABareRepoGivenTheRepoPath()
         {
             string path = Repository.Discover(Constants.BareTestRepoPath);
-            path.ShouldEqual(Path.GetFullPath(Constants.BareTestRepoPath));
+            path.ShouldEqual(Path.GetFullPath(Constants.BareTestRepoPath + Path.DirectorySeparatorChar));
         }
 
         [Test]
         public void CanDiscoverABareRepoGivenASubDirectoryOfTheRepoPath()
         {
             string path = Repository.Discover(Path.Combine(Constants.BareTestRepoPath, "objects/4a"));
-            path.ShouldEqual(Path.GetFullPath(Constants.BareTestRepoPath));
+            path.ShouldEqual(Path.GetFullPath(Constants.BareTestRepoPath + Path.DirectorySeparatorChar));
         }
 
         [Test]
         public void CanDiscoverAStandardRepoGivenTheRepoPath()
         {
             string path = Repository.Discover(Constants.StandardTestRepoPath);
-            path.ShouldEqual(Path.GetFullPath(Constants.StandardTestRepoPath));
+            path.ShouldEqual(Path.GetFullPath(Constants.StandardTestRepoPath + Path.DirectorySeparatorChar));
         }
 
         [Test]
         public void CanDiscoverAStandardRepoGivenASubDirectoryOfTheRepoPath()
         {
             string path = Repository.Discover(Path.Combine(Constants.StandardTestRepoPath, "objects/4a"));
-            path.ShouldEqual(Path.GetFullPath(Constants.StandardTestRepoPath));
+            path.ShouldEqual(Path.GetFullPath(Constants.StandardTestRepoPath + Path.DirectorySeparatorChar));
         }
 
         [Test]
         public void CanDiscoverAStandardRepoGivenTheWorkingDirPath()
         {
             string path = Repository.Discover(Constants.StandardTestRepoWorkingDirPath);
-            path.ShouldEqual(Path.GetFullPath(Constants.StandardTestRepoPath));
+            path.ShouldEqual(Path.GetFullPath(Constants.StandardTestRepoPath + Path.DirectorySeparatorChar));
         }
     }
 }

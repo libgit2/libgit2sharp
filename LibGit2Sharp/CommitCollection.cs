@@ -86,7 +86,7 @@ namespace LibGit2Sharp
 
             return new CommitCollection(repo, filter.SortBy)
                        {
-                           includedIdentifier = filter.Since, 
+                           includedIdentifier = filter.Since,
                            excludedIdentifier = filter.Until
                        };
         }
@@ -110,26 +110,40 @@ namespace LibGit2Sharp
             Ensure.Success(res);
 
             Reference head = repo.Refs["HEAD"];
-            GitOid[] gitOids = RetrieveCommitParent(head);
 
             GitOid commitOid;
-            res = NativeMethods.git_commit_create(out commitOid, repo.Handle, head.CanonicalName, author.Handle,
-                                                  committer.Handle, message, ref treeOid, gitOids.Count(), ref gitOids);
+            using (var treePtr = new ObjectSafeWrapper(new ObjectId(treeOid), repo))
+            using (var headPtr = RetrieveHeadCommitPtr(head))
+            {
+                var parentPtrs = BuildArrayFrom(headPtr);
+                res = NativeMethods.git_commit_create(out commitOid, repo.Handle, head.CanonicalName, author.Handle,
+                                                  committer.Handle, message, treePtr.ObjectPtr, parentPtrs.Count(), parentPtrs);
+            }
             Ensure.Success(res);
 
             return repo.Lookup<Commit>(new ObjectId(commitOid));
         }
 
-        private static GitOid[] RetrieveCommitParent(Reference head)
+        private static IntPtr[] BuildArrayFrom(ObjectSafeWrapper headPtr)
         {
+            if (headPtr.ObjectPtr == IntPtr.Zero)
+            {
+                return new IntPtr[]{};
+            }
+
+            return new IntPtr[]{headPtr.ObjectPtr};
+        }
+
+        private ObjectSafeWrapper RetrieveHeadCommitPtr(Reference head)
+        {
+
             DirectReference oidRef = head.ResolveToDirectReference();
             if (oidRef == null)
             {
-                return new GitOid[] { };
+                return new ObjectSafeWrapper(null, repo);
             }
 
-            var headCommitId = new ObjectId(oidRef.TargetIdentifier);
-            return new[] { headCommitId.Oid };
+            return new ObjectSafeWrapper(new ObjectId(oidRef.TargetIdentifier), repo);
         }
 
         private class CommitEnumerator : IEnumerator<Commit>

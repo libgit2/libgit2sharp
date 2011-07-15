@@ -23,7 +23,7 @@ namespace LibGit2Sharp
         {
             get { return handle; }
         }
-        
+
         public int Count
         {
             get { return (int)NativeMethods.git_index_entrycount(handle); }
@@ -36,6 +36,12 @@ namespace LibGit2Sharp
                 Ensure.ArgumentNotNullOrEmptyString(path, "path");
 
                 int res = NativeMethods.git_index_find(handle, path);
+
+                if (res == (int)GitErrorCode.GIT_ENOTFOUND)
+                {
+                    return null;
+                }
+
                 Ensure.Success(res, true);
 
                 return this[(uint)res];
@@ -119,8 +125,9 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(path, "path");
 
-            var res = NativeMethods.git_index_add(handle, BuildRelativePathFrom(path));
-            Ensure.Success(res);
+            string relativePath = BuildRelativePathFrom(path);
+
+            AddToIndex(relativePath);
 
             UpdatePhysicalIndex();
         }
@@ -129,13 +136,63 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(path, "path");
 
-            var res = NativeMethods.git_index_find(handle, BuildRelativePathFrom(path));
+            string relativePath = BuildRelativePathFrom(path);
+
+            RemoveFromIndex(relativePath);
+
+            RestorePotentialPreviousVersionOf(relativePath);
+
+            UpdatePhysicalIndex();
+        }
+
+        public void Move(string sourcePath, string destinationPath)
+        {
+            Ensure.ArgumentNotNullOrEmptyString(sourcePath, "sourcepath");
+            Ensure.ArgumentNotNullOrEmptyString(destinationPath, "destinationpath");
+
+            string relativeSourcePath = BuildRelativePathFrom(sourcePath);
+            string relativeDestinationPath = BuildRelativePathFrom(destinationPath);
+
+            string wd = repo.Info.WorkingDirectory;
+            if (Directory.Exists(Path.Combine(wd, relativeSourcePath)))
+            {
+                throw new NotImplementedException();
+            }
+
+            RemoveFromIndex(relativeSourcePath);
+
+            File.Move(Path.Combine(wd, relativeSourcePath), Path.Combine(wd, relativeDestinationPath));
+
+            AddToIndex(relativeDestinationPath);
+
+            UpdatePhysicalIndex();
+        }
+
+        private void AddToIndex(string path)
+        {
+            var res = NativeMethods.git_index_add(handle, BuildRelativePathFrom(path));
+            Ensure.Success(res);
+        }
+
+        private void RemoveFromIndex(string relativePath)
+        {
+            var res = NativeMethods.git_index_find(handle, relativePath);
             Ensure.Success(res, true);
 
             res = NativeMethods.git_index_remove(handle, res);
             Ensure.Success(res);
+        }
 
-            UpdatePhysicalIndex();
+        private void RestorePotentialPreviousVersionOf(string relativePath)
+        {
+            var currentHeadBlob = repo.Head.Tip.Tree[relativePath];
+            if ((currentHeadBlob == null) || currentHeadBlob.Type != GitObjectType.Blob)
+            {
+                return;
+            }
+
+            File.WriteAllBytes(Path.Combine(repo.Info.WorkingDirectory, relativePath), ((Blob) currentHeadBlob.Target).Content);
+            AddToIndex(relativePath);
         }
 
         private void UpdatePhysicalIndex()
@@ -144,7 +201,7 @@ namespace LibGit2Sharp
             Ensure.Success(res);
         }
 
-        private string BuildRelativePathFrom(string path)   //TODO: To be removed when libgit2 natively implements this 
+        private string BuildRelativePathFrom(string path)   //TODO: To be removed when libgit2 natively implements this
         {
             if (!Path.IsPathRooted(path))
             {

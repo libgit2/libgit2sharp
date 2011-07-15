@@ -87,12 +87,7 @@ namespace LibGit2Sharp
         /// <returns>true if the <paramref name="sha"/> parameter was converted successfully; otherwise, false.</returns>
         public static bool TryParse(string sha, out ObjectId result)
         {
-            return TryParseInternal(sha, true, out result);
-        }
-
-        internal static bool TryParseInternal(string sha, bool allowShortIdentifier, out ObjectId result)
-        {
-            result = BuildFrom(sha, false, allowShortIdentifier);
+            result = BuildFrom(sha, false, true);
 
             return (result == null) ? false : true;
         }
@@ -288,9 +283,9 @@ namespace LibGit2Sharp
                     return false;
                 }
 
-                string additionalErrorInformation = 
-                    !allowShortIdentifier ? 
-                    string.Format("Its length should be {0}", HexSize) : 
+                string additionalErrorInformation =
+                    !allowShortIdentifier ?
+                    string.Format("Its length should be {0}", HexSize) :
                     string.Format("Its length should be comprised between {0} and {1}", MinHexSize, HexSize);
 
                 throw new ArgumentException(

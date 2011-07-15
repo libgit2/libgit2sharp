@@ -71,7 +71,7 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNullOrEmptyString(target, "target");
 
             ObjectId id;
-            
+
             IntPtr reference;
             int res;
 
@@ -91,34 +91,33 @@ namespace LibGit2Sharp
 
         private int CreateSymbolicReference(string name, string target, bool allowOverwrite, out IntPtr reference)
         {
-            if (allowOverwrite)
-            {
-                return NativeMethods.git_reference_create_symbolic_f(out reference, repo.Handle, name, target);
-            }
-
-            return NativeMethods.git_reference_create_symbolic(out reference, repo.Handle, name, target);
+            return NativeMethods.git_reference_create_symbolic(out reference, repo.Handle, name, target, allowOverwrite);
         }
 
-        private int CreateDirectReference(string name, ObjectId targetOid, bool allowOverwrite, out IntPtr reference)
+        private int CreateDirectReference(string name, ObjectId targetId, bool allowOverwrite, out IntPtr reference)
         {
-            if (targetOid is AbbreviatedObjectId)   //TODO: This is hacky... :-/
-            {
-                var obj = repo.Lookup(targetOid);
-                if (obj == null)
-                {
-                    Ensure.Success((int) GitErrorCode.GIT_ENOTFOUND);
-                }
-                targetOid = obj.Id;
-            }   
-         
-            GitOid oid = targetOid.Oid;
+            targetId = Unabbreviate(targetId);
 
-            if (allowOverwrite)
+            GitOid oid = targetId.Oid;
+
+            return NativeMethods.git_reference_create_oid(out reference, repo.Handle, name, ref oid, allowOverwrite);
+        }
+
+        private ObjectId Unabbreviate(ObjectId targetId)
+        {
+            if (!(targetId is AbbreviatedObjectId))
             {
-                return NativeMethods.git_reference_create_oid_f(out reference, repo.Handle, name, ref oid);
+                return targetId;
             }
-         
-            return NativeMethods.git_reference_create_oid(out reference, repo.Handle, name, ref oid);
+
+            var obj = repo.Lookup(targetId);
+
+            if (obj == null)
+            {
+                Ensure.Success((int) GitErrorCode.GIT_ENOTFOUND);
+            }
+
+            return obj.Id;
         }
 
         /// <summary>
@@ -148,17 +147,8 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNullOrEmptyString(newName, "newName");
 
             IntPtr referencePtr = RetrieveReferencePtr(currentName);
-            int res;
 
-            if (allowOverwrite)
-            {
-                res = NativeMethods.git_reference_rename_f(referencePtr, newName);
-            }
-            else
-            {
-                res = NativeMethods.git_reference_rename(referencePtr, newName);
-            }
-
+            int res = NativeMethods.git_reference_rename(referencePtr, newName, allowOverwrite);
             Ensure.Success(res);
 
             return Reference.BuildFromPtr<Reference>(referencePtr, repo);
