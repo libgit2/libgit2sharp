@@ -5,17 +5,15 @@ using LibGit2Sharp.Core;
 namespace LibGit2Sharp
 {
     /// <summary>
-    ///   Provides access to the '.gitconfig' configuration for a repository.
+    ///   Provides access to the '.git\config' configuration for a repository.
     /// </summary>
     public class Configuration : IDisposable
     {
         private readonly ConfigurationSafeHandle handle;
-        private readonly Repository repository;
 
         public Configuration(Repository repository)
         {
-            this.repository = repository;
-            NativeMethods.git_repository_config(out handle, this.repository.Handle, null, null);
+            NativeMethods.git_repository_config(out handle, repository.Handle, null, null);
         }
 
         #region IDisposable Members
@@ -43,15 +41,17 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Get a configuration value for a key. Keys are in the form 'section.name'. For example in
-        ///   order to get the value for this in a .gitconfig file:
-        /// 
-        ///   [core]
-        ///   bare = true
-        /// 
-        ///   You would call:
-        /// 
-        ///   bool isBare = repo.Config.Get<bool>("core.bare");
+        ///   Get a configuration value for a key. Keys are in the form 'section.name'.
+        ///   <para>
+        ///     For example in  order to get the value for this in a .git\config file:
+        ///
+        ///     [core]
+        ///         bare = true
+        ///
+        ///     You would call:
+        ///
+        ///     bool isBare = repo.Config.Get&lt;bool&gt;("core.bare");
+        ///   </para>
         /// </summary>
         /// <typeparam name = "T"></typeparam>
         /// <param name = "key"></param>
@@ -87,6 +87,45 @@ namespace LibGit2Sharp
             }
 
             return default(T);
+        }
+
+        /// <summary>
+        ///   Set a configuration value for a key. Keys are in the form 'section.name'.
+        ///   <para>
+        ///     For example in order to set the value for this in a .git\config file:
+        ///
+        ///     [test]
+        ///         boolsetting = true
+        ///
+        ///     You would call:
+        ///
+        ///     repo.Config.Set("test.boolsetting", true);
+        ///   </para>
+        /// </summary>
+        /// <typeparam name = "T"></typeparam>
+        /// <param name = "key"></param>
+        /// <param name = "value"></param>
+        public void Set<T>(string key, T value)
+        {
+            if (typeof (T) == typeof (string))
+            {
+                Ensure.Success(NativeMethods.git_config_set_string(handle, key, (string) (object) value));
+            }
+
+            if (typeof (T) == typeof (bool))
+            {
+                Ensure.Success(NativeMethods.git_config_set_bool(handle, key, (bool) (object) value));
+            }
+
+            if (typeof (T) == typeof (int))
+            {
+                Ensure.Success(NativeMethods.git_config_set_int(handle, key, (int) (object) value));
+            }
+
+            if (typeof (T) == typeof (long))
+            {
+                Ensure.Success(NativeMethods.git_config_set_long(handle, key, (long) (object) value));
+            }
         }
     }
 }
