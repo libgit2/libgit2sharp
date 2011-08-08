@@ -13,7 +13,7 @@ namespace LibGit2Sharp
 
         public Configuration(Repository repository)
         {
-            NativeMethods.git_repository_config(out handle, repository.Handle, null, null);
+            Ensure.Success(NativeMethods.git_repository_config(out handle, repository.Handle, null, null));
         }
 
         #region IDisposable Members
