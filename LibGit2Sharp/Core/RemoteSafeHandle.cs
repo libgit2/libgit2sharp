@@ -1,10 +1,10 @@
 ﻿namespace LibGit2Sharp.Core
 {
-    internal class ConfigurationSafeHandle : SafeHandleBase
+    internal class RemoteSafeHandle : SafeHandleBase
     {
         protected override bool ReleaseHandle()
         {
-            NativeMethods.git_config_free(handle);
+            NativeMethods.git_remote_free(handle);
             return true;
         }
     }

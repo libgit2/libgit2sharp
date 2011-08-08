@@ -16,6 +16,7 @@ namespace LibGit2Sharp
         private readonly RepositorySafeHandle handle;
         private readonly Index index;
         private readonly ReferenceCollection refs;
+        private RemoteCollection remotes;
         private readonly TagCollection tags;
         private readonly Lazy<RepositoryInformation> info;
         private readonly bool isBare;
@@ -92,6 +93,11 @@ namespace LibGit2Sharp
         public ReferenceCollection Refs
         {
             get { return refs; }
+        }
+
+        public RemoteCollection Remotes
+        {
+            get { return remotes ?? (remotes = new RemoteCollection(this)); }
         }
 
         /// <summary>

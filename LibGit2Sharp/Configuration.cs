@@ -16,6 +16,11 @@ namespace LibGit2Sharp
             Ensure.Success(NativeMethods.git_repository_config(out handle, repository.Handle, null, null));
         }
 
+        internal ConfigurationSafeHandle Handle
+        {
+            get { return handle; }
+        }
+
         #region IDisposable Members
 
         /// <summary>
@@ -40,22 +45,22 @@ namespace LibGit2Sharp
             }
         }
 
-        /// <summary>
-        ///   Get a configuration value for a key. Keys are in the form 'section.name'.
-        ///   <para>
-        ///     For example in  order to get the value for this in a .git\config file:
+        ///<summary>
+        ///  Get a configuration value for a key. Keys are in the form 'section.name'.
+        ///  <para>
+        ///    For example in  order to get the value for this in a .git\config file:
         ///
-        ///     [core]
+        ///    [core]
         ///         bare = true
         ///
-        ///     You would call:
+        ///    You would call:
         ///
-        ///     bool isBare = repo.Config.Get&lt;bool&gt;("core.bare");
-        ///   </para>
-        /// </summary>
-        /// <typeparam name = "T"></typeparam>
-        /// <param name = "key"></param>
-        /// <returns></returns>
+        ///    bool isBare = repo.Config.Get&lt;bool&gt;("core.bare");
+        ///  </para>
+        ///</summary>
+        ///<typeparam name = "T"></typeparam>
+        ///<param name = "key"></param>
+        ///<returns></returns>
         public T Get<T>(string key)
         {
             if (typeof (T) == typeof (string))
@@ -89,22 +94,22 @@ namespace LibGit2Sharp
             return default(T);
         }
 
-        /// <summary>
-        ///   Set a configuration value for a key. Keys are in the form 'section.name'.
-        ///   <para>
-        ///     For example in order to set the value for this in a .git\config file:
+        ///<summary>
+        ///  Set a configuration value for a key. Keys are in the form 'section.name'.
+        ///  <para>
+        ///    For example in order to set the value for this in a .git\config file:
         ///
-        ///     [test]
+        ///    [test]
         ///         boolsetting = true
         ///
-        ///     You would call:
+        ///    You would call:
         ///
-        ///     repo.Config.Set("test.boolsetting", true);
-        ///   </para>
-        /// </summary>
-        /// <typeparam name = "T"></typeparam>
-        /// <param name = "key"></param>
-        /// <param name = "value"></param>
+        ///    repo.Config.Set("test.boolsetting", true);
+        ///  </para>
+        ///</summary>
+        ///<typeparam name = "T"></typeparam>
+        ///<param name = "key"></param>
+        ///<param name = "value"></param>
         public void Set<T>(string key, T value)
         {
             if (typeof (T) == typeof (string))

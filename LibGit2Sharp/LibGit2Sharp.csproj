@@ -68,6 +68,7 @@
     <Compile Include="Core\PosixPathHelper.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Core\RemoteSafeHandle.cs" />
     <Compile Include="Core\RevWalkerSafeHandle.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -92,6 +93,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Reference.cs" />
     <Compile Include="ReferenceCollection.cs" />
+    <Compile Include="Remote.cs" />
+    <Compile Include="RemoteCollection.cs" />
     <Compile Include="Repository.cs">
       <SubType>Code</SubType>
     </Compile>
