@@ -269,12 +269,24 @@ namespace LibGit2Sharp
         /// <returns>The path to the git repository.</returns>
         public static string Discover(string startingPath)
         {
-            var buffer = new StringBuilder(4096);
+            var buffer = new byte[4096];
 
-            int result = NativeMethods.git_repository_discover(buffer, buffer.Capacity, PosixPathHelper.ToPosix(startingPath), false, null);
+            int result = NativeMethods.git_repository_discover(buffer, buffer.Length, PosixPathHelper.ToPosix(startingPath), false, null);
             Ensure.Success(result);
 
-            return PosixPathHelper.ToNative(buffer.ToString());
+            int nullTerminator;
+            for (nullTerminator = 0; nullTerminator < buffer.Length; nullTerminator++ )
+            {
+                if (buffer[nullTerminator] == 0)
+                    break;
+            }
+
+            if (nullTerminator == 0)
+            {
+                return null;
+            }
+
+            return PosixPathHelper.ToNative(Encoding.UTF8.GetString(buffer, 0, nullTerminator));
         }
     }
 }
