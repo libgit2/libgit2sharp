@@ -42,6 +42,7 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ConfigurationFixture.cs" />
     <Compile Include="LazyFixture.cs" />
     <Compile Include="TestHelpers\BaseFixture.cs" />
     <Compile Include="BlobFixture.cs" />
