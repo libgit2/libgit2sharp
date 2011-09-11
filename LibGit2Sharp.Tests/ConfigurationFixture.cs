@@ -66,6 +66,25 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
+        public void CanDeleteConfiguration()
+        {
+            using (var path = new TemporaryCloneOfTestRepo(Constants.StandardTestRepoPath))
+            {
+                using (var repo = new Repository(path.RepositoryPath))
+                {
+                    repo.Config.Set("unittests.boolsetting", true);
+
+                    repo.Config.Delete("unittests.boolsetting");
+                } // config file is guaranteed to be saved when config object is freed
+
+                using (var repo = new Repository(path.RepositoryPath))
+                {
+                    Assert.Throws<ApplicationException>(() => repo.Config.Get<bool>("unittests.boolsetting"));
+                }
+            }
+        }
+
+        [Test]
         public void CanSetIntValue()
         {
             using (var path = new TemporaryCloneOfTestRepo(Constants.StandardTestRepoPath))

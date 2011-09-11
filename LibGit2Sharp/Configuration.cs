@@ -35,6 +35,15 @@ namespace LibGit2Sharp
         #endregion
 
         /// <summary>
+        ///   Delete a configuration variable (key and value).
+        /// </summary>
+        /// <param name = "key">The key to delete.</param>
+        public void Delete(string key)
+        {
+            Ensure.Success(NativeMethods.git_config_delete(handle, key));
+        }
+
+        /// <summary>
         ///   Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         protected virtual void Dispose(bool disposing)
@@ -51,7 +60,7 @@ namespace LibGit2Sharp
         ///    For example in  order to get the value for this in a .git\config file:
         ///
         ///    [core]
-        ///         bare = true
+        ///    bare = true
         ///
         ///    You would call:
         ///
@@ -100,7 +109,7 @@ namespace LibGit2Sharp
         ///    For example in order to set the value for this in a .git\config file:
         ///
         ///    [test]
-        ///         boolsetting = true
+        ///    boolsetting = true
         ///
         ///    You would call:
         ///
