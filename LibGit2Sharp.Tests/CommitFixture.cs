@@ -192,7 +192,7 @@ namespace LibGit2Sharp.Tests
                 var commits = repo.Commits.QueryBy(new Filter { Since = "HEAD", Until = "refs/heads/br2" });
 
                 IEnumerable<string> abbrevShas = commits.Select(c => c.Id.ToString(7)).ToArray();
-                CollectionAssert.AreEquivalent(new[] { "4c062a6", "be3563a" }, abbrevShas);
+                CollectionAssert.AreEqual(new[] { "4c062a6", "be3563a" }, abbrevShas);
             }
         }
 
@@ -204,7 +204,7 @@ namespace LibGit2Sharp.Tests
                 var commits = repo.Commits.QueryBy(new Filter { Until = "refs/heads/br2" });
 
                 IEnumerable<string> abbrevShas = commits.Select(c => c.Id.ToString(7)).ToArray();
-                CollectionAssert.AreEquivalent(new[] { "4c062a6", "be3563a" }, abbrevShas);
+                CollectionAssert.AreEqual(new[] { "4c062a6", "be3563a" }, abbrevShas);
             }
         }
 
@@ -216,7 +216,7 @@ namespace LibGit2Sharp.Tests
                 var commits = repo.Commits.QueryBy(new Filter { Since = "a4a7dce", Until = "4a202b3" });
 
                 IEnumerable<string> abbrevShas = commits.Select(c => c.Id.ToString(7)).ToArray();
-                CollectionAssert.AreEquivalent(new[] { "a4a7dce", "c47800c", "9fd738e" }, abbrevShas);
+                CollectionAssert.AreEqual(new[] { "a4a7dce", "c47800c", "9fd738e" }, abbrevShas);
             }
         }
 
