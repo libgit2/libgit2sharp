@@ -1,7 +1,7 @@
 ﻿namespace LibGit2Sharp
 {
     /// <summary>
-    /// Options used to filter out the commits of the repository when querying its history.
+    /// Criterias used to filter out and order the commits of the repository when querying its history.
     /// </summary>
     public class Filter
     {
@@ -23,9 +23,11 @@
         public GitSortOptions SortBy { get; set; }
 
         /// <summary>
-        /// The pointer to the commit to consider as a starting point.
+        /// A pointer to a commit object or a list of pointers to consider as starting points.
         /// <para>
-        /// Can be either a <see cref="string"/> containing the sha or reference canonical name to use, a <see cref="Branch"/> or a <see cref="Reference"/>.
+        /// Can be either a <see cref="string"/> containing the sha or reference canonical name to use, 
+        /// a <see cref="Branch"/>, a <see cref="Reference"/>, a <see cref="Commit"/>, a <see cref="Tag"/>
+        /// or a <see cref="TagAnnotation"/> or even a mixed collection of all of the above.
         /// By default, the <see cref="Repository.Head"/> will be used as boundary.
         /// </para>
         /// </summary>
@@ -33,9 +35,11 @@
 
 
         /// <summary>
-        /// The pointer to the commit which will be excluded (along with its ancestors) from the enumeration.
+        /// A pointer to a commit object or a list of pointers which will be excluded (along with ancestors) from the enumeration.
         /// <para>
-        /// Can be either a <see cref="string"/> containing the sha or reference canonical name to use, a <see cref="Branch"/> or a <see cref="Reference"/>.
+        /// Can be either a <see cref="string"/> containing the sha or reference canonical name to use, 
+        /// a <see cref="Branch"/>, a <see cref="Reference"/>, a <see cref="Commit"/>, a <see cref="Tag"/>
+        /// or a <see cref="TagAnnotation"/> or even a mixed collection of all of the above.
         /// </para>
         /// </summary>
         public object Until { get; set; }

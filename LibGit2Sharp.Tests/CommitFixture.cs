@@ -12,7 +12,7 @@ namespace LibGit2Sharp.Tests
     public class CommitFixture : BaseFixture
     {
         private const string sha = "8496071c1b46c854b31185ea97743be6a8774479";
-        private readonly List<string> expectedShas = new List<string> {"a4a7d", "c4780", "9fd73", "4a202", "5b5b0", "84960"};
+        private readonly List<string> expectedShas = new List<string> { "a4a7d", "c4780", "9fd73", "4a202", "5b5b0", "84960" };
 
         [Test]
         public void CanCountCommits()
@@ -93,12 +93,13 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
-        public void QueryingTheCommitHistoryWithUnknownShaOrInvalidReferenceThrows()
+        public void QueryingTheCommitHistoryWithUnknownShaOrInvalidEntryPointThrows()
         {
             using (var repo = new Repository(Constants.BareTestRepoPath))
             {
                 Assert.Throws<InvalidOperationException>(() => repo.Commits.QueryBy(new Filter { Since = Constants.UnknownSha }).Count());
                 Assert.Throws<InvalidOperationException>(() => repo.Commits.QueryBy(new Filter { Since = "refs/heads/deadbeef" }).Count());
+                Assert.Throws<ArgumentNullException>(() => repo.Commits.QueryBy(new Filter { Since = null }).Count());
             }
         }
 
@@ -198,36 +199,97 @@ namespace LibGit2Sharp.Tests
         [Test]
         public void CanEnumerateUsingTwoHeadsAsBoundaries()
         {
-            using (var repo = new Repository(Constants.BareTestRepoPath))
-            {
-                var commits = repo.Commits.QueryBy(new Filter { Since = "HEAD", Until = "refs/heads/br2" });
-
-                IEnumerable<string> abbrevShas = commits.Select(c => c.Id.ToString(7)).ToArray();
-                CollectionAssert.AreEqual(new[] { "4c062a6", "be3563a" }, abbrevShas);
-            }
+            AssertEnumerationOfCommits(
+                repo => new Filter { Since = "HEAD", Until = "refs/heads/br2" },
+                new[] { "4c062a6", "be3563a" }
+                );
         }
 
         [Test]
         public void CanEnumerateUsingOneHeadAsBoundaries()
         {
-            using (var repo = new Repository(Constants.BareTestRepoPath))
-            {
-                var commits = repo.Commits.QueryBy(new Filter { Until = "refs/heads/br2" });
-
-                IEnumerable<string> abbrevShas = commits.Select(c => c.Id.ToString(7)).ToArray();
-                CollectionAssert.AreEqual(new[] { "4c062a6", "be3563a" }, abbrevShas);
-            }
+            AssertEnumerationOfCommits(
+                repo => new Filter { Until = "refs/heads/br2" },
+                new[] { "4c062a6", "be3563a" }
+                );
         }
 
         [Test]
         public void CanEnumerateUsingTwoAbbreviatedShasAsBoundaries()
         {
+            AssertEnumerationOfCommits(
+                repo => new Filter { Since = "a4a7dce", Until = "4a202b3" },
+                new[] { "a4a7dce", "c47800c", "9fd738e" }
+                );
+        }
+
+        [Test]
+        public void CanEnumerateCommitsFromTwoHeads()
+        {
+            AssertEnumerationOfCommits(
+                repo => new Filter { Since = new[] { "refs/heads/br2", "refs/heads/master" } },
+                new[]
+                    {
+                        "4c062a6", "a4a7dce", "be3563a", "c47800c",
+                        "9fd738e", "4a202b3", "5b5b025", "8496071",
+                    });
+        }
+
+        [Test]
+        public void CanEnumerateCommitsFromMixedStartingPoints()
+        {
+            AssertEnumerationOfCommits(
+                repo => new Filter { Since = new object[] { repo.Branches["br2"], "refs/heads/master", new ObjectId("e90810b") } },
+                new[]
+                    {
+                        "4c062a6", "e90810b", "6dcf9bf", "a4a7dce",
+                        "be3563a", "c47800c", "9fd738e", "4a202b3",
+                        "5b5b025", "8496071",
+                    });
+        }
+
+        [Test]
+        public void CanEnumerateCommitsFromAnAnnotatedTag()
+        {
+            CanEnumerateCommitsFromATag(t => t);
+        }
+
+        [Test]
+        public void CanEnumerateCommitsFromATagAnnotation()
+        {
+            CanEnumerateCommitsFromATag(t => t.Annotation);
+        }
+
+        private static void CanEnumerateCommitsFromATag(Func<Tag, object> transformer)
+        {
+            AssertEnumerationOfCommits(
+                repo => new Filter { Since = transformer(repo.Tags["test"]) },
+                new[] { "e90810b", "6dcf9bf", }
+                );
+        }
+
+        [Test]
+        public void CanEnumerateAllCommits()
+        {
+            AssertEnumerationOfCommits(
+                repo => new Filter { Since = repo.Refs },
+                new[]
+                    {
+                        "4c062a6", "e90810b", "6dcf9bf", "a4a7dce",
+                        "be3563a", "c47800c", "9fd738e", "4a202b3",
+                        "41bc8c6", "5001298", "5b5b025", "8496071",
+                    });
+        }
+
+        private static void AssertEnumerationOfCommits(Func<Repository, Filter> filterBuilder, IEnumerable<string> abbrevIds)
+        {
             using (var repo = new Repository(Constants.BareTestRepoPath))
             {
-                var commits = repo.Commits.QueryBy(new Filter { Since = "a4a7dce", Until = "4a202b3" });
+                var commits = repo.Commits.QueryBy(filterBuilder(repo));
 
-                IEnumerable<string> abbrevShas = commits.Select(c => c.Id.ToString(7)).ToArray();
-                CollectionAssert.AreEqual(new[] { "a4a7dce", "c47800c", "9fd738e" }, abbrevShas);
+                IEnumerable<string> commitShas = commits.Select(c => c.Id.ToString(7)).ToArray();
+
+                CollectionAssert.AreEqual(abbrevIds, commitShas);
             }
         }
 
@@ -250,9 +312,9 @@ namespace LibGit2Sharp.Tests
             {
                 var obj = repo.Lookup(sha);
                 obj.ShouldNotBeNull();
-                obj.GetType().ShouldEqual(typeof (Commit));
+                obj.GetType().ShouldEqual(typeof(Commit));
 
-                var commit = (Commit) obj;
+                var commit = (Commit)obj;
                 commit.Message.ShouldEqual("testing\n");
                 commit.MessageShort.ShouldEqual("testing");
                 commit.Sha.ShouldEqual(sha);

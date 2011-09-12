@@ -13,8 +13,8 @@ namespace LibGit2Sharp
     public class CommitCollection : IQueryableCommitCollection
     {
         private readonly Repository repo;
-        private object includedIdentifier = "HEAD";
-        private object excludedIdentifier;
+        private IList<object> includedIdentifier = new List<object> { "HEAD" };
+        private IList<object> excludedIdentifier = new List<object>();
         private readonly GitSortOptions sortOptions;
 
         /// <summary>
@@ -54,7 +54,7 @@ namespace LibGit2Sharp
         /// <returns>An <see cref="IEnumerator{T}"/> object that can be used to iterate through the collection.</returns>
         public IEnumerator<Commit> GetEnumerator()
         {
-            if ((repo.Info.IsEmpty) && PointsAtTheHead(includedIdentifier.ToString()))
+            if ((repo.Info.IsEmpty) && includedIdentifier.Any(o => PointsAtTheHead(o.ToString()))) // TODO: ToString() == fragile
             {
                 return Enumerable.Empty<Commit>().GetEnumerator();
             }
@@ -86,9 +86,34 @@ namespace LibGit2Sharp
 
             return new CommitCollection(repo, filter.SortBy)
                        {
-                           includedIdentifier = filter.Since,
-                           excludedIdentifier = filter.Until
+                           includedIdentifier = ToList(filter.Since),
+                           excludedIdentifier = ToList(filter.Until)
                        };
+        }
+
+        private static IList<object> ToList(object obj)
+        {
+            var list = new List<object>();
+
+            if (obj == null)
+                return list;
+
+            var types = new[]
+                            {
+                                typeof (string), typeof (ObjectId), 
+                                typeof (Commit), typeof(TagAnnotation), 
+                                typeof (Tag), typeof (Branch), 
+                                typeof (Reference), typeof (DirectReference), typeof (SymbolicReference)
+                            };
+
+            if (types.Contains(obj.GetType()))
+            {
+                list.Add(obj);
+                return list;
+            }
+
+            list.AddRange(((IEnumerable)obj).Cast<object>());
+            return list;
         }
 
         private static bool PointsAtTheHead(string shaOrRefName)
@@ -128,10 +153,10 @@ namespace LibGit2Sharp
         {
             if (headPtr.ObjectPtr == IntPtr.Zero)
             {
-                return new IntPtr[]{};
+                return new IntPtr[] { };
             }
 
-            return new IntPtr[]{headPtr.ObjectPtr};
+            return new IntPtr[] { headPtr.ObjectPtr };
         }
 
         private ObjectSafeWrapper RetrieveHeadCommitPtr(Reference head)
@@ -152,7 +177,7 @@ namespace LibGit2Sharp
             private readonly RevWalkerSafeHandle handle;
             private ObjectId currentOid;
 
-            public CommitEnumerator(Repository repo, object includedIdentifier, object excludedIdentifier, GitSortOptions sortingStrategy)
+            public CommitEnumerator(Repository repo, IList<object> includedIdentifier, IList<object> excludedIdentifier, GitSortOptions sortingStrategy)
             {
                 this.repo = repo;
                 int res = NativeMethods.git_revwalk_new(out handle, repo.Handle);
@@ -223,23 +248,33 @@ namespace LibGit2Sharp
                 handle.Dispose();
             }
 
-            private void Push(object identifier)
+            private delegate int HidePushSignature(RevWalkerSafeHandle handle, ref GitOid oid);
+
+            private void InternalHidePush(IList<object> identifier, HidePushSignature hidePush)
             {
-                var oid = RetrieveCommitId(identifier).Oid;
-                int res = NativeMethods.git_revwalk_push(handle, ref oid);
-                Ensure.Success(res);
+                var oids = RetrieveCommitOids(identifier);
+
+                foreach (var actedOn in oids)
+                {
+                    var oid = actedOn.Oid;
+                    int res = hidePush(handle, ref oid);
+                    Ensure.Success(res);
+                }
             }
 
-            private void Hide(object identifier)
+            private void Push(IList<object> identifier)
+            {
+                InternalHidePush(identifier, NativeMethods.git_revwalk_push);
+            }
+
+            private void Hide(IList<object> identifier)
             {
                 if (identifier == null)
                 {
                     return;
                 }
 
-                var oid = RetrieveCommitId(identifier).Oid;
-                int res = NativeMethods.git_revwalk_hide(handle, ref oid);
-                Ensure.Success(res);
+                InternalHidePush(identifier, NativeMethods.git_revwalk_hide);
             }
 
             private void Sort(GitSortOptions options)
@@ -247,33 +282,106 @@ namespace LibGit2Sharp
                 NativeMethods.git_revwalk_sorting(handle, options);
             }
 
-            private ObjectId RetrieveCommitId(object identifier)
+            private GitObject RetrieveObject(string shaOrReferenceName)
             {
-                string shaOrReferenceName = RetrieveShaOrReferenceName(identifier);
-
                 GitObject gitObj = repo.Lookup(shaOrReferenceName);
 
                 // TODO: Should we check the type? Git-log allows TagAnnotation oid as parameter. But what about Blobs and Trees?
-                if (gitObj == null)
-                {
-                    throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "No valid git object pointed at by '{0}' exists in the repository.", identifier));
-                }
+                EnsureGitObjectNotNull(shaOrReferenceName, gitObj);
 
-                return gitObj.Id;
+                return gitObj;
             }
 
-            private static string RetrieveShaOrReferenceName(object identifier)
+            private static void EnsureGitObjectNotNull(string shaOrReferenceName, GitObject gitObj)
+            {
+                if (gitObj != null)
+                {
+                    return;
+                }
+
+                throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture,
+                                                                  "No valid git object pointed at by '{0}' exists in the repository.",
+                                                                  shaOrReferenceName));
+            }
+
+            private ObjectId DereferenceToCommit(string identifier)
+            {
+                GitObject obj = RetrieveObject(identifier);
+
+                if (obj is Commit)
+                {
+                    return obj.Id;
+                }
+
+                if (obj is TagAnnotation)
+                {
+                    return DereferenceToCommit(((TagAnnotation)obj).TargetId.Sha);
+                }
+
+                throw new InvalidOperationException();
+            }
+
+            private IEnumerable<ObjectId> RetrieveCommitOids(object identifier)
             {
                 if (identifier is string)
                 {
-                    return identifier as string;
+                    yield return DereferenceToCommit(identifier as string);
+                    yield break;
                 }
 
-                if (identifier is ObjectId || identifier is Reference || identifier is Branch)
-                    return identifier.ToString();
+                if (identifier is ObjectId)
+                {
+                    yield return DereferenceToCommit(((ObjectId)identifier).Sha);
+                    yield break;
+                }
 
                 if (identifier is Commit)
-                    return ((Commit)identifier).Id.Sha;
+                {
+                    yield return ((Commit)identifier).Id;
+                    yield break;
+                }
+
+                if (identifier is TagAnnotation)
+                {
+                    yield return DereferenceToCommit(((TagAnnotation)identifier).TargetId.Sha);
+                    yield break;
+                }
+
+                if (identifier is Tag)
+                {
+                    yield return DereferenceToCommit(((Tag)identifier).Target.Id.Sha);
+                    yield break;
+                }
+
+                if (identifier is Branch)
+                {
+                    var branch = (Branch)identifier;
+                    EnsureGitObjectNotNull(branch.CanonicalName, branch.Tip);
+
+                    yield return branch.Tip.Id;
+                    yield break;
+                }
+
+                if (identifier is Reference)
+                {
+                    yield return DereferenceToCommit(((Reference)identifier).CanonicalName);
+                    yield break;
+                }
+
+                if (identifier is IEnumerable)
+                {
+                    var enumerable = (IEnumerable)identifier;
+
+                    foreach (var entry in enumerable)
+                    {
+                        foreach (var oid in RetrieveCommitOids(entry))
+                        {
+                            yield return oid;
+                        }
+                    }
+
+                    yield break;
+                }
 
                 throw new InvalidOperationException(string.Format("Unexpected kind of identifier '{0}'.", identifier));
             }
