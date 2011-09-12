@@ -55,6 +55,15 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        ///  Returns the <see cref="CanonicalName"/>, a <see cref="String"/> representation of the current <see cref="Tag"/>.
+        /// </summary>
+        /// <returns>The <see cref="CanonicalName"/> that represents the current <see cref="Tag"/>.</returns>
+        public override string ToString()
+        {
+            return CanonicalName;
+        }
+
+        /// <summary>
         /// Determines whether the specified <see cref="Object"/> is equal to the current <see cref="Tag"/>.
         /// </summary>
         /// <param name="obj">The <see cref="Object"/> to compare with the current <see cref="Tag"/>.</param>
