@@ -60,6 +60,9 @@ namespace LibGit2Sharp.Core
         public static extern int git_config_get_string(ConfigurationSafeHandle cfg, string name, out IntPtr value);
 
         [DllImport(libgit2)]
+        public static extern int git_config_open_global(out ConfigurationSafeHandle cfg);
+
+        [DllImport(libgit2)]
         public static extern int git_config_open_ondisk(out ConfigurationSafeHandle cfg, string path);
 
         [DllImport(libgit2)]

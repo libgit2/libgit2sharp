@@ -8,7 +8,7 @@ namespace LibGit2Sharp
         public Remote(Configuration configuration, string name)
         {
             RemoteSafeHandle handle;
-            Ensure.Success(NativeMethods.git_remote_get(out handle, configuration.Handle, name));
+            Ensure.Success(NativeMethods.git_remote_get(out handle, configuration.LocalHandle, name));
             using (handle)
             {
                 var ptr = NativeMethods.git_remote_name(handle);

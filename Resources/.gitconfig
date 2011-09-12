@@ -1,0 +1,18 @@
+[user]
+	name = Tim Clem
+	email = timothy.clem@gmail.com
+[color]
+	ui = true
+[alias]
+	lol = log --oneline --graph --decorate
+	lo = log --oneline --decorate
+[core]
+	autocrlf = true
+[merge]
+	tool = kdiff3
+[mergetool "kdiff3"]
+	path = c:/Program Files (x86)/KDiff3/kdiff3.exe
+[diff]
+	guitool = kdiff3
+[difftool "kdiff3"]
+	path = c:/Program Files (x86)/KDiff3/kdiff3.exe

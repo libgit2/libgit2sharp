@@ -9,12 +9,52 @@ namespace LibGit2Sharp.Tests
     [TestFixture]
     public class ConfigurationFixture : BaseFixture
     {
-        private static void AssertValueInConfigFile(string repoPath, string regex)
+        private static void AssertValueInLocalConfigFile(string repoPath, string regex)
         {
             var configFilePath = Path.Combine(repoPath, "config");
+            AssertValueInConfigFile(configFilePath, regex);
+        }
+
+        private static void AssertValueInConfigFile(string configFilePath, string regex)
+        {
             var text = File.ReadAllText(configFilePath);
-            var r = new Regex(regex).Match(text);
+            var r = new Regex(regex, RegexOptions.Multiline).Match(text);
             Assert.IsTrue(r.Success, text);
+        }
+
+        private static void AssertValueInGlobalConfigFile(string regex)
+        {
+            var configFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "../.gitconfig");
+            AssertValueInConfigFile(configFilePath, regex);
+        }
+
+        private const string globalConfigFixture = "Resources/.gitconfig";
+
+        [Test]
+        public void CanDeleteConfiguration()
+        {
+            using (var path = new TemporaryCloneOfTestRepo(Constants.StandardTestRepoPath))
+            {
+                using (var repo = new Repository(path.RepositoryPath))
+                {
+                    repo.Config.Set("unittests.boolsetting", true);
+
+                    repo.Config.Delete("unittests.boolsetting");
+                    repo.Config.Save();
+
+                    Assert.Throws<ApplicationException>(() => repo.Config.Get<bool>("unittests.boolsetting"));
+                }
+            }
+        }
+
+        [Test]
+        public void CanGetGlobalStringValue()
+        {
+            using (var repo = new Repository(Constants.StandardTestRepoPath))
+            using (var config = new Configuration(repo, globalConfigFixture))
+            {
+                Assert.AreEqual("Tim Clem", config.Get<string>("user.name"));
+            }
         }
 
         [Test]
@@ -61,25 +101,27 @@ namespace LibGit2Sharp.Tests
             {
                 repo.Config.Set("unittests.boolsetting", true);
 
-                AssertValueInConfigFile(path.RepositoryPath, "boolsetting = true$");
+                AssertValueInLocalConfigFile(path.RepositoryPath, "boolsetting = true$");
             }
         }
 
         [Test]
-        public void CanDeleteConfiguration()
+        public void CanSetGlobalStringValue()
         {
-            using (var path = new TemporaryCloneOfTestRepo(Constants.StandardTestRepoPath))
+            using (var repo = new Repository(Constants.StandardTestRepoPath))
+            using (var config = new Configuration(repo, globalConfigFixture))
             {
-                using (var repo = new Repository(path.RepositoryPath))
+                var existing = config.Get<string>("user.name");
+                try
                 {
-                    repo.Config.Set("unittests.boolsetting", true);
+                    config.Set("user.name", "Unit Test", ConfigurationLevel.Global);
+                    config.Save();
 
-                    repo.Config.Delete("unittests.boolsetting");
-                } // config file is guaranteed to be saved when config object is freed
-
-                using (var repo = new Repository(path.RepositoryPath))
+                    AssertValueInGlobalConfigFile("name = Unit Test$");
+                }
+                finally
                 {
-                    Assert.Throws<ApplicationException>(() => repo.Config.Get<bool>("unittests.boolsetting"));
+                    config.Set("user.name", existing, ConfigurationLevel.Global);
                 }
             }
         }
@@ -92,7 +134,7 @@ namespace LibGit2Sharp.Tests
             {
                 repo.Config.Set("unittests.intsetting", 3);
 
-                AssertValueInConfigFile(path.RepositoryPath, "intsetting = 3$");
+                AssertValueInLocalConfigFile(path.RepositoryPath, "intsetting = 3$");
             }
         }
 
@@ -104,7 +146,7 @@ namespace LibGit2Sharp.Tests
             {
                 repo.Config.Set("unittests.longsetting", (long) 451);
 
-                AssertValueInConfigFile(path.RepositoryPath, "longsetting = 451");
+                AssertValueInLocalConfigFile(path.RepositoryPath, "longsetting = 451");
             }
         }
 
@@ -116,7 +158,7 @@ namespace LibGit2Sharp.Tests
             {
                 repo.Config.Set("unittests.stringsetting", "val");
 
-                AssertValueInConfigFile(path.RepositoryPath, "stringsetting = val$");
+                AssertValueInLocalConfigFile(path.RepositoryPath, "stringsetting = val$");
             }
         }
 

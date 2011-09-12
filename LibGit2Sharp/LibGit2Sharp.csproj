@@ -51,6 +51,7 @@
     <Compile Include="Commit.cs" />
     <Compile Include="CommitCollection.cs" />
     <Compile Include="Configuration.cs" />
+    <Compile Include="ConfigurationLevel.cs" />
     <Compile Include="Core\ConfigurationSafeHandle.cs" />
     <Compile Include="Core\Ensure.cs" />
     <Compile Include="Core\Epoch.cs" />
