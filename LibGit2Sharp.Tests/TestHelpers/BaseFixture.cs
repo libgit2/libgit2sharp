@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
+using System.Text;
 
 namespace LibGit2Sharp.Tests.TestHelpers
 {
@@ -27,6 +29,13 @@ namespace LibGit2Sharp.Tests.TestHelpers
 
             string tempDotGit = Path.Combine(Constants.StandardTestRepoWorkingDirPath, "dot_git");
             Directory.Move(tempDotGit, Constants.StandardTestRepoPath);
+        }
+
+        protected void CreateCorruptedDeadBeefHead(string repoPath)
+        {
+            const string deadbeef = "deadbeef";
+            string headPath = string.Format("{0}refs/heads/{1}", repoPath, deadbeef);
+            File.WriteAllText(headPath, string.Format("{0}{0}{0}{0}{0}\n", deadbeef));
         }
     }
 }

@@ -203,10 +203,13 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
-        public void CanListAllReferences()
+        public void CanListAllReferencesEvenCorruptedOnes()
         {
-            using (var repo = new Repository(Constants.BareTestRepoPath))
+            using (var path = new TemporaryCloneOfTestRepo())
+            using (var repo = new Repository(path.RepositoryPath))
             {
+                CreateCorruptedDeadBeefHead(repo.Info.Path);
+
                 foreach (var r in repo.Refs)
                 {
                     Assert.Contains(r.CanonicalName, expectedRefs);

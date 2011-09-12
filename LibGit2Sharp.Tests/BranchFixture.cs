@@ -101,7 +101,7 @@ namespace LibGit2Sharp.Tests
                     Assert.Contains(r.Name, expectedBranches);
                 }
 
-                repo.Branches.Count().ShouldEqual(6);
+                repo.Branches.Count().ShouldEqual(5);
             }
         }
 
