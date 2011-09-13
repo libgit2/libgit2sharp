@@ -70,16 +70,17 @@ namespace LibGit2Sharp
                 return reference as T;
             }
 
-            GitObject targetGitObject = repo.Lookup(targetIdentifier);
+            var targetOid = new ObjectId(targetIdentifier);
 
             if (Equals(typeof(T), typeof(Tag)))
             {
+                GitObject targetGitObject = repo.Lookup(targetIdentifier);
                 return new Tag(reference.CanonicalName, targetGitObject, targetGitObject as TagAnnotation) as T;
             }
 
             if (Equals(typeof(T), typeof(Branch)))
             {
-                return new Branch(reference.CanonicalName, targetGitObject as Commit, repo) as T;
+                return new Branch(reference.CanonicalName, targetOid, repo) as T;
             }
 
             throw new InvalidOperationException(

@@ -62,7 +62,7 @@ namespace LibGit2Sharp
 
                 if (Info.IsEmpty)
                 {
-                    return new Branch(headRef.TargetIdentifier, null, this);
+                    return new Branch(headRef.TargetIdentifier, this);
                 }
 
                 return Refs.Resolve<Branch>(headRef.ResolveToDirectReference().CanonicalName);

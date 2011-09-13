@@ -13,18 +13,41 @@ namespace LibGit2Sharp
             new LambdaEqualityHelper<Branch>(new Func<Branch, object>[] {x => x.CanonicalName, x => x.Tip});
 
         private readonly Repository repo;
+        private readonly Lazy<Commit> tipBuilder;
 
         /// <summary>
         ///   Initializes a new instance of the <see cref = "Branch" /> class.
         /// </summary>
-        /// <param name = "tip">The commit which is pointed at by this Branch</param>
+        /// <param name = "targetId">The id of the commit which is pointed at by this Branch</param>
         /// <param name = "repo">The repo.</param>
         /// <param name = "canonicalName">The full name of the reference</param>
-        internal Branch(string canonicalName, Commit tip, Repository repo)
+        internal Branch(string canonicalName, ObjectId targetId, Repository repo)
+            : this(canonicalName, new Lazy<Commit>(() => repo.Lookup<Commit>(targetId)), repo)
         {
+        }
+
+        /// <summary>
+        ///   Initializes a new instance of an orphaned <see cref = "Branch" /> class.
+        /// <para>
+        ///   This <see cref="Branch"/> instance will point to no commit.
+        /// </para>
+        /// </summary>
+        /// <param name = "repo">The repo.</param>
+        /// <param name = "canonicalName">The full name of the reference</param>
+        internal Branch(string canonicalName, Repository repo) 
+            : this(canonicalName, new Lazy<Commit>(() => null), repo)
+        {
+        }
+
+        private Branch(string canonicalName, Lazy<Commit> tipBuilder, Repository repo)
+        {
+            Ensure.ArgumentNotNullOrEmptyString(canonicalName, "canonicalName");
+            Ensure.ArgumentNotNull(tipBuilder, "tipObjectId");
+            Ensure.ArgumentNotNull(repo, "repo");
+
             this.repo = repo;
             CanonicalName = canonicalName;
-            Tip = tip;
+            this.tipBuilder = tipBuilder;
         }
 
         /// <summary>
@@ -65,7 +88,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Gets the commit id that this branch points to.
         /// </summary>
-        public Commit Tip { get; private set; }
+        public Commit Tip { get { return tipBuilder.Value; } }
 
         /// <summary>
         ///   Gets the commits on this branch. (Starts walking from the References's target).
