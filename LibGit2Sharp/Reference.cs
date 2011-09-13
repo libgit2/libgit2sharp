@@ -74,8 +74,7 @@ namespace LibGit2Sharp
 
             if (Equals(typeof(T), typeof(Tag)))
             {
-                GitObject targetGitObject = repo.Lookup(targetIdentifier);
-                return new Tag(reference.CanonicalName, targetGitObject, targetGitObject as TagAnnotation) as T;
+                return new Tag(reference.CanonicalName, targetOid, repo) as T;
             }
 
             if (Equals(typeof(T), typeof(Branch)))

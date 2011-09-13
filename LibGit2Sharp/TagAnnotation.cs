@@ -9,6 +9,8 @@ namespace LibGit2Sharp
     /// </summary>
     public class TagAnnotation : GitObject
     {
+        private Lazy<GitObject> targetBuilder;
+
         internal TagAnnotation(ObjectId id)
             : base(id)
         {
@@ -25,16 +27,16 @@ namespace LibGit2Sharp
         public string Message { get; private set; }
 
         /// <summary>
-        ///   Gets the target id that this tag points to.
+        ///   Gets the <see cref="GitObject"/> that this tag annotation points to.
         /// </summary>
-        public ObjectId TargetId { get; private set; }
+        public GitObject Target { get { return targetBuilder.Value; } }
 
         /// <summary>
         ///   Gets the tagger.
         /// </summary>
         public Signature Tagger { get; private set; }
 
-        internal static TagAnnotation BuildFromPtr(IntPtr obj, ObjectId id)
+        internal static TagAnnotation BuildFromPtr(IntPtr obj, ObjectId id, Repository repo)
         {
             var oidPtr = NativeMethods.git_tag_target_oid(obj);
             var oid = (GitOid)Marshal.PtrToStructure(oidPtr, typeof(GitOid));
@@ -44,7 +46,7 @@ namespace LibGit2Sharp
                            Message = NativeMethods.git_tag_message(obj).MarshallAsString(),
                            Name = NativeMethods.git_tag_name(obj).MarshallAsString(),
                            Tagger = new Signature(NativeMethods.git_tag_tagger(obj)),
-                           TargetId = new ObjectId(oid)
+                           targetBuilder = new Lazy<GitObject>(() => repo.Lookup<GitObject>(new ObjectId(oid)))
                        };
         }
     }

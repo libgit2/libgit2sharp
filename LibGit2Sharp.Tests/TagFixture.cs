@@ -10,7 +10,7 @@ namespace LibGit2Sharp.Tests
     [TestFixture]
     public class TagFixture : BaseFixture
     {
-        private readonly List<string> expectedTags = new List<string> {"test", "e90810b", "lw"};
+        private readonly List<string> expectedTags = new List<string> { "test", "e90810b", "lw" };
 
         private static readonly Signature signatureTim = new Signature("Tim Clem", "timothy.clem@gmail.com", DateTimeOffset.UtcNow);
         private static readonly Signature signatureNtk = new Signature("nulltoken", "emeric.fermas@gmail.com", Epoch.ToDateTimeOffset(1300557894, 60));
@@ -76,12 +76,15 @@ namespace LibGit2Sharp.Tests
                 var lwTag = repo.Tags.Create(lwTagName, commitE90810BSha);
                 lwTag.ShouldNotBeNull();
                 lwTag.IsAnnotated.ShouldBeFalse();
+                lwTag.Target.Sha.ShouldEqual(commitE90810BSha);
                 lwTag.Name.ShouldEqual(lwTagName);
 
                 const string anTagName = lwTagName + "_as_well";
                 var anTag = repo.Tags.Create(anTagName, commitE90810BSha, signatureNtk, "a nice message");
                 anTag.ShouldNotBeNull();
                 anTag.IsAnnotated.ShouldBeTrue();
+                anTag.Target.Sha.ShouldEqual(commitE90810BSha);
+                anTag.Annotation.Target.ShouldEqual(anTag.Target);
                 anTag.Name.ShouldEqual(anTagName);
             }
         }
@@ -158,9 +161,10 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path.RepositoryPath))
             {
                 var newTag = repo.Tags.Create(tagName, commitE90810BSha, signatureNtk, tagMessage);
-                newTag.Target.Sha.ShouldEqual("24f6de34a108d931c6056fc4687637fe36c6bd6b");
+                newTag.Target.Sha.ShouldEqual(commitE90810BSha);
                 newTag.IsAnnotated.ShouldBeTrue();
                 newTag.Annotation.Sha.ShouldEqual("24f6de34a108d931c6056fc4687637fe36c6bd6b");
+                newTag.Annotation.Target.Sha.ShouldEqual(commitE90810BSha);
             }
         }
 
@@ -284,7 +288,7 @@ namespace LibGit2Sharp.Tests
             using (var path = new TemporaryCloneOfTestRepo())
             using (var repo = new Repository(path.RepositoryPath))
             {
-                var headCommit = (Commit)repo.Head.Tip;
+                var headCommit = repo.Head.Tip;
                 var tree = headCommit.Tree;
 
                 var tag = repo.ApplyTag("tree-tag", tree.Sha);
@@ -328,10 +332,10 @@ namespace LibGit2Sharp.Tests
                 var tag = repo.ApplyTag("lightweight-tag", annotation.Sha);
                 tag.ShouldNotBeNull();
                 tag.IsAnnotated.ShouldBeTrue();
-                tag.Target.Id.ShouldEqual(annotation.Id);
+                tag.Target.Id.ShouldEqual(annotation.Target.Id);
                 tag.Annotation.ShouldEqual(annotation);
 
-                repo.Lookup(tag.Target.Id).ShouldEqual(annotation);
+                repo.Lookup(tag.Annotation.Id).ShouldEqual(annotation);
                 repo.Tags[tag.Name].ShouldEqual(tag);
             }
         }
@@ -348,10 +352,9 @@ namespace LibGit2Sharp.Tests
                 var tag = repo.ApplyTag("annotatedtag-tag", annotation.Sha, signatureNtk, "A new annotation");
                 tag.ShouldNotBeNull();
                 tag.IsAnnotated.ShouldBeTrue();
-                tag.Annotation.TargetId.ShouldEqual(annotation.Id);
+                tag.Annotation.Target.Id.ShouldEqual(annotation.Id);
                 tag.Annotation.ShouldNotEqual(annotation);
 
-                repo.Lookup(tag.Target.Id).ShouldEqual(tag.Annotation);
                 repo.Tags[tag.Name].ShouldEqual(tag);
             }
         }
@@ -597,7 +600,7 @@ namespace LibGit2Sharp.Tests
                 var tag = repo.Tags["e90810b"];
                 tag.ShouldNotBeNull();
                 tag.Name.ShouldEqual("e90810b");
-                tag.Target.Sha.ShouldEqual(tagE90810BSha);
+                tag.Target.Sha.ShouldEqual(commitE90810BSha);
 
                 tag.IsAnnotated.ShouldBeTrue();
                 tag.Annotation.Sha.ShouldEqual(tagE90810BSha);
@@ -605,7 +608,7 @@ namespace LibGit2Sharp.Tests
                 tag.Annotation.Tagger.Name.ShouldEqual("Vicent Marti");
                 tag.Annotation.Tagger.When.ShouldEqual(DateTimeOffset.Parse("2010-08-12 03:59:17 +0200"));
                 tag.Annotation.Message.ShouldEqual("This is a very simple tag.\n");
-                tag.Annotation.TargetId.Sha.ShouldEqual(commitE90810BSha);
+                tag.Annotation.Target.Sha.ShouldEqual(commitE90810BSha);
             }
         }
 

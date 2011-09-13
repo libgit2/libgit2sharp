@@ -315,7 +315,7 @@ namespace LibGit2Sharp
 
                 if (obj is TagAnnotation)
                 {
-                    return DereferenceToCommit(((TagAnnotation)obj).TargetId.Sha);
+                    return DereferenceToCommit(((TagAnnotation)obj).Target.Sha);
                 }
 
                 throw new InvalidOperationException();
@@ -343,7 +343,7 @@ namespace LibGit2Sharp
 
                 if (identifier is TagAnnotation)
                 {
-                    yield return DereferenceToCommit(((TagAnnotation)identifier).TargetId.Sha);
+                    yield return DereferenceToCommit(((TagAnnotation)identifier).Target.Id.Sha);
                     yield break;
                 }
 

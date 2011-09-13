@@ -11,21 +11,23 @@ namespace LibGit2Sharp
         private static readonly LambdaEqualityHelper<Tag> equalityHelper =
            new LambdaEqualityHelper<Tag>(new Func<Tag, object>[] { x => x.CanonicalName, x => x.Target });
 
-        internal Tag(string canonicalName, GitObject target, TagAnnotation tagAnnotation)
+        private readonly Lazy<GitObject> targetBuilder;
+
+        internal Tag(string canonicalName, ObjectId targetId, Repository repo)
         {
             Ensure.ArgumentNotNullOrEmptyString(canonicalName, "canonicalName");
-            Ensure.ArgumentNotNull(target, "target");
+            Ensure.ArgumentNotNull(targetId, "targetId");
+            Ensure.ArgumentNotNull(repo, "repo");
 
             CanonicalName = canonicalName;
-            Target = target;
-            Annotation = tagAnnotation;
+            targetBuilder = new Lazy<GitObject>(() => repo.Lookup<GitObject>(targetId));
         }
 
         /// <summary>
         ///   Gets the optional information associated to this tag.
         /// <para>When the <see cref="Tag"/> is a lightweight tag, <c>null</c> is returned.</para>
         /// </summary>
-        public TagAnnotation Annotation { get; private set; }
+        public TagAnnotation Annotation { get { return targetBuilder.Value as TagAnnotation; } }
 
         /// <summary>
         ///   Gets the full name of this branch.
@@ -40,7 +42,19 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Gets the <see cref="GitObject"/> that this tag points to.
         /// </summary>
-        public GitObject Target { get; private set; }
+        public GitObject Target {
+            get
+            {
+                var target = targetBuilder.Value;
+
+                if ((!(target is TagAnnotation)))
+                {
+                    return target;
+                }
+                
+                return ((TagAnnotation)target).Target;
+            }
+        }
 
         /// <summary>
         ///   Indicates whether the tag holds any metadata.
