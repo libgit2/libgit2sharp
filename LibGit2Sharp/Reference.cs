@@ -57,8 +57,8 @@ namespace LibGit2Sharp
                     var targetId = new ObjectId(oid);
                     targetIdentifier = targetId.Sha;
 
-                    var targetResolver = new Func<GitObject>(() => repo.Lookup(targetId));
-                    reference = new DirectReference(targetResolver) { CanonicalName = name, TargetIdentifier = targetIdentifier };
+                    var targetBuilder = new Lazy<GitObject>(() => repo.Lookup(targetId));
+                    reference = new DirectReference(targetBuilder) { CanonicalName = name, TargetIdentifier = targetIdentifier };
                     break;
 
                 default:
