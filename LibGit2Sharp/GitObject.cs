@@ -56,7 +56,7 @@ namespace LibGit2Sharp
                     case GitObjectType.Tree:
                         return Tree.BuildFromPtr(obj, id, repo);
                     case GitObjectType.Tag:
-                        return TagAnnotation.BuildFromPtr(obj, id);
+                        return TagAnnotation.BuildFromPtr(obj, id, repo);
                     case GitObjectType.Blob:
                         return Blob.BuildFromPtr(obj, id, repo);
                     default:

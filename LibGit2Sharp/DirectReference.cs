@@ -1,4 +1,4 @@
-﻿using System;
+﻿using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
 {
@@ -7,32 +7,17 @@ namespace LibGit2Sharp
     /// </summary>
     public class DirectReference : Reference
     {
-        private readonly Func<GitObject> targetResolver;
-        private bool resolved;
-        private GitObject target;
+        private readonly Lazy<GitObject> targetBuilder;
 
-        internal DirectReference(Func<GitObject> targetResolver)
+        internal DirectReference(Lazy<GitObject> targetBuilder)
         {
-            this.targetResolver = targetResolver;
+            this.targetBuilder = targetBuilder;
         }
 
         /// <summary>
         ///   Gets the target of this <see cref = "DirectReference" />
         /// </summary>
-        public GitObject Target
-        {
-            get
-            {
-                if (resolved)
-                {
-                    return target;
-                }
-
-                target = targetResolver();
-                resolved = true;
-                return target;
-            }
-        }
+        public GitObject Target { get { return targetBuilder.Value; } }
 
         /// <summary>
         ///   As a <see cref="DirectReference"/> is already peeled, invoking this will return the same <see cref="DirectReference"/>.

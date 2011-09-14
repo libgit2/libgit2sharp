@@ -57,8 +57,8 @@ namespace LibGit2Sharp
                     var targetId = new ObjectId(oid);
                     targetIdentifier = targetId.Sha;
 
-                    var targetResolver = new Func<GitObject>(() => repo.Lookup(targetId));
-                    reference = new DirectReference(targetResolver) { CanonicalName = name, TargetIdentifier = targetIdentifier };
+                    var targetBuilder = new Lazy<GitObject>(() => repo.Lookup(targetId));
+                    reference = new DirectReference(targetBuilder) { CanonicalName = name, TargetIdentifier = targetIdentifier };
                     break;
 
                 default:
@@ -70,16 +70,16 @@ namespace LibGit2Sharp
                 return reference as T;
             }
 
-            GitObject targetGitObject = repo.Lookup(targetIdentifier);
+            var targetOid = new ObjectId(targetIdentifier);
 
             if (Equals(typeof(T), typeof(Tag)))
             {
-                return new Tag(reference.CanonicalName, targetGitObject, targetGitObject as TagAnnotation) as T;
+                return new Tag(reference.CanonicalName, targetOid, repo) as T;
             }
 
             if (Equals(typeof(T), typeof(Branch)))
             {
-                return new Branch(reference.CanonicalName, targetGitObject as Commit, repo) as T;
+                return new Branch(reference.CanonicalName, targetOid, repo) as T;
             }
 
             throw new InvalidOperationException(

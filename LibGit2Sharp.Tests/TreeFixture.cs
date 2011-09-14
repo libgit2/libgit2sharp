@@ -76,7 +76,7 @@ namespace LibGit2Sharp.Tests
                 var tree = repo.Lookup<Tree>(sha);
                 tree.Count().ShouldEqual(tree.Count);
 
-                CollectionAssert.AreEquivalent(new[] {"1", "README", "branch_file.txt", "new.txt"}, tree.Select(te => te.Name).ToArray());
+                CollectionAssert.AreEqual(new[] {"1", "README", "branch_file.txt", "new.txt"}, tree.Select(te => te.Name).ToArray());
             }
         }
 
