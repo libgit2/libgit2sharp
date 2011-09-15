@@ -33,7 +33,7 @@ namespace LibGit2Sharp.Core
                 return null;
             }
 
-            return posixPath.Replace(posixDirectorySeparatorChar, Path.DirectorySeparatorChar); ;
+            return posixPath.Replace(posixDirectorySeparatorChar, Path.DirectorySeparatorChar);
         }
     }
 }

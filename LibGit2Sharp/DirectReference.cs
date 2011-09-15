@@ -17,10 +17,13 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Gets the target of this <see cref = "DirectReference" />
         /// </summary>
-        public GitObject Target { get { return targetBuilder.Value; } }
+        public GitObject Target
+        {
+            get { return targetBuilder.Value; }
+        }
 
         /// <summary>
-        ///   As a <see cref="DirectReference"/> is already peeled, invoking this will return the same <see cref="DirectReference"/>.
+        ///   As a <see cref = "DirectReference" /> is already peeled, invoking this will return the same <see cref = "DirectReference" />.
         /// </summary>
         /// <returns>This instance.</returns>
         public override DirectReference ResolveToDirectReference()

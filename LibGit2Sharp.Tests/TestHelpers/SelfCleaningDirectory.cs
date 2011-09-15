@@ -20,7 +20,6 @@ namespace LibGit2Sharp.Tests.TestHelpers
             RootedDirectoryPath = Path.GetFullPath(path);
         }
 
-
         public string DirectoryPath { get; private set; }
         public string RootedDirectoryPath { get; private set; }
 

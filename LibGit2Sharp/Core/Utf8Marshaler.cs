@@ -4,17 +4,21 @@ using System.Text;
 
 namespace LibGit2Sharp.Core
 {
-    internal class UTF8Marshaler : ICustomMarshaler
+    internal class Utf8Marshaler : ICustomMarshaler
     {
-        static UTF8Marshaler static_instance;
+        private static Utf8Marshaler staticInstance;
 
         public unsafe IntPtr MarshalManagedToNative(object managedObj)
         {
             if (managedObj == null)
+            {
                 return IntPtr.Zero;
+            }
+
             if (!(managedObj is string))
-                throw new MarshalDirectiveException(
-                    "UTF8Marshaler must be used on a string.");
+            {
+                throw new MarshalDirectiveException("UTF8Marshaler must be used on a string.");
+            }
 
             // not null terminated
             byte[] strbuf = Encoding.UTF8.GetBytes((string)managedObj);
@@ -22,7 +26,7 @@ namespace LibGit2Sharp.Core
             Marshal.Copy(strbuf, 0, buffer, strbuf.Length);
 
             // write the terminating null
-            byte* pBuf = (byte*) buffer;
+            var pBuf = (byte*)buffer;
             pBuf[strbuf.Length] = 0;
 
             return buffer;
@@ -30,19 +34,20 @@ namespace LibGit2Sharp.Core
 
         public unsafe object MarshalNativeToManaged(IntPtr pNativeData)
         {
-            byte* walk = (byte*)pNativeData;
+            var walk = (byte*)pNativeData;
 
             // find the end of the string
             while (*walk != 0)
             {
                 walk++;
             }
-            int length = (int)(walk - (byte*)pNativeData);
+            var length = (int)(walk - (byte*)pNativeData);
 
             // should not be null terminated
-            byte[] strbuf = new byte[length - 1];
+            var strbuf = new byte[length - 1];
+
             // skip the trailing null
-            Marshal.Copy((IntPtr)pNativeData, strbuf, 0, length - 1);
+            Marshal.Copy(pNativeData, strbuf, 0, length - 1);
             string data = Encoding.UTF8.GetString(strbuf);
             return data;
         }
@@ -63,11 +68,12 @@ namespace LibGit2Sharp.Core
 
         public static ICustomMarshaler GetInstance(string cookie)
         {
-            if (static_instance == null)
+            if (staticInstance == null)
             {
-                return static_instance = new UTF8Marshaler();
+                return staticInstance = new Utf8Marshaler();
             }
-            return static_instance;
+
+            return staticInstance;
         }
     }
 }

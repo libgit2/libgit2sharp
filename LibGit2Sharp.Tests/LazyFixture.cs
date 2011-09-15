@@ -1,7 +1,7 @@
 ﻿using System;
 using LibGit2Sharp.Core;
-using NUnit.Framework;
 using LibGit2Sharp.Tests.TestHelpers;
+using NUnit.Framework;
 
 namespace LibGit2Sharp.Tests
 {
@@ -11,7 +11,7 @@ namespace LibGit2Sharp.Tests
         [Test]
         public void CanReturnTheValue()
         {
-            var lazy = new Lazy<int>(() =>  2);
+            var lazy = new Lazy<int>(() => 2);
             lazy.Value.ShouldEqual(2);
         }
 

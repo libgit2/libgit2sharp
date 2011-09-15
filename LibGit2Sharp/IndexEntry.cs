@@ -13,7 +13,7 @@ namespace LibGit2Sharp
 
         internal static IndexEntry CreateFromPtr(IntPtr ptr)
         {
-            var entry = (GitIndexEntry) Marshal.PtrToStructure(ptr, typeof (GitIndexEntry));
+            var entry = (GitIndexEntry)Marshal.PtrToStructure(ptr, typeof(GitIndexEntry));
             return new IndexEntry
                        {
                            Path = entry.Path,

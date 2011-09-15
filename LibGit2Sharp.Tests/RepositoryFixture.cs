@@ -16,7 +16,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var scd = new SelfCleaningDirectory())
             {
-                var dir = Repository.Init(scd.DirectoryPath, true);
+                string dir = Repository.Init(scd.DirectoryPath, true);
                 Path.IsPathRooted(dir).ShouldBeTrue();
                 Directory.Exists(dir).ShouldBeTrue();
                 CheckGitConfigFile(dir);
@@ -37,7 +37,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var scd = new SelfCleaningDirectory())
             {
-                var dir = Repository.Init(scd.DirectoryPath);
+                string dir = Repository.Init(scd.DirectoryPath);
                 Path.IsPathRooted(dir).ShouldBeTrue();
                 Directory.Exists(dir).ShouldBeTrue();
                 CheckGitConfigFile(dir);
@@ -66,7 +66,7 @@ namespace LibGit2Sharp.Tests
 
         private static void AssertIsHidden(string repoPath)
         {
-            var attribs = File.GetAttributes(repoPath);
+            FileAttributes attribs = File.GetAttributes(repoPath);
 
             (attribs & FileAttributes.Hidden).ShouldEqual(FileAttributes.Hidden);
         }
@@ -84,7 +84,7 @@ namespace LibGit2Sharp.Tests
             repo.Info.IsEmpty.ShouldBeTrue();
             repo.Info.IsHeadDetached.ShouldBeFalse();
 
-            var headRef = repo.Refs["HEAD"];
+            Reference headRef = repo.Refs["HEAD"];
             headRef.ShouldNotBeNull();
             headRef.TargetIdentifier.ShouldEqual("refs/heads/master");
             headRef.ResolveToDirectReference().ShouldBeNull();
@@ -103,11 +103,10 @@ namespace LibGit2Sharp.Tests
             repo.Tags.Count().ShouldEqual(0);
         }
 
-
         [Test]
         public void CanOpenRepoWithFullPath()
         {
-            var path = Path.GetFullPath(Constants.BareTestRepoPath);
+            string path = Path.GetFullPath(Constants.BareTestRepoPath);
             using (var repo = new Repository(path))
             {
                 repo.ShouldNotBeNull();
@@ -155,7 +154,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(Constants.BareTestRepoPath))
             {
-                var gitObject = repo.Lookup("refs/heads/master");
+                GitObject gitObject = repo.Lookup("refs/heads/master");
                 gitObject.ShouldNotBeNull();
                 Assert.IsInstanceOf<Commit>(gitObject);
             }
@@ -166,7 +165,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(Constants.BareTestRepoPath))
             {
-                var gitObject = repo.Lookup("refs/tags/lw");
+                GitObject gitObject = repo.Lookup("refs/tags/lw");
                 gitObject.ShouldNotBeNull();
                 Assert.IsInstanceOf<Commit>(gitObject);
             }
@@ -177,7 +176,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(Constants.BareTestRepoPath))
             {
-                var gitObject = repo.Lookup("refs/tags/e90810b");
+                GitObject gitObject = repo.Lookup("refs/tags/e90810b");
                 gitObject.ShouldNotBeNull();
                 Assert.IsInstanceOf<TagAnnotation>(gitObject);
             }
@@ -199,8 +198,8 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(Constants.BareTestRepoPath))
             {
-                var commit = repo.Lookup(commitSha);
-                var commit2 = repo.Lookup(commitSha);
+                GitObject commit = repo.Lookup(commitSha);
+                GitObject commit2 = repo.Lookup(commitSha);
                 commit.Equals(commit2).ShouldBeTrue();
                 commit.GetHashCode().ShouldEqual(commit2.GetHashCode());
             }
@@ -245,7 +244,7 @@ namespace LibGit2Sharp.Tests
 
             using (var scd = new SelfCleaningDirectory())
             {
-                var dir = Repository.Init(scd.DirectoryPath);
+                string dir = Repository.Init(scd.DirectoryPath);
 
                 using (var repo = new Repository(dir))
                 {
@@ -254,15 +253,15 @@ namespace LibGit2Sharp.Tests
                     File.WriteAllText(filePath, "one ");
                     repo.Index.Stage(filePath);
 
-                    var author = Constants.Signature;
-                    var commit = repo.Commit(author, author, "Initial commit");
+                    Signature author = Constants.Signature;
+                    Commit commit = repo.Commit(author, author, "Initial commit");
 
                     commit.Sha.ShouldEqual(expectedSha);
 
-                    var lookedUp1 = repo.Lookup(expectedSha);
+                    GitObject lookedUp1 = repo.Lookup(expectedSha);
                     lookedUp1.ShouldEqual(commit);
 
-                    var lookedUp2 = repo.Lookup(expectedAbbrevSha);
+                    GitObject lookedUp2 = repo.Lookup(expectedAbbrevSha);
                     lookedUp2.ShouldEqual(commit);
                 }
             }

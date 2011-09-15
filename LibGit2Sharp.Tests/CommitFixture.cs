@@ -44,7 +44,7 @@ namespace LibGit2Sharp.Tests
             int count = 0;
             using (var repo = new Repository(Constants.BareTestRepoPath))
             {
-                foreach (var commit in repo.Commits)
+                foreach (Commit commit in repo.Commits)
                 {
                     commit.ShouldNotBeNull();
                     count++;
@@ -59,7 +59,7 @@ namespace LibGit2Sharp.Tests
             using (var path = new TemporaryCloneOfTestRepo())
             using (var repo = new Repository(path.RepositoryPath))
             {
-                var parentOfHead = repo.Head.Tip.Parents.First().Id;
+                ObjectId parentOfHead = repo.Head.Tip.Parents.First().Id;
 
                 repo.Refs.Create("HEAD", parentOfHead.Sha, true);
                 Assert.AreEqual(true, repo.Info.IsHeadDetached);
@@ -83,7 +83,7 @@ namespace LibGit2Sharp.Tests
             int count = 0;
             using (var repo = new Repository(Constants.BareTestRepoPath))
             {
-                foreach (var commit in repo.Commits.QueryBy(new Filter { Since = "a4a7dce85cf63874e984719f4fdd239f5145052f" }))
+                foreach (Commit commit in repo.Commits.QueryBy(new Filter { Since = "a4a7dce85cf63874e984719f4fdd239f5145052f" }))
                 {
                     commit.ShouldNotBeNull();
                     count++;
@@ -134,7 +134,7 @@ namespace LibGit2Sharp.Tests
             int count = 0;
             using (var repo = new Repository(Constants.BareTestRepoPath))
             {
-                foreach (var commit in repo.Commits.QueryBy(new Filter { Since = "a4a7dce85cf63874e984719f4fdd239f5145052f", SortBy = GitSortOptions.Time | GitSortOptions.Reverse }))
+                foreach (Commit commit in repo.Commits.QueryBy(new Filter { Since = "a4a7dce85cf63874e984719f4fdd239f5145052f", SortBy = GitSortOptions.Time | GitSortOptions.Reverse }))
                 {
                     commit.ShouldNotBeNull();
                     commit.Sha.StartsWith(expectedShas[count]);
@@ -149,13 +149,13 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(Constants.BareTestRepoPath))
             {
-                var commits = repo.Commits.QueryBy(new Filter { Since = "a4a7dce85cf63874e984719f4fdd239f5145052f", SortBy = GitSortOptions.Time | GitSortOptions.Reverse }).ToList();
-                foreach (var commit in commits)
+                List<Commit> commits = repo.Commits.QueryBy(new Filter { Since = "a4a7dce85cf63874e984719f4fdd239f5145052f", SortBy = GitSortOptions.Time | GitSortOptions.Reverse }).ToList();
+                foreach (Commit commit in commits)
                 {
                     commit.ShouldNotBeNull();
-                    foreach (var p in commit.Parents)
+                    foreach (Commit p in commit.Parents)
                     {
-                        var parent = commits.Single(x => x.Id == p.Id);
+                        Commit parent = commits.Single(x => x.Id == p.Id);
                         Assert.Greater(commits.IndexOf(commit), commits.IndexOf(parent));
                     }
                 }
@@ -168,7 +168,7 @@ namespace LibGit2Sharp.Tests
             int count = 0;
             using (var repo = new Repository(Constants.BareTestRepoPath))
             {
-                foreach (var commit in repo.Commits.QueryBy(new Filter { Since = "a4a7dce85cf63874e984719f4fdd239f5145052f", SortBy = GitSortOptions.Time }))
+                foreach (Commit commit in repo.Commits.QueryBy(new Filter { Since = "a4a7dce85cf63874e984719f4fdd239f5145052f", SortBy = GitSortOptions.Time }))
                 {
                     commit.ShouldNotBeNull();
                     commit.Sha.StartsWith(expectedShas[count]);
@@ -183,13 +183,13 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(Constants.BareTestRepoPath))
             {
-                var commits = repo.Commits.QueryBy(new Filter { Since = "a4a7dce85cf63874e984719f4fdd239f5145052f", SortBy = GitSortOptions.Topological }).ToList();
-                foreach (var commit in commits)
+                List<Commit> commits = repo.Commits.QueryBy(new Filter { Since = "a4a7dce85cf63874e984719f4fdd239f5145052f", SortBy = GitSortOptions.Topological }).ToList();
+                foreach (Commit commit in commits)
                 {
                     commit.ShouldNotBeNull();
-                    foreach (var p in commit.Parents)
+                    foreach (Commit p in commit.Parents)
                     {
-                        var parent = commits.Single(x => x.Id == p.Id);
+                        Commit parent = commits.Single(x => x.Id == p.Id);
                         Assert.Less(commits.IndexOf(commit), commits.IndexOf(parent));
                     }
                 }
@@ -285,7 +285,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(Constants.BareTestRepoPath))
             {
-                var commits = repo.Commits.QueryBy(filterBuilder(repo));
+                ICommitCollection commits = repo.Commits.QueryBy(filterBuilder(repo));
 
                 IEnumerable<string> commitShas = commits.Select(c => c.Id.ToString(7)).ToArray();
 
@@ -310,7 +310,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(Constants.BareTestRepoPath))
             {
-                var obj = repo.Lookup(sha);
+                GitObject obj = repo.Lookup(sha);
                 obj.ShouldNotBeNull();
                 obj.GetType().ShouldEqual(typeof(Commit));
 
@@ -350,7 +350,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var scd = new SelfCleaningDirectory())
             {
-                var dir = Repository.Init(scd.DirectoryPath);
+                string dir = Repository.Init(scd.DirectoryPath);
                 Path.IsPathRooted(dir).ShouldBeTrue();
                 Directory.Exists(dir).ShouldBeTrue();
 
@@ -364,7 +364,7 @@ namespace LibGit2Sharp.Tests
                     repo.Index.Stage("new.txt");
 
                     var author = new Signature("Author N. Ame", "him@there.com", DateTimeOffset.Now.AddSeconds(-10));
-                    var commit = repo.Commit(author, author, "Initial egotistic commit");
+                    Commit commit = repo.Commit(author, author, "Initial egotistic commit");
 
                     commit.Parents.Count().ShouldEqual(0);
                     repo.Info.IsEmpty.ShouldBeFalse();
@@ -373,7 +373,7 @@ namespace LibGit2Sharp.Tests
                     repo.Index.Stage("new.txt");
 
                     var author2 = new Signature(author.Name, author.Email, author.When.AddSeconds(5));
-                    var commit2 = repo.Commit(author2, author2, "Are you trying to fork me?");
+                    Commit commit2 = repo.Commit(author2, author2, "Are you trying to fork me?");
 
                     commit2.Parents.Count().ShouldEqual(1);
                     commit2.Parents.First().Id.ShouldEqual(commit.Id);
@@ -386,7 +386,7 @@ namespace LibGit2Sharp.Tests
                     var author3 = new Signature("David Fowler", "david.fowler@microsoft.com", author.When.AddSeconds(2));
                     repo.Index.Stage("new.txt");
 
-                    var commit3 = repo.Commit(author3, author3, "I'm going to branch you backwards in time!");
+                    Commit commit3 = repo.Commit(author3, author3, "I'm going to branch you backwards in time!");
 
                     commit3.Parents.Count().ShouldEqual(1);
                     commit3.Parents.First().Id.ShouldEqual(commit.Id);

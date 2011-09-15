@@ -9,8 +9,11 @@ namespace LibGit2Sharp.Tests
     [TestFixture]
     public class ReferenceFixture : BaseFixture
     {
-        private readonly List<string> expectedRefs = new List<string> { "refs/heads/packed-test", "refs/heads/packed", "refs/heads/br2", "refs/heads/master", "refs/heads/test",
-            "refs/heads/deadbeef", "refs/tags/test", "refs/tags/e90810b", "refs/tags/lw" };
+        private readonly List<string> expectedRefs = new List<string>
+                                                         {
+                                                             "refs/heads/packed-test", "refs/heads/packed", "refs/heads/br2", "refs/heads/master", "refs/heads/test",
+                                                             "refs/heads/deadbeef", "refs/tags/test", "refs/tags/e90810b", "refs/tags/lw"
+                                                         };
 
         [Test]
         public void CanCreateADirectReference()
@@ -20,7 +23,7 @@ namespace LibGit2Sharp.Tests
             using (var path = new TemporaryCloneOfTestRepo())
             using (var repo = new Repository(path.RepositoryPath))
             {
-                var newRef = (DirectReference) repo.Refs.Create(name, "be3563ae3f795b2b4353bcce3a527ad0a4f7f644");
+                var newRef = (DirectReference)repo.Refs.Create(name, "be3563ae3f795b2b4353bcce3a527ad0a4f7f644");
                 newRef.ShouldNotBeNull();
                 newRef.CanonicalName.ShouldEqual(name);
                 newRef.Target.ShouldNotBeNull();
@@ -39,7 +42,7 @@ namespace LibGit2Sharp.Tests
             using (var path = new TemporaryCloneOfTestRepo())
             using (var repo = new Repository(path.RepositoryPath))
             {
-                var newRef = (SymbolicReference) repo.Refs.Create(name, target);
+                var newRef = (SymbolicReference)repo.Refs.Create(name, target);
                 newRef.ShouldNotBeNull();
                 newRef.CanonicalName.ShouldEqual(name);
                 newRef.Target.CanonicalName.ShouldEqual(target);
@@ -172,12 +175,12 @@ namespace LibGit2Sharp.Tests
             {
                 const string refName = "refs/heads/test";
 
-                var refs = repo.Refs.Select(r => r.CanonicalName).ToList();
+                List<string> refs = repo.Refs.Select(r => r.CanonicalName).ToList();
                 refs.Contains(refName).ShouldBeTrue();
 
                 repo.Refs.Delete(refName);
 
-                var refs2 = repo.Refs.Select(r => r.CanonicalName).ToList();
+                List<string> refs2 = repo.Refs.Select(r => r.CanonicalName).ToList();
                 refs2.Contains(refName).ShouldBeFalse();
 
                 refs2.Count.ShouldEqual(refs.Count - 1);
@@ -210,7 +213,7 @@ namespace LibGit2Sharp.Tests
             {
                 CreateCorruptedDeadBeefHead(repo.Info.Path);
 
-                foreach (var r in repo.Refs)
+                foreach (Reference r in repo.Refs)
                 {
                     Assert.Contains(r.CanonicalName, expectedRefs);
                 }
@@ -224,15 +227,15 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(Constants.BareTestRepoPath))
             {
-                var head = (SymbolicReference) repo.Refs["HEAD"];
+                var head = (SymbolicReference)repo.Refs["HEAD"];
                 head.ShouldNotBeNull();
                 head.CanonicalName.ShouldEqual("HEAD");
                 head.Target.ShouldNotBeNull();
                 head.Target.CanonicalName.ShouldEqual("refs/heads/master");
                 head.ResolveToDirectReference().Target.Sha.ShouldEqual("4c062a6361ae6959e06292c1fa5e2822d9c96345");
-                Assert.IsInstanceOf<Commit>(((DirectReference) head.Target).Target);
+                Assert.IsInstanceOf<Commit>(((DirectReference)head.Target).Target);
 
-                var head2 = repo.Head;
+                Branch head2 = repo.Head;
                 head2.CanonicalName.ShouldEqual("refs/heads/master");
                 head2.Tip.ShouldNotBeNull();
 
@@ -245,7 +248,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(Constants.BareTestRepoPath))
             {
-                var lwTag = (DirectReference) repo.Refs["refs/tags/lw"];
+                var lwTag = (DirectReference)repo.Refs["refs/tags/lw"];
                 lwTag.ShouldNotBeNull();
                 lwTag.CanonicalName.ShouldEqual("refs/tags/lw");
                 lwTag.Target.ShouldNotBeNull();
@@ -259,7 +262,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(Constants.BareTestRepoPath))
             {
-                var annTag = (DirectReference) repo.Refs["refs/tags/test"];
+                var annTag = (DirectReference)repo.Refs["refs/tags/test"];
                 annTag.ShouldNotBeNull();
                 annTag.CanonicalName.ShouldEqual("refs/tags/test");
                 annTag.Target.ShouldNotBeNull();
@@ -273,7 +276,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(Constants.BareTestRepoPath))
             {
-                var master = (DirectReference) repo.Refs["refs/heads/master"];
+                var master = (DirectReference)repo.Refs["refs/heads/master"];
                 master.ShouldNotBeNull();
                 master.CanonicalName.ShouldEqual("refs/heads/master");
                 master.Target.ShouldNotBeNull();
@@ -287,7 +290,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(Constants.BareTestRepoPath))
             {
-                Assert.Throws<ArgumentException>(() => { var head = repo.Refs[string.Empty]; });
+                Assert.Throws<ArgumentException>(() => { Reference head = repo.Refs[string.Empty]; });
             }
         }
 
@@ -296,7 +299,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(Constants.BareTestRepoPath))
             {
-                Assert.Throws<ArgumentNullException>(() => { var head = repo.Refs[null]; });
+                Assert.Throws<ArgumentNullException>(() => { Reference head = repo.Refs[null]; });
             }
         }
 
@@ -307,11 +310,11 @@ namespace LibGit2Sharp.Tests
             using (var path = new TemporaryCloneOfTestRepo())
             using (var repo = new Repository(path.RepositoryPath))
             {
-                var sha = repo.Refs["refs/heads/test"].ResolveToDirectReference().Target.Sha;
-                var master = repo.Refs[masterRef];
+                string sha = repo.Refs["refs/heads/test"].ResolveToDirectReference().Target.Sha;
+                Reference master = repo.Refs[masterRef];
                 master.ResolveToDirectReference().Target.Sha.ShouldNotEqual(sha);
 
-                var updated = repo.Refs.UpdateTarget(masterRef, sha);
+                Reference updated = repo.Refs.UpdateTarget(masterRef, sha);
 
                 master = repo.Refs[masterRef];
                 master.ShouldEqual(updated);
@@ -327,12 +330,12 @@ namespace LibGit2Sharp.Tests
             using (var path = new TemporaryCloneOfTestRepo())
             using (var repo = new Repository(path.RepositoryPath))
             {
-                var newRef = (SymbolicReference) repo.Refs.Create(name, "refs/heads/master");
+                var newRef = (SymbolicReference)repo.Refs.Create(name, "refs/heads/master");
                 newRef.ShouldNotBeNull();
 
                 repo.Refs.UpdateTarget(newRef.CanonicalName, "refs/heads/test");
 
-                newRef = (SymbolicReference) repo.Refs[newRef.CanonicalName];
+                newRef = (SymbolicReference)repo.Refs[newRef.CanonicalName];
                 newRef.ResolveToDirectReference().Target.ShouldEqual(repo.Refs["refs/heads/test"].ResolveToDirectReference().Target);
 
                 repo.Refs.Delete(newRef.CanonicalName);
@@ -346,7 +349,7 @@ namespace LibGit2Sharp.Tests
             using (var path = new TemporaryCloneOfTestRepo())
             using (var repo = new Repository(path.RepositoryPath))
             {
-                var newRef = (SymbolicReference) repo.Refs.Create(name, "refs/heads/master");
+                var newRef = (SymbolicReference)repo.Refs.Create(name, "refs/heads/master");
                 newRef.ShouldNotBeNull();
 
                 Assert.Throws<ArgumentException>(
@@ -465,12 +468,12 @@ namespace LibGit2Sharp.Tests
                 const string oldName = "refs/tags/test";
                 const string newName = "refs/atic/tagtest";
 
-                var refs = repo.Refs.Select(r => r.CanonicalName).ToList();
+                List<string> refs = repo.Refs.Select(r => r.CanonicalName).ToList();
                 refs.Contains(oldName).ShouldBeTrue();
 
                 repo.Refs.Move(oldName, newName);
 
-                var refs2 = repo.Refs.Select(r => r.CanonicalName).ToList();
+                List<string> refs2 = repo.Refs.Select(r => r.CanonicalName).ToList();
                 refs2.Contains(oldName).ShouldBeFalse();
                 refs2.Contains(newName).ShouldBeTrue();
 

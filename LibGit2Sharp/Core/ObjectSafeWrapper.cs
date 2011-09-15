@@ -13,8 +13,8 @@ namespace LibGit2Sharp.Core
                 return;
             }
 
-            var oid = id.Oid;
-            var res = NativeMethods.git_object_lookup(out objectPtr, repo.Handle, ref oid, GitObjectType.Any);
+            GitOid oid = id.Oid;
+            int res = NativeMethods.git_object_lookup(out objectPtr, repo.Handle, ref oid, GitObjectType.Any);
             Ensure.Success(res);
         }
 

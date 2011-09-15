@@ -36,9 +36,9 @@ namespace LibGit2Sharp
         #region IEnumerable<Reference> Members
 
         /// <summary>
-        /// Returns an enumerator that iterates through the collection.
+        ///   Returns an enumerator that iterates through the collection.
         /// </summary>
-        /// <returns>An <see cref="IEnumerator{T}"/> object that can be used to iterate through the collection.</returns>
+        /// <returns>An <see cref = "IEnumerator{T}" /> object that can be used to iterate through the collection.</returns>
         public IEnumerator<Reference> GetEnumerator()
         {
             return Libgit2UnsafeHelper
@@ -48,9 +48,9 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Returns an enumerator that iterates through the collection.
+        ///   Returns an enumerator that iterates through the collection.
         /// </summary>
-        /// <returns>An <see cref="IEnumerator"/> object that can be used to iterate through the collection.</returns>
+        /// <returns>An <see cref = "IEnumerator" /> object that can be used to iterate through the collection.</returns>
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
@@ -63,7 +63,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name = "name">The name of the reference to create.</param>
         /// <param name = "target">The target which can be either a sha or the canonical name of another reference.</param>
-        /// <param name="allowOverwrite">True to allow silent overwriting a potentially existing reference, false otherwise.</param>
+        /// <param name = "allowOverwrite">True to allow silent overwriting a potentially existing reference, false otherwise.</param>
         /// <returns>A new <see cref = "Reference" />.</returns>
         public Reference Create(string name, string target, bool allowOverwrite = false)
         {
@@ -110,11 +110,11 @@ namespace LibGit2Sharp
                 return targetId;
             }
 
-            var obj = repo.Lookup(targetId);
+            GitObject obj = repo.Lookup(targetId);
 
             if (obj == null)
             {
-                Ensure.Success((int) GitErrorCode.GIT_ENOTFOUND);
+                Ensure.Success((int)GitErrorCode.GIT_ENOTFOUND);
             }
 
             return obj.Id;
@@ -123,7 +123,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Delete a reference with the specified name
         /// </summary>
-        /// <param name="name">The name of the reference to delete.</param>
+        /// <param name = "name">The name of the reference to delete.</param>
         public void Delete(string name)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
@@ -137,9 +137,9 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Rename an existing reference with a new name
         /// </summary>
-        /// <param name="currentName">The canonical name of the reference to rename.</param>
-        /// <param name="newName">The new canonical name.</param>
-        /// <param name="allowOverwrite">True to allow silent overwriting a potentially existing reference, false otherwise.</param>
+        /// <param name = "currentName">The canonical name of the reference to rename.</param>
+        /// <param name = "newName">The new canonical name.</param>
+        /// <param name = "allowOverwrite">True to allow silent overwriting a potentially existing reference, false otherwise.</param>
         /// <returns></returns>
         public Reference Move(string currentName, string newName, bool allowOverwrite = false)
         {
@@ -178,16 +178,22 @@ namespace LibGit2Sharp
 
             ObjectId id;
             bool isObjectIdentifier = ObjectId.TryParse(target, out id);
-            var type = NativeMethods.git_reference_type(reference);
+            GitReferenceType type = NativeMethods.git_reference_type(reference);
             switch (type)
             {
                 case GitReferenceType.Oid:
-                    if (!isObjectIdentifier) throw new ArgumentException(String.Format(CultureInfo.InvariantCulture, "The reference specified by {0} is an Oid reference, you must provide a sha as the target.", name), "target");
-                    var oid = id.Oid;
+                    if (!isObjectIdentifier)
+                    {
+                        throw new ArgumentException(String.Format(CultureInfo.InvariantCulture, "The reference specified by {0} is an Oid reference, you must provide a sha as the target.", name), "target");
+                    }
+                    GitOid oid = id.Oid;
                     res = NativeMethods.git_reference_set_oid(reference, ref oid);
                     break;
                 case GitReferenceType.Symbolic:
-                    if (isObjectIdentifier) throw new ArgumentException(String.Format(CultureInfo.InvariantCulture, "The reference specified by {0} is an Symbolic reference, you must provide a symbol as the target.", name), "target");
+                    if (isObjectIdentifier)
+                    {
+                        throw new ArgumentException(String.Format(CultureInfo.InvariantCulture, "The reference specified by {0} is an Symbolic reference, you must provide a symbol as the target.", name), "target");
+                    }
                     res = NativeMethods.git_reference_set_target(reference, target);
                     break;
                 default:
@@ -202,7 +208,7 @@ namespace LibGit2Sharp
         private IntPtr RetrieveReferencePtr(string referenceName, bool shouldThrow = true)
         {
             IntPtr reference;
-            var res = NativeMethods.git_reference_lookup(out reference, repo.Handle, referenceName);
+            int res = NativeMethods.git_reference_lookup(out reference, repo.Handle, referenceName);
 
             if (!shouldThrow && res == (int)GitErrorCode.GIT_ENOTFOUND)
             {

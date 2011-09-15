@@ -49,7 +49,7 @@ namespace LibGit2Sharp
         {
             get
             {
-                var res = NativeMethods.git_repository_is_empty(repo.Handle);
+                int res = NativeMethods.git_repository_is_empty(repo.Handle);
                 Ensure.Success(res, true);
 
                 return (res == 1);
@@ -63,7 +63,7 @@ namespace LibGit2Sharp
         {
             get
             {
-                var res = NativeMethods.git_repository_head_detached(repo.Handle);
+                int res = NativeMethods.git_repository_head_detached(repo.Handle);
                 Ensure.Success(res, true);
 
                 return (res == 1);

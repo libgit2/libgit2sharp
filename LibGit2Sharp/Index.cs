@@ -15,7 +15,7 @@ namespace LibGit2Sharp
         internal Index(Repository repo)
         {
             this.repo = repo;
-            var res = NativeMethods.git_repository_index(out handle, repo.Handle);
+            int res = NativeMethods.git_repository_index(out handle, repo.Handle);
             Ensure.Success(res);
         }
 
@@ -52,7 +52,7 @@ namespace LibGit2Sharp
         {
             get
             {
-                var entryPtr = NativeMethods.git_index_get(handle, index);
+                IntPtr entryPtr = NativeMethods.git_index_get(handle, index);
                 return IndexEntry.CreateFromPtr(entryPtr);
             }
         }
@@ -75,7 +75,7 @@ namespace LibGit2Sharp
         #region IDisposable Members
 
         /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        ///   Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         public void Dispose()
         {
@@ -84,7 +84,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        ///   Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         protected virtual void Dispose(bool disposing)
         {
@@ -99,9 +99,9 @@ namespace LibGit2Sharp
         #region IEnumerable<IndexEntry> Members
 
         /// <summary>
-        /// Returns an enumerator that iterates through the collection.
+        ///   Returns an enumerator that iterates through the collection.
         /// </summary>
-        /// <returns>An <see cref="IEnumerator{T}"/> object that can be used to iterate through the collection.</returns>
+        /// <returns>An <see cref = "IEnumerator{T}" /> object that can be used to iterate through the collection.</returns>
         public IEnumerator<IndexEntry> GetEnumerator()
         {
             for (uint i = 0; i < Count; i++)
@@ -111,9 +111,9 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Returns an enumerator that iterates through the collection.
+        ///   Returns an enumerator that iterates through the collection.
         /// </summary>
-        /// <returns>An <see cref="IEnumerator"/> object that can be used to iterate through the collection.</returns>
+        /// <returns>An <see cref = "IEnumerator" /> object that can be used to iterate through the collection.</returns>
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
@@ -170,13 +170,13 @@ namespace LibGit2Sharp
 
         private void AddToIndex(string path)
         {
-            var res = NativeMethods.git_index_add(handle, BuildRelativePathFrom(path));
+            int res = NativeMethods.git_index_add(handle, BuildRelativePathFrom(path));
             Ensure.Success(res);
         }
 
         private void RemoveFromIndex(string relativePath)
         {
-            var res = NativeMethods.git_index_find(handle, relativePath);
+            int res = NativeMethods.git_index_find(handle, relativePath);
             Ensure.Success(res, true);
 
             res = NativeMethods.git_index_remove(handle, res);
@@ -185,13 +185,13 @@ namespace LibGit2Sharp
 
         private void RestorePotentialPreviousVersionOf(string relativePath)
         {
-            var currentHeadBlob = repo.Head.Tip.Tree[relativePath];
+            TreeEntry currentHeadBlob = repo.Head.Tip.Tree[relativePath];
             if ((currentHeadBlob == null) || currentHeadBlob.Type != GitObjectType.Blob)
             {
                 return;
             }
 
-            File.WriteAllBytes(Path.Combine(repo.Info.WorkingDirectory, relativePath), ((Blob) currentHeadBlob.Target).Content);
+            File.WriteAllBytes(Path.Combine(repo.Info.WorkingDirectory, relativePath), ((Blob)currentHeadBlob.Target).Content);
             AddToIndex(relativePath);
         }
 
@@ -201,14 +201,14 @@ namespace LibGit2Sharp
             Ensure.Success(res);
         }
 
-        private string BuildRelativePathFrom(string path)   //TODO: To be removed when libgit2 natively implements this
+        private string BuildRelativePathFrom(string path) //TODO: To be removed when libgit2 natively implements this
         {
             if (!Path.IsPathRooted(path))
             {
                 return path;
             }
 
-            var normalizedPath = Path.GetFullPath(path);
+            string normalizedPath = Path.GetFullPath(path);
 
             if (!normalizedPath.StartsWith(repo.Info.WorkingDirectory, StringComparison.Ordinal))
             {

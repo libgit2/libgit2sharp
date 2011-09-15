@@ -10,7 +10,7 @@ namespace LibGit2Sharp
     public class Branch : IEquatable<Branch>
     {
         private static readonly LambdaEqualityHelper<Branch> equalityHelper =
-            new LambdaEqualityHelper<Branch>(new Func<Branch, object>[] {x => x.CanonicalName, x => x.Tip});
+            new LambdaEqualityHelper<Branch>(new Func<Branch, object>[] { x => x.CanonicalName, x => x.Tip });
 
         private readonly Repository repo;
         private readonly Lazy<Commit> tipBuilder;
@@ -28,13 +28,13 @@ namespace LibGit2Sharp
 
         /// <summary>
         ///   Initializes a new instance of an orphaned <see cref = "Branch" /> class.
-        /// <para>
-        ///   This <see cref="Branch"/> instance will point to no commit.
-        /// </para>
+        ///   <para>
+        ///     This <see cref = "Branch" /> instance will point to no commit.
+        ///   </para>
         /// </summary>
         /// <param name = "repo">The repo.</param>
         /// <param name = "canonicalName">The full name of the reference</param>
-        internal Branch(string canonicalName, Repository repo) 
+        internal Branch(string canonicalName, Repository repo)
             : this(canonicalName, new Lazy<Commit>(() => null), repo)
         {
         }
@@ -88,14 +88,17 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Gets the commit id that this branch points to.
         /// </summary>
-        public Commit Tip { get { return tipBuilder.Value; } }
+        public Commit Tip
+        {
+            get { return tipBuilder.Value; }
+        }
 
         /// <summary>
         ///   Gets the commits on this branch. (Starts walking from the References's target).
         /// </summary>
         public ICommitCollection Commits
         {
-            get { return repo.Commits.QueryBy(new Filter{Since = this}); }
+            get { return repo.Commits.QueryBy(new Filter { Since = this }); }
         }
 
         #region IEquatable<Branch> Members
@@ -148,7 +151,7 @@ namespace LibGit2Sharp
                 return branchName.Substring("refs/remotes/".Length);
             }
 
-            throw new ArgumentException(string.Format(CultureInfo.InvariantCulture,"'{0}' does not look like a valid branch name.", branchName));
+            throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "'{0}' does not look like a valid branch name.", branchName));
         }
 
         /// <summary>
@@ -174,9 +177,9 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///  Returns the <see cref="CanonicalName"/>, a <see cref="String"/> representation of the current <see cref="Branch"/>.
+        ///   Returns the <see cref = "CanonicalName" />, a <see cref = "String" /> representation of the current <see cref = "Branch" />.
         /// </summary>
-        /// <returns>The <see cref="CanonicalName"/> that represents the current <see cref="Branch"/>.</returns>
+        /// <returns>The <see cref = "CanonicalName" /> that represents the current <see cref = "Branch" />.</returns>
         public override string ToString()
         {
             return CanonicalName;

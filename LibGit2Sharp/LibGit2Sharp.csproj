@@ -71,7 +71,7 @@
     </Compile>
     <Compile Include="Core\SafeHandleBase.cs" />
     <Compile Include="Core\UnSafeNativeMethods.cs" />
-    <Compile Include="Core\UTF8Marshaler.cs" />
+    <Compile Include="Core\Utf8Marshaler.cs" />
     <Compile Include="DirectReference.cs" />
     <Compile Include="Core\GitIndexTime.cs" />
     <Compile Include="Core\GitIndexEntry.cs" />

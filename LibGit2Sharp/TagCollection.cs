@@ -29,18 +29,15 @@ namespace LibGit2Sharp
         /// </summary>
         public Tag this[string name]
         {
-            get
-            {
-                return repo.Refs.Resolve<Tag>(NormalizeToCanonicalName(name));
-            }
+            get { return repo.Refs.Resolve<Tag>(NormalizeToCanonicalName(name)); }
         }
 
         #region IEnumerable<Tag> Members
 
         /// <summary>
-        /// Returns an enumerator that iterates through the collection.
+        ///   Returns an enumerator that iterates through the collection.
         /// </summary>
-        /// <returns>An <see cref="IEnumerator{T}"/> object that can be used to iterate through the collection.</returns>
+        /// <returns>An <see cref = "IEnumerator{T}" /> object that can be used to iterate through the collection.</returns>
         public IEnumerator<Tag> GetEnumerator()
         {
             return Libgit2UnsafeHelper
@@ -50,9 +47,9 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Returns an enumerator that iterates through the collection.
+        ///   Returns an enumerator that iterates through the collection.
         /// </summary>
-        /// <returns>An <see cref="IEnumerator"/> object that can be used to iterate through the collection.</returns>
+        /// <returns>An <see cref = "IEnumerator" /> object that can be used to iterate through the collection.</returns>
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
@@ -67,7 +64,7 @@ namespace LibGit2Sharp
         /// <param name = "target">The target which can be sha or a canonical reference name.</param>
         /// <param name = "tagger">The tagger.</param>
         /// <param name = "message">The message.</param>
-        /// <param name="allowOverwrite">True to allow silent overwriting a potentially existing tag, false otherwise.</param>
+        /// <param name = "allowOverwrite">True to allow silent overwriting a potentially existing tag, false otherwise.</param>
         /// <returns></returns>
         public Tag Create(string name, string target, Signature tagger, string message, bool allowOverwrite = false)
         {
@@ -95,7 +92,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name = "name">The name.</param>
         /// <param name = "target">The target which can be sha or a canonical reference name.</param>
-        /// <param name="allowOverwrite">True to allow silent overwriting a potentially existing tag, false otherwise.</param>
+        /// <param name = "allowOverwrite">True to allow silent overwriting a potentially existing tag, false otherwise.</param>
         /// <returns></returns>
         public Tag Create(string name, string target, bool allowOverwrite = false)
         {
@@ -130,7 +127,7 @@ namespace LibGit2Sharp
 
         private GitObject RetrieveObjectToTag(string target)
         {
-            var objectToTag = repo.Lookup(target);
+            GitObject objectToTag = repo.Lookup(target);
 
             if (objectToTag == null)
             {

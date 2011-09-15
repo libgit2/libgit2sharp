@@ -16,8 +16,8 @@ namespace LibGit2Sharp
 
         internal Commit(ObjectId id, ObjectId treeId, Repository repo) : base(id)
         {
-            this.tree = new Lazy<Tree>(() => repo.Lookup<Tree>(treeId));
-            this.parents = new Lazy<IEnumerable<Commit>>(() => RetrieveParentsOfCommit(id.Oid));
+            tree = new Lazy<Tree>(() => repo.Lookup<Tree>(treeId));
+            parents = new Lazy<IEnumerable<Commit>>(() => RetrieveParentsOfCommit(id.Oid));
             this.repo = repo;
         }
 
@@ -44,17 +44,23 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Gets the Tree associated to this commit.
         /// </summary>
-        public Tree Tree { get { return tree.Value; } }
+        public Tree Tree
+        {
+            get { return tree.Value; }
+        }
 
         /// <summary>
         ///   Gets the parents of this commit. This property is lazy loaded and can throw an exception if the commit no longer exists in the repo.
         /// </summary>
-        public IEnumerable<Commit> Parents { get { return parents.Value; } }
+        public IEnumerable<Commit> Parents
+        {
+            get { return parents.Value; }
+        }
 
-        private IEnumerable<Commit> RetrieveParentsOfCommit(GitOid oid)    //TODO: Convert to a ParentEnumerator
+        private IEnumerable<Commit> RetrieveParentsOfCommit(GitOid oid) //TODO: Convert to a ParentEnumerator
         {
             IntPtr obj;
-            var res = NativeMethods.git_object_lookup(out obj, repo.Handle, ref oid, GitObjectType.Commit);
+            int res = NativeMethods.git_object_lookup(out obj, repo.Handle, ref oid, GitObjectType.Commit);
             Ensure.Success(res);
 
             var parentsOfCommits = new List<Commit>();
@@ -82,15 +88,15 @@ namespace LibGit2Sharp
         internal static Commit BuildFromPtr(IntPtr obj, ObjectId id, Repository repo)
         {
             var treeId =
-                new ObjectId((GitOid) Marshal.PtrToStructure(NativeMethods.git_commit_tree_oid(obj), typeof (GitOid)));
+                new ObjectId((GitOid)Marshal.PtrToStructure(NativeMethods.git_commit_tree_oid(obj), typeof(GitOid)));
 
             return new Commit(id, treeId, repo)
-            {
-                Message = NativeMethods.git_commit_message(obj).MarshallAsString(),
-                MessageShort = NativeMethods.git_commit_message_short(obj).MarshallAsString(),
-                Author = new Signature(NativeMethods.git_commit_author(obj)),
-                Committer = new Signature(NativeMethods.git_commit_committer(obj)),
-            };
+                       {
+                           Message = NativeMethods.git_commit_message(obj).MarshallAsString(),
+                           MessageShort = NativeMethods.git_commit_message_short(obj).MarshallAsString(),
+                           Author = new Signature(NativeMethods.git_commit_author(obj)),
+                           Committer = new Signature(NativeMethods.git_commit_committer(obj)),
+                       };
         }
     }
 }

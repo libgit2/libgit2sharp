@@ -27,9 +27,12 @@ namespace LibGit2Sharp
         public string Message { get; private set; }
 
         /// <summary>
-        ///   Gets the <see cref="GitObject"/> that this tag annotation points to.
+        ///   Gets the <see cref = "GitObject" /> that this tag annotation points to.
         /// </summary>
-        public GitObject Target { get { return targetBuilder.Value; } }
+        public GitObject Target
+        {
+            get { return targetBuilder.Value; }
+        }
 
         /// <summary>
         ///   Gets the tagger.
@@ -38,7 +41,7 @@ namespace LibGit2Sharp
 
         internal static TagAnnotation BuildFromPtr(IntPtr obj, ObjectId id, Repository repo)
         {
-            var oidPtr = NativeMethods.git_tag_target_oid(obj);
+            IntPtr oidPtr = NativeMethods.git_tag_target_oid(obj);
             var oid = (GitOid)Marshal.PtrToStructure(oidPtr, typeof(GitOid));
 
             return new TagAnnotation(id)
