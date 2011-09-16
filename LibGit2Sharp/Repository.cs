@@ -16,7 +16,7 @@ namespace LibGit2Sharp
         private readonly RepositorySafeHandle handle;
         private readonly Index index;
         private readonly ReferenceCollection refs;
-        private RemoteCollection remotes;
+        private readonly Lazy<RemoteCollection> remotes;
         private readonly TagCollection tags;
         private readonly Lazy<RepositoryInformation> info;
         private readonly bool isBare;
@@ -46,6 +46,7 @@ namespace LibGit2Sharp
             tags = new TagCollection(this);
             info = new Lazy<RepositoryInformation>(() => new RepositoryInformation(this, isBare));
             config = new Lazy<Configuration>(() => new Configuration(this));
+            remotes = new Lazy<RemoteCollection>(() => new RemoteCollection(this));
         }
 
         internal RepositorySafeHandle Handle
@@ -96,9 +97,12 @@ namespace LibGit2Sharp
             get { return refs; }
         }
 
+        /// <summary>
+        ///   Lookup and manage remotes in the repository.
+        /// </summary>
         public RemoteCollection Remotes
         {
-            get { return remotes ?? (remotes = new RemoteCollection(this)); }
+            get { return remotes.Value; }
         }
 
         /// <summary>
