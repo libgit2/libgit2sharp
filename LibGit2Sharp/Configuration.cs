@@ -130,7 +130,7 @@ namespace LibGit2Sharp
         {
             IntPtr value;
             Ensure.Success(NativeMethods.git_config_get_string(localHandle, key, out value));
-            return Marshal.PtrToStringAnsi(value);
+            return value.MarshallAsString();
         }
 
         private void Init()
