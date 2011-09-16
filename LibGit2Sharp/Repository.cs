@@ -12,7 +12,7 @@ namespace LibGit2Sharp
     {
         private readonly BranchCollection branches;
         private readonly CommitCollection commits;
-        private Configuration config;
+        private readonly Lazy<Configuration> config;
         private readonly RepositorySafeHandle handle;
         private readonly Index index;
         private readonly ReferenceCollection refs;
@@ -45,6 +45,7 @@ namespace LibGit2Sharp
             branches = new BranchCollection(this);
             tags = new TagCollection(this);
             info = new Lazy<RepositoryInformation>(() => new RepositoryInformation(this, isBare));
+            config = new Lazy<Configuration>(() => new Configuration(this));
         }
 
         internal RepositorySafeHandle Handle
@@ -76,7 +77,7 @@ namespace LibGit2Sharp
         /// </summary>
         public Configuration Config
         {
-            get { return config ?? (config = new Configuration(this)); }
+            get { return config.Value; }
         }
 
         /// <summary>
