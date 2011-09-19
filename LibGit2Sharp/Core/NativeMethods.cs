@@ -42,6 +42,42 @@ namespace LibGit2Sharp.Core
         public static extern IntPtr git_commit_tree_oid(IntPtr commit);
 
         [DllImport(libgit2)]
+        public static extern int git_config_delete(ConfigurationSafeHandle cfg, string name);
+
+        [DllImport(libgit2)]
+        public static extern void git_config_free(IntPtr cfg);
+
+        [DllImport(libgit2)]
+        public static extern int git_config_get_bool(ConfigurationSafeHandle cfg, string name, out bool value);
+
+        [DllImport(libgit2)]
+        public static extern int git_config_get_int(ConfigurationSafeHandle cfg, string name, out int value);
+
+        [DllImport(libgit2)]
+        public static extern int git_config_get_long(ConfigurationSafeHandle cfg, string name, out long value);
+
+        [DllImport(libgit2)]
+        public static extern int git_config_get_string(ConfigurationSafeHandle cfg, string name, out IntPtr value);
+
+        [DllImport(libgit2)]
+        public static extern int git_config_open_global(out ConfigurationSafeHandle cfg);
+
+        [DllImport(libgit2)]
+        public static extern int git_config_open_ondisk(out ConfigurationSafeHandle cfg, string path);
+
+        [DllImport(libgit2)]
+        public static extern int git_config_set_bool(ConfigurationSafeHandle cfg, string name, bool value);
+
+        [DllImport(libgit2)]
+        public static extern int git_config_set_int(ConfigurationSafeHandle cfg, string name, int value);
+
+        [DllImport(libgit2)]
+        public static extern int git_config_set_long(ConfigurationSafeHandle cfg, string name, long value);
+
+        [DllImport(libgit2)]
+        public static extern int git_config_set_string(ConfigurationSafeHandle cfg, string name, string value);
+
+        [DllImport(libgit2)]
         public static extern int git_index_add(IndexSafeHandle index, string path, int stage = 0);
 
         [DllImport(libgit2)]
@@ -125,6 +161,21 @@ namespace LibGit2Sharp.Core
 
         [DllImport(libgit2)]
         public static extern GitReferenceType git_reference_type(IntPtr reference);
+
+        [DllImport(libgit2)]
+        public static extern void git_remote_free(IntPtr remote);
+
+        [DllImport(libgit2)]
+        public static extern int git_remote_get(out RemoteSafeHandle remote, ConfigurationSafeHandle cfg, string name);
+
+        [DllImport(libgit2)]
+        public static extern IntPtr git_remote_name(RemoteSafeHandle remote);
+
+        [DllImport(libgit2)]
+        public static extern IntPtr git_remote_url(RemoteSafeHandle remote);
+
+        [DllImport(libgit2)]
+        public static extern int git_repository_config(out ConfigurationSafeHandle cfg, RepositorySafeHandle repo, string userConfigPath, string systemConfigPath);
 
         [DllImport(libgit2)]
         public static extern IntPtr git_repository_database(RepositorySafeHandle repository);
