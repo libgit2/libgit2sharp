@@ -163,6 +163,16 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
+        public void ReadingUnsupportedTypeThrows()
+        {
+            using (var repo = new Repository(Constants.StandardTestRepoPath))
+            {
+                Assert.Throws<ArgumentException>(() => repo.Config.Get<short>("unittests.setting"));
+                Assert.Throws<ArgumentException>(() => repo.Config.Get<Configuration>("unittests.setting"));
+            }
+        }
+
+        [Test]
         public void ReadingValueThatDoesntExistThrows()
         {
             using (var repo = new Repository(Constants.StandardTestRepoPath))
@@ -171,6 +181,16 @@ namespace LibGit2Sharp.Tests
                 Assert.Throws<ApplicationException>(() => repo.Config.Get<int>("unittests.ghostsetting"));
                 Assert.Throws<ApplicationException>(() => repo.Config.Get<long>("unittests.ghostsetting"));
                 Assert.Throws<ApplicationException>(() => repo.Config.Get<bool>("unittests.ghostsetting"));
+            }
+        }
+
+        [Test]
+        public void SettingUnsupportedTypeThrows()
+        {
+            using (var repo = new Repository(Constants.StandardTestRepoPath))
+            {
+                Assert.Throws<ArgumentException>(() => repo.Config.Set("unittests.setting", (short) 123));
+                Assert.Throws<ArgumentException>(() => repo.Config.Set("unittests.setting", new Configuration(repo)));
             }
         }
     }

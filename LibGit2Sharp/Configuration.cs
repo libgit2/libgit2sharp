@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Runtime.InteropServices;
 using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
@@ -97,12 +96,24 @@ namespace LibGit2Sharp
         ///<returns></returns>
         public T Get<T>(string key)
         {
-            if (typeof (T) == typeof (string)) return (T) (object) GetString(key);
-            if (typeof (T) == typeof (bool)) return (T) (object) GetBool(key);
-            if (typeof (T) == typeof (int)) return (T) (object) GetInt(key);
-            if (typeof (T) == typeof (long)) return (T) (object) GetLong(key);
+            if (typeof (T) == typeof (string))
+            {
+                return (T) (object) GetString(key);
+            }
+            if (typeof (T) == typeof (bool))
+            {
+                return (T) (object) GetBool(key);
+            }
+            if (typeof (T) == typeof (int))
+            {
+                return (T) (object) GetInt(key);
+            }
+            if (typeof (T) == typeof (long))
+            {
+                return (T) (object) GetLong(key);
+            }
 
-            return default(T);
+            throw new ArgumentException(string.Format("Generic Argument of type {0} is not supported.", typeof (T)));
         }
 
         private bool GetBool(string key)
@@ -169,22 +180,25 @@ namespace LibGit2Sharp
             if (typeof (T) == typeof (string))
             {
                 Ensure.Success(NativeMethods.git_config_set_string(h, key, (string) (object) value));
+                return;
             }
-
             if (typeof (T) == typeof (bool))
             {
                 Ensure.Success(NativeMethods.git_config_set_bool(h, key, (bool) (object) value));
+                return;
             }
-
             if (typeof (T) == typeof (int))
             {
                 Ensure.Success(NativeMethods.git_config_set_int(h, key, (int) (object) value));
+                return;
             }
-
             if (typeof (T) == typeof (long))
             {
                 Ensure.Success(NativeMethods.git_config_set_long(h, key, (long) (object) value));
+                return;
             }
+
+            throw new ArgumentException(string.Format("Generic Argument of type {0} is not supported.", typeof (T)));
         }
     }
 }
