@@ -1,4 +1,5 @@
-﻿using LibGit2Sharp.Tests.TestHelpers;
+﻿using System;
+using LibGit2Sharp.Tests.TestHelpers;
 using NUnit.Framework;
 
 namespace LibGit2Sharp.Tests
@@ -15,6 +16,15 @@ namespace LibGit2Sharp.Tests
                 Assert.IsNotNull(origin);
                 Assert.AreEqual("origin", origin.Name);
                 Assert.AreEqual("c:/GitHub/libgit2sharp/Resources/testrepo.git", origin.Url);
+            }
+        }
+
+        [Test]
+        public void GettingRemoteThatDoesntExistThrows()
+        {
+            using (var repo = new Repository(Constants.StandardTestRepoPath))
+            {
+                Assert.Throws<ApplicationException>(() => { var r = repo.Remotes["test"]; });
             }
         }
     }
