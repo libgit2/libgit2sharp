@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace LibGit2Sharp.Core
 {
@@ -36,6 +37,8 @@ namespace LibGit2Sharp.Core
                     var name = new string(gitStrArray->strings[i]);
                     list.Add(name);
                 }
+
+                list.Sort(StringComparer.Ordinal);
             }
             finally
             {

@@ -9,11 +9,11 @@ namespace LibGit2Sharp.Tests
     [TestFixture]
     public class ReferenceFixture : BaseFixture
     {
-        private readonly List<string> expectedRefs = new List<string>
-                                                         {
-                                                             "refs/heads/packed-test", "refs/heads/packed", "refs/heads/br2", "refs/heads/master", "refs/heads/test",
-                                                             "refs/heads/deadbeef", "refs/tags/test", "refs/tags/e90810b", "refs/tags/lw", "refs/tags/point_to_blob"
-                                                         };
+        private readonly string[] expectedRefs = new[]
+                                                     {
+                                                         "refs/heads/br2", "refs/heads/deadbeef", "refs/heads/master", "refs/heads/packed", "refs/heads/packed-test",
+                                                         "refs/heads/test", "refs/tags/e90810b", "refs/tags/lw", "refs/tags/point_to_blob", "refs/tags/test",
+                                                     };
 
         [Test]
         public void CanCreateADirectReference()
@@ -213,10 +213,7 @@ namespace LibGit2Sharp.Tests
             {
                 CreateCorruptedDeadBeefHead(repo.Info.Path);
 
-                foreach (Reference r in repo.Refs)
-                {
-                    Assert.Contains(r.CanonicalName, expectedRefs);
-                }
+                CollectionAssert.AreEqual(expectedRefs, repo.Refs.Select(r => r.CanonicalName).ToArray());
 
                 repo.Refs.Count().ShouldEqual(10);
             }

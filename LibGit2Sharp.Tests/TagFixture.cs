@@ -10,7 +10,7 @@ namespace LibGit2Sharp.Tests
     [TestFixture]
     public class TagFixture : BaseFixture
     {
-        private readonly List<string> expectedTags = new List<string> { "test", "e90810b", "lw", "point_to_blob" };
+        private readonly string[] expectedTags = new[] { "e90810b", "lw", "point_to_blob", "test", };
 
         private static readonly Signature signatureTim = new Signature("Tim Clem", "timothy.clem@gmail.com", DateTimeOffset.UtcNow);
         private static readonly Signature signatureNtk = new Signature("nulltoken", "emeric.fermas@gmail.com", Epoch.ToDateTimeOffset(1300557894, 60));
@@ -519,10 +519,8 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(Constants.BareTestRepoPath))
             {
-                foreach (Tag tag in repo.Tags)
-                {
-                    expectedTags.Contains(tag.Name).ShouldBeTrue();
-                }
+                CollectionAssert.AreEqual(expectedTags, repo.Tags.Select(t => t.Name).ToArray());
+
                 repo.Tags.Count().ShouldEqual(4);
             }
         }
@@ -551,7 +549,7 @@ namespace LibGit2Sharp.Tests
             {
                 List<string> tagNames = repo.Tags.Select(t => t.Name).ToList();
 
-                List<string> sortedTags = expectedTags;
+                List<string> sortedTags = expectedTags.ToList();
                 sortedTags.Sort();
 
                 CollectionAssert.AreEqual(sortedTags, tagNames);

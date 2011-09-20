@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
 using NUnit.Framework;
@@ -9,7 +8,7 @@ namespace LibGit2Sharp.Tests
     [TestFixture]
     public class BranchFixture : BaseFixture
     {
-        private readonly List<string> expectedBranches = new List<string> { "packed-test", "packed", "br2", "master", "test", "deadbeef" };
+        private readonly string[] expectedBranches = new[] { "br2", "master", "packed", "packed-test", "test", };
 
         [Test]
         public void CanCheckoutAnExistingBranch()
@@ -96,10 +95,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(Constants.BareTestRepoPath))
             {
-                foreach (Branch r in repo.Branches)
-                {
-                    Assert.Contains(r.Name, expectedBranches);
-                }
+                CollectionAssert.AreEqual(expectedBranches, repo.Branches.Select(b => b.Name).ToArray());
 
                 repo.Branches.Count().ShouldEqual(5);
             }
