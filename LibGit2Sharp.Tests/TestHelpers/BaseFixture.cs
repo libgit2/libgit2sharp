@@ -16,7 +16,7 @@ namespace LibGit2Sharp.Tests.TestHelpers
 
         private static void SetUpTestEnvironment()
         {
-            var source = new DirectoryInfo(@"../../../Resources");
+            var source = new DirectoryInfo(@"../../Resources");
             var target = new DirectoryInfo(@"Resources");
 
             if (target.Exists)

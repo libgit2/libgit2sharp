@@ -232,6 +232,20 @@ namespace LibGit2Sharp.Core
             int offset);
 
         [DllImport(libgit2)]
+        public static extern int git_status_file(
+            out FileStatus statusflags,
+            RepositorySafeHandle repo,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string filepath);
+
+        internal delegate int status_callback(
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string statuspath,
+            uint statusflags,
+            IntPtr payload);
+
+        [DllImport(libgit2)]
+        public static extern int git_status_foreach(RepositorySafeHandle repo, status_callback callback, IntPtr payload);
+
+        [DllImport(libgit2)]
         public static extern int git_tag_create(
             out GitOid oid,
             RepositorySafeHandle repo,

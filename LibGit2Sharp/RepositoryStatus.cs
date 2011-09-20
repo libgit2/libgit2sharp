@@ -1,0 +1,145 @@
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using LibGit2Sharp.Core;
+
+namespace LibGit2Sharp
+{
+    /// <summary>
+    ///   Holds the result of the determination of the state of the working directory.
+    ///   <para>Only files that differ from the current index and/or commit will be considered.</para>
+    /// </summary>
+    public class RepositoryStatus : IEnumerable<StatusEntry>
+    {
+        private readonly List<StatusEntry> statusEntries = new List<StatusEntry>();
+        private readonly List<string> added = new List<string>();
+        private readonly List<string> staged = new List<string>();
+        private readonly List<string> removed = new List<string>();
+        private readonly List<string> missing = new List<string>();
+        private readonly List<string> modified = new List<string>();
+        private readonly List<string> untracked = new List<string>();
+        private readonly bool isDirty;
+
+        private readonly NativeMethods.status_callback callback;
+
+        private readonly IDictionary<FileStatus, Action<RepositoryStatus, string>> dispatcher = Build();
+
+        private static IDictionary<FileStatus, Action<RepositoryStatus, string>> Build()
+        {
+            return new Dictionary<FileStatus, Action<RepositoryStatus, string>>
+                       {
+                           { FileStatus.Untracked, (rs, s) => rs.untracked.Add(s) },
+                           { FileStatus.Modified, (rs, s) => rs.modified.Add(s) },
+                           { FileStatus.Missing, (rs, s) => rs.missing.Add(s) },
+                           { FileStatus.Added, (rs, s) => rs.added.Add(s) },
+                           { FileStatus.Staged, (rs, s) => rs.staged.Add(s) },
+                           { FileStatus.Removed, (rs, s) => rs.removed.Add(s) },
+                       };
+        }
+
+        internal RepositoryStatus(RepositorySafeHandle handle)
+        {
+            callback = new NativeMethods.status_callback(StateChanged);
+            Process(handle);
+            isDirty = statusEntries.Count != 0;
+        }
+
+        private void Process(RepositorySafeHandle handle)
+        {
+            int res = NativeMethods.git_status_foreach(handle, callback, IntPtr.Zero);
+            Ensure.Success(res);
+        }
+
+        private int StateChanged(string filePath, uint state, IntPtr payload)
+        {
+            var gitStatus = (FileStatus)state;
+            statusEntries.Add(new StatusEntry(filePath, gitStatus));
+
+            foreach (KeyValuePair<FileStatus, Action<RepositoryStatus, string>> kvp in dispatcher)
+            {
+                if ((gitStatus & kvp.Key) != kvp.Key)
+                {
+                    continue;
+                }
+
+                kvp.Value(this, filePath);
+            }
+
+            return 0;
+        }
+
+        /// <summary>
+        ///   Returns an enumerator that iterates through the collection.
+        /// </summary>
+        /// <returns>An <see cref = "IEnumerator{T}" /> object that can be used to iterate through the collection.</returns>
+        public IEnumerator<StatusEntry> GetEnumerator()
+        {
+            return statusEntries.GetEnumerator();
+        }
+
+        /// <summary>
+        ///   Returns an enumerator that iterates through the collection.
+        /// </summary>
+        /// <returns>An <see cref = "IEnumerator" /> object that can be used to iterate through the collection.</returns>
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
+        /// <summary>
+        ///   List of files added to the index, which are not in the current commit
+        /// </summary>
+        public IEnumerable<string> Added
+        {
+            get { return added; }
+        }
+
+        /// <summary>
+        ///   List of files added to the index, which are already in the current commit with different content
+        /// </summary>
+        public IEnumerable<string> Staged
+        {
+            get { return staged; }
+        }
+
+        /// <summary>
+        ///   List of files removed from the index but are existent in the current commit
+        /// </summary>
+        public IEnumerable<string> Removed
+        {
+            get { return removed; }
+        }
+
+        /// <summary>
+        ///   List of files existent in the index but are missing in the working directory
+        /// </summary>
+        public IEnumerable<string> Missing
+        {
+            get { return missing; }
+        }
+
+        /// <summary>
+        ///   List of files with unstaged modifications. A file may be modified and staged at the same time if it has been modified after adding.
+        /// </summary>
+        public IEnumerable<string> Modified
+        {
+            get { return modified; }
+        }
+
+        /// <summary>
+        ///   List of files existing in the working directory but are neither tracked in the index nor in the current commit.
+        /// </summary>
+        public IEnumerable<string> Untracked
+        {
+            get { return untracked; }
+        }
+
+        /// <summary>
+        ///   True if the index or the working directory has been altered since the last commit. False otherwise.
+        /// </summary>
+        public bool IsDirty
+        {
+            get { return isDirty; }
+        }
+    }
+}
