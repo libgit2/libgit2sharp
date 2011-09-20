@@ -275,6 +275,12 @@ namespace LibGit2Sharp
             var buffer = new byte[4096];
 
             int result = NativeMethods.git_repository_discover(buffer, buffer.Length, PosixPathHelper.ToPosix(startingPath), false, null);
+
+            if ((GitErrorCode)result == GitErrorCode.GIT_ENOTAREPO)
+            {
+                return null;
+            }
+
             Ensure.Success(result);
 
             int nullTerminator;
