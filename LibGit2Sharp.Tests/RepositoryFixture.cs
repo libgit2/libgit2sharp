@@ -331,5 +331,18 @@ namespace LibGit2Sharp.Tests
             string path = Repository.Discover(Constants.StandardTestRepoWorkingDirPath);
             path.ShouldEqual(Path.GetFullPath(Constants.StandardTestRepoPath + Path.DirectorySeparatorChar));
         }
+
+        [Test]
+        public void DiscoverReturnsNullWhenNoRepoCanBeFound()
+        {
+            string path = Path.GetTempFileName();
+            string suffix = "." + Guid.NewGuid().ToString().Substring(0, 7);
+
+            SelfCleaningDirectory scd = BuildSelfCleaningDirectory(path + suffix);
+            Directory.CreateDirectory(scd.RootedDirectoryPath);
+            Repository.Discover(scd.RootedDirectoryPath).ShouldBeNull();
+
+            File.Delete(path);
+        }
     }
 }
