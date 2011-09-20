@@ -308,7 +308,6 @@ namespace LibGit2Sharp.Tests
             {
                 var commit = repo.Lookup<Commit>(sha);
                 commit.Message.ShouldEqual("testing\n");
-                commit.MessageShort.ShouldEqual("testing");
                 commit.Sha.ShouldEqual(sha);
             }
         }
@@ -324,7 +323,7 @@ namespace LibGit2Sharp.Tests
 
                 var commit = (Commit)obj;
                 commit.Message.ShouldEqual("testing\n");
-                commit.MessageShort.ShouldEqual("testing");
+                commit.Encoding.ShouldEqual("UTF-8");
                 commit.Sha.ShouldEqual(sha);
 
                 commit.Author.ShouldNotBeNull();

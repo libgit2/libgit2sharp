@@ -14,7 +14,8 @@ namespace LibGit2Sharp
         private readonly Lazy<IEnumerable<Commit>> parents;
         private readonly Lazy<Tree> tree;
 
-        internal Commit(ObjectId id, ObjectId treeId, Repository repo) : base(id)
+        internal Commit(ObjectId id, ObjectId treeId, Repository repo)
+            : base(id)
         {
             tree = new Lazy<Tree>(() => repo.Lookup<Tree>(treeId));
             parents = new Lazy<IEnumerable<Commit>>(() => RetrieveParentsOfCommit(id.Oid));
@@ -27,9 +28,9 @@ namespace LibGit2Sharp
         public string Message { get; private set; }
 
         /// <summary>
-        ///   Gets the short commit message which is usually the first line of the commit.
+        ///   Gets the encoding of the message.
         /// </summary>
-        public string MessageShort { get; private set; }
+        public string Encoding { get; private set; }
 
         /// <summary>
         ///   Gets the author of this commit.
@@ -93,10 +94,17 @@ namespace LibGit2Sharp
             return new Commit(id, treeId, repo)
                        {
                            Message = NativeMethods.git_commit_message(obj).MarshallAsString(),
-                           MessageShort = NativeMethods.git_commit_message_short(obj).MarshallAsString(),
+                           Encoding = RetrieveEncodingOf(obj),
                            Author = new Signature(NativeMethods.git_commit_author(obj)),
                            Committer = new Signature(NativeMethods.git_commit_committer(obj)),
                        };
+        }
+
+        private static string RetrieveEncodingOf(IntPtr obj)
+        {
+            string encoding = NativeMethods.git_commit_message_encoding(obj).MarshallAsString();
+
+            return encoding ?? "UTF-8";
         }
     }
 }
