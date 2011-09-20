@@ -44,10 +44,10 @@ namespace LibGit2Sharp.Core
             var length = (int)(walk - (byte*)pNativeData);
 
             // should not be null terminated
-            var strbuf = new byte[length - 1];
+            var strbuf = new byte[length];
 
             // skip the trailing null
-            Marshal.Copy(pNativeData, strbuf, 0, length - 1);
+            Marshal.Copy(pNativeData, strbuf, 0, length);
             string data = Encoding.UTF8.GetString(strbuf);
             return data;
         }
