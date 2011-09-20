@@ -134,6 +134,8 @@ namespace LibGit2Sharp
         {
             GitOid treeOid;
             int res = NativeMethods.git_tree_create_fromindex(out treeOid, repo.Index.Handle);
+            string encoding = null;
+
             Ensure.Success(res);
 
             Reference head = repo.Refs["HEAD"];
@@ -144,7 +146,7 @@ namespace LibGit2Sharp
             {
                 IntPtr[] parentPtrs = BuildArrayFrom(headPtr);
                 res = NativeMethods.git_commit_create(out commitOid, repo.Handle, head.CanonicalName, author.Handle,
-                                                      committer.Handle, message, treePtr.ObjectPtr, parentPtrs.Count(), parentPtrs);
+                                                      committer.Handle, encoding, message, treePtr.ObjectPtr, parentPtrs.Count(), parentPtrs);
             }
             Ensure.Success(res);
 

@@ -26,6 +26,7 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string updateRef,
             GitSignature author,
             GitSignature committer,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string encoding,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string message,
             IntPtr tree,
             int parentCount,
@@ -35,7 +36,7 @@ namespace LibGit2Sharp.Core
         public static extern IntPtr git_commit_message(IntPtr commit);
 
         [DllImport(libgit2)]
-        public static extern IntPtr git_commit_message_short(IntPtr commit);
+        public static extern IntPtr git_commit_message_encoding(IntPtr commit);
 
         [DllImport(libgit2)]
         public static extern int git_commit_parent(out IntPtr parentCommit, IntPtr commit, uint n);
@@ -223,7 +224,8 @@ namespace LibGit2Sharp.Core
         public static extern void git_signature_free(IntPtr signature);
 
         [DllImport(libgit2)]
-        public static extern IntPtr git_signature_new(
+        public static extern int git_signature_new(
+            out IntPtr signature,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string name,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string email,
             long time,
