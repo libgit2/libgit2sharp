@@ -222,7 +222,16 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
-        public void DeletingBranchWithBadParamsThrows()
+        public void DeletingABranchWhichIsTheCurrentHeadThrows()
+        {
+            using (var repo = new Repository(Constants.BareTestRepoPath))
+            {
+                Assert.Throws<LibGit2Exception>(() => repo.Branches.Delete(repo.Head.Name));
+            }
+        }
+
+        [Test]
+        public void DeletingABranchWithBadParamsThrows()
         {
             using (var path = new TemporaryCloneOfTestRepo())
             using (var repo = new Repository(path.RepositoryPath))

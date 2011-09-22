@@ -100,7 +100,14 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
 
-            repo.Refs.Delete(NormalizeToCanonicalName(name)); //TODO: To be replaced by native libgit2 git_branch_delete() when available.
+            var canonicalName = NormalizeToCanonicalName(name);
+
+            if (canonicalName == repo.Head.CanonicalName)
+            {
+                throw new LibGit2Exception(string.Format("Branch '{0}' can not be deleted as it is the current HEAD.", canonicalName));
+            }
+
+            repo.Refs.Delete(canonicalName); //TODO: To be replaced by native libgit2 git_branch_delete() when available.
         }
 
         ///<summary>
