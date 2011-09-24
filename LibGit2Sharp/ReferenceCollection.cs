@@ -189,6 +189,7 @@ namespace LibGit2Sharp
                     GitOid oid = id.Oid;
                     res = NativeMethods.git_reference_set_oid(reference, ref oid);
                     break;
+
                 case GitReferenceType.Symbolic:
                     if (isObjectIdentifier)
                     {
@@ -196,8 +197,9 @@ namespace LibGit2Sharp
                     }
                     res = NativeMethods.git_reference_set_target(reference, target);
                     break;
+
                 default:
-                    throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "Reference '{0}' has an un unexpected type ('{1}').", name, Enum.GetName(typeof(GitReferenceType), type)));
+                    throw new LibGit2Exception(string.Format(CultureInfo.InvariantCulture, "Reference '{0}' has an unexpected type ('{1}').", name, Enum.GetName(typeof(GitReferenceType), type)));
             }
 
             Ensure.Success(res);

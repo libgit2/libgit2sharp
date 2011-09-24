@@ -131,7 +131,7 @@ namespace LibGit2Sharp
 
             if (objectToTag == null)
             {
-                throw new ApplicationException(String.Format(CultureInfo.InvariantCulture, "No object identified by '{0}' can be found in the repository.", target));
+                throw new LibGit2Exception(String.Format(CultureInfo.InvariantCulture, "No object identified by '{0}' can be found in the repository.", target));
             }
 
             return objectToTag;

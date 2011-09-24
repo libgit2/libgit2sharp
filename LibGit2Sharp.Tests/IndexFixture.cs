@@ -277,7 +277,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(Constants.StandardTestRepoPath))
             {
-                Assert.Throws<ApplicationException>(() => repo.Index.Unstage("shadowcopy_of_a_unseen_ghost.txt"));
+                Assert.Throws<LibGit2Exception>(() => repo.Index.Unstage("shadowcopy_of_a_unseen_ghost.txt"));
             }
         }
 

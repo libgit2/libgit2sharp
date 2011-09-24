@@ -193,15 +193,7 @@ namespace LibGit2Sharp
 
             public Commit Current
             {
-                get
-                {
-                    if (currentOid == null)
-                    {
-                        throw new InvalidOperationException();
-                    }
-
-                    return repo.Lookup<Commit>(currentOid);
-                }
+                get { return repo.Lookup<Commit>(currentOid); }
             }
 
             object IEnumerator.Current
@@ -300,9 +292,9 @@ namespace LibGit2Sharp
                     return;
                 }
 
-                throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture,
-                                                                  "No valid git object pointed at by '{0}' exists in the repository.",
-                                                                  shaOrReferenceName));
+                throw new LibGit2Exception(string.Format(CultureInfo.InvariantCulture,
+                                                         "No valid git object pointed at by '{0}' exists in the repository.",
+                                                         shaOrReferenceName));
             }
 
             private ObjectId DereferenceToCommit(string identifier)
@@ -319,7 +311,9 @@ namespace LibGit2Sharp
                     return DereferenceToCommit(((TagAnnotation)obj).Target.Sha);
                 }
 
-                throw new InvalidOperationException();
+                throw new LibGit2Exception(string.Format(CultureInfo.InvariantCulture,
+                                                         "The Git object pointed at by '{0}' can not be dereferenced to a commit.",
+                                                         identifier));
             }
 
             private IEnumerable<ObjectId> RetrieveCommitOids(object identifier)
@@ -384,7 +378,7 @@ namespace LibGit2Sharp
                     yield break;
                 }
 
-                throw new InvalidOperationException(string.Format("Unexpected kind of identifier '{0}'.", identifier));
+                throw new LibGit2Exception(string.Format(CultureInfo.InvariantCulture, "Unexpected kind of identifier '{0}'.", identifier));
             }
         }
     }

@@ -7,7 +7,6 @@
  - Turn duplicated strings "refs/xxx" into properties of a generic Constants helper type
  - Refactor the error handling (OutputResult -> Exceptions)
  - Launch Code Analysis (Issues related to interop and marshaling will be worked on once we're able to succesffully exchange non ascii encoded data with libgit2)
- - Remove usage of ApplicationException
  - https://bugzilla.novell.com/show_bug.cgi?id=566247 prevents MonoDevelop users from benefiting from optional parameters while still target at 3.5
  - https://bugzilla.novell.com/show_bug.cgi?id=324680 generates false-positive warnings regarding xml documentation when LibGit2Sharp is built with xbuild
  - The freeing of a newly created signature pointer doesn't "feel" to be done at the right place.

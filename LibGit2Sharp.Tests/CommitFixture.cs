@@ -97,8 +97,8 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(Constants.BareTestRepoPath))
             {
-                Assert.Throws<InvalidOperationException>(() => repo.Commits.QueryBy(new Filter { Since = Constants.UnknownSha }).Count());
-                Assert.Throws<InvalidOperationException>(() => repo.Commits.QueryBy(new Filter { Since = "refs/heads/deadbeef" }).Count());
+                Assert.Throws<LibGit2Exception>(() => repo.Commits.QueryBy(new Filter { Since = Constants.UnknownSha }).Count());
+                Assert.Throws<LibGit2Exception>(() => repo.Commits.QueryBy(new Filter { Since = "refs/heads/deadbeef" }).Count());
                 Assert.Throws<ArgumentNullException>(() => repo.Commits.QueryBy(new Filter { Since = null }).Count());
             }
         }
@@ -111,8 +111,8 @@ namespace LibGit2Sharp.Tests
             {
                 CreateCorruptedDeadBeefHead(repo.Info.Path);
 
-                Assert.Throws<InvalidOperationException>(() => repo.Commits.QueryBy(new Filter { Since = repo.Branches["deadbeef"] }).Count());
-                Assert.Throws<InvalidOperationException>(() => repo.Commits.QueryBy(new Filter { Since = repo.Refs["refs/heads/deadbeef"] }).Count());
+                Assert.Throws<LibGit2Exception>(() => repo.Commits.QueryBy(new Filter { Since = repo.Branches["deadbeef"] }).Count());
+                Assert.Throws<LibGit2Exception>(() => repo.Commits.QueryBy(new Filter { Since = repo.Refs["refs/heads/deadbeef"] }).Count());
             }
         }
 

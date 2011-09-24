@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Runtime.InteropServices;
 using LibGit2Sharp.Core;
 
@@ -60,7 +61,7 @@ namespace LibGit2Sharp
                     case GitObjectType.Blob:
                         return Blob.BuildFromPtr(obj, id, repo);
                     default:
-                        throw new InvalidOperationException(string.Format("Unexpected type '{0}' for object '{1}'.", type, id));
+                        throw new LibGit2Exception(string.Format(CultureInfo.InvariantCulture, "Unexpected type '{0}' for object '{1}'.", type, id));
                 }
             }
             finally

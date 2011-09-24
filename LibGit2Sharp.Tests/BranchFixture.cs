@@ -193,8 +193,8 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(Constants.BareTestRepoPath))
             {
-                Assert.Throws<ApplicationException>(() => repo.Branches.Create("my_new_branch", Constants.UnknownSha));
-                Assert.Throws<ApplicationException>(() => repo.Branches.Create("my_new_branch", Constants.UnknownSha.Substring(0, 7)));
+                Assert.Throws<LibGit2Exception>(() => repo.Branches.Create("my_new_branch", Constants.UnknownSha));
+                Assert.Throws<LibGit2Exception>(() => repo.Branches.Create("my_new_branch", Constants.UnknownSha.Substring(0, 7)));
             }
         }
 
@@ -300,7 +300,7 @@ namespace LibGit2Sharp.Tests
             using (var path = new TemporaryCloneOfTestRepo())
             using (var repo = new Repository(path.RepositoryPath))
             {
-                Assert.Throws<ApplicationException>(() => repo.Branches.Move("br2", "test"));
+                Assert.Throws<LibGit2Exception>(() => repo.Branches.Move("br2", "test"));
             }
         }
 

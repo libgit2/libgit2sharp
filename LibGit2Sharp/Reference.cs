@@ -62,7 +62,7 @@ namespace LibGit2Sharp
                     break;
 
                 default:
-                    throw new InvalidOperationException();
+                    throw new LibGit2Exception(String.Format(CultureInfo.InvariantCulture, "Unable to build a new reference from a type '{0}'.", Enum.GetName(typeof(GitReferenceType), type)));
             }
 
             if (typeof(Reference).IsAssignableFrom(typeof(T)))
@@ -82,7 +82,7 @@ namespace LibGit2Sharp
                 return new Branch(reference.CanonicalName, targetOid, repo) as T;
             }
 
-            throw new InvalidOperationException(
+            throw new LibGit2Exception(
                 string.Format(CultureInfo.InvariantCulture, "Unable to build a new instance of '{0}' from a reference of type '{1}'.",
                               typeof(T),
                               Enum.GetName(typeof(GitReferenceType), type)));

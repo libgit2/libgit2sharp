@@ -139,7 +139,7 @@ namespace LibGit2Sharp.Tests
         [Test]
         public void OpeningNonExistentRepoThrows()
         {
-            Assert.Throws<ApplicationException>(() => { new Repository("a_bad_path"); });
+            Assert.Throws<LibGit2Exception>(() => { new Repository("a_bad_path"); });
         }
 
         [Test]

@@ -58,7 +58,7 @@ namespace LibGit2Sharp.Tests
             using (var path = new TemporaryCloneOfTestRepo())
             using (var repo = new Repository(path.RepositoryPath))
             {
-                Assert.Throws<ApplicationException>(() => repo.Refs.Create("refs/heads/master", "be3563ae3f795b2b4353bcce3a527ad0a4f7f644"));
+                Assert.Throws<LibGit2Exception>(() => repo.Refs.Create("refs/heads/master", "be3563ae3f795b2b4353bcce3a527ad0a4f7f644"));
             }
         }
 
@@ -68,7 +68,7 @@ namespace LibGit2Sharp.Tests
             using (var path = new TemporaryCloneOfTestRepo())
             using (var repo = new Repository(path.RepositoryPath))
             {
-                Assert.Throws<ApplicationException>(() => repo.Refs.Create("HEAD", "refs/head/br2"));
+                Assert.Throws<LibGit2Exception>(() => repo.Refs.Create("HEAD", "refs/head/br2"));
             }
         }
 
@@ -430,7 +430,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(Constants.BareTestRepoPath))
             {
-                Assert.Throws<ApplicationException>(() => repo.Refs.Move("refs/tags/i-am-void", "refs/atic/tagtest"));
+                Assert.Throws<LibGit2Exception>(() => repo.Refs.Move("refs/tags/i-am-void", "refs/atic/tagtest"));
             }
         }
 
@@ -455,7 +455,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(Constants.BareTestRepoPath))
             {
-                Assert.Throws<ApplicationException>(() => repo.Refs.Move("refs/heads/packed", "refs/heads/br2"));
+                Assert.Throws<LibGit2Exception>(() => repo.Refs.Move("refs/heads/packed", "refs/heads/br2"));
             }
         }
 
