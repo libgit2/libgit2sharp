@@ -245,7 +245,7 @@ namespace LibGit2Sharp
 
             private void InternalHidePush(IList<object> identifier, HidePushSignature hidePush)
             {
-                IEnumerable<ObjectId> oids = RetrieveCommitOids(identifier);
+                IEnumerable<ObjectId> oids = RetrieveCommitOids(identifier).TakeWhile(o => o != null);
 
                 foreach (ObjectId actedOn in oids)
                 {
@@ -309,6 +309,11 @@ namespace LibGit2Sharp
                 if (obj is TagAnnotation)
                 {
                     return DereferenceToCommit(((TagAnnotation)obj).Target.Sha);
+                }
+
+                if (obj is Blob || obj is Tree)
+                {
+                    return null;
                 }
 
                 throw new LibGit2Exception(string.Format(CultureInfo.InvariantCulture,

@@ -281,6 +281,14 @@ namespace LibGit2Sharp.Tests
                     });
         }
 
+        [Test]
+        public void CanEnumerateCommitsFromATagWhichDoesNotPointAtACommit()
+        {
+            AssertEnumerationOfCommits(
+                repo => new Filter { Since = repo.Tags["point_to_blob"] },
+                new string[] { });
+        }
+
         private static void AssertEnumerationOfCommits(Func<Repository, Filter> filterBuilder, IEnumerable<string> abbrevIds)
         {
             using (var repo = new Repository(Constants.BareTestRepoPath))

@@ -10,7 +10,7 @@ namespace LibGit2Sharp.Tests
     [TestFixture]
     public class TagFixture : BaseFixture
     {
-        private readonly List<string> expectedTags = new List<string> { "test", "e90810b", "lw" };
+        private readonly List<string> expectedTags = new List<string> { "test", "e90810b", "lw", "point_to_blob" };
 
         private static readonly Signature signatureTim = new Signature("Tim Clem", "timothy.clem@gmail.com", DateTimeOffset.UtcNow);
         private static readonly Signature signatureNtk = new Signature("nulltoken", "emeric.fermas@gmail.com", Epoch.ToDateTimeOffset(1300557894, 60));
@@ -523,7 +523,7 @@ namespace LibGit2Sharp.Tests
                 {
                     expectedTags.Contains(tag.Name).ShouldBeTrue();
                 }
-                repo.Tags.Count().ShouldEqual(3);
+                repo.Tags.Count().ShouldEqual(4);
             }
         }
 
