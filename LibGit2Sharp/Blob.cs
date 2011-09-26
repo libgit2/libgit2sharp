@@ -40,7 +40,7 @@ namespace LibGit2Sharp
                     IntPtr ptr = NativeMethods.git_blob_rawcontent(obj.ObjectPtr);
                     unsafe
                     {
-                        return new UnmanagedMemoryStream((byte*) ptr.ToPointer(), Size);
+                        return new UnmanagedMemoryStream((byte*)ptr.ToPointer(), Size);
                     }
                 }
             }

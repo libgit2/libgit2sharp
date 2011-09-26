@@ -14,48 +14,44 @@ namespace LibGit2Sharp.Tests
         [Test]
         public void CanCreateBareRepo()
         {
-            using (var scd = new SelfCleaningDirectory())
+            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            string dir = Repository.Init(scd.DirectoryPath, true);
+            Path.IsPathRooted(dir).ShouldBeTrue();
+            Directory.Exists(dir).ShouldBeTrue();
+            CheckGitConfigFile(dir);
+
+            using (var repo = new Repository(dir))
             {
-                var dir = Repository.Init(scd.DirectoryPath, true);
-                Path.IsPathRooted(dir).ShouldBeTrue();
-                Directory.Exists(dir).ShouldBeTrue();
-                CheckGitConfigFile(dir);
+                repo.Info.WorkingDirectory.ShouldBeNull();
+                repo.Info.Path.ShouldEqual(scd.RootedDirectoryPath + Path.DirectorySeparatorChar);
+                repo.Info.IsBare.ShouldBeTrue();
 
-                using (var repo = new Repository(dir))
-                {
-                    repo.Info.WorkingDirectory.ShouldBeNull();
-                    repo.Info.Path.ShouldEqual(scd.RootedDirectoryPath + Path.DirectorySeparatorChar);
-                    repo.Info.IsBare.ShouldBeTrue();
-
-                    AssertInitializedRepository(repo);
-                }
+                AssertInitializedRepository(repo);
             }
         }
 
         [Test]
         public void CanCreateStandardRepo()
         {
-            using (var scd = new SelfCleaningDirectory())
+            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            string dir = Repository.Init(scd.DirectoryPath);
+            Path.IsPathRooted(dir).ShouldBeTrue();
+            Directory.Exists(dir).ShouldBeTrue();
+            CheckGitConfigFile(dir);
+
+            using (var repo = new Repository(dir))
             {
-                var dir = Repository.Init(scd.DirectoryPath);
-                Path.IsPathRooted(dir).ShouldBeTrue();
-                Directory.Exists(dir).ShouldBeTrue();
-                CheckGitConfigFile(dir);
+                repo.Info.WorkingDirectory.ShouldNotBeNull();
+                repo.Info.Path.ShouldEqual(Path.Combine(scd.RootedDirectoryPath, ".git" + Path.DirectorySeparatorChar));
+                repo.Info.IsBare.ShouldBeFalse();
 
-                using (var repo = new Repository(dir))
-                {
-                    repo.Info.WorkingDirectory.ShouldNotBeNull();
-                    repo.Info.Path.ShouldEqual(Path.Combine(scd.RootedDirectoryPath, ".git" + Path.DirectorySeparatorChar));
-                    repo.Info.IsBare.ShouldBeFalse();
+                AssertIsHidden(repo.Info.Path);
 
-                    AssertIsHidden(repo.Info.Path);
-
-                    AssertInitializedRepository(repo);
-                }
+                AssertInitializedRepository(repo);
             }
         }
 
-        private void CheckGitConfigFile(string dir)
+        private static void CheckGitConfigFile(string dir)
         {
             string configFilePath = Path.Combine(dir, "config");
             File.Exists(configFilePath).ShouldBeTrue();
@@ -66,7 +62,7 @@ namespace LibGit2Sharp.Tests
 
         private static void AssertIsHidden(string repoPath)
         {
-            var attribs = File.GetAttributes(repoPath);
+            FileAttributes attribs = File.GetAttributes(repoPath);
 
             (attribs & FileAttributes.Hidden).ShouldEqual(FileAttributes.Hidden);
         }
@@ -84,7 +80,7 @@ namespace LibGit2Sharp.Tests
             repo.Info.IsEmpty.ShouldBeTrue();
             repo.Info.IsHeadDetached.ShouldBeFalse();
 
-            var headRef = repo.Refs["HEAD"];
+            Reference headRef = repo.Refs["HEAD"];
             headRef.ShouldNotBeNull();
             headRef.TargetIdentifier.ShouldEqual("refs/heads/master");
             headRef.ResolveToDirectReference().ShouldBeNull();
@@ -103,11 +99,10 @@ namespace LibGit2Sharp.Tests
             repo.Tags.Count().ShouldEqual(0);
         }
 
-
         [Test]
         public void CanOpenRepoWithFullPath()
         {
-            var path = Path.GetFullPath(Constants.BareTestRepoPath);
+            string path = Path.GetFullPath(Constants.BareTestRepoPath);
             using (var repo = new Repository(path))
             {
                 repo.ShouldNotBeNull();
@@ -140,7 +135,7 @@ namespace LibGit2Sharp.Tests
         [Test]
         public void OpeningNonExistentRepoThrows()
         {
-            Assert.Throws<ApplicationException>(() => { new Repository("a_bad_path"); });
+            Assert.Throws<LibGit2Exception>(() => { new Repository("a_bad_path"); });
         }
 
         [Test]
@@ -155,7 +150,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(Constants.BareTestRepoPath))
             {
-                var gitObject = repo.Lookup("refs/heads/master");
+                GitObject gitObject = repo.Lookup("refs/heads/master");
                 gitObject.ShouldNotBeNull();
                 Assert.IsInstanceOf<Commit>(gitObject);
             }
@@ -166,7 +161,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(Constants.BareTestRepoPath))
             {
-                var gitObject = repo.Lookup("refs/tags/lw");
+                GitObject gitObject = repo.Lookup("refs/tags/lw");
                 gitObject.ShouldNotBeNull();
                 Assert.IsInstanceOf<Commit>(gitObject);
             }
@@ -177,7 +172,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(Constants.BareTestRepoPath))
             {
-                var gitObject = repo.Lookup("refs/tags/e90810b");
+                GitObject gitObject = repo.Lookup("refs/tags/e90810b");
                 gitObject.ShouldNotBeNull();
                 Assert.IsInstanceOf<TagAnnotation>(gitObject);
             }
@@ -199,8 +194,8 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(Constants.BareTestRepoPath))
             {
-                var commit = repo.Lookup(commitSha);
-                var commit2 = repo.Lookup(commitSha);
+                GitObject commit = repo.Lookup(commitSha);
+                GitObject commit2 = repo.Lookup(commitSha);
                 commit.Equals(commit2).ShouldBeTrue();
                 commit.GetHashCode().ShouldEqual(commit2.GetHashCode());
             }
@@ -243,28 +238,26 @@ namespace LibGit2Sharp.Tests
             const string expectedAbbrevSha = "edfecad";
             const string expectedSha = expectedAbbrevSha + "02d96c9dbf64f6e238c45ddcfa762eef0";
 
-            using (var scd = new SelfCleaningDirectory())
+            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            string dir = Repository.Init(scd.DirectoryPath);
+
+            using (var repo = new Repository(dir))
             {
-                var dir = Repository.Init(scd.DirectoryPath);
+                string filePath = Path.Combine(repo.Info.WorkingDirectory, "new.txt");
 
-                using (var repo = new Repository(dir))
-                {
-                    string filePath = Path.Combine(repo.Info.WorkingDirectory, "new.txt");
+                File.WriteAllText(filePath, "one ");
+                repo.Index.Stage(filePath);
 
-                    File.WriteAllText(filePath, "one ");
-                    repo.Index.Stage(filePath);
+                Signature author = Constants.Signature;
+                Commit commit = repo.Commit(author, author, "Initial commit");
 
-                    var author = Constants.Signature;
-                    var commit = repo.Commit(author, author, "Initial commit");
+                commit.Sha.ShouldEqual(expectedSha);
 
-                    commit.Sha.ShouldEqual(expectedSha);
+                GitObject lookedUp1 = repo.Lookup(expectedSha);
+                lookedUp1.ShouldEqual(commit);
 
-                    var lookedUp1 = repo.Lookup(expectedSha);
-                    lookedUp1.ShouldEqual(commit);
-
-                    var lookedUp2 = repo.Lookup(expectedAbbrevSha);
-                    lookedUp2.ShouldEqual(commit);
-                }
+                GitObject lookedUp2 = repo.Lookup(expectedAbbrevSha);
+                lookedUp2.ShouldEqual(commit);
             }
         }
 

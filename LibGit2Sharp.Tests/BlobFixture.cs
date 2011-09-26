@@ -15,7 +15,7 @@ namespace LibGit2Sharp.Tests
             {
                 var blob = repo.Lookup<Blob>("a8233120f6ad708f843d861ce2b7228ec4e3dec6");
 
-                var text = blob.ContentAsUtf8();
+                string text = blob.ContentAsUtf8();
                 text.ShouldEqual("hey there\n");
             }
         }
@@ -46,10 +46,10 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(Constants.BareTestRepoPath))
             {
                 var blob = repo.Lookup<Blob>("a8233120f6ad708f843d861ce2b7228ec4e3dec6");
-                var bytes = blob.Content;
+                byte[] bytes = blob.Content;
                 bytes.Length.ShouldEqual(10);
 
-                var content = Encoding.UTF8.GetString(bytes);
+                string content = Encoding.UTF8.GetString(bytes);
                 content.ShouldEqual("hey there\n");
             }
         }
@@ -63,7 +63,7 @@ namespace LibGit2Sharp.Tests
 
                 using (var tr = new StreamReader(blob.ContentStream, Encoding.UTF8))
                 {
-                    var content = tr.ReadToEnd();
+                    string content = tr.ReadToEnd();
                     content.ShouldEqual("hey there\n");
                 }
             }

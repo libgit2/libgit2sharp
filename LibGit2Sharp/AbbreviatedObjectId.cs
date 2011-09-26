@@ -17,6 +17,9 @@ namespace LibGit2Sharp
 
         public int Length { get; private set; }
 
-        public override string Sha { get { return base.Sha.Substring(0, Length); } }
+        public override string Sha
+        {
+            get { return base.Sha.Substring(0, Length); }
+        }
     }
 }

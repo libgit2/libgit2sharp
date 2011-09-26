@@ -52,7 +52,7 @@ namespace LibGit2Sharp
                     break;
 
                 case GitReferenceType.Oid:
-                    var oidPtr = NativeMethods.git_reference_oid(ptr);
+                    IntPtr oidPtr = NativeMethods.git_reference_oid(ptr);
                     var oid = (GitOid)Marshal.PtrToStructure(oidPtr, typeof(GitOid));
                     var targetId = new ObjectId(oid);
                     targetIdentifier = targetId.Sha;
@@ -62,7 +62,7 @@ namespace LibGit2Sharp
                     break;
 
                 default:
-                    throw new InvalidOperationException();
+                    throw new LibGit2Exception(String.Format(CultureInfo.InvariantCulture, "Unable to build a new reference from a type '{0}'.", Enum.GetName(typeof(GitReferenceType), type)));
             }
 
             if (typeof(Reference).IsAssignableFrom(typeof(T)))
@@ -82,7 +82,7 @@ namespace LibGit2Sharp
                 return new Branch(reference.CanonicalName, targetOid, repo) as T;
             }
 
-            throw new InvalidOperationException(
+            throw new LibGit2Exception(
                 string.Format(CultureInfo.InvariantCulture, "Unable to build a new instance of '{0}' from a reference of type '{1}'.",
                               typeof(T),
                               Enum.GetName(typeof(GitReferenceType), type)));
@@ -91,40 +91,41 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Recursively peels the target of the reference until a direct reference is encountered.
         /// </summary>
-        /// <returns>The <see cref="DirectReference"/> this <see cref="Reference"/> points to.</returns>
+        /// <returns>The <see cref = "DirectReference" /> this <see cref = "Reference" /> points to.</returns>
         public abstract DirectReference ResolveToDirectReference();
 
         /// <summary>
-        /// Gets the target declared by the reference.
-        /// <para>
-        /// If this reference is a <see cref="SymbolicReference"/>, returns the canonical name of the target.
-        /// Otherwise, if this reference is a <see cref="DirectReference"/>, returns the sha of the target.
-        /// </para>
+        ///   Gets the target declared by the reference.
+        ///   <para>
+        ///     If this reference is a <see cref = "SymbolicReference" />, returns the canonical name of the target.
+        ///     Otherwise, if this reference is a <see cref = "DirectReference" />, returns the sha of the target.
+        ///   </para>
         /// </summary>
-        public string TargetIdentifier { get; private set; }    //TODO: Maybe find a better name for this property.
+        // TODO: Maybe find a better name for this property.
+        public string TargetIdentifier { get; private set; }
 
         /// <summary>
-        /// Determines whether the specified <see cref="Object"/> is equal to the current <see cref="Reference"/>.
+        ///   Determines whether the specified <see cref = "Object" /> is equal to the current <see cref = "Reference" />.
         /// </summary>
-        /// <param name="obj">The <see cref="Object"/> to compare with the current <see cref="Reference"/>.</param>
-        /// <returns>True if the specified <see cref="Object"/> is equal to the current <see cref="Reference"/>; otherwise, false.</returns>
+        /// <param name = "obj">The <see cref = "Object" /> to compare with the current <see cref = "Reference" />.</param>
+        /// <returns>True if the specified <see cref = "Object" /> is equal to the current <see cref = "Reference" />; otherwise, false.</returns>
         public override bool Equals(object obj)
         {
             return Equals(obj as Reference);
         }
 
         /// <summary>
-        /// Determines whether the specified <see cref="Reference"/> is equal to the current <see cref="Reference"/>.
+        ///   Determines whether the specified <see cref = "Reference" /> is equal to the current <see cref = "Reference" />.
         /// </summary>
-        /// <param name="other">The <see cref="Reference"/> to compare with the current <see cref="Reference"/>.</param>
-        /// <returns>True if the specified <see cref="Reference"/> is equal to the current <see cref="Reference"/>; otherwise, false.</returns>
+        /// <param name = "other">The <see cref = "Reference" /> to compare with the current <see cref = "Reference" />.</param>
+        /// <returns>True if the specified <see cref = "Reference" /> is equal to the current <see cref = "Reference" />; otherwise, false.</returns>
         public bool Equals(Reference other)
         {
             return equalityHelper.Equals(this, other);
         }
 
         /// <summary>
-        /// Returns the hash code for this instance.
+        ///   Returns the hash code for this instance.
         /// </summary>
         /// <returns>A 32-bit signed integer hash code.</returns>
         public override int GetHashCode()
@@ -133,10 +134,10 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Tests if two <see cref="Reference"/> are equal.
+        ///   Tests if two <see cref = "Reference" /> are equal.
         /// </summary>
-        /// <param name="left">First <see cref="Reference"/> to compare.</param>
-        /// <param name="right">Second <see cref="Reference"/> to compare.</param>
+        /// <param name = "left">First <see cref = "Reference" /> to compare.</param>
+        /// <param name = "right">Second <see cref = "Reference" /> to compare.</param>
         /// <returns>True if the two objects are equal; false otherwise.</returns>
         public static bool operator ==(Reference left, Reference right)
         {
@@ -144,10 +145,10 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Tests if two <see cref="Reference"/> are different.
+        ///   Tests if two <see cref = "Reference" /> are different.
         /// </summary>
-        /// <param name="left">First <see cref="Reference"/> to compare.</param>
-        /// <param name="right">Second <see cref="Reference"/> to compare.</param>
+        /// <param name = "left">First <see cref = "Reference" /> to compare.</param>
+        /// <param name = "right">Second <see cref = "Reference" /> to compare.</param>
         /// <returns>True if the two objects are different; false otherwise.</returns>
         public static bool operator !=(Reference left, Reference right)
         {
@@ -155,9 +156,9 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///  Returns the <see cref="CanonicalName"/>, a <see cref="String"/> representation of the current <see cref="Reference"/>.
+        ///   Returns the <see cref = "CanonicalName" />, a <see cref = "String" /> representation of the current <see cref = "Reference" />.
         /// </summary>
-        /// <returns>The <see cref="CanonicalName"/> that represents the current <see cref="Reference"/>.</returns>
+        /// <returns>The <see cref = "CanonicalName" /> that represents the current <see cref = "Reference" />.</returns>
         public override string ToString()
         {
             return CanonicalName;

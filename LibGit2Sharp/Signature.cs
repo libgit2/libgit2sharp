@@ -28,7 +28,7 @@ namespace LibGit2Sharp
         /// <param name = "email">The email.</param>
         /// <param name = "when">The when.</param>
         public Signature(string name, string email, DateTimeOffset when)
-            : this(NativeMethods.git_signature_new(name, email, when.ToSecondsSinceEpoch(), (int) when.Offset.TotalMinutes), false)
+            : this(NativeMethods.git_signature_new(name, email, when.ToSecondsSinceEpoch(), (int)when.Offset.TotalMinutes), false)
         {
         }
 

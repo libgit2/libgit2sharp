@@ -18,8 +18,8 @@ namespace LibGit2Sharp
         private readonly GitSortOptions sortOptions;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref = "CommitCollection"/> class.
-        /// The commits will be enumerated according in reverse chronological order.
+        ///   Initializes a new instance of the <see cref = "CommitCollection" /> class.
+        ///   The commits will be enumerated according in reverse chronological order.
         /// </summary>
         /// <param name = "repo">The repository.</param>
         internal CommitCollection(Repository repo)
@@ -39,7 +39,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Gets the current sorting strategy applied when enumerating the collection
+        ///   Gets the current sorting strategy applied when enumerating the collection
         /// </summary>
         public GitSortOptions SortedBy
         {
@@ -49,9 +49,9 @@ namespace LibGit2Sharp
         #region IEnumerable<Commit> Members
 
         /// <summary>
-        /// Returns an enumerator that iterates through the collection.
+        ///   Returns an enumerator that iterates through the collection.
         /// </summary>
-        /// <returns>An <see cref="IEnumerator{T}"/> object that can be used to iterate through the collection.</returns>
+        /// <returns>An <see cref = "IEnumerator{T}" /> object that can be used to iterate through the collection.</returns>
         public IEnumerator<Commit> GetEnumerator()
         {
             if ((repo.Info.IsEmpty) && includedIdentifier.Any(o => PointsAtTheHead(o.ToString()))) // TODO: ToString() == fragile
@@ -63,9 +63,9 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Returns an enumerator that iterates through the collection.
+        ///   Returns an enumerator that iterates through the collection.
         /// </summary>
-        /// <returns>An <see cref="IEnumerator"/> object that can be used to iterate through the collection.</returns>
+        /// <returns>An <see cref = "IEnumerator" /> object that can be used to iterate through the collection.</returns>
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
@@ -74,9 +74,9 @@ namespace LibGit2Sharp
         #endregion
 
         /// <summary>
-        ///  Returns the list of commits of the repository matching the specified <paramref name="filter"/>.
+        ///   Returns the list of commits of the repository matching the specified <paramref name = "filter" />.
         /// </summary>
-        /// <param name="filter">The options used to control which commits will be returned.</param>
+        /// <param name = "filter">The options used to control which commits will be returned.</param>
         /// <returns>A collection of commits, ready to be enumerated.</returns>
         public ICommitCollection QueryBy(Filter filter)
         {
@@ -96,14 +96,16 @@ namespace LibGit2Sharp
             var list = new List<object>();
 
             if (obj == null)
+            {
                 return list;
+            }
 
             var types = new[]
                             {
-                                typeof (string), typeof (ObjectId), 
-                                typeof (Commit), typeof(TagAnnotation), 
-                                typeof (Tag), typeof (Branch), 
-                                typeof (Reference), typeof (DirectReference), typeof (SymbolicReference)
+                                typeof(string), typeof(ObjectId),
+                                typeof(Commit), typeof(TagAnnotation),
+                                typeof(Tag), typeof(Branch),
+                                typeof(Reference), typeof(DirectReference), typeof(SymbolicReference)
                             };
 
             if (types.Contains(obj.GetType()))
@@ -122,12 +124,12 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///  Stores the content of the <see cref="Repository.Index"/> as a new <see cref="Commit"/> into the repository.
+        ///   Stores the content of the <see cref = "Repository.Index" /> as a new <see cref = "Commit" /> into the repository.
         /// </summary>
-        /// <param name="author">The <see cref="Signature"/> of who made the change.</param>
-        /// <param name="committer">The <see cref="Signature"/> of who added the change to the repository.</param>
-        /// <param name="message">The description of why a change was made to the repository.</param>
-        /// <returns>The generated <see cref="Commit"/>.</returns>
+        /// <param name = "author">The <see cref = "Signature" /> of who made the change.</param>
+        /// <param name = "committer">The <see cref = "Signature" /> of who added the change to the repository.</param>
+        /// <param name = "message">The description of why a change was made to the repository.</param>
+        /// <returns>The generated <see cref = "Commit" />.</returns>
         public Commit Create(Signature author, Signature committer, string message)
         {
             GitOid treeOid;
@@ -138,11 +140,11 @@ namespace LibGit2Sharp
 
             GitOid commitOid;
             using (var treePtr = new ObjectSafeWrapper(new ObjectId(treeOid), repo))
-            using (var headPtr = RetrieveHeadCommitPtr(head))
+            using (ObjectSafeWrapper headPtr = RetrieveHeadCommitPtr(head))
             {
-                var parentPtrs = BuildArrayFrom(headPtr);
+                IntPtr[] parentPtrs = BuildArrayFrom(headPtr);
                 res = NativeMethods.git_commit_create(out commitOid, repo.Handle, head.CanonicalName, author.Handle,
-                                                  committer.Handle, message, treePtr.ObjectPtr, parentPtrs.Count(), parentPtrs);
+                                                      committer.Handle, message, treePtr.ObjectPtr, parentPtrs.Count(), parentPtrs);
             }
             Ensure.Success(res);
 
@@ -156,12 +158,11 @@ namespace LibGit2Sharp
                 return new IntPtr[] { };
             }
 
-            return new IntPtr[] { headPtr.ObjectPtr };
+            return new[] { headPtr.ObjectPtr };
         }
 
         private ObjectSafeWrapper RetrieveHeadCommitPtr(Reference head)
         {
-
             DirectReference oidRef = head.ResolveToDirectReference();
             if (oidRef == null)
             {
@@ -192,15 +193,7 @@ namespace LibGit2Sharp
 
             public Commit Current
             {
-                get
-                {
-                    if (currentOid == null)
-                    {
-                        throw new InvalidOperationException();
-                    }
-
-                    return repo.Lookup<Commit>(currentOid);
-                }
+                get { return repo.Lookup<Commit>(currentOid); }
             }
 
             object IEnumerator.Current
@@ -211,7 +204,7 @@ namespace LibGit2Sharp
             public bool MoveNext()
             {
                 GitOid oid;
-                var res = NativeMethods.git_revwalk_next(out oid, handle);
+                int res = NativeMethods.git_revwalk_next(out oid, handle);
 
                 if (res == (int)GitErrorCode.GIT_EREVWALKOVER)
                 {
@@ -252,11 +245,11 @@ namespace LibGit2Sharp
 
             private void InternalHidePush(IList<object> identifier, HidePushSignature hidePush)
             {
-                var oids = RetrieveCommitOids(identifier);
+                IEnumerable<ObjectId> oids = RetrieveCommitOids(identifier).TakeWhile(o => o != null);
 
-                foreach (var actedOn in oids)
+                foreach (ObjectId actedOn in oids)
                 {
-                    var oid = actedOn.Oid;
+                    GitOid oid = actedOn.Oid;
                     int res = hidePush(handle, ref oid);
                     Ensure.Success(res);
                 }
@@ -299,9 +292,9 @@ namespace LibGit2Sharp
                     return;
                 }
 
-                throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture,
-                                                                  "No valid git object pointed at by '{0}' exists in the repository.",
-                                                                  shaOrReferenceName));
+                throw new LibGit2Exception(string.Format(CultureInfo.InvariantCulture,
+                                                         "No valid git object pointed at by '{0}' exists in the repository.",
+                                                         shaOrReferenceName));
             }
 
             private ObjectId DereferenceToCommit(string identifier)
@@ -318,7 +311,14 @@ namespace LibGit2Sharp
                     return DereferenceToCommit(((TagAnnotation)obj).Target.Sha);
                 }
 
-                throw new InvalidOperationException();
+                if (obj is Blob || obj is Tree)
+                {
+                    return null;
+                }
+
+                throw new LibGit2Exception(string.Format(CultureInfo.InvariantCulture,
+                                                         "The Git object pointed at by '{0}' can not be dereferenced to a commit.",
+                                                         identifier));
             }
 
             private IEnumerable<ObjectId> RetrieveCommitOids(object identifier)
@@ -372,9 +372,9 @@ namespace LibGit2Sharp
                 {
                     var enumerable = (IEnumerable)identifier;
 
-                    foreach (var entry in enumerable)
+                    foreach (object entry in enumerable)
                     {
-                        foreach (var oid in RetrieveCommitOids(entry))
+                        foreach (ObjectId oid in RetrieveCommitOids(entry))
                         {
                             yield return oid;
                         }
@@ -383,7 +383,7 @@ namespace LibGit2Sharp
                     yield break;
                 }
 
-                throw new InvalidOperationException(string.Format("Unexpected kind of identifier '{0}'.", identifier));
+                throw new LibGit2Exception(string.Format(CultureInfo.InvariantCulture, "Unexpected kind of identifier '{0}'.", identifier));
             }
         }
     }

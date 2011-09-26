@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace LibGit2Sharp.Core
 {
@@ -7,7 +8,7 @@ namespace LibGit2Sharp.Core
         public static IList<string> ListAllReferenceNames(RepositorySafeHandle repo, GitReferenceType types)
         {
             UnSafeNativeMethods.git_strarray strArray;
-            var res = UnSafeNativeMethods.git_reference_listall(out strArray, repo, types);
+            int res = UnSafeNativeMethods.git_reference_listall(out strArray, repo, types);
             Ensure.Success(res);
 
             return BuildListOf(strArray);
@@ -16,7 +17,7 @@ namespace LibGit2Sharp.Core
         public static IList<string> ListAllTagNames(RepositorySafeHandle repo)
         {
             UnSafeNativeMethods.git_strarray strArray;
-            var res = UnSafeNativeMethods.git_tag_list(out strArray, repo);
+            int res = UnSafeNativeMethods.git_tag_list(out strArray, repo);
             Ensure.Success(res);
 
             return BuildListOf(strArray);
@@ -36,6 +37,8 @@ namespace LibGit2Sharp.Core
                     var name = new string(gitStrArray->strings[i]);
                     list.Add(name);
                 }
+
+                list.Sort(StringComparer.Ordinal);
             }
             finally
             {

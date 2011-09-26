@@ -38,16 +38,16 @@ namespace LibGit2Sharp.Core
 
         /// <summary>
         ///   Check that the result of a C call was successful
-        /// <para>
-        /// This usually means that the method is expected to return 0.
-        /// In some rare cases, some methods may return negative values for errors and
-        /// positive values carrying information. Those positive values should be interpreted
-        /// as successful calls as well.
-        /// </para>
+        ///   <para>
+        ///     This usually means that the method is expected to return 0.
+        ///     In some rare cases, some methods may return negative values for errors and
+        ///     positive values carrying information. Those positive values should be interpreted
+        ///     as successful calls as well.
+        ///   </para>
         /// </summary>
         /// <param name = "result">The result to examine.</param>
-        /// <param name="allowPositiveResult">False to only allow success when comparing against 0,
-        /// True when positive values are allowed as well.</param>
+        /// <param name = "allowPositiveResult">False to only allow success when comparing against 0,
+        ///   True when positive values are allowed as well.</param>
         public static void Success(int result, bool allowPositiveResult = false)
         {
             if (result == (int)GitErrorCode.GIT_SUCCESS)
@@ -62,7 +62,7 @@ namespace LibGit2Sharp.Core
 
             string errorMessage = NativeMethods.git_lasterror().MarshallAsString();
 
-            throw new ApplicationException(
+            throw new LibGit2Exception(
                 String.Format(CultureInfo.InvariantCulture, "An error was raised by libgit2. Error code = {0} ({1}).{2}{3}", Enum.GetName(typeof(GitErrorCode), result), result, Environment.NewLine, errorMessage));
         }
 

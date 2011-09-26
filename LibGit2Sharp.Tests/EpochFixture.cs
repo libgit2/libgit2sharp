@@ -11,7 +11,7 @@ namespace LibGit2Sharp.Tests
         [TestCase(17)]
         public void UnixTimestampShouldBeCastIntoAUtcBasedDateTimeOffset(long secondsSinceEpoch)
         {
-            var date = Epoch.ToDateTimeOffset(secondsSinceEpoch, 0);
+            DateTimeOffset date = Epoch.ToDateTimeOffset(secondsSinceEpoch, 0);
             Assert.AreEqual(0, date.Offset.TotalMinutes);
 
             Assert.AreEqual(TimeSpan.Zero, date.Offset);
@@ -23,8 +23,8 @@ namespace LibGit2Sharp.Tests
         [TestCase(31, 60)]
         public void AreEqual(long secondsSinceEpoch, int timezoneOffset)
         {
-            var one = Epoch.ToDateTimeOffset(secondsSinceEpoch, timezoneOffset);
-            var another = Epoch.ToDateTimeOffset(secondsSinceEpoch, timezoneOffset);
+            DateTimeOffset one = Epoch.ToDateTimeOffset(secondsSinceEpoch, timezoneOffset);
+            DateTimeOffset another = Epoch.ToDateTimeOffset(secondsSinceEpoch, timezoneOffset);
 
             Assert.AreEqual(one, another);
             Assert.AreEqual(another, one);
@@ -43,9 +43,9 @@ namespace LibGit2Sharp.Tests
         [TestCase(1288114383, "Tue, 26 Oct 2010 17:33:03 +0000")]
         public void UnixTimestampShouldShouldBeCastIntoAPlainUtcDate(long secondsSinceEpoch, string expected)
         {
-            var expectedDate = DateTimeOffset.Parse(expected);
+            DateTimeOffset expectedDate = DateTimeOffset.Parse(expected);
 
-            var date = Epoch.ToDateTimeOffset(secondsSinceEpoch, 0);
+            DateTimeOffset date = Epoch.ToDateTimeOffset(secondsSinceEpoch, 0);
 
             Assert.AreEqual(secondsSinceEpoch, date.ToSecondsSinceEpoch());
             Assert.AreEqual(expectedDate, date);
@@ -55,9 +55,9 @@ namespace LibGit2Sharp.Tests
         [TestCase(1250379778, -210, "Sat, 15 Aug 2009 20:12:58 -0330")]
         public void UnixTimestampAndTimezoneOffsetShouldBeCastIntoAUtcDateBearingAnOffset(long secondsSinceEpoch, Int32 offset, string expected)
         {
-            var expectedDate = DateTimeOffset.Parse(expected);
+            DateTimeOffset expectedDate = DateTimeOffset.Parse(expected);
 
-            var date = Epoch.ToDateTimeOffset(secondsSinceEpoch, offset);
+            DateTimeOffset date = Epoch.ToDateTimeOffset(secondsSinceEpoch, offset);
             Assert.AreEqual(offset, date.Offset.TotalMinutes);
             Assert.AreEqual(secondsSinceEpoch, date.ToSecondsSinceEpoch());
 
@@ -74,8 +74,8 @@ namespace LibGit2Sharp.Tests
         [TestCase("Sun, 16 Aug 2009 00:42:58 +0100", 1250379778, 60)]
         public void DateTimeOffsetShoudlBeCastIntoAUnixTimestampAndATimezoneOffset(string formattedDate, long expectedSeconds, Int32 expectedOffset)
         {
-            var when = DateTimeOffset.Parse(formattedDate);
-            var date = Epoch.ToDateTimeOffset(expectedSeconds, expectedOffset);
+            DateTimeOffset when = DateTimeOffset.Parse(formattedDate);
+            DateTimeOffset date = Epoch.ToDateTimeOffset(expectedSeconds, expectedOffset);
             Assert.AreEqual(when, date);
         }
     }

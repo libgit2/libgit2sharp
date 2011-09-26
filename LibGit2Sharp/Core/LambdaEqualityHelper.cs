@@ -30,7 +30,7 @@ namespace LibGit2Sharp.Core
 
             foreach (Func<T, object> accessor in equalityContributorAccessors)
             {
-                if (!object.Equals(accessor(instance), accessor(other)))
+                if (!Equals(accessor(instance), accessor(other)))
                 {
                     return false;
                 }
@@ -47,7 +47,7 @@ namespace LibGit2Sharp.Core
             {
                 foreach (Func<T, object> accessor in equalityContributorAccessors)
                 {
-                    hashCode = (hashCode * 397) ^ accessor(instance).GetHashCode();
+                    hashCode = (hashCode*397) ^ accessor(instance).GetHashCode();
                 }
             }
 

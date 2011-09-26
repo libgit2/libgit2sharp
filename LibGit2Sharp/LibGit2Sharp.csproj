@@ -50,6 +50,7 @@
     <Compile Include="BranchCollection.cs" />
     <Compile Include="Commit.cs" />
     <Compile Include="CommitCollection.cs" />
+    <Compile Include="LibGit2Exception.cs" />
     <Compile Include="Core\Ensure.cs" />
     <Compile Include="Core\Epoch.cs" />
     <Compile Include="Core\GitErrorCode.cs" />
@@ -71,7 +72,7 @@
     </Compile>
     <Compile Include="Core\SafeHandleBase.cs" />
     <Compile Include="Core\UnSafeNativeMethods.cs" />
-    <Compile Include="Core\UTF8Marshaler.cs" />
+    <Compile Include="Core\Utf8Marshaler.cs" />
     <Compile Include="DirectReference.cs" />
     <Compile Include="Core\GitIndexTime.cs" />
     <Compile Include="Core\GitIndexEntry.cs" />

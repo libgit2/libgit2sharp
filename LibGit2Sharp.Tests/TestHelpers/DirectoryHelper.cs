@@ -8,10 +8,14 @@ namespace LibGit2Sharp.Tests.TestHelpers
         {
             // From http://stackoverflow.com/questions/58744/best-way-to-copy-the-entire-contents-of-a-directory-in-c/58779#58779
 
-            foreach (var dir in source.GetDirectories())
+            foreach (DirectoryInfo dir in source.GetDirectories())
+            {
                 CopyFilesRecursively(dir, target.CreateSubdirectory(dir.Name));
-            foreach (var file in source.GetFiles())
+            }
+            foreach (FileInfo file in source.GetFiles())
+            {
                 file.CopyTo(Path.Combine(target.FullName, file.Name));
+            }
         }
 
         public static void DeleteDirectory(string directoryPath)

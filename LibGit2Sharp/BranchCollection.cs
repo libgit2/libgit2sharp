@@ -34,9 +34,9 @@ namespace LibGit2Sharp
         #region IEnumerable<Branch> Members
 
         /// <summary>
-        /// Returns an enumerator that iterates through the collection.
+        ///   Returns an enumerator that iterates through the collection.
         /// </summary>
-        /// <returns>An <see cref="IEnumerator{T}"/> object that can be used to iterate through the collection.</returns>
+        /// <returns>An <see cref = "IEnumerator{T}" /> object that can be used to iterate through the collection.</returns>
         public IEnumerator<Branch> GetEnumerator()
         {
             return Libgit2UnsafeHelper.ListAllReferenceNames(repo.Handle, GitReferenceType.ListAll)
@@ -46,9 +46,9 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Returns an enumerator that iterates through the collection.
+        ///   Returns an enumerator that iterates through the collection.
         /// </summary>
-        /// <returns>An <see cref="IEnumerator"/> object that can be used to iterate through the collection.</returns>
+        /// <returns>An <see cref = "IEnumerator" /> object that can be used to iterate through the collection.</returns>
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
@@ -84,7 +84,7 @@ namespace LibGit2Sharp
 
             if (!ObjectId.TryParse(target, out id))
             {
-                var reference = repo.Refs[NormalizeToCanonicalName(target)].ResolveToDirectReference();
+                DirectReference reference = repo.Refs[NormalizeToCanonicalName(target)].ResolveToDirectReference();
                 target = reference.TargetIdentifier;
             }
 
@@ -100,15 +100,22 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
 
-            repo.Refs.Delete(NormalizeToCanonicalName(name)); //TODO: To be replaced by native libgit2 git_branch_delete() when available.
+            string canonicalName = NormalizeToCanonicalName(name);
+
+            if (canonicalName == repo.Head.CanonicalName)
+            {
+                throw new LibGit2Exception(string.Format("Branch '{0}' can not be deleted as it is the current HEAD.", canonicalName));
+            }
+
+            repo.Refs.Delete(canonicalName); //TODO: To be replaced by native libgit2 git_branch_delete() when available.
         }
 
         ///<summary>
-        /// Rename an existing branch with a new name.
+        ///  Rename an existing branch with a new name.
         ///</summary>
-        ///<param name="currentName">The current branch name.</param>
-        ///<param name="newName">The new name of the existing branch should bear.</param>
-        ///<param name="allowOverwrite">True to allow silent overwriting a potentially existing branch, false otherwise.</param>
+        ///<param name = "currentName">The current branch name.</param>
+        ///<param name = "newName">The new name of the existing branch should bear.</param>
+        ///<param name = "allowOverwrite">True to allow silent overwriting a potentially existing branch, false otherwise.</param>
         ///<returns></returns>
         public Branch Move(string currentName, string newName, bool allowOverwrite = false)
         {
@@ -116,7 +123,7 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNullOrEmptyString(newName, "name");
 
             Reference reference = repo.Refs.Move(NormalizeToCanonicalName(currentName), NormalizeToCanonicalName(newName),
-                           allowOverwrite);
+                                                 allowOverwrite);
 
             return this[reference.CanonicalName];
         }

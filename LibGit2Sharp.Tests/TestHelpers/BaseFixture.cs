@@ -1,11 +1,13 @@
-﻿using System;
+﻿using System.Collections.Generic;
 using System.IO;
-using System.Text;
+using NUnit.Framework;
 
 namespace LibGit2Sharp.Tests.TestHelpers
 {
-    public class BaseFixture
+    public class BaseFixture : IPostTestDirectoryRemover
     {
+        private readonly List<string> directories = new List<string>();
+
         static BaseFixture()
         {
             // Do the set up in the static ctor so it only happens once
@@ -36,6 +38,40 @@ namespace LibGit2Sharp.Tests.TestHelpers
             const string deadbeef = "deadbeef";
             string headPath = string.Format("{0}refs/heads/{1}", repoPath, deadbeef);
             File.WriteAllText(headPath, string.Format("{0}{0}{0}{0}{0}\n", deadbeef));
+        }
+
+        protected SelfCleaningDirectory BuildSelfCleaningDirectory()
+        {
+            return new SelfCleaningDirectory(this);
+        }
+
+        protected SelfCleaningDirectory BuildSelfCleaningDirectory(string path)
+        {
+            return new SelfCleaningDirectory(this, path);
+        }
+
+        protected TemporaryCloneOfTestRepo BuildTemporaryCloneOfTestRepo()
+        {
+            return BuildTemporaryCloneOfTestRepo(Constants.BareTestRepoPath);
+        }
+
+        protected TemporaryCloneOfTestRepo BuildTemporaryCloneOfTestRepo(string path)
+        {
+            return new TemporaryCloneOfTestRepo(this, path);
+        }
+
+        public void Register(string directoryPath)
+        {
+            directories.Add(directoryPath);
+        }
+
+        [TestFixtureTearDown]
+        public void Cleanup()
+        {
+            foreach (string directory in directories)
+            {
+                DirectoryHelper.DeleteDirectory(directory);
+            }
         }
     }
 }

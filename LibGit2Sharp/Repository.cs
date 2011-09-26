@@ -21,14 +21,14 @@ namespace LibGit2Sharp
 
         /// <summary>
         ///   Initializes a new instance of the <see cref = "Repository" /> class.
-        ///     <para>For a standard repository, <paramref name="path"/> should point to the ".git" folder. For a bare repository, <paramref name="path"/> should directly point to the repository folder.</para>
+        ///   <para>For a standard repository, <paramref name = "path" /> should point to the ".git" folder. For a bare repository, <paramref name = "path" /> should directly point to the repository folder.</para>
         /// </summary>
         /// <param name = "path">The path to the git repository to open.</param>
         public Repository(string path)
         {
             Ensure.ArgumentNotNullOrEmptyString(path, "path");
 
-            var res = NativeMethods.git_repository_open(out handle, PosixPathHelper.ToPosix(path));
+            int res = NativeMethods.git_repository_open(out handle, PosixPathHelper.ToPosix(path));
             Ensure.Success(res);
 
             isBare = NativeMethods.git_repository_is_bare(handle);
@@ -113,12 +113,15 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Provides high level information about this repository.
         /// </summary>
-        public RepositoryInformation Info { get { return info.Value; } }
+        public RepositoryInformation Info
+        {
+            get { return info.Value; }
+        }
 
         #region IDisposable Members
 
         /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        ///   Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         public void Dispose()
         {
@@ -127,7 +130,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        ///   Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         protected virtual void Dispose(bool disposing)
         {
@@ -144,26 +147,26 @@ namespace LibGit2Sharp
 
         #endregion
 
-        /// <summary>
-        ///   Tells if the specified sha exists in the repository.
+        ///<summary>
+        ///  Tells if the specified sha exists in the repository.
         ///
-        ///   Exceptions:
-        ///   ArgumentException
-        ///   ArgumentNullException
-        /// </summary>
-        /// <param name = "sha">The sha.</param>
-        /// <returns></returns>
-        public bool HasObject(string sha)   //TODO: To be removed from front facing API (maybe should we create an Repository.Advanced to hold those kind of functions)?
+        ///  Exceptions:
+        ///  ArgumentException
+        ///  ArgumentNullException
+        ///</summary>
+        ///<param name = "sha">The sha.</param>
+        ///<returns></returns>
+        public bool HasObject(string sha) //TODO: To be removed from front facing API (maybe should we create an Repository.Advanced to hold those kind of functions)?
         {
             var id = new ObjectId(sha);
 
-            var odb = NativeMethods.git_repository_database(handle);
-            var oid = id.Oid;
+            IntPtr odb = NativeMethods.git_repository_database(handle);
+            GitOid oid = id.Oid;
             return NativeMethods.git_odb_exists(odb, ref oid);
         }
 
         /// <summary>
-        ///   Init a repo at the specified <paramref name="path"/>.
+        ///   Init a repo at the specified <paramref name = "path" />.
         /// </summary>
         /// <param name = "path">The path to the working folder when initializing a standard ".git" repository. Otherwise, when initializing a bare repository, the path to the expected location of this later.</param>
         /// <param name = "isBare">true to initialize a bare repository. False otherwise, to initialize a standard ".git" repository.</param>
@@ -173,7 +176,7 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNullOrEmptyString(path, "path");
 
             RepositorySafeHandle repo;
-            var res = NativeMethods.git_repository_init(out repo, PosixPathHelper.ToPosix(path), isBare);
+            int res = NativeMethods.git_repository_init(out repo, PosixPathHelper.ToPosix(path), isBare);
             Ensure.Success(res);
 
             string normalizedPath = NativeMethods.git_repository_path(repo, GitRepositoryPathId.GIT_REPO_PATH).MarshallAsString();
@@ -203,7 +206,7 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNull(id, "id");
 
-            var oid = id.Oid;
+            GitOid oid = id.Oid;
             IntPtr obj;
             int res;
 
@@ -232,10 +235,10 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Try to lookup an object by its sha or a reference canonical name and <see cref="GitObjectType"/>. If no matching object is found, null will be returned.
+        ///   Try to lookup an object by its sha or a reference canonical name and <see cref = "GitObjectType" />. If no matching object is found, null will be returned.
         /// </summary>
         /// <param name = "shaOrReferenceName">The sha or reference canonical name to lookup.</param>
-        /// <param name = "type">The kind of <see cref="GitObject"/> being looked up</param>
+        /// <param name = "type">The kind of <see cref = "GitObject" /> being looked up</param>
         /// <returns>The <see cref = "GitObject" /> or null if it was not found.</returns>
         public GitObject Lookup(string shaOrReferenceName, GitObjectType type = GitObjectType.Any)
         {
@@ -246,7 +249,7 @@ namespace LibGit2Sharp
                 return Lookup(id, type);
             }
 
-            var reference = Refs[shaOrReferenceName];
+            Reference reference = Refs[shaOrReferenceName];
 
             if (!IsReferencePeelable(reference))
             {
@@ -262,10 +265,10 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Probe for a git repository.
-        /// <para>The lookup start from <paramref name="startingPath"/> and walk upward parent directories if nothing has been found.</para>
+        ///   Probe for a git repository.
+        ///   <para>The lookup start from <paramref name = "startingPath" /> and walk upward parent directories if nothing has been found.</para>
         /// </summary>
-        /// <param name="startingPath">The base path where the lookup starts.</param>
+        /// <param name = "startingPath">The base path where the lookup starts.</param>
         /// <returns>The path to the git repository.</returns>
         public static string Discover(string startingPath)
         {
@@ -275,10 +278,12 @@ namespace LibGit2Sharp
             Ensure.Success(result);
 
             int nullTerminator;
-            for (nullTerminator = 0; nullTerminator < buffer.Length; nullTerminator++ )
+            for (nullTerminator = 0; nullTerminator < buffer.Length; nullTerminator++)
             {
                 if (buffer[nullTerminator] == 0)
+                {
                     break;
+                }
             }
 
             if (nullTerminator == 0)
