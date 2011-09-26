@@ -100,7 +100,7 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
 
-            var canonicalName = NormalizeToCanonicalName(name);
+            string canonicalName = NormalizeToCanonicalName(name);
 
             if (canonicalName == repo.Head.CanonicalName)
             {

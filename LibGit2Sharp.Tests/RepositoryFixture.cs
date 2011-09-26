@@ -14,48 +14,44 @@ namespace LibGit2Sharp.Tests
         [Test]
         public void CanCreateBareRepo()
         {
-            using (var scd = new SelfCleaningDirectory())
+            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            string dir = Repository.Init(scd.DirectoryPath, true);
+            Path.IsPathRooted(dir).ShouldBeTrue();
+            Directory.Exists(dir).ShouldBeTrue();
+            CheckGitConfigFile(dir);
+
+            using (var repo = new Repository(dir))
             {
-                string dir = Repository.Init(scd.DirectoryPath, true);
-                Path.IsPathRooted(dir).ShouldBeTrue();
-                Directory.Exists(dir).ShouldBeTrue();
-                CheckGitConfigFile(dir);
+                repo.Info.WorkingDirectory.ShouldBeNull();
+                repo.Info.Path.ShouldEqual(scd.RootedDirectoryPath + Path.DirectorySeparatorChar);
+                repo.Info.IsBare.ShouldBeTrue();
 
-                using (var repo = new Repository(dir))
-                {
-                    repo.Info.WorkingDirectory.ShouldBeNull();
-                    repo.Info.Path.ShouldEqual(scd.RootedDirectoryPath + Path.DirectorySeparatorChar);
-                    repo.Info.IsBare.ShouldBeTrue();
-
-                    AssertInitializedRepository(repo);
-                }
+                AssertInitializedRepository(repo);
             }
         }
 
         [Test]
         public void CanCreateStandardRepo()
         {
-            using (var scd = new SelfCleaningDirectory())
+            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            string dir = Repository.Init(scd.DirectoryPath);
+            Path.IsPathRooted(dir).ShouldBeTrue();
+            Directory.Exists(dir).ShouldBeTrue();
+            CheckGitConfigFile(dir);
+
+            using (var repo = new Repository(dir))
             {
-                string dir = Repository.Init(scd.DirectoryPath);
-                Path.IsPathRooted(dir).ShouldBeTrue();
-                Directory.Exists(dir).ShouldBeTrue();
-                CheckGitConfigFile(dir);
+                repo.Info.WorkingDirectory.ShouldNotBeNull();
+                repo.Info.Path.ShouldEqual(Path.Combine(scd.RootedDirectoryPath, ".git" + Path.DirectorySeparatorChar));
+                repo.Info.IsBare.ShouldBeFalse();
 
-                using (var repo = new Repository(dir))
-                {
-                    repo.Info.WorkingDirectory.ShouldNotBeNull();
-                    repo.Info.Path.ShouldEqual(Path.Combine(scd.RootedDirectoryPath, ".git" + Path.DirectorySeparatorChar));
-                    repo.Info.IsBare.ShouldBeFalse();
+                AssertIsHidden(repo.Info.Path);
 
-                    AssertIsHidden(repo.Info.Path);
-
-                    AssertInitializedRepository(repo);
-                }
+                AssertInitializedRepository(repo);
             }
         }
 
-        private void CheckGitConfigFile(string dir)
+        private static void CheckGitConfigFile(string dir)
         {
             string configFilePath = Path.Combine(dir, "config");
             File.Exists(configFilePath).ShouldBeTrue();
@@ -242,28 +238,26 @@ namespace LibGit2Sharp.Tests
             const string expectedAbbrevSha = "edfecad";
             const string expectedSha = expectedAbbrevSha + "02d96c9dbf64f6e238c45ddcfa762eef0";
 
-            using (var scd = new SelfCleaningDirectory())
+            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            string dir = Repository.Init(scd.DirectoryPath);
+
+            using (var repo = new Repository(dir))
             {
-                string dir = Repository.Init(scd.DirectoryPath);
+                string filePath = Path.Combine(repo.Info.WorkingDirectory, "new.txt");
 
-                using (var repo = new Repository(dir))
-                {
-                    string filePath = Path.Combine(repo.Info.WorkingDirectory, "new.txt");
+                File.WriteAllText(filePath, "one ");
+                repo.Index.Stage(filePath);
 
-                    File.WriteAllText(filePath, "one ");
-                    repo.Index.Stage(filePath);
+                Signature author = Constants.Signature;
+                Commit commit = repo.Commit(author, author, "Initial commit");
 
-                    Signature author = Constants.Signature;
-                    Commit commit = repo.Commit(author, author, "Initial commit");
+                commit.Sha.ShouldEqual(expectedSha);
 
-                    commit.Sha.ShouldEqual(expectedSha);
+                GitObject lookedUp1 = repo.Lookup(expectedSha);
+                lookedUp1.ShouldEqual(commit);
 
-                    GitObject lookedUp1 = repo.Lookup(expectedSha);
-                    lookedUp1.ShouldEqual(commit);
-
-                    GitObject lookedUp2 = repo.Lookup(expectedAbbrevSha);
-                    lookedUp2.ShouldEqual(commit);
-                }
+                GitObject lookedUp2 = repo.Lookup(expectedAbbrevSha);
+                lookedUp2.ShouldEqual(commit);
             }
         }
 

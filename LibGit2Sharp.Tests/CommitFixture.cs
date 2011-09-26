@@ -56,7 +56,7 @@ namespace LibGit2Sharp.Tests
         [Test]
         public void CanEnumerateCommitsInDetachedHeadState()
         {
-            using (var path = new TemporaryCloneOfTestRepo())
+            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
             using (var repo = new Repository(path.RepositoryPath))
             {
                 ObjectId parentOfHead = repo.Head.Tip.Parents.First().Id;
@@ -106,7 +106,7 @@ namespace LibGit2Sharp.Tests
         [Test]
         public void QueryingTheCommitHistoryFromACorruptedReferenceThrows()
         {
-            using (var path = new TemporaryCloneOfTestRepo())
+            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
             using (var repo = new Repository(path.RepositoryPath))
             {
                 CreateCorruptedDeadBeefHead(repo.Info.Path);
@@ -356,49 +356,47 @@ namespace LibGit2Sharp.Tests
         [Test]
         public void CanCommitALittleBit()
         {
-            using (var scd = new SelfCleaningDirectory())
+            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            string dir = Repository.Init(scd.DirectoryPath);
+            Path.IsPathRooted(dir).ShouldBeTrue();
+            Directory.Exists(dir).ShouldBeTrue();
+
+            using (var repo = new Repository(dir))
             {
-                string dir = Repository.Init(scd.DirectoryPath);
-                Path.IsPathRooted(dir).ShouldBeTrue();
-                Directory.Exists(dir).ShouldBeTrue();
+                string filePath = Path.Combine(repo.Info.WorkingDirectory, "new.txt");
 
-                using (var repo = new Repository(dir))
-                {
-                    string filePath = Path.Combine(repo.Info.WorkingDirectory, "new.txt");
+                File.WriteAllText(filePath, "null");
+                repo.Index.Stage("new.txt");
+                File.AppendAllText(filePath, "token\n");
+                repo.Index.Stage("new.txt");
 
-                    File.WriteAllText(filePath, "null");
-                    repo.Index.Stage("new.txt");
-                    File.AppendAllText(filePath, "token\n");
-                    repo.Index.Stage("new.txt");
+                var author = new Signature("Author N. Ame", "him@there.com", DateTimeOffset.Now.AddSeconds(-10));
+                Commit commit = repo.Commit(author, author, "Initial egotistic commit");
 
-                    var author = new Signature("Author N. Ame", "him@there.com", DateTimeOffset.Now.AddSeconds(-10));
-                    Commit commit = repo.Commit(author, author, "Initial egotistic commit");
+                commit.Parents.Count().ShouldEqual(0);
+                repo.Info.IsEmpty.ShouldBeFalse();
 
-                    commit.Parents.Count().ShouldEqual(0);
-                    repo.Info.IsEmpty.ShouldBeFalse();
+                File.WriteAllText(filePath, "nulltoken commits!\n");
+                repo.Index.Stage("new.txt");
 
-                    File.WriteAllText(filePath, "nulltoken commits!\n");
-                    repo.Index.Stage("new.txt");
+                var author2 = new Signature(author.Name, author.Email, author.When.AddSeconds(5));
+                Commit commit2 = repo.Commit(author2, author2, "Are you trying to fork me?");
 
-                    var author2 = new Signature(author.Name, author.Email, author.When.AddSeconds(5));
-                    Commit commit2 = repo.Commit(author2, author2, "Are you trying to fork me?");
+                commit2.Parents.Count().ShouldEqual(1);
+                commit2.Parents.First().Id.ShouldEqual(commit.Id);
 
-                    commit2.Parents.Count().ShouldEqual(1);
-                    commit2.Parents.First().Id.ShouldEqual(commit.Id);
+                repo.CreateBranch("davidfowl-rules", commit.Id.Sha); //TODO: This cries for a shortcut method :-/
+                repo.Branches.Checkout("davidfowl-rules"); //TODO: This cries for a shortcut method :-/
 
-                    repo.CreateBranch("davidfowl-rules", commit.Id.Sha); //TODO: This cries for a shortcut method :-/
-                    repo.Branches.Checkout("davidfowl-rules"); //TODO: This cries for a shortcut method :-/
+                File.WriteAllText(filePath, "davidfowl commits!\n");
 
-                    File.WriteAllText(filePath, "davidfowl commits!\n");
+                var author3 = new Signature("David Fowler", "david.fowler@microsoft.com", author.When.AddSeconds(2));
+                repo.Index.Stage("new.txt");
 
-                    var author3 = new Signature("David Fowler", "david.fowler@microsoft.com", author.When.AddSeconds(2));
-                    repo.Index.Stage("new.txt");
+                Commit commit3 = repo.Commit(author3, author3, "I'm going to branch you backwards in time!");
 
-                    Commit commit3 = repo.Commit(author3, author3, "I'm going to branch you backwards in time!");
-
-                    commit3.Parents.Count().ShouldEqual(1);
-                    commit3.Parents.First().Id.ShouldEqual(commit.Id);
-                }
+                commit3.Parents.Count().ShouldEqual(1);
+                commit3.Parents.First().Id.ShouldEqual(commit.Id);
             }
         }
     }
