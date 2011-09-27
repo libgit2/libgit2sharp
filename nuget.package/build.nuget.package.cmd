@@ -1,13 +1,25 @@
+SETLOCAL
 SET BASEDIR=%~dp0
 SET SRCDIR=%BASEDIR%..\LibGit2Sharp\
 
 REM the nuspec file needs to be next to the csproj, so copy it there during the pack operation
-copy "%BASEDIR%LibGit2Sharp.nuspec" "%SRCDIR%"
+COPY "%BASEDIR%LibGit2Sharp.nuspec" "%SRCDIR%"
 
-pushd "%BASEDIR%"
+PUSHD "%BASEDIR%"
 
-..\Lib\NuGet\NuGet.exe pack -sym "%SRCDIR%LibGit2Sharp.csproj"
+DEL *.nupkg
 
-popd
+CMD /c "..\build.libgit2sharp.cmd"
 
-del "%SRCDIR%LibGit2Sharp.nuspec"
+IF %ERRORLEVEL% NEQ 0 GOTO EXIT
+
+"..\Lib\NuGet\NuGet.exe" Pack -Symbols "%SRCDIR%LibGit2Sharp.csproj" -Prop Configuration=Release
+
+:EXIT
+DEL "%SRCDIR%LibGit2Sharp.nuspec"
+
+ENDLOCAL
+POPD
+
+PAUSE
+EXIT /B %ERRORLEVEL%
