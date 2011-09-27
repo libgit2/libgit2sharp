@@ -50,7 +50,9 @@
     <Compile Include="BranchCollection.cs" />
     <Compile Include="Commit.cs" />
     <Compile Include="CommitCollection.cs" />
+    <Compile Include="Configuration.cs" />
     <Compile Include="LibGit2Exception.cs" />
+    <Compile Include="Core\ConfigurationSafeHandle.cs" />
     <Compile Include="Core\Ensure.cs" />
     <Compile Include="Core\Epoch.cs" />
     <Compile Include="Core\GitErrorCode.cs" />
