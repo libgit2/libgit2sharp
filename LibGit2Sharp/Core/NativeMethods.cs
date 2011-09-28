@@ -51,6 +51,9 @@ namespace LibGit2Sharp.Core
         public static extern IntPtr git_commit_tree_oid(IntPtr commit);
 
         [DllImport(libgit2)]
+        public static extern int git_config_delete(ConfigurationSafeHandle cfg, string name);
+
+        [DllImport(libgit2)]
         public static extern void git_config_free(IntPtr cfg);
 
         [DllImport(libgit2)]

@@ -29,6 +29,15 @@ namespace LibGit2Sharp
         #endregion
 
         /// <summary>
+        ///   Delete a configuration variable (key and value).
+        /// </summary>
+        /// <param name = "key">The key to delete.</param>
+        public void Delete(string key)
+        {
+            Ensure.Success(NativeMethods.git_config_delete(handle, key));
+        }
+
+        /// <summary>
         ///   Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         protected virtual void Dispose(bool disposing)
