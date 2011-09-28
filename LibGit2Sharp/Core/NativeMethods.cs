@@ -192,6 +192,18 @@ namespace LibGit2Sharp.Core
         public static extern GitReferenceType git_reference_type(IntPtr reference);
 
         [DllImport(libgit2)]
+        public static extern void git_remote_free(IntPtr remote);
+
+        [DllImport(libgit2)]
+        public static extern int git_remote_get(out RemoteSafeHandle remote, ConfigurationSafeHandle cfg, string name);
+
+        [DllImport(libgit2)]
+        public static extern IntPtr git_remote_name(RemoteSafeHandle remote);
+
+        [DllImport(libgit2)]
+        public static extern IntPtr git_remote_url(RemoteSafeHandle remote);
+
+        [DllImport(libgit2)]
         public static extern int git_repository_config(out ConfigurationSafeHandle cfg, RepositorySafeHandle repo, string userConfigPath, string systemConfigPath);
 
         [DllImport(libgit2)]

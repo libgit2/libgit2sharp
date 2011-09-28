@@ -15,6 +15,11 @@ namespace LibGit2Sharp
             Ensure.Success(NativeMethods.git_repository_config(out handle, repository.Handle, null, null));
         }
 
+        internal ConfigurationSafeHandle Handle
+        {
+            get { return handle; }
+        }
+
         #region IDisposable Members
 
         /// <summary>
