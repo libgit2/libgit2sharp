@@ -77,7 +77,7 @@ namespace LibGit2Sharp
                 return (T)(object)GetLong(key);
             }
 
-            return default(T);
+            throw new ArgumentException(string.Format("Generic Argument of type '{0}' is not supported.", typeof(T).FullName));
         }
 
         private bool GetBool(string key)
@@ -129,22 +129,28 @@ namespace LibGit2Sharp
             if (typeof(T) == typeof(string))
             {
                 Ensure.Success(NativeMethods.git_config_set_string(handle, key, (string)(object)value));
+                return;
             }
 
             if (typeof(T) == typeof(bool))
             {
                 Ensure.Success(NativeMethods.git_config_set_bool(handle, key, (bool)(object)value));
+                return;
             }
 
             if (typeof(T) == typeof(int))
             {
                 Ensure.Success(NativeMethods.git_config_set_int(handle, key, (int)(object)value));
+                return;
             }
 
             if (typeof(T) == typeof(long))
             {
                 Ensure.Success(NativeMethods.git_config_set_long(handle, key, (long)(object)value));
+                return;
             }
+
+            throw new ArgumentException(string.Format("Generic Argument of type {0} is not supported.", typeof(T)));
         }
     }
 }
