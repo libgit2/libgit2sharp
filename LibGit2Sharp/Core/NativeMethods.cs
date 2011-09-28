@@ -66,6 +66,21 @@ namespace LibGit2Sharp.Core
         public static extern int git_config_get_string(ConfigurationSafeHandle cfg, string name, out IntPtr value);
 
         [DllImport(libgit2)]
+        public static extern int git_config_open_ondisk(out ConfigurationSafeHandle cfg, string path);
+
+        [DllImport(libgit2)]
+        public static extern int git_config_set_bool(ConfigurationSafeHandle cfg, string name, bool value);
+
+        [DllImport(libgit2)]
+        public static extern int git_config_set_int(ConfigurationSafeHandle cfg, string name, int value);
+
+        [DllImport(libgit2)]
+        public static extern int git_config_set_long(ConfigurationSafeHandle cfg, string name, long value);
+
+        [DllImport(libgit2)]
+        public static extern int git_config_set_string(ConfigurationSafeHandle cfg, string name, string value);
+
+        [DllImport(libgit2)]
         public static extern int git_index_add(
             IndexSafeHandle index,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string path,
