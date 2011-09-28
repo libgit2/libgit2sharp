@@ -57,31 +57,60 @@ namespace LibGit2Sharp.Core
         public static extern void git_config_free(IntPtr cfg);
 
         [DllImport(libgit2)]
-        public static extern int git_config_get_bool(ConfigurationSafeHandle cfg, string name, out bool value);
+        public static extern int git_config_get_bool(
+            ConfigurationSafeHandle cfg,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string name,
+            out bool value);
 
         [DllImport(libgit2)]
-        public static extern int git_config_get_int(ConfigurationSafeHandle cfg, string name, out int value);
+        public static extern int git_config_get_int(
+            ConfigurationSafeHandle cfg,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string name,
+            out int value);
 
         [DllImport(libgit2)]
-        public static extern int git_config_get_long(ConfigurationSafeHandle cfg, string name, out long value);
+        public static extern int git_config_get_long(
+            ConfigurationSafeHandle cfg,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string name,
+            out long value);
 
         [DllImport(libgit2)]
-        public static extern int git_config_get_string(ConfigurationSafeHandle cfg, string name, out IntPtr value);
+        public static extern int git_config_get_string(
+            ConfigurationSafeHandle cfg,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string name,
+            out IntPtr value);
 
         [DllImport(libgit2)]
-        public static extern int git_config_open_ondisk(out ConfigurationSafeHandle cfg, string path);
+        public static extern int git_config_open_global(out ConfigurationSafeHandle cfg);
 
         [DllImport(libgit2)]
-        public static extern int git_config_set_bool(ConfigurationSafeHandle cfg, string name, bool value);
+        public static extern int git_config_open_ondisk(
+            out ConfigurationSafeHandle cfg,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string path);
 
         [DllImport(libgit2)]
-        public static extern int git_config_set_int(ConfigurationSafeHandle cfg, string name, int value);
+        public static extern int git_config_set_bool(
+            ConfigurationSafeHandle cfg,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string name,
+            [MarshalAs(UnmanagedType.Bool)] bool value);
 
         [DllImport(libgit2)]
-        public static extern int git_config_set_long(ConfigurationSafeHandle cfg, string name, long value);
+        public static extern int git_config_set_int(
+            ConfigurationSafeHandle cfg,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string name,
+            int value);
 
         [DllImport(libgit2)]
-        public static extern int git_config_set_string(ConfigurationSafeHandle cfg, string name, string value);
+        public static extern int git_config_set_long(
+            ConfigurationSafeHandle cfg,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string name,
+            long value);
+
+        [DllImport(libgit2)]
+        public static extern int git_config_set_string(
+            ConfigurationSafeHandle cfg,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string name,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string value);
 
         [DllImport(libgit2)]
         public static extern int git_index_add(
@@ -143,7 +172,7 @@ namespace LibGit2Sharp.Core
             RepositorySafeHandle repo,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string name,
             ref GitOid oid,
-            bool force);
+            [MarshalAs(UnmanagedType.Bool)] bool force);
 
         [DllImport(libgit2)]
         public static extern int git_reference_create_symbolic(
@@ -151,7 +180,7 @@ namespace LibGit2Sharp.Core
             RepositorySafeHandle repo,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string name,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string target,
-            bool force);
+            [MarshalAs(UnmanagedType.Bool)] bool force);
 
         [DllImport(libgit2)]
         public static extern int git_reference_delete(IntPtr reference);
@@ -172,7 +201,7 @@ namespace LibGit2Sharp.Core
         public static extern int git_reference_rename(
             IntPtr reference,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string newName,
-            bool force);
+            [MarshalAs(UnmanagedType.Bool)] bool force);
 
         [DllImport(libgit2)]
         public static extern int git_reference_resolve(out IntPtr resolvedReference, IntPtr reference);
@@ -195,7 +224,10 @@ namespace LibGit2Sharp.Core
         public static extern void git_remote_free(IntPtr remote);
 
         [DllImport(libgit2)]
-        public static extern int git_remote_get(out RemoteSafeHandle remote, ConfigurationSafeHandle cfg, string name);
+        public static extern int git_remote_get(
+            out RemoteSafeHandle remote,
+            ConfigurationSafeHandle cfg,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string name);
 
         [DllImport(libgit2)]
         public static extern IntPtr git_remote_name(RemoteSafeHandle remote);
@@ -204,7 +236,11 @@ namespace LibGit2Sharp.Core
         public static extern IntPtr git_remote_url(RemoteSafeHandle remote);
 
         [DllImport(libgit2)]
-        public static extern int git_repository_config(out ConfigurationSafeHandle cfg, RepositorySafeHandle repo, string userConfigPath, string systemConfigPath);
+        public static extern int git_repository_config(
+            out ConfigurationSafeHandle cfg,
+            RepositorySafeHandle repo,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string userConfigPath,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string systemConfigPath);
 
         [DllImport(libgit2)]
         public static extern IntPtr git_repository_database(RepositorySafeHandle repository);
