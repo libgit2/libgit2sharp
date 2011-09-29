@@ -5,6 +5,28 @@
  - Source code: <https://github.com/libgit2/libgit2sharp>
  - NuGet package: <http://nuget.org/List/Packages/LibGit2Sharp>
 
+## v0.5
+
+### Additions
+
+ - Add Repository.Index.RetrieveStatus() (#49)
+ - Add handling of configuration settings of the repository and retrieval of Remotes (#60)
+
+### Changes
+
+ - Can now enumerate from multiple starting points
+ - While enumerating commits, automatically dereference objects to a commit object id
+ - Defer resolving of Branch.Tip, Tag.Target and Tag.Annotation
+ - Replace usage of ApplicationException with LibGit2Exception
+ - Update libgit2 binaries to libgit2/libgit2@35e9407
+
+### Fixes
+
+ - Prevent enumeration of commits from throwing when starting from a tag which points at a blob or a tree (#62)
+ - Prevent a branch from being removed if it's the current HEAD
+ - References are now being enumerated in a ordered way
+ - Fix Repository.Discover() implementation when no .git folder exists
+
 ## v0.4
 
 ### Additions
