@@ -30,13 +30,13 @@ namespace LibGit2Sharp
             GitReferenceType type = NativeMethods.git_reference_type(ptr);
 
             Reference reference;
-            string targetIdentifier;
+            ObjectId targetOid = null;
 
             switch (type)
             {
                 case GitReferenceType.Symbolic:
                     IntPtr resolveRef;
-                    targetIdentifier = NativeMethods.git_reference_target(ptr).MarshallAsString();
+                    var targetIdentifier = NativeMethods.git_reference_target(ptr).MarshallAsString();
                     int res = NativeMethods.git_reference_resolve(out resolveRef, ptr);
 
                     if (res == (int)GitErrorCode.GIT_ENOTFOUND)
@@ -47,18 +47,18 @@ namespace LibGit2Sharp
 
                     Ensure.Success(res);
 
-                    var targetRef = BuildFromPtr<Reference>(resolveRef, repo);
+                    var targetRef = BuildFromPtr<DirectReference>(resolveRef, repo);
+                    targetOid = targetRef.Target.Id;
                     reference = new SymbolicReference { CanonicalName = name, Target = targetRef, TargetIdentifier = targetIdentifier };
                     break;
 
                 case GitReferenceType.Oid:
                     IntPtr oidPtr = NativeMethods.git_reference_oid(ptr);
                     var oid = (GitOid)Marshal.PtrToStructure(oidPtr, typeof(GitOid));
-                    var targetId = new ObjectId(oid);
-                    targetIdentifier = targetId.Sha;
+                    targetOid = new ObjectId(oid);
 
-                    var targetBuilder = new Lazy<GitObject>(() => repo.Lookup(targetId));
-                    reference = new DirectReference(targetBuilder) { CanonicalName = name, TargetIdentifier = targetIdentifier };
+                    var targetBuilder = new Lazy<GitObject>(() => repo.Lookup(targetOid));
+                    reference = new DirectReference(targetBuilder) { CanonicalName = name, TargetIdentifier = targetOid.Sha };
                     break;
 
                 default:
@@ -69,8 +69,6 @@ namespace LibGit2Sharp
             {
                 return reference as T;
             }
-
-            var targetOid = new ObjectId(targetIdentifier);
 
             if (Equals(typeof(T), typeof(Tag)))
             {
