@@ -102,7 +102,6 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
-        [Explicit("Bug")]
         public void CanListAllBranchesIncludingRemoteRefs()
         {
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(Constants.StandardTestRepoPath);
