@@ -268,10 +268,18 @@ namespace LibGit2Sharp.Tests
             {
                 Assert.Throws<ArgumentException>(() => repo.Lookup(string.Empty));
                 Assert.Throws<ArgumentException>(() => repo.Lookup<GitObject>(string.Empty));
-                Assert.Throws<ArgumentNullException>(() => repo.Lookup((string)null));
-                Assert.Throws<ArgumentNullException>(() => repo.Lookup((ObjectId)null));
-                Assert.Throws<ArgumentNullException>(() => repo.Lookup<Commit>((string)null));
-                Assert.Throws<ArgumentNullException>(() => repo.Lookup<Commit>((ObjectId)null));
+            }
+        }
+
+        [Test]
+        public void LookingUpWithNullReturnsNull()
+        {
+            using (var repo = new Repository(Constants.BareTestRepoPath))
+            {
+                repo.Lookup((string)null).ShouldBeNull();
+                repo.Lookup((ObjectId)null).ShouldBeNull();
+                repo.Lookup<Commit>((string)null).ShouldBeNull();
+                repo.Lookup<Commit>((ObjectId)null).ShouldBeNull();
             }
         }
 

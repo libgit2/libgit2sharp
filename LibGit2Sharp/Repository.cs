@@ -224,7 +224,8 @@ namespace LibGit2Sharp
         /// <returns>The <see cref = "GitObject" /> or null if it was not found.</returns>
         public GitObject Lookup(ObjectId id, GitObjectType type = GitObjectType.Any)
         {
-            Ensure.ArgumentNotNull(id, "id");
+            if (id == null)
+                return null;
 
             GitOid oid = id.Oid;
             IntPtr obj;
@@ -262,6 +263,9 @@ namespace LibGit2Sharp
         /// <returns>The <see cref = "GitObject" /> or null if it was not found.</returns>
         public GitObject Lookup(string shaOrReferenceName, GitObjectType type = GitObjectType.Any)
         {
+            if (shaOrReferenceName == null)
+                return null;
+
             ObjectId id;
 
             if (ObjectId.TryParse(shaOrReferenceName, out id))

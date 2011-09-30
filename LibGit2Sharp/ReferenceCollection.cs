@@ -30,7 +30,11 @@ namespace LibGit2Sharp
         /// <returns>The resolved <see cref = "LibGit2Sharp.Reference" /> if it has been found, null otherwise.</returns>
         public Reference this[string name]
         {
-            get { return Resolve<Reference>(name); }
+            get
+            {
+                Ensure.ArgumentNotNullOrEmptyString(name, "name");
+                return Resolve<Reference>(name);
+            }
         }
 
         #region IEnumerable<Reference> Members
@@ -156,7 +160,8 @@ namespace LibGit2Sharp
 
         internal T Resolve<T>(string name) where T : class
         {
-            Ensure.ArgumentNotNullOrEmptyString(name, "name");
+            if (name == null)
+                return null;
 
             IntPtr reference = RetrieveReferencePtr(name, false);
 
