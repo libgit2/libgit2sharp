@@ -102,6 +102,26 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
+        [Explicit("Bug")]
+        public void CanListAllBranchesIncludingRemoteRefs()
+        {
+            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(Constants.StandardTestRepoPath);
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                var expectedBranchesIncludingRemoteRefs = new[]
+                {
+                    new { Name = "master", Sha = "592d3c869dbc4127fc57c189cb94f2794fa84e7e" },
+                    new { Name = "origin/HEAD", Sha = "4c062a6361ae6959e06292c1fa5e2822d9c96345" },
+                    new { Name = "origin/br2", Sha = "a4a7dce85cf63874e984719f4fdd239f5145052f" },
+                    new { Name = "origin/master", Sha = "4c062a6361ae6959e06292c1fa5e2822d9c96345" },
+                    new { Name = "origin/packed-test", Sha = "4a202b346bb0fb0db7eff3cffeb3c70babbd2045" },
+                    new { Name = "origin/test", Sha = "e90810b8df3e80c413d903f631643c716887138d" },
+                };
+                CollectionAssert.AreEqual(expectedBranchesIncludingRemoteRefs, repo.Branches.Select(b => new { b.Name, b.Tip.Sha }).ToArray());
+            }
+        }
+
+        [Test]
         public void CanLookupABranchByItsCanonicalName()
         {
             using (var repo = new Repository(Constants.BareTestRepoPath))
