@@ -1,6 +1,6 @@
 *.sln crlf
 *.csproj crlf
-*.cs crlf
+*.cs crlf diff=csharp
 
 *.md crlf
 
