@@ -49,7 +49,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(Constants.StandardTestRepoPath))
             {
-                Assert.AreEqual("+refs/heads/*:refs/remotes/origin/*", repo.Config.Get<string>("remotes.origin.fetch"));
+                Assert.AreEqual("+refs/heads/*:refs/remotes/origin/*", repo.Config.Get<string>("remote.origin.fetch"));
             }
         }
 

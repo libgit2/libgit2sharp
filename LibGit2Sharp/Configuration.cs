@@ -101,14 +101,14 @@ namespace LibGit2Sharp
         private int GetInt(string key)
         {
             int value;
-            Ensure.Success(NativeMethods.git_config_get_int(handle, key, out value));
+            Ensure.Success(NativeMethods.git_config_get_int32(handle, key, out value));
             return value;
         }
 
         private long GetLong(string key)
         {
             long value;
-            Ensure.Success(NativeMethods.git_config_get_long(handle, key, out value));
+            Ensure.Success(NativeMethods.git_config_get_int64(handle, key, out value));
             return value;
         }
 
@@ -151,13 +151,13 @@ namespace LibGit2Sharp
 
             if (typeof(T) == typeof(int))
             {
-                Ensure.Success(NativeMethods.git_config_set_int(handle, key, (int)(object)value));
+                Ensure.Success(NativeMethods.git_config_set_int32(handle, key, (int)(object)value));
                 return;
             }
 
             if (typeof(T) == typeof(long))
             {
-                Ensure.Success(NativeMethods.git_config_set_long(handle, key, (long)(object)value));
+                Ensure.Success(NativeMethods.git_config_set_int64(handle, key, (long)(object)value));
                 return;
             }
 
