@@ -5,8 +5,6 @@ namespace LibGit2Sharp.Tests.TestHelpers
 {
     public static class AssertExtensions
     {
-        #region public
-
         public static void ShouldBeAboutEqualTo(this DateTimeOffset expected, DateTimeOffset current)
         {
             Assert.AreEqual(expected.Date, current.Date);
@@ -50,7 +48,5 @@ namespace LibGit2Sharp.Tests.TestHelpers
         {
             Assert.AreNotEqual(compareTo, compareFrom);
         }
-
-        #endregion
     }
 }
