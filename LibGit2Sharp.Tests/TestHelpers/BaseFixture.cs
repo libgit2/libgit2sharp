@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using NUnit.Framework;
 
@@ -72,6 +73,16 @@ namespace LibGit2Sharp.Tests.TestHelpers
             {
                 DirectoryHelper.DeleteDirectory(directory);
             }
+        }
+
+        protected void InconclusiveIf(Func<bool> predicate, string message)
+        {
+            if (!predicate())
+            {
+                return;
+            }
+
+            Assert.Inconclusive();
         }
     }
 }
