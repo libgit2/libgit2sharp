@@ -48,6 +48,8 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(Constants.StandardTestRepoPath))
             {
+                InconclusiveIf(() => !repo.Config.HasGlobalConfig, "No Git global configuration available");
+
                 repo.Config.Get<string>("user.name").ShouldNotBeNull();
             }
         }
@@ -105,6 +107,8 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(Constants.StandardTestRepoPath))
             {
+                InconclusiveIf(() => !repo.Config.HasGlobalConfig, "No Git global configuration available");
+
                 var existing = repo.Config.Get<string>("user.name");
                 try
                 {
