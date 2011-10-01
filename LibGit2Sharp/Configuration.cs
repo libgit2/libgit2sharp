@@ -10,7 +10,7 @@ namespace LibGit2Sharp
     {
         private readonly ConfigurationSafeHandle handle;
 
-        public Configuration(Repository repository)
+        internal Configuration(Repository repository)
         {
             Ensure.Success(NativeMethods.git_repository_config(out handle, repository.Handle, null, null));
         }

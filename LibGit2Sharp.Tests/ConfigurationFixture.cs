@@ -146,7 +146,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(Constants.StandardTestRepoPath))
             {
                 Assert.Throws<ArgumentException>(() => repo.Config.Set("unittests.setting", (short)123));
-                Assert.Throws<ArgumentException>(() => repo.Config.Set("unittests.setting", new Configuration(repo)));
+                Assert.Throws<ArgumentException>(() => repo.Config.Set("unittests.setting", repo.Config));
             }
         }
     }
