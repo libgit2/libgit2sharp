@@ -91,6 +91,17 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
+        public void GetBranchByNameWithBadParamsThrows()
+        {
+            using (var repo = new Repository(Constants.BareTestRepoPath))
+            {
+                Branch branch;
+                Assert.Throws<ArgumentNullException>(() => branch = repo.Branches[null]);
+                Assert.Throws<ArgumentException>(() => branch = repo.Branches[""]);
+            }
+        }
+
+        [Test]
         public void CanListAllBranches()
         {
             using (var repo = new Repository(Constants.BareTestRepoPath))
