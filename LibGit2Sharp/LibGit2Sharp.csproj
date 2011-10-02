@@ -92,6 +92,7 @@
     <Compile Include="Core\IndexSafeHandle.cs" />
     <Compile Include="Filter.cs" />
     <Compile Include="IQueryableCommitCollection.cs" />
+    <Compile Include="NamedReference.cs" />
     <Compile Include="ObjectId.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Reference.cs" />
