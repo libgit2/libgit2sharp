@@ -219,7 +219,7 @@ namespace LibGit2Sharp
 
         public RepositoryStatus RetrieveStatus()
         {
-            return new RepositoryStatus(repo.Handle);
+            return new RepositoryStatus(repo);
         }
     }
 }

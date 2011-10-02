@@ -20,8 +20,6 @@ namespace LibGit2Sharp
         private readonly List<string> untracked = new List<string>();
         private readonly bool isDirty;
 
-        private readonly NativeMethods.status_callback callback;
-
         private readonly IDictionary<FileStatus, Action<RepositoryStatus, string>> dispatcher = Build();
 
         private static IDictionary<FileStatus, Action<RepositoryStatus, string>> Build()
@@ -37,17 +35,10 @@ namespace LibGit2Sharp
                        };
         }
 
-        internal RepositoryStatus(RepositorySafeHandle handle)
+        internal RepositoryStatus(Repository repo)
         {
-            callback = new NativeMethods.status_callback(StateChanged);
-            Process(handle);
+            Ensure.Success(NativeMethods.git_status_foreach(repo.Handle, StateChanged, IntPtr.Zero));
             isDirty = statusEntries.Count != 0;
-        }
-
-        private void Process(RepositorySafeHandle handle)
-        {
-            int res = NativeMethods.git_status_foreach(handle, callback, IntPtr.Zero);
-            Ensure.Success(res);
         }
 
         private int StateChanged(string filePath, uint state, IntPtr payload)
