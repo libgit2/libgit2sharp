@@ -63,7 +63,7 @@ namespace LibGit2Sharp
         /// </summary>
         public Commit Tip
         {
-            get { return Object; }
+            get { return TargetObject; }
         }
 
         /// <summary>
@@ -150,9 +150,9 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Returns the <see cref = "CanonicalName" />, a <see cref = "String" /> representation of the current <see cref = "Branch" />.
+        ///   Returns the <see cref = "NamedReference{TObject}.CanonicalName" />, a <see cref = "String" /> representation of the current <see cref = "Branch" />.
         /// </summary>
-        /// <returns>The <see cref = "CanonicalName" /> that represents the current <see cref = "Branch" />.</returns>
+        /// <returns>The <see cref = "NamedReference{TObject}.CanonicalName" /> that represents the current <see cref = "Branch" />.</returns>
         public override string ToString()
         {
             return CanonicalName;

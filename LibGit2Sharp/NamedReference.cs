@@ -15,7 +15,7 @@ namespace LibGit2Sharp
 
             this.repo = repo;
             CanonicalName = canonicalNameSelector(reference);
-            objectBuilder = new Lazy<TObject>(() => GetObject(reference));
+            objectBuilder = new Lazy<TObject>(() => RetrieveTargetObject(reference));
         }
 
         /// <summary>
@@ -40,11 +40,14 @@ namespace LibGit2Sharp
             return CanonicalName;
         }
 
-        protected TObject Object { get { return objectBuilder.Value; } }
+        protected TObject TargetObject
+        {
+            get { return objectBuilder.Value; }
+        }
 
         protected abstract string Shorten(string tagName);
 
-        private TObject GetObject(Reference reference)
+        private TObject RetrieveTargetObject(Reference reference)
         {
             Ensure.ArgumentNotNull(reference, "reference");
 

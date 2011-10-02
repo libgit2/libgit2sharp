@@ -22,7 +22,7 @@ namespace LibGit2Sharp
         /// </summary>
         public TagAnnotation Annotation
         {
-            get { return Object as TagAnnotation; }
+            get { return TargetObject as TagAnnotation; }
         }
 
         /// <summary>
@@ -32,7 +32,7 @@ namespace LibGit2Sharp
         {
             get
             {
-                GitObject target = Object;
+                GitObject target = TargetObject;
 
                 if ((!(target is TagAnnotation)))
                 {
