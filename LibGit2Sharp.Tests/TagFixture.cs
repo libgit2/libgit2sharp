@@ -506,6 +506,17 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
+        public void GetTagByNameWithBadParamsThrows()
+        {
+            using (var repo = new Repository(Constants.BareTestRepoPath))
+            {
+                Tag tag;
+                Assert.Throws<ArgumentNullException>(() => tag = repo.Tags[null]);
+                Assert.Throws<ArgumentException>(() => tag = repo.Tags[""]);
+            }
+        }
+
+        [Test]
         public void CanListTags()
         {
             using (var repo = new Repository(Constants.BareTestRepoPath))

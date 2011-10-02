@@ -60,17 +60,7 @@ namespace LibGit2Sharp
         /// <returns></returns>
         public Branch Head
         {
-            get
-            {
-                Reference headRef = Refs["HEAD"];
-
-                if (Info.IsEmpty)
-                {
-                    return new Branch(headRef.TargetIdentifier, this);
-                }
-
-                return Refs.Resolve<Branch>(headRef.ResolveToDirectReference().CanonicalName);
-            }
+            get { return new Branch(this, Refs["HEAD"]); }
         }
 
         /// <summary>

@@ -7,22 +7,19 @@ namespace LibGit2Sharp
     /// <summary>
     ///   A branch is a special kind of reference
     /// </summary>
-    public class Branch : IEquatable<Branch>
+    public class Branch : NamedReference<Commit>, IEquatable<Branch>
     {
         private static readonly LambdaEqualityHelper<Branch> equalityHelper =
             new LambdaEqualityHelper<Branch>(new Func<Branch, object>[] { x => x.CanonicalName, x => x.Tip });
 
-        private readonly Repository repo;
-        private readonly Lazy<Commit> tipBuilder;
-
         /// <summary>
         ///   Initializes a new instance of the <see cref = "Branch" /> class.
         /// </summary>
-        /// <param name = "targetId">The id of the commit which is pointed at by this Branch</param>
         /// <param name = "repo">The repo.</param>
+        /// <param name = "reference">The reference.</param>
         /// <param name = "canonicalName">The full name of the reference</param>
-        internal Branch(string canonicalName, ObjectId targetId, Repository repo)
-            : this(canonicalName, new Lazy<Commit>(() => repo.Lookup<Commit>(targetId)), repo)
+        internal Branch(Repository repo, Reference reference, string canonicalName)
+            : base(repo, reference, _ => canonicalName)
         {
         }
 
@@ -33,34 +30,10 @@ namespace LibGit2Sharp
         ///   </para>
         /// </summary>
         /// <param name = "repo">The repo.</param>
-        /// <param name = "canonicalName">The full name of the reference</param>
-        internal Branch(string canonicalName, Repository repo)
-            : this(canonicalName, new Lazy<Commit>(() => null), repo)
+        /// <param name = "reference">The reference.</param>
+        internal Branch(Repository repo, Reference reference)
+            : base(repo, reference, r => r.TargetIdentifier)
         {
-        }
-
-        private Branch(string canonicalName, Lazy<Commit> tipBuilder, Repository repo)
-        {
-            Ensure.ArgumentNotNullOrEmptyString(canonicalName, "canonicalName");
-            Ensure.ArgumentNotNull(tipBuilder, "tipObjectId");
-            Ensure.ArgumentNotNull(repo, "repo");
-
-            this.repo = repo;
-            CanonicalName = canonicalName;
-            this.tipBuilder = tipBuilder;
-        }
-
-        /// <summary>
-        ///   Gets the full name of this branch.
-        /// </summary>
-        public string CanonicalName { get; private set; }
-
-        /// <summary>
-        ///   Gets the name of this branch.
-        /// </summary>
-        public string Name
-        {
-            get { return ShortenName(CanonicalName); }
         }
 
         /// <summary>
@@ -90,7 +63,7 @@ namespace LibGit2Sharp
         /// </summary>
         public Commit Tip
         {
-            get { return tipBuilder.Value; }
+            get { return Object; }
         }
 
         /// <summary>
@@ -139,7 +112,7 @@ namespace LibGit2Sharp
             return canonicalName.StartsWith("refs/remotes/", StringComparison.Ordinal);
         }
 
-        private static string ShortenName(string branchName)
+        protected override string Shorten(string branchName)
         {
             if (branchName.StartsWith("refs/heads/", StringComparison.Ordinal))
             {
