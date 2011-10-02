@@ -72,12 +72,12 @@ namespace LibGit2Sharp
 
             if (Equals(typeof(T), typeof(Tag)))
             {
-                return new Tag(reference.CanonicalName, targetOid, repo) as T;
+                return new Tag(repo, reference, reference.CanonicalName) as T;
             }
 
             if (Equals(typeof(T), typeof(Branch)))
             {
-                return new Branch(reference.CanonicalName, targetOid, repo) as T;
+                return new Branch(repo, reference, reference.CanonicalName) as T;
             }
 
             throw new LibGit2Exception(
