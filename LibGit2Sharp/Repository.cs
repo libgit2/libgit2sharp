@@ -60,17 +60,7 @@ namespace LibGit2Sharp
         /// <returns></returns>
         public Branch Head
         {
-            get
-            {
-                Reference headRef = Refs["HEAD"];
-
-                if (Info.IsEmpty)
-                {
-                    return new Branch(headRef.TargetIdentifier, this);
-                }
-
-                return Refs.Resolve<Branch>(headRef.ResolveToDirectReference().CanonicalName);
-            }
+            get { return new Branch(this, Refs["HEAD"]); }
         }
 
         /// <summary>
@@ -224,7 +214,8 @@ namespace LibGit2Sharp
         /// <returns>The <see cref = "GitObject" /> or null if it was not found.</returns>
         public GitObject Lookup(ObjectId id, GitObjectType type = GitObjectType.Any)
         {
-            Ensure.ArgumentNotNull(id, "id");
+            if (id == null)
+                return null;
 
             GitOid oid = id.Oid;
             IntPtr obj;
@@ -262,6 +253,9 @@ namespace LibGit2Sharp
         /// <returns>The <see cref = "GitObject" /> or null if it was not found.</returns>
         public GitObject Lookup(string shaOrReferenceName, GitObjectType type = GitObjectType.Any)
         {
+            if (shaOrReferenceName == null)
+                return null;
+
             ObjectId id;
 
             if (ObjectId.TryParse(shaOrReferenceName, out id))

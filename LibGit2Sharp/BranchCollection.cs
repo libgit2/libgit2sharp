@@ -28,7 +28,13 @@ namespace LibGit2Sharp
         /// </summary>
         public Branch this[string name]
         {
-            get { return repo.Refs.Resolve<Branch>(NormalizeToCanonicalName(name)); }
+            get
+            {
+                Ensure.ArgumentNotNullOrEmptyString(name, "name");
+                var canonicalName = NormalizeToCanonicalName(name);
+                var reference = repo.Refs.Resolve<Reference>(canonicalName);
+                return reference == null ? null : new Branch(repo, reference, canonicalName);
+            }
         }
 
         #region IEnumerable<Branch> Members
