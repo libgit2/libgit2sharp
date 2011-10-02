@@ -154,7 +154,7 @@ namespace LibGit2Sharp
             return Reference.BuildFromPtr<Reference>(referencePtr, repo);
         }
 
-        internal T Resolve<T>(string name) where T : class
+        internal T Resolve<T>(string name) where T : Reference
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
 
