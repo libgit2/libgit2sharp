@@ -19,7 +19,7 @@ namespace LibGit2Sharp
         public string CanonicalName { get; protected set; }
 
         //TODO: Cries for refactoring... really!
-        internal static T BuildFromPtr<T>(IntPtr ptr, Repository repo) where T : class
+        internal static T BuildFromPtr<T>(IntPtr ptr, Repository repo) where T : Reference
         {
             if (ptr == IntPtr.Zero)
             {
@@ -30,7 +30,6 @@ namespace LibGit2Sharp
             GitReferenceType type = NativeMethods.git_reference_type(ptr);
 
             Reference reference;
-            ObjectId targetOid = null;
 
             switch (type)
             {
@@ -48,14 +47,13 @@ namespace LibGit2Sharp
                     Ensure.Success(res);
 
                     var targetRef = BuildFromPtr<DirectReference>(resolveRef, repo);
-                    targetOid = targetRef.Target.Id;
                     reference = new SymbolicReference { CanonicalName = name, Target = targetRef, TargetIdentifier = targetIdentifier };
                     break;
 
                 case GitReferenceType.Oid:
                     IntPtr oidPtr = NativeMethods.git_reference_oid(ptr);
                     var oid = (GitOid)Marshal.PtrToStructure(oidPtr, typeof(GitOid));
-                    targetOid = new ObjectId(oid);
+                    var targetOid = new ObjectId(oid);
 
                     var targetBuilder = new Lazy<GitObject>(() => repo.Lookup(targetOid));
                     reference = new DirectReference(targetBuilder) { CanonicalName = name, TargetIdentifier = targetOid.Sha };
@@ -65,25 +63,7 @@ namespace LibGit2Sharp
                     throw new LibGit2Exception(String.Format(CultureInfo.InvariantCulture, "Unable to build a new reference from a type '{0}'.", Enum.GetName(typeof(GitReferenceType), type)));
             }
 
-            if (typeof(Reference).IsAssignableFrom(typeof(T)))
-            {
-                return reference as T;
-            }
-
-            if (Equals(typeof(T), typeof(Tag)))
-            {
-                return new Tag(repo, reference, reference.CanonicalName) as T;
-            }
-
-            if (Equals(typeof(T), typeof(Branch)))
-            {
-                return new Branch(repo, reference, reference.CanonicalName) as T;
-            }
-
-            throw new LibGit2Exception(
-                string.Format(CultureInfo.InvariantCulture, "Unable to build a new instance of '{0}' from a reference of type '{1}'.",
-                              typeof(T),
-                              Enum.GetName(typeof(GitReferenceType), type)));
+            return reference as T;
         }
 
         /// <summary>
