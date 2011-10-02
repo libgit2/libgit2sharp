@@ -132,9 +132,9 @@ namespace LibGit2Sharp
         ///     repo.Config.Set("test.boolsetting", true);
         ///   </para>
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="key"></param>
-        /// <param name="value"></param>
+        /// <typeparam name = "T"></typeparam>
+        /// <param name = "key"></param>
+        /// <param name = "value"></param>
         public void Set<T>(string key, T value)
         {
             if (typeof(T) == typeof(string))
