@@ -16,7 +16,7 @@ namespace LibGit2Sharp.Core
 
         #region ICustomMarshaler Members
 
-        public unsafe IntPtr MarshalManagedToNative(object managedObj)
+        public virtual IntPtr MarshalManagedToNative(object managedObj)
         {
             if (managedObj == null)
             {
@@ -28,8 +28,13 @@ namespace LibGit2Sharp.Core
                 throw new MarshalDirectiveException("UTF8Marshaler must be used on a string.");
             }
 
+            return StringToNative((string)managedObj);
+        }
+
+        protected unsafe IntPtr StringToNative(string value)
+        {
             // not null terminated
-            byte[] strbuf = Encoding.UTF8.GetBytes((string)managedObj);
+            byte[] strbuf = Encoding.UTF8.GetBytes(value);
             IntPtr buffer = Marshal.AllocHGlobal(strbuf.Length + 1);
             Marshal.Copy(strbuf, 0, buffer, strbuf.Length);
 
@@ -40,7 +45,12 @@ namespace LibGit2Sharp.Core
             return buffer;
         }
 
-        public unsafe object MarshalNativeToManaged(IntPtr pNativeData)
+        public virtual object MarshalNativeToManaged(IntPtr pNativeData)
+        {
+            return NativeToString(pNativeData);
+        }
+
+        protected unsafe string NativeToString(IntPtr pNativeData)
         {
             var walk = (byte*)pNativeData;
 

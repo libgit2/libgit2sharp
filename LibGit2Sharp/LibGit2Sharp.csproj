@@ -51,6 +51,8 @@
     <Compile Include="Commit.cs" />
     <Compile Include="CommitCollection.cs" />
     <Compile Include="Configuration.cs" />
+    <Compile Include="Core\FilePath.cs" />
+    <Compile Include="Core\FilePathMarshaler.cs" />
     <Compile Include="ConfigurationLevel.cs" />
     <Compile Include="Core\Compat\Tuple.cs" />
     <Compile Include="Core\DisposableEnumerable.cs" />
