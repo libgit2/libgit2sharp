@@ -29,7 +29,13 @@ namespace LibGit2Sharp
         /// </summary>
         public Tag this[string name]
         {
-            get { return repo.Refs.Resolve<Tag>(NormalizeToCanonicalName(name)); }
+            get
+            {
+                Ensure.ArgumentNotNullOrEmptyString(name, "name");
+                var canonicalName = NormalizeToCanonicalName(name);
+                var reference = repo.Refs.Resolve<Reference>(canonicalName);
+                return reference == null ? null : new Tag(repo, reference, canonicalName);
+            }
         }
 
         #region IEnumerable<Tag> Members
