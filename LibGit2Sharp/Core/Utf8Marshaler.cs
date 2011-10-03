@@ -75,5 +75,24 @@ namespace LibGit2Sharp.Core
 
             return staticInstance;
         }
+
+        public static string Utf8FromBuffer(byte[] buffer)
+        {
+            int nullTerminator;
+            for (nullTerminator = 0; nullTerminator < buffer.Length; nullTerminator++)
+            {
+                if (buffer[nullTerminator] == 0)
+                {
+                    break;
+                }
+            }
+
+            if (nullTerminator == 0)
+            {
+                return null;
+            }
+
+            return Encoding.UTF8.GetString(buffer, 0, nullTerminator);
+        }
     }
 }

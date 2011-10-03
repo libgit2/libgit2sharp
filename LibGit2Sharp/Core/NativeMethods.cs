@@ -5,6 +5,7 @@ namespace LibGit2Sharp.Core
 {
     internal static class NativeMethods
     {
+        public const int GIT_PATH_MAX = 4096;
         private const string libgit2 = "git2";
 
         [DllImport(libgit2)]
@@ -54,6 +55,12 @@ namespace LibGit2Sharp.Core
         public static extern int git_config_delete(ConfigurationSafeHandle cfg, string name);
 
         [DllImport(libgit2)]
+        public static extern int git_config_find_global(byte[] global_config_path);
+
+        [DllImport(libgit2)]
+        public static extern int git_config_find_system(byte[] system_config_path);
+
+        [DllImport(libgit2)]
         public static extern void git_config_free(IntPtr cfg);
 
         [DllImport(libgit2)]
@@ -63,13 +70,13 @@ namespace LibGit2Sharp.Core
             out bool value);
 
         [DllImport(libgit2)]
-        public static extern int git_config_get_int(
+        public static extern int git_config_get_int32(
             ConfigurationSafeHandle cfg,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string name,
             out int value);
 
         [DllImport(libgit2)]
-        public static extern int git_config_get_long(
+        public static extern int git_config_get_int64(
             ConfigurationSafeHandle cfg,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string name,
             out long value);
@@ -95,13 +102,13 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.Bool)] bool value);
 
         [DllImport(libgit2)]
-        public static extern int git_config_set_int(
+        public static extern int git_config_set_int32(
             ConfigurationSafeHandle cfg,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string name,
             int value);
 
         [DllImport(libgit2)]
-        public static extern int git_config_set_long(
+        public static extern int git_config_set_int64(
             ConfigurationSafeHandle cfg,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string name,
             long value);
