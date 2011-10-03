@@ -231,6 +231,32 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
+        public void TrackingInformationIsEmptyForNonTrackingBranch()
+        {
+            using (var repo = new Repository(Constants.BareTestRepoPath))
+            {
+                Branch branch = repo.Branches["test"];
+                branch.IsTracking.ShouldBeFalse();
+                branch.TrackedBranch.ShouldBeNull();
+                branch.AheadBy.ShouldEqual(0);
+                branch.BehindBy.ShouldEqual(0);
+            }
+        }
+
+        [Test]
+        public void CanGetTrackingInformationForTrackingBranch()
+        {
+            using (var repo = new Repository(Constants.StandardTestRepoPath))
+            {
+                Branch master = repo.Branches["master"];
+                master.IsTracking.ShouldBeTrue();
+                master.TrackedBranch.ShouldEqual(repo.Branches["refs/remotes/origin/master"]);
+                master.AheadBy.ShouldEqual(1);
+                master.BehindBy.ShouldEqual(0);
+            }
+        }
+
+        [Test]
         public void CanWalkCommitsFromAnotherBranch()
         {
             using (var repo = new Repository(Constants.BareTestRepoPath))
@@ -284,7 +310,7 @@ namespace LibGit2Sharp.Tests
                 Branch detachedHead = repo.Branches.Checkout(commitPointer);
 
                 repo.Info.IsHeadDetached.ShouldBeTrue();
-                
+
                 detachedHead.IsRemote.ShouldBeFalse();
                 detachedHead.CanonicalName.ShouldEqual(detachedHead.Name);
                 detachedHead.CanonicalName.ShouldEqual("(no branch)");

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.Linq;
 using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
@@ -12,6 +13,8 @@ namespace LibGit2Sharp
         private static readonly LambdaEqualityHelper<Branch> equalityHelper =
             new LambdaEqualityHelper<Branch>(new Func<Branch, object>[] { x => x.CanonicalName, x => x.Tip });
 
+        private readonly Lazy<Branch> trackedBranch;
+
         /// <summary>
         ///   Initializes a new instance of the <see cref = "Branch" /> class.
         /// </summary>
@@ -19,7 +22,7 @@ namespace LibGit2Sharp
         /// <param name = "reference">The reference.</param>
         /// <param name = "canonicalName">The full name of the reference</param>
         internal Branch(Repository repo, Reference reference, string canonicalName)
-            : base(repo, reference, _ => canonicalName)
+            : this(repo, reference, _ => canonicalName)
         {
         }
 
@@ -32,8 +35,14 @@ namespace LibGit2Sharp
         /// <param name = "repo">The repo.</param>
         /// <param name = "reference">The reference.</param>
         internal Branch(Repository repo, Reference reference)
-            : base(repo, reference, r => r.TargetIdentifier)
+            : this(repo, reference, r => r.TargetIdentifier)
         {
+        }
+
+        private Branch(Repository repo, Reference reference, Func<Reference, string> canonicalNameSelector)
+            : base(repo, reference, canonicalNameSelector)
+        {
+            trackedBranch = new Lazy<Branch>(ResolveTrackedBranch);
         }
 
         /// <summary>
@@ -63,6 +72,26 @@ namespace LibGit2Sharp
         public virtual bool IsRemote
         {
             get { return IsRemoteBranch(CanonicalName); }
+        }
+
+        public Branch TrackedBranch
+        {
+            get { return trackedBranch.Value; }
+        }
+
+        public bool IsTracking
+        {
+            get { return TrackedBranch != null; }
+        }
+
+        public int AheadBy
+        {
+            get { return IsTracking ? repo.Commits.QueryBy(new Filter { Since = Tip, Until = TrackedBranch }).Count() : 0; }
+        }
+
+        public int BehindBy
+        {
+            get { return IsTracking ? repo.Commits.QueryBy(new Filter { Since = TrackedBranch, Until = Tip }).Count() : 0; }
         }
 
         /// <summary>
@@ -123,6 +152,30 @@ namespace LibGit2Sharp
         public override int GetHashCode()
         {
             return equalityHelper.GetHashCode(this);
+        }
+
+        private Branch ResolveTrackedBranch()
+        {
+            var trackedRemote = repo.Config.Get<string>(string.Concat("branch.", Name, ".remote"));
+            if (trackedRemote == null)
+            {
+                return null;
+            }
+
+            var trackedRefName = repo.Config.Get<string>(string.Concat("branch.", Name, ".merge"));
+            if (trackedRefName == null)
+            {
+                return null;
+            }
+
+            var remoteRefName = ResolveTrackedReference(trackedRemote, trackedRefName);
+            return repo.Branches[remoteRefName];
+        }
+
+        private string ResolveTrackedReference(string trackedRemote, string trackedRefName)
+        {
+            //TODO: To be replaced by native libgit2 git_branch_tracked_reference() when available.
+            return trackedRefName.Replace("refs/heads/", string.Concat("refs/remotes/", trackedRemote, "/"));
         }
 
         private static bool IsRemoteBranch(string canonicalName)
