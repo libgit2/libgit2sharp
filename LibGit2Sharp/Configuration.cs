@@ -80,6 +80,7 @@ namespace LibGit2Sharp
         public void Delete(string key)
         {
             Ensure.Success(NativeMethods.git_config_delete(localHandle, key));
+            Save();
         }
 
         /// <summary>
@@ -165,6 +166,8 @@ namespace LibGit2Sharp
         /// <returns>The configuration value, or <c>defaultValue</c> if not set</returns>
         public T Get<T>(string key, T defaultValue = default(T))
         {
+            Ensure.ArgumentNotNullOrEmptyString(key, "key");
+
             if (!configurationTypedRetriever.ContainsKey(typeof(T)))
             {
                 throw new ArgumentException(string.Format("Generic Argument of type '{0}' is not supported.", typeof(T).FullName));
@@ -188,10 +191,24 @@ namespace LibGit2Sharp
             }
         }
 
-        public void Save()
+        private void Save()
         {
             Dispose(true);
             Init();
+        }
+
+        private readonly IDictionary<Type, Action<string, object, ConfigurationSafeHandle>> configurationTypedUpdater = ConfigurationTypedUpdater();
+
+        private static Dictionary<Type, Action<string, object, ConfigurationSafeHandle>> ConfigurationTypedUpdater()
+        {
+            var dic = new Dictionary<Type, Action<string, object, ConfigurationSafeHandle>>();
+
+            dic.Add(typeof(int), (key, val, handle) => Ensure.Success(NativeMethods.git_config_set_int32(handle, key, (int)val)));
+            dic.Add(typeof(long), (key, val, handle) => Ensure.Success(NativeMethods.git_config_set_int64(handle, key, (long)val)));
+            dic.Add(typeof(bool), (key, val, handle) => Ensure.Success(NativeMethods.git_config_set_bool(handle, key, (bool)val)));
+            dic.Add(typeof(string), (key, val, handle) => Ensure.Success(NativeMethods.git_config_set_string(handle, key, (string)val)));
+
+            return dic;
         }
 
         /// <summary>
@@ -213,14 +230,16 @@ namespace LibGit2Sharp
         /// <param name = "level"></param>
         public void Set<T>(string key, T value, ConfigurationLevel level = ConfigurationLevel.Local)
         {
+            Ensure.ArgumentNotNullOrEmptyString(key, "key");
+
             if (level == ConfigurationLevel.Global && !HasGlobalConfig)
             {
-                throw new NotSupportedException();
+                throw new LibGit2Exception("No global configuration file has been found.");
             }
 
             if (level == ConfigurationLevel.System && !HasSystemConfig)
             {
-                throw new NotSupportedException();
+                throw new LibGit2Exception("No system configuration file has been found.");
             }
 
             ConfigurationSafeHandle h;
@@ -230,41 +249,26 @@ namespace LibGit2Sharp
                 case ConfigurationLevel.Local:
                     h = localHandle;
                     break;
+
                 case ConfigurationLevel.Global:
                     h = globalHandle;
                     break;
+
                 case ConfigurationLevel.System:
                     h = systemHandle;
                     break;
+
                 default:
                     throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "Configuration level has an unexpected value ('{0}').", Enum.GetName(typeof(ConfigurationLevel), level)), "level");
             }
 
-            if (typeof(T) == typeof(string))
+            if (!configurationTypedUpdater.ContainsKey(typeof(T)))
             {
-                Ensure.Success(NativeMethods.git_config_set_string(h, key, (string)(object)value));
-                return;
+                throw new ArgumentException(string.Format("Generic Argument of type '{0}' is not supported.", typeof(T).FullName));
             }
 
-            if (typeof(T) == typeof(bool))
-            {
-                Ensure.Success(NativeMethods.git_config_set_bool(h, key, (bool)(object)value));
-                return;
-            }
-
-            if (typeof(T) == typeof(int))
-            {
-                Ensure.Success(NativeMethods.git_config_set_int32(h, key, (int)(object)value));
-                return;
-            }
-
-            if (typeof(T) == typeof(long))
-            {
-                Ensure.Success(NativeMethods.git_config_set_int64(h, key, (long)(object)value));
-                return;
-            }
-
-            throw new ArgumentException(string.Format("Generic Argument of type '{0}' is not supported.", typeof(T).FullName));
+            configurationTypedUpdater[typeof(T)](key, value, h);
+            Save();
         }
     }
 }

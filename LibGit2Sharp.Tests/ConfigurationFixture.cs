@@ -34,10 +34,12 @@ namespace LibGit2Sharp.Tests
             var path = BuildTemporaryCloneOfTestRepo(Constants.StandardTestRepoPath);
             using (var repo = new Repository(path.RepositoryPath))
             {
+                repo.Config.Get<bool>("unittests.boolsetting").ShouldBeFalse();
+
                 repo.Config.Set("unittests.boolsetting", true);
+                repo.Config.Get<bool>("unittests.boolsetting").ShouldBeTrue();
 
                 repo.Config.Delete("unittests.boolsetting");
-                repo.Config.Save();
 
                 repo.Config.Get<bool>("unittests.boolsetting").ShouldBeFalse();
             }
@@ -113,7 +115,6 @@ namespace LibGit2Sharp.Tests
                 try
                 {
                     repo.Config.Set("user.name", "Unit Test", ConfigurationLevel.Global);
-                    repo.Config.Save();
 
                     AssertValueInGlobalConfigFile("name = Unit Test$");
                 }
