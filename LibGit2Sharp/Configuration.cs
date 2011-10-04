@@ -63,59 +63,80 @@ namespace LibGit2Sharp
         ///     bool isBare = repo.Config.Get&lt;bool&gt;("core.bare");
         ///   </para>
         /// </summary>
-        /// <typeparam name = "T"></typeparam>
-        /// <param name = "key"></param>
-        /// <returns></returns>
-        public T Get<T>(string key)
+        /// <typeparam name = "T">The configuration value type</typeparam>
+        /// <param name = "key">The key</param>
+        /// <param name="defaultValue">The default value (optional)</param>
+        /// <returns>The configuration value, or <c>defaultValue</c> if not set</returns>
+        public T Get<T>(string key, T defaultValue = default(T))
         {
             if (typeof(T) == typeof(string))
             {
-                return (T)(object)GetString(key);
+                return (T)(object)GetString(key, (string)(object)defaultValue);
             }
 
             if (typeof(T) == typeof(bool))
             {
-                return (T)(object)GetBool(key);
+                return (T)(object)GetBool(key, (bool)(object)defaultValue);
             }
 
             if (typeof(T) == typeof(int))
             {
-                return (T)(object)GetInt(key);
+                return (T)(object)GetInt(key, (int)(object)defaultValue);
             }
 
             if (typeof(T) == typeof(long))
             {
-                return (T)(object)GetLong(key);
+                return (T)(object)GetLong(key, (long)(object)defaultValue);
             }
 
             throw new ArgumentException(string.Format("Generic Argument of type '{0}' is not supported.", typeof(T).FullName));
         }
 
-        private bool GetBool(string key)
+        private bool GetBool(string key, bool defaultValue)
         {
             bool value;
-            Ensure.Success(NativeMethods.git_config_get_bool(handle, key, out value));
+            var res = NativeMethods.git_config_get_bool(handle, key, out value);
+            if(res == (int)GitErrorCode.GIT_ENOTFOUND)
+            {
+                return defaultValue;
+            }
+            Ensure.Success(res);
             return value;
         }
 
-        private int GetInt(string key)
+        private int GetInt(string key, int defaultValue)
         {
             int value;
-            Ensure.Success(NativeMethods.git_config_get_int(handle, key, out value));
+            var res = NativeMethods.git_config_get_int(handle, key, out value);
+            if(res == (int)GitErrorCode.GIT_ENOTFOUND)
+            {
+                return defaultValue;
+            }
+            Ensure.Success(res);
             return value;
         }
 
-        private long GetLong(string key)
+        private long GetLong(string key, long defaultValue)
         {
             long value;
-            Ensure.Success(NativeMethods.git_config_get_long(handle, key, out value));
+            var res = NativeMethods.git_config_get_long(handle, key, out value);
+            if(res == (int)GitErrorCode.GIT_ENOTFOUND)
+            {
+                return defaultValue;
+            }
+            Ensure.Success(res);
             return value;
         }
 
-        private string GetString(string key)
+        private string GetString(string key, string defaultValue)
         {
             IntPtr value;
-            Ensure.Success(NativeMethods.git_config_get_string(handle, key, out value));
+            var res = NativeMethods.git_config_get_string(handle, key, out value);
+            if(res == (int)GitErrorCode.GIT_ENOTFOUND)
+            {
+                return defaultValue;
+            }
+            Ensure.Success(res);
             return value.MarshallAsString();
         }
 
