@@ -73,10 +73,7 @@ namespace LibGit2Sharp
         /// </summary>
         protected virtual void Dispose(bool disposing)
         {
-            if (handle != null && !handle.IsInvalid)
-            {
-                handle.Dispose();
-            }
+            handle.SafeDispose();
         }
 
         #endregion

@@ -22,7 +22,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(Constants.StandardTestRepoPath))
             {
-                Assert.IsFalse(repo.Config.Get<bool>("core.bare"));
+                Assert.IsTrue(repo.Config.Get<bool>("core.ignorecase"));
             }
         }
 
@@ -78,7 +78,7 @@ namespace LibGit2Sharp.Tests
 
             using (var repo = new Repository(path.RepositoryPath))
             {
-                Assert.Throws<LibGit2Exception>(() => repo.Config.Get<bool>("unittests.boolsetting"));
+                repo.Config.Get<bool>("unittests.boolsetting").ShouldBeFalse();
             }
         }
 
@@ -129,14 +129,18 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
-        public void ReadingValueThatDoesntExistThrows()
+        public void ReadingValueThatDoesntExistReturnsDefault()
         {
             using (var repo = new Repository(Constants.StandardTestRepoPath))
             {
-                Assert.Throws<LibGit2Exception>(() => repo.Config.Get<string>("unittests.ghostsetting"));
-                Assert.Throws<LibGit2Exception>(() => repo.Config.Get<int>("unittests.ghostsetting"));
-                Assert.Throws<LibGit2Exception>(() => repo.Config.Get<long>("unittests.ghostsetting"));
-                Assert.Throws<LibGit2Exception>(() => repo.Config.Get<bool>("unittests.ghostsetting"));
+                repo.Config.Get<string>("unittests.ghostsetting").ShouldBeNull();
+                repo.Config.Get<int>("unittests.ghostsetting").ShouldEqual(0);
+                repo.Config.Get<long>("unittests.ghostsetting").ShouldEqual(0L);
+                repo.Config.Get<bool>("unittests.ghostsetting").ShouldBeFalse();
+                repo.Config.Get("unittests.ghostsetting", "42").ShouldEqual("42");
+                repo.Config.Get("unittests.ghostsetting", 42).ShouldEqual(42);
+                repo.Config.Get("unittests.ghostsetting", 42L).ShouldEqual(42L);
+                repo.Config.Get("unittests.ghostsetting", true).ShouldBeTrue();
             }
         }
 
@@ -146,7 +150,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(Constants.StandardTestRepoPath))
             {
                 Assert.Throws<ArgumentException>(() => repo.Config.Set("unittests.setting", (short)123));
-                Assert.Throws<ArgumentException>(() => repo.Config.Set("unittests.setting", new Configuration(repo)));
+                Assert.Throws<ArgumentException>(() => repo.Config.Set("unittests.setting", repo.Config));
             }
         }
     }

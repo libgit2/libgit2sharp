@@ -6,21 +6,14 @@ namespace LibGit2Sharp
     /// <summary>
     ///   A Tag
     /// </summary>
-    public class Tag : IEquatable<Tag>
+    public class Tag : NamedReference<GitObject>, IEquatable<Tag>
     {
         private static readonly LambdaEqualityHelper<Tag> equalityHelper =
             new LambdaEqualityHelper<Tag>(new Func<Tag, object>[] { x => x.CanonicalName, x => x.Target });
 
-        private readonly Lazy<GitObject> targetBuilder;
-
-        internal Tag(string canonicalName, ObjectId targetId, Repository repo)
+        internal Tag(Repository repo, Reference reference, string canonicalName)
+            : base(repo, reference, _ => canonicalName)
         {
-            Ensure.ArgumentNotNullOrEmptyString(canonicalName, "canonicalName");
-            Ensure.ArgumentNotNull(targetId, "targetId");
-            Ensure.ArgumentNotNull(repo, "repo");
-
-            CanonicalName = canonicalName;
-            targetBuilder = new Lazy<GitObject>(() => repo.Lookup<GitObject>(targetId));
         }
 
         /// <summary>
@@ -29,20 +22,7 @@ namespace LibGit2Sharp
         /// </summary>
         public TagAnnotation Annotation
         {
-            get { return targetBuilder.Value as TagAnnotation; }
-        }
-
-        /// <summary>
-        ///   Gets the full name of this branch.
-        /// </summary>
-        public string CanonicalName { get; private set; }
-
-        /// <summary>
-        ///   Gets the name of this tag.
-        /// </summary>
-        public string Name
-        {
-            get { return Shorten(CanonicalName); }
+            get { return TargetObject as TagAnnotation; }
         }
 
         /// <summary>
@@ -52,7 +32,7 @@ namespace LibGit2Sharp
         {
             get
             {
-                GitObject target = targetBuilder.Value;
+                GitObject target = TargetObject;
 
                 if ((!(target is TagAnnotation)))
                 {
@@ -71,20 +51,11 @@ namespace LibGit2Sharp
             get { return Annotation != null; }
         }
 
-        private static string Shorten(string tagName)
+        protected override string Shorten(string tagName)
         {
             Ensure.ArgumentConformsTo(tagName, s => s.StartsWith("refs/tags/", StringComparison.Ordinal), "tagName");
 
             return tagName.Substring("refs/tags/".Length);
-        }
-
-        /// <summary>
-        ///   Returns the <see cref = "CanonicalName" />, a <see cref = "String" /> representation of the current <see cref = "Tag" />.
-        /// </summary>
-        /// <returns>The <see cref = "CanonicalName" /> that represents the current <see cref = "Tag" />.</returns>
-        public override string ToString()
-        {
-            return CanonicalName;
         }
 
         /// <summary>

@@ -51,6 +51,7 @@
     <Compile Include="Commit.cs" />
     <Compile Include="CommitCollection.cs" />
     <Compile Include="Configuration.cs" />
+    <Compile Include="Core\SafeHandleExtensions.cs" />
     <Compile Include="LibGit2Exception.cs" />
     <Compile Include="Core\ConfigurationSafeHandle.cs" />
     <Compile Include="Core\Ensure.cs" />
@@ -91,6 +92,7 @@
     <Compile Include="Core\IndexSafeHandle.cs" />
     <Compile Include="Filter.cs" />
     <Compile Include="IQueryableCommitCollection.cs" />
+    <Compile Include="NamedReference.cs" />
     <Compile Include="ObjectId.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Reference.cs" />

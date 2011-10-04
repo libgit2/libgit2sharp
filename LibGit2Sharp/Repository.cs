@@ -60,17 +60,7 @@ namespace LibGit2Sharp
         /// <returns></returns>
         public Branch Head
         {
-            get
-            {
-                Reference headRef = Refs["HEAD"];
-
-                if (Info.IsEmpty)
-                {
-                    return new Branch(headRef.TargetIdentifier, this);
-                }
-
-                return Refs.Resolve<Branch>(headRef.ResolveToDirectReference().CanonicalName);
-            }
+            get { return new Branch(this, Refs["HEAD"]); }
         }
 
         /// <summary>
@@ -154,10 +144,7 @@ namespace LibGit2Sharp
         /// </summary>
         protected virtual void Dispose(bool disposing)
         {
-            if (handle != null && !handle.IsInvalid)
-            {
-                handle.Dispose();
-            }
+            handle.SafeDispose();
 
             if (index != null)
             {
@@ -200,7 +187,7 @@ namespace LibGit2Sharp
             Ensure.Success(res);
 
             string normalizedPath = NativeMethods.git_repository_path(repo, GitRepositoryPathId.GIT_REPO_PATH).MarshallAsString();
-            repo.Dispose();
+            repo.SafeDispose();
 
             string nativePath = PosixPathHelper.ToNative(normalizedPath);
 

@@ -235,12 +235,7 @@ namespace LibGit2Sharp
 
             private void Dispose(bool disposing)
             {
-                if (handle == null || handle.IsInvalid)
-                {
-                    return;
-                }
-
-                handle.Dispose();
+                handle.SafeDispose();
             }
 
             private delegate int HidePushSignature(RevWalkerSafeHandle handle, ref GitOid oid);

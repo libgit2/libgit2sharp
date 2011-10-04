@@ -12,6 +12,14 @@ It provides a very opiniated API which should be very easy to use and discover.
 
  - Fork and clone locally
  - Configure your repo to convert line endings on commit so they are always LF in the repo:
+   - On Windows:
+```
+$ git config --global core.autocrlf true
+```
+   - On Linux:
+```
+$ git config --global core.autocrlf input
+```
  - Create a topic specific branch. Add some nice feature. Do not forget the tests ;-)
  - Send a Pull Request to spread the fun!
 

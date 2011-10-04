@@ -34,14 +34,14 @@ namespace LibGit2Sharp
         /// </summary>
         public string MessageShort
         {
-            get {  return shortMessage.Value; }
+            get { return shortMessage.Value; }
         }
 
         private string ExtractShortMessage()
         {
             if (Message == null)
             {
-                return string.Empty;    //TODO: Add some test coverage
+                return string.Empty; //TODO: Add some test coverage
             }
 
             return Message.Split('\n')[0];
