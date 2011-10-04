@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using LibGit2Sharp.Core;
 
@@ -91,6 +92,60 @@ namespace LibGit2Sharp
             systemHandle.SafeDispose();
         }
 
+        private static T ProcessReadResult<T>(int res, T value, T defaultValue, Func<object, T> postProcessor = null)
+        {
+            if (res == (int)GitErrorCode.GIT_ENOTFOUND)
+            {
+                return defaultValue;
+            }
+
+            Ensure.Success(res);
+
+            if (postProcessor == null)
+            {
+                return value;
+            }
+
+            return postProcessor(value);
+        }
+
+        private readonly IDictionary<Type, Func<string, object, ConfigurationSafeHandle, object>> configurationTypedRetriever = ConfigurationTypedRetriever();
+
+        private static Dictionary<Type, Func<string, object, ConfigurationSafeHandle, object>> ConfigurationTypedRetriever()
+        {
+            var dic = new Dictionary<Type, Func<string, object, ConfigurationSafeHandle, object>>();
+
+            dic.Add(typeof(int), (key, dv, handle) =>
+                                     {
+                                         int value;
+                                         int res = NativeMethods.git_config_get_int32(handle, key, out value);
+                                         return ProcessReadResult(res, value, dv);
+                                     });
+
+            dic.Add(typeof(long), (key, dv, handle) =>
+                                      {
+                                          long value;
+                                          int res = NativeMethods.git_config_get_int64(handle, key, out value);
+                                          return ProcessReadResult(res, value, dv);
+                                      });
+
+            dic.Add(typeof(bool), (key, dv, handle) =>
+                                      {
+                                          bool value;
+                                          int res = NativeMethods.git_config_get_bool(handle, key, out value);
+                                          return ProcessReadResult(res, value, dv);
+                                      });
+
+            dic.Add(typeof(string), (key, dv, handle) =>
+                                        {
+                                            IntPtr value;
+                                            int res = NativeMethods.git_config_get_string(handle, key, out value);
+                                            return ProcessReadResult(res, value, dv, s => ((IntPtr)s).MarshallAsString());
+                                        });
+
+            return dic;
+        }
+
         /// <summary>
         ///   Get a configuration value for a key. Keys are in the form 'section.name'.
         ///   <para>
@@ -106,79 +161,16 @@ namespace LibGit2Sharp
         /// </summary>
         /// <typeparam name = "T">The configuration value type</typeparam>
         /// <param name = "key">The key</param>
-        /// <param name="defaultValue">The default value (optional)</param>
+        /// <param name = "defaultValue">The default value (optional)</param>
         /// <returns>The configuration value, or <c>defaultValue</c> if not set</returns>
         public T Get<T>(string key, T defaultValue = default(T))
         {
-            if (typeof(T) == typeof(string))
+            if (!configurationTypedRetriever.ContainsKey(typeof(T)))
             {
-                return (T)(object)GetString(key, (string)(object)defaultValue);
+                throw new ArgumentException(string.Format("Generic Argument of type '{0}' is not supported.", typeof(T).FullName));
             }
 
-            if (typeof(T) == typeof(bool))
-            {
-                return (T)(object)GetBool(key, (bool)(object)defaultValue);
-            }
-
-            if (typeof(T) == typeof(int))
-            {
-                return (T)(object)GetInt(key, (int)(object)defaultValue);
-            }
-
-            if (typeof(T) == typeof(long))
-            {
-                return (T)(object)GetLong(key, (long)(object)defaultValue);
-            }
-
-            throw new ArgumentException(string.Format("Generic Argument of type '{0}' is not supported.", typeof(T).FullName));
-        }
-
-        private bool GetBool(string key, bool defaultValue)
-        {
-            bool value;
-            var res = NativeMethods.git_config_get_bool(LocalHandle, key, out value);
-            if(res == (int)GitErrorCode.GIT_ENOTFOUND)
-            {
-                return defaultValue;
-            }
-            Ensure.Success(res);
-            return value;
-        }
-
-        private int GetInt(string key, int defaultValue)
-        {
-            int value;
-            var res = NativeMethods.git_config_get_int32(LocalHandle, key, out value);
-            if(res == (int)GitErrorCode.GIT_ENOTFOUND)
-            {
-                return defaultValue;
-            }
-            Ensure.Success(res);
-            return value;
-        }
-
-        private long GetLong(string key, long defaultValue)
-        {
-            long value;
-            var res = NativeMethods.git_config_get_int64(LocalHandle, key, out value);
-            if(res == (int)GitErrorCode.GIT_ENOTFOUND)
-            {
-                return defaultValue;
-            }
-            Ensure.Success(res);
-            return value;
-        }
-
-        private string GetString(string key, string defaultValue)
-        {
-            IntPtr value;
-            var res = NativeMethods.git_config_get_string(LocalHandle, key, out value);
-            if(res == (int)GitErrorCode.GIT_ENOTFOUND)
-            {
-                return defaultValue;
-            }
-            Ensure.Success(res);
-            return value.MarshallAsString();
+            return (T)configurationTypedRetriever[typeof(T)](key, defaultValue, LocalHandle);
         }
 
         private void Init()
@@ -189,7 +181,6 @@ namespace LibGit2Sharp
             {
                 Ensure.Success(NativeMethods.git_config_open_ondisk(out globalHandle, globalConfigPath));
             }
-
 
             if (systemConfigPath != null)
             {
