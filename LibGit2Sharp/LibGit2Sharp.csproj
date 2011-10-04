@@ -51,7 +51,7 @@
     <Compile Include="Commit.cs" />
     <Compile Include="CommitCollection.cs" />
     <Compile Include="Configuration.cs" />
-    <Compile Include="Core\SafeHandleExtensions.cs" />
+    <Compile Include="ConfigurationLevel.cs" />
     <Compile Include="LibGit2Exception.cs" />
     <Compile Include="Core\ConfigurationSafeHandle.cs" />
     <Compile Include="Core\Ensure.cs" />
@@ -67,6 +67,7 @@
     <Compile Include="Core\IntPtrExtensions.cs" />
     <Compile Include="Core\Lazy.cs" />
     <Compile Include="Core\NativeMethods.cs" />
+    <Compile Include="Core\SafeHandleExtensions.cs" />
     <Compile Include="Core\ObjectSafeWrapper.cs" />
     <Compile Include="Core\PosixPathHelper.cs">
       <SubType>Code</SubType>

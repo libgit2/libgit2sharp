@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Text;
 using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
@@ -279,7 +278,7 @@ namespace LibGit2Sharp
         /// <returns>The path to the git repository.</returns>
         public static string Discover(string startingPath)
         {
-            var buffer = new byte[4096];
+            var buffer = new byte[NativeMethods.GIT_PATH_MAX];
 
             int result = NativeMethods.git_repository_discover(buffer, buffer.Length, PosixPathHelper.ToPosix(startingPath), false, null);
 
@@ -290,21 +289,7 @@ namespace LibGit2Sharp
 
             Ensure.Success(result);
 
-            int nullTerminator;
-            for (nullTerminator = 0; nullTerminator < buffer.Length; nullTerminator++)
-            {
-                if (buffer[nullTerminator] == 0)
-                {
-                    break;
-                }
-            }
-
-            if (nullTerminator == 0)
-            {
-                return null;
-            }
-
-            return PosixPathHelper.ToNative(Encoding.UTF8.GetString(buffer, 0, nullTerminator));
+            return PosixPathHelper.ToNative(Utf8Marshaler.Utf8FromBuffer(buffer));
         }
     }
 }
