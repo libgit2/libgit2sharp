@@ -63,13 +63,13 @@ namespace LibGit2Sharp.Core
             out bool value);
 
         [DllImport(libgit2)]
-        public static extern int git_config_get_int(
+        public static extern int git_config_get_int32(
             ConfigurationSafeHandle cfg,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string name,
             out int value);
 
         [DllImport(libgit2)]
-        public static extern int git_config_get_long(
+        public static extern int git_config_get_int64(
             ConfigurationSafeHandle cfg,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string name,
             out long value);
@@ -95,13 +95,13 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.Bool)] bool value);
 
         [DllImport(libgit2)]
-        public static extern int git_config_set_int(
+        public static extern int git_config_set_int32(
             ConfigurationSafeHandle cfg,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string name,
             int value);
 
         [DllImport(libgit2)]
-        public static extern int git_config_set_long(
+        public static extern int git_config_set_int64(
             ConfigurationSafeHandle cfg,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string name,
             long value);

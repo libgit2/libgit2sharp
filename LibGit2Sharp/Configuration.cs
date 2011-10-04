@@ -107,7 +107,7 @@ namespace LibGit2Sharp
         private int GetInt(string key, int defaultValue)
         {
             int value;
-            var res = NativeMethods.git_config_get_int(handle, key, out value);
+            var res = NativeMethods.git_config_get_int32(handle, key, out value);
             if(res == (int)GitErrorCode.GIT_ENOTFOUND)
             {
                 return defaultValue;
@@ -119,7 +119,7 @@ namespace LibGit2Sharp
         private long GetLong(string key, long defaultValue)
         {
             long value;
-            var res = NativeMethods.git_config_get_long(handle, key, out value);
+            var res = NativeMethods.git_config_get_int64(handle, key, out value);
             if(res == (int)GitErrorCode.GIT_ENOTFOUND)
             {
                 return defaultValue;
@@ -172,13 +172,13 @@ namespace LibGit2Sharp
 
             if (typeof(T) == typeof(int))
             {
-                Ensure.Success(NativeMethods.git_config_set_int(handle, key, (int)(object)value));
+                Ensure.Success(NativeMethods.git_config_set_int32(handle, key, (int)(object)value));
                 return;
             }
 
             if (typeof(T) == typeof(long))
             {
-                Ensure.Success(NativeMethods.git_config_set_long(handle, key, (long)(object)value));
+                Ensure.Success(NativeMethods.git_config_set_int64(handle, key, (long)(object)value));
                 return;
             }
 
