@@ -221,5 +221,17 @@ namespace LibGit2Sharp
 
             return reference;
         }
+
+        internal GitObject RetrieveTargetObject(string target)
+        {
+            GitObject objectToTag = repo.Lookup(target);
+
+            if (objectToTag == null)
+            {
+                throw new LibGit2Exception(String.Format(CultureInfo.InvariantCulture, "No object identified by '{0}' can be found in the repository.", target));
+            }
+
+            return objectToTag;
+        }
     }
 }

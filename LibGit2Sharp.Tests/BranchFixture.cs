@@ -232,6 +232,15 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
+        public void CreatingABranchPointingAtANonCanonicalReferenceThrows()
+        {
+            using (var repo = new Repository(Constants.BareTestRepoPath))
+            {
+                Assert.Throws<LibGit2Exception>(() => repo.Branches.Create("nocanonicaltarget", "br2"));
+            }
+        }
+
+        [Test]
         public void CreatingBranchWithEmptyTargetThrows()
         {
             using (var repo = new Repository(Constants.BareTestRepoPath))

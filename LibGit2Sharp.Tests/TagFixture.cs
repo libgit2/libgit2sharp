@@ -205,6 +205,15 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
+        public void CreatingATagForANonCanonicalReferenceThrows()
+        {
+            using (var repo = new Repository(Constants.BareTestRepoPath))
+            {
+                Assert.Throws<LibGit2Exception>(() => repo.ApplyTag("noncanonicaltarget", "br2"));
+            }
+        }
+
+        [Test]
         [Description("Ported from cgit (https://github.com/git/git/blob/1c08bf50cfcf924094eca56c2486a90e2bf1e6e2/t/t7004-tag.sh#L42)")]
         public void CreatingATagForAnUnknowObjectIdThrows()
         {

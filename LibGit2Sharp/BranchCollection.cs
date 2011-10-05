@@ -86,22 +86,13 @@ namespace LibGit2Sharp
         ///   Create a new local branch with the specified name
         /// </summary>
         /// <param name = "name">The name of the branch.</param>
-        /// <param name = "target">The target sha or branch name.</param>
+        /// <param name = "target">The target which can be sha or a canonical reference name.</param>
         /// <returns></returns>
         public Branch Create(string name, string target)
         {
-            ObjectId id;
+            GitObject targetObject = repo.Refs.RetrieveTargetObject(target);
 
-            if (!ObjectId.TryParse(target, out id))
-            {
-                Reference targetRef = repo.Refs[NormalizeToCanonicalName(target)];
-
-                EnsureTargetExists(targetRef, target);
-                DirectReference peeledTarget = targetRef.ResolveToDirectReference();
-                target = peeledTarget.TargetIdentifier;
-            }
-
-            repo.Refs.Create(NormalizeToCanonicalName(name), target);
+            repo.Refs.Create(NormalizeToCanonicalName(name), targetObject.Id.Sha);
             return this[name];
         }
 

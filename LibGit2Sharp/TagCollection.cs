@@ -79,7 +79,7 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(tagger, "tagger");
             Ensure.ArgumentNotNull(message, "message");
 
-            GitObject objectToTag = RetrieveObjectToTag(target);
+            GitObject objectToTag = repo.Refs.RetrieveTargetObject(target);
 
             int res;
             using (var objectPtr = new ObjectSafeWrapper(objectToTag.Id, repo))
@@ -105,7 +105,7 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
             Ensure.ArgumentNotNullOrEmptyString(target, "target");
 
-            GitObject objectToTag = RetrieveObjectToTag(target);
+            GitObject objectToTag = repo.Refs.RetrieveTargetObject(target);
 
             int res;
             using (var objectPtr = new ObjectSafeWrapper(objectToTag.Id, repo))
@@ -122,25 +122,13 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Deletes the tag with the specified name.
         /// </summary>
-        /// <param name = "name">The short or canonical name of the tag or the to delete.</param>
+        /// <param name = "name">The short or canonical name of the tag to delete.</param>
         public void Delete(string name)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
 
             int res = NativeMethods.git_tag_delete(repo.Handle, UnCanonicalizeName(name));
             Ensure.Success(res);
-        }
-
-        private GitObject RetrieveObjectToTag(string target)
-        {
-            GitObject objectToTag = repo.Lookup(target);
-
-            if (objectToTag == null)
-            {
-                throw new LibGit2Exception(String.Format(CultureInfo.InvariantCulture, "No object identified by '{0}' can be found in the repository.", target));
-            }
-
-            return objectToTag;
         }
 
         private static string NormalizeToCanonicalName(string name)
