@@ -65,17 +65,24 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Checkout the branch with the specified by name.
         /// </summary>
-        /// <param name = "name">The name of the branch to checkout.</param>
+        /// <param name = "shaOrReferenceName">The sha of the commit, a canonical reference name or the name of the branch to checkout.</param>
         /// <returns></returns>
-        public Branch Checkout(string name)
+        public Branch Checkout(string shaOrReferenceName)
         {
             // TODO: Allow checkout of an arbitrary commit, thus putting HEAD in detached state.
             // TODO: This does not yet checkout (write) the working directory
-            Ensure.ArgumentNotNullOrEmptyString(name, "name");
+            Ensure.ArgumentNotNullOrEmptyString(shaOrReferenceName, "shaOrReferenceName");
 
-            repo.Refs.UpdateTarget("HEAD", this[name].CanonicalName);
+            var branch = this[shaOrReferenceName];
 
-            return this[name];
+            if (branch == null)
+            {
+                throw new LibGit2Exception(String.Format(CultureInfo.InvariantCulture, "No commit object identified by '{0}' can be found in the repository.", shaOrReferenceName));
+            }
+
+            repo.Refs.UpdateTarget("HEAD", branch.CanonicalName);
+
+            return branch;
         }
 
         /// <summary>

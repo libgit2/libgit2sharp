@@ -20,9 +20,19 @@ namespace LibGit2Sharp.Tests
                 master.IsCurrentRepositoryHead.ShouldBeTrue();
 
                 Branch test = repo.Branches.Checkout("test");
+                repo.Info.IsHeadDetached.ShouldBeFalse();
 
                 test.IsCurrentRepositoryHead.ShouldBeTrue();
                 master.IsCurrentRepositoryHead.ShouldBeFalse();
+            }
+        }
+
+        [Test]
+        public void CheckingOutANonExistingBranchThrows()
+        {
+            using (var repo = new Repository(Constants.BareTestRepoPath))
+            {
+                Assert.Throws<LibGit2Exception>(() => repo.Branches.Checkout("i-do-not-exist"));
             }
         }
 
