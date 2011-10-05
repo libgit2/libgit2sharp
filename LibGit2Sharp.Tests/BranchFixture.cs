@@ -213,12 +213,11 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
-        [Ignore("Not implemented yet.")]
         public void CreatingBranchWithUnknownNamedTargetThrows()
         {
             using (var repo = new Repository(Constants.BareTestRepoPath))
             {
-                Assert.Throws<ArgumentException>(() => repo.Branches.Create("my_new_branch", "my_old_branch"));
+                Assert.Throws<LibGit2Exception>(() => repo.Branches.Create("my_new_branch", "my_old_branch"));
             }
         }
 

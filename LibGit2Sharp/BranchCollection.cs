@@ -31,7 +31,7 @@ namespace LibGit2Sharp
             get
             {
                 Ensure.ArgumentNotNullOrEmptyString(name, "name");
-                var canonicalName = NormalizeToCanonicalName(name);
+                string canonicalName = NormalizeToCanonicalName(name);
                 var reference = repo.Refs.Resolve<Reference>(canonicalName);
                 return reference == null ? null : new Branch(repo, reference, canonicalName);
             }
@@ -73,12 +73,9 @@ namespace LibGit2Sharp
             // TODO: This does not yet checkout (write) the working directory
             Ensure.ArgumentNotNullOrEmptyString(shaOrReferenceName, "shaOrReferenceName");
 
-            var branch = this[shaOrReferenceName];
+            Branch branch = this[shaOrReferenceName];
 
-            if (branch == null)
-            {
-                throw new LibGit2Exception(String.Format(CultureInfo.InvariantCulture, "No commit object identified by '{0}' can be found in the repository.", shaOrReferenceName));
-            }
+            EnsureTargetExists(branch, shaOrReferenceName);
 
             repo.Refs.UpdateTarget("HEAD", branch.CanonicalName);
 
@@ -97,12 +94,27 @@ namespace LibGit2Sharp
 
             if (!ObjectId.TryParse(target, out id))
             {
-                DirectReference reference = repo.Refs[NormalizeToCanonicalName(target)].ResolveToDirectReference();
-                target = reference.TargetIdentifier;
+                Reference targetRef = repo.Refs[NormalizeToCanonicalName(target)];
+
+                EnsureTargetExists(targetRef, target);
+                DirectReference peeledTarget = targetRef.ResolveToDirectReference();
+                target = peeledTarget.TargetIdentifier;
             }
 
             repo.Refs.Create(NormalizeToCanonicalName(name), target);
             return this[name];
+        }
+
+        private static void EnsureTargetExists(object target, string identifier)
+        {
+            if (target != null)
+            {
+                return;
+            }
+
+            throw new LibGit2Exception(String.Format(CultureInfo.InvariantCulture,
+                                                     "No commit object identified by '{0}' can be found in the repository.",
+                                                     identifier));
         }
 
         /// <summary>
@@ -120,7 +132,8 @@ namespace LibGit2Sharp
                 throw new LibGit2Exception(string.Format("Branch '{0}' can not be deleted as it is the current HEAD.", canonicalName));
             }
 
-            repo.Refs.Delete(canonicalName); //TODO: To be replaced by native libgit2 git_branch_delete() when available.
+            //TODO: To be replaced by native libgit2 git_branch_delete() when available.
+            repo.Refs.Delete(canonicalName);
         }
 
         ///<summary>
