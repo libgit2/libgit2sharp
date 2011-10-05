@@ -87,7 +87,6 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
-        [Ignore("Not implemented yet.")]
         public void CanCreateBranchFromExplicitHead()
         {
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();

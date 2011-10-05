@@ -150,6 +150,11 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
 
+            if (name == "HEAD")
+            {
+                return name;
+            }
+
             if (LooksLikeABranchName(name))
             {
                 return name;
