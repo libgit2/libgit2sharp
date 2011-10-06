@@ -173,11 +173,17 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
             Ensure.ArgumentNotNullOrEmptyString(target, "target");
 
+            if (name == "HEAD")
+            {
+                return Create("HEAD", target, true);
+            }
+
             IntPtr reference = RetrieveReferencePtr(name);
             int res;
 
             ObjectId id;
             bool isObjectIdentifier = ObjectId.TryParse(target, out id);
+
             GitReferenceType type = NativeMethods.git_reference_type(reference);
             switch (type)
             {
@@ -193,7 +199,7 @@ namespace LibGit2Sharp
                 case GitReferenceType.Symbolic:
                     if (isObjectIdentifier)
                     {
-                        throw new ArgumentException(String.Format(CultureInfo.InvariantCulture, "The reference specified by {0} is an Symbolic reference, you must provide a symbol as the target.", name), "target");
+                        throw new ArgumentException(String.Format(CultureInfo.InvariantCulture, "The reference specified by {0} is a Symbolic reference, you must provide a reference canonical name as the target.", name), "target");
                     }
                     res = NativeMethods.git_reference_set_target(reference, target);
                     break;
@@ -207,12 +213,12 @@ namespace LibGit2Sharp
             return Reference.BuildFromPtr<Reference>(reference, repo);
         }
 
-        private IntPtr RetrieveReferencePtr(string referenceName, bool shouldThrow = true)
+        private IntPtr RetrieveReferencePtr(string referenceName, bool shouldThrowIfNotFound = true)
         {
             IntPtr reference;
             int res = NativeMethods.git_reference_lookup(out reference, repo.Handle, referenceName);
 
-            if (!shouldThrow && res == (int)GitErrorCode.GIT_ENOTFOUND)
+            if (!shouldThrowIfNotFound && res == (int)GitErrorCode.GIT_ENOTFOUND)
             {
                 return IntPtr.Zero;
             }

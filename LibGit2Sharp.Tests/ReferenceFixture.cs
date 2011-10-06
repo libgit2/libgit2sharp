@@ -340,6 +340,25 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
+        public void CanUpdateHeadWithEitherAnOidOrACanonicalHeadReference()
+        {
+            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                Branch test = repo.Branches["test"];
+
+                Reference direct = repo.Refs.UpdateTarget("HEAD", test.Tip.Sha);
+                (direct is DirectReference).ShouldBeTrue();
+                direct.ShouldEqual(repo.Refs["HEAD"]);
+
+                Reference symref = repo.Refs.UpdateTarget("HEAD", test.CanonicalName);
+                (symref is SymbolicReference).ShouldBeTrue();
+                symref.ShouldEqual(repo.Refs["HEAD"]);
+            }
+    
+        }
+
+        [Test]
         public void UpdatingADirectRefWithSymbolFails()
         {
             const string name = "refs/heads/unit_test";
