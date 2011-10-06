@@ -100,6 +100,31 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
+        public void CreatingABranchFromATagPeelsToTheCommit()
+        {
+            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                const string name = "i-peel-tag";
+                Branch newBranch = repo.CreateBranch(name, "refs/tags/test");
+                newBranch.ShouldNotBeNull();
+                newBranch.Tip.Sha.ShouldEqual("e90810b8df3e80c413d903f631643c716887138d");
+            }
+        }
+
+        [Test]
+        public void CreatingABranchFromANonCommitObjectThrows()
+        {
+            using (var repo = new Repository(Constants.BareTestRepoPath))
+            {
+                const string name = "sorry-dude-i-do-not-do-blobs-nor-trees";
+                Assert.Throws<LibGit2Exception>(() => repo.CreateBranch(name, "refs/tags/point_to_blob"));
+                Assert.Throws<LibGit2Exception>(() => repo.CreateBranch(name, "53fc32d"));
+                Assert.Throws<LibGit2Exception>(() => repo.CreateBranch(name, "0266163"));
+            }
+        }
+
+        [Test]
         public void GetBranchByNameWithBadParamsThrows()
         {
             using (var repo = new Repository(Constants.BareTestRepoPath))

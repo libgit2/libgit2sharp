@@ -92,7 +92,11 @@ namespace LibGit2Sharp
         {
             GitObject targetObject = repo.Refs.RetrieveTargetObject(target);
 
-            repo.Refs.Create(NormalizeToCanonicalName(name), targetObject.Id.Sha);
+            ObjectId commitId = targetObject.PeelToCommitId();
+
+            EnsureTargetExists(commitId, target);
+
+            repo.Refs.Create(NormalizeToCanonicalName(name), commitId.Sha);
             return this[name];
         }
 

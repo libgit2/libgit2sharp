@@ -76,6 +76,26 @@ namespace LibGit2Sharp
             return new ObjectId((GitOid)Marshal.PtrToStructure(ptr, typeof(GitOid)));
         }
 
+        internal ObjectId PeelToCommitId()
+        {
+            if (this is Blob || this is Tree)
+            {
+                return null;
+            }
+
+            if (this is Commit)
+            {
+                return Id;
+            }
+
+            if (this is TagAnnotation)
+            {
+                return ((TagAnnotation)this).Target.PeelToCommitId();
+            }
+
+            throw new InvalidOperationException(string.Format("Unsupported type of GitObject ('{0}').", GetType().FullName));
+        }
+
         /// <summary>
         ///   Determines whether the specified <see cref = "Object" /> is equal to the current <see cref = "GitObject" />.
         /// </summary>
