@@ -229,15 +229,6 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
-        public void CreatingBranchWithEmptyNameThrows()
-        {
-            using (var repo = new Repository(Constants.BareTestRepoPath))
-            {
-                Assert.Throws<ArgumentException>(() => repo.Branches.Create(string.Empty, repo.Head.CanonicalName));
-            }
-        }
-
-        [Test]
         public void CreatingBranchWithUnknownNamedTargetThrows()
         {
             using (var repo = new Repository(Constants.BareTestRepoPath))
@@ -266,29 +257,14 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
-        public void CreatingBranchWithEmptyTargetThrows()
-        {
-            using (var repo = new Repository(Constants.BareTestRepoPath))
-            {
-                Assert.Throws<ArgumentException>(() => repo.Branches.Create("bad_branch", string.Empty));
-            }
-        }
-
-        [Test]
-        public void CreatingBranchWithNullNameThrows()
+        public void CreatingBranchWithBadParamsThrows()
         {
             using (var repo = new Repository(Constants.BareTestRepoPath))
             {
                 Assert.Throws<ArgumentNullException>(() => repo.Branches.Create(null, repo.Head.CanonicalName));
-            }
-        }
-
-        [Test]
-        public void CreatingBranchWithNullTargetThrows()
-        {
-            using (var repo = new Repository(Constants.BareTestRepoPath))
-            {
+                Assert.Throws<ArgumentException>(() => repo.Branches.Create(string.Empty, repo.Head.CanonicalName));
                 Assert.Throws<ArgumentNullException>(() => repo.Branches.Create("bad_branch", null));
+                Assert.Throws<ArgumentException>(() => repo.Branches.Create("bad_branch", string.Empty));
             }
         }
 
