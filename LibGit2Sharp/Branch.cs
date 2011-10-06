@@ -42,7 +42,7 @@ namespace LibGit2Sharp
         /// <value>
         ///   <c>true</c> if this instance is remote; otherwise, <c>false</c>.
         /// </value>
-        public bool IsRemote
+        public virtual bool IsRemote
         {
             get { return IsRemoteBranch(CanonicalName); }
         }
@@ -53,7 +53,7 @@ namespace LibGit2Sharp
         /// <value>
         ///   <c>true</c> if this instance is current branch; otherwise, <c>false</c>.
         /// </value>
-        public bool IsCurrentRepositoryHead
+        public virtual bool IsCurrentRepositoryHead
         {
             get { return repo.Refs[CanonicalName].ResolveToDirectReference() == repo.Refs["HEAD"].ResolveToDirectReference(); }
         }

@@ -69,35 +69,43 @@ namespace LibGit2Sharp
         /// <returns></returns>
         public Branch Checkout(string shaOrReferenceName)
         {
-            // TODO: Allow checkout of an arbitrary commit, thus putting HEAD in detached state.
             // TODO: This does not yet checkout (write) the working directory
-            Ensure.ArgumentNotNullOrEmptyString(shaOrReferenceName, "shaOrReferenceName");
 
             Branch branch = this[shaOrReferenceName];
 
-            EnsureTargetExists(branch, shaOrReferenceName);
+            if (branch != null)
+            {
+                repo.Refs.UpdateTarget("HEAD", branch.CanonicalName);
+                return branch;
+            }
 
-            repo.Refs.UpdateTarget("HEAD", branch.CanonicalName);
-
-            return branch;
+            ObjectId commitId = RetrieveTargetCommitId(shaOrReferenceName);
+            repo.Refs.UpdateTarget("HEAD", commitId.Sha);
+            return repo.Head;
         }
 
         /// <summary>
         ///   Create a new local branch with the specified name
         /// </summary>
         /// <param name = "name">The name of the branch.</param>
-        /// <param name = "target">The target which can be sha or a canonical reference name.</param>
+        /// <param name = "shaOrReferenceName">The target which can be sha or a canonical reference name.</param>
         /// <returns></returns>
-        public Branch Create(string name, string target)
+        public Branch Create(string name, string shaOrReferenceName)
+        {
+            ObjectId commitId = RetrieveTargetCommitId(shaOrReferenceName);
+
+            repo.Refs.Create(NormalizeToCanonicalName(name), commitId.Sha);
+            return this[name];
+        }
+
+        private ObjectId RetrieveTargetCommitId(string target)
         {
             GitObject targetObject = repo.Refs.RetrieveTargetObject(target);
 
             ObjectId commitId = targetObject.PeelToCommitId();
-
             EnsureTargetExists(commitId, target);
 
-            repo.Refs.Create(NormalizeToCanonicalName(name), commitId.Sha);
-            return this[name];
+            return commitId;
         }
 
         private static void EnsureTargetExists(object target, string identifier)

@@ -197,6 +197,37 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
+        public void CanEnumerateFromHead()
+        {
+            AssertEnumerationOfCommits(
+                repo => new Filter { Since = repo.Head },
+                new[]
+                    {
+                        "4c062a6", "be3563a", "c47800c", "9fd738e",
+                        "4a202b3", "5b5b025", "8496071",
+                    });
+        }
+
+        [Test]
+        public void CanEnumerateFromDetachedHead()
+        {
+            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
+            using (var repoClone = new Repository(path.RepositoryPath))
+            {
+                string headSha = repoClone.Head.Tip.Sha;
+                repoClone.Branches.Checkout(headSha);
+
+                AssertEnumerationOfCommitsInRepo(repoClone,
+                    repo => new Filter { Since = repo.Head },
+                    new[]
+                        {
+                            "4c062a6", "be3563a", "c47800c", "9fd738e",
+                            "4a202b3", "5b5b025", "8496071",
+                        });
+            }
+        }
+
+        [Test]
         public void CanEnumerateUsingTwoHeadsAsBoundaries()
         {
             AssertEnumerationOfCommits(
@@ -206,7 +237,7 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
-        public void CanEnumerateUsingOneHeadAsBoundaries()
+        public void CanEnumerateUsingImplicitHeadAsSinceBoundary()
         {
             AssertEnumerationOfCommits(
                 repo => new Filter { Until = "refs/heads/br2" },
@@ -293,12 +324,17 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(Constants.BareTestRepoPath))
             {
-                ICommitCollection commits = repo.Commits.QueryBy(filterBuilder(repo));
-
-                IEnumerable<string> commitShas = commits.Select(c => c.Id.ToString(7)).ToArray();
-
-                CollectionAssert.AreEqual(abbrevIds, commitShas);
+                AssertEnumerationOfCommitsInRepo(repo, filterBuilder, abbrevIds);
             }
+        }
+
+        private static void AssertEnumerationOfCommitsInRepo(Repository repo, Func<Repository, Filter> filterBuilder, IEnumerable<string> abbrevIds)
+        {
+            ICommitCollection commits = repo.Commits.QueryBy(filterBuilder(repo));
+
+            IEnumerable<string> commitShas = commits.Select(c => c.Id.ToString(7)).ToArray();
+
+            CollectionAssert.AreEqual(abbrevIds, commitShas);
         }
 
         [Test]

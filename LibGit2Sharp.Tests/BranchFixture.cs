@@ -250,8 +250,9 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
-        public void CanCheckoutAnExistingBranch()
+        [TestCase("test")]
+        [TestCase("refs/heads/test")]
+        public void CanCheckoutAnExistingBranch(string name)
         {
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
             using (var repo = new Repository(path.RepositoryPath))
@@ -259,10 +260,39 @@ namespace LibGit2Sharp.Tests
                 Branch master = repo.Branches["master"];
                 master.IsCurrentRepositoryHead.ShouldBeTrue();
 
-                Branch test = repo.Branches.Checkout("test");
+                Branch test = repo.Branches.Checkout(name);
                 repo.Info.IsHeadDetached.ShouldBeFalse();
 
+                test.IsRemote.ShouldBeFalse();
                 test.IsCurrentRepositoryHead.ShouldBeTrue();
+                test.ShouldEqual(repo.Head);
+
+                master.IsCurrentRepositoryHead.ShouldBeFalse();
+            }
+        }
+
+        [TestCase("6dcf9bf")]
+        [TestCase("refs/tags/lw")]
+        public void CanCheckoutAnArbitraryCommit(string commitPointer)
+        {
+            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                Branch master = repo.Branches["master"];
+                master.IsCurrentRepositoryHead.ShouldBeTrue();
+
+                Branch detachedHead = repo.Branches.Checkout(commitPointer);
+
+                repo.Info.IsHeadDetached.ShouldBeTrue();
+                
+                detachedHead.IsRemote.ShouldBeFalse();
+                detachedHead.CanonicalName.ShouldEqual(detachedHead.Name);
+                detachedHead.CanonicalName.ShouldEqual("(no branch)");
+                detachedHead.Tip.Sha.ShouldEqual(repo.Lookup(commitPointer).Sha);
+
+                detachedHead.IsCurrentRepositoryHead.ShouldBeTrue();
+                detachedHead.ShouldEqual(repo.Head);
+
                 master.IsCurrentRepositoryHead.ShouldBeFalse();
             }
         }

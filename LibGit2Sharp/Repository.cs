@@ -59,7 +59,17 @@ namespace LibGit2Sharp
         /// <returns></returns>
         public Branch Head
         {
-            get { return new Branch(this, Refs["HEAD"]); }
+            get
+            {
+                Reference reference = Refs["HEAD"];
+
+                if (reference is SymbolicReference)
+                {
+                    return new Branch(this, reference);
+                }
+
+                return new DetachedHead(this, reference);
+            }
         }
 
         /// <summary>

@@ -104,7 +104,7 @@ namespace LibGit2Sharp
                             {
                                 typeof(string), typeof(ObjectId),
                                 typeof(Commit), typeof(TagAnnotation),
-                                typeof(Tag), typeof(Branch),
+                                typeof(Tag), typeof(Branch), typeof(DetachedHead),
                                 typeof(Reference), typeof(DirectReference), typeof(SymbolicReference)
                             };
 
