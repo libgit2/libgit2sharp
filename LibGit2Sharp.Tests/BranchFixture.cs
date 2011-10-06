@@ -11,32 +11,6 @@ namespace LibGit2Sharp.Tests
         private readonly string[] expectedBranches = new[] { "br2", "master", "packed", "packed-test", "test", };
 
         [Test]
-        public void CanCheckoutAnExistingBranch()
-        {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
-            using (var repo = new Repository(path.RepositoryPath))
-            {
-                Branch master = repo.Branches["master"];
-                master.IsCurrentRepositoryHead.ShouldBeTrue();
-
-                Branch test = repo.Branches.Checkout("test");
-                repo.Info.IsHeadDetached.ShouldBeFalse();
-
-                test.IsCurrentRepositoryHead.ShouldBeTrue();
-                master.IsCurrentRepositoryHead.ShouldBeFalse();
-            }
-        }
-
-        [Test]
-        public void CheckingOutANonExistingBranchThrows()
-        {
-            using (var repo = new Repository(Constants.BareTestRepoPath))
-            {
-                Assert.Throws<LibGit2Exception>(() => repo.Branches.Checkout("i-do-not-exist"));
-            }
-        }
-
-        [Test]
         public void CanCreateBranch()
         {
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
@@ -113,6 +87,24 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
+        public void CreatingABranchTriggersTheCreationOfADirectReference()
+        {
+            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                Branch newBranch = repo.CreateBranch("clone-of-master");
+                newBranch.IsCurrentRepositoryHead.ShouldBeFalse();
+
+                ObjectId commitId = repo.Head.Tip.Id;
+                newBranch.Tip.Id.ShouldEqual(commitId);
+
+                Reference reference = repo.Refs[newBranch.CanonicalName];
+                reference.ShouldNotBeNull();
+                Assert.IsInstanceOf(typeof(DirectReference), reference);
+            }
+        }
+
+        [Test]
         public void CreatingABranchFromANonCommitObjectThrows()
         {
             using (var repo = new Repository(Constants.BareTestRepoPath))
@@ -125,13 +117,42 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
-        public void GetBranchByNameWithBadParamsThrows()
+        public void CreatingBranchWithUnknownNamedTargetThrows()
         {
             using (var repo = new Repository(Constants.BareTestRepoPath))
             {
-                Branch branch;
-                Assert.Throws<ArgumentNullException>(() => branch = repo.Branches[null]);
-                Assert.Throws<ArgumentException>(() => branch = repo.Branches[""]);
+                Assert.Throws<LibGit2Exception>(() => repo.Branches.Create("my_new_branch", "my_old_branch"));
+            }
+        }
+
+        [Test]
+        public void CreatingBranchWithUnknownShaTargetThrows()
+        {
+            using (var repo = new Repository(Constants.BareTestRepoPath))
+            {
+                Assert.Throws<LibGit2Exception>(() => repo.Branches.Create("my_new_branch", Constants.UnknownSha));
+                Assert.Throws<LibGit2Exception>(() => repo.Branches.Create("my_new_branch", Constants.UnknownSha.Substring(0, 7)));
+            }
+        }
+
+        [Test]
+        public void CreatingABranchPointingAtANonCanonicalReferenceThrows()
+        {
+            using (var repo = new Repository(Constants.BareTestRepoPath))
+            {
+                Assert.Throws<LibGit2Exception>(() => repo.Branches.Create("nocanonicaltarget", "br2"));
+            }
+        }
+
+        [Test]
+        public void CreatingBranchWithBadParamsThrows()
+        {
+            using (var repo = new Repository(Constants.BareTestRepoPath))
+            {
+                Assert.Throws<ArgumentNullException>(() => repo.Branches.Create(null, repo.Head.CanonicalName));
+                Assert.Throws<ArgumentException>(() => repo.Branches.Create(string.Empty, repo.Head.CanonicalName));
+                Assert.Throws<ArgumentNullException>(() => repo.Branches.Create("bad_branch", null));
+                Assert.Throws<ArgumentException>(() => repo.Branches.Create("bad_branch", string.Empty));
             }
         }
 
@@ -199,6 +220,17 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
+        public void LookingOutABranchByNameWithBadParamsThrows()
+        {
+            using (var repo = new Repository(Constants.BareTestRepoPath))
+            {
+                Branch branch;
+                Assert.Throws<ArgumentNullException>(() => branch = repo.Branches[null]);
+                Assert.Throws<ArgumentException>(() => branch = repo.Branches[""]);
+            }
+        }
+
+        [Test]
         public void CanWalkCommitsFromAnotherBranch()
         {
             using (var repo = new Repository(Constants.BareTestRepoPath))
@@ -219,52 +251,38 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
-        public void CheckoutBranchWithBadParamsThrows()
+        public void CanCheckoutAnExistingBranch()
+        {
+            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                Branch master = repo.Branches["master"];
+                master.IsCurrentRepositoryHead.ShouldBeTrue();
+
+                Branch test = repo.Branches.Checkout("test");
+                repo.Info.IsHeadDetached.ShouldBeFalse();
+
+                test.IsCurrentRepositoryHead.ShouldBeTrue();
+                master.IsCurrentRepositoryHead.ShouldBeFalse();
+            }
+        }
+
+        [Test]
+        public void CheckingOutANonExistingBranchThrows()
+        {
+            using (var repo = new Repository(Constants.BareTestRepoPath))
+            {
+                Assert.Throws<LibGit2Exception>(() => repo.Branches.Checkout("i-do-not-exist"));
+            }
+        }
+
+        [Test]
+        public void CheckingOutABranchWithBadParamsThrows()
         {
             using (var repo = new Repository(Constants.BareTestRepoPath))
             {
                 Assert.Throws<ArgumentException>(() => repo.Branches.Checkout(string.Empty));
                 Assert.Throws<ArgumentNullException>(() => repo.Branches.Checkout(null));
-            }
-        }
-
-        [Test]
-        public void CreatingBranchWithUnknownNamedTargetThrows()
-        {
-            using (var repo = new Repository(Constants.BareTestRepoPath))
-            {
-                Assert.Throws<LibGit2Exception>(() => repo.Branches.Create("my_new_branch", "my_old_branch"));
-            }
-        }
-
-        [Test]
-        public void CreatingBranchWithUnknownShaTargetThrows()
-        {
-            using (var repo = new Repository(Constants.BareTestRepoPath))
-            {
-                Assert.Throws<LibGit2Exception>(() => repo.Branches.Create("my_new_branch", Constants.UnknownSha));
-                Assert.Throws<LibGit2Exception>(() => repo.Branches.Create("my_new_branch", Constants.UnknownSha.Substring(0, 7)));
-            }
-        }
-
-        [Test]
-        public void CreatingABranchPointingAtANonCanonicalReferenceThrows()
-        {
-            using (var repo = new Repository(Constants.BareTestRepoPath))
-            {
-                Assert.Throws<LibGit2Exception>(() => repo.Branches.Create("nocanonicaltarget", "br2"));
-            }
-        }
-
-        [Test]
-        public void CreatingBranchWithBadParamsThrows()
-        {
-            using (var repo = new Repository(Constants.BareTestRepoPath))
-            {
-                Assert.Throws<ArgumentNullException>(() => repo.Branches.Create(null, repo.Head.CanonicalName));
-                Assert.Throws<ArgumentException>(() => repo.Branches.Create(string.Empty, repo.Head.CanonicalName));
-                Assert.Throws<ArgumentNullException>(() => repo.Branches.Create("bad_branch", null));
-                Assert.Throws<ArgumentException>(() => repo.Branches.Create("bad_branch", string.Empty));
             }
         }
 
@@ -376,24 +394,6 @@ namespace LibGit2Sharp.Tests
                 newTest.ShouldEqual(newBranch);
 
                 newTest.Tip.ShouldEqual(br2.Tip);
-            }
-        }
-
-        [Test]
-        public void CreatingABranchTriggersTheCreationOfADirectReference()
-        {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
-            using (var repo = new Repository(path.RepositoryPath))
-            {
-                Branch newBranch = repo.CreateBranch("clone-of-master");
-                newBranch.IsCurrentRepositoryHead.ShouldBeFalse();
-
-                ObjectId commitId = repo.Head.Tip.Id;
-                newBranch.Tip.Id.ShouldEqual(commitId);
-
-                Reference reference = repo.Refs[newBranch.CanonicalName];
-                reference.ShouldNotBeNull();
-                Assert.IsInstanceOf(typeof(DirectReference), reference);
             }
         }
     }
