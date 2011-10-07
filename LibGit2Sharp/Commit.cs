@@ -19,7 +19,7 @@ namespace LibGit2Sharp
             : base(id)
         {
             tree = new Lazy<Tree>(() => repo.Lookup<Tree>(treeId));
-            parents = new Lazy<IEnumerable<Commit>>(() => RetrieveParentsOfCommit(id.Oid));
+            parents = new Lazy<IEnumerable<Commit>>(() => RetrieveParentsOfCommit(id));
             shortMessage = new Lazy<string>(ExtractShortMessage);
             this.repo = repo;
         }
@@ -78,32 +78,19 @@ namespace LibGit2Sharp
             get { return parents.Value; }
         }
 
-        private IEnumerable<Commit> RetrieveParentsOfCommit(GitOid oid) //TODO: Convert to a ParentEnumerator
+        private IEnumerable<Commit> RetrieveParentsOfCommit(ObjectId oid)
         {
-            IntPtr obj;
-            int res = NativeMethods.git_object_lookup(out obj, repo.Handle, ref oid, GitObjectType.Commit);
-            Ensure.Success(res);
-
-            var parentsOfCommits = new List<Commit>();
-
-            try
+            using (var obj = new ObjectSafeWrapper(oid, repo))
             {
-                uint parentsCount = NativeMethods.git_commit_parentcount(obj);
+                uint parentsCount = NativeMethods.git_commit_parentcount(obj.ObjectPtr);
 
                 for (uint i = 0; i < parentsCount; i++)
                 {
                     IntPtr parentCommit;
-                    res = NativeMethods.git_commit_parent(out parentCommit, obj, i);
-                    Ensure.Success(res);
-                    parentsOfCommits.Add((Commit)CreateFromPtr(parentCommit, ObjectIdOf(parentCommit), repo));
+                    Ensure.Success(NativeMethods.git_commit_parent(out parentCommit, obj.ObjectPtr, i));
+                    yield return (Commit)CreateFromPtr(parentCommit, ObjectIdOf(parentCommit), repo);
                 }
             }
-            finally
-            {
-                NativeMethods.git_object_close(obj);
-            }
-
-            return parentsOfCommits;
         }
 
         internal static Commit BuildFromPtr(IntPtr obj, ObjectId id, Repository repo)
