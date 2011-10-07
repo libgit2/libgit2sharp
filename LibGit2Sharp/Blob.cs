@@ -6,6 +6,9 @@ using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
 {
+    /// <summary>
+    ///   Stores the binary content of a tracked file.
+    /// </summary>
     public class Blob : GitObject
     {
         private readonly Repository repo;
@@ -16,6 +19,9 @@ namespace LibGit2Sharp
             this.repo = repo;
         }
 
+        /// <summary>
+        ///   Gets the size in bytes of the contents of a blob
+        /// </summary>
         public int Size { get; set; }
 
         public byte[] Content
@@ -56,7 +62,7 @@ namespace LibGit2Sharp
             return Encoding.Unicode.GetString(Content);
         }
 
-        public static Blob BuildFromPtr(IntPtr obj, ObjectId id, Repository repo)
+        internal static Blob BuildFromPtr(IntPtr obj, ObjectId id, Repository repo)
         {
             var blob = new Blob(repo, id)
                            {

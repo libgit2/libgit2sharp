@@ -13,7 +13,14 @@ namespace LibGit2Sharp
         private const int rawSize = 20;
         private readonly string sha;
 
+        /// <summary>
+        ///   Size of the string-based representation of a SHA-1.
+        /// </summary>
         protected const int HexSize = rawSize*2;
+
+        /// <summary>
+        ///   Mininum size of the string-based representation of an abbreviated SHA-1.
+        /// </summary>
         protected const int MinHexSize = 4;
 
         private const string hexDigits = "0123456789abcdef";

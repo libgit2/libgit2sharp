@@ -5,7 +5,14 @@ namespace LibGit2Sharp
     [Flags]
     public enum FileStatus
     {
+        /// <summary>
+        ///   The file doesn't exist.
+        /// </summary>
         Nonexistent = -1, /* GIT_STATUS_NOTFOUND */
+
+        /// <summary>
+        ///   The file hasn't been modified.
+        /// </summary>
         Unaltered = 0, /* GIT_STATUS_CURRENT */
 
         /// <summary>

@@ -40,6 +40,9 @@ namespace LibGit2Sharp
             return CanonicalName;
         }
 
+        /// <summary>
+        ///   Gets the <typeparam name = "TObject" /> this <see cref = "NamedReference{TObject}" /> points to.
+        /// </summary>
         protected TObject TargetObject
         {
             get { return objectBuilder.Value; }
