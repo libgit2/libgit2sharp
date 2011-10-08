@@ -92,11 +92,13 @@ namespace LibGit2Sharp.Tests
             {
                 repo.Index.Count.ShouldEqual(0);
 
-                const string fileName = "myFile.txt";
+                const string fileName = "subdir/myFile.txt";
 
                 string fullpath = Path.Combine(repo.Info.WorkingDirectory, fileName);
 
                 const string initialContent = "Hello?";
+
+                Directory.CreateDirectory(Path.GetDirectoryName(fullpath));
                 File.AppendAllText(fullpath, initialContent);
 
                 repo.Index.Stage(fileName);
