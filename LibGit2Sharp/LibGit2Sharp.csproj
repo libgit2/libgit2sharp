@@ -77,9 +77,6 @@
     <Compile Include="Core\NativeMethods.cs" />
     <Compile Include="Core\SafeHandleExtensions.cs" />
     <Compile Include="Core\ObjectSafeWrapper.cs" />
-    <Compile Include="Core\PosixPathHelper.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="Core\RemoteSafeHandle.cs" />
     <Compile Include="Core\RevWalkerSafeHandle.cs">
       <SubType>Code</SubType>
