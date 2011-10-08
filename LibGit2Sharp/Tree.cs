@@ -15,26 +15,60 @@ namespace LibGit2Sharp
         {
         }
 
+        /// <summary>
+        ///   Gets the number of <see cref="TreeEntry"/> immediately under this <see cref="Tree"/>.
+        /// </summary>
         public int Count { get; private set; }
 
-        public TreeEntry this[string name]
+        /// <summary>
+        ///   Gets the <see cref = "TreeEntry" /> pointed at by the <paramref name = "relativePath" /> in this <see cref = "Tree" /> instance.
+        /// </summary>
+        /// <param name = "relativePath">The relative path to the <see cref = "TreeEntry" /> from this instance.</param>
+        /// <returns><c>null</c> if nothing has been found, the <see cref = "TreeEntry" /> otherwise.</returns>
+        public TreeEntry this[string relativePath]
         {
-            get
+            get { return RetrieveFromPath(PosixPathHelper.ToPosix(relativePath)); }
+        }
+
+        private TreeEntry RetrieveFromPath(string relativePath)
+        {
+            string[] pathSegments = relativePath.Split('/');
+
+            Tree tree = this;
+
+            for (int i = 0; i < pathSegments.Length - 1; i++)
             {
-                using (var obj = new ObjectSafeWrapper(Id, repo))
+                TreeEntry entry = tree.RetrieveFromName(pathSegments[i]);
+
+                if (entry == null || entry.Type != GitObjectType.Tree)
                 {
-                    IntPtr e = NativeMethods.git_tree_entry_byname(obj.ObjectPtr, name);
-
-                    if (e == IntPtr.Zero)
-                    {
-                        return null;
-                    }
-
-                    return new TreeEntry(e, Id, repo);
+                    return null;
                 }
+
+                tree = (Tree)entry.Target;
+            }
+
+            return tree.RetrieveFromName(pathSegments[pathSegments.Length - 1]);
+        }
+
+        private TreeEntry RetrieveFromName(string name)
+        {
+            using (var obj = new ObjectSafeWrapper(Id, repo))
+            {
+                IntPtr e = NativeMethods.git_tree_entry_byname(obj.ObjectPtr, name);
+
+                if (e == IntPtr.Zero)
+                {
+                    return null;
+                }
+
+                return new TreeEntry(e, Id, repo);
             }
         }
 
+        /// <summary>
+        ///   Gets the <see cref="Tree"/>s immediately under this <see cref="Tree"/>.
+        /// </summary>
         public IEnumerable<Tree> Trees
         {
             get
@@ -46,6 +80,9 @@ namespace LibGit2Sharp
             }
         }
 
+        /// <summary>
+        ///   Gets the <see cref="Blob"/>s immediately under this <see cref="Tree"/>.
+        /// </summary>
         public IEnumerable<Blob> Files
         {
             get

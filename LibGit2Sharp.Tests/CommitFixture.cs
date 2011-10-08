@@ -391,6 +391,20 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
+        public void CanDirectlyAccessFileOfTheCommit()
+        {
+            using (var repo = new Repository(Constants.BareTestRepoPath))
+            {
+                var commit = repo.Lookup<Commit>("4c062a6");
+
+                var blob = commit["1/branch_file.txt"].Target as Blob;
+                blob.ShouldNotBeNull();
+
+                blob.ContentAsUtf8().ShouldEqual("hi\n");
+            }
+        }
+
+        [Test]
         public void CanCommitALittleBit()
         {
             SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
@@ -413,7 +427,8 @@ namespace LibGit2Sharp.Tests
                 var author = new Signature("Author N. Ame", "him@there.com", DateTimeOffset.Now.AddSeconds(-10));
                 Commit commit = repo.Commit(author, author, "Initial egotistic commit");
 
-                AssertBlobContent(repo.Head, relativeFilepath, "nulltoken\n");
+                AssertBlobContent(repo.Head[relativeFilepath], "nulltoken\n");
+                AssertBlobContent(commit[relativeFilepath], "nulltoken\n");
 
                 commit.Parents.Count().ShouldEqual(0);
                 repo.Info.IsEmpty.ShouldBeFalse();
@@ -424,7 +439,8 @@ namespace LibGit2Sharp.Tests
                 var author2 = new Signature(author.Name, author.Email, author.When.AddSeconds(5));
                 Commit commit2 = repo.Commit(author2, author2, "Are you trying to fork me?");
 
-                AssertBlobContent(repo.Head, relativeFilepath, "nulltoken commits!\n");
+                AssertBlobContent(repo.Head[relativeFilepath], "nulltoken commits!\n");
+                AssertBlobContent(commit2[relativeFilepath], "nulltoken commits!\n");
 
                 commit2.Parents.Count().ShouldEqual(1);
                 commit2.Parents.First().Id.ShouldEqual(commit.Id);
@@ -439,19 +455,18 @@ namespace LibGit2Sharp.Tests
 
                 Commit commit3 = repo.Commit(author3, author3, "I'm going to branch you backwards in time!");
 
-                AssertBlobContent(repo.Head, relativeFilepath, "davidfowl commits!\n");
+                AssertBlobContent(repo.Head[relativeFilepath], "davidfowl commits!\n");
+                AssertBlobContent(commit3[relativeFilepath], "davidfowl commits!\n");
 
                 commit3.Parents.Count().ShouldEqual(1);
                 commit3.Parents.First().Id.ShouldEqual(commit.Id);
 
-                AssertBlobContent(firstCommitBranch, relativeFilepath, "nulltoken\n");
-
+                AssertBlobContent(firstCommitBranch[relativeFilepath], "nulltoken\n");
             }
         }
 
-        private static void AssertBlobContent(Branch branch, string filepath, string expectedContent)
+        private static void AssertBlobContent(TreeEntry entry, string expectedContent)
         {
-            TreeEntry entry = branch[filepath];
             entry.Type.ShouldEqual(GitObjectType.Blob);
             ((Blob)(entry.Target)).ContentAsUtf8().ShouldEqual(expectedContent);
         }

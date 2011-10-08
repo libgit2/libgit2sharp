@@ -25,6 +25,16 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        ///   Gets the <see cref = "TreeEntry" /> pointed at by the <paramref name = "relativePath" /> in the <see cref = "Tree" />.
+        /// </summary>
+        /// <param name = "relativePath">The relative path to the <see cref = "TreeEntry" /> from the <see cref = "Commit" /> working directory.</param>
+        /// <returns><c>null</c> if nothing has been found, the <see cref = "TreeEntry" /> otherwise.</returns>
+        public TreeEntry this[string relativePath]
+        {
+            get { return Tree[relativePath]; }
+        }
+
+        /// <summary>
         ///   Gets the commit message.
         /// </summary>
         public string Message { get; private set; }

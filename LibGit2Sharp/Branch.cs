@@ -37,39 +37,21 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Gets the <see cref="TreeEntry"/> pointed at by the <paramref name="path"/> in the <see cref="Tip"/>.
+        ///   Gets the <see cref = "TreeEntry" /> pointed at by the <paramref name = "relativePath" /> in the <see cref = "Tip" />.
         /// </summary>
-        /// <param name = "path">The relative path to the <see cref="TreeEntry"/>.</param>
-        /// <returns><c>null</c> if nothing has been found, the <see cref="TreeEntry"/> otherwise.</returns>
-        public TreeEntry this[string path]
+        /// <param name = "relativePath">The relative path to the <see cref = "TreeEntry" /> from the <see cref = "Tip" /> working directory.</param>
+        /// <returns><c>null</c> if nothing has been found, the <see cref = "TreeEntry" /> otherwise.</returns>
+        public TreeEntry this[string relativePath]
         {
-            get { return RetrieveTreeEntry(PosixPathHelper.ToPosix(path)); }
-        }
-
-        private TreeEntry RetrieveTreeEntry(string relativePath)
-        {
-            string[] pathSegments = relativePath.Split('/');
-
-            if (Tip == null)
+            get
             {
-                return null;
-            }
-
-            Tree tree = Tip.Tree;
-
-            for (int i = 0; i < pathSegments.Length - 1; i++)
-            {
-                TreeEntry entry = tree[pathSegments[i]];
-
-                if (entry == null || entry.Type != GitObjectType.Tree)
+                if (Tip == null)
                 {
                     return null;
                 }
 
-                tree = (Tree)entry.Target;
+                return Tip[relativePath];
             }
-
-            return tree[pathSegments[pathSegments.Length - 1]];
         }
 
         /// <summary>
