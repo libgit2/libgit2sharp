@@ -93,6 +93,8 @@ namespace LibGit2Sharp.Tests
             repo.Commits.QueryBy(new Filter { Since = repo.Head }).Count().ShouldEqual(0);
             repo.Commits.QueryBy(new Filter { Since = "HEAD" }).Count().ShouldEqual(0);
             repo.Commits.QueryBy(new Filter { Since = "refs/heads/master" }).Count().ShouldEqual(0);
+            
+            repo.Head["subdir/I-do-not-exist"].ShouldBeNull();
 
             repo.Branches.Count().ShouldEqual(0);
             repo.Refs.Count().ShouldEqual(0);

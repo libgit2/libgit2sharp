@@ -37,6 +37,42 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        ///   Gets the <see cref="TreeEntry"/> pointed at by the <paramref name="path"/> in the <see cref="Tip"/>.
+        /// </summary>
+        /// <param name = "path">The relative path to the <see cref="TreeEntry"/>.</param>
+        /// <returns><c>null</c> if nothing has been found, the <see cref="TreeEntry"/> otherwise.</returns>
+        public TreeEntry this[string path]
+        {
+            get { return RetrieveTreeEntry(PosixPathHelper.ToPosix(path)); }
+        }
+
+        private TreeEntry RetrieveTreeEntry(string relativePath)
+        {
+            string[] pathSegments = relativePath.Split('/');
+
+            if (Tip == null)
+            {
+                return null;
+            }
+
+            Tree tree = Tip.Tree;
+
+            for (int i = 0; i < pathSegments.Length - 1; i++)
+            {
+                TreeEntry entry = tree[pathSegments[i]];
+
+                if (entry == null || entry.Type != GitObjectType.Tree)
+                {
+                    return null;
+                }
+
+                tree = (Tree)entry.Target;
+            }
+
+            return tree[pathSegments[pathSegments.Length - 1]];
+        }
+
+        /// <summary>
         ///   Gets a value indicating whether this instance is a remote.
         /// </summary>
         /// <value>

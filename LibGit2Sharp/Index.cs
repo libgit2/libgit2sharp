@@ -165,43 +165,14 @@ namespace LibGit2Sharp
 
         private void RestorePotentialPreviousVersionOf(string relativePath)
         {
-            Blob currentHeadBlob = CurrentHeadBlob(relativePath);
-            if (currentHeadBlob == null)
+            TreeEntry entry = repo.Head[relativePath];
+            if (entry == null || entry.Type != GitObjectType.Blob)
             {
                 return;
             }
 
-            File.WriteAllBytes(Path.Combine(repo.Info.WorkingDirectory, relativePath), currentHeadBlob.Content);
+            File.WriteAllBytes(Path.Combine(repo.Info.WorkingDirectory, relativePath), ((Blob)(entry.Target)).Content);
             AddToIndex(relativePath);
-        }
-
-        private Blob CurrentHeadBlob(string relativePath)
-        {
-            string[] pathSegments = relativePath.Split('/');
-
-            Tree tree = repo.Head.Tip.Tree;
-
-            TreeEntry entry;
-            for (int i = 0; i < pathSegments.Length - 1; i++)
-            {
-                entry = tree[pathSegments[i]];
-
-                if (entry == null || entry.Type != GitObjectType.Tree)
-                {
-                    return null;
-                }
-
-                tree = (Tree)entry.Target;
-            }
-
-            entry = tree[pathSegments[pathSegments.Length - 1]];
-
-            if (entry == null || entry.Type != GitObjectType.Blob)
-            {
-                return null;
-            }
-
-            return entry.Target as Blob;
         }
 
         private void UpdatePhysicalIndex()

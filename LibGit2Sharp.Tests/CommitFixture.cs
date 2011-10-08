@@ -400,41 +400,60 @@ namespace LibGit2Sharp.Tests
 
             using (var repo = new Repository(dir))
             {
-                string filePath = Path.Combine(repo.Info.WorkingDirectory, "new.txt");
+                const string relativeFilepath = "new.txt";
+                string filePath = Path.Combine(repo.Info.WorkingDirectory, relativeFilepath);
 
                 File.WriteAllText(filePath, "null");
-                repo.Index.Stage("new.txt");
+                repo.Index.Stage(relativeFilepath);
                 File.AppendAllText(filePath, "token\n");
-                repo.Index.Stage("new.txt");
+                repo.Index.Stage(relativeFilepath);
+
+                repo.Head[relativeFilepath].ShouldBeNull();
 
                 var author = new Signature("Author N. Ame", "him@there.com", DateTimeOffset.Now.AddSeconds(-10));
                 Commit commit = repo.Commit(author, author, "Initial egotistic commit");
+
+                AssertBlobContent(repo.Head, relativeFilepath, "nulltoken\n");
 
                 commit.Parents.Count().ShouldEqual(0);
                 repo.Info.IsEmpty.ShouldBeFalse();
 
                 File.WriteAllText(filePath, "nulltoken commits!\n");
-                repo.Index.Stage("new.txt");
+                repo.Index.Stage(relativeFilepath);
 
                 var author2 = new Signature(author.Name, author.Email, author.When.AddSeconds(5));
                 Commit commit2 = repo.Commit(author2, author2, "Are you trying to fork me?");
 
+                AssertBlobContent(repo.Head, relativeFilepath, "nulltoken commits!\n");
+
                 commit2.Parents.Count().ShouldEqual(1);
                 commit2.Parents.First().Id.ShouldEqual(commit.Id);
 
-                repo.CreateBranch("davidfowl-rules", commit.Id.Sha); //TODO: This cries for a shortcut method :-/
-                repo.Branches.Checkout("davidfowl-rules"); //TODO: This cries for a shortcut method :-/
+                Branch firstCommitBranch = repo.CreateBranch("davidfowl-rules", commit.Id.Sha); //TODO: This cries for a shortcut method :-/
+                repo.Branches.Checkout(firstCommitBranch.Name); //TODO: This cries for a shortcut method :-/
 
                 File.WriteAllText(filePath, "davidfowl commits!\n");
 
                 var author3 = new Signature("David Fowler", "david.fowler@microsoft.com", author.When.AddSeconds(2));
-                repo.Index.Stage("new.txt");
+                repo.Index.Stage(relativeFilepath);
 
                 Commit commit3 = repo.Commit(author3, author3, "I'm going to branch you backwards in time!");
 
+                AssertBlobContent(repo.Head, relativeFilepath, "davidfowl commits!\n");
+
                 commit3.Parents.Count().ShouldEqual(1);
                 commit3.Parents.First().Id.ShouldEqual(commit.Id);
+
+                AssertBlobContent(firstCommitBranch, relativeFilepath, "nulltoken\n");
+
             }
+        }
+
+        private static void AssertBlobContent(Branch branch, string filepath, string expectedContent)
+        {
+            TreeEntry entry = branch[filepath];
+            entry.Type.ShouldEqual(GitObjectType.Blob);
+            ((Blob)(entry.Target)).ContentAsUtf8().ShouldEqual(expectedContent);
         }
     }
 }
