@@ -139,7 +139,7 @@ namespace LibGit2Sharp.Core
         [DllImport(libgit2)]
         public static extern int git_config_open_ondisk(
             out ConfigurationSafeHandle cfg,
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string path);
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(FilePathMarshaler))] FilePath path);
 
         [DllImport(libgit2)]
         public static extern int git_config_set_bool(
@@ -168,7 +168,7 @@ namespace LibGit2Sharp.Core
         [DllImport(libgit2)]
         public static extern int git_index_add(
             IndexSafeHandle index,
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string path,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(FilePathMarshaler))] FilePath path,
             int stage = 0);
 
         [DllImport(libgit2)]
@@ -182,7 +182,7 @@ namespace LibGit2Sharp.Core
         [DllImport(libgit2)]
         public static extern int git_index_find(
             IndexSafeHandle index,
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string path);
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(FilePathMarshaler))] FilePath path);
 
         [DllImport(libgit2)]
         public static extern void git_index_free(IntPtr index);
@@ -316,9 +316,9 @@ namespace LibGit2Sharp.Core
         public static extern int git_repository_discover(
             byte[] repository_path, // NB: This is more properly a StringBuilder, but it's UTF8
             int size,
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string start_path,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(FilePathMarshaler))] FilePath start_path,
             [MarshalAs(UnmanagedType.Bool)] bool across_fs,
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string ceiling_dirs);
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(FilePathMarshaler))] FilePath ceiling_dirs);
 
         [DllImport(libgit2)]
         public static extern void git_repository_free(IntPtr repository);
@@ -332,7 +332,7 @@ namespace LibGit2Sharp.Core
         [DllImport(libgit2)]
         public static extern int git_repository_init(
             out RepositorySafeHandle repository,
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string path,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(FilePathMarshaler))] FilePath path,
             [MarshalAs(UnmanagedType.Bool)] bool isBare);
 
         [DllImport(libgit2)]
@@ -344,15 +344,15 @@ namespace LibGit2Sharp.Core
         [DllImport(libgit2)]
         public static extern int git_repository_open(
             out RepositorySafeHandle repository,
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string path);
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(FilePathMarshaler))] FilePath path);
 
         [DllImport(libgit2)]
-        [return : MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))]
-        public static extern string git_repository_path(RepositorySafeHandle repository);
+        [return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(FilePathMarshaler))]
+        public static extern FilePath git_repository_path(RepositorySafeHandle repository);
 
         [DllImport(libgit2)]
-        [return : MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))]
-        public static extern string git_repository_workdir(RepositorySafeHandle repository);
+        [return : MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(FilePathMarshaler))]
+        public static extern FilePath git_repository_workdir(RepositorySafeHandle repository);
 
         [DllImport(libgit2)]
         public static extern void git_revwalk_free(IntPtr walker);
@@ -390,10 +390,10 @@ namespace LibGit2Sharp.Core
         public static extern int git_status_file(
             out FileStatus statusflags,
             RepositorySafeHandle repo,
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string filepath);
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(FilePathMarshaler))] FilePath filepath);
 
         internal delegate int status_callback(
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string statuspath,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(FilePathMarshaler))] FilePath statuspath,
             uint statusflags,
             IntPtr payload);
 
@@ -460,7 +460,7 @@ namespace LibGit2Sharp.Core
         [DllImport(libgit2)]
         public static extern IntPtr git_tree_entry_byname(
             IntPtr tree,
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string filename);
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(FilePathMarshaler))] FilePath filename);
 
         [DllImport(libgit2)]
         public static extern IntPtr git_tree_entry_id(IntPtr entry);
@@ -476,6 +476,7 @@ namespace LibGit2Sharp.Core
         public static extern uint git_tree_entrycount(IntPtr tree);
 
         [DllImport(libgit2)]
-        public static extern int git_tree_get_subtree(out IntPtr tree, IntPtr root, string treeentry_path);
+        public static extern int git_tree_get_subtree(out IntPtr tree, IntPtr root,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(FilePathMarshaler))] FilePath treeentry_path);
     }
 }
