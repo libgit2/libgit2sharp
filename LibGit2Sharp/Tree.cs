@@ -30,12 +30,15 @@ namespace LibGit2Sharp
         /// <returns><c>null</c> if nothing has been found, the <see cref = "TreeEntry" /> otherwise.</returns>
         public TreeEntry this[string relativePath]
         {
-            get { return RetrieveFromPath(PosixPathHelper.ToPosix(relativePath)); }
+            get { return RetrieveFromPath(relativePath); }
         }
 
-        private TreeEntry RetrieveFromPath(string relativePath)
+        private TreeEntry RetrieveFromPath(FilePath relativePath)
         {
-            Ensure.ArgumentNotNullOrEmptyString(relativePath, "relativePath");
+            if (string.IsNullOrEmpty(relativePath.Posix))
+            {
+                return null;
+            }
 
             using (var obj = new ObjectSafeWrapper(Id, repo))
             {
@@ -50,7 +53,7 @@ namespace LibGit2Sharp
 
                 Ensure.Success(res);
 
-                IntPtr e = NativeMethods.git_tree_entry_byname(objectPtr, relativePath.Split('/').Last());
+                IntPtr e = NativeMethods.git_tree_entry_byname(objectPtr, relativePath.Posix.Split('/').Last());
 
                 if (e == IntPtr.Zero)
                 {

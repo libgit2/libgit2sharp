@@ -10,8 +10,8 @@ namespace LibGit2Sharp
     /// </summary>
     public class Configuration : IDisposable
     {
-        private readonly string globalConfigPath;
-        private readonly string systemConfigPath;
+        private readonly FilePath globalConfigPath;
+        private readonly FilePath systemConfigPath;
 
         private readonly Repository repository;
 
