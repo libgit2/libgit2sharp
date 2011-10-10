@@ -156,13 +156,13 @@ namespace LibGit2Sharp
 
         private Branch ResolveTrackedBranch()
         {
-            var trackedRemote = repo.Config.Get<string>("branch", Name, "remote");
+            var trackedRemote = repo.Config.Get<string>("branch", Name, "remote", null);
             if (trackedRemote == null)
             {
                 return null;
             }
 
-            var trackedRefName = repo.Config.Get<string>("branch", Name, "merge");
+            var trackedRefName = repo.Config.Get<string>("branch", Name, "merge", null);
             if (trackedRefName == null)
             {
                 return null;
@@ -172,7 +172,7 @@ namespace LibGit2Sharp
             return repo.Branches[remoteRefName];
         }
 
-        private string ResolveTrackedReference(string trackedRemote, string trackedRefName)
+        private static string ResolveTrackedReference(string trackedRemote, string trackedRefName)
         {
             //TODO: To be replaced by native libgit2 git_branch_tracked_reference() when available.
             return trackedRefName.Replace("refs/heads/", string.Concat("refs/remotes/", trackedRemote, "/"));

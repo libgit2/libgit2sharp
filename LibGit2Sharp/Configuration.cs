@@ -152,19 +152,23 @@ namespace LibGit2Sharp
         ///   <para>
         ///     For example in  order to get the value for this in a .git\config file:
         /// 
+        ///     <code>
         ///     [core]
         ///     bare = true
+        ///     </code>
         /// 
         ///     You would call:
         /// 
-        ///     bool isBare = repo.Config.Get&lt;bool&gt;("core.bare");
+        ///     <code>
+        ///     bool isBare = repo.Config.Get&lt;bool&gt;("core.bare", false);
+        ///     </code>
         ///   </para>
         /// </summary>
         /// <typeparam name = "T">The configuration value type</typeparam>
         /// <param name = "key">The key</param>
-        /// <param name = "defaultValue">The default value (optional)</param>
+        /// <param name = "defaultValue">The default value</param>
         /// <returns>The configuration value, or <c>defaultValue</c> if not set</returns>
-        public T Get<T>(string key, T defaultValue = default(T))
+        public T Get<T>(string key, T defaultValue)
         {
             Ensure.ArgumentNotNullOrEmptyString(key, "key");
 
@@ -177,26 +181,93 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        ///   Get a configuration value for a key. Keys are in the form 'section.name'.
+        ///   <para>
+        ///     For example in  order to get the value for this in a .git\config file:
+        /// 
+        ///     <code>
+        ///     [core]
+        ///     bare = true
+        ///     </code>
+        /// 
+        ///     You would call:
+        /// 
+        ///     <code>
+        ///     bool isBare = repo.Config.Get&lt;bool&gt;("core", "bare", false);
+        ///     </code>
+        ///   </para>
+        /// </summary>
+        /// <typeparam name = "T">The configuration value type</typeparam>
+        /// <param name = "firstKeyPart">The first key part</param>
+        /// <param name = "secondKeyPart">The second key part</param>
+        /// <param name = "defaultValue">The default value</param>
+        /// <returns>The configuration value, or <c>defaultValue</c> if not set</returns>
+        public T Get<T>(string firstKeyPart, string secondKeyPart, T defaultValue)
+        {
+            Ensure.ArgumentNotNull(firstKeyPart, "firstKeyPart");
+            Ensure.ArgumentNotNull(secondKeyPart, "secondKeyPart");
+
+            return Get(new[] { firstKeyPart, secondKeyPart }, defaultValue);
+        }
+
+        /// <summary>
         ///   Get a configuration value for the given key parts.
         ///   <para>
         ///     For example in order to get the value for this in a .git\config file:
         ///
-        ///     [core]
-        ///     bare = true
+        ///     <code>
+        ///     [difftool "kdiff3"]
+        ///	    path = c:/Program Files/KDiff3/kdiff3.exe
+        ///     </code>
         ///
         ///     You would call:
         ///
-        ///     bool isBare = repo.Config.Get&lt;bool&gt;("core", "bare");
+        ///     <code>
+        ///     string where = repo.Config.Get&lt;string&gt;("difftool", "kdiff3", "path", null);
+        ///     </code>
+        ///   </para>
+        /// </summary>
+        /// <typeparam name = "T">The configuration value type</typeparam>
+        /// <param name = "firstKeyPart">The first key part</param>
+        /// <param name = "secondKeyPart">The second key part</param>
+        /// <param name = "thirdKeyPart">The third key part</param>
+        /// <param name = "defaultValue">The default value</param>
+        /// <returns>The configuration value, or <c>defaultValue</c> if not set</returns>
+        public T Get<T>(string firstKeyPart, string secondKeyPart, string thirdKeyPart, T defaultValue)
+        {
+            Ensure.ArgumentNotNull(firstKeyPart, "firstKeyPart");
+            Ensure.ArgumentNotNull(secondKeyPart, "secondKeyPart");
+            Ensure.ArgumentNotNull(thirdKeyPart, "secondKeyPart");
+
+            return Get(new [] { firstKeyPart, secondKeyPart, thirdKeyPart }, defaultValue);
+        }
+
+        /// <summary>
+        ///   Get a configuration value for the given key parts.
+        ///   <para>
+        ///     For example in order to get the value for this in a .git\config file:
+        ///
+        ///     <code>
+        ///     [core]
+        ///     bare = true
+        ///     </code>
+        ///
+        ///     You would call:
+        ///
+        ///     <code>
+        ///     bool isBare = repo.Config.Get&lt;bool&gt;(new []{ "core", "bare" }, false);
+        ///     </code>
         ///   </para>
         /// </summary>
         /// <typeparam name = "T">The configuration value type</typeparam>
         /// <param name = "keyParts">The key parts</param>
+        /// <param name = "defaultValue">The default value</param>
         /// <returns>The configuration value, or <c>defaultValue</c> if not set</returns>
-        public T Get<T>(params string[] keyParts)
+        public T Get<T>(string[] keyParts, T defaultValue)
         {
             Ensure.ArgumentNotNull(keyParts, "keyParts");
 
-            return Get<T>(string.Join(".", keyParts));
+            return Get(string.Join(".", keyParts), defaultValue);
         }
 
         private void Init()
