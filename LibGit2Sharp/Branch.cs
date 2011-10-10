@@ -156,13 +156,13 @@ namespace LibGit2Sharp
 
         private Branch ResolveTrackedBranch()
         {
-            var trackedRemote = repo.Config.Get<string>(string.Concat("branch.", Name, ".remote"));
+            var trackedRemote = repo.Config.Get<string>("branch", Name, "remote");
             if (trackedRemote == null)
             {
                 return null;
             }
 
-            var trackedRefName = repo.Config.Get<string>(string.Concat("branch.", Name, ".merge"));
+            var trackedRefName = repo.Config.Get<string>("branch", Name, "merge");
             if (trackedRefName == null)
             {
                 return null;

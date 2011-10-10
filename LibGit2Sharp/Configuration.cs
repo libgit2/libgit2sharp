@@ -176,6 +176,29 @@ namespace LibGit2Sharp
             return (T)configurationTypedRetriever[typeof(T)](key, defaultValue, LocalHandle);
         }
 
+        /// <summary>
+        ///   Get a configuration value for the given key parts.
+        ///   <para>
+        ///     For example in order to get the value for this in a .git\config file:
+        ///
+        ///     [core]
+        ///     bare = true
+        ///
+        ///     You would call:
+        ///
+        ///     bool isBare = repo.Config.Get&lt;bool&gt;("core", "bare");
+        ///   </para>
+        /// </summary>
+        /// <typeparam name = "T">The configuration value type</typeparam>
+        /// <param name = "keyParts">The key parts</param>
+        /// <returns>The configuration value, or <c>defaultValue</c> if not set</returns>
+        public T Get<T>(params string[] keyParts)
+        {
+            Ensure.ArgumentNotNull(keyParts, "keyParts");
+
+            return Get<T>(string.Join(".", keyParts));
+        }
+
         private void Init()
         {
             Ensure.Success(NativeMethods.git_repository_config(out localHandle, repository.Handle, globalConfigPath, systemConfigPath));

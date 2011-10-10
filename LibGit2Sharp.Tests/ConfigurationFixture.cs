@@ -62,6 +62,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(Constants.StandardTestRepoPath))
             {
                 Assert.IsTrue(repo.Config.Get<bool>("core.ignorecase"));
+                Assert.IsTrue(repo.Config.Get<bool>("core", "ignorecase"));
             }
         }
 
@@ -71,6 +72,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(Constants.StandardTestRepoPath))
             {
                 Assert.AreEqual(2, repo.Config.Get<int>("unittests.intsetting"));
+                Assert.AreEqual(2, repo.Config.Get<int>("unittests", "intsetting"));
             }
         }
 
@@ -80,6 +82,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(Constants.StandardTestRepoPath))
             {
                 Assert.AreEqual(15234, repo.Config.Get<long>("unittests.longsetting"));
+                Assert.AreEqual(15234, repo.Config.Get<long>("unittests", "longsetting"));
             }
         }
 
@@ -89,6 +92,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(Constants.StandardTestRepoPath))
             {
                 Assert.AreEqual("+refs/heads/*:refs/remotes/origin/*", repo.Config.Get<string>("remote.origin.fetch"));
+                Assert.AreEqual("+refs/heads/*:refs/remotes/origin/*", repo.Config.Get<string>("remote", "origin", "fetch"));
             }
         }
 
