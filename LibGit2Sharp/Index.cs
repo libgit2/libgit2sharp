@@ -148,6 +148,25 @@ namespace LibGit2Sharp
             UpdatePhysicalIndex();
         }
 
+        public void Remove(string path)
+        {
+            Ensure.ArgumentNotNullOrEmptyString(path, "path");
+
+            string relativePath = BuildRelativePathFrom(repo, path);
+
+            string wd = repo.Info.WorkingDirectory;
+            if (Directory.Exists(Path.Combine(wd, relativePath)))
+            {
+                throw new NotImplementedException();
+            }
+
+            RemoveFromIndex(relativePath);
+
+            File.Delete(Path.Combine(wd, relativePath));
+
+            UpdatePhysicalIndex();
+        }
+
         private void AddToIndex(string path)
         {
             int res = NativeMethods.git_index_add(handle, BuildRelativePathFrom(repo, path));
