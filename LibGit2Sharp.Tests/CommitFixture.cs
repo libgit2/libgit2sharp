@@ -391,7 +391,7 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
-        public void CanDirectlyAccessFileOfTheCommit()
+        public void CanDirectlyAccessABlobOfTheCommit()
         {
             using (var repo = new Repository(Constants.BareTestRepoPath))
             {
@@ -401,6 +401,29 @@ namespace LibGit2Sharp.Tests
                 blob.ShouldNotBeNull();
 
                 blob.ContentAsUtf8().ShouldEqual("hi\n");
+            }
+        }
+
+        [Test]
+        public void CanDirectlyAccessATreeOfTheCommit()
+        {
+            using (var repo = new Repository(Constants.BareTestRepoPath))
+            {
+                var commit = repo.Lookup<Commit>("4c062a6");
+
+                var tree1 = commit["1"].Target as Tree;
+                tree1.ShouldNotBeNull();
+            }
+        }
+
+        [Test]
+        public void DirectlyAccessingAnUnknownTreeEntryOfTheCommitReturnsNull()
+        {
+            using (var repo = new Repository(Constants.BareTestRepoPath))
+            {
+                var commit = repo.Lookup<Commit>("4c062a6");
+
+                commit["I-am-not-here"].ShouldBeNull();
             }
         }
 
@@ -426,7 +449,7 @@ namespace LibGit2Sharp.Tests
 
                 repo.Head[relativeFilepath].ShouldBeNull();
 
-                var commit = repo.Commit("Initial egotistic commit");
+                Commit commit = repo.Commit("Initial egotistic commit");
 
                 AssertBlobContent(repo.Head[relativeFilepath], "nulltoken\n");
                 AssertBlobContent(commit[relativeFilepath], "nulltoken\n");
@@ -439,7 +462,6 @@ namespace LibGit2Sharp.Tests
                 Assert.AreEqual(commit.Committer.Email, email);
             }
         }
-
 
         [Test]
         public void CanCommitALittleBit()

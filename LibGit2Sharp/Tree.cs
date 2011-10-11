@@ -32,30 +32,22 @@ namespace LibGit2Sharp
 
         private TreeEntry RetrieveFromPath(string relativePath)
         {
-            string[] pathSegments = relativePath.Split('/');
+            Ensure.ArgumentNotNullOrEmptyString(relativePath, "relativePath");
 
-            Tree tree = this;
-
-            for (int i = 0; i < pathSegments.Length - 1; i++)
+            using (var obj = new ObjectSafeWrapper(Id, repo))
             {
-                TreeEntry entry = tree.RetrieveFromName(pathSegments[i]);
+                IntPtr objectPtr;
 
-                if (entry == null || entry.Type != GitObjectType.Tree)
+                int res = NativeMethods.git_tree_frompath(out objectPtr, obj.ObjectPtr, relativePath);
+
+                if (res == (int)GitErrorCode.GIT_ENOTFOUND)
                 {
                     return null;
                 }
 
-                tree = (Tree)entry.Target;
-            }
+                Ensure.Success(res);
 
-            return tree.RetrieveFromName(pathSegments[pathSegments.Length - 1]);
-        }
-
-        private TreeEntry RetrieveFromName(string entryName)
-        {
-            using (var obj = new ObjectSafeWrapper(Id, repo))
-            {
-                IntPtr e = NativeMethods.git_tree_entry_byname(obj.ObjectPtr, entryName);
+                IntPtr e = NativeMethods.git_tree_entry_byname(objectPtr, relativePath.Split('/').Last());
 
                 if (e == IntPtr.Zero)
                 {
