@@ -405,6 +405,43 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
+        public void CanCommitWithSignatureFromConfig()
+        {
+            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            string dir = Repository.Init(scd.DirectoryPath);
+            Path.IsPathRooted(dir).ShouldBeTrue();
+            Directory.Exists(dir).ShouldBeTrue();
+
+            using (var repo = new Repository(dir))
+            {
+                InconclusiveIf(() => !repo.Config.HasGlobalConfig, "No Git global configuration available");
+
+                const string relativeFilepath = "new.txt";
+                string filePath = Path.Combine(repo.Info.WorkingDirectory, relativeFilepath);
+
+                File.WriteAllText(filePath, "null");
+                repo.Index.Stage(relativeFilepath);
+                File.AppendAllText(filePath, "token\n");
+                repo.Index.Stage(relativeFilepath);
+
+                repo.Head[relativeFilepath].ShouldBeNull();
+
+                var commit = repo.Commit("Initial egotistic commit");
+
+                AssertBlobContent(repo.Head[relativeFilepath], "nulltoken\n");
+                AssertBlobContent(commit[relativeFilepath], "nulltoken\n");
+
+                var name = repo.Config.Get<string>("user.name", null);
+                var email = repo.Config.Get<string>("user.email", null);
+                Assert.AreEqual(commit.Author.Name, name);
+                Assert.AreEqual(commit.Author.Email, email);
+                Assert.AreEqual(commit.Committer.Name, name);
+                Assert.AreEqual(commit.Committer.Email, email);
+            }
+        }
+
+
+        [Test]
         public void CanCommitALittleBit()
         {
             SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
@@ -425,7 +462,7 @@ namespace LibGit2Sharp.Tests
                 repo.Head[relativeFilepath].ShouldBeNull();
 
                 var author = new Signature("Author N. Ame", "him@there.com", DateTimeOffset.Now.AddSeconds(-10));
-                Commit commit = repo.Commit(author, author, "Initial egotistic commit");
+                Commit commit = repo.Commit("Initial egotistic commit", author, author);
 
                 AssertBlobContent(repo.Head[relativeFilepath], "nulltoken\n");
                 AssertBlobContent(commit[relativeFilepath], "nulltoken\n");
@@ -437,7 +474,7 @@ namespace LibGit2Sharp.Tests
                 repo.Index.Stage(relativeFilepath);
 
                 var author2 = new Signature(author.Name, author.Email, author.When.AddSeconds(5));
-                Commit commit2 = repo.Commit(author2, author2, "Are you trying to fork me?");
+                Commit commit2 = repo.Commit("Are you trying to fork me?", author2, author2);
 
                 AssertBlobContent(repo.Head[relativeFilepath], "nulltoken commits!\n");
                 AssertBlobContent(commit2[relativeFilepath], "nulltoken commits!\n");
@@ -453,7 +490,7 @@ namespace LibGit2Sharp.Tests
                 var author3 = new Signature("David Fowler", "david.fowler@microsoft.com", author.When.AddSeconds(2));
                 repo.Index.Stage(relativeFilepath);
 
-                Commit commit3 = repo.Commit(author3, author3, "I'm going to branch you backwards in time!");
+                Commit commit3 = repo.Commit("I'm going to branch you backwards in time!", author3, author3);
 
                 AssertBlobContent(repo.Head[relativeFilepath], "davidfowl commits!\n");
                 AssertBlobContent(commit3[relativeFilepath], "davidfowl commits!\n");

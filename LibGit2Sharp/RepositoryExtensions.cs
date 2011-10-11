@@ -104,9 +104,9 @@
         /// <param name = "committer">The <see cref = "Signature" /> of who added the change to the repository.</param>
         /// <param name = "message">The description of why a change was made to the repository.</param>
         /// <returns>The generated <see cref = "Commit" />.</returns>
-        public static Commit Commit(this Repository repository, Signature author, Signature committer, string message)
+        public static Commit Commit(this Repository repository, string message, Signature author = null, Signature committer = null)
         {
-            return repository.Commits.Create(author, committer, message);
+            return repository.Commits.Create(message, author, committer);
         }
     }
 }

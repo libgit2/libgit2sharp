@@ -132,7 +132,7 @@ namespace LibGit2Sharp.Tests
                 repo.Index.Stage(fileName);
                 ObjectId blobId = repo.Index[fileName].Id;
 
-                repo.Commit(Constants.Signature, Constants.Signature, "Initial commit");
+                repo.Commit("Initial commit", Constants.Signature, Constants.Signature);
                 repo.Index.Count.ShouldEqual(1);
 
                 File.AppendAllText(fullpath, "Is there there anybody out there?");
@@ -241,7 +241,7 @@ namespace LibGit2Sharp.Tests
                 repo.Index.Count.ShouldEqual(1);
 
                 Signature who = Constants.Signature;
-                repo.Commit(who, who, "Initial commit");
+                repo.Commit("Initial commit", who, who);
 
                 repo.Index.RetrieveStatus(oldName).ShouldEqual(FileStatus.Unaltered);
 
@@ -255,7 +255,7 @@ namespace LibGit2Sharp.Tests
                 repo.Index[newName].Id.Sha.ShouldEqual((expectedHash));
 
                 who = who.TimeShift(TimeSpan.FromMinutes(5));
-                Commit commit = repo.Commit(who, who, "Fix file name");
+                Commit commit = repo.Commit("Fix file name", who, who);
 
                 repo.Index.RetrieveStatus(oldName).ShouldEqual(FileStatus.Nonexistent);
                 repo.Index.RetrieveStatus(newName).ShouldEqual(FileStatus.Unaltered);

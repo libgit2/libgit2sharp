@@ -12,10 +12,10 @@
         /// <summary>
         ///   Stores the content of the content as a new <see cref = "Commit" /> into the repository.
         /// </summary>
+        /// <param name = "message">The description of why a change was made to the repository.</param>
         /// <param name = "author">The <see cref = "Signature" /> of who made the change.</param>
         /// <param name = "committer">The <see cref = "Signature" /> of who added the change to the repository.</param>
-        /// <param name = "message">The description of why a change was made to the repository.</param>
         /// <returns>The generated <see cref = "Commit" />.</returns>
-        Commit Create(Signature author, Signature committer, string message);
+        Commit Create(string message, Signature author, Signature committer);
     }
 }
