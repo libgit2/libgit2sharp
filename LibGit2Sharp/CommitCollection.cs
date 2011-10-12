@@ -130,8 +130,12 @@ namespace LibGit2Sharp
         /// <param name = "author">The <see cref = "Signature" /> of who made the change.</param>
         /// <param name = "committer">The <see cref = "Signature" /> of who added the change to the repository.</param>
         /// <returns>The generated <see cref = "Commit" />.</returns>
-        public Commit Create(string message, Signature author = null, Signature committer = null)
+        public Commit Create(string message, Signature author, Signature committer)
         {
+            Ensure.ArgumentNotNull(message, "message");
+            Ensure.ArgumentNotNull(author, "author");
+            Ensure.ArgumentNotNull(committer, "committer");
+
             GitOid treeOid;
             int res = NativeMethods.git_tree_create_fromindex(out treeOid, repo.Index.Handle);
             string encoding = null;
@@ -139,18 +143,6 @@ namespace LibGit2Sharp
             Ensure.Success(res);
 
             Reference head = repo.Refs["HEAD"];
-
-            if (author == null || committer == null)
-            {
-                var name = repo.Config.Get("user.name", string.Empty);
-                var email = repo.Config.Get("user.email", string.Empty);
-
-                Ensure.ArgumentNotNullOrEmptyString(name, "user.name");
-                Ensure.ArgumentNotNullOrEmptyString(email, "user.email");
-
-                if (author == null) author = new Signature(name, email, DateTimeOffset.Now);
-                if (committer == null) committer = new Signature(name, email, DateTimeOffset.Now);
-            }
 
             GitOid commitOid;
             using (var treePtr = new ObjectSafeWrapper(new ObjectId(treeOid), repo))
