@@ -48,7 +48,7 @@ namespace LibGit2Sharp
 
             foreach (KeyValuePair<FileStatus, Action<RepositoryStatus, string>> kvp in dispatcher)
             {
-                if ((gitStatus & kvp.Key) != kvp.Key)
+                if (!gitStatus.Has(kvp.Key))
                 {
                     continue;
                 }

@@ -52,6 +52,7 @@
     <Compile Include="CommitCollection.cs" />
     <Compile Include="Configuration.cs" />
     <Compile Include="ConfigurationLevel.cs" />
+    <Compile Include="Core\EnumExtensions.cs" />
     <Compile Include="DetachedHead.cs" />
     <Compile Include="LibGit2Exception.cs" />
     <Compile Include="Core\ConfigurationSafeHandle.cs" />
