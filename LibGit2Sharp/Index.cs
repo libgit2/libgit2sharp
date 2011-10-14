@@ -107,7 +107,23 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(path, "path");
 
-            AddToIndex(path);
+            string relativePath = BuildRelativePathFrom(repo, path);
+
+            FileStatus fileStatus = RetrieveStatus(relativePath);
+
+            if (fileStatus.Has(FileStatus.Nonexistent))
+            {
+                throw new LibGit2Exception("Can not stage '{0}'. The file does not exist.");
+            }
+
+            if (fileStatus.Has(FileStatus.Missing))
+            {
+                RemoveFromIndex(relativePath);
+            }
+            else
+            {
+                AddToIndex(relativePath);
+            }
 
             UpdatePhysicalIndex();
         }
@@ -118,9 +134,21 @@ namespace LibGit2Sharp
 
             string relativePath = BuildRelativePathFrom(repo, path);
 
-            RemoveFromIndex(relativePath);
+            FileStatus fileStatus = RetrieveStatus(relativePath);
 
-            RestorePotentialPreviousVersionOf(relativePath);
+            bool doesExistInindex =
+                !(fileStatus.Has(FileStatus.Nonexistent) || fileStatus.Has(FileStatus.Removed) ||
+                  fileStatus.Has(FileStatus.Untracked));
+
+            if (doesExistInindex)
+            {
+                RemoveFromIndex(relativePath);
+            }
+
+            bool doesExistInWorkingDirectory =
+                !(fileStatus.Has(FileStatus.Removed) || fileStatus.Has(FileStatus.Nonexistent) ||
+                  fileStatus.Has(FileStatus.Missing));
+            RestorePotentialPreviousVersionOfHeadIntoIndex(relativePath, doesExistInWorkingDirectory);
 
             UpdatePhysicalIndex();
         }
@@ -167,31 +195,49 @@ namespace LibGit2Sharp
             UpdatePhysicalIndex();
         }
 
-        private void AddToIndex(string path)
+        private void AddToIndex(string relativePath)
         {
-            int res = NativeMethods.git_index_add(handle, BuildRelativePathFrom(repo, path));
+            int res = NativeMethods.git_index_add(handle, relativePath);
             Ensure.Success(res);
         }
 
-        private void RemoveFromIndex(string path)
+        private void RemoveFromIndex(string relativePath)
         {
-            int res = NativeMethods.git_index_find(handle, BuildRelativePathFrom(repo, path));
+            int res = NativeMethods.git_index_find(handle, relativePath);
             Ensure.Success(res, true);
 
             res = NativeMethods.git_index_remove(handle, res);
             Ensure.Success(res);
         }
 
-        private void RestorePotentialPreviousVersionOf(string relativePath)
+        private void RestorePotentialPreviousVersionOfHeadIntoIndex(string relativePath,
+                                                                    bool doesExistInWorkingDirectory)
         {
+            // TODO: Warning! Hack. Should be moved down to libgit2 (git reset HEAD filename)
             TreeEntry entry = repo.Head[relativePath];
             if (entry == null || entry.Type != GitObjectType.Blob)
             {
                 return;
             }
 
-            File.WriteAllBytes(Path.Combine(repo.Info.WorkingDirectory, relativePath), ((Blob)(entry.Target)).Content);
+            string filename = Path.Combine(repo.Info.WorkingDirectory, relativePath);
+
+            string randomFileName = null;
+            if (doesExistInWorkingDirectory)
+            {
+                randomFileName = Path.GetRandomFileName();
+                File.Move(filename, Path.Combine(repo.Info.WorkingDirectory, randomFileName));
+            }
+
+            File.WriteAllBytes(filename, ((Blob)(entry.Target)).Content);
             AddToIndex(relativePath);
+
+            File.Delete(filename);
+
+            if (doesExistInWorkingDirectory)
+            {
+                File.Move(Path.Combine(repo.Info.WorkingDirectory, randomFileName), filename);
+            }
         }
 
         private void UpdatePhysicalIndex()
@@ -200,8 +246,9 @@ namespace LibGit2Sharp
             Ensure.Success(res);
         }
 
-        private static string BuildRelativePathFrom(Repository repo, string path) //TODO: To be removed when libgit2 natively implements this
+        private static string BuildRelativePathFrom(Repository repo, string path)
         {
+            //TODO: To be removed when libgit2 natively implements this
             if (!Path.IsPathRooted(path))
             {
                 return path;
@@ -211,7 +258,9 @@ namespace LibGit2Sharp
 
             if (!normalizedPath.StartsWith(repo.Info.WorkingDirectory, StringComparison.Ordinal))
             {
-                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "Unable to process file '{0}'. This file is not located under the working directory of the repository ('{1}').", normalizedPath, repo.Info.WorkingDirectory));
+                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture,
+                                                          "Unable to process file '{0}'. This file is not located under the working directory of the repository ('{1}').",
+                                                          normalizedPath, repo.Info.WorkingDirectory));
             }
 
             return normalizedPath.Substring(repo.Info.WorkingDirectory.Length);

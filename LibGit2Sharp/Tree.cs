@@ -16,7 +16,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Gets the number of <see cref="TreeEntry"/> immediately under this <see cref="Tree"/>.
+        ///   Gets the number of <see cref = "TreeEntry" /> immediately under this <see cref = "Tree" />.
         /// </summary>
         public int Count { get; private set; }
 
@@ -51,11 +51,11 @@ namespace LibGit2Sharp
             return tree.RetrieveFromName(pathSegments[pathSegments.Length - 1]);
         }
 
-        private TreeEntry RetrieveFromName(string name)
+        private TreeEntry RetrieveFromName(string entryName)
         {
             using (var obj = new ObjectSafeWrapper(Id, repo))
             {
-                IntPtr e = NativeMethods.git_tree_entry_byname(obj.ObjectPtr, name);
+                IntPtr e = NativeMethods.git_tree_entry_byname(obj.ObjectPtr, entryName);
 
                 if (e == IntPtr.Zero)
                 {
@@ -67,7 +67,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Gets the <see cref="Tree"/>s immediately under this <see cref="Tree"/>.
+        ///   Gets the <see cref = "Tree" />s immediately under this <see cref = "Tree" />.
         /// </summary>
         public IEnumerable<Tree> Trees
         {
@@ -81,7 +81,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Gets the <see cref="Blob"/>s immediately under this <see cref="Tree"/>.
+        ///   Gets the <see cref = "Blob" />s immediately under this <see cref = "Tree" />.
         /// </summary>
         public IEnumerable<Blob> Files
         {
