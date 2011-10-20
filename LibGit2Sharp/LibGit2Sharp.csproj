@@ -121,22 +121,17 @@
   <ItemGroup>
     <CodeAnalysisDictionary Include="CustomDictionary.xml" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="..\Lib\git2.dll">
-      <Link>git2.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>
     </PreBuildEvent>
   </PropertyGroup>
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>
   <Target Name="AfterBuild">
+    <ItemGroup>
+      <NativeBinaries Include="$(MSBuildProjectDirectory)\..\Lib\NativeBinaries\**\*.*" />
+    </ItemGroup>
+	<Copy SourceFiles="@(NativeBinaries)" DestinationFiles="@(NativeBinaries->'$(OutputPath)NativeBinaries\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
   </Target>
-  -->
 </Project>

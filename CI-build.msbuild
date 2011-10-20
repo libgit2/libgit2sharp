@@ -39,5 +39,12 @@
   <Target Name="Deploy" DependsOnTargets="Test">
     <Copy SourceFiles="@(OutputFiles)"
       DestinationFiles="@(OutputFiles->'$(DeployFolder)\%(RecursiveDir)%(Filename)%(Extension)')" />
+
+	  <ItemGroup>
+      <NativeBinaries Include="$(TestBuildDir)\NativeBinaries\**\*.*" />
+    </ItemGroup>
+
+	<Copy SourceFiles="@(NativeBinaries)"
+	  DestinationFiles="@(NativeBinaries->'$(DeployFolder)\NativeBinaries\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
   </Target>
 </Project>

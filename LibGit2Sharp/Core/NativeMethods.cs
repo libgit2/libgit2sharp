@@ -1,4 +1,6 @@
 ﻿using System;
+using System.IO;
+using System.Reflection;
 using System.Runtime.InteropServices;
 
 namespace LibGit2Sharp.Core
@@ -7,6 +9,20 @@ namespace LibGit2Sharp.Core
     {
         public const int GIT_PATH_MAX = 4096;
         private const string libgit2 = "git2";
+
+        static NativeMethods()
+        {
+            string originalAssemblypath = new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath;
+
+            //TODO: When amd64 version of libgit2.dll is available, value this depending of the size of an IntPtr
+            const string currentArchSubPath = "NativeBinaries/x86";
+
+            string path = Path.Combine(Path.GetDirectoryName(originalAssemblypath), currentArchSubPath);
+
+            const string pathEnvVariable = "PATH";
+            Environment.SetEnvironmentVariable(pathEnvVariable,
+                String.Format("{0}{1}{2}", path, Path.PathSeparator, Environment.GetEnvironmentVariable(pathEnvVariable)));
+        }
 
         [DllImport(libgit2)]
         public static extern IntPtr git_blob_rawcontent(IntPtr blob);

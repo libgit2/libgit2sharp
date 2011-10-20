@@ -76,11 +76,12 @@
     <PreBuildEvent>
     </PreBuildEvent>
   </PropertyGroup>
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>
   <Target Name="AfterBuild">
+    <ItemGroup>
+      <NativeBinaries Include="$(MSBuildProjectDirectory)\..\Lib\NativeBinaries\**\*.*" />
+    </ItemGroup>
+	<Copy SourceFiles="@(NativeBinaries)" DestinationFiles="@(NativeBinaries->'$(OutputPath)NativeBinaries\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
   </Target>
-  -->
 </Project>

@@ -1,0 +1,1 @@
+Here will be placed the x64 binaries of libgit2
