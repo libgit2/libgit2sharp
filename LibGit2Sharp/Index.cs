@@ -7,6 +7,10 @@ using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
 {
+    /// <summary>
+    ///   The Index is a staging area between the Working directory and the Repository.
+    ///   It's used to prepare and aggregate the changes that will be part of the next commit.
+    /// </summary>
     public class Index : IEnumerable<IndexEntry>, IDisposable
     {
         private readonly IndexSafeHandle handle;
@@ -24,11 +28,17 @@ namespace LibGit2Sharp
             get { return handle; }
         }
 
+        /// <summary>
+        ///   Gets the number of <see cref = "IndexEntry" /> in the index.
+        /// </summary>
         public int Count
         {
             get { return (int)NativeMethods.git_index_entrycount(handle); }
         }
 
+        /// <summary>
+        ///   Gets the <see cref = "IndexEntry" /> with the specified relative path.
+        /// </summary>
         public IndexEntry this[string path]
         {
             get
@@ -103,6 +113,10 @@ namespace LibGit2Sharp
 
         #endregion
 
+        /// <summary>
+        ///   Promotes to the staging area the latest modifications of a file in the working directory (addition, updation or removal).
+        /// </summary>
+        /// <param name="path">The relative path within the working directory to the file.</param>
         public void Stage(string path)
         {
             Ensure.ArgumentNotNullOrEmptyString(path, "path");
@@ -128,6 +142,10 @@ namespace LibGit2Sharp
             UpdatePhysicalIndex();
         }
 
+        /// <summary>
+        ///   Removes from the staging area all the modifications of a file since the latest commit (addition, updation or removal).
+        /// </summary>
+        /// <param name="path">The relative path within the working directory to the file.</param>
         public void Unstage(string path)
         {
             Ensure.ArgumentNotNullOrEmptyString(path, "path");
@@ -153,6 +171,11 @@ namespace LibGit2Sharp
             UpdatePhysicalIndex();
         }
 
+        /// <summary>
+        ///   Moves and/or renames a file in the working directory and promotes the change to the staging area.
+        /// </summary>
+        /// <param name="sourcePath">The relative path within the working directory to the file which has to be moved/renamed.</param>
+        /// <param name="destinationPath">The target relative path within the working directory of the file.</param>
         public void Move(string sourcePath, string destinationPath)
         {
             Ensure.ArgumentNotNullOrEmptyString(sourcePath, "sourcepath");
@@ -176,6 +199,10 @@ namespace LibGit2Sharp
             UpdatePhysicalIndex();
         }
 
+        /// <summary>
+        ///   Removes a file from the working directory and promotes the removal to the staging area.
+        /// </summary>
+        /// <param name="path">The relative path within the working directory to the file.</param>
         public void Remove(string path)
         {
             Ensure.ArgumentNotNullOrEmptyString(path, "path");
@@ -266,6 +293,11 @@ namespace LibGit2Sharp
             return normalizedPath.Substring(repo.Info.WorkingDirectory.Length);
         }
 
+        /// <summary>
+        ///   Retrieves the state of a file in the working directory, comparing it against the staging area and the latest commmit.
+        /// </summary>
+        /// <param name="filePath">The relative path within the working directory to the file.</param>
+        /// <returns>A <see  cref="FileStatus" /> representing the state of the <paramref name="filePath"/> parameter.</returns>
         public FileStatus RetrieveStatus(string filePath)
         {
             Ensure.ArgumentNotNullOrEmptyString(filePath, "filePath");
@@ -285,6 +317,10 @@ namespace LibGit2Sharp
             return status;
         }
 
+        /// <summary>
+        ///   Retrieves the state of all files in the working directory, comparing them against the staging area and the latest commmit.
+        /// </summary>
+        /// <returns>A <see  cref="RepositoryStatus" /> holding the state of all the files.</returns>
         public RepositoryStatus RetrieveStatus()
         {
             return new RepositoryStatus(repo);

@@ -99,12 +99,12 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Stores the content of the <see cref = "Repository.Index" /> as a new <see cref = "Commit" /> into the repository.
+        ///   Stores the content of the <see cref = "Repository.Index" /> as a new <see cref = "LibGit2Sharp.Commit" /> into the repository.
         ///   <para>Both the Author and Committer will be guessed from the Git configuration. An exception will be raised if no configuration is reachable.</para>
         /// </summary>
         /// <param name = "repository">The <see cref = "Repository" /> being worked with.</param>
         /// <param name = "message">The description of why a change was made to the repository.</param>
-        /// <returns>The generated <see cref = "Commit" />.</returns>
+        /// <returns>The generated <see cref = "LibGit2Sharp.Commit" />.</returns>
         public static Commit Commit(this Repository repository, string message)
         {
             Signature author = BuildSignatureFromGlobalConfiguration(repository, DateTimeOffset.Now);
@@ -113,13 +113,13 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Stores the content of the <see cref = "Repository.Index" /> as a new <see cref = "Commit" /> into the repository.
+        ///   Stores the content of the <see cref = "Repository.Index" /> as a new <see cref = "LibGit2Sharp.Commit" /> into the repository.
         ///   <para>The Committer will be guessed from the Git configuration. An exception will be raised if no configuration is reachable.</para>
         /// </summary>
         /// <param name = "repository">The <see cref = "Repository" /> being worked with.</param>
         /// <param name = "author">The <see cref = "Signature" /> of who made the change.</param>
         /// <param name = "message">The description of why a change was made to the repository.</param>
-        /// <returns>The generated <see cref = "Commit" />.</returns>
+        /// <returns>The generated <see cref = "LibGit2Sharp.Commit" />.</returns>
         public static Commit Commit(this Repository repository, string message, Signature author)
         {
             Signature committer = BuildSignatureFromGlobalConfiguration(repository, DateTimeOffset.Now);
@@ -128,13 +128,13 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Stores the content of the <see cref = "Repository.Index" /> as a new <see cref = "Commit" /> into the repository.
+        ///   Stores the content of the <see cref = "Repository.Index" /> as a new <see cref = "LibGit2Sharp.Commit" /> into the repository.
         /// </summary>
         /// <param name = "repository">The <see cref = "Repository" /> being worked with.</param>
         /// <param name = "author">The <see cref = "Signature" /> of who made the change.</param>
         /// <param name = "committer">The <see cref = "Signature" /> of who added the change to the repository.</param>
         /// <param name = "message">The description of why a change was made to the repository.</param>
-        /// <returns>The generated <see cref = "Commit" />.</returns>
+        /// <returns>The generated <see cref = "LibGit2Sharp.Commit" />.</returns>
         public static Commit Commit(this Repository repository, string message, Signature author, Signature committer)
         {
             return repository.Commits.Create(message, author, committer);

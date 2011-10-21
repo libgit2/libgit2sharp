@@ -3,6 +3,9 @@ using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
 {
+    /// <summary>
+    ///   Holds the calculated status of a particular file at a particular instant.
+    /// </summary>
     public class StatusEntry : IEquatable<StatusEntry>
     {
         private readonly string filePath;
@@ -17,11 +20,17 @@ namespace LibGit2Sharp
             this.state = state;
         }
 
+        /// <summary>
+        ///   Gets the <see cref="FileStatus"/> of the file.
+        /// </summary>
         public FileStatus State
         {
             get { return state; }
         }
 
+        /// <summary>
+        ///   Gets the relative filepath to the working directory of the file.
+        /// </summary>
         public string FilePath
         {
             get { return filePath; }
