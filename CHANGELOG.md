@@ -5,6 +5,27 @@
  - Source code: <https://github.com/libgit2/libgit2sharp>
  - NuGet package: <http://nuget.org/List/Packages/LibGit2Sharp>
 
+## v0.6
+
+### Additions
+
+ - Add Configuration.Get() overload that takes key in parts
+ - Add tracking branch details (#75)
+ - Allow creation of commit using signature from configuration files
+ - Add Index.Remove() (#78)
+ - Add a string indexer to the Commit and Tree types in order to ease retrieval of TreeEntries
+
+### Changes
+
+ - Provide default value for non existent configuration setting (#67)
+ - Change the tree structure into which libgit2 binaries are located (#70)
+ - Update libgit2 binaries to libgit2/libgit2@28c1451
+ 
+### Fixes
+
+ - Prevent enumeration of branches from throwing when the repository contains remote branches (#69)
+ - Fix Index.Stage(), Index.Unstage() (#78)
+
 ## v0.5
 
 ### Additions
