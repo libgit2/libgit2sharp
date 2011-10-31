@@ -175,7 +175,7 @@ namespace LibGit2Sharp.Tests
             {
                 var expectedBranchesIncludingRemoteRefs = new[]
                                                               {
-                                                                  new { Name = "master", Sha = "592d3c869dbc4127fc57c189cb94f2794fa84e7e", IsRemote = false },
+                                                                  new { Name = "master", Sha = "32eab9cb1f450b5fe7ab663462b77d7f4b703344", IsRemote = false },
                                                                   new { Name = "origin/HEAD", Sha = "580c2111be43802dab11328176d94c391f1deae9", IsRemote = true },
                                                                   new { Name = "origin/br2", Sha = "a4a7dce85cf63874e984719f4fdd239f5145052f", IsRemote = true },
                                                                   new { Name = "origin/master", Sha = "580c2111be43802dab11328176d94c391f1deae9", IsRemote = true },
@@ -251,7 +251,7 @@ namespace LibGit2Sharp.Tests
                 Branch master = repo.Branches["master"];
                 master.IsTracking.ShouldBeTrue();
                 master.TrackedBranch.ShouldEqual(repo.Branches["refs/remotes/origin/master"]);
-                master.AheadBy.ShouldEqual(1);
+                master.AheadBy.ShouldEqual(2);
                 master.BehindBy.ShouldEqual(2);
             }
         }

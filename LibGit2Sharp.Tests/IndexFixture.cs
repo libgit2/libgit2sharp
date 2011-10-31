@@ -12,6 +12,7 @@ namespace LibGit2Sharp.Tests
     {
         private readonly string[] expectedEntries = new[]
                                                         {
+                                                            "1.txt",
                                                             "1/branch_file.txt",
                                                             "README",
                                                             "branch_file.txt",
