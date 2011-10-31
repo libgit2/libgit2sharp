@@ -10,10 +10,6 @@
     <DeployFolder>$(RootDir)\Build</DeployFolder>
   </PropertyGroup>
 
-  <ItemGroup>
-    <OutputFiles Include="$(TestBuildDir)\*.*" />
-  </ItemGroup>
-
   <Target Name="Clean">
     <DeleteTree Directories="$(BuildDirs);$(DeployFolder)" />
   </Target>
@@ -24,27 +20,29 @@
 
   <Target Name="Build" DependsOnTargets="Init">
     <MSBuild
-			Projects="LibGit2Sharp.sln"
-			Targets="Build"
-			Properties="Configuration=$(Configuration);TrackFileAccess=false" />
+      Projects="LibGit2Sharp.sln"
+      Targets="Build"
+      Properties="Configuration=$(Configuration);TrackFileAccess=false" />
   </Target>
 
   <Target Name="Test" DependsOnTargets="Build">
     <NUnit Assemblies="$(TestBuildDir)\LibGit2Sharp.Tests.dll"
-		       ToolPath="$(MSBuildProjectDirectory)\Lib\NUnit\"
-		       Force32Bit="true"
-		       OutputXmlFile="$(DeployFolder)\Test-result.xml" />
+           ToolPath="$(MSBuildProjectDirectory)\Lib\NUnit\"
+           Force32Bit="true"
+           OutputXmlFile="$(DeployFolder)\Test-result.xml" />
   </Target>
 
   <Target Name="Deploy" DependsOnTargets="Test">
+    <ItemGroup>
+      <OutputFiles Include="$(TestBuildDir)\LibGit2*.*" />
+    </ItemGroup>
     <Copy SourceFiles="@(OutputFiles)"
-      DestinationFiles="@(OutputFiles->'$(DeployFolder)\%(RecursiveDir)%(Filename)%(Extension)')" />
+        DestinationFiles="@(OutputFiles->'$(DeployFolder)\%(RecursiveDir)%(Filename)%(Extension)')" />
 
-	  <ItemGroup>
+    <ItemGroup>
       <NativeBinaries Include="$(TestBuildDir)\NativeBinaries\**\*.*" />
     </ItemGroup>
-
-	<Copy SourceFiles="@(NativeBinaries)"
-	  DestinationFiles="@(NativeBinaries->'$(DeployFolder)\NativeBinaries\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(NativeBinaries)"
+      DestinationFiles="@(NativeBinaries->'$(DeployFolder)\NativeBinaries\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
   </Target>
 </Project>
