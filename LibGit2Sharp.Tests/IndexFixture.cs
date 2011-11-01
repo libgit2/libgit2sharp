@@ -308,8 +308,8 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(Constants.StandardTestRepoPath))
             {
-                Assert.Throws<ArgumentException>(() => repo.Index.Stage(string.Empty));
-                Assert.Throws<ArgumentNullException>(() => repo.Index.Stage(null));
+                Assert.Throws<ArgumentException>(() => repo.Index.Unstage(string.Empty));
+                Assert.Throws<ArgumentNullException>(() => repo.Index.Unstage(null));
             }
         }
 
