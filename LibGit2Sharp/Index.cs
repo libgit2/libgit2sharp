@@ -145,6 +145,49 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        ///   Promotes to the staging area the latest modifications of a collection of files in the working directory (addition, updation or removal).
+        /// </summary>
+        /// <param name="paths">The collection of paths within the working directory to the files.</param>
+        public void Stage(IEnumerable<string> paths)
+        {
+            Ensure.ArgumentNotNull(paths, "paths");
+
+            IDictionary<string, FileStatus> batch = PrepareBatch(paths);
+
+            if (batch.Count == 0)
+            {
+                throw new ArgumentNullException("paths");
+            }
+
+            foreach (KeyValuePair<string, FileStatus> kvp in batch)
+            {
+                if (!kvp.Value.Has(FileStatus.Nonexistent))
+                {
+                    continue;
+                }
+
+                throw new LibGit2Exception(string.Format("Can not stage '{0}'. The file does not exist.", kvp.Key));
+            }
+
+            foreach (KeyValuePair<string, FileStatus> kvp in batch)
+            {
+                string relativePath = kvp.Key;
+                FileStatus fileStatus = kvp.Value;
+
+                if (fileStatus.Has(FileStatus.Missing))
+                {
+                    RemoveFromIndex(relativePath);
+                }
+                else
+                {
+                    AddToIndex(relativePath);
+                }
+            }
+
+            UpdatePhysicalIndex();
+        }
+
+        /// <summary>
         ///   Removes from the staging area all the modifications of a file since the latest commit (addition, updation or removal).
         /// </summary>
         /// <param name="path">The relative path within the working directory to the file.</param>
@@ -169,6 +212,41 @@ namespace LibGit2Sharp
                 !(fileStatus.Has(FileStatus.Removed) || fileStatus.Has(FileStatus.Nonexistent) ||
                   fileStatus.Has(FileStatus.Missing));
             RestorePotentialPreviousVersionOfHeadIntoIndex(relativePath, doesExistInWorkingDirectory);
+
+            UpdatePhysicalIndex();
+        }
+
+        /// <summary>
+        ///   Removes from the staging area all the modifications of a collection of file since the latest commit (addition, updation or removal).
+        /// </summary>
+        /// <param name="paths">The collection of paths within the working directory to the files.</param>
+        public void Unstage(IEnumerable<string> paths)
+        {
+            Ensure.ArgumentNotNull(paths, "paths");
+
+            IDictionary<string, FileStatus> batch = PrepareBatch(paths);
+
+            if (batch.Count == 0)
+            {
+                throw new ArgumentNullException("paths");
+            }
+
+            foreach (KeyValuePair<string, FileStatus> kvp in batch)
+            {
+                bool doesExistInIndex =
+                    !(kvp.Value.Has(FileStatus.Nonexistent) || kvp.Value.Has(FileStatus.Removed) ||
+                      kvp.Value.Has(FileStatus.Untracked));
+
+                if (doesExistInIndex)
+                {
+                    RemoveFromIndex(kvp.Key);
+                }
+
+                bool doesExistInWorkingDirectory =
+                    !(kvp.Value.Has(FileStatus.Removed) || kvp.Value.Has(FileStatus.Nonexistent) ||
+                      kvp.Value.Has(FileStatus.Missing));
+                RestorePotentialPreviousVersionOfHeadIntoIndex(kvp.Key, doesExistInWorkingDirectory);
+            }
 
             UpdatePhysicalIndex();
         }
@@ -202,6 +280,55 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        ///   Moves and/or renames a file in the working directory and promotes the change to the staging area.
+        /// </summary>
+        /// <param name="sourcePaths">The relative paths within the working directory to the files which has to be moved/renamed.</param>
+        /// <param name="destinationPaths">The target relative paths within the working directory of the files.</param>
+        public void Move(IEnumerable<string> sourcePaths, IEnumerable<string> destinationPaths)
+        {
+            Ensure.ArgumentNotNull(sourcePaths, "sourcePaths");
+            Ensure.ArgumentNotNull(destinationPaths, "destinationPaths");
+
+            List<string> sourcePathsList = new List<string>();
+            List<string> destinationPathsList = new List<string>();
+
+            foreach (string sourcePath in sourcePaths)
+            {
+                sourcePathsList.Add(BuildRelativePathFrom(repo, sourcePath));
+            }
+            foreach (string destinationPath in destinationPaths)
+            {
+                destinationPathsList.Add(BuildRelativePathFrom(repo, destinationPath));
+            }
+
+            if (sourcePathsList.Count != destinationPathsList.Count)
+            {
+                throw new ArgumentException("The collection of paths are of different lengths");
+            }
+
+            string wd = repo.Info.WorkingDirectory;
+
+            foreach (string relativeSourcePath in sourcePathsList)
+            {
+                if (Directory.Exists(Path.Combine(wd, relativeSourcePath)))
+                {
+                    throw new NotImplementedException();
+                }
+            }
+
+            for (int i = 0; i < sourcePathsList.Count; i++)
+            {
+                RemoveFromIndex(sourcePathsList[i]);
+
+                File.Move(Path.Combine(wd, sourcePathsList[i]), Path.Combine(wd, destinationPathsList[i]));
+
+                AddToIndex(destinationPathsList[i]);
+            }
+
+            UpdatePhysicalIndex();
+        }
+
+        /// <summary>
         ///   Removes a file from the working directory and promotes the removal to the staging area.
         /// </summary>
         /// <param name="path">The relative path within the working directory to the file.</param>
@@ -222,6 +349,54 @@ namespace LibGit2Sharp
             File.Delete(Path.Combine(wd, relativePath));
 
             UpdatePhysicalIndex();
+        }
+
+        /// <summary>
+        ///   Removes a collection of files from the working directory and promotes the removal to the staging area.
+        /// </summary>
+        /// <param name="paths">The relative paths within the working directory to the files.</param>
+        public void Remove(IEnumerable<string> paths)
+        {
+            Ensure.ArgumentNotNull(paths, "paths");
+
+            IDictionary<string, FileStatus> batch = PrepareBatch(paths);
+
+            if (batch.Count == 0)
+            {
+                throw new ArgumentNullException("paths");
+            }
+
+            string wd = repo.Info.WorkingDirectory;
+            foreach (KeyValuePair<string, FileStatus> keyValuePair in batch)
+            {
+                if (Directory.Exists(Path.Combine(wd, keyValuePair.Key)))
+                {
+                    throw new NotImplementedException();
+                }
+            }
+
+            foreach (KeyValuePair<string, FileStatus> keyValuePair in batch)
+            {
+                RemoveFromIndex(keyValuePair.Key);
+                File.Delete(Path.Combine(wd, keyValuePair.Key));
+            }
+
+            UpdatePhysicalIndex();
+        }
+
+        private IDictionary<string, FileStatus> PrepareBatch(IEnumerable<string> paths)
+        {
+            IDictionary<string, FileStatus> dic = new Dictionary<string, FileStatus>();
+
+            foreach (string path in paths)
+            {
+                string relativePath = BuildRelativePathFrom(repo, path);
+                FileStatus fileStatus = RetrieveStatus(relativePath);
+
+                dic.Add(relativePath, fileStatus);
+            }
+
+            return dic;
         }
 
         private void AddToIndex(string relativePath)
