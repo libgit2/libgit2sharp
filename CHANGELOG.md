@@ -4,6 +4,19 @@
 
  - Source code: <https://github.com/libgit2/libgit2sharp>
  - NuGet package: <http://nuget.org/List/Packages/LibGit2Sharp>
+ - Issue tracker: <https://github.com/libgit2/libgit2sharp/issues>
+ - @libgit2sharp: <http://twitter.com/libgit2sharp>
+
+## v0.6.1
+ 
+### Changes
+
+ - Update libgit2 binaries to libgit2/libgit2@e3baa3c
+
+### Fixes
+
+ - Prevent segfault when determining the status a of repository
+ - Fix retrieval of buggy status in some (not that rare) cases
 
 ## v0.6
 
