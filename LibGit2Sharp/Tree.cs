@@ -6,6 +6,9 @@ using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
 {
+    /// <summary>
+    ///   A container which references a list of other <see cref="Tree"/>s and <see cref="Blob"/>s.
+    /// </summary>
     public class Tree : GitObject, IEnumerable<TreeEntry>
     {
         private Repository repo;

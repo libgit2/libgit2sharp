@@ -51,11 +51,16 @@ namespace LibGit2Sharp
             get { return Annotation != null; }
         }
 
-        protected override string Shorten(string tagName)
+        /// <summary>
+        ///   Returns the friendly shortened name from a canonical name.
+        /// </summary>
+        /// <param name="canonicalName">The canonical name to shorten.</param>
+        /// <returns></returns>
+        protected override string Shorten(string canonicalName)
         {
-            Ensure.ArgumentConformsTo(tagName, s => s.StartsWith("refs/tags/", StringComparison.Ordinal), "tagName");
+            Ensure.ArgumentConformsTo(canonicalName, s => s.StartsWith("refs/tags/", StringComparison.Ordinal), "tagName");
 
-            return tagName.Substring("refs/tags/".Length);
+            return canonicalName.Substring("refs/tags/".Length);
         }
 
         /// <summary>

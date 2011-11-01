@@ -29,11 +29,17 @@ namespace LibGit2Sharp
             Init();
         }
 
+        /// <summary>
+        ///   Determines if a Git configuration file specific to the current interactive user has been found.
+        /// </summary>
         public bool HasGlobalConfig
         {
             get { return globalConfigPath != null; }
         }
 
+        /// <summary>
+        ///   Determines if a system-wide Git configuration file has been found.
+        /// </summary>
         public bool HasSystemConfig
         {
             get { return systemConfigPath != null; }

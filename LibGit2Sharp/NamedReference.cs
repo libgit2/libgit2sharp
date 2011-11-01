@@ -48,7 +48,12 @@ namespace LibGit2Sharp
             get { return objectBuilder.Value; }
         }
 
-        protected abstract string Shorten(string tagName);
+        /// <summary>
+        ///   Returns the friendly shortened name from a canonical name.
+        /// </summary>
+        /// <param name="canonicalName">The canonical name to shorten.</param>
+        /// <returns></returns>
+        protected abstract string Shorten(string canonicalName);
 
         private TObject RetrieveTargetObject(Reference reference)
         {

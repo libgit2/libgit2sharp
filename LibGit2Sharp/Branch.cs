@@ -74,21 +74,33 @@ namespace LibGit2Sharp
             get { return IsRemoteBranch(CanonicalName); }
         }
 
+        /// <summary>
+        ///   Gets the remote branch which is connected to this local one.
+        /// </summary>
         public Branch TrackedBranch
         {
             get { return trackedBranch.Value; }
         }
 
+        /// <summary>
+        ///   Determines if this local branch is connected to a remote one.
+        /// </summary>
         public bool IsTracking
         {
             get { return TrackedBranch != null; }
         }
 
+        /// <summary>
+        ///   Gets the number of commits, starting from the <see cref="Tip"/>, that have been performed on this local branch and aren't known from the remote one.
+        /// </summary>
         public int AheadBy
         {
             get { return IsTracking ? repo.Commits.QueryBy(new Filter { Since = Tip, Until = TrackedBranch }).Count() : 0; }
         }
 
+        /// <summary>
+        ///   Gets the number of commits that exist in the remote branch, on top of <see cref="Tip"/>, and aren't known from the local one.
+        /// </summary>
         public int BehindBy
         {
             get { return IsTracking ? repo.Commits.QueryBy(new Filter { Since = TrackedBranch, Until = Tip }).Count() : 0; }
@@ -183,19 +195,24 @@ namespace LibGit2Sharp
             return canonicalName.StartsWith("refs/remotes/", StringComparison.Ordinal);
         }
 
-        protected override string Shorten(string branchName)
+        /// <summary>
+        ///   Returns the friendly shortened name from a canonical name.
+        /// </summary>
+        /// <param name="canonicalName">The canonical name to shorten.</param>
+        /// <returns></returns>
+        protected override string Shorten(string canonicalName)
         {
-            if (branchName.StartsWith("refs/heads/", StringComparison.Ordinal))
+            if (canonicalName.StartsWith("refs/heads/", StringComparison.Ordinal))
             {
-                return branchName.Substring("refs/heads/".Length);
+                return canonicalName.Substring("refs/heads/".Length);
             }
 
-            if (branchName.StartsWith("refs/remotes/", StringComparison.Ordinal))
+            if (canonicalName.StartsWith("refs/remotes/", StringComparison.Ordinal))
             {
-                return branchName.Substring("refs/remotes/".Length);
+                return canonicalName.Substring("refs/remotes/".Length);
             }
 
-            throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "'{0}' does not look like a valid branch name.", branchName));
+            throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "'{0}' does not look like a valid branch name.", canonicalName));
         }
 
         /// <summary>
