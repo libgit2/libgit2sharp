@@ -224,12 +224,16 @@ namespace LibGit2Sharp
 
         private void AddToIndex(string relativePath)
         {
+            relativePath = PosixPathHelper.ToPosix(relativePath);
+
             int res = NativeMethods.git_index_add(handle, relativePath);
             Ensure.Success(res);
         }
 
         private void RemoveFromIndex(string relativePath)
         {
+            relativePath = PosixPathHelper.ToPosix(relativePath);
+
             int res = NativeMethods.git_index_find(handle, relativePath);
             Ensure.Success(res, true);
 
