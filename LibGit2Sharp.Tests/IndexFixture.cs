@@ -166,20 +166,21 @@ namespace LibGit2Sharp.Tests
             {
                 int count = repo.Index.Count;
 
-                const string fileName = "1/branch_file.txt";
-                ObjectId blobId = repo.Index[fileName].Id;
+                string filename = "1" + Path.DirectorySeparatorChar + "branch_file.txt";
+                const string posixifiedFileName = "1/branch_file.txt";
+                ObjectId blobId = repo.Index[posixifiedFileName].Id;
 
-                string fullpath = Path.Combine(repo.Info.WorkingDirectory, fileName);
+                string fullpath = Path.Combine(repo.Info.WorkingDirectory, filename);
 
                 File.AppendAllText(fullpath, "Is there there anybody out there?");
-                repo.Index.Stage(fileName);
+                repo.Index.Stage(filename);
 
                 repo.Index.Count.ShouldEqual(count);
-                repo.Index[fileName].Id.ShouldNotEqual((blobId));
+                repo.Index[posixifiedFileName].Id.ShouldNotEqual((blobId));
 
-                repo.Index.Unstage(fileName);
+                repo.Index.Unstage(posixifiedFileName);
                 repo.Index.Count.ShouldEqual(count);
-                repo.Index[fileName].Id.ShouldEqual((blobId));
+                repo.Index[posixifiedFileName].Id.ShouldEqual((blobId));
             }
         }
 
@@ -228,6 +229,29 @@ namespace LibGit2Sharp.Tests
 
                 repo.Index.Count.ShouldEqual(count + 1);
                 repo.Index[filename].ShouldNotBeNull();
+            }
+        }
+
+        [Test]
+        public void CanStageANewFileWithARelativePathContainingNativeDirectorySeparatorCharacters()
+        {
+            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(Constants.StandardTestRepoWorkingDirPath);
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                int count = repo.Index.Count;
+
+                DirectoryInfo di = Directory.CreateDirectory(Path.Combine(repo.Info.WorkingDirectory, "Project"));
+                string file = "Project" + Path.DirectorySeparatorChar + "a_file.txt";
+
+                File.WriteAllText(Path.Combine(di.FullName, "a_file.txt"), "With backward slash on Windows!");
+
+                repo.Index.Stage(file);
+
+                repo.Index.Count.ShouldEqual(count + 1);
+
+                const string posixifiedPath = "Project/a_file.txt";
+                repo.Index[posixifiedPath].ShouldNotBeNull();
+                repo.Index[posixifiedPath].Path.ShouldEqual(posixifiedPath);
             }
         }
 
@@ -373,7 +397,7 @@ namespace LibGit2Sharp.Tests
             {
                 int count = repo.Index.Count;
 
-                const string filename = "1/branch_file.txt";
+                string filename = "1" + Path.DirectorySeparatorChar + "branch_file.txt";
                 string fullpath = Path.Combine(repo.Info.WorkingDirectory, filename);
 
                 File.Exists(fullpath).ShouldBeTrue();
