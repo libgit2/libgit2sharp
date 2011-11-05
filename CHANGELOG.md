@@ -7,8 +7,14 @@
  - Issue tracker: <https://github.com/libgit2/libgit2sharp/issues>
  - @libgit2sharp: <http://twitter.com/libgit2sharp>
 
+## v0.6.2
+
+### Fixes
+
+ - Make Index methods (Stage, Unstage, Move... ) able to cope with native Windows directory separator char
+
 ## v0.6.1
- 
+
 ### Changes
 
  - Update libgit2 binaries to libgit2/libgit2@e3baa3c
@@ -33,7 +39,7 @@
  - Provide default value for non existent configuration setting (#67)
  - Change the tree structure into which libgit2 binaries are located (#70)
  - Update libgit2 binaries to libgit2/libgit2@28c1451
- 
+
 ### Fixes
 
  - Prevent enumeration of branches from throwing when the repository contains remote branches (#69)
