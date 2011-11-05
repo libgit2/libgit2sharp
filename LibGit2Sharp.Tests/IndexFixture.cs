@@ -443,6 +443,15 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
+        public void RetrievingTheStatusOfADirectoryThrows()
+        {
+            using (var repo = new Repository(StandardTestRepoPath))
+            {
+                Assert.Throws<LibGit2Exception>(() => { FileStatus status = repo.Index.RetrieveStatus("1"); });
+            }
+        }
+
+        [Test]
         public void CanRetrieveTheStatusOfTheWholeWorkingDirectory()
         {
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
