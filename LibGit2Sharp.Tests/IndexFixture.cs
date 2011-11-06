@@ -167,7 +167,7 @@ namespace LibGit2Sharp.Tests
         [Test]
         public void StagingANewVersionOfAFileThenUnstagingItRevertsTheBlobToTheVersionOfHead()
         {
-            var path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
+            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
             using (var repo = new Repository(path.RepositoryPath))
             {
                 int count = repo.Index.Count;
@@ -284,7 +284,9 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(StandardTestRepoPath))
             {
                 Assert.Throws<ArgumentException>(() => repo.Index.Stage(string.Empty));
-                Assert.Throws<ArgumentNullException>(() => repo.Index.Stage(null));
+                Assert.Throws<ArgumentNullException>(() => repo.Index.Stage((string)null));
+                Assert.Throws<ArgumentNullException>(() => repo.Index.Stage(new string[] { }));
+                Assert.Throws<ArgumentNullException>(() => repo.Index.Stage(new string[] { null }));
             }
         }
 
@@ -339,7 +341,9 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(StandardTestRepoPath))
             {
                 Assert.Throws<ArgumentException>(() => repo.Index.Unstage(string.Empty));
-                Assert.Throws<ArgumentNullException>(() => repo.Index.Unstage(null));
+                Assert.Throws<ArgumentNullException>(() => repo.Index.Unstage((string)null));
+                Assert.Throws<ArgumentNullException>(() => repo.Index.Unstage(new string[] { }));
+                Assert.Throws<ArgumentNullException>(() => repo.Index.Unstage(new string[] { null }));
             }
         }
 
@@ -417,12 +421,14 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
-        public void RemovingANonStagedFileThrows()
+        [TestCase("deleted_staged_file.txt")]
+        [TestCase("deleted_unstaged_file.txt")]
+        [TestCase("shadowcopy_of_an_unseen_ghost.txt")]
+        public void RemovingAInvalidFileThrows(string filepath)
         {
             using (var repo = new Repository(StandardTestRepoPath))
             {
-                Assert.Throws<LibGit2Exception>(() => repo.Index.Remove("shadowcopy_of_an_unseen_ghost.txt"));
+                Assert.Throws<LibGit2Exception>(() => repo.Index.Remove(filepath));
             }
         }
 
@@ -472,7 +478,7 @@ namespace LibGit2Sharp.Tests
                 status2.IsDirty.ShouldBeTrue();
 
                 status2.Untracked.Single().ShouldEqual("new_untracked_file.txt");
-                CollectionAssert.AreEqual(new[] {file, "modified_unstaged_file.txt"}, status2.Modified);
+                CollectionAssert.AreEqual(new[] { file, "modified_unstaged_file.txt" }, status2.Modified);
                 status2.Missing.Single().ShouldEqual("deleted_unstaged_file.txt");
                 status2.Added.Single().ShouldEqual("new_tracked_file.txt");
                 status2.Staged.Single().ShouldEqual(file);

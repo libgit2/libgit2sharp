@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using LibGit2Sharp.Core;
+using LibGit2Sharp.Core.Compat;
 
 namespace LibGit2Sharp
 {
@@ -118,36 +119,16 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Promotes to the staging area the latest modifications of a file in the working directory (addition, updation or removal).
         /// </summary>
-        /// <param name="path">The relative path within the working directory to the file.</param>
+        /// <param name = "path">The path of the file within the working directory.</param>
         public void Stage(string path)
         {
-            Ensure.ArgumentNotNullOrEmptyString(path, "path");
-
-            string relativePath = BuildRelativePathFrom(repo, path);
-
-            FileStatus fileStatus = RetrieveStatus(relativePath);
-
-            if (fileStatus.Has(FileStatus.Nonexistent))
-            {
-                throw new LibGit2Exception("Can not stage '{0}'. The file does not exist.");
-            }
-
-            if (fileStatus.Has(FileStatus.Missing))
-            {
-                RemoveFromIndex(relativePath);
-            }
-            else
-            {
-                AddToIndex(relativePath);
-            }
-
-            UpdatePhysicalIndex();
+            Stage(new[] { path });
         }
 
         /// <summary>
         ///   Promotes to the staging area the latest modifications of a collection of files in the working directory (addition, updation or removal).
         /// </summary>
-        /// <param name="paths">The collection of paths within the working directory to the files.</param>
+        /// <param name = "paths">The collection of paths of the files within the working directory.</param>
         public void Stage(IEnumerable<string> paths)
         {
             Ensure.ArgumentNotNull(paths, "paths");
@@ -190,36 +171,16 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Removes from the staging area all the modifications of a file since the latest commit (addition, updation or removal).
         /// </summary>
-        /// <param name="path">The relative path within the working directory to the file.</param>
+        /// <param name = "path">The path of the file within the working directory.</param>
         public void Unstage(string path)
         {
-            Ensure.ArgumentNotNullOrEmptyString(path, "path");
-
-            string relativePath = BuildRelativePathFrom(repo, path);
-
-            FileStatus fileStatus = RetrieveStatus(relativePath);
-
-            bool doesExistInindex =
-                !(fileStatus.Has(FileStatus.Nonexistent) || fileStatus.Has(FileStatus.Removed) ||
-                  fileStatus.Has(FileStatus.Untracked));
-
-            if (doesExistInindex)
-            {
-                RemoveFromIndex(relativePath);
-            }
-
-            bool doesExistInWorkingDirectory =
-                !(fileStatus.Has(FileStatus.Removed) || fileStatus.Has(FileStatus.Nonexistent) ||
-                  fileStatus.Has(FileStatus.Missing));
-            RestorePotentialPreviousVersionOfHeadIntoIndex(relativePath, doesExistInWorkingDirectory);
-
-            UpdatePhysicalIndex();
+            Unstage(new[] { path });
         }
 
         /// <summary>
         ///   Removes from the staging area all the modifications of a collection of file since the latest commit (addition, updation or removal).
         /// </summary>
-        /// <param name="paths">The collection of paths within the working directory to the files.</param>
+        /// <param name = "paths">The collection of paths of the files within the working directory.</param>
         public void Unstage(IEnumerable<string> paths)
         {
             Ensure.ArgumentNotNull(paths, "paths");
@@ -254,75 +215,54 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Moves and/or renames a file in the working directory and promotes the change to the staging area.
         /// </summary>
-        /// <param name="sourcePath">The relative path within the working directory to the file which has to be moved/renamed.</param>
-        /// <param name="destinationPath">The target relative path within the working directory of the file.</param>
+        /// <param name = "sourcePath">The path of the file within the working directory which has to be moved/renamed.</param>
+        /// <param name = "destinationPath">The target path of the file within the working directory.</param>
         public void Move(string sourcePath, string destinationPath)
         {
-            Ensure.ArgumentNotNullOrEmptyString(sourcePath, "sourcepath");
-            Ensure.ArgumentNotNullOrEmptyString(destinationPath, "destinationpath");
-
-            string relativeSourcePath = BuildRelativePathFrom(repo, sourcePath);
-            string relativeDestinationPath = BuildRelativePathFrom(repo, destinationPath);
-
-            string wd = repo.Info.WorkingDirectory;
-            if (Directory.Exists(Path.Combine(wd, relativeSourcePath)))
-            {
-                throw new NotImplementedException();
-            }
-
-            RemoveFromIndex(relativeSourcePath);
-
-            File.Move(Path.Combine(wd, relativeSourcePath), Path.Combine(wd, relativeDestinationPath));
-
-            AddToIndex(relativeDestinationPath);
-
-            UpdatePhysicalIndex();
+            Move(new[] { sourcePath }, new[] { destinationPath });
         }
 
         /// <summary>
-        ///   Moves and/or renames a file in the working directory and promotes the change to the staging area.
+        ///   Moves and/or renames a collection of files in the working directory and promotes the changes to the staging area.
         /// </summary>
-        /// <param name="sourcePaths">The relative paths within the working directory to the files which has to be moved/renamed.</param>
-        /// <param name="destinationPaths">The target relative paths within the working directory of the files.</param>
+        /// <param name = "sourcePaths">The paths of the files within the working directory which have to be moved/renamed.</param>
+        /// <param name = "destinationPaths">The target paths of the files within the working directory.</param>
         public void Move(IEnumerable<string> sourcePaths, IEnumerable<string> destinationPaths)
         {
             Ensure.ArgumentNotNull(sourcePaths, "sourcePaths");
             Ensure.ArgumentNotNull(destinationPaths, "destinationPaths");
 
-            List<string> sourcePathsList = new List<string>();
-            List<string> destinationPathsList = new List<string>();
+            IDictionary<Tuple<string, FileStatus>, Tuple<string, FileStatus>> batch = PrepareBatch(sourcePaths, destinationPaths);
 
-            foreach (string sourcePath in sourcePaths)
+            if (batch.Count == 0)
             {
-                sourcePathsList.Add(BuildRelativePathFrom(repo, sourcePath));
-            }
-            foreach (string destinationPath in destinationPaths)
-            {
-                destinationPathsList.Add(BuildRelativePathFrom(repo, destinationPath));
+                throw new ArgumentNullException("sourcePaths");
             }
 
-            if (sourcePathsList.Count != destinationPathsList.Count)
+            foreach (KeyValuePair<Tuple<string, FileStatus>, Tuple<string, FileStatus>> keyValuePair in batch)
             {
-                throw new ArgumentException("The collection of paths are of different lengths");
+                if (keyValuePair.Key.Item2.HasAny(new[] { FileStatus.Nonexistent, FileStatus.Removed, FileStatus.Untracked, FileStatus.Missing }))
+                {
+                    throw new LibGit2Exception(string.Format("Unable to move file '{0}'. Its current status is '{1}'.", keyValuePair.Key.Item1, Enum.GetName(typeof(FileStatus), keyValuePair.Key.Item2)));
+                }
+
+                if (keyValuePair.Value.Item2.Has(FileStatus.Nonexistent))
+                {
+                    continue;
+                }
+
+                throw new LibGit2Exception(string.Format("Unable to overwrite file '{0}'. Its current status is '{1}'.", keyValuePair.Value.Item1, Enum.GetName(typeof(FileStatus), keyValuePair.Value.Item2)));
             }
 
             string wd = repo.Info.WorkingDirectory;
-
-            foreach (string relativeSourcePath in sourcePathsList)
+            foreach (KeyValuePair<Tuple<string, FileStatus>, Tuple<string, FileStatus>> keyValuePair in batch)
             {
-                if (Directory.Exists(Path.Combine(wd, relativeSourcePath)))
-                {
-                    throw new NotImplementedException();
-                }
-            }
+                string from = keyValuePair.Key.Item1;
+                string to = keyValuePair.Value.Item1;
 
-            for (int i = 0; i < sourcePathsList.Count; i++)
-            {
-                RemoveFromIndex(sourcePathsList[i]);
-
-                File.Move(Path.Combine(wd, sourcePathsList[i]), Path.Combine(wd, destinationPathsList[i]));
-
-                AddToIndex(destinationPathsList[i]);
+                RemoveFromIndex(from);
+                File.Move(Path.Combine(wd, from), Path.Combine(wd, to));
+                AddToIndex(to);
             }
 
             UpdatePhysicalIndex();
@@ -331,30 +271,16 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Removes a file from the working directory and promotes the removal to the staging area.
         /// </summary>
-        /// <param name="path">The relative path within the working directory to the file.</param>
+        /// <param name = "path">The path of the file within the working directory.</param>
         public void Remove(string path)
         {
-            Ensure.ArgumentNotNullOrEmptyString(path, "path");
-
-            string relativePath = BuildRelativePathFrom(repo, path);
-
-            string wd = repo.Info.WorkingDirectory;
-            if (Directory.Exists(Path.Combine(wd, relativePath)))
-            {
-                throw new NotImplementedException();
-            }
-
-            RemoveFromIndex(relativePath);
-
-            File.Delete(Path.Combine(wd, relativePath));
-
-            UpdatePhysicalIndex();
+            Remove(new[] { path });
         }
 
         /// <summary>
         ///   Removes a collection of files from the working directory and promotes the removal to the staging area.
         /// </summary>
-        /// <param name="paths">The relative paths within the working directory to the files.</param>
+        /// <param name = "paths">The collection of paths of the files within the working directory.</param>
         public void Remove(IEnumerable<string> paths)
         {
             Ensure.ArgumentNotNull(paths, "paths");
@@ -366,15 +292,17 @@ namespace LibGit2Sharp
                 throw new ArgumentNullException("paths");
             }
 
-            string wd = repo.Info.WorkingDirectory;
             foreach (KeyValuePair<string, FileStatus> keyValuePair in batch)
             {
-                if (Directory.Exists(Path.Combine(wd, keyValuePair.Key)))
+                if (!keyValuePair.Value.HasAny(new[] { FileStatus.Missing, FileStatus.Nonexistent, FileStatus.Removed, FileStatus.Untracked }))
                 {
-                    throw new NotImplementedException();
+                    continue;
                 }
+
+                throw new LibGit2Exception(string.Format("Unable to remove file '{0}'. Its current status is '{1}'.", keyValuePair.Key, Enum.GetName(typeof(FileStatus), keyValuePair.Value)));
             }
 
+            string wd = repo.Info.WorkingDirectory;
             foreach (KeyValuePair<string, FileStatus> keyValuePair in batch)
             {
                 RemoveFromIndex(keyValuePair.Key);
@@ -397,6 +325,42 @@ namespace LibGit2Sharp
             }
 
             return dic;
+        }
+
+        private IDictionary<Tuple<string, FileStatus>, Tuple<string, FileStatus>> PrepareBatch(IEnumerable<string> leftPaths, IEnumerable<string> rightPaths)
+        {
+            IDictionary<Tuple<string, FileStatus>, Tuple<string, FileStatus>> dic = new Dictionary<Tuple<string, FileStatus>, Tuple<string, FileStatus>>();
+
+            IEnumerator<string> leftEnum = leftPaths.GetEnumerator();
+            IEnumerator<string> rightEnum = rightPaths.GetEnumerator();
+
+            while (Enumerate(leftEnum, rightEnum))
+            {
+                Tuple<string, FileStatus> from = BuildFrom(leftEnum.Current);
+                Tuple<string, FileStatus> to = BuildFrom(rightEnum.Current);
+                dic.Add(from, to);
+            }
+
+            return dic;
+        }
+
+        private Tuple<string, FileStatus> BuildFrom(string path)
+        {
+            string relativePath = BuildRelativePathFrom(repo, path);
+            return new Tuple<string, FileStatus>(relativePath, RetrieveStatus(relativePath));
+        }
+
+        private bool Enumerate(IEnumerator<string> leftEnum, IEnumerator<string> rightEnum)
+        {
+            bool isLeftEoF = leftEnum.MoveNext();
+            bool isRightEoF = rightEnum.MoveNext();
+
+            if (isLeftEoF == isRightEoF)
+            {
+                return isLeftEoF;
+            }
+
+            throw new ArgumentException("The collection of paths are of different lengths.");
         }
 
         private void AddToIndex(string relativePath)
@@ -477,8 +441,8 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Retrieves the state of a file in the working directory, comparing it against the staging area and the latest commmit.
         /// </summary>
-        /// <param name="filePath">The relative path within the working directory to the file.</param>
-        /// <returns>A <see  cref="FileStatus" /> representing the state of the <paramref name="filePath"/> parameter.</returns>
+        /// <param name = "filePath">The relative path within the working directory to the file.</param>
+        /// <returns>A <see cref = "FileStatus" /> representing the state of the <paramref name = "filePath" /> parameter.</returns>
         public FileStatus RetrieveStatus(string filePath)
         {
             Ensure.ArgumentNotNullOrEmptyString(filePath, "filePath");
@@ -501,7 +465,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Retrieves the state of all files in the working directory, comparing them against the staging area and the latest commmit.
         /// </summary>
-        /// <returns>A <see  cref="RepositoryStatus" /> holding the state of all the files.</returns>
+        /// <returns>A <see cref = "RepositoryStatus" /> holding the state of all the files.</returns>
         public RepositoryStatus RetrieveStatus()
         {
             return new RepositoryStatus(repo);
