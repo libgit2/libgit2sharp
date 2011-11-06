@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace LibGit2Sharp.Core
+namespace LibGit2Sharp.Core.Compat
 {
     /// <summary>
     ///   Provides support for lazy initialization.

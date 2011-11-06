@@ -52,6 +52,7 @@
     <Compile Include="CommitCollection.cs" />
     <Compile Include="Configuration.cs" />
     <Compile Include="ConfigurationLevel.cs" />
+    <Compile Include="Core\Compat\Tuple.cs" />
     <Compile Include="Core\EnumExtensions.cs" />
     <Compile Include="DetachedHead.cs" />
     <Compile Include="LibGit2Exception.cs" />
@@ -67,7 +68,7 @@
     <Compile Include="FileStatus.cs" />
     <Compile Include="Core\GitTime.cs" />
     <Compile Include="Core\IntPtrExtensions.cs" />
-    <Compile Include="Core\Lazy.cs" />
+    <Compile Include="Core\Compat\Lazy.cs" />
     <Compile Include="Core\NativeMethods.cs" />
     <Compile Include="Core\SafeHandleExtensions.cs" />
     <Compile Include="Core\ObjectSafeWrapper.cs" />
@@ -132,6 +133,6 @@
     <ItemGroup>
       <NativeBinaries Include="$(MSBuildProjectDirectory)\..\Lib\NativeBinaries\**\*.*" />
     </ItemGroup>
-	<Copy SourceFiles="@(NativeBinaries)" DestinationFiles="@(NativeBinaries->'$(OutputPath)NativeBinaries\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(NativeBinaries)" DestinationFiles="@(NativeBinaries->'$(OutputPath)NativeBinaries\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
   </Target>
 </Project>

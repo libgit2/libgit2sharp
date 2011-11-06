@@ -1,5 +1,5 @@
 ﻿using System;
-using LibGit2Sharp.Core;
+using LibGit2Sharp.Core.Compat;
 using LibGit2Sharp.Tests.TestHelpers;
 using NUnit.Framework;
 

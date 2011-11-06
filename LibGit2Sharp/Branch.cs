@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.Linq;
 using LibGit2Sharp.Core;
+using LibGit2Sharp.Core.Compat;
 
 namespace LibGit2Sharp
 {

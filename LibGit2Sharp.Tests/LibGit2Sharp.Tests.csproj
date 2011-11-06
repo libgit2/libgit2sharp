@@ -64,6 +64,7 @@
     <Compile Include="TestHelpers\SignatureExtensions.cs" />
     <Compile Include="TestHelpers\TemporaryCloneOfTestRepo.cs" />
     <Compile Include="TreeFixture.cs" />
+    <Compile Include="TupleFixture.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\LibGit2Sharp\LibGit2Sharp.csproj">
