@@ -133,6 +133,9 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNull(paths, "paths");
 
+            //TODO: Stage() should support following use cases:
+            // - Recursively staging the content of a directory
+
             IDictionary<string, FileStatus> batch = PrepareBatch(paths);
 
             if (batch.Count == 0)
@@ -142,6 +145,11 @@ namespace LibGit2Sharp
 
             foreach (KeyValuePair<string, FileStatus> kvp in batch)
             {
+                if (Directory.Exists(kvp.Key))
+                {
+                    throw new NotImplementedException();
+                }
+
                 if (!kvp.Value.Has(FileStatus.Nonexistent))
                 {
                     continue;
@@ -194,6 +202,14 @@ namespace LibGit2Sharp
 
             foreach (KeyValuePair<string, FileStatus> kvp in batch)
             {
+                if (Directory.Exists(kvp.Key))
+                {
+                    throw new NotImplementedException();
+                }
+            }
+
+            foreach (KeyValuePair<string, FileStatus> kvp in batch)
+            {
                 bool doesExistInIndex =
                     !(kvp.Value.Has(FileStatus.Nonexistent) || kvp.Value.Has(FileStatus.Removed) ||
                       kvp.Value.Has(FileStatus.Untracked));
@@ -232,6 +248,13 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(sourcePaths, "sourcePaths");
             Ensure.ArgumentNotNull(destinationPaths, "destinationPaths");
 
+            //TODO: Move() should support following use cases:
+            // - Moving a file under a directory ('file' and 'dir' -> 'dir/file')
+            // - Moving a directory (and its content) under another directory ('dir1' and 'dir2' -> 'dir2/dir1/*')
+
+            //TODO: Move() should throw when:
+            // - Moving a directory under a file
+
             IDictionary<Tuple<string, FileStatus>, Tuple<string, FileStatus>> batch = PrepareBatch(sourcePaths, destinationPaths);
 
             if (batch.Count == 0)
@@ -241,17 +264,27 @@ namespace LibGit2Sharp
 
             foreach (KeyValuePair<Tuple<string, FileStatus>, Tuple<string, FileStatus>> keyValuePair in batch)
             {
-                if (keyValuePair.Key.Item2.HasAny(new[] { FileStatus.Nonexistent, FileStatus.Removed, FileStatus.Untracked, FileStatus.Missing }))
+                string sourcePath = keyValuePair.Key.Item1;
+                string destPath = keyValuePair.Value.Item1;
+
+                if (Directory.Exists(sourcePath) || Directory.Exists(destPath))
                 {
-                    throw new LibGit2Exception(string.Format("Unable to move file '{0}'. Its current status is '{1}'.", keyValuePair.Key.Item1, Enum.GetName(typeof(FileStatus), keyValuePair.Key.Item2)));
+                    throw new NotImplementedException();
                 }
 
-                if (keyValuePair.Value.Item2.Has(FileStatus.Nonexistent))
+                FileStatus sourceStatus = keyValuePair.Key.Item2;
+                if (sourceStatus.HasAny(new[] { FileStatus.Nonexistent, FileStatus.Removed, FileStatus.Untracked, FileStatus.Missing }))
+                {
+                    throw new LibGit2Exception(string.Format("Unable to move file '{0}'. Its current status is '{1}'.", sourcePath, Enum.GetName(typeof(FileStatus), sourceStatus)));
+                }
+
+                FileStatus desStatus = keyValuePair.Value.Item2;
+                if (desStatus.Has(FileStatus.Nonexistent))
                 {
                     continue;
                 }
 
-                throw new LibGit2Exception(string.Format("Unable to overwrite file '{0}'. Its current status is '{1}'.", keyValuePair.Value.Item1, Enum.GetName(typeof(FileStatus), keyValuePair.Value.Item2)));
+                throw new LibGit2Exception(string.Format("Unable to overwrite file '{0}'. Its current status is '{1}'.", destPath, Enum.GetName(typeof(FileStatus), desStatus)));
             }
 
             string wd = repo.Info.WorkingDirectory;
@@ -285,6 +318,9 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNull(paths, "paths");
 
+            //TODO: Remove() should support following use cases:
+            // - Removing a directory and its content
+
             IDictionary<string, FileStatus> batch = PrepareBatch(paths);
 
             if (batch.Count == 0)
@@ -294,6 +330,11 @@ namespace LibGit2Sharp
 
             foreach (KeyValuePair<string, FileStatus> keyValuePair in batch)
             {
+                if (Directory.Exists(keyValuePair.Key))
+                {
+                    throw new NotImplementedException();
+                }
+
                 if (!keyValuePair.Value.HasAny(new[] { FileStatus.Missing, FileStatus.Nonexistent, FileStatus.Removed, FileStatus.Untracked }))
                 {
                     continue;
