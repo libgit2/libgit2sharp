@@ -495,5 +495,41 @@ namespace LibGit2Sharp.Tests
                 status.Removed.Count().ShouldEqual(0);
             }
         }
+
+        [Test]
+        public void RetrievingTheStatusOfARepositoryReturnNativeFilePaths()
+        {
+            // Initialize a new repository
+            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            string dir = Repository.Init(scd.DirectoryPath);
+
+            const string directoryName = "directory";
+            const string fileName = "Testfile.txt";
+
+            // Create a file and insert some content
+            string directoryPath = Path.Combine(scd.RootedDirectoryPath, directoryName);
+            string filePath = Path.Combine(directoryPath, fileName);
+
+            Directory.CreateDirectory(directoryPath);
+            File.WriteAllText(filePath, "Anybody out there?");
+
+            // Open the repository
+            using (var repo = new Repository(dir))
+            {
+                // Add the file to the index
+                repo.Index.Stage(filePath);
+
+                // Get the repository status
+                RepositoryStatus repoStatus = repo.Index.RetrieveStatus();
+
+                repoStatus.Count().ShouldEqual(1);
+                var statusEntry = repoStatus.Single();
+
+                string expectedPath = string.Format("{0}{1}{2}", directoryName, Path.DirectorySeparatorChar, fileName);
+                statusEntry.FilePath.ShouldEqual(expectedPath);
+
+                repoStatus.Added.Single().ShouldEqual(statusEntry.FilePath);
+            }
+        }
     }
 }
