@@ -45,6 +45,7 @@
     <Compile Include="ConfigurationFixture.cs" />
     <Compile Include="LazyFixture.cs" />
     <Compile Include="RemoteFixture.cs" />
+    <Compile Include="RepositoryStatusFixture.cs" />
     <Compile Include="TestHelpers\BaseFixture.cs" />
     <Compile Include="BlobFixture.cs" />
     <Compile Include="BranchFixture.cs" />
@@ -82,6 +83,6 @@
     <ItemGroup>
       <NativeBinaries Include="$(MSBuildProjectDirectory)\..\Lib\NativeBinaries\**\*.*" />
     </ItemGroup>
-	<Copy SourceFiles="@(NativeBinaries)" DestinationFiles="@(NativeBinaries->'$(OutputPath)NativeBinaries\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(NativeBinaries)" DestinationFiles="@(NativeBinaries->'$(OutputPath)NativeBinaries\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
   </Target>
 </Project>
