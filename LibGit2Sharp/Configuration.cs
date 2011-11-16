@@ -30,6 +30,22 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        /// Access configuration values without a repository. Generally you want to access configuration via an instance of <see cref="Repository"/> instead.
+        /// </summary>
+        public Configuration()
+            : this(null)
+        {
+        }
+
+        /// <summary>
+        /// Determines if there is a local repository level Git configuration file.
+        /// </summary>
+        public bool HasLocalConfig
+        {
+            get { return localHandle != null; }
+        }
+
+        /// <summary>
         ///   Determines if a Git configuration file specific to the current interactive user has been found.
         /// </summary>
         public bool HasGlobalConfig
@@ -94,9 +110,9 @@ namespace LibGit2Sharp
         /// </summary>
         protected virtual void Dispose(bool disposing)
         {
-            localHandle.SafeDispose();
-            globalHandle.SafeDispose();
-            systemHandle.SafeDispose();
+            if (localHandle != null) localHandle.SafeDispose();
+            if (globalHandle != null) globalHandle.SafeDispose();
+            if (systemHandle != null) systemHandle.SafeDispose();
         }
 
         private static T ProcessReadResult<T>(int res, T value, T defaultValue, Func<object, T> postProcessor = null)
@@ -183,7 +199,13 @@ namespace LibGit2Sharp
                 throw new ArgumentException(string.Format("Generic Argument of type '{0}' is not supported.", typeof(T).FullName));
             }
 
-            return (T)configurationTypedRetriever[typeof(T)](key, defaultValue, LocalHandle);
+            var handle = (LocalHandle ?? globalHandle) ?? systemHandle;
+            if (handle == null)
+            {
+                throw new LibGit2Exception("Could not find a local, global or system level configuration.");
+            }
+
+            return (T)configurationTypedRetriever[typeof(T)](key, defaultValue, handle);
         }
 
         /// <summary>
@@ -223,7 +245,7 @@ namespace LibGit2Sharp
         ///
         ///     <code>
         ///     [difftool "kdiff3"]
-        ///	    path = c:/Program Files/KDiff3/kdiff3.exe
+        ///       path = c:/Program Files/KDiff3/kdiff3.exe
         ///     </code>
         ///
         ///     You would call:
@@ -245,7 +267,7 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(secondKeyPart, "secondKeyPart");
             Ensure.ArgumentNotNull(thirdKeyPart, "secondKeyPart");
 
-            return Get(new [] { firstKeyPart, secondKeyPart, thirdKeyPart }, defaultValue);
+            return Get(new[] { firstKeyPart, secondKeyPart, thirdKeyPart }, defaultValue);
         }
 
         /// <summary>
@@ -278,7 +300,10 @@ namespace LibGit2Sharp
 
         private void Init()
         {
-            Ensure.Success(NativeMethods.git_repository_config(out localHandle, repository.Handle, globalConfigPath, systemConfigPath));
+            if (repository != null)
+            {
+                Ensure.Success(NativeMethods.git_repository_config(out localHandle, repository.Handle, globalConfigPath, systemConfigPath));
+            }
 
             if (globalConfigPath != null)
             {
@@ -331,6 +356,11 @@ namespace LibGit2Sharp
         public void Set<T>(string key, T value, ConfigurationLevel level = ConfigurationLevel.Local)
         {
             Ensure.ArgumentNotNullOrEmptyString(key, "key");
+
+            if (level == ConfigurationLevel.Local && !HasLocalConfig)
+            {
+                throw new LibGit2Exception("No local configuration file has been found. You must use ConfigurationLevel.Global when accessing configuration outside of repository.");
+            }
 
             if (level == ConfigurationLevel.Global && !HasGlobalConfig)
             {

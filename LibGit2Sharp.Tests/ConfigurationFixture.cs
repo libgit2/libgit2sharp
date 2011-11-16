@@ -80,6 +80,16 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
+        public void CanGetGlobalStringValueWithoutRepo()
+        {
+            using (var config = new Configuration())
+            {
+                InconclusiveIf(() => !config.HasGlobalConfig, "No Git global configuration available");
+                config.Get<string>("user.name", null).ShouldNotBeNull();
+            }
+        }
+
+        [Test]
         public void CanReadBooleanValue()
         {
             using (var repo = new Repository(Constants.StandardTestRepoPath))
@@ -151,6 +161,38 @@ namespace LibGit2Sharp.Tests
                 {
                     repo.Config.Set("user.name", existing, ConfigurationLevel.Global);
                 }
+            }
+        }
+
+        [Test]
+        public void CanSetGlobalStringValueWithoutRepo()
+        {
+            using(var config = new Configuration())
+            {
+                InconclusiveIf(() => !config.HasGlobalConfig, "No Git global configuration available");
+
+                var existing = config.Get<string>("user.name", null);
+                existing.ShouldNotBeNull();
+
+                try
+                {
+                    config.Set("user.name", "Unit Test", ConfigurationLevel.Global);
+
+                    AssertValueInGlobalConfigFile("name = Unit Test$");
+                }
+                finally
+                {
+                    config.Set("user.name", existing, ConfigurationLevel.Global);
+                }
+            }
+        }
+
+        [Test]
+        public void SettingLocalConfigurationOutsideAReposThrows()
+        {
+            using (var config = new Configuration())
+            {
+                Assert.Throws<LibGit2Exception>(() => config.Set("unittests.intsetting", 3));
             }
         }
 
