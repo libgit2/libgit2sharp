@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -396,6 +397,62 @@ namespace LibGit2Sharp.Tests
                 repo.Index.RetrieveStatus(newName).ShouldEqual(FileStatus.Unaltered);
 
                 commit.Tree[newName].Target.Id.Sha.ShouldEqual(expectedHash);
+            }
+        }
+
+        [TestCase("README", FileStatus.Unaltered, "deleted_unstaged_file.txt", FileStatus.Missing, FileStatus.Removed, FileStatus.Staged)]
+        [TestCase("new_tracked_file.txt", FileStatus.Added, "deleted_unstaged_file.txt", FileStatus.Missing, FileStatus.Nonexistent, FileStatus.Staged)]
+        [TestCase("modified_staged_file.txt", FileStatus.Staged, "deleted_unstaged_file.txt", FileStatus.Missing, FileStatus.Removed, FileStatus.Staged)]
+        [TestCase("modified_unstaged_file.txt", FileStatus.Modified, "deleted_unstaged_file.txt", FileStatus.Missing, FileStatus.Removed, FileStatus.Staged)]
+        public void CanMoveAnExistingFileOverANonExistingFile(string sourcePath, FileStatus sourceStatus, string destPath, FileStatus destStatus, FileStatus sourcePostStatus, FileStatus destPostStatus)
+        {
+            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                repo.Index.RetrieveStatus(sourcePath).ShouldEqual(sourceStatus);
+                repo.Index.RetrieveStatus(destPath).ShouldEqual(destStatus);
+
+                repo.Index.Move(sourcePath, destPath);
+
+                repo.Index.RetrieveStatus(sourcePath).ShouldEqual(sourcePostStatus);
+                repo.Index.RetrieveStatus(destPath).ShouldEqual(destPostStatus);
+            }
+        }
+
+        [TestCase("README", FileStatus.Unaltered, new[] { "README", "new_tracked_file.txt", "modified_staged_file.txt", "modified_unstaged_file.txt", "new_untracked_file.txt" })]
+        [TestCase("new_tracked_file.txt", FileStatus.Added, new[] { "README", "new_tracked_file.txt", "modified_staged_file.txt", "modified_unstaged_file.txt", "new_untracked_file.txt" })]
+        [TestCase("modified_staged_file.txt", FileStatus.Staged, new[] { "README", "new_tracked_file.txt", "modified_staged_file.txt", "modified_unstaged_file.txt", "new_untracked_file.txt" })]
+        [TestCase("modified_unstaged_file.txt", FileStatus.Modified, new[] { "README", "new_tracked_file.txt", "modified_staged_file.txt", "modified_unstaged_file.txt", "new_untracked_file.txt" })]
+        public void MovingOverAnExistingFileThrows(string sourcePath, FileStatus sourceStatus, IEnumerable<string> destPaths)
+        {
+            InvalidMoveUseCases(sourcePath, sourceStatus, destPaths);
+        }
+
+        [TestCase("new_untracked_file.txt", FileStatus.Untracked, new[] { "README", "new_tracked_file.txt", "modified_staged_file.txt", "modified_unstaged_file.txt", "new_untracked_file.txt", "deleted_unstaged_file.txt", "deleted_staged_file.txt", "i_dont_exist.txt" })]
+        public void MovingAFileWichIsNotUnderSourceControlThrows(string sourcePath, FileStatus sourceStatus, IEnumerable<string> destPaths)
+        {
+            InvalidMoveUseCases(sourcePath, sourceStatus, destPaths);
+        }
+
+        [TestCase("deleted_unstaged_file.txt", FileStatus.Missing, new[] { "README", "new_tracked_file.txt", "modified_staged_file.txt", "modified_unstaged_file.txt", "new_untracked_file.txt", "deleted_unstaged_file.txt", "deleted_staged_file.txt", "i_dont_exist.txt" })]
+        [TestCase("deleted_staged_file.txt", FileStatus.Removed, new[] { "README", "new_tracked_file.txt", "modified_staged_file.txt", "modified_unstaged_file.txt", "new_untracked_file.txt", "deleted_unstaged_file.txt", "deleted_staged_file.txt", "i_dont_exist.txt" })]
+        [TestCase("i_dont_exist.txt", FileStatus.Nonexistent, new[] { "README", "new_tracked_file.txt", "modified_staged_file.txt", "modified_unstaged_file.txt", "new_untracked_file.txt", "deleted_unstaged_file.txt", "deleted_staged_file.txt", "i_dont_exist.txt" })]
+        public void MovingAFileNotInTheWorkingDirectoryThrows(string sourcePath, FileStatus sourceStatus, IEnumerable<string> destPaths)
+        {
+            InvalidMoveUseCases(sourcePath, sourceStatus, destPaths);
+        }
+
+        private static void InvalidMoveUseCases(string sourcePath, FileStatus sourceStatus, IEnumerable<string> destPaths)
+        {
+            using (var repo = new Repository(StandardTestRepoPath))
+            {
+                repo.Index.RetrieveStatus(sourcePath).ShouldEqual(sourceStatus);
+
+                foreach (var destPath in destPaths)
+                {
+                    string path = destPath;
+                    Assert.Throws<LibGit2Exception>(() => repo.Index.Move(sourcePath, path));
+                }
             }
         }
 

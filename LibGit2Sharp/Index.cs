@@ -279,7 +279,7 @@ namespace LibGit2Sharp
                 }
 
                 FileStatus desStatus = keyValuePair.Value.Item2;
-                if (desStatus.Has(FileStatus.Nonexistent))
+                if (desStatus.HasAny(new[] { FileStatus.Nonexistent, FileStatus.Missing }))
                 {
                     continue;
                 }
