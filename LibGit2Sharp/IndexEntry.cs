@@ -38,7 +38,7 @@ namespace LibGit2Sharp
             var entry = (GitIndexEntry)Marshal.PtrToStructure(ptr, typeof(GitIndexEntry));
             return new IndexEntry
                        {
-                           Path = entry.Path,
+                           Path = PosixPathHelper.ToNative(entry.Path),
                            Id = new ObjectId(entry.oid),
                            state = () => repo.Index.RetrieveStatus(entry.Path)
                        };

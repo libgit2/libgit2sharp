@@ -10,10 +10,11 @@ namespace LibGit2Sharp.Tests
     [TestFixture]
     public class IndexFixture : BaseFixture
     {
+        private static readonly string subBranchFile = Path.Combine("1", "branch_file.txt");
         private readonly string[] expectedEntries = new[]
                                                         {
                                                             "1.txt",
-                                                            "1/branch_file.txt",
+                                                            subBranchFile,
                                                             "README",
                                                             "branch_file.txt",
                                                             //"deleted_staged_file.txt",
@@ -50,8 +51,13 @@ namespace LibGit2Sharp.Tests
                 IndexEntry entry = repo.Index["README"];
                 entry.Path.ShouldEqual("README");
 
+                // Expressed in Posix format...
                 IndexEntry entryWithPath = repo.Index["1/branch_file.txt"];
-                entryWithPath.Path.ShouldEqual("1/branch_file.txt");
+                entryWithPath.Path.ShouldEqual(subBranchFile);
+
+                //...or in native format
+                IndexEntry entryWithPath2 = repo.Index[subBranchFile];
+                entryWithPath2.ShouldEqual(entryWithPath);
             }
         }
 
@@ -251,7 +257,7 @@ namespace LibGit2Sharp.Tests
 
                 const string posixifiedPath = "Project/a_file.txt";
                 repo.Index[posixifiedPath].ShouldNotBeNull();
-                repo.Index[posixifiedPath].Path.ShouldEqual(posixifiedPath);
+                repo.Index[posixifiedPath].Path.ShouldEqual(file);
             }
         }
 
@@ -529,6 +535,46 @@ namespace LibGit2Sharp.Tests
                 statusEntry.FilePath.ShouldEqual(expectedPath);
 
                 repoStatus.Added.Single().ShouldEqual(statusEntry.FilePath);
+            }
+        }
+
+        [Test]
+        public void PathsOfIndexEntriesAreExpressedInNativeFormat()
+        {
+            // Initialize a new repository
+            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            string dir = Repository.Init(scd.DirectoryPath);
+            
+            const string directoryName = "directory";
+            const string fileName = "Testfile.txt";
+            
+            // Create a file and insert some content
+            string directoryPath = Path.Combine(scd.RootedDirectoryPath, directoryName);
+            string filePath = Path.Combine(directoryPath, fileName);
+            
+            Directory.CreateDirectory(directoryPath);
+            File.WriteAllText(filePath, "Anybody out there?");
+               
+            // Open the repository
+            using (var repo = new Repository(dir))
+            {
+                // Stage the file
+                repo.Index.Stage(filePath);
+                
+                // Get the index
+                Index index = repo.Index;
+                
+                // Build relative path
+                string relFilePath = Path.Combine(directoryName, fileName);
+                
+                // Get the index entry
+                IndexEntry ie = index[relFilePath];
+                
+                // Make sure the IndexEntry has been found
+                ie.ShouldNotBeNull();
+                
+                // Make sure that the (native) relFilePath and ie.Path are equal
+                ie.Path.ShouldEqual(relFilePath);
             }
         }
     }
