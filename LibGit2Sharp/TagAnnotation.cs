@@ -9,7 +9,7 @@ namespace LibGit2Sharp
     /// </summary>
     public class TagAnnotation : GitObject
     {
-        private Lazy<GitObject> targetBuilder;
+        private LibGit2Sharp.Core.Lazy<GitObject> targetBuilder;
 
         internal TagAnnotation(ObjectId id)
             : base(id)
@@ -49,7 +49,7 @@ namespace LibGit2Sharp
                            Message = NativeMethods.git_tag_message(obj).MarshallAsString(),
                            Name = NativeMethods.git_tag_name(obj).MarshallAsString(),
                            Tagger = new Signature(NativeMethods.git_tag_tagger(obj)),
-                           targetBuilder = new Lazy<GitObject>(() => repo.Lookup<GitObject>(new ObjectId(oid)))
+                           targetBuilder = new LibGit2Sharp.Core.Lazy<GitObject>(() => repo.Lookup<GitObject>(new ObjectId(oid)))
                        };
         }
     }

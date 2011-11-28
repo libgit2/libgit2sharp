@@ -13,7 +13,7 @@ namespace LibGit2Sharp
         private static readonly LambdaEqualityHelper<Branch> equalityHelper =
             new LambdaEqualityHelper<Branch>(new Func<Branch, object>[] { x => x.CanonicalName, x => x.Tip });
 
-        private readonly Lazy<Branch> trackedBranch;
+        private readonly LibGit2Sharp.Core.Lazy<Branch> trackedBranch;
 
         /// <summary>
         ///   Initializes a new instance of the <see cref = "Branch" /> class.
@@ -42,7 +42,7 @@ namespace LibGit2Sharp
         private Branch(Repository repo, Reference reference, Func<Reference, string> canonicalNameSelector)
             : base(repo, reference, canonicalNameSelector)
         {
-            trackedBranch = new Lazy<Branch>(ResolveTrackedBranch);
+            trackedBranch = new LibGit2Sharp.Core.Lazy<Branch>(ResolveTrackedBranch);
         }
 
         /// <summary>
