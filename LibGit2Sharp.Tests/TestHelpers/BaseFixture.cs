@@ -92,7 +92,7 @@ namespace LibGit2Sharp.Tests.TestHelpers
                 return;
             }
 
-            Assert.Inconclusive();
+            Assert.Inconclusive(message);
         }
     }
 }
