@@ -9,7 +9,7 @@ namespace LibGit2Sharp.Tests
         [Test]
         public void CanGetRemoteOrigin()
         {
-            using (var repo = new Repository(Constants.StandardTestRepoPath))
+            using (var repo = new Repository(StandardTestRepoPath))
             {
                 var origin = repo.Remotes["origin"];
                 origin.ShouldNotBeNull();
@@ -21,7 +21,7 @@ namespace LibGit2Sharp.Tests
         [Test]
         public void GettingRemoteThatDoesntExistThrows()
         {
-            using (var repo = new Repository(Constants.StandardTestRepoPath))
+            using (var repo = new Repository(StandardTestRepoPath))
             {
                 repo.Remotes["test"].ShouldBeNull();
             }

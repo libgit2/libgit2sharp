@@ -41,7 +41,7 @@ namespace LibGit2Sharp
             {
                 IntPtr objectPtr;
 
-                int res = NativeMethods.git_tree_frompath(out objectPtr, obj.ObjectPtr, relativePath);
+                int res = NativeMethods.git_tree_get_subtree(out objectPtr, obj.ObjectPtr, relativePath);
 
                 if (res == (int)GitErrorCode.GIT_ENOTFOUND)
                 {

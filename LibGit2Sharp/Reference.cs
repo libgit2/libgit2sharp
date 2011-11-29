@@ -18,8 +18,14 @@ namespace LibGit2Sharp
         /// </summary>
         public string CanonicalName { get; protected set; }
 
-        //TODO: Cries for refactoring... really!
-        internal static T BuildFromPtr<T>(IntPtr ptr, Repository repo) where T : Reference
+        internal static T BuildFromPtrAndRelease<T>(IntPtr ptr, Repository repo) where T : Reference
+        {
+            var reference = BuildFromPtr<T>(ptr, repo);
+            NativeMethods.git_reference_free(ptr);
+            return reference;
+        }
+
+        private static T BuildFromPtr<T>(IntPtr ptr, Repository repo) where T : Reference
         {
             if (ptr == IntPtr.Zero)
             {
@@ -46,7 +52,7 @@ namespace LibGit2Sharp
 
                     Ensure.Success(res);
 
-                    var targetRef = BuildFromPtr<DirectReference>(resolveRef, repo);
+                    var targetRef = BuildFromPtrAndRelease<DirectReference>(resolveRef, repo);
                     reference = new SymbolicReference { CanonicalName = name, Target = targetRef, TargetIdentifier = targetIdentifier };
                     break;
 
@@ -55,7 +61,7 @@ namespace LibGit2Sharp
                     var oid = (GitOid)Marshal.PtrToStructure(oidPtr, typeof(GitOid));
                     var targetOid = new ObjectId(oid);
 
-                    var targetBuilder = new Lazy<GitObject>(() => repo.Lookup(targetOid));
+                    var targetBuilder = new LibGit2Sharp.Core.Lazy<GitObject>(() => repo.Lookup(targetOid));
                     reference = new DirectReference(targetBuilder) { CanonicalName = name, TargetIdentifier = targetOid.Sha };
                     break;
 

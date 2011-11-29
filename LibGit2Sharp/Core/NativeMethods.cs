@@ -209,6 +209,9 @@ namespace LibGit2Sharp.Core
         public static extern int git_reference_delete(IntPtr reference);
 
         [DllImport(libgit2)]
+        public static extern void git_reference_free(IntPtr reference);
+
+        [DllImport(libgit2)]
         public static extern int git_reference_lookup(
             out IntPtr reference,
             RepositorySafeHandle repo,
@@ -417,6 +420,6 @@ namespace LibGit2Sharp.Core
         public static extern uint git_tree_entrycount(IntPtr tree);
 
         [DllImport(libgit2)]
-        public static extern int git_tree_frompath(out IntPtr tree, IntPtr root, string treeentry_path);
+        public static extern int git_tree_get_subtree(out IntPtr tree, IntPtr root, string treeentry_path);
     }
 }

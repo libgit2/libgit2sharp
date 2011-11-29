@@ -6,7 +6,7 @@ namespace LibGit2Sharp
     public abstract class NamedReference<TObject> where TObject : GitObject
     {
         protected readonly Repository repo;
-        private readonly Lazy<TObject> objectBuilder;
+        private readonly LibGit2Sharp.Core.Lazy<TObject> objectBuilder;
 
         protected internal NamedReference(Repository repo, Reference reference, Func<Reference, string> canonicalNameSelector)
         {
@@ -15,7 +15,7 @@ namespace LibGit2Sharp
 
             this.repo = repo;
             CanonicalName = canonicalNameSelector(reference);
-            objectBuilder = new Lazy<TObject>(() => RetrieveTargetObject(reference));
+            objectBuilder = new LibGit2Sharp.Core.Lazy<TObject>(() => RetrieveTargetObject(reference));
         }
 
         /// <summary>

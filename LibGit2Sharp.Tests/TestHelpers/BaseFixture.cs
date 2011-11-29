@@ -15,23 +15,33 @@ namespace LibGit2Sharp.Tests.TestHelpers
             SetUpTestEnvironment();
         }
 
+        public static string BareTestRepoPath { get; private set; }
+        public static string StandardTestRepoWorkingDirPath { get; private set; }
+        public static string StandardTestRepoPath { get; private set; }
+        public static DirectoryInfo ResourcesDirectory { get; private set; }
+
         private static void SetUpTestEnvironment()
         {
             var source = new DirectoryInfo(@"../../Resources");
-            var target = new DirectoryInfo(@"Resources");
+            ResourcesDirectory = new DirectoryInfo(string.Format(@"Resources/{0}", Guid.NewGuid()));
+            var parent = new DirectoryInfo(@"Resources");
 
-            if (target.Exists)
+            if (parent.Exists)
             {
-                target.Delete(recursive: true);
+                DirectoryHelper.DeleteSubdirectories(parent.FullName);
             }
 
-            DirectoryHelper.CopyFilesRecursively(source, target);
+            DirectoryHelper.CopyFilesRecursively(source, ResourcesDirectory);
+
+            // Setup standard paths to our test repositories
+            BareTestRepoPath = Path.Combine(ResourcesDirectory.FullName, "testrepo.git");
+            StandardTestRepoWorkingDirPath = Path.Combine(ResourcesDirectory.FullName, "testrepo_wd");
+            StandardTestRepoPath = Path.Combine(StandardTestRepoWorkingDirPath, ".git");
 
             // The test repo under source control has its .git folder renamed to dot_git to avoid confusing git,
             // so we need to rename it back to .git in our copy under the target folder
-
-            string tempDotGit = Path.Combine(Constants.StandardTestRepoWorkingDirPath, "dot_git");
-            Directory.Move(tempDotGit, Constants.StandardTestRepoPath);
+            string tempDotGit = Path.Combine(StandardTestRepoWorkingDirPath, "dot_git");
+            Directory.Move(tempDotGit, StandardTestRepoPath);
         }
 
         protected void CreateCorruptedDeadBeefHead(string repoPath)
@@ -53,7 +63,7 @@ namespace LibGit2Sharp.Tests.TestHelpers
 
         protected TemporaryCloneOfTestRepo BuildTemporaryCloneOfTestRepo()
         {
-            return BuildTemporaryCloneOfTestRepo(Constants.BareTestRepoPath);
+            return BuildTemporaryCloneOfTestRepo(BareTestRepoPath);
         }
 
         protected TemporaryCloneOfTestRepo BuildTemporaryCloneOfTestRepo(string path)

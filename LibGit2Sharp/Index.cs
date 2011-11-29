@@ -43,6 +43,8 @@ namespace LibGit2Sharp
         {
             get
             {
+                path = PosixPathHelper.ToPosix(path);
+
                 Ensure.ArgumentNotNullOrEmptyString(path, "path");
 
                 int res = NativeMethods.git_index_find(handle, path);

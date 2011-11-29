@@ -18,6 +18,15 @@ namespace LibGit2Sharp.Tests.TestHelpers
             }
         }
 
+        public static void DeleteSubdirectories(string parentPath)
+        {
+            string[] dirs = Directory.GetDirectories(parentPath);
+            foreach (string dir in dirs)
+            {
+                DeleteDirectory(dir);
+            }
+        }
+
         public static void DeleteDirectory(string directoryPath)
         {
             // From http://stackoverflow.com/questions/329355/cannot-delete-directory-with-directory-deletepath-true/329502#329502

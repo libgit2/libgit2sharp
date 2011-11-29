@@ -43,6 +43,8 @@ namespace LibGit2Sharp
 
         private int StateChanged(string filePath, uint state, IntPtr payload)
         {
+            filePath = PosixPathHelper.ToNative(filePath);
+
             var gitStatus = (FileStatus)state;
             statusEntries.Add(new StatusEntry(filePath, gitStatus));
 

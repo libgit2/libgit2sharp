@@ -86,7 +86,7 @@ namespace LibGit2Sharp
 
             Ensure.Success(res);
 
-            return Reference.BuildFromPtr<Reference>(reference, repo);
+            return Reference.BuildFromPtrAndRelease<Reference>(reference, repo);
         }
 
         private int CreateSymbolicReference(string name, string target, bool allowOverwrite, out IntPtr reference)
@@ -151,7 +151,7 @@ namespace LibGit2Sharp
             int res = NativeMethods.git_reference_rename(referencePtr, newName, allowOverwrite);
             Ensure.Success(res);
 
-            return Reference.BuildFromPtr<Reference>(referencePtr, repo);
+            return Reference.BuildFromPtrAndRelease<Reference>(referencePtr, repo);
         }
 
         internal T Resolve<T>(string name) where T : Reference
@@ -160,7 +160,7 @@ namespace LibGit2Sharp
 
             IntPtr reference = RetrieveReferencePtr(name, false);
 
-            return Reference.BuildFromPtr<T>(reference, repo);
+            return Reference.BuildFromPtrAndRelease<T>(reference, repo);
         }
 
         /// <summary>
@@ -210,7 +210,7 @@ namespace LibGit2Sharp
 
             Ensure.Success(res);
 
-            return Reference.BuildFromPtr<Reference>(reference, repo);
+            return Reference.BuildFromPtrAndRelease<Reference>(reference, repo);
         }
 
         private IntPtr RetrieveReferencePtr(string referenceName, bool shouldThrowIfNotFound = true)
