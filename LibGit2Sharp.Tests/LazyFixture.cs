@@ -11,7 +11,7 @@ namespace LibGit2Sharp.Tests
         [Test]
         public void CanReturnTheValue()
         {
-            var lazy = new Lazy<int>(() => 2);
+            var lazy = new LibGit2Sharp.Core.Lazy<int>(() => 2);
             lazy.Value.ShouldEqual(2);
         }
 
@@ -22,7 +22,7 @@ namespace LibGit2Sharp.Tests
 
             var evaluator = new Func<int>(() => ++i);
 
-            var lazy = new Lazy<int>(evaluator);
+            var lazy = new LibGit2Sharp.Core.Lazy<int>(evaluator);
             lazy.Value.ShouldEqual(1);
         }
 
@@ -33,7 +33,7 @@ namespace LibGit2Sharp.Tests
 
             var evaluator = new Func<int>(() => ++i);
 
-            var lazy = new Lazy<int>(evaluator);
+            var lazy = new LibGit2Sharp.Core.Lazy<int>(evaluator);
 
             lazy.Value.ShouldEqual(1);
             lazy.Value.ShouldEqual(1);

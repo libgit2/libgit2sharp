@@ -12,16 +12,16 @@ namespace LibGit2Sharp
     public class Commit : GitObject
     {
         private readonly Repository repo;
-        private readonly Lazy<IEnumerable<Commit>> parents;
-        private readonly Lazy<Tree> tree;
-        private readonly Lazy<string> shortMessage;
+        private readonly LibGit2Sharp.Core.Lazy<IEnumerable<Commit>> parents;
+        private readonly LibGit2Sharp.Core.Lazy<Tree> tree;
+        private readonly LibGit2Sharp.Core.Lazy<string> shortMessage;
 
         internal Commit(ObjectId id, ObjectId treeId, Repository repo)
             : base(id)
         {
-            tree = new Lazy<Tree>(() => repo.Lookup<Tree>(treeId));
-            parents = new Lazy<IEnumerable<Commit>>(() => RetrieveParentsOfCommit(id));
-            shortMessage = new Lazy<string>(ExtractShortMessage);
+            tree = new LibGit2Sharp.Core.Lazy<Tree>(() => repo.Lookup<Tree>(treeId));
+            parents = new LibGit2Sharp.Core.Lazy<IEnumerable<Commit>>(() => RetrieveParentsOfCommit(id));
+            shortMessage = new LibGit2Sharp.Core.Lazy<string>(ExtractShortMessage);
             this.repo = repo;
         }
 

@@ -115,7 +115,12 @@ namespace LibGit2Sharp
             systemHandle.SafeDispose();
         }
 
-        private static T ProcessReadResult<T>(int res, T value, T defaultValue, Func<object, T> postProcessor = null)
+        private static T ProcessReadResult<T>(int res, T value, T defaultValue)
+        {
+            return ProcessReadResult<T>(res, value, defaultValue, null);
+        }
+
+        private static T ProcessReadResult<T>(int res, T value, T defaultValue, Func<object, T> postProcessor)
         {
             if (res == (int)GitErrorCode.GIT_ENOTFOUND)
             {

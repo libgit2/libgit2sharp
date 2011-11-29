@@ -62,7 +62,7 @@ namespace LibGit2Sharp
                     var oid = (GitOid)Marshal.PtrToStructure(oidPtr, typeof(GitOid));
                     var targetOid = new ObjectId(oid);
 
-                    var targetBuilder = new Lazy<GitObject>(() => repo.Lookup(targetOid));
+                    var targetBuilder = new LibGit2Sharp.Core.Lazy<GitObject>(() => repo.Lookup(targetOid));
                     reference = new DirectReference(targetBuilder) { CanonicalName = name, TargetIdentifier = targetOid.Sha };
                     break;
 
