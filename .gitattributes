@@ -11,3 +11,5 @@
 *.ps1 crlf
 
 .gitattributes crlf
+
+*.sh eol=lf
