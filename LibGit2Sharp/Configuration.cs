@@ -142,28 +142,28 @@ namespace LibGit2Sharp
                                      {
                                          int value;
                                          int res = NativeMethods.git_config_get_int32(handle, key, out value);
-                                         return ProcessReadResult(res, value, dv);
+                                         return ProcessReadResult<object>(res, value, dv);
                                      });
 
             dic.Add(typeof(long), (key, dv, handle) =>
                                       {
                                           long value;
                                           int res = NativeMethods.git_config_get_int64(handle, key, out value);
-                                          return ProcessReadResult(res, value, dv);
+                                          return ProcessReadResult<object>(res, value, dv);
                                       });
 
             dic.Add(typeof(bool), (key, dv, handle) =>
                                       {
                                           bool value;
                                           int res = NativeMethods.git_config_get_bool(handle, key, out value);
-                                          return ProcessReadResult(res, value, dv);
+                                          return ProcessReadResult<object>(res, value, dv);
                                       });
 
             dic.Add(typeof(string), (key, dv, handle) =>
                                         {
                                             IntPtr value;
                                             int res = NativeMethods.git_config_get_string(handle, key, out value);
-                                            return ProcessReadResult(res, value, dv, s => ((IntPtr)s).MarshallAsString());
+                                            return ProcessReadResult<object>(res, value, dv, s => ((IntPtr)s).MarshallAsString());
                                         });
 
             return dic;
