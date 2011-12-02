@@ -1,17 +1,19 @@
 <Project DefaultTargets="Deploy" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <UsingTask AssemblyFile="$(MSBuildProjectDirectory)\Lib\MSBuild.Community.Tasks\MSBuild.Community.Tasks.dll" TaskName="NUnit" />
-  <UsingTask AssemblyFile="$(MSBuildProjectDirectory)\Lib\MSBuild.Community.Tasks\MSBuild.Community.Tasks.dll" TaskName="DeleteTree" />
-
   <PropertyGroup>
     <Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
     <RootDir>$(MSBuildProjectDirectory)</RootDir>
-    <BuildDirs>$(MSBuildProjectDirectory)\LibGit2Sharp*\**\obj;$(MSBuildProjectDirectory)\LibGit2Sharp*\**\bin</BuildDirs>
     <TestBuildDir>$(RootDir)\LibGit2Sharp.Tests\bin\$(Configuration)</TestBuildDir>
     <DeployFolder>$(RootDir)\Build</DeployFolder>
+    <ManagedExeLauncher Condition="('$(OS)' != 'Windows_NT')">mono </ManagedExeLauncher>
   </PropertyGroup>
 
   <Target Name="Clean">
-    <DeleteTree Directories="$(BuildDirs);$(DeployFolder)" />
+    <!-- Workaround for xbuild -->
+    <Exec Condition=" ('$(OS)' != 'Windows_NT') " Command=" rm -r -f $(DeployFolder) " />
+    <Exec Condition=" ('$(OS)' != 'Windows_NT') " Command=" rm -r -f $(TestBuildDir) " />
+
+    <RemoveDir Directories="$(DeployFolder)" Condition="Exists('$(DeployFolder)')" />
+    <RemoveDir Directories="$(TestBuildDir)" Condition="Exists('$(TestBuildDir)')" />
   </Target>
 
   <Target Name="Init" DependsOnTargets="Clean">
@@ -26,22 +28,20 @@
   </Target>
 
   <Target Name="Test" DependsOnTargets="Build">
-    <NUnit Assemblies="$(TestBuildDir)\LibGit2Sharp.Tests.dll"
-           ToolPath="$(MSBuildProjectDirectory)\Lib\NUnit\"
-           Force32Bit="true"
-           OutputXmlFile="$(DeployFolder)\Test-result.xml" />
+    <Exec
+      Command="$(ManagedExeLauncher) &quot;$(MSBuildProjectDirectory)/Lib/NUnit/nunit-console-x86.exe&quot; &quot;$(TestBuildDir)/LibGit2Sharp.Tests.dll&quot; -xml=&quot;$(DeployFolder)/Test-result.xml&quot; -nologo" />
   </Target>
 
   <Target Name="Deploy" DependsOnTargets="Test">
-    <ItemGroup>
-      <OutputFiles Include="$(TestBuildDir)\LibGit2*.*" />
-    </ItemGroup>
+    <CreateItem Include="$(TestBuildDir)\LibGit2*.*">
+        <Output TaskParameter="Include" ItemName="OutputFiles" />
+    </CreateItem>
     <Copy SourceFiles="@(OutputFiles)"
         DestinationFiles="@(OutputFiles->'$(DeployFolder)\%(RecursiveDir)%(Filename)%(Extension)')" />
 
-    <ItemGroup>
-      <NativeBinaries Include="$(TestBuildDir)\NativeBinaries\**\*.*" />
-    </ItemGroup>
+    <CreateItem Include="$(TestBuildDir)\NativeBinaries\**\*.*">
+        <Output TaskParameter="Include" ItemName="NativeBinaries" />
+    </CreateItem>
     <Copy SourceFiles="@(NativeBinaries)"
       DestinationFiles="@(NativeBinaries->'$(DeployFolder)\NativeBinaries\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
   </Target>
