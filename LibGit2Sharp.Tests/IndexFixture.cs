@@ -479,7 +479,7 @@ namespace LibGit2Sharp.Tests
         }
 
         [TestCase("deleted_staged_file.txt")]
-        [TestCase("deleted_unstaged_file.txt")]
+        [TestCase("modified_unstaged_file.txt")]
         [TestCase("shadowcopy_of_an_unseen_ghost.txt")]
         public void RemovingAInvalidFileThrows(string filepath)
         {

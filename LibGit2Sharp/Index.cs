@@ -335,7 +335,7 @@ namespace LibGit2Sharp
                     throw new NotImplementedException();
                 }
 
-                if (!keyValuePair.Value.HasAny(new[] { FileStatus.Missing, FileStatus.Nonexistent, FileStatus.Removed, FileStatus.Untracked }))
+                if (!keyValuePair.Value.HasAny(new[] { FileStatus.Nonexistent, FileStatus.Removed, FileStatus.Modified, FileStatus.Untracked }))
                 {
                     continue;
                 }
@@ -347,7 +347,11 @@ namespace LibGit2Sharp
             foreach (KeyValuePair<string, FileStatus> keyValuePair in batch)
             {
                 RemoveFromIndex(keyValuePair.Key);
-                File.Delete(Path.Combine(wd, keyValuePair.Key));
+
+                if (File.Exists(Path.Combine(wd, keyValuePair.Key)))
+                {
+                    File.Delete(Path.Combine(wd, keyValuePair.Key));
+                }
             }
 
             UpdatePhysicalIndex();
