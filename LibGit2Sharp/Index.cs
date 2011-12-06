@@ -303,6 +303,10 @@ namespace LibGit2Sharp
 
         /// <summary>
         ///   Removes a file from the working directory and promotes the removal to the staging area.
+        ///   <para>
+        ///     If the file has already been deleted from the working directory, this method will only deal
+        ///     with promoting the removal to the staging area.
+        ///   </para>
         /// </summary>
         /// <param name = "path">The path of the file within the working directory.</param>
         public void Remove(string path)
@@ -312,6 +316,10 @@ namespace LibGit2Sharp
 
         /// <summary>
         ///   Removes a collection of files from the working directory and promotes the removal to the staging area.
+        ///   <para>
+        ///     If a file has already been deleted from the working directory, this method will only deal
+        ///     with promoting the removal to the staging area.
+        ///   </para>
         /// </summary>
         /// <param name = "paths">The collection of paths of the files within the working directory.</param>
         public void Remove(IEnumerable<string> paths)
@@ -335,7 +343,7 @@ namespace LibGit2Sharp
                     throw new NotImplementedException();
                 }
 
-                if (!keyValuePair.Value.HasAny(new[] { FileStatus.Missing, FileStatus.Nonexistent, FileStatus.Removed, FileStatus.Untracked }))
+                if (!keyValuePair.Value.HasAny(new[] { FileStatus.Nonexistent, FileStatus.Removed, FileStatus.Untracked }))
                 {
                     continue;
                 }
@@ -347,7 +355,11 @@ namespace LibGit2Sharp
             foreach (KeyValuePair<string, FileStatus> keyValuePair in batch)
             {
                 RemoveFromIndex(keyValuePair.Key);
-                File.Delete(Path.Combine(wd, keyValuePair.Key));
+
+                if (File.Exists(Path.Combine(wd, keyValuePair.Key)))
+                {
+                    File.Delete(Path.Combine(wd, keyValuePair.Key));
+                }
             }
 
             UpdatePhysicalIndex();

@@ -456,30 +456,29 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
-        public void CanRemoveAFile()
+        [TestCase("1/branch_file.txt", FileStatus.Unaltered, true, FileStatus.Removed)]
+        [TestCase("deleted_unstaged_file.txt", FileStatus.Missing, false, FileStatus.Removed)]
+        public void CanRemoveAFile(string filename, FileStatus initialStatus, bool shouldInitiallyExist, FileStatus finalStatus)
         {
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
             using (var repo = new Repository(path.RepositoryPath))
             {
                 int count = repo.Index.Count;
 
-                string filename = "1" + Path.DirectorySeparatorChar + "branch_file.txt";
                 string fullpath = Path.Combine(repo.Info.WorkingDirectory, filename);
 
-                File.Exists(fullpath).ShouldBeTrue();
-                repo.Index.RetrieveStatus(filename).ShouldEqual(FileStatus.Unaltered);
+                File.Exists(fullpath).ShouldEqual(shouldInitiallyExist);
+                repo.Index.RetrieveStatus(filename).ShouldEqual(initialStatus);
 
                 repo.Index.Remove(filename);
 
                 repo.Index.Count.ShouldEqual(count - 1);
                 File.Exists(fullpath).ShouldBeFalse();
-                repo.Index.RetrieveStatus(filename).ShouldEqual(FileStatus.Removed);
+                repo.Index.RetrieveStatus(filename).ShouldEqual(finalStatus);
             }
         }
 
         [TestCase("deleted_staged_file.txt")]
-        [TestCase("deleted_unstaged_file.txt")]
         [TestCase("shadowcopy_of_an_unseen_ghost.txt")]
         public void RemovingAInvalidFileThrows(string filepath)
         {
