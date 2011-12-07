@@ -529,5 +529,32 @@ namespace LibGit2Sharp.Tests
             entry.Type.ShouldEqual(GitObjectType.Blob);
             ((Blob)(entry.Target)).ContentAsUtf8().ShouldEqual(expectedContent);
         }
+
+        [Test]
+        public void CanGeneratePredictableObjectShas()
+        {
+            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            string dir = Repository.Init(scd.DirectoryPath);
+
+            using (var repo = new Repository(dir))
+            {
+                const string relativeFilepath = "test.txt";
+                string filePath = Path.Combine(repo.Info.WorkingDirectory, relativeFilepath);
+
+                File.WriteAllText(filePath, "test\n");
+                repo.Index.Stage(relativeFilepath);
+
+                var author = new Signature("nulltoken", "emeric.fermas@gmail.com", DateTimeOffset.Parse("Wed, Dec 14 2011 08:29:03 +0100"));
+                Commit commit = repo.Commit("Initial commit\n", author, author);
+
+                commit.Sha.ShouldEqual("1fe3126578fc4eca68c193e4a3a0a14a0704624d");
+
+                Tree tree = commit.Tree;
+                tree.Sha.ShouldEqual("2b297e643c551e76cfa1f93810c50811382f9117");
+
+                Blob blob = tree.Files.Single();
+                blob.Sha.ShouldEqual("9daeafb9864cf43055ae93beb0afd6c7d144bfa4");
+            }
+        }
     }
 }
