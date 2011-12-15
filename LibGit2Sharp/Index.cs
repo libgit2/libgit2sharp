@@ -343,7 +343,7 @@ namespace LibGit2Sharp
                     throw new NotImplementedException();
                 }
 
-                if (!keyValuePair.Value.HasAny(new[] { FileStatus.Nonexistent, FileStatus.Removed, FileStatus.Untracked }))
+                if (!keyValuePair.Value.HasAny(new[] { FileStatus.Nonexistent, FileStatus.Removed, FileStatus.Modified, FileStatus.Untracked }))
                 {
                     continue;
                 }
