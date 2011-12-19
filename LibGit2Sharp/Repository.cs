@@ -173,6 +173,7 @@ namespace LibGit2Sharp
         ///</summary>
         ///<param name = "sha">The sha.</param>
         ///<returns></returns>
+		[Obsolete]
         public bool HasObject(string sha) //TODO: To be removed from front facing API (maybe should we create an Repository.Advanced to hold those kind of functions)?
         {
             var id = new ObjectId(sha);
