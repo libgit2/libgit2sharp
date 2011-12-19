@@ -66,7 +66,7 @@ namespace LibGit2Sharp
             }
             finally
             {
-                NativeMethods.git_object_close(obj);
+                NativeMethods.git_object_free(obj);
             }
         }
 

@@ -177,9 +177,14 @@ namespace LibGit2Sharp
         {
             var id = new ObjectId(sha);
 
-            IntPtr odb = NativeMethods.git_repository_database(handle);
-            GitOid oid = id.Oid;
-            return NativeMethods.git_odb_exists(odb, ref oid);
+            DatabaseSafeHandle odb;
+            Ensure.Success(NativeMethods.git_repository_odb(out odb, handle));
+
+            using(odb)
+            {
+                GitOid oid = id.Oid;
+                return NativeMethods.git_odb_exists(odb, ref oid);
+            }
         }
 
         /// <summary>
@@ -196,19 +201,10 @@ namespace LibGit2Sharp
             int res = NativeMethods.git_repository_init(out repo, PosixPathHelper.ToPosix(path), isBare);
             Ensure.Success(res);
 
-            string normalizedPath = NativeMethods.git_repository_path(repo, GitRepositoryPathId.GIT_REPO_PATH).MarshallAsString();
+            string normalizedPath = NativeMethods.git_repository_path(repo).MarshallAsString();
             repo.SafeDispose();
 
             string nativePath = PosixPathHelper.ToNative(normalizedPath);
-
-            // TODO: To be removed once it's being dealt with by libgit2
-            // libgit2 doesn't currently create the git config file, so create a minimal one if we can't find it
-            // See https://github.com/libgit2/libgit2sharp/issues/56 for details
-            string configFile = Path.Combine(nativePath, "config");
-            if (!File.Exists(configFile))
-            {
-                File.WriteAllText(configFile, "[core]\n\trepositoryformatversion = 0\n");
-            }
 
             return nativePath;
         }

@@ -36,7 +36,7 @@ namespace LibGit2Sharp.Core
                 return;
             }
 
-            NativeMethods.git_object_close(objectPtr);
+            NativeMethods.git_object_free(objectPtr);
             objectPtr = IntPtr.Zero;
         }
 

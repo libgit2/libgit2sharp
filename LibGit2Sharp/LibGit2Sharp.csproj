@@ -53,6 +53,7 @@
     <Compile Include="Configuration.cs" />
     <Compile Include="ConfigurationLevel.cs" />
     <Compile Include="Core\Compat\Tuple.cs" />
+    <Compile Include="Core\DatabaseSafeHandle.cs" />
     <Compile Include="Core\EnumExtensions.cs" />
     <Compile Include="DetachedHead.cs" />
     <Compile Include="LibGit2Exception.cs" />
@@ -63,7 +64,6 @@
     <Compile Include="Core\GitObjectTypeMap.cs" />
     <Compile Include="Core\GitOid.cs" />
     <Compile Include="Core\GitReferenceType.cs" />
-    <Compile Include="Core\GitRepositoryPathId.cs" />
     <Compile Include="Core\GitSignature.cs" />
     <Compile Include="FileStatus.cs" />
     <Compile Include="Core\GitTime.cs" />

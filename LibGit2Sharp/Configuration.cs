@@ -302,7 +302,7 @@ namespace LibGit2Sharp
         {
             if (repository != null)
             {
-                Ensure.Success(NativeMethods.git_repository_config(out localHandle, repository.Handle, globalConfigPath, systemConfigPath));
+                Ensure.Success(NativeMethods.git_repository_config(out localHandle, repository.Handle));
             }
 
             if (globalConfigPath != null)

@@ -21,7 +21,7 @@ namespace LibGit2Sharp
             var remote = new Remote();
             RemoteSafeHandle handle;
 
-            int res = NativeMethods.git_remote_get(out handle, repository.Config.LocalHandle, name);
+            int res = NativeMethods.git_remote_load(out handle, repository.Handle, name);
 
             if (res == (int)GitErrorCode.GIT_ENOTFOUND)
             {

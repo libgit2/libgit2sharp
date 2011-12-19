@@ -165,7 +165,7 @@ namespace LibGit2Sharp.Core
         public static extern IntPtr git_lasterror();
 
         [DllImport(libgit2)]
-        public static extern void git_object_close(IntPtr obj);
+        public static extern void git_object_free(IntPtr obj);
 
         [DllImport(libgit2)]
         public static extern IntPtr git_object_id(IntPtr obj);
@@ -181,10 +181,10 @@ namespace LibGit2Sharp.Core
 
         [DllImport(libgit2)]
         [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool git_odb_exists(IntPtr db, ref GitOid id);
+        public static extern bool git_odb_exists(DatabaseSafeHandle db, ref GitOid id);
 
         [DllImport(libgit2)]
-        public static extern void git_odb_object_close(IntPtr obj);
+        public static extern void git_odb_free(IntPtr obj);
 
         [DllImport(libgit2)]
         public static extern int git_oid_cmp(ref GitOid a, ref GitOid b);
@@ -250,9 +250,9 @@ namespace LibGit2Sharp.Core
         public static extern void git_remote_free(IntPtr remote);
 
         [DllImport(libgit2)]
-        public static extern int git_remote_get(
+        public static extern int git_remote_load(
             out RemoteSafeHandle remote,
-            ConfigurationSafeHandle cfg,
+            RepositorySafeHandle repo,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string name);
 
         [DllImport(libgit2)]
@@ -264,12 +264,10 @@ namespace LibGit2Sharp.Core
         [DllImport(libgit2)]
         public static extern int git_repository_config(
             out ConfigurationSafeHandle cfg,
-            RepositorySafeHandle repo,
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string userConfigPath,
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string systemConfigPath);
+            RepositorySafeHandle repo);
 
         [DllImport(libgit2)]
-        public static extern IntPtr git_repository_database(RepositorySafeHandle repository);
+        public static extern int git_repository_odb(out DatabaseSafeHandle odb, RepositorySafeHandle repository);
 
         [DllImport(libgit2)]
         public static extern int git_repository_discover(
@@ -307,7 +305,10 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string path);
 
         [DllImport(libgit2)]
-        public static extern IntPtr git_repository_path(RepositorySafeHandle repository, GitRepositoryPathId pathIdentifier);
+        public static extern IntPtr git_repository_path(RepositorySafeHandle repository);
+
+        [DllImport(libgit2)]
+        public static extern IntPtr git_repository_workdir(RepositorySafeHandle repository);
 
         [DllImport(libgit2)]
         public static extern void git_revwalk_free(IntPtr walker);
