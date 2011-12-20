@@ -5,7 +5,27 @@
  - Source code: <https://github.com/libgit2/libgit2sharp>
  - NuGet package: <http://nuget.org/List/Packages/LibGit2Sharp>
  - Issue tracker: <https://github.com/libgit2/libgit2sharp/issues>
+ - CI server: <http://teamcity.codebetter.com/project.html?projectId=project127&guest=1>
  - @libgit2sharp: <http://twitter.com/libgit2sharp>
+
+## v0.7
+
+### Additions
+
+ - Allow access to System and Global configuration outside the context of a repo
+ - Add overloads to index methods that accept collection of paths
+
+### Changes
+
+ - Make Index.RetrieveStatus() return native file paths
+ - Make IndexEntry able to cope with native file paths
+ - Update libgit2 binaries to libgit2/libgit2@be00b00
+ - Deprecate Repository.HasObject()
+
+### Fixes
+
+ - Fix the build script to be fully XBuild compatible on Linux/Mono 2.10
+ - Fix Index.Remove() to correctly handle files which have been deleted and modified in the working directory
 
 ## v0.6.2
 
