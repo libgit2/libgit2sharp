@@ -164,30 +164,6 @@ namespace LibGit2Sharp
 
         #endregion
 
-        ///<summary>
-        ///  Tells if the specified sha exists in the repository.
-        ///
-        ///  Exceptions:
-        ///  ArgumentException
-        ///  ArgumentNullException
-        ///</summary>
-        ///<param name = "sha">The sha.</param>
-        ///<returns></returns>
-		[Obsolete]
-        public bool HasObject(string sha) //TODO: To be removed from front facing API (maybe should we create an Repository.Advanced to hold those kind of functions)?
-        {
-            var id = new ObjectId(sha);
-
-            DatabaseSafeHandle odb;
-            Ensure.Success(NativeMethods.git_repository_odb(out odb, handle));
-
-            using(odb)
-            {
-                GitOid oid = id.Oid;
-                return NativeMethods.git_odb_exists(odb, ref oid);
-            }
-        }
-
         /// <summary>
         ///   Init a repo at the specified <paramref name = "path" />.
         /// </summary>

@@ -268,28 +268,6 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
-        public void CanCheckForObjectExistence()
-        {
-            using (var repo = new Repository(BareTestRepoPath))
-            {
-                repo.HasObject("8496071c1b46c854b31185ea97743be6a8774479").ShouldBeTrue();
-                repo.HasObject("1385f264afb75a56a5bec74243be9b367ba4ca08").ShouldBeTrue();
-                repo.HasObject("ce08fe4884650f067bd5703b6a59a8b3b3c99a09").ShouldBeFalse();
-                repo.HasObject("8496071c1c46c854b31185ea97743be6a8774479").ShouldBeFalse();
-            }
-        }
-
-        [Test]
-        public void CheckingForObjectExistenceWithBadParamsThrows()
-        {
-            using (var repo = new Repository(BareTestRepoPath))
-            {
-                Assert.Throws<ArgumentException>(() => repo.HasObject(string.Empty));
-                Assert.Throws<ArgumentNullException>(() => repo.HasObject(null));
-            }
-        }
-
-        [Test]
         public void CanDiscoverABareRepoGivenTheRepoPath()
         {
             string path = Repository.Discover(BareTestRepoPath);

@@ -53,7 +53,6 @@
     <Compile Include="Configuration.cs" />
     <Compile Include="ConfigurationLevel.cs" />
     <Compile Include="Core\Compat\Tuple.cs" />
-    <Compile Include="Core\DatabaseSafeHandle.cs" />
     <Compile Include="Core\EnumExtensions.cs" />
     <Compile Include="DetachedHead.cs" />
     <Compile Include="LibGit2Exception.cs" />

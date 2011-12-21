@@ -180,13 +180,6 @@ namespace LibGit2Sharp.Core
         public static extern GitObjectType git_object_type(IntPtr obj);
 
         [DllImport(libgit2)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool git_odb_exists(DatabaseSafeHandle db, ref GitOid id);
-
-        [DllImport(libgit2)]
-        public static extern void git_odb_free(IntPtr obj);
-
-        [DllImport(libgit2)]
         public static extern int git_oid_cmp(ref GitOid a, ref GitOid b);
 
         [DllImport(libgit2)]
@@ -265,9 +258,6 @@ namespace LibGit2Sharp.Core
         public static extern int git_repository_config(
             out ConfigurationSafeHandle cfg,
             RepositorySafeHandle repo);
-
-        [DllImport(libgit2)]
-        public static extern int git_repository_odb(out DatabaseSafeHandle odb, RepositorySafeHandle repository);
 
         [DllImport(libgit2)]
         public static extern int git_repository_discover(
