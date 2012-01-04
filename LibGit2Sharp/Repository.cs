@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Compat;
 
@@ -294,6 +293,31 @@ namespace LibGit2Sharp
             Ensure.Success(result);
 
             return PosixPathHelper.ToNative(Utf8Marshaler.Utf8FromBuffer(buffer));
+        }
+
+        /// <summary>
+        ///   Sets the current <see cref="Head"/> to the specified commit and optionally resets the <see cref="Index"/> and
+        ///   the content of the working tree to match.
+        /// </summary>
+        /// <param name = "resetOptions">Flavor of reset operation to perform.</param>
+        /// <param name = "shaOrReferenceName">The sha or reference canonical name of the target commit object.</param>
+        public void Reset(ResetOptions resetOptions, string shaOrReferenceName)
+        {
+            Ensure.ArgumentNotNullOrEmptyString(shaOrReferenceName, "shaOrReferenceName");
+
+            GitObject commit = Lookup(shaOrReferenceName, GitObjectType.Any, LookUpOptions.ThrowWhenNoGitObjectHasBeenFound | LookUpOptions.DereferenceResultToCommit | LookUpOptions.ThrowWhenCanNotBeDereferencedToACommit);
+
+            //TODO: Check for unmerged entries
+
+            string refToUpdate = Info.IsHeadDetached ? "HEAD" : Head.CanonicalName;
+            Refs.UpdateTarget(refToUpdate, commit.Sha);
+
+            if (resetOptions == ResetOptions.Soft)
+            {
+                return;
+            }
+
+            throw new NotImplementedException();
         }
     }
 }
