@@ -55,7 +55,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Shortcut to return the reference to HEAD
+        ///   Shortcut to return the branch pointed to by HEAD
         /// </summary>
         /// <returns></returns>
         public Branch Head
