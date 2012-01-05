@@ -54,6 +54,8 @@
     <Compile Include="ConfigurationLevel.cs" />
     <Compile Include="Core\Compat\Tuple.cs" />
     <Compile Include="Core\EnumExtensions.cs" />
+    <Compile Include="Core\GitObjectExtensions.cs" />
+    <Compile Include="Core\ReferenceExtensions.cs" />
     <Compile Include="DetachedHead.cs" />
     <Compile Include="LibGit2Exception.cs" />
     <Compile Include="Core\ConfigurationSafeHandle.cs" />
@@ -95,6 +97,7 @@
     <Compile Include="Core\IndexSafeHandle.cs" />
     <Compile Include="Filter.cs" />
     <Compile Include="IQueryableCommitCollection.cs" />
+    <Compile Include="Core\LookUpOptions.cs" />
     <Compile Include="NamedReference.cs" />
     <Compile Include="ObjectId.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -232,26 +232,46 @@ namespace LibGit2Sharp
         /// <returns>The <see cref = "GitObject" /> or null if it was not found.</returns>
         public GitObject Lookup(string shaOrReferenceName, GitObjectType type = GitObjectType.Any)
         {
+            return Lookup(shaOrReferenceName, type, LookUpOptions.None);
+        }
+
+        internal GitObject Lookup(string shaOrReferenceName, GitObjectType type, LookUpOptions lookUpOptions)
+        {
             ObjectId id;
 
-            if (ObjectId.TryParse(shaOrReferenceName, out id))
+            Reference reference = Refs[shaOrReferenceName]; 
+            if (reference != null)
             {
-                return Lookup(id, type);
+                id = reference.PeelToTargetObjectId();
+            }
+            else
+            {
+                ObjectId.TryParse(shaOrReferenceName, out id);
             }
 
-            Reference reference = Refs[shaOrReferenceName];
-
-            if (!IsReferencePeelable(reference))
+            if (id == null)
             {
+                if (lookUpOptions.Has(LookUpOptions.ThrowWhenNoGitObjectHasBeenFound))
+                {
+                    Ensure.GitObjectIsNotNull(null, shaOrReferenceName);
+                }
+
                 return null;
             }
 
-            return Lookup(reference.ResolveToDirectReference().TargetIdentifier, type);
-        }
+            GitObject gitObj = Lookup(id, type);
 
-        private static bool IsReferencePeelable(Reference reference)
-        {
-            return reference != null && ((reference is DirectReference) || (reference is SymbolicReference && ((SymbolicReference)reference).Target != null));
+            if (lookUpOptions.Has(LookUpOptions.ThrowWhenNoGitObjectHasBeenFound))
+            {
+                Ensure.GitObjectIsNotNull(gitObj, shaOrReferenceName);
+            }
+
+            if (!lookUpOptions.Has(LookUpOptions.DereferenceResultToCommit))
+            {
+                return gitObj;
+            }
+
+            return gitObj.DereferenceToCommit(shaOrReferenceName, lookUpOptions.Has(LookUpOptions.ThrowWhenCanNotBeDereferencedToACommit));
         }
 
         /// <summary>

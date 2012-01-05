@@ -276,50 +276,12 @@ namespace LibGit2Sharp
                 NativeMethods.git_revwalk_sorting(handle, options);
             }
 
-            private GitObject RetrieveObject(string shaOrReferenceName)
-            {
-                GitObject gitObj = repo.Lookup(shaOrReferenceName);
-
-                // TODO: Should we check the type? Git-log allows TagAnnotation oid as parameter. But what about Blobs and Trees?
-                EnsureGitObjectNotNull(shaOrReferenceName, gitObj);
-
-                return gitObj;
-            }
-
-            private static void EnsureGitObjectNotNull(string shaOrReferenceName, GitObject gitObj)
-            {
-                if (gitObj != null)
-                {
-                    return;
-                }
-
-                throw new LibGit2Exception(string.Format(CultureInfo.InvariantCulture,
-                                                         "No valid git object pointed at by '{0}' exists in the repository.",
-                                                         shaOrReferenceName));
-            }
-
             private ObjectId DereferenceToCommit(string identifier)
             {
-                GitObject obj = RetrieveObject(identifier);
+                // TODO: Should we check the type? Git-log allows TagAnnotation oid as parameter. But what about Blobs and Trees?
+                GitObject commit = repo.Lookup(identifier, GitObjectType.Any, LookUpOptions.ThrowWhenNoGitObjectHasBeenFound | LookUpOptions.DereferenceResultToCommit);
 
-                if (obj is Commit)
-                {
-                    return obj.Id;
-                }
-
-                if (obj is TagAnnotation)
-                {
-                    return DereferenceToCommit(((TagAnnotation)obj).Target.Sha);
-                }
-
-                if (obj is Blob || obj is Tree)
-                {
-                    return null;
-                }
-
-                throw new LibGit2Exception(string.Format(CultureInfo.InvariantCulture,
-                                                         "The Git object pointed at by '{0}' can not be dereferenced to a commit.",
-                                                         identifier));
+                return commit != null ? commit.Id : null;
             }
 
             private IEnumerable<ObjectId> RetrieveCommitOids(object identifier)
@@ -357,7 +319,7 @@ namespace LibGit2Sharp
                 if (identifier is Branch)
                 {
                     var branch = (Branch)identifier;
-                    EnsureGitObjectNotNull(branch.CanonicalName, branch.Tip);
+                    Ensure.GitObjectIsNotNull(branch.Tip, branch.CanonicalName);
 
                     yield return branch.Tip.Id;
                     yield break;
