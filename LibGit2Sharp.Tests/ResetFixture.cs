@@ -127,5 +127,32 @@ namespace LibGit2Sharp.Tests
 
             repo.Index.RetrieveStatus().IsDirty.ShouldBeFalse();
         }
+
+        [Test]
+        public void MixedResetRefreshesTheIndex()
+        {
+            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            string dir = Repository.Init(scd.DirectoryPath);
+
+            using (var repo = new Repository(dir))
+            {
+                FeedTheRepository(repo);
+
+                Tag tag = repo.Tags["mytag"];
+
+                repo.Reset(ResetOptions.Mixed, tag.CanonicalName);
+
+                repo.Index.RetrieveStatus("a.txt").ShouldEqual(FileStatus.Modified);
+            }
+        }
+
+        [Test]
+        public void MixedResetInABareRepositoryThrows()
+        {
+            using (var repo = new Repository(BareTestRepoPath))
+            {
+                Assert.Throws<LibGit2Exception>(() => repo.Reset(ResetOptions.Mixed, repo.Head.Tip.Sha));
+            }
+        }
     }
 }

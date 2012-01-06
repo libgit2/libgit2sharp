@@ -305,6 +305,11 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(shaOrReferenceName, "shaOrReferenceName");
 
+            if (resetOptions.Has(ResetOptions.Mixed) && Info.IsBare)
+            {
+                throw new LibGit2Exception("Mixed reset is not allowed in a bare repository");
+            }
+
             GitObject commit = Lookup(shaOrReferenceName, GitObjectType.Any, LookUpOptions.ThrowWhenNoGitObjectHasBeenFound | LookUpOptions.DereferenceResultToCommit | LookUpOptions.ThrowWhenCanNotBeDereferencedToACommit);
 
             //TODO: Check for unmerged entries
@@ -313,6 +318,13 @@ namespace LibGit2Sharp
             Refs.UpdateTarget(refToUpdate, commit.Sha);
 
             if (resetOptions == ResetOptions.Soft)
+            {
+                return;
+            }
+
+            Index.ReplaceContentWithTree(((Commit)commit).Tree);
+
+            if (resetOptions == ResetOptions.Mixed)
             {
                 return;
             }
