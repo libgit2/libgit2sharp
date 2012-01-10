@@ -17,12 +17,18 @@ namespace LibGit2Sharp.Core
             //TODO: When amd64 version of libgit2.dll is available, value this depending of the size of an IntPtr
             const string currentArchSubPath = "NativeBinaries/x86";
 
-            string path = Path.Combine(Path.GetDirectoryName(originalAssemblypath), currentArchSubPath);
+            //string path = Path.Combine(Path.GetDirectoryName(originalAssemblypath), currentArchSubPath);
+            string path = Path.GetDirectoryName(originalAssemblypath);
 
             const string pathEnvVariable = "PATH";
             Environment.SetEnvironmentVariable(pathEnvVariable,
                 String.Format("{0}{1}{2}", path, Path.PathSeparator, Environment.GetEnvironmentVariable(pathEnvVariable)));
+
+            git_threads_init();
         }
+
+        [DllImport(libgit2)]
+        public static extern void git_threads_init();
 
         [DllImport(libgit2)]
         public static extern IntPtr git_blob_rawcontent(IntPtr blob);
