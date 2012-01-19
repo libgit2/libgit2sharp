@@ -1,4 +1,5 @@
-﻿using LibGit2Sharp.Tests.TestHelpers;
+﻿using LibGit2Sharp.Core;
+using LibGit2Sharp.Tests.TestHelpers;
 using NUnit.Framework;
 
 namespace LibGit2Sharp.Tests
@@ -25,6 +26,21 @@ namespace LibGit2Sharp.Tests
             {
                 repo.Remotes["test"].ShouldBeNull();
             }
+        }
+
+        [Test]
+        public void AwesomeTest()
+        {
+            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            string dir = Repository.Init(scd.DirectoryPath, true);
+
+            string a;
+            using (var repo = new Repository(dir))
+            {
+                a = repo.FancyName();
+            }
+
+            Assert.IsNotNullOrEmpty(a);
         }
     }
 }

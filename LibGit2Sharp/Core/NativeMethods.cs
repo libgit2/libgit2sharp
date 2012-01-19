@@ -415,5 +415,19 @@ namespace LibGit2Sharp.Core
 
         [DllImport(libgit2)]
         public static extern int git_tree_get_subtree(out IntPtr tree, IntPtr root, string treeentry_path);
+
+        public const int GIT_DIR_FETCH = 0;
+
+        [DllImport(libgit2)]
+        public static extern int git_remote_new(
+            out RemoteSafeHandle remote,
+            RepositorySafeHandle repo,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string url,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string name);
+
+        [DllImport(libgit2)]
+        public static extern int git_remote_connect(
+            RemoteSafeHandle remote,
+            int direction);
     }
 }

@@ -331,5 +331,29 @@ namespace LibGit2Sharp
 
             throw new NotImplementedException();
         }
+
+        public string FancyName()
+        {
+            RemoteSafeHandle remote;
+
+            int result = NativeMethods.git_remote_new(out remote, Handle, "git://github.com/libgit2/libgit2.git", null);
+            Ensure.Success(result);
+
+            result = NativeMethods.git_remote_connect(remote, NativeMethods.GIT_DIR_FETCH);
+            Ensure.Success(result);
+
+            string name = LackOfInspirationName(remote);
+            return name;
+        }
+
+        private unsafe string LackOfInspirationName(RemoteSafeHandle remoteSafeHandle)
+        {
+            sbyte* filename;
+
+            int result = UnSafeNativeMethods.git_remote_download(&filename, remoteSafeHandle);
+            Ensure.Success(result);
+
+            return new string(filename);
+        }
     }
 }
