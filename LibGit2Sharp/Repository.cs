@@ -358,12 +358,12 @@ namespace LibGit2Sharp
 				result = NativeMethods.git_indexer_new(out indexer, packname);
 				Ensure.Success(result);
 
-				// This should be run in paralel, but it'd be too complicated for the example
 				NativeMethods.git_indexer_stats stats;
 				result = NativeMethods.git_indexer_run(indexer, out stats);
 				Ensure.Success(result);
 
-				//Console.WriteLine("Received {0} objects", stats.total);			
+				NativeMethods.git_indexer_write(indexer);
+
 			}
             return packname;
         }
