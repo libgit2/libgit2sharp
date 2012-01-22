@@ -351,11 +351,14 @@ namespace LibGit2Sharp
             result = NativeMethods.git_remote_connect(remote, NativeMethods.GIT_DIR_FETCH);
             Ensure.Success(result);
 
-            string name = LackOfInspirationName(remote);
-            return name;
+            string packname = DownloadPack(remote);
+			if (packname != null) {
+				
+			}
+            return packname;
         }
 
-        private unsafe string LackOfInspirationName(RemoteSafeHandle remoteSafeHandle)
+        private unsafe string DownloadPack(RemoteSafeHandle remoteSafeHandle)
         {
             sbyte* filename;
 
