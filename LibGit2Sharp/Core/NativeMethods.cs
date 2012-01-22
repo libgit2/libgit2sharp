@@ -164,6 +164,11 @@ namespace LibGit2Sharp.Core
         [DllImport(libgit2)]
         public static extern int git_index_write(IndexSafeHandle index);
 
+		[DllImport(libgit2)]
+		public static extern int git_indexer_new(
+			out IndexerSafeHandle indexer,
+			[MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string packname);
+
         [DllImport(libgit2)]
         public static extern void git_indexer_free(IntPtr index);
 
