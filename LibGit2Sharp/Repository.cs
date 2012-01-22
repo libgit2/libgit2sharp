@@ -353,7 +353,16 @@ namespace LibGit2Sharp
 
             string packname = DownloadPack(remote);
 			if (packname != null) {
-				
+				// Create a new instance indexer
+				IndexerSafeHandle indexer;
+				result = NativeMethods.git_indexer_new(out indexer, packname);
+				Ensure.Success(result);
+
+				// This should be run in paralel, but it'd be too complicated for the example
+				//result = NativeMethods.git_indexer_run(idx, &stats);
+				//Ensure.Success(result);
+
+				//Console.WriteLine("Received {0} objects", stats.total);			
 			}
             return packname;
         }
