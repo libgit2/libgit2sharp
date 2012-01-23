@@ -523,5 +523,15 @@ namespace LibGit2Sharp
         {
             return new RepositoryStatus(repo);
         }
+
+        internal void ReplaceContentWithTree(Tree tree)
+        {
+            using (var nativeTree = new ObjectSafeWrapper(tree.Id, repo))
+            {
+                int res = NativeMethods.git_index_read_tree(Handle, nativeTree.ObjectPtr);
+                Ensure.Success(res);
+                UpdatePhysicalIndex();
+            }
+        }
     }
 }

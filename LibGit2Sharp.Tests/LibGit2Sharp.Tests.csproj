@@ -43,6 +43,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConfigurationFixture.cs" />
+    <Compile Include="ResetFixture.cs" />
     <Compile Include="LazyFixture.cs" />
     <Compile Include="RemoteFixture.cs" />
     <Compile Include="TestHelpers\BaseFixture.cs" />

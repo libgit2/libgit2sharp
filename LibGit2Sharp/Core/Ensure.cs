@@ -81,5 +81,17 @@ namespace LibGit2Sharp.Core
 
             throw new ArgumentException(argumentName);
         }
+
+        public static void GitObjectIsNotNull(GitObject gitObject, string identifier)
+        {
+            if (gitObject != null)
+            {
+                return;
+            }
+
+            throw new LibGit2Exception(string.Format(CultureInfo.InvariantCulture,
+                                                     "No valid git object identified by '{0}' exists in the repository.",
+                                                     identifier));
+        }
     }
 }

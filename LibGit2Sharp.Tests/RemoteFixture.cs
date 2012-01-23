@@ -1,5 +1,7 @@
-﻿using LibGit2Sharp.Tests.TestHelpers;
+﻿using LibGit2Sharp.Core;
+using LibGit2Sharp.Tests.TestHelpers;
 using NUnit.Framework;
+using System.Linq;
 
 namespace LibGit2Sharp.Tests
 {
@@ -25,6 +27,21 @@ namespace LibGit2Sharp.Tests
             {
                 repo.Remotes["test"].ShouldBeNull();
             }
+        }
+
+        [Test]
+        public void AwesomeTest()
+        {
+            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            string dir = Repository.Init(scd.DirectoryPath, true);
+
+            using (var repo = new Repository(dir))
+            {
+				repo.Fetch("http://github.com/libgit2/libgit2.git");
+				// Now, how do I test that everything's OK?
+            }
+
+            //Assert.IsNotNullOrEmpty(a);
         }
     }
 }

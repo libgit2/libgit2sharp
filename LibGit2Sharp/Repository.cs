@@ -55,7 +55,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Shortcut to return the reference to HEAD
+        ///   Shortcut to return the branch pointed to by HEAD
         /// </summary>
         /// <returns></returns>
         public Branch Head
@@ -164,30 +164,6 @@ namespace LibGit2Sharp
 
         #endregion
 
-        ///<summary>
-        ///  Tells if the specified sha exists in the repository.
-        ///
-        ///  Exceptions:
-        ///  ArgumentException
-        ///  ArgumentNullException
-        ///</summary>
-        ///<param name = "sha">The sha.</param>
-        ///<returns></returns>
-		[Obsolete]
-        public bool HasObject(string sha) //TODO: To be removed from front facing API (maybe should we create an Repository.Advanced to hold those kind of functions)?
-        {
-            var id = new ObjectId(sha);
-
-            DatabaseSafeHandle odb;
-            Ensure.Success(NativeMethods.git_repository_odb(out odb, handle));
-
-            using(odb)
-            {
-                GitOid oid = id.Oid;
-                return NativeMethods.git_odb_exists(odb, ref oid);
-            }
-        }
-
         /// <summary>
         ///   Init a repo at the specified <paramref name = "path" />.
         /// </summary>
@@ -256,26 +232,46 @@ namespace LibGit2Sharp
         /// <returns>The <see cref = "GitObject" /> or null if it was not found.</returns>
         public GitObject Lookup(string shaOrReferenceName, GitObjectType type = GitObjectType.Any)
         {
+            return Lookup(shaOrReferenceName, type, LookUpOptions.None);
+        }
+
+        internal GitObject Lookup(string shaOrReferenceName, GitObjectType type, LookUpOptions lookUpOptions)
+        {
             ObjectId id;
 
-            if (ObjectId.TryParse(shaOrReferenceName, out id))
+            Reference reference = Refs[shaOrReferenceName]; 
+            if (reference != null)
             {
-                return Lookup(id, type);
+                id = reference.PeelToTargetObjectId();
+            }
+            else
+            {
+                ObjectId.TryParse(shaOrReferenceName, out id);
             }
 
-            Reference reference = Refs[shaOrReferenceName];
-
-            if (!IsReferencePeelable(reference))
+            if (id == null)
             {
+                if (lookUpOptions.Has(LookUpOptions.ThrowWhenNoGitObjectHasBeenFound))
+                {
+                    Ensure.GitObjectIsNotNull(null, shaOrReferenceName);
+                }
+
                 return null;
             }
 
-            return Lookup(reference.ResolveToDirectReference().TargetIdentifier, type);
-        }
+            GitObject gitObj = Lookup(id, type);
 
-        private static bool IsReferencePeelable(Reference reference)
-        {
-            return reference != null && ((reference is DirectReference) || (reference is SymbolicReference && ((SymbolicReference)reference).Target != null));
+            if (lookUpOptions.Has(LookUpOptions.ThrowWhenNoGitObjectHasBeenFound))
+            {
+                Ensure.GitObjectIsNotNull(gitObj, shaOrReferenceName);
+            }
+
+            if (!lookUpOptions.Has(LookUpOptions.DereferenceResultToCommit))
+            {
+                return gitObj;
+            }
+
+            return gitObj.DereferenceToCommit(shaOrReferenceName, lookUpOptions.Has(LookUpOptions.ThrowWhenCanNotBeDereferencedToACommit));
         }
 
         /// <summary>
@@ -299,5 +295,97 @@ namespace LibGit2Sharp
 
             return PosixPathHelper.ToNative(Utf8Marshaler.Utf8FromBuffer(buffer));
         }
+
+        /// <summary>
+        ///   Sets the current <see cref="Head"/> to the specified commit and optionally resets the <see cref="Index"/> and
+        ///   the content of the working tree to match.
+        /// </summary>
+        /// <param name = "resetOptions">Flavor of reset operation to perform.</param>
+        /// <param name = "shaOrReferenceName">The sha or reference canonical name of the target commit object.</param>
+        public void Reset(ResetOptions resetOptions, string shaOrReferenceName)
+        {
+            Ensure.ArgumentNotNullOrEmptyString(shaOrReferenceName, "shaOrReferenceName");
+
+            if (resetOptions.Has(ResetOptions.Mixed) && Info.IsBare)
+            {
+                throw new LibGit2Exception("Mixed reset is not allowed in a bare repository");
+            }
+
+            GitObject commit = Lookup(shaOrReferenceName, GitObjectType.Any, LookUpOptions.ThrowWhenNoGitObjectHasBeenFound | LookUpOptions.DereferenceResultToCommit | LookUpOptions.ThrowWhenCanNotBeDereferencedToACommit);
+
+            //TODO: Check for unmerged entries
+
+            string refToUpdate = Info.IsHeadDetached ? "HEAD" : Head.CanonicalName;
+            Refs.UpdateTarget(refToUpdate, commit.Sha);
+
+            if (resetOptions == ResetOptions.Soft)
+            {
+                return;
+            }
+
+            Index.ReplaceContentWithTree(((Commit)commit).Tree);
+
+            if (resetOptions == ResetOptions.Mixed)
+            {
+                return;
+            }
+
+            throw new NotImplementedException();
+        }
+
+        public void Fetch(string url, string branch = null)
+        {
+            RemoteSafeHandle remote;
+            int result;
+            //result = NativeMethods.git_remote_new(out remote, Handle, "git://github.com/libgit2/libgit2.git", null);
+            //Ensure.Success(result);
+
+            //result = NativeMethods.git_remote_new(out remote, Handle, "http://github.com/git/git.git", null);
+            //Ensure.Success(result);
+
+            //result = NativeMethods.git_remote_new(out remote, Handle, "http://github.com/mono/mono.git", null);
+            //Ensure.Success(result);
+
+            result = NativeMethods.git_remote_new(out remote, Handle, "http://github.com/libgit2/libgit2.git", null);
+            Ensure.Success(result);
+            
+            result = NativeMethods.git_remote_connect(remote, NativeMethods.GIT_DIR_FETCH);
+            Ensure.Success(result);
+
+            string packname = DownloadPack(remote);
+			if (packname != null) {
+				// Create a new instance indexer
+				IndexerSafeHandle indexer;
+				result = NativeMethods.git_indexer_new(out indexer, packname);
+				Ensure.Success(result);
+
+				NativeMethods.git_indexer_stats stats;
+				result = NativeMethods.git_indexer_run(indexer, out stats);
+				Ensure.Success(result);
+
+				NativeMethods.git_indexer_write(indexer);
+				indexer.SafeDispose();
+
+				RenamePack(packname);
+			}
+        }
+
+        private unsafe string DownloadPack(RemoteSafeHandle remoteSafeHandle)
+        {
+            sbyte* filename;
+
+            int result = UnSafeNativeMethods.git_remote_download(&filename, remoteSafeHandle);
+            Ensure.Success(result);
+
+            return new string(filename);
+        }
+
+		private void RenamePack(string packname) {
+			var packFolder = Path.GetDirectoryName(packname);
+			var packFile = Directory.GetFiles(packFolder, "pack-received_*")[0];
+			var idxFile = Directory.GetFiles(packFolder, "*.idx")[0];
+			var newName = Path.Combine(packFolder, Path.GetFileNameWithoutExtension(idxFile) + ".pack");
+			File.Move(packFile, newName);
+		}
     }
 }
