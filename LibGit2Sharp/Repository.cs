@@ -333,7 +333,7 @@ namespace LibGit2Sharp
             throw new NotImplementedException();
         }
 
-        public string FancyName()
+        public void Fetch(string url, string branch = null)
         {
             RemoteSafeHandle remote;
             int result;
@@ -368,7 +368,6 @@ namespace LibGit2Sharp
 
 				RenamePack(packname);
 			}
-            return packname;
         }
 
         private unsafe string DownloadPack(RemoteSafeHandle remoteSafeHandle)
