@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Compat;
 
@@ -363,7 +364,9 @@ namespace LibGit2Sharp
 				Ensure.Success(result);
 
 				NativeMethods.git_indexer_write(indexer);
+				indexer.SafeDispose();
 
+				RenamePack(packname);
 			}
             return packname;
         }
@@ -377,5 +380,13 @@ namespace LibGit2Sharp
 
             return new string(filename);
         }
+
+		private void RenamePack(string packname) {
+			var packFolder = Path.GetDirectoryName(packname);
+			var packFile = Directory.GetFiles(packFolder, "pack-received_*")[0];
+			var idxFile = Directory.GetFiles(packFolder, "*.idx")[0];
+			var newName = Path.Combine(packFolder, Path.GetFileNameWithoutExtension(idxFile) + ".pack");
+			File.Move(packFile, newName);
+		}
     }
 }
