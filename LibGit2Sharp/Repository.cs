@@ -333,20 +333,11 @@ namespace LibGit2Sharp
             throw new NotImplementedException();
         }
 
-        public void Fetch(string url, string branch = null)
+        public void Fetch(string remoteName)
         {
             RemoteSafeHandle remote;
-            int result;
-            //result = NativeMethods.git_remote_new(out remote, Handle, "git://github.com/libgit2/libgit2.git", null);
-            //Ensure.Success(result);
 
-            //result = NativeMethods.git_remote_new(out remote, Handle, "http://github.com/git/git.git", null);
-            //Ensure.Success(result);
-
-            //result = NativeMethods.git_remote_new(out remote, Handle, "http://github.com/mono/mono.git", null);
-            //Ensure.Success(result);
-
-            result = NativeMethods.git_remote_new(out remote, Handle, "http://github.com/libgit2/libgit2.git", null);
+            int result = NativeMethods.git_remote_load(out remote, Handle, remoteName);
             Ensure.Success(result);
             
             result = NativeMethods.git_remote_connect(remote, NativeMethods.GIT_DIR_FETCH);
@@ -363,11 +354,18 @@ namespace LibGit2Sharp
 				result = NativeMethods.git_indexer_run(indexer, out stats);
 				Ensure.Success(result);
 
-				NativeMethods.git_indexer_write(indexer);
-				indexer.SafeDispose();
+				result = NativeMethods.git_indexer_write(indexer);
+                Ensure.Success(result);
+
+                //TODO: git_indexer_hash() ?
+
+                indexer.SafeDispose();
 
 				RenamePack(packname);
 			}
+
+            result = NativeMethods.git_remote_update_tips(remote);
+            Ensure.Success(result);
         }
 
         private unsafe string DownloadPack(RemoteSafeHandle remoteSafeHandle)
@@ -382,10 +380,9 @@ namespace LibGit2Sharp
 
 		private void RenamePack(string packname) {
 			var packFolder = Path.GetDirectoryName(packname);
-			var packFile = Directory.GetFiles(packFolder, "pack-received_*")[0];
 			var idxFile = Directory.GetFiles(packFolder, "*.idx")[0];
 			var newName = Path.Combine(packFolder, Path.GetFileNameWithoutExtension(idxFile) + ".pack");
-			File.Move(packFile, newName);
+			File.Move(packname, newName);
 		}
     }
 }

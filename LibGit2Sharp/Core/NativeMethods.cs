@@ -277,6 +277,9 @@ namespace LibGit2Sharp.Core
         public static extern IntPtr git_remote_name(RemoteSafeHandle remote);
 
         [DllImport(libgit2)]
+        public static extern int git_remote_update_tips(RemoteSafeHandle remote);
+
+        [DllImport(libgit2)]
         public static extern IntPtr git_remote_url(RemoteSafeHandle remote);
 
         [DllImport(libgit2)]

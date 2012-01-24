@@ -29,16 +29,24 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
-        public void AwesomeTest()
+        [TestCase("http://github.com/nulltoken/TestGitRepository.git")]
+        [TestCase("git://github.com/nulltoken/TestGitRepository.git")]
+        public void AwesomeTest(string remoteLocation)
         {
             SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
             string dir = Repository.Init(scd.DirectoryPath, true);
 
             using (var repo = new Repository(dir))
             {
-				repo.Fetch("http://github.com/libgit2/libgit2.git");
+                repo.Branches.Count().ShouldEqual(0);
+
+                repo.Config.Set("remote.origin.fetch", "+refs/heads/*:refs/remotes/origin/*");
+                repo.Config.Set("remote.origin.url", remoteLocation);
+
+				repo.Fetch("origin");
 				// Now, how do I test that everything's OK?
+
+                repo.Branches.Count().ShouldNotEqual(0);
             }
 
             //Assert.IsNotNullOrEmpty(a);
