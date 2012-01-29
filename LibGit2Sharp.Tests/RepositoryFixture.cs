@@ -68,6 +68,17 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
+        public void CanReinitARepository()
+        {
+            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+        
+            string dir = Repository.Init(scd.DirectoryPath);
+            string dir2 = Repository.Init(scd.DirectoryPath);
+
+            dir.ShouldEqual(dir2);
+        }
+
+        [Test]
         public void CreatingRepoWithBadParamsThrows()
         {
             Assert.Throws<ArgumentException>(() => Repository.Init(string.Empty));
