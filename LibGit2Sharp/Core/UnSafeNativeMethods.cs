@@ -16,6 +16,9 @@ namespace LibGit2Sharp.Core
         [DllImport(libgit2)]
         public static extern void git_strarray_free(ref git_strarray array);
 
+        [DllImport(libgit2)]
+        public static extern int git_remote_download(sbyte** filename, RemoteSafeHandle remoteSafeHandle);
+
         #region Nested type: git_strarray
 
         internal struct git_strarray

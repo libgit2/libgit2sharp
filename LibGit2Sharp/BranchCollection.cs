@@ -100,24 +100,8 @@ namespace LibGit2Sharp
 
         private ObjectId RetrieveTargetCommitId(string target)
         {
-            GitObject targetObject = repo.Refs.RetrieveTargetObject(target);
-
-            ObjectId commitId = targetObject.PeelToCommitId();
-            EnsureTargetExists(commitId, target);
-
-            return commitId;
-        }
-
-        private static void EnsureTargetExists(object target, string identifier)
-        {
-            if (target != null)
-            {
-                return;
-            }
-
-            throw new LibGit2Exception(String.Format(CultureInfo.InvariantCulture,
-                                                     "No commit object identified by '{0}' can be found in the repository.",
-                                                     identifier));
+            GitObject commit = repo.Lookup(target, GitObjectType.Any, LookUpOptions.ThrowWhenNoGitObjectHasBeenFound | LookUpOptions.DereferenceResultToCommit | LookUpOptions.ThrowWhenCanNotBeDereferencedToACommit);
+            return commit.Id;
         }
 
         /// <summary>

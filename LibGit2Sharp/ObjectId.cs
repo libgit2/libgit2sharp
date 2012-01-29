@@ -99,7 +99,7 @@ namespace LibGit2Sharp
         {
             result = BuildFrom(sha, false, true);
 
-            return (result == null) ? false : true;
+            return result != null;
         }
 
         private static GitOid? BuildOidFrom(string sha, bool shouldThrowIfInvalid, bool allowShortIdentifier)
