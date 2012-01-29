@@ -173,9 +173,8 @@ namespace LibGit2Sharp.Tests
         public void CreatingATagInAEmptyRepositoryThrows()
         {
             SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
-            string dir = Repository.Init(scd.DirectoryPath);
 
-            using (var repo = new Repository(dir))
+			using (var repo = Repository.Init(scd.DirectoryPath))
             {
                 Assert.Throws<LibGit2Exception>(() => repo.ApplyTag("mynotag"));
             }
@@ -186,9 +185,8 @@ namespace LibGit2Sharp.Tests
         public void CreatingATagForHeadInAEmptyRepositoryThrows()
         {
             SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
-            string dir = Repository.Init(scd.DirectoryPath);
 
-            using (var repo = new Repository(dir))
+			using (var repo = Repository.Init(scd.DirectoryPath))
             {
                 Assert.Throws<LibGit2Exception>(() => repo.ApplyTag("mytaghead", "HEAD"));
             }
@@ -541,9 +539,8 @@ namespace LibGit2Sharp.Tests
         public void CanListAllTagsInAEmptyRepository()
         {
             SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
-            string dir = Repository.Init(scd.DirectoryPath);
 
-            using (var repo = new Repository(dir))
+            using (var repo = Repository.Init(scd.DirectoryPath))
             {
                 repo.Info.IsEmpty.ShouldBeTrue();
                 repo.Tags.Count().ShouldEqual(0);

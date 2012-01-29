@@ -15,13 +15,13 @@ namespace LibGit2Sharp.Tests
         public void CanCreateBareRepo()
         {
             SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
-            string dir = Repository.Init(scd.DirectoryPath, true);
-            Path.IsPathRooted(dir).ShouldBeTrue();
-            Directory.Exists(dir).ShouldBeTrue();
-            CheckGitConfigFile(dir);
+			using (var repo = Repository.Init(scd.DirectoryPath, true))
+			{
+				string dir = repo.Info.Path;
+				Path.IsPathRooted(dir).ShouldBeTrue();
+				Directory.Exists(dir).ShouldBeTrue();
+				CheckGitConfigFile(dir);
 
-            using (var repo = new Repository(dir))
-            {
                 repo.Info.WorkingDirectory.ShouldBeNull();
                 repo.Info.Path.ShouldEqual(scd.RootedDirectoryPath + Path.DirectorySeparatorChar);
                 repo.Info.IsBare.ShouldBeTrue();
@@ -34,13 +34,14 @@ namespace LibGit2Sharp.Tests
         public void CanCreateStandardRepo()
         {
             SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
-            string dir = Repository.Init(scd.DirectoryPath);
-            Path.IsPathRooted(dir).ShouldBeTrue();
-            Directory.Exists(dir).ShouldBeTrue();
-            CheckGitConfigFile(dir);
 
-            using (var repo = new Repository(dir))
-            {
+			using (var repo = Repository.Init(scd.DirectoryPath))
+			{
+				string dir = repo.Info.Path;
+				Path.IsPathRooted(dir).ShouldBeTrue();
+				Directory.Exists(dir).ShouldBeTrue();
+				CheckGitConfigFile(dir);
+
                 repo.Info.WorkingDirectory.ShouldNotBeNull();
                 repo.Info.Path.ShouldEqual(Path.Combine(scd.RootedDirectoryPath, ".git" + Path.DirectorySeparatorChar));
                 repo.Info.IsBare.ShouldBeFalse();
@@ -231,9 +232,8 @@ namespace LibGit2Sharp.Tests
             const string expectedSha = expectedAbbrevSha + "02d96c9dbf64f6e238c45ddcfa762eef0";
 
             SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
-            string dir = Repository.Init(scd.DirectoryPath);
 
-            using (var repo = new Repository(dir))
+			using (var repo = Repository.Init(scd.DirectoryPath))
             {
                 string filePath = Path.Combine(repo.Info.WorkingDirectory, "new.txt");
 

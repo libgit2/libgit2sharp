@@ -352,9 +352,8 @@ namespace LibGit2Sharp.Tests
         public void CanRenameAFile()
         {
             SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
-            string dir = Repository.Init(scd.DirectoryPath);
 
-            using (var repo = new Repository(dir))
+            using (var repo = Repository.Init(scd.DirectoryPath))
             {
                 repo.Index.Count.ShouldEqual(0);
 
@@ -556,9 +555,9 @@ namespace LibGit2Sharp.Tests
         public void CanRetrieveTheStatusOfANewRepository()
         {
             SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
-            string dir = Repository.Init(scd.DirectoryPath);
 
-            using (var repo = new Repository(dir))
+			using (var repo = Repository.Init(scd.DirectoryPath)) 
+
             {
                 RepositoryStatus status = repo.Index.RetrieveStatus();
                 status.ShouldNotBeNull();
@@ -579,7 +578,6 @@ namespace LibGit2Sharp.Tests
         {
             // Initialize a new repository
             SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
-            string dir = Repository.Init(scd.DirectoryPath);
 
             const string directoryName = "directory";
             const string fileName = "Testfile.txt";
@@ -592,7 +590,7 @@ namespace LibGit2Sharp.Tests
             File.WriteAllText(filePath, "Anybody out there?");
 
             // Open the repository
-            using (var repo = new Repository(dir))
+			using (var repo = Repository.Init(scd.DirectoryPath)) 
             {
                 // Add the file to the index
                 repo.Index.Stage(filePath);
@@ -615,7 +613,6 @@ namespace LibGit2Sharp.Tests
         {
             // Initialize a new repository
             SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
-            string dir = Repository.Init(scd.DirectoryPath);
             
             const string directoryName = "directory";
             const string fileName = "Testfile.txt";
@@ -628,7 +625,8 @@ namespace LibGit2Sharp.Tests
             File.WriteAllText(filePath, "Anybody out there?");
                
             // Open the repository
-            using (var repo = new Repository(dir))
+
+			using (var repo = Repository.Init(scd.DirectoryPath)) 
             {
                 // Stage the file
                 repo.Index.Stage(filePath);

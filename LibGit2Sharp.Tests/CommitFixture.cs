@@ -431,12 +431,13 @@ namespace LibGit2Sharp.Tests
         public void CanCommitWithSignatureFromConfig()
         {
             SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
-            string dir = Repository.Init(scd.DirectoryPath);
-            Path.IsPathRooted(dir).ShouldBeTrue();
-            Directory.Exists(dir).ShouldBeTrue();
 
-            using (var repo = new Repository(dir))
+			using (var repo = Repository.Init(scd.DirectoryPath)) 
             {
+				string dir = repo.Info.Path;
+				Path.IsPathRooted(dir).ShouldBeTrue();
+				Directory.Exists(dir).ShouldBeTrue();
+
                 InconclusiveIf(() => !repo.Config.HasGlobalConfig, "No Git global configuration available");
 
                 const string relativeFilepath = "new.txt";
@@ -467,12 +468,13 @@ namespace LibGit2Sharp.Tests
         public void CanCommitALittleBit()
         {
             SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
-            string dir = Repository.Init(scd.DirectoryPath);
-            Path.IsPathRooted(dir).ShouldBeTrue();
-            Directory.Exists(dir).ShouldBeTrue();
-
-            using (var repo = new Repository(dir))
+            
+            using (var repo = Repository.Init(scd.DirectoryPath))
             {
+				string dir = repo.Info.Path;
+				Path.IsPathRooted(dir).ShouldBeTrue();
+				Directory.Exists(dir).ShouldBeTrue();
+
                 const string relativeFilepath = "new.txt";
                 string filePath = Path.Combine(repo.Info.WorkingDirectory, relativeFilepath);
 
@@ -534,9 +536,8 @@ namespace LibGit2Sharp.Tests
         public void CanGeneratePredictableObjectShas()
         {
             SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
-            string dir = Repository.Init(scd.DirectoryPath);
 
-            using (var repo = new Repository(dir))
+            using (var repo = Repository.Init(scd.DirectoryPath))
             {
                 const string relativeFilepath = "test.txt";
                 string filePath = Path.Combine(repo.Info.WorkingDirectory, relativeFilepath);

@@ -13,9 +13,8 @@ namespace LibGit2Sharp.Tests
         public void ResetANewlyInitializedRepositoryThrows(bool isBare)
         {
             SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
-            string dir = Repository.Init(scd.DirectoryPath, isBare);
 
-            using (var repo = new Repository(dir))
+            using (var repo = Repository.Init(scd.DirectoryPath, isBare))
             {
                 Assert.Throws<LibGit2Exception>(() => repo.Reset(ResetOptions.Soft, repo.Head.CanonicalName));
             }
@@ -75,9 +74,8 @@ namespace LibGit2Sharp.Tests
         private void AssertSoftReset(Func<Branch, string> branchIdentifierRetriever, bool shouldHeadBeDetached, Func<Branch, string> expectedHeadNameRetriever)
         {
             SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
-            string dir = Repository.Init(scd.DirectoryPath);
 
-            using (var repo = new Repository(dir))
+			using (var repo = Repository.Init(scd.DirectoryPath)) 
             {
                 FeedTheRepository(repo);
 
@@ -132,9 +130,8 @@ namespace LibGit2Sharp.Tests
         public void MixedResetRefreshesTheIndex()
         {
             SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
-            string dir = Repository.Init(scd.DirectoryPath);
 
-            using (var repo = new Repository(dir))
+			using (var repo = Repository.Init(scd.DirectoryPath))
             {
                 FeedTheRepository(repo);
 

@@ -169,8 +169,9 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name = "path">The path to the working folder when initializing a standard ".git" repository. Otherwise, when initializing a bare repository, the path to the expected location of this later.</param>
         /// <param name = "isBare">true to initialize a bare repository. False otherwise, to initialize a standard ".git" repository.</param>
-        /// <returns>Path the git repository.</returns>
-        public static string Init(string path, bool isBare = false)
+		/// <returns> a new instance of the <see cref = "Repository" /> class.</returns>
+		/// <remarks>The client code is responsible for calling Dispose() on this instance.</remarks>
+    	public static Repository Init(string path, bool isBare = false)
         {
             Ensure.ArgumentNotNullOrEmptyString(path, "path");
 
@@ -183,7 +184,7 @@ namespace LibGit2Sharp
 
             string nativePath = PosixPathHelper.ToNative(normalizedPath);
 
-            return nativePath;
+            return new Repository(nativePath);
         }
 
         /// <summary>
