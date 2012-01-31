@@ -35,12 +35,15 @@ namespace LibGit2Sharp
 
         internal static IndexEntry CreateFromPtr(Repository repo, IntPtr ptr)
         {
+            var marshaller = new Utf8Marshaler();
             var entry = (GitIndexEntry)Marshal.PtrToStructure(ptr, typeof(GitIndexEntry));
+            var path = (string)marshaller.MarshalNativeToManaged(entry.Path);
+
             return new IndexEntry
                        {
-                           Path = PosixPathHelper.ToNative(entry.Path),
+                           Path = PosixPathHelper.ToNative(path),
                            Id = new ObjectId(entry.oid),
-                           state = () => repo.Index.RetrieveStatus(entry.Path)
+                           state = () => repo.Index.RetrieveStatus(path)
                        };
         }
 

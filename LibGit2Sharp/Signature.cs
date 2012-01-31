@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using System.Text;
 using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
@@ -11,10 +12,19 @@ namespace LibGit2Sharp
     {
         private readonly GitSignature handle = new GitSignature();
         private DateTimeOffset? when;
+        private string name;
+        private string email;
 
         internal Signature(IntPtr signaturePtr, bool ownedByRepo = true)
         {
+            var marshaler = new Utf8Marshaler();
             Marshal.PtrToStructure(signaturePtr, handle);
+
+            // XXX: This is unbelievably hacky, but I can't get the 
+            // Utf8Marshaller to work properly.
+            name = (string)marshaler.MarshalNativeToManaged(handle.Name);
+            email = (string)marshaler.MarshalNativeToManaged(handle.Email);
+            
             if (!ownedByRepo)
             {
                 NativeMethods.git_signature_free(signaturePtr);
@@ -51,7 +61,7 @@ namespace LibGit2Sharp
         /// </summary>
         public string Name
         {
-            get { return handle.Name; }
+            get { return name; }
         }
 
         /// <summary>
@@ -59,7 +69,7 @@ namespace LibGit2Sharp
         /// </summary>
         public string Email
         {
-            get { return handle.Email; }
+            get { return email; }
         }
 
         /// <summary>

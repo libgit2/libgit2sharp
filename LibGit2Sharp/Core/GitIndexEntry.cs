@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System;
+using System.Runtime.InteropServices;
 
 namespace LibGit2Sharp.Core
 {
@@ -16,6 +17,6 @@ namespace LibGit2Sharp.Core
         public GitOid oid;
         public ushort Flags;
         public ushort ExtendedFlags;
-        public string Path;
+        public IntPtr Path;
     }
 }
