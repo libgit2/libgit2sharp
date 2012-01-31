@@ -26,9 +26,8 @@ namespace LibGit2Sharp.Core
                                                    String.Format("{0}{1}{2}", path, Path.PathSeparator, Environment.GetEnvironmentVariable(pathEnvVariable)));
             }
 
-            AppDomain.CurrentDomain.ProcessExit += ThreadsShutdown;
-
             git_threads_init();
+            AppDomain.CurrentDomain.ProcessExit += ThreadsShutdown;
         }
 
         private static void ThreadsShutdown(object sender, EventArgs e)
