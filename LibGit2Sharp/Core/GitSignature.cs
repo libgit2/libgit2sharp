@@ -1,12 +1,13 @@
-﻿using System.Runtime.InteropServices;
+﻿using System;
+using System.Runtime.InteropServices;
 
 namespace LibGit2Sharp.Core
 {
     [StructLayout(LayoutKind.Sequential)]
     internal class GitSignature
     {
-        public string Name;
-        public string Email;
+        public IntPtr Name;
+        public IntPtr Email;
         public GitTime When;
     }
 }

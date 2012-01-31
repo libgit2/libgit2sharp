@@ -13,13 +13,17 @@ namespace LibGit2Sharp
         private readonly string name;
         private readonly string email;
 
+        private static readonly Utf8Marshaler marshaler = new Utf8Marshaler();
+
         internal Signature(IntPtr signaturePtr)
         {
             var handle = new GitSignature();
             Marshal.PtrToStructure(signaturePtr, handle);
 
-            name = handle.Name;
-            email = handle.Email;
+            // XXX: This is unbelievably hacky, but I can't get the 
+            // Utf8Marshaller to work properly.
+            name = (string)marshaler.MarshalNativeToManaged(handle.Name);
+            email = (string)marshaler.MarshalNativeToManaged(handle.Email);
             when = Epoch.ToDateTimeOffset(handle.When.Time, handle.When.Offset);
         }
 
