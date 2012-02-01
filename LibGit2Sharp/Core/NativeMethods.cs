@@ -59,8 +59,8 @@ namespace LibGit2Sharp.Core
             out GitOid oid,
             RepositorySafeHandle repo,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string updateRef,
-            GitSignature author,
-            GitSignature committer,
+            SignatureSafeHandle author,
+            SignatureSafeHandle committer,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string encoding,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string message,
             IntPtr tree,
@@ -347,7 +347,7 @@ namespace LibGit2Sharp.Core
 
         [DllImport(libgit2)]
         public static extern int git_signature_new(
-            out IntPtr signature,
+            out SignatureSafeHandle signature,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string name,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string email,
             long time,
@@ -373,7 +373,7 @@ namespace LibGit2Sharp.Core
             RepositorySafeHandle repo,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string name,
             IntPtr target,
-            GitSignature signature,
+            SignatureSafeHandle signature,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string message,
             bool force);
 
