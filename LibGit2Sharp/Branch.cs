@@ -111,11 +111,11 @@ namespace LibGit2Sharp
         ///   Gets a value indicating whether this instance is current branch (HEAD) in the repository.
         /// </summary>
         /// <value>
-        ///   <c>true</c> if this instance is current branch; otherwise, <c>false</c>.
+        ///   <c>true</c> if this instance is the current branch; otherwise, <c>false</c>.
         /// </value>
-        public virtual bool IsCurrentRepositoryHead
+        public bool IsCurrentRepositoryHead
         {
-            get { return repo.Refs[CanonicalName].ResolveToDirectReference() == repo.Refs["HEAD"].ResolveToDirectReference(); }
+            get { return repo.Head == this; }
         }
 
         /// <summary>

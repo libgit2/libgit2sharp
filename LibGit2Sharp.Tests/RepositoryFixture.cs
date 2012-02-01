@@ -99,6 +99,7 @@ namespace LibGit2Sharp.Tests
             headRef.ResolveToDirectReference().ShouldBeNull();
 
             repo.Head.ShouldNotBeNull();
+            repo.Head.IsCurrentRepositoryHead.ShouldBeTrue();
             repo.Head.CanonicalName.ShouldEqual(headRef.TargetIdentifier);
             repo.Head.Tip.ShouldBeNull();
 

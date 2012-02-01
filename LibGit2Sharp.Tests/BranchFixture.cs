@@ -316,10 +316,11 @@ namespace LibGit2Sharp.Tests
                 detachedHead.CanonicalName.ShouldEqual("(no branch)");
                 detachedHead.Tip.Sha.ShouldEqual(repo.Lookup(commitPointer).Sha);
 
-                detachedHead.IsCurrentRepositoryHead.ShouldBeTrue();
                 detachedHead.ShouldEqual(repo.Head);
 
                 master.IsCurrentRepositoryHead.ShouldBeFalse();
+                detachedHead.IsCurrentRepositoryHead.ShouldBeTrue();
+                repo.Head.IsCurrentRepositoryHead.ShouldBeTrue();
             }
         }
 
