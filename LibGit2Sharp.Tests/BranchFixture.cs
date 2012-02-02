@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
 using NUnit.Framework;
@@ -164,6 +165,20 @@ namespace LibGit2Sharp.Tests
                 CollectionAssert.AreEqual(expectedBranches, repo.Branches.Select(b => b.Name).ToArray());
 
                 repo.Branches.Count().ShouldEqual(5);
+            }
+        }
+
+        [Test]
+        public void CanListAllBranchesWhenGivenWorkingDir()
+        {
+            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
+            using (var repo = new Repository(path.DirectoryPath))
+            {
+                var expectedWdBranches = new[] { "master", "origin/HEAD", "origin/br2", "origin/master", "origin/packed-test", "origin/test" };
+
+                CollectionAssert.AreEqual(expectedWdBranches, repo.Branches.Select(b => b.Name).ToArray());
+
+                repo.Branches.Count().ShouldEqual(6);
             }
         }
 
