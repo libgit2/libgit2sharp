@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Compat;
 
@@ -22,12 +23,27 @@ namespace LibGit2Sharp
 
         /// <summary>
         ///   Initializes a new instance of the <see cref = "Repository" /> class.
-        ///   <para>For a standard repository, <paramref name = "path" /> should point to the ".git" folder. For a bare repository, <paramref name = "path" /> should directly point to the repository folder.</para>
+        ///   <para>For a standard repository, <paramref name = "path" /> should either point to the ".git" folder or to the working directory. For a bare repository, <paramref name = "path" /> should directly point to the repository folder.</para>
         /// </summary>
-        /// <param name = "path">The path to the git repository to open.</param>
+        /// <param name = "path">
+        ///   The path to the git repository to open, can be either the path to the git directory (for non-bare repositories this 
+        ///   would be the ".git" folder inside the working directory) or the path to the working directory.
+        /// </param>
         public Repository(string path)
         {
             Ensure.ArgumentNotNullOrEmptyString(path, "path");
+
+            // Check if the path points to the working directory instead of the git directory
+            // by checking if the directory contains a .git directory. The same test is done
+            // in libgit2 but if it gets to add .git to the path it will mess up the ref paths 
+            // returned from git_reference_listall (and more?) by prefixing them with a '/' such
+            // that what would normally be refs/heads/master becomes /refs/heads/master and 
+            // LibGit2Sharp doesn't expect that. This is a workaround. 
+            // See https://github.com/libgit2/libgit2sharp/pull/108
+            string gitDirPath = Path.Combine(path, ".git");
+
+            if (Directory.Exists(gitDirPath))
+                path = gitDirPath;
 
             int res = NativeMethods.git_repository_open(out handle, PosixPathHelper.ToPosix(path));
             Ensure.Success(res);
