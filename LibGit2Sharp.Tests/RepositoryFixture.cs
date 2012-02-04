@@ -116,12 +116,33 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
-        public void CanOpenRepoWithFullPath()
+        public void CanOpenBareRepositoryThroughAFullPathToTheGitDir()
         {
             string path = Path.GetFullPath(BareTestRepoPath);
             using (var repo = new Repository(path))
             {
                 repo.ShouldNotBeNull();
+                repo.Info.WorkingDirectory.ShouldBeNull();
+            }
+        }
+
+        [Test]
+        public void CanOpenStandardRepositoryThroughAWorkingDirPath()
+        {
+            using (var repo = new Repository(StandardTestRepoWorkingDirPath))
+            {
+                repo.ShouldNotBeNull();
+                repo.Info.WorkingDirectory.ShouldNotBeNull();
+            }
+        }
+
+        [Test]
+        public void OpeningStandardRepositoryThroughTheGitDirGuessesTheWorkingDirPath()
+        {
+            using (var repo = new Repository(StandardTestRepoPath))
+            {
+                repo.ShouldNotBeNull();
+                repo.Info.WorkingDirectory.ShouldNotBeNull();
             }
         }
 
