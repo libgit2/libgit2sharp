@@ -34,9 +34,7 @@ namespace LibGit2Sharp.Tests
         public void AwesomeTest(string remoteLocation)
         {
             SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
-            string dir = Repository.Init(scd.DirectoryPath, true);
-
-            using (var repo = new Repository(dir))
+            using (var repo = Repository.Init(scd.DirectoryPath, true))
             {
                 repo.Branches.Count().ShouldEqual(0);
 
