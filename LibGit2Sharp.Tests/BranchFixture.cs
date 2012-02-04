@@ -171,22 +171,18 @@ namespace LibGit2Sharp.Tests
         [Test]
         public void CanListAllBranchesWhenGivenWorkingDir()
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
-            using (var repo = new Repository(path.DirectoryPath))
+            using (var repo = new Repository(StandardTestRepoWorkingDirPath))
             {
                 var expectedWdBranches = new[] { "master", "origin/HEAD", "origin/br2", "origin/master", "origin/packed-test", "origin/test" };
 
                 CollectionAssert.AreEqual(expectedWdBranches, repo.Branches.Select(b => b.Name).ToArray());
-
-                repo.Branches.Count().ShouldEqual(6);
             }
         }
 
         [Test]
         public void CanListAllBranchesIncludingRemoteRefs()
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoPath);
-            using (var repo = new Repository(path.RepositoryPath))
+            using (var repo = new Repository(StandardTestRepoPath))
             {
                 var expectedBranchesIncludingRemoteRefs = new[]
                                                               {
