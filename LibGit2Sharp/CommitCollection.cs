@@ -147,10 +147,12 @@ namespace LibGit2Sharp
             GitOid commitOid;
             using (var treePtr = new ObjectSafeWrapper(new ObjectId(treeOid), repo))
             using (ObjectSafeWrapper headPtr = RetrieveHeadCommitPtr(head))
+            using (SignatureSafeHandle authorHandle = author.BuildHandle())
+            using (SignatureSafeHandle committerHandle = committer.BuildHandle())
             {
                 IntPtr[] parentPtrs = BuildArrayFrom(headPtr);
-                res = NativeMethods.git_commit_create(out commitOid, repo.Handle, head.CanonicalName, author.Handle,
-                                                      committer.Handle, encoding, message, treePtr.ObjectPtr, parentPtrs.Count(), parentPtrs);
+                res = NativeMethods.git_commit_create(out commitOid, repo.Handle, head.CanonicalName, authorHandle,
+                                                      committerHandle, encoding, message, treePtr.ObjectPtr, parentPtrs.Count(), parentPtrs);
             }
             Ensure.Success(res);
 

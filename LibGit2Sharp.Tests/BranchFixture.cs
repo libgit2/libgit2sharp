@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
 using NUnit.Framework;
@@ -168,6 +169,20 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
+        public void CanListAllBranchesWhenGivenWorkingDir()
+        {
+            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
+            using (var repo = new Repository(path.DirectoryPath))
+            {
+                var expectedWdBranches = new[] { "master", "origin/HEAD", "origin/br2", "origin/master", "origin/packed-test", "origin/test" };
+
+                CollectionAssert.AreEqual(expectedWdBranches, repo.Branches.Select(b => b.Name).ToArray());
+
+                repo.Branches.Count().ShouldEqual(6);
+            }
+        }
+
+        [Test]
         public void CanListAllBranchesIncludingRemoteRefs()
         {
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoPath);
@@ -316,10 +331,11 @@ namespace LibGit2Sharp.Tests
                 detachedHead.CanonicalName.ShouldEqual("(no branch)");
                 detachedHead.Tip.Sha.ShouldEqual(repo.Lookup(commitPointer).Sha);
 
-                detachedHead.IsCurrentRepositoryHead.ShouldBeTrue();
                 detachedHead.ShouldEqual(repo.Head);
 
                 master.IsCurrentRepositoryHead.ShouldBeFalse();
+                detachedHead.IsCurrentRepositoryHead.ShouldBeTrue();
+                repo.Head.IsCurrentRepositoryHead.ShouldBeTrue();
             }
         }
 

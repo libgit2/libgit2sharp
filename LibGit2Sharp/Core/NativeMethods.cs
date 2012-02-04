@@ -12,16 +12,34 @@ namespace LibGit2Sharp.Core
 
         static NativeMethods()
         {
-            string originalAssemblypath = new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath;
+            if (!IsRunningOnLinux())
+            {
+                string originalAssemblypath = new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath;
 
-            //TODO: When amd64 version of libgit2.dll is available, value this depending of the size of an IntPtr
-            const string currentArchSubPath = "NativeBinaries/x86";
+                //TODO: When amd64 version of libgit2.dll is available, value this depending of the size of an IntPtr
+                const string currentArchSubPath = "NativeBinaries/x86";
 
-            string path = Path.Combine(Path.GetDirectoryName(originalAssemblypath), currentArchSubPath);
+                string path = Path.Combine(Path.GetDirectoryName(originalAssemblypath), currentArchSubPath);
 
-            const string pathEnvVariable = "PATH";
-            Environment.SetEnvironmentVariable(pathEnvVariable,
-                String.Format("{0}{1}{2}", path, Path.PathSeparator, Environment.GetEnvironmentVariable(pathEnvVariable)));
+                const string pathEnvVariable = "PATH";
+                Environment.SetEnvironmentVariable(pathEnvVariable,
+                                                   String.Format("{0}{1}{2}", path, Path.PathSeparator, Environment.GetEnvironmentVariable(pathEnvVariable)));
+            }
+
+            git_threads_init();
+            AppDomain.CurrentDomain.ProcessExit += ThreadsShutdown;
+        }
+
+        private static void ThreadsShutdown(object sender, EventArgs e)
+        {
+            git_threads_shutdown();
+        }
+
+        private static bool IsRunningOnLinux()
+        {
+            // see http://mono-project.com/FAQ%3a_Technical#Mono_Platforms
+            var p = (int)Environment.OSVersion.Platform;
+            return (p == 4) || (p == 6) || (p == 128);
         }
 
         [DllImport(libgit2)]
@@ -41,8 +59,8 @@ namespace LibGit2Sharp.Core
             out GitOid oid,
             RepositorySafeHandle repo,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string updateRef,
-            GitSignature author,
-            GitSignature committer,
+            SignatureSafeHandle author,
+            SignatureSafeHandle committer,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string encoding,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string message,
             IntPtr tree,
@@ -354,7 +372,7 @@ namespace LibGit2Sharp.Core
 
         [DllImport(libgit2)]
         public static extern int git_signature_new(
-            out IntPtr signature,
+            out SignatureSafeHandle signature,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string name,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string email,
             long time,
@@ -380,7 +398,7 @@ namespace LibGit2Sharp.Core
             RepositorySafeHandle repo,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string name,
             IntPtr target,
-            GitSignature signature,
+            SignatureSafeHandle signature,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string message,
             bool force);
 
@@ -408,6 +426,12 @@ namespace LibGit2Sharp.Core
 
         [DllImport(libgit2)]
         public static extern IntPtr git_tag_target_oid(IntPtr tag);
+
+        [DllImport(libgit2)]
+        public static extern void git_threads_init();
+
+        [DllImport(libgit2)]
+        public static extern void git_threads_shutdown();
 
         [DllImport(libgit2)]
         public static extern int git_tree_create_fromindex(out GitOid treeOid, IndexSafeHandle index);

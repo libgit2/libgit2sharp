@@ -9,7 +9,6 @@
  - Launch Code Analysis (Issues related to interop and marshaling will be worked on once we're able to succesffully exchange non ascii encoded data with libgit2)
  - https://bugzilla.novell.com/show_bug.cgi?id=566247 prevents MonoDevelop users from benefiting from optional parameters while still target at 3.5
  - https://bugzilla.novell.com/show_bug.cgi?id=324680 generates false-positive warnings regarding xml documentation when LibGit2Sharp is built with xbuild
- - The freeing of a newly created signature pointer doesn't "feel" to be done at the right place.
  - Favor overloads over optional parameters (http://msdn.microsoft.com/en-us/library/ms182135.aspx)
  - Ensure that types that are not supposed to be built by the Consumer do not expose a constructor.
  - Escape as early as possible from a method. Fight against the arrowhead effect (cf. http://elegantcode.com/2009/08/14/observations-on-the-if-statement/)
