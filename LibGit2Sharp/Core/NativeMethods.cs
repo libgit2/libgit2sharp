@@ -160,6 +160,11 @@ namespace LibGit2Sharp.Core
             int stage = 0);
 
         [DllImport(libgit2)]
+        public static extern int git_index_add2(
+            IndexSafeHandle index,
+            GitIndexEntry entry);
+
+        [DllImport(libgit2)]
         public static extern uint git_index_entrycount(IndexSafeHandle index);
 
         [DllImport(libgit2)]
@@ -415,7 +420,7 @@ namespace LibGit2Sharp.Core
         public static extern int git_tree_entry_2object(out IntPtr obj, RepositorySafeHandle repo, IntPtr entry);
 
         [DllImport(libgit2)]
-        public static extern int git_tree_entry_attributes(IntPtr entry);
+        public static extern uint git_tree_entry_attributes(IntPtr entry);
 
         [DllImport(libgit2)]
         public static extern IntPtr git_tree_entry_byindex(IntPtr tree, uint idx);
