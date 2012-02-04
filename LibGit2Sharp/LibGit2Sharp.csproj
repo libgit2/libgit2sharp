@@ -55,6 +55,7 @@
     <Compile Include="Core\Compat\Tuple.cs" />
     <Compile Include="Core\EnumExtensions.cs" />
     <Compile Include="Core\GitObjectExtensions.cs" />
+    <Compile Include="Core\IndexerSafeHandle.cs" />
     <Compile Include="Core\ReferenceExtensions.cs" />
     <Compile Include="Core\SignatureSafeHandle.cs" />
     <Compile Include="DetachedHead.cs" />

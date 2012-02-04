@@ -1,5 +1,7 @@
-﻿using LibGit2Sharp.Tests.TestHelpers;
+﻿using LibGit2Sharp.Core;
+using LibGit2Sharp.Tests.TestHelpers;
 using NUnit.Framework;
+using System.Linq;
 
 namespace LibGit2Sharp.Tests
 {
@@ -25,6 +27,27 @@ namespace LibGit2Sharp.Tests
             {
                 repo.Remotes["test"].ShouldBeNull();
             }
+        }
+
+        [TestCase("http://github.com/nulltoken/TestGitRepository.git")]
+        [TestCase("git://github.com/nulltoken/TestGitRepository.git")]
+        public void AwesomeTest(string remoteLocation)
+        {
+            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            using (var repo = Repository.Init(scd.DirectoryPath, true))
+            {
+                repo.Branches.Count().ShouldEqual(0);
+
+                repo.Config.Set("remote.origin.fetch", "+refs/heads/*:refs/remotes/origin/*");
+                repo.Config.Set("remote.origin.url", remoteLocation);
+
+				repo.Fetch("origin");
+				// Now, how do I test that everything's OK?
+
+                repo.Branches.Count().ShouldNotEqual(0);
+            }
+
+            //Assert.IsNotNullOrEmpty(a);
         }
     }
 }

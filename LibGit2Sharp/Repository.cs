@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Compat;
 
@@ -346,6 +348,84 @@ namespace LibGit2Sharp
             }
 
             throw new NotImplementedException();
+        }
+
+        public void Fetch(string remoteName)
+        {
+            RemoteSafeHandle remote;
+
+            int result = NativeMethods.git_remote_load(out remote, Handle, remoteName);
+            Ensure.Success(result);
+            
+            result = NativeMethods.git_remote_connect(remote, NativeMethods.GIT_DIR_FETCH);
+            Ensure.Success(result);
+
+            string packname = DownloadPack(remote);
+			if (packname != null) {
+				// Create a new instance indexer
+				IndexerSafeHandle indexer;
+				result = NativeMethods.git_indexer_new(out indexer, packname);
+				Ensure.Success(result);
+
+				NativeMethods.git_indexer_stats stats;
+				result = NativeMethods.git_indexer_run(indexer, out stats);
+				Ensure.Success(result);
+
+				result = NativeMethods.git_indexer_write(indexer);
+                Ensure.Success(result);
+
+                //TODO: git_indexer_hash() ?
+
+                indexer.SafeDispose();
+
+				RenamePack(packname);
+			}
+
+            result = NativeMethods.git_remote_update_tips(remote);
+            Ensure.Success(result);
+        }
+
+        private unsafe string DownloadPack(RemoteSafeHandle remoteSafeHandle)
+        {
+            sbyte* filename;
+
+            int result = UnSafeNativeMethods.git_remote_download(&filename, remoteSafeHandle);
+            Ensure.Success(result);
+
+            return new string(filename);
+        }
+
+		private void RenamePack(string packname) 
+		{
+			var packFolder = Path.GetDirectoryName(packname);
+			var idxFile = Directory.GetFiles(packFolder, "*.idx")[0];
+			var newName = Path.Combine(packFolder, Path.GetFileNameWithoutExtension(idxFile) + ".pack");
+			File.Move(packname, newName);
+		}
+
+        /// <summary>
+        /// Performs a checkout of an existing branch.
+        /// </summary>
+        /// <param name="branch">The <see cref = "LibGit2Sharp.Branch" /> to be checked out.</param>
+        /// <remarks>Overwrites the existing files.</remarks>
+        public void Checkout(Branch branch) 
+        {
+            Refs.UpdateTarget("HEAD", branch.CanonicalName);
+            Reset(ResetOptions.Mixed, branch.CanonicalName);
+
+            WriteFilesToDisk(branch);
+        }
+
+        private void WriteFilesToDisk(Branch branch)
+        {
+            IEnumerable<string> fileNames = Index.Select(entry => entry.Path).Where(path => branch.Tip[path] != null);
+            string workingDirectory = Info.WorkingDirectory;
+            foreach (string fileName in fileNames)
+            {
+                byte[] content = ((Blob) (branch.Tip.Tree[fileName].Target)).Content;
+                string filePath = Path.Combine(workingDirectory, fileName);
+                File.WriteAllBytes(filePath, content);
+            }
         }
     }
 }

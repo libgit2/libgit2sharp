@@ -308,7 +308,28 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [TestCase("6dcf9bf")]
+        [Test]
+        public void CheckoutSavesFilesOnDiskAndUpdatesTheHeadAndTheIndex() 
+        {
+            TemporaryCloneOfTestRepo clone = BuildTemporaryCloneOfTestRepo(StandardTestRepoPath);
+            using (var repo = new Repository(clone.RepositoryPath)) 
+            {
+                //Arrange
+                Branch branch = repo.CreateBranch("test", "c47800c");
+
+                //Act
+                repo.Checkout(branch);
+
+                //Assert
+                repo.Head.ShouldEqual(branch);
+                File.Exists(Path.Combine(repo.Info.WorkingDirectory, "branch_file.txt")).ShouldBeTrue();
+                repo.Index["branch_file.txt"].State.ShouldEqual(FileStatus.Unaltered);
+                var treeFiles = branch.Tip.Tree.Select(entry => entry.Name).ToArray();
+                repo.Index.Select(entry => entry.Path).ToArray().ShouldEqual(treeFiles);
+            }
+        }
+
+		[TestCase("6dcf9bf")]
         [TestCase("refs/tags/lw")]
         public void CanCheckoutAnArbitraryCommit(string commitPointer)
         {
