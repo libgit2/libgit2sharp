@@ -33,18 +33,6 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(path, "path");
 
-            // Check if the path points to the working directory instead of the git directory
-            // by checking if the directory contains a .git directory. The same test is done
-            // in libgit2 but if it gets to add .git to the path it will mess up the ref paths 
-            // returned from git_reference_listall (and more?) by prefixing them with a '/' such
-            // that what would normally be refs/heads/master becomes /refs/heads/master and 
-            // LibGit2Sharp doesn't expect that. This is a workaround. 
-            // See https://github.com/libgit2/libgit2sharp/pull/108
-            string gitDirPath = Path.Combine(path, ".git");
-
-            if (Directory.Exists(gitDirPath))
-                path = gitDirPath;
-
             int res = NativeMethods.git_repository_open(out handle, PosixPathHelper.ToPosix(path));
             Ensure.Success(res);
 
