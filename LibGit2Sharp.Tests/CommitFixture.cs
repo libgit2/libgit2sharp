@@ -130,14 +130,16 @@ namespace LibGit2Sharp.Tests
         [Test]
         public void CanEnumerateCommitsWithReverseTimeSorting()
         {
-            expectedShas.Reverse();
+            var reversedShas = new List<string>(expectedShas);
+            reversedShas.Reverse();
+
             int count = 0;
             using (var repo = new Repository(BareTestRepoPath))
             {
                 foreach (Commit commit in repo.Commits.QueryBy(new Filter { Since = "a4a7dce85cf63874e984719f4fdd239f5145052f", SortBy = GitSortOptions.Time | GitSortOptions.Reverse }))
                 {
                     commit.ShouldNotBeNull();
-                    commit.Sha.StartsWith(expectedShas[count]);
+                    commit.Sha.StartsWith(reversedShas[count]).ShouldBeTrue();
                     count++;
                 }
             }
@@ -171,7 +173,7 @@ namespace LibGit2Sharp.Tests
                 foreach (Commit commit in repo.Commits.QueryBy(new Filter { Since = "a4a7dce85cf63874e984719f4fdd239f5145052f", SortBy = GitSortOptions.Time }))
                 {
                     commit.ShouldNotBeNull();
-                    commit.Sha.StartsWith(expectedShas[count]);
+                    commit.Sha.StartsWith(expectedShas[count]).ShouldBeTrue();
                     count++;
                 }
             }

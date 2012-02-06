@@ -236,7 +236,7 @@ namespace LibGit2Sharp.Tests
                 head2.CanonicalName.ShouldEqual("refs/heads/master");
                 head2.Tip.ShouldNotBeNull();
 
-                head2.Tip.Equals(head.ResolveToDirectReference().Target);
+                head2.Tip.ShouldEqual(head.ResolveToDirectReference().Target);
             }
         }
 

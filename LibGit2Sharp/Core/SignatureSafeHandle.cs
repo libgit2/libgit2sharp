@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace LibGit2Sharp.Core
+﻿namespace LibGit2Sharp.Core
 {
     internal class SignatureSafeHandle : SafeHandleBase
     {

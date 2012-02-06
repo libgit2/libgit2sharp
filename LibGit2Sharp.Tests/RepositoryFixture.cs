@@ -58,7 +58,7 @@ namespace LibGit2Sharp.Tests
             File.Exists(configFilePath).ShouldBeTrue();
 
             string contents = File.ReadAllText(configFilePath);
-            contents.IndexOf("repositoryformatversion = 0").ShouldNotEqual(-1);
+            contents.IndexOf("repositoryformatversion = 0", StringComparison.Ordinal).ShouldNotEqual(-1);
         }
 
         private static void AssertIsHidden(string repoPath)
