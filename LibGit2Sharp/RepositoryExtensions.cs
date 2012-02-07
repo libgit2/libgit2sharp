@@ -104,12 +104,13 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name = "repository">The <see cref = "Repository" /> being worked with.</param>
         /// <param name = "message">The description of why a change was made to the repository.</param>
+        /// <param name="amendPreviousCommit">True to amend the current <see cref="Commit"/> pointed at by <see cref="Repository.Head"/>, false otherwise.</param>
         /// <returns>The generated <see cref = "LibGit2Sharp.Commit" />.</returns>
-        public static Commit Commit(this Repository repository, string message)
+        public static Commit Commit(this Repository repository, string message, bool amendPreviousCommit = false)
         {
             Signature author = BuildSignatureFromGlobalConfiguration(repository, DateTimeOffset.Now);
 
-            return repository.Commit(message, author);
+            return repository.Commit(message, author, amendPreviousCommit);
         }
 
         /// <summary>
@@ -119,12 +120,13 @@ namespace LibGit2Sharp
         /// <param name = "repository">The <see cref = "Repository" /> being worked with.</param>
         /// <param name = "author">The <see cref = "Signature" /> of who made the change.</param>
         /// <param name = "message">The description of why a change was made to the repository.</param>
+        /// <param name="amendPreviousCommit">True to amend the current <see cref="Commit"/> pointed at by <see cref="Repository.Head"/>, false otherwise.</param>
         /// <returns>The generated <see cref = "LibGit2Sharp.Commit" />.</returns>
-        public static Commit Commit(this Repository repository, string message, Signature author)
+        public static Commit Commit(this Repository repository, string message, Signature author, bool amendPreviousCommit = false)
         {
             Signature committer = BuildSignatureFromGlobalConfiguration(repository, DateTimeOffset.Now);
 
-            return repository.Commit(message, author, committer);
+            return repository.Commit(message, author, committer, amendPreviousCommit);
         }
 
         /// <summary>
@@ -134,10 +136,11 @@ namespace LibGit2Sharp
         /// <param name = "author">The <see cref = "Signature" /> of who made the change.</param>
         /// <param name = "committer">The <see cref = "Signature" /> of who added the change to the repository.</param>
         /// <param name = "message">The description of why a change was made to the repository.</param>
+        /// <param name="amendPreviousCommit">True to amend the current <see cref="Commit"/> pointed at by <see cref="Repository.Head"/>, false otherwise.</param>
         /// <returns>The generated <see cref = "LibGit2Sharp.Commit" />.</returns>
-        public static Commit Commit(this Repository repository, string message, Signature author, Signature committer)
+        public static Commit Commit(this Repository repository, string message, Signature author, Signature committer, bool amendPreviousCommit = false)
         {
-            return repository.Commits.Create(message, author, committer);
+            return repository.Commits.Create(message, author, committer, amendPreviousCommit);
         }
 
         private static Signature BuildSignatureFromGlobalConfiguration(Repository repository, DateTimeOffset now)

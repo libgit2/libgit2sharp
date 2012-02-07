@@ -487,7 +487,7 @@ namespace LibGit2Sharp.Tests
 
                 repo.Head[relativeFilepath].ShouldBeNull();
 
-                var author = new Signature("Author N. Ame", "him@there.com", DateTimeOffset.Now.AddSeconds(-10));
+                var author = DummySignature;
                 Commit commit = repo.Commit("Initial egotistic commit", author, author);
 
                 AssertBlobContent(repo.Head[relativeFilepath], "nulltoken\n");
@@ -534,12 +534,9 @@ namespace LibGit2Sharp.Tests
             ((Blob)(entry.Target)).ContentAsUtf8().ShouldEqual(expectedContent);
         }
 
-        [Test]
-        public void CanGeneratePredictableObjectShas()
+        private static void CommitToANewRepository(string path)
         {
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
-
-            using (var repo = Repository.Init(scd.DirectoryPath))
+            using (Repository repo = Repository.Init(path))
             {
                 const string relativeFilepath = "test.txt";
                 string filePath = Path.Combine(repo.Info.WorkingDirectory, relativeFilepath);
@@ -548,15 +545,99 @@ namespace LibGit2Sharp.Tests
                 repo.Index.Stage(relativeFilepath);
 
                 var author = new Signature("nulltoken", "emeric.fermas@gmail.com", DateTimeOffset.Parse("Wed, Dec 14 2011 08:29:03 +0100"));
-                Commit commit = repo.Commit("Initial commit\n", author, author);
+                repo.Commit("Initial commit\n", author, author);
+            }
+        }
 
+        [Test]
+        public void CanGeneratePredictableObjectShas()
+        {
+            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+
+            CommitToANewRepository(scd.DirectoryPath);
+
+            using (var repo = new Repository(scd.DirectoryPath))
+            {
+                Commit commit = repo.Commits.Single();
                 commit.Sha.ShouldEqual("1fe3126578fc4eca68c193e4a3a0a14a0704624d");
-
                 Tree tree = commit.Tree;
                 tree.Sha.ShouldEqual("2b297e643c551e76cfa1f93810c50811382f9117");
 
                 Blob blob = tree.Files.Single();
                 blob.Sha.ShouldEqual("9daeafb9864cf43055ae93beb0afd6c7d144bfa4");
+            }
+        }
+
+        [Test]
+        public void CanAmendARootCommit()
+        {
+            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+
+            CommitToANewRepository(scd.DirectoryPath);
+
+            using (var repo = new Repository(scd.DirectoryPath))
+            {
+                repo.Head.Commits.Count().ShouldEqual(1);
+
+                Commit originalCommit = repo.Head.Tip;
+                originalCommit.Parents.Count().ShouldEqual(0);
+
+                CreateAndStageANewFile(repo);
+
+                Commit amendedCommit = repo.Commit("I'm rewriting the history!", DummySignature, DummySignature, true);
+
+                repo.Head.Commits.Count().ShouldEqual(1);
+
+                AssertCommitHasBeenAmended(repo, amendedCommit, originalCommit);
+            }
+        }
+
+        [Test]
+        public void CanAmendACommitWithMoreThanOneParent()
+        {
+            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoPath);
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                var mergedCommit = repo.Lookup<Commit>("be3563a");
+                mergedCommit.ShouldNotBeNull();
+                mergedCommit.Parents.Count().ShouldEqual(2);
+
+                repo.Reset(ResetOptions.Soft, mergedCommit.Sha);
+
+                CreateAndStageANewFile(repo);
+
+                Commit amendedCommit = repo.Commit("I'm rewriting the history!", DummySignature, DummySignature, true);
+
+                AssertCommitHasBeenAmended(repo, amendedCommit, mergedCommit);
+            }
+        }
+
+        private static void CreateAndStageANewFile(Repository repo)
+        {
+            string relativeFilepath = string.Format("new-file-{0}.txt", Guid.NewGuid());
+            string filePath = Path.Combine(repo.Info.WorkingDirectory, relativeFilepath);
+
+            File.WriteAllText(filePath, "brand new content\n");
+            repo.Index.Stage(relativeFilepath);
+        }
+
+        private void AssertCommitHasBeenAmended(Repository repo, Commit amendedCommit, Commit originalCommit)
+        {
+            Commit headCommit = repo.Head.Tip;
+            headCommit.ShouldEqual(amendedCommit);
+
+            amendedCommit.Sha.ShouldNotEqual(originalCommit.Sha);
+            CollectionAssert.AreEqual(originalCommit.Parents, amendedCommit.Parents);
+        }
+
+        [Test]
+        public void CanNotAmendAnEmptyRepository()
+        {
+            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+
+            using (Repository repo = Repository.Init(scd.DirectoryPath))
+            {
+                Assert.Throws<LibGit2Exception>(() => repo.Commit("I can not amend anything !:(", DummySignature, DummySignature, true));
             }
         }
     }
