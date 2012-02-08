@@ -142,8 +142,8 @@ namespace LibGit2Sharp
 
         private static Signature BuildSignatureFromGlobalConfiguration(Repository repository, DateTimeOffset now)
         {
-            var name = repository.Config.Get("user.name", string.Empty);
-            var email = repository.Config.Get("user.email", string.Empty);
+            var name = repository.Config.Get<string>("user.name", null);
+            var email = repository.Config.Get<string>("user.email", null);
 
             if ((name == null) || (email == null))
             {
