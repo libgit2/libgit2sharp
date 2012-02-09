@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
 using NUnit.Framework;
@@ -123,6 +124,28 @@ namespace LibGit2Sharp.Tests
                 statusEntry.FilePath.ShouldEqual(expectedPath);
 
                 repoStatus.Added.Single().ShouldEqual(statusEntry.FilePath);
+            }
+        }
+
+        [Test]
+        public void RetrievingTheStatusOfTheRepositoryHonorsTheGitIgnoreDirectives()
+        {
+            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                string relativePath = Path.Combine("1", "look-ma.txt");
+                string fullFilePath = Path.Combine(repo.Info.WorkingDirectory, relativePath);
+                File.WriteAllText(fullFilePath, "I'm going to be ignored!");
+
+                RepositoryStatus status = repo.Index.RetrieveStatus();
+
+                CollectionAssert.AreEqual(new[]{relativePath, "new_untracked_file.txt"}, status.Untracked);
+
+                string gitignorePath = Path.Combine(repo.Info.WorkingDirectory, ".gitignore");
+                File.WriteAllText(gitignorePath, "*.txt" + Environment.NewLine);
+
+                RepositoryStatus newStatus = repo.Index.RetrieveStatus();
+                newStatus.Untracked.Single().ShouldEqual(".gitignore");
             }
         }
     }
