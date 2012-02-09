@@ -89,6 +89,20 @@ namespace LibGit2Sharp
             get { return parents.Value; }
         }
 
+        /// <summary>
+        ///   Gets The count of parent commits.
+        /// </summary>
+        public uint ParentsCount
+        {
+            get
+            {
+                using (var obj = new ObjectSafeWrapper(Id, repo))
+                {
+                    return NativeMethods.git_commit_parentcount(obj.ObjectPtr);
+                }
+            }
+        }
+
         private IEnumerable<Commit> RetrieveParentsOfCommit(ObjectId oid)
         {
             using (var obj = new ObjectSafeWrapper(oid, repo))
