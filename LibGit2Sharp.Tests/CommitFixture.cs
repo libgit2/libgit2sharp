@@ -163,6 +163,15 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
+        public void CanGetParentCount()
+        {
+            using (var repo = new Repository(BareTestRepoPath))
+            {
+                repo.Commits.First().ParentCount.ShouldEqual(1);
+            }
+        }
+
+        [Test]
         public void CanEnumerateCommitsWithTimeSorting()
         {
             int count = 0;
