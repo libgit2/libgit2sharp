@@ -8,6 +8,27 @@
  - CI server: <http://teamcity.codebetter.com/project.html?projectId=project127&guest=1>
  - @libgit2sharp: <http://twitter.com/libgit2sharp>
 
+## v0.8
+
+### Additions
+
+ - Add Repository.Reset() and support of Soft and Mixed modes
+ - Make Repository.Commit() able to amend the current tip of the Head
+ - Make the constructor of Repository able to open a repository from a working directory path
+ - Make Repository.Index.RetriveStatus honor the .gitgnore files
+
+### Changes
+
+ - Remove Repository.HasObject()
+ - Change Repository.Init() to make it return an instance of the Repository type, instead of a string containing the path of the repository
+ - Update libgit2 binaries to libgit2/libgit2@6d39c0d
+
+### Fixes
+
+ - Reinit a repository doesn't throw anymore (#54)
+ - Embedded libgit2 binaries are now compiled with THREADSAFE=ON flag (#64)
+ - Prevent Repository.Head.IsCurrentRepositoryHead from throwing when the Repository is empty (#105)
+
 ## v0.7
 
 ### Additions
