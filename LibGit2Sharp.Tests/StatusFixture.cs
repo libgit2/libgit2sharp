@@ -146,6 +146,8 @@ namespace LibGit2Sharp.Tests
 
                 RepositoryStatus newStatus = repo.Index.RetrieveStatus();
                 newStatus.Untracked.Single().ShouldEqual(".gitignore");
+
+                repo.Index.RetrieveStatus(relativePath).ShouldEqual(FileStatus.Ignored);
             }
         }
     }

@@ -45,7 +45,9 @@ namespace LibGit2Sharp
         /// </summary>
         Missing = (1 << 5), /* GIT_STATUS_WT_DELETED */
 
-        //TODO: Ignored files not handled yet
-        GIT_STATUS_IGNORED = (1 << 6), /* GIT_STATUS_IGNORED */
+        /// <summary>
+        ///   The file is <see cref="Untracked"/> but its name and/or path macthes an exclude pattern in a <c>gitignore</c> file.
+        /// </summary>
+        Ignored = (1 << 6), /* GIT_STATUS_IGNORED */
     }
 }
