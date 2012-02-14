@@ -20,6 +20,8 @@ namespace LibGit2Sharp.Tests.TestHelpers
         public static string StandardTestRepoPath { get; private set; }
         public static DirectoryInfo ResourcesDirectory { get; private set; }
 
+        public static readonly Signature DummySignature = new Signature("Author N. Ame", "him@there.com", DateTimeOffset.Now);
+
         private static void SetUpTestEnvironment()
         {
             var source = new DirectoryInfo(@"../../Resources");

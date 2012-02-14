@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Linq;
 using LibGit2Sharp.Core;
 
@@ -283,7 +284,7 @@ namespace LibGit2Sharp
                     return false;
                 }
 
-                throw new ArgumentNullException(objectId);
+                throw new ArgumentNullException("objectId");
             }
 
             if (objectId.Length < MinHexSize || objectId.Length > HexSize)
@@ -303,7 +304,7 @@ namespace LibGit2Sharp
                     "objectId");
             }
 
-            return objectId.All(c => hexDigits.Contains(c.ToString()));
+            return objectId.All(c => hexDigits.Contains(c.ToString(CultureInfo.InvariantCulture)));
         }
     }
 }

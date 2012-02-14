@@ -15,13 +15,13 @@ namespace LibGit2Sharp.Tests
         public void CanCreateBareRepo()
         {
             SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
-            string dir = Repository.Init(scd.DirectoryPath, true);
-            Path.IsPathRooted(dir).ShouldBeTrue();
-            Directory.Exists(dir).ShouldBeTrue();
-            CheckGitConfigFile(dir);
-
-            using (var repo = new Repository(dir))
+            using (var repo = Repository.Init(scd.DirectoryPath, true))
             {
+                string dir = repo.Info.Path;
+                Path.IsPathRooted(dir).ShouldBeTrue();
+                Directory.Exists(dir).ShouldBeTrue();
+                CheckGitConfigFile(dir);
+
                 repo.Info.WorkingDirectory.ShouldBeNull();
                 repo.Info.Path.ShouldEqual(scd.RootedDirectoryPath + Path.DirectorySeparatorChar);
                 repo.Info.IsBare.ShouldBeTrue();
@@ -34,13 +34,14 @@ namespace LibGit2Sharp.Tests
         public void CanCreateStandardRepo()
         {
             SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
-            string dir = Repository.Init(scd.DirectoryPath);
-            Path.IsPathRooted(dir).ShouldBeTrue();
-            Directory.Exists(dir).ShouldBeTrue();
-            CheckGitConfigFile(dir);
 
-            using (var repo = new Repository(dir))
+            using (var repo = Repository.Init(scd.DirectoryPath))
             {
+                string dir = repo.Info.Path;
+                Path.IsPathRooted(dir).ShouldBeTrue();
+                Directory.Exists(dir).ShouldBeTrue();
+                CheckGitConfigFile(dir);
+
                 repo.Info.WorkingDirectory.ShouldNotBeNull();
                 repo.Info.Path.ShouldEqual(Path.Combine(scd.RootedDirectoryPath, ".git" + Path.DirectorySeparatorChar));
                 repo.Info.IsBare.ShouldBeFalse();
@@ -57,7 +58,7 @@ namespace LibGit2Sharp.Tests
             File.Exists(configFilePath).ShouldBeTrue();
 
             string contents = File.ReadAllText(configFilePath);
-            contents.IndexOf("repositoryformatversion = 0").ShouldNotEqual(-1);
+            contents.IndexOf("repositoryformatversion = 0", StringComparison.Ordinal).ShouldNotEqual(-1);
         }
 
         private static void AssertIsHidden(string repoPath)
@@ -65,6 +66,18 @@ namespace LibGit2Sharp.Tests
             FileAttributes attribs = File.GetAttributes(repoPath);
 
             (attribs & FileAttributes.Hidden).ShouldEqual(FileAttributes.Hidden);
+        }
+
+        [Test]
+        public void CanReinitARepository()
+        {
+            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+        
+            using (Repository repository = Repository.Init(scd.DirectoryPath))
+            using (Repository repository2 = Repository.Init(scd.DirectoryPath))
+            {
+                repository.Info.Path.ShouldEqual(repository2.Info.Path);
+            }
         }
 
         [Test]
@@ -86,6 +99,7 @@ namespace LibGit2Sharp.Tests
             headRef.ResolveToDirectReference().ShouldBeNull();
 
             repo.Head.ShouldNotBeNull();
+            repo.Head.IsCurrentRepositoryHead.ShouldBeTrue();
             repo.Head.CanonicalName.ShouldEqual(headRef.TargetIdentifier);
             repo.Head.Tip.ShouldBeNull();
 
@@ -102,12 +116,33 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
-        public void CanOpenRepoWithFullPath()
+        public void CanOpenBareRepositoryThroughAFullPathToTheGitDir()
         {
             string path = Path.GetFullPath(BareTestRepoPath);
             using (var repo = new Repository(path))
             {
                 repo.ShouldNotBeNull();
+                repo.Info.WorkingDirectory.ShouldBeNull();
+            }
+        }
+
+        [Test]
+        public void CanOpenStandardRepositoryThroughAWorkingDirPath()
+        {
+            using (var repo = new Repository(StandardTestRepoWorkingDirPath))
+            {
+                repo.ShouldNotBeNull();
+                repo.Info.WorkingDirectory.ShouldNotBeNull();
+            }
+        }
+
+        [Test]
+        public void OpeningStandardRepositoryThroughTheGitDirGuessesTheWorkingDirPath()
+        {
+            using (var repo = new Repository(StandardTestRepoPath))
+            {
+                repo.ShouldNotBeNull();
+                repo.Info.WorkingDirectory.ShouldNotBeNull();
             }
         }
 
@@ -231,9 +266,8 @@ namespace LibGit2Sharp.Tests
             const string expectedSha = expectedAbbrevSha + "02d96c9dbf64f6e238c45ddcfa762eef0";
 
             SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
-            string dir = Repository.Init(scd.DirectoryPath);
 
-            using (var repo = new Repository(dir))
+            using (var repo = Repository.Init(scd.DirectoryPath))
             {
                 string filePath = Path.Combine(repo.Info.WorkingDirectory, "new.txt");
 

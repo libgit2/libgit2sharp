@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Runtime.InteropServices;
-using System.Text;
 using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
@@ -10,25 +9,22 @@ namespace LibGit2Sharp
     /// </summary>
     public class Signature
     {
-        private readonly GitSignature handle = new GitSignature();
-        private DateTimeOffset? when;
-        private string name;
-        private string email;
+        private readonly DateTimeOffset when;
+        private readonly string name;
+        private readonly string email;
 
-        internal Signature(IntPtr signaturePtr, bool ownedByRepo = true)
+        private static readonly Utf8Marshaler marshaler = new Utf8Marshaler();
+
+        internal Signature(IntPtr signaturePtr)
         {
-            var marshaler = new Utf8Marshaler();
+            var handle = new GitSignature();
             Marshal.PtrToStructure(signaturePtr, handle);
 
             // XXX: This is unbelievably hacky, but I can't get the 
             // Utf8Marshaller to work properly.
             name = (string)marshaler.MarshalNativeToManaged(handle.Name);
             email = (string)marshaler.MarshalNativeToManaged(handle.Email);
-            
-            if (!ownedByRepo)
-            {
-                NativeMethods.git_signature_free(signaturePtr);
-            }
+            when = Epoch.ToDateTimeOffset(handle.When.Time, handle.When.Offset);
         }
 
         /// <summary>
@@ -38,22 +34,20 @@ namespace LibGit2Sharp
         /// <param name = "email">The email.</param>
         /// <param name = "when">The when.</param>
         public Signature(string name, string email, DateTimeOffset when)
-            : this(CreateSignature(name, email, when), false)
         {
+            this.name = name;
+            this.email = email;
+            this.when = when;
         }
 
-        private static IntPtr CreateSignature(string name, string email, DateTimeOffset when)
+        internal SignatureSafeHandle BuildHandle()
         {
-            IntPtr signature;
-            int result = NativeMethods.git_signature_new(out signature, name, email, when.ToSecondsSinceEpoch(), (int)when.Offset.TotalMinutes);
+            SignatureSafeHandle signature;
+
+            int result = NativeMethods.git_signature_new(out signature, name, email, when.ToSecondsSinceEpoch(),
+                                                         (int) when.Offset.TotalMinutes);
             Ensure.Success(result);
-
             return signature;
-        }
-
-        internal GitSignature Handle
-        {
-            get { return handle; }
         }
 
         /// <summary>
@@ -77,14 +71,7 @@ namespace LibGit2Sharp
         /// </summary>
         public DateTimeOffset When
         {
-            get
-            {
-                if (when == null)
-                {
-                    when = Epoch.ToDateTimeOffset(handle.When.Time, handle.When.Offset);
-                }
-                return when.Value;
-            }
+            get { return when; }
         }
     }
 }

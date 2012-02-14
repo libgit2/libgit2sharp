@@ -90,9 +90,9 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Gets The count of parent commits.
+        ///   Gets The count of parent commits.
         /// </summary>
-        public uint ParentCount
+        public uint ParentsCount
         {
             get
             {

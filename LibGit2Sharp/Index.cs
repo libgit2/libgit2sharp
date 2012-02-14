@@ -17,6 +17,8 @@ namespace LibGit2Sharp
         private readonly IndexSafeHandle handle;
         private readonly Repository repo;
 
+        private static readonly Utf8Marshaler utf8Marshaler = new Utf8Marshaler();
+
         internal Index(Repository repo)
         {
             this.repo = repo;
@@ -219,10 +221,7 @@ namespace LibGit2Sharp
                     RemoveFromIndex(kvp.Key);
                 }
 
-                bool doesExistInWorkingDirectory =
-                    !(kvp.Value.Has(FileStatus.Removed) || kvp.Value.Has(FileStatus.Nonexistent) ||
-                      kvp.Value.Has(FileStatus.Missing));
-                RestorePotentialPreviousVersionOfHeadIntoIndex(kvp.Key, doesExistInWorkingDirectory);
+                RestorePotentialPreviousVersionOfHeadIntoIndex(kvp.Key);
             }
 
             UpdatePhysicalIndex();
@@ -435,34 +434,23 @@ namespace LibGit2Sharp
             Ensure.Success(res);
         }
 
-        private void RestorePotentialPreviousVersionOfHeadIntoIndex(string relativePath,
-                                                                    bool doesExistInWorkingDirectory)
+        private void RestorePotentialPreviousVersionOfHeadIntoIndex(string relativePath)
         {
-            // TODO: Warning! Hack. Should be moved down to libgit2 (git reset HEAD filename)
-            TreeEntry entry = repo.Head[relativePath];
-            if (entry == null || entry.Type != GitObjectType.Blob)
+            TreeEntry treeEntry = repo.Head[relativePath];
+            if (treeEntry == null || treeEntry.Type != GitObjectType.Blob)
             {
                 return;
             }
 
-            string filename = Path.Combine(repo.Info.WorkingDirectory, relativePath);
+            var indexEntry = new GitIndexEntry
+                                 {
+                                     Mode = treeEntry.Attributes,
+                                     oid = treeEntry.Target.Id.Oid,
+                                     Path = utf8Marshaler.MarshalManagedToNative(relativePath),
+                                 };
 
-            string randomFileName = null;
-            if (doesExistInWorkingDirectory)
-            {
-                randomFileName = Path.GetRandomFileName();
-                File.Move(filename, Path.Combine(repo.Info.WorkingDirectory, randomFileName));
-            }
-
-            File.WriteAllBytes(filename, ((Blob)(entry.Target)).Content);
-            AddToIndex(relativePath);
-
-            File.Delete(filename);
-
-            if (doesExistInWorkingDirectory)
-            {
-                File.Move(Path.Combine(repo.Info.WorkingDirectory, randomFileName), filename);
-            }
+            NativeMethods.git_index_add2(handle, indexEntry);
+            utf8Marshaler.CleanUpNativeData(indexEntry.Path);
         }
 
         private void UpdatePhysicalIndex()

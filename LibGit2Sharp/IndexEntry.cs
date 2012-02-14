@@ -14,6 +14,8 @@ namespace LibGit2Sharp
 
         private Func<FileStatus> state;
 
+        private static readonly Utf8Marshaler marshaler = new Utf8Marshaler();
+
         /// <summary>
         ///   State of the version of the <see cref = "Blob" /> pointed at by this <see cref = "IndexEntry" />, 
         ///   compared against the <see cref = "Blob" /> known from the <see cref = "Repository.Head" /> and the file in the working directory.
@@ -35,9 +37,8 @@ namespace LibGit2Sharp
 
         internal static IndexEntry CreateFromPtr(Repository repo, IntPtr ptr)
         {
-            var marshaller = new Utf8Marshaler();
             var entry = (GitIndexEntry)Marshal.PtrToStructure(ptr, typeof(GitIndexEntry));
-            var path = (string)marshaller.MarshalNativeToManaged(entry.Path);
+            var path = (string)marshaler.MarshalNativeToManaged(entry.Path);
 
             return new IndexEntry
                        {

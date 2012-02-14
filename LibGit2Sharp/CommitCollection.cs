@@ -129,53 +129,55 @@ namespace LibGit2Sharp
         /// <param name = "message">The description of why a change was made to the repository.</param>
         /// <param name = "author">The <see cref = "Signature" /> of who made the change.</param>
         /// <param name = "committer">The <see cref = "Signature" /> of who added the change to the repository.</param>
+        /// <param name="amendPreviousCommit">True to amend the current <see cref="Commit"/> pointed at by <see cref="Repository.Head"/>, false otherwise.</param>
         /// <returns>The generated <see cref = "Commit" />.</returns>
-        public Commit Create(string message, Signature author, Signature committer)
+        public Commit Create(string message, Signature author, Signature committer, bool amendPreviousCommit)
         {
             Ensure.ArgumentNotNull(message, "message");
             Ensure.ArgumentNotNull(author, "author");
             Ensure.ArgumentNotNull(committer, "committer");
 
+            if (amendPreviousCommit && repo.Info.IsEmpty)
+            {
+                throw new LibGit2Exception("Can not amend anything. The Head doesn't point at any commit.");
+            }
+
             GitOid treeOid;
             int res = NativeMethods.git_tree_create_fromindex(out treeOid, repo.Index.Handle);
-            string encoding = null;
-
             Ensure.Success(res);
 
-            Reference head = repo.Refs["HEAD"];
+            var parentIds = RetrieveParentIdsOfTheCommitBeingCreated(repo, amendPreviousCommit);
 
             GitOid commitOid;
             using (var treePtr = new ObjectSafeWrapper(new ObjectId(treeOid), repo))
-            using (ObjectSafeWrapper headPtr = RetrieveHeadCommitPtr(head))
+            using (var parentObjectPtrs = new DisposableEnumerable<ObjectSafeWrapper>(parentIds.Select(id => new ObjectSafeWrapper(id, repo))))
+            using (SignatureSafeHandle authorHandle = author.BuildHandle())
+            using (SignatureSafeHandle committerHandle = committer.BuildHandle())
             {
-                IntPtr[] parentPtrs = BuildArrayFrom(headPtr);
-                res = NativeMethods.git_commit_create(out commitOid, repo.Handle, head.CanonicalName, author.Handle,
-                                                      committer.Handle, encoding, message, treePtr.ObjectPtr, parentPtrs.Count(), parentPtrs);
+                string encoding = null; //TODO: Handle the encoding of the commit to be created
+
+                IntPtr[] parentsPtrs = parentObjectPtrs.Select(o => o.ObjectPtr ).ToArray();
+                res = NativeMethods.git_commit_create(out commitOid, repo.Handle, repo.Refs["HEAD"].CanonicalName, authorHandle,
+                                                      committerHandle, encoding, message, treePtr.ObjectPtr, parentObjectPtrs.Count(), parentsPtrs);
+                Ensure.Success(res);
             }
-            Ensure.Success(res);
 
             return repo.Lookup<Commit>(new ObjectId(commitOid));
         }
 
-        private static IntPtr[] BuildArrayFrom(ObjectSafeWrapper headPtr)
+        private static IEnumerable<ObjectId> RetrieveParentIdsOfTheCommitBeingCreated(Repository repo, bool amendPreviousCommit)
         {
-            if (headPtr.ObjectPtr == IntPtr.Zero)
+            if (amendPreviousCommit)
             {
-                return new IntPtr[] { };
+                return repo.Head.Tip.Parents.Select(c => c.Id);
             }
 
-            return new[] { headPtr.ObjectPtr };
-        }
-
-        private ObjectSafeWrapper RetrieveHeadCommitPtr(Reference head)
-        {
-            DirectReference oidRef = head.ResolveToDirectReference();
-            if (oidRef == null)
+            if (repo.Info.IsEmpty)
             {
-                return new ObjectSafeWrapper(null, repo);
+                return Enumerable.Empty<ObjectId>();
             }
 
-            return new ObjectSafeWrapper(new ObjectId(oidRef.TargetIdentifier), repo);
+            return new[] { repo.Head.Tip.Id };
         }
 
         private class CommitEnumerator : IEnumerator<Commit>

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Compat;
 
@@ -22,9 +23,12 @@ namespace LibGit2Sharp
 
         /// <summary>
         ///   Initializes a new instance of the <see cref = "Repository" /> class.
-        ///   <para>For a standard repository, <paramref name = "path" /> should point to the ".git" folder. For a bare repository, <paramref name = "path" /> should directly point to the repository folder.</para>
+        ///   <para>For a standard repository, <paramref name = "path" /> should either point to the ".git" folder or to the working directory. For a bare repository, <paramref name = "path" /> should directly point to the repository folder.</para>
         /// </summary>
-        /// <param name = "path">The path to the git repository to open.</param>
+        /// <param name = "path">
+        ///   The path to the git repository to open, can be either the path to the git directory (for non-bare repositories this 
+        ///   would be the ".git" folder inside the working directory) or the path to the working directory.
+        /// </param>
         public Repository(string path)
         {
             Ensure.ArgumentNotNullOrEmptyString(path, "path");
@@ -164,12 +168,12 @@ namespace LibGit2Sharp
         #endregion
 
         /// <summary>
-        ///   Init a repo at the specified <paramref name = "path" />.
+        ///   Initialize a repository at the specified <paramref name = "path" />.
         /// </summary>
         /// <param name = "path">The path to the working folder when initializing a standard ".git" repository. Otherwise, when initializing a bare repository, the path to the expected location of this later.</param>
         /// <param name = "isBare">true to initialize a bare repository. False otherwise, to initialize a standard ".git" repository.</param>
-        /// <returns>Path the git repository.</returns>
-        public static string Init(string path, bool isBare = false)
+        /// <returns> a new instance of the <see cref = "Repository" /> class. The client code is responsible for calling <see cref="Dispose"/> on this instance.</returns>
+        public static Repository Init(string path, bool isBare = false)
         {
             Ensure.ArgumentNotNullOrEmptyString(path, "path");
 
@@ -182,7 +186,7 @@ namespace LibGit2Sharp
 
             string nativePath = PosixPathHelper.ToNative(normalizedPath);
 
-            return nativePath;
+            return new Repository(nativePath);
         }
 
         /// <summary>

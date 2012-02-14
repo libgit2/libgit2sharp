@@ -34,7 +34,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Gets the UNIX file attributes.
         /// </summary>
-        public int Attributes { get; private set; }
+        public uint Attributes { get; private set; }
 
         /// <summary>
         ///   Gets the filename.

@@ -1,4 +1,5 @@
-﻿using LibGit2Sharp.Core;
+﻿using System;
+using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
 {
@@ -16,23 +17,35 @@ namespace LibGit2Sharp
             get { return RemoteForName(name); }
         }
 
-        private Remote RemoteForName(string name)
+        internal RemoteSafeHandle LoadRemote(string name, bool throwsIfNotFound)
         {
-            var remote = new Remote();
             RemoteSafeHandle handle;
 
             int res = NativeMethods.git_remote_load(out handle, repository.Handle, name);
 
-            if (res == (int)GitErrorCode.GIT_ENOTFOUND)
+            if (res == (int)GitErrorCode.GIT_ENOTFOUND && !throwsIfNotFound)
             {
                 return null;
             }
 
             Ensure.Success(res);
 
+            return handle;
+        }
+
+        private Remote RemoteForName(string name)
+        {
+            RemoteSafeHandle handle = LoadRemote(name, false);
+
+            if (handle == null)
+            {
+                return null;
+            }
+
+            var remote = new Remote();
             using (handle)
             {
-                var ptr = NativeMethods.git_remote_name(handle);
+                IntPtr ptr = NativeMethods.git_remote_name(handle);
                 remote.Name = ptr.MarshallAsString();
 
                 ptr = NativeMethods.git_remote_url(handle);

@@ -352,9 +352,8 @@ namespace LibGit2Sharp.Tests
         public void CanRenameAFile()
         {
             SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
-            string dir = Repository.Init(scd.DirectoryPath);
 
-            using (var repo = new Repository(dir))
+            using (var repo = Repository.Init(scd.DirectoryPath))
             {
                 repo.Index.Count.ShouldEqual(0);
 
@@ -490,132 +489,10 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
-        public void CanRetrieveTheStatusOfAFile()
-        {
-            using (var repo = new Repository(StandardTestRepoPath))
-            {
-                FileStatus status = repo.Index.RetrieveStatus("new_tracked_file.txt");
-                status.ShouldEqual(FileStatus.Added);
-            }
-        }
-
-        [Test]
-        public void RetrievingTheStatusOfADirectoryThrows()
-        {
-            using (var repo = new Repository(StandardTestRepoPath))
-            {
-                Assert.Throws<LibGit2Exception>(() => { FileStatus status = repo.Index.RetrieveStatus("1"); });
-            }
-        }
-
-        [Test]
-        public void CanRetrieveTheStatusOfTheWholeWorkingDirectory()
-        {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
-            using (var repo = new Repository(path.RepositoryPath))
-            {
-                const string file = "modified_staged_file.txt";
-
-                RepositoryStatus status = repo.Index.RetrieveStatus();
-
-                IndexEntry indexEntry = repo.Index[file];
-                indexEntry.State.ShouldEqual(FileStatus.Staged);
-
-                status.ShouldNotBeNull();
-                status.Count().ShouldEqual(6);
-                status.IsDirty.ShouldBeTrue();
-
-                status.Untracked.Single().ShouldEqual("new_untracked_file.txt");
-                status.Modified.Single().ShouldEqual("modified_unstaged_file.txt");
-                status.Missing.Single().ShouldEqual("deleted_unstaged_file.txt");
-                status.Added.Single().ShouldEqual("new_tracked_file.txt");
-                status.Staged.Single().ShouldEqual(file);
-                status.Removed.Single().ShouldEqual("deleted_staged_file.txt");
-
-                File.AppendAllText(Path.Combine(repo.Info.WorkingDirectory, file),
-                                   "Tclem's favorite commit message: boom");
-
-                indexEntry.State.ShouldEqual(FileStatus.Staged | FileStatus.Modified);
-
-                RepositoryStatus status2 = repo.Index.RetrieveStatus();
-
-                status2.ShouldNotBeNull();
-                status2.Count().ShouldEqual(6);
-                status2.IsDirty.ShouldBeTrue();
-
-                status2.Untracked.Single().ShouldEqual("new_untracked_file.txt");
-                CollectionAssert.AreEqual(new[] { file, "modified_unstaged_file.txt" }, status2.Modified);
-                status2.Missing.Single().ShouldEqual("deleted_unstaged_file.txt");
-                status2.Added.Single().ShouldEqual("new_tracked_file.txt");
-                status2.Staged.Single().ShouldEqual(file);
-                status2.Removed.Single().ShouldEqual("deleted_staged_file.txt");
-            }
-        }
-
-        [Test]
-        public void CanRetrieveTheStatusOfANewRepository()
-        {
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
-            string dir = Repository.Init(scd.DirectoryPath);
-
-            using (var repo = new Repository(dir))
-            {
-                RepositoryStatus status = repo.Index.RetrieveStatus();
-                status.ShouldNotBeNull();
-                status.Count().ShouldEqual(0);
-                status.IsDirty.ShouldBeFalse();
-
-                status.Untracked.Count().ShouldEqual(0);
-                status.Modified.Count().ShouldEqual(0);
-                status.Missing.Count().ShouldEqual(0);
-                status.Added.Count().ShouldEqual(0);
-                status.Staged.Count().ShouldEqual(0);
-                status.Removed.Count().ShouldEqual(0);
-            }
-        }
-
-        [Test]
-        public void RetrievingTheStatusOfARepositoryReturnNativeFilePaths()
-        {
-            // Initialize a new repository
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
-            string dir = Repository.Init(scd.DirectoryPath);
-
-            const string directoryName = "directory";
-            const string fileName = "Testfile.txt";
-
-            // Create a file and insert some content
-            string directoryPath = Path.Combine(scd.RootedDirectoryPath, directoryName);
-            string filePath = Path.Combine(directoryPath, fileName);
-
-            Directory.CreateDirectory(directoryPath);
-            File.WriteAllText(filePath, "Anybody out there?");
-
-            // Open the repository
-            using (var repo = new Repository(dir))
-            {
-                // Add the file to the index
-                repo.Index.Stage(filePath);
-
-                // Get the repository status
-                RepositoryStatus repoStatus = repo.Index.RetrieveStatus();
-
-                repoStatus.Count().ShouldEqual(1);
-                var statusEntry = repoStatus.Single();
-
-                string expectedPath = string.Format("{0}{1}{2}", directoryName, Path.DirectorySeparatorChar, fileName);
-                statusEntry.FilePath.ShouldEqual(expectedPath);
-
-                repoStatus.Added.Single().ShouldEqual(statusEntry.FilePath);
-            }
-        }
-
-        [Test]
         public void PathsOfIndexEntriesAreExpressedInNativeFormat()
         {
             // Initialize a new repository
             SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
-            string dir = Repository.Init(scd.DirectoryPath);
             
             const string directoryName = "directory";
             const string fileName = "Testfile.txt";
@@ -627,8 +504,8 @@ namespace LibGit2Sharp.Tests
             Directory.CreateDirectory(directoryPath);
             File.WriteAllText(filePath, "Anybody out there?");
                
-            // Open the repository
-            using (var repo = new Repository(dir))
+            // Initialize the repository
+            using (var repo = Repository.Init(scd.DirectoryPath)) 
             {
                 // Stage the file
                 repo.Index.Stage(filePath);
