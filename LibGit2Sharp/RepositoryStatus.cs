@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
@@ -37,8 +38,17 @@ namespace LibGit2Sharp
 
         internal RepositoryStatus(Repository repo)
         {
-            Ensure.Success(NativeMethods.git_status_foreach(repo.Handle, StateChanged, IntPtr.Zero));
-            isDirty = statusEntries.Count != 0;
+            var result = (GitErrorCode)NativeMethods.git_status_foreach(repo.Handle, StateChanged, IntPtr.Zero);
+
+            if (result == GitErrorCode.GIT_SUCCESS || result == GitErrorCode.GIT_ENOTFOUND)
+            {
+                isDirty = statusEntries.Count != 0;
+                return;
+            }
+
+            string errorMessage = NativeMethods.git_lasterror().MarshallAsString();
+            throw new LibGit2Exception(
+                String.Format(CultureInfo.InvariantCulture, "An error was raised by libgit2. Error code = {0} ({1}).{2}{3}", Enum.GetName(typeof(GitErrorCode), result), result, Environment.NewLine, errorMessage));
         }
 
         private int StateChanged(string filePath, uint state, IntPtr payload)
