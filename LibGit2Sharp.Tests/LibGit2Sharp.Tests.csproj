@@ -67,6 +67,7 @@
     <Compile Include="TestHelpers\TemporaryCloneOfTestRepo.cs" />
     <Compile Include="TreeFixture.cs" />
     <Compile Include="TupleFixture.cs" />
+    <Compile Include="TreeBuilderFixture.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\LibGit2Sharp\LibGit2Sharp.csproj">

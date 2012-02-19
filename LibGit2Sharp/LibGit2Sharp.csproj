@@ -123,6 +123,8 @@
     <Compile Include="TagCollection.cs" />
     <Compile Include="Tree.cs" />
     <Compile Include="TreeEntry.cs" />
+    <Compile Include="TreeBuilder.cs" />
+    <Compile Include="Core\TreeBuilderSafeHandle.cs" />
   </ItemGroup>
   <ItemGroup>
     <CodeAnalysisDictionary Include="CustomDictionary.xml" />
