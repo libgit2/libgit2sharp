@@ -172,7 +172,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(StandardTestRepoWorkingDirPath))
             {
-                var expectedWdBranches = new[] { "master", "origin/HEAD", "origin/br2", "origin/master", "origin/packed-test", "origin/test" };
+                var expectedWdBranches = new[] { "master", "track-local", "origin/HEAD", "origin/br2", "origin/master", "origin/packed-test", "origin/test" };
 
                 CollectionAssert.AreEqual(expectedWdBranches, repo.Branches.Select(b => b.Name).ToArray());
             }
@@ -186,6 +186,7 @@ namespace LibGit2Sharp.Tests
                 var expectedBranchesIncludingRemoteRefs = new[]
                                                               {
                                                                   new { Name = "master", Sha = "32eab9cb1f450b5fe7ab663462b77d7f4b703344", IsRemote = false },
+                                                                  new { Name = "track-local", Sha = "580c2111be43802dab11328176d94c391f1deae9", IsRemote = false },
                                                                   new { Name = "origin/HEAD", Sha = "580c2111be43802dab11328176d94c391f1deae9", IsRemote = true },
                                                                   new { Name = "origin/br2", Sha = "a4a7dce85cf63874e984719f4fdd239f5145052f", IsRemote = true },
                                                                   new { Name = "origin/master", Sha = "580c2111be43802dab11328176d94c391f1deae9", IsRemote = true },
@@ -263,6 +264,19 @@ namespace LibGit2Sharp.Tests
                 master.TrackedBranch.ShouldEqual(repo.Branches["refs/remotes/origin/master"]);
                 master.AheadBy.ShouldEqual(2);
                 master.BehindBy.ShouldEqual(2);
+            }
+        }
+
+        [Test]
+        public void CanGetTrackingInformationForLocalTrackingBranch()
+        {
+            using (var repo = new Repository(StandardTestRepoPath))
+            {
+                var branch = repo.Branches["track-local"];
+                branch.IsTracking.ShouldBeTrue();
+                branch.TrackedBranch.ShouldEqual(repo.Branches["master"]);
+                branch.AheadBy.ShouldEqual(2);
+                branch.BehindBy.ShouldEqual(2);
             }
         }
 

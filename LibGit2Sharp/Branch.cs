@@ -187,6 +187,11 @@ namespace LibGit2Sharp
 
         private static string ResolveTrackedReference(string trackedRemote, string trackedRefName)
         {
+            if (trackedRemote == ".")
+            {
+                return trackedRefName;
+            }
+
             //TODO: To be replaced by native libgit2 git_branch_tracked_reference() when available.
             return trackedRefName.Replace("refs/heads/", string.Concat("refs/remotes/", trackedRemote, "/"));
         }
