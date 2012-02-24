@@ -348,5 +348,32 @@ namespace LibGit2Sharp.Tests
 
             File.Delete(path);
         }
+
+        [Test]
+        public void CanSetARemote()
+        {
+            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            using (var repo = Repository.Init(scd.DirectoryPath, true))
+            {
+                repo.Config.Set("remote.origin.url", "http://example.com");
+
+                repo.Config.Get<string>("remote", "origin", "url", null).ShouldEqual("http://example.com");
+                repo.Remotes["origin"].ShouldEqual("http://example.com");
+            }
+        }
+
+        [Test]
+        public void SettingARemoteSavesIt()
+        {
+            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            using (var repo = Repository.Init(scd.DirectoryPath, true))
+            {
+                repo.Config.Set("remote.origin.url", "http://example.com");
+
+                var newRepo = new Repository(repo.Info.Path);
+                newRepo.Config.Get<string>("remote", "origin", "url", null).ShouldEqual("http://example.com");
+                newRepo.Remotes["origin"].ShouldEqual("http://example.com");
+            }
+        }
     }
 }
