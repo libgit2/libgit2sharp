@@ -26,5 +26,31 @@ namespace LibGit2Sharp.Tests
                 repo.Remotes["test"].ShouldBeNull();
             }
         }
+
+        [Test]
+        public void CanCheckEqualityOfRemote()
+        {
+            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoPath);
+
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                Remote oneOrigin = repo.Remotes["origin"];
+                oneOrigin.ShouldNotBeNull();
+
+                Remote otherOrigin = repo.Remotes["origin"];
+                otherOrigin.ShouldEqual(oneOrigin);
+
+                repo.Config.Set("remote.origin2.url", oneOrigin.Url);
+
+                /* LibGit2 cringes when a remote doesn't expose a fetch refspec */
+                var originFetch = repo.Config.Get<string>("remote", "origin", "fetch", null);
+                repo.Config.Set("remote.origin2.fetch", originFetch);
+
+                Remote differentRemote = repo.Remotes["origin2"];
+                differentRemote.ShouldNotBeNull();
+
+                differentRemote.ShouldNotEqual(oneOrigin);
+            }
+        }
     }
 }
