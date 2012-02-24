@@ -1,5 +1,4 @@
-﻿using System;
-using LibGit2Sharp.Core;
+﻿using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
 {
@@ -35,24 +34,10 @@ namespace LibGit2Sharp
 
         private Remote RemoteForName(string name)
         {
-            RemoteSafeHandle handle = LoadRemote(name, false);
-
-            if (handle == null)
+            using (RemoteSafeHandle handle = LoadRemote(name, false))
             {
-                return null;
+                return Remote.CreateFromPtr(handle);
             }
-
-            var remote = new Remote();
-            using (handle)
-            {
-                IntPtr ptr = NativeMethods.git_remote_name(handle);
-                remote.Name = ptr.MarshallAsString();
-
-                ptr = NativeMethods.git_remote_url(handle);
-                remote.Url = ptr.MarshallAsString();
-            }
-
-            return remote;
         }
     }
 }
