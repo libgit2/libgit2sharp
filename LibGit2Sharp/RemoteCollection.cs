@@ -71,5 +71,29 @@ namespace LibGit2Sharp
         {
             return GetEnumerator();
         }
+
+        /// <summary>
+        ///   Creates a <see cref="Remote"/> with the specified name and for the repository at the specified location
+        /// </summary>
+        /// <param name = "name">The name of the remote to create.</param>
+        /// <param name = "url">The location of the repository.</param>
+        /// <returns>A new <see cref = "Remote" />.</returns>
+        public Remote Create(string name, string url)
+        {
+            Ensure.ArgumentNotNull(name, "name");
+            Ensure.ArgumentNotNull(url, "url");
+
+            RemoteSafeHandle handle;
+            int res = NativeMethods.git_remote_new(out handle, repository.Handle, url, name);
+            Ensure.Success(res);
+
+            using (handle)
+            {
+                res = NativeMethods.git_remote_save(handle);
+                Ensure.Success(res);
+
+                return Remote.CreateFromPtr(handle);
+            }
+        }
     }
 }

@@ -278,7 +278,17 @@ namespace LibGit2Sharp.Core
         public static extern IntPtr git_remote_name(RemoteSafeHandle remote);
 
         [DllImport(libgit2)]
+        public static extern int git_remote_new(
+            out RemoteSafeHandle remote,
+            RepositorySafeHandle repo,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string url,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string name);
+
+        [DllImport(libgit2)]
         public static extern IntPtr git_remote_url(RemoteSafeHandle remote);
+
+        [DllImport(libgit2)]
+        public static extern int git_remote_save(RemoteSafeHandle remote);
 
         [DllImport(libgit2)]
         public static extern int git_repository_config(
