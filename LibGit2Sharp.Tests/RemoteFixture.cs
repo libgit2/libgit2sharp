@@ -42,10 +42,6 @@ namespace LibGit2Sharp.Tests
 
                 repo.Config.Set("remote.origin2.url", oneOrigin.Url);
 
-                /* LibGit2 cringes when a remote doesn't expose a fetch refspec */
-                var originFetch = repo.Config.Get<string>("remote", "origin", "fetch", null);
-                repo.Config.Set("remote.origin2.fetch", originFetch);
-
                 Remote differentRemote = repo.Remotes["origin2"];
                 differentRemote.ShouldNotBeNull();
 
