@@ -14,6 +14,15 @@ namespace LibGit2Sharp.Core
             return BuildListOf(strArray);
         }
 
+        public static IList<string> ListAllRemoteNames(RepositorySafeHandle repo)
+        {
+            UnSafeNativeMethods.git_strarray strArray;
+            int res = UnSafeNativeMethods.git_remote_list(out strArray, repo);
+            Ensure.Success(res);
+
+            return BuildListOf(strArray);
+        }
+
         public static IList<string> ListAllTagNames(RepositorySafeHandle repo)
         {
             UnSafeNativeMethods.git_strarray strArray;

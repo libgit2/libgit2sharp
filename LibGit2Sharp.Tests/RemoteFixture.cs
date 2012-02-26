@@ -11,7 +11,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(StandardTestRepoPath))
             {
-                var origin = repo.Remotes["origin"];
+                Remote origin = repo.Remotes["origin"];
                 origin.ShouldNotBeNull();
                 origin.Name.ShouldEqual("origin");
                 origin.Url.ShouldEqual("c:/GitHub/libgit2sharp/Resources/testrepo.git");
@@ -19,11 +19,28 @@ namespace LibGit2Sharp.Tests
         }
 
         [Test]
-        public void GettingRemoteThatDoesntExistThrows()
+        public void GettingRemoteThatDoesntExistReturnsNull()
         {
             using (var repo = new Repository(StandardTestRepoPath))
             {
                 repo.Remotes["test"].ShouldBeNull();
+            }
+        }
+
+        [Test]
+        public void CanEnumerateTheRemotes()
+        {
+            using (var repo = new Repository(StandardTestRepoPath))
+            {
+                int count = 0;
+
+                foreach (Remote remote in repo.Remotes)
+                {
+                    remote.ShouldNotBeNull();
+                    count++;
+                }
+
+                count.ShouldEqual(1);
             }
         }
 
