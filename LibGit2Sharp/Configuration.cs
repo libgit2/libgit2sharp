@@ -196,7 +196,7 @@ namespace LibGit2Sharp
 
             if (!configurationTypedRetriever.ContainsKey(typeof(T)))
             {
-                throw new ArgumentException(string.Format("Generic Argument of type '{0}' is not supported.", typeof(T).FullName));
+                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "Generic Argument of type '{0}' is not supported.", typeof(T).FullName));
             }
 
             ConfigurationSafeHandle handle = (LocalHandle ?? globalHandle) ?? systemHandle;
@@ -394,7 +394,7 @@ namespace LibGit2Sharp
 
             if (!configurationTypedUpdater.ContainsKey(typeof(T)))
             {
-                throw new ArgumentException(string.Format("Generic Argument of type '{0}' is not supported.", typeof(T).FullName));
+                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "Generic Argument of type '{0}' is not supported.", typeof(T).FullName));
             }
 
             configurationTypedUpdater[typeof(T)](key, value, h);

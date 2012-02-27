@@ -116,7 +116,7 @@ namespace LibGit2Sharp
 
             if (canonicalName == repo.Head.CanonicalName)
             {
-                throw new LibGit2Exception(string.Format("Branch '{0}' can not be deleted as it is the current HEAD.", canonicalName));
+                throw new LibGit2Exception(string.Format(CultureInfo.InvariantCulture, "Branch '{0}' can not be deleted as it is the current HEAD.", canonicalName));
             }
 
             //TODO: To be replaced by native libgit2 git_branch_delete() when available.

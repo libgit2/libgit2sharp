@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -23,7 +24,7 @@ namespace LibGit2Sharp.Core
 
                 const string pathEnvVariable = "PATH";
                 Environment.SetEnvironmentVariable(pathEnvVariable,
-                                                   String.Format("{0}{1}{2}", path, Path.PathSeparator, Environment.GetEnvironmentVariable(pathEnvVariable)));
+                                                   String.Format(CultureInfo.InvariantCulture, "{0}{1}{2}", path, Path.PathSeparator, Environment.GetEnvironmentVariable(pathEnvVariable)));
             }
 
             git_threads_init();
@@ -109,6 +110,7 @@ namespace LibGit2Sharp.Core
         public static extern int git_config_get_bool(
             ConfigurationSafeHandle cfg,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string name,
+            [MarshalAs(UnmanagedType.Bool)]
             out bool value);
 
         [DllImport(libgit2)]
@@ -397,6 +399,7 @@ namespace LibGit2Sharp.Core
             IntPtr target,
             SignatureSafeHandle signature,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string message,
+            [MarshalAs(UnmanagedType.Bool)]
             bool force);
 
         [DllImport(libgit2)]
@@ -405,6 +408,7 @@ namespace LibGit2Sharp.Core
             RepositorySafeHandle repo,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string name,
             IntPtr target,
+            [MarshalAs(UnmanagedType.Bool)]
             bool force);
 
         [DllImport(libgit2)]
