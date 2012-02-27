@@ -43,14 +43,14 @@ namespace LibGit2Sharp
         internal static TagAnnotation BuildFromPtr(IntPtr obj, ObjectId id, Repository repo)
         {
             IntPtr oidPtr = NativeMethods.git_tag_target_oid(obj);
-            var oid = (GitOid)Marshal.PtrToStructure(oidPtr, typeof(GitOid));
+            var targetOid = new ObjectId(oidPtr.MarshalAsOid());
 
             return new TagAnnotation(id)
                        {
                            Message = NativeMethods.git_tag_message(obj).MarshallAsString(),
                            Name = NativeMethods.git_tag_name(obj).MarshallAsString(),
                            Tagger = new Signature(NativeMethods.git_tag_tagger(obj)),
-                           targetBuilder = new Lazy<GitObject>(() => repo.Lookup<GitObject>(new ObjectId(oid)))
+                           targetBuilder = new Lazy<GitObject>(() => repo.Lookup<GitObject>(targetOid))
                        };
         }
     }

@@ -59,8 +59,7 @@ namespace LibGit2Sharp
 
                 case GitReferenceType.Oid:
                     IntPtr oidPtr = NativeMethods.git_reference_oid(ptr);
-                    var oid = (GitOid)Marshal.PtrToStructure(oidPtr, typeof(GitOid));
-                    var targetOid = new ObjectId(oid);
+                    var targetOid = new ObjectId(oidPtr.MarshalAsOid());
 
                     var targetBuilder = new Lazy<GitObject>(() => repo.Lookup(targetOid));
                     reference = new DirectReference(targetBuilder) { CanonicalName = name, TargetIdentifier = targetOid.Sha };
