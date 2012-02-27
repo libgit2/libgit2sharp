@@ -42,6 +42,14 @@ namespace LibGit2Sharp.Core
             return (p == 4) || (p == 6) || (p == 128);
         }
 
+        public static bool RepositoryStateChecker(RepositorySafeHandle repositoryPtr, Func<RepositorySafeHandle, int> checker)
+        {
+            int res = checker(repositoryPtr);
+            Ensure.Success(res, true);
+
+            return (res == 1);
+        }
+
         [DllImport(libgit2)]
         public static extern IntPtr git_blob_rawcontent(IntPtr blob);
 
@@ -319,8 +327,7 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.Bool)] bool isBare);
 
         [DllImport(libgit2)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool git_repository_is_bare(RepositorySafeHandle handle);
+        public static extern int git_repository_is_bare(RepositorySafeHandle handle);
 
         [DllImport(libgit2)]
         public static extern int git_repository_is_empty(RepositorySafeHandle repo);

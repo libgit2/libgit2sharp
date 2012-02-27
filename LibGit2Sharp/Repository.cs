@@ -35,7 +35,7 @@ namespace LibGit2Sharp
             int res = NativeMethods.git_repository_open(out handle, PosixPathHelper.ToPosix(path));
             Ensure.Success(res);
 
-            isBare = NativeMethods.git_repository_is_bare(handle);
+            isBare = NativeMethods.RepositoryStateChecker(handle, NativeMethods.git_repository_is_bare);
 
             if (!isBare)
             {
