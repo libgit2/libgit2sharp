@@ -27,14 +27,14 @@ namespace LibGit2Sharp
             Type = NativeMethods.git_tree_entry_type(obj);
             target = new Lazy<GitObject>(RetreiveTreeEntryTarget);
 
-            Attributes = NativeMethods.git_tree_entry_attributes(obj);
+            Attributes = (int)NativeMethods.git_tree_entry_attributes(obj);
             Name = NativeMethods.git_tree_entry_name(obj).MarshallAsString();
         }
 
         /// <summary>
         ///   Gets the UNIX file attributes.
         /// </summary>
-        public uint Attributes { get; private set; }
+        public int Attributes { get; private set; }
 
         /// <summary>
         ///   Gets the filename.

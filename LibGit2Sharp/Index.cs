@@ -444,7 +444,7 @@ namespace LibGit2Sharp
 
             var indexEntry = new GitIndexEntry
                                  {
-                                     Mode = treeEntry.Attributes,
+                                     Mode = (uint)treeEntry.Attributes,
                                      oid = treeEntry.Target.Id.Oid,
                                      Path = utf8Marshaler.MarshalManagedToNative(relativePath),
                                  };
