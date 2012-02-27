@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Compat;
 
@@ -172,7 +171,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name = "path">The path to the working folder when initializing a standard ".git" repository. Otherwise, when initializing a bare repository, the path to the expected location of this later.</param>
         /// <param name = "isBare">true to initialize a bare repository. False otherwise, to initialize a standard ".git" repository.</param>
-        /// <returns> a new instance of the <see cref = "Repository" /> class. The client code is responsible for calling <see cref="Dispose"/> on this instance.</returns>
+        /// <returns> a new instance of the <see cref = "Repository" /> class. The client code is responsible for calling <see cref="Dispose()"/> on this instance.</returns>
         public static Repository Init(string path, bool isBare = false)
         {
             Ensure.ArgumentNotNullOrEmptyString(path, "path");

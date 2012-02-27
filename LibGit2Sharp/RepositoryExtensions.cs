@@ -104,7 +104,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name = "repository">The <see cref = "Repository" /> being worked with.</param>
         /// <param name = "message">The description of why a change was made to the repository.</param>
-        /// <param name="amendPreviousCommit">True to amend the current <see cref="Commit"/> pointed at by <see cref="Repository.Head"/>, false otherwise.</param>
+        /// <param name="amendPreviousCommit">True to amend the current <see cref="LibGit2Sharp.Commit"/> pointed at by <see cref="Repository.Head"/>, false otherwise.</param>
         /// <returns>The generated <see cref = "LibGit2Sharp.Commit" />.</returns>
         public static Commit Commit(this Repository repository, string message, bool amendPreviousCommit = false)
         {
@@ -120,7 +120,7 @@ namespace LibGit2Sharp
         /// <param name = "repository">The <see cref = "Repository" /> being worked with.</param>
         /// <param name = "author">The <see cref = "Signature" /> of who made the change.</param>
         /// <param name = "message">The description of why a change was made to the repository.</param>
-        /// <param name="amendPreviousCommit">True to amend the current <see cref="Commit"/> pointed at by <see cref="Repository.Head"/>, false otherwise.</param>
+        /// <param name="amendPreviousCommit">True to amend the current <see cref="LibGit2Sharp.Commit"/> pointed at by <see cref="Repository.Head"/>, false otherwise.</param>
         /// <returns>The generated <see cref = "LibGit2Sharp.Commit" />.</returns>
         public static Commit Commit(this Repository repository, string message, Signature author, bool amendPreviousCommit = false)
         {
@@ -136,7 +136,7 @@ namespace LibGit2Sharp
         /// <param name = "author">The <see cref = "Signature" /> of who made the change.</param>
         /// <param name = "committer">The <see cref = "Signature" /> of who added the change to the repository.</param>
         /// <param name = "message">The description of why a change was made to the repository.</param>
-        /// <param name="amendPreviousCommit">True to amend the current <see cref="Commit"/> pointed at by <see cref="Repository.Head"/>, false otherwise.</param>
+        /// <param name="amendPreviousCommit">True to amend the current <see cref="LibGit2Sharp.Commit"/> pointed at by <see cref="Repository.Head"/>, false otherwise.</param>
         /// <returns>The generated <see cref = "LibGit2Sharp.Commit" />.</returns>
         public static Commit Commit(this Repository repository, string message, Signature author, Signature committer, bool amendPreviousCommit = false)
         {
