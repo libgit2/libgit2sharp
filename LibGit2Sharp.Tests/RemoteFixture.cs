@@ -1,12 +1,11 @@
 ﻿using LibGit2Sharp.Tests.TestHelpers;
-using NUnit.Framework;
+using Xunit;
 
 namespace LibGit2Sharp.Tests
 {
-    [TestFixture]
     public class RemoteFixture : BaseFixture
     {
-        [Test]
+        [Fact]
         public void CanGetRemoteOrigin()
         {
             using (var repo = new Repository(StandardTestRepoPath))
@@ -18,7 +17,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void GettingRemoteThatDoesntExistReturnsNull()
         {
             using (var repo = new Repository(StandardTestRepoPath))
@@ -27,7 +26,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void CanEnumerateTheRemotes()
         {
             using (var repo = new Repository(StandardTestRepoPath))
@@ -44,7 +43,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void CanCheckEqualityOfRemote()
         {
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoPath);

@@ -1,15 +1,14 @@
 ﻿using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
-using NUnit.Framework;
+using Xunit;
 
 namespace LibGit2Sharp.Tests
 {
-    [TestFixture]
     public class TreeFixture : BaseFixture
     {
         private const string sha = "581f9824ecaf824221bd36edf5430f2739a7c4f5";
 
-        [Test]
+        [Fact]
         public void CanCompareTwoTreeEntries()
         {
             using (var repo = new Repository(BareTestRepoPath))
@@ -22,7 +21,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void CanConvertEntryToBlob()
         {
             using (var repo = new Repository(BareTestRepoPath))
@@ -35,7 +34,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void CanConvertEntryToTree()
         {
             using (var repo = new Repository(BareTestRepoPath))
@@ -48,7 +47,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void CanEnumerateBlobs()
         {
             using (var repo = new Repository(BareTestRepoPath))
@@ -58,7 +57,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void CanEnumerateSubTrees()
         {
             using (var repo = new Repository(BareTestRepoPath))
@@ -68,7 +67,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void CanEnumerateTreeEntries()
         {
             using (var repo = new Repository(BareTestRepoPath))
@@ -76,11 +75,11 @@ namespace LibGit2Sharp.Tests
                 var tree = repo.Lookup<Tree>(sha);
                 tree.Count().ShouldEqual(tree.Count);
 
-                CollectionAssert.AreEqual(new[] { "1", "README", "branch_file.txt", "new.txt" }, tree.Select(te => te.Name).ToArray());
+                Assert.Equal(new[] { "1", "README", "branch_file.txt", "new.txt" }, tree.Select(te => te.Name).ToArray());
             }
         }
 
-        [Test]
+        [Fact]
         public void CanGetEntryByName()
         {
             using (var repo = new Repository(BareTestRepoPath))
@@ -92,7 +91,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void GettingAnUknownTreeEntryReturnsNull()
         {
             using (var repo = new Repository(BareTestRepoPath))
@@ -103,7 +102,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void CanGetEntryCountFromTree()
         {
             using (var repo = new Repository(BareTestRepoPath))
@@ -113,7 +112,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void CanReadEntryAttributes()
         {
             using (var repo = new Repository(BareTestRepoPath))
@@ -123,7 +122,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void CanReadTheTreeData()
         {
             using (var repo = new Repository(BareTestRepoPath))
@@ -133,7 +132,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void TreeDataIsPresent()
         {
             using (var repo = new Repository(BareTestRepoPath))

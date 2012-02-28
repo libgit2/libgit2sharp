@@ -4,9 +4,10 @@
     <RootDir>$(MSBuildProjectDirectory)</RootDir>
     <TestBuildDir>$(RootDir)\LibGit2Sharp.Tests\bin\$(Configuration)</TestBuildDir>
     <DeployFolder>$(RootDir)\Build</DeployFolder>
-    <ManagedExeLauncher Condition="('$(OS)' != 'Windows_NT')">mono </ManagedExeLauncher>
   </PropertyGroup>
 
+  <UsingTask AssemblyFile="$(MSBuildProjectDirectory)/Lib/xUnit/xunit.runner.msbuild.dll"
+               TaskName="Xunit.Runner.MSBuild.xunit" />
   <Target Name="Clean">
     <!-- Workaround for xbuild -->
     <Exec Condition=" ('$(OS)' != 'Windows_NT') " Command=" rm -r -f $(DeployFolder) " />
@@ -28,8 +29,7 @@
   </Target>
 
   <Target Name="Test" DependsOnTargets="Build">
-    <Exec
-      Command="$(ManagedExeLauncher) &quot;$(MSBuildProjectDirectory)/Lib/NUnit/nunit-console-x86.exe&quot; &quot;$(TestBuildDir)/LibGit2Sharp.Tests.dll&quot; -xml=&quot;$(DeployFolder)/Test-result.xml&quot; -nologo" />
+    <xunit Assembly="$(TestBuildDir)/LibGit2Sharp.Tests.dll" Xml="$(DeployFolder)/Test-result.xml" />
   </Target>
 
   <Target Name="Deploy" DependsOnTargets="Test">

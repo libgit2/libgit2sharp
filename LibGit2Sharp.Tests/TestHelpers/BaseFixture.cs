@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using NUnit.Framework;
+using Xunit;
 
 namespace LibGit2Sharp.Tests.TestHelpers
 {
-    public class BaseFixture : IPostTestDirectoryRemover
+    public class BaseFixture : IPostTestDirectoryRemover, IDisposable
     {
         private readonly List<string> directories = new List<string>();
 
@@ -78,8 +78,7 @@ namespace LibGit2Sharp.Tests.TestHelpers
             directories.Add(directoryPath);
         }
 
-        [TestFixtureTearDown]
-        public void Cleanup()
+        public void Dispose()
         {
             foreach (string directory in directories)
             {
@@ -94,7 +93,7 @@ namespace LibGit2Sharp.Tests.TestHelpers
                 return;
             }
 
-            Assert.Inconclusive(message);
+            throw new SkipException(message);
         }
     }
 }

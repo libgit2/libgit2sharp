@@ -4,11 +4,11 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using LibGit2Sharp.Tests.TestHelpers;
-using NUnit.Framework;
+using Xunit;
+using Xunit.Extensions;
 
 namespace LibGit2Sharp.Tests
 {
-    [TestFixture]
     public class IndexFixture : BaseFixture
     {
         private static readonly string subBranchFile = Path.Combine("1", "branch_file.txt");
@@ -26,7 +26,7 @@ namespace LibGit2Sharp.Tests
                                                             "new_tracked_file.txt"
                                                         };
 
-        [Test]
+        [Fact]
         public void CanCountEntriesInIndex()
         {
             using (var repo = new Repository(StandardTestRepoPath))
@@ -35,16 +35,16 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void CanEnumerateIndex()
         {
             using (var repo = new Repository(StandardTestRepoPath))
             {
-                CollectionAssert.AreEqual(expectedEntries, repo.Index.Select(e => e.Path).ToArray());
+                Assert.Equal(expectedEntries, repo.Index.Select(e => e.Path).ToArray());
             }
         }
 
-        [Test]
+        [Fact]
         public void CanFetchAnIndexEntryByItsName()
         {
             using (var repo = new Repository(StandardTestRepoPath))
@@ -62,7 +62,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void FetchingAnUnknownIndexEntryReturnsNull()
         {
             using (var repo = new Repository(StandardTestRepoPath))
@@ -72,7 +72,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void ReadIndexWithBadParamsFails()
         {
             using (var repo = new Repository(StandardTestRepoPath))
@@ -82,12 +82,13 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [TestCase("1/branch_file.txt", FileStatus.Unaltered, true, FileStatus.Unaltered, true, 0)]
-        [TestCase("deleted_unstaged_file.txt", FileStatus.Missing, true, FileStatus.Removed, false, -1)]
-        [TestCase("modified_unstaged_file.txt", FileStatus.Modified, true, FileStatus.Staged, true, 0)]
-        [TestCase("new_untracked_file.txt", FileStatus.Untracked, false, FileStatus.Added, true, 1)]
-        [TestCase("modified_staged_file.txt", FileStatus.Staged, true, FileStatus.Staged, true, 0)]
-        [TestCase("new_tracked_file.txt", FileStatus.Added, true, FileStatus.Added, true, 0)]
+        [Theory]
+        [InlineData("1/branch_file.txt", FileStatus.Unaltered, true, FileStatus.Unaltered, true, 0)]
+        [InlineData("deleted_unstaged_file.txt", FileStatus.Missing, true, FileStatus.Removed, false, -1)]
+        [InlineData("modified_unstaged_file.txt", FileStatus.Modified, true, FileStatus.Staged, true, 0)]
+        [InlineData("new_untracked_file.txt", FileStatus.Untracked, false, FileStatus.Added, true, 1)]
+        [InlineData("modified_staged_file.txt", FileStatus.Staged, true, FileStatus.Staged, true, 0)]
+        [InlineData("new_tracked_file.txt", FileStatus.Added, true, FileStatus.Added, true, 0)]
         public void CanStage(string relativePath, FileStatus currentStatus, bool doesCurrentlyExistInTheIndex, FileStatus expectedStatusOnceStaged, bool doesExistInTheIndexOnceStaged, int expectedIndexCountVariation)
         {
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
@@ -105,7 +106,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void CanStageTheUpdationOfAStagedFile()
         {
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
@@ -129,8 +130,9 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [TestCase("1/I-do-not-exist.txt", FileStatus.Nonexistent)]
-        [TestCase("deleted_staged_file.txt", FileStatus.Removed)]
+        [Theory]
+        [InlineData("1/I-do-not-exist.txt", FileStatus.Nonexistent)]
+        [InlineData("deleted_staged_file.txt", FileStatus.Removed)]
         public void StagingAnUnknownFileThrows(string relativePath, FileStatus status)
         {
             using (var repo = new Repository(StandardTestRepoPath))
@@ -142,7 +144,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void CanStageTheRemovalOfAStagedFile()
         {
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
@@ -165,7 +167,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void StagingANewVersionOfAFileThenUnstagingItRevertsTheBlobToTheVersionOfHead()
         {
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
@@ -191,7 +193,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void CanStageANewFileInAPersistentManner()
         {
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoPath);
@@ -220,7 +222,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void CanStageANewFileWithAFullPath()
         {
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
@@ -239,7 +241,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void CanStageANewFileWithARelativePathContainingNativeDirectorySeparatorCharacters()
         {
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
@@ -262,7 +264,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void StagingANewFileWithAFullPathWhichEscapesOutOfTheWorkingDirThrows()
         {
             SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
@@ -279,7 +281,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void StageFileWithBadParamsThrows()
         {
             using (var repo = new Repository(StandardTestRepoPath))
@@ -291,12 +293,13 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [TestCase("1/branch_file.txt", FileStatus.Unaltered, true, FileStatus.Unaltered, true, 0)]
-        [TestCase("deleted_unstaged_file.txt", FileStatus.Missing, true, FileStatus.Missing, true, 0)]
-        [TestCase("modified_unstaged_file.txt", FileStatus.Modified, true, FileStatus.Modified, true, 0)]
-        [TestCase("new_untracked_file.txt", FileStatus.Untracked, false, FileStatus.Untracked, false, 0)]
-        [TestCase("modified_staged_file.txt", FileStatus.Staged, true, FileStatus.Modified, true, 0)]
-        [TestCase("new_tracked_file.txt", FileStatus.Added, true, FileStatus.Untracked, false, -1)]
+        [Theory]
+        [InlineData("1/branch_file.txt", FileStatus.Unaltered, true, FileStatus.Unaltered, true, 0)]
+        [InlineData("deleted_unstaged_file.txt", FileStatus.Missing, true, FileStatus.Missing, true, 0)]
+        [InlineData("modified_unstaged_file.txt", FileStatus.Modified, true, FileStatus.Modified, true, 0)]
+        [InlineData("new_untracked_file.txt", FileStatus.Untracked, false, FileStatus.Untracked, false, 0)]
+        [InlineData("modified_staged_file.txt", FileStatus.Staged, true, FileStatus.Modified, true, 0)]
+        [InlineData("new_tracked_file.txt", FileStatus.Added, true, FileStatus.Untracked, false, -1)]
         public void CanUnStage(string relativePath, FileStatus currentStatus, bool doesCurrentlyExistInTheIndex, FileStatus expectedStatusOnceStaged, bool doesExistInTheIndexOnceStaged, int expectedIndexCountVariation)
         {
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
@@ -314,7 +317,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void CanUnstageTheRemovalOfAFile()
         {
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
@@ -336,7 +339,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void UnstagingFileWithBadParamsThrows()
         {
             using (var repo = new Repository(StandardTestRepoPath))
@@ -348,7 +351,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void CanRenameAFile()
         {
             SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
@@ -399,10 +402,11 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [TestCase("README", FileStatus.Unaltered, "deleted_unstaged_file.txt", FileStatus.Missing, FileStatus.Removed, FileStatus.Staged)]
-        [TestCase("new_tracked_file.txt", FileStatus.Added, "deleted_unstaged_file.txt", FileStatus.Missing, FileStatus.Nonexistent, FileStatus.Staged)]
-        [TestCase("modified_staged_file.txt", FileStatus.Staged, "deleted_unstaged_file.txt", FileStatus.Missing, FileStatus.Removed, FileStatus.Staged)]
-        [TestCase("modified_unstaged_file.txt", FileStatus.Modified, "deleted_unstaged_file.txt", FileStatus.Missing, FileStatus.Removed, FileStatus.Staged)]
+        [Theory]
+        [InlineData("README", FileStatus.Unaltered, "deleted_unstaged_file.txt", FileStatus.Missing, FileStatus.Removed, FileStatus.Staged)]
+        [InlineData("new_tracked_file.txt", FileStatus.Added, "deleted_unstaged_file.txt", FileStatus.Missing, FileStatus.Nonexistent, FileStatus.Staged)]
+        [InlineData("modified_staged_file.txt", FileStatus.Staged, "deleted_unstaged_file.txt", FileStatus.Missing, FileStatus.Removed, FileStatus.Staged)]
+        [InlineData("modified_unstaged_file.txt", FileStatus.Modified, "deleted_unstaged_file.txt", FileStatus.Missing, FileStatus.Removed, FileStatus.Staged)]
         public void CanMoveAnExistingFileOverANonExistingFile(string sourcePath, FileStatus sourceStatus, string destPath, FileStatus destStatus, FileStatus sourcePostStatus, FileStatus destPostStatus)
         {
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
@@ -418,24 +422,27 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [TestCase("README", FileStatus.Unaltered, new[] { "README", "new_tracked_file.txt", "modified_staged_file.txt", "modified_unstaged_file.txt", "new_untracked_file.txt" })]
-        [TestCase("new_tracked_file.txt", FileStatus.Added, new[] { "README", "new_tracked_file.txt", "modified_staged_file.txt", "modified_unstaged_file.txt", "new_untracked_file.txt" })]
-        [TestCase("modified_staged_file.txt", FileStatus.Staged, new[] { "README", "new_tracked_file.txt", "modified_staged_file.txt", "modified_unstaged_file.txt", "new_untracked_file.txt" })]
-        [TestCase("modified_unstaged_file.txt", FileStatus.Modified, new[] { "README", "new_tracked_file.txt", "modified_staged_file.txt", "modified_unstaged_file.txt", "new_untracked_file.txt" })]
+        [Theory]
+        [InlineData("README", FileStatus.Unaltered, new[] { "README", "new_tracked_file.txt", "modified_staged_file.txt", "modified_unstaged_file.txt", "new_untracked_file.txt" })]
+        [InlineData("new_tracked_file.txt", FileStatus.Added, new[] { "README", "new_tracked_file.txt", "modified_staged_file.txt", "modified_unstaged_file.txt", "new_untracked_file.txt" })]
+        [InlineData("modified_staged_file.txt", FileStatus.Staged, new[] { "README", "new_tracked_file.txt", "modified_staged_file.txt", "modified_unstaged_file.txt", "new_untracked_file.txt" })]
+        [InlineData("modified_unstaged_file.txt", FileStatus.Modified, new[] { "README", "new_tracked_file.txt", "modified_staged_file.txt", "modified_unstaged_file.txt", "new_untracked_file.txt" })]
         public void MovingOverAnExistingFileThrows(string sourcePath, FileStatus sourceStatus, IEnumerable<string> destPaths)
         {
             InvalidMoveUseCases(sourcePath, sourceStatus, destPaths);
         }
 
-        [TestCase("new_untracked_file.txt", FileStatus.Untracked, new[] { "README", "new_tracked_file.txt", "modified_staged_file.txt", "modified_unstaged_file.txt", "new_untracked_file.txt", "deleted_unstaged_file.txt", "deleted_staged_file.txt", "i_dont_exist.txt" })]
+        [Theory]
+        [InlineData("new_untracked_file.txt", FileStatus.Untracked, new[] { "README", "new_tracked_file.txt", "modified_staged_file.txt", "modified_unstaged_file.txt", "new_untracked_file.txt", "deleted_unstaged_file.txt", "deleted_staged_file.txt", "i_dont_exist.txt" })]
         public void MovingAFileWichIsNotUnderSourceControlThrows(string sourcePath, FileStatus sourceStatus, IEnumerable<string> destPaths)
         {
             InvalidMoveUseCases(sourcePath, sourceStatus, destPaths);
         }
 
-        [TestCase("deleted_unstaged_file.txt", FileStatus.Missing, new[] { "README", "new_tracked_file.txt", "modified_staged_file.txt", "modified_unstaged_file.txt", "new_untracked_file.txt", "deleted_unstaged_file.txt", "deleted_staged_file.txt", "i_dont_exist.txt" })]
-        [TestCase("deleted_staged_file.txt", FileStatus.Removed, new[] { "README", "new_tracked_file.txt", "modified_staged_file.txt", "modified_unstaged_file.txt", "new_untracked_file.txt", "deleted_unstaged_file.txt", "deleted_staged_file.txt", "i_dont_exist.txt" })]
-        [TestCase("i_dont_exist.txt", FileStatus.Nonexistent, new[] { "README", "new_tracked_file.txt", "modified_staged_file.txt", "modified_unstaged_file.txt", "new_untracked_file.txt", "deleted_unstaged_file.txt", "deleted_staged_file.txt", "i_dont_exist.txt" })]
+        [Theory]
+        [InlineData("deleted_unstaged_file.txt", FileStatus.Missing, new[] { "README", "new_tracked_file.txt", "modified_staged_file.txt", "modified_unstaged_file.txt", "new_untracked_file.txt", "deleted_unstaged_file.txt", "deleted_staged_file.txt", "i_dont_exist.txt" })]
+        [InlineData("deleted_staged_file.txt", FileStatus.Removed, new[] { "README", "new_tracked_file.txt", "modified_staged_file.txt", "modified_unstaged_file.txt", "new_untracked_file.txt", "deleted_unstaged_file.txt", "deleted_staged_file.txt", "i_dont_exist.txt" })]
+        [InlineData("i_dont_exist.txt", FileStatus.Nonexistent, new[] { "README", "new_tracked_file.txt", "modified_staged_file.txt", "modified_unstaged_file.txt", "new_untracked_file.txt", "deleted_unstaged_file.txt", "deleted_staged_file.txt", "i_dont_exist.txt" })]
         public void MovingAFileNotInTheWorkingDirectoryThrows(string sourcePath, FileStatus sourceStatus, IEnumerable<string> destPaths)
         {
             InvalidMoveUseCases(sourcePath, sourceStatus, destPaths);
@@ -455,8 +462,9 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [TestCase("1/branch_file.txt", FileStatus.Unaltered, true, FileStatus.Removed)]
-        [TestCase("deleted_unstaged_file.txt", FileStatus.Missing, false, FileStatus.Removed)]
+        [Theory]
+        [InlineData("1/branch_file.txt", FileStatus.Unaltered, true, FileStatus.Removed)]
+        [InlineData("deleted_unstaged_file.txt", FileStatus.Missing, false, FileStatus.Removed)]
         public void CanRemoveAFile(string filename, FileStatus initialStatus, bool shouldInitiallyExist, FileStatus finalStatus)
         {
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
@@ -477,9 +485,10 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [TestCase("deleted_staged_file.txt")]
-        [TestCase("modified_unstaged_file.txt")]
-        [TestCase("shadowcopy_of_an_unseen_ghost.txt")]
+        [Theory]
+        [InlineData("deleted_staged_file.txt")]
+        [InlineData("modified_unstaged_file.txt")]
+        [InlineData("shadowcopy_of_an_unseen_ghost.txt")]
         public void RemovingAInvalidFileThrows(string filepath)
         {
             using (var repo = new Repository(StandardTestRepoPath))
@@ -488,7 +497,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void PathsOfIndexEntriesAreExpressedInNativeFormat()
         {
             // Initialize a new repository

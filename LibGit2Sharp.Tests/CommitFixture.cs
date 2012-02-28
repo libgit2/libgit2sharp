@@ -4,17 +4,16 @@ using System.IO;
 using System.Linq;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Tests.TestHelpers;
-using NUnit.Framework;
+using Xunit;
 
 namespace LibGit2Sharp.Tests
 {
-    [TestFixture]
     public class CommitFixture : BaseFixture
     {
         private const string sha = "8496071c1b46c854b31185ea97743be6a8774479";
         private readonly List<string> expectedShas = new List<string> { "a4a7d", "c4780", "9fd73", "4a202", "5b5b0", "84960" };
 
-        [Test]
+        [Fact]
         public void CanCountCommits()
         {
             using (var repo = new Repository(BareTestRepoPath))
@@ -23,7 +22,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void CanCorrectlyCountCommitsWhenSwitchingToAnotherBranch()
         {
             using (var repo = new Repository(BareTestRepoPath))
@@ -38,7 +37,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void CanEnumerateCommits()
         {
             int count = 0;
@@ -53,7 +52,7 @@ namespace LibGit2Sharp.Tests
             count.ShouldEqual(7);
         }
 
-        [Test]
+        [Fact]
         public void CanEnumerateCommitsInDetachedHeadState()
         {
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
@@ -62,13 +61,13 @@ namespace LibGit2Sharp.Tests
                 ObjectId parentOfHead = repo.Head.Tip.Parents.First().Id;
 
                 repo.Refs.Create("HEAD", parentOfHead.Sha, true);
-                Assert.AreEqual(true, repo.Info.IsHeadDetached);
+                Assert.Equal(true, repo.Info.IsHeadDetached);
 
                 repo.Commits.Count().ShouldEqual(6);
             }
         }
 
-        [Test]
+        [Fact]
         public void DefaultOrderingWhenEnumeratingCommitsIsTimeBased()
         {
             using (var repo = new Repository(BareTestRepoPath))
@@ -77,7 +76,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void CanEnumerateCommitsFromSha()
         {
             int count = 0;
@@ -92,7 +91,7 @@ namespace LibGit2Sharp.Tests
             count.ShouldEqual(6);
         }
 
-        [Test]
+        [Fact]
         public void QueryingTheCommitHistoryWithUnknownShaOrInvalidEntryPointThrows()
         {
             using (var repo = new Repository(BareTestRepoPath))
@@ -103,7 +102,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void QueryingTheCommitHistoryFromACorruptedReferenceThrows()
         {
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
@@ -116,7 +115,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void QueryingTheCommitHistoryWithBadParamsThrows()
         {
             using (var repo = new Repository(BareTestRepoPath))
@@ -127,7 +126,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void CanEnumerateCommitsWithReverseTimeSorting()
         {
             var reversedShas = new List<string>(expectedShas);
@@ -146,7 +145,7 @@ namespace LibGit2Sharp.Tests
             count.ShouldEqual(6);
         }
 
-        [Test]
+        [Fact]
         public void CanEnumerateCommitsWithReverseTopoSorting()
         {
             using (var repo = new Repository(BareTestRepoPath))
@@ -158,13 +157,13 @@ namespace LibGit2Sharp.Tests
                     foreach (Commit p in commit.Parents)
                     {
                         Commit parent = commits.Single(x => x.Id == p.Id);
-                        Assert.Greater(commits.IndexOf(commit), commits.IndexOf(parent));
+                        Assert.True(commits.IndexOf(commit) > commits.IndexOf(parent));
                     }
                 }
             }
         }
 
-        [Test]
+        [Fact]
         public void CanGetParentsCount()
         {
             using (var repo = new Repository(BareTestRepoPath))
@@ -173,7 +172,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void CanEnumerateCommitsWithTimeSorting()
         {
             int count = 0;
@@ -189,7 +188,7 @@ namespace LibGit2Sharp.Tests
             count.ShouldEqual(6);
         }
 
-        [Test]
+        [Fact]
         public void CanEnumerateCommitsWithTopoSorting()
         {
             using (var repo = new Repository(BareTestRepoPath))
@@ -201,13 +200,13 @@ namespace LibGit2Sharp.Tests
                     foreach (Commit p in commit.Parents)
                     {
                         Commit parent = commits.Single(x => x.Id == p.Id);
-                        Assert.Less(commits.IndexOf(commit), commits.IndexOf(parent));
+                        Assert.True(commits.IndexOf(commit) < commits.IndexOf(parent));
                     }
                 }
             }
         }
 
-        [Test]
+        [Fact]
         public void CanEnumerateFromHead()
         {
             AssertEnumerationOfCommits(
@@ -219,7 +218,7 @@ namespace LibGit2Sharp.Tests
                     });
         }
 
-        [Test]
+        [Fact]
         public void CanEnumerateFromDetachedHead()
         {
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
@@ -238,7 +237,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void CanEnumerateUsingTwoHeadsAsBoundaries()
         {
             AssertEnumerationOfCommits(
@@ -247,7 +246,7 @@ namespace LibGit2Sharp.Tests
                 );
         }
 
-        [Test]
+        [Fact]
         public void CanEnumerateUsingImplicitHeadAsSinceBoundary()
         {
             AssertEnumerationOfCommits(
@@ -256,7 +255,7 @@ namespace LibGit2Sharp.Tests
                 );
         }
 
-        [Test]
+        [Fact]
         public void CanEnumerateUsingTwoAbbreviatedShasAsBoundaries()
         {
             AssertEnumerationOfCommits(
@@ -265,7 +264,7 @@ namespace LibGit2Sharp.Tests
                 );
         }
 
-        [Test]
+        [Fact]
         public void CanEnumerateCommitsFromTwoHeads()
         {
             AssertEnumerationOfCommits(
@@ -277,7 +276,7 @@ namespace LibGit2Sharp.Tests
                     });
         }
 
-        [Test]
+        [Fact]
         public void CanEnumerateCommitsFromMixedStartingPoints()
         {
             AssertEnumerationOfCommits(
@@ -290,13 +289,13 @@ namespace LibGit2Sharp.Tests
                     });
         }
 
-        [Test]
+        [Fact]
         public void CanEnumerateCommitsFromAnAnnotatedTag()
         {
             CanEnumerateCommitsFromATag(t => t);
         }
 
-        [Test]
+        [Fact]
         public void CanEnumerateCommitsFromATagAnnotation()
         {
             CanEnumerateCommitsFromATag(t => t.Annotation);
@@ -310,7 +309,7 @@ namespace LibGit2Sharp.Tests
                 );
         }
 
-        [Test]
+        [Fact]
         public void CanEnumerateAllCommits()
         {
             AssertEnumerationOfCommits(
@@ -323,7 +322,7 @@ namespace LibGit2Sharp.Tests
                     });
         }
 
-        [Test]
+        [Fact]
         public void CanEnumerateCommitsFromATagWhichDoesNotPointAtACommit()
         {
             AssertEnumerationOfCommits(
@@ -345,10 +344,10 @@ namespace LibGit2Sharp.Tests
 
             IEnumerable<string> commitShas = commits.Select(c => c.Id.ToString(7)).ToArray();
 
-            CollectionAssert.AreEqual(abbrevIds, commitShas);
+            Assert.Equal(abbrevIds, commitShas);
         }
 
-        [Test]
+        [Fact]
         public void CanLookupCommitGeneric()
         {
             using (var repo = new Repository(BareTestRepoPath))
@@ -360,7 +359,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void CanReadCommitData()
         {
             using (var repo = new Repository(BareTestRepoPath))
@@ -391,7 +390,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void CanReadCommitWithMultipleParents()
         {
             using (var repo = new Repository(BareTestRepoPath))
@@ -402,7 +401,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void CanDirectlyAccessABlobOfTheCommit()
         {
             using (var repo = new Repository(BareTestRepoPath))
@@ -416,7 +415,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void CanDirectlyAccessATreeOfTheCommit()
         {
             using (var repo = new Repository(BareTestRepoPath))
@@ -428,7 +427,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void DirectlyAccessingAnUnknownTreeEntryOfTheCommitReturnsNull()
         {
             using (var repo = new Repository(BareTestRepoPath))
@@ -439,7 +438,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [SkippableFact]
         public void CanCommitWithSignatureFromConfig()
         {
             SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
@@ -469,14 +468,14 @@ namespace LibGit2Sharp.Tests
 
                 var name = repo.Config.Get<string>("user.name", null);
                 var email = repo.Config.Get<string>("user.email", null);
-                Assert.AreEqual(commit.Author.Name, name);
-                Assert.AreEqual(commit.Author.Email, email);
-                Assert.AreEqual(commit.Committer.Name, name);
-                Assert.AreEqual(commit.Committer.Email, email);
+                Assert.Equal(commit.Author.Name, name);
+                Assert.Equal(commit.Author.Email, email);
+                Assert.Equal(commit.Committer.Name, name);
+                Assert.Equal(commit.Committer.Email, email);
             }
         }
 
-        [Test]
+        [Fact]
         public void CanCommitALittleBit()
         {
             SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
@@ -559,7 +558,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void CanGeneratePredictableObjectShas()
         {
             SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
@@ -578,7 +577,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void CanAmendARootCommit()
         {
             SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
@@ -602,7 +601,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void CanAmendACommitWithMoreThanOneParent()
         {
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoPath);
@@ -637,10 +636,10 @@ namespace LibGit2Sharp.Tests
             headCommit.ShouldEqual(amendedCommit);
 
             amendedCommit.Sha.ShouldNotEqual(originalCommit.Sha);
-            CollectionAssert.AreEqual(originalCommit.Parents, amendedCommit.Parents);
+            Assert.Equal(originalCommit.Parents, amendedCommit.Parents);
         }
 
-        [Test]
+        [Fact]
         public void CanNotAmendAnEmptyRepository()
         {
             SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
