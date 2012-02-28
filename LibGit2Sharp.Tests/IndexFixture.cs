@@ -288,8 +288,8 @@ namespace LibGit2Sharp.Tests
             {
                 Assert.Throws<ArgumentException>(() => repo.Index.Stage(string.Empty));
                 Assert.Throws<ArgumentNullException>(() => repo.Index.Stage((string)null));
-                Assert.Throws<ArgumentNullException>(() => repo.Index.Stage(new string[] { }));
-                Assert.Throws<ArgumentNullException>(() => repo.Index.Stage(new string[] { null }));
+                Assert.Throws<ArgumentException>(() => repo.Index.Stage(new string[] { }));
+                Assert.Throws<ArgumentException>(() => repo.Index.Stage(new string[] { null }));
             }
         }
 
@@ -346,8 +346,8 @@ namespace LibGit2Sharp.Tests
             {
                 Assert.Throws<ArgumentException>(() => repo.Index.Unstage(string.Empty));
                 Assert.Throws<ArgumentNullException>(() => repo.Index.Unstage((string)null));
-                Assert.Throws<ArgumentNullException>(() => repo.Index.Unstage(new string[] { }));
-                Assert.Throws<ArgumentNullException>(() => repo.Index.Unstage(new string[] { null }));
+                Assert.Throws<ArgumentException>(() => repo.Index.Unstage(new string[] { }));
+                Assert.Throws<ArgumentException>(() => repo.Index.Unstage(new string[] { null }));
             }
         }
 
@@ -494,6 +494,18 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(StandardTestRepoPath))
             {
                 Assert.Throws<LibGit2Exception>(() => repo.Index.Remove(filepath));
+            }
+        }
+
+        [Fact]
+        public void RemovingFileWithBadParamsThrows()
+        {
+            using (var repo = new Repository(StandardTestRepoPath))
+            {
+                Assert.Throws<ArgumentException>(() => repo.Index.Remove(string.Empty));
+                Assert.Throws<ArgumentNullException>(() => repo.Index.Remove((string)null));
+                Assert.Throws<ArgumentException>(() => repo.Index.Remove(new string[] { }));
+                Assert.Throws<ArgumentException>(() => repo.Index.Remove(new string[] { null }));
             }
         }
 

@@ -105,6 +105,8 @@ namespace LibGit2Sharp
         /// <param name = "path">The path of the file within the working directory.</param>
         public void Stage(string path)
         {
+            Ensure.ArgumentNotNull(path, "path");
+
             Stage(new[] { path });
         }
 
@@ -114,17 +116,10 @@ namespace LibGit2Sharp
         /// <param name = "paths">The collection of paths of the files within the working directory.</param>
         public void Stage(IEnumerable<string> paths)
         {
-            Ensure.ArgumentNotNull(paths, "paths");
-
             //TODO: Stage() should support following use cases:
             // - Recursively staging the content of a directory
 
             IDictionary<string, FileStatus> batch = PrepareBatch(paths);
-
-            if (batch.Count == 0)
-            {
-                throw new ArgumentNullException("paths");
-            }
 
             foreach (KeyValuePair<string, FileStatus> kvp in batch)
             {
@@ -165,6 +160,8 @@ namespace LibGit2Sharp
         /// <param name = "path">The path of the file within the working directory.</param>
         public void Unstage(string path)
         {
+            Ensure.ArgumentNotNull(path, "path");
+
             Unstage(new[] { path });
         }
 
@@ -174,14 +171,7 @@ namespace LibGit2Sharp
         /// <param name = "paths">The collection of paths of the files within the working directory.</param>
         public void Unstage(IEnumerable<string> paths)
         {
-            Ensure.ArgumentNotNull(paths, "paths");
-
             IDictionary<string, FileStatus> batch = PrepareBatch(paths);
-
-            if (batch.Count == 0)
-            {
-                throw new ArgumentNullException("paths");
-            }
 
             foreach (KeyValuePair<string, FileStatus> kvp in batch)
             {
@@ -291,6 +281,8 @@ namespace LibGit2Sharp
         /// <param name = "path">The path of the file within the working directory.</param>
         public void Remove(string path)
         {
+            Ensure.ArgumentNotNull(path, "path");
+
             Remove(new[] { path });
         }
 
@@ -304,17 +296,10 @@ namespace LibGit2Sharp
         /// <param name = "paths">The collection of paths of the files within the working directory.</param>
         public void Remove(IEnumerable<string> paths)
         {
-            Ensure.ArgumentNotNull(paths, "paths");
-
             //TODO: Remove() should support following use cases:
             // - Removing a directory and its content
 
             IDictionary<string, FileStatus> batch = PrepareBatch(paths);
-
-            if (batch.Count == 0)
-            {
-                throw new ArgumentNullException("paths");
-            }
 
             foreach (KeyValuePair<string, FileStatus> keyValuePair in batch)
             {
@@ -347,14 +332,26 @@ namespace LibGit2Sharp
 
         private IDictionary<string, FileStatus> PrepareBatch(IEnumerable<string> paths)
         {
+            Ensure.ArgumentNotNull(paths, "paths");
+
             IDictionary<string, FileStatus> dic = new Dictionary<string, FileStatus>();
 
             foreach (string path in paths)
             {
+                if (string.IsNullOrEmpty(path))
+                {
+                    throw new ArgumentException("At least one provided path is either null or empty.", "paths");
+                }
+
                 string relativePath = BuildRelativePathFrom(repo, path);
                 FileStatus fileStatus = RetrieveStatus(relativePath);
 
                 dic.Add(relativePath, fileStatus);
+            }
+
+            if (dic.Count == 0)
+            {
+                throw new ArgumentException("No path has been provided.", "paths");
             }
 
             return dic;
