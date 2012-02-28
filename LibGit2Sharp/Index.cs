@@ -12,7 +12,7 @@ namespace LibGit2Sharp
     ///   The Index is a staging area between the Working directory and the Repository.
     ///   It's used to prepare and aggregate the changes that will be part of the next commit.
     /// </summary>
-    public class Index : IEnumerable<IndexEntry>, IDisposable
+    public class Index : IEnumerable<IndexEntry>
     {
         private readonly IndexSafeHandle handle;
         private readonly Repository repo;
@@ -24,6 +24,8 @@ namespace LibGit2Sharp
             this.repo = repo;
             int res = NativeMethods.git_repository_index(out handle, repo.Handle);
             Ensure.Success(res);
+
+            repo.RegisterForCleanup(handle);
         }
 
         internal IndexSafeHandle Handle
@@ -71,27 +73,6 @@ namespace LibGit2Sharp
                 return IndexEntry.CreateFromPtr(repo, entryPtr);
             }
         }
-
-        #region IDisposable Members
-
-        /// <summary>
-        ///   Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        /// <summary>
-        ///   Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        protected virtual void Dispose(bool disposing)
-        {
-            handle.SafeDispose();
-        }
-
-        #endregion
 
         #region IEnumerable<IndexEntry> Members
 

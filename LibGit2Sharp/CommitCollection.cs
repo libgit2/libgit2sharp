@@ -190,6 +190,8 @@ namespace LibGit2Sharp
             {
                 this.repo = repo;
                 int res = NativeMethods.git_revwalk_new(out handle, repo.Handle);
+                repo.RegisterForCleanup(handle);
+
                 Ensure.Success(res);
 
                 Sort(sortingStrategy);

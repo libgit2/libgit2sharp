@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Compat;
 
@@ -19,6 +20,7 @@ namespace LibGit2Sharp
         private readonly TagCollection tags;
         private readonly Lazy<RepositoryInformation> info;
         private readonly bool isBare;
+        private readonly List<SafeHandleBase> handlesToCleanup = new List<SafeHandleBase>();
 
         /// <summary>
         ///   Initializes a new instance of the <see cref = "Repository" /> class.
@@ -34,6 +36,8 @@ namespace LibGit2Sharp
 
             int res = NativeMethods.git_repository_open(out handle, PosixPathHelper.ToPosix(path));
             Ensure.Success(res);
+
+            RegisterForCleanup(handle);
 
             isBare = NativeMethods.RepositoryStateChecker(handle, NativeMethods.git_repository_is_bare);
 
@@ -156,12 +160,7 @@ namespace LibGit2Sharp
         /// </summary>
         protected virtual void Dispose(bool disposing)
         {
-            handle.SafeDispose();
-
-            if (index != null)
-            {
-                index.Dispose();
-            }
+            handlesToCleanup.ForEach(handleToCleanup => handleToCleanup.SafeDispose());
         }
 
         #endregion
@@ -333,6 +332,11 @@ namespace LibGit2Sharp
             }
 
             throw new NotImplementedException();
+        }
+
+        internal void RegisterForCleanup(SafeHandleBase handleToCleanup)
+        {
+            handlesToCleanup.Add(handleToCleanup);
         }
     }
 }
