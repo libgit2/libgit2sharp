@@ -4,12 +4,25 @@ using LibGit2Sharp.Core.Compat;
 
 namespace LibGit2Sharp
 {
-    public abstract class NamedReference<TObject> where TObject : GitObject
+    /// <summary>
+    ///   A base class for things that wrap a <see cref = "Reference" /> (branch, tag, etc).
+    /// </summary>
+    /// <typeparam name="TObject">The type of the referenced Git object.</typeparam>
+    public abstract class ReferenceWrapper<TObject> where TObject : GitObject
     {
+        /// <summary>
+        ///   The repo.
+        /// </summary>
         protected readonly Repository repo;
         private readonly Lazy<TObject> objectBuilder;
 
-        protected internal NamedReference(Repository repo, Reference reference, Func<Reference, string> canonicalNameSelector)
+        /// <summary>
+        ///   Initializes a new instance of the <see cref = "ReferenceWrapper{TObject}" /> class.
+        /// </summary>
+        /// <param name="repo">The repo.</param>
+        /// <param name="reference">The reference.</param>
+        /// <param name="canonicalNameSelector">A function to construct the reference's canonical name.</param>
+        protected internal ReferenceWrapper(Repository repo, Reference reference, Func<Reference, string> canonicalNameSelector)
         {
             Ensure.ArgumentNotNull(repo, "repo");
             Ensure.ArgumentNotNull(canonicalNameSelector, "canonicalNameSelector");
@@ -42,7 +55,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Gets the <typeparam name = "TObject" /> this <see cref = "NamedReference{TObject}" /> points to.
+        ///   Gets the <typeparam name = "TObject" /> this <see cref = "ReferenceWrapper{TObject}" /> points to.
         /// </summary>
         protected TObject TargetObject
         {

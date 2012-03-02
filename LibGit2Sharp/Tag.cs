@@ -6,7 +6,7 @@ namespace LibGit2Sharp
     /// <summary>
     ///   A Tag
     /// </summary>
-    public class Tag : NamedReference<GitObject>, IEquatable<Tag>
+    public class Tag : ReferenceWrapper<GitObject>, IEquatable<Tag>
     {
         private static readonly LambdaEqualityHelper<Tag> equalityHelper =
             new LambdaEqualityHelper<Tag>(new Func<Tag, object>[] { x => x.CanonicalName, x => x.Target });

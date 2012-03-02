@@ -9,7 +9,7 @@ namespace LibGit2Sharp
     /// <summary>
     ///   A branch is a special kind of reference
     /// </summary>
-    public class Branch : NamedReference<Commit>, IEquatable<Branch>
+    public class Branch : ReferenceWrapper<Commit>, IEquatable<Branch>
     {
         private static readonly LambdaEqualityHelper<Branch> equalityHelper =
             new LambdaEqualityHelper<Branch>(new Func<Branch, object>[] { x => x.CanonicalName, x => x.Tip });

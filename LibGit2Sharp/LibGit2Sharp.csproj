@@ -100,7 +100,7 @@
     <Compile Include="Filter.cs" />
     <Compile Include="IQueryableCommitCollection.cs" />
     <Compile Include="Core\LookUpOptions.cs" />
-    <Compile Include="NamedReference.cs" />
+    <Compile Include="ReferenceWrapper.cs" />
     <Compile Include="ObjectId.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Reference.cs" />
