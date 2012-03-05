@@ -18,13 +18,13 @@ namespace LibGit2Sharp
                 return null;
             }
 
-            IntPtr namePtr = NativeMethods.git_remote_name(handle);
-            IntPtr urlPtr = NativeMethods.git_remote_url(handle);
+            string name = NativeMethods.git_remote_name(handle);
+            string url = NativeMethods.git_remote_url(handle);
 
             var remote = new Remote
                              {
-                                 Name = namePtr.MarshallAsString(),
-                                 Url = urlPtr.MarshallAsString(),
+                                 Name = name,
+                                 Url = url,
                              };
 
             return remote;

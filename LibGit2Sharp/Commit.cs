@@ -124,7 +124,7 @@ namespace LibGit2Sharp
 
             return new Commit(id, treeId, repo)
                        {
-                           Message = NativeMethods.git_commit_message(obj).MarshallAsString(), //TODO: Turn into string.Empty if null
+                           Message = NativeMethods.git_commit_message(obj),
                            Encoding = RetrieveEncodingOf(obj),
                            Author = new Signature(NativeMethods.git_commit_author(obj)),
                            Committer = new Signature(NativeMethods.git_commit_committer(obj)),
@@ -133,7 +133,7 @@ namespace LibGit2Sharp
 
         private static string RetrieveEncodingOf(IntPtr obj)
         {
-            string encoding = NativeMethods.git_commit_message_encoding(obj).MarshallAsString();
+            string encoding = NativeMethods.git_commit_message_encoding(obj);
 
             return encoding ?? "UTF-8";
         }

@@ -46,8 +46,8 @@ namespace LibGit2Sharp
 
             return new TagAnnotation(id)
                        {
-                           Message = NativeMethods.git_tag_message(obj).MarshallAsString(),
-                           Name = NativeMethods.git_tag_name(obj).MarshallAsString(),
+                           Message = NativeMethods.git_tag_message(obj),
+                           Name = NativeMethods.git_tag_name(obj),
                            Tagger = new Signature(NativeMethods.git_tag_tagger(obj)),
                            targetBuilder = new Lazy<GitObject>(() => repo.Lookup<GitObject>(targetOid))
                        };

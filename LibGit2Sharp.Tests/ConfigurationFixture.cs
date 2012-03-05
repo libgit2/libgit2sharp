@@ -232,6 +232,28 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
+        public void CanSetAndReadUnicodeStringValue()
+        {
+            var path = BuildTemporaryCloneOfTestRepo(StandardTestRepoPath);
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                repo.Config.Set("unittests.stringsetting", "Juliën");
+
+                AssertValueInLocalConfigFile(path.RepositoryPath, "stringsetting = Juliën$");
+
+                string val = repo.Config.Get("unittests.stringsetting", "");
+                val.ShouldEqual("Juliën");
+            }
+
+            // Make sure the change is permanent
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                string val = repo.Config.Get("unittests.stringsetting", "");
+                val.ShouldEqual("Juliën");
+            }
+        }
+
+        [Fact]
         public void ReadingUnsupportedTypeThrows()
         {
             using (var repo = new Repository(StandardTestRepoPath))

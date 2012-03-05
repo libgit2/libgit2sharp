@@ -6,7 +6,15 @@ namespace LibGit2Sharp.Core
 {
     internal class Utf8Marshaler : ICustomMarshaler
     {
-        private static Utf8Marshaler staticInstance;
+        static Utf8Marshaler staticInstance;
+        readonly bool ownsPointer;
+
+        internal Utf8Marshaler(bool ownsPointer = false)
+        {
+            this.ownsPointer = ownsPointer;
+        }
+
+        #region ICustomMarshaler Members
 
         public unsafe IntPtr MarshalManagedToNative(object managedObj)
         {
@@ -54,7 +62,8 @@ namespace LibGit2Sharp.Core
 
         public void CleanUpNativeData(IntPtr pNativeData)
         {
-            Marshal.FreeHGlobal(pNativeData);
+            if (ownsPointer)
+                Marshal.FreeHGlobal(pNativeData);
         }
 
         public void CleanUpManagedData(object managedObj)
@@ -65,6 +74,8 @@ namespace LibGit2Sharp.Core
         {
             return -1;
         }
+
+        #endregion
 
         public static ICustomMarshaler GetInstance(string cookie)
         {

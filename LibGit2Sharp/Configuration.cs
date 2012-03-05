@@ -115,7 +115,7 @@ namespace LibGit2Sharp
             systemHandle.SafeDispose();
         }
 
-        private static T ProcessReadResult<T>(int res, T value, T defaultValue, Func<object, T> postProcessor = null)
+        private static T ProcessReadResult<T>(int res, T value, T defaultValue)
         {
             if (res == (int)GitErrorCode.GIT_ENOTFOUND)
             {
@@ -124,12 +124,7 @@ namespace LibGit2Sharp
 
             Ensure.Success(res);
 
-            if (postProcessor == null)
-            {
-                return value;
-            }
-
-            return postProcessor(value);
+            return value;
         }
 
         private readonly IDictionary<Type, Func<string, object, ConfigurationSafeHandle, object>> configurationTypedRetriever = ConfigurationTypedRetriever();
@@ -161,9 +156,9 @@ namespace LibGit2Sharp
 
             dic.Add(typeof(string), (key, dv, handle) =>
                                         {
-                                            IntPtr value;
+                                            string value;
                                             int res = NativeMethods.git_config_get_string(handle, key, out value);
-                                            return ProcessReadResult<object>(res, value, dv, s => ((IntPtr)s).MarshallAsString());
+                                            return ProcessReadResult<object>(res, value, dv);
                                         });
 
             return dic;
