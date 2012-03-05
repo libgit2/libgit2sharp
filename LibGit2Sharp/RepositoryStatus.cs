@@ -46,7 +46,7 @@ namespace LibGit2Sharp
                 return;
             }
 
-            string errorMessage = NativeMethods.git_lasterror().MarshallAsString();
+            string errorMessage = NativeMethods.git_lasterror();
             throw new LibGit2Exception(
                 String.Format(CultureInfo.InvariantCulture, "An error was raised by libgit2. Error code = {0} ({1}).{2}{3}", Enum.GetName(typeof(GitErrorCode), result), result, Environment.NewLine, errorMessage));
         }

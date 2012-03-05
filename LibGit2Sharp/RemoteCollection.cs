@@ -45,11 +45,8 @@ namespace LibGit2Sharp
             var remote = new Remote();
             using (handle)
             {
-                IntPtr ptr = NativeMethods.git_remote_name(handle);
-                remote.Name = ptr.MarshallAsString();
-
-                ptr = NativeMethods.git_remote_url(handle);
-                remote.Url = ptr.MarshallAsString();
+                remote.Name = NativeMethods.git_remote_name(handle);
+                remote.Url = NativeMethods.git_remote_url(handle);
             }
 
             return remote;

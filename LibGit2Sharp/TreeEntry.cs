@@ -28,7 +28,7 @@ namespace LibGit2Sharp
             target = new Lazy<GitObject>(RetreiveTreeEntryTarget);
 
             Attributes = NativeMethods.git_tree_entry_attributes(obj);
-            Name = NativeMethods.git_tree_entry_name(obj).MarshallAsString();
+            Name = NativeMethods.git_tree_entry_name(obj);
         }
 
         /// <summary>

@@ -181,7 +181,7 @@ namespace LibGit2Sharp
             int res = NativeMethods.git_repository_init(out repo, PosixPathHelper.ToPosix(path), isBare);
             Ensure.Success(res);
 
-            string normalizedPath = NativeMethods.git_repository_path(repo).MarshallAsString();
+            string normalizedPath = NativeMethods.git_repository_path(repo);
             repo.SafeDispose();
 
             string nativePath = PosixPathHelper.ToNative(normalizedPath);

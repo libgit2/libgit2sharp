@@ -161,9 +161,9 @@ namespace LibGit2Sharp
 
             dic.Add(typeof(string), (key, dv, handle) =>
                                         {
-                                            IntPtr value;
+                                            string value;
                                             int res = NativeMethods.git_config_get_string(handle, key, out value);
-                                            return ProcessReadResult<object>(res, value, dv, s => ((IntPtr)s).MarshallAsString());
+                                            return ProcessReadResult<object>(res, value, dv);
                                         });
 
             return dic;
