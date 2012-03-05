@@ -148,6 +148,7 @@ namespace LibGit2Sharp.Tests
                 newStatus.Untracked.Single().ShouldEqual(".gitignore");
 
                 repo.Index.RetrieveStatus(relativePath).ShouldEqual(FileStatus.Ignored);
+                Assert.Equal(new[] { relativePath, "new_untracked_file.txt" }, newStatus.Ignored);
             }
         }
     }
