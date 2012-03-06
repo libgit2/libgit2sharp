@@ -25,7 +25,7 @@ namespace LibGit2Sharp
             IntPtr gitTreeEntryId = NativeMethods.git_tree_entry_id(obj);
             targetOid = new ObjectId((GitOid)Marshal.PtrToStructure(gitTreeEntryId, typeof(GitOid)));
             Type = NativeMethods.git_tree_entry_type(obj);
-            target = new Lazy<GitObject>(RetreiveTreeEntryTarget);
+            target = new Lazy<GitObject>(RetrieveTreeEntryTarget);
 
             Attributes = (int)NativeMethods.git_tree_entry_attributes(obj);
             Name = NativeMethods.git_tree_entry_name(obj);
@@ -55,7 +55,7 @@ namespace LibGit2Sharp
         /// </summary>
         public GitObjectType Type { get; private set; }
 
-        private GitObject RetreiveTreeEntryTarget()
+        private GitObject RetrieveTreeEntryTarget()
         {
             GitObject treeEntryTarget = repo.Lookup(targetOid);
 
