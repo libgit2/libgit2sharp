@@ -17,7 +17,7 @@ namespace LibGit2Sharp
         private readonly IndexSafeHandle handle;
         private readonly Repository repo;
 
-        private static readonly Utf8Marshaler utf8Marshaler = new Utf8Marshaler();
+        private static readonly Utf8Marshaler utf8Marshaler = new Utf8Marshaler(true);
 
         internal Index(Repository repo)
         {

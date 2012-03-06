@@ -6,8 +6,8 @@ namespace LibGit2Sharp.Core
 {
     internal class Utf8Marshaler : ICustomMarshaler
     {
-        static Utf8Marshaler staticInstance;
-        readonly bool ownsPointer;
+        private static readonly Utf8Marshaler staticInstance = new Utf8Marshaler();
+        private readonly bool ownsPointer;
 
         internal Utf8Marshaler(bool ownsPointer = false)
         {
@@ -89,11 +89,6 @@ namespace LibGit2Sharp.Core
 
         public static ICustomMarshaler GetInstance(string cookie)
         {
-            if (staticInstance == null)
-            {
-                return staticInstance = new Utf8Marshaler();
-            }
-
             return staticInstance;
         }
 

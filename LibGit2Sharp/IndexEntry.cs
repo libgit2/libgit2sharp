@@ -14,7 +14,7 @@ namespace LibGit2Sharp
 
         private Func<FileStatus> state;
 
-        private static readonly Utf8Marshaler marshaler = new Utf8Marshaler();
+        private static readonly Utf8Marshaler marshaler = (Utf8Marshaler)Utf8Marshaler.GetInstance(string.Empty);
 
         /// <summary>
         ///   State of the version of the <see cref = "Blob" /> pointed at by this <see cref = "IndexEntry" />, 
