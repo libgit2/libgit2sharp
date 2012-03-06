@@ -41,12 +41,10 @@ namespace LibGit2Sharp
             isDirty = statusEntries.Count != 0;
         }
 
-        private int StateChanged(string filePath, uint state, IntPtr payload)
+        private int StateChanged(FilePath filePath, uint state, IntPtr payload)
         {
-            filePath = PosixPathHelper.ToNative(filePath);
-
             var gitStatus = (FileStatus)state;
-            statusEntries.Add(new StatusEntry(filePath, gitStatus));
+            statusEntries.Add(new StatusEntry(filePath.Native, gitStatus));
 
             foreach (KeyValuePair<FileStatus, Action<RepositoryStatus, string>> kvp in dispatcher)
             {
@@ -55,7 +53,7 @@ namespace LibGit2Sharp
                     continue;
                 }
 
-                kvp.Value(this, filePath);
+                kvp.Value(this, filePath.Native);
             }
 
             return 0;

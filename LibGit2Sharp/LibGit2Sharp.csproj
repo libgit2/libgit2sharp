@@ -51,6 +51,8 @@
     <Compile Include="Commit.cs" />
     <Compile Include="CommitCollection.cs" />
     <Compile Include="Configuration.cs" />
+    <Compile Include="Core\FilePath.cs" />
+    <Compile Include="Core\FilePathMarshaler.cs" />
     <Compile Include="ConfigurationLevel.cs" />
     <Compile Include="Core\Compat\Tuple.cs" />
     <Compile Include="Core\DisposableEnumerable.cs" />
@@ -75,9 +77,6 @@
     <Compile Include="Core\NativeMethods.cs" />
     <Compile Include="Core\SafeHandleExtensions.cs" />
     <Compile Include="Core\ObjectSafeWrapper.cs" />
-    <Compile Include="Core\PosixPathHelper.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="Core\RemoteSafeHandle.cs" />
     <Compile Include="Core\RevWalkerSafeHandle.cs">
       <SubType>Code</SubType>

@@ -48,8 +48,6 @@ namespace LibGit2Sharp
         {
             get
             {
-                path = PosixPathHelper.ToPosix(path);
-
                 Ensure.ArgumentNotNullOrEmptyString(path, "path");
 
                 int res = NativeMethods.git_index_find(handle, path);
@@ -395,16 +393,12 @@ namespace LibGit2Sharp
 
         private void AddToIndex(string relativePath)
         {
-            relativePath = PosixPathHelper.ToPosix(relativePath);
-
             int res = NativeMethods.git_index_add(handle, relativePath);
             Ensure.Success(res);
         }
 
         private void RemoveFromIndex(string relativePath)
         {
-            relativePath = PosixPathHelper.ToPosix(relativePath);
-
             int res = NativeMethods.git_index_find(handle, relativePath);
             Ensure.Success(res, true);
 
@@ -470,7 +464,7 @@ namespace LibGit2Sharp
 
             FileStatus status;
 
-            int res = NativeMethods.git_status_file(out status, repo.Handle, PosixPathHelper.ToPosix(relativePath));
+            int res = NativeMethods.git_status_file(out status, repo.Handle, relativePath);
             if (res == (int)GitErrorCode.GIT_ENOTFOUND)
             {
                 return FileStatus.Nonexistent;

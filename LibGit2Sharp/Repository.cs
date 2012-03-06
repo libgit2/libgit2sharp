@@ -34,7 +34,7 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(path, "path");
 
-            int res = NativeMethods.git_repository_open(out handle, PosixPathHelper.ToPosix(path));
+            int res = NativeMethods.git_repository_open(out handle, path);
             Ensure.Success(res);
 
             RegisterForCleanup(handle);
@@ -176,15 +176,13 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNullOrEmptyString(path, "path");
 
             RepositorySafeHandle repo;
-            int res = NativeMethods.git_repository_init(out repo, PosixPathHelper.ToPosix(path), isBare);
+            int res = NativeMethods.git_repository_init(out repo, path, isBare);
             Ensure.Success(res);
 
-            string normalizedPath = NativeMethods.git_repository_path(repo).MarshallAsString();
+            FilePath repoPath = NativeMethods.git_repository_path(repo).MarshallAsString();
             repo.SafeDispose();
 
-            string nativePath = PosixPathHelper.ToNative(normalizedPath);
-
-            return new Repository(nativePath);
+            return new Repository(repoPath.Native);
         }
 
         /// <summary>
@@ -285,7 +283,7 @@ namespace LibGit2Sharp
         {
             var buffer = new byte[NativeMethods.GIT_PATH_MAX];
 
-            int result = NativeMethods.git_repository_discover(buffer, buffer.Length, PosixPathHelper.ToPosix(startingPath), false, null);
+            int result = NativeMethods.git_repository_discover(buffer, buffer.Length, startingPath, false, null);
 
             if ((GitErrorCode)result == GitErrorCode.GIT_ENOTAREPO)
             {
@@ -294,7 +292,9 @@ namespace LibGit2Sharp
 
             Ensure.Success(result);
 
-            return PosixPathHelper.ToNative(Utf8Marshaler.Utf8FromBuffer(buffer));
+            FilePath discoveredPath = Utf8Marshaler.Utf8FromBuffer(buffer);
+
+            return discoveredPath.Native;
         }
 
         /// <summary>

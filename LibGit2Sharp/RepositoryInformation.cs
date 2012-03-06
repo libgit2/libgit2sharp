@@ -15,11 +15,11 @@ namespace LibGit2Sharp
             this.repo = repo;
             IsBare = isBare;
 
-            string posixPath = NativeMethods.git_repository_path(repo.Handle).MarshallAsString();
-            string posixWorkingDirectoryPath = NativeMethods.git_repository_workdir(repo.Handle).MarshallAsString();
+            FilePath path = NativeMethods.git_repository_path(repo.Handle).MarshallAsString();
+            FilePath workingDirectoryPath = NativeMethods.git_repository_workdir(repo.Handle).MarshallAsString();
 
-            Path = PosixPathHelper.ToNative(posixPath);
-            WorkingDirectory = PosixPathHelper.ToNative(posixWorkingDirectoryPath);
+            Path = path.Native;
+            WorkingDirectory = workingDirectoryPath == null ? null : workingDirectoryPath.Native;
         }
 
         /// <summary>
