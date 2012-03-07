@@ -55,7 +55,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Gets the <typeparam name = "TObject" /> this <see cref = "ReferenceWrapper{TObject}" /> points to.
+        ///   Gets the <typeparamref name="TObject"/> this <see cref = "ReferenceWrapper{TObject}" /> points to.
         /// </summary>
         protected TObject TargetObject
         {
