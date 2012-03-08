@@ -5,6 +5,16 @@
     /// </summary>
     public class Remote
     {
+        public Remote(string name, string url)
+        {
+            Name = name;
+            Url = url;
+        }
+
+        internal Remote()
+        {
+        }
+
         /// <summary>
         ///   Gets the alias of this remote repository.
         /// </summary>

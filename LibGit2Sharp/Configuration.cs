@@ -8,7 +8,7 @@ namespace LibGit2Sharp
     /// <summary>
     ///   Provides access to configuration variables for a repository.
     /// </summary>
-    public class Configuration : IDisposable
+    public class Configuration : IConfiguration
     {
         private readonly string globalConfigPath;
         private readonly string systemConfigPath;

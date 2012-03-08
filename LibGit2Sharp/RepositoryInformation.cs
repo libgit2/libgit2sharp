@@ -5,7 +5,7 @@ namespace LibGit2Sharp
     /// <summary>
     ///   Provides high level information about a repository.
     /// </summary>
-    public class RepositoryInformation
+    public class RepositoryInformation : IRepositoryInformation
     {
         private readonly Repository repo;
 

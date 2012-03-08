@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Compat;
 
@@ -8,18 +7,18 @@ namespace LibGit2Sharp
     /// <summary>
     ///   A Repository is the primary interface into a git repository
     /// </summary>
-    public class Repository : IDisposable
+    public class Repository : IDisposable, IRepository
     {
-        private readonly BranchCollection branches;
-        private readonly CommitCollection commits;
-        private readonly Lazy<Configuration> config;
-        private readonly RepositorySafeHandle handle;
-        private readonly Index index;
-        private readonly ReferenceCollection refs;
-        private readonly Lazy<RemoteCollection> remotes;
-        private readonly TagCollection tags;
-        private readonly Lazy<RepositoryInformation> info;
-        private readonly bool isBare;
+        readonly BranchCollection branches;
+        readonly CommitCollection commits;
+        readonly Lazy<Configuration> config;
+        readonly RepositorySafeHandle handle;
+        readonly Index index;
+        readonly ReferenceCollection refs;
+        readonly Lazy<RemoteCollection> remotes;
+        readonly TagCollection tags;
+        readonly Lazy<RepositoryInformation> info;
+        readonly bool isBare;
 
         /// <summary>
         ///   Initializes a new instance of the <see cref = "Repository" /> class.
@@ -79,7 +78,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Provides access to the configuration settings for this repository.
         /// </summary>
-        public Configuration Config
+        public IConfiguration Config
         {
             get { return config.Value; }
         }
@@ -103,7 +102,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Lookup and manage remotes in the repository.
         /// </summary>
-        public RemoteCollection Remotes
+        public IRemoteCollection Remotes
         {
             get { return remotes.Value; }
         }
@@ -136,7 +135,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Provides high level information about this repository.
         /// </summary>
-        public RepositoryInformation Info
+        public IRepositoryInformation Info
         {
             get { return info.Value; }
         }
@@ -205,14 +204,14 @@ namespace LibGit2Sharp
 
             if (id is AbbreviatedObjectId)
             {
-                res = NativeMethods.git_object_lookup_prefix(out obj, handle, ref oid, (uint)((AbbreviatedObjectId)id).Length, type);
+                res = NativeMethods.git_object_lookup_prefix(out obj, handle, ref oid, (uint) ((AbbreviatedObjectId) id).Length, type);
             }
             else
             {
                 res = NativeMethods.git_object_lookup(out obj, handle, ref oid, type);
             }
 
-            if (res == (int)GitErrorCode.GIT_ENOTFOUND || res == (int)GitErrorCode.GIT_EINVALIDTYPE)
+            if (res == (int) GitErrorCode.GIT_ENOTFOUND || res == (int) GitErrorCode.GIT_EINVALIDTYPE)
             {
                 return null;
             }
@@ -242,7 +241,7 @@ namespace LibGit2Sharp
         {
             ObjectId id;
 
-            Reference reference = Refs[shaOrReferenceName]; 
+            Reference reference = Refs[shaOrReferenceName];
             if (reference != null)
             {
                 id = reference.PeelToTargetObjectId();
@@ -289,7 +288,7 @@ namespace LibGit2Sharp
 
             int result = NativeMethods.git_repository_discover(buffer, buffer.Length, PosixPathHelper.ToPosix(startingPath), false, null);
 
-            if ((GitErrorCode)result == GitErrorCode.GIT_ENOTAREPO)
+            if ((GitErrorCode) result == GitErrorCode.GIT_ENOTAREPO)
             {
                 return null;
             }
@@ -326,7 +325,7 @@ namespace LibGit2Sharp
                 return;
             }
 
-            Index.ReplaceContentWithTree(((Commit)commit).Tree);
+            Index.ReplaceContentWithTree(((Commit) commit).Tree);
 
             if (resetOptions == ResetOptions.Mixed)
             {
