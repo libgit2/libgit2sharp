@@ -8,7 +8,7 @@ namespace LibGit2Sharp.Tests
     [TestFixture]
     public class BranchFixture : BaseFixture
     {
-        private readonly string[] expectedBranches = new[] { "br2", "master", "packed", "packed-test", "test", };
+        private readonly string[] expectedBranches = new[] {"br2", "master", "packed", "packed-test", "test",};
 
         [Test]
         public void CanCreateBranch()
@@ -17,7 +17,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path.RepositoryPath))
             {
                 const string name = "unit_test";
-                Branch newBranch = repo.CreateBranch(name, "be3563ae3f795b2b4353bcce3a527ad0a4f7f644");
+                IBranch newBranch = repo.CreateBranch(name, "be3563ae3f795b2b4353bcce3a527ad0a4f7f644");
                 newBranch.ShouldNotBeNull();
                 newBranch.Name.ShouldEqual(name);
                 newBranch.CanonicalName.ShouldEqual("refs/heads/" + name);
@@ -36,7 +36,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path.RepositoryPath))
             {
                 const string name = "unit_test";
-                Branch newBranch = repo.CreateBranch(name, "be3563a");
+                IBranch newBranch = repo.CreateBranch(name, "be3563a");
                 newBranch.CanonicalName.ShouldEqual("refs/heads/" + name);
                 newBranch.Tip.Sha.ShouldEqual("be3563ae3f795b2b4353bcce3a527ad0a4f7f644");
             }
@@ -49,7 +49,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path.RepositoryPath))
             {
                 const string name = "unit_test";
-                Branch newBranch = repo.CreateBranch(name);
+                IBranch newBranch = repo.CreateBranch(name);
                 newBranch.ShouldNotBeNull();
                 newBranch.Name.ShouldEqual(name);
                 newBranch.CanonicalName.ShouldEqual("refs/heads/" + name);
@@ -67,7 +67,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path.RepositoryPath))
             {
                 const string name = "unit_test";
-                Branch newBranch = repo.CreateBranch(name, "HEAD");
+                IBranch newBranch = repo.CreateBranch(name, "HEAD");
                 newBranch.ShouldNotBeNull();
                 newBranch.Tip.Sha.ShouldEqual("4c062a6361ae6959e06292c1fa5e2822d9c96345");
             }
@@ -80,7 +80,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path.RepositoryPath))
             {
                 const string name = "i-peel-tag";
-                Branch newBranch = repo.CreateBranch(name, "refs/tags/test");
+                IBranch newBranch = repo.CreateBranch(name, "refs/tags/test");
                 newBranch.ShouldNotBeNull();
                 newBranch.Tip.Sha.ShouldEqual("e90810b8df3e80c413d903f631643c716887138d");
             }
@@ -92,7 +92,7 @@ namespace LibGit2Sharp.Tests
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
             using (var repo = new Repository(path.RepositoryPath))
             {
-                Branch newBranch = repo.CreateBranch("clone-of-master");
+                IBranch newBranch = repo.CreateBranch("clone-of-master");
                 newBranch.IsCurrentRepositoryHead.ShouldBeFalse();
 
                 ObjectId commitId = repo.Head.Tip.Id;
@@ -100,7 +100,7 @@ namespace LibGit2Sharp.Tests
 
                 Reference reference = repo.Refs[newBranch.CanonicalName];
                 reference.ShouldNotBeNull();
-                Assert.IsInstanceOf(typeof(DirectReference), reference);
+                Assert.IsInstanceOf(typeof (DirectReference), reference);
             }
         }
 
@@ -131,7 +131,8 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(BareTestRepoPath))
             {
                 Assert.Throws<LibGit2Exception>(() => repo.Branches.Create("my_new_branch", Constants.UnknownSha));
-                Assert.Throws<LibGit2Exception>(() => repo.Branches.Create("my_new_branch", Constants.UnknownSha.Substring(0, 7)));
+                Assert.Throws<LibGit2Exception>(
+                    () => repo.Branches.Create("my_new_branch", Constants.UnknownSha.Substring(0, 7)));
             }
         }
 
@@ -172,7 +173,11 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(StandardTestRepoWorkingDirPath))
             {
-                var expectedWdBranches = new[] { "master", "track-local", "origin/HEAD", "origin/br2", "origin/master", "origin/packed-test", "origin/test" };
+                var expectedWdBranches = new[]
+                                         {
+                                             "master", "track-local", "origin/HEAD", "origin/br2", "origin/master",
+                                             "origin/packed-test", "origin/test"
+                                         };
 
                 CollectionAssert.AreEqual(expectedWdBranches, repo.Branches.Select(b => b.Name).ToArray());
             }
@@ -184,16 +189,52 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(StandardTestRepoPath))
             {
                 var expectedBranchesIncludingRemoteRefs = new[]
+                                                          {
+                                                              new
                                                               {
-                                                                  new { Name = "master", Sha = "32eab9cb1f450b5fe7ab663462b77d7f4b703344", IsRemote = false },
-                                                                  new { Name = "track-local", Sha = "580c2111be43802dab11328176d94c391f1deae9", IsRemote = false },
-                                                                  new { Name = "origin/HEAD", Sha = "580c2111be43802dab11328176d94c391f1deae9", IsRemote = true },
-                                                                  new { Name = "origin/br2", Sha = "a4a7dce85cf63874e984719f4fdd239f5145052f", IsRemote = true },
-                                                                  new { Name = "origin/master", Sha = "580c2111be43802dab11328176d94c391f1deae9", IsRemote = true },
-                                                                  new { Name = "origin/packed-test", Sha = "4a202b346bb0fb0db7eff3cffeb3c70babbd2045", IsRemote = true },
-                                                                  new { Name = "origin/test", Sha = "e90810b8df3e80c413d903f631643c716887138d", IsRemote = true },
-                                                              };
-                CollectionAssert.AreEqual(expectedBranchesIncludingRemoteRefs, repo.Branches.Select(b => new { b.Name, b.Tip.Sha, b.IsRemote }).ToArray());
+                                                                  Name = "master",
+                                                                  Sha = "32eab9cb1f450b5fe7ab663462b77d7f4b703344",
+                                                                  IsRemote = false
+                                                              },
+                                                              new
+                                                              {
+                                                                  Name = "track-local",
+                                                                  Sha = "580c2111be43802dab11328176d94c391f1deae9",
+                                                                  IsRemote = false
+                                                              },
+                                                              new
+                                                              {
+                                                                  Name = "origin/HEAD",
+                                                                  Sha = "580c2111be43802dab11328176d94c391f1deae9",
+                                                                  IsRemote = true
+                                                              },
+                                                              new
+                                                              {
+                                                                  Name = "origin/br2",
+                                                                  Sha = "a4a7dce85cf63874e984719f4fdd239f5145052f",
+                                                                  IsRemote = true
+                                                              },
+                                                              new
+                                                              {
+                                                                  Name = "origin/master",
+                                                                  Sha = "580c2111be43802dab11328176d94c391f1deae9",
+                                                                  IsRemote = true
+                                                              },
+                                                              new
+                                                              {
+                                                                  Name = "origin/packed-test",
+                                                                  Sha = "4a202b346bb0fb0db7eff3cffeb3c70babbd2045",
+                                                                  IsRemote = true
+                                                              },
+                                                              new
+                                                              {
+                                                                  Name = "origin/test",
+                                                                  Sha = "e90810b8df3e80c413d903f631643c716887138d",
+                                                                  IsRemote = true
+                                                              },
+                                                          };
+                CollectionAssert.AreEqual(expectedBranchesIncludingRemoteRefs,
+                                          repo.Branches.Select(b => new {b.Name, b.Tip.Sha, b.IsRemote}).ToArray());
             }
         }
 
@@ -202,11 +243,11 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                Branch branch = repo.Branches["refs/heads/br2"];
+                IBranch branch = repo.Branches["refs/heads/br2"];
                 branch.ShouldNotBeNull();
                 branch.Name.ShouldEqual("br2");
 
-                Branch branch2 = repo.Branches["refs/heads/br2"];
+                IBranch branch2 = repo.Branches["refs/heads/br2"];
                 branch2.ShouldNotBeNull();
                 branch2.Name.ShouldEqual("br2");
 
@@ -220,7 +261,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                Branch master = repo.Branches["master"];
+                IBranch master = repo.Branches["master"];
                 master.ShouldNotBeNull();
                 master.IsRemote.ShouldBeFalse();
                 master.Name.ShouldEqual("master");
@@ -235,7 +276,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                Branch branch;
+                IBranch branch;
                 Assert.Throws<ArgumentNullException>(() => branch = repo.Branches[null]);
                 Assert.Throws<ArgumentException>(() => branch = repo.Branches[""]);
             }
@@ -246,7 +287,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                Branch branch = repo.Branches["test"];
+                IBranch branch = repo.Branches["test"];
                 branch.IsTracking.ShouldBeFalse();
                 branch.TrackedBranch.ShouldBeNull();
                 branch.AheadBy.ShouldEqual(0);
@@ -259,7 +300,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(StandardTestRepoPath))
             {
-                Branch master = repo.Branches["master"];
+                IBranch master = repo.Branches["master"];
                 master.IsTracking.ShouldBeTrue();
                 master.TrackedBranch.ShouldEqual(repo.Branches["refs/remotes/origin/master"]);
                 master.AheadBy.ShouldEqual(2);
@@ -285,7 +326,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                Branch master = repo.Branches["test"];
+                IBranch master = repo.Branches["test"];
                 master.Commits.Count().ShouldEqual(2);
             }
         }
@@ -295,7 +336,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                Branch master = repo.Branches["master"];
+                IBranch master = repo.Branches["master"];
                 master.Commits.Count().ShouldEqual(7);
             }
         }
@@ -307,10 +348,10 @@ namespace LibGit2Sharp.Tests
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
             using (var repo = new Repository(path.RepositoryPath))
             {
-                Branch master = repo.Branches["master"];
+                IBranch master = repo.Branches["master"];
                 master.IsCurrentRepositoryHead.ShouldBeTrue();
 
-                Branch test = repo.Branches.Checkout(name);
+                IBranch test = repo.Branches.Checkout(name);
                 repo.Info.IsHeadDetached.ShouldBeFalse();
 
                 test.IsRemote.ShouldBeFalse();
@@ -328,10 +369,10 @@ namespace LibGit2Sharp.Tests
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
             using (var repo = new Repository(path.RepositoryPath))
             {
-                Branch master = repo.Branches["master"];
+                IBranch master = repo.Branches["master"];
                 master.IsCurrentRepositoryHead.ShouldBeTrue();
 
-                Branch detachedHead = repo.Branches.Checkout(commitPointer);
+                IBranch detachedHead = repo.Branches.Checkout(commitPointer);
 
                 repo.Info.IsHeadDetached.ShouldBeTrue();
 
@@ -391,9 +432,9 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                Branch head = null;
+                IBranch head = null;
 
-                foreach (Branch branch in repo.Branches)
+                foreach (IBranch branch in repo.Branches)
                 {
                     bool isHead = branch.IsCurrentRepositoryHead;
 
@@ -421,9 +462,9 @@ namespace LibGit2Sharp.Tests
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
             using (var repo = new Repository(path.RepositoryPath))
             {
-                Branch master = repo.Branches["refs/heads/master"];
+                IBranch master = repo.Branches["refs/heads/master"];
 
-                Branch newBranch = repo.Branches.Create("clone-of-master", master.Tip.Sha);
+                IBranch newBranch = repo.Branches.Create("clone-of-master", master.Tip.Sha);
                 newBranch.IsCurrentRepositoryHead.ShouldBeFalse();
             }
         }
@@ -436,7 +477,7 @@ namespace LibGit2Sharp.Tests
             {
                 repo.Branches["br3"].ShouldBeNull();
 
-                Branch newBranch = repo.Branches.Move("br2", "br3");
+                IBranch newBranch = repo.Branches.Move("br2", "br3");
                 newBranch.Name.ShouldEqual("br3");
 
                 repo.Branches["br2"].ShouldBeNull();
@@ -459,18 +500,18 @@ namespace LibGit2Sharp.Tests
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
             using (var repo = new Repository(path.RepositoryPath))
             {
-                Branch test = repo.Branches["test"];
+                IBranch test = repo.Branches["test"];
                 test.ShouldNotBeNull();
 
-                Branch br2 = repo.Branches["br2"];
+                IBranch br2 = repo.Branches["br2"];
                 br2.ShouldNotBeNull();
 
-                Branch newBranch = repo.Branches.Move("br2", "test", true);
+                IBranch newBranch = repo.Branches.Move("br2", "test", true);
                 newBranch.Name.ShouldEqual("test");
 
                 repo.Branches["br2"].ShouldBeNull();
 
-                Branch newTest = repo.Branches["test"];
+                IBranch newTest = repo.Branches["test"];
                 newTest.ShouldNotBeNull();
                 newTest.ShouldEqual(newBranch);
 

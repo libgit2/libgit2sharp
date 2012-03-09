@@ -10,7 +10,7 @@ namespace LibGit2Sharp
     /// <summary>
     ///   The collection of Branches in a <see cref = "Repository" />
     /// </summary>
-    public class BranchCollection : IEnumerable<Branch>
+    public class BranchCollection : IEnumerable<IBranch>
     {
         private readonly Repository repo;
 
@@ -26,7 +26,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Gets the <see cref = "LibGit2Sharp.Branch" /> with the specified name.
         /// </summary>
-        public Branch this[string name]
+        public IBranch this[string name]
         {
             get
             {
@@ -43,7 +43,7 @@ namespace LibGit2Sharp
         ///   Returns an enumerator that iterates through the collection.
         /// </summary>
         /// <returns>An <see cref = "IEnumerator{T}" /> object that can be used to iterate through the collection.</returns>
-        public IEnumerator<Branch> GetEnumerator()
+        public IEnumerator<IBranch> GetEnumerator()
         {
             return Libgit2UnsafeHelper.ListAllReferenceNames(repo.Handle, GitReferenceType.ListAll)
                 .Where(LooksLikeABranchName)
@@ -67,11 +67,11 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name = "shaOrReferenceName">The sha of the commit, a canonical reference name or the name of the branch to checkout.</param>
         /// <returns></returns>
-        public Branch Checkout(string shaOrReferenceName)
+        public IBranch Checkout(string shaOrReferenceName)
         {
             // TODO: This does not yet checkout (write) the working directory
 
-            Branch branch = this[shaOrReferenceName];
+            IBranch branch = this[shaOrReferenceName];
 
             if (branch != null)
             {
@@ -90,7 +90,7 @@ namespace LibGit2Sharp
         /// <param name = "name">The name of the branch.</param>
         /// <param name = "shaOrReferenceName">The target which can be sha or a canonical reference name.</param>
         /// <returns></returns>
-        public Branch Create(string name, string shaOrReferenceName)
+        public IBranch Create(string name, string shaOrReferenceName)
         {
             ObjectId commitId = RetrieveTargetCommitId(shaOrReferenceName);
 
@@ -100,7 +100,10 @@ namespace LibGit2Sharp
 
         private ObjectId RetrieveTargetCommitId(string target)
         {
-            GitObject commit = repo.Lookup(target, GitObjectType.Any, LookUpOptions.ThrowWhenNoGitObjectHasBeenFound | LookUpOptions.DereferenceResultToCommit | LookUpOptions.ThrowWhenCanNotBeDereferencedToACommit);
+            GitObject commit = repo.Lookup(target, GitObjectType.Any,
+                                           LookUpOptions.ThrowWhenNoGitObjectHasBeenFound |
+                                           LookUpOptions.DereferenceResultToCommit |
+                                           LookUpOptions.ThrowWhenCanNotBeDereferencedToACommit);
             return commit.Id;
         }
 
@@ -116,7 +119,8 @@ namespace LibGit2Sharp
 
             if (canonicalName == repo.Head.CanonicalName)
             {
-                throw new LibGit2Exception(string.Format("Branch '{0}' can not be deleted as it is the current HEAD.", canonicalName));
+                throw new LibGit2Exception(string.Format("Branch '{0}' can not be deleted as it is the current HEAD.",
+                                                         canonicalName));
             }
 
             //TODO: To be replaced by native libgit2 git_branch_delete() when available.
@@ -130,12 +134,13 @@ namespace LibGit2Sharp
         ///<param name = "newName">The new name of the existing branch should bear.</param>
         ///<param name = "allowOverwrite">True to allow silent overwriting a potentially existing branch, false otherwise.</param>
         ///<returns></returns>
-        public Branch Move(string currentName, string newName, bool allowOverwrite = false)
+        public IBranch Move(string currentName, string newName, bool allowOverwrite = false)
         {
             Ensure.ArgumentNotNullOrEmptyString(currentName, "name");
             Ensure.ArgumentNotNullOrEmptyString(newName, "name");
 
-            Reference reference = repo.Refs.Move(NormalizeToCanonicalName(currentName), NormalizeToCanonicalName(newName),
+            Reference reference = repo.Refs.Move(NormalizeToCanonicalName(currentName),
+                                                 NormalizeToCanonicalName(newName),
                                                  allowOverwrite);
 
             return this[reference.CanonicalName];
@@ -143,7 +148,8 @@ namespace LibGit2Sharp
 
         private static bool LooksLikeABranchName(string referenceName)
         {
-            return referenceName.StartsWith("refs/heads/", StringComparison.Ordinal) || referenceName.StartsWith("refs/remotes/", StringComparison.Ordinal);
+            return referenceName.StartsWith("refs/heads/", StringComparison.Ordinal) ||
+                   referenceName.StartsWith("refs/remotes/", StringComparison.Ordinal);
         }
 
         private static string NormalizeToCanonicalName(string name)

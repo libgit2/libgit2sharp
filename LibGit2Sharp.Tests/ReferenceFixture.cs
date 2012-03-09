@@ -10,10 +10,12 @@ namespace LibGit2Sharp.Tests
     public class ReferenceFixture : BaseFixture
     {
         private readonly string[] expectedRefs = new[]
-                                                     {
-                                                         "refs/heads/br2", "refs/heads/deadbeef", "refs/heads/master", "refs/heads/packed", "refs/heads/packed-test",
-                                                         "refs/heads/test", "refs/tags/e90810b", "refs/tags/lw", "refs/tags/point_to_blob", "refs/tags/test",
-                                                     };
+                                                 {
+                                                     "refs/heads/br2", "refs/heads/deadbeef", "refs/heads/master",
+                                                     "refs/heads/packed", "refs/heads/packed-test",
+                                                     "refs/heads/test", "refs/tags/e90810b", "refs/tags/lw",
+                                                     "refs/tags/point_to_blob", "refs/tags/test",
+                                                 };
 
         [Test]
         public void CanCreateADirectReference()
@@ -58,7 +60,8 @@ namespace LibGit2Sharp.Tests
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
             using (var repo = new Repository(path.RepositoryPath))
             {
-                Assert.Throws<LibGit2Exception>(() => repo.Refs.Create("refs/heads/master", "be3563ae3f795b2b4353bcce3a527ad0a4f7f644"));
+                Assert.Throws<LibGit2Exception>(
+                    () => repo.Refs.Create("refs/heads/master", "be3563ae3f795b2b4353bcce3a527ad0a4f7f644"));
             }
         }
 
@@ -333,7 +336,8 @@ namespace LibGit2Sharp.Tests
                 repo.Refs.UpdateTarget(newRef.CanonicalName, "refs/heads/test");
 
                 newRef = (SymbolicReference)repo.Refs[newRef.CanonicalName];
-                newRef.ResolveToDirectReference().Target.ShouldEqual(repo.Refs["refs/heads/test"].ResolveToDirectReference().Target);
+                newRef.ResolveToDirectReference().Target.ShouldEqual(
+                    repo.Refs["refs/heads/test"].ResolveToDirectReference().Target);
 
                 repo.Refs.Delete(newRef.CanonicalName);
             }
@@ -345,7 +349,7 @@ namespace LibGit2Sharp.Tests
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
             using (var repo = new Repository(path.RepositoryPath))
             {
-                Branch test = repo.Branches["test"];
+                IBranch test = repo.Branches["test"];
 
                 Reference direct = repo.Refs.UpdateTarget("HEAD", test.Tip.Sha);
                 (direct is DirectReference).ShouldBeTrue();
@@ -355,7 +359,6 @@ namespace LibGit2Sharp.Tests
                 (symref is SymbolicReference).ShouldBeTrue();
                 symref.ShouldEqual(repo.Refs["HEAD"]);
             }
-    
         }
 
         [Test]
@@ -369,7 +372,9 @@ namespace LibGit2Sharp.Tests
                 newRef.ShouldNotBeNull();
 
                 Assert.Throws<ArgumentException>(
-                    () => repo.Refs.UpdateTarget(newRef.CanonicalName, repo.Refs["refs/heads/test"].ResolveToDirectReference().Target.Sha));
+                    () =>
+                    repo.Refs.UpdateTarget(newRef.CanonicalName,
+                                           repo.Refs["refs/heads/test"].ResolveToDirectReference().Target.Sha));
 
                 repo.Refs.Delete(newRef.CanonicalName);
             }

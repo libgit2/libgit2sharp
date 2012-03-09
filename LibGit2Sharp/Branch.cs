@@ -9,12 +9,12 @@ namespace LibGit2Sharp
     /// <summary>
     ///   A branch is a special kind of reference
     /// </summary>
-    public class Branch : NamedReference<Commit>, IEquatable<Branch>
+    public class Branch : NamedReference<Commit>, IEquatable<Branch>, IBranch
     {
         private static readonly LambdaEqualityHelper<Branch> equalityHelper =
-            new LambdaEqualityHelper<Branch>(new Func<Branch, object>[] { x => x.CanonicalName, x => x.Tip });
+            new LambdaEqualityHelper<Branch>(new Func<Branch, object>[] {x => x.CanonicalName, x => x.Tip});
 
-        private readonly Lazy<Branch> trackedBranch;
+        private readonly Lazy<IBranch> trackedBranch;
 
         /// <summary>
         ///   Initializes a new instance of the <see cref = "Branch" /> class.
@@ -43,7 +43,7 @@ namespace LibGit2Sharp
         private Branch(Repository repo, Reference reference, Func<Reference, string> canonicalNameSelector)
             : base(repo, reference, canonicalNameSelector)
         {
-            trackedBranch = new Lazy<Branch>(ResolveTrackedBranch);
+            trackedBranch = new Lazy<IBranch>(ResolveTrackedBranch);
         }
 
         /// <summary>
@@ -78,7 +78,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Gets the remote branch which is connected to this local one.
         /// </summary>
-        public Branch TrackedBranch
+        public IBranch TrackedBranch
         {
             get { return trackedBranch.Value; }
         }
@@ -96,7 +96,7 @@ namespace LibGit2Sharp
         /// </summary>
         public int AheadBy
         {
-            get { return IsTracking ? repo.Commits.QueryBy(new Filter { Since = Tip, Until = TrackedBranch }).Count() : 0; }
+            get { return IsTracking ? repo.Commits.QueryBy(new Filter {Since = Tip, Until = TrackedBranch}).Count() : 0; }
         }
 
         /// <summary>
@@ -104,7 +104,7 @@ namespace LibGit2Sharp
         /// </summary>
         public int BehindBy
         {
-            get { return IsTracking ? repo.Commits.QueryBy(new Filter { Since = TrackedBranch, Until = Tip }).Count() : 0; }
+            get { return IsTracking ? repo.Commits.QueryBy(new Filter {Since = TrackedBranch, Until = Tip}).Count() : 0; }
         }
 
         /// <summary>
@@ -131,7 +131,7 @@ namespace LibGit2Sharp
         /// </summary>
         public ICommitCollection Commits
         {
-            get { return repo.Commits.QueryBy(new Filter { Since = this }); }
+            get { return repo.Commits.QueryBy(new Filter {Since = this}); }
         }
 
         #region IEquatable<Branch> Members
@@ -167,7 +167,7 @@ namespace LibGit2Sharp
             return equalityHelper.GetHashCode(this);
         }
 
-        private Branch ResolveTrackedBranch()
+        private IBranch ResolveTrackedBranch()
         {
             var trackedRemote = repo.Config.Get<string>("branch", Name, "remote", null);
             if (trackedRemote == null)
@@ -218,7 +218,8 @@ namespace LibGit2Sharp
                 return canonicalName.Substring("refs/remotes/".Length);
             }
 
-            throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "'{0}' does not look like a valid branch name.", canonicalName));
+            throw new ArgumentException(string.Format(CultureInfo.InvariantCulture,
+                                                      "'{0}' does not look like a valid branch name.", canonicalName));
         }
 
         /// <summary>

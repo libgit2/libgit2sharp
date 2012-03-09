@@ -16,7 +16,7 @@ namespace LibGit2Sharp
         /// <returns></returns>
         public static T Lookup<T>(this Repository repository, string shaOrRef) where T : GitObject
         {
-            return (T)repository.Lookup(shaOrRef, GitObject.TypeToTypeMap[typeof(T)]);
+            return (T)repository.Lookup(shaOrRef, GitObject.TypeToTypeMap[typeof (T)]);
         }
 
         /// <summary>
@@ -28,7 +28,7 @@ namespace LibGit2Sharp
         /// <returns></returns>
         public static T Lookup<T>(this Repository repository, ObjectId id) where T : GitObject
         {
-            return (T)repository.Lookup(id, GitObject.TypeToTypeMap[typeof(T)]);
+            return (T)repository.Lookup(id, GitObject.TypeToTypeMap[typeof (T)]);
         }
 
         /// <summary>
@@ -72,7 +72,8 @@ namespace LibGit2Sharp
         /// <param name = "target">The canonical reference name or sha which should be pointed at by the Tag.</param>
         /// <param name = "tagger">The identity of the creator of this tag.</param>
         /// <param name = "message">The annotation message.</param>
-        public static Tag ApplyTag(this Repository repository, string tagName, string target, Signature tagger, string message)
+        public static Tag ApplyTag(this Repository repository, string tagName, string target, Signature tagger,
+                                   string message)
         {
             return repository.Tags.Create(tagName, target, tagger, message);
         }
@@ -82,7 +83,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name = "repository">The <see cref = "Repository" /> being worked with.</param>
         /// <param name = "branchName">The name of the branch to create.</param>
-        public static Branch CreateBranch(this Repository repository, string branchName)
+        public static IBranch CreateBranch(this Repository repository, string branchName)
         {
             return CreateBranch(repository, branchName, repository.Head.CanonicalName);
         }
@@ -93,7 +94,7 @@ namespace LibGit2Sharp
         /// <param name = "repository">The <see cref = "Repository" /> being worked with.</param>
         /// <param name = "branchName">The name of the branch to create.</param>
         /// <param name = "target">The canonical reference name or sha which should be pointed at by the Branch.</param>
-        public static Branch CreateBranch(this Repository repository, string branchName, string target)
+        public static IBranch CreateBranch(this Repository repository, string branchName, string target)
         {
             return repository.Branches.Create(branchName, target);
         }
@@ -122,7 +123,8 @@ namespace LibGit2Sharp
         /// <param name = "message">The description of why a change was made to the repository.</param>
         /// <param name="amendPreviousCommit">True to amend the current <see cref="Commit"/> pointed at by <see cref="Repository.Head"/>, false otherwise.</param>
         /// <returns>The generated <see cref = "LibGit2Sharp.Commit" />.</returns>
-        public static Commit Commit(this Repository repository, string message, Signature author, bool amendPreviousCommit = false)
+        public static Commit Commit(this Repository repository, string message, Signature author,
+                                    bool amendPreviousCommit = false)
         {
             Signature committer = BuildSignatureFromGlobalConfiguration(repository, DateTimeOffset.Now);
 
@@ -138,7 +140,8 @@ namespace LibGit2Sharp
         /// <param name = "message">The description of why a change was made to the repository.</param>
         /// <param name="amendPreviousCommit">True to amend the current <see cref="Commit"/> pointed at by <see cref="Repository.Head"/>, false otherwise.</param>
         /// <returns>The generated <see cref = "LibGit2Sharp.Commit" />.</returns>
-        public static Commit Commit(this Repository repository, string message, Signature author, Signature committer, bool amendPreviousCommit = false)
+        public static Commit Commit(this Repository repository, string message, Signature author, Signature committer,
+                                    bool amendPreviousCommit = false)
         {
             return repository.Commits.Create(message, author, committer, amendPreviousCommit);
         }
@@ -150,7 +153,8 @@ namespace LibGit2Sharp
 
             if ((name == null) || (email == null))
             {
-                throw new LibGit2Exception("Can not find Name and Email settings of the current user in Git configuration.");
+                throw new LibGit2Exception(
+                    "Can not find Name and Email settings of the current user in Git configuration.");
             }
 
             return new Signature(name, email, now);
