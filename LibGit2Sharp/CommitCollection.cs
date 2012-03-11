@@ -321,7 +321,7 @@ namespace LibGit2Sharp
                 if (identifier is Branch)
                 {
                     var branch = (Branch)identifier;
-                    Ensure.GitObjectIsNotNull(branch.Tip, branch.CanonicalName);
+                    Ensure.GitObjectIsNotNull(branch.Tip as GitObject, branch.CanonicalName);
 
                     yield return branch.Tip.Id;
                     yield break;

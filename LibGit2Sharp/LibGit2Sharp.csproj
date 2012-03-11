@@ -60,7 +60,9 @@
     <Compile Include="Core\SignatureSafeHandle.cs" />
     <Compile Include="DetachedHead.cs" />
     <Compile Include="IBranch.cs" />
+    <Compile Include="ICommit.cs" />
     <Compile Include="IConfiguration.cs" />
+    <Compile Include="IDetachedHead.cs" />
     <Compile Include="IRemoteCollection.cs" />
     <Compile Include="IRepository.cs" />
     <Compile Include="IRepositoryInformation.cs" />

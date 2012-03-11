@@ -288,7 +288,7 @@ namespace LibGit2Sharp.Tests
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
             using (var repo = new Repository(path.RepositoryPath))
             {
-                Commit headCommit = repo.Head.Tip;
+                ICommit headCommit = repo.Head.Tip;
                 Tree tree = headCommit.Tree;
 
                 Tag tag = repo.ApplyTag("tree-tag", tree.Sha);
@@ -307,7 +307,7 @@ namespace LibGit2Sharp.Tests
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
             using (var repo = new Repository(path.RepositoryPath))
             {
-                Commit headCommit = repo.Head.Tip;
+                ICommit headCommit = repo.Head.Tip;
                 Blob blob = headCommit.Tree.Files.First();
 
                 Tag tag = repo.ApplyTag("blob-tag", blob.Sha);

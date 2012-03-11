@@ -9,12 +9,12 @@ namespace LibGit2Sharp
     /// <summary>
     ///   A Commit
     /// </summary>
-    public class Commit : GitObject
+    public class Commit : GitObject, ICommit
     {
-        private readonly Repository repo;
-        private readonly Lazy<IEnumerable<Commit>> parents;
-        private readonly Lazy<Tree> tree;
-        private readonly Lazy<string> shortMessage;
+        readonly Repository repo;
+        readonly Lazy<IEnumerable<Commit>> parents;
+        readonly Lazy<Tree> tree;
+        readonly Lazy<string> shortMessage;
 
         internal Commit(ObjectId id, ObjectId treeId, Repository repo)
             : base(id)
@@ -48,7 +48,7 @@ namespace LibGit2Sharp
             get { return shortMessage.Value; }
         }
 
-        private string ExtractShortMessage()
+        string ExtractShortMessage()
         {
             if (Message == null)
             {
@@ -103,7 +103,7 @@ namespace LibGit2Sharp
             }
         }
 
-        private IEnumerable<Commit> RetrieveParentsOfCommit(ObjectId oid)
+        IEnumerable<Commit> RetrieveParentsOfCommit(ObjectId oid)
         {
             using (var obj = new ObjectSafeWrapper(oid, repo))
             {
@@ -113,7 +113,7 @@ namespace LibGit2Sharp
                 {
                     IntPtr parentCommit;
                     Ensure.Success(NativeMethods.git_commit_parent(out parentCommit, obj.ObjectPtr, i));
-                    yield return (Commit)CreateFromPtr(parentCommit, ObjectIdOf(parentCommit), repo);
+                    yield return (Commit) CreateFromPtr(parentCommit, ObjectIdOf(parentCommit), repo);
                 }
             }
         }
@@ -121,18 +121,18 @@ namespace LibGit2Sharp
         internal static Commit BuildFromPtr(IntPtr obj, ObjectId id, Repository repo)
         {
             var treeId =
-                new ObjectId((GitOid)Marshal.PtrToStructure(NativeMethods.git_commit_tree_oid(obj), typeof(GitOid)));
+                new ObjectId((GitOid) Marshal.PtrToStructure(NativeMethods.git_commit_tree_oid(obj), typeof(GitOid)));
 
             return new Commit(id, treeId, repo)
-                       {
-                           Message = NativeMethods.git_commit_message(obj),
-                           Encoding = RetrieveEncodingOf(obj),
-                           Author = new Signature(NativeMethods.git_commit_author(obj)),
-                           Committer = new Signature(NativeMethods.git_commit_committer(obj)),
-                       };
+            {
+                Message = NativeMethods.git_commit_message(obj),
+                Encoding = RetrieveEncodingOf(obj),
+                Author = new Signature(NativeMethods.git_commit_author(obj)),
+                Committer = new Signature(NativeMethods.git_commit_committer(obj)),
+            };
         }
 
-        private static string RetrieveEncodingOf(IntPtr obj)
+        static string RetrieveEncodingOf(IntPtr obj)
         {
             string encoding = NativeMethods.git_commit_message_encoding(obj);
 

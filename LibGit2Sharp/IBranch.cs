@@ -48,7 +48,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Gets the commit id that this branch points to.
         /// </summary>
-        Commit Tip { get; }
+        ICommit Tip { get; }
 
         /// <summary>
         ///   Gets the commits on this branch. (Starts walking from the References's target).

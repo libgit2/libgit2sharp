@@ -9,7 +9,7 @@ namespace LibGit2Sharp
     /// <summary>
     ///   A branch is a special kind of reference
     /// </summary>
-    public class Branch : NamedReference<Commit>, IEquatable<Branch>, IBranch
+    public class Branch : NamedReference<Commit>, IEquatable<Branch>, IEquatable<IBranch>, IBranch
     {
         private static readonly LambdaEqualityHelper<Branch> equalityHelper =
             new LambdaEqualityHelper<Branch>(new Func<Branch, object>[] {x => x.CanonicalName, x => x.Tip});
@@ -121,7 +121,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Gets the commit id that this branch points to.
         /// </summary>
-        public Commit Tip
+        public ICommit Tip
         {
             get { return TargetObject; }
         }
@@ -144,6 +144,11 @@ namespace LibGit2Sharp
         public bool Equals(Branch other)
         {
             return equalityHelper.Equals(this, other);
+        }
+
+        public bool Equals(IBranch other)
+        {
+            return equalityHelper.Equals(this, other as Branch);
         }
 
         #endregion

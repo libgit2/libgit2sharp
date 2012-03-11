@@ -243,11 +243,11 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                IBranch branch = repo.Branches["refs/heads/br2"];
+                var branch = repo.Branches["refs/heads/br2"] as Branch;
                 branch.ShouldNotBeNull();
                 branch.Name.ShouldEqual("br2");
 
-                IBranch branch2 = repo.Branches["refs/heads/br2"];
+                var branch2 = repo.Branches["refs/heads/br2"] as Branch;
                 branch2.ShouldNotBeNull();
                 branch2.Name.ShouldEqual("br2");
 
