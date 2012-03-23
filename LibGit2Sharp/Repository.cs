@@ -193,6 +193,16 @@ namespace LibGit2Sharp
         /// <returns>The <see cref = "GitObject" /> or null if it was not found.</returns>
         public GitObject Lookup(ObjectId id, GitObjectType type = GitObjectType.Any)
         {
+            return LookupInternal(id, type, null);
+        }
+
+        internal GitObject LookupTreeEntryTarget(ObjectId id, FilePath path)
+        {
+            return LookupInternal(id, GitObjectType.Any, path);
+        }
+
+        internal GitObject LookupInternal(ObjectId id, GitObjectType type, FilePath knownPath)
+        {
             Ensure.ArgumentNotNull(id, "id");
 
             GitOid oid = id.Oid;
@@ -220,7 +230,7 @@ namespace LibGit2Sharp
                 id = GitObject.ObjectIdOf(obj);
             }
 
-            return GitObject.CreateFromPtr(obj, id, this);
+            return GitObject.CreateFromPtr(obj, id, this, knownPath);
         }
 
         /// <summary>

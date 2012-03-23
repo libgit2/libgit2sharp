@@ -4,6 +4,8 @@ namespace LibGit2Sharp.Core
 {
     internal class FilePath
     {
+        internal static FilePath Empty = new FilePath(string.Empty);
+
         private const char posixDirectorySeparatorChar = '/';
 
         private readonly string native;
@@ -32,7 +34,17 @@ namespace LibGit2Sharp.Core
 
         public static implicit operator FilePath(string path)
         {
-            return path == null ? null : new FilePath(path);
+            switch (path)
+            {
+                case null:
+                    return null;
+
+                case "":
+                    return Empty;
+
+                default:
+                    return new FilePath(path);
+            }
         }
 
         private static string Replace(string path, char oldChar, char newChar)

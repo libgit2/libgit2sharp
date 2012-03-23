@@ -113,7 +113,7 @@ namespace LibGit2Sharp
                 {
                     IntPtr parentCommit;
                     Ensure.Success(NativeMethods.git_commit_parent(out parentCommit, obj.ObjectPtr, i));
-                    yield return (Commit)CreateFromPtr(parentCommit, ObjectIdOf(parentCommit), repo);
+                    yield return BuildFromPtr(parentCommit, ObjectIdOf(parentCommit), repo);
                 }
             }
         }

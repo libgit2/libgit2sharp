@@ -52,6 +52,7 @@
     <Compile Include="CommitCollection.cs" />
     <Compile Include="Configuration.cs" />
     <Compile Include="Core\FilePath.cs" />
+    <Compile Include="Core\FilePathExtensions.cs" />
     <Compile Include="Core\FilePathMarshaler.cs" />
     <Compile Include="ConfigurationLevel.cs" />
     <Compile Include="Core\Compat\Tuple.cs" />

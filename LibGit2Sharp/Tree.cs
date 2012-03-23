@@ -11,11 +11,15 @@ namespace LibGit2Sharp
     /// </summary>
     public class Tree : GitObject, IEnumerable<TreeEntry>
     {
-        private Repository repo;
+        private readonly Repository repo;
+        private readonly FilePath path;
 
-        internal Tree(ObjectId id)
+        internal Tree(ObjectId id, FilePath path, int treeEntriesCount, Repository repository)
             : base(id)
         {
+            Count = treeEntriesCount;
+            repo = repository;
+            this.path = path ?? "";
         }
 
         /// <summary>
@@ -35,7 +39,7 @@ namespace LibGit2Sharp
 
         private TreeEntry RetrieveFromPath(FilePath relativePath)
         {
-            if (string.IsNullOrEmpty(relativePath.Posix))
+            if (relativePath.IsNullOrEmpty())
             {
                 return null;
             }
@@ -53,14 +57,18 @@ namespace LibGit2Sharp
 
                 Ensure.Success(res);
 
-                IntPtr e = NativeMethods.git_tree_entry_byname(objectPtr, relativePath.Posix.Split('/').Last());
+                string posixPath = relativePath.Posix;
+                string filename = posixPath.Split('/').Last();
+
+                IntPtr e = NativeMethods.git_tree_entry_byname(objectPtr, filename);
 
                 if (e == IntPtr.Zero)
                 {
                     return null;
                 }
 
-                return new TreeEntry(e, Id, repo);
+                string parentPath = posixPath.Substring(0, posixPath.Length - filename.Length);
+                return new TreeEntry(e, Id, repo, path.Combine(parentPath));
             }
         }
 
@@ -92,6 +100,11 @@ namespace LibGit2Sharp
             }
         }
 
+        internal string Path
+        {
+            get { return path.Native; }
+        }
+
         #region IEnumerable<TreeEntry> Members
 
         /// <summary>
@@ -105,7 +118,7 @@ namespace LibGit2Sharp
                 for (uint i = 0; i < Count; i++)
                 {
                     IntPtr e = NativeMethods.git_tree_entry_byindex(obj.ObjectPtr, i);
-                    yield return new TreeEntry(e, Id, repo);
+                    yield return new TreeEntry(e, Id, repo, path);
                 }
             }
         }
@@ -121,9 +134,9 @@ namespace LibGit2Sharp
 
         #endregion
 
-        internal static Tree BuildFromPtr(IntPtr obj, ObjectId id, Repository repo)
+        internal static Tree BuildFromPtr(IntPtr obj, ObjectId id, Repository repo, FilePath path)
         {
-            var tree = new Tree(id) { repo = repo, Count = (int)NativeMethods.git_tree_entrycount(obj) };
+            var tree = new Tree(id, path, (int)NativeMethods.git_tree_entrycount(obj), repo);
             return tree;
         }
     }

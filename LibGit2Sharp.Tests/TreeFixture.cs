@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System;
+using System.IO;
+using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
 
@@ -139,6 +141,44 @@ namespace LibGit2Sharp.Tests
             {
                 GitObject tree = repo.Lookup(sha);
                 tree.ShouldNotBeNull();
+            }
+        }
+
+        [Fact]
+        public void CanRetrieveTreeEntryPath()
+        {
+            using (var repo = new Repository(BareTestRepoPath))
+            {
+                /* From a commit tree */
+                var commitTree = repo.Lookup<Commit>("4c062a6").Tree;
+
+                TreeEntry treeTreeEntry = commitTree["1"];
+                treeTreeEntry.Path.ShouldEqual("1");
+
+                string completePath = "1" + Path.DirectorySeparatorChar + "branch_file.txt";
+
+                TreeEntry blobTreeEntry = commitTree["1/branch_file.txt"];
+                blobTreeEntry.Path.ShouldEqual(completePath);
+
+                // A tree entry is now fetched through a relative path to the 
+                // tree but exposes a complete path through its Path property
+                var subTree = treeTreeEntry.Target as Tree;
+                subTree.ShouldNotBeNull(); 
+                TreeEntry anInstance = subTree["branch_file.txt"];
+
+                anInstance.Path.ShouldNotEqual("branch_file.txt");
+                anInstance.Path.ShouldEqual(completePath);
+                subTree.First().Path.ShouldEqual(completePath);
+
+                /* From a random tree */
+                var tree = repo.Lookup<Tree>(treeTreeEntry.Target.Id);
+                TreeEntry anotherInstance = tree["branch_file.txt"];
+                anotherInstance.Path.ShouldEqual("branch_file.txt");
+
+                Assert.Equal(tree, subTree);
+                Assert.Equal(anotherInstance, anInstance);
+                Assert.NotEqual(anotherInstance.Path, anInstance.Path);
+                Assert.NotSame(anotherInstance, anInstance);
             }
         }
     }

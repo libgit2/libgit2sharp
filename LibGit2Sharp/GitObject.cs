@@ -45,7 +45,7 @@ namespace LibGit2Sharp
             get { return Id.Sha; }
         }
 
-        internal static GitObject CreateFromPtr(IntPtr obj, ObjectId id, Repository repo)
+        internal static GitObject CreateFromPtr(IntPtr obj, ObjectId id, Repository repo, FilePath path)
         {
             try
             {
@@ -55,7 +55,7 @@ namespace LibGit2Sharp
                     case GitObjectType.Commit:
                         return Commit.BuildFromPtr(obj, id, repo);
                     case GitObjectType.Tree:
-                        return Tree.BuildFromPtr(obj, id, repo);
+                        return Tree.BuildFromPtr(obj, id, repo, path);
                     case GitObjectType.Tag:
                         return TagAnnotation.BuildFromPtr(obj, id, repo);
                     case GitObjectType.Blob:
