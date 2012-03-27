@@ -6,6 +6,8 @@ namespace LibGit2Sharp.Core
 {
     internal static unsafe class Libgit2UnsafeHelper
     {
+        private static readonly Utf8Marshaler marshaler = (Utf8Marshaler)Utf8Marshaler.GetInstance(string.Empty);
+
         public static IList<string> ListAllReferenceNames(RepositorySafeHandle repo, GitReferenceType types)
         {
             UnSafeNativeMethods.git_strarray strArray;
@@ -44,7 +46,7 @@ namespace LibGit2Sharp.Core
                 int numberOfEntries = gitStrArray->size.ToInt32();
                 for (uint i = 0; i < numberOfEntries; i++)
                 {
-                    var name = new string(gitStrArray->strings[i]);
+                    var name = (string)marshaler.MarshalNativeToManaged((IntPtr)gitStrArray->strings[i]);
                     list.Add(name);
                 }
 
