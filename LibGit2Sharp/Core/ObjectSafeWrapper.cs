@@ -1,24 +1,23 @@
 ﻿using System;
+using LibGit2Sharp.Core.Handles;
 
 namespace LibGit2Sharp.Core
 {
     internal class ObjectSafeWrapper : IDisposable
     {
-        private IntPtr objectPtr = IntPtr.Zero;
+        private readonly GitObjectSafeHandle objectPtr;
 
         public ObjectSafeWrapper(ObjectId id, Repository repo)
         {
-            if (id == null)
-            {
-                return;
-            }
+            Ensure.ArgumentNotNull(id, "id");
+            Ensure.ArgumentNotNull(repo, "repo");
 
             GitOid oid = id.Oid;
             int res = NativeMethods.git_object_lookup(out objectPtr, repo.Handle, ref oid, GitObjectType.Any);
             Ensure.Success(res);
         }
 
-        public IntPtr ObjectPtr
+        public GitObjectSafeHandle ObjectPtr
         {
             get { return objectPtr; }
         }
@@ -31,13 +30,7 @@ namespace LibGit2Sharp.Core
 
         private void Dispose(bool disposing)
         {
-            if (objectPtr == IntPtr.Zero)
-            {
-                return;
-            }
-
-            NativeMethods.git_object_free(objectPtr);
-            objectPtr = IntPtr.Zero;
+            objectPtr.SafeDispose();
         }
 
         ~ObjectSafeWrapper()

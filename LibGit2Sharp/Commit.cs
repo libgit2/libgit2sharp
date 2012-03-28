@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Compat;
+using LibGit2Sharp.Core.Handles;
 
 namespace LibGit2Sharp
 {
@@ -111,14 +112,14 @@ namespace LibGit2Sharp
 
                 for (uint i = 0; i < parentsCount; i++)
                 {
-                    IntPtr parentCommit;
+                    GitObjectSafeHandle parentCommit;
                     Ensure.Success(NativeMethods.git_commit_parent(out parentCommit, obj.ObjectPtr, i));
                     yield return BuildFromPtr(parentCommit, ObjectIdOf(parentCommit), repo);
                 }
             }
         }
 
-        internal static Commit BuildFromPtr(IntPtr obj, ObjectId id, Repository repo)
+        internal static Commit BuildFromPtr(GitObjectSafeHandle obj, ObjectId id, Repository repo)
         {
             var treeId = new ObjectId(NativeMethods.git_commit_tree_oid(obj).MarshalAsOid());
 
@@ -131,7 +132,7 @@ namespace LibGit2Sharp
                        };
         }
 
-        private static string RetrieveEncodingOf(IntPtr obj)
+        private static string RetrieveEncodingOf(GitObjectSafeHandle obj)
         {
             string encoding = NativeMethods.git_commit_message_encoding(obj);
 

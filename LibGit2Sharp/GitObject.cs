@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.Runtime.InteropServices;
 using LibGit2Sharp.Core;
+using LibGit2Sharp.Core.Handles;
 
 namespace LibGit2Sharp
 {
@@ -45,32 +46,25 @@ namespace LibGit2Sharp
             get { return Id.Sha; }
         }
 
-        internal static GitObject CreateFromPtr(IntPtr obj, ObjectId id, Repository repo, FilePath path)
+        internal static GitObject CreateFromPtr(GitObjectSafeHandle obj, ObjectId id, Repository repo, FilePath path)
         {
-            try
+            GitObjectType type = NativeMethods.git_object_type(obj);
+            switch (type)
             {
-                GitObjectType type = NativeMethods.git_object_type(obj);
-                switch (type)
-                {
-                    case GitObjectType.Commit:
-                        return Commit.BuildFromPtr(obj, id, repo);
-                    case GitObjectType.Tree:
-                        return Tree.BuildFromPtr(obj, id, repo, path);
-                    case GitObjectType.Tag:
-                        return TagAnnotation.BuildFromPtr(obj, id, repo);
-                    case GitObjectType.Blob:
-                        return Blob.BuildFromPtr(obj, id, repo);
-                    default:
-                        throw new LibGit2Exception(string.Format(CultureInfo.InvariantCulture, "Unexpected type '{0}' for object '{1}'.", type, id));
-                }
-            }
-            finally
-            {
-                NativeMethods.git_object_free(obj);
+                case GitObjectType.Commit:
+                    return Commit.BuildFromPtr(obj, id, repo);
+                case GitObjectType.Tree:
+                    return Tree.BuildFromPtr(obj, id, repo, path);
+                case GitObjectType.Tag:
+                    return TagAnnotation.BuildFromPtr(obj, id, repo);
+                case GitObjectType.Blob:
+                    return Blob.BuildFromPtr(obj, id, repo);
+                default:
+                    throw new LibGit2Exception(string.Format(CultureInfo.InvariantCulture, "Unexpected type '{0}' for object '{1}'.", type, id));
             }
         }
 
-        internal static ObjectId ObjectIdOf(IntPtr obj)
+        internal static ObjectId ObjectIdOf(GitObjectSafeHandle obj)
         {
             IntPtr ptr = NativeMethods.git_object_id(obj);
             return new ObjectId(ptr.MarshalAsOid());

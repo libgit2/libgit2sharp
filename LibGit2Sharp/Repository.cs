@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Compat;
+using LibGit2Sharp.Core.Handles;
 
 namespace LibGit2Sharp
 {
@@ -170,7 +171,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name = "path">The path to the working folder when initializing a standard ".git" repository. Otherwise, when initializing a bare repository, the path to the expected location of this later.</param>
         /// <param name = "isBare">true to initialize a bare repository. False otherwise, to initialize a standard ".git" repository.</param>
-        /// <returns> a new instance of the <see cref = "Repository" /> class. The client code is responsible for calling <see cref="Dispose()"/> on this instance.</returns>
+        /// <returns> a new instance of the <see cref = "Repository" /> class. The client code is responsible for calling <see cref = "Dispose()" /> on this instance.</returns>
         public static Repository Init(string path, bool isBare = false)
         {
             Ensure.ArgumentNotNullOrEmptyString(path, "path");
@@ -206,31 +207,38 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(id, "id");
 
             GitOid oid = id.Oid;
-            IntPtr obj;
-            int res;
+            GitObjectSafeHandle obj = null;
 
-            if (id is AbbreviatedObjectId)
+            try
             {
-                res = NativeMethods.git_object_lookup_prefix(out obj, handle, ref oid, (uint)((AbbreviatedObjectId)id).Length, type);
+                int res;
+                if (id is AbbreviatedObjectId)
+                {
+                    res = NativeMethods.git_object_lookup_prefix(out obj, handle, ref oid, (uint)((AbbreviatedObjectId)id).Length, type);
+                }
+                else
+                {
+                    res = NativeMethods.git_object_lookup(out obj, handle, ref oid, type);
+                }
+
+                if (res == (int)GitErrorCode.GIT_ENOTFOUND || res == (int)GitErrorCode.GIT_EINVALIDTYPE)
+                {
+                    return null;
+                }
+
+                Ensure.Success(res);
+
+                if (id is AbbreviatedObjectId)
+                {
+                    id = GitObject.ObjectIdOf(obj);
+                }
+
+                return GitObject.CreateFromPtr(obj, id, this, knownPath);
             }
-            else
+            finally
             {
-                res = NativeMethods.git_object_lookup(out obj, handle, ref oid, type);
+                obj.SafeDispose();
             }
-
-            if (res == (int)GitErrorCode.GIT_ENOTFOUND || res == (int)GitErrorCode.GIT_EINVALIDTYPE)
-            {
-                return null;
-            }
-
-            Ensure.Success(res);
-
-            if (id is AbbreviatedObjectId)
-            {
-                id = GitObject.ObjectIdOf(obj);
-            }
-
-            return GitObject.CreateFromPtr(obj, id, this, knownPath);
         }
 
         /// <summary>
@@ -248,7 +256,7 @@ namespace LibGit2Sharp
         {
             ObjectId id;
 
-            Reference reference = Refs[shaOrReferenceName]; 
+            Reference reference = Refs[shaOrReferenceName];
             if (reference != null)
             {
                 id = reference.PeelToTargetObjectId();
@@ -308,7 +316,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Sets the current <see cref="Head"/> to the specified commit and optionally resets the <see cref="Index"/> and
+        ///   Sets the current <see cref = "Head" /> to the specified commit and optionally resets the <see cref = "Index" /> and
         ///   the content of the working tree to match.
         /// </summary>
         /// <param name = "resetOptions">Flavor of reset operation to perform.</param>

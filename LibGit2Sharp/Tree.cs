@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using LibGit2Sharp.Core;
+using LibGit2Sharp.Core.Handles;
 
 namespace LibGit2Sharp
 {
@@ -46,7 +47,7 @@ namespace LibGit2Sharp
 
             using (var obj = new ObjectSafeWrapper(Id, repo))
             {
-                IntPtr objectPtr;
+                GitObjectSafeHandle objectPtr;
 
                 int res = NativeMethods.git_tree_get_subtree(out objectPtr, obj.ObjectPtr, relativePath);
 
@@ -134,7 +135,7 @@ namespace LibGit2Sharp
 
         #endregion
 
-        internal static Tree BuildFromPtr(IntPtr obj, ObjectId id, Repository repo, FilePath path)
+        internal static Tree BuildFromPtr(GitObjectSafeHandle obj, ObjectId id, Repository repo, FilePath path)
         {
             var tree = new Tree(id, path, (int)NativeMethods.git_tree_entrycount(obj), repo);
             return tree;
