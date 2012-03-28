@@ -64,10 +64,9 @@ namespace LibGit2Sharp
             }
         }
 
-        internal static ObjectId ObjectIdOf(GitObjectSafeHandle obj)
+        internal static ObjectId ObjectIdOf(GitObjectSafeHandle gitObjHandle)
         {
-            IntPtr ptr = NativeMethods.git_object_id(obj);
-            return new ObjectId(ptr.MarshalAsOid());
+            return NativeMethods.git_object_id(gitObjHandle).MarshalAsObjectId();
         }
 
         /// <summary>

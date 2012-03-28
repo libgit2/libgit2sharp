@@ -42,8 +42,7 @@ namespace LibGit2Sharp
 
         internal static TagAnnotation BuildFromPtr(GitObjectSafeHandle obj, ObjectId id, Repository repo)
         {
-            IntPtr oidPtr = NativeMethods.git_tag_target_oid(obj);
-            var targetOid = new ObjectId(oidPtr.MarshalAsOid());
+            ObjectId targetOid = NativeMethods.git_tag_target_oid(obj).MarshalAsObjectId();
 
             return new TagAnnotation(id)
                        {

@@ -95,7 +95,7 @@ namespace LibGit2Sharp.Core
         public static extern int git_commit_tree(out GitObjectSafeHandle tree, GitObjectSafeHandle commit);
 
         [DllImport(libgit2)]
-        public static extern IntPtr git_commit_tree_oid(GitObjectSafeHandle commit);
+        public static extern OidSafeHandle git_commit_tree_oid(GitObjectSafeHandle commit);
 
         [DllImport(libgit2)]
         public static extern int git_config_delete(ConfigurationSafeHandle cfg, string name);
@@ -208,7 +208,7 @@ namespace LibGit2Sharp.Core
         public static extern void git_object_free(IntPtr obj);
 
         [DllImport(libgit2)]
-        public static extern IntPtr git_object_id(GitObjectSafeHandle obj);
+        public static extern OidSafeHandle git_object_id(GitObjectSafeHandle obj);
 
         [DllImport(libgit2)]
         public static extern int git_object_lookup(out GitObjectSafeHandle obj, RepositorySafeHandle repo, ref GitOid id, GitObjectType type);
@@ -255,7 +255,7 @@ namespace LibGit2Sharp.Core
         public static extern string git_reference_name(IntPtr reference);
 
         [DllImport(libgit2)]
-        public static extern IntPtr git_reference_oid(IntPtr reference);
+        public static extern OidSafeHandle git_reference_oid(IntPtr reference);
 
         [DllImport(libgit2)]
         public static extern int git_reference_rename(
@@ -438,7 +438,7 @@ namespace LibGit2Sharp.Core
         public static extern IntPtr git_tag_tagger(GitObjectSafeHandle tag);
 
         [DllImport(libgit2)]
-        public static extern IntPtr git_tag_target_oid(GitObjectSafeHandle tag);
+        public static extern OidSafeHandle git_tag_target_oid(GitObjectSafeHandle tag);
 
         [DllImport(libgit2)]
         public static extern void git_threads_init();
@@ -464,7 +464,7 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(FilePathMarshaler))] FilePath filename);
 
         [DllImport(libgit2)]
-        public static extern IntPtr git_tree_entry_id(TreeEntrySafeHandle entry);
+        public static extern OidSafeHandle git_tree_entry_id(TreeEntrySafeHandle entry);
 
         [DllImport(libgit2)]
         [return : MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))]

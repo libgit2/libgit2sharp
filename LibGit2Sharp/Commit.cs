@@ -121,7 +121,7 @@ namespace LibGit2Sharp
 
         internal static Commit BuildFromPtr(GitObjectSafeHandle obj, ObjectId id, Repository repo)
         {
-            var treeId = new ObjectId(NativeMethods.git_commit_tree_oid(obj).MarshalAsOid());
+            ObjectId treeId = NativeMethods.git_commit_tree_oid(obj).MarshalAsObjectId();
 
             return new Commit(id, treeId, repo)
                        {

@@ -24,8 +24,7 @@ namespace LibGit2Sharp
         {
             this.parentTreeId = parentTreeId;
             this.repo = repo;
-            IntPtr gitTreeEntryId = NativeMethods.git_tree_entry_id(obj);
-            targetOid = new ObjectId((GitOid)Marshal.PtrToStructure(gitTreeEntryId, typeof(GitOid)));
+            targetOid = NativeMethods.git_tree_entry_id(obj).MarshalAsObjectId();
             Type = NativeMethods.git_tree_entry_type(obj);
             target = new Lazy<GitObject>(RetrieveTreeEntryTarget);
 
