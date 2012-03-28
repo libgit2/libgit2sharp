@@ -61,15 +61,15 @@ namespace LibGit2Sharp
                 string posixPath = relativePath.Posix;
                 string filename = posixPath.Split('/').Last();
 
-                IntPtr e = NativeMethods.git_tree_entry_byname(objectPtr, filename);
+                TreeEntrySafeHandle handle = NativeMethods.git_tree_entry_byname(objectPtr, filename);
 
-                if (e == IntPtr.Zero)
+                if (handle.IsInvalid)
                 {
                     return null;
                 }
 
                 string parentPath = posixPath.Substring(0, posixPath.Length - filename.Length);
-                return new TreeEntry(e, Id, repo, path.Combine(parentPath));
+                return new TreeEntry(handle, Id, repo, path.Combine(parentPath));
             }
         }
 
@@ -118,8 +118,8 @@ namespace LibGit2Sharp
             {
                 for (uint i = 0; i < Count; i++)
                 {
-                    IntPtr e = NativeMethods.git_tree_entry_byindex(obj.ObjectPtr, i);
-                    yield return new TreeEntry(e, Id, repo, path);
+                    TreeEntrySafeHandle handle = NativeMethods.git_tree_entry_byindex(obj.ObjectPtr, i);
+                    yield return new TreeEntry(handle, Id, repo, path);
                 }
             }
         }

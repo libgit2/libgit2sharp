@@ -450,28 +450,28 @@ namespace LibGit2Sharp.Core
         public static extern int git_tree_create_fromindex(out GitOid treeOid, IndexSafeHandle index);
 
         [DllImport(libgit2)]
-        public static extern int git_tree_entry_2object(out GitObjectSafeHandle obj, RepositorySafeHandle repo, IntPtr entry);
+        public static extern int git_tree_entry_2object(out GitObjectSafeHandle obj, RepositorySafeHandle repo, TreeEntrySafeHandle entry);
 
         [DllImport(libgit2)]
-        public static extern uint git_tree_entry_attributes(IntPtr entry);
+        public static extern uint git_tree_entry_attributes(TreeEntrySafeHandle entry);
 
         [DllImport(libgit2)]
-        public static extern IntPtr git_tree_entry_byindex(GitObjectSafeHandle tree, uint idx);
+        public static extern TreeEntrySafeHandle git_tree_entry_byindex(GitObjectSafeHandle tree, uint idx);
 
         [DllImport(libgit2)]
-        public static extern IntPtr git_tree_entry_byname(
+        public static extern TreeEntrySafeHandle git_tree_entry_byname(
             GitObjectSafeHandle tree,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(FilePathMarshaler))] FilePath filename);
 
         [DllImport(libgit2)]
-        public static extern IntPtr git_tree_entry_id(IntPtr entry);
+        public static extern IntPtr git_tree_entry_id(TreeEntrySafeHandle entry);
 
         [DllImport(libgit2)]
         [return : MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))]
-        public static extern string git_tree_entry_name(IntPtr entry);
+        public static extern string git_tree_entry_name(TreeEntrySafeHandle entry);
 
         [DllImport(libgit2)]
-        public static extern GitObjectType git_tree_entry_type(IntPtr entry);
+        public static extern GitObjectType git_tree_entry_type(TreeEntrySafeHandle entry);
 
         [DllImport(libgit2)]
         public static extern uint git_tree_entrycount(GitObjectSafeHandle tree);

@@ -2,6 +2,7 @@ using System;
 using System.Runtime.InteropServices;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Compat;
+using LibGit2Sharp.Core.Handles;
 
 namespace LibGit2Sharp
 {
@@ -19,7 +20,7 @@ namespace LibGit2Sharp
         private static readonly LambdaEqualityHelper<TreeEntry> equalityHelper =
             new LambdaEqualityHelper<TreeEntry>(new Func<TreeEntry, object>[] { x => x.Name, x => x.parentTreeId });
 
-        internal TreeEntry(IntPtr obj, ObjectId parentTreeId, Repository repo, FilePath parentPath)
+        internal TreeEntry(TreeEntrySafeHandle obj, ObjectId parentTreeId, Repository repo, FilePath parentPath)
         {
             this.parentTreeId = parentTreeId;
             this.repo = repo;
