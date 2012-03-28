@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using LibGit2Sharp.Core;
+using LibGit2Sharp.Core.Handles;
 
 namespace LibGit2Sharp
 {
@@ -35,9 +36,10 @@ namespace LibGit2Sharp
         /// </summary>
         public ObjectId Id { get; private set; }
 
-        internal static IndexEntry CreateFromPtr(Repository repo, IntPtr ptr)
+        internal static IndexEntry CreateFromPtr(Repository repo, IndexEntrySafeHandle handle)
         {
-            var entry = (GitIndexEntry)Marshal.PtrToStructure(ptr, typeof(GitIndexEntry));
+            GitIndexEntry entry = handle.MarshalAsGitIndexEntry();
+
             FilePath path = (string)marshaler.MarshalNativeToManaged(entry.Path);
 
             return new IndexEntry

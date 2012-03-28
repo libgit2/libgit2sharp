@@ -189,7 +189,7 @@ namespace LibGit2Sharp.Core
         public static extern void git_index_free(IntPtr index);
 
         [DllImport(libgit2)]
-        public static extern IntPtr git_index_get(IndexSafeHandle index, uint n);
+        public static extern IndexEntrySafeHandle git_index_get(IndexSafeHandle index, uint n);
 
         [DllImport(libgit2)]
         public static extern int git_index_read_tree(IndexSafeHandle index, GitObjectSafeHandle tree);

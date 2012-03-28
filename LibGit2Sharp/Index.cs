@@ -5,6 +5,7 @@ using System.Globalization;
 using System.IO;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Compat;
+using LibGit2Sharp.Core.Handles;
 
 namespace LibGit2Sharp
 {
@@ -67,8 +68,8 @@ namespace LibGit2Sharp
         {
             get
             {
-                IntPtr entryPtr = NativeMethods.git_index_get(handle, index);
-                return IndexEntry.CreateFromPtr(repo, entryPtr);
+                IndexEntrySafeHandle entryHandle = NativeMethods.git_index_get(handle, index);
+                return IndexEntry.CreateFromPtr(repo, entryHandle);
             }
         }
 
