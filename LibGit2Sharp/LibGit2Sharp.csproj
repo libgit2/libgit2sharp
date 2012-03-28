@@ -60,6 +60,7 @@
     <Compile Include="Core\EnumExtensions.cs" />
     <Compile Include="Core\GitObjectExtensions.cs" />
     <Compile Include="Core\Handles\GitObjectSafeHandle.cs" />
+    <Compile Include="Core\Handles\IndexEntrySafeHandle.cs" />
     <Compile Include="Core\Handles\NotOwnedSafeHandleBase.cs" />
     <Compile Include="Core\Handles\OidSafeHandle.cs" />
     <Compile Include="Core\ReferenceExtensions.cs" />
