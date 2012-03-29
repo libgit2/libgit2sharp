@@ -224,7 +224,7 @@ namespace LibGit2Sharp.Core
 
         [DllImport(libgit2)]
         public static extern int git_reference_create_oid(
-            out IntPtr reference,
+            out ReferenceSafeHandle reference,
             RepositorySafeHandle repo,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string name,
             ref GitOid oid,
@@ -232,54 +232,54 @@ namespace LibGit2Sharp.Core
 
         [DllImport(libgit2)]
         public static extern int git_reference_create_symbolic(
-            out IntPtr reference,
+            out ReferenceSafeHandle reference,
             RepositorySafeHandle repo,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string name,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string target,
             [MarshalAs(UnmanagedType.Bool)] bool force);
 
         [DllImport(libgit2)]
-        public static extern int git_reference_delete(IntPtr reference);
+        public static extern int git_reference_delete(ReferenceSafeHandle reference);
 
         [DllImport(libgit2)]
         public static extern void git_reference_free(IntPtr reference);
 
         [DllImport(libgit2)]
         public static extern int git_reference_lookup(
-            out IntPtr reference,
+            out ReferenceSafeHandle reference,
             RepositorySafeHandle repo,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string name);
 
         [DllImport(libgit2)]
         [return : MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))]
-        public static extern string git_reference_name(IntPtr reference);
+        public static extern string git_reference_name(ReferenceSafeHandle reference);
 
         [DllImport(libgit2)]
-        public static extern OidSafeHandle git_reference_oid(IntPtr reference);
+        public static extern OidSafeHandle git_reference_oid(ReferenceSafeHandle reference);
 
         [DllImport(libgit2)]
         public static extern int git_reference_rename(
-            IntPtr reference,
+            ReferenceSafeHandle reference,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string newName,
             [MarshalAs(UnmanagedType.Bool)] bool force);
 
         [DllImport(libgit2)]
-        public static extern int git_reference_resolve(out IntPtr resolvedReference, IntPtr reference);
+        public static extern int git_reference_resolve(out ReferenceSafeHandle resolvedReference, ReferenceSafeHandle reference);
 
         [DllImport(libgit2)]
-        public static extern int git_reference_set_oid(IntPtr reference, ref GitOid id);
+        public static extern int git_reference_set_oid(ReferenceSafeHandle reference, ref GitOid id);
 
         [DllImport(libgit2)]
         public static extern int git_reference_set_target(
-            IntPtr reference,
+            ReferenceSafeHandle reference,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string target);
 
         [DllImport(libgit2)]
         [return : MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))]
-        public static extern string git_reference_target(IntPtr reference);
+        public static extern string git_reference_target(ReferenceSafeHandle reference);
 
         [DllImport(libgit2)]
-        public static extern GitReferenceType git_reference_type(IntPtr reference);
+        public static extern GitReferenceType git_reference_type(ReferenceSafeHandle reference);
 
         [DllImport(libgit2)]
         public static extern void git_remote_free(IntPtr remote);

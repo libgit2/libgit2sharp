@@ -19,46 +19,33 @@ namespace LibGit2Sharp
         /// </summary>
         public string CanonicalName { get; protected set; }
 
-        internal static T BuildFromPtrAndRelease<T>(IntPtr ptr, Repository repo) where T : Reference
+        internal static T BuildFromPtr<T>(ReferenceSafeHandle handle, Repository repo) where T : Reference
         {
-            var reference = BuildFromPtr<T>(ptr, repo);
-            NativeMethods.git_reference_free(ptr);
-            return reference;
-        }
-
-        private static T BuildFromPtr<T>(IntPtr ptr, Repository repo) where T : Reference
-        {
-            if (ptr == IntPtr.Zero)
-            {
-                return default(T);
-            }
-
-            string name = NativeMethods.git_reference_name(ptr);
-            GitReferenceType type = NativeMethods.git_reference_type(ptr);
+            GitReferenceType type = NativeMethods.git_reference_type(handle);
+            string name = NativeMethods.git_reference_name(handle);
 
             Reference reference;
 
             switch (type)
             {
                 case GitReferenceType.Symbolic:
-                    IntPtr resolveRef;
-                    var targetIdentifier = NativeMethods.git_reference_target(ptr);
-                    int res = NativeMethods.git_reference_resolve(out resolveRef, ptr);
+                    string targetIdentifier = NativeMethods.git_reference_target(handle);
 
-                    if (res == (int)GitErrorCode.GIT_ENOTFOUND)
+                    using (ReferenceSafeHandle resolvedHandle = PeelToDirectReference(handle))
                     {
-                        reference = new SymbolicReference { CanonicalName = name, Target = null, TargetIdentifier = targetIdentifier };
+                        if (resolvedHandle == null)
+                        {
+                            reference = new SymbolicReference { CanonicalName = name, Target = null, TargetIdentifier = targetIdentifier };
+                            break;
+                        }
+
+                        var targetRef = BuildFromPtr<DirectReference>(resolvedHandle, repo);
+                        reference = new SymbolicReference { CanonicalName = name, Target = targetRef, TargetIdentifier = targetIdentifier };
                         break;
                     }
 
-                    Ensure.Success(res);
-
-                    var targetRef = BuildFromPtrAndRelease<DirectReference>(resolveRef, repo);
-                    reference = new SymbolicReference { CanonicalName = name, Target = targetRef, TargetIdentifier = targetIdentifier };
-                    break;
-
                 case GitReferenceType.Oid:
-                    ObjectId targetOid = NativeMethods.git_reference_oid(ptr).MarshalAsObjectId();
+                    ObjectId targetOid = NativeMethods.git_reference_oid(handle).MarshalAsObjectId();
 
                     var targetBuilder = new Lazy<GitObject>(() => repo.Lookup(targetOid));
                     reference = new DirectReference(targetBuilder) { CanonicalName = name, TargetIdentifier = targetOid.Sha };
@@ -69,6 +56,21 @@ namespace LibGit2Sharp
             }
 
             return reference as T;
+        }
+
+        private static ReferenceSafeHandle PeelToDirectReference(ReferenceSafeHandle handle)
+        {
+            ReferenceSafeHandle resolvedHandle;
+            int res = NativeMethods.git_reference_resolve(out resolvedHandle, handle);
+
+            if (res == (int)GitErrorCode.GIT_ENOTFOUND)
+            {
+                return null;
+            }
+
+            Ensure.Success(res);
+
+            return resolvedHandle;
         }
 
         /// <summary>
