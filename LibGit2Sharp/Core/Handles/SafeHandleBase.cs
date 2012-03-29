@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace LibGit2Sharp.Core
+namespace LibGit2Sharp.Core.Handles
 {
     internal abstract class SafeHandleBase : SafeHandle
     {
