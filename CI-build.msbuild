@@ -9,7 +9,14 @@
   <UsingTask AssemblyFile="$(MSBuildProjectDirectory)/Lib/xUnit/xunit.runner.msbuild.dll"
                TaskName="Xunit.Runner.MSBuild.xunit" />
   <Target Name="Clean">
-    <!-- Workaround for xbuild -->
+	<Message Text="Commit SHA = $(CommitSha)" />
+    
+	<WriteLinesToFile Condition="'$(CommitSha)' != ''"
+		File="$(RootDir)\LibGit2Sharp\libgit2sharp_hash.txt"
+		Lines="$(CommitSha)"
+		Overwrite="true" />
+
+	<!-- Workaround for xbuild -->
     <Exec Condition=" ('$(OS)' != 'Windows_NT') " Command=" rm -r -f $(DeployFolder) " />
     <Exec Condition=" ('$(OS)' != 'Windows_NT') " Command=" rm -r -f $(TestBuildDir) " />
 

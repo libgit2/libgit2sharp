@@ -132,6 +132,12 @@
   <ItemGroup>
     <CodeAnalysisDictionary Include="CustomDictionary.xml" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="libgit2_hash.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="libgit2sharp_hash.txt" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>

@@ -18,8 +18,7 @@ namespace LibGit2Sharp.Core
             {
                 string originalAssemblypath = new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath;
 
-                //TODO: When amd64 version of libgit2.dll is available, value this depending of the size of an IntPtr
-                const string currentArchSubPath = "NativeBinaries/x86";
+                string currentArchSubPath = "NativeBinaries/" + ProcessorArchitecture;
 
                 string path = Path.Combine(Path.GetDirectoryName(originalAssemblypath), currentArchSubPath);
 
@@ -37,6 +36,19 @@ namespace LibGit2Sharp.Core
             git_threads_shutdown();
         }
 
+        public static string ProcessorArchitecture
+        {
+            get
+            {
+                //TODO: When amd64 version of libgit2.dll is available, uncomment the following lines
+                //if (IntPtr.Size == 8)
+                //{
+                //    return "amd64";
+                //}
+
+                return "x86";
+            }
+        }
         private static bool IsRunningOnLinux()
         {
             // see http://mono-project.com/FAQ%3a_Technical#Mono_Platforms

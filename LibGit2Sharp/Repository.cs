@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Reflection;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Compat;
 using LibGit2Sharp.Core.Handles;
@@ -22,6 +24,7 @@ namespace LibGit2Sharp
         private readonly Lazy<RepositoryInformation> info;
         private readonly bool isBare;
         private readonly List<SafeHandleBase> handlesToCleanup = new List<SafeHandleBase>();
+        private static readonly Lazy<string> versionRetriever = new Lazy<string>(RetrieveVersion);
 
         /// <summary>
         ///   Initializes a new instance of the <see cref = "Repository" /> class.
@@ -355,6 +358,43 @@ namespace LibGit2Sharp
         internal void RegisterForCleanup(SafeHandleBase handleToCleanup)
         {
             handlesToCleanup.Add(handleToCleanup);
+        }
+
+        /// <summary>
+        ///   Gets the current LibGit2Sharp version.
+        ///   <para>
+        ///     The format of the version number is as follows:
+        ///     <para>Major.Minor.Patch-LibGit2Sharp_abbrev_hash-libgit2_abbrev_hash (x86|amd64)</para>
+        ///   </para>
+        /// </summary>
+        public static string Version
+        {
+            get { return versionRetriever.Value; }
+        }
+
+        private static string RetrieveVersion()
+        {
+            Assembly assembly = typeof(Repository).Assembly;
+
+            Version version = assembly.GetName().Version;
+            
+            string libgit2Hash = ReadContentFromResource(assembly, "libgit2_hash.txt");
+            string libgit2sharpHash = ReadContentFromResource(assembly, "libgit2sharp_hash.txt");
+
+            return string.Format("{0}-{1}-{2} ({3})", 
+                version.ToString(3),
+                libgit2sharpHash.Substring(0, 7),
+                libgit2Hash.Substring(0,7),
+                NativeMethods.ProcessorArchitecture
+                );
+        }
+
+        private static string ReadContentFromResource(Assembly assembly, string partialResourceName)
+        {
+            using (var sr = new StreamReader(assembly.GetManifestResourceStream(string.Format("LibGit2Sharp.{0}", partialResourceName))))
+            {
+                return sr.ReadLine();
+            }
         }
     }
 }
