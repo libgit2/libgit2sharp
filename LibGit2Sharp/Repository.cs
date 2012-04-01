@@ -59,6 +59,11 @@ namespace LibGit2Sharp
             remotes = new Lazy<RemoteCollection>(() => new RemoteCollection(this));
         }
 
+        ~Repository()
+        {
+            Dispose(false);
+        }
+
         internal RepositorySafeHandle Handle
         {
             get { return handle; }
