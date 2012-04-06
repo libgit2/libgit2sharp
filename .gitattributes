@@ -1,4 +1,7 @@
-﻿# Text files that should be normalized to LF in odb.
+﻿# Catch all for anything we forgot. Add rules if you get CRLF to LF warnings.
+* text=auto
+
+# Text files that should be normalized to LF in odb.
 *.cs     text diff=csharp
 *.config text
 
@@ -31,7 +34,3 @@ GitHub.Tests.Integration/Resources/*  binary
 *.pdb    binary
 *.sdf    binary
 *.7z     binary
-
-
-# Catch all for anything we forgot. Add rules if you get CRLF -> LF warnings.
-* text=auto
