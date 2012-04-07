@@ -41,7 +41,7 @@ namespace LibGit2Sharp.Core
             get
             {
                 //TODO: When amd64 version of libgit2.dll is available, uncomment the following lines
-                //if (IntPtr.Size == 8)
+                //if (Compat.Environment.Is64BitProcess)
                 //{
                 //    return "amd64";
                 //}
@@ -49,6 +49,7 @@ namespace LibGit2Sharp.Core
                 return "x86";
             }
         }
+
         private static bool IsRunningOnLinux()
         {
             // see http://mono-project.com/FAQ%3a_Technical#Mono_Platforms
