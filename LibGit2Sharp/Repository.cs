@@ -308,6 +308,16 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        ///   Lookup a commit by its SHA or name, or throw if a commit is not found.
+        /// </summary>
+        /// <param name="shaOrReferenceName">The SHA or name of the commit.</param>
+        /// <returns>The commit.</returns>
+        internal Commit LookupCommit(string shaOrReferenceName)
+        {
+            return (Commit)Lookup(shaOrReferenceName, GitObjectType.Any, LookUpOptions.ThrowWhenNoGitObjectHasBeenFound | LookUpOptions.DereferenceResultToCommit | LookUpOptions.ThrowWhenCanNotBeDereferencedToACommit);
+        }
+
+        /// <summary>
         ///   Probe for a git repository.
         ///   <para>The lookup start from <paramref name = "startingPath" /> and walk upward parent directories if nothing has been found.</para>
         /// </summary>
@@ -346,7 +356,7 @@ namespace LibGit2Sharp
                 throw new LibGit2Exception("Mixed reset is not allowed in a bare repository");
             }
 
-            GitObject commit = Lookup(shaOrReferenceName, GitObjectType.Any, LookUpOptions.ThrowWhenNoGitObjectHasBeenFound | LookUpOptions.DereferenceResultToCommit | LookUpOptions.ThrowWhenCanNotBeDereferencedToACommit);
+            var commit = LookupCommit(shaOrReferenceName);
 
             //TODO: Check for unmerged entries
 
@@ -358,7 +368,7 @@ namespace LibGit2Sharp
                 return;
             }
 
-            Index.ReplaceContentWithTree(((Commit)commit).Tree);
+            Index.ReplaceContentWithTree(commit.Tree);
 
             if (resetOptions == ResetOptions.Mixed)
             {

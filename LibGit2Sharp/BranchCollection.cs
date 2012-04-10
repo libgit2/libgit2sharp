@@ -79,7 +79,7 @@ namespace LibGit2Sharp
                 return branch;
             }
 
-            ObjectId commitId = RetrieveTargetCommitId(shaOrReferenceName);
+            ObjectId commitId = repo.LookupCommit(shaOrReferenceName).Id;
             repo.Refs.UpdateTarget("HEAD", commitId.Sha);
             return repo.Head;
         }
@@ -92,16 +92,10 @@ namespace LibGit2Sharp
         /// <returns></returns>
         public Branch Create(string name, string shaOrReferenceName)
         {
-            ObjectId commitId = RetrieveTargetCommitId(shaOrReferenceName);
+            ObjectId commitId = repo.LookupCommit(shaOrReferenceName).Id;
 
             repo.Refs.Create(NormalizeToCanonicalName(name), commitId.Sha);
             return this[name];
-        }
-
-        private ObjectId RetrieveTargetCommitId(string target)
-        {
-            GitObject commit = repo.Lookup(target, GitObjectType.Any, LookUpOptions.ThrowWhenNoGitObjectHasBeenFound | LookUpOptions.DereferenceResultToCommit | LookUpOptions.ThrowWhenCanNotBeDereferencedToACommit);
-            return commit.Id;
         }
 
         /// <summary>
