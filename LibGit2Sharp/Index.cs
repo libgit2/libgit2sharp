@@ -23,8 +23,18 @@ namespace LibGit2Sharp
         internal Index(Repository repo)
         {
             this.repo = repo;
-            int res = NativeMethods.git_repository_index(out handle, repo.Handle);
-            Ensure.Success(res);
+
+            Ensure.Success(NativeMethods.git_repository_index(out handle, repo.Handle));
+
+            repo.RegisterForCleanup(handle);
+        }
+
+        internal Index(Repository repo, string indexPath)
+        {
+            this.repo = repo;
+
+            Ensure.Success(NativeMethods.git_index_open(out handle, indexPath));
+            NativeMethods.git_repository_set_index(repo.Handle, handle);
 
             repo.RegisterForCleanup(handle);
         }

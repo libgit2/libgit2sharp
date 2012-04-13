@@ -133,6 +133,7 @@
     <Compile Include="RepositoryInformation.cs" />
     <Compile Include="RepositoryExtensions.cs" />
     <Compile Include="Core\Handles\RepositorySafeHandle.cs" />
+    <Compile Include="RepositoryOptions.cs" />
     <Compile Include="RepositoryStatus.cs" />
     <Compile Include="ResetOptions.cs" />
     <Compile Include="Signature.cs" />

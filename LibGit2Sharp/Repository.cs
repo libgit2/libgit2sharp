@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Reflection;
 using LibGit2Sharp.Core;
@@ -23,33 +24,63 @@ namespace LibGit2Sharp
         private readonly TagCollection tags;
         private readonly Lazy<RepositoryInformation> info;
         private readonly Diff diff;
-        private readonly bool isBare;
         private readonly Lazy<ObjectDatabase> odb;
         private readonly Stack<SafeHandleBase> handlesToCleanup = new Stack<SafeHandleBase>();
         private static readonly Lazy<string> versionRetriever = new Lazy<string>(RetrieveVersion);
 
         /// <summary>
-        ///   Initializes a new instance of the <see cref = "Repository" /> class.
+        ///   Initializes a new instance of the <see cref = "Repository" /> class, providing ooptional behavioral overrides through <paramref name="options"/> parameter.
         ///   <para>For a standard repository, <paramref name = "path" /> should either point to the ".git" folder or to the working directory. For a bare repository, <paramref name = "path" /> should directly point to the repository folder.</para>
         /// </summary>
         /// <param name = "path">
-        ///   The path to the git repository to open, can be either the path to the git directory (for non-bare repositories this 
+        ///   The path to the git repository to open, can be either the path to the git directory (for non-bare repositories this
         ///   would be the ".git" folder inside the working directory) or the path to the working directory.
         /// </param>
-        public Repository(string path)
+        /// <param name="options">
+        ///   Overrides to the way a repository is opened.
+        /// </param>
+        public Repository(string path, RepositoryOptions options = null)
         {
             Ensure.ArgumentNotNullOrEmptyString(path, "path");
 
-            int res = NativeMethods.git_repository_open(out handle, path);
-            Ensure.Success(res);
-
+            Ensure.Success(NativeMethods.git_repository_open(out handle, path));
             RegisterForCleanup(handle);
 
-            isBare = NativeMethods.RepositoryStateChecker(handle, NativeMethods.git_repository_is_bare);
+            bool isBare = NativeMethods.RepositoryStateChecker(handle, NativeMethods.git_repository_is_bare);
+
+            Func<Index> indexBuilder = () => new Index(this);
+
+            if (options != null)
+            {
+                bool isWorkDirNull = string.IsNullOrEmpty(options.WorkingDirectoryPath);
+                bool isIndexNull = string.IsNullOrEmpty(options.IndexPath);
+
+                if (isWorkDirNull && isIndexNull)
+                {
+                    throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "At least one member of the {0} instance has to be provided.", typeof(RepositoryOptions).Name));
+                }
+
+                if (isBare && (isWorkDirNull ^ isIndexNull))
+                {
+                    throw new ArgumentException("When overriding the opening of a bare repository, both RepositoryOptions.WorkingDirectoryPath an RepositoryOptions.IndexPath have to be provided.");
+                }
+
+                isBare = false;
+
+                if (!isIndexNull)
+                {
+                    indexBuilder = () => new Index(this, options.IndexPath);
+                }
+
+                if (!isWorkDirNull)
+                {
+                    Ensure.Success(NativeMethods.git_repository_set_workdir(handle, options.WorkingDirectoryPath));
+                }
+            }
 
             if (!isBare)
             {
-                index = new Index(this);
+                index = indexBuilder();
             }
 
             commits = new CommitCollection(this);
@@ -462,7 +493,7 @@ namespace LibGit2Sharp
             Assembly assembly = typeof(Repository).Assembly;
 
             Version version = assembly.GetName().Version;
-            
+
             string libgit2Hash = ReadContentFromResource(assembly, "libgit2_hash.txt");
             string libgit2sharpHash = ReadContentFromResource(assembly, "libgit2sharp_hash.txt");
 
