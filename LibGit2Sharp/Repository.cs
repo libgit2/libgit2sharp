@@ -101,7 +101,15 @@ namespace LibGit2Sharp
         /// </summary>
         public Index Index
         {
-            get { return index; }
+            get
+            {
+                if (index == null)
+                {
+                    throw new LibGit2Exception("Index is not available in a bare repository.");
+                }
+
+                return index;
+            }
         }
 
         /// <summary>
