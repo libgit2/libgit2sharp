@@ -1,4 +1,5 @@
-﻿using LibGit2Sharp.Core;
+﻿using System;
+using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
 {
@@ -14,11 +15,11 @@ namespace LibGit2Sharp
             this.repo = repo;
             IsBare = isBare;
 
-            string posixPath = NativeMethods.git_repository_path(repo.Handle).MarshallAsString();
-            string posixWorkingDirectoryPath = NativeMethods.git_repository_workdir(repo.Handle).MarshallAsString();
+            FilePath path = NativeMethods.git_repository_path(repo.Handle);
+            FilePath workingDirectoryPath = NativeMethods.git_repository_workdir(repo.Handle);
 
-            Path = PosixPathHelper.ToNative(posixPath);
-            WorkingDirectory = PosixPathHelper.ToNative(posixWorkingDirectoryPath);
+            Path = path.Native;
+            WorkingDirectory = workingDirectoryPath == null ? null : workingDirectoryPath.Native;
         }
 
         /// <summary>
@@ -47,13 +48,7 @@ namespace LibGit2Sharp
         /// </value>
         public bool IsEmpty
         {
-            get
-            {
-                int res = NativeMethods.git_repository_is_empty(repo.Handle);
-                Ensure.Success(res, true);
-
-                return (res == 1);
-            }
+            get { return NativeMethods.RepositoryStateChecker(repo.Handle, NativeMethods.git_repository_is_empty); }
         }
 
         /// <summary>
@@ -61,13 +56,7 @@ namespace LibGit2Sharp
         /// </summary>
         public bool IsHeadDetached
         {
-            get
-            {
-                int res = NativeMethods.git_repository_head_detached(repo.Handle);
-                Ensure.Success(res, true);
-
-                return (res == 1);
-            }
+            get { return NativeMethods.RepositoryStateChecker(repo.Handle, NativeMethods.git_repository_head_detached); }
         }
     }
 }

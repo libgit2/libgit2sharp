@@ -1,10 +1,9 @@
 using LibGit2Sharp.Core.Compat;
 using LibGit2Sharp.Tests.TestHelpers;
-using NUnit.Framework;
+using Xunit;
 
 namespace LibGit2Sharp.Tests
 {
-    [TestFixture]
     public class TupleFixture
     {
         const int integer = 2;
@@ -12,14 +11,14 @@ namespace LibGit2Sharp.Tests
 
         private readonly Tuple<int, string> sut = new Tuple<int, string>(integer, stringy);
 
-        [Test]
+        [Fact]
         public void Properties()
         {
             sut.Item1.ShouldEqual(integer);
             sut.Item2.ShouldEqual(stringy);
         }
 
-        [Test]
+        [Fact]
         public void GetHashCodeIsTheSame()
         {
             var sut2 = new Tuple<int, string>(integer, stringy);
@@ -27,7 +26,7 @@ namespace LibGit2Sharp.Tests
             sut.GetHashCode().ShouldEqual(sut2.GetHashCode());
         }
 
-        [Test]
+        [Fact]
         public void GetHashCodeIsDifferent()
         {
             var sut2 = new Tuple<int, string>(integer + 1, stringy);
@@ -35,8 +34,8 @@ namespace LibGit2Sharp.Tests
             sut.GetHashCode().ShouldNotEqual(sut2.GetHashCode());
         }
 
-        [Test]
-        public void Equals()
+        [Fact]
+        public void VerifyEquals()
         {
             var sut2 = new Tuple<int, string>(integer, stringy);
 
@@ -44,8 +43,8 @@ namespace LibGit2Sharp.Tests
             Equals(sut, sut2).ShouldBeTrue();
         }
 
-        [Test]
-        public void NotEquals()
+        [Fact]
+        public void VerifyNotEquals()
         {
             var sut2 = new Tuple<int, string>(integer + 1, stringy);
 

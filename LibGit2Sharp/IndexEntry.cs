@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using LibGit2Sharp.Core;
+using LibGit2Sharp.Core.Handles;
 
 namespace LibGit2Sharp
 {
@@ -14,7 +15,7 @@ namespace LibGit2Sharp
 
         private Func<FileStatus> state;
 
-        private static readonly Utf8Marshaler marshaler = new Utf8Marshaler();
+        private static readonly Utf8Marshaler marshaler = (Utf8Marshaler)Utf8Marshaler.GetInstance(string.Empty);
 
         /// <summary>
         ///   State of the version of the <see cref = "Blob" /> pointed at by this <see cref = "IndexEntry" />, 
@@ -35,16 +36,17 @@ namespace LibGit2Sharp
         /// </summary>
         public ObjectId Id { get; private set; }
 
-        internal static IndexEntry CreateFromPtr(Repository repo, IntPtr ptr)
+        internal static IndexEntry CreateFromPtr(Repository repo, IndexEntrySafeHandle handle)
         {
-            var entry = (GitIndexEntry)Marshal.PtrToStructure(ptr, typeof(GitIndexEntry));
-            var path = (string)marshaler.MarshalNativeToManaged(entry.Path);
+            GitIndexEntry entry = handle.MarshalAsGitIndexEntry();
+
+            FilePath path = (string)marshaler.MarshalNativeToManaged(entry.Path);
 
             return new IndexEntry
                        {
-                           Path = PosixPathHelper.ToNative(path),
+                           Path = path.Native,
                            Id = new ObjectId(entry.oid),
-                           state = () => repo.Index.RetrieveStatus(path)
+                           state = () => repo.Index.RetrieveStatus(path.Native)
                        };
         }
 

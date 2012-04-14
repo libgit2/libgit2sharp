@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Compat;
+using LibGit2Sharp.Core.Handles;
 
 namespace LibGit2Sharp
 {
@@ -20,6 +23,8 @@ namespace LibGit2Sharp
         private readonly TagCollection tags;
         private readonly Lazy<RepositoryInformation> info;
         private readonly bool isBare;
+        private readonly List<SafeHandleBase> handlesToCleanup = new List<SafeHandleBase>();
+        private static readonly Lazy<string> versionRetriever = new Lazy<string>(RetrieveVersion);
 
         /// <summary>
         ///   Initializes a new instance of the <see cref = "Repository" /> class.
@@ -33,10 +38,12 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(path, "path");
 
-            int res = NativeMethods.git_repository_open(out handle, PosixPathHelper.ToPosix(path));
+            int res = NativeMethods.git_repository_open(out handle, path);
             Ensure.Success(res);
 
-            isBare = NativeMethods.git_repository_is_bare(handle);
+            RegisterForCleanup(handle);
+
+            isBare = NativeMethods.RepositoryStateChecker(handle, NativeMethods.git_repository_is_bare);
 
             if (!isBare)
             {
@@ -50,6 +57,11 @@ namespace LibGit2Sharp
             info = new Lazy<RepositoryInformation>(() => new RepositoryInformation(this, isBare));
             config = new Lazy<Configuration>(() => new Configuration(this));
             remotes = new Lazy<RemoteCollection>(() => new RemoteCollection(this));
+        }
+
+        ~Repository()
+        {
+            Dispose(false);
         }
 
         internal RepositorySafeHandle Handle
@@ -89,7 +101,13 @@ namespace LibGit2Sharp
         /// </summary>
         public Index Index
         {
-            get { return index; }
+            get
+            {
+                if (index == null)
+                    throw new LibGit2Exception("Index is not available in a bare repository.");
+
+                return index;
+            }
         }
 
         /// <summary>
@@ -157,12 +175,7 @@ namespace LibGit2Sharp
         /// </summary>
         protected virtual void Dispose(bool disposing)
         {
-            handle.SafeDispose();
-
-            if (index != null)
-            {
-                index.Dispose();
-            }
+            handlesToCleanup.ForEach(handleToCleanup => handleToCleanup.SafeDispose());
         }
 
         #endregion
@@ -172,21 +185,19 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name = "path">The path to the working folder when initializing a standard ".git" repository. Otherwise, when initializing a bare repository, the path to the expected location of this later.</param>
         /// <param name = "isBare">true to initialize a bare repository. False otherwise, to initialize a standard ".git" repository.</param>
-        /// <returns> a new instance of the <see cref = "Repository" /> class. The client code is responsible for calling <see cref="Dispose"/> on this instance.</returns>
+        /// <returns> a new instance of the <see cref = "Repository" /> class. The client code is responsible for calling <see cref = "Dispose()" /> on this instance.</returns>
         public static Repository Init(string path, bool isBare = false)
         {
             Ensure.ArgumentNotNullOrEmptyString(path, "path");
 
             RepositorySafeHandle repo;
-            int res = NativeMethods.git_repository_init(out repo, PosixPathHelper.ToPosix(path), isBare);
+            int res = NativeMethods.git_repository_init(out repo, path, isBare);
             Ensure.Success(res);
 
-            string normalizedPath = NativeMethods.git_repository_path(repo).MarshallAsString();
+            FilePath repoPath = NativeMethods.git_repository_path(repo);
             repo.SafeDispose();
 
-            string nativePath = PosixPathHelper.ToNative(normalizedPath);
-
-            return new Repository(nativePath);
+            return new Repository(repoPath.Native);
         }
 
         /// <summary>
@@ -197,34 +208,51 @@ namespace LibGit2Sharp
         /// <returns>The <see cref = "GitObject" /> or null if it was not found.</returns>
         public GitObject Lookup(ObjectId id, GitObjectType type = GitObjectType.Any)
         {
+            return LookupInternal(id, type, null);
+        }
+
+        internal GitObject LookupTreeEntryTarget(ObjectId id, FilePath path)
+        {
+            return LookupInternal(id, GitObjectType.Any, path);
+        }
+
+        internal GitObject LookupInternal(ObjectId id, GitObjectType type, FilePath knownPath)
+        {
             Ensure.ArgumentNotNull(id, "id");
 
             GitOid oid = id.Oid;
-            IntPtr obj;
-            int res;
+            GitObjectSafeHandle obj = null;
 
-            if (id is AbbreviatedObjectId)
+            try
             {
-                res = NativeMethods.git_object_lookup_prefix(out obj, handle, ref oid, (uint)((AbbreviatedObjectId)id).Length, type);
+                int res;
+                if (id is AbbreviatedObjectId)
+                {
+                    res = NativeMethods.git_object_lookup_prefix(out obj, handle, ref oid, (uint)((AbbreviatedObjectId)id).Length, type);
+                }
+                else
+                {
+                    res = NativeMethods.git_object_lookup(out obj, handle, ref oid, type);
+                }
+
+                if (res == (int)GitErrorCode.GIT_ENOTFOUND || res == (int)GitErrorCode.GIT_EINVALIDTYPE)
+                {
+                    return null;
+                }
+
+                Ensure.Success(res);
+
+                if (id is AbbreviatedObjectId)
+                {
+                    id = GitObject.ObjectIdOf(obj);
+                }
+
+                return GitObject.CreateFromPtr(obj, id, this, knownPath);
             }
-            else
+            finally
             {
-                res = NativeMethods.git_object_lookup(out obj, handle, ref oid, type);
+                obj.SafeDispose();
             }
-
-            if (res == (int)GitErrorCode.GIT_ENOTFOUND || res == (int)GitErrorCode.GIT_EINVALIDTYPE)
-            {
-                return null;
-            }
-
-            Ensure.Success(res);
-
-            if (id is AbbreviatedObjectId)
-            {
-                id = GitObject.ObjectIdOf(obj);
-            }
-
-            return GitObject.CreateFromPtr(obj, id, this);
         }
 
         /// <summary>
@@ -242,7 +270,7 @@ namespace LibGit2Sharp
         {
             ObjectId id;
 
-            Reference reference = Refs[shaOrReferenceName]; 
+            Reference reference = Refs[shaOrReferenceName];
             if (reference != null)
             {
                 id = reference.PeelToTargetObjectId();
@@ -287,7 +315,7 @@ namespace LibGit2Sharp
         {
             var buffer = new byte[NativeMethods.GIT_PATH_MAX];
 
-            int result = NativeMethods.git_repository_discover(buffer, buffer.Length, PosixPathHelper.ToPosix(startingPath), false, null);
+            int result = NativeMethods.git_repository_discover(buffer, buffer.Length, startingPath, false, null);
 
             if ((GitErrorCode)result == GitErrorCode.GIT_ENOTAREPO)
             {
@@ -296,11 +324,13 @@ namespace LibGit2Sharp
 
             Ensure.Success(result);
 
-            return PosixPathHelper.ToNative(Utf8Marshaler.Utf8FromBuffer(buffer));
+            FilePath discoveredPath = Utf8Marshaler.Utf8FromBuffer(buffer);
+
+            return discoveredPath.Native;
         }
 
         /// <summary>
-        ///   Sets the current <see cref="Head"/> to the specified commit and optionally resets the <see cref="Index"/> and
+        ///   Sets the current <see cref = "Head" /> to the specified commit and optionally resets the <see cref = "Index" /> and
         ///   the content of the working tree to match.
         /// </summary>
         /// <param name = "resetOptions">Flavor of reset operation to perform.</param>
@@ -334,6 +364,48 @@ namespace LibGit2Sharp
             }
 
             throw new NotImplementedException();
+        }
+
+        internal void RegisterForCleanup(SafeHandleBase handleToCleanup)
+        {
+            handlesToCleanup.Add(handleToCleanup);
+        }
+
+        /// <summary>
+        ///   Gets the current LibGit2Sharp version.
+        ///   <para>
+        ///     The format of the version number is as follows:
+        ///     <para>Major.Minor.Patch-LibGit2Sharp_abbrev_hash-libgit2_abbrev_hash (x86|amd64)</para>
+        ///   </para>
+        /// </summary>
+        public static string Version
+        {
+            get { return versionRetriever.Value; }
+        }
+
+        private static string RetrieveVersion()
+        {
+            Assembly assembly = typeof(Repository).Assembly;
+
+            Version version = assembly.GetName().Version;
+            
+            string libgit2Hash = ReadContentFromResource(assembly, "libgit2_hash.txt");
+            string libgit2sharpHash = ReadContentFromResource(assembly, "libgit2sharp_hash.txt");
+
+            return string.Format("{0}-{1}-{2} ({3})", 
+                version.ToString(3),
+                libgit2sharpHash.Substring(0, 7),
+                libgit2Hash.Substring(0,7),
+                NativeMethods.ProcessorArchitecture
+                );
+        }
+
+        private static string ReadContentFromResource(Assembly assembly, string partialResourceName)
+        {
+            using (var sr = new StreamReader(assembly.GetManifestResourceStream(string.Format("LibGit2Sharp.{0}", partialResourceName))))
+            {
+                return sr.ReadLine();
+            }
         }
     }
 }

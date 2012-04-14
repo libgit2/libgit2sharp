@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Compat;
+using LibGit2Sharp.Core.Handles;
 
 namespace LibGit2Sharp
 {
@@ -92,13 +93,13 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Gets The count of parent commits.
         /// </summary>
-        public uint ParentsCount
+        public int ParentsCount
         {
             get
             {
                 using (var obj = new ObjectSafeWrapper(Id, repo))
                 {
-                    return NativeMethods.git_commit_parentcount(obj.ObjectPtr);
+                    return (int)NativeMethods.git_commit_parentcount(obj.ObjectPtr);
                 }
             }
         }
@@ -111,30 +112,29 @@ namespace LibGit2Sharp
 
                 for (uint i = 0; i < parentsCount; i++)
                 {
-                    IntPtr parentCommit;
+                    GitObjectSafeHandle parentCommit;
                     Ensure.Success(NativeMethods.git_commit_parent(out parentCommit, obj.ObjectPtr, i));
-                    yield return (Commit)CreateFromPtr(parentCommit, ObjectIdOf(parentCommit), repo);
+                    yield return BuildFromPtr(parentCommit, ObjectIdOf(parentCommit), repo);
                 }
             }
         }
 
-        internal static Commit BuildFromPtr(IntPtr obj, ObjectId id, Repository repo)
+        internal static Commit BuildFromPtr(GitObjectSafeHandle obj, ObjectId id, Repository repo)
         {
-            var treeId =
-                new ObjectId((GitOid)Marshal.PtrToStructure(NativeMethods.git_commit_tree_oid(obj), typeof(GitOid)));
+            ObjectId treeId = NativeMethods.git_commit_tree_oid(obj).MarshalAsObjectId();
 
             return new Commit(id, treeId, repo)
                        {
-                           Message = NativeMethods.git_commit_message(obj).MarshallAsString(), //TODO: Turn into string.Empty if null
+                           Message = NativeMethods.git_commit_message(obj),
                            Encoding = RetrieveEncodingOf(obj),
                            Author = new Signature(NativeMethods.git_commit_author(obj)),
                            Committer = new Signature(NativeMethods.git_commit_committer(obj)),
                        };
         }
 
-        private static string RetrieveEncodingOf(IntPtr obj)
+        private static string RetrieveEncodingOf(GitObjectSafeHandle obj)
         {
-            string encoding = NativeMethods.git_commit_message_encoding(obj).MarshallAsString();
+            string encoding = NativeMethods.git_commit_message_encoding(obj);
 
             return encoding ?? "UTF-8";
         }

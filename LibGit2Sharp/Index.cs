@@ -5,6 +5,7 @@ using System.Globalization;
 using System.IO;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Compat;
+using LibGit2Sharp.Core.Handles;
 
 namespace LibGit2Sharp
 {
@@ -12,18 +13,20 @@ namespace LibGit2Sharp
     ///   The Index is a staging area between the Working directory and the Repository.
     ///   It's used to prepare and aggregate the changes that will be part of the next commit.
     /// </summary>
-    public class Index : IEnumerable<IndexEntry>, IDisposable
+    public class Index : IEnumerable<IndexEntry>
     {
         private readonly IndexSafeHandle handle;
         private readonly Repository repo;
 
-        private static readonly Utf8Marshaler utf8Marshaler = new Utf8Marshaler();
+        private static readonly Utf8Marshaler utf8Marshaler = new Utf8Marshaler(true);
 
         internal Index(Repository repo)
         {
             this.repo = repo;
             int res = NativeMethods.git_repository_index(out handle, repo.Handle);
             Ensure.Success(res);
+
+            repo.RegisterForCleanup(handle);
         }
 
         internal IndexSafeHandle Handle
@@ -46,8 +49,6 @@ namespace LibGit2Sharp
         {
             get
             {
-                path = PosixPathHelper.ToPosix(path);
-
                 Ensure.ArgumentNotNullOrEmptyString(path, "path");
 
                 int res = NativeMethods.git_index_find(handle, path);
@@ -67,31 +68,10 @@ namespace LibGit2Sharp
         {
             get
             {
-                IntPtr entryPtr = NativeMethods.git_index_get(handle, index);
-                return IndexEntry.CreateFromPtr(repo, entryPtr);
+                IndexEntrySafeHandle entryHandle = NativeMethods.git_index_get(handle, index);
+                return IndexEntry.CreateFromPtr(repo, entryHandle);
             }
         }
-
-        #region IDisposable Members
-
-        /// <summary>
-        ///   Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        /// <summary>
-        ///   Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        protected virtual void Dispose(bool disposing)
-        {
-            handle.SafeDispose();
-        }
-
-        #endregion
 
         #region IEnumerable<IndexEntry> Members
 
@@ -124,6 +104,8 @@ namespace LibGit2Sharp
         /// <param name = "path">The path of the file within the working directory.</param>
         public void Stage(string path)
         {
+            Ensure.ArgumentNotNull(path, "path");
+
             Stage(new[] { path });
         }
 
@@ -133,17 +115,10 @@ namespace LibGit2Sharp
         /// <param name = "paths">The collection of paths of the files within the working directory.</param>
         public void Stage(IEnumerable<string> paths)
         {
-            Ensure.ArgumentNotNull(paths, "paths");
-
             //TODO: Stage() should support following use cases:
             // - Recursively staging the content of a directory
 
             IDictionary<string, FileStatus> batch = PrepareBatch(paths);
-
-            if (batch.Count == 0)
-            {
-                throw new ArgumentNullException("paths");
-            }
 
             foreach (KeyValuePair<string, FileStatus> kvp in batch)
             {
@@ -157,7 +132,7 @@ namespace LibGit2Sharp
                     continue;
                 }
 
-                throw new LibGit2Exception(string.Format("Can not stage '{0}'. The file does not exist.", kvp.Key));
+                throw new LibGit2Exception(string.Format(CultureInfo.InvariantCulture, "Can not stage '{0}'. The file does not exist.", kvp.Key));
             }
 
             foreach (KeyValuePair<string, FileStatus> kvp in batch)
@@ -184,6 +159,8 @@ namespace LibGit2Sharp
         /// <param name = "path">The path of the file within the working directory.</param>
         public void Unstage(string path)
         {
+            Ensure.ArgumentNotNull(path, "path");
+
             Unstage(new[] { path });
         }
 
@@ -193,14 +170,7 @@ namespace LibGit2Sharp
         /// <param name = "paths">The collection of paths of the files within the working directory.</param>
         public void Unstage(IEnumerable<string> paths)
         {
-            Ensure.ArgumentNotNull(paths, "paths");
-
             IDictionary<string, FileStatus> batch = PrepareBatch(paths);
-
-            if (batch.Count == 0)
-            {
-                throw new ArgumentNullException("paths");
-            }
 
             foreach (KeyValuePair<string, FileStatus> kvp in batch)
             {
@@ -274,7 +244,7 @@ namespace LibGit2Sharp
                 FileStatus sourceStatus = keyValuePair.Key.Item2;
                 if (sourceStatus.HasAny(new[] { FileStatus.Nonexistent, FileStatus.Removed, FileStatus.Untracked, FileStatus.Missing }))
                 {
-                    throw new LibGit2Exception(string.Format("Unable to move file '{0}'. Its current status is '{1}'.", sourcePath, Enum.GetName(typeof(FileStatus), sourceStatus)));
+                    throw new LibGit2Exception(string.Format(CultureInfo.InvariantCulture, "Unable to move file '{0}'. Its current status is '{1}'.", sourcePath, Enum.GetName(typeof(FileStatus), sourceStatus)));
                 }
 
                 FileStatus desStatus = keyValuePair.Value.Item2;
@@ -283,7 +253,7 @@ namespace LibGit2Sharp
                     continue;
                 }
 
-                throw new LibGit2Exception(string.Format("Unable to overwrite file '{0}'. Its current status is '{1}'.", destPath, Enum.GetName(typeof(FileStatus), desStatus)));
+                throw new LibGit2Exception(string.Format(CultureInfo.InvariantCulture, "Unable to overwrite file '{0}'. Its current status is '{1}'.", destPath, Enum.GetName(typeof(FileStatus), desStatus)));
             }
 
             string wd = repo.Info.WorkingDirectory;
@@ -310,6 +280,8 @@ namespace LibGit2Sharp
         /// <param name = "path">The path of the file within the working directory.</param>
         public void Remove(string path)
         {
+            Ensure.ArgumentNotNull(path, "path");
+
             Remove(new[] { path });
         }
 
@@ -323,17 +295,10 @@ namespace LibGit2Sharp
         /// <param name = "paths">The collection of paths of the files within the working directory.</param>
         public void Remove(IEnumerable<string> paths)
         {
-            Ensure.ArgumentNotNull(paths, "paths");
-
             //TODO: Remove() should support following use cases:
             // - Removing a directory and its content
 
             IDictionary<string, FileStatus> batch = PrepareBatch(paths);
-
-            if (batch.Count == 0)
-            {
-                throw new ArgumentNullException("paths");
-            }
 
             foreach (KeyValuePair<string, FileStatus> keyValuePair in batch)
             {
@@ -347,7 +312,7 @@ namespace LibGit2Sharp
                     continue;
                 }
 
-                throw new LibGit2Exception(string.Format("Unable to remove file '{0}'. Its current status is '{1}'.", keyValuePair.Key, Enum.GetName(typeof(FileStatus), keyValuePair.Value)));
+                throw new LibGit2Exception(string.Format(CultureInfo.InvariantCulture, "Unable to remove file '{0}'. Its current status is '{1}'.", keyValuePair.Key, Enum.GetName(typeof(FileStatus), keyValuePair.Value)));
             }
 
             string wd = repo.Info.WorkingDirectory;
@@ -366,14 +331,26 @@ namespace LibGit2Sharp
 
         private IDictionary<string, FileStatus> PrepareBatch(IEnumerable<string> paths)
         {
+            Ensure.ArgumentNotNull(paths, "paths");
+
             IDictionary<string, FileStatus> dic = new Dictionary<string, FileStatus>();
 
             foreach (string path in paths)
             {
+                if (string.IsNullOrEmpty(path))
+                {
+                    throw new ArgumentException("At least one provided path is either null or empty.", "paths");
+                }
+
                 string relativePath = BuildRelativePathFrom(repo, path);
                 FileStatus fileStatus = RetrieveStatus(relativePath);
 
                 dic.Add(relativePath, fileStatus);
+            }
+
+            if (dic.Count == 0)
+            {
+                throw new ArgumentException("No path has been provided.", "paths");
             }
 
             return dic;
@@ -417,16 +394,12 @@ namespace LibGit2Sharp
 
         private void AddToIndex(string relativePath)
         {
-            relativePath = PosixPathHelper.ToPosix(relativePath);
-
             int res = NativeMethods.git_index_add(handle, relativePath);
             Ensure.Success(res);
         }
 
         private void RemoveFromIndex(string relativePath)
         {
-            relativePath = PosixPathHelper.ToPosix(relativePath);
-
             int res = NativeMethods.git_index_find(handle, relativePath);
             Ensure.Success(res, true);
 
@@ -444,12 +417,12 @@ namespace LibGit2Sharp
 
             var indexEntry = new GitIndexEntry
                                  {
-                                     Mode = treeEntry.Attributes,
+                                     Mode = (uint)treeEntry.Attributes,
                                      oid = treeEntry.Target.Id.Oid,
                                      Path = utf8Marshaler.MarshalManagedToNative(relativePath),
                                  };
 
-            NativeMethods.git_index_add2(handle, indexEntry);
+            Ensure.Success(NativeMethods.git_index_add2(handle, indexEntry));
             utf8Marshaler.CleanUpNativeData(indexEntry.Path);
         }
 
@@ -492,7 +465,7 @@ namespace LibGit2Sharp
 
             FileStatus status;
 
-            int res = NativeMethods.git_status_file(out status, repo.Handle, PosixPathHelper.ToPosix(relativePath));
+            int res = NativeMethods.git_status_file(out status, repo.Handle, relativePath);
             if (res == (int)GitErrorCode.GIT_ENOTFOUND)
             {
                 return FileStatus.Nonexistent;

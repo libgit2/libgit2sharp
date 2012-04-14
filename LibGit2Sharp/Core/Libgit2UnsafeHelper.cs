@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using LibGit2Sharp.Core.Handles;
 
 namespace LibGit2Sharp.Core
 {
@@ -9,6 +10,15 @@ namespace LibGit2Sharp.Core
         {
             UnSafeNativeMethods.git_strarray strArray;
             int res = UnSafeNativeMethods.git_reference_listall(out strArray, repo, types);
+            Ensure.Success(res);
+
+            return BuildListOf(strArray);
+        }
+
+        public static IList<string> ListAllRemoteNames(RepositorySafeHandle repo)
+        {
+            UnSafeNativeMethods.git_strarray strArray;
+            int res = UnSafeNativeMethods.git_remote_list(out strArray, repo);
             Ensure.Success(res);
 
             return BuildListOf(strArray);

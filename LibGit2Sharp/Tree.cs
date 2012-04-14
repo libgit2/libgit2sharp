@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using LibGit2Sharp.Core;
+using LibGit2Sharp.Core.Handles;
 
 namespace LibGit2Sharp
 {
@@ -11,11 +12,15 @@ namespace LibGit2Sharp
     /// </summary>
     public class Tree : GitObject, IEnumerable<TreeEntry>
     {
-        private Repository repo;
+        private readonly Repository repo;
+        private readonly FilePath path;
 
-        internal Tree(ObjectId id)
+        internal Tree(ObjectId id, FilePath path, int treeEntriesCount, Repository repository)
             : base(id)
         {
+            Count = treeEntriesCount;
+            repo = repository;
+            this.path = path ?? "";
         }
 
         /// <summary>
@@ -30,16 +35,19 @@ namespace LibGit2Sharp
         /// <returns><c>null</c> if nothing has been found, the <see cref = "TreeEntry" /> otherwise.</returns>
         public TreeEntry this[string relativePath]
         {
-            get { return RetrieveFromPath(PosixPathHelper.ToPosix(relativePath)); }
+            get { return RetrieveFromPath(relativePath); }
         }
 
-        private TreeEntry RetrieveFromPath(string relativePath)
+        private TreeEntry RetrieveFromPath(FilePath relativePath)
         {
-            Ensure.ArgumentNotNullOrEmptyString(relativePath, "relativePath");
+            if (relativePath.IsNullOrEmpty())
+            {
+                return null;
+            }
 
             using (var obj = new ObjectSafeWrapper(Id, repo))
             {
-                IntPtr objectPtr;
+                GitObjectSafeHandle objectPtr;
 
                 int res = NativeMethods.git_tree_get_subtree(out objectPtr, obj.ObjectPtr, relativePath);
 
@@ -50,14 +58,18 @@ namespace LibGit2Sharp
 
                 Ensure.Success(res);
 
-                IntPtr e = NativeMethods.git_tree_entry_byname(objectPtr, relativePath.Split('/').Last());
+                string posixPath = relativePath.Posix;
+                string filename = posixPath.Split('/').Last();
 
-                if (e == IntPtr.Zero)
+                TreeEntrySafeHandle handle = NativeMethods.git_tree_entry_byname(objectPtr, filename);
+
+                if (handle.IsInvalid)
                 {
                     return null;
                 }
 
-                return new TreeEntry(e, Id, repo);
+                string parentPath = posixPath.Substring(0, posixPath.Length - filename.Length);
+                return new TreeEntry(handle, Id, repo, path.Combine(parentPath));
             }
         }
 
@@ -89,6 +101,11 @@ namespace LibGit2Sharp
             }
         }
 
+        internal string Path
+        {
+            get { return path.Native; }
+        }
+
         #region IEnumerable<TreeEntry> Members
 
         /// <summary>
@@ -101,8 +118,8 @@ namespace LibGit2Sharp
             {
                 for (uint i = 0; i < Count; i++)
                 {
-                    IntPtr e = NativeMethods.git_tree_entry_byindex(obj.ObjectPtr, i);
-                    yield return new TreeEntry(e, Id, repo);
+                    TreeEntrySafeHandle handle = NativeMethods.git_tree_entry_byindex(obj.ObjectPtr, i);
+                    yield return new TreeEntry(handle, Id, repo, path);
                 }
             }
         }
@@ -118,9 +135,9 @@ namespace LibGit2Sharp
 
         #endregion
 
-        internal static Tree BuildFromPtr(IntPtr obj, ObjectId id, Repository repo)
+        internal static Tree BuildFromPtr(GitObjectSafeHandle obj, ObjectId id, Repository repo, FilePath path)
         {
-            var tree = new Tree(id) { repo = repo, Count = (int)NativeMethods.git_tree_entrycount(obj) };
+            var tree = new Tree(id, path, (int)NativeMethods.git_tree_entrycount(obj), repo);
             return tree;
         }
     }

@@ -51,16 +51,26 @@
     <Compile Include="Commit.cs" />
     <Compile Include="CommitCollection.cs" />
     <Compile Include="Configuration.cs" />
+    <Compile Include="Core\Compat\Environment.cs" />
+    <Compile Include="Core\FilePath.cs" />
+    <Compile Include="Core\FilePathExtensions.cs" />
+    <Compile Include="Core\FilePathMarshaler.cs" />
     <Compile Include="ConfigurationLevel.cs" />
     <Compile Include="Core\Compat\Tuple.cs" />
     <Compile Include="Core\DisposableEnumerable.cs" />
     <Compile Include="Core\EnumExtensions.cs" />
     <Compile Include="Core\GitObjectExtensions.cs" />
+    <Compile Include="Core\Handles\GitObjectSafeHandle.cs" />
+    <Compile Include="Core\Handles\IndexEntrySafeHandle.cs" />
+    <Compile Include="Core\Handles\NotOwnedSafeHandleBase.cs" />
+    <Compile Include="Core\Handles\OidSafeHandle.cs" />
     <Compile Include="Core\ReferenceExtensions.cs" />
-    <Compile Include="Core\SignatureSafeHandle.cs" />
+    <Compile Include="Core\Handles\ReferenceSafeHandle.cs" />
+    <Compile Include="Core\Handles\SignatureSafeHandle.cs" />
+    <Compile Include="Core\Handles\TreeEntrySafeHandle.cs" />
     <Compile Include="DetachedHead.cs" />
     <Compile Include="LibGit2Exception.cs" />
-    <Compile Include="Core\ConfigurationSafeHandle.cs" />
+    <Compile Include="Core\Handles\ConfigurationSafeHandle.cs" />
     <Compile Include="Core\Ensure.cs" />
     <Compile Include="Core\Epoch.cs" />
     <Compile Include="Core\GitErrorCode.cs" />
@@ -70,19 +80,15 @@
     <Compile Include="Core\GitSignature.cs" />
     <Compile Include="FileStatus.cs" />
     <Compile Include="Core\GitTime.cs" />
-    <Compile Include="Core\IntPtrExtensions.cs" />
     <Compile Include="Core\Compat\Lazy.cs" />
     <Compile Include="Core\NativeMethods.cs" />
-    <Compile Include="Core\SafeHandleExtensions.cs" />
+    <Compile Include="Core\Handles\SafeHandleExtensions.cs" />
     <Compile Include="Core\ObjectSafeWrapper.cs" />
-    <Compile Include="Core\PosixPathHelper.cs">
+    <Compile Include="Core\Handles\RemoteSafeHandle.cs" />
+    <Compile Include="Core\Handles\RevWalkerSafeHandle.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Core\RemoteSafeHandle.cs" />
-    <Compile Include="Core\RevWalkerSafeHandle.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Core\SafeHandleBase.cs" />
+    <Compile Include="Core\Handles\SafeHandleBase.cs" />
     <Compile Include="Core\UnSafeNativeMethods.cs" />
     <Compile Include="Core\Utf8Marshaler.cs" />
     <Compile Include="DirectReference.cs" />
@@ -96,11 +102,11 @@
     <Compile Include="ICommitCollection.cs" />
     <Compile Include="Index.cs" />
     <Compile Include="IndexEntry.cs" />
-    <Compile Include="Core\IndexSafeHandle.cs" />
+    <Compile Include="Core\Handles\IndexSafeHandle.cs" />
     <Compile Include="Filter.cs" />
     <Compile Include="IQueryableCommitCollection.cs" />
     <Compile Include="Core\LookUpOptions.cs" />
-    <Compile Include="NamedReference.cs" />
+    <Compile Include="ReferenceWrapper.cs" />
     <Compile Include="ObjectId.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Reference.cs" />
@@ -112,7 +118,7 @@
     </Compile>
     <Compile Include="RepositoryInformation.cs" />
     <Compile Include="RepositoryExtensions.cs" />
-    <Compile Include="Core\RepositorySafeHandle.cs" />
+    <Compile Include="Core\Handles\RepositorySafeHandle.cs" />
     <Compile Include="RepositoryStatus.cs" />
     <Compile Include="ResetOptions.cs" />
     <Compile Include="Signature.cs" />
@@ -126,6 +132,12 @@
   </ItemGroup>
   <ItemGroup>
     <CodeAnalysisDictionary Include="CustomDictionary.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="libgit2_hash.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="libgit2sharp_hash.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

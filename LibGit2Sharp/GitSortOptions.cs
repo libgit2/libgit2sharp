@@ -2,6 +2,9 @@
 
 namespace LibGit2Sharp
 {
+    /// <summary>
+    ///   Determines the sorting strategy when iterating through the content of the repository
+    /// </summary>
     [Flags]
     public enum GitSortOptions
     {

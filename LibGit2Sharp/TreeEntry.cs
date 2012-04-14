@@ -2,6 +2,7 @@ using System;
 using System.Runtime.InteropServices;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Compat;
+using LibGit2Sharp.Core.Handles;
 
 namespace LibGit2Sharp
 {
@@ -14,33 +15,39 @@ namespace LibGit2Sharp
         private readonly Repository repo;
         private readonly Lazy<GitObject> target;
         private readonly ObjectId targetOid;
+        private readonly Lazy<string> path;
 
         private static readonly LambdaEqualityHelper<TreeEntry> equalityHelper =
             new LambdaEqualityHelper<TreeEntry>(new Func<TreeEntry, object>[] { x => x.Name, x => x.parentTreeId });
 
-        internal TreeEntry(IntPtr obj, ObjectId parentTreeId, Repository repo)
+        internal TreeEntry(TreeEntrySafeHandle obj, ObjectId parentTreeId, Repository repo, FilePath parentPath)
         {
             this.parentTreeId = parentTreeId;
             this.repo = repo;
-            IntPtr gitTreeEntryId = NativeMethods.git_tree_entry_id(obj);
-            targetOid = new ObjectId((GitOid)Marshal.PtrToStructure(gitTreeEntryId, typeof(GitOid)));
+            targetOid = NativeMethods.git_tree_entry_id(obj).MarshalAsObjectId();
             Type = NativeMethods.git_tree_entry_type(obj);
-            target = new Lazy<GitObject>(RetreiveTreeEntryTarget);
+            target = new Lazy<GitObject>(RetrieveTreeEntryTarget);
 
-            Attributes = NativeMethods.git_tree_entry_attributes(obj);
-            Name = NativeMethods.git_tree_entry_name(obj).MarshallAsString();
+            Attributes = (int)NativeMethods.git_tree_entry_attributes(obj);
+            Name = NativeMethods.git_tree_entry_name(obj);
+            path = new Lazy<string>(() => System.IO.Path.Combine(parentPath.Native, Name));
         }
 
         /// <summary>
         ///   Gets the UNIX file attributes.
         /// </summary>
-        public uint Attributes { get; private set; }
+        public int Attributes { get; private set; }
 
         /// <summary>
         ///   Gets the filename.
-        ///   <para>The filename is expressed in a relative form. Path segments are separated with a forward slash."/></para>
         /// </summary>
         public string Name { get; private set; }
+
+        /// <summary>
+        ///   Gets the path.
+        ///   <para>The path is expressed in a relative form from the latest known <see cref="Tree"/>. Path segments are separated with a forward or backslash, depending on the OS the libray is being run on."/></para>
+        /// </summary>
+        public string Path { get { return path.Value; } }
 
         /// <summary>
         ///   Gets the <see cref = "GitObject" /> being pointed at.
@@ -55,12 +62,14 @@ namespace LibGit2Sharp
         /// </summary>
         public GitObjectType Type { get; private set; }
 
-        private GitObject RetreiveTreeEntryTarget()
+        private GitObject RetrieveTreeEntryTarget()
         {
-            GitObject treeEntryTarget = repo.Lookup(targetOid);
+            if (!Type.HasAny(new[]{GitObjectType.Tree, GitObjectType.Blob}))
+            {
+                throw new InvalidOperationException(string.Format("TreeEntry target of type '{0}' are not supported.", Type));
+            }
 
-            //TODO: Warning submodules will appear as targets of type Commit
-            Ensure.ArgumentConformsTo(treeEntryTarget.GetType(), t => typeof(Blob).IsAssignableFrom(t) || typeof(Tree).IsAssignableFrom(t), "treeEntryTarget");
+            GitObject treeEntryTarget = repo.LookupTreeEntryTarget(targetOid, Path);
 
             return treeEntryTarget;
         }

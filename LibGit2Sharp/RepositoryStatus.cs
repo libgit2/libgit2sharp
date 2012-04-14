@@ -18,6 +18,7 @@ namespace LibGit2Sharp
         private readonly List<string> missing = new List<string>();
         private readonly List<string> modified = new List<string>();
         private readonly List<string> untracked = new List<string>();
+        private readonly List<string> ignored = new List<string>();
         private readonly bool isDirty;
 
         private readonly IDictionary<FileStatus, Action<RepositoryStatus, string>> dispatcher = Build();
@@ -32,6 +33,7 @@ namespace LibGit2Sharp
                            { FileStatus.Added, (rs, s) => rs.added.Add(s) },
                            { FileStatus.Staged, (rs, s) => rs.staged.Add(s) },
                            { FileStatus.Removed, (rs, s) => rs.removed.Add(s) },
+                           { FileStatus.Ignored, (rs, s) => rs.ignored.Add(s) },
                        };
         }
 
@@ -41,12 +43,10 @@ namespace LibGit2Sharp
             isDirty = statusEntries.Count != 0;
         }
 
-        private int StateChanged(string filePath, uint state, IntPtr payload)
+        private int StateChanged(FilePath filePath, uint state, IntPtr payload)
         {
-            filePath = PosixPathHelper.ToNative(filePath);
-
             var gitStatus = (FileStatus)state;
-            statusEntries.Add(new StatusEntry(filePath, gitStatus));
+            statusEntries.Add(new StatusEntry(filePath.Native, gitStatus));
 
             foreach (KeyValuePair<FileStatus, Action<RepositoryStatus, string>> kvp in dispatcher)
             {
@@ -55,7 +55,7 @@ namespace LibGit2Sharp
                     continue;
                 }
 
-                kvp.Value(this, filePath);
+                kvp.Value(this, filePath.Native);
             }
 
             return 0;
@@ -125,6 +125,14 @@ namespace LibGit2Sharp
         public IEnumerable<string> Untracked
         {
             get { return untracked; }
+        }
+
+        /// <summary>
+        ///   List of files existing in the working directory that are ignored.
+        /// </summary>
+        public IEnumerable<string> Ignored
+        {
+            get { return ignored; }
         }
 
         /// <summary>

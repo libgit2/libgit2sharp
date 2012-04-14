@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using LibGit2Sharp.Core;
+using LibGit2Sharp.Core.Handles;
 
 namespace LibGit2Sharp
 {
@@ -156,7 +157,7 @@ namespace LibGit2Sharp
             {
                 string encoding = null; //TODO: Handle the encoding of the commit to be created
 
-                IntPtr[] parentsPtrs = parentObjectPtrs.Select(o => o.ObjectPtr ).ToArray();
+                IntPtr[] parentsPtrs = parentObjectPtrs.Select(o => o.ObjectPtr.DangerousGetHandle() ).ToArray();
                 res = NativeMethods.git_commit_create(out commitOid, repo.Handle, repo.Refs["HEAD"].CanonicalName, authorHandle,
                                                       committerHandle, encoding, message, treePtr.ObjectPtr, parentObjectPtrs.Count(), parentsPtrs);
                 Ensure.Success(res);
@@ -190,6 +191,8 @@ namespace LibGit2Sharp
             {
                 this.repo = repo;
                 int res = NativeMethods.git_revwalk_new(out handle, repo.Handle);
+                repo.RegisterForCleanup(handle);
+
                 Ensure.Success(res);
 
                 Sort(sortingStrategy);
