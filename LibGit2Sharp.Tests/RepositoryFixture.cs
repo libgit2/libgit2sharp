@@ -30,6 +30,21 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
+        public void IndexThrowsForBareRepo()
+        {
+            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            using (var repo = Repository.Init(scd.DirectoryPath, true))
+            {
+                string dir = repo.Info.Path;
+                Path.IsPathRooted(dir).ShouldBeTrue();
+                Directory.Exists(dir).ShouldBeTrue();
+                CheckGitConfigFile(dir);
+
+                Assert.Throws<LibGit2Exception>(() => repo.Index);
+            }
+        }
+
+        [Fact]
         public void CanCreateStandardRepo()
         {
             SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
