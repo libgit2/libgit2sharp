@@ -1,3 +1,4 @@
+using System;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Handles;
 
@@ -9,10 +10,12 @@ namespace LibGit2Sharp
     /// </summary>
     public class ObjectDatabase
     {
+        private readonly Repository repo;
         private readonly ObjectDatabaseSafeHandle handle;
 
         internal ObjectDatabase(Repository repo)
         {
+            this.repo = repo;
             Ensure.Success(NativeMethods.git_repository_odb(out handle, repo.Handle));
 
             repo.RegisterForCleanup(handle);
@@ -28,6 +31,23 @@ namespace LibGit2Sharp
             var oid = objectId.Oid;
 
             return NativeMethods.git_odb_exists(handle, ref oid) != (int)GitErrorCode.GIT_SUCCESS;
+        }
+
+        /// <summary>
+        ///   Inserts a <see cref="Blob"/> into the object database, created from the content of a file.
+        /// </summary>
+        /// <param name="path">Relative path to the file in the working directory.</param>
+        /// <returns>The created <see cref="Blob"/>.</returns>
+        public Blob CreateBlob(string path)
+        {
+            if (repo.Info.IsBare)
+            {
+                throw new NotImplementedException();
+            }
+
+            var oid = new GitOid();
+            Ensure.Success(NativeMethods.git_blob_create_fromfile(ref oid, repo.Handle, path));
+            return repo.Lookup<Blob>(new ObjectId(oid));
         }
     }
 }
