@@ -23,7 +23,7 @@ namespace LibGit2Sharp
         private readonly TagCollection tags;
         private readonly Lazy<RepositoryInformation> info;
         private readonly bool isBare;
-        private readonly List<SafeHandleBase> handlesToCleanup = new List<SafeHandleBase>();
+        private readonly Stack<SafeHandleBase> handlesToCleanup = new Stack<SafeHandleBase>();
         private static readonly Lazy<string> versionRetriever = new Lazy<string>(RetrieveVersion);
 
         /// <summary>
@@ -177,7 +177,10 @@ namespace LibGit2Sharp
         /// </summary>
         protected virtual void Dispose(bool disposing)
         {
-            handlesToCleanup.ForEach(handleToCleanup => handleToCleanup.SafeDispose());
+            while (handlesToCleanup.Count > 0)
+            {
+                handlesToCleanup.Pop().SafeDispose();
+            }
         }
 
         #endregion
@@ -413,7 +416,7 @@ namespace LibGit2Sharp
 
         internal void RegisterForCleanup(SafeHandleBase handleToCleanup)
         {
-            handlesToCleanup.Add(handleToCleanup);
+            handlesToCleanup.Push(handleToCleanup);
         }
 
         /// <summary>
