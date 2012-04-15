@@ -60,6 +60,7 @@
     <Compile Include="Core\DisposableEnumerable.cs" />
     <Compile Include="Core\EnumExtensions.cs" />
     <Compile Include="Core\GitObjectExtensions.cs" />
+    <Compile Include="Core\Handles\ObjectDatabaseSafeHandle.cs" />
     <Compile Include="Core\Handles\GitObjectSafeHandle.cs" />
     <Compile Include="Core\Handles\IndexEntrySafeHandle.cs" />
     <Compile Include="Core\Handles\NotOwnedSafeHandleBase.cs" />
@@ -106,6 +107,7 @@
     <Compile Include="Filter.cs" />
     <Compile Include="IQueryableCommitCollection.cs" />
     <Compile Include="Core\LookUpOptions.cs" />
+    <Compile Include="ObjectDatabase.cs" />
     <Compile Include="ReferenceWrapper.cs" />
     <Compile Include="ObjectId.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

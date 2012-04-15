@@ -46,6 +46,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConfigurationFixture.cs" />
+    <Compile Include="ObjectDatabaseFixture.cs" />
     <Compile Include="ResetFixture.cs" />
     <Compile Include="LazyFixture.cs" />
     <Compile Include="RemoteFixture.cs" />
