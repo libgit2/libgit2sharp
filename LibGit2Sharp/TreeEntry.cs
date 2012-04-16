@@ -1,5 +1,4 @@
 using System;
-using System.Runtime.InteropServices;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Compat;
 using LibGit2Sharp.Core.Handles;
@@ -28,15 +27,15 @@ namespace LibGit2Sharp
             Type = NativeMethods.git_tree_entry_type(obj);
             target = new Lazy<GitObject>(RetrieveTreeEntryTarget);
 
-            Attributes = (int)NativeMethods.git_tree_entry_attributes(obj);
+            Mode = (Mode)NativeMethods.git_tree_entry_attributes(obj);
             Name = NativeMethods.git_tree_entry_name(obj);
             path = new Lazy<string>(() => System.IO.Path.Combine(parentPath.Native, Name));
         }
 
         /// <summary>
-        ///   Gets the UNIX file attributes.
+        ///   Gets the file mode.
         /// </summary>
-        public int Attributes { get; private set; }
+        public Mode Mode { get; private set; }
 
         /// <summary>
         ///   Gets the filename.
