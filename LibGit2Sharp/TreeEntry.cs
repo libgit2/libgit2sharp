@@ -57,6 +57,11 @@ namespace LibGit2Sharp
             get { return target.Value; }
         }
 
+        internal ObjectId TargetId
+        {
+            get { return targetOid; }
+        }
+
         /// <summary>
         ///   Gets the <see cref = "GitObjectType" /> of the <see cref = "Target" /> being pointed at.
         /// </summary>
