@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Compat;
+using LibGit2Sharp.Core.Handles;
 
 namespace LibGit2Sharp
 {
@@ -162,6 +163,36 @@ namespace LibGit2Sharp
             return td;
         }
 
+        internal Tree Build(Repository repository)
+        {
+            WrapAllTreeDefinitions(repository);
+
+            using (var builder = new TreeBuilder())
+            {
+                foreach (KeyValuePair<string, TreeEntryDefinition> kvp in entries)
+                {
+                    string name = kvp.Key;
+                    TreeEntryDefinition ted = kvp.Value;
+
+                    builder.Insert(name, ted);
+                }
+
+                ObjectId treeId = builder.Write(repository);
+                return repository.Lookup<Tree>(treeId);
+            }
+        }
+
+        private void WrapAllTreeDefinitions(Repository repository)
+        {
+            foreach (KeyValuePair<string, TreeDefinition> pair in unwrappedTrees)
+            {
+                Tree tree = pair.Value.Build(repository);
+                entries[pair.Key] = TreeEntryDefinition.From(tree);
+            }
+
+            unwrappedTrees.Clear();
+        }
+
         private void WrapTree(string entryName, TreeEntryDefinition treeEntryDefinition)
         {
             entries[entryName] = treeEntryDefinition;
@@ -202,6 +233,36 @@ namespace LibGit2Sharp
             }
 
             return new Tuple<string, string>(segments[0], segments.Length == 2 ? segments[1] : null);
+        }
+
+        private class TreeBuilder : IDisposable
+        {
+            private readonly TreeBuilderSafeHandle handle;
+
+            public TreeBuilder()
+            {
+                Ensure.Success(NativeMethods.git_treebuilder_create(out handle, IntPtr.Zero));
+            }
+
+            public void Insert(string name, TreeEntryDefinition treeEntryDefinition)
+            {
+                GitOid oid = treeEntryDefinition.TargetId.Oid;
+
+                Ensure.Success(NativeMethods.git_treebuilder_insert(IntPtr.Zero, handle, name, ref oid, (uint)treeEntryDefinition.Mode));
+            }
+
+            public ObjectId Write(Repository repo)
+            {
+                GitOid oid;
+                Ensure.Success(NativeMethods.git_treebuilder_write(out oid, repo.Handle, handle));
+
+                return new ObjectId(oid);
+            }
+
+            public void Dispose()
+            {
+                handle.SafeDispose();
+            }
         }
     }
 }

@@ -507,5 +507,22 @@ namespace LibGit2Sharp.Core
         [DllImport(libgit2)]
         public static extern int git_tree_get_subtree(out GitObjectSafeHandle tree, GitObjectSafeHandle root,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(FilePathMarshaler))] FilePath treeentry_path);
+
+        [DllImport(libgit2)]
+        public static extern int git_treebuilder_create(out TreeBuilderSafeHandle builder, IntPtr src);
+
+        [DllImport(libgit2)]
+        public static extern int git_treebuilder_insert(
+            IntPtr entry_out,
+            TreeBuilderSafeHandle builder,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string treeentry_name,
+            ref GitOid id,
+            uint attributes);
+
+        [DllImport(libgit2)]
+        public static extern int git_treebuilder_write(out GitOid oid, RepositorySafeHandle repo, TreeBuilderSafeHandle bld);
+
+        [DllImport(libgit2)]
+        public static extern int git_treebuilder_free(IntPtr bld);
     }
 }

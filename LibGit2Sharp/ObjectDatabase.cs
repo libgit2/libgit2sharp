@@ -49,5 +49,15 @@ namespace LibGit2Sharp
             Ensure.Success(NativeMethods.git_blob_create_fromfile(ref oid, repo.Handle, path));
             return repo.Lookup<Blob>(new ObjectId(oid));
         }
+
+        /// <summary>
+        ///   Inserts a <see cref = "Tree"/> into the object database, created from a <see cref = "TreeDefinition"/>.
+        /// </summary>
+        /// <param name = "treeDefinition">The <see cref = "TreeDefinition"/>.</param>
+        /// <returns>The created <see cref = "Tree"/>.</returns>
+        public Tree CreateTree(TreeDefinition treeDefinition)
+        {
+            return treeDefinition.Build(repo);
+        }
     }
 }

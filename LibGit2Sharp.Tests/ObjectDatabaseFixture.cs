@@ -45,5 +45,64 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(blob, fetchedBlob);
             }
         }
+
+        [Theory]
+        [InlineData("README")]
+        [InlineData("README AS WELL")]
+        [InlineData("2/README AS WELL")]
+        [InlineData("1/README AS WELL")]
+        [InlineData("1")]
+        public void CanCreateATreeByAlteringAnExistingOne(string targetPath)
+        {
+            TemporaryCloneOfTestRepo scd = BuildTemporaryCloneOfTestRepo();
+
+            using (var repo = new Repository(scd.RepositoryPath))
+            {
+                var blob = repo.Lookup<Blob>(new ObjectId("a8233120f6ad708f843d861ce2b7228ec4e3dec6"));
+
+                TreeDefinition td = TreeDefinition.From(repo.Head.Tip.Tree)
+                    .Add(targetPath, blob, Mode.NonExecutableFile);
+
+                Tree tree = repo.ObjectDatabase.CreateTree(td);
+                Assert.NotNull(tree);
+            }
+        }
+
+        [Fact]
+        public void CanCreateAnEmptyTree()
+        {
+            TemporaryCloneOfTestRepo scd = BuildTemporaryCloneOfTestRepo();
+
+            using (var repo = new Repository(scd.RepositoryPath))
+            {
+                var td = new TreeDefinition();
+
+                Tree tree = repo.ObjectDatabase.CreateTree(td);
+                Assert.NotNull(tree);
+                Assert.Equal("4b825dc642cb6eb9a060e54bf8d69288fbee4904", tree.Sha);
+            }
+        }
+
+        [Fact]
+        public void CanReplaceAnExistingTreeWithAnotherPersitedTree()
+        {
+            TemporaryCloneOfTestRepo scd = BuildTemporaryCloneOfTestRepo();
+
+            using (var repo = new Repository(scd.RepositoryPath))
+            {
+                TreeDefinition td = TreeDefinition.From(repo.Head.Tip.Tree);
+                Assert.Equal(GitObjectType.Tree, td["1"].Type);
+
+                TreeDefinition newTd = new TreeDefinition()
+                    .Add("new/one", repo.Lookup<Blob>("a823312"), Mode.NonExecutableFile)
+                    .Add("new/two", repo.Lookup<Blob>("a71586c"), Mode.NonExecutableFile)
+                    .Add("new/tree", repo.Lookup<Tree>("7f76480"));
+
+                repo.ObjectDatabase.CreateTree(newTd);
+
+                td.Add("1", newTd["new"]);
+                Assert.Equal(GitObjectType.Tree, td["1/tree"].Type);
+            }
+        }
     }
 }
