@@ -69,6 +69,51 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
+        public void CanCreateATreeByRemovingEntriesFromExistingOne()
+        {
+            TemporaryCloneOfTestRepo scd = BuildTemporaryCloneOfTestRepo();
+
+            using (var repo = new Repository(scd.RepositoryPath))
+            {
+                TreeDefinition td = TreeDefinition.From(repo.Head.Tip.Tree)
+                    .Remove("branch_file.txt")
+                    .Remove("1/branch_file.txt");
+
+                Tree tree = repo.ObjectDatabase.CreateTree(td);
+                Assert.NotNull(tree);
+
+                Assert.Null(tree["branch_file.txt"]);
+                Assert.Null(tree["1/branch_file.txt"]);
+                Assert.Null(tree["1"]);
+
+                Assert.Equal("814889a078c031f61ed08ab5fa863aea9314344d", tree.Sha);
+            }
+        }
+
+        [Fact]
+        public void RemovingANonExistingEntryFromATreeDefinitionHasNoSideEffect()
+        {
+            TemporaryCloneOfTestRepo scd = BuildTemporaryCloneOfTestRepo();
+
+            using (var repo = new Repository(scd.RepositoryPath))
+            {
+                Tree head = repo.Head.Tip.Tree;
+
+                TreeDefinition td = TreeDefinition.From(head)
+                    .Remove("123")
+                    .Remove("nope")
+                    .Remove("not/here")
+                    .Remove("neither/in/here")
+                    .Remove("README/is/a-Blob/not-a-Tree");
+
+                Tree tree = repo.ObjectDatabase.CreateTree(td);
+                Assert.NotNull(tree);
+
+                tree.ShouldEqual(head);
+            }
+        }
+
+        [Fact]
         public void CanCreateAnEmptyTree()
         {
             TemporaryCloneOfTestRepo scd = BuildTemporaryCloneOfTestRepo();

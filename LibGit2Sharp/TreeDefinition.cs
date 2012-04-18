@@ -46,6 +46,46 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        ///   Removes a <see cref="TreeEntryDefinition"/> located the specified <paramref name="treeEntryPath"/> path.
+        /// </summary>
+        /// <param name="treeEntryPath">The path within this <see cref="TreeDefinition"/>.</param>
+        /// <returns>The current <see cref="TreeDefinition"/>.</returns>
+        public TreeDefinition Remove(string treeEntryPath)
+        {
+            Ensure.ArgumentNotNullOrEmptyString(treeEntryPath, "treeEntryPath");
+
+            if (this[treeEntryPath] == null)
+            {
+                return this;
+            }
+
+            Tuple<string, string> segments = ExtractPosixLeadingSegment(treeEntryPath);
+
+            if (segments.Item2 == null)
+            {
+                entries.Remove(segments.Item1);
+            }
+
+            if (!unwrappedTrees.ContainsKey(segments.Item1))
+            {
+                return this;
+            }
+
+            if (segments.Item2 != null)
+            {
+                unwrappedTrees[segments.Item1].Remove(segments.Item2);
+            }
+
+            if (unwrappedTrees[segments.Item1].entries.Count == 0)
+            {
+                unwrappedTrees.Remove(segments.Item1);
+                entries.Remove(segments.Item1);
+            }
+
+            return this;
+        }
+
+        /// <summary>
         ///   Adds or replaces a <see cref="TreeEntryDefinition"/> at the specified <paramref name="targetTreeEntryPath"/> location.
         /// </summary>
         /// <param name="targetTreeEntryPath">The path within this <see cref="TreeDefinition"/>.</param>
