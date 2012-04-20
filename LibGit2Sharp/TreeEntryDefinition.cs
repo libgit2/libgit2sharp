@@ -60,6 +60,17 @@ namespace LibGit2Sharp
                        };
         }
 
+        internal static TreeEntryDefinition TransientBlobFrom(string filePath, Mode mode)
+        {
+            Ensure.ArgumentConformsTo(mode, m => m.HasAny(new[] { Mode.NonExecutableFile, Mode.ExecutableFile, Mode.NonExecutableGroupWriteableFile }), "mode");
+
+            return new TransientBlobTreeEntryDefinition
+                       {
+                           Builder = odb => odb.CreateBlob(filePath),
+                           Mode = mode,
+                       };
+        }
+
         internal static TreeEntryDefinition From(Tree tree)
         {
             return new TreeEntryDefinition
@@ -147,5 +158,15 @@ namespace LibGit2Sharp
         {
             get { return GitObjectType.Tree; }
         }
+    }
+
+    internal class TransientBlobTreeEntryDefinition : TransientTreeEntryDefinition
+    {
+        public override GitObjectType Type
+        {
+            get { return GitObjectType.Blob; }
+        }
+
+        public Func<ObjectDatabase, Blob> Builder { get; set; }
     }
 }

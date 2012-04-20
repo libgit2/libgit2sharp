@@ -140,6 +140,22 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        ///   Adds or replaces a <see cref="TreeEntryDefinition"/>, dynamically built from the content of the file, at the specified <paramref name="targetTreeEntryPath"/> location.
+        /// </summary>
+        /// <param name="targetTreeEntryPath">The path within this <see cref="TreeDefinition"/>.</param>
+        /// <param name="filePath">The path to the file from which a <see cref="Blob"/> will be built and stored at the described location.</param>
+        /// <param name="mode">The file related <see cref="Mode"/> attributes.</param>
+        /// <returns>The current <see cref="TreeDefinition"/>.</returns>
+        public TreeDefinition Add(string targetTreeEntryPath, string filePath, Mode mode)
+        {
+            Ensure.ArgumentNotNullOrEmptyString(filePath, "filePath");
+
+            TreeEntryDefinition ted = TreeEntryDefinition.TransientBlobFrom(filePath, mode);
+
+            return Add(targetTreeEntryPath, ted);
+        }
+
+        /// <summary>
         ///   Adds or replaces a <see cref="TreeEntryDefinition"/>, dynamically built from the provided <see cref="Tree"/>, at the specified <paramref name="targetTreeEntryPath"/> location.
         /// </summary>
         /// <param name="targetTreeEntryPath">The path within this <see cref="TreeDefinition"/>.</param>
@@ -209,13 +225,29 @@ namespace LibGit2Sharp
 
             using (var builder = new TreeBuilder())
             {
+                var builtTreeEntryDefinitions = new List<Tuple<string, TreeEntryDefinition>>();
+
                 foreach (KeyValuePair<string, TreeEntryDefinition> kvp in entries)
                 {
                     string name = kvp.Key;
                     TreeEntryDefinition ted = kvp.Value;
 
-                    builder.Insert(name, ted);
+                    var transient = ted as TransientBlobTreeEntryDefinition;
+
+                    if (transient == null)
+                    {
+                        builder.Insert(name, ted);
+                        continue;
+                    }
+
+                    Blob blob = transient.Builder(repository.ObjectDatabase);
+                    TreeEntryDefinition ted2 = TreeEntryDefinition.From(blob, ted.Mode);
+                    builtTreeEntryDefinitions.Add(new Tuple<string, TreeEntryDefinition>(name, ted2));
+
+                    builder.Insert(name, ted2);
                 }
+
+                builtTreeEntryDefinitions.ForEach(t => entries[t.Item1] = t.Item2);
 
                 ObjectId treeId = builder.Write(repository);
                 return repository.Lookup<Tree>(treeId);

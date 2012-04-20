@@ -149,5 +149,38 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(GitObjectType.Tree, td["1/tree"].Type);
             }
         }
+
+        [Fact]
+        public void CanCreateATreeContainingABlobFromAFileInTheWorkingDirectory()
+        {
+            TemporaryCloneOfTestRepo scd = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
+
+            using (var repo = new Repository(scd.DirectoryPath))
+            {
+                Assert.Equal(FileStatus.Nonexistent, repo.Index.RetrieveStatus("hello.txt"));
+                File.AppendAllText(Path.Combine(repo.Info.WorkingDirectory, "hello.txt"), "I'm a new file\n");
+
+                TreeDefinition td = TreeDefinition.From(repo.Head.Tip.Tree)
+                    .Add("1/new file", "hello.txt", Mode.NonExecutableFile);
+
+                TreeEntryDefinition ted = td["1/new file"];
+                Assert.NotNull(ted);
+                Assert.Equal(ObjectId.Zero, ted.TargetId);
+
+                td.Add("1/2/another new file", ted);
+
+                Tree tree = repo.ObjectDatabase.CreateTree(td);
+
+                TreeEntry te = tree["1/new file"];
+                Assert.NotNull(te.Target);
+                Assert.Equal("dc53d4c6b8684c21b0b57db29da4a2afea011565", te.Target.Sha);
+                Assert.Equal("dc53d4c6b8684c21b0b57db29da4a2afea011565", td["1/new file"].TargetId.Sha);
+
+                te = tree["1/2/another new file"];
+                Assert.NotNull(te.Target);
+                Assert.Equal("dc53d4c6b8684c21b0b57db29da4a2afea011565", te.Target.Sha);
+                Assert.Equal("dc53d4c6b8684c21b0b57db29da4a2afea011565", td["1/2/another new file"].TargetId.Sha);
+            }
+        }
     }
 }
