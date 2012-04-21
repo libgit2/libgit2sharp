@@ -354,13 +354,24 @@ namespace LibGit2Sharp
 
             if (branch != null)
             {
-                Refs.UpdateTarget("HEAD", branch.CanonicalName);
-                return branch;
+                return Checkout(branch);
             }
 
             var commitId = LookupCommit(shaOrReferenceName).Id;
             Refs.UpdateTarget("HEAD", commitId.Sha);
             return Head;
+        }
+
+        /// <summary>
+        ///   Checkout the specified branch.
+        /// </summary>
+        /// <param name="branch">The branch to checkout.</param>
+        /// <returns>The branch.</returns>
+        public Branch Checkout(Branch branch)
+        {
+            Ensure.ArgumentNotNull(branch, "branch");
+            Refs.UpdateTarget("HEAD", branch.CanonicalName);
+            return branch;
         }
 
         /// <summary>

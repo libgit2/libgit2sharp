@@ -311,6 +311,31 @@ namespace LibGit2Sharp.Tests
                 Branch master = repo.Branches["master"];
                 master.IsCurrentRepositoryHead.ShouldBeTrue();
 
+                Branch branch = repo.Branches[name];
+                branch.ShouldNotBeNull();
+
+                Branch test = repo.Checkout(branch);
+                repo.Info.IsHeadDetached.ShouldBeFalse();
+
+                test.IsRemote.ShouldBeFalse();
+                test.IsCurrentRepositoryHead.ShouldBeTrue();
+                test.ShouldEqual(repo.Head);
+
+                master.IsCurrentRepositoryHead.ShouldBeFalse();
+            }
+        }
+
+        [Theory]
+        [InlineData("test")]
+        [InlineData("refs/heads/test")]
+        public void CanCheckoutAnExistingBranchByName(string name)
+        {
+            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                Branch master = repo.Branches["master"];
+                master.IsCurrentRepositoryHead.ShouldBeTrue();
+
                 Branch test = repo.Checkout(name);
                 repo.Info.IsHeadDetached.ShouldBeFalse();
 
@@ -365,7 +390,8 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(BareTestRepoPath))
             {
                 Assert.Throws<ArgumentException>(() => repo.Checkout(string.Empty));
-                Assert.Throws<ArgumentNullException>(() => repo.Checkout(null));
+                Assert.Throws<ArgumentNullException>(() => repo.Checkout(default(Branch)));
+                Assert.Throws<ArgumentNullException>(() => repo.Checkout(default(string)));
             }
         }
 
