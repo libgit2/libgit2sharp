@@ -311,7 +311,7 @@ namespace LibGit2Sharp.Tests
                 Branch master = repo.Branches["master"];
                 master.IsCurrentRepositoryHead.ShouldBeTrue();
 
-                Branch test = repo.Branches.Checkout(name);
+                Branch test = repo.Checkout(name);
                 repo.Info.IsHeadDetached.ShouldBeFalse();
 
                 test.IsRemote.ShouldBeFalse();
@@ -333,7 +333,7 @@ namespace LibGit2Sharp.Tests
                 Branch master = repo.Branches["master"];
                 master.IsCurrentRepositoryHead.ShouldBeTrue();
 
-                Branch detachedHead = repo.Branches.Checkout(commitPointer);
+                Branch detachedHead = repo.Checkout(commitPointer);
 
                 repo.Info.IsHeadDetached.ShouldBeTrue();
 
@@ -355,7 +355,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                Assert.Throws<LibGit2Exception>(() => repo.Branches.Checkout("i-do-not-exist"));
+                Assert.Throws<LibGit2Exception>(() => repo.Checkout("i-do-not-exist"));
             }
         }
 
@@ -364,8 +364,8 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                Assert.Throws<ArgumentException>(() => repo.Branches.Checkout(string.Empty));
-                Assert.Throws<ArgumentNullException>(() => repo.Branches.Checkout(null));
+                Assert.Throws<ArgumentException>(() => repo.Checkout(string.Empty));
+                Assert.Throws<ArgumentNullException>(() => repo.Checkout(null));
             }
         }
 

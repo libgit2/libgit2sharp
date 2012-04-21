@@ -67,21 +67,10 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name = "shaOrReferenceName">The sha of the commit, a canonical reference name or the name of the branch to checkout.</param>
         /// <returns></returns>
+        [Obsolete("This method will be removed in the next release. Please use Repository.Checkout() instead.")]
         public Branch Checkout(string shaOrReferenceName)
         {
-            // TODO: This does not yet checkout (write) the working directory
-
-            Branch branch = this[shaOrReferenceName];
-
-            if (branch != null)
-            {
-                repo.Refs.UpdateTarget("HEAD", branch.CanonicalName);
-                return branch;
-            }
-
-            ObjectId commitId = repo.LookupCommit(shaOrReferenceName).Id;
-            repo.Refs.UpdateTarget("HEAD", commitId.Sha);
-            return repo.Head;
+            return repo.Checkout(shaOrReferenceName);
         }
 
         /// <summary>

@@ -342,6 +342,28 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        ///   Checkout the specified branch, reference or SHA.
+        /// </summary>
+        /// <param name = "shaOrReferenceName">The sha of the commit, a canonical reference name or the name of the branch to checkout.</param>
+        /// <returns>The new HEAD.</returns>
+        public Branch Checkout(string shaOrReferenceName)
+        {
+            // TODO: This does not yet checkout (write) the working directory
+
+            var branch = Branches[shaOrReferenceName];
+
+            if (branch != null)
+            {
+                Refs.UpdateTarget("HEAD", branch.CanonicalName);
+                return branch;
+            }
+
+            var commitId = LookupCommit(shaOrReferenceName).Id;
+            Refs.UpdateTarget("HEAD", commitId.Sha);
+            return Head;
+        }
+
+        /// <summary>
         ///   Sets the current <see cref = "Head" /> to the specified commit and optionally resets the <see cref = "Index" /> and
         ///   the content of the working tree to match.
         /// </summary>

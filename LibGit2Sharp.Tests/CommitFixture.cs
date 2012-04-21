@@ -27,11 +27,11 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                repo.Branches.Checkout("test");
+                repo.Checkout("test");
                 repo.Commits.Count().ShouldEqual(2);
                 repo.Commits.First().Id.Sha.ShouldEqual("e90810b8df3e80c413d903f631643c716887138d");
 
-                repo.Branches.Checkout("master");
+                repo.Checkout("master");
                 repo.Commits.Count().ShouldEqual(7);
                 repo.Commits.First().Id.Sha.ShouldEqual("4c062a6361ae6959e06292c1fa5e2822d9c96345");
             }
@@ -225,7 +225,7 @@ namespace LibGit2Sharp.Tests
             using (var repoClone = new Repository(path.RepositoryPath))
             {
                 string headSha = repoClone.Head.Tip.Sha;
-                repoClone.Branches.Checkout(headSha);
+                repoClone.Checkout(headSha);
 
                 AssertEnumerationOfCommitsInRepo(repoClone,
                     repo => new Filter { Since = repo.Head },
@@ -518,7 +518,7 @@ namespace LibGit2Sharp.Tests
                 commit2.Parents.First().Id.ShouldEqual(commit.Id);
 
                 Branch firstCommitBranch = repo.CreateBranch("davidfowl-rules", commit.Id.Sha); //TODO: This cries for a shortcut method :-/
-                repo.Branches.Checkout(firstCommitBranch.Name); //TODO: This cries for a shortcut method :-/
+                repo.Checkout(firstCommitBranch.Name);
 
                 File.WriteAllText(filePath, "davidfowl commits!\n");
 

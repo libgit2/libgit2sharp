@@ -84,7 +84,7 @@ namespace LibGit2Sharp.Tests
                 Branch branch = repo.Branches["mybranch"];
 
                 string branchIdentifier = branchIdentifierRetriever(branch);
-                repo.Branches.Checkout(branchIdentifier);
+                repo.Checkout(branchIdentifier);
                 repo.Info.IsHeadDetached.ShouldEqual(shouldHeadBeDetached);
 
                 string expectedHeadName = expectedHeadNameRetriever(branch);
@@ -122,7 +122,7 @@ namespace LibGit2Sharp.Tests
             repo.Commit("Update file", shiftedSignature, shiftedSignature);
             repo.CreateBranch("mybranch");
 
-            repo.Branches.Checkout("mybranch");
+            repo.Checkout("mybranch");
 
             repo.Index.RetrieveStatus().IsDirty.ShouldBeFalse();
         }
