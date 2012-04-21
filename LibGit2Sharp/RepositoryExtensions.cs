@@ -1,4 +1,5 @@
 ﻿using System;
+using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
 {
@@ -85,6 +86,18 @@ namespace LibGit2Sharp
         public static Branch CreateBranch(this Repository repository, string branchName)
         {
             return CreateBranch(repository, branchName, repository.Head.CanonicalName);
+        }
+
+        /// <summary>
+        ///   Creates a branch with the specified name. This branch will point at <paramref name="target"/>.
+        /// </summary>
+        /// <param name = "repository">The <see cref = "Repository" /> being worked with.</param>
+        /// <param name = "branchName">The name of the branch to create.</param>
+        /// <param name = "target">The commit which should be pointed at by the Branch.</param>
+        public static Branch CreateBranch(this Repository repository, string branchName, Commit target)
+        {
+            Ensure.ArgumentNotNull(target, "target");
+            return CreateBranch(repository, branchName, target.Id.Sha);
         }
 
         /// <summary>

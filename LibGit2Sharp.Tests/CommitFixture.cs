@@ -517,7 +517,7 @@ namespace LibGit2Sharp.Tests
                 commit2.ParentsCount.ShouldEqual(1);
                 commit2.Parents.First().Id.ShouldEqual(commit.Id);
 
-                Branch firstCommitBranch = repo.CreateBranch("davidfowl-rules", commit.Id.Sha); //TODO: This cries for a shortcut method :-/
+                Branch firstCommitBranch = repo.CreateBranch("davidfowl-rules", commit);
                 repo.Checkout(firstCommitBranch);
 
                 File.WriteAllText(filePath, "davidfowl commits!\n");

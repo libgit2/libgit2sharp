@@ -74,6 +74,20 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
+        public void CanCreateBranchFromCommit()
+        {
+            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                const string name = "unit_test";
+                var commit = repo.Lookup<Commit>("HEAD");
+                Branch newBranch = repo.CreateBranch(name, commit);
+                newBranch.ShouldNotBeNull();
+                newBranch.Tip.Sha.ShouldEqual("4c062a6361ae6959e06292c1fa5e2822d9c96345");
+            }
+        }
+
+        [Fact]
         public void CreatingABranchFromATagPeelsToTheCommit()
         {
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
@@ -151,8 +165,9 @@ namespace LibGit2Sharp.Tests
             {
                 Assert.Throws<ArgumentNullException>(() => repo.Branches.Create(null, repo.Head.CanonicalName));
                 Assert.Throws<ArgumentException>(() => repo.Branches.Create(string.Empty, repo.Head.CanonicalName));
-                Assert.Throws<ArgumentNullException>(() => repo.Branches.Create("bad_branch", null));
+                Assert.Throws<ArgumentNullException>(() => repo.Branches.Create("bad_branch", default(string)));
                 Assert.Throws<ArgumentException>(() => repo.Branches.Create("bad_branch", string.Empty));
+                Assert.Throws<ArgumentNullException>(() => repo.CreateBranch("bad_branch", default(Commit)));
             }
         }
 
