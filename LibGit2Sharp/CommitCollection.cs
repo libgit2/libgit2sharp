@@ -134,51 +134,33 @@ namespace LibGit2Sharp
         /// <returns>The generated <see cref = "Commit" />.</returns>
         public Commit Create(string message, Signature author, Signature committer, bool amendPreviousCommit)
         {
-            Ensure.ArgumentNotNull(message, "message");
-            Ensure.ArgumentNotNull(author, "author");
-            Ensure.ArgumentNotNull(committer, "committer");
-
             if (amendPreviousCommit && repo.Info.IsEmpty)
             {
                 throw new LibGit2Exception("Can not amend anything. The Head doesn't point at any commit.");
             }
 
             GitOid treeOid;
-            int res = NativeMethods.git_tree_create_fromindex(out treeOid, repo.Index.Handle);
-            Ensure.Success(res);
+            Ensure.Success(NativeMethods.git_tree_create_fromindex(out treeOid, repo.Index.Handle));
+            var tree = repo.Lookup<Tree>(new ObjectId(treeOid));
 
-            var parentIds = RetrieveParentIdsOfTheCommitBeingCreated(repo, amendPreviousCommit);
+            var parents = RetrieveParentsOfTheCommitBeingCreated(repo, amendPreviousCommit);
 
-            GitOid commitOid;
-            using (var treePtr = new ObjectSafeWrapper(new ObjectId(treeOid), repo))
-            using (var parentObjectPtrs = new DisposableEnumerable<ObjectSafeWrapper>(parentIds.Select(id => new ObjectSafeWrapper(id, repo))))
-            using (SignatureSafeHandle authorHandle = author.BuildHandle())
-            using (SignatureSafeHandle committerHandle = committer.BuildHandle())
-            {
-                string encoding = null; //TODO: Handle the encoding of the commit to be created
-
-                IntPtr[] parentsPtrs = parentObjectPtrs.Select(o => o.ObjectPtr.DangerousGetHandle() ).ToArray();
-                res = NativeMethods.git_commit_create(out commitOid, repo.Handle, repo.Refs["HEAD"].CanonicalName, authorHandle,
-                                                      committerHandle, encoding, message, treePtr.ObjectPtr, parentObjectPtrs.Count(), parentsPtrs);
-                Ensure.Success(res);
-            }
-
-            return repo.Lookup<Commit>(new ObjectId(commitOid));
+            return repo.ObjectDatabase.CreateCommit(message, author, committer, tree, parents, "HEAD");
         }
 
-        private static IEnumerable<ObjectId> RetrieveParentIdsOfTheCommitBeingCreated(Repository repo, bool amendPreviousCommit)
+        private static IEnumerable<Commit> RetrieveParentsOfTheCommitBeingCreated(Repository repo, bool amendPreviousCommit)
         {
             if (amendPreviousCommit)
             {
-                return repo.Head.Tip.Parents.Select(c => c.Id);
+                return repo.Head.Tip.Parents;
             }
 
             if (repo.Info.IsEmpty)
             {
-                return Enumerable.Empty<ObjectId>();
+                return Enumerable.Empty<Commit>();
             }
 
-            return new[] { repo.Head.Tip.Id };
+            return new[] { repo.Head.Tip };
         }
 
         private class CommitEnumerator : IEnumerator<Commit>
