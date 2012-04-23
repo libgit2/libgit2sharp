@@ -8,38 +8,55 @@ $libgit2Directory = Join-Path $libgit2sharpDirectory "libgit2"
 $x86Directory = Join-Path $libgit2sharpDirectory "Lib\NativeBinaries\x86"
 $configuration = "RelWithDebInfo"
 
-function Build-Libgit2 {
-    & cmake -D BUILD_CLAR=ON -D THREADSAFE=ON -D CMAKE_BUILD_TYPE=$configuration $libgit2Directory
-    if (!$?) {
+function Run-Command([scriptblock]$Command, [switch]$Fatal, [switch]$Quiet) {
+    $output = ""
+    if ($Quiet) {
+        $output = & $Command 2>&1
+    } else {
+        & $Command
+    }
+
+    if (!$Fatal) {
         return
     }
-    & cmake --build . --config $configuration
+
+    $exitCode = 0
+    if ($LastExitCode -ne 0) {
+        $exitCode = $LastExitCode
+    } elseif (!$?) {
+        $exitCode = 1
+    } else {
+        return
+    }
+
+    $error = "``$Command`` failed"
+    if ($output) {
+        Write-Output $output
+        $error += ". See output above."
+    }
+    Throw $error
+}
+
+function Build-Libgit2 {
+    Run-Command -Fatal { cmake -D BUILD_CLAR=ON -D THREADSAFE=ON -D CMAKE_BUILD_TYPE=$configuration $libgit2Directory }
+    Run-Command -Fatal { cmake --build . --config $configuration }
 }
 
 function Test-Libgit2 {
     # FIXME: We should probably run libgit2_test.exe here too, but it currently
     # doesn't pass reliably.
-    & $configuration\libgit2_clar.exe
-}
-
-function Run-With-Status([string]$name, [string]$expression) {
-    Write-Host "$name..."
-    $output = Invoke-Expression $expression
-    if ($?) {
-        return
-    }
-
-    Write-Host "$name failed. Output is below." -ForegroundColor Red
-    Write-Host $output
-    exit 1
+    Run-Command -Fatal { & $configuration\libgit2_clar.exe }
 }
 
 $tempDirectory = Join-Path ([System.IO.Path]::GetTempPath()) ([System.IO.Path]::GetRandomFileName())
 [void](New-Item $tempDirectory -Type directory -Force)
 Push-Location $tempDirectory
 
-Run-With-Status "Building libgit2" "Build-Libgit2"
-Run-With-Status "Testing libgit2" "Test-Libgit2"
+Write-Output "Building libgit2..."
+Build-Libgit2
+
+Write-Output "Testing libgit2..."
+Test-Libgit2
 
 Copy-Item $configuration\git2.dll,$configuration\git2.pdb -Destination $x86Directory
 
