@@ -1,7 +1,14 @@
 <#
 .SYNOPSIS
     Builds libgit2 and sticks it in Lib/NativeBinaries/x86
+.PARAMETER NoClar
+    By default, we build and run the Clar-based test suite. Pass -NoClar to disable this.
 #>
+
+Param(
+    [switch]
+    $NoClar
+)
 
 $libgit2sharpDirectory = Split-Path $MyInvocation.MyCommand.Path
 $libgit2Directory = Join-Path $libgit2sharpDirectory "libgit2"
@@ -38,7 +45,12 @@ function Run-Command([scriptblock]$Command, [switch]$Fatal, [switch]$Quiet) {
 }
 
 function Build-Libgit2 {
-    Run-Command -Quiet -Fatal { cmake -D BUILD_CLAR=ON -D THREADSAFE=ON -D CMAKE_BUILD_TYPE=$configuration $libgit2Directory }
+    $clarOption = "ON"
+    if ($NoClar) {
+        $clarOption = "OFF"
+    }
+
+    Run-Command -Quiet -Fatal { cmake -D BUILD_CLAR=$clarOption -D THREADSAFE=ON -D CMAKE_BUILD_TYPE=$configuration $libgit2Directory }
     Run-Command -Quiet -Fatal { cmake --build . --config $configuration }
 }
 
@@ -59,8 +71,10 @@ Push-Location $tempDirectory
 Write-Output "Building libgit2..."
 Build-Libgit2
 
-Write-Output "Testing libgit2..."
-Test-Libgit2
+if (!$NoClar) {
+    Write-Output "Testing libgit2..."
+    Test-Libgit2
+}
 
 Copy-Item $configuration\git2.dll,$configuration\git2.pdb -Destination $x86Directory
 
