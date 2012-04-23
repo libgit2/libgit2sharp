@@ -48,8 +48,12 @@ function Test-Libgit2 {
     Run-Command -Fatal { & $configuration\libgit2_clar.exe }
 }
 
-$tempDirectory = Join-Path ([System.IO.Path]::GetTempPath()) ([System.IO.Path]::GetRandomFileName())
-[void](New-Item $tempDirectory -Type directory -Force)
+function Create-TempDirectory {
+    $path = Join-Path ([System.IO.Path]::GetTempPath()) ([System.IO.Path]::GetRandomFileName())
+    New-Item $path -Type directory -Force
+}
+
+$tempDirectory = Create-TempDirectory
 Push-Location $tempDirectory
 
 Write-Output "Building libgit2..."
