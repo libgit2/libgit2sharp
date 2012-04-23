@@ -38,14 +38,14 @@ function Run-Command([scriptblock]$Command, [switch]$Fatal, [switch]$Quiet) {
 }
 
 function Build-Libgit2 {
-    Run-Command -Fatal { cmake -D BUILD_CLAR=ON -D THREADSAFE=ON -D CMAKE_BUILD_TYPE=$configuration $libgit2Directory }
-    Run-Command -Fatal { cmake --build . --config $configuration }
+    Run-Command -Quiet -Fatal { cmake -D BUILD_CLAR=ON -D THREADSAFE=ON -D CMAKE_BUILD_TYPE=$configuration $libgit2Directory }
+    Run-Command -Quiet -Fatal { cmake --build . --config $configuration }
 }
 
 function Test-Libgit2 {
     # FIXME: We should probably run libgit2_test.exe here too, but it currently
     # doesn't pass reliably.
-    Run-Command -Fatal { & $configuration\libgit2_clar.exe }
+    Run-Command -Quiet -Fatal { & $configuration\libgit2_clar.exe }
 }
 
 function Create-TempDirectory {
@@ -67,4 +67,4 @@ Copy-Item $configuration\git2.dll,$configuration\git2.pdb -Destination $x86Direc
 Pop-Location
 Remove-Item $tempDirectory -Recurse
 
-Write-Host "Copied git2.dll and git2.pdb to $x86Directory" -ForegroundColor Green
+Write-Output "Copied git2.dll and git2.pdb to $x86Directory"
