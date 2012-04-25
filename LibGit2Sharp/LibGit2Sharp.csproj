@@ -59,6 +59,7 @@
     <Compile Include="Core\Compat\Tuple.cs" />
     <Compile Include="Core\DisposableEnumerable.cs" />
     <Compile Include="Core\EnumExtensions.cs" />
+    <Compile Include="ChangeKind.cs" />
     <Compile Include="Core\GitDiff.cs" />
     <Compile Include="Core\GitObjectExtensions.cs" />
     <Compile Include="Core\Handles\ObjectDatabaseSafeHandle.cs" />
@@ -73,6 +74,10 @@
     <Compile Include="Core\Handles\SignatureSafeHandle.cs" />
     <Compile Include="Core\Handles\TreeEntrySafeHandle.cs" />
     <Compile Include="DetachedHead.cs" />
+    <Compile Include="Diff.cs" />
+    <Compile Include="PatchPrinter.cs" />
+    <Compile Include="TreeChanges.cs" />
+    <Compile Include="TreeEntryChanges.cs" />
     <Compile Include="LibGit2Exception.cs" />
     <Compile Include="Core\Handles\ConfigurationSafeHandle.cs" />
     <Compile Include="Core\Ensure.cs" />
