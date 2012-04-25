@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
 
 namespace LibGit2Sharp.Core
 {
@@ -46,18 +43,6 @@ namespace LibGit2Sharp.Core
         GIT_DIFF_FILE_UNMAP_DATA = (1 << 5),
     }
 
-    public enum GitDeltaType
-    {
-        GIT_DELTA_UNMODIFIED = 0,
-        GIT_DELTA_ADDED = 1,
-        GIT_DELTA_DELETED = 2,
-        GIT_DELTA_MODIFIED = 3,
-        GIT_DELTA_RENAMED = 4,
-        GIT_DELTA_COPIED = 5,
-        GIT_DELTA_IGNORED = 6,
-        GIT_DELTA_UNTRACKED = 7,
-    }
-
     [StructLayout(LayoutKind.Sequential)]
     internal class GitDiffFile
     {
@@ -73,7 +58,7 @@ namespace LibGit2Sharp.Core
     {
         public GitDiffFile OldFile;
         public GitDiffFile NewFile;
-        public GitDeltaType Status;
+        public ChangeKind Status;
         public UIntPtr Similarity;
         public IntPtr Binary;
     }

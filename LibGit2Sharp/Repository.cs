@@ -22,6 +22,7 @@ namespace LibGit2Sharp
         private readonly Lazy<RemoteCollection> remotes;
         private readonly TagCollection tags;
         private readonly Lazy<RepositoryInformation> info;
+        private readonly Diff diff;
         private readonly bool isBare;
         private readonly Lazy<ObjectDatabase> odb;
         private readonly Stack<SafeHandleBase> handlesToCleanup = new Stack<SafeHandleBase>();
@@ -59,6 +60,7 @@ namespace LibGit2Sharp
             config = new Lazy<Configuration>(() => new Configuration(this));
             remotes = new Lazy<RemoteCollection>(() => new RemoteCollection(this));
             odb = new Lazy<ObjectDatabase>(() => new ObjectDatabase(this));
+            diff = new Diff(this);
         }
 
         /// <summary>
@@ -175,6 +177,14 @@ namespace LibGit2Sharp
         public RepositoryInformation Info
         {
             get { return info.Value; }
+        }
+
+        /// <summary>
+        ///   Provides access to diffing functionalities to show changes between the working tree and the index or a tree, changes between the index and a tree, changes between two trees, or changes between two files on disk.
+        /// </summary>
+        public Diff Diff
+        {
+            get { return diff; }
         }
 
         #region IDisposable Members
