@@ -46,6 +46,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConfigurationFixture.cs" />
+    <Compile Include="NoteFixture.cs" />
     <Compile Include="ObjectDatabaseFixture.cs" />
     <Compile Include="DiffFixture.cs" />
     <Compile Include="ResetFixture.cs" />
