@@ -62,6 +62,7 @@
     <Compile Include="ChangeKind.cs" />
     <Compile Include="Core\GitDiff.cs" />
     <Compile Include="Core\GitObjectExtensions.cs" />
+    <Compile Include="Core\Handles\NoteSafeHandle.cs" />
     <Compile Include="Core\Handles\ObjectDatabaseSafeHandle.cs" />
     <Compile Include="Core\Handles\DiffListSafeHandle.cs" />
     <Compile Include="Core\Handles\GitObjectSafeHandle.cs" />
