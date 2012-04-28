@@ -115,7 +115,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Gets the commit id that this branch points to.
+        ///   Gets the <see cref="Commit"/> that this branch points to.
         /// </summary>
         public Commit Tip
         {

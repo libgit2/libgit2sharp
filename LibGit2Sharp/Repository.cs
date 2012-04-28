@@ -61,6 +61,9 @@ namespace LibGit2Sharp
             odb = new Lazy<ObjectDatabase>(() => new ObjectDatabase(this));
         }
 
+        /// <summary>
+        ///   Takes care of releasing all non-managed remaining resources.
+        /// </summary>
         ~Repository()
         {
             Dispose(false);
