@@ -55,7 +55,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(BareTestRepoPath))
             {
                 var tree = repo.Lookup<Tree>(sha);
-                tree.Files.Count().ShouldEqual(3);
+                tree.Blobs.Count().ShouldEqual(3);
             }
         }
 

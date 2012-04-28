@@ -90,7 +90,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Gets the <see cref = "Blob" />s immediately under this <see cref = "Tree" />.
         /// </summary>
-        public IEnumerable<Blob> Files
+        public IEnumerable<Blob> Blobs
         {
             get
             {
@@ -98,6 +98,19 @@ namespace LibGit2Sharp
                     .Where(e => e.Type == GitObjectType.Blob)
                     .Select(e => e.Target)
                     .Cast<Blob>();
+            }
+        }
+
+
+        /// <summary>
+        ///   Gets the <see cref = "Blob" />s immediately under this <see cref = "Tree" />.
+        /// </summary>
+        [Obsolete("This property will be removed in the next release. Please use Tree.Blobs instead.")]
+        public IEnumerable<Blob> Files
+        {
+            get
+            {
+                return Blobs;
             }
         }
 
