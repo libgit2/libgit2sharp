@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Compat;
+using LibGit2Sharp.Core.Handles;
 
 namespace LibGit2Sharp
 {
@@ -15,6 +16,7 @@ namespace LibGit2Sharp
         private readonly Lazy<IEnumerable<Commit>> parents;
         private readonly Lazy<Tree> tree;
         private readonly Lazy<string> shortMessage;
+        private readonly Lazy<IEnumerable<Note>> notes;
 
         internal Commit(ObjectId id, ObjectId treeId, Repository repo)
             : base(id)
@@ -22,6 +24,7 @@ namespace LibGit2Sharp
             tree = new Lazy<Tree>(() => repo.Lookup<Tree>(treeId));
             parents = new Lazy<IEnumerable<Commit>>(() => RetrieveParentsOfCommit(id));
             shortMessage = new Lazy<string>(ExtractShortMessage);
+            notes = new Lazy<IEnumerable<Note>>(() => RetrieveNotesOfCommit(id));
             this.repo = repo;
         }
 
@@ -92,15 +95,20 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Gets The count of parent commits.
         /// </summary>
-        public uint ParentsCount
+        public int ParentsCount
         {
             get
             {
                 using (var obj = new ObjectSafeWrapper(Id, repo))
                 {
-                    return NativeMethods.git_commit_parentcount(obj.ObjectPtr);
+                    return (int)NativeMethods.git_commit_parentcount(obj.ObjectPtr);
                 }
             }
+        }
+
+        public IEnumerable<Note> Notes
+        {
+            get { return notes.Value; }
         }
 
         private IEnumerable<Commit> RetrieveParentsOfCommit(ObjectId oid)
@@ -111,30 +119,39 @@ namespace LibGit2Sharp
 
                 for (uint i = 0; i < parentsCount; i++)
                 {
-                    IntPtr parentCommit;
+                    GitObjectSafeHandle parentCommit;
                     Ensure.Success(NativeMethods.git_commit_parent(out parentCommit, obj.ObjectPtr, i));
-                    yield return (Commit)CreateFromPtr(parentCommit, ObjectIdOf(parentCommit), repo);
+                    yield return BuildFromPtr(parentCommit, ObjectIdOf(parentCommit), repo);
                 }
             }
         }
 
-        internal static Commit BuildFromPtr(IntPtr obj, ObjectId id, Repository repo)
+        private IEnumerable<Note> RetrieveNotesOfCommit(ObjectId targetOid)
         {
-            var treeId =
-                new ObjectId((GitOid)Marshal.PtrToStructure(NativeMethods.git_commit_tree_oid(obj), typeof(GitOid)));
+            GitOid oid = targetOid.Oid;
+
+            NoteSafeHandle note;
+            Ensure.Success(NativeMethods.git_note_read(out note, repo.Handle, null, ref oid));
+
+            yield return Note.BuildFromPtr(note);
+        }
+
+        internal static Commit BuildFromPtr(GitObjectSafeHandle obj, ObjectId id, Repository repo)
+        {
+            ObjectId treeId = NativeMethods.git_commit_tree_oid(obj).MarshalAsObjectId();
 
             return new Commit(id, treeId, repo)
                        {
-                           Message = NativeMethods.git_commit_message(obj).MarshallAsString(), //TODO: Turn into string.Empty if null
+                           Message = NativeMethods.git_commit_message(obj),
                            Encoding = RetrieveEncodingOf(obj),
                            Author = new Signature(NativeMethods.git_commit_author(obj)),
                            Committer = new Signature(NativeMethods.git_commit_committer(obj)),
                        };
         }
 
-        private static string RetrieveEncodingOf(IntPtr obj)
+        private static string RetrieveEncodingOf(GitObjectSafeHandle obj)
         {
-            string encoding = NativeMethods.git_commit_message_encoding(obj).MarshallAsString();
+            string encoding = NativeMethods.git_commit_message_encoding(obj);
 
             return encoding ?? "UTF-8";
         }

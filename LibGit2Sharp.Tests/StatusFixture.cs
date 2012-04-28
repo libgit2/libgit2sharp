@@ -2,13 +2,13 @@
 using System.IO;
 using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
-using NUnit.Framework;
+using Xunit;
 
 namespace LibGit2Sharp.Tests
 {
     public class StatusFixture : BaseFixture
     {
-        [Test]
+        [Fact]
         public void CanRetrieveTheStatusOfAFile()
         {
             using (var repo = new Repository(StandardTestRepoPath))
@@ -18,7 +18,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void RetrievingTheStatusOfADirectoryThrows()
         {
             using (var repo = new Repository(StandardTestRepoPath))
@@ -27,7 +27,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void CanRetrieveTheStatusOfTheWholeWorkingDirectory()
         {
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
@@ -63,7 +63,7 @@ namespace LibGit2Sharp.Tests
                 status2.IsDirty.ShouldBeTrue();
 
                 status2.Untracked.Single().ShouldEqual("new_untracked_file.txt");
-                CollectionAssert.AreEqual(new[] { file, "modified_unstaged_file.txt" }, status2.Modified);
+                Assert.Equal(new[] { file, "modified_unstaged_file.txt" }, status2.Modified);
                 status2.Missing.Single().ShouldEqual("deleted_unstaged_file.txt");
                 status2.Added.Single().ShouldEqual("new_tracked_file.txt");
                 status2.Staged.Single().ShouldEqual(file);
@@ -71,7 +71,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void CanRetrieveTheStatusOfANewRepository()
         {
             SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
@@ -92,7 +92,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void RetrievingTheStatusOfARepositoryReturnNativeFilePaths()
         {
             // Initialize a new repository
@@ -127,7 +127,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void RetrievingTheStatusOfTheRepositoryHonorsTheGitIgnoreDirectives()
         {
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
@@ -139,7 +139,7 @@ namespace LibGit2Sharp.Tests
 
                 RepositoryStatus status = repo.Index.RetrieveStatus();
 
-                CollectionAssert.AreEqual(new[]{relativePath, "new_untracked_file.txt"}, status.Untracked);
+                Assert.Equal(new[]{relativePath, "new_untracked_file.txt"}, status.Untracked);
 
                 string gitignorePath = Path.Combine(repo.Info.WorkingDirectory, ".gitignore");
                 File.WriteAllText(gitignorePath, "*.txt" + Environment.NewLine);
@@ -148,6 +148,7 @@ namespace LibGit2Sharp.Tests
                 newStatus.Untracked.Single().ShouldEqual(".gitignore");
 
                 repo.Index.RetrieveStatus(relativePath).ShouldEqual(FileStatus.Ignored);
+                Assert.Equal(new[] { relativePath, "new_untracked_file.txt" }, newStatus.Ignored);
             }
         }
     }

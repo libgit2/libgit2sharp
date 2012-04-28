@@ -67,21 +67,10 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name = "shaOrReferenceName">The sha of the commit, a canonical reference name or the name of the branch to checkout.</param>
         /// <returns></returns>
+        [Obsolete("This method will be removed in the next release. Please use Repository.Checkout() instead.")]
         public Branch Checkout(string shaOrReferenceName)
         {
-            // TODO: This does not yet checkout (write) the working directory
-
-            Branch branch = this[shaOrReferenceName];
-
-            if (branch != null)
-            {
-                repo.Refs.UpdateTarget("HEAD", branch.CanonicalName);
-                return branch;
-            }
-
-            ObjectId commitId = RetrieveTargetCommitId(shaOrReferenceName);
-            repo.Refs.UpdateTarget("HEAD", commitId.Sha);
-            return repo.Head;
+            return repo.Checkout(shaOrReferenceName);
         }
 
         /// <summary>
@@ -92,16 +81,10 @@ namespace LibGit2Sharp
         /// <returns></returns>
         public Branch Create(string name, string shaOrReferenceName)
         {
-            ObjectId commitId = RetrieveTargetCommitId(shaOrReferenceName);
+            ObjectId commitId = repo.LookupCommit(shaOrReferenceName).Id;
 
             repo.Refs.Create(NormalizeToCanonicalName(name), commitId.Sha);
             return this[name];
-        }
-
-        private ObjectId RetrieveTargetCommitId(string target)
-        {
-            GitObject commit = repo.Lookup(target, GitObjectType.Any, LookUpOptions.ThrowWhenNoGitObjectHasBeenFound | LookUpOptions.DereferenceResultToCommit | LookUpOptions.ThrowWhenCanNotBeDereferencedToACommit);
-            return commit.Id;
         }
 
         /// <summary>
@@ -116,7 +99,7 @@ namespace LibGit2Sharp
 
             if (canonicalName == repo.Head.CanonicalName)
             {
-                throw new LibGit2Exception(string.Format("Branch '{0}' can not be deleted as it is the current HEAD.", canonicalName));
+                throw new LibGit2Exception(string.Format(CultureInfo.InvariantCulture, "Branch '{0}' can not be deleted as it is the current HEAD.", canonicalName));
             }
 
             //TODO: To be replaced by native libgit2 git_branch_delete() when available.

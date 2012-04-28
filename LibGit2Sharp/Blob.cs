@@ -3,6 +3,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 using LibGit2Sharp.Core;
+using LibGit2Sharp.Core.Handles;
 
 namespace LibGit2Sharp
 {
@@ -62,7 +63,7 @@ namespace LibGit2Sharp
             return Encoding.Unicode.GetString(Content);
         }
 
-        internal static Blob BuildFromPtr(IntPtr obj, ObjectId id, Repository repo)
+        internal static Blob BuildFromPtr(GitObjectSafeHandle obj, ObjectId id, Repository repo)
         {
             var blob = new Blob(repo, id)
                            {

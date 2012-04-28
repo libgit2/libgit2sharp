@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Runtime.InteropServices;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Compat;
+using LibGit2Sharp.Core.Handles;
 
 namespace LibGit2Sharp
 {
@@ -40,17 +40,16 @@ namespace LibGit2Sharp
         /// </summary>
         public Signature Tagger { get; private set; }
 
-        internal static TagAnnotation BuildFromPtr(IntPtr obj, ObjectId id, Repository repo)
+        internal static TagAnnotation BuildFromPtr(GitObjectSafeHandle obj, ObjectId id, Repository repo)
         {
-            IntPtr oidPtr = NativeMethods.git_tag_target_oid(obj);
-            var oid = (GitOid)Marshal.PtrToStructure(oidPtr, typeof(GitOid));
+            ObjectId targetOid = NativeMethods.git_tag_target_oid(obj).MarshalAsObjectId();
 
             return new TagAnnotation(id)
                        {
-                           Message = NativeMethods.git_tag_message(obj).MarshallAsString(),
-                           Name = NativeMethods.git_tag_name(obj).MarshallAsString(),
+                           Message = NativeMethods.git_tag_message(obj),
+                           Name = NativeMethods.git_tag_name(obj),
                            Tagger = new Signature(NativeMethods.git_tag_tagger(obj)),
-                           targetBuilder = new Lazy<GitObject>(() => repo.Lookup<GitObject>(new ObjectId(oid)))
+                           targetBuilder = new Lazy<GitObject>(() => repo.Lookup<GitObject>(targetOid))
                        };
         }
     }

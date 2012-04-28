@@ -1,15 +1,16 @@
-﻿using System.Linq;
+﻿using System;
+using System.IO;
+using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
-using NUnit.Framework;
+using Xunit;
 
 namespace LibGit2Sharp.Tests
 {
-    [TestFixture]
     public class TreeFixture : BaseFixture
     {
         private const string sha = "581f9824ecaf824221bd36edf5430f2739a7c4f5";
 
-        [Test]
+        [Fact]
         public void CanCompareTwoTreeEntries()
         {
             using (var repo = new Repository(BareTestRepoPath))
@@ -22,7 +23,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void CanConvertEntryToBlob()
         {
             using (var repo = new Repository(BareTestRepoPath))
@@ -35,7 +36,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void CanConvertEntryToTree()
         {
             using (var repo = new Repository(BareTestRepoPath))
@@ -48,17 +49,17 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void CanEnumerateBlobs()
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
                 var tree = repo.Lookup<Tree>(sha);
-                tree.Files.Count().ShouldEqual(3);
+                tree.Blobs.Count().ShouldEqual(3);
             }
         }
 
-        [Test]
+        [Fact]
         public void CanEnumerateSubTrees()
         {
             using (var repo = new Repository(BareTestRepoPath))
@@ -68,7 +69,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void CanEnumerateTreeEntries()
         {
             using (var repo = new Repository(BareTestRepoPath))
@@ -76,11 +77,11 @@ namespace LibGit2Sharp.Tests
                 var tree = repo.Lookup<Tree>(sha);
                 tree.Count().ShouldEqual(tree.Count);
 
-                CollectionAssert.AreEqual(new[] { "1", "README", "branch_file.txt", "new.txt" }, tree.Select(te => te.Name).ToArray());
+                Assert.Equal(new[] { "1", "README", "branch_file.txt", "new.txt" }, tree.Select(te => te.Name).ToArray());
             }
         }
 
-        [Test]
+        [Fact]
         public void CanGetEntryByName()
         {
             using (var repo = new Repository(BareTestRepoPath))
@@ -92,7 +93,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void GettingAnUknownTreeEntryReturnsNull()
         {
             using (var repo = new Repository(BareTestRepoPath))
@@ -103,7 +104,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void CanGetEntryCountFromTree()
         {
             using (var repo = new Repository(BareTestRepoPath))
@@ -113,17 +114,17 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void CanReadEntryAttributes()
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
                 var tree = repo.Lookup<Tree>(sha);
-                tree["README"].Attributes.ShouldEqual(33188);
+                tree["README"].Mode.ShouldEqual(Mode.NonExecutableFile);
             }
         }
 
-        [Test]
+        [Fact]
         public void CanReadTheTreeData()
         {
             using (var repo = new Repository(BareTestRepoPath))
@@ -133,13 +134,51 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void TreeDataIsPresent()
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
                 GitObject tree = repo.Lookup(sha);
                 tree.ShouldNotBeNull();
+            }
+        }
+
+        [Fact]
+        public void CanRetrieveTreeEntryPath()
+        {
+            using (var repo = new Repository(BareTestRepoPath))
+            {
+                /* From a commit tree */
+                var commitTree = repo.Lookup<Commit>("4c062a6").Tree;
+
+                TreeEntry treeTreeEntry = commitTree["1"];
+                treeTreeEntry.Path.ShouldEqual("1");
+
+                string completePath = "1" + Path.DirectorySeparatorChar + "branch_file.txt";
+
+                TreeEntry blobTreeEntry = commitTree["1/branch_file.txt"];
+                blobTreeEntry.Path.ShouldEqual(completePath);
+
+                // A tree entry is now fetched through a relative path to the 
+                // tree but exposes a complete path through its Path property
+                var subTree = treeTreeEntry.Target as Tree;
+                subTree.ShouldNotBeNull(); 
+                TreeEntry anInstance = subTree["branch_file.txt"];
+
+                anInstance.Path.ShouldNotEqual("branch_file.txt");
+                anInstance.Path.ShouldEqual(completePath);
+                subTree.First().Path.ShouldEqual(completePath);
+
+                /* From a random tree */
+                var tree = repo.Lookup<Tree>(treeTreeEntry.Target.Id);
+                TreeEntry anotherInstance = tree["branch_file.txt"];
+                anotherInstance.Path.ShouldEqual("branch_file.txt");
+
+                Assert.Equal(tree, subTree);
+                Assert.Equal(anotherInstance, anInstance);
+                Assert.NotEqual(anotherInstance.Path, anInstance.Path);
+                Assert.NotSame(anotherInstance, anInstance);
             }
         }
     }

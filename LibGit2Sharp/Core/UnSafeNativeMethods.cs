@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using LibGit2Sharp.Core.Handles;
 
 namespace LibGit2Sharp.Core
 {
@@ -9,6 +10,9 @@ namespace LibGit2Sharp.Core
 
         [DllImport(libgit2)]
         public static extern int git_reference_listall(out git_strarray array, RepositorySafeHandle repo, GitReferenceType flags);
+
+        [DllImport(libgit2)]
+        public static extern int git_remote_list(out git_strarray array, RepositorySafeHandle repo);
 
         [DllImport(libgit2)]
         public static extern int git_tag_list(out git_strarray array, RepositorySafeHandle repo);

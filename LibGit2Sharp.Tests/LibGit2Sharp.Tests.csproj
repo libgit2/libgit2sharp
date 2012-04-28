@@ -35,14 +35,20 @@
     <DocumentationFile />
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="nunit.framework">
-      <HintPath>..\Lib\NUnit\nunit.framework.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="xunit">
+      <HintPath>..\Lib\xUnit\xunit.dll</HintPath>
+    </Reference>
+    <Reference Include="xunit.extensions">
+      <HintPath>..\Lib\xUnit\xunit.extensions.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConfigurationFixture.cs" />
+    <Compile Include="NoteFixture.cs" />
+    <Compile Include="ObjectDatabaseFixture.cs" />
+    <Compile Include="DiffFixture.cs" />
     <Compile Include="ResetFixture.cs" />
     <Compile Include="LazyFixture.cs" />
     <Compile Include="RemoteFixture.cs" />
@@ -64,7 +70,10 @@
     <Compile Include="TestHelpers\IPostTestDirectoryRemover.cs" />
     <Compile Include="TestHelpers\SelfCleaningDirectory.cs" />
     <Compile Include="TestHelpers\SignatureExtensions.cs" />
+    <Compile Include="TestHelpers\SkipException.cs" />
+    <Compile Include="TestHelpers\SkippableFactAttribute.cs" />
     <Compile Include="TestHelpers\TemporaryCloneOfTestRepo.cs" />
+    <Compile Include="TreeDefinitionFixture.cs" />
     <Compile Include="TreeFixture.cs" />
     <Compile Include="TupleFixture.cs" />
   </ItemGroup>
