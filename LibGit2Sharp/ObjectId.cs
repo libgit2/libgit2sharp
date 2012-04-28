@@ -32,6 +32,11 @@ namespace LibGit2Sharp
             new LambdaEqualityHelper<ObjectId>(new Func<ObjectId, object>[] { x => x.Sha });
 
         /// <summary>
+        ///   Zero ObjectId
+        /// </summary>
+        public static ObjectId Zero = new ObjectId(new string('0', HexSize));
+
+        /// <summary>
         ///   Initializes a new instance of the <see cref = "ObjectId" /> class.
         /// </summary>
         /// <param name = "oid">The oid.</param>

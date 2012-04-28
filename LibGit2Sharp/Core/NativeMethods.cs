@@ -66,6 +66,12 @@ namespace LibGit2Sharp.Core
         }
 
         [DllImport(libgit2)]
+        public static extern int git_blob_create_fromfile(
+            ref GitOid oid,
+            RepositorySafeHandle repo,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(FilePathMarshaler))] FilePath path);
+
+        [DllImport(libgit2)]
         public static extern IntPtr git_blob_rawcontent(GitObjectSafeHandle blob);
 
         [DllImport(libgit2)]
@@ -218,6 +224,12 @@ namespace LibGit2Sharp.Core
         public static extern string git_lasterror();
 
         [DllImport(libgit2)]
+        public static extern int git_odb_exists(ObjectDatabaseSafeHandle odb, ref GitOid id);
+
+        [DllImport(libgit2)]
+        public static extern void git_odb_free(IntPtr odb);
+
+        [DllImport(libgit2)]
         public static extern void git_object_free(IntPtr obj);
 
         [DllImport(libgit2)]
@@ -325,6 +337,9 @@ namespace LibGit2Sharp.Core
         public static extern int git_repository_config(
             out ConfigurationSafeHandle cfg,
             RepositorySafeHandle repo);
+
+        [DllImport(libgit2)]
+        public static extern int git_repository_odb(out ObjectDatabaseSafeHandle odb, RepositorySafeHandle repo);
 
         [DllImport(libgit2)]
         public static extern int git_repository_discover(
@@ -492,5 +507,22 @@ namespace LibGit2Sharp.Core
         [DllImport(libgit2)]
         public static extern int git_tree_get_subtree(out GitObjectSafeHandle tree, GitObjectSafeHandle root,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(FilePathMarshaler))] FilePath treeentry_path);
+
+        [DllImport(libgit2)]
+        public static extern int git_treebuilder_create(out TreeBuilderSafeHandle builder, IntPtr src);
+
+        [DllImport(libgit2)]
+        public static extern int git_treebuilder_insert(
+            IntPtr entry_out,
+            TreeBuilderSafeHandle builder,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string treeentry_name,
+            ref GitOid id,
+            uint attributes);
+
+        [DllImport(libgit2)]
+        public static extern int git_treebuilder_write(out GitOid oid, RepositorySafeHandle repo, TreeBuilderSafeHandle bld);
+
+        [DllImport(libgit2)]
+        public static extern int git_treebuilder_free(IntPtr bld);
     }
 }

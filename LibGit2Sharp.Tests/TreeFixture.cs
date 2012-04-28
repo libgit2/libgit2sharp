@@ -120,7 +120,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(BareTestRepoPath))
             {
                 var tree = repo.Lookup<Tree>(sha);
-                tree["README"].Attributes.ShouldEqual(33188);
+                tree["README"].Mode.ShouldEqual(Mode.NonExecutableFile);
             }
         }
 

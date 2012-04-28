@@ -23,7 +23,8 @@ namespace LibGit2Sharp
         private readonly TagCollection tags;
         private readonly Lazy<RepositoryInformation> info;
         private readonly bool isBare;
-        private readonly List<SafeHandleBase> handlesToCleanup = new List<SafeHandleBase>();
+        private readonly Lazy<ObjectDatabase> odb;
+        private readonly Stack<SafeHandleBase> handlesToCleanup = new Stack<SafeHandleBase>();
         private static readonly Lazy<string> versionRetriever = new Lazy<string>(RetrieveVersion);
 
         /// <summary>
@@ -57,6 +58,7 @@ namespace LibGit2Sharp
             info = new Lazy<RepositoryInformation>(() => new RepositoryInformation(this, isBare));
             config = new Lazy<Configuration>(() => new Configuration(this));
             remotes = new Lazy<RemoteCollection>(() => new RemoteCollection(this));
+            odb = new Lazy<ObjectDatabase>(() => new ObjectDatabase(this));
         }
 
         ~Repository()
@@ -109,6 +111,17 @@ namespace LibGit2Sharp
                 }
 
                 return index;
+            }
+        }
+
+        /// <summary>
+        ///   Gets the database.
+        /// </summary>
+        public ObjectDatabase ObjectDatabase
+        {
+            get
+            {
+                return odb.Value;
             }
         }
 
@@ -177,7 +190,10 @@ namespace LibGit2Sharp
         /// </summary>
         protected virtual void Dispose(bool disposing)
         {
-            handlesToCleanup.ForEach(handleToCleanup => handleToCleanup.SafeDispose());
+            while (handlesToCleanup.Count > 0)
+            {
+                handlesToCleanup.Pop().SafeDispose();
+            }
         }
 
         #endregion
@@ -413,7 +429,7 @@ namespace LibGit2Sharp
 
         internal void RegisterForCleanup(SafeHandleBase handleToCleanup)
         {
-            handlesToCleanup.Add(handleToCleanup);
+            handlesToCleanup.Push(handleToCleanup);
         }
 
         /// <summary>
