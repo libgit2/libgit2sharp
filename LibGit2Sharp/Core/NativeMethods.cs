@@ -340,6 +340,57 @@ namespace LibGit2Sharp.Core
             GitObjectSafeHandle two);
 
         [DllImport(libgit2)]
+        public static extern int git_note_create(
+            out GitOid noteOid,
+            RepositorySafeHandle repo,
+            SignatureSafeHandle author,
+            SignatureSafeHandle committer,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string notes_ref,
+            ref GitOid oid,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string note);
+
+        [DllImport(libgit2)]
+        public static extern void git_note_free(IntPtr note);
+
+        [DllImport(libgit2)]
+        [return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))]
+        public static extern string git_note_message(NoteSafeHandle note);
+
+        [DllImport(libgit2)]
+        public static extern OidSafeHandle git_note_oid(NoteSafeHandle note);
+
+        [DllImport(libgit2)]
+        public static extern int git_note_read(
+            out NoteSafeHandle note,
+            RepositorySafeHandle repo,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string notes_ref,
+            ref GitOid oid);
+
+        [DllImport(libgit2)]
+        public static extern int git_note_remove(
+            RepositorySafeHandle repo,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string notes_ref,
+            SignatureSafeHandle author,
+            SignatureSafeHandle committer,
+            ref GitOid oid);
+
+        [DllImport(libgit2)]
+        public static extern int git_note_default_ref(
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] out string notes_ref,
+            RepositorySafeHandle repo);
+
+        internal delegate int notes_foreach_callback(
+            GitNoteData noteData,
+            IntPtr payload);
+
+        [DllImport(libgit2)]
+        public static extern int git_note_foreach(
+            RepositorySafeHandle repo,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string notes_ref,
+            notes_foreach_callback callback,
+            IntPtr payload);
+
+        [DllImport(libgit2)]
         public static extern int git_odb_exists(ObjectDatabaseSafeHandle odb, ref GitOid id);
 
         [DllImport(libgit2)]
