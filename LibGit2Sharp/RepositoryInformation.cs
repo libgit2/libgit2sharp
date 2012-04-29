@@ -52,7 +52,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Indicates whether the Head points to an arbitrary commit instead of the tip of a local banch.
+        ///   Indicates whether the Head points to an arbitrary commit instead of the tip of a local branch.
         /// </summary>
         public bool IsHeadDetached
         {
