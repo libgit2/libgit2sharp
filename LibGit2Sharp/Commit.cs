@@ -14,6 +14,7 @@ namespace LibGit2Sharp
         private readonly Lazy<IEnumerable<Commit>> parents;
         private readonly Lazy<Tree> tree;
         private readonly Lazy<string> shortMessage;
+        private readonly Lazy<IEnumerable<Note>> notes;
 
         internal Commit(ObjectId id, ObjectId treeId, Repository repo)
             : base(id)
@@ -21,6 +22,7 @@ namespace LibGit2Sharp
             tree = new Lazy<Tree>(() => repo.Lookup<Tree>(treeId));
             parents = new Lazy<IEnumerable<Commit>>(() => RetrieveParentsOfCommit(id));
             shortMessage = new Lazy<string>(ExtractShortMessage);
+            notes = new Lazy<IEnumerable<Note>>(() => RetrieveNotesOfCommit(id));
             this.repo = repo;
         }
 
@@ -102,6 +104,14 @@ namespace LibGit2Sharp
             }
         }
 
+        /// <summary>
+        ///   Gets the notes of this commit.
+        /// </summary>
+        public IEnumerable<Note> Notes
+        {
+            get { return notes.Value; }
+        }
+
         private IEnumerable<Commit> RetrieveParentsOfCommit(ObjectId oid)
         {
             using (var obj = new ObjectSafeWrapper(oid, repo))
@@ -115,6 +125,11 @@ namespace LibGit2Sharp
                     yield return BuildFromPtr(parentCommit, ObjectIdOf(parentCommit), repo);
                 }
             }
+        }
+
+        private IEnumerable<Note> RetrieveNotesOfCommit(ObjectId oid)
+        {
+            return repo.Notes[oid];
         }
 
         internal static Commit BuildFromPtr(GitObjectSafeHandle obj, ObjectId id, Repository repo)
