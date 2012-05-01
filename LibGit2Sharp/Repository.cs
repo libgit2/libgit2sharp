@@ -24,6 +24,7 @@ namespace LibGit2Sharp
         private readonly TagCollection tags;
         private readonly Lazy<RepositoryInformation> info;
         private readonly Diff diff;
+        private readonly NoteCollection notes;
         private readonly Lazy<ObjectDatabase> odb;
         private readonly Stack<SafeHandleBase> handlesToCleanup = new Stack<SafeHandleBase>();
         private static readonly Lazy<string> versionRetriever = new Lazy<string>(RetrieveVersion);
@@ -92,6 +93,7 @@ namespace LibGit2Sharp
             remotes = new Lazy<RemoteCollection>(() => new RemoteCollection(this));
             odb = new Lazy<ObjectDatabase>(() => new ObjectDatabase(this));
             diff = new Diff(this);
+            notes = new NoteCollection(this);
         }
 
         /// <summary>
@@ -216,6 +218,14 @@ namespace LibGit2Sharp
         public Diff Diff
         {
             get { return diff; }
+        }
+
+        /// <summary>
+        ///   Lookup notes in the repository.
+        /// </summary>
+        public NoteCollection Notes
+        {
+            get { return notes; }
         }
 
         #region IDisposable Members
