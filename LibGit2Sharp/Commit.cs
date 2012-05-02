@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Compat;
 using LibGit2Sharp.Core.Handles;
@@ -23,7 +24,7 @@ namespace LibGit2Sharp
             tree = new Lazy<Tree>(() => repo.Lookup<Tree>(treeId));
             parents = new Lazy<IEnumerable<Commit>>(() => RetrieveParentsOfCommit(id));
             shortMessage = new Lazy<string>(ExtractShortMessage);
-            notes = new Lazy<IEnumerable<Note>>(() => RetrieveNotesOfCommit(id));
+            notes = new Lazy<IEnumerable<Note>>(() => RetrieveNotesOfCommit(id).ToList());
             this.repo = repo;
         }
 
