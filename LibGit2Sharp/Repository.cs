@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Reflection;
 using LibGit2Sharp.Core;
@@ -23,33 +24,77 @@ namespace LibGit2Sharp
         private readonly TagCollection tags;
         private readonly Lazy<RepositoryInformation> info;
         private readonly Diff diff;
-        private readonly bool isBare;
         private readonly Lazy<ObjectDatabase> odb;
         private readonly Stack<SafeHandleBase> handlesToCleanup = new Stack<SafeHandleBase>();
+        private readonly List<Action> preCleanup = new List<Action>();
         private static readonly Lazy<string> versionRetriever = new Lazy<string>(RetrieveVersion);
 
         /// <summary>
-        ///   Initializes a new instance of the <see cref = "Repository" /> class.
+        ///   Initializes a new instance of the <see cref = "Repository" /> class, providing ooptional behavioral overrides through <paramref name="options"/> parameter.
         ///   <para>For a standard repository, <paramref name = "path" /> should either point to the ".git" folder or to the working directory. For a bare repository, <paramref name = "path" /> should directly point to the repository folder.</para>
         /// </summary>
         /// <param name = "path">
-        ///   The path to the git repository to open, can be either the path to the git directory (for non-bare repositories this 
+        ///   The path to the git repository to open, can be either the path to the git directory (for non-bare repositories this
         ///   would be the ".git" folder inside the working directory) or the path to the working directory.
         /// </param>
-        public Repository(string path)
+        /// <param name="options">
+        ///   Overrides to the way a repository is opened.
+        /// </param>
+        public Repository(string path, RepositoryOptions options = null)
         {
             Ensure.ArgumentNotNullOrEmptyString(path, "path");
 
-            int res = NativeMethods.git_repository_open(out handle, path);
-            Ensure.Success(res);
-
+            Ensure.Success(NativeMethods.git_repository_open(out handle, path));
             RegisterForCleanup(handle);
 
-            isBare = NativeMethods.RepositoryStateChecker(handle, NativeMethods.git_repository_is_bare);
+            bool isBare = NativeMethods.RepositoryStateChecker(handle, NativeMethods.git_repository_is_bare);
+
+            Func<Index> indexBuilder = () => new Index(this);
+
+            if (options != null)
+            {
+                bool isWorkDirNull = string.IsNullOrEmpty(options.WorkingDirectoryPath);
+                bool isIndexNull = string.IsNullOrEmpty(options.IndexPath);
+
+                if (isWorkDirNull && isIndexNull)
+                {
+                    throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "At least one member of the {0} instance has to be provided.", typeof(RepositoryOptions).Name));
+                }
+
+                if (isBare && (isWorkDirNull ^ isIndexNull))
+                {
+                    throw new ArgumentException("When overriding the opening of a bare repository, both RepositoryOptions.WorkingDirectoryPath an RepositoryOptions.IndexPath have to be provided.");
+                }
+
+                isBare = false;
+
+                if (!isIndexNull)
+                {
+                    indexBuilder = () =>
+                                       {
+                                           var tempIndex = new Index(this, options.IndexPath);
+
+                                           //TODO: Remove the hack below once https://github.com/libgit2/libgit2/pull/629
+                                           //has been merged in the libgit2 development branch
+                                           RegisterPreCleanup(() => tempIndex.Handle.SetHandleAsInvalid());
+
+                                           return tempIndex;
+                                       };
+                }
+
+                if (!isWorkDirNull)
+                {
+                    //TODO: Remove the hack below once https://github.com/libgit2/libgit2/commit/d4d648b042b726a03611063212069adb061e863e
+                    //has been merged in the libgit2 development branch
+                    string tempWorkDirPath = Path.GetFullPath(options.WorkingDirectoryPath) + Path.DirectorySeparatorChar;
+
+                    Ensure.Success(NativeMethods.git_repository_set_workdir(handle, tempWorkDirPath));
+                }
+            }
 
             if (!isBare)
             {
-                index = new Index(this);
+                index = indexBuilder();
             }
 
             commits = new CommitCollection(this);
@@ -203,6 +248,8 @@ namespace LibGit2Sharp
         /// </summary>
         protected virtual void Dispose(bool disposing)
         {
+            preCleanup.ForEach(action => action());
+
             while (handlesToCleanup.Count > 0)
             {
                 handlesToCleanup.Pop().SafeDispose();
@@ -445,6 +492,11 @@ namespace LibGit2Sharp
             handlesToCleanup.Push(handleToCleanup);
         }
 
+        internal void RegisterPreCleanup(Action doer)
+        {
+            preCleanup.Add(doer);
+        }
+
         /// <summary>
         ///   Gets the current LibGit2Sharp version.
         ///   <para>
@@ -462,7 +514,7 @@ namespace LibGit2Sharp
             Assembly assembly = typeof(Repository).Assembly;
 
             Version version = assembly.GetName().Version;
-            
+
             string libgit2Hash = ReadContentFromResource(assembly, "libgit2_hash.txt");
             string libgit2sharpHash = ReadContentFromResource(assembly, "libgit2sharp_hash.txt");
 
