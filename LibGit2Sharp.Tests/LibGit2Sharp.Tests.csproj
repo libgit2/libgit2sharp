@@ -46,7 +46,7 @@
     <Compile Include="ConfigurationFixture.cs" />
     <Compile Include="AttributesFixture.cs" />
     <Compile Include="ObjectDatabaseFixture.cs" />
-    <Compile Include="DiffFixture.cs" />
+    <Compile Include="DiffTreeToTreeFixture.cs" />
     <Compile Include="RepositoryOptionsFixture.cs" />
     <Compile Include="ResetFixture.cs" />
     <Compile Include="LazyFixture.cs" />

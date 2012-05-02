@@ -5,7 +5,7 @@ using Xunit;
 
 namespace LibGit2Sharp.Tests
 {
-    public class DiffFixture : BaseFixture
+    public class DiffTreeToTreeFixture : BaseFixture
     {
         //TODO Test binary files (do we have hunks/line callbacks)
         //TODO What does content contain when dealing with a Binary file?
@@ -21,6 +21,7 @@ namespace LibGit2Sharp.Tests
                 TreeChanges changes = repo.Diff.Compare(tree, tree);
 
                 Assert.Empty(changes);
+                Assert.Equal(string.Empty, changes.Patch);
             }
         }
 
@@ -59,7 +60,7 @@ namespace LibGit2Sharp.Tests
 
                 Assert.Equal("1.txt", treeEntryChanges.Path);
                 Assert.Equal(ChangeKind.Added, treeEntryChanges.Status);
-                // Also in Added collection
+
                 Assert.Equal(treeEntryChanges, changes.Added.Single());
                 Assert.Equal(1, treeEntryChanges.LinesAdded);
 
