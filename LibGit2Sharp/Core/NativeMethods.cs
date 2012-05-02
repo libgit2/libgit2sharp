@@ -228,7 +228,7 @@ namespace LibGit2Sharp.Core
             IntPtr data,
             GitDiffDelta delta,
             GitDiffRange range,
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string header,
+            IntPtr header,
             IntPtr headerLen);
 
         internal delegate int git_diff_line_fn(
@@ -260,10 +260,10 @@ namespace LibGit2Sharp.Core
         [DllImport(libgit2)]
         public static extern int git_diff_blobs(
             RepositorySafeHandle repository,
-            IntPtr oldBlob,
-            IntPtr newBlob,
+            GitObjectSafeHandle oldBlob,
+            GitObjectSafeHandle newBlob,
             GitDiffOptions options,
-            object data,
+            IntPtr data,
             git_diff_hunk_fn hunkCallback,
             git_diff_line_fn lineCallback);
 

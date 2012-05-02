@@ -61,6 +61,11 @@ namespace LibGit2Sharp.Core
             }
             var length = (int)(walk - (byte*)pNativeData);
 
+            return NativeToString(pNativeData, length);
+        }
+
+        public string NativeToString(IntPtr pNativeData, int length)
+        {
             // should not be null terminated
             var strbuf = new byte[length];
 

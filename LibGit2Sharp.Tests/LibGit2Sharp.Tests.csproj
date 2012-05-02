@@ -46,6 +46,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConfigurationFixture.cs" />
+    <Compile Include="DiffBlobToBlobFixture.cs" />
     <Compile Include="ObjectDatabaseFixture.cs" />
     <Compile Include="DiffTreeToTreeFixture.cs" />
     <Compile Include="ResetFixture.cs" />

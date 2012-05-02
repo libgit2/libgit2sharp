@@ -12,13 +12,15 @@ namespace LibGit2Sharp
     {
         private readonly Repository repo;
 
+        internal static GitDiffOptions DefaultOptions = new GitDiffOptions { InterhunkLines = 2 };
+
         internal Diff(Repository repo)
         {
             this.repo = repo;
         }
 
         /// <summary>
-        ///   Show changes between two trees.
+        ///   Show changes between two <see cref = "Tree"/>s.
         /// </summary>
         /// <param name = "oldTree">The <see cref = "Tree"/> you want to compare from.</param>
         /// <param name = "newTree">The <see cref = "Tree"/> you want to compare to.</param>
@@ -37,16 +39,22 @@ namespace LibGit2Sharp
             using (var osw2 = new ObjectSafeWrapper(newTree, repo))
             {
                 DiffListSafeHandle diff;
-                GitDiffOptions options = BuildDefaultOptions();
+                GitDiffOptions options = DefaultOptions;
                 Ensure.Success(NativeMethods.git_diff_tree_to_tree(repo.Handle, options, osw1.ObjectPtr, osw2.ObjectPtr, out diff));
 
                 return diff;
             }
         }
 
-        private GitDiffOptions BuildDefaultOptions()
+        /// <summary>
+        ///   Show changes between two <see cref = "Blob"/>s.
+        /// </summary>
+        /// <param name = "oldBlob">The <see cref = "Blob"/> you want to compare from.</param>
+        /// <param name = "newBlob">The <see cref = "Blob"/> you want to compare to.</param>
+        /// <returns>A <see cref = "ContentChanges"/> containing the changes between the <paramref name = "oldBlob"/> and the <paramref name = "newBlob"/>.</returns>
+        public ContentChanges Compare(Blob oldBlob, Blob newBlob)
         {
-            return new GitDiffOptions { InterhunkLines = 2 };
+            return new ContentChanges(repo, oldBlob, newBlob, DefaultOptions);
         }
     }
 }
