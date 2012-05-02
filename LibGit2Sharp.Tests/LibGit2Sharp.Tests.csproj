@@ -47,7 +47,7 @@
   <ItemGroup>
     <Compile Include="ConfigurationFixture.cs" />
     <Compile Include="ObjectDatabaseFixture.cs" />
-    <Compile Include="DiffFixture.cs" />
+    <Compile Include="DiffTreeToTreeFixture.cs" />
     <Compile Include="ResetFixture.cs" />
     <Compile Include="LazyFixture.cs" />
     <Compile Include="RemoteFixture.cs" />
