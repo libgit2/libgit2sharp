@@ -173,28 +173,51 @@ namespace LibGit2Sharp
 
             string canonicalNamespace = NormalizeToCanonicalName(@namespace);
 
-            GitOid noteOid;
             GitOid oid = targetId.Oid;
 
-            using (SignatureSafeHandle authorHandle = author.BuildHandle())
-            using (SignatureSafeHandle committerHandle = committer.BuildHandle())
-            {
-                int res = NativeMethods.git_note_remove(repo.Handle, canonicalNamespace, authorHandle, committerHandle, ref oid);
-
-                if (res != (int)GitErrorCode.GIT_ENOTFOUND)
-                {
-                    Ensure.Success(res);
-                }
-            }
+            Delete(targetId, author, committer, @namespace);
 
             using (SignatureSafeHandle authorHandle = author.BuildHandle())
             using (SignatureSafeHandle committerHandle = committer.BuildHandle())
             {
+                GitOid noteOid;
                 Ensure.Success(NativeMethods.git_note_create(out noteOid, repo.Handle, authorHandle, committerHandle, canonicalNamespace, ref oid, message));
             }
 
-
             return this[targetId].First(n => n.Namespace == @namespace);
+        }
+
+        /// <summary>
+        ///   Deletes the note on the specified object, and for the given namespace.
+        /// </summary>
+        /// <param name = "targetId">The target <see cref = "ObjectId"/>, for which the note will be created.</param>
+        /// <param name = "author">The author.</param>
+        /// <param name = "committer">The committer.</param>
+        /// <param name = "namespace">The namespace on which the note will be removed. It can be either a canonical namespace or an abbreviated namespace ('refs/notes/myNamespace' or just 'myNamespace').</param>
+        public void Delete(ObjectId targetId, Signature author, Signature committer, string @namespace)
+        {
+            Ensure.ArgumentNotNull(targetId, "targetId");
+            Ensure.ArgumentNotNull(author, "author");
+            Ensure.ArgumentNotNull(committer, "committer");
+            Ensure.ArgumentNotNullOrEmptyString(@namespace, "@namespace");
+
+            string canonicalNamespace = NormalizeToCanonicalName(@namespace);
+
+            GitOid oid = targetId.Oid;
+            int res;
+
+            using (SignatureSafeHandle authorHandle = author.BuildHandle())
+            using (SignatureSafeHandle committerHandle = committer.BuildHandle())
+            {
+                res = NativeMethods.git_note_remove(repo.Handle, canonicalNamespace, authorHandle, committerHandle, ref oid);
+            }
+
+            if (res == (int)GitErrorCode.GIT_ENOTFOUND)
+            {
+                return;
+            }
+
+            Ensure.Success(res);
         }
     }
 }

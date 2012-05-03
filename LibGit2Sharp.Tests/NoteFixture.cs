@@ -172,5 +172,56 @@ namespace LibGit2Sharp.Tests
                 Assert.NotEqual(firstNote, firstNoteOnAnotherCommit);
             }
         }
+
+        /*
+         * $ git log 8496071c1b46c854b31185ea97743be6a8774479
+         * commit 8496071c1b46c854b31185ea97743be6a8774479
+         * Author: Scott Chacon <schacon@gmail.com>
+         * Date:   Sat May 8 16:13:06 2010 -0700
+         *
+         *     testing
+         *
+         * Notes:
+         *     Hi, I'm Note.
+         */
+        [Fact]
+        public void CanRemoveANoteFromAGitObject()
+        {
+            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                var commit = repo.Lookup<Commit>("8496071c1b46c854b31185ea97743be6a8774479");
+                var notes = repo.Notes[commit.Id];
+
+                Assert.NotEmpty(notes);
+
+                repo.Notes.Delete(commit.Id, signatureNullToken, signatureYorah, repo.Notes.DefaultNamespace);
+
+                Assert.Empty(notes);
+            }
+        }
+
+        /*
+         * $ git show 5b5b025afb0b4c913b4c338a42934a3863bf3644 --notes=answer
+         * commit 5b5b025afb0b4c913b4c338a42934a3863bf3644
+         * Author: Scott Chacon <schacon@gmail.com>
+         * Date:   Tue May 11 13:38:42 2010 -0700
+         * 
+         *     another commit
+         * 
+         * Notes (answer):
+         *     Not what?
+         */
+        [Fact]
+        public void RemovingANonExistingNoteDoesntThrow()
+        {
+            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                var commit = repo.Lookup<Commit>("5b5b025afb0b4c913b4c338a42934a3863bf3644");
+
+                repo.Notes.Delete(commit.Id, signatureNullToken, signatureYorah, "answer2");
+            }
+        }
     }
 }
