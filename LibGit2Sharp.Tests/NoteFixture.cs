@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using LibGit2Sharp.Core;
+using LibGit2Sharp.Core.Compat;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
 
@@ -221,6 +222,21 @@ namespace LibGit2Sharp.Tests
                 var commit = repo.Lookup<Commit>("5b5b025afb0b4c913b4c338a42934a3863bf3644");
 
                 repo.Notes.Delete(commit.Id, signatureNullToken, signatureYorah, "answer2");
+            }
+        }
+
+        [Fact]
+        public void CanRetrieveTheListOfNotesForAGivenNamespace()
+        {
+            var expectedNotes = new[] { new Tuple<string, string>("1a550e416326cdb4a8e127a04dd69d7a01b11cf4", "4a202b346bb0fb0db7eff3cffeb3c70babbd2045"),
+                new Tuple<string, string>("272a41cf2b22e57f2bc5bf6ef37b63568cd837e4", "8496071c1b46c854b31185ea97743be6a8774479") };
+
+            using (var repo = new Repository(BareTestRepoPath))
+            {
+                Assert.Equal(expectedNotes, repo.Notes["commits"].Select(n => new Tuple<string, string>(n.BlobId.Sha, n.TargetObjectId.Sha)).ToArray());
+
+                Assert.Equal("commits", repo.Notes.DefaultNamespace);
+                Assert.Equal(expectedNotes, repo.Notes.Select(n => new Tuple<string, string>(n.BlobId.Sha, n.TargetObjectId.Sha)).ToArray());
             }
         }
     }
