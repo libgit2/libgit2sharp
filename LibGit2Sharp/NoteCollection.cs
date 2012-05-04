@@ -32,7 +32,7 @@ namespace LibGit2Sharp
         /// <returns>An <see cref = "IEnumerator{T}" /> object that can be used to iterate through the collection.</returns>
         public IEnumerator<Note> GetEnumerator()
         {
-            throw new NotImplementedException();
+            return this[DefaultNamespace].GetEnumerator();
         }
 
         /// <summary>
@@ -92,16 +92,33 @@ namespace LibGit2Sharp
             }
         }
 
-        internal Note RetrieveNote(ObjectId id, string canonicalNamespace)
+        /// <summary>
+        ///   Gets the collection of <see cref = "Note"/> associated with the specified namespace.
+        ///   <para>This is similar to the 'get notes list' command.</para>
+        /// </summary>
+        public IEnumerable<Note> this[string @namespace]
         {
-            using (NoteSafeHandle noteHandle = BuildNoteSafeHandle(id, canonicalNamespace))
+            get
+            {
+                Ensure.ArgumentNotNull(@namespace, "@namespace");
+
+                string canonicalNamespace = NormalizeToCanonicalName(@namespace);
+                var notesOidRetriever = new NotesOidRetriever(repo, canonicalNamespace);
+
+                return notesOidRetriever.Retrieve().Select(oid => RetrieveNote(new ObjectId(oid), canonicalNamespace));
+            }
+        }
+
+        internal Note RetrieveNote(ObjectId targetObjectId, string canonicalNamespace)
+        {
+            using (NoteSafeHandle noteHandle = BuildNoteSafeHandle(targetObjectId, canonicalNamespace))
             {
                 if (noteHandle == null)
                 {
                     return null;
                 }
 
-                return Note.BuildFromPtr(repo, UnCanonicalizeName(canonicalNamespace), id, noteHandle);
+                return Note.BuildFromPtr(repo, UnCanonicalizeName(canonicalNamespace), targetObjectId, noteHandle);
             }
         }
 
@@ -184,7 +201,7 @@ namespace LibGit2Sharp
                 Ensure.Success(NativeMethods.git_note_create(out noteOid, repo.Handle, authorHandle, committerHandle, canonicalNamespace, ref oid, message));
             }
 
-            return this[targetId].First(n => n.Namespace == @namespace);
+            return RetrieveNote(targetId, canonicalNamespace);
         }
 
         /// <summary>
@@ -218,6 +235,28 @@ namespace LibGit2Sharp
             }
 
             Ensure.Success(res);
+        }
+
+        private class NotesOidRetriever
+        {
+            private readonly List<GitOid> notesOid = new List<GitOid>();
+
+            internal NotesOidRetriever(Repository repo, string canonicalNamespace)
+            {
+                Ensure.Success(NativeMethods.git_note_foreach(repo.Handle, canonicalNamespace, NoteListCallBack, IntPtr.Zero));
+            }
+
+            private int NoteListCallBack(GitNoteData noteData, IntPtr intPtr)
+            {
+                notesOid.Add(noteData.TargetOid);
+
+                return 0;
+            }
+
+            public IEnumerable<GitOid> Retrieve()
+            {
+                return notesOid;
+            }
         }
     }
 }
