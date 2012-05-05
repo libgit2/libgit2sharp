@@ -200,24 +200,26 @@ namespace LibGit2Sharp.Core
         public static extern int git_diff_index_to_tree(
             RepositorySafeHandle repo,
             GitDiffOptions options,
-            IntPtr oldTree,
-            out IntPtr diff);
+            GitObjectSafeHandle oldTree,
+            out DiffListSafeHandle diff);
+
+        [DllImport(libgit2)]
+        public static extern int git_diff_merge(
+            DiffListSafeHandle onto, 
+            DiffListSafeHandle from);
 
         [DllImport(libgit2)]
         public static extern int git_diff_workdir_to_index(
             RepositorySafeHandle repo,
             GitDiffOptions options,
-            out IntPtr diff);
+            out DiffListSafeHandle diff);
 
         [DllImport(libgit2)]
         public static extern int git_diff_workdir_to_tree(
             RepositorySafeHandle repo,
             GitDiffOptions options,
-            IntPtr oldTree,
-            out IntPtr diff);
-
-        [DllImport(libgit2)]
-        public static extern int git_diff_merge(IntPtr onto, IntPtr from);
+            GitObjectSafeHandle oldTree,
+            out DiffListSafeHandle diff);
 
         internal delegate int git_diff_file_fn(
             IntPtr data,
@@ -228,7 +230,7 @@ namespace LibGit2Sharp.Core
             IntPtr data,
             GitDiffDelta delta,
             GitDiffRange range,
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string header,
+            IntPtr header,
             IntPtr headerLen);
 
         internal delegate int git_diff_line_fn(
@@ -260,10 +262,10 @@ namespace LibGit2Sharp.Core
         [DllImport(libgit2)]
         public static extern int git_diff_blobs(
             RepositorySafeHandle repository,
-            IntPtr oldBlob,
-            IntPtr newBlob,
+            GitObjectSafeHandle oldBlob,
+            GitObjectSafeHandle newBlob,
             GitDiffOptions options,
-            object data,
+            IntPtr data,
             git_diff_hunk_fn hunkCallback,
             git_diff_line_fn lineCallback);
 
