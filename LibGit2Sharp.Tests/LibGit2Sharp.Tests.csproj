@@ -47,6 +47,7 @@
     <Compile Include="AttributesFixture.cs" />
     <Compile Include="CommitAncestorFixture.cs" />
     <Compile Include="DiffBlobToBlobFixture.cs" />
+    <Compile Include="DiffTreeToTargetFixture.cs" />
     <Compile Include="ObjectDatabaseFixture.cs" />
     <Compile Include="DiffTreeToTreeFixture.cs" />
     <Compile Include="RepositoryOptionsFixture.cs" />
