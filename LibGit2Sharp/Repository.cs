@@ -266,7 +266,7 @@ namespace LibGit2Sharp
                     res = NativeMethods.git_object_lookup(out obj, handle, ref oid, type);
                 }
 
-                if (res == (int)GitErrorCode.GIT_ENOTFOUND || res == (int)GitErrorCode.GIT_EINVALIDTYPE)
+                if (res == (int)GitErrorCode.GIT_ENOTFOUND) // || res == (int)GitErrorCode.GIT_EINVALIDTYPE)
                 {
                     return null;
                 }
@@ -358,7 +358,7 @@ namespace LibGit2Sharp
 
             int result = NativeMethods.git_repository_discover(buffer, buffer.Length, startingPath, false, null);
 
-            if ((GitErrorCode)result == GitErrorCode.GIT_ENOTAREPO)
+            if ((GitErrorCode)result == GitErrorCode.GIT_ENOTFOUND)
             {
                 return null;
             }
