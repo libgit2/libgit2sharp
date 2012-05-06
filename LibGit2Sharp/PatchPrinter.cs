@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Text.RegularExpressions;
 using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
@@ -12,8 +11,7 @@ namespace LibGit2Sharp
         private readonly StringBuilder fullPatchBuilder;
         private string currentFilePath;
 
-        private static readonly Regex oldFilePathRegex = new Regex(@"\-\-\-\s*a/(.*)\n");
-        private static readonly Regex newFilePathRegex = new Regex(@"\+\+\+\s*b/(.*)\n");
+        private static readonly Utf8Marshaler marshaler = (Utf8Marshaler)Utf8Marshaler.GetInstance(string.Empty);
 
         internal PatchPrinter(IDictionary<string, TreeEntryChanges> filesChanges, StringBuilder fullPatchBuilder)
         {
@@ -21,12 +19,20 @@ namespace LibGit2Sharp
             this.fullPatchBuilder = fullPatchBuilder;
         }
 
-        internal int PrintCallBack(IntPtr data, GitDiffLineOrigin lineorigin, string formattedoutput)
+
+        private static string NativeToString(IntPtr content, IntPtr contentlen)
         {
+            return ((Utf8Marshaler)(Utf8Marshaler.GetInstance(string.Empty))).NativeToString(content, contentlen.ToInt32());
+        }
+
+        internal int PrintCallBack(IntPtr data, GitDiffDelta delta, GitDiffRange range, GitDiffLineOrigin lineorigin, IntPtr content, IntPtr contentlen)
+        {
+            string formattedoutput = NativeToString(content, contentlen);
+
             switch (lineorigin)
             {
                 case GitDiffLineOrigin.GIT_DIFF_LINE_FILE_HDR:
-                    ExtractAndUpdateFilePath(formattedoutput);
+                    currentFilePath = (string)marshaler.MarshalNativeToManaged(delta.NewFile.Path);
                     break;
             }
 
@@ -34,22 +40,6 @@ namespace LibGit2Sharp
             fullPatchBuilder.Append(formattedoutput);
 
             return 0;
-        }
-
-        // We are walking around a bug in libgit2: when a file is deleted, the oldFilePath and the newFilePath are inverted (this has been recently fixed in one of the latest commit, see https://github.com/libgit2/libgit2/pull/643)
-        private void ExtractAndUpdateFilePath(string formattedoutput)
-        {
-            var match = oldFilePathRegex.Match(formattedoutput);
-            if (match.Success)
-            {
-                currentFilePath = match.Groups[1].Value;
-            }
-
-            match = newFilePathRegex.Match(formattedoutput);
-            if (match.Success)
-            {
-                currentFilePath = match.Groups[1].Value;
-            }
         }
     }
 }
