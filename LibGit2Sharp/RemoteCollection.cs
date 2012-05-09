@@ -85,7 +85,9 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(url, "url");
 
             RemoteSafeHandle handle;
-            int res = NativeMethods.git_remote_new(out handle, repository.Handle, url, name);
+            
+            //TODO: Allow passing a fetch refspec
+            int res = NativeMethods.git_remote_new(out handle, repository.Handle, name, url, null);
             Ensure.Success(res);
 
             using (handle)
