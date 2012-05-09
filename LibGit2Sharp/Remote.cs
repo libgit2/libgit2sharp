@@ -12,6 +12,16 @@ namespace LibGit2Sharp
         private static readonly LambdaEqualityHelper<Remote> equalityHelper =
             new LambdaEqualityHelper<Remote>(new Func<Remote, object>[] { x => x.Name, x => x.Url });
 
+        public Remote(string name, string url)
+        {
+            Name = name;
+            Url = url;
+        }
+
+        internal Remote()
+        {
+        }
+
         internal static Remote CreateFromPtr(RemoteSafeHandle handle)
         {
             if (handle == null)
