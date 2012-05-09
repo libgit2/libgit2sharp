@@ -1,14 +1,13 @@
 ﻿using System.IO;
 using System.Text;
 using LibGit2Sharp.Tests.TestHelpers;
-using NUnit.Framework;
+using Xunit;
 
 namespace LibGit2Sharp.Tests
 {
-    [TestFixture]
     public class BlobFixture : BaseFixture
     {
-        [Test]
+        [Fact]
         public void CanGetBlobAsUtf8()
         {
             using (var repo = new Repository(BareTestRepoPath))
@@ -20,7 +19,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void CanGetBlobSize()
         {
             using (var repo = new Repository(BareTestRepoPath))
@@ -30,7 +29,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void CanLookUpBlob()
         {
             using (var repo = new Repository(BareTestRepoPath))
@@ -40,7 +39,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void CanReadBlobContent()
         {
             using (var repo = new Repository(BareTestRepoPath))
@@ -54,7 +53,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void CanReadBlobStream()
         {
             using (var repo = new Repository(BareTestRepoPath))
@@ -79,7 +78,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void CanStageAFileGeneratedFromABlobContentStream()
         {
             SelfCleaningDirectory scd = BuildSelfCleaningDirectory();

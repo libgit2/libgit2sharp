@@ -44,7 +44,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Gets the parents of this commit. This property is lazy loaded and can throw an exception if the commit no longer exists in the repo.
         /// </summary>
-        IEnumerable<Commit> Parents { get; }
+        IEnumerable<ICommit> Parents { get; }
 
         /// <summary>
         ///   Gets The count of parent commits.

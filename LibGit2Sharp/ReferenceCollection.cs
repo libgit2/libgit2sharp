@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using LibGit2Sharp.Core;
+using LibGit2Sharp.Core.Handles;
 
 namespace LibGit2Sharp
 {
@@ -71,36 +72,39 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNullOrEmptyString(target, "target");
 
             ObjectId id;
-
-            IntPtr reference;
-            int res;
+            Func<string, bool, ReferenceSafeHandle> referenceCreator;
 
             if (ObjectId.TryParse(target, out id))
             {
-                res = CreateDirectReference(name, id, allowOverwrite, out reference);
+                referenceCreator = (n, o) => CreateDirectReference(n, id, o);
             }
             else
             {
-                res = CreateSymbolicReference(name, target, allowOverwrite, out reference);
+                referenceCreator = (n, o) => CreateSymbolicReference(n, target, o);
             }
 
-            Ensure.Success(res);
-
-            return Reference.BuildFromPtrAndRelease<Reference>(reference, repo);
+            using (ReferenceSafeHandle handle = referenceCreator(name, allowOverwrite))
+            {
+                return Reference.BuildFromPtr<Reference>(handle, repo);
+            }
         }
 
-        private int CreateSymbolicReference(string name, string target, bool allowOverwrite, out IntPtr reference)
+        private ReferenceSafeHandle CreateSymbolicReference(string name, string target, bool allowOverwrite)
         {
-            return NativeMethods.git_reference_create_symbolic(out reference, repo.Handle, name, target, allowOverwrite);
+            ReferenceSafeHandle handle;
+            Ensure.Success(NativeMethods.git_reference_create_symbolic(out handle, repo.Handle, name, target, allowOverwrite));
+            return handle;
         }
 
-        private int CreateDirectReference(string name, ObjectId targetId, bool allowOverwrite, out IntPtr reference)
+        private ReferenceSafeHandle CreateDirectReference(string name, ObjectId targetId, bool allowOverwrite)
         {
             targetId = Unabbreviate(targetId);
 
             GitOid oid = targetId.Oid;
 
-            return NativeMethods.git_reference_create_oid(out reference, repo.Handle, name, ref oid, allowOverwrite);
+            ReferenceSafeHandle handle;
+            Ensure.Success(NativeMethods.git_reference_create_oid(out handle, repo.Handle, name, ref oid, allowOverwrite));
+            return handle;
         }
 
         private ObjectId Unabbreviate(ObjectId targetId)
@@ -128,10 +132,15 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
 
-            IntPtr reference = RetrieveReferencePtr(name);
-
-            int res = NativeMethods.git_reference_delete(reference);
-            Ensure.Success(res);
+            using (ReferenceSafeHandle handle = RetrieveReferencePtr(name))
+            {
+                int res = NativeMethods.git_reference_delete(handle);
+                
+                //TODO Make git_reference_delete() set the ref pointer to NULL and remove the following line
+                handle.SetHandleAsInvalid();
+                
+                Ensure.Success(res);
+            }
         }
 
         /// <summary>
@@ -146,21 +155,23 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNullOrEmptyString(currentName, "currentName");
             Ensure.ArgumentNotNullOrEmptyString(newName, "newName");
 
-            IntPtr referencePtr = RetrieveReferencePtr(currentName);
+            using (ReferenceSafeHandle handle = RetrieveReferencePtr(currentName))
+            {
+                int res = NativeMethods.git_reference_rename(handle, newName, allowOverwrite);
+                Ensure.Success(res);
 
-            int res = NativeMethods.git_reference_rename(referencePtr, newName, allowOverwrite);
-            Ensure.Success(res);
-
-            return Reference.BuildFromPtrAndRelease<Reference>(referencePtr, repo);
+                return Reference.BuildFromPtr<Reference>(handle, repo);
+            }
         }
 
         internal T Resolve<T>(string name) where T : Reference
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
 
-            IntPtr reference = RetrieveReferencePtr(name, false);
-
-            return Reference.BuildFromPtrAndRelease<T>(reference, repo);
+            using (ReferenceSafeHandle referencePtr = RetrieveReferencePtr(name, false))
+            {
+                return referencePtr == null ? null : Reference.BuildFromPtr<T>(referencePtr, repo);
+            }
         }
 
         /// <summary>
@@ -178,49 +189,53 @@ namespace LibGit2Sharp
                 return Create("HEAD", target, true);
             }
 
-            IntPtr reference = RetrieveReferencePtr(name);
-            int res;
-
-            ObjectId id;
-            bool isObjectIdentifier = ObjectId.TryParse(target, out id);
-
-            GitReferenceType type = NativeMethods.git_reference_type(reference);
-            switch (type)
+            using (ReferenceSafeHandle referencePtr = RetrieveReferencePtr(name))
             {
-                case GitReferenceType.Oid:
-                    if (!isObjectIdentifier)
-                    {
-                        throw new ArgumentException(String.Format(CultureInfo.InvariantCulture, "The reference specified by {0} is an Oid reference, you must provide a sha as the target.", name), "target");
-                    }
-                    GitOid oid = id.Oid;
-                    res = NativeMethods.git_reference_set_oid(reference, ref oid);
-                    break;
+                int res;
 
-                case GitReferenceType.Symbolic:
-                    if (isObjectIdentifier)
-                    {
-                        throw new ArgumentException(String.Format(CultureInfo.InvariantCulture, "The reference specified by {0} is a Symbolic reference, you must provide a reference canonical name as the target.", name), "target");
-                    }
-                    res = NativeMethods.git_reference_set_target(reference, target);
-                    break;
+                ObjectId id;
+                bool isObjectIdentifier = ObjectId.TryParse(target, out id);
 
-                default:
-                    throw new LibGit2Exception(string.Format(CultureInfo.InvariantCulture, "Reference '{0}' has an unexpected type ('{1}').", name, Enum.GetName(typeof(GitReferenceType), type)));
+                GitReferenceType type = NativeMethods.git_reference_type(referencePtr);
+                switch (type)
+                {
+                    case GitReferenceType.Oid:
+                        if (!isObjectIdentifier)
+                        {
+                            throw new ArgumentException(String.Format(CultureInfo.InvariantCulture, "The reference specified by {0} is an Oid reference, you must provide a sha as the target.", name), "target");
+                        }
+
+                        GitOid oid = id.Oid;
+                        res = NativeMethods.git_reference_set_oid(referencePtr, ref oid);
+                        break;
+
+                    case GitReferenceType.Symbolic:
+                        if (isObjectIdentifier)
+                        {
+                            throw new ArgumentException(String.Format(CultureInfo.InvariantCulture, "The reference specified by {0} is a Symbolic reference, you must provide a reference canonical name as the target.", name), "target");
+                        }
+
+                        res = NativeMethods.git_reference_set_target(referencePtr, target);
+                        break;
+
+                    default:
+                        throw new LibGit2Exception(string.Format(CultureInfo.InvariantCulture, "Reference '{0}' has an unexpected type ('{1}').", name, Enum.GetName(typeof(GitReferenceType), type)));
+                }
+
+                Ensure.Success(res);
+
+                return Reference.BuildFromPtr<Reference>(referencePtr, repo);
             }
-
-            Ensure.Success(res);
-
-            return Reference.BuildFromPtrAndRelease<Reference>(reference, repo);
         }
 
-        private IntPtr RetrieveReferencePtr(string referenceName, bool shouldThrowIfNotFound = true)
+        private ReferenceSafeHandle RetrieveReferencePtr(string referenceName, bool shouldThrowIfNotFound = true)
         {
-            IntPtr reference;
+            ReferenceSafeHandle reference;
             int res = NativeMethods.git_reference_lookup(out reference, repo.Handle, referenceName);
 
             if (!shouldThrowIfNotFound && res == (int)GitErrorCode.GIT_ENOTFOUND)
             {
-                return IntPtr.Zero;
+                return null;
             }
 
             Ensure.Success(res);

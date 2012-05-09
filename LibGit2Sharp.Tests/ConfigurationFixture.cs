@@ -2,11 +2,10 @@
 using System.IO;
 using System.Text.RegularExpressions;
 using LibGit2Sharp.Tests.TestHelpers;
-using NUnit.Framework;
+using Xunit;
 
 namespace LibGit2Sharp.Tests
 {
-    [TestFixture]
     public class ConfigurationFixture : BaseFixture
     {
         private static void AssertValueInLocalConfigFile(string repoPath, string regex)
@@ -19,7 +18,7 @@ namespace LibGit2Sharp.Tests
         {
             var text = File.ReadAllText(configFilePath);
             var r = new Regex(regex, RegexOptions.Multiline).Match(text);
-            Assert.IsTrue(r.Success, text);
+            Assert.True(r.Success, text);
         }
 
         private static string RetrieveGlobalConfigLocation()
@@ -51,7 +50,7 @@ namespace LibGit2Sharp.Tests
             AssertValueInConfigFile(configFilePath, regex);
         }
 
-        [Test]
+        [Fact]
         public void CanDeleteConfiguration()
         {
             var path = BuildTemporaryCloneOfTestRepo(StandardTestRepoPath);
@@ -68,7 +67,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [SkippableFact]
         public void CanGetGlobalStringValue()
         {
             using (var repo = new Repository(StandardTestRepoPath))
@@ -79,7 +78,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [SkippableFact]
         public void CanGetGlobalStringValueWithoutRepo()
         {
             using (var config = new Configuration())
@@ -89,47 +88,47 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void CanReadBooleanValue()
         {
             using (var repo = new Repository(StandardTestRepoPath))
             {
-                Assert.IsTrue(repo.Config.Get<bool>("core.ignorecase", false));
-                Assert.IsTrue(repo.Config.Get<bool>("core", "ignorecase", false));
+                Assert.True(repo.Config.Get<bool>("core.ignorecase", false));
+                Assert.True(repo.Config.Get<bool>("core", "ignorecase", false));
             }
         }
 
-        [Test]
+        [Fact]
         public void CanReadIntValue()
         {
             using (var repo = new Repository(StandardTestRepoPath))
             {
-                Assert.AreEqual(2, repo.Config.Get<int>("unittests.intsetting", 42));
-                Assert.AreEqual(2, repo.Config.Get<int>("unittests", "intsetting", 42));
+                Assert.Equal(2, repo.Config.Get<int>("unittests.intsetting", 42));
+                Assert.Equal(2, repo.Config.Get<int>("unittests", "intsetting", 42));
             }
         }
 
-        [Test]
+        [Fact]
         public void CanReadLongValue()
         {
             using (var repo = new Repository(StandardTestRepoPath))
             {
-                Assert.AreEqual(15234, repo.Config.Get<long>("unittests.longsetting", 42));
-                Assert.AreEqual(15234, repo.Config.Get<long>("unittests", "longsetting", 42));
+                Assert.Equal(15234, repo.Config.Get<long>("unittests.longsetting", 42));
+                Assert.Equal(15234, repo.Config.Get<long>("unittests", "longsetting", 42));
             }
         }
 
-        [Test]
+        [Fact]
         public void CanReadStringValue()
         {
             using (var repo = new Repository(StandardTestRepoPath))
             {
-                Assert.AreEqual("+refs/heads/*:refs/remotes/origin/*", repo.Config.Get<string>("remote.origin.fetch", null));
-                Assert.AreEqual("+refs/heads/*:refs/remotes/origin/*", repo.Config.Get<string>("remote", "origin", "fetch", null));
+                Assert.Equal("+refs/heads/*:refs/remotes/origin/*", repo.Config.Get<string>("remote.origin.fetch", null));
+                Assert.Equal("+refs/heads/*:refs/remotes/origin/*", repo.Config.Get<string>("remote", "origin", "fetch", null));
             }
         }
 
-        [Test]
+        [Fact]
         public void CanSetBooleanValue()
         {
             var path = BuildTemporaryCloneOfTestRepo(StandardTestRepoPath);
@@ -141,7 +140,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [SkippableFact]
         public void CanSetGlobalStringValue()
         {
             using (var repo = new Repository(StandardTestRepoPath))
@@ -164,7 +163,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [SkippableFact]
         public void CanSetGlobalStringValueWithoutRepo()
         {
             using(var config = new Configuration())
@@ -187,7 +186,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void SettingLocalConfigurationOutsideAReposThrows()
         {
             using (var config = new Configuration())
@@ -196,7 +195,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void CanSetIntValue()
         {
             var path = BuildTemporaryCloneOfTestRepo(StandardTestRepoPath);
@@ -208,7 +207,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void CanSetLongValue()
         {
             var path = BuildTemporaryCloneOfTestRepo(StandardTestRepoPath);
@@ -220,7 +219,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void CanSetStringValue()
         {
             var path = BuildTemporaryCloneOfTestRepo(StandardTestRepoPath);
@@ -232,7 +231,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void CanSetAndReadUnicodeStringValue()
         {
             var path = BuildTemporaryCloneOfTestRepo(StandardTestRepoPath);
@@ -241,16 +240,20 @@ namespace LibGit2Sharp.Tests
                 repo.Config.Set("unittests.stringsetting", "Juliën");
 
                 AssertValueInLocalConfigFile(path.RepositoryPath, "stringsetting = Juliën$");
+
+                string val = repo.Config.Get("unittests.stringsetting", "");
+                val.ShouldEqual("Juliën");
             }
-            // have to dispose the config for it to save
+
+            // Make sure the change is permanent
             using (var repo = new Repository(path.RepositoryPath))
             {
-                var val = repo.Config.Get("unittests.stringsetting", "");
+                string val = repo.Config.Get("unittests.stringsetting", "");
                 val.ShouldEqual("Juliën");
             }
         }
 
-        [Test]
+        [Fact]
         public void ReadingUnsupportedTypeThrows()
         {
             using (var repo = new Repository(StandardTestRepoPath))
@@ -260,7 +263,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void ReadingValueThatDoesntExistReturnsDefault()
         {
             using (var repo = new Repository(StandardTestRepoPath))
@@ -276,7 +279,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void SettingUnsupportedTypeThrows()
         {
             using (var repo = new Repository(StandardTestRepoPath))

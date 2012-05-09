@@ -2,6 +2,9 @@
 
 namespace LibGit2Sharp
 {
+    /// <summary>
+    ///   Calculated status of a filepath in the working directory considering the current <see cref = "Repository.Index" /> and the <see cref="Repository.Head" />.
+    /// </summary>
     [Flags]
     public enum FileStatus
     {
@@ -46,7 +49,7 @@ namespace LibGit2Sharp
         Missing = (1 << 5), /* GIT_STATUS_WT_DELETED */
 
         /// <summary>
-        ///   The file is <see cref="Untracked"/> but its name and/or path macthes an exclude pattern in a <c>gitignore</c> file.
+        ///   The file is <see cref="Untracked"/> but its name and/or path matches an exclude pattern in a <c>gitignore</c> file.
         /// </summary>
         Ignored = (1 << 6), /* GIT_STATUS_IGNORED */
     }

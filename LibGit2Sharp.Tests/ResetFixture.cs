@@ -1,15 +1,16 @@
 ﻿using System;
 using System.IO;
 using LibGit2Sharp.Tests.TestHelpers;
-using NUnit.Framework;
+using Xunit;
+using Xunit.Extensions;
 
 namespace LibGit2Sharp.Tests
 {
-    [TestFixture]
     public class ResetFixture : BaseFixture
     {
-        [TestCase(true)]
-        [TestCase(false)]
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
         public void ResetANewlyInitializedRepositoryThrows(bool isBare)
         {
             SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
@@ -20,7 +21,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void SoftResetToTheHeadOfARepositoryDoesNotChangeTheTargetOfTheHead()
         {
             using (var repo = new Repository(BareTestRepoPath))
@@ -33,7 +34,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void SoftResetSetsTheHeadToTheDereferencedCommitOfAChainedTag()
         {
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
@@ -46,7 +47,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void ResettingWithBadParamsThrows()
         {
             using (var repo = new Repository(BareTestRepoPath))
@@ -57,14 +58,14 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void SoftResetSetsTheHeadToTheSpecifiedCommit()
         {
             /* Make the Head point to a branch through its name */
             AssertSoftReset(b => b.Name, false, b => b.Name);
         }
 
-        [Test]
+        [Fact]
         public void SoftResetSetsTheDetachedHeadToTheSpecifiedCommit()
         {
             /* Make the Head point to a commit through its sha (Detaches the Head) */
@@ -84,7 +85,7 @@ namespace LibGit2Sharp.Tests
                 IBranch branch = repo.Branches["mybranch"];
 
                 string branchIdentifier = branchIdentifierRetriever(branch);
-                repo.Branches.Checkout(branchIdentifier);
+                repo.Checkout(branchIdentifier);
                 repo.Info.IsHeadDetached.ShouldEqual(shouldHeadBeDetached);
 
                 string expectedHeadName = expectedHeadNameRetriever(branch);
@@ -122,12 +123,12 @@ namespace LibGit2Sharp.Tests
             repo.Commit("Update file", shiftedSignature, shiftedSignature);
             repo.CreateBranch("mybranch");
 
-            repo.Branches.Checkout("mybranch");
+            repo.Checkout("mybranch");
 
             repo.Index.RetrieveStatus().IsDirty.ShouldBeFalse();
         }
 
-        [Test]
+        [Fact]
         public void MixedResetRefreshesTheIndex()
         {
             SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
@@ -144,7 +145,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void MixedResetInABareRepositoryThrows()
         {
             using (var repo = new Repository(BareTestRepoPath))

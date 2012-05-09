@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using LibGit2Sharp.Core;
+using LibGit2Sharp.Core.Handles;
 
 namespace LibGit2Sharp
 {
@@ -13,7 +14,7 @@ namespace LibGit2Sharp
         private readonly string name;
         private readonly string email;
 
-        private static readonly Utf8Marshaler marshaler = new Utf8Marshaler();
+        private static readonly Utf8Marshaler marshaler = (Utf8Marshaler)Utf8Marshaler.GetInstance(string.Empty);
 
         internal Signature(IntPtr signaturePtr)
         {

@@ -6,8 +6,8 @@ namespace LibGit2Sharp.Core
 {
     internal class Utf8Marshaler : ICustomMarshaler
     {
-        static Utf8Marshaler staticInstance;
-        readonly bool ownsPointer;
+        private static readonly Utf8Marshaler staticInstance = new Utf8Marshaler();
+        private readonly bool ownsPointer;
 
         internal Utf8Marshaler(bool ownsPointer = false)
         {
@@ -16,7 +16,7 @@ namespace LibGit2Sharp.Core
 
         #region ICustomMarshaler Members
 
-        public unsafe IntPtr MarshalManagedToNative(object managedObj)
+        public virtual IntPtr MarshalManagedToNative(object managedObj)
         {
             if (managedObj == null)
             {
@@ -28,8 +28,13 @@ namespace LibGit2Sharp.Core
                 throw new MarshalDirectiveException("UTF8Marshaler must be used on a string.");
             }
 
+            return StringToNative((string)managedObj);
+        }
+
+        protected unsafe IntPtr StringToNative(string value)
+        {
             // not null terminated
-            byte[] strbuf = Encoding.UTF8.GetBytes((string)managedObj);
+            byte[] strbuf = Encoding.UTF8.GetBytes(value);
             IntPtr buffer = Marshal.AllocHGlobal(strbuf.Length + 1);
             Marshal.Copy(strbuf, 0, buffer, strbuf.Length);
 
@@ -40,7 +45,12 @@ namespace LibGit2Sharp.Core
             return buffer;
         }
 
-        public unsafe object MarshalNativeToManaged(IntPtr pNativeData)
+        public virtual object MarshalNativeToManaged(IntPtr pNativeData)
+        {
+            return NativeToString(pNativeData);
+        }
+
+        protected unsafe string NativeToString(IntPtr pNativeData)
         {
             var walk = (byte*)pNativeData;
 
@@ -79,11 +89,6 @@ namespace LibGit2Sharp.Core
 
         public static ICustomMarshaler GetInstance(string cookie)
         {
-            if (staticInstance == null)
-            {
-                return staticInstance = new Utf8Marshaler();
-            }
-
             return staticInstance;
         }
 

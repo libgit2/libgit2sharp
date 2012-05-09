@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Tests.TestHelpers;
-using NUnit.Framework;
+using Xunit;
 
 namespace LibGit2Sharp.Tests
 {
-    [TestFixture]
     public class TagFixture : BaseFixture
     {
         private readonly string[] expectedTags = new[] { "e90810b", "lw", "point_to_blob", "test", };
@@ -18,7 +17,7 @@ namespace LibGit2Sharp.Tests
         private const string commitE90810BSha = "e90810b8df3e80c413d903f631643c716887138d";
         private const string tagE90810BSha = "7b4384978d2493e851f9cca7858815fac9b10980";
 
-        [Test]
+        [Fact]
         public void CanCreateALightWeightTagFromSha()
         {
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
@@ -30,7 +29,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void CanCreateALightWeightTagFromAbbreviatedSha()
         {
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
@@ -42,7 +41,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void CanCreateALightweightTagFromABranchName()
         {
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
@@ -54,7 +53,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void CanCreateAndOverwriteALightweightTag()
         {
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
@@ -66,7 +65,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void CanCreateATagWithNameContainingASlash()
         {
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
@@ -89,7 +88,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void CreatingATagWithNameMatchingAnAlreadyExistingReferenceHierarchyThrows()
         {
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
@@ -101,7 +100,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void CanCreateAnAnnotatedTagFromABranchName()
         {
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
@@ -113,7 +112,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void CanCreateAnAnnotatedTagFromSha()
         {
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
@@ -125,8 +124,8 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
-        [Description("Ported from cgit (https://github.com/git/git/blob/1c08bf50cfcf924094eca56c2486a90e2bf1e6e2/t/t7004-tag.sh#L359)")]
+        [Fact]
+        // Ported from cgit (https://github.com/git/git/blob/1c08bf50cfcf924094eca56c2486a90e2bf1e6e2/t/t7004-tag.sh#L359)
         public void CanCreateAnAnnotatedTagWithAnEmptyMessage()
         {
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
@@ -139,7 +138,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void CanCreateAndOverwriteAnAnnotatedTag()
         {
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
@@ -151,7 +150,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void CreatingAnAnnotatedTagIsDeterministic()
         {
             const string tagName = "nullTAGen";
@@ -168,8 +167,8 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
-        [Description("Ported from cgit (https://github.com/git/git/blob/1c08bf50cfcf924094eca56c2486a90e2bf1e6e2/t/t7004-tag.sh#L32)")]
+        [Fact]
+        // Ported from cgit (https://github.com/git/git/blob/1c08bf50cfcf924094eca56c2486a90e2bf1e6e2/t/t7004-tag.sh#L32)
         public void CreatingATagInAEmptyRepositoryThrows()
         {
             SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
@@ -180,8 +179,8 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
-        [Description("Ported from cgit (https://github.com/git/git/blob/1c08bf50cfcf924094eca56c2486a90e2bf1e6e2/t/t7004-tag.sh#L37)")]
+        [Fact]
+        // Ported from cgit (https://github.com/git/git/blob/1c08bf50cfcf924094eca56c2486a90e2bf1e6e2/t/t7004-tag.sh#L37)
         public void CreatingATagForHeadInAEmptyRepositoryThrows()
         {
             SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
@@ -192,8 +191,8 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
-        [Description("Ported from cgit (https://github.com/git/git/blob/1c08bf50cfcf924094eca56c2486a90e2bf1e6e2/t/t7004-tag.sh#L42)")]
+        [Fact]
+        // Ported from cgit (https://github.com/git/git/blob/1c08bf50cfcf924094eca56c2486a90e2bf1e6e2/t/t7004-tag.sh#L42)
         public void CreatingATagForAnUnknowReferenceThrows()
         {
             using (var repo = new Repository(BareTestRepoPath))
@@ -202,7 +201,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void CreatingATagForANonCanonicalReferenceThrows()
         {
             using (var repo = new Repository(BareTestRepoPath))
@@ -211,8 +210,8 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
-        [Description("Ported from cgit (https://github.com/git/git/blob/1c08bf50cfcf924094eca56c2486a90e2bf1e6e2/t/t7004-tag.sh#L42)")]
+        [Fact]
+        // Ported from cgit (https://github.com/git/git/blob/1c08bf50cfcf924094eca56c2486a90e2bf1e6e2/t/t7004-tag.sh#L42)
         public void CreatingATagForAnUnknowObjectIdThrows()
         {
             using (var repo = new Repository(BareTestRepoPath))
@@ -221,8 +220,8 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
-        [Description("Ported from cgit (https://github.com/git/git/blob/1c08bf50cfcf924094eca56c2486a90e2bf1e6e2/t/t7004-tag.sh#L48)")]
+        [Fact]
+        // Ported from cgit (https://github.com/git/git/blob/1c08bf50cfcf924094eca56c2486a90e2bf1e6e2/t/t7004-tag.sh#L48)
         public void CanCreateATagForImplicitHead()
         {
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
@@ -238,8 +237,8 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
-        [Description("Ported from cgit (https://github.com/git/git/blob/1c08bf50cfcf924094eca56c2486a90e2bf1e6e2/t/t7004-tag.sh#L87)")]
+        [Fact]
+        // Ported from cgit (https://github.com/git/git/blob/1c08bf50cfcf924094eca56c2486a90e2bf1e6e2/t/t7004-tag.sh#L87)
         public void CreatingADuplicateTagThrows()
         {
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
@@ -251,8 +250,8 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
-        [Description("Ported from cgit (https://github.com/git/git/blob/1c08bf50cfcf924094eca56c2486a90e2bf1e6e2/t/t7004-tag.sh#L90)")]
+        [Fact]
+        // Ported from cgit (https://github.com/git/git/blob/1c08bf50cfcf924094eca56c2486a90e2bf1e6e2/t/t7004-tag.sh#L90)
         public void CreatingATagWithANonValidNameShouldFail()
         {
             using (var repo = new Repository(BareTestRepoPath))
@@ -265,8 +264,8 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
-        [Description("Ported from cgit (https://github.com/git/git/blob/1c08bf50cfcf924094eca56c2486a90e2bf1e6e2/t/t7004-tag.sh#L101)")]
+        [Fact]
+        // Ported from cgit (https://github.com/git/git/blob/1c08bf50cfcf924094eca56c2486a90e2bf1e6e2/t/t7004-tag.sh#L101)
         public void CanCreateATagUsingHead()
         {
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
@@ -282,13 +281,13 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void CanCreateATagPointingToATree()
         {
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
             using (var repo = new Repository(path.RepositoryPath))
             {
-                ICommit headCommit = repo.Head.Tip;
+                var headCommit = repo.Head.Tip;
                 Tree tree = headCommit.Tree;
 
                 Tag tag = repo.ApplyTag("tree-tag", tree.Sha);
@@ -301,14 +300,14 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void CanCreateATagPointingToABlob()
         {
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
             using (var repo = new Repository(path.RepositoryPath))
             {
-                ICommit headCommit = repo.Head.Tip;
-                Blob blob = headCommit.Tree.Files.First();
+                var headCommit = repo.Head.Tip;
+                Blob blob = headCommit.Tree.Blobs.First();
 
                 Tag tag = repo.ApplyTag("blob-tag", blob.Sha);
                 tag.ShouldNotBeNull();
@@ -320,7 +319,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void CreatingALightweightTagPointingToATagAnnotationGeneratesAnAnnotatedTagReusingThePointedAtTagAnnotation()
         {
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
@@ -340,7 +339,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void CanCreateAnAnnotatedTagPointingToATagAnnotation()
         {
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
@@ -359,7 +358,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void BlindlyCreatingALightweightTagOverAnExistingOneThrows()
         {
             using (var repo = new Repository(BareTestRepoPath))
@@ -368,7 +367,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void BlindlyCreatingAnAnnotatedTagOverAnExistingOneThrows()
         {
             using (var repo = new Repository(BareTestRepoPath))
@@ -377,7 +376,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void CreateTagWithADuplicateNameThrows()
         {
             using (var repo = new Repository(BareTestRepoPath))
@@ -386,7 +385,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void CreateTagWithEmptyNameThrows()
         {
             using (var repo = new Repository(BareTestRepoPath))
@@ -395,7 +394,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void CreateTagWithEmptyTargetThrows()
         {
             using (var repo = new Repository(BareTestRepoPath))
@@ -404,7 +403,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void CreateTagWithNotExistingTargetThrows()
         {
             using (var repo = new Repository(BareTestRepoPath))
@@ -413,7 +412,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void CreateTagWithNullMessageThrows()
         {
             using (var repo = new Repository(BareTestRepoPath))
@@ -422,7 +421,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void CreateTagWithNullNameThrows()
         {
             using (var repo = new Repository(BareTestRepoPath))
@@ -431,7 +430,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void CreateTagWithNullSignatureThrows()
         {
             using (var repo = new Repository(BareTestRepoPath))
@@ -440,7 +439,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void CreateTagWithNullTargetThrows()
         {
             using (var repo = new Repository(BareTestRepoPath))
@@ -449,7 +448,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void CanDeleteATagThroughItsName()
         {
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
@@ -459,7 +458,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void CanDeleteATagThroughItsCanonicalName()
         {
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
@@ -469,7 +468,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void ADeletedTagCannotBeLookedUp()
         {
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
@@ -482,7 +481,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void DeletingATagDecreasesTheTagsCount()
         {
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
@@ -502,8 +501,8 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
-        [Description("Ported from cgit (https://github.com/git/git/blob/1c08bf50cfcf924094eca56c2486a90e2bf1e6e2/t/t7004-tag.sh#L108)")]
+        [Fact]
+        // Ported from cgit (https://github.com/git/git/blob/1c08bf50cfcf924094eca56c2486a90e2bf1e6e2/t/t7004-tag.sh#L108)
         public void DeletingAnUnknownTagShouldFail()
         {
             using (var repo = new Repository(BareTestRepoPath))
@@ -512,7 +511,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void GetTagByNameWithBadParamsThrows()
         {
             using (var repo = new Repository(BareTestRepoPath))
@@ -523,19 +522,19 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void CanListTags()
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                CollectionAssert.AreEqual(expectedTags, repo.Tags.Select(t => t.Name).ToArray());
+                Assert.Equal(expectedTags, repo.Tags.Select(t => t.Name).ToArray());
 
                 repo.Tags.Count().ShouldEqual(4);
             }
         }
 
-        [Test]
-        [Description("Ported from cgit (https://github.com/git/git/blob/1c08bf50cfcf924094eca56c2486a90e2bf1e6e2/t/t7004-tag.sh#L24)")]
+        [Fact]
+        // Ported from cgit (https://github.com/git/git/blob/1c08bf50cfcf924094eca56c2486a90e2bf1e6e2/t/t7004-tag.sh#L24)
         public void CanListAllTagsInAEmptyRepository()
         {
             SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
@@ -547,8 +546,8 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
-        [Description("Ported from cgit (https://github.com/git/git/blob/1c08bf50cfcf924094eca56c2486a90e2bf1e6e2/t/t7004-tag.sh#L165)")]
+        [Fact]
+        // Ported from cgit (https://github.com/git/git/blob/1c08bf50cfcf924094eca56c2486a90e2bf1e6e2/t/t7004-tag.sh#L165)
         public void ListAllTagsShouldOutputThemInAnOrderedWay()
         {
             using (var repo = new Repository(BareTestRepoPath))
@@ -558,11 +557,11 @@ namespace LibGit2Sharp.Tests
                 List<string> sortedTags = expectedTags.ToList();
                 sortedTags.Sort();
 
-                CollectionAssert.AreEqual(sortedTags, tagNames);
+                Assert.Equal(sortedTags, tagNames);
             }
         }
 
-        [Test]
+        [Fact]
         public void CanLookupALightweightTag()
         {
             using (var repo = new Repository(BareTestRepoPath))
@@ -577,7 +576,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void CanLookupATagByItsCanonicalName()
         {
             using (var repo = new Repository(BareTestRepoPath))
@@ -595,7 +594,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void CanLookupAnAnnotatedTag()
         {
             using (var repo = new Repository(BareTestRepoPath))
@@ -615,7 +614,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void LookupEmptyTagNameThrows()
         {
             using (var repo = new Repository(BareTestRepoPath))
@@ -624,7 +623,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void LookupNullTagNameThrows()
         {
             using (var repo = new Repository(BareTestRepoPath))

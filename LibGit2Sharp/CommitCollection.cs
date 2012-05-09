@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using LibGit2Sharp.Core;
+using LibGit2Sharp.Core.Handles;
 
 namespace LibGit2Sharp
 {
@@ -125,59 +126,43 @@ namespace LibGit2Sharp
 
         /// <summary>
         ///   Stores the content of the <see cref = "Repository.Index" /> as a new <see cref = "Commit" /> into the repository.
+        ///   The tip of the <see cref = "Repository.Head"/> will be used as the parent of this new Commit.
+        ///   Once the commit is created, the <see cref = "Repository.Head"/> will move forward to point at it.
         /// </summary>
         /// <param name = "message">The description of why a change was made to the repository.</param>
         /// <param name = "author">The <see cref = "Signature" /> of who made the change.</param>
         /// <param name = "committer">The <see cref = "Signature" /> of who added the change to the repository.</param>
-        /// <param name="amendPreviousCommit">True to amend the current <see cref="Commit"/> pointed at by <see cref="Repository.Head"/>, false otherwise.</param>
+        /// <param name = "amendPreviousCommit">True to amend the current <see cref = "Commit"/> pointed at by <see cref = "Repository.Head"/>, false otherwise.</param>
         /// <returns>The generated <see cref = "Commit" />.</returns>
         public Commit Create(string message, Signature author, Signature committer, bool amendPreviousCommit)
         {
-            Ensure.ArgumentNotNull(message, "message");
-            Ensure.ArgumentNotNull(author, "author");
-            Ensure.ArgumentNotNull(committer, "committer");
-
             if (amendPreviousCommit && repo.Info.IsEmpty)
             {
                 throw new LibGit2Exception("Can not amend anything. The Head doesn't point at any commit.");
             }
 
             GitOid treeOid;
-            int res = NativeMethods.git_tree_create_fromindex(out treeOid, repo.Index.Handle);
-            Ensure.Success(res);
+            Ensure.Success(NativeMethods.git_tree_create_fromindex(out treeOid, repo.Index.Handle));
+            var tree = repo.Lookup<Tree>(new ObjectId(treeOid));
 
-            var parentIds = RetrieveParentIdsOfTheCommitBeingCreated(repo, amendPreviousCommit);
+            var parents = RetrieveParentsOfTheCommitBeingCreated(repo, amendPreviousCommit);
 
-            GitOid commitOid;
-            using (var treePtr = new ObjectSafeWrapper(new ObjectId(treeOid), repo))
-            using (var parentObjectPtrs = new DisposableEnumerable<ObjectSafeWrapper>(parentIds.Select(id => new ObjectSafeWrapper(id, repo))))
-            using (SignatureSafeHandle authorHandle = author.BuildHandle())
-            using (SignatureSafeHandle committerHandle = committer.BuildHandle())
-            {
-                string encoding = null; //TODO: Handle the encoding of the commit to be created
-
-                IntPtr[] parentsPtrs = parentObjectPtrs.Select(o => o.ObjectPtr ).ToArray();
-                res = NativeMethods.git_commit_create(out commitOid, repo.Handle, repo.Refs["HEAD"].CanonicalName, authorHandle,
-                                                      committerHandle, encoding, message, treePtr.ObjectPtr, parentObjectPtrs.Count(), parentsPtrs);
-                Ensure.Success(res);
-            }
-
-            return repo.Lookup<Commit>(new ObjectId(commitOid));
+            return repo.ObjectDatabase.CreateCommit(message, author, committer, tree, parents, "HEAD");
         }
 
-        private static IEnumerable<ObjectId> RetrieveParentIdsOfTheCommitBeingCreated(Repository repo, bool amendPreviousCommit)
+        private static IEnumerable<ICommit> RetrieveParentsOfTheCommitBeingCreated(Repository repo, bool amendPreviousCommit)
         {
             if (amendPreviousCommit)
             {
-                return repo.Head.Tip.Parents.Select(c => c.Id);
+                return repo.Head.Tip.Parents;
             }
 
             if (repo.Info.IsEmpty)
             {
-                return Enumerable.Empty<ObjectId>();
+                return Enumerable.Empty<ICommit>();
             }
 
-            return new[] { repo.Head.Tip.Id };
+            return new[] { repo.Head.Tip };
         }
 
         private class CommitEnumerator : IEnumerator<Commit>
@@ -190,6 +175,8 @@ namespace LibGit2Sharp
             {
                 this.repo = repo;
                 int res = NativeMethods.git_revwalk_new(out handle, repo.Handle);
+                repo.RegisterForCleanup(handle);
+
                 Ensure.Success(res);
 
                 Sort(sortingStrategy);

@@ -1,5 +1,5 @@
 ﻿using System;
-using NUnit.Framework;
+using Xunit;
 
 namespace LibGit2Sharp.Tests.TestHelpers
 {
@@ -7,46 +7,46 @@ namespace LibGit2Sharp.Tests.TestHelpers
     {
         public static void ShouldBeAboutEqualTo(this DateTimeOffset expected, DateTimeOffset current)
         {
-            Assert.AreEqual(expected.Date, current.Date);
-            Assert.AreEqual(expected.Offset, current.Offset);
-            Assert.AreEqual(expected.Hour, current.Hour);
-            Assert.AreEqual(expected.Minute, current.Minute);
-            Assert.AreEqual(expected.Second, current.Second);
+            Assert.Equal(expected.Date, current.Date);
+            Assert.Equal(expected.Offset, current.Offset);
+            Assert.Equal(expected.Hour, current.Hour);
+            Assert.Equal(expected.Minute, current.Minute);
+            Assert.Equal(expected.Second, current.Second);
         }
 
         public static void ShouldBeFalse(this bool currentObject)
         {
-            Assert.IsFalse(currentObject);
+            Assert.False(currentObject);
         }
 
         public static void ShouldBeNull(this object currentObject)
         {
-            Assert.IsNull(currentObject);
+            Assert.Null(currentObject);
         }
 
         public static void ShouldBeTrue(this bool currentObject)
         {
-            Assert.IsTrue(currentObject);
+            Assert.True(currentObject);
         }
 
         public static void ShouldEqual(this object compareFrom, object compareTo)
         {
-            Assert.AreEqual(compareTo, compareFrom);
+            Assert.Equal(compareTo, compareFrom);
         }
 
         public static void ShouldEqual<T>(this T compareFrom, T compareTo)
         {
-            Assert.AreEqual(compareTo, compareFrom);
+            Assert.Equal(compareTo, compareFrom);
         }
 
         public static void ShouldNotBeNull(this object currentObject)
         {
-            Assert.IsNotNull(currentObject);
+            Assert.NotNull(currentObject);
         }
 
         public static void ShouldNotEqual(this object compareFrom, object compareTo)
         {
-            Assert.AreNotEqual(compareTo, compareFrom);
+            Assert.NotEqual(compareTo, compareFrom);
         }
     }
 }

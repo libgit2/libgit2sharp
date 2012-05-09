@@ -32,6 +32,11 @@ namespace LibGit2Sharp
             new LambdaEqualityHelper<ObjectId>(new Func<ObjectId, object>[] { x => x.Sha });
 
         /// <summary>
+        ///   Zero ObjectId
+        /// </summary>
+        public static ObjectId Zero = new ObjectId(new string('0', HexSize));
+
+        /// <summary>
         ///   Initializes a new instance of the <see cref = "ObjectId" /> class.
         /// </summary>
         /// <param name = "oid">The oid.</param>
@@ -62,7 +67,7 @@ namespace LibGit2Sharp
 
             if (!parsedOid.HasValue)
             {
-                throw new ArgumentException(string.Format("'{0}' is not a valid Sha-1.", sha));
+                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "'{0}' is not a valid Sha-1.", sha));
             }
 
             oid = parsedOid.Value;
@@ -234,7 +239,7 @@ namespace LibGit2Sharp
         {
             if (id == null || id.Length != rawSize)
             {
-                throw new ArgumentException("id");
+                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "A non null array of {0} bytes is expected.", rawSize), "id");
             }
 
             // Inspired from http://stackoverflow.com/questions/623104/c-byte-to-hex-string/3974535#3974535
@@ -294,13 +299,12 @@ namespace LibGit2Sharp
                     return false;
                 }
 
-                string additionalErrorInformation =
-                    !allowShortIdentifier ?
-                                              string.Format("Its length should be {0}", HexSize) :
-                                                                                                     string.Format("Its length should be comprised between {0} and {1}", MinHexSize, HexSize);
+                string additionalErrorInformation = !allowShortIdentifier ? 
+                    string.Format(CultureInfo.InvariantCulture, "Its length should be {0}", HexSize) :
+                    string.Format(CultureInfo.InvariantCulture, "Its length should be comprised between {0} and {1}", MinHexSize, HexSize);
 
                 throw new ArgumentException(
-                    string.Format("'{0}' is not a valid object identifier. {1}.", objectId, additionalErrorInformation),
+                    string.Format(CultureInfo.InvariantCulture, "'{0}' is not a valid object identifier. {1}.", objectId, additionalErrorInformation),
                     "objectId");
             }
 

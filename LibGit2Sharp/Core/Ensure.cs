@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Globalization;
 
 namespace LibGit2Sharp.Core
@@ -6,6 +7,7 @@ namespace LibGit2Sharp.Core
     /// <summary>
     ///   Ensure input parameters
     /// </summary>
+    [DebuggerStepThrough]
     internal static class Ensure
     {
         /// <summary>

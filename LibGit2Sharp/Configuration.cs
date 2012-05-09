@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using LibGit2Sharp.Core;
+using LibGit2Sharp.Core.Handles;
 
 namespace LibGit2Sharp
 {
@@ -10,8 +11,8 @@ namespace LibGit2Sharp
     /// </summary>
     public class Configuration : IConfiguration
     {
-        private readonly string globalConfigPath;
-        private readonly string systemConfigPath;
+        private readonly FilePath globalConfigPath;
+        private readonly FilePath systemConfigPath;
 
         private readonly Repository repository;
 
@@ -115,7 +116,7 @@ namespace LibGit2Sharp
             systemHandle.SafeDispose();
         }
 
-        private static T ProcessReadResult<T>(int res, T value, T defaultValue, Func<object, T> postProcessor = null)
+        private static T ProcessReadResult<T>(int res, T value, T defaultValue)
         {
             if (res == (int)GitErrorCode.GIT_ENOTFOUND)
             {
@@ -124,12 +125,7 @@ namespace LibGit2Sharp
 
             Ensure.Success(res);
 
-            if (postProcessor == null)
-            {
-                return value;
-            }
-
-            return postProcessor(value);
+            return value;
         }
 
         private readonly IDictionary<Type, Func<string, object, ConfigurationSafeHandle, object>> configurationTypedRetriever = ConfigurationTypedRetriever();
@@ -196,7 +192,7 @@ namespace LibGit2Sharp
 
             if (!configurationTypedRetriever.ContainsKey(typeof(T)))
             {
-                throw new ArgumentException(string.Format("Generic Argument of type '{0}' is not supported.", typeof(T).FullName));
+                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "Generic Argument of type '{0}' is not supported.", typeof(T).FullName));
             }
 
             ConfigurationSafeHandle handle = (LocalHandle ?? globalHandle) ?? systemHandle;
@@ -394,7 +390,7 @@ namespace LibGit2Sharp
 
             if (!configurationTypedUpdater.ContainsKey(typeof(T)))
             {
-                throw new ArgumentException(string.Format("Generic Argument of type '{0}' is not supported.", typeof(T).FullName));
+                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "Generic Argument of type '{0}' is not supported.", typeof(T).FullName));
             }
 
             configurationTypedUpdater[typeof(T)](key, value, h);

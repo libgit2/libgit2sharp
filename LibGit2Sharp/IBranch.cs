@@ -1,3 +1,5 @@
+using System;
+
 namespace LibGit2Sharp
 {
     public interface IBranch

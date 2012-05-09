@@ -1,26 +1,27 @@
 ﻿using System;
 using LibGit2Sharp.Tests.TestHelpers;
-using NUnit.Framework;
+using Xunit;
+using Xunit.Extensions;
 
 namespace LibGit2Sharp.Tests
 {
-    [TestFixture]
     public class ObjectIdFixture
     {
         private const string validSha1 = "ce08fe4884650f067bd5703b6a59a8b3b3c99a09";
         private const string validSha2 = "de08fe4884650f067bd5703b6a59a8b3b3c99a09";
 
-        [TestCase("Dummy", typeof(ArgumentException))]
-        [TestCase("", typeof(ArgumentException))]
-        [TestCase("8e", typeof(ArgumentException))]
-        [TestCase(null, typeof(ArgumentNullException))]
-        [TestCase(validSha1 + "dd", typeof(ArgumentException))]
+        [Theory]
+        [InlineData("Dummy", typeof(ArgumentException))]
+        [InlineData("", typeof(ArgumentException))]
+        [InlineData("8e", typeof(ArgumentException))]
+        [InlineData(null, typeof(ArgumentNullException))]
+        [InlineData(validSha1 + "dd", typeof(ArgumentException))]
         public void PreventsFromBuildingWithAnInvalidSha(string malformedSha, Type expectedExceptionType)
         {
             Assert.Throws(expectedExceptionType, () => new ObjectId(malformedSha));
         }
 
-        [Test]
+        [Fact]
         public void CanConvertOidToSha()
         {
             var bytes = new byte[] { 206, 8, 254, 72, 132, 101, 15, 6, 123, 213, 112, 59, 106, 89, 168, 179, 179, 201, 154, 9 };
@@ -31,7 +32,7 @@ namespace LibGit2Sharp.Tests
             id.ToString().ShouldEqual(validSha1);
         }
 
-        [Test]
+        [Fact]
         public void CanConvertShaToOid()
         {
             var id = new ObjectId(validSha1);
@@ -39,7 +40,7 @@ namespace LibGit2Sharp.Tests
             id.RawId.ShouldEqual(new byte[] { 206, 8, 254, 72, 132, 101, 15, 6, 123, 213, 112, 59, 106, 89, 168, 179, 179, 201, 154, 9 });
         }
 
-        [Test]
+        [Fact]
         public void CreatingObjectIdWithWrongNumberOfBytesThrows()
         {
             var bytes = new byte[] { 206, 8, 254, 72, 132, 101, 15, 6, 123, 213, 112, 59, 106, 89, 168, 179, 179, 201, 154 };
@@ -47,7 +48,7 @@ namespace LibGit2Sharp.Tests
             Assert.Throws<ArgumentException>(() => { new ObjectId(bytes); });
         }
 
-        [Test]
+        [Fact]
         public void DifferentObjectIdsAreEqual()
         {
             var a = new ObjectId(validSha1);
@@ -60,7 +61,7 @@ namespace LibGit2Sharp.Tests
             (a != b).ShouldBeTrue();
         }
 
-        [Test]
+        [Fact]
         public void DifferentObjectIdsDoesNotHaveSameHashCode()
         {
             var a = new ObjectId(validSha1);
@@ -69,7 +70,7 @@ namespace LibGit2Sharp.Tests
             a.GetHashCode().ShouldNotEqual(b.GetHashCode());
         }
 
-        [Test]
+        [Fact]
         public void SimilarObjectIdsAreEqual()
         {
             var a = new ObjectId(validSha1);
@@ -82,7 +83,7 @@ namespace LibGit2Sharp.Tests
             (a != b).ShouldBeFalse();
         }
 
-        [Test]
+        [Fact]
         public void SimilarObjectIdsHaveSameHashCode()
         {
             var a = new ObjectId(validSha1);
@@ -91,16 +92,17 @@ namespace LibGit2Sharp.Tests
             a.GetHashCode().ShouldEqual(b.GetHashCode());
         }
 
-        [TestCase("Dummy", false)]
-        [TestCase(null, false)]
-        [TestCase("", false)]
-        [TestCase("0", false)]
-        [TestCase("01", false)]
-        [TestCase("012", false)]
-        [TestCase("0123", true)]
-        [TestCase("0123456", true)]
-        [TestCase(validSha1 + "d", false)]
-        [TestCase(validSha1, true)]
+        [Theory]
+        [InlineData("Dummy", false)]
+        [InlineData(null, false)]
+        [InlineData("", false)]
+        [InlineData("0", false)]
+        [InlineData("01", false)]
+        [InlineData("012", false)]
+        [InlineData("0123", true)]
+        [InlineData("0123456", true)]
+        [InlineData(validSha1 + "d", false)]
+        [InlineData(validSha1, true)]
         public void TryParse(string maybeSha, bool isValidSha)
         {
             ObjectId parsedObjectId;

@@ -10,7 +10,7 @@ namespace LibGit2Sharp
     /// <summary>
     ///   The collection of Branches in a <see cref = "Repository" />
     /// </summary>
-    public class BranchCollection : IEnumerable<IBranch>
+    public class BranchCollection : IEnumerable<Branch>
     {
         private readonly Repository repo;
 
@@ -26,7 +26,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Gets the <see cref = "LibGit2Sharp.Branch" /> with the specified name.
         /// </summary>
-        public IBranch this[string name]
+        public Branch this[string name]
         {
             get
             {
@@ -43,7 +43,7 @@ namespace LibGit2Sharp
         ///   Returns an enumerator that iterates through the collection.
         /// </summary>
         /// <returns>An <see cref = "IEnumerator{T}" /> object that can be used to iterate through the collection.</returns>
-        public IEnumerator<IBranch> GetEnumerator()
+        public IEnumerator<Branch> GetEnumerator()
         {
             return Libgit2UnsafeHelper.ListAllReferenceNames(repo.Handle, GitReferenceType.ListAll)
                 .Where(LooksLikeABranchName)
@@ -67,21 +67,10 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name = "shaOrReferenceName">The sha of the commit, a canonical reference name or the name of the branch to checkout.</param>
         /// <returns></returns>
+        [Obsolete("This method will be removed in the next release. Please use Repository.Checkout() instead.")]
         public IBranch Checkout(string shaOrReferenceName)
         {
-            // TODO: This does not yet checkout (write) the working directory
-
-            IBranch branch = this[shaOrReferenceName];
-
-            if (branch != null)
-            {
-                repo.Refs.UpdateTarget("HEAD", branch.CanonicalName);
-                return branch;
-            }
-
-            ObjectId commitId = RetrieveTargetCommitId(shaOrReferenceName);
-            repo.Refs.UpdateTarget("HEAD", commitId.Sha);
-            return repo.Head;
+            return repo.Checkout(shaOrReferenceName);
         }
 
         /// <summary>
@@ -92,19 +81,10 @@ namespace LibGit2Sharp
         /// <returns></returns>
         public IBranch Create(string name, string shaOrReferenceName)
         {
-            ObjectId commitId = RetrieveTargetCommitId(shaOrReferenceName);
+            ObjectId commitId = repo.LookupCommit(shaOrReferenceName).Id;
 
             repo.Refs.Create(NormalizeToCanonicalName(name), commitId.Sha);
             return this[name];
-        }
-
-        private ObjectId RetrieveTargetCommitId(string target)
-        {
-            GitObject commit = repo.Lookup(target, GitObjectType.Any,
-                                           LookUpOptions.ThrowWhenNoGitObjectHasBeenFound |
-                                           LookUpOptions.DereferenceResultToCommit |
-                                           LookUpOptions.ThrowWhenCanNotBeDereferencedToACommit);
-            return commit.Id;
         }
 
         /// <summary>
@@ -119,8 +99,7 @@ namespace LibGit2Sharp
 
             if (canonicalName == repo.Head.CanonicalName)
             {
-                throw new LibGit2Exception(string.Format("Branch '{0}' can not be deleted as it is the current HEAD.",
-                                                         canonicalName));
+                throw new LibGit2Exception(string.Format(CultureInfo.InvariantCulture, "Branch '{0}' can not be deleted as it is the current HEAD.", canonicalName));
             }
 
             //TODO: To be replaced by native libgit2 git_branch_delete() when available.
