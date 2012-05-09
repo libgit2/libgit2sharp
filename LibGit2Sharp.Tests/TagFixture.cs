@@ -162,7 +162,7 @@ namespace LibGit2Sharp.Tests
                 Tag newTag = repo.Tags.Create(tagName, commitE90810BSha, signatureNtk, tagMessage);
                 newTag.Target.Sha.ShouldEqual(commitE90810BSha);
                 newTag.IsAnnotated.ShouldBeTrue();
-                newTag.Annotation.Sha.ShouldEqual("24f6de34a108d931c6056fc4687637fe36c6bd6b");
+                newTag.Annotation.Sha.ShouldEqual("26623eee75440d63e10dcb752b88a0004c914161");
                 newTag.Annotation.Target.Sha.ShouldEqual(commitE90810BSha);
             }
         }

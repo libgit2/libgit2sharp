@@ -270,8 +270,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanLookupWhithShortIdentifers()
         {
-            const string expectedAbbrevSha = "edfecad";
-            const string expectedSha = expectedAbbrevSha + "02d96c9dbf64f6e238c45ddcfa762eef0";
+            const string expectedAbbrevSha = "fe8410b";
+            const string expectedSha = expectedAbbrevSha + "6bfdf69ccfd4f397110d61f8070e46e40";
 
             SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
 
