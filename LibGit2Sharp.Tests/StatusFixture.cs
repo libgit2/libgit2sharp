@@ -128,6 +128,31 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
+        public void RetrievingTheStatusOfAnEmptyRepositoryHonorsTheGitIgnoreDirectives()
+        {
+            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+
+            using (Repository repo = Repository.Init(scd.DirectoryPath))
+            {
+                string relativePath = "look-ma.txt";
+                string fullFilePath = Path.Combine(repo.Info.WorkingDirectory, relativePath);
+                File.WriteAllText(fullFilePath, "I'm going to be ignored!");
+
+                RepositoryStatus status = repo.Index.RetrieveStatus();
+                Assert.Equal(new[] { relativePath }, status.Untracked);
+
+                string gitignorePath = Path.Combine(repo.Info.WorkingDirectory, ".gitignore");
+                File.WriteAllText(gitignorePath, "*.txt" + Environment.NewLine);
+
+                RepositoryStatus newStatus = repo.Index.RetrieveStatus();
+                newStatus.Untracked.Single().ShouldEqual(".gitignore");
+
+                repo.Index.RetrieveStatus(relativePath).ShouldEqual(FileStatus.Ignored);
+                Assert.Equal(new[] { relativePath }, newStatus.Ignored);
+            }
+        }
+
+        [Fact]
         public void RetrievingTheStatusOfTheRepositoryHonorsTheGitIgnoreDirectives()
         {
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
@@ -137,12 +162,78 @@ namespace LibGit2Sharp.Tests
                 string fullFilePath = Path.Combine(repo.Info.WorkingDirectory, relativePath);
                 File.WriteAllText(fullFilePath, "I'm going to be ignored!");
 
+                /*
+                 * $ git status --ignored
+                 * # On branch master
+                 * # Your branch and 'origin/master' have diverged,
+                 * # and have 2 and 2 different commit(s) each, respectively.
+                 * #
+                 * # Changes to be committed:
+                 * #   (use "git reset HEAD <file>..." to unstage)
+                 * #
+                 * #       deleted:    deleted_staged_file.txt
+                 * #       modified:   modified_staged_file.txt
+                 * #       new file:   new_tracked_file.txt
+                 * #
+                 * # Changes not staged for commit:
+                 * #   (use "git add/rm <file>..." to update what will be committed)
+                 * #   (use "git checkout -- <file>..." to discard changes in working directory)
+                 * #
+                 * #       modified:   1/branch_file.txt
+                 * #       modified:   README
+                 * #       modified:   branch_file.txt
+                 * #       deleted:    deleted_unstaged_file.txt
+                 * #       modified:   modified_unstaged_file.txt
+                 * #       modified:   new.txt
+                 * #
+                 * # Untracked files:
+                 * #   (use "git add <file>..." to include in what will be committed)
+                 * #
+                 * #       1/look-ma.txt
+                 * #       new_untracked_file.txt
+                 */
+
                 RepositoryStatus status = repo.Index.RetrieveStatus();
 
                 Assert.Equal(new[]{relativePath, "new_untracked_file.txt"}, status.Untracked);
 
                 string gitignorePath = Path.Combine(repo.Info.WorkingDirectory, ".gitignore");
                 File.WriteAllText(gitignorePath, "*.txt" + Environment.NewLine);
+
+                /*
+                 * $ git status --ignored
+                 * # On branch master
+                 * # Your branch and 'origin/master' have diverged,
+                 * # and have 2 and 2 different commit(s) each, respectively.
+                 * #
+                 * # Changes to be committed:
+                 * #   (use "git reset HEAD <file>..." to unstage)
+                 * #
+                 * #       deleted:    deleted_staged_file.txt
+                 * #       modified:   modified_staged_file.txt
+                 * #       new file:   new_tracked_file.txt
+                 * #
+                 * # Changes not staged for commit:
+                 * #   (use "git add/rm <file>..." to update what will be committed)
+                 * #   (use "git checkout -- <file>..." to discard changes in working directory)
+                 * #
+                 * #       modified:   1/branch_file.txt
+                 * #       modified:   README
+                 * #       modified:   branch_file.txt
+                 * #       deleted:    deleted_unstaged_file.txt
+                 * #       modified:   modified_unstaged_file.txt
+                 * #       modified:   new.txt
+                 * #
+                 * # Untracked files:
+                 * #   (use "git add <file>..." to include in what will be committed)
+                 * #
+                 * #       .gitignore
+                 * # Ignored files:
+                 * #   (use "git add -f <file>..." to include in what will be committed)
+                 * #
+                 * #       1/look-ma.txt
+                 * #       new_untracked_file.txt
+                 */
 
                 RepositoryStatus newStatus = repo.Index.RetrieveStatus();
                 newStatus.Untracked.Single().ShouldEqual(".gitignore");
