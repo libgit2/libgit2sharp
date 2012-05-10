@@ -6,7 +6,7 @@ namespace LibGit2Sharp
     /// <summary>
     ///   The exception that is thrown when an error occurs in libgit2.
     /// </summary>
-    public class LibGit2Exception : Exception
+    public class LibGit2Exception : LibGit2SharpException
     {
         /// <summary>
         ///   Initializes a new instance of the <see cref = "LibGit2Exception" /> class with a specified error message.
