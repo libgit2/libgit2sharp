@@ -124,9 +124,9 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(BareTestRepoPath))
             {
                 const string name = "sorry-dude-i-do-not-do-blobs-nor-trees";
-                Assert.Throws<LibGit2Exception>(() => repo.CreateBranch(name, "refs/tags/point_to_blob"));
-                Assert.Throws<LibGit2Exception>(() => repo.CreateBranch(name, "53fc32d"));
-                Assert.Throws<LibGit2Exception>(() => repo.CreateBranch(name, "0266163"));
+                Assert.Throws<LibGit2SharpException>(() => repo.CreateBranch(name, "refs/tags/point_to_blob"));
+                Assert.Throws<LibGit2SharpException>(() => repo.CreateBranch(name, "53fc32d"));
+                Assert.Throws<LibGit2SharpException>(() => repo.CreateBranch(name, "0266163"));
             }
         }
 
@@ -135,7 +135,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                Assert.Throws<LibGit2Exception>(() => repo.Branches.Create("my_new_branch", "my_old_branch"));
+                Assert.Throws<LibGit2SharpException>(() => repo.Branches.Create("my_new_branch", "my_old_branch"));
             }
         }
 
@@ -144,8 +144,8 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                Assert.Throws<LibGit2Exception>(() => repo.Branches.Create("my_new_branch", Constants.UnknownSha));
-                Assert.Throws<LibGit2Exception>(() => repo.Branches.Create("my_new_branch", Constants.UnknownSha.Substring(0, 7)));
+                Assert.Throws<LibGit2SharpException>(() => repo.Branches.Create("my_new_branch", Constants.UnknownSha));
+                Assert.Throws<LibGit2SharpException>(() => repo.Branches.Create("my_new_branch", Constants.UnknownSha.Substring(0, 7)));
             }
         }
 
@@ -154,7 +154,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                Assert.Throws<LibGit2Exception>(() => repo.Branches.Create("nocanonicaltarget", "br2"));
+                Assert.Throws<LibGit2SharpException>(() => repo.Branches.Create("nocanonicaltarget", "br2"));
             }
         }
 
@@ -397,7 +397,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                Assert.Throws<LibGit2Exception>(() => repo.Checkout("i-do-not-exist"));
+                Assert.Throws<LibGit2SharpException>(() => repo.Checkout("i-do-not-exist"));
             }
         }
 
@@ -417,7 +417,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                Assert.Throws<LibGit2Exception>(() => repo.Branches.Delete(repo.Head.Name));
+                Assert.Throws<LibGit2SharpException>(() => repo.Branches.Delete(repo.Head.Name));
             }
         }
 

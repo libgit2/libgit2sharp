@@ -175,7 +175,7 @@ namespace LibGit2Sharp.Tests
 
             using (var repo = Repository.Init(scd.DirectoryPath))
             {
-                Assert.Throws<LibGit2Exception>(() => repo.ApplyTag("mynotag"));
+                Assert.Throws<LibGit2SharpException>(() => repo.ApplyTag("mynotag"));
             }
         }
 
@@ -187,7 +187,7 @@ namespace LibGit2Sharp.Tests
 
             using (var repo = Repository.Init(scd.DirectoryPath))
             {
-                Assert.Throws<LibGit2Exception>(() => repo.ApplyTag("mytaghead", "HEAD"));
+                Assert.Throws<LibGit2SharpException>(() => repo.ApplyTag("mytaghead", "HEAD"));
             }
         }
 
@@ -197,7 +197,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                Assert.Throws<LibGit2Exception>(() => repo.ApplyTag("mytagnorev", "aaaaaaaaaaa"));
+                Assert.Throws<LibGit2SharpException>(() => repo.ApplyTag("mytagnorev", "aaaaaaaaaaa"));
             }
         }
 
@@ -206,7 +206,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                Assert.Throws<LibGit2Exception>(() => repo.ApplyTag("noncanonicaltarget", "br2"));
+                Assert.Throws<LibGit2SharpException>(() => repo.ApplyTag("noncanonicaltarget", "br2"));
             }
         }
 
@@ -216,7 +216,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                Assert.Throws<LibGit2Exception>(() => repo.ApplyTag("mytagnorev", Constants.UnknownSha));
+                Assert.Throws<LibGit2SharpException>(() => repo.ApplyTag("mytagnorev", Constants.UnknownSha));
             }
         }
 
@@ -408,7 +408,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                Assert.Throws<LibGit2Exception>(() => repo.Tags.Create("test_tag", Constants.UnknownSha, signatureTim, "message"));
+                Assert.Throws<LibGit2SharpException>(() => repo.Tags.Create("test_tag", Constants.UnknownSha, signatureTim, "message"));
             }
         }
 

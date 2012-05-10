@@ -112,7 +112,7 @@ namespace LibGit2Sharp
             {
                 if (index == null)
                 {
-                    throw new LibGit2Exception("Index is not available in a bare repository.");
+                    throw new LibGit2SharpException("Index is not available in a bare repository.");
                 }
 
                 return index;
@@ -266,7 +266,7 @@ namespace LibGit2Sharp
                     res = NativeMethods.git_object_lookup(out obj, handle, ref oid, type);
                 }
 
-                if (res == (int)GitErrorCode.GIT_ENOTFOUND || res == (int)GitErrorCode.GIT_EINVALIDTYPE)
+                if (res == (int)GitErrorCode.NotFound || res == (int)GitErrorCode.Ambiguous)
                 {
                     return null;
                 }
@@ -358,7 +358,7 @@ namespace LibGit2Sharp
 
             int result = NativeMethods.git_repository_discover(buffer, buffer.Length, startingPath, false, null);
 
-            if ((GitErrorCode) result == GitErrorCode.GIT_ENOTAREPO)
+            if ((GitErrorCode) result == GitErrorCode.NotFound)
             {
                 return null;
             }
@@ -415,7 +415,7 @@ namespace LibGit2Sharp
 
             if (resetOptions.Has(ResetOptions.Mixed) && Info.IsBare)
             {
-                throw new LibGit2Exception("Mixed reset is not allowed in a bare repository");
+                throw new LibGit2SharpException("Mixed reset is not allowed in a bare repository");
             }
 
             var commit = LookupCommit(shaOrReferenceName);

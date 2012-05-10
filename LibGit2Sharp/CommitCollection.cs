@@ -138,7 +138,7 @@ namespace LibGit2Sharp
         {
             if (amendPreviousCommit && repo.Info.IsEmpty)
             {
-                throw new LibGit2Exception("Can not amend anything. The Head doesn't point at any commit.");
+                throw new LibGit2SharpException("Can not amend anything. The Head doesn't point at any commit.");
             }
 
             GitOid treeOid;
@@ -199,14 +199,14 @@ namespace LibGit2Sharp
             public bool MoveNext()
             {
                 GitOid oid;
-                int res = NativeMethods.git_revwalk_next(out oid, handle);
+                var res = NativeMethods.git_revwalk_next(out oid, handle);
 
-                if (res == (int)GitErrorCode.GIT_EREVWALKOVER)
+                if (res == GitErrorCode.RevWalkOver)
                 {
                     return false;
                 }
 
-                Ensure.Success(res);
+                Ensure.Success((int)res);
 
                 currentOid = new ObjectId(oid);
 
@@ -335,7 +335,7 @@ namespace LibGit2Sharp
                     yield break;
                 }
 
-                throw new LibGit2Exception(string.Format(CultureInfo.InvariantCulture, "Unexpected kind of identifier '{0}'.", identifier));
+                throw new LibGit2SharpException(string.Format(CultureInfo.InvariantCulture, "Unexpected kind of identifier '{0}'.", identifier));
             }
         }
     }

@@ -118,7 +118,7 @@ namespace LibGit2Sharp
 
             if (obj == null)
             {
-                Ensure.Success((int)GitErrorCode.GIT_ENOTFOUND);
+                Ensure.Success((int)GitErrorCode.NotFound);
             }
 
             return obj.Id;
@@ -219,7 +219,7 @@ namespace LibGit2Sharp
                         break;
 
                     default:
-                        throw new LibGit2Exception(string.Format(CultureInfo.InvariantCulture, "Reference '{0}' has an unexpected type ('{1}').", name, Enum.GetName(typeof(GitReferenceType), type)));
+                        throw new LibGit2SharpException(string.Format(CultureInfo.InvariantCulture, "Reference '{0}' has an unexpected type ('{1}').", name, Enum.GetName(typeof(GitReferenceType), type)));
                 }
 
                 Ensure.Success(res);
@@ -233,7 +233,7 @@ namespace LibGit2Sharp
             ReferenceSafeHandle reference;
             int res = NativeMethods.git_reference_lookup(out reference, repo.Handle, referenceName);
 
-            if (!shouldThrowIfNotFound && res == (int)GitErrorCode.GIT_ENOTFOUND)
+            if (!shouldThrowIfNotFound && res == (int)GitErrorCode.NotFound)
             {
                 return null;
             }

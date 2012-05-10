@@ -1,6 +1,8 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
+using System.Runtime.InteropServices;
 
 namespace LibGit2Sharp.Core
 {
@@ -52,20 +54,17 @@ namespace LibGit2Sharp.Core
         ///   True when positive values are allowed as well.</param>
         public static void Success(int result, bool allowPositiveResult = false)
         {
-            if (result == (int)GitErrorCode.GIT_SUCCESS)
+            if (result == (int)GitErrorCode.Success)
             {
                 return;
             }
 
-            if (allowPositiveResult && result > (int)GitErrorCode.GIT_SUCCESS)
+            if (allowPositiveResult && result > (int)GitErrorCode.Success)
             {
                 return;
             }
 
-            string errorMessage = NativeMethods.git_lasterror();
-
-            throw new LibGit2Exception(
-                String.Format(CultureInfo.InvariantCulture, "An error was raised by libgit2. Error code = {0} ({1}).{2}{3}", Enum.GetName(typeof(GitErrorCode), result), result, Environment.NewLine, errorMessage));
+            throw new LibGit2Exception(NativeMethods.giterr_last());
         }
 
         /// <summary>
@@ -91,7 +90,7 @@ namespace LibGit2Sharp.Core
                 return;
             }
 
-            throw new LibGit2Exception(string.Format(CultureInfo.InvariantCulture,
+            throw new LibGit2SharpException(string.Format(CultureInfo.InvariantCulture,
                                                      "No valid git object identified by '{0}' exists in the repository.",
                                                      identifier));
         }

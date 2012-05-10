@@ -268,6 +268,13 @@ namespace LibGit2Sharp.Core
             git_diff_line_fn lineCallback);
 
         [DllImport(libgit2)]
+        [return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(GitErrorMarshaler))]
+        public static extern GitError giterr_last();
+
+        [DllImport(libgit2)]
+        public static extern void giterror_clear();
+
+        [DllImport(libgit2)]
         public static extern int git_index_add(
             IndexSafeHandle index,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(FilePathMarshaler))] FilePath path,
@@ -300,10 +307,6 @@ namespace LibGit2Sharp.Core
 
         [DllImport(libgit2)]
         public static extern int git_index_write(IndexSafeHandle index);
-
-        [DllImport(libgit2)]
-        [return : MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))]
-        public static extern string git_lasterror();
 
         [DllImport(libgit2)]
         public static extern int git_odb_exists(ObjectDatabaseSafeHandle odb, ref GitOid id);
@@ -475,7 +478,7 @@ namespace LibGit2Sharp.Core
         public static extern int git_revwalk_new(out RevWalkerSafeHandle walker, RepositorySafeHandle repo);
 
         [DllImport(libgit2)]
-        public static extern int git_revwalk_next(out GitOid oid, RevWalkerSafeHandle walker);
+        public static extern GitErrorCode git_revwalk_next(out GitOid oid, RevWalkerSafeHandle walker);
 
         [DllImport(libgit2)]
         public static extern int git_revwalk_push(RevWalkerSafeHandle walker, ref GitOid oid);

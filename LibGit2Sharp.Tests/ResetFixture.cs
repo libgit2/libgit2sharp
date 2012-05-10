@@ -17,7 +17,7 @@ namespace LibGit2Sharp.Tests
 
             using (var repo = Repository.Init(scd.DirectoryPath, isBare))
             {
-                Assert.Throws<LibGit2Exception>(() => repo.Reset(ResetOptions.Soft, repo.Head.CanonicalName));
+                Assert.Throws<LibGit2SharpException>(() => repo.Reset(ResetOptions.Soft, repo.Head.CanonicalName));
             }
         }
 
@@ -54,7 +54,7 @@ namespace LibGit2Sharp.Tests
             {
                 Assert.Throws<ArgumentNullException>(() => repo.Reset(ResetOptions.Soft, null));
                 Assert.Throws<ArgumentException>(() => repo.Reset(ResetOptions.Soft, ""));
-                Assert.Throws<LibGit2Exception>(() => repo.Reset(ResetOptions.Soft, Constants.UnknownSha));
+                Assert.Throws<LibGit2SharpException>(() => repo.Reset(ResetOptions.Soft, Constants.UnknownSha));
             }
         }
 
@@ -150,7 +150,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                Assert.Throws<LibGit2Exception>(() => repo.Reset(ResetOptions.Mixed, repo.Head.Tip.Sha));
+                Assert.Throws<LibGit2SharpException>(() => repo.Reset(ResetOptions.Mixed, repo.Head.Tip.Sha));
             }
         }
     }

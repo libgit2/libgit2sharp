@@ -172,7 +172,7 @@ namespace LibGit2Sharp
 
             if ((name == null) || (email == null))
             {
-                throw new LibGit2Exception(
+                throw new LibGit2SharpException(
                     "Can not find Name and Email settings of the current user in Git configuration.");
             }
 

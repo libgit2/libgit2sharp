@@ -69,7 +69,8 @@ namespace LibGit2Sharp
             int result = pathRetriever(buffer);
 
             //TODO: Make libgit2 return different codes to clearly identify a not found file (GIT_ENOTFOUND ) from any other error (!= GIT_SUCCESS)
-            if (result != (int)GitErrorCode.GIT_SUCCESS)
+            // this is possible now ^
+            if (result != (int)GitErrorCode.Success)
             {
                 return null;
             }
@@ -118,7 +119,7 @@ namespace LibGit2Sharp
 
         private static T ProcessReadResult<T>(int res, T value, T defaultValue)
         {
-            if (res == (int)GitErrorCode.GIT_ENOTFOUND)
+            if (res == (int)GitErrorCode.NotFound)
             {
                 return defaultValue;
             }
@@ -198,7 +199,7 @@ namespace LibGit2Sharp
             ConfigurationSafeHandle handle = (LocalHandle ?? globalHandle) ?? systemHandle;
             if (handle == null)
             {
-                throw new LibGit2Exception("Could not find a local, global or system level configuration.");
+                throw new LibGit2SharpException("Could not find a local, global or system level configuration.");
             }
 
             return (T)configurationTypedRetriever[typeof(T)](key, defaultValue, handle);
@@ -355,17 +356,17 @@ namespace LibGit2Sharp
 
             if (level == ConfigurationLevel.Local && !HasLocalConfig)
             {
-                throw new LibGit2Exception("No local configuration file has been found. You must use ConfigurationLevel.Global when accessing configuration outside of repository.");
+                throw new LibGit2SharpException("No local configuration file has been found. You must use ConfigurationLevel.Global when accessing configuration outside of repository.");
             }
 
             if (level == ConfigurationLevel.Global && !HasGlobalConfig)
             {
-                throw new LibGit2Exception("No global configuration file has been found.");
+                throw new LibGit2SharpException("No global configuration file has been found.");
             }
 
             if (level == ConfigurationLevel.System && !HasSystemConfig)
             {
-                throw new LibGit2Exception("No system configuration file has been found.");
+                throw new LibGit2SharpException("No system configuration file has been found.");
             }
 
             ConfigurationSafeHandle h;

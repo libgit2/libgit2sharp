@@ -4,6 +4,52 @@ using System.Text;
 
 namespace LibGit2Sharp.Core
 {
+    internal class GitErrorMarshaler : ICustomMarshaler
+    {
+        private static readonly GitErrorMarshaler staticInstance = new GitErrorMarshaler();
+        private readonly bool ownsPointer = true;
+
+        //internal GitErrorMarshaler(bool ownsPointer = false)
+        //{
+        //    this.ownsPointer = ownsPointer;
+        //}
+
+        public void CleanUpManagedData(object managedObj)
+        {
+        }
+
+        public void CleanUpNativeData(IntPtr pNativeData)
+        {
+             if (ownsPointer)
+                Marshal.FreeHGlobal(pNativeData);
+        }
+
+        public int GetNativeDataSize()
+        {
+            return -1;
+        }
+
+        public IntPtr MarshalManagedToNative(object managedObj)
+        {
+            throw new NotImplementedException();
+        }
+
+        public object MarshalNativeToManaged(IntPtr pNativeData)
+        {
+            return NativeToGitError(pNativeData);
+        }
+
+        protected GitError NativeToGitError(IntPtr pNativeData)
+        {
+            return (GitError)Marshal.PtrToStructure(pNativeData, typeof(GitError));
+        }
+
+        public static ICustomMarshaler GetInstance(string cookie)
+        {
+            return staticInstance;
+        }
+    }
+
     internal class Utf8Marshaler : ICustomMarshaler
     {
         private static readonly Utf8Marshaler staticInstance = new Utf8Marshaler();

@@ -61,6 +61,8 @@
     <Compile Include="Core\EnumExtensions.cs" />
     <Compile Include="ChangeKind.cs" />
     <Compile Include="Core\GitDiff.cs" />
+    <Compile Include="Core\GitError.cs" />
+    <Compile Include="Core\GitErrorClass.cs" />
     <Compile Include="Core\GitObjectExtensions.cs" />
     <Compile Include="Core\Handles\ObjectDatabaseSafeHandle.cs" />
     <Compile Include="Core\Handles\DiffListSafeHandle.cs" />

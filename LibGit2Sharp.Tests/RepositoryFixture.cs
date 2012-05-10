@@ -34,7 +34,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                Assert.Throws<LibGit2Exception>(() => repo.Index);
+                Assert.Throws<LibGit2SharpException>(() => repo.Index);
             }
         }
 
@@ -246,7 +246,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Fact]
+        [Fact(Skip="I think it makes more sense to throw, see next test")]
         public void LookupObjectByWrongTypeReturnsNull()
         {
             using (var repo = new Repository(BareTestRepoPath))
@@ -255,6 +255,20 @@ namespace LibGit2Sharp.Tests
                 repo.Lookup<Commit>(commitSha).ShouldNotBeNull();
                 repo.Lookup<TagAnnotation>(commitSha).ShouldBeNull();
             }
+        }
+
+        [Fact]
+        public void LookupByWrongTypeThrows()
+        {
+            Assert.Throws<LibGit2Exception>(() =>
+            {
+                using (var repo = new Repository(BareTestRepoPath))
+                {
+                    repo.Lookup(commitSha).ShouldNotBeNull();
+                    repo.Lookup<Commit>(commitSha).ShouldNotBeNull();
+                    repo.Lookup<TagAnnotation>(commitSha);
+                }
+            });
         }
 
         [Fact]
