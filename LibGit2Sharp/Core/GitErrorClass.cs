@@ -1,6 +1,6 @@
 namespace LibGit2Sharp.Core
 {
-    internal enum GitErrorClass
+    public enum GitErrorClass
     {
         NoMemory,
         Os,

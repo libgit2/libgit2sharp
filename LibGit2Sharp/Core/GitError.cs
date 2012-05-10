@@ -5,7 +5,7 @@ namespace LibGit2Sharp.Core
     [StructLayout(LayoutKind.Sequential)]
     public class GitError
     {
-        internal string Message;
-        internal GitErrorClass Class;
+        public string Message;
+        public GitErrorClass Class;
     }
 }

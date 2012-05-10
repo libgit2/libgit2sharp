@@ -18,7 +18,10 @@ namespace LibGit2Sharp
             GitError = gitError;
         }
 
-        public GitError GitError { get; private set; }
+        /// <summary>
+        /// The underlying libgit2 error
+        /// </summary>
+        public GitError GitError { get; set; }
     }
 
     /// <summary>
