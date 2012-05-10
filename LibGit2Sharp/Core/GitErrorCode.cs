@@ -1,10 +1,10 @@
 ﻿namespace LibGit2Sharp.Core
 {
-   internal enum GitErrorCode
+    internal enum GitErrorCode
     {
         Success = 0,
         Error = -1,
-     
+
         /// <summary>
         /// Input does not exist in the scope searched.
         /// </summary>
