@@ -9,12 +9,10 @@ namespace LibGit2Sharp.Tests
     public class ReferenceFixture : BaseFixture
     {
         private readonly string[] expectedRefs = new[]
-                                                 {
-                                                     "refs/heads/br2", "refs/heads/deadbeef", "refs/heads/master",
-                                                     "refs/heads/packed", "refs/heads/packed-test",
-                                                     "refs/heads/test", "refs/tags/e90810b", "refs/tags/lw",
-                                                     "refs/tags/point_to_blob", "refs/tags/test",
-                                                 };
+                                                     {
+                                                         "refs/heads/br2", "refs/heads/deadbeef", "refs/heads/master", "refs/heads/packed", "refs/heads/packed-test",
+                                                         "refs/heads/test", "refs/tags/e90810b", "refs/tags/lw", "refs/tags/point_to_blob", "refs/tags/test",
+                                                     };
 
         [Fact]
         public void CanCreateADirectReference()

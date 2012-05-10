@@ -93,13 +93,13 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Gets The count of parent commits.
         /// </summary>
-        public uint ParentsCount
+        public int ParentsCount
         {
             get
             {
                 using (var obj = new ObjectSafeWrapper(Id, repo))
                 {
-                    return NativeMethods.git_commit_parentcount(obj.ObjectPtr);
+                    return (int)NativeMethods.git_commit_parentcount(obj.ObjectPtr);
                 }
             }
         }
