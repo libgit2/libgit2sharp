@@ -56,7 +56,7 @@ namespace LibGit2Sharp.Tests
                 Remote otherOrigin = repo.Remotes["origin"];
                 otherOrigin.ShouldEqual(oneOrigin);
 
-                Remote createdRemote = repo.Remotes.Create("origin2", oneOrigin.Url);
+                Remote createdRemote = repo.Remotes.Add("origin2", oneOrigin.Url);
 
                 Remote loadedRemote = repo.Remotes["origin2"];
                 loadedRemote.ShouldNotBeNull();

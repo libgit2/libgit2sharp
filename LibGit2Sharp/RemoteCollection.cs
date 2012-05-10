@@ -79,13 +79,13 @@ namespace LibGit2Sharp
         /// <param name = "name">The name of the remote to create.</param>
         /// <param name = "url">The location of the repository.</param>
         /// <returns>A new <see cref = "Remote" />.</returns>
-        public Remote Create(string name, string url)
+        public Remote Add(string name, string url)
         {
             Ensure.ArgumentNotNull(name, "name");
             Ensure.ArgumentNotNull(url, "url");
 
             RemoteSafeHandle handle;
-            int res = NativeMethods.git_remote_new(out handle, repository.Handle, url, name);
+            int res = NativeMethods.git_remote_add(out handle, repository.Handle, name, url);
             Ensure.Success(res);
 
             using (handle)
