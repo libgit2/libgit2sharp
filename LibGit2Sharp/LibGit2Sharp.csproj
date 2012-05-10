@@ -65,6 +65,7 @@
     <Compile Include="Core\GitErrorClass.cs" />
     <Compile Include="Core\GitErrorMarshaler.cs" />
     <Compile Include="Core\GitObjectExtensions.cs" />
+    <Compile Include="Core\Handles\GitErrorSafeHandle.cs" />
     <Compile Include="Core\Handles\ObjectDatabaseSafeHandle.cs" />
     <Compile Include="Core\Handles\DiffListSafeHandle.cs" />
     <Compile Include="Core\Handles\GitObjectSafeHandle.cs" />

@@ -10,7 +10,6 @@ namespace LibGit2Sharp.Tests
         //TODO Test binary files (do we have hunks/line callbacks)
         //TODO What does content contain when dealing with a Binary file?
         //TODO When does it make sense to expose the Binary property?
-        //TODO The PrintCallBack lacks some context (GitDiffDelta)
 
         [Fact]
         public void ComparingATreeAgainstItselfReturnsNoDifference()
@@ -325,8 +324,7 @@ namespace LibGit2Sharp.Tests
                     .Append("+Really!!!!\n")
                     .Append("+Yeah! Better!\n");
 
-                // TODO: uncomment the line below when https://github.com/libgit2/libgit2/pull/643 is merged into development branch.
-                //Assert.Equal(expected.ToString(), changes.Patch);
+                Assert.Equal(expected.ToString(), changes.Patch);
             }
         }
     }

@@ -231,31 +231,27 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string header,
             IntPtr headerLen);
 
-        internal delegate int git_diff_line_fn(
-            IntPtr data,
-            GitDiffDelta delta,
-            GitDiffLineOrigin lineOrigin,
-            IntPtr content,
-            IntPtr contentLen);
-
         [DllImport(libgit2)]
         public static extern int git_diff_foreach(
             DiffListSafeHandle diff,
             IntPtr callbackData,
             git_diff_file_fn fileCallback,
             git_diff_hunk_fn hunkCallback,
-            git_diff_line_fn lineCallback);
+            git_diff_data_fn lineCallback);
 
-        internal delegate int git_diff_output_fn(
+        internal delegate int git_diff_data_fn(
             IntPtr data,
+            GitDiffDelta delta,
+            GitDiffRange range, 
             GitDiffLineOrigin lineOrigin,
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string formattedOutput);
+            IntPtr content,
+            IntPtr contentLen);
 
         [DllImport(libgit2)]
         public static extern int git_diff_print_patch(
             DiffListSafeHandle diff,
             IntPtr data,
-            git_diff_output_fn printCallback);
+            git_diff_data_fn printCallback);
 
         [DllImport(libgit2)]
         public static extern int git_diff_blobs(
@@ -265,7 +261,7 @@ namespace LibGit2Sharp.Core
             GitDiffOptions options,
             object data,
             git_diff_hunk_fn hunkCallback,
-            git_diff_line_fn lineCallback);
+            git_diff_data_fn lineCallback);
 
         [DllImport(libgit2)]
         [return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(GitErrorMarshaler))]

@@ -44,6 +44,7 @@ namespace LibGit2Sharp
         {
             if (repo.Info.IsBare)
             {
+                //TODO: Make it possible to create blobs from outside the workdir
                 throw new NotImplementedException();
             }
 

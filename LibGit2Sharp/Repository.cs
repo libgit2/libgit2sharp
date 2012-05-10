@@ -259,19 +259,24 @@ namespace LibGit2Sharp
                 int res;
                 if (id is AbbreviatedObjectId)
                 {
-                    res = NativeMethods.git_object_lookup_prefix(out obj, handle, ref oid, (uint)((AbbreviatedObjectId)id).Length, type);
+                    res = NativeMethods.git_object_lookup_prefix(out obj, handle, ref oid, (uint)((AbbreviatedObjectId)id).Length, GitObjectType.Any);
                 }
                 else
                 {
-                    res = NativeMethods.git_object_lookup(out obj, handle, ref oid, type);
+                    res = NativeMethods.git_object_lookup(out obj, handle, ref oid, GitObjectType.Any);
                 }
 
-                if (res == (int)GitErrorCode.NotFound || res == (int)GitErrorCode.Ambiguous)
+                if (res == (int)GitErrorCode.NotFound)
                 {
                     return null;
                 }
 
                 Ensure.Success(res);
+
+                if (type != GitObjectType.Any && NativeMethods.git_object_type(obj) != type)
+                {
+                    return null;
+                }
 
                 if (id is AbbreviatedObjectId)
                 {

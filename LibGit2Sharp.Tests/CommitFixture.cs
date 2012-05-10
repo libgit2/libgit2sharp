@@ -554,7 +554,7 @@ namespace LibGit2Sharp.Tests
                 repo.Index.Stage(relativeFilepath);
 
                 var author = new Signature("nulltoken", "emeric.fermas@gmail.com", DateTimeOffset.Parse("Wed, Dec 14 2011 08:29:03 +0100"));
-                repo.Commit("Initial commit\n", author, author);
+                repo.Commit("Initial commit", author, author);
             }
         }
 
