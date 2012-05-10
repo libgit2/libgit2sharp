@@ -168,7 +168,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                repo.Commits.First().ParentsCount.ShouldEqual((uint)1);
+                repo.Commits.First().ParentsCount.ShouldEqual(1);
             }
         }
 
@@ -386,7 +386,7 @@ namespace LibGit2Sharp.Tests
 
                 commit.Tree.Sha.ShouldEqual("181037049a54a1eb5fab404658a3a250b44335d7");
 
-                commit.ParentsCount.ShouldEqual((uint)0);
+                commit.ParentsCount.ShouldEqual(0);
             }
         }
 
@@ -397,7 +397,7 @@ namespace LibGit2Sharp.Tests
             {
                 var commit = repo.Lookup<Commit>("a4a7dce85cf63874e984719f4fdd239f5145052f");
                 commit.Parents.Count().ShouldEqual(2);
-                commit.ParentsCount.ShouldEqual((uint)2);
+                commit.ParentsCount.ShouldEqual(2);
             }
         }
 
@@ -502,7 +502,7 @@ namespace LibGit2Sharp.Tests
                 AssertBlobContent(repo.Head[relativeFilepath], "nulltoken\n");
                 AssertBlobContent(commit[relativeFilepath], "nulltoken\n");
 
-                commit.ParentsCount.ShouldEqual((uint)0);
+                commit.ParentsCount.ShouldEqual(0);
                 repo.Info.IsEmpty.ShouldBeFalse();
 
                 File.WriteAllText(filePath, "nulltoken commits!\n");
@@ -514,7 +514,7 @@ namespace LibGit2Sharp.Tests
                 AssertBlobContent(repo.Head[relativeFilepath], "nulltoken commits!\n");
                 AssertBlobContent(commit2[relativeFilepath], "nulltoken commits!\n");
 
-                commit2.ParentsCount.ShouldEqual((uint)1);
+                commit2.ParentsCount.ShouldEqual(1);
                 commit2.Parents.First().Id.ShouldEqual(commit.Id);
 
                 var firstCommitBranch = repo.CreateBranch("davidfowl-rules", commit);
@@ -530,7 +530,7 @@ namespace LibGit2Sharp.Tests
                 AssertBlobContent(repo.Head[relativeFilepath], "davidfowl commits!\n");
                 AssertBlobContent(commit3[relativeFilepath], "davidfowl commits!\n");
 
-                commit3.ParentsCount.ShouldEqual((uint)1);
+                commit3.ParentsCount.ShouldEqual(1);
                 commit3.Parents.First().Id.ShouldEqual(commit.Id);
 
                 AssertBlobContent(firstCommitBranch[relativeFilepath], "nulltoken\n");
@@ -589,7 +589,7 @@ namespace LibGit2Sharp.Tests
                 repo.Head.Commits.Count().ShouldEqual(1);
 
                 var originalCommit = repo.Head.Tip;
-                originalCommit.ParentsCount.ShouldEqual((uint)0);
+                originalCommit.ParentsCount.ShouldEqual(0);
 
                 CreateAndStageANewFile(repo);
 
@@ -609,7 +609,7 @@ namespace LibGit2Sharp.Tests
             {
                 var mergedCommit = repo.Lookup<Commit>("be3563a");
                 mergedCommit.ShouldNotBeNull();
-                mergedCommit.ParentsCount.ShouldEqual((uint)2);
+                mergedCommit.ParentsCount.ShouldEqual(2);
 
                 repo.Reset(ResetOptions.Soft, mergedCommit.Sha);
 

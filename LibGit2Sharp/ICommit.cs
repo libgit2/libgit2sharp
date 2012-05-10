@@ -49,7 +49,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Gets The count of parent commits.
         /// </summary>
-        uint ParentsCount { get; }
+        int ParentsCount { get; }
 
         /// <summary>
         ///   Gets the id of this object
