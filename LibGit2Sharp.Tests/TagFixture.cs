@@ -154,7 +154,7 @@ namespace LibGit2Sharp.Tests
         public void CreatingAnAnnotatedTagIsDeterministic()
         {
             const string tagName = "nullTAGen";
-            const string tagMessage = "I've been tagged!\n";
+            const string tagMessage = "I've been tagged!";
 
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
             using (var repo = new Repository(path.RepositoryPath))
