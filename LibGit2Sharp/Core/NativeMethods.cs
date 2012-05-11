@@ -78,6 +78,27 @@ namespace LibGit2Sharp.Core
         public static extern int git_blob_rawsize(GitObjectSafeHandle blob);
 
         [DllImport(libgit2)]
+        public static extern int git_branch_create(
+            out GitOid oid_out,
+            RepositorySafeHandle repo,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string branch_name,
+            GitObjectSafeHandle target,
+            [MarshalAs(UnmanagedType.Bool)] bool force);
+
+        [DllImport(libgit2)]
+        public static extern int git_branch_delete(
+            RepositorySafeHandle repo,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string branch_name,
+            GitBranchType branch_type);
+
+        [DllImport(libgit2)]
+        public static extern int git_branch_move(
+            RepositorySafeHandle repo,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string old_branch_name,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string new_branch_name,
+            [MarshalAs(UnmanagedType.Bool)] bool force);
+
+        [DllImport(libgit2)]
         public static extern IntPtr git_commit_author(GitObjectSafeHandle commit);
 
         [DllImport(libgit2)]

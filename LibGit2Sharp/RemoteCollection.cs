@@ -85,6 +85,7 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(url, "url");
 
             RemoteSafeHandle handle;
+
             int res = NativeMethods.git_remote_add(out handle, repository.Handle, name, url);
             Ensure.Success(res);
 

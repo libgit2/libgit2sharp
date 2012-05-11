@@ -78,12 +78,20 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name = "name">The name of the branch.</param>
         /// <param name = "shaOrReferenceName">The target which can be sha or a canonical reference name.</param>
+        /// <param name = "allowOverwrite">True to allow silent overwriting a potentially existing branch, false otherwise.</param>
         /// <returns></returns>
-        public IBranch Create(string name, string shaOrReferenceName)
+        public IBranch Create(string name, string shaOrReferenceName, bool allowOverwrite = false)
         {
+            Ensure.ArgumentNotNullOrEmptyString(name, "name");
+
             ObjectId commitId = repo.LookupCommit(shaOrReferenceName).Id;
 
-            repo.Refs.Create(NormalizeToCanonicalName(name), commitId.Sha);
+            using (var osw = new ObjectSafeWrapper(commitId, repo))
+            {
+                GitOid oid;
+                Ensure.Success(NativeMethods.git_branch_create(out oid, repo.Handle, name, osw.ObjectPtr, allowOverwrite));
+            }
+
             return this[name];
         }
 
@@ -107,7 +115,7 @@ namespace LibGit2Sharp
         }
 
         ///<summary>
-        ///  Rename an existing branch with a new name.
+        ///  Rename an existing local branch with a new name.
         ///</summary>
         ///<param name = "currentName">The current branch name.</param>
         ///<param name = "newName">The new name of the existing branch should bear.</param>
@@ -115,14 +123,12 @@ namespace LibGit2Sharp
         ///<returns></returns>
         public IBranch Move(string currentName, string newName, bool allowOverwrite = false)
         {
-            Ensure.ArgumentNotNullOrEmptyString(currentName, "name");
+            Ensure.ArgumentNotNullOrEmptyString(currentName, "currentName");
             Ensure.ArgumentNotNullOrEmptyString(newName, "name");
 
-            Reference reference = repo.Refs.Move(NormalizeToCanonicalName(currentName),
-                                                 NormalizeToCanonicalName(newName),
-                                                 allowOverwrite);
+            Ensure.Success(NativeMethods.git_branch_move(repo.Handle, currentName, newName, allowOverwrite));
 
-            return this[reference.CanonicalName];
+            return this[newName];
         }
 
         private static bool LooksLikeABranchName(string referenceName)

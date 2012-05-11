@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
@@ -10,13 +11,14 @@ namespace LibGit2Sharp.Tests
     {
         private readonly string[] expectedBranches = new[] { "br2", "master", "packed", "packed-test", "test", };
 
-        [Fact]
-        public void CanCreateBranch()
+        [Theory]
+        [InlineData("unit_test")]
+        [InlineData("Ångström")]
+        public void CanCreateBranch(string name)
         {
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
             using (var repo = new Repository(path.RepositoryPath))
             {
-                const string name = "unit_test";
                 var newBranch = repo.CreateBranch(name, "be3563ae3f795b2b4353bcce3a527ad0a4f7f644");
                 newBranch.ShouldNotBeNull();
                 newBranch.Name.ShouldEqual(name);
@@ -244,6 +246,22 @@ namespace LibGit2Sharp.Tests
                 master.CanonicalName.ShouldEqual("refs/heads/master");
                 master.IsCurrentRepositoryHead.ShouldBeTrue();
                 master.Tip.Sha.ShouldEqual("4c062a6361ae6959e06292c1fa5e2822d9c96345");
+            }
+        }
+
+        [Fact]
+        public void CanLookupABranchWhichNameIsMadeOfNon7BitsAsciiCharacters()
+        {
+            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                const string name = "Ångström";
+                var newBranch = repo.CreateBranch(name, "be3563a");
+                newBranch.ShouldNotBeNull();
+
+                Branch retrieved = repo.Branches["Ångström"];
+                retrieved.ShouldNotBeNull();
+                retrieved.Tip.ShouldEqual(newBranch.Tip);
             }
         }
 
