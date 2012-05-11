@@ -649,5 +649,37 @@ namespace LibGit2Sharp.Tests
                 Assert.Throws<LibGit2Exception>(() => repo.Commit("I can not amend anything !:(", DummySignature, DummySignature, true));
             }
         }
+
+        [Fact]
+        public void CanRetrieveChildrenOfASpecificCommit()
+        {
+            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoPath);
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                const string parentSha = "5b5b025afb0b4c913b4c338a42934a3863bf3644";
+
+                var filter = new Filter
+                                 {
+                                     /* Revwalk from all the refs (git log --all) ... */
+                                     Since = repo.Refs, 
+
+                                     /* ... and stop when the parent is reached */
+                                     Until = parentSha
+                                 };
+
+                var commits = repo.Commits.QueryBy(filter);
+
+                var children = from c in commits
+                            from p in c.Parents
+                            let pId = p.Id
+                            where pId.Sha == parentSha
+                            select c;
+
+                var expectedChildren = new[] { "c47800c7266a2be04c571c04d5a6614691ea99bd", 
+                                                "4a202b346bb0fb0db7eff3cffeb3c70babbd2045" };
+
+                Assert.Equal(expectedChildren, children.Select(c => c.Id.Sha));
+            }
+        }
     }
 }
