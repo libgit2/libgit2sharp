@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
@@ -428,6 +427,40 @@ namespace LibGit2Sharp.Tests
                 Assert.Throws<ArgumentNullException>(() => repo.Checkout(default(Branch)));
                 Assert.Throws<ArgumentNullException>(() => repo.Checkout(default(string)));
             }
+        }
+
+        private void AssertDeletion(string branchName, bool isRemote, bool shouldPrevisoulyAssertExistence)
+        {
+            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoPath);
+
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                if (shouldPrevisoulyAssertExistence)
+                {
+                    Assert.NotNull(repo.Branches[branchName]);
+                }
+
+                repo.Branches.Delete(branchName, isRemote);
+                Branch branch = repo.Branches[branchName];
+                Assert.Null(branch);
+            }
+        }
+
+        [Theory]
+        [InlineData("i-do-numbers", false)]
+        [InlineData("origin/br2", true)]
+        public void CanDeleteAnExistingBranch(string branchName, bool isRemote)
+        {
+            AssertDeletion(branchName, isRemote, true);
+        }
+
+
+        [Theory]
+        [InlineData("I-donot-exist", false)]
+        [InlineData("me/neither", true)]
+        public void CanDeleteANonExistingBranch(string branchName, bool isRemote)
+        {
+            AssertDeletion(branchName, isRemote, false);
         }
 
         [Fact]

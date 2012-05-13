@@ -31,10 +31,36 @@ namespace LibGit2Sharp
             get
             {
                 Ensure.ArgumentNotNullOrEmptyString(name, "name");
-                string canonicalName = NormalizeToCanonicalName(name);
-                var reference = repo.Refs.Resolve<Reference>(canonicalName);
-                return reference == null ? null : new Branch(repo, reference, canonicalName);
+
+                if (LooksLikeABranchName(name))
+                {
+                    return BuildFromReferenceName(name);
+                }
+
+                Branch branch = BuildFromReferenceName(ShortToLocalName(name));
+                if (branch != null)
+                {
+                    return branch;
+                }
+
+                return BuildFromReferenceName(ShortToRemoteName(name));
             }
+        }
+
+        private static string ShortToLocalName(string name)
+        {
+            return string.Format(CultureInfo.InvariantCulture, "{0}{1}", "refs/heads/", name);
+        }
+
+        private static string ShortToRemoteName(string name)
+        {
+            return string.Format(CultureInfo.InvariantCulture, "{0}{1}", "refs/remotes/", name);
+        }
+
+        private Branch BuildFromReferenceName(string canonicalName)
+        {
+            var reference = repo.Refs.Resolve<Reference>(canonicalName);
+            return reference == null ? null : new Branch(repo, reference, canonicalName);
         }
 
         #region IEnumerable<Branch> Members
@@ -92,26 +118,26 @@ namespace LibGit2Sharp
                 Ensure.Success(NativeMethods.git_branch_create(out oid, repo.Handle, name, osw.ObjectPtr, allowOverwrite));
             }
 
-            return this[name];
+            return this[ShortToLocalName(name)];
         }
 
         /// <summary>
         ///   Deletes the branch with the specified name.
         /// </summary>
         /// <param name = "name">The name of the branch to delete.</param>
-        public void Delete(string name)
+        /// <param name = "isRemote">True if the provided <paramref name="name"/> is the name of a remote branch, false otherwise.</param>
+        public void Delete(string name, bool isRemote = false)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
 
-            string canonicalName = NormalizeToCanonicalName(name);
+            int res = NativeMethods.git_branch_delete(repo.Handle, name, isRemote ? GitBranchType.GIT_BRANCH_REMOTE : GitBranchType.GIT_BRANCH_LOCAL);
 
-            if (canonicalName == repo.Head.CanonicalName)
+            if (res == (int)GitErrorCode.GIT_ENOTFOUND)
             {
-                throw new LibGit2Exception(string.Format(CultureInfo.InvariantCulture, "Branch '{0}' can not be deleted as it is the current HEAD.", canonicalName));
+                return;
             }
 
-            //TODO: To be replaced by native libgit2 git_branch_delete() when available.
-            repo.Refs.Delete(canonicalName);
+            Ensure.Success(res);
         }
 
         ///<summary>
@@ -133,24 +159,9 @@ namespace LibGit2Sharp
 
         private static bool LooksLikeABranchName(string referenceName)
         {
-            return referenceName.StartsWith("refs/heads/", StringComparison.Ordinal) || referenceName.StartsWith("refs/remotes/", StringComparison.Ordinal);
-        }
-
-        private static string NormalizeToCanonicalName(string name)
-        {
-            Ensure.ArgumentNotNullOrEmptyString(name, "name");
-
-            if (name == "HEAD")
-            {
-                return name;
-            }
-
-            if (LooksLikeABranchName(name))
-            {
-                return name;
-            }
-
-            return string.Format(CultureInfo.InvariantCulture, "refs/heads/{0}", name);
+            return referenceName == "HEAD" ||
+                referenceName.StartsWith("refs/heads/", StringComparison.Ordinal) ||
+                referenceName.StartsWith("refs/remotes/", StringComparison.Ordinal);
         }
     }
 }
