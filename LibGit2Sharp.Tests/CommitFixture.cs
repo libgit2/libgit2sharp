@@ -661,7 +661,7 @@ namespace LibGit2Sharp.Tests
                 var filter = new Filter
                                  {
                                      /* Revwalk from all the refs (git log --all) ... */
-                                     Since = repo.Refs, 
+                                     Since = repo.Refs,
 
                                      /* ... and stop when the parent is reached */
                                      Until = parentSha
@@ -675,7 +675,7 @@ namespace LibGit2Sharp.Tests
                             where pId.Sha == parentSha
                             select c;
 
-                var expectedChildren = new[] { "c47800c7266a2be04c571c04d5a6614691ea99bd", 
+                var expectedChildren = new[] { "c47800c7266a2be04c571c04d5a6614691ea99bd",
                                                 "4a202b346bb0fb0db7eff3cffeb3c70babbd2045" };
 
                 Assert.Equal(expectedChildren, children.Select(c => c.Id.Sha));
