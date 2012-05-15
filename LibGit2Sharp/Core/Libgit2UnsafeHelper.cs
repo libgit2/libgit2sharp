@@ -8,6 +8,15 @@ namespace LibGit2Sharp.Core
     {
         private static readonly Utf8Marshaler marshaler = (Utf8Marshaler)Utf8Marshaler.GetInstance(string.Empty);
 
+        public static IList<string> ListAllBranchNames(RepositorySafeHandle repo, GitBranchType types)
+        {
+            UnSafeNativeMethods.git_strarray strArray;
+            int res = UnSafeNativeMethods.git_branch_list(out strArray, repo, types);
+            Ensure.Success(res);
+
+            return BuildListOf(strArray);
+        }
+
         public static IList<string> ListAllReferenceNames(RepositorySafeHandle repo, GitReferenceType types)
         {
             UnSafeNativeMethods.git_strarray strArray;

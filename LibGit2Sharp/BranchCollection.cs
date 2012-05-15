@@ -45,8 +45,8 @@ namespace LibGit2Sharp
         /// <returns>An <see cref = "IEnumerator{T}" /> object that can be used to iterate through the collection.</returns>
         public IEnumerator<Branch> GetEnumerator()
         {
-            return Libgit2UnsafeHelper.ListAllReferenceNames(repo.Handle, GitReferenceType.ListAll)
-                .Where(LooksLikeABranchName)
+            return Libgit2UnsafeHelper
+                .ListAllBranchNames(repo.Handle, GitBranchType.GIT_BRANCH_LOCAL | GitBranchType.GIT_BRANCH_REMOTE)
                 .Select(n => this[n])
                 .GetEnumerator();
         }
