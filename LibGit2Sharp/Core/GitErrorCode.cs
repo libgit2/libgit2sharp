@@ -106,11 +106,6 @@
         GIT_EINVALIDPATH = -19,
 
         /// <summary>
-        ///   The revision walker is empty; there are no more commits left to iterate
-        /// </summary>
-        GIT_EREVWALKOVER = -20,
-
-        /// <summary>
         ///   The state of the reference is not valid
         /// </summary>
         GIT_EINVALIDREFSTATE = -21,
@@ -153,11 +148,21 @@
         /// <summary>
         ///   The given short oid is ambiguous
         /// </summary>
-        GIT_EAMBIGUOUSOIDPREFIX = -29,
+        GIT_EAMBIGUOUS = -29,
 
         /// <summary>
         ///   Skip and passthrough the given ODB backend
         /// </summary>
         GIT_EPASSTHROUGH = -30,
+        
+        /// <summary>
+        ///   The buffer is too short to satisfy the request
+        /// </summary>
+        GIT_ESHORTBUFFER = -32,
+
+        /// <summary>
+        ///   The revision walker is empty; there are no more commits left to iterate
+        /// </summary>
+        GIT_EREVWALKOVER = -33,
     }
 }

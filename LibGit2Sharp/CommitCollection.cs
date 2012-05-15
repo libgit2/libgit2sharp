@@ -74,6 +74,7 @@ namespace LibGit2Sharp
 
         #endregion
 
+
         /// <summary>
         ///   Returns the list of commits of the repository matching the specified <paramref name = "filter" />.
         /// </summary>
@@ -123,6 +124,48 @@ namespace LibGit2Sharp
         {
             return ("HEAD".Equals(shaOrRefName, StringComparison.Ordinal) || "refs/heads/master".Equals(shaOrRefName, StringComparison.Ordinal));
         }
+
+        /// <summary>
+        /// Find as good common ancestors as possible for a merge given second <see cref="Commit"/>.
+        /// </summary>
+        /// <param name="first">The first <see cref="Commit"/> for which to find the common ancestor.</param>
+        /// <param name="second">The second <see cref="Commit"/> for which to find the common ancestor.</param>
+        /// <returns>The common ancestor or null if none found.</returns>
+        public Commit GetCommonAncestor(Commit first, Commit second)
+        {
+            Ensure.ArgumentNotNull(first, "first");
+            Ensure.ArgumentNotNull(second, "second");
+            GitOid ret;
+            using (var osw1 = new ObjectSafeWrapper(first.Id, this.repo))
+            using (var osw2 = new ObjectSafeWrapper(second.Id, this.repo))
+            {
+                Ensure.Success(NativeMethods.git_merge_base(out ret, this.repo.Handle, osw1.ObjectPtr, osw2.ObjectPtr));
+                return this.repo.Lookup<Commit>(new ObjectId(ret));
+            }
+        }
+
+        /// <summary>
+        /// Find as good common ancestors as possible for a merge given second or more <see cref="Commit"/>.
+        /// </summary>
+        /// <param name="commits">The <see cref="Commit"/> for which to find the common ancestor.</param>
+        /// <returns>The common ancestor or null if none found.</returns>
+        public Commit GetCommonAncestor(IEnumerable<Commit> commits)
+        {
+            Ensure.ArgumentNotNull(commits, "commits");
+
+            return commits.Aggregate(this.GetCommonAncestor);
+        }
+
+        /// <summary>
+        /// Find as good common ancestors as possible for a merge given second or more <see cref="Commit"/>.
+        /// </summary>
+        /// <param name="commits">The <see cref="Commit"/> for which to find the common ancestor.</param>
+        /// <returns>The common ancestor or null if none found.</returns>
+        public Commit GetCommonAncestor(params Commit[] commits)
+        {
+            return this.GetCommonAncestor((IEnumerable<Commit>)commits);
+        }
+
 
         /// <summary>
         ///   Stores the content of the <see cref = "Repository.Index" /> as a new <see cref = "Commit" /> into the repository.

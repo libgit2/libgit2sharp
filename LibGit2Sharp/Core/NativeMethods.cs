@@ -66,6 +66,10 @@ namespace LibGit2Sharp.Core
         }
 
         [DllImport(libgit2)]
+        [return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))]
+        public static extern string giterr_last();
+
+        [DllImport(libgit2)]
         public static extern int git_blob_create_fromfile(
             ref GitOid oid,
             RepositorySafeHandle repo,
@@ -302,8 +306,11 @@ namespace LibGit2Sharp.Core
         public static extern int git_index_write(IndexSafeHandle index);
 
         [DllImport(libgit2)]
-        [return : MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))]
-        public static extern string git_lasterror();
+        public static extern int git_merge_base(
+            out GitOid mergeBase,
+            RepositorySafeHandle repo,
+            GitObjectSafeHandle one,
+            GitObjectSafeHandle two);
 
         [DllImport(libgit2)]
         public static extern int git_odb_exists(ObjectDatabaseSafeHandle odb, ref GitOid id);
