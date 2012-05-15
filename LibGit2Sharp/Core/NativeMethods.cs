@@ -66,8 +66,7 @@ namespace LibGit2Sharp.Core
         }
 
         [DllImport(libgit2)]
-        [return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))]
-        public static extern string giterr_last();
+        public static extern GitError giterr_last();
 
         [DllImport(libgit2)]
         public static extern int git_blob_create_fromfile(
