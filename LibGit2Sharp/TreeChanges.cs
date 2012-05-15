@@ -45,7 +45,7 @@ namespace LibGit2Sharp
             patch = fullPatchBuilder.ToString();
         }
 
-        private int LineCallback(IntPtr data, GitDiffDelta delta, GitDiffLineOrigin lineorigin, IntPtr content, IntPtr contentlen)
+        private int LineCallback(IntPtr data, GitDiffDelta delta, GitDiffRange range, GitDiffLineOrigin lineorigin, IntPtr content, IntPtr contentlen)
         {
             var newFilePath = (string)marshaler.MarshalNativeToManaged(delta.NewFile.Path);
 

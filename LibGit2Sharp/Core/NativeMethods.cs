@@ -66,6 +66,9 @@ namespace LibGit2Sharp.Core
         }
 
         [DllImport(libgit2)]
+        public static extern GitErrorSafeHandle giterr_last();
+
+        [DllImport(libgit2)]
         public static extern int git_blob_create_fromfile(
             ref GitOid oid,
             RepositorySafeHandle repo,
@@ -231,31 +234,27 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string header,
             IntPtr headerLen);
 
-        internal delegate int git_diff_line_fn(
-            IntPtr data,
-            GitDiffDelta delta,
-            GitDiffLineOrigin lineOrigin,
-            IntPtr content,
-            IntPtr contentLen);
-
         [DllImport(libgit2)]
         public static extern int git_diff_foreach(
             DiffListSafeHandle diff,
             IntPtr callbackData,
             git_diff_file_fn fileCallback,
             git_diff_hunk_fn hunkCallback,
-            git_diff_line_fn lineCallback);
+            git_diff_data_fn lineCallback);
 
-        internal delegate int git_diff_output_fn(
+        internal delegate int git_diff_data_fn(
             IntPtr data,
+            GitDiffDelta delta,
+            GitDiffRange range, 
             GitDiffLineOrigin lineOrigin,
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string formattedOutput);
+            IntPtr content,
+            IntPtr contentLen);
 
         [DllImport(libgit2)]
         public static extern int git_diff_print_patch(
             DiffListSafeHandle diff,
             IntPtr data,
-            git_diff_output_fn printCallback);
+            git_diff_data_fn printCallback);
 
         [DllImport(libgit2)]
         public static extern int git_diff_blobs(
@@ -265,7 +264,7 @@ namespace LibGit2Sharp.Core
             GitDiffOptions options,
             object data,
             git_diff_hunk_fn hunkCallback,
-            git_diff_line_fn lineCallback);
+            git_diff_data_fn lineCallback);
 
         [DllImport(libgit2)]
         public static extern int git_index_add(
@@ -300,10 +299,6 @@ namespace LibGit2Sharp.Core
 
         [DllImport(libgit2)]
         public static extern int git_index_write(IndexSafeHandle index);
-
-        [DllImport(libgit2)]
-        [return : MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))]
-        public static extern string git_lasterror();
 
         [DllImport(libgit2)]
         public static extern int git_odb_exists(ObjectDatabaseSafeHandle odb, ref GitOid id);
@@ -405,8 +400,9 @@ namespace LibGit2Sharp.Core
         public static extern int git_remote_new(
             out RemoteSafeHandle remote,
             RepositorySafeHandle repo,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string name,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string url,
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string name);
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string fetchrefspec);
 
         [DllImport(libgit2)]
         [return : MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))]
