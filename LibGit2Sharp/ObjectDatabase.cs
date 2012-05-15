@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Handles;
@@ -38,17 +39,23 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Inserts a <see cref="Blob"/> into the object database, created from the content of a file.
         /// </summary>
-        /// <param name="path">Relative path to the file in the working directory.</param>
+        /// <param name="path">Path to the file to create the blob from.</param>
         /// <returns>The created <see cref="Blob"/>.</returns>
         public Blob CreateBlob(string path)
         {
-            if (repo.Info.IsBare)
-            {
-                throw new NotImplementedException();
-            }
+            Ensure.ArgumentNotNullOrEmptyString(path, "path");
 
             var oid = new GitOid();
-            Ensure.Success(NativeMethods.git_blob_create_fromfile(ref oid, repo.Handle, path));
+
+            if (!repo.Info.IsBare && !Path.IsPathRooted(path))
+            {
+                Ensure.Success(NativeMethods.git_blob_create_fromfile(ref oid, repo.Handle, path));
+            }
+            else
+            {
+                Ensure.Success(NativeMethods.git_blob_create_fromdisk(ref oid, repo.Handle, path));
+            }
+
             return repo.Lookup<Blob>(new ObjectId(oid));
         }
 
