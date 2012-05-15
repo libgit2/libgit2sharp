@@ -7,9 +7,10 @@ namespace LibGit2Sharp.Core
     /// <summary>
     ///   Ensure input parameters
     /// </summary>
-    [DebuggerStepThrough]
+    //[DebuggerStepThrough]
     internal static class Ensure
     {
+        private static readonly Utf8Marshaler marshaler = (Utf8Marshaler)Utf8Marshaler.GetInstance(string.Empty);
         /// <summary>
         ///   Checks an argument to ensure it isn't null.
         /// </summary>
@@ -62,10 +63,12 @@ namespace LibGit2Sharp.Core
                 return;
             }
 
-            string errorMessage = NativeMethods.git_lasterror();
+            GitError error = NativeMethods.giterr_last();
+
+            string errorMsg= "";//  = (string)marshaler.MarshalNativeToManaged(error.Message);
 
             throw new LibGit2Exception(
-                String.Format(CultureInfo.InvariantCulture, "An error was raised by libgit2. Error code = {0} ({1}).{2}{3}", Enum.GetName(typeof(GitErrorCode), result), result, Environment.NewLine, errorMessage));
+                String.Format(CultureInfo.InvariantCulture, "An error was raised by libgit2. Error code = {0} ({1}).{2}{3}", Enum.GetName(typeof(GitErrorCode), result), result, Environment.NewLine, errorMsg));
         }
 
         /// <summary>
