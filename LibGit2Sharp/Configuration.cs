@@ -62,17 +62,18 @@ namespace LibGit2Sharp
             get { return systemConfigPath != null; }
         }
 
-        private static string ConvertPath(Func<byte[], int> pathRetriever)
+        private static string ConvertPath(Func<byte[], IntPtr, int> pathRetriever)
         {
             var buffer = new byte[NativeMethods.GIT_PATH_MAX];
 
-            int result = pathRetriever(buffer);
+            int result = pathRetriever(buffer, new IntPtr(NativeMethods.GIT_PATH_MAX));
 
-            //TODO: Make libgit2 return different codes to clearly identify a not found file (GIT_ENOTFOUND ) from any other error (!= GIT_SUCCESS)
-            if (result != (int)GitErrorCode.GIT_SUCCESS)
+            if (result == (int)GitErrorCode.GIT_ENOTFOUND)
             {
                 return null;
             }
+
+            Ensure.Success(result);
 
             return Utf8Marshaler.Utf8FromBuffer(buffer);
         }
@@ -137,28 +138,28 @@ namespace LibGit2Sharp
             dic.Add(typeof(int), (key, dv, handle) =>
                                      {
                                          int value;
-                                         int res = NativeMethods.git_config_get_int32(handle, key, out value);
+                                         int res = NativeMethods.git_config_get_int32(out value, handle, key);
                                          return ProcessReadResult<object>(res, value, dv);
                                      });
 
             dic.Add(typeof(long), (key, dv, handle) =>
                                       {
                                           long value;
-                                          int res = NativeMethods.git_config_get_int64(handle, key, out value);
+                                          int res = NativeMethods.git_config_get_int64(out value, handle, key);
                                           return ProcessReadResult<object>(res, value, dv);
                                       });
 
             dic.Add(typeof(bool), (key, dv, handle) =>
                                       {
                                           bool value;
-                                          int res = NativeMethods.git_config_get_bool(handle, key, out value);
+                                          int res = NativeMethods.git_config_get_bool(out value, handle, key);
                                           return ProcessReadResult<object>(res, value, dv);
                                       });
 
             dic.Add(typeof(string), (key, dv, handle) =>
                                         {
                                             string value;
-                                            int res = NativeMethods.git_config_get_string(handle, key, out value);
+                                            int res = NativeMethods.git_config_get_string(out value, handle, key);
                                             return ProcessReadResult<object>(res, value, dv);
                                         });
 

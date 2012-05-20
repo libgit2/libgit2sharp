@@ -10,7 +10,7 @@ namespace LibGit2Sharp.Core
         public IntPtr Klass;
     }
 
-    internal enum GitErrorClass
+    internal enum GitErrorType
     {
         GITERR_NOMEMORY,
         GITERR_OS,
@@ -26,5 +26,6 @@ namespace LibGit2Sharp.Core
         GITERR_NET,
         GITERR_TAG,
         GITERR_TREE,
+        GITERR_INDEXER,
     }
 }

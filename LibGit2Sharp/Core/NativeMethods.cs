@@ -40,11 +40,10 @@ namespace LibGit2Sharp.Core
         {
             get
             {
-                //TODO: When amd64 version of libgit2.dll is available, uncomment the following lines
-                //if (Compat.Environment.Is64BitProcess)
-                //{
-                //    return "amd64";
-                //}
+                if (Compat.Environment.Is64BitProcess)
+                {
+                    return "amd64";
+                }
 
                 return "x86";
             }
@@ -144,38 +143,37 @@ namespace LibGit2Sharp.Core
         public static extern int git_config_delete(ConfigurationSafeHandle cfg, string name);
 
         [DllImport(libgit2)]
-        public static extern int git_config_find_global(byte[] global_config_path);
+        public static extern int git_config_find_global(byte[] global_config_path, IntPtr length);
 
         [DllImport(libgit2)]
-        public static extern int git_config_find_system(byte[] system_config_path);
+        public static extern int git_config_find_system(byte[] system_config_path, IntPtr length);
 
         [DllImport(libgit2)]
         public static extern void git_config_free(IntPtr cfg);
 
         [DllImport(libgit2)]
         public static extern int git_config_get_bool(
+            [MarshalAs(UnmanagedType.Bool)] out bool value,
             ConfigurationSafeHandle cfg,
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string name,
-            [MarshalAs(UnmanagedType.Bool)]
-            out bool value);
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string name);
 
         [DllImport(libgit2)]
         public static extern int git_config_get_int32(
+            out int value,
             ConfigurationSafeHandle cfg,
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string name,
-            out int value);
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string name);
 
         [DllImport(libgit2)]
         public static extern int git_config_get_int64(
+            out long value,
             ConfigurationSafeHandle cfg,
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string name,
-            out long value);
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string name);
 
         [DllImport(libgit2)]
         public static extern int git_config_get_string(
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] out string value,
             ConfigurationSafeHandle cfg,
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string name,
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] out string value);
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string name);
 
         [DllImport(libgit2)]
         public static extern int git_config_open_global(out ConfigurationSafeHandle cfg);

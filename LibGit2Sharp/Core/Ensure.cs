@@ -54,12 +54,12 @@ namespace LibGit2Sharp.Core
         ///   True when positive values are allowed as well.</param>
         public static void Success(int result, bool allowPositiveResult = false)
         {
-            if (result == (int)GitErrorCode.GIT_SUCCESS)
+            if (result == (int)GitErrorCode.GIT_OK)
             {
                 return;
             }
 
-            if (allowPositiveResult && result > (int)GitErrorCode.GIT_SUCCESS)
+            if (allowPositiveResult && result > (int)GitErrorCode.GIT_OK)
             {
                 return;
             }
@@ -70,7 +70,7 @@ namespace LibGit2Sharp.Core
 
             throw new LibGit2Exception(
                 String.Format(CultureInfo.InvariantCulture, "An error was raised by libgit2. Class = {0} ({1}).{2}{3}",
-                              Enum.GetName(typeof(GitErrorClass), error.Klass.ToInt32()),
+                              Enum.GetName(typeof(GitErrorType), error.Klass.ToInt32()),
                               result,
                               Environment.NewLine,
                               errorMessage));

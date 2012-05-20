@@ -11,7 +11,7 @@ namespace LibGit2Sharp.Core
         public static IList<string> ListAllReferenceNames(RepositorySafeHandle repo, GitReferenceType types)
         {
             UnSafeNativeMethods.git_strarray strArray;
-            int res = UnSafeNativeMethods.git_reference_listall(out strArray, repo, types);
+            int res = UnSafeNativeMethods.git_reference_list(out strArray, repo, types);
             Ensure.Success(res);
 
             return BuildListOf(strArray);

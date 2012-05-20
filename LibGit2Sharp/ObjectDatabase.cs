@@ -33,7 +33,7 @@ namespace LibGit2Sharp
         {
             var oid = objectId.Oid;
 
-            return NativeMethods.git_odb_exists(handle, ref oid) != (int)GitErrorCode.GIT_SUCCESS;
+            return NativeMethods.git_odb_exists(handle, ref oid) != (int)GitErrorCode.GIT_OK;
         }
 
         /// <summary>
