@@ -37,6 +37,167 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        /* 
+         * BareTestRepoPath structure
+
+            * commit 4c062a6361ae6959e06292c1fa5e2822d9c96345
+            |
+            *   commit be3563ae3f795b2b4353bcce3a527ad0a4f7f644
+            |\ 
+            | |
+            | * commit c47800c7266a2be04c571c04d5a6614691ea99bd
+            | |
+            * | commit 9fd738e8f7967c078dceed8190330fc8648ee56a
+            | |
+            * | commit 4a202b346bb0fb0db7eff3cffeb3c70babbd2045
+            |/  
+            |
+            * commit 5b5b025afb0b4c913b4c338a42934a3863bf3644
+            |
+            * commit 8496071c1b46c854b31185ea97743be6a877447
+
+        */
+        [Fact]
+        public void CanCorrectlyFindCommonAncestorForTwoCommits()
+        {
+            using (var repo = new Repository(BareTestRepoPath))
+            {
+                Commit first = repo.Lookup<Commit>("c47800c7266a2be04c571c04d5a6614691ea99bd");
+
+                Commit second = repo.Lookup<Commit>("9fd738e8f7967c078dceed8190330fc8648ee56a");
+
+                Commit ancestor = repo.Commits.FindCommonAncestor(first, second);
+
+                Assert.NotNull(ancestor);
+
+                ancestor.Id.Sha.ShouldEqual("5b5b025afb0b4c913b4c338a42934a3863bf3644");
+            }
+        }
+
+        [Fact]
+        public void CanCorrectlyFindCommonAncestorForTwoCommitsAsEnumerable()
+        {
+            using (var repo = new Repository(BareTestRepoPath))
+            {
+                Commit first = repo.Lookup<Commit>("c47800c7266a2be04c571c04d5a6614691ea99bd");
+
+                Commit second = repo.Lookup<Commit>("9fd738e8f7967c078dceed8190330fc8648ee56a");
+
+                Commit ancestor = repo.Commits.FindCommonAncestor(new[] { first, second });
+
+                Assert.NotNull(ancestor);
+
+                ancestor.Id.Sha.ShouldEqual("5b5b025afb0b4c913b4c338a42934a3863bf3644");
+            }
+        }
+
+        [Fact]
+        public void CanCorrectlyFindCommonAncestorForSeveralCommits()
+        {
+            using (var repo = new Repository(BareTestRepoPath))
+            {
+                Commit first = repo.Lookup<Commit>("4c062a6361ae6959e06292c1fa5e2822d9c96345");
+
+                Commit second = repo.Lookup<Commit>("be3563ae3f795b2b4353bcce3a527ad0a4f7f644");
+
+                Commit third = repo.Lookup<Commit>("c47800c7266a2be04c571c04d5a6614691ea99bd");
+
+                Commit fourth = repo.Lookup<Commit>("5b5b025afb0b4c913b4c338a42934a3863bf3644");
+
+                Commit ancestor = repo.Commits.FindCommonAncestor(new[] { first, second, third, fourth });
+
+                Assert.NotNull(ancestor);
+
+                ancestor.Id.Sha.ShouldEqual("5b5b025afb0b4c913b4c338a42934a3863bf3644");
+            }
+        }
+
+        [Fact]
+        public void CannotFindCommonAncestorForTwoCommmitsWithoutCommonAncestor()
+        {
+            using (var repo = new Repository(BareTestRepoPath))
+            {
+                Commit first = repo.Lookup<Commit>("4c062a6361ae6959e06292c1fa5e2822d9c96345");
+
+                Commit second = repo.Lookup<Commit>("be3563ae3f795b2b4353bcce3a527ad0a4f7f644");
+
+                Commit third = repo.Lookup<Commit>("c47800c7266a2be04c571c04d5a6614691ea99bd");
+
+                Commit fourth = repo.Lookup<Commit>("5b5b025afb0b4c913b4c338a42934a3863bf3644");
+                
+                // create new commit with no parents
+                TreeDefinition newTreeDef = TreeDefinition.From(first.Tree);
+                Tree newTree = repo.ObjectDatabase.CreateTree(newTreeDef);
+                Commit orphanedCommit = repo.ObjectDatabase.CreateCommit(
+                    "This is a test commit created by 'CommitFixture.CannotFindCommonAncestorForCommmitsWithoutCommonAncestor'",
+                    first.Author,
+                    first.Committer,
+                    newTree,
+                    Enumerable.Empty<Commit>());
+
+                Commit ancestor = repo.Commits.FindCommonAncestor(new[] { first, second, orphanedCommit, third, fourth });
+
+                Assert.Null(ancestor);
+            }
+        }
+
+        [Fact]
+        public void CannotFindCommonAncestorForSeveralCommmitsWithoutCommonAncestor()
+        {
+            using (var repo = new Repository(BareTestRepoPath))
+            {
+                Commit first = repo.Lookup<Commit>("4c062a6361ae6959e06292c1fa5e2822d9c96345");
+
+                // create new commit with no parents
+                TreeDefinition newTreeDef = TreeDefinition.From(first.Tree);
+                Tree newTree = repo.ObjectDatabase.CreateTree(newTreeDef);
+                Commit orphanedCommit = repo.ObjectDatabase.CreateCommit(
+                    "This is a test commit created by 'CommitFixture.CannotFindCommonAncestorForCommmitsWithoutCommonAncestor'",
+                    first.Author,
+                    first.Committer,
+                    newTree,
+                    Enumerable.Empty<Commit>());
+
+                Commit ancestor = repo.Commits.FindCommonAncestor(first, orphanedCommit);
+
+                Assert.Null(ancestor);
+            }
+        }
+
+        public void FindCommonAncestorForSingleCommitThrows()
+        {
+            using (var repo = new Repository(BareTestRepoPath))
+            {
+                Commit first = repo.Lookup<Commit>("4c062a6361ae6959e06292c1fa5e2822d9c96345");
+
+                Assert.Throws<ArgumentException>(() => repo.Commits.FindCommonAncestor(new[] { first }));
+            }
+        }
+
+        public void FindCommonAncestorForEnumerableWithNullCommitThrows()
+        {
+            using (var repo = new Repository(BareTestRepoPath))
+            {
+                Commit first = repo.Lookup<Commit>("4c062a6361ae6959e06292c1fa5e2822d9c96345");
+
+                Commit second = repo.Lookup<Commit>("be3563ae3f795b2b4353bcce3a527ad0a4f7f644");
+
+                Assert.Throws<ArgumentException>(() => repo.Commits.FindCommonAncestor(new[] { first, second, null }));
+            }
+        }
+
+        public void FindCommonAncestorForWithNullCommitThrows()
+        {
+            using (var repo = new Repository(BareTestRepoPath))
+            {
+                Commit first = repo.Lookup<Commit>("4c062a6361ae6959e06292c1fa5e2822d9c96345");
+
+                Assert.Throws<ArgumentException>(() => repo.Commits.FindCommonAncestor(first, null));
+
+                Assert.Throws<ArgumentException>(() => repo.Commits.FindCommonAncestor(null, first));
+            }
+        }
+
         [Fact]
         public void CanEnumerateCommits()
         {
