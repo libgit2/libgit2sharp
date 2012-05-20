@@ -1,4 +1,6 @@
-﻿namespace LibGit2Sharp
+﻿using System.Collections.Generic;
+
+namespace LibGit2Sharp
 {
     public interface IQueryableCommitCollection : ICommitCollection //TODO: Find a name that's more explicit than IQueryableCommitCollection
     {
@@ -20,5 +22,21 @@
         /// <param name = "amendPreviousCommit">True to amend the current <see cref = "Commit"/> pointed at by <see cref = "Repository.Head"/>, false otherwise.</param>
         /// <returns>The generated <see cref = "Commit" />.</returns>
         Commit Create(string message, Signature author, Signature committer, bool amendPreviousCommit);
+
+
+        /// <summary>
+        /// Find as good common ancestors as possible for a merge given two <see cref="Commit"/>.
+        /// </summary>
+        /// <param name="first">The first <see cref="Commit"/> for which to find the common ancestor.</param>
+        /// <param name="second">The second <see cref="Commit"/> for which to find the common ancestor.</param>
+        /// <returns>The common ancestor or null if none found.</returns>
+        Commit FindCommonAncestor(Commit first, Commit second);
+
+        /// <summary>
+        /// Find as good common ancestors as possible for a merge given two or more <see cref="Commit"/>.
+        /// </summary>
+        /// <param name="commits">The <see cref="Commit"/> for which to find the common ancestor.</param>
+        /// <returns>The common ancestor or null if none found.</returns>
+        Commit FindCommonAncestor(IEnumerable<Commit> commits);
     }
 }

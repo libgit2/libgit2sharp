@@ -125,6 +125,61 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        /// Find as good common ancestors as possible for a merge given two <see cref="Commit"/>.
+        /// </summary>
+        /// <param name="first">The first <see cref="Commit"/> for which to find the common ancestor.</param>
+        /// <param name="second">The second <see cref="Commit"/> for which to find the common ancestor.</param>
+        /// <returns>The common ancestor or null if none found.</returns>
+        public Commit FindCommonAncestor(Commit first, Commit second)
+        {
+            Ensure.ArgumentNotNull(first, "first");
+            Ensure.ArgumentNotNull(second, "second");
+            GitOid ret;
+            using (var osw1 = new ObjectSafeWrapper(first.Id, this.repo))
+            using (var osw2 = new ObjectSafeWrapper(second.Id, this.repo))
+            {
+                int result = NativeMethods.git_merge_base(out ret, this.repo.Handle, osw1.ObjectPtr, osw2.ObjectPtr);
+                if (result == (int)GitErrorCode.GIT_ENOTFOUND)
+                    return null;
+
+                Ensure.Success(result);
+                return this.repo.Lookup<Commit>(new ObjectId(ret));
+            }
+        }
+
+        /// <summary>
+        /// Find as good common ancestors as possible for a merge given two or more <see cref="Commit"/>.
+        /// </summary>
+        /// <param name="commits">The <see cref="Commit"/> for which to find the common ancestor.</param>
+        /// <returns>The common ancestor or null if none found.</returns>
+        public Commit FindCommonAncestor(IEnumerable<Commit> commits)
+        {
+            Ensure.ArgumentNotNull(commits, "commits");
+            Commit ret = null;
+            int count = 0;
+            foreach (var commit in commits)
+            {
+                if (commit == null)
+                    throw new ArgumentException("Enumerable contains null at position: " + count.ToString(CultureInfo.InvariantCulture), "commits");
+
+                count++;
+
+                if (ret == null)
+                    ret = commit;
+                else
+                {
+                    ret = this.FindCommonAncestor(ret, commit);
+                    if (ret == null)
+                        break;
+                }
+            }
+            if (count < 2)
+                throw new ArgumentException("The enumerable must contains at least two commits.", "commits");
+
+            return ret;
+        }
+
+        /// <summary>
         ///   Stores the content of the <see cref = "Repository.Index" /> as a new <see cref = "Commit" /> into the repository.
         ///   The tip of the <see cref = "Repository.Head"/> will be used as the parent of this new Commit.
         ///   Once the commit is created, the <see cref = "Repository.Head"/> will move forward to point at it.
