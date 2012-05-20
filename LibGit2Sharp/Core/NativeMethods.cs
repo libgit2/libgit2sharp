@@ -228,24 +228,26 @@ namespace LibGit2Sharp.Core
         public static extern int git_diff_index_to_tree(
             RepositorySafeHandle repo,
             GitDiffOptions options,
-            IntPtr oldTree,
-            out IntPtr diff);
+            GitObjectSafeHandle oldTree,
+            out DiffListSafeHandle diff);
+
+        [DllImport(libgit2)]
+        public static extern int git_diff_merge(
+            DiffListSafeHandle onto,
+            DiffListSafeHandle from);
 
         [DllImport(libgit2)]
         public static extern int git_diff_workdir_to_index(
             RepositorySafeHandle repo,
             GitDiffOptions options,
-            out IntPtr diff);
+            out DiffListSafeHandle diff);
 
         [DllImport(libgit2)]
         public static extern int git_diff_workdir_to_tree(
             RepositorySafeHandle repo,
             GitDiffOptions options,
-            IntPtr oldTree,
-            out IntPtr diff);
-
-        [DllImport(libgit2)]
-        public static extern int git_diff_merge(IntPtr onto, IntPtr from);
+            GitObjectSafeHandle oldTree,
+            out DiffListSafeHandle diff);
 
         internal delegate int git_diff_file_fn(
             IntPtr data,
