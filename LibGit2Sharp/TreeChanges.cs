@@ -89,7 +89,7 @@ namespace LibGit2Sharp
             var newMode = (Mode)delta.NewFile.Mode;
             var oldMode = (Mode)delta.OldFile.Mode;
 
-            var diffFile = new TreeEntryChanges(newFilePath, newMode, delta.Status, oldFilePath, oldMode);
+            var diffFile = new TreeEntryChanges(newFilePath, newMode, delta.Status, oldFilePath, oldMode, ContentChanges.IsBinaryDelta(delta));
 
             fileDispatcher[delta.Status](this, diffFile);
             changes.Add(diffFile.Path, diffFile);

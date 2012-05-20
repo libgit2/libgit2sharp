@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.InteropServices;
 using System.Text;
 using LibGit2Sharp.Core;
 
@@ -20,8 +21,28 @@ namespace LibGit2Sharp
             using (var osw1 = new ObjectSafeWrapper(oldBlob.Id, repo))
             using (var osw2 = new ObjectSafeWrapper(newBlob.Id, repo))
             {
-                Ensure.Success(NativeMethods.git_diff_blobs(osw1.ObjectPtr, osw2.ObjectPtr, options, IntPtr.Zero, null, HunkCallback, LineCallback));
+                Ensure.Success(NativeMethods.git_diff_blobs(osw1.ObjectPtr, osw2.ObjectPtr, options, IntPtr.Zero, FileCallback, HunkCallback, LineCallback));
             }
+        }
+
+        private int FileCallback(IntPtr data, GitDiffDelta delta, float progress)
+        {
+            IsBinaryComparison = IsBinaryDelta(delta);
+
+            if (!IsBinaryComparison)
+            {
+                return 0;
+            }
+
+            PatchBuilder.Append("Binary content differ\n");
+
+            return 0;
+        }
+
+        internal static bool IsBinaryDelta(GitDiffDelta delta)
+        {
+            //TODO Fix the interop issue on amd64 and use GitDiffDelta.Binary
+            return delta.OldFile.Flags.Has(GitDiffFileFlags.GIT_DIFF_FILE_BINARY) || delta.NewFile.Flags.Has(GitDiffFileFlags.GIT_DIFF_FILE_BINARY);
         }
 
         private static string NativeToString(IntPtr content, IntPtr contentlen)
@@ -67,6 +88,11 @@ namespace LibGit2Sharp
             PatchBuilder.AppendFormat("{0}{1}", prefix, decodedContent);
             return 0;
         }
+
+        /// <summary>
+        ///   Determines if at least one of the compared <see cref="Blob"/>s holds some binary content.
+        /// </summary>
+        public bool IsBinaryComparison { get; protected set; }
 
         /// <summary>
         ///   The number of lines added.

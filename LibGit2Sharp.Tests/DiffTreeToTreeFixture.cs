@@ -57,6 +57,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(1, changes.Added.Count());
 
                 TreeEntryChanges treeEntryChanges = changes["1.txt"];
+                Assert.False(treeEntryChanges.IsBinaryComparison);
 
                 Assert.Equal("1.txt", treeEntryChanges.Path);
                 Assert.Equal(ChangeKind.Added, treeEntryChanges.Status);

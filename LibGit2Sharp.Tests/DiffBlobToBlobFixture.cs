@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.IO;
+using System.Linq;
 using System.Text;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
@@ -32,6 +33,8 @@ namespace LibGit2Sharp.Tests
 
                 ContentChanges changes = repo.Diff.Compare(oldblob, newblob);
 
+                Assert.False(changes.IsBinaryComparison);
+
                 Assert.Equal(3, changes.LinesAdded);
                 Assert.Equal(1, changes.LinesDeleted);
 
@@ -55,6 +58,34 @@ namespace LibGit2Sharp.Tests
                  .Append("+16\n");
 
                 Assert.Equal(expected.ToString(), changes.Patch);
+            }
+        }
+
+        Blob CreateBinaryBlob(Repository repo)
+        {
+            var scd = BuildSelfCleaningDirectory();
+            Directory.CreateDirectory(scd.RootedDirectoryPath);
+            string fullpath = Path.Combine(scd.RootedDirectoryPath, "binary.bin");
+            File.WriteAllBytes(fullpath, new byte[] { 17, 16, 0, 4, 65 });
+
+            return repo.ObjectDatabase.CreateBlob(fullpath);
+        }
+
+        [Fact]
+        public void CanCompareATextualBlobAgainstABinaryBlob()
+        {
+            using (var repo = new Repository(StandardTestRepoPath))
+            {
+                Blob binBlob = CreateBinaryBlob(repo);
+
+                Blob blob = repo.Head.Tip.Tree.Blobs.First();
+
+                ContentChanges changes = repo.Diff.Compare(blob, binBlob);
+
+                Assert.True(changes.IsBinaryComparison);
+
+                Assert.Equal(0, changes.LinesAdded);
+                Assert.Equal(0, changes.LinesDeleted);
             }
         }
     }

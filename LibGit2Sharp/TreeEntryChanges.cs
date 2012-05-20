@@ -7,13 +7,14 @@ namespace LibGit2Sharp
     /// </summary>
     public class TreeEntryChanges : ContentChanges
     {
-        internal TreeEntryChanges(string path, Mode mode, ChangeKind status, string oldPath, Mode oldMode)
+        internal TreeEntryChanges(string path, Mode mode, ChangeKind status, string oldPath, Mode oldMode, bool isBinaryComparison)
         {
             Path = path;
             Mode = mode;
             Status = status;
             OldPath = oldPath;
             OldMode = oldMode;
+            IsBinaryComparison = isBinaryComparison;
         }
 
         /// <summary>
