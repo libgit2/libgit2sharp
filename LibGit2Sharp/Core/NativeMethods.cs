@@ -331,6 +331,13 @@ namespace LibGit2Sharp.Core
         public static extern int git_index_write(IndexSafeHandle index);
 
         [DllImport(libgit2)]
+        public static extern int git_merge_base(
+            out GitOid mergeBase,
+            RepositorySafeHandle repo,
+            GitObjectSafeHandle one,
+            GitObjectSafeHandle two);
+
+        [DllImport(libgit2)]
         public static extern int git_odb_exists(ObjectDatabaseSafeHandle odb, ref GitOid id);
 
         [DllImport(libgit2)]
