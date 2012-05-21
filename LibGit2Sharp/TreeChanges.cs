@@ -23,7 +23,8 @@ namespace LibGit2Sharp
         private int linesDeleted;
 
         private readonly IDictionary<ChangeKind, Action<TreeChanges, TreeEntryChanges>> fileDispatcher = Build();
-        private readonly string patch;
+
+        private readonly StringBuilder fullPatchBuilder = new StringBuilder();
 
         private static IDictionary<ChangeKind, Action<TreeChanges, TreeEntryChanges>> Build()
         {
@@ -37,30 +38,39 @@ namespace LibGit2Sharp
 
         internal TreeChanges(DiffListSafeHandle diff)
         {
-            var fullPatchBuilder = new StringBuilder();
-
-            Ensure.Success(NativeMethods.git_diff_foreach(diff, IntPtr.Zero, FileCallback, null, LineCallback));
-            Ensure.Success(NativeMethods.git_diff_print_patch(diff, IntPtr.Zero, new PatchPrinter(changes, fullPatchBuilder).PrintCallBack));
-
-            patch = fullPatchBuilder.ToString();
+            Ensure.Success(NativeMethods.git_diff_print_patch(diff, IntPtr.Zero, PrintCallBack));
         }
 
-        private int LineCallback(IntPtr data, GitDiffDelta delta, GitDiffRange range, GitDiffLineOrigin lineorigin, IntPtr content, IntPtr contentlen)
+        private int PrintCallBack(IntPtr data, GitDiffDelta delta, GitDiffRange range, GitDiffLineOrigin lineorigin, IntPtr content, IntPtr contentlen)
         {
-            var newFilePath = (string)marshaler.MarshalNativeToManaged(delta.NewFile.Path);
+            string formattedoutput = marshaler.NativeToString(content, contentlen.ToInt32());
+            var currentFilePath = (string)marshaler.MarshalNativeToManaged(delta.NewFile.Path);
 
-            switch (lineorigin)
+            AddLineChange(currentFilePath, lineorigin);
+
+            if (lineorigin == GitDiffLineOrigin.GIT_DIFF_LINE_FILE_HDR)
+            {
+                AddFileChange(delta);
+            }
+
+            changes[currentFilePath].PatchBuilder.Append(formattedoutput);
+            fullPatchBuilder.Append(formattedoutput);
+
+            return 0;
+        }
+
+        private void AddLineChange(string currentFilePath, GitDiffLineOrigin lineOrigin)
+        {
+            switch (lineOrigin)
             {
                 case GitDiffLineOrigin.GIT_DIFF_LINE_ADDITION:
-                    IncrementLinesAdded(newFilePath);
+                    IncrementLinesAdded(currentFilePath);
                     break;
 
                 case GitDiffLineOrigin.GIT_DIFF_LINE_DELETION:
-                    IncrementLinesDeleted(newFilePath);
+                    IncrementLinesDeleted(currentFilePath);
                     break;
             }
-
-            return 0;
         }
 
         private void IncrementLinesDeleted(string filePath)
@@ -73,13 +83,6 @@ namespace LibGit2Sharp
         {
             linesAdded++;
             this[filePath].LinesAdded++;
-        }
-
-        private int FileCallback(IntPtr data, GitDiffDelta delta, float progress)
-        {
-            AddFileChange(delta);
-
-            return 0;
         }
 
         private void AddFileChange(GitDiffDelta delta)
@@ -175,7 +178,7 @@ namespace LibGit2Sharp
         /// </summary>
         public string Patch
         {
-            get { return patch; }
+            get { return fullPatchBuilder.ToString(); }
         }
     }
 }
