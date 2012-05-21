@@ -37,6 +37,23 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        ///  Inserts a <see cref="Blob"/> into the object database, created from the first <paramref name="length"/> bytes of <paramref name="buffer"/>.
+        /// </summary>
+        /// <param name="buffer">The <see cref="byte"/> array containing the data to insert.</param>
+        /// <param name="length">The number of bytes from <paramref name="buffer"/> to insert.</param>
+        /// <returns>The created <see cref="Blob"/>.</returns>
+        public Blob CreateBlob(byte[] buffer, long length)
+        {
+            Ensure.ArgumentNotNull(buffer, "buffer");
+            if (length < 0 || length > buffer.LongLength)
+                throw new ArgumentOutOfRangeException("length", "Value has to be greater or equal to zero and smaller than or equal to the length of the buffer.");
+
+            var oid = new GitOid();
+            Ensure.Success(NativeMethods.git_blob_create_frombuffer(ref oid, repo.Handle, buffer, new UIntPtr((ulong)length)));
+            return repo.Lookup<Blob>(new ObjectId(oid));
+        }
+
+        /// <summary>
         ///   Inserts a <see cref="Blob"/> into the object database, created from the content of a file.
         /// </summary>
         /// <param name="path">Path to the file to create the blob from.</param>

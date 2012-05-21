@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
+using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
 using Xunit.Extensions;
@@ -44,6 +46,82 @@ namespace LibGit2Sharp.Tests
                 var fetchedBlob = repo.Lookup<Blob>(blob.Id);
                 Assert.Equal(blob, fetchedBlob);
             }
+        }
+
+        [Fact]
+        public void CanCreateABlobFromAByteArray()
+        {
+            TemporaryCloneOfTestRepo scd = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
+
+            using (var repo = new Repository(scd.DirectoryPath))
+            {
+                byte[] content = new byte[] {65, 66, 67, 68};
+                Blob blob = repo.ObjectDatabase.CreateBlob(content, 3);
+                Assert.Equal(3, blob.Size);
+
+                Assert.NotNull(blob);
+                Assert.Equal("48b83b862ebc57bd3f7c34ed47262f4b402935af", blob.Sha);
+
+                /*  check to make sure it is indeed stored in the repository. */
+                var fetchedBlob = repo.Lookup<Blob>(blob.Id);
+                Assert.Equal(content.Take(3), fetchedBlob.Content);
+                Assert.Equal(blob, fetchedBlob);
+            }
+        }
+
+        [Fact]
+        public void CanCreateABlobFromAnEmptyByteArray()
+        {
+            TemporaryCloneOfTestRepo scd = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
+
+            using (var repo = new Repository(scd.DirectoryPath))
+            {
+                byte[] content = new byte[0];
+                Blob blob = repo.ObjectDatabase.CreateBlob(content, 0);
+                Assert.Equal(0, blob.Size);
+
+                Assert.NotNull(blob);
+                Assert.Equal("e69de29bb2d1d6434b8b29ae775ad8c2e48c5391", blob.Sha);
+
+                /*  check to make sure it is indeed stored in the repository. */
+                var fetchedBlob = repo.Lookup<Blob>(blob.Id);
+                Assert.Empty(fetchedBlob.Content);
+                Assert.Equal(blob, fetchedBlob);
+            }
+        }
+
+        [Fact]
+        public void CreateABlobFromAByteArrayThrowsIfArrayNull()
+        {
+            TemporaryCloneOfTestRepo scd = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
+
+            using (var repo = new Repository(scd.DirectoryPath))
+            {
+                Assert.Throws<ArgumentNullException>(() => repo.ObjectDatabase.CreateBlob(null, 3));
+            }
+        }
+
+        [Fact]
+        public void CreateABlobFromAByteArrayThrowsIfLengthSmallerThanZero()
+        {
+            TemporaryCloneOfTestRepo scd = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
+
+            using (var repo = new Repository(scd.DirectoryPath))
+            {
+                Assert.Throws<ArgumentOutOfRangeException>(() => repo.ObjectDatabase.CreateBlob(new byte[] {1, 2, 3, 4}, -2));
+            }
+        }
+
+        [Fact]
+        public void CreateABlobFromAByteArrayThrowsIfLengthIsInvalid()
+        {
+            TemporaryCloneOfTestRepo scd = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
+
+            using (var repo = new Repository(scd.DirectoryPath))
+            {
+                Assert.Throws<ArgumentOutOfRangeException>(() => repo.ObjectDatabase.CreateBlob(new byte[] { 1, 2 }, 3));
+            }
+            
         }
 
         [Fact]
