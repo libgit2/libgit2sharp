@@ -13,7 +13,7 @@ namespace LibGit2Sharp.Core
 
         public static bool HasAny<T>(this Enum enumInstance, IEnumerable<T> entries)
         {
-            return entries.Any(enumInstance.Has<T>);
+            return entries.Any(enumInstance.Has);
         }
     }
 }
