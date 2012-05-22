@@ -11,7 +11,8 @@ namespace LibGit2Sharp.Tests
         private readonly string[] expectedRefs = new[]
                                                      {
                                                          "refs/heads/br2", "refs/heads/deadbeef", "refs/heads/master", "refs/heads/packed", "refs/heads/packed-test",
-                                                         "refs/heads/test", "refs/tags/e90810b", "refs/tags/lw", "refs/tags/point_to_blob", "refs/tags/test",
+                                                         "refs/heads/test", "refs/notes/answer", "refs/notes/answer2", "refs/notes/commits", "refs/tags/e90810b", 
+                                                         "refs/tags/lw", "refs/tags/point_to_blob", "refs/tags/test"
                                                      };
 
         [Fact]
@@ -214,7 +215,7 @@ namespace LibGit2Sharp.Tests
 
                 Assert.Equal(expectedRefs, repo.Refs.Select(r => r.CanonicalName).ToArray());
 
-                repo.Refs.Count().ShouldEqual(10);
+                repo.Refs.Count().ShouldEqual(13);
             }
         }
 
