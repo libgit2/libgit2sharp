@@ -89,17 +89,6 @@ namespace LibGit2Sharp
         #endregion
 
         /// <summary>
-        ///   Checkout the branch with the specified by name.
-        /// </summary>
-        /// <param name = "shaOrReferenceName">The sha of the commit, a canonical reference name or the name of the branch to checkout.</param>
-        /// <returns></returns>
-        [Obsolete("This method will be removed in the next release. Please use Repository.Checkout() instead.")]
-        public Branch Checkout(string shaOrReferenceName)
-        {
-            return repo.Checkout(shaOrReferenceName);
-        }
-
-        /// <summary>
         ///   Create a new local branch with the specified name
         /// </summary>
         /// <param name = "name">The name of the branch.</param>
