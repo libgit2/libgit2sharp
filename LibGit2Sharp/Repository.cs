@@ -26,7 +26,7 @@ namespace LibGit2Sharp
         private readonly Diff diff;
         private readonly NoteCollection notes;
         private readonly Lazy<ObjectDatabase> odb;
-        private readonly Stack<SafeHandleBase> handlesToCleanup = new Stack<SafeHandleBase>();
+        private readonly Stack<IDisposable> toCleanup = new Stack<IDisposable>();
         private static readonly Lazy<string> versionRetriever = new Lazy<string>(RetrieveVersion);
 
         /// <summary>
@@ -89,7 +89,7 @@ namespace LibGit2Sharp
             branches = new BranchCollection(this);
             tags = new TagCollection(this);
             info = new Lazy<RepositoryInformation>(() => new RepositoryInformation(this, isBare));
-            config = new Lazy<Configuration>(() => new Configuration(this));
+            config = new Lazy<Configuration>(() => RegisterForCleanup(new Configuration(this)));
             remotes = new Lazy<RemoteCollection>(() => new RemoteCollection(this));
             odb = new Lazy<ObjectDatabase>(() => new ObjectDatabase(this));
             diff = new Diff(this);
@@ -244,9 +244,9 @@ namespace LibGit2Sharp
         /// </summary>
         protected virtual void Dispose(bool disposing)
         {
-            while (handlesToCleanup.Count > 0)
+            while (toCleanup.Count > 0)
             {
-                handlesToCleanup.Pop().SafeDispose();
+                toCleanup.Pop().SafeDispose();
             }
         }
 
@@ -481,9 +481,10 @@ namespace LibGit2Sharp
             throw new NotImplementedException();
         }
 
-        internal void RegisterForCleanup(SafeHandleBase handleToCleanup)
+        internal T RegisterForCleanup<T>(T disposable) where T : IDisposable
         {
-            handlesToCleanup.Push(handleToCleanup);
+            toCleanup.Push(disposable);
+            return disposable;
         }
 
         /// <summary>
