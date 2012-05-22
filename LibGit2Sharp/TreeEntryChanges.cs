@@ -1,5 +1,3 @@
-using System.Text;
-
 namespace LibGit2Sharp
 {
     /// <summary>
