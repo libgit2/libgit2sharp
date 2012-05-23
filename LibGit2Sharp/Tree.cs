@@ -61,6 +61,7 @@ namespace LibGit2Sharp
                 string filename = posixPath.Split('/').Last();
 
                 TreeEntrySafeHandle handle = NativeMethods.git_tree_entry_byname(objectPtr, filename);
+                objectPtr.SafeDispose();
 
                 if (handle.IsInvalid)
                 {
