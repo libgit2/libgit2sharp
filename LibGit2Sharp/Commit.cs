@@ -121,9 +121,10 @@ namespace LibGit2Sharp
 
                 for (uint i = 0; i < parentsCount; i++)
                 {
-                    GitObjectSafeHandle parentCommit;
-                    Ensure.Success(NativeMethods.git_commit_parent(out parentCommit, obj.ObjectPtr, i));
-                    yield return BuildFromPtr(parentCommit, ObjectIdOf(parentCommit), repo);
+                    using (var parentCommit = GetParentCommitHandle(i, obj))
+                    {
+                        yield return BuildFromPtr(parentCommit, ObjectIdOf(parentCommit), repo);
+                    }
                 }
             }
         }
@@ -144,6 +145,13 @@ namespace LibGit2Sharp
                            Author = new Signature(NativeMethods.git_commit_author(obj)),
                            Committer = new Signature(NativeMethods.git_commit_committer(obj)),
                        };
+        }
+
+        private static GitObjectSafeHandle GetParentCommitHandle(uint i, ObjectSafeWrapper obj)
+        {
+            GitObjectSafeHandle parentCommit;
+            Ensure.Success(NativeMethods.git_commit_parent(out parentCommit, obj.ObjectPtr, i));
+            return parentCommit;
         }
 
         private static string RetrieveEncodingOf(GitObjectSafeHandle obj)
