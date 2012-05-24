@@ -46,6 +46,36 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        [Fact]
+        public void CanCreateABlobIntoTheDatabaseOfABareRepository()
+        {
+            TemporaryCloneOfTestRepo scd = BuildTemporaryCloneOfTestRepo();
+
+            SelfCleaningDirectory directory = BuildSelfCleaningDirectory();
+
+            Directory.CreateDirectory(directory.RootedDirectoryPath);
+            string filepath = Path.Combine(directory.RootedDirectoryPath, "hello.txt");
+            File.WriteAllText(filepath, "I'm a new file\n");
+
+            using (var repo = new Repository(scd.RepositoryPath))
+            {
+                /*
+                 * $ echo "I'm a new file" | git hash-object --stdin
+                 * dc53d4c6b8684c21b0b57db29da4a2afea011565
+                 */
+                Assert.Null(repo.Lookup<Blob>("dc53d4c6b8684c21b0b57db29da4a2afea011565"));
+
+                Blob blob = repo.ObjectDatabase.CreateBlob(filepath);
+
+                Assert.NotNull(blob);
+                Assert.Equal("dc53d4c6b8684c21b0b57db29da4a2afea011565", blob.Sha);
+                Assert.Equal("I'm a new file\n", blob.ContentAsUtf8());
+
+                var fetchedBlob = repo.Lookup<Blob>(blob.Id);
+                Assert.Equal(blob, fetchedBlob);
+            }
+        }
+
         [Theory]
         [InlineData("README")]
         [InlineData("README AS WELL")]

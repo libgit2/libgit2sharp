@@ -12,6 +12,8 @@ namespace LibGit2Sharp.Core
     [DebuggerStepThrough]
     internal static class Ensure
     {
+        private static readonly Utf8Marshaler marshaler = (Utf8Marshaler)Utf8Marshaler.GetInstance(string.Empty);
+
         /// <summary>
         ///   Checks an argument to ensure it isn't null.
         /// </summary>
@@ -54,12 +56,12 @@ namespace LibGit2Sharp.Core
         ///   True when positive values are allowed as well.</param>
         public static void Success(int result, bool allowPositiveResult = false)
         {
-            if (result == (int)GitErrorCode.Success)
+            if (result == (int)GitErrorCode.Ok)
             {
                 return;
             }
 
-            if (allowPositiveResult && result > (int)GitErrorCode.Success)
+            if (allowPositiveResult && result > (int)GitErrorCode.Ok)
             {
                 return;
             }

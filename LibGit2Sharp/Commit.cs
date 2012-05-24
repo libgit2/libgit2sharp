@@ -1,6 +1,5 @@
-﻿using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
+using System.Linq;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Compat;
 using LibGit2Sharp.Core.Handles;
@@ -12,10 +11,11 @@ namespace LibGit2Sharp
     /// </summary>
     public class Commit : GitObject, ICommit
     {
-        readonly Repository repo;
-        readonly Lazy<IEnumerable<ICommit>> parents;
-        readonly Lazy<Tree> tree;
-        readonly Lazy<string> shortMessage;
+        private readonly Repository repo;
+        private readonly Lazy<IEnumerable<ICommit>> parents;
+        private readonly Lazy<Tree> tree;
+        private readonly Lazy<string> shortMessage;
+        private readonly Lazy<IEnumerable<Note>> notes;
 
         internal Commit(ObjectId id, ObjectId treeId, Repository repo)
             : base(id)
@@ -23,6 +23,7 @@ namespace LibGit2Sharp
             tree = new Lazy<Tree>(() => repo.Lookup<Tree>(treeId));
             parents = new Lazy<IEnumerable<ICommit>>(() => RetrieveParentsOfCommit(id));
             shortMessage = new Lazy<string>(ExtractShortMessage);
+            notes = new Lazy<IEnumerable<Note>>(() => RetrieveNotesOfCommit(id).ToList());
             this.repo = repo;
         }
 
@@ -104,7 +105,15 @@ namespace LibGit2Sharp
             }
         }
 
-        IEnumerable<ICommit> RetrieveParentsOfCommit(ObjectId oid)
+        /// <summary>
+        ///   Gets the notes of this commit.
+        /// </summary>
+        public IEnumerable<Note> Notes
+        {
+            get { return notes.Value; }
+        }
+
+        private IEnumerable<ICommit> RetrieveParentsOfCommit(ObjectId oid)
         {
             using (var obj = new ObjectSafeWrapper(oid, repo))
             {
@@ -112,11 +121,17 @@ namespace LibGit2Sharp
 
                 for (uint i = 0; i < parentsCount; i++)
                 {
-                    GitObjectSafeHandle parentCommit;
-                    Ensure.Success(NativeMethods.git_commit_parent(out parentCommit, obj.ObjectPtr, i));
-                    yield return BuildFromPtr(parentCommit, ObjectIdOf(parentCommit), repo);
+                    using (var parentCommit = GetParentCommitHandle(i, obj))
+                    {
+                        yield return BuildFromPtr(parentCommit, ObjectIdOf(parentCommit), repo);
+                    }
                 }
             }
+        }
+
+        private IEnumerable<Note> RetrieveNotesOfCommit(ObjectId oid)
+        {
+            return repo.Notes[oid];
         }
 
         internal static Commit BuildFromPtr(GitObjectSafeHandle obj, ObjectId id, Repository repo)
@@ -130,6 +145,13 @@ namespace LibGit2Sharp
                            Author = new Signature(NativeMethods.git_commit_author(obj)),
                            Committer = new Signature(NativeMethods.git_commit_committer(obj)),
                        };
+        }
+
+        private static GitObjectSafeHandle GetParentCommitHandle(uint i, ObjectSafeWrapper obj)
+        {
+            GitObjectSafeHandle parentCommit;
+            Ensure.Success(NativeMethods.git_commit_parent(out parentCommit, obj.ObjectPtr, i));
+            return parentCommit;
         }
 
         private static string RetrieveEncodingOf(GitObjectSafeHandle obj)

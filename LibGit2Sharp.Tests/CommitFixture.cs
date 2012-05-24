@@ -316,8 +316,9 @@ namespace LibGit2Sharp.Tests
                 repo => new Filter { Since = repo.Refs },
                 new[]
                     {
-                        "4c062a6", "e90810b", "6dcf9bf", "a4a7dce",
-                        "be3563a", "c47800c", "9fd738e", "4a202b3",
+                        "44d5d18", "bb65291", "532740a", "503a16f", "3dfd6fd",
+                        "4409de1", "902c60b", "4c062a6", "e90810b", "6dcf9bf",
+                        "a4a7dce", "be3563a", "c47800c", "9fd738e", "4a202b3",
                         "41bc8c6", "5001298", "5b5b025", "8496071",
                     });
         }
@@ -681,5 +682,37 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(expectedChildren, children.Select(c => c.Id.Sha));
             }
         }
+
+        //[Fact]
+        //public void CanRetrieveChildrenOfASpecificCommit()
+        //{
+        //    TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoPath);
+        //    using (var repo = new Repository(path.RepositoryPath))
+        //    {
+        //        const string parentSha = "5b5b025afb0b4c913b4c338a42934a3863bf3644";
+
+        //        var filter = new Filter
+        //                         {
+        //                             /* Revwalk from all the refs (git log --all) ... */
+        //                             Since = repo.Refs,
+
+        //                             /* ... and stop when the parent is reached */
+        //                             Until = parentSha
+        //                         };
+
+        //        var commits = repo.Commits.QueryBy(filter);
+
+        //        var children = from c in commits
+        //                    from p in c.Parents
+        //                    let pId = p.Id
+        //                    where pId.Sha == parentSha
+        //                    select c;
+
+        //        var expectedChildren = new[] { "c47800c7266a2be04c571c04d5a6614691ea99bd",
+        //                                        "4a202b346bb0fb0db7eff3cffeb3c70babbd2045" };
+
+        //        Assert.Equal(expectedChildren, children.Select(c => c.Id.Sha));
+        //    }
+        //}
     }
 }

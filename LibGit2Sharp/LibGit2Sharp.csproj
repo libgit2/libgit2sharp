@@ -24,7 +24,6 @@
     <WarningLevel>4</WarningLevel>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <PlatformTarget>x86</PlatformTarget>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -36,8 +35,19 @@
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-    <PlatformTarget>x86</PlatformTarget>
     <DocumentationFile>bin\Release\LibGit2Sharp.xml</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Leaks|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Leaks\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;NET35;LEAKS</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -51,6 +61,7 @@
     <Compile Include="Commit.cs" />
     <Compile Include="CommitCollection.cs" />
     <Compile Include="Configuration.cs" />
+    <Compile Include="ContentChanges.cs" />
     <Compile Include="Core\Compat\Environment.cs" />
     <Compile Include="Core\FilePath.cs" />
     <Compile Include="Core\FilePathExtensions.cs" />
@@ -65,8 +76,10 @@
     <Compile Include="Core\GitError.cs" />
     <Compile Include="Core\GitErrorClass.cs" />
     <Compile Include="Core\GitErrorMarshaler.cs" />
+    <Compile Include="Core\GitNoteData.cs" />
     <Compile Include="Core\GitObjectExtensions.cs" />
     <Compile Include="Core\Handles\GitErrorSafeHandle.cs" />
+    <Compile Include="Core\Handles\NoteSafeHandle.cs" />
     <Compile Include="Core\Handles\ObjectDatabaseSafeHandle.cs" />
     <Compile Include="Core\Handles\DiffListSafeHandle.cs" />
     <Compile Include="Core\Handles\GitObjectSafeHandle.cs" />
@@ -87,7 +100,9 @@
     <Compile Include="IRepository.cs" />
     <Compile Include="IRepositoryInformation.cs" />
     <Compile Include="Diff.cs" />
-    <Compile Include="PatchPrinter.cs" />
+    <Compile Include="DiffTarget.cs" />
+    <Compile Include="NoteCollection.cs" />
+    <Compile Include="Note.cs" />
     <Compile Include="TreeChanges.cs" />
     <Compile Include="TreeEntryChanges.cs" />
     <Compile Include="LibGit2Exception.cs" />
@@ -142,6 +157,7 @@
     <Compile Include="RepositoryInformation.cs" />
     <Compile Include="RepositoryExtensions.cs" />
     <Compile Include="Core\Handles\RepositorySafeHandle.cs" />
+    <Compile Include="RepositoryOptions.cs" />
     <Compile Include="RepositoryStatus.cs" />
     <Compile Include="ResetOptions.cs" />
     <Compile Include="Signature.cs" />

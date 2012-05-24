@@ -15,6 +15,7 @@ namespace LibGit2Sharp.Core
         Object,
         Net,
         Tag,
-        Tree
+        Tree,
+        Indexer
     }
 }

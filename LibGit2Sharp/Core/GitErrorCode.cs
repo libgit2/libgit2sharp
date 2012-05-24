@@ -2,7 +2,7 @@
 {
     internal enum GitErrorCode
     {
-        Success = 0,
+        Ok = 0,
         Error = -1,
 
         /// <summary>
@@ -13,17 +13,17 @@
         /// <summary>
         /// A reference with this name already exists.
         /// </summary>
-        Exists = -23,
-
-        /// <summary>
-        /// The given integer literal is too large to be parsed.
-        /// </summary>
-        Overflow = -24,
+        Exists = -4,
 
         /// <summary>
         /// The given short oid is ambiguous.
         /// </summary>
-        Ambiguous = -29,
+        Ambiguous = -5,
+
+        /// <summary>
+        /// Bufs
+        /// </summary>
+        Bufs = -6,
 
         /// <summary>
         /// Skip and passthrough the given ODB backend.
@@ -31,13 +31,8 @@
         PassThrough = -30,
 
         /// <summary>
-        /// The buffer is too short to satisfy the request.
-        /// </summary>
-        ShortBuffer = -32,
-
-        /// <summary>
         /// The revision walker is empty; there are no more commits left to iterate.
         /// </summary>
-        RevWalkOver = -33
+        RevWalkOver = -31
     }
 }

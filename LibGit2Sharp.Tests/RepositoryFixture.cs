@@ -283,7 +283,7 @@ namespace LibGit2Sharp.Tests
                 repo.Index.Stage(filePath);
 
                 Signature author = Constants.Signature;
-                Commit commit = repo.Commit("Initial commit\n", author, author);
+                Commit commit = repo.Commit("Initial commit", author, author);
 
                 commit.Sha.ShouldEqual(expectedSha);
 

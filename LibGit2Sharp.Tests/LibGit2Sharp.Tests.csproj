@@ -21,7 +21,6 @@
     <DefineConstants>TRACE;DEBUG;NET35</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <PlatformTarget>x86</PlatformTarget>
     <DocumentationFile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -31,7 +30,16 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <PlatformTarget>x86</PlatformTarget>
+    <DocumentationFile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Leaks|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Leaks\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;NET35</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
     <DocumentationFile />
   </PropertyGroup>
   <ItemGroup>
@@ -47,8 +55,13 @@
   <ItemGroup>
     <Compile Include="ConfigurationFixture.cs" />
     <Compile Include="AttributesFixture.cs" />
+    <Compile Include="CommitAncestorFixture.cs" />
+    <Compile Include="NoteFixture.cs" />
+    <Compile Include="DiffBlobToBlobFixture.cs" />
+    <Compile Include="DiffTreeToTargetFixture.cs" />
     <Compile Include="ObjectDatabaseFixture.cs" />
-    <Compile Include="DiffFixture.cs" />
+    <Compile Include="DiffTreeToTreeFixture.cs" />
+    <Compile Include="RepositoryOptionsFixture.cs" />
     <Compile Include="ResetFixture.cs" />
     <Compile Include="LazyFixture.cs" />
     <Compile Include="RemoteFixture.cs" />

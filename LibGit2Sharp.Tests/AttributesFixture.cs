@@ -48,12 +48,10 @@ namespace LibGit2Sharp.Tests
         {
             const string relativePath = ".gitattributes";
             string fullFilePath = Path.Combine(repo.Info.WorkingDirectory, relativePath);
-            
             var sb = new StringBuilder();
             sb.Append("* text=auto\n");
             sb.Append("*.txt text\n");
             sb.Append("*.data binary\n");
-            
             File.WriteAllText(fullFilePath, sb.ToString());
         }
     }

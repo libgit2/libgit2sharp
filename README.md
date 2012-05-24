@@ -1,28 +1,22 @@
 # LibGit2Sharp
 
-LibGit2Sharp is an thin .Net layer (well.. we _try_ to keep it as thin as possible :-) ) wrapping the [libgit2](http://libgit2.github.com/) linkable C Git library.
-
-It provides a very opiniated API which should be very easy to use and discover.
+**LibGit2Sharp brings all the might and speed of [libgit2](http://libgit2.github.com/), a native Git implementation, to the managed world of .Net and Mono.**
 
 ## Online resources
 
  - [NuGet package](http://nuget.org/List/Packages/LibGit2Sharp)
  - [Source code](https://github.com/libgit2/libgit2sharp/)
- - [Issue tracker](https://github.com/libgit2/libgit2sharp/issues)
- - [@libgit2sharp](http://twitter.com/libgit2sharp)
+ - [CI server](http://teamcity.codebetter.com/project.html?projectId=project127&guest=1)
+
+## Troubleshooting and support
+
+ - Usage or programming related question? Post it on [StackOverflow](http://stackoverflow.com/questions/tagged/libgit2sharp) using the tag *libgit2sharp*
+ - Found a bug or missing a feature? Feed the [issue tracker](https://github.com/libgit2/libgit2sharp/issues)
+ - Announcements and related miscellanea through Twitter ([@libgit2sharp](http://twitter.com/libgit2sharp))
 
 ## Quick contributing guide
 
  - Fork and clone locally
- - Configure your repo to convert line endings on commit so they are always LF in the repo:
-   - On Windows:
-```
-$ git config --global core.autocrlf true
-```
-   - On Linux:
-```
-$ git config --global core.autocrlf input
-```
  - Create a topic specific branch. Add some nice feature. Do not forget the tests ;-)
  - Send a Pull Request to spread the fun!
 

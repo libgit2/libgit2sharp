@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Globalization;
-using System.Runtime.InteropServices;
+using System.Linq;
 using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
@@ -42,15 +40,8 @@ namespace LibGit2Sharp
 
         internal RepositoryStatus(Repository repo)
         {
-            var result = (GitErrorCode)NativeMethods.git_status_foreach(repo.Handle, StateChanged, IntPtr.Zero);
-
-            if (result == GitErrorCode.Success || result == GitErrorCode.NotFound)
-            {
-                isDirty = statusEntries.Count != 0;
-                return;
-            }
-
-            throw new LibGit2Exception(NativeMethods.giterr_last());
+            Ensure.Success(NativeMethods.git_status_foreach(repo.Handle, StateChanged, IntPtr.Zero));
+            isDirty = statusEntries.Any(entry => entry.State != FileStatus.Ignored);
         }
 
         private int StateChanged(FilePath filePath, uint state, IntPtr payload)

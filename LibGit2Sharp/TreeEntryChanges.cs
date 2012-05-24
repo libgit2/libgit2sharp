@@ -1,22 +1,18 @@
-using System.Text;
-using LibGit2Sharp.Core;
-
 namespace LibGit2Sharp
 {
     /// <summary>
     ///   Holds the changes between two versions of a tree entry.
     /// </summary>
-    public class TreeEntryChanges
+    public class TreeEntryChanges : ContentChanges
     {
-        private readonly StringBuilder patchBuilder = new StringBuilder();
-
-        internal TreeEntryChanges(string path, Mode mode, ChangeKind status, string oldPath, Mode oldMode)
+        internal TreeEntryChanges(string path, Mode mode, ChangeKind status, string oldPath, Mode oldMode, bool isBinaryComparison)
         {
             Path = path;
             Mode = mode;
             Status = status;
             OldPath = oldPath;
             OldMode = oldMode;
+            IsBinaryComparison = isBinaryComparison;
         }
 
         /// <summary>
@@ -43,28 +39,5 @@ namespace LibGit2Sharp
         ///   The old <see cref="Mode"/>.
         /// </summary>
         public Mode OldMode { get; private set; }
-
-        /// <summary>
-        ///   The number of lines added.
-        /// </summary>
-        public int LinesAdded { get; internal set; }
-
-        /// <summary>
-        ///   The number of lines deleted.
-        /// </summary>
-        public int LinesDeleted { get; internal set; }
-
-        /// <summary>
-        ///   The  patch corresponding to these changes.
-        /// </summary>
-        public string Patch
-        {
-            get { return patchBuilder.ToString(); }
-        }
-
-        internal StringBuilder PatchBuilder
-        {
-            get { return patchBuilder; }
-        }
     }
 }

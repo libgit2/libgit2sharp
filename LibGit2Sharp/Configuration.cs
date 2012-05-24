@@ -62,18 +62,17 @@ namespace LibGit2Sharp
             get { return systemConfigPath != null; }
         }
 
-        private static string ConvertPath(Func<byte[], int> pathRetriever)
+        private static string ConvertPath(Func<byte[], IntPtr, int> pathRetriever)
         {
             var buffer = new byte[NativeMethods.GIT_PATH_MAX];
 
-            int result = pathRetriever(buffer);
-
-            //TODO: Make libgit2 return different codes to clearly identify a not found file (GIT_ENOTFOUND ) from any other error (!= GIT_SUCCESS)
-            // this is possible now ^
-            if (result != (int)GitErrorCode.Success)
+            int result = pathRetriever(buffer, new IntPtr(NativeMethods.GIT_PATH_MAX));
+            if (result == (int)GitErrorCode.NotFound)
             {
                 return null;
             }
+
+            Ensure.Success(result);
 
             return Utf8Marshaler.Utf8FromBuffer(buffer);
         }
@@ -115,55 +114,6 @@ namespace LibGit2Sharp
             localHandle.SafeDispose();
             globalHandle.SafeDispose();
             systemHandle.SafeDispose();
-        }
-
-        private static T ProcessReadResult<T>(int res, T value, T defaultValue)
-        {
-            if (res == (int)GitErrorCode.NotFound)
-            {
-                return defaultValue;
-            }
-
-            Ensure.Success(res);
-
-            return value;
-        }
-
-        private readonly IDictionary<Type, Func<string, object, ConfigurationSafeHandle, object>> configurationTypedRetriever = ConfigurationTypedRetriever();
-
-        private static Dictionary<Type, Func<string, object, ConfigurationSafeHandle, object>> ConfigurationTypedRetriever()
-        {
-            var dic = new Dictionary<Type, Func<string, object, ConfigurationSafeHandle, object>>();
-
-            dic.Add(typeof(int), (key, dv, handle) =>
-                                     {
-                                         int value;
-                                         int res = NativeMethods.git_config_get_int32(handle, key, out value);
-                                         return ProcessReadResult<object>(res, value, dv);
-                                     });
-
-            dic.Add(typeof(long), (key, dv, handle) =>
-                                      {
-                                          long value;
-                                          int res = NativeMethods.git_config_get_int64(handle, key, out value);
-                                          return ProcessReadResult<object>(res, value, dv);
-                                      });
-
-            dic.Add(typeof(bool), (key, dv, handle) =>
-                                      {
-                                          bool value;
-                                          int res = NativeMethods.git_config_get_bool(handle, key, out value);
-                                          return ProcessReadResult<object>(res, value, dv);
-                                      });
-
-            dic.Add(typeof(string), (key, dv, handle) =>
-                                        {
-                                            string value;
-                                            int res = NativeMethods.git_config_get_string(handle, key, out value);
-                                            return ProcessReadResult<object>(res, value, dv);
-                                        });
-
-            return dic;
         }
 
         /// <summary>
@@ -319,20 +269,6 @@ namespace LibGit2Sharp
             Init();
         }
 
-        private readonly IDictionary<Type, Action<string, object, ConfigurationSafeHandle>> configurationTypedUpdater = ConfigurationTypedUpdater();
-
-        private static Dictionary<Type, Action<string, object, ConfigurationSafeHandle>> ConfigurationTypedUpdater()
-        {
-            var dic = new Dictionary<Type, Action<string, object, ConfigurationSafeHandle>>();
-
-            dic.Add(typeof(int), (key, val, handle) => Ensure.Success(NativeMethods.git_config_set_int32(handle, key, (int)val)));
-            dic.Add(typeof(long), (key, val, handle) => Ensure.Success(NativeMethods.git_config_set_int64(handle, key, (long)val)));
-            dic.Add(typeof(bool), (key, val, handle) => Ensure.Success(NativeMethods.git_config_set_bool(handle, key, (bool)val)));
-            dic.Add(typeof(string), (key, val, handle) => Ensure.Success(NativeMethods.git_config_set_string(handle, key, (string)val)));
-
-            return dic;
-        }
-
         /// <summary>
         ///   Set a configuration value for a key. Keys are in the form 'section.name'.
         ///   <para>
@@ -397,5 +333,44 @@ namespace LibGit2Sharp
             configurationTypedUpdater[typeof(T)](key, value, h);
             Save();
         }
+
+        private delegate int ConfigGetter<T>(out T value, ConfigurationSafeHandle handle, string name);
+
+        private static Func<string, object, ConfigurationSafeHandle, object> GetRetriever<T>(ConfigGetter<T> getter)
+        {
+            return (key, defaultValue, handle) =>
+                {
+                    T value;
+                    var res = getter(out value, handle, key);
+                    if (res == (int)GitErrorCode.NotFound)
+                    {
+                        return defaultValue;
+                    }
+
+                    Ensure.Success(res);
+                    return value;
+                };
+        }
+
+        private readonly IDictionary<Type, Func<string, object, ConfigurationSafeHandle, object>> configurationTypedRetriever = new Dictionary<Type, Func<string, object, ConfigurationSafeHandle, object>>
+        {
+            { typeof(int), GetRetriever<int>(NativeMethods.git_config_get_int32) },
+            { typeof(long), GetRetriever<long>(NativeMethods.git_config_get_int64) },
+            { typeof(bool), GetRetriever<bool>(NativeMethods.git_config_get_bool) },
+            { typeof(string), GetRetriever<string>(NativeMethods.git_config_get_string) },
+        };
+
+        private static Action<string, object, ConfigurationSafeHandle> GetUpdater<T>(Func<ConfigurationSafeHandle, string, T, int> setter)
+        {
+            return (key, val, handle) => Ensure.Success(setter(handle, key, (T)val));
+        }
+
+        private readonly IDictionary<Type, Action<string, object, ConfigurationSafeHandle>> configurationTypedUpdater = new Dictionary<Type, Action<string, object, ConfigurationSafeHandle>>
+        {
+            { typeof(int), GetUpdater<int>(NativeMethods.git_config_set_int32) },
+            { typeof(long), GetUpdater<long>(NativeMethods.git_config_set_int64) },
+            { typeof(bool), GetUpdater<bool>(NativeMethods.git_config_set_bool) },
+            { typeof(string), GetUpdater<string>(NativeMethods.git_config_set_string) },
+        };
     }
 }

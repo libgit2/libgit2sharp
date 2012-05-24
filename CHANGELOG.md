@@ -8,6 +8,34 @@
  - CI server: <http://teamcity.codebetter.com/project.html?projectId=project127&guest=1>
  - @libgit2sharp: <http://twitter.com/libgit2sharp>
 
+## v0.9
+
+### Additions
+
+ - Support local tracking branches (#113)
+ - Add an Ignored collection to the RepositoryStatus type (#120)
+ - Expose the relative path of TreeEntries (#122)
+ - Make Repository able to work against specified index and workdir (#132)
+ - Direct creation or Blobs, Trees and Commits without the workdir nor index involvement (#135)
+ - New Diff namespace: supports tree-to-tree, tree-to-index and blob-to-blob comparisons (#136)
+ - Add Commits.FindCommonAncestor() (#149)
+ 
+### Changes
+
+ - Deprecate repo.Branches.Checkout() in favor of repo.Checkout()
+ - Deprecate Tree.Files in favor of Tree.Blobs
+ - Update libgit2 binaries to libgit2/libgit2@7a361e9
+
+### Fixes
+
+ - Embed both x86 and amd64 compiled versions of libgit2 binaries (#55, #70)
+ - Honor symbolically linked global .gitconfig (#84)
+ - Ease the creation of a remote (#114)
+ - Prevent memory issues when revwalking a large repository (#115)
+ - Cleanup commit and tag messages (#117)
+ - Make RetrieveStatus() return correct results (#123)
+ - Allow staging on a network shared repository (#125)
+
 ## v0.8
 
 ### Additions
