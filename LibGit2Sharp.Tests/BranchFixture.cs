@@ -469,7 +469,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                Assert.Throws<LibGit2SharpException>(() => repo.Branches.Delete(repo.Head.Name));
+                Assert.Throws<LibGit2Exception>(() => repo.Branches.Delete(repo.Head.Name));
             }
         }
 
