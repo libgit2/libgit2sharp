@@ -176,7 +176,7 @@ namespace LibGit2Sharp.Tests
                 const string refName = "refs/heads/test";
 
                 List<string> refs = repo.Refs.Select(r => r.CanonicalName).ToList();
-                refs.Contains(refName).ShouldBeTrue();
+                Assert.True(refs.Contains(refName));
 
                 repo.Refs.Delete(refName);
 
@@ -348,11 +348,11 @@ namespace LibGit2Sharp.Tests
                 Branch test = repo.Branches["test"];
 
                 Reference direct = repo.Refs.UpdateTarget("HEAD", test.Tip.Sha);
-                (direct is DirectReference).ShouldBeTrue();
+                Assert.True((direct is DirectReference));
                 Assert.Equal(repo.Refs["HEAD"], direct);
 
                 Reference symref = repo.Refs.UpdateTarget("HEAD", test.CanonicalName);
-                (symref is SymbolicReference).ShouldBeTrue();
+                Assert.True((symref is SymbolicReference));
                 Assert.Equal(repo.Refs["HEAD"], symref);
             }
     
@@ -485,13 +485,13 @@ namespace LibGit2Sharp.Tests
                 const string newName = "refs/atic/tagtest";
 
                 List<string> refs = repo.Refs.Select(r => r.CanonicalName).ToList();
-                refs.Contains(oldName).ShouldBeTrue();
+                Assert.True(refs.Contains(oldName));
 
                 repo.Refs.Move(oldName, newName);
 
                 List<string> refs2 = repo.Refs.Select(r => r.CanonicalName).ToList();
                 Assert.False(refs2.Contains(oldName));
-                refs2.Contains(newName).ShouldBeTrue();
+                Assert.True(refs2.Contains(newName));
 
                 Assert.Equal(refs2.Count, refs.Count);
             }

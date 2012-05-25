@@ -18,7 +18,7 @@ namespace LibGit2Sharp.Tests
                 TreeEntry treeEntry1 = tree["README"];
                 TreeEntry treeEntry2 = tree["README"];
                 Assert.Equal(treeEntry2, treeEntry1);
-                (treeEntry1 == treeEntry2).ShouldBeTrue();
+                Assert.True((treeEntry1 == treeEntry2));
             }
         }
 

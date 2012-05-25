@@ -42,7 +42,7 @@ namespace LibGit2Sharp.Tests
 
                 status.ShouldNotBeNull();
                 Assert.Equal(6, status.Count());
-                status.IsDirty.ShouldBeTrue();
+                Assert.True(status.IsDirty);
 
                 Assert.Equal("new_untracked_file.txt", status.Untracked.Single());
                 Assert.Equal("modified_unstaged_file.txt", status.Modified.Single());
@@ -60,7 +60,7 @@ namespace LibGit2Sharp.Tests
 
                 status2.ShouldNotBeNull();
                 Assert.Equal(6, status2.Count());
-                status2.IsDirty.ShouldBeTrue();
+                Assert.True(status2.IsDirty);
 
                 Assert.Equal("new_untracked_file.txt", status2.Untracked.Single());
                 Assert.Equal(new[] { file, "modified_unstaged_file.txt" }, status2.Modified);

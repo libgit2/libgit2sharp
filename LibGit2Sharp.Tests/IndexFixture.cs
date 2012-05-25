@@ -232,7 +232,7 @@ namespace LibGit2Sharp.Tests
 
                 const string filename = "new_untracked_file.txt";
                 string fullPath = Path.Combine(repo.Info.WorkingDirectory, filename);
-                File.Exists(fullPath).ShouldBeTrue();
+                Assert.True(File.Exists(fullPath));
 
                 repo.Index.Stage(fullPath);
 

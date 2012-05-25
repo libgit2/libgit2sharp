@@ -17,13 +17,13 @@ namespace LibGit2Sharp.Tests
             using (var repo = Repository.Init(scd.DirectoryPath, true))
             {
                 string dir = repo.Info.Path;
-                Path.IsPathRooted(dir).ShouldBeTrue();
-                Directory.Exists(dir).ShouldBeTrue();
+                Assert.True(Path.IsPathRooted(dir));
+                Assert.True(Directory.Exists(dir));
                 CheckGitConfigFile(dir);
 
                 Assert.Null(repo.Info.WorkingDirectory);
                 Assert.Equal(scd.RootedDirectoryPath + Path.DirectorySeparatorChar, repo.Info.Path);
-                repo.Info.IsBare.ShouldBeTrue();
+                Assert.True(repo.Info.IsBare);
 
                 AssertInitializedRepository(repo);
             }
@@ -46,8 +46,8 @@ namespace LibGit2Sharp.Tests
             using (var repo = Repository.Init(scd.DirectoryPath))
             {
                 string dir = repo.Info.Path;
-                Path.IsPathRooted(dir).ShouldBeTrue();
-                Directory.Exists(dir).ShouldBeTrue();
+                Assert.True(Path.IsPathRooted(dir));
+                Assert.True(Directory.Exists(dir));
                 CheckGitConfigFile(dir);
 
                 repo.Info.WorkingDirectory.ShouldNotBeNull();
@@ -63,7 +63,7 @@ namespace LibGit2Sharp.Tests
         private static void CheckGitConfigFile(string dir)
         {
             string configFilePath = Path.Combine(dir, "config");
-            File.Exists(configFilePath).ShouldBeTrue();
+            Assert.True(File.Exists(configFilePath));
 
             string contents = File.ReadAllText(configFilePath);
             contents.IndexOf("repositoryformatversion = 0", StringComparison.Ordinal).ShouldNotEqual(-1);
@@ -98,7 +98,7 @@ namespace LibGit2Sharp.Tests
         private static void AssertInitializedRepository(Repository repo)
         {
             repo.Info.Path.ShouldNotBeNull();
-            repo.Info.IsEmpty.ShouldBeTrue();
+            Assert.True(repo.Info.IsEmpty);
             Assert.False(repo.Info.IsHeadDetached);
 
             Reference headRef = repo.Refs["HEAD"];
@@ -107,7 +107,7 @@ namespace LibGit2Sharp.Tests
             Assert.Null(headRef.ResolveToDirectReference());
 
             repo.Head.ShouldNotBeNull();
-            repo.Head.IsCurrentRepositoryHead.ShouldBeTrue();
+            Assert.True(repo.Head.IsCurrentRepositoryHead);
             Assert.Equal(headRef.TargetIdentifier, repo.Head.CanonicalName);
             Assert.Null(repo.Head.Tip);
 
@@ -161,7 +161,7 @@ namespace LibGit2Sharp.Tests
             {
                 repo.Info.Path.ShouldNotBeNull();
                 Assert.Null(repo.Info.WorkingDirectory);
-                repo.Info.IsBare.ShouldBeTrue();
+                Assert.True(repo.Info.IsBare);
                 Assert.False(repo.Info.IsEmpty);
                 Assert.False(repo.Info.IsHeadDetached);
             }
@@ -231,7 +231,7 @@ namespace LibGit2Sharp.Tests
             {
                 GitObject commit = repo.Lookup(commitSha);
                 GitObject commit2 = repo.Lookup(commitSha);
-                commit.Equals(commit2).ShouldBeTrue();
+                Assert.True(commit.Equals(commit2));
                 Assert.Equal(commit2.GetHashCode(), commit.GetHashCode());
             }
         }

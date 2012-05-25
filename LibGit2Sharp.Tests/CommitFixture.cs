@@ -138,7 +138,7 @@ namespace LibGit2Sharp.Tests
                 foreach (Commit commit in repo.Commits.QueryBy(new Filter { Since = "a4a7dce85cf63874e984719f4fdd239f5145052f", SortBy = GitSortOptions.Time | GitSortOptions.Reverse }))
                 {
                     commit.ShouldNotBeNull();
-                    commit.Sha.StartsWith(reversedShas[count]).ShouldBeTrue();
+                    Assert.True(commit.Sha.StartsWith(reversedShas[count]));
                     count++;
                 }
             }
@@ -181,7 +181,7 @@ namespace LibGit2Sharp.Tests
                 foreach (Commit commit in repo.Commits.QueryBy(new Filter { Since = "a4a7dce85cf63874e984719f4fdd239f5145052f", SortBy = GitSortOptions.Time }))
                 {
                     commit.ShouldNotBeNull();
-                    commit.Sha.StartsWith(expectedShas[count]).ShouldBeTrue();
+                    Assert.True(commit.Sha.StartsWith(expectedShas[count]));
                     count++;
                 }
             }
@@ -447,8 +447,8 @@ namespace LibGit2Sharp.Tests
             using (var repo = Repository.Init(scd.DirectoryPath)) 
             {
                 string dir = repo.Info.Path;
-                Path.IsPathRooted(dir).ShouldBeTrue();
-                Directory.Exists(dir).ShouldBeTrue();
+                Assert.True(Path.IsPathRooted(dir));
+                Assert.True(Directory.Exists(dir));
 
                 InconclusiveIf(() => !repo.Config.HasGlobalConfig, "No Git global configuration available");
 
@@ -484,8 +484,8 @@ namespace LibGit2Sharp.Tests
             using (var repo = Repository.Init(scd.DirectoryPath))
             {
                 string dir = repo.Info.Path;
-                Path.IsPathRooted(dir).ShouldBeTrue();
-                Directory.Exists(dir).ShouldBeTrue();
+                Assert.True(Path.IsPathRooted(dir));
+                Assert.True(Directory.Exists(dir));
 
                 const string relativeFilepath = "new.txt";
                 string filePath = Path.Combine(repo.Info.WorkingDirectory, relativeFilepath);
