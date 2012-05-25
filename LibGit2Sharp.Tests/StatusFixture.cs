@@ -81,7 +81,7 @@ namespace LibGit2Sharp.Tests
                 RepositoryStatus status = repo.Index.RetrieveStatus();
                 status.ShouldNotBeNull();
                 status.Count().ShouldEqual(0);
-                status.IsDirty.ShouldBeFalse();
+                Assert.False(status.IsDirty);
 
                 status.Untracked.Count().ShouldEqual(0);
                 status.Modified.Count().ShouldEqual(0);

@@ -48,8 +48,8 @@ namespace LibGit2Sharp.Tests
         {
             var sut2 = new Tuple<int, string>(integer + 1, stringy);
 
-            sut.Equals(sut2).ShouldBeFalse();
-            Equals(sut, sut2).ShouldBeFalse();
+            Assert.False(sut.Equals(sut2));
+            Assert.False(Equals(sut, sut2));
         }
     }
 }

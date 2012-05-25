@@ -328,7 +328,7 @@ namespace LibGit2Sharp.Tests
                 const string filename = "deleted_staged_file.txt";
 
                 string fullPath = Path.Combine(repo.Info.WorkingDirectory, filename);
-                File.Exists(fullPath).ShouldBeFalse();
+                Assert.False(File.Exists(fullPath));
 
                 repo.Index.RetrieveStatus(filename).ShouldEqual(FileStatus.Removed);
 
@@ -480,7 +480,7 @@ namespace LibGit2Sharp.Tests
                 repo.Index.Remove(filename);
 
                 repo.Index.Count.ShouldEqual(count - 1);
-                File.Exists(fullpath).ShouldBeFalse();
+                Assert.False(File.Exists(fullpath));
                 repo.Index.RetrieveStatus(filename).ShouldEqual(finalStatus);
             }
         }

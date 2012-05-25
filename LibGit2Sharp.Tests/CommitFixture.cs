@@ -504,7 +504,7 @@ namespace LibGit2Sharp.Tests
                 AssertBlobContent(commit[relativeFilepath], "nulltoken\n");
 
                 commit.ParentsCount.ShouldEqual(0);
-                repo.Info.IsEmpty.ShouldBeFalse();
+                Assert.False(repo.Info.IsEmpty);
 
                 File.WriteAllText(filePath, "nulltoken commits!\n");
                 repo.Index.Stage(relativeFilepath);
