@@ -45,7 +45,7 @@ namespace LibGit2Sharp.Tests
             {
                 foreach (Commit commit in repo.Commits)
                 {
-                    commit.ShouldNotBeNull();
+                    Assert.NotNull(commit);
                     count++;
                 }
             }
@@ -84,7 +84,7 @@ namespace LibGit2Sharp.Tests
             {
                 foreach (Commit commit in repo.Commits.QueryBy(new Filter { Since = "a4a7dce85cf63874e984719f4fdd239f5145052f" }))
                 {
-                    commit.ShouldNotBeNull();
+                    Assert.NotNull(commit);
                     count++;
                 }
             }
@@ -137,7 +137,7 @@ namespace LibGit2Sharp.Tests
             {
                 foreach (Commit commit in repo.Commits.QueryBy(new Filter { Since = "a4a7dce85cf63874e984719f4fdd239f5145052f", SortBy = GitSortOptions.Time | GitSortOptions.Reverse }))
                 {
-                    commit.ShouldNotBeNull();
+                    Assert.NotNull(commit);
                     Assert.True(commit.Sha.StartsWith(reversedShas[count]));
                     count++;
                 }
@@ -153,7 +153,7 @@ namespace LibGit2Sharp.Tests
                 List<Commit> commits = repo.Commits.QueryBy(new Filter { Since = "a4a7dce85cf63874e984719f4fdd239f5145052f", SortBy = GitSortOptions.Time | GitSortOptions.Reverse }).ToList();
                 foreach (Commit commit in commits)
                 {
-                    commit.ShouldNotBeNull();
+                    Assert.NotNull(commit);
                     foreach (Commit p in commit.Parents)
                     {
                         Commit parent = commits.Single(x => x.Id == p.Id);
@@ -180,7 +180,7 @@ namespace LibGit2Sharp.Tests
             {
                 foreach (Commit commit in repo.Commits.QueryBy(new Filter { Since = "a4a7dce85cf63874e984719f4fdd239f5145052f", SortBy = GitSortOptions.Time }))
                 {
-                    commit.ShouldNotBeNull();
+                    Assert.NotNull(commit);
                     Assert.True(commit.Sha.StartsWith(expectedShas[count]));
                     count++;
                 }
@@ -196,7 +196,7 @@ namespace LibGit2Sharp.Tests
                 List<Commit> commits = repo.Commits.QueryBy(new Filter { Since = "a4a7dce85cf63874e984719f4fdd239f5145052f", SortBy = GitSortOptions.Topological }).ToList();
                 foreach (Commit commit in commits)
                 {
-                    commit.ShouldNotBeNull();
+                    Assert.NotNull(commit);
                     foreach (Commit p in commit.Parents)
                     {
                         Commit parent = commits.Single(x => x.Id == p.Id);
@@ -366,7 +366,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(BareTestRepoPath))
             {
                 GitObject obj = repo.Lookup(sha);
-                obj.ShouldNotBeNull();
+                Assert.NotNull(obj);
                 Assert.Equal(typeof(Commit), obj.GetType());
 
                 var commit = (Commit)obj;
@@ -375,12 +375,12 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal("UTF-8", commit.Encoding);
                 Assert.Equal(sha, commit.Sha);
 
-                commit.Author.ShouldNotBeNull();
+                Assert.NotNull(commit.Author);
                 Assert.Equal("Scott Chacon", commit.Author.Name);
                 Assert.Equal("schacon@gmail.com", commit.Author.Email);
                 Assert.Equal(1273360386, commit.Author.When.ToSecondsSinceEpoch());
 
-                commit.Committer.ShouldNotBeNull();
+                Assert.NotNull(commit.Committer);
                 Assert.Equal("Scott Chacon", commit.Committer.Name);
                 Assert.Equal("schacon@gmail.com", commit.Committer.Email);
                 Assert.Equal(1273360386, commit.Committer.When.ToSecondsSinceEpoch());
@@ -410,7 +410,7 @@ namespace LibGit2Sharp.Tests
                 var commit = repo.Lookup<Commit>("4c062a6");
 
                 var blob = commit["1/branch_file.txt"].Target as Blob;
-                blob.ShouldNotBeNull();
+                Assert.NotNull(blob);
 
                 Assert.Equal("hi\n", blob.ContentAsUtf8());
             }
@@ -424,7 +424,7 @@ namespace LibGit2Sharp.Tests
                 var commit = repo.Lookup<Commit>("4c062a6");
 
                 var tree1 = commit["1"].Target as Tree;
-                tree1.ShouldNotBeNull();
+                Assert.NotNull(tree1);
             }
         }
 
@@ -609,7 +609,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path.RepositoryPath))
             {
                 var mergedCommit = repo.Lookup<Commit>("be3563a");
-                mergedCommit.ShouldNotBeNull();
+                Assert.NotNull(mergedCommit);
                 Assert.Equal(2, mergedCommit.ParentsCount);
 
                 repo.Reset(ResetOptions.Soft, mergedCommit.Sha);

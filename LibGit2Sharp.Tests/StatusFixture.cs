@@ -40,7 +40,7 @@ namespace LibGit2Sharp.Tests
                 IndexEntry indexEntry = repo.Index[file];
                 Assert.Equal(FileStatus.Staged, indexEntry.State);
 
-                status.ShouldNotBeNull();
+                Assert.NotNull(status);
                 Assert.Equal(6, status.Count());
                 Assert.True(status.IsDirty);
 
@@ -58,7 +58,7 @@ namespace LibGit2Sharp.Tests
 
                 RepositoryStatus status2 = repo.Index.RetrieveStatus();
 
-                status2.ShouldNotBeNull();
+                Assert.NotNull(status2);
                 Assert.Equal(6, status2.Count());
                 Assert.True(status2.IsDirty);
 
@@ -79,7 +79,7 @@ namespace LibGit2Sharp.Tests
             using (Repository repo = Repository.Init(scd.DirectoryPath))
             {
                 RepositoryStatus status = repo.Index.RetrieveStatus();
-                status.ShouldNotBeNull();
+                Assert.NotNull(status);
                 Assert.Equal(0, status.Count());
                 Assert.False(status.IsDirty);
 

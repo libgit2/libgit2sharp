@@ -24,7 +24,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path.RepositoryPath))
             {
                 Tag newTag = repo.Tags.Create("i_am_lightweight", commitE90810BSha);
-                newTag.ShouldNotBeNull();
+                Assert.NotNull(newTag);
                 Assert.False(newTag.IsAnnotated);
             }
         }
@@ -36,7 +36,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path.RepositoryPath))
             {
                 Tag newTag = repo.Tags.Create("i_am_lightweight", commitE90810BSha.Substring(0, 17));
-                newTag.ShouldNotBeNull();
+                Assert.NotNull(newTag);
                 Assert.False(newTag.IsAnnotated);
             }
         }
@@ -49,7 +49,7 @@ namespace LibGit2Sharp.Tests
             {
                 Tag newTag = repo.Tags.Create("i_am_lightweight", "refs/heads/master");
                 Assert.False(newTag.IsAnnotated);
-                newTag.ShouldNotBeNull();
+                Assert.NotNull(newTag);
             }
         }
 
@@ -60,7 +60,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path.RepositoryPath))
             {
                 Tag newTag = repo.Tags.Create("e90810b", commitE90810BSha, true);
-                newTag.ShouldNotBeNull();
+                Assert.NotNull(newTag);
                 Assert.False(newTag.IsAnnotated);
             }
         }
@@ -73,14 +73,14 @@ namespace LibGit2Sharp.Tests
             {
                 const string lwTagName = "i/am/deep";
                 Tag lwTag = repo.Tags.Create(lwTagName, commitE90810BSha);
-                lwTag.ShouldNotBeNull();
+                Assert.NotNull(lwTag);
                 Assert.False(lwTag.IsAnnotated);
                 Assert.Equal(commitE90810BSha, lwTag.Target.Sha);
                 Assert.Equal(lwTagName, lwTag.Name);
 
                 const string anTagName = lwTagName + "_as_well";
                 Tag anTag = repo.Tags.Create(anTagName, commitE90810BSha, signatureNtk, "a nice message");
-                anTag.ShouldNotBeNull();
+                Assert.NotNull(anTag);
                 Assert.True(anTag.IsAnnotated);
                 Assert.Equal(commitE90810BSha, anTag.Target.Sha);
                 Assert.Equal(anTag.Target, anTag.Annotation.Target);
@@ -108,7 +108,7 @@ namespace LibGit2Sharp.Tests
             {
                 Tag newTag = repo.Tags.Create("unit_test", "refs/heads/master", signatureTim, "a new tag");
                 Assert.True(newTag.IsAnnotated);
-                newTag.ShouldNotBeNull();
+                Assert.NotNull(newTag);
             }
         }
 
@@ -119,7 +119,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path.RepositoryPath))
             {
                 Tag newTag = repo.Tags.Create("unit_test", tagTestSha, signatureTim, "a new tag");
-                newTag.ShouldNotBeNull();
+                Assert.NotNull(newTag);
                 Assert.True(newTag.IsAnnotated);
             }
         }
@@ -132,7 +132,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path.RepositoryPath))
             {
                 Tag newTag = repo.ApplyTag("empty-annotated-tag", signatureNtk, string.Empty);
-                newTag.ShouldNotBeNull();
+                Assert.NotNull(newTag);
                 Assert.True(newTag.IsAnnotated);
                 Assert.Equal(string.Empty, newTag.Annotation.Message);
             }
@@ -145,7 +145,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path.RepositoryPath))
             {
                 Tag newTag = repo.Tags.Create("e90810b", tagTestSha, signatureTim, "a new tag", true);
-                newTag.ShouldNotBeNull();
+                Assert.NotNull(newTag);
                 Assert.True(newTag.IsAnnotated);
             }
         }
@@ -228,7 +228,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path.RepositoryPath))
             {
                 Tag tag = repo.ApplyTag("mytag");
-                tag.ShouldNotBeNull();
+                Assert.NotNull(tag);
 
                 Assert.Equal(repo.Head.Tip.Id, tag.Target.Id);
 
@@ -272,7 +272,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path.RepositoryPath))
             {
                 Tag tag = repo.ApplyTag("mytag", "HEAD");
-                tag.ShouldNotBeNull();
+                Assert.NotNull(tag);
 
                 Assert.Equal(repo.Head.Tip.Id, tag.Target.Id);
 
@@ -291,7 +291,7 @@ namespace LibGit2Sharp.Tests
                 Tree tree = headCommit.Tree;
 
                 Tag tag = repo.ApplyTag("tree-tag", tree.Sha);
-                tag.ShouldNotBeNull();
+                Assert.NotNull(tag);
                 Assert.False(tag.IsAnnotated);
                 Assert.Equal(tree.Id, tag.Target.Id);
 
@@ -310,7 +310,7 @@ namespace LibGit2Sharp.Tests
                 Blob blob = headCommit.Tree.Blobs.First();
 
                 Tag tag = repo.ApplyTag("blob-tag", blob.Sha);
-                tag.ShouldNotBeNull();
+                Assert.NotNull(tag);
                 Assert.False(tag.IsAnnotated);
                 Assert.Equal(blob.Id, tag.Target.Id);
 
@@ -329,7 +329,7 @@ namespace LibGit2Sharp.Tests
                 TagAnnotation annotation = annotatedTag.Annotation;
 
                 Tag tag = repo.ApplyTag("lightweight-tag", annotation.Sha);
-                tag.ShouldNotBeNull();
+                Assert.NotNull(tag);
                 Assert.True(tag.IsAnnotated);
                 Assert.Equal(annotation.Target.Id, tag.Target.Id);
                 Assert.Equal(annotation, tag.Annotation);
@@ -349,7 +349,7 @@ namespace LibGit2Sharp.Tests
                 TagAnnotation annotation = annotatedTag.Annotation;
 
                 Tag tag = repo.ApplyTag("annotatedtag-tag", annotation.Sha, signatureNtk, "A new annotation");
-                tag.ShouldNotBeNull();
+                Assert.NotNull(tag);
                 Assert.True(tag.IsAnnotated);
                 Assert.Equal(annotation.Id, tag.Annotation.Target.Id);
                 tag.Annotation.ShouldNotEqual(annotation);
@@ -567,7 +567,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(BareTestRepoPath))
             {
                 Tag tag = repo.Tags["lw"];
-                tag.ShouldNotBeNull();
+                Assert.NotNull(tag);
                 Assert.Equal("lw", tag.Name);
                 Assert.Equal(commitE90810BSha, tag.Target.Sha);
 
@@ -582,11 +582,11 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(BareTestRepoPath))
             {
                 Tag tag = repo.Tags["refs/tags/lw"];
-                tag.ShouldNotBeNull();
+                Assert.NotNull(tag);
                 Assert.Equal("lw", tag.Name);
 
                 Tag tag2 = repo.Tags["refs/tags/lw"];
-                tag2.ShouldNotBeNull();
+                Assert.NotNull(tag2);
                 Assert.Equal("lw", tag2.Name);
 
                 Assert.Equal(tag, tag2);
@@ -600,7 +600,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(BareTestRepoPath))
             {
                 Tag tag = repo.Tags["e90810b"];
-                tag.ShouldNotBeNull();
+                Assert.NotNull(tag);
                 Assert.Equal("e90810b", tag.Name);
                 Assert.Equal(commitE90810BSha, tag.Target.Sha);
 

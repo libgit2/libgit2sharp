@@ -74,7 +74,7 @@ namespace LibGit2Sharp.Tests
             {
                 InconclusiveIf(() => !repo.Config.HasGlobalConfig, "No Git global configuration available");
 
-                repo.Config.Get<string>("user.name", null).ShouldNotBeNull();
+                Assert.NotNull(repo.Config.Get<string>("user.name", null));
             }
         }
 
@@ -84,7 +84,7 @@ namespace LibGit2Sharp.Tests
             using (var config = new Configuration())
             {
                 InconclusiveIf(() => !config.HasGlobalConfig, "No Git global configuration available");
-                config.Get<string>("user.name", null).ShouldNotBeNull();
+                Assert.NotNull(config.Get<string>("user.name", null));
             }
         }
 
@@ -148,7 +148,7 @@ namespace LibGit2Sharp.Tests
                 InconclusiveIf(() => !repo.Config.HasGlobalConfig, "No Git global configuration available");
 
                 var existing = repo.Config.Get<string>("user.name", null);
-                existing.ShouldNotBeNull();
+                Assert.NotNull(existing);
 
                 try
                 {
@@ -171,7 +171,7 @@ namespace LibGit2Sharp.Tests
                 InconclusiveIf(() => !config.HasGlobalConfig, "No Git global configuration available");
 
                 var existing = config.Get<string>("user.name", null);
-                existing.ShouldNotBeNull();
+                Assert.NotNull(existing);
 
                 try
                 {

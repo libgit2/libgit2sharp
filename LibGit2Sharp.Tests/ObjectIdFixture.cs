@@ -115,7 +115,7 @@ namespace LibGit2Sharp.Tests
                 return;
             }
 
-            parsedObjectId.ShouldNotBeNull();
+            Assert.NotNull(parsedObjectId);
             Assert.Equal(maybeSha, parsedObjectId.Sha);
             Assert.True(maybeSha.StartsWith(parsedObjectId.ToString(3)));
             Assert.Equal(maybeSha, parsedObjectId.ToString(42));
