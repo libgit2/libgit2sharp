@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
 using Xunit.Extensions;
@@ -9,6 +10,8 @@ namespace LibGit2Sharp.Tests
     {
         private const string validSha1 = "ce08fe4884650f067bd5703b6a59a8b3b3c99a09";
         private const string validSha2 = "de08fe4884650f067bd5703b6a59a8b3b3c99a09";
+
+        private static byte[] bytes = new byte[] { 206, 8, 254, 72, 132, 101, 15, 6, 123, 213, 112, 59, 106, 89, 168, 179, 179, 201, 154, 9 };
 
         [Theory]
         [InlineData("Dummy", typeof(ArgumentException))]
@@ -24,12 +27,10 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanConvertOidToSha()
         {
-            var bytes = new byte[] { 206, 8, 254, 72, 132, 101, 15, 6, 123, 213, 112, 59, 106, 89, 168, 179, 179, 201, 154, 9 };
-
             var id = new ObjectId(bytes);
 
-            id.Sha.ShouldEqual(validSha1);
-            id.ToString().ShouldEqual(validSha1);
+            Assert.Equal(validSha1, id.Sha);
+            Assert.Equal(validSha1, id.ToString());
         }
 
         [Fact]
@@ -37,15 +38,15 @@ namespace LibGit2Sharp.Tests
         {
             var id = new ObjectId(validSha1);
 
-            id.RawId.ShouldEqual(new byte[] { 206, 8, 254, 72, 132, 101, 15, 6, 123, 213, 112, 59, 106, 89, 168, 179, 179, 201, 154, 9 });
+            Assert.Equal(bytes, id.RawId);
         }
 
         [Fact]
         public void CreatingObjectIdWithWrongNumberOfBytesThrows()
         {
-            var bytes = new byte[] { 206, 8, 254, 72, 132, 101, 15, 6, 123, 213, 112, 59, 106, 89, 168, 179, 179, 201, 154 };
+            var invalidBytes = new byte[] { 206, 8, 254, 72, 132, 101, 15, 6, 123, 213, 112, 59, 106, 89, 168, 179, 179, 201, 154 };
 
-            Assert.Throws<ArgumentException>(() => { new ObjectId(bytes); });
+            Assert.Throws<ArgumentException>(() => { new ObjectId(invalidBytes); });
         }
 
         [Fact]
@@ -89,7 +90,7 @@ namespace LibGit2Sharp.Tests
             var a = new ObjectId(validSha1);
             var b = new ObjectId(validSha1);
 
-            a.GetHashCode().ShouldEqual(b.GetHashCode());
+            Assert.Equal(b.GetHashCode(), a.GetHashCode());
         }
 
         [Theory]
@@ -107,7 +108,7 @@ namespace LibGit2Sharp.Tests
         {
             ObjectId parsedObjectId;
             bool result = ObjectId.TryParse(maybeSha, out parsedObjectId);
-            result.ShouldEqual(isValidSha);
+            Assert.Equal(isValidSha, result);
 
             if (!result)
             {
@@ -115,9 +116,9 @@ namespace LibGit2Sharp.Tests
             }
 
             parsedObjectId.ShouldNotBeNull();
-            parsedObjectId.Sha.ShouldEqual(maybeSha);
+            Assert.Equal(maybeSha, parsedObjectId.Sha);
             maybeSha.StartsWith(parsedObjectId.ToString(3)).ShouldBeTrue();
-            parsedObjectId.ToString(42).ShouldEqual(maybeSha);
+            Assert.Equal(maybeSha, parsedObjectId.ToString(42));
         }
     }
 }

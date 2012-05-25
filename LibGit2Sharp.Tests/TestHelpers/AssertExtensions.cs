@@ -24,16 +24,6 @@ namespace LibGit2Sharp.Tests.TestHelpers
             Assert.True(currentObject);
         }
 
-        public static void ShouldEqual(this object compareFrom, object compareTo)
-        {
-            Assert.Equal(compareTo, compareFrom);
-        }
-
-        public static void ShouldEqual<T>(this T compareFrom, T compareTo)
-        {
-            Assert.Equal(compareTo, compareFrom);
-        }
-
         public static void ShouldNotBeNull(this object currentObject)
         {
             Assert.NotNull(currentObject);

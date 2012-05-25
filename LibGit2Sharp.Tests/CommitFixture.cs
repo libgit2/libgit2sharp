@@ -18,7 +18,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                repo.Commits.Count().ShouldEqual(7);
+                Assert.Equal(7, repo.Commits.Count());
             }
         }
 
@@ -28,12 +28,12 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(BareTestRepoPath))
             {
                 repo.Checkout("test");
-                repo.Commits.Count().ShouldEqual(2);
-                repo.Commits.First().Id.Sha.ShouldEqual("e90810b8df3e80c413d903f631643c716887138d");
+                Assert.Equal(2, repo.Commits.Count());
+                Assert.Equal("e90810b8df3e80c413d903f631643c716887138d", repo.Commits.First().Id.Sha);
 
                 repo.Checkout("master");
-                repo.Commits.Count().ShouldEqual(7);
-                repo.Commits.First().Id.Sha.ShouldEqual("4c062a6361ae6959e06292c1fa5e2822d9c96345");
+                Assert.Equal(7, repo.Commits.Count());
+                Assert.Equal("4c062a6361ae6959e06292c1fa5e2822d9c96345", repo.Commits.First().Id.Sha);
             }
         }
 
@@ -49,7 +49,7 @@ namespace LibGit2Sharp.Tests
                     count++;
                 }
             }
-            count.ShouldEqual(7);
+            Assert.Equal(7, count);
         }
 
         [Fact]
@@ -63,7 +63,7 @@ namespace LibGit2Sharp.Tests
                 repo.Refs.Create("HEAD", parentOfHead.Sha, true);
                 Assert.Equal(true, repo.Info.IsHeadDetached);
 
-                repo.Commits.Count().ShouldEqual(6);
+                Assert.Equal(6, repo.Commits.Count());
             }
         }
 
@@ -72,7 +72,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                repo.Commits.SortedBy.ShouldEqual(GitSortOptions.Time);
+                Assert.Equal(GitSortOptions.Time, repo.Commits.SortedBy);
             }
         }
 
@@ -88,7 +88,7 @@ namespace LibGit2Sharp.Tests
                     count++;
                 }
             }
-            count.ShouldEqual(6);
+            Assert.Equal(6, count);
         }
 
         [Fact]
@@ -142,7 +142,7 @@ namespace LibGit2Sharp.Tests
                     count++;
                 }
             }
-            count.ShouldEqual(6);
+            Assert.Equal(6, count);
         }
 
         [Fact]
@@ -168,7 +168,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                repo.Commits.First().ParentsCount.ShouldEqual(1);
+                Assert.Equal(1, repo.Commits.First().ParentsCount);
             }
         }
 
@@ -185,7 +185,7 @@ namespace LibGit2Sharp.Tests
                     count++;
                 }
             }
-            count.ShouldEqual(6);
+            Assert.Equal(6, count);
         }
 
         [Fact]
@@ -354,9 +354,9 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(BareTestRepoPath))
             {
                 var commit = repo.Lookup<Commit>(sha);
-                commit.Message.ShouldEqual("testing\n");
-                commit.MessageShort.ShouldEqual("testing");
-                commit.Sha.ShouldEqual(sha);
+                Assert.Equal("testing\n", commit.Message);
+                Assert.Equal("testing", commit.MessageShort);
+                Assert.Equal(sha, commit.Sha);
             }
         }
 
@@ -367,27 +367,27 @@ namespace LibGit2Sharp.Tests
             {
                 GitObject obj = repo.Lookup(sha);
                 obj.ShouldNotBeNull();
-                obj.GetType().ShouldEqual(typeof(Commit));
+                Assert.Equal(typeof(Commit), obj.GetType());
 
                 var commit = (Commit)obj;
-                commit.Message.ShouldEqual("testing\n");
-                commit.MessageShort.ShouldEqual("testing");
-                commit.Encoding.ShouldEqual("UTF-8");
-                commit.Sha.ShouldEqual(sha);
+                Assert.Equal("testing\n", commit.Message);
+                Assert.Equal("testing", commit.MessageShort);
+                Assert.Equal("UTF-8", commit.Encoding);
+                Assert.Equal(sha, commit.Sha);
 
                 commit.Author.ShouldNotBeNull();
-                commit.Author.Name.ShouldEqual("Scott Chacon");
-                commit.Author.Email.ShouldEqual("schacon@gmail.com");
-                commit.Author.When.ToSecondsSinceEpoch().ShouldEqual(1273360386);
+                Assert.Equal("Scott Chacon", commit.Author.Name);
+                Assert.Equal("schacon@gmail.com", commit.Author.Email);
+                Assert.Equal(1273360386, commit.Author.When.ToSecondsSinceEpoch());
 
                 commit.Committer.ShouldNotBeNull();
-                commit.Committer.Name.ShouldEqual("Scott Chacon");
-                commit.Committer.Email.ShouldEqual("schacon@gmail.com");
-                commit.Committer.When.ToSecondsSinceEpoch().ShouldEqual(1273360386);
+                Assert.Equal("Scott Chacon", commit.Committer.Name);
+                Assert.Equal("schacon@gmail.com", commit.Committer.Email);
+                Assert.Equal(1273360386, commit.Committer.When.ToSecondsSinceEpoch());
 
-                commit.Tree.Sha.ShouldEqual("181037049a54a1eb5fab404658a3a250b44335d7");
+                Assert.Equal("181037049a54a1eb5fab404658a3a250b44335d7", commit.Tree.Sha);
 
-                commit.ParentsCount.ShouldEqual(0);
+                Assert.Equal(0, commit.ParentsCount);
             }
         }
 
@@ -397,8 +397,8 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(BareTestRepoPath))
             {
                 var commit = repo.Lookup<Commit>("a4a7dce85cf63874e984719f4fdd239f5145052f");
-                commit.Parents.Count().ShouldEqual(2);
-                commit.ParentsCount.ShouldEqual(2);
+                Assert.Equal(2, commit.Parents.Count());
+                Assert.Equal(2, commit.ParentsCount);
             }
         }
 
@@ -412,7 +412,7 @@ namespace LibGit2Sharp.Tests
                 var blob = commit["1/branch_file.txt"].Target as Blob;
                 blob.ShouldNotBeNull();
 
-                blob.ContentAsUtf8().ShouldEqual("hi\n");
+                Assert.Equal("hi\n", blob.ContentAsUtf8());
             }
         }
 
@@ -503,7 +503,7 @@ namespace LibGit2Sharp.Tests
                 AssertBlobContent(repo.Head[relativeFilepath], "nulltoken\n");
                 AssertBlobContent(commit[relativeFilepath], "nulltoken\n");
 
-                commit.ParentsCount.ShouldEqual(0);
+                Assert.Equal(0, commit.ParentsCount);
                 Assert.False(repo.Info.IsEmpty);
 
                 File.WriteAllText(filePath, "nulltoken commits!\n");
@@ -515,8 +515,8 @@ namespace LibGit2Sharp.Tests
                 AssertBlobContent(repo.Head[relativeFilepath], "nulltoken commits!\n");
                 AssertBlobContent(commit2[relativeFilepath], "nulltoken commits!\n");
 
-                commit2.ParentsCount.ShouldEqual(1);
-                commit2.Parents.First().Id.ShouldEqual(commit.Id);
+                Assert.Equal(1, commit2.ParentsCount);
+                Assert.Equal(commit.Id, commit2.Parents.First().Id);
 
                 Branch firstCommitBranch = repo.CreateBranch("davidfowl-rules", commit);
                 repo.Checkout(firstCommitBranch);
@@ -531,8 +531,8 @@ namespace LibGit2Sharp.Tests
                 AssertBlobContent(repo.Head[relativeFilepath], "davidfowl commits!\n");
                 AssertBlobContent(commit3[relativeFilepath], "davidfowl commits!\n");
 
-                commit3.ParentsCount.ShouldEqual(1);
-                commit3.Parents.First().Id.ShouldEqual(commit.Id);
+                Assert.Equal(1, commit3.ParentsCount);
+                Assert.Equal(commit.Id, commit3.Parents.First().Id);
 
                 AssertBlobContent(firstCommitBranch[relativeFilepath], "nulltoken\n");
             }
@@ -540,8 +540,8 @@ namespace LibGit2Sharp.Tests
 
         private static void AssertBlobContent(TreeEntry entry, string expectedContent)
         {
-            entry.Type.ShouldEqual(GitObjectType.Blob);
-            ((Blob)(entry.Target)).ContentAsUtf8().ShouldEqual(expectedContent);
+            Assert.Equal(GitObjectType.Blob, entry.Type);
+            Assert.Equal(expectedContent, ((Blob)(entry.Target)).ContentAsUtf8());
         }
 
         private static void CommitToANewRepository(string path)
@@ -569,12 +569,12 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(scd.DirectoryPath))
             {
                 Commit commit = repo.Commits.Single();
-                commit.Sha.ShouldEqual("1fe3126578fc4eca68c193e4a3a0a14a0704624d");
+                Assert.Equal("1fe3126578fc4eca68c193e4a3a0a14a0704624d", commit.Sha);
                 Tree tree = commit.Tree;
-                tree.Sha.ShouldEqual("2b297e643c551e76cfa1f93810c50811382f9117");
+                Assert.Equal("2b297e643c551e76cfa1f93810c50811382f9117", tree.Sha);
 
                 Blob blob = tree.Blobs.Single();
-                blob.Sha.ShouldEqual("9daeafb9864cf43055ae93beb0afd6c7d144bfa4");
+                Assert.Equal("9daeafb9864cf43055ae93beb0afd6c7d144bfa4", blob.Sha);
             }
         }
 
@@ -587,16 +587,16 @@ namespace LibGit2Sharp.Tests
 
             using (var repo = new Repository(scd.DirectoryPath))
             {
-                repo.Head.Commits.Count().ShouldEqual(1);
+                Assert.Equal(1, repo.Head.Commits.Count());
 
                 Commit originalCommit = repo.Head.Tip;
-                originalCommit.ParentsCount.ShouldEqual(0);
+                Assert.Equal(0, originalCommit.ParentsCount);
 
                 CreateAndStageANewFile(repo);
 
                 Commit amendedCommit = repo.Commit("I'm rewriting the history!", DummySignature, DummySignature, true);
 
-                repo.Head.Commits.Count().ShouldEqual(1);
+                Assert.Equal(1, repo.Head.Commits.Count());
 
                 AssertCommitHasBeenAmended(repo, amendedCommit, originalCommit);
             }
@@ -610,7 +610,7 @@ namespace LibGit2Sharp.Tests
             {
                 var mergedCommit = repo.Lookup<Commit>("be3563a");
                 mergedCommit.ShouldNotBeNull();
-                mergedCommit.ParentsCount.ShouldEqual(2);
+                Assert.Equal(2, mergedCommit.ParentsCount);
 
                 repo.Reset(ResetOptions.Soft, mergedCommit.Sha);
 
@@ -634,7 +634,7 @@ namespace LibGit2Sharp.Tests
         private void AssertCommitHasBeenAmended(Repository repo, Commit amendedCommit, Commit originalCommit)
         {
             Commit headCommit = repo.Head.Tip;
-            headCommit.ShouldEqual(amendedCommit);
+            Assert.Equal(amendedCommit, headCommit);
 
             amendedCommit.Sha.ShouldNotEqual(originalCommit.Sha);
             Assert.Equal(originalCommit.Parents, amendedCommit.Parents);

@@ -25,10 +25,10 @@ namespace LibGit2Sharp.Tests
             {
                 var newRef = (DirectReference)repo.Refs.Create(name, "be3563ae3f795b2b4353bcce3a527ad0a4f7f644");
                 newRef.ShouldNotBeNull();
-                newRef.CanonicalName.ShouldEqual(name);
+                Assert.Equal(name, newRef.CanonicalName);
                 newRef.Target.ShouldNotBeNull();
-                newRef.Target.Sha.ShouldEqual("be3563ae3f795b2b4353bcce3a527ad0a4f7f644");
-                newRef.TargetIdentifier.ShouldEqual(newRef.Target.Sha);
+                Assert.Equal("be3563ae3f795b2b4353bcce3a527ad0a4f7f644", newRef.Target.Sha);
+                Assert.Equal(newRef.Target.Sha, newRef.TargetIdentifier);
                 repo.Refs[name].ShouldNotBeNull();
             }
         }
@@ -44,10 +44,10 @@ namespace LibGit2Sharp.Tests
             {
                 var newRef = (SymbolicReference)repo.Refs.Create(name, target);
                 newRef.ShouldNotBeNull();
-                newRef.CanonicalName.ShouldEqual(name);
-                newRef.Target.CanonicalName.ShouldEqual(target);
-                newRef.TargetIdentifier.ShouldEqual(newRef.Target.CanonicalName);
-                newRef.ResolveToDirectReference().Target.Sha.ShouldEqual("4c062a6361ae6959e06292c1fa5e2822d9c96345");
+                Assert.Equal(name, newRef.CanonicalName);
+                Assert.Equal(target, newRef.Target.CanonicalName);
+                Assert.Equal(newRef.Target.CanonicalName, newRef.TargetIdentifier);
+                Assert.Equal("4c062a6361ae6959e06292c1fa5e2822d9c96345", newRef.ResolveToDirectReference().Target.Sha);
                 repo.Refs[name].ShouldNotBeNull();
             }
         }
@@ -83,10 +83,10 @@ namespace LibGit2Sharp.Tests
             {
                 var newRef = (DirectReference)repo.Refs.Create(name, target, true);
                 newRef.ShouldNotBeNull();
-                newRef.CanonicalName.ShouldEqual(name);
+                Assert.Equal(name, newRef.CanonicalName);
                 newRef.Target.ShouldNotBeNull();
-                newRef.Target.Sha.ShouldEqual(target);
-                ((DirectReference)repo.Refs[name]).Target.Sha.ShouldEqual(target);
+                Assert.Equal(target, newRef.Target.Sha);
+                Assert.Equal(target, ((DirectReference)repo.Refs[name]).Target.Sha);
             }
         }
 
@@ -101,10 +101,10 @@ namespace LibGit2Sharp.Tests
             {
                 var newRef = (SymbolicReference)repo.Refs.Create(name, target, true);
                 newRef.ShouldNotBeNull();
-                newRef.CanonicalName.ShouldEqual(name);
+                Assert.Equal(name, newRef.CanonicalName);
                 newRef.Target.ShouldNotBeNull();
-                newRef.ResolveToDirectReference().Target.Sha.ShouldEqual("a4a7dce85cf63874e984719f4fdd239f5145052f");
-                ((SymbolicReference)repo.Refs["HEAD"]).Target.CanonicalName.ShouldEqual(target);
+                Assert.Equal("a4a7dce85cf63874e984719f4fdd239f5145052f", newRef.ResolveToDirectReference().Target.Sha);
+                Assert.Equal(target, ((SymbolicReference)repo.Refs["HEAD"]).Target.CanonicalName);
             }
         }
 
@@ -183,7 +183,7 @@ namespace LibGit2Sharp.Tests
                 List<string> refs2 = repo.Refs.Select(r => r.CanonicalName).ToList();
                 Assert.False(refs2.Contains(refName));
 
-                refs2.Count.ShouldEqual(refs.Count - 1);
+                Assert.Equal(refs.Count - 1, refs2.Count);
             }
         }
 
@@ -215,7 +215,7 @@ namespace LibGit2Sharp.Tests
 
                 Assert.Equal(expectedRefs, repo.Refs.Select(r => r.CanonicalName).ToArray());
 
-                repo.Refs.Count().ShouldEqual(13);
+                Assert.Equal(13, repo.Refs.Count());
             }
         }
 
@@ -226,17 +226,17 @@ namespace LibGit2Sharp.Tests
             {
                 var head = (SymbolicReference)repo.Refs["HEAD"];
                 head.ShouldNotBeNull();
-                head.CanonicalName.ShouldEqual("HEAD");
+                Assert.Equal("HEAD", head.CanonicalName);
                 head.Target.ShouldNotBeNull();
-                head.Target.CanonicalName.ShouldEqual("refs/heads/master");
-                head.ResolveToDirectReference().Target.Sha.ShouldEqual("4c062a6361ae6959e06292c1fa5e2822d9c96345");
+                Assert.Equal("refs/heads/master", head.Target.CanonicalName);
+                Assert.Equal("4c062a6361ae6959e06292c1fa5e2822d9c96345", head.ResolveToDirectReference().Target.Sha);
                 Assert.IsType<Commit>(((DirectReference)head.Target).Target);
 
                 Branch head2 = repo.Head;
-                head2.CanonicalName.ShouldEqual("refs/heads/master");
+                Assert.Equal("refs/heads/master", head2.CanonicalName);
                 head2.Tip.ShouldNotBeNull();
 
-                head2.Tip.ShouldEqual(head.ResolveToDirectReference().Target);
+                Assert.Equal(head.ResolveToDirectReference().Target, head2.Tip);
             }
         }
 
@@ -247,9 +247,9 @@ namespace LibGit2Sharp.Tests
             {
                 var lwTag = (DirectReference)repo.Refs["refs/tags/lw"];
                 lwTag.ShouldNotBeNull();
-                lwTag.CanonicalName.ShouldEqual("refs/tags/lw");
+                Assert.Equal("refs/tags/lw", lwTag.CanonicalName);
                 lwTag.Target.ShouldNotBeNull();
-                lwTag.Target.Sha.ShouldEqual("e90810b8df3e80c413d903f631643c716887138d");
+                Assert.Equal("e90810b8df3e80c413d903f631643c716887138d", lwTag.Target.Sha);
                 Assert.IsType<Commit>(lwTag.Target);
             }
         }
@@ -261,9 +261,9 @@ namespace LibGit2Sharp.Tests
             {
                 var annTag = (DirectReference)repo.Refs["refs/tags/test"];
                 annTag.ShouldNotBeNull();
-                annTag.CanonicalName.ShouldEqual("refs/tags/test");
+                Assert.Equal("refs/tags/test", annTag.CanonicalName);
                 annTag.Target.ShouldNotBeNull();
-                annTag.Target.Sha.ShouldEqual("b25fa35b38051e4ae45d4222e795f9df2e43f1d1");
+                Assert.Equal("b25fa35b38051e4ae45d4222e795f9df2e43f1d1", annTag.Target.Sha);
                 Assert.IsType<TagAnnotation>(annTag.Target);
             }
         }
@@ -275,9 +275,9 @@ namespace LibGit2Sharp.Tests
             {
                 var master = (DirectReference)repo.Refs["refs/heads/master"];
                 master.ShouldNotBeNull();
-                master.CanonicalName.ShouldEqual("refs/heads/master");
+                Assert.Equal("refs/heads/master", master.CanonicalName);
                 master.Target.ShouldNotBeNull();
-                master.Target.Sha.ShouldEqual("4c062a6361ae6959e06292c1fa5e2822d9c96345");
+                Assert.Equal("4c062a6361ae6959e06292c1fa5e2822d9c96345", master.Target.Sha);
                 Assert.IsType<Commit>(master.Target);
             }
         }
@@ -314,9 +314,9 @@ namespace LibGit2Sharp.Tests
                 Reference updated = repo.Refs.UpdateTarget(masterRef, sha);
 
                 master = repo.Refs[masterRef];
-                master.ShouldEqual(updated);
+                Assert.Equal(updated, master);
 
-                master.ResolveToDirectReference().Target.Sha.ShouldEqual(sha);
+                Assert.Equal(sha, master.ResolveToDirectReference().Target.Sha);
             }
         }
 
@@ -333,7 +333,7 @@ namespace LibGit2Sharp.Tests
                 repo.Refs.UpdateTarget(newRef.CanonicalName, "refs/heads/test");
 
                 newRef = (SymbolicReference)repo.Refs[newRef.CanonicalName];
-                newRef.ResolveToDirectReference().Target.ShouldEqual(repo.Refs["refs/heads/test"].ResolveToDirectReference().Target);
+                Assert.Equal(repo.Refs["refs/heads/test"].ResolveToDirectReference().Target, newRef.ResolveToDirectReference().Target);
 
                 repo.Refs.Delete(newRef.CanonicalName);
             }
@@ -349,11 +349,11 @@ namespace LibGit2Sharp.Tests
 
                 Reference direct = repo.Refs.UpdateTarget("HEAD", test.Tip.Sha);
                 (direct is DirectReference).ShouldBeTrue();
-                direct.ShouldEqual(repo.Refs["HEAD"]);
+                Assert.Equal(repo.Refs["HEAD"], direct);
 
                 Reference symref = repo.Refs.UpdateTarget("HEAD", test.CanonicalName);
                 (symref is SymbolicReference).ShouldBeTrue();
-                symref.ShouldEqual(repo.Refs["HEAD"]);
+                Assert.Equal(repo.Refs["HEAD"], symref);
             }
     
         }
@@ -407,7 +407,7 @@ namespace LibGit2Sharp.Tests
 
                 Reference moved = repo.Refs.Move("refs/tags/test", newName);
                 moved.ShouldNotBeNull();
-                moved.CanonicalName.ShouldEqual(newName);
+                Assert.Equal(newName, moved.CanonicalName);
             }
         }
 
@@ -423,7 +423,7 @@ namespace LibGit2Sharp.Tests
                 repo.Refs.Create(oldName, repo.Head.CanonicalName);
                 Reference moved = repo.Refs.Move(oldName, newName);
                 moved.ShouldNotBeNull();
-                moved.CanonicalName.ShouldEqual(newName);
+                Assert.Equal(newName, moved.CanonicalName);
             }
         }
 
@@ -437,7 +437,7 @@ namespace LibGit2Sharp.Tests
 
                 Reference moved = repo.Refs.Move("refs/tags/test", newName);
                 moved.ShouldNotBeNull();
-                moved.CanonicalName.ShouldEqual(newName);
+                Assert.Equal(newName, moved.CanonicalName);
             }
         }
 
@@ -493,7 +493,7 @@ namespace LibGit2Sharp.Tests
                 Assert.False(refs2.Contains(oldName));
                 refs2.Contains(newName).ShouldBeTrue();
 
-                refs.Count.ShouldEqual(refs2.Count);
+                Assert.Equal(refs2.Count, refs.Count);
             }
         }
 
@@ -509,7 +509,7 @@ namespace LibGit2Sharp.Tests
                 Reference moved = repo.Refs.Move(oldName, newName);
 
                 Reference lookedUp = repo.Refs[newName];
-                moved.ShouldEqual(lookedUp);
+                Assert.Equal(lookedUp, moved);
             }
         }
     }

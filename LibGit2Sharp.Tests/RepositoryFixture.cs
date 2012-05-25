@@ -22,7 +22,7 @@ namespace LibGit2Sharp.Tests
                 CheckGitConfigFile(dir);
 
                 repo.Info.WorkingDirectory.ShouldBeNull();
-                repo.Info.Path.ShouldEqual(scd.RootedDirectoryPath + Path.DirectorySeparatorChar);
+                Assert.Equal(scd.RootedDirectoryPath + Path.DirectorySeparatorChar, repo.Info.Path);
                 repo.Info.IsBare.ShouldBeTrue();
 
                 AssertInitializedRepository(repo);
@@ -51,7 +51,7 @@ namespace LibGit2Sharp.Tests
                 CheckGitConfigFile(dir);
 
                 repo.Info.WorkingDirectory.ShouldNotBeNull();
-                repo.Info.Path.ShouldEqual(Path.Combine(scd.RootedDirectoryPath, ".git" + Path.DirectorySeparatorChar));
+                Assert.Equal(Path.Combine(scd.RootedDirectoryPath, ".git" + Path.DirectorySeparatorChar), repo.Info.Path);
                 Assert.False(repo.Info.IsBare);
 
                 AssertIsHidden(repo.Info.Path);
@@ -73,7 +73,7 @@ namespace LibGit2Sharp.Tests
         {
             FileAttributes attribs = File.GetAttributes(repoPath);
 
-            (attribs & FileAttributes.Hidden).ShouldEqual(FileAttributes.Hidden);
+            Assert.Equal(FileAttributes.Hidden, (attribs & FileAttributes.Hidden));
         }
 
         [Fact]
@@ -84,7 +84,7 @@ namespace LibGit2Sharp.Tests
             using (Repository repository = Repository.Init(scd.DirectoryPath))
             using (Repository repository2 = Repository.Init(scd.DirectoryPath))
             {
-                repository.Info.Path.ShouldEqual(repository2.Info.Path);
+                Assert.Equal(repository2.Info.Path, repository.Info.Path);
             }
         }
 
@@ -103,24 +103,24 @@ namespace LibGit2Sharp.Tests
 
             Reference headRef = repo.Refs["HEAD"];
             headRef.ShouldNotBeNull();
-            headRef.TargetIdentifier.ShouldEqual("refs/heads/master");
+            Assert.Equal("refs/heads/master", headRef.TargetIdentifier);
             headRef.ResolveToDirectReference().ShouldBeNull();
 
             repo.Head.ShouldNotBeNull();
             repo.Head.IsCurrentRepositoryHead.ShouldBeTrue();
-            repo.Head.CanonicalName.ShouldEqual(headRef.TargetIdentifier);
+            Assert.Equal(headRef.TargetIdentifier, repo.Head.CanonicalName);
             repo.Head.Tip.ShouldBeNull();
 
-            repo.Commits.Count().ShouldEqual(0);
-            repo.Commits.QueryBy(new Filter { Since = repo.Head }).Count().ShouldEqual(0);
-            repo.Commits.QueryBy(new Filter { Since = "HEAD" }).Count().ShouldEqual(0);
-            repo.Commits.QueryBy(new Filter { Since = "refs/heads/master" }).Count().ShouldEqual(0);
-            
+            Assert.Equal(0, repo.Commits.Count());
+            Assert.Equal(0, repo.Commits.QueryBy(new Filter { Since = repo.Head }).Count());
+            Assert.Equal(0, repo.Commits.QueryBy(new Filter { Since = "HEAD" }).Count());
+            Assert.Equal(0, repo.Commits.QueryBy(new Filter { Since = "refs/heads/master" }).Count());
+
             repo.Head["subdir/I-do-not-exist"].ShouldBeNull();
 
-            repo.Branches.Count().ShouldEqual(0);
-            repo.Refs.Count().ShouldEqual(0);
-            repo.Tags.Count().ShouldEqual(0);
+            Assert.Equal(0, repo.Branches.Count());
+            Assert.Equal(0, repo.Refs.Count());
+            Assert.Equal(0, repo.Tags.Count());
         }
 
         [Fact]
@@ -232,7 +232,7 @@ namespace LibGit2Sharp.Tests
                 GitObject commit = repo.Lookup(commitSha);
                 GitObject commit2 = repo.Lookup(commitSha);
                 commit.Equals(commit2).ShouldBeTrue();
-                commit.GetHashCode().ShouldEqual(commit2.GetHashCode());
+                Assert.Equal(commit2.GetHashCode(), commit.GetHashCode());
             }
         }
 
@@ -285,13 +285,13 @@ namespace LibGit2Sharp.Tests
                 Signature author = Constants.Signature;
                 Commit commit = repo.Commit("Initial commit", author, author);
 
-                commit.Sha.ShouldEqual(expectedSha);
+                Assert.Equal(expectedSha, commit.Sha);
 
                 GitObject lookedUp1 = repo.Lookup(expectedSha);
-                lookedUp1.ShouldEqual(commit);
+                Assert.Equal(commit, lookedUp1);
 
                 GitObject lookedUp2 = repo.Lookup(expectedAbbrevSha);
-                lookedUp2.ShouldEqual(commit);
+                Assert.Equal(commit, lookedUp2);
             }
         }
 
@@ -313,35 +313,35 @@ namespace LibGit2Sharp.Tests
         public void CanDiscoverABareRepoGivenTheRepoPath()
         {
             string path = Repository.Discover(BareTestRepoPath);
-            path.ShouldEqual(Path.GetFullPath(BareTestRepoPath + Path.DirectorySeparatorChar));
+            Assert.Equal(Path.GetFullPath(BareTestRepoPath + Path.DirectorySeparatorChar), path);
         }
 
         [Fact]
         public void CanDiscoverABareRepoGivenASubDirectoryOfTheRepoPath()
         {
             string path = Repository.Discover(Path.Combine(BareTestRepoPath, "objects/4a"));
-            path.ShouldEqual(Path.GetFullPath(BareTestRepoPath + Path.DirectorySeparatorChar));
+            Assert.Equal(Path.GetFullPath(BareTestRepoPath + Path.DirectorySeparatorChar), path);
         }
 
         [Fact]
         public void CanDiscoverAStandardRepoGivenTheRepoPath()
         {
             string path = Repository.Discover(StandardTestRepoPath);
-            path.ShouldEqual(Path.GetFullPath(StandardTestRepoPath + Path.DirectorySeparatorChar));
+            Assert.Equal(Path.GetFullPath(StandardTestRepoPath + Path.DirectorySeparatorChar), path);
         }
 
         [Fact]
         public void CanDiscoverAStandardRepoGivenASubDirectoryOfTheRepoPath()
         {
             string path = Repository.Discover(Path.Combine(StandardTestRepoPath, "objects/4a"));
-            path.ShouldEqual(Path.GetFullPath(StandardTestRepoPath + Path.DirectorySeparatorChar));
+            Assert.Equal(Path.GetFullPath(StandardTestRepoPath + Path.DirectorySeparatorChar), path);
         }
 
         [Fact]
         public void CanDiscoverAStandardRepoGivenTheWorkingDirPath()
         {
             string path = Repository.Discover(StandardTestRepoWorkingDirPath);
-            path.ShouldEqual(Path.GetFullPath(StandardTestRepoPath + Path.DirectorySeparatorChar));
+            Assert.Equal(Path.GetFullPath(StandardTestRepoPath + Path.DirectorySeparatorChar), path);
         }
 
         [Fact]

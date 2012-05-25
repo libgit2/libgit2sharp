@@ -139,7 +139,7 @@ namespace LibGit2Sharp.Tests
                 Tree tree = repo.ObjectDatabase.CreateTree(td);
                 Assert.NotNull(tree);
 
-                tree.ShouldEqual(head);
+                Assert.Equal(head, tree);
             }
         }
 
