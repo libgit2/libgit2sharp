@@ -19,12 +19,12 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path.RepositoryPath))
             {
                 Branch newBranch = repo.CreateBranch(name, "be3563ae3f795b2b4353bcce3a527ad0a4f7f644");
-                newBranch.ShouldNotBeNull();
+                Assert.NotNull(newBranch);
                 Assert.Equal(name, newBranch.Name);
                 Assert.Equal("refs/heads/" + name, newBranch.CanonicalName);
-                newBranch.Tip.ShouldNotBeNull();
+                Assert.NotNull(newBranch.Tip);
                 Assert.Equal("be3563ae3f795b2b4353bcce3a527ad0a4f7f644", newBranch.Tip.Sha);
-                repo.Branches.SingleOrDefault(p => p.Name == name).ShouldNotBeNull();
+                Assert.NotNull(repo.Branches.SingleOrDefault(p => p.Name == name));
 
                 repo.Branches.Delete(newBranch.Name);
             }
@@ -51,13 +51,13 @@ namespace LibGit2Sharp.Tests
             {
                 const string name = "unit_test";
                 Branch newBranch = repo.CreateBranch(name);
-                newBranch.ShouldNotBeNull();
+                Assert.NotNull(newBranch);
                 Assert.Equal(name, newBranch.Name);
                 Assert.Equal("refs/heads/" + name, newBranch.CanonicalName);
                 Assert.False(newBranch.IsCurrentRepositoryHead);
-                newBranch.Tip.ShouldNotBeNull();
+                Assert.NotNull(newBranch.Tip);
                 Assert.Equal("4c062a6361ae6959e06292c1fa5e2822d9c96345", newBranch.Tip.Sha);
-                repo.Branches.SingleOrDefault(p => p.Name == name).ShouldNotBeNull();
+                Assert.NotNull(repo.Branches.SingleOrDefault(p => p.Name == name));
             }
         }
 
@@ -69,7 +69,7 @@ namespace LibGit2Sharp.Tests
             {
                 const string name = "unit_test";
                 Branch newBranch = repo.CreateBranch(name, "HEAD");
-                newBranch.ShouldNotBeNull();
+                Assert.NotNull(newBranch);
                 Assert.Equal("4c062a6361ae6959e06292c1fa5e2822d9c96345", newBranch.Tip.Sha);
             }
         }
@@ -83,7 +83,7 @@ namespace LibGit2Sharp.Tests
                 const string name = "unit_test";
                 var commit = repo.Lookup<Commit>("HEAD");
                 Branch newBranch = repo.CreateBranch(name, commit);
-                newBranch.ShouldNotBeNull();
+                Assert.NotNull(newBranch);
                 Assert.Equal("4c062a6361ae6959e06292c1fa5e2822d9c96345", newBranch.Tip.Sha);
             }
         }
@@ -96,7 +96,7 @@ namespace LibGit2Sharp.Tests
             {
                 const string name = "i-peel-tag";
                 Branch newBranch = repo.CreateBranch(name, "refs/tags/test");
-                newBranch.ShouldNotBeNull();
+                Assert.NotNull(newBranch);
                 Assert.Equal("e90810b8df3e80c413d903f631643c716887138d", newBranch.Tip.Sha);
             }
         }
@@ -114,7 +114,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(commitId, newBranch.Tip.Id);
 
                 Reference reference = repo.Refs[newBranch.CanonicalName];
-                reference.ShouldNotBeNull();
+                Assert.NotNull(reference);
                 Assert.IsType(typeof(DirectReference), reference);
             }
         }
@@ -221,11 +221,11 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(BareTestRepoPath))
             {
                 Branch branch = repo.Branches["refs/heads/br2"];
-                branch.ShouldNotBeNull();
+                Assert.NotNull(branch);
                 Assert.Equal("br2", branch.Name);
 
                 Branch branch2 = repo.Branches["refs/heads/br2"];
-                branch2.ShouldNotBeNull();
+                Assert.NotNull(branch2);
                 Assert.Equal("br2", branch2.Name);
 
                 Assert.Equal(branch, branch2);
@@ -239,7 +239,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(BareTestRepoPath))
             {
                 Branch master = repo.Branches["master"];
-                master.ShouldNotBeNull();
+                Assert.NotNull(master);
                 Assert.False(master.IsRemote);
                 Assert.Equal("master", master.Name);
                 Assert.Equal("refs/heads/master", master.CanonicalName);
@@ -256,10 +256,10 @@ namespace LibGit2Sharp.Tests
             {
                 const string name = "Ångström";
                 Branch newBranch = repo.CreateBranch(name, "be3563a");
-                newBranch.ShouldNotBeNull();
+                Assert.NotNull(newBranch);
 
                 Branch retrieved = repo.Branches["Ångström"];
-                retrieved.ShouldNotBeNull();
+                Assert.NotNull(retrieved);
                 Assert.Equal(newBranch.Tip, retrieved.Tip);
             }
         }
@@ -346,7 +346,7 @@ namespace LibGit2Sharp.Tests
                 Assert.True(master.IsCurrentRepositoryHead);
 
                 Branch branch = repo.Branches[name];
-                branch.ShouldNotBeNull();
+                Assert.NotNull(branch);
 
                 Branch test = repo.Checkout(branch);
                 Assert.False(repo.Info.IsHeadDetached);
@@ -507,7 +507,7 @@ namespace LibGit2Sharp.Tests
                     Assert.True(false, string.Format("Both '{0}' and '{1}' appear to be Head.", head.CanonicalName, branch.CanonicalName));
                 }
 
-                head.ShouldNotBeNull();
+                Assert.NotNull(head);
             }
         }
 
@@ -536,7 +536,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal("br3", newBranch.Name);
 
                 Assert.Null(repo.Branches["br2"]);
-                repo.Branches["br3"].ShouldNotBeNull();
+                Assert.NotNull(repo.Branches["br3"]);
             }
         }
 
@@ -556,10 +556,10 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path.RepositoryPath))
             {
                 Branch test = repo.Branches["test"];
-                test.ShouldNotBeNull();
+                Assert.NotNull(test);
 
                 Branch br2 = repo.Branches["br2"];
-                br2.ShouldNotBeNull();
+                Assert.NotNull(br2);
 
                 Branch newBranch = repo.Branches.Move("br2", "test", true);
                 Assert.Equal("test", newBranch.Name);
@@ -567,7 +567,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Null(repo.Branches["br2"]);
 
                 Branch newTest = repo.Branches["test"];
-                newTest.ShouldNotBeNull();
+                Assert.NotNull(newTest);
                 Assert.Equal(newBranch, newTest);
 
                 Assert.Equal(br2.Tip, newTest.Tip);

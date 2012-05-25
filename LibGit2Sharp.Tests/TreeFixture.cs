@@ -31,7 +31,7 @@ namespace LibGit2Sharp.Tests
                 TreeEntry treeEntry = tree["README"];
 
                 var blob = treeEntry.Target as Blob;
-                blob.ShouldNotBeNull();
+                Assert.NotNull(blob);
             }
         }
 
@@ -44,7 +44,7 @@ namespace LibGit2Sharp.Tests
                 TreeEntry treeEntry = tree["1"];
 
                 var subtree = treeEntry.Target as Tree;
-                subtree.ShouldNotBeNull();
+                Assert.NotNull(subtree);
             }
         }
 
@@ -129,7 +129,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(BareTestRepoPath))
             {
                 var tree = repo.Lookup<Tree>(sha);
-                tree.ShouldNotBeNull();
+                Assert.NotNull(tree);
             }
         }
 
@@ -139,7 +139,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(BareTestRepoPath))
             {
                 GitObject tree = repo.Lookup(sha);
-                tree.ShouldNotBeNull();
+                Assert.NotNull(tree);
             }
         }
 
@@ -162,7 +162,7 @@ namespace LibGit2Sharp.Tests
                 // A tree entry is now fetched through a relative path to the 
                 // tree but exposes a complete path through its Path property
                 var subTree = treeTreeEntry.Target as Tree;
-                subTree.ShouldNotBeNull(); 
+                Assert.NotNull(subTree);
                 TreeEntry anInstance = subTree["branch_file.txt"];
 
                 anInstance.Path.ShouldNotEqual("branch_file.txt");

@@ -152,7 +152,7 @@ namespace LibGit2Sharp.Tests
             {
                 int count = repo.Index.Count;
                 const string filename = "new_tracked_file.txt";
-                repo.Index[filename].ShouldNotBeNull();
+                Assert.NotNull(repo.Index[filename]);
 
                 Assert.Equal(FileStatus.Added, repo.Index.RetrieveStatus(filename));
 
@@ -208,7 +208,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Null(repo.Index[filename]);
 
                 repo.Index.Stage(filename);
-                repo.Index[filename].ShouldNotBeNull();
+                Assert.NotNull(repo.Index[filename]);
                 Assert.Equal(FileStatus.Added, repo.Index.RetrieveStatus(filename));
                 Assert.Equal(FileStatus.Added, repo.Index[filename].State);
             }
@@ -216,7 +216,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path.RepositoryPath))
             {
                 const string filename = "unit_test.txt";
-                repo.Index[filename].ShouldNotBeNull();
+                Assert.NotNull(repo.Index[filename]);
                 Assert.Equal(FileStatus.Added, repo.Index.RetrieveStatus(filename));
                 Assert.Equal(FileStatus.Added, repo.Index[filename].State);
             }
@@ -237,7 +237,7 @@ namespace LibGit2Sharp.Tests
                 repo.Index.Stage(fullPath);
 
                 Assert.Equal(count + 1, repo.Index.Count);
-                repo.Index[filename].ShouldNotBeNull();
+                Assert.NotNull(repo.Index[filename]);
             }
         }
 
@@ -259,7 +259,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(count + 1, repo.Index.Count);
 
                 const string posixifiedPath = "Project/a_file.txt";
-                repo.Index[posixifiedPath].ShouldNotBeNull();
+                Assert.NotNull(repo.Index[posixifiedPath]);
                 Assert.Equal(file, repo.Index[posixifiedPath].Path);
             }
         }
@@ -541,8 +541,8 @@ namespace LibGit2Sharp.Tests
                 IndexEntry ie = index[relFilePath];
                 
                 // Make sure the IndexEntry has been found
-                ie.ShouldNotBeNull();
-                
+                Assert.NotNull(ie);
+
                 // Make sure that the (native) relFilePath and ie.Path are equal
                 Assert.Equal(relFilePath, ie.Path);
             }

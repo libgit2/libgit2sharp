@@ -11,7 +11,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(StandardTestRepoPath))
             {
                 Remote origin = repo.Remotes["origin"];
-                origin.ShouldNotBeNull();
+                Assert.NotNull(origin);
                 Assert.Equal("origin", origin.Name);
                 Assert.Equal("c:/GitHub/libgit2sharp/Resources/testrepo.git", origin.Url);
             }
@@ -35,7 +35,7 @@ namespace LibGit2Sharp.Tests
 
                 foreach (Remote remote in repo.Remotes)
                 {
-                    remote.ShouldNotBeNull();
+                    Assert.NotNull(remote);
                     count++;
                 }
 
@@ -51,7 +51,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path.RepositoryPath))
             {
                 Remote oneOrigin = repo.Remotes["origin"];
-                oneOrigin.ShouldNotBeNull();
+                Assert.NotNull(oneOrigin);
 
                 Remote otherOrigin = repo.Remotes["origin"];
                 Assert.Equal(oneOrigin, otherOrigin);
@@ -59,7 +59,7 @@ namespace LibGit2Sharp.Tests
                 Remote createdRemote = repo.Remotes.Create("origin2", oneOrigin.Url);
 
                 Remote loadedRemote = repo.Remotes["origin2"];
-                loadedRemote.ShouldNotBeNull();
+                Assert.NotNull(loadedRemote);
                 Assert.Equal(createdRemote, loadedRemote);
 
                 loadedRemote.ShouldNotEqual(oneOrigin);
