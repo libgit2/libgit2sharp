@@ -80,5 +80,6 @@ Copy-Item $configuration\git2.dll,$configuration\git2.pdb -Destination $x86Direc
 
 Pop-Location
 Remove-Item $tempDirectory -Recurse
+rm .\libgit2\tests-clar\clar_main.c.rule
 
 Write-Output "Copied git2.dll and git2.pdb to $x86Directory"
