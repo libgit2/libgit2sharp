@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Text;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
 
@@ -102,16 +103,6 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
-        public void OpeningARepoWithAnEmptyRepositoryOptionsThrows()
-        {
-            var options = new RepositoryOptions();
-            Repository repo;
-
-            Assert.Throws<ArgumentException>(() => repo = new Repository(BareTestRepoPath, options));
-            Assert.Throws<ArgumentException>(() => repo = new Repository(StandardTestRepoPath, options));
-        }
-
-        [Fact]
         public void CanSneakAdditionalCommitsIntoAStandardRepoWithoutAlteringTheWorkdirOrTheIndex()
         {
             var scd = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
@@ -149,6 +140,39 @@ namespace LibGit2Sharp.Tests
                 sneakyRepo.Index.Stage(filepath);
                 return sneakyRepo.Commit("Tadaaaa!", DummySignature, DummySignature).Sha;
             }
+        }
+
+        [Fact]
+        public void CanProvideDifferentConfigurationFilesToARepository()
+        {
+            string globalLocation = Path.Combine(newWorkdir, "my-global-config");
+            string systemLocation = Path.Combine(newWorkdir, "my-system-config");
+
+            const string name = "Adam 'aroben' Roben";
+            const string email = "adam@github.com";
+
+            StringBuilder sb = new StringBuilder()
+                .AppendLine("[user]")
+                .AppendFormat("name = {0}{1}", name, Environment.NewLine)
+                .AppendFormat("email = {0}{1}", email, Environment.NewLine);
+
+            File.WriteAllText(globalLocation, sb.ToString());
+
+            var options = new RepositoryOptions {
+                GlobalConfigurationLocation = globalLocation,
+                SystemConfigurationLocation = systemLocation,
+            };
+
+            using (var repo = new Repository(BareTestRepoPath, options))
+            {
+                Assert.True(repo.Config.HasGlobalConfig);
+                Assert.Equal(name, repo.Config.Get<string>("user", "name", null));
+                Assert.Equal(email, repo.Config.Get<string>("user", "email", null));
+
+                repo.Config.Set("help.link", "https://twitter.com/xpaulbettsx/status/205761932626636800", ConfigurationLevel.System);
+            }
+
+            AssertValueInConfigFile(systemLocation, "xpaulbettsx");
         }
     }
 }

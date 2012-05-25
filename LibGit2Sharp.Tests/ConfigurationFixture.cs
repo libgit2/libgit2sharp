@@ -14,13 +14,6 @@ namespace LibGit2Sharp.Tests
             AssertValueInConfigFile(configFilePath, regex);
         }
 
-        private static void AssertValueInConfigFile(string configFilePath, string regex)
-        {
-            var text = File.ReadAllText(configFilePath);
-            var r = new Regex(regex, RegexOptions.Multiline).Match(text);
-            Assert.True(r.Success, text);
-        }
-
         private static string RetrieveGlobalConfigLocation()
         {
             string[] variables = { "HOME", "USERPROFILE", };
