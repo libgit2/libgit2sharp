@@ -99,7 +99,7 @@ namespace LibGit2Sharp.Tests
             {
                 var tree = repo.Lookup<Tree>(sha);
                 TreeEntry treeEntry = tree["I-do-not-exist"];
-                treeEntry.ShouldBeNull();
+                Assert.Null(treeEntry);
             }
         }
 

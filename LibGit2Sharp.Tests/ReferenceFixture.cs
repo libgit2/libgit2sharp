@@ -163,7 +163,7 @@ namespace LibGit2Sharp.Tests
                 const string refName = "refs/heads/test";
 
                 repo.Refs.Delete(refName);
-                repo.Refs[refName].ShouldBeNull();
+                Assert.Null(repo.Refs[refName]);
             }
         }
 
@@ -461,7 +461,7 @@ namespace LibGit2Sharp.Tests
 
                 Reference moved = repo.Refs.Move(oldName, newName, true);
 
-                repo.Refs[oldName].ShouldBeNull();
+                Assert.Null(repo.Refs[oldName]);
                 repo.Refs[moved.CanonicalName].ShouldNotBeNull();
             }
         }

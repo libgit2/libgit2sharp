@@ -22,7 +22,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(StandardTestRepoPath))
             {
-                repo.Remotes["test"].ShouldBeNull();
+                Assert.Null(repo.Remotes["test"]);
             }
         }
 

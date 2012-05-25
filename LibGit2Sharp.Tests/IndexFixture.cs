@@ -68,7 +68,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(StandardTestRepoPath))
             {
                 IndexEntry entry = repo.Index["I-do-not-exist.txt"];
-                entry.ShouldBeNull();
+                Assert.Null(entry);
             }
         }
 
@@ -137,7 +137,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(StandardTestRepoPath))
             {
-                repo.Index[relativePath].ShouldBeNull();
+                Assert.Null(repo.Index[relativePath]);
                 Assert.Equal(status, repo.Index.RetrieveStatus(relativePath));
 
                 Assert.Throws<LibGit2Exception>(() => repo.Index.Stage(relativePath));
@@ -160,7 +160,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(FileStatus.Added | FileStatus.Missing, repo.Index.RetrieveStatus(filename));
 
                 repo.Index.Stage(filename);
-                repo.Index[filename].ShouldBeNull();
+                Assert.Null(repo.Index[filename]);
 
                 Assert.Equal(count - 1, repo.Index.Count);
                 Assert.Equal(FileStatus.Nonexistent, repo.Index.RetrieveStatus(filename));
@@ -201,11 +201,11 @@ namespace LibGit2Sharp.Tests
             {
                 const string filename = "unit_test.txt";
                 Assert.Equal(FileStatus.Nonexistent, repo.Index.RetrieveStatus(filename));
-                repo.Index[filename].ShouldBeNull();
+                Assert.Null(repo.Index[filename]);
 
                 File.WriteAllText(Path.Combine(repo.Info.WorkingDirectory, filename), "some contents");
                 Assert.Equal(FileStatus.Untracked, repo.Index.RetrieveStatus(filename));
-                repo.Index[filename].ShouldBeNull();
+                Assert.Null(repo.Index[filename]);
 
                 repo.Index.Stage(filename);
                 repo.Index[filename].ShouldNotBeNull();

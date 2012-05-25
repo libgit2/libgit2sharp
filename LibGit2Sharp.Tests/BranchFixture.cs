@@ -282,7 +282,7 @@ namespace LibGit2Sharp.Tests
             {
                 Branch branch = repo.Branches["test"];
                 Assert.False(branch.IsTracking);
-                branch.TrackedBranch.ShouldBeNull();
+                Assert.Null(branch.TrackedBranch);
                 Assert.Equal(0, branch.AheadBy);
                 Assert.Equal(0, branch.BehindBy);
             }
@@ -530,12 +530,12 @@ namespace LibGit2Sharp.Tests
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
             using (var repo = new Repository(path.RepositoryPath))
             {
-                repo.Branches["br3"].ShouldBeNull();
+                Assert.Null(repo.Branches["br3"]);
 
                 Branch newBranch = repo.Branches.Move("br2", "br3");
                 Assert.Equal("br3", newBranch.Name);
 
-                repo.Branches["br2"].ShouldBeNull();
+                Assert.Null(repo.Branches["br2"]);
                 repo.Branches["br3"].ShouldNotBeNull();
             }
         }
@@ -564,7 +564,7 @@ namespace LibGit2Sharp.Tests
                 Branch newBranch = repo.Branches.Move("br2", "test", true);
                 Assert.Equal("test", newBranch.Name);
 
-                repo.Branches["br2"].ShouldBeNull();
+                Assert.Null(repo.Branches["br2"]);
 
                 Branch newTest = repo.Branches["test"];
                 newTest.ShouldNotBeNull();
