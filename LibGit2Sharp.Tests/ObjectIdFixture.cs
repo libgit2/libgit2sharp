@@ -54,10 +54,10 @@ namespace LibGit2Sharp.Tests
             var a = new ObjectId(validSha1);
             var b = new ObjectId(validSha2);
 
-            (a.Equals(b)).ShouldBeFalse();
-            (b.Equals(a)).ShouldBeFalse();
+            Assert.False((a.Equals(b)));
+            Assert.False((b.Equals(a)));
 
-            (a == b).ShouldBeFalse();
+            Assert.False((a == b));
             (a != b).ShouldBeTrue();
         }
 
@@ -80,7 +80,7 @@ namespace LibGit2Sharp.Tests
             (b.Equals(a)).ShouldBeTrue();
 
             (a == b).ShouldBeTrue();
-            (a != b).ShouldBeFalse();
+            Assert.False((a != b));
         }
 
         [Fact]

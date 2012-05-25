@@ -52,7 +52,7 @@ namespace LibGit2Sharp.Tests
 
                 repo.Info.WorkingDirectory.ShouldNotBeNull();
                 repo.Info.Path.ShouldEqual(Path.Combine(scd.RootedDirectoryPath, ".git" + Path.DirectorySeparatorChar));
-                repo.Info.IsBare.ShouldBeFalse();
+                Assert.False(repo.Info.IsBare);
 
                 AssertIsHidden(repo.Info.Path);
 
@@ -99,7 +99,7 @@ namespace LibGit2Sharp.Tests
         {
             repo.Info.Path.ShouldNotBeNull();
             repo.Info.IsEmpty.ShouldBeTrue();
-            repo.Info.IsHeadDetached.ShouldBeFalse();
+            Assert.False(repo.Info.IsHeadDetached);
 
             Reference headRef = repo.Refs["HEAD"];
             headRef.ShouldNotBeNull();
@@ -162,8 +162,8 @@ namespace LibGit2Sharp.Tests
                 repo.Info.Path.ShouldNotBeNull();
                 repo.Info.WorkingDirectory.ShouldBeNull();
                 repo.Info.IsBare.ShouldBeTrue();
-                repo.Info.IsEmpty.ShouldBeFalse();
-                repo.Info.IsHeadDetached.ShouldBeFalse();
+                Assert.False(repo.Info.IsEmpty);
+                Assert.False(repo.Info.IsHeadDetached);
             }
         }
 

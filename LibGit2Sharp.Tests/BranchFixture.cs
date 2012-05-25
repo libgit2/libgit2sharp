@@ -54,7 +54,7 @@ namespace LibGit2Sharp.Tests
                 newBranch.ShouldNotBeNull();
                 newBranch.Name.ShouldEqual(name);
                 newBranch.CanonicalName.ShouldEqual("refs/heads/" + name);
-                newBranch.IsCurrentRepositoryHead.ShouldBeFalse();
+                Assert.False(newBranch.IsCurrentRepositoryHead);
                 newBranch.Tip.ShouldNotBeNull();
                 newBranch.Tip.Sha.ShouldEqual("4c062a6361ae6959e06292c1fa5e2822d9c96345");
                 repo.Branches.SingleOrDefault(p => p.Name == name).ShouldNotBeNull();
@@ -108,7 +108,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path.RepositoryPath))
             {
                 Branch newBranch = repo.CreateBranch("clone-of-master");
-                newBranch.IsCurrentRepositoryHead.ShouldBeFalse();
+                Assert.False(newBranch.IsCurrentRepositoryHead);
 
                 ObjectId commitId = repo.Head.Tip.Id;
                 newBranch.Tip.Id.ShouldEqual(commitId);
@@ -240,7 +240,7 @@ namespace LibGit2Sharp.Tests
             {
                 Branch master = repo.Branches["master"];
                 master.ShouldNotBeNull();
-                master.IsRemote.ShouldBeFalse();
+                Assert.False(master.IsRemote);
                 master.Name.ShouldEqual("master");
                 master.CanonicalName.ShouldEqual("refs/heads/master");
                 master.IsCurrentRepositoryHead.ShouldBeTrue();
@@ -281,7 +281,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(BareTestRepoPath))
             {
                 Branch branch = repo.Branches["test"];
-                branch.IsTracking.ShouldBeFalse();
+                Assert.False(branch.IsTracking);
                 branch.TrackedBranch.ShouldBeNull();
                 branch.AheadBy.ShouldEqual(0);
                 branch.BehindBy.ShouldEqual(0);
@@ -349,13 +349,13 @@ namespace LibGit2Sharp.Tests
                 branch.ShouldNotBeNull();
 
                 Branch test = repo.Checkout(branch);
-                repo.Info.IsHeadDetached.ShouldBeFalse();
+                Assert.False(repo.Info.IsHeadDetached);
 
-                test.IsRemote.ShouldBeFalse();
+                Assert.False(test.IsRemote);
                 test.IsCurrentRepositoryHead.ShouldBeTrue();
                 test.ShouldEqual(repo.Head);
 
-                master.IsCurrentRepositoryHead.ShouldBeFalse();
+                Assert.False(master.IsCurrentRepositoryHead);
             }
         }
 
@@ -371,13 +371,13 @@ namespace LibGit2Sharp.Tests
                 master.IsCurrentRepositoryHead.ShouldBeTrue();
 
                 Branch test = repo.Checkout(name);
-                repo.Info.IsHeadDetached.ShouldBeFalse();
+                Assert.False(repo.Info.IsHeadDetached);
 
-                test.IsRemote.ShouldBeFalse();
+                Assert.False(test.IsRemote);
                 test.IsCurrentRepositoryHead.ShouldBeTrue();
                 test.ShouldEqual(repo.Head);
 
-                master.IsCurrentRepositoryHead.ShouldBeFalse();
+                Assert.False(master.IsCurrentRepositoryHead);
             }
         }
 
@@ -396,14 +396,14 @@ namespace LibGit2Sharp.Tests
 
                 repo.Info.IsHeadDetached.ShouldBeTrue();
 
-                detachedHead.IsRemote.ShouldBeFalse();
+                Assert.False(detachedHead.IsRemote);
                 detachedHead.CanonicalName.ShouldEqual(detachedHead.Name);
                 detachedHead.CanonicalName.ShouldEqual("(no branch)");
                 detachedHead.Tip.Sha.ShouldEqual(repo.Lookup(commitPointer).Sha);
 
                 detachedHead.ShouldEqual(repo.Head);
 
-                master.IsCurrentRepositoryHead.ShouldBeFalse();
+                Assert.False(master.IsCurrentRepositoryHead);
                 detachedHead.IsCurrentRepositoryHead.ShouldBeTrue();
                 repo.Head.IsCurrentRepositoryHead.ShouldBeTrue();
             }
@@ -520,7 +520,7 @@ namespace LibGit2Sharp.Tests
                 Branch master = repo.Branches["refs/heads/master"];
 
                 Branch newBranch = repo.Branches.Create("clone-of-master", master.Tip.Sha);
-                newBranch.IsCurrentRepositoryHead.ShouldBeFalse();
+                Assert.False(newBranch.IsCurrentRepositoryHead);
             }
         }
 

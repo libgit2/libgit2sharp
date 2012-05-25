@@ -56,14 +56,14 @@ namespace LibGit2Sharp.Tests
             var path = BuildTemporaryCloneOfTestRepo(StandardTestRepoPath);
             using (var repo = new Repository(path.RepositoryPath))
             {
-                repo.Config.Get<bool>("unittests.boolsetting", false).ShouldBeFalse();
+                Assert.False(repo.Config.Get<bool>("unittests.boolsetting", false));
 
                 repo.Config.Set("unittests.boolsetting", true);
                 repo.Config.Get<bool>("unittests.boolsetting", false).ShouldBeTrue();
 
                 repo.Config.Delete("unittests.boolsetting");
 
-                repo.Config.Get<bool>("unittests.boolsetting", false).ShouldBeFalse();
+                Assert.False(repo.Config.Get<bool>("unittests.boolsetting", false));
             }
         }
 
@@ -271,7 +271,7 @@ namespace LibGit2Sharp.Tests
                 repo.Config.Get<string>("unittests.ghostsetting", null).ShouldBeNull();
                 repo.Config.Get<int>("unittests.ghostsetting", 0).ShouldEqual(0);
                 repo.Config.Get<long>("unittests.ghostsetting", 0L).ShouldEqual(0L);
-                repo.Config.Get<bool>("unittests.ghostsetting", false).ShouldBeFalse();
+                Assert.False(repo.Config.Get<bool>("unittests.ghostsetting", false));
                 repo.Config.Get("unittests.ghostsetting", "42").ShouldEqual("42");
                 repo.Config.Get("unittests.ghostsetting", 42).ShouldEqual(42);
                 repo.Config.Get("unittests.ghostsetting", 42L).ShouldEqual(42L);

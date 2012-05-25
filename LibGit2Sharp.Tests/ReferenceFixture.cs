@@ -181,7 +181,7 @@ namespace LibGit2Sharp.Tests
                 repo.Refs.Delete(refName);
 
                 List<string> refs2 = repo.Refs.Select(r => r.CanonicalName).ToList();
-                refs2.Contains(refName).ShouldBeFalse();
+                Assert.False(refs2.Contains(refName));
 
                 refs2.Count.ShouldEqual(refs.Count - 1);
             }
@@ -490,7 +490,7 @@ namespace LibGit2Sharp.Tests
                 repo.Refs.Move(oldName, newName);
 
                 List<string> refs2 = repo.Refs.Select(r => r.CanonicalName).ToList();
-                refs2.Contains(oldName).ShouldBeFalse();
+                Assert.False(refs2.Contains(oldName));
                 refs2.Contains(newName).ShouldBeTrue();
 
                 refs.Count.ShouldEqual(refs2.Count);

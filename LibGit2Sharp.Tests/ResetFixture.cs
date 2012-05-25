@@ -124,7 +124,7 @@ namespace LibGit2Sharp.Tests
 
             repo.Checkout("mybranch");
 
-            repo.Index.RetrieveStatus().IsDirty.ShouldBeFalse();
+            Assert.False(repo.Index.RetrieveStatus().IsDirty);
         }
 
         [Fact]
