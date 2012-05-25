@@ -435,7 +435,7 @@ namespace LibGit2Sharp.Tests
             {
                 var commit = repo.Lookup<Commit>("4c062a6");
 
-                commit["I-am-not-here"].ShouldBeNull();
+                Assert.Null(commit["I-am-not-here"]);
             }
         }
 
@@ -460,7 +460,7 @@ namespace LibGit2Sharp.Tests
                 File.AppendAllText(filePath, "token\n");
                 repo.Index.Stage(relativeFilepath);
 
-                repo.Head[relativeFilepath].ShouldBeNull();
+                Assert.Null(repo.Head[relativeFilepath]);
 
                 Commit commit = repo.Commit("Initial egotistic commit");
 
@@ -495,7 +495,7 @@ namespace LibGit2Sharp.Tests
                 File.AppendAllText(filePath, "token\n");
                 repo.Index.Stage(relativeFilepath);
 
-                repo.Head[relativeFilepath].ShouldBeNull();
+                Assert.Null(repo.Head[relativeFilepath]);
 
                 var author = DummySignature;
                 Commit commit = repo.Commit("Initial egotistic commit", author, author);

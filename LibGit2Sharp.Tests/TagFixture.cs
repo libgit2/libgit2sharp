@@ -477,7 +477,7 @@ namespace LibGit2Sharp.Tests
                 const string tagName = "e90810b";
 
                 repo.Tags.Delete(tagName);
-                repo.Tags[tagName].ShouldBeNull();
+                Assert.Null(repo.Tags[tagName]);
             }
         }
 
@@ -572,7 +572,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(commitE90810BSha, tag.Target.Sha);
 
                 Assert.False(tag.IsAnnotated);
-                tag.Annotation.ShouldBeNull();
+                Assert.Null(tag.Annotation);
             }
         }
 

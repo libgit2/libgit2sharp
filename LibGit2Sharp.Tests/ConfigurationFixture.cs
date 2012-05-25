@@ -268,7 +268,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(StandardTestRepoPath))
             {
-                repo.Config.Get<string>("unittests.ghostsetting", null).ShouldBeNull();
+                Assert.Null(repo.Config.Get<string>("unittests.ghostsetting", null));
                 Assert.Equal(0, repo.Config.Get<int>("unittests.ghostsetting", 0));
                 Assert.Equal(0L, repo.Config.Get<long>("unittests.ghostsetting", 0L));
                 Assert.False(repo.Config.Get<bool>("unittests.ghostsetting", false));
