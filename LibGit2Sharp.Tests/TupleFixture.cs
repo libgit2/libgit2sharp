@@ -31,7 +31,7 @@ namespace LibGit2Sharp.Tests
         {
             var sut2 = new Tuple<int, string>(integer + 1, stringy);
 
-            sut.GetHashCode().ShouldNotEqual(sut2.GetHashCode());
+            Assert.NotEqual(sut2.GetHashCode(), sut.GetHashCode());
         }
 
         [Fact]

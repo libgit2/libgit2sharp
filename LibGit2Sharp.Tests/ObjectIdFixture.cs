@@ -68,7 +68,7 @@ namespace LibGit2Sharp.Tests
             var a = new ObjectId(validSha1);
             var b = new ObjectId(validSha2);
 
-            a.GetHashCode().ShouldNotEqual(b.GetHashCode());
+            Assert.NotEqual(b.GetHashCode(), a.GetHashCode());
         }
 
         [Fact]

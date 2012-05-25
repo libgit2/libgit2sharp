@@ -636,7 +636,7 @@ namespace LibGit2Sharp.Tests
             Commit headCommit = repo.Head.Tip;
             Assert.Equal(amendedCommit, headCommit);
 
-            amendedCommit.Sha.ShouldNotEqual(originalCommit.Sha);
+            Assert.NotEqual(originalCommit.Sha, amendedCommit.Sha);
             Assert.Equal(originalCommit.Parents, amendedCommit.Parents);
         }
 

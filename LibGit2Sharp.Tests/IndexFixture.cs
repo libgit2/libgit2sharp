@@ -125,7 +125,7 @@ namespace LibGit2Sharp.Tests
                 IndexEntry newBlob = repo.Index[filename];
 
                 Assert.Equal(count, repo.Index.Count);
-                blob.Id.ShouldNotEqual(newBlob.Id);
+                Assert.NotEqual(newBlob.Id, blob.Id);
                 Assert.Equal(FileStatus.Added, repo.Index.RetrieveStatus(filename));
             }
         }
@@ -185,7 +185,7 @@ namespace LibGit2Sharp.Tests
                 repo.Index.Stage(filename);
 
                 Assert.Equal(count, repo.Index.Count);
-                repo.Index[posixifiedFileName].Id.ShouldNotEqual((blobId));
+                Assert.NotEqual((blobId), repo.Index[posixifiedFileName].Id);
 
                 repo.Index.Unstage(posixifiedFileName);
                 Assert.Equal(count, repo.Index.Count);

@@ -352,7 +352,7 @@ namespace LibGit2Sharp.Tests
                 Assert.NotNull(tag);
                 Assert.True(tag.IsAnnotated);
                 Assert.Equal(annotation.Id, tag.Annotation.Target.Id);
-                tag.Annotation.ShouldNotEqual(annotation);
+                Assert.NotEqual(annotation, tag.Annotation);
 
                 Assert.Equal(tag, repo.Tags[tag.Name]);
             }
