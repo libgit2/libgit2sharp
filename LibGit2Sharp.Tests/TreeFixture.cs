@@ -165,7 +165,7 @@ namespace LibGit2Sharp.Tests
                 Assert.NotNull(subTree);
                 TreeEntry anInstance = subTree["branch_file.txt"];
 
-                anInstance.Path.ShouldNotEqual("branch_file.txt");
+                Assert.NotEqual("branch_file.txt", anInstance.Path);
                 Assert.Equal(completePath, anInstance.Path);
                 Assert.Equal(completePath, subTree.First().Path);
 

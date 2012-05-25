@@ -62,7 +62,7 @@ namespace LibGit2Sharp.Tests
                 Assert.NotNull(loadedRemote);
                 Assert.Equal(createdRemote, loadedRemote);
 
-                loadedRemote.ShouldNotEqual(oneOrigin);
+                Assert.NotEqual(oneOrigin, loadedRemote);
             }
         }
     }

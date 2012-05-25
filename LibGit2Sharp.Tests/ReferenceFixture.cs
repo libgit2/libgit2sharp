@@ -309,7 +309,7 @@ namespace LibGit2Sharp.Tests
             {
                 string sha = repo.Refs["refs/heads/test"].ResolveToDirectReference().Target.Sha;
                 Reference master = repo.Refs[masterRef];
-                master.ResolveToDirectReference().Target.Sha.ShouldNotEqual(sha);
+                Assert.NotEqual(sha, master.ResolveToDirectReference().Target.Sha);
 
                 Reference updated = repo.Refs.UpdateTarget(masterRef, sha);
 

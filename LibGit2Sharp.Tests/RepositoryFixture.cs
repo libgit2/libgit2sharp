@@ -66,7 +66,7 @@ namespace LibGit2Sharp.Tests
             Assert.True(File.Exists(configFilePath));
 
             string contents = File.ReadAllText(configFilePath);
-            contents.IndexOf("repositoryformatversion = 0", StringComparison.Ordinal).ShouldNotEqual(-1);
+            Assert.NotEqual(-1, contents.IndexOf("repositoryformatversion = 0", StringComparison.Ordinal));
         }
 
         private static void AssertIsHidden(string repoPath)
