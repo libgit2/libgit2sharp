@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text.RegularExpressions;
+using Xunit;
 
 namespace LibGit2Sharp.Tests.TestHelpers
 {
@@ -93,6 +95,13 @@ namespace LibGit2Sharp.Tests.TestHelpers
             }
 
             throw new SkipException(message);
+        }
+
+        protected static void AssertValueInConfigFile(string configFilePath, string regex)
+        {
+            var text = File.ReadAllText(configFilePath);
+            var r = new Regex(regex, RegexOptions.Multiline).Match(text);
+            Assert.True(r.Success, text);
         }
     }
 }
