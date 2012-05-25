@@ -182,6 +182,15 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string name);
 
         [DllImport(libgit2)]
+        public static extern int git_config_add_file_ondisk(
+            ConfigurationSafeHandle cfg,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(FilePathMarshaler))] FilePath path,
+            int priority);
+
+        [DllImport(libgit2)]
+        public static extern int git_config_new(out ConfigurationSafeHandle cfg);
+
+        [DllImport(libgit2)]
         public static extern int git_config_open_global(out ConfigurationSafeHandle cfg);
 
         [DllImport(libgit2)]
@@ -546,6 +555,11 @@ namespace LibGit2Sharp.Core
         [DllImport(libgit2)]
         [return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(FilePathMarshaler))]
         public static extern FilePath git_repository_path(RepositorySafeHandle repository);
+
+        [DllImport(libgit2)]
+        public static extern void git_repository_set_config(
+            RepositorySafeHandle repository,
+            ConfigurationSafeHandle index);
 
         [DllImport(libgit2)]
         public static extern void git_repository_set_index(

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Handles;
 
@@ -20,21 +21,61 @@ namespace LibGit2Sharp
         private ConfigurationSafeHandle globalHandle;
         private ConfigurationSafeHandle localHandle;
 
-        internal Configuration(Repository repository)
+        internal Configuration(Repository repository, string globalConfigurationFileLocation, string systemConfigurationFileLocation)
         {
             this.repository = repository;
 
-            globalConfigPath = ConvertPath(NativeMethods.git_config_find_global);
-            systemConfigPath = ConvertPath(NativeMethods.git_config_find_system);
+            globalConfigPath = globalConfigurationFileLocation ?? ConvertPath(NativeMethods.git_config_find_global);
+            systemConfigPath = systemConfigurationFileLocation ?? ConvertPath(NativeMethods.git_config_find_system);
 
             Init();
+        }
+
+        private void Init()
+        {
+            if (repository != null)
+            {
+                //TODO: push back this logic into libgit2. 
+                // As stated by @carlosmn "having a helper function to load the defaults and then allowing you
+                // to modify it before giving it to git_repository_open_ext() would be a good addition, I think."
+                //  -- Agreed :)
+
+                Ensure.Success(NativeMethods.git_config_new(out localHandle));
+
+                string repoConfigLocation = Path.Combine(repository.Info.Path, "config");
+                Ensure.Success(NativeMethods.git_config_add_file_ondisk(localHandle, repoConfigLocation, 3));
+
+                if (globalConfigPath != null)
+                {
+                    Ensure.Success(NativeMethods.git_config_add_file_ondisk(localHandle, globalConfigPath, 2));
+                }
+
+                if (systemConfigPath != null)
+                {
+                    Ensure.Success(NativeMethods.git_config_add_file_ondisk(localHandle, systemConfigPath, 1));
+                }
+
+                NativeMethods.git_repository_set_config(repository.Handle, localHandle);
+            }
+
+            if (globalConfigPath != null)
+            {
+                Ensure.Success(NativeMethods.git_config_open_ondisk(out globalHandle, globalConfigPath));
+            }
+
+            if (systemConfigPath != null)
+            {
+                Ensure.Success(NativeMethods.git_config_open_ondisk(out systemHandle, systemConfigPath));
+            }
         }
 
         /// <summary>
         ///   Access configuration values without a repository. Generally you want to access configuration via an instance of <see cref = "Repository" /> instead.
         /// </summary>
-        public Configuration()
-            : this(null)
+        /// <param name="globalConfigurationFileLocation">Path to a Global configuration file. If null, the default path for a global configuration file will be probed.</param>
+        /// <param name="systemConfigurationFileLocation">Path to a System configuration file. If null, the default path for a system configuration file will be probed.</param>
+        public Configuration(string globalConfigurationFileLocation = null, string systemConfigurationFileLocation = null)
+            : this(null, globalConfigurationFileLocation, systemConfigurationFileLocation)
         {
         }
 
@@ -244,24 +285,6 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(keyParts, "keyParts");
 
             return Get(string.Join(".", keyParts), defaultValue);
-        }
-
-        private void Init()
-        {
-            if (repository != null)
-            {
-                Ensure.Success(NativeMethods.git_repository_config(out localHandle, repository.Handle));
-            }
-
-            if (globalConfigPath != null)
-            {
-                Ensure.Success(NativeMethods.git_config_open_ondisk(out globalHandle, globalConfigPath));
-            }
-
-            if (systemConfigPath != null)
-            {
-                Ensure.Success(NativeMethods.git_config_open_ondisk(out systemHandle, systemConfigPath));
-            }
         }
 
         private void Save()
