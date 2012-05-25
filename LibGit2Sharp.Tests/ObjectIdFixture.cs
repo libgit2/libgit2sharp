@@ -59,7 +59,7 @@ namespace LibGit2Sharp.Tests
             Assert.False((b.Equals(a)));
 
             Assert.False((a == b));
-            (a != b).ShouldBeTrue();
+            Assert.True((a != b));
         }
 
         [Fact]
@@ -77,10 +77,10 @@ namespace LibGit2Sharp.Tests
             var a = new ObjectId(validSha1);
             var b = new ObjectId(validSha1);
 
-            (a.Equals(b)).ShouldBeTrue();
-            (b.Equals(a)).ShouldBeTrue();
+            Assert.True((a.Equals(b)));
+            Assert.True((b.Equals(a)));
 
-            (a == b).ShouldBeTrue();
+            Assert.True((a == b));
             Assert.False((a != b));
         }
 
@@ -117,7 +117,7 @@ namespace LibGit2Sharp.Tests
 
             parsedObjectId.ShouldNotBeNull();
             Assert.Equal(maybeSha, parsedObjectId.Sha);
-            maybeSha.StartsWith(parsedObjectId.ToString(3)).ShouldBeTrue();
+            Assert.True(maybeSha.StartsWith(parsedObjectId.ToString(3)));
             Assert.Equal(maybeSha, parsedObjectId.ToString(42));
         }
     }

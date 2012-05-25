@@ -229,7 +229,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal("br2", branch2.Name);
 
                 Assert.Equal(branch, branch2);
-                (branch2 == branch).ShouldBeTrue();
+                Assert.True((branch2 == branch));
             }
         }
 
@@ -243,7 +243,7 @@ namespace LibGit2Sharp.Tests
                 Assert.False(master.IsRemote);
                 Assert.Equal("master", master.Name);
                 Assert.Equal("refs/heads/master", master.CanonicalName);
-                master.IsCurrentRepositoryHead.ShouldBeTrue();
+                Assert.True(master.IsCurrentRepositoryHead);
                 Assert.Equal("4c062a6361ae6959e06292c1fa5e2822d9c96345", master.Tip.Sha);
             }
         }
@@ -294,7 +294,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(StandardTestRepoPath))
             {
                 Branch master = repo.Branches["master"];
-                master.IsTracking.ShouldBeTrue();
+                Assert.True(master.IsTracking);
                 Assert.Equal(repo.Branches["refs/remotes/origin/master"], master.TrackedBranch);
                 Assert.Equal(2, master.AheadBy);
                 Assert.Equal(2, master.BehindBy);
@@ -307,7 +307,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(StandardTestRepoPath))
             {
                 var branch = repo.Branches["track-local"];
-                branch.IsTracking.ShouldBeTrue();
+                Assert.True(branch.IsTracking);
                 Assert.Equal(repo.Branches["master"], branch.TrackedBranch);
                 Assert.Equal(2, branch.AheadBy);
                 Assert.Equal(2, branch.BehindBy);
@@ -343,7 +343,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path.RepositoryPath))
             {
                 Branch master = repo.Branches["master"];
-                master.IsCurrentRepositoryHead.ShouldBeTrue();
+                Assert.True(master.IsCurrentRepositoryHead);
 
                 Branch branch = repo.Branches[name];
                 branch.ShouldNotBeNull();
@@ -352,7 +352,7 @@ namespace LibGit2Sharp.Tests
                 Assert.False(repo.Info.IsHeadDetached);
 
                 Assert.False(test.IsRemote);
-                test.IsCurrentRepositoryHead.ShouldBeTrue();
+                Assert.True(test.IsCurrentRepositoryHead);
                 Assert.Equal(repo.Head, test);
 
                 Assert.False(master.IsCurrentRepositoryHead);
@@ -368,13 +368,13 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path.RepositoryPath))
             {
                 Branch master = repo.Branches["master"];
-                master.IsCurrentRepositoryHead.ShouldBeTrue();
+                Assert.True(master.IsCurrentRepositoryHead);
 
                 Branch test = repo.Checkout(name);
                 Assert.False(repo.Info.IsHeadDetached);
 
                 Assert.False(test.IsRemote);
-                test.IsCurrentRepositoryHead.ShouldBeTrue();
+                Assert.True(test.IsCurrentRepositoryHead);
                 Assert.Equal(repo.Head, test);
 
                 Assert.False(master.IsCurrentRepositoryHead);
@@ -390,11 +390,11 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path.RepositoryPath))
             {
                 Branch master = repo.Branches["master"];
-                master.IsCurrentRepositoryHead.ShouldBeTrue();
+                Assert.True(master.IsCurrentRepositoryHead);
 
                 Branch detachedHead = repo.Checkout(commitPointer);
 
-                repo.Info.IsHeadDetached.ShouldBeTrue();
+                Assert.True(repo.Info.IsHeadDetached);
 
                 Assert.False(detachedHead.IsRemote);
                 Assert.Equal(detachedHead.Name, detachedHead.CanonicalName);
@@ -404,8 +404,8 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(repo.Head, detachedHead);
 
                 Assert.False(master.IsCurrentRepositoryHead);
-                detachedHead.IsCurrentRepositoryHead.ShouldBeTrue();
-                repo.Head.IsCurrentRepositoryHead.ShouldBeTrue();
+                Assert.True(detachedHead.IsCurrentRepositoryHead);
+                Assert.True(repo.Head.IsCurrentRepositoryHead);
             }
         }
 

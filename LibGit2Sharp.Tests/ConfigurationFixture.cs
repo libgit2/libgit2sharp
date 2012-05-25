@@ -59,7 +59,7 @@ namespace LibGit2Sharp.Tests
                 Assert.False(repo.Config.Get<bool>("unittests.boolsetting", false));
 
                 repo.Config.Set("unittests.boolsetting", true);
-                repo.Config.Get<bool>("unittests.boolsetting", false).ShouldBeTrue();
+                Assert.True(repo.Config.Get<bool>("unittests.boolsetting", false));
 
                 repo.Config.Delete("unittests.boolsetting");
 
@@ -275,7 +275,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal("42", repo.Config.Get("unittests.ghostsetting", "42"));
                 Assert.Equal(42, repo.Config.Get("unittests.ghostsetting", 42));
                 Assert.Equal(42L, repo.Config.Get("unittests.ghostsetting", 42L));
-                repo.Config.Get("unittests.ghostsetting", true).ShouldBeTrue();
+                Assert.True(repo.Config.Get("unittests.ghostsetting", true));
             }
         }
 

@@ -39,8 +39,8 @@ namespace LibGit2Sharp.Tests
         {
             var sut2 = new Tuple<int, string>(integer, stringy);
 
-            sut.Equals(sut2).ShouldBeTrue();
-            Equals(sut, sut2).ShouldBeTrue();
+            Assert.True(sut.Equals(sut2));
+            Assert.True(Equals(sut, sut2));
         }
 
         [Fact]
