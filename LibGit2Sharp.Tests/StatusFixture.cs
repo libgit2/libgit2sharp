@@ -14,7 +14,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(StandardTestRepoPath))
             {
                 FileStatus status = repo.Index.RetrieveStatus("new_tracked_file.txt");
-                status.ShouldEqual(FileStatus.Added);
+                Assert.Equal(FileStatus.Added, status);
             }
         }
 
@@ -38,36 +38,36 @@ namespace LibGit2Sharp.Tests
                 RepositoryStatus status = repo.Index.RetrieveStatus();
 
                 IndexEntry indexEntry = repo.Index[file];
-                indexEntry.State.ShouldEqual(FileStatus.Staged);
+                Assert.Equal(FileStatus.Staged, indexEntry.State);
 
                 status.ShouldNotBeNull();
-                status.Count().ShouldEqual(6);
+                Assert.Equal(6, status.Count());
                 status.IsDirty.ShouldBeTrue();
 
-                status.Untracked.Single().ShouldEqual("new_untracked_file.txt");
-                status.Modified.Single().ShouldEqual("modified_unstaged_file.txt");
-                status.Missing.Single().ShouldEqual("deleted_unstaged_file.txt");
-                status.Added.Single().ShouldEqual("new_tracked_file.txt");
-                status.Staged.Single().ShouldEqual(file);
-                status.Removed.Single().ShouldEqual("deleted_staged_file.txt");
+                Assert.Equal("new_untracked_file.txt", status.Untracked.Single());
+                Assert.Equal("modified_unstaged_file.txt", status.Modified.Single());
+                Assert.Equal("deleted_unstaged_file.txt", status.Missing.Single());
+                Assert.Equal("new_tracked_file.txt", status.Added.Single());
+                Assert.Equal(file, status.Staged.Single());
+                Assert.Equal("deleted_staged_file.txt", status.Removed.Single());
 
                 File.AppendAllText(Path.Combine(repo.Info.WorkingDirectory, file),
                                    "Tclem's favorite commit message: boom");
 
-                indexEntry.State.ShouldEqual(FileStatus.Staged | FileStatus.Modified);
+                Assert.Equal(FileStatus.Staged | FileStatus.Modified, indexEntry.State);
 
                 RepositoryStatus status2 = repo.Index.RetrieveStatus();
 
                 status2.ShouldNotBeNull();
-                status2.Count().ShouldEqual(6);
+                Assert.Equal(6, status2.Count());
                 status2.IsDirty.ShouldBeTrue();
 
-                status2.Untracked.Single().ShouldEqual("new_untracked_file.txt");
+                Assert.Equal("new_untracked_file.txt", status2.Untracked.Single());
                 Assert.Equal(new[] { file, "modified_unstaged_file.txt" }, status2.Modified);
-                status2.Missing.Single().ShouldEqual("deleted_unstaged_file.txt");
-                status2.Added.Single().ShouldEqual("new_tracked_file.txt");
-                status2.Staged.Single().ShouldEqual(file);
-                status2.Removed.Single().ShouldEqual("deleted_staged_file.txt");
+                Assert.Equal("deleted_unstaged_file.txt", status2.Missing.Single());
+                Assert.Equal("new_tracked_file.txt", status2.Added.Single());
+                Assert.Equal(file, status2.Staged.Single());
+                Assert.Equal("deleted_staged_file.txt", status2.Removed.Single());
             }
         }
 
@@ -80,15 +80,15 @@ namespace LibGit2Sharp.Tests
             {
                 RepositoryStatus status = repo.Index.RetrieveStatus();
                 status.ShouldNotBeNull();
-                status.Count().ShouldEqual(0);
+                Assert.Equal(0, status.Count());
                 Assert.False(status.IsDirty);
 
-                status.Untracked.Count().ShouldEqual(0);
-                status.Modified.Count().ShouldEqual(0);
-                status.Missing.Count().ShouldEqual(0);
-                status.Added.Count().ShouldEqual(0);
-                status.Staged.Count().ShouldEqual(0);
-                status.Removed.Count().ShouldEqual(0);
+                Assert.Equal(0, status.Untracked.Count());
+                Assert.Equal(0, status.Modified.Count());
+                Assert.Equal(0, status.Missing.Count());
+                Assert.Equal(0, status.Added.Count());
+                Assert.Equal(0, status.Staged.Count());
+                Assert.Equal(0, status.Removed.Count());
             }
         }
 
@@ -117,13 +117,13 @@ namespace LibGit2Sharp.Tests
                 // Get the repository status
                 RepositoryStatus repoStatus = repo.Index.RetrieveStatus();
 
-                repoStatus.Count().ShouldEqual(1);
+                Assert.Equal(1, repoStatus.Count());
                 StatusEntry statusEntry = repoStatus.Single();
 
                 string expectedPath = string.Format("{0}{1}{2}", directoryName, Path.DirectorySeparatorChar, fileName);
-                statusEntry.FilePath.ShouldEqual(expectedPath);
+                Assert.Equal(expectedPath, statusEntry.FilePath);
 
-                repoStatus.Added.Single().ShouldEqual(statusEntry.FilePath);
+                Assert.Equal(statusEntry.FilePath, repoStatus.Added.Single());
             }
         }
 
@@ -145,9 +145,9 @@ namespace LibGit2Sharp.Tests
                 File.WriteAllText(gitignorePath, "*.txt" + Environment.NewLine);
 
                 RepositoryStatus newStatus = repo.Index.RetrieveStatus();
-                newStatus.Untracked.Single().ShouldEqual(".gitignore");
+                Assert.Equal(".gitignore", newStatus.Untracked.Single());
 
-                repo.Index.RetrieveStatus(relativePath).ShouldEqual(FileStatus.Ignored);
+                Assert.Equal(FileStatus.Ignored, repo.Index.RetrieveStatus(relativePath));
                 Assert.Equal(new[] { relativePath }, newStatus.Ignored);
             }
         }
@@ -236,9 +236,9 @@ namespace LibGit2Sharp.Tests
                  */
 
                 RepositoryStatus newStatus = repo.Index.RetrieveStatus();
-                newStatus.Untracked.Single().ShouldEqual(".gitignore");
+                Assert.Equal(".gitignore", newStatus.Untracked.Single());
 
-                repo.Index.RetrieveStatus(relativePath).ShouldEqual(FileStatus.Ignored);
+                Assert.Equal(FileStatus.Ignored, repo.Index.RetrieveStatus(relativePath));
                 Assert.Equal(new[] { relativePath, "new_untracked_file.txt" }, newStatus.Ignored);
             }
         }

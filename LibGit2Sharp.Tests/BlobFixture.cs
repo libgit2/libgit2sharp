@@ -15,7 +15,7 @@ namespace LibGit2Sharp.Tests
                 var blob = repo.Lookup<Blob>("a8233120f6ad708f843d861ce2b7228ec4e3dec6");
 
                 string text = blob.ContentAsUtf8();
-                text.ShouldEqual("hey there\n");
+                Assert.Equal("hey there\n", text);
             }
         }
 
@@ -25,7 +25,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(BareTestRepoPath))
             {
                 var blob = repo.Lookup<Blob>("a8233120f6ad708f843d861ce2b7228ec4e3dec6");
-                blob.Size.ShouldEqual(10);
+                Assert.Equal(10, blob.Size);
             }
         }
 
@@ -46,10 +46,10 @@ namespace LibGit2Sharp.Tests
             {
                 var blob = repo.Lookup<Blob>("a8233120f6ad708f843d861ce2b7228ec4e3dec6");
                 byte[] bytes = blob.Content;
-                bytes.Length.ShouldEqual(10);
+                Assert.Equal(10, bytes.Length);
 
                 string content = Encoding.UTF8.GetString(bytes);
-                content.ShouldEqual("hey there\n");
+                Assert.Equal("hey there\n", content);
             }
         }
 
@@ -63,7 +63,7 @@ namespace LibGit2Sharp.Tests
                 using (var tr = new StreamReader(blob.ContentStream, Encoding.UTF8))
                 {
                     string content = tr.ReadToEnd();
-                    content.ShouldEqual("hey there\n");
+                    Assert.Equal("hey there\n", content);
                 }
             }
         }
@@ -97,7 +97,7 @@ namespace LibGit2Sharp.Tests
 
                 repo.Index.Stage("small.txt");
                 IndexEntry entry = repo.Index["small.txt"];
-                entry.Id.Sha.ShouldEqual("baae1fb3760a73481ced1fa03dc15614142c19ef");
+                Assert.Equal("baae1fb3760a73481ced1fa03dc15614142c19ef", entry.Id.Sha);
 
                 var blob = repo.Lookup<Blob>(entry.Id.Sha);
 
@@ -110,7 +110,7 @@ namespace LibGit2Sharp.Tests
                 repo.Index.Stage("small.fromblob.txt");
                 IndexEntry newentry = repo.Index["small.fromblob.txt"];
 
-                newentry.Id.Sha.ShouldEqual("baae1fb3760a73481ced1fa03dc15614142c19ef");
+                Assert.Equal("baae1fb3760a73481ced1fa03dc15614142c19ef", newentry.Id.Sha);
             }
         }
     }

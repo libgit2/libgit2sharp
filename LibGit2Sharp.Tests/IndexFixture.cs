@@ -31,7 +31,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(StandardTestRepoPath))
             {
-                repo.Index.Count.ShouldEqual(expectedEntries.Count());
+                Assert.Equal(expectedEntries.Count(), repo.Index.Count);
             }
         }
 
@@ -50,15 +50,15 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(StandardTestRepoPath))
             {
                 IndexEntry entry = repo.Index["README"];
-                entry.Path.ShouldEqual("README");
+                Assert.Equal("README", entry.Path);
 
                 // Expressed in Posix format...
                 IndexEntry entryWithPath = repo.Index["1/branch_file.txt"];
-                entryWithPath.Path.ShouldEqual(subBranchFile);
+                Assert.Equal(subBranchFile, entryWithPath.Path);
 
                 //...or in native format
                 IndexEntry entryWithPath2 = repo.Index[subBranchFile];
-                entryWithPath2.ShouldEqual(entryWithPath);
+                Assert.Equal(entryWithPath, entryWithPath2);
             }
         }
 
@@ -95,14 +95,14 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path.RepositoryPath))
             {
                 int count = repo.Index.Count;
-                (repo.Index[relativePath] != null).ShouldEqual(doesCurrentlyExistInTheIndex);
-                repo.Index.RetrieveStatus(relativePath).ShouldEqual(currentStatus);
+                Assert.Equal(doesCurrentlyExistInTheIndex, (repo.Index[relativePath] != null));
+                Assert.Equal(currentStatus, repo.Index.RetrieveStatus(relativePath));
 
                 repo.Index.Stage(relativePath);
 
-                repo.Index.Count.ShouldEqual(count + expectedIndexCountVariation);
-                (repo.Index[relativePath] != null).ShouldEqual(doesExistInTheIndexOnceStaged);
-                repo.Index.RetrieveStatus(relativePath).ShouldEqual(expectedStatusOnceStaged);
+                Assert.Equal(count + expectedIndexCountVariation, repo.Index.Count);
+                Assert.Equal(doesExistInTheIndexOnceStaged, (repo.Index[relativePath] != null));
+                Assert.Equal(expectedStatusOnceStaged, repo.Index.RetrieveStatus(relativePath));
             }
         }
 
@@ -116,17 +116,17 @@ namespace LibGit2Sharp.Tests
                 const string filename = "new_tracked_file.txt";
                 IndexEntry blob = repo.Index[filename];
 
-                repo.Index.RetrieveStatus(filename).ShouldEqual(FileStatus.Added);
+                Assert.Equal(FileStatus.Added, repo.Index.RetrieveStatus(filename));
 
                 File.WriteAllText(Path.Combine(repo.Info.WorkingDirectory, filename), "brand new content");
-                repo.Index.RetrieveStatus(filename).ShouldEqual(FileStatus.Added | FileStatus.Modified);
+                Assert.Equal(FileStatus.Added | FileStatus.Modified, repo.Index.RetrieveStatus(filename));
 
                 repo.Index.Stage(filename);
                 IndexEntry newBlob = repo.Index[filename];
 
-                repo.Index.Count.ShouldEqual(count);
+                Assert.Equal(count, repo.Index.Count);
                 blob.Id.ShouldNotEqual(newBlob.Id);
-                repo.Index.RetrieveStatus(filename).ShouldEqual(FileStatus.Added);
+                Assert.Equal(FileStatus.Added, repo.Index.RetrieveStatus(filename));
             }
         }
 
@@ -138,7 +138,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(StandardTestRepoPath))
             {
                 repo.Index[relativePath].ShouldBeNull();
-                repo.Index.RetrieveStatus(relativePath).ShouldEqual(status);
+                Assert.Equal(status, repo.Index.RetrieveStatus(relativePath));
 
                 Assert.Throws<LibGit2Exception>(() => repo.Index.Stage(relativePath));
             }
@@ -154,16 +154,16 @@ namespace LibGit2Sharp.Tests
                 const string filename = "new_tracked_file.txt";
                 repo.Index[filename].ShouldNotBeNull();
 
-                repo.Index.RetrieveStatus(filename).ShouldEqual(FileStatus.Added);
+                Assert.Equal(FileStatus.Added, repo.Index.RetrieveStatus(filename));
 
                 File.Delete(Path.Combine(repo.Info.WorkingDirectory, filename));
-                repo.Index.RetrieveStatus(filename).ShouldEqual(FileStatus.Added | FileStatus.Missing);
+                Assert.Equal(FileStatus.Added | FileStatus.Missing, repo.Index.RetrieveStatus(filename));
 
                 repo.Index.Stage(filename);
                 repo.Index[filename].ShouldBeNull();
 
-                repo.Index.Count.ShouldEqual(count - 1);
-                repo.Index.RetrieveStatus(filename).ShouldEqual(FileStatus.Nonexistent);
+                Assert.Equal(count - 1, repo.Index.Count);
+                Assert.Equal(FileStatus.Nonexistent, repo.Index.RetrieveStatus(filename));
             }
         }
 
@@ -184,12 +184,12 @@ namespace LibGit2Sharp.Tests
                 File.AppendAllText(fullpath, "Is there there anybody out there?");
                 repo.Index.Stage(filename);
 
-                repo.Index.Count.ShouldEqual(count);
+                Assert.Equal(count, repo.Index.Count);
                 repo.Index[posixifiedFileName].Id.ShouldNotEqual((blobId));
 
                 repo.Index.Unstage(posixifiedFileName);
-                repo.Index.Count.ShouldEqual(count);
-                repo.Index[posixifiedFileName].Id.ShouldEqual((blobId));
+                Assert.Equal(count, repo.Index.Count);
+                Assert.Equal(blobId, repo.Index[posixifiedFileName].Id);
             }
         }
 
@@ -200,25 +200,25 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path.RepositoryPath))
             {
                 const string filename = "unit_test.txt";
-                repo.Index.RetrieveStatus(filename).ShouldEqual(FileStatus.Nonexistent);
+                Assert.Equal(FileStatus.Nonexistent, repo.Index.RetrieveStatus(filename));
                 repo.Index[filename].ShouldBeNull();
 
                 File.WriteAllText(Path.Combine(repo.Info.WorkingDirectory, filename), "some contents");
-                repo.Index.RetrieveStatus(filename).ShouldEqual(FileStatus.Untracked);
+                Assert.Equal(FileStatus.Untracked, repo.Index.RetrieveStatus(filename));
                 repo.Index[filename].ShouldBeNull();
 
                 repo.Index.Stage(filename);
                 repo.Index[filename].ShouldNotBeNull();
-                repo.Index.RetrieveStatus(filename).ShouldEqual(FileStatus.Added);
-                repo.Index[filename].State.ShouldEqual(FileStatus.Added);
+                Assert.Equal(FileStatus.Added, repo.Index.RetrieveStatus(filename));
+                Assert.Equal(FileStatus.Added, repo.Index[filename].State);
             }
 
             using (var repo = new Repository(path.RepositoryPath))
             {
                 const string filename = "unit_test.txt";
                 repo.Index[filename].ShouldNotBeNull();
-                repo.Index.RetrieveStatus(filename).ShouldEqual(FileStatus.Added);
-                repo.Index[filename].State.ShouldEqual(FileStatus.Added);
+                Assert.Equal(FileStatus.Added, repo.Index.RetrieveStatus(filename));
+                Assert.Equal(FileStatus.Added, repo.Index[filename].State);
             }
         }
 
@@ -236,7 +236,7 @@ namespace LibGit2Sharp.Tests
 
                 repo.Index.Stage(fullPath);
 
-                repo.Index.Count.ShouldEqual(count + 1);
+                Assert.Equal(count + 1, repo.Index.Count);
                 repo.Index[filename].ShouldNotBeNull();
             }
         }
@@ -256,11 +256,11 @@ namespace LibGit2Sharp.Tests
 
                 repo.Index.Stage(file);
 
-                repo.Index.Count.ShouldEqual(count + 1);
+                Assert.Equal(count + 1, repo.Index.Count);
 
                 const string posixifiedPath = "Project/a_file.txt";
                 repo.Index[posixifiedPath].ShouldNotBeNull();
-                repo.Index[posixifiedPath].Path.ShouldEqual(file);
+                Assert.Equal(file, repo.Index[posixifiedPath].Path);
             }
         }
 
@@ -306,14 +306,14 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path.RepositoryPath))
             {
                 int count = repo.Index.Count;
-                (repo.Index[relativePath] != null).ShouldEqual(doesCurrentlyExistInTheIndex);
-                repo.Index.RetrieveStatus(relativePath).ShouldEqual(currentStatus);
+                Assert.Equal(doesCurrentlyExistInTheIndex, (repo.Index[relativePath] != null));
+                Assert.Equal(currentStatus, repo.Index.RetrieveStatus(relativePath));
 
                 repo.Index.Unstage(relativePath);
 
-                repo.Index.Count.ShouldEqual(count + expectedIndexCountVariation);
-                (repo.Index[relativePath] != null).ShouldEqual(doesExistInTheIndexOnceStaged);
-                repo.Index.RetrieveStatus(relativePath).ShouldEqual(expectedStatusOnceStaged);
+                Assert.Equal(count + expectedIndexCountVariation, repo.Index.Count);
+                Assert.Equal(doesExistInTheIndexOnceStaged, (repo.Index[relativePath] != null));
+                Assert.Equal(expectedStatusOnceStaged, repo.Index.RetrieveStatus(relativePath));
             }
         }
 
@@ -330,12 +330,12 @@ namespace LibGit2Sharp.Tests
                 string fullPath = Path.Combine(repo.Info.WorkingDirectory, filename);
                 Assert.False(File.Exists(fullPath));
 
-                repo.Index.RetrieveStatus(filename).ShouldEqual(FileStatus.Removed);
+                Assert.Equal(FileStatus.Removed, repo.Index.RetrieveStatus(filename));
 
                 repo.Index.Unstage(filename);
-                repo.Index.Count.ShouldEqual(count + 1);
+                Assert.Equal(count + 1, repo.Index.Count);
 
-                repo.Index.RetrieveStatus(filename).ShouldEqual(FileStatus.Missing);
+                Assert.Equal(FileStatus.Missing, repo.Index.RetrieveStatus(filename));
             }
         }
 
@@ -358,47 +358,47 @@ namespace LibGit2Sharp.Tests
 
             using (var repo = Repository.Init(scd.DirectoryPath))
             {
-                repo.Index.Count.ShouldEqual(0);
+                Assert.Equal(0, repo.Index.Count);
 
                 const string oldName = "polite.txt";
                 string oldPath = Path.Combine(repo.Info.WorkingDirectory, oldName);
 
-                repo.Index.RetrieveStatus(oldName).ShouldEqual(FileStatus.Nonexistent);
+                Assert.Equal(FileStatus.Nonexistent, repo.Index.RetrieveStatus(oldName));
 
                 File.WriteAllText(oldPath, "hello test file\n", Encoding.ASCII);
-                repo.Index.RetrieveStatus(oldName).ShouldEqual(FileStatus.Untracked);
+                Assert.Equal(FileStatus.Untracked, repo.Index.RetrieveStatus(oldName));
 
                 repo.Index.Stage(oldName);
-                repo.Index.RetrieveStatus(oldName).ShouldEqual(FileStatus.Added);
+                Assert.Equal(FileStatus.Added, repo.Index.RetrieveStatus(oldName));
 
                 // Generated through
                 // $ echo "hello test file" | git hash-object --stdin
                 const string expectedHash = "88df547706c30fa19f02f43cb2396e8129acfd9b";
-                repo.Index[oldName].Id.Sha.ShouldEqual((expectedHash));
+                Assert.Equal(expectedHash, repo.Index[oldName].Id.Sha);
 
-                repo.Index.Count.ShouldEqual(1);
+                Assert.Equal(1, repo.Index.Count);
 
                 Signature who = Constants.Signature;
                 repo.Commit("Initial commit", who, who);
 
-                repo.Index.RetrieveStatus(oldName).ShouldEqual(FileStatus.Unaltered);
+                Assert.Equal(FileStatus.Unaltered, repo.Index.RetrieveStatus(oldName));
 
                 const string newName = "being.frakking.polite.txt";
 
                 repo.Index.Move(oldName, newName);
-                repo.Index.RetrieveStatus(oldName).ShouldEqual(FileStatus.Removed);
-                repo.Index.RetrieveStatus(newName).ShouldEqual(FileStatus.Added);
+                Assert.Equal(FileStatus.Removed, repo.Index.RetrieveStatus(oldName));
+                Assert.Equal(FileStatus.Added, repo.Index.RetrieveStatus(newName));
 
-                repo.Index.Count.ShouldEqual(1);
-                repo.Index[newName].Id.Sha.ShouldEqual((expectedHash));
+                Assert.Equal(1, repo.Index.Count);
+                Assert.Equal(expectedHash, repo.Index[newName].Id.Sha);
 
                 who = who.TimeShift(TimeSpan.FromMinutes(5));
                 Commit commit = repo.Commit("Fix file name", who, who);
 
-                repo.Index.RetrieveStatus(oldName).ShouldEqual(FileStatus.Nonexistent);
-                repo.Index.RetrieveStatus(newName).ShouldEqual(FileStatus.Unaltered);
+                Assert.Equal(FileStatus.Nonexistent, repo.Index.RetrieveStatus(oldName));
+                Assert.Equal(FileStatus.Unaltered, repo.Index.RetrieveStatus(newName));
 
-                commit.Tree[newName].Target.Id.Sha.ShouldEqual(expectedHash);
+                Assert.Equal(expectedHash, commit.Tree[newName].Target.Id.Sha);
             }
         }
 
@@ -412,13 +412,13 @@ namespace LibGit2Sharp.Tests
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
             using (var repo = new Repository(path.RepositoryPath))
             {
-                repo.Index.RetrieveStatus(sourcePath).ShouldEqual(sourceStatus);
-                repo.Index.RetrieveStatus(destPath).ShouldEqual(destStatus);
+                Assert.Equal(sourceStatus, repo.Index.RetrieveStatus(sourcePath));
+                Assert.Equal(destStatus, repo.Index.RetrieveStatus(destPath));
 
                 repo.Index.Move(sourcePath, destPath);
 
-                repo.Index.RetrieveStatus(sourcePath).ShouldEqual(sourcePostStatus);
-                repo.Index.RetrieveStatus(destPath).ShouldEqual(destPostStatus);
+                Assert.Equal(sourcePostStatus, repo.Index.RetrieveStatus(sourcePath));
+                Assert.Equal(destPostStatus, repo.Index.RetrieveStatus(destPath));
             }
         }
 
@@ -452,7 +452,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(StandardTestRepoPath))
             {
-                repo.Index.RetrieveStatus(sourcePath).ShouldEqual(sourceStatus);
+                Assert.Equal(sourceStatus, repo.Index.RetrieveStatus(sourcePath));
 
                 foreach (var destPath in destPaths)
                 {
@@ -474,14 +474,14 @@ namespace LibGit2Sharp.Tests
 
                 string fullpath = Path.Combine(repo.Info.WorkingDirectory, filename);
 
-                File.Exists(fullpath).ShouldEqual(shouldInitiallyExist);
-                repo.Index.RetrieveStatus(filename).ShouldEqual(initialStatus);
+                Assert.Equal(shouldInitiallyExist, File.Exists(fullpath));
+                Assert.Equal(initialStatus, repo.Index.RetrieveStatus(filename));
 
                 repo.Index.Remove(filename);
 
-                repo.Index.Count.ShouldEqual(count - 1);
+                Assert.Equal(count - 1, repo.Index.Count);
                 Assert.False(File.Exists(fullpath));
-                repo.Index.RetrieveStatus(filename).ShouldEqual(finalStatus);
+                Assert.Equal(finalStatus, repo.Index.RetrieveStatus(filename));
             }
         }
 
@@ -544,7 +544,7 @@ namespace LibGit2Sharp.Tests
                 ie.ShouldNotBeNull();
                 
                 // Make sure that the (native) relFilePath and ie.Path are equal
-                ie.Path.ShouldEqual(relFilePath);
+                Assert.Equal(relFilePath, ie.Path);
             }
         }
     }

@@ -242,14 +242,14 @@ namespace LibGit2Sharp.Tests
                 AssertValueInLocalConfigFile(path.RepositoryPath, "stringsetting = Juliën$");
 
                 string val = repo.Config.Get("unittests.stringsetting", "");
-                val.ShouldEqual("Juliën");
+                Assert.Equal("Juliën", val);
             }
 
             // Make sure the change is permanent
             using (var repo = new Repository(path.RepositoryPath))
             {
                 string val = repo.Config.Get("unittests.stringsetting", "");
-                val.ShouldEqual("Juliën");
+                Assert.Equal("Juliën", val);
             }
         }
 
@@ -269,12 +269,12 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(StandardTestRepoPath))
             {
                 repo.Config.Get<string>("unittests.ghostsetting", null).ShouldBeNull();
-                repo.Config.Get<int>("unittests.ghostsetting", 0).ShouldEqual(0);
-                repo.Config.Get<long>("unittests.ghostsetting", 0L).ShouldEqual(0L);
+                Assert.Equal(0, repo.Config.Get<int>("unittests.ghostsetting", 0));
+                Assert.Equal(0L, repo.Config.Get<long>("unittests.ghostsetting", 0L));
                 Assert.False(repo.Config.Get<bool>("unittests.ghostsetting", false));
-                repo.Config.Get("unittests.ghostsetting", "42").ShouldEqual("42");
-                repo.Config.Get("unittests.ghostsetting", 42).ShouldEqual(42);
-                repo.Config.Get("unittests.ghostsetting", 42L).ShouldEqual(42L);
+                Assert.Equal("42", repo.Config.Get("unittests.ghostsetting", "42"));
+                Assert.Equal(42, repo.Config.Get("unittests.ghostsetting", 42));
+                Assert.Equal(42L, repo.Config.Get("unittests.ghostsetting", 42L));
                 repo.Config.Get("unittests.ghostsetting", true).ShouldBeTrue();
             }
         }

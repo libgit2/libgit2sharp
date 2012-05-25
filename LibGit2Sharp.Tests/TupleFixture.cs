@@ -14,8 +14,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void Properties()
         {
-            sut.Item1.ShouldEqual(integer);
-            sut.Item2.ShouldEqual(stringy);
+            Assert.Equal(integer, sut.Item1);
+            Assert.Equal(stringy, sut.Item2);
         }
 
         [Fact]
@@ -23,7 +23,7 @@ namespace LibGit2Sharp.Tests
         {
             var sut2 = new Tuple<int, string>(integer, stringy);
 
-            sut.GetHashCode().ShouldEqual(sut2.GetHashCode());
+            Assert.Equal(sut2.GetHashCode(), sut.GetHashCode());
         }
 
         [Fact]
