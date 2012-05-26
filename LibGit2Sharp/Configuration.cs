@@ -62,11 +62,11 @@ namespace LibGit2Sharp
             get { return systemConfigPath != null; }
         }
 
-        private static string ConvertPath(Func<byte[], IntPtr, int> pathRetriever)
+        private static string ConvertPath(Func<byte[], uint, int> pathRetriever)
         {
             var buffer = new byte[NativeMethods.GIT_PATH_MAX];
 
-            int result = pathRetriever(buffer, new IntPtr(NativeMethods.GIT_PATH_MAX));
+            int result = pathRetriever(buffer, NativeMethods.GIT_PATH_MAX);
 
             if (result == (int)GitErrorCode.GIT_ENOTFOUND)
             {

@@ -41,9 +41,9 @@ namespace LibGit2Sharp
             Ensure.Success(NativeMethods.git_diff_print_patch(diff, IntPtr.Zero, PrintCallBack));
         }
 
-        private int PrintCallBack(IntPtr data, GitDiffDelta delta, GitDiffRange range, GitDiffLineOrigin lineorigin, IntPtr content, IntPtr contentlen)
+        private int PrintCallBack(IntPtr data, GitDiffDelta delta, GitDiffRange range, GitDiffLineOrigin lineorigin, IntPtr content, uint contentlen)
         {
-            string formattedoutput = marshaler.NativeToString(content, contentlen.ToInt32());
+            string formattedoutput = marshaler.NativeToString(content, contentlen);
             var currentFilePath = (string)marshaler.MarshalNativeToManaged(delta.NewFile.Path);
 
             AddLineChange(currentFilePath, lineorigin);

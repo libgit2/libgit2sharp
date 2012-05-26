@@ -9,7 +9,7 @@ namespace LibGit2Sharp.Core
 {
     internal static class NativeMethods
     {
-        public const int GIT_PATH_MAX = 4096;
+        public const uint GIT_PATH_MAX = 4096;
         private const string libgit2 = "git2";
 
         static NativeMethods()
@@ -149,10 +149,10 @@ namespace LibGit2Sharp.Core
         public static extern int git_config_delete(ConfigurationSafeHandle cfg, string name);
 
         [DllImport(libgit2)]
-        public static extern int git_config_find_global(byte[] global_config_path, IntPtr length);
+        public static extern int git_config_find_global(byte[] global_config_path, uint length);
 
         [DllImport(libgit2)]
-        public static extern int git_config_find_system(byte[] system_config_path, IntPtr length);
+        public static extern int git_config_find_system(byte[] system_config_path, uint length);
 
         [DllImport(libgit2)]
         public static extern void git_config_free(IntPtr cfg);
@@ -259,7 +259,7 @@ namespace LibGit2Sharp.Core
             GitDiffDelta delta,
             GitDiffRange range,
             IntPtr header,
-            IntPtr headerLen);
+            uint headerLen);
 
         [DllImport(libgit2)]
         public static extern int git_diff_foreach(
@@ -275,7 +275,7 @@ namespace LibGit2Sharp.Core
             GitDiffRange range, 
             GitDiffLineOrigin lineOrigin,
             IntPtr content,
-            IntPtr contentLen);
+            uint contentLen);
 
         [DllImport(libgit2)]
         public static extern int git_diff_print_patch(

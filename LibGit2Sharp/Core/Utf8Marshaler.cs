@@ -59,18 +59,19 @@ namespace LibGit2Sharp.Core
             {
                 walk++;
             }
-            var length = (int)(walk - (byte*)pNativeData);
+
+            var length = (uint)(walk - (byte*)pNativeData);
 
             return NativeToString(pNativeData, length);
         }
 
-        public string NativeToString(IntPtr pNativeData, int length)
+        public string NativeToString(IntPtr pNativeData, uint length)
         {
             // should not be null terminated
             var strbuf = new byte[length];
 
             // skip the trailing null
-            Marshal.Copy(pNativeData, strbuf, 0, length);
+            Marshal.Copy(pNativeData, strbuf, 0, (int)length);
             string data = Encoding.UTF8.GetString(strbuf);
             return data;
         }

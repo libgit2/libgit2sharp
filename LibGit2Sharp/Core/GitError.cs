@@ -7,7 +7,7 @@ namespace LibGit2Sharp.Core
     internal class GitError
     {
         public IntPtr Message;
-        public IntPtr Klass;
+        public int Klass;
     }
 
     internal enum GitErrorType
