@@ -84,12 +84,25 @@ namespace LibGit2Sharp
         /// <returns>A new <see cref = "Remote" />.</returns>
         public Remote Create(string name, string url)
         {
+            string fetchRefSpec = string.Format("+refs/heads/*:refs/remotes/{0}/*", name);
+
+            return Create(name, url, fetchRefSpec);
+        }
+
+        /// <summary>
+        ///   Creates a <see cref="Remote"/> with the specified name and for the repository at the specified location.
+        /// </summary>
+        /// <param name = "name">The name of the remote to create.</param>
+        /// <param name = "url">The location of the repository.</param>
+        /// <param name = "fetchRefSpec">The refSpec to be used when fetching from this remote..</param>
+        /// <returns>A new <see cref = "Remote" />.</returns>
+        public Remote Create(string name, string url, string fetchRefSpec)
+        {
             Ensure.ArgumentNotNull(name, "name");
             Ensure.ArgumentNotNull(url, "url");
+            Ensure.ArgumentNotNull(fetchRefSpec, "fetchRefSpec");
 
             RemoteSafeHandle handle;
-
-            string fetchRefSpec = string.Format("+refs/heads/*:refs/remotes/{0}/*", name);
 
             int res = NativeMethods.git_remote_new(out handle, repository.Handle, name, url, fetchRefSpec);
             Ensure.Success(res);

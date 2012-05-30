@@ -90,5 +90,26 @@ namespace LibGit2Sharp.Tests
                 //Assert.Equal("+refs/heads/*:refs/remotes/upstream/*", refSpec);
             }
         }
+
+        [Fact]
+        public void CanCreateANewRemoteWithAFetchRefSpec()
+        {
+            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoPath);
+
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                const string name = "pull-requests";
+                const string url = "https://github.com/libgit2/libgit2sharp.git";
+                const string fetchRefSpec = "+refs/pull/*:refs/remotes/pull-requests/*";
+
+                repo.Remotes.Create(name, url, fetchRefSpec);
+
+                var refSpec = repo.Config.Get<string>("remote", name, "fetch", null);
+                Assert.NotNull(refSpec);
+
+                //TODO: Uncomment the line below once https://github.com/libgit2/libgit2/pull/737 is merged
+                //Assert.Equal(fetchRefSpec, refSpec);
+            }
+        }
     }
 }
