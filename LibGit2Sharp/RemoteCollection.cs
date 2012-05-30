@@ -74,7 +74,10 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Creates a <see cref="Remote"/> with the specified name and for the repository at the specified location
+        ///   Creates a <see cref="Remote"/> with the specified name and for the repository at the specified location.
+        ///   <para>
+        ///     A default fetch refspec will be added for this remote.
+        ///   </para>
         /// </summary>
         /// <param name = "name">The name of the remote to create.</param>
         /// <param name = "url">The location of the repository.</param>
@@ -85,9 +88,10 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(url, "url");
 
             RemoteSafeHandle handle;
-            
-            //TODO: Allow passing a fetch refspec
-            int res = NativeMethods.git_remote_new(out handle, repository.Handle, name, url, null);
+
+            string fetchRefSpec = string.Format("+refs/heads/*:refs/remotes/{0}/*", name);
+
+            int res = NativeMethods.git_remote_new(out handle, repository.Handle, name, url, fetchRefSpec);
             Ensure.Success(res);
 
             using (handle)
