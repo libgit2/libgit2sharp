@@ -102,7 +102,7 @@ namespace LibGit2Sharp.Tests
                 const string url = "https://github.com/libgit2/libgit2sharp.git";
                 const string fetchRefSpec = "+refs/pull/*:refs/remotes/pull-requests/*";
 
-                repo.Remotes.Create(name, url, fetchRefSpec);
+                repo.Remotes.Add(name, url, fetchRefSpec);
 
                 var refSpec = repo.Config.Get<string>("remote", name, "fetch", null);
                 Assert.NotNull(refSpec);
