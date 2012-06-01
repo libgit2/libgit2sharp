@@ -64,9 +64,19 @@ namespace LibGit2Sharp.Core
                 return;
             }
 
+            string errorMessage;
             GitError error = NativeMethods.giterr_last().MarshalAsGitError();
 
-            var errorMessage = (string)marshaler.MarshalNativeToManaged(error.Message);
+
+            if (error == null)
+            {
+                error = new GitError { Klass = -1, Message = IntPtr.Zero };
+                errorMessage = "No error message has been provided by the native library";
+            }
+            else
+            {
+                errorMessage = (string)marshaler.MarshalNativeToManaged(error.Message);
+            }
 
             throw new LibGit2Exception(
                 String.Format(CultureInfo.InvariantCulture, "An error was raised by libgit2. Class = {0} ({1}).{2}{3}",

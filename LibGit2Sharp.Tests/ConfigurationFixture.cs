@@ -1,6 +1,6 @@
 ﻿using System;
 using System.IO;
-using System.Text.RegularExpressions;
+using System.Text;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
 
@@ -44,7 +44,7 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
-        public void CanDeleteConfiguration()
+        public void CanDeleteAnEntryFromTheLocalConfiguration()
         {
             var path = BuildTemporaryCloneOfTestRepo(StandardTestRepoPath);
             using (var repo = new Repository(path.RepositoryPath))
@@ -57,6 +57,42 @@ namespace LibGit2Sharp.Tests
                 repo.Config.Delete("unittests.boolsetting");
 
                 Assert.False(repo.Config.Get<bool>("unittests.boolsetting", false));
+            }
+        }
+
+        [Fact]
+        public void CanDeleteAnEntryFromTheGlobalConfiguration()
+        {
+            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+
+            string confs = Path.Combine(scd.DirectoryPath, "confs");
+            Directory.CreateDirectory(confs);
+
+            string globalLocation = Path.Combine(confs, "my-global-config");
+            string systemLocation = Path.Combine(confs, "my-system-config");
+
+            StringBuilder sb = new StringBuilder()
+                .AppendLine("[Wow]")
+                .AppendFormat("Man-I-am-totally-global = 42{0}", Environment.NewLine);
+
+            File.WriteAllText(globalLocation, sb.ToString());
+
+            var options = new RepositoryOptions
+            {
+                GlobalConfigurationLocation = globalLocation,
+                SystemConfigurationLocation = systemLocation,
+            };
+
+            using (var repo = new Repository(BareTestRepoPath, options))
+            {
+                Assert.True(repo.Config.HasGlobalConfig);
+                Assert.Equal(42, repo.Config.Get("Wow.Man-I-am-totally-global", 1337));
+
+                repo.Config.Delete("Wow.Man-I-am-totally-global");
+                Assert.Equal(42, repo.Config.Get("Wow.Man-I-am-totally-global", 1337));
+
+                repo.Config.Delete("Wow.Man-I-am-totally-global", ConfigurationLevel.Global);
+                Assert.Equal(1337, repo.Config.Get("Wow.Man-I-am-totally-global", 1337));
             }
         }
 
