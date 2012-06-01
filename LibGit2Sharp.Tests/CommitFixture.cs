@@ -96,8 +96,8 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                Assert.Throws<LibGit2Exception>(() => repo.Commits.QueryBy(new Filter { Since = Constants.UnknownSha }).Count());
-                Assert.Throws<LibGit2Exception>(() => repo.Commits.QueryBy(new Filter { Since = "refs/heads/deadbeef" }).Count());
+                Assert.Throws<LibGit2SharpException>(() => repo.Commits.QueryBy(new Filter { Since = Constants.UnknownSha }).Count());
+                Assert.Throws<LibGit2SharpException>(() => repo.Commits.QueryBy(new Filter { Since = "refs/heads/deadbeef" }).Count());
                 Assert.Throws<ArgumentNullException>(() => repo.Commits.QueryBy(new Filter { Since = null }).Count());
             }
         }
@@ -110,8 +110,8 @@ namespace LibGit2Sharp.Tests
             {
                 CreateCorruptedDeadBeefHead(repo.Info.Path);
 
-                Assert.Throws<LibGit2Exception>(() => repo.Commits.QueryBy(new Filter { Since = repo.Branches["deadbeef"] }).Count());
-                Assert.Throws<LibGit2Exception>(() => repo.Commits.QueryBy(new Filter { Since = repo.Refs["refs/heads/deadbeef"] }).Count());
+                Assert.Throws<LibGit2SharpException>(() => repo.Commits.QueryBy(new Filter { Since = repo.Branches["deadbeef"] }).Count());
+                Assert.Throws<LibGit2SharpException>(() => repo.Commits.QueryBy(new Filter { Since = repo.Refs["refs/heads/deadbeef"] }).Count());
             }
         }
 
@@ -647,7 +647,7 @@ namespace LibGit2Sharp.Tests
 
             using (Repository repo = Repository.Init(scd.DirectoryPath))
             {
-                Assert.Throws<LibGit2Exception>(() => repo.Commit("I can not amend anything !:(", DummySignature, DummySignature, true));
+                Assert.Throws<LibGit2SharpException>(() => repo.Commit("I can not amend anything !:(", DummySignature, DummySignature, true));
             }
         }
 
