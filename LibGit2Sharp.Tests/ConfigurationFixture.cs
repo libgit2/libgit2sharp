@@ -220,7 +220,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var config = new Configuration())
             {
-                Assert.Throws<LibGit2Exception>(() => config.Set("unittests.intsetting", 3));
+                Assert.Throws<LibGit2SharpException>(() => config.Set("unittests.intsetting", 3));
             }
         }
 

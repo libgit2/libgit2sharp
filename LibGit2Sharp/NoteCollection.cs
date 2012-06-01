@@ -137,7 +137,7 @@ namespace LibGit2Sharp
 
             int res = NativeMethods.git_note_read(out noteHandle, repo.Handle, canonicalNamespace, ref oid);
 
-            if (res == (int)GitErrorCode.GIT_ENOTFOUND)
+            if (res == (int)GitErrorCode.NotFound)
             {
                 return null;
             }
@@ -229,7 +229,7 @@ namespace LibGit2Sharp
                 res = NativeMethods.git_note_remove(repo.Handle, canonicalNamespace, authorHandle, committerHandle, ref oid);
             }
 
-            if (res == (int)GitErrorCode.GIT_ENOTFOUND)
+            if (res == (int)GitErrorCode.NotFound)
             {
                 return;
             }

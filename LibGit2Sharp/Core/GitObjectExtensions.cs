@@ -27,7 +27,7 @@ namespace LibGit2Sharp.Core
                 return null;
             }
 
-            throw new LibGit2Exception(string.Format(CultureInfo.InvariantCulture,
+            throw new LibGit2SharpException(string.Format(CultureInfo.InvariantCulture,
                                                      "The Git object pointed at by '{0}' can not be dereferenced to a commit.",
                                                      identifier));
         }

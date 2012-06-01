@@ -63,7 +63,7 @@ namespace LibGit2Sharp
 
                 int res = NativeMethods.git_index_find(handle, path);
 
-                if (res == (int)GitErrorCode.GIT_ENOTFOUND)
+                if (res == (int)GitErrorCode.NotFound)
                 {
                     return null;
                 }
@@ -142,7 +142,7 @@ namespace LibGit2Sharp
                     continue;
                 }
 
-                throw new LibGit2Exception(string.Format(CultureInfo.InvariantCulture, "Can not stage '{0}'. The file does not exist.", kvp.Key));
+                throw new LibGit2SharpException(string.Format(CultureInfo.InvariantCulture, "Can not stage '{0}'. The file does not exist.", kvp.Key));
             }
 
             foreach (KeyValuePair<string, FileStatus> kvp in batch)
@@ -254,7 +254,7 @@ namespace LibGit2Sharp
                 FileStatus sourceStatus = keyValuePair.Key.Item2;
                 if (sourceStatus.HasAny(new[] { FileStatus.Nonexistent, FileStatus.Removed, FileStatus.Untracked, FileStatus.Missing }))
                 {
-                    throw new LibGit2Exception(string.Format(CultureInfo.InvariantCulture, "Unable to move file '{0}'. Its current status is '{1}'.", sourcePath, Enum.GetName(typeof(FileStatus), sourceStatus)));
+                    throw new LibGit2SharpException(string.Format(CultureInfo.InvariantCulture, "Unable to move file '{0}'. Its current status is '{1}'.", sourcePath, Enum.GetName(typeof(FileStatus), sourceStatus)));
                 }
 
                 FileStatus desStatus = keyValuePair.Value.Item2;
@@ -263,7 +263,7 @@ namespace LibGit2Sharp
                     continue;
                 }
 
-                throw new LibGit2Exception(string.Format(CultureInfo.InvariantCulture, "Unable to overwrite file '{0}'. Its current status is '{1}'.", destPath, Enum.GetName(typeof(FileStatus), desStatus)));
+                throw new LibGit2SharpException(string.Format(CultureInfo.InvariantCulture, "Unable to overwrite file '{0}'. Its current status is '{1}'.", destPath, Enum.GetName(typeof(FileStatus), desStatus)));
             }
 
             string wd = repo.Info.WorkingDirectory;
@@ -322,7 +322,7 @@ namespace LibGit2Sharp
                     continue;
                 }
 
-                throw new LibGit2Exception(string.Format(CultureInfo.InvariantCulture, "Unable to remove file '{0}'. Its current status is '{1}'.", keyValuePair.Key, Enum.GetName(typeof(FileStatus), keyValuePair.Value)));
+                throw new LibGit2SharpException(string.Format(CultureInfo.InvariantCulture, "Unable to remove file '{0}'. Its current status is '{1}'.", keyValuePair.Key, Enum.GetName(typeof(FileStatus), keyValuePair.Value)));
             }
 
             string wd = repo.Info.WorkingDirectory;
@@ -476,7 +476,7 @@ namespace LibGit2Sharp
             FileStatus status;
 
             int res = NativeMethods.git_status_file(out status, repo.Handle, relativePath);
-            if (res == (int)GitErrorCode.GIT_ENOTFOUND)
+            if (res == (int)GitErrorCode.NotFound)
             {
                 return FileStatus.Nonexistent;
             }

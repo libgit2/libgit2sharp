@@ -2,13 +2,37 @@
 {
     internal enum GitErrorCode
     {
-        GIT_OK = 0,
-        GIT_ERROR = -1,
-        GIT_ENOTFOUND = -3,
-        GIT_EEXISTS = -4,
-        GIT_EAMBIGUOUS = -5,
-        GIT_EBUFS = -6,
-        GIT_EPASSTHROUGH = -30,
-        GIT_EREVWALKOVER = -31,
+        Ok = 0,
+        Error = -1,
+
+        /// <summary>
+        /// Input does not exist in the scope searched.
+        /// </summary>
+        NotFound = -3,
+
+        /// <summary>
+        /// A reference with this name already exists.
+        /// </summary>
+        Exists = -4,
+
+        /// <summary>
+        /// The given short oid is ambiguous.
+        /// </summary>
+        Ambiguous = -5,
+
+        /// <summary>
+        /// Bufs
+        /// </summary>
+        Bufs = -6,
+
+        /// <summary>
+        /// Skip and passthrough the given ODB backend.
+        /// </summary>
+        PassThrough = -30,
+
+        /// <summary>
+        /// The revision walker is empty; there are no more commits left to iterate.
+        /// </summary>
+        RevWalkOver = -31
     }
 }

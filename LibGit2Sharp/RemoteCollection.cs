@@ -34,7 +34,7 @@ namespace LibGit2Sharp
 
             int res = NativeMethods.git_remote_load(out handle, repository.Handle, name);
 
-            if (res == (int)GitErrorCode.GIT_ENOTFOUND && !throwsIfNotFound)
+            if (res == (int)GitErrorCode.NotFound && !throwsIfNotFound)
             {
                 return null;
             }
