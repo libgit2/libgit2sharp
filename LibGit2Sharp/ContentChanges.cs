@@ -10,6 +10,7 @@ namespace LibGit2Sharp
     public class ContentChanges
     {
         private readonly StringBuilder patchBuilder = new StringBuilder();
+        private static readonly Utf8Marshaler marshaler = (Utf8Marshaler)Utf8Marshaler.GetInstance(string.Empty);
 
         protected ContentChanges()
         {
@@ -44,22 +45,17 @@ namespace LibGit2Sharp
             return delta.OldFile.Flags.Has(GitDiffFileFlags.GIT_DIFF_FILE_BINARY) || delta.NewFile.Flags.Has(GitDiffFileFlags.GIT_DIFF_FILE_BINARY);
         }
 
-        private static string NativeToString(IntPtr content, IntPtr contentlen)
+        private int HunkCallback(IntPtr data, GitDiffDelta delta, GitDiffRange range, IntPtr header, uint headerlen)
         {
-            return ((Utf8Marshaler)(Utf8Marshaler.GetInstance(string.Empty))).NativeToString(content, contentlen.ToInt32());
-        }
-
-        private int HunkCallback(IntPtr data, GitDiffDelta delta, GitDiffRange range, IntPtr header, IntPtr headerlen)
-        {
-            string decodedContent = NativeToString(header, headerlen);
+            string decodedContent = marshaler.NativeToString(header, headerlen);
 
             PatchBuilder.AppendFormat("{0}", decodedContent);
             return 0;
         }
 
-        private int LineCallback(IntPtr data, GitDiffDelta delta, GitDiffRange range, GitDiffLineOrigin lineorigin, IntPtr content, IntPtr contentlen)
+        private int LineCallback(IntPtr data, GitDiffDelta delta, GitDiffRange range, GitDiffLineOrigin lineorigin, IntPtr content, uint contentlen)
         {
-            string decodedContent = NativeToString(content, contentlen);
+            string decodedContent = marshaler.NativeToString(content, contentlen);
 
             string prefix;
 

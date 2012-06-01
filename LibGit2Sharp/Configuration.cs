@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Handles;
 
@@ -20,21 +21,61 @@ namespace LibGit2Sharp
         private ConfigurationSafeHandle globalHandle;
         private ConfigurationSafeHandle localHandle;
 
-        internal Configuration(Repository repository)
+        internal Configuration(Repository repository, string globalConfigurationFileLocation, string systemConfigurationFileLocation)
         {
             this.repository = repository;
 
-            globalConfigPath = ConvertPath(NativeMethods.git_config_find_global);
-            systemConfigPath = ConvertPath(NativeMethods.git_config_find_system);
+            globalConfigPath = globalConfigurationFileLocation ?? ConvertPath(NativeMethods.git_config_find_global);
+            systemConfigPath = systemConfigurationFileLocation ?? ConvertPath(NativeMethods.git_config_find_system);
 
             Init();
+        }
+
+        private void Init()
+        {
+            if (repository != null)
+            {
+                //TODO: push back this logic into libgit2. 
+                // As stated by @carlosmn "having a helper function to load the defaults and then allowing you
+                // to modify it before giving it to git_repository_open_ext() would be a good addition, I think."
+                //  -- Agreed :)
+
+                Ensure.Success(NativeMethods.git_config_new(out localHandle));
+
+                string repoConfigLocation = Path.Combine(repository.Info.Path, "config");
+                Ensure.Success(NativeMethods.git_config_add_file_ondisk(localHandle, repoConfigLocation, 3));
+
+                if (globalConfigPath != null)
+                {
+                    Ensure.Success(NativeMethods.git_config_add_file_ondisk(localHandle, globalConfigPath, 2));
+                }
+
+                if (systemConfigPath != null)
+                {
+                    Ensure.Success(NativeMethods.git_config_add_file_ondisk(localHandle, systemConfigPath, 1));
+                }
+
+                NativeMethods.git_repository_set_config(repository.Handle, localHandle);
+            }
+
+            if (globalConfigPath != null)
+            {
+                Ensure.Success(NativeMethods.git_config_open_ondisk(out globalHandle, globalConfigPath));
+            }
+
+            if (systemConfigPath != null)
+            {
+                Ensure.Success(NativeMethods.git_config_open_ondisk(out systemHandle, systemConfigPath));
+            }
         }
 
         /// <summary>
         ///   Access configuration values without a repository. Generally you want to access configuration via an instance of <see cref = "Repository" /> instead.
         /// </summary>
-        public Configuration()
-            : this(null)
+        /// <param name="globalConfigurationFileLocation">Path to a Global configuration file. If null, the default path for a global configuration file will be probed.</param>
+        /// <param name="systemConfigurationFileLocation">Path to a System configuration file. If null, the default path for a system configuration file will be probed.</param>
+        public Configuration(string globalConfigurationFileLocation = null, string systemConfigurationFileLocation = null)
+            : this(null, globalConfigurationFileLocation, systemConfigurationFileLocation)
         {
         }
 
@@ -62,11 +103,12 @@ namespace LibGit2Sharp
             get { return systemConfigPath != null; }
         }
 
-        private static string ConvertPath(Func<byte[], IntPtr, int> pathRetriever)
+        private static string ConvertPath(Func<byte[], uint, int> pathRetriever)
         {
             var buffer = new byte[NativeMethods.GIT_PATH_MAX];
 
-            int result = pathRetriever(buffer, new IntPtr(NativeMethods.GIT_PATH_MAX));
+            int result = pathRetriever(buffer, NativeMethods.GIT_PATH_MAX);
+
             if (result == (int)GitErrorCode.NotFound)
             {
                 return null;
@@ -100,9 +142,19 @@ namespace LibGit2Sharp
         ///   Delete a configuration variable (key and value).
         /// </summary>
         /// <param name = "key">The key to delete.</param>
-        public void Delete(string key)
+        /// <param name = "level">The configuration file which should be considered as the target of this operation</param>
+        public void Delete(string key, ConfigurationLevel level = ConfigurationLevel.Local)
         {
-            Ensure.Success(NativeMethods.git_config_delete(localHandle, key));
+            ConfigurationSafeHandle h = RetrieveConfigurationHandle(level);
+
+            int res = NativeMethods.git_config_delete(h, key);
+
+            if (res == (int)GitErrorCode.NotFound)
+            {
+                return;
+            }
+
+            Ensure.Success(res);
             Save();
         }
 
@@ -245,24 +297,6 @@ namespace LibGit2Sharp
             return Get(string.Join(".", keyParts), defaultValue);
         }
 
-        private void Init()
-        {
-            if (repository != null)
-            {
-                Ensure.Success(NativeMethods.git_repository_config(out localHandle, repository.Handle));
-            }
-
-            if (globalConfigPath != null)
-            {
-                Ensure.Success(NativeMethods.git_config_open_ondisk(out globalHandle, globalConfigPath));
-            }
-
-            if (systemConfigPath != null)
-            {
-                Ensure.Success(NativeMethods.git_config_open_ondisk(out systemHandle, systemConfigPath));
-            }
-        }
-
         private void Save()
         {
             Dispose(true);
@@ -282,14 +316,27 @@ namespace LibGit2Sharp
         ///     repo.Config.Set("test.boolsetting", true);
         ///   </para>
         /// </summary>
-        /// <typeparam name = "T"></typeparam>
-        /// <param name = "key"></param>
-        /// <param name = "value"></param>
-        /// <param name = "level"></param>
+        /// <typeparam name = "T">The configuration value type</typeparam>
+        /// <param name = "key">The key parts</param>
+        /// <param name = "value">The default value</param>
+        /// <param name = "level">The configuration file which should be considered as the target of this operation</param>
         public void Set<T>(string key, T value, ConfigurationLevel level = ConfigurationLevel.Local)
         {
             Ensure.ArgumentNotNullOrEmptyString(key, "key");
 
+            ConfigurationSafeHandle h = RetrieveConfigurationHandle(level);
+
+            if (!configurationTypedUpdater.ContainsKey(typeof(T)))
+            {
+                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "Generic Argument of type '{0}' is not supported.", typeof(T).FullName));
+            }
+
+            configurationTypedUpdater[typeof(T)](key, value, h);
+            Save();
+        }
+
+        private ConfigurationSafeHandle RetrieveConfigurationHandle(ConfigurationLevel level)
+        {
             if (level == ConfigurationLevel.Local && !HasLocalConfig)
             {
                 throw new LibGit2SharpException("No local configuration file has been found. You must use ConfigurationLevel.Global when accessing configuration outside of repository.");
@@ -324,14 +371,7 @@ namespace LibGit2Sharp
                 default:
                     throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "Configuration level has an unexpected value ('{0}').", Enum.GetName(typeof(ConfigurationLevel), level)), "level");
             }
-
-            if (!configurationTypedUpdater.ContainsKey(typeof(T)))
-            {
-                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "Generic Argument of type '{0}' is not supported.", typeof(T).FullName));
-            }
-
-            configurationTypedUpdater[typeof(T)](key, value, h);
-            Save();
+            return h;
         }
 
         private delegate int ConfigGetter<T>(out T value, ConfigurationSafeHandle handle, string name);

@@ -18,7 +18,8 @@ namespace LibGit2Sharp
         ///   Delete a configuration variable (key and value).
         /// </summary>
         /// <param name = "key">The key to delete.</param>
-        void Delete(string key);
+        /// <param name = "level">The configuration file which should be considered as the target of this operation</param>
+        void Delete(string key, ConfigurationLevel level = ConfigurationLevel.Local);
 
         /// <summary>
         ///   Get a configuration value for a key. Keys are in the form 'section.name'.

@@ -30,7 +30,7 @@ namespace LibGit2Sharp.Tests
 
                 repo.Reset(ResetOptions.Soft, oldHead.CanonicalName);
 
-                repo.Head.ShouldEqual(oldHead);
+                Assert.Equal(oldHead, repo.Head);
             }
         }
 
@@ -43,7 +43,7 @@ namespace LibGit2Sharp.Tests
             {
                 Tag tag = repo.Tags["test"];
                 repo.Reset(ResetOptions.Soft, tag.CanonicalName);
-                repo.Head.Tip.Sha.ShouldEqual("e90810b8df3e80c413d903f631643c716887138d");
+                Assert.Equal("e90810b8df3e80c413d903f631643c716887138d", repo.Head.Tip.Sha);
             }
         }
 
@@ -86,25 +86,25 @@ namespace LibGit2Sharp.Tests
 
                 string branchIdentifier = branchIdentifierRetriever(branch);
                 repo.Checkout(branchIdentifier);
-                repo.Info.IsHeadDetached.ShouldEqual(shouldHeadBeDetached);
+                Assert.Equal(shouldHeadBeDetached, repo.Info.IsHeadDetached);
 
                 string expectedHeadName = expectedHeadNameRetriever(branch);
-                repo.Head.Name.ShouldEqual(expectedHeadName);
-                repo.Head.Tip.Sha.ShouldEqual(branch.Tip.Sha);
+                Assert.Equal(expectedHeadName, repo.Head.Name);
+                Assert.Equal(branch.Tip.Sha, repo.Head.Tip.Sha);
 
                 /* Reset --soft the Head to a tag through its canonical name */
                 repo.Reset(ResetOptions.Soft, tag.CanonicalName);
-                repo.Head.Name.ShouldEqual(expectedHeadName);
-                repo.Head.Tip.Id.ShouldEqual(tag.Target.Id);
+                Assert.Equal(expectedHeadName, repo.Head.Name);
+                Assert.Equal(tag.Target.Id, repo.Head.Tip.Id);
 
-                repo.Index.RetrieveStatus("a.txt").ShouldEqual(FileStatus.Staged);
+                Assert.Equal(FileStatus.Staged, repo.Index.RetrieveStatus("a.txt"));
 
                 /* Reset --soft the Head to a commit through its sha */
                 repo.Reset(ResetOptions.Soft, branch.Tip.Sha);
-                repo.Head.Name.ShouldEqual(expectedHeadName);
-                repo.Head.Tip.Sha.ShouldEqual(branch.Tip.Sha);
+                Assert.Equal(expectedHeadName, repo.Head.Name);
+                Assert.Equal(branch.Tip.Sha, repo.Head.Tip.Sha);
 
-                repo.Index.RetrieveStatus("a.txt").ShouldEqual(FileStatus.Unaltered);
+                Assert.Equal(FileStatus.Unaltered, repo.Index.RetrieveStatus("a.txt"));
             }
         }
 
@@ -125,7 +125,7 @@ namespace LibGit2Sharp.Tests
 
             repo.Checkout("mybranch");
 
-            repo.Index.RetrieveStatus().IsDirty.ShouldBeFalse();
+            Assert.False(repo.Index.RetrieveStatus().IsDirty);
         }
 
         [Fact]
@@ -141,7 +141,7 @@ namespace LibGit2Sharp.Tests
 
                 repo.Reset(ResetOptions.Mixed, tag.CanonicalName);
 
-                repo.Index.RetrieveStatus("a.txt").ShouldEqual(FileStatus.Modified);
+                Assert.Equal(FileStatus.Modified, repo.Index.RetrieveStatus("a.txt"));
             }
         }
 

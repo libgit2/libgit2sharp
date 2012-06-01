@@ -14,8 +14,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void Properties()
         {
-            sut.Item1.ShouldEqual(integer);
-            sut.Item2.ShouldEqual(stringy);
+            Assert.Equal(integer, sut.Item1);
+            Assert.Equal(stringy, sut.Item2);
         }
 
         [Fact]
@@ -23,7 +23,7 @@ namespace LibGit2Sharp.Tests
         {
             var sut2 = new Tuple<int, string>(integer, stringy);
 
-            sut.GetHashCode().ShouldEqual(sut2.GetHashCode());
+            Assert.Equal(sut2.GetHashCode(), sut.GetHashCode());
         }
 
         [Fact]
@@ -31,7 +31,7 @@ namespace LibGit2Sharp.Tests
         {
             var sut2 = new Tuple<int, string>(integer + 1, stringy);
 
-            sut.GetHashCode().ShouldNotEqual(sut2.GetHashCode());
+            Assert.NotEqual(sut2.GetHashCode(), sut.GetHashCode());
         }
 
         [Fact]
@@ -39,8 +39,8 @@ namespace LibGit2Sharp.Tests
         {
             var sut2 = new Tuple<int, string>(integer, stringy);
 
-            sut.Equals(sut2).ShouldBeTrue();
-            Equals(sut, sut2).ShouldBeTrue();
+            Assert.True(sut.Equals(sut2));
+            Assert.True(Equals(sut, sut2));
         }
 
         [Fact]
@@ -48,8 +48,8 @@ namespace LibGit2Sharp.Tests
         {
             var sut2 = new Tuple<int, string>(integer + 1, stringy);
 
-            sut.Equals(sut2).ShouldBeFalse();
-            Equals(sut, sut2).ShouldBeFalse();
+            Assert.False(sut.Equals(sut2));
+            Assert.False(Equals(sut, sut2));
         }
     }
 }

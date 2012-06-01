@@ -11,9 +11,9 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(StandardTestRepoPath))
             {
                 Remote origin = repo.Remotes["origin"];
-                origin.ShouldNotBeNull();
-                origin.Name.ShouldEqual("origin");
-                origin.Url.ShouldEqual("c:/GitHub/libgit2sharp/Resources/testrepo.git");
+                Assert.NotNull(origin);
+                Assert.Equal("origin", origin.Name);
+                Assert.Equal("c:/GitHub/libgit2sharp/Resources/testrepo.git", origin.Url);
             }
         }
 
@@ -22,7 +22,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(StandardTestRepoPath))
             {
-                repo.Remotes["test"].ShouldBeNull();
+                Assert.Null(repo.Remotes["test"]);
             }
         }
 
@@ -35,11 +35,11 @@ namespace LibGit2Sharp.Tests
 
                 foreach (Remote remote in repo.Remotes)
                 {
-                    remote.ShouldNotBeNull();
+                    Assert.NotNull(remote);
                     count++;
                 }
 
-                count.ShouldEqual(1);
+                Assert.Equal(1, count);
             }
         }
 
@@ -51,18 +51,64 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path.RepositoryPath))
             {
                 Remote oneOrigin = repo.Remotes["origin"];
-                oneOrigin.ShouldNotBeNull();
+                Assert.NotNull(oneOrigin);
 
                 Remote otherOrigin = repo.Remotes["origin"];
-                otherOrigin.ShouldEqual(oneOrigin);
+                Assert.Equal(oneOrigin, otherOrigin);
 
                 Remote createdRemote = repo.Remotes.Add("origin2", oneOrigin.Url);
 
                 Remote loadedRemote = repo.Remotes["origin2"];
-                loadedRemote.ShouldNotBeNull();
-                loadedRemote.ShouldEqual(createdRemote);
+                Assert.NotNull(loadedRemote);
+                Assert.Equal(createdRemote, loadedRemote);
 
-                loadedRemote.ShouldNotEqual(oneOrigin);
+                Assert.NotEqual(oneOrigin, loadedRemote);
+            }
+        }
+
+        [Fact]
+        public void CreatingANewRemoteAddsADefaultRefSpec()
+        {
+            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoPath);
+
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                const string name = "upstream";
+                const string url = "https://github.com/libgit2/libgit2sharp.git";
+
+                repo.Remotes.Add(name, url);
+                Remote remote = repo.Remotes[name];
+                Assert.NotNull(remote);
+
+                Assert.Equal(name, remote.Name);
+                Assert.Equal(url, remote.Url);
+
+                var refSpec = repo.Config.Get<string>("remote", remote.Name, "fetch", null);
+                Assert.NotNull(refSpec);
+
+                //TODO: Uncomment the line below once https://github.com/libgit2/libgit2/pull/737 is merged
+                //Assert.Equal("+refs/heads/*:refs/remotes/upstream/*", refSpec);
+            }
+        }
+
+        [Fact]
+        public void CanCreateANewRemoteWithAFetchRefSpec()
+        {
+            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoPath);
+
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                const string name = "pull-requests";
+                const string url = "https://github.com/libgit2/libgit2sharp.git";
+                const string fetchRefSpec = "+refs/pull/*:refs/remotes/pull-requests/*";
+
+                repo.Remotes.Create(name, url, fetchRefSpec);
+
+                var refSpec = repo.Config.Get<string>("remote", name, "fetch", null);
+                Assert.NotNull(refSpec);
+
+                //TODO: Uncomment the line below once https://github.com/libgit2/libgit2/pull/737 is merged
+                //Assert.Equal(fetchRefSpec, refSpec);
             }
         }
     }

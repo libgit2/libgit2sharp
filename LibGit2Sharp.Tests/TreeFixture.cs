@@ -17,8 +17,8 @@ namespace LibGit2Sharp.Tests
                 var tree = repo.Lookup<Tree>(sha);
                 TreeEntry treeEntry1 = tree["README"];
                 TreeEntry treeEntry2 = tree["README"];
-                treeEntry1.ShouldEqual(treeEntry2);
-                (treeEntry1 == treeEntry2).ShouldBeTrue();
+                Assert.Equal(treeEntry2, treeEntry1);
+                Assert.True((treeEntry1 == treeEntry2));
             }
         }
 
@@ -31,7 +31,7 @@ namespace LibGit2Sharp.Tests
                 TreeEntry treeEntry = tree["README"];
 
                 var blob = treeEntry.Target as Blob;
-                blob.ShouldNotBeNull();
+                Assert.NotNull(blob);
             }
         }
 
@@ -44,7 +44,7 @@ namespace LibGit2Sharp.Tests
                 TreeEntry treeEntry = tree["1"];
 
                 var subtree = treeEntry.Target as Tree;
-                subtree.ShouldNotBeNull();
+                Assert.NotNull(subtree);
             }
         }
 
@@ -54,7 +54,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(BareTestRepoPath))
             {
                 var tree = repo.Lookup<Tree>(sha);
-                tree.Blobs.Count().ShouldEqual(3);
+                Assert.Equal(3, tree.Blobs.Count());
             }
         }
 
@@ -64,7 +64,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(BareTestRepoPath))
             {
                 var tree = repo.Lookup<Tree>(sha);
-                tree.Trees.Count().ShouldEqual(1);
+                Assert.Equal(1, tree.Trees.Count());
             }
         }
 
@@ -74,7 +74,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(BareTestRepoPath))
             {
                 var tree = repo.Lookup<Tree>(sha);
-                tree.Count().ShouldEqual(tree.Count);
+                Assert.Equal(tree.Count, tree.Count());
 
                 Assert.Equal(new[] { "1", "README", "branch_file.txt", "new.txt" }, tree.Select(te => te.Name).ToArray());
             }
@@ -87,8 +87,8 @@ namespace LibGit2Sharp.Tests
             {
                 var tree = repo.Lookup<Tree>(sha);
                 TreeEntry treeEntry = tree["README"];
-                treeEntry.Target.Sha.ShouldEqual("a8233120f6ad708f843d861ce2b7228ec4e3dec6");
-                treeEntry.Name.ShouldEqual("README");
+                Assert.Equal("a8233120f6ad708f843d861ce2b7228ec4e3dec6", treeEntry.Target.Sha);
+                Assert.Equal("README", treeEntry.Name);
             }
         }
 
@@ -99,7 +99,7 @@ namespace LibGit2Sharp.Tests
             {
                 var tree = repo.Lookup<Tree>(sha);
                 TreeEntry treeEntry = tree["I-do-not-exist"];
-                treeEntry.ShouldBeNull();
+                Assert.Null(treeEntry);
             }
         }
 
@@ -109,7 +109,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(BareTestRepoPath))
             {
                 var tree = repo.Lookup<Tree>(sha);
-                tree.Count.ShouldEqual(4);
+                Assert.Equal(4, tree.Count);
             }
         }
 
@@ -119,7 +119,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(BareTestRepoPath))
             {
                 var tree = repo.Lookup<Tree>(sha);
-                tree["README"].Mode.ShouldEqual(Mode.NonExecutableFile);
+                Assert.Equal(Mode.NonExecutableFile, tree["README"].Mode);
             }
         }
 
@@ -129,7 +129,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(BareTestRepoPath))
             {
                 var tree = repo.Lookup<Tree>(sha);
-                tree.ShouldNotBeNull();
+                Assert.NotNull(tree);
             }
         }
 
@@ -139,7 +139,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(BareTestRepoPath))
             {
                 GitObject tree = repo.Lookup(sha);
-                tree.ShouldNotBeNull();
+                Assert.NotNull(tree);
             }
         }
 
@@ -152,27 +152,27 @@ namespace LibGit2Sharp.Tests
                 var commitTree = repo.Lookup<Commit>("4c062a6").Tree;
 
                 TreeEntry treeTreeEntry = commitTree["1"];
-                treeTreeEntry.Path.ShouldEqual("1");
+                Assert.Equal("1", treeTreeEntry.Path);
 
                 string completePath = "1" + Path.DirectorySeparatorChar + "branch_file.txt";
 
                 TreeEntry blobTreeEntry = commitTree["1/branch_file.txt"];
-                blobTreeEntry.Path.ShouldEqual(completePath);
+                Assert.Equal(completePath, blobTreeEntry.Path);
 
                 // A tree entry is now fetched through a relative path to the 
                 // tree but exposes a complete path through its Path property
                 var subTree = treeTreeEntry.Target as Tree;
-                subTree.ShouldNotBeNull(); 
+                Assert.NotNull(subTree);
                 TreeEntry anInstance = subTree["branch_file.txt"];
 
-                anInstance.Path.ShouldNotEqual("branch_file.txt");
-                anInstance.Path.ShouldEqual(completePath);
-                subTree.First().Path.ShouldEqual(completePath);
+                Assert.NotEqual("branch_file.txt", anInstance.Path);
+                Assert.Equal(completePath, anInstance.Path);
+                Assert.Equal(completePath, subTree.First().Path);
 
                 /* From a random tree */
                 var tree = repo.Lookup<Tree>(treeTreeEntry.Target.Id);
                 TreeEntry anotherInstance = tree["branch_file.txt"];
-                anotherInstance.Path.ShouldEqual("branch_file.txt");
+                Assert.Equal("branch_file.txt", anotherInstance.Path);
 
                 Assert.Equal(tree, subTree);
                 Assert.Equal(anotherInstance, anInstance);

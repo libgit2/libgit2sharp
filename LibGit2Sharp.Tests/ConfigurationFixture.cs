@@ -1,6 +1,6 @@
 ﻿using System;
 using System.IO;
-using System.Text.RegularExpressions;
+using System.Text;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
 
@@ -12,13 +12,6 @@ namespace LibGit2Sharp.Tests
         {
             var configFilePath = Path.Combine(repoPath, "config");
             AssertValueInConfigFile(configFilePath, regex);
-        }
-
-        private static void AssertValueInConfigFile(string configFilePath, string regex)
-        {
-            var text = File.ReadAllText(configFilePath);
-            var r = new Regex(regex, RegexOptions.Multiline).Match(text);
-            Assert.True(r.Success, text);
         }
 
         private static string RetrieveGlobalConfigLocation()
@@ -51,19 +44,55 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
-        public void CanDeleteConfiguration()
+        public void CanDeleteAnEntryFromTheLocalConfiguration()
         {
             var path = BuildTemporaryCloneOfTestRepo(StandardTestRepoPath);
             using (var repo = new Repository(path.RepositoryPath))
             {
-                repo.Config.Get<bool>("unittests.boolsetting", false).ShouldBeFalse();
+                Assert.False(repo.Config.Get<bool>("unittests.boolsetting", false));
 
                 repo.Config.Set("unittests.boolsetting", true);
-                repo.Config.Get<bool>("unittests.boolsetting", false).ShouldBeTrue();
+                Assert.True(repo.Config.Get<bool>("unittests.boolsetting", false));
 
                 repo.Config.Delete("unittests.boolsetting");
 
-                repo.Config.Get<bool>("unittests.boolsetting", false).ShouldBeFalse();
+                Assert.False(repo.Config.Get<bool>("unittests.boolsetting", false));
+            }
+        }
+
+        [Fact]
+        public void CanDeleteAnEntryFromTheGlobalConfiguration()
+        {
+            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+
+            string confs = Path.Combine(scd.DirectoryPath, "confs");
+            Directory.CreateDirectory(confs);
+
+            string globalLocation = Path.Combine(confs, "my-global-config");
+            string systemLocation = Path.Combine(confs, "my-system-config");
+
+            StringBuilder sb = new StringBuilder()
+                .AppendLine("[Wow]")
+                .AppendFormat("Man-I-am-totally-global = 42{0}", Environment.NewLine);
+
+            File.WriteAllText(globalLocation, sb.ToString());
+
+            var options = new RepositoryOptions
+            {
+                GlobalConfigurationLocation = globalLocation,
+                SystemConfigurationLocation = systemLocation,
+            };
+
+            using (var repo = new Repository(BareTestRepoPath, options))
+            {
+                Assert.True(repo.Config.HasGlobalConfig);
+                Assert.Equal(42, repo.Config.Get("Wow.Man-I-am-totally-global", 1337));
+
+                repo.Config.Delete("Wow.Man-I-am-totally-global");
+                Assert.Equal(42, repo.Config.Get("Wow.Man-I-am-totally-global", 1337));
+
+                repo.Config.Delete("Wow.Man-I-am-totally-global", ConfigurationLevel.Global);
+                Assert.Equal(1337, repo.Config.Get("Wow.Man-I-am-totally-global", 1337));
             }
         }
 
@@ -74,7 +103,7 @@ namespace LibGit2Sharp.Tests
             {
                 InconclusiveIf(() => !repo.Config.HasGlobalConfig, "No Git global configuration available");
 
-                repo.Config.Get<string>("user.name", null).ShouldNotBeNull();
+                Assert.NotNull(repo.Config.Get<string>("user.name", null));
             }
         }
 
@@ -84,7 +113,7 @@ namespace LibGit2Sharp.Tests
             using (var config = new Configuration())
             {
                 InconclusiveIf(() => !config.HasGlobalConfig, "No Git global configuration available");
-                config.Get<string>("user.name", null).ShouldNotBeNull();
+                Assert.NotNull(config.Get<string>("user.name", null));
             }
         }
 
@@ -148,7 +177,7 @@ namespace LibGit2Sharp.Tests
                 InconclusiveIf(() => !repo.Config.HasGlobalConfig, "No Git global configuration available");
 
                 var existing = repo.Config.Get<string>("user.name", null);
-                existing.ShouldNotBeNull();
+                Assert.NotNull(existing);
 
                 try
                 {
@@ -171,7 +200,7 @@ namespace LibGit2Sharp.Tests
                 InconclusiveIf(() => !config.HasGlobalConfig, "No Git global configuration available");
 
                 var existing = config.Get<string>("user.name", null);
-                existing.ShouldNotBeNull();
+                Assert.NotNull(existing);
 
                 try
                 {
@@ -242,14 +271,14 @@ namespace LibGit2Sharp.Tests
                 AssertValueInLocalConfigFile(path.RepositoryPath, "stringsetting = Juliën$");
 
                 string val = repo.Config.Get("unittests.stringsetting", "");
-                val.ShouldEqual("Juliën");
+                Assert.Equal("Juliën", val);
             }
 
             // Make sure the change is permanent
             using (var repo = new Repository(path.RepositoryPath))
             {
                 string val = repo.Config.Get("unittests.stringsetting", "");
-                val.ShouldEqual("Juliën");
+                Assert.Equal("Juliën", val);
             }
         }
 
@@ -268,14 +297,14 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(StandardTestRepoPath))
             {
-                repo.Config.Get<string>("unittests.ghostsetting", null).ShouldBeNull();
-                repo.Config.Get<int>("unittests.ghostsetting", 0).ShouldEqual(0);
-                repo.Config.Get<long>("unittests.ghostsetting", 0L).ShouldEqual(0L);
-                repo.Config.Get<bool>("unittests.ghostsetting", false).ShouldBeFalse();
-                repo.Config.Get("unittests.ghostsetting", "42").ShouldEqual("42");
-                repo.Config.Get("unittests.ghostsetting", 42).ShouldEqual(42);
-                repo.Config.Get("unittests.ghostsetting", 42L).ShouldEqual(42L);
-                repo.Config.Get("unittests.ghostsetting", true).ShouldBeTrue();
+                Assert.Null(repo.Config.Get<string>("unittests.ghostsetting", null));
+                Assert.Equal(0, repo.Config.Get<int>("unittests.ghostsetting", 0));
+                Assert.Equal(0L, repo.Config.Get<long>("unittests.ghostsetting", 0L));
+                Assert.False(repo.Config.Get<bool>("unittests.ghostsetting", false));
+                Assert.Equal("42", repo.Config.Get("unittests.ghostsetting", "42"));
+                Assert.Equal(42, repo.Config.Get("unittests.ghostsetting", 42));
+                Assert.Equal(42L, repo.Config.Get("unittests.ghostsetting", 42L));
+                Assert.True(repo.Config.Get("unittests.ghostsetting", true));
             }
         }
 

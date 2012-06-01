@@ -28,7 +28,7 @@ namespace LibGit2Sharp.Core
         internal struct git_strarray
         {
             public sbyte** strings;
-            public IntPtr size;
+            public uint size;
         }
 
         #endregion

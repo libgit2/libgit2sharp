@@ -8,6 +8,23 @@
  - CI server: <http://teamcity.codebetter.com/project.html?projectId=project127&guest=1>
  - @libgit2sharp: <http://twitter.com/libgit2sharp>
 
+## v0.9.5
+
+### Additions
+
+ - Add support to create, retrieve, list and remove object notes (#140)
+ - Make Repository able to rely on specified global and system config files (#157)
+
+### Changes
+
+ - Remove repo.Branches.Checkout()
+ - Remove Tree.Files
+ - Update libgit2 binaries to libgit2/libgit2@4c977a6
+
+### Fixes
+
+ - Allow initialization of a repository located on a network path (#153)
+
 ## v0.9
 
 ### Additions

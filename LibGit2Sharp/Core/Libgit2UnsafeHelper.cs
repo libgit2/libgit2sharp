@@ -52,7 +52,7 @@ namespace LibGit2Sharp.Core
             {
                 UnSafeNativeMethods.git_strarray* gitStrArray = &strArray;
 
-                int numberOfEntries = gitStrArray->size.ToInt32();
+                uint numberOfEntries = gitStrArray->size;
                 for (uint i = 0; i < numberOfEntries; i++)
                 {
                     var name = (string)marshaler.MarshalNativeToManaged((IntPtr)gitStrArray->strings[i]);

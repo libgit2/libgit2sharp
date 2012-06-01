@@ -51,15 +51,13 @@ namespace LibGit2Sharp
 
             Func<Index> indexBuilder = () => new Index(this);
 
+            string configurationGlobalFilePath = null;
+            string configurationSystemFilePath = null;
+
             if (options != null)
             {
                 bool isWorkDirNull = string.IsNullOrEmpty(options.WorkingDirectoryPath);
                 bool isIndexNull = string.IsNullOrEmpty(options.IndexPath);
-
-                if (isWorkDirNull && isIndexNull)
-                {
-                    throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "At least one member of the {0} instance has to be provided.", typeof(RepositoryOptions).Name));
-                }
 
                 if (isBare && (isWorkDirNull ^ isIndexNull))
                 {
@@ -77,6 +75,9 @@ namespace LibGit2Sharp
                 {
                     Ensure.Success(NativeMethods.git_repository_set_workdir(handle, options.WorkingDirectoryPath));
                 }
+
+                configurationGlobalFilePath = options.GlobalConfigurationLocation;
+                configurationSystemFilePath = options.SystemConfigurationLocation;
             }
 
             if (!isBare)
@@ -89,7 +90,7 @@ namespace LibGit2Sharp
             branches = new BranchCollection(this);
             tags = new TagCollection(this);
             info = new Lazy<RepositoryInformation>(() => new RepositoryInformation(this, isBare));
-            config = new Lazy<Configuration>(() => RegisterForCleanup(new Configuration(this)));
+            config = new Lazy<Configuration>(() => RegisterForCleanup(new Configuration(this, configurationGlobalFilePath, configurationSystemFilePath)));
             remotes = new Lazy<RemoteCollection>(() => new RemoteCollection(this));
             odb = new Lazy<ObjectDatabase>(() => new ObjectDatabase(this));
             diff = new Diff(this);

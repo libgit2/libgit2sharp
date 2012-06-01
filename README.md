@@ -24,7 +24,8 @@ More thorough information available in the [wiki](https://github.com/libgit2/lib
 
 ## Authors
 
-The LibGit2Sharp [contributors](https://github.com/libgit2/libgit2sharp/contributors)
+ - **Code:** The LibGit2Sharp [contributors](https://github.com/libgit2/libgit2sharp/contributors)
+ - **Logo:** [Jason "blackant" Long](https://github.com/blackant)
 
 ## License
 

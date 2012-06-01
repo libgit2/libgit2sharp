@@ -39,7 +39,7 @@ namespace LibGit2Sharp.Tests
                 Commit ancestor = repo.Commits.FindCommonAncestor(first, second);
 
                 Assert.NotNull(ancestor);
-                ancestor.Id.Sha.ShouldEqual("5b5b025afb0b4c913b4c338a42934a3863bf3644");
+                Assert.Equal("5b5b025afb0b4c913b4c338a42934a3863bf3644", ancestor.Id.Sha);
             }
         }
 
@@ -54,7 +54,7 @@ namespace LibGit2Sharp.Tests
                 Commit ancestor = repo.Commits.FindCommonAncestor(new[] { first, second });
 
                 Assert.NotNull(ancestor);
-                ancestor.Id.Sha.ShouldEqual("5b5b025afb0b4c913b4c338a42934a3863bf3644");
+                Assert.Equal("5b5b025afb0b4c913b4c338a42934a3863bf3644", ancestor.Id.Sha);
             }
         }
 
@@ -71,7 +71,7 @@ namespace LibGit2Sharp.Tests
                 Commit ancestor = repo.Commits.FindCommonAncestor(new[] { first, second, third, fourth });
 
                 Assert.NotNull(ancestor);
-                ancestor.Id.Sha.ShouldEqual("5b5b025afb0b4c913b4c338a42934a3863bf3644");
+                Assert.Equal("5b5b025afb0b4c913b4c338a42934a3863bf3644", ancestor.Id.Sha);
             }
         }
 

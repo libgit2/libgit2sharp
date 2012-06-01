@@ -78,7 +78,6 @@
     <Compile Include="ReferenceFixture.cs" />
     <Compile Include="RepositoryFixture.cs" />
     <Compile Include="TagFixture.cs" />
-    <Compile Include="TestHelpers\AssertExtensions.cs" />
     <Compile Include="TestHelpers\DirectoryHelper.cs" />
     <Compile Include="TestHelpers\IPostTestDirectoryRemover.cs" />
     <Compile Include="TestHelpers\SelfCleaningDirectory.cs" />

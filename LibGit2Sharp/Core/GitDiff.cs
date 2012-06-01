@@ -59,17 +59,17 @@ namespace LibGit2Sharp.Core
         public GitDiffFile OldFile;
         public GitDiffFile NewFile;
         public ChangeKind Status;
-        public UIntPtr Similarity;
-        public IntPtr Binary;
+        public uint Similarity;
+        public int Binary;
     }
 
     [StructLayout(LayoutKind.Sequential)]
     internal class GitDiffRange
     {
-        public IntPtr OldStart;
-        public IntPtr OldLines;
-        public IntPtr NewStart;
-        public IntPtr NewLines;
+        public int OldStart;
+        public int OldLines;
+        public int NewStart;
+        public int NewLines;
     }
 
     enum GitDiffLineOrigin : byte
