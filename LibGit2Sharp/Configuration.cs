@@ -306,10 +306,10 @@ namespace LibGit2Sharp
         ///     repo.Config.Set("test.boolsetting", true);
         ///   </para>
         /// </summary>
-        /// <typeparam name = "T"></typeparam>
-        /// <param name = "key"></param>
-        /// <param name = "value"></param>
-        /// <param name = "level"></param>
+        /// <typeparam name = "T">The configuration value type</typeparam>
+        /// <param name = "key">The key parts</param>
+        /// <param name = "value">The default value</param>
+        /// <param name = "level">The configuration file which should be considered as the target of this operation</param>
         public void Set<T>(string key, T value, ConfigurationLevel level = ConfigurationLevel.Local)
         {
             Ensure.ArgumentNotNullOrEmptyString(key, "key");
