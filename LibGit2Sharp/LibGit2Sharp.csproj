@@ -96,7 +96,7 @@
     <Compile Include="Note.cs" />
     <Compile Include="TreeChanges.cs" />
     <Compile Include="TreeEntryChanges.cs" />
-    <Compile Include="LibGit2Exception.cs" />
+    <Compile Include="LibGit2SharpException.cs" />
     <Compile Include="Core\Handles\ConfigurationSafeHandle.cs" />
     <Compile Include="Core\Ensure.cs" />
     <Compile Include="Core\Epoch.cs" />

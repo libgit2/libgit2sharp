@@ -78,7 +78,7 @@ namespace LibGit2Sharp.Core
                 errorMessage = (string)marshaler.MarshalNativeToManaged(error.Message);
             }
 
-            throw new LibGit2Exception(
+            throw new LibGit2SharpException(
                 String.Format(CultureInfo.InvariantCulture, "An error was raised by libgit2. Class = {0} ({1}).{2}{3}",
                               Enum.GetName(typeof(GitErrorType), error.Klass),
                               result,
@@ -109,7 +109,7 @@ namespace LibGit2Sharp.Core
                 return;
             }
 
-            throw new LibGit2Exception(string.Format(CultureInfo.InvariantCulture,
+            throw new LibGit2SharpException(string.Format(CultureInfo.InvariantCulture,
                                                      "No valid git object identified by '{0}' exists in the repository.",
                                                      identifier));
         }

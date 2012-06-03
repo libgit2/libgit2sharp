@@ -23,7 +23,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(StandardTestRepoPath))
             {
-                Assert.Throws<LibGit2Exception>(() => { FileStatus status = repo.Index.RetrieveStatus("1"); });
+                Assert.Throws<LibGit2SharpException>(() => { FileStatus status = repo.Index.RetrieveStatus("1"); });
             }
         }
 

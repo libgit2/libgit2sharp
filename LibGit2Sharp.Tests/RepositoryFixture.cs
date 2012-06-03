@@ -34,7 +34,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                Assert.Throws<LibGit2Exception>(() => repo.Index);
+                Assert.Throws<LibGit2SharpException>(() => repo.Index);
             }
         }
 
@@ -170,7 +170,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void OpeningNonExistentRepoThrows()
         {
-            Assert.Throws<LibGit2Exception>(() => { new Repository("a_bad_path"); });
+            Assert.Throws<LibGit2SharpException>(() => { new Repository("a_bad_path"); });
         }
 
         [Fact]

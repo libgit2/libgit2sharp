@@ -146,7 +146,7 @@ namespace LibGit2Sharp
             {
                 if (index == null)
                 {
-                    throw new LibGit2Exception("Index is not available in a bare repository.");
+                    throw new LibGit2SharpException("Index is not available in a bare repository.");
                 }
 
                 return index;
@@ -457,7 +457,7 @@ namespace LibGit2Sharp
 
             if (resetOptions.Has(ResetOptions.Mixed) && Info.IsBare)
             {
-                throw new LibGit2Exception("Mixed reset is not allowed in a bare repository");
+                throw new LibGit2SharpException("Mixed reset is not allowed in a bare repository");
             }
 
             var commit = LookupCommit(shaOrReferenceName);

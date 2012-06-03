@@ -140,7 +140,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Null(repo.Index[relativePath]);
                 Assert.Equal(status, repo.Index.RetrieveStatus(relativePath));
 
-                Assert.Throws<LibGit2Exception>(() => repo.Index.Stage(relativePath));
+                Assert.Throws<LibGit2SharpException>(() => repo.Index.Stage(relativePath));
             }
         }
 
@@ -457,7 +457,7 @@ namespace LibGit2Sharp.Tests
                 foreach (var destPath in destPaths)
                 {
                     string path = destPath;
-                    Assert.Throws<LibGit2Exception>(() => repo.Index.Move(sourcePath, path));
+                    Assert.Throws<LibGit2SharpException>(() => repo.Index.Move(sourcePath, path));
                 }
             }
         }
@@ -493,7 +493,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(StandardTestRepoPath))
             {
-                Assert.Throws<LibGit2Exception>(() => repo.Index.Remove(filepath));
+                Assert.Throws<LibGit2SharpException>(() => repo.Index.Remove(filepath));
             }
         }
 
