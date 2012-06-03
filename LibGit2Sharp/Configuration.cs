@@ -109,7 +109,7 @@ namespace LibGit2Sharp
 
             int result = pathRetriever(buffer, NativeMethods.GIT_PATH_MAX);
 
-            if (result == (int)GitErrorCode.GIT_ENOTFOUND)
+            if (result == (int)GitErrorCode.NotFound)
             {
                 return null;
             }
@@ -149,7 +149,7 @@ namespace LibGit2Sharp
 
             int res = NativeMethods.git_config_delete(h, key);
 
-            if (res == (int)GitErrorCode.GIT_ENOTFOUND)
+            if (res == (int)GitErrorCode.NotFound)
             {
                 return;
             }
@@ -382,7 +382,7 @@ namespace LibGit2Sharp
                 {
                     T value;
                     var res = getter(out value, handle, key);
-                    if (res == (int)GitErrorCode.GIT_ENOTFOUND)
+                    if (res == (int)GitErrorCode.NotFound)
                     {
                         return defaultValue;
                     }

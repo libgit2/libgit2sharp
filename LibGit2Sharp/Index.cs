@@ -63,7 +63,7 @@ namespace LibGit2Sharp
 
                 int res = NativeMethods.git_index_find(handle, path);
 
-                if (res == (int)GitErrorCode.GIT_ENOTFOUND)
+                if (res == (int)GitErrorCode.NotFound)
                 {
                     return null;
                 }
@@ -476,7 +476,7 @@ namespace LibGit2Sharp
             FileStatus status;
 
             int res = NativeMethods.git_status_file(out status, repo.Handle, relativePath);
-            if (res == (int)GitErrorCode.GIT_ENOTFOUND)
+            if (res == (int)GitErrorCode.NotFound)
             {
                 return FileStatus.Nonexistent;
             }

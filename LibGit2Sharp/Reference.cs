@@ -63,7 +63,7 @@ namespace LibGit2Sharp
             ReferenceSafeHandle resolvedHandle;
             int res = NativeMethods.git_reference_resolve(out resolvedHandle, handle);
 
-            if (res == (int)GitErrorCode.GIT_ENOTFOUND)
+            if (res == (int)GitErrorCode.NotFound)
             {
                 return null;
             }

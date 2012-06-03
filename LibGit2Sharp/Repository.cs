@@ -308,7 +308,7 @@ namespace LibGit2Sharp
                     res = NativeMethods.git_object_lookup(out obj, handle, ref oid, type);
                 }
 
-                if (res == (int)GitErrorCode.GIT_ENOTFOUND)
+                if (res == (int)GitErrorCode.NotFound)
                 {
                     return null;
                 }
@@ -400,7 +400,7 @@ namespace LibGit2Sharp
 
             int result = NativeMethods.git_repository_discover(buffer, buffer.Length, startingPath, false, null);
 
-            if ((GitErrorCode)result == GitErrorCode.GIT_ENOTFOUND)
+            if ((GitErrorCode)result == GitErrorCode.NotFound)
             {
                 return null;
             }

@@ -54,12 +54,12 @@ namespace LibGit2Sharp.Core
         ///   True when positive values are allowed as well.</param>
         public static void Success(int result, bool allowPositiveResult = false)
         {
-            if (result == (int)GitErrorCode.GIT_OK)
+            if (result == (int)GitErrorCode.Ok)
             {
                 return;
             }
 
-            if (allowPositiveResult && result > (int)GitErrorCode.GIT_OK)
+            if (allowPositiveResult && result > (int)GitErrorCode.Ok)
             {
                 return;
             }
@@ -70,7 +70,7 @@ namespace LibGit2Sharp.Core
 
             if (error == null)
             {
-                error = new GitError { Klass = -1, Message = IntPtr.Zero };
+                error = new GitError { Klass = GitErrorType.Unknown, Message = IntPtr.Zero };
                 errorMessage = "No error message has been provided by the native library";
             }
             else
