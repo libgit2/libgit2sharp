@@ -19,7 +19,55 @@ namespace LibGit2Sharp.Core
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    internal class GitDiffOptions
+    internal class GitStrArrayIn : IDisposable
+    {
+        public IntPtr strings;
+        public uint size;
+
+        public static GitStrArrayIn BuildFrom(FilePath[] paths)
+        {
+            var marshaler = FilePathMarshaler.GetInstance(string.Empty);
+
+            var nbOfPaths = paths.Length;
+            var pathPtrs = new IntPtr[nbOfPaths];
+
+            for (int i = 0; i < nbOfPaths; i++)
+            {
+                var s = paths[i];
+                pathPtrs[i] = marshaler.MarshalManagedToNative(s);
+            }
+
+            int dim = IntPtr.Size * nbOfPaths;
+
+            IntPtr arrayPtr = Marshal.AllocHGlobal(dim);
+            Marshal.Copy(pathPtrs, 0, arrayPtr, nbOfPaths);
+
+            return new GitStrArrayIn { strings = arrayPtr, size = (uint)nbOfPaths };
+        }
+
+        public void Dispose()
+        {
+            if (size == 0)
+            {
+                return;
+            }
+
+            var nbOfPaths = (int)size;
+
+            var pathPtrs = new IntPtr[nbOfPaths];
+            Marshal.Copy(strings, pathPtrs, 0, nbOfPaths);
+
+            for (int i = 0; i < nbOfPaths; i ++)
+            {
+                Marshal.FreeHGlobal(pathPtrs[i]);
+            }
+
+            Marshal.FreeHGlobal(strings);
+        }
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    internal class GitDiffOptions : IDisposable
     {
         public GitDiffOptionFlags Flags;
         public ushort ContextLines;
@@ -29,7 +77,19 @@ namespace LibGit2Sharp.Core
         public IntPtr OldPrefixString;
         public IntPtr NewPrefixString;
 
-        public UnSafeNativeMethods.git_strarray PathSpec;
+        public GitStrArrayIn PathSpec;
+
+        public void Dispose()
+        {
+            if (PathSpec == null)
+            {
+                return;
+            }
+
+            PathSpec.Dispose();
+
+            PathSpec.size = 0;
+        }
     }
 
     [Flags]

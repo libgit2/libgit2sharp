@@ -7,14 +7,48 @@ namespace LibGit2Sharp
 {
     /// <summary>
     ///   Show changes between the working tree and the index or a tree, changes between the index and a tree, changes between two trees, or changes between two files on disk.
-    ///   <para>Copied and renamed files currently cannot be detected, as the feature is not supported by libgit2 yet.
-    ///   These files will be shown as a pair of Deleted/Added files.</para>
+    ///   <para>
+    ///     Copied and renamed files currently cannot be detected, as the feature is not supported by libgit2 yet.
+    ///     These files will be shown as a pair of Deleted/Added files.</para>
     /// </summary>
     public class Diff
     {
         private readonly Repository repo;
 
-        internal static GitDiffOptions DefaultOptions = new GitDiffOptions { InterhunkLines = 2 };
+        private static GitDiffOptions BuildOptions(IEnumerable<string> paths = null)
+        {
+            var options = new GitDiffOptions { InterhunkLines = 2 };
+
+            if (paths == null)
+            {
+                return options;
+            }
+
+            options.PathSpec = GitStrArrayIn.BuildFrom(ToFilePaths(paths));
+            return options;
+        }
+
+        private static FilePath[] ToFilePaths(IEnumerable<string> paths)
+        {
+            var filePaths = new List<FilePath>();
+
+            foreach (string path in paths)
+            {
+                if (string.IsNullOrEmpty(path))
+                {
+                    throw new ArgumentException("At least one provided path is either null or empty.", "paths");
+                }
+
+                filePaths.Add(path);
+            }
+
+            if (filePaths.Count == 0)
+            {
+                throw new ArgumentException("No path has been provided.", "paths");
+            }
+
+            return filePaths.ToArray();
+        }
 
         internal Diff(Repository repo)
         {
@@ -26,22 +60,23 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name = "oldTree">The <see cref = "Tree"/> you want to compare from.</param>
         /// <param name = "newTree">The <see cref = "Tree"/> you want to compare to.</param>
+        /// <param name = "paths">The list of paths (either files or directories) that should be compared.</param>
         /// <returns>A <see cref = "TreeChanges"/> containing the changes between the <paramref name = "oldTree"/> and the <paramref name = "newTree"/>.</returns>
-        public TreeChanges Compare(Tree oldTree, Tree newTree)
+        public TreeChanges Compare(Tree oldTree, Tree newTree, IEnumerable<string> paths = null)
         {
-            using (DiffListSafeHandle diff = BuildDiffListFromTrees(oldTree.Id, newTree.Id))
+            using(GitDiffOptions options = BuildOptions(paths))
+            using (DiffListSafeHandle diff = BuildDiffListFromTrees(oldTree.Id, newTree.Id, options))
             {
                 return new TreeChanges(diff);
             }
         }
 
-        private DiffListSafeHandle BuildDiffListFromTrees(ObjectId oldTree, ObjectId newTree)
+        private DiffListSafeHandle BuildDiffListFromTrees(ObjectId oldTree, ObjectId newTree, GitDiffOptions options)
         {
             using (var osw1 = new ObjectSafeWrapper(oldTree, repo))
             using (var osw2 = new ObjectSafeWrapper(newTree, repo))
             {
                 DiffListSafeHandle diff;
-                GitDiffOptions options = DefaultOptions;
                 Ensure.Success(NativeMethods.git_diff_tree_to_tree(repo.Handle, options, osw1.ObjectPtr, osw2.ObjectPtr, out diff));
 
                 return diff;
@@ -56,7 +91,10 @@ namespace LibGit2Sharp
         /// <returns>A <see cref = "ContentChanges"/> containing the changes between the <paramref name = "oldBlob"/> and the <paramref name = "newBlob"/>.</returns>
         public ContentChanges Compare(Blob oldBlob, Blob newBlob)
         {
-            return new ContentChanges(repo, oldBlob, newBlob, DefaultOptions);
+            using (GitDiffOptions options = BuildOptions())
+            {
+                return new ContentChanges(repo, oldBlob, newBlob, options);
+            }
         }
 
         private readonly IDictionary<DiffTarget, Func<Repository, TreeComparisonHandleRetriever>> handleRetrieverDispatcher = BuildHandleRetrieverDispatcher();
@@ -74,12 +112,14 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name = "oldTree">The <see cref = "Tree"/> to compare from.</param>
         /// <param name = "diffTarget">The target to compare to.</param>
+        /// <param name = "paths">The list of paths (either files or directories) that should be compared.</param>
         /// <returns>A <see cref = "TreeChanges"/> containing the changes between the <see cref="Tree"/> and the selected target.</returns>
-        public TreeChanges Compare(Tree oldTree, DiffTarget diffTarget)
+        public TreeChanges Compare(Tree oldTree, DiffTarget diffTarget, IEnumerable<string> paths = null)
         {
             var comparer = handleRetrieverDispatcher[diffTarget](repo);
 
-            using (DiffListSafeHandle dl = BuildDiffListFromTreeAndComparer(repo, oldTree.Id, comparer))
+            using (GitDiffOptions options = BuildOptions(paths))
+            using (DiffListSafeHandle dl = BuildDiffListFromTreeAndComparer(repo, oldTree.Id, comparer, options))
             {
                 return new TreeChanges(dl);
             }
@@ -99,17 +139,16 @@ namespace LibGit2Sharp
             return comparisonHandleRetriever;
         }
 
-        private static DiffListSafeHandle BuildDiffListFromTreeAndComparer(Repository repo, ObjectId treeId, TreeComparisonHandleRetriever comparisonHandleRetriever)
+        private static DiffListSafeHandle BuildDiffListFromTreeAndComparer(Repository repo, ObjectId treeId, TreeComparisonHandleRetriever comparisonHandleRetriever, GitDiffOptions options)
         {
             using (var osw = new ObjectSafeWrapper(treeId, repo))
             {
-                return BuildDiffListFromComparer(osw.ObjectPtr, comparisonHandleRetriever);
+                return BuildDiffListFromComparer(osw.ObjectPtr, comparisonHandleRetriever, options);
             }
         }
 
-        private static DiffListSafeHandle BuildDiffListFromComparer(GitObjectSafeHandle handle, TreeComparisonHandleRetriever comparisonHandleRetriever)
+        private static DiffListSafeHandle BuildDiffListFromComparer(GitObjectSafeHandle handle, TreeComparisonHandleRetriever comparisonHandleRetriever, GitDiffOptions options)
         {
-            GitDiffOptions options = DefaultOptions;
             return comparisonHandleRetriever(handle, options);
         }
     }
