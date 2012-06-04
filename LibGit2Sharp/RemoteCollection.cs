@@ -89,7 +89,13 @@ namespace LibGit2Sharp
 
             if(fetchRefSpec == null)
             {
-                Ensure.Success(NativeMethods.git_remote_add(out handle, repository.Handle, name, url));
+                // TODO: libgit2 doesn't use the correct default refspec right now.
+                // This PR fixes it: https://github.com/libgit2/libgit2/pull/737
+                // We can then get rid of having these kinds of defaults in the C# code
+                //Ensure.Success(NativeMethods.git_remote_add(out handle, repository.Handle, name, url));
+
+                fetchRefSpec = string.Format("+refs/heads/*:refs/remotes/{0}/*", name);
+                Ensure.Success(NativeMethods.git_remote_new(out handle, repository.Handle, name, url, fetchRefSpec));
             }
             else
             {
