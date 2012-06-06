@@ -91,8 +91,10 @@ namespace LibGit2Sharp
             var oldFilePath = (string)marshaler.MarshalNativeToManaged(delta.OldFile.Path);
             var newMode = (Mode)delta.NewFile.Mode;
             var oldMode = (Mode)delta.OldFile.Mode;
+            var newOid = new ObjectId(delta.NewFile.Oid);
+            var oldOid = new ObjectId(delta.OldFile.Oid);
 
-            var diffFile = new TreeEntryChanges(newFilePath, newMode, delta.Status, oldFilePath, oldMode, ContentChanges.IsBinaryDelta(delta));
+            var diffFile = new TreeEntryChanges(newFilePath, newMode, newOid, delta.Status, oldFilePath, oldMode, oldOid, ContentChanges.IsBinaryDelta(delta));
 
             fileDispatcher[delta.Status](this, diffFile);
             changes.Add(diffFile.Path, diffFile);

@@ -5,13 +5,15 @@ namespace LibGit2Sharp
     /// </summary>
     public class TreeEntryChanges : ContentChanges
     {
-        internal TreeEntryChanges(string path, Mode mode, ChangeKind status, string oldPath, Mode oldMode, bool isBinaryComparison)
+        internal TreeEntryChanges(string path, Mode mode, ObjectId oid, ChangeKind status, string oldPath, Mode oldMode, ObjectId oldOid, bool isBinaryComparison)
         {
             Path = path;
             Mode = mode;
+            Oid = oid;
             Status = status;
             OldPath = oldPath;
             OldMode = oldMode;
+            OldOid = oldOid;
             IsBinaryComparison = isBinaryComparison;
         }
 
@@ -24,6 +26,11 @@ namespace LibGit2Sharp
         ///   The new <see cref="Mode"/>.
         /// </summary>
         public Mode Mode { get; private set; }
+
+        /// <summary>
+        ///   The new content hash.
+        /// </summary>
+        public ObjectId Oid { get; private set; }
 
         /// <summary>
         ///   The kind of change that has been done (added, deleted, modified ...).
@@ -39,5 +46,10 @@ namespace LibGit2Sharp
         ///   The old <see cref="Mode"/>.
         /// </summary>
         public Mode OldMode { get; private set; }
+
+        /// <summary>
+        ///   The old content hash.
+        /// </summary>
+        public ObjectId OldOid { get; private set; }
     }
 }
