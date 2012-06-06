@@ -7,10 +7,6 @@ namespace LibGit2Sharp.Tests
 {
     public class DiffTreeToTreeFixture : BaseFixture
     {
-        //TODO Test binary files (do we have hunks/line callbacks)
-        //TODO What does content contain when dealing with a Binary file?
-        //TODO When does it make sense to expose the Binary property?
-
         [Fact]
         public void ComparingATreeAgainstItselfReturnsNoDifference()
         {
