@@ -365,7 +365,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                GitObject obj = repo.Lookup(sha);
+                IGitObject obj = repo.Lookup(sha);
                 Assert.NotNull(obj);
                 Assert.Equal(typeof(Commit), obj.GetType());
 

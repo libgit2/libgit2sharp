@@ -4,7 +4,7 @@ namespace LibGit2Sharp.Core
 {
     internal static class GitObjectExtensions
     {
-        public static Commit DereferenceToCommit(this GitObject gitObject,  string identifier, bool throwsIfCanNotBeDereferencedToACommit)
+        public static Commit DereferenceToCommit(this IGitObject gitObject,  string identifier, bool throwsIfCanNotBeDereferencedToACommit)
         {
             if (gitObject == null && !throwsIfCanNotBeDereferencedToACommit)
             {

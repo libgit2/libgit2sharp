@@ -276,7 +276,7 @@ namespace LibGit2Sharp
         /// <param name = "id">The id to lookup.</param>
         /// <param name = "type">The kind of GitObject being looked up</param>
         /// <returns>The <see cref = "GitObject" /> or null if it was not found.</returns>
-        public GitObject Lookup(ObjectId id, GitObjectType type = GitObjectType.Any)
+        public IGitObject Lookup(ObjectId id, GitObjectType type = GitObjectType.Any)
         {
             return LookupInternal(id, type, null);
         }
@@ -331,12 +331,12 @@ namespace LibGit2Sharp
         /// <param name = "shaOrReferenceName">The sha or reference canonical name to lookup.</param>
         /// <param name = "type">The kind of <see cref = "GitObject" /> being looked up</param>
         /// <returns>The <see cref = "GitObject" /> or null if it was not found.</returns>
-        public GitObject Lookup(string shaOrReferenceName, GitObjectType type = GitObjectType.Any)
+        public IGitObject Lookup(string shaOrReferenceName, GitObjectType type = GitObjectType.Any)
         {
             return Lookup(shaOrReferenceName, type, LookUpOptions.None);
         }
 
-        internal GitObject Lookup(string shaOrReferenceName, GitObjectType type, LookUpOptions lookUpOptions)
+        internal IGitObject Lookup(string shaOrReferenceName, GitObjectType type, LookUpOptions lookUpOptions)
         {
             ObjectId id;
 
@@ -360,7 +360,7 @@ namespace LibGit2Sharp
                 return null;
             }
 
-            GitObject gitObj = Lookup(id, type);
+            IGitObject gitObj = Lookup(id, type);
 
             if (lookUpOptions.Has(LookUpOptions.ThrowWhenNoGitObjectHasBeenFound))
             {
