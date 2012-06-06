@@ -451,7 +451,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name = "resetOptions">Flavor of reset operation to perform.</param>
         /// <param name = "shaOrReferenceName">The sha or reference canonical name of the target commit object.</param>
-        public void Reset(ResetOptions resetOptions, string shaOrReferenceName)
+        public void Reset(ResetOptions resetOptions, string shaOrReferenceName = "HEAD")
         {
             Ensure.ArgumentNotNullOrEmptyString(shaOrReferenceName, "shaOrReferenceName");
 
