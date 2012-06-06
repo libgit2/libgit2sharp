@@ -393,7 +393,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(expectedHash, repo.Index[newName].Id.Sha);
 
                 who = who.TimeShift(TimeSpan.FromMinutes(5));
-                Commit commit = repo.Commit("Fix file name", who, who);
+                ICommit commit = repo.Commit("Fix file name", who, who);
 
                 Assert.Equal(FileStatus.Nonexistent, repo.Index.RetrieveStatus(oldName));
                 Assert.Equal(FileStatus.Unaltered, repo.Index.RetrieveStatus(newName));
