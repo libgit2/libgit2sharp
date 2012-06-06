@@ -180,31 +180,7 @@ namespace LibGit2Sharp
         /// <param name = "paths">The collection of paths of the files within the working directory.</param>
         public void Unstage(IEnumerable<string> paths)
         {
-            IDictionary<string, FileStatus> batch = PrepareBatch(paths);
-
-            foreach (KeyValuePair<string, FileStatus> kvp in batch)
-            {
-                if (Directory.Exists(kvp.Key))
-                {
-                    throw new NotImplementedException();
-                }
-            }
-
-            foreach (KeyValuePair<string, FileStatus> kvp in batch)
-            {
-                bool doesExistInIndex =
-                    !(kvp.Value.Has(FileStatus.Nonexistent) || kvp.Value.Has(FileStatus.Removed) ||
-                      kvp.Value.Has(FileStatus.Untracked));
-
-                if (doesExistInIndex)
-                {
-                    RemoveFromIndex(kvp.Key);
-                }
-
-                RestorePotentialPreviousVersionOfHeadIntoIndex(kvp.Key);
-            }
-
-            UpdatePhysicalIndex();
+            repo.Reset("HEAD", paths);
         }
 
         /// <summary>
@@ -415,25 +391,6 @@ namespace LibGit2Sharp
 
             res = NativeMethods.git_index_remove(handle, res);
             Ensure.Success(res);
-        }
-
-        private void RestorePotentialPreviousVersionOfHeadIntoIndex(string relativePath)
-        {
-            TreeEntry treeEntry = repo.Head[relativePath];
-            if (treeEntry == null || treeEntry.Type != GitObjectType.Blob)
-            {
-                return;
-            }
-
-            var indexEntry = new GitIndexEntry
-                                 {
-                                     Mode = (uint)treeEntry.Mode,
-                                     oid = treeEntry.TargetId.Oid,
-                                     Path = utf8Marshaler.MarshalManagedToNative(relativePath),
-                                 };
-
-            Ensure.Success(NativeMethods.git_index_add2(handle, indexEntry));
-            utf8Marshaler.CleanUpNativeData(indexEntry.Path);
         }
 
         private void UpdatePhysicalIndex()
