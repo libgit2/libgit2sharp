@@ -6,7 +6,7 @@ using Xunit.Extensions;
 
 namespace LibGit2Sharp.Tests
 {
-    public class ResetFixture : BaseFixture
+    public class ResetHeadFixture : BaseFixture
     {
         [Theory]
         [InlineData(true)]

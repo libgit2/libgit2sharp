@@ -504,5 +504,42 @@ namespace LibGit2Sharp
                 UpdatePhysicalIndex();
             }
         }
+
+        internal void Reset(TreeChanges changes)
+        {
+            foreach (TreeEntryChanges treeEntryChanges in changes)
+            {
+                switch (treeEntryChanges.Status)
+                {
+                    case ChangeKind.Added:
+                        RemoveFromIndex(treeEntryChanges.Path);
+                        continue;
+
+                    case ChangeKind.Deleted:
+                        /* Fall through */
+                    case ChangeKind.Modified:
+                        ReplaceIndexEntryWith(treeEntryChanges);    
+                        continue;
+
+                    default:
+                        throw new InvalidOperationException(string.Format("Entry '{0}' bears an unexpected ChangeKind '{1}'", treeEntryChanges.Path, Enum.GetName(typeof(ChangeKind), treeEntryChanges.Status)));
+                }
+            }
+
+            UpdatePhysicalIndex();
+        }
+
+        private void ReplaceIndexEntryWith(TreeEntryChanges treeEntryChanges)
+        {
+            var indexEntry = new GitIndexEntry
+            {
+                Mode = (uint)treeEntryChanges.OldMode,
+                oid = treeEntryChanges.OldOid.Oid,
+                Path = utf8Marshaler.MarshalManagedToNative(treeEntryChanges.OldPath),
+            };
+
+            Ensure.Success(NativeMethods.git_index_add2(handle, indexEntry));
+            utf8Marshaler.CleanUpNativeData(indexEntry.Path);
+        }
     }
 }

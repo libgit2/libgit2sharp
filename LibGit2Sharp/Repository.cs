@@ -460,7 +460,7 @@ namespace LibGit2Sharp
                 throw new LibGit2SharpException("Mixed reset is not allowed in a bare repository");
             }
 
-            var commit = LookupCommit(shaOrReferenceName);
+            Commit commit = LookupCommit(shaOrReferenceName);
 
             //TODO: Check for unmerged entries
 
@@ -480,6 +480,24 @@ namespace LibGit2Sharp
             }
 
             throw new NotImplementedException();
+        }
+
+        /// <summary>
+        ///   Replaces entries in the <see cref="Index"/> with entries from the specified commit.
+        /// </summary>
+        /// <param name = "shaOrReferenceName">The sha or reference canonical name of the target commit object.</param>
+        /// <param name = "paths">The list of paths (either files or directories) that should be considered.</param>
+        public void Reset(string shaOrReferenceName = "HEAD", IEnumerable<string> paths = null)
+        {
+            if (Info.IsBare)
+            {
+                throw new LibGit2SharpException("Reset is not allowed in a bare repository");
+            }
+
+            Commit commit = LookupCommit(shaOrReferenceName);
+            TreeChanges changes = Diff.Compare(commit.Tree, DiffTarget.Index, paths);
+
+            Index.Reset(changes);
         }
 
         internal T RegisterForCleanup<T>(T disposable) where T : IDisposable
