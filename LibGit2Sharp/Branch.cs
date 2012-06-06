@@ -8,9 +8,9 @@ namespace LibGit2Sharp
     /// <summary>
     ///   A branch is a special kind of reference
     /// </summary>
-    public class Branch : ReferenceWrapper<Commit>
+    public class Branch : ReferenceWrapper<Commit>, IBranch
     {
-        private readonly Lazy<Branch> trackedBranch;
+        private readonly Lazy<IBranch> trackedBranch;
 
         /// <summary>
         ///   Initializes a new instance of the <see cref = "Branch" /> class.
@@ -39,7 +39,7 @@ namespace LibGit2Sharp
         private Branch(Repository repo, Reference reference, Func<Reference, string> canonicalNameSelector)
             : base(repo, reference, canonicalNameSelector)
         {
-            trackedBranch = new Lazy<Branch>(ResolveTrackedBranch);
+            trackedBranch = new Lazy<IBranch>(ResolveTrackedBranch);
         }
 
         /// <summary>
@@ -74,7 +74,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Gets the remote branch which is connected to this local one.
         /// </summary>
-        public Branch TrackedBranch
+        public IBranch TrackedBranch
         {
             get { return trackedBranch.Value; }
         }
@@ -111,7 +111,7 @@ namespace LibGit2Sharp
         /// </value>
         public bool IsCurrentRepositoryHead
         {
-            get { return repo.Head == this; }
+            get { return repo.Head.Equals(this); }
         }
 
         /// <summary>
@@ -127,10 +127,10 @@ namespace LibGit2Sharp
         /// </summary>
         public ICommitCollection Commits
         {
-            get { return repo.Commits.QueryBy(new Filter { Since = this }); }
+            get { return repo.Commits.QueryBy(new Filter {Since = this}); }
         }
 
-        private Branch ResolveTrackedBranch()
+        private IBranch ResolveTrackedBranch()
         {
             var trackedRemote = repo.Config.Get<string>("branch", Name, "remote", null);
             if (trackedRemote == null)

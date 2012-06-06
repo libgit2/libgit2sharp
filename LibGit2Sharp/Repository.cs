@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Reflection;
 using LibGit2Sharp.Core;
@@ -114,7 +113,7 @@ namespace LibGit2Sharp
         ///   Shortcut to return the branch pointed to by HEAD
         /// </summary>
         /// <returns></returns>
-        public Branch Head
+        public IBranch Head
         {
             get
             {
@@ -158,10 +157,7 @@ namespace LibGit2Sharp
         /// </summary>
         public ObjectDatabase ObjectDatabase
         {
-            get
-            {
-                return odb.Value;
-            }
+            get { return odb.Value; }
         }
 
         /// <summary>
@@ -417,7 +413,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name = "shaOrReferenceName">The sha of the commit, a canonical reference name or the name of the branch to checkout.</param>
         /// <returns>The new HEAD.</returns>
-        public Branch Checkout(string shaOrReferenceName)
+        public IBranch Checkout(string shaOrReferenceName)
         {
             // TODO: This does not yet checkout (write) the working directory
 
@@ -438,7 +434,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="branch">The branch to checkout.</param>
         /// <returns>The branch.</returns>
-        public Branch Checkout(Branch branch)
+        public IBranch Checkout(IBranch branch)
         {
             Ensure.ArgumentNotNull(branch, "branch");
             Refs.UpdateTarget("HEAD", branch.CanonicalName);
@@ -509,12 +505,12 @@ namespace LibGit2Sharp
             string libgit2Hash = ReadContentFromResource(assembly, "libgit2_hash.txt");
             string libgit2sharpHash = ReadContentFromResource(assembly, "libgit2sharp_hash.txt");
 
-            return string.Format("{0}-{1}-{2} ({3})", 
+            return string.Format("{0}-{1}-{2} ({3})",
                 version.ToString(3),
                 libgit2sharpHash.Substring(0, 7),
-                libgit2Hash.Substring(0,7),
+                libgit2Hash.Substring(0, 7),
                 NativeMethods.ProcessorArchitecture
-                );
+               );
         }
 
         private static string ReadContentFromResource(Assembly assembly, string partialResourceName)

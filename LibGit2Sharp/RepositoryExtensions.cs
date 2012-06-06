@@ -83,7 +83,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name = "repository">The <see cref = "Repository" /> being worked with.</param>
         /// <param name = "branchName">The name of the branch to create.</param>
-        public static Branch CreateBranch(this Repository repository, string branchName)
+        public static IBranch CreateBranch(this Repository repository, string branchName)
         {
             return CreateBranch(repository, branchName, repository.Head.CanonicalName);
         }
@@ -94,7 +94,7 @@ namespace LibGit2Sharp
         /// <param name = "repository">The <see cref = "Repository" /> being worked with.</param>
         /// <param name = "branchName">The name of the branch to create.</param>
         /// <param name = "target">The commit which should be pointed at by the Branch.</param>
-        public static Branch CreateBranch(this Repository repository, string branchName, Commit target)
+        public static IBranch CreateBranch(this Repository repository, string branchName, Commit target)
         {
             Ensure.ArgumentNotNull(target, "target");
             return CreateBranch(repository, branchName, target.Id.Sha);
@@ -106,7 +106,7 @@ namespace LibGit2Sharp
         /// <param name = "repository">The <see cref = "Repository" /> being worked with.</param>
         /// <param name = "branchName">The name of the branch to create.</param>
         /// <param name = "target">The canonical reference name or sha which should be pointed at by the Branch.</param>
-        public static Branch CreateBranch(this Repository repository, string branchName, string target)
+        public static IBranch CreateBranch(this Repository repository, string branchName, string target)
         {
             return repository.Branches.Create(branchName, target);
         }
