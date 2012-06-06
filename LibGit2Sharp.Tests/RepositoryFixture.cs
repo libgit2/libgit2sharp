@@ -185,7 +185,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                GitObject gitObject = repo.Lookup("refs/heads/master");
+                IGitObject gitObject = repo.Lookup("refs/heads/master");
                 Assert.NotNull(gitObject);
                 Assert.IsType<Commit>(gitObject);
             }
@@ -196,7 +196,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                GitObject gitObject = repo.Lookup("refs/tags/lw");
+                IGitObject gitObject = repo.Lookup("refs/tags/lw");
                 Assert.NotNull(gitObject);
                 Assert.IsType<Commit>(gitObject);
             }
@@ -207,7 +207,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                GitObject gitObject = repo.Lookup("refs/tags/e90810b");
+                IGitObject gitObject = repo.Lookup("refs/tags/e90810b");
                 Assert.NotNull(gitObject);
                 Assert.IsType<TagAnnotation>(gitObject);
             }
@@ -229,8 +229,8 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                GitObject commit = repo.Lookup(commitSha);
-                GitObject commit2 = repo.Lookup(commitSha);
+                IGitObject commit = repo.Lookup(commitSha);
+                IGitObject commit2 = repo.Lookup(commitSha);
                 Assert.True(commit.Equals(commit2));
                 Assert.Equal(commit2.GetHashCode(), commit.GetHashCode());
             }
@@ -287,11 +287,11 @@ namespace LibGit2Sharp.Tests
 
                 Assert.Equal(expectedSha, commit.Sha);
 
-                GitObject lookedUp1 = repo.Lookup(expectedSha);
-                Assert.Equal(commit, lookedUp1);
+                IGitObject lookedUp1 = repo.Lookup(expectedSha);
+                Assert.Equal((GitObject)commit, lookedUp1);
 
-                GitObject lookedUp2 = repo.Lookup(expectedAbbrevSha);
-                Assert.Equal(commit, lookedUp2);
+                IGitObject lookedUp2 = repo.Lookup(expectedAbbrevSha);
+                Assert.Equal((GitObject)commit, lookedUp2);
             }
         }
 

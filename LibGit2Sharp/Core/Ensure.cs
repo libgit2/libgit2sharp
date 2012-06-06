@@ -102,7 +102,7 @@ namespace LibGit2Sharp.Core
             throw new ArgumentException(argumentName);
         }
 
-        public static void GitObjectIsNotNull(GitObject gitObject, string identifier)
+        public static void GitObjectIsNotNull(IGitObject gitObject, string identifier)
         {
             if (gitObject != null)
             {

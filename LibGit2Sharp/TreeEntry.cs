@@ -51,7 +51,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Gets the <see cref = "GitObject" /> being pointed at.
         /// </summary>
-        public GitObject Target
+        public IGitObject Target
         {
             get { return target.Value; }
         }

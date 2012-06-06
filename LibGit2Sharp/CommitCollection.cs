@@ -337,7 +337,7 @@ namespace LibGit2Sharp
             private ObjectId DereferenceToCommit(string identifier)
             {
                 // TODO: Should we check the type? Git-log allows TagAnnotation oid as parameter. But what about Blobs and Trees?
-                GitObject commit = repo.Lookup(identifier, GitObjectType.Any, LookUpOptions.ThrowWhenNoGitObjectHasBeenFound | LookUpOptions.DereferenceResultToCommit);
+                IGitObject commit = repo.Lookup(identifier, GitObjectType.Any, LookUpOptions.ThrowWhenNoGitObjectHasBeenFound | LookUpOptions.DereferenceResultToCommit);
 
                 return commit != null ? commit.Id : null;
             }

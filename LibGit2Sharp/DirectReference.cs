@@ -7,9 +7,9 @@ namespace LibGit2Sharp
     /// </summary>
     public class DirectReference : Reference
     {
-        private readonly Lazy<GitObject> targetBuilder;
+        private readonly Lazy<IGitObject> targetBuilder;
 
-        internal DirectReference(Lazy<GitObject> targetBuilder)
+        internal DirectReference(Lazy<IGitObject> targetBuilder)
         {
             this.targetBuilder = targetBuilder;
         }
@@ -17,7 +17,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Gets the target of this <see cref = "DirectReference" />
         /// </summary>
-        public GitObject Target
+        public IGitObject Target
         {
             get { return targetBuilder.Value; }
         }

@@ -15,7 +15,7 @@ namespace LibGit2Sharp
         /// <param name = "repository">The <see cref = "Repository" /> being looked up.</param>
         /// <param name = "shaOrRef">The shaOrRef to lookup.</param>
         /// <returns></returns>
-        public static T Lookup<T>(this Repository repository, string shaOrRef) where T : GitObject
+        public static T Lookup<T>(this Repository repository, string shaOrRef) where T : IGitObject
         {
             return (T)repository.Lookup(shaOrRef, GitObject.TypeToTypeMap[typeof(T)]);
         }
@@ -27,7 +27,7 @@ namespace LibGit2Sharp
         /// <param name = "repository">The <see cref = "Repository" /> being looked up.</param>
         /// <param name = "id">The id.</param>
         /// <returns></returns>
-        public static T Lookup<T>(this Repository repository, ObjectId id) where T : GitObject
+        public static T Lookup<T>(this Repository repository, ObjectId id) where T : IGitObject
         {
             return (T)repository.Lookup(id, GitObject.TypeToTypeMap[typeof(T)]);
         }

@@ -25,11 +25,11 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Gets the <see cref = "GitObject" /> that this tag points to.
         /// </summary>
-        public GitObject Target
+        public IGitObject Target
         {
             get
             {
-                GitObject target = TargetObject;
+                IGitObject target = TargetObject;
 
                 if ((!(target is TagAnnotation)))
                 {

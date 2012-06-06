@@ -138,7 +138,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                GitObject tree = repo.Lookup(sha);
+                IGitObject tree = repo.Lookup(sha);
                 Assert.NotNull(tree);
             }
         }
