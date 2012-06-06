@@ -462,7 +462,7 @@ namespace LibGit2Sharp.Tests
 
                 Assert.Null(repo.Head[relativeFilepath]);
 
-                Commit commit = repo.Commit("Initial egotistic commit");
+                ICommit commit = repo.Commit("Initial egotistic commit");
 
                 AssertBlobContent(repo.Head[relativeFilepath], "nulltoken\n");
                 AssertBlobContent(commit[relativeFilepath], "nulltoken\n");
@@ -498,7 +498,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Null(repo.Head[relativeFilepath]);
 
                 var author = DummySignature;
-                Commit commit = repo.Commit("Initial egotistic commit", author, author);
+                ICommit commit = repo.Commit("Initial egotistic commit", author, author);
 
                 AssertBlobContent(repo.Head[relativeFilepath], "nulltoken\n");
                 AssertBlobContent(commit[relativeFilepath], "nulltoken\n");
@@ -510,7 +510,7 @@ namespace LibGit2Sharp.Tests
                 repo.Index.Stage(relativeFilepath);
 
                 var author2 = new Signature(author.Name, author.Email, author.When.AddSeconds(5));
-                Commit commit2 = repo.Commit("Are you trying to fork me?", author2, author2);
+                ICommit commit2 = repo.Commit("Are you trying to fork me?", author2, author2);
 
                 AssertBlobContent(repo.Head[relativeFilepath], "nulltoken commits!\n");
                 AssertBlobContent(commit2[relativeFilepath], "nulltoken commits!\n");
@@ -526,7 +526,7 @@ namespace LibGit2Sharp.Tests
                 var author3 = new Signature("David Fowler", "david.fowler@microsoft.com", author.When.AddSeconds(2));
                 repo.Index.Stage(relativeFilepath);
 
-                Commit commit3 = repo.Commit("I'm going to branch you backwards in time!", author3, author3);
+                ICommit commit3 = repo.Commit("I'm going to branch you backwards in time!", author3, author3);
 
                 AssertBlobContent(repo.Head[relativeFilepath], "davidfowl commits!\n");
                 AssertBlobContent(commit3[relativeFilepath], "davidfowl commits!\n");
@@ -589,12 +589,12 @@ namespace LibGit2Sharp.Tests
             {
                 Assert.Equal(1, repo.Head.Commits.Count());
 
-                Commit originalCommit = repo.Head.Tip;
+                ICommit originalCommit = repo.Head.Tip;
                 Assert.Equal(0, originalCommit.ParentsCount);
 
                 CreateAndStageANewFile(repo);
 
-                Commit amendedCommit = repo.Commit("I'm rewriting the history!", DummySignature, DummySignature, true);
+                ICommit amendedCommit = repo.Commit("I'm rewriting the history!", DummySignature, DummySignature, true);
 
                 Assert.Equal(1, repo.Head.Commits.Count());
 
@@ -616,7 +616,7 @@ namespace LibGit2Sharp.Tests
 
                 CreateAndStageANewFile(repo);
 
-                Commit amendedCommit = repo.Commit("I'm rewriting the history!", DummySignature, DummySignature, true);
+                ICommit amendedCommit = repo.Commit("I'm rewriting the history!", DummySignature, DummySignature, true);
 
                 AssertCommitHasBeenAmended(repo, amendedCommit, mergedCommit);
             }
@@ -631,9 +631,9 @@ namespace LibGit2Sharp.Tests
             repo.Index.Stage(relativeFilepath);
         }
 
-        private void AssertCommitHasBeenAmended(Repository repo, Commit amendedCommit, Commit originalCommit)
+        private void AssertCommitHasBeenAmended(Repository repo, ICommit amendedCommit, ICommit originalCommit)
         {
-            Commit headCommit = repo.Head.Tip;
+            ICommit headCommit = repo.Head.Tip;
             Assert.Equal(amendedCommit, headCommit);
 
             Assert.NotEqual(originalCommit.Sha, amendedCommit.Sha);

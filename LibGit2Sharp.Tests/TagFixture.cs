@@ -9,10 +9,14 @@ namespace LibGit2Sharp.Tests
 {
     public class TagFixture : BaseFixture
     {
-        private readonly string[] expectedTags = new[] { "e90810b", "lw", "point_to_blob", "test", };
+        private readonly string[] expectedTags = new[] {"e90810b", "lw", "point_to_blob", "test",};
 
-        private static readonly Signature signatureTim = new Signature("Tim Clem", "timothy.clem@gmail.com", DateTimeOffset.UtcNow);
-        private static readonly Signature signatureNtk = new Signature("nulltoken", "emeric.fermas@gmail.com", Epoch.ToDateTimeOffset(1300557894, 60));
+        private static readonly Signature signatureTim = new Signature("Tim Clem", "timothy.clem@gmail.com",
+                                                                       DateTimeOffset.UtcNow);
+
+        private static readonly Signature signatureNtk = new Signature("nulltoken", "emeric.fermas@gmail.com",
+                                                                       Epoch.ToDateTimeOffset(1300557894, 60));
+
         private const string tagTestSha = "b25fa35b38051e4ae45d4222e795f9df2e43f1d1";
         private const string commitE90810BSha = "e90810b8df3e80c413d903f631643c716887138d";
         private const string tagE90810BSha = "7b4384978d2493e851f9cca7858815fac9b10980";
@@ -287,7 +291,7 @@ namespace LibGit2Sharp.Tests
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
             using (var repo = new Repository(path.RepositoryPath))
             {
-                Commit headCommit = repo.Head.Tip;
+                ICommit headCommit = repo.Head.Tip;
                 Tree tree = headCommit.Tree;
 
                 Tag tag = repo.ApplyTag("tree-tag", tree.Sha);
@@ -306,7 +310,7 @@ namespace LibGit2Sharp.Tests
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
             using (var repo = new Repository(path.RepositoryPath))
             {
-                Commit headCommit = repo.Head.Tip;
+                ICommit headCommit = repo.Head.Tip;
                 Blob blob = headCommit.Tree.Blobs.First();
 
                 Tag tag = repo.ApplyTag("blob-tag", blob.Sha);
@@ -320,7 +324,8 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
-        public void CreatingALightweightTagPointingToATagAnnotationGeneratesAnAnnotatedTagReusingThePointedAtTagAnnotation()
+        public void
+            CreatingALightweightTagPointingToATagAnnotationGeneratesAnAnnotatedTagReusingThePointedAtTagAnnotation()
         {
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
             using (var repo = new Repository(path.RepositoryPath))

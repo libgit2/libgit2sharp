@@ -33,7 +33,7 @@ namespace LibGit2Sharp
         /// <param name = "amendPreviousCommit">True to amend the current <see cref = "Commit"/> pointed at by <see cref = "Repository.Head"/>, false otherwise.</param>
         /// <returns>The generated <see cref = "Commit" />.</returns>
         [Obsolete("This method will be removed in the next release. Please use Repository.Commit() instead.")]
-        Commit Create(string message, Signature author, Signature committer, bool amendPreviousCommit);
+        ICommit Create(string message, Signature author, Signature committer, bool amendPreviousCommit);
 
         /// <summary>
         ///   Find the best possible common ancestor given two <see cref = "Commit"/>s.
@@ -41,13 +41,13 @@ namespace LibGit2Sharp
         /// <param name = "first">The first <see cref = "Commit"/>.</param>
         /// <param name = "second">The second <see cref = "Commit"/>.</param>
         /// <returns>The common ancestor or null if none found.</returns>
-        Commit FindCommonAncestor(Commit first, Commit second);
+        ICommit FindCommonAncestor(ICommit first, ICommit second);
 
         /// <summary>
         ///   Find the best possible common ancestor given two or more <see cref = "Commit"/>s.
         /// </summary>
         /// <param name = "commits">The <see cref = "Commit"/> for which to find the common ancestor.</param>
         /// <returns>The common ancestor or null if none found.</returns>
-        Commit FindCommonAncestor(IEnumerable<Commit> commits);
+        ICommit FindCommonAncestor(IEnumerable<ICommit> commits);
     }
 }

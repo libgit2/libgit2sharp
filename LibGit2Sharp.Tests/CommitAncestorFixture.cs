@@ -36,7 +36,7 @@ namespace LibGit2Sharp.Tests
                 var first = repo.Lookup<Commit>("c47800c7266a2be04c571c04d5a6614691ea99bd");
                 var second = repo.Lookup<Commit>("9fd738e8f7967c078dceed8190330fc8648ee56a");
 
-                Commit ancestor = repo.Commits.FindCommonAncestor(first, second);
+                ICommit ancestor = repo.Commits.FindCommonAncestor(first, second);
 
                 Assert.NotNull(ancestor);
                 Assert.Equal("5b5b025afb0b4c913b4c338a42934a3863bf3644", ancestor.Id.Sha);
@@ -51,7 +51,7 @@ namespace LibGit2Sharp.Tests
                 var first = repo.Lookup<Commit>("c47800c7266a2be04c571c04d5a6614691ea99bd");
                 var second = repo.Lookup<Commit>("9fd738e8f7967c078dceed8190330fc8648ee56a");
 
-                Commit ancestor = repo.Commits.FindCommonAncestor(new[] { first, second });
+                ICommit ancestor = repo.Commits.FindCommonAncestor(new[] { first, second });
 
                 Assert.NotNull(ancestor);
                 Assert.Equal("5b5b025afb0b4c913b4c338a42934a3863bf3644", ancestor.Id.Sha);
@@ -68,7 +68,7 @@ namespace LibGit2Sharp.Tests
                 var third = repo.Lookup<Commit>("c47800c7266a2be04c571c04d5a6614691ea99bd");
                 var fourth = repo.Lookup<Commit>("5b5b025afb0b4c913b4c338a42934a3863bf3644");
 
-                Commit ancestor = repo.Commits.FindCommonAncestor(new[] { first, second, third, fourth });
+                ICommit ancestor = repo.Commits.FindCommonAncestor(new[] { first, second, third, fourth });
 
                 Assert.NotNull(ancestor);
                 Assert.Equal("5b5b025afb0b4c913b4c338a42934a3863bf3644", ancestor.Id.Sha);
@@ -87,9 +87,9 @@ namespace LibGit2Sharp.Tests
                 var third = repo.Lookup<Commit>("c47800c7266a2be04c571c04d5a6614691ea99bd");
                 var fourth = repo.Lookup<Commit>("5b5b025afb0b4c913b4c338a42934a3863bf3644");
 
-                Commit orphanedCommit = CreateOrphanedCommit(repo);
+                ICommit orphanedCommit = CreateOrphanedCommit(repo);
 
-                Commit ancestor = repo.Commits.FindCommonAncestor(new[] { first, second, orphanedCommit, third, fourth });
+                ICommit ancestor = repo.Commits.FindCommonAncestor(new[] { first, second, orphanedCommit, third, fourth });
                 Assert.Null(ancestor);
             }
         }
@@ -105,21 +105,21 @@ namespace LibGit2Sharp.Tests
 
                 var orphanedCommit = CreateOrphanedCommit(repo);
 
-                Commit ancestor = repo.Commits.FindCommonAncestor(first, orphanedCommit);
+                ICommit ancestor = repo.Commits.FindCommonAncestor(first, orphanedCommit);
                 Assert.Null(ancestor);
             }
         }
 
-        private static Commit CreateOrphanedCommit(Repository repo)
+        private static ICommit CreateOrphanedCommit(Repository repo)
         {
-            Commit random = repo.Head.Tip;
+            ICommit random = repo.Head.Tip;
 
-            Commit orphanedCommit = repo.ObjectDatabase.CreateCommit(
+            ICommit orphanedCommit = repo.ObjectDatabase.CreateCommit(
                 "This is a test commit created by 'CommitFixture.CannotFindCommonAncestorForCommmitsWithoutCommonAncestor'",
                 random.Author,
                 random.Committer,
                 random.Tree,
-                Enumerable.Empty<Commit>());
+                Enumerable.Empty<ICommit>());
 
             return orphanedCommit;
         }

@@ -97,6 +97,7 @@
     <Compile Include="Diff.cs" />
     <Compile Include="DiffTarget.cs" />
     <Compile Include="IBranch.cs" />
+    <Compile Include="ICommit.cs" />
     <Compile Include="IGitObject.cs" />
     <Compile Include="NoteCollection.cs" />
     <Compile Include="Note.cs" />

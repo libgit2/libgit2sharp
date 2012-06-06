@@ -130,7 +130,7 @@ namespace LibGit2Sharp
         /// <param name = "first">The first <see cref = "Commit"/>.</param>
         /// <param name = "second">The second <see cref = "Commit"/>.</param>
         /// <returns>The common ancestor or null if none found.</returns>
-        public Commit FindCommonAncestor(Commit first, Commit second)
+        public ICommit FindCommonAncestor(ICommit first, ICommit second)
         {
             Ensure.ArgumentNotNull(first, "first");
             Ensure.ArgumentNotNull(second, "second");
@@ -157,10 +157,10 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name = "commits">The <see cref = "Commit"/>s for which to find the common ancestor.</param>
         /// <returns>The common ancestor or null if none found.</returns>
-        public Commit FindCommonAncestor(IEnumerable<Commit> commits)
+        public ICommit FindCommonAncestor(IEnumerable<ICommit> commits)
         {
             Ensure.ArgumentNotNull(commits, "commits");
-            Commit ret = null;
+            ICommit ret = null;
             int count = 0;
 
             foreach (var commit in commits)
@@ -204,7 +204,7 @@ namespace LibGit2Sharp
         /// <param name = "amendPreviousCommit">True to amend the current <see cref = "Commit"/> pointed at by <see cref = "Repository.Head"/>, false otherwise.</param>
         /// <returns>The generated <see cref = "Commit" />.</returns>
         [Obsolete("This method will be removed in the next release. Please use Repository.Commit() instead.")]
-        public Commit Create(string message, Signature author, Signature committer, bool amendPreviousCommit)
+        public ICommit Create(string message, Signature author, Signature committer, bool amendPreviousCommit)
         {
             return repo.Commit(message, author, committer, amendPreviousCommit);
         }

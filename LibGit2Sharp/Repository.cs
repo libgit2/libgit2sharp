@@ -61,7 +61,8 @@ namespace LibGit2Sharp
 
                 if (isBare && (isWorkDirNull ^ isIndexNull))
                 {
-                    throw new ArgumentException("When overriding the opening of a bare repository, both RepositoryOptions.WorkingDirectoryPath an RepositoryOptions.IndexPath have to be provided.");
+                    throw new ArgumentException(
+                        "When overriding the opening of a bare repository, both RepositoryOptions.WorkingDirectoryPath an RepositoryOptions.IndexPath have to be provided.");
                 }
 
                 isBare = false;
@@ -90,7 +91,10 @@ namespace LibGit2Sharp
             branches = new BranchCollection(this);
             tags = new TagCollection(this);
             info = new Lazy<RepositoryInformation>(() => new RepositoryInformation(this, isBare));
-            config = new Lazy<Configuration>(() => RegisterForCleanup(new Configuration(this, configurationGlobalFilePath, configurationSystemFilePath)));
+            config =
+                new Lazy<Configuration>(
+                    () =>
+                    RegisterForCleanup(new Configuration(this, configurationGlobalFilePath, configurationSystemFilePath)));
             remotes = new Lazy<RemoteCollection>(() => new RemoteCollection(this));
             odb = new Lazy<ObjectDatabase>(() => new ObjectDatabase(this));
             diff = new Diff(this);
@@ -298,7 +302,8 @@ namespace LibGit2Sharp
                 int res;
                 if (id is AbbreviatedObjectId)
                 {
-                    res = NativeMethods.git_object_lookup_prefix(out obj, handle, ref oid, (uint)((AbbreviatedObjectId)id).Length, type);
+                    res = NativeMethods.git_object_lookup_prefix(out obj, handle, ref oid,
+                                                                 (uint)((AbbreviatedObjectId)id).Length, type);
                 }
                 else
                 {
@@ -372,7 +377,8 @@ namespace LibGit2Sharp
                 return gitObj;
             }
 
-            return gitObj.DereferenceToCommit(shaOrReferenceName, lookUpOptions.Has(LookUpOptions.ThrowWhenCanNotBeDereferencedToACommit));
+            return gitObj.DereferenceToCommit(shaOrReferenceName,
+                                              lookUpOptions.Has(LookUpOptions.ThrowWhenCanNotBeDereferencedToACommit));
         }
 
         /// <summary>
@@ -382,7 +388,11 @@ namespace LibGit2Sharp
         /// <returns>The commit.</returns>
         internal Commit LookupCommit(string shaOrReferenceName)
         {
-            return (Commit)Lookup(shaOrReferenceName, GitObjectType.Any, LookUpOptions.ThrowWhenNoGitObjectHasBeenFound | LookUpOptions.DereferenceResultToCommit | LookUpOptions.ThrowWhenCanNotBeDereferencedToACommit);
+            return
+                (Commit)
+                Lookup(shaOrReferenceName, GitObjectType.Any,
+                       LookUpOptions.ThrowWhenNoGitObjectHasBeenFound | LookUpOptions.DereferenceResultToCommit |
+                       LookUpOptions.ThrowWhenCanNotBeDereferencedToACommit);
         }
 
         /// <summary>
@@ -507,7 +517,7 @@ namespace LibGit2Sharp
         /// <param name = "committer">The <see cref = "Signature" /> of who added the change to the repository.</param>
         /// <param name = "amendPreviousCommit">True to amend the current <see cref = "Commit"/> pointed at by <see cref = "Repository.Head"/>, false otherwise.</param>
         /// <returns>The generated <see cref = "Commit" />.</returns>
-        public Commit Commit(string message, Signature author, Signature committer, bool amendPreviousCommit = false)
+        public ICommit Commit(string message, Signature author, Signature committer, bool amendPreviousCommit = false)
         {
             if (amendPreviousCommit && Info.IsEmpty)
             {
@@ -523,7 +533,7 @@ namespace LibGit2Sharp
             return ObjectDatabase.CreateCommit(message, author, committer, tree, parents, "HEAD");
         }
 
-        private IEnumerable<Commit> RetrieveParentsOfTheCommitBeingCreated(bool amendPreviousCommit)
+        private IEnumerable<ICommit> RetrieveParentsOfTheCommitBeingCreated(bool amendPreviousCommit)
         {
             if (amendPreviousCommit)
             {
@@ -532,10 +542,10 @@ namespace LibGit2Sharp
 
             if (Info.IsEmpty)
             {
-                return Enumerable.Empty<Commit>();
+                return Enumerable.Empty<ICommit>();
             }
 
-            return new[] { Head.Tip };
+            return new[] {Head.Tip};
         }
 
 
@@ -559,7 +569,7 @@ namespace LibGit2Sharp
 
         private static string RetrieveVersion()
         {
-            Assembly assembly = typeof(Repository).Assembly;
+            Assembly assembly = typeof (Repository).Assembly;
 
             Version version = assembly.GetName().Version;
 
@@ -567,16 +577,19 @@ namespace LibGit2Sharp
             string libgit2sharpHash = ReadContentFromResource(assembly, "libgit2sharp_hash.txt");
 
             return string.Format("{0}-{1}-{2} ({3})",
-                version.ToString(3),
-                libgit2sharpHash.Substring(0, 7),
-                libgit2Hash.Substring(0, 7),
-                NativeMethods.ProcessorArchitecture
-               );
+                                 version.ToString(3),
+                                 libgit2sharpHash.Substring(0, 7),
+                                 libgit2Hash.Substring(0, 7),
+                                 NativeMethods.ProcessorArchitecture
+                );
         }
 
         private static string ReadContentFromResource(Assembly assembly, string partialResourceName)
         {
-            using (var sr = new StreamReader(assembly.GetManifestResourceStream(string.Format("LibGit2Sharp.{0}", partialResourceName))))
+            using (
+                var sr =
+                    new StreamReader(
+                        assembly.GetManifestResourceStream(string.Format("LibGit2Sharp.{0}", partialResourceName))))
             {
                 return sr.ReadLine();
             }

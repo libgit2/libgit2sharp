@@ -78,12 +78,12 @@ namespace LibGit2Sharp
         /// <param name = "tree">The <see cref = "Tree"/> of the <see cref = "Commit"/> to be created.</param>
         /// <param name = "parents">The parents of the <see cref = "Commit"/> to be created.</param>
         /// <returns>The created <see cref = "Commit"/>.</returns>
-        public Commit CreateCommit(string message, Signature author, Signature committer, Tree tree, IEnumerable<Commit> parents)
+        public ICommit CreateCommit(string message, Signature author, Signature committer, Tree tree, IEnumerable<ICommit> parents)
         {
             return CreateCommit(message, author, committer, tree, parents, null);
         }
 
-        internal Commit CreateCommit(string message, Signature author, Signature committer, Tree tree, IEnumerable<Commit> parents, string referenceName)
+        internal ICommit CreateCommit(string message, Signature author, Signature committer, Tree tree, IEnumerable<ICommit> parents, string referenceName)
         {
             Ensure.ArgumentNotNull(message, "message");
             Ensure.ArgumentNotNull(author, "author");

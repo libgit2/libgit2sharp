@@ -227,7 +227,7 @@ namespace LibGit2Sharp.Tests
 
                 Tree tree = repo.ObjectDatabase.CreateTree(td);
 
-                Commit commit = repo.ObjectDatabase.CreateCommit("message", DummySignature, DummySignature, tree, new[] { repo.Head.Tip });
+                ICommit commit = repo.ObjectDatabase.CreateCommit("message", DummySignature, DummySignature, tree, new[] { repo.Head.Tip });
 
                 IBranch newHead = repo.Head;
 

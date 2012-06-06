@@ -94,7 +94,7 @@ namespace LibGit2Sharp
         /// <param name = "repository">The <see cref = "Repository" /> being worked with.</param>
         /// <param name = "branchName">The name of the branch to create.</param>
         /// <param name = "target">The commit which should be pointed at by the Branch.</param>
-        public static IBranch CreateBranch(this Repository repository, string branchName, Commit target)
+        public static IBranch CreateBranch(this Repository repository, string branchName, ICommit target)
         {
             Ensure.ArgumentNotNull(target, "target");
             return CreateBranch(repository, branchName, target.Id.Sha);
@@ -121,7 +121,7 @@ namespace LibGit2Sharp
         /// <param name = "message">The description of why a change was made to the repository.</param>
         /// <param name = "amendPreviousCommit">True to amend the current <see cref = "LibGit2Sharp.Commit"/> pointed at by <see cref = "Repository.Head"/>, false otherwise.</param>
         /// <returns>The generated <see cref = "LibGit2Sharp.Commit" />.</returns>
-        public static Commit Commit(this Repository repository, string message, bool amendPreviousCommit = false)
+        public static ICommit Commit(this Repository repository, string message, bool amendPreviousCommit = false)
         {
             Signature author = BuildSignatureFromGlobalConfiguration(repository, DateTimeOffset.Now);
 
@@ -139,7 +139,7 @@ namespace LibGit2Sharp
         /// <param name = "message">The description of why a change was made to the repository.</param>
         /// <param name = "amendPreviousCommit">True to amend the current <see cref = "LibGit2Sharp.Commit"/> pointed at by <see cref = "Repository.Head"/>, false otherwise.</param>
         /// <returns>The generated <see cref = "LibGit2Sharp.Commit" />.</returns>
-        public static Commit Commit(this Repository repository, string message, Signature author, bool amendPreviousCommit = false)
+        public static ICommit Commit(this Repository repository, string message, Signature author, bool amendPreviousCommit = false)
         {
             Signature committer = BuildSignatureFromGlobalConfiguration(repository, DateTimeOffset.Now);
 
