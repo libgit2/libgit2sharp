@@ -10,7 +10,7 @@ namespace LibGit2Sharp
     /// <summary>
     ///   Stores the binary content of a tracked file.
     /// </summary>
-    public class Blob : GitObject
+    public class Blob : GitObject, IBlob
     {
         private readonly Repository repo;
 

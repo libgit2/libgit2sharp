@@ -311,7 +311,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path.RepositoryPath))
             {
                 ICommit headCommit = repo.Head.Tip;
-                Blob blob = headCommit.Tree.Blobs.First();
+                IBlob blob = headCommit.Tree.Blobs.First();
 
                 Tag tag = repo.ApplyTag("blob-tag", blob.Sha);
                 Assert.NotNull(tag);

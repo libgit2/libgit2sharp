@@ -13,7 +13,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(StandardTestRepoPath))
             {
-                Blob blob = repo.Head.Tip.Tree.Blobs.First();
+                IBlob blob = repo.Head.Tip.Tree.Blobs.First();
 
                 ContentChanges changes = repo.Diff.Compare(blob, blob);
 
@@ -61,7 +61,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        Blob CreateBinaryBlob(Repository repo)
+        IBlob CreateBinaryBlob(Repository repo)
         {
             var scd = BuildSelfCleaningDirectory();
             Directory.CreateDirectory(scd.RootedDirectoryPath);
@@ -76,9 +76,9 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(StandardTestRepoPath))
             {
-                Blob binBlob = CreateBinaryBlob(repo);
+                IBlob binBlob = CreateBinaryBlob(repo);
 
-                Blob blob = repo.Head.Tip.Tree.Blobs.First();
+                IBlob blob = repo.Head.Tip.Tree.Blobs.First();
 
                 ContentChanges changes = repo.Diff.Compare(blob, binBlob);
 
