@@ -33,7 +33,7 @@ namespace LibGit2Sharp.Tests
 
                 File.AppendAllText(Path.Combine(repo.Info.WorkingDirectory, "hello.txt"), "I'm a new file\n");
 
-                Blob blob = repo.ObjectDatabase.CreateBlob("hello.txt");
+                IBlob blob = repo.ObjectDatabase.CreateBlob("hello.txt");
                 Assert.NotNull(blob);
                 Assert.Equal("dc53d4c6b8684c21b0b57db29da4a2afea011565", blob.Sha);
 
@@ -65,7 +65,7 @@ namespace LibGit2Sharp.Tests
                  */
                 Assert.Null(repo.Lookup<Blob>("dc53d4c6b8684c21b0b57db29da4a2afea011565"));
 
-                Blob blob = repo.ObjectDatabase.CreateBlob(filepath);
+                IBlob blob = repo.ObjectDatabase.CreateBlob(filepath);
 
                 Assert.NotNull(blob);
                 Assert.Equal("dc53d4c6b8684c21b0b57db29da4a2afea011565", blob.Sha);

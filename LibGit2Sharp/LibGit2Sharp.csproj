@@ -57,6 +57,7 @@
   <ItemGroup>
     <Compile Include="AbbreviatedObjectId.cs" />
     <Compile Include="Blob.cs" />
+    <Compile Include="BlobExtensions.cs" />
     <Compile Include="Branch.cs" />
     <Compile Include="BranchCollection.cs" />
     <Compile Include="Changes.cs" />
@@ -96,6 +97,7 @@
     <Compile Include="DetachedHead.cs" />
     <Compile Include="Diff.cs" />
     <Compile Include="DiffTarget.cs" />
+    <Compile Include="IBlob.cs" />
     <Compile Include="IBranch.cs" />
     <Compile Include="ICommit.cs" />
     <Compile Include="IGitObject.cs" />

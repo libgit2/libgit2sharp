@@ -128,7 +128,7 @@ namespace LibGit2Sharp
         /// <param name="blob">The <see cref="Blob"/> to be stored at the described location.</param>
         /// <param name="mode">The file related <see cref="Mode"/> attributes.</param>
         /// <returns>The current <see cref="TreeDefinition"/>.</returns>
-        public TreeDefinition Add(string targetTreeEntryPath, Blob blob, Mode mode)
+        public TreeDefinition Add(string targetTreeEntryPath, IBlob blob, Mode mode)
         {
             Ensure.ArgumentNotNull(blob, "blob");
             Ensure.ArgumentConformsTo(mode,
@@ -240,7 +240,7 @@ namespace LibGit2Sharp
                         continue;
                     }
 
-                    Blob blob = transient.Builder(repository.ObjectDatabase);
+                    IBlob blob = transient.Builder(repository.ObjectDatabase);
                     TreeEntryDefinition ted2 = TreeEntryDefinition.From(blob, ted.Mode);
                     builtTreeEntryDefinitions.Add(new Tuple<string, TreeEntryDefinition>(name, ted2));
 

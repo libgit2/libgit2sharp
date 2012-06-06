@@ -49,7 +49,7 @@ namespace LibGit2Sharp
                        };
         }
 
-        internal static TreeEntryDefinition From(Blob blob, Mode mode)
+        internal static TreeEntryDefinition From(IBlob blob, Mode mode)
         {
             return new TreeEntryDefinition
                        {
@@ -167,6 +167,6 @@ namespace LibGit2Sharp
             get { return GitObjectType.Blob; }
         }
 
-        public Func<ObjectDatabase, Blob> Builder { get; set; }
+        public Func<ObjectDatabase, IBlob> Builder { get; set; }
     }
 }

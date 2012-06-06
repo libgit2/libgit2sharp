@@ -41,7 +41,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="path">Path to the file to create the blob from.</param>
         /// <returns>The created <see cref="Blob"/>.</returns>
-        public Blob CreateBlob(string path)
+        public IBlob CreateBlob(string path)
         {
             Ensure.ArgumentNotNullOrEmptyString(path, "path");
 
