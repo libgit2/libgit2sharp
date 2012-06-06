@@ -109,13 +109,13 @@ namespace LibGit2Sharp.Tests
 
             using (var repo = new Repository(scd.DirectoryPath))
             {
-                Branch head = repo.Head;
+                IBranch head = repo.Head;
 
                 Assert.Equal(FileStatus.Nonexistent, repo.Index.RetrieveStatus("zomg.txt"));
 
                 string commitSha = MeanwhileInAnotherDimensionAnEvilMastermindIsAtWork(scd.DirectoryPath);
 
-                Branch newHead = repo.Head;
+                IBranch newHead = repo.Head;
 
                 Assert.NotEqual(head.Tip.Sha, newHead.Tip.Sha);
                 Assert.Equal(commitSha, newHead.Tip.Sha);

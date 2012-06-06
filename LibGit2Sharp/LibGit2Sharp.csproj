@@ -96,6 +96,7 @@
     <Compile Include="DetachedHead.cs" />
     <Compile Include="Diff.cs" />
     <Compile Include="DiffTarget.cs" />
+    <Compile Include="IBranch.cs" />
     <Compile Include="NoteCollection.cs" />
     <Compile Include="Note.cs" />
     <Compile Include="TreeChanges.cs" />

@@ -10,7 +10,7 @@ namespace LibGit2Sharp
     /// <summary>
     ///   The collection of Branches in a <see cref = "Repository" />
     /// </summary>
-    public class BranchCollection : IEnumerable<Branch>
+    public class BranchCollection : IEnumerable<IBranch>
     {
         private readonly Repository repo;
 
@@ -26,7 +26,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Gets the <see cref = "LibGit2Sharp.Branch" /> with the specified name.
         /// </summary>
-        public Branch this[string name]
+        public IBranch this[string name]
         {
             get
             {
@@ -69,7 +69,7 @@ namespace LibGit2Sharp
         ///   Returns an enumerator that iterates through the collection.
         /// </summary>
         /// <returns>An <see cref = "IEnumerator{T}" /> object that can be used to iterate through the collection.</returns>
-        public IEnumerator<Branch> GetEnumerator()
+        public IEnumerator<IBranch> GetEnumerator()
         {
             return Libgit2UnsafeHelper
                 .ListAllBranchNames(repo.Handle, GitBranchType.GIT_BRANCH_LOCAL | GitBranchType.GIT_BRANCH_REMOTE)
@@ -95,7 +95,7 @@ namespace LibGit2Sharp
         /// <param name = "shaOrReferenceName">The target which can be sha or a canonical reference name.</param>
         /// <param name = "allowOverwrite">True to allow silent overwriting a potentially existing branch, false otherwise.</param>
         /// <returns></returns>
-        public Branch Add(string name, string shaOrReferenceName, bool allowOverwrite = false)
+        public IBranch Add(string name, string shaOrReferenceName, bool allowOverwrite = false)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
 
@@ -118,7 +118,7 @@ namespace LibGit2Sharp
         /// <param name = "allowOverwrite">True to allow silent overwriting a potentially existing branch, false otherwise.</param>
         /// <returns></returns>
         [Obsolete("This method will be removed in the next release. Please use Add() instead.")]
-        public Branch Create(string name, string shaOrReferenceName, bool allowOverwrite = false)
+        public IBranch Create(string name, string shaOrReferenceName, bool allowOverwrite = false)
         {
             return Add(name, shaOrReferenceName, allowOverwrite);
         }
@@ -160,7 +160,7 @@ namespace LibGit2Sharp
         ///<param name = "newName">The new name of the existing branch should bear.</param>
         ///<param name = "allowOverwrite">True to allow silent overwriting a potentially existing branch, false otherwise.</param>
         ///<returns></returns>
-        public Branch Move(string currentName, string newName, bool allowOverwrite = false)
+        public IBranch Move(string currentName, string newName, bool allowOverwrite = false)
         {
             Ensure.ArgumentNotNullOrEmptyString(currentName, "currentName");
             Ensure.ArgumentNotNullOrEmptyString(newName, "name");

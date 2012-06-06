@@ -518,7 +518,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(1, commit2.ParentsCount);
                 Assert.Equal(commit.Id, commit2.Parents.First().Id);
 
-                Branch firstCommitBranch = repo.CreateBranch("davidfowl-rules", commit);
+                IBranch firstCommitBranch = repo.CreateBranch("davidfowl-rules", commit);
                 repo.Checkout(firstCommitBranch);
 
                 File.WriteAllText(filePath, "davidfowl commits!\n");

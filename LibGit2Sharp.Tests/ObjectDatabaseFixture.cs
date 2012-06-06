@@ -220,7 +220,7 @@ namespace LibGit2Sharp.Tests
 
             using (var repo = new Repository(scd.RepositoryPath))
             {
-                Branch head = repo.Head;
+                IBranch head = repo.Head;
 
                 TreeDefinition td = TreeDefinition.From(repo.Head.Tip.Tree);
                 td.Add("1/2/readme", td["README"]);
@@ -229,7 +229,7 @@ namespace LibGit2Sharp.Tests
 
                 Commit commit = repo.ObjectDatabase.CreateCommit("message", DummySignature, DummySignature, tree, new[] { repo.Head.Tip });
 
-                Branch newHead = repo.Head;
+                IBranch newHead = repo.Head;
 
                 Assert.Equal(head, newHead);
                 Assert.Equal(commit, repo.Lookup<Commit>(commit.Sha));

@@ -26,7 +26,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                Branch oldHead = repo.Head;
+                IBranch oldHead = repo.Head;
 
                 repo.Reset(ResetOptions.Soft);
 
@@ -72,16 +72,16 @@ namespace LibGit2Sharp.Tests
             AssertSoftReset(b => b.Tip.Sha, true, b => "(no branch)");
         }
 
-        private void AssertSoftReset(Func<Branch, string> branchIdentifierRetriever, bool shouldHeadBeDetached, Func<Branch, string> expectedHeadNameRetriever)
+        private void AssertSoftReset(Func<IBranch, string> branchIdentifierRetriever, bool shouldHeadBeDetached, Func<IBranch, string> expectedHeadNameRetriever)
         {
             SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
 
-            using (var repo = Repository.Init(scd.DirectoryPath)) 
+            using (var repo = Repository.Init(scd.DirectoryPath))
             {
                 FeedTheRepository(repo);
 
                 Tag tag = repo.Tags["mytag"];
-                Branch branch = repo.Branches["mybranch"];
+                IBranch branch = repo.Branches["mybranch"];
 
                 string branchIdentifier = branchIdentifierRetriever(branch);
                 repo.Checkout(branchIdentifier);
