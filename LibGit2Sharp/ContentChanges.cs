@@ -7,7 +7,7 @@ namespace LibGit2Sharp
     /// <summary>
     ///   Holds the changes between two <see cref = "Blob" />s.
     /// </summary>
-    public class ContentChanges
+    public class ContentChanges : IContentChanges
     {
         private readonly StringBuilder patchBuilder = new StringBuilder();
         private static readonly Utf8Marshaler marshaler = (Utf8Marshaler)Utf8Marshaler.GetInstance(string.Empty);

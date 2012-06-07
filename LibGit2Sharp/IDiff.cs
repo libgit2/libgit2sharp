@@ -16,7 +16,7 @@ namespace LibGit2Sharp
         /// <param name = "oldBlob">The <see cref = "Blob"/> you want to compare from.</param>
         /// <param name = "newBlob">The <see cref = "Blob"/> you want to compare to.</param>
         /// <returns>A <see cref = "ContentChanges"/> containing the changes between the <paramref name = "oldBlob"/> and the <paramref name = "newBlob"/>.</returns>
-        ContentChanges Compare(IBlob oldBlob, IBlob newBlob);
+        IContentChanges Compare(IBlob oldBlob, IBlob newBlob);
 
         /// <summary>
         ///   Show changes between a <see cref = "Tree"/> and a selectable target.

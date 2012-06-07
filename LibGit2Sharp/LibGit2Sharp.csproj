@@ -98,6 +98,7 @@
     <Compile Include="IBranch.cs" />
     <Compile Include="ICommit.cs" />
     <Compile Include="IConfiguration.cs" />
+    <Compile Include="IContentChanges.cs" />
     <Compile Include="IDetachedHead.cs" />
     <Compile Include="IDiff.cs" />
     <Compile Include="IGitObject.cs" />
