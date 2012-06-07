@@ -7,7 +7,7 @@ namespace LibGit2Sharp
     /// <summary>
     ///   Holds the changes between two <see cref = "Blob" />s.
     /// </summary>
-    public class ContentChanges : Changes
+    public class ContentChanges : Changes, IContentChanges
     {
         internal ContentChanges(Repository repo, IBlob oldBlob, IBlob newBlob, GitDiffOptions options)
         {

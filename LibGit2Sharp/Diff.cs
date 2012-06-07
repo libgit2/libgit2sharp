@@ -89,7 +89,7 @@ namespace LibGit2Sharp
         /// <param name = "oldBlob">The <see cref = "Blob"/> you want to compare from.</param>
         /// <param name = "newBlob">The <see cref = "Blob"/> you want to compare to.</param>
         /// <returns>A <see cref = "ContentChanges"/> containing the changes between the <paramref name = "oldBlob"/> and the <paramref name = "newBlob"/>.</returns>
-        public ContentChanges Compare(IBlob oldBlob, IBlob newBlob)
+        public IContentChanges Compare(IBlob oldBlob, IBlob newBlob)
         {
             using (GitDiffOptions options = BuildOptions())
             {
