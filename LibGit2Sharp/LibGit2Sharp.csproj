@@ -102,6 +102,7 @@
     <Compile Include="ICommit.cs" />
     <Compile Include="IConfiguration.cs" />
     <Compile Include="IDetachedHead.cs" />
+    <Compile Include="IDiff.cs" />
     <Compile Include="IGitObject.cs" />
     <Compile Include="IRepository.cs" />
     <Compile Include="NoteCollection.cs" />

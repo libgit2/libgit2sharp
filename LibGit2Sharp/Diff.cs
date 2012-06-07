@@ -11,7 +11,7 @@ namespace LibGit2Sharp
     ///     Copied and renamed files currently cannot be detected, as the feature is not supported by libgit2 yet.
     ///     These files will be shown as a pair of Deleted/Added files.</para>
     /// </summary>
-    public class Diff
+    public class Diff : IDiff
     {
         private readonly Repository repo;
 
