@@ -188,7 +188,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Lookup and enumerate branches in the repository.
         /// </summary>
-        public BranchCollection Branches
+        public IBranchCollection Branches
         {
             get { return branches; }
         }

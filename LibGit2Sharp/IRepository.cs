@@ -39,7 +39,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Lookup and enumerate branches in the repository.
         /// </summary>
-        BranchCollection Branches { get; }
+        IBranchCollection Branches { get; }
 
         /// <summary>
         ///   Lookup and enumerate tags in the repository.
