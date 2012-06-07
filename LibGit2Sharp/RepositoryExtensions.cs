@@ -50,7 +50,7 @@ namespace LibGit2Sharp
         /// <param name = "target">The canonical reference name or sha which should be pointed at by the Tag.</param>
         public static Tag ApplyTag(this Repository repository, string tagName, string target)
         {
-            return repository.Tags.Create(tagName, target);
+            return repository.Tags.Add(tagName, target);
         }
 
         /// <summary>
@@ -75,7 +75,7 @@ namespace LibGit2Sharp
         /// <param name = "message">The annotation message.</param>
         public static Tag ApplyTag(this Repository repository, string tagName, string target, Signature tagger, string message)
         {
-            return repository.Tags.Create(tagName, target, tagger, message);
+            return repository.Tags.Add(tagName, target, tagger, message);
         }
 
         /// <summary>

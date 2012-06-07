@@ -72,7 +72,7 @@ namespace LibGit2Sharp
         /// <param name = "message">The message.</param>
         /// <param name = "allowOverwrite">True to allow silent overwriting a potentially existing tag, false otherwise.</param>
         /// <returns></returns>
-        public Tag Create(string name, string target, Signature tagger, string message, bool allowOverwrite = false)
+        public Tag Add(string name, string target, Signature tagger, string message, bool allowOverwrite = false)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
             Ensure.ArgumentNotNullOrEmptyString(target, "target");
@@ -95,13 +95,28 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        ///   Creates an annotated tag with the specified name.
+        /// </summary>
+        /// <param name = "name">The name.</param>
+        /// <param name = "target">The target which can be sha or a canonical reference name.</param>
+        /// <param name = "tagger">The tagger.</param>
+        /// <param name = "message">The message.</param>
+        /// <param name = "allowOverwrite">True to allow silent overwriting a potentially existing tag, false otherwise.</param>
+        /// <returns></returns>
+        [Obsolete("This method will be removed in the next release. Please use Add() instead.")]
+        public Tag Create(string name, string target, Signature tagger, string message, bool allowOverwrite = false)
+        {
+            return Add(name, target, tagger, message, allowOverwrite);
+        }
+
+        /// <summary>
         ///   Creates a lightweight tag with the specified name.
         /// </summary>
         /// <param name = "name">The name.</param>
         /// <param name = "target">The target which can be sha or a canonical reference name.</param>
         /// <param name = "allowOverwrite">True to allow silent overwriting a potentially existing tag, false otherwise.</param>
         /// <returns></returns>
-        public Tag Create(string name, string target, bool allowOverwrite = false)
+        public Tag Add(string name, string target, bool allowOverwrite = false)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
             Ensure.ArgumentNotNullOrEmptyString(target, "target");
@@ -118,6 +133,19 @@ namespace LibGit2Sharp
             Ensure.Success(res);
 
             return this[name];
+        }
+
+        /// <summary>
+        ///   Creates a lightweight tag with the specified name.
+        /// </summary>
+        /// <param name = "name">The name.</param>
+        /// <param name = "target">The target which can be sha or a canonical reference name.</param>
+        /// <param name = "allowOverwrite">True to allow silent overwriting a potentially existing tag, false otherwise.</param>
+        /// <returns></returns>
+        [Obsolete("This method will be removed in the next release. Please use Add() instead.")]
+        public Tag Create(string name, string target, bool allowOverwrite = false)
+        {
+            return Add(name, target, allowOverwrite);
         }
 
         /// <summary>
