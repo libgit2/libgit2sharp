@@ -212,7 +212,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Provides access to diffing functionalities to show changes between the working tree and the index or a tree, changes between the index and a tree, changes between two trees, or changes between two files on disk.
         /// </summary>
-        public Diff Diff
+        public IDiff Diff
         {
             get { return diff; }
         }
