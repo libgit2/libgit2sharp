@@ -108,20 +108,20 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(expectedNamespaces, commit.Notes.Select(n => n.Message));
 
                 // Make sure that Commit.Notes is not refreshed automatically
-                repo.Notes.Create(commit.Id, "I'm batman!\n", signatureNullToken, signatureYorah, "batmobile");
+                repo.Notes.Add(commit.Id, "I'm batman!\n", signatureNullToken, signatureYorah, "batmobile");
 
                 Assert.Equal(expectedNamespaces, commit.Notes.Select(n => n.Message));
             }
         }
 
         [Fact]
-        public void CanCreateANoteOnAGitObject()
+        public void CanAddANoteOnAGitObject()
         {
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
             using (var repo = new Repository(path.RepositoryPath))
             {
                 var commit = repo.Lookup<Commit>("9fd738e8f7967c078dceed8190330fc8648ee56a");
-                var note = repo.Notes.Create(commit.Id, "I'm batman!\n", signatureNullToken, signatureYorah, "batmobile");
+                var note = repo.Notes.Add(commit.Id, "I'm batman!\n", signatureNullToken, signatureYorah, "batmobile");
 
                 var newNote = commit.Notes.Single();
                 Assert.Equal(note, newNote);
@@ -140,7 +140,7 @@ namespace LibGit2Sharp.Tests
                 var commit = repo.Lookup<Commit>("5b5b025afb0b4c913b4c338a42934a3863bf3644");
                 Assert.NotNull(commit.Notes.FirstOrDefault(x => x.Namespace == "answer"));
 
-                repo.Notes.Create(commit.Id, "I'm batman!\n", signatureNullToken, signatureYorah, "answer");
+                repo.Notes.Add(commit.Id, "I'm batman!\n", signatureNullToken, signatureYorah, "answer");
                 var note = repo.Notes[new ObjectId("5b5b025afb0b4c913b4c338a42934a3863bf3644")].FirstOrDefault(x => x.Namespace == "answer");
 
                 Assert.NotNull(note);
@@ -158,18 +158,18 @@ namespace LibGit2Sharp.Tests
             {
                 var commit = repo.Lookup<Commit>("9fd738e8f7967c078dceed8190330fc8648ee56a");
 
-                var firstNote = repo.Notes.Create(commit.Id, "I'm batman!\n", signatureNullToken, signatureYorah, "batmobile");
-                var secondNote = repo.Notes.Create(commit.Id, "I'm batman!\n", signatureNullToken, signatureYorah, "batmobile");
+                var firstNote = repo.Notes.Add(commit.Id, "I'm batman!\n", signatureNullToken, signatureYorah, "batmobile");
+                var secondNote = repo.Notes.Add(commit.Id, "I'm batman!\n", signatureNullToken, signatureYorah, "batmobile");
                 Assert.Equal(firstNote, secondNote);
 
-                var firstNoteWithAnotherNamespace = repo.Notes.Create(commit.Id, "I'm batman!\n", signatureNullToken, signatureYorah, "batmobile2");
+                var firstNoteWithAnotherNamespace = repo.Notes.Add(commit.Id, "I'm batman!\n", signatureNullToken, signatureYorah, "batmobile2");
                 Assert.NotEqual(firstNote, firstNoteWithAnotherNamespace);
 
-                var firstNoteWithAnotherMessage = repo.Notes.Create(commit.Id, "I'm ironman!\n", signatureNullToken, signatureYorah, "batmobile");
+                var firstNoteWithAnotherMessage = repo.Notes.Add(commit.Id, "I'm ironman!\n", signatureNullToken, signatureYorah, "batmobile");
                 Assert.NotEqual(firstNote, firstNoteWithAnotherMessage);
 
                 var anotherCommit = repo.Lookup<Commit>("c47800c7266a2be04c571c04d5a6614691ea99bd");
-                var firstNoteOnAnotherCommit = repo.Notes.Create(anotherCommit.Id, "I'm batman!\n", signatureNullToken, signatureYorah, "batmobile");
+                var firstNoteOnAnotherCommit = repo.Notes.Add(anotherCommit.Id, "I'm batman!\n", signatureNullToken, signatureYorah, "batmobile");
                 Assert.NotEqual(firstNote, firstNoteOnAnotherCommit);
             }
         }
