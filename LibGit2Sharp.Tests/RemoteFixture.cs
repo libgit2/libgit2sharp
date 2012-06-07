@@ -56,7 +56,7 @@ namespace LibGit2Sharp.Tests
                 Remote otherOrigin = repo.Remotes["origin"];
                 Assert.Equal(oneOrigin, otherOrigin);
 
-                Remote createdRemote = repo.Remotes.Create("origin2", oneOrigin.Url);
+                Remote createdRemote = repo.Remotes.Add("origin2", oneOrigin.Url);
 
                 Remote loadedRemote = repo.Remotes["origin2"];
                 Assert.NotNull(loadedRemote);
@@ -76,7 +76,7 @@ namespace LibGit2Sharp.Tests
                 const string name = "upstream";
                 const string url = "https://github.com/libgit2/libgit2sharp.git";
 
-                repo.Remotes.Create(name, url);
+                repo.Remotes.Add(name, url);
                 Remote remote = repo.Remotes[name];
                 Assert.NotNull(remote);
 
@@ -92,7 +92,7 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
-        public void CanCreateANewRemoteWithAFetchRefSpec()
+        public void CanAddANewRemoteWithAFetchRefSpec()
         {
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoPath);
 
@@ -102,7 +102,7 @@ namespace LibGit2Sharp.Tests
                 const string url = "https://github.com/libgit2/libgit2sharp.git";
                 const string fetchRefSpec = "+refs/pull/*:refs/remotes/pull-requests/*";
 
-                repo.Remotes.Create(name, url, fetchRefSpec);
+                repo.Remotes.Add(name, url, fetchRefSpec);
 
                 var refSpec = repo.Config.Get<string>("remote", name, "fetch", null);
                 Assert.NotNull(refSpec);

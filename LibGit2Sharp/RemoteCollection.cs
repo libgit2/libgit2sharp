@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using LibGit2Sharp.Core;
@@ -82,11 +83,26 @@ namespace LibGit2Sharp
         /// <param name = "name">The name of the remote to create.</param>
         /// <param name = "url">The location of the repository.</param>
         /// <returns>A new <see cref = "Remote" />.</returns>
-        public Remote Create(string name, string url)
+        public Remote Add(string name, string url)
         {
             string fetchRefSpec = string.Format("+refs/heads/*:refs/remotes/{0}/*", name);
 
-            return Create(name, url, fetchRefSpec);
+            return Add(name, url, fetchRefSpec);
+        }
+
+        /// <summary>
+        ///   Creates a <see cref="Remote"/> with the specified name and for the repository at the specified location.
+        ///   <para>
+        ///     A default fetch refspec will be added for this remote.
+        ///   </para>
+        /// </summary>
+        /// <param name = "name">The name of the remote to create.</param>
+        /// <param name = "url">The location of the repository.</param>
+        /// <returns>A new <see cref = "Remote" />.</returns>
+        [Obsolete("This method will be removed in the next release. Please use Add() instead.")]
+        public Remote Create(string name, string url)
+        {
+            return Add(name, url);
         }
 
         /// <summary>
@@ -96,7 +112,7 @@ namespace LibGit2Sharp
         /// <param name = "url">The location of the repository.</param>
         /// <param name = "fetchRefSpec">The refSpec to be used when fetching from this remote..</param>
         /// <returns>A new <see cref = "Remote" />.</returns>
-        public Remote Create(string name, string url, string fetchRefSpec)
+        public Remote Add(string name, string url, string fetchRefSpec)
         {
             Ensure.ArgumentNotNull(name, "name");
             Ensure.ArgumentNotNull(url, "url");
@@ -114,6 +130,19 @@ namespace LibGit2Sharp
 
                 return Remote.CreateFromPtr(handle);
             }
+        }
+
+        /// <summary>
+        ///   Creates a <see cref="Remote"/> with the specified name and for the repository at the specified location.
+        /// </summary>
+        /// <param name = "name">The name of the remote to create.</param>
+        /// <param name = "url">The location of the repository.</param>
+        /// <param name = "fetchRefSpec">The refSpec to be used when fetching from this remote..</param>
+        /// <returns>A new <see cref = "Remote" />.</returns>
+        [Obsolete("This method will be removed in the next release. Please use Add() instead.")]
+        public Remote Create(string name, string url, string fetchRefSpec)
+        {
+            return Add(name, url);
         }
     }
 }
