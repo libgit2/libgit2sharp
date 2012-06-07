@@ -105,6 +105,7 @@
     <Compile Include="IRemote.cs" />
     <Compile Include="IRemoteCollection.cs" />
     <Compile Include="IRepository.cs" />
+    <Compile Include="IRepositoryInformation.cs" />
     <Compile Include="ITreeChanges.cs" />
     <Compile Include="ITreeEntryChanges.cs" />
     <Compile Include="NoteCollection.cs" />

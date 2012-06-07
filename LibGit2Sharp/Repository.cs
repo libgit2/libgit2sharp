@@ -204,7 +204,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Provides high level information about this repository.
         /// </summary>
-        public RepositoryInformation Info
+        public IRepositoryInformation Info
         {
             get { return info.Value; }
         }
