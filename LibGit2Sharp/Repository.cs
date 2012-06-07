@@ -136,7 +136,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Provides access to the configuration settings for this repository.
         /// </summary>
-        public Configuration Config
+        public IConfiguration Config
         {
             get { return config.Value; }
         }
