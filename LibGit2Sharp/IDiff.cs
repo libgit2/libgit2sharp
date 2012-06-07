@@ -8,7 +8,7 @@ namespace LibGit2Sharp
         /// <param name = "oldTree">The <see cref = "Tree"/> you want to compare from.</param>
         /// <param name = "newTree">The <see cref = "Tree"/> you want to compare to.</param>
         /// <returns>A <see cref = "TreeChanges"/> containing the changes between the <paramref name = "oldTree"/> and the <paramref name = "newTree"/>.</returns>
-        TreeChanges Compare(Tree oldTree, Tree newTree);
+        ITreeChanges Compare(Tree oldTree, Tree newTree);
 
         /// <summary>
         ///   Show changes between two <see cref = "Blob"/>s.
@@ -24,6 +24,6 @@ namespace LibGit2Sharp
         /// <param name = "oldTree">The <see cref = "Tree"/> to compare from.</param>
         /// <param name = "diffTarget">The target to compare to.</param>
         /// <returns>A <see cref = "TreeChanges"/> containing the changes between the <see cref="Tree"/> and the selected target.</returns>
-        TreeChanges Compare(Tree oldTree, DiffTarget diffTarget);
+        ITreeChanges Compare(Tree oldTree, DiffTarget diffTarget);
     }
 }

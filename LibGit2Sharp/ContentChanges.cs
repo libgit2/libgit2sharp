@@ -92,12 +92,12 @@ namespace LibGit2Sharp
         /// <summary>
         ///   The number of lines added.
         /// </summary>
-        public int LinesAdded { get; internal set; }
+        public int LinesAdded { get; set; }
 
         /// <summary>
         ///   The number of lines deleted.
         /// </summary>
-        public int LinesDeleted { get; internal set; }
+        public int LinesDeleted { get; set; }
 
         /// <summary>
         ///   The patch corresponding to these changes.
@@ -107,7 +107,7 @@ namespace LibGit2Sharp
             get { return patchBuilder.ToString(); }
         }
 
-        internal StringBuilder PatchBuilder
+        public StringBuilder PatchBuilder
         {
             get { return patchBuilder; }
         }

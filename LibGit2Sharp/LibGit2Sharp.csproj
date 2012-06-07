@@ -103,6 +103,8 @@
     <Compile Include="IDiff.cs" />
     <Compile Include="IGitObject.cs" />
     <Compile Include="IRepository.cs" />
+    <Compile Include="ITreeChanges.cs" />
+    <Compile Include="ITreeEntryChanges.cs" />
     <Compile Include="NoteCollection.cs" />
     <Compile Include="Note.cs" />
     <Compile Include="TreeChanges.cs" />

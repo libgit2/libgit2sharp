@@ -1,3 +1,5 @@
+using System.Text;
+
 namespace LibGit2Sharp
 {
     public interface IContentChanges
@@ -10,16 +12,18 @@ namespace LibGit2Sharp
         /// <summary>
         ///   The number of lines added.
         /// </summary>
-        int LinesAdded { get; }
+        int LinesAdded { get; set; }
 
         /// <summary>
         ///   The number of lines deleted.
         /// </summary>
-        int LinesDeleted { get; }
+        int LinesDeleted { get; set; }
 
         /// <summary>
         ///   The patch corresponding to these changes.
         /// </summary>
         string Patch { get; }
+
+        StringBuilder PatchBuilder { get; }
     }
 }

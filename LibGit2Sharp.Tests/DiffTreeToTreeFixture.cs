@@ -18,7 +18,7 @@ namespace LibGit2Sharp.Tests
             {
                 Tree tree = repo.Head.Tip.Tree;
 
-                TreeChanges changes = repo.Diff.Compare(tree, tree);
+                ITreeChanges changes = repo.Diff.Compare(tree, tree);
 
                 Assert.Empty(changes);
                 Assert.Equal(string.Empty, changes.Patch);
@@ -32,7 +32,7 @@ namespace LibGit2Sharp.Tests
             {
                 Tree tree = repo.Head.Tip.Tree;
 
-                TreeChanges changes = repo.Diff.Compare(tree, tree);
+                ITreeChanges changes = repo.Diff.Compare(tree, tree);
 
                 Assert.Null(changes["batman"]);
             }
@@ -51,12 +51,12 @@ namespace LibGit2Sharp.Tests
                 Tree commitTree = repo.Head.Tip.Tree;
                 Tree parentCommitTree = repo.Head.Tip.Parents.Single().Tree;
 
-                TreeChanges changes = repo.Diff.Compare(parentCommitTree, commitTree);
+                ITreeChanges changes = repo.Diff.Compare(parentCommitTree, commitTree);
 
                 Assert.Equal(1, changes.Count());
                 Assert.Equal(1, changes.Added.Count());
 
-                TreeEntryChanges treeEntryChanges = changes["1.txt"];
+                ITreeEntryChanges treeEntryChanges = changes["1.txt"];
                 Assert.False(treeEntryChanges.IsBinaryComparison);
 
                 Assert.Equal("1.txt", treeEntryChanges.Path);
@@ -91,7 +91,7 @@ namespace LibGit2Sharp.Tests
                 Tree commitTree = repo.Head.Tip.Tree;
                 Tree commitTreeWithDifferentAncestor = repo.Branches["refs/remotes/origin/test"].Tip.Tree;
 
-                TreeChanges changes = repo.Diff.Compare(commitTreeWithDifferentAncestor, commitTree);
+                ITreeChanges changes = repo.Diff.Compare(commitTreeWithDifferentAncestor, commitTree);
 
                 Assert.Equal(10, changes.Count());
                 Assert.Equal(9, changes.Added.Count());
@@ -133,7 +133,7 @@ namespace LibGit2Sharp.Tests
                 Tree rootCommitTree = repo.Lookup<Commit>("f8d44d7").Tree;
                 Tree commitTreeWithRenamedFile = repo.Lookup<Commit>("4be51d6").Tree;
 
-                TreeChanges changes = repo.Diff.Compare(rootCommitTree, commitTreeWithRenamedFile);
+                ITreeChanges changes = repo.Diff.Compare(rootCommitTree, commitTreeWithRenamedFile);
 
                 Assert.Equal(1, changes.Count());
                 Assert.Equal("super-file.txt", changes["super-file.txt"].Path);
@@ -172,12 +172,12 @@ namespace LibGit2Sharp.Tests
                 Tree rootCommitTree = repo.Lookup<Commit>("f8d44d7").Tree;
                 Tree commitTreeWithUpdatedFile = repo.Lookup<Commit>("ec9e401").Tree;
 
-                TreeChanges changes = repo.Diff.Compare(rootCommitTree, commitTreeWithUpdatedFile);
+                ITreeChanges changes = repo.Diff.Compare(rootCommitTree, commitTreeWithUpdatedFile);
 
                 Assert.Equal(1, changes.Count());
                 Assert.Equal(1, changes.Modified.Count());
 
-                TreeEntryChanges treeEntryChanges = changes.Modified.Single();
+                ITreeEntryChanges treeEntryChanges = changes.Modified.Single();
 
                 Assert.Equal(2, treeEntryChanges.LinesAdded);
                 Assert.Equal(1, treeEntryChanges.LinesDeleted);
@@ -243,14 +243,14 @@ namespace LibGit2Sharp.Tests
                 Tree rootCommitTree = repo.Lookup<Commit>("f8d44d7").Tree;
                 Tree mergedCommitTree = repo.Lookup<Commit>("7252fe2").Tree;
 
-                TreeChanges changes = repo.Diff.Compare(rootCommitTree, mergedCommitTree);
+                ITreeChanges changes = repo.Diff.Compare(rootCommitTree, mergedCommitTree);
 
                 Assert.Equal(3, changes.Count());
                 Assert.Equal(1, changes.Modified.Count());
                 Assert.Equal(1, changes.Deleted.Count());
                 Assert.Equal(1, changes.Added.Count());
 
-                TreeEntryChanges treeEntryChanges = changes["numbers.txt"];
+                ITreeEntryChanges treeEntryChanges = changes["numbers.txt"];
 
                 Assert.Equal(3, treeEntryChanges.LinesAdded);
                 Assert.Equal(1, treeEntryChanges.LinesDeleted);

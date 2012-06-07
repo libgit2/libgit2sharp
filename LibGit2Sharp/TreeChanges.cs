@@ -11,14 +11,14 @@ namespace LibGit2Sharp
     ///   Holds the result of a diff between two trees.
     ///   <para>Changes at the granularity of the file can be obtained through the different sub-collections <see cref="Added"/>, <see cref="Deleted"/> and <see cref="Modified"/>.</para>
     /// </summary>
-    public class TreeChanges : IEnumerable<TreeEntryChanges>
+    public class TreeChanges : ITreeChanges
     {
         private static readonly Utf8Marshaler marshaler = (Utf8Marshaler)Utf8Marshaler.GetInstance(string.Empty);
 
-        private readonly IDictionary<string, TreeEntryChanges> changes = new Dictionary<string, TreeEntryChanges>();
-        private readonly List<TreeEntryChanges> added = new List<TreeEntryChanges>();
-        private readonly List<TreeEntryChanges> deleted = new List<TreeEntryChanges>();
-        private readonly List<TreeEntryChanges> modified = new List<TreeEntryChanges>();
+        private readonly IDictionary<string, ITreeEntryChanges> changes = new Dictionary<string, ITreeEntryChanges>();
+        private readonly List<ITreeEntryChanges> added = new List<ITreeEntryChanges>();
+        private readonly List<ITreeEntryChanges> deleted = new List<ITreeEntryChanges>();
+        private readonly List<ITreeEntryChanges> modified = new List<ITreeEntryChanges>();
         private int linesAdded;
         private int linesDeleted;
 
@@ -102,7 +102,7 @@ namespace LibGit2Sharp
         ///   Returns an enumerator that iterates through the collection.
         /// </summary>
         /// <returns>An <see cref = "IEnumerator{T}" /> object that can be used to iterate through the collection.</returns>
-        public IEnumerator<TreeEntryChanges> GetEnumerator()
+        public IEnumerator<ITreeEntryChanges> GetEnumerator()
         {
             return changes.Values.GetEnumerator();
         }
@@ -119,11 +119,11 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Gets the <see cref = "TreeEntryChanges"/> corresponding to the specified <paramref name = "path"/>.
         /// </summary>
-        public TreeEntryChanges this[string path]
+        public ITreeEntryChanges this[string path]
         {
             get
             {
-                TreeEntryChanges treeEntryChanges;
+                ITreeEntryChanges treeEntryChanges;
                 if (changes.TryGetValue(path, out treeEntryChanges))
                 {
                     return treeEntryChanges;
@@ -136,7 +136,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   List of <see cref = "TreeEntryChanges"/> that have been been added.
         /// </summary>
-        public IEnumerable<TreeEntryChanges> Added
+        public IEnumerable<ITreeEntryChanges> Added
         {
             get { return added; }
         }
@@ -144,7 +144,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   List of <see cref = "TreeEntryChanges"/> that have been deleted.
         /// </summary>
-        public IEnumerable<TreeEntryChanges> Deleted
+        public IEnumerable<ITreeEntryChanges> Deleted
         {
             get { return deleted; }
         }
@@ -152,7 +152,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   List of <see cref = "TreeEntryChanges"/> that have been modified.
         /// </summary>
-        public IEnumerable<TreeEntryChanges> Modified
+        public IEnumerable<ITreeEntryChanges> Modified
         {
             get { return modified; }
         }

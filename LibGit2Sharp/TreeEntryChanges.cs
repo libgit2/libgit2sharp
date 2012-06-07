@@ -3,7 +3,7 @@ namespace LibGit2Sharp
     /// <summary>
     ///   Holds the changes between two versions of a tree entry.
     /// </summary>
-    public class TreeEntryChanges : ContentChanges
+    public class TreeEntryChanges : ContentChanges, ITreeEntryChanges
     {
         internal TreeEntryChanges(string path, Mode mode, ChangeKind status, string oldPath, Mode oldMode, bool isBinaryComparison)
         {

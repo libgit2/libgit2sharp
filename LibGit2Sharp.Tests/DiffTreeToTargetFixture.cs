@@ -42,7 +42,7 @@ namespace LibGit2Sharp.Tests
             {
                 SetUpSimpleDiffContext(repo);
 
-                TreeChanges changes = repo.Diff.Compare(repo.Head.Tip.Tree, DiffTarget.Index);
+                ITreeChanges changes = repo.Diff.Compare(repo.Head.Tip.Tree, DiffTarget.Index);
 
                 var expected = new StringBuilder()
                     .Append("diff --git a/file.txt b/file.txt\n")
@@ -88,7 +88,7 @@ namespace LibGit2Sharp.Tests
             {
                 Tree tree = repo.Head.Tip.Tree;
 
-                TreeChanges changes = repo.Diff.Compare(tree, DiffTarget.Index);
+                ITreeChanges changes = repo.Diff.Compare(tree, DiffTarget.Index);
                 Assert.NotNull(changes);
 
                 Assert.Equal(3, changes.Count());
@@ -131,7 +131,7 @@ namespace LibGit2Sharp.Tests
                 File.AppendAllText(fullpath, "\n");
                 repo.Index.Stage("file.txt");
 
-                TreeChanges changes = repo.Diff.Compare(repo.Head.Tip.Tree, DiffTarget.Index);
+                ITreeChanges changes = repo.Diff.Compare(repo.Head.Tip.Tree, DiffTarget.Index);
                 Assert.Equal(1, changes.Modified.Count());
                 Assert.Equal(1, changes.LinesAdded);
                 Assert.Equal(1, changes.LinesDeleted);
