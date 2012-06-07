@@ -10,7 +10,7 @@ namespace LibGit2Sharp
     /// <summary>
     ///   The collection of Branches in a <see cref = "Repository" />
     /// </summary>
-    public class BranchCollection : IEnumerable<IBranch>
+    public class BranchCollection : IBranchCollection
     {
         private readonly Repository repo;
 
