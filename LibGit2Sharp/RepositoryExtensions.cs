@@ -108,7 +108,7 @@ namespace LibGit2Sharp
         /// <param name = "target">The canonical reference name or sha which should be pointed at by the Branch.</param>
         public static Branch CreateBranch(this Repository repository, string branchName, string target)
         {
-            return repository.Branches.Create(branchName, target);
+            return repository.Branches.Add(branchName, target);
         }
 
         /// <summary>

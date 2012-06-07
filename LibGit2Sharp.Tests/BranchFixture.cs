@@ -136,7 +136,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                Assert.Throws<LibGit2SharpException>(() => repo.Branches.Create("my_new_branch", "my_old_branch"));
+                Assert.Throws<LibGit2SharpException>(() => repo.Branches.Add("my_new_branch", "my_old_branch"));
             }
         }
 
@@ -145,8 +145,8 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                Assert.Throws<LibGit2SharpException>(() => repo.Branches.Create("my_new_branch", Constants.UnknownSha));
-                Assert.Throws<LibGit2SharpException>(() => repo.Branches.Create("my_new_branch", Constants.UnknownSha.Substring(0, 7)));
+                Assert.Throws<LibGit2SharpException>(() => repo.Branches.Add("my_new_branch", Constants.UnknownSha));
+                Assert.Throws<LibGit2SharpException>(() => repo.Branches.Add("my_new_branch", Constants.UnknownSha.Substring(0, 7)));
             }
         }
 
@@ -155,7 +155,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                Assert.Throws<LibGit2SharpException>(() => repo.Branches.Create("nocanonicaltarget", "br2"));
+                Assert.Throws<LibGit2SharpException>(() => repo.Branches.Add("nocanonicaltarget", "br2"));
             }
         }
 
@@ -164,10 +164,10 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                Assert.Throws<ArgumentNullException>(() => repo.Branches.Create(null, repo.Head.CanonicalName));
-                Assert.Throws<ArgumentException>(() => repo.Branches.Create(string.Empty, repo.Head.CanonicalName));
-                Assert.Throws<ArgumentNullException>(() => repo.Branches.Create("bad_branch", default(string)));
-                Assert.Throws<ArgumentException>(() => repo.Branches.Create("bad_branch", string.Empty));
+                Assert.Throws<ArgumentNullException>(() => repo.Branches.Add(null, repo.Head.CanonicalName));
+                Assert.Throws<ArgumentException>(() => repo.Branches.Add(string.Empty, repo.Head.CanonicalName));
+                Assert.Throws<ArgumentNullException>(() => repo.Branches.Add("bad_branch", default(string)));
+                Assert.Throws<ArgumentException>(() => repo.Branches.Add("bad_branch", string.Empty));
                 Assert.Throws<ArgumentNullException>(() => repo.CreateBranch("bad_branch", default(Commit)));
             }
         }
@@ -519,7 +519,7 @@ namespace LibGit2Sharp.Tests
             {
                 Branch master = repo.Branches["refs/heads/master"];
 
-                Branch newBranch = repo.Branches.Create("clone-of-master", master.Tip.Sha);
+                Branch newBranch = repo.Branches.Add("clone-of-master", master.Tip.Sha);
                 Assert.False(newBranch.IsCurrentRepositoryHead);
             }
         }
