@@ -103,6 +103,7 @@
     <Compile Include="IDiff.cs" />
     <Compile Include="IGitObject.cs" />
     <Compile Include="IRemote.cs" />
+    <Compile Include="IRemoteCollection.cs" />
     <Compile Include="IRepository.cs" />
     <Compile Include="ITreeChanges.cs" />
     <Compile Include="ITreeEntryChanges.cs" />

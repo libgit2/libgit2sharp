@@ -28,7 +28,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Lookup and manage remotes in the repository.
         /// </summary>
-        RemoteCollection Remotes { get; }
+        IRemoteCollection Remotes { get; }
 
         /// <summary>
         ///   Lookup and enumerate commits in the repository.
