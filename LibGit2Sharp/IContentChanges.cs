@@ -1,3 +1,5 @@
+using System.Text;
+
 namespace LibGit2Sharp
 {
     public interface IContentChanges

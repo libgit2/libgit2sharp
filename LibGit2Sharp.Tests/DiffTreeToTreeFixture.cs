@@ -14,7 +14,7 @@ namespace LibGit2Sharp.Tests
             {
                 Tree tree = repo.Head.Tip.Tree;
 
-                TreeChanges changes = repo.Diff.Compare(tree, tree);
+                ITreeChanges changes = repo.Diff.Compare(tree, tree);
 
                 Assert.Empty(changes);
                 Assert.Equal(string.Empty, changes.Patch);
@@ -28,7 +28,7 @@ namespace LibGit2Sharp.Tests
             {
                 Tree tree = repo.Head.Tip.Tree;
 
-                TreeChanges changes = repo.Diff.Compare(tree, tree);
+                ITreeChanges changes = repo.Diff.Compare(tree, tree);
 
                 Assert.Null(changes["batman"]);
             }
@@ -47,7 +47,7 @@ namespace LibGit2Sharp.Tests
                 Tree commitTree = repo.Head.Tip.Tree;
                 Tree parentCommitTree = repo.Head.Tip.Parents.Single().Tree;
 
-                TreeChanges changes = repo.Diff.Compare(parentCommitTree, commitTree);
+                ITreeChanges changes = repo.Diff.Compare(parentCommitTree, commitTree);
 
                 Assert.Equal(1, changes.Count());
                 Assert.Equal(1, changes.Added.Count());
@@ -83,7 +83,7 @@ namespace LibGit2Sharp.Tests
                 Tree tree = repo.Head.Tip.Tree;
                 Tree ancestor = repo.Lookup<Commit>("9fd738e").Tree;
 
-                TreeChanges changes = repo.Diff.Compare(ancestor, tree, new[]{ "1", "2/" });
+                ITreeChanges changes = repo.Diff.Compare(ancestor, tree, new[]{ "1", "2/" });
                 Assert.NotNull(changes);
 
                 Assert.Equal(1, changes.Count());
@@ -113,7 +113,7 @@ namespace LibGit2Sharp.Tests
                 Tree commitTree = repo.Head.Tip.Tree;
                 Tree commitTreeWithDifferentAncestor = repo.Branches["refs/remotes/origin/test"].Tip.Tree;
 
-                TreeChanges changes = repo.Diff.Compare(commitTreeWithDifferentAncestor, commitTree);
+                ITreeChanges changes = repo.Diff.Compare(commitTreeWithDifferentAncestor, commitTree);
 
                 Assert.Equal(10, changes.Count());
                 Assert.Equal(9, changes.Added.Count());
@@ -155,7 +155,7 @@ namespace LibGit2Sharp.Tests
                 Tree rootCommitTree = repo.Lookup<Commit>("f8d44d7").Tree;
                 Tree commitTreeWithRenamedFile = repo.Lookup<Commit>("4be51d6").Tree;
 
-                TreeChanges changes = repo.Diff.Compare(rootCommitTree, commitTreeWithRenamedFile);
+                ITreeChanges changes = repo.Diff.Compare(rootCommitTree, commitTreeWithRenamedFile);
 
                 Assert.Equal(1, changes.Count());
                 Assert.Equal("super-file.txt", changes["super-file.txt"].Path);
@@ -194,7 +194,7 @@ namespace LibGit2Sharp.Tests
                 Tree rootCommitTree = repo.Lookup<Commit>("f8d44d7").Tree;
                 Tree commitTreeWithUpdatedFile = repo.Lookup<Commit>("ec9e401").Tree;
 
-                TreeChanges changes = repo.Diff.Compare(rootCommitTree, commitTreeWithUpdatedFile);
+                ITreeChanges changes = repo.Diff.Compare(rootCommitTree, commitTreeWithUpdatedFile);
 
                 Assert.Equal(1, changes.Count());
                 Assert.Equal(1, changes.Modified.Count());
@@ -265,7 +265,7 @@ namespace LibGit2Sharp.Tests
                 Tree rootCommitTree = repo.Lookup<Commit>("f8d44d7").Tree;
                 Tree mergedCommitTree = repo.Lookup<Commit>("7252fe2").Tree;
 
-                TreeChanges changes = repo.Diff.Compare(rootCommitTree, mergedCommitTree);
+                ITreeChanges changes = repo.Diff.Compare(rootCommitTree, mergedCommitTree);
 
                 Assert.Equal(3, changes.Count());
                 Assert.Equal(1, changes.Modified.Count());
