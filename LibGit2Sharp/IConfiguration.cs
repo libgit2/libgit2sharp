@@ -127,7 +127,7 @@ namespace LibGit2Sharp
         /// <param name = "value"></param>
         /// <param name = "level"></param>
         void Set<T>(string key, T value, ConfigurationLevel level = ConfigurationLevel.Local);
-        
+
         /// <summary>
         ///   Unset a configuration variable (key and value).
         /// </summary>
