@@ -105,6 +105,7 @@
     <Compile Include="IDetachedHead.cs" />
     <Compile Include="IDiff.cs" />
     <Compile Include="IGitObject.cs" />
+    <Compile Include="IRemote.cs" />
     <Compile Include="IRepository.cs" />
     <Compile Include="ITreeChanges.cs" />
     <Compile Include="NoteCollection.cs" />
