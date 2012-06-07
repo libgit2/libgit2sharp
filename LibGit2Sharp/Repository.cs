@@ -11,7 +11,7 @@ namespace LibGit2Sharp
     /// <summary>
     ///   A Repository is the primary interface into a git repository
     /// </summary>
-    public class Repository : IDisposable
+    public class Repository : IRepository
     {
         private readonly BranchCollection branches;
         private readonly CommitCollection commits;
