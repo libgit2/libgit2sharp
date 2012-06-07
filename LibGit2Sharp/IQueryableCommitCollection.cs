@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace LibGit2Sharp
 {
@@ -24,6 +25,7 @@ namespace LibGit2Sharp
         /// <param name = "committer">The <see cref = "Signature" /> of who added the change to the repository.</param>
         /// <param name = "amendPreviousCommit">True to amend the current <see cref = "Commit"/> pointed at by <see cref = "Repository.Head"/>, false otherwise.</param>
         /// <returns>The generated <see cref = "Commit" />.</returns>
+        [Obsolete("This method will be removed in the next release. Please use Repository.Commit() instead.")]
         Commit Create(string message, Signature author, Signature committer, bool amendPreviousCommit);
 
         /// <summary>

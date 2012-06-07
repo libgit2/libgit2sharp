@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Compat;
@@ -499,6 +500,48 @@ namespace LibGit2Sharp
 
             Index.Reset(changes);
         }
+
+        /// <summary>
+        ///   Stores the content of the <see cref = "Repository.Index" /> as a new <see cref = "Commit" /> into the repository.
+        ///   The tip of the <see cref = "Repository.Head"/> will be used as the parent of this new Commit.
+        ///   Once the commit is created, the <see cref = "Repository.Head"/> will move forward to point at it.
+        /// </summary>
+        /// <param name = "message">The description of why a change was made to the repository.</param>
+        /// <param name = "author">The <see cref = "Signature" /> of who made the change.</param>
+        /// <param name = "committer">The <see cref = "Signature" /> of who added the change to the repository.</param>
+        /// <param name = "amendPreviousCommit">True to amend the current <see cref = "Commit"/> pointed at by <see cref = "Repository.Head"/>, false otherwise.</param>
+        /// <returns>The generated <see cref = "Commit" />.</returns>
+        public Commit Commit(string message, Signature author, Signature committer, bool amendPreviousCommit = false)
+        {
+            if (amendPreviousCommit && Info.IsEmpty)
+            {
+                throw new LibGit2SharpException("Can not amend anything. The Head doesn't point at any commit.");
+            }
+
+            GitOid treeOid;
+            Ensure.Success(NativeMethods.git_tree_create_fromindex(out treeOid, Index.Handle));
+            var tree = this.Lookup<Tree>(new ObjectId(treeOid));
+
+            var parents = RetrieveParentsOfTheCommitBeingCreated(amendPreviousCommit);
+
+            return ObjectDatabase.CreateCommit(message, author, committer, tree, parents, "HEAD");
+        }
+
+        private IEnumerable<Commit> RetrieveParentsOfTheCommitBeingCreated(bool amendPreviousCommit)
+        {
+            if (amendPreviousCommit)
+            {
+                return Head.Tip.Parents;
+            }
+
+            if (Info.IsEmpty)
+            {
+                return Enumerable.Empty<Commit>();
+            }
+
+            return new[] { Head.Tip };
+        }
+
 
         internal T RegisterForCleanup<T>(T disposable) where T : IDisposable
         {

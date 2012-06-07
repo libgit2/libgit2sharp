@@ -203,35 +203,10 @@ namespace LibGit2Sharp
         /// <param name = "committer">The <see cref = "Signature" /> of who added the change to the repository.</param>
         /// <param name = "amendPreviousCommit">True to amend the current <see cref = "Commit"/> pointed at by <see cref = "Repository.Head"/>, false otherwise.</param>
         /// <returns>The generated <see cref = "Commit" />.</returns>
+        [Obsolete("This method will be removed in the next release. Please use Repository.Commit() instead.")]
         public Commit Create(string message, Signature author, Signature committer, bool amendPreviousCommit)
         {
-            if (amendPreviousCommit && repo.Info.IsEmpty)
-            {
-                throw new LibGit2SharpException("Can not amend anything. The Head doesn't point at any commit.");
-            }
-
-            GitOid treeOid;
-            Ensure.Success(NativeMethods.git_tree_create_fromindex(out treeOid, repo.Index.Handle));
-            var tree = repo.Lookup<Tree>(new ObjectId(treeOid));
-
-            var parents = RetrieveParentsOfTheCommitBeingCreated(repo, amendPreviousCommit);
-
-            return repo.ObjectDatabase.CreateCommit(message, author, committer, tree, parents, "HEAD");
-        }
-
-        private static IEnumerable<Commit> RetrieveParentsOfTheCommitBeingCreated(Repository repo, bool amendPreviousCommit)
-        {
-            if (amendPreviousCommit)
-            {
-                return repo.Head.Tip.Parents;
-            }
-
-            if (repo.Info.IsEmpty)
-            {
-                return Enumerable.Empty<Commit>();
-            }
-
-            return new[] { repo.Head.Tip };
+            return repo.Commit(message, author, committer, amendPreviousCommit);
         }
 
         private class CommitEnumerator : IEnumerator<Commit>
