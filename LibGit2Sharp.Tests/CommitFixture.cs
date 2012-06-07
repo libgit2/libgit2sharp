@@ -60,7 +60,7 @@ namespace LibGit2Sharp.Tests
             {
                 ObjectId parentOfHead = repo.Head.Tip.Parents.First().Id;
 
-                repo.Refs.Create("HEAD", parentOfHead.Sha, true);
+                repo.Refs.Add("HEAD", parentOfHead.Sha, true);
                 Assert.Equal(true, repo.Info.IsHeadDetached);
 
                 Assert.Equal(6, repo.Commits.Count());

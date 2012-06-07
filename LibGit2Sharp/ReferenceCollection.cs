@@ -66,7 +66,7 @@ namespace LibGit2Sharp
         /// <param name = "target">The target which can be either a sha or the canonical name of another reference.</param>
         /// <param name = "allowOverwrite">True to allow silent overwriting a potentially existing reference, false otherwise.</param>
         /// <returns>A new <see cref = "Reference" />.</returns>
-        public Reference Create(string name, string target, bool allowOverwrite = false)
+        public Reference Add(string name, string target, bool allowOverwrite = false)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
             Ensure.ArgumentNotNullOrEmptyString(target, "target");
@@ -87,6 +87,19 @@ namespace LibGit2Sharp
             {
                 return Reference.BuildFromPtr<Reference>(handle, repo);
             }
+        }
+
+        /// <summary>
+        ///   Creates a direct or symbolic reference with the specified name and target
+        /// </summary>
+        /// <param name = "name">The name of the reference to create.</param>
+        /// <param name = "target">The target which can be either a sha or the canonical name of another reference.</param>
+        /// <param name = "allowOverwrite">True to allow silent overwriting a potentially existing reference, false otherwise.</param>
+        /// <returns>A new <see cref = "Reference" />.</returns>
+        [Obsolete("This method will be removed in the next release. Please use Add() instead.")]
+        public Reference Create(string name, string target, bool allowOverwrite = false)
+        {
+            return Add(name, target, allowOverwrite);
         }
 
         private ReferenceSafeHandle CreateSymbolicReference(string name, string target, bool allowOverwrite)
@@ -186,7 +199,7 @@ namespace LibGit2Sharp
 
             if (name == "HEAD")
             {
-                return Create("HEAD", target, true);
+                return Add("HEAD", target, true);
             }
 
             using (ReferenceSafeHandle referencePtr = RetrieveReferencePtr(name))
