@@ -10,7 +10,7 @@ namespace LibGit2Sharp
     /// <summary>
     ///   The collection of <see cref = "Remote" /> in a <see cref = "Repository" />
     /// </summary>
-    public class RemoteCollection : IEnumerable<IRemote>
+    public class RemoteCollection : IRemoteCollection
     {
         private readonly Repository repository;
 

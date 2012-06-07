@@ -176,7 +176,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Lookup and manage remotes in the repository.
         /// </summary>
-        public RemoteCollection Remotes
+        public IRemoteCollection Remotes
         {
             get { return remotes.Value; }
         }
