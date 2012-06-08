@@ -125,7 +125,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Gets the commits on this branch. (Starts walking from the References's target).
         /// </summary>
-        public ICommitCollection Commits
+        public ICommitLog Commits
         {
             get { return repo.Commits.QueryBy(new Filter { Since = this }); }
         }

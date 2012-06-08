@@ -16,7 +16,7 @@ namespace LibGit2Sharp
     public class Repository : IDisposable
     {
         private readonly BranchCollection branches;
-        private readonly CommitCollection commits;
+        private readonly CommitLog commits;
         private readonly Lazy<Configuration> config;
         private readonly RepositorySafeHandle handle;
         private readonly Index index;
@@ -86,7 +86,7 @@ namespace LibGit2Sharp
                 index = indexBuilder();
             }
 
-            commits = new CommitCollection(this);
+            commits = new CommitLog(this);
             refs = new ReferenceCollection(this);
             branches = new BranchCollection(this);
             tags = new TagCollection(this);
@@ -185,7 +185,7 @@ namespace LibGit2Sharp
         ///   Lookup and enumerate commits in the repository.
         ///   Iterating this collection directly starts walking from the HEAD.
         /// </summary>
-        public IQueryableCommitCollection Commits
+        public IQueryableCommitLog Commits
         {
             get { return commits; }
         }

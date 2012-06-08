@@ -4,16 +4,23 @@ using System.Collections.Generic;
 namespace LibGit2Sharp
 {
     /// <summary>
+    ///   A log of commits in a <see cref = "Repository" /> that can be filtered with queries.
+    /// </summary>
+    public interface IQueryableCommitLog : ICommitLog, IQueryableCommitCollection
+    { }
+
+    /// <summary>
     ///   A collection of commits in a <see cref = "Repository" /> that can be filtered with queries.
     /// </summary>
-    public interface IQueryableCommitCollection : ICommitCollection //TODO: Find a name that's more explicit than IQueryableCommitCollection
+    [Obsolete("This interface will be removed in the next release. Please use IQueryableCommitLog instead.")]
+    public interface IQueryableCommitCollection : ICommitCollection
     {
         /// <summary>
         ///   Returns the list of commits of the repository matching the specified <paramref name = "filter" />.
         /// </summary>
         /// <param name = "filter">The options used to control which commits will be returned.</param>
-        /// <returns>A collection of commits, ready to be enumerated.</returns>
-        ICommitCollection QueryBy(Filter filter);
+        /// <returns>A list of commits, ready to be enumerated.</returns>
+        ICommitLog QueryBy(Filter filter);
 
         /// <summary>
         ///   Stores the content of the <see cref = "Repository.Index" /> as a new <see cref = "Commit" /> into the repository.

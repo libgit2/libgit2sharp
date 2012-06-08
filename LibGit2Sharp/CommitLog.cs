@@ -9,9 +9,9 @@ using LibGit2Sharp.Core.Handles;
 namespace LibGit2Sharp
 {
     /// <summary>
-    ///   A collection of commits in a <see cref = "Repository" />
+    ///   A log of commits in a <see cref = "Repository" />
     /// </summary>
-    public class CommitCollection : IQueryableCommitCollection
+    public class CommitLog : IQueryableCommitLog
     {
         private readonly Repository repo;
         private IList<object> includedIdentifier = new List<object> { "HEAD" };
@@ -19,28 +19,28 @@ namespace LibGit2Sharp
         private readonly GitSortOptions sortOptions;
 
         /// <summary>
-        ///   Initializes a new instance of the <see cref = "CommitCollection" /> class.
+        ///   Initializes a new instance of the <see cref = "CommitLog" /> class.
         ///   The commits will be enumerated according in reverse chronological order.
         /// </summary>
         /// <param name = "repo">The repository.</param>
-        internal CommitCollection(Repository repo)
+        internal CommitLog(Repository repo)
             : this(repo, GitSortOptions.Time)
         {
         }
 
         /// <summary>
-        ///   Initializes a new instance of the <see cref = "CommitCollection" /> class.
+        ///   Initializes a new instance of the <see cref = "CommitLog" /> class.
         /// </summary>
         /// <param name = "repo">The repository.</param>
         /// <param name = "sortingStrategy">The sorting strategy which should be applied when enumerating the commits.</param>
-        internal CommitCollection(Repository repo, GitSortOptions sortingStrategy)
+        internal CommitLog(Repository repo, GitSortOptions sortingStrategy)
         {
             this.repo = repo;
             sortOptions = sortingStrategy;
         }
 
         /// <summary>
-        ///   Gets the current sorting strategy applied when enumerating the collection
+        ///   Gets the current sorting strategy applied when enumerating the log
         /// </summary>
         public GitSortOptions SortedBy
         {
@@ -50,9 +50,9 @@ namespace LibGit2Sharp
         #region IEnumerable<Commit> Members
 
         /// <summary>
-        ///   Returns an enumerator that iterates through the collection.
+        ///   Returns an enumerator that iterates through the log.
         /// </summary>
-        /// <returns>An <see cref = "IEnumerator{T}" /> object that can be used to iterate through the collection.</returns>
+        /// <returns>An <see cref = "IEnumerator{T}" /> object that can be used to iterate through the log.</returns>
         public IEnumerator<Commit> GetEnumerator()
         {
             if ((repo.Info.IsEmpty) && includedIdentifier.Any(o => PointsAtTheHead(o.ToString()))) // TODO: ToString() == fragile
@@ -64,9 +64,9 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Returns an enumerator that iterates through the collection.
+        ///   Returns an enumerator that iterates through the log.
         /// </summary>
-        /// <returns>An <see cref = "IEnumerator" /> object that can be used to iterate through the collection.</returns>
+        /// <returns>An <see cref = "IEnumerator" /> object that can be used to iterate through the log.</returns>
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
@@ -78,14 +78,14 @@ namespace LibGit2Sharp
         ///   Returns the list of commits of the repository matching the specified <paramref name = "filter" />.
         /// </summary>
         /// <param name = "filter">The options used to control which commits will be returned.</param>
-        /// <returns>A collection of commits, ready to be enumerated.</returns>
-        public ICommitCollection QueryBy(Filter filter)
+        /// <returns>A list of commits, ready to be enumerated.</returns>
+        public ICommitLog QueryBy(Filter filter)
         {
             Ensure.ArgumentNotNull(filter, "filter");
             Ensure.ArgumentNotNull(filter.Since, "filter.Since");
             Ensure.ArgumentNotNullOrEmptyString(filter.Since.ToString(), "filter.Since");
 
-            return new CommitCollection(repo, filter.SortBy)
+            return new CommitLog(repo, filter.SortBy)
                        {
                            includedIdentifier = ToList(filter.Since),
                            excludedIdentifier = ToList(filter.Until)

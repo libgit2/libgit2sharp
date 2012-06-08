@@ -341,7 +341,7 @@ namespace LibGit2Sharp.Tests
 
         private static void AssertEnumerationOfCommitsInRepo(Repository repo, Func<Repository, Filter> filterBuilder, IEnumerable<string> abbrevIds)
         {
-            ICommitCollection commits = repo.Commits.QueryBy(filterBuilder(repo));
+            ICommitLog commits = repo.Commits.QueryBy(filterBuilder(repo));
 
             IEnumerable<string> commitShas = commits.Select(c => c.Id.ToString(7)).ToArray();
 

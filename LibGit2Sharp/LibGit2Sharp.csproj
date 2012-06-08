@@ -61,7 +61,7 @@
     <Compile Include="BranchCollection.cs" />
     <Compile Include="Changes.cs" />
     <Compile Include="Commit.cs" />
-    <Compile Include="CommitCollection.cs" />
+    <Compile Include="CommitLog.cs" />
     <Compile Include="Configuration.cs" />
     <Compile Include="ContentChanges.cs" />
     <Compile Include="Core\Compat\Environment.cs" />
@@ -130,12 +130,12 @@
     <Compile Include="GitSortOptions.cs" />
     <Compile Include="Core\LambdaEqualityHelper.cs" />
     <Compile Include="Core\Libgit2UnsafeHelper.cs" />
-    <Compile Include="ICommitCollection.cs" />
+    <Compile Include="ICommitLog.cs" />
     <Compile Include="Index.cs" />
     <Compile Include="IndexEntry.cs" />
     <Compile Include="Core\Handles\IndexSafeHandle.cs" />
     <Compile Include="Filter.cs" />
-    <Compile Include="IQueryableCommitCollection.cs" />
+    <Compile Include="IQueryableCommitLog.cs" />
     <Compile Include="Core\LookUpOptions.cs" />
     <Compile Include="Mode.cs" />
     <Compile Include="ObjectDatabase.cs" />
