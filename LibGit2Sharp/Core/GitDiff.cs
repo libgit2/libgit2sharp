@@ -26,15 +26,13 @@ namespace LibGit2Sharp.Core
 
         public static GitStrArrayIn BuildFrom(FilePath[] paths)
         {
-            var marshaler = FilePathMarshaler.GetInstance(string.Empty);
-
             var nbOfPaths = paths.Length;
             var pathPtrs = new IntPtr[nbOfPaths];
 
             for (int i = 0; i < nbOfPaths; i++)
             {
                 var s = paths[i];
-                pathPtrs[i] = marshaler.MarshalManagedToNative(s);
+                pathPtrs[i] = FilePathMarshaler.FromManaged(s);
             }
 
             int dim = IntPtr.Size * nbOfPaths;
