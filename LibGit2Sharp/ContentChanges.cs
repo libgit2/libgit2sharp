@@ -10,7 +10,6 @@ namespace LibGit2Sharp
     public class ContentChanges
     {
         private readonly StringBuilder patchBuilder = new StringBuilder();
-        private static readonly Utf8Marshaler marshaler = (Utf8Marshaler)Utf8Marshaler.GetInstance(string.Empty);
 
         protected ContentChanges()
         {
@@ -47,7 +46,7 @@ namespace LibGit2Sharp
 
         private int HunkCallback(IntPtr data, GitDiffDelta delta, GitDiffRange range, IntPtr header, uint headerlen)
         {
-            string decodedContent = marshaler.NativeToString(header, headerlen);
+            string decodedContent = Utf8Marshaler.FromNative(header, headerlen);
 
             PatchBuilder.AppendFormat("{0}", decodedContent);
             return 0;
@@ -55,7 +54,7 @@ namespace LibGit2Sharp
 
         private int LineCallback(IntPtr data, GitDiffDelta delta, GitDiffRange range, GitDiffLineOrigin lineorigin, IntPtr content, uint contentlen)
         {
-            string decodedContent = marshaler.NativeToString(content, contentlen);
+            string decodedContent = Utf8Marshaler.FromNative(content, contentlen);
 
             string prefix;
 

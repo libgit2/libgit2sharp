@@ -13,8 +13,6 @@ namespace LibGit2Sharp
     /// </summary>
     public class TreeChanges : IEnumerable<TreeEntryChanges>
     {
-        private static readonly Utf8Marshaler marshaler = (Utf8Marshaler)Utf8Marshaler.GetInstance(string.Empty);
-
         private readonly IDictionary<string, TreeEntryChanges> changes = new Dictionary<string, TreeEntryChanges>();
         private readonly List<TreeEntryChanges> added = new List<TreeEntryChanges>();
         private readonly List<TreeEntryChanges> deleted = new List<TreeEntryChanges>();
@@ -43,8 +41,8 @@ namespace LibGit2Sharp
 
         private int PrintCallBack(IntPtr data, GitDiffDelta delta, GitDiffRange range, GitDiffLineOrigin lineorigin, IntPtr content, uint contentlen)
         {
-            string formattedoutput = marshaler.NativeToString(content, contentlen);
-            var currentFilePath = (string)marshaler.MarshalNativeToManaged(delta.NewFile.Path);
+            var formattedoutput = Utf8Marshaler.FromNative(content, contentlen);
+            var currentFilePath = Utf8Marshaler.FromNative(delta.NewFile.Path);
 
             AddLineChange(currentFilePath, lineorigin);
 
@@ -87,8 +85,8 @@ namespace LibGit2Sharp
 
         private void AddFileChange(GitDiffDelta delta)
         {
-            var newFilePath = (string)marshaler.MarshalNativeToManaged(delta.NewFile.Path);
-            var oldFilePath = (string)marshaler.MarshalNativeToManaged(delta.OldFile.Path);
+            var newFilePath = Utf8Marshaler.FromNative(delta.NewFile.Path);
+            var oldFilePath = Utf8Marshaler.FromNative(delta.OldFile.Path);
             var newMode = (Mode)delta.NewFile.Mode;
             var oldMode = (Mode)delta.OldFile.Mode;
             var newOid = new ObjectId(delta.NewFile.Oid);
