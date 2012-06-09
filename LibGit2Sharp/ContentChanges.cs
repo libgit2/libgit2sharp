@@ -26,7 +26,7 @@ namespace LibGit2Sharp
 
         private int FileCallback(IntPtr data, GitDiffDelta delta, float progress)
         {
-            IsBinaryComparison = IsBinaryDelta(delta);
+            IsBinaryComparison = delta.IsBinary();
 
             if (!IsBinaryComparison)
             {
@@ -36,12 +36,6 @@ namespace LibGit2Sharp
             PatchBuilder.Append("Binary content differ\n");
 
             return 0;
-        }
-
-        internal static bool IsBinaryDelta(GitDiffDelta delta)
-        {
-            //TODO Fix the interop issue on amd64 and use GitDiffDelta.Binary
-            return delta.OldFile.Flags.Has(GitDiffFileFlags.GIT_DIFF_FILE_BINARY) || delta.NewFile.Flags.Has(GitDiffFileFlags.GIT_DIFF_FILE_BINARY);
         }
 
         private int HunkCallback(IntPtr data, GitDiffDelta delta, GitDiffRange range, IntPtr header, uint headerlen)
