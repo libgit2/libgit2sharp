@@ -106,8 +106,6 @@ Push-Location $tempDirectory
 
     Copy-Item $configuration\git2.dll,$configuration\git2.pdb -Destination $x86Directory
 
-    rm .\libgit2\tests-clar\clar_main.c.rule
-
     Write-Output "Copied git2.dll and git2.pdb to $x86Directory"
 }
 

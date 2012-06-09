@@ -22,7 +22,7 @@ namespace LibGit2Sharp
         {
             IsBinaryComparison = delta.IsBinary();
 
-            if (!IsBinaryComparison)
+            if (!IsBinaryComparison || delta.Status == ChangeKind.Unmodified)
             {
                 return 0;
             }

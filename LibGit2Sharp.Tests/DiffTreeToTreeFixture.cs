@@ -44,8 +44,9 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(StandardTestRepoPath))
             {
-                Tree commitTree = repo.Head.Tip.Tree;
-                Tree parentCommitTree = repo.Head.Tip.Parents.Single().Tree;
+                var commit = repo.Lookup("32eab9cb1f450b5fe7ab663462b77d7f4b703344", GitObjectType.Commit) as Commit;
+                Tree commitTree = commit.Tree;
+                Tree parentCommitTree = commit.Parents.Single().Tree;
 
                 TreeChanges changes = repo.Diff.Compare(parentCommitTree, commitTree);
 

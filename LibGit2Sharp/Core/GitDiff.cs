@@ -106,9 +106,9 @@ namespace LibGit2Sharp.Core
     {
         public GitOid Oid;
         public IntPtr Path;
-        public ushort Mode;
         public long Size;
         public GitDiffFileFlags Flags;
+        public ushort Mode;
     }
 
     [StructLayout(LayoutKind.Sequential)]
