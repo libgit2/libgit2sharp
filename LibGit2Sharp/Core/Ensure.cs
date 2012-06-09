@@ -78,7 +78,7 @@ namespace LibGit2Sharp.Core
 
             throw new LibGit2SharpException(
                 String.Format(CultureInfo.InvariantCulture, "An error was raised by libgit2. Class = {0} ({1}).{2}{3}",
-                              Enum.GetName(typeof(GitErrorType), error.Klass),
+                              error.Klass,
                               result,
                               Environment.NewLine,
                               errorMessage));

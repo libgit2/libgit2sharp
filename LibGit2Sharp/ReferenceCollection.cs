@@ -219,7 +219,7 @@ namespace LibGit2Sharp
                         break;
 
                     default:
-                        throw new LibGit2SharpException(string.Format(CultureInfo.InvariantCulture, "Reference '{0}' has an unexpected type ('{1}').", name, Enum.GetName(typeof(GitReferenceType), type)));
+                        throw new LibGit2SharpException(string.Format(CultureInfo.InvariantCulture, "Reference '{0}' has an unexpected type ('{1}').", name, type));
                 }
 
                 Ensure.Success(res);

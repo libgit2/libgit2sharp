@@ -369,7 +369,7 @@ namespace LibGit2Sharp
                     break;
 
                 default:
-                    throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "Configuration level has an unexpected value ('{0}').", Enum.GetName(typeof(ConfigurationLevel), level)), "level");
+                    throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "Configuration level has an unexpected value ('{0}').", level), "level");
             }
             return h;
         }
