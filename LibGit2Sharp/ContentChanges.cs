@@ -27,7 +27,7 @@ namespace LibGit2Sharp
                 return 0;
             }
 
-            PatchBuilder.Append("Binary content differ\n");
+            AppendToPatch("Binary content differ\n");
 
             return 0;
         }
@@ -36,7 +36,7 @@ namespace LibGit2Sharp
         {
             string decodedContent = Utf8Marshaler.FromNative(header, headerlen);
 
-            PatchBuilder.AppendFormat("{0}", decodedContent);
+            AppendToPatch(decodedContent);
             return 0;
         }
 
@@ -67,7 +67,8 @@ namespace LibGit2Sharp
                     break;
             }
 
-            PatchBuilder.AppendFormat("{0}{1}", prefix, decodedContent);
+            AppendToPatch(prefix);
+            AppendToPatch(decodedContent);
             return 0;
         }
     }

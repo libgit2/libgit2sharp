@@ -51,7 +51,7 @@ namespace LibGit2Sharp
                 AddFileChange(delta);
             }
 
-            changes[currentFilePath].PatchBuilder.Append(formattedoutput);
+            changes[currentFilePath].AppendToPatch(formattedoutput);
             fullPatchBuilder.Append(formattedoutput);
 
             return 0;
