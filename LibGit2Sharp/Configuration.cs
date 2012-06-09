@@ -139,11 +139,11 @@ namespace LibGit2Sharp
         #endregion
 
         /// <summary>
-        ///   Delete a configuration variable (key and value).
+        ///   Unset a configuration variable (key and value).
         /// </summary>
-        /// <param name = "key">The key to delete.</param>
+        /// <param name = "key">The key to unset.</param>
         /// <param name = "level">The configuration file which should be considered as the target of this operation</param>
-        public void Delete(string key, ConfigurationLevel level = ConfigurationLevel.Local)
+        public void Unset(string key, ConfigurationLevel level = ConfigurationLevel.Local)
         {
             ConfigurationSafeHandle h = RetrieveConfigurationHandle(level);
 
@@ -156,6 +156,17 @@ namespace LibGit2Sharp
 
             Ensure.Success(res);
             Save();
+        }
+
+        /// <summary>
+        ///   Delete a configuration variable (key and value).
+        /// </summary>
+        /// <param name = "key">The key to delete.</param>
+        /// <param name = "level">The configuration file which should be considered as the target of this operation</param>
+        [Obsolete("This method will be removed in the next release. Please use Unset() instead.")]
+        public void Delete(string key, ConfigurationLevel level = ConfigurationLevel.Local)
+        {
+            Unset(key, level);
         }
 
         /// <summary>
