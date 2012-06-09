@@ -7,14 +7,8 @@ namespace LibGit2Sharp
     /// <summary>
     ///   Holds the changes between two <see cref = "Blob" />s.
     /// </summary>
-    public class ContentChanges
+    public class ContentChanges : Changes
     {
-        private readonly StringBuilder patchBuilder = new StringBuilder();
-
-        protected ContentChanges()
-        {
-        }
-
         internal ContentChanges(Repository repo, Blob oldBlob, Blob newBlob, GitDiffOptions options)
         {
             using (var osw1 = new ObjectSafeWrapper(oldBlob.Id, repo))
@@ -75,34 +69,6 @@ namespace LibGit2Sharp
 
             PatchBuilder.AppendFormat("{0}{1}", prefix, decodedContent);
             return 0;
-        }
-
-        /// <summary>
-        ///   Determines if at least one of the compared <see cref="Blob"/>s holds some binary content.
-        /// </summary>
-        public bool IsBinaryComparison { get; protected set; }
-
-        /// <summary>
-        ///   The number of lines added.
-        /// </summary>
-        public int LinesAdded { get; internal set; }
-
-        /// <summary>
-        ///   The number of lines deleted.
-        /// </summary>
-        public int LinesDeleted { get; internal set; }
-
-        /// <summary>
-        ///   The patch corresponding to these changes.
-        /// </summary>
-        public string Patch
-        {
-            get { return patchBuilder.ToString(); }
-        }
-
-        internal StringBuilder PatchBuilder
-        {
-            get { return patchBuilder; }
         }
     }
 }
