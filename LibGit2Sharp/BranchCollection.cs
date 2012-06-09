@@ -125,19 +125,6 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Create a new local branch with the specified name
-        /// </summary>
-        /// <param name = "name">The name of the branch.</param>
-        /// <param name = "committish">Revparse spec for the target commit.</param>
-        /// <param name = "allowOverwrite">True to allow silent overwriting a potentially existing branch, false otherwise.</param>
-        /// <returns></returns>
-        [Obsolete("This method will be removed in the next release. Please use Add() instead.")]
-        public virtual Branch Create(string name, string committish, bool allowOverwrite = false)
-        {
-            return this.Add(name, committish, allowOverwrite);
-        }
-
-        /// <summary>
         ///   Deletes the specified branch.
         /// </summary>
         /// <param name = "branch">The branch to delete.</param>
@@ -149,17 +136,6 @@ namespace LibGit2Sharp
             {
                 Proxy.git_branch_delete(referencePtr);
             }
-        }
-
-        /// <summary>
-        ///   Deletes the branch with the specified name.
-        /// </summary>
-        /// <param name = "name">The name of the branch to delete.</param>
-        /// <param name = "isRemote">True if the provided <paramref name="name"/> is the name of a remote branch, false otherwise.</param>
-        [Obsolete("This method will be removed in the next release. Please use Remove() instead.")]
-        public virtual void Delete(string name, bool isRemote = false)
-        {
-            this.Remove(name, isRemote);
         }
 
         /// <summary>
