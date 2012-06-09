@@ -26,7 +26,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal("be3563ae3f795b2b4353bcce3a527ad0a4f7f644", newBranch.Tip.Sha);
                 Assert.NotNull(repo.Branches.SingleOrDefault(p => p.Name == name));
 
-                repo.Branches.Delete(newBranch.Name);
+                repo.Branches.Remove(newBranch.Name);
             }
         }
 
@@ -429,18 +429,18 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        private void AssertDeletion(string branchName, bool isRemote, bool shouldPrevisoulyAssertExistence)
+        private void AssertRemoval(string branchName, bool isRemote, bool shouldPreviouslyAssertExistence)
         {
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoPath);
 
             using (var repo = new Repository(path.RepositoryPath))
             {
-                if (shouldPrevisoulyAssertExistence)
+                if (shouldPreviouslyAssertExistence)
                 {
                     Assert.NotNull(repo.Branches[branchName]);
                 }
 
-                repo.Branches.Delete(branchName, isRemote);
+                repo.Branches.Remove(branchName, isRemote);
                 Branch branch = repo.Branches[branchName];
                 Assert.Null(branch);
             }
@@ -449,36 +449,36 @@ namespace LibGit2Sharp.Tests
         [Theory]
         [InlineData("i-do-numbers", false)]
         [InlineData("origin/br2", true)]
-        public void CanDeleteAnExistingBranch(string branchName, bool isRemote)
+        public void CanRemoveAnExistingBranch(string branchName, bool isRemote)
         {
-            AssertDeletion(branchName, isRemote, true);
+            AssertRemoval(branchName, isRemote, true);
         }
 
 
         [Theory]
         [InlineData("I-donot-exist", false)]
         [InlineData("me/neither", true)]
-        public void CanDeleteANonExistingBranch(string branchName, bool isRemote)
+        public void CanRemoveANonExistingBranch(string branchName, bool isRemote)
         {
-            AssertDeletion(branchName, isRemote, false);
+            AssertRemoval(branchName, isRemote, false);
         }
 
         [Fact]
-        public void DeletingABranchWhichIsTheCurrentHeadThrows()
+        public void RemovingABranchWhichIsTheCurrentHeadThrows()
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                Assert.Throws<LibGit2SharpException>(() => repo.Branches.Delete(repo.Head.Name));
+                Assert.Throws<LibGit2SharpException>(() => repo.Branches.Remove(repo.Head.Name));
             }
         }
 
         [Fact]
-        public void DeletingABranchWithBadParamsThrows()
+        public void RemovingABranchWithBadParamsThrows()
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                Assert.Throws<ArgumentException>(() => repo.Branches.Delete(string.Empty));
-                Assert.Throws<ArgumentNullException>(() => repo.Branches.Delete(null));
+                Assert.Throws<ArgumentException>(() => repo.Branches.Remove(string.Empty));
+                Assert.Throws<ArgumentNullException>(() => repo.Branches.Remove(null));
             }
         }
 

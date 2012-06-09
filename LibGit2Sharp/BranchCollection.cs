@@ -128,7 +128,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name = "name">The name of the branch to delete.</param>
         /// <param name = "isRemote">True if the provided <paramref name="name"/> is the name of a remote branch, false otherwise.</param>
-        public void Delete(string name, bool isRemote = false)
+        public void Remove(string name, bool isRemote = false)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
 
@@ -140,6 +140,17 @@ namespace LibGit2Sharp
             }
 
             Ensure.Success(res);
+        }
+
+        /// <summary>
+        ///   Deletes the branch with the specified name.
+        /// </summary>
+        /// <param name = "name">The name of the branch to delete.</param>
+        /// <param name = "isRemote">True if the provided <paramref name="name"/> is the name of a remote branch, false otherwise.</param>
+        [Obsolete("This method will be removed in the next release. Please use Remove() instead.")]
+        public void Delete(string name, bool isRemote = false)
+        {
+            Remove(name, isRemote);
         }
 
         ///<summary>
