@@ -180,31 +180,7 @@ namespace LibGit2Sharp
         /// <param name = "paths">The collection of paths of the files within the working directory.</param>
         public void Unstage(IEnumerable<string> paths)
         {
-            IDictionary<string, FileStatus> batch = PrepareBatch(paths);
-
-            foreach (KeyValuePair<string, FileStatus> kvp in batch)
-            {
-                if (Directory.Exists(kvp.Key))
-                {
-                    throw new NotImplementedException();
-                }
-            }
-
-            foreach (KeyValuePair<string, FileStatus> kvp in batch)
-            {
-                bool doesExistInIndex =
-                    !(kvp.Value.Has(FileStatus.Nonexistent) || kvp.Value.Has(FileStatus.Removed) ||
-                      kvp.Value.Has(FileStatus.Untracked));
-
-                if (doesExistInIndex)
-                {
-                    RemoveFromIndex(kvp.Key);
-                }
-
-                RestorePotentialPreviousVersionOfHeadIntoIndex(kvp.Key);
-            }
-
-            UpdatePhysicalIndex();
+            repo.Reset("HEAD", paths);
         }
 
         /// <summary>
@@ -417,25 +393,6 @@ namespace LibGit2Sharp
             Ensure.Success(res);
         }
 
-        private void RestorePotentialPreviousVersionOfHeadIntoIndex(string relativePath)
-        {
-            TreeEntry treeEntry = repo.Head[relativePath];
-            if (treeEntry == null || treeEntry.Type != GitObjectType.Blob)
-            {
-                return;
-            }
-
-            var indexEntry = new GitIndexEntry
-                                 {
-                                     Mode = (uint)treeEntry.Mode,
-                                     oid = treeEntry.TargetId.Oid,
-                                     Path = utf8Marshaler.MarshalManagedToNative(relativePath),
-                                 };
-
-            Ensure.Success(NativeMethods.git_index_add2(handle, indexEntry));
-            utf8Marshaler.CleanUpNativeData(indexEntry.Path);
-        }
-
         private void UpdatePhysicalIndex()
         {
             int res = NativeMethods.git_index_write(handle);
@@ -503,6 +460,43 @@ namespace LibGit2Sharp
                 Ensure.Success(res);
                 UpdatePhysicalIndex();
             }
+        }
+
+        internal void Reset(TreeChanges changes)
+        {
+            foreach (TreeEntryChanges treeEntryChanges in changes)
+            {
+                switch (treeEntryChanges.Status)
+                {
+                    case ChangeKind.Added:
+                        RemoveFromIndex(treeEntryChanges.Path);
+                        continue;
+
+                    case ChangeKind.Deleted:
+                        /* Fall through */
+                    case ChangeKind.Modified:
+                        ReplaceIndexEntryWith(treeEntryChanges);    
+                        continue;
+
+                    default:
+                        throw new InvalidOperationException(string.Format("Entry '{0}' bears an unexpected ChangeKind '{1}'", treeEntryChanges.Path, Enum.GetName(typeof(ChangeKind), treeEntryChanges.Status)));
+                }
+            }
+
+            UpdatePhysicalIndex();
+        }
+
+        private void ReplaceIndexEntryWith(TreeEntryChanges treeEntryChanges)
+        {
+            var indexEntry = new GitIndexEntry
+            {
+                Mode = (uint)treeEntryChanges.OldMode,
+                oid = treeEntryChanges.OldOid.Oid,
+                Path = utf8Marshaler.MarshalManagedToNative(treeEntryChanges.OldPath),
+            };
+
+            Ensure.Success(NativeMethods.git_index_add2(handle, indexEntry));
+            utf8Marshaler.CleanUpNativeData(indexEntry.Path);
         }
     }
 }

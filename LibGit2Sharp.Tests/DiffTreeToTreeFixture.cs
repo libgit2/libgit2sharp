@@ -7,10 +7,6 @@ namespace LibGit2Sharp.Tests
 {
     public class DiffTreeToTreeFixture : BaseFixture
     {
-        //TODO Test binary files (do we have hunks/line callbacks)
-        //TODO What does content contain when dealing with a Binary file?
-        //TODO When does it make sense to expose the Binary property?
-
         [Fact]
         public void ComparingATreeAgainstItselfReturnsNoDifference()
         {
@@ -66,6 +62,32 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(1, treeEntryChanges.LinesAdded);
 
                 Assert.Equal(Mode.Nonexistent, treeEntryChanges.OldMode);
+            }
+        }
+
+        /*
+         * $ git diff 9fd738e..HEAD -- "1" "2/"
+         * diff --git a/1/branch_file.txt b/1/branch_file.txt
+         * new file mode 100755
+         * index 0000000..45b983b
+         * --- /dev/null
+         * +++ b/1/branch_file.txt
+         * @@ -0,0 +1 @@
+         * +hi
+         */
+        [Fact]
+        public void CanCompareASubsetofTheTreeAgainstOneOfItsAncestor()
+        {
+            using (var repo = new Repository(StandardTestRepoPath))
+            {
+                Tree tree = repo.Head.Tip.Tree;
+                Tree ancestor = repo.Lookup<Commit>("9fd738e").Tree;
+
+                TreeChanges changes = repo.Diff.Compare(ancestor, tree, new[]{ "1", "2/" });
+                Assert.NotNull(changes);
+
+                Assert.Equal(1, changes.Count());
+                Assert.Equal("1/branch_file.txt", changes.Added.Single().Path);
             }
         }
 
