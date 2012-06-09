@@ -6,6 +6,7 @@ using System.Reflection;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Compat;
 using LibGit2Sharp.Core.Handles;
+using LibGit2Sharp.Interactive;
 
 namespace LibGit2Sharp
 {
@@ -23,6 +24,7 @@ namespace LibGit2Sharp
         private readonly Lazy<RemoteCollection> remotes;
         private readonly TagCollection tags;
         private readonly Lazy<RepositoryInformation> info;
+        private readonly Lazy<State> interactiveState;
         private readonly Diff diff;
         private readonly NoteCollection notes;
         private readonly Lazy<ObjectDatabase> odb;
@@ -90,6 +92,7 @@ namespace LibGit2Sharp
             branches = new BranchCollection(this);
             tags = new TagCollection(this);
             info = new Lazy<RepositoryInformation>(() => new RepositoryInformation(this, isBare));
+            interactiveState = new Lazy<State>(() => new State(this));
             config = new Lazy<Configuration>(() => RegisterForCleanup(new Configuration(this, configurationGlobalFilePath, configurationSystemFilePath)));
             remotes = new Lazy<RemoteCollection>(() => new RemoteCollection(this));
             odb = new Lazy<ObjectDatabase>(() => new ObjectDatabase(this));
@@ -211,6 +214,14 @@ namespace LibGit2Sharp
         public RepositoryInformation Info
         {
             get { return info.Value; }
+        }
+
+        /// <summary>
+        ///   Provides information about this repository's interactive state (merge, rebase, etc).
+        /// </summary>
+        public State InteractiveState
+        {
+            get { return interactiveState.Value; }
         }
 
         /// <summary>

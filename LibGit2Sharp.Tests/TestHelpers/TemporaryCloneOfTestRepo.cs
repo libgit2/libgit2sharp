@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Text;
 
 namespace LibGit2Sharp.Tests.TestHelpers
 {
@@ -31,5 +32,13 @@ namespace LibGit2Sharp.Tests.TestHelpers
         }
 
         public string RepositoryPath { get; private set; }
+
+        public void Touch(string parent, string file, string content = null)
+        {
+            var parentPath = Path.Combine(RepositoryPath, parent);
+            Directory.CreateDirectory(parentPath);
+            var filePath = Path.Combine(parentPath, file);
+            File.WriteAllText(filePath, content ?? "", Encoding.ASCII);
+        }
     }
 }
