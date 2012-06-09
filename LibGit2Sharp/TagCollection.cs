@@ -95,21 +95,6 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Creates an annotated tag with the specified name.
-        /// </summary>
-        /// <param name = "name">The name.</param>
-        /// <param name = "target">The target which can be sha or a canonical reference name.</param>
-        /// <param name = "tagger">The tagger.</param>
-        /// <param name = "message">The message.</param>
-        /// <param name = "allowOverwrite">True to allow silent overwriting a potentially existing tag, false otherwise.</param>
-        /// <returns></returns>
-        [Obsolete("This method will be removed in the next release. Please use Add() instead.")]
-        public Tag Create(string name, string target, Signature tagger, string message, bool allowOverwrite = false)
-        {
-            return Add(name, target, tagger, message, allowOverwrite);
-        }
-
-        /// <summary>
         ///   Creates a lightweight tag with the specified name.
         /// </summary>
         /// <param name = "name">The name.</param>
@@ -136,19 +121,6 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Creates a lightweight tag with the specified name.
-        /// </summary>
-        /// <param name = "name">The name.</param>
-        /// <param name = "target">The target which can be sha or a canonical reference name.</param>
-        /// <param name = "allowOverwrite">True to allow silent overwriting a potentially existing tag, false otherwise.</param>
-        /// <returns></returns>
-        [Obsolete("This method will be removed in the next release. Please use Add() instead.")]
-        public Tag Create(string name, string target, bool allowOverwrite = false)
-        {
-            return Add(name, target, allowOverwrite);
-        }
-
-        /// <summary>
         ///   Deletes the tag with the specified name.
         /// </summary>
         /// <param name = "name">The short or canonical name of the tag to delete.</param>
@@ -158,16 +130,6 @@ namespace LibGit2Sharp
 
             int res = NativeMethods.git_tag_delete(repo.Handle, UnCanonicalizeName(name));
             Ensure.Success(res);
-        }
-
-        /// <summary>
-        ///   Deletes the tag with the specified name.
-        /// </summary>
-        /// <param name = "name">The short or canonical name of the tag to delete.</param>
-        [Obsolete("This method will be removed in the next release. Please use Remove() instead.")]
-        public void Delete(string name)
-        {
-            Remove(name);
         }
 
         private static string NormalizeToCanonicalName(string name)
