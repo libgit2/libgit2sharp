@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.IO;
+using System.Linq;
 using System.Text;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
@@ -7,6 +8,8 @@ namespace LibGit2Sharp.Tests
 {
     public class DiffTreeToTreeFixture : BaseFixture
     {
+        private static readonly string subBranchFilePath = Path.Combine("1", "branch_file.txt");
+
         [Fact]
         public void ComparingATreeAgainstItselfReturnsNoDifference()
         {
@@ -87,7 +90,7 @@ namespace LibGit2Sharp.Tests
                 Assert.NotNull(changes);
 
                 Assert.Equal(1, changes.Count());
-                Assert.Equal("1/branch_file.txt", changes.Added.Single().Path);
+                Assert.Equal(subBranchFilePath, changes.Added.Single().Path);
             }
         }
 
@@ -120,7 +123,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(1, changes.Deleted.Count());
 
                 Assert.Equal("readme.txt", changes.Deleted.Single().Path);
-                Assert.Equal(new[] { "1.txt", "1/branch_file.txt", "README", "branch_file.txt", "deleted_staged_file.txt", "deleted_unstaged_file.txt", "modified_staged_file.txt", "modified_unstaged_file.txt", "new.txt" },
+                Assert.Equal(new[] { "1.txt", subBranchFilePath, "README", "branch_file.txt", "deleted_staged_file.txt", "deleted_unstaged_file.txt", "modified_staged_file.txt", "modified_unstaged_file.txt", "new.txt" },
                              changes.Added.Select(x => x.Path));
 
                 Assert.Equal(9, changes.LinesAdded);
