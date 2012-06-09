@@ -1,19 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace LibGit2Sharp
 {
     /// <summary>
     ///   A log of commits in a <see cref = "Repository" /> that can be filtered with queries.
     /// </summary>
-    public interface IQueryableCommitLog : ICommitLog, IQueryableCommitCollection
-    { }
-
-    /// <summary>
-    ///   A collection of commits in a <see cref = "Repository" /> that can be filtered with queries.
-    /// </summary>
-    [Obsolete("This interface will be removed in the next release. Please use IQueryableCommitLog instead.")]
-    public interface IQueryableCommitCollection : ICommitCollection
+    public interface IQueryableCommitLog : ICommitLog
     {
         /// <summary>
         ///   Returns the list of commits of the repository matching the specified <paramref name = "filter" />.
