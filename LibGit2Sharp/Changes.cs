@@ -9,6 +9,11 @@ namespace LibGit2Sharp
     {
         private readonly StringBuilder patchBuilder = new StringBuilder();
 
+        internal void AppendToPatch(string patch)
+        {
+            patchBuilder.Append(patch);
+        }
+
         /// <summary>
         ///   The number of lines added.
         /// </summary>
@@ -25,11 +30,6 @@ namespace LibGit2Sharp
         public string Patch
         {
             get { return patchBuilder.ToString(); }
-        }
-
-        internal StringBuilder PatchBuilder
-        {
-            get { return patchBuilder; }
         }
 
         /// <summary>
