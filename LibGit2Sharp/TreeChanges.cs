@@ -41,8 +41,8 @@ namespace LibGit2Sharp
 
         private int PrintCallBack(IntPtr data, GitDiffDelta delta, GitDiffRange range, GitDiffLineOrigin lineorigin, IntPtr content, uint contentlen)
         {
-            var formattedoutput = Utf8Marshaler.FromNative(content, contentlen);
-            var currentFilePath = Utf8Marshaler.FromNative(delta.NewFile.Path);
+            string formattedoutput = Utf8Marshaler.FromNative(content, contentlen);
+            FilePath currentFilePath = FilePathMarshaler.FromNative(delta.NewFile.Path);
 
             AddLineChange(currentFilePath, lineorigin);
 
@@ -51,13 +51,13 @@ namespace LibGit2Sharp
                 AddFileChange(delta);
             }
 
-            changes[currentFilePath].AppendToPatch(formattedoutput);
+            changes[currentFilePath.Native].AppendToPatch(formattedoutput);
             fullPatchBuilder.Append(formattedoutput);
 
             return 0;
         }
 
-        private void AddLineChange(string currentFilePath, GitDiffLineOrigin lineOrigin)
+        private void AddLineChange(FilePath currentFilePath, GitDiffLineOrigin lineOrigin)
         {
             switch (lineOrigin)
             {
@@ -71,22 +71,22 @@ namespace LibGit2Sharp
             }
         }
 
-        private void IncrementLinesDeleted(string filePath)
+        private void IncrementLinesDeleted(FilePath filePath)
         {
             linesDeleted++;
-            this[filePath].LinesDeleted++;
+            this[filePath.Native].LinesDeleted++;
         }
 
-        private void IncrementLinesAdded(string filePath)
+        private void IncrementLinesAdded(FilePath filePath)
         {
             linesAdded++;
-            this[filePath].LinesAdded++;
+            this[filePath.Native].LinesAdded++;
         }
 
         private void AddFileChange(GitDiffDelta delta)
         {
-            var newFilePath = Utf8Marshaler.FromNative(delta.NewFile.Path);
-            var oldFilePath = Utf8Marshaler.FromNative(delta.OldFile.Path);
+            var newFilePath = FilePathMarshaler.FromNative(delta.NewFile.Path);
+            var oldFilePath = FilePathMarshaler.FromNative(delta.OldFile.Path);
             var newMode = (Mode)delta.NewFile.Mode;
             var oldMode = (Mode)delta.OldFile.Mode;
             var newOid = new ObjectId(delta.NewFile.Oid);
