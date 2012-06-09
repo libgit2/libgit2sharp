@@ -103,19 +103,6 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Creates a direct or symbolic reference with the specified name and target
-        /// </summary>
-        /// <param name = "name">The name of the reference to create.</param>
-        /// <param name = "target">The target which can be either a sha or the canonical name of another reference.</param>
-        /// <param name = "allowOverwrite">True to allow silent overwriting a potentially existing reference, false otherwise.</param>
-        /// <returns>A new <see cref = "Reference" />.</returns>
-        [Obsolete("This method will be removed in the next release. Please use Add() instead.")]
-        public virtual Reference Create(string name, string target, bool allowOverwrite = false)
-        {
-            return this.Add(name, target, allowOverwrite);
-        }
-
-        /// <summary>
         ///   Remove a reference from the repository
         /// </summary>
         /// <param name = "reference">The reference to delete.</param>
@@ -127,16 +114,6 @@ namespace LibGit2Sharp
             {
                 Proxy.git_reference_delete(handle);
             }
-        }
-
-        /// <summary>
-        ///   Delete a reference with the specified name
-        /// </summary>
-        /// <param name = "name">The name of the reference to delete.</param>
-        [Obsolete("This method will be removed in the next release. Please use Remove() instead.")]
-        public virtual void Delete(string name)
-        {
-            this.Remove(name);
         }
 
         /// <summary>
