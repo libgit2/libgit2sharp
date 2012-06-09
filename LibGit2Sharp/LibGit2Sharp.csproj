@@ -59,6 +59,7 @@
     <Compile Include="Blob.cs" />
     <Compile Include="Branch.cs" />
     <Compile Include="BranchCollection.cs" />
+    <Compile Include="Changes.cs" />
     <Compile Include="Commit.cs" />
     <Compile Include="CommitCollection.cs" />
     <Compile Include="Configuration.cs" />
