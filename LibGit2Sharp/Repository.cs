@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -570,10 +569,10 @@ namespace LibGit2Sharp
             string libgit2Hash = ReadContentFromResource(assembly, "libgit2_hash.txt");
             string libgit2sharpHash = ReadContentFromResource(assembly, "libgit2sharp_hash.txt");
 
-            return string.Format("{0}-{1}-{2} ({3})", 
+            return string.Format("{0}-{1}-{2} ({3})",
                 version.ToString(3),
                 libgit2sharpHash.Substring(0, 7),
-                libgit2Hash.Substring(0,7),
+                libgit2Hash.Substring(0, 7),
                 NativeMethods.ProcessorArchitecture
                 );
         }
