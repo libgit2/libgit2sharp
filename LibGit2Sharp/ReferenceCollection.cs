@@ -141,7 +141,7 @@ namespace LibGit2Sharp
         ///   Delete a reference with the specified name
         /// </summary>
         /// <param name = "name">The name of the reference to delete.</param>
-        public void Delete(string name)
+        public void Remove(string name)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
 
@@ -154,6 +154,16 @@ namespace LibGit2Sharp
                 
                 Ensure.Success(res);
             }
+        }
+
+        /// <summary>
+        ///   Delete a reference with the specified name
+        /// </summary>
+        /// <param name = "name">The name of the reference to delete.</param>
+        [Obsolete("This method will be removed in the next release. Please use Remove() instead.")]
+        public void Delete(string name)
+        {
+            Remove(name);
         }
 
         /// <summary>

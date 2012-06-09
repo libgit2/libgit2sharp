@@ -145,30 +145,30 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
-        public void CanDeleteAReference()
+        public void CanRemoveAReference()
         {
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
             using (var repo = new Repository(path.RepositoryPath))
             {
-                repo.Refs.Delete("refs/heads/packed");
+                repo.Refs.Remove("refs/heads/packed");
             }
         }
 
         [Fact]
-        public void ADeletedReferenceCannotBeLookedUp()
+        public void ARemovedReferenceCannotBeLookedUp()
         {
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
             using (var repo = new Repository(path.RepositoryPath))
             {
                 const string refName = "refs/heads/test";
 
-                repo.Refs.Delete(refName);
+                repo.Refs.Remove(refName);
                 Assert.Null(repo.Refs[refName]);
             }
         }
 
         [Fact]
-        public void DeletingAReferenceDecreasesTheRefsCount()
+        public void RemovingAReferenceDecreasesTheRefsCount()
         {
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
             using (var repo = new Repository(path.RepositoryPath))
@@ -178,7 +178,7 @@ namespace LibGit2Sharp.Tests
                 List<string> refs = repo.Refs.Select(r => r.CanonicalName).ToList();
                 Assert.True(refs.Contains(refName));
 
-                repo.Refs.Delete(refName);
+                repo.Refs.Remove(refName);
 
                 List<string> refs2 = repo.Refs.Select(r => r.CanonicalName).ToList();
                 Assert.False(refs2.Contains(refName));
@@ -188,20 +188,20 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
-        public void DeleteWithEmptyNameThrows()
+        public void RemoveWithEmptyNameThrows()
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                Assert.Throws<ArgumentException>(() => repo.Refs.Delete(string.Empty));
+                Assert.Throws<ArgumentException>(() => repo.Refs.Remove(string.Empty));
             }
         }
 
         [Fact]
-        public void DeleteWithNullNameThrows()
+        public void RemoveWithNullNameThrows()
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                Assert.Throws<ArgumentNullException>(() => repo.Refs.Delete(null));
+                Assert.Throws<ArgumentNullException>(() => repo.Refs.Remove(null));
             }
         }
 
@@ -335,7 +335,7 @@ namespace LibGit2Sharp.Tests
                 newRef = (SymbolicReference)repo.Refs[newRef.CanonicalName];
                 Assert.Equal(repo.Refs["refs/heads/test"].ResolveToDirectReference().Target, newRef.ResolveToDirectReference().Target);
 
-                repo.Refs.Delete(newRef.CanonicalName);
+                repo.Refs.Remove(newRef.CanonicalName);
             }
         }
 
@@ -371,7 +371,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Throws<ArgumentException>(
                     () => repo.Refs.UpdateTarget(newRef.CanonicalName, repo.Refs["refs/heads/test"].ResolveToDirectReference().Target.Sha));
 
-                repo.Refs.Delete(newRef.CanonicalName);
+                repo.Refs.Remove(newRef.CanonicalName);
             }
         }
 
