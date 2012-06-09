@@ -196,7 +196,7 @@ namespace LibGit2Sharp.Tests
 
                 Assert.NotEmpty(notes);
 
-                repo.Notes.Delete(commit.Id, signatureNullToken, signatureYorah, repo.Notes.DefaultNamespace);
+                repo.Notes.Remove(commit.Id, signatureNullToken, signatureYorah, repo.Notes.DefaultNamespace);
 
                 Assert.Empty(notes);
             }
@@ -221,7 +221,7 @@ namespace LibGit2Sharp.Tests
             {
                 var commit = repo.Lookup<Commit>("5b5b025afb0b4c913b4c338a42934a3863bf3644");
 
-                repo.Notes.Delete(commit.Id, signatureNullToken, signatureYorah, "answer2");
+                repo.Notes.Remove(commit.Id, signatureNullToken, signatureYorah, "answer2");
             }
         }
 

@@ -192,7 +192,7 @@ namespace LibGit2Sharp
 
             GitOid oid = targetId.Oid;
 
-            Delete(targetId, author, committer, @namespace);
+            Remove(targetId, author, committer, @namespace);
 
             using (SignatureSafeHandle authorHandle = author.BuildHandle())
             using (SignatureSafeHandle committerHandle = committer.BuildHandle())
@@ -226,7 +226,7 @@ namespace LibGit2Sharp
         /// <param name = "author">The author.</param>
         /// <param name = "committer">The committer.</param>
         /// <param name = "namespace">The namespace on which the note will be removed. It can be either a canonical namespace or an abbreviated namespace ('refs/notes/myNamespace' or just 'myNamespace').</param>
-        public void Delete(ObjectId targetId, Signature author, Signature committer, string @namespace)
+        public void Remove(ObjectId targetId, Signature author, Signature committer, string @namespace)
         {
             Ensure.ArgumentNotNull(targetId, "targetId");
             Ensure.ArgumentNotNull(author, "author");
@@ -250,6 +250,19 @@ namespace LibGit2Sharp
             }
 
             Ensure.Success(res);
+        }
+
+        /// <summary>
+        ///   Deletes the note on the specified object, and for the given namespace.
+        /// </summary>
+        /// <param name = "targetId">The target <see cref = "ObjectId"/>, for which the note will be created.</param>
+        /// <param name = "author">The author.</param>
+        /// <param name = "committer">The committer.</param>
+        /// <param name = "namespace">The namespace on which the note will be removed. It can be either a canonical namespace or an abbreviated namespace ('refs/notes/myNamespace' or just 'myNamespace').</param>
+        [Obsolete("This method will be removed in the next release. Please use Remove() instead.")]
+        public void Delete(ObjectId targetId, Signature author, Signature committer, string @namespace)
+        {
+            Remove(targetId, author, committer, @namespace);
         }
 
         private class NotesOidRetriever
