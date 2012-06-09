@@ -46,14 +46,33 @@ function Run-Command([scriptblock]$Command, [switch]$Fatal, [switch]$Quiet) {
     Throw $error
 }
 
+function Find-CMake {
+    # Look for cmake.exe in $Env:PATH.
+    $cmake = @(Get-Command cmake.exe)[0] 2>$null
+    if ($cmake) {
+        $cmake = $cmake.Definition
+    } else {
+        # Look for the highest-versioned cmake.exe in its default location.
+        $cmake = @(Resolve-Path (Join-Path ${Env:ProgramFiles(x86)} "CMake *\bin\cmake.exe"))
+        if ($cmake) {
+            $cmake = $cmake[-1].Path
+        }
+    }
+    if (!$cmake) {
+        throw "Error: Can't find cmake.exe"
+    }
+    $cmake
+}
+
 function Build-Libgit2 {
     $clarOption = "ON"
     if ($NoClar) {
         $clarOption = "OFF"
     }
 
-    Run-Command -Quiet -Fatal { cmake -D BUILD_CLAR=$clarOption -D THREADSAFE=ON -D CMAKE_BUILD_TYPE=$configuration $libgit2Directory }
-    Run-Command -Quiet -Fatal { cmake --build . --config $configuration }
+    $cmake = Find-CMake
+    Run-Command -Quiet -Fatal { & $cmake -D BUILD_CLAR=$clarOption -D THREADSAFE=ON -D CMAKE_BUILD_TYPE=$configuration $libgit2Directory }
+    Run-Command -Quiet -Fatal { & $cmake --build . --config $configuration }
 }
 
 function Test-Libgit2 {
