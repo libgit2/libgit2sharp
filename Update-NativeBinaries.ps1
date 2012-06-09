@@ -10,6 +10,8 @@ Param(
     $NoClar
 )
 
+Set-StrictMode -Version Latest
+
 $libgit2sharpDirectory = Split-Path $MyInvocation.MyCommand.Path
 $libgit2Directory = Join-Path $libgit2sharpDirectory "libgit2"
 $x86Directory = Join-Path $libgit2sharpDirectory "Lib\NativeBinaries\x86"
@@ -68,18 +70,27 @@ function Create-TempDirectory {
 $tempDirectory = Create-TempDirectory
 Push-Location $tempDirectory
 
-Write-Output "Building libgit2..."
-Build-Libgit2
+& {
+    trap {
+        Pop-Location
+        Remove-Item $tempDirectory -Recurse
+        break
+    }
 
-if (!$NoClar) {
-    Write-Output "Testing libgit2..."
-    Test-Libgit2
+    Write-Output "Building libgit2..."
+    Build-Libgit2
+
+    if (!$NoClar) {
+        Write-Output "Testing libgit2..."
+        Test-Libgit2
+    }
+
+    Copy-Item $configuration\git2.dll,$configuration\git2.pdb -Destination $x86Directory
+
+    rm .\libgit2\tests-clar\clar_main.c.rule
+
+    Write-Output "Copied git2.dll and git2.pdb to $x86Directory"
 }
-
-Copy-Item $configuration\git2.dll,$configuration\git2.pdb -Destination $x86Directory
 
 Pop-Location
 Remove-Item $tempDirectory -Recurse
-rm .\libgit2\tests-clar\clar_main.c.rule
-
-Write-Output "Copied git2.dll and git2.pdb to $x86Directory"
