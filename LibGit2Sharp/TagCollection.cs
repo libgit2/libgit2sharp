@@ -152,12 +152,22 @@ namespace LibGit2Sharp
         ///   Deletes the tag with the specified name.
         /// </summary>
         /// <param name = "name">The short or canonical name of the tag to delete.</param>
-        public void Delete(string name)
+        public void Remove(string name)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
 
             int res = NativeMethods.git_tag_delete(repo.Handle, UnCanonicalizeName(name));
             Ensure.Success(res);
+        }
+
+        /// <summary>
+        ///   Deletes the tag with the specified name.
+        /// </summary>
+        /// <param name = "name">The short or canonical name of the tag to delete.</param>
+        [Obsolete("This method will be removed in the next release. Please use Remove() instead.")]
+        public void Delete(string name)
+        {
+            Remove(name);
         }
 
         private static string NormalizeToCanonicalName(string name)

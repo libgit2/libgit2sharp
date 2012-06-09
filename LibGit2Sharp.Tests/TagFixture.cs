@@ -449,40 +449,40 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
-        public void CanDeleteATagThroughItsName()
+        public void CanRemoveATagThroughItsName()
         {
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
             using (var repo = new Repository(path.RepositoryPath))
             {
-                repo.Tags.Delete("e90810b");
+                repo.Tags.Remove("e90810b");
             }
         }
 
         [Fact]
-        public void CanDeleteATagThroughItsCanonicalName()
+        public void CanRemoveATagThroughItsCanonicalName()
         {
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
             using (var repo = new Repository(path.RepositoryPath))
             {
-                repo.Tags.Delete("refs/tags/e90810b");
+                repo.Tags.Remove("refs/tags/e90810b");
             }
         }
 
         [Fact]
-        public void ADeletedTagCannotBeLookedUp()
+        public void ARemovedTagCannotBeLookedUp()
         {
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
             using (var repo = new Repository(path.RepositoryPath))
             {
                 const string tagName = "e90810b";
 
-                repo.Tags.Delete(tagName);
+                repo.Tags.Remove(tagName);
                 Assert.Null(repo.Tags[tagName]);
             }
         }
 
         [Fact]
-        public void DeletingATagDecreasesTheTagsCount()
+        public void RemovingATagDecreasesTheTagsCount()
         {
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
             using (var repo = new Repository(path.RepositoryPath))
@@ -492,7 +492,7 @@ namespace LibGit2Sharp.Tests
                 List<string> tags = repo.Tags.Select(r => r.Name).ToList();
                 Assert.True(tags.Contains(tagName));
 
-                repo.Tags.Delete(tagName);
+                repo.Tags.Remove(tagName);
 
                 List<string> tags2 = repo.Tags.Select(r => r.Name).ToList();
                 Assert.False(tags2.Contains(tagName));
@@ -503,11 +503,11 @@ namespace LibGit2Sharp.Tests
 
         [Fact]
         // Ported from cgit (https://github.com/git/git/blob/1c08bf50cfcf924094eca56c2486a90e2bf1e6e2/t/t7004-tag.sh#L108)
-        public void DeletingAnUnknownTagShouldFail()
+        public void RemovingAnUnknownTagShouldFail()
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                Assert.Throws<LibGit2SharpException>(() => repo.Tags.Delete("unknown-tag"));
+                Assert.Throws<LibGit2SharpException>(() => repo.Tags.Remove("unknown-tag"));
             }
         }
 
