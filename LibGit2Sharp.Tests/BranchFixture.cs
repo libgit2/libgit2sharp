@@ -398,7 +398,7 @@ namespace LibGit2Sharp.Tests
 
                 Assert.False(detachedHead.IsRemote);
                 Assert.Equal(detachedHead.Name, detachedHead.CanonicalName);
-                Assert.Equal("(no branch)", detachedHead.CanonicalName);
+                Assert.True(detachedHead.Name.EndsWith("...)"));
                 Assert.Equal(repo.Lookup(commitPointer).Sha, detachedHead.Tip.Sha);
 
                 Assert.Equal(repo.Head, detachedHead);

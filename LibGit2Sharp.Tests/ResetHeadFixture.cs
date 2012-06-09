@@ -62,18 +62,6 @@ namespace LibGit2Sharp.Tests
         public void SoftResetSetsTheHeadToTheSpecifiedCommit()
         {
             /* Make the Head point to a branch through its name */
-            AssertSoftReset(b => b.Name, false, b => b.Name);
-        }
-
-        [Fact]
-        public void SoftResetSetsTheDetachedHeadToTheSpecifiedCommit()
-        {
-            /* Make the Head point to a commit through its sha (Detaches the Head) */
-            AssertSoftReset(b => b.Tip.Sha, true, b => "(no branch)");
-        }
-
-        private void AssertSoftReset(Func<Branch, string> branchIdentifierRetriever, bool shouldHeadBeDetached, Func<Branch, string> expectedHeadNameRetriever)
-        {
             SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
 
             using (var repo = Repository.Init(scd.DirectoryPath)) 
@@ -83,17 +71,51 @@ namespace LibGit2Sharp.Tests
                 Tag tag = repo.Tags["mytag"];
                 Branch branch = repo.Branches["mybranch"];
 
-                string branchIdentifier = branchIdentifierRetriever(branch);
-                repo.Checkout(branchIdentifier);
-                Assert.Equal(shouldHeadBeDetached, repo.Info.IsHeadDetached);
+                repo.Checkout(branch.Name);
+                Assert.Equal(false, repo.Info.IsHeadDetached);
 
-                string expectedHeadName = expectedHeadNameRetriever(branch);
+                Assert.Equal(branch.Name, repo.Head.Name);
+                Assert.Equal(branch.Tip.Sha, repo.Head.Tip.Sha);
+
+                /* Reset --soft the Head to a tag through its canonical name */
+                repo.Reset(ResetOptions.Soft, tag.CanonicalName);
+                Assert.Equal(branch.Name, repo.Head.Name);
+                Assert.Equal(tag.Target.Id, repo.Head.Tip.Id);
+
+                Assert.Equal(FileStatus.Staged, repo.Index.RetrieveStatus("a.txt"));
+
+                /* Reset --soft the Head to a commit through its sha */
+                repo.Reset(ResetOptions.Soft, branch.Tip.Sha);
+                Assert.Equal(branch.Name, repo.Head.Name);
+                Assert.Equal(branch.Tip.Sha, repo.Head.Tip.Sha);
+
+                Assert.Equal(FileStatus.Unaltered, repo.Index.RetrieveStatus("a.txt"));
+            }
+        }
+
+        [Fact]
+        public void SoftResetSetsTheDetachedHeadToTheSpecifiedCommit()
+        {
+            /* Make the Head point to a commit through its sha (Detaches the Head) */
+            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+
+            using (var repo = Repository.Init(scd.DirectoryPath)) 
+            {
+                FeedTheRepository(repo);
+
+                Tag tag = repo.Tags["mytag"];
+                Branch branch = repo.Branches["mybranch"];
+
+                repo.Checkout(branch.Tip.Sha);
+                Assert.Equal(true, repo.Info.IsHeadDetached);
+
+                const string expectedHeadName = "(a5ed7f8...)";
                 Assert.Equal(expectedHeadName, repo.Head.Name);
                 Assert.Equal(branch.Tip.Sha, repo.Head.Tip.Sha);
 
                 /* Reset --soft the Head to a tag through its canonical name */
                 repo.Reset(ResetOptions.Soft, tag.CanonicalName);
-                Assert.Equal(expectedHeadName, repo.Head.Name);
+                Assert.Equal("(653c177...)", repo.Head.Name);
                 Assert.Equal(tag.Target.Id, repo.Head.Tip.Id);
 
                 Assert.Equal(FileStatus.Staged, repo.Index.RetrieveStatus("a.txt"));

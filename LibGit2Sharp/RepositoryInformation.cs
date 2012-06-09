@@ -1,4 +1,5 @@
-﻿using LibGit2Sharp.Core;
+﻿using System.IO;
+using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
 {
@@ -56,6 +57,55 @@ namespace LibGit2Sharp
         public bool IsHeadDetached
         {
             get { return NativeMethods.RepositoryStateChecker(repo.Handle, NativeMethods.git_repository_head_detached); }
+        }
+
+        /// <summary>
+        ///   Gets the pending interactive operation.
+        /// </summary>
+        public PendingOperation PendingOperation
+        {
+            get { return DetermineCurrentInteractiveState(); }
+        }
+
+        private PendingOperation DetermineCurrentInteractiveState()
+        {
+            if (!IsHeadDetached)
+                return PendingOperation.None;
+
+            if (DirectoryExists("rebase-merge"))
+                if (Exists("rebase-merge/interactive"))
+                    return PendingOperation.RebaseInteractive;
+                else
+                    return PendingOperation.Merge;
+
+            if (DirectoryExists("rebase-apply"))
+                if (Exists("rebase-apply/rebasing"))
+                    return PendingOperation.Rebase;
+                else if (Exists("rebase-apply/applying"))
+                    return PendingOperation.ApplyMailbox;
+                else
+                    return PendingOperation.ApplyMailboxOrRebase;
+
+            if (Exists("MERGE_HEAD"))
+                return PendingOperation.Merge;
+
+            if (Exists("CHERRY_PICK_HEAD"))
+                return PendingOperation.CherryPick;
+
+            if (Exists("BISECT_LOG"))
+                return PendingOperation.Bisect;
+
+            return PendingOperation.None;
+        }
+
+        private bool DirectoryExists(string relativePath)
+        {
+            return Directory.Exists(System.IO.Path.Combine(Path, relativePath));
+        }
+
+        private bool Exists(string relativePath)
+        {
+            return File.Exists(System.IO.Path.Combine(Path, relativePath));
         }
     }
 }

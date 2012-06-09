@@ -1,5 +1,4 @@
-﻿using LibGit2Sharp.Interactive;
-using LibGit2Sharp.Tests.TestHelpers;
+﻿using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
 using Xunit.Extensions;
 
@@ -15,9 +14,8 @@ namespace LibGit2Sharp.Tests
             SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
             using (var repo = Repository.Init(scd.DirectoryPath, isBare))
             {
-                var state = repo.InteractiveState;
-                Assert.Equal("master", state.HeadName);
-                Assert.Equal(Operation.None, state.PendingOperation);
+                Assert.Equal("master", repo.Head.Name);
+                Assert.Equal(PendingOperation.None, repo.Info.PendingOperation);
             }
         }
 
@@ -26,9 +24,8 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                var state = repo.InteractiveState;
-                Assert.Equal("master", state.HeadName);
-                Assert.Equal(Operation.None, state.PendingOperation);
+                Assert.Equal("master", repo.Head.Name);
+                Assert.Equal(PendingOperation.None, repo.Info.PendingOperation);
             }
         }
 
@@ -38,12 +35,11 @@ namespace LibGit2Sharp.Tests
             var path = BuildTemporaryCloneOfTestRepo(StandardTestRepoPath);
             using (var repo = new Repository(path.RepositoryPath))
             {
-                var state = repo.InteractiveState;
-                Assert.Equal("master", state.HeadName);
-                Assert.Equal(Operation.None, state.PendingOperation);
+                Assert.Equal("master", repo.Head.Name);
+                Assert.Equal(PendingOperation.None, repo.Info.PendingOperation);
 
                 repo.Checkout("track-local");
-                Assert.Equal("track-local", state.HeadName);
+                Assert.Equal("track-local", repo.Head.Name);
             }
         }
 
@@ -55,9 +51,8 @@ namespace LibGit2Sharp.Tests
             {
                 repo.Checkout(repo.Head.Tip.Sha);
 
-                var state = repo.InteractiveState;
-                Assert.Equal("(32eab9c...)", state.HeadName);
-                Assert.Equal(Operation.None, state.PendingOperation);
+                Assert.Equal("(32eab9c...)", repo.Head.Name);
+                Assert.Equal(PendingOperation.None, repo.Info.PendingOperation);
             }
         }
 
@@ -72,9 +67,8 @@ namespace LibGit2Sharp.Tests
             {
                 repo.Checkout(repo.Head.Tip.Sha);
 
-                var state = repo.InteractiveState;
-                Assert.Equal("master", state.HeadName);
-                Assert.Equal(Operation.RebaseInteractive, state.PendingOperation);
+                Assert.Equal("master", repo.Head.Name);
+                Assert.Equal(PendingOperation.RebaseInteractive, repo.Info.PendingOperation);
             }
         }
     }

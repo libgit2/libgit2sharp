@@ -1,6 +1,6 @@
-namespace LibGit2Sharp.Interactive
+namespace LibGit2Sharp
 {
-    public enum Operation
+    public enum PendingOperation
     {
         None = 0,
         RebaseInteractive = 1,

@@ -17,10 +17,11 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name = "repo">The repo.</param>
         /// <param name = "reference">The reference.</param>
-        /// <param name = "canonicalName">The full name of the reference</param>
-        internal Branch(Repository repo, Reference reference, string canonicalName)
-            : this(repo, reference, _ => canonicalName)
+        /// <param name = "canonicalNameSelector">Provider of full name of the reference</param>
+        internal Branch(Repository repo, Reference reference, Func<Reference, string> canonicalNameSelector)
+            : base(repo, reference, canonicalNameSelector)
         {
+            trackedBranch = new Lazy<Branch>(ResolveTrackedBranch);
         }
 
         /// <summary>
@@ -34,12 +35,6 @@ namespace LibGit2Sharp
         internal Branch(Repository repo, Reference reference)
             : this(repo, reference, r => r.TargetIdentifier)
         {
-        }
-
-        private Branch(Repository repo, Reference reference, Func<Reference, string> canonicalNameSelector)
-            : base(repo, reference, canonicalNameSelector)
-        {
-            trackedBranch = new Lazy<Branch>(ResolveTrackedBranch);
         }
 
         /// <summary>

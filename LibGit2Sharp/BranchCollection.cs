@@ -60,7 +60,7 @@ namespace LibGit2Sharp
         private Branch BuildFromReferenceName(string canonicalName)
         {
             var reference = repo.Refs.Resolve<Reference>(canonicalName);
-            return reference == null ? null : new Branch(repo, reference, canonicalName);
+            return reference == null ? null : new Branch(repo, reference, _ => canonicalName);
         }
 
         #region IEnumerable<Branch> Members
