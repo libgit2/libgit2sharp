@@ -51,7 +51,7 @@ namespace LibGit2Sharp
                 AddFileChange(delta);
             }
 
-            changes[currentFilePath].PatchBuilder.Append(formattedoutput);
+            changes[currentFilePath].AppendToPatch(formattedoutput);
             fullPatchBuilder.Append(formattedoutput);
 
             return 0;
@@ -92,7 +92,7 @@ namespace LibGit2Sharp
             var newOid = new ObjectId(delta.NewFile.Oid);
             var oldOid = new ObjectId(delta.OldFile.Oid);
 
-            var diffFile = new TreeEntryChanges(newFilePath, newMode, newOid, delta.Status, oldFilePath, oldMode, oldOid, ContentChanges.IsBinaryDelta(delta));
+            var diffFile = new TreeEntryChanges(newFilePath, newMode, newOid, delta.Status, oldFilePath, oldMode, oldOid, delta.IsBinary());
 
             fileDispatcher[delta.Status](this, diffFile);
             changes.Add(diffFile.Path, diffFile);
