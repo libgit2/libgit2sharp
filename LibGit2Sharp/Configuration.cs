@@ -159,17 +159,6 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Delete a configuration variable (key and value).
-        /// </summary>
-        /// <param name = "key">The key to delete.</param>
-        /// <param name = "level">The configuration file which should be considered as the target of this operation</param>
-        [Obsolete("This method will be removed in the next release. Please use Unset() instead.")]
-        public void Delete(string key, ConfigurationLevel level = ConfigurationLevel.Local)
-        {
-            Unset(key, level);
-        }
-
-        /// <summary>
         ///   Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         protected virtual void Dispose(bool disposing)
