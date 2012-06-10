@@ -120,8 +120,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(1, repoStatus.Count());
                 StatusEntry statusEntry = repoStatus.Single();
 
-                string expectedPath = string.Format("{0}{1}{2}", directoryName, Path.DirectorySeparatorChar, fileName);
-                Assert.Equal(expectedPath, statusEntry.FilePath);
+                Assert.Equal(Path.Combine(directoryName, fileName), statusEntry.FilePath);
 
                 Assert.Equal(statusEntry.FilePath, repoStatus.Added.Single());
             }

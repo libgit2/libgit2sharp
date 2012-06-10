@@ -175,7 +175,7 @@ namespace LibGit2Sharp.Tests
             {
                 int count = repo.Index.Count;
 
-                string filename = "1" + Path.DirectorySeparatorChar + "branch_file.txt";
+                string filename = Path.Combine("1", "branch_file.txt");
                 const string posixifiedFileName = "1/branch_file.txt";
                 ObjectId blobId = repo.Index[posixifiedFileName].Id;
 
@@ -188,6 +188,7 @@ namespace LibGit2Sharp.Tests
                 Assert.NotEqual((blobId), repo.Index[posixifiedFileName].Id);
 
                 repo.Index.Unstage(posixifiedFileName);
+
                 Assert.Equal(count, repo.Index.Count);
                 Assert.Equal(blobId, repo.Index[posixifiedFileName].Id);
             }
@@ -250,7 +251,7 @@ namespace LibGit2Sharp.Tests
                 int count = repo.Index.Count;
 
                 DirectoryInfo di = Directory.CreateDirectory(Path.Combine(repo.Info.WorkingDirectory, "Project"));
-                string file = "Project" + Path.DirectorySeparatorChar + "a_file.txt";
+                string file = Path.Combine("Project", "a_file.txt");
 
                 File.WriteAllText(Path.Combine(di.FullName, "a_file.txt"), "With backward slash on Windows!");
 
