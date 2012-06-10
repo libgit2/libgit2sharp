@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Runtime.InteropServices;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Compat;
 using LibGit2Sharp.Core.Handles;
@@ -17,8 +18,6 @@ namespace LibGit2Sharp
     {
         private readonly IndexSafeHandle handle;
         private readonly Repository repo;
-
-        private static readonly Utf8Marshaler utf8Marshaler = new Utf8Marshaler(true);
 
         internal Index(Repository repo)
         {
@@ -492,11 +491,11 @@ namespace LibGit2Sharp
             {
                 Mode = (uint)treeEntryChanges.OldMode,
                 oid = treeEntryChanges.OldOid.Oid,
-                Path = utf8Marshaler.MarshalManagedToNative(treeEntryChanges.OldPath),
+                Path = FilePathMarshaler.FromManaged(treeEntryChanges.OldPath),
             };
 
             Ensure.Success(NativeMethods.git_index_add2(handle, indexEntry));
-            utf8Marshaler.CleanUpNativeData(indexEntry.Path);
+            Marshal.FreeHGlobal(indexEntry.Path);
         }
     }
 }
