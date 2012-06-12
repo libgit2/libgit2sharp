@@ -548,5 +548,15 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(relFilePath, ie.Path);
             }
         }
+
+        [Fact]
+        public void CanReadIndexEntryAttributes()
+        {
+            using (var repo = new Repository(StandardTestRepoPath))
+            {
+                Assert.Equal(Mode.NonExecutableFile, repo.Index["README"].Mode);
+                Assert.Equal(Mode.ExecutableFile, repo.Index["1/branch_file.txt"].Mode);
+            }
+        }
     }
 }
