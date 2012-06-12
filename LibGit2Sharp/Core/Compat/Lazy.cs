@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 
 namespace LibGit2Sharp.Core.Compat
 {
@@ -6,6 +7,7 @@ namespace LibGit2Sharp.Core.Compat
     ///   Provides support for lazy initialization.
     /// </summary>
     /// <typeparam name = "TType">Specifies the type of object that is being lazily initialized.</typeparam>
+    [DebuggerStepThrough]
     public class Lazy<TType>
     {
         private readonly Func<TType> evaluator;
