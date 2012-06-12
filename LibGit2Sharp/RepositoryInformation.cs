@@ -57,5 +57,13 @@ namespace LibGit2Sharp
         {
             get { return NativeMethods.RepositoryStateChecker(repo.Handle, NativeMethods.git_repository_head_detached); }
         }
+
+        /// <summary>
+        ///   Indicates whether the Head points to a reference which doesn't exist.
+        /// </summary>
+        public bool IsHeadOrphaned
+        {
+            get { return NativeMethods.RepositoryStateChecker(repo.Handle, NativeMethods.git_repository_head_orphan); }
+        }
     }
 }
