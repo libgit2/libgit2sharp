@@ -100,6 +100,7 @@ namespace LibGit2Sharp.Tests
             Assert.NotNull(repo.Info.Path);
             Assert.True(repo.Info.IsEmpty);
             Assert.False(repo.Info.IsHeadDetached);
+            Assert.True(repo.Info.IsHeadOrphaned);
 
             Reference headRef = repo.Refs["HEAD"];
             Assert.NotNull(headRef);
@@ -355,6 +356,24 @@ namespace LibGit2Sharp.Tests
             Assert.Null(Repository.Discover(scd.RootedDirectoryPath));
 
             File.Delete(path);
+        }
+
+        [Fact]
+        public void CanDetectIfTheHeadIsOrphaned()
+        {
+            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                string branchName = repo.Head.CanonicalName;
+
+                Assert.False(repo.Info.IsHeadOrphaned);
+
+                repo.Refs.Add("HEAD", "refs/heads/orphan", true);
+                Assert.True(repo.Info.IsHeadOrphaned);
+
+                repo.Refs.Add("HEAD", branchName, true);
+                Assert.False(repo.Info.IsHeadOrphaned);
+            }
         }
     }
 }
