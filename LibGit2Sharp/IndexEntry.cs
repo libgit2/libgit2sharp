@@ -29,6 +29,11 @@ namespace LibGit2Sharp
         public string Path { get; private set; }
 
         /// <summary>
+        ///   Gets the file mode.
+        /// </summary>
+        public Mode Mode { get; private set; }
+
+        /// <summary>
         ///   Gets the id of the <see cref = "Blob" /> pointed at by this index entry.
         /// </summary>
         public ObjectId Id { get; private set; }
@@ -43,7 +48,8 @@ namespace LibGit2Sharp
                        {
                            Path = path.Native,
                            Id = new ObjectId(entry.oid),
-                           state = () => repo.Index.RetrieveStatus(path.Native)
+                           state = () => repo.Index.RetrieveStatus(path.Native),
+                           Mode = (Mode)entry.Mode
                        };
         }
 
