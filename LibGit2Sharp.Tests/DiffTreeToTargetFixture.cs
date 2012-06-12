@@ -98,6 +98,31 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        /*
+         * $ git diff --cached -- "deleted_staged_file.txt" "1/branch_file.txt" "I-do/not-exist"
+         * diff --git a/deleted_staged_file.txt b/deleted_staged_file.txt
+         * deleted file mode 100644
+         * index 5605472..0000000
+         * --- a/deleted_staged_file.txt
+         * +++ /dev/null
+         * @@ -1 +0,0 @@
+         * -things
+         */
+        [Fact]
+        public void CanCompareASubsetofTheTreeAgainstTheIndex()
+        {
+            using (var repo = new Repository(StandardTestRepoPath))
+            {
+                Tree tree = repo.Head.Tip.Tree;
+
+                TreeChanges changes = repo.Diff.Compare(tree, DiffTarget.Index, new[] { "deleted_staged_file.txt", "1/branch_file.txt", "I-do/not-exist" });
+                Assert.NotNull(changes);
+
+                Assert.Equal(1, changes.Count());
+                Assert.Equal("deleted_staged_file.txt", changes.Deleted.Single().Path);
+            }
+        }
+
         [Fact]
         /*
          * $ git init .

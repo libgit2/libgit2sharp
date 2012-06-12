@@ -204,7 +204,7 @@ namespace LibGit2Sharp.Tests
                                                               {
                                                                   new { Name = "diff-test-cases", Sha = "e7039e6d0e7dd4d4c1e2e8e5aa5306b2776436ca", IsRemote = false },
                                                                   new { Name = "i-do-numbers", Sha = "7252fe2da2c4dd6d85231a150d0485ec46abaa7a", IsRemote = false },
-                                                                  new { Name = "master", Sha = "32eab9cb1f450b5fe7ab663462b77d7f4b703344", IsRemote = false },
+                                                                  new { Name = "master", Sha = "d82070ebae8d2cbea939b06513e78a24da76e5fd", IsRemote = false },
                                                                   new { Name = "track-local", Sha = "580c2111be43802dab11328176d94c391f1deae9", IsRemote = false },
                                                                   new { Name = "origin/HEAD", Sha = "580c2111be43802dab11328176d94c391f1deae9", IsRemote = true },
                                                                   new { Name = "origin/br2", Sha = "a4a7dce85cf63874e984719f4fdd239f5145052f", IsRemote = true },
@@ -297,7 +297,7 @@ namespace LibGit2Sharp.Tests
                 var master = repo.Branches["master"];
                 Assert.True(master.IsTracking);
                 Assert.Equal(repo.Branches["refs/remotes/origin/master"], master.TrackedBranch);
-                Assert.Equal(2, master.AheadBy);
+                Assert.Equal(3, master.AheadBy);
                 Assert.Equal(2, master.BehindBy);
             }
         }
@@ -311,7 +311,7 @@ namespace LibGit2Sharp.Tests
                 Assert.True(branch.IsTracking);
                 Assert.Equal(repo.Branches["master"], branch.TrackedBranch);
                 Assert.Equal(2, branch.AheadBy);
-                Assert.Equal(2, branch.BehindBy);
+                Assert.Equal(3, branch.BehindBy);
             }
         }
 

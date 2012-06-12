@@ -2,6 +2,9 @@
 
 namespace LibGit2Sharp
 {
+    /// <summary>
+    ///   A collection of commits in a <see cref = "Repository" /> that can be filtered with queries.
+    /// </summary>
     public interface IQueryableCommitCollection : ICommitCollection //TODO: Find a name that's more explicit than IQueryableCommitCollection
     {
         /// <summary>

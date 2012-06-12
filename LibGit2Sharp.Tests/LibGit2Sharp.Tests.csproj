@@ -62,9 +62,10 @@
     <Compile Include="ObjectDatabaseFixture.cs" />
     <Compile Include="DiffTreeToTreeFixture.cs" />
     <Compile Include="RepositoryOptionsFixture.cs" />
-    <Compile Include="ResetFixture.cs" />
+    <Compile Include="ResetHeadFixture.cs" />
     <Compile Include="LazyFixture.cs" />
     <Compile Include="RemoteFixture.cs" />
+    <Compile Include="ResetIndexFixture.cs" />
     <Compile Include="StatusFixture.cs" />
     <Compile Include="TestHelpers\BaseFixture.cs" />
     <Compile Include="BlobFixture.cs" />

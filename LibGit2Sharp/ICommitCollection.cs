@@ -2,6 +2,9 @@
 
 namespace LibGit2Sharp
 {
+    /// <summary>
+    ///   A collection of commits in a <see cref = "Repository" />.
+    /// </summary>
     public interface ICommitCollection : IEnumerable<Commit>
     {
         /// <summary>

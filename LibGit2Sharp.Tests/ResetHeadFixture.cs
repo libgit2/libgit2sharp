@@ -6,7 +6,7 @@ using Xunit.Extensions;
 
 namespace LibGit2Sharp.Tests
 {
-    public class ResetFixture : BaseFixture
+    public class ResetHeadFixture : BaseFixture
     {
         [Theory]
         [InlineData(true)]
@@ -17,7 +17,7 @@ namespace LibGit2Sharp.Tests
 
             using (var repo = Repository.Init(scd.DirectoryPath, isBare))
             {
-                Assert.Throws<LibGit2SharpException>(() => repo.Reset(ResetOptions.Soft, repo.Head.CanonicalName));
+                Assert.Throws<LibGit2SharpException>(() => repo.Reset(ResetOptions.Soft));
             }
         }
 
@@ -28,7 +28,7 @@ namespace LibGit2Sharp.Tests
             {
                 IBranch oldHead = repo.Head;
 
-                repo.Reset(ResetOptions.Soft, oldHead.CanonicalName);
+                repo.Reset(ResetOptions.Soft);
 
                 Assert.Equal(oldHead, repo.Head);
             }
@@ -150,7 +150,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                Assert.Throws<LibGit2SharpException>(() => repo.Reset(ResetOptions.Mixed, repo.Head.Tip.Sha));
+                Assert.Throws<LibGit2SharpException>(() => repo.Reset(ResetOptions.Mixed));
             }
         }
     }

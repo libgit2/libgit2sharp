@@ -6,6 +6,6 @@ namespace LibGit2Sharp.Core
     public class GitError
     {
         public string Message;
-        public GitErrorClass Class;
+        public GitErrorType Klass;
     }
 }

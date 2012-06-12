@@ -12,8 +12,6 @@ namespace LibGit2Sharp.Core
     [DebuggerStepThrough]
     internal static class Ensure
     {
-        private static readonly Utf8Marshaler marshaler = (Utf8Marshaler)Utf8Marshaler.GetInstance(string.Empty);
-
         /// <summary>
         ///   Checks an argument to ensure it isn't null.
         /// </summary>

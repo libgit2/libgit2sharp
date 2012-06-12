@@ -62,10 +62,10 @@ namespace LibGit2Sharp.Core
 
             var length = (uint)(walk - (byte*)pNativeData);
 
-            return NativeToString(pNativeData, length);
+            return FromNative(pNativeData, length);
         }
 
-        public string NativeToString(IntPtr pNativeData, uint length)
+        public static string FromNative(IntPtr pNativeData, uint length)
         {
             // should not be null terminated
             var strbuf = new byte[length];
@@ -92,6 +92,16 @@ namespace LibGit2Sharp.Core
         }
 
         #endregion
+
+        public static IntPtr FromManaged(string managedObj)
+        {
+            return staticInstance.MarshalManagedToNative(managedObj);
+        }
+
+        public static string FromNative(IntPtr pNativeData)
+        {
+            return (string)staticInstance.MarshalNativeToManaged(pNativeData);
+        }
 
         public static ICustomMarshaler GetInstance(string cookie)
         {

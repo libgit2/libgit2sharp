@@ -33,7 +33,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(BareTestRepoPath, options))
             {
                 var st = repo.Index.RetrieveStatus("1/branch_file.txt");
-                Assert.Equal(FileStatus.Missing, st);
+                Assert.Equal(FileStatus.Missing | FileStatus.Staged, st);
             }
         }
 

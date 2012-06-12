@@ -1,7 +1,8 @@
 namespace LibGit2Sharp.Core
 {
-    public enum GitErrorClass
+    public enum GitErrorType
     {
+        Unknown = -1,
         NoMemory,
         Os,
         Invalid,
@@ -16,6 +17,6 @@ namespace LibGit2Sharp.Core
         Net,
         Tag,
         Tree,
-        Indexer
+        Indexer,
     }
 }
