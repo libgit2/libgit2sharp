@@ -31,7 +31,7 @@ namespace LibGit2Sharp.Core
             return StringToNative((string)managedObj);
         }
 
-        protected unsafe IntPtr StringToNative(string value)
+        protected static unsafe IntPtr StringToNative(string value)
         {
             // not null terminated
             byte[] strbuf = Encoding.UTF8.GetBytes(value);
@@ -50,7 +50,7 @@ namespace LibGit2Sharp.Core
             return NativeToString(pNativeData);
         }
 
-        protected unsafe string NativeToString(IntPtr pNativeData)
+        protected static unsafe string NativeToString(IntPtr pNativeData)
         {
             var walk = (byte*)pNativeData;
 

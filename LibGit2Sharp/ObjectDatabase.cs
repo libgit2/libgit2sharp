@@ -37,6 +37,8 @@ namespace LibGit2Sharp
         /// <returns>True if the object has been found; false otherwise.</returns>
         public virtual bool Contains(ObjectId objectId)
         {
+            Ensure.ArgumentNotNull(objectId, "objectId");
+
             var oid = objectId.Oid;
 
             return NativeMethods.git_odb_exists(handle, ref oid) != (int)GitErrorCode.Ok;
@@ -72,6 +74,8 @@ namespace LibGit2Sharp
         /// <returns>The created <see cref = "Tree"/>.</returns>
         public virtual Tree CreateTree(TreeDefinition treeDefinition)
         {
+            Ensure.ArgumentNotNull(treeDefinition, "treeDefinition");
+
             return treeDefinition.Build(repo);
         }
 

@@ -19,6 +19,8 @@ namespace LibGit2Sharp
         private static readonly LambdaEqualityHelper<ReferenceWrapper<TObject>> equalityHelper =
             new LambdaEqualityHelper<ReferenceWrapper<TObject>>(new Func<ReferenceWrapper<TObject>, object>[] { x => x.CanonicalName, x => x.TargetObject });
 
+        private readonly string canonicalName;
+
         /// <summary>
         ///   Needed for mocking purposes.
         /// </summary>
@@ -35,14 +37,17 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(canonicalNameSelector, "canonicalNameSelector");
 
             this.repo = repo;
-            CanonicalName = canonicalNameSelector(reference);
+            canonicalName = canonicalNameSelector(reference);
             objectBuilder = new Lazy<TObject>(() => RetrieveTargetObject(reference));
         }
 
         /// <summary>
         ///   Gets the full name of this reference.
         /// </summary>
-        public virtual string CanonicalName { get; protected set; }
+        public virtual string CanonicalName
+        {
+            get { return canonicalName; }
+        }
 
         /// <summary>
         ///   Gets the name of this reference.

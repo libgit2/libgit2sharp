@@ -133,7 +133,7 @@ namespace LibGit2Sharp
             //TODO: Stage() should support following use cases:
             // - Recursively staging the content of a directory
 
-            IDictionary<string, FileStatus> batch = PrepareBatch(paths);
+            IEnumerable<KeyValuePair<string, FileStatus>> batch = PrepareBatch(paths);
 
             foreach (KeyValuePair<string, FileStatus> kvp in batch)
             {
@@ -289,7 +289,7 @@ namespace LibGit2Sharp
             //TODO: Remove() should support following use cases:
             // - Removing a directory and its content
 
-            IDictionary<string, FileStatus> batch = PrepareBatch(paths);
+            IEnumerable<KeyValuePair<string, FileStatus>> batch = PrepareBatch(paths);
 
             foreach (KeyValuePair<string, FileStatus> keyValuePair in batch)
             {
@@ -320,7 +320,7 @@ namespace LibGit2Sharp
             UpdatePhysicalIndex();
         }
 
-        private IDictionary<string, FileStatus> PrepareBatch(IEnumerable<string> paths)
+        private IEnumerable<KeyValuePair<string, FileStatus>> PrepareBatch(IEnumerable<string> paths)
         {
             Ensure.ArgumentNotNull(paths, "paths");
 
@@ -370,7 +370,7 @@ namespace LibGit2Sharp
             return new Tuple<string, FileStatus>(relativePath, RetrieveStatus(relativePath));
         }
 
-        private bool Enumerate(IEnumerator<string> leftEnum, IEnumerator<string> rightEnum)
+        private static bool Enumerate(IEnumerator<string> leftEnum, IEnumerator<string> rightEnum)
         {
             bool isLeftEoF = leftEnum.MoveNext();
             bool isRightEoF = rightEnum.MoveNext();
@@ -484,7 +484,7 @@ namespace LibGit2Sharp
                         continue;
 
                     default:
-                        throw new InvalidOperationException(string.Format("Entry '{0}' bears an unexpected ChangeKind '{1}'", treeEntryChanges.Path, treeEntryChanges.Status));
+                        throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "Entry '{0}' bears an unexpected ChangeKind '{1}'", treeEntryChanges.Path, treeEntryChanges.Status));
                 }
             }
 

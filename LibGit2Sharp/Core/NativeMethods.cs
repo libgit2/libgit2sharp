@@ -718,6 +718,6 @@ namespace LibGit2Sharp.Core
         public static extern int git_treebuilder_write(out GitOid oid, RepositorySafeHandle repo, TreeBuilderSafeHandle bld);
 
         [DllImport(libgit2)]
-        public static extern int git_treebuilder_free(IntPtr bld);
+        public static extern void git_treebuilder_free(IntPtr bld);
     }
 }

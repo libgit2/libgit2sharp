@@ -9,12 +9,6 @@ namespace LibGit2Sharp
     {
         private readonly StringBuilder patchBuilder = new StringBuilder();
 
-        /// <summary>
-        ///   Needed for mocking purposes.
-        /// </summary>
-        protected Changes()
-        { }
-
         internal void AppendToPatch(string patch)
         {
             patchBuilder.Append(patch);

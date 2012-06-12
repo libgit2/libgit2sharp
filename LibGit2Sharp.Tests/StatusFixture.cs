@@ -133,7 +133,7 @@ namespace LibGit2Sharp.Tests
 
             using (Repository repo = Repository.Init(scd.DirectoryPath))
             {
-                string relativePath = "look-ma.txt";
+                const string relativePath = "look-ma.txt";
                 string fullFilePath = Path.Combine(repo.Info.WorkingDirectory, relativePath);
                 File.WriteAllText(fullFilePath, "I'm going to be ignored!");
 

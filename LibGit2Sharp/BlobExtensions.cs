@@ -1,4 +1,5 @@
 ﻿﻿using System.Text;
+﻿using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
 {
@@ -14,6 +15,8 @@ namespace LibGit2Sharp
         /// <returns>Blob content as UTF-8</returns>
         public static string ContentAsUtf8(this Blob blob)
         {
+            Ensure.ArgumentNotNull(blob, "blob");
+
             return Encoding.UTF8.GetString(blob.Content);
         }
 
@@ -24,6 +27,8 @@ namespace LibGit2Sharp
         /// <returns>Blob content as unicode.</returns>
         public static string ContentAsUnicode(this Blob blob)
         {
+            Ensure.ArgumentNotNull(blob, "blob");
+
             return Encoding.Unicode.GetString(blob.Content);
         }
     }

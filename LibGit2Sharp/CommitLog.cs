@@ -166,6 +166,7 @@ namespace LibGit2Sharp
         public virtual Commit FindCommonAncestor(IEnumerable<Commit> commits)
         {
             Ensure.ArgumentNotNull(commits, "commits");
+
             Commit ret = null;
             int count = 0;
 

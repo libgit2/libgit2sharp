@@ -65,7 +65,7 @@ namespace LibGit2Sharp
 
         internal static TreeEntryDefinition TransientBlobFrom(string filePath, Mode mode)
         {
-            Ensure.ArgumentConformsTo(mode, m => m.HasAny(new[] { Mode.NonExecutableFile, Mode.ExecutableFile, Mode.NonExecutableGroupWriteableFile }), "mode");
+            Ensure.ArgumentConformsTo(mode, m => m.HasAny(new[] { Mode.NonExecutableFile, Mode.ExecutableFile, Mode.NonExecutableGroupWritableFile }), "mode");
 
             return new TransientBlobTreeEntryDefinition
                        {

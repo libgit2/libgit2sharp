@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Compat;
 using LibGit2Sharp.Core.Handles;
@@ -76,7 +77,7 @@ namespace LibGit2Sharp
         {
             if (!Type.HasAny(new[]{GitObjectType.Tree, GitObjectType.Blob}))
             {
-                throw new InvalidOperationException(string.Format("TreeEntry target of type '{0}' are not supported.", Type));
+                throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "TreeEntry target of type '{0}' are not supported.", Type));
             }
 
             GitObject treeEntryTarget = repo.LookupTreeEntryTarget(targetOid, Path);

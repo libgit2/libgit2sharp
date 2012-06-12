@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Compat;
@@ -103,7 +104,10 @@ namespace LibGit2Sharp
 
             if (treeEntryDefinition is TransientTreeTreeEntryDefinition)
             {
-                throw new InvalidOperationException(string.Format("The {0} references a target which hasn't been created in the {1} yet. This situation can occur when the target is a whole new {2} being created, or when an existing {2} is being updated because some of its children were added/removed.", typeof(TreeEntryDefinition).Name, typeof(ObjectDatabase).Name, typeof(Tree).Name));
+                throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, 
+                    "The {0} references a target which hasn't been created in the {1} yet. " +
+                    "This situation can occur when the target is a whole new {2} being created, or when an existing {2} is being updated because some of its children were added/removed.",
+                    typeof(TreeEntryDefinition).Name, typeof(ObjectDatabase).Name, typeof(Tree).Name));
             }
 
             Tuple<string, string> segments = ExtractPosixLeadingSegment(targetTreeEntryPath);
@@ -132,7 +136,7 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNull(blob, "blob");
             Ensure.ArgumentConformsTo(mode,
-                                      m => m.HasAny(new[] { Mode.ExecutableFile, Mode.NonExecutableFile, Mode.NonExecutableGroupWriteableFile }), "mode");
+                                      m => m.HasAny(new[] { Mode.ExecutableFile, Mode.NonExecutableFile, Mode.NonExecutableGroupWritableFile }), "mode");
 
             TreeEntryDefinition ted = TreeEntryDefinition.From(blob, mode);
 
@@ -299,9 +303,9 @@ namespace LibGit2Sharp
         {
             string[] segments = targetPath.Posix.Split(new[] { '/' }, 2);
 
-            if (segments[0] == string.Empty || (segments.Length == 2 && (segments[1] == string.Empty || segments[1].StartsWith("/"))))
+            if (segments[0] == string.Empty || (segments.Length == 2 && (segments[1] == string.Empty || segments[1].StartsWith("/", StringComparison.Ordinal))))
             {
-                throw new ArgumentException(string.Format("'{0}' is not a valid path.", targetPath));
+                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "'{0}' is not a valid path.", targetPath));
             }
 
             return new Tuple<string, string>(segments[0], segments.Length == 2 ? segments[1] : null);

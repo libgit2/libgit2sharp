@@ -15,12 +15,6 @@ namespace LibGit2Sharp
             new LambdaEqualityHelper<Reference>(new Func<Reference, object>[] { x => x.CanonicalName, x => x.TargetIdentifier });
 
         /// <summary>
-        ///   Needed for mocking purposes.
-        /// </summary>
-        protected Reference()
-        { }
-
-        /// <summary>
         ///   Gets the full name of this reference.
         /// </summary>
         public virtual string CanonicalName { get; protected set; }

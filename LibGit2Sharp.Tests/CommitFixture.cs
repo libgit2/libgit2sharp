@@ -631,7 +631,7 @@ namespace LibGit2Sharp.Tests
             repo.Index.Stage(relativeFilepath);
         }
 
-        private void AssertCommitHasBeenAmended(Repository repo, Commit amendedCommit, Commit originalCommit)
+        private static void AssertCommitHasBeenAmended(Repository repo, Commit amendedCommit, Commit originalCommit)
         {
             Commit headCommit = repo.Head.Tip;
             Assert.Equal(amendedCommit, headCommit);
