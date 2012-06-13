@@ -43,6 +43,9 @@
     <DocumentationFile />
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Moq">
+      <HintPath>..\Lib\MoQ\Moq.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="xunit">
@@ -61,6 +64,7 @@
     <Compile Include="DiffTreeToTargetFixture.cs" />
     <Compile Include="ObjectDatabaseFixture.cs" />
     <Compile Include="DiffTreeToTreeFixture.cs" />
+    <Compile Include="RepositoryExtensionsFixture.cs" />
     <Compile Include="RepositoryOptionsFixture.cs" />
     <Compile Include="ResetHeadFixture.cs" />
     <Compile Include="LazyFixture.cs" />
