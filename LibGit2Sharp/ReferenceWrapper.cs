@@ -25,6 +25,7 @@ namespace LibGit2Sharp
         protected internal ReferenceWrapper(Repository repo, Reference reference, Func<Reference, string> canonicalNameSelector)
         {
             Ensure.ArgumentNotNull(repo, "repo");
+            Ensure.ArgumentNotNull(reference, "reference");
             Ensure.ArgumentNotNull(canonicalNameSelector, "canonicalNameSelector");
 
             this.repo = repo;
@@ -71,8 +72,6 @@ namespace LibGit2Sharp
 
         private TObject RetrieveTargetObject(Reference reference)
         {
-            Ensure.ArgumentNotNull(reference, "reference");
-
             var directReference = reference.ResolveToDirectReference();
             if (directReference == null)
             {
