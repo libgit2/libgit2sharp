@@ -1,3 +1,5 @@
+using LibGit2Sharp.Core;
+
 namespace LibGit2Sharp
 {
     /// <summary>
@@ -5,13 +7,13 @@ namespace LibGit2Sharp
     /// </summary>
     public class TreeEntryChanges : Changes
     {
-        internal TreeEntryChanges(string path, Mode mode, ObjectId oid, ChangeKind status, string oldPath, Mode oldMode, ObjectId oldOid, bool isBinaryComparison)
+        internal TreeEntryChanges(FilePath path, Mode mode, ObjectId oid, ChangeKind status, FilePath oldPath, Mode oldMode, ObjectId oldOid, bool isBinaryComparison)
         {
-            Path = path;
+            Path = path.Native;
             Mode = mode;
             Oid = oid;
             Status = status;
-            OldPath = oldPath;
+            OldPath = oldPath.Native;
             OldMode = oldMode;
             OldOid = oldOid;
             IsBinaryComparison = isBinaryComparison;
