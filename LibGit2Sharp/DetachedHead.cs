@@ -4,8 +4,8 @@ namespace LibGit2Sharp
 {
     internal class DetachedHead : Branch
     {
-        internal DetachedHead(Repository repo, Reference reference, string sha)
-            : base(repo, reference, _ => HeadName(repo.Info.Path, sha))
+        internal DetachedHead(Repository repo, Reference reference)
+            : base(repo, reference, r => HeadName(repo, r))
         {
         }
 
@@ -14,14 +14,15 @@ namespace LibGit2Sharp
             return branchName;
         }
 
-        public static string HeadName(string path, string tipSha)
+        public static string HeadName(Repository repo, Reference reference)
         {
-            if (File.Exists(Path.Combine(path, "rebase-merge/head-name")))
+            var rebaseMergeHeadName = Path.Combine(repo.Info.Path, "rebase-merge/head-name");
+            if (File.Exists(rebaseMergeHeadName))
             {
-                return File.ReadAllText(Path.Combine(path, "rebase-merge/head-name")).Replace("refs/heads/", "");
+                return File.ReadAllText(rebaseMergeHeadName).Replace("refs/heads/", "");
             }
 
-            return string.Format("({0}...)", tipSha.Substring(0, 7));
+            return string.Format("({0}...)", reference.TargetIdentifier.Substring(0, 7));
         }
     }
 }

@@ -125,7 +125,7 @@ namespace LibGit2Sharp
                     return new Branch(this, reference);
                 }
 
-                return new DetachedHead(this, reference, reference.TargetIdentifier);
+                return new DetachedHead(this, reference);
             }
         }
 
