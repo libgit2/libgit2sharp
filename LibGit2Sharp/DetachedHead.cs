@@ -2,7 +2,7 @@
 {
     internal class DetachedHead : Branch, IDetachedHead
     {
-        public DetachedHead(Repository repo, Reference reference)
+        internal DetachedHead(Repository repo, Reference reference)
             : base(repo, reference, "(no branch)")
         {
         }
