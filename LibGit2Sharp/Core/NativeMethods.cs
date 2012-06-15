@@ -585,6 +585,9 @@ namespace LibGit2Sharp.Core
         public static extern int git_revwalk_hide(RevWalkerSafeHandle walker, ref GitOid oid);
 
         [DllImport(libgit2)]
+        public static extern int git_revwalk_hide_glob(RevWalkerSafeHandle walker, [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string glob);
+
+        [DllImport(libgit2)]
         public static extern int git_revwalk_new(out RevWalkerSafeHandle walker, RepositorySafeHandle repo);
 
         [DllImport(libgit2)]
@@ -592,6 +595,9 @@ namespace LibGit2Sharp.Core
 
         [DllImport(libgit2)]
         public static extern int git_revwalk_push(RevWalkerSafeHandle walker, ref GitOid oid);
+
+        [DllImport(libgit2)]
+        public static extern int git_revwalk_push_glob(RevWalkerSafeHandle walker, [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string glob);
 
         [DllImport(libgit2)]
         public static extern void git_revwalk_reset(RevWalkerSafeHandle walker);
