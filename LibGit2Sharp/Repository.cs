@@ -12,7 +12,7 @@ namespace LibGit2Sharp
     /// <summary>
     ///   A Repository is the primary interface into a git repository
     /// </summary>
-    public class Repository : IDisposable
+    public class Repository : IRepository
     {
         private readonly BranchCollection branches;
         private readonly CommitLog commits;
@@ -61,7 +61,8 @@ namespace LibGit2Sharp
 
                 if (isBare && (isWorkDirNull ^ isIndexNull))
                 {
-                    throw new ArgumentException("When overriding the opening of a bare repository, both RepositoryOptions.WorkingDirectoryPath an RepositoryOptions.IndexPath have to be provided.");
+                    throw new ArgumentException(
+                        "When overriding the opening of a bare repository, both RepositoryOptions.WorkingDirectoryPath an RepositoryOptions.IndexPath have to be provided.");
                 }
 
                 isBare = false;
@@ -90,7 +91,10 @@ namespace LibGit2Sharp
             branches = new BranchCollection(this);
             tags = new TagCollection(this);
             info = new Lazy<RepositoryInformation>(() => new RepositoryInformation(this, isBare));
-            config = new Lazy<Configuration>(() => RegisterForCleanup(new Configuration(this, configurationGlobalFilePath, configurationSystemFilePath)));
+            config =
+                new Lazy<Configuration>(
+                    () =>
+                    RegisterForCleanup(new Configuration(this, configurationGlobalFilePath, configurationSystemFilePath)));
             remotes = new Lazy<RemoteCollection>(() => new RemoteCollection(this));
             odb = new Lazy<ObjectDatabase>(() => new ObjectDatabase(this));
             diff = new Diff(this);
@@ -114,7 +118,7 @@ namespace LibGit2Sharp
         ///   Shortcut to return the branch pointed to by HEAD
         /// </summary>
         /// <returns></returns>
-        public Branch Head
+        public IBranch Head
         {
             get
             {
@@ -132,7 +136,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Provides access to the configuration settings for this repository.
         /// </summary>
-        public Configuration Config
+        public IConfiguration Config
         {
             get { return config.Value; }
         }
@@ -158,10 +162,7 @@ namespace LibGit2Sharp
         /// </summary>
         public ObjectDatabase ObjectDatabase
         {
-            get
-            {
-                return odb.Value;
-            }
+            get { return odb.Value; }
         }
 
         /// <summary>
@@ -175,7 +176,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Lookup and manage remotes in the repository.
         /// </summary>
-        public RemoteCollection Remotes
+        public IRemoteCollection Remotes
         {
             get { return remotes.Value; }
         }
@@ -192,7 +193,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Lookup and enumerate branches in the repository.
         /// </summary>
-        public BranchCollection Branches
+        public IBranchCollection Branches
         {
             get { return branches; }
         }
@@ -208,7 +209,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Provides high level information about this repository.
         /// </summary>
-        public RepositoryInformation Info
+        public IRepositoryInformation Info
         {
             get { return info.Value; }
         }
@@ -216,7 +217,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Provides access to diffing functionalities to show changes between the working tree and the index or a tree, changes between the index and a tree, changes between two trees, or changes between two files on disk.
         /// </summary>
-        public Diff Diff
+        public IDiff Diff
         {
             get { return diff; }
         }
@@ -279,7 +280,7 @@ namespace LibGit2Sharp
         /// <param name = "id">The id to lookup.</param>
         /// <param name = "type">The kind of GitObject being looked up</param>
         /// <returns>The <see cref = "GitObject" /> or null if it was not found.</returns>
-        public GitObject Lookup(ObjectId id, GitObjectType type = GitObjectType.Any)
+        public IGitObject Lookup(ObjectId id, GitObjectType type = GitObjectType.Any)
         {
             return LookupInternal(id, type, null);
         }
@@ -301,7 +302,8 @@ namespace LibGit2Sharp
                 int res;
                 if (id is AbbreviatedObjectId)
                 {
-                    res = NativeMethods.git_object_lookup_prefix(out obj, handle, ref oid, (uint)((AbbreviatedObjectId)id).Length, type);
+                    res = NativeMethods.git_object_lookup_prefix(out obj, handle, ref oid,
+                                                                 (uint)((AbbreviatedObjectId)id).Length, type);
                 }
                 else
                 {
@@ -334,12 +336,12 @@ namespace LibGit2Sharp
         /// <param name = "shaOrReferenceName">The sha or reference canonical name to lookup.</param>
         /// <param name = "type">The kind of <see cref = "GitObject" /> being looked up</param>
         /// <returns>The <see cref = "GitObject" /> or null if it was not found.</returns>
-        public GitObject Lookup(string shaOrReferenceName, GitObjectType type = GitObjectType.Any)
+        public IGitObject Lookup(string shaOrReferenceName, GitObjectType type = GitObjectType.Any)
         {
             return Lookup(shaOrReferenceName, type, LookUpOptions.None);
         }
 
-        internal GitObject Lookup(string shaOrReferenceName, GitObjectType type, LookUpOptions lookUpOptions)
+        internal IGitObject Lookup(string shaOrReferenceName, GitObjectType type, LookUpOptions lookUpOptions)
         {
             ObjectId id;
 
@@ -363,7 +365,7 @@ namespace LibGit2Sharp
                 return null;
             }
 
-            GitObject gitObj = Lookup(id, type);
+            IGitObject gitObj = Lookup(id, type);
 
             if (lookUpOptions.Has(LookUpOptions.ThrowWhenNoGitObjectHasBeenFound))
             {
@@ -375,7 +377,8 @@ namespace LibGit2Sharp
                 return gitObj;
             }
 
-            return gitObj.DereferenceToCommit(shaOrReferenceName, lookUpOptions.Has(LookUpOptions.ThrowWhenCanNotBeDereferencedToACommit));
+            return gitObj.DereferenceToCommit(shaOrReferenceName,
+                                              lookUpOptions.Has(LookUpOptions.ThrowWhenCanNotBeDereferencedToACommit));
         }
 
         /// <summary>
@@ -385,7 +388,11 @@ namespace LibGit2Sharp
         /// <returns>The commit.</returns>
         internal Commit LookupCommit(string shaOrReferenceName)
         {
-            return (Commit)Lookup(shaOrReferenceName, GitObjectType.Any, LookUpOptions.ThrowWhenNoGitObjectHasBeenFound | LookUpOptions.DereferenceResultToCommit | LookUpOptions.ThrowWhenCanNotBeDereferencedToACommit);
+            return
+                (Commit)
+                Lookup(shaOrReferenceName, GitObjectType.Any,
+                       LookUpOptions.ThrowWhenNoGitObjectHasBeenFound | LookUpOptions.DereferenceResultToCommit |
+                       LookUpOptions.ThrowWhenCanNotBeDereferencedToACommit);
         }
 
         /// <summary>
@@ -417,7 +424,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name = "shaOrReferenceName">The sha of the commit, a canonical reference name or the name of the branch to checkout.</param>
         /// <returns>The new HEAD.</returns>
-        public Branch Checkout(string shaOrReferenceName)
+        public IBranch Checkout(string shaOrReferenceName)
         {
             // TODO: This does not yet checkout (write) the working directory
 
@@ -438,7 +445,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="branch">The branch to checkout.</param>
         /// <returns>The branch.</returns>
-        public Branch Checkout(Branch branch)
+        public IBranch Checkout(IBranch branch)
         {
             Ensure.ArgumentNotNull(branch, "branch");
             Refs.UpdateTarget("HEAD", branch.CanonicalName);
@@ -495,7 +502,7 @@ namespace LibGit2Sharp
             }
 
             Commit commit = LookupCommit(shaOrReferenceName);
-            TreeChanges changes = Diff.Compare(commit.Tree, DiffTarget.Index, paths);
+            ITreeChanges changes = Diff.Compare(commit.Tree, DiffTarget.Index, paths);
 
             Index.Reset(changes);
         }
@@ -510,7 +517,7 @@ namespace LibGit2Sharp
         /// <param name = "committer">The <see cref = "Signature" /> of who added the change to the repository.</param>
         /// <param name = "amendPreviousCommit">True to amend the current <see cref = "Commit"/> pointed at by <see cref = "Repository.Head"/>, false otherwise.</param>
         /// <returns>The generated <see cref = "Commit" />.</returns>
-        public Commit Commit(string message, Signature author, Signature committer, bool amendPreviousCommit = false)
+        public ICommit Commit(string message, Signature author, Signature committer, bool amendPreviousCommit = false)
         {
             if (amendPreviousCommit && Info.IsEmpty)
             {
@@ -526,7 +533,7 @@ namespace LibGit2Sharp
             return ObjectDatabase.CreateCommit(message, author, committer, tree, parents, "HEAD");
         }
 
-        private IEnumerable<Commit> RetrieveParentsOfTheCommitBeingCreated(bool amendPreviousCommit)
+        private IEnumerable<ICommit> RetrieveParentsOfTheCommitBeingCreated(bool amendPreviousCommit)
         {
             if (amendPreviousCommit)
             {
@@ -535,10 +542,10 @@ namespace LibGit2Sharp
 
             if (Info.IsEmpty)
             {
-                return Enumerable.Empty<Commit>();
+                return Enumerable.Empty<ICommit>();
             }
 
-            return new[] { Head.Tip };
+            return new[] {Head.Tip};
         }
 
 
@@ -562,7 +569,7 @@ namespace LibGit2Sharp
 
         private static string RetrieveVersion()
         {
-            Assembly assembly = typeof(Repository).Assembly;
+            Assembly assembly = typeof (Repository).Assembly;
 
             Version version = assembly.GetName().Version;
 
@@ -570,16 +577,19 @@ namespace LibGit2Sharp
             string libgit2sharpHash = ReadContentFromResource(assembly, "libgit2sharp_hash.txt");
 
             return string.Format("{0}-{1}-{2} ({3})",
-                version.ToString(3),
-                libgit2sharpHash.Substring(0, 7),
-                libgit2Hash.Substring(0, 7),
-                NativeMethods.ProcessorArchitecture
+                                 version.ToString(3),
+                                 libgit2sharpHash.Substring(0, 7),
+                                 libgit2Hash.Substring(0, 7),
+                                 NativeMethods.ProcessorArchitecture
                 );
         }
 
         private static string ReadContentFromResource(Assembly assembly, string partialResourceName)
         {
-            using (var sr = new StreamReader(assembly.GetManifestResourceStream(string.Format("LibGit2Sharp.{0}", partialResourceName))))
+            using (
+                var sr =
+                    new StreamReader(
+                        assembly.GetManifestResourceStream(string.Format("LibGit2Sharp.{0}", partialResourceName))))
             {
                 return sr.ReadLine();
             }

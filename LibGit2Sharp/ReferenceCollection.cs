@@ -127,7 +127,7 @@ namespace LibGit2Sharp
                 return targetId;
             }
 
-            GitObject obj = repo.Lookup(targetId);
+            IGitObject obj = repo.Lookup(targetId);
 
             if (obj == null)
             {

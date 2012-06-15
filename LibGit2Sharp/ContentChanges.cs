@@ -7,9 +7,9 @@ namespace LibGit2Sharp
     /// <summary>
     ///   Holds the changes between two <see cref = "Blob" />s.
     /// </summary>
-    public class ContentChanges : Changes
+    public class ContentChanges : Changes, IContentChanges
     {
-        internal ContentChanges(Repository repo, Blob oldBlob, Blob newBlob, GitDiffOptions options)
+        internal ContentChanges(Repository repo, IBlob oldBlob, IBlob newBlob, GitDiffOptions options)
         {
             using (var osw1 = new ObjectSafeWrapper(oldBlob.Id, repo))
             using (var osw2 = new ObjectSafeWrapper(newBlob.Id, repo))

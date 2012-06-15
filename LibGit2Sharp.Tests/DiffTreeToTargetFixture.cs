@@ -42,7 +42,7 @@ namespace LibGit2Sharp.Tests
             {
                 SetUpSimpleDiffContext(repo);
 
-                TreeChanges changes = repo.Diff.Compare(repo.Head.Tip.Tree, DiffTarget.Index);
+                ITreeChanges changes = repo.Diff.Compare(repo.Head.Tip.Tree, DiffTarget.Index);
 
                 var expected = new StringBuilder()
                     .Append("diff --git a/file.txt b/file.txt\n")
@@ -81,6 +81,7 @@ namespace LibGit2Sharp.Tests
          * @@ -0,0 +1 @@
          * +a new file
          */
+
         [Fact]
         public void CanCompareAMoreComplexTreeAgainstTheIndex()
         {
@@ -88,7 +89,7 @@ namespace LibGit2Sharp.Tests
             {
                 Tree tree = repo.Head.Tip.Tree;
 
-                TreeChanges changes = repo.Diff.Compare(tree, DiffTarget.Index);
+                ITreeChanges changes = repo.Diff.Compare(tree, DiffTarget.Index);
                 Assert.NotNull(changes);
 
                 Assert.Equal(3, changes.Count());
@@ -108,6 +109,7 @@ namespace LibGit2Sharp.Tests
          * @@ -1 +0,0 @@
          * -things
          */
+
         [Fact]
         public void CanCompareASubsetofTheTreeAgainstTheIndex()
         {
@@ -115,7 +117,12 @@ namespace LibGit2Sharp.Tests
             {
                 Tree tree = repo.Head.Tip.Tree;
 
-                TreeChanges changes = repo.Diff.Compare(tree, DiffTarget.Index, new[] { "deleted_staged_file.txt", "1/branch_file.txt", "I-do/not-exist" });
+                ITreeChanges changes = repo.Diff.Compare(tree, DiffTarget.Index,
+                                                         new[]
+                                                         {
+                                                             "deleted_staged_file.txt", "1/branch_file.txt",
+                                                             "I-do/not-exist"
+                                                         });
                 Assert.NotNull(changes);
 
                 Assert.Equal(1, changes.Count());
@@ -156,7 +163,7 @@ namespace LibGit2Sharp.Tests
                 File.AppendAllText(fullpath, "\n");
                 repo.Index.Stage("file.txt");
 
-                TreeChanges changes = repo.Diff.Compare(repo.Head.Tip.Tree, DiffTarget.Index);
+                ITreeChanges changes = repo.Diff.Compare(repo.Head.Tip.Tree, DiffTarget.Index);
                 Assert.Equal(1, changes.Modified.Count());
                 Assert.Equal(1, changes.LinesAdded);
                 Assert.Equal(1, changes.LinesDeleted);

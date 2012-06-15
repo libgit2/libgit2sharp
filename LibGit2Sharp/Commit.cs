@@ -9,10 +9,10 @@ namespace LibGit2Sharp
     /// <summary>
     ///   A Commit
     /// </summary>
-    public class Commit : GitObject
+    public class Commit : GitObject, ICommit
     {
         private readonly Repository repo;
-        private readonly Lazy<IEnumerable<Commit>> parents;
+        private readonly Lazy<IEnumerable<ICommit>> parents;
         private readonly Lazy<Tree> tree;
         private readonly Lazy<string> shortMessage;
         private readonly Lazy<IEnumerable<Note>> notes;
@@ -21,7 +21,7 @@ namespace LibGit2Sharp
             : base(id)
         {
             tree = new Lazy<Tree>(() => repo.Lookup<Tree>(treeId));
-            parents = new Lazy<IEnumerable<Commit>>(() => RetrieveParentsOfCommit(id));
+            parents = new Lazy<IEnumerable<ICommit>>(() => RetrieveParentsOfCommit(id));
             shortMessage = new Lazy<string>(ExtractShortMessage);
             notes = new Lazy<IEnumerable<Note>>(() => RetrieveNotesOfCommit(id).ToList());
             this.repo = repo;
@@ -86,7 +86,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Gets the parents of this commit. This property is lazy loaded and can throw an exception if the commit no longer exists in the repo.
         /// </summary>
-        public IEnumerable<Commit> Parents
+        public IEnumerable<ICommit> Parents
         {
             get { return parents.Value; }
         }
@@ -113,7 +113,7 @@ namespace LibGit2Sharp
             get { return notes.Value; }
         }
 
-        private IEnumerable<Commit> RetrieveParentsOfCommit(ObjectId oid)
+        private IEnumerable<ICommit> RetrieveParentsOfCommit(ObjectId oid)
         {
             using (var obj = new ObjectSafeWrapper(oid, repo))
             {

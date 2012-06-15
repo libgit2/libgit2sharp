@@ -461,7 +461,7 @@ namespace LibGit2Sharp
             }
         }
 
-        internal void Reset(TreeChanges changes)
+        internal void Reset(ITreeChanges changes)
         {
             foreach (TreeEntryChanges treeEntryChanges in changes)
             {

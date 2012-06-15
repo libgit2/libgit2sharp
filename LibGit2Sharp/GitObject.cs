@@ -8,7 +8,7 @@ namespace LibGit2Sharp
     /// <summary>
     ///   A GitObject
     /// </summary>
-    public class GitObject : IEquatable<GitObject>
+    public class GitObject : IGitObject
     {
         internal static GitObjectTypeMap TypeToTypeMap =
             new GitObjectTypeMap
@@ -20,8 +20,8 @@ namespace LibGit2Sharp
                     { typeof(GitObject), GitObjectType.Any },
                 };
 
-        private static readonly LambdaEqualityHelper<GitObject> equalityHelper =
-            new LambdaEqualityHelper<GitObject>(new Func<GitObject, object>[] { x => x.Id });
+        private static readonly LambdaEqualityHelper<IGitObject> equalityHelper =
+            new LambdaEqualityHelper<IGitObject>(new Func<IGitObject, object>[] { x => x.Id });
 
         /// <summary>
         ///   Initializes a new instance of the <see cref = "GitObject" /> class.
@@ -83,7 +83,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name = "other">The <see cref = "GitObject" /> to compare with the current <see cref = "GitObject" />.</param>
         /// <returns>True if the specified <see cref = "GitObject" /> is equal to the current <see cref = "GitObject" />; otherwise, false.</returns>
-        public bool Equals(GitObject other)
+        public bool Equals(IGitObject other)
         {
             return equalityHelper.Equals(this, other);
         }

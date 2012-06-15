@@ -232,11 +232,11 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal("4c062a6361ae6959e06292c1fa5e2822d9c96345", head.ResolveToDirectReference().Target.Sha);
                 Assert.IsType<Commit>(((DirectReference)head.Target).Target);
 
-                Branch head2 = repo.Head;
+                IBranch head2 = repo.Head;
                 Assert.Equal("refs/heads/master", head2.CanonicalName);
                 Assert.NotNull(head2.Tip);
 
-                Assert.Equal(head.ResolveToDirectReference().Target, head2.Tip);
+                Assert.Equal(head.ResolveToDirectReference().Target, (GitObject)head2.Tip);
             }
         }
 
@@ -345,7 +345,7 @@ namespace LibGit2Sharp.Tests
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
             using (var repo = new Repository(path.RepositoryPath))
             {
-                Branch test = repo.Branches["test"];
+                IBranch test = repo.Branches["test"];
 
                 Reference direct = repo.Refs.UpdateTarget("HEAD", test.Tip.Sha);
                 Assert.True((direct is DirectReference));

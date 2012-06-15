@@ -33,7 +33,7 @@ namespace LibGit2Sharp.Tests
 
                 File.AppendAllText(Path.Combine(repo.Info.WorkingDirectory, "hello.txt"), "I'm a new file\n");
 
-                Blob blob = repo.ObjectDatabase.CreateBlob("hello.txt");
+                IBlob blob = repo.ObjectDatabase.CreateBlob("hello.txt");
                 Assert.NotNull(blob);
                 Assert.Equal("dc53d4c6b8684c21b0b57db29da4a2afea011565", blob.Sha);
 
@@ -65,7 +65,7 @@ namespace LibGit2Sharp.Tests
                  */
                 Assert.Null(repo.Lookup<Blob>("dc53d4c6b8684c21b0b57db29da4a2afea011565"));
 
-                Blob blob = repo.ObjectDatabase.CreateBlob(filepath);
+                IBlob blob = repo.ObjectDatabase.CreateBlob(filepath);
 
                 Assert.NotNull(blob);
                 Assert.Equal("dc53d4c6b8684c21b0b57db29da4a2afea011565", blob.Sha);
@@ -220,16 +220,16 @@ namespace LibGit2Sharp.Tests
 
             using (var repo = new Repository(scd.RepositoryPath))
             {
-                Branch head = repo.Head;
+                IBranch head = repo.Head;
 
                 TreeDefinition td = TreeDefinition.From(repo.Head.Tip.Tree);
                 td.Add("1/2/readme", td["README"]);
 
                 Tree tree = repo.ObjectDatabase.CreateTree(td);
 
-                Commit commit = repo.ObjectDatabase.CreateCommit("message", DummySignature, DummySignature, tree, new[] { repo.Head.Tip });
+                ICommit commit = repo.ObjectDatabase.CreateCommit("message", DummySignature, DummySignature, tree, new[] { repo.Head.Tip });
 
-                Branch newHead = repo.Head;
+                IBranch newHead = repo.Head;
 
                 Assert.Equal(head, newHead);
                 Assert.Equal(commit, repo.Lookup<Commit>(commit.Sha));

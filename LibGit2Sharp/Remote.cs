@@ -7,10 +7,10 @@ namespace LibGit2Sharp
     /// <summary>
     ///   A remote repository whose branches are tracked.
     /// </summary>
-    public class Remote : IEquatable<Remote>
+    public class Remote : IRemote
     {
-        private static readonly LambdaEqualityHelper<Remote> equalityHelper =
-            new LambdaEqualityHelper<Remote>(new Func<Remote, object>[] { x => x.Name, x => x.Url });
+        private static readonly LambdaEqualityHelper<IRemote> equalityHelper =
+            new LambdaEqualityHelper<IRemote>(new Func<IRemote, object>[] { x => x.Name, x => x.Url });
 
         internal static Remote CreateFromPtr(RemoteSafeHandle handle)
         {
@@ -49,6 +49,16 @@ namespace LibGit2Sharp
         public override bool Equals(object obj)
         {
             return Equals(obj as Remote);
+        }
+
+        /// <summary>
+        ///   Determines whether the specified <see cref = "IRemote" /> is equal to the current <see cref = "Remote" />.
+        /// </summary>
+        /// <param name = "other">The <see cref = "IRemote" /> to compare with the current <see cref = "IRemote" />.</param>
+        /// <returns>True if the specified <see cref = "IRemote" /> is equal to the current <see cref = "IRemote" />; otherwise, false.</returns>
+        public bool Equals(IRemote other)
+        {
+            return equalityHelper.Equals(this, other);
         }
 
         /// <summary>

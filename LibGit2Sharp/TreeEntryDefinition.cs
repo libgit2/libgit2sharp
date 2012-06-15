@@ -9,7 +9,7 @@ namespace LibGit2Sharp
     /// </summary>
     public class TreeEntryDefinition
     {
-        private Lazy<GitObject> target;
+        private Lazy<IGitObject> target;
 
         private static readonly LambdaEqualityHelper<TreeEntryDefinition> equalityHelper =
             new LambdaEqualityHelper<TreeEntryDefinition>(new Func<TreeEntryDefinition, object>[] { x => x.Mode, x => x.Type, x => x.TargetId });
@@ -33,7 +33,7 @@ namespace LibGit2Sharp
         /// </summary>
         public virtual ObjectId TargetId { get; private set; }
 
-        internal virtual GitObject Target
+        internal virtual IGitObject Target
         {
             get { return target.Value; }
         }
@@ -45,18 +45,18 @@ namespace LibGit2Sharp
                            Mode = treeEntry.Mode,
                            Type = treeEntry.Type,
                            TargetId = treeEntry.TargetId,
-                           target = new Lazy<GitObject>(() => treeEntry.Target)
+                           target = new Lazy<IGitObject>(() => treeEntry.Target)
                        };
         }
 
-        internal static TreeEntryDefinition From(Blob blob, Mode mode)
+        internal static TreeEntryDefinition From(IBlob blob, Mode mode)
         {
             return new TreeEntryDefinition
                        {
                            Mode = mode,
                            Type = GitObjectType.Blob,
                            TargetId = blob.Id,
-                           target = new Lazy<GitObject>(() => blob)
+                           target = new Lazy<IGitObject>(() => blob)
                        };
         }
 
@@ -78,7 +78,7 @@ namespace LibGit2Sharp
                            Mode = Mode.Directory,
                            Type = GitObjectType.Tree,
                            TargetId = tree.Id,
-                           target = new Lazy<GitObject>(() => tree)
+                           target = new Lazy<IGitObject>(() => tree)
                        };
         }
 
@@ -141,7 +141,7 @@ namespace LibGit2Sharp
             get { return ObjectId.Zero; }
         }
 
-        internal override GitObject Target
+        internal override IGitObject Target
         {
             get { return null; }
         }
@@ -167,6 +167,6 @@ namespace LibGit2Sharp
             get { return GitObjectType.Blob; }
         }
 
-        public Func<ObjectDatabase, Blob> Builder { get; set; }
+        public Func<ObjectDatabase, IBlob> Builder { get; set; }
     }
 }

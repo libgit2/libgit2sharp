@@ -8,21 +8,24 @@ namespace LibGit2Sharp
     ///   A base class for things that wrap a <see cref = "Reference" /> (branch, tag, etc).
     /// </summary>
     /// <typeparam name="TObject">The type of the referenced Git object.</typeparam>
-    public abstract class ReferenceWrapper<TObject> : IEquatable<ReferenceWrapper<TObject>> where TObject : GitObject
+    public abstract class ReferenceWrapper<TObject> : IEquatable<ReferenceWrapper<TObject>> where TObject : IGitObject
     {
         /// <summary>
         ///   The repository.
         /// </summary>
         protected readonly Repository repo;
+
         private readonly Lazy<TObject> objectBuilder;
 
         private static readonly LambdaEqualityHelper<ReferenceWrapper<TObject>> equalityHelper =
-            new LambdaEqualityHelper<ReferenceWrapper<TObject>>(new Func<ReferenceWrapper<TObject>, object>[] { x => x.CanonicalName, x => x.TargetObject });
+            new LambdaEqualityHelper<ReferenceWrapper<TObject>>(new Func<ReferenceWrapper<TObject>, object>[]
+                                                                {x => x.CanonicalName, x => x.TargetObject});
 
         /// <param name="repo">The repository.</param>
         /// <param name="reference">The reference.</param>
         /// <param name="canonicalNameSelector">A function to construct the reference's canonical name.</param>
-        protected internal ReferenceWrapper(Repository repo, Reference reference, Func<Reference, string> canonicalNameSelector)
+        protected internal ReferenceWrapper(Repository repo, Reference reference,
+                                            Func<Reference, string> canonicalNameSelector)
         {
             Ensure.ArgumentNotNull(repo, "repo");
             Ensure.ArgumentNotNull(canonicalNameSelector, "canonicalNameSelector");
@@ -76,13 +79,13 @@ namespace LibGit2Sharp
             var directReference = reference.ResolveToDirectReference();
             if (directReference == null)
             {
-                return null;
+                return default(TObject);
             }
 
             var target = directReference.Target;
             if (target == null)
             {
-                return null;
+                return default(TObject);
             }
 
             return repo.Lookup<TObject>(target.Id);

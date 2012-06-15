@@ -10,7 +10,7 @@ namespace LibGit2Sharp
     /// <summary>
     ///   The collection of <see cref = "Remote" /> in a <see cref = "Repository" />
     /// </summary>
-    public class RemoteCollection : IEnumerable<Remote>
+    public class RemoteCollection : IRemoteCollection
     {
         private readonly Repository repository;
 
@@ -24,7 +24,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name = "name">The name of the remote to retrieve.</param>
         /// <returns>The retrived <see cref = "Remote" /> if it has been found, null otherwise.</returns>
-        public Remote this[string name]
+        public IRemote this[string name]
         {
             get { return RemoteForName(name); }
         }
@@ -57,7 +57,7 @@ namespace LibGit2Sharp
         ///   Returns an enumerator that iterates through the collection.
         /// </summary>
         /// <returns>An <see cref = "IEnumerator{T}" /> object that can be used to iterate through the collection.</returns>
-        public IEnumerator<Remote> GetEnumerator()
+        public IEnumerator<IRemote> GetEnumerator()
         {
             return Libgit2UnsafeHelper
                 .ListAllRemoteNames(repository.Handle)
@@ -83,7 +83,7 @@ namespace LibGit2Sharp
         /// <param name = "name">The name of the remote to create.</param>
         /// <param name = "url">The location of the repository.</param>
         /// <returns>A new <see cref = "Remote" />.</returns>
-        public Remote Add(string name, string url)
+        public IRemote Add(string name, string url)
         {
             string fetchRefSpec = string.Format("+refs/heads/*:refs/remotes/{0}/*", name);
 
@@ -100,7 +100,7 @@ namespace LibGit2Sharp
         /// <param name = "url">The location of the repository.</param>
         /// <returns>A new <see cref = "Remote" />.</returns>
         [Obsolete("This method will be removed in the next release. Please use Add() instead.")]
-        public Remote Create(string name, string url)
+        public IRemote Create(string name, string url)
         {
             return Add(name, url);
         }
@@ -112,7 +112,7 @@ namespace LibGit2Sharp
         /// <param name = "url">The location of the repository.</param>
         /// <param name = "fetchRefSpec">The refSpec to be used when fetching from this remote..</param>
         /// <returns>A new <see cref = "Remote" />.</returns>
-        public Remote Add(string name, string url, string fetchRefSpec)
+        public IRemote Add(string name, string url, string fetchRefSpec)
         {
             Ensure.ArgumentNotNull(name, "name");
             Ensure.ArgumentNotNull(url, "url");
@@ -140,7 +140,7 @@ namespace LibGit2Sharp
         /// <param name = "fetchRefSpec">The refSpec to be used when fetching from this remote..</param>
         /// <returns>A new <see cref = "Remote" />.</returns>
         [Obsolete("This method will be removed in the next release. Please use Add() instead.")]
-        public Remote Create(string name, string url, string fetchRefSpec)
+        public IRemote Create(string name, string url, string fetchRefSpec)
         {
             return Add(name, url);
         }

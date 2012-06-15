@@ -11,7 +11,7 @@ namespace LibGit2Sharp
     ///   Holds the result of a diff between two trees.
     ///   <para>Changes at the granularity of the file can be obtained through the different sub-collections <see cref="Added"/>, <see cref="Deleted"/> and <see cref="Modified"/>.</para>
     /// </summary>
-    public class TreeChanges : IEnumerable<TreeEntryChanges>
+    public class TreeChanges : ITreeChanges
     {
         private readonly IDictionary<FilePath, TreeEntryChanges> changes = new Dictionary<FilePath, TreeEntryChanges>();
         private readonly List<TreeEntryChanges> added = new List<TreeEntryChanges>();

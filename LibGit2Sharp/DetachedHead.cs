@@ -1,6 +1,6 @@
 ﻿namespace LibGit2Sharp
 {
-    internal class DetachedHead : Branch
+    internal class DetachedHead : Branch, IDetachedHead
     {
         internal DetachedHead(Repository repo, Reference reference)
             : base(repo, reference, "(no branch)")

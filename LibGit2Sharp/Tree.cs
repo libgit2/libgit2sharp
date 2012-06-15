@@ -90,14 +90,14 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Gets the <see cref = "Blob" />s immediately under this <see cref = "Tree" />.
         /// </summary>
-        public IEnumerable<Blob> Blobs
+        public IEnumerable<IBlob> Blobs
         {
             get
             {
                 return this
                     .Where(e => e.Type == GitObjectType.Blob)
                     .Select(e => e.Target)
-                    .Cast<Blob>();
+                    .Cast<IBlob>();
             }
         }
 

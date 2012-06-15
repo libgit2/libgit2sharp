@@ -13,9 +13,9 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(StandardTestRepoPath))
             {
-                Blob blob = repo.Head.Tip.Tree.Blobs.First();
+                IBlob blob = repo.Head.Tip.Tree.Blobs.First();
 
-                ContentChanges changes = repo.Diff.Compare(blob, blob);
+                IContentChanges changes = repo.Diff.Compare(blob, blob);
 
                 Assert.Equal(0, changes.LinesAdded);
                 Assert.Equal(0, changes.LinesDeleted);
@@ -31,7 +31,7 @@ namespace LibGit2Sharp.Tests
                 var oldblob = repo.Lookup<Blob>("7909961");
                 var newblob = repo.Lookup<Blob>("4e935b7");
 
-                ContentChanges changes = repo.Diff.Compare(oldblob, newblob);
+                IContentChanges changes = repo.Diff.Compare(oldblob, newblob);
 
                 Assert.False(changes.IsBinaryComparison);
 
@@ -61,7 +61,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        Blob CreateBinaryBlob(Repository repo)
+        IBlob CreateBinaryBlob(Repository repo)
         {
             var scd = BuildSelfCleaningDirectory();
             Directory.CreateDirectory(scd.RootedDirectoryPath);
@@ -76,11 +76,11 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(StandardTestRepoPath))
             {
-                Blob binBlob = CreateBinaryBlob(repo);
+                IBlob binBlob = CreateBinaryBlob(repo);
 
-                Blob blob = repo.Head.Tip.Tree.Blobs.First();
+                IBlob blob = repo.Head.Tip.Tree.Blobs.First();
 
-                ContentChanges changes = repo.Diff.Compare(blob, binBlob);
+                IContentChanges changes = repo.Diff.Compare(blob, binBlob);
 
                 Assert.True(changes.IsBinaryComparison);
 
