@@ -65,7 +65,8 @@ namespace LibGit2Sharp.Core
         }
 
         [DllImport(libgit2)]
-        public static extern GitErrorSafeHandle giterr_last();
+        [return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(GitErrorMarshaler))]
+        public static extern GitError giterr_last();
 
         [DllImport(libgit2)]
         public static extern int git_blob_create_fromdisk(
