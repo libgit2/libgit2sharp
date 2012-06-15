@@ -14,9 +14,7 @@ namespace LibGit2Sharp
     public class CommitLog : IQueryableCommitLog
     {
         private readonly Repository repo;
-        private IList<object> includedIdentifier = new List<object> { "HEAD" };
-        private IList<object> excludedIdentifier = new List<object>();
-        private readonly GitSortOptions sortOptions;
+        readonly Filter queryFilter;
 
         /// <summary>
         ///   Initializes a new instance of the <see cref = "CommitLog" /> class.
@@ -24,7 +22,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name = "repo">The repository.</param>
         internal CommitLog(Repository repo)
-            : this(repo, GitSortOptions.Time)
+            : this(repo, new Filter())
         {
         }
 
@@ -32,11 +30,11 @@ namespace LibGit2Sharp
         ///   Initializes a new instance of the <see cref = "CommitLog" /> class.
         /// </summary>
         /// <param name = "repo">The repository.</param>
-        /// <param name = "sortingStrategy">The sorting strategy which should be applied when enumerating the commits.</param>
-        internal CommitLog(Repository repo, GitSortOptions sortingStrategy)
+        /// <param name="queryFilter">The filter to use in querying commits</param>
+        internal CommitLog(Repository repo, Filter queryFilter)
         {
             this.repo = repo;
-            sortOptions = sortingStrategy;
+            this.queryFilter = queryFilter;
         }
 
         /// <summary>
@@ -44,7 +42,7 @@ namespace LibGit2Sharp
         /// </summary>
         public GitSortOptions SortedBy
         {
-            get { return sortOptions; }
+            get { return queryFilter.SortBy; }
         }
 
         #region IEnumerable<Commit> Members
@@ -55,12 +53,12 @@ namespace LibGit2Sharp
         /// <returns>An <see cref = "IEnumerator{T}" /> object that can be used to iterate through the log.</returns>
         public IEnumerator<Commit> GetEnumerator()
         {
-            if ((repo.Info.IsEmpty) && includedIdentifier.Any(o => PointsAtTheHead(o.ToString()))) // TODO: ToString() == fragile
+            if ((repo.Info.IsEmpty) && queryFilter.SinceList.Any(o => PointsAtTheHead(o.ToString()))) // TODO: ToString() == fragile
             {
                 return Enumerable.Empty<Commit>().GetEnumerator();
             }
 
-            return new CommitEnumerator(repo, includedIdentifier, excludedIdentifier, sortOptions);
+            return new CommitEnumerator(repo, queryFilter);
         }
 
         /// <summary>
@@ -85,38 +83,7 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(filter.Since, "filter.Since");
             Ensure.ArgumentNotNullOrEmptyString(filter.Since.ToString(), "filter.Since");
 
-            return new CommitLog(repo, filter.SortBy)
-                       {
-                           includedIdentifier = ToList(filter.Since),
-                           excludedIdentifier = ToList(filter.Until)
-                       };
-        }
-
-        private static IList<object> ToList(object obj)
-        {
-            var list = new List<object>();
-
-            if (obj == null)
-            {
-                return list;
-            }
-
-            var types = new[]
-                            {
-                                typeof(string), typeof(ObjectId),
-                                typeof(Commit), typeof(TagAnnotation),
-                                typeof(Tag), typeof(Branch), typeof(DetachedHead),
-                                typeof(Reference), typeof(DirectReference), typeof(SymbolicReference)
-                            };
-
-            if (types.Contains(obj.GetType()))
-            {
-                list.Add(obj);
-                return list;
-            }
-
-            list.AddRange(((IEnumerable)obj).Cast<object>());
-            return list;
+            return new CommitLog(repo, filter);
         }
 
         private static bool PointsAtTheHead(string shaOrRefName)
@@ -215,7 +182,7 @@ namespace LibGit2Sharp
             private readonly RevWalkerSafeHandle handle;
             private ObjectId currentOid;
 
-            public CommitEnumerator(Repository repo, IList<object> includedIdentifier, IList<object> excludedIdentifier, GitSortOptions sortingStrategy)
+            public CommitEnumerator(Repository repo, Filter filter)
             {
                 this.repo = repo;
                 int res = NativeMethods.git_revwalk_new(out handle, repo.Handle);
@@ -223,9 +190,19 @@ namespace LibGit2Sharp
 
                 Ensure.Success(res);
 
-                Sort(sortingStrategy);
-                Push(includedIdentifier);
-                Hide(excludedIdentifier);
+                Sort(filter.SortBy);
+                Push(filter.SinceList);
+                Hide(filter.UntilList);
+
+                if(!string.IsNullOrEmpty(filter.SinceGlob))
+                {
+                    Ensure.Success(NativeMethods.git_revwalk_push_glob(handle, filter.SinceGlob));
+                }
+
+                if(!string.IsNullOrEmpty(filter.UntilGlob))
+                {
+                    Ensure.Success(NativeMethods.git_revwalk_hide_glob(handle, filter.UntilGlob));
+                }
             }
 
             #region IEnumerator<Commit> Members
