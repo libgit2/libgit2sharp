@@ -80,8 +80,6 @@ namespace LibGit2Sharp
         public ICommitCollection QueryBy(Filter filter)
         {
             Ensure.ArgumentNotNull(filter, "filter");
-            Ensure.ArgumentNotNull(filter.Since, "filter.Since");
-            Ensure.ArgumentNotNullOrEmptyString(filter.Since.ToString(), "filter.Since");
 
             return new CommitCollection(repo, filter);
         }
