@@ -19,6 +19,12 @@ namespace LibGit2Sharp
         private readonly GitSortOptions sortOptions;
 
         /// <summary>
+        ///   Needed for mocking purposes.
+        /// </summary>
+        protected CommitLog()
+        { }
+
+        /// <summary>
         ///   Initializes a new instance of the <see cref = "CommitLog" /> class.
         ///   The commits will be enumerated according in reverse chronological order.
         /// </summary>
@@ -42,7 +48,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Gets the current sorting strategy applied when enumerating the log
         /// </summary>
-        public GitSortOptions SortedBy
+        public virtual GitSortOptions SortedBy
         {
             get { return sortOptions; }
         }
@@ -53,7 +59,7 @@ namespace LibGit2Sharp
         ///   Returns an enumerator that iterates through the log.
         /// </summary>
         /// <returns>An <see cref = "IEnumerator{T}" /> object that can be used to iterate through the log.</returns>
-        public IEnumerator<Commit> GetEnumerator()
+        public virtual IEnumerator<Commit> GetEnumerator()
         {
             if ((repo.Info.IsEmpty) && includedIdentifier.Any(o => PointsAtTheHead(o.ToString()))) // TODO: ToString() == fragile
             {
@@ -79,7 +85,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name = "filter">The options used to control which commits will be returned.</param>
         /// <returns>A list of commits, ready to be enumerated.</returns>
-        public ICommitLog QueryBy(Filter filter)
+        public virtual ICommitLog QueryBy(Filter filter)
         {
             Ensure.ArgumentNotNull(filter, "filter");
             Ensure.ArgumentNotNull(filter.Since, "filter.Since");
@@ -130,7 +136,7 @@ namespace LibGit2Sharp
         /// <param name = "first">The first <see cref = "Commit"/>.</param>
         /// <param name = "second">The second <see cref = "Commit"/>.</param>
         /// <returns>The common ancestor or null if none found.</returns>
-        public Commit FindCommonAncestor(Commit first, Commit second)
+        public virtual Commit FindCommonAncestor(Commit first, Commit second)
         {
             Ensure.ArgumentNotNull(first, "first");
             Ensure.ArgumentNotNull(second, "second");
@@ -157,7 +163,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name = "commits">The <see cref = "Commit"/>s for which to find the common ancestor.</param>
         /// <returns>The common ancestor or null if none found.</returns>
-        public Commit FindCommonAncestor(IEnumerable<Commit> commits)
+        public virtual Commit FindCommonAncestor(IEnumerable<Commit> commits)
         {
             Ensure.ArgumentNotNull(commits, "commits");
             Commit ret = null;
