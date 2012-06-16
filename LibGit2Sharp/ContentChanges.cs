@@ -9,6 +9,12 @@ namespace LibGit2Sharp
     /// </summary>
     public class ContentChanges : Changes
     {
+        /// <summary>
+        ///   Needed for mocking purposes.
+        /// </summary>
+        protected ContentChanges()
+        { }
+
         internal ContentChanges(Repository repo, Blob oldBlob, Blob newBlob, GitDiffOptions options)
         {
             using (var osw1 = new ObjectSafeWrapper(oldBlob.Id, repo))
