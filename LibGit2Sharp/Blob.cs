@@ -14,6 +14,12 @@ namespace LibGit2Sharp
     {
         private readonly Repository repo;
 
+        /// <summary>
+        ///   Needed for mocking purposes.
+        /// </summary>
+        protected Blob()
+        { }
+
         internal Blob(Repository repo, ObjectId id)
             : base(id)
         {
@@ -23,12 +29,12 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Gets the size in bytes of the contents of a blob
         /// </summary>
-        public int Size { get; set; }
+        public virtual int Size { get; set; }
 
         /// <summary>
         ///   Gets the blob content in a <see cref="byte" /> array.
         /// </summary>
-        public byte[] Content
+        public virtual byte[] Content
         {
             get
             {
@@ -44,7 +50,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Gets the blob content in a <see cref="Stream" />.
         /// </summary>
-        public Stream ContentStream
+        public virtual Stream ContentStream
         {
             get
             {
@@ -57,24 +63,6 @@ namespace LibGit2Sharp
                     }
                 }
             }
-        }
-
-        /// <summary>
-        ///   Gets the blob content decoded as UTF-8.
-        /// </summary>
-        /// <returns></returns>
-        public string ContentAsUtf8()
-        {
-            return Encoding.UTF8.GetString(Content);
-        }
-
-        /// <summary>
-        ///   Gets the blob content decoded as Unicode.
-        /// </summary>
-        /// <returns></returns>
-        public string ContentAsUnicode()
-        {
-            return Encoding.Unicode.GetString(Content);
         }
 
         internal static Blob BuildFromPtr(GitObjectSafeHandle obj, ObjectId id, Repository repo)
