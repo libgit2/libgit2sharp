@@ -12,6 +12,12 @@ namespace LibGit2Sharp
         private static readonly LambdaEqualityHelper<Remote> equalityHelper =
             new LambdaEqualityHelper<Remote>(new Func<Remote, object>[] { x => x.Name, x => x.Url });
 
+        /// <summary>
+        ///   Needed for mocking purposes.
+        /// </summary>
+        protected Remote()
+        { }
+
         internal static Remote CreateFromPtr(RemoteSafeHandle handle)
         {
             if (handle == null)
@@ -34,12 +40,12 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Gets the alias of this remote repository.
         /// </summary>
-        public string Name { get; private set; }
+        public virtual string Name { get; private set; }
 
         /// <summary>
         ///   Gets the url to use to communicate with this remote repository.
         /// </summary>
-        public string Url { get; private set; }
+        public virtual string Url { get; private set; }
 
         /// <summary>
         ///   Determines whether the specified <see cref = "Object" /> is equal to the current <see cref = "Remote" />.
