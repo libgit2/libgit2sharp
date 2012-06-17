@@ -17,6 +17,12 @@ namespace LibGit2Sharp
         private readonly Lazy<string> shortMessage;
         private readonly Lazy<IEnumerable<Note>> notes;
 
+        /// <summary>
+        ///   Needed for mocking purposes.
+        /// </summary>
+        protected Commit()
+        { }
+
         internal Commit(ObjectId id, ObjectId treeId, Repository repo)
             : base(id)
         {
@@ -32,7 +38,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name = "relativePath">The relative path to the <see cref = "TreeEntry" /> from the <see cref = "Commit" /> working directory.</param>
         /// <returns><c>null</c> if nothing has been found, the <see cref = "TreeEntry" /> otherwise.</returns>
-        public TreeEntry this[string relativePath]
+        public virtual TreeEntry this[string relativePath]
         {
             get { return Tree[relativePath]; }
         }
@@ -40,12 +46,12 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Gets the commit message.
         /// </summary>
-        public string Message { get; private set; }
+        public virtual string Message { get; private set; }
 
         /// <summary>
         ///   Gets the short commit message which is usually the first line of the commit.
         /// </summary>
-        public string MessageShort
+        public virtual string MessageShort
         {
             get { return shortMessage.Value; }
         }
@@ -63,22 +69,22 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Gets the encoding of the message.
         /// </summary>
-        public string Encoding { get; private set; }
+        public virtual string Encoding { get; private set; }
 
         /// <summary>
         ///   Gets the author of this commit.
         /// </summary>
-        public Signature Author { get; private set; }
+        public virtual Signature Author { get; private set; }
 
         /// <summary>
         ///   Gets the committer.
         /// </summary>
-        public Signature Committer { get; private set; }
+        public virtual Signature Committer { get; private set; }
 
         /// <summary>
         ///   Gets the Tree associated to this commit.
         /// </summary>
-        public Tree Tree
+        public virtual Tree Tree
         {
             get { return tree.Value; }
         }
@@ -86,7 +92,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Gets the parents of this commit. This property is lazy loaded and can throw an exception if the commit no longer exists in the repo.
         /// </summary>
-        public IEnumerable<Commit> Parents
+        public virtual IEnumerable<Commit> Parents
         {
             get { return parents.Value; }
         }

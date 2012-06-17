@@ -13,6 +13,12 @@ namespace LibGit2Sharp
         private readonly Lazy<Branch> trackedBranch;
 
         /// <summary>
+        ///   Needed for mocking purposes.
+        /// </summary>
+        protected Branch()
+        { }
+
+        /// <summary>
         ///   Initializes a new instance of the <see cref = "Branch" /> class.
         /// </summary>
         /// <param name = "repo">The repo.</param>
@@ -47,7 +53,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name = "relativePath">The relative path to the <see cref = "TreeEntry" /> from the <see cref = "Tip" /> working directory.</param>
         /// <returns><c>null</c> if nothing has been found, the <see cref = "TreeEntry" /> otherwise.</returns>
-        public TreeEntry this[string relativePath]
+        public virtual TreeEntry this[string relativePath]
         {
             get
             {
@@ -74,7 +80,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Gets the remote branch which is connected to this local one.
         /// </summary>
-        public Branch TrackedBranch
+        public virtual Branch TrackedBranch
         {
             get { return trackedBranch.Value; }
         }
@@ -82,7 +88,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Determines if this local branch is connected to a remote one.
         /// </summary>
-        public bool IsTracking
+        public virtual bool IsTracking
         {
             get { return TrackedBranch != null; }
         }
@@ -90,7 +96,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Gets the number of commits, starting from the <see cref="Tip"/>, that have been performed on this local branch and aren't known from the remote one.
         /// </summary>
-        public int AheadBy
+        public virtual int AheadBy
         {
             get { return IsTracking ? repo.Commits.QueryBy(new Filter { Since = Tip, Until = TrackedBranch }).Count() : 0; }
         }
@@ -98,7 +104,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Gets the number of commits that exist in the remote branch, on top of <see cref="Tip"/>, and aren't known from the local one.
         /// </summary>
-        public int BehindBy
+        public virtual int BehindBy
         {
             get { return IsTracking ? repo.Commits.QueryBy(new Filter { Since = TrackedBranch, Until = Tip }).Count() : 0; }
         }
@@ -109,7 +115,7 @@ namespace LibGit2Sharp
         /// <value>
         ///   <c>true</c> if this instance is the current branch; otherwise, <c>false</c>.
         /// </value>
-        public bool IsCurrentRepositoryHead
+        public virtual bool IsCurrentRepositoryHead
         {
             get { return repo.Head == this; }
         }
@@ -117,7 +123,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Gets the <see cref="Commit"/> that this branch points to.
         /// </summary>
-        public Commit Tip
+        public virtual Commit Tip
         {
             get { return TargetObject; }
         }
@@ -125,7 +131,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Gets the commits on this branch. (Starts walking from the References's target).
         /// </summary>
-        public ICommitLog Commits
+        public virtual ICommitLog Commits
         {
             get { return repo.Commits.QueryBy(new Filter { Since = this }); }
         }

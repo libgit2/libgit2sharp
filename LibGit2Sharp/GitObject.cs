@@ -24,6 +24,12 @@ namespace LibGit2Sharp
             new LambdaEqualityHelper<GitObject>(new Func<GitObject, object>[] { x => x.Id });
 
         /// <summary>
+        ///   Needed for mocking purposes.
+        /// </summary>
+        protected GitObject()
+        { }
+
+        /// <summary>
         ///   Initializes a new instance of the <see cref = "GitObject" /> class.
         /// </summary>
         /// <param name = "id">The <see cref = "ObjectId" /> it should be identified by.</param>
@@ -35,12 +41,12 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Gets the id of this object
         /// </summary>
-        public ObjectId Id { get; private set; }
+        public virtual ObjectId Id { get; private set; }
 
         /// <summary>
         ///   Gets the 40 character sha1 of this object.
         /// </summary>
-        public string Sha
+        public virtual string Sha
         {
             get { return Id.Sha; }
         }
