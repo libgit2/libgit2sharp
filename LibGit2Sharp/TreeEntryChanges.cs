@@ -1,17 +1,21 @@
+using LibGit2Sharp.Core;
+
 namespace LibGit2Sharp
 {
     /// <summary>
     ///   Holds the changes between two versions of a tree entry.
     /// </summary>
-    public class TreeEntryChanges : ContentChanges
+    public class TreeEntryChanges : Changes
     {
-        internal TreeEntryChanges(string path, Mode mode, ChangeKind status, string oldPath, Mode oldMode, bool isBinaryComparison)
+        internal TreeEntryChanges(FilePath path, Mode mode, ObjectId oid, ChangeKind status, FilePath oldPath, Mode oldMode, ObjectId oldOid, bool isBinaryComparison)
         {
-            Path = path;
+            Path = path.Native;
             Mode = mode;
+            Oid = oid;
             Status = status;
-            OldPath = oldPath;
+            OldPath = oldPath.Native;
             OldMode = oldMode;
+            OldOid = oldOid;
             IsBinaryComparison = isBinaryComparison;
         }
 
@@ -24,6 +28,11 @@ namespace LibGit2Sharp
         ///   The new <see cref="Mode"/>.
         /// </summary>
         public Mode Mode { get; private set; }
+
+        /// <summary>
+        ///   The new content hash.
+        /// </summary>
+        public ObjectId Oid { get; private set; }
 
         /// <summary>
         ///   The kind of change that has been done (added, deleted, modified ...).
@@ -39,5 +48,10 @@ namespace LibGit2Sharp
         ///   The old <see cref="Mode"/>.
         /// </summary>
         public Mode OldMode { get; private set; }
+
+        /// <summary>
+        ///   The old content hash.
+        /// </summary>
+        public ObjectId OldOid { get; private set; }
     }
 }

@@ -13,9 +13,7 @@ namespace LibGit2Sharp
     /// </summary>
     public class TreeChanges : IEnumerable<TreeEntryChanges>
     {
-        private static readonly Utf8Marshaler marshaler = (Utf8Marshaler)Utf8Marshaler.GetInstance(string.Empty);
-
-        private readonly IDictionary<string, TreeEntryChanges> changes = new Dictionary<string, TreeEntryChanges>();
+        private readonly IDictionary<FilePath, TreeEntryChanges> changes = new Dictionary<FilePath, TreeEntryChanges>();
         private readonly List<TreeEntryChanges> added = new List<TreeEntryChanges>();
         private readonly List<TreeEntryChanges> deleted = new List<TreeEntryChanges>();
         private readonly List<TreeEntryChanges> modified = new List<TreeEntryChanges>();
@@ -43,8 +41,8 @@ namespace LibGit2Sharp
 
         private int PrintCallBack(IntPtr data, GitDiffDelta delta, GitDiffRange range, GitDiffLineOrigin lineorigin, IntPtr content, uint contentlen)
         {
-            string formattedoutput = marshaler.NativeToString(content, contentlen);
-            var currentFilePath = (string)marshaler.MarshalNativeToManaged(delta.NewFile.Path);
+            string formattedoutput = Utf8Marshaler.FromNative(content, contentlen);
+            FilePath currentFilePath = FilePathMarshaler.FromNative(delta.NewFile.Path);
 
             AddLineChange(currentFilePath, lineorigin);
 
@@ -53,13 +51,13 @@ namespace LibGit2Sharp
                 AddFileChange(delta);
             }
 
-            changes[currentFilePath].PatchBuilder.Append(formattedoutput);
+            changes[currentFilePath].AppendToPatch(formattedoutput);
             fullPatchBuilder.Append(formattedoutput);
 
             return 0;
         }
 
-        private void AddLineChange(string currentFilePath, GitDiffLineOrigin lineOrigin)
+        private void AddLineChange(FilePath currentFilePath, GitDiffLineOrigin lineOrigin)
         {
             switch (lineOrigin)
             {
@@ -73,13 +71,13 @@ namespace LibGit2Sharp
             }
         }
 
-        private void IncrementLinesDeleted(string filePath)
+        private void IncrementLinesDeleted(FilePath filePath)
         {
             linesDeleted++;
             this[filePath].LinesDeleted++;
         }
 
-        private void IncrementLinesAdded(string filePath)
+        private void IncrementLinesAdded(FilePath filePath)
         {
             linesAdded++;
             this[filePath].LinesAdded++;
@@ -87,15 +85,17 @@ namespace LibGit2Sharp
 
         private void AddFileChange(GitDiffDelta delta)
         {
-            var newFilePath = (string)marshaler.MarshalNativeToManaged(delta.NewFile.Path);
-            var oldFilePath = (string)marshaler.MarshalNativeToManaged(delta.OldFile.Path);
+            var newFilePath = FilePathMarshaler.FromNative(delta.NewFile.Path);
+            var oldFilePath = FilePathMarshaler.FromNative(delta.OldFile.Path);
             var newMode = (Mode)delta.NewFile.Mode;
             var oldMode = (Mode)delta.OldFile.Mode;
+            var newOid = new ObjectId(delta.NewFile.Oid);
+            var oldOid = new ObjectId(delta.OldFile.Oid);
 
-            var diffFile = new TreeEntryChanges(newFilePath, newMode, delta.Status, oldFilePath, oldMode, ContentChanges.IsBinaryDelta(delta));
+            var diffFile = new TreeEntryChanges(newFilePath, newMode, newOid, delta.Status, oldFilePath, oldMode, oldOid, delta.IsBinary());
 
             fileDispatcher[delta.Status](this, diffFile);
-            changes.Add(diffFile.Path, diffFile);
+            changes.Add(newFilePath, diffFile);
         }
 
         /// <summary>
@@ -120,6 +120,11 @@ namespace LibGit2Sharp
         ///   Gets the <see cref = "TreeEntryChanges"/> corresponding to the specified <paramref name = "path"/>.
         /// </summary>
         public TreeEntryChanges this[string path]
+        {
+            get { return this[(FilePath)path]; }
+        }
+
+        private TreeEntryChanges this[FilePath path]
         {
             get
             {

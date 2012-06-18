@@ -14,8 +14,6 @@ namespace LibGit2Sharp
 
         private Func<FileStatus> state;
 
-        private static readonly Utf8Marshaler marshaler = (Utf8Marshaler)Utf8Marshaler.GetInstance(string.Empty);
-
         /// <summary>
         ///   State of the version of the <see cref = "Blob" /> pointed at by this <see cref = "IndexEntry" />, 
         ///   compared against the <see cref = "Blob" /> known from the <see cref = "Repository.Head" /> and the file in the working directory.
@@ -31,6 +29,11 @@ namespace LibGit2Sharp
         public string Path { get; private set; }
 
         /// <summary>
+        ///   Gets the file mode.
+        /// </summary>
+        public Mode Mode { get; private set; }
+
+        /// <summary>
         ///   Gets the id of the <see cref = "Blob" /> pointed at by this index entry.
         /// </summary>
         public ObjectId Id { get; private set; }
@@ -39,13 +42,14 @@ namespace LibGit2Sharp
         {
             GitIndexEntry entry = handle.MarshalAsGitIndexEntry();
 
-            FilePath path = (string)marshaler.MarshalNativeToManaged(entry.Path);
+            var path = FilePathMarshaler.FromNative(entry.Path);
 
             return new IndexEntry
                        {
                            Path = path.Native,
                            Id = new ObjectId(entry.oid),
-                           state = () => repo.Index.RetrieveStatus(path.Native)
+                           state = () => repo.Index.RetrieveStatus(path.Native),
+                           Mode = (Mode)entry.Mode
                        };
         }
 

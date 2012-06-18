@@ -25,6 +25,9 @@ namespace LibGit2Sharp
         /// </summary>
         public int Size { get; set; }
 
+        /// <summary>
+        ///   Gets the blob content in a <see cref="byte" /> array.
+        /// </summary>
         public byte[] Content
         {
             get
@@ -38,6 +41,9 @@ namespace LibGit2Sharp
             }
         }
 
+        /// <summary>
+        ///   Gets the blob content in a <see cref="Stream" />.
+        /// </summary>
         public Stream ContentStream
         {
             get
@@ -53,11 +59,19 @@ namespace LibGit2Sharp
             }
         }
 
+        /// <summary>
+        ///   Gets the blob content decoded as UTF-8.
+        /// </summary>
+        /// <returns></returns>
         public string ContentAsUtf8()
         {
             return Encoding.UTF8.GetString(Content);
         }
 
+        /// <summary>
+        ///   Gets the blob content decoded as Unicode.
+        /// </summary>
+        /// <returns></returns>
         public string ContentAsUnicode()
         {
             return Encoding.Unicode.GetString(Content);

@@ -92,7 +92,7 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
-        public void CanCreateANewRemoteWithAFetchRefSpec()
+        public void CanAddANewRemoteWithAFetchRefSpec()
         {
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoPath);
 

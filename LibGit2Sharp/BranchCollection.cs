@@ -95,7 +95,7 @@ namespace LibGit2Sharp
         /// <param name = "shaOrReferenceName">The target which can be sha or a canonical reference name.</param>
         /// <param name = "allowOverwrite">True to allow silent overwriting a potentially existing branch, false otherwise.</param>
         /// <returns></returns>
-        public Branch Create(string name, string shaOrReferenceName, bool allowOverwrite = false)
+        public Branch Add(string name, string shaOrReferenceName, bool allowOverwrite = false)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
 
@@ -111,22 +111,46 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        ///   Create a new local branch with the specified name
+        /// </summary>
+        /// <param name = "name">The name of the branch.</param>
+        /// <param name = "shaOrReferenceName">The target which can be sha or a canonical reference name.</param>
+        /// <param name = "allowOverwrite">True to allow silent overwriting a potentially existing branch, false otherwise.</param>
+        /// <returns></returns>
+        [Obsolete("This method will be removed in the next release. Please use Add() instead.")]
+        public Branch Create(string name, string shaOrReferenceName, bool allowOverwrite = false)
+        {
+            return Add(name, shaOrReferenceName, allowOverwrite);
+        }
+
+        /// <summary>
         ///   Deletes the branch with the specified name.
         /// </summary>
         /// <param name = "name">The name of the branch to delete.</param>
         /// <param name = "isRemote">True if the provided <paramref name="name"/> is the name of a remote branch, false otherwise.</param>
-        public void Delete(string name, bool isRemote = false)
+        public void Remove(string name, bool isRemote = false)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
 
             int res = NativeMethods.git_branch_delete(repo.Handle, name, isRemote ? GitBranchType.GIT_BRANCH_REMOTE : GitBranchType.GIT_BRANCH_LOCAL);
 
-            if (res == (int)GitErrorCode.GIT_ENOTFOUND)
+            if (res == (int)GitErrorCode.NotFound)
             {
                 return;
             }
 
             Ensure.Success(res);
+        }
+
+        /// <summary>
+        ///   Deletes the branch with the specified name.
+        /// </summary>
+        /// <param name = "name">The name of the branch to delete.</param>
+        /// <param name = "isRemote">True if the provided <paramref name="name"/> is the name of a remote branch, false otherwise.</param>
+        [Obsolete("This method will be removed in the next release. Please use Remove() instead.")]
+        public void Delete(string name, bool isRemote = false)
+        {
+            Remove(name, isRemote);
         }
 
         ///<summary>

@@ -541,6 +541,9 @@ namespace LibGit2Sharp.Core
         public static extern int git_repository_head_detached(RepositorySafeHandle repo);
 
         [DllImport(libgit2)]
+        public static extern int git_repository_head_orphan(RepositorySafeHandle repo);
+
+        [DllImport(libgit2)]
         public static extern int git_repository_index(out IndexSafeHandle index, RepositorySafeHandle repo);
 
         [DllImport(libgit2)]
@@ -622,7 +625,7 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(FilePathMarshaler))] FilePath filepath);
 
         internal delegate int status_callback(
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(FilePathMarshaler))] FilePath statuspath,
+            IntPtr statuspath,
             uint statusflags,
             IntPtr payload);
 

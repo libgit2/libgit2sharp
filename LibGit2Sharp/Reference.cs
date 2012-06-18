@@ -52,7 +52,7 @@ namespace LibGit2Sharp
                     break;
 
                 default:
-                    throw new LibGit2Exception(String.Format(CultureInfo.InvariantCulture, "Unable to build a new reference from a type '{0}'.", Enum.GetName(typeof(GitReferenceType), type)));
+                    throw new LibGit2SharpException(String.Format(CultureInfo.InvariantCulture, "Unable to build a new reference from a type '{0}'.", type));
             }
 
             return reference as T;
@@ -63,7 +63,7 @@ namespace LibGit2Sharp
             ReferenceSafeHandle resolvedHandle;
             int res = NativeMethods.git_reference_resolve(out resolvedHandle, handle);
 
-            if (res == (int)GitErrorCode.GIT_ENOTFOUND)
+            if (res == (int)GitErrorCode.NotFound)
             {
                 return null;
             }

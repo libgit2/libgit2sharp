@@ -44,7 +44,7 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
-        public void CanDeleteAnEntryFromTheLocalConfiguration()
+        public void CanUnsetAnEntryFromTheLocalConfiguration()
         {
             var path = BuildTemporaryCloneOfTestRepo(StandardTestRepoPath);
             using (var repo = new Repository(path.RepositoryPath))
@@ -54,14 +54,14 @@ namespace LibGit2Sharp.Tests
                 repo.Config.Set("unittests.boolsetting", true);
                 Assert.True(repo.Config.Get<bool>("unittests.boolsetting", false));
 
-                repo.Config.Delete("unittests.boolsetting");
+                repo.Config.Unset("unittests.boolsetting");
 
                 Assert.False(repo.Config.Get<bool>("unittests.boolsetting", false));
             }
         }
 
         [Fact]
-        public void CanDeleteAnEntryFromTheGlobalConfiguration()
+        public void CanUnsetAnEntryFromTheGlobalConfiguration()
         {
             SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
 
@@ -88,10 +88,10 @@ namespace LibGit2Sharp.Tests
                 Assert.True(repo.Config.HasGlobalConfig);
                 Assert.Equal(42, repo.Config.Get("Wow.Man-I-am-totally-global", 1337));
 
-                repo.Config.Delete("Wow.Man-I-am-totally-global");
+                repo.Config.Unset("Wow.Man-I-am-totally-global");
                 Assert.Equal(42, repo.Config.Get("Wow.Man-I-am-totally-global", 1337));
 
-                repo.Config.Delete("Wow.Man-I-am-totally-global", ConfigurationLevel.Global);
+                repo.Config.Unset("Wow.Man-I-am-totally-global", ConfigurationLevel.Global);
                 Assert.Equal(1337, repo.Config.Get("Wow.Man-I-am-totally-global", 1337));
             }
         }
@@ -220,7 +220,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var config = new Configuration())
             {
-                Assert.Throws<LibGit2Exception>(() => config.Set("unittests.intsetting", 3));
+                Assert.Throws<LibGit2SharpException>(() => config.Set("unittests.intsetting", 3));
             }
         }
 

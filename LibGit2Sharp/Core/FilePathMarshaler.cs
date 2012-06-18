@@ -27,6 +27,16 @@ namespace LibGit2Sharp.Core
             return (FilePath)NativeToString(pNativeData);
         }
 
+        public static IntPtr FromManaged(FilePath managedObj)
+        {
+            return staticInstance.MarshalManagedToNative(managedObj);
+        }
+
+        public new static FilePath FromNative(IntPtr pNativeData)
+        {
+            return (FilePath)staticInstance.MarshalNativeToManaged(pNativeData);
+        }
+
         public new static ICustomMarshaler GetInstance(string cookie)
         {
             return staticInstance;

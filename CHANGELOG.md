@@ -8,7 +8,7 @@
  - CI server: <http://teamcity.codebetter.com/project.html?projectId=project127&guest=1>
  - @libgit2sharp: <http://twitter.com/libgit2sharp>
 
-## v0.9.5
+## v0.9.5 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.9.0...v0.9.5))
 
 ### Additions
 
@@ -25,7 +25,7 @@
 
  - Allow initialization of a repository located on a network path (#153)
 
-## v0.9
+## v0.9 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.8.0...v0.9.0))
 
 ### Additions
 
@@ -53,7 +53,7 @@
  - Make RetrieveStatus() return correct results (#123)
  - Allow staging on a network shared repository (#125)
 
-## v0.8
+## v0.8 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.7.0...v0.8.0))
 
 ### Additions
 
@@ -74,7 +74,7 @@
  - Embedded libgit2 binaries are now compiled with THREADSAFE=ON flag (#64)
  - Prevent Repository.Head.IsCurrentRepositoryHead from throwing when the Repository is empty (#105)
 
-## v0.7
+## v0.7 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.6.2...v0.7.0))
 
 ### Additions
 
@@ -93,13 +93,13 @@
  - Fix the build script to be fully XBuild compatible on Linux/Mono 2.10
  - Fix Index.Remove() to correctly handle files which have been deleted and modified in the working directory
 
-## v0.6.2
+## v0.6.2 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.6.1...v0.6.2))
 
 ### Fixes
 
  - Make Index methods (Stage, Unstage, Move... ) able to cope with native Windows directory separator char
 
-## v0.6.1
+## v0.6.1 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.6.0...v0.6.1))
 
 ### Changes
 
@@ -110,7 +110,7 @@
  - Prevent segfault when determining the status a of repository
  - Fix retrieval of buggy status in some (not that rare) cases
 
-## v0.6
+## v0.6 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.5.0...v0.6.0))
 
 ### Additions
 
@@ -131,7 +131,7 @@
  - Prevent enumeration of branches from throwing when the repository contains remote branches (#69)
  - Fix Index.Stage(), Index.Unstage() (#78)
 
-## v0.5
+## v0.5 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.4.0...v0.5.0))
 
 ### Additions
 
@@ -153,7 +153,7 @@
  - References are now being enumerated in a ordered way
  - Fix Repository.Discover() implementation when no .git folder exists
 
-## v0.4
+## v0.4 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.3.0...v0.4.0))
 
 ### Additions
 
@@ -176,7 +176,7 @@
  - Improve Mono compatibility (#46 and #47)
  - Remove dependency to msvcr100.dll
 
-## v0.3
+## v0.3 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.2.0...v0.3.0))
 
 ### Additions
 
@@ -198,7 +198,7 @@
  - Fix index updating issue
  - Fix branch creation issue
 
-## v0.2.0
+## v0.2.0 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.1.1...v0.2.0))
 
 ### Changes
 
@@ -212,7 +212,7 @@
  - Fix creation of reference to prevent it from choking on corrupted ones
  - Fix interop issue in a IIS hosted application
 
-## v0.1.1
+## v0.1.1 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.1.0...v0.1.1))
 
 ### Additions
 

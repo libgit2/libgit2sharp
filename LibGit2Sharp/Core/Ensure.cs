@@ -10,8 +10,6 @@ namespace LibGit2Sharp.Core
     [DebuggerStepThrough]
     internal static class Ensure
     {
-        private static readonly Utf8Marshaler marshaler = (Utf8Marshaler)Utf8Marshaler.GetInstance(string.Empty);
-
         /// <summary>
         ///   Checks an argument to ensure it isn't null.
         /// </summary>
@@ -54,12 +52,12 @@ namespace LibGit2Sharp.Core
         ///   True when positive values are allowed as well.</param>
         public static void Success(int result, bool allowPositiveResult = false)
         {
-            if (result == (int)GitErrorCode.GIT_OK)
+            if (result == (int)GitErrorCode.Ok)
             {
                 return;
             }
 
-            if (allowPositiveResult && result > (int)GitErrorCode.GIT_OK)
+            if (allowPositiveResult && result > (int)GitErrorCode.Ok)
             {
                 return;
             }
@@ -70,17 +68,17 @@ namespace LibGit2Sharp.Core
 
             if (error == null)
             {
-                error = new GitError { Klass = -1, Message = IntPtr.Zero };
+                error = new GitError { Klass = GitErrorType.Unknown, Message = IntPtr.Zero };
                 errorMessage = "No error message has been provided by the native library";
             }
             else
             {
-                errorMessage = (string)marshaler.MarshalNativeToManaged(error.Message);
+                errorMessage = Utf8Marshaler.FromNative(error.Message);
             }
 
-            throw new LibGit2Exception(
+            throw new LibGit2SharpException(
                 String.Format(CultureInfo.InvariantCulture, "An error was raised by libgit2. Class = {0} ({1}).{2}{3}",
-                              Enum.GetName(typeof(GitErrorType), error.Klass),
+                              error.Klass,
                               result,
                               Environment.NewLine,
                               errorMessage));
@@ -109,7 +107,7 @@ namespace LibGit2Sharp.Core
                 return;
             }
 
-            throw new LibGit2Exception(string.Format(CultureInfo.InvariantCulture,
+            throw new LibGit2SharpException(string.Format(CultureInfo.InvariantCulture,
                                                      "No valid git object identified by '{0}' exists in the repository.",
                                                      identifier));
         }

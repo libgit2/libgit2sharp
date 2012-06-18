@@ -66,7 +66,7 @@ namespace LibGit2Sharp
         /// <param name = "target">The target which can be either a sha or the canonical name of another reference.</param>
         /// <param name = "allowOverwrite">True to allow silent overwriting a potentially existing reference, false otherwise.</param>
         /// <returns>A new <see cref = "Reference" />.</returns>
-        public Reference Create(string name, string target, bool allowOverwrite = false)
+        public Reference Add(string name, string target, bool allowOverwrite = false)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
             Ensure.ArgumentNotNullOrEmptyString(target, "target");
@@ -87,6 +87,19 @@ namespace LibGit2Sharp
             {
                 return Reference.BuildFromPtr<Reference>(handle, repo);
             }
+        }
+
+        /// <summary>
+        ///   Creates a direct or symbolic reference with the specified name and target
+        /// </summary>
+        /// <param name = "name">The name of the reference to create.</param>
+        /// <param name = "target">The target which can be either a sha or the canonical name of another reference.</param>
+        /// <param name = "allowOverwrite">True to allow silent overwriting a potentially existing reference, false otherwise.</param>
+        /// <returns>A new <see cref = "Reference" />.</returns>
+        [Obsolete("This method will be removed in the next release. Please use Add() instead.")]
+        public Reference Create(string name, string target, bool allowOverwrite = false)
+        {
+            return Add(name, target, allowOverwrite);
         }
 
         private ReferenceSafeHandle CreateSymbolicReference(string name, string target, bool allowOverwrite)
@@ -118,7 +131,7 @@ namespace LibGit2Sharp
 
             if (obj == null)
             {
-                Ensure.Success((int)GitErrorCode.GIT_ENOTFOUND);
+                Ensure.Success((int)GitErrorCode.NotFound);
             }
 
             return obj.Id;
@@ -128,7 +141,7 @@ namespace LibGit2Sharp
         ///   Delete a reference with the specified name
         /// </summary>
         /// <param name = "name">The name of the reference to delete.</param>
-        public void Delete(string name)
+        public void Remove(string name)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
 
@@ -141,6 +154,16 @@ namespace LibGit2Sharp
                 
                 Ensure.Success(res);
             }
+        }
+
+        /// <summary>
+        ///   Delete a reference with the specified name
+        /// </summary>
+        /// <param name = "name">The name of the reference to delete.</param>
+        [Obsolete("This method will be removed in the next release. Please use Remove() instead.")]
+        public void Delete(string name)
+        {
+            Remove(name);
         }
 
         /// <summary>
@@ -186,7 +209,7 @@ namespace LibGit2Sharp
 
             if (name == "HEAD")
             {
-                return Create("HEAD", target, true);
+                return Add("HEAD", target, true);
             }
 
             using (ReferenceSafeHandle referencePtr = RetrieveReferencePtr(name))
@@ -219,7 +242,7 @@ namespace LibGit2Sharp
                         break;
 
                     default:
-                        throw new LibGit2Exception(string.Format(CultureInfo.InvariantCulture, "Reference '{0}' has an unexpected type ('{1}').", name, Enum.GetName(typeof(GitReferenceType), type)));
+                        throw new LibGit2SharpException(string.Format(CultureInfo.InvariantCulture, "Reference '{0}' has an unexpected type ('{1}').", name, type));
                 }
 
                 Ensure.Success(res);
@@ -233,7 +256,7 @@ namespace LibGit2Sharp
             ReferenceSafeHandle reference;
             int res = NativeMethods.git_reference_lookup(out reference, repo.Handle, referenceName);
 
-            if (!shouldThrowIfNotFound && res == (int)GitErrorCode.GIT_ENOTFOUND)
+            if (!shouldThrowIfNotFound && res == (int)GitErrorCode.NotFound)
             {
                 return null;
             }

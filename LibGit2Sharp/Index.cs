@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Runtime.InteropServices;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Compat;
 using LibGit2Sharp.Core.Handles;
@@ -17,8 +18,6 @@ namespace LibGit2Sharp
     {
         private readonly IndexSafeHandle handle;
         private readonly Repository repo;
-
-        private static readonly Utf8Marshaler utf8Marshaler = new Utf8Marshaler(true);
 
         internal Index(Repository repo)
         {
@@ -63,7 +62,7 @@ namespace LibGit2Sharp
 
                 int res = NativeMethods.git_index_find(handle, path);
 
-                if (res == (int)GitErrorCode.GIT_ENOTFOUND)
+                if (res == (int)GitErrorCode.NotFound)
                 {
                     return null;
                 }
@@ -142,7 +141,7 @@ namespace LibGit2Sharp
                     continue;
                 }
 
-                throw new LibGit2Exception(string.Format(CultureInfo.InvariantCulture, "Can not stage '{0}'. The file does not exist.", kvp.Key));
+                throw new LibGit2SharpException(string.Format(CultureInfo.InvariantCulture, "Can not stage '{0}'. The file does not exist.", kvp.Key));
             }
 
             foreach (KeyValuePair<string, FileStatus> kvp in batch)
@@ -180,31 +179,7 @@ namespace LibGit2Sharp
         /// <param name = "paths">The collection of paths of the files within the working directory.</param>
         public void Unstage(IEnumerable<string> paths)
         {
-            IDictionary<string, FileStatus> batch = PrepareBatch(paths);
-
-            foreach (KeyValuePair<string, FileStatus> kvp in batch)
-            {
-                if (Directory.Exists(kvp.Key))
-                {
-                    throw new NotImplementedException();
-                }
-            }
-
-            foreach (KeyValuePair<string, FileStatus> kvp in batch)
-            {
-                bool doesExistInIndex =
-                    !(kvp.Value.Has(FileStatus.Nonexistent) || kvp.Value.Has(FileStatus.Removed) ||
-                      kvp.Value.Has(FileStatus.Untracked));
-
-                if (doesExistInIndex)
-                {
-                    RemoveFromIndex(kvp.Key);
-                }
-
-                RestorePotentialPreviousVersionOfHeadIntoIndex(kvp.Key);
-            }
-
-            UpdatePhysicalIndex();
+            repo.Reset("HEAD", paths);
         }
 
         /// <summary>
@@ -254,7 +229,7 @@ namespace LibGit2Sharp
                 FileStatus sourceStatus = keyValuePair.Key.Item2;
                 if (sourceStatus.HasAny(new[] { FileStatus.Nonexistent, FileStatus.Removed, FileStatus.Untracked, FileStatus.Missing }))
                 {
-                    throw new LibGit2Exception(string.Format(CultureInfo.InvariantCulture, "Unable to move file '{0}'. Its current status is '{1}'.", sourcePath, Enum.GetName(typeof(FileStatus), sourceStatus)));
+                    throw new LibGit2SharpException(string.Format(CultureInfo.InvariantCulture, "Unable to move file '{0}'. Its current status is '{1}'.", sourcePath, sourceStatus));
                 }
 
                 FileStatus desStatus = keyValuePair.Value.Item2;
@@ -263,7 +238,7 @@ namespace LibGit2Sharp
                     continue;
                 }
 
-                throw new LibGit2Exception(string.Format(CultureInfo.InvariantCulture, "Unable to overwrite file '{0}'. Its current status is '{1}'.", destPath, Enum.GetName(typeof(FileStatus), desStatus)));
+                throw new LibGit2SharpException(string.Format(CultureInfo.InvariantCulture, "Unable to overwrite file '{0}'. Its current status is '{1}'.", destPath, desStatus));
             }
 
             string wd = repo.Info.WorkingDirectory;
@@ -322,7 +297,7 @@ namespace LibGit2Sharp
                     continue;
                 }
 
-                throw new LibGit2Exception(string.Format(CultureInfo.InvariantCulture, "Unable to remove file '{0}'. Its current status is '{1}'.", keyValuePair.Key, Enum.GetName(typeof(FileStatus), keyValuePair.Value)));
+                throw new LibGit2SharpException(string.Format(CultureInfo.InvariantCulture, "Unable to remove file '{0}'. Its current status is '{1}'.", keyValuePair.Key, keyValuePair.Value));
             }
 
             string wd = repo.Info.WorkingDirectory;
@@ -417,25 +392,6 @@ namespace LibGit2Sharp
             Ensure.Success(res);
         }
 
-        private void RestorePotentialPreviousVersionOfHeadIntoIndex(string relativePath)
-        {
-            TreeEntry treeEntry = repo.Head[relativePath];
-            if (treeEntry == null || treeEntry.Type != GitObjectType.Blob)
-            {
-                return;
-            }
-
-            var indexEntry = new GitIndexEntry
-                                 {
-                                     Mode = (uint)treeEntry.Mode,
-                                     oid = treeEntry.TargetId.Oid,
-                                     Path = utf8Marshaler.MarshalManagedToNative(relativePath),
-                                 };
-
-            Ensure.Success(NativeMethods.git_index_add2(handle, indexEntry));
-            utf8Marshaler.CleanUpNativeData(indexEntry.Path);
-        }
-
         private void UpdatePhysicalIndex()
         {
             int res = NativeMethods.git_index_write(handle);
@@ -476,7 +432,7 @@ namespace LibGit2Sharp
             FileStatus status;
 
             int res = NativeMethods.git_status_file(out status, repo.Handle, relativePath);
-            if (res == (int)GitErrorCode.GIT_ENOTFOUND)
+            if (res == (int)GitErrorCode.NotFound)
             {
                 return FileStatus.Nonexistent;
             }
@@ -503,6 +459,43 @@ namespace LibGit2Sharp
                 Ensure.Success(res);
                 UpdatePhysicalIndex();
             }
+        }
+
+        internal void Reset(TreeChanges changes)
+        {
+            foreach (TreeEntryChanges treeEntryChanges in changes)
+            {
+                switch (treeEntryChanges.Status)
+                {
+                    case ChangeKind.Added:
+                        RemoveFromIndex(treeEntryChanges.Path);
+                        continue;
+
+                    case ChangeKind.Deleted:
+                        /* Fall through */
+                    case ChangeKind.Modified:
+                        ReplaceIndexEntryWith(treeEntryChanges);    
+                        continue;
+
+                    default:
+                        throw new InvalidOperationException(string.Format("Entry '{0}' bears an unexpected ChangeKind '{1}'", treeEntryChanges.Path, treeEntryChanges.Status));
+                }
+            }
+
+            UpdatePhysicalIndex();
+        }
+
+        private void ReplaceIndexEntryWith(TreeEntryChanges treeEntryChanges)
+        {
+            var indexEntry = new GitIndexEntry
+            {
+                Mode = (uint)treeEntryChanges.OldMode,
+                oid = treeEntryChanges.OldOid.Oid,
+                Path = FilePathMarshaler.FromManaged(treeEntryChanges.OldPath),
+            };
+
+            Ensure.Success(NativeMethods.git_index_add2(handle, indexEntry));
+            Marshal.FreeHGlobal(indexEntry.Path);
         }
     }
 }

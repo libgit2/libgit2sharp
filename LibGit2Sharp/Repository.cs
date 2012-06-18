@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Compat;
@@ -15,7 +15,7 @@ namespace LibGit2Sharp
     public class Repository : IDisposable
     {
         private readonly BranchCollection branches;
-        private readonly CommitCollection commits;
+        private readonly CommitLog commits;
         private readonly Lazy<Configuration> config;
         private readonly RepositorySafeHandle handle;
         private readonly Index index;
@@ -85,7 +85,7 @@ namespace LibGit2Sharp
                 index = indexBuilder();
             }
 
-            commits = new CommitCollection(this);
+            commits = new CommitLog(this);
             refs = new ReferenceCollection(this);
             branches = new BranchCollection(this);
             tags = new TagCollection(this);
@@ -146,7 +146,7 @@ namespace LibGit2Sharp
             {
                 if (index == null)
                 {
-                    throw new LibGit2Exception("Index is not available in a bare repository.");
+                    throw new LibGit2SharpException("Index is not available in a bare repository.");
                 }
 
                 return index;
@@ -184,7 +184,7 @@ namespace LibGit2Sharp
         ///   Lookup and enumerate commits in the repository.
         ///   Iterating this collection directly starts walking from the HEAD.
         /// </summary>
-        public IQueryableCommitCollection Commits
+        public IQueryableCommitLog Commits
         {
             get { return commits; }
         }
@@ -308,7 +308,7 @@ namespace LibGit2Sharp
                     res = NativeMethods.git_object_lookup(out obj, handle, ref oid, type);
                 }
 
-                if (res == (int)GitErrorCode.GIT_ENOTFOUND)
+                if (res == (int)GitErrorCode.NotFound)
                 {
                     return null;
                 }
@@ -400,7 +400,7 @@ namespace LibGit2Sharp
 
             int result = NativeMethods.git_repository_discover(buffer, buffer.Length, startingPath, false, null);
 
-            if ((GitErrorCode)result == GitErrorCode.GIT_ENOTFOUND)
+            if ((GitErrorCode)result == GitErrorCode.NotFound)
             {
                 return null;
             }
@@ -451,16 +451,16 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name = "resetOptions">Flavor of reset operation to perform.</param>
         /// <param name = "shaOrReferenceName">The sha or reference canonical name of the target commit object.</param>
-        public void Reset(ResetOptions resetOptions, string shaOrReferenceName)
+        public void Reset(ResetOptions resetOptions, string shaOrReferenceName = "HEAD")
         {
             Ensure.ArgumentNotNullOrEmptyString(shaOrReferenceName, "shaOrReferenceName");
 
             if (resetOptions.Has(ResetOptions.Mixed) && Info.IsBare)
             {
-                throw new LibGit2Exception("Mixed reset is not allowed in a bare repository");
+                throw new LibGit2SharpException("Mixed reset is not allowed in a bare repository");
             }
 
-            var commit = LookupCommit(shaOrReferenceName);
+            Commit commit = LookupCommit(shaOrReferenceName);
 
             //TODO: Check for unmerged entries
 
@@ -481,6 +481,66 @@ namespace LibGit2Sharp
 
             throw new NotImplementedException();
         }
+
+        /// <summary>
+        ///   Replaces entries in the <see cref="Index"/> with entries from the specified commit.
+        /// </summary>
+        /// <param name = "shaOrReferenceName">The sha or reference canonical name of the target commit object.</param>
+        /// <param name = "paths">The list of paths (either files or directories) that should be considered.</param>
+        public void Reset(string shaOrReferenceName = "HEAD", IEnumerable<string> paths = null)
+        {
+            if (Info.IsBare)
+            {
+                throw new LibGit2SharpException("Reset is not allowed in a bare repository");
+            }
+
+            Commit commit = LookupCommit(shaOrReferenceName);
+            TreeChanges changes = Diff.Compare(commit.Tree, DiffTarget.Index, paths);
+
+            Index.Reset(changes);
+        }
+
+        /// <summary>
+        ///   Stores the content of the <see cref = "Repository.Index" /> as a new <see cref = "Commit" /> into the repository.
+        ///   The tip of the <see cref = "Repository.Head"/> will be used as the parent of this new Commit.
+        ///   Once the commit is created, the <see cref = "Repository.Head"/> will move forward to point at it.
+        /// </summary>
+        /// <param name = "message">The description of why a change was made to the repository.</param>
+        /// <param name = "author">The <see cref = "Signature" /> of who made the change.</param>
+        /// <param name = "committer">The <see cref = "Signature" /> of who added the change to the repository.</param>
+        /// <param name = "amendPreviousCommit">True to amend the current <see cref = "Commit"/> pointed at by <see cref = "Repository.Head"/>, false otherwise.</param>
+        /// <returns>The generated <see cref = "Commit" />.</returns>
+        public Commit Commit(string message, Signature author, Signature committer, bool amendPreviousCommit = false)
+        {
+            if (amendPreviousCommit && Info.IsEmpty)
+            {
+                throw new LibGit2SharpException("Can not amend anything. The Head doesn't point at any commit.");
+            }
+
+            GitOid treeOid;
+            Ensure.Success(NativeMethods.git_tree_create_fromindex(out treeOid, Index.Handle));
+            var tree = this.Lookup<Tree>(new ObjectId(treeOid));
+
+            var parents = RetrieveParentsOfTheCommitBeingCreated(amendPreviousCommit);
+
+            return ObjectDatabase.CreateCommit(message, author, committer, tree, parents, "HEAD");
+        }
+
+        private IEnumerable<Commit> RetrieveParentsOfTheCommitBeingCreated(bool amendPreviousCommit)
+        {
+            if (amendPreviousCommit)
+            {
+                return Head.Tip.Parents;
+            }
+
+            if (Info.IsEmpty)
+            {
+                return Enumerable.Empty<Commit>();
+            }
+
+            return new[] { Head.Tip };
+        }
+
 
         internal T RegisterForCleanup<T>(T disposable) where T : IDisposable
         {
@@ -509,10 +569,10 @@ namespace LibGit2Sharp
             string libgit2Hash = ReadContentFromResource(assembly, "libgit2_hash.txt");
             string libgit2sharpHash = ReadContentFromResource(assembly, "libgit2sharp_hash.txt");
 
-            return string.Format("{0}-{1}-{2} ({3})", 
+            return string.Format("{0}-{1}-{2} ({3})",
                 version.ToString(3),
                 libgit2sharpHash.Substring(0, 7),
-                libgit2Hash.Substring(0,7),
+                libgit2Hash.Substring(0, 7),
                 NativeMethods.ProcessorArchitecture
                 );
         }

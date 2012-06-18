@@ -1,8 +1,9 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 
 namespace LibGit2Sharp.Core
 {
-    internal class FilePath
+    internal class FilePath : IEquatable<FilePath>
     {
         internal static FilePath Empty = new FilePath(string.Empty);
 
@@ -55,6 +56,21 @@ namespace LibGit2Sharp.Core
             }
 
             return path == null ? null : path.Replace(oldChar, newChar);
+        }
+
+        public bool Equals(FilePath other)
+        {
+            return other == null ? posix == null : string.Equals(posix, other.posix, StringComparison.Ordinal);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return Equals(obj as FilePath);
+        }
+
+        public override int GetHashCode()
+        {
+            return posix == null ? 0 : posix.GetHashCode();
         }
     }
 }

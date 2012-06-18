@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using LibGit2Sharp.Core;
@@ -34,7 +35,7 @@ namespace LibGit2Sharp
 
             int res = NativeMethods.git_remote_load(out handle, repository.Handle, name);
 
-            if (res == (int)GitErrorCode.GIT_ENOTFOUND && !throwsIfNotFound)
+            if (res == (int)GitErrorCode.NotFound && !throwsIfNotFound)
             {
                 return null;
             }
@@ -75,27 +76,50 @@ namespace LibGit2Sharp
 
         /// <summary>
         ///   Creates a <see cref="Remote"/> with the specified name and for the repository at the specified location.
+        ///   <para>
+        ///     A default fetch refspec will be added for this remote.
+        ///   </para>
+        /// </summary>
+        /// <param name = "name">The name of the remote to create.</param>
+        /// <param name = "url">The location of the repository.</param>
+        /// <returns>A new <see cref = "Remote" />.</returns>
+        public Remote Add(string name, string url)
+        {
+            return Add(name, url, null);
+        }
+
+        /// <summary>
+        ///   Creates a <see cref="Remote"/> with the specified name and for the repository at the specified location.
+        ///   <para>
+        ///     A default fetch refspec will be added for this remote.
+        ///   </para>
+        /// </summary>
+        /// <param name = "name">The name of the remote to create.</param>
+        /// <param name = "url">The location of the repository.</param>
+        /// <returns>A new <see cref = "Remote" />.</returns>
+        [Obsolete("This method will be removed in the next release. Please use Add() instead.")]
+        public Remote Create(string name, string url)
+        {
+            return Add(name, url);
+        }
+
+        /// <summary>
+        ///   Creates a <see cref="Remote"/> with the specified name and for the repository at the specified location.
         /// </summary>
         /// <param name = "name">The name of the remote to create.</param>
         /// <param name = "url">The location of the repository.</param>
         /// <param name = "fetchRefSpec">The refSpec to be used when fetching from this remote..</param>
         /// <returns>A new <see cref = "Remote" />.</returns>
-        public Remote Add(string name, string url, string fetchRefSpec = null)
+        public Remote Add(string name, string url, string fetchRefSpec)
         {
             Ensure.ArgumentNotNull(name, "name");
             Ensure.ArgumentNotNull(url, "url");
 
             RemoteSafeHandle handle;
 
-            if(fetchRefSpec == null)
+            if(string.IsNullOrEmpty(fetchRefSpec))
             {
-                // TODO: libgit2 doesn't use the correct default refspec right now.
-                // This PR fixes it: https://github.com/libgit2/libgit2/pull/737
-                // We can then get rid of having these kinds of defaults in the C# code
-                //Ensure.Success(NativeMethods.git_remote_add(out handle, repository.Handle, name, url));
-
-                fetchRefSpec = string.Format("+refs/heads/*:refs/remotes/{0}/*", name);
-                Ensure.Success(NativeMethods.git_remote_new(out handle, repository.Handle, name, url, fetchRefSpec));
+                Ensure.Success(NativeMethods.git_remote_add(out handle, repository.Handle, name, url));
             }
             else
             {
@@ -108,6 +132,19 @@ namespace LibGit2Sharp
 
                 return Remote.CreateFromPtr(handle);
             }
+        }
+
+        /// <summary>
+        ///   Creates a <see cref="Remote"/> with the specified name and for the repository at the specified location.
+        /// </summary>
+        /// <param name = "name">The name of the remote to create.</param>
+        /// <param name = "url">The location of the repository.</param>
+        /// <param name = "fetchRefSpec">The refSpec to be used when fetching from this remote..</param>
+        /// <returns>A new <see cref = "Remote" />.</returns>
+        [Obsolete("This method will be removed in the next release. Please use Add() instead.")]
+        public Remote Create(string name, string url, string fetchRefSpec)
+        {
+            return Add(name, url);
         }
     }
 }

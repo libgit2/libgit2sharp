@@ -154,7 +154,7 @@ namespace LibGit2Sharp.Tests
                 TreeEntry treeTreeEntry = commitTree["1"];
                 Assert.Equal("1", treeTreeEntry.Path);
 
-                string completePath = "1" + Path.DirectorySeparatorChar + "branch_file.txt";
+                string completePath = Path.Combine("1", "branch_file.txt");
 
                 TreeEntry blobTreeEntry = commitTree["1/branch_file.txt"];
                 Assert.Equal(completePath, blobTreeEntry.Path);

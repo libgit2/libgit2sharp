@@ -25,6 +25,7 @@
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <DocumentationFile>bin\Debug\LibGit2Sharp.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -58,8 +59,9 @@
     <Compile Include="Blob.cs" />
     <Compile Include="Branch.cs" />
     <Compile Include="BranchCollection.cs" />
+    <Compile Include="Changes.cs" />
     <Compile Include="Commit.cs" />
-    <Compile Include="CommitCollection.cs" />
+    <Compile Include="CommitLog.cs" />
     <Compile Include="Configuration.cs" />
     <Compile Include="ContentChanges.cs" />
     <Compile Include="Core\Compat\Environment.cs" />
@@ -73,7 +75,9 @@
     <Compile Include="ChangeKind.cs" />
     <Compile Include="Core\GitBranchType.cs" />
     <Compile Include="Core\GitDiff.cs" />
+    <Compile Include="Core\GitDiffExtensions.cs" />
     <Compile Include="Core\GitError.cs" />
+    <Compile Include="Core\GitErrorType.cs" />
     <Compile Include="Core\GitNoteData.cs" />
     <Compile Include="Core\GitObjectExtensions.cs" />
     <Compile Include="Core\Handles\GitErrorSafeHandle.cs" />
@@ -96,7 +100,7 @@
     <Compile Include="Note.cs" />
     <Compile Include="TreeChanges.cs" />
     <Compile Include="TreeEntryChanges.cs" />
-    <Compile Include="LibGit2Exception.cs" />
+    <Compile Include="LibGit2SharpException.cs" />
     <Compile Include="Core\Handles\ConfigurationSafeHandle.cs" />
     <Compile Include="Core\Ensure.cs" />
     <Compile Include="Core\Epoch.cs" />
@@ -126,12 +130,12 @@
     <Compile Include="GitSortOptions.cs" />
     <Compile Include="Core\LambdaEqualityHelper.cs" />
     <Compile Include="Core\Libgit2UnsafeHelper.cs" />
-    <Compile Include="ICommitCollection.cs" />
+    <Compile Include="ICommitLog.cs" />
     <Compile Include="Index.cs" />
     <Compile Include="IndexEntry.cs" />
     <Compile Include="Core\Handles\IndexSafeHandle.cs" />
     <Compile Include="Filter.cs" />
-    <Compile Include="IQueryableCommitCollection.cs" />
+    <Compile Include="IQueryableCommitLog.cs" />
     <Compile Include="Core\LookUpOptions.cs" />
     <Compile Include="Mode.cs" />
     <Compile Include="ObjectDatabase.cs" />
