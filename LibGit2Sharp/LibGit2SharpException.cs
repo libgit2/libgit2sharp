@@ -42,17 +42,9 @@ namespace LibGit2Sharp
     /// </summary>
     public class LibGit2SharpException : Exception
     {
+        readonly GitErrorCode code;
+        readonly GitErrorCategory category;
         readonly bool isLibraryError;
-
-        /// <summary>
-        /// The error code originally returned by libgit2.
-        /// </summary>
-        public GitErrorCode Code { get; private set; }
-
-        /// <summary>
-        /// The category of error raised by libgit2.
-        /// </summary>
-        public GitErrorCategory Category { get; private set; }
 
         /// <summary>
         ///   Initializes a new instance of the <see cref = "LibGit2SharpException" /> class.
@@ -66,8 +58,8 @@ namespace LibGit2Sharp
         /// </summary>
         public LibGit2SharpException(GitErrorCode code, GitErrorCategory category, string message) : base(message)
         {
-            Code = code;
-            Category = category;
+            Data["libgit2.code"] = this.code =  code;
+            Data["libgit2.class"] = this.category = category;
             isLibraryError = true;
         }
 
@@ -94,8 +86,8 @@ namespace LibGit2Sharp
         {
             return isLibraryError
                 ? String.Format(CultureInfo.InvariantCulture, "An error was raised by libgit2. Class = {0} ({1}).{2}{3}",
-                    Category,
-                    Code,
+                    category,
+                    code,
                     Environment.NewLine,
                     Message)
                 : base.ToString();
