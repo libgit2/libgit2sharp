@@ -7,7 +7,7 @@ namespace LibGit2Sharp
     /// <summary>
     ///   Holds the meta data of a <see cref = "TreeEntry" />.
     /// </summary>
-    public class TreeEntryDefinition
+    public class TreeEntryDefinition : IEquatable<TreeEntryDefinition>
     {
         private Lazy<GitObject> target;
 

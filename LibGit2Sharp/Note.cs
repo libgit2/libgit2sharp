@@ -7,7 +7,7 @@ namespace LibGit2Sharp
     /// <summary>
     ///   A note, attached to a given <see cref = "GitObject"/>.
     /// </summary>
-    public class Note
+    public class Note : IEquatable<Note>
     {
         private Note(ObjectId blobId, string message, ObjectId targetObjectId, string @namespace)
         {
