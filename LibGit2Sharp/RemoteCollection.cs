@@ -106,7 +106,7 @@ namespace LibGit2Sharp
         /// <param name = "url">The location of the repository.</param>
         /// <returns>A new <see cref = "Remote" />.</returns>
         [Obsolete("This method will be removed in the next release. Please use Add() instead.")]
-        public Remote Create(string name, string url)
+        public virtual Remote Create(string name, string url)
         {
             return Add(name, url);
         }
@@ -146,7 +146,7 @@ namespace LibGit2Sharp
         /// <param name = "fetchRefSpec">The refSpec to be used when fetching from this remote..</param>
         /// <returns>A new <see cref = "Remote" />.</returns>
         [Obsolete("This method will be removed in the next release. Please use Add() instead.")]
-        public Remote Create(string name, string url, string fetchRefSpec)
+        public virtual Remote Create(string name, string url, string fetchRefSpec)
         {
             return Add(name, url);
         }

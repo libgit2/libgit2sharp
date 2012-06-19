@@ -16,6 +16,12 @@ namespace LibGit2Sharp
         private readonly Repository repo;
         private readonly ObjectDatabaseSafeHandle handle;
 
+        /// <summary>
+        ///   Needed for mocking purposes.
+        /// </summary>
+        protected ObjectDatabase()
+        { }
+
         internal ObjectDatabase(Repository repo)
         {
             this.repo = repo;
@@ -29,7 +35,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="objectId">Identifier of the object being searched for.</param>
         /// <returns>True if the object has been found; false otherwise.</returns>
-        public bool Contains(ObjectId objectId)
+        public virtual bool Contains(ObjectId objectId)
         {
             var oid = objectId.Oid;
 
@@ -41,7 +47,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="path">Path to the file to create the blob from.</param>
         /// <returns>The created <see cref="Blob"/>.</returns>
-        public Blob CreateBlob(string path)
+        public virtual Blob CreateBlob(string path)
         {
             Ensure.ArgumentNotNullOrEmptyString(path, "path");
 
@@ -64,7 +70,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name = "treeDefinition">The <see cref = "TreeDefinition"/>.</param>
         /// <returns>The created <see cref = "Tree"/>.</returns>
-        public Tree CreateTree(TreeDefinition treeDefinition)
+        public virtual Tree CreateTree(TreeDefinition treeDefinition)
         {
             return treeDefinition.Build(repo);
         }
@@ -78,7 +84,7 @@ namespace LibGit2Sharp
         /// <param name = "tree">The <see cref = "Tree"/> of the <see cref = "Commit"/> to be created.</param>
         /// <param name = "parents">The parents of the <see cref = "Commit"/> to be created.</param>
         /// <returns>The created <see cref = "Commit"/>.</returns>
-        public Commit CreateCommit(string message, Signature author, Signature committer, Tree tree, IEnumerable<Commit> parents)
+        public virtual Commit CreateCommit(string message, Signature author, Signature committer, Tree tree, IEnumerable<Commit> parents)
         {
             return CreateCommit(message, author, committer, tree, parents, null);
         }

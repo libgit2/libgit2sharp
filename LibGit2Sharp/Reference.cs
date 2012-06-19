@@ -15,9 +15,15 @@ namespace LibGit2Sharp
             new LambdaEqualityHelper<Reference>(new Func<Reference, object>[] { x => x.CanonicalName, x => x.TargetIdentifier });
 
         /// <summary>
+        ///   Needed for mocking purposes.
+        /// </summary>
+        protected Reference()
+        { }
+
+        /// <summary>
         ///   Gets the full name of this reference.
         /// </summary>
-        public string CanonicalName { get; protected set; }
+        public virtual string CanonicalName { get; protected set; }
 
         internal static T BuildFromPtr<T>(ReferenceSafeHandle handle, Repository repo) where T : Reference
         {
@@ -87,7 +93,7 @@ namespace LibGit2Sharp
         ///   </para>
         /// </summary>
         // TODO: Maybe find a better name for this property.
-        public string TargetIdentifier { get; private set; }
+        public virtual string TargetIdentifier { get; private set; }
 
         /// <summary>
         ///   Determines whether the specified <see cref = "Object" /> is equal to the current <see cref = "Reference" />.

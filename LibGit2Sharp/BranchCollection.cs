@@ -124,7 +124,7 @@ namespace LibGit2Sharp
         /// <param name = "allowOverwrite">True to allow silent overwriting a potentially existing branch, false otherwise.</param>
         /// <returns></returns>
         [Obsolete("This method will be removed in the next release. Please use Add() instead.")]
-        public Branch Create(string name, string shaOrReferenceName, bool allowOverwrite = false)
+        public virtual Branch Create(string name, string shaOrReferenceName, bool allowOverwrite = false)
         {
             return Add(name, shaOrReferenceName, allowOverwrite);
         }
@@ -154,7 +154,7 @@ namespace LibGit2Sharp
         /// <param name = "name">The name of the branch to delete.</param>
         /// <param name = "isRemote">True if the provided <paramref name="name"/> is the name of a remote branch, false otherwise.</param>
         [Obsolete("This method will be removed in the next release. Please use Remove() instead.")]
-        public void Delete(string name, bool isRemote = false)
+        public virtual void Delete(string name, bool isRemote = false)
         {
             Remove(name, isRemote);
         }

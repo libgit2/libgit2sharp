@@ -7,8 +7,14 @@ namespace LibGit2Sharp
     /// <summary>
     ///   A note, attached to a given <see cref = "GitObject"/>.
     /// </summary>
-    public class Note
+    public class Note : IEquatable<Note>
     {
+        /// <summary>
+        ///   Needed for mocking purposes.
+        /// </summary>
+        protected Note()
+        { }
+
         private Note(ObjectId blobId, string message, ObjectId targetObjectId, string @namespace)
         {
             BlobId = blobId;
@@ -20,23 +26,23 @@ namespace LibGit2Sharp
         /// <summary>
         ///   The <see cref = "ObjectId"/> of the blob containing the note message.
         /// </summary>
-        public ObjectId BlobId { get; private set; }
+        public virtual ObjectId BlobId { get; private set; }
 
         /// <summary>
         ///   The message.
         /// </summary>
-        public string Message { get; private set; }
+        public virtual string Message { get; private set; }
 
         /// <summary>
         ///   The namespace with which this note is associated.
         ///   <para>This is the abbreviated namespace (e.g.: commits), and not the canonical namespace (e.g.: refs/notes/commits).</para>
         /// </summary>
-        public string Namespace { get; private set; }
+        public virtual string Namespace { get; private set; }
 
         /// <summary>
         ///   The <see cref = "ObjectId"/> of the target object.
         /// </summary>
-        public ObjectId TargetObjectId { get; private set; }
+        public virtual ObjectId TargetObjectId { get; private set; }
 
         internal static Note BuildFromPtr(Repository repo, string @namespace, ObjectId targetObjectId, NoteSafeHandle note)
         {

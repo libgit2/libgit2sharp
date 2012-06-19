@@ -11,6 +11,12 @@ namespace LibGit2Sharp
     {
         private Lazy<GitObject> targetBuilder;
 
+        /// <summary>
+        ///   Needed for mocking purposes.
+        /// </summary>
+        protected TagAnnotation()
+        { }
+
         internal TagAnnotation(ObjectId id)
             : base(id)
         {
@@ -19,17 +25,17 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Gets the name of this tag.
         /// </summary>
-        public string Name { get; private set; }
+        public virtual string Name { get; private set; }
 
         /// <summary>
         ///   Gets the message of this tag.
         /// </summary>
-        public string Message { get; private set; }
+        public virtual string Message { get; private set; }
 
         /// <summary>
         ///   Gets the <see cref = "GitObject" /> that this tag annotation points to.
         /// </summary>
-        public GitObject Target
+        public virtual GitObject Target
         {
             get { return targetBuilder.Value; }
         }
@@ -37,7 +43,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Gets the tagger.
         /// </summary>
-        public Signature Tagger { get; private set; }
+        public virtual Signature Tagger { get; private set; }
 
         internal static TagAnnotation BuildFromPtr(GitObjectSafeHandle obj, ObjectId id, Repository repo)
         {

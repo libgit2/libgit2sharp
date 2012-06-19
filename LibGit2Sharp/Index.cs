@@ -19,6 +19,12 @@ namespace LibGit2Sharp
         private readonly IndexSafeHandle handle;
         private readonly Repository repo;
 
+        /// <summary>
+        ///   Needed for mocking purposes.
+        /// </summary>
+        protected Index()
+        { }
+
         internal Index(Repository repo)
         {
             this.repo = repo;
@@ -46,7 +52,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Gets the number of <see cref = "IndexEntry" /> in the index.
         /// </summary>
-        public int Count
+        public virtual int Count
         {
             get { return (int)NativeMethods.git_index_entrycount(handle); }
         }
@@ -54,7 +60,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Gets the <see cref = "IndexEntry" /> with the specified relative path.
         /// </summary>
-        public IndexEntry this[string path]
+        public virtual IndexEntry this[string path]
         {
             get
             {
@@ -88,7 +94,7 @@ namespace LibGit2Sharp
         ///   Returns an enumerator that iterates through the collection.
         /// </summary>
         /// <returns>An <see cref = "IEnumerator{T}" /> object that can be used to iterate through the collection.</returns>
-        public IEnumerator<IndexEntry> GetEnumerator()
+        public virtual IEnumerator<IndexEntry> GetEnumerator()
         {
             for (uint i = 0; i < Count; i++)
             {
@@ -111,7 +117,7 @@ namespace LibGit2Sharp
         ///   Promotes to the staging area the latest modifications of a file in the working directory (addition, updation or removal).
         /// </summary>
         /// <param name = "path">The path of the file within the working directory.</param>
-        public void Stage(string path)
+        public virtual void Stage(string path)
         {
             Ensure.ArgumentNotNull(path, "path");
 
@@ -122,7 +128,7 @@ namespace LibGit2Sharp
         ///   Promotes to the staging area the latest modifications of a collection of files in the working directory (addition, updation or removal).
         /// </summary>
         /// <param name = "paths">The collection of paths of the files within the working directory.</param>
-        public void Stage(IEnumerable<string> paths)
+        public virtual void Stage(IEnumerable<string> paths)
         {
             //TODO: Stage() should support following use cases:
             // - Recursively staging the content of a directory
@@ -166,7 +172,7 @@ namespace LibGit2Sharp
         ///   Removes from the staging area all the modifications of a file since the latest commit (addition, updation or removal).
         /// </summary>
         /// <param name = "path">The path of the file within the working directory.</param>
-        public void Unstage(string path)
+        public virtual void Unstage(string path)
         {
             Ensure.ArgumentNotNull(path, "path");
 
@@ -177,7 +183,7 @@ namespace LibGit2Sharp
         ///   Removes from the staging area all the modifications of a collection of file since the latest commit (addition, updation or removal).
         /// </summary>
         /// <param name = "paths">The collection of paths of the files within the working directory.</param>
-        public void Unstage(IEnumerable<string> paths)
+        public virtual void Unstage(IEnumerable<string> paths)
         {
             repo.Reset("HEAD", paths);
         }
@@ -187,7 +193,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name = "sourcePath">The path of the file within the working directory which has to be moved/renamed.</param>
         /// <param name = "destinationPath">The target path of the file within the working directory.</param>
-        public void Move(string sourcePath, string destinationPath)
+        public virtual void Move(string sourcePath, string destinationPath)
         {
             Move(new[] { sourcePath }, new[] { destinationPath });
         }
@@ -197,7 +203,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name = "sourcePaths">The paths of the files within the working directory which have to be moved/renamed.</param>
         /// <param name = "destinationPaths">The target paths of the files within the working directory.</param>
-        public void Move(IEnumerable<string> sourcePaths, IEnumerable<string> destinationPaths)
+        public virtual void Move(IEnumerable<string> sourcePaths, IEnumerable<string> destinationPaths)
         {
             Ensure.ArgumentNotNull(sourcePaths, "sourcePaths");
             Ensure.ArgumentNotNull(destinationPaths, "destinationPaths");
@@ -263,7 +269,7 @@ namespace LibGit2Sharp
         ///   </para>
         /// </summary>
         /// <param name = "path">The path of the file within the working directory.</param>
-        public void Remove(string path)
+        public virtual void Remove(string path)
         {
             Ensure.ArgumentNotNull(path, "path");
 
@@ -278,7 +284,7 @@ namespace LibGit2Sharp
         ///   </para>
         /// </summary>
         /// <param name = "paths">The collection of paths of the files within the working directory.</param>
-        public void Remove(IEnumerable<string> paths)
+        public virtual void Remove(IEnumerable<string> paths)
         {
             //TODO: Remove() should support following use cases:
             // - Removing a directory and its content
@@ -423,7 +429,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name = "filePath">The relative path within the working directory to the file.</param>
         /// <returns>A <see cref = "FileStatus" /> representing the state of the <paramref name = "filePath" /> parameter.</returns>
-        public FileStatus RetrieveStatus(string filePath)
+        public virtual FileStatus RetrieveStatus(string filePath)
         {
             Ensure.ArgumentNotNullOrEmptyString(filePath, "filePath");
 
@@ -446,7 +452,7 @@ namespace LibGit2Sharp
         ///   Retrieves the state of all files in the working directory, comparing them against the staging area and the latest commmit.
         /// </summary>
         /// <returns>A <see cref = "RepositoryStatus" /> holding the state of all the files.</returns>
-        public RepositoryStatus RetrieveStatus()
+        public virtual RepositoryStatus RetrieveStatus()
         {
             return new RepositoryStatus(repo);
         }
