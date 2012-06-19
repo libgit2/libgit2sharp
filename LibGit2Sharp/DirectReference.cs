@@ -9,6 +9,12 @@ namespace LibGit2Sharp
     {
         private readonly Lazy<GitObject> targetBuilder;
 
+        /// <summary>
+        ///   Needed for mocking purposes.
+        /// </summary>
+        protected DirectReference()
+        { }
+
         internal DirectReference(Lazy<GitObject> targetBuilder)
         {
             this.targetBuilder = targetBuilder;
@@ -17,7 +23,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Gets the target of this <see cref = "DirectReference" />
         /// </summary>
-        public GitObject Target
+        public virtual GitObject Target
         {
             get { return targetBuilder.Value; }
         }

@@ -16,6 +16,12 @@ namespace LibGit2Sharp
         private const string refsTagsPrefix = "refs/tags/";
 
         /// <summary>
+        ///   Needed for mocking purposes.
+        /// </summary>
+        protected TagCollection()
+        { }
+
+        /// <summary>
         ///   Initializes a new instance of the <see cref = "TagCollection" /> class.
         /// </summary>
         /// <param name = "repo">The repo.</param>
@@ -27,7 +33,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Gets the <see cref = "Tag" /> with the specified name.
         /// </summary>
-        public Tag this[string name]
+        public virtual Tag this[string name]
         {
             get
             {
@@ -44,7 +50,7 @@ namespace LibGit2Sharp
         ///   Returns an enumerator that iterates through the collection.
         /// </summary>
         /// <returns>An <see cref = "IEnumerator{T}" /> object that can be used to iterate through the collection.</returns>
-        public IEnumerator<Tag> GetEnumerator()
+        public virtual IEnumerator<Tag> GetEnumerator()
         {
             return Libgit2UnsafeHelper
                 .ListAllTagNames(repo.Handle)
@@ -72,7 +78,7 @@ namespace LibGit2Sharp
         /// <param name = "message">The message.</param>
         /// <param name = "allowOverwrite">True to allow silent overwriting a potentially existing tag, false otherwise.</param>
         /// <returns></returns>
-        public Tag Add(string name, string target, Signature tagger, string message, bool allowOverwrite = false)
+        public virtual Tag Add(string name, string target, Signature tagger, string message, bool allowOverwrite = false)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
             Ensure.ArgumentNotNullOrEmptyString(target, "target");
@@ -104,7 +110,7 @@ namespace LibGit2Sharp
         /// <param name = "allowOverwrite">True to allow silent overwriting a potentially existing tag, false otherwise.</param>
         /// <returns></returns>
         [Obsolete("This method will be removed in the next release. Please use Add() instead.")]
-        public Tag Create(string name, string target, Signature tagger, string message, bool allowOverwrite = false)
+        public virtual Tag Create(string name, string target, Signature tagger, string message, bool allowOverwrite = false)
         {
             return Add(name, target, tagger, message, allowOverwrite);
         }
@@ -116,7 +122,7 @@ namespace LibGit2Sharp
         /// <param name = "target">The target which can be sha or a canonical reference name.</param>
         /// <param name = "allowOverwrite">True to allow silent overwriting a potentially existing tag, false otherwise.</param>
         /// <returns></returns>
-        public Tag Add(string name, string target, bool allowOverwrite = false)
+        public virtual Tag Add(string name, string target, bool allowOverwrite = false)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
             Ensure.ArgumentNotNullOrEmptyString(target, "target");
@@ -143,7 +149,7 @@ namespace LibGit2Sharp
         /// <param name = "allowOverwrite">True to allow silent overwriting a potentially existing tag, false otherwise.</param>
         /// <returns></returns>
         [Obsolete("This method will be removed in the next release. Please use Add() instead.")]
-        public Tag Create(string name, string target, bool allowOverwrite = false)
+        public virtual Tag Create(string name, string target, bool allowOverwrite = false)
         {
             return Add(name, target, allowOverwrite);
         }
@@ -152,7 +158,7 @@ namespace LibGit2Sharp
         ///   Deletes the tag with the specified name.
         /// </summary>
         /// <param name = "name">The short or canonical name of the tag to delete.</param>
-        public void Remove(string name)
+        public virtual void Remove(string name)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
 
@@ -165,7 +171,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name = "name">The short or canonical name of the tag to delete.</param>
         [Obsolete("This method will be removed in the next release. Please use Remove() instead.")]
-        public void Delete(string name)
+        public virtual void Delete(string name)
         {
             Remove(name);
         }

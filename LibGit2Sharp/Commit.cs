@@ -100,7 +100,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Gets The count of parent commits.
         /// </summary>
-        public int ParentsCount
+        public virtual int ParentsCount
         {
             get
             {
@@ -114,7 +114,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Gets the notes of this commit.
         /// </summary>
-        public IEnumerable<Note> Notes
+        public virtual IEnumerable<Note> Notes
         {
             get { return notes.Value; }
         }

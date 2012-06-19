@@ -14,7 +14,10 @@ namespace LibGit2Sharp
         private static readonly LambdaEqualityHelper<TreeEntryDefinition> equalityHelper =
             new LambdaEqualityHelper<TreeEntryDefinition>(new Func<TreeEntryDefinition, object>[] { x => x.Mode, x => x.Type, x => x.TargetId });
 
-        internal TreeEntryDefinition()
+        /// <summary>
+        ///   Needed for mocking purposes.
+        /// </summary>
+        protected TreeEntryDefinition()
         {
         }
 

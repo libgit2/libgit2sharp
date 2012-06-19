@@ -19,6 +19,12 @@ namespace LibGit2Sharp
         private static readonly LambdaEqualityHelper<TreeEntry> equalityHelper =
             new LambdaEqualityHelper<TreeEntry>(new Func<TreeEntry, object>[] { x => x.Name, x => x.parentTreeId });
 
+        /// <summary>
+        ///   Needed for mocking purposes.
+        /// </summary>
+        protected TreeEntry()
+        { }
+
         internal TreeEntry(TreeEntrySafeHandle obj, ObjectId parentTreeId, Repository repo, FilePath parentPath)
         {
             this.parentTreeId = parentTreeId;
@@ -35,23 +41,23 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Gets the file mode.
         /// </summary>
-        public Mode Mode { get; private set; }
+        public virtual Mode Mode { get; private set; }
 
         /// <summary>
         ///   Gets the filename.
         /// </summary>
-        public string Name { get; private set; }
+        public virtual string Name { get; private set; }
 
         /// <summary>
         ///   Gets the path.
         ///   <para>The path is expressed in a relative form from the latest known <see cref="Tree"/>. Path segments are separated with a forward or backslash, depending on the OS the libray is being run on."/></para>
         /// </summary>
-        public string Path { get { return path.Value; } }
+        public virtual string Path { get { return path.Value; } }
 
         /// <summary>
         ///   Gets the <see cref = "GitObject" /> being pointed at.
         /// </summary>
-        public GitObject Target
+        public virtual GitObject Target
         {
             get { return target.Value; }
         }
@@ -64,7 +70,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Gets the <see cref = "GitObjectType" /> of the <see cref = "Target" /> being pointed at.
         /// </summary>
-        public GitObjectType Type { get; private set; }
+        public virtual GitObjectType Type { get; private set; }
 
         private GitObject RetrieveTreeEntryTarget()
         {
