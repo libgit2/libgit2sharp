@@ -91,9 +91,7 @@ namespace LibGit2Sharp
         /// <returns>A new <see cref = "Remote" />.</returns>
         public virtual Remote Add(string name, string url)
         {
-            string fetchRefSpec = string.Format("+refs/heads/*:refs/remotes/{0}/*", name);
-
-            return Add(name, url, fetchRefSpec);
+            return Add(name, url, null);
         }
 
         /// <summary>
@@ -122,17 +120,21 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNull(name, "name");
             Ensure.ArgumentNotNull(url, "url");
-            Ensure.ArgumentNotNull(fetchRefSpec, "fetchRefSpec");
 
             RemoteSafeHandle handle;
 
-            int res = NativeMethods.git_remote_new(out handle, repository.Handle, name, url, fetchRefSpec);
-            Ensure.Success(res);
+            if(string.IsNullOrEmpty(fetchRefSpec))
+            {
+                Ensure.Success(NativeMethods.git_remote_add(out handle, repository.Handle, name, url));
+            }
+            else
+            {
+                Ensure.Success(NativeMethods.git_remote_new(out handle, repository.Handle, name, url, fetchRefSpec));
+            }
 
             using (handle)
             {
-                res = NativeMethods.git_remote_save(handle);
-                Ensure.Success(res);
+                Ensure.Success(NativeMethods.git_remote_save(handle));
 
                 return Remote.CreateFromPtr(handle);
             }
