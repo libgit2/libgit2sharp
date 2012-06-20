@@ -79,6 +79,19 @@ namespace LibGit2Sharp.Core
             RepositorySafeHandle repo,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(FilePathMarshaler))] FilePath path);
 
+        internal delegate int source_callback(
+            IntPtr content,
+            int max_length,
+            IntPtr data);
+
+        [DllImport(libgit2)]
+        public static extern int git_blob_create_fromchunks(
+            ref GitOid oid,
+            RepositorySafeHandle repositoryPtr,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(FilePathMarshaler))] FilePath hintpath,
+            source_callback fileCallback,
+            IntPtr data);
+        
         [DllImport(libgit2)]
         public static extern IntPtr git_blob_rawcontent(GitObjectSafeHandle blob);
 
