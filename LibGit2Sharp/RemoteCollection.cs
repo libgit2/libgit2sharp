@@ -91,9 +91,17 @@ namespace LibGit2Sharp
         /// <returns>A new <see cref = "Remote" />.</returns>
         public virtual Remote Add(string name, string url)
         {
-            string fetchRefSpec = string.Format("+refs/heads/*:refs/remotes/{0}/*", name);
+            Ensure.ArgumentNotNull(name, "name");
+            Ensure.ArgumentNotNull(url, "url");
 
-            return Add(name, url, fetchRefSpec);
+            RemoteSafeHandle handle;
+
+            Ensure.Success(NativeMethods.git_remote_add(out handle, repository.Handle, name, url));
+
+            using (handle)
+            {
+                return Remote.CreateFromPtr(handle);
+            }
         }
 
         /// <summary>
