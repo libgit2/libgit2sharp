@@ -87,17 +87,28 @@ namespace LibGit2Sharp
 
             GitObject objectToTag = repo.Lookup(target, GitObjectType.Any, LookUpOptions.ThrowWhenNoGitObjectHasBeenFound);
 
+            string prettifiedMessage = ObjectDatabase.PrettifyMessage(message);
+
             int res;
             using (var objectPtr = new ObjectSafeWrapper(objectToTag.Id, repo))
             using (SignatureSafeHandle taggerHandle = tagger.BuildHandle())
             {
                 GitOid oid;
-                res = NativeMethods.git_tag_create(out oid, repo.Handle, name, objectPtr.ObjectPtr, taggerHandle, message, allowOverwrite);
+                res = NativeMethods.git_tag_create(out oid, repo.Handle, name, objectPtr.ObjectPtr, taggerHandle, prettifiedMessage, allowOverwrite);
             }
 
             Ensure.Success(res);
 
             return this[name];
+        }
+
+        internal static string PrettifyMessage(string message)
+        {
+            var buffer = new byte[NativeMethods.GIT_PATH_MAX];
+            int res = NativeMethods.git_message_prettify(buffer, buffer.Length, message, false);
+            Ensure.Success(res);
+
+            return Utf8Marshaler.Utf8FromBuffer(buffer) ?? string.Empty;
         }
 
         /// <summary>

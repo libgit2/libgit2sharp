@@ -49,7 +49,13 @@ namespace LibGit2Sharp
                     return branch;
                 }
 
-                return BuildFromReferenceName(ShortToRemoteName(name));
+                branch = BuildFromReferenceName(ShortToRemoteName(name));
+                if (branch != null)
+                {
+                    return branch;
+                }
+
+                return BuildFromReferenceName(ShortToRefName(name));
             }
         }
 
@@ -61,6 +67,11 @@ namespace LibGit2Sharp
         private static string ShortToRemoteName(string name)
         {
             return string.Format(CultureInfo.InvariantCulture, "{0}{1}", "refs/remotes/", name);
+        }
+
+        private static string ShortToRefName(string name)
+        {
+            return string.Format(CultureInfo.InvariantCulture, "{0}{1}", "refs/", name);
         }
 
         private Branch BuildFromReferenceName(string canonicalName)
@@ -80,6 +91,7 @@ namespace LibGit2Sharp
             return Libgit2UnsafeHelper
                 .ListAllBranchNames(repo.Handle, GitBranchType.GIT_BRANCH_LOCAL | GitBranchType.GIT_BRANCH_REMOTE)
                 .Select(n => this[n])
+                .OrderBy(b => b.CanonicalName, StringComparer.Ordinal)
                 .GetEnumerator();
         }
 

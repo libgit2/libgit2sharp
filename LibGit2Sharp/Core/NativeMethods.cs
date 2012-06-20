@@ -349,6 +349,13 @@ namespace LibGit2Sharp.Core
             GitObjectSafeHandle two);
 
         [DllImport(libgit2)]
+        public static extern int git_message_prettify(
+            byte[] message_out, // NB: This is more properly a StringBuilder, but it's UTF8
+            int buffer_size, 
+            string message,
+            bool strip_comments);
+
+        [DllImport(libgit2)]
         public static extern int git_note_create(
             out GitOid noteOid,
             RepositorySafeHandle repo,

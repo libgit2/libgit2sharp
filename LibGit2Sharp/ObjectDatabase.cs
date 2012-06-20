@@ -79,6 +79,15 @@ namespace LibGit2Sharp
             return treeDefinition.Build(repo);
         }
 
+        internal static string PrettifyMessage(string message)
+        {
+            var buffer = new byte[NativeMethods.GIT_PATH_MAX];
+            int res = NativeMethods.git_message_prettify(buffer, buffer.Length, message, false);
+            Ensure.Success(res);
+
+            return Utf8Marshaler.Utf8FromBuffer(buffer) ?? string.Empty;
+        }
+
         /// <summary>
         ///   Inserts a <see cref = "Commit"/> into the object database, referencing an existing <see cref = "Tree"/>.
         /// </summary>
@@ -101,6 +110,8 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(tree, "tree");
             Ensure.ArgumentNotNull(parents, "parents");
 
+            string prettifiedMessage = PrettifyMessage(message);
+
             IEnumerable<ObjectId> parentIds = parents.Select(p => p.Id);
 
             GitOid commitOid;
@@ -113,7 +124,7 @@ namespace LibGit2Sharp
 
                 IntPtr[] parentsPtrs = parentObjectPtrs.Select(o => o.ObjectPtr.DangerousGetHandle()).ToArray();
                 int res = NativeMethods.git_commit_create(out commitOid, repo.Handle, referenceName, authorHandle,
-                                                      committerHandle, encoding, message, treePtr.ObjectPtr, parentObjectPtrs.Count(), parentsPtrs);
+                                                      committerHandle, encoding, prettifiedMessage, treePtr.ObjectPtr, parentObjectPtrs.Count(), parentsPtrs);
                 Ensure.Success(res);
             }
 
