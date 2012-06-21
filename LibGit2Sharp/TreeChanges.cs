@@ -34,6 +34,12 @@ namespace LibGit2Sharp
                        };
         }
 
+        /// <summary>
+        ///   Needed for mocking purposes.
+        /// </summary>
+        protected TreeChanges()
+        { }
+
         internal TreeChanges(DiffListSafeHandle diff)
         {
             Ensure.Success(NativeMethods.git_diff_print_patch(diff, IntPtr.Zero, PrintCallBack));
@@ -98,11 +104,13 @@ namespace LibGit2Sharp
             changes.Add(newFilePath, diffFile);
         }
 
+        #region IEnumerable<Tag> Members
+
         /// <summary>
         ///   Returns an enumerator that iterates through the collection.
         /// </summary>
         /// <returns>An <see cref = "IEnumerator{T}" /> object that can be used to iterate through the collection.</returns>
-        public IEnumerator<TreeEntryChanges> GetEnumerator()
+        public virtual IEnumerator<TreeEntryChanges> GetEnumerator()
         {
             return changes.Values.GetEnumerator();
         }
@@ -116,10 +124,12 @@ namespace LibGit2Sharp
             return GetEnumerator();
         }
 
+        #endregion
+
         /// <summary>
         ///   Gets the <see cref = "TreeEntryChanges"/> corresponding to the specified <paramref name = "path"/>.
         /// </summary>
-        public TreeEntryChanges this[string path]
+        public virtual TreeEntryChanges this[string path]
         {
             get { return this[(FilePath)path]; }
         }
@@ -141,7 +151,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   List of <see cref = "TreeEntryChanges"/> that have been been added.
         /// </summary>
-        public IEnumerable<TreeEntryChanges> Added
+        public virtual IEnumerable<TreeEntryChanges> Added
         {
             get { return added; }
         }
@@ -149,7 +159,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   List of <see cref = "TreeEntryChanges"/> that have been deleted.
         /// </summary>
-        public IEnumerable<TreeEntryChanges> Deleted
+        public virtual IEnumerable<TreeEntryChanges> Deleted
         {
             get { return deleted; }
         }
@@ -157,7 +167,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   List of <see cref = "TreeEntryChanges"/> that have been modified.
         /// </summary>
-        public IEnumerable<TreeEntryChanges> Modified
+        public virtual IEnumerable<TreeEntryChanges> Modified
         {
             get { return modified; }
         }
@@ -165,7 +175,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   The total number of lines added in this diff.
         /// </summary>
-        public int LinesAdded
+        public virtual int LinesAdded
         {
             get { return linesAdded; }
         }
@@ -173,7 +183,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   The total number of lines added in this diff.
         /// </summary>
-        public int LinesDeleted
+        public virtual int LinesDeleted
         {
             get { return linesDeleted; }
         }
@@ -181,7 +191,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   The full patch file of this diff.
         /// </summary>
-        public string Patch
+        public virtual string Patch
         {
             get { return fullPatchBuilder.ToString(); }
         }

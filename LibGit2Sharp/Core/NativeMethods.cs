@@ -79,6 +79,19 @@ namespace LibGit2Sharp.Core
             RepositorySafeHandle repo,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(FilePathMarshaler))] FilePath path);
 
+        internal delegate int source_callback(
+            IntPtr content,
+            int max_length,
+            IntPtr data);
+
+        [DllImport(libgit2)]
+        public static extern int git_blob_create_fromchunks(
+            ref GitOid oid,
+            RepositorySafeHandle repositoryPtr,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(FilePathMarshaler))] FilePath hintpath,
+            source_callback fileCallback,
+            IntPtr data);
+        
         [DllImport(libgit2)]
         public static extern IntPtr git_blob_rawcontent(GitObjectSafeHandle blob);
 
@@ -349,6 +362,13 @@ namespace LibGit2Sharp.Core
             GitObjectSafeHandle two);
 
         [DllImport(libgit2)]
+        public static extern int git_message_prettify(
+            byte[] message_out, // NB: This is more properly a StringBuilder, but it's UTF8
+            int buffer_size, 
+            string message,
+            bool strip_comments);
+
+        [DllImport(libgit2)]
         public static extern int git_note_create(
             out GitOid noteOid,
             RepositorySafeHandle repo,
@@ -494,6 +514,13 @@ namespace LibGit2Sharp.Core
         [DllImport(libgit2)]
         [return : MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))]
         public static extern string git_remote_name(RemoteSafeHandle remote);
+
+        [DllImport(libgit2)]
+        public static extern int git_remote_add(
+            out RemoteSafeHandle remote,
+            RepositorySafeHandle repo,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string name,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string url);
 
         [DllImport(libgit2)]
         public static extern int git_remote_new(
@@ -724,6 +751,6 @@ namespace LibGit2Sharp.Core
         public static extern int git_treebuilder_write(out GitOid oid, RepositorySafeHandle repo, TreeBuilderSafeHandle bld);
 
         [DllImport(libgit2)]
-        public static extern int git_treebuilder_free(IntPtr bld);
+        public static extern void git_treebuilder_free(IntPtr bld);
     }
 }

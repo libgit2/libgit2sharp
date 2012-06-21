@@ -1,6 +1,5 @@
 ﻿using System;
 using LibGit2Sharp.Core.Compat;
-using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
 
 namespace LibGit2Sharp.Tests

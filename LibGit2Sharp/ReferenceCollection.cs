@@ -16,6 +16,12 @@ namespace LibGit2Sharp
         private readonly Repository repo;
 
         /// <summary>
+        ///   Needed for mocking purposes.
+        /// </summary>
+        protected ReferenceCollection()
+        { }
+
+        /// <summary>
         ///   Initializes a new instance of the <see cref = "ReferenceCollection" /> class.
         /// </summary>
         /// <param name = "repo">The repo.</param>
@@ -29,7 +35,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name = "name">The canonical name of the reference to resolve.</param>
         /// <returns>The resolved <see cref = "LibGit2Sharp.Reference" /> if it has been found, null otherwise.</returns>
-        public Reference this[string name]
+        public virtual Reference this[string name]
         {
             get { return Resolve<Reference>(name); }
         }
@@ -40,7 +46,7 @@ namespace LibGit2Sharp
         ///   Returns an enumerator that iterates through the collection.
         /// </summary>
         /// <returns>An <see cref = "IEnumerator{T}" /> object that can be used to iterate through the collection.</returns>
-        public IEnumerator<Reference> GetEnumerator()
+        public virtual IEnumerator<Reference> GetEnumerator()
         {
             return Libgit2UnsafeHelper
                 .ListAllReferenceNames(repo.Handle, GitReferenceType.ListAll)
@@ -66,7 +72,7 @@ namespace LibGit2Sharp
         /// <param name = "target">The target which can be either a sha or the canonical name of another reference.</param>
         /// <param name = "allowOverwrite">True to allow silent overwriting a potentially existing reference, false otherwise.</param>
         /// <returns>A new <see cref = "Reference" />.</returns>
-        public Reference Add(string name, string target, bool allowOverwrite = false)
+        public virtual Reference Add(string name, string target, bool allowOverwrite = false)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
             Ensure.ArgumentNotNullOrEmptyString(target, "target");
@@ -97,7 +103,7 @@ namespace LibGit2Sharp
         /// <param name = "allowOverwrite">True to allow silent overwriting a potentially existing reference, false otherwise.</param>
         /// <returns>A new <see cref = "Reference" />.</returns>
         [Obsolete("This method will be removed in the next release. Please use Add() instead.")]
-        public Reference Create(string name, string target, bool allowOverwrite = false)
+        public virtual Reference Create(string name, string target, bool allowOverwrite = false)
         {
             return Add(name, target, allowOverwrite);
         }
@@ -141,7 +147,7 @@ namespace LibGit2Sharp
         ///   Delete a reference with the specified name
         /// </summary>
         /// <param name = "name">The name of the reference to delete.</param>
-        public void Remove(string name)
+        public virtual void Remove(string name)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
 
@@ -161,7 +167,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name = "name">The name of the reference to delete.</param>
         [Obsolete("This method will be removed in the next release. Please use Remove() instead.")]
-        public void Delete(string name)
+        public virtual void Delete(string name)
         {
             Remove(name);
         }
@@ -173,7 +179,7 @@ namespace LibGit2Sharp
         /// <param name = "newName">The new canonical name.</param>
         /// <param name = "allowOverwrite">True to allow silent overwriting a potentially existing reference, false otherwise.</param>
         /// <returns></returns>
-        public Reference Move(string currentName, string newName, bool allowOverwrite = false)
+        public virtual Reference Move(string currentName, string newName, bool allowOverwrite = false)
         {
             Ensure.ArgumentNotNullOrEmptyString(currentName, "currentName");
             Ensure.ArgumentNotNullOrEmptyString(newName, "newName");
@@ -202,7 +208,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name = "name">The name of the reference.</param>
         /// <param name = "target">The target which can be either a sha or the name of another reference.</param>
-        public Reference UpdateTarget(string name, string target)
+        public virtual Reference UpdateTarget(string name, string target)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
             Ensure.ArgumentNotNullOrEmptyString(target, "target");

@@ -25,7 +25,7 @@
         /// <summary>
         ///   100664 file mode
         /// </summary>
-        NonExecutableGroupWriteableFile = 0x81B4,
+        NonExecutableGroupWritableFile = 0x81B4,
 
         /// <summary>
         ///   100755 file mode

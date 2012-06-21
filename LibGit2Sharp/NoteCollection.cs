@@ -18,6 +18,12 @@ namespace LibGit2Sharp
 
         private const string refsNotesPrefix = "refs/notes/";
 
+        /// <summary>
+        ///   Needed for mocking purposes.
+        /// </summary>
+        protected NoteCollection()
+        { }
+
         internal NoteCollection(Repository repo)
         {
             this.repo = repo;
@@ -30,7 +36,7 @@ namespace LibGit2Sharp
         ///   Returns an enumerator that iterates through the collection.
         /// </summary>
         /// <returns>An <see cref = "IEnumerator{T}" /> object that can be used to iterate through the collection.</returns>
-        public IEnumerator<Note> GetEnumerator()
+        public virtual IEnumerator<Note> GetEnumerator()
         {
             return this[DefaultNamespace].GetEnumerator();
         }
@@ -49,7 +55,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   The default namespace for notes.
         /// </summary>
-        public string DefaultNamespace
+        public virtual string DefaultNamespace
         {
             get { return defaultNamespace.Value; }
         }
@@ -57,7 +63,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   The list of canonicalized namespaces related to notes.
         /// </summary>
-        public IEnumerable<string> Namespaces
+        public virtual IEnumerable<string> Namespaces
         {
             get
             {
@@ -72,7 +78,7 @@ namespace LibGit2Sharp
                 return new[] { NormalizeToCanonicalName(DefaultNamespace) }.Concat(
                    from reference in repo.Refs
                    select reference.CanonicalName into refCanonical
-                   where refCanonical.StartsWith(refsNotesPrefix) && refCanonical != NormalizeToCanonicalName(DefaultNamespace)
+                   where refCanonical.StartsWith(refsNotesPrefix, StringComparison.Ordinal) && refCanonical != NormalizeToCanonicalName(DefaultNamespace)
                    select refCanonical);
             }
         }
@@ -80,7 +86,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Gets the collection of <see cref = "Note"/> associated with the specified <see cref = "ObjectId"/>.
         /// </summary>
-        public IEnumerable<Note> this[ObjectId id]
+        public virtual IEnumerable<Note> this[ObjectId id]
         {
             get
             {
@@ -96,7 +102,7 @@ namespace LibGit2Sharp
         ///   Gets the collection of <see cref = "Note"/> associated with the specified namespace.
         ///   <para>This is similar to the 'get notes list' command.</para>
         /// </summary>
-        public IEnumerable<Note> this[string @namespace]
+        public virtual IEnumerable<Note> this[string @namespace]
         {
             get
             {
@@ -118,7 +124,7 @@ namespace LibGit2Sharp
                     return null;
                 }
 
-                return Note.BuildFromPtr(repo, UnCanonicalizeName(canonicalNamespace), targetObjectId, noteHandle);
+                return Note.BuildFromPtr(UnCanonicalizeName(canonicalNamespace), targetObjectId, noteHandle);
             }
         }
 
@@ -147,7 +153,7 @@ namespace LibGit2Sharp
             return noteHandle;
         }
 
-        internal string NormalizeToCanonicalName(string name)
+        internal static string NormalizeToCanonicalName(string name)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
 
@@ -180,7 +186,7 @@ namespace LibGit2Sharp
         /// <param name = "committer">The committer.</param>
         /// <param name = "namespace">The namespace on which the note will be created. It can be either a canonical namespace or an abbreviated namespace ('refs/notes/myNamespace' or just 'myNamespace').</param>
         /// <returns>The note which was just saved.</returns>
-        public Note Add(ObjectId targetId, string message, Signature author, Signature committer, string @namespace)
+        public virtual Note Add(ObjectId targetId, string message, Signature author, Signature committer, string @namespace)
         {
             Ensure.ArgumentNotNull(targetId, "targetId");
             Ensure.ArgumentNotNullOrEmptyString(message, "message");
@@ -214,7 +220,7 @@ namespace LibGit2Sharp
         /// <param name = "namespace">The namespace on which the note will be created. It can be either a canonical namespace or an abbreviated namespace ('refs/notes/myNamespace' or just 'myNamespace').</param>
         /// <returns>The note which was just saved.</returns>
         [Obsolete("This method will be removed in the next release. Please use Add() instead.")]
-        public Note Create(ObjectId targetId, string message, Signature author, Signature committer, string @namespace)
+        public virtual Note Create(ObjectId targetId, string message, Signature author, Signature committer, string @namespace)
         {
             return Add(targetId, message, author, committer, @namespace);
         }
@@ -226,7 +232,7 @@ namespace LibGit2Sharp
         /// <param name = "author">The author.</param>
         /// <param name = "committer">The committer.</param>
         /// <param name = "namespace">The namespace on which the note will be removed. It can be either a canonical namespace or an abbreviated namespace ('refs/notes/myNamespace' or just 'myNamespace').</param>
-        public void Remove(ObjectId targetId, Signature author, Signature committer, string @namespace)
+        public virtual void Remove(ObjectId targetId, Signature author, Signature committer, string @namespace)
         {
             Ensure.ArgumentNotNull(targetId, "targetId");
             Ensure.ArgumentNotNull(author, "author");
@@ -260,7 +266,7 @@ namespace LibGit2Sharp
         /// <param name = "committer">The committer.</param>
         /// <param name = "namespace">The namespace on which the note will be removed. It can be either a canonical namespace or an abbreviated namespace ('refs/notes/myNamespace' or just 'myNamespace').</param>
         [Obsolete("This method will be removed in the next release. Please use Remove() instead.")]
-        public void Delete(ObjectId targetId, Signature author, Signature committer, string @namespace)
+        public virtual void Delete(ObjectId targetId, Signature author, Signature committer, string @namespace)
         {
             Remove(targetId, author, committer, @namespace);
         }

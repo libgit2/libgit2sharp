@@ -43,6 +43,10 @@
     <DocumentationFile />
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Moq, Version=4.0.10827.0, Culture=neutral, PublicKeyToken=69f491c39445e920, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Lib\MoQ\Moq.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="xunit">
@@ -53,12 +57,15 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MetaFixture.cs" />
+    <Compile Include="MockedRepositoryFixture.cs" />
     <Compile Include="ConfigurationFixture.cs" />
     <Compile Include="AttributesFixture.cs" />
     <Compile Include="CommitAncestorFixture.cs" />
     <Compile Include="NoteFixture.cs" />
     <Compile Include="DiffBlobToBlobFixture.cs" />
     <Compile Include="DiffTreeToTargetFixture.cs" />
+    <Compile Include="DiffWorkdirToIndexFixture.cs" />
     <Compile Include="ObjectDatabaseFixture.cs" />
     <Compile Include="DiffTreeToTreeFixture.cs" />
     <Compile Include="RepositoryOptionsFixture.cs" />

@@ -21,7 +21,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        private void AssertNormalization(Repository repo, string filename, bool shouldHaveBeenNormalized, string expectedSha)
+        private static void AssertNormalization(Repository repo, string filename, bool shouldHaveBeenNormalized, string expectedSha)
         {
             var sb = new StringBuilder();
             sb.Append("I'm going to be dynamically processed\r\n");
@@ -44,7 +44,7 @@ namespace LibGit2Sharp.Tests
             Assert.Equal(!shouldHaveBeenNormalized, blob.ContentAsUtf8().Contains("\r"));
         }
 
-        private void CreateAttributesFile(Repository repo)
+        private static void CreateAttributesFile(Repository repo)
         {
             const string relativePath = ".gitattributes";
             string fullFilePath = Path.Combine(repo.Info.WorkingDirectory, relativePath);

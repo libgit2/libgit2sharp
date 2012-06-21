@@ -21,6 +21,12 @@ namespace LibGit2Sharp
         private ConfigurationSafeHandle globalHandle;
         private ConfigurationSafeHandle localHandle;
 
+        /// <summary>
+        ///   Needed for mocking purposes.
+        /// </summary>
+        protected Configuration()
+        { }
+
         internal Configuration(Repository repository, string globalConfigurationFileLocation, string systemConfigurationFileLocation)
         {
             this.repository = repository;
@@ -90,7 +96,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Determines if a Git configuration file specific to the current interactive user has been found.
         /// </summary>
-        public bool HasGlobalConfig
+        public virtual bool HasGlobalConfig
         {
             get { return globalConfigPath != null; }
         }
@@ -98,7 +104,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Determines if a system-wide Git configuration file has been found.
         /// </summary>
-        public bool HasSystemConfig
+        public virtual bool HasSystemConfig
         {
             get { return systemConfigPath != null; }
         }
@@ -143,7 +149,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name = "key">The key to unset.</param>
         /// <param name = "level">The configuration file which should be considered as the target of this operation</param>
-        public void Unset(string key, ConfigurationLevel level = ConfigurationLevel.Local)
+        public virtual void Unset(string key, ConfigurationLevel level = ConfigurationLevel.Local)
         {
             ConfigurationSafeHandle h = RetrieveConfigurationHandle(level);
 
@@ -200,7 +206,7 @@ namespace LibGit2Sharp
         /// <param name = "key">The key</param>
         /// <param name = "defaultValue">The default value</param>
         /// <returns>The configuration value, or <c>defaultValue</c> if not set</returns>
-        public T Get<T>(string key, T defaultValue)
+        public virtual T Get<T>(string key, T defaultValue)
         {
             Ensure.ArgumentNotNullOrEmptyString(key, "key");
 
@@ -240,7 +246,7 @@ namespace LibGit2Sharp
         /// <param name = "secondKeyPart">The second key part</param>
         /// <param name = "defaultValue">The default value</param>
         /// <returns>The configuration value, or <c>defaultValue</c> if not set</returns>
-        public T Get<T>(string firstKeyPart, string secondKeyPart, T defaultValue)
+        public virtual T Get<T>(string firstKeyPart, string secondKeyPart, T defaultValue)
         {
             Ensure.ArgumentNotNull(firstKeyPart, "firstKeyPart");
             Ensure.ArgumentNotNull(secondKeyPart, "secondKeyPart");
@@ -271,7 +277,7 @@ namespace LibGit2Sharp
         /// <param name = "thirdKeyPart">The third key part</param>
         /// <param name = "defaultValue">The default value</param>
         /// <returns>The configuration value, or <c>defaultValue</c> if not set</returns>
-        public T Get<T>(string firstKeyPart, string secondKeyPart, string thirdKeyPart, T defaultValue)
+        public virtual T Get<T>(string firstKeyPart, string secondKeyPart, string thirdKeyPart, T defaultValue)
         {
             Ensure.ArgumentNotNull(firstKeyPart, "firstKeyPart");
             Ensure.ArgumentNotNull(secondKeyPart, "secondKeyPart");
@@ -301,7 +307,7 @@ namespace LibGit2Sharp
         /// <param name = "keyParts">The key parts</param>
         /// <param name = "defaultValue">The default value</param>
         /// <returns>The configuration value, or <c>defaultValue</c> if not set</returns>
-        public T Get<T>(string[] keyParts, T defaultValue)
+        public virtual T Get<T>(string[] keyParts, T defaultValue)
         {
             Ensure.ArgumentNotNull(keyParts, "keyParts");
 
@@ -331,7 +337,7 @@ namespace LibGit2Sharp
         /// <param name = "key">The key parts</param>
         /// <param name = "value">The default value</param>
         /// <param name = "level">The configuration file which should be considered as the target of this operation</param>
-        public void Set<T>(string key, T value, ConfigurationLevel level = ConfigurationLevel.Local)
+        public virtual void Set<T>(string key, T value, ConfigurationLevel level = ConfigurationLevel.Local)
         {
             Ensure.ArgumentNotNullOrEmptyString(key, "key");
 

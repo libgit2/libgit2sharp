@@ -8,6 +8,8 @@
       <Word>sha</Word>
       <Word>unstage</Word>
       <Word>unstaged</Word>
+      <Word>compat</Word>
+      <Word>oid</Word>
     </Recognized>
     <Deprecated>
       <Term PreferredAlternate=""></Term>

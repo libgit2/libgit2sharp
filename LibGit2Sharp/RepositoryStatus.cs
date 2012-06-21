@@ -38,6 +38,12 @@ namespace LibGit2Sharp
                        };
         }
 
+        /// <summary>
+        ///   Needed for mocking purposes.
+        /// </summary>
+        protected RepositoryStatus()
+        { }
+
         internal RepositoryStatus(Repository repo)
         {
             Ensure.Success(NativeMethods.git_status_foreach(repo.Handle, StateChanged, IntPtr.Zero));
@@ -67,7 +73,7 @@ namespace LibGit2Sharp
         ///   Returns an enumerator that iterates through the collection.
         /// </summary>
         /// <returns>An <see cref = "IEnumerator{T}" /> object that can be used to iterate through the collection.</returns>
-        public IEnumerator<StatusEntry> GetEnumerator()
+        public virtual IEnumerator<StatusEntry> GetEnumerator()
         {
             return statusEntries.GetEnumerator();
         }
@@ -84,7 +90,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   List of files added to the index, which are not in the current commit
         /// </summary>
-        public IEnumerable<string> Added
+        public virtual IEnumerable<string> Added
         {
             get { return added; }
         }
@@ -92,7 +98,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   List of files added to the index, which are already in the current commit with different content
         /// </summary>
-        public IEnumerable<string> Staged
+        public virtual IEnumerable<string> Staged
         {
             get { return staged; }
         }
@@ -100,7 +106,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   List of files removed from the index but are existent in the current commit
         /// </summary>
-        public IEnumerable<string> Removed
+        public virtual IEnumerable<string> Removed
         {
             get { return removed; }
         }
@@ -108,7 +114,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   List of files existent in the index but are missing in the working directory
         /// </summary>
-        public IEnumerable<string> Missing
+        public virtual IEnumerable<string> Missing
         {
             get { return missing; }
         }
@@ -116,7 +122,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   List of files with unstaged modifications. A file may be modified and staged at the same time if it has been modified after adding.
         /// </summary>
-        public IEnumerable<string> Modified
+        public virtual IEnumerable<string> Modified
         {
             get { return modified; }
         }
@@ -124,7 +130,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   List of files existing in the working directory but are neither tracked in the index nor in the current commit.
         /// </summary>
-        public IEnumerable<string> Untracked
+        public virtual IEnumerable<string> Untracked
         {
             get { return untracked; }
         }
@@ -132,7 +138,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   List of files existing in the working directory that are ignored.
         /// </summary>
-        public IEnumerable<string> Ignored
+        public virtual IEnumerable<string> Ignored
         {
             get { return ignored; }
         }
@@ -140,7 +146,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   True if the index or the working directory has been altered since the last commit. False otherwise.
         /// </summary>
-        public bool IsDirty
+        public virtual bool IsDirty
         {
             get { return isDirty; }
         }

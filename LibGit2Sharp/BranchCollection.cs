@@ -15,6 +15,12 @@ namespace LibGit2Sharp
         private readonly Repository repo;
 
         /// <summary>
+        ///   Needed for mocking purposes.
+        /// </summary>
+        protected BranchCollection()
+        { }
+
+        /// <summary>
         ///   Initializes a new instance of the <see cref = "BranchCollection" /> class.
         /// </summary>
         /// <param name = "repo">The repo.</param>
@@ -26,7 +32,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Gets the <see cref = "LibGit2Sharp.Branch" /> with the specified name.
         /// </summary>
-        public Branch this[string name]
+        public virtual Branch this[string name]
         {
             get
             {
@@ -43,7 +49,13 @@ namespace LibGit2Sharp
                     return branch;
                 }
 
-                return BuildFromReferenceName(ShortToRemoteName(name));
+                branch = BuildFromReferenceName(ShortToRemoteName(name));
+                if (branch != null)
+                {
+                    return branch;
+                }
+
+                return BuildFromReferenceName(ShortToRefName(name));
             }
         }
 
@@ -55,6 +67,11 @@ namespace LibGit2Sharp
         private static string ShortToRemoteName(string name)
         {
             return string.Format(CultureInfo.InvariantCulture, "{0}{1}", "refs/remotes/", name);
+        }
+
+        private static string ShortToRefName(string name)
+        {
+            return string.Format(CultureInfo.InvariantCulture, "{0}{1}", "refs/", name);
         }
 
         private Branch BuildFromReferenceName(string canonicalName)
@@ -69,11 +86,12 @@ namespace LibGit2Sharp
         ///   Returns an enumerator that iterates through the collection.
         /// </summary>
         /// <returns>An <see cref = "IEnumerator{T}" /> object that can be used to iterate through the collection.</returns>
-        public IEnumerator<Branch> GetEnumerator()
+        public virtual IEnumerator<Branch> GetEnumerator()
         {
             return Libgit2UnsafeHelper
                 .ListAllBranchNames(repo.Handle, GitBranchType.GIT_BRANCH_LOCAL | GitBranchType.GIT_BRANCH_REMOTE)
                 .Select(n => this[n])
+                .OrderBy(b => b.CanonicalName, StringComparer.Ordinal)
                 .GetEnumerator();
         }
 
@@ -95,7 +113,7 @@ namespace LibGit2Sharp
         /// <param name = "shaOrReferenceName">The target which can be sha or a canonical reference name.</param>
         /// <param name = "allowOverwrite">True to allow silent overwriting a potentially existing branch, false otherwise.</param>
         /// <returns></returns>
-        public Branch Add(string name, string shaOrReferenceName, bool allowOverwrite = false)
+        public virtual Branch Add(string name, string shaOrReferenceName, bool allowOverwrite = false)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
 
@@ -118,7 +136,7 @@ namespace LibGit2Sharp
         /// <param name = "allowOverwrite">True to allow silent overwriting a potentially existing branch, false otherwise.</param>
         /// <returns></returns>
         [Obsolete("This method will be removed in the next release. Please use Add() instead.")]
-        public Branch Create(string name, string shaOrReferenceName, bool allowOverwrite = false)
+        public virtual Branch Create(string name, string shaOrReferenceName, bool allowOverwrite = false)
         {
             return Add(name, shaOrReferenceName, allowOverwrite);
         }
@@ -128,7 +146,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name = "name">The name of the branch to delete.</param>
         /// <param name = "isRemote">True if the provided <paramref name="name"/> is the name of a remote branch, false otherwise.</param>
-        public void Remove(string name, bool isRemote = false)
+        public virtual void Remove(string name, bool isRemote = false)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
 
@@ -148,7 +166,7 @@ namespace LibGit2Sharp
         /// <param name = "name">The name of the branch to delete.</param>
         /// <param name = "isRemote">True if the provided <paramref name="name"/> is the name of a remote branch, false otherwise.</param>
         [Obsolete("This method will be removed in the next release. Please use Remove() instead.")]
-        public void Delete(string name, bool isRemote = false)
+        public virtual void Delete(string name, bool isRemote = false)
         {
             Remove(name, isRemote);
         }
@@ -160,7 +178,7 @@ namespace LibGit2Sharp
         ///<param name = "newName">The new name of the existing branch should bear.</param>
         ///<param name = "allowOverwrite">True to allow silent overwriting a potentially existing branch, false otherwise.</param>
         ///<returns></returns>
-        public Branch Move(string currentName, string newName, bool allowOverwrite = false)
+        public virtual Branch Move(string currentName, string newName, bool allowOverwrite = false)
         {
             Ensure.ArgumentNotNullOrEmptyString(currentName, "currentName");
             Ensure.ArgumentNotNullOrEmptyString(newName, "name");
