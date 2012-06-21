@@ -14,6 +14,12 @@ namespace LibGit2Sharp
         private static readonly LambdaEqualityHelper<StatusEntry> equalityHelper =
             new LambdaEqualityHelper<StatusEntry>(new Func<StatusEntry, object>[] { x => x.FilePath, x => x.State });
 
+        /// <summary>
+        ///   Needed for mocking purposes.
+        /// </summary>
+        protected StatusEntry()
+        { }
+
         internal StatusEntry(string filePath, FileStatus state)
         {
             this.filePath = filePath;
@@ -23,7 +29,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Gets the <see cref="FileStatus"/> of the file.
         /// </summary>
-        public FileStatus State
+        public virtual FileStatus State
         {
             get { return state; }
         }
@@ -31,7 +37,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Gets the relative filepath to the working directory of the file.
         /// </summary>
-        public string FilePath
+        public virtual string FilePath
         {
             get { return filePath; }
         }

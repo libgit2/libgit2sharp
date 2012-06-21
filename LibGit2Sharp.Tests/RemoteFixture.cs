@@ -86,8 +86,7 @@ namespace LibGit2Sharp.Tests
                 var refSpec = repo.Config.Get<string>("remote", remote.Name, "fetch", null);
                 Assert.NotNull(refSpec);
 
-                //TODO: Uncomment the line below once https://github.com/libgit2/libgit2/pull/737 is merged
-                //Assert.Equal("+refs/heads/*:refs/remotes/upstream/*", refSpec);
+                Assert.Equal("+refs/heads/*:refs/remotes/upstream/*", refSpec);
             }
         }
 
@@ -107,8 +106,7 @@ namespace LibGit2Sharp.Tests
                 var refSpec = repo.Config.Get<string>("remote", name, "fetch", null);
                 Assert.NotNull(refSpec);
 
-                //TODO: Uncomment the line below once https://github.com/libgit2/libgit2/pull/737 is merged
-                //Assert.Equal(fetchRefSpec, refSpec);
+                Assert.Equal(fetchRefSpec, refSpec);
             }
         }
     }

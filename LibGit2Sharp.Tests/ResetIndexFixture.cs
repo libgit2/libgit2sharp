@@ -30,7 +30,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        private bool IsStaged(StatusEntry entry)
+        private static bool IsStaged(StatusEntry entry)
         {
             if ((entry.State & FileStatus.Added) == FileStatus.Added)
             {

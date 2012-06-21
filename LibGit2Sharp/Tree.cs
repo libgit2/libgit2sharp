@@ -14,6 +14,12 @@ namespace LibGit2Sharp
         private readonly Repository repo;
         private readonly FilePath path;
 
+        /// <summary>
+        ///   Needed for mocking purposes.
+        /// </summary>
+        protected Tree()
+        { }
+
         internal Tree(ObjectId id, FilePath path, int treeEntriesCount, Repository repository)
             : base(id)
         {
@@ -25,14 +31,14 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Gets the number of <see cref = "TreeEntry" /> immediately under this <see cref = "Tree" />.
         /// </summary>
-        public int Count { get; private set; }
+        public virtual int Count { get; private set; }
 
         /// <summary>
         ///   Gets the <see cref = "TreeEntry" /> pointed at by the <paramref name = "relativePath" /> in this <see cref = "Tree" /> instance.
         /// </summary>
         /// <param name = "relativePath">The relative path to the <see cref = "TreeEntry" /> from this instance.</param>
         /// <returns><c>null</c> if nothing has been found, the <see cref = "TreeEntry" /> otherwise.</returns>
-        public TreeEntry this[string relativePath]
+        public virtual TreeEntry this[string relativePath]
         {
             get { return RetrieveFromPath(relativePath); }
         }
@@ -76,7 +82,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Gets the <see cref = "Tree" />s immediately under this <see cref = "Tree" />.
         /// </summary>
-        public IEnumerable<Tree> Trees
+        public virtual IEnumerable<Tree> Trees
         {
             get
             {
@@ -90,7 +96,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Gets the <see cref = "Blob" />s immediately under this <see cref = "Tree" />.
         /// </summary>
-        public IEnumerable<Blob> Blobs
+        public virtual IEnumerable<Blob> Blobs
         {
             get
             {
@@ -112,7 +118,7 @@ namespace LibGit2Sharp
         ///   Returns an enumerator that iterates through the collection.
         /// </summary>
         /// <returns>An <see cref = "IEnumerator{T}" /> object that can be used to iterate through the collection.</returns>
-        public IEnumerator<TreeEntry> GetEnumerator()
+        public virtual IEnumerator<TreeEntry> GetEnumerator()
         {
             using (var obj = new ObjectSafeWrapper(Id, repo))
             {

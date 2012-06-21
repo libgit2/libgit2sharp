@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Linq;
-using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
 using Xunit.Extensions;
 
@@ -11,7 +9,7 @@ namespace LibGit2Sharp.Tests
         private const string validSha1 = "ce08fe4884650f067bd5703b6a59a8b3b3c99a09";
         private const string validSha2 = "de08fe4884650f067bd5703b6a59a8b3b3c99a09";
 
-        private static byte[] bytes = new byte[] { 206, 8, 254, 72, 132, 101, 15, 6, 123, 213, 112, 59, 106, 89, 168, 179, 179, 201, 154, 9 };
+        private static readonly byte[] bytes = new byte[] { 206, 8, 254, 72, 132, 101, 15, 6, 123, 213, 112, 59, 106, 89, 168, 179, 179, 201, 154, 9 };
 
         [Theory]
         [InlineData("Dummy", typeof(ArgumentException))]

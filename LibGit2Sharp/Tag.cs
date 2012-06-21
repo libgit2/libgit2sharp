@@ -8,6 +8,12 @@ namespace LibGit2Sharp
     /// </summary>
     public class Tag : ReferenceWrapper<GitObject>
     {
+        /// <summary>
+        ///   Needed for mocking purposes.
+        /// </summary>
+        protected Tag()
+        { }
+
         internal Tag(Repository repo, Reference reference, string canonicalName)
             : base(repo, reference, _ => canonicalName)
         {
@@ -17,7 +23,7 @@ namespace LibGit2Sharp
         ///   Gets the optional information associated to this tag.
         ///   <para>When the <see cref = "Tag" /> is a lightweight tag, <c>null</c> is returned.</para>
         /// </summary>
-        public TagAnnotation Annotation
+        public virtual TagAnnotation Annotation
         {
             get { return TargetObject as TagAnnotation; }
         }
@@ -25,7 +31,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Gets the <see cref = "GitObject" /> that this tag points to.
         /// </summary>
-        public GitObject Target
+        public virtual GitObject Target
         {
             get
             {
@@ -43,7 +49,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Indicates whether the tag holds any metadata.
         /// </summary>
-        public bool IsAnnotated
+        public virtual bool IsAnnotated
         {
             get { return Annotation != null; }
         }

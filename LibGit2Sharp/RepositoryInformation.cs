@@ -9,6 +9,12 @@ namespace LibGit2Sharp
     {
         private readonly Repository repo;
 
+        /// <summary>
+        ///   Needed for mocking purposes.
+        /// </summary>
+        protected RepositoryInformation()
+        { }
+
         internal RepositoryInformation(Repository repo, bool isBare)
         {
             this.repo = repo;
@@ -24,7 +30,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Gets the normalized path to the git repository.
         /// </summary>
-        public string Path { get; private set; }
+        public virtual string Path { get; private set; }
 
         /// <summary>
         ///   Gets the normalized path to the working directory.
@@ -32,12 +38,12 @@ namespace LibGit2Sharp
         ///     Is the repository is bare, null is returned.
         ///   </para>
         /// </summary>
-        public string WorkingDirectory { get; private set; }
+        public virtual string WorkingDirectory { get; private set; }
 
         /// <summary>
         ///   Indicates whether the repository has a working directory.
         /// </summary>
-        public bool IsBare { get; private set; }
+        public virtual bool IsBare { get; private set; }
 
         /// <summary>
         ///   Gets a value indicating whether this repository is empty.
@@ -45,7 +51,7 @@ namespace LibGit2Sharp
         /// <value>
         ///   <c>true</c> if this repository is empty; otherwise, <c>false</c>.
         /// </value>
-        public bool IsEmpty
+        public virtual bool IsEmpty
         {
             get { return NativeMethods.RepositoryStateChecker(repo.Handle, NativeMethods.git_repository_is_empty); }
         }
@@ -53,7 +59,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Indicates whether the Head points to an arbitrary commit instead of the tip of a local branch.
         /// </summary>
-        public bool IsHeadDetached
+        public virtual bool IsHeadDetached
         {
             get { return NativeMethods.RepositoryStateChecker(repo.Handle, NativeMethods.git_repository_head_detached); }
         }
@@ -61,7 +67,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Indicates whether the Head points to a reference which doesn't exist.
         /// </summary>
-        public bool IsHeadOrphaned
+        public virtual bool IsHeadOrphaned
         {
             get { return NativeMethods.RepositoryStateChecker(repo.Handle, NativeMethods.git_repository_head_orphan); }
         }

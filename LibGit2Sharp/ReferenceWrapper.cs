@@ -19,28 +19,40 @@ namespace LibGit2Sharp
         private static readonly LambdaEqualityHelper<ReferenceWrapper<TObject>> equalityHelper =
             new LambdaEqualityHelper<ReferenceWrapper<TObject>>(new Func<ReferenceWrapper<TObject>, object>[] { x => x.CanonicalName, x => x.TargetObject });
 
+        private readonly string canonicalName;
+
+        /// <summary>
+        ///   Needed for mocking purposes.
+        /// </summary>
+        protected ReferenceWrapper()
+        { }
+
         /// <param name="repo">The repository.</param>
         /// <param name="reference">The reference.</param>
         /// <param name="canonicalNameSelector">A function to construct the reference's canonical name.</param>
         protected internal ReferenceWrapper(Repository repo, Reference reference, Func<Reference, string> canonicalNameSelector)
         {
             Ensure.ArgumentNotNull(repo, "repo");
+            Ensure.ArgumentNotNull(reference, "reference");
             Ensure.ArgumentNotNull(canonicalNameSelector, "canonicalNameSelector");
 
             this.repo = repo;
-            CanonicalName = canonicalNameSelector(reference);
+            canonicalName = canonicalNameSelector(reference);
             objectBuilder = new Lazy<TObject>(() => RetrieveTargetObject(reference));
         }
 
         /// <summary>
         ///   Gets the full name of this reference.
         /// </summary>
-        public string CanonicalName { get; protected set; }
+        public virtual string CanonicalName
+        {
+            get { return canonicalName; }
+        }
 
         /// <summary>
         ///   Gets the name of this reference.
         /// </summary>
-        public string Name
+        public virtual string Name
         {
             get { return Shorten(CanonicalName); }
         }
@@ -71,8 +83,6 @@ namespace LibGit2Sharp
 
         private TObject RetrieveTargetObject(Reference reference)
         {
-            Ensure.ArgumentNotNull(reference, "reference");
-
             var directReference = reference.ResolveToDirectReference();
             if (directReference == null)
             {

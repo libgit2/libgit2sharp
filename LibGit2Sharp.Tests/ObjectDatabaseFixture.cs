@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Text;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
 using Xunit.Extensions;
@@ -74,6 +75,42 @@ namespace LibGit2Sharp.Tests
                 var fetchedBlob = repo.Lookup<Blob>(blob.Id);
                 Assert.Equal(blob, fetchedBlob);
             }
+        }
+
+        [Theory]
+        [InlineData("321cbdf08803c744082332332838df6bd160f8f9", null)]
+        [InlineData("321cbdf08803c744082332332838df6bd160f8f9", "dummy.data")]
+        [InlineData("e9671e138a780833cb689753570fd10a55be84fb", "dummy.txt")]
+        [InlineData("e9671e138a780833cb689753570fd10a55be84fb", "dummy.guess")]
+        public void CanCreateABlobFromABinaryReader(string expectedSha, string hintPath)
+        {
+            TemporaryCloneOfTestRepo scd = BuildTemporaryCloneOfTestRepo();
+
+            var sb = new StringBuilder();
+            for (int i = 0; i < 6; i++)
+            {
+                sb.Append("libgit2\n\r\n");
+            }
+
+            using (var repo = new Repository(scd.RepositoryPath))
+            {
+                CreateAttributesFiles(Path.Combine(repo.Info.Path, "info"), "attributes");
+
+                using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(sb.ToString())))
+                using (var binReader = new BinaryReader(stream))
+                {
+                    Blob blob = repo.ObjectDatabase.CreateBlob(binReader, hintPath);
+                    Assert.Equal(expectedSha, blob.Sha);
+                }
+            }
+        }
+
+        private static void CreateAttributesFiles(string where, string filename)
+        {
+            const string attributes = "* text=auto\n*.txt text\n*.data binary\n";
+
+            Directory.CreateDirectory(where);
+            File.WriteAllText(Path.Combine(where, filename), attributes);
         }
 
         [Theory]

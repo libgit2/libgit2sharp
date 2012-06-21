@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -12,7 +13,7 @@ namespace LibGit2Sharp
     /// <summary>
     ///   A Repository is the primary interface into a git repository
     /// </summary>
-    public class Repository : IDisposable
+    public class Repository : IRepository
     {
         private readonly BranchCollection branches;
         private readonly CommitLog commits;
@@ -441,6 +442,7 @@ namespace LibGit2Sharp
         public Branch Checkout(Branch branch)
         {
             Ensure.ArgumentNotNull(branch, "branch");
+
             Refs.UpdateTarget("HEAD", branch.CanonicalName);
             return branch;
         }
@@ -569,7 +571,9 @@ namespace LibGit2Sharp
             string libgit2Hash = ReadContentFromResource(assembly, "libgit2_hash.txt");
             string libgit2sharpHash = ReadContentFromResource(assembly, "libgit2sharp_hash.txt");
 
-            return string.Format("{0}-{1}-{2} ({3})",
+            return string.Format(
+                CultureInfo.InvariantCulture,
+                "{0}-{1}-{2} ({3})",
                 version.ToString(3),
                 libgit2sharpHash.Substring(0, 7),
                 libgit2Hash.Substring(0, 7),
@@ -579,7 +583,8 @@ namespace LibGit2Sharp
 
         private static string ReadContentFromResource(Assembly assembly, string partialResourceName)
         {
-            using (var sr = new StreamReader(assembly.GetManifestResourceStream(string.Format("LibGit2Sharp.{0}", partialResourceName))))
+            string name = string.Format(CultureInfo.InvariantCulture, "LibGit2Sharp.{0}", partialResourceName);
+            using (var sr = new StreamReader(assembly.GetManifestResourceStream(name)))
             {
                 return sr.ReadLine();
             }

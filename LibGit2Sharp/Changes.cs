@@ -17,17 +17,17 @@ namespace LibGit2Sharp
         /// <summary>
         ///   The number of lines added.
         /// </summary>
-        public int LinesAdded { get; internal set; }
+        public virtual int LinesAdded { get; internal set; }
 
         /// <summary>
         ///   The number of lines deleted.
         /// </summary>
-        public int LinesDeleted { get; internal set; }
+        public virtual int LinesDeleted { get; internal set; }
 
         /// <summary>
         ///   The patch corresponding to these changes.
         /// </summary>
-        public string Patch
+        public virtual string Patch
         {
             get { return patchBuilder.ToString(); }
         }
@@ -35,6 +35,6 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Determines if at least one side of the comparison holds binary content.
         /// </summary>
-        public bool IsBinaryComparison { get; protected set; }
+        public virtual bool IsBinaryComparison { get; protected set; }
     }
 }

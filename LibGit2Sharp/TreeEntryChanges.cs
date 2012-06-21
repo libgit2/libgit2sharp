@@ -7,6 +7,12 @@ namespace LibGit2Sharp
     /// </summary>
     public class TreeEntryChanges : Changes
     {
+        /// <summary>
+        ///   Needed for mocking purposes. 
+        /// </summary>
+        protected TreeEntryChanges()
+        { }
+
         internal TreeEntryChanges(FilePath path, Mode mode, ObjectId oid, ChangeKind status, FilePath oldPath, Mode oldMode, ObjectId oldOid, bool isBinaryComparison)
         {
             Path = path.Native;
@@ -22,36 +28,36 @@ namespace LibGit2Sharp
         /// <summary>
         ///   The new path.
         /// </summary>
-        public string Path { get; private set; }
+        public virtual string Path { get; private set; }
 
         /// <summary>
         ///   The new <see cref="Mode"/>.
         /// </summary>
-        public Mode Mode { get; private set; }
+        public virtual Mode Mode { get; private set; }
 
         /// <summary>
         ///   The new content hash.
         /// </summary>
-        public ObjectId Oid { get; private set; }
+        public virtual ObjectId Oid { get; private set; }
 
         /// <summary>
         ///   The kind of change that has been done (added, deleted, modified ...).
         /// </summary>
-        public ChangeKind Status { get; private set; }
+        public virtual ChangeKind Status { get; private set; }
 
         /// <summary>
         ///   The old path.
         /// </summary>
-        public string OldPath { get; private set; }
+        public virtual string OldPath { get; private set; }
 
         /// <summary>
         ///   The old <see cref="Mode"/>.
         /// </summary>
-        public Mode OldMode { get; private set; }
+        public virtual Mode OldMode { get; private set; }
 
         /// <summary>
         ///   The old content hash.
         /// </summary>
-        public ObjectId OldOid { get; private set; }
+        public virtual ObjectId OldOid { get; private set; }
     }
 }

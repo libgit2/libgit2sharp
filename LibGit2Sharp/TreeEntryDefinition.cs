@@ -7,14 +7,17 @@ namespace LibGit2Sharp
     /// <summary>
     ///   Holds the meta data of a <see cref = "TreeEntry" />.
     /// </summary>
-    public class TreeEntryDefinition
+    public class TreeEntryDefinition : IEquatable<TreeEntryDefinition>
     {
         private Lazy<GitObject> target;
 
         private static readonly LambdaEqualityHelper<TreeEntryDefinition> equalityHelper =
             new LambdaEqualityHelper<TreeEntryDefinition>(new Func<TreeEntryDefinition, object>[] { x => x.Mode, x => x.Type, x => x.TargetId });
 
-        internal TreeEntryDefinition()
+        /// <summary>
+        ///   Needed for mocking purposes.
+        /// </summary>
+        protected TreeEntryDefinition()
         {
         }
 
@@ -62,7 +65,7 @@ namespace LibGit2Sharp
 
         internal static TreeEntryDefinition TransientBlobFrom(string filePath, Mode mode)
         {
-            Ensure.ArgumentConformsTo(mode, m => m.HasAny(new[] { Mode.NonExecutableFile, Mode.ExecutableFile, Mode.NonExecutableGroupWriteableFile }), "mode");
+            Ensure.ArgumentConformsTo(mode, m => m.HasAny(new[] { Mode.NonExecutableFile, Mode.ExecutableFile, Mode.NonExecutableGroupWritableFile }), "mode");
 
             return new TransientBlobTreeEntryDefinition
                        {
