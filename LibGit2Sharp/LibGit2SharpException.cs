@@ -58,7 +58,7 @@ namespace LibGit2Sharp
         /// </summary>
         public LibGit2SharpException(GitErrorCode code, GitErrorCategory category, string message) : base(message)
         {
-            Data["libgit2.code"] = this.code =  code;
+            Data["libgit2.code"] = this.code = code;
             Data["libgit2.class"] = this.category = category;
             isLibraryError = true;
         }

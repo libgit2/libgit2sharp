@@ -13,7 +13,10 @@ namespace LibGit2Sharp.Core
 
         public void CleanUpNativeData(IntPtr pNativeData)
         {
-            Marshal.FreeHGlobal(pNativeData);
+            if (pNativeData != IntPtr.Zero)
+            {
+                Marshal.FreeHGlobal(pNativeData);
+            }
         }
 
         public int GetNativeDataSize()
