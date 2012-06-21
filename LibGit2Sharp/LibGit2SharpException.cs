@@ -82,6 +82,22 @@ namespace LibGit2Sharp
         {
         }
 
+        /// <summary>
+        /// The specific libgit2 error code.
+        /// </summary>
+        public GitErrorCode Code
+        {
+            get { return Data.Contains("libgit2.code") ? (GitErrorCode)Data["libgit2.code"] : GitErrorCode.Error; }
+        }
+
+        /// <summary>
+        /// The specific libgit2 error class.
+        /// </summary>
+        public GitErrorCategory Category
+        {
+            get { return Data.Contains("libgit2.class") ? (GitErrorCategory)Data["libgit2.class"] : GitErrorCategory.Unknown; }
+        }
+
         public override string ToString()
         {
             return isLibraryError
