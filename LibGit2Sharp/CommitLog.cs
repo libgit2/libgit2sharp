@@ -87,6 +87,12 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNull(filter, "filter");
 
+            if(string.IsNullOrEmpty(filter.SinceGlob))
+            {
+                Ensure.ArgumentNotNull(filter.Since, "filter.Since");
+                Ensure.ArgumentNotNullOrEmptyString(filter.Since.ToString(), "filter.Since");
+            }
+
             return new CommitLog(repo, filter);
         }
 
