@@ -40,16 +40,12 @@ namespace LibGit2Sharp
         /// </summary>
         public object Since { get; set; }
 
-
-            /// <summary>
+        /// <summary>
         /// Return a parsed list of Since objects.
         /// </summary>
-        public IList<object> SinceList
+        internal IList<object> SinceList
         {
-            get
-            {
-                return sinceList ?? (sinceList = ToList(Since));
-            }
+            get { return sinceList ?? (sinceList = ToList(Since)); }
         }
 
         /// <summary>
@@ -70,12 +66,9 @@ namespace LibGit2Sharp
         /// <summary>
         /// Return a parsed list of Until objects.
         /// </summary>
-        public IList<object> UntilList
+        internal IList<object> UntilList
         {
-            get
-            {
-                return untilList ?? (untilList = ToList(Until));
-            }
+            get { return untilList ?? (untilList = ToList(Until)); }
         }
 
         /// <summary>
@@ -93,12 +86,12 @@ namespace LibGit2Sharp
             }
 
             var types = new[]
-                            {
-                                typeof(string), typeof(ObjectId),
-                                typeof(Commit), typeof(TagAnnotation),
-                                typeof(Tag), typeof(Branch), typeof(DetachedHead),
-                                typeof(Reference), typeof(DirectReference), typeof(SymbolicReference)
-                            };
+            {
+                typeof(string), typeof(ObjectId),
+                typeof(Commit), typeof(TagAnnotation),
+                typeof(Tag), typeof(Branch), typeof(DetachedHead),
+                typeof(Reference), typeof(DirectReference), typeof(SymbolicReference)
+            };
 
             if (types.Contains(obj.GetType()))
             {
