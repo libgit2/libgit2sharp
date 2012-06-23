@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.IO;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using LibGit2Sharp.Core.Handles;
 
@@ -27,8 +28,16 @@ namespace LibGit2Sharp.Core
                                                    String.Format(CultureInfo.InvariantCulture, "{0}{1}{2}", path, Path.PathSeparator, Environment.GetEnvironmentVariable(pathEnvVariable)));
             }
 
-            git_threads_init();
+            GitInit();
             AppDomain.CurrentDomain.ProcessExit += ThreadsShutdown;
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private static void GitInit()
+        {
+            // keep this in a separate method so mono can JIT the .cctor
+            // and adjust the PATH before trying to load the native library
+            git_threads_init();
         }
 
         private static void ThreadsShutdown(object sender, EventArgs e)
