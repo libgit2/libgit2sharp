@@ -264,12 +264,13 @@ namespace LibGit2Sharp.Tests
 
                 Tree tree = repo.ObjectDatabase.CreateTree(td);
 
-                Commit commit = repo.ObjectDatabase.CreateCommit("message", DummySignature, DummySignature, tree, new[] { repo.Head.Tip });
+                Commit commit = repo.ObjectDatabase.CreateCommit("Ü message", DummySignature, DummySignature, tree, new[] { repo.Head.Tip });
 
                 Branch newHead = repo.Head;
 
                 Assert.Equal(head, newHead);
                 Assert.Equal(commit, repo.Lookup<Commit>(commit.Sha));
+                Assert.Equal("Ü message\n", commit.Message);
             }
         }
     }
