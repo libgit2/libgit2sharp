@@ -1,0 +1,35 @@
+# Travis-CI Build for libgit2sharp
+# see travis-ci.org for details
+
+language: c
+      
+# Make sure CMake is installed
+install:
+ - sudo apt-get install cmake mono-devel mono-gmcs
+
+# Run the Build script
+script:
+ - git submodule update --init
+ - mkdir cmake-build
+ - cd cmake-build
+ - cmake -DTHREADSAFE=ON -DCMAKE_BUILD_TYPE=Release -DBUILD_CLAR=OFF -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=./libgit2-bin ../libgit2
+ - export LD_LIBRARY_PATH=$PWD/libgit2-bin/lib
+ - cmake --build . --target install
+ - cd ..
+
+# Run Tests
+after_script:
+ - xbuild CI-build.msbuild /t:Deploy
+
+# Only watch the development branch
+branches:
+ only:
+   - vNext
+   
+# Notify development list when needed
+notifications:
+ recipients:
+   - nulltoken@gmail.com
+ email:
+   on_success: change
+   on_failure: always
