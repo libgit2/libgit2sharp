@@ -55,7 +55,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(1, changes.Count());
                 Assert.Equal(1, changes.Added.Count());
 
-                TreeEntryChanges treeEntryChanges = changes["1.txt"];
+                TreeEntryChanges treeEntryChanges = changes["1.txt"].Single();
                 Assert.False(treeEntryChanges.IsBinaryComparison);
 
                 Assert.Equal("1.txt", treeEntryChanges.Path);
@@ -128,7 +128,7 @@ namespace LibGit2Sharp.Tests
 
                 Assert.Equal(9, changes.LinesAdded);
                 Assert.Equal(2, changes.LinesDeleted);
-                Assert.Equal(2, changes["readme.txt"].LinesDeleted);
+                Assert.Equal(2, changes["readme.txt"].Single().LinesDeleted);
             }
         }
 
@@ -161,8 +161,8 @@ namespace LibGit2Sharp.Tests
                 TreeChanges changes = repo.Diff.Compare(rootCommitTree, commitTreeWithRenamedFile);
 
                 Assert.Equal(1, changes.Count());
-                Assert.Equal("super-file.txt", changes["super-file.txt"].Path);
-                Assert.Equal("my-name-does-not-feel-right.txt", changes["super-file.txt"].OldPath);
+                Assert.Equal("super-file.txt", changes["super-file.txt"].Single().Path);
+                Assert.Equal("my-name-does-not-feel-right.txt", changes["super-file.txt"].Single().OldPath);
                 //Assert.Equal(1, changes.FilesRenamed.Count());
             }
         }
@@ -275,12 +275,12 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(1, changes.Deleted.Count());
                 Assert.Equal(1, changes.Added.Count());
 
-                TreeEntryChanges treeEntryChanges = changes["numbers.txt"];
+                TreeEntryChanges treeEntryChanges = changes["numbers.txt"].Single();
 
                 Assert.Equal(3, treeEntryChanges.LinesAdded);
                 Assert.Equal(1, treeEntryChanges.LinesDeleted);
 
-                Assert.Equal(Mode.Nonexistent, changes["my-name-does-not-feel-right.txt"].Mode);
+                Assert.Equal(Mode.Nonexistent, changes["my-name-does-not-feel-right.txt"].Single().Mode);
 
                 var expected = new StringBuilder()
                     .Append("diff --git a/numbers.txt b/numbers.txt\n")
@@ -352,6 +352,69 @@ namespace LibGit2Sharp.Tests
                     .Append("+Yeah! Better!\n");
 
                 Assert.Equal(expected.ToString(), changes.Patch);
+            }
+        }
+
+        [Fact]
+        public void CanHandleTwoTreeEntryChangesWithTheSamePath()
+        {
+            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+
+            using (Repository repo = Repository.Init(scd.DirectoryPath))
+            {
+                Blob mainContent = CreateBlob(repo, "awesome content\n");
+                Blob linkContent = CreateBlob(repo, "../../objc/Nu.h");
+
+                const string path = "include/Nu/Nu.h";
+
+                var tdOld = new TreeDefinition()
+                    .Add(path, linkContent, Mode.SymbolicLink)
+                    .Add("objc/Nu.h", mainContent, Mode.NonExecutableFile);
+
+                Tree treeOld = repo.ObjectDatabase.CreateTree(tdOld);
+
+                var tdNew = new TreeDefinition()
+                    .Add(path, mainContent, Mode.NonExecutableFile);
+
+                Tree treeNew = repo.ObjectDatabase.CreateTree(tdNew);
+
+                TreeChanges changes = repo.Diff.Compare(treeOld, treeNew);
+
+                if (IsRunningOnLinux())
+                {
+                    TreeEntryChanges[] tecs = changes[path].ToArray();
+                    Assert.Equal(2, tecs.Length);
+
+                    TreeEntryChanges change1 = tecs[0];
+                    Assert.Equal(Mode.SymbolicLink, change1.OldMode);
+                    Assert.Equal(Mode.Nonexistent, change1.Mode);
+                    Assert.Equal(ChangeKind.Deleted, change1.Status);
+                    Assert.Equal("include/Nu/Nu.h", change1.Path);
+
+                    TreeEntryChanges change2 = tecs[1];
+                    Assert.Equal(Mode.Nonexistent, change2.OldMode);
+                    Assert.Equal(Mode.NonExecutableFile, change2.Mode);
+                    Assert.Equal(ChangeKind.Added, change2.Status);
+                    Assert.Equal("include/Nu/Nu.h", change1.Path);
+
+                    return;
+                }
+
+                Assert.Equal(1, changes[path].Count());
+                TreeEntryChanges change = changes[path].Single();
+ 
+                Assert.Equal(Mode.SymbolicLink, change.Mode);
+                Assert.Equal(change.OldMode, change.Mode);
+                Assert.Equal(ChangeKind.Modified, change.Status);
+            }
+        }
+
+        private static Blob CreateBlob(Repository repo, string content)
+        {
+            using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(content)))
+            using (var binReader = new BinaryReader(stream))
+            {
+                return repo.ObjectDatabase.CreateBlob(binReader);
             }
         }
     }

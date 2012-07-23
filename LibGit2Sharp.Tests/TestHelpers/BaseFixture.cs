@@ -103,5 +103,12 @@ namespace LibGit2Sharp.Tests.TestHelpers
             var r = new Regex(regex, RegexOptions.Multiline).Match(text);
             Assert.True(r.Success, text);
         }
+
+        protected static bool IsRunningOnLinux()
+        {
+            // see http://mono-project.com/FAQ%3a_Technical#Mono_Platforms
+            var p = (int)Environment.OSVersion.Platform;
+            return (p == 4) || (p == 6) || (p == 128);
+        }
     }
 }
