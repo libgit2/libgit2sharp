@@ -1,5 +1,6 @@
 using System;
 using System.Globalization;
+using System.Runtime.InteropServices;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Compat;
 using LibGit2Sharp.Core.Handles;
@@ -26,7 +27,7 @@ namespace LibGit2Sharp
         protected TreeEntry()
         { }
 
-        internal TreeEntry(TreeEntrySafeHandle obj, ObjectId parentTreeId, Repository repo, FilePath parentPath)
+        internal TreeEntry(SafeHandle obj, ObjectId parentTreeId, Repository repo, FilePath parentPath)
         {
             this.parentTreeId = parentTreeId;
             this.repo = repo;

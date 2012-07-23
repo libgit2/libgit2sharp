@@ -17,7 +17,7 @@ namespace LibGit2Sharp
 
         private static GitDiffOptions BuildOptions(IEnumerable<string> paths = null)
         {
-            var options = new GitDiffOptions { InterhunkLines = 2 };
+            var options = new GitDiffOptions();
 
             if (paths == null)
             {

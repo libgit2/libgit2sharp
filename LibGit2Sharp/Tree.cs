@@ -52,30 +52,24 @@ namespace LibGit2Sharp
 
             using (var obj = new ObjectSafeWrapper(Id, repo))
             {
-                GitObjectSafeHandle objectPtr;
+                TreeEntrySafeHandle_Owned treeEntryPtr;
 
-                int res = NativeMethods.git_tree_get_subtree(out objectPtr, obj.ObjectPtr, relativePath);
+                int res = NativeMethods.git_tree_entry_bypath(out treeEntryPtr, obj.ObjectPtr, relativePath);
 
                 if (res == (int)GitErrorCode.NotFound)
                 {
                     return null;
                 }
 
-                Ensure.Success(res);
-
-                string posixPath = relativePath.Posix;
-                string filename = posixPath.Split('/').Last();
-
-                TreeEntrySafeHandle handle = NativeMethods.git_tree_entry_byname(objectPtr, filename);
-                objectPtr.SafeDispose();
-
-                if (handle.IsInvalid)
+                using (treeEntryPtr)
                 {
-                    return null;
-                }
+                    Ensure.Success(res);
 
-                string parentPath = posixPath.Substring(0, posixPath.Length - filename.Length);
-                return new TreeEntry(handle, Id, repo, path.Combine(parentPath));
+                    string posixPath = relativePath.Posix;
+                    string filename = posixPath.Split('/').Last();
+                    string parentPath = posixPath.Substring(0, posixPath.Length - filename.Length);
+                    return new TreeEntry(treeEntryPtr, Id, repo, path.Combine(parentPath));
+                }
             }
         }
 

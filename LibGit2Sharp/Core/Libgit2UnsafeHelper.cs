@@ -6,15 +6,6 @@ namespace LibGit2Sharp.Core
 {
     internal static unsafe class Libgit2UnsafeHelper
     {
-        public static IList<string> ListAllBranchNames(RepositorySafeHandle repo, GitBranchType types)
-        {
-            UnSafeNativeMethods.git_strarray strArray;
-            int res = UnSafeNativeMethods.git_branch_list(out strArray, repo, types);
-            Ensure.Success(res);
-
-            return BuildListOf(strArray);
-        }
-
         public static IList<string> ListAllReferenceNames(RepositorySafeHandle repo, GitReferenceType types)
         {
             UnSafeNativeMethods.git_strarray strArray;

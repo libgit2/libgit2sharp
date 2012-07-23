@@ -74,7 +74,7 @@ namespace LibGit2Sharp
 
                 if (!isWorkDirNull)
                 {
-                    Ensure.Success(NativeMethods.git_repository_set_workdir(handle, options.WorkingDirectoryPath));
+                    Ensure.Success(NativeMethods.git_repository_set_workdir(handle, options.WorkingDirectoryPath, false));
                 }
 
                 configurationGlobalFilePath = options.GlobalConfigurationLocation;

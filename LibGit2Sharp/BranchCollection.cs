@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using LibGit2Sharp.Core;
+using LibGit2Sharp.Core.Handles;
 
 namespace LibGit2Sharp
 {
@@ -88,11 +89,37 @@ namespace LibGit2Sharp
         /// <returns>An <see cref = "IEnumerator{T}" /> object that can be used to iterate through the collection.</returns>
         public virtual IEnumerator<Branch> GetEnumerator()
         {
-            return Libgit2UnsafeHelper
-                .ListAllBranchNames(repo.Handle, GitBranchType.GIT_BRANCH_LOCAL | GitBranchType.GIT_BRANCH_REMOTE)
+            return new BranchNameEnumerable(repo.Handle, GitBranchType.GIT_BRANCH_LOCAL | GitBranchType.GIT_BRANCH_REMOTE)
                 .Select(n => this[n])
                 .OrderBy(b => b.CanonicalName, StringComparer.Ordinal)
                 .GetEnumerator();
+        }
+
+        private class BranchNameEnumerable : IEnumerable<string>
+        {
+            private readonly List<string> list = new List<string>();
+
+            public BranchNameEnumerable(RepositorySafeHandle handle, GitBranchType gitBranchType)
+            {
+                Ensure.Success(NativeMethods.git_branch_foreach(handle, gitBranchType, Callback, IntPtr.Zero));
+            }
+
+            private int Callback(IntPtr branchName, GitBranchType branchType, IntPtr payload)
+            {
+                string name = Utf8Marshaler.FromNative(branchName);
+                list.Add(name);
+                return 0;
+            }
+
+            public IEnumerator<string> GetEnumerator()
+            {
+                return list.GetEnumerator();
+            }
+
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return GetEnumerator();
+            }
         }
 
         /// <summary>
