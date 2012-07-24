@@ -1,6 +1,6 @@
 ﻿namespace LibGit2Sharp.Core
 {
-    internal enum GitErrorCode
+    public enum GitErrorCode
     {
         Ok = 0,
         Error = -1,

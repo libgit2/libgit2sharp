@@ -78,10 +78,10 @@
     <Compile Include="Core\GitDiff.cs" />
     <Compile Include="Core\GitDiffExtensions.cs" />
     <Compile Include="Core\GitError.cs" />
-    <Compile Include="Core\GitErrorType.cs" />
+    <Compile Include="Core\GitErrorCategory.cs" />
+    <Compile Include="Core\GitErrorMarshaler.cs" />
     <Compile Include="Core\GitNoteData.cs" />
     <Compile Include="Core\GitObjectExtensions.cs" />
-    <Compile Include="Core\Handles\GitErrorSafeHandle.cs" />
     <Compile Include="Core\Handles\NoteSafeHandle.cs" />
     <Compile Include="Core\Handles\ObjectDatabaseSafeHandle.cs" />
     <Compile Include="Core\Handles\DiffListSafeHandle.cs" />

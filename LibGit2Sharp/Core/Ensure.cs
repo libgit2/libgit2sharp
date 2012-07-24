@@ -62,26 +62,19 @@ namespace LibGit2Sharp.Core
                 return;
             }
 
-            string errorMessage;
-            GitError error = NativeMethods.giterr_last().MarshalAsGitError();
-
-
+            var error = NativeMethods.giterr_last();
             if (error == null)
             {
-                error = new GitError { Klass = GitErrorType.Unknown, Message = IntPtr.Zero };
-                errorMessage = "No error message has been provided by the native library";
-            }
-            else
-            {
-                errorMessage = Utf8Marshaler.FromNative(error.Message);
+                throw new LibGit2SharpException(
+                    (GitErrorCode)result,
+                    GitErrorCategory.Unknown,
+                    "No error message has been provided by the native library");
             }
 
             throw new LibGit2SharpException(
-                String.Format(CultureInfo.InvariantCulture, "An error was raised by libgit2. Class = {0} ({1}).{2}{3}",
-                              error.Klass,
-                              result,
-                              Environment.NewLine,
-                              errorMessage));
+                (GitErrorCode)result,
+                error.Category,
+                Utf8Marshaler.FromNative(error.Message));
         }
 
         /// <summary>
@@ -108,8 +101,8 @@ namespace LibGit2Sharp.Core
             }
 
             throw new LibGit2SharpException(string.Format(CultureInfo.InvariantCulture,
-                                                     "No valid git object identified by '{0}' exists in the repository.",
-                                                     identifier));
+                "No valid git object identified by '{0}' exists in the repository.",
+                identifier));
         }
     }
 }
