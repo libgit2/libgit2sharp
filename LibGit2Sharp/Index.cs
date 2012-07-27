@@ -211,7 +211,24 @@ namespace LibGit2Sharp
         /// <param name = "paths">The collection of paths of the files within the working directory.</param>
         public virtual void Unstage(IEnumerable<string> paths)
         {
-            repo.Reset("HEAD", paths);
+            Commit commit = repo.Lookup("HEAD",
+                                        GitObjectType.Any,
+                                        LookUpOptions.DereferenceResultToCommit) as Commit;
+
+            if (null != commit)
+            {
+                repo.Reset("HEAD", paths);
+            }
+            else
+            {
+                // HEAD doesn't exist, so all these staged paths must be Added.
+                foreach (String path in paths)
+                {
+                    RemoveFromIndex(path);
+                }
+
+                UpdatePhysicalIndex();
+            }
         }
 
         /// <summary>
