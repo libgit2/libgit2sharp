@@ -13,11 +13,11 @@ namespace LibGit2Sharp
         /// </summary>
         /// <typeparam name = "T"></typeparam>
         /// <param name = "repository">The <see cref = "Repository" /> being looked up.</param>
-        /// <param name = "shaOrRef">The shaOrRef to lookup.</param>
+        /// <param name = "objectish">The revparse spec for the object to lookup.</param>
         /// <returns></returns>
-        public static T Lookup<T>(this IRepository repository, string shaOrRef) where T : GitObject
+        public static T Lookup<T>(this IRepository repository, string objectish) where T : GitObject
         {
-            return (T)repository.Lookup(shaOrRef, GitObject.TypeToTypeMap[typeof(T)]);
+            return (T)repository.Lookup(objectish, GitObject.TypeToTypeMap[typeof (T)]);
         }
 
         /// <summary>

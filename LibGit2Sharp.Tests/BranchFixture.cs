@@ -89,6 +89,20 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
+        public void CanCreateBranchFromRevparseSpec()
+        {
+            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                const string name = "revparse_branch";
+                var target = repo.Lookup<Commit>("master~2");
+                Branch newBranch = repo.CreateBranch(name, target);
+                Assert.NotNull(newBranch);
+                Assert.Equal("9fd738e8f7967c078dceed8190330fc8648ee56a", newBranch.Tip.Sha);
+            }
+        }
+
+        [Fact]
         public void CreatingABranchFromATagPeelsToTheCommit()
         {
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
@@ -147,15 +161,6 @@ namespace LibGit2Sharp.Tests
             {
                 Assert.Throws<LibGit2SharpException>(() => repo.Branches.Add("my_new_branch", Constants.UnknownSha));
                 Assert.Throws<LibGit2SharpException>(() => repo.Branches.Add("my_new_branch", Constants.UnknownSha.Substring(0, 7)));
-            }
-        }
-
-        [Fact]
-        public void CreatingABranchPointingAtANonCanonicalReferenceThrows()
-        {
-            using (var repo = new Repository(BareTestRepoPath))
-            {
-                Assert.Throws<LibGit2SharpException>(() => repo.Branches.Add("nocanonicaltarget", "br2"));
             }
         }
 
