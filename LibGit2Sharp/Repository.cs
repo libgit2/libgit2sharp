@@ -4,6 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Compat;
 using LibGit2Sharp.Core.Handles;
@@ -346,61 +347,78 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Try to lookup an object by its sha or a reference canonical name and <see cref = "GitObjectType" />. If no matching object is found, null will be returned.
         /// </summary>
-        /// <param name = "shaOrReferenceName">The sha or reference canonical name to lookup.</param>
+        /// <param name = "objectish">A revparse spec for the object to lookup.</param>
         /// <param name = "type">The kind of <see cref = "GitObject" /> being looked up</param>
         /// <returns>The <see cref = "GitObject" /> or null if it was not found.</returns>
-        public GitObject Lookup(string shaOrReferenceName, GitObjectType type = GitObjectType.Any)
+        public GitObject Lookup(string objectish, GitObjectType type = GitObjectType.Any)
         {
-            return Lookup(shaOrReferenceName, type, LookUpOptions.None);
+            return Lookup(objectish, type, LookUpOptions.None);
         }
 
-        internal GitObject Lookup(string shaOrReferenceName, GitObjectType type, LookUpOptions lookUpOptions)
+        private string PathFromRevparseSpec(string spec)
         {
-            ObjectId id;
-
-            Reference reference = Refs[shaOrReferenceName];
-            if (reference != null)
+            if (spec.StartsWith(":/"))
             {
-                id = reference.PeelToTargetObjectId();
-            }
-            else
-            {
-                ObjectId.TryParseInternal(shaOrReferenceName, out id, IdentifierSize.Shortest);
+                return null;
             }
 
-            if (id == null)
+            if (Regex.IsMatch(spec, @"^:.*:"))
             {
-                if (lookUpOptions.Has(LookUpOptions.ThrowWhenNoGitObjectHasBeenFound))
+                return null;
+            }
+
+            var m = Regex.Match(spec, @"[^@^ ]*:(.*)");
+            return (m.Groups.Count > 1) ? m.Groups[1].Value : null;
+        }
+
+        internal GitObject Lookup(string objectish, GitObjectType type, LookUpOptions lookUpOptions)
+        {
+            Ensure.ArgumentNotNullOrEmptyString(objectish, "commitOrBranchSpec");
+
+            GitObjectSafeHandle sh;
+            int result = NativeMethods.git_revparse_single(out sh, Handle, objectish);
+
+            if ((GitErrorCode)result != GitErrorCode.Ok || sh.IsInvalid)
+            {
+                if (lookUpOptions.Has(LookUpOptions.ThrowWhenNoGitObjectHasBeenFound) &&
+                    result == (int)GitErrorCode.NotFound)
                 {
-                    Ensure.GitObjectIsNotNull(null, shaOrReferenceName);
+                    Ensure.GitObjectIsNotNull(null, objectish);
+                }
+
+                if (result == (int)GitErrorCode.Ambiguous)
+                {
+                    throw new AmbiguousException(string.Format(CultureInfo.InvariantCulture, "Provided abbreviated ObjectId '{0}' is too short.", objectish));
                 }
 
                 return null;
             }
 
-            GitObject gitObj = Lookup(id, type);
-
-            if (lookUpOptions.Has(LookUpOptions.ThrowWhenNoGitObjectHasBeenFound))
+            if (type != GitObjectType.Any && NativeMethods.git_object_type(sh) != type)
             {
-                Ensure.GitObjectIsNotNull(gitObj, shaOrReferenceName);
+                sh.SafeDispose();
+                return null;
             }
 
-            if (!lookUpOptions.Has(LookUpOptions.DereferenceResultToCommit))
-            {
-                return gitObj;
-            }
+            var obj = GitObject.CreateFromPtr(sh, GitObject.ObjectIdOf(sh), this, PathFromRevparseSpec(objectish));
+            sh.SafeDispose();
 
-            return gitObj.DereferenceToCommit(shaOrReferenceName, lookUpOptions.Has(LookUpOptions.ThrowWhenCanNotBeDereferencedToACommit));
+            if (lookUpOptions.Has(LookUpOptions.DereferenceResultToCommit))
+            {
+                return obj.DereferenceToCommit(objectish,
+                                               lookUpOptions.Has(LookUpOptions.ThrowWhenCanNotBeDereferencedToACommit));
+            }
+            return obj;
         }
 
         /// <summary>
         ///   Lookup a commit by its SHA or name, or throw if a commit is not found.
         /// </summary>
-        /// <param name="shaOrReferenceName">The SHA or name of the commit.</param>
+        /// <param name="commitish">A revparse spec for the commit.</param>
         /// <returns>The commit.</returns>
-        internal Commit LookupCommit(string shaOrReferenceName)
+        internal Commit LookupCommit(string commitish)
         {
-            return (Commit)Lookup(shaOrReferenceName, GitObjectType.Any, LookUpOptions.ThrowWhenNoGitObjectHasBeenFound | LookUpOptions.DereferenceResultToCommit | LookUpOptions.ThrowWhenCanNotBeDereferencedToACommit);
+            return (Commit)Lookup(commitish, GitObjectType.Any, LookUpOptions.ThrowWhenNoGitObjectHasBeenFound | LookUpOptions.DereferenceResultToCommit | LookUpOptions.ThrowWhenCanNotBeDereferencedToACommit);
         }
 
         /// <summary>
@@ -430,20 +448,20 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Checkout the specified branch, reference or SHA.
         /// </summary>
-        /// <param name = "shaOrReferenceName">The sha of the commit, a canonical reference name or the name of the branch to checkout.</param>
+        /// <param name = "commitOrBranchSpec">A revparse spec for the commit or branch to checkout.</param>
         /// <returns>The new HEAD.</returns>
-        public Branch Checkout(string shaOrReferenceName)
+        public Branch Checkout(string commitOrBranchSpec)
         {
             // TODO: This does not yet checkout (write) the working directory
 
-            var branch = Branches[shaOrReferenceName];
+            var branch = Branches[commitOrBranchSpec];
 
             if (branch != null)
             {
                 return Checkout(branch);
             }
 
-            var commitId = LookupCommit(shaOrReferenceName).Id;
+            var commitId = LookupCommit(commitOrBranchSpec).Id;
             Refs.UpdateTarget("HEAD", commitId.Sha);
             return Head;
         }
@@ -466,17 +484,17 @@ namespace LibGit2Sharp
         ///   the content of the working tree to match.
         /// </summary>
         /// <param name = "resetOptions">Flavor of reset operation to perform.</param>
-        /// <param name = "shaOrReferenceName">The sha or reference canonical name of the target commit object.</param>
-        public void Reset(ResetOptions resetOptions, string shaOrReferenceName = "HEAD")
+        /// <param name = "commitish">A revparse spec for the target commit object.</param>
+        public void Reset(ResetOptions resetOptions, string commitish = "HEAD")
         {
-            Ensure.ArgumentNotNullOrEmptyString(shaOrReferenceName, "shaOrReferenceName");
+            Ensure.ArgumentNotNullOrEmptyString(commitish, "commitOrBranchSpec");
 
             if (resetOptions.Has(ResetOptions.Mixed) && Info.IsBare)
             {
                 throw new LibGit2SharpException("Mixed reset is not allowed in a bare repository");
             }
 
-            Commit commit = LookupCommit(shaOrReferenceName);
+            Commit commit = LookupCommit(commitish);
 
             //TODO: Check for unmerged entries
 
@@ -501,16 +519,16 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Replaces entries in the <see cref="Index"/> with entries from the specified commit.
         /// </summary>
-        /// <param name = "shaOrReferenceName">The sha or reference canonical name of the target commit object.</param>
+        /// <param name = "commitish">A revparse spec for the target commit object.</param>
         /// <param name = "paths">The list of paths (either files or directories) that should be considered.</param>
-        public void Reset(string shaOrReferenceName = "HEAD", IEnumerable<string> paths = null)
+        public void Reset(string commitish = "HEAD", IEnumerable<string> paths = null)
         {
             if (Info.IsBare)
             {
                 throw new LibGit2SharpException("Reset is not allowed in a bare repository");
             }
 
-            Commit commit = LookupCommit(shaOrReferenceName);
+            Commit commit = LookupCommit(commitish);
             TreeChanges changes = Diff.Compare(commit.Tree, DiffTarget.Index, paths);
 
             Index.Reset(changes);

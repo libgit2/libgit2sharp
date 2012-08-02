@@ -297,6 +297,35 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
+        public void CanLookupUsingRevparseSyntax()
+        {
+            using (var repo = new Repository(BareTestRepoPath))
+            {
+                Assert.Null(repo.Lookup<Tree>("master^"));
+
+                Assert.NotNull(repo.Lookup("master:new.txt"));
+                Assert.NotNull(repo.Lookup<Blob>("master:new.txt"));
+                Assert.NotNull(repo.Lookup("master^"));
+                Assert.NotNull(repo.Lookup<Commit>("master^"));
+                Assert.NotNull(repo.Lookup("master~3"));
+                Assert.NotNull(repo.Lookup("HEAD"));
+                Assert.NotNull(repo.Lookup("refs/heads/br2"));
+            }
+        }
+
+        [Fact]
+        public void CanResolveAmbiguousRevparseSpecs()
+        {
+            using (var repo = new Repository(BareTestRepoPath))
+            {
+                var o1 = repo.Lookup("e90810b"); // This resolves to a tag
+                Assert.Equal("7b4384978d2493e851f9cca7858815fac9b10980", o1.Sha);
+                var o2 = repo.Lookup("e90810b8"); // This resolves to a commit
+                Assert.Equal("e90810b8df3e80c413d903f631643c716887138d", o2.Sha);
+            }
+        }
+
+        [Fact]
         public void LookingUpWithBadParamsThrows()
         {
             using (var repo = new Repository(BareTestRepoPath))
@@ -310,7 +339,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Fact]
+        [Fact(Skip = "This test requires an update to libgit2 to pass.")]
         public void LookingUpWithATooShortShaThrows()
         {
             using (var repo = new Repository(BareTestRepoPath))

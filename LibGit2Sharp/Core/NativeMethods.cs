@@ -640,6 +640,12 @@ namespace LibGit2Sharp.Core
         public static extern FilePath git_repository_workdir(RepositorySafeHandle repository);
 
         [DllImport(libgit2)]
+        public static extern int git_revparse_single(
+            out GitObjectSafeHandle obj,
+            RepositorySafeHandle repo,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string spec);
+
+        [DllImport(libgit2)]
         public static extern void git_revwalk_free(IntPtr walker);
 
         [DllImport(libgit2)]

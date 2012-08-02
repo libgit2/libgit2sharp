@@ -69,9 +69,9 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Checkout the specified branch, reference or SHA.
         /// </summary>
-        /// <param name = "shaOrReferenceName">The sha of the commit, a canonical reference name or the name of the branch to checkout.</param>
+        /// <param name = "commitOrBranchSpec">A revparse spec for the commit or branch to checkout.</param>
         /// <returns>The new HEAD.</returns>
-        Branch Checkout(string shaOrReferenceName);
+        Branch Checkout(string commitOrBranchSpec);
 
         /// <summary>
         ///   Try to lookup an object by its <see cref = "ObjectId" /> and <see cref = "GitObjectType" />. If no matching object is found, null will be returned.
@@ -84,10 +84,10 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Try to lookup an object by its sha or a reference canonical name and <see cref = "GitObjectType" />. If no matching object is found, null will be returned.
         /// </summary>
-        /// <param name = "shaOrReferenceName">The sha or reference canonical name to lookup.</param>
+        /// <param name = "objectish">A revparse spec for the object to lookup.</param>
         /// <param name = "type">The kind of <see cref = "GitObject" /> being looked up</param>
         /// <returns>The <see cref = "GitObject" /> or null if it was not found.</returns>
-        GitObject Lookup(string shaOrReferenceName, GitObjectType type = GitObjectType.Any);
+        GitObject Lookup(string objectish, GitObjectType type = GitObjectType.Any);
 
         /// <summary>
         ///   Stores the content of the <see cref = "Repository.Index" /> as a new <see cref = "Commit" /> into the repository.
