@@ -1,6 +1,4 @@
-﻿using System;
-using System.Globalization;
-using LibGit2Sharp.Core;
+﻿using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
 {
@@ -8,11 +6,6 @@ namespace LibGit2Sharp
     {
         internal AbbreviatedObjectId(GitOid oid, int length) : base(oid)
         {
-            if (length < MinHexSize || length > HexSize)
-            {
-                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "Expected length should be comprised between {0} and {1}.", MinHexSize, HexSize), "length");
-            }
-
             Length = length;
         }
 

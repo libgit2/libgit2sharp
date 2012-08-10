@@ -311,6 +311,15 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
+        public void LookingUpWithATooShortShaThrows()
+        {
+            using (var repo = new Repository(BareTestRepoPath))
+            {
+                Assert.Throws<AmbiguousException>(() => repo.Lookup("e90"));
+            }
+        }
+
+        [Fact]
         public void CanDiscoverABareRepoGivenTheRepoPath()
         {
             string path = Repository.Discover(BareTestRepoPath);

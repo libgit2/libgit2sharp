@@ -309,19 +309,25 @@ namespace LibGit2Sharp
                     res = NativeMethods.git_object_lookup(out obj, handle, ref oid, type);
                 }
 
-                if (res == (int)GitErrorCode.NotFound)
+                switch (res)
                 {
-                    return null;
+                    case (int)GitErrorCode.NotFound:
+                        return null;
+
+                    case (int)GitErrorCode.Ambiguous:
+                        throw new AmbiguousException(string.Format(CultureInfo.InvariantCulture, "Provided abbreviated ObjectId '{0}' is too short.", id));
+
+                    default:
+                        Ensure.Success(res);
+
+                        if (id is AbbreviatedObjectId)
+                        {
+                            id = GitObject.ObjectIdOf(obj);
+                        }
+
+                        return GitObject.CreateFromPtr(obj, id, this, knownPath);
                 }
 
-                Ensure.Success(res);
-
-                if (id is AbbreviatedObjectId)
-                {
-                    id = GitObject.ObjectIdOf(obj);
-                }
-
-                return GitObject.CreateFromPtr(obj, id, this, knownPath);
             }
             finally
             {
@@ -351,7 +357,7 @@ namespace LibGit2Sharp
             }
             else
             {
-                ObjectId.TryParse(shaOrReferenceName, out id);
+                ObjectId.TryParseInternal(shaOrReferenceName, out id, IdentifierSize.Shortest);
             }
 
             if (id == null)
