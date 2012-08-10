@@ -68,7 +68,7 @@ namespace LibGit2Sharp.Core
 
             if (error == null)
             {
-                error = new GitError { Klass = GitErrorType.Unknown, Message = IntPtr.Zero };
+                error = new GitError { Category = GitErrorCategory.Unknown, Message = IntPtr.Zero };
                 errorMessage = "No error message has been provided by the native library";
             }
             else
@@ -76,12 +76,7 @@ namespace LibGit2Sharp.Core
                 errorMessage = Utf8Marshaler.FromNative(error.Message);
             }
 
-            throw new LibGit2SharpException(
-                String.Format(CultureInfo.InvariantCulture, "An error was raised by libgit2. Class = {0} ({1}).{2}{3}",
-                              error.Klass,
-                              result,
-                              Environment.NewLine,
-                              errorMessage));
+            throw new LibGit2SharpException(errorMessage, (GitErrorCode)result, error.Category);
         }
 
         /// <summary>

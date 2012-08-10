@@ -7,6 +7,6 @@ namespace LibGit2Sharp.Core
     internal class GitError
     {
         public IntPtr Message;
-        public GitErrorType Klass;
+        public GitErrorCategory Category;
     }
 }

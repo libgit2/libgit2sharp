@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Globalization;
 using System.Runtime.Serialization;
+using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
 {
@@ -76,6 +78,22 @@ namespace LibGit2Sharp
         protected LibGit2SharpException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
+        }
+
+        internal LibGit2SharpException(string message, GitErrorCode code, GitErrorCategory category) : this(FormatMessage(message, code, category))
+        {
+            Data.Add("libgit2.code", code);
+            Data.Add("libgit2.category", category);
+
+        }
+
+        private static string FormatMessage(string message, GitErrorCode code, GitErrorCategory category)
+        {
+            return String.Format(CultureInfo.InvariantCulture, "An error was raised by libgit2. Category = {0} ({1}).{2}{3}",
+                          category,
+                          code,
+                          Environment.NewLine,
+                          message);
         }
     }
 }
