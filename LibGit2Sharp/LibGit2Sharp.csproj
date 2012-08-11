@@ -102,6 +102,7 @@
     <Compile Include="IRepository.cs" />
     <Compile Include="NoteCollection.cs" />
     <Compile Include="Note.cs" />
+    <Compile Include="RepositoryNotFoundException.cs" />
     <Compile Include="TreeChanges.cs" />
     <Compile Include="TreeEntryChanges.cs" />
     <Compile Include="LibGit2SharpException.cs" />

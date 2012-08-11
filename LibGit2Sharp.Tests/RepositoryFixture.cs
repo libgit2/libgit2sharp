@@ -171,7 +171,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void OpeningNonExistentRepoThrows()
         {
-            Assert.Throws<LibGit2SharpException>(() => { new Repository("a_bad_path"); });
+            Assert.Throws<RepositoryNotFoundException>(() => { new Repository("a_bad_path"); });
         }
 
         [Fact]

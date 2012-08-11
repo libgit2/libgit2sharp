@@ -45,7 +45,15 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(path, "path");
 
-            Ensure.Success(NativeMethods.git_repository_open(out handle, path));
+            int result = NativeMethods.git_repository_open(out handle, path);
+
+            if (result == (int)GitErrorCode.NotFound)
+            {
+                throw new RepositoryNotFoundException(string.Format(CultureInfo.InvariantCulture, "Path '{0}' doesn't point at a valid Git repository or workdir.", path));
+            }
+
+            Ensure.Success(result);
+
             RegisterForCleanup(handle);
 
             bool isBare = NativeMethods.RepositoryStateChecker(handle, NativeMethods.git_repository_is_bare);
