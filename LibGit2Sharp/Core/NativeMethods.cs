@@ -483,6 +483,18 @@ namespace LibGit2Sharp.Core
         [DllImport(libgit2)]
         public static extern int git_reference_delete(ReferenceSafeHandle reference);
 
+        internal delegate int ref_glob_callback(
+            IntPtr reference_name,
+            IntPtr payload);
+
+        [DllImport(libgit2)]
+        public static extern int git_reference_foreach_glob(
+            RepositorySafeHandle repo,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string glob,
+            GitReferenceType flags,
+            ref_glob_callback callback,
+            IntPtr payload);
+
         [DllImport(libgit2)]
         public static extern void git_reference_free(IntPtr reference);
 

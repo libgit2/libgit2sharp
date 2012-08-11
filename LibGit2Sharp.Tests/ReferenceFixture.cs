@@ -512,5 +512,18 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(lookedUp, moved);
             }
         }
+
+        [Fact]
+        public void CanFilterReferencesWithAGlob()
+        {
+            using (var repo = new Repository(BareTestRepoPath))
+            {
+                Assert.Equal(12, repo.Refs.FromGlob("*").Count());
+                Assert.Equal(5, repo.Refs.FromGlob("refs/heads/*").Count());
+                Assert.Equal(4, repo.Refs.FromGlob("refs/tags/*").Count());
+                Assert.Equal(3, repo.Refs.FromGlob("*t?[pqrs]t*").Count());
+                Assert.Equal(0, repo.Refs.FromGlob("test").Count());
+            }
+        }
     }
 }

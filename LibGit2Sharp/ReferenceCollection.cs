@@ -271,5 +271,45 @@ namespace LibGit2Sharp
 
             return reference;
         }
+
+        /// <summary>
+        ///   Returns the list of references of the repository matching the specified <paramref name = "pattern" />.
+        /// </summary>
+        /// <param name = "pattern">The glob pattern the reference name should match.</param>
+        /// <returns>A list of references, ready to be enumerated.</returns>
+        public virtual IEnumerable<Reference> FromGlob(string pattern)
+        {
+            Ensure.ArgumentNotNullOrEmptyString(pattern, "pattern");
+
+            return new GlobedReferenceEnumerable(repo.Handle, pattern).Select(n => this[n]);
+        }
+
+        private class GlobedReferenceEnumerable : IEnumerable<string>
+        {
+            private readonly List<string> list = new List<string>();
+
+            public GlobedReferenceEnumerable(RepositorySafeHandle handle, string pattern)
+            {
+                Ensure.Success(NativeMethods.git_reference_foreach_glob(handle, pattern, GitReferenceType.ListAll, Callback, IntPtr.Zero));
+                list.Sort(StringComparer.Ordinal);
+            }
+
+            private int Callback(IntPtr branchName, IntPtr payload)
+            {
+                string name = Utf8Marshaler.FromNative(branchName);
+                list.Add(name);
+                return 0;
+            }
+
+            public IEnumerator<string> GetEnumerator()
+            {
+                return list.GetEnumerator();
+            }
+
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return GetEnumerator();
+            }
+        }
     }
 }
