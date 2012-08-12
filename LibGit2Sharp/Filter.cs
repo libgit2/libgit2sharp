@@ -1,4 +1,8 @@
-﻿namespace LibGit2Sharp
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace LibGit2Sharp
 {
     /// <summary>
     ///   Criterias used to filter out and order the commits of the repository when querying its history.
@@ -33,6 +37,11 @@
         /// </summary>
         public object Since { get; set; }
 
+        internal IList<object> SinceList
+        {
+            get { return ToList(Since); }
+        }
+
         /// <summary>
         ///   A pointer to a commit object or a list of pointers which will be excluded (along with ancestors) from the enumeration.
         ///   <para>
@@ -42,5 +51,37 @@
         ///   </para>
         /// </summary>
         public object Until { get; set; }
+
+        internal IList<object> UntilList
+        {
+            get { return ToList(Until); }
+        }
+
+        private static IList<object> ToList(object obj)
+        {
+            var list = new List<object>();
+
+            if (obj == null)
+            {
+                return list;
+            }
+
+            var types = new[]
+                            {
+                                typeof(string), typeof(ObjectId),
+                                typeof(Commit), typeof(TagAnnotation),
+                                typeof(Tag), typeof(Branch), typeof(DetachedHead),
+                                typeof(Reference), typeof(DirectReference), typeof(SymbolicReference)
+                            };
+
+            if (types.Contains(obj.GetType()))
+            {
+                list.Add(obj);
+                return list;
+            }
+
+            list.AddRange(((IEnumerable)obj).Cast<object>());
+            return list;
+        }
     }
 }
