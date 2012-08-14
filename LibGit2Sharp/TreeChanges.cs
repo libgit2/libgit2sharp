@@ -68,25 +68,15 @@ namespace LibGit2Sharp
             switch (lineOrigin)
             {
                 case GitDiffLineOrigin.GIT_DIFF_LINE_ADDITION:
-                    IncrementLinesAdded(currentFilePath);
+                    linesAdded++;
+                    this[currentFilePath].LinesAdded++;
                     break;
 
                 case GitDiffLineOrigin.GIT_DIFF_LINE_DELETION:
-                    IncrementLinesDeleted(currentFilePath);
+                    linesDeleted++;
+                    this[currentFilePath].LinesDeleted++;
                     break;
             }
-        }
-
-        private void IncrementLinesDeleted(FilePath filePath)
-        {
-            linesDeleted++;
-            this[filePath].LinesDeleted++;
-        }
-
-        private void IncrementLinesAdded(FilePath filePath)
-        {
-            linesAdded++;
-            this[filePath].LinesAdded++;
         }
 
         private void AddFileChange(GitDiffDelta delta)
