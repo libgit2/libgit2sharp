@@ -174,8 +174,15 @@ namespace LibGit2Sharp.Tests
                 TreeEntry anotherInstance = tree["branch_file.txt"];
                 Assert.Equal("branch_file.txt", anotherInstance.Path);
 
+                // From a rev-parse statement
+                var revparseTree = repo.Lookup<Tree>("master:1");
+                TreeEntry yetAnotherInstance = revparseTree["branch_file.txt"];
+                Assert.Equal(completePath, yetAnotherInstance.Path);
+
                 Assert.Equal(tree, subTree);
+                Assert.Equal(revparseTree, tree);
                 Assert.Equal(anotherInstance, anInstance);
+                Assert.Equal(yetAnotherInstance, anotherInstance);
                 Assert.NotEqual(anotherInstance.Path, anInstance.Path);
                 Assert.NotSame(anotherInstance, anInstance);
             }

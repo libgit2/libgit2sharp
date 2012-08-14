@@ -137,14 +137,14 @@ namespace LibGit2Sharp
         ///   Create a new local branch with the specified name
         /// </summary>
         /// <param name = "name">The name of the branch.</param>
-        /// <param name = "shaOrReferenceName">The target which can be sha or a canonical reference name.</param>
+        /// <param name = "commitish">Revparse spec for the target commit.</param>
         /// <param name = "allowOverwrite">True to allow silent overwriting a potentially existing branch, false otherwise.</param>
         /// <returns></returns>
-        public virtual Branch Add(string name, string shaOrReferenceName, bool allowOverwrite = false)
+        public virtual Branch Add(string name, string commitish, bool allowOverwrite = false)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
 
-            ObjectId commitId = repo.LookupCommit(shaOrReferenceName).Id;
+            ObjectId commitId = repo.LookupCommit(commitish).Id;
 
             using (var osw = new ObjectSafeWrapper(commitId, repo))
             {
@@ -159,13 +159,13 @@ namespace LibGit2Sharp
         ///   Create a new local branch with the specified name
         /// </summary>
         /// <param name = "name">The name of the branch.</param>
-        /// <param name = "shaOrReferenceName">The target which can be sha or a canonical reference name.</param>
+        /// <param name = "commitish">Revparse spec for the target commit.</param>
         /// <param name = "allowOverwrite">True to allow silent overwriting a potentially existing branch, false otherwise.</param>
         /// <returns></returns>
         [Obsolete("This method will be removed in the next release. Please use Add() instead.")]
-        public virtual Branch Create(string name, string shaOrReferenceName, bool allowOverwrite = false)
+        public virtual Branch Create(string name, string commitish, bool allowOverwrite = false)
         {
-            return Add(name, shaOrReferenceName, allowOverwrite);
+            return Add(name, commitish, allowOverwrite);
         }
 
         /// <summary>

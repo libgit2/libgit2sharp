@@ -54,6 +54,19 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
+        public void CanAddALightweightTagFromARevparseSpec()
+        {
+            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                Tag newTag = repo.Tags.Add("i_am_lightweight", "master^1^2");
+                Assert.False(newTag.IsAnnotated);
+                Assert.NotNull(newTag);
+                Assert.Equal("c47800c7266a2be04c571c04d5a6614691ea99bd", newTag.Target.Sha);
+            }
+        }
+
+        [Fact]
         public void CanAddAndOverwriteALightweightTag()
         {
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
@@ -121,6 +134,19 @@ namespace LibGit2Sharp.Tests
                 Tag newTag = repo.Tags.Add("unit_test", tagTestSha, signatureTim, "a new tag");
                 Assert.NotNull(newTag);
                 Assert.True(newTag.IsAnnotated);
+            }
+        }
+
+        [Fact]
+        public void CanAddAnAnnotatedTagFromARevparseSpec()
+        {
+            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                Tag newTag = repo.Tags.Add("unit_test", "master^1^2", signatureTim, "a new tag");
+                Assert.NotNull(newTag);
+                Assert.True(newTag.IsAnnotated);
+                Assert.Equal("c47800c7266a2be04c571c04d5a6614691ea99bd", newTag.Target.Sha);
             }
         }
 
@@ -198,15 +224,6 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(BareTestRepoPath))
             {
                 Assert.Throws<LibGit2SharpException>(() => repo.ApplyTag("mytagnorev", "aaaaaaaaaaa"));
-            }
-        }
-
-        [Fact]
-        public void CreatingATagForANonCanonicalReferenceThrows()
-        {
-            using (var repo = new Repository(BareTestRepoPath))
-            {
-                Assert.Throws<LibGit2SharpException>(() => repo.ApplyTag("noncanonicaltarget", "br2"));
             }
         }
 
