@@ -4,6 +4,7 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Threading;
 using LibGit2Sharp.Core.Handles;
 
 namespace LibGit2Sharp.Core
@@ -788,5 +789,31 @@ namespace LibGit2Sharp.Core
 
         [DllImport(libgit2)]
         public static extern void git_treebuilder_free(IntPtr bld);
+
+        public static IDisposable ThreadAffinity()
+        {
+            return new DisposableThreadAffinityWrapper();
+        }
+
+        public static TResult WithThreadAffinity<TResult>(Func<TResult> nativeCall)
+        {
+            using (ThreadAffinity())
+            {
+                return nativeCall();
+            }
+        }
+
+        private class DisposableThreadAffinityWrapper : IDisposable
+        {
+            public DisposableThreadAffinityWrapper()
+            {
+                Thread.BeginThreadAffinity();
+            }
+
+            public void Dispose()
+            {
+                Thread.EndThreadAffinity();
+            }
+        }
     }
 }

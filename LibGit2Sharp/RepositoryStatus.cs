@@ -46,7 +46,11 @@ namespace LibGit2Sharp
 
         internal RepositoryStatus(Repository repo)
         {
-            Ensure.Success(NativeMethods.git_status_foreach(repo.Handle, StateChanged, IntPtr.Zero));
+            using (NativeMethods.ThreadAffinity())
+            {
+                Ensure.Success(NativeMethods.git_status_foreach(repo.Handle, StateChanged, IntPtr.Zero));
+            }
+
             isDirty = statusEntries.Any(entry => entry.State != FileStatus.Ignored);
         }
 
