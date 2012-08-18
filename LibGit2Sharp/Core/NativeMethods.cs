@@ -679,7 +679,7 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(FilePathMarshaler))] FilePath filepath);
 
         internal delegate int status_callback(
-            IntPtr statuspath,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(FilePathMarshaler))] FilePath statuspath,
             uint statusflags,
             IntPtr payload);
 
