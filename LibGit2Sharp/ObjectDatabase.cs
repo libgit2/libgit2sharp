@@ -48,7 +48,9 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Inserts a <see cref="Blob"/> into the object database, created from the content of a file.
         /// </summary>
-        /// <param name="path">Path to the file to create the blob from.</param>
+        /// <param name="path">Path to the file to create the blob from.  A relative path is allowed to
+        ///   be passed if the <see cref="Repository" /> is a standard, non-bare, repository. The path
+        ///   will then be considered as a path relative to the root of the working directory.</param>
         /// <returns>The created <see cref="Blob"/>.</returns>
         public virtual Blob CreateBlob(string path)
         {
@@ -56,14 +58,14 @@ namespace LibGit2Sharp
 
             var oid = new GitOid();
 
-            if (!repo.Info.IsBare && !Path.IsPathRooted(path))
+            if (repo.Info.IsBare && !Path.IsPathRooted(path))
             {
-                Ensure.Success(NativeMethods.git_blob_create_fromfile(ref oid, repo.Handle, path));
+                throw new InvalidOperationException(string.Format("Cannot create a blob in a bare repository from a relative path ('{0}').", path));
             }
-            else
-            {
-                Ensure.Success(NativeMethods.git_blob_create_fromdisk(ref oid, repo.Handle, path));
-            }
+
+            Ensure.Success(Path.IsPathRooted(path)
+                               ? NativeMethods.git_blob_create_fromdisk(ref oid, repo.Handle, path)
+                               : NativeMethods.git_blob_create_fromfile(ref oid, repo.Handle, path));
 
             return repo.Lookup<Blob>(new ObjectId(oid));
         }

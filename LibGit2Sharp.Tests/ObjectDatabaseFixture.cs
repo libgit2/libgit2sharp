@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Text;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
@@ -247,6 +248,18 @@ namespace LibGit2Sharp.Tests
                 Assert.NotNull(te.Target);
                 Assert.Equal("dc53d4c6b8684c21b0b57db29da4a2afea011565", te.Target.Sha);
                 Assert.Equal("dc53d4c6b8684c21b0b57db29da4a2afea011565", td["1/2/another new file"].TargetId.Sha);
+            }
+        }
+
+        [Fact]
+        public void CannotCreateATreeContainingABlobFromARelativePathAgainstABareRepository()
+        {
+            using (var repo = new Repository(BareTestRepoPath))
+            {
+                var td = new TreeDefinition()
+                    .Add("1/new file", "hello.txt", Mode.NonExecutableFile);
+
+                Assert.Throws<InvalidOperationException>(() => repo.ObjectDatabase.CreateTree(td));
             }
         }
 

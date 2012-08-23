@@ -147,7 +147,8 @@ namespace LibGit2Sharp
         ///   Adds or replaces a <see cref="TreeEntryDefinition"/>, dynamically built from the content of the file, at the specified <paramref name="targetTreeEntryPath"/> location.
         /// </summary>
         /// <param name="targetTreeEntryPath">The path within this <see cref="TreeDefinition"/>.</param>
-        /// <param name="filePath">The path to the file from which a <see cref="Blob"/> will be built and stored at the described location.</param>
+        /// <param name="filePath">The path to the file from which a <see cref="Blob"/> will be built and stored at the described location. A relative path is allowed to be passed if the target
+        /// <see cref="Repository" /> is a standard, non-bare, repository. The path will then be considered as a path relative to the root of the working directory.</param>
         /// <param name="mode">The file related <see cref="Mode"/> attributes.</param>
         /// <returns>The current <see cref="TreeDefinition"/>.</returns>
         public TreeDefinition Add(string targetTreeEntryPath, string filePath, Mode mode)
