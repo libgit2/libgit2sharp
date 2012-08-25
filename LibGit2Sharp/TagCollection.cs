@@ -12,7 +12,7 @@ namespace LibGit2Sharp
     /// </summary>
     public class TagCollection : IEnumerable<Tag>
     {
-        private readonly Repository repo;
+        internal readonly Repository repo;
         private const string refsTagsPrefix = "refs/tags/";
 
         /// <summary>
@@ -100,24 +100,6 @@ namespace LibGit2Sharp
             return this[name];
         }
 
-        /// <summary>
-        ///   Creates an annotated tag with the specified name.
-        /// </summary>
-        /// <param name = "name">The name.</param>
-        /// <param name = "objectish">Revparse spec for the target object.</param>
-        /// <param name = "tagger">The tagger.</param>
-        /// <param name = "message">The message.</param>
-        /// <param name = "allowOverwrite">True to allow silent overwriting a potentially existing tag, false otherwise.</param>
-        /// <returns></returns>
-        public virtual Tag Add(string name, string objectish, Signature tagger, string message, bool allowOverwrite = false)
-        {
-            Ensure.ArgumentNotNullOrEmptyString(objectish, "target");
-
-            GitObject objectToTag = repo.Lookup(objectish, GitObjectType.Any, LookUpOptions.ThrowWhenNoGitObjectHasBeenFound);
-
-            return Add(name, objectToTag.Id, tagger, message, allowOverwrite);
-        }
-
         internal static string PrettifyMessage(string message)
         {
             var buffer = new byte[NativeMethods.GIT_PATH_MAX];
@@ -139,7 +121,7 @@ namespace LibGit2Sharp
         [Obsolete("This method will be removed in the next release. Please use Add() instead.")]
         public virtual Tag Create(string name, string target, Signature tagger, string message, bool allowOverwrite = false)
         {
-            return Add(name, target, tagger, message, allowOverwrite);
+            return this.Add(name, target, tagger, message, allowOverwrite);
         }
 
         /// <summary>
@@ -170,29 +152,13 @@ namespace LibGit2Sharp
         ///   Creates a lightweight tag with the specified name.
         /// </summary>
         /// <param name = "name">The name.</param>
-        /// <param name = "objectish">Revparse spec for the target object.</param>
-        /// <param name = "allowOverwrite">True to allow silent overwriting a potentially existing tag, false otherwise.</param>
-        /// <returns></returns>
-        public virtual Tag Add(string name, string objectish, bool allowOverwrite = false)
-        {
-            Ensure.ArgumentNotNullOrEmptyString(objectish, "objectish");
-
-            GitObject objectToTag = repo.Lookup(objectish, GitObjectType.Any, LookUpOptions.ThrowWhenNoGitObjectHasBeenFound);
-
-            return Add(name, objectToTag.Id, allowOverwrite);
-        }
-
-        /// <summary>
-        ///   Creates a lightweight tag with the specified name.
-        /// </summary>
-        /// <param name = "name">The name.</param>
         /// <param name = "target">The target which can be sha or a canonical reference name.</param>
         /// <param name = "allowOverwrite">True to allow silent overwriting a potentially existing tag, false otherwise.</param>
         /// <returns></returns>
         [Obsolete("This method will be removed in the next release. Please use Add() instead.")]
         public virtual Tag Create(string name, string target, bool allowOverwrite = false)
         {
-            return Add(name, target, allowOverwrite);
+            return this.Add(name, target, allowOverwrite);
         }
 
         /// <summary>

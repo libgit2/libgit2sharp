@@ -66,6 +66,7 @@
     <Compile Include="CommitLog.cs" />
     <Compile Include="Configuration.cs" />
     <Compile Include="ContentChanges.cs" />
+    <Compile Include="TagCollectionExtensions.cs" />
     <Compile Include="Core\Compat\Environment.cs" />
     <Compile Include="Core\FilePath.cs" />
     <Compile Include="Core\FilePathExtensions.cs" />
