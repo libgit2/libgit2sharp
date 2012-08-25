@@ -26,6 +26,21 @@ namespace LibGit2Sharp.Tests
                 Tag newTag = repo.Tags.Add("i_am_lightweight", commitE90810BSha);
                 Assert.NotNull(newTag);
                 Assert.False(newTag.IsAnnotated);
+                Assert.Equal(commitE90810BSha, newTag.Target.Sha);
+            }
+        }
+
+
+        [Fact]
+        public void CanAddALightWeightTagFromObjectId()
+        {
+            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                Tag newTag = repo.Tags.Add("i_am_lightweight", new ObjectId(commitE90810BSha));
+                Assert.NotNull(newTag);
+                Assert.False(newTag.IsAnnotated);
+                Assert.Equal(commitE90810BSha, newTag.Target.Sha);
             }
         }
 
@@ -134,6 +149,21 @@ namespace LibGit2Sharp.Tests
                 Tag newTag = repo.Tags.Add("unit_test", tagTestSha, signatureTim, "a new tag");
                 Assert.NotNull(newTag);
                 Assert.True(newTag.IsAnnotated);
+                Assert.Equal(tagTestSha, newTag.Target.Sha);
+            }
+        }
+
+
+        [Fact]
+        public void CanAddAnAnnotatedTagFromObjectId()
+        {
+            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                Tag newTag = repo.Tags.Add("unit_test", new ObjectId(tagTestSha), signatureTim, "a new tag");
+                Assert.NotNull(newTag);
+                Assert.True(newTag.IsAnnotated);
+                Assert.Equal(tagTestSha, newTag.Target.Sha);
             }
         }
 
@@ -461,7 +491,8 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                Assert.Throws<ArgumentNullException>(() => repo.Tags.Add("test_tag", null, signatureTim, "message"));
+                Assert.Throws<ArgumentNullException>(() => repo.Tags.Add("test_tag", (string)null, signatureTim, "message"));
+                Assert.Throws<ArgumentNullException>(() => repo.Tags.Add("test_tag", (ObjectId)null, signatureTim, "message"));
             }
         }
 

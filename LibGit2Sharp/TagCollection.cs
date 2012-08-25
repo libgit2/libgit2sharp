@@ -73,24 +73,22 @@ namespace LibGit2Sharp
         ///   Creates an annotated tag with the specified name.
         /// </summary>
         /// <param name = "name">The name.</param>
-        /// <param name = "objectish">Revparse spec of the target object.</param>
+        /// <param name = "targetId">Id of the target object.</param>
         /// <param name = "tagger">The tagger.</param>
         /// <param name = "message">The message.</param>
         /// <param name = "allowOverwrite">True to allow silent overwriting a potentially existing tag, false otherwise.</param>
         /// <returns></returns>
-        public virtual Tag Add(string name, string objectish, Signature tagger, string message, bool allowOverwrite = false)
+        public virtual Tag Add(string name, ObjectId targetId, Signature tagger, string message, bool allowOverwrite = false)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
-            Ensure.ArgumentNotNullOrEmptyString(objectish, "objectish");
+            Ensure.ArgumentNotNull(targetId, "targetId");
             Ensure.ArgumentNotNull(tagger, "tagger");
             Ensure.ArgumentNotNull(message, "message");
-
-            GitObject objectToTag = repo.Lookup(objectish, GitObjectType.Any, LookUpOptions.ThrowWhenNoGitObjectHasBeenFound);
 
             string prettifiedMessage = ObjectDatabase.PrettifyMessage(message);
 
             int res;
-            using (var objectPtr = new ObjectSafeWrapper(objectToTag.Id, repo))
+            using (var objectPtr = new ObjectSafeWrapper(targetId, repo))
             using (SignatureSafeHandle taggerHandle = tagger.BuildHandle())
             {
                 GitOid oid;
@@ -100,6 +98,24 @@ namespace LibGit2Sharp
             Ensure.Success(res);
 
             return this[name];
+        }
+
+        /// <summary>
+        ///   Creates an annotated tag with the specified name.
+        /// </summary>
+        /// <param name = "name">The name.</param>
+        /// <param name = "objectish">Revparse spec for the target object.</param>
+        /// <param name = "tagger">The tagger.</param>
+        /// <param name = "message">The message.</param>
+        /// <param name = "allowOverwrite">True to allow silent overwriting a potentially existing tag, false otherwise.</param>
+        /// <returns></returns>
+        public virtual Tag Add(string name, string objectish, Signature tagger, string message, bool allowOverwrite = false)
+        {
+            Ensure.ArgumentNotNullOrEmptyString(objectish, "target");
+
+            GitObject objectToTag = repo.Lookup(objectish, GitObjectType.Any, LookUpOptions.ThrowWhenNoGitObjectHasBeenFound);
+
+            return Add(name, objectToTag.Id, tagger, message, allowOverwrite);
         }
 
         internal static string PrettifyMessage(string message)
@@ -130,18 +146,16 @@ namespace LibGit2Sharp
         ///   Creates a lightweight tag with the specified name.
         /// </summary>
         /// <param name = "name">The name.</param>
-        /// <param name = "objectish">Revparse spec of the target object.</param>
+        /// <param name = "targetId">Id of the target object.</param>
         /// <param name = "allowOverwrite">True to allow silent overwriting a potentially existing tag, false otherwise.</param>
         /// <returns></returns>
-        public virtual Tag Add(string name, string objectish, bool allowOverwrite = false)
+        public virtual Tag Add(string name, ObjectId targetId, bool allowOverwrite = false)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
-            Ensure.ArgumentNotNullOrEmptyString(objectish, "objectish");
-
-            GitObject objectToTag = repo.Lookup(objectish, GitObjectType.Any, LookUpOptions.ThrowWhenNoGitObjectHasBeenFound);
+            Ensure.ArgumentNotNull(targetId, "targetId");
 
             int res;
-            using (var objectPtr = new ObjectSafeWrapper(objectToTag.Id, repo))
+            using (var objectPtr = new ObjectSafeWrapper(targetId, repo))
             {
                 GitOid oid;
                 res = NativeMethods.git_tag_create_lightweight(out oid, repo.Handle, name, objectPtr.ObjectPtr, allowOverwrite);
@@ -150,6 +164,22 @@ namespace LibGit2Sharp
             Ensure.Success(res);
 
             return this[name];
+        }
+
+        /// <summary>
+        ///   Creates a lightweight tag with the specified name.
+        /// </summary>
+        /// <param name = "name">The name.</param>
+        /// <param name = "objectish">Revparse spec for the target object.</param>
+        /// <param name = "allowOverwrite">True to allow silent overwriting a potentially existing tag, false otherwise.</param>
+        /// <returns></returns>
+        public virtual Tag Add(string name, string objectish, bool allowOverwrite = false)
+        {
+            Ensure.ArgumentNotNullOrEmptyString(objectish, "objectish");
+
+            GitObject objectToTag = repo.Lookup(objectish, GitObjectType.Any, LookUpOptions.ThrowWhenNoGitObjectHasBeenFound);
+
+            return Add(name, objectToTag.Id, allowOverwrite);
         }
 
         /// <summary>
