@@ -73,19 +73,19 @@ namespace LibGit2Sharp
         ///   Creates an annotated tag with the specified name.
         /// </summary>
         /// <param name = "name">The name.</param>
-        /// <param name = "target">The target which can be sha or a canonical reference name.</param>
+        /// <param name = "objectish">Revparse spec of the target object.</param>
         /// <param name = "tagger">The tagger.</param>
         /// <param name = "message">The message.</param>
         /// <param name = "allowOverwrite">True to allow silent overwriting a potentially existing tag, false otherwise.</param>
         /// <returns></returns>
-        public virtual Tag Add(string name, string target, Signature tagger, string message, bool allowOverwrite = false)
+        public virtual Tag Add(string name, string objectish, Signature tagger, string message, bool allowOverwrite = false)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
-            Ensure.ArgumentNotNullOrEmptyString(target, "target");
+            Ensure.ArgumentNotNullOrEmptyString(objectish, "objectish");
             Ensure.ArgumentNotNull(tagger, "tagger");
             Ensure.ArgumentNotNull(message, "message");
 
-            GitObject objectToTag = repo.Lookup(target, GitObjectType.Any, LookUpOptions.ThrowWhenNoGitObjectHasBeenFound);
+            GitObject objectToTag = repo.Lookup(objectish, GitObjectType.Any, LookUpOptions.ThrowWhenNoGitObjectHasBeenFound);
 
             string prettifiedMessage = ObjectDatabase.PrettifyMessage(message);
 
@@ -130,15 +130,15 @@ namespace LibGit2Sharp
         ///   Creates a lightweight tag with the specified name.
         /// </summary>
         /// <param name = "name">The name.</param>
-        /// <param name = "target">The target which can be sha or a canonical reference name.</param>
+        /// <param name = "objectish">Revparse spec of the target object.</param>
         /// <param name = "allowOverwrite">True to allow silent overwriting a potentially existing tag, false otherwise.</param>
         /// <returns></returns>
-        public virtual Tag Add(string name, string target, bool allowOverwrite = false)
+        public virtual Tag Add(string name, string objectish, bool allowOverwrite = false)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
-            Ensure.ArgumentNotNullOrEmptyString(target, "target");
+            Ensure.ArgumentNotNullOrEmptyString(objectish, "objectish");
 
-            GitObject objectToTag = repo.Lookup(target, GitObjectType.Any, LookUpOptions.ThrowWhenNoGitObjectHasBeenFound);
+            GitObject objectToTag = repo.Lookup(objectish, GitObjectType.Any, LookUpOptions.ThrowWhenNoGitObjectHasBeenFound);
 
             int res;
             using (var objectPtr = new ObjectSafeWrapper(objectToTag.Id, repo))
