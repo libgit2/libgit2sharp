@@ -68,7 +68,7 @@ namespace LibGit2Sharp.Tests
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
             using (var repo = new Repository(path.RepositoryPath))
             {
-                Assert.Throws<LibGit2SharpException>(() => repo.Refs.Add("HEAD", "refs/head/br2"));
+                Assert.Throws<LibGit2SharpException>(() => repo.Refs.Add("HEAD", "refs/heads/br2"));
             }
         }
 
