@@ -568,6 +568,18 @@ namespace LibGit2Sharp.Core
         public static extern string git_remote_url(RemoteSafeHandle remote);
 
         [DllImport(libgit2)]
+        public static extern int git_remote_connect(RemoteSafeHandle remote, GitDirection direction);
+
+        [DllImport(libgit2)]
+        public static extern void git_remote_disconnect(RemoteSafeHandle remote);
+
+        [DllImport(libgit2)]
+        public static extern int git_remote_download(RemoteSafeHandle remote, ref long bytes, ref GitIndexerStats stats);
+
+        [DllImport(libgit2)]
+        public static extern int git_remote_update_tips(RemoteSafeHandle remote, IntPtr cb);
+
+        [DllImport(libgit2)]
         public static extern int git_remote_save(RemoteSafeHandle remote);
 
         [DllImport(libgit2)]
