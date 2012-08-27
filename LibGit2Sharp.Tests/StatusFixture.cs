@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Text;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
 
@@ -239,6 +240,60 @@ namespace LibGit2Sharp.Tests
 
                 Assert.Equal(FileStatus.Ignored, repo.Index.RetrieveStatus(relativePath));
                 Assert.Equal(new[] { relativePath, "new_untracked_file.txt" }, newStatus.Ignored);
+            }
+        }
+
+        [Fact]
+        public void CanHandleTwoStatusEntryChangesWithTheSamePath()
+        {
+            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+
+            using (Repository repo = Repository.Init(scd.DirectoryPath))
+            {
+                Blob mainContent = CreateBlob(repo, "awesome content\n");
+                Blob linkContent = CreateBlob(repo, "../../objc/Nu.h");
+
+                const string path = "include/Nu/Nu.h";
+
+                var tdOld = new TreeDefinition()
+                    .Add(path, linkContent, Mode.SymbolicLink)
+                    .Add("objc/Nu.h", mainContent, Mode.NonExecutableFile);
+
+                Tree tree = repo.ObjectDatabase.CreateTree(tdOld);
+
+                Commit commit = repo.ObjectDatabase.CreateCommit("A symlink", DummySignature, DummySignature, tree, Enumerable.Empty<Commit>());
+                repo.Refs.UpdateTarget("HEAD", commit.Id.Sha);
+                repo.Reset(ResetOptions.Mixed);
+
+                string fullPath = Path.Combine(repo.Info.WorkingDirectory, "include/Nu");
+                Directory.CreateDirectory(fullPath);
+
+                File.WriteAllText(Path.Combine(fullPath, "Nu.h"), "awesome content\n");
+
+                RepositoryStatus status = repo.Index.RetrieveStatus();
+
+                if (IsRunningOnLinux())
+                {
+                    Assert.Equal(3, status.Count());
+                    Assert.Equal(new[] { Path.Combine(Path.Combine("include", "Nu"), "Nu.h"), Path.Combine("objc", "Nu.h") }, status.Missing.ToArray());
+                    Assert.Equal(0, status.Added.Count());
+                    Assert.Equal(0, status.Modified.Count());
+                    Assert.Equal(Path.Combine(Path.Combine("include", "Nu"), "Nu.h"), status.Untracked.Single());
+                    return;
+                }
+
+                Assert.Equal(2, status.Count());
+                Assert.Equal(Path.Combine(Path.Combine("include", "Nu"), "Nu.h"), status.Modified.Single());
+                Assert.Equal(Path.Combine("objc", "Nu.h"), status.Missing.Single());
+            }
+        }
+
+        private static Blob CreateBlob(Repository repo, string content)
+        {
+            using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(content)))
+            using (var binReader = new BinaryReader(stream))
+            {
+                return repo.ObjectDatabase.CreateBlob(binReader);
             }
         }
     }

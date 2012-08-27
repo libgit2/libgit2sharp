@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Handles;
@@ -13,7 +14,7 @@ namespace LibGit2Sharp
     /// </summary>
     public class TreeChanges : IEnumerable<TreeEntryChanges>
     {
-        private readonly IDictionary<FilePath, TreeEntryChanges> changes = new Dictionary<FilePath, TreeEntryChanges>();
+        private readonly IDictionary<FilePath, List<TreeEntryChanges>> changes = new Dictionary<FilePath, List<TreeEntryChanges>>();
         private readonly List<TreeEntryChanges> added = new List<TreeEntryChanges>();
         private readonly List<TreeEntryChanges> deleted = new List<TreeEntryChanges>();
         private readonly List<TreeEntryChanges> modified = new List<TreeEntryChanges>();
@@ -79,7 +80,7 @@ namespace LibGit2Sharp
             var newFilePath = FilePathMarshaler.FromNative(delta.NewFile.Path);
 
             if (lineorigin != GitDiffLineOrigin.GIT_DIFF_LINE_FILE_HDR)
-                return this[newFilePath];
+                return this[newFilePath].Last();
 
             var oldFilePath = FilePathMarshaler.FromNative(delta.OldFile.Path);
             var newMode = (Mode)delta.NewFile.Mode;
@@ -90,7 +91,9 @@ namespace LibGit2Sharp
             var diffFile = new TreeEntryChanges(newFilePath, newMode, newOid, delta.Status, oldFilePath, oldMode, oldOid, delta.IsBinary());
 
             fileDispatcher[delta.Status](this, diffFile);
-            changes.Add(newFilePath, diffFile);
+
+            var newFilePathChanges = this[newFilePath] ?? (changes[newFilePath] = new List<TreeEntryChanges>());
+            newFilePathChanges.Add(diffFile);
             return diffFile;
         }
 
@@ -102,7 +105,7 @@ namespace LibGit2Sharp
         /// <returns>An <see cref = "IEnumerator{T}" /> object that can be used to iterate through the collection.</returns>
         public virtual IEnumerator<TreeEntryChanges> GetEnumerator()
         {
-            return changes.Values.GetEnumerator();
+            return changes.Values.SelectMany(tec => tec.AsEnumerable()).GetEnumerator();
         }
 
         /// <summary>
@@ -119,16 +122,16 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Gets the <see cref = "TreeEntryChanges"/> corresponding to the specified <paramref name = "path"/>.
         /// </summary>
-        public virtual TreeEntryChanges this[string path]
+        public virtual IEnumerable<TreeEntryChanges> this[string path]
         {
             get { return this[(FilePath)path]; }
         }
 
-        private TreeEntryChanges this[FilePath path]
+        private List<TreeEntryChanges> this[FilePath path]
         {
             get
             {
-                TreeEntryChanges treeEntryChanges;
+                List<TreeEntryChanges> treeEntryChanges;
                 if (changes.TryGetValue(path, out treeEntryChanges))
                 {
                     return treeEntryChanges;

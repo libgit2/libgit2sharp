@@ -136,7 +136,7 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNull(blob, "blob");
             Ensure.ArgumentConformsTo(mode,
-                                      m => m.HasAny(new[] { Mode.ExecutableFile, Mode.NonExecutableFile, Mode.NonExecutableGroupWritableFile }), "mode");
+                                      m => m.HasAny(new[] { Mode.ExecutableFile, Mode.NonExecutableFile, Mode.NonExecutableGroupWritableFile, Mode.SymbolicLink }), "mode");
 
             TreeEntryDefinition ted = TreeEntryDefinition.From(blob, mode);
 
