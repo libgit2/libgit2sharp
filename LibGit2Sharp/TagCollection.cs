@@ -100,6 +100,37 @@ namespace LibGit2Sharp
             return this[name];
         }
 
+        /// <summary>
+        ///   Creates an annotated tag with the specified name.
+        /// </summary>
+        /// <param name = "name">The name.</param>
+        /// <param name = "target">The target <see cref="GitObject"/>.</param>
+        /// <param name = "tagger">The tagger.</param>
+        /// <param name = "message">The message.</param>
+        /// <param name = "allowOverwrite">True to allow silent overwriting a potentially existing tag, false otherwise.</param>
+        /// <returns></returns>
+        public virtual Tag Add(string name, GitObject target, Signature tagger, string message, bool allowOverwrite = false)
+        {
+            Ensure.ArgumentNotNullOrEmptyString(name, "name");
+            Ensure.ArgumentNotNull(target, "target");
+            Ensure.ArgumentNotNull(tagger, "tagger");
+            Ensure.ArgumentNotNull(message, "message");
+
+            string prettifiedMessage = ObjectDatabase.PrettifyMessage(message);
+
+            int res;
+            using (var objectPtr = new ObjectSafeWrapper(target.Id, repo))
+            using (SignatureSafeHandle taggerHandle = tagger.BuildHandle())
+            {
+                GitOid oid;
+                res = NativeMethods.git_tag_create(out oid, repo.Handle, name, objectPtr.ObjectPtr, taggerHandle, prettifiedMessage, allowOverwrite);
+            }
+
+            Ensure.Success(res);
+
+            return this[name];
+        }
+
         internal static string PrettifyMessage(string message)
         {
             var buffer = new byte[NativeMethods.GIT_PATH_MAX];
@@ -122,6 +153,30 @@ namespace LibGit2Sharp
         public virtual Tag Create(string name, string target, Signature tagger, string message, bool allowOverwrite = false)
         {
             return this.Add(name, target, tagger, message, allowOverwrite);
+        }
+
+        /// <summary>
+        ///   Creates a lightweight tag with the specified name.
+        /// </summary>
+        /// <param name = "name">The name.</param>
+        /// <param name = "target">The target <see cref="GitObject"/>.</param>
+        /// <param name = "allowOverwrite">True to allow silent overwriting a potentially existing tag, false otherwise.</param>
+        /// <returns></returns>
+        public virtual Tag Add(string name, GitObject target, bool allowOverwrite = false)
+        {
+            Ensure.ArgumentNotNullOrEmptyString(name, "name");
+            Ensure.ArgumentNotNull(target, "target");
+
+            int res;
+            using (var objectPtr = new ObjectSafeWrapper(target.Id, repo))
+            {
+                GitOid oid;
+                res = NativeMethods.git_tag_create_lightweight(out oid, repo.Handle, name, objectPtr.ObjectPtr, allowOverwrite);
+            }
+
+            Ensure.Success(res);
+
+            return this[name];
         }
 
         /// <summary>
