@@ -22,7 +22,7 @@ namespace LibGit2Sharp
 
             GitObject objectToTag = tags.repo.Lookup(objectish, GitObjectType.Any, LookUpOptions.ThrowWhenNoGitObjectHasBeenFound);
 
-            return tags.Add(name, objectToTag.Id, tagger, message, allowOverwrite);
+            return tags.Add(name, objectToTag, tagger, message, allowOverwrite);
         }
 
         /// <summary>
@@ -38,7 +38,7 @@ namespace LibGit2Sharp
 
             GitObject objectToTag = tags.repo.Lookup(objectish, GitObjectType.Any, LookUpOptions.ThrowWhenNoGitObjectHasBeenFound);
 
-            return tags.Add(name, objectToTag.Id, allowOverwrite);
+            return tags.Add(name, objectToTag, allowOverwrite);
         }
     }
 }
