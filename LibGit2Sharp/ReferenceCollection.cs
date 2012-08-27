@@ -107,8 +107,6 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
             Ensure.ArgumentNotNullOrEmptyString(canonicalRefNameOrObjectish, "canonicalRefNameOrObjectish");
 
-            Func<string, bool, ReferenceSafeHandle> referenceCreator;
-
             Reference reference;
             RefState refState = TryResolveReference(out reference, canonicalRefNameOrObjectish);
 
@@ -116,16 +114,30 @@ namespace LibGit2Sharp
 
             if (refState == RefState.Exists || (refState == RefState.DoesNotExistButLooksValid && gitObject == null))
             {
-                referenceCreator = (n, o) => CreateSymbolicReference(n, canonicalRefNameOrObjectish, o);
-            }
-            else
-            {
-                referenceCreator = (n, o) => CreateDirectReference(n, gitObject.Id, o);
+                using (ReferenceSafeHandle handle = CreateSymbolicReference(name, canonicalRefNameOrObjectish, allowOverwrite))
+                {
+                    return Reference.BuildFromPtr<Reference>(handle, repo);
+                }
             }
 
-            using (ReferenceSafeHandle handle = referenceCreator(name, allowOverwrite))
+            return Add(name, gitObject.Id, allowOverwrite);
+        }
+
+        /// <summary>
+        ///   Creates a direct reference with the specified name and target
+        /// </summary>
+        /// <param name = "name">The name of the reference to create.</param>
+        /// <param name = "targetId">Id of the target object.</param>
+        /// <param name = "allowOverwrite">True to allow silent overwriting a potentially existing reference, false otherwise.</param>
+        /// <returns>A new <see cref = "Reference" />.</returns>
+        public virtual DirectReference Add(string name, ObjectId targetId, bool allowOverwrite = false)
+        {
+            Ensure.ArgumentNotNullOrEmptyString(name, "name");
+            Ensure.ArgumentNotNull(targetId, "targetId");
+
+            using (ReferenceSafeHandle handle = CreateDirectReference(name, targetId, allowOverwrite))
             {
-                return Reference.BuildFromPtr<Reference>(handle, repo);
+                return (DirectReference)Reference.BuildFromPtr<Reference>(handle, repo);
             }
         }
 
@@ -151,30 +163,11 @@ namespace LibGit2Sharp
 
         private ReferenceSafeHandle CreateDirectReference(string name, ObjectId targetId, bool allowOverwrite)
         {
-            targetId = Unabbreviate(targetId);
-
             GitOid oid = targetId.Oid;
 
             ReferenceSafeHandle handle;
             Ensure.Success(NativeMethods.git_reference_create_oid(out handle, repo.Handle, name, ref oid, allowOverwrite));
             return handle;
-        }
-
-        private ObjectId Unabbreviate(ObjectId targetId)
-        {
-            if (!(targetId is AbbreviatedObjectId))
-            {
-                return targetId;
-            }
-
-            GitObject obj = repo.Lookup(targetId);
-
-            if (obj == null)
-            {
-                Ensure.Success((int)GitErrorCode.NotFound);
-            }
-
-            return obj.Id;
         }
 
         /// <summary>
