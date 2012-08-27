@@ -52,7 +52,7 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
-        public void CanAddASymbolicReference()
+        public void CanAddASymbolicReferenceFromTheTargetName()
         {
             const string name = "refs/heads/unit_test";
             const string target = "refs/heads/master";
@@ -61,13 +61,36 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path.RepositoryPath))
             {
                 var newRef = (SymbolicReference)repo.Refs.Add(name, target);
-                Assert.NotNull(newRef);
-                Assert.Equal(name, newRef.CanonicalName);
-                Assert.Equal(target, newRef.Target.CanonicalName);
-                Assert.Equal(newRef.Target.CanonicalName, newRef.TargetIdentifier);
-                Assert.Equal("4c062a6361ae6959e06292c1fa5e2822d9c96345", newRef.ResolveToDirectReference().Target.Sha);
-                Assert.NotNull(repo.Refs[name]);
+
+                AssertSymbolicRef(newRef, repo, target, name);
             }
+        }
+
+        [Fact]
+        public void CanAddASymbolicReferenceFromTheTargetReference()
+        {
+            const string name = "refs/heads/unit_test";
+            const string target = "refs/heads/master";
+
+            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                var targetRef = repo.Refs[target];
+
+                var newRef = repo.Refs.Add(name, targetRef);
+
+                AssertSymbolicRef(newRef, repo, target, name);
+            }
+        }
+
+        private static void AssertSymbolicRef(SymbolicReference newRef, Repository repo, string expectedTargetName, string expectedName)
+        {
+            Assert.NotNull(newRef);
+            Assert.Equal(expectedName, newRef.CanonicalName);
+            Assert.Equal(expectedTargetName, newRef.Target.CanonicalName);
+            Assert.Equal(newRef.Target.CanonicalName, newRef.TargetIdentifier);
+            Assert.Equal("4c062a6361ae6959e06292c1fa5e2822d9c96345", newRef.ResolveToDirectReference().Target.Sha);
+            Assert.NotNull(repo.Refs[expectedName]);
         }
 
         [Fact]

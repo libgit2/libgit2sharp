@@ -142,6 +142,24 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        ///   Creates a symbolic reference  with the specified name and target
+        /// </summary>
+        /// <param name = "name">The name of the reference to create.</param>
+        /// <param name = "targetRef">The target reference.</param>
+        /// <param name = "allowOverwrite">True to allow silent overwriting a potentially existing reference, false otherwise.</param>
+        /// <returns>A new <see cref = "Reference" />.</returns>
+        public virtual SymbolicReference Add(string name, Reference targetRef, bool allowOverwrite = false)
+        {
+            Ensure.ArgumentNotNullOrEmptyString(name, "name");
+            Ensure.ArgumentNotNull(targetRef, "targetRef");
+
+            using (ReferenceSafeHandle handle = CreateSymbolicReference(name, targetRef.CanonicalName, allowOverwrite))
+            {
+                return (SymbolicReference)Reference.BuildFromPtr<Reference>(handle, repo);
+            }
+        }
+
+        /// <summary>
         ///   Creates a direct or symbolic reference with the specified name and target
         /// </summary>
         /// <param name = "name">The name of the reference to create.</param>
