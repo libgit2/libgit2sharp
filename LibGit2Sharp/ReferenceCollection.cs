@@ -65,28 +65,62 @@ namespace LibGit2Sharp
 
         #endregion
 
+        private enum RefState
+        {
+            Exists,
+            DoesNotExistButLooksValid,
+            DoesNotLookValid,
+        }
+
+        private RefState TryResolveReference(out Reference reference, string canonicalName)
+        {
+            try
+            {
+                //TODO: Maybe would it be better to rather rely on git_reference_normalize_name()
+                //This would be much more straightforward and less subject to fail for the wrong reason.
+
+                reference = repo.Refs[canonicalName];
+
+                if (reference != null)
+                {
+                    return RefState.Exists;
+                }
+
+                return RefState.DoesNotExistButLooksValid;
+            }
+            catch (LibGit2SharpException)
+            {
+                reference = null;
+                return RefState.DoesNotLookValid;
+            }
+        }
+
         /// <summary>
         ///   Creates a direct or symbolic reference with the specified name and target
         /// </summary>
         /// <param name = "name">The name of the reference to create.</param>
-        /// <param name = "target">The target which can be either a sha or the canonical name of another reference.</param>
+        /// <param name = "canonicalRefNameOrObjectish">The target which can be either the canonical name of a branch reference or a revparse spec.</param>
         /// <param name = "allowOverwrite">True to allow silent overwriting a potentially existing reference, false otherwise.</param>
         /// <returns>A new <see cref = "Reference" />.</returns>
-        public virtual Reference Add(string name, string target, bool allowOverwrite = false)
+        public virtual Reference Add(string name, string canonicalRefNameOrObjectish, bool allowOverwrite = false)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
-            Ensure.ArgumentNotNullOrEmptyString(target, "target");
+            Ensure.ArgumentNotNullOrEmptyString(canonicalRefNameOrObjectish, "canonicalRefNameOrObjectish");
 
-            ObjectId id;
             Func<string, bool, ReferenceSafeHandle> referenceCreator;
 
-            if (ObjectId.TryParse(target, out id))
+            Reference reference;
+            RefState refState = TryResolveReference(out reference, canonicalRefNameOrObjectish);
+
+            var gitObject = repo.Lookup(canonicalRefNameOrObjectish, GitObjectType.Any, LookUpOptions.None);
+
+            if (refState == RefState.Exists || (refState == RefState.DoesNotExistButLooksValid && gitObject == null))
             {
-                referenceCreator = (n, o) => CreateDirectReference(n, id, o);
+                referenceCreator = (n, o) => CreateSymbolicReference(n, canonicalRefNameOrObjectish, o);
             }
             else
             {
-                referenceCreator = (n, o) => CreateSymbolicReference(n, target, o);
+                referenceCreator = (n, o) => CreateDirectReference(n, gitObject.Id, o);
             }
 
             using (ReferenceSafeHandle handle = referenceCreator(name, allowOverwrite))

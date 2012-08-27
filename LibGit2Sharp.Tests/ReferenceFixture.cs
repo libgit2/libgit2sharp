@@ -34,6 +34,24 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
+        public void CanAddADirectReferenceFromRevParseSpec()
+        {
+            const string name = "refs/heads/extendedShaSyntaxRulz";
+
+            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                var newRef = (DirectReference)repo.Refs.Add(name, "master^1^2");
+                Assert.NotNull(newRef);
+                Assert.Equal(name, newRef.CanonicalName);
+                Assert.NotNull(newRef.Target);
+                Assert.Equal("c47800c7266a2be04c571c04d5a6614691ea99bd", newRef.Target.Sha);
+                Assert.Equal(newRef.Target.Sha, newRef.TargetIdentifier);
+                Assert.NotNull(repo.Refs[name]);
+            }
+        }
+
+        [Fact]
         public void CanAddASymbolicReference()
         {
             const string name = "refs/heads/unit_test";
