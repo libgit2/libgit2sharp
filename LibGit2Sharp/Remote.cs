@@ -12,13 +12,16 @@ namespace LibGit2Sharp
         private static readonly LambdaEqualityHelper<Remote> equalityHelper =
             new LambdaEqualityHelper<Remote>(new Func<Remote, object>[] { x => x.Name, x => x.Url });
 
+        private Repository repository;
+
         /// <summary>
         ///   Needed for mocking purposes.
         /// </summary>
         protected Remote()
         { }
 
-        internal static Remote CreateFromPtr(RemoteSafeHandle handle)
+
+        internal static Remote CreateFromPtr(Repository repository, RemoteSafeHandle handle)
         {
             if (handle == null)
             {
@@ -32,6 +35,7 @@ namespace LibGit2Sharp
                              {
                                  Name = name,
                                  Url = url,
+                                 repository = repository,
                              };
 
             return remote;
@@ -46,6 +50,39 @@ namespace LibGit2Sharp
         ///   Gets the url to use to communicate with this remote repository.
         /// </summary>
         public virtual string Url { get; private set; }
+
+        /// <summary>
+        ///   Fetch updates from the remote.
+        /// </summary>
+        /// <param name="fetchProgress">The <see cref = "FetchProgress" /> to report current fetch progress.</param>
+        public virtual void Fetch(FetchProgress fetchProgress)
+        {
+            // reset the current progress object
+            fetchProgress.Reset();
+
+            using (RemoteSafeHandle remoteHandle = repository.Remotes.LoadRemote(Name, true))
+            {
+                try
+                {
+                    int res = NativeMethods.git_remote_connect(remoteHandle, GitDirection.Fetch);
+                    Ensure.Success(res);
+
+                    int downloadResult = NativeMethods.git_remote_download(remoteHandle, ref fetchProgress.bytes, ref fetchProgress.indexerStats);
+                    Ensure.Success(downloadResult);
+                }
+                finally
+                {
+                    if (remoteHandle != null)
+                    {
+                        NativeMethods.git_remote_disconnect(remoteHandle);
+                    }
+                }
+
+                // update references
+                int updateTipsResult = NativeMethods.git_remote_update_tips(remoteHandle, IntPtr.Zero);
+                Ensure.Success(updateTipsResult);
+            }
+        }
 
         /// <summary>
         ///   Determines whether the specified <see cref = "Object" /> is equal to the current <see cref = "Remote" />.

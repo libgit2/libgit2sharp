@@ -55,7 +55,7 @@ namespace LibGit2Sharp
         {
             using (RemoteSafeHandle handle = LoadRemote(name, false))
             {
-                return Remote.CreateFromPtr(handle);
+                return Remote.CreateFromPtr(repository, handle);
             }
         }
 
@@ -100,7 +100,7 @@ namespace LibGit2Sharp
 
             using (handle)
             {
-                return Remote.CreateFromPtr(handle);
+                return Remote.CreateFromPtr(repository, handle);
             }
         }
 
@@ -142,7 +142,7 @@ namespace LibGit2Sharp
                 res = NativeMethods.git_remote_save(handle);
                 Ensure.Success(res);
 
-                return Remote.CreateFromPtr(handle);
+                return Remote.CreateFromPtr(repository, handle);
             }
         }
 
