@@ -46,8 +46,8 @@ namespace LibGit2Sharp
 
         internal static Note BuildFromPtr(string @namespace, ObjectId targetObjectId, NoteSafeHandle note)
         {
-            ObjectId oid = NativeMethods.git_note_oid(note).MarshalAsObjectId();
-            string message = NativeMethods.git_note_message(note);
+            ObjectId oid = Proxy.git_note_oid(note);
+            string message = Proxy.git_note_message(note);
 
             return new Note(oid, message, targetObjectId, @namespace);
         }

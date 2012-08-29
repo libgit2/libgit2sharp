@@ -29,8 +29,7 @@ namespace LibGit2Sharp
         {
             this.repo = repo;
 
-            Ensure.Success(NativeMethods.git_repository_index(out handle, repo.Handle));
-
+            handle = Proxy.git_repository_index(repo.Handle);
             repo.RegisterForCleanup(handle);
         }
 
@@ -38,8 +37,8 @@ namespace LibGit2Sharp
         {
             this.repo = repo;
 
-            Ensure.Success(NativeMethods.git_index_open(out handle, indexPath));
-            NativeMethods.git_repository_set_index(repo.Handle, handle);
+            handle = Proxy.git_index_open(indexPath);
+            Proxy.git_repository_set_index(repo.Handle, handle);
 
             repo.RegisterForCleanup(handle);
         }
@@ -54,7 +53,7 @@ namespace LibGit2Sharp
         /// </summary>
         public virtual int Count
         {
-            get { return (int)NativeMethods.git_index_entrycount(handle); }
+            get { return Proxy.git_index_entrycount(handle); }
         }
 
         /// <summary>
@@ -66,14 +65,12 @@ namespace LibGit2Sharp
             {
                 Ensure.ArgumentNotNullOrEmptyString(path, "path");
 
-                int res = NativeMethods.git_index_find(handle, path);
+                int? res = Proxy.git_index_find(handle, path);
 
-                if (res == (int)GitErrorCode.NotFound)
+                if (res == null)
                 {
                     return null;
                 }
-
-                Ensure.Success(res, true);
 
                 return this[(uint)res];
             }
@@ -83,7 +80,7 @@ namespace LibGit2Sharp
         {
             get
             {
-                IndexEntrySafeHandle entryHandle = NativeMethods.git_index_get(handle, index);
+                IndexEntrySafeHandle entryHandle = Proxy.git_index_get(handle, index);
                 return IndexEntry.CreateFromPtr(repo, entryHandle);
             }
         }
@@ -385,23 +382,24 @@ namespace LibGit2Sharp
 
         private void AddToIndex(string relativePath)
         {
-            int res = NativeMethods.git_index_add(handle, relativePath);
-            Ensure.Success(res);
+            Proxy.git_index_add(handle, relativePath);
         }
 
         private void RemoveFromIndex(string relativePath)
         {
-            int res = NativeMethods.git_index_find(handle, relativePath);
-            Ensure.Success(res, true);
+            int? res = Proxy.git_index_find(handle, relativePath);
 
-            res = NativeMethods.git_index_remove(handle, res);
-            Ensure.Success(res);
+            if (res == null)
+            {
+                return;
+            }
+
+            Proxy.git_index_remove(handle, res.Value);
         }
 
         private void UpdatePhysicalIndex()
         {
-            int res = NativeMethods.git_index_write(handle);
-            Ensure.Success(res);
+            Proxy.git_index_write(handle);
         }
 
         private static string BuildRelativePathFrom(Repository repo, string path)
@@ -435,17 +433,7 @@ namespace LibGit2Sharp
 
             string relativePath = BuildRelativePathFrom(repo, filePath);
 
-            FileStatus status;
-
-            int res = NativeMethods.git_status_file(out status, repo.Handle, relativePath);
-            if (res == (int)GitErrorCode.NotFound)
-            {
-                return FileStatus.Nonexistent;
-            }
-
-            Ensure.Success(res);
-
-            return status;
+            return Proxy.git_status_file(repo.Handle, relativePath);
         }
 
         /// <summary>
@@ -459,12 +447,8 @@ namespace LibGit2Sharp
 
         internal void ReplaceContentWithTree(Tree tree)
         {
-            using (var nativeTree = new ObjectSafeWrapper(tree.Id, repo))
-            {
-                int res = NativeMethods.git_index_read_tree(Handle, nativeTree.ObjectPtr);
-                Ensure.Success(res);
-                UpdatePhysicalIndex();
-            }
+            Proxy.git_index_read_tree(repo.Handle, handle, tree);
+            UpdatePhysicalIndex();
         }
 
         internal void Reset(TreeChanges changes)
@@ -500,7 +484,7 @@ namespace LibGit2Sharp
                 Path = FilePathMarshaler.FromManaged(treeEntryChanges.OldPath),
             };
 
-            Ensure.Success(NativeMethods.git_index_add2(handle, indexEntry));
+            Proxy.git_index_add2(handle, indexEntry);
             Marshal.FreeHGlobal(indexEntry.Path);
         }
     }

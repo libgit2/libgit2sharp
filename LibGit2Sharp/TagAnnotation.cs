@@ -47,13 +47,13 @@ namespace LibGit2Sharp
 
         internal static TagAnnotation BuildFromPtr(GitObjectSafeHandle obj, ObjectId id, Repository repo)
         {
-            ObjectId targetOid = NativeMethods.git_tag_target_oid(obj).MarshalAsObjectId();
+            ObjectId targetOid = Proxy.git_tag_target_oid(obj);
 
             return new TagAnnotation(id)
                        {
-                           Message = NativeMethods.git_tag_message(obj),
-                           Name = NativeMethods.git_tag_name(obj),
-                           Tagger = new Signature(NativeMethods.git_tag_tagger(obj)),
+                           Message = Proxy.git_tag_message(obj),
+                           Name = Proxy.git_tag_name(obj),
+                           Tagger = Proxy.git_tag_tagger(obj),
                            targetBuilder = new Lazy<GitObject>(() => repo.Lookup<GitObject>(targetOid))
                        };
         }

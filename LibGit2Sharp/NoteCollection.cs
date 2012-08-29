@@ -117,40 +117,18 @@ namespace LibGit2Sharp
 
         internal Note RetrieveNote(ObjectId targetObjectId, string canonicalNamespace)
         {
-            using (NoteSafeHandle noteHandle = BuildNoteSafeHandle(targetObjectId, canonicalNamespace))
+            using (NoteSafeHandle noteHandle = Proxy.git_note_read(repo.Handle, canonicalNamespace, targetObjectId))
             {
-                if (noteHandle == null)
-                {
-                    return null;
-                }
-
-                return Note.BuildFromPtr(UnCanonicalizeName(canonicalNamespace), targetObjectId, noteHandle);
+                return noteHandle == null ? null :
+                    Note.BuildFromPtr(UnCanonicalizeName(canonicalNamespace), targetObjectId, noteHandle);
             }
         }
 
         private string RetrieveDefaultNamespace()
         {
-            string notesRef;
-            Ensure.Success(NativeMethods.git_note_default_ref(out notesRef, repo.Handle));
+            string notesRef = Proxy.git_note_default_ref(repo.Handle);
 
             return UnCanonicalizeName(notesRef);
-        }
-
-        private NoteSafeHandle BuildNoteSafeHandle(ObjectId id, string canonicalNamespace)
-        {
-            NoteSafeHandle noteHandle;
-            GitOid oid = id.Oid;
-
-            int res = NativeMethods.git_note_read(out noteHandle, repo.Handle, canonicalNamespace, ref oid);
-
-            if (res == (int)GitErrorCode.NotFound)
-            {
-                return null;
-            }
-
-            Ensure.Success(res);
-
-            return noteHandle;
         }
 
         internal static string NormalizeToCanonicalName(string name)
@@ -196,16 +174,9 @@ namespace LibGit2Sharp
 
             string canonicalNamespace = NormalizeToCanonicalName(@namespace);
 
-            GitOid oid = targetId.Oid;
-
             Remove(targetId, author, committer, @namespace);
 
-            using (SignatureSafeHandle authorHandle = author.BuildHandle())
-            using (SignatureSafeHandle committerHandle = committer.BuildHandle())
-            {
-                GitOid noteOid;
-                Ensure.Success(NativeMethods.git_note_create(out noteOid, repo.Handle, authorHandle, committerHandle, canonicalNamespace, ref oid, message));
-            }
+            Proxy.git_note_create(repo.Handle, author, committer, canonicalNamespace, targetId, message);
 
             return RetrieveNote(targetId, canonicalNamespace);
         }
@@ -240,22 +211,8 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNullOrEmptyString(@namespace, "@namespace");
 
             string canonicalNamespace = NormalizeToCanonicalName(@namespace);
-
-            GitOid oid = targetId.Oid;
-            int res;
-
-            using (SignatureSafeHandle authorHandle = author.BuildHandle())
-            using (SignatureSafeHandle committerHandle = committer.BuildHandle())
-            {
-                res = NativeMethods.git_note_remove(repo.Handle, canonicalNamespace, authorHandle, committerHandle, ref oid);
-            }
-
-            if (res == (int)GitErrorCode.NotFound)
-            {
-                return;
-            }
-
-            Ensure.Success(res);
+    
+            Proxy.git_note_remove(repo.Handle, canonicalNamespace, author, committer, targetId);
         }
 
         /// <summary>
@@ -277,7 +234,7 @@ namespace LibGit2Sharp
 
             internal NotesOidRetriever(Repository repo, string canonicalNamespace)
             {
-                Ensure.Success(NativeMethods.git_note_foreach(repo.Handle, canonicalNamespace, NoteListCallBack, IntPtr.Zero));
+                Proxy.git_note_foreach(repo.Handle, canonicalNamespace, NoteListCallBack);
             }
 
             private int NoteListCallBack(GitNoteData noteData, IntPtr intPtr)

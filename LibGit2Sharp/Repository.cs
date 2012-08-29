@@ -46,18 +46,10 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(path, "path");
 
-            int result = NativeMethods.git_repository_open(out handle, path);
-
-            if (result == (int)GitErrorCode.NotFound)
-            {
-                throw new RepositoryNotFoundException(string.Format(CultureInfo.InvariantCulture, "Path '{0}' doesn't point at a valid Git repository or workdir.", path));
-            }
-
-            Ensure.Success(result);
-
+            handle = Proxy.git_repository_open(path);
             RegisterForCleanup(handle);
 
-            bool isBare = NativeMethods.RepositoryStateChecker(handle, NativeMethods.git_repository_is_bare);
+            bool isBare = Proxy.git_repository_is_bare(handle);
 
             Func<Index> indexBuilder = () => new Index(this);
 
@@ -83,7 +75,7 @@ namespace LibGit2Sharp
 
                 if (!isWorkDirNull)
                 {
-                    Ensure.Success(NativeMethods.git_repository_set_workdir(handle, options.WorkingDirectoryPath, false));
+                    Proxy.git_repository_set_workdir(handle, options.WorkingDirectoryPath);
                 }
 
                 configurationGlobalFilePath = options.GlobalConfigurationLocation;
@@ -273,14 +265,11 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(path, "path");
 
-            RepositorySafeHandle repo;
-            int res = NativeMethods.git_repository_init(out repo, path, isBare);
-            Ensure.Success(res);
-
-            FilePath repoPath = NativeMethods.git_repository_path(repo);
-            repo.SafeDispose();
-
-            return new Repository(repoPath.Native);
+            using (RepositorySafeHandle repo = Proxy.git_repository_init(path, isBare))
+            {
+                FilePath repoPath = Proxy.git_repository_path(repo);
+                return new Repository(repoPath.Native);
+            }
         }
 
         /// <summary>
@@ -303,40 +292,21 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNull(id, "id");
 
-            GitOid oid = id.Oid;
             GitObjectSafeHandle obj = null;
 
             try
             {
-                int res;
                 if (id is AbbreviatedObjectId)
                 {
-                    res = NativeMethods.git_object_lookup_prefix(out obj, handle, ref oid, (uint)((AbbreviatedObjectId)id).Length, type);
+                    obj = Proxy.git_object_lookup_prefix(handle, id, type);
+                    id = GitObject.ObjectIdOf(obj);
                 }
                 else
                 {
-                    res = NativeMethods.git_object_lookup(out obj, handle, ref oid, type);
+                    obj = Proxy.git_object_lookup(handle, id, type);
                 }
 
-                switch (res)
-                {
-                    case (int)GitErrorCode.NotFound:
-                        return null;
-
-                    case (int)GitErrorCode.Ambiguous:
-                        throw new AmbiguousException(string.Format(CultureInfo.InvariantCulture, "Provided abbreviated ObjectId '{0}' is too short.", id));
-
-                    default:
-                        Ensure.Success(res);
-
-                        if (id is AbbreviatedObjectId)
-                        {
-                            id = GitObject.ObjectIdOf(obj);
-                        }
-
-                        return GitObject.CreateFromPtr(obj, id, this, knownPath);
-                }
-
+                return obj == null ? null : GitObject.CreateFromPtr(obj, id, this, knownPath);
             }
             finally
             {
@@ -375,39 +345,33 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(objectish, "commitOrBranchSpec");
 
-            GitObjectSafeHandle sh;
-            int result = NativeMethods.git_revparse_single(out sh, Handle, objectish);
-
-            if ((GitErrorCode)result != GitErrorCode.Ok || sh.IsInvalid)
+            GitObject obj;
+            using (GitObjectSafeHandle sh = Proxy.git_revparse_single(handle, objectish))
             {
-                if (lookUpOptions.Has(LookUpOptions.ThrowWhenNoGitObjectHasBeenFound) &&
-                    result == (int)GitErrorCode.NotFound)
+                if (sh == null)
                 {
-                    Ensure.GitObjectIsNotNull(null, objectish);
+                    if (lookUpOptions.Has(LookUpOptions.ThrowWhenNoGitObjectHasBeenFound))
+                    {
+                        Ensure.GitObjectIsNotNull(null, objectish);
+                    }
+
+                    return null;
                 }
 
-                if (result == (int)GitErrorCode.Ambiguous)
+                if (type != GitObjectType.Any && Proxy.git_object_type(sh) != type)
                 {
-                    throw new AmbiguousException(string.Format(CultureInfo.InvariantCulture, "Provided abbreviated ObjectId '{0}' is too short.", objectish));
+                    return null;
                 }
 
-                return null;
+                obj = GitObject.CreateFromPtr(sh, GitObject.ObjectIdOf(sh), this, PathFromRevparseSpec(objectish));
             }
-
-            if (type != GitObjectType.Any && NativeMethods.git_object_type(sh) != type)
-            {
-                sh.SafeDispose();
-                return null;
-            }
-
-            var obj = GitObject.CreateFromPtr(sh, GitObject.ObjectIdOf(sh), this, PathFromRevparseSpec(objectish));
-            sh.SafeDispose();
 
             if (lookUpOptions.Has(LookUpOptions.DereferenceResultToCommit))
             {
                 return obj.DereferenceToCommit(objectish,
                                                lookUpOptions.Has(LookUpOptions.ThrowWhenCanNotBeDereferencedToACommit));
             }
+
             return obj;
         }
 
@@ -429,18 +393,12 @@ namespace LibGit2Sharp
         /// <returns>The path to the git repository.</returns>
         public static string Discover(string startingPath)
         {
-            var buffer = new byte[NativeMethods.GIT_PATH_MAX];
+            FilePath discoveredPath = Proxy.git_repository_discover(startingPath);
 
-            int result = NativeMethods.git_repository_discover(buffer, buffer.Length, startingPath, false, null);
-
-            if ((GitErrorCode)result == GitErrorCode.NotFound)
+            if (discoveredPath == null)
             {
                 return null;
             }
-
-            Ensure.Success(result);
-
-            FilePath discoveredPath = Utf8Marshaler.Utf8FromBuffer(buffer);
 
             return discoveredPath.Native;
         }
@@ -551,8 +509,7 @@ namespace LibGit2Sharp
                 throw new LibGit2SharpException("Can not amend anything. The Head doesn't point at any commit.");
             }
 
-            GitOid treeOid;
-            Ensure.Success(NativeMethods.git_tree_create_fromindex(out treeOid, Index.Handle));
+            GitOid treeOid = Proxy.git_tree_create_fromindex(Index);
             var tree = this.Lookup<Tree>(new ObjectId(treeOid));
 
             var parents = RetrieveParentsOfTheCommitBeingCreated(amendPreviousCommit);

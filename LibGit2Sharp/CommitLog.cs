@@ -108,21 +108,9 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(first, "first");
             Ensure.ArgumentNotNull(second, "second");
 
-            using (var osw1 = new ObjectSafeWrapper(first.Id, repo))
-            using (var osw2 = new ObjectSafeWrapper(second.Id, repo))
-            {
-                GitOid ret;
-                int result = NativeMethods.git_merge_base(out ret, repo.Handle, osw1.ObjectPtr, osw2.ObjectPtr);
+            ObjectId id = Proxy.git_merge_base(repo.Handle, first, second);
 
-                if (result == (int)GitErrorCode.NotFound)
-                {
-                    return null;
-                }
-
-                Ensure.Success(result);
-
-                return repo.Lookup<Commit>(new ObjectId(ret));
-            }
+            return id == null ? null : repo.Lookup<Commit>(id);
         }
 
         /// <summary>
@@ -192,10 +180,8 @@ namespace LibGit2Sharp
             public CommitEnumerator(Repository repo, Filter filter)
             {
                 this.repo = repo;
-                int res = NativeMethods.git_revwalk_new(out handle, repo.Handle);
+                handle = Proxy.git_revwalk_new(repo.Handle);
                 repo.RegisterForCleanup(handle);
-
-                Ensure.Success(res);
 
                 Sort(filter.SortBy);
                 Push(filter.SinceList);
@@ -216,24 +202,21 @@ namespace LibGit2Sharp
 
             public bool MoveNext()
             {
-                GitOid oid;
-                int res = NativeMethods.git_revwalk_next(out oid, handle);
+                ObjectId id = Proxy.git_revwalk_next(handle);
 
-                if (res == (int)GitErrorCode.RevWalkOver)
+                if (id == null)
                 {
                     return false;
                 }
 
-                Ensure.Success(res);
-
-                currentOid = new ObjectId(oid);
+                currentOid = id;
 
                 return true;
             }
 
             public void Reset()
             {
-                NativeMethods.git_revwalk_reset(handle);
+                Proxy.git_revwalk_reset(handle);
             }
 
             #endregion
@@ -249,7 +232,7 @@ namespace LibGit2Sharp
                 handle.SafeDispose();
             }
 
-            private delegate int HidePushSignature(RevWalkerSafeHandle handle, ref GitOid oid);
+            private delegate void HidePushSignature(RevWalkerSafeHandle handle, ObjectId id);
 
             private void InternalHidePush(IList<object> identifier, HidePushSignature hidePush)
             {
@@ -257,15 +240,13 @@ namespace LibGit2Sharp
 
                 foreach (ObjectId actedOn in oids)
                 {
-                    GitOid oid = actedOn.Oid;
-                    int res = hidePush(handle, ref oid);
-                    Ensure.Success(res);
+                    hidePush(handle, actedOn);
                 }
             }
 
             private void Push(IList<object> identifier)
             {
-                InternalHidePush(identifier, NativeMethods.git_revwalk_push);
+                InternalHidePush(identifier, Proxy.git_revwalk_push);
             }
 
             private void Hide(IList<object> identifier)
@@ -275,12 +256,12 @@ namespace LibGit2Sharp
                     return;
                 }
 
-                InternalHidePush(identifier, NativeMethods.git_revwalk_hide);
+                InternalHidePush(identifier, Proxy.git_revwalk_hide);
             }
 
             private void Sort(GitSortOptions options)
             {
-                NativeMethods.git_revwalk_sorting(handle, options);
+                Proxy.git_revwalk_sorting(handle, options);
             }
 
             private ObjectId DereferenceToCommit(string identifier)

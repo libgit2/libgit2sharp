@@ -4,7 +4,7 @@ namespace LibGit2Sharp.Core.Handles
     {
         protected override bool ReleaseHandle()
         {
-            NativeMethods.git_treebuilder_free(handle);
+            Proxy.git_treebuilder_free(handle);
             return true;
         }
     }

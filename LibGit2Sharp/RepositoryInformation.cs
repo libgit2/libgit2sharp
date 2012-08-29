@@ -20,8 +20,8 @@ namespace LibGit2Sharp
             this.repo = repo;
             IsBare = isBare;
 
-            FilePath path = NativeMethods.git_repository_path(repo.Handle);
-            FilePath workingDirectoryPath = NativeMethods.git_repository_workdir(repo.Handle);
+            FilePath path = Proxy.git_repository_path(repo.Handle);
+            FilePath workingDirectoryPath = Proxy.git_repository_workdir(repo.Handle);
 
             Path = path.Native;
             WorkingDirectory = workingDirectoryPath == null ? null : workingDirectoryPath.Native;
@@ -53,7 +53,7 @@ namespace LibGit2Sharp
         /// </value>
         public virtual bool IsEmpty
         {
-            get { return NativeMethods.RepositoryStateChecker(repo.Handle, NativeMethods.git_repository_is_empty); }
+            get { return Proxy.git_repository_is_empty(repo.Handle); }
         }
 
         /// <summary>
@@ -61,7 +61,7 @@ namespace LibGit2Sharp
         /// </summary>
         public virtual bool IsHeadDetached
         {
-            get { return NativeMethods.RepositoryStateChecker(repo.Handle, NativeMethods.git_repository_head_detached); }
+            get { return Proxy.git_repository_head_detached(repo.Handle); }
         }
 
         /// <summary>
@@ -69,7 +69,7 @@ namespace LibGit2Sharp
         /// </summary>
         public virtual bool IsHeadOrphaned
         {
-            get { return NativeMethods.RepositoryStateChecker(repo.Handle, NativeMethods.git_repository_head_orphan); }
+            get { return Proxy.git_repository_head_orphan(repo.Handle); }
         }
     }
 }

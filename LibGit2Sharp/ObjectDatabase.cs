@@ -26,7 +26,7 @@ namespace LibGit2Sharp
         internal ObjectDatabase(Repository repo)
         {
             this.repo = repo;
-            Ensure.Success(NativeMethods.git_repository_odb(out handle, repo.Handle));
+            handle = Proxy.git_repository_odb(repo.Handle);
 
             repo.RegisterForCleanup(handle);
         }
@@ -40,9 +40,7 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNull(objectId, "objectId");
 
-            var oid = objectId.Oid;
-
-            return NativeMethods.git_odb_exists(handle, ref oid) != (int)GitErrorCode.Ok;
+            return Proxy.git_odb_exists(handle, objectId);
         }
 
         /// <summary>
@@ -56,18 +54,16 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(path, "path");
 
-            var oid = new GitOid();
-
             if (repo.Info.IsBare && !Path.IsPathRooted(path))
             {
                 throw new InvalidOperationException(string.Format("Cannot create a blob in a bare repository from a relative path ('{0}').", path));
             }
 
-            Ensure.Success(Path.IsPathRooted(path)
-                               ? NativeMethods.git_blob_create_fromdisk(ref oid, repo.Handle, path)
-                               : NativeMethods.git_blob_create_fromfile(ref oid, repo.Handle, path));
+            ObjectId id = Path.IsPathRooted(path)
+                               ? Proxy.git_blob_create_fromdisk(repo.Handle, path)
+                               : Proxy.git_blob_create_fromfile(repo.Handle, path);
 
-            return repo.Lookup<Blob>(new ObjectId(oid));
+            return repo.Lookup<Blob>(id);
         }
 
         private class Processor
@@ -100,12 +96,10 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNull(reader, "reader");
 
-            var oid = new GitOid();
-
             var proc = new Processor(reader);
-            Ensure.Success(NativeMethods.git_blob_create_fromchunks(ref oid, repo.Handle, hintpath, proc.Provider, IntPtr.Zero));
+            ObjectId id = Proxy.git_blob_create_fromchunks(repo.Handle, hintpath, proc.Provider);
 
-            return repo.Lookup<Blob>(new ObjectId(oid));
+            return repo.Lookup<Blob>(id);
         }
 
         /// <summary>
@@ -118,15 +112,6 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(treeDefinition, "treeDefinition");
 
             return treeDefinition.Build(repo);
-        }
-
-        internal static string PrettifyMessage(string message)
-        {
-            var buffer = new byte[NativeMethods.GIT_PATH_MAX];
-            int res = NativeMethods.git_message_prettify(buffer, buffer.Length, message, false);
-            Ensure.Success(res);
-
-            return Utf8Marshaler.Utf8FromBuffer(buffer) ?? string.Empty;
         }
 
         /// <summary>
@@ -151,25 +136,12 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(tree, "tree");
             Ensure.ArgumentNotNull(parents, "parents");
 
-            string prettifiedMessage = PrettifyMessage(message);
-
+            string prettifiedMessage = Proxy.git_message_prettify(message);
             IEnumerable<ObjectId> parentIds = parents.Select(p => p.Id);
 
-            GitOid commitOid;
-            using (var treePtr = new ObjectSafeWrapper(tree.Id, repo))
-            using (var parentObjectPtrs = new DisposableEnumerable<ObjectSafeWrapper>(parentIds.Select(id => new ObjectSafeWrapper(id, repo))))
-            using (SignatureSafeHandle authorHandle = author.BuildHandle())
-            using (SignatureSafeHandle committerHandle = committer.BuildHandle())
-            {
-                string encoding = null; //TODO: Handle the encoding of the commit to be created
+            ObjectId commitId = Proxy.git_commit_create(repo.Handle, referenceName, author, committer, prettifiedMessage, tree, parentIds);
 
-                IntPtr[] parentsPtrs = parentObjectPtrs.Select(o => o.ObjectPtr.DangerousGetHandle()).ToArray();
-                int res = NativeMethods.git_commit_create(out commitOid, repo.Handle, referenceName, authorHandle,
-                                                      committerHandle, encoding, prettifiedMessage, treePtr.ObjectPtr, parentObjectPtrs.Count(), parentsPtrs);
-                Ensure.Success(res);
-            }
-
-            return repo.Lookup<Commit>(new ObjectId(commitOid));
+            return repo.Lookup<Commit>(commitId);
         }
     }
 }

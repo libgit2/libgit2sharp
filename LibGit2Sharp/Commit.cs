@@ -104,10 +104,7 @@ namespace LibGit2Sharp
         {
             get
             {
-                using (var obj = new ObjectSafeWrapper(Id, repo))
-                {
-                    return (int)NativeMethods.git_commit_parentcount(obj.ObjectPtr);
-                }
+                return Proxy.git_commit_parentcount(repo.Handle, Id);
             }
         }
 
@@ -121,13 +118,13 @@ namespace LibGit2Sharp
 
         private IEnumerable<Commit> RetrieveParentsOfCommit(ObjectId oid)
         {
-            using (var obj = new ObjectSafeWrapper(oid, repo))
+            using (var obj = new ObjectSafeWrapper(oid, repo.Handle))
             {
-                uint parentsCount = NativeMethods.git_commit_parentcount(obj.ObjectPtr);
+                int parentsCount = Proxy.git_commit_parentcount(obj);
 
                 for (uint i = 0; i < parentsCount; i++)
                 {
-                    using (var parentCommit = GetParentCommitHandle(i, obj))
+                    using (var parentCommit = Proxy.git_commit_parent(obj, i))
                     {
                         yield return BuildFromPtr(parentCommit, ObjectIdOf(parentCommit), repo);
                     }
@@ -142,27 +139,20 @@ namespace LibGit2Sharp
 
         internal static Commit BuildFromPtr(GitObjectSafeHandle obj, ObjectId id, Repository repo)
         {
-            ObjectId treeId = NativeMethods.git_commit_tree_oid(obj).MarshalAsObjectId();
+            ObjectId treeId = Proxy.git_commit_tree_oid(obj);
 
             return new Commit(id, treeId, repo)
                        {
-                           Message = NativeMethods.git_commit_message(obj),
+                           Message = Proxy.git_commit_message(obj),
                            Encoding = RetrieveEncodingOf(obj),
-                           Author = new Signature(NativeMethods.git_commit_author(obj)),
-                           Committer = new Signature(NativeMethods.git_commit_committer(obj)),
+                           Author = Proxy.git_commit_author(obj),
+                           Committer = Proxy.git_commit_committer(obj),
                        };
-        }
-
-        private static GitObjectSafeHandle GetParentCommitHandle(uint i, ObjectSafeWrapper obj)
-        {
-            GitObjectSafeHandle parentCommit;
-            Ensure.Success(NativeMethods.git_commit_parent(out parentCommit, obj.ObjectPtr, i));
-            return parentCommit;
         }
 
         private static string RetrieveEncodingOf(GitObjectSafeHandle obj)
         {
-            string encoding = NativeMethods.git_commit_message_encoding(obj);
+            string encoding = Proxy.git_commit_message_encoding(obj);
 
             return encoding ?? "UTF-8";
         }
