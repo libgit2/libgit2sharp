@@ -302,7 +302,7 @@ namespace LibGit2Sharp
             }
         }
 
-        private ReferenceSafeHandle RetrieveReferencePtr(string referenceName, bool shouldThrowIfNotFound = true)
+        internal ReferenceSafeHandle RetrieveReferencePtr(string referenceName, bool shouldThrowIfNotFound = true)
         {
             ReferenceSafeHandle reference;
             int res = NativeMethods.git_reference_lookup(out reference, repo.Handle, referenceName);

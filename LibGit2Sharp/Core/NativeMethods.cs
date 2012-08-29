@@ -135,8 +135,7 @@ namespace LibGit2Sharp.Core
 
         [DllImport(libgit2)]
         public static extern int git_branch_move(
-            RepositorySafeHandle repo,
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string old_branch_name,
+            ReferenceSafeHandle reference,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string new_branch_name,
             [MarshalAs(UnmanagedType.Bool)] bool force);
 
@@ -367,7 +366,7 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(FilePathMarshaler))] FilePath indexpath);
 
         [DllImport(libgit2)]
-        public static extern int git_index_read_tree(IndexSafeHandle index, GitObjectSafeHandle tree);
+        public static extern int git_index_read_tree(IndexSafeHandle index, GitObjectSafeHandle tree, IntPtr indexer_stats);
 
         [DllImport(libgit2)]
         public static extern int git_index_remove(IndexSafeHandle index, int n);
@@ -746,7 +745,7 @@ namespace LibGit2Sharp.Core
             TreeEntrySafeHandle_Owned entry);
 
         [DllImport(libgit2)]
-        public static extern uint git_tree_entry_attributes(SafeHandle entry);
+        public static extern uint git_tree_entry_filemode(SafeHandle entry);
 
         [DllImport(libgit2)]
         public static extern TreeEntrySafeHandle git_tree_entry_byindex(GitObjectSafeHandle tree, uint idx);

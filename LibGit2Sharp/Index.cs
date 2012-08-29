@@ -461,7 +461,7 @@ namespace LibGit2Sharp
         {
             using (var nativeTree = new ObjectSafeWrapper(tree.Id, repo))
             {
-                int res = NativeMethods.git_index_read_tree(Handle, nativeTree.ObjectPtr);
+                int res = NativeMethods.git_index_read_tree(Handle, nativeTree.ObjectPtr, IntPtr.Zero);
                 Ensure.Success(res);
                 UpdatePhysicalIndex();
             }

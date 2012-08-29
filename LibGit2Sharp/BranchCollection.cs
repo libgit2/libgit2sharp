@@ -209,9 +209,10 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(currentName, "currentName");
             Ensure.ArgumentNotNullOrEmptyString(newName, "name");
-
-            Ensure.Success(NativeMethods.git_branch_move(repo.Handle, currentName, newName, allowOverwrite));
-
+            using (ReferenceSafeHandle referencePtr = repo.Refs.RetrieveReferencePtr("refs/heads/" + currentName, false))
+            {
+                Ensure.Success(NativeMethods.git_branch_move(referencePtr, newName, allowOverwrite));
+            }
             return this[newName];
         }
 

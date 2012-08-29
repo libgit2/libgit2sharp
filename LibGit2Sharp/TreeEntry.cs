@@ -35,7 +35,7 @@ namespace LibGit2Sharp
             Type = NativeMethods.git_tree_entry_type(obj);
             target = new Lazy<GitObject>(RetrieveTreeEntryTarget);
 
-            Mode = (Mode)NativeMethods.git_tree_entry_attributes(obj);
+            Mode = (Mode)NativeMethods.git_tree_entry_filemode(obj);
             Name = NativeMethods.git_tree_entry_name(obj);
             path = new Lazy<string>(() => System.IO.Path.Combine(parentPath.Native, Name));
         }
