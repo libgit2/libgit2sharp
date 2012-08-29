@@ -1,6 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Runtime.InteropServices;
+﻿using System.IO;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Handles;
 
@@ -37,12 +35,7 @@ namespace LibGit2Sharp
         {
             get
             {
-                using (var obj = new ObjectSafeWrapper(Id, repo))
-                {
-                    var arr = new byte[Size];
-                    Marshal.Copy(NativeMethods.git_blob_rawcontent(obj.ObjectPtr), arr, 0, Size);
-                    return arr;
-                }
+                return Proxy.git_blob_rawcontent(repo.Handle, Id, Size);
             }
         }
 
@@ -53,14 +46,7 @@ namespace LibGit2Sharp
         {
             get
             {
-                using (var obj = new ObjectSafeWrapper(Id, repo))
-                {
-                    IntPtr ptr = NativeMethods.git_blob_rawcontent(obj.ObjectPtr);
-                    unsafe
-                    {
-                        return new UnmanagedMemoryStream((byte*)ptr.ToPointer(), Size);
-                    }
-                }
+                return Proxy.git_blob_rawcontent_stream(repo.Handle, Id, Size);
             }
         }
 
@@ -68,7 +54,7 @@ namespace LibGit2Sharp
         {
             var blob = new Blob(repo, id)
                            {
-                               Size = NativeMethods.git_blob_rawsize(obj)
+                               Size = Proxy.git_blob_rawsize(obj)
                            };
             return blob;
         }

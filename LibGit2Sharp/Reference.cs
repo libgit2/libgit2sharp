@@ -21,17 +21,17 @@ namespace LibGit2Sharp
 
         internal static T BuildFromPtr<T>(ReferenceSafeHandle handle, Repository repo) where T : Reference
         {
-            GitReferenceType type = NativeMethods.git_reference_type(handle);
-            string name = NativeMethods.git_reference_name(handle);
+            GitReferenceType type = Proxy.git_reference_type(handle);
+            string name = Proxy.git_reference_name(handle);
 
             Reference reference;
 
             switch (type)
             {
                 case GitReferenceType.Symbolic:
-                    string targetIdentifier = NativeMethods.git_reference_target(handle);
+                    string targetIdentifier = Proxy.git_reference_target(handle);
 
-                    using (ReferenceSafeHandle resolvedHandle = PeelToDirectReference(handle))
+                    using (ReferenceSafeHandle resolvedHandle = Proxy.git_reference_resolve(handle))
                     {
                         if (resolvedHandle == null)
                         {
@@ -45,7 +45,7 @@ namespace LibGit2Sharp
                     }
 
                 case GitReferenceType.Oid:
-                    ObjectId targetOid = NativeMethods.git_reference_oid(handle).MarshalAsObjectId();
+                    ObjectId targetOid = Proxy.git_reference_oid(handle);
 
                     var targetBuilder = new Lazy<GitObject>(() => repo.Lookup(targetOid));
                     reference = new DirectReference(targetBuilder) { CanonicalName = name, TargetIdentifier = targetOid.Sha };
@@ -56,21 +56,6 @@ namespace LibGit2Sharp
             }
 
             return reference as T;
-        }
-
-        private static ReferenceSafeHandle PeelToDirectReference(ReferenceSafeHandle handle)
-        {
-            ReferenceSafeHandle resolvedHandle;
-            int res = NativeMethods.git_reference_resolve(out resolvedHandle, handle);
-
-            if (res == (int)GitErrorCode.NotFound)
-            {
-                return null;
-            }
-
-            Ensure.Success(res);
-
-            return resolvedHandle;
         }
 
         /// <summary>

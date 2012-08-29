@@ -50,26 +50,17 @@ namespace LibGit2Sharp
                 return null;
             }
 
-            using (var obj = new ObjectSafeWrapper(Id, repo))
+            using (TreeEntrySafeHandle_Owned treeEntryPtr = Proxy.git_tree_entry_bypath(repo.Handle, Id, relativePath))
             {
-                TreeEntrySafeHandle_Owned treeEntryPtr;
-
-                int res = NativeMethods.git_tree_entry_bypath(out treeEntryPtr, obj.ObjectPtr, relativePath);
-
-                if (res == (int)GitErrorCode.NotFound)
+                if (treeEntryPtr == null)
                 {
                     return null;
                 }
 
-                using (treeEntryPtr)
-                {
-                    Ensure.Success(res);
-
-                    string posixPath = relativePath.Posix;
-                    string filename = posixPath.Split('/').Last();
-                    string parentPath = posixPath.Substring(0, posixPath.Length - filename.Length);
-                    return new TreeEntry(treeEntryPtr, Id, repo, path.Combine(parentPath));
-                }
+                string posixPath = relativePath.Posix;
+                string filename = posixPath.Split('/').Last();
+                string parentPath = posixPath.Substring(0, posixPath.Length - filename.Length);
+                return new TreeEntry(treeEntryPtr, Id, repo, path.Combine(parentPath));
             }
         }
 
@@ -114,11 +105,11 @@ namespace LibGit2Sharp
         /// <returns>An <see cref = "IEnumerator{T}" /> object that can be used to iterate through the collection.</returns>
         public virtual IEnumerator<TreeEntry> GetEnumerator()
         {
-            using (var obj = new ObjectSafeWrapper(Id, repo))
+            using (var obj = new ObjectSafeWrapper(Id, repo.Handle))
             {
                 for (uint i = 0; i < Count; i++)
                 {
-                    TreeEntrySafeHandle handle = NativeMethods.git_tree_entry_byindex(obj.ObjectPtr, i);
+                    TreeEntrySafeHandle handle = Proxy.git_tree_entry_byindex(obj.ObjectPtr, i);
                     yield return new TreeEntry(handle, Id, repo, path);
                 }
             }
@@ -137,7 +128,7 @@ namespace LibGit2Sharp
 
         internal static Tree BuildFromPtr(GitObjectSafeHandle obj, ObjectId id, Repository repo, FilePath path)
         {
-            var tree = new Tree(id, path, (int)NativeMethods.git_tree_entrycount(obj), repo);
+            var tree = new Tree(id, path, Proxy.git_tree_entrycount(obj), repo);
             return tree;
         }
     }

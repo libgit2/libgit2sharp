@@ -31,12 +31,12 @@ namespace LibGit2Sharp
         {
             this.parentTreeId = parentTreeId;
             this.repo = repo;
-            targetOid = NativeMethods.git_tree_entry_id(obj).MarshalAsObjectId();
-            Type = NativeMethods.git_tree_entry_type(obj);
+            targetOid = Proxy.git_tree_entry_id(obj);
+            Type = Proxy.git_tree_entry_type(obj);
             target = new Lazy<GitObject>(RetrieveTreeEntryTarget);
 
-            Mode = (Mode)NativeMethods.git_tree_entry_attributes(obj);
-            Name = NativeMethods.git_tree_entry_name(obj);
+            Mode = Proxy.git_tree_entry_attributes(obj);
+            Name = Proxy.git_tree_entry_name(obj);
             path = new Lazy<string>(() => System.IO.Path.Combine(parentPath.Native, Name));
         }
 

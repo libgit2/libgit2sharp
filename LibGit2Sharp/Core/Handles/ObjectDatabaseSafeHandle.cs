@@ -4,7 +4,7 @@
     {
         protected override bool ReleaseHandle()
         {
-            NativeMethods.git_odb_free(handle);
+            Proxy.git_odb_free(handle);
             return true;
         }
     }

@@ -82,14 +82,7 @@ namespace LibGit2Sharp
 
         private DiffListSafeHandle BuildDiffListFromTrees(ObjectId oldTree, ObjectId newTree, GitDiffOptions options)
         {
-            using (var osw1 = new ObjectSafeWrapper(oldTree, repo))
-            using (var osw2 = new ObjectSafeWrapper(newTree, repo))
-            {
-                DiffListSafeHandle diff;
-                Ensure.Success(NativeMethods.git_diff_tree_to_tree(repo.Handle, options, osw1.ObjectPtr, osw2.ObjectPtr, out diff));
-
-                return diff;
-            }
+            return Proxy.git_diff_tree_to_tree(repo.Handle, options, oldTree, newTree);
         }
 
         /// <summary>
@@ -132,7 +125,7 @@ namespace LibGit2Sharp
             var comparer = handleRetrieverDispatcher[diffTarget](repo);
 
             using (GitDiffOptions options = BuildOptions(paths))
-            using (DiffListSafeHandle dl = BuildDiffListFromTreeAndComparer(repo, oldTree.Id, comparer, options))
+            using (DiffListSafeHandle dl = BuildDiffListFromTreeAndComparer(oldTree.Id, comparer, options))
             {
                 return new TreeChanges(dl);
             }
@@ -154,30 +147,16 @@ namespace LibGit2Sharp
             }
         }
 
-        private delegate DiffListSafeHandle TreeComparisonHandleRetriever(GitObjectSafeHandle treeHandle, GitDiffOptions options);
+        private delegate DiffListSafeHandle TreeComparisonHandleRetriever(ObjectId id, GitDiffOptions options);
 
         private static TreeComparisonHandleRetriever WorkdirToIndex(Repository repo)
         {
-            TreeComparisonHandleRetriever comparisonHandleRetriever = (h, o) =>
-            {
-                DiffListSafeHandle diff;
-                Ensure.Success(NativeMethods.git_diff_workdir_to_index(repo.Handle, o, out diff));
-                return diff;
-            };
-
-            return comparisonHandleRetriever;
+            return (h, o) => Proxy.git_diff_workdir_to_index(repo.Handle, o);
         }
 
         private static TreeComparisonHandleRetriever WorkdirToTree(Repository repo)
         {
-            TreeComparisonHandleRetriever comparisonHandleRetriever = (h, o) =>
-            {
-                DiffListSafeHandle diff;
-                Ensure.Success(NativeMethods.git_diff_workdir_to_tree(repo.Handle, o, h, out diff));
-                return diff;
-            };
-
-            return comparisonHandleRetriever;
+            return (h, o) => Proxy.git_diff_workdir_to_tree(repo.Handle, o, h);
         }
 
         private static TreeComparisonHandleRetriever WorkdirAndIndexToTree(Repository repo)
@@ -188,9 +167,9 @@ namespace LibGit2Sharp
 
                 try
                 {
-                    Ensure.Success(NativeMethods.git_diff_index_to_tree(repo.Handle, o, h, out diff));
-                    Ensure.Success(NativeMethods.git_diff_workdir_to_index(repo.Handle, o, out diff2));
-                    Ensure.Success(NativeMethods.git_diff_merge(diff, diff2));
+                    diff = Proxy.git_diff_index_to_tree(repo.Handle, o, h);
+                    diff2 = Proxy.git_diff_workdir_to_index(repo.Handle, o);
+                    Proxy.git_diff_merge(diff, diff2);
                 }
                 catch
                 {
@@ -210,27 +189,17 @@ namespace LibGit2Sharp
 
         private static TreeComparisonHandleRetriever IndexToTree(Repository repo)
         {
-            TreeComparisonHandleRetriever comparisonHandleRetriever = (h, o) =>
-            {
-                DiffListSafeHandle diff;
-                Ensure.Success(NativeMethods.git_diff_index_to_tree(repo.Handle, o, h, out diff));
-                return diff;
-            };
-
-            return comparisonHandleRetriever;
+            return (h, o) => Proxy.git_diff_index_to_tree(repo.Handle, o, h);
         }
 
-        private static DiffListSafeHandle BuildDiffListFromTreeAndComparer(Repository repo, ObjectId treeId, TreeComparisonHandleRetriever comparisonHandleRetriever, GitDiffOptions options)
+        private static DiffListSafeHandle BuildDiffListFromTreeAndComparer(ObjectId treeId, TreeComparisonHandleRetriever comparisonHandleRetriever, GitDiffOptions options)
         {
-            using (var osw = new ObjectSafeWrapper(treeId, repo))
-            {
-                return BuildDiffListFromComparer(osw.ObjectPtr, comparisonHandleRetriever, options);
-            }
+            return BuildDiffListFromComparer(treeId, comparisonHandleRetriever, options);
         }
 
-        private static DiffListSafeHandle BuildDiffListFromComparer(GitObjectSafeHandle handle, TreeComparisonHandleRetriever comparisonHandleRetriever, GitDiffOptions options)
+        private static DiffListSafeHandle BuildDiffListFromComparer(ObjectId treeId, TreeComparisonHandleRetriever comparisonHandleRetriever, GitDiffOptions options)
         {
-            return comparisonHandleRetriever(handle, options);
+            return comparisonHandleRetriever(treeId, options);
         }
     }
 }

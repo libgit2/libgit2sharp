@@ -17,11 +17,7 @@ namespace LibGit2Sharp
 
         internal ContentChanges(Repository repo, Blob oldBlob, Blob newBlob, GitDiffOptions options)
         {
-            using (var osw1 = new ObjectSafeWrapper(oldBlob.Id, repo))
-            using (var osw2 = new ObjectSafeWrapper(newBlob.Id, repo))
-            {
-                Ensure.Success(NativeMethods.git_diff_blobs(osw1.ObjectPtr, osw2.ObjectPtr, options, IntPtr.Zero, FileCallback, HunkCallback, LineCallback));
-            }
+            Proxy.git_diff_blobs(repo.Handle, oldBlob, newBlob, options, FileCallback, HunkCallback, LineCallback);
         }
 
         private int FileCallback(IntPtr data, GitDiffDelta delta, float progress)

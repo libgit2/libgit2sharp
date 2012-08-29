@@ -39,12 +39,7 @@ namespace LibGit2Sharp
 
         internal SignatureSafeHandle BuildHandle()
         {
-            SignatureSafeHandle signature;
-
-            int result = NativeMethods.git_signature_new(out signature, name, email, when.ToSecondsSinceEpoch(),
-                                                         (int) when.Offset.TotalMinutes);
-            Ensure.Success(result);
-            return signature;
+            return Proxy.git_signature_new(name, email, when);
         }
 
         /// <summary>

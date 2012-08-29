@@ -53,7 +53,7 @@ namespace LibGit2Sharp
 
         internal static GitObject CreateFromPtr(GitObjectSafeHandle obj, ObjectId id, Repository repo, FilePath path)
         {
-            GitObjectType type = NativeMethods.git_object_type(obj);
+            GitObjectType type = Proxy.git_object_type(obj);
             switch (type)
             {
                 case GitObjectType.Commit:
@@ -71,7 +71,7 @@ namespace LibGit2Sharp
 
         internal static ObjectId ObjectIdOf(GitObjectSafeHandle gitObjHandle)
         {
-            return NativeMethods.git_object_id(gitObjHandle).MarshalAsObjectId();
+            return Proxy.git_object_id(gitObjHandle);
         }
 
         /// <summary>
