@@ -339,7 +339,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Fact(Skip = "This test requires an update to libgit2 to pass.")]
+        [Fact]
         public void LookingUpWithATooShortShaThrows()
         {
             using (var repo = new Repository(BareTestRepoPath))
