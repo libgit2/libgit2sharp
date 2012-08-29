@@ -46,7 +46,7 @@ namespace LibGit2Sharp
 
         internal RepositoryStatus(Repository repo)
         {
-            Ensure.Success(NativeMethods.git_status_foreach(repo.Handle, StateChanged, IntPtr.Zero));
+            Proxy.git_status_foreach(repo.Handle, StateChanged);
             isDirty = statusEntries.Any(entry => entry.State != FileStatus.Ignored);
         }
 

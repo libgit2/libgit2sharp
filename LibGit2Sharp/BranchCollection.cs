@@ -101,7 +101,7 @@ namespace LibGit2Sharp
 
             public BranchNameEnumerable(RepositorySafeHandle handle, GitBranchType gitBranchType)
             {
-                Ensure.Success(NativeMethods.git_branch_foreach(handle, gitBranchType, Callback, IntPtr.Zero));
+                Proxy.git_branch_foreach(handle, gitBranchType, Callback);
             }
 
             private int Callback(IntPtr branchName, GitBranchType branchType, IntPtr payload)
@@ -146,11 +146,7 @@ namespace LibGit2Sharp
 
             ObjectId commitId = repo.LookupCommit(commitish).Id;
 
-            using (var osw = new ObjectSafeWrapper(commitId, repo))
-            {
-                GitOid oid;
-                Ensure.Success(NativeMethods.git_branch_create(out oid, repo.Handle, name, osw.ObjectPtr, allowOverwrite));
-            }
+            Proxy.git_branch_create(repo.Handle, name, commitId, allowOverwrite);
 
             return this[ShortToLocalName(name)];
         }
@@ -177,14 +173,7 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
 
-            int res = NativeMethods.git_branch_delete(repo.Handle, name, isRemote ? GitBranchType.GIT_BRANCH_REMOTE : GitBranchType.GIT_BRANCH_LOCAL);
-
-            if (res == (int)GitErrorCode.NotFound)
-            {
-                return;
-            }
-
-            Ensure.Success(res);
+            Proxy.git_branch_delete(repo.Handle, name, isRemote ? GitBranchType.GIT_BRANCH_REMOTE : GitBranchType.GIT_BRANCH_LOCAL);
         }
 
         /// <summary>
@@ -210,7 +199,7 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNullOrEmptyString(currentName, "currentName");
             Ensure.ArgumentNotNullOrEmptyString(newName, "name");
 
-            Ensure.Success(NativeMethods.git_branch_move(repo.Handle, currentName, newName, allowOverwrite));
+            Proxy.git_branch_move(repo.Handle, currentName, newName, allowOverwrite);
 
             return this[newName];
         }

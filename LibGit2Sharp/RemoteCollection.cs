@@ -35,25 +35,9 @@ namespace LibGit2Sharp
             get { return RemoteForName(name); }
         }
 
-        internal RemoteSafeHandle LoadRemote(string name, bool throwsIfNotFound)
-        {
-            RemoteSafeHandle handle;
-
-            int res = NativeMethods.git_remote_load(out handle, repository.Handle, name);
-
-            if (res == (int)GitErrorCode.NotFound && !throwsIfNotFound)
-            {
-                return null;
-            }
-
-            Ensure.Success(res);
-
-            return handle;
-        }
-
         private Remote RemoteForName(string name)
         {
-            using (RemoteSafeHandle handle = LoadRemote(name, false))
+            using (RemoteSafeHandle handle = Proxy.git_remote_load(repository.Handle, name, false))
             {
                 return Remote.CreateFromPtr(handle);
             }
@@ -65,8 +49,8 @@ namespace LibGit2Sharp
         /// <returns>An <see cref = "IEnumerator{T}" /> object that can be used to iterate through the collection.</returns>
         public virtual IEnumerator<Remote> GetEnumerator()
         {
-            return Libgit2UnsafeHelper
-                .ListAllRemoteNames(repository.Handle)
+            return Proxy
+                .git_remote_list(repository.Handle)
                 .Select(n => this[n])
                 .GetEnumerator();
         }
@@ -94,11 +78,7 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(name, "name");
             Ensure.ArgumentNotNull(url, "url");
 
-            RemoteSafeHandle handle;
-
-            Ensure.Success(NativeMethods.git_remote_add(out handle, repository.Handle, name, url));
-
-            using (handle)
+            using (RemoteSafeHandle handle = Proxy.git_remote_add(repository.Handle, name, url))
             {
                 return Remote.CreateFromPtr(handle);
             }
@@ -132,16 +112,9 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(url, "url");
             Ensure.ArgumentNotNull(fetchRefSpec, "fetchRefSpec");
 
-            RemoteSafeHandle handle;
-
-            int res = NativeMethods.git_remote_new(out handle, repository.Handle, name, url, fetchRefSpec);
-            Ensure.Success(res);
-
-            using (handle)
+            using (RemoteSafeHandle handle = Proxy.git_remote_new(repository.Handle, name, url, fetchRefSpec))
             {
-                res = NativeMethods.git_remote_save(handle);
-                Ensure.Success(res);
-
+                Proxy.git_remote_save(handle);
                 return Remote.CreateFromPtr(handle);
             }
         }

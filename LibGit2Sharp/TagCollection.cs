@@ -52,8 +52,8 @@ namespace LibGit2Sharp
         /// <returns>An <see cref = "IEnumerator{T}" /> object that can be used to iterate through the collection.</returns>
         public virtual IEnumerator<Tag> GetEnumerator()
         {
-            return Libgit2UnsafeHelper
-                .ListAllTagNames(repo.Handle)
+            return Proxy
+                .git_tag_list(repo.Handle)
                 .Select(n => this[n])
                 .GetEnumerator();
         }
@@ -85,28 +85,11 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(tagger, "tagger");
             Ensure.ArgumentNotNull(message, "message");
 
-            string prettifiedMessage = ObjectDatabase.PrettifyMessage(message);
+            string prettifiedMessage = Proxy.git_message_prettify(message);
 
-            int res;
-            using (var objectPtr = new ObjectSafeWrapper(target.Id, repo))
-            using (SignatureSafeHandle taggerHandle = tagger.BuildHandle())
-            {
-                GitOid oid;
-                res = NativeMethods.git_tag_create(out oid, repo.Handle, name, objectPtr.ObjectPtr, taggerHandle, prettifiedMessage, allowOverwrite);
-            }
-
-            Ensure.Success(res);
+            Proxy.git_tag_create(repo.Handle, name, target, tagger, prettifiedMessage, allowOverwrite);
 
             return this[name];
-        }
-
-        internal static string PrettifyMessage(string message)
-        {
-            var buffer = new byte[NativeMethods.GIT_PATH_MAX];
-            int res = NativeMethods.git_message_prettify(buffer, buffer.Length, message, false);
-            Ensure.Success(res);
-
-            return Utf8Marshaler.Utf8FromBuffer(buffer) ?? string.Empty;
         }
 
         /// <summary>
@@ -136,14 +119,7 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
             Ensure.ArgumentNotNull(target, "target");
 
-            int res;
-            using (var objectPtr = new ObjectSafeWrapper(target.Id, repo))
-            {
-                GitOid oid;
-                res = NativeMethods.git_tag_create_lightweight(out oid, repo.Handle, name, objectPtr.ObjectPtr, allowOverwrite);
-            }
-
-            Ensure.Success(res);
+            Proxy.git_tag_create_lightweight(repo.Handle, name, target, allowOverwrite);
 
             return this[name];
         }
@@ -169,8 +145,7 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
 
-            int res = NativeMethods.git_tag_delete(repo.Handle, UnCanonicalizeName(name));
-            Ensure.Success(res);
+            Proxy.git_tag_delete(repo.Handle, UnCanonicalizeName(name));
         }
 
         /// <summary>

@@ -25,8 +25,8 @@ namespace LibGit2Sharp
                 return null;
             }
 
-            string name = NativeMethods.git_remote_name(handle);
-            string url = NativeMethods.git_remote_url(handle);
+            string name = Proxy.git_remote_name(handle);
+            string url = Proxy.git_remote_url(handle);
 
             var remote = new Remote
                              {

@@ -318,22 +318,17 @@ namespace LibGit2Sharp
 
             public TreeBuilder()
             {
-                Ensure.Success(NativeMethods.git_treebuilder_create(out handle, IntPtr.Zero));
+                handle = Proxy.git_treebuilder_create();
             }
 
             public void Insert(string name, TreeEntryDefinition treeEntryDefinition)
             {
-                GitOid oid = treeEntryDefinition.TargetId.Oid;
-
-                Ensure.Success(NativeMethods.git_treebuilder_insert(IntPtr.Zero, handle, name, ref oid, (uint)treeEntryDefinition.Mode));
+                Proxy.git_treebuilder_insert(handle, name, treeEntryDefinition);
             }
 
             public ObjectId Write(Repository repo)
             {
-                GitOid oid;
-                Ensure.Success(NativeMethods.git_treebuilder_write(out oid, repo.Handle, handle));
-
-                return new ObjectId(oid);
+                return Proxy.git_treebuilder_write(repo.Handle, handle);
             }
 
             public void Dispose()

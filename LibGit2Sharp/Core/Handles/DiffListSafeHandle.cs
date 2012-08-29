@@ -4,7 +4,7 @@ namespace LibGit2Sharp.Core.Handles
     {
         protected override bool ReleaseHandle()
         {
-            NativeMethods.git_diff_list_free(handle);
+            Proxy.git_diff_list_free(handle);
             return true;
         }
     }

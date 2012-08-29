@@ -48,8 +48,7 @@ namespace LibGit2Sharp
         /// <returns>An <see cref = "IEnumerator{T}" /> object that can be used to iterate through the collection.</returns>
         public virtual IEnumerator<Reference> GetEnumerator()
         {
-            return Libgit2UnsafeHelper
-                .ListAllReferenceNames(repo.Handle, GitReferenceType.ListAll)
+            return Proxy.git_reference_list(repo.Handle, GitReferenceType.ListAll)
                 .Select(n => this[n])
                 .GetEnumerator();
         }
@@ -174,18 +173,12 @@ namespace LibGit2Sharp
 
         private ReferenceSafeHandle CreateSymbolicReference(string name, string target, bool allowOverwrite)
         {
-            ReferenceSafeHandle handle;
-            Ensure.Success(NativeMethods.git_reference_create_symbolic(out handle, repo.Handle, name, target, allowOverwrite));
-            return handle;
+            return Proxy.git_reference_create_symbolic(repo.Handle, name, target, allowOverwrite);
         }
 
         private ReferenceSafeHandle CreateDirectReference(string name, ObjectId targetId, bool allowOverwrite)
         {
-            GitOid oid = targetId.Oid;
-
-            ReferenceSafeHandle handle;
-            Ensure.Success(NativeMethods.git_reference_create_oid(out handle, repo.Handle, name, ref oid, allowOverwrite));
-            return handle;
+            return Proxy.git_reference_create_oid(repo.Handle, name, targetId, allowOverwrite);
         }
 
         /// <summary>
@@ -198,12 +191,7 @@ namespace LibGit2Sharp
 
             using (ReferenceSafeHandle handle = RetrieveReferencePtr(name))
             {
-                int res = NativeMethods.git_reference_delete(handle);
-                
-                //TODO Make git_reference_delete() set the ref pointer to NULL and remove the following line
-                handle.SetHandleAsInvalid();
-                
-                Ensure.Success(res);
+                Proxy.git_reference_delete(handle);
             }
         }
 
@@ -231,8 +219,7 @@ namespace LibGit2Sharp
 
             using (ReferenceSafeHandle handle = RetrieveReferencePtr(currentName))
             {
-                int res = NativeMethods.git_reference_rename(handle, newName, allowOverwrite);
-                Ensure.Success(res);
+                Proxy.git_reference_rename(handle, newName, allowOverwrite);
 
                 return Reference.BuildFromPtr<Reference>(handle, repo);
             }
@@ -265,12 +252,10 @@ namespace LibGit2Sharp
 
             using (ReferenceSafeHandle referencePtr = RetrieveReferencePtr(name))
             {
-                int res;
-
                 ObjectId id;
                 bool isObjectIdentifier = ObjectId.TryParse(target, out id);
 
-                GitReferenceType type = NativeMethods.git_reference_type(referencePtr);
+                GitReferenceType type = Proxy.git_reference_type(referencePtr);
                 switch (type)
                 {
                     case GitReferenceType.Oid:
@@ -279,8 +264,7 @@ namespace LibGit2Sharp
                             throw new ArgumentException(String.Format(CultureInfo.InvariantCulture, "The reference specified by {0} is an Oid reference, you must provide a sha as the target.", name), "target");
                         }
 
-                        GitOid oid = id.Oid;
-                        res = NativeMethods.git_reference_set_oid(referencePtr, ref oid);
+                        Proxy.git_reference_set_oid(referencePtr, id);
                         break;
 
                     case GitReferenceType.Symbolic:
@@ -289,14 +273,12 @@ namespace LibGit2Sharp
                             throw new ArgumentException(String.Format(CultureInfo.InvariantCulture, "The reference specified by {0} is a Symbolic reference, you must provide a reference canonical name as the target.", name), "target");
                         }
 
-                        res = NativeMethods.git_reference_set_target(referencePtr, target);
+                        Proxy.git_reference_set_target(referencePtr, target);
                         break;
 
                     default:
                         throw new LibGit2SharpException(string.Format(CultureInfo.InvariantCulture, "Reference '{0}' has an unexpected type ('{1}').", name, type));
                 }
-
-                Ensure.Success(res);
 
                 return Reference.BuildFromPtr<Reference>(referencePtr, repo);
             }
@@ -304,15 +286,7 @@ namespace LibGit2Sharp
 
         private ReferenceSafeHandle RetrieveReferencePtr(string referenceName, bool shouldThrowIfNotFound = true)
         {
-            ReferenceSafeHandle reference;
-            int res = NativeMethods.git_reference_lookup(out reference, repo.Handle, referenceName);
-
-            if (!shouldThrowIfNotFound && res == (int)GitErrorCode.NotFound)
-            {
-                return null;
-            }
-
-            Ensure.Success(res);
+            ReferenceSafeHandle reference = Proxy.git_reference_lookup(repo.Handle, referenceName, shouldThrowIfNotFound);
 
             return reference;
         }
@@ -335,7 +309,7 @@ namespace LibGit2Sharp
 
             public GlobedReferenceEnumerable(RepositorySafeHandle handle, string pattern)
             {
-                Ensure.Success(NativeMethods.git_reference_foreach_glob(handle, pattern, GitReferenceType.ListAll, Callback, IntPtr.Zero));
+                Proxy.git_reference_foreach_glob(handle, pattern, GitReferenceType.ListAll, Callback);
                 list.Sort(StringComparer.Ordinal);
             }
 

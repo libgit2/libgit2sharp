@@ -66,6 +66,7 @@
     <Compile Include="CommitLog.cs" />
     <Compile Include="Configuration.cs" />
     <Compile Include="ContentChanges.cs" />
+    <Compile Include="Core\Proxy.cs" />
     <Compile Include="TagCollectionExtensions.cs" />
     <Compile Include="Core\Compat\Environment.cs" />
     <Compile Include="Core\FilePath.cs" />
@@ -135,7 +136,6 @@
     <Compile Include="GitObjectType.cs" />
     <Compile Include="GitSortOptions.cs" />
     <Compile Include="Core\LambdaEqualityHelper.cs" />
-    <Compile Include="Core\Libgit2UnsafeHelper.cs" />
     <Compile Include="ICommitLog.cs" />
     <Compile Include="Index.cs" />
     <Compile Include="IndexEntry.cs" />

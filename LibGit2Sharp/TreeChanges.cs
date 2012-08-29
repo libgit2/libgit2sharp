@@ -42,7 +42,7 @@ namespace LibGit2Sharp
 
         internal TreeChanges(DiffListSafeHandle diff)
         {
-            Ensure.Success(NativeMethods.git_diff_print_patch(diff, IntPtr.Zero, PrintCallBack));
+            Proxy.git_diff_print_patch(diff, PrintCallBack);
         }
 
         private int PrintCallBack(IntPtr data, GitDiffDelta delta, GitDiffRange range, GitDiffLineOrigin lineorigin, IntPtr content, uint contentlen)

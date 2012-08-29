@@ -4,7 +4,7 @@
     {
         protected override bool ReleaseHandle()
         {
-            NativeMethods.git_index_free(handle);
+            Proxy.git_index_free(handle);
             return true;
         }
     }

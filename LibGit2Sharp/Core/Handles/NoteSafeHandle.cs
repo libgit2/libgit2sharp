@@ -4,7 +4,7 @@
     {
         protected override bool ReleaseHandle()
         {
-            NativeMethods.git_note_free(handle);
+            Proxy.git_note_free(handle);
             return true;
         }
     }

@@ -31,8 +31,8 @@ namespace LibGit2Sharp
         {
             this.repository = repository;
 
-            globalConfigPath = globalConfigurationFileLocation ?? ConvertPath(NativeMethods.git_config_find_global);
-            systemConfigPath = systemConfigurationFileLocation ?? ConvertPath(NativeMethods.git_config_find_system);
+            globalConfigPath = globalConfigurationFileLocation ?? Proxy.git_config_find_global();
+            systemConfigPath = systemConfigurationFileLocation ?? Proxy.git_config_find_system();
 
             Init();
         }
@@ -46,32 +46,32 @@ namespace LibGit2Sharp
                 // to modify it before giving it to git_repository_open_ext() would be a good addition, I think."
                 //  -- Agreed :)
 
-                Ensure.Success(NativeMethods.git_config_new(out localHandle));
+                localHandle = Proxy.git_config_new();
 
                 string repoConfigLocation = Path.Combine(repository.Info.Path, "config");
-                Ensure.Success(NativeMethods.git_config_add_file_ondisk(localHandle, repoConfigLocation, 3));
+                Proxy.git_config_add_file_ondisk(localHandle, repoConfigLocation, 3);
 
                 if (globalConfigPath != null)
                 {
-                    Ensure.Success(NativeMethods.git_config_add_file_ondisk(localHandle, globalConfigPath, 2));
+                    Proxy.git_config_add_file_ondisk(localHandle, globalConfigPath, 2);
                 }
 
                 if (systemConfigPath != null)
                 {
-                    Ensure.Success(NativeMethods.git_config_add_file_ondisk(localHandle, systemConfigPath, 1));
+                    Proxy.git_config_add_file_ondisk(localHandle, systemConfigPath, 1);
                 }
 
-                NativeMethods.git_repository_set_config(repository.Handle, localHandle);
+                Proxy.git_repository_set_config(repository.Handle, localHandle);
             }
 
             if (globalConfigPath != null)
             {
-                Ensure.Success(NativeMethods.git_config_open_ondisk(out globalHandle, globalConfigPath));
+                globalHandle = Proxy.git_config_open_ondisk(globalConfigPath);
             }
 
             if (systemConfigPath != null)
             {
-                Ensure.Success(NativeMethods.git_config_open_ondisk(out systemHandle, systemConfigPath));
+                systemHandle = Proxy.git_config_open_ondisk(systemConfigPath);
             }
         }
 
@@ -109,22 +109,6 @@ namespace LibGit2Sharp
             get { return systemConfigPath != null; }
         }
 
-        private static string ConvertPath(Func<byte[], uint, int> pathRetriever)
-        {
-            var buffer = new byte[NativeMethods.GIT_PATH_MAX];
-
-            int result = pathRetriever(buffer, NativeMethods.GIT_PATH_MAX);
-
-            if (result == (int)GitErrorCode.NotFound)
-            {
-                return null;
-            }
-
-            Ensure.Success(result);
-
-            return Utf8Marshaler.Utf8FromBuffer(buffer);
-        }
-
         internal ConfigurationSafeHandle LocalHandle
         {
             get { return localHandle; }
@@ -153,15 +137,12 @@ namespace LibGit2Sharp
         {
             ConfigurationSafeHandle h = RetrieveConfigurationHandle(level);
 
-            int res = NativeMethods.git_config_delete(h, key);
+            bool success = Proxy.git_config_delete(h, key);
 
-            if (res == (int)GitErrorCode.NotFound)
+            if (success)
             {
-                return;
+                Save();
             }
-
-            Ensure.Success(res);
-            Save();
         }
 
         /// <summary>
@@ -391,43 +372,41 @@ namespace LibGit2Sharp
             return h;
         }
 
-        private delegate int ConfigGetter<T>(out T value, ConfigurationSafeHandle handle, string name);
+        private delegate T ConfigGetter<T>(ConfigurationSafeHandle handle, string name);
 
         private static Func<string, object, ConfigurationSafeHandle, object> GetRetriever<T>(ConfigGetter<T> getter)
         {
             return (key, defaultValue, handle) =>
                 {
-                    T value;
-                    var res = getter(out value, handle, key);
-                    if (res == (int)GitErrorCode.NotFound)
+                    T value = getter(handle, key);
+                    if (Equals(value, default(T)))
                     {
                         return defaultValue;
                     }
 
-                    Ensure.Success(res);
                     return value;
                 };
         }
 
         private readonly IDictionary<Type, Func<string, object, ConfigurationSafeHandle, object>> configurationTypedRetriever = new Dictionary<Type, Func<string, object, ConfigurationSafeHandle, object>>
         {
-            { typeof(int), GetRetriever<int>(NativeMethods.git_config_get_int32) },
-            { typeof(long), GetRetriever<long>(NativeMethods.git_config_get_int64) },
-            { typeof(bool), GetRetriever<bool>(NativeMethods.git_config_get_bool) },
-            { typeof(string), GetRetriever<string>(NativeMethods.git_config_get_string) },
+            { typeof(int), GetRetriever(Proxy.git_config_get_int32) },
+            { typeof(long), GetRetriever(Proxy.git_config_get_int64) },
+            { typeof(bool), GetRetriever(Proxy.git_config_get_bool) },
+            { typeof(string), GetRetriever(Proxy.git_config_get_string) },
         };
 
-        private static Action<string, object, ConfigurationSafeHandle> GetUpdater<T>(Func<ConfigurationSafeHandle, string, T, int> setter)
+        private static Action<string, object, ConfigurationSafeHandle> GetUpdater<T>(Action<ConfigurationSafeHandle, string, T> setter)
         {
-            return (key, val, handle) => Ensure.Success(setter(handle, key, (T)val));
+            return (key, val, handle) => setter(handle, key, (T)val);
         }
 
         private readonly IDictionary<Type, Action<string, object, ConfigurationSafeHandle>> configurationTypedUpdater = new Dictionary<Type, Action<string, object, ConfigurationSafeHandle>>
         {
-            { typeof(int), GetUpdater<int>(NativeMethods.git_config_set_int32) },
-            { typeof(long), GetUpdater<long>(NativeMethods.git_config_set_int64) },
-            { typeof(bool), GetUpdater<bool>(NativeMethods.git_config_set_bool) },
-            { typeof(string), GetUpdater<string>(NativeMethods.git_config_set_string) },
+            { typeof(int), GetUpdater<int>(Proxy.git_config_set_int32) },
+            { typeof(long), GetUpdater<long>(Proxy.git_config_set_int64) },
+            { typeof(bool), GetUpdater<bool>(Proxy.git_config_set_bool) },
+            { typeof(string), GetUpdater<string>(Proxy.git_config_set_string) },
         };
     }
 }
