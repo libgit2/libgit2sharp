@@ -62,9 +62,9 @@ namespace LibGit2Sharp.Tests
         }
 
         [Theory]
-        [InlineData("http://github.com/libgit2/node-gitteh")]
-        [InlineData("https://github.com/libgit2/node-gitteh")]
-        //[InlineData("git@github.com:libgit2/node-gitteh")]
+        [InlineData("http://github.com/nulltoken/TestGitRepository")]
+        [InlineData("https://github.com/nulltoken/TestGitRepository")]
+        //[InlineData("git@github.com:nulltoken/TestGitRepository")]
         public void CanCloneARepository(string url)
         {
             var scd = BuildSelfCleaningDirectory();
@@ -80,14 +80,14 @@ namespace LibGit2Sharp.Tests
                 Assert.False(repo.Info.IsBare);
 
                 AssertIsHidden(repo.Info.Path);
-                Assert.True(File.Exists(Path.Combine(scd.RootedDirectoryPath, "readme.md")));
+                Assert.True(File.Exists(Path.Combine(scd.RootedDirectoryPath, "master.txt")));
             }
         }
 
         [Theory]
-        [InlineData("http://github.com/libgit2/node-gitteh")]
-        [InlineData("https://github.com/libgit2/node-gitteh")]
-        //[InlineData("git@github.com:libgit2/node-gitteh")]
+        [InlineData("http://github.com/nulltoken/TestGitRepository")]
+        [InlineData("https://github.com/nulltoken/TestGitRepository")]
+        //[InlineData("git@github.com:nulltoken/TestGitRepository")]
         public void CanCloneARepositoryBarely(string url)
         {
             var scd = BuildSelfCleaningDirectory();
