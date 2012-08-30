@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
+using Xunit.Extensions;
 
 namespace LibGit2Sharp.Tests
 {
@@ -57,6 +58,49 @@ namespace LibGit2Sharp.Tests
                 AssertIsHidden(repo.Info.Path);
 
                 AssertInitializedRepository(repo);
+            }
+        }
+
+        [Theory]
+        [InlineData("http://github.com/libgit2/node-gitteh")]
+        [InlineData("https://github.com/libgit2/node-gitteh")]
+        //[InlineData("git@github.com:libgit2/node-gitteh")]
+        public void CanCloneARepository(string url)
+        {
+            var scd = BuildSelfCleaningDirectory();
+            using (var repo = Repository.Clone(url, scd.RootedDirectoryPath))
+            {
+                string dir = repo.Info.Path;
+                Assert.True(Path.IsPathRooted(dir));
+                Assert.True(Directory.Exists(dir));
+                CheckGitConfigFile(dir);
+
+                Assert.NotNull(repo.Info.WorkingDirectory);
+                Assert.Equal(Path.Combine(scd.RootedDirectoryPath, ".git" + Path.DirectorySeparatorChar), repo.Info.Path);
+                Assert.False(repo.Info.IsBare);
+
+                AssertIsHidden(repo.Info.Path);
+                Assert.True(File.Exists(Path.Combine(scd.RootedDirectoryPath, "readme.md")));
+            }
+        }
+
+        [Theory]
+        [InlineData("http://github.com/libgit2/node-gitteh")]
+        [InlineData("https://github.com/libgit2/node-gitteh")]
+        //[InlineData("git@github.com:libgit2/node-gitteh")]
+        public void CanCloneARepositoryBarely(string url)
+        {
+            var scd = BuildSelfCleaningDirectory();
+            using (var repo = Repository.Clone(url, scd.RootedDirectoryPath, isBare:true))
+            {
+                string dir = repo.Info.Path;
+                Assert.True(Path.IsPathRooted(dir));
+                Assert.True(Directory.Exists(dir));
+                CheckGitConfigFile(dir);
+
+                Assert.Null(repo.Info.WorkingDirectory);
+                Assert.Equal(scd.RootedDirectoryPath + Path.DirectorySeparatorChar, repo.Info.Path);
+                Assert.True(repo.Info.IsBare);
             }
         }
 

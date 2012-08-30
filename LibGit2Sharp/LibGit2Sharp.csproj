@@ -66,6 +66,8 @@
     <Compile Include="CommitLog.cs" />
     <Compile Include="Configuration.cs" />
     <Compile Include="ContentChanges.cs" />
+    <Compile Include="Core\GitCheckoutOptions.cs" />
+    <Compile Include="Core\GitIndexerStats.cs" />
     <Compile Include="TagCollectionExtensions.cs" />
     <Compile Include="Core\Compat\Environment.cs" />
     <Compile Include="Core\FilePath.cs" />

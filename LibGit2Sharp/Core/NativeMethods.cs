@@ -140,6 +140,22 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.Bool)] bool force);
 
         [DllImport(libgit2)]
+        public static extern int git_clone(
+            out RepositorySafeHandle repo,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string url,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(FilePathMarshaler))] FilePath destination,
+            GitIndexerStats fetch_stats,
+            GitIndexerStats checkout_stats,
+            GitCheckoutOptions checkout_opts);
+
+        [DllImport(libgit2)]
+        public static extern int git_clone_bare(
+            out RepositorySafeHandle repo,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string url,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(FilePathMarshaler))] FilePath destination,
+            GitIndexerStats fetch_stats);
+
+        [DllImport(libgit2)]
         public static extern IntPtr git_commit_author(GitObjectSafeHandle commit);
 
         [DllImport(libgit2)]

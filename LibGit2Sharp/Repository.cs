@@ -445,6 +445,26 @@ namespace LibGit2Sharp
             return discoveredPath.Native;
         }
 
+        public static Repository Clone(
+            string url,
+            string destination,
+            GitIndexerStats fetch_stats = null,
+            GitIndexerStats checkout_stats = null,
+            GitCheckoutOptions checkout_options = null,
+            bool isBare = false)
+        {
+            RepositorySafeHandle repo;
+            int res;
+            if (isBare)
+                res = NativeMethods.git_clone_bare(out repo, url, destination, fetch_stats);
+            else
+                res = NativeMethods.git_clone(out repo, url, destination, fetch_stats, checkout_stats, checkout_options);
+            Ensure.Success(res);
+
+            repo.SafeDispose();
+            return new Repository(destination);
+        }
+
         /// <summary>
         ///   Checkout the specified branch, reference or SHA.
         /// </summary>
