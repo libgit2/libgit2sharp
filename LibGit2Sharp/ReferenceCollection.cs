@@ -215,9 +215,30 @@ namespace LibGit2Sharp
         public virtual Reference Move(string currentName, string newName, bool allowOverwrite = false)
         {
             Ensure.ArgumentNotNullOrEmptyString(currentName, "currentName");
+
+            Reference reference = this[currentName];
+
+            if (reference == null)
+            {
+                throw new LibGit2SharpException(string.Format("Reference '{0}' doesn't exist. One cannot move a non existing reference.", currentName));
+            }
+
+            return Move(reference, newName, allowOverwrite);
+        }
+
+        /// <summary>
+        ///   Rename an existing reference with a new name
+        /// </summary>
+        /// <param name = "reference">The reference to rename.</param>
+        /// <param name = "newName">The new canonical name.</param>
+        /// <param name = "allowOverwrite">True to allow silent overwriting a potentially existing reference, false otherwise.</param>
+        /// <returns></returns>
+        public virtual Reference Move(Reference reference, string newName, bool allowOverwrite = false)
+        {
+            Ensure.ArgumentNotNull(reference, "reference");
             Ensure.ArgumentNotNullOrEmptyString(newName, "newName");
 
-            using (ReferenceSafeHandle handle = RetrieveReferencePtr(currentName))
+            using (ReferenceSafeHandle handle = RetrieveReferencePtr(reference.CanonicalName))
             {
                 Proxy.git_reference_rename(handle, newName, allowOverwrite);
 
