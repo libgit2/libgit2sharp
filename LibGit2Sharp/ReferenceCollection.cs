@@ -236,6 +236,20 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        ///   Updates the target of a direct reference.
+        /// </summary>
+        /// <param name = "directRef">The direct reference which target should be updated.</param>
+        /// <param name = "targetId">The new target.</param>
+        public virtual Reference UpdateTarget(Reference directRef, ObjectId targetId)
+        {
+            Ensure.ArgumentNotNull(directRef, "directRef");
+            Ensure.ArgumentNotNull(targetId, "targetId");
+
+            return UpdateTarget(directRef, targetId,
+                (h, id) => Proxy.git_reference_set_oid(h, id));
+        }
+
+        /// <summary>
         ///   Updates the target of a symbolic reference.
         /// </summary>
         /// <param name = "symbolicRef">The symbolic reference which target should be updated.</param>
@@ -245,14 +259,30 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(symbolicRef, "symbolicRef");
             Ensure.ArgumentNotNull(targetRef, "targetRef");
 
-            if (symbolicRef.CanonicalName == "HEAD")
+            return UpdateTarget(symbolicRef, targetRef,
+                (h, r) => Proxy.git_reference_set_target(h, r.CanonicalName));
+        }
+
+        private Reference UpdateTarget<T>(Reference reference, T target, Action<ReferenceSafeHandle, T> setter)
+        {
+            if (reference.CanonicalName == "HEAD")
             {
-                return Add("HEAD", targetRef, true);
+                if (target is ObjectId)
+                {
+                    return Add("HEAD", target as ObjectId, true);
+                }
+
+                if (target is DirectReference)
+                {
+                    return Add("HEAD", target as DirectReference, true);
+                }
+
+                throw new ArgumentException(string.Format("'{0}' is not a valid target type.", typeof(T)));
             }
 
-            using (ReferenceSafeHandle referencePtr = RetrieveReferencePtr(symbolicRef.CanonicalName))
+            using (ReferenceSafeHandle referencePtr = RetrieveReferencePtr(reference.CanonicalName))
             {
-                Proxy.git_reference_set_target(referencePtr, targetRef.CanonicalName);
+                setter(referencePtr, target);
                 return Reference.BuildFromPtr<Reference>(referencePtr, repo);
             }
         }
@@ -272,37 +302,37 @@ namespace LibGit2Sharp
                 return Add("HEAD", target, true);
             }
 
-            using (ReferenceSafeHandle referencePtr = RetrieveReferencePtr(name))
+            Reference reference = this[name];
+
+            var directReference = reference as DirectReference;
+            if (directReference != null)
             {
                 ObjectId id;
                 bool isObjectIdentifier = ObjectId.TryParse(target, out id);
 
-                GitReferenceType type = Proxy.git_reference_type(referencePtr);
-                switch (type)
+                if (!isObjectIdentifier)
                 {
-                    case GitReferenceType.Oid:
-                        if (!isObjectIdentifier)
-                        {
-                            throw new ArgumentException(String.Format(CultureInfo.InvariantCulture, "The reference specified by {0} is an Oid reference, you must provide a sha as the target.", name), "target");
-                        }
-
-                        Proxy.git_reference_set_oid(referencePtr, id);
-                        break;
-
-                    case GitReferenceType.Symbolic:
-                        if (isObjectIdentifier)
-                        {
-                            throw new ArgumentException(String.Format(CultureInfo.InvariantCulture, "The reference specified by {0} is a Symbolic reference, you must provide a reference canonical name as the target.", name), "target");
-                        }
-
-                        return UpdateTarget(this[name], this[target]);
-
-                    default:
-                        throw new LibGit2SharpException(string.Format(CultureInfo.InvariantCulture, "Reference '{0}' has an unexpected type ('{1}').", name, type));
+                    throw new ArgumentException(String.Format(CultureInfo.InvariantCulture, "The reference specified by {0} is an Oid reference, you must provide a sha as the target.", name), "target");
                 }
 
-                return Reference.BuildFromPtr<Reference>(referencePtr, repo);
+
+                return UpdateTarget(directReference, id);
             }
+
+            var symbolicReference = reference as SymbolicReference;
+            if (symbolicReference != null)
+            {
+                Reference targetRef = this[target];
+
+                if (targetRef == null)
+                {
+                    throw new ArgumentException(String.Format(CultureInfo.InvariantCulture, "The reference specified by {0} is a Symbolic reference, you must provide a reference canonical name as the target.", name), "target");
+                }
+
+                return UpdateTarget(symbolicReference, targetRef);
+            }
+
+            throw new LibGit2SharpException(string.Format(CultureInfo.InvariantCulture, "Reference '{0}' has an unexpected type ('{1}').", name, reference.GetType()));
         }
 
         private ReferenceSafeHandle RetrieveReferencePtr(string referenceName, bool shouldThrowIfNotFound = true)
