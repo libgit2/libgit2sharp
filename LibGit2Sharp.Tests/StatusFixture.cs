@@ -241,5 +241,23 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(new[] { relativePath, "new_untracked_file.txt" }, newStatus.Ignored);
             }
         }
+
+        [Fact(Skip = "This test needs libgit2/libgit2@ffbc689")]
+        public void RetrievingTheStatusOfAnAmbiguousFileThrows()
+        {
+            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                string relativePath = Path.Combine("1", "ambiguous1.txt");
+                string fullFilePath = Path.Combine(repo.Info.WorkingDirectory, relativePath);
+                File.WriteAllText(fullFilePath, "I don't like brackets.");
+
+                relativePath = Path.Combine("1", "ambiguous[1].txt");
+                fullFilePath = Path.Combine(repo.Info.WorkingDirectory, relativePath);
+                File.WriteAllText(fullFilePath, "Brackets all the way.");
+
+                repo.Index.RetrieveStatus(relativePath);
+            }
+        }
     }
 }
