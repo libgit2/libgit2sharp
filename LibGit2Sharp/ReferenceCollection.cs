@@ -189,7 +189,25 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
 
-            using (ReferenceSafeHandle handle = RetrieveReferencePtr(name))
+            Reference reference = this[name];
+
+            if (reference == null)
+            {
+                return;
+            }
+
+            Remove(reference);
+        }
+
+        /// <summary>
+        ///   Remove a reference from the repository
+        /// </summary>
+        /// <param name = "reference">The reference to delete.</param>
+        public virtual void Remove(Reference reference)
+        {
+            Ensure.ArgumentNotNull(reference, "reference");
+
+            using (ReferenceSafeHandle handle = RetrieveReferencePtr(reference.CanonicalName))
             {
                 Proxy.git_reference_delete(handle);
             }

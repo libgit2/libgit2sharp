@@ -197,6 +197,20 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
+        public void CanRemoveANonExistingReference()
+        {
+            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                const string unknown = "refs/heads/dahlbyk/has/hawkeyes";
+
+                Assert.Null(repo.Refs[unknown]);
+                repo.Refs.Remove(unknown);
+                Assert.Null(repo.Refs[unknown]);
+            }
+        }
+
+        [Fact]
         public void ARemovedReferenceCannotBeLookedUp()
         {
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
@@ -243,7 +257,8 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                Assert.Throws<ArgumentNullException>(() => repo.Refs.Remove(null));
+                Assert.Throws<ArgumentNullException>(() => repo.Refs.Remove((string)null));
+                Assert.Throws<ArgumentNullException>(() => repo.Refs.Remove((Reference)null));
             }
         }
 
