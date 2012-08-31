@@ -1284,12 +1284,18 @@ namespace LibGit2Sharp.Core
                 FileStatus status;
                 int res = NativeMethods.git_status_file(out status, repo, path);
 
-                if (res == (int)GitErrorCode.NotFound)
+                switch (res)
                 {
-                    return FileStatus.Nonexistent;
+                    case (int)GitErrorCode.NotFound:
+                        return FileStatus.Nonexistent;
+                    
+                    case (int)GitErrorCode.Ambiguous:
+                        throw new AmbiguousException(string.Format(CultureInfo.InvariantCulture, "More than one file matches the pathspec '{0}'. You can either force a literal path evaluation (GIT_STATUS_OPT_DISABLE_PATHSPEC_MATCH), or use git_status_foreach().", path));
+   
+                    default:
+                        Ensure.Success(res);
+                        break;
                 }
-
-                Ensure.Success(res);
 
                 return status;
             }
