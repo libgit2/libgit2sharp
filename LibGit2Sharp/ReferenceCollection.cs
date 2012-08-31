@@ -236,7 +236,29 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Updates the target on a reference.
+        ///   Updates the target of a symbolic reference.
+        /// </summary>
+        /// <param name = "symbolicRef">The symbolic reference which target should be updated.</param>
+        /// <param name = "targetRef">The new target.</param>
+        public virtual Reference UpdateTarget(Reference symbolicRef, Reference targetRef)
+        {
+            Ensure.ArgumentNotNull(symbolicRef, "symbolicRef");
+            Ensure.ArgumentNotNull(targetRef, "targetRef");
+
+            if (symbolicRef.CanonicalName == "HEAD")
+            {
+                return Add("HEAD", targetRef, true);
+            }
+
+            using (ReferenceSafeHandle referencePtr = RetrieveReferencePtr(symbolicRef.CanonicalName))
+            {
+                Proxy.git_reference_set_target(referencePtr, targetRef.CanonicalName);
+                return Reference.BuildFromPtr<Reference>(referencePtr, repo);
+            }
+        }
+
+        /// <summary>
+        ///   Updates the target of a reference.
         /// </summary>
         /// <param name = "name">The name of the reference.</param>
         /// <param name = "target">The target which can be either a sha or the name of another reference.</param>
@@ -273,8 +295,7 @@ namespace LibGit2Sharp
                             throw new ArgumentException(String.Format(CultureInfo.InvariantCulture, "The reference specified by {0} is a Symbolic reference, you must provide a reference canonical name as the target.", name), "target");
                         }
 
-                        Proxy.git_reference_set_target(referencePtr, target);
-                        break;
+                        return UpdateTarget(this[name], this[target]);
 
                     default:
                         throw new LibGit2SharpException(string.Format(CultureInfo.InvariantCulture, "Reference '{0}' has an unexpected type ('{1}').", name, type));
