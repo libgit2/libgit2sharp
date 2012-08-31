@@ -278,6 +278,23 @@ namespace LibGit2Sharp
         ///   Updates the target of a direct reference.
         /// </summary>
         /// <param name = "directRef">The direct reference which target should be updated.</param>
+        /// <param name = "objectish">The revparse spec of the target.</param>
+        public virtual Reference UpdateTarget(Reference directRef, string objectish)
+        {
+            Ensure.ArgumentNotNull(directRef, "directRef");
+            Ensure.ArgumentNotNull(objectish, "objectish");
+
+            GitObject target = repo.Lookup(objectish);
+
+            Ensure.GitObjectIsNotNull(target, objectish);
+
+            return UpdateTarget(directRef, target.Id);
+        }
+
+        /// <summary>
+        ///   Updates the target of a direct reference.
+        /// </summary>
+        /// <param name = "directRef">The direct reference which target should be updated.</param>
         /// <param name = "targetId">The new target.</param>
         public virtual Reference UpdateTarget(Reference directRef, ObjectId targetId)
         {
