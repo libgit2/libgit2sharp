@@ -306,7 +306,7 @@ namespace LibGit2Sharp
                     obj = Proxy.git_object_lookup(handle, id, type);
                 }
 
-                return obj == null ? null : GitObject.CreateFromPtr(obj, id, this, knownPath);
+                return obj == null ? null : GitObject.BuildFromPtr(obj, id, this, knownPath);
             }
             finally
             {
@@ -363,7 +363,7 @@ namespace LibGit2Sharp
                     return null;
                 }
 
-                obj = GitObject.CreateFromPtr(sh, GitObject.ObjectIdOf(sh), this, PathFromRevparseSpec(objectish));
+                obj = GitObject.BuildFromPtr(sh, GitObject.ObjectIdOf(sh), this, PathFromRevparseSpec(objectish));
             }
 
             if (lookUpOptions.Has(LookUpOptions.DereferenceResultToCommit))

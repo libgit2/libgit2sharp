@@ -38,7 +38,7 @@ namespace LibGit2Sharp
         /// </summary>
         public ObjectId Id { get; private set; }
 
-        internal static IndexEntry CreateFromPtr(Repository repo, IndexEntrySafeHandle handle)
+        internal static IndexEntry BuildFromPtr(Repository repo, IndexEntrySafeHandle handle)
         {
             GitIndexEntry entry = handle.MarshalAsGitIndexEntry();
 

@@ -119,8 +119,8 @@ namespace LibGit2Sharp
         {
             using (NoteSafeHandle noteHandle = Proxy.git_note_read(repo.Handle, canonicalNamespace, targetObjectId))
             {
-                return noteHandle == null ? null :
-                    Note.BuildFromPtr(UnCanonicalizeName(canonicalNamespace), targetObjectId, noteHandle);
+                return noteHandle == null ? null : 
+                    Note.BuildFromPtr(noteHandle, UnCanonicalizeName(canonicalNamespace), targetObjectId);
             }
         }
 
@@ -211,7 +211,7 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNullOrEmptyString(@namespace, "@namespace");
 
             string canonicalNamespace = NormalizeToCanonicalName(@namespace);
-    
+
             Proxy.git_note_remove(repo.Handle, canonicalNamespace, author, committer, targetId);
         }
 
