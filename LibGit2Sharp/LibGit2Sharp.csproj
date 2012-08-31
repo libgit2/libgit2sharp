@@ -68,6 +68,7 @@
     <Compile Include="ConfigurationEntry.cs" />
     <Compile Include="ContentChanges.cs" />
     <Compile Include="Core\Proxy.cs" />
+    <Compile Include="ReferenceCollectionExtensions.cs" />
     <Compile Include="TagCollectionExtensions.cs" />
     <Compile Include="Core\Compat\Environment.cs" />
     <Compile Include="Core\FilePath.cs" />
