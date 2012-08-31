@@ -372,9 +372,7 @@ namespace LibGit2Sharp
             return h;
         }
 
-        private delegate T ConfigGetter<T>(ConfigurationSafeHandle handle, string name);
-
-        private static Func<string, object, ConfigurationSafeHandle, object> GetRetriever<T>(ConfigGetter<T> getter)
+        private static Func<string, object, ConfigurationSafeHandle, object> GetRetriever<T>(Func<ConfigurationSafeHandle, string, T> getter)
         {
             return (key, defaultValue, handle) =>
                 {
