@@ -39,7 +39,7 @@ namespace LibGit2Sharp
         {
             using (RemoteSafeHandle handle = Proxy.git_remote_load(repository.Handle, name, false))
             {
-                return Remote.CreateFromPtr(handle);
+                return handle == null ? null : Remote.BuildFromPtr(handle);
             }
         }
 
@@ -80,7 +80,7 @@ namespace LibGit2Sharp
 
             using (RemoteSafeHandle handle = Proxy.git_remote_add(repository.Handle, name, url))
             {
-                return Remote.CreateFromPtr(handle);
+                return Remote.BuildFromPtr(handle);
             }
         }
 
@@ -115,7 +115,7 @@ namespace LibGit2Sharp
             using (RemoteSafeHandle handle = Proxy.git_remote_new(repository.Handle, name, url, fetchRefSpec))
             {
                 Proxy.git_remote_save(handle);
-                return Remote.CreateFromPtr(handle);
+                return Remote.BuildFromPtr(handle);
             }
         }
 

@@ -126,7 +126,7 @@ namespace LibGit2Sharp
 
         #endregion
 
-        internal static Tree BuildFromPtr(GitObjectSafeHandle obj, ObjectId id, Repository repo, FilePath path)
+        internal new static Tree BuildFromPtr(GitObjectSafeHandle obj, ObjectId id, Repository repo, FilePath path)
         {
             var tree = new Tree(id, path, Proxy.git_tree_entrycount(obj), repo);
             return tree;

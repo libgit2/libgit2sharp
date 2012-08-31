@@ -81,7 +81,7 @@ namespace LibGit2Sharp
             get
             {
                 IndexEntrySafeHandle entryHandle = Proxy.git_index_get(handle, index);
-                return IndexEntry.CreateFromPtr(repo, entryHandle);
+                return IndexEntry.BuildFromPtr(repo, entryHandle);
             }
         }
 

@@ -44,7 +44,7 @@ namespace LibGit2Sharp
         /// </summary>
         public virtual ObjectId TargetObjectId { get; private set; }
 
-        internal static Note BuildFromPtr(string @namespace, ObjectId targetObjectId, NoteSafeHandle note)
+        internal static Note BuildFromPtr(NoteSafeHandle note, string @namespace, ObjectId targetObjectId)
         {
             ObjectId oid = Proxy.git_note_oid(note);
             string message = Proxy.git_note_message(note);
