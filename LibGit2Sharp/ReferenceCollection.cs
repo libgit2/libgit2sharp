@@ -125,7 +125,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Creates a direct reference with the specified name and target
         /// </summary>
-        /// <param name = "name">The name of the reference to create.</param>
+        /// <param name = "name">The canonical name of the reference to create.</param>
         /// <param name = "targetId">Id of the target object.</param>
         /// <param name = "allowOverwrite">True to allow silent overwriting a potentially existing reference, false otherwise.</param>
         /// <returns>A new <see cref = "Reference" />.</returns>
@@ -143,7 +143,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Creates a symbolic reference  with the specified name and target
         /// </summary>
-        /// <param name = "name">The name of the reference to create.</param>
+        /// <param name = "name">The canonical name of the reference to create.</param>
         /// <param name = "targetRef">The target reference.</param>
         /// <param name = "allowOverwrite">True to allow silent overwriting a potentially existing reference, false otherwise.</param>
         /// <returns>A new <see cref = "Reference" />.</returns>
@@ -184,7 +184,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Delete a reference with the specified name
         /// </summary>
-        /// <param name = "name">The name of the reference to delete.</param>
+        /// <param name = "name">The canonical name of the reference to delete.</param>
         public virtual void Remove(string name)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
@@ -229,7 +229,7 @@ namespace LibGit2Sharp
         /// <param name = "currentName">The canonical name of the reference to rename.</param>
         /// <param name = "newName">The new canonical name.</param>
         /// <param name = "allowOverwrite">True to allow silent overwriting a potentially existing reference, false otherwise.</param>
-        /// <returns></returns>
+        /// <returns>A new <see cref = "Reference" />.</returns>
         public virtual Reference Move(string currentName, string newName, bool allowOverwrite = false)
         {
             Ensure.ArgumentNotNullOrEmptyString(currentName, "currentName");
@@ -250,7 +250,7 @@ namespace LibGit2Sharp
         /// <param name = "reference">The reference to rename.</param>
         /// <param name = "newName">The new canonical name.</param>
         /// <param name = "allowOverwrite">True to allow silent overwriting a potentially existing reference, false otherwise.</param>
-        /// <returns></returns>
+        /// <returns>A new <see cref = "Reference" />.</returns>
         public virtual Reference Move(Reference reference, string newName, bool allowOverwrite = false)
         {
             Ensure.ArgumentNotNull(reference, "reference");
@@ -296,6 +296,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name = "directRef">The direct reference which target should be updated.</param>
         /// <param name = "targetId">The new target.</param>
+        /// <returns>A new <see cref = "Reference" />.</returns>
         public virtual Reference UpdateTarget(Reference directRef, ObjectId targetId)
         {
             Ensure.ArgumentNotNull(directRef, "directRef");
@@ -310,6 +311,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name = "symbolicRef">The symbolic reference which target should be updated.</param>
         /// <param name = "targetRef">The new target.</param>
+        /// <returns>A new <see cref = "Reference" />.</returns>
         public virtual Reference UpdateTarget(Reference symbolicRef, Reference targetRef)
         {
             Ensure.ArgumentNotNull(symbolicRef, "symbolicRef");
@@ -346,16 +348,17 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Updates the target of a reference.
         /// </summary>
-        /// <param name = "name">The name of the reference.</param>
-        /// <param name = "target">The target which can be either a sha or the name of another reference.</param>
-        public virtual Reference UpdateTarget(string name, string target)
+        /// <param name = "name">The canonical name of the reference.</param>
+        /// <param name = "canonicalRefNameOrObjectish">The target which can be either the canonical name of a reference or a revparse spec.</param>
+        /// <returns>A new <see cref = "Reference" />.</returns>
+        public virtual Reference UpdateTarget(string name, string canonicalRefNameOrObjectish)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
-            Ensure.ArgumentNotNullOrEmptyString(target, "target");
+            Ensure.ArgumentNotNullOrEmptyString(canonicalRefNameOrObjectish, "canonicalRefNameOrObjectish");
 
             if (name == "HEAD")
             {
-                return Add("HEAD", target, true);
+                return this.Add("HEAD", canonicalRefNameOrObjectish, true);
             }
 
             Reference reference = this[name];
@@ -364,7 +367,7 @@ namespace LibGit2Sharp
             if (directReference != null)
             {
                 ObjectId id;
-                bool isObjectIdentifier = ObjectId.TryParse(target, out id);
+                bool isObjectIdentifier = ObjectId.TryParse(canonicalRefNameOrObjectish, out id);
 
                 if (!isObjectIdentifier)
                 {
@@ -378,7 +381,7 @@ namespace LibGit2Sharp
             var symbolicReference = reference as SymbolicReference;
             if (symbolicReference != null)
             {
-                Reference targetRef = this[target];
+                Reference targetRef = this[canonicalRefNameOrObjectish];
 
                 if (targetRef == null)
                 {
