@@ -519,6 +519,17 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
+        public void CanRemoveATag()
+        {
+            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                Tag tag = repo.Tags["e90810b"];
+                repo.Tags.Remove(tag);
+            }
+        }
+
+        [Fact]
         public void ARemovedTagCannotBeLookedUp()
         {
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
