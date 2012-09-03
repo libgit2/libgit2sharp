@@ -98,8 +98,8 @@ namespace LibGit2Sharp.Tests
         [InlineData("0", false)]
         [InlineData("01", false)]
         [InlineData("012", false)]
-        [InlineData("0123", true)]
-        [InlineData("0123456", true)]
+        [InlineData("0123", false)]
+        [InlineData("0123456", false)]
         [InlineData(validSha1 + "d", false)]
         [InlineData(validSha1, true)]
         public void TryParse(string maybeSha, bool isValidSha)

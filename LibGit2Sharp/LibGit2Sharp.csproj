@@ -55,7 +55,6 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AbbreviatedObjectId.cs" />
     <Compile Include="AmbiguousException.cs" />
     <Compile Include="Blob.cs" />
     <Compile Include="BlobExtensions.cs" />

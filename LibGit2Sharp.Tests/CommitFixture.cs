@@ -280,7 +280,9 @@ namespace LibGit2Sharp.Tests
         public void CanEnumerateCommitsFromMixedStartingPoints()
         {
             AssertEnumerationOfCommits(
-                repo => new Filter { Since = new object[] { repo.Branches["br2"], "refs/heads/master", new ObjectId("e90810b") } },
+                repo => new Filter { Since = new object[] { repo.Branches["br2"],
+                                                            "refs/heads/master",
+                                                            new ObjectId("e90810b8df3e80c413d903f631643c716887138d") } },
                 new[]
                     {
                         "4c062a6", "e90810b", "6dcf9bf", "a4a7dce",
