@@ -51,7 +51,7 @@ namespace LibGit2Sharp
             get { return Id.Sha; }
         }
 
-        internal static GitObject CreateFromPtr(GitObjectSafeHandle obj, ObjectId id, Repository repo, FilePath path)
+        internal static GitObject BuildFromPtr(GitObjectSafeHandle obj, ObjectId id, Repository repo, FilePath path)
         {
             GitObjectType type = Proxy.git_object_type(obj);
             switch (type)

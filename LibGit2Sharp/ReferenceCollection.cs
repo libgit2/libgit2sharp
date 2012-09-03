@@ -231,7 +231,8 @@ namespace LibGit2Sharp
 
             using (ReferenceSafeHandle referencePtr = RetrieveReferencePtr(name, false))
             {
-                return referencePtr == null ? null : Reference.BuildFromPtr<T>(referencePtr, repo);
+                return referencePtr == null ? null :
+                    Reference.BuildFromPtr<T>(referencePtr, repo);
             }
         }
 
