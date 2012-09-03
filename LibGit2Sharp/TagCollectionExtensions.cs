@@ -40,5 +40,17 @@ namespace LibGit2Sharp
 
             return tags.Add(name, objectToTag, allowOverwrite);
         }
+
+        /// <summary>
+        ///   Deletes the tag with the specified name.
+        /// </summary>
+        /// <param name = "name">The short or canonical name of the tag to delete.</param>
+        /// <param name = "tags">The <see cref="TagCollection"/> being worked with.</param>
+        public static void Remove(this TagCollection tags, string name)
+        {
+            Ensure.ArgumentNotNullOrEmptyString(name, "name");
+
+            Proxy.git_tag_delete(tags.repo.Handle, tags.UnCanonicalizeName(name));
+        }
     }
 }
