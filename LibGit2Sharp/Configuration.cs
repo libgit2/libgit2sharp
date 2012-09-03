@@ -10,7 +10,7 @@ namespace LibGit2Sharp
     /// <summary>
     ///   Provides access to configuration variables for a repository.
     /// </summary>
-    public class Configuration : IDisposable
+    public class Configuration : IDisposable, IEnumerable<ConfigurationEntry>
     {
         private readonly FilePath globalConfigPath;
         private readonly FilePath systemConfigPath;
@@ -406,5 +406,22 @@ namespace LibGit2Sharp
             { typeof(bool), GetUpdater<bool>(Proxy.git_config_set_bool) },
             { typeof(string), GetUpdater<string>(Proxy.git_config_set_string) },
         };
+
+        IEnumerator<ConfigurationEntry> IEnumerable<ConfigurationEntry>.GetEnumerator()
+        {
+            var values = new List<ConfigurationEntry>();
+            Proxy.git_config_foreach(LocalHandle, (namePtr, valuePtr, _) => {
+                var name = Utf8Marshaler.FromNative(namePtr);
+                var value = Utf8Marshaler.FromNative(valuePtr);
+                values.Add(new ConfigurationEntry(name, value));
+                return 0;
+            });
+            return values.GetEnumerator();
+        }
+
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+        {
+            return ((IEnumerable<ConfigurationEntry>)this).GetEnumerator();
+        }
     }
 }

@@ -242,6 +242,17 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string name,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string value);
 
+        internal delegate int config_foreach_callback(
+            IntPtr var_name,
+            IntPtr value,
+            IntPtr payload);
+
+        [DllImport(libgit2)]
+        internal static extern int git_config_foreach(
+            ConfigurationSafeHandle cfg,
+            config_foreach_callback callback,
+            IntPtr payload);
+
         [DllImport(libgit2)]
         internal static extern void git_diff_list_free(IntPtr diff);
 

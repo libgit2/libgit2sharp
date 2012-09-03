@@ -379,6 +379,17 @@ namespace LibGit2Sharp.Core
             }
         }
 
+        public static void git_config_foreach(
+            ConfigurationSafeHandle config,
+            NativeMethods.config_foreach_callback callback)
+        {
+            using (ThreadAffinity())
+            {
+                int res = NativeMethods.git_config_foreach(config, callback, IntPtr.Zero);
+                Ensure.Success(res);
+            }
+        }
+
         #endregion
 
         #region git_diff_

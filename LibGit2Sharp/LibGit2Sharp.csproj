@@ -65,6 +65,7 @@
     <Compile Include="Commit.cs" />
     <Compile Include="CommitLog.cs" />
     <Compile Include="Configuration.cs" />
+    <Compile Include="ConfigurationEntry.cs" />
     <Compile Include="ContentChanges.cs" />
     <Compile Include="Core\Proxy.cs" />
     <Compile Include="TagCollectionExtensions.cs" />
