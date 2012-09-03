@@ -320,6 +320,18 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
+        public void MovingARemoteTrackingBranchThrows()
+        {
+            using (var repo = new Repository(StandardTestRepoPath))
+            {
+                Branch master = repo.Branches["refs/remotes/origin/master"];
+                Assert.True(master.IsRemote);
+
+                Assert.Throws<LibGit2SharpException>(() => repo.Branches.Move(master, "new_name", true));
+            }
+        }
+
+        [Fact]
         public void CanWalkCommitsFromAnotherBranch()
         {
             using (var repo = new Repository(BareTestRepoPath))

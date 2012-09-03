@@ -215,7 +215,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Rename an existing local branch with a new name.
+        ///   Renames an existing local branch with a new name.
         /// </summary>
         /// <param name = "currentName">The current branch name.</param>
         /// <param name = "newName">The new name the existing branch should bear.</param>
@@ -229,6 +229,26 @@ namespace LibGit2Sharp
             Proxy.git_branch_move(repo.Handle, currentName, newName, allowOverwrite);
 
             return this[newName];
+        }
+
+        /// <summary>
+        ///   Renames an existing local branch with a new name.
+        /// </summary>
+        /// <param name = "branch">The current local branch.</param>
+        /// <param name = "newName">The new name the existing branch should bear.</param>
+        /// <param name = "allowOverwrite">True to allow silent overwriting a potentially existing branch, false otherwise.</param>
+        /// <returns>A new <see cref="Branch"/>.</returns>
+        public virtual Branch Move(Branch branch, string newName, bool allowOverwrite = false)
+        {
+            Ensure.ArgumentNotNull(branch, "branch");
+            Ensure.ArgumentNotNullOrEmptyString(newName, "newName");
+
+            if (branch.IsRemote)
+            {
+                throw new LibGit2SharpException(string.Format("Cannot rename branch '{0}'. It's a remote tracking branch.", branch.Name));
+            }
+
+            return Move(branch.Name, newName, allowOverwrite);
         }
 
         private static bool LooksLikeABranchName(string referenceName)
