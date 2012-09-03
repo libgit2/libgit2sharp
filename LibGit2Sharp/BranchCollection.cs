@@ -193,6 +193,17 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        ///   Deletes the specified branch.
+        /// </summary>
+        /// <param name = "branch">The branch to delete.</param>
+        public virtual void Remove(Branch branch)
+        {
+            Ensure.ArgumentNotNull(branch, "branch");
+
+            Remove(branch.Name, branch.IsRemote);
+        }
+
+        /// <summary>
         ///   Deletes the branch with the specified name.
         /// </summary>
         /// <param name = "name">The name of the branch to delete.</param>
