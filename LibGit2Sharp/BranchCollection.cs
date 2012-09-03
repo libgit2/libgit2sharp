@@ -13,7 +13,7 @@ namespace LibGit2Sharp
     /// </summary>
     public class BranchCollection : IEnumerable<Branch>
     {
-        private readonly Repository repo;
+        internal readonly Repository repo;
 
         /// <summary>
         ///   Needed for mocking purposes.
@@ -137,23 +137,6 @@ namespace LibGit2Sharp
         ///   Create a new local branch with the specified name
         /// </summary>
         /// <param name = "name">The name of the branch.</param>
-        /// <param name = "commitish">Revparse spec for the target commit.</param>
-        /// <param name = "allowOverwrite">True to allow silent overwriting a potentially existing branch, false otherwise.</param>
-        /// <returns>A new <see cref="Branch"/>.</returns>
-        public virtual Branch Add(string name, string commitish, bool allowOverwrite = false)
-        {
-            Ensure.ArgumentNotNullOrEmptyString(name, "name");
-            Ensure.ArgumentNotNullOrEmptyString(commitish, "commitish");
-
-            Commit commit = repo.LookupCommit(commitish);
-
-            return Add(name, commit, allowOverwrite);
-        }
-
-        /// <summary>
-        ///   Create a new local branch with the specified name
-        /// </summary>
-        /// <param name = "name">The name of the branch.</param>
         /// <param name = "commit">The target commit.</param>
         /// <param name = "allowOverwrite">True to allow silent overwriting a potentially existing branch, false otherwise.</param>
         /// <returns>A new <see cref="Branch"/>.</returns>
@@ -177,19 +160,7 @@ namespace LibGit2Sharp
         [Obsolete("This method will be removed in the next release. Please use Add() instead.")]
         public virtual Branch Create(string name, string commitish, bool allowOverwrite = false)
         {
-            return Add(name, commitish, allowOverwrite);
-        }
-
-        /// <summary>
-        ///   Deletes the branch with the specified name.
-        /// </summary>
-        /// <param name = "name">The name of the branch to delete.</param>
-        /// <param name = "isRemote">True if the provided <paramref name="name"/> is the name of a remote branch, false otherwise.</param>
-        public virtual void Remove(string name, bool isRemote = false)
-        {
-            Ensure.ArgumentNotNullOrEmptyString(name, "name");
-
-            Proxy.git_branch_delete(repo.Handle, name, isRemote ? GitBranchType.GIT_BRANCH_REMOTE : GitBranchType.GIT_BRANCH_LOCAL);
+            return this.Add(name, commitish, allowOverwrite);
         }
 
         /// <summary>
@@ -200,7 +171,7 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNull(branch, "branch");
 
-            Remove(branch.Name, branch.IsRemote);
+            this.Remove(branch.Name, branch.IsRemote);
         }
 
         /// <summary>
@@ -211,24 +182,7 @@ namespace LibGit2Sharp
         [Obsolete("This method will be removed in the next release. Please use Remove() instead.")]
         public virtual void Delete(string name, bool isRemote = false)
         {
-            Remove(name, isRemote);
-        }
-
-        /// <summary>
-        ///   Renames an existing local branch with a new name.
-        /// </summary>
-        /// <param name = "currentName">The current branch name.</param>
-        /// <param name = "newName">The new name the existing branch should bear.</param>
-        /// <param name = "allowOverwrite">True to allow silent overwriting a potentially existing branch, false otherwise.</param>
-        /// <returns>A new <see cref="Branch"/>.</returns>
-        public virtual Branch Move(string currentName, string newName, bool allowOverwrite = false)
-        {
-            Ensure.ArgumentNotNullOrEmptyString(currentName, "currentName");
-            Ensure.ArgumentNotNullOrEmptyString(newName, "newName");
-
-            Proxy.git_branch_move(repo.Handle, currentName, newName, allowOverwrite);
-
-            return this[newName];
+            this.Remove(name, isRemote);
         }
 
         /// <summary>
@@ -248,7 +202,7 @@ namespace LibGit2Sharp
                 throw new LibGit2SharpException(string.Format("Cannot rename branch '{0}'. It's a remote tracking branch.", branch.Name));
             }
 
-            return Move(branch.Name, newName, allowOverwrite);
+            return this.Move(branch.Name, newName, allowOverwrite);
         }
 
         private static bool LooksLikeABranchName(string referenceName)
