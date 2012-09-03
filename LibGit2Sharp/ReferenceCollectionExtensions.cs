@@ -66,6 +66,8 @@ namespace LibGit2Sharp
                 }
             }
 
+            Ensure.GitObjectIsNotNull(gitObject, canonicalRefNameOrObjectish);
+
             return refsColl.Add(name, gitObject.Id, allowOverwrite);
         }
         /// <summary>

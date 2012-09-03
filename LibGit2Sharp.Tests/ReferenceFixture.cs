@@ -52,6 +52,18 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
+        public void CreatingADirectReferenceWithARevparseSpecPointingAtAnUnknownObjectFails()
+        {
+            const string name = "refs/heads/extendedShaSyntaxRulz";
+
+            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                Assert.Throws<LibGit2SharpException>(() => repo.Refs.Add(name, "master^42"));
+            }
+        }
+
+        [Fact]
         public void CanAddASymbolicReferenceFromTheTargetName()
         {
             const string name = "refs/heads/unit_test";
