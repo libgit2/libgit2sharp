@@ -85,7 +85,7 @@ namespace LibGit2Sharp
         /// <param name = "branchName">The name of the branch to create.</param>
         public static Branch CreateBranch(this IRepository repository, string branchName)
         {
-            return CreateBranch(repository, branchName, repository.Head.CanonicalName);
+            return CreateBranch(repository, branchName, repository.Head.Tip);
         }
 
         /// <summary>
@@ -96,8 +96,7 @@ namespace LibGit2Sharp
         /// <param name = "target">The commit which should be pointed at by the Branch.</param>
         public static Branch CreateBranch(this IRepository repository, string branchName, Commit target)
         {
-            Ensure.ArgumentNotNull(target, "target");
-            return CreateBranch(repository, branchName, target.Id.Sha);
+            return repository.Branches.Add(branchName, target);
         }
 
         /// <summary>

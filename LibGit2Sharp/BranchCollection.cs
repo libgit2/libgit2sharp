@@ -145,9 +145,24 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
             Ensure.ArgumentNotNullOrEmptyString(commitish, "commitish");
 
-            ObjectId commitId = repo.LookupCommit(commitish).Id;
+            Commit commit = repo.LookupCommit(commitish);
 
-            Proxy.git_branch_create(repo.Handle, name, commitId, allowOverwrite);
+            return Add(name, commit, allowOverwrite);
+        }
+
+        /// <summary>
+        ///   Create a new local branch with the specified name
+        /// </summary>
+        /// <param name = "name">The name of the branch.</param>
+        /// <param name = "commit">The target commit.</param>
+        /// <param name = "allowOverwrite">True to allow silent overwriting a potentially existing branch, false otherwise.</param>
+        /// <returns>A new <see cref="Branch"/>.</returns>
+        public virtual Branch Add(string name, Commit commit, bool allowOverwrite = false)
+        {
+            Ensure.ArgumentNotNullOrEmptyString(name, "name");
+            Ensure.ArgumentNotNull(commit, "commit");
+
+            Proxy.git_branch_create(repo.Handle, name, commit.Id, allowOverwrite);
 
             return this[ShortToLocalName(name)];
         }
