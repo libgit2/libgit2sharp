@@ -139,10 +139,11 @@ namespace LibGit2Sharp
         /// <param name = "name">The name of the branch.</param>
         /// <param name = "commitish">Revparse spec for the target commit.</param>
         /// <param name = "allowOverwrite">True to allow silent overwriting a potentially existing branch, false otherwise.</param>
-        /// <returns></returns>
+        /// <returns>A new <see cref="Branch"/>.</returns>
         public virtual Branch Add(string name, string commitish, bool allowOverwrite = false)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
+            Ensure.ArgumentNotNullOrEmptyString(commitish, "commitish");
 
             ObjectId commitId = repo.LookupCommit(commitish).Id;
 
@@ -187,17 +188,17 @@ namespace LibGit2Sharp
             Remove(name, isRemote);
         }
 
-        ///<summary>
-        ///  Rename an existing local branch with a new name.
-        ///</summary>
-        ///<param name = "currentName">The current branch name.</param>
-        ///<param name = "newName">The new name of the existing branch should bear.</param>
-        ///<param name = "allowOverwrite">True to allow silent overwriting a potentially existing branch, false otherwise.</param>
-        ///<returns></returns>
+        /// <summary>
+        ///   Rename an existing local branch with a new name.
+        /// </summary>
+        /// <param name = "currentName">The current branch name.</param>
+        /// <param name = "newName">The new name the existing branch should bear.</param>
+        /// <param name = "allowOverwrite">True to allow silent overwriting a potentially existing branch, false otherwise.</param>
+        /// <returns>A new <see cref="Branch"/>.</returns>
         public virtual Branch Move(string currentName, string newName, bool allowOverwrite = false)
         {
             Ensure.ArgumentNotNullOrEmptyString(currentName, "currentName");
-            Ensure.ArgumentNotNullOrEmptyString(newName, "name");
+            Ensure.ArgumentNotNullOrEmptyString(newName, "newName");
 
             Proxy.git_branch_move(repo.Handle, currentName, newName, allowOverwrite);
 
