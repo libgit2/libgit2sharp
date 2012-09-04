@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Text;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
@@ -154,6 +155,29 @@ namespace LibGit2Sharp.Tests
             {
                 Assert.Equal("+refs/heads/*:refs/remotes/origin/*", repo.Config.Get<string>("remote.origin.fetch", null));
                 Assert.Equal("+refs/heads/*:refs/remotes/origin/*", repo.Config.Get<string>("remote", "origin", "fetch", null));
+            }
+        }
+
+        [SkippableFact]
+        public void CanEnumerateGlobalConfig()
+        {
+            using (var repo = new Repository(StandardTestRepoPath))
+            {
+                InconclusiveIf(() => !repo.Config.HasGlobalConfig, "No Git global configuration available");
+                var entry = repo.Config.FirstOrDefault(e => e.Key == "user.name");
+                Assert.NotNull(entry);
+                Assert.NotNull(entry.Value);
+            }
+        }
+
+        [Fact]
+        public void CanEnumerateLocalConfig()
+        {
+            using (var repo = new Repository(StandardTestRepoPath))
+            {
+                var entry = repo.Config.FirstOrDefault(e => e.Key == "core.ignorecase");
+                Assert.NotNull(entry);
+                Assert.Equal("true", entry.Value);
             }
         }
 
