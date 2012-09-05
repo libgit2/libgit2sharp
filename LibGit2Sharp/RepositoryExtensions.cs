@@ -43,14 +43,14 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Creates a lightweight tag with the specified name. This tag will point at the <paramref name = "target" />.
+        ///   Creates a lightweight tag with the specified name. This tag will point at the <paramref name = "objectish" />.
         /// </summary>
         /// <param name = "repository">The <see cref = "Repository" /> being worked with.</param>
         /// <param name = "tagName">The name of the tag to create.</param>
-        /// <param name = "target">The canonical reference name or sha which should be pointed at by the Tag.</param>
-        public static Tag ApplyTag(this IRepository repository, string tagName, string target)
+        /// <param name = "objectish">The revparse spec for the target object.</param>
+        public static Tag ApplyTag(this IRepository repository, string tagName, string objectish)
         {
-            return repository.Tags.Add(tagName, target);
+            return repository.Tags.Add(tagName, objectish);
         }
 
         /// <summary>
@@ -66,16 +66,16 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Creates an annotated tag with the specified name. This tag will point at the <paramref name = "target" />.
+        ///   Creates an annotated tag with the specified name. This tag will point at the <paramref name = "objectish" />.
         /// </summary>
         /// <param name = "repository">The <see cref = "Repository" /> being worked with.</param>
         /// <param name = "tagName">The name of the tag to create.</param>
-        /// <param name = "target">The canonical reference name or sha which should be pointed at by the Tag.</param>
+        /// <param name = "objectish">The revparse spec for the target object.</param>
         /// <param name = "tagger">The identity of the creator of this tag.</param>
         /// <param name = "message">The annotation message.</param>
-        public static Tag ApplyTag(this IRepository repository, string tagName, string target, Signature tagger, string message)
+        public static Tag ApplyTag(this IRepository repository, string tagName, string objectish, Signature tagger, string message)
         {
-            return repository.Tags.Add(tagName, target, tagger, message);
+            return repository.Tags.Add(tagName, objectish, tagger, message);
         }
 
         /// <summary>
@@ -85,7 +85,7 @@ namespace LibGit2Sharp
         /// <param name = "branchName">The name of the branch to create.</param>
         public static Branch CreateBranch(this IRepository repository, string branchName)
         {
-            return CreateBranch(repository, branchName, repository.Head.CanonicalName);
+            return CreateBranch(repository, branchName, repository.Head.Tip);
         }
 
         /// <summary>
@@ -96,8 +96,7 @@ namespace LibGit2Sharp
         /// <param name = "target">The commit which should be pointed at by the Branch.</param>
         public static Branch CreateBranch(this IRepository repository, string branchName, Commit target)
         {
-            Ensure.ArgumentNotNull(target, "target");
-            return CreateBranch(repository, branchName, target.Id.Sha);
+            return repository.Branches.Add(branchName, target);
         }
 
         /// <summary>
@@ -105,10 +104,10 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name = "repository">The <see cref = "Repository" /> being worked with.</param>
         /// <param name = "branchName">The name of the branch to create.</param>
-        /// <param name = "target">The canonical reference name or sha which should be pointed at by the Branch.</param>
-        public static Branch CreateBranch(this IRepository repository, string branchName, string target)
+        /// <param name = "commitish">The revparse spec for the target commit.</param>
+        public static Branch CreateBranch(this IRepository repository, string branchName, string commitish)
         {
-            return repository.Branches.Add(branchName, target);
+            return repository.Branches.Add(branchName, commitish);
         }
 
         /// <summary>

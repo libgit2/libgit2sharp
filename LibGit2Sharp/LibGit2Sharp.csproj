@@ -55,12 +55,12 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AbbreviatedObjectId.cs" />
     <Compile Include="AmbiguousException.cs" />
     <Compile Include="Blob.cs" />
     <Compile Include="BlobExtensions.cs" />
     <Compile Include="Branch.cs" />
     <Compile Include="BranchCollection.cs" />
+    <Compile Include="BranchCollectionExtensions.cs" />
     <Compile Include="Changes.cs" />
     <Compile Include="Commit.cs" />
     <Compile Include="CommitLog.cs" />
@@ -68,6 +68,7 @@
     <Compile Include="ConfigurationEntry.cs" />
     <Compile Include="ContentChanges.cs" />
     <Compile Include="Core\Proxy.cs" />
+    <Compile Include="ReferenceCollectionExtensions.cs" />
     <Compile Include="TagCollectionExtensions.cs" />
     <Compile Include="Core\Compat\Environment.cs" />
     <Compile Include="Core\FilePath.cs" />

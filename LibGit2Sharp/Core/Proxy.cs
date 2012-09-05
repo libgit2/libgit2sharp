@@ -767,31 +767,6 @@ namespace LibGit2Sharp.Core
             }
         }
 
-        public static GitObjectSafeHandle git_object_lookup_prefix(RepositorySafeHandle repo, ObjectId id, GitObjectType type)
-        {
-            using (ThreadAffinity())
-            {
-                GitObjectSafeHandle handle;
-                GitOid oid = id.Oid;
-
-                int res = NativeMethods.git_object_lookup_prefix(out handle, repo, ref oid, (uint)((AbbreviatedObjectId)id).Length, type);
-                switch (res)
-                {
-                    case (int)GitErrorCode.NotFound:
-                        return null;
-
-                    case (int)GitErrorCode.Ambiguous:
-                        throw new AmbiguousException(string.Format(CultureInfo.InvariantCulture, "Provided abbreviated ObjectId '{0}' is too short.", id));
-
-                    default:
-                        Ensure.Success(res);
-                        break;
-                }
-
-                return handle;
-            }
-        }
-
         public static GitObjectType git_object_type(GitObjectSafeHandle obj)
         {
             return NativeMethods.git_object_type(obj);

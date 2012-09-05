@@ -17,12 +17,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Size of the string-based representation of a SHA-1.
         /// </summary>
-        protected const int HexSize = rawSize*2;
-
-        /// <summary>
-        ///   Mininum size of the string-based representation of an abbreviated SHA-1.
-        /// </summary>
-        protected const int MinHexSize = 4;
+        protected const int HexSize = rawSize * 2;
 
         private const string hexDigits = "0123456789abcdef";
         private static readonly byte[] reverseHexDigits = BuildReverseHexDigits();
@@ -63,7 +58,7 @@ namespace LibGit2Sharp
         /// <param name = "sha">The sha.</param>
         public ObjectId(string sha)
         {
-            GitOid? parsedOid = BuildOidFrom(sha, true, IdentifierSize.Standard);
+            GitOid? parsedOid = BuildOidFrom(sha, true);
 
             if (!parsedOid.HasValue)
             {
@@ -103,19 +98,14 @@ namespace LibGit2Sharp
         /// <returns>true if the <paramref name = "sha" /> parameter was converted successfully; otherwise, false.</returns>
         public static bool TryParse(string sha, out ObjectId result)
         {
-            return TryParseInternal(sha, out result, IdentifierSize.Short);
-        }
-
-        internal static bool TryParseInternal(string sha, out ObjectId result, IdentifierSize size)
-        {
-            result = BuildFrom(sha, false, size);
+            result = BuildFrom(sha, false);
 
             return result != null;
         }
 
-        private static GitOid? BuildOidFrom(string sha, bool shouldThrowIfInvalid, IdentifierSize size)
+        private static GitOid? BuildOidFrom(string sha, bool shouldThrowIfInvalid)
         {
-            if (!LooksValid(sha, shouldThrowIfInvalid, size))
+            if (!LooksValid(sha, shouldThrowIfInvalid))
             {
                 return null;
             }
@@ -123,16 +113,16 @@ namespace LibGit2Sharp
             return ToOid(sha);
         }
 
-        private static ObjectId BuildFrom(string sha, bool shouldThrowIfInvalid, IdentifierSize size)
+        private static ObjectId BuildFrom(string sha, bool shouldThrowIfInvalid)
         {
-            GitOid? oid = BuildOidFrom(sha, shouldThrowIfInvalid, size);
+            GitOid? oid = BuildOidFrom(sha, shouldThrowIfInvalid);
 
             if (!oid.HasValue)
             {
                 return null;
             }
 
-            ObjectId objectId = sha.Length == HexSize ? new ObjectId(oid.Value) : new AbbreviatedObjectId(oid.Value, sha.Length);
+            var objectId = new ObjectId(oid.Value);
 
             return objectId;
         }
@@ -285,61 +275,31 @@ namespace LibGit2Sharp
             return oid;
         }
 
-        private static bool LooksValid(string objectId, bool throwIfInvalid, IdentifierSize size)
+        private static bool LooksValid(string objectId, bool throwIfInvalid)
         {
-            if (objectId == null)
+            if (string.IsNullOrEmpty(objectId))
             {
                 if (!throwIfInvalid)
                 {
                     return false;
                 }
 
-                throw new ArgumentNullException("objectId");
+                Ensure.ArgumentNotNullOrEmptyString(objectId, "objectId");
             }
 
-            if ((objectId.Length < 1)
-                || (objectId.Length < MinHexSize && size != IdentifierSize.Shortest)
-                || (objectId.Length > HexSize))
+            if ((objectId.Length != HexSize))
             {
                 if (!throwIfInvalid)
                 {
                     return false;
                 }
 
-                string format;
-
-                switch (size)
-                {
-                    case IdentifierSize.Standard:
-                        format = "Its length should be {0}";
-                        break;
-
-                    case IdentifierSize.Short:
-                        format = "Its length should be comprised between {1} and {0}";
-                        break;
-
-                    case IdentifierSize.Shortest:
-                        format = "Its length should not exceed {0}";
-                        break;
-
-                    default:
-                        throw new ArgumentOutOfRangeException("size");
-                }
-                string additionalErrorInformation = string.Format(CultureInfo.InvariantCulture, format, HexSize, MinHexSize);
-
                 throw new ArgumentException(
-                    string.Format(CultureInfo.InvariantCulture, "'{0}' is not a valid object identifier. {1}.", objectId, additionalErrorInformation),
+                    string.Format(CultureInfo.InvariantCulture, "'{0}' is not a valid object identifier. Its length should be {1}.", objectId, HexSize),
                     "objectId");
             }
 
             return objectId.All(c => hexDigits.Contains(c.ToString(CultureInfo.InvariantCulture)));
         }
-    }
-
-    internal enum IdentifierSize
-    {
-        Standard,
-        Short,
-        Shortest,
     }
 }

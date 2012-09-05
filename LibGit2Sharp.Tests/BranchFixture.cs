@@ -320,6 +320,18 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
+        public void MovingARemoteTrackingBranchThrows()
+        {
+            using (var repo = new Repository(StandardTestRepoPath))
+            {
+                Branch master = repo.Branches["refs/remotes/origin/master"];
+                Assert.True(master.IsRemote);
+
+                Assert.Throws<LibGit2SharpException>(() => repo.Branches.Move(master, "new_name", true));
+            }
+        }
+
+        [Fact]
         public void CanWalkCommitsFromAnotherBranch()
         {
             using (var repo = new Repository(BareTestRepoPath))
@@ -454,11 +466,27 @@ namespace LibGit2Sharp.Tests
         [Theory]
         [InlineData("i-do-numbers", false)]
         [InlineData("origin/br2", true)]
-        public void CanRemoveAnExistingBranch(string branchName, bool isRemote)
+        public void CanRemoveAnExistingNamedBranch(string branchName, bool isRemote)
         {
             AssertRemoval(branchName, isRemote, true);
         }
 
+        [Theory]
+        [InlineData("i-do-numbers")]
+        [InlineData("origin/br2")]
+        public void CanRemoveAnExistingBranch(string branchName)
+        {
+            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoPath);
+
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                Branch curBranch = repo.Branches[branchName];
+
+                repo.Branches.Remove(curBranch);
+                Branch branch = repo.Branches[branchName];
+                Assert.Null(branch);
+            }
+        }
 
         [Theory]
         [InlineData("I-donot-exist", false)]

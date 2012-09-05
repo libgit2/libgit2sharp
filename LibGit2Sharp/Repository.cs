@@ -296,15 +296,7 @@ namespace LibGit2Sharp
 
             try
             {
-                if (id is AbbreviatedObjectId)
-                {
-                    obj = Proxy.git_object_lookup_prefix(handle, id, type);
-                    id = GitObject.ObjectIdOf(obj);
-                }
-                else
-                {
-                    obj = Proxy.git_object_lookup(handle, id, type);
-                }
+                obj = Proxy.git_object_lookup(handle, id, type);
 
                 return obj == null ? null : GitObject.BuildFromPtr(obj, id, this, knownPath);
             }

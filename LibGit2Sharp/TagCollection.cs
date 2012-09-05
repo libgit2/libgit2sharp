@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using LibGit2Sharp.Core;
-using LibGit2Sharp.Core.Handles;
 
 namespace LibGit2Sharp
 {
@@ -140,12 +139,12 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Deletes the tag with the specified name.
         /// </summary>
-        /// <param name = "name">The short or canonical name of the tag to delete.</param>
-        public virtual void Remove(string name)
+        /// <param name = "tag">The tag to delete.</param>
+        public virtual void Remove(Tag tag)
         {
-            Ensure.ArgumentNotNullOrEmptyString(name, "name");
+            Ensure.ArgumentNotNull(tag, "tag");
 
-            Proxy.git_tag_delete(repo.Handle, UnCanonicalizeName(name));
+            this.Remove(tag.CanonicalName);
         }
 
         /// <summary>
@@ -155,7 +154,7 @@ namespace LibGit2Sharp
         [Obsolete("This method will be removed in the next release. Please use Remove() instead.")]
         public virtual void Delete(string name)
         {
-            Remove(name);
+            this.Remove(name);
         }
 
         private static string NormalizeToCanonicalName(string name)
@@ -170,7 +169,7 @@ namespace LibGit2Sharp
             return string.Concat(refsTagsPrefix, name);
         }
 
-        private static string UnCanonicalizeName(string name)
+        internal string UnCanonicalizeName(string name)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
 

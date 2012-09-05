@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Handles;
@@ -13,7 +12,7 @@ namespace LibGit2Sharp
     /// </summary>
     public class ReferenceCollection : IEnumerable<Reference>
     {
-        private readonly Repository repo;
+        internal readonly Repository repo;
 
         /// <summary>
         ///   Needed for mocking purposes.
@@ -64,68 +63,10 @@ namespace LibGit2Sharp
 
         #endregion
 
-        private enum RefState
-        {
-            Exists,
-            DoesNotExistButLooksValid,
-            DoesNotLookValid,
-        }
-
-        private RefState TryResolveReference(out Reference reference, string canonicalName)
-        {
-            try
-            {
-                //TODO: Maybe would it be better to rather rely on git_reference_normalize_name()
-                //This would be much more straightforward and less subject to fail for the wrong reason.
-
-                reference = repo.Refs[canonicalName];
-
-                if (reference != null)
-                {
-                    return RefState.Exists;
-                }
-
-                return RefState.DoesNotExistButLooksValid;
-            }
-            catch (LibGit2SharpException)
-            {
-                reference = null;
-                return RefState.DoesNotLookValid;
-            }
-        }
-
-        /// <summary>
-        ///   Creates a direct or symbolic reference with the specified name and target
-        /// </summary>
-        /// <param name = "name">The name of the reference to create.</param>
-        /// <param name = "canonicalRefNameOrObjectish">The target which can be either the canonical name of a branch reference or a revparse spec.</param>
-        /// <param name = "allowOverwrite">True to allow silent overwriting a potentially existing reference, false otherwise.</param>
-        /// <returns>A new <see cref = "Reference" />.</returns>
-        public virtual Reference Add(string name, string canonicalRefNameOrObjectish, bool allowOverwrite = false)
-        {
-            Ensure.ArgumentNotNullOrEmptyString(name, "name");
-            Ensure.ArgumentNotNullOrEmptyString(canonicalRefNameOrObjectish, "canonicalRefNameOrObjectish");
-
-            Reference reference;
-            RefState refState = TryResolveReference(out reference, canonicalRefNameOrObjectish);
-
-            var gitObject = repo.Lookup(canonicalRefNameOrObjectish, GitObjectType.Any, LookUpOptions.None);
-
-            if (refState == RefState.Exists || (refState == RefState.DoesNotExistButLooksValid && gitObject == null))
-            {
-                using (ReferenceSafeHandle handle = CreateSymbolicReference(name, canonicalRefNameOrObjectish, allowOverwrite))
-                {
-                    return Reference.BuildFromPtr<Reference>(handle, repo);
-                }
-            }
-
-            return Add(name, gitObject.Id, allowOverwrite);
-        }
-
         /// <summary>
         ///   Creates a direct reference with the specified name and target
         /// </summary>
-        /// <param name = "name">The name of the reference to create.</param>
+        /// <param name = "name">The canonical name of the reference to create.</param>
         /// <param name = "targetId">Id of the target object.</param>
         /// <param name = "allowOverwrite">True to allow silent overwriting a potentially existing reference, false otherwise.</param>
         /// <returns>A new <see cref = "Reference" />.</returns>
@@ -134,7 +75,7 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
             Ensure.ArgumentNotNull(targetId, "targetId");
 
-            using (ReferenceSafeHandle handle = CreateDirectReference(name, targetId, allowOverwrite))
+            using (ReferenceSafeHandle handle = Proxy.git_reference_create_oid(repo.Handle, name, targetId, allowOverwrite))
             {
                 return (DirectReference)Reference.BuildFromPtr<Reference>(handle, repo);
             }
@@ -143,7 +84,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Creates a symbolic reference  with the specified name and target
         /// </summary>
-        /// <param name = "name">The name of the reference to create.</param>
+        /// <param name = "name">The canonical name of the reference to create.</param>
         /// <param name = "targetRef">The target reference.</param>
         /// <param name = "allowOverwrite">True to allow silent overwriting a potentially existing reference, false otherwise.</param>
         /// <returns>A new <see cref = "Reference" />.</returns>
@@ -152,7 +93,7 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
             Ensure.ArgumentNotNull(targetRef, "targetRef");
 
-            using (ReferenceSafeHandle handle = CreateSymbolicReference(name, targetRef.CanonicalName, allowOverwrite))
+            using (ReferenceSafeHandle handle = Proxy.git_reference_create_symbolic(repo.Handle, name, targetRef.CanonicalName, allowOverwrite))
             {
                 return (SymbolicReference)Reference.BuildFromPtr<Reference>(handle, repo);
             }
@@ -168,28 +109,18 @@ namespace LibGit2Sharp
         [Obsolete("This method will be removed in the next release. Please use Add() instead.")]
         public virtual Reference Create(string name, string target, bool allowOverwrite = false)
         {
-            return Add(name, target, allowOverwrite);
-        }
-
-        private ReferenceSafeHandle CreateSymbolicReference(string name, string target, bool allowOverwrite)
-        {
-            return Proxy.git_reference_create_symbolic(repo.Handle, name, target, allowOverwrite);
-        }
-
-        private ReferenceSafeHandle CreateDirectReference(string name, ObjectId targetId, bool allowOverwrite)
-        {
-            return Proxy.git_reference_create_oid(repo.Handle, name, targetId, allowOverwrite);
+            return this.Add(name, target, allowOverwrite);
         }
 
         /// <summary>
-        ///   Delete a reference with the specified name
+        ///   Remove a reference from the repository
         /// </summary>
-        /// <param name = "name">The name of the reference to delete.</param>
-        public virtual void Remove(string name)
+        /// <param name = "reference">The reference to delete.</param>
+        public virtual void Remove(Reference reference)
         {
-            Ensure.ArgumentNotNullOrEmptyString(name, "name");
+            Ensure.ArgumentNotNull(reference, "reference");
 
-            using (ReferenceSafeHandle handle = RetrieveReferencePtr(name))
+            using (ReferenceSafeHandle handle = RetrieveReferencePtr(reference.CanonicalName))
             {
                 Proxy.git_reference_delete(handle);
             }
@@ -202,22 +133,22 @@ namespace LibGit2Sharp
         [Obsolete("This method will be removed in the next release. Please use Remove() instead.")]
         public virtual void Delete(string name)
         {
-            Remove(name);
+            this.Remove(name);
         }
 
         /// <summary>
         ///   Rename an existing reference with a new name
         /// </summary>
-        /// <param name = "currentName">The canonical name of the reference to rename.</param>
+        /// <param name = "reference">The reference to rename.</param>
         /// <param name = "newName">The new canonical name.</param>
         /// <param name = "allowOverwrite">True to allow silent overwriting a potentially existing reference, false otherwise.</param>
-        /// <returns></returns>
-        public virtual Reference Move(string currentName, string newName, bool allowOverwrite = false)
+        /// <returns>A new <see cref = "Reference" />.</returns>
+        public virtual Reference Move(Reference reference, string newName, bool allowOverwrite = false)
         {
-            Ensure.ArgumentNotNullOrEmptyString(currentName, "currentName");
+            Ensure.ArgumentNotNull(reference, "reference");
             Ensure.ArgumentNotNullOrEmptyString(newName, "newName");
 
-            using (ReferenceSafeHandle handle = RetrieveReferencePtr(currentName))
+            using (ReferenceSafeHandle handle = RetrieveReferencePtr(reference.CanonicalName))
             {
                 Proxy.git_reference_rename(handle, newName, allowOverwrite);
 
@@ -236,50 +167,55 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Updates the target on a reference.
+        ///   Updates the target of a direct reference.
         /// </summary>
-        /// <param name = "name">The name of the reference.</param>
-        /// <param name = "target">The target which can be either a sha or the name of another reference.</param>
-        public virtual Reference UpdateTarget(string name, string target)
+        /// <param name = "directRef">The direct reference which target should be updated.</param>
+        /// <param name = "targetId">The new target.</param>
+        /// <returns>A new <see cref = "Reference" />.</returns>
+        public virtual Reference UpdateTarget(Reference directRef, ObjectId targetId)
         {
-            Ensure.ArgumentNotNullOrEmptyString(name, "name");
-            Ensure.ArgumentNotNullOrEmptyString(target, "target");
+            Ensure.ArgumentNotNull(directRef, "directRef");
+            Ensure.ArgumentNotNull(targetId, "targetId");
 
-            if (name == "HEAD")
+            return UpdateTarget(directRef, targetId,
+                (h, id) => Proxy.git_reference_set_oid(h, id));
+        }
+
+        /// <summary>
+        ///   Updates the target of a symbolic reference.
+        /// </summary>
+        /// <param name = "symbolicRef">The symbolic reference which target should be updated.</param>
+        /// <param name = "targetRef">The new target.</param>
+        /// <returns>A new <see cref = "Reference" />.</returns>
+        public virtual Reference UpdateTarget(Reference symbolicRef, Reference targetRef)
+        {
+            Ensure.ArgumentNotNull(symbolicRef, "symbolicRef");
+            Ensure.ArgumentNotNull(targetRef, "targetRef");
+
+            return UpdateTarget(symbolicRef, targetRef,
+                (h, r) => Proxy.git_reference_set_target(h, r.CanonicalName));
+        }
+
+        private Reference UpdateTarget<T>(Reference reference, T target, Action<ReferenceSafeHandle, T> setter)
+        {
+            if (reference.CanonicalName == "HEAD")
             {
-                return Add("HEAD", target, true);
-            }
-
-            using (ReferenceSafeHandle referencePtr = RetrieveReferencePtr(name))
-            {
-                ObjectId id;
-                bool isObjectIdentifier = ObjectId.TryParse(target, out id);
-
-                GitReferenceType type = Proxy.git_reference_type(referencePtr);
-                switch (type)
+                if (target is ObjectId)
                 {
-                    case GitReferenceType.Oid:
-                        if (!isObjectIdentifier)
-                        {
-                            throw new ArgumentException(String.Format(CultureInfo.InvariantCulture, "The reference specified by {0} is an Oid reference, you must provide a sha as the target.", name), "target");
-                        }
-
-                        Proxy.git_reference_set_oid(referencePtr, id);
-                        break;
-
-                    case GitReferenceType.Symbolic:
-                        if (isObjectIdentifier)
-                        {
-                            throw new ArgumentException(String.Format(CultureInfo.InvariantCulture, "The reference specified by {0} is a Symbolic reference, you must provide a reference canonical name as the target.", name), "target");
-                        }
-
-                        Proxy.git_reference_set_target(referencePtr, target);
-                        break;
-
-                    default:
-                        throw new LibGit2SharpException(string.Format(CultureInfo.InvariantCulture, "Reference '{0}' has an unexpected type ('{1}').", name, type));
+                    return Add("HEAD", target as ObjectId, true);
                 }
 
+                if (target is DirectReference)
+                {
+                    return Add("HEAD", target as DirectReference, true);
+                }
+
+                throw new ArgumentException(string.Format("'{0}' is not a valid target type.", typeof(T)));
+            }
+
+            using (ReferenceSafeHandle referencePtr = RetrieveReferencePtr(reference.CanonicalName))
+            {
+                setter(referencePtr, target);
                 return Reference.BuildFromPtr<Reference>(referencePtr, repo);
             }
         }
