@@ -382,7 +382,7 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
-        public void CanUpdateHeadWithEitherAnOidOrACanonicalHeadReference()
+        public void CanUpdateHeadWithARevparseSpec()
         {
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
             using (var repo = new Repository(path.RepositoryPath))
@@ -397,7 +397,27 @@ namespace LibGit2Sharp.Tests
                 Assert.True((symref is SymbolicReference));
                 Assert.Equal(repo.Refs["HEAD"], symref);
             }
-    
+        }
+
+        [Fact]
+        public void CanUpdateHeadWithEitherAnObjectIdOrAReference()
+        {
+            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                Reference head = repo.Refs["HEAD"];
+                Reference test = repo.Refs["refs/heads/test"];
+
+                Reference direct = repo.Refs.UpdateTarget(head, new ObjectId(test.TargetIdentifier));
+                Assert.True((direct is DirectReference));
+                Assert.Equal(test.TargetIdentifier, direct.TargetIdentifier);
+                Assert.Equal(repo.Refs["HEAD"], direct);
+
+                Reference symref = repo.Refs.UpdateTarget(head, test);
+                Assert.True((symref is SymbolicReference));
+                Assert.Equal(test.CanonicalName, symref.TargetIdentifier);
+                Assert.Equal(repo.Refs["HEAD"], symref);
+            }
         }
 
         [Fact]
