@@ -109,9 +109,7 @@ namespace LibGit2Sharp.Core
 
         [DllImport(libgit2)]
         internal static extern int git_branch_delete(
-            RepositorySafeHandle repo,
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string branch_name,
-            GitBranchType branch_type);
+            ReferenceSafeHandle reference);
 
         internal delegate int branch_foreach_callback(
             IntPtr branch_name,
@@ -127,8 +125,7 @@ namespace LibGit2Sharp.Core
 
         [DllImport(libgit2)]
         internal static extern int git_branch_move(
-            RepositorySafeHandle repo,
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string old_branch_name,
+            ReferenceSafeHandle reference,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string new_branch_name,
             [MarshalAs(UnmanagedType.Bool)] bool force);
 
@@ -356,7 +353,7 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(FilePathMarshaler))] FilePath indexpath);
 
         [DllImport(libgit2)]
-        internal static extern int git_index_read_tree(IndexSafeHandle index, GitObjectSafeHandle tree);
+        internal static extern int git_index_read_tree(IndexSafeHandle index, GitObjectSafeHandle tree, IntPtr payload);
 
         [DllImport(libgit2)]
         internal static extern int git_index_remove(IndexSafeHandle index, int n);
@@ -718,7 +715,7 @@ namespace LibGit2Sharp.Core
         internal static extern int git_tree_create_fromindex(out GitOid treeOid, IndexSafeHandle index);
 
         [DllImport(libgit2)]
-        internal static extern uint git_tree_entry_attributes(SafeHandle entry);
+        internal static extern uint git_tree_entry_filemode(SafeHandle entry);
 
         [DllImport(libgit2)]
         internal static extern TreeEntrySafeHandle git_tree_entry_byindex(GitObjectSafeHandle tree, uint idx);

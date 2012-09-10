@@ -35,7 +35,16 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
 
-            Proxy.git_branch_delete(branches.repo.Handle, name, isRemote ? GitBranchType.GIT_BRANCH_REMOTE : GitBranchType.GIT_BRANCH_LOCAL);
+            string branchName = isRemote ? "refs/remotes/" + name : name;
+
+            Branch branch = branches[branchName];
+
+            if (branch == null)
+            {
+                return;
+            }
+
+            branches.Remove(branch);
         }
 
         /// <summary>
@@ -51,9 +60,14 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNullOrEmptyString(currentName, "currentName");
             Ensure.ArgumentNotNullOrEmptyString(newName, "newName");
 
-            Proxy.git_branch_move(branches.repo.Handle, currentName, newName, allowOverwrite);
+            Branch branch = branches[currentName];
 
-            return branches[newName];
+            if (branch == null)
+            {
+                throw new LibGit2SharpException("No branch named '{0}' exists in the repository.");
+            }
+
+            return branches.Move(branch, newName, allowOverwrite);
         }
     }
 }

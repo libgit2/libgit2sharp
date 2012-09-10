@@ -171,7 +171,10 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNull(branch, "branch");
 
-            this.Remove(branch.Name, branch.IsRemote);
+            using (ReferenceSafeHandle referencePtr = repo.Refs.RetrieveReferencePtr(branch.CanonicalName))
+            {
+                Proxy.git_branch_delete(referencePtr);
+            }
         }
 
         /// <summary>
@@ -202,7 +205,12 @@ namespace LibGit2Sharp
                 throw new LibGit2SharpException(string.Format("Cannot rename branch '{0}'. It's a remote tracking branch.", branch.Name));
             }
 
-            return this.Move(branch.Name, newName, allowOverwrite);
+            using (ReferenceSafeHandle referencePtr = repo.Refs.RetrieveReferencePtr("refs/heads/" + branch.Name))
+            {
+                Proxy.git_branch_move(referencePtr, newName, allowOverwrite);
+            }
+
+            return this[newName];
         }
 
         private static bool LooksLikeABranchName(string referenceName)

@@ -23,7 +23,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(StandardTestRepoPath))
             {
-                Assert.Throws<LibGit2SharpException>(() => { FileStatus status = repo.Index.RetrieveStatus("1"); });
+                Assert.Throws<AmbiguousException>(() => { FileStatus status = repo.Index.RetrieveStatus("1"); });
             }
         }
 
@@ -242,7 +242,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Fact(Skip = "This test needs libgit2/libgit2@ffbc689")]
+        [Fact]
         public void RetrievingTheStatusOfAnAmbiguousFileThrows()
         {
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
@@ -256,7 +256,7 @@ namespace LibGit2Sharp.Tests
                 fullFilePath = Path.Combine(repo.Info.WorkingDirectory, relativePath);
                 File.WriteAllText(fullFilePath, "Brackets all the way.");
 
-                repo.Index.RetrieveStatus(relativePath);
+                Assert.Throws<AmbiguousException>(() => repo.Index.RetrieveStatus(relativePath));
             }
         }
     }

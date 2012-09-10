@@ -94,17 +94,12 @@ namespace LibGit2Sharp.Core
             }
         }
 
-        public static void git_branch_delete(RepositorySafeHandle repo, string branch_name, GitBranchType branch_type)
+        public static void git_branch_delete(ReferenceSafeHandle reference)
         {
             using (ThreadAffinity())
             {
-                int res = NativeMethods.git_branch_delete(repo, branch_name, branch_type);
-
-                if (res == (int)GitErrorCode.NotFound)
-                {
-                    return;
-                }
-
+                int res = NativeMethods.git_branch_delete(reference);
+                reference.SetHandleAsInvalid();
                 Ensure.Success(res);
             }
         }
@@ -121,11 +116,11 @@ namespace LibGit2Sharp.Core
             }
         }
 
-        public static void git_branch_move(RepositorySafeHandle repo, string old_branch_name, string new_branch_name, bool force)
+        public static void git_branch_move(ReferenceSafeHandle reference, string new_branch_name, bool force)
         {
             using (ThreadAffinity())
             {
-                int res = NativeMethods.git_branch_move(repo, old_branch_name, new_branch_name, force);
+                int res = NativeMethods.git_branch_move(reference, new_branch_name, force);
                 Ensure.Success(res);
             }
         }
@@ -567,7 +562,7 @@ namespace LibGit2Sharp.Core
             using (ThreadAffinity())
             using (var osw = new ObjectSafeWrapper(tree.Id, repo))
             {
-                int res = NativeMethods.git_index_read_tree(index, osw.ObjectPtr);
+                int res = NativeMethods.git_index_read_tree(index, osw.ObjectPtr, IntPtr.Zero);
                 Ensure.Success(res);
             }
         }
@@ -622,9 +617,13 @@ namespace LibGit2Sharp.Core
         {
             using (ThreadAffinity())
             {
-                var buffer = new byte[NativeMethods.GIT_PATH_MAX];
+                int bufSize = NativeMethods.git_message_prettify(null, 0, message, false);
+                Ensure.Success(bufSize, true);
+
+                var buffer = new byte[bufSize];
+
                 int res = NativeMethods.git_message_prettify(buffer, buffer.Length, message, false);
-                Ensure.Success(res);
+                Ensure.Success(res, true);
 
                 return Utf8Marshaler.Utf8FromBuffer(buffer) ?? string.Empty;
             }
@@ -1394,7 +1393,7 @@ namespace LibGit2Sharp.Core
 
         public static Mode git_tree_entry_attributes(SafeHandle entry)
         {
-            return (Mode)NativeMethods.git_tree_entry_attributes(entry);
+            return (Mode)NativeMethods.git_tree_entry_filemode(entry);
         }
 
         public static TreeEntrySafeHandle git_tree_entry_byindex(GitObjectSafeHandle tree, uint idx)
