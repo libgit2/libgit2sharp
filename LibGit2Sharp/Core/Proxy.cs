@@ -125,6 +125,24 @@ namespace LibGit2Sharp.Core
             }
         }
 
+        public static ReferenceSafeHandle git_branch_tracking(ReferenceSafeHandle branch)
+        {
+            using (ThreadAffinity())
+            {
+                ReferenceSafeHandle reference;
+                int res = NativeMethods.git_branch_tracking(out reference, branch);
+
+                if (res == (int)GitErrorCode.NotFound)
+                {
+                    return null;
+                }
+
+                Ensure.Success(res);
+
+                return reference;
+            }
+        }
+
         #endregion
 
         #region git_commit_

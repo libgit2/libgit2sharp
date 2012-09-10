@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Globalization;
 using System.Linq;
+using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Compat;
+using LibGit2Sharp.Core.Handles;
 
 namespace LibGit2Sharp
 {
@@ -138,31 +140,17 @@ namespace LibGit2Sharp
 
         private Branch ResolveTrackedBranch()
         {
-            var trackedRemote = repo.Config.Get<string>("branch", Name, "remote", null);
-            if (trackedRemote == null)
+            using (ReferenceSafeHandle branchPtr = repo.Refs.RetrieveReferencePtr(CanonicalName))
+            using (ReferenceSafeHandle referencePtr = Proxy.git_branch_tracking(branchPtr))
             {
-                return null;
+                if (referencePtr == null)
+                {
+                    return null;
+                }
+
+                var reference = Reference.BuildFromPtr<Reference>(referencePtr, repo);
+                return repo.Branches[reference.CanonicalName];
             }
-
-            var trackedRefName = repo.Config.Get<string>("branch", Name, "merge", null);
-            if (trackedRefName == null)
-            {
-                return null;
-            }
-
-            var remoteRefName = ResolveTrackedReference(trackedRemote, trackedRefName);
-            return repo.Branches[remoteRefName];
-        }
-
-        private static string ResolveTrackedReference(string trackedRemote, string trackedRefName)
-        {
-            if (trackedRemote == ".")
-            {
-                return trackedRefName;
-            }
-
-            //TODO: To be replaced by native libgit2 git_branch_tracked_reference() when available.
-            return trackedRefName.Replace("refs/heads/", string.Concat("refs/remotes/", trackedRemote, "/"));
         }
 
         private static bool IsRemoteBranch(string canonicalName)

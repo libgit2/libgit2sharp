@@ -130,6 +130,11 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.Bool)] bool force);
 
         [DllImport(libgit2)]
+        internal static extern int git_branch_tracking(
+            out ReferenceSafeHandle reference,
+            ReferenceSafeHandle branch);
+
+        [DllImport(libgit2)]
         internal static extern IntPtr git_commit_author(GitObjectSafeHandle commit);
 
         [DllImport(libgit2)]
