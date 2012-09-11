@@ -87,7 +87,9 @@
     <Compile Include="RepositoryFixture.cs" />
     <Compile Include="TagFixture.cs" />
     <Compile Include="TestHelpers\DirectoryHelper.cs" />
+    <Compile Include="TestHelpers\TestRemoteExpectedInfo.cs" />
     <Compile Include="TestHelpers\IPostTestDirectoryRemover.cs" />
+    <Compile Include="TestHelpers\RemoteUpdateTipsCallbackHelper.cs" />
     <Compile Include="TestHelpers\SelfCleaningDirectory.cs" />
     <Compile Include="TestHelpers\SignatureExtensions.cs" />
     <Compile Include="TestHelpers\SkipException.cs" />

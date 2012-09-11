@@ -221,6 +221,19 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
+        public void CanResolveTrackedRemote()
+        {
+            using (var repo = new Repository(StandardTestRepoPath))
+            {
+                Branch master = repo.Branches["master"];
+                Assert.Equal(repo.Remotes["origin"], master.ResolveTrackedRemote());
+
+                Branch test = repo.Branches["test"];
+                Assert.Null(test);
+            }
+        }
+
+        [Fact]
         public void CanLookupABranchByItsCanonicalName()
         {
             using (var repo = new Repository(BareTestRepoPath))

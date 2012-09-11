@@ -448,11 +448,14 @@ namespace LibGit2Sharp
         public static Repository Clone(
             string url,
             string destination,
-            GitIndexerStats fetch_stats = null,
-            GitIndexerStats checkout_stats = null,
+            IndexerStats fetchStats = null,
+            IndexerStats checkoutStats = null,
             GitCheckoutOptions checkout_options = null,
             bool isBare = false)
         {
+            GitIndexerStats fetch_stats = (fetchStats != null) ? fetchStats.indexerStats : null;
+            GitIndexerStats checkout_stats = (checkoutStats != null) ? checkoutStats.indexerStats : null;
+
             RepositorySafeHandle repo;
             int res;
             if (isBare)
@@ -497,6 +500,20 @@ namespace LibGit2Sharp
 
             Refs.UpdateTarget("HEAD", branch.CanonicalName);
             return branch;
+        }
+
+        /// <summary>
+        ///   Fetch from the given <see cref="Remote"/>.
+        /// </summary>
+        /// <param name="remote"><see cref="Remote"/> to fetch from.</param>
+        /// <param name="progress">Class to report fetch progress.</param>
+        public void Fetch(Remote remote, FetchProgress progress)
+        {
+            RemoteSafeHandle remoteHandle = this.Remotes.LoadRemote(remote.Name, true);
+            using (remoteHandle)
+            {
+                FetchInternal(remoteHandle, progress);
+            }
         }
 
         /// <summary>
@@ -640,6 +657,42 @@ namespace LibGit2Sharp
             {
                 return sr.ReadLine();
             }
+        }
+
+        /// <summary>
+        ///   Internal method that actually performs fetch given a handle to the remote to perform the fetch from.
+        ///   Caller is responsible for dispoising the remote handle.
+        ///   
+        ///   This allows fetching by a named remote or by url.
+        /// </summary>
+        /// <param name="remoteHandle"></param>
+        /// <param name="fetchProgress"></param>
+        private void FetchInternal(RemoteSafeHandle remoteHandle, FetchProgress fetchProgress)
+        {
+            // reset the current progress object
+            fetchProgress.Reset();
+
+            try
+            {
+                NativeMethods.git_remote_set_callbacks(remoteHandle, ref fetchProgress.RemoteCallbacks.GitCallbacks);
+
+                int res = NativeMethods.git_remote_connect(remoteHandle, GitDirection.Fetch);
+                Ensure.Success(res);
+
+                int downloadResult = NativeMethods.git_remote_download(remoteHandle, ref fetchProgress.bytes, fetchProgress.indexerStats);
+                Ensure.Success(downloadResult);
+            }
+            finally
+            {
+                if (remoteHandle != null)
+                {
+                    NativeMethods.git_remote_disconnect(remoteHandle);
+                }
+            }
+
+            // update references
+            int updateTipsResult = NativeMethods.git_remote_update_tips(remoteHandle);
+            Ensure.Success(updateTipsResult);
         }
     }
 }
