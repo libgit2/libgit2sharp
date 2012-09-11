@@ -83,7 +83,10 @@ namespace LibGit2Sharp.Tests.TestHelpers
         {
             foreach (string directory in directories)
             {
-                DirectoryHelper.DeleteDirectory(directory);
+                if (Directory.Exists(directory))
+                {
+                    DirectoryHelper.DeleteDirectory(directory);
+                }
             }
         }
 
