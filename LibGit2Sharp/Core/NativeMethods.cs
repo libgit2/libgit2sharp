@@ -432,6 +432,12 @@ namespace LibGit2Sharp.Core
             IntPtr payload);
 
         [DllImport(libgit2)]
+        internal static extern int git_odb_add_backend(ObjectDatabaseSafeHandle odb, IntPtr backend, int priority);
+
+        [DllImport(libgit2)]
+        internal static extern IntPtr git_odb_backend_malloc(IntPtr backend, UIntPtr len);
+
+        [DllImport(libgit2)]
         internal static extern int git_odb_exists(ObjectDatabaseSafeHandle odb, ref GitOid id);
 
         [DllImport(libgit2)]

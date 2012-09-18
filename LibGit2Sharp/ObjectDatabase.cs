@@ -66,6 +66,19 @@ namespace LibGit2Sharp
             return repo.Lookup<Blob>(id);
         }
 
+        /// <summary>
+        ///   Adds the provided backend to the object database with the specified priority.
+        /// </summary>
+        /// <param name="backend">The backend to add</param>
+        /// <param name="priority">The priority at which libgit2 should consult this backend (higher values are consulted first)</param>
+        public virtual void AddBackend(OdbBackend backend, int priority)
+        {
+            Ensure.ArgumentNotNull(backend, "backend");
+            Ensure.ArgumentConformsTo<int>(priority, s => s > 0, "priority");
+
+            Proxy.git_odb_add_backend(this.handle, backend.GitOdbBackendPointer, priority);
+        }
+
         private class Processor
         {
             private readonly BinaryReader _reader;

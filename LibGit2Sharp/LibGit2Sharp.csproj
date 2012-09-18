@@ -86,6 +86,8 @@
     <Compile Include="Core\GitErrorCategory.cs" />
     <Compile Include="Core\GitNoteData.cs" />
     <Compile Include="Core\GitObjectExtensions.cs" />
+    <Compile Include="Core\GitOdbBackend.cs" />
+    <Compile Include="Core\GitOdbBackendStream.cs" />
     <Compile Include="Core\Handles\GitErrorSafeHandle.cs" />
     <Compile Include="Core\Handles\NoteSafeHandle.cs" />
     <Compile Include="Core\Handles\ObjectDatabaseSafeHandle.cs" />
@@ -147,6 +149,8 @@
     <Compile Include="Core\LookUpOptions.cs" />
     <Compile Include="Mode.cs" />
     <Compile Include="ObjectDatabase.cs" />
+    <Compile Include="OdbBackend.cs" />
+    <Compile Include="OdbBackendStream.cs" />
     <Compile Include="ReferenceWrapper.cs" />
     <Compile Include="ObjectId.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

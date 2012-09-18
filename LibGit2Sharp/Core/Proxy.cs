@@ -793,6 +793,26 @@ namespace LibGit2Sharp.Core
 
         #region git_odb_
 
+        public static void git_odb_add_backend(ObjectDatabaseSafeHandle odb, IntPtr backend, int priority)
+        {
+            Ensure.Success(NativeMethods.git_odb_add_backend(odb, backend, priority));
+        }
+
+        public static IntPtr git_odb_backend_malloc(IntPtr backend, UIntPtr len)
+        {
+            IntPtr toReturn = NativeMethods.git_odb_backend_malloc(backend, len);
+
+            if (IntPtr.Zero == toReturn)
+            {
+                throw new LibGit2SharpException(String.Format(CultureInfo.InvariantCulture,
+                                                              "Unable to allocate {0} bytes; out of memory",
+                                                              len.ToString()),
+                                                GitErrorCode.Error, GitErrorCategory.NoMemory);
+            }
+
+            return toReturn;
+        }
+
         public static bool git_odb_exists(ObjectDatabaseSafeHandle odb, ObjectId id)
         {
             GitOid oid = id.Oid;

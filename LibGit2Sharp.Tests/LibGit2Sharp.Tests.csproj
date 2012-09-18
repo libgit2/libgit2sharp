@@ -67,6 +67,7 @@
     <Compile Include="DiffTreeToTargetFixture.cs" />
     <Compile Include="DiffWorkdirToIndexFixture.cs" />
     <Compile Include="ObjectDatabaseFixture.cs" />
+    <Compile Include="OdbBackendFixture.cs" />
     <Compile Include="DiffTreeToTreeFixture.cs" />
     <Compile Include="RepositoryOptionsFixture.cs" />
     <Compile Include="ResetHeadFixture.cs" />
