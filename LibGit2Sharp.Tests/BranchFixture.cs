@@ -280,6 +280,44 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        public void CanGetInformationFromUnbornBranch()
+        {
+            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            using (var repo = Repository.Init(scd.DirectoryPath, true))
+            {
+                var head = repo.Head;
+
+                Assert.Equal("refs/heads/master", head.CanonicalName);
+                Assert.Equal(0, head.Commits.Count());
+                Assert.True(head.IsCurrentRepositoryHead);
+                Assert.False(head.IsRemote);
+                Assert.Equal("master", head.Name);
+                Assert.Null(head.Tip);
+                Assert.Null(head["huh?"]);
+
+                Assert.Null(head.AheadBy);
+                Assert.Null(head.BehindBy);
+                Assert.False(head.IsTracking);
+                Assert.Null(head.TrackedBranch);
+            }
+        }
+
+        [Fact]
+        public void CanGetTrackingInformationFromBranchSharingNoHistoryWithItsTrackedBranch()
+        {
+            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                Branch master = repo.Branches["master"];
+                repo.Refs.UpdateTarget("refs/remotes/origin/master", "origin/test");
+
+                Assert.True(master.IsTracking);
+                Assert.Null(master.AheadBy);
+                Assert.Null(master.BehindBy);
+                Assert.NotNull(master.TrackedBranch);
+            }
+        }
+
         [Fact]
         public void TrackingInformationIsEmptyForNonTrackingBranch()
         {
@@ -288,8 +326,8 @@ namespace LibGit2Sharp.Tests
                 Branch branch = repo.Branches["test"];
                 Assert.False(branch.IsTracking);
                 Assert.Null(branch.TrackedBranch);
-                Assert.Equal(0, branch.AheadBy);
-                Assert.Equal(0, branch.BehindBy);
+                Assert.Null(branch.AheadBy);
+                Assert.Null(branch.BehindBy);
             }
         }
 
