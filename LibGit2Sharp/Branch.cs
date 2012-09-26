@@ -80,7 +80,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Gets the remote branch which is connected to this local one.
+        ///   Gets the remote branch which is connected to this local one, or null if there is none.
         /// </summary>
         public virtual Branch TrackedBranch
         {
@@ -95,20 +95,43 @@ namespace LibGit2Sharp
             get { return TrackedBranch != null; }
         }
 
+        private bool ExistsPathToTrackedBranch()
+        {
+            if (!IsTracking)
+            {
+                return false;
+            }
+
+            if (repo.Commits.FindCommonAncestor(Tip, TrackedBranch.Tip) == null)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
         /// <summary>
         ///   Gets the number of commits, starting from the <see cref="Tip"/>, that have been performed on this local branch and aren't known from the remote one.
+        ///   <para>
+        ///     This property will return null if there is no remote branch linked to this local branch, or if the remote branch and the local branch do
+        ///     not share a common ancestor.
+        ///   </para>
         /// </summary>
-        public virtual int AheadBy
+        public virtual int? AheadBy
         {
-            get { return IsTracking ? repo.Commits.QueryBy(new Filter { Since = Tip, Until = TrackedBranch }).Count() : 0; }
+            get { return ExistsPathToTrackedBranch() ? repo.Commits.QueryBy(new Filter { Since = Tip, Until = TrackedBranch }).Count() : (int?)null; }
         }
 
         /// <summary>
         ///   Gets the number of commits that exist in the remote branch, on top of <see cref="Tip"/>, and aren't known from the local one.
+        ///   <para>
+        ///     This property will return null if there is no remote branch linked to this local branch, or if the remote branch and the local branch do
+        ///     not share a common ancestor.
+        ///   </para>
         /// </summary>
-        public virtual int BehindBy
+        public virtual int? BehindBy
         {
-            get { return IsTracking ? repo.Commits.QueryBy(new Filter { Since = TrackedBranch, Until = Tip }).Count() : 0; }
+            get { return ExistsPathToTrackedBranch() ? repo.Commits.QueryBy(new Filter { Since = TrackedBranch, Until = Tip }).Count() : (int?)null; }
         }
 
         /// <summary>
@@ -140,16 +163,23 @@ namespace LibGit2Sharp
 
         private Branch ResolveTrackedBranch()
         {
-            using (ReferenceSafeHandle branchPtr = repo.Refs.RetrieveReferencePtr(CanonicalName))
-            using (ReferenceSafeHandle referencePtr = Proxy.git_branch_tracking(branchPtr))
+            using (ReferenceSafeHandle branchPtr = repo.Refs.RetrieveReferencePtr(CanonicalName, false))
             {
-                if (referencePtr == null)
+                if (branchPtr == null)
                 {
                     return null;
                 }
 
-                var reference = Reference.BuildFromPtr<Reference>(referencePtr, repo);
-                return repo.Branches[reference.CanonicalName];
+                using (ReferenceSafeHandle referencePtr = Proxy.git_branch_tracking(branchPtr))
+                {
+                    if (referencePtr == null)
+                    {
+                        return null;
+                    }
+
+                    var reference = Reference.BuildFromPtr<Reference>(referencePtr, repo);
+                    return repo.Branches[reference.CanonicalName];
+                }
             }
         }
 
