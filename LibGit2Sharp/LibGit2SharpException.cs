@@ -71,6 +71,16 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        ///   The libgit2 error code associated with the exception
+        /// </summary>
+        public GitErrorCode Code { get; protected set; }
+
+        /// <summary>
+        ///   The libgit2 component that threw the error
+        /// </summary>
+        public GitErrorCategory Category { get; protected set; }
+
+        /// <summary>
         ///   Initializes a new instance of the <see cref = "LibGit2SharpException" /> class with a serialized data.
         /// </summary>
         /// <param name = "info">The <see cref="SerializationInfo "/> that holds the serialized object data about the exception being thrown.</param>
@@ -82,9 +92,12 @@ namespace LibGit2Sharp
 
         internal LibGit2SharpException(string message, GitErrorCode code, GitErrorCategory category) : this(FormatMessage(message, code, category))
         {
+            Code = code;
+            Category = category;
+
+            // NB: Not strictly needed now, but leave this for backwards compat
             Data.Add("libgit2.code", code);
             Data.Add("libgit2.category", category);
-
         }
 
         private static string FormatMessage(string message, GitErrorCode code, GitErrorCategory category)
