@@ -82,8 +82,8 @@ namespace LibGit2Sharp
 
         internal LibGit2SharpException(string message, GitErrorCode code, GitErrorCategory category) : this(FormatMessage(message, code, category))
         {
-            Data.Add("libgit2.code", code);
-            Data.Add("libgit2.category", category);
+            Data.Add("libgit2.code", (int)code);
+            Data.Add("libgit2.category", (int)category);
 
         }
 
