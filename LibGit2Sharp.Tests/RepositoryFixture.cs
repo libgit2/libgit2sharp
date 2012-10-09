@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
@@ -118,6 +119,39 @@ namespace LibGit2Sharp.Tests
             FileAttributes attribs = File.GetAttributes(repoPath);
 
             Assert.Equal(FileAttributes.Hidden, (attribs & FileAttributes.Hidden));
+        }
+
+             
+        [Theory]
+        [InlineData("http://github.com/nulltoken/TestGitRepository")]
+        [InlineData("https://github.com/nulltoken/TestGitRepository")]
+        //[InlineData("git@github.com:nulltoken/TestGitRepository")]
+        public void CanFetchFromEmptyRepository(string url)
+        {
+            var scd = BuildSelfCleaningDirectory();
+            using (var repo = Repository.Init(scd.RootedDirectoryPath))
+            {
+                string remoteName = "testRepository";
+
+                TestRemoteExpectedInfo expectedResults = new TestRemoteExpectedInfo(remoteName);
+                RemoteUpdateTipsCallbackHelper helper = new RemoteUpdateTipsCallbackHelper(expectedResults.ExpectedReferenceCallbacks);
+                
+                Remote remote = repo.Remotes.Add(remoteName, url);
+                
+                FetchProgress progress = new FetchProgress();
+                progress.RemoteCallbacks.UpdateTipsChanged += new System.EventHandler<UpdateTipsChangedEventArgs>(helper.RemoteUpdateTipsHandler);
+                repo.Fetch(remote, progress);
+
+                Assert.Equal(expectedResults.ExpectedBranchTips.Count, repo.Branches.Count());
+                foreach (KeyValuePair<string, string> kvp in expectedResults.ExpectedBranchTips)
+                {
+                    Branch branch = repo.Branches[kvp.Key];
+                    Assert.NotNull(branch);
+                    Assert.Equal(kvp.Value, branch.Tip.Sha);
+                }
+
+                helper.CheckUpdatedReferences();
+            }
         }
 
         [Fact(Skip = "This is fixed on libgit2's development tip")]

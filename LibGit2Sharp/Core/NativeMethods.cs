@@ -550,6 +550,16 @@ namespace LibGit2Sharp.Core
         [DllImport(libgit2)]
         public static extern GitReferenceType git_reference_type(ReferenceSafeHandle reference);
 
+        internal delegate void remote_progress_callback(IntPtr str, int len, IntPtr data);
+
+        internal delegate int remote_completion_callback(int type, IntPtr data);
+
+        internal delegate int remote_update_tips_callback(
+            IntPtr refName, 
+            ref GitOid oldId, 
+            ref GitOid newId,
+            IntPtr data);
+
         [DllImport(libgit2)]
         public static extern void git_remote_free(IntPtr remote);
 
@@ -583,7 +593,22 @@ namespace LibGit2Sharp.Core
         public static extern string git_remote_url(RemoteSafeHandle remote);
 
         [DllImport(libgit2)]
+        public static extern int git_remote_connect(RemoteSafeHandle remote, GitDirection direction);
+
+        [DllImport(libgit2)]
+        public static extern void git_remote_disconnect(RemoteSafeHandle remote);
+
+        [DllImport(libgit2)]
+        public static extern int git_remote_download(RemoteSafeHandle remote, ref long bytes, GitIndexerStats stats);
+
+        [DllImport(libgit2)]
         public static extern int git_remote_save(RemoteSafeHandle remote);
+
+        [DllImport(libgit2)]
+        public static extern void git_remote_set_callbacks(RemoteSafeHandle remote, ref GitRemoteCallbacks callbacks);
+
+        [DllImport(libgit2)]
+        public static extern int git_remote_update_tips(RemoteSafeHandle remote);
 
         [DllImport(libgit2)]
         public static extern int git_repository_config(
