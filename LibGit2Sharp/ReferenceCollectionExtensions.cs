@@ -138,11 +138,13 @@ namespace LibGit2Sharp
             var symbolicReference = reference as SymbolicReference;
             if (symbolicReference != null)
             {
-                Reference targetRef = refsColl[canonicalRefNameOrObjectish];
+                Reference targetRef;
 
-                if (targetRef == null)
+                RefState refState = TryResolveReference(out targetRef, refsColl, canonicalRefNameOrObjectish);
+
+                if (refState == RefState.DoesNotLookValid)
                 {
-                    throw new ArgumentException(String.Format(CultureInfo.InvariantCulture, "The reference specified by {0} is a Symbolic reference, you must provide a reference canonical name as the target.", name), "target");
+                    throw new ArgumentException(String.Format(CultureInfo.InvariantCulture, "The reference specified by {0} is a Symbolic reference, you must provide a reference canonical name as the target.", name), "canonicalRefNameOrObjectish");
                 }
 
                 return refsColl.UpdateTarget(symbolicReference, targetRef);

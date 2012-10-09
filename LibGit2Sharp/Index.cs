@@ -87,16 +87,41 @@ namespace LibGit2Sharp
 
         #region IEnumerable<IndexEntry> Members
 
+        private class OrdinalComparer<T> : IComparer<T>
+        {
+            Func<T, string> accessor;
+
+            public OrdinalComparer(Func<T, string> accessor)
+            {
+                this.accessor = accessor;
+            }
+
+            public int Compare(T x, T y)
+            {
+                return string.CompareOrdinal(accessor(x), accessor(y));
+            }
+        }
+
+        private List<IndexEntry> AllIndexEntries()
+        {
+            var list = new List<IndexEntry>();
+
+            for (uint i = 0; i < Count; i++)
+            {
+                list.Add(this[i]);
+            }
+
+            list.Sort(new OrdinalComparer<IndexEntry>(i => i.Path));
+            return list;
+        }
+
         /// <summary>
         ///   Returns an enumerator that iterates through the collection.
         /// </summary>
         /// <returns>An <see cref = "IEnumerator{T}" /> object that can be used to iterate through the collection.</returns>
         public virtual IEnumerator<IndexEntry> GetEnumerator()
         {
-            for (uint i = 0; i < Count; i++)
-            {
-                yield return this[i];
-            }
+            return AllIndexEntries().GetEnumerator();
         }
 
         /// <summary>
