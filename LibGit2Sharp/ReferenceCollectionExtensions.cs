@@ -19,25 +19,15 @@ namespace LibGit2Sharp
 
         private static RefState TryResolveReference(out Reference reference, ReferenceCollection refsColl, string canonicalName)
         {
-            try
-            {
-                //TODO: Maybe would it be better to rather rely on git_reference_normalize_name()
-                //This would be much more straightforward and less subject to fail for the wrong reason.
-
-                reference = refsColl[canonicalName];
-
-                if (reference != null)
-                {
-                    return RefState.Exists;
-                }
-
-                return RefState.DoesNotExistButLooksValid;
-            }
-            catch (LibGit2SharpException)
+            if (!Proxy.git_reference_is_valid_name(canonicalName))
             {
                 reference = null;
                 return RefState.DoesNotLookValid;
             }
+
+            reference = refsColl[canonicalName];
+
+            return reference != null ? RefState.Exists : RefState.DoesNotExistButLooksValid;
         }
 
         /// <summary>

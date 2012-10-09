@@ -490,6 +490,10 @@ namespace LibGit2Sharp.Core
         internal static extern void git_reference_free(IntPtr reference);
 
         [DllImport(libgit2)]
+        internal static extern int git_reference_is_valid_name(
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string refname);
+
+        [DllImport(libgit2)]
         internal static extern int git_reference_lookup(
             out ReferenceSafeHandle reference,
             RepositorySafeHandle repo,

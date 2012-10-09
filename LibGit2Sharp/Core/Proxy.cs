@@ -883,6 +883,11 @@ namespace LibGit2Sharp.Core
             NativeMethods.git_reference_free(reference);
         }
 
+        public static bool git_reference_is_valid_name(string refname)
+        {
+            return NativeMethods.git_reference_is_valid_name(refname) != 0;
+        }
+
         public static IList<string> git_reference_list(RepositorySafeHandle repo, GitReferenceType flags)
         {
             using (ThreadAffinity())
