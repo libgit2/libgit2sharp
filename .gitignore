@@ -13,6 +13,7 @@ Thumbs.db
 *_p.c
 *.ncb
 *.suo
+*.sln.ide/
 *.tlb
 *.tlh
 *.bak
