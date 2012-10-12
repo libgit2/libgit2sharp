@@ -150,7 +150,14 @@ namespace LibGit2Sharp
                 {
                     using (UnmanagedMemoryStream memoryStream = new UnmanagedMemoryStream((byte*)buffer, 0, (long)len.ToUInt64(), FileAccess.ReadWrite))
                     {
-                        return odbBackendStream.Read(memoryStream, (long)len.ToUInt64());
+                        try
+                        {
+                            return odbBackendStream.Read(memoryStream, (long)len.ToUInt64());
+                        }
+                        catch (Exception ex)
+                        {
+                            Proxy.giterr_set_str(GitErrorCategory.Odb, ex);
+                        }
                     }
                 }
 
@@ -171,7 +178,14 @@ namespace LibGit2Sharp
 
                     using (UnmanagedMemoryStream dataStream = new UnmanagedMemoryStream((byte*)buffer, length))
                     {
-                        return odbBackendStream.Write(dataStream, length);
+                        try
+                        {
+                            return odbBackendStream.Write(dataStream, length);
+                        }
+                        catch (Exception ex)
+                        {
+                            Proxy.giterr_set_str(GitErrorCategory.Odb, ex);
+                        }
                     }
                 }
 
@@ -190,14 +204,21 @@ namespace LibGit2Sharp
                 {
                     byte[] computedObjectId;
 
-                    int toReturn = odbBackendStream.FinalizeWrite(out computedObjectId);
-
-                    if (0 == toReturn)
+                    try
                     {
-                        oid_p.Id = computedObjectId;
-                    }
+                        int toReturn = odbBackendStream.FinalizeWrite(out computedObjectId);
 
-                    return toReturn;
+                        if (0 == toReturn)
+                        {
+                            oid_p.Id = computedObjectId;
+                        }
+
+                        return toReturn;
+                    }
+                    catch (Exception ex)
+                    {
+                        Proxy.giterr_set_str(GitErrorCategory.Odb, ex);
+                    }
                 }
 
                 return (int)GitErrorCode.Error;
@@ -210,7 +231,14 @@ namespace LibGit2Sharp
 
                 if (odbBackendStream != null)
                 {
-                    odbBackendStream.Dispose();
+                    try
+                    {
+                        odbBackendStream.Dispose();
+                    }
+                    catch (Exception ex)
+                    {
+                        Proxy.giterr_set_str(GitErrorCategory.Odb, ex);
+                    }
                 }
             }
         }
