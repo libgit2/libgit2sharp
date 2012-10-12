@@ -69,6 +69,14 @@ namespace LibGit2Sharp.Core
         internal static extern GitErrorSafeHandle giterr_last();
 
         [DllImport(libgit2)]
+        internal static extern void giterr_set_str(
+            GitErrorCategory error_class,
+            string errorString);
+
+        [DllImport(libgit2)]
+        internal static extern void giterr_set_oom();
+
+        [DllImport(libgit2)]
         internal static extern int git_blob_create_fromdisk(
             ref GitOid oid,
             RepositorySafeHandle repo,

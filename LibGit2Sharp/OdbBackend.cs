@@ -228,9 +228,9 @@ namespace LibGit2Sharp
 
                         return toReturn;
                     }
-                    catch
+                    catch (Exception ex)
                     {
-                        // TODO: Set a rich error message for libgit2
+                        Proxy.giterr_set_str(GitErrorCategory.Odb, ex);
                     }
                     finally
                     {
@@ -295,9 +295,9 @@ namespace LibGit2Sharp
 
                         return toReturn;
                     }
-                    catch
+                    catch (Exception ex)
                     {
-                        // TODO: Set a rich error message for libgit2
+                        Proxy.giterr_set_str(GitErrorCategory.Odb, ex);
                     }
                     finally
                     {
@@ -339,9 +339,9 @@ namespace LibGit2Sharp
 
                         return toReturn;
                     }
-                    catch
+                    catch (Exception ex)
                     {
-                        // TODO: Set a rich error message for libgit2
+                        Proxy.giterr_set_str(GitErrorCategory.Odb, ex);
                     }
                 }
 
@@ -376,9 +376,9 @@ namespace LibGit2Sharp
                             return toReturn;
                         }
                     }
-                    catch
+                    catch (Exception ex)
                     {
-                        // TODO: Set a rich error message for libgit2
+                        Proxy.giterr_set_str(GitErrorCategory.Odb, ex);
                     }
                 }
 
@@ -411,9 +411,9 @@ namespace LibGit2Sharp
 
                         return toReturn;
                     }
-                    catch
+                    catch (Exception ex)
                     {
-                        // TODO: Set a rich error message for libgit2
+                        Proxy.giterr_set_str(GitErrorCategory.Odb, ex);
                     }
                 }
 
@@ -444,9 +444,9 @@ namespace LibGit2Sharp
 
                         return toReturn;
                     }
-                    catch
+                    catch (Exception ex)
                     {
-                        // TODO: Set a rich error message for libgit2
+                        Proxy.giterr_set_str(GitErrorCategory.Odb, ex);
                     }
                 }
 
@@ -465,9 +465,9 @@ namespace LibGit2Sharp
                     {
                         return odbBackend.Exists(oid.Id);
                     }
-                    catch
+                    catch (Exception ex)
                     {
-                        // TODO: Set a rich error message for libgit2
+                        Proxy.giterr_set_str(GitErrorCategory.Odb, ex);
                     }
                 }
 
@@ -487,9 +487,9 @@ namespace LibGit2Sharp
                     {
                         return odbBackend.Foreach(new ForeachState(cb, data).ManagedCallback);
                     }
-                    catch
+                    catch (Exception ex)
                     {
-                        // TODO: Set a rich error message for libgit2
+                        Proxy.giterr_set_str(GitErrorCategory.Odb, ex);
                     }
                 }
 
@@ -508,9 +508,9 @@ namespace LibGit2Sharp
                     {
                         odbBackend.Dispose();
                     }
-                    catch
+                    catch (Exception ex)
                     {
-                        // TODO: Set a rich error message for libgit2
+                        Proxy.giterr_set_str(GitErrorCategory.Odb, ex);
                     }
                 }
             }

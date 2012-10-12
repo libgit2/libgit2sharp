@@ -11,6 +11,27 @@ namespace LibGit2Sharp.Core
 {
     internal class Proxy
     {
+        #region giterr_
+
+        public static void giterr_set_str(GitErrorCategory error_class, Exception exception)
+        {
+            if (exception is OutOfMemoryException)
+            {
+                NativeMethods.giterr_set_oom();
+            }
+            else
+            {
+                NativeMethods.giterr_set_str(error_class, exception.Message);
+            }
+        }
+
+        public static void giterr_set_str(GitErrorCategory error_class, String errorString)
+        {
+            NativeMethods.giterr_set_str(error_class, errorString);
+        }
+
+        #endregion
+
         #region git_blob_
 
         public static ObjectId git_blob_create_fromchunks(RepositorySafeHandle repo, FilePath hintpath, NativeMethods.source_callback fileCallback)
