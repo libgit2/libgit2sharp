@@ -8,7 +8,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Moves the branch pointed to by HEAD to the specified commit object.
         /// </summary>
-        Soft,
+        Soft = 1,
 
         /// <summary>
         ///   Moves the branch pointed to by HEAD to the specified commit object and resets the index

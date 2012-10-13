@@ -1274,6 +1274,23 @@ namespace LibGit2Sharp.Core
 
         #endregion
 
+        #region git_reset_
+
+        public static void git_reset(
+            RepositorySafeHandle repo,
+            ObjectId commitishId,
+            ResetOptions resetKind)
+        {
+            using (ThreadAffinity())
+            using (var osw = new ObjectSafeWrapper(commitishId, repo))
+            {
+                int res = NativeMethods.git_reset(repo, osw.ObjectPtr, resetKind);
+                Ensure.Success(res);
+            }
+        }
+
+        #endregion
+
         #region git_revparse_
 
         public static GitObjectSafeHandle git_revparse_single(RepositorySafeHandle repo, string objectish)

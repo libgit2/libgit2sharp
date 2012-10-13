@@ -429,18 +429,6 @@ namespace LibGit2Sharp
             return branch;
         }
 
-        private void CheckoutTreeForce(ObjectId treeId)
-        {
-            var opts = new GitCheckoutOpts
-                           {
-                               checkout_strategy = CheckoutStrategy.GIT_CHECKOUT_CREATE_MISSING |
-                                                   CheckoutStrategy.GIT_CHECKOUT_OVERWRITE_MODIFIED |
-                                                   CheckoutStrategy.GIT_CHECKOUT_REMOVE_UNTRACKED
-                           };
-            GitIndexerStats stats = new GitIndexerStats();
-            Proxy.git_checkout_tree(handle, treeId, opts, ref stats);
-        }
-
         /// <summary>
         ///   Sets the current <see cref = "Head" /> to the specified commit and optionally resets the <see cref = "Index" /> and
         ///   the content of the working tree to match.
@@ -451,31 +439,9 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(commitish, "commitish");
 
-            if (resetOptions.Has(ResetOptions.Mixed) && Info.IsBare)
-            {
-                throw new BareRepositoryException("Mixed reset is not allowed in a bare repository");
-            }
+            GitObject obj = Lookup(commitish, GitObjectType.Any, LookUpOptions.ThrowWhenNoGitObjectHasBeenFound);
 
-            Commit commit = LookupCommit(commitish);
-
-            //TODO: Check for unmerged entries
-
-            string refToUpdate = Info.IsHeadDetached ? "HEAD" : Head.CanonicalName;
-            Refs.UpdateTarget(refToUpdate, commit.Sha);
-
-            if (resetOptions == ResetOptions.Soft)
-            {
-                return;
-            }
-
-            Index.ReplaceContentWithTree(commit.Tree);
-
-            if (resetOptions == ResetOptions.Mixed)
-            {
-                return;
-            }
-
-            CheckoutTreeForce(commit.Tree.Id);
+            Proxy.git_reset(handle, obj.Id, resetOptions);
         }
 
         /// <summary>
