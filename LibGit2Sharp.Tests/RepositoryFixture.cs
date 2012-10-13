@@ -34,7 +34,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                Assert.Throws<LibGit2SharpException>(() => repo.Index);
+                Assert.Throws<BareRepositoryException>(() => repo.Index);
             }
         }
 

@@ -149,7 +149,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                Assert.Throws<LibGit2SharpException>(() => repo.Reset(ResetOptions.Mixed));
+                Assert.Throws<BareRepositoryException>(() => repo.Reset(ResetOptions.Mixed));
             }
         }
     }
