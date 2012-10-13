@@ -76,7 +76,14 @@ namespace LibGit2Sharp.Core
                 errorMessage = Utf8Marshaler.FromNative(error.Message);
             }
 
-            throw new LibGit2SharpException(errorMessage, (GitErrorCode)result, error.Category);
+            switch (result)
+            {
+                case (int)GitErrorCode.BareRepo:
+                    throw new BareRepositoryException(errorMessage, (GitErrorCode)result, error.Category);
+
+                default:
+                    throw new LibGit2SharpException(errorMessage, (GitErrorCode)result, error.Category);
+            }
         }
 
         /// <summary>
