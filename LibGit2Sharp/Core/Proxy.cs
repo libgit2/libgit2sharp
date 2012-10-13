@@ -166,6 +166,24 @@ namespace LibGit2Sharp.Core
 
         #endregion
 
+        #region git_checkout_
+
+        public static void git_checkout_tree(
+            RepositorySafeHandle repo,
+            ObjectId treeId,
+            GitCheckoutOpts opts,
+            GitIndexerStats stats)
+        {
+            using (ThreadAffinity())
+            using (var osw = new ObjectSafeWrapper(treeId, repo))
+            {
+                int res = NativeMethods.git_checkout_tree(repo, osw.ObjectPtr, opts, stats);
+                Ensure.Success(res);
+            }
+        }
+
+        #endregion
+
         #region git_commit_
 
         public static Signature git_commit_author(GitObjectSafeHandle obj)

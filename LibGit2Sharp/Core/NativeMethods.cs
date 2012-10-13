@@ -143,6 +143,13 @@ namespace LibGit2Sharp.Core
             ReferenceSafeHandle branch);
 
         [DllImport(libgit2)]
+        internal static extern int git_checkout_tree(
+            RepositorySafeHandle repo,
+            GitObjectSafeHandle treeish,
+            GitCheckoutOpts opts,
+            GitIndexerStats stats);
+
+        [DllImport(libgit2)]
         internal static extern IntPtr git_commit_author(GitObjectSafeHandle commit);
 
         [DllImport(libgit2)]
