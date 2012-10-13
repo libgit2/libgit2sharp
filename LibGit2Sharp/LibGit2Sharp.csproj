@@ -68,6 +68,8 @@
     <Compile Include="Configuration.cs" />
     <Compile Include="ConfigurationEntry.cs" />
     <Compile Include="ContentChanges.cs" />
+    <Compile Include="Core\GitCheckoutOpts.cs" />
+    <Compile Include="Core\GitIndexerStats.cs" />
     <Compile Include="Core\Proxy.cs" />
     <Compile Include="ReferenceCollectionExtensions.cs" />
     <Compile Include="TagCollectionExtensions.cs" />

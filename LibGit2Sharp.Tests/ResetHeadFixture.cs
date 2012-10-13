@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
 using Xunit.Extensions;
@@ -150,6 +151,39 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(BareTestRepoPath))
             {
                 Assert.Throws<BareRepositoryException>(() => repo.Reset(ResetOptions.Mixed));
+            }
+        }
+
+        [Fact]
+        public void HardResetInABareRepositoryThrows()
+        {
+            using (var repo = new Repository(BareTestRepoPath))
+            {
+                Assert.Throws<BareRepositoryException>(() => repo.Reset(ResetOptions.Hard));
+            }
+        }
+
+        [Fact]
+        public void HardResetUpdatesTheContentOfTheWorkingDirectory()
+        {
+            var clone = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
+
+            using (var repo = new Repository(clone.DirectoryPath))
+            {
+                var names = new DirectoryInfo(repo.Info.WorkingDirectory).GetFileSystemInfos().Select(fsi => fsi.Name).ToList();
+                names.Sort(StringComparer.Ordinal);
+
+                File.Delete(Path.Combine(repo.Info.WorkingDirectory, "README"));
+                File.WriteAllText(Path.Combine(repo.Info.WorkingDirectory, "WillBeRemoved.txt"), "content\n");
+
+                Assert.True(names.Count > 4);
+
+                repo.Reset(ResetOptions.Hard, "HEAD~3");
+
+                names = new DirectoryInfo(repo.Info.WorkingDirectory).GetFileSystemInfos().Select(fsi => fsi.Name).ToList();
+                names.Sort(StringComparer.Ordinal);
+
+                Assert.Equal(new[] { ".git", "README", "branch_file.txt", "new.txt" }, names);
             }
         }
     }
