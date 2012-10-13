@@ -1269,7 +1269,7 @@ namespace LibGit2Sharp.Core
                 GitOid ret;
                 int res = NativeMethods.git_revwalk_next(out ret, walker);
 
-                if (res == (int)GitErrorCode.RevWalkOver)
+                if (res == (int)GitErrorCode.IterOver)
                 {
                     return null;
                 }

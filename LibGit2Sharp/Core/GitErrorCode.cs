@@ -26,13 +26,23 @@
         Buffer = -6,
 
         /// <summary>
+        ///   Callback error.
+        /// </summary>
+        User = -7,
+
+        /// <summary>
+        ///   Operation cannot be performed against a bare repository.
+        /// </summary>
+        BareRepo = -8,
+
+        /// <summary>
         ///   Skip and passthrough the given ODB backend.
         /// </summary>
         PassThrough = -30,
 
         /// <summary>
-        ///   The revision walker is empty; there are no more commits left to iterate.
+        ///   There are no more entries left to iterate.
         /// </summary>
-        RevWalkOver = -31,
+        IterOver = -31,
     }
 }
