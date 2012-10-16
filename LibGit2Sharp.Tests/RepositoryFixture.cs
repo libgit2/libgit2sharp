@@ -88,6 +88,11 @@ namespace LibGit2Sharp.Tests
             {
                 Remote remote = repo.Remotes.Add(remoteName, url);
 
+                // We will first fetch without specifying any Tag options.
+                // After we verify this fetch, we will perform a second fetch
+                // where we will download all tags, and verify that the
+                // nearly-dangling tag is now present.
+
                 // Set up structures for the expected results
                 // and verifying the RemoteUpdateTips callback.
                 TestRemoteInfo remoteInfo = TestRemoteInfo.TestRemoteInstance;
@@ -99,17 +104,27 @@ namespace LibGit2Sharp.Tests
                     expectedFetchState.AddExpectedBranch(kvp.Key, ObjectId.Zero, kvp.Value);
                 }
 
-                // Add expected tags
-                foreach (KeyValuePair<string, TestRemoteInfo.ExpectedTagInfo> kvp in remoteInfo.Tags)
+                // Add the expected tags
+                string[] expectedTagNames = { "blob", "commit_tree", "annotated_tag" };
+                foreach (string tagName in expectedTagNames)
                 {
-                    expectedFetchState.AddExpectedTag(kvp.Key, ObjectId.Zero, kvp.Value);
+                    TestRemoteInfo.ExpectedTagInfo expectedTagInfo = remoteInfo.Tags[tagName];
+                    expectedFetchState.AddExpectedTag(tagName, ObjectId.Zero, expectedTagInfo);
                 }
 
                 // Perform the actual fetch
                 repo.Fetch(remote.Name, onUpdateTips: expectedFetchState.RemoteUpdateTipsHandler);
 
-                // Verify the expected 
+                // Verify the expected state
                 expectedFetchState.CheckUpdatedReferences(repo);
+
+                // Now fetch the rest of the tags
+                repo.Fetch(remote.Name,tagOption:TagOption.All);
+
+                // Verify that the "nearly-dangling" tag is now in the repo.
+                Tag nearlyDanglingTag = repo.Tags["nearly-dangling"];
+                Assert.NotNull(nearlyDanglingTag);
+                Assert.Equal(remoteInfo.Tags["nearly-dangling"].TargetId, nearlyDanglingTag.Target.Id);
             }
         }
 
