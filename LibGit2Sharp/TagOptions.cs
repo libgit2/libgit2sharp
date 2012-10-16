@@ -3,7 +3,7 @@
 namespace LibGit2Sharp
 {
     /// <summary>
-    /// 
+    ///   Enum for TagOptions
     /// </summary>
     public enum TagOption
     {

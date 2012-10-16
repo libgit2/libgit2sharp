@@ -36,7 +36,7 @@ namespace LibGit2Sharp
         ///   The IndexerStats
         /// </summary>
         public IndexerStats IndexerStats { get;  private set; }
-        
+
         internal void Reset()
         {
             IndexerStats.Reset();

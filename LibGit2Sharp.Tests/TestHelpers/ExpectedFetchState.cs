@@ -126,7 +126,7 @@ namespace LibGit2Sharp.Tests.TestHelpers
             }
 
             // Verify the expected tags
-            // First, verify the expected tags have been created 
+            // First, verify the expected tags have been created
             List<string> sortedObservedTags = repo.Tags.Select(tag => tag.CanonicalName).ToList();
             sortedObservedTags.Sort();
             List<string> sortedExpectedTags = ExpectedTags.Keys.ToList();

@@ -9,7 +9,7 @@ using LibGit2Sharp.Handlers;
 namespace LibGit2Sharp
 {
     /// <summary>
-    ///   Class to translate libgit2 callbacks into delegates exposed by LibGit2Sharp. 
+    ///   Class to translate libgit2 callbacks into delegates exposed by LibGit2Sharp.
     ///   Handles generating libgit2 git_remote_callbacks datastructure given a set
     ///   of LibGit2Sharp delegates and handles propagating libgit2 callbacks into
     ///   corresponding LibGit2Sharp exposed delegates.
@@ -29,17 +29,17 @@ namespace LibGit2Sharp
         ///   Progress callback. Corresponds to libgit2 progress callback.
         /// </summary>
         private readonly ProgressHandler Progress;
-       
+
         /// <summary>
         ///   UpdateTips callback. Corresponds to libgit2 update_tips callback.
         /// </summary>
         private readonly UpdateTipsHandler UpdateTips;
-        
+
         /// <summary>
         ///   Completion callback. Corresponds to libgit2 Completion callback.
         /// </summary>
         private readonly CompletionHandler Completion;
-        
+
         #endregion
 
         internal GitRemoteCallbacks GenerateCallbacks()

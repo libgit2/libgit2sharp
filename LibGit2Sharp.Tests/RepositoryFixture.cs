@@ -467,4 +467,3 @@ namespace LibGit2Sharp.Tests
         }
     }
 }
-

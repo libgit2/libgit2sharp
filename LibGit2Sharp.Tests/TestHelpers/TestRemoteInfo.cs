@@ -44,7 +44,7 @@ namespace LibGit2Sharp.Tests.TestHelpers
         public class ExpectedTagInfo
         {
 
-            public bool IsAnnotated 
+            public bool IsAnnotated
             {
                 get
                 {

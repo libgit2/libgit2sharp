@@ -12,7 +12,7 @@ namespace LibGit2Sharp
     {
         private static readonly LambdaEqualityHelper<Remote> equalityHelper =
             new LambdaEqualityHelper<Remote>(new Func<Remote, object>[] { x => x.Name, x => x.Url });
-        
+
         private readonly Repository repository;
 
         /// <summary>
@@ -47,7 +47,7 @@ namespace LibGit2Sharp
         ///   Gets the url to use to communicate with this remote repository.
         /// </summary>
         public virtual string Url { get; private set; }
-        
+
         /// <summary>
         ///   Fetch from the <see cref = "Remote" />.
         /// </summary>
@@ -83,9 +83,9 @@ namespace LibGit2Sharp
                     // the data in the git_remote_callbacks structure. If, in the future, libgit2 changes its implementation
                     // to store a reference to the git_remote_callbacks structure this would introduce a subtle bug
                     // where the managed layer could move the git_remote_callbacks to a different location in memory,
-                    // but libgit2 would still reference the old address. 
+                    // but libgit2 would still reference the old address.
                     //
-                    // Also, if GitRemoteCallbacks were a class instead of a struct, we would need to guard against 
+                    // Also, if GitRemoteCallbacks were a class instead of a struct, we would need to guard against
                     // GC occuring in between setting the remote callbacks and actual usage in one of the functions afterwords.
                     Proxy.git_remote_set_callbacks(remoteHandle, ref gitCallbacks);
 
@@ -97,7 +97,7 @@ namespace LibGit2Sharp
                 {
                     Proxy.git_remote_disconnect(remoteHandle);
                 }
-                
+
                 // Update references.
                 Proxy.git_remote_update_tips(remoteHandle);
             }

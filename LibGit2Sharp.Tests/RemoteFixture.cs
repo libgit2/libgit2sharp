@@ -105,7 +105,7 @@ namespace LibGit2Sharp.Tests
                 // Perform the actual fetch
                 remote.Fetch(new FetchProgress(), onUpdateTips: expectedFetchState.RemoteUpdateTipsHandler);
 
-                // Verify the expected 
+                // Verify the expected
                 expectedFetchState.CheckUpdatedReferences(repo);
             }
         }
@@ -117,7 +117,7 @@ namespace LibGit2Sharp.Tests
         public void CanFetchAllTagsIntoAnEmptyRepository(string url)
         {
             string remoteName = "testRemote";
-            
+
             var scd = BuildSelfCleaningDirectory();
             using (var repo = Repository.Init(scd.RootedDirectoryPath))
             {
@@ -143,7 +143,7 @@ namespace LibGit2Sharp.Tests
                 // Perform the actual fetch
                 remote.Fetch(new FetchProgress(), tagOption: TagOption.All, onUpdateTips: expectedFetchState.RemoteUpdateTipsHandler);
 
-                // Verify the expected 
+                // Verify the expected
                 expectedFetchState.CheckUpdatedReferences(repo);
             }
         }
