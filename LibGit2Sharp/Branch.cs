@@ -161,6 +161,25 @@ namespace LibGit2Sharp
             get { return repo.Commits.QueryBy(new Filter { Since = this }); }
         }
 
+        /// <summary>
+        ///   Gets the configured <see cref="Remote"/> to fetch from and push to.
+        /// </summary>
+        public virtual Remote Remote
+        {
+            get
+            {
+                string remoteName = repo.Config.Get<string>("branch", Name, "remote", null);
+                Remote remote = null;
+
+                if (!string.IsNullOrEmpty(remoteName))
+                {
+                    remote = repo.Remotes[remoteName];
+                }
+
+                return remote;
+            }
+        }
+
         private Branch ResolveTrackedBranch()
         {
             using (ReferenceSafeHandle branchPtr = repo.Refs.RetrieveReferencePtr(CanonicalName, false))
