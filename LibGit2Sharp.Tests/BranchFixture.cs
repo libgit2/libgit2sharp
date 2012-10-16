@@ -221,6 +221,37 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
+        public void CanResolveRemote()
+        {
+            using (var repo = new Repository(StandardTestRepoPath))
+            {
+                Branch master = repo.Branches["master"];
+                Assert.Equal(repo.Remotes["origin"], master.Remote);
+            }
+        }
+
+        [Fact]
+        public void RemoteForNonTrackingBranchIsNull()
+        {
+            using (var repo = new Repository(StandardTestRepoPath))
+            {
+                Branch test = repo.Branches["i-do-numbers"];
+                Assert.Null(test.Remote);
+            }
+        }
+
+        [Fact]
+        public void QueryRemoteForLocalTrackingBranch()
+        {
+            // There is not a Remote to resolve for a local tracking branch.
+            using (var repo = new Repository(StandardTestRepoPath))
+            {
+                Branch trackLocal = repo.Branches["track-local"];
+                Assert.Null(trackLocal.Remote);
+            }
+        }
+
+        [Fact]
         public void CanLookupABranchByItsCanonicalName()
         {
             using (var repo = new Repository(BareTestRepoPath))

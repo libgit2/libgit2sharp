@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
@@ -74,6 +75,42 @@ namespace LibGit2Sharp.Tests
             FileAttributes attribs = File.GetAttributes(repoPath);
 
             Assert.Equal(FileAttributes.Hidden, (attribs & FileAttributes.Hidden));
+        }
+
+        [Fact]
+        public void CanFetchFromRemoteByName()
+        {
+            string remoteName = "testRemote";
+            string url = "http://github.com/libgit2/TestGitRepository";
+
+            var scd = BuildSelfCleaningDirectory();
+            using (var repo = Repository.Init(scd.RootedDirectoryPath))
+            {
+                Remote remote = repo.Remotes.Add(remoteName, url);
+
+                // Set up structures for the expected results
+                // and verifying the RemoteUpdateTips callback.
+                TestRemoteInfo remoteInfo = TestRemoteInfo.TestRemoteInstance;
+                ExpectedFetchState expectedFetchState = new ExpectedFetchState(remoteName);
+
+                // Add expected branch objects
+                foreach (KeyValuePair<string, ObjectId> kvp in remoteInfo.BranchTips)
+                {
+                    expectedFetchState.AddExpectedBranch(kvp.Key, ObjectId.Zero, kvp.Value);
+                }
+
+                // Add expected tags
+                foreach (KeyValuePair<string, TestRemoteInfo.ExpectedTagInfo> kvp in remoteInfo.Tags)
+                {
+                    expectedFetchState.AddExpectedTag(kvp.Key, ObjectId.Zero, kvp.Value);
+                }
+
+                // Perform the actual fetch
+                repo.Fetch(remote.Name, onUpdateTips: expectedFetchState.RemoteUpdateTipsHandler);
+
+                // Verify the expected 
+                expectedFetchState.CheckUpdatedReferences(repo);
+            }
         }
 
         [Fact]
