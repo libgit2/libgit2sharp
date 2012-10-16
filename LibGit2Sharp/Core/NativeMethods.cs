@@ -147,7 +147,7 @@ namespace LibGit2Sharp.Core
             RepositorySafeHandle repo,
             GitObjectSafeHandle treeish,
             GitCheckoutOpts opts,
-            GitIndexerStats stats);
+            ref GitIndexerStats stats);
 
         [DllImport(libgit2)]
         internal static extern IntPtr git_commit_author(GitObjectSafeHandle commit);
@@ -582,6 +582,34 @@ namespace LibGit2Sharp.Core
 
         [DllImport(libgit2)]
         internal static extern int git_repository_odb(out ObjectDatabaseSafeHandle odb, RepositorySafeHandle repo);
+
+        [DllImport(libgit2)]
+        internal static extern int git_remote_connect(RemoteSafeHandle remote, GitDirection direction);
+
+        [DllImport(libgit2)]
+        internal static extern void git_remote_disconnect(RemoteSafeHandle remote);
+
+        [DllImport(libgit2)]
+        internal static extern int git_remote_download(RemoteSafeHandle remote, ref long bytes, ref GitIndexerStats stats);
+
+        [DllImport(libgit2)]
+        internal static extern void git_remote_set_autotag(RemoteSafeHandle remote, TagOption option);
+
+        [DllImport(libgit2)]
+        internal static extern void git_remote_set_callbacks(RemoteSafeHandle remote, ref GitRemoteCallbacks callbacks);
+
+        internal delegate void remote_progress_callback(IntPtr str, int len, IntPtr data);
+
+        internal delegate int remote_completion_callback(RemoteCompletionType type, IntPtr data);
+
+        internal delegate int remote_update_tips_callback(
+            IntPtr refName,
+            ref GitOid oldId,
+            ref GitOid newId,
+            IntPtr data);
+
+        [DllImport(libgit2)]
+        internal static extern int git_remote_update_tips(RemoteSafeHandle remote);
 
         [DllImport(libgit2)]
         internal static extern int git_repository_discover(

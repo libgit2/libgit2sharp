@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
@@ -74,6 +75,57 @@ namespace LibGit2Sharp.Tests
             FileAttributes attribs = File.GetAttributes(repoPath);
 
             Assert.Equal(FileAttributes.Hidden, (attribs & FileAttributes.Hidden));
+        }
+
+        [Fact]
+        public void CanFetchFromRemoteByName()
+        {
+            string remoteName = "testRemote";
+            string url = "http://github.com/libgit2/TestGitRepository";
+
+            var scd = BuildSelfCleaningDirectory();
+            using (var repo = Repository.Init(scd.RootedDirectoryPath))
+            {
+                Remote remote = repo.Remotes.Add(remoteName, url);
+
+                // We will first fetch without specifying any Tag options.
+                // After we verify this fetch, we will perform a second fetch
+                // where we will download all tags, and verify that the
+                // nearly-dangling tag is now present.
+
+                // Set up structures for the expected results
+                // and verifying the RemoteUpdateTips callback.
+                TestRemoteInfo remoteInfo = TestRemoteInfo.TestRemoteInstance;
+                ExpectedFetchState expectedFetchState = new ExpectedFetchState(remoteName);
+
+                // Add expected branch objects
+                foreach (KeyValuePair<string, ObjectId> kvp in remoteInfo.BranchTips)
+                {
+                    expectedFetchState.AddExpectedBranch(kvp.Key, ObjectId.Zero, kvp.Value);
+                }
+
+                // Add the expected tags
+                string[] expectedTagNames = { "blob", "commit_tree", "annotated_tag" };
+                foreach (string tagName in expectedTagNames)
+                {
+                    TestRemoteInfo.ExpectedTagInfo expectedTagInfo = remoteInfo.Tags[tagName];
+                    expectedFetchState.AddExpectedTag(tagName, ObjectId.Zero, expectedTagInfo);
+                }
+
+                // Perform the actual fetch
+                repo.Fetch(remote.Name, onUpdateTips: expectedFetchState.RemoteUpdateTipsHandler);
+
+                // Verify the expected state
+                expectedFetchState.CheckUpdatedReferences(repo);
+
+                // Now fetch the rest of the tags
+                repo.Fetch(remote.Name,tagOption:TagOption.All);
+
+                // Verify that the "nearly-dangling" tag is now in the repo.
+                Tag nearlyDanglingTag = repo.Tags["nearly-dangling"];
+                Assert.NotNull(nearlyDanglingTag);
+                Assert.Equal(remoteInfo.Tags["nearly-dangling"].TargetId, nearlyDanglingTag.Target.Id);
+            }
         }
 
         [Fact]

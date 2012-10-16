@@ -1,5 +1,6 @@
 ﻿using System;
 using LibGit2Sharp.Core;
+using LibGit2Sharp.Handlers;
 
 namespace LibGit2Sharp
 {
@@ -143,6 +144,29 @@ namespace LibGit2Sharp
             Signature committer = BuildSignatureFromGlobalConfiguration(repository, DateTimeOffset.Now);
 
             return repository.Commit(message, author, committer, amendPreviousCommit);
+        }
+
+        /// <summary>
+        ///   Fetch from the specified remote.
+        /// </summary>
+        /// <param name="repository"></param>
+        /// <param name="remoteName"></param>
+        /// <param name="progress"></param>
+        /// <param name="tagOption"></param>
+        /// <param name="onProgress"></param>
+        /// <param name="onCompletion"></param>
+        /// <param name="onUpdateTips"></param>
+        public static void Fetch(this IRepository repository, string remoteName, FetchProgress progress = null,
+            TagOption? tagOption = null,
+            ProgressHandler onProgress = null,
+            CompletionHandler onCompletion = null,
+            UpdateTipsHandler onUpdateTips = null)
+        {
+            Ensure.ArgumentNotNull(repository, "repository");
+            Ensure.ArgumentNotNullOrEmptyString(remoteName, "remoteName");
+
+            Remote remote = repository.Remotes.RemoteForName(remoteName, true);
+            remote.Fetch(progress, tagOption, onProgress, onCompletion, onUpdateTips);
         }
 
         private static Signature BuildSignatureFromGlobalConfiguration(IRepository repository, DateTimeOffset now)
