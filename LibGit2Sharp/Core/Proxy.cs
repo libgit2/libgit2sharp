@@ -172,12 +172,12 @@ namespace LibGit2Sharp.Core
             RepositorySafeHandle repo,
             ObjectId treeId,
             GitCheckoutOpts opts,
-            GitIndexerStats stats)
+            ref GitIndexerStats stats)
         {
             using (ThreadAffinity())
             using (var osw = new ObjectSafeWrapper(treeId, repo))
             {
-                int res = NativeMethods.git_checkout_tree(repo, osw.ObjectPtr, opts, stats);
+                int res = NativeMethods.git_checkout_tree(repo, osw.ObjectPtr, opts, ref stats);
                 Ensure.Success(res);
             }
         }
@@ -1039,6 +1039,32 @@ namespace LibGit2Sharp.Core
             }
         }
 
+        public static void git_remote_connect(RemoteSafeHandle remote, GitDirection direction)
+        {
+            using (ThreadAffinity())
+            {
+                int res = NativeMethods.git_remote_connect(remote, direction);
+                Ensure.Success(res);
+            }
+        }
+
+        public static void git_remote_disconnect(RemoteSafeHandle remote)
+        {
+            using (ThreadAffinity())
+            {
+                NativeMethods.git_remote_disconnect(remote);
+            }
+        }
+
+        public static void git_remote_download(RemoteSafeHandle remote, ref long bytes, ref GitIndexerStats indexerStats)
+        {
+            using (ThreadAffinity())
+            {
+                int res = NativeMethods.git_remote_download(remote, ref bytes, ref indexerStats);
+                Ensure.Success(res);
+            }
+        }
+
         public static void git_remote_free(IntPtr remote)
         {
             NativeMethods.git_remote_free(remote);
@@ -1095,6 +1121,31 @@ namespace LibGit2Sharp.Core
             using (ThreadAffinity())
             {
                 int res = NativeMethods.git_remote_save(remote);
+                Ensure.Success(res);
+            }
+        }
+
+        public static void git_remote_set_autotag(RemoteSafeHandle remote, TagOption value)
+        {
+            using (ThreadAffinity())
+            {
+                NativeMethods.git_remote_set_autotag(remote, value);
+            }
+        }
+
+        public static void git_remote_set_callbacks(RemoteSafeHandle remote, ref GitRemoteCallbacks callbacks)
+        {
+            using (ThreadAffinity())
+            {
+                NativeMethods.git_remote_set_callbacks(remote, ref callbacks);
+            }
+        }
+
+        public static void git_remote_update_tips(RemoteSafeHandle remote)
+        {
+            using (ThreadAffinity())
+            {
+                int res = NativeMethods.git_remote_update_tips(remote);
                 Ensure.Success(res);
             }
         }

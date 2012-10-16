@@ -437,8 +437,8 @@ namespace LibGit2Sharp
                                                    CheckoutStrategy.GIT_CHECKOUT_OVERWRITE_MODIFIED |
                                                    CheckoutStrategy.GIT_CHECKOUT_REMOVE_UNTRACKED
                            };
-
-            Proxy.git_checkout_tree(handle, treeId, opts, null);
+            GitIndexerStats stats = new GitIndexerStats();
+            Proxy.git_checkout_tree(handle, treeId, opts, ref stats);
         }
 
         /// <summary>
