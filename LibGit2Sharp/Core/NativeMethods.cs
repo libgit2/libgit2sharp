@@ -593,7 +593,7 @@ namespace LibGit2Sharp.Core
         internal static extern int git_remote_download(RemoteSafeHandle remote, ref long bytes, ref GitIndexerStats stats);
 
         [DllImport(libgit2)]
-        internal static extern void git_remote_set_autotag(RemoteSafeHandle remote, TagOption option);
+        internal static extern void git_remote_set_autotag(RemoteSafeHandle remote, TagFetchMode option);
 
         [DllImport(libgit2)]
         internal static extern void git_remote_set_callbacks(RemoteSafeHandle remote, ref GitRemoteCallbacks callbacks);

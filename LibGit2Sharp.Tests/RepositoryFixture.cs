@@ -119,7 +119,7 @@ namespace LibGit2Sharp.Tests
                 expectedFetchState.CheckUpdatedReferences(repo);
 
                 // Now fetch the rest of the tags
-                repo.Fetch(remote.Name,tagOption:TagOption.All);
+                repo.Fetch(remote.Name, tagFetchMode: TagFetchMode.All);
 
                 // Verify that the "nearly-dangling" tag is now in the repo.
                 Tag nearlyDanglingTag = repo.Tags["nearly-dangling"];

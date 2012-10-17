@@ -52,12 +52,12 @@ namespace LibGit2Sharp
         ///   Fetch from the <see cref = "Remote" />.
         /// </summary>
         /// <param name="progress">The <see cref = "FetchProgress" /> datastructure where the progress of the fetch is reported.</param>
-        /// <param name="tagOption">Optional parameter indicating what tags to download.</param>
+        /// <param name="tagFetchMode">Optional parameter indicating what tags to download.</param>
         /// <param name="onProgress">Progress callback. Corresponds to libgit2 progress callback.</param>
         /// <param name="onCompletion">Completion callback. Corresponds to libgit2 completion callback.</param>
         /// <param name="onUpdateTips">UpdateTips callback. Corresponds to libgit2 update_tips callback.</param>
         public virtual void Fetch(FetchProgress progress = null,
-            TagOption? tagOption = null,
+            TagFetchMode? tagFetchMode = null,
             ProgressHandler onProgress = null,
             CompletionHandler onCompletion = null,
             UpdateTipsHandler onUpdateTips = null)
@@ -72,11 +72,11 @@ namespace LibGit2Sharp
 
                 try
                 {
-                    // If a TagOption value has been specified, pass it on to
+                    // If a TagFetchMode value has been specified, pass it on to
                     // to the libgit2 layer
-                    if (tagOption.HasValue)
+                    if (tagFetchMode.HasValue)
                     {
-                        Proxy.git_remote_set_autotag(remoteHandle, tagOption.Value);
+                        Proxy.git_remote_set_autotag(remoteHandle, tagFetchMode.Value);
                     }
 
                     // It is OK to pass the reference to the GitCallbacks directly here because libgit2 makes a copy of

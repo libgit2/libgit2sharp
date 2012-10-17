@@ -152,12 +152,12 @@ namespace LibGit2Sharp
         /// <param name="repository"></param>
         /// <param name="remoteName"></param>
         /// <param name="progress"></param>
-        /// <param name="tagOption"></param>
+        /// <param name="tagFetchMode"></param>
         /// <param name="onProgress"></param>
         /// <param name="onCompletion"></param>
         /// <param name="onUpdateTips"></param>
         public static void Fetch(this IRepository repository, string remoteName, FetchProgress progress = null,
-            TagOption? tagOption = null,
+            TagFetchMode? tagFetchMode = null,
             ProgressHandler onProgress = null,
             CompletionHandler onCompletion = null,
             UpdateTipsHandler onUpdateTips = null)
@@ -166,7 +166,7 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNullOrEmptyString(remoteName, "remoteName");
 
             Remote remote = repository.Remotes.RemoteForName(remoteName, true);
-            remote.Fetch(progress, tagOption, onProgress, onCompletion, onUpdateTips);
+            remote.Fetch(progress, tagFetchMode, onProgress, onCompletion, onUpdateTips);
         }
 
         private static Signature BuildSignatureFromGlobalConfiguration(IRepository repository, DateTimeOffset now)

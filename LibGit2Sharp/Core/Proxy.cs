@@ -1125,7 +1125,7 @@ namespace LibGit2Sharp.Core
             }
         }
 
-        public static void git_remote_set_autotag(RemoteSafeHandle remote, TagOption value)
+        public static void git_remote_set_autotag(RemoteSafeHandle remote, TagFetchMode value)
         {
             using (ThreadAffinity())
             {
