@@ -157,7 +157,7 @@ namespace LibGit2Sharp
         /// <param name="onCompletion"></param>
         /// <param name="onUpdateTips"></param>
         public static void Fetch(this IRepository repository, string remoteName, FetchProgress progress = null,
-            TagFetchMode? tagFetchMode = null,
+            TagFetchMode tagFetchMode = TagFetchMode.Auto,
             ProgressHandler onProgress = null,
             CompletionHandler onCompletion = null,
             UpdateTipsHandler onUpdateTips = null)

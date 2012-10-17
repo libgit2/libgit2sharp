@@ -57,7 +57,7 @@ namespace LibGit2Sharp
         /// <param name="onCompletion">Completion callback. Corresponds to libgit2 completion callback.</param>
         /// <param name="onUpdateTips">UpdateTips callback. Corresponds to libgit2 update_tips callback.</param>
         public virtual void Fetch(FetchProgress progress = null,
-            TagFetchMode? tagFetchMode = null,
+            TagFetchMode tagFetchMode = TagFetchMode.Auto,
             ProgressHandler onProgress = null,
             CompletionHandler onCompletion = null,
             UpdateTipsHandler onUpdateTips = null)
@@ -67,28 +67,23 @@ namespace LibGit2Sharp
 
             using (RemoteSafeHandle remoteHandle = Proxy.git_remote_load(repository.Handle, this.Name, true))
             {
-                RemoteCallbacks callbacks = new RemoteCallbacks(onProgress, onCompletion, onUpdateTips);
+                var callbacks = new RemoteCallbacks(onProgress, onCompletion, onUpdateTips);
                 GitRemoteCallbacks gitCallbacks = callbacks.GenerateCallbacks();
 
+                Proxy.git_remote_set_autotag(remoteHandle, tagFetchMode);
+
+                // It is OK to pass the reference to the GitCallbacks directly here because libgit2 makes a copy of
+                // the data in the git_remote_callbacks structure. If, in the future, libgit2 changes its implementation
+                // to store a reference to the git_remote_callbacks structure this would introduce a subtle bug
+                // where the managed layer could move the git_remote_callbacks to a different location in memory,
+                // but libgit2 would still reference the old address.
+                //
+                // Also, if GitRemoteCallbacks were a class instead of a struct, we would need to guard against
+                // GC occuring in between setting the remote callbacks and actual usage in one of the functions afterwords.
+                Proxy.git_remote_set_callbacks(remoteHandle, ref gitCallbacks); 
+                
                 try
                 {
-                    // If a TagFetchMode value has been specified, pass it on to
-                    // to the libgit2 layer
-                    if (tagFetchMode.HasValue)
-                    {
-                        Proxy.git_remote_set_autotag(remoteHandle, tagFetchMode.Value);
-                    }
-
-                    // It is OK to pass the reference to the GitCallbacks directly here because libgit2 makes a copy of
-                    // the data in the git_remote_callbacks structure. If, in the future, libgit2 changes its implementation
-                    // to store a reference to the git_remote_callbacks structure this would introduce a subtle bug
-                    // where the managed layer could move the git_remote_callbacks to a different location in memory,
-                    // but libgit2 would still reference the old address.
-                    //
-                    // Also, if GitRemoteCallbacks were a class instead of a struct, we would need to guard against
-                    // GC occuring in between setting the remote callbacks and actual usage in one of the functions afterwords.
-                    Proxy.git_remote_set_callbacks(remoteHandle, ref gitCallbacks);
-
                     Proxy.git_remote_connect(remoteHandle, GitDirection.Fetch);
 
                     Proxy.git_remote_download(remoteHandle, ref progress.bytes, ref progress.IndexerStats.gitIndexerStats);
