@@ -1,24 +1,25 @@
-﻿using System;
-
-namespace LibGit2Sharp
+﻿namespace LibGit2Sharp
 {
     /// <summary>
-    ///   Enum for TagOptions
+    ///   Describe the expected tag retrieval behavior
+    ///   when a fetch operation is being performed.
     /// </summary>
     public enum TagFetchMode
     {
         /// <summary>
-        ///   None.
+        ///   No tag will be retrieved.
         /// </summary>
         None = 1,  // GIT_REMOTE_DOWNLOAD_TAGS_NONE
 
         /// <summary>
-        ///   Auto.
+        ///   Default behavior. Will automatically retrieve tags that
+        ///   point to objects retrieved during this fetch.
         /// </summary>
         Auto,  // GIT_REMOTE_DOWNLOAD_TAGS_AUTO
 
         /// <summary>
-        ///   All.
+        ///   All tags will be downloaded, but _only_ tags, along with
+        ///   all the objects these tags are pointing to.
         /// </summary>
         All,   // GIT_REMOTE_DOWNLOAD_TAGS_ALL
     }
