@@ -8,14 +8,9 @@ namespace LibGit2Sharp
     public enum TagOption
     {
         /// <summary>
-        ///   Unset.
-        /// </summary>
-        Unset = 0, // GIT_REMOTE_DOWNLOAD_TAGS_UNSET
-
-        /// <summary>
         ///   None.
         /// </summary>
-        None,  // GIT_REMOTE_DOWNLOAD_TAGS_NONE
+        None = 1,  // GIT_REMOTE_DOWNLOAD_TAGS_NONE
 
         /// <summary>
         ///   Auto.
