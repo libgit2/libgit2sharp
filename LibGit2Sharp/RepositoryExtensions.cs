@@ -149,13 +149,13 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Fetch from the specified remote.
         /// </summary>
-        /// <param name="repository"></param>
-        /// <param name="remoteName"></param>
-        /// <param name="progress"></param>
-        /// <param name="tagFetchMode"></param>
-        /// <param name="onProgress"></param>
-        /// <param name="onCompletion"></param>
-        /// <param name="onUpdateTips"></param>
+        /// <param name="repository">The <see cref = "Repository" /> being worked with.</param>
+        /// <param name="remoteName">The name of the <see cref="Remote"/> to fetch from.</param>
+        /// <param name="progress">The <see cref = "FetchProgress" /> datastructure where the progress of the fetch is reported.</param>
+        /// <param name="tagFetchMode">Optional parameter indicating what tags to download.</param>
+        /// <param name="onProgress">Progress callback. Corresponds to libgit2 progress callback.</param>
+        /// <param name="onCompletion">Completion callback. Corresponds to libgit2 completion callback.</param>
+        /// <param name="onUpdateTips">UpdateTips callback. Corresponds to libgit2 update_tips callback.</param>
         public static void Fetch(this IRepository repository, string remoteName, FetchProgress progress = null,
             TagFetchMode tagFetchMode = TagFetchMode.Auto,
             ProgressHandler onProgress = null,
