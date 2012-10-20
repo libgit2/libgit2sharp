@@ -10,7 +10,7 @@ namespace LibGit2Sharp
     public class IndexEntry : IEquatable<IndexEntry>
     {
         private static readonly LambdaEqualityHelper<IndexEntry> equalityHelper =
-            new LambdaEqualityHelper<IndexEntry>(new Func<IndexEntry, object>[] { x => x.Path, x => x.Id, x => x.State });
+            new LambdaEqualityHelper<IndexEntry>(x => x.Path, x => x.Id, x => x.State);
 
         private Func<FileStatus> state;
 

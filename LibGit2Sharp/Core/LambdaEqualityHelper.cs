@@ -6,7 +6,7 @@ namespace LibGit2Sharp.Core
     {
         private readonly Func<T, object>[] equalityContributorAccessors;
 
-        public LambdaEqualityHelper(Func<T, object>[] equalityContributorAccessors)
+        public LambdaEqualityHelper(params Func<T, object>[] equalityContributorAccessors)
         {
             this.equalityContributorAccessors = equalityContributorAccessors;
         }

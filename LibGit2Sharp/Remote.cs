@@ -10,7 +10,7 @@ namespace LibGit2Sharp
     public class Remote : IEquatable<Remote>
     {
         private static readonly LambdaEqualityHelper<Remote> equalityHelper =
-            new LambdaEqualityHelper<Remote>(new Func<Remote, object>[] { x => x.Name, x => x.Url });
+            new LambdaEqualityHelper<Remote>(x => x.Name, x => x.Url);
 
         /// <summary>
         ///   Needed for mocking purposes.

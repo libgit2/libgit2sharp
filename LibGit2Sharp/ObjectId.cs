@@ -24,7 +24,7 @@ namespace LibGit2Sharp
         private static readonly Func<int, byte> byteConverter = i => reverseHexDigits[i - '0'];
 
         private static readonly LambdaEqualityHelper<ObjectId> equalityHelper =
-            new LambdaEqualityHelper<ObjectId>(new Func<ObjectId, object>[] { x => x.Sha });
+            new LambdaEqualityHelper<ObjectId>(x => x.Sha);
 
         /// <summary>
         ///   Zero ObjectId

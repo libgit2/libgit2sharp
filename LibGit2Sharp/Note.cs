@@ -53,7 +53,7 @@ namespace LibGit2Sharp
         }
 
         private static readonly LambdaEqualityHelper<Note> equalityHelper =
-            new LambdaEqualityHelper<Note>(new Func<Note, object>[] { x => x.BlobId, x => x.TargetObjectId, x => x.Namespace });
+            new LambdaEqualityHelper<Note>(x => x.BlobId, x => x.TargetObjectId, x => x.Namespace);
 
         /// <summary>
         ///   Determines whether the specified <see cref = "Object" /> is equal to the current <see cref = "Note" />.
