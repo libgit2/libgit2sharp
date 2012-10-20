@@ -12,7 +12,7 @@ namespace LibGit2Sharp
     public abstract class Reference : IEquatable<Reference>
     {
         private static readonly LambdaEqualityHelper<Reference> equalityHelper =
-            new LambdaEqualityHelper<Reference>(new Func<Reference, object>[] { x => x.CanonicalName, x => x.TargetIdentifier });
+            new LambdaEqualityHelper<Reference>(x => x.CanonicalName, x => x.TargetIdentifier);
 
         /// <summary>
         ///   Gets the full name of this reference.

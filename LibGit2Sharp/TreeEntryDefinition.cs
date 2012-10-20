@@ -12,7 +12,7 @@ namespace LibGit2Sharp
         private Lazy<GitObject> target;
 
         private static readonly LambdaEqualityHelper<TreeEntryDefinition> equalityHelper =
-            new LambdaEqualityHelper<TreeEntryDefinition>(new Func<TreeEntryDefinition, object>[] { x => x.Mode, x => x.Type, x => x.TargetId });
+            new LambdaEqualityHelper<TreeEntryDefinition>(x => x.Mode, x => x.Type, x => x.TargetId);
 
         /// <summary>
         ///   Needed for mocking purposes.

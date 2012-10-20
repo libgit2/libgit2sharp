@@ -21,7 +21,7 @@ namespace LibGit2Sharp
                 };
 
         private static readonly LambdaEqualityHelper<GitObject> equalityHelper =
-            new LambdaEqualityHelper<GitObject>(new Func<GitObject, object>[] { x => x.Id });
+            new LambdaEqualityHelper<GitObject>(x => x.Id);
 
         /// <summary>
         ///   Needed for mocking purposes.

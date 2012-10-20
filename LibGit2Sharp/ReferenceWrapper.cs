@@ -17,7 +17,7 @@ namespace LibGit2Sharp
         private readonly Lazy<TObject> objectBuilder;
 
         private static readonly LambdaEqualityHelper<ReferenceWrapper<TObject>> equalityHelper =
-            new LambdaEqualityHelper<ReferenceWrapper<TObject>>(new Func<ReferenceWrapper<TObject>, object>[] { x => x.CanonicalName, x => x.TargetObject });
+            new LambdaEqualityHelper<ReferenceWrapper<TObject>>(x => x.CanonicalName, x => x.TargetObject);
 
         private readonly string canonicalName;
 

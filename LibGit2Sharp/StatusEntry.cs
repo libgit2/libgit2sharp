@@ -12,7 +12,7 @@ namespace LibGit2Sharp
         private readonly FileStatus state;
 
         private static readonly LambdaEqualityHelper<StatusEntry> equalityHelper =
-            new LambdaEqualityHelper<StatusEntry>(new Func<StatusEntry, object>[] { x => x.FilePath, x => x.State });
+            new LambdaEqualityHelper<StatusEntry>(x => x.FilePath, x => x.State);
 
         /// <summary>
         ///   Needed for mocking purposes.
