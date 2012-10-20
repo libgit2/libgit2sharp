@@ -7,6 +7,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using LibGit2Sharp.Core.Handles;
 
+// ReSharper disable InconsistentNaming
 namespace LibGit2Sharp.Core
 {
     internal class Proxy
@@ -1717,3 +1718,4 @@ namespace LibGit2Sharp.Core
         }
     }
 }
+// ReSharper restore InconsistentNaming

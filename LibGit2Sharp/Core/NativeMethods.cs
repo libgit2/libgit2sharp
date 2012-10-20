@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using LibGit2Sharp.Core.Handles;
 
+// ReSharper disable InconsistentNaming
 namespace LibGit2Sharp.Core
 {
     internal static class NativeMethods
@@ -824,3 +825,4 @@ namespace LibGit2Sharp.Core
         internal static extern void git_treebuilder_free(IntPtr bld);
     }
 }
+// ReSharper restore InconsistentNaming
