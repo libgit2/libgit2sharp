@@ -126,16 +126,12 @@ namespace LibGit2Sharp.Core
             }
         }
 
-        public static void git_branch_foreach(
+        public static ICollection<TResult> git_branch_foreach<TResult>(
             RepositorySafeHandle repo,
             GitBranchType branch_type,
-            NativeMethods.branch_foreach_callback callback)
+            Func<IntPtr, GitBranchType, TResult> resultSelector)
         {
-            using (ThreadAffinity())
-            {
-                int res = NativeMethods.git_branch_foreach(repo, branch_type, callback, IntPtr.Zero);
-                Ensure.Success(res);
-            }
+            return git_foreach(resultSelector, c => NativeMethods.git_branch_foreach(repo, branch_type, (x, y, p) => c(x, y, p), IntPtr.Zero));
         }
 
         public static void git_branch_move(ReferenceSafeHandle reference, string new_branch_name, bool force)
@@ -432,15 +428,11 @@ namespace LibGit2Sharp.Core
             }
         }
 
-        public static void git_config_foreach(
+        public static ICollection<TResult> git_config_foreach<TResult>(
             ConfigurationSafeHandle config,
-            NativeMethods.config_foreach_callback callback)
+            Func<IntPtr, IntPtr, TResult> resultSelector)
         {
-            using (ThreadAffinity())
-            {
-                int res = NativeMethods.git_config_foreach(config, callback, IntPtr.Zero);
-                Ensure.Success(res);
-            }
+            return git_foreach(resultSelector, c => NativeMethods.git_config_foreach(config, (x, y, p) => c(x, y, p), IntPtr.Zero));
         }
 
         #endregion
@@ -725,13 +717,9 @@ namespace LibGit2Sharp.Core
             }
         }
 
-        public static void git_note_foreach(RepositorySafeHandle repo, string notes_ref, NativeMethods.notes_foreach_callback callback)
+        public static ICollection<TResult> git_note_foreach<TResult>(RepositorySafeHandle repo, string notes_ref, Func<GitNoteData, TResult> resultSelector)
         {
-            using (ThreadAffinity())
-            {
-                int res = NativeMethods.git_note_foreach(repo, notes_ref, callback, IntPtr.Zero);
-                Ensure.Success(res);
-            }
+            return git_foreach(resultSelector, c => NativeMethods.git_note_foreach(repo, notes_ref, (x, p) => c(x, p), IntPtr.Zero));
         }
 
         public static void git_note_free(IntPtr note)
@@ -905,17 +893,13 @@ namespace LibGit2Sharp.Core
             }
         }
 
-        public static void git_reference_foreach_glob(
+        public static ICollection<TResult> git_reference_foreach_glob<TResult>(
             RepositorySafeHandle repo,
             string glob,
             GitReferenceType flags,
-            NativeMethods.ref_glob_callback callback)
+            Func<IntPtr, TResult> resultSelector)
         {
-            using (ThreadAffinity())
-            {
-                int res = NativeMethods.git_reference_foreach_glob(repo, glob, flags, callback, IntPtr.Zero);
-                Ensure.Success(res);
-            }
+            return git_foreach(resultSelector, c => NativeMethods.git_reference_foreach_glob(repo, glob, flags, (x, p) => c(x, p), IntPtr.Zero));
         }
 
         public static void git_reference_free(IntPtr reference)
@@ -1437,13 +1421,9 @@ namespace LibGit2Sharp.Core
             }
         }
 
-        public static void git_status_foreach(RepositorySafeHandle repo, NativeMethods.status_callback callback)
+        public static ICollection<TResult> git_status_foreach<TResult>(RepositorySafeHandle repo, Func<IntPtr, uint, TResult> resultSelector)
         {
-            using (ThreadAffinity())
-            {
-                int res = NativeMethods.git_status_foreach(repo, callback, IntPtr.Zero);
-                Ensure.Success(res);
-            }
+            return git_foreach(resultSelector, c => NativeMethods.git_status_foreach(repo, (x, y, p) => c(x, y, p), IntPtr.Zero));
         }
 
         #endregion
@@ -1640,6 +1620,36 @@ namespace LibGit2Sharp.Core
         }
 
         #endregion
+
+        private static ICollection<TResult> git_foreach<T, TResult>(Func<T, TResult> resultSelector, Func<Func<T, IntPtr, int>, int> iterator)
+        {
+            using (ThreadAffinity())
+            {
+                var result = new List<TResult>();
+                var res = iterator((x, payload) =>
+                                       {
+                                           result.Add(resultSelector(x));
+                                           return 0;
+                                       });
+                Ensure.Success(res);
+                return result;
+            }
+        }
+
+        private static ICollection<TResult> git_foreach<T1, T2, TResult>(Func<T1, T2, TResult> resultSelector, Func<Func<T1, T2, IntPtr, int>, int> iterator)
+        {
+            using (ThreadAffinity())
+            {
+                var result = new List<TResult>();
+                var res = iterator((x, y, payload) =>
+                                       {
+                                           result.Add(resultSelector(x, y));
+                                           return 0;
+                                       });
+                Ensure.Success(res);
+                return result;
+            }
+        }
 
         private static unsafe class Libgit2UnsafeHelper
         {

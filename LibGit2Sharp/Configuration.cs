@@ -409,14 +409,11 @@ namespace LibGit2Sharp
 
         IEnumerator<ConfigurationEntry> IEnumerable<ConfigurationEntry>.GetEnumerator()
         {
-            var values = new List<ConfigurationEntry>();
-            Proxy.git_config_foreach(LocalHandle, (namePtr, valuePtr, _) => {
+            return Proxy.git_config_foreach(LocalHandle, (namePtr, valuePtr) => {
                 var name = Utf8Marshaler.FromNative(namePtr);
                 var value = Utf8Marshaler.FromNative(valuePtr);
-                values.Add(new ConfigurationEntry(name, value));
-                return 0;
-            });
-            return values.GetEnumerator();
+                return new ConfigurationEntry(name, value);
+            }).GetEnumerator();
         }
 
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()

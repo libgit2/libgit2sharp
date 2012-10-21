@@ -236,35 +236,8 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(pattern, "pattern");
 
-            return new GlobedReferenceEnumerable(repo.Handle, pattern).Select(n => this[n]);
-        }
-
-        private class GlobedReferenceEnumerable : IEnumerable<string>
-        {
-            private readonly List<string> list = new List<string>();
-
-            public GlobedReferenceEnumerable(RepositorySafeHandle handle, string pattern)
-            {
-                Proxy.git_reference_foreach_glob(handle, pattern, GitReferenceType.ListAll, Callback);
-                list.Sort(StringComparer.Ordinal);
-            }
-
-            private int Callback(IntPtr branchName, IntPtr payload)
-            {
-                string name = Utf8Marshaler.FromNative(branchName);
-                list.Add(name);
-                return 0;
-            }
-
-            public IEnumerator<string> GetEnumerator()
-            {
-                return list.GetEnumerator();
-            }
-
-            IEnumerator IEnumerable.GetEnumerator()
-            {
-                return GetEnumerator();
-            }
+            return Proxy.git_reference_foreach_glob(repo.Handle, pattern, GitReferenceType.ListAll, Utf8Marshaler.FromNative)
+                .OrderBy(name => name, StringComparer.Ordinal).Select(n => this[n]);
         }
     }
 }
