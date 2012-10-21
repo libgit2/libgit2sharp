@@ -12,7 +12,7 @@ namespace LibGit2Sharp
     /// </summary>
     public class RepositoryStatus : IEnumerable<StatusEntry>
     {
-        private readonly List<StatusEntry> statusEntries = new List<StatusEntry>();
+        private readonly ICollection<StatusEntry> statusEntries;
         private readonly List<string> added = new List<string>();
         private readonly List<string> staged = new List<string>();
         private readonly List<string> removed = new List<string>();
@@ -46,15 +46,14 @@ namespace LibGit2Sharp
 
         internal RepositoryStatus(Repository repo)
         {
-            Proxy.git_status_foreach(repo.Handle, StateChanged);
+            statusEntries = Proxy.git_status_foreach(repo.Handle, StateChanged);
             isDirty = statusEntries.Any(entry => entry.State != FileStatus.Ignored);
         }
 
-        private int StateChanged(IntPtr filePathPtr, uint state, IntPtr payload)
+        private StatusEntry StateChanged(IntPtr filePathPtr, uint state)
         {
             var filePath = FilePathMarshaler.FromNative(filePathPtr);
             var gitStatus = (FileStatus)state;
-            statusEntries.Add(new StatusEntry(filePath.Native, gitStatus));
 
             foreach (KeyValuePair<FileStatus, Action<RepositoryStatus, string>> kvp in dispatcher)
             {
@@ -66,7 +65,7 @@ namespace LibGit2Sharp
                 kvp.Value(this, filePath.Native);
             }
 
-            return 0;
+            return new StatusEntry(filePath.Native, gitStatus);
         }
 
         /// <summary>

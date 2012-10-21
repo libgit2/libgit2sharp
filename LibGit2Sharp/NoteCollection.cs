@@ -109,9 +109,8 @@ namespace LibGit2Sharp
                 Ensure.ArgumentNotNull(@namespace, "@namespace");
 
                 string canonicalNamespace = NormalizeToCanonicalName(@namespace);
-                var notesOidRetriever = new NotesOidRetriever(repo, canonicalNamespace);
 
-                return notesOidRetriever.Retrieve().Select(oid => RetrieveNote(new ObjectId(oid), canonicalNamespace));
+                return Proxy.git_note_foreach(repo.Handle, canonicalNamespace, n => RetrieveNote(new ObjectId(n.TargetOid), canonicalNamespace));
             }
         }
 
@@ -226,28 +225,6 @@ namespace LibGit2Sharp
         public virtual void Delete(ObjectId targetId, Signature author, Signature committer, string @namespace)
         {
             Remove(targetId, author, committer, @namespace);
-        }
-
-        private class NotesOidRetriever
-        {
-            private readonly List<GitOid> notesOid = new List<GitOid>();
-
-            internal NotesOidRetriever(Repository repo, string canonicalNamespace)
-            {
-                Proxy.git_note_foreach(repo.Handle, canonicalNamespace, NoteListCallBack);
-            }
-
-            private int NoteListCallBack(GitNoteData noteData, IntPtr intPtr)
-            {
-                notesOid.Add(noteData.TargetOid);
-
-                return 0;
-            }
-
-            public IEnumerable<GitOid> Retrieve()
-            {
-                return notesOid;
-            }
         }
     }
 }

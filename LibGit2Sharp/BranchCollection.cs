@@ -89,37 +89,10 @@ namespace LibGit2Sharp
         /// <returns>An <see cref = "IEnumerator{T}" /> object that can be used to iterate through the collection.</returns>
         public virtual IEnumerator<Branch> GetEnumerator()
         {
-            return new BranchNameEnumerable(repo.Handle, GitBranchType.GIT_BRANCH_LOCAL | GitBranchType.GIT_BRANCH_REMOTE)
+            return Proxy.git_branch_foreach(repo.Handle, GitBranchType.GIT_BRANCH_LOCAL | GitBranchType.GIT_BRANCH_REMOTE, (b, t) => Utf8Marshaler.FromNative(b))
                 .Select(n => this[n])
                 .OrderBy(b => b.CanonicalName, StringComparer.Ordinal)
                 .GetEnumerator();
-        }
-
-        private class BranchNameEnumerable : IEnumerable<string>
-        {
-            private readonly List<string> list = new List<string>();
-
-            public BranchNameEnumerable(RepositorySafeHandle handle, GitBranchType gitBranchType)
-            {
-                Proxy.git_branch_foreach(handle, gitBranchType, Callback);
-            }
-
-            private int Callback(IntPtr branchName, GitBranchType branchType, IntPtr payload)
-            {
-                string name = Utf8Marshaler.FromNative(branchName);
-                list.Add(name);
-                return 0;
-            }
-
-            public IEnumerator<string> GetEnumerator()
-            {
-                return list.GetEnumerator();
-            }
-
-            IEnumerator IEnumerable.GetEnumerator()
-            {
-                return GetEnumerator();
-            }
         }
 
         /// <summary>
