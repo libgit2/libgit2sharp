@@ -50,14 +50,14 @@ namespace LibGit2Sharp.Tests
             var path = BuildTemporaryCloneOfTestRepo(StandardTestRepoPath);
             using (var repo = new Repository(path.RepositoryPath))
             {
-                Assert.False(repo.Config.Get<bool>("unittests.boolsetting", false));
+                Assert.False(repo.Config.Get<bool>("unittests.boolsetting"));
 
                 repo.Config.Set("unittests.boolsetting", true);
-                Assert.True(repo.Config.Get<bool>("unittests.boolsetting", false));
+                Assert.True(repo.Config.Get<bool>("unittests.boolsetting"));
 
                 repo.Config.Unset("unittests.boolsetting");
 
-                Assert.False(repo.Config.Get<bool>("unittests.boolsetting", false));
+                Assert.False(repo.Config.Get<bool>("unittests.boolsetting"));
             }
         }
 
@@ -104,7 +104,7 @@ namespace LibGit2Sharp.Tests
             {
                 InconclusiveIf(() => !repo.Config.HasGlobalConfig, "No Git global configuration available");
 
-                Assert.NotNull(repo.Config.Get<string>("user.name", null));
+                Assert.NotNull(repo.Config.Get<string>("user.name"));
             }
         }
 
@@ -114,7 +114,7 @@ namespace LibGit2Sharp.Tests
             using (var config = new Configuration())
             {
                 InconclusiveIf(() => !config.HasGlobalConfig, "No Git global configuration available");
-                Assert.NotNull(config.Get<string>("user.name", null));
+                Assert.NotNull(config.Get<string>("user.name"));
             }
         }
 
@@ -123,8 +123,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(StandardTestRepoPath))
             {
-                Assert.True(repo.Config.Get<bool>("core.ignorecase", false));
-                Assert.True(repo.Config.Get<bool>("core", "ignorecase", false));
+                Assert.True(repo.Config.Get<bool>("core.ignorecase"));
             }
         }
 
@@ -133,8 +132,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(StandardTestRepoPath))
             {
-                Assert.Equal(2, repo.Config.Get<int>("unittests.intsetting", 42));
-                Assert.Equal(2, repo.Config.Get<int>("unittests", "intsetting", 42));
+                Assert.Equal(2, repo.Config.Get<int>("unittests.intsetting"));
             }
         }
 
@@ -143,8 +141,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(StandardTestRepoPath))
             {
-                Assert.Equal(15234, repo.Config.Get<long>("unittests.longsetting", 42));
-                Assert.Equal(15234, repo.Config.Get<long>("unittests", "longsetting", 42));
+                Assert.Equal(15234, repo.Config.Get<long>("unittests.longsetting"));
             }
         }
 
@@ -153,8 +150,8 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(StandardTestRepoPath))
             {
-                Assert.Equal("+refs/heads/*:refs/remotes/origin/*", repo.Config.Get<string>("remote.origin.fetch", null));
-                Assert.Equal("+refs/heads/*:refs/remotes/origin/*", repo.Config.Get<string>("remote", "origin", "fetch", null));
+                Assert.Equal("+refs/heads/*:refs/remotes/origin/*", repo.Config.Get<string>("remote.origin.fetch"));
+                Assert.Equal("+refs/heads/*:refs/remotes/origin/*", repo.Config.Get<string>("remote", "origin", "fetch"));
             }
         }
 
@@ -200,7 +197,7 @@ namespace LibGit2Sharp.Tests
             {
                 InconclusiveIf(() => !repo.Config.HasGlobalConfig, "No Git global configuration available");
 
-                var existing = repo.Config.Get<string>("user.name", null);
+                var existing = repo.Config.Get<string>("user.name");
                 Assert.NotNull(existing);
 
                 try
@@ -223,7 +220,7 @@ namespace LibGit2Sharp.Tests
             {
                 InconclusiveIf(() => !config.HasGlobalConfig, "No Git global configuration available");
 
-                var existing = config.Get<string>("user.name", null);
+                var existing = config.Get<string>("user.name");
                 Assert.NotNull(existing);
 
                 try
@@ -311,8 +308,8 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(StandardTestRepoPath))
             {
-                Assert.Throws<ArgumentException>(() => repo.Config.Get<short>("unittests.setting", 42));
-                Assert.Throws<ArgumentException>(() => repo.Config.Get<Configuration>("unittests.setting", null));
+                Assert.Throws<ArgumentException>(() => repo.Config.Get<short>("unittests.setting"));
+                Assert.Throws<ArgumentException>(() => repo.Config.Get<Configuration>("unittests.setting"));
             }
         }
 
@@ -321,10 +318,10 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(StandardTestRepoPath))
             {
-                Assert.Null(repo.Config.Get<string>("unittests.ghostsetting", null));
-                Assert.Equal(0, repo.Config.Get<int>("unittests.ghostsetting", 0));
-                Assert.Equal(0L, repo.Config.Get<long>("unittests.ghostsetting", 0L));
-                Assert.False(repo.Config.Get<bool>("unittests.ghostsetting", false));
+                Assert.Null(repo.Config.Get<string>("unittests.ghostsetting"));
+                Assert.Equal(0, repo.Config.Get<int>("unittests.ghostsetting"));
+                Assert.Equal(0L, repo.Config.Get<long>("unittests.ghostsetting"));
+                Assert.False(repo.Config.Get<bool>("unittests.ghostsetting"));
                 Assert.Equal("42", repo.Config.Get("unittests.ghostsetting", "42"));
                 Assert.Equal(42, repo.Config.Get("unittests.ghostsetting", 42));
                 Assert.Equal(42L, repo.Config.Get("unittests.ghostsetting", 42L));

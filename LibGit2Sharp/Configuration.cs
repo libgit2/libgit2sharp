@@ -187,7 +187,7 @@ namespace LibGit2Sharp
         /// <param name = "key">The key</param>
         /// <param name = "defaultValue">The default value</param>
         /// <returns>The configuration value, or <c>defaultValue</c> if not set</returns>
-        public virtual T Get<T>(string key, T defaultValue)
+        public virtual T Get<T>(string key, T defaultValue = default(T))
         {
             Ensure.ArgumentNotNullOrEmptyString(key, "key");
 
@@ -203,36 +203,6 @@ namespace LibGit2Sharp
             }
 
             return (T)configurationTypedRetriever[typeof(T)](key, defaultValue, handle);
-        }
-
-        /// <summary>
-        ///   Get a configuration value for a key. Keys are in the form 'section.name'.
-        ///   <para>
-        ///     For example in  order to get the value for this in a .git\config file:
-        /// 
-        ///     <code>
-        ///     [core]
-        ///     bare = true
-        ///     </code>
-        /// 
-        ///     You would call:
-        /// 
-        ///     <code>
-        ///     bool isBare = repo.Config.Get&lt;bool&gt;("core", "bare", false);
-        ///     </code>
-        ///   </para>
-        /// </summary>
-        /// <typeparam name = "T">The configuration value type</typeparam>
-        /// <param name = "firstKeyPart">The first key part</param>
-        /// <param name = "secondKeyPart">The second key part</param>
-        /// <param name = "defaultValue">The default value</param>
-        /// <returns>The configuration value, or <c>defaultValue</c> if not set</returns>
-        public virtual T Get<T>(string firstKeyPart, string secondKeyPart, T defaultValue)
-        {
-            Ensure.ArgumentNotNull(firstKeyPart, "firstKeyPart");
-            Ensure.ArgumentNotNull(secondKeyPart, "secondKeyPart");
-
-            return Get(new[] { firstKeyPart, secondKeyPart }, defaultValue);
         }
 
         /// <summary>
@@ -258,7 +228,7 @@ namespace LibGit2Sharp
         /// <param name = "thirdKeyPart">The third key part</param>
         /// <param name = "defaultValue">The default value</param>
         /// <returns>The configuration value, or <c>defaultValue</c> if not set</returns>
-        public virtual T Get<T>(string firstKeyPart, string secondKeyPart, string thirdKeyPart, T defaultValue)
+        public virtual T Get<T>(string firstKeyPart, string secondKeyPart, string thirdKeyPart, T defaultValue = default(T))
         {
             Ensure.ArgumentNotNull(firstKeyPart, "firstKeyPart");
             Ensure.ArgumentNotNull(secondKeyPart, "secondKeyPart");
@@ -288,7 +258,7 @@ namespace LibGit2Sharp
         /// <param name = "keyParts">The key parts</param>
         /// <param name = "defaultValue">The default value</param>
         /// <returns>The configuration value, or <c>defaultValue</c> if not set</returns>
-        public virtual T Get<T>(string[] keyParts, T defaultValue)
+        public virtual T Get<T>(string[] keyParts, T defaultValue = default(T))
         {
             Ensure.ArgumentNotNull(keyParts, "keyParts");
 
@@ -316,7 +286,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <typeparam name = "T">The configuration value type</typeparam>
         /// <param name = "key">The key parts</param>
-        /// <param name = "value">The default value</param>
+        /// <param name = "value">The value</param>
         /// <param name = "level">The configuration file which should be considered as the target of this operation</param>
         public virtual void Set<T>(string key, T value, ConfigurationLevel level = ConfigurationLevel.Local)
         {
