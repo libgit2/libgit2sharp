@@ -66,13 +66,18 @@ namespace LibGit2Sharp
 
         internal ObjectId TargetId
         {
-            get { return targetOid; }
+            get { return TargetOid; }
         }
 
         /// <summary>
         ///   Gets the <see cref = "GitObjectType" /> of the <see cref = "Target" /> being pointed at.
         /// </summary>
         public virtual GitObjectType Type { get; private set; }
+
+        public ObjectId TargetOid
+        {
+            get { return targetOid; }
+        }
 
         private GitObject RetrieveTreeEntryTarget()
         {
@@ -81,7 +86,7 @@ namespace LibGit2Sharp
                 throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "TreeEntry target of type '{0}' are not supported.", Type));
             }
 
-            GitObject treeEntryTarget = repo.LookupTreeEntryTarget(targetOid, Path);
+            GitObject treeEntryTarget = repo.LookupTreeEntryTarget(TargetOid, Path);
 
             return treeEntryTarget;
         }
