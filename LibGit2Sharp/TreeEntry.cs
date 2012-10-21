@@ -64,7 +64,10 @@ namespace LibGit2Sharp
             get { return target.Value; }
         }
 
-        internal ObjectId TargetId
+        /// <summary>
+        /// Get target object id.
+        /// </summary>
+        public ObjectId TargetId
         {
             get { return targetOid; }
         }
