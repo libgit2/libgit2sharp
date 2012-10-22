@@ -227,7 +227,7 @@ namespace LibGit2Sharp
         /// <param name = "secondKeyPart">The second key part</param>
         /// <param name = "defaultValue">The default value</param>
         /// <returns>The configuration value, or <c>defaultValue</c> if not set</returns>
-        [Obsolete]
+        [Obsolete("This method will be removed in the next release. Please use a different overload instead.")]
         public virtual T Get<T>(string firstKeyPart, string secondKeyPart, T defaultValue)
         {
             Ensure.ArgumentNotNull(firstKeyPart, "firstKeyPart");
