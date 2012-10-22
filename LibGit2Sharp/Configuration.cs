@@ -206,6 +206,37 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        ///   Get a configuration value for a key. Keys are in the form 'section.name'.
+        ///   <para>
+        ///     For example in  order to get the value for this in a .git\config file:
+        /// 
+        ///     <code>
+        ///     [core]
+        ///     bare = true
+        ///     </code>
+        /// 
+        ///     You would call:
+        /// 
+        ///     <code>
+        ///     bool isBare = repo.Config.Get&lt;bool&gt;("core", "bare", false);
+        ///     </code>
+        ///   </para>
+        /// </summary>
+        /// <typeparam name = "T">The configuration value type</typeparam>
+        /// <param name = "firstKeyPart">The first key part</param>
+        /// <param name = "secondKeyPart">The second key part</param>
+        /// <param name = "defaultValue">The default value</param>
+        /// <returns>The configuration value, or <c>defaultValue</c> if not set</returns>
+        [Obsolete]
+        public virtual T Get<T>(string firstKeyPart, string secondKeyPart, T defaultValue)
+        {
+            Ensure.ArgumentNotNull(firstKeyPart, "firstKeyPart");
+            Ensure.ArgumentNotNull(secondKeyPart, "secondKeyPart");
+
+            return Get(new[] { firstKeyPart, secondKeyPart }, defaultValue);
+        }
+
+        /// <summary>
         ///   Get a configuration value for the given key parts.
         ///   <para>
         ///     For example in order to get the value for this in a .git\config file:
@@ -228,7 +259,7 @@ namespace LibGit2Sharp
         /// <param name = "thirdKeyPart">The third key part</param>
         /// <param name = "defaultValue">The default value</param>
         /// <returns>The configuration value, or <c>defaultValue</c> if not set</returns>
-        public virtual T Get<T>(string firstKeyPart, string secondKeyPart, string thirdKeyPart, T defaultValue = default(T))
+        public virtual T Get<T>(string firstKeyPart, string secondKeyPart, string thirdKeyPart, T defaultValue)
         {
             Ensure.ArgumentNotNull(firstKeyPart, "firstKeyPart");
             Ensure.ArgumentNotNull(secondKeyPart, "secondKeyPart");
