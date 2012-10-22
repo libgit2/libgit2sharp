@@ -390,8 +390,11 @@ namespace LibGit2Sharp
         private readonly IDictionary<Type, Func<string, object, ConfigurationSafeHandle, object>> configurationTypedRetriever = new Dictionary<Type, Func<string, object, ConfigurationSafeHandle, object>>
         {
             { typeof(int), GetRetriever(Proxy.git_config_get_int32) },
+            { typeof(int?), GetRetriever(Proxy.git_config_get_int32) },
             { typeof(long), GetRetriever(Proxy.git_config_get_int64) },
+            { typeof(long?), GetRetriever(Proxy.git_config_get_int64) },
             { typeof(bool), GetRetriever(Proxy.git_config_get_bool) },
+            { typeof(bool?), GetRetriever(Proxy.git_config_get_bool) },
             { typeof(string), GetRetriever(Proxy.git_config_get_string) },
         };
 

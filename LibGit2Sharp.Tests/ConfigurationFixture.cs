@@ -124,6 +124,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(StandardTestRepoPath))
             {
                 Assert.True(repo.Config.Get<bool>("core.ignorecase"));
+                Assert.Equal(true, repo.Config.Get<bool?>("core.ignorecase"));
             }
         }
 
@@ -133,6 +134,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(StandardTestRepoPath))
             {
                 Assert.Equal(2, repo.Config.Get<int>("unittests.intsetting"));
+                Assert.Equal(2, repo.Config.Get<int?>("unittests.intsetting"));
             }
         }
 
@@ -142,6 +144,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(StandardTestRepoPath))
             {
                 Assert.Equal(15234, repo.Config.Get<long>("unittests.longsetting"));
+                Assert.Equal(15234, repo.Config.Get<long?>("unittests.longsetting"));
             }
         }
 
@@ -320,12 +323,18 @@ namespace LibGit2Sharp.Tests
             {
                 Assert.Null(repo.Config.Get<string>("unittests.ghostsetting"));
                 Assert.Equal(0, repo.Config.Get<int>("unittests.ghostsetting"));
+                Assert.Null(repo.Config.Get<int?>("unittests.ghostsetting"));
                 Assert.Equal(0L, repo.Config.Get<long>("unittests.ghostsetting"));
+                Assert.Null(repo.Config.Get<long?>("unittests.ghostsetting"));
                 Assert.False(repo.Config.Get<bool>("unittests.ghostsetting"));
+                Assert.Null(repo.Config.Get<bool?>("unittests.ghostsetting"));
                 Assert.Equal("42", repo.Config.Get("unittests.ghostsetting", "42"));
                 Assert.Equal(42, repo.Config.Get("unittests.ghostsetting", 42));
+                Assert.Equal(42, repo.Config.Get<int?>("unittests.ghostsetting", 42));
                 Assert.Equal(42L, repo.Config.Get("unittests.ghostsetting", 42L));
+                Assert.Equal(42L, repo.Config.Get<long?>("unittests.ghostsetting", 42L));
                 Assert.True(repo.Config.Get("unittests.ghostsetting", true));
+                Assert.Equal(true, repo.Config.Get<bool?>("unittests.ghostsetting", true));
             }
         }
 
