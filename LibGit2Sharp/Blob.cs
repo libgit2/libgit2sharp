@@ -26,7 +26,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Gets the size in bytes of the contents of a blob
         /// </summary>
-        public virtual int Size { get; set; }
+        public virtual int Size { get; protected set; }
 
         /// <summary>
         ///   Gets the blob content in a <see cref="byte" /> array.
