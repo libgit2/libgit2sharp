@@ -8,16 +8,21 @@
         /// <summary>
         ///   The local .git/config of the current repository.
         /// </summary>
-        Local,
+        Local = 4,
 
         /// <summary>
         ///   The global ~/.gitconfig of the current user.
         /// </summary>
-        Global,
+        Global = 3,
+
+        /// <summary>
+        /// The global ~/.config/git/config of the current user
+        /// </summary>
+        XDG = 2,
 
         /// <summary>
         ///   The system wide .gitconfig.
         /// </summary>
-        System
+        System = 1,
     }
 }

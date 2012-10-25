@@ -264,11 +264,11 @@ namespace LibGit2Sharp.Core
 
         #region git_config_
 
-        public static void git_config_add_file_ondisk(ConfigurationSafeHandle config, FilePath path, int priority)
+        public static void git_config_add_file_ondisk(ConfigurationSafeHandle config, FilePath path, uint level)
         {
             using (ThreadAffinity())
             {
-                int res = NativeMethods.git_config_add_file_ondisk(config, path, priority);
+                int res = NativeMethods.git_config_add_file_ondisk(config, path, level, true);
                 Ensure.Success(res);
             }
         }
@@ -430,9 +430,9 @@ namespace LibGit2Sharp.Core
 
         public static ICollection<TResult> git_config_foreach<TResult>(
             ConfigurationSafeHandle config,
-            Func<IntPtr, IntPtr, TResult> resultSelector)
+            Func<IntPtr, TResult> resultSelector)
         {
-            return git_foreach(resultSelector, c => NativeMethods.git_config_foreach(config, (x, y, p) => c(x, y, p), IntPtr.Zero));
+            return git_foreach(resultSelector, c => NativeMethods.git_config_foreach(config, (e, p) => c(e, p), IntPtr.Zero));
         }
 
         #endregion
@@ -1041,11 +1041,12 @@ namespace LibGit2Sharp.Core
             }
         }
 
+        // TODO: callback & payload
         public static void git_remote_download(RemoteSafeHandle remote, ref long bytes, ref GitIndexerStats indexerStats)
         {
             using (ThreadAffinity())
             {
-                int res = NativeMethods.git_remote_download(remote, ref bytes, ref indexerStats);
+                int res = NativeMethods.git_remote_download(remote, null, IntPtr.Zero);
                 Ensure.Success(res);
             }
         }
