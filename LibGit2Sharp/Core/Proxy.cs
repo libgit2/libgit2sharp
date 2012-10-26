@@ -6,6 +6,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using LibGit2Sharp.Core.Handles;
+using LibGit2Sharp.Handlers;
 
 // ReSharper disable InconsistentNaming
 namespace LibGit2Sharp.Core
@@ -1046,12 +1047,13 @@ namespace LibGit2Sharp.Core
             }
         }
 
-        // TODO: callback & payload
-        public static void git_remote_download(RemoteSafeHandle remote, ref long bytes, ref GitIndexerStats indexerStats)
+        public static void git_remote_download(RemoteSafeHandle remote, TransferProgressHandler onTransferProgress)
         {
             using (ThreadAffinity())
             {
-                int res = NativeMethods.git_remote_download(remote, null, IntPtr.Zero);
+                NativeMethods.git_transfer_progress_callback cb = TransferCallbacks.GenerateCallback(onTransferProgress);
+
+                int res = NativeMethods.git_remote_download(remote, cb, IntPtr.Zero);
                 Ensure.Success(res);
             }
         }

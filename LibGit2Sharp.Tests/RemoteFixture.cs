@@ -103,7 +103,7 @@ namespace LibGit2Sharp.Tests
                 }
 
                 // Perform the actual fetch
-                remote.Fetch(new FetchProgress(), onUpdateTips: expectedFetchState.RemoteUpdateTipsHandler);
+                remote.Fetch(onUpdateTips: expectedFetchState.RemoteUpdateTipsHandler);
 
                 // Verify the expected
                 expectedFetchState.CheckUpdatedReferences(repo);
@@ -141,7 +141,7 @@ namespace LibGit2Sharp.Tests
                 }
 
                 // Perform the actual fetch
-                remote.Fetch(new FetchProgress(), TagFetchMode.All, onUpdateTips: expectedFetchState.RemoteUpdateTipsHandler);
+                remote.Fetch(TagFetchMode.All, onUpdateTips: expectedFetchState.RemoteUpdateTipsHandler);
 
                 // Verify the expected
                 expectedFetchState.CheckUpdatedReferences(repo);
