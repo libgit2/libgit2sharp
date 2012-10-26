@@ -38,7 +38,10 @@ namespace LibGit2Sharp
         /// </summary>
         Renamed = (1 << 3), /* GIT_STATUS_INDEX_RENAMED */
 
-        TypeChangedInIndex = (1 << 4), /* GIT_STATUS_INDEX_TYPECHANGE */
+        /// <summary>
+        ///   A change in type for a file has been promoted from the working directory to the Index. A previous version exists in the Head.
+        /// </summary>
+        StagedTypeChange = (1 << 4), /* GIT_STATUS_INDEX_TYPECHANGE */
 
         /// <summary>
         ///   New file in the working directory, unknown from the Index and the Head.
@@ -55,7 +58,10 @@ namespace LibGit2Sharp
         /// </summary>
         Missing = (1 << 9), /* GIT_STATUS_WT_DELETED */
 
-        TypeChangedInWorkdir = (1 << 10),
+        /// <summary>
+        ///   The file type has been changed in the working directory. A previous version exists in the Index.
+        /// </summary>
+        TypeChanged = (1 << 10), /* GIT_STATUS_WT_TYPECHANGE */
 
         /// <summary>
         ///   The file is <see cref="Untracked"/> but its name and/or path matches an exclude pattern in a <c>gitignore</c> file.
