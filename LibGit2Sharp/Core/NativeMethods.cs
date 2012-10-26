@@ -226,7 +226,8 @@ namespace LibGit2Sharp.Core
         internal static extern int git_config_add_file_ondisk(
             ConfigurationSafeHandle cfg,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(FilePathMarshaler))] FilePath path,
-            int priority);
+            uint level,
+            bool force);
 
         [DllImport(libgit2)]
         internal static extern int git_config_new(out ConfigurationSafeHandle cfg);
@@ -261,8 +262,7 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string value);
 
         internal delegate int config_foreach_callback(
-            IntPtr var_name,
-            IntPtr value,
+            IntPtr entry,
             IntPtr payload);
 
         [DllImport(libgit2)]
@@ -591,13 +591,18 @@ namespace LibGit2Sharp.Core
         internal static extern void git_remote_disconnect(RemoteSafeHandle remote);
 
         [DllImport(libgit2)]
-        internal static extern int git_remote_download(RemoteSafeHandle remote, ref long bytes, ref GitIndexerStats stats);
+        internal static extern int git_remote_download(
+            RemoteSafeHandle remote,
+            git_transfer_progress_callback progress_cb,
+            IntPtr progress_payload);
 
         [DllImport(libgit2)]
         internal static extern void git_remote_set_autotag(RemoteSafeHandle remote, TagFetchMode option);
 
         [DllImport(libgit2)]
-        internal static extern void git_remote_set_callbacks(RemoteSafeHandle remote, ref GitRemoteCallbacks callbacks);
+        internal static extern void git_remote_set_callbacks(
+            RemoteSafeHandle remote,
+            ref GitRemoteCallbacks callbacks);
 
         internal delegate void remote_progress_callback(IntPtr str, int len, IntPtr data);
 
@@ -775,6 +780,8 @@ namespace LibGit2Sharp.Core
 
         [DllImport(libgit2)]
         internal static extern void git_threads_shutdown();
+
+        internal delegate void git_transfer_progress_callback(IntPtr stats, IntPtr payload);
 
         [DllImport(libgit2)]
         internal static extern int git_tree_create_fromindex(out GitOid treeOid, IndexSafeHandle index);
