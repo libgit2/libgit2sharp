@@ -8,11 +8,14 @@ namespace LibGit2Sharp
     /// <summary>
     ///   A signature
     /// </summary>
-    public class Signature
+    public class Signature : IEquatable<Signature>
     {
         private readonly DateTimeOffset when;
         private readonly string name;
         private readonly string email;
+
+        private static readonly LambdaEqualityHelper<Signature> equalityHelper =
+            new LambdaEqualityHelper<Signature>(x => x.Name, x => x.Email, x => x.When);
 
         internal Signature(IntPtr signaturePtr)
         {
@@ -64,6 +67,57 @@ namespace LibGit2Sharp
         public DateTimeOffset When
         {
             get { return when; }
+        }
+
+        /// <summary>
+        ///   Determines whether the specified <see cref = "Object" /> is equal to the current <see cref = "Signature" />.
+        /// </summary>
+        /// <param name = "obj">The <see cref = "Object" /> to compare with the current <see cref = "Signature" />.</param>
+        /// <returns>True if the specified <see cref = "Object" /> is equal to the current <see cref = "Signature" />; otherwise, false.</returns>
+        public override bool Equals(object obj)
+        {
+            return Equals(obj as Signature);
+        }
+
+        /// <summary>
+        ///   Determines whether the specified <see cref = "Signature" /> is equal to the current <see cref = "Signature" />.
+        /// </summary>
+        /// <param name = "other">The <see cref = "Signature" /> to compare with the current <see cref = "Signature" />.</param>
+        /// <returns>True if the specified <see cref = "Signature" /> is equal to the current <see cref = "Signature" />; otherwise, false.</returns>
+        public bool Equals(Signature other)
+        {
+            return equalityHelper.Equals(this, other);
+        }
+
+        /// <summary>
+        ///   Returns the hash code for this instance.
+        /// </summary>
+        /// <returns>A 32-bit signed integer hash code.</returns>
+        public override int GetHashCode()
+        {
+            return equalityHelper.GetHashCode(this);
+        }
+
+        /// <summary>
+        ///   Tests if two <see cref = "Signature" /> are equal.
+        /// </summary>
+        /// <param name = "left">First <see cref = "Signature" /> to compare.</param>
+        /// <param name = "right">Second <see cref = "Signature" /> to compare.</param>
+        /// <returns>True if the two objects are equal; false otherwise.</returns>
+        public static bool operator ==(Signature left, Signature right)
+        {
+            return Equals(left, right);
+        }
+
+        /// <summary>
+        ///   Tests if two <see cref = "Signature" /> are different.
+        /// </summary>
+        /// <param name = "left">First <see cref = "Signature" /> to compare.</param>
+        /// <param name = "right">Second <see cref = "Signature" /> to compare.</param>
+        /// <returns>True if the two objects are different; false otherwise.</returns>
+        public static bool operator !=(Signature left, Signature right)
+        {
+            return !Equals(left, right);
         }
     }
 }

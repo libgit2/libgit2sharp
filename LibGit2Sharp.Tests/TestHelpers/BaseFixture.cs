@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
+using LibGit2Sharp.Core;
 using Xunit;
 
 namespace LibGit2Sharp.Tests.TestHelpers
@@ -21,7 +22,13 @@ namespace LibGit2Sharp.Tests.TestHelpers
         public static string StandardTestRepoPath { get; private set; }
         public static DirectoryInfo ResourcesDirectory { get; private set; }
 
-        public static readonly Signature DummySignature = new Signature("Author N. Ame", "him@there.com", DateTimeOffset.Now);
+        public static readonly Signature DummySignature = new Signature("Author N. Ame", "him@there.com", TruncateSubSeconds(DateTimeOffset.Now));
+
+        protected static DateTimeOffset TruncateSubSeconds(DateTimeOffset dto)
+        {
+            int seconds = dto.ToSecondsSinceEpoch();
+            return Epoch.ToDateTimeOffset(seconds, (int) dto.Offset.TotalMinutes);
+        }
 
         private static void SetUpTestEnvironment()
         {

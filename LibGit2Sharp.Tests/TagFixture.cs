@@ -11,7 +11,7 @@ namespace LibGit2Sharp.Tests
     {
         private readonly string[] expectedTags = new[] { "e90810b", "lw", "point_to_blob", "test", };
 
-        private static readonly Signature signatureTim = new Signature("Tim Clem", "timothy.clem@gmail.com", DateTimeOffset.UtcNow);
+        private static readonly Signature signatureTim = new Signature("Tim Clem", "timothy.clem@gmail.com", TruncateSubSeconds(DateTimeOffset.UtcNow));
         private static readonly Signature signatureNtk = new Signature("nulltoken", "emeric.fermas@gmail.com", Epoch.ToDateTimeOffset(1300557894, 60));
         private const string tagTestSha = "b25fa35b38051e4ae45d4222e795f9df2e43f1d1";
         private const string commitE90810BSha = "e90810b8df3e80c413d903f631643c716887138d";
@@ -151,6 +151,7 @@ namespace LibGit2Sharp.Tests
                 Assert.NotNull(newTag);
                 Assert.True(newTag.IsAnnotated);
                 Assert.Equal(tagTestSha, newTag.Target.Sha);
+                Assert.Equal(signatureTim, newTag.Annotation.Tagger);
             }
         }
 
