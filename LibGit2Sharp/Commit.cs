@@ -124,10 +124,8 @@ namespace LibGit2Sharp
 
                 for (uint i = 0; i < parentsCount; i++)
                 {
-                    using (var parentCommit = Proxy.git_commit_parent(obj, i))
-                    {
-                        yield return BuildFromPtr(parentCommit, ObjectIdOf(parentCommit), repo);
-                    }
+                    ObjectId parentCommitId = Proxy.git_commit_parent_oid(obj.ObjectPtr, i);
+                    yield return (Commit)repo.LookupInternal(parentCommitId, GitObjectType.Commit, null);
                 }
             }
         }

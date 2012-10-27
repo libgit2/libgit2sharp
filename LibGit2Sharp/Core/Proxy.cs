@@ -242,6 +242,11 @@ namespace LibGit2Sharp.Core
             }
         }
 
+        public static ObjectId git_commit_parent_oid(GitObjectSafeHandle obj, uint i)
+        {
+            return NativeMethods.git_commit_parent_oid(obj, i).MarshalAsObjectId();
+        }
+
         public static int git_commit_parentcount(RepositorySafeHandle repo, ObjectId id)
         {
             using (var obj = new ObjectSafeWrapper(id, repo))

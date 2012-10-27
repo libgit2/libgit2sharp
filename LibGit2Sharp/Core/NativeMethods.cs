@@ -181,6 +181,9 @@ namespace LibGit2Sharp.Core
         internal static extern int git_commit_parent(out GitObjectSafeHandle parentCommit, GitObjectSafeHandle commit, uint n);
 
         [DllImport(libgit2)]
+        internal static extern OidSafeHandle git_commit_parent_oid(GitObjectSafeHandle commit, uint n);
+
+        [DllImport(libgit2)]
         internal static extern uint git_commit_parentcount(GitObjectSafeHandle commit);
 
         [DllImport(libgit2)]
