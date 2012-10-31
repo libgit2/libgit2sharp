@@ -65,14 +65,14 @@ namespace LibGit2Sharp
             {
                 Ensure.ArgumentNotNullOrEmptyString(path, "path");
 
-                int? res = Proxy.git_index_find(handle, path);
-
-                if (res == null)
+                IndexEntrySafeHandle entryHandle = Proxy.git_index_get_bypath(handle, path, 0);
+                
+                if (entryHandle.IsInvalid)
                 {
                     return null;
                 }
 
-                return this[(uint)res];
+                return IndexEntry.BuildFromPtr(repo, entryHandle);
             }
         }
 
@@ -80,7 +80,7 @@ namespace LibGit2Sharp
         {
             get
             {
-                IndexEntrySafeHandle entryHandle = Proxy.git_index_get(handle, index);
+                IndexEntrySafeHandle entryHandle = Proxy.git_index_get_byindex(handle, index);
                 return IndexEntry.BuildFromPtr(repo, entryHandle);
             }
         }
@@ -407,19 +407,12 @@ namespace LibGit2Sharp
 
         private void AddToIndex(string relativePath)
         {
-            Proxy.git_index_add(handle, relativePath);
+            Proxy.git_index_add_from_workdir(handle, relativePath);
         }
 
         private void RemoveFromIndex(string relativePath)
         {
-            int? res = Proxy.git_index_find(handle, relativePath);
-
-            if (res == null)
-            {
-                return;
-            }
-
-            Proxy.git_index_remove(handle, res.Value);
+            Proxy.git_index_remove(handle, relativePath, 0);
         }
 
         private void UpdatePhysicalIndex()
@@ -509,7 +502,7 @@ namespace LibGit2Sharp
                 Path = FilePathMarshaler.FromManaged(treeEntryChanges.OldPath),
             };
 
-            Proxy.git_index_add2(handle, indexEntry);
+            Proxy.git_index_add(handle, indexEntry);
             Marshal.FreeHGlobal(indexEntry.Path);
         }
     }
