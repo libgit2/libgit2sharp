@@ -70,6 +70,7 @@
     <Compile Include="ContentChanges.cs" />
     <Compile Include="Core\GitCheckoutOpts.cs" />
     <Compile Include="Core\GitConfigEntry.cs" />
+    <Compile Include="Core\GitTransferProgress.cs" />
     <Compile Include="Core\Proxy.cs" />
     <Compile Include="Handlers.cs" />
     <Compile Include="ReferenceCollectionExtensions.cs" />
@@ -79,7 +80,6 @@
     <Compile Include="RemoteCompletionType.cs" />
     <Compile Include="TagCollectionExtensions.cs" />
     <Compile Include="Core\Compat\Environment.cs" />
-    <Compile Include="FetchProgress.cs" />
     <Compile Include="Core\FilePath.cs" />
     <Compile Include="Core\FilePathExtensions.cs" />
     <Compile Include="Core\FilePathMarshaler.cs" />
@@ -121,6 +121,8 @@
     <Compile Include="Note.cs" />
     <Compile Include="RepositoryNotFoundException.cs" />
     <Compile Include="TagFetchMode.cs" />
+    <Compile Include="TransferCallbacks.cs" />
+    <Compile Include="TransferProgress.cs" />
     <Compile Include="TreeChanges.cs" />
     <Compile Include="TreeEntryChanges.cs" />
     <Compile Include="LibGit2SharpException.cs" />

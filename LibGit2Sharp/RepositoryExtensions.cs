@@ -151,22 +151,24 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="repository">The <see cref = "Repository" /> being worked with.</param>
         /// <param name="remoteName">The name of the <see cref="Remote"/> to fetch from.</param>
-        /// <param name="progress">The <see cref = "FetchProgress" /> datastructure where the progress of the fetch is reported.</param>
         /// <param name="tagFetchMode">Optional parameter indicating what tags to download.</param>
         /// <param name="onProgress">Progress callback. Corresponds to libgit2 progress callback.</param>
         /// <param name="onCompletion">Completion callback. Corresponds to libgit2 completion callback.</param>
         /// <param name="onUpdateTips">UpdateTips callback. Corresponds to libgit2 update_tips callback.</param>
-        public static void Fetch(this IRepository repository, string remoteName, FetchProgress progress = null,
+        /// <param name="onTransferProgress">Callback method that transfer progress will be reported through.
+        ///   Reports the client's state regarding the received and processed (bytes, objects) from the server.</param>
+        public static void Fetch(this IRepository repository, string remoteName,
             TagFetchMode tagFetchMode = TagFetchMode.Auto,
             ProgressHandler onProgress = null,
             CompletionHandler onCompletion = null,
-            UpdateTipsHandler onUpdateTips = null)
+            UpdateTipsHandler onUpdateTips = null,
+            TransferProgressHandler onTransferProgress = null)
         {
             Ensure.ArgumentNotNull(repository, "repository");
             Ensure.ArgumentNotNullOrEmptyString(remoteName, "remoteName");
 
             Remote remote = repository.Remotes.RemoteForName(remoteName, true);
-            remote.Fetch(progress, tagFetchMode, onProgress, onCompletion, onUpdateTips);
+            remote.Fetch(tagFetchMode, onProgress, onCompletion, onUpdateTips, onTransferProgress);
         }
 
         private static Signature BuildSignatureFromGlobalConfiguration(IRepository repository, DateTimeOffset now)
