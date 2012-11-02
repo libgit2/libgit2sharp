@@ -66,12 +66,6 @@ namespace LibGit2Sharp
                 Ensure.ArgumentNotNullOrEmptyString(path, "path");
 
                 IndexEntrySafeHandle entryHandle = Proxy.git_index_get_bypath(handle, path, 0);
-                
-                if (entryHandle.IsInvalid)
-                {
-                    return null;
-                }
-
                 return IndexEntry.BuildFromPtr(repo, entryHandle);
             }
         }

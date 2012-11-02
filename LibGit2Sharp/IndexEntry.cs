@@ -42,6 +42,11 @@ namespace LibGit2Sharp
         {
             GitIndexEntry entry = handle.MarshalAsGitIndexEntry();
 
+            if (entry == null)
+            {
+                return null;
+            }
+
             var path = FilePathMarshaler.FromNative(entry.Path);
 
             return new IndexEntry
