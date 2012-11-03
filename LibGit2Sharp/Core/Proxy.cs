@@ -554,20 +554,20 @@ namespace LibGit2Sharp.Core
 
         #region git_index_
 
-        public static void git_index_add(IndexSafeHandle index, FilePath path)
+        public static void git_index_add(IndexSafeHandle index, GitIndexEntry entry)
         {
             using (ThreadAffinity())
             {
-                int res = NativeMethods.git_index_add(index, path, 0);
+                int res = NativeMethods.git_index_add(index, entry);
                 Ensure.Success(res);
             }
         }
 
-        public static void git_index_add2(IndexSafeHandle index, GitIndexEntry entry)
+        public static void git_index_add_from_workdir(IndexSafeHandle index, FilePath path)
         {
             using (ThreadAffinity())
             {
-                int res = NativeMethods.git_index_add2(index, entry);
+                int res = NativeMethods.git_index_add_from_workdir(index, path);
                 Ensure.Success(res);
             }
         }
@@ -596,9 +596,14 @@ namespace LibGit2Sharp.Core
             NativeMethods.git_index_free(index);
         }
 
-        public static IndexEntrySafeHandle git_index_get(IndexSafeHandle index, uint n)
+        public static IndexEntrySafeHandle git_index_get_byindex(IndexSafeHandle index, uint n)
         {
-            return NativeMethods.git_index_get(index, n);
+            return NativeMethods.git_index_get_byindex(index, n);
+        }
+
+        public static IndexEntrySafeHandle git_index_get_bypath(IndexSafeHandle index, FilePath path, int stage)
+        {
+            return NativeMethods.git_index_get_bypath(index, path, stage);
         }
 
         public static IndexSafeHandle git_index_open(FilePath indexpath)
@@ -623,11 +628,11 @@ namespace LibGit2Sharp.Core
             }
         }
 
-        public static void git_index_remove(IndexSafeHandle index, int n)
+        public static void git_index_remove(IndexSafeHandle index, FilePath path, int stage)
         {
             using (ThreadAffinity())
             {
-                int res = NativeMethods.git_index_remove(index, n);
+                int res = NativeMethods.git_index_remove(index, path, stage);
                 Ensure.Success(res);
             }
         }
