@@ -12,6 +12,11 @@ namespace LibGit2Sharp.Core.Handles
 
         public override bool IsInvalid
         {
+            get { return IsZero; }
+        }
+
+        public bool IsZero
+        {
             get { return (handle == IntPtr.Zero); }
         }
 

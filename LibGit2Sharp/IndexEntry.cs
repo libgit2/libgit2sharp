@@ -40,6 +40,11 @@ namespace LibGit2Sharp
 
         internal static IndexEntry BuildFromPtr(Repository repo, IndexEntrySafeHandle handle)
         {
+            if (handle == null)
+            {
+                return null;
+            }
+
             GitIndexEntry entry = handle.MarshalAsGitIndexEntry();
 
             var path = FilePathMarshaler.FromNative(entry.Path);

@@ -347,13 +347,12 @@ namespace LibGit2Sharp.Core
             git_diff_data_fn lineCallback);
 
         [DllImport(libgit2)]
-        internal static extern int git_index_add(
+        internal static extern int git_index_add_from_workdir(
             IndexSafeHandle index,
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(FilePathMarshaler))] FilePath path,
-            int stage);
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(FilePathMarshaler))] FilePath path);
 
         [DllImport(libgit2)]
-        internal static extern int git_index_add2(
+        internal static extern int git_index_add(
             IndexSafeHandle index,
             GitIndexEntry entry);
 
@@ -369,7 +368,13 @@ namespace LibGit2Sharp.Core
         internal static extern void git_index_free(IntPtr index);
 
         [DllImport(libgit2)]
-        internal static extern IndexEntrySafeHandle git_index_get(IndexSafeHandle index, uint n);
+        internal static extern IndexEntrySafeHandle git_index_get_byindex(IndexSafeHandle index, uint n);
+
+        [DllImport(libgit2)]
+        internal static extern IndexEntrySafeHandle git_index_get_bypath(
+            IndexSafeHandle index,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(FilePathMarshaler))] FilePath path,
+            int stage);
 
         [DllImport(libgit2)]
         internal static extern int git_index_open(
@@ -380,10 +385,16 @@ namespace LibGit2Sharp.Core
         internal static extern int git_index_read_tree(IndexSafeHandle index, GitObjectSafeHandle tree, IntPtr payload);
 
         [DllImport(libgit2)]
-        internal static extern int git_index_remove(IndexSafeHandle index, int n);
+        internal static extern int git_index_remove(
+            IndexSafeHandle index,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(FilePathMarshaler))] FilePath path,
+            int stage);
 
         [DllImport(libgit2)]
         internal static extern int git_index_write(IndexSafeHandle index);
+
+        [DllImport(libgit2)]
+        internal static extern int git_index_write_tree(out GitOid treeOid, IndexSafeHandle index);
 
         [DllImport(libgit2)]
         internal static extern int git_merge_base(
@@ -785,9 +796,6 @@ namespace LibGit2Sharp.Core
         internal static extern void git_threads_shutdown();
 
         internal delegate void git_transfer_progress_callback(ref GitTransferProgress stats, IntPtr payload);
-
-        [DllImport(libgit2)]
-        internal static extern int git_tree_create_fromindex(out GitOid treeOid, IndexSafeHandle index);
 
         [DllImport(libgit2)]
         internal static extern uint git_tree_entry_filemode(SafeHandle entry);
