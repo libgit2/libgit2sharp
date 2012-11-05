@@ -70,7 +70,10 @@
     <Compile Include="ContentChanges.cs" />
     <Compile Include="Core\GitCheckoutOpts.cs" />
     <Compile Include="Core\GitConfigEntry.cs" />
+    <Compile Include="Core\GitObjectLazyGroup.cs" />
     <Compile Include="Core\GitTransferProgress.cs" />
+    <Compile Include="Core\ILazy.cs" />
+    <Compile Include="Core\LazyGroup.cs" />
     <Compile Include="Core\Proxy.cs" />
     <Compile Include="Handlers.cs" />
     <Compile Include="ReferenceCollectionExtensions.cs" />
