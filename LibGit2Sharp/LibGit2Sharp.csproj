@@ -63,6 +63,8 @@
     <Compile Include="BranchCollection.cs" />
     <Compile Include="BranchCollectionExtensions.cs" />
     <Compile Include="Changes.cs" />
+    <Compile Include="CheckoutCallbacks.cs" />
+    <Compile Include="CheckoutOptions.cs" />
     <Compile Include="Commit.cs" />
     <Compile Include="CommitLog.cs" />
     <Compile Include="Configuration.cs" />
@@ -76,8 +78,8 @@
     <Compile Include="Core\LazyGroup.cs" />
     <Compile Include="Core\Proxy.cs" />
     <Compile Include="Handlers.cs" />
+    <Compile Include="MergeConflictException.cs" />
     <Compile Include="ReferenceCollectionExtensions.cs" />
-    <Compile Include="Core\GitIndexerStats.cs" />
     <Compile Include="Core\GitRemoteCallbacks.cs" />
     <Compile Include="RemoteCallbacks.cs" />
     <Compile Include="RemoteCompletionType.cs" />
@@ -111,7 +113,6 @@
     <Compile Include="Core\Handles\OidSafeHandle.cs" />
     <Compile Include="Core\Handles\TreeBuilderSafeHandle.cs" />
     <Compile Include="Core\Handles\TreeEntrySafeHandle_Owned.cs" />
-    <Compile Include="IndexerStats.cs" />
     <Compile Include="Core\ReferenceExtensions.cs" />
     <Compile Include="Core\Handles\ReferenceSafeHandle.cs" />
     <Compile Include="Core\Handles\SignatureSafeHandle.cs" />

@@ -9,6 +9,12 @@ namespace LibGit2Sharp.Core
 		int file_mode,
 		IntPtr payload);
 
+    internal delegate void progress_cb(
+            IntPtr strPtr,
+            UIntPtr completed_steps,
+            UIntPtr total_steps,
+            IntPtr payload);
+
     [StructLayout(LayoutKind.Sequential)]
     internal class GitCheckoutOpts
     {
@@ -19,7 +25,9 @@ namespace LibGit2Sharp.Core
         public int FileOpenFlags;
         public skipped_notify_cb skippedNotifyCb;
         public IntPtr NotifyPayload;
-        public UnSafeNativeMethods.git_strarray paths; 
+        public progress_cb ProgressCb;
+        public IntPtr ProgressPayload;
+        public UnSafeNativeMethods.git_strarray paths;
     }
 
     [Flags]

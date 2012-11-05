@@ -36,4 +36,12 @@ namespace LibGit2Sharp.Handlers
     /// </summary>
     /// <param name="progress">The <see cref = "TransferProgress" /> object containing progress information.</param>
     public delegate void TransferProgressHandler(TransferProgress progress);
+
+    /// <summary>
+    ///   Delegate definition for checkout progress callback.
+    /// </summary>
+    /// <param name="path">Path of the updated file.</param>
+    /// <param name="completedSteps">Number of completed steps.</param>
+    /// <param name="totalSteps">Total number of steps.</param>
+    public delegate void CheckoutProgressHandler(string path, int completedSteps, int totalSteps);
 }

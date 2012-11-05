@@ -1,4 +1,5 @@
 using System;
+using LibGit2Sharp.Handlers;
 
 namespace LibGit2Sharp
 {
@@ -60,18 +61,20 @@ namespace LibGit2Sharp
         Diff Diff {get;}
 
         /// <summary>
-        ///   Checkout the specified branch.
+        ///   Checkout the specified branch, reference or SHA.
         /// </summary>
-        /// <param name="branch">The branch to checkout.</param>
-        /// <returns>The branch.</returns>
-        Branch Checkout(Branch branch);
+        /// <param name = "commitishOrBranchSpec">A revparse spec for the commit or branch to checkout.</param>
+        /// <returns>The new HEAD.</returns>
+        Branch Checkout(string commitishOrBranchSpec);
 
         /// <summary>
         ///   Checkout the specified branch, reference or SHA.
         /// </summary>
-        /// <param name = "commitOrBranchSpec">A revparse spec for the commit or branch to checkout.</param>
+        /// <param name = "commitishOrBranchSpec">A revparse spec for the commit or branch to checkout.</param>
+        /// <param name="checkoutOptions">Options controlling checkout behavior.</param>
+        /// <param name="onCheckoutProgress">Callback method to report checkout progress updates through.</param>
         /// <returns>The new HEAD.</returns>
-        Branch Checkout(string commitOrBranchSpec);
+        Branch Checkout(string commitishOrBranchSpec, CheckoutOptions checkoutOptions, CheckoutProgressHandler onCheckoutProgress);
 
         /// <summary>
         ///   Try to lookup an object by its <see cref = "ObjectId" /> and <see cref = "GitObjectType" />. If no matching object is found, null will be returned.

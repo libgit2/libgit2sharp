@@ -28,6 +28,8 @@ namespace LibGit2Sharp.Tests
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
             using (var repo = new Repository(path.RepositoryPath))
             {
+                repo.Reset(ResetOptions.Hard);
+
                 repo.Checkout("test");
                 Assert.Equal(2, repo.Commits.Count());
                 Assert.Equal("e90810b8df3e80c413d903f631643c716887138d", repo.Commits.First().Id.Sha);
@@ -225,6 +227,8 @@ namespace LibGit2Sharp.Tests
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
             using (var repoClone = new Repository(path.RepositoryPath))
             {
+                repoClone.Reset(ResetOptions.Hard);
+
                 string headSha = repoClone.Head.Tip.Sha;
                 repoClone.Checkout(headSha);
 
