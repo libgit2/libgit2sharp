@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Globalization;
 using LibGit2Sharp.Core;
-using LibGit2Sharp.Core.Handles;
 
 namespace LibGit2Sharp
 {
     /// <summary>
     ///   A GitObject
     /// </summary>
-    public class GitObject : IEquatable<GitObject>
+    public abstract class GitObject : IEquatable<GitObject>
     {
         internal static GitObjectTypeMap TypeToTypeMap =
             new GitObjectTypeMap
@@ -51,27 +50,21 @@ namespace LibGit2Sharp
             get { return Id.Sha; }
         }
 
-        internal static GitObject BuildFromPtr(GitObjectSafeHandle obj, ObjectId id, Repository repo, FilePath path)
+        internal static GitObject BuildFrom(Repository repo, ObjectId id, GitObjectType type, FilePath path)
         {
-            GitObjectType type = Proxy.git_object_type(obj);
             switch (type)
             {
                 case GitObjectType.Commit:
-                    return Commit.BuildFromPtr(obj, id, repo);
+                    return new Commit(repo, id);
                 case GitObjectType.Tree:
-                    return Tree.BuildFromPtr(obj, id, repo, path);
+                    return new Tree(repo, id, path);
                 case GitObjectType.Tag:
-                    return TagAnnotation.BuildFromPtr(obj, id, repo);
+                    return new TagAnnotation(repo, id);
                 case GitObjectType.Blob:
-                    return Blob.BuildFromPtr(obj, id, repo);
+                    return new Blob(repo, id);
                 default:
                     throw new LibGit2SharpException(string.Format(CultureInfo.InvariantCulture, "Unexpected type '{0}' for object '{1}'.", type, id));
             }
-        }
-
-        internal static ObjectId ObjectIdOf(GitObjectSafeHandle gitObjHandle)
-        {
-            return Proxy.git_object_id(gitObjHandle);
         }
 
         /// <summary>

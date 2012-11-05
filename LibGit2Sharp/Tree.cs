@@ -14,24 +14,27 @@ namespace LibGit2Sharp
         private readonly Repository repo;
         private readonly FilePath path;
 
+        private readonly ILazy<int> lazyCount;
+
         /// <summary>
         ///   Needed for mocking purposes.
         /// </summary>
         protected Tree()
         { }
 
-        internal Tree(ObjectId id, FilePath path, int treeEntriesCount, Repository repository)
+        internal Tree(Repository repo, ObjectId id, FilePath path)
             : base(id)
         {
-            Count = treeEntriesCount;
-            repo = repository;
+            this.repo = repo;
             this.path = path ?? "";
+
+            lazyCount = GitObjectLazyGroup.Singleton(repo, id, Proxy.git_tree_entrycount);
         }
 
         /// <summary>
         ///   Gets the number of <see cref = "TreeEntry" /> immediately under this <see cref = "Tree" />.
         /// </summary>
-        public virtual int Count { get; private set; }
+        public virtual int Count { get { return lazyCount.Value; } }
 
         /// <summary>
         ///   Gets the <see cref = "TreeEntry" /> pointed at by the <paramref name = "relativePath" /> in this <see cref = "Tree" /> instance.
@@ -125,11 +128,5 @@ namespace LibGit2Sharp
         }
 
         #endregion
-
-        internal new static Tree BuildFromPtr(GitObjectSafeHandle obj, ObjectId id, Repository repo, FilePath path)
-        {
-            var tree = new Tree(id, path, Proxy.git_tree_entrycount(obj), repo);
-            return tree;
-        }
     }
 }

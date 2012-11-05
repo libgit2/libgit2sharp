@@ -1,6 +1,4 @@
 ﻿using LibGit2Sharp.Core;
-using LibGit2Sharp.Core.Compat;
-using LibGit2Sharp.Core.Handles;
 
 namespace LibGit2Sharp
 {
@@ -9,7 +7,11 @@ namespace LibGit2Sharp
     /// </summary>
     public class TagAnnotation : GitObject
     {
-        private Lazy<GitObject> targetBuilder;
+        private readonly GitObjectLazyGroup group;
+        private readonly ILazy<GitObject> lazyTarget;
+        private readonly ILazy<string> lazyName;
+        private readonly ILazy<string> lazyMessage;
+        private readonly ILazy<Signature> lazyTagger;
 
         /// <summary>
         ///   Needed for mocking purposes.
@@ -17,45 +19,36 @@ namespace LibGit2Sharp
         protected TagAnnotation()
         { }
 
-        internal TagAnnotation(ObjectId id)
+        internal TagAnnotation(Repository repo, ObjectId id)
             : base(id)
         {
+            lazyName = GitObjectLazyGroup.Singleton(repo, id, Proxy.git_tag_name);
+            lazyTarget = GitObjectLazyGroup.Singleton(repo, id,
+                obj => GitObject.BuildFrom(repo, Proxy.git_tag_target_oid(obj), Proxy.git_tag_type(obj), null));
+
+            group = new GitObjectLazyGroup(repo, id);
+            lazyTagger = group.AddLazy(Proxy.git_tag_tagger);
+            lazyMessage = group.AddLazy(Proxy.git_tag_message);
         }
 
         /// <summary>
         ///   Gets the name of this tag.
         /// </summary>
-        public virtual string Name { get; private set; }
+        public virtual string Name { get { return lazyName.Value; } }
 
         /// <summary>
         ///   Gets the message of this tag.
         /// </summary>
-        public virtual string Message { get; private set; }
+        public virtual string Message { get { return lazyMessage.Value; } }
 
         /// <summary>
         ///   Gets the <see cref = "GitObject" /> that this tag annotation points to.
         /// </summary>
-        public virtual GitObject Target
-        {
-            get { return targetBuilder.Value; }
-        }
+        public virtual GitObject Target { get { return lazyTarget.Value; } }
 
         /// <summary>
         ///   Gets the tagger.
         /// </summary>
-        public virtual Signature Tagger { get; private set; }
-
-        internal static TagAnnotation BuildFromPtr(GitObjectSafeHandle obj, ObjectId id, Repository repo)
-        {
-            ObjectId targetOid = Proxy.git_tag_target_oid(obj);
-
-            return new TagAnnotation(id)
-                       {
-                           Message = Proxy.git_tag_message(obj),
-                           Name = Proxy.git_tag_name(obj),
-                           Tagger = Proxy.git_tag_tagger(obj),
-                           targetBuilder = new Lazy<GitObject>(() => repo.Lookup<GitObject>(targetOid))
-                       };
-        }
+        public virtual Signature Tagger { get { return lazyTagger.Value; } }
     }
 }

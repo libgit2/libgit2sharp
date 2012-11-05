@@ -3,7 +3,6 @@ using System.Globalization;
 using System.Runtime.InteropServices;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Compat;
-using LibGit2Sharp.Core.Handles;
 
 namespace LibGit2Sharp
 {
@@ -59,10 +58,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Gets the <see cref = "GitObject" /> being pointed at.
         /// </summary>
-        public virtual GitObject Target
-        {
-            get { return target.Value; }
-        }
+        public virtual GitObject Target { get { return target.Value; } }
 
         internal ObjectId TargetId
         {
@@ -81,9 +77,7 @@ namespace LibGit2Sharp
                 throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "TreeEntry target of type '{0}' are not supported.", Type));
             }
 
-            GitObject treeEntryTarget = repo.LookupTreeEntryTarget(targetOid, Path);
-
-            return treeEntryTarget;
+            return GitObject.BuildFrom(repo, targetOid, Type, Path);
         }
 
         /// <summary>

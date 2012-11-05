@@ -1531,7 +1531,10 @@ namespace LibGit2Sharp.Core
             return NativeMethods.git_tag_target_oid(tag).MarshalAsObjectId();
         }
 
-
+        public static GitObjectType git_tag_type(GitObjectSafeHandle tag)
+        {
+            return NativeMethods.git_tag_type(tag);
+        }
 
         #endregion
 

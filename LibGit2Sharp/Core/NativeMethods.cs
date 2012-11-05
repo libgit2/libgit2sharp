@@ -790,6 +790,9 @@ namespace LibGit2Sharp.Core
         internal static extern OidSafeHandle git_tag_target_oid(GitObjectSafeHandle tag);
 
         [DllImport(libgit2)]
+        internal static extern GitObjectType git_tag_type(GitObjectSafeHandle tag);
+
+        [DllImport(libgit2)]
         internal static extern void git_threads_init();
 
         [DllImport(libgit2)]

@@ -283,11 +283,6 @@ namespace LibGit2Sharp
             return LookupInternal(id, type, null);
         }
 
-        internal GitObject LookupTreeEntryTarget(ObjectId id, FilePath path)
-        {
-            return LookupInternal(id, GitObjectType.Any, path);
-        }
-
         internal GitObject LookupInternal(ObjectId id, GitObjectType type, FilePath knownPath)
         {
             Ensure.ArgumentNotNull(id, "id");
@@ -298,7 +293,12 @@ namespace LibGit2Sharp
             {
                 obj = Proxy.git_object_lookup(handle, id, type);
 
-                return obj == null ? null : GitObject.BuildFromPtr(obj, id, this, knownPath);
+                if (obj == null)
+                {
+                    return null;
+                }
+
+                return GitObject.BuildFrom(this, id, Proxy.git_object_type(obj), knownPath);
             }
             finally
             {
@@ -350,12 +350,14 @@ namespace LibGit2Sharp
                     return null;
                 }
 
-                if (type != GitObjectType.Any && Proxy.git_object_type(sh) != type)
+                GitObjectType objType = Proxy.git_object_type(sh);
+
+                if (type != GitObjectType.Any && objType != type)
                 {
                     return null;
                 }
 
-                obj = GitObject.BuildFromPtr(sh, GitObject.ObjectIdOf(sh), this, PathFromRevparseSpec(objectish));
+                obj = GitObject.BuildFrom(this, Proxy.git_object_id(sh), objType, PathFromRevparseSpec(objectish));
             }
 
             if (lookUpOptions.Has(LookUpOptions.DereferenceResultToCommit))
