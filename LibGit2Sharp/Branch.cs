@@ -4,6 +4,7 @@ using System.Linq;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Compat;
 using LibGit2Sharp.Core.Handles;
+using LibGit2Sharp.Handlers;
 
 namespace LibGit2Sharp
 {
@@ -178,6 +179,24 @@ namespace LibGit2Sharp
 
                 return remote;
             }
+        }
+
+        /// <summary>
+        ///   Checkout this branch.
+        /// </summary>
+        public virtual void Checkout()
+        {
+            repo.CheckoutInternal(CanonicalName, CheckoutOptions.None, null);
+        }
+
+        /// <summary>
+        ///   Checkout this branch with a callback for progress reporting.
+        /// </summary>
+        /// <param name="checkoutOptions">Options controlling checkout behavior.</param>
+        /// <param name="onCheckoutProgress">Callback method to report checkout progress updates through.</param>
+        public virtual void Checkout(CheckoutOptions checkoutOptions, CheckoutProgressHandler onCheckoutProgress)
+        {
+            repo.CheckoutInternal(CanonicalName, checkoutOptions, onCheckoutProgress);
         }
 
         private Branch ResolveTrackedBranch()

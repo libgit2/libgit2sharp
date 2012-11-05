@@ -169,13 +169,21 @@ namespace LibGit2Sharp.Core
         public static void git_checkout_tree(
             RepositorySafeHandle repo,
             ObjectId treeId,
-            GitCheckoutOpts opts,
-            ref GitIndexerStats stats)
+            GitCheckoutOpts opts)
         {
             using (ThreadAffinity())
             using (var osw = new ObjectSafeWrapper(treeId, repo))
             {
-                int res = NativeMethods.git_checkout_tree(repo, osw.ObjectPtr, opts, ref stats);
+                int res = NativeMethods.git_checkout_tree(repo, osw.ObjectPtr, opts);
+                Ensure.Success(res);
+            }
+        }
+
+        public static void git_checkout_head(RepositorySafeHandle repo, GitCheckoutOpts opts)
+        {
+            using (ThreadAffinity())
+            {
+                int res = NativeMethods.git_checkout_head(repo, opts);
                 Ensure.Success(res);
             }
         }
