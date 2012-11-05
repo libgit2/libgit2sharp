@@ -25,15 +25,16 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCorrectlyCountCommitsWhenSwitchingToAnotherBranch()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
+            using (var repo = new Repository(path.RepositoryPath))
             {
                 repo.Checkout("test");
                 Assert.Equal(2, repo.Commits.Count());
                 Assert.Equal("e90810b8df3e80c413d903f631643c716887138d", repo.Commits.First().Id.Sha);
 
                 repo.Checkout("master");
-                Assert.Equal(7, repo.Commits.Count());
-                Assert.Equal("4c062a6361ae6959e06292c1fa5e2822d9c96345", repo.Commits.First().Id.Sha);
+                Assert.Equal(9, repo.Commits.Count());
+                Assert.Equal("32eab9cb1f450b5fe7ab663462b77d7f4b703344", repo.Commits.First().Id.Sha);
             }
         }
 
@@ -221,7 +222,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanEnumerateFromDetachedHead()
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
+            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
             using (var repoClone = new Repository(path.RepositoryPath))
             {
                 string headSha = repoClone.Head.Tip.Sha;
@@ -231,7 +232,8 @@ namespace LibGit2Sharp.Tests
                     repo => new Filter { Since = repo.Head },
                     new[]
                         {
-                            "4c062a6", "be3563a", "c47800c", "9fd738e",
+                            "32eab9c", "592d3c8", "4c062a6",
+                            "be3563a", "c47800c", "9fd738e",
                             "4a202b3", "5b5b025", "8496071",
                         });
             }

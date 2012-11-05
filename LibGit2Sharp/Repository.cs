@@ -402,6 +402,11 @@ namespace LibGit2Sharp
         /// <returns>The new HEAD.</returns>
         public Branch Checkout(string commitOrBranchSpec)
         {
+            if (Info.IsBare)
+            {
+                throw new InvalidOperationException("Checkout is not allowed in a bare repository.");
+            }
+
             // TODO: This does not yet checkout (write) the working directory
 
             var branch = Branches[commitOrBranchSpec];
@@ -424,6 +429,11 @@ namespace LibGit2Sharp
         public Branch Checkout(Branch branch)
         {
             Ensure.ArgumentNotNull(branch, "branch");
+
+            if (Info.IsBare)
+            {
+                throw new InvalidOperationException("Checkout is not allowed in a bare repository.");
+            }
 
             Refs.UpdateTarget("HEAD", branch.CanonicalName);
             return branch;
