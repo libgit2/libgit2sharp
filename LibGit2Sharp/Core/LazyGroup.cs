@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using LibGit2Sharp.Core.Compat;
 
 namespace LibGit2Sharp.Core
 {
@@ -36,6 +37,11 @@ namespace LibGit2Sharp.Core
         }
 
         protected abstract void EvaluateInternal(Action<T> evaluator);
+
+        protected static ILazy<TResult> Singleton<TResult>(Func<TResult> resultSelector)
+        {
+            return new LazyWrapper<TResult>(resultSelector);
+        }
 
         private interface IEvaluator<TInput>
         {
@@ -75,6 +81,14 @@ namespace LibGit2Sharp.Core
             {
                 value = valueFactory(input);
                 hasBeenEvaluated = true;
+            }
+        }
+
+        protected class LazyWrapper<TType> : Lazy<TType>, ILazy<TType>
+        {
+            public LazyWrapper(Func<TType> evaluator)
+                : base(evaluator)
+            {
             }
         }
     }

@@ -21,5 +21,14 @@ namespace LibGit2Sharp.Core
                 evaluator(osw.ObjectPtr);
             }
         }
+
+        public static ILazy<TResult> Singleton<TResult>(Repository repo, ObjectId id, Func<GitObjectSafeHandle, TResult> resultSelector)
+        {
+            return Singleton(() =>
+            {
+                using (var osw = new ObjectSafeWrapper(id, repo.Handle))
+                    return resultSelector(osw.ObjectPtr);
+            });
+        }
     }
 }
