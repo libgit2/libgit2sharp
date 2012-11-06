@@ -706,5 +706,23 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(expectedChildren, children.Select(c => c.Id.Sha));
             }
         }
+
+        [Fact]
+        public void CanCorrectlyDistinguishAuthorFromCommitter()
+        {
+            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoPath);
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                var author = new Signature("Wilbert van Dolleweerd", "getit@xs4all.nl",
+                                           Epoch.ToDateTimeOffset(1244187936, 120));
+                var committer = new Signature("Henk Westhuis", "Henk_Westhuis@hotmail.com",
+                                           Epoch.ToDateTimeOffset(1244286496, 120));
+
+                Commit c = repo.Commit("I can haz an author and a committer!", author, committer);
+
+                Assert.Equal(author, c.Author);
+                Assert.Equal(committer, c.Committer);
+            }
+        }
     }
 }

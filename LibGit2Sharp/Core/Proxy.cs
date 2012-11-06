@@ -186,7 +186,7 @@ namespace LibGit2Sharp.Core
 
         public static Signature git_commit_author(GitObjectSafeHandle obj)
         {
-            return new Signature(NativeMethods.git_commit_committer(obj));
+            return new Signature(NativeMethods.git_commit_author(obj));
         }
 
         public static Signature git_commit_committer(GitObjectSafeHandle obj)
