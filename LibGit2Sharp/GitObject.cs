@@ -23,6 +23,11 @@ namespace LibGit2Sharp
             new LambdaEqualityHelper<GitObject>(x => x.Id);
 
         /// <summary>
+        ///   The <see cref = "Repository" /> containing the object. 
+        /// </summary>
+        protected readonly Repository repo;
+
+        /// <summary>
         ///   Needed for mocking purposes.
         /// </summary>
         protected GitObject()
@@ -31,9 +36,11 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Initializes a new instance of the <see cref = "GitObject" /> class.
         /// </summary>
+        /// <param name = "repo">The <see cref = "Repository" /> containing the object.</param>
         /// <param name = "id">The <see cref = "ObjectId" /> it should be identified by.</param>
-        protected GitObject(ObjectId id)
+        protected GitObject(Repository repo, ObjectId id)
         {
+            this.repo = repo;
             Id = id;
         }
 

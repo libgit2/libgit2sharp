@@ -13,8 +13,6 @@ namespace LibGit2Sharp
     /// </summary>
     public class Commit : GitObject
     {
-        private readonly Repository repo;
-
         private readonly GitObjectLazyGroup group;
         private readonly ILazy<Tree> lazyTree;
         private readonly ILazy<Signature> lazyAuthor;
@@ -33,10 +31,8 @@ namespace LibGit2Sharp
         { }
 
         internal Commit(Repository repo, ObjectId id)
-            : base(id)
+            : base(repo, id)
         {
-            this.repo = repo;
-
             lazyTree = GitObjectLazyGroup.Singleton(this.repo, id, obj => new Tree(this.repo, Proxy.git_commit_tree_oid(obj), null));
 
             group = new GitObjectLazyGroup(this.repo, id);

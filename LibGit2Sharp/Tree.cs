@@ -11,7 +11,6 @@ namespace LibGit2Sharp
     /// </summary>
     public class Tree : GitObject, IEnumerable<TreeEntry>
     {
-        private readonly Repository repo;
         private readonly FilePath path;
 
         private readonly ILazy<int> lazyCount;
@@ -23,9 +22,8 @@ namespace LibGit2Sharp
         { }
 
         internal Tree(Repository repo, ObjectId id, FilePath path)
-            : base(id)
+            : base(repo, id)
         {
-            this.repo = repo;
             this.path = path ?? "";
 
             lazyCount = GitObjectLazyGroup.Singleton(repo, id, Proxy.git_tree_entrycount);
