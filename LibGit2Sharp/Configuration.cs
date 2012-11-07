@@ -21,9 +21,7 @@ namespace LibGit2Sharp
 
         private readonly Repository repository;
 
-        private ConfigurationSafeHandle systemHandle;
-        private ConfigurationSafeHandle globalHandle;
-        private ConfigurationSafeHandle localHandle;
+        private ConfigurationSafeHandle configHandle;
 
         /// <summary>
         ///   Needed for mocking purposes.
@@ -43,39 +41,28 @@ namespace LibGit2Sharp
 
         private void Init()
         {
+            configHandle = Proxy.git_config_new();
+
             if (repository != null)
             {
                 //TODO: push back this logic into libgit2. 
                 // As stated by @carlosmn "having a helper function to load the defaults and then allowing you
                 // to modify it before giving it to git_repository_open_ext() would be a good addition, I think."
                 //  -- Agreed :)
-
-                localHandle = Proxy.git_config_new();
-
                 string repoConfigLocation = Path.Combine(repository.Info.Path, "config");
-                Proxy.git_config_add_file_ondisk(localHandle, repoConfigLocation, (uint)ConfigurationLevel.Local);
+                Proxy.git_config_add_file_ondisk(configHandle, repoConfigLocation, ConfigurationLevel.Local);
 
-                if (globalConfigPath != null)
-                {
-                    Proxy.git_config_add_file_ondisk(localHandle, globalConfigPath, (uint)ConfigurationLevel.Global);
-                }
-
-                if (systemConfigPath != null)
-                {
-                    Proxy.git_config_add_file_ondisk(localHandle, systemConfigPath, (uint)ConfigurationLevel.System);
-                }
-
-                Proxy.git_repository_set_config(repository.Handle, localHandle);
+                Proxy.git_repository_set_config(repository.Handle, configHandle);
             }
 
             if (globalConfigPath != null)
             {
-                globalHandle = Proxy.git_config_open_ondisk(globalConfigPath);
+                Proxy.git_config_add_file_ondisk(configHandle, globalConfigPath, ConfigurationLevel.Global);
             }
 
             if (systemConfigPath != null)
             {
-                systemHandle = Proxy.git_config_open_ondisk(systemConfigPath);
+                Proxy.git_config_add_file_ondisk(configHandle, systemConfigPath, ConfigurationLevel.System);
             }
         }
 
@@ -112,7 +99,10 @@ namespace LibGit2Sharp
         /// </summary>
         public virtual bool HasConfig(ConfigurationLevel level)
         {
-            return RetrieveConfigurationHandle(level, false) != null;
+            using (ConfigurationSafeHandle handle = RetrieveConfigurationHandle(level, false))
+            {
+                return handle != null;
+            }
         }
 
         #region IDisposable Members
@@ -138,13 +128,9 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(key, "key");
 
-            ConfigurationSafeHandle h = RetrieveConfigurationHandle(level, true);
-
-            bool success = Proxy.git_config_delete(h, key);
-
-            if (success)
+            using (ConfigurationSafeHandle h = RetrieveConfigurationHandle(level, true))
             {
-                Save();
+                Proxy.git_config_delete(h, key);
             }
         }
 
@@ -153,9 +139,7 @@ namespace LibGit2Sharp
         /// </summary>
         protected virtual void Dispose(bool disposing)
         {
-            localHandle.SafeDispose();
-            globalHandle.SafeDispose();
-            systemHandle.SafeDispose();
+            configHandle.SafeDispose();
         }
 
         /// <summary>
@@ -182,20 +166,43 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(key, "key");
 
-            ConfigurationSafeHandle handle = (localHandle ?? globalHandle) ?? systemHandle;
-
-            if (handle == null)
-            {
-                throw new LibGit2SharpException("Could not find a local, global or system level configuration.");
-            }
-
-            return Proxy.git_config_get_entry<T>(handle, key);
+            return Proxy.git_config_get_entry<T>(configHandle, key);
         }
 
-        private void Save()
+        /// <summary>
+        ///   Get a configuration value for a key. Keys are in the form 'section.name'.
+        ///   <para>
+        ///     For example in  order to get the value for this in a .git\config file:
+        ///
+        ///     <code>
+        ///     [core]
+        ///     bare = true
+        ///     </code>
+        ///
+        ///     You would call:
+        ///
+        ///     <code>
+        ///     bool isBare = repo.Config.Get&lt;bool&gt;("core.bare").Value;
+        ///     </code>
+        ///   </para>
+        /// </summary>
+        /// <typeparam name = "T">The configuration value type</typeparam>
+        /// <param name = "key">The key</param>
+        /// <param name = "level">The configuration file into which the key should be searched for</param>
+        /// <returns>The <see cref="ConfigurationEntry{T}"/>, or null if not set</returns>
+        public ConfigurationEntry<T> Get<T>(string key, ConfigurationLevel level)
         {
-            Dispose(true);
-            Init();
+            Ensure.ArgumentNotNullOrEmptyString(key, "key");
+
+            using (ConfigurationSafeHandle handle = RetrieveConfigurationHandle(level, false))
+            {
+                if (handle == null)
+                {
+                    return null;
+                }
+
+                return Proxy.git_config_get_entry<T>(handle, key);
+            }
         }
 
         /// <summary>
@@ -219,35 +226,31 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(key, "key");
 
-            ConfigurationSafeHandle h = RetrieveConfigurationHandle(level, true);
-
-            if (!configurationTypedUpdater.ContainsKey(typeof(T)))
+            using (ConfigurationSafeHandle h = RetrieveConfigurationHandle(level, true))
             {
-                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "Generic Argument of type '{0}' is not supported.", typeof(T).FullName));
-            }
+                if (!configurationTypedUpdater.ContainsKey(typeof(T)))
+                {
+                    throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "Generic Argument of type '{0}' is not supported.", typeof(T).FullName));
+                }
 
-            configurationTypedUpdater[typeof(T)](key, value, h);
-            Save();
+                configurationTypedUpdater[typeof(T)](key, value, h);
+            }
         }
 
         private ConfigurationSafeHandle RetrieveConfigurationHandle(ConfigurationLevel level, bool throwIfStoreHasNotBeenFound)
         {
-            Func<Configuration, ConfigurationSafeHandle> handleRetriever;
-            if (!configurationHandleRetriever.TryGetValue(level, out handleRetriever))
+            ConfigurationSafeHandle handle = null;
+            if (configHandle != null)
             {
-                throw new ArgumentException(
-                    string.Format(CultureInfo.InvariantCulture, "Configuration level has an unexpected value ('{0}').",
-                                  level), "level");
+                handle = Proxy.git_config_open_level(configHandle, level);
             }
 
-            ConfigurationSafeHandle h = handleRetriever(this);
-
-            if (h == null && throwIfStoreHasNotBeenFound)
+            if (handle == null && throwIfStoreHasNotBeenFound)
             {
                 throw new LibGit2SharpException("No matching configuration file has been found.");
             }
 
-            return h;
+            return handle;
         }
 
         private static Action<string, object, ConfigurationSafeHandle> GetUpdater<T>(Action<ConfigurationSafeHandle, string, T> setter)
@@ -261,13 +264,6 @@ namespace LibGit2Sharp
             { typeof(long), GetUpdater<long>(Proxy.git_config_set_int64) },
             { typeof(bool), GetUpdater<bool>(Proxy.git_config_set_bool) },
             { typeof(string), GetUpdater<string>(Proxy.git_config_set_string) },
-        };
-
-        private readonly static IDictionary<ConfigurationLevel, Func<Configuration, ConfigurationSafeHandle>> configurationHandleRetriever = new Dictionary<ConfigurationLevel, Func<Configuration, ConfigurationSafeHandle>>
-        {
-            { ConfigurationLevel.Local, cfg => cfg.localHandle },
-            { ConfigurationLevel.Global, cfg => cfg.globalHandle },
-            { ConfigurationLevel.System, cfg => cfg.systemHandle },
         };
 
         IEnumerator<ConfigurationEntry<string>> IEnumerable<ConfigurationEntry<String>>.GetEnumerator()
@@ -288,7 +284,7 @@ namespace LibGit2Sharp
 
         private ICollection<ConfigurationEntry> BuildConfigEntries()
         {
-            return Proxy.git_config_foreach(localHandle, entryPtr =>
+            return Proxy.git_config_foreach(configHandle, entryPtr =>
             {
                 var entry = (GitConfigEntry)Marshal.PtrToStructure(entryPtr, typeof(GitConfigEntry));
 
