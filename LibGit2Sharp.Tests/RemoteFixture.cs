@@ -165,10 +165,10 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(name, remote.Name);
                 Assert.Equal(url, remote.Url);
 
-                var refSpec = repo.Config.Get<string>("remote", remote.Name, "fetch", null);
+                var refSpec = repo.Config.Get<string>("remote", remote.Name, "fetch");
                 Assert.NotNull(refSpec);
 
-                Assert.Equal("+refs/heads/*:refs/remotes/upstream/*", refSpec);
+                Assert.Equal("+refs/heads/*:refs/remotes/upstream/*", refSpec.Value);
             }
         }
 
@@ -185,10 +185,10 @@ namespace LibGit2Sharp.Tests
 
                 repo.Remotes.Add(name, url, fetchRefSpec);
 
-                var refSpec = repo.Config.Get<string>("remote", name, "fetch", null);
+                var refSpec = repo.Config.Get<string>("remote", name, "fetch");
                 Assert.NotNull(refSpec);
 
-                Assert.Equal(fetchRefSpec, refSpec);
+                Assert.Equal(fetchRefSpec, refSpec.Value);
             }
         }
     }
