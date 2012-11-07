@@ -66,23 +66,7 @@ namespace LibGit2Sharp.Tests
         {
             SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
 
-            string confs = Path.Combine(scd.DirectoryPath, "confs");
-            Directory.CreateDirectory(confs);
-
-            string globalLocation = Path.Combine(confs, "my-global-config");
-            string systemLocation = Path.Combine(confs, "my-system-config");
-
-            StringBuilder sb = new StringBuilder()
-                .AppendLine("[Wow]")
-                .AppendFormat("Man-I-am-totally-global = 42{0}", Environment.NewLine);
-
-            File.WriteAllText(globalLocation, sb.ToString());
-
-            var options = new RepositoryOptions
-            {
-                GlobalConfigurationLocation = globalLocation,
-                SystemConfigurationLocation = systemLocation,
-            };
+            var options = BuildFakeConfigs(scd);
 
             using (var repo = new Repository(BareTestRepoPath, options))
             {
@@ -340,6 +324,79 @@ namespace LibGit2Sharp.Tests
                 Assert.Throws<ArgumentException>(() => repo.Config.Set("unittests.setting", (short)123));
                 Assert.Throws<ArgumentException>(() => repo.Config.Set("unittests.setting", repo.Config));
             }
+        }
+
+        [Fact]
+        public void CanGetAnEntryFromASpecificStore()
+        {
+            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+
+            var options = BuildFakeConfigs(scd);
+
+            var path = BuildTemporaryCloneOfTestRepo(StandardTestRepoPath);
+            using (var repo = new Repository(path.RepositoryPath, options))
+            {
+                Assert.True(repo.Config.HasConfig(ConfigurationLevel.Local));
+                Assert.True(repo.Config.HasConfig(ConfigurationLevel.Global));
+                Assert.True(repo.Config.HasConfig(ConfigurationLevel.System));
+
+                Assert.Null(repo.Config.Get<string>("Woot.global-rocks", ConfigurationLevel.Local));
+
+                repo.Config.Set("Woot.this-rocks", "local");
+
+                Assert.Equal("global", repo.Config.Get<string>("Woot.this-rocks", ConfigurationLevel.Global).Value);
+                Assert.Equal("system", repo.Config.Get<string>("Woot.this-rocks", ConfigurationLevel.System).Value);
+                Assert.Equal("local", repo.Config.Get<string>("Woot.this-rocks", ConfigurationLevel.Local).Value);
+            }
+        }
+
+        [Fact]
+        public void CanTellIfASpecificStoreContainsAKey()
+        {
+            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+
+            var options = BuildFakeConfigs(scd);
+
+            using (var repo = new Repository(BareTestRepoPath, options))
+            {
+                Assert.True(repo.Config.HasConfig(ConfigurationLevel.System));
+
+                Assert.Null(repo.Config.Get<string>("MCHammer.You-cant-touch-this", ConfigurationLevel.System));
+            }
+        }
+
+        private RepositoryOptions BuildFakeConfigs(SelfCleaningDirectory scd)
+        {
+            var options = BuildFakeRepositoryOptions(scd);
+
+            StringBuilder sb = new StringBuilder()
+                .AppendFormat("[Woot]{0}", Environment.NewLine)
+                .AppendFormat("this-rocks = global{0}", Environment.NewLine)
+                .AppendFormat("[Wow]{0}", Environment.NewLine)
+                .AppendFormat("Man-I-am-totally-global = 42{0}", Environment.NewLine);
+            File.WriteAllText(options.GlobalConfigurationLocation, sb.ToString());
+
+            sb = new StringBuilder()
+                .AppendFormat("[Woot]{0}", Environment.NewLine)
+                .AppendFormat("this-rocks = system{0}", Environment.NewLine);
+            File.WriteAllText(options.SystemConfigurationLocation, sb.ToString());
+
+            return options;
+        }
+
+        private RepositoryOptions BuildFakeRepositoryOptions(SelfCleaningDirectory scd)
+        {
+            string confs = Path.Combine(scd.DirectoryPath, "confs");
+            Directory.CreateDirectory(confs);
+
+            string globalLocation = Path.Combine(confs, "my-global-config");
+            string systemLocation = Path.Combine(confs, "my-system-config");
+
+            return new RepositoryOptions
+            {
+                GlobalConfigurationLocation = globalLocation,
+                SystemConfigurationLocation = systemLocation,
+            };
         }
     }
 }

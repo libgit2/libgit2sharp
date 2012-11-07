@@ -222,6 +222,12 @@ namespace LibGit2Sharp.Core
         internal static extern int git_config_new(out ConfigurationSafeHandle cfg);
 
         [DllImport(libgit2)]
+        internal static extern int git_config_open_level(
+            out ConfigurationSafeHandle cfg,
+            ConfigurationSafeHandle parent,
+            uint level);
+
+        [DllImport(libgit2)]
         internal static extern int git_config_open_ondisk(
             out ConfigurationSafeHandle cfg,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(FilePathMarshaler))] FilePath path);
