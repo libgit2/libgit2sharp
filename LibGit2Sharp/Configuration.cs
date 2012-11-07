@@ -92,6 +92,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Determines if a Git configuration file specific to the current interactive user has been found.
         /// </summary>
+        [Obsolete("This property will be removed in the next release. Please use HasConfig() instead.")]
         public virtual bool HasGlobalConfig
         {
             get { return HasConfig(ConfigurationLevel.Global); }
@@ -100,6 +101,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Determines if a system-wide Git configuration file has been found.
         /// </summary>
+        [Obsolete("This property will be removed in the next release. Please use HasConfig() instead.")]
         public virtual bool HasSystemConfig
         {
             get { return HasConfig(ConfigurationLevel.System); }
