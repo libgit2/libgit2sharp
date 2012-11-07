@@ -496,12 +496,12 @@ namespace LibGit2Sharp.Tests
                 AssertBlobContent(repo.Head[relativeFilepath], "nulltoken\n");
                 AssertBlobContent(commit[relativeFilepath], "nulltoken\n");
 
-                var name = repo.Config.Get<string>("user.name", null);
-                var email = repo.Config.Get<string>("user.email", null);
-                Assert.Equal(commit.Author.Name, name);
-                Assert.Equal(commit.Author.Email, email);
-                Assert.Equal(commit.Committer.Name, name);
-                Assert.Equal(commit.Committer.Email, email);
+                var name = repo.Config.Get<string>("user.name");
+                var email = repo.Config.Get<string>("user.email");
+                Assert.Equal(commit.Author.Name, name.Value);
+                Assert.Equal(commit.Author.Email, email.Value);
+                Assert.Equal(commit.Committer.Name, name.Value);
+                Assert.Equal(commit.Committer.Email, email.Value);
             }
         }
 
