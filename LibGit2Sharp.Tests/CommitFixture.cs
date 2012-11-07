@@ -479,7 +479,8 @@ namespace LibGit2Sharp.Tests
                 Assert.True(Path.IsPathRooted(dir));
                 Assert.True(Directory.Exists(dir));
 
-                InconclusiveIf(() => !repo.Config.HasGlobalConfig, "No Git global configuration available");
+                InconclusiveIf(() => !repo.Config.HasConfig(ConfigurationLevel.Global),
+                    "No Git global configuration available");
 
                 const string relativeFilepath = "new.txt";
                 string filePath = Path.Combine(repo.Info.WorkingDirectory, relativeFilepath);

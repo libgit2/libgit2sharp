@@ -90,19 +90,11 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Determines if there is a local repository level Git configuration file.
-        /// </summary>
-        private bool HasLocalConfig
-        {
-            get { return localHandle != null; }
-        }
-
-        /// <summary>
         ///   Determines if a Git configuration file specific to the current interactive user has been found.
         /// </summary>
         public virtual bool HasGlobalConfig
         {
-            get { return globalConfigPath != null; }
+            get { return HasConfig(ConfigurationLevel.Global); }
         }
 
         /// <summary>
@@ -110,7 +102,15 @@ namespace LibGit2Sharp
         /// </summary>
         public virtual bool HasSystemConfig
         {
-            get { return systemConfigPath != null; }
+            get { return HasConfig(ConfigurationLevel.System); }
+        }
+
+        /// <summary>
+        ///   Determines which configuration file has been found.
+        /// </summary>
+        public virtual bool HasConfig(ConfigurationLevel level)
+        {
+            return RetrieveConfigurationHandle(level, false) != null;
         }
 
         #region IDisposable Members
@@ -136,7 +136,7 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(key, "key");
 
-            ConfigurationSafeHandle h = RetrieveConfigurationHandle(level);
+            ConfigurationSafeHandle h = RetrieveConfigurationHandle(level, true);
 
             bool success = Proxy.git_config_delete(h, key);
 
@@ -412,7 +412,7 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(key, "key");
 
-            ConfigurationSafeHandle h = RetrieveConfigurationHandle(level);
+            ConfigurationSafeHandle h = RetrieveConfigurationHandle(level, true);
 
             if (!configurationTypedUpdater.ContainsKey(typeof(T)))
             {
@@ -423,42 +423,23 @@ namespace LibGit2Sharp
             Save();
         }
 
-        private ConfigurationSafeHandle RetrieveConfigurationHandle(ConfigurationLevel level)
+        private ConfigurationSafeHandle RetrieveConfigurationHandle(ConfigurationLevel level, bool throwIfStoreHasNotBeenFound)
         {
-            if (level == ConfigurationLevel.Local && !HasLocalConfig)
+            Func<Configuration, ConfigurationSafeHandle> handleRetriever;
+            if (!configurationHandleRetriever.TryGetValue(level, out handleRetriever))
             {
-                throw new LibGit2SharpException("No local configuration file has been found. You must use ConfigurationLevel.Global when accessing configuration outside of repository.");
+                throw new ArgumentException(
+                    string.Format(CultureInfo.InvariantCulture, "Configuration level has an unexpected value ('{0}').",
+                                  level), "level");
             }
 
-            if (level == ConfigurationLevel.Global && !HasGlobalConfig)
+            ConfigurationSafeHandle h = handleRetriever(this);
+
+            if (h == null && throwIfStoreHasNotBeenFound)
             {
-                throw new LibGit2SharpException("No global configuration file has been found.");
+                throw new LibGit2SharpException("No matching configuration file has been found.");
             }
 
-            if (level == ConfigurationLevel.System && !HasSystemConfig)
-            {
-                throw new LibGit2SharpException("No system configuration file has been found.");
-            }
-
-            ConfigurationSafeHandle h;
-
-            switch (level)
-            {
-                case ConfigurationLevel.Local:
-                    h = localHandle;
-                    break;
-
-                case ConfigurationLevel.Global:
-                    h = globalHandle;
-                    break;
-
-                case ConfigurationLevel.System:
-                    h = systemHandle;
-                    break;
-
-                default:
-                    throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "Configuration level has an unexpected value ('{0}').", level), "level");
-            }
             return h;
         }
 
@@ -467,12 +448,19 @@ namespace LibGit2Sharp
             return (key, val, handle) => setter(handle, key, (T)val);
         }
 
-        private readonly IDictionary<Type, Action<string, object, ConfigurationSafeHandle>> configurationTypedUpdater = new Dictionary<Type, Action<string, object, ConfigurationSafeHandle>>
+        private readonly static IDictionary<Type, Action<string, object, ConfigurationSafeHandle>> configurationTypedUpdater = new Dictionary<Type, Action<string, object, ConfigurationSafeHandle>>
         {
             { typeof(int), GetUpdater<int>(Proxy.git_config_set_int32) },
             { typeof(long), GetUpdater<long>(Proxy.git_config_set_int64) },
             { typeof(bool), GetUpdater<bool>(Proxy.git_config_set_bool) },
             { typeof(string), GetUpdater<string>(Proxy.git_config_set_string) },
+        };
+
+        private readonly static IDictionary<ConfigurationLevel, Func<Configuration, ConfigurationSafeHandle>> configurationHandleRetriever = new Dictionary<ConfigurationLevel, Func<Configuration, ConfigurationSafeHandle>>
+        {
+            { ConfigurationLevel.Local, cfg => cfg.localHandle },
+            { ConfigurationLevel.Global, cfg => cfg.globalHandle },
+            { ConfigurationLevel.System, cfg => cfg.systemHandle },
         };
 
         IEnumerator<ConfigurationEntry<string>> IEnumerable<ConfigurationEntry<String>>.GetEnumerator()
