@@ -311,11 +311,11 @@ namespace LibGit2Sharp.Core
 
         #region git_config_
 
-        public static void git_config_add_file_ondisk(ConfigurationSafeHandle config, FilePath path, uint level)
+        public static void git_config_add_file_ondisk(ConfigurationSafeHandle config, FilePath path, ConfigurationLevel level)
         {
             using (ThreadAffinity())
             {
-                int res = NativeMethods.git_config_add_file_ondisk(config, path, level, true);
+                int res = NativeMethods.git_config_add_file_ondisk(config, path, (uint)level, true);
                 Ensure.Success(res);
             }
         }
@@ -384,6 +384,24 @@ namespace LibGit2Sharp.Core
             {
                 ConfigurationSafeHandle handle;
                 int res = NativeMethods.git_config_new(out handle);
+                Ensure.Success(res);
+
+                return handle;
+            }
+        }
+
+        public static ConfigurationSafeHandle git_config_open_level(ConfigurationSafeHandle parent, ConfigurationLevel level)
+        {
+            using (ThreadAffinity())
+            {
+                ConfigurationSafeHandle handle;
+                int res = NativeMethods.git_config_open_level(out handle, parent, (uint)level);
+
+                if (res == (int)GitErrorCode.NotFound)
+                {
+                    return null;
+                }
+
                 Ensure.Success(res);
 
                 return handle;
