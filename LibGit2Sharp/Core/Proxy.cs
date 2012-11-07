@@ -358,68 +358,31 @@ namespace LibGit2Sharp.Core
             NativeMethods.git_config_free(config);
         }
 
-        public static bool? git_config_get_bool(ConfigurationSafeHandle config, string name)
+        public static ConfigurationEntry<T> git_config_get_entry<T>(ConfigurationSafeHandle config, string key)
         {
+            GitConfigEntryHandle handle;
+
+            if (!configurationParser.ContainsKey(typeof(T)))
+            {
+                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "Generic Argument of type '{0}' is not supported.", typeof(T).FullName));
+            }
+
             using (ThreadAffinity())
             {
-                bool value;
-                var res = NativeMethods.git_config_get_bool(out value, config, name);
+                var res = NativeMethods.git_config_get_entry(out handle, config, key);
                 if (res == (int)GitErrorCode.NotFound)
                 {
                     return null;
                 }
 
                 Ensure.Success(res);
-                return value;
             }
-        }
 
-        public static int? git_config_get_int32(ConfigurationSafeHandle config, string name)
-        {
-            using (ThreadAffinity())
-            {
-                int value;
-                var res = NativeMethods.git_config_get_int32(out value, config, name);
-                if (res == (int)GitErrorCode.NotFound)
-                {
-                    return null;
-                }
+            GitConfigEntry entry = handle.MarshalAsGitConfigEntry();
 
-                Ensure.Success(res);
-                return value;
-            }
-        }
-
-        public static long? git_config_get_int64(ConfigurationSafeHandle config, string name)
-        {
-            using (ThreadAffinity())
-            {
-                long value;
-                var res = NativeMethods.git_config_get_int64(out value, config, name);
-                if (res == (int)GitErrorCode.NotFound)
-                {
-                    return null;
-                }
-
-                Ensure.Success(res);
-                return value;
-            }
-        }
-
-        public static string git_config_get_string(ConfigurationSafeHandle config, string name)
-        {
-            using (ThreadAffinity())
-            {
-                string value;
-                var res = NativeMethods.git_config_get_string(out value, config, name);
-                if (res == (int)GitErrorCode.NotFound)
-                {
-                    return null;
-                }
-
-                Ensure.Success(res);
-                return value;
-            }
+            return new ConfigurationEntry<T>(Utf8Marshaler.FromNative(entry.namePtr),
+                (T)configurationParser[typeof(T)](Utf8Marshaler.FromNative(entry.valuePtr)),
+                (ConfigurationLevel)entry.level);
         }
 
         public static ConfigurationSafeHandle git_config_new()
@@ -443,6 +406,42 @@ namespace LibGit2Sharp.Core
                 Ensure.Success(res);
 
                 return handle;
+            }
+        }
+
+        public static bool git_config_parse_bool(string value)
+        {
+            using (ThreadAffinity())
+            {
+                bool outVal;
+                var res = NativeMethods.git_config_parse_bool(out outVal, value);
+
+                Ensure.Success(res);
+                return outVal;
+            }
+        }
+
+        public static int git_config_parse_int32(string value)
+        {
+            using (ThreadAffinity())
+            {
+                int outVal;
+                var res = NativeMethods.git_config_parse_int32(out outVal, value);
+
+                Ensure.Success(res);
+                return outVal;
+            }
+        }
+
+        public static long git_config_parse_int64(string value)
+        {
+            using (ThreadAffinity())
+            {
+                long outVal;
+                var res = NativeMethods.git_config_parse_int64(out outVal, value);
+
+                Ensure.Success(res);
+                return outVal;
             }
         }
 
@@ -1812,6 +1811,14 @@ namespace LibGit2Sharp.Core
                 Thread.EndThreadAffinity();
             }
         }
+
+        private static readonly IDictionary<Type, Func<string, object>> configurationParser = new Dictionary<Type, Func<string, object>>
+        {
+            { typeof(int), value => git_config_parse_int32(value) },
+            { typeof(long), value => git_config_parse_int64(value) },
+            { typeof(bool), value => git_config_parse_bool(value) },
+            { typeof(string), value => value },
+        };
     }
 }
 // ReSharper restore InconsistentNaming

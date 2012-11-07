@@ -173,15 +173,15 @@ namespace LibGit2Sharp
 
         private static Signature BuildSignatureFromGlobalConfiguration(IRepository repository, DateTimeOffset now)
         {
-            var name = repository.Config.Get<string>("user.name", null);
-            var email = repository.Config.Get<string>("user.email", null);
+            var name = repository.Config.Get<string>("user.name");
+            var email = repository.Config.Get<string>("user.email");
 
             if ((name == null) || (email == null))
             {
                 throw new LibGit2SharpException("Can not find Name and Email settings of the current user in Git configuration.");
             }
 
-            return new Signature(name, email, now);
+            return new Signature(name.Value, email.Value, now);
         }
     }
 }

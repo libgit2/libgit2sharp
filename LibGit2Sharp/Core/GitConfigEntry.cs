@@ -11,4 +11,3 @@ namespace LibGit2Sharp.Core
         public uint level;
     }
 }
-
