@@ -134,6 +134,8 @@ namespace LibGit2Sharp
         /// <param name = "level">The configuration file which should be considered as the target of this operation</param>
         public virtual void Unset(string key, ConfigurationLevel level = ConfigurationLevel.Local)
         {
+            Ensure.ArgumentNotNullOrEmptyString(key, "key");
+
             ConfigurationSafeHandle h = RetrieveConfigurationHandle(level);
 
             bool success = Proxy.git_config_delete(h, key);
@@ -152,6 +154,8 @@ namespace LibGit2Sharp
         [Obsolete("This method will be removed in the next release. Please use Unset() instead.")]
         public void Delete(string key, ConfigurationLevel level = ConfigurationLevel.Local)
         {
+            Ensure.ArgumentNotNullOrEmptyString(key, "key");
+
             Unset(key, level);
         }
 
@@ -221,8 +225,8 @@ namespace LibGit2Sharp
         [Obsolete("This method will be removed in the next release. Please use a different overload instead.")]        
         public virtual T Get<T>(string firstKeyPart, string secondKeyPart, T defaultValue)
         {
-            Ensure.ArgumentNotNull(firstKeyPart, "firstKeyPart");
-            Ensure.ArgumentNotNull(secondKeyPart, "secondKeyPart");
+            Ensure.ArgumentNotNullOrEmptyString(firstKeyPart, "firstKeyPart");
+            Ensure.ArgumentNotNullOrEmptyString(secondKeyPart, "secondKeyPart");
 
             return Get(new[] { firstKeyPart, secondKeyPart }, defaultValue);
         }
@@ -253,9 +257,9 @@ namespace LibGit2Sharp
         [Obsolete("This method will be removed in the next release. Please use a different overload instead.")]
         public virtual T Get<T>(string firstKeyPart, string secondKeyPart, string thirdKeyPart, T defaultValue)
         {
-            Ensure.ArgumentNotNull(firstKeyPart, "firstKeyPart");
-            Ensure.ArgumentNotNull(secondKeyPart, "secondKeyPart");
-            Ensure.ArgumentNotNull(thirdKeyPart, "secondKeyPart");
+            Ensure.ArgumentNotNullOrEmptyString(firstKeyPart, "firstKeyPart");
+            Ensure.ArgumentNotNullOrEmptyString(secondKeyPart, "secondKeyPart");
+            Ensure.ArgumentNotNullOrEmptyString(thirdKeyPart, "secondKeyPart");
 
             return Get(new[] { firstKeyPart, secondKeyPart, thirdKeyPart }, defaultValue);
         }
@@ -374,9 +378,9 @@ namespace LibGit2Sharp
         /// <returns>The <see cref="ConfigurationEntry{T}"/>, or null if not set</returns>
         public ConfigurationEntry<T> Get<T>(string firstKeyPart, string secondKeyPart, string thirdKeyPart)
         {
-            Ensure.ArgumentNotNull(firstKeyPart, "firstKeyPart");
-            Ensure.ArgumentNotNull(secondKeyPart, "secondKeyPart");
-            Ensure.ArgumentNotNull(thirdKeyPart, "secondKeyPart");
+            Ensure.ArgumentNotNullOrEmptyString(firstKeyPart, "firstKeyPart");
+            Ensure.ArgumentNotNullOrEmptyString(secondKeyPart, "secondKeyPart");
+            Ensure.ArgumentNotNullOrEmptyString(thirdKeyPart, "secondKeyPart");
 
             return Get<T>(new[] { firstKeyPart, secondKeyPart, thirdKeyPart });
         }
