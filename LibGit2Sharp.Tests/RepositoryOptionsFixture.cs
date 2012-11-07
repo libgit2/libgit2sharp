@@ -166,7 +166,7 @@ namespace LibGit2Sharp.Tests
 
             using (var repo = new Repository(BareTestRepoPath, options))
             {
-                Assert.True(repo.Config.HasGlobalConfig);
+                Assert.True(repo.Config.HasConfig(ConfigurationLevel.Global));
                 Assert.Equal(name, repo.Config.Get<string>("user.name").Value);
                 Assert.Equal(email, repo.Config.Get<string>("user.email").Value);
 
