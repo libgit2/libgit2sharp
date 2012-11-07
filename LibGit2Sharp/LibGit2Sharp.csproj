@@ -69,6 +69,7 @@
     <Compile Include="CommitLog.cs" />
     <Compile Include="Configuration.cs" />
     <Compile Include="ConfigurationEntry.cs" />
+    <Compile Include="ConfigurationExtensions.cs" />
     <Compile Include="ContentChanges.cs" />
     <Compile Include="Core\GitCheckoutOpts.cs" />
     <Compile Include="Core\GitConfigEntry.cs" />
