@@ -17,6 +17,7 @@ namespace LibGit2Sharp
         IEnumerable<ConfigurationEntry<string>>
     {
         private readonly FilePath globalConfigPath;
+        private readonly FilePath xdgConfigPath;
         private readonly FilePath systemConfigPath;
 
         private readonly Repository repository;
@@ -29,11 +30,13 @@ namespace LibGit2Sharp
         protected Configuration()
         { }
 
-        internal Configuration(Repository repository, string globalConfigurationFileLocation, string systemConfigurationFileLocation)
+        internal Configuration(Repository repository, string globalConfigurationFileLocation,
+            string xdgConfigurationFileLocation, string systemConfigurationFileLocation)
         {
             this.repository = repository;
 
             globalConfigPath = globalConfigurationFileLocation ?? Proxy.git_config_find_global();
+            xdgConfigPath = xdgConfigurationFileLocation ?? Proxy.git_config_find_xdg();
             systemConfigPath = systemConfigurationFileLocation ?? Proxy.git_config_find_system();
 
             Init();
@@ -60,6 +63,11 @@ namespace LibGit2Sharp
                 Proxy.git_config_add_file_ondisk(configHandle, globalConfigPath, ConfigurationLevel.Global);
             }
 
+            if (xdgConfigPath != null)
+            {
+                Proxy.git_config_add_file_ondisk(configHandle, xdgConfigPath, ConfigurationLevel.XDG);
+            }
+
             if (systemConfigPath != null)
             {
                 Proxy.git_config_add_file_ondisk(configHandle, systemConfigPath, ConfigurationLevel.System);
@@ -70,9 +78,10 @@ namespace LibGit2Sharp
         ///   Access configuration values without a repository. Generally you want to access configuration via an instance of <see cref = "Repository" /> instead.
         /// </summary>
         /// <param name="globalConfigurationFileLocation">Path to a Global configuration file. If null, the default path for a global configuration file will be probed.</param>
+        /// <param name="xdgConfigurationFileLocation">Path to a XDG configuration file. If null, the default path for a XDG configuration file will be probed.</param>
         /// <param name="systemConfigurationFileLocation">Path to a System configuration file. If null, the default path for a system configuration file will be probed.</param>
-        public Configuration(string globalConfigurationFileLocation = null, string systemConfigurationFileLocation = null)
-            : this(null, globalConfigurationFileLocation, systemConfigurationFileLocation)
+        public Configuration(string globalConfigurationFileLocation = null, string xdgConfigurationFileLocation = null, string systemConfigurationFileLocation = null)
+            : this(null, globalConfigurationFileLocation, xdgConfigurationFileLocation, systemConfigurationFileLocation)
         {
         }
 

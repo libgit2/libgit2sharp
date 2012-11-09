@@ -55,6 +55,7 @@ namespace LibGit2Sharp
             Func<Index> indexBuilder = () => new Index(this);
 
             string configurationGlobalFilePath = null;
+            string configurationXDGFilePath = null;
             string configurationSystemFilePath = null;
 
             if (options != null)
@@ -80,6 +81,7 @@ namespace LibGit2Sharp
                 }
 
                 configurationGlobalFilePath = options.GlobalConfigurationLocation;
+                configurationXDGFilePath = options.XDGConfigurationLocation;
                 configurationSystemFilePath = options.SystemConfigurationLocation;
             }
 
@@ -93,7 +95,7 @@ namespace LibGit2Sharp
             branches = new BranchCollection(this);
             tags = new TagCollection(this);
             info = new Lazy<RepositoryInformation>(() => new RepositoryInformation(this, isBare));
-            config = new Lazy<Configuration>(() => RegisterForCleanup(new Configuration(this, configurationGlobalFilePath, configurationSystemFilePath)));
+            config = new Lazy<Configuration>(() => RegisterForCleanup(new Configuration(this, configurationGlobalFilePath, configurationXDGFilePath, configurationSystemFilePath)));
             remotes = new Lazy<RemoteCollection>(() => new RemoteCollection(this));
             odb = new Lazy<ObjectDatabase>(() => new ObjectDatabase(this));
             diff = new Diff(this);

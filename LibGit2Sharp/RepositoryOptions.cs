@@ -36,6 +36,15 @@
         public string GlobalConfigurationLocation { get; set; }
 
         /// <summary>
+        ///   Overrides the probed location of the XDG configuration file of a repository.
+        ///   <para>
+        ///     The path has either to lead to an existing valid configuration file,
+        ///     or to a non existent configuration file which will be eventually created.
+        ///   </para>
+        /// </summary>
+        public string XDGConfigurationLocation { get; set; }
+
+        /// <summary>
         ///   Overrides the probed location of the System configuration file of a repository.
         ///   <para>
         ///     The path has to lead to an existing valid configuration file,
