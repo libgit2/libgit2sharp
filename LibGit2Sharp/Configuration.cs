@@ -154,6 +154,15 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Get a configuration value for a key. Keys are in the form 'section.name'.
         ///   <para>
+        ///      The same escalation logic than in git.git will be used when looking for the key in the config files:
+        ///         - local: the Git file in the current repository
+        ///         - global: the Git file specific to the current interactive user (usually in `$HOME/.gitconfig`)
+        ///         - XDG: another Git file specific to the current interactive user (usually in `$HOME/.config/git/config`)
+        ///         - system: the system-wide Git file
+        ///
+        ///     The first occurence of the key will be returned.
+        ///   </para>
+        ///   <para>
         ///     For example in  order to get the value for this in a .git\config file:
         /// 
         ///     <code>
