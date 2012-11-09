@@ -203,29 +203,14 @@ namespace LibGit2Sharp.Core
         internal static extern int git_config_find_system(byte[] system_config_path, uint length);
 
         [DllImport(libgit2)]
+        internal static extern int git_config_find_xdg(byte[] xdg_config_path, uint length);
+
+        [DllImport(libgit2)]
         internal static extern void git_config_free(IntPtr cfg);
 
         [DllImport(libgit2)]
-        internal static extern int git_config_get_bool(
-            [MarshalAs(UnmanagedType.Bool)] out bool value,
-            ConfigurationSafeHandle cfg,
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string name);
-
-        [DllImport(libgit2)]
-        internal static extern int git_config_get_int32(
-            out int value,
-            ConfigurationSafeHandle cfg,
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string name);
-
-        [DllImport(libgit2)]
-        internal static extern int git_config_get_int64(
-            out long value,
-            ConfigurationSafeHandle cfg,
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string name);
-
-        [DllImport(libgit2)]
-        internal static extern int git_config_get_string(
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] out string value,
+        internal static extern int git_config_get_config_entry(
+            out GitConfigEntryHandle entry,
             ConfigurationSafeHandle cfg,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string name);
 
@@ -240,9 +225,30 @@ namespace LibGit2Sharp.Core
         internal static extern int git_config_new(out ConfigurationSafeHandle cfg);
 
         [DllImport(libgit2)]
+        internal static extern int git_config_open_level(
+            out ConfigurationSafeHandle cfg,
+            ConfigurationSafeHandle parent,
+            uint level);
+
+        [DllImport(libgit2)]
         internal static extern int git_config_open_ondisk(
             out ConfigurationSafeHandle cfg,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(FilePathMarshaler))] FilePath path);
+
+        [DllImport(libgit2)]
+        internal static extern int git_config_parse_bool(
+            [MarshalAs(UnmanagedType.Bool)] out bool value,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string valueToParse);
+
+        [DllImport(libgit2)]
+        internal static extern int git_config_parse_int32(
+            [MarshalAs(UnmanagedType.I4)] out int value,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string valueToParse);
+
+        [DllImport(libgit2)]
+        internal static extern int git_config_parse_int64(
+            [MarshalAs(UnmanagedType.I8)] out long value,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string valueToParse);
 
         [DllImport(libgit2)]
         internal static extern int git_config_set_bool(

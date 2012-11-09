@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Handles;
@@ -11,16 +12,17 @@ namespace LibGit2Sharp
     /// <summary>
     ///   Provides access to configuration variables for a repository.
     /// </summary>
-    public class Configuration : IDisposable, IEnumerable<ConfigurationEntry>
+    public class Configuration : IDisposable,
+        IEnumerable<ConfigurationEntry>,
+        IEnumerable<ConfigurationEntry<string>>
     {
         private readonly FilePath globalConfigPath;
+        private readonly FilePath xdgConfigPath;
         private readonly FilePath systemConfigPath;
 
         private readonly Repository repository;
 
-        private ConfigurationSafeHandle systemHandle;
-        private ConfigurationSafeHandle globalHandle;
-        private ConfigurationSafeHandle localHandle;
+        private ConfigurationSafeHandle configHandle;
 
         /// <summary>
         ///   Needed for mocking purposes.
@@ -28,11 +30,13 @@ namespace LibGit2Sharp
         protected Configuration()
         { }
 
-        internal Configuration(Repository repository, string globalConfigurationFileLocation, string systemConfigurationFileLocation)
+        internal Configuration(Repository repository, string globalConfigurationFileLocation,
+            string xdgConfigurationFileLocation, string systemConfigurationFileLocation)
         {
             this.repository = repository;
 
             globalConfigPath = globalConfigurationFileLocation ?? Proxy.git_config_find_global();
+            xdgConfigPath = xdgConfigurationFileLocation ?? Proxy.git_config_find_xdg();
             systemConfigPath = systemConfigurationFileLocation ?? Proxy.git_config_find_system();
 
             Init();
@@ -40,39 +44,33 @@ namespace LibGit2Sharp
 
         private void Init()
         {
+            configHandle = Proxy.git_config_new();
+
             if (repository != null)
             {
                 //TODO: push back this logic into libgit2. 
                 // As stated by @carlosmn "having a helper function to load the defaults and then allowing you
                 // to modify it before giving it to git_repository_open_ext() would be a good addition, I think."
                 //  -- Agreed :)
-
-                localHandle = Proxy.git_config_new();
-
                 string repoConfigLocation = Path.Combine(repository.Info.Path, "config");
-                Proxy.git_config_add_file_ondisk(localHandle, repoConfigLocation, 3);
+                Proxy.git_config_add_file_ondisk(configHandle, repoConfigLocation, ConfigurationLevel.Local);
 
-                if (globalConfigPath != null)
-                {
-                    Proxy.git_config_add_file_ondisk(localHandle, globalConfigPath, 2);
-                }
-
-                if (systemConfigPath != null)
-                {
-                    Proxy.git_config_add_file_ondisk(localHandle, systemConfigPath, 1);
-                }
-
-                Proxy.git_repository_set_config(repository.Handle, localHandle);
+                Proxy.git_repository_set_config(repository.Handle, configHandle);
             }
 
             if (globalConfigPath != null)
             {
-                globalHandle = Proxy.git_config_open_ondisk(globalConfigPath);
+                Proxy.git_config_add_file_ondisk(configHandle, globalConfigPath, ConfigurationLevel.Global);
+            }
+
+            if (xdgConfigPath != null)
+            {
+                Proxy.git_config_add_file_ondisk(configHandle, xdgConfigPath, ConfigurationLevel.XDG);
             }
 
             if (systemConfigPath != null)
             {
-                systemHandle = Proxy.git_config_open_ondisk(systemConfigPath);
+                Proxy.git_config_add_file_ondisk(configHandle, systemConfigPath, ConfigurationLevel.System);
             }
         }
 
@@ -80,39 +78,40 @@ namespace LibGit2Sharp
         ///   Access configuration values without a repository. Generally you want to access configuration via an instance of <see cref = "Repository" /> instead.
         /// </summary>
         /// <param name="globalConfigurationFileLocation">Path to a Global configuration file. If null, the default path for a global configuration file will be probed.</param>
+        /// <param name="xdgConfigurationFileLocation">Path to a XDG configuration file. If null, the default path for a XDG configuration file will be probed.</param>
         /// <param name="systemConfigurationFileLocation">Path to a System configuration file. If null, the default path for a system configuration file will be probed.</param>
-        public Configuration(string globalConfigurationFileLocation = null, string systemConfigurationFileLocation = null)
-            : this(null, globalConfigurationFileLocation, systemConfigurationFileLocation)
+        public Configuration(string globalConfigurationFileLocation = null, string xdgConfigurationFileLocation = null, string systemConfigurationFileLocation = null)
+            : this(null, globalConfigurationFileLocation, xdgConfigurationFileLocation, systemConfigurationFileLocation)
         {
-        }
-
-        /// <summary>
-        ///   Determines if there is a local repository level Git configuration file.
-        /// </summary>
-        private bool HasLocalConfig
-        {
-            get { return localHandle != null; }
         }
 
         /// <summary>
         ///   Determines if a Git configuration file specific to the current interactive user has been found.
         /// </summary>
+        [Obsolete("This property will be removed in the next release. Please use HasConfig() instead.")]
         public virtual bool HasGlobalConfig
         {
-            get { return globalConfigPath != null; }
+            get { return HasConfig(ConfigurationLevel.Global); }
         }
 
         /// <summary>
         ///   Determines if a system-wide Git configuration file has been found.
         /// </summary>
+        [Obsolete("This property will be removed in the next release. Please use HasConfig() instead.")]
         public virtual bool HasSystemConfig
         {
-            get { return systemConfigPath != null; }
+            get { return HasConfig(ConfigurationLevel.System); }
         }
 
-        internal ConfigurationSafeHandle LocalHandle
+        /// <summary>
+        ///   Determines which configuration file has been found.
+        /// </summary>
+        public virtual bool HasConfig(ConfigurationLevel level)
         {
-            get { return localHandle; }
+            using (ConfigurationSafeHandle handle = RetrieveConfigurationHandle(level, false))
+            {
+                return handle != null;
+            }
         }
 
         #region IDisposable Members
@@ -136,25 +135,12 @@ namespace LibGit2Sharp
         /// <param name = "level">The configuration file which should be considered as the target of this operation</param>
         public virtual void Unset(string key, ConfigurationLevel level = ConfigurationLevel.Local)
         {
-            ConfigurationSafeHandle h = RetrieveConfigurationHandle(level);
+            Ensure.ArgumentNotNullOrEmptyString(key, "key");
 
-            bool success = Proxy.git_config_delete(h, key);
-
-            if (success)
+            using (ConfigurationSafeHandle h = RetrieveConfigurationHandle(level, true))
             {
-                Save();
+                Proxy.git_config_delete(h, key);
             }
-        }
-
-        /// <summary>
-        ///   Delete a configuration variable (key and value).
-        /// </summary>
-        /// <param name = "key">The key to delete.</param>
-        /// <param name = "level">The configuration file which should be considered as the target of this operation</param>
-        [Obsolete("This method will be removed in the next release. Please use Unset() instead.")]
-        public void Delete(string key, ConfigurationLevel level = ConfigurationLevel.Local)
-        {
-            Unset(key, level);
         }
 
         /// <summary>
@@ -162,13 +148,20 @@ namespace LibGit2Sharp
         /// </summary>
         protected virtual void Dispose(bool disposing)
         {
-            localHandle.SafeDispose();
-            globalHandle.SafeDispose();
-            systemHandle.SafeDispose();
+            configHandle.SafeDispose();
         }
 
         /// <summary>
         ///   Get a configuration value for a key. Keys are in the form 'section.name'.
+        ///   <para>
+        ///      The same escalation logic than in git.git will be used when looking for the key in the config files:
+        ///         - local: the Git file in the current repository
+        ///         - global: the Git file specific to the current interactive user (usually in `$HOME/.gitconfig`)
+        ///         - XDG: another Git file specific to the current interactive user (usually in `$HOME/.config/git/config`)
+        ///         - system: the system-wide Git file
+        ///
+        ///     The first occurence of the key will be returned.
+        ///   </para>
         ///   <para>
         ///     For example in  order to get the value for this in a .git\config file:
         /// 
@@ -180,98 +173,24 @@ namespace LibGit2Sharp
         ///     You would call:
         /// 
         ///     <code>
-        ///     bool isBare = repo.Config.Get&lt;bool&gt;("core.bare", false);
+        ///     bool isBare = repo.Config.Get&lt;bool&gt;("core.bare").Value;
         ///     </code>
         ///   </para>
         /// </summary>
         /// <typeparam name = "T">The configuration value type</typeparam>
         /// <param name = "key">The key</param>
-        /// <param name = "defaultValue">The default value</param>
-        /// <returns>The configuration value, or <c>defaultValue</c> if not set</returns>
-        public virtual T Get<T>(string key, T defaultValue)
+        /// <returns>The <see cref="ConfigurationEntry{T}"/>, or null if not set</returns>
+        public ConfigurationEntry<T> Get<T>(string key)
         {
             Ensure.ArgumentNotNullOrEmptyString(key, "key");
 
-            if (!configurationTypedRetriever.ContainsKey(typeof(T)))
-            {
-                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "Generic Argument of type '{0}' is not supported.", typeof(T).FullName));
-            }
-
-            ConfigurationSafeHandle handle = (LocalHandle ?? globalHandle) ?? systemHandle;
-            if (handle == null)
-            {
-                throw new LibGit2SharpException("Could not find a local, global or system level configuration.");
-            }
-
-            return (T)configurationTypedRetriever[typeof(T)](key, defaultValue, handle);
+            return Proxy.git_config_get_config_entry<T>(configHandle, key);
         }
 
         /// <summary>
         ///   Get a configuration value for a key. Keys are in the form 'section.name'.
         ///   <para>
         ///     For example in  order to get the value for this in a .git\config file:
-        /// 
-        ///     <code>
-        ///     [core]
-        ///     bare = true
-        ///     </code>
-        /// 
-        ///     You would call:
-        /// 
-        ///     <code>
-        ///     bool isBare = repo.Config.Get&lt;bool&gt;("core", "bare", false);
-        ///     </code>
-        ///   </para>
-        /// </summary>
-        /// <typeparam name = "T">The configuration value type</typeparam>
-        /// <param name = "firstKeyPart">The first key part</param>
-        /// <param name = "secondKeyPart">The second key part</param>
-        /// <param name = "defaultValue">The default value</param>
-        /// <returns>The configuration value, or <c>defaultValue</c> if not set</returns>
-        public virtual T Get<T>(string firstKeyPart, string secondKeyPart, T defaultValue)
-        {
-            Ensure.ArgumentNotNull(firstKeyPart, "firstKeyPart");
-            Ensure.ArgumentNotNull(secondKeyPart, "secondKeyPart");
-
-            return Get(new[] { firstKeyPart, secondKeyPart }, defaultValue);
-        }
-
-        /// <summary>
-        ///   Get a configuration value for the given key parts.
-        ///   <para>
-        ///     For example in order to get the value for this in a .git\config file:
-        ///
-        ///     <code>
-        ///     [difftool "kdiff3"]
-        ///       path = c:/Program Files/KDiff3/kdiff3.exe
-        ///     </code>
-        ///
-        ///     You would call:
-        ///
-        ///     <code>
-        ///     string where = repo.Config.Get&lt;string&gt;("difftool", "kdiff3", "path", null);
-        ///     </code>
-        ///   </para>
-        /// </summary>
-        /// <typeparam name = "T">The configuration value type</typeparam>
-        /// <param name = "firstKeyPart">The first key part</param>
-        /// <param name = "secondKeyPart">The second key part</param>
-        /// <param name = "thirdKeyPart">The third key part</param>
-        /// <param name = "defaultValue">The default value</param>
-        /// <returns>The configuration value, or <c>defaultValue</c> if not set</returns>
-        public virtual T Get<T>(string firstKeyPart, string secondKeyPart, string thirdKeyPart, T defaultValue)
-        {
-            Ensure.ArgumentNotNull(firstKeyPart, "firstKeyPart");
-            Ensure.ArgumentNotNull(secondKeyPart, "secondKeyPart");
-            Ensure.ArgumentNotNull(thirdKeyPart, "secondKeyPart");
-
-            return Get(new[] { firstKeyPart, secondKeyPart, thirdKeyPart }, defaultValue);
-        }
-
-        /// <summary>
-        ///   Get a configuration value for the given key parts.
-        ///   <para>
-        ///     For example in order to get the value for this in a .git\config file:
         ///
         ///     <code>
         ///     [core]
@@ -281,25 +200,27 @@ namespace LibGit2Sharp
         ///     You would call:
         ///
         ///     <code>
-        ///     bool isBare = repo.Config.Get&lt;bool&gt;(new []{ "core", "bare" }, false);
+        ///     bool isBare = repo.Config.Get&lt;bool&gt;("core.bare").Value;
         ///     </code>
         ///   </para>
         /// </summary>
         /// <typeparam name = "T">The configuration value type</typeparam>
-        /// <param name = "keyParts">The key parts</param>
-        /// <param name = "defaultValue">The default value</param>
-        /// <returns>The configuration value, or <c>defaultValue</c> if not set</returns>
-        public virtual T Get<T>(string[] keyParts, T defaultValue)
+        /// <param name = "key">The key</param>
+        /// <param name = "level">The configuration file into which the key should be searched for</param>
+        /// <returns>The <see cref="ConfigurationEntry{T}"/>, or null if not set</returns>
+        public ConfigurationEntry<T> Get<T>(string key, ConfigurationLevel level)
         {
-            Ensure.ArgumentNotNull(keyParts, "keyParts");
+            Ensure.ArgumentNotNullOrEmptyString(key, "key");
 
-            return Get(string.Join(".", keyParts), defaultValue);
-        }
+            using (ConfigurationSafeHandle handle = RetrieveConfigurationHandle(level, false))
+            {
+                if (handle == null)
+                {
+                    return null;
+                }
 
-        private void Save()
-        {
-            Dispose(true);
-            Init();
+                return Proxy.git_config_get_config_entry<T>(handle, key);
+            }
         }
 
         /// <summary>
@@ -317,90 +238,45 @@ namespace LibGit2Sharp
         /// </summary>
         /// <typeparam name = "T">The configuration value type</typeparam>
         /// <param name = "key">The key parts</param>
-        /// <param name = "value">The default value</param>
+        /// <param name = "value">The value</param>
         /// <param name = "level">The configuration file which should be considered as the target of this operation</param>
         public virtual void Set<T>(string key, T value, ConfigurationLevel level = ConfigurationLevel.Local)
         {
             Ensure.ArgumentNotNullOrEmptyString(key, "key");
 
-            ConfigurationSafeHandle h = RetrieveConfigurationHandle(level);
-
-            if (!configurationTypedUpdater.ContainsKey(typeof(T)))
+            using (ConfigurationSafeHandle h = RetrieveConfigurationHandle(level, true))
             {
-                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "Generic Argument of type '{0}' is not supported.", typeof(T).FullName));
-            }
-
-            configurationTypedUpdater[typeof(T)](key, value, h);
-            Save();
-        }
-
-        private ConfigurationSafeHandle RetrieveConfigurationHandle(ConfigurationLevel level)
-        {
-            if (level == ConfigurationLevel.Local && !HasLocalConfig)
-            {
-                throw new LibGit2SharpException("No local configuration file has been found. You must use ConfigurationLevel.Global when accessing configuration outside of repository.");
-            }
-
-            if (level == ConfigurationLevel.Global && !HasGlobalConfig)
-            {
-                throw new LibGit2SharpException("No global configuration file has been found.");
-            }
-
-            if (level == ConfigurationLevel.System && !HasSystemConfig)
-            {
-                throw new LibGit2SharpException("No system configuration file has been found.");
-            }
-
-            ConfigurationSafeHandle h;
-
-            switch (level)
-            {
-                case ConfigurationLevel.Local:
-                    h = localHandle;
-                    break;
-
-                case ConfigurationLevel.Global:
-                    h = globalHandle;
-                    break;
-
-                case ConfigurationLevel.System:
-                    h = systemHandle;
-                    break;
-
-                default:
-                    throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "Configuration level has an unexpected value ('{0}').", level), "level");
-            }
-            return h;
-        }
-
-        private static Func<string, object, ConfigurationSafeHandle, object> GetRetriever<T>(Func<ConfigurationSafeHandle, string, T> getter)
-        {
-            return (key, defaultValue, handle) =>
+                if (!configurationTypedUpdater.ContainsKey(typeof(T)))
                 {
-                    T value = getter(handle, key);
-                    if (Equals(value, default(T)))
-                    {
-                        return defaultValue;
-                    }
+                    throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "Generic Argument of type '{0}' is not supported.", typeof(T).FullName));
+                }
 
-                    return value;
-                };
+                configurationTypedUpdater[typeof(T)](key, value, h);
+            }
         }
 
-        private readonly IDictionary<Type, Func<string, object, ConfigurationSafeHandle, object>> configurationTypedRetriever = new Dictionary<Type, Func<string, object, ConfigurationSafeHandle, object>>
+        private ConfigurationSafeHandle RetrieveConfigurationHandle(ConfigurationLevel level, bool throwIfStoreHasNotBeenFound)
         {
-            { typeof(int), GetRetriever(Proxy.git_config_get_int32) },
-            { typeof(long), GetRetriever(Proxy.git_config_get_int64) },
-            { typeof(bool), GetRetriever(Proxy.git_config_get_bool) },
-            { typeof(string), GetRetriever(Proxy.git_config_get_string) },
-        };
+            ConfigurationSafeHandle handle = null;
+            if (configHandle != null)
+            {
+                handle = Proxy.git_config_open_level(configHandle, level);
+            }
+
+            if (handle == null && throwIfStoreHasNotBeenFound)
+            {
+                throw new LibGit2SharpException("No matching configuration file has been found.");
+            }
+
+            return handle;
+        }
 
         private static Action<string, object, ConfigurationSafeHandle> GetUpdater<T>(Action<ConfigurationSafeHandle, string, T> setter)
         {
             return (key, val, handle) => setter(handle, key, (T)val);
         }
 
-        private readonly IDictionary<Type, Action<string, object, ConfigurationSafeHandle>> configurationTypedUpdater = new Dictionary<Type, Action<string, object, ConfigurationSafeHandle>>
+        private readonly static IDictionary<Type, Action<string, object, ConfigurationSafeHandle>> configurationTypedUpdater = new Dictionary<Type, Action<string, object, ConfigurationSafeHandle>>
         {
             { typeof(int), GetUpdater<int>(Proxy.git_config_set_int32) },
             { typeof(long), GetUpdater<long>(Proxy.git_config_set_int64) },
@@ -408,22 +284,32 @@ namespace LibGit2Sharp
             { typeof(string), GetUpdater<string>(Proxy.git_config_set_string) },
         };
 
+        IEnumerator<ConfigurationEntry<string>> IEnumerable<ConfigurationEntry<String>>.GetEnumerator()
+        {
+            return BuildConfigEntries().Cast<ConfigurationEntry<string>>().GetEnumerator();
+        }
+
+        [Obsolete("This method will be removed in the next release. Please use a different overload instead.")]
         IEnumerator<ConfigurationEntry> IEnumerable<ConfigurationEntry>.GetEnumerator()
         {
-            return Proxy.git_config_foreach(LocalHandle, 
-                (entryPtr) =>
-                    {
-                        var entry = (GitConfigEntry)Marshal.PtrToStructure(entryPtr, typeof(GitConfigEntry));
-                        return new ConfigurationEntry(Utf8Marshaler.FromNative(entry.namePtr),
-                                                      Utf8Marshaler.FromNative(entry.valuePtr),
-                                                      (ConfigurationLevel) entry.level);
-                    })
-                .GetEnumerator();
+            return BuildConfigEntries().GetEnumerator();
         }
 
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
         {
-            return ((IEnumerable<ConfigurationEntry>)this).GetEnumerator();
+            return ((IEnumerable<ConfigurationEntry<string>>)this).GetEnumerator();
+        }
+
+        private ICollection<ConfigurationEntry> BuildConfigEntries()
+        {
+            return Proxy.git_config_foreach(configHandle, entryPtr =>
+            {
+                var entry = (GitConfigEntry)Marshal.PtrToStructure(entryPtr, typeof(GitConfigEntry));
+
+                return new ConfigurationEntry(Utf8Marshaler.FromNative(entry.namePtr),
+                                              Utf8Marshaler.FromNative(entry.valuePtr),
+                                              (ConfigurationLevel)entry.level);
+            });
         }
     }
 }
