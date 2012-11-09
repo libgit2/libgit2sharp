@@ -146,6 +146,7 @@ namespace LibGit2Sharp.Tests
         public void CanProvideDifferentConfigurationFilesToARepository()
         {
             string globalLocation = Path.Combine(newWorkdir, "my-global-config");
+            string xdgLocation = Path.Combine(newWorkdir, "my-xdg-config");
             string systemLocation = Path.Combine(newWorkdir, "my-system-config");
 
             const string name = "Adam 'aroben' Roben";
@@ -158,9 +159,11 @@ namespace LibGit2Sharp.Tests
 
             File.WriteAllText(globalLocation, sb.ToString());
             File.WriteAllText(systemLocation, string.Empty);
+            File.WriteAllText(xdgLocation, string.Empty);
 
             var options = new RepositoryOptions {
                 GlobalConfigurationLocation = globalLocation,
+                XDGConfigurationLocation = xdgLocation,
                 SystemConfigurationLocation = systemLocation,
             };
 
@@ -170,6 +173,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(name, repo.Config.Get<string>("user.name").Value);
                 Assert.Equal(email, repo.Config.Get<string>("user.email").Value);
 
+                repo.Config.Set("xdg.setting", "https://twitter.com/libgit2sharp", ConfigurationLevel.XDG);
                 repo.Config.Set("help.link", "https://twitter.com/xpaulbettsx/status/205761932626636800", ConfigurationLevel.System);
             }
 
