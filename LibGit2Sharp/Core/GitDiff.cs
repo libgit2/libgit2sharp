@@ -76,6 +76,7 @@ namespace LibGit2Sharp.Core
         public IntPtr NewPrefixString;
 
         public GitStrArrayIn PathSpec;
+        public ulong MaxSize;
 
         public void Dispose()
         {
