@@ -399,6 +399,41 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        /// Clone with specified options.
+        /// </summary>
+        /// <param name="sourceUrl">URI for the remote repository</param>
+        /// <param name="workdirPath">Local path to clone into</param>
+        /// <param name="bare">True will result in a bare clone, false a full clone.</param>
+        /// <param name="checkout">If true, the origin's HEAD will be checked out. This only applies
+        /// to non-bare repositories.</param>
+        /// <param name="onTransferProgress">Handler for progress information</param>
+        /// <returns></returns>
+        public static Repository Clone(string sourceUrl, string workdirPath,
+            bool bare = false,
+            bool checkout = true,
+            TransferProgressHandler onTransferProgress = null)
+        {
+            GitCheckoutOpts nativeOpts = null;
+            if (checkout)
+            {
+                nativeOpts = new GitCheckoutOpts
+                                 {
+                                     checkout_strategy = CheckoutStrategy.GIT_CHECKOUT_CREATE_MISSING
+                                 };
+            }
+
+            NativeMethods.git_transfer_progress_callback cb =
+                TransferCallbacks.GenerateCallback(onTransferProgress);
+
+            RepositorySafeHandle repo = bare
+                                            ? Proxy.git_clone_bare(sourceUrl, workdirPath, cb)
+                                            : Proxy.git_clone(sourceUrl, workdirPath, cb, nativeOpts);
+            repo.SafeDispose();
+
+            return new Repository(workdirPath);
+        }
+
+        /// <summary>
         ///   Checkout the specified <see cref = "Branch" />, reference or SHA.
         /// </summary>
         /// <param name = "commitOrBranchSpec">A revparse spec for the commit or branch to checkout.</param>

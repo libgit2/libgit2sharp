@@ -155,6 +155,23 @@ namespace LibGit2Sharp.Core
             GitCheckoutOpts opts);
 
         [DllImport(libgit2)]
+        internal static extern int git_clone(
+            out RepositorySafeHandle repo,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string origin_url,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(FilePathMarshaler))] FilePath workdir_path,
+            git_transfer_progress_callback transfer_callback,
+            IntPtr transfer_payload,
+            GitCheckoutOpts checkout_opts);
+
+        [DllImport(libgit2)]
+        internal static extern int git_clone_bare(
+            out RepositorySafeHandle repo,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string url,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(FilePathMarshaler))] FilePath destination,
+            git_transfer_progress_callback transfer_callback,
+            IntPtr transfer_payload);
+
+        [DllImport(libgit2)]
         internal static extern IntPtr git_commit_author(GitObjectSafeHandle commit);
 
         [DllImport(libgit2)]
