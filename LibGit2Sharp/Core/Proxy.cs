@@ -190,6 +190,39 @@ namespace LibGit2Sharp.Core
 
         #endregion
 
+        #region git_clone_
+
+        public static RepositorySafeHandle git_clone(
+            string url,
+            string workdir,
+            NativeMethods.git_transfer_progress_callback transfer_cb,
+            GitCheckoutOpts checkoutOptions)
+        {
+            using (ThreadAffinity())
+            {
+                RepositorySafeHandle repo;
+                int res = NativeMethods.git_clone(out repo, url, workdir, transfer_cb, IntPtr.Zero, checkoutOptions);
+                Ensure.Success(res);
+                return repo;
+            }
+        }
+
+        public static RepositorySafeHandle git_clone_bare(
+            string url,
+            string workdir,
+            NativeMethods.git_transfer_progress_callback transfer_cb)
+        {
+            using (ThreadAffinity())
+            {
+                RepositorySafeHandle repo;
+                int res = NativeMethods.git_clone_bare(out repo, url, workdir, transfer_cb, IntPtr.Zero);
+                Ensure.Success(res);
+                return repo;
+            }
+        }
+
+        #endregion
+
         #region git_commit_
 
         public static Signature git_commit_author(GitObjectSafeHandle obj)
