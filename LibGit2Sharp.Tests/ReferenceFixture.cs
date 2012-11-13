@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
+using Xunit.Extensions;
 
 namespace LibGit2Sharp.Tests
 {
@@ -664,6 +665,21 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(4, repo.Refs.FromGlob("refs/tags/*").Count());
                 Assert.Equal(3, repo.Refs.FromGlob("*t?[pqrs]t*").Count());
                 Assert.Equal(0, repo.Refs.FromGlob("test").Count());
+            }
+        }
+
+        [Theory]
+        [InlineData("refs/heads/master", true)]
+        [InlineData("no_lowercase_as_first_level", false)]
+        [InlineData("ALL_CAPS_AND_UNDERSCORE", true)]
+        [InlineData("refs/stash", true)]
+        [InlineData("refs/heads/pmiossec-branch", true)]
+        [InlineData("refs/heads/pmiossec@{0}", false)]
+        public void CanTellIfAReferenceIsValid(string refname, bool expectedResult)
+        {
+            using (var repo = new Repository(BareTestRepoPath))
+            {
+                Assert.Equal(expectedResult, repo.Refs.IsValidName(refname));
             }
         }
     }

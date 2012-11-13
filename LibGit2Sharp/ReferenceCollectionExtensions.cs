@@ -19,7 +19,7 @@ namespace LibGit2Sharp
 
         private static RefState TryResolveReference(out Reference reference, ReferenceCollection refsColl, string canonicalName)
         {
-            if (!Proxy.git_reference_is_valid_name(canonicalName))
+            if (!refsColl.IsValidName(canonicalName))
             {
                 reference = null;
                 return RefState.DoesNotLookValid;
