@@ -523,15 +523,18 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
-        public void CallsTransferProgress()
+        public void CallsProgressCallbacks()
         {
-            bool wasCalled = false;
+            bool transferWasCalled = false;
+            bool checkoutWasCalled = false;
 
             var scd = BuildSelfCleaningDirectory();
             using (Repository repo = Repository.Clone(TestRepoUrl, scd.RootedDirectoryPath, 
-                onTransferProgress: (_) => wasCalled = true))
+                onTransferProgress: (_) => transferWasCalled = true,
+                onCheckoutProgress: (a,b,c) => checkoutWasCalled = true))
             {
-                Assert.True(wasCalled);
+                Assert.True(transferWasCalled);
+                Assert.True(checkoutWasCalled);
             }
         }
     }

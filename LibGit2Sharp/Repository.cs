@@ -406,20 +406,23 @@ namespace LibGit2Sharp
         /// <param name="bare">True will result in a bare clone, false a full clone.</param>
         /// <param name="checkout">If true, the origin's HEAD will be checked out. This only applies
         /// to non-bare repositories.</param>
-        /// <param name="onTransferProgress">Handler for progress information</param>
+        /// <param name="onTransferProgress">Handler for network transfer and indexing progress information</param>
+        /// <param name="onCheckoutProgress">Handler for checkout progress information</param>
         /// <returns></returns>
         public static Repository Clone(string sourceUrl, string workdirPath,
             bool bare = false,
             bool checkout = true,
-            TransferProgressHandler onTransferProgress = null)
+            TransferProgressHandler onTransferProgress = null,
+            CheckoutProgressHandler onCheckoutProgress = null)
         {
             GitCheckoutOpts nativeOpts = null;
             if (checkout)
             {
                 nativeOpts = new GitCheckoutOpts
-                                 {
-                                     checkout_strategy = CheckoutStrategy.GIT_CHECKOUT_CREATE_MISSING
-                                 };
+                    {
+                        checkout_strategy = CheckoutStrategy.GIT_CHECKOUT_CREATE_MISSING,
+                        ProgressCb = CheckoutCallbacks.GenerateCheckoutCallbacks(onCheckoutProgress),
+                    };
             }
 
             NativeMethods.git_transfer_progress_callback cb =
