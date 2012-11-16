@@ -76,6 +76,7 @@
     <Compile Include="SubmoduleFixture.cs" />
     <Compile Include="IgnoreFixture.cs" />
     <Compile Include="FetchHeadFixture.cs" />
+    <Compile Include="ArchiveFixture.cs" />
     <Compile Include="MergeFixture.cs" />
     <Compile Include="CleanFixture.cs" />
     <Compile Include="CurrentOperationFixture.cs" />
