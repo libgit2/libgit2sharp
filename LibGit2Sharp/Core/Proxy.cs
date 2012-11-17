@@ -1768,7 +1768,19 @@ namespace LibGit2Sharp.Core
             }
         }
 
-        private static IDisposable ThreadAffinity()
+        private static Func<IDisposable> ThreadAffinity = WithoutThreadAffinity;
+
+        internal static void EnableThreadAffinity()
+        {
+            ThreadAffinity = WithThreadAffinity;
+        }
+
+        private static IDisposable WithoutThreadAffinity()
+        {
+            return null;
+        }
+
+        private static IDisposable WithThreadAffinity()
         {
             return new DisposableThreadAffinityWrapper();
         }
