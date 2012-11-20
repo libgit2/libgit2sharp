@@ -504,6 +504,9 @@ namespace LibGit2Sharp.Core
         internal static extern int git_object_lookup(out GitObjectSafeHandle obj, RepositorySafeHandle repo, ref GitOid id, GitObjectType type);
 
         [DllImport(libgit2)]
+        internal static extern int git_object_peel(out GitObjectSafeHandle peeled, GitObjectSafeHandle obj, GitObjectType type);
+
+        [DllImport(libgit2)]
         internal static extern GitObjectType git_object_type(GitObjectSafeHandle obj);
 
         [DllImport(libgit2)]
