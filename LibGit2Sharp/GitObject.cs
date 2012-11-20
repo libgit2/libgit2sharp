@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Globalization;
 using LibGit2Sharp.Core;
+using LibGit2Sharp.Core.Handles;
 
 namespace LibGit2Sharp
 {
@@ -73,6 +74,19 @@ namespace LibGit2Sharp
                     return new Blob(repo, id);
                 default:
                     throw new LibGit2SharpException(string.Format(CultureInfo.InvariantCulture, "Unexpected type '{0}' for object '{1}'.", type, id));
+            }
+        }
+
+        internal Commit DereferenceToCommit(string identifier, bool throwsIfCanNotBeDereferencedToACommit)
+        {
+            using (GitObjectSafeHandle peeledHandle = Proxy.git_object_peel(repo.Handle, Id, GitObjectType.Commit, throwsIfCanNotBeDereferencedToACommit))
+            {
+                if (peeledHandle == null)
+                {
+                    return null;
+                }
+
+                return (Commit) BuildFrom(repo, Proxy.git_object_id(peeledHandle), GitObjectType.Commit, null);
             }
         }
 

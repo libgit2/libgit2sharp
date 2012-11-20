@@ -358,11 +358,28 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
-        public void CanEnumerateCommitsFromATagWhichDoesNotPointAtACommit()
+        public void CanEnumerateCommitsFromATagWhichPointsToABlob()
         {
             AssertEnumerationOfCommits(
                 repo => new Filter { Since = repo.Tags["point_to_blob"] },
                 new string[] { });
+        }
+
+        [Fact]
+        public void CanEnumerateCommitsFromATagWhichPointsToATree()
+        {
+            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(BareTestRepoPath);
+
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                string headTreeSha = repo.Head.Tip.Tree.Sha;
+
+                Tag tag = repo.ApplyTag("point_to_tree", headTreeSha);
+
+                AssertEnumerationOfCommitsInRepo(repo,
+                    r => new Filter { Since = tag },
+                    new string[] { });
+            }
         }
 
         private static void AssertEnumerationOfCommits(Func<Repository, Filter> filterBuilder, IEnumerable<string> abbrevIds)
