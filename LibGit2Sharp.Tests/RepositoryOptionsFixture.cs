@@ -157,6 +157,7 @@ namespace LibGit2Sharp.Tests
                 .AppendFormat("email = {0}{1}", email, Environment.NewLine);
 
             File.WriteAllText(globalLocation, sb.ToString());
+            File.WriteAllText(systemLocation, string.Empty);
 
             var options = new RepositoryOptions {
                 GlobalConfigurationLocation = globalLocation,

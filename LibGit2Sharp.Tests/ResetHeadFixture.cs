@@ -174,7 +174,7 @@ namespace LibGit2Sharp.Tests
                 names.Sort(StringComparer.Ordinal);
 
                 File.Delete(Path.Combine(repo.Info.WorkingDirectory, "README"));
-                File.WriteAllText(Path.Combine(repo.Info.WorkingDirectory, "WillBeRemoved.txt"), "content\n");
+                File.WriteAllText(Path.Combine(repo.Info.WorkingDirectory, "WillNotBeRemoved.txt"), "content\n");
 
                 Assert.True(names.Count > 4);
 
@@ -183,7 +183,7 @@ namespace LibGit2Sharp.Tests
                 names = new DirectoryInfo(repo.Info.WorkingDirectory).GetFileSystemInfos().Select(fsi => fsi.Name).ToList();
                 names.Sort(StringComparer.Ordinal);
 
-                Assert.Equal(new[] { ".git", "README", "branch_file.txt", "new.txt" }, names);
+                Assert.Equal(new[] { ".git", "README", "WillNotBeRemoved.txt", "branch_file.txt", "new.txt", "new_untracked_file.txt" }, names);
             }
         }
     }

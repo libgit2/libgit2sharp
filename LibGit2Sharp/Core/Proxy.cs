@@ -506,14 +506,15 @@ namespace LibGit2Sharp.Core
 
         public static DiffListSafeHandle git_diff_index_to_tree(
             RepositorySafeHandle repo,
-            GitDiffOptions options,
-            ObjectId oldTree)
+            IndexSafeHandle index,
+            ObjectId oldTree,
+            GitDiffOptions options)
         {
             using (ThreadAffinity())
             using (var osw = new ObjectSafeWrapper(oldTree, repo))
             {
                 DiffListSafeHandle diff;
-                int res = NativeMethods.git_diff_index_to_tree(repo, options, osw.ObjectPtr, out diff);
+                int res = NativeMethods.git_diff_index_to_tree(out diff, repo, osw.ObjectPtr, index, options);
                 Ensure.Success(res);
 
                 return diff;
@@ -545,16 +546,16 @@ namespace LibGit2Sharp.Core
 
         public static DiffListSafeHandle git_diff_tree_to_tree(
             RepositorySafeHandle repo,
-            GitDiffOptions options,
             ObjectId oldTree,
-            ObjectId newTree)
+            ObjectId newTree,
+            GitDiffOptions options)
         {
             using (ThreadAffinity())
             using (var osw1 = new ObjectSafeWrapper(oldTree, repo))
             using (var osw2 = new ObjectSafeWrapper(newTree, repo))
             {
                 DiffListSafeHandle diff;
-                int res = NativeMethods.git_diff_tree_to_tree(repo, options, osw1.ObjectPtr, osw2.ObjectPtr, out diff);
+                int res = NativeMethods.git_diff_tree_to_tree(out diff, repo, osw1.ObjectPtr, osw2.ObjectPtr, options);
                 Ensure.Success(res);
 
                 return diff;
@@ -563,12 +564,13 @@ namespace LibGit2Sharp.Core
 
         public static DiffListSafeHandle git_diff_workdir_to_index(
             RepositorySafeHandle repo,
+            IndexSafeHandle index,
             GitDiffOptions options)
         {
             using (ThreadAffinity())
             {
                 DiffListSafeHandle diff;
-                int res = NativeMethods.git_diff_workdir_to_index(repo, options, out diff);
+                int res = NativeMethods.git_diff_workdir_to_index(out diff, repo, index, options);
                 Ensure.Success(res);
 
                 return diff;
@@ -577,14 +579,14 @@ namespace LibGit2Sharp.Core
 
         public static DiffListSafeHandle git_diff_workdir_to_tree(
            RepositorySafeHandle repo,
-           GitDiffOptions options,
-           ObjectId oldTree)
+           ObjectId oldTree,
+           GitDiffOptions options)
         {
             using (ThreadAffinity())
             using (var osw = new ObjectSafeWrapper(oldTree, repo))
             {
                 DiffListSafeHandle diff;
-                int res = NativeMethods.git_diff_workdir_to_tree(repo, options, osw.ObjectPtr, out diff);
+                int res = NativeMethods.git_diff_workdir_to_tree(out diff, repo, osw.ObjectPtr, options);
                 Ensure.Success(res);
 
                 return diff;
@@ -1572,9 +1574,9 @@ namespace LibGit2Sharp.Core
             return NativeMethods.git_tag_target_oid(tag).MarshalAsObjectId();
         }
 
-        public static GitObjectType git_tag_type(GitObjectSafeHandle tag)
+        public static GitObjectType git_tag_target_type(GitObjectSafeHandle tag)
         {
-            return NativeMethods.git_tag_type(tag);
+            return NativeMethods.git_tag_target_type(tag);
         }
 
         #endregion

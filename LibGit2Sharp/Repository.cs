@@ -420,7 +420,7 @@ namespace LibGit2Sharp
             {
                 nativeOpts = new GitCheckoutOpts
                     {
-                        checkout_strategy = CheckoutStrategy.GIT_CHECKOUT_CREATE_MISSING,
+                        checkout_strategy = CheckoutStrategy.GIT_CHECKOUT_SAFE,
                         ProgressCb = CheckoutCallbacks.GenerateCheckoutCallbacks(onCheckoutProgress),
                     };
             }
@@ -532,8 +532,7 @@ namespace LibGit2Sharp
         {
             GitCheckoutOpts options = new GitCheckoutOpts
             {
-                checkout_strategy = CheckoutStrategy.GIT_CHECKOUT_CREATE_MISSING |
-                                    CheckoutStrategy.GIT_CHECKOUT_OVERWRITE_MODIFIED |
+                checkout_strategy = CheckoutStrategy.GIT_CHECKOUT_FORCE |
                                     CheckoutStrategy.GIT_CHECKOUT_REMOVE_UNTRACKED,
                 ProgressCb = CheckoutCallbacks.GenerateCheckoutCallbacks(onCheckoutProgress)
             };

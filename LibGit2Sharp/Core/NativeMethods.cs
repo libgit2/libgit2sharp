@@ -38,7 +38,7 @@ namespace LibGit2Sharp.Core
         {
             // keep this in a separate method so mono can JIT the .cctor
             // and adjust the PATH before trying to load the native library
-            git_threads_init();
+            Ensure.Success(git_threads_init());
         }
 
         private static void ThreadsShutdown(object sender, EventArgs e)
@@ -300,18 +300,19 @@ namespace LibGit2Sharp.Core
 
         [DllImport(libgit2)]
         internal static extern int git_diff_tree_to_tree(
+            out DiffListSafeHandle diff,
             RepositorySafeHandle repo,
-            GitDiffOptions options,
             GitObjectSafeHandle oldTree,
             GitObjectSafeHandle newTree,
-            out DiffListSafeHandle diff);
+            GitDiffOptions options);
 
         [DllImport(libgit2)]
         internal static extern int git_diff_index_to_tree(
+            out DiffListSafeHandle diff,
             RepositorySafeHandle repo,
-            GitDiffOptions options,
             GitObjectSafeHandle oldTree,
-            out DiffListSafeHandle diff);
+            IndexSafeHandle index,
+            GitDiffOptions options);
 
         [DllImport(libgit2)]
         internal static extern int git_diff_merge(
@@ -320,16 +321,17 @@ namespace LibGit2Sharp.Core
 
         [DllImport(libgit2)]
         internal static extern int git_diff_workdir_to_index(
+            out DiffListSafeHandle diff,
             RepositorySafeHandle repo,
-            GitDiffOptions options,
-            out DiffListSafeHandle diff);
+            IndexSafeHandle index,
+            GitDiffOptions options);
 
         [DllImport(libgit2)]
         internal static extern int git_diff_workdir_to_tree(
+            out DiffListSafeHandle diff,
             RepositorySafeHandle repo,
-            GitDiffOptions options,
             GitObjectSafeHandle oldTree,
-            out DiffListSafeHandle diff);
+            GitDiffOptions options);
 
         internal delegate int git_diff_file_fn(
             IntPtr data,
@@ -811,10 +813,10 @@ namespace LibGit2Sharp.Core
         internal static extern OidSafeHandle git_tag_target_oid(GitObjectSafeHandle tag);
 
         [DllImport(libgit2)]
-        internal static extern GitObjectType git_tag_type(GitObjectSafeHandle tag);
+        internal static extern GitObjectType git_tag_target_type(GitObjectSafeHandle tag);
 
         [DllImport(libgit2)]
-        internal static extern void git_threads_init();
+        internal static extern int git_threads_init();
 
         [DllImport(libgit2)]
         internal static extern void git_threads_shutdown();
