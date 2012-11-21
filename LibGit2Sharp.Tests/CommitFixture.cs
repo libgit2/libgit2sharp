@@ -30,7 +30,7 @@ namespace LibGit2Sharp.Tests
             {
                 repo.Reset(ResetOptions.Hard);
 
-                repo.Checkout("test");
+                repo.Checkout("test", CheckoutOptions.Force, null);
                 Assert.Equal(2, repo.Commits.Count());
                 Assert.Equal("e90810b8df3e80c413d903f631643c716887138d", repo.Commits.First().Id.Sha);
 
@@ -229,8 +229,8 @@ namespace LibGit2Sharp.Tests
             {
                 repoClone.Reset(ResetOptions.Hard);
 
-                string headSha = repoClone.Head.Tip.Sha;
-                repoClone.Checkout(headSha);
+                Branch head = repoClone.Head;
+                repoClone.Checkout(head, CheckoutOptions.Force, null);
 
                 AssertEnumerationOfCommitsInRepo(repoClone,
                     repo => new Filter { Since = repo.Head },

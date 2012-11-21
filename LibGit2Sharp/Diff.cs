@@ -82,7 +82,7 @@ namespace LibGit2Sharp
 
         private DiffListSafeHandle BuildDiffListFromTrees(ObjectId oldTree, ObjectId newTree, GitDiffOptions options)
         {
-            return Proxy.git_diff_tree_to_tree(repo.Handle, options, oldTree, newTree);
+            return Proxy.git_diff_tree_to_tree(repo.Handle, oldTree, newTree, options);
         }
 
         /// <summary>
@@ -151,12 +151,12 @@ namespace LibGit2Sharp
 
         private static TreeComparisonHandleRetriever WorkdirToIndex(Repository repo)
         {
-            return (h, o) => Proxy.git_diff_workdir_to_index(repo.Handle, o);
+            return (h, o) => Proxy.git_diff_workdir_to_index(repo.Handle, repo.Index.Handle, o);
         }
 
         private static TreeComparisonHandleRetriever WorkdirToTree(Repository repo)
         {
-            return (h, o) => Proxy.git_diff_workdir_to_tree(repo.Handle, o, h);
+            return (h, o) => Proxy.git_diff_workdir_to_tree(repo.Handle, h, o);
         }
 
         private static TreeComparisonHandleRetriever WorkdirAndIndexToTree(Repository repo)
@@ -167,8 +167,8 @@ namespace LibGit2Sharp
 
                 try
                 {
-                    diff = Proxy.git_diff_index_to_tree(repo.Handle, o, h);
-                    diff2 = Proxy.git_diff_workdir_to_index(repo.Handle, o);
+                    diff = Proxy.git_diff_index_to_tree(repo.Handle, repo.Index.Handle, h, o);
+                    diff2 = Proxy.git_diff_workdir_to_index(repo.Handle, repo.Index.Handle, o);
                     Proxy.git_diff_merge(diff, diff2);
                 }
                 catch
@@ -189,7 +189,7 @@ namespace LibGit2Sharp
 
         private static TreeComparisonHandleRetriever IndexToTree(Repository repo)
         {
-            return (h, o) => Proxy.git_diff_index_to_tree(repo.Handle, o, h);
+            return (h, o) => Proxy.git_diff_index_to_tree(repo.Handle, repo.Index.Handle, h, o);
         }
 
         private static DiffListSafeHandle BuildDiffListFromTreeAndComparer(ObjectId treeId, TreeComparisonHandleRetriever comparisonHandleRetriever, GitDiffOptions options)
