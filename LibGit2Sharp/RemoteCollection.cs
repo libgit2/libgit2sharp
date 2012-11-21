@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Handles;
@@ -10,6 +11,7 @@ namespace LibGit2Sharp
     /// <summary>
     ///   The collection of <see cref = "Remote" /> in a <see cref = "Repository" />
     /// </summary>
+    [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class RemoteCollection : IEnumerable<Remote>
     {
         private readonly Repository repository;
@@ -130,6 +132,11 @@ namespace LibGit2Sharp
         public virtual Remote Create(string name, string url, string fetchRefSpec)
         {
             return Add(name, url);
+        }
+
+        private string DebuggerDisplay
+        {
+            get { return string.Format("Count = {0}", this.Count()); }
         }
     }
 }

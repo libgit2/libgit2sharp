@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Compat;
 
@@ -8,6 +9,7 @@ namespace LibGit2Sharp
     ///   A base class for things that wrap a <see cref = "Reference" /> (branch, tag, etc).
     /// </summary>
     /// <typeparam name="TObject">The type of the referenced Git object.</typeparam>
+    [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public abstract class ReferenceWrapper<TObject> : IEquatable<ReferenceWrapper<TObject>> where TObject : GitObject
     {
         /// <summary>
@@ -147,6 +149,15 @@ namespace LibGit2Sharp
         public static bool operator !=(ReferenceWrapper<TObject> left, ReferenceWrapper<TObject> right)
         {
             return !Equals(left, right);
+        }
+
+        private string DebuggerDisplay
+        {
+            get
+            {
+                return string.Format("{0} => \"{1}\"", CanonicalName,
+                    (TargetObject != null) ? TargetObject.Id.ToString(7) : "?");
+            }
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Globalization;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Compat;
@@ -9,6 +10,7 @@ namespace LibGit2Sharp
     /// <summary>
     ///   A Reference to another git object
     /// </summary>
+    [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public abstract class Reference : IEquatable<Reference>
     {
         private static readonly LambdaEqualityHelper<Reference> equalityHelper =
@@ -132,6 +134,11 @@ namespace LibGit2Sharp
         public override string ToString()
         {
             return CanonicalName;
+        }
+
+        private string DebuggerDisplay
+        {
+            get { return string.Format("{0} => \"{1}\"", CanonicalName, TargetIdentifier); }
         }
     }
 }

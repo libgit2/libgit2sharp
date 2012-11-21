@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using LibGit2Sharp.Core;
 
@@ -9,6 +10,7 @@ namespace LibGit2Sharp
     /// <summary>
     ///   The collection of <see cref = "Tag" />s in a <see cref = "Repository" />
     /// </summary>
+    [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class TagCollection : IEnumerable<Tag>
     {
         internal readonly Repository repo;
@@ -179,6 +181,11 @@ namespace LibGit2Sharp
             }
 
             return name.Substring(refsTagsPrefix.Length);
+        }
+
+        private string DebuggerDisplay
+        {
+            get { return string.Format("Count = {0}", this.Count()); }
         }
     }
 }

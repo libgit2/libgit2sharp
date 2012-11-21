@@ -1,6 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using System.Text;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Handles;
@@ -11,6 +13,7 @@ namespace LibGit2Sharp
     ///   Holds the result of a diff between two trees.
     ///   <para>Changes at the granularity of the file can be obtained through the different sub-collections <see cref="Added"/>, <see cref="Deleted"/> and <see cref="Modified"/>.</para>
     /// </summary>
+    [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class TreeChanges : IEnumerable<TreeEntryChanges>
     {
         private readonly IDictionary<FilePath, TreeEntryChanges> changes = new Dictionary<FilePath, TreeEntryChanges>();
@@ -184,6 +187,15 @@ namespace LibGit2Sharp
         public virtual string Patch
         {
             get { return fullPatchBuilder.ToString(); }
+        }
+
+        private string DebuggerDisplay
+        {
+            get
+            {
+                return string.Format("Added: {0}, Deleted: {1}, Modified: {2}",
+                    Added.Count(), Deleted.Count(), Modified.Count());
+            }
         }
     }
 }

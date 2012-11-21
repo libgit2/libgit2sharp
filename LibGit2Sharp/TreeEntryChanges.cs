@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
@@ -5,6 +6,7 @@ namespace LibGit2Sharp
     /// <summary>
     ///   Holds the changes between two versions of a tree entry.
     /// </summary>
+    [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class TreeEntryChanges : Changes
     {
         /// <summary>
@@ -59,5 +61,14 @@ namespace LibGit2Sharp
         ///   The old content hash.
         /// </summary>
         public virtual ObjectId OldOid { get; private set; }
+
+        private string DebuggerDisplay
+        {
+            get
+            {
+                return string.Format("Path = {0}, File {1}",
+                    !string.IsNullOrEmpty(Path) ? Path : OldPath, Status);
+            }
+        }
     }
 }

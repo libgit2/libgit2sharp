@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -14,6 +15,7 @@ namespace LibGit2Sharp
     ///   The Index is a staging area between the Working directory and the Repository.
     ///   It's used to prepare and aggregate the changes that will be part of the next commit.
     /// </summary>
+    [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class Index : IEnumerable<IndexEntry>
     {
         private readonly IndexSafeHandle handle;
@@ -498,6 +500,11 @@ namespace LibGit2Sharp
 
             Proxy.git_index_add(handle, indexEntry);
             Marshal.FreeHGlobal(indexEntry.Path);
+        }
+
+        private string DebuggerDisplay
+        {
+            get { return string.Format("Count = {0}", Count); }
         }
     }
 }

@@ -1,8 +1,11 @@
-﻿namespace LibGit2Sharp
+﻿using System.Diagnostics;
+
+namespace LibGit2Sharp
 {
     /// <summary>
     /// An enumerated configuration entry.
     /// </summary>
+    [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class ConfigurationEntry
     {
         /// <summary>
@@ -32,6 +35,11 @@
             Key = key;
             Value = value;
             Level = level;
+        }
+
+        private string DebuggerDisplay
+        {
+            get { return string.Format("{0} = \"{1}\"", Key, Value); }
         }
     }
 }

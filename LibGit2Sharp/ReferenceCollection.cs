@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Handles;
@@ -10,6 +11,7 @@ namespace LibGit2Sharp
     /// <summary>
     ///   The Collection of references in a <see cref = "Repository" />
     /// </summary>
+    [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class ReferenceCollection : IEnumerable<Reference>
     {
         internal readonly Repository repo;
@@ -256,6 +258,11 @@ namespace LibGit2Sharp
         public virtual bool IsValidName(string canonicalName)
         {
             return Proxy.git_reference_is_valid_name(canonicalName);
+        }
+
+        private string DebuggerDisplay
+        {
+            get { return string.Format("Count = {0}", this.Count()); }
         }
     }
 }

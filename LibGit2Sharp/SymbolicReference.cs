@@ -1,8 +1,11 @@
-﻿namespace LibGit2Sharp
+﻿using System.Diagnostics;
+
+namespace LibGit2Sharp
 {
     /// <summary>
     ///   A SymbolicReference is a reference that points to another reference
     /// </summary>
+    [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class SymbolicReference : Reference
     {
         /// <summary>
@@ -17,6 +20,17 @@
         public override DirectReference ResolveToDirectReference()
         {
             return (Target == null) ? null : Target.ResolveToDirectReference();
+        }
+
+        private string DebuggerDisplay
+        {
+            get
+            {
+                var directReference = ResolveToDirectReference();
+                return string.Format("{0} => {1} => \"{2}\"",
+                    CanonicalName, TargetIdentifier,
+                    (directReference != null) ? directReference.TargetIdentifier : "?");
+            }
         }
     }
 }
