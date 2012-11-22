@@ -878,6 +878,28 @@ namespace LibGit2Sharp.Core
             }
         }
 
+        public static GitObjectSafeHandle git_object_peel(RepositorySafeHandle repo, ObjectId id, GitObjectType type, bool throwsIfCanNotPeel)
+        {
+            using (ThreadAffinity())
+            {
+                GitObjectSafeHandle peeled;
+                int res;
+
+                using (var obj = new ObjectSafeWrapper(id, repo))
+                {
+                    res = NativeMethods.git_object_peel(out peeled, obj.ObjectPtr, type);
+                }
+
+                if (res != (int)GitErrorCode.Ok && !throwsIfCanNotPeel)
+                {
+                    return null;
+                }
+
+                Ensure.Success(res);
+                return peeled;
+            }
+        }
+
         public static GitObjectType git_object_type(GitObjectSafeHandle obj)
         {
             return NativeMethods.git_object_type(obj);
