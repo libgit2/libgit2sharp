@@ -3,6 +3,7 @@ using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Runtime.ConstrainedExecution;
 using System.Runtime.InteropServices;
 using LibGit2Sharp.Core.Handles;
 
@@ -13,6 +14,21 @@ namespace LibGit2Sharp.Core
     {
         public const uint GIT_PATH_MAX = 4096;
         private const string libgit2 = "git2";
+        private static readonly LibraryLifetimeObject lifetimeObject;
+
+        /// <summary>
+        /// Internal hack to ensure that the call to git_threads_shutdown is called after all handle finalizers 
+        /// have run to completion ensuring that no dangling git-related finalizer runs after git_threads_shutdown. 
+        /// There should never be more than one instance of this object per AppDomain.
+        /// </summary>
+        private sealed class LibraryLifetimeObject : CriticalFinalizerObject
+        {
+            // Ensure mono can JIT the .cctor and adjust the PATH before trying to load the native library. 
+            // See https://github.com/libgit2/libgit2sharp/pull/190
+            [MethodImpl(MethodImplOptions.NoInlining)]
+            public LibraryLifetimeObject() { NativeMethods.git_threads_init(); }
+            ~LibraryLifetimeObject() { NativeMethods.git_threads_shutdown(); }
+        }
 
         static NativeMethods()
         {
@@ -29,21 +45,8 @@ namespace LibGit2Sharp.Core
                                                    String.Format(CultureInfo.InvariantCulture, "{0}{1}{2}", path, Path.PathSeparator, Environment.GetEnvironmentVariable(pathEnvVariable)));
             }
 
-            GitInit();
-            AppDomain.CurrentDomain.ProcessExit += ThreadsShutdown;
-        }
-
-        [MethodImpl(MethodImplOptions.NoInlining)]
-        private static void GitInit()
-        {
-            // keep this in a separate method so mono can JIT the .cctor
-            // and adjust the PATH before trying to load the native library
-            git_threads_init();
-        }
-
-        private static void ThreadsShutdown(object sender, EventArgs e)
-        {
-            git_threads_shutdown();
+            // See LibraryLifetimeObject description.
+            lifetimeObject = new LibraryLifetimeObject();
         }
 
         public static string ProcessorArchitecture
