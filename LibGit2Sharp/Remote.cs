@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Handles;
 using LibGit2Sharp.Handlers;
@@ -8,6 +9,7 @@ namespace LibGit2Sharp
     /// <summary>
     ///   A remote repository whose branches are tracked.
     /// </summary>
+    [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class Remote : IEquatable<Remote>
     {
         private static readonly LambdaEqualityHelper<Remote> equalityHelper =
@@ -145,6 +147,11 @@ namespace LibGit2Sharp
         public static bool operator !=(Remote left, Remote right)
         {
             return !Equals(left, right);
+        }
+
+        private string DebuggerDisplay
+        {
+            get { return string.Format("{0} => {1}", Name, Url); }
         }
     }
 }

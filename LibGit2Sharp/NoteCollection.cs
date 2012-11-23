@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Compat;
@@ -11,6 +12,7 @@ namespace LibGit2Sharp
     /// <summary>
     ///   A collection of <see cref = "Note"/> exposed in the <see cref = "Repository"/>.
     /// </summary>
+    [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class NoteCollection : IEnumerable<Note>
     {
         private readonly Repository repo;
@@ -225,6 +227,11 @@ namespace LibGit2Sharp
         public virtual void Delete(ObjectId targetId, Signature author, Signature committer, string @namespace)
         {
             Remove(targetId, author, committer, @namespace);
+        }
+
+        private string DebuggerDisplay
+        {
+            get { return string.Format("Count = {0}", this.Count()); }
         }
     }
 }

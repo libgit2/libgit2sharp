@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Handles;
 
@@ -7,6 +8,7 @@ namespace LibGit2Sharp
     /// <summary>
     ///   A note, attached to a given <see cref = "GitObject"/>.
     /// </summary>
+    [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class Note : IEquatable<Note>
     {
         /// <summary>
@@ -104,6 +106,15 @@ namespace LibGit2Sharp
         public static bool operator !=(Note left, Note right)
         {
             return !Equals(left, right);
+        }
+
+        private string DebuggerDisplay
+        {
+            get
+            {
+                return string.Format("Target \"{0}\", Namespace \"{1}\": {2}",
+                    TargetObjectId.ToString(7), Namespace, Message);
+            }
         }
     }
 }

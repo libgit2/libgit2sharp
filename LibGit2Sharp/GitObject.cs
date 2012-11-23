@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Globalization;
 using LibGit2Sharp.Core;
 
@@ -7,6 +8,7 @@ namespace LibGit2Sharp
     /// <summary>
     ///   A GitObject
     /// </summary>
+    [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public abstract class GitObject : IEquatable<GitObject>
     {
         internal static GitObjectTypeMap TypeToTypeMap =
@@ -123,6 +125,11 @@ namespace LibGit2Sharp
         public static bool operator !=(GitObject left, GitObject right)
         {
             return !Equals(left, right);
+        }
+
+        private string DebuggerDisplay
+        {
+            get { return Id.ToString(7); }
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -15,6 +16,7 @@ namespace LibGit2Sharp
     /// <summary>
     ///   A Repository is the primary interface into a git repository
     /// </summary>
+    [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class Repository : IRepository
     {
         private readonly BranchCollection branches;
@@ -658,6 +660,16 @@ namespace LibGit2Sharp
             using (var sr = new StreamReader(assembly.GetManifestResourceStream(name)))
             {
                 return sr.ReadLine();
+            }
+        }
+
+        private string DebuggerDisplay
+        {
+            get
+            {
+                return string.Format("{0} = \"{1}\"",
+                    Info.IsBare ? "Gitdir" : "Workdir",
+                    Info.IsBare ? Info.Path : Info.WorkingDirectory);
             }
         }
     }

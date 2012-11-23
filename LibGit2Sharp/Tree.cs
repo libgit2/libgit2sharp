@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Handles;
@@ -9,6 +10,7 @@ namespace LibGit2Sharp
     /// <summary>
     ///   A container which references a list of other <see cref="Tree"/>s and <see cref="Blob"/>s.
     /// </summary>
+    [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class Tree : GitObject, IEnumerable<TreeEntry>
     {
         private readonly FilePath path;
@@ -126,5 +128,10 @@ namespace LibGit2Sharp
         }
 
         #endregion
+
+        private string DebuggerDisplay
+        {
+            get { return string.Format("{0}, Count = {1}", Id.ToString(7), Count); }
+        }
     }
 }

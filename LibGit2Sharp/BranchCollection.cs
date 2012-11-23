@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using LibGit2Sharp.Core;
@@ -11,6 +12,7 @@ namespace LibGit2Sharp
     /// <summary>
     ///   The collection of Branches in a <see cref = "Repository" />
     /// </summary>
+    [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class BranchCollection : IEnumerable<Branch>
     {
         internal readonly Repository repo;
@@ -191,6 +193,11 @@ namespace LibGit2Sharp
             return referenceName == "HEAD" ||
                 referenceName.StartsWith("refs/heads/", StringComparison.Ordinal) ||
                 referenceName.StartsWith("refs/remotes/", StringComparison.Ordinal);
+        }
+
+        private string DebuggerDisplay
+        {
+            get { return string.Format("Count = {0}", this.Count()); }
         }
     }
 }
