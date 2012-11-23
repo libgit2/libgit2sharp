@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
 using Xunit.Extensions;
@@ -110,12 +111,15 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Theory]
-        [InlineData("http://github.com/libgit2/TestGitRepository")]
+        [SkippableTheory]
+        [InlineData("http://localhost")]
         [InlineData("https://github.com/libgit2/TestGitRepository")]
         [InlineData("git://github.com/libgit2/TestGitRepository.git")]
         public void CanFetchAllTagsIntoAnEmptyRepository(string url)
         {
+            InconclusiveIf(() => WebRequest.DefaultWebProxy.GetProxy(new Uri(url)).AbsoluteUri != url,
+                "libgit2 does not support proxyfied connections yet.");
+
             string remoteName = "testRemote";
 
             var scd = BuildSelfCleaningDirectory();
