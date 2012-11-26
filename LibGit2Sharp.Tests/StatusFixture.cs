@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
+using Xunit.Extensions;
 
 namespace LibGit2Sharp.Tests
 {
@@ -257,6 +258,41 @@ namespace LibGit2Sharp.Tests
                 File.WriteAllText(fullFilePath, "Brackets all the way.");
 
                 Assert.Throws<AmbiguousSpecificationException>(() => repo.Index.RetrieveStatus(relativePath));
+            }
+        }
+
+        [Theory]
+        [InlineData(true, FileStatus.Unaltered, FileStatus.Unaltered)]
+        [InlineData(false, FileStatus.Missing, FileStatus.Untracked)]
+        public void RetrievingTheStatusOfAFilePathHonorsTheIgnoreCaseConfigurationSetting(
+            bool shouldIgnoreCase,
+            FileStatus expectedlowerCasedFileStatus,
+            FileStatus expectedCamelCasedFileStatus
+            )
+        {
+            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+
+            string lowerCasedPath;
+
+            using (Repository repo = Repository.Init(scd.DirectoryPath))
+            {
+                repo.Config.Set("core.ignorecase", shouldIgnoreCase);
+
+                lowerCasedPath = Path.Combine(repo.Info.WorkingDirectory, "plop");
+
+                File.WriteAllText(lowerCasedPath, string.Empty);
+
+                repo.Index.Stage(lowerCasedPath);
+                repo.Commit("initial", DummySignature, DummySignature);
+            }
+
+            using (var repo = new Repository(scd.DirectoryPath))
+            {
+                string camelCasedPath = Path.Combine(repo.Info.WorkingDirectory, "Plop");
+                File.Move(lowerCasedPath, camelCasedPath);
+
+                Assert.Equal(expectedlowerCasedFileStatus, repo.Index.RetrieveStatus("plop"));
+                Assert.Equal(expectedCamelCasedFileStatus, repo.Index.RetrieveStatus("Plop"));
             }
         }
     }
