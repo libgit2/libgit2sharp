@@ -616,6 +616,18 @@ namespace LibGit2Sharp
             return new[] { Head.Tip };
         }
 
+        /// <summary>
+        /// Clean the working tree by removing files that are not under version control.
+        /// </summary>
+        public virtual void RemoveUntrackedFiles()
+        {
+            var options = new GitCheckoutOpts
+            {
+                checkout_strategy = CheckoutStrategy.GIT_CHECKOUT_REMOVE_UNTRACKED,
+            };
+
+            Proxy.git_checkout_index(Handle, options);
+        }
 
         internal T RegisterForCleanup<T>(T disposable) where T : IDisposable
         {

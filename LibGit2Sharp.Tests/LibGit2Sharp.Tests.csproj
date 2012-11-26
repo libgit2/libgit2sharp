@@ -58,6 +58,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CheckoutFixture.cs" />
+    <Compile Include="CleanFixture.cs" />
     <Compile Include="MetaFixture.cs" />
     <Compile Include="MockedRepositoryFixture.cs" />
     <Compile Include="ConfigurationFixture.cs" />

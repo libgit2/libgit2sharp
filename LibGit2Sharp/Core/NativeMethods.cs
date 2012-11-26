@@ -158,6 +158,11 @@ namespace LibGit2Sharp.Core
             GitCheckoutOpts opts);
 
         [DllImport(libgit2)]
+        internal static extern int git_checkout_index(
+            RepositorySafeHandle repo,
+            GitCheckoutOpts opts);
+
+        [DllImport(libgit2)]
         internal static extern int git_clone(
             out RepositorySafeHandle repo,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string origin_url,
