@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
 using Xunit.Extensions;
@@ -322,6 +323,39 @@ namespace LibGit2Sharp.Tests
                 repo.Checkout(otherBranchName, CheckoutOptions.None, (path, completed, total) => wasCalled = true);
 
                 Assert.True(wasCalled);
+            }
+        }
+
+        [Fact]
+        public void CheckoutLeavesUntrackedDirectory()
+        {
+            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+
+            using (var repo = Repository.Init(scd.DirectoryPath))
+            {
+                PopulateBasicRepository(repo);
+
+                // Generate a .gitignore file
+                string gitIgnoreFilePath = Path.Combine(repo.Info.WorkingDirectory, ".gitignore");
+                File.WriteAllText(gitIgnoreFilePath, ".bin");
+                repo.Index.Stage(gitIgnoreFilePath);
+                repo.Commit("Add git ignore file", Constants.Signature, Constants.Signature);
+
+                // Create a bin directory
+                string ignoredDirectoryPath = Path.Combine(repo.Info.WorkingDirectory, "bin");
+                Directory.CreateDirectory(ignoredDirectoryPath);
+
+                // Create file in ignored bin directory
+                string ignoredFilePath = Path.Combine(repo.Info.WorkingDirectory, Path.Combine("bin", "some_ignored_file.txt"));
+                File.WriteAllText(ignoredFilePath, "hello from this ignored file.");
+
+                // Verify that there is an untracked entry
+                Assert.Equal(1, repo.Index.RetrieveStatus().Untracked.Count());
+
+                repo.Checkout(otherBranchName, CheckoutOptions.Force, null);
+
+                Assert.True(Directory.Exists(ignoredDirectoryPath));
+                Assert.True(File.Exists(ignoredFilePath));
             }
         }
 
