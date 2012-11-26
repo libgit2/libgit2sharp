@@ -77,6 +77,7 @@ namespace LibGit2Sharp.Tests
                 .AppendFormat("Man-I-am-totally-global = 42{0}", Environment.NewLine);
 
             File.WriteAllText(globalLocation, sb.ToString());
+            File.WriteAllText(systemLocation, string.Empty);
 
             var options = new RepositoryOptions
             {

@@ -36,6 +36,16 @@
         BareRepo = -8,
 
         /// <summary>
+        ///   Operation cannot be performed against an orphaned HEAD.
+        /// </summary>
+        OrphanedHead = -9,
+
+        /// <summary>
+        ///   Operation cannot be performed against a not fully merged index.
+        /// </summary>
+        UnmergedEntries = -8,
+
+        /// <summary>
         ///   Skip and passthrough the given ODB backend.
         /// </summary>
         PassThrough = -30,
