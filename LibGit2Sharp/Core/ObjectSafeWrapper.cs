@@ -7,12 +7,19 @@ namespace LibGit2Sharp.Core
     {
         private readonly GitObjectSafeHandle objectPtr;
 
-        public ObjectSafeWrapper(ObjectId id, RepositorySafeHandle handle)
+        public ObjectSafeWrapper(ObjectId id, RepositorySafeHandle handle, bool allowNullObjectId = false)
         {
-            Ensure.ArgumentNotNull(id, "id");
             Ensure.ArgumentNotNull(handle, "handle");
 
-            objectPtr = Proxy.git_object_lookup(handle, id, GitObjectType.Any);
+            if (allowNullObjectId && id == null)
+            {
+                objectPtr = new NullGitObjectSafeHandle();
+            }
+            else
+            {
+                Ensure.ArgumentNotNull(id, "id");
+                objectPtr = Proxy.git_object_lookup(handle, id, GitObjectType.Any);
+            }
         }
 
         public GitObjectSafeHandle ObjectPtr

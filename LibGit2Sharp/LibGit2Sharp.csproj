@@ -74,6 +74,7 @@
     <Compile Include="Core\GitConfigEntry.cs" />
     <Compile Include="Core\GitObjectLazyGroup.cs" />
     <Compile Include="Core\GitTransferProgress.cs" />
+    <Compile Include="Core\Handles\NullGitObjectSafeHandle.cs" />
     <Compile Include="Core\ILazy.cs" />
     <Compile Include="Core\LazyGroup.cs" />
     <Compile Include="Core\Proxy.cs" />

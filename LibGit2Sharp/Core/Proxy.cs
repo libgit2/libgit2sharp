@@ -550,8 +550,8 @@ namespace LibGit2Sharp.Core
             ObjectId newTree)
         {
             using (ThreadAffinity())
-            using (var osw1 = new ObjectSafeWrapper(oldTree, repo))
-            using (var osw2 = new ObjectSafeWrapper(newTree, repo))
+            using (var osw1 = new ObjectSafeWrapper(oldTree, repo, true))
+            using (var osw2 = new ObjectSafeWrapper(newTree, repo, true))
             {
                 DiffListSafeHandle diff;
                 int res = NativeMethods.git_diff_tree_to_tree(repo, options, osw1.ObjectPtr, osw2.ObjectPtr, out diff);
