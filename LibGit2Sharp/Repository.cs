@@ -567,7 +567,7 @@ namespace LibGit2Sharp
         {
             if (Info.IsBare)
             {
-                throw new LibGit2SharpException("Reset is not allowed in a bare repository");
+                throw new BareRepositoryException("Reset is not allowed in a bare repository");
             }
 
             Commit commit = LookupCommit(commitish);

@@ -2,20 +2,28 @@ using System.IO;
 using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
-using Xunit.Extensions;
 
 namespace LibGit2Sharp.Tests
 {
     public class ResetIndexFixture : BaseFixture
     {
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void ResetANewlyInitializedRepositoryThrows(bool isBare)
+        [Fact]
+        public void ResetANewlyInitializedBareRepositoryThrows()
         {
             SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
 
-            using (Repository repo = Repository.Init(scd.DirectoryPath, isBare))
+            using (Repository repo = Repository.Init(scd.DirectoryPath, true))
+            {
+                Assert.Throws<BareRepositoryException>(() => repo.Reset());
+            }
+        }
+
+        [Fact]
+        public void ResetANewlyInitializedNonBareRepositoryThrows()
+        {
+            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+
+            using (Repository repo = Repository.Init(scd.DirectoryPath, false))
             {
                 Assert.Throws<LibGit2SharpException>(() => repo.Reset());
             }
@@ -26,7 +34,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                Assert.Throws<LibGit2SharpException>(() => repo.Reset());
+                Assert.Throws<BareRepositoryException>(() => repo.Reset());
             }
         }
 
