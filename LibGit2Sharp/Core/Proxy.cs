@@ -188,11 +188,11 @@ namespace LibGit2Sharp.Core
             }
         }
 
-        public static void git_checkout_index(RepositorySafeHandle repo, GitCheckoutOpts opts)
+        public static void git_checkout_index(RepositorySafeHandle repo, IndexSafeHandle index, GitCheckoutOpts opts)
         {
             using (ThreadAffinity())
             {
-                int res = NativeMethods.git_checkout_index(repo, opts);
+                int res = NativeMethods.git_checkout_index(repo, index, opts);
                 Ensure.Success(res);
             }
         }

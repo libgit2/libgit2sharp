@@ -160,6 +160,7 @@ namespace LibGit2Sharp.Core
         [DllImport(libgit2)]
         internal static extern int git_checkout_index(
             RepositorySafeHandle repo,
+            IndexSafeHandle index,
             GitCheckoutOpts opts);
 
         [DllImport(libgit2)]
