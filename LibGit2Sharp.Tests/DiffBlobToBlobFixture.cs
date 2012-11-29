@@ -63,9 +63,8 @@ namespace LibGit2Sharp.Tests
 
         Blob CreateBinaryBlob(Repository repo)
         {
-            var scd = BuildSelfCleaningDirectory();
-            Directory.CreateDirectory(scd.RootedDirectoryPath);
-            string fullpath = Path.Combine(scd.RootedDirectoryPath, "binary.bin");
+            string fullpath = Path.Combine(repo.Info.WorkingDirectory, "binary.bin");
+
             File.WriteAllBytes(fullpath, new byte[] { 17, 16, 0, 4, 65 });
 
             return repo.ObjectDatabase.CreateBlob(fullpath);
@@ -74,7 +73,9 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCompareATextualBlobAgainstABinaryBlob()
         {
-            using (var repo = new Repository(StandardTestRepoPath))
+            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
+
+            using (var repo = new Repository(path.RepositoryPath))
             {
                 Blob binBlob = CreateBinaryBlob(repo);
 
