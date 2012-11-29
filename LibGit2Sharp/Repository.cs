@@ -553,9 +553,9 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(commitish, "commitish");
 
-            GitObject obj = Lookup(commitish, GitObjectType.Any, LookUpOptions.ThrowWhenNoGitObjectHasBeenFound);
+            Commit commit = LookupCommit(commitish);
 
-            Proxy.git_reset(handle, obj.Id, resetOptions);
+            Proxy.git_reset(handle, commit.Id, resetOptions);
         }
 
         /// <summary>

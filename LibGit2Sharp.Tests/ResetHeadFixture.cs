@@ -56,6 +56,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Throws<ArgumentNullException>(() => repo.Reset(ResetOptions.Soft, null));
                 Assert.Throws<ArgumentException>(() => repo.Reset(ResetOptions.Soft, ""));
                 Assert.Throws<LibGit2SharpException>(() => repo.Reset(ResetOptions.Soft, Constants.UnknownSha));
+                Assert.Throws<LibGit2SharpException>(() => repo.Reset(ResetOptions.Soft, repo.Head.Tip.Tree.Sha));
             }
         }
 
