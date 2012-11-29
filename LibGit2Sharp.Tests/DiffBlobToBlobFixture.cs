@@ -89,5 +89,40 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(0, changes.LinesDeleted);
             }
         }
+
+        [Fact]
+        public void CanCompareABlobAgainstANullBlob()
+        {
+            using (var repo = new Repository(StandardTestRepoPath))
+            {
+                Blob blob = repo.Head.Tip.Tree.Blobs.First();
+
+                ContentChanges changes = repo.Diff.Compare(null, blob);
+
+                Assert.NotEqual(0, changes.LinesAdded);
+                Assert.Equal(0, changes.LinesDeleted);
+                Assert.NotEqual(string.Empty, changes.Patch);
+
+                changes = repo.Diff.Compare(blob, null);
+
+                Assert.Equal(0, changes.LinesAdded);
+                Assert.NotEqual(0, changes.LinesDeleted);
+                Assert.NotEqual(string.Empty, changes.Patch);
+            }
+        }
+
+        [Fact]
+        public void ComparingTwoNullBlobsReturnsAnEmptyContentChanges()
+        {
+            using (var repo = new Repository(StandardTestRepoPath))
+            {
+                ContentChanges changes = repo.Diff.Compare((Blob)null, (Blob)null);
+
+                Assert.False(changes.IsBinaryComparison);
+
+                Assert.Equal(0, changes.LinesAdded);
+                Assert.Equal(0, changes.LinesDeleted);
+            }
+        }
     }
 }

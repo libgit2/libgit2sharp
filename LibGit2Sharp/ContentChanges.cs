@@ -17,7 +17,10 @@ namespace LibGit2Sharp
 
         internal ContentChanges(Repository repo, Blob oldBlob, Blob newBlob, GitDiffOptions options)
         {
-            Proxy.git_diff_blobs(repo.Handle, oldBlob, newBlob, options, FileCallback, HunkCallback, LineCallback);
+            Proxy.git_diff_blobs(repo.Handle,
+                                 oldBlob != null ? oldBlob.Id : null,
+                                 newBlob != null ? newBlob.Id : null,
+                                 options, FileCallback, HunkCallback, LineCallback);
         }
 
         private int FileCallback(IntPtr data, GitDiffDelta delta, float progress)

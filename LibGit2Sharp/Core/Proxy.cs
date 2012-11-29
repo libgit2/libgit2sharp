@@ -488,16 +488,16 @@ namespace LibGit2Sharp.Core
 
         public static void git_diff_blobs(
             RepositorySafeHandle repo,
-            Blob oldBlob,
-            Blob newBlob,
+            ObjectId oldBlob,
+            ObjectId newBlob,
             GitDiffOptions options,
             NativeMethods.git_diff_file_fn fileCallback,
             NativeMethods.git_diff_hunk_fn hunkCallback,
             NativeMethods.git_diff_data_fn lineCallback)
         {
             using (ThreadAffinity())
-            using (var osw1 = new ObjectSafeWrapper(oldBlob.Id, repo))
-            using (var osw2 = new ObjectSafeWrapper(newBlob.Id, repo))
+            using (var osw1 = new ObjectSafeWrapper(oldBlob, repo, true))
+            using (var osw2 = new ObjectSafeWrapper(newBlob, repo, true))
             {
                 int res = NativeMethods.git_diff_blobs(osw1.ObjectPtr, osw2.ObjectPtr, options, IntPtr.Zero, fileCallback, hunkCallback, lineCallback);
                 Ensure.Success(res);
