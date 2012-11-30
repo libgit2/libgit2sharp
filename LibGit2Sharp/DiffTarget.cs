@@ -1,8 +1,11 @@
+using System;
+
 namespace LibGit2Sharp
 {
     /// <summary>
     ///   The target of a Tree based diff comparison.
     /// </summary>
+    [Obsolete("This type will be removed in the next release. Please use DiffTargets instead.")]
     public enum DiffTarget
     {
         /// <summary>

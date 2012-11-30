@@ -78,6 +78,7 @@
     <Compile Include="Core\ILazy.cs" />
     <Compile Include="Core\LazyGroup.cs" />
     <Compile Include="Core\Proxy.cs" />
+    <Compile Include="DiffTargets.cs" />
     <Compile Include="Handlers.cs" />
     <Compile Include="MergeConflictException.cs" />
     <Compile Include="ReferenceCollectionExtensions.cs" />

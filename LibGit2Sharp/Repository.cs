@@ -571,7 +571,7 @@ namespace LibGit2Sharp
             }
 
             Commit commit = LookupCommit(commitish);
-            TreeChanges changes = Diff.Compare(commit.Tree, DiffTarget.Index, paths);
+            TreeChanges changes = Diff.Compare(commit.Tree, DiffTargets.Index, paths);
 
             Index.Reset(changes);
         }

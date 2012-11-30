@@ -44,7 +44,8 @@ namespace LibGit2Sharp.Tests
             {
                 SetUpSimpleDiffContext(repo);
 
-                TreeChanges changes = repo.Diff.Compare(repo.Head.Tip.Tree, DiffTarget.WorkingDirectory);
+                TreeChanges changes = repo.Diff.Compare(repo.Head.Tip.Tree,
+                    DiffTargets.WorkingDirectory);
 
                 var expected = new StringBuilder()
                     .Append("diff --git a/file.txt b/file.txt\n")
@@ -80,7 +81,8 @@ namespace LibGit2Sharp.Tests
             {
                 SetUpSimpleDiffContext(repo);
 
-                TreeChanges changes = repo.Diff.Compare(repo.Head.Tip.Tree, DiffTarget.BothWorkingDirectoryAndIndex);
+                TreeChanges changes = repo.Diff.Compare(repo.Head.Tip.Tree,
+                    DiffTargets.Index | DiffTargets.WorkingDirectory);
 
                 var expected = new StringBuilder()
                     .Append("diff --git a/file.txt b/file.txt\n")
@@ -136,7 +138,8 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(FileStatus.Removed | FileStatus.Untracked, state);
 
 
-                TreeChanges wrkDirToIdxToTree = repo.Diff.Compare(repo.Head.Tip.Tree, DiffTarget.BothWorkingDirectoryAndIndex);
+                TreeChanges wrkDirToIdxToTree = repo.Diff.Compare(repo.Head.Tip.Tree,
+                    DiffTargets.Index | DiffTargets.WorkingDirectory);
                 var expected = new StringBuilder()
                     .Append("diff --git a/file.txt b/file.txt\n")
                     .Append("deleted file mode 100644\n")
@@ -148,7 +151,8 @@ namespace LibGit2Sharp.Tests
 
                 Assert.Equal(expected.ToString(), wrkDirToIdxToTree.Patch);
 
-                TreeChanges wrkDirToTree = repo.Diff.Compare(repo.Head.Tip.Tree, DiffTarget.WorkingDirectory);
+                TreeChanges wrkDirToTree = repo.Diff.Compare(repo.Head.Tip.Tree,
+                    DiffTargets.WorkingDirectory);
                 expected = new StringBuilder()
                     .Append("diff --git a/file.txt b/file.txt\n")
                     .Append("index ce01362..4f125e3 100644\n")
@@ -182,7 +186,8 @@ namespace LibGit2Sharp.Tests
             {
                 SetUpSimpleDiffContext(repo);
 
-                TreeChanges changes = repo.Diff.Compare(repo.Head.Tip.Tree, DiffTarget.Index);
+                TreeChanges changes = repo.Diff.Compare(repo.Head.Tip.Tree,
+                    DiffTargets.Index);
 
                 var expected = new StringBuilder()
                     .Append("diff --git a/file.txt b/file.txt\n")
@@ -228,7 +233,7 @@ namespace LibGit2Sharp.Tests
             {
                 Tree tree = repo.Head.Tip.Tree;
 
-                TreeChanges changes = repo.Diff.Compare(tree, DiffTarget.Index);
+                TreeChanges changes = repo.Diff.Compare(tree, DiffTargets.Index);
                 Assert.NotNull(changes);
 
                 Assert.Equal(3, changes.Count());
@@ -255,7 +260,9 @@ namespace LibGit2Sharp.Tests
             {
                 Tree tree = repo.Head.Tip.Tree;
 
-                TreeChanges changes = repo.Diff.Compare(tree, DiffTarget.Index, new[] { "deleted_staged_file.txt", "1/branch_file.txt", "I-do/not-exist" });
+                TreeChanges changes = repo.Diff.Compare(tree, DiffTargets.Index,
+                    new[] { "deleted_staged_file.txt", "1/branch_file.txt", "I-do/not-exist" });
+
                 Assert.NotNull(changes);
 
                 Assert.Equal(1, changes.Count());
@@ -296,7 +303,7 @@ namespace LibGit2Sharp.Tests
                 File.AppendAllText(fullpath, "\n");
                 repo.Index.Stage("file.txt");
 
-                TreeChanges changes = repo.Diff.Compare(repo.Head.Tip.Tree, DiffTarget.Index);
+                TreeChanges changes = repo.Diff.Compare(repo.Head.Tip.Tree, DiffTargets.Index);
                 Assert.Equal(1, changes.Modified.Count());
                 Assert.Equal(1, changes.LinesAdded);
                 Assert.Equal(1, changes.LinesDeleted);

@@ -103,15 +103,15 @@ namespace LibGit2Sharp
             }
         }
 
-        private readonly IDictionary<DiffTarget, Func<Repository, TreeComparisonHandleRetriever>> handleRetrieverDispatcher = BuildHandleRetrieverDispatcher();
+        private readonly IDictionary<DiffTargets, Func<Repository, TreeComparisonHandleRetriever>> handleRetrieverDispatcher = BuildHandleRetrieverDispatcher();
 
-        private static IDictionary<DiffTarget, Func<Repository, TreeComparisonHandleRetriever>> BuildHandleRetrieverDispatcher()
+        private static IDictionary<DiffTargets, Func<Repository, TreeComparisonHandleRetriever>> BuildHandleRetrieverDispatcher()
         {
-            return new Dictionary<DiffTarget, Func<Repository, TreeComparisonHandleRetriever>>
+            return new Dictionary<DiffTargets, Func<Repository, TreeComparisonHandleRetriever>>
                        {
-                           { DiffTarget.Index, r => IndexToTree(r) },
-                           { DiffTarget.WorkingDirectory, r => WorkdirToTree(r) },
-                           { DiffTarget.BothWorkingDirectoryAndIndex, r => WorkdirAndIndexToTree(r) },
+                           { DiffTargets.Index, IndexToTree },
+                           { DiffTargets.WorkingDirectory, WorkdirToTree },
+                           { DiffTargets.Index | DiffTargets.WorkingDirectory, WorkdirAndIndexToTree },
                        };
         }
 
@@ -122,11 +122,41 @@ namespace LibGit2Sharp
         /// <param name = "diffTarget">The target to compare to.</param>
         /// <param name = "paths">The list of paths (either files or directories) that should be compared.</param>
         /// <returns>A <see cref = "TreeChanges"/> containing the changes between the <see cref="Tree"/> and the selected target.</returns>
+        [Obsolete("This method will be removed in the next release. Please use Compare(Tree, Tree, DiffTargets, IEnumerable<string>) instead.")]
         public virtual TreeChanges Compare(Tree oldTree, DiffTarget diffTarget, IEnumerable<string> paths = null)
+        {
+            DiffTargets targets;
+
+            switch (diffTarget)
+            {
+                case DiffTarget.Index:
+                    targets = DiffTargets.Index;
+                    break;
+
+                case DiffTarget.WorkingDirectory:
+                    targets = DiffTargets.WorkingDirectory;
+                    break;
+
+                default:
+                    targets = DiffTargets.Index | DiffTargets.WorkingDirectory;
+                    break;
+            }
+
+            return Compare(oldTree, targets, paths);
+        }
+
+        /// <summary>
+        ///   Show changes between a <see cref = "Tree"/> and the Index, the Working Directory, or both.
+        /// </summary>
+        /// <param name = "oldTree">The <see cref = "Tree"/> to compare from.</param>
+        /// <param name = "diffTargets">The targets to compare to.</param>
+        /// <param name = "paths">The list of paths (either files or directories) that should be compared.</param>
+        /// <returns>A <see cref = "TreeChanges"/> containing the changes between the <see cref="Tree"/> and the selected target.</returns>
+        public virtual TreeChanges Compare(Tree oldTree, DiffTargets diffTargets, IEnumerable<string> paths = null)
         {
             Ensure.ArgumentNotNull(oldTree, "oldTree");
 
-            var comparer = handleRetrieverDispatcher[diffTarget](repo);
+            var comparer = handleRetrieverDispatcher[diffTargets](repo);
 
             using (GitDiffOptions options = BuildOptions(paths))
             using (DiffListSafeHandle dl = BuildDiffListFromTreeAndComparer(oldTree.Id, comparer, options))
