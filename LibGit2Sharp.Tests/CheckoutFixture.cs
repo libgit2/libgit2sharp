@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
 using Xunit.Extensions;
@@ -23,8 +24,9 @@ namespace LibGit2Sharp.Tests
                 Branch master = repo.Branches["master"];
                 Assert.True(master.IsCurrentRepositoryHead);
 
-                // Hard reset to ensure that working directory, index, and HEAD match
-                repo.Reset(ResetOptions.Hard);
+                // Set the working directory to the current head
+                ResetAndCleanWorkingDirectory(repo);
+
                 Assert.False(repo.Index.RetrieveStatus().IsDirty);
 
                 Branch branch = repo.Branches[branchName];
@@ -55,8 +57,9 @@ namespace LibGit2Sharp.Tests
                 Branch master = repo.Branches["master"];
                 Assert.True(master.IsCurrentRepositoryHead);
 
-                // Hard reset to ensure that working directory, index, and HEAD match
-                repo.Reset(ResetOptions.Hard);
+                // Set the working directory to the current head
+                ResetAndCleanWorkingDirectory(repo);
+
                 Assert.False(repo.Index.RetrieveStatus().IsDirty);
 
                 Branch test = repo.Checkout(branchName);
@@ -84,8 +87,9 @@ namespace LibGit2Sharp.Tests
                 Branch master = repo.Branches["master"];
                 Assert.True(master.IsCurrentRepositoryHead);
 
-                // Hard reset to ensure that working directory, index, and HEAD match
-                repo.Reset(ResetOptions.Hard);
+                // Set the working directory to the current head
+                ResetAndCleanWorkingDirectory(repo);
+
                 Assert.False(repo.Index.RetrieveStatus().IsDirty);
 
                 Branch detachedHead = repo.Checkout(commitPointer);
@@ -197,8 +201,9 @@ namespace LibGit2Sharp.Tests
                 Branch master = repo.Branches["master"];
                 Assert.True(master.IsCurrentRepositoryHead);
 
-                // Hard reset to ensure that working directory, index, and HEAD match
-                repo.Reset(ResetOptions.Hard);
+                // Set the working directory to the current head
+                ResetAndCleanWorkingDirectory(repo);
+
                 Assert.False(repo.Index.RetrieveStatus().IsDirty);
 
                 // Add local change
@@ -321,6 +326,39 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        [Fact]
+        public void CheckoutLeavesUntrackedDirectory()
+        {
+            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+
+            using (var repo = Repository.Init(scd.DirectoryPath))
+            {
+                PopulateBasicRepository(repo);
+
+                // Generate a .gitignore file
+                string gitIgnoreFilePath = Path.Combine(repo.Info.WorkingDirectory, ".gitignore");
+                File.WriteAllText(gitIgnoreFilePath, ".bin");
+                repo.Index.Stage(gitIgnoreFilePath);
+                repo.Commit("Add git ignore file", Constants.Signature, Constants.Signature);
+
+                // Create a bin directory
+                string ignoredDirectoryPath = Path.Combine(repo.Info.WorkingDirectory, "bin");
+                Directory.CreateDirectory(ignoredDirectoryPath);
+
+                // Create file in ignored bin directory
+                string ignoredFilePath = Path.Combine(repo.Info.WorkingDirectory, Path.Combine("bin", "some_ignored_file.txt"));
+                File.WriteAllText(ignoredFilePath, "hello from this ignored file.");
+
+                // Verify that there is an untracked entry
+                Assert.Equal(1, repo.Index.RetrieveStatus().Untracked.Count());
+
+                repo.Checkout(otherBranchName, CheckoutOptions.Force, null);
+
+                Assert.True(Directory.Exists(ignoredDirectoryPath));
+                Assert.True(File.Exists(ignoredFilePath));
+            }
+        }
+
         /// <summary>
         ///   Helper method to populate a simple repository with
         ///   a single file and two branches.
@@ -334,6 +372,20 @@ namespace LibGit2Sharp.Tests
             repo.Commit("Initial commit", Constants.Signature, Constants.Signature);
 
             repo.CreateBranch(otherBranchName);
+        }
+
+        /// <summary>
+        /// Reset and clean current working directory. This will ensure that the current
+        /// working directory matches the current Head commit.
+        /// </summary>
+        /// <param name="repo">Repository whose current working directory should be operated on.</param>
+        private void ResetAndCleanWorkingDirectory(Repository repo)
+        {
+            // Reset the index and the working tree.
+            repo.Reset(ResetOptions.Hard);
+
+            // Remove untracked files.
+            repo.Index.CleanWorkingDirectory();
         }
     }
 }

@@ -338,6 +338,19 @@ namespace LibGit2Sharp
             UpdatePhysicalIndex();
         }
 
+        /// <summary>
+        /// Clean the working tree by removing files that are not under version control.
+        /// </summary>
+        public virtual void CleanWorkingDirectory()
+        {
+            GitCheckoutOpts options = new GitCheckoutOpts
+            {
+                checkout_strategy = CheckoutStrategy.GIT_CHECKOUT_REMOVE_UNTRACKED | CheckoutStrategy.GIT_CHECKOUT_ALLOW_CONFLICTS,
+            };
+
+            Proxy.git_checkout_index(this.repo.Handle, repo.Index.Handle, options);
+        }
+
         private IEnumerable<KeyValuePair<string, FileStatus>> PrepareBatch(IEnumerable<string> paths)
         {
             Ensure.ArgumentNotNull(paths, "paths");

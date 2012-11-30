@@ -18,5 +18,10 @@ namespace LibGit2Sharp.Core
         Tag,
         Tree,
         Indexer,
+        Ssl,
+        Submodule,
+        Thread,
+        Stash,
+        Checkout,
     }
 }
