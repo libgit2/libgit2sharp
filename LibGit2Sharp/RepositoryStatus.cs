@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using LibGit2Sharp.Core;
 
@@ -66,6 +67,28 @@ namespace LibGit2Sharp
             }
 
             return new StatusEntry(filePath.Native, gitStatus);
+        }
+
+        /// <summary>
+        ///   Gets the <see cref = "FileStatus" /> for the specified relative path.
+        /// </summary>
+        public virtual FileStatus this[string path]
+        {
+            get
+            {
+                Ensure.ArgumentNotNullOrEmptyString(path, "path");
+
+                var entries = statusEntries.Where(e => string.Equals(e.FilePath, path, StringComparison.Ordinal)).ToList();
+
+                Debug.Assert(!(entries.Count > 1));
+
+                if (entries.Count == 0)
+                {
+                    return FileStatus.Nonexistent;
+                }
+
+                return entries.Single().State;
+            }
         }
 
         /// <summary>

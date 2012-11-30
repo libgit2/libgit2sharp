@@ -37,8 +37,7 @@ namespace LibGit2Sharp.Tests
 
                 RepositoryStatus status = repo.Index.RetrieveStatus();
 
-                IndexEntry indexEntry = repo.Index[file];
-                Assert.Equal(FileStatus.Staged, indexEntry.State);
+                Assert.Equal(FileStatus.Staged, status[file]);
 
                 Assert.NotNull(status);
                 Assert.Equal(6, status.Count());
@@ -54,9 +53,10 @@ namespace LibGit2Sharp.Tests
                 File.AppendAllText(Path.Combine(repo.Info.WorkingDirectory, file),
                                    "Tclem's favorite commit message: boom");
 
-                Assert.Equal(FileStatus.Staged | FileStatus.Modified, indexEntry.State);
+                Assert.Equal(FileStatus.Staged | FileStatus.Modified, repo.Index.RetrieveStatus(file));
 
                 RepositoryStatus status2 = repo.Index.RetrieveStatus();
+                Assert.Equal(FileStatus.Staged | FileStatus.Modified, status2[file]);
 
                 Assert.NotNull(status2);
                 Assert.Equal(6, status2.Count());
