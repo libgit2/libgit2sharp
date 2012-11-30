@@ -6,59 +6,110 @@ namespace LibGit2Sharp.Core
     [Flags]
     internal enum GitDiffOptionFlags
     {
-        /** Normal diff, the default */
+        /// <summary>
+        ///   Normal diff, the default.
+        /// </summary>
         GIT_DIFF_NORMAL = 0,
-        /** Reverse the sides of the diff */
+
+        /// <summary>
+        ///   Reverse the sides of the diff.
+        /// </summary>
         GIT_DIFF_REVERSE = (1 << 0),
-        /** Treat all files as text, disabling binary attributes & detection */
+
+        /// <summary>
+        ///   Treat all files as text, disabling binary attributes and detection.
+        /// </summary>
         GIT_DIFF_FORCE_TEXT = (1 << 1),
-        /** Ignore all whitespace */
+
+        /// <summary>
+        ///   Ignore all whitespace.
+        /// </summary>
         GIT_DIFF_IGNORE_WHITESPACE = (1 << 2),
-        /** Ignore changes in amount of whitespace */
+
+        /// <summary>
+        ///   Ignore changes in amount of whitespace.
+        /// </summary>
         GIT_DIFF_IGNORE_WHITESPACE_CHANGE = (1 << 3),
-        /** Ignore whitespace at end of line */
+
+        /// <summary>
+        ///   Ignore whitespace at end of line.
+        /// </summary>
         GIT_DIFF_IGNORE_WHITESPACE_EOL = (1 << 4),
-        /** Exclude submodules from the diff completely */
+
+        /// <summary>
+        ///   Exclude submodules from the diff completely.
+        /// </summary>
         GIT_DIFF_IGNORE_SUBMODULES = (1 << 5),
-        /** Use the "patience diff" algorithm (currently unimplemented) */
+
+        /// <summary>
+        ///   Use the "patience diff" algorithm (currently unimplemented).
+        /// </summary>
         GIT_DIFF_PATIENCE = (1 << 6),
-        /** Include ignored files in the diff list */
+
+        /// <summary>
+        ///   Include ignored files in the diff list.
+        /// </summary>
         GIT_DIFF_INCLUDE_IGNORED = (1 << 7),
-        /** Include untracked files in the diff list */
+
+        /// <summary>
+        ///   Include untracked files in the diff list.
+        /// </summary>
         GIT_DIFF_INCLUDE_UNTRACKED = (1 << 8),
-        /** Include unmodified files in the diff list */
+
+        /// <summary>
+        ///   Include unmodified files in the diff list.
+        /// </summary>
         GIT_DIFF_INCLUDE_UNMODIFIED = (1 << 9),
-        /** Even with the GIT_DIFF_INCLUDE_UNTRACKED flag, when an untracked
-         *  directory is found, only a single entry for the directory is added
-         *  to the diff list; with this flag, all files under the directory will
-         *  be included, too.
-         */
+
+        /// <summary>
+        ///   Even with the GIT_DIFF_INCLUDE_UNTRACKED flag, when an untracked
+        ///   directory is found, only a single entry for the directory is added
+        ///   to the diff list; with this flag, all files under the directory will
+        ///   be included, too.
+        /// </summary>
         GIT_DIFF_RECURSE_UNTRACKED_DIRS = (1 << 10),
-        /** If the pathspec is set in the diff options, this flags means to
-         *  apply it as an exact match instead of as an fnmatch pattern.
-         */
+
+        /// <summary>
+        ///  If the pathspec is set in the diff options, this flags means to
+        ///  apply it as an exact match instead of as an fnmatch pattern.
+        /// </summary>
         GIT_DIFF_DISABLE_PATHSPEC_MATCH = (1 << 11),
-        /** Use case insensitive filename comparisons */
+
+        /// <summary>
+        ///   Use case insensitive filename comparisons.
+        /// </summary>
         GIT_DIFF_DELTAS_ARE_ICASE = (1 << 12),
-        /** When generating patch text, include the content of untracked files */
+
+        /// <summary>
+        ///   When generating patch text, include the content of untracked files.
+        /// </summary>
         GIT_DIFF_INCLUDE_UNTRACKED_CONTENT = (1 << 13),
-        /** Disable updating of the `binary` flag in delta records.  This is
-         *  useful when iterating over a diff if you don't need hunk and data
-         *  callbacks and want to avoid having to load file completely.
-         */
+
+        /// <summary>
+        ///  Disable updating of the `binary` flag in delta records.  This is
+        ///  useful when iterating over a diff if you don't need hunk and data
+        ///  callbacks and want to avoid having to load file completely.
+        /// </summary>
         GIT_DIFF_SKIP_BINARY_CHECK = (1 << 14),
-        /** Normally, a type change between files will be converted into a
-         *  DELETED record for the old and an ADDED record for the new; this
-         *  options enabled the generation of TYPECHANGE delta records.
-         */
+
+        /// <summary>
+        /// Normally, a type change between files will be converted into a
+        /// DELETED record for the old and an ADDED record for the new; this
+        /// options enabled the generation of TYPECHANGE delta records.
+        /// </summary>
         GIT_DIFF_INCLUDE_TYPECHANGE = (1 << 15),
-        /** Even with GIT_DIFF_INCLUDE_TYPECHANGE, blob->tree changes still
-         *  generally show as a DELETED blob.  This flag tries to correctly
-         *  label blob->tree transitions as TYPECHANGE records with new_file's
-         *  mode set to tree.  Note: the tree SHA will not be available.
-         */
+
+        /// <summary>
+        ///  Even with GIT_DIFF_INCLUDE_TYPECHANGE, blob->tree changes still
+        ///  generally show as a DELETED blob.  This flag tries to correctly
+        ///  label blob->tree transitions as TYPECHANGE records with new_file's
+        ///  mode set to tree.  Note: the tree SHA will not be available.
+        /// </summary>
         GIT_DIFF_INCLUDE_TYPECHANGE_TREES = (1 << 16),
-        /** Ignore file mode changes */
+
+        /// <summary>
+        ///   Ignore file mode changes.
+        /// </summary>
         GIT_DIFF_IGNORE_FILEMODE = (1 << 17),
     }
 
