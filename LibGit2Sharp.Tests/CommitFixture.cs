@@ -28,9 +28,11 @@ namespace LibGit2Sharp.Tests
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
             using (var repo = new Repository(path.RepositoryPath))
             {
+                // Hard reset and then remove untracked files
                 repo.Reset(ResetOptions.Hard);
+                repo.Index.CleanWorkingDirectory();
 
-                repo.Checkout("test", CheckoutOptions.Force, null);
+                repo.Checkout("test");
                 Assert.Equal(2, repo.Commits.Count());
                 Assert.Equal("e90810b8df3e80c413d903f631643c716887138d", repo.Commits.First().Id.Sha);
 
@@ -227,10 +229,12 @@ namespace LibGit2Sharp.Tests
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
             using (var repoClone = new Repository(path.RepositoryPath))
             {
+                // Hard reset and then remove untracked files
                 repoClone.Reset(ResetOptions.Hard);
+                repoClone.Index.CleanWorkingDirectory();
 
-                Branch head = repoClone.Head;
-                repoClone.Checkout(head, CheckoutOptions.Force, null);
+                string headSha = repoClone.Head.Tip.Sha;
+                repoClone.Checkout(headSha);
 
                 AssertEnumerationOfCommitsInRepo(repoClone,
                     repo => new Filter { Since = repo.Head },
