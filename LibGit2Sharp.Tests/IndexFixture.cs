@@ -212,7 +212,6 @@ namespace LibGit2Sharp.Tests
                 repo.Index.Stage(filename);
                 Assert.NotNull(repo.Index[filename]);
                 Assert.Equal(FileStatus.Added, repo.Index.RetrieveStatus(filename));
-                Assert.Equal(FileStatus.Added, repo.Index[filename].State);
             }
 
             using (var repo = new Repository(path.RepositoryPath))
@@ -220,7 +219,6 @@ namespace LibGit2Sharp.Tests
                 const string filename = "unit_test.txt";
                 Assert.NotNull(repo.Index[filename]);
                 Assert.Equal(FileStatus.Added, repo.Index.RetrieveStatus(filename));
-                Assert.Equal(FileStatus.Added, repo.Index[filename].State);
             }
         }
 
