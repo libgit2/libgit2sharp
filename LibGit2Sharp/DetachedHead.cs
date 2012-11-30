@@ -11,5 +11,16 @@
         {
             return branchName;
         }
+
+        /// <summary>
+        ///   Determines if this local branch is connected to a remote one.
+        /// </summary>
+        public override bool IsTracking
+        {
+            get
+            {
+                return false;
+            }
+        }
     }
 }

@@ -580,5 +580,21 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(br2.Tip, newTest.Tip);
             }
         }
+
+        [Fact]
+        public void DetachedHeadIsNotATrackingBranch()
+        {
+            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
+            using (var repo = new Repository(path.DirectoryPath))
+            {
+                repo.Reset(ResetOptions.Hard);
+                repo.RemoveUntrackedFiles();
+
+                string headSha = repo.Head.Tip.Sha;
+                repo.Checkout(headSha);
+
+                Assert.False(repo.Head.IsTracking);
+            }
+        }
     }
 }
