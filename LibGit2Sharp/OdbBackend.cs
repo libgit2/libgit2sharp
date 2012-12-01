@@ -143,6 +143,11 @@ namespace LibGit2Sharp
                         nativeBackend.ReadHeader = BackendEntryPoints.ReadHeaderCallback;
                     }
 
+                    if ((supportedOperations & OdbBackendOperations.ReadStream) != 0)
+                    {
+                        nativeBackend.ReadStream = BackendEntryPoints.ReadStreamCallback;
+                    }
+
                     if ((supportedOperations & OdbBackendOperations.Write) != 0)
                     {
                         nativeBackend.Write = BackendEntryPoints.WriteCallback;
@@ -181,6 +186,7 @@ namespace LibGit2Sharp
             public static GitOdbBackend.read_callback ReadCallback = new GitOdbBackend.read_callback(Read);
             public static GitOdbBackend.read_prefix_callback ReadPrefixCallback = new GitOdbBackend.read_prefix_callback(ReadPrefix);
             public static GitOdbBackend.read_header_callback ReadHeaderCallback = new GitOdbBackend.read_header_callback(ReadHeader);
+            public static GitOdbBackend.readstream_callback ReadStreamCallback = new GitOdbBackend.readstream_callback(ReadStream);
             public static GitOdbBackend.write_callback WriteCallback = new GitOdbBackend.write_callback(Write);
             public static GitOdbBackend.writestream_callback WriteStreamCallback = new GitOdbBackend.writestream_callback(WriteStream);
             public static GitOdbBackend.exists_callback ExistsCallback = new GitOdbBackend.exists_callback(Exists);
