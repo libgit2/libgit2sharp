@@ -82,6 +82,24 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        [Fact]
+        public void CanCleanWorkingDirectory()
+        {
+            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                // Verify that there are the expected number of entries and untracked files
+                Assert.Equal(6, repo.Index.RetrieveStatus().Count());
+                Assert.Equal(1, repo.Index.RetrieveStatus().Untracked.Count());
+
+                repo.Index.CleanWorkingDirectory();
+
+                // Verify that there are the expected number of entries and 0 untracked files
+                Assert.Equal(5, repo.Index.RetrieveStatus().Count());
+                Assert.Equal(0, repo.Index.RetrieveStatus().Untracked.Count());
+            }
+        }
+
         [Theory]
         [InlineData("1/branch_file.txt", FileStatus.Unaltered, true, FileStatus.Unaltered, true, 0)]
         [InlineData("README", FileStatus.Unaltered, true, FileStatus.Unaltered, true, 0)]

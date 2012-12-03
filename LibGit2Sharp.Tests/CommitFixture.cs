@@ -28,7 +28,9 @@ namespace LibGit2Sharp.Tests
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
             using (var repo = new Repository(path.RepositoryPath))
             {
+                // Hard reset and then remove untracked files
                 repo.Reset(ResetOptions.Hard);
+                repo.Index.CleanWorkingDirectory();
 
                 repo.Checkout("test");
                 Assert.Equal(2, repo.Commits.Count());
@@ -227,7 +229,9 @@ namespace LibGit2Sharp.Tests
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
             using (var repoClone = new Repository(path.RepositoryPath))
             {
+                // Hard reset and then remove untracked files
                 repoClone.Reset(ResetOptions.Hard);
+                repoClone.Index.CleanWorkingDirectory();
 
                 string headSha = repoClone.Head.Tip.Sha;
                 repoClone.Checkout(headSha);
