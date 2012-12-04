@@ -72,11 +72,11 @@ namespace LibGit2Sharp
             }
         }
 
-        private IndexEntry this[uint index]
+        private IndexEntry this[int index]
         {
             get
             {
-                IndexEntrySafeHandle entryHandle = Proxy.git_index_get_byindex(handle, index);
+                IndexEntrySafeHandle entryHandle = Proxy.git_index_get_byindex(handle, (UIntPtr)index);
                 return IndexEntry.BuildFromPtr(repo, entryHandle);
             }
         }
@@ -102,7 +102,7 @@ namespace LibGit2Sharp
         {
             var list = new List<IndexEntry>();
 
-            for (uint i = 0; i < Count; i++)
+            for (int i = 0; i < Count; i++)
             {
                 list.Add(this[i]);
             }

@@ -36,6 +36,26 @@
         BareRepo = -8,
 
         /// <summary>
+        ///   Operation cannot be performed against an orphaned HEAD.
+        /// </summary>
+        OrphanedHead = -9,
+
+        /// <summary>
+        ///   Operation cannot be performed against a not fully merged index.
+        /// </summary>
+        UnmergedEntries = -10,
+
+        /// <summary>
+        ///   Push cannot be performed against the remote without losing commits.
+        /// </summary>
+        NonFastForward = -11,
+
+        /// <summary>
+        ///   Input is not a valid specification.
+        /// </summary>
+        InvalidSpecification = -11,
+
+        /// <summary>
         ///   Skip and passthrough the given ODB backend.
         /// </summary>
         PassThrough = -30,
