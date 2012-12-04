@@ -341,6 +341,26 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
+        public void CanUnstageUntrackedFileInAnEmptyRepository()
+        {
+            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+
+            using (var repo = Repository.Init(scd.DirectoryPath))
+            {
+                string relativePath = "a.txt";
+                string absolutePath = Path.Combine(repo.Info.WorkingDirectory, relativePath);
+
+                File.WriteAllText(absolutePath, "hello test file\n", Encoding.ASCII);
+                repo.Index.Stage(absolutePath);
+
+                repo.Index.Unstage(relativePath);
+                RepositoryStatus status = repo.Index.RetrieveStatus();
+                Assert.Equal(0, status.Staged.Count());
+                Assert.Equal(1, status.Untracked.Count());
+            }
+        }
+
+        [Fact]
         public void UnstagingFileWithBadParamsThrows()
         {
             using (var repo = new Repository(StandardTestRepoPath))
