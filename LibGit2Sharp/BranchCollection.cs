@@ -120,7 +120,7 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
             Ensure.ArgumentNotNull(commit, "commit");
 
-            Proxy.git_branch_create(repo.Handle, name, commit.Id, allowOverwrite);
+            using (Proxy.git_branch_create(repo.Handle, name, commit.Id, allowOverwrite)) {}
 
             return this[ShortToLocalName(name)];
         }

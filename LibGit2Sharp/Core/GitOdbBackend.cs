@@ -29,6 +29,7 @@ namespace LibGit2Sharp.Core
         public readstream_callback ReadStream;
         public exists_callback Exists;
         public foreach_callback Foreach;
+        public IntPtr Writepack;
         public free_callback Free;
 
         /* The libgit2 structure definition ends here. Subsequent fields are for libgit2sharp bookkeeping. */
@@ -78,7 +79,7 @@ namespace LibGit2Sharp.Core
             out GitObjectType type_p,
             IntPtr backend,
             ref GitOid short_oid,
-            uint len);
+            UIntPtr len);
 
         /// <summary>
         /// The backend is passed an OID. From that data the backend is expected to return the size of the

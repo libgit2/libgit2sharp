@@ -112,7 +112,8 @@ namespace LibGit2Sharp
 
                 string canonicalNamespace = NormalizeToCanonicalName(@namespace);
 
-                return Proxy.git_note_foreach(repo.Handle, canonicalNamespace, n => RetrieveNote(new ObjectId(n.TargetOid), canonicalNamespace));
+                return Proxy.git_note_foreach(repo.Handle, canonicalNamespace,
+                    (blobId,annotatedObjId) => RetrieveNote(new ObjectId(annotatedObjId), canonicalNamespace));
             }
         }
 

@@ -18,6 +18,6 @@ namespace LibGit2Sharp.Core
 
         internal NativeMethods.remote_update_tips_callback update_tips;
 
-        internal IntPtr data;
+        internal IntPtr payload;
     }
 }

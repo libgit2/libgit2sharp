@@ -23,7 +23,7 @@ namespace LibGit2Sharp
                                  options, FileCallback, HunkCallback, LineCallback);
         }
 
-        private int FileCallback(IntPtr data, GitDiffDelta delta, float progress)
+        private int FileCallback(GitDiffDelta delta, float progress, IntPtr payload)
         {
             IsBinaryComparison = delta.IsBinary();
 
@@ -37,17 +37,17 @@ namespace LibGit2Sharp
             return 0;
         }
 
-        private int HunkCallback(IntPtr data, GitDiffDelta delta, GitDiffRange range, IntPtr header, uint headerlen)
+        private int HunkCallback(GitDiffDelta delta, GitDiffRange range, IntPtr header, UIntPtr headerlen, IntPtr payload)
         {
-            string decodedContent = Utf8Marshaler.FromNative(header, headerlen);
+            string decodedContent = Utf8Marshaler.FromNative(header, (uint)headerlen);
 
             AppendToPatch(decodedContent);
             return 0;
         }
 
-        private int LineCallback(IntPtr data, GitDiffDelta delta, GitDiffRange range, GitDiffLineOrigin lineorigin, IntPtr content, uint contentlen)
+        private int LineCallback(GitDiffDelta delta, GitDiffRange range, GitDiffLineOrigin lineorigin, IntPtr content, UIntPtr contentlen, IntPtr payload)
         {
-            string decodedContent = Utf8Marshaler.FromNative(content, contentlen);
+            string decodedContent = Utf8Marshaler.FromNative(content, (uint)contentlen);
 
             string prefix;
 

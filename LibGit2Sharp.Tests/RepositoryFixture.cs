@@ -537,5 +537,17 @@ namespace LibGit2Sharp.Tests
                 Assert.True(checkoutWasCalled);
             }
         }
+
+        [Fact]
+        public void QueryingTheRemoteForADetachedHeadBranchReturnsNull()
+        {
+            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
+            using (var repo = new Repository(path.DirectoryPath))
+            {
+                repo.Checkout(repo.Head.Tip.Sha, CheckoutOptions.Force, null);
+                Branch trackLocal = repo.Head;
+                Assert.Null(trackLocal.Remote);
+            }
+        }
     }
 }
