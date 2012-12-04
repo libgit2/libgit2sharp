@@ -170,14 +170,14 @@ namespace LibGit2Sharp
             get
             {
                 string remoteName = repo.Config.Get<string>("branch", Name, "remote", null);
-                Remote remote = null;
 
-                if (!string.IsNullOrEmpty(remoteName))
+                if (string.IsNullOrEmpty(remoteName) ||
+                    string.Equals(remoteName, ".", StringComparison.Ordinal))
                 {
-                    remote = repo.Remotes[remoteName];
+                    return null;
                 }
 
-                return remote;
+                return repo.Remotes[remoteName];
             }
         }
 

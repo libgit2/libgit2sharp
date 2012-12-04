@@ -87,14 +87,12 @@ namespace LibGit2Sharp
                 {
                     Proxy.git_remote_connect(remoteHandle, GitDirection.Fetch);
                     Proxy.git_remote_download(remoteHandle, onTransferProgress);
+                    Proxy.git_remote_update_tips(remoteHandle);
                 }
                 finally
                 {
                     Proxy.git_remote_disconnect(remoteHandle);
                 }
-
-                // Update references.
-                Proxy.git_remote_update_tips(remoteHandle);
             }
         }
 

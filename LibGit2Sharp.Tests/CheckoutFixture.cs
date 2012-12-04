@@ -23,8 +23,9 @@ namespace LibGit2Sharp.Tests
                 Branch master = repo.Branches["master"];
                 Assert.True(master.IsCurrentRepositoryHead);
 
-                // Hard reset to ensure that working directory, index, and HEAD match
-                repo.Reset(ResetOptions.Hard);
+                // Set the working directory to the current head
+                ResetAndCleanWorkingDirectory(repo);
+
                 Assert.False(repo.Index.RetrieveStatus().IsDirty);
 
                 Branch branch = repo.Branches[branchName];
@@ -55,8 +56,9 @@ namespace LibGit2Sharp.Tests
                 Branch master = repo.Branches["master"];
                 Assert.True(master.IsCurrentRepositoryHead);
 
-                // Hard reset to ensure that working directory, index, and HEAD match
-                repo.Reset(ResetOptions.Hard);
+                // Set the working directory to the current head
+                ResetAndCleanWorkingDirectory(repo);
+
                 Assert.False(repo.Index.RetrieveStatus().IsDirty);
 
                 Branch test = repo.Checkout(branchName);
@@ -84,8 +86,9 @@ namespace LibGit2Sharp.Tests
                 Branch master = repo.Branches["master"];
                 Assert.True(master.IsCurrentRepositoryHead);
 
-                // Hard reset to ensure that working directory, index, and HEAD match
-                repo.Reset(ResetOptions.Hard);
+                // Set the working directory to the current head
+                ResetAndCleanWorkingDirectory(repo);
+
                 Assert.False(repo.Index.RetrieveStatus().IsDirty);
 
                 Branch detachedHead = repo.Checkout(commitPointer);
@@ -197,8 +200,9 @@ namespace LibGit2Sharp.Tests
                 Branch master = repo.Branches["master"];
                 Assert.True(master.IsCurrentRepositoryHead);
 
-                // Hard reset to ensure that working directory, index, and HEAD match
-                repo.Reset(ResetOptions.Hard);
+                // Set the working directory to the current head
+                ResetAndCleanWorkingDirectory(repo);
+
                 Assert.False(repo.Index.RetrieveStatus().IsDirty);
 
                 // Add local change
@@ -334,6 +338,20 @@ namespace LibGit2Sharp.Tests
             repo.Commit("Initial commit", Constants.Signature, Constants.Signature);
 
             repo.CreateBranch(otherBranchName);
+        }
+
+        /// <summary>
+        /// Reset and clean current working directory. This will ensure that the current
+        /// working directory matches the current Head commit.
+        /// </summary>
+        /// <param name="repo">Repository whose current working directory should be operated on.</param>
+        private void ResetAndCleanWorkingDirectory(Repository repo)
+        {
+            // Reset the index and the working tree.
+            repo.Reset(ResetOptions.Hard);
+
+            // Clean the working directory.
+            repo.RemoveUntrackedFiles();
         }
     }
 }

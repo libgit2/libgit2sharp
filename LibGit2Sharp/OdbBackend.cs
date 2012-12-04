@@ -251,7 +251,7 @@ namespace LibGit2Sharp
                 out GitObjectType type_p,
                 IntPtr backend,
                 ref GitOid short_oid,
-                uint len)
+                UIntPtr len)
             {
                 out_oid = default(GitOid);
                 buffer_p = IntPtr.Zero;
@@ -270,7 +270,7 @@ namespace LibGit2Sharp
                     {
                         // The length of short_oid is described in characters (40 per full ID) vs. bytes (20)
                         // which is what we care about.
-                        byte[] shortOidArray = new byte[len >> 1];
+                        byte[] shortOidArray = new byte[(long)len >> 1];
                         Array.Copy(short_oid.Id, shortOidArray, shortOidArray.Length);
 
                         int toReturn = odbBackend.ReadPrefix(shortOidArray, out oid, out dataStream, out objectType);

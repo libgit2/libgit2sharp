@@ -13,7 +13,7 @@ namespace LibGit2Sharp.Core
         public uint Mode;
         public uint Uid;
         public uint Gid;
-        public long file_size;
+        public Int64 file_size;
         public GitOid oid;
         public ushort Flags;
         public ushort ExtendedFlags;

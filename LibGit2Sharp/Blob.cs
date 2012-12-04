@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
@@ -8,7 +9,7 @@ namespace LibGit2Sharp
     /// </summary>
     public class Blob : GitObject
     {
-        private readonly ILazy<int> lazySize;
+        private readonly ILazy<Int64> lazySize;
 
         /// <summary>
         ///   Needed for mocking purposes.
@@ -25,7 +26,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Gets the size in bytes of the contents of a blob
         /// </summary>
-        public virtual int Size { get { return lazySize.Value; } }
+        public virtual int Size { get { return (int)lazySize.Value; } }
 
         /// <summary>
         ///   Gets the blob content in a <see cref="byte" /> array.

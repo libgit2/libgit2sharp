@@ -48,9 +48,9 @@ namespace LibGit2Sharp
             Proxy.git_diff_print_patch(diff, PrintCallBack);
         }
 
-        private int PrintCallBack(IntPtr data, GitDiffDelta delta, GitDiffRange range, GitDiffLineOrigin lineorigin, IntPtr content, uint contentlen)
+        private int PrintCallBack(GitDiffDelta delta, GitDiffRange range, GitDiffLineOrigin lineorigin, IntPtr content, UIntPtr contentlen, IntPtr payload)
         {
-            string formattedoutput = Utf8Marshaler.FromNative(content, contentlen);
+            string formattedoutput = Utf8Marshaler.FromNative(content, (uint)contentlen);
 
             TreeEntryChanges currentChange = AddFileChange(delta, lineorigin);
             AddLineChange(currentChange, lineorigin);
