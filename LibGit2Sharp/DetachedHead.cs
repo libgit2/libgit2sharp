@@ -11,5 +11,16 @@
         {
             return branchName;
         }
+
+        /// <summary>
+        ///   Detached Head cannot be a tracking branch.
+        /// </summary>
+        public override bool IsTracking
+        {
+            get
+            {
+                return false;
+            }
+        }
     }
 }
