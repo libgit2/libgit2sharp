@@ -70,10 +70,6 @@ namespace LibGit2Sharp
         /// <returns>A <see cref = "TreeChanges"/> containing the changes between the <paramref name = "oldTree"/> and the <paramref name = "newTree"/>.</returns>
         public virtual TreeChanges Compare(Tree oldTree, Tree newTree, IEnumerable<string> paths = null)
         {
-            //TODO: The checks below will be removed when running against next libgit2 binaries
-            Ensure.ArgumentNotNull(oldTree, "oldTree");
-            Ensure.ArgumentNotNull(newTree, "newTree");
-
             using(GitDiffOptions options = BuildOptions(paths))
             using (DiffListSafeHandle diff = BuildDiffListFromTrees(
                 oldTree != null ? oldTree.Id : null,

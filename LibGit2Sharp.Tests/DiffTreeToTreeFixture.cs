@@ -355,7 +355,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Fact(Skip = "Not working against libgit2 debug version.")]
+        [Fact]
         public void CanCompareATreeAgainstANullTree()
         {
             using (var repo = new Repository(StandardTestRepoPath))
@@ -378,7 +378,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Fact(Skip = "Not working against libgit2 debug version.")]
+        [Fact]
         public void ComparingTwoNullTreesReturnsAnEmptyTreeChanges()
         {
             using (var repo = new Repository(StandardTestRepoPath))
