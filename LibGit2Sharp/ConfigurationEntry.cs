@@ -13,17 +13,23 @@ namespace LibGit2Sharp
         /// <summary>
         /// The fully-qualified option name.
         /// </summary>
-        public string Key { get; private set; }
+        public virtual string Key { get; private set; }
 
         /// <summary>
         /// The option value.
         /// </summary>
-        public T Value { get; private set; }
+        public virtual T Value { get; private set; }
 
         /// <summary>
         /// The origin store.
         /// </summary>
-        public ConfigurationLevel Level { get; private set; }
+        public virtual ConfigurationLevel Level { get; private set; }
+
+        /// <summary>
+        ///   Needed for mocking purposes.
+        /// </summary>
+        protected ConfigurationEntry()
+        { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ConfigurationEntry{T}"/> class with a given key and value
@@ -31,7 +37,7 @@ namespace LibGit2Sharp
         /// <param name="key">The option name</param>
         /// <param name="value">The option value</param>
         /// <param name="level">The origin store</param>
-        public ConfigurationEntry(string key, T value, ConfigurationLevel level)
+        internal ConfigurationEntry(string key, T value, ConfigurationLevel level)
         {
             Key = key;
             Value = value;
@@ -56,7 +62,13 @@ namespace LibGit2Sharp
         /// <param name="key">The option name</param>
         /// <param name="value">The option value</param>
         /// <param name="level">The origin store</param>
-        public ConfigurationEntry(string key, string value, ConfigurationLevel level) : base(key, value, level)
+        internal ConfigurationEntry(string key, string value, ConfigurationLevel level) : base(key, value, level)
+        { }
+
+        /// <summary>
+        ///   Needed for mocking purposes.
+        /// </summary>
+        protected ConfigurationEntry()
         { }
     }
 }
