@@ -211,7 +211,19 @@ namespace LibGit2Sharp
         /// <param name = "paths">The collection of paths of the files within the working directory.</param>
         public virtual void Unstage(IEnumerable<string> paths)
         {
-            Commit commit = repo.Lookup("HEAD",
+            Ensure.ArgumentNotNull(paths, "paths");
+
+            IEnumerable<KeyValuePair<string, FileStatus>> batch = PrepareBatch(paths);
+
+            foreach (KeyValuePair<string, FileStatus> kvp in batch)
+            {
+                if (Directory.Exists(kvp.Key))
+                {
+                    throw new NotImplementedException();
+                }
+            }
+
+            var commit = repo.Lookup("HEAD",
                                         GitObjectType.Any,
                                         LookUpOptions.DereferenceResultToCommit) as Commit;
 
