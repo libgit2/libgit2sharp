@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using LibGit2Sharp.Handlers;
 
 namespace LibGit2Sharp
@@ -61,11 +62,23 @@ namespace LibGit2Sharp
         Diff Diff {get;}
 
         /// <summary>
-        ///   Checkout the specified branch, reference or SHA.
+        ///   Gets the database.
         /// </summary>
-        /// <param name = "commitishOrBranchSpec">A revparse spec for the commit or branch to checkout.</param>
-        /// <returns>The new HEAD.</returns>
-        Branch Checkout(string commitishOrBranchSpec);
+        ObjectDatabase ObjectDatabase { get; }
+
+        /// <summary>
+        ///   Lookup notes in the repository.
+        /// </summary>
+        NoteCollection Notes { get; }
+
+        /// <summary>
+        ///   Checkout the specified <see cref = "Branch" />.
+        /// </summary>
+        /// <param name="branch">The <see cref = "Branch" /> to check out. </param>
+        /// <param name="checkoutOptions"><see cref = "CheckoutOptions" /> controlling checkout behavior.</param>
+        /// <param name="onCheckoutProgress"><see cref = "CheckoutProgressHandler" /> that checkout progress is reported through.</param>
+        /// <returns>The <see cref = "Branch" /> that was checked out.</returns>
+        Branch Checkout(Branch branch, CheckoutOptions checkoutOptions, CheckoutProgressHandler onCheckoutProgress);
 
         /// <summary>
         ///   Checkout the specified branch, reference or SHA.
@@ -103,5 +116,25 @@ namespace LibGit2Sharp
         /// <param name = "amendPreviousCommit">True to amend the current <see cref = "Commit"/> pointed at by <see cref = "Repository.Head"/>, false otherwise.</param>
         /// <returns>The generated <see cref = "Commit" />.</returns>
         Commit Commit(string message, Signature author, Signature committer, bool amendPreviousCommit = false);
+
+        /// <summary>
+        ///   Sets the current <see cref = "Repository.Head" /> to the specified commit and optionally resets the <see cref = "Repository.Index" /> and
+        ///   the content of the working tree to match.
+        /// </summary>
+        /// <param name = "resetOptions">Flavor of reset operation to perform.</param>
+        /// <param name = "commitish">A revparse spec for the target commit object.</param>
+        void Reset(ResetOptions resetOptions, string commitish = "HEAD");
+
+        /// <summary>
+        ///   Replaces entries in the <see cref="Repository.Index"/> with entries from the specified commit.
+        /// </summary>
+        /// <param name = "commitish">A revparse spec for the target commit object.</param>
+        /// <param name = "paths">The list of paths (either files or directories) that should be considered.</param>
+        void Reset(string commitish = "HEAD", IEnumerable<string> paths = null);
+
+        /// <summary>
+        /// Clean the working tree by removing files that are not under version control.
+        /// </summary>
+        void RemoveUntrackedFiles();
     }
 }
