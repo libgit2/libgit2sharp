@@ -300,6 +300,7 @@ namespace LibGit2Sharp.Tests
         [InlineData("new_untracked_file.txt", FileStatus.Untracked, false, FileStatus.Untracked, false, 0)]
         [InlineData("modified_staged_file.txt", FileStatus.Staged, true, FileStatus.Modified, true, 0)]
         [InlineData("new_tracked_file.txt", FileStatus.Added, true, FileStatus.Untracked, false, -1)]
+        [InlineData("where-am-I.txt", FileStatus.Nonexistent, false, FileStatus.Nonexistent, false, 0)]
         public void CanUnStage(string relativePath, FileStatus currentStatus, bool doesCurrentlyExistInTheIndex, FileStatus expectedStatusOnceStaged, bool doesExistInTheIndexOnceStaged, int expectedIndexCountVariation)
         {
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
