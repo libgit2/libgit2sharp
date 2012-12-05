@@ -193,7 +193,7 @@ namespace LibGit2Sharp
         /// </summary>
         public virtual void Checkout()
         {
-            repo.CheckoutInternal(CanonicalName, CheckoutOptions.None, null);
+            repo.Checkout(this);
         }
 
         /// <summary>
@@ -203,7 +203,7 @@ namespace LibGit2Sharp
         /// <param name="onCheckoutProgress">Callback method to report checkout progress updates through.</param>
         public virtual void Checkout(CheckoutOptions checkoutOptions, CheckoutProgressHandler onCheckoutProgress)
         {
-            repo.CheckoutInternal(CanonicalName, checkoutOptions, onCheckoutProgress);
+            repo.Checkout(this, checkoutOptions, onCheckoutProgress);
         }
 
         private Branch ResolveTrackedBranch()

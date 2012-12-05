@@ -443,16 +443,6 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Checkout the specified <see cref = "Branch" />, reference or SHA.
         /// </summary>
-        /// <param name = "commitOrBranchSpec">A revparse spec for the commit or branch to checkout.</param>
-        /// <returns>The <see cref = "Branch" /> that was checked out.</returns>
-        public Branch Checkout(string commitOrBranchSpec)
-        {
-            return Checkout(commitOrBranchSpec, CheckoutOptions.None, null);
-        }
-
-        /// <summary>
-        ///   Checkout the specified <see cref = "Branch" />, reference or SHA.
-        /// </summary>
         /// <param name = "commitishOrBranchSpec">A revparse spec for the commit or branch to checkout.</param>
         /// <param name="checkoutOptions"><see cref = "CheckoutOptions" /> controlling checkout behavior.</param>
         /// <param name="onCheckoutProgress"><see cref = "CheckoutProgressHandler" /> that checkout progress is reported through.</param>
@@ -468,16 +458,6 @@ namespace LibGit2Sharp
 
             var commitId = LookupCommit(commitishOrBranchSpec).Id;
             return CheckoutInternal(commitId.Sha, checkoutOptions, onCheckoutProgress);
-        }
-
-        /// <summary>
-        ///   Checkout the specified <see cref = "Branch" />.
-        /// </summary>
-        /// <param name="branch">The <see cref = "Branch" /> to check out.</param>
-        /// <returns>The <see cref = "Branch" /> that was checked out.</returns>
-        public Branch Checkout(Branch branch)
-        {
-            return Checkout(branch, CheckoutOptions.None, null);
         }
 
         /// <summary>
@@ -502,7 +482,7 @@ namespace LibGit2Sharp
         /// <param name="checkoutOptions"><see cref = "CheckoutOptions" /> controlling checkout behavior.</param>
         /// <param name="onCheckoutProgress"><see cref = "CheckoutProgressHandler" /> that checkout progress is reported through.</param>
         /// <returns>The <see cref = "Branch" /> that was checked out.</returns>
-        internal Branch CheckoutInternal(string commitIdOrCanonicalBranchName, CheckoutOptions checkoutOptions, CheckoutProgressHandler onCheckoutProgress)
+        private Branch CheckoutInternal(string commitIdOrCanonicalBranchName, CheckoutOptions checkoutOptions, CheckoutProgressHandler onCheckoutProgress)
         {
             if (Info.IsBare)
             {

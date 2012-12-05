@@ -183,5 +183,28 @@ namespace LibGit2Sharp
 
             return new Signature(name.Value, email.Value, now);
         }
+
+        /// <summary>
+        ///   Checkout the specified <see cref = "Branch" />, reference or SHA.
+        /// </summary>
+        /// <param name="repository">The <see cref = "Repository" /> being worked with.</param>
+        /// <param name = "commitOrBranchSpec">A revparse spec for the commit or branch to checkout.</param>
+        /// <returns>The <see cref = "Branch" /> that was checked out.</returns>
+        public static Branch Checkout(this IRepository repository, string commitOrBranchSpec)
+        {
+            return repository.Checkout(commitOrBranchSpec, CheckoutOptions.None, null);
+        }
+
+
+        /// <summary>
+        ///   Checkout the specified <see cref = "Branch" />.
+        /// </summary>
+        /// <param name="repository">The <see cref = "Repository" /> being worked with.</param>
+        /// <param name="branch">The <see cref = "Branch" /> to check out.</param>
+        /// <returns>The <see cref = "Branch" /> that was checked out.</returns>
+        public static Branch Checkout(this IRepository repository, Branch branch)
+        {
+            return repository.Checkout(branch, CheckoutOptions.None, null);
+        }
     }
 }
