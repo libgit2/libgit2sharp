@@ -341,7 +341,7 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
-        public void CanUnstageUntrackedFileInAnEmptyRepository()
+        public void CanUnstageUntrackedFileAgainstAnOrphanedHead()
         {
             SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
 
@@ -357,6 +357,41 @@ namespace LibGit2Sharp.Tests
                 RepositoryStatus status = repo.Index.RetrieveStatus();
                 Assert.Equal(0, status.Staged.Count());
                 Assert.Equal(1, status.Untracked.Count());
+            }
+        }
+
+        [Fact]
+        public void UnstagingANewFileWithAFullPathWhichEscapesOutOfTheWorkingDirThrows()
+        {
+            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                DirectoryInfo di = Directory.CreateDirectory(scd.DirectoryPath);
+
+                const string filename = "unit_test.txt";
+                string fullPath = Path.Combine(di.FullName, filename);
+                File.WriteAllText(fullPath, "some contents");
+
+                Assert.Throws<ArgumentException>(() => repo.Index.Unstage(fullPath));
+            }
+        }
+
+        [Fact]
+        public void UnstagingANewFileWithAFullPathWhichEscapesOutOfTheWorkingDirAgainstAnOrphanedHeadThrows()
+        {
+            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            SelfCleaningDirectory scd2 = BuildSelfCleaningDirectory();
+
+            using (var repo = Repository.Init(scd2.DirectoryPath))
+            {
+                DirectoryInfo di = Directory.CreateDirectory(scd.DirectoryPath);
+
+                const string filename = "unit_test.txt";
+                string fullPath = Path.Combine(di.FullName, filename);
+                File.WriteAllText(fullPath, "some contents");
+
+                Assert.Throws<ArgumentException>(() => repo.Index.Unstage(fullPath));
             }
         }
 
