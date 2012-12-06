@@ -106,6 +106,11 @@ namespace LibGit2Sharp
                 newTree != null ? newTree.Id : null,
                 options))
             {
+                Proxy.git_diff_find_similar(diff, new GitDiffFindOptions
+                                                      {
+                                                          Flags = GitDiffFindOptionFlags.GIT_DIFF_FIND_RENAMES
+                                                      });
+
                 return new TreeChanges(diff);
             }
         }

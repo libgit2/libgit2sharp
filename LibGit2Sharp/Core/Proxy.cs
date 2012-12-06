@@ -619,6 +619,17 @@ namespace LibGit2Sharp.Core
             }
         }
 
+        public static void git_diff_find_similar(
+            DiffListSafeHandle diff,
+            GitDiffFindOptions options)
+        {
+            using (ThreadAffinity())
+            {
+                int res = NativeMethods.git_diff_find_similar(diff, options);
+                Ensure.Success(res);
+            }
+        }
+
         #endregion
 
         #region git_graph_
