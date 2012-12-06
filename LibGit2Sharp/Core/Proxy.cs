@@ -1380,6 +1380,16 @@ namespace LibGit2Sharp.Core
             }
         }
 
+        public static CurrentOperation git_repository_state(RepositorySafeHandle repo)
+        {
+            using (ThreadAffinity())
+            {
+                int res = NativeMethods.git_repository_state(repo);
+                Ensure.Success(res, true);
+                return (CurrentOperation)res;
+            }
+        }
+
         public static FilePath git_repository_workdir(RepositorySafeHandle repo)
         {
             return NativeMethods.git_repository_workdir(repo);

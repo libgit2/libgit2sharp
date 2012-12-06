@@ -71,5 +71,13 @@ namespace LibGit2Sharp
         {
             get { return Proxy.git_repository_head_orphan(repo.Handle); }
         }
+
+        /// <summary>
+        ///   The pending interactive operation.
+        /// </summary>
+        public virtual CurrentOperation CurrentOperation
+        {
+            get { return Proxy.git_repository_state(repo.Handle); }
+        }
     }
 }

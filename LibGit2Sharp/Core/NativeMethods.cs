@@ -734,6 +734,10 @@ namespace LibGit2Sharp.Core
             bool update_gitlink);
 
         [DllImport(libgit2)]
+        internal static extern int git_repository_state(
+            RepositorySafeHandle repository);
+
+        [DllImport(libgit2)]
         [return : MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(FilePathMarshaler))]
         internal static extern FilePath git_repository_workdir(RepositorySafeHandle repository);
 
