@@ -685,6 +685,11 @@ namespace LibGit2Sharp.Core
             return handle.IsZero ? null : handle;
         }
 
+        public static bool git_index_has_conflicts(IndexSafeHandle index)
+        {
+            return NativeMethods.git_index_has_conflicts(index) != 0;
+        }
+
         public static IndexSafeHandle git_index_open(FilePath indexpath)
         {
             using (ThreadAffinity())

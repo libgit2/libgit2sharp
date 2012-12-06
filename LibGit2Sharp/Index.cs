@@ -59,6 +59,14 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        ///   Determines if the index is free from conflicts.
+        /// </summary>
+        public virtual bool IsFullyMerged
+        {
+            get { return !Proxy.git_index_has_conflicts(handle); }
+        }
+        
+        /// <summary>
         ///   Gets the <see cref = "IndexEntry" /> with the specified relative path.
         /// </summary>
         public virtual IndexEntry this[string path]
