@@ -594,6 +594,7 @@ namespace LibGit2Sharp.Tests
                 repo.Checkout(headSha);
 
                 Assert.False(repo.Head.IsTracking);
+                Assert.Null(repo.Head.TrackedBranch);
             }
         }
     }
