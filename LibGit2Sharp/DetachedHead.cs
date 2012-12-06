@@ -13,14 +13,11 @@
         }
 
         /// <summary>
-        ///   Determines if this local branch is connected to a remote one.
+        ///   Gets the remote branch which is connected to this local one, or null if there is none.
         /// </summary>
-        public override bool IsTracking
+        public override Branch TrackedBranch
         {
-            get
-            {
-                return false;
-            }
+            get { return null; }
         }
     }
 }
