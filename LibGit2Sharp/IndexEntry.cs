@@ -37,6 +37,11 @@ namespace LibGit2Sharp
         public Mode Mode { get; private set; }
 
         /// <summary>
+        ///   Gets the stage number.
+        /// </summary>
+        public StageLevel StageLevel { get; private set; }
+
+        /// <summary>
         ///   Gets the id of the <see cref = "Blob" /> pointed at by this index entry.
         /// </summary>
         public ObjectId Id { get; private set; }
@@ -57,6 +62,7 @@ namespace LibGit2Sharp
                            Path = path.Native,
                            Id = new ObjectId(entry.oid),
                            state = () => repo.Index.RetrieveStatus(path.Native),
+                           StageLevel = Proxy.git_index_entry_stage(handle),
                            Mode = (Mode)entry.Mode
                        };
         }

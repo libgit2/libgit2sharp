@@ -398,6 +398,9 @@ namespace LibGit2Sharp.Core
         internal static extern UIntPtr git_index_entrycount(IndexSafeHandle index);
 
         [DllImport(libgit2)]
+        internal static extern int git_index_entry_stage(IndexEntrySafeHandle indexentry);
+
+        [DllImport(libgit2)]
         internal static extern int git_index_find(
             IndexSafeHandle index,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(FilePathMarshaler))] FilePath path);

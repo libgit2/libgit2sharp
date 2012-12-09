@@ -654,6 +654,11 @@ namespace LibGit2Sharp.Core
             return (int)count;
         }
 
+        public static StageLevel git_index_entry_stage(IndexEntrySafeHandle index)
+        {
+            return (StageLevel)NativeMethods.git_index_entry_stage(index);
+        }
+
         public static int? git_index_find(IndexSafeHandle index, FilePath path)
         {
             int res = NativeMethods.git_index_find(index, path);
