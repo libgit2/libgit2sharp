@@ -118,7 +118,6 @@
     <Compile Include="Core\Handles\OidSafeHandle.cs" />
     <Compile Include="Core\Handles\TreeBuilderSafeHandle.cs" />
     <Compile Include="Core\Handles\TreeEntrySafeHandle_Owned.cs" />
-    <Compile Include="Core\ReferenceExtensions.cs" />
     <Compile Include="Core\Handles\ReferenceSafeHandle.cs" />
     <Compile Include="Core\Handles\SignatureSafeHandle.cs" />
     <Compile Include="Core\Handles\TreeEntrySafeHandle.cs" />

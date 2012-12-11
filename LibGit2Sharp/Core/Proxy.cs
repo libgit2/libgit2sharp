@@ -1411,11 +1411,11 @@ namespace LibGit2Sharp.Core
 
         public static void git_reset(
             RepositorySafeHandle repo,
-            ObjectId commitishId,
+            ObjectId committishId,
             ResetOptions resetKind)
         {
             using (ThreadAffinity())
-            using (var osw = new ObjectSafeWrapper(commitishId, repo))
+            using (var osw = new ObjectSafeWrapper(committishId, repo))
             {
                 int res = NativeMethods.git_reset(repo, osw.ObjectPtr, resetKind);
                 Ensure.Success(res);

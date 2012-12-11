@@ -26,7 +26,7 @@ namespace LibGit2Sharp.Core
             // Ensure mono can JIT the .cctor and adjust the PATH before trying to load the native library. 
             // See https://github.com/libgit2/libgit2sharp/pull/190
             [MethodImpl(MethodImplOptions.NoInlining)]
-            public LibraryLifetimeObject() { NativeMethods.git_threads_init(); }
+            public LibraryLifetimeObject() { Ensure.Success(NativeMethods.git_threads_init()); }
             ~LibraryLifetimeObject() { NativeMethods.git_threads_shutdown(); }
         }
 

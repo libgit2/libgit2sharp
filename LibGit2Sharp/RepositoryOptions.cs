@@ -42,7 +42,7 @@
         ///     or to a non existent configuration file which will be eventually created.
         ///   </para>
         /// </summary>
-        public string XDGConfigurationLocation { get; set; }
+        public string XdgConfigurationLocation { get; set; }
 
         /// <summary>
         ///   Overrides the probed location of the System configuration file of a repository.

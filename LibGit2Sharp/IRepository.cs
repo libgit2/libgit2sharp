@@ -83,11 +83,11 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Checkout the specified branch, reference or SHA.
         /// </summary>
-        /// <param name = "commitishOrBranchSpec">A revparse spec for the commit or branch to checkout.</param>
+        /// <param name = "committishOrBranchSpec">A revparse spec for the commit or branch to checkout.</param>
         /// <param name="checkoutOptions">Options controlling checkout behavior.</param>
         /// <param name="onCheckoutProgress">Callback method to report checkout progress updates through.</param>
         /// <returns>The new HEAD.</returns>
-        Branch Checkout(string commitishOrBranchSpec, CheckoutOptions checkoutOptions, CheckoutProgressHandler onCheckoutProgress);
+        Branch Checkout(string committishOrBranchSpec, CheckoutOptions checkoutOptions, CheckoutProgressHandler onCheckoutProgress);
 
         /// <summary>
         ///   Try to lookup an object by its <see cref = "ObjectId" /> and <see cref = "GitObjectType" />. If no matching object is found, null will be returned.
@@ -122,15 +122,15 @@ namespace LibGit2Sharp
         ///   the content of the working tree to match.
         /// </summary>
         /// <param name = "resetOptions">Flavor of reset operation to perform.</param>
-        /// <param name = "commitish">A revparse spec for the target commit object.</param>
-        void Reset(ResetOptions resetOptions, string commitish = "HEAD");
+        /// <param name = "committish">A revparse spec for the target commit object.</param>
+        void Reset(ResetOptions resetOptions, string committish = "HEAD");
 
         /// <summary>
         ///   Replaces entries in the <see cref="Repository.Index"/> with entries from the specified commit.
         /// </summary>
-        /// <param name = "commitish">A revparse spec for the target commit object.</param>
+        /// <param name = "committish">A revparse spec for the target commit object.</param>
         /// <param name = "paths">The list of paths (either files or directories) that should be considered.</param>
-        void Reset(string commitish = "HEAD", IEnumerable<string> paths = null);
+        void Reset(string committish = "HEAD", IEnumerable<string> paths = null);
 
         /// <summary>
         /// Clean the working tree by removing files that are not under version control.

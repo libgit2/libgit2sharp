@@ -105,10 +105,10 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name = "repository">The <see cref = "Repository" /> being worked with.</param>
         /// <param name = "branchName">The name of the branch to create.</param>
-        /// <param name = "commitish">The revparse spec for the target commit.</param>
-        public static Branch CreateBranch(this IRepository repository, string branchName, string commitish)
+        /// <param name = "committish">The revparse spec for the target commit.</param>
+        public static Branch CreateBranch(this IRepository repository, string branchName, string committish)
         {
-            return repository.Branches.Add(branchName, commitish);
+            return repository.Branches.Add(branchName, committish);
         }
 
         /// <summary>

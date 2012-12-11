@@ -65,7 +65,7 @@ namespace LibGit2Sharp
 
             if (xdgConfigPath != null)
             {
-                Proxy.git_config_add_file_ondisk(configHandle, xdgConfigPath, ConfigurationLevel.XDG);
+                Proxy.git_config_add_file_ondisk(configHandle, xdgConfigPath, ConfigurationLevel.Xdg);
             }
 
             if (systemConfigPath != null)
@@ -157,7 +157,7 @@ namespace LibGit2Sharp
         ///      The same escalation logic than in git.git will be used when looking for the key in the config files:
         ///         - local: the Git file in the current repository
         ///         - global: the Git file specific to the current interactive user (usually in `$HOME/.gitconfig`)
-        ///         - XDG: another Git file specific to the current interactive user (usually in `$HOME/.config/git/config`)
+        ///         - xdg: another Git file specific to the current interactive user (usually in `$HOME/.config/git/config`)
         ///         - system: the system-wide Git file
         ///
         ///     The first occurence of the key will be returned.

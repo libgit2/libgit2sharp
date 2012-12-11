@@ -138,7 +138,11 @@ namespace LibGit2Sharp
 
         private string DebuggerDisplay
         {
-            get { return string.Format("{0} => \"{1}\"", CanonicalName, TargetIdentifier); }
+            get
+            {
+                return string.Format(CultureInfo.InvariantCulture,
+                    "{0} => \"{1}\"", CanonicalName, TargetIdentifier);
+            }
         }
     }
 }

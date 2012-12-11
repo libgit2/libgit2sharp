@@ -77,7 +77,7 @@ namespace LibGit2Sharp
             }
         }
 
-        internal Commit DereferenceToCommit(string identifier, bool throwsIfCanNotBeDereferencedToACommit)
+        internal Commit DereferenceToCommit(bool throwsIfCanNotBeDereferencedToACommit)
         {
             using (GitObjectSafeHandle peeledHandle = Proxy.git_object_peel(repo.Handle, Id, GitObjectType.Commit, throwsIfCanNotBeDereferencedToACommit))
             {

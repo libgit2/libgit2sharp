@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Globalization;
 
 namespace LibGit2Sharp
 {
@@ -27,7 +28,9 @@ namespace LibGit2Sharp
             get
             {
                 var directReference = ResolveToDirectReference();
-                return string.Format("{0} => {1} => \"{2}\"",
+
+                return string.Format(CultureInfo.InvariantCulture,
+                    "{0} => {1} => \"{2}\"",
                     CanonicalName, TargetIdentifier,
                     (directReference != null) ? directReference.TargetIdentifier : "?");
             }

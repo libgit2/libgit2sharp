@@ -9,6 +9,7 @@ namespace LibGit2Sharp
     ///   The exception that is thrown when an error occurs during application execution.
     /// </summary>
     [Obsolete("This type will be removed in the next release. Please use LibGit2SharpException instead.")]
+    [Serializable]
     public class LibGit2Exception : LibGit2SharpException
     {
         /// <summary>

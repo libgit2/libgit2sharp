@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Globalization;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Handles;
 using LibGit2Sharp.Handlers;
@@ -149,7 +150,11 @@ namespace LibGit2Sharp
 
         private string DebuggerDisplay
         {
-            get { return string.Format("{0} => {1}", Name, Url); }
+            get
+            {
+                return string.Format(CultureInfo.InvariantCulture,
+                    "{0} => {1}", Name, Url);
+            }
         }
     }
 }

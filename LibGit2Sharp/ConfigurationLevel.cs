@@ -18,7 +18,7 @@
         /// <summary>
         ///   The global ~/.config/git/config of the current user.
         /// </summary>
-        XDG = 2,
+        Xdg = 2,
 
         /// <summary>
         ///   The system wide .gitconfig.

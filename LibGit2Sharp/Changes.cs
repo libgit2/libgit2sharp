@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Globalization;
 using System.Text;
 
 namespace LibGit2Sharp
@@ -41,7 +42,11 @@ namespace LibGit2Sharp
 
         private string DebuggerDisplay
         {
-            get { return string.Format(@"{{+{0}, -{1}}}", LinesAdded, LinesDeleted); }
+            get
+            {
+                return string.Format(CultureInfo.InvariantCulture,
+                    @"{{+{0}, -{1}}}", LinesAdded, LinesDeleted);
+            }
         }
     }
 }

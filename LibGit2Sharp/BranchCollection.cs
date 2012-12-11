@@ -129,13 +129,13 @@ namespace LibGit2Sharp
         ///   Create a new local branch with the specified name
         /// </summary>
         /// <param name = "name">The name of the branch.</param>
-        /// <param name = "commitish">Revparse spec for the target commit.</param>
+        /// <param name = "committish">Revparse spec for the target commit.</param>
         /// <param name = "allowOverwrite">True to allow silent overwriting a potentially existing branch, false otherwise.</param>
         /// <returns></returns>
         [Obsolete("This method will be removed in the next release. Please use Add() instead.")]
-        public virtual Branch Create(string name, string commitish, bool allowOverwrite = false)
+        public virtual Branch Create(string name, string committish, bool allowOverwrite = false)
         {
-            return this.Add(name, commitish, allowOverwrite);
+            return this.Add(name, committish, allowOverwrite);
         }
 
         /// <summary>
@@ -177,7 +177,9 @@ namespace LibGit2Sharp
 
             if (branch.IsRemote)
             {
-                throw new LibGit2SharpException(string.Format("Cannot rename branch '{0}'. It's a remote tracking branch.", branch.Name));
+                throw new LibGit2SharpException(
+                    string.Format(CultureInfo.InvariantCulture,
+                        "Cannot rename branch '{0}'. It's a remote tracking branch.", branch.Name));
             }
 
             using (ReferenceSafeHandle referencePtr = repo.Refs.RetrieveReferencePtr("refs/heads/" + branch.Name))
@@ -197,7 +199,11 @@ namespace LibGit2Sharp
 
         private string DebuggerDisplay
         {
-            get { return string.Format("Count = {0}", this.Count()); }
+            get
+            {
+                return string.Format(CultureInfo.InvariantCulture,
+                    "Count = {0}", this.Count());
+            }
         }
     }
 }

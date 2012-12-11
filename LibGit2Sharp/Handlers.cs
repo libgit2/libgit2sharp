@@ -1,7 +1,4 @@
-﻿using System;
-using LibGit2Sharp.Core;
-
-namespace LibGit2Sharp.Handlers
+﻿namespace LibGit2Sharp.Handlers
 {
     /// <summary>
     ///   Delegate definition to handle Progress callback. 
@@ -27,9 +24,7 @@ namespace LibGit2Sharp.Handlers
     /// <summary>
     ///   Delegate definition to handle Completion callback.
     /// </summary>
-    /// <param name="RemoteCompletionType"></param>
-    /// <returns></returns>
-    public delegate int CompletionHandler(RemoteCompletionType RemoteCompletionType);
+    public delegate int CompletionHandler(RemoteCompletionType remoteCompletionType);
 
     /// <summary>
     ///   Delegate definition for transfer progress callback.

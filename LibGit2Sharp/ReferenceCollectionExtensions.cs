@@ -94,7 +94,9 @@ namespace LibGit2Sharp
 
             if (reference == null)
             {
-                throw new LibGit2SharpException(string.Format("Reference '{0}' doesn't exist. One cannot move a non existing reference.", currentName));
+                throw new LibGit2SharpException(
+                    string.Format(CultureInfo.InvariantCulture,
+                        "Reference '{0}' doesn't exist. One cannot move a non existing reference.", currentName));
             }
 
             return refsColl.Move(reference, newName, allowOverwrite);

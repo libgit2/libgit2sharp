@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Globalization;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Compat;
 
@@ -155,7 +156,8 @@ namespace LibGit2Sharp
         {
             get
             {
-                return string.Format("{0} => \"{1}\"", CanonicalName,
+                return string.Format(CultureInfo.InvariantCulture,
+                    "{0} => \"{1}\"", CanonicalName,
                     (TargetObject != null) ? TargetObject.Id.ToString(7) : "?");
             }
         }

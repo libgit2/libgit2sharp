@@ -83,7 +83,7 @@ namespace LibGit2Sharp
                 }
 
                 configurationGlobalFilePath = options.GlobalConfigurationLocation;
-                configurationXDGFilePath = options.XDGConfigurationLocation;
+                configurationXDGFilePath = options.XdgConfigurationLocation;
                 configurationSystemFilePath = options.SystemConfigurationLocation;
             }
 
@@ -367,8 +367,8 @@ namespace LibGit2Sharp
 
             if (lookUpOptions.Has(LookUpOptions.DereferenceResultToCommit))
             {
-                return obj.DereferenceToCommit(objectish,
-                                               lookUpOptions.Has(LookUpOptions.ThrowWhenCanNotBeDereferencedToACommit));
+                return obj.DereferenceToCommit(
+                    lookUpOptions.Has(LookUpOptions.ThrowWhenCanNotBeDereferencedToACommit));
             }
 
             return obj;
@@ -377,11 +377,11 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Lookup a commit by its SHA or name, or throw if a commit is not found.
         /// </summary>
-        /// <param name="commitish">A revparse spec for the commit.</param>
+        /// <param name="committish">A revparse spec for the commit.</param>
         /// <returns>The commit.</returns>
-        internal Commit LookupCommit(string commitish)
+        internal Commit LookupCommit(string committish)
         {
-            return (Commit)Lookup(commitish, GitObjectType.Any, LookUpOptions.ThrowWhenNoGitObjectHasBeenFound | LookUpOptions.DereferenceResultToCommit | LookUpOptions.ThrowWhenCanNotBeDereferencedToACommit);
+            return (Commit)Lookup(committish, GitObjectType.Any, LookUpOptions.ThrowWhenNoGitObjectHasBeenFound | LookUpOptions.DereferenceResultToCommit | LookUpOptions.ThrowWhenCanNotBeDereferencedToACommit);
         }
 
         /// <summary>
@@ -443,20 +443,22 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Checkout the specified <see cref = "Branch" />, reference or SHA.
         /// </summary>
-        /// <param name = "commitishOrBranchSpec">A revparse spec for the commit or branch to checkout.</param>
+        /// <param name = "committishOrBranchSpec">A revparse spec for the commit or branch to checkout.</param>
         /// <param name="checkoutOptions"><see cref = "CheckoutOptions" /> controlling checkout behavior.</param>
         /// <param name="onCheckoutProgress"><see cref = "CheckoutProgressHandler" /> that checkout progress is reported through.</param>
         /// <returns>The <see cref = "Branch" /> that was checked out.</returns>
-        public Branch Checkout(string commitishOrBranchSpec, CheckoutOptions checkoutOptions, CheckoutProgressHandler onCheckoutProgress)
+        public Branch Checkout(string committishOrBranchSpec, CheckoutOptions checkoutOptions, CheckoutProgressHandler onCheckoutProgress)
         {
-            var branch = Branches[commitishOrBranchSpec];
+            Ensure.ArgumentNotNullOrEmptyString(committishOrBranchSpec, "committishOrBranchSpec");
+
+            var branch = Branches[committishOrBranchSpec];
 
             if (branch != null)
             {
                 return CheckoutInternal(branch.CanonicalName, checkoutOptions, onCheckoutProgress);
             }
 
-            var commitId = LookupCommit(commitishOrBranchSpec).Id;
+            var commitId = LookupCommit(committishOrBranchSpec).Id;
             return CheckoutInternal(commitId.Sha, checkoutOptions, onCheckoutProgress);
         }
 
@@ -529,12 +531,12 @@ namespace LibGit2Sharp
         ///   the content of the working tree to match.
         /// </summary>
         /// <param name = "resetOptions">Flavor of reset operation to perform.</param>
-        /// <param name = "commitish">A revparse spec for the target commit object.</param>
-        public void Reset(ResetOptions resetOptions, string commitish = "HEAD")
+        /// <param name = "committish">A revparse spec for the target commit object.</param>
+        public void Reset(ResetOptions resetOptions, string committish = "HEAD")
         {
-            Ensure.ArgumentNotNullOrEmptyString(commitish, "commitish");
+            Ensure.ArgumentNotNullOrEmptyString(committish, "committish");
 
-            Commit commit = LookupCommit(commitish);
+            Commit commit = LookupCommit(committish);
 
             Proxy.git_reset(handle, commit.Id, resetOptions);
         }
@@ -542,16 +544,16 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Replaces entries in the <see cref="Index"/> with entries from the specified commit.
         /// </summary>
-        /// <param name = "commitish">A revparse spec for the target commit object.</param>
+        /// <param name = "committish">A revparse spec for the target commit object.</param>
         /// <param name = "paths">The list of paths (either files or directories) that should be considered.</param>
-        public void Reset(string commitish = "HEAD", IEnumerable<string> paths = null)
+        public void Reset(string committish = "HEAD", IEnumerable<string> paths = null)
         {
             if (Info.IsBare)
             {
                 throw new BareRepositoryException("Reset is not allowed in a bare repository");
             }
 
-            Commit commit = LookupCommit(commitish);
+            Commit commit = LookupCommit(committish);
             TreeChanges changes = Diff.Compare(commit.Tree, DiffTargets.Index, paths);
 
             Index.Reset(changes);
@@ -661,7 +663,8 @@ namespace LibGit2Sharp
         {
             get
             {
-                return string.Format("{0} = \"{1}\"",
+                return string.Format(CultureInfo.InvariantCulture,
+                    "{0} = \"{1}\"",
                     Info.IsBare ? "Gitdir" : "Workdir",
                     Info.IsBare ? Info.Path : Info.WorkingDirectory);
             }

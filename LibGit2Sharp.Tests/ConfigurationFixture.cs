@@ -345,7 +345,7 @@ namespace LibGit2Sharp.Tests
                 repo.Config.Set("Woot.this-rocks", "local");
 
                 Assert.Equal("global", repo.Config.Get<string>("Woot.this-rocks", ConfigurationLevel.Global).Value);
-                Assert.Equal("xdg", repo.Config.Get<string>("Woot.this-rocks", ConfigurationLevel.XDG).Value);
+                Assert.Equal("xdg", repo.Config.Get<string>("Woot.this-rocks", ConfigurationLevel.Xdg).Value);
                 Assert.Equal("system", repo.Config.Get<string>("Woot.this-rocks", ConfigurationLevel.System).Value);
                 Assert.Equal("local", repo.Config.Get<string>("Woot.this-rocks", ConfigurationLevel.Local).Value);
             }
@@ -385,7 +385,7 @@ namespace LibGit2Sharp.Tests
             sb = new StringBuilder()
                 .AppendFormat("[Woot]{0}", Environment.NewLine)
                 .AppendFormat("this-rocks = xdg{0}", Environment.NewLine);
-            File.WriteAllText(options.XDGConfigurationLocation, sb.ToString());
+            File.WriteAllText(options.XdgConfigurationLocation, sb.ToString());
 
             return options;
         }
@@ -402,7 +402,7 @@ namespace LibGit2Sharp.Tests
             return new RepositoryOptions
             {
                 GlobalConfigurationLocation = globalLocation,
-                XDGConfigurationLocation = xdgLocation,
+                XdgConfigurationLocation = xdgLocation,
                 SystemConfigurationLocation = systemLocation,
             };
         }

@@ -163,7 +163,7 @@ namespace LibGit2Sharp.Tests
 
             var options = new RepositoryOptions {
                 GlobalConfigurationLocation = globalLocation,
-                XDGConfigurationLocation = xdgLocation,
+                XdgConfigurationLocation = xdgLocation,
                 SystemConfigurationLocation = systemLocation,
             };
 
@@ -173,7 +173,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(name, repo.Config.Get<string>("user.name").Value);
                 Assert.Equal(email, repo.Config.Get<string>("user.email").Value);
 
-                repo.Config.Set("xdg.setting", "https://twitter.com/libgit2sharp", ConfigurationLevel.XDG);
+                repo.Config.Set("xdg.setting", "https://twitter.com/libgit2sharp", ConfigurationLevel.Xdg);
                 repo.Config.Set("help.link", "https://twitter.com/xpaulbettsx/status/205761932626636800", ConfigurationLevel.System);
             }
 

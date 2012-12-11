@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -56,7 +57,9 @@ namespace LibGit2Sharp
 
             if (repo.Info.IsBare && !Path.IsPathRooted(path))
             {
-                throw new InvalidOperationException(string.Format("Cannot create a blob in a bare repository from a relative path ('{0}').", path));
+                throw new InvalidOperationException(
+                    string.Format(CultureInfo.InvariantCulture,
+                        "Cannot create a blob in a bare repository from a relative path ('{0}').", path));
             }
 
             ObjectId id = Path.IsPathRooted(path)

@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using System.Globalization;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Handles;
 
@@ -112,7 +113,8 @@ namespace LibGit2Sharp
         {
             get
             {
-                return string.Format("Target \"{0}\", Namespace \"{1}\": {2}",
+                return string.Format(CultureInfo.InvariantCulture,
+                    "Target \"{0}\", Namespace \"{1}\": {2}",
                     TargetObjectId.ToString(7), Namespace, Message);
             }
         }

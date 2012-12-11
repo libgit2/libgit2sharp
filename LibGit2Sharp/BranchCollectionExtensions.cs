@@ -11,16 +11,16 @@ namespace LibGit2Sharp
         ///   Create a new local branch with the specified name
         /// </summary>
         /// <param name = "name">The name of the branch.</param>
-        /// <param name = "commitish">Revparse spec for the target commit.</param>
+        /// <param name = "committish">Revparse spec for the target commit.</param>
         /// <param name = "allowOverwrite">True to allow silent overwriting a potentially existing branch, false otherwise.</param>
         /// <param name = "branches">The <see cref="BranchCollection"/> being worked with.</param>
         /// <returns>A new <see cref="Branch"/>.</returns>
-        public static Branch Add(this BranchCollection branches, string name, string commitish, bool allowOverwrite = false)
+        public static Branch Add(this BranchCollection branches, string name, string committish, bool allowOverwrite = false)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
-            Ensure.ArgumentNotNullOrEmptyString(commitish, "commitish");
+            Ensure.ArgumentNotNullOrEmptyString(committish, "committish");
 
-            Commit commit = branches.repo.LookupCommit(commitish);
+            Commit commit = branches.repo.LookupCommit(committish);
 
             return branches.Add(name, commit, allowOverwrite);
         }

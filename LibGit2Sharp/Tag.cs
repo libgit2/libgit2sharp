@@ -1,7 +1,4 @@
-﻿using System;
-using LibGit2Sharp.Core;
-
-namespace LibGit2Sharp
+﻿namespace LibGit2Sharp
 {
     /// <summary>
     ///   A Tag

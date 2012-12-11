@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using LibGit2Sharp.Core;
@@ -193,7 +194,8 @@ namespace LibGit2Sharp
         {
             get
             {
-                return string.Format("Added: {0}, Deleted: {1}, Modified: {2}",
+                return string.Format(CultureInfo.InvariantCulture,
+                    "Added: {0}, Deleted: {1}, Modified: {2}",
                     Added.Count(), Deleted.Count(), Modified.Count());
             }
         }

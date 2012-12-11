@@ -467,12 +467,6 @@ namespace LibGit2Sharp
             return new RepositoryStatus(repo);
         }
 
-        internal void ReplaceContentWithTree(Tree tree)
-        {
-            Proxy.git_index_read_tree(repo.Handle, handle, tree);
-            UpdatePhysicalIndex();
-        }
-
         internal void Reset(TreeChanges changes)
         {
             foreach (TreeEntryChanges treeEntryChanges in changes)
@@ -512,7 +506,11 @@ namespace LibGit2Sharp
 
         private string DebuggerDisplay
         {
-            get { return string.Format("Count = {0}", Count); }
+            get
+            {
+                return string.Format(CultureInfo.InvariantCulture,
+                    "Count = {0}", Count);
+            }
         }
     }
 }

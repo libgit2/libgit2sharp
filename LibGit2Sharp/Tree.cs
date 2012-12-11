@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Handles;
@@ -131,7 +132,11 @@ namespace LibGit2Sharp
 
         private string DebuggerDisplay
         {
-            get { return string.Format("{0}, Count = {1}", Id.ToString(7), Count); }
+            get
+            {
+                return string.Format(CultureInfo.InvariantCulture,
+                    "{0}, Count = {1}", Id.ToString(7), Count);
+            }
         }
     }
 }
