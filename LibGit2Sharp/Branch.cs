@@ -234,23 +234,25 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Returns the friendly shortened name from a canonical name.
+        ///   Removes redundent leading namespaces (regarding the kind of
+        ///   reference being wrapped) from the canonical name.
         /// </summary>
-        /// <param name="canonicalName">The canonical name to shorten.</param>
-        /// <returns></returns>
-        protected override string Shorten(string canonicalName)
+        /// <returns>The friendly shortened name</returns>
+        protected override string Shorten()
         {
-            if (canonicalName.StartsWith("refs/heads/", StringComparison.Ordinal))
+            if (CanonicalName.StartsWith("refs/heads/", StringComparison.Ordinal))
             {
-                return canonicalName.Substring("refs/heads/".Length);
+                return CanonicalName.Substring("refs/heads/".Length);
             }
 
-            if (canonicalName.StartsWith("refs/remotes/", StringComparison.Ordinal))
+            if (CanonicalName.StartsWith("refs/remotes/", StringComparison.Ordinal))
             {
-                return canonicalName.Substring("refs/remotes/".Length);
+                return CanonicalName.Substring("refs/remotes/".Length);
             }
 
-            throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "'{0}' does not look like a valid branch name.", canonicalName));
+            throw new ArgumentException(
+                string.Format(CultureInfo.InvariantCulture,
+                    "'{0}' does not look like a valid branch name.", CanonicalName));
         }
     }
 }

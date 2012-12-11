@@ -7,9 +7,9 @@
         {
         }
 
-        protected override string Shorten(string branchName)
+        protected override string Shorten()
         {
-            return branchName;
+            return CanonicalName;
         }
 
         /// <summary>

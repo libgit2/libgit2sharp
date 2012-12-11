@@ -56,7 +56,7 @@ namespace LibGit2Sharp
         /// </summary>
         public virtual string Name
         {
-            get { return Shorten(CanonicalName); }
+            get { return Shorten(); }
         }
 
         /// <summary>
@@ -77,11 +77,11 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Returns the friendly shortened name from a canonical name.
+        ///   Removes redundent leading namespaces (regarding the kind of
+        ///   reference being wrapped) from the canonical name.
         /// </summary>
-        /// <param name="canonicalName">The canonical name to shorten.</param>
-        /// <returns></returns>
-        protected abstract string Shorten(string canonicalName);
+        /// <returns>The friendly shortened name</returns>
+        protected abstract string Shorten();
 
         private TObject RetrieveTargetObject(Reference reference)
         {
