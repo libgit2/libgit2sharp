@@ -321,5 +321,19 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(expected.ToString(), changes.Patch);
             }
         }
+
+        [Fact]
+        public void ComparingATreeInABareRepositoryAgainstTheWorkDirOrTheIndexThrows()
+        {
+            using (var repo = new Repository(BareTestRepoPath))
+            {
+                Assert.Throws<BareRepositoryException>(
+                    () => repo.Diff.Compare(repo.Head.Tip.Tree, DiffTargets.WorkingDirectory));
+                Assert.Throws<BareRepositoryException>(
+                    () => repo.Diff.Compare(repo.Head.Tip.Tree, DiffTargets.Index));
+                Assert.Throws<BareRepositoryException>(
+                    () => repo.Diff.Compare(repo.Head.Tip.Tree, DiffTargets.WorkingDirectory | DiffTargets.Index));
+            }
+        }
     }
 }
