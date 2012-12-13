@@ -15,9 +15,16 @@ namespace LibGit2Sharp
     {
         private readonly Repository repo;
 
-        private static GitDiffOptions BuildOptions(IEnumerable<string> paths = null)
+        private GitDiffOptions BuildOptions(DiffOptions diffOptions, IEnumerable<string> paths = null)
         {
             var options = new GitDiffOptions();
+
+            if (diffOptions.Has(DiffOptions.IncludeUntracked))
+            {
+                options.Flags |= GitDiffOptionFlags.GIT_DIFF_INCLUDE_UNTRACKED |
+                GitDiffOptionFlags.GIT_DIFF_RECURSE_UNTRACKED_DIRS |
+                GitDiffOptionFlags.GIT_DIFF_INCLUDE_UNTRACKED_CONTENT;
+            }
 
             if (paths == null)
             {
@@ -70,7 +77,7 @@ namespace LibGit2Sharp
         /// <returns>A <see cref = "TreeChanges"/> containing the changes between the <paramref name = "oldTree"/> and the <paramref name = "newTree"/>.</returns>
         public virtual TreeChanges Compare(Tree oldTree, Tree newTree, IEnumerable<string> paths = null)
         {
-            using(GitDiffOptions options = BuildOptions(paths))
+            using(GitDiffOptions options = BuildOptions(DiffOptions.None, paths))
             using (DiffListSafeHandle diff = BuildDiffListFromTrees(
                 oldTree != null ? oldTree.Id : null,
                 newTree != null ? newTree.Id : null,
@@ -93,7 +100,7 @@ namespace LibGit2Sharp
         /// <returns>A <see cref = "ContentChanges"/> containing the changes between the <paramref name = "oldBlob"/> and the <paramref name = "newBlob"/>.</returns>
         public virtual ContentChanges Compare(Blob oldBlob, Blob newBlob)
         {
-            using (GitDiffOptions options = BuildOptions())
+            using (GitDiffOptions options = BuildOptions(DiffOptions.None))
             {
                 return new ContentChanges(repo, oldBlob, newBlob, options);
             }
@@ -150,12 +157,15 @@ namespace LibGit2Sharp
         /// <returns>A <see cref = "TreeChanges"/> containing the changes between the <see cref="Tree"/> and the selected target.</returns>
         public virtual TreeChanges Compare(Tree oldTree, DiffTargets diffTargets, IEnumerable<string> paths = null)
         {
-            Ensure.ArgumentNotNull(oldTree, "oldTree");
-
             var comparer = handleRetrieverDispatcher[diffTargets](repo);
 
-            using (GitDiffOptions options = BuildOptions(paths))
-            using (DiffListSafeHandle dl = BuildDiffListFromTreeAndComparer(oldTree.Id, comparer, options))
+            DiffOptions diffOptions = diffTargets.Has(DiffTargets.WorkingDirectory) ?
+                DiffOptions.IncludeUntracked : DiffOptions.None;
+
+            using (GitDiffOptions options = BuildOptions(diffOptions, paths))
+            using (DiffListSafeHandle dl = BuildDiffListFromTreeAndComparer(
+                oldTree != null ? oldTree.Id : null,
+                comparer, options))
             {
                 return new TreeChanges(dl);
             }
@@ -170,7 +180,7 @@ namespace LibGit2Sharp
         {
             var comparer = WorkdirToIndex(repo);
 
-            using (GitDiffOptions options = BuildOptions(paths))
+            using (GitDiffOptions options = BuildOptions(DiffOptions.None, paths))
             using (DiffListSafeHandle dl = BuildDiffListFromComparer(null, comparer, options))
             {
                 return new TreeChanges(dl);

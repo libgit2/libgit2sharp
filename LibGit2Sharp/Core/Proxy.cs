@@ -540,7 +540,7 @@ namespace LibGit2Sharp.Core
             GitDiffOptions options)
         {
             using (ThreadAffinity())
-            using (var osw = new ObjectSafeWrapper(oldTree, repo))
+            using (var osw = new ObjectSafeWrapper(oldTree, repo, true))
             {
                 DiffListSafeHandle diff;
                 int res = NativeMethods.git_diff_index_to_tree(out diff, repo, osw.ObjectPtr, index, options);
@@ -612,7 +612,7 @@ namespace LibGit2Sharp.Core
            GitDiffOptions options)
         {
             using (ThreadAffinity())
-            using (var osw = new ObjectSafeWrapper(oldTree, repo))
+            using (var osw = new ObjectSafeWrapper(oldTree, repo, true))
             {
                 DiffListSafeHandle diff;
                 int res = NativeMethods.git_diff_workdir_to_tree(out diff, repo, osw.ObjectPtr, options);

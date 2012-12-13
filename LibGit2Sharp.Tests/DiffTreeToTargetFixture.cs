@@ -98,7 +98,6 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-
         [Fact]
         /*
          * $ git diff
@@ -333,6 +332,66 @@ namespace LibGit2Sharp.Tests
                     () => repo.Diff.Compare(repo.Head.Tip.Tree, DiffTargets.Index));
                 Assert.Throws<BareRepositoryException>(
                     () => repo.Diff.Compare(repo.Head.Tip.Tree, DiffTargets.WorkingDirectory | DiffTargets.Index));
+            }
+        }
+
+        [Fact]
+        public void CanCompareANullTreeAgainstTheIndex()
+        {
+            var scd = BuildSelfCleaningDirectory();
+
+            using (var repo = Repository.Init(scd.RootedDirectoryPath))
+            {
+                SetUpSimpleDiffContext(repo);
+
+                TreeChanges changes = repo.Diff.Compare(null,
+                    DiffTargets.Index);
+
+                Assert.Equal(1, changes.Count());
+                Assert.Equal(1, changes.Added.Count());
+
+                Assert.Equal("file.txt", changes.Added.Single().Path);
+                Assert.Equal(2, changes.Added.Single().LinesAdded);
+            }
+        }
+
+        [Fact]
+        public void CanCompareANullTreeAgainstTheWorkdir()
+        {
+            var scd = BuildSelfCleaningDirectory();
+
+            using (var repo = Repository.Init(scd.RootedDirectoryPath))
+            {
+                SetUpSimpleDiffContext(repo);
+
+                TreeChanges changes = repo.Diff.Compare(null,
+                    DiffTargets.WorkingDirectory);
+
+                Assert.Equal(1, changes.Count());
+                Assert.Equal(1, changes.Added.Count());
+
+                Assert.Equal("file.txt", changes.Added.Single().Path);
+                Assert.Equal(3, changes.Added.Single().LinesAdded);
+            }
+        }
+
+        [Fact]
+        public void CanCompareANullTreeAgainstTheWorkdirAndTheIndex()
+        {
+            var scd = BuildSelfCleaningDirectory();
+
+            using (var repo = Repository.Init(scd.RootedDirectoryPath))
+            {
+                SetUpSimpleDiffContext(repo);
+
+                TreeChanges changes = repo.Diff.Compare(null,
+                    DiffTargets.WorkingDirectory | DiffTargets.Index);
+
+                Assert.Equal(1, changes.Count());
+                Assert.Equal(1, changes.Added.Count());
+
+                Assert.Equal("file.txt", changes.Added.Single().Path);
+                Assert.Equal(3, changes.Added.Single().LinesAdded);
             }
         }
     }

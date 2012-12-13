@@ -91,6 +91,11 @@ namespace LibGit2Sharp
             var newOid = new ObjectId(delta.NewFile.Oid);
             var oldOid = new ObjectId(delta.OldFile.Oid);
 
+            if (delta.Status == ChangeKind.Untracked)
+            {
+                delta.Status = ChangeKind.Added;
+            }
+
             var diffFile = new TreeEntryChanges(newFilePath, newMode, newOid, delta.Status, oldFilePath, oldMode, oldOid, delta.IsBinary());
 
             fileDispatcher[delta.Status](this, diffFile);
