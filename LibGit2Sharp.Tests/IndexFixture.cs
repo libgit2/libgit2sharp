@@ -265,6 +265,29 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
+        public void CanStageAndUnstageAnIgnoredFile()
+        {
+            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                string gitignorePath = Path.Combine(repo.Info.WorkingDirectory, ".gitignore");
+                File.WriteAllText(gitignorePath, "*.ign" + Environment.NewLine);
+
+                const string relativePath = "Champa.ign";
+                string gitignoredFile = Path.Combine(repo.Info.WorkingDirectory, relativePath);
+                File.WriteAllText(gitignoredFile, "On stage!" + Environment.NewLine);
+
+                Assert.Equal(FileStatus.Ignored, repo.Index.RetrieveStatus(relativePath));
+
+                repo.Index.Stage(relativePath);
+                Assert.Equal(FileStatus.Added, repo.Index.RetrieveStatus(relativePath));
+
+                repo.Index.Unstage(relativePath);
+                Assert.Equal(FileStatus.Ignored, repo.Index.RetrieveStatus(relativePath));
+            }
+        }
+
+        [Fact]
         public void StagingANewFileWithAFullPathWhichEscapesOutOfTheWorkingDirThrows()
         {
             SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
