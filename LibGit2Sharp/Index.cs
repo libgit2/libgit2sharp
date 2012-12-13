@@ -213,33 +213,15 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNull(paths, "paths");
 
-            IEnumerable<KeyValuePair<string, FileStatus>> batch = PrepareBatch(paths);
-
-            foreach (KeyValuePair<string, FileStatus> kvp in batch)
+            if (repo.Info.IsHeadOrphaned)
             {
-                if (Directory.Exists(kvp.Key))
-                {
-                    throw new NotImplementedException();
-                }
-            }
+                TreeChanges changes = repo.Diff.Compare(null, DiffTargets.Index, paths);
 
-            var commit = repo.Lookup("HEAD",
-                                        GitObjectType.Any,
-                                        LookUpOptions.DereferenceResultToCommit) as Commit;
-
-            if (null != commit)
-            {
-                repo.Reset("HEAD", paths);
+                Reset(changes);
             }
             else
             {
-                // HEAD doesn't exist, so all these staged paths must be Added.
-                foreach (String path in paths)
-                {
-                    RemoveFromIndex(path);
-                }
-
-                UpdatePhysicalIndex();
+                repo.Reset("HEAD", paths);
             }
         }
 

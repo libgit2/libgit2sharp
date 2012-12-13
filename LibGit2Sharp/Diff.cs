@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Handles;
 
@@ -31,11 +33,11 @@ namespace LibGit2Sharp
                 return options;
             }
 
-            options.PathSpec = GitStrArrayIn.BuildFrom(ToFilePaths(paths));
+            options.PathSpec = GitStrArrayIn.BuildFrom(ToFilePaths(repo, paths));
             return options;
         }
 
-        private static FilePath[] ToFilePaths(IEnumerable<string> paths)
+        private static FilePath[] ToFilePaths(Repository repo, IEnumerable<string> paths)
         {
             var filePaths = new List<FilePath>();
 
@@ -46,7 +48,7 @@ namespace LibGit2Sharp
                     throw new ArgumentException("At least one provided path is either null or empty.", "paths");
                 }
 
-                filePaths.Add(path);
+                filePaths.Add(BuildRelativePathFrom(repo, path));
             }
 
             if (filePaths.Count == 0)
@@ -55,6 +57,26 @@ namespace LibGit2Sharp
             }
 
             return filePaths.ToArray();
+        }
+
+        private static string BuildRelativePathFrom(Repository repo, string path)
+        {
+            //TODO: To be removed when libgit2 natively implements this
+            if (!Path.IsPathRooted(path))
+            {
+                return path;
+            }
+
+            string normalizedPath = Path.GetFullPath(path);
+
+            if (!normalizedPath.StartsWith(repo.Info.WorkingDirectory, StringComparison.Ordinal))
+            {
+                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture,
+                                                          "Unable to process file '{0}'. This absolute filepath escapes out of the working directory of the repository ('{1}').",
+                                                          normalizedPath, repo.Info.WorkingDirectory));
+            }
+
+            return normalizedPath.Substring(repo.Info.WorkingDirectory.Length);
         }
 
         /// <summary>
