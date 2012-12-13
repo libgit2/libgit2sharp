@@ -62,6 +62,29 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
+        public void CanCompareAMoreComplexTreeAgainstTheWorkdir()
+        {
+            using (var repo = new Repository(StandardTestRepoPath))
+            {
+                Tree tree = repo.Head.Tip.Tree;
+
+                TreeChanges changes = repo.Diff.Compare(tree, DiffTarget.WorkingDirectory);
+                Assert.NotNull(changes);
+
+                Assert.Equal(6, changes.Count());
+
+                Assert.Equal(new[] { "deleted_staged_file.txt", "deleted_unstaged_file.txt" },
+                    changes.Deleted.Select(tec => tec.Path));
+
+                Assert.Equal(new[] { "new_tracked_file.txt", "new_untracked_file.txt" },
+                    changes.Added.Select(tec => tec.Path));
+
+                Assert.Equal(new[] { "modified_staged_file.txt", "modified_unstaged_file.txt" },
+                    changes.Modified.Select(tec => tec.Path));
+            }
+        }
+
+        [Fact]
         /*
          * $ git diff HEAD
          * diff --git a/file.txt b/file.txt
