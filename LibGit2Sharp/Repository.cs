@@ -531,31 +531,29 @@ namespace LibGit2Sharp
         ///   the content of the working tree to match.
         /// </summary>
         /// <param name = "resetOptions">Flavor of reset operation to perform.</param>
-        /// <param name = "committish">A revparse spec for the target commit object.</param>
-        public void Reset(ResetOptions resetOptions, string committish = "HEAD")
+        /// <param name = "commit">The target commit object.</param>
+        public void Reset(ResetOptions resetOptions, Commit commit)
         {
-            Ensure.ArgumentNotNullOrEmptyString(committish, "committish");
-
-            Commit commit = LookupCommit(committish);
+            Ensure.ArgumentNotNull(commit, "commit");
 
             Proxy.git_reset(handle, commit.Id, resetOptions);
         }
 
         /// <summary>
-        ///   Replaces entries in the <see cref="Index"/> with entries from the specified commit.
+        ///   Replaces entries in the <see cref="Repository.Index"/> with entries from the specified commit.
         /// </summary>
-        /// <param name = "committish">A revparse spec for the target commit object.</param>
+        /// <param name = "commit">The target commit object.</param>
         /// <param name = "paths">The list of paths (either files or directories) that should be considered.</param>
-        public void Reset(string committish = "HEAD", IEnumerable<string> paths = null)
+        public void Reset(Commit commit, IEnumerable<string> paths = null)
         {
             if (Info.IsBare)
             {
                 throw new BareRepositoryException("Reset is not allowed in a bare repository");
             }
 
-            Commit commit = LookupCommit(committish);
-            TreeChanges changes = Diff.Compare(commit.Tree, DiffTargets.Index, paths);
+            Ensure.ArgumentNotNull(commit, "commit");
 
+            TreeChanges changes = Diff.Compare(commit.Tree, DiffTargets.Index, paths);
             Index.Reset(changes);
         }
 

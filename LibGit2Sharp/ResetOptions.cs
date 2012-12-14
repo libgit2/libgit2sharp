@@ -1,7 +1,7 @@
 namespace LibGit2Sharp
 {
     /// <summary>
-    ///   Specifies the kind of operation that <see cref="Repository.Reset(LibGit2Sharp.ResetOptions, string)"/> should perform.
+    ///   Specifies the kind of operation that <see cref="IRepository.Reset(LibGit2Sharp.ResetOptions, Commit)"/> should perform.
     /// </summary>
     public enum ResetOptions
     {
