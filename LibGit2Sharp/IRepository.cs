@@ -126,26 +126,11 @@ namespace LibGit2Sharp
         void Reset(ResetOptions resetOptions, Commit commit);
 
         /// <summary>
-        ///   Sets the current <see cref = "Repository.Head" /> to the specified commit and optionally resets the <see cref = "Repository.Index" /> and
-        ///   the content of the working tree to match.
-        /// </summary>
-        /// <param name = "resetOptions">Flavor of reset operation to perform.</param>
-        /// <param name = "committish">A revparse spec for the target commit object.</param>
-        void Reset(ResetOptions resetOptions, string committish = "HEAD");
-
-        /// <summary>
         ///   Replaces entries in the <see cref="Repository.Index"/> with entries from the specified commit.
         /// </summary>
         /// <param name = "commit">The target commit object.</param>
         /// <param name = "paths">The list of paths (either files or directories) that should be considered.</param>
         void Reset(Commit commit, IEnumerable<string> paths = null);
-
-        /// <summary>
-        ///   Replaces entries in the <see cref="Repository.Index"/> with entries from the specified commit.
-        /// </summary>
-        /// <param name = "committish">A revparse spec for the target commit object.</param>
-        /// <param name = "paths">The list of paths (either files or directories) that should be considered.</param>
-        void Reset(string committish = "HEAD", IEnumerable<string> paths = null);
 
         /// <summary>
         /// Clean the working tree by removing files that are not under version control.

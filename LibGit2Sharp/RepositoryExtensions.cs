@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Handlers;
 
@@ -109,6 +110,49 @@ namespace LibGit2Sharp
         public static Branch CreateBranch(this IRepository repository, string branchName, string committish)
         {
             return repository.Branches.Add(branchName, committish);
+        }
+
+        /// <summary>
+        ///   Sets the current <see cref="Repository.Head"/> /> to the specified commit and optionally resets the <see cref = "Index" /> and
+        ///   the content of the working tree to match.
+        /// </summary>
+        /// <param name = "repository">The <see cref = "Repository" /> being worked with.</param>
+        /// <param name = "resetOptions">Flavor of reset operation to perform.</param>
+        /// <param name = "committish">A revparse spec for the target commit object.</param>
+        public static void Reset(this IRepository repository, ResetOptions resetOptions, string committish = "HEAD")
+        {
+            Ensure.ArgumentNotNullOrEmptyString(committish, "committish");
+
+            Commit commit = LookUpCommit(repository, committish);
+
+            repository.Reset(resetOptions, commit);
+        }
+
+        /// <summary>
+        ///   Replaces entries in the <see cref="Index"/> with entries from the specified commit.
+        /// </summary>
+        /// <param name = "repository">The <see cref = "Repository" /> being worked with.</param>
+        /// <param name = "committish">A revparse spec for the target commit object.</param>
+        /// <param name = "paths">The list of paths (either files or directories) that should be considered.</param>
+        public static void Reset(this IRepository repository, string committish = "HEAD", IEnumerable<string> paths = null)
+        {
+            if (repository.Info.IsBare)
+            {
+                throw new BareRepositoryException("Reset is not allowed in a bare repository");
+            }
+
+            Ensure.ArgumentNotNullOrEmptyString(committish, "committish");
+
+            Commit commit = LookUpCommit(repository, committish);
+
+            repository.Reset(commit, paths);
+        }
+
+        private static Commit LookUpCommit(IRepository repository, string committish)
+        {
+            GitObject obj = repository.Lookup(committish);
+            Ensure.GitObjectIsNotNull(obj, committish);
+            return obj.DereferenceToCommit(true);
         }
 
         /// <summary>

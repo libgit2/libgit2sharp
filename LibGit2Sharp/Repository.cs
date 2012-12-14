@@ -540,20 +540,6 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Sets the current <see cref = "Head" /> to the specified commit and optionally resets the <see cref = "Index" /> and
-        ///   the content of the working tree to match.
-        /// </summary>
-        /// <param name = "resetOptions">Flavor of reset operation to perform.</param>
-        /// <param name = "committish">A revparse spec for the target commit object.</param>
-        public void Reset(ResetOptions resetOptions, string committish = "HEAD")
-        {
-            Ensure.ArgumentNotNullOrEmptyString(committish, "committish");
-
-            Commit commit = LookupCommit(committish);
-            Reset(resetOptions, commit);
-        }
-
-        /// <summary>
         ///   Replaces entries in the <see cref="Repository.Index"/> with entries from the specified commit.
         /// </summary>
         /// <param name = "commit">The target commit object.</param>
@@ -569,24 +555,6 @@ namespace LibGit2Sharp
 
             TreeChanges changes = Diff.Compare(commit.Tree, DiffTargets.Index, paths);
             Index.Reset(changes);
-        }
-
-        /// <summary>
-        ///   Replaces entries in the <see cref="Index"/> with entries from the specified commit.
-        /// </summary>
-        /// <param name = "committish">A revparse spec for the target commit object.</param>
-        /// <param name = "paths">The list of paths (either files or directories) that should be considered.</param>
-        public void Reset(string committish = "HEAD", IEnumerable<string> paths = null)
-        {
-            if (Info.IsBare)
-            {
-                throw new BareRepositoryException("Reset is not allowed in a bare repository");
-            }
-
-            Ensure.ArgumentNotNullOrEmptyString(committish, "committish");
-
-            Commit commit = LookupCommit(committish);
-            Reset(commit, paths);
         }
 
         /// <summary>
