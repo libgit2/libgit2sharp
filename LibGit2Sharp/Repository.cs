@@ -531,14 +531,26 @@ namespace LibGit2Sharp
         ///   the content of the working tree to match.
         /// </summary>
         /// <param name = "resetOptions">Flavor of reset operation to perform.</param>
+        /// <param name = "commit">The target commit object.</param>
+        public void Reset(ResetOptions resetOptions, Commit commit)
+        {
+            Ensure.ArgumentNotNull(commit, "commit");
+
+            Proxy.git_reset(handle, commit.Id, resetOptions);
+        }
+
+        /// <summary>
+        ///   Sets the current <see cref = "Head" /> to the specified commit and optionally resets the <see cref = "Index" /> and
+        ///   the content of the working tree to match.
+        /// </summary>
+        /// <param name = "resetOptions">Flavor of reset operation to perform.</param>
         /// <param name = "committish">A revparse spec for the target commit object.</param>
         public void Reset(ResetOptions resetOptions, string committish = "HEAD")
         {
             Ensure.ArgumentNotNullOrEmptyString(committish, "committish");
 
             Commit commit = LookupCommit(committish);
-
-            Proxy.git_reset(handle, commit.Id, resetOptions);
+            Reset(resetOptions, commit);
         }
 
         /// <summary>

@@ -118,6 +118,14 @@ namespace LibGit2Sharp
         Commit Commit(string message, Signature author, Signature committer, bool amendPreviousCommit = false);
 
         /// <summary>
+        ///   Sets the current <see cref = "Head" /> to the specified commit and optionally resets the <see cref = "Index" /> and
+        ///   the content of the working tree to match.
+        /// </summary>
+        /// <param name = "resetOptions">Flavor of reset operation to perform.</param>
+        /// <param name = "commit">The target commit object.</param>
+        void Reset(ResetOptions resetOptions, Commit commit);
+
+        /// <summary>
         ///   Sets the current <see cref = "Repository.Head" /> to the specified commit and optionally resets the <see cref = "Repository.Index" /> and
         ///   the content of the working tree to match.
         /// </summary>

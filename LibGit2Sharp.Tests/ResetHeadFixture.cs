@@ -36,6 +36,21 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
+        public void SoftResetToAParentCommitChangesTheTargetOfTheHead()
+        {
+            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
+
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                var headCommit = repo.Head.Tip;
+                var firstCommitParent = headCommit.Parents.First();
+                repo.Reset(ResetOptions.Soft, firstCommitParent);
+
+                Assert.Equal(firstCommitParent, repo.Head.Tip);
+            }
+        }
+
+        [Fact]
         public void SoftResetSetsTheHeadToTheDereferencedCommitOfAChainedTag()
         {
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
@@ -53,7 +68,8 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                Assert.Throws<ArgumentNullException>(() => repo.Reset(ResetOptions.Soft, null));
+                Assert.Throws<ArgumentNullException>(() => repo.Reset(ResetOptions.Soft, (string)null));
+                Assert.Throws<ArgumentNullException>(() => repo.Reset(ResetOptions.Soft, (Commit)null));
                 Assert.Throws<ArgumentException>(() => repo.Reset(ResetOptions.Soft, ""));
                 Assert.Throws<LibGit2SharpException>(() => repo.Reset(ResetOptions.Soft, Constants.UnknownSha));
                 Assert.Throws<LibGit2SharpException>(() => repo.Reset(ResetOptions.Soft, repo.Head.Tip.Tree.Sha));
