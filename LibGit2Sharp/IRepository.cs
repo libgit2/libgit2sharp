@@ -136,6 +136,13 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Replaces entries in the <see cref="Repository.Index"/> with entries from the specified commit.
         /// </summary>
+        /// <param name = "commit">The target commit object.</param>
+        /// <param name = "paths">The list of paths (either files or directories) that should be considered.</param>
+        void Reset(Commit commit, IEnumerable<string> paths = null);
+
+        /// <summary>
+        ///   Replaces entries in the <see cref="Repository.Index"/> with entries from the specified commit.
+        /// </summary>
         /// <param name = "committish">A revparse spec for the target commit object.</param>
         /// <param name = "paths">The list of paths (either files or directories) that should be considered.</param>
         void Reset(string committish = "HEAD", IEnumerable<string> paths = null);

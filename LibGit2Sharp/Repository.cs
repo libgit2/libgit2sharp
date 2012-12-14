@@ -554,6 +554,24 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        ///   Replaces entries in the <see cref="Repository.Index"/> with entries from the specified commit.
+        /// </summary>
+        /// <param name = "commit">The target commit object.</param>
+        /// <param name = "paths">The list of paths (either files or directories) that should be considered.</param>
+        public void Reset(Commit commit, IEnumerable<string> paths = null)
+        {
+            if (Info.IsBare)
+            {
+                throw new BareRepositoryException("Reset is not allowed in a bare repository");
+            }
+
+            Ensure.ArgumentNotNull(commit, "commit");
+
+            TreeChanges changes = Diff.Compare(commit.Tree, DiffTargets.Index, paths);
+            Index.Reset(changes);
+        }
+
+        /// <summary>
         ///   Replaces entries in the <see cref="Index"/> with entries from the specified commit.
         /// </summary>
         /// <param name = "committish">A revparse spec for the target commit object.</param>
@@ -565,10 +583,10 @@ namespace LibGit2Sharp
                 throw new BareRepositoryException("Reset is not allowed in a bare repository");
             }
 
-            Commit commit = LookupCommit(committish);
-            TreeChanges changes = Diff.Compare(commit.Tree, DiffTargets.Index, paths);
+            Ensure.ArgumentNotNullOrEmptyString(committish, "committish");
 
-            Index.Reset(changes);
+            Commit commit = LookupCommit(committish);
+            Reset(commit, paths);
         }
 
         /// <summary>

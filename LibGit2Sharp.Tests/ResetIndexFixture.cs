@@ -76,7 +76,7 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
-        public void CanResetTheIndexToTheContentOfACommit()
+        public void CanResetTheIndexToTheContentOfACommitWithCommitishAsArgument()
         {
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
 
@@ -95,13 +95,46 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
-        public void CanResetTheIndexToASubsetOfTheContentOfACommit()
+        public void CanResetTheIndexToTheContentOfACommitWithCommitAsArgument()
+        {
+            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
+
+            using (var repo = new Repository(path.DirectoryPath))
+            {
+                repo.Reset(repo.Lookup<Commit>("be3563a"));
+
+                RepositoryStatus newStatus = repo.Index.RetrieveStatus();
+
+                var expected = new[] { "1.txt", Path.Combine("1", "branch_file.txt"), "deleted_staged_file.txt", 
+                    "deleted_unstaged_file.txt", "modified_staged_file.txt", "modified_unstaged_file.txt" };
+
+                Assert.Equal(expected.Length, newStatus.Where(IsStaged).Count());
+                Assert.Equal(expected, newStatus.Removed);
+            }
+        }
+
+        [Fact]
+        public void CanResetTheIndexToASubsetOfTheContentOfACommitWithCommitishAsArgument()
         {
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
 
             using (var repo = new Repository(path.DirectoryPath))
             {
                 repo.Reset("5b5b025", new[]{ "new.txt" });
+
+                Assert.Equal("a8233120f6ad708f843d861ce2b7228ec4e3dec6", repo.Index["README"].Id.Sha);
+                Assert.Equal("fa49b077972391ad58037050f2a75f74e3671e92", repo.Index["new.txt"].Id.Sha);
+            }
+        }
+
+        [Fact]
+        public void CanResetTheIndexToASubsetOfTheContentOfACommitWithCommitAsArgument()
+        {
+            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
+
+            using (var repo = new Repository(path.DirectoryPath))
+            {
+                repo.Reset(repo.Lookup<Commit>("5b5b025"), new[] { "new.txt" });
 
                 Assert.Equal("a8233120f6ad708f843d861ce2b7228ec4e3dec6", repo.Index["README"].Id.Sha);
                 Assert.Equal("fa49b077972391ad58037050f2a75f74e3671e92", repo.Index["new.txt"].Id.Sha);
