@@ -265,15 +265,16 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name = "path">The path to the working folder when initializing a standard ".git" repository. Otherwise, when initializing a bare repository, the path to the expected location of this later.</param>
         /// <param name = "isBare">true to initialize a bare repository. False otherwise, to initialize a standard ".git" repository.</param>
+        /// <param name="options">Overrides to the way a repository is opened.</param>
         /// <returns> a new instance of the <see cref = "Repository" /> class. The client code is responsible for calling <see cref = "Dispose()" /> on this instance.</returns>
-        public static Repository Init(string path, bool isBare = false)
+        public static Repository Init(string path, bool isBare = false, RepositoryOptions options = null)
         {
             Ensure.ArgumentNotNullOrEmptyString(path, "path");
 
             using (RepositorySafeHandle repo = Proxy.git_repository_init(path, isBare))
             {
                 FilePath repoPath = Proxy.git_repository_path(repo);
-                return new Repository(repoPath.Native);
+                return new Repository(repoPath.Native, options);
             }
         }
 

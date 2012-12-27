@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using System.Text;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
 
@@ -364,47 +363,6 @@ namespace LibGit2Sharp.Tests
 
                 Assert.Null(repo.Config.Get<string>("MCHammer.You-cant-touch-this", ConfigurationLevel.System));
             }
-        }
-
-        private RepositoryOptions BuildFakeConfigs(SelfCleaningDirectory scd)
-        {
-            var options = BuildFakeRepositoryOptions(scd);
-
-            StringBuilder sb = new StringBuilder()
-                .AppendFormat("[Woot]{0}", Environment.NewLine)
-                .AppendFormat("this-rocks = global{0}", Environment.NewLine)
-                .AppendFormat("[Wow]{0}", Environment.NewLine)
-                .AppendFormat("Man-I-am-totally-global = 42{0}", Environment.NewLine);
-            File.WriteAllText(options.GlobalConfigurationLocation, sb.ToString());
-
-            sb = new StringBuilder()
-                .AppendFormat("[Woot]{0}", Environment.NewLine)
-                .AppendFormat("this-rocks = system{0}", Environment.NewLine);
-            File.WriteAllText(options.SystemConfigurationLocation, sb.ToString());
-
-            sb = new StringBuilder()
-                .AppendFormat("[Woot]{0}", Environment.NewLine)
-                .AppendFormat("this-rocks = xdg{0}", Environment.NewLine);
-            File.WriteAllText(options.XdgConfigurationLocation, sb.ToString());
-
-            return options;
-        }
-
-        private RepositoryOptions BuildFakeRepositoryOptions(SelfCleaningDirectory scd)
-        {
-            string confs = Path.Combine(scd.DirectoryPath, "confs");
-            Directory.CreateDirectory(confs);
-
-            string globalLocation = Path.Combine(confs, "my-global-config");
-            string xdgLocation = Path.Combine(confs, "my-xdg-config");
-            string systemLocation = Path.Combine(confs, "my-system-config");
-
-            return new RepositoryOptions
-            {
-                GlobalConfigurationLocation = globalLocation,
-                XdgConfigurationLocation = xdgLocation,
-                SystemConfigurationLocation = systemLocation,
-            };
         }
     }
 }
