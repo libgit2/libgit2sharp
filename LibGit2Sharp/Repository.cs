@@ -413,12 +413,14 @@ namespace LibGit2Sharp
         /// to non-bare repositories.</param>
         /// <param name="onTransferProgress">Handler for network transfer and indexing progress information</param>
         /// <param name="onCheckoutProgress">Handler for checkout progress information</param>
+        /// <param name="options">Overrides to the way a repository is opened.</param>
         /// <returns></returns>
         public static Repository Clone(string sourceUrl, string workdirPath,
             bool bare = false,
             bool checkout = true,
             TransferProgressHandler onTransferProgress = null,
-            CheckoutProgressHandler onCheckoutProgress = null)
+            CheckoutProgressHandler onCheckoutProgress = null,
+            RepositoryOptions options = null)
         {
             GitCheckoutOpts nativeOpts = null;
             if (checkout)
@@ -438,7 +440,7 @@ namespace LibGit2Sharp
                                             : Proxy.git_clone(sourceUrl, workdirPath, cb, nativeOpts);
             repo.SafeDispose();
 
-            return new Repository(workdirPath);
+            return new Repository(workdirPath, options);
         }
 
         /// <summary>
