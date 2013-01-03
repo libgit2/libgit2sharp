@@ -102,6 +102,31 @@ namespace LibGit2Sharp
             odb = new Lazy<ObjectDatabase>(() => new ObjectDatabase(this));
             diff = new Diff(this);
             notes = new NoteCollection(this);
+
+            EagerlyLoadTheConfigIfAnyPathHaveBeenPassed(options);
+        }
+
+        private void EagerlyLoadTheConfigIfAnyPathHaveBeenPassed(RepositoryOptions options)
+        {
+            if (options == null)
+            {
+                return;
+            }
+
+            if (options.GlobalConfigurationLocation == null &&
+                options.XdgConfigurationLocation == null &&
+                options.SystemConfigurationLocation == null)
+            {
+                return;
+            }
+
+            // Dirty hack to force the eager load of the configuration
+            // without Resharper pestering about useless code
+
+            if (!Config.HasConfig(ConfigurationLevel.Local))
+            {
+                throw new InvalidOperationException("Unexpected state.");
+            }
         }
 
         /// <summary>
