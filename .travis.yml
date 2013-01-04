@@ -7,7 +7,7 @@ language: c
 install:
  - sudo apt-get install cmake mono-devel mono-gmcs
 
-# Run the Build script
+# Build libgit2, LibGit2Sharp and run the tests
 script:
  - git submodule update --init
  - mkdir cmake-build
@@ -16,9 +16,6 @@ script:
  - export LD_LIBRARY_PATH=$PWD/libgit2-bin/lib
  - cmake --build . --target install
  - cd ..
-
-# Run Tests
-after_script:
  - xbuild CI-build.msbuild /t:Deploy
 
 # Only watch the development branch
