@@ -97,7 +97,6 @@
     <Compile Include="TestHelpers\IPostTestDirectoryRemover.cs" />
     <Compile Include="TestHelpers\SelfCleaningDirectory.cs" />
     <Compile Include="TestHelpers\SignatureExtensions.cs" />
-    <Compile Include="TestHelpers\SkipException.cs" />
     <Compile Include="TestHelpers\SkippableFactAttribute.cs" />
     <Compile Include="TestHelpers\TemporaryCloneOfTestRepo.cs" />
     <Compile Include="TreeDefinitionFixture.cs" />
