@@ -112,7 +112,7 @@ namespace LibGit2Sharp.Tests
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
             using (var repo = new Repository(path.RepositoryPath))
             {
-                Assert.Throws<LibGit2SharpException>(() => repo.Refs.Add("refs/heads/master", "be3563ae3f795b2b4353bcce3a527ad0a4f7f644"));
+                Assert.Throws<NameConflictException>(() => repo.Refs.Add("refs/heads/master", "be3563ae3f795b2b4353bcce3a527ad0a4f7f644"));
             }
         }
 
@@ -122,7 +122,7 @@ namespace LibGit2Sharp.Tests
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
             using (var repo = new Repository(path.RepositoryPath))
             {
-                Assert.Throws<LibGit2SharpException>(() => repo.Refs.Add("HEAD", "refs/heads/br2"));
+                Assert.Throws<NameConflictException>(() => repo.Refs.Add("HEAD", "refs/heads/br2"));
             }
         }
 
@@ -613,7 +613,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                Assert.Throws<LibGit2SharpException>(() => repo.Refs.Move("refs/heads/packed", "refs/heads/br2"));
+                Assert.Throws<NameConflictException>(() => repo.Refs.Move("refs/heads/packed", "refs/heads/br2"));
             }
         }
 
