@@ -168,7 +168,7 @@ namespace LibGit2Sharp
                     throw new NotImplementedException();
                 }
 
-                if (!kvp.Value.Has(FileStatus.Nonexistent))
+                if (!kvp.Value.HasFlag(FileStatus.Nonexistent))
                 {
                     continue;
                 }
@@ -181,7 +181,7 @@ namespace LibGit2Sharp
                 string relativePath = kvp.Key;
                 FileStatus fileStatus = kvp.Value;
 
-                if (fileStatus.Has(FileStatus.Missing))
+                if (fileStatus.HasFlag(FileStatus.Missing))
                 {
                     RemoveFromIndex(relativePath);
                 }

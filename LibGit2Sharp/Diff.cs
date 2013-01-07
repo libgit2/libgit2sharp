@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using LibGit2Sharp.Core;
+using LibGit2Sharp.Core.Compat;
 using LibGit2Sharp.Core.Handles;
 
 namespace LibGit2Sharp
@@ -21,7 +22,7 @@ namespace LibGit2Sharp
         {
             var options = new GitDiffOptions();
 
-            if (diffOptions.Has(DiffOptions.IncludeUntracked))
+            if (diffOptions.HasFlag(DiffOptions.IncludeUntracked))
             {
                 options.Flags |= GitDiffOptionFlags.GIT_DIFF_INCLUDE_UNTRACKED |
                 GitDiffOptionFlags.GIT_DIFF_RECURSE_UNTRACKED_DIRS |
@@ -181,7 +182,7 @@ namespace LibGit2Sharp
         {
             var comparer = handleRetrieverDispatcher[diffTargets](repo);
 
-            DiffOptions diffOptions = diffTargets.Has(DiffTargets.WorkingDirectory) ?
+            DiffOptions diffOptions = diffTargets.HasFlag(DiffTargets.WorkingDirectory) ?
                 DiffOptions.IncludeUntracked : DiffOptions.None;
 
             using (GitDiffOptions options = BuildOptions(diffOptions, paths))

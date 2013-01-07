@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using LibGit2Sharp.Core;
+using LibGit2Sharp.Core.Compat;
 
 namespace LibGit2Sharp
 {
@@ -58,7 +59,7 @@ namespace LibGit2Sharp
 
             foreach (KeyValuePair<FileStatus, Action<RepositoryStatus, string>> kvp in dispatcher)
             {
-                if (!gitStatus.Has(kvp.Key))
+                if (!gitStatus.HasFlag(kvp.Key))
                 {
                     continue;
                 }

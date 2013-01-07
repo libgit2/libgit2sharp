@@ -373,7 +373,7 @@ namespace LibGit2Sharp
             {
                 if (sh == null)
                 {
-                    if (lookUpOptions.Has(LookUpOptions.ThrowWhenNoGitObjectHasBeenFound))
+                    if (lookUpOptions.HasFlag(LookUpOptions.ThrowWhenNoGitObjectHasBeenFound))
                     {
                         Ensure.GitObjectIsNotNull(null, objectish);
                     }
@@ -391,10 +391,10 @@ namespace LibGit2Sharp
                 obj = GitObject.BuildFrom(this, Proxy.git_object_id(sh), objType, PathFromRevparseSpec(objectish));
             }
 
-            if (lookUpOptions.Has(LookUpOptions.DereferenceResultToCommit))
+            if (lookUpOptions.HasFlag(LookUpOptions.DereferenceResultToCommit))
             {
                 return obj.DereferenceToCommit(
-                    lookUpOptions.Has(LookUpOptions.ThrowWhenCanNotBeDereferencedToACommit));
+                    lookUpOptions.HasFlag(LookUpOptions.ThrowWhenCanNotBeDereferencedToACommit));
             }
 
             return obj;
