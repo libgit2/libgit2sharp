@@ -122,6 +122,7 @@ namespace LibGit2Sharp
                 if (IntPtr.Zero == nativeBackendPointer)
                 {
                     var nativeBackend = new GitOdbBackend();
+                    nativeBackend.Version = 1;
 
                     // The "free" entry point is always provided.
                     nativeBackend.Free = BackendEntryPoints.FreeCallback;

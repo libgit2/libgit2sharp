@@ -73,6 +73,7 @@
     <Compile Include="ContentChanges.cs" />
     <Compile Include="Core\Compat\EnumExtensions.cs" />
     <Compile Include="Core\GitCheckoutOpts.cs" />
+    <Compile Include="Core\GitCloneOptions.cs" />
     <Compile Include="Core\GitConfigEntry.cs" />
     <Compile Include="Core\GitObjectLazyGroup.cs" />
     <Compile Include="Core\GitTransferProgress.cs" />

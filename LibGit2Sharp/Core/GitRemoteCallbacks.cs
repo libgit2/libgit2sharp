@@ -9,6 +9,8 @@ namespace LibGit2Sharp.Core
     [StructLayout(LayoutKind.Sequential)]
     internal struct GitRemoteCallbacks
     {
+        internal uint version;
+
         internal NativeMethods.remote_progress_callback progress;
 
         internal NativeMethods.remote_completion_callback completion;
