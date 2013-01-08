@@ -39,7 +39,7 @@ namespace LibGit2Sharp
 
         private int HunkCallback(GitDiffDelta delta, GitDiffRange range, IntPtr header, UIntPtr headerlen, IntPtr payload)
         {
-            string decodedContent = Utf8Marshaler.FromNative(header, (uint)headerlen);
+            string decodedContent = Utf8Marshaler.FromNative(header, (int)headerlen);
 
             AppendToPatch(decodedContent);
             return 0;
@@ -47,7 +47,7 @@ namespace LibGit2Sharp
 
         private int LineCallback(GitDiffDelta delta, GitDiffRange range, GitDiffLineOrigin lineorigin, IntPtr content, UIntPtr contentlen, IntPtr payload)
         {
-            string decodedContent = Utf8Marshaler.FromNative(content, (uint)contentlen);
+            string decodedContent = Utf8Marshaler.FromNative(content, (int)contentlen);
 
             string prefix;
 

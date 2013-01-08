@@ -51,7 +51,7 @@ namespace LibGit2Sharp
 
         private int PrintCallBack(GitDiffDelta delta, GitDiffRange range, GitDiffLineOrigin lineorigin, IntPtr content, UIntPtr contentlen, IntPtr payload)
         {
-            string formattedoutput = Utf8Marshaler.FromNative(content, (uint)contentlen);
+            string formattedoutput = Utf8Marshaler.FromNative(content, (int)contentlen);
 
             TreeEntryChanges currentChange = AddFileChange(delta, lineorigin);
             AddLineChange(currentChange, lineorigin);
