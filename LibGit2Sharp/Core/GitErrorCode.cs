@@ -53,7 +53,7 @@
         /// <summary>
         ///   Input is not a valid specification.
         /// </summary>
-        InvalidSpecification = -11,
+        InvalidSpecification = -12,
 
         /// <summary>
         ///   Skip and passthrough the given ODB backend.

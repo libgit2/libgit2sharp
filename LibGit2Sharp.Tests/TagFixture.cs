@@ -307,10 +307,10 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(BareTestRepoPath))
             {
                 Assert.Throws<ArgumentException>(() => repo.ApplyTag(""));
-                Assert.Throws<LibGit2SharpException>(() => repo.ApplyTag(".othertag"));
-                Assert.Throws<LibGit2SharpException>(() => repo.ApplyTag("other tag"));
-                Assert.Throws<LibGit2SharpException>(() => repo.ApplyTag("othertag^"));
-                Assert.Throws<LibGit2SharpException>(() => repo.ApplyTag("other~tag"));
+                Assert.Throws<InvalidSpecificationException>(() => repo.ApplyTag(".othertag"));
+                Assert.Throws<InvalidSpecificationException>(() => repo.ApplyTag("other tag"));
+                Assert.Throws<InvalidSpecificationException>(() => repo.ApplyTag("othertag^"));
+                Assert.Throws<InvalidSpecificationException>(() => repo.ApplyTag("other~tag"));
             }
         }
 
