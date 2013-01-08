@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
+using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
 using Xunit.Extensions;
@@ -29,6 +31,36 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(repo.Head.Name, "master");
                 Assert.Equal(repo.Head.Tip.Id.ToString(), "49322bb17d3acc9146f98c97d078513228bbf3c0");
             }
+        }
+
+        private void AssertLocalClone(string path)
+        {
+            var scd = BuildSelfCleaningDirectory();
+            using (Repository clonedRepo = Repository.Clone(path, scd.RootedDirectoryPath))
+            using (var originalRepo = new Repository(BareTestRepoPath))
+            {
+                Assert.NotEqual(originalRepo.Info.Path, clonedRepo.Info.Path);
+                Assert.Equal(originalRepo.Head, clonedRepo.Head);
+
+                Assert.Equal(originalRepo.Branches.Count(), clonedRepo.Branches.Count(b => b.IsRemote));
+                Assert.Equal(1, clonedRepo.Branches.Count(b => !b.IsRemote));
+
+                Assert.Equal(originalRepo.Tags.Count(), clonedRepo.Tags.Count());
+                Assert.Equal(1, clonedRepo.Remotes.Count());
+            }
+        }
+
+        [Fact]
+        public void CanCloneALocalRepositoryFromALocalUri()
+        {
+            var uri = new Uri(BareTestRepoPath);
+            AssertLocalClone(uri.AbsoluteUri);
+        }
+
+        [Fact]
+        public void CanCloneALocalRepositoryFromAStandardPath()
+        {
+            AssertLocalClone(BareTestRepoPath);
         }
 
         [Theory]
