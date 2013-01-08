@@ -153,6 +153,7 @@
     <Compile Include="ContentChanges.cs" />
     <Compile Include="InvalidSpecificationException.cs" />
     <Compile Include="Core\Compat\EnumExtensions.cs" />
+    <Compile Include="Core\DataWriter.cs" />
     <Compile Include="Core\GitCheckoutOpts.cs" />
     <Compile Include="Core\GitCloneOptions.cs" />
     <Compile Include="Core\GitConfigEntry.cs" />
@@ -160,11 +161,19 @@
     <Compile Include="Core\GitTransferProgress.cs" />
     <Compile Include="Core\Handles\NullGitObjectSafeHandle.cs" />
     <Compile Include="Core\Handles\NullIndexSafeHandle.cs" />
+    <Compile Include="Core\IArchiveDataWriter.cs" />
     <Compile Include="Core\ILazy.cs" />
+    <Compile Include="Core\ITarHeader.cs" />
     <Compile Include="Core\LazyGroup.cs" />
     <Compile Include="Core\Handles\GitConfigEntryHandle.cs" />
+    <Compile Include="Core\LegacyTarWriter.cs" />
     <Compile Include="Core\Proxy.cs" />
     <Compile Include="Credentials.cs" />
+    <Compile Include="Core\TarException.cs" />
+    <Compile Include="Core\TarHeader.cs" />
+    <Compile Include="Core\TarReader.cs" />
+    <Compile Include="Core\TarWriter.cs" />
+    <Compile Include="Core\UsTarHeader.cs" />
     <Compile Include="DiffTargets.cs" />
     <Compile Include="FetchHead.cs" />
     <Compile Include="Core\Handles\PushSafeHandle.cs" />
