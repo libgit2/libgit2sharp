@@ -5,6 +5,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Compat;
@@ -447,24 +448,18 @@ namespace LibGit2Sharp
             CheckoutProgressHandler onCheckoutProgress = null,
             RepositoryOptions options = null)
         {
-            GitCheckoutOpts nativeOpts = null;
-            if (checkout)
-            {
-                nativeOpts = new GitCheckoutOpts
-                    {
-                        checkout_strategy = CheckoutStrategy.GIT_CHECKOUT_SAFE,
-                        ProgressCb = CheckoutCallbacks.GenerateCheckoutCallbacks(onCheckoutProgress),
-                    };
-            }
+            var cloneOpts = new GitCloneOptions
+                                {
+                                    Bare = bare ? 1 : 0,
+                                    TransferProgressCallback = TransferCallbacks.GenerateCallback(onTransferProgress),
+                                };
+            cloneOpts.CheckoutOpts.version = 1;
+            cloneOpts.CheckoutOpts.progress_cb = CheckoutCallbacks.GenerateCheckoutCallbacks(onCheckoutProgress);
+            cloneOpts.CheckoutOpts.checkout_strategy = checkout
+                                                           ? CheckoutStrategy.GIT_CHECKOUT_SAFE_CREATE
+                                                           : CheckoutStrategy.GIT_CHECKOUT_NONE;
 
-            NativeMethods.git_transfer_progress_callback cb =
-                TransferCallbacks.GenerateCallback(onTransferProgress);
-
-            RepositorySafeHandle repo = bare
-                                            ? Proxy.git_clone_bare(sourceUrl, workdirPath, cb)
-                                            : Proxy.git_clone(sourceUrl, workdirPath, cb, nativeOpts);
-            repo.SafeDispose();
-
+            using(Proxy.git_clone(sourceUrl, workdirPath, cloneOpts)) {}
             return new Repository(workdirPath, options);
         }
 
@@ -546,12 +541,13 @@ namespace LibGit2Sharp
         {
             GitCheckoutOpts options = new GitCheckoutOpts
             {
+                version = 1,
                 checkout_strategy = CheckoutStrategy.GIT_CHECKOUT_FORCE |
                                     CheckoutStrategy.GIT_CHECKOUT_REMOVE_UNTRACKED,
-                ProgressCb = CheckoutCallbacks.GenerateCheckoutCallbacks(onCheckoutProgress)
+                progress_cb = CheckoutCallbacks.GenerateCheckoutCallbacks(onCheckoutProgress)
             };
 
-            Proxy.git_checkout_head(this.Handle, options);
+            Proxy.git_checkout_head(this.Handle, ref options);
         }
 
         /// <summary>
@@ -632,11 +628,12 @@ namespace LibGit2Sharp
         {
             var options = new GitCheckoutOpts
             {
+                version = 1,
                 checkout_strategy = CheckoutStrategy.GIT_CHECKOUT_REMOVE_UNTRACKED
                                      | CheckoutStrategy.GIT_CHECKOUT_ALLOW_CONFLICTS,
             };
 
-            Proxy.git_checkout_index(Handle, new NullIndexSafeHandle(), options);
+            Proxy.git_checkout_index(Handle, new NullGitObjectSafeHandle(), ref options);
         }
 
         internal T RegisterForCleanup<T>(T disposable) where T : IDisposable

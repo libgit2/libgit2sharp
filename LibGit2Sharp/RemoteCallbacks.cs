@@ -40,7 +40,7 @@ namespace LibGit2Sharp
 
         internal GitRemoteCallbacks GenerateCallbacks()
         {
-            GitRemoteCallbacks callbacks = new GitRemoteCallbacks();
+            GitRemoteCallbacks callbacks = new GitRemoteCallbacks {version = 1};
 
             if (Progress != null)
             {

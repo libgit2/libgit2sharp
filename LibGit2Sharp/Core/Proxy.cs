@@ -167,30 +167,30 @@ namespace LibGit2Sharp.Core
         public static void git_checkout_tree(
             RepositorySafeHandle repo,
             ObjectId treeId,
-            GitCheckoutOpts opts)
+            ref GitCheckoutOpts opts)
         {
             using (ThreadAffinity())
             using (var osw = new ObjectSafeWrapper(treeId, repo))
             {
-                int res = NativeMethods.git_checkout_tree(repo, osw.ObjectPtr, opts);
+                int res = NativeMethods.git_checkout_tree(repo, osw.ObjectPtr, ref opts);
                 Ensure.Success(res);
             }
         }
 
-        public static void git_checkout_head(RepositorySafeHandle repo, GitCheckoutOpts opts)
+        public static void git_checkout_head(RepositorySafeHandle repo, ref GitCheckoutOpts opts)
         {
             using (ThreadAffinity())
             {
-                int res = NativeMethods.git_checkout_head(repo, opts);
+                int res = NativeMethods.git_checkout_head(repo, ref opts);
                 Ensure.Success(res);
             }
         }
 
-        public static void git_checkout_index(RepositorySafeHandle repo, IndexSafeHandle index, GitCheckoutOpts opts)
+        public static void git_checkout_index(RepositorySafeHandle repo, GitObjectSafeHandle treeish, ref GitCheckoutOpts opts)
         {
             using (ThreadAffinity())
             {
-                int res = NativeMethods.git_checkout_index(repo, index, opts);
+                int res = NativeMethods.git_checkout_index(repo, treeish, ref opts);
                 Ensure.Success(res);
             }
         }
@@ -202,27 +202,12 @@ namespace LibGit2Sharp.Core
         public static RepositorySafeHandle git_clone(
             string url,
             string workdir,
-            NativeMethods.git_transfer_progress_callback transfer_cb,
-            GitCheckoutOpts checkoutOptions)
+            GitCloneOptions opts)
         {
             using (ThreadAffinity())
             {
                 RepositorySafeHandle repo;
-                int res = NativeMethods.git_clone(out repo, url, workdir, checkoutOptions, transfer_cb, IntPtr.Zero);
-                Ensure.Success(res);
-                return repo;
-            }
-        }
-
-        public static RepositorySafeHandle git_clone_bare(
-            string url,
-            string workdir,
-            NativeMethods.git_transfer_progress_callback transfer_cb)
-        {
-            using (ThreadAffinity())
-            {
-                RepositorySafeHandle repo;
-                int res = NativeMethods.git_clone_bare(out repo, url, workdir, transfer_cb, IntPtr.Zero);
+                int res = NativeMethods.git_clone(out repo, url, workdir, opts);
                 Ensure.Success(res);
                 return repo;
             }
@@ -533,7 +518,7 @@ namespace LibGit2Sharp.Core
             }
         }
 
-        public static DiffListSafeHandle git_diff_index_to_tree(
+        public static DiffListSafeHandle git_diff_tree_to_index(
             RepositorySafeHandle repo,
             IndexSafeHandle index,
             ObjectId oldTree,
@@ -543,7 +528,7 @@ namespace LibGit2Sharp.Core
             using (var osw = new ObjectSafeWrapper(oldTree, repo, true))
             {
                 DiffListSafeHandle diff;
-                int res = NativeMethods.git_diff_index_to_tree(out diff, repo, osw.ObjectPtr, index, options);
+                int res = NativeMethods.git_diff_tree_to_index(out diff, repo, osw.ObjectPtr, index, options);
                 Ensure.Success(res);
 
                 return diff;
@@ -591,7 +576,7 @@ namespace LibGit2Sharp.Core
             }
         }
 
-        public static DiffListSafeHandle git_diff_workdir_to_index(
+        public static DiffListSafeHandle git_diff_index_to_workdir(
             RepositorySafeHandle repo,
             IndexSafeHandle index,
             GitDiffOptions options)
@@ -599,14 +584,14 @@ namespace LibGit2Sharp.Core
             using (ThreadAffinity())
             {
                 DiffListSafeHandle diff;
-                int res = NativeMethods.git_diff_workdir_to_index(out diff, repo, index, options);
+                int res = NativeMethods.git_diff_index_to_workdir(out diff, repo, index, options);
                 Ensure.Success(res);
 
                 return diff;
             }
         }
 
-        public static DiffListSafeHandle git_diff_workdir_to_tree(
+        public static DiffListSafeHandle git_diff_tree_to_workdir(
            RepositorySafeHandle repo,
            ObjectId oldTree,
            GitDiffOptions options)
@@ -615,7 +600,7 @@ namespace LibGit2Sharp.Core
             using (var osw = new ObjectSafeWrapper(oldTree, repo, true))
             {
                 DiffListSafeHandle diff;
-                int res = NativeMethods.git_diff_workdir_to_tree(out diff, repo, osw.ObjectPtr, options);
+                int res = NativeMethods.git_diff_tree_to_workdir(out diff, repo, osw.ObjectPtr, options);
                 Ensure.Success(res);
 
                 return diff;
@@ -801,7 +786,8 @@ namespace LibGit2Sharp.Core
             Signature committer,
             string notes_ref,
             ObjectId targetId,
-            string note)
+            string note,
+            bool force)
         {
             using (ThreadAffinity())
             using (SignatureSafeHandle authorHandle = author.BuildHandle())
@@ -810,7 +796,7 @@ namespace LibGit2Sharp.Core
                 GitOid noteOid;
                 GitOid oid = targetId.Oid;
 
-                int res = NativeMethods.git_note_create(out noteOid, repo, authorHandle, committerHandle, notes_ref, ref oid, note);
+                int res = NativeMethods.git_note_create(out noteOid, repo, authorHandle, committerHandle, notes_ref, ref oid, note, force ? 1 : 0);
                 Ensure.Success(res);
 
                 return new ObjectId(noteOid);
@@ -1148,12 +1134,12 @@ namespace LibGit2Sharp.Core
 
         #region git_remote_
 
-        public static RemoteSafeHandle git_remote_add(RepositorySafeHandle repo, string name, string url)
+        public static RemoteSafeHandle git_remote_create(RepositorySafeHandle repo, string name, string url)
         {
             using (ThreadAffinity())
             {
                 RemoteSafeHandle handle;
-                int res = NativeMethods.git_remote_add(out handle, repo, name, url);
+                int res = NativeMethods.git_remote_create(out handle, repo, name, url);
                 Ensure.Success(res);
 
                 return handle;
@@ -1227,18 +1213,6 @@ namespace LibGit2Sharp.Core
             return NativeMethods.git_remote_name(remote);
         }
 
-        public static RemoteSafeHandle git_remote_new(RepositorySafeHandle repo, string name, string url, string fetchrefspec)
-        {
-            using (ThreadAffinity())
-            {
-                RemoteSafeHandle handle;
-                int res = NativeMethods.git_remote_new(out handle, repo, name, url, fetchrefspec);
-                Ensure.Success(res);
-
-                return handle;
-            }
-        }
-
         public static void git_remote_save(RemoteSafeHandle remote)
         {
             using (ThreadAffinity())
@@ -1256,11 +1230,21 @@ namespace LibGit2Sharp.Core
             }
         }
 
+        public static void git_remote_set_fetchspec(RemoteSafeHandle remote, string fetchspec)
+        {
+            using (ThreadAffinity())
+            {
+                int res = NativeMethods.git_remote_set_fetchspec(remote, fetchspec);
+                Ensure.Success(res);
+            }
+        }
+
         public static void git_remote_set_callbacks(RemoteSafeHandle remote, ref GitRemoteCallbacks callbacks)
         {
             using (ThreadAffinity())
             {
-                NativeMethods.git_remote_set_callbacks(remote, ref callbacks);
+                int res = NativeMethods.git_remote_set_callbacks(remote, ref callbacks);
+                Ensure.Success(res);
             }
         }
 
@@ -1800,7 +1784,7 @@ namespace LibGit2Sharp.Core
                 {
                     UnSafeNativeMethods.git_strarray* gitStrArray = &strArray;
 
-                    uint numberOfEntries = gitStrArray->size;
+                    uint numberOfEntries = (uint)gitStrArray->size;
                     for (uint i = 0; i < numberOfEntries; i++)
                     {
                         var name = Utf8Marshaler.FromNative((IntPtr)gitStrArray->strings[i]);

@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System;
+using System.Runtime.InteropServices;
 using LibGit2Sharp.Core.Handles;
 
 namespace LibGit2Sharp.Core
@@ -24,7 +25,7 @@ namespace LibGit2Sharp.Core
         internal struct git_strarray
         {
             public sbyte** strings;
-            public uint size;
+            public UIntPtr size;
         }
 
         #endregion

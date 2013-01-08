@@ -81,7 +81,7 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(name, "name");
             Ensure.ArgumentNotNull(url, "url");
 
-            using (RemoteSafeHandle handle = Proxy.git_remote_add(repository.Handle, name, url))
+            using (RemoteSafeHandle handle = Proxy.git_remote_create(repository.Handle, name, url))
             {
                 return Remote.BuildFromPtr(handle, this.repository);
             }
@@ -107,7 +107,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name = "name">The name of the remote to create.</param>
         /// <param name = "url">The location of the repository.</param>
-        /// <param name = "fetchRefSpec">The refSpec to be used when fetching from this remote..</param>
+        /// <param name = "fetchRefSpec">The refSpec to be used when fetching from this remote.</param>
         /// <returns>A new <see cref = "Remote" />.</returns>
         public virtual Remote Add(string name, string url, string fetchRefSpec)
         {
@@ -115,8 +115,9 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(url, "url");
             Ensure.ArgumentNotNull(fetchRefSpec, "fetchRefSpec");
 
-            using (RemoteSafeHandle handle = Proxy.git_remote_new(repository.Handle, name, url, fetchRefSpec))
+            using (RemoteSafeHandle handle = Proxy.git_remote_create(repository.Handle, name, url))
             {
+                Proxy.git_remote_set_fetchspec(handle, fetchRefSpec);
                 Proxy.git_remote_save(handle);
                 return Remote.BuildFromPtr(handle, this.repository);
             }

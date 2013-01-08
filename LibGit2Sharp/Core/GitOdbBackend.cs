@@ -11,6 +11,8 @@ namespace LibGit2Sharp.Core
             GCHandleOffset = Marshal.OffsetOf(typeof(GitOdbBackend), "GCHandle").ToInt32();
         }
 
+        public uint Version;
+
 #pragma warning disable 169
 
         /// <summary>
