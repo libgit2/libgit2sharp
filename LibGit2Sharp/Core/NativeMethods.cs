@@ -300,6 +300,23 @@ namespace LibGit2Sharp.Core
             config_foreach_callback callback,
             IntPtr payload);
 
+        // Ordinarily we would decorate the `url` parameter with the Utf8Marshaler like we do everywhere
+        // else, but apparently doing a native->managed callback with the 64-bit version of CLR 2.0 can
+        // sometimes vomit when using a custom IMarshaler.  So yeah, don't do that.  If you need the url,
+        // call Utf8Marshaler.FromNative manually.  See the discussion here:
+        // http://social.msdn.microsoft.com/Forums/en-US/netfx64bit/thread/1eb746c6-d695-4632-8a9e-16c4fa98d481
+        internal delegate int git_cred_acquire_cb(
+            out IntPtr cred,
+            IntPtr url,
+            uint allowed_types,
+            IntPtr payload);
+
+        [DllImport(libgit2)]
+        internal static extern int git_cred_userpass_plaintext_new(
+            out IntPtr cred,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof (Utf8Marshaler))] string username,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof (Utf8Marshaler))] string password);
+
         [DllImport(libgit2)]
         internal static extern void git_diff_list_free(IntPtr diff);
 
@@ -628,6 +645,12 @@ namespace LibGit2Sharp.Core
 
         [DllImport(libgit2)]
         internal static extern int git_remote_save(RemoteSafeHandle remote);
+
+        [DllImport(libgit2)]
+        internal static extern void git_remote_set_cred_acquire_cb(
+            RemoteSafeHandle remote,
+            git_cred_acquire_cb cred_acquire_cb,
+            IntPtr payload);
 
         [DllImport(libgit2)]
         internal static extern int git_repository_odb(out ObjectDatabaseSafeHandle odb, RepositorySafeHandle repo);

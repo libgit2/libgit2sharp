@@ -110,6 +110,28 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        [SkippableFact]
+        public void CanFetchIntoAnEmptyRepositoryWithCredentials()
+        {
+            InconclusiveIf(() => string.IsNullOrEmpty(Constants.PrivateRepoUrl),
+                "Populate Constants.PrivateRepo* to run this test");
+
+            string remoteName = "testRemote";
+
+            var scd = BuildSelfCleaningDirectory();
+            using (var repo = Repository.Init(scd.RootedDirectoryPath))
+            {
+                Remote remote = repo.Remotes.Add(remoteName, Constants.PrivateRepoUrl);
+
+                // Perform the actual fetch
+                remote.Fetch(credentials: new Credentials
+                                              {
+                                                  Username = Constants.PrivateRepoUsername,
+                                                  Password = Constants.PrivateRepoPassword
+                                              });
+            }
+        }
+
         [Theory]
         [InlineData("http://github.com/libgit2/TestGitRepository")]
         [InlineData("https://github.com/libgit2/TestGitRepository")]

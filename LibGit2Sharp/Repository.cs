@@ -440,24 +440,37 @@ namespace LibGit2Sharp
         /// <param name="onTransferProgress">Handler for network transfer and indexing progress information</param>
         /// <param name="onCheckoutProgress">Handler for checkout progress information</param>
         /// <param name="options">Overrides to the way a repository is opened.</param>
+        /// <param name="credentials">Credentials to use for user/pass authentication</param>
         /// <returns></returns>
         public static Repository Clone(string sourceUrl, string workdirPath,
             bool bare = false,
             bool checkout = true,
             TransferProgressHandler onTransferProgress = null,
             CheckoutProgressHandler onCheckoutProgress = null,
-            RepositoryOptions options = null)
+            RepositoryOptions options = null,
+            Credentials credentials = null)
         {
             var cloneOpts = new GitCloneOptions
-                                {
-                                    Bare = bare ? 1 : 0,
-                                    TransferProgressCallback = TransferCallbacks.GenerateCallback(onTransferProgress),
-                                };
-            cloneOpts.CheckoutOpts.version = 1;
-            cloneOpts.CheckoutOpts.progress_cb = CheckoutCallbacks.GenerateCheckoutCallbacks(onCheckoutProgress);
-            cloneOpts.CheckoutOpts.checkout_strategy = checkout
-                                                           ? CheckoutStrategy.GIT_CHECKOUT_SAFE_CREATE
-                                                           : CheckoutStrategy.GIT_CHECKOUT_NONE;
+                {
+                    Bare = bare ? 1 : 0,
+                    TransferProgressCallback = TransferCallbacks.GenerateCallback(onTransferProgress),
+                    CheckoutOpts =
+                        {
+                            version = 1,
+                            progress_cb =
+                                CheckoutCallbacks.GenerateCheckoutCallbacks(onCheckoutProgress),
+                            checkout_strategy = checkout
+                                                    ? CheckoutStrategy.GIT_CHECKOUT_SAFE_CREATE
+                                                    : CheckoutStrategy.GIT_CHECKOUT_NONE
+                        },
+                };
+
+            if (credentials != null)
+            {
+                cloneOpts.CredAcquireCallback =
+                    (out IntPtr cred, IntPtr url, uint types, IntPtr payload) =>
+                    NativeMethods.git_cred_userpass_plaintext_new(out cred, credentials.Username, credentials.Password);
+            }
 
             using(Proxy.git_clone(sourceUrl, workdirPath, cloneOpts)) {}
             return new Repository(workdirPath, options);

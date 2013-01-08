@@ -1253,6 +1253,11 @@ namespace LibGit2Sharp.Core
             }
         }
 
+        public static void git_remote_set_cred_acquire_cb(RemoteSafeHandle remote, NativeMethods.git_cred_acquire_cb cred_acquire_cb, IntPtr payload)
+        {
+            NativeMethods.git_remote_set_cred_acquire_cb(remote, cred_acquire_cb, payload);
+        }
+
         public static void git_remote_update_tips(RemoteSafeHandle remote)
         {
             using (ThreadAffinity())

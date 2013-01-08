@@ -110,5 +110,30 @@ namespace LibGit2Sharp.Tests
                 Assert.True(checkoutWasCalled);
             }
         }
+
+        [SkippableFact]
+        public void CanCloneWithCredentials()
+        {
+            InconclusiveIf(() => string.IsNullOrEmpty(Constants.PrivateRepoUrl),
+                "Populate Constants.PrivateRepo* to run this test");
+
+            var scd = BuildSelfCleaningDirectory();
+            using (Repository repo = Repository.Clone(
+                Constants.PrivateRepoUrl, scd.RootedDirectoryPath,
+                credentials: new Credentials
+                                 {
+                                     Username = Constants.PrivateRepoUsername,
+                                     Password = Constants.PrivateRepoPassword
+                                 }))
+            {
+                string dir = repo.Info.Path;
+                Assert.True(Path.IsPathRooted(dir));
+                Assert.True(Directory.Exists(dir));
+
+                Assert.NotNull(repo.Info.WorkingDirectory);
+                Assert.Equal(Path.Combine(scd.RootedDirectoryPath, ".git" + Path.DirectorySeparatorChar), repo.Info.Path);
+                Assert.False(repo.Info.IsBare);
+            }
+        }
     }
 }
