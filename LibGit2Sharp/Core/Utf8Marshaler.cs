@@ -4,127 +4,183 @@ using System.Text;
 
 namespace LibGit2Sharp.Core
 {
+    /// <summary>
+    ///   This marshaler is to be used for capturing a UTF-8 string owned by libgit2 and
+    ///   converting it to a managed String instance. The marshaler will not attempt to
+    ///   free the native pointer after conversion, because the memory is owned by libgit2.
+    ///
+    ///   Use this marshaler for return values, for example:
+    ///   [return: MarshalAs(UnmanagedType.CustomMarshaler,
+    ///                      MarshalTypeRef = typeof(Utf8NoCleanupMarshaler))]
+    /// </summary>
+    internal class Utf8NoCleanupMarshaler : Utf8Marshaler
+    {
+        private static readonly Utf8NoCleanupMarshaler staticInstance = new Utf8NoCleanupMarshaler();
+
+        public new static ICustomMarshaler GetInstance(String cookie)
+        {
+            return staticInstance;
+        }
+
+        #region ICustomMarshaler
+
+        public override void CleanUpNativeData(IntPtr pNativeData)
+        {
+        }
+
+        #endregion
+    }
+
+    /// <summary>
+    ///   This marshaler is to be used for sending managed String instances to libgit2.
+    ///   The marshaler will allocate a buffer in native memory to hold the UTF-8 string
+    ///   and perform the encoding conversion using that buffer as the target. The pointer
+    ///   received by libgit2 will be to this buffer. After the function call completes, the
+    ///   native buffer is freed.
+    ///
+    ///   Use this marshaler for function parameters, for example:
+    ///   [DllImport(libgit2)]
+    ///   internal static extern int git_tag_delete(RepositorySafeHandle repo,
+    ///       [MarshalAs(UnmanagedType.CustomMarshaler,
+    ///                  MarshalTypeRef = typeof(Utf8Marshaler))] String tagName);
+    /// </summary>
     internal class Utf8Marshaler : ICustomMarshaler
     {
         private static readonly Utf8Marshaler staticInstance = new Utf8Marshaler();
-        private readonly bool ownsPointer;
 
-        internal Utf8Marshaler(bool ownsPointer = false)
+        public static ICustomMarshaler GetInstance(String cookie)
         {
-            this.ownsPointer = ownsPointer;
+            return staticInstance;
         }
 
-        #region ICustomMarshaler Members
+        #region ICustomMarshaler
 
-        public virtual IntPtr MarshalManagedToNative(object managedObj)
+        public void CleanUpManagedData(Object managedObj)
         {
-            if (managedObj == null)
+        }
+
+        public virtual void CleanUpNativeData(IntPtr pNativeData)
+        {
+            if (IntPtr.Zero != pNativeData)
+            {
+                Marshal.FreeHGlobal(pNativeData);
+            }
+        }
+
+        public int GetNativeDataSize()
+        {
+            // Not a value type
+            return -1;
+        }
+
+        public IntPtr MarshalManagedToNative(Object managedObj)
+        {
+            if (null == managedObj)
             {
                 return IntPtr.Zero;
             }
 
-            if (!(managedObj is string))
+            String str = managedObj as String;
+
+            if (null == str)
             {
-                throw new MarshalDirectiveException("UTF8Marshaler must be used on a string.");
+                throw new MarshalDirectiveException("Utf8Marshaler must be used on a string.");
             }
 
-            return StringToNative((string)managedObj);
+            return Utf8Marshaler.FromManaged(str);
         }
 
-        protected static unsafe IntPtr StringToNative(string value)
+        public Object MarshalNativeToManaged(IntPtr pNativeData)
         {
-            // not null terminated
-            byte[] strbuf = Encoding.UTF8.GetBytes(value);
-            IntPtr buffer = Marshal.AllocHGlobal(strbuf.Length + 1);
-            Marshal.Copy(strbuf, 0, buffer, strbuf.Length);
-
-            // write the terminating null
-            var pBuf = (byte*)buffer;
-            pBuf[strbuf.Length] = 0;
-
-            return buffer;
+            return Utf8Marshaler.FromNative(pNativeData);
         }
 
-        public virtual object MarshalNativeToManaged(IntPtr pNativeData)
+        #endregion
+
+        public static unsafe IntPtr FromManaged(String value)
         {
-            return NativeToString(pNativeData);
+            if (null == value)
+            {
+                return IntPtr.Zero;
+            }
+
+            int length = Encoding.UTF8.GetByteCount(value);
+            byte* buffer = (byte*)Marshal.AllocHGlobal(length + 1).ToPointer();
+
+            if (length > 0)
+            {
+                fixed (char* pValue = value)
+                {
+                    Encoding.UTF8.GetBytes(pValue, value.Length, buffer, length);
+                }
+            }
+
+            buffer[length] = 0;
+
+            return new IntPtr(buffer);
         }
 
-        protected static unsafe string NativeToString(IntPtr pNativeData)
+        public static unsafe String FromNative(IntPtr pNativeData)
         {
-            var walk = (byte*)pNativeData;
+            if (IntPtr.Zero == pNativeData)
+            {
+                return null;
+            }
 
-            // find the end of the string
+            byte* start = (byte*)pNativeData;
+            byte* walk = start;
+
+            // Find the end of the string
             while (*walk != 0)
             {
                 walk++;
             }
 
-            var length = (uint)(walk - (byte*)pNativeData);
-
-            return FromNative(pNativeData, length);
-        }
-
-        public static string FromNative(IntPtr pNativeData, uint length)
-        {
-            // should not be null terminated
-            var strbuf = new byte[length];
-
-            // skip the trailing null
-            Marshal.Copy(pNativeData, strbuf, 0, (int)length);
-            string data = Encoding.UTF8.GetString(strbuf);
-            return data;
-        }
-
-        public void CleanUpNativeData(IntPtr pNativeData)
-        {
-            if (ownsPointer)
-                Marshal.FreeHGlobal(pNativeData);
-        }
-
-        public void CleanUpManagedData(object managedObj)
-        {
-        }
-
-        public int GetNativeDataSize()
-        {
-            return -1;
-        }
-
-        #endregion
-
-        public static IntPtr FromManaged(string managedObj)
-        {
-            return staticInstance.MarshalManagedToNative(managedObj);
-        }
-
-        public static string FromNative(IntPtr pNativeData)
-        {
-            return (string)staticInstance.MarshalNativeToManaged(pNativeData);
-        }
-
-        public static ICustomMarshaler GetInstance(string cookie)
-        {
-            return staticInstance;
-        }
-
-        public static string Utf8FromBuffer(byte[] buffer)
-        {
-            int nullTerminator;
-            for (nullTerminator = 0; nullTerminator < buffer.Length; nullTerminator++)
+            if (walk == start)
             {
-                if (buffer[nullTerminator] == 0)
-                {
-                    break;
-                }
+                return String.Empty;
             }
 
-            if (nullTerminator == 0)
+            return new String((sbyte*)pNativeData.ToPointer(), 0, (int)(walk - start), Encoding.UTF8);
+        }
+
+        public static unsafe String FromNative(IntPtr pNativeData, int length)
+        {
+            if (IntPtr.Zero == pNativeData)
             {
                 return null;
             }
 
-            return Encoding.UTF8.GetString(buffer, 0, nullTerminator);
+            if (0 == length)
+            {
+                return String.Empty;
+            }
+
+            return new String((sbyte*)pNativeData.ToPointer(), 0, length, Encoding.UTF8);
+        }
+
+        public static String Utf8FromBuffer(byte[] buffer)
+        {
+            if (null == buffer)
+            {
+                return null;
+            }
+
+            int length = 0;
+            int stop = buffer.Length;
+
+            while (length < stop &&
+                   0 != buffer[length])
+            {
+                length++;
+            }
+
+            if (0 == length)
+            {
+                return String.Empty;
+            }
+
+            return Encoding.UTF8.GetString(buffer, 0, length);
         }
     }
 }
