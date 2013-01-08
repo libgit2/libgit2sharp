@@ -396,7 +396,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                Assert.Throws<AmbiguousException>(() => repo.Lookup("e90"));
+                Assert.Throws<AmbiguousSpecificationException>(() => repo.Lookup("e90"));
             }
         }
 

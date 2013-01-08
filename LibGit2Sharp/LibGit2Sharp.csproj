@@ -55,7 +55,7 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AmbiguousException.cs" />
+    <Compile Include="AmbiguousSpecificationException.cs" />
     <Compile Include="BareRepositoryException.cs" />
     <Compile Include="Blob.cs" />
     <Compile Include="BlobExtensions.cs" />
