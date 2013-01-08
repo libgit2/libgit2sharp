@@ -76,7 +76,7 @@ namespace LibGit2Sharp
 
             if (onProgress != null)
             {
-                string message = Utf8Marshaler.FromNative(str, (uint)len);
+                string message = Utf8Marshaler.FromNative(str, len);
                 onProgress(message);
             }
         }
