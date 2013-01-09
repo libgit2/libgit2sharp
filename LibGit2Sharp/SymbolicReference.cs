@@ -9,10 +9,27 @@ namespace LibGit2Sharp
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class SymbolicReference : Reference
     {
+        private readonly Reference target;
+
+        /// <summary>
+        ///   Needed for mocking purposes.
+        /// </summary>
+        protected SymbolicReference()
+        { }
+
+        internal SymbolicReference(string canonicalName, string targetIdentifier, Reference target)
+            : base(canonicalName, targetIdentifier)
+        {
+            this.target = target;
+        }
+
         /// <summary>
         ///   Gets the target of this <see cref = "SymbolicReference" />
         /// </summary>
-        public Reference Target { get; internal set; }
+        public virtual Reference Target
+        {
+            get { return target; }
+        }
 
         /// <summary>
         ///   Recursively peels the target of the reference until a direct reference is encountered.

@@ -2,7 +2,6 @@
 using System.Diagnostics;
 using System.Globalization;
 using LibGit2Sharp.Core;
-using LibGit2Sharp.Core.Compat;
 using LibGit2Sharp.Core.Handles;
 
 namespace LibGit2Sharp
@@ -16,10 +15,20 @@ namespace LibGit2Sharp
         private static readonly LambdaEqualityHelper<Reference> equalityHelper =
             new LambdaEqualityHelper<Reference>(x => x.CanonicalName, x => x.TargetIdentifier);
 
+        private readonly string canonicalName;
+        private readonly string targetIdentifier;
+
         /// <summary>
-        ///   Gets the full name of this reference.
+        ///   Needed for mocking purposes.
         /// </summary>
-        public virtual string CanonicalName { get; protected set; }
+        protected Reference()
+        { }
+
+        protected Reference(string canonicalName, string targetIdentifier)
+        {
+            this.canonicalName = canonicalName;
+            this.targetIdentifier = targetIdentifier;
+        }
 
         internal static T BuildFromPtr<T>(ReferenceSafeHandle handle, Repository repo) where T : Reference
         {
@@ -37,20 +46,19 @@ namespace LibGit2Sharp
                     {
                         if (resolvedHandle == null)
                         {
-                            reference = new SymbolicReference { CanonicalName = name, Target = null, TargetIdentifier = targetIdentifier };
+                            reference = new SymbolicReference(name, targetIdentifier, null);
                             break;
                         }
 
                         var targetRef = BuildFromPtr<DirectReference>(resolvedHandle, repo);
-                        reference = new SymbolicReference { CanonicalName = name, Target = targetRef, TargetIdentifier = targetIdentifier };
+                        reference = new SymbolicReference(name, targetIdentifier, targetRef);
                         break;
                     }
 
                 case GitReferenceType.Oid:
                     ObjectId targetOid = Proxy.git_reference_oid(handle);
 
-                    var targetBuilder = new Lazy<GitObject>(() => repo.Lookup(targetOid));
-                    reference = new DirectReference(targetBuilder) { CanonicalName = name, TargetIdentifier = targetOid.Sha };
+                    reference = new DirectReference(name, repo, targetOid);
                     break;
 
                 default:
@@ -58,6 +66,14 @@ namespace LibGit2Sharp
             }
 
             return reference as T;
+        }
+
+        /// <summary>
+        ///   Gets the full name of this reference.
+        /// </summary>
+        public virtual string CanonicalName
+        {
+            get { return canonicalName; }
         }
 
         /// <summary>
@@ -74,7 +90,10 @@ namespace LibGit2Sharp
         ///   </para>
         /// </summary>
         // TODO: Maybe find a better name for this property.
-        public virtual string TargetIdentifier { get; private set; }
+        public virtual string TargetIdentifier
+        {
+            get { return targetIdentifier; }
+        }
 
         /// <summary>
         ///   Determines whether the specified <see cref = "Object" /> is equal to the current <see cref = "Reference" />.
