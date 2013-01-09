@@ -32,6 +32,7 @@ namespace LibGit2Sharp
         private readonly Diff diff;
         private readonly NoteCollection notes;
         private readonly Lazy<ObjectDatabase> odb;
+        private readonly FetchHeadCollection fetchHead;
         private readonly Stack<IDisposable> toCleanup = new Stack<IDisposable>();
         private static readonly Lazy<string> versionRetriever = new Lazy<string>(RetrieveVersion);
 
@@ -103,6 +104,7 @@ namespace LibGit2Sharp
             odb = new Lazy<ObjectDatabase>(() => new ObjectDatabase(this));
             diff = new Diff(this);
             notes = new NoteCollection(this);
+            fetchHead = new FetchHeadCollection(this);
 
             EagerlyLoadTheConfigIfAnyPathHaveBeenPassed(options);
         }
@@ -260,6 +262,14 @@ namespace LibGit2Sharp
         public NoteCollection Notes
         {
             get { return notes; }
+        }
+
+        /// <summary>
+        ///   Lookup the fetch heads in the repository.
+        /// </summary>
+        public FetchHeadCollection FetchHead
+        {
+            get { return fetchHead; }
         }
 
         #region IDisposable Members
