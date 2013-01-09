@@ -154,7 +154,7 @@ namespace LibGit2Sharp.Tests
             Assert.False(repo.Info.IsHeadDetached);
             Assert.True(repo.Info.IsHeadOrphaned);
 
-            Reference headRef = repo.Refs["HEAD"];
+            Reference headRef = repo.Refs.Head;
             Assert.NotNull(headRef);
             Assert.Equal("refs/heads/master", headRef.TargetIdentifier);
             Assert.Null(headRef.ResolveToDirectReference());

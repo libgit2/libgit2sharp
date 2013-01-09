@@ -151,7 +151,7 @@ namespace LibGit2Sharp
         {
             get
             {
-                Reference reference = Refs["HEAD"];
+                Reference reference = Refs.Head;
 
                 if (reference is SymbolicReference)
                 {

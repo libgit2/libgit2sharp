@@ -158,7 +158,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(name, newRef.CanonicalName);
                 Assert.NotNull(newRef.Target);
                 Assert.Equal("a4a7dce85cf63874e984719f4fdd239f5145052f", newRef.ResolveToDirectReference().Target.Sha);
-                Assert.Equal(target, ((SymbolicReference)repo.Refs["HEAD"]).Target.CanonicalName);
+                Assert.Equal(target, ((SymbolicReference)repo.Refs.Head).Target.CanonicalName);
             }
         }
 
@@ -294,7 +294,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                var head = (SymbolicReference)repo.Refs["HEAD"];
+                var head = (SymbolicReference)repo.Refs.Head;
                 Assert.NotNull(head);
                 Assert.Equal("HEAD", head.CanonicalName);
                 Assert.NotNull(head.Target);
@@ -439,11 +439,11 @@ namespace LibGit2Sharp.Tests
 
                 Reference direct = repo.Refs.UpdateTarget("HEAD", test.Tip.Sha);
                 Assert.True((direct is DirectReference));
-                Assert.Equal(repo.Refs["HEAD"], direct);
+                Assert.Equal(repo.Refs.Head, direct);
 
                 Reference symref = repo.Refs.UpdateTarget("HEAD", test.CanonicalName);
                 Assert.True((symref is SymbolicReference));
-                Assert.Equal(repo.Refs["HEAD"], symref);
+                Assert.Equal(repo.Refs.Head, symref);
             }
         }
 
@@ -453,18 +453,18 @@ namespace LibGit2Sharp.Tests
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
             using (var repo = new Repository(path.RepositoryPath))
             {
-                Reference head = repo.Refs["HEAD"];
+                Reference head = repo.Refs.Head;
                 Reference test = repo.Refs["refs/heads/test"];
 
                 Reference direct = repo.Refs.UpdateTarget(head, new ObjectId(test.TargetIdentifier));
                 Assert.True((direct is DirectReference));
                 Assert.Equal(test.TargetIdentifier, direct.TargetIdentifier);
-                Assert.Equal(repo.Refs["HEAD"], direct);
+                Assert.Equal(repo.Refs.Head, direct);
 
                 Reference symref = repo.Refs.UpdateTarget(head, test);
                 Assert.True((symref is SymbolicReference));
                 Assert.Equal(test.CanonicalName, symref.TargetIdentifier);
-                Assert.Equal(repo.Refs["HEAD"], symref);
+                Assert.Equal(repo.Refs.Head, symref);
             }
         }
 
