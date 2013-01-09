@@ -10,6 +10,7 @@ namespace LibGit2Sharp.Tests
     {
         private static readonly string originalFilePath = "a.txt";
         private static readonly string originalFileContent = "Hello";
+        private static readonly string conflictingFileContent = "There";
         private static readonly string otherBranchName = "other";
 
         [Theory]
@@ -190,8 +191,16 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
-        public void CanForcefullyCheckoutWithStagedChanges()
+        public void CanForcefullyCheckoutWithConflictingStagedChanges()
         {
+            // This test will check that we can checkout a branch that results
+            // in a conflict. Here is the high level steps of the test:
+            // 1) Create branch otherBranch from current commit in master,
+            // 2) Commit change to master
+            // 3) Switch to otherBranch
+            // 4) Create conflicting change
+            // 5) Forcefully checkout master
+
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
 
             using (var repo = new Repository(path.RepositoryPath))
@@ -200,31 +209,39 @@ namespace LibGit2Sharp.Tests
                 Branch master = repo.Branches["master"];
                 Assert.True(master.IsCurrentRepositoryHead);
 
-                // Set the working directory to the current head
+                // Set the working directory to the current head.
                 ResetAndCleanWorkingDirectory(repo);
 
                 Assert.False(repo.Index.RetrieveStatus().IsDirty);
 
-                // Add local change
+                // Create otherBranch from current Head.
+                repo.Branches.Add(otherBranchName, master.Tip);
+
+                // Add change to master.
                 string fullPath = Path.Combine(repo.Info.WorkingDirectory, fileFullPath);
                 File.WriteAllText(fullPath, originalFileContent);
                 repo.Index.Stage(fullPath);
+                repo.Commit("change in master", Constants.Signature, Constants.Signature);
 
-                // Verify working directory is now dirty
-                Assert.True(repo.Index.RetrieveStatus().IsDirty);
+                // Checkout otherBranch.
+                repo.Checkout(otherBranchName);
 
-                // And that the new file exists
-                Assert.True(File.Exists(fileFullPath));
+                // Add change to otherBranch.
+                File.WriteAllText(fullPath, conflictingFileContent);
+                repo.Index.Stage(fullPath);
 
-                // Checkout with the force option
-                Branch targetBranch = repo.Branches["i-do-numbers"];
-                targetBranch.Checkout(CheckoutOptions.Force, null);
+                // Assert that normal checkout throws exception
+                // for the conflict.
+                Assert.Throws<LibGit2SharpException>(() => master.Checkout());
 
-                // Assert that target branch is checked out
-                Assert.True(targetBranch.IsCurrentRepositoryHead);
+                // Checkout with force option should succeed.
+                master.Checkout(CheckoutOptions.Force, null);
 
-                // And that staged change (add) is no longer preset
-                Assert.False(File.Exists(fileFullPath));
+                // Assert that master branch is checked out.
+                Assert.True(repo.Branches["master"].IsCurrentRepositoryHead);
+
+                // And that the current index is not dirty.
+                Assert.False(repo.Index.RetrieveStatus().IsDirty);
             }
         }
 
@@ -254,11 +271,11 @@ namespace LibGit2Sharp.Tests
 
                 // Assert that checking out master throws
                 // when there are unstaged commits
-                Assert.Throws<MergeConflictException>(() => repo.Checkout("master"));
+                Assert.Throws<LibGit2SharpException>(() => repo.Checkout("master"));
 
                 // And when there are staged commits
                 repo.Index.Stage(fullPath);
-                Assert.Throws<MergeConflictException>(() => repo.Checkout("master"));
+                Assert.Throws<LibGit2SharpException>(() => repo.Checkout("master"));
             }
         }
 
@@ -267,8 +284,8 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                Assert.Throws<InvalidOperationException>(() => repo.Checkout(repo.Branches["refs/heads/test"]));
-                Assert.Throws<InvalidOperationException>(() => repo.Checkout("refs/heads/test"));
+                Assert.Throws<BareRepositoryException>(() => repo.Checkout(repo.Branches["refs/heads/test"]));
+                Assert.Throws<BareRepositoryException>(() => repo.Checkout("refs/heads/test"));
             }
         }
 
