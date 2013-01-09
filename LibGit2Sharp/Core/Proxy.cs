@@ -1384,6 +1384,15 @@ namespace LibGit2Sharp.Core
             return RepositoryStateChecker(repo, NativeMethods.git_repository_is_empty);
         }
 
+        public static void git_repository_merge_cleanup(RepositorySafeHandle repo)
+        {
+            using (ThreadAffinity())
+            {
+                int res = NativeMethods.git_repository_merge_cleanup(repo);
+                Ensure.Success(res);
+            }
+        }
+
         public static ICollection<TResult> git_repository_mergehead_foreach<TResult>(
             RepositorySafeHandle repo,
             Func<GitOid, TResult> resultSelector)

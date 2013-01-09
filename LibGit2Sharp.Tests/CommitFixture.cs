@@ -528,6 +528,48 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
+        public void CommitCleansUpMergeMetadata()
+        {
+            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+
+            using (var repo = Repository.Init(scd.DirectoryPath))
+            {
+                string dir = repo.Info.Path;
+                Assert.True(Path.IsPathRooted(dir));
+                Assert.True(Directory.Exists(dir));
+
+                const string relativeFilepath = "new.txt";
+                string filePath = Path.Combine(repo.Info.WorkingDirectory, relativeFilepath);
+
+                File.WriteAllText(filePath, "this is a new file");
+                repo.Index.Stage(relativeFilepath);
+
+                string mergeHeadPath = Path.Combine(repo.Info.Path, "MERGE_HEAD");
+                string mergeMsgPath = Path.Combine(repo.Info.Path, "MERGE_MSG");
+                string mergeModePath = Path.Combine(repo.Info.Path, "MERGE_MODE");
+                string origHeadPath = Path.Combine(repo.Info.Path, "ORIG_HEAD");
+
+                File.WriteAllText(mergeHeadPath, "abcdefabcdefabcdefabcdefabcdefabcdefabcd");
+                File.WriteAllText(mergeMsgPath, "This is a dummy merge.\n");
+                File.WriteAllText(mergeModePath, "no-ff");
+                File.WriteAllText(origHeadPath, "beefbeefbeefbeefbeefbeefbeefbeefbeefbeef");
+
+                Assert.True(File.Exists(mergeHeadPath));
+                Assert.True(File.Exists(mergeMsgPath));
+                Assert.True(File.Exists(mergeModePath));
+                Assert.True(File.Exists(origHeadPath));
+
+                var author = DummySignature;
+                repo.Commit("Initial egotistic commit", author, author);
+
+                Assert.False(File.Exists(mergeHeadPath));
+                Assert.False(File.Exists(mergeMsgPath));
+                Assert.False(File.Exists(mergeModePath));
+                Assert.True(File.Exists(origHeadPath));
+            }
+        }
+
+        [Fact]
         public void CanCommitALittleBit()
         {
             SelfCleaningDirectory scd = BuildSelfCleaningDirectory();

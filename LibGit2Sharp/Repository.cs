@@ -5,7 +5,6 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Compat;
@@ -630,7 +629,11 @@ namespace LibGit2Sharp
 
             var parents = RetrieveParentsOfTheCommitBeingCreated(amendPreviousCommit);
 
-            return ObjectDatabase.CreateCommit(message, author, committer, tree, parents, "HEAD");
+            Commit result = ObjectDatabase.CreateCommit(message, author, committer, tree, parents, "HEAD");
+
+            Proxy.git_repository_merge_cleanup(handle);
+
+            return result;
         }
 
         private IEnumerable<Commit> RetrieveParentsOfTheCommitBeingCreated(bool amendPreviousCommit)
