@@ -679,8 +679,8 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(FilePathMarshaler))] FilePath ceiling_dirs);
 
         internal delegate int git_repository_fetchhead_foreach_cb(
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string remote_name,
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string remote_url,
+            IntPtr remote_name,
+            IntPtr remote_url,
             ref GitOid oid,
             [MarshalAs(UnmanagedType.Bool)] bool is_merge,
             IntPtr payload);

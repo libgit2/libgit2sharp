@@ -1282,7 +1282,7 @@ namespace LibGit2Sharp.Core
         {
             using (ThreadAffinity())
             {
-                return git_foreach(resultSelector, c => NativeMethods.git_repository_fetchhead_foreach(repo, (string w, string x, ref GitOid y, bool z, IntPtr p) => c(w, x, y, z, p), IntPtr.Zero));
+                return git_foreach(resultSelector, c => NativeMethods.git_repository_fetchhead_foreach(repo, (IntPtr w, IntPtr x, ref GitOid y, bool z, IntPtr p) => c(Utf8Marshaler.FromNative(w), Utf8Marshaler.FromNative(x), y, z, p), IntPtr.Zero));
             }
         }
 
