@@ -32,6 +32,7 @@ namespace LibGit2Sharp
         private readonly Diff diff;
         private readonly NoteCollection notes;
         private readonly Lazy<ObjectDatabase> odb;
+        private readonly MergeHeadCollection mergeHead;
         private readonly Stack<IDisposable> toCleanup = new Stack<IDisposable>();
         private static readonly Lazy<string> versionRetriever = new Lazy<string>(RetrieveVersion);
 
@@ -103,6 +104,7 @@ namespace LibGit2Sharp
             odb = new Lazy<ObjectDatabase>(() => new ObjectDatabase(this));
             diff = new Diff(this);
             notes = new NoteCollection(this);
+            mergeHead = new MergeHeadCollection(this);
 
             EagerlyLoadTheConfigIfAnyPathHaveBeenPassed(options);
         }
@@ -260,6 +262,14 @@ namespace LibGit2Sharp
         public NoteCollection Notes
         {
             get { return notes; }
+        }
+
+        /// <summary>
+        ///   Lookup merge heads in the repository.
+        /// </summary>
+        public MergeHeadCollection MergeHead
+        {
+            get { return mergeHead; }
         }
 
         #region IDisposable Members
@@ -603,7 +613,11 @@ namespace LibGit2Sharp
 
             var parents = RetrieveParentsOfTheCommitBeingCreated(amendPreviousCommit);
 
-            return ObjectDatabase.CreateCommit(message, author, committer, tree, parents, "HEAD");
+            Commit result = ObjectDatabase.CreateCommit(message, author, committer, tree, parents, "HEAD");
+
+            Proxy.git_repository_merge_cleanup(handle);
+
+            return result;
         }
 
         private IEnumerable<Commit> RetrieveParentsOfTheCommitBeingCreated(bool amendPreviousCommit)
@@ -618,7 +632,16 @@ namespace LibGit2Sharp
                 return Enumerable.Empty<Commit>();
             }
 
-            return new[] { Head.Tip };
+            List<Commit> parents = new List<Commit>();
+
+            parents.Add(Head.Tip);
+
+            if (Info.CurrentOperation == CurrentOperation.Merge)
+            {
+                parents.AddRange(MergeHead);
+            }
+
+            return parents;
         }
 
         /// <summary>
