@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -524,6 +524,27 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(commit.Author.Email, email.Value);
                 Assert.Equal(commit.Committer.Name, name.Value);
                 Assert.Equal(commit.Committer.Email, email.Value);
+            }
+        }
+
+        [Fact]
+        public void CommitParentsAreMergeHeads()
+        {
+            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoPath);
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                repo.Reset(ResetOptions.Hard, "c47800");
+
+                CreateAndStageANewFile(repo);
+
+                string mergeHeadPath = Path.Combine(repo.Info.Path, "MERGE_HEAD");
+                File.WriteAllText(mergeHeadPath, "9fd738e8f7967c078dceed8190330fc8648ee56a\n");
+
+                Commit newMergedCommit = repo.Commit("Merge commit", DummySignature, DummySignature, false);
+
+                Assert.Equal(2, newMergedCommit.Parents.Count());
+                Assert.Equal(newMergedCommit.Parents.First().Sha, "c47800c7266a2be04c571c04d5a6614691ea99bd");
+                Assert.Equal(newMergedCommit.Parents.Skip(1).First().Sha, "9fd738e8f7967c078dceed8190330fc8648ee56a");
             }
         }
 
