@@ -742,6 +742,16 @@ namespace LibGit2Sharp.Core
         [DllImport(libgit2)]
         internal static extern int git_repository_is_empty(RepositorySafeHandle repo);
 
+        internal delegate int git_repository_mergehead_foreach_cb(
+            ref GitOid oid,
+            IntPtr payload);
+
+        [DllImport(libgit2)]
+        internal static extern int git_repository_mergehead_foreach(
+            RepositorySafeHandle repo,
+            git_repository_mergehead_foreach_cb cb,
+            IntPtr payload);
+
         [DllImport(libgit2)]
         internal static extern int git_repository_open(
             out RepositorySafeHandle repository,

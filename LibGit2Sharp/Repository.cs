@@ -709,6 +709,19 @@ namespace LibGit2Sharp
             }
         }
 
+        /// <summary>
+        ///   Gets the references to the tips that are currently being merged.
+        /// </summary>
+        public virtual IEnumerable<MergeHead> MergeHeads
+        {
+            get
+            {
+                int i = 0;
+                return Proxy.git_repository_mergehead_foreach(Handle,
+                    commitId => new MergeHead(this, new ObjectId(commitId), i++));
+            }
+        }
+
         private string DebuggerDisplay
         {
             get

@@ -136,5 +136,10 @@ namespace LibGit2Sharp
         /// Clean the working tree by removing files that are not under version control.
         /// </summary>
         void RemoveUntrackedFiles();
+
+        /// <summary>
+        ///   Gets the references to the tips that are currently being merged.
+        /// </summary>
+        IEnumerable<MergeHead> MergeHeads { get; }
     }
 }
