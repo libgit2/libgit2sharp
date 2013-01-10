@@ -552,7 +552,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                Assert.Throws<LibGit2SharpException>(() => repo.Branches.Move("br2", "test"));
+                Assert.Throws<NameConflictException>(() => repo.Branches.Move("br2", "test"));
             }
         }
 

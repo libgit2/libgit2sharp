@@ -296,7 +296,7 @@ namespace LibGit2Sharp.Tests
             {
                 repo.ApplyTag("mytag");
 
-                Assert.Throws<LibGit2SharpException>(() => repo.ApplyTag("mytag"));
+                Assert.Throws<NameConflictException>(() => repo.ApplyTag("mytag"));
             }
         }
 
@@ -307,10 +307,10 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(BareTestRepoPath))
             {
                 Assert.Throws<ArgumentException>(() => repo.ApplyTag(""));
-                Assert.Throws<LibGit2SharpException>(() => repo.ApplyTag(".othertag"));
-                Assert.Throws<LibGit2SharpException>(() => repo.ApplyTag("other tag"));
-                Assert.Throws<LibGit2SharpException>(() => repo.ApplyTag("othertag^"));
-                Assert.Throws<LibGit2SharpException>(() => repo.ApplyTag("other~tag"));
+                Assert.Throws<InvalidSpecificationException>(() => repo.ApplyTag(".othertag"));
+                Assert.Throws<InvalidSpecificationException>(() => repo.ApplyTag("other tag"));
+                Assert.Throws<InvalidSpecificationException>(() => repo.ApplyTag("othertag^"));
+                Assert.Throws<InvalidSpecificationException>(() => repo.ApplyTag("other~tag"));
             }
         }
 
@@ -413,7 +413,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                Assert.Throws<LibGit2SharpException>(() => repo.Tags.Add("e90810b", "refs/heads/br2"));
+                Assert.Throws<NameConflictException>(() => repo.Tags.Add("e90810b", "refs/heads/br2"));
             }
         }
 
@@ -422,7 +422,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                Assert.Throws<LibGit2SharpException>(() => repo.Tags.Add("e90810b", "refs/heads/br2", signatureNtk, "a nice message"));
+                Assert.Throws<NameConflictException>(() => repo.Tags.Add("e90810b", "refs/heads/br2", signatureNtk, "a nice message"));
             }
         }
 
@@ -431,7 +431,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                Assert.Throws<LibGit2SharpException>(() => repo.Tags.Add("test", tagTestSha, signatureTim, "message"));
+                Assert.Throws<NameConflictException>(() => repo.Tags.Add("test", tagTestSha, signatureTim, "message"));
             }
         }
 

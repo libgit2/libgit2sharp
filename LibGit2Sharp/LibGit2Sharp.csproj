@@ -55,7 +55,7 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AmbiguousException.cs" />
+    <Compile Include="AmbiguousSpecificationException.cs" />
     <Compile Include="BareRepositoryException.cs" />
     <Compile Include="Blob.cs" />
     <Compile Include="BlobExtensions.cs" />
@@ -71,6 +71,7 @@
     <Compile Include="ConfigurationEntry.cs" />
     <Compile Include="ConfigurationExtensions.cs" />
     <Compile Include="ContentChanges.cs" />
+    <Compile Include="InvalidSpecificationException.cs" />
     <Compile Include="Core\Compat\EnumExtensions.cs" />
     <Compile Include="Core\GitCheckoutOpts.cs" />
     <Compile Include="Core\GitCloneOptions.cs" />
@@ -87,6 +88,7 @@
     <Compile Include="DiffTargets.cs" />
     <Compile Include="Handlers.cs" />
     <Compile Include="MergeConflictException.cs" />
+    <Compile Include="NameConflictException.cs" />
     <Compile Include="ReferenceCollectionExtensions.cs" />
     <Compile Include="Core\GitRemoteCallbacks.cs" />
     <Compile Include="RemoteCallbacks.cs" />

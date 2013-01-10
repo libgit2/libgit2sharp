@@ -81,6 +81,12 @@ namespace LibGit2Sharp.Core
                 case (int)GitErrorCode.BareRepo:
                     throw new BareRepositoryException(errorMessage, (GitErrorCode)result, error.Category);
 
+                case (int)GitErrorCode.Exists:
+                    throw new NameConflictException(errorMessage, (GitErrorCode)result, error.Category);
+
+                case (int)GitErrorCode.InvalidSpecification:
+                    throw new InvalidSpecificationException(errorMessage, (GitErrorCode)result, error.Category);
+
                 default:
                     throw new LibGit2SharpException(errorMessage, (GitErrorCode)result, error.Category);
             }
