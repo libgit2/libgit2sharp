@@ -1,1 +1,3 @@
-!*.txt binary
+* binary
+.gitattributes text -binary
+*.txt text -binary
