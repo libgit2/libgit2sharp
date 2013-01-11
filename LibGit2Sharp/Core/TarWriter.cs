@@ -54,7 +54,7 @@ namespace LibGit2Sharp.Core
         #endregion
 
         public void Write(
-            string fileName,
+            FilePath filePath,
             Stream data,
             DateTimeOffset modificationTime,
             int mode,
@@ -64,18 +64,28 @@ namespace LibGit2Sharp.Core
             string userName,
             string groupName,
             string deviceMajorNumber,
-            string deviceMinorNumber)
+            string deviceMinorNumber,
+            string entrySha,
+            bool isLink)
         {
-            WriteHeader(fileName, modificationTime, (data != null)?data.Length:0, mode, userId, groupId, typeflag, userName, groupName, deviceMajorNumber, deviceMinorNumber);
-            // folders have no data
-            if (data != null)
+            FileNameExtendedHeader fileNameExtendedHeader = FileNameExtendedHeader.Parse(filePath.Posix, entrySha);
+            LinkExtendedHeader linkExtendedHeader = ParseLink(isLink, data, entrySha);
+
+            WriteExtendedHeader(fileNameExtendedHeader, linkExtendedHeader, entrySha, modificationTime);
+
+            // Note: in case of links, we won't add a content, but the size in the header will still be != 0. It seems strange, but it seem to be what git.git is doing?
+            WriteHeader(fileNameExtendedHeader.Name, fileNameExtendedHeader.Prefix, modificationTime, (data != null) ? data.Length : 0, mode, 
+                userId, groupId, typeflag, linkExtendedHeader.Link, userName, groupName, deviceMajorNumber, deviceMinorNumber);
+
+            // folders have no data, and so do links
+            if (data != null && !isLink)
             {
-                WriteContent(data.Length, data);
+                WriteContent(data.Length, data, OutStream);
             }
-            AlignTo512(data.Length, false);
+            AlignTo512((data != null) ? data.Length : 0, false);
         }
 
-        protected void WriteContent(long count, Stream data)
+        protected void WriteContent(long count, Stream data, Stream dest)
         {
             var buffer = new byte[1024];
 
@@ -85,7 +95,7 @@ namespace LibGit2Sharp.Core
                 if (bytesRead < 0)
                     throw new IOException("TarWriter unable to read from provided stream");
 
-                OutStream.Write(buffer, 0, bytesRead);
+                dest.Write(buffer, 0, bytesRead);
                 count -= bytesRead;
             }
             if (count > 0)
@@ -97,12 +107,12 @@ namespace LibGit2Sharp.Core
                 {
                     while (count > 0)
                     {
-                        OutStream.WriteByte(0);
+                        dest.WriteByte(0);
                         --count;
                     }
                 }
                 else
-                    OutStream.Write(buffer, 0, bytesRead);
+                    dest.Write(buffer, 0, bytesRead);
             }
         }
 
@@ -118,21 +128,87 @@ namespace LibGit2Sharp.Core
         }
 
         protected void WriteHeader(
-            string name,
+            string fileName,
+            string namePrefix,
             DateTimeOffset lastModificationTime,
             long count,
             int mode,
             string userId,
             string groupId,
             char typeflag,
+            string link,
             string userName,
             string groupName,
             string deviceMajorNumber,
             string deviceMinorNumber)
         {
-            var tarHeader = new UsTarHeader(name, lastModificationTime, count, mode, userId, groupId, typeflag, userName, groupName, deviceMajorNumber, deviceMinorNumber);
+            var tarHeader = new UsTarHeader(fileName, namePrefix, lastModificationTime, count, mode, 
+                userId, groupId, typeflag, link, userName, groupName, deviceMajorNumber, deviceMinorNumber);
             var header = tarHeader.GetHeaderValue();
             OutStream.Write(header, 0, header.Length);
+        }
+
+        private LinkExtendedHeader ParseLink(bool isLink, Stream data, string entrySha)
+        {
+            if (!isLink)
+            {
+                return new LinkExtendedHeader(string.Empty, string.Empty, false);
+            }
+
+            using (var dest = new MemoryStream())
+            {
+                WriteContent(data.Length, data, dest);
+                dest.Seek(0, SeekOrigin.Begin);
+
+                using (var linkStream = new StreamReader(dest))
+                {
+                    string link = linkStream.ReadToEnd();
+
+                    if (data.Length > 100)
+                    {
+                        return new LinkExtendedHeader(link, string.Format("see %s.paxheader{0}", entrySha), true);
+                    }
+
+                    return new LinkExtendedHeader(link, link, false);
+                }
+            }
+        }
+
+        private void WriteExtendedHeader(FileNameExtendedHeader fileNameExtendedHeader, LinkExtendedHeader linkExtendedHeader, string entrySha,
+            DateTimeOffset modificationTime)
+        {
+            string extHeader = string.Empty;
+
+            if (fileNameExtendedHeader.NeedsExtendedHeaderEntry)
+            {
+                extHeader += BuildKeyValueExtHeader("path", fileNameExtendedHeader.InitialPath);
+            }
+
+            if (linkExtendedHeader.NeedsExtendedHeaderEntry)
+            {
+                extHeader += BuildKeyValueExtHeader("linkpath", linkExtendedHeader.InitialLink);
+            }
+
+            if (string.IsNullOrEmpty(extHeader))
+            {
+                return;
+            }
+
+            using (var stream = new MemoryStream(Encoding.ASCII.GetBytes(extHeader)))
+            {
+                Write(string.Format("{0}.paxheader", entrySha), stream, modificationTime, "666".OctalToInt32(),
+                    "0", "0", 'x', "root", "root", "0", "0", entrySha, false);
+            }
+        }
+
+        private string BuildKeyValueExtHeader(string key, string value)
+        {
+            // "%u %s=%s\n"
+            int len = key.Length + value.Length + 3;
+            for (int i = len; i > 9; i /= 10)
+                len++;
+
+            return string.Format("{0} {1}={2}\n", len, key, value);
         }
 
         /// <summary>
@@ -150,20 +226,22 @@ namespace LibGit2Sharp.Core
             private readonly string userId;
             private readonly string groupId;
             private readonly char typeflag;
+            private readonly string link;
             private readonly string deviceMajorNumber;
             private readonly string deviceMinorNumber;
-            private string namePrefix;
-            private string fileName;
-
+            private readonly string namePrefix;
+            private readonly string fileName;
 
             public UsTarHeader(
-                string filePath,
+                string fileName,
+                string namePrefix,
                 DateTimeOffset lastModificationTime,
                 long size,
                 int mode,
                 string userId,
                 string groupId,
                 char typeflag,
+                string link,
                 string userName,
                 string groupName,
                 string deviceMajorNumber,
@@ -195,6 +273,10 @@ namespace LibGit2Sharp.Core
                 {
                     throw new ArgumentException("ustar deviceMinorNumber cannot be longer than 7 characters.", "deviceMinorNumber");
                 }
+                if (link.Length > 100)
+                {
+                    throw new ArgumentException("ustar link cannot be longer than 100 characters.", "link");
+                }
 
                 #endregion
 
@@ -206,43 +288,12 @@ namespace LibGit2Sharp.Core
                 this.userName = userName;
                 this.groupName = groupName;
                 this.typeflag = typeflag;
+                this.link = link;
                 this.deviceMajorNumber = deviceMajorNumber.PadLeft(7, '0');
                 this.deviceMinorNumber = deviceMinorNumber.PadLeft(7, '0');
-                
-                ParseFileName(filePath);
-            }
 
-            private void ParseFileName(string fullFilePath)
-            {
-                var posixPath = fullFilePath.Replace('/', Path.DirectorySeparatorChar);
-
-                if (posixPath.Length > 100)
-                {
-                    if (posixPath.Length > 255)
-                    {
-                        throw new ArgumentException(string.Format("ustar filePath ({0}) cannot be longer than 255 chars", posixPath));
-                    }
-                    int position = posixPath.Length - 100;
-
-                    // Find first path separator in the remaining 100 chars of the file name
-                    while (!Equals('/', posixPath[position]))
-                    {
-                        ++position;
-                        if (position == posixPath.Length)
-                        {
-                            break;
-                        }
-                    }
-                    if (position == posixPath.Length)
-                        position = posixPath.Length - 100;
-                    namePrefix = posixPath.Substring(0, position);
-                    fileName = posixPath.Substring(position, posixPath.Length - position);
-                }
-                else
-                {
-                    namePrefix = string.Empty;
-                    fileName = posixPath;
-                }
+                this.fileName = fileName;
+                this.namePrefix = namePrefix;
             }
 
             public byte[] GetHeaderValue()
@@ -257,6 +308,7 @@ namespace LibGit2Sharp.Core
                 Encoding.ASCII.GetBytes(Convert.ToString(size, 8).PadLeft(11, '0')).CopyTo(buffer, 124);
                 Encoding.ASCII.GetBytes(unixTime).CopyTo(buffer, 136);
                 buffer[156] = Convert.ToByte(typeflag);
+                Encoding.ASCII.GetBytes(link).CopyTo(buffer, 157);
 
                 Encoding.ASCII.GetBytes(magic).CopyTo(buffer, 257); // Mark header as ustar
                 Encoding.ASCII.GetBytes(version).CopyTo(buffer, 263);
@@ -299,6 +351,96 @@ namespace LibGit2Sharp.Core
                 var retVal = new byte[12];
                 bytes.CopyTo(retVal, 12 - bytes.Length);
                 return retVal;
+            }
+        }
+
+        private class FileNameExtendedHeader
+        {
+            private readonly string prefix;
+            private readonly string name;
+            private readonly string initialPath;
+            private readonly bool needsExtendedHeaderEntry;
+
+            private FileNameExtendedHeader(string initialPath, string prefix, string name, bool needsExtendedHeaderEntry)
+            {
+                this.initialPath = initialPath;
+                this.prefix = prefix;
+                this.name = name;
+                this.needsExtendedHeaderEntry = needsExtendedHeaderEntry;
+            }
+
+            public bool NeedsExtendedHeaderEntry
+            {
+                get { return needsExtendedHeaderEntry; }
+            }
+
+            public string Name
+            {
+                get { return name; }
+            }
+
+            public string Prefix
+            {
+                get { return prefix; }
+            }
+
+            public string InitialPath
+            {
+                get { return initialPath; }
+            }
+
+            /// <summary>
+            ///   Logic taken from https://github.com/git/git/blob/master/archive-tar.c
+            /// </summary>
+            public static FileNameExtendedHeader Parse(string posixPath, string entrySha)
+            {
+                if (posixPath.Length > 100)
+                {
+                    // Need to increment by one because while loop decrements first before testing for path separator
+                    int position = Math.Min(156, posixPath.Length);
+
+                    while (--position > 0 && !Equals('/', posixPath[position]))
+                    { }
+
+                    int remaining = posixPath.Length - position - 1;
+                    if (remaining < 100 && position > 0)
+                    {
+                        return new FileNameExtendedHeader(posixPath, posixPath.Substring(0, position), posixPath.Substring(position, posixPath.Length - position), false);
+                    }
+
+                    return new FileNameExtendedHeader(posixPath, string.Empty, string.Format("{0}.data", entrySha), true);
+                }
+
+                return new FileNameExtendedHeader(posixPath, string.Empty, posixPath, false);
+            }
+        }
+
+        private class LinkExtendedHeader
+        {
+            private readonly string initialLink;
+            private readonly string link;
+            private readonly bool needsExtendedHeaderEntry;
+
+            public LinkExtendedHeader(string initialLink, string link, bool needsExtendedHeaderEntry)
+            {
+                this.initialLink = initialLink;
+                this.link = link;
+                this.needsExtendedHeaderEntry = needsExtendedHeaderEntry;
+            }
+
+            public string InitialLink
+            {
+                get { return initialLink; }
+            }
+
+            public bool NeedsExtendedHeaderEntry
+            {
+                get { return needsExtendedHeaderEntry; }
+            }
+
+            public string Link
+            {
+                get { return link; }
             }
         }
     }

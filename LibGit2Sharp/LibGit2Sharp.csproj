@@ -145,6 +145,8 @@
     <Compile Include="SubmoduleStatus.cs" />
     <Compile Include="SubmoduleUpdate.cs" />
     <Compile Include="UnmergedIndexEntriesException.cs" />
+    <Compile Include="Core\StringExtensions.cs" />
+    <Compile Include="ObjectDatabaseExtensions.cs" />
     <Compile Include="Commit.cs" />
     <Compile Include="CommitLog.cs" />
     <Compile Include="Configuration.cs" />
@@ -222,6 +224,7 @@
     <Compile Include="Note.cs" />
     <Compile Include="RepositoryNotFoundException.cs" />
     <Compile Include="TagFetchMode.cs" />
+    <Compile Include="TarArchiver.cs" />
     <Compile Include="TransferProgress.cs" />
     <Compile Include="TreeChanges.cs" />
     <Compile Include="TreeEntryChanges.cs" />
