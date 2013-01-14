@@ -113,5 +113,15 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal("baae1fb3760a73481ced1fa03dc15614142c19ef", newentry.Id.Sha);
             }
         }
+
+        [Fact]
+        public void CanTellIfTheBlobContentLooksLikeBinary()
+        {
+            using (var repo = new Repository(BareTestRepoPath))
+            {
+                var blob = repo.Lookup<Blob>("a8233120f6ad708f843d861ce2b7228ec4e3dec6");
+                Assert.Equal(false, blob.IsBinary);
+            }
+        }
     }
 }

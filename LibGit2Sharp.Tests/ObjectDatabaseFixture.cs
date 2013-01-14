@@ -286,5 +286,24 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal("Ü message\n", commit.Message);
             }
         }
+
+        [Fact]
+        public void CanCreateABinaryBlobFromABinaryReader()
+        {
+            TemporaryCloneOfTestRepo scd = BuildTemporaryCloneOfTestRepo();
+
+            var binaryContent = new byte[] { 0, 1, 2, 3, 4, 5 };
+
+            using (var repo = new Repository(scd.RepositoryPath))
+            {
+                using (var stream = new MemoryStream(binaryContent))
+                using (var binReader = new BinaryReader(stream))
+                {
+                    Blob blob = repo.ObjectDatabase.CreateBlob(binReader);
+                    Assert.Equal(6, blob.Size);
+                    Assert.Equal(true, blob.IsBinary);
+                }
+            }
+        }
     }
 }

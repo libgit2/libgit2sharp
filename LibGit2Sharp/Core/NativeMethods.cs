@@ -887,6 +887,9 @@ namespace LibGit2Sharp.Core
 
         [DllImport(libgit2)]
         internal static extern void git_treebuilder_free(IntPtr bld);
+
+        [DllImport(libgit2)]
+        internal static extern bool git_blob_is_binary(GitObjectSafeHandle blob);
     }
 }
 // ReSharper restore InconsistentNaming
