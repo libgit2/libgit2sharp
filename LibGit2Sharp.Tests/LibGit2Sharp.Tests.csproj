@@ -59,6 +59,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BlameFixture.cs" />
+    <Compile Include="ArchiveTarFixture.cs" />
     <Compile Include="CheckoutFixture.cs" />
     <Compile Include="RefSpecFixture.cs" />
     <Compile Include="EqualityFixture.cs" />
