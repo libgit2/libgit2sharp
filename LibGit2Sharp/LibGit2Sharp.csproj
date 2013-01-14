@@ -86,6 +86,8 @@
     <Compile Include="Core\Proxy.cs" />
     <Compile Include="DiffOptions.cs" />
     <Compile Include="DiffTargets.cs" />
+    <Compile Include="FetchHead.cs" />
+    <Compile Include="FetchHeadCollection.cs" />
     <Compile Include="Handlers.cs" />
     <Compile Include="MergeConflictException.cs" />
     <Compile Include="NameConflictException.cs" />

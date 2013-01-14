@@ -678,6 +678,19 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.Bool)] bool across_fs,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(FilePathMarshaler))] FilePath ceiling_dirs);
 
+        internal delegate int git_repository_fetchhead_foreach_cb(
+            IntPtr remote_name,
+            IntPtr remote_url,
+            ref GitOid oid,
+            [MarshalAs(UnmanagedType.Bool)] bool is_merge,
+            IntPtr payload);
+
+        [DllImport(libgit2)]
+        internal static extern int git_repository_fetchhead_foreach(
+            RepositorySafeHandle repo,
+            git_repository_fetchhead_foreach_cb cb,
+            IntPtr payload);
+
         [DllImport(libgit2)]
         internal static extern void git_repository_free(IntPtr repo);
 
