@@ -10,6 +10,7 @@ namespace LibGit2Sharp
     public class Blob : GitObject
     {
         private readonly ILazy<Int64> lazySize;
+        private readonly ILazy<bool> lazyIsBinary;
 
         /// <summary>
         ///   Needed for mocking purposes.
@@ -21,12 +22,18 @@ namespace LibGit2Sharp
             : base(repo, id)
         {
             lazySize = GitObjectLazyGroup.Singleton(repo, id, Proxy.git_blob_rawsize);
+            lazyIsBinary = GitObjectLazyGroup.Singleton(repo, id, Proxy.git_blob_is_binary);
         }
 
         /// <summary>
         ///   Gets the size in bytes of the contents of a blob
         /// </summary>
         public virtual int Size { get { return (int)lazySize.Value; } }
+
+        /// <summary>
+        ///    Determine if the blob content is most certainly binary or not.
+        /// </summary>
+        public virtual bool IsBinary { get { return lazyIsBinary.Value; } }
 
         /// <summary>
         ///   Gets the blob content in a <see cref="byte" /> array.

@@ -99,6 +99,11 @@ namespace LibGit2Sharp.Core
             return NativeMethods.git_blob_rawsize(obj);
         }
 
+        public static bool git_blob_is_binary(GitObjectSafeHandle obj)
+        {
+            return NativeMethods.git_blob_is_binary(obj);
+        }
+
         #endregion
 
         #region git_branch_
