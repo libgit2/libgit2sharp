@@ -1808,7 +1808,10 @@ namespace LibGit2Sharp.Core
 
         #endregion
 
-        private static ICollection<TResult> git_foreach<T, TResult>(Func<T, TResult> resultSelector, Func<Func<T, IntPtr, int>, int> iterator)
+        private static ICollection<TResult> git_foreach<T, TResult>(
+            Func<T, TResult> resultSelector,
+            Func<Func<T, IntPtr, int>, int> iterator,
+            params GitErrorCode[] ignoredErrorCodes)
         {
             using (ThreadAffinity())
             {
@@ -1818,12 +1821,21 @@ namespace LibGit2Sharp.Core
                                            result.Add(resultSelector(x));
                                            return 0;
                                        });
+
+                if (ignoredErrorCodes != null && ignoredErrorCodes.Contains((GitErrorCode)res))
+                {
+                    return new TResult[0];
+                }
+
                 Ensure.Success(res);
                 return result;
             }
         }
 
-        private static ICollection<TResult> git_foreach<T1, T2, TResult>(Func<T1, T2, TResult> resultSelector, Func<Func<T1, T2, IntPtr, int>, int> iterator)
+        private static ICollection<TResult> git_foreach<T1, T2, TResult>(
+            Func<T1, T2, TResult> resultSelector,
+            Func<Func<T1, T2, IntPtr, int>, int> iterator,
+            params GitErrorCode[] ignoredErrorCodes)
         {
             using (ThreadAffinity())
             {
@@ -1833,6 +1845,12 @@ namespace LibGit2Sharp.Core
                                            result.Add(resultSelector(x, y));
                                            return 0;
                                        });
+
+                if (ignoredErrorCodes != null && ignoredErrorCodes.Contains((GitErrorCode)res))
+                {
+                    return new TResult[0];
+                }
+
                 Ensure.Success(res);
                 return result;
             }
