@@ -1229,10 +1229,7 @@ namespace LibGit2Sharp.Core
 
         public static void git_remote_set_autotag(RemoteSafeHandle remote, TagFetchMode value)
         {
-            using (ThreadAffinity())
-            {
-                NativeMethods.git_remote_set_autotag(remote, value);
-            }
+            NativeMethods.git_remote_set_autotag(remote, value);
         }
 
         public static void git_remote_set_fetchspec(RemoteSafeHandle remote, string fetchspec)
@@ -1251,6 +1248,11 @@ namespace LibGit2Sharp.Core
                 int res = NativeMethods.git_remote_set_callbacks(remote, ref callbacks);
                 Ensure.Success(res);
             }
+        }
+
+        public static void git_remote_set_cred_acquire_cb(RemoteSafeHandle remote, NativeMethods.git_cred_acquire_cb cred_acquire_cb, IntPtr payload)
+        {
+            NativeMethods.git_remote_set_cred_acquire_cb(remote, cred_acquire_cb, payload);
         }
 
         public static void git_remote_update_tips(RemoteSafeHandle remote)

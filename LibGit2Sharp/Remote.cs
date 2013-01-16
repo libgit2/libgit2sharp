@@ -60,12 +60,14 @@ namespace LibGit2Sharp
         /// <param name="onUpdateTips">UpdateTips callback. Corresponds to libgit2 update_tips callback.</param>
         /// <param name="onTransferProgress">Callback method that transfer progress will be reported through.
         ///   Reports the client's state regarding the received and processed (bytes, objects) from the server.</param>
+        /// <param name="credentials">Credentials to use for username/password authentication.</param>
         public virtual void Fetch(
             TagFetchMode tagFetchMode = TagFetchMode.Auto,
             ProgressHandler onProgress = null,
             CompletionHandler onCompletion = null,
             UpdateTipsHandler onUpdateTips = null,
-            TransferProgressHandler onTransferProgress = null)
+            TransferProgressHandler onTransferProgress = null,
+            Credentials credentials = null)
         {
             using (RemoteSafeHandle remoteHandle = Proxy.git_remote_load(repository.Handle, this.Name, true))
             {
@@ -73,6 +75,18 @@ namespace LibGit2Sharp
                 GitRemoteCallbacks gitCallbacks = callbacks.GenerateCallbacks();
 
                 Proxy.git_remote_set_autotag(remoteHandle, tagFetchMode);
+
+                // Username/password auth
+                if (credentials != null)
+                {
+                    Proxy.git_remote_set_cred_acquire_cb(
+                        remoteHandle,
+                        (out IntPtr cred, IntPtr url, uint types, IntPtr payload) =>
+                        NativeMethods.git_cred_userpass_plaintext_new(out cred,
+                                                                      credentials.Username,
+                                                                      credentials.Password),
+                        IntPtr.Zero);
+                }
 
                 // It is OK to pass the reference to the GitCallbacks directly here because libgit2 makes a copy of
                 // the data in the git_remote_callbacks structure. If, in the future, libgit2 changes its implementation

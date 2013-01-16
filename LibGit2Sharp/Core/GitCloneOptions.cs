@@ -18,7 +18,7 @@ namespace LibGit2Sharp.Core
         public IntPtr FetchSpec;
         public IntPtr PushSpec;
 
-        public IntPtr CredAcquireCallback;
+        public NativeMethods.git_cred_acquire_cb CredAcquireCallback;
         public IntPtr CredAcquirePayload;
 
         public IntPtr Transport;
