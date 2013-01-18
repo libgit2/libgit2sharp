@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
+using LibGit2Sharp.Core.Compat;
 using LibGit2Sharp.Core.Handles;
 using LibGit2Sharp.Handlers;
 
@@ -612,6 +613,24 @@ namespace LibGit2Sharp.Core
             }
         }
 
+        #endregion
+
+        #region git_graph_
+        public static Tuple<int, int> git_graph_ahead_behind(RepositorySafeHandle repo, ObjectId firstId, ObjectId secondId)
+        {
+            GitOid oid1 = firstId.Oid;
+            GitOid oid2 = secondId.Oid;
+            using (ThreadAffinity())
+            {
+                UIntPtr ahead;
+                UIntPtr behind;
+                int res = NativeMethods.git_graph_ahead_behind(out ahead, out behind, repo, ref oid1, ref oid2);
+
+                Ensure.Success(res);
+
+                return new Tuple<int, int>((int)ahead, (int)behind);
+            }
+        }
         #endregion
 
         #region git_index_

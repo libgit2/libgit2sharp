@@ -120,7 +120,7 @@ namespace LibGit2Sharp
         /// </summary>
         public virtual int? AheadBy
         {
-            get { return ExistsPathToTrackedBranch() ? repo.Commits.QueryBy(new Filter { Since = Tip, Until = TrackedBranch }).Count() : (int?)null; }
+            get { return ExistsPathToTrackedBranch() ? Proxy.git_graph_ahead_behind(repo.Handle, TrackedBranch.Tip.Id, Tip.Id).Item1 : (int?)null; }
         }
 
         /// <summary>
@@ -132,7 +132,7 @@ namespace LibGit2Sharp
         /// </summary>
         public virtual int? BehindBy
         {
-            get { return ExistsPathToTrackedBranch() ? repo.Commits.QueryBy(new Filter { Since = TrackedBranch, Until = Tip }).Count() : (int?)null; }
+            get { return ExistsPathToTrackedBranch() ? Proxy.git_graph_ahead_behind(repo.Handle, TrackedBranch.Tip.Id, Tip.Id).Item2 : (int?)null; }
         }
 
         /// <summary>
