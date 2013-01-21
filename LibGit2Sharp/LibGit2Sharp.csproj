@@ -89,6 +89,7 @@
     <Compile Include="DiffOptions.cs" />
     <Compile Include="DiffTargets.cs" />
     <Compile Include="Handlers.cs" />
+    <Compile Include="Ignore.cs" />
     <Compile Include="MergeConflictException.cs" />
     <Compile Include="NameConflictException.cs" />
     <Compile Include="ReferenceCollectionExtensions.cs" />
