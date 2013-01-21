@@ -634,6 +634,41 @@ namespace LibGit2Sharp.Core
                 return new Tuple<int, int>((int)ahead, (int)behind);
             }
         }
+
+        #endregion
+
+        #region git_ignore_
+
+        public static void git_ignore_add_rule(RepositorySafeHandle repo, string rules)
+        {
+            using (ThreadAffinity()) 
+            {
+                int res = NativeMethods.git_ignore_add_rule(repo, rules);
+                Ensure.Success(res);
+            }
+        }
+
+        public static void git_ignore_clear_internal_rules(RepositorySafeHandle repo)
+        {
+            using (ThreadAffinity()) 
+            {
+                int res = NativeMethods.git_ignore_clear_internal_rules(repo);
+                Ensure.Success(res);
+            }
+        }
+
+        public static bool git_ignore_path_is_ignored(RepositorySafeHandle repo, string path)
+        {
+            using (ThreadAffinity()) 
+            {
+                int ignored;
+                int res = NativeMethods.git_ignore_path_is_ignored(out ignored, repo, path);
+                Ensure.Success(res);
+
+                return (ignored != 0);
+            }
+        }
+
         #endregion
 
         #region git_index_

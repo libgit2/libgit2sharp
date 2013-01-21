@@ -33,6 +33,7 @@ namespace LibGit2Sharp
         private readonly NoteCollection notes;
         private readonly Lazy<ObjectDatabase> odb;
         private readonly Stack<IDisposable> toCleanup = new Stack<IDisposable>();
+        private readonly Ignore ignore;
         private static readonly Lazy<string> versionRetriever = new Lazy<string>(RetrieveVersion);
 
         /// <summary>
@@ -103,6 +104,7 @@ namespace LibGit2Sharp
             odb = new Lazy<ObjectDatabase>(() => new ObjectDatabase(this));
             diff = new Diff(this);
             notes = new NoteCollection(this);
+            ignore = new Ignore(this);
 
             EagerlyLoadTheConfigIfAnyPathHaveBeenPassed(options);
         }
@@ -183,6 +185,17 @@ namespace LibGit2Sharp
                 }
 
                 return index;
+            }
+        }
+
+        /// <summary>
+        ///   Manipulate the currently ignored files.
+        /// </summary>
+        public Ignore Ignore
+        {
+            get
+            {
+                return ignore;
             }
         }
 

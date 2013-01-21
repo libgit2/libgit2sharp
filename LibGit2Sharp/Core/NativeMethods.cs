@@ -395,6 +395,20 @@ namespace LibGit2Sharp.Core
         internal static extern int git_graph_ahead_behind(out UIntPtr ahead, out UIntPtr behind, RepositorySafeHandle repo, ref GitOid one, ref GitOid two);
 
         [DllImport(libgit2)]
+        internal static extern int git_ignore_add_rule(
+            RepositorySafeHandle repo,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof (Utf8Marshaler))] string rules);
+
+        [DllImport(libgit2)]
+        internal static extern int git_ignore_clear_internal_rules(RepositorySafeHandle repo);
+
+        [DllImport(libgit2)]
+        internal static extern int git_ignore_path_is_ignored(
+            out int ignored,
+            RepositorySafeHandle repo,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof (Utf8Marshaler))] string path);
+
+        [DllImport(libgit2)]
         internal static extern int git_index_add_from_workdir(
             IndexSafeHandle index,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(FilePathMarshaler))] FilePath path);
