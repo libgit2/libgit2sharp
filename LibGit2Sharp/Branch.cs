@@ -189,7 +189,10 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Checkout this branch.
+        ///   Checkout the tip commit of this <see cref = "Branch" /> object.
+        ///   If this commit is the current tip of the branch, will checkout
+        ///   the named branch. Otherwise, will checkout the tip commit as a
+        ///   detached HEAD.
         /// </summary>
         public virtual void Checkout()
         {
@@ -197,7 +200,10 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Checkout this branch with a callback for progress reporting.
+        ///   Checkout the tip commit of this <see cref = "Branch" /> object
+        ///   with a callback for progress reporting. If this commit is the
+        ///   current tip of the branch, will checkout the named branch. Otherwise,
+        ///   will checkout the tip commit as a detached HEAD.
         /// </summary>
         /// <param name="checkoutOptions">Options controlling checkout behavior.</param>
         /// <param name="onCheckoutProgress">Callback method to report checkout progress updates through.</param>

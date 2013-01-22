@@ -180,7 +180,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Fact(Skip = "Not working against current libgit2 version")]
+        [Fact]
         public void HardResetUpdatesTheContentOfTheWorkingDirectory()
         {
             var clone = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);

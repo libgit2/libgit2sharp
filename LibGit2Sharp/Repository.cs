@@ -504,15 +504,22 @@ namespace LibGit2Sharp
 
             if (branch != null)
             {
-                return CheckoutInternal(branch.CanonicalName, checkoutOptions, onCheckoutProgress);
+                return Checkout(branch, checkoutOptions, onCheckoutProgress);
             }
 
-            var commitId = LookupCommit(committishOrBranchSpec).Id;
-            return CheckoutInternal(commitId.Sha, checkoutOptions, onCheckoutProgress);
+            Commit commit = LookupCommit(committishOrBranchSpec);
+            CheckoutTree(commit.Tree, checkoutOptions, onCheckoutProgress);
+
+            // Update HEAD.
+            Refs.UpdateTarget("HEAD", commit.Id.Sha);
+
+            return Head;
         }
 
         /// <summary>
-        ///   Checkout the specified <see cref = "Branch" />.
+        ///   Checkout the tip commit of the specified <see cref = "Branch" /> object. If this commit is the
+        ///   current tip of the branch, will checkout the named branch. Otherwise, will checkout the tip commit
+        ///   as a detached HEAD.
         /// </summary>
         /// <param name="branch">The <see cref = "Branch" /> to check out. </param>
         /// <param name="checkoutOptions"><see cref = "CheckoutOptions" /> controlling checkout behavior.</param>
@@ -522,7 +529,27 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNull(branch, "branch");
 
-            return CheckoutInternal(branch.CanonicalName, checkoutOptions, onCheckoutProgress);
+            // Make sure this is not an unborn branch.
+            if (branch.Tip.Tree == null)
+            {
+                throw new Exception("branch tip is null, nothing to checkout.");
+            }
+
+            CheckoutTree(branch.Tip.Tree, checkoutOptions, onCheckoutProgress);
+
+            // Update HEAD.
+            if (!branch.IsRemote &&
+                string.Equals(Refs[branch.CanonicalName].TargetIdentifier, branch.Tip.Id.Sha,
+                StringComparison.OrdinalIgnoreCase))
+            {
+                Refs.UpdateTarget("HEAD", branch.CanonicalName);
+            }
+            else
+            {
+                Refs.UpdateTarget("HEAD", branch.Tip.Id.Sha);
+            }
+
+            return Head;
         }
 
         /// <summary>
@@ -533,47 +560,21 @@ namespace LibGit2Sharp
         /// <param name="checkoutOptions"><see cref = "CheckoutOptions" /> controlling checkout behavior.</param>
         /// <param name="onCheckoutProgress"><see cref = "CheckoutProgressHandler" /> that checkout progress is reported through.</param>
         /// <returns>The <see cref = "Branch" /> that was checked out.</returns>
-        private Branch CheckoutInternal(string commitIdOrCanonicalBranchName, CheckoutOptions checkoutOptions, CheckoutProgressHandler onCheckoutProgress)
-        {
-            if (Info.IsBare)
-            {
-                throw new InvalidOperationException("Checkout is not allowed in a bare repository.");
-            }
-
-            // Unless the Force option is specified,
-            // check if the current index / working tree is in a state
-            // where we can checkout a new branch.
-            if ((checkoutOptions & CheckoutOptions.Force) != CheckoutOptions.Force)
-            {
-                RepositoryStatus repositoryStatus = Index.RetrieveStatus();
-                if (repositoryStatus.IsDirty)
-                {
-                    throw new MergeConflictException(
-                        "There are changes to files in the working directory that would be overwritten by a checkout." +
-                        "Please commit your changes before you switch branches.");
-                }
-            }
-
-            // Update HEAD
-            Refs.UpdateTarget("HEAD", commitIdOrCanonicalBranchName);
-
-            // Update the working directory
-            CheckoutHeadForce(onCheckoutProgress);
-
-            return Head;
-        }
-
-        private void CheckoutHeadForce(CheckoutProgressHandler onCheckoutProgress)
+        private void CheckoutTree(Tree tree, CheckoutOptions checkoutOptions, CheckoutProgressHandler onCheckoutProgress)
         {
             GitCheckoutOpts options = new GitCheckoutOpts
             {
                 version = 1,
-                checkout_strategy = CheckoutStrategy.GIT_CHECKOUT_FORCE |
-                                    CheckoutStrategy.GIT_CHECKOUT_REMOVE_UNTRACKED,
+                checkout_strategy = CheckoutStrategy.GIT_CHECKOUT_SAFE,
                 progress_cb = CheckoutCallbacks.GenerateCheckoutCallbacks(onCheckoutProgress)
             };
 
-            Proxy.git_checkout_head(this.Handle, ref options);
+            if (checkoutOptions.HasFlag(CheckoutOptions.Force))
+            {
+                options.checkout_strategy = CheckoutStrategy.GIT_CHECKOUT_FORCE;
+            }
+
+            Proxy.git_checkout_tree(this.Handle, tree.Id, ref options);
         }
 
         /// <summary>

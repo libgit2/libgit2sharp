@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
 using Xunit.Extensions;
@@ -10,6 +11,7 @@ namespace LibGit2Sharp.Tests
     {
         private static readonly string originalFilePath = "a.txt";
         private static readonly string originalFileContent = "Hello";
+        private static readonly string alternateFileContent = "There again";
         private static readonly string otherBranchName = "other";
 
         [Theory]
@@ -190,8 +192,16 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
-        public void CanForcefullyCheckoutWithStagedChanges()
+        public void CanForcefullyCheckoutWithConflictingStagedChanges()
         {
+            // This test will check that we can checkout a branch that results
+            // in a conflict. Here is the high level steps of the test:
+            // 1) Create branch otherBranch from current commit in master,
+            // 2) Commit change to master
+            // 3) Switch to otherBranch
+            // 4) Create conflicting change
+            // 5) Forcefully checkout master
+
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
 
             using (var repo = new Repository(path.RepositoryPath))
@@ -200,31 +210,39 @@ namespace LibGit2Sharp.Tests
                 Branch master = repo.Branches["master"];
                 Assert.True(master.IsCurrentRepositoryHead);
 
-                // Set the working directory to the current head
+                // Set the working directory to the current head.
                 ResetAndCleanWorkingDirectory(repo);
 
                 Assert.False(repo.Index.RetrieveStatus().IsDirty);
 
-                // Add local change
+                // Create otherBranch from current Head.
+                repo.Branches.Add(otherBranchName, master.Tip);
+
+                // Add change to master.
                 string fullPath = Path.Combine(repo.Info.WorkingDirectory, fileFullPath);
                 File.WriteAllText(fullPath, originalFileContent);
                 repo.Index.Stage(fullPath);
+                repo.Commit("change in master", Constants.Signature, Constants.Signature);
 
-                // Verify working directory is now dirty
-                Assert.True(repo.Index.RetrieveStatus().IsDirty);
+                // Checkout otherBranch.
+                repo.Checkout(otherBranchName);
 
-                // And that the new file exists
-                Assert.True(File.Exists(fileFullPath));
+                // Add change to otherBranch.
+                File.WriteAllText(fullPath, alternateFileContent);
+                repo.Index.Stage(fullPath);
 
-                // Checkout with the force option
-                Branch targetBranch = repo.Branches["i-do-numbers"];
-                targetBranch.Checkout(CheckoutOptions.Force, null);
+                // Assert that normal checkout throws exception
+                // for the conflict.
+                Assert.Throws<LibGit2SharpException>(() => repo.Checkout(master.CanonicalName));
 
-                // Assert that target branch is checked out
-                Assert.True(targetBranch.IsCurrentRepositoryHead);
+                // Checkout with force option should succeed.
+                repo.Checkout(master.CanonicalName, CheckoutOptions.Force, null);
 
-                // And that staged change (add) is no longer preset
-                Assert.False(File.Exists(fileFullPath));
+                // Assert that master branch is checked out.
+                Assert.True(repo.Branches["master"].IsCurrentRepositoryHead);
+
+                // And that the current index is not dirty.
+                Assert.False(repo.Index.RetrieveStatus().IsDirty);
             }
         }
 
@@ -254,11 +272,11 @@ namespace LibGit2Sharp.Tests
 
                 // Assert that checking out master throws
                 // when there are unstaged commits
-                Assert.Throws<MergeConflictException>(() => repo.Checkout("master"));
+                Assert.Throws<LibGit2SharpException>(() => repo.Checkout("master"));
 
                 // And when there are staged commits
                 repo.Index.Stage(fullPath);
-                Assert.Throws<MergeConflictException>(() => repo.Checkout("master"));
+                Assert.Throws<LibGit2SharpException>(() => repo.Checkout("master"));
             }
         }
 
@@ -267,8 +285,8 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                Assert.Throws<InvalidOperationException>(() => repo.Checkout(repo.Branches["refs/heads/test"]));
-                Assert.Throws<InvalidOperationException>(() => repo.Checkout("refs/heads/test"));
+                Assert.Throws<BareRepositoryException>(() => repo.Checkout(repo.Branches["refs/heads/test"]));
+                Assert.Throws<BareRepositoryException>(() => repo.Checkout("refs/heads/test"));
             }
         }
 
@@ -325,6 +343,217 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        [Fact]
+        public void CheckoutRetainsUntrackedChanges()
+        {
+            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+
+            using (var repo = Repository.Init(scd.DirectoryPath))
+            {
+                PopulateBasicRepository(repo);
+
+                // Generate an unstaged change.
+                string fullPathFileB = Path.Combine(repo.Info.WorkingDirectory, "b.txt");
+                File.WriteAllText(fullPathFileB, alternateFileContent);
+
+                // Verify that there is an untracked entry.
+                Assert.Equal(1, repo.Index.RetrieveStatus().Untracked.Count());
+                Assert.Equal(FileStatus.Untracked, repo.Index.RetrieveStatus(fullPathFileB));
+
+                repo.Checkout(otherBranchName);
+
+                // Verify untracked entry still exists.
+                Assert.Equal(1, repo.Index.RetrieveStatus().Untracked.Count());
+                Assert.Equal(FileStatus.Untracked, repo.Index.RetrieveStatus(fullPathFileB));
+            }
+        }
+
+        [Fact]
+        public void ForceCheckoutRetainsUntrackedChanges()
+        {
+            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+
+            using (var repo = Repository.Init(scd.DirectoryPath))
+            {
+                PopulateBasicRepository(repo);
+
+                // Generate an unstaged change.
+                string fullPathFileB = Path.Combine(repo.Info.WorkingDirectory, "b.txt");
+                File.WriteAllText(fullPathFileB, alternateFileContent);
+
+                // Verify that there is an untracked entry.
+                Assert.Equal(1, repo.Index.RetrieveStatus().Untracked.Count());
+                Assert.Equal(FileStatus.Untracked, repo.Index.RetrieveStatus(fullPathFileB));
+
+                repo.Checkout(otherBranchName, CheckoutOptions.Force, null);
+
+                // Verify untracked entry still exists.
+                Assert.Equal(1, repo.Index.RetrieveStatus().Untracked.Count());
+                Assert.Equal(FileStatus.Untracked, repo.Index.RetrieveStatus(fullPathFileB));
+            }
+        }
+
+        [Fact]
+        public void CheckoutRetainsUnstagedChanges()
+        {
+            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+
+            using (var repo = Repository.Init(scd.DirectoryPath))
+            {
+                PopulateBasicRepository(repo);
+
+                // Generate an unstaged change.
+                string fullPathFileA = Path.Combine(repo.Info.WorkingDirectory, originalFilePath);
+                File.WriteAllText(fullPathFileA, alternateFileContent);
+
+                // Verify that there is a modified entry.
+                Assert.Equal(1, repo.Index.RetrieveStatus().Modified.Count());
+                Assert.Equal(FileStatus.Modified, repo.Index.RetrieveStatus(fullPathFileA));
+
+                repo.Checkout(otherBranchName);
+
+                // Verify modified entry still exists.
+                Assert.Equal(1, repo.Index.RetrieveStatus().Modified.Count());
+                Assert.Equal(FileStatus.Modified, repo.Index.RetrieveStatus(fullPathFileA));
+            }
+        }
+
+        [Fact]
+        public void CheckoutRetainsStagedChanges()
+        {
+            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+
+            using (var repo = Repository.Init(scd.DirectoryPath))
+            {
+                PopulateBasicRepository(repo);
+
+                // Generate a staged change.
+                string fullPathFileA = Path.Combine(repo.Info.WorkingDirectory, originalFilePath);
+                File.WriteAllText(fullPathFileA, alternateFileContent);
+                repo.Index.Stage(fullPathFileA);
+
+                // Verify that there is a staged entry.
+                Assert.Equal(1, repo.Index.RetrieveStatus().Staged.Count());
+                Assert.Equal(FileStatus.Staged, repo.Index.RetrieveStatus(fullPathFileA));
+
+                repo.Checkout(otherBranchName);
+
+                // Verify staged entry still exists.
+                Assert.Equal(1, repo.Index.RetrieveStatus().Staged.Count());
+                Assert.Equal(FileStatus.Staged, repo.Index.RetrieveStatus(fullPathFileA));
+            }
+        }
+
+        [Fact]
+        public void CheckoutRetainsIgnoredChanges()
+        {
+            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+
+            using (var repo = Repository.Init(scd.DirectoryPath))
+            {
+                PopulateBasicRepository(repo);
+
+                // Create a bin directory.
+                string ignoredDirectoryPath = Path.Combine(repo.Info.WorkingDirectory, "bin");
+                Directory.CreateDirectory(ignoredDirectoryPath);
+
+                // Create file in ignored bin directory.
+                string ignoredFilePath = Path.Combine(repo.Info.WorkingDirectory, Path.Combine("bin", "some_ignored_file.txt"));
+                File.WriteAllText(ignoredFilePath, "hello from this ignored file.");
+
+                // The following check does not report ignored entries...
+                // Assert.Equal(1, repo.Index.RetrieveStatus().Ignored.Count());
+
+                Assert.Equal(FileStatus.Ignored, repo.Index.RetrieveStatus(ignoredFilePath));
+
+                repo.Checkout(otherBranchName);
+
+                // Verify that the ignored file still exists.
+                Assert.Equal(FileStatus.Ignored, repo.Index.RetrieveStatus(ignoredFilePath));
+                Assert.True(File.Exists(ignoredFilePath));
+            }
+        }
+
+        [Fact]
+        public void ForceCheckoutRetainsIgnoredChanges()
+        {
+            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+
+            using (var repo = Repository.Init(scd.DirectoryPath))
+            {
+                PopulateBasicRepository(repo);
+
+                // Create a bin directory.
+                string ignoredDirectoryPath = Path.Combine(repo.Info.WorkingDirectory, "bin");
+                Directory.CreateDirectory(ignoredDirectoryPath);
+
+                // Create file in ignored bin directory.
+                string ignoredFilePath = Path.Combine(repo.Info.WorkingDirectory, Path.Combine("bin", "some_ignored_file.txt"));
+                File.WriteAllText(ignoredFilePath, "hello from this ignored file.");
+
+                // The following check does not report ignored entries...
+                // Assert.Equal(1, repo.Index.RetrieveStatus().Ignored.Count());
+
+                Assert.Equal(FileStatus.Ignored, repo.Index.RetrieveStatus(ignoredFilePath));
+
+                repo.Checkout(otherBranchName, CheckoutOptions.Force, null);
+
+                // Verify that the ignored file still exists.
+                Assert.Equal(FileStatus.Ignored, repo.Index.RetrieveStatus(ignoredFilePath));
+                Assert.True(File.Exists(ignoredFilePath));
+            }
+        }
+
+        [Fact]
+        public void CheckoutBranchSnapshot()
+        {
+            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+
+            using (var repo = Repository.Init(scd.DirectoryPath))
+            {
+                PopulateBasicRepository(repo);
+
+                // Get the current status of master
+                // and the current tip.
+                Branch initial = repo.Branches["master"];
+                Commit initialCommit = initial.Tip;
+
+                // Add commit to master
+                string fullPath = Path.Combine(repo.Info.WorkingDirectory, originalFilePath);
+                File.WriteAllText(fullPath, "Update : hello from master branch!\n");
+                repo.Index.Stage(fullPath);
+                repo.Commit("2nd commit", Constants.Signature, Constants.Signature);
+
+                initial.Checkout();
+
+                // Head should point at initial commit.
+                Assert.Equal(repo.Head.Tip, initialCommit);
+                Assert.False(repo.Index.RetrieveStatus().IsDirty);
+                // Verify that HEAD is detached.
+                Assert.Equal(repo.Refs["HEAD"].TargetIdentifier, initial.Tip.Sha);
+            }
+        }
+
+        [Fact]
+        public void CheckingOutRemoteBranchResultsInDetachedHead()
+        {
+            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                Branch master = repo.Branches["master"];
+                Assert.True(master.IsCurrentRepositoryHead);
+
+                // Set the working directory to the current head
+                ResetAndCleanWorkingDirectory(repo);
+
+                repo.Checkout("refs/remotes/origin/master");
+
+                // Verify that HEAD is detached.
+                Assert.Equal(repo.Refs["HEAD"].TargetIdentifier, repo.Branches["origin/master"].Tip.Sha);
+
+            }
+        }
+
         /// <summary>
         ///   Helper method to populate a simple repository with
         ///   a single file and two branches.
@@ -332,9 +561,15 @@ namespace LibGit2Sharp.Tests
         /// <param name="repo">Repository to populate</param>
         private void PopulateBasicRepository(Repository repo)
         {
-            string fullPathFileA = Path.Combine(repo.Info.WorkingDirectory, "a.txt");
+            // Generate a .gitignore file.
+            string gitIgnoreFilePath = Path.Combine(repo.Info.WorkingDirectory, ".gitignore");
+            File.WriteAllText(gitIgnoreFilePath, "bin");
+            repo.Index.Stage(gitIgnoreFilePath);
+
+            string fullPathFileA = Path.Combine(repo.Info.WorkingDirectory, originalFilePath);
             File.WriteAllText(fullPathFileA, originalFileContent);
             repo.Index.Stage(fullPathFileA);
+
             repo.Commit("Initial commit", Constants.Signature, Constants.Signature);
 
             repo.CreateBranch(otherBranchName);
