@@ -409,7 +409,7 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof (Utf8Marshaler))] string path);
 
         [DllImport(libgit2)]
-        internal static extern int git_index_add_from_workdir(
+        internal static extern int git_index_add_bypath(
             IndexSafeHandle index,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(FilePathMarshaler))] FilePath path);
 

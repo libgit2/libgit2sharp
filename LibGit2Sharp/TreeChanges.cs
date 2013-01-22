@@ -27,6 +27,8 @@ namespace LibGit2Sharp
         private readonly IDictionary<ChangeKind, Action<TreeChanges, TreeEntryChanges>> fileDispatcher = Build();
 
         private readonly StringBuilder fullPatchBuilder = new StringBuilder();
+        private static readonly Comparison<TreeEntryChanges> ordinalComparer =
+            (one, other) => string.CompareOrdinal(one.Path, other.Path);
 
         private static IDictionary<ChangeKind, Action<TreeChanges, TreeEntryChanges>> Build()
         {
@@ -47,6 +49,9 @@ namespace LibGit2Sharp
         internal TreeChanges(DiffListSafeHandle diff)
         {
             Proxy.git_diff_print_patch(diff, PrintCallBack);
+            added.Sort(ordinalComparer);
+            deleted.Sort(ordinalComparer);
+            modified.Sort(ordinalComparer);
         }
 
         private int PrintCallBack(GitDiffDelta delta, GitDiffRange range, GitDiffLineOrigin lineorigin, IntPtr content, UIntPtr contentlen, IntPtr payload)

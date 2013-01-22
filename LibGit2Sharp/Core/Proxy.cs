@@ -682,11 +682,11 @@ namespace LibGit2Sharp.Core
             }
         }
 
-        public static void git_index_add_from_workdir(IndexSafeHandle index, FilePath path)
+        public static void git_index_add_bypath(IndexSafeHandle index, FilePath path)
         {
             using (ThreadAffinity())
             {
-                int res = NativeMethods.git_index_add_from_workdir(index, path);
+                int res = NativeMethods.git_index_add_bypath(index, path);
                 Ensure.Success(res);
             }
         }
