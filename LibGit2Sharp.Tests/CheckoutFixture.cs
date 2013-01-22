@@ -462,6 +462,7 @@ namespace LibGit2Sharp.Tests
                 File.WriteAllText(ignoredFilePath, "hello from this ignored file.");
 
                 // The following check does not report ignored entries...
+                // TODO: Uncomment once libgit2/libgit2#1251 is merged
                 // Assert.Equal(1, repo.Index.RetrieveStatus().Ignored.Count());
 
                 Assert.Equal(FileStatus.Ignored, repo.Index.RetrieveStatus(ignoredFilePath));
@@ -492,6 +493,7 @@ namespace LibGit2Sharp.Tests
                 File.WriteAllText(ignoredFilePath, "hello from this ignored file.");
 
                 // The following check does not report ignored entries...
+                // TODO: Uncomment once libgit2/libgit2#1251 is merged
                 // Assert.Equal(1, repo.Index.RetrieveStatus().Ignored.Count());
 
                 Assert.Equal(FileStatus.Ignored, repo.Index.RetrieveStatus(ignoredFilePath));
