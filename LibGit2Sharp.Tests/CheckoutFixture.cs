@@ -233,10 +233,10 @@ namespace LibGit2Sharp.Tests
 
                 // Assert that normal checkout throws exception
                 // for the conflict.
-                Assert.Throws<LibGit2SharpException>(() => master.Checkout());
+                Assert.Throws<LibGit2SharpException>(() => repo.Checkout(master.CanonicalName));
 
                 // Checkout with force option should succeed.
-                master.Checkout(CheckoutOptions.Force, null);
+                repo.Checkout(master.CanonicalName, CheckoutOptions.Force, null);
 
                 // Assert that master branch is checked out.
                 Assert.True(repo.Branches["master"].IsCurrentRepositoryHead);
@@ -501,6 +501,56 @@ namespace LibGit2Sharp.Tests
                 // Verify that the ignored file still exists.
                 Assert.Equal(FileStatus.Ignored, repo.Index.RetrieveStatus(ignoredFilePath));
                 Assert.True(File.Exists(ignoredFilePath));
+            }
+        }
+
+        [Fact]
+        public void CheckoutBranchSnapshot()
+        {
+            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+
+            using (var repo = Repository.Init(scd.DirectoryPath))
+            {
+                PopulateBasicRepository(repo);
+
+                // Get the current status of master
+                // and the current tip.
+                Branch initial = repo.Branches["master"];
+                Commit initialCommit = initial.Tip;
+
+                // Add commit to master
+                string fullPath = Path.Combine(repo.Info.WorkingDirectory, originalFilePath);
+                File.WriteAllText(fullPath, "Update : hello from master branch!\n");
+                repo.Index.Stage(fullPath);
+                repo.Commit("2nd commit", Constants.Signature, Constants.Signature);
+
+                initial.Checkout();
+
+                // Head should point at initial commit.
+                Assert.Equal(repo.Head.Tip, initialCommit);
+                Assert.False(repo.Index.RetrieveStatus().IsDirty);
+                // Verify that HEAD is detached.
+                Assert.Equal(repo.Refs["HEAD"].TargetIdentifier, initial.Tip.Sha);
+            }
+        }
+
+        [Fact]
+        public void CheckingOutRemoteBranchResultsInDetachedHead()
+        {
+            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                Branch master = repo.Branches["master"];
+                Assert.True(master.IsCurrentRepositoryHead);
+
+                // Set the working directory to the current head
+                ResetAndCleanWorkingDirectory(repo);
+
+                repo.Checkout("refs/remotes/origin/master");
+
+                // Verify that HEAD is detached.
+                Assert.Equal(repo.Refs["HEAD"].TargetIdentifier, repo.Branches["origin/master"].Tip.Sha);
+
             }
         }
 

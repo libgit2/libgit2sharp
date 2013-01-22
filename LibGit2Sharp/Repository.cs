@@ -517,7 +517,9 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Checkout the specified <see cref = "Branch" />.
+        ///   Checkout the tip commit of the specified <see cref = "Branch" /> object. If this commit is the
+        ///   current tip of the branch, will checkout the named branch. Otherwise, will checkout the tip commit
+        ///   as a detached HEAD.
         /// </summary>
         /// <param name="branch">The <see cref = "Branch" /> to check out. </param>
         /// <param name="checkoutOptions"><see cref = "CheckoutOptions" /> controlling checkout behavior.</param>
@@ -527,14 +529,25 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNull(branch, "branch");
 
-            // Get the current tip commit of the branch, instead of
-            // relying on branch.Tip, which references the commit at
-            // the time the passed in branch object was created.
-            Commit commit = LookupCommit(branch.CanonicalName);
-            CheckoutTree(commit.Tree, checkoutOptions, onCheckoutProgress);
+            // Make sure this is not an unborn branch.
+            if (branch.Tip.Tree == null)
+            {
+                throw new Exception("branch tip is null, nothing to checkout.");
+            }
+
+            CheckoutTree(branch.Tip.Tree, checkoutOptions, onCheckoutProgress);
 
             // Update HEAD.
-            Refs.UpdateTarget("HEAD", branch.CanonicalName);
+            if (!branch.IsRemote &&
+                string.Equals(Refs[branch.CanonicalName].TargetIdentifier, branch.Tip.Id.Sha,
+                StringComparison.OrdinalIgnoreCase))
+            {
+                Refs.UpdateTarget("HEAD", branch.CanonicalName);
+            }
+            else
+            {
+                Refs.UpdateTarget("HEAD", branch.Tip.Id.Sha);
+            }
 
             return Head;
         }
