@@ -556,10 +556,9 @@ namespace LibGit2Sharp
         ///   Internal implementation of Checkout that expects the ID of the checkout target
         ///   to already be in the form of a canonical branch name or a commit ID.
         /// </summary>
-        /// <param name="commitIdOrCanonicalBranchName">Commit ID or canonical branch name.</param>
+        /// <param name="tree">The <see cref="Tree"/> to checkout.</param>
         /// <param name="checkoutOptions"><see cref = "CheckoutOptions" /> controlling checkout behavior.</param>
         /// <param name="onCheckoutProgress"><see cref = "CheckoutProgressHandler" /> that checkout progress is reported through.</param>
-        /// <returns>The <see cref = "Branch" /> that was checked out.</returns>
         private void CheckoutTree(Tree tree, CheckoutOptions checkoutOptions, CheckoutProgressHandler onCheckoutProgress)
         {
             GitCheckoutOpts options = new GitCheckoutOpts
