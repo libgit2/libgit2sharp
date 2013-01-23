@@ -68,7 +68,7 @@ namespace LibGit2Sharp.Tests
             {
                 Tree tree = repo.Head.Tip.Tree;
 
-                TreeChanges changes = repo.Diff.Compare(tree, DiffTarget.WorkingDirectory);
+                TreeChanges changes = repo.Diff.Compare(tree, DiffTargets.WorkingDirectory);
                 Assert.NotNull(changes);
 
                 Assert.Equal(6, changes.Count());

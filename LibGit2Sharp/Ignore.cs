@@ -1,11 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
 {
+    /// <summary>
+    ///   Provides methods to manage the rules ensuring that some specific
+    ///   untracked files are ignored.
+    /// </summary>
     public class Ignore
     {
         private readonly Repository repo;
@@ -39,8 +42,9 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Resets all custom rules that were applied via calls to <see cref="Repository.AddCustomIgnoreRules"/> - note that
-        ///   this will not affect the application of the user/repo .gitignores.
+        ///   Resets all custom rules that were applied via calls to
+        ///   <see cref="AddTemporaryRules"/> - note that this will not affect
+        ///   the application of the user/repo .gitignores.
         /// </summary>
         public virtual void ResetAllTemporaryRules()
         {
