@@ -12,11 +12,9 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void SimpleOdbBackendFixtureTest()
         {
-            SelfCleaningDirectory scd = new SelfCleaningDirectory(this);
+            var scd = new SelfCleaningDirectory(this);
 
-            Repository.Init(scd.RootedDirectoryPath);
-
-            using (Repository repository = new Repository(scd.RootedDirectoryPath))
+            using (Repository repository = Repository.Init(scd.RootedDirectoryPath))
             {
                 repository.ObjectDatabase.AddBackend(new MockOdbBackend(), priority: 5);
 
@@ -27,11 +25,11 @@ namespace LibGit2Sharp.Tests
                 File.WriteAllText(filePath, fileContents);
                 repository.Index.Stage(filePath);
 
-                Signature signature = new Signature("SimpleOdbBackendFixtureTest", "user@example.com", DateTimeOffset.Now);
+                var signature = new Signature("SimpleOdbBackendFixtureTest", "user@example.com", DateTimeOffset.Now);
                 repository.Commit(String.Empty, signature, signature);
 
                 // Exercises read
-                Blob blob = repository.Lookup(new ObjectId("69342c5c39e5ae5f0077aecc32c0f81811fb8193")) as Blob;
+                var blob = repository.Lookup<Blob>(new ObjectId("69342c5c39e5ae5f0077aecc32c0f81811fb8193"));
 
                 Assert.NotNull(blob);
                 Assert.True(fileContents.Length == blob.Size);
@@ -42,11 +40,7 @@ namespace LibGit2Sharp.Tests
 
         private class MockOdbBackend : OdbBackend
         {
-            public MockOdbBackend()
-            {
-            }
-
-            protected override OdbBackend.OdbBackendOperations SupportedOperations
+            protected override OdbBackendOperations SupportedOperations
             {
                 get
                 {
@@ -128,7 +122,7 @@ namespace LibGit2Sharp.Tests
 
             public override int Write(byte[] oid, Stream dataStream, long length, GitObjectType objectType, out byte[] finalOid)
             {
-                using (SHA1CryptoServiceProvider sha1 = new SHA1CryptoServiceProvider())
+                using (var sha1 = new SHA1CryptoServiceProvider())
                 {
                     finalOid = sha1.ComputeHash(dataStream);
 
@@ -281,7 +275,7 @@ namespace LibGit2Sharp.Tests
                         return GIT_ERROR;
                     }
 
-                    MockOdbBackend backend = (MockOdbBackend)this.Backend;
+                    var backend = (MockOdbBackend)Backend;
 
                     if (!backend.m_objectIdToContent.ContainsKey(oid))
                     {
