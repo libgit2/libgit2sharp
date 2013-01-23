@@ -193,7 +193,12 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(StandardTestRepoWorkingDirPath))
             {
-                var expectedWdBranches = new[] { "diff-test-cases", "i-do-numbers", "master", "track-local", "origin/HEAD", "origin/br2", "origin/master", "origin/packed-test", "origin/test" };
+                var expectedWdBranches = new[]
+                                             {
+                                                 "diff-test-cases", "i-do-numbers", "logo", "master", "track-local",
+                                                 "origin/HEAD", "origin/br2", "origin/master", "origin/packed-test",
+                                                 "origin/test"
+                                             };
 
                 Assert.Equal(expectedWdBranches, repo.Branches.Select(b => b.Name).ToArray());
             }
@@ -208,6 +213,7 @@ namespace LibGit2Sharp.Tests
                                                               {
                                                                   new { Name = "diff-test-cases", Sha = "e7039e6d0e7dd4d4c1e2e8e5aa5306b2776436ca", IsRemote = false },
                                                                   new { Name = "i-do-numbers", Sha = "7252fe2da2c4dd6d85231a150d0485ec46abaa7a", IsRemote = false },
+                                                                  new { Name = "logo", Sha = "f37d751802fa49ac4b6abd21d8298fc5a20231ea", IsRemote = false },
                                                                   new { Name = "master", Sha = "32eab9cb1f450b5fe7ab663462b77d7f4b703344", IsRemote = false },
                                                                   new { Name = "track-local", Sha = "580c2111be43802dab11328176d94c391f1deae9", IsRemote = false },
                                                                   new { Name = "origin/HEAD", Sha = "580c2111be43802dab11328176d94c391f1deae9", IsRemote = true },

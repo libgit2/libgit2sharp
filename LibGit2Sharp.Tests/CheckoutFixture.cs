@@ -573,6 +573,33 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        [Fact]
+        public void CheckingOutABranchDoesNotAlterBinaryFiles()
+        {
+            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                // $ git hash-object azure3.png
+                // be5028b2f245165f015927020e41247f8a3c0dfe
+                const string expectedSha = "be5028b2f245165f015927020e41247f8a3c0dfe";
+
+                // The blob actually exists in the object database with the correct Sha
+                Assert.Equal(expectedSha, repo.Lookup<Blob>(expectedSha).Sha);
+
+                repo.Checkout("refs/heads/logo",
+                    CheckoutOptions.Force, null);
+
+                // The Index has been updated as well with the blob
+                Assert.Equal(expectedSha, repo.Index["azure3.png"].Id.Sha);
+
+                // Recreating a Blob from the checked out file...
+                Blob blob = repo.ObjectDatabase.CreateBlob("azure3.png");
+
+                // ...generates the same Sha
+                Assert.Equal(expectedSha, blob.Id.Sha);
+            }
+        }
+
         /// <summary>
         ///   Helper method to populate a simple repository with
         ///   a single file and two branches.
