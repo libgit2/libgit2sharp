@@ -90,6 +90,9 @@ namespace LibGit2Sharp.Core
                 case (int)GitErrorCode.UnmergedEntries:
                     throw new UnmergedIndexEntriesException(errorMessage, (GitErrorCode)result, error.Category);
 
+                case (int)GitErrorCode.MergeConflict:
+                    throw new MergeConflictException(errorMessage, (GitErrorCode)result, error.Category);
+
                 default:
                     throw new LibGit2SharpException(errorMessage, (GitErrorCode)result, error.Category);
             }

@@ -56,6 +56,11 @@
         InvalidSpecification = -12,
 
         /// <summary>
+        ///   A conflicting change has been detected.
+        /// </summary>
+        MergeConflict = -13,
+
+        /// <summary>
         ///   Skip and passthrough the given ODB backend.
         /// </summary>
         PassThrough = -30,

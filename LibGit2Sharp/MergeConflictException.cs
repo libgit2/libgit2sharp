@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Runtime.Serialization;
+using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
 {
     /// <summary>
-    ///   The exception that is thrown when there is a conflict merging changes.
+    ///   The exception that is thrown when a merge cannot be performed because
+    ///   of a conflicting change.
     /// </summary>
     [Serializable]
     public class MergeConflictException : LibGit2SharpException
@@ -42,6 +44,11 @@ namespace LibGit2Sharp
         /// <param name = "context">The <see cref="StreamingContext"/> that contains contextual information about the source or destination.</param>
         protected MergeConflictException(SerializationInfo info, StreamingContext context)
             : base(info, context)
+        {
+        }
+
+        internal MergeConflictException(string message, GitErrorCode code, GitErrorCategory category)
+            : base(message, code, category)
         {
         }
     }
