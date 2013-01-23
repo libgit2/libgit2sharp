@@ -142,9 +142,11 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.Bool)] bool force);
 
         [DllImport(libgit2)]
-        internal static extern int git_branch_tracking(
-            out ReferenceSafeHandle reference,
-            ReferenceSafeHandle branch);
+        internal static extern int git_branch_tracking_name(
+            byte[] tracking_branch_name_out, // NB: This is more properly a StringBuilder, but it's UTF8
+            UIntPtr buffer_size,
+            RepositorySafeHandle repo,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string referenceName);
 
         [DllImport(libgit2)]
         internal static extern int git_checkout_tree(

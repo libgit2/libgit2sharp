@@ -214,24 +214,26 @@ namespace LibGit2Sharp
 
         private Branch ResolveTrackedBranch()
         {
-            using (ReferenceSafeHandle branchPtr = repo.Refs.RetrieveReferencePtr(CanonicalName, false))
+            if (IsRemote)
             {
-                if (branchPtr == null)
-                {
-                    return null;
-                }
-
-                using (ReferenceSafeHandle referencePtr = Proxy.git_branch_tracking(branchPtr))
-                {
-                    if (referencePtr == null)
-                    {
-                        return null;
-                    }
-
-                    var reference = Reference.BuildFromPtr<Reference>(referencePtr, repo);
-                    return repo.Branches[reference.CanonicalName];
-                }
+                return null;
             }
+
+            string trackedReferenceName = Proxy.git_branch_tracking_name(repo.Handle, CanonicalName);
+
+            if (trackedReferenceName == null)
+            {
+                return null;
+            }
+
+            Branch branch = repo.Branches[trackedReferenceName];
+
+            if (branch != null)
+            {
+                return branch;
+            }
+
+            return new Branch(repo, new VoidReference(trackedReferenceName), trackedReferenceName);
         }
 
         private static bool IsRemoteBranch(string canonicalName)

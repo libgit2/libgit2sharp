@@ -603,5 +603,24 @@ namespace LibGit2Sharp.Tests
                 Assert.Null(repo.Head.TrackedBranch);
             }
         }
+
+        [Fact]
+        public void RemoteBranchesDoNotTrackAnything()
+        {
+            using (var repo = new Repository(StandardTestRepoPath))
+            {
+                var branches = repo.Branches.Where(b => b.IsRemote);
+
+                foreach (var branch in branches)
+                {
+                    Assert.True(branch.IsRemote);
+                    Assert.Null(branch.Remote);
+                    Assert.False(branch.IsTracking);
+                    Assert.Null(branch.TrackedBranch);
+                    Assert.Null(branch.AheadBy);
+                    Assert.Null(branch.BehindBy);
+                }
+            }
+        }
     }
 }

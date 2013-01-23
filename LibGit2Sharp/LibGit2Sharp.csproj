@@ -209,6 +209,7 @@
     <Compile Include="TreeDefinition.cs" />
     <Compile Include="TreeEntry.cs" />
     <Compile Include="TreeEntryDefinition.cs" />
+    <Compile Include="VoidReference.cs" />
   </ItemGroup>
   <ItemGroup>
     <CodeAnalysisDictionary Include="CustomDictionary.xml" />
