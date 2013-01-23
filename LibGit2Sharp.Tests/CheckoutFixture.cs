@@ -291,6 +291,19 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
+        public void CheckingOutAgainstAnUnbornBranchThrows()
+        {
+            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+
+            using (var repo = Repository.Init(scd.DirectoryPath))
+            {
+                Assert.True(repo.Info.IsHeadOrphaned);
+
+                Assert.Throws<OrphanedHeadException>(() => repo.Checkout(repo.Head));
+            }
+        }
+
+        [Fact]
         public void CheckingOutANonExistingBranchThrows()
         {
             using (var repo = new Repository(StandardTestRepoWorkingDirPath))

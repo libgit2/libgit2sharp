@@ -530,9 +530,10 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(branch, "branch");
 
             // Make sure this is not an unborn branch.
-            if (branch.Tip.Tree == null)
+            if (branch.Tip == null)
             {
-                throw new Exception("branch tip is null, nothing to checkout.");
+                throw new OrphanedHeadException(
+                    string.Format("The tip of branch '{0}' is null. There's nothing to checkout.", branch.Name));
             }
 
             CheckoutTree(branch.Tip.Tree, checkoutOptions, onCheckoutProgress);
