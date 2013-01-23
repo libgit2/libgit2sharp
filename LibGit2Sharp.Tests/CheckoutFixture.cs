@@ -526,13 +526,17 @@ namespace LibGit2Sharp.Tests
                 repo.Index.Stage(fullPath);
                 repo.Commit("2nd commit", Constants.Signature, Constants.Signature);
 
+                Assert.False(repo.Info.IsHeadDetached);
+
                 initial.Checkout();
 
                 // Head should point at initial commit.
                 Assert.Equal(repo.Head.Tip, initialCommit);
                 Assert.False(repo.Index.RetrieveStatus().IsDirty);
+
                 // Verify that HEAD is detached.
                 Assert.Equal(repo.Refs["HEAD"].TargetIdentifier, initial.Tip.Sha);
+                Assert.True(repo.Info.IsHeadDetached);
             }
         }
 
@@ -552,7 +556,7 @@ namespace LibGit2Sharp.Tests
 
                 // Verify that HEAD is detached.
                 Assert.Equal(repo.Refs["HEAD"].TargetIdentifier, repo.Branches["origin/master"].Tip.Sha);
-
+                Assert.True(repo.Info.IsHeadDetached);
             }
         }
 
