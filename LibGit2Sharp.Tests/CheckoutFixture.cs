@@ -579,21 +579,20 @@ namespace LibGit2Sharp.Tests
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
             using (var repo = new Repository(path.RepositoryPath))
             {
-                // $ git hash-object azure3.png
-                // be5028b2f245165f015927020e41247f8a3c0dfe
-                const string expectedSha = "be5028b2f245165f015927020e41247f8a3c0dfe";
+                // $ git hash-object square-logo.png
+                // b758c5bc1c8117c2a4c545dae2903e36360501c5
+                const string expectedSha = "b758c5bc1c8117c2a4c545dae2903e36360501c5";
 
                 // The blob actually exists in the object database with the correct Sha
                 Assert.Equal(expectedSha, repo.Lookup<Blob>(expectedSha).Sha);
 
-                repo.Checkout("refs/heads/logo",
-                    CheckoutOptions.Force, null);
+                repo.Checkout("refs/heads/logo", CheckoutOptions.Force, null);
 
                 // The Index has been updated as well with the blob
-                Assert.Equal(expectedSha, repo.Index["azure3.png"].Id.Sha);
+                Assert.Equal(expectedSha, repo.Index["square-logo.png"].Id.Sha);
 
                 // Recreating a Blob from the checked out file...
-                Blob blob = repo.ObjectDatabase.CreateBlob("azure3.png");
+                Blob blob = repo.ObjectDatabase.CreateBlob("square-logo.png");
 
                 // ...generates the same Sha
                 Assert.Equal(expectedSha, blob.Id.Sha);
