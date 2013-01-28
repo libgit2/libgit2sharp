@@ -92,6 +92,7 @@
     <Compile Include="Handlers.cs" />
     <Compile Include="Ignore.cs" />
     <Compile Include="MergeConflictException.cs" />
+    <Compile Include="MergeHead.cs" />
     <Compile Include="NameConflictException.cs" />
     <Compile Include="ReferenceCollectionExtensions.cs" />
     <Compile Include="Core\GitRemoteCallbacks.cs" />
@@ -208,6 +209,7 @@
     <Compile Include="TreeDefinition.cs" />
     <Compile Include="TreeEntry.cs" />
     <Compile Include="TreeEntryDefinition.cs" />
+    <Compile Include="VoidReference.cs" />
   </ItemGroup>
   <ItemGroup>
     <CodeAnalysisDictionary Include="CustomDictionary.xml" />

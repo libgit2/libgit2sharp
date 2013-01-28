@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
@@ -601,6 +602,56 @@ namespace LibGit2Sharp.Tests
 
                 Assert.False(repo.Head.IsTracking);
                 Assert.Null(repo.Head.TrackedBranch);
+            }
+        }
+
+        [Fact]
+        public void TrackedBranchExistsFromDefaultConfigInEmptyClone()
+        {
+            SelfCleaningDirectory scd1 = BuildSelfCleaningDirectory();
+
+            Uri uri;
+            using (var emptyRepo = Repository.Init(scd1.DirectoryPath, true))
+            {
+                uri = new Uri(emptyRepo.Info.Path);
+            }
+
+            SelfCleaningDirectory scd2 = BuildSelfCleaningDirectory();
+            using (Repository repo = Repository.Clone(uri.AbsoluteUri, scd2.RootedDirectoryPath))
+            {
+                Assert.Empty(Directory.GetFiles(scd2.RootedDirectoryPath));
+                Assert.Equal(repo.Head.Name, "master");
+                Assert.Null(repo.Head.Tip);
+                Assert.NotNull(repo.Head.TrackedBranch);
+
+                Assert.NotNull(repo.Head.Remote);
+                Assert.Equal("origin", repo.Head.Remote.Name);
+
+                File.WriteAllText(Path.Combine(scd2.RootedDirectoryPath, "a.txt"), "a");
+                repo.Index.Stage("a.txt");
+                repo.Commit("A file", DummySignature, DummySignature);
+
+                Assert.NotNull(repo.Head.Tip);
+                Assert.NotNull(repo.Head.TrackedBranch);
+            }
+        }
+
+        [Fact]
+        public void RemoteBranchesDoNotTrackAnything()
+        {
+            using (var repo = new Repository(StandardTestRepoPath))
+            {
+                var branches = repo.Branches.Where(b => b.IsRemote);
+
+                foreach (var branch in branches)
+                {
+                    Assert.True(branch.IsRemote);
+                    Assert.Null(branch.Remote);
+                    Assert.False(branch.IsTracking);
+                    Assert.Null(branch.TrackedBranch);
+                    Assert.Null(branch.AheadBy);
+                    Assert.Null(branch.BehindBy);
+                }
             }
         }
     }

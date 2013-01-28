@@ -5,7 +5,6 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Compat;
@@ -630,7 +629,11 @@ namespace LibGit2Sharp
 
             var parents = RetrieveParentsOfTheCommitBeingCreated(amendPreviousCommit);
 
-            return ObjectDatabase.CreateCommit(message, author, committer, tree, parents, "HEAD");
+            Commit result = ObjectDatabase.CreateCommit(message, author, committer, tree, parents, "HEAD");
+
+            Proxy.git_repository_merge_cleanup(handle);
+
+            return result;
         }
 
         private IEnumerable<Commit> RetrieveParentsOfTheCommitBeingCreated(bool amendPreviousCommit)
@@ -645,7 +648,14 @@ namespace LibGit2Sharp
                 return Enumerable.Empty<Commit>();
             }
 
-            return new[] { Head.Tip };
+            var parents = new List<Commit> { Head.Tip };
+
+            if (Info.CurrentOperation == CurrentOperation.Merge)
+            {
+                parents.AddRange(MergeHeads.Select(mh => mh.Tip));
+            }
+
+            return parents;
         }
 
         /// <summary>
@@ -706,6 +716,19 @@ namespace LibGit2Sharp
             using (var sr = new StreamReader(assembly.GetManifestResourceStream(name)))
             {
                 return sr.ReadLine();
+            }
+        }
+
+        /// <summary>
+        ///   Gets the references to the tips that are currently being merged.
+        /// </summary>
+        public virtual IEnumerable<MergeHead> MergeHeads
+        {
+            get
+            {
+                int i = 0;
+                return Proxy.git_repository_mergehead_foreach(Handle,
+                    commitId => new MergeHead(this, new ObjectId(commitId), i++));
             }
         }
 

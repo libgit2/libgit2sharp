@@ -148,21 +148,27 @@ namespace LibGit2Sharp.Core
             }
         }
 
-        public static ReferenceSafeHandle git_branch_tracking(ReferenceSafeHandle branch)
+        public static string git_branch_tracking_name(RepositorySafeHandle handle, string canonicalReferenceName)
         {
             using (ThreadAffinity())
             {
-                ReferenceSafeHandle reference;
-                int res = NativeMethods.git_branch_tracking(out reference, branch);
+                int bufSize = NativeMethods.git_branch_tracking_name(
+                    null, UIntPtr.Zero, handle, canonicalReferenceName);
 
-                if (res == (int)GitErrorCode.NotFound)
+                if (bufSize == (int)GitErrorCode.NotFound)
                 {
                     return null;
                 }
 
-                Ensure.Success(res);
+                Ensure.Success(bufSize, true);
 
-                return reference;
+                var buffer = new byte[bufSize];
+
+                int res = NativeMethods.git_branch_tracking_name(
+                    buffer, (UIntPtr)buffer.Length, handle, canonicalReferenceName);
+                Ensure.Success(res, true);
+
+                return Utf8Marshaler.Utf8FromBuffer(buffer);
             }
         }
 
@@ -1382,6 +1388,26 @@ namespace LibGit2Sharp.Core
         public static bool git_repository_is_empty(RepositorySafeHandle repo)
         {
             return RepositoryStateChecker(repo, NativeMethods.git_repository_is_empty);
+        }
+
+        public static void git_repository_merge_cleanup(RepositorySafeHandle repo)
+        {
+            using (ThreadAffinity())
+            {
+                int res = NativeMethods.git_repository_merge_cleanup(repo);
+                Ensure.Success(res);
+            }
+        }
+
+        public static ICollection<TResult> git_repository_mergehead_foreach<TResult>(
+            RepositorySafeHandle repo,
+            Func<GitOid, TResult> resultSelector)
+        {
+            return git_foreach(
+                resultSelector,
+                c => NativeMethods.git_repository_mergehead_foreach(
+                    repo, (ref GitOid x, IntPtr p) => c(x, p), IntPtr.Zero),
+                GitErrorCode.NotFound);
         }
 
         public static ObjectDatabaseSafeHandle git_repository_odb(RepositorySafeHandle repo)
