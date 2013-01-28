@@ -10,7 +10,15 @@ namespace LibGit2Sharp.Tests
 {
     public class MetaFixture
     {
-        private static readonly Type[] excludedTypes = new[] { typeof(Repository) };
+        private static readonly Type[] excludedTypes = new[]
+        {
+            typeof(Credentials),
+            typeof(Filter),
+            typeof(ObjectId),
+            typeof(Repository),
+            typeof(RepositoryOptions),
+            typeof(Signature),
+        };
 
         // Related to https://github.com/libgit2/libgit2sharp/pull/251
         [Fact]
@@ -59,18 +67,12 @@ namespace LibGit2Sharp.Tests
             var nonTestableTypes = new Dictionary<Type, IEnumerable<string>>();
 
             IEnumerable<Type> libGit2SharpTypes = Assembly.GetAssembly(typeof(Repository)).GetExportedTypes()
-                .Where(t => !excludedTypes.Contains(t) && t.Namespace == typeof(Repository).Namespace);
+                .Where(t => !excludedTypes.Contains(t) && t.Namespace == typeof(Repository).Namespace && !t.IsSubclassOf(typeof(Delegate)));
 
             foreach (Type type in libGit2SharpTypes)
             {
                 if (type.IsInterface || type.IsEnum || IsStatic(type))
                     continue;
-
-                ConstructorInfo[] publicConstructor = type.GetConstructors(BindingFlags.Public | BindingFlags.Instance);
-                if (publicConstructor.Any())
-                {
-                    continue;
-                }
 
                 var nonVirtualMethodNamesForType = GetNonVirtualPublicMethodsNames(type).ToList();
                 if (nonVirtualMethodNamesForType.Any())
@@ -79,7 +81,7 @@ namespace LibGit2Sharp.Tests
                     continue;
                 }
 
-                if (!HasEmptyProtectedConstructor(type))
+                if (!HasEmptyPublicOrProtectedConstructor(type))
                 {
                     nonTestableTypes.Add(type, new List<string>());
                 }
@@ -131,11 +133,11 @@ namespace LibGit2Sharp.Tests
             return from mi in publicMethods where !mi.IsVirtual && !mi.IsStatic select mi.ToString();
         }
 
-        private static bool HasEmptyProtectedConstructor(Type type)
+        private static bool HasEmptyPublicOrProtectedConstructor(Type type)
         {
-            ConstructorInfo[] nonPublicConstructors = type.GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance);
-            
-            return nonPublicConstructors.Any(ci => !ci.IsPrivate && !ci.IsAssembly && !ci.IsFinal && !ci.GetParameters().Any());
+            ConstructorInfo[] constructors = type.GetConstructors(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+
+            return constructors.Any(ci => ci.GetParameters().Length == 0 && (ci.IsPublic || ci.IsFamily || ci.IsFamilyOrAssembly));
         }
 
         private static bool IsStatic(Type type)

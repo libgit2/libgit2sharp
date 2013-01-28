@@ -51,7 +51,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="treeEntryPath">The path within this <see cref="TreeDefinition"/>.</param>
         /// <returns>The current <see cref="TreeDefinition"/>.</returns>
-        public TreeDefinition Remove(string treeEntryPath)
+        public virtual TreeDefinition Remove(string treeEntryPath)
         {
             Ensure.ArgumentNotNullOrEmptyString(treeEntryPath, "treeEntryPath");
 
@@ -92,7 +92,7 @@ namespace LibGit2Sharp
         /// <param name="targetTreeEntryPath">The path within this <see cref="TreeDefinition"/>.</param>
         /// <param name="treeEntryDefinition">The <see cref="TreeEntryDefinition"/> to be stored at the described location.</param>
         /// <returns>The current <see cref="TreeDefinition"/>.</returns>
-        public TreeDefinition Add(string targetTreeEntryPath, TreeEntryDefinition treeEntryDefinition)
+        public virtual TreeDefinition Add(string targetTreeEntryPath, TreeEntryDefinition treeEntryDefinition)
         {
             Ensure.ArgumentNotNullOrEmptyString(targetTreeEntryPath, "targetTreeEntryPath");
             Ensure.ArgumentNotNull(treeEntryDefinition, "treeEntryDefinition");
@@ -132,7 +132,7 @@ namespace LibGit2Sharp
         /// <param name="blob">The <see cref="Blob"/> to be stored at the described location.</param>
         /// <param name="mode">The file related <see cref="Mode"/> attributes.</param>
         /// <returns>The current <see cref="TreeDefinition"/>.</returns>
-        public TreeDefinition Add(string targetTreeEntryPath, Blob blob, Mode mode)
+        public virtual TreeDefinition Add(string targetTreeEntryPath, Blob blob, Mode mode)
         {
             Ensure.ArgumentNotNull(blob, "blob");
             Ensure.ArgumentConformsTo(mode,
@@ -151,7 +151,7 @@ namespace LibGit2Sharp
         /// <see cref="Repository" /> is a standard, non-bare, repository. The path will then be considered as a path relative to the root of the working directory.</param>
         /// <param name="mode">The file related <see cref="Mode"/> attributes.</param>
         /// <returns>The current <see cref="TreeDefinition"/>.</returns>
-        public TreeDefinition Add(string targetTreeEntryPath, string filePath, Mode mode)
+        public virtual TreeDefinition Add(string targetTreeEntryPath, string filePath, Mode mode)
         {
             Ensure.ArgumentNotNullOrEmptyString(filePath, "filePath");
 
@@ -166,7 +166,7 @@ namespace LibGit2Sharp
         /// <param name="targetTreeEntryPath">The path within this <see cref="TreeDefinition"/>.</param>
         /// <param name="tree">The <see cref="Tree"/> to be stored at the described location.</param>
         /// <returns>The current <see cref="TreeDefinition"/>.</returns>
-        public TreeDefinition Add(string targetTreeEntryPath, Tree tree)
+        public virtual TreeDefinition Add(string targetTreeEntryPath, Tree tree)
         {
             Ensure.ArgumentNotNull(tree, "tree");
 
@@ -281,7 +281,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="treeEntryPath">The path within this <see cref="TreeDefinition"/>.</param>
         /// <returns>The found <see cref="TreeEntryDefinition"/> if any; null otherwise.</returns>
-        public TreeEntryDefinition this[string treeEntryPath]
+        public virtual TreeEntryDefinition this[string treeEntryPath]
         {
             get
             {
