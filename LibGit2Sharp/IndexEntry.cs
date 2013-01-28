@@ -22,7 +22,7 @@ namespace LibGit2Sharp
         ///   compared against the <see cref = "Blob" /> known from the <see cref = "Repository.Head" /> and the file in the working directory.
         /// </summary>
         [Obsolete("This method will be removed in the next release. Please use Repository.Index.RetrieveStatus(filePath) overload instead.")]
-        public FileStatus State
+        public virtual FileStatus State
         {
             get { return state(); }
         }
@@ -30,22 +30,22 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Gets the relative path to the file within the working directory.
         /// </summary>
-        public string Path { get; private set; }
+        public virtual string Path { get; private set; }
 
         /// <summary>
         ///   Gets the file mode.
         /// </summary>
-        public Mode Mode { get; private set; }
+        public virtual Mode Mode { get; private set; }
 
         /// <summary>
         ///   Gets the stage number.
         /// </summary>
-        public StageLevel StageLevel { get; private set; }
+        public virtual StageLevel StageLevel { get; private set; }
 
         /// <summary>
         ///   Gets the id of the <see cref = "Blob" /> pointed at by this index entry.
         /// </summary>
-        public ObjectId Id { get; private set; }
+        public virtual ObjectId Id { get; private set; }
 
         internal static IndexEntry BuildFromPtr(Repository repo, IndexEntrySafeHandle handle)
         {
