@@ -65,6 +65,7 @@
     <Compile Include="Changes.cs" />
     <Compile Include="CheckoutCallbacks.cs" />
     <Compile Include="CheckoutOptions.cs" />
+    <Compile Include="Network.cs" />
     <Compile Include="OrphanedHeadException.cs" />
     <Compile Include="UnmergedIndexEntriesException.cs" />
     <Compile Include="Commit.cs" />
@@ -89,6 +90,7 @@
     <Compile Include="Credentials.cs" />
     <Compile Include="DiffOptions.cs" />
     <Compile Include="DiffTargets.cs" />
+    <Compile Include="FetchHead.cs" />
     <Compile Include="Handlers.cs" />
     <Compile Include="Ignore.cs" />
     <Compile Include="MergeConflictException.cs" />

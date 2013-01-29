@@ -31,6 +31,7 @@ namespace LibGit2Sharp
         private readonly Diff diff;
         private readonly NoteCollection notes;
         private readonly Lazy<ObjectDatabase> odb;
+        private readonly Network network;
         private readonly Stack<IDisposable> toCleanup = new Stack<IDisposable>();
         private readonly Ignore ignore;
         private static readonly Lazy<string> versionRetriever = new Lazy<string>(RetrieveVersion);
@@ -104,6 +105,7 @@ namespace LibGit2Sharp
             diff = new Diff(this);
             notes = new NoteCollection(this);
             ignore = new Ignore(this);
+            network = new Network(this);
 
             EagerlyLoadTheConfigIfAnyPathHaveBeenPassed(options);
         }
@@ -195,6 +197,17 @@ namespace LibGit2Sharp
             get
             {
                 return ignore;
+            }
+        }
+
+        /// <summary>
+        ///   Provides access to network functionality for a repository.
+        /// </summary>
+        public Network Network
+        {
+            get
+            {
+                return network;
             }
         }
 

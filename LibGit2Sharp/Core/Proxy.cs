@@ -1346,6 +1346,19 @@ namespace LibGit2Sharp.Core
             return RepositoryStateChecker(repo, NativeMethods.git_repository_head_detached);
         }
 
+        public static ICollection<TResult> git_repository_fetchhead_foreach<TResult>(
+            RepositorySafeHandle repo,
+            Func<string, string, GitOid, bool, TResult> resultSelector)
+        {
+            return git_foreach(
+                resultSelector,
+                c => NativeMethods.git_repository_fetchhead_foreach(
+                    repo,
+                    (IntPtr w, IntPtr x, ref GitOid y, bool z, IntPtr p)
+                        => c(Utf8Marshaler.FromNative(w), Utf8Marshaler.FromNative(x), y, z, p), IntPtr.Zero),
+                    GitErrorCode.NotFound);
+        }
+
         public static void git_repository_free(IntPtr repo)
         {
             NativeMethods.git_repository_free(repo);
@@ -1871,6 +1884,32 @@ namespace LibGit2Sharp.Core
                                            result.Add(resultSelector(x, y));
                                            return 0;
                                        });
+
+                if (ignoredErrorCodes != null && ignoredErrorCodes.Contains((GitErrorCode)res))
+                {
+                    return new TResult[0];
+                }
+
+                Ensure.Success(res);
+                return result;
+            }
+        }
+
+        public delegate TResult Func<T1, T2, T3, T4, T5, TResult>(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5);
+
+        private static ICollection<TResult> git_foreach<T1, T2, T3, T4, TResult>(
+            Func<T1, T2, T3, T4, TResult> resultSelector,
+            Func<Func<T1, T2, T3, T4, IntPtr, int>, int> iterator,
+            params GitErrorCode[] ignoredErrorCodes)
+        {
+            using (ThreadAffinity())
+            {
+                var result = new List<TResult>();
+                var res = iterator((w, x, y, z, payload) =>
+                {
+                    result.Add(resultSelector(w, x, y, z));
+                    return 0;
+                });
 
                 if (ignoredErrorCodes != null && ignoredErrorCodes.Contains((GitErrorCode)res))
                 {

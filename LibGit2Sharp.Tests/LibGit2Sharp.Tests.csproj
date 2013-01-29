@@ -60,6 +60,7 @@
     <Compile Include="CheckoutFixture.cs" />
     <Compile Include="CloneFixture.cs" />
     <Compile Include="IgnoreFixture.cs" />
+    <Compile Include="FetchHeadFixture.cs" />
     <Compile Include="MergeFixture.cs" />
     <Compile Include="CleanFixture.cs" />
     <Compile Include="CurrentOperationFixture.cs" />
