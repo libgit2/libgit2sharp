@@ -123,36 +123,6 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Show changes between a <see cref = "Tree"/> and a selectable target.
-        /// </summary>
-        /// <param name = "oldTree">The <see cref = "Tree"/> to compare from.</param>
-        /// <param name = "diffTarget">The target to compare to.</param>
-        /// <param name = "paths">The list of paths (either files or directories) that should be compared.</param>
-        /// <returns>A <see cref = "TreeChanges"/> containing the changes between the <see cref="Tree"/> and the selected target.</returns>
-        [Obsolete("This method will be removed in the next release. Please use Compare(Tree, DiffTargets, IEnumerable<string>) instead.")]
-        public virtual TreeChanges Compare(Tree oldTree, DiffTarget diffTarget, IEnumerable<string> paths = null)
-        {
-            DiffTargets targets;
-
-            switch (diffTarget)
-            {
-                case DiffTarget.Index:
-                    targets = DiffTargets.Index;
-                    break;
-
-                case DiffTarget.WorkingDirectory:
-                    targets = DiffTargets.WorkingDirectory;
-                    break;
-
-                default:
-                    targets = DiffTargets.Index | DiffTargets.WorkingDirectory;
-                    break;
-            }
-
-            return Compare(oldTree, targets, paths);
-        }
-
-        /// <summary>
         ///   Show changes between a <see cref = "Tree"/> and the Index, the Working Directory, or both.
         /// </summary>
         /// <param name = "oldTree">The <see cref = "Tree"/> to compare from.</param>
