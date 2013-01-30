@@ -1,4 +1,4 @@
-# LibGit2Sharp Changelog
+# LibGit2Sharp Changes
 
 **LibGit2Sharp brings all the might and speed of libgit2, a native Git implementation, to the managed world of .Net and Mono.**
 
