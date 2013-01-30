@@ -11,7 +11,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   The file doesn't exist.
         /// </summary>
-        Nonexistent = -1, /* GIT_STATUS_NOTFOUND */
+        Nonexistent = (1 << 31),
 
         /// <summary>
         ///   The file hasn't been modified.
