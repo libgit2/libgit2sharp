@@ -13,10 +13,12 @@
     <tags>libgit2 git wrapper bindings API dvcs vcs</tags>
   </metadata>
   <files>
-    <file src="..\Lib\NativeBinaries\**" target="NativeBinaries" />
+    <file src="..\Lib\NativeBinaries\**\*.dll" target="NativeBinaries" />
+    <file src="..\Lib\NativeBinaries\**\*.pdb" target="NativeBinaries" />
     <file src="..\README.md" target="App_Readme\LibGit2Sharp.README.md" />
     <file src="..\LICENSE.md" target="App_Readme\LibGit2Sharp.LICENSE.md" />
     <file src="..\CHANGES.md" target="App_Readme\LibGit2Sharp.CHANGES.md" />
     <file src="..\nuget.package\Tools\*.*" target="Tools" />
+    <file src="..\Lib\NativeBinaries\libgit2.license.txt" target="App_Readme" />
   </files>
 </package>
