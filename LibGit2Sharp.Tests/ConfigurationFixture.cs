@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
@@ -163,6 +164,18 @@ namespace LibGit2Sharp.Tests
                 var entry = repo.Config.FirstOrDefault<ConfigurationEntry<string>>(e => e.Key == "core.ignorecase");
                 Assert.NotNull(entry);
                 Assert.Equal("true", entry.Value);
+            }
+        }
+
+        [Fact]
+        public void CanEnumerateLocalConfigContainingAKeyWithNoValue()
+        {
+            using (var repo = new Repository(BareTestRepoPath))
+            {
+                var entry = repo.Config
+                    .Single<ConfigurationEntry<string>>(c => c.Level == ConfigurationLevel.Local && c.Key == "core.pager");
+
+                Assert.Equal(string.Empty, entry.Value);
             }
         }
 

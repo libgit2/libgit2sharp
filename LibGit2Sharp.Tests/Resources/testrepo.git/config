@@ -1,3 +1,4 @@
 [core]
 	repositoryformatversion = 0
 	bare = true
+	pager = 
