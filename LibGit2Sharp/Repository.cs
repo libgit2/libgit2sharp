@@ -28,6 +28,7 @@ namespace LibGit2Sharp
         private readonly ConflictCollection conflicts;
         private readonly ReferenceCollection refs;
         private readonly TagCollection tags;
+        private readonly StashCollection stashes;
         private readonly Lazy<RepositoryInformation> info;
         private readonly Diff diff;
         private readonly NoteCollection notes;
@@ -103,6 +104,7 @@ namespace LibGit2Sharp
                 refs = new ReferenceCollection(this);
                 branches = new BranchCollection(this);
                 tags = new TagCollection(this);
+                stashes = new StashCollection(this);
                 info = new Lazy<RepositoryInformation>(() => new RepositoryInformation(this, isBare));
                 config =
                     new Lazy<Configuration>(
@@ -284,6 +286,14 @@ namespace LibGit2Sharp
         public TagCollection Tags
         {
             get { return tags; }
+        }
+
+        ///<summary>
+        /// Lookup and enumerate stashes in the repository.
+        ///</summary>
+        public StashCollection Stashes
+        {
+            get { return stashes; }
         }
 
         /// <summary>

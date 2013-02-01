@@ -58,6 +58,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CheckoutFixture.cs" />
+    <Compile Include="StashFixture.cs" />
     <Compile Include="CloneFixture.cs" />
     <Compile Include="ConflictFixture.cs" />
     <Compile Include="IgnoreFixture.cs" />

@@ -1747,6 +1747,33 @@ namespace LibGit2Sharp.Core
 
         #endregion
 
+        #region git_stash_
+
+        public static ObjectId git_stash_save(
+            RepositorySafeHandle repo,
+            Signature stasher,
+            string prettifiedMessage,
+            StashOptions options)
+        {
+            using (ThreadAffinity())
+            using (SignatureSafeHandle stasherHandle = stasher.BuildHandle())
+            {
+                GitOid stashOid;
+
+                int res = NativeMethods.git_stash_save(out stashOid, repo, stasherHandle, prettifiedMessage, options);
+
+                if (res == (int)GitErrorCode.NotFound)
+                {
+                    return null;
+                }
+
+                Ensure.Int32Result(res);
+
+                return new ObjectId(stashOid);
+            }
+        }
+        #endregion
+
         #region git_status_
 
         public static FileStatus git_status_file(RepositorySafeHandle repo, FilePath path)
