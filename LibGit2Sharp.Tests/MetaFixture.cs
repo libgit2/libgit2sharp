@@ -93,6 +93,25 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        [Fact]
+        public void EnumsWithFlagsHaveMutuallyExclusiveValues()
+        {
+            var flagsEnums = Assembly.GetAssembly(typeof(Repository)).GetExportedTypes()
+                                     .Where(t => t.IsEnum && t.GetCustomAttributes(typeof(FlagsAttribute), false).Any());
+
+            var overlaps = from t in flagsEnums
+                           from int x in Enum.GetValues(t)
+                           where x != 0
+                           from int y in Enum.GetValues(t)
+                           where y != 0
+                           where x != y && (x & y) == y
+                           select string.Format("{0}.{1} overlaps with {0}.{2}", t.Name, Enum.ToObject(t, x), Enum.ToObject(t, y));
+
+            var message = string.Join(Environment.NewLine, overlaps.ToArray());
+
+            Assert.Equal("", message);
+        }
+
         private string BuildMissingDebuggerDisplayPropertyMessage(IEnumerable<Type> typesWithDebuggerDisplayAndInvalidImplPattern)
         {
             var sb = new StringBuilder();
