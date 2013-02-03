@@ -10,21 +10,6 @@ namespace LibGit2Sharp.Tests
     public class StatusFixture : BaseFixture
     {
         [Fact]
-        public void FileStatusFlagsAreMutuallyExclusive()
-        {
-            var overlaps = from FileStatus x in Enum.GetValues(typeof(FileStatus))
-                           where x != default(FileStatus)
-                           from FileStatus y in Enum.GetValues(typeof(FileStatus))
-                           where y != default(FileStatus)
-                           where x != y && (x & y) == y
-                           select string.Format("{0} overlaps with {1}", x, y);
-
-            var message = string.Join(Environment.NewLine, overlaps.ToArray());
-
-            Assert.Equal("", message);
-        }
-
-        [Fact]
         public void CanRetrieveTheStatusOfAFile()
         {
             using (var repo = new Repository(StandardTestRepoPath))
