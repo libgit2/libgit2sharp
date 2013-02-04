@@ -564,6 +564,37 @@ namespace LibGit2Sharp.Core
         internal static extern GitObjectType git_object_type(GitObjectSafeHandle obj);
 
         [DllImport(libgit2)]
+        internal static extern int git_push_new(out PushSafeHandle push, RemoteSafeHandle remote);
+
+        [DllImport(libgit2)]
+        internal static extern int git_push_add_refspec(
+            PushSafeHandle push,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string pushRefSpec);
+
+        [DllImport(libgit2)]
+        internal static extern int git_push_finish(PushSafeHandle push);
+
+        [DllImport(libgit2)]
+        internal static extern void git_push_free(IntPtr push);
+
+        [DllImport(libgit2)]
+        internal static extern int git_push_status_foreach(
+            PushSafeHandle push,
+            push_status_foreach_cb status_cb,
+            IntPtr data);
+
+        internal delegate int push_status_foreach_cb(
+            IntPtr reference,
+            IntPtr msg,
+            IntPtr data);
+
+        [DllImport(libgit2)]
+        internal static extern int git_push_unpack_ok(PushSafeHandle push);
+
+        [DllImport(libgit2)]
+        internal static extern int git_push_update_tips(PushSafeHandle push);
+
+        [DllImport(libgit2)]
         internal static extern int git_reference_create(
             out ReferenceSafeHandle reference,
             RepositorySafeHandle repo,

@@ -1044,6 +1044,68 @@ namespace LibGit2Sharp.Core
 
         #endregion
 
+        #region git_push_
+
+        public static void git_push_add_refspec(PushSafeHandle push, string pushRefSpec)
+        {
+            using (ThreadAffinity())
+            {
+                int res = NativeMethods.git_push_add_refspec(push, pushRefSpec);
+                Ensure.Success(res);
+            }
+        }
+
+        public static void git_push_finish(PushSafeHandle push)
+        {
+            using (ThreadAffinity())
+            {
+                int res = NativeMethods.git_push_finish(push);
+                Ensure.Success(res);
+            }
+        }
+
+        public static void git_push_free(IntPtr push)
+        {
+            NativeMethods.git_push_free(push);
+        }
+
+        public static PushSafeHandle git_push_new(RemoteSafeHandle remote)
+        {
+            using (ThreadAffinity())
+            {
+                PushSafeHandle handle;
+                int res = NativeMethods.git_push_new(out handle, remote);
+                Ensure.Success(res);
+                return handle;
+            }
+        }
+
+        public static void git_push_status_foreach(PushSafeHandle push, NativeMethods.push_status_foreach_cb status_cb)
+        {
+            using (ThreadAffinity())
+            {
+                int res = NativeMethods.git_push_status_foreach(push, status_cb, IntPtr.Zero);
+                Ensure.Success(res);
+            }
+        }
+
+        public static bool git_push_unpack_ok(PushSafeHandle push)
+        {
+            int res = NativeMethods.git_push_unpack_ok(push);
+            return res == 1;
+        }
+
+        public static void git_push_update_tips(PushSafeHandle push)
+        {
+            using (ThreadAffinity())
+            {
+                int res = NativeMethods.git_push_update_tips(push);
+                Ensure.Success(res);
+            }
+        }
+
+        #endregion
+
         #region git_reference_
 
         public static ReferenceSafeHandle git_reference_create_oid(RepositorySafeHandle repo, string name, ObjectId targetId, bool allowOverwrite)
