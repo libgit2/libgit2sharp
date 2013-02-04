@@ -36,6 +36,7 @@ namespace LibGit2Sharp
         private readonly Lazy<Network> network;
         private readonly Stack<IDisposable> toCleanup = new Stack<IDisposable>();
         private readonly Ignore ignore;
+        private readonly SubmoduleCollection submodules;
         private static readonly Lazy<string> versionRetriever = new Lazy<string>(RetrieveVersion);
         private readonly Lazy<PathCase> pathCase;
 
@@ -118,6 +119,7 @@ namespace LibGit2Sharp
                 ignore = new Ignore(this);
                 network = new Lazy<Network>(() => new Network(this));
                 pathCase = new Lazy<PathCase>(() => new PathCase(this));
+                submodules = new SubmoduleCollection(this);
 
                 EagerlyLoadTheConfigIfAnyPathHaveBeenPassed(options);
             }
@@ -316,6 +318,14 @@ namespace LibGit2Sharp
         public NoteCollection Notes
         {
             get { return notes; }
+        }
+
+        /// <summary>
+        ///   Submodules in the repository.
+        /// </summary>
+        public SubmoduleCollection Submodules
+        {
+            get { return submodules; }
         }
 
         #region IDisposable Members

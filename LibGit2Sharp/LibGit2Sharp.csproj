@@ -86,6 +86,8 @@
     <Compile Include="OrphanedHeadException.cs" />
     <Compile Include="StashCollection.cs" />
     <Compile Include="ExplicitPathsOptions.cs" />
+    <Compile Include="Submodule.cs" />
+    <Compile Include="SubmoduleCollection.cs" />
     <Compile Include="SubmoduleExtensions.cs" />
     <Compile Include="SubmoduleIgnore.cs" />
     <Compile Include="SubmoduleStatus.cs" />

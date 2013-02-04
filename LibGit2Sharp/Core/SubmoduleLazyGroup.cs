@@ -15,10 +15,11 @@ namespace LibGit2Sharp.Core
 
         protected override void EvaluateInternal(Action<SubmoduleSafeHandle> evaluator)
         {
-            using (var handle = Proxy.git_submodule_lookup(repo.Handle, name))
-            {
-                evaluator(handle);
-            }
+            repo.Submodules.Lookup(name, handle =>
+                                             {
+                                                 evaluator(handle);
+                                                 return default(object);
+                                             }, true);
         }
     }
 }

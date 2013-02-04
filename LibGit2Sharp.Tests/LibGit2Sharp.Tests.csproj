@@ -66,6 +66,7 @@
     <Compile Include="StashFixture.cs" />
     <Compile Include="CloneFixture.cs" />
     <Compile Include="ConflictFixture.cs" />
+    <Compile Include="SubmoduleFixture.cs" />
     <Compile Include="IgnoreFixture.cs" />
     <Compile Include="FetchHeadFixture.cs" />
     <Compile Include="MergeFixture.cs" />

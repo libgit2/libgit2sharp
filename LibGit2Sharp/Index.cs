@@ -415,7 +415,10 @@ namespace LibGit2Sharp
 
         private void AddToIndex(string relativePath)
         {
-            Proxy.git_index_add_bypath(handle, relativePath);
+            if (!repo.Submodules.TryStage(relativePath, true))
+            {
+                Proxy.git_index_add_bypath(handle, relativePath);
+            }
         }
 
         private void RemoveFromIndex(string relativePath)

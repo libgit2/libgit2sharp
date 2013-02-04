@@ -67,6 +67,11 @@ namespace LibGit2Sharp
         NoteCollection Notes { get; }
 
         /// <summary>
+        ///   Submodules in the repository.
+        /// </summary>
+        SubmoduleCollection Submodules { get; }
+
+        /// <summary>
         ///   Checkout the specified <see cref = "Branch" />.
         /// </summary>
         /// <param name="branch">The <see cref = "Branch" /> to check out. </param>
