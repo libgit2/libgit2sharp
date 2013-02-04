@@ -190,6 +190,27 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
+        public void CanListBranchesWithRemoteAndLocalBranchWithSameShortName()
+        {
+            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
+
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                // Create a local branch with the same short name as a remote branch.
+                repo.Branches.Add("origin/master", repo.Branches["origin/test"].Tip);
+
+                var expectedWdBranches = new[]
+                                             {
+                                                 "diff-test-cases", "i-do-numbers", "logo", "master", "origin/master", "track-local",
+                                             };
+
+                Assert.Equal(expectedWdBranches, repo.Branches
+                    .Where(b => !b.IsRemote)
+                    .Select(b => b.Name).ToArray());
+            }
+        }
+
+        [Fact]
         public void CanListAllBranchesWhenGivenWorkingDir()
         {
             using (var repo = new Repository(StandardTestRepoWorkingDirPath))
