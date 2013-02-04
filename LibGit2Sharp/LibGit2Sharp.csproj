@@ -76,6 +76,7 @@
     <Compile Include="ReflogCollection.cs" />
     <Compile Include="Core\PathCase.cs" />
     <Compile Include="MatchedPathsAggregator.cs" />
+    <Compile Include="Core\Handles\SubmoduleSafeHandle.cs" />
     <Compile Include="Network.cs" />
     <Compile Include="Core\GitRemoteHead.cs" />
     <Compile Include="ReflogEntry.cs" />
@@ -84,6 +85,10 @@
     <Compile Include="OrphanedHeadException.cs" />
     <Compile Include="StashCollection.cs" />
     <Compile Include="ExplicitPathsOptions.cs" />
+    <Compile Include="SubmoduleExtensions.cs" />
+    <Compile Include="SubmoduleIgnore.cs" />
+    <Compile Include="SubmoduleStatus.cs" />
+    <Compile Include="SubmoduleUpdate.cs" />
     <Compile Include="UnmergedIndexEntriesException.cs" />
     <Compile Include="Commit.cs" />
     <Compile Include="CommitLog.cs" />

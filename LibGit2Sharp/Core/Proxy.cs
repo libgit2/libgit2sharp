@@ -1912,6 +1912,109 @@ namespace LibGit2Sharp.Core
 
         #endregion
 
+        #region git_submodule_
+
+        /// <summary>
+        ///   Returns a handle to the corresponding submodule,
+        ///   or an invalid handle if a submodule is not found.
+        /// </summary>
+        public static SubmoduleSafeHandle git_submodule_lookup(RepositorySafeHandle repo, string name)
+        {
+            using (ThreadAffinity())
+            {
+                SubmoduleSafeHandle reference;
+                var res = NativeMethods.git_submodule_lookup(out reference, repo, name);
+
+                switch (res)
+                {
+                    case (int)GitErrorCode.NotFound:
+                    case (int)GitErrorCode.Exists:
+                    case (int)GitErrorCode.OrphanedHead:
+                        return null;
+
+                    default:
+                        Ensure.ZeroResult(res);
+                        return reference;
+                }
+            }
+        }
+
+        public static ICollection<TResult> git_submodule_foreach<TResult>(RepositorySafeHandle repo, Func<IntPtr, IntPtr, TResult> resultSelector)
+        {
+            return git_foreach(resultSelector, c => NativeMethods.git_submodule_foreach(repo, (x, y, p) => c(x, y, p), IntPtr.Zero));
+        }
+
+        public static void git_submodule_add_to_index(SubmoduleSafeHandle submodule, bool write_index)
+        {
+            using (ThreadAffinity())
+            {
+                var res = NativeMethods.git_submodule_add_to_index(submodule, write_index);
+                Ensure.ZeroResult(res);
+            }
+        }
+
+        public static void git_submodule_save(SubmoduleSafeHandle submodule)
+        {
+            using (ThreadAffinity())
+            {
+                var res = NativeMethods.git_submodule_save(submodule);
+                Ensure.ZeroResult(res);
+            }
+        }
+
+        public static string git_submodule_path(SubmoduleSafeHandle submodule)
+        {
+            return NativeMethods.git_submodule_path(submodule);
+        }
+
+        public static string git_submodule_url(SubmoduleSafeHandle submodule)
+        {
+            return NativeMethods.git_submodule_url(submodule);
+        }
+
+        public static ObjectId git_submodule_index_id(SubmoduleSafeHandle submodule)
+        {
+            return NativeMethods.git_submodule_index_id(submodule).MarshalAsObjectId();
+        }
+
+        public static ObjectId git_submodule_head_id(SubmoduleSafeHandle submodule)
+        {
+            return NativeMethods.git_submodule_head_id(submodule).MarshalAsObjectId();
+        }
+
+        public static ObjectId git_submodule_wd_id(SubmoduleSafeHandle submodule)
+        {
+            return NativeMethods.git_submodule_wd_id(submodule).MarshalAsObjectId();
+        }
+
+        public static SubmoduleIgnore git_submodule_ignore(SubmoduleSafeHandle submodule)
+        {
+            return NativeMethods.git_submodule_ignore(submodule);
+        }
+
+        public static SubmoduleUpdate git_submodule_update(SubmoduleSafeHandle submodule)
+        {
+            return NativeMethods.git_submodule_update(submodule);
+        }
+
+        public static bool git_submodule_fetch_recurse_submodules(SubmoduleSafeHandle submodule)
+        {
+            return NativeMethods.git_submodule_fetch_recurse_submodules(submodule);
+        }
+
+        public static SubmoduleStatus git_submodule_status(SubmoduleSafeHandle submodule)
+        {
+            using (ThreadAffinity())
+            {
+                SubmoduleStatus status;
+                var res = NativeMethods.git_submodule_status(out status, submodule);
+                Ensure.ZeroResult(res);
+                return status;
+            }
+        }
+
+        #endregion
+
         #region git_tag_
 
         public static ObjectId git_tag_create(
