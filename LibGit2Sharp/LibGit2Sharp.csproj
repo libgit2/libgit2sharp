@@ -91,11 +91,15 @@
     <Compile Include="DiffOptions.cs" />
     <Compile Include="DiffTargets.cs" />
     <Compile Include="FetchHead.cs" />
+    <Compile Include="Core\Handles\PushSafeHandle.cs" />
     <Compile Include="Handlers.cs" />
     <Compile Include="Ignore.cs" />
     <Compile Include="MergeConflictException.cs" />
     <Compile Include="MergeHead.cs" />
     <Compile Include="NameConflictException.cs" />
+    <Compile Include="NetworkExtensions.cs" />
+    <Compile Include="PushResult.cs" />
+    <Compile Include="PushStatusError.cs" />
     <Compile Include="ReferenceCollectionExtensions.cs" />
     <Compile Include="Core\GitRemoteCallbacks.cs" />
     <Compile Include="RemoteCallbacks.cs" />

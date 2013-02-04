@@ -33,6 +33,12 @@
     public delegate void TransferProgressHandler(TransferProgress progress);
 
     /// <summary>
+    ///   Delegate definition to handle reporting errors when updating references on the remote.
+    /// </summary>
+    /// <param name="pushStatusErrors">The reference name and error from the server.</param>
+    public delegate void PushStatusErrorHandler(PushStatusError pushStatusErrors);
+
+    /// <summary>
     ///   Delegate definition for checkout progress callback.
     /// </summary>
     /// <param name="path">Path of the updated file.</param>
