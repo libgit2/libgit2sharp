@@ -103,6 +103,11 @@ namespace LibGit2Sharp
                 return false;
             }
 
+            if (Tip == null || TrackedBranch.Tip == null)
+            {
+                return false;
+            }
+
             if (repo.Commits.FindCommonAncestor(Tip, TrackedBranch.Tip) == null)
             {
                 return false;

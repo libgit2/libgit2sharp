@@ -621,8 +621,13 @@ namespace LibGit2Sharp.Tests
             {
                 Assert.Empty(Directory.GetFiles(scd2.RootedDirectoryPath));
                 Assert.Equal(repo.Head.Name, "master");
+
                 Assert.Null(repo.Head.Tip);
                 Assert.NotNull(repo.Head.TrackedBranch);
+                Assert.Null(repo.Head.TrackedBranch.Tip);
+
+                Assert.Null(repo.Head.AheadBy);
+                Assert.Null(repo.Head.BehindBy);
 
                 Assert.NotNull(repo.Head.Remote);
                 Assert.Equal("origin", repo.Head.Remote.Name);
@@ -633,6 +638,9 @@ namespace LibGit2Sharp.Tests
 
                 Assert.NotNull(repo.Head.Tip);
                 Assert.NotNull(repo.Head.TrackedBranch);
+
+                Assert.Null(repo.Head.AheadBy);
+                Assert.Null(repo.Head.BehindBy);
             }
         }
 
