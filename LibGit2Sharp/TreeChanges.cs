@@ -21,6 +21,7 @@ namespace LibGit2Sharp
         private readonly List<TreeEntryChanges> added = new List<TreeEntryChanges>();
         private readonly List<TreeEntryChanges> deleted = new List<TreeEntryChanges>();
         private readonly List<TreeEntryChanges> modified = new List<TreeEntryChanges>();
+        private readonly List<TreeEntryChanges> typeChanged = new List<TreeEntryChanges>();
         private int linesAdded;
         private int linesDeleted;
 
@@ -37,6 +38,7 @@ namespace LibGit2Sharp
                            { ChangeKind.Modified, (de, d) => de.modified.Add(d) },
                            { ChangeKind.Deleted, (de, d) => de.deleted.Add(d) },
                            { ChangeKind.Added, (de, d) => de.added.Add(d) },
+                           { ChangeKind.TypeChanged, (de, d) => de.typeChanged.Add(d) },
                        };
         }
 
@@ -177,6 +179,14 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        ///   List of <see cref = "TreeEntryChanges"/> which type have been changed.
+        /// </summary>
+        public virtual IEnumerable<TreeEntryChanges> TypeChanged
+        {
+            get { return typeChanged; }
+        }
+
+        /// <summary>
         ///   The total number of lines added in this diff.
         /// </summary>
         public virtual int LinesAdded
@@ -205,8 +215,9 @@ namespace LibGit2Sharp
             get
             {
                 return string.Format(CultureInfo.InvariantCulture,
-                    "Added: {0}, Deleted: {1}, Modified: {2}",
-                    Added.Count(), Deleted.Count(), Modified.Count());
+                    "Add: {0}, Del: {1}, Mod: {2}, Typ: {3}",
+                    Added.Count(), Deleted.Count(),
+                    Modified.Count(), TypeChanged.Count());
             }
         }
     }

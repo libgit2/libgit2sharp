@@ -357,6 +357,78 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
+        public void CanHandleTwoTreeEntryChangesWithTheSamePath()
+        {
+            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+
+            using (Repository repo = Repository.Init(scd.DirectoryPath))
+            {
+                Blob mainContent = CreateBlob(repo, "awesome content\n");
+                Blob linkContent = CreateBlob(repo, "../../objc/Nu.h");
+
+                string path = string.Format("include{0}Nu{0}Nu.h", Path.DirectorySeparatorChar);
+
+                var tdOld = new TreeDefinition()
+                    .Add(path, linkContent, Mode.SymbolicLink)
+                    .Add("objc/Nu.h", mainContent, Mode.NonExecutableFile);
+
+                Tree treeOld = repo.ObjectDatabase.CreateTree(tdOld);
+
+                var tdNew = new TreeDefinition()
+                    .Add(path, mainContent, Mode.NonExecutableFile);
+
+                Tree treeNew = repo.ObjectDatabase.CreateTree(tdNew);
+
+                TreeChanges changes = repo.Diff.Compare(treeOld, treeNew);
+
+                /*
+                 * $ git diff-tree -p 5c87b67 d5278d0
+                 * diff --git a/include/Nu/Nu.h b/include/Nu/Nu.h
+                 * deleted file mode 120000
+                 * index 19bf568..0000000
+                 * --- a/include/Nu/Nu.h
+                 * +++ /dev/null
+                 * @@ -1 +0,0 @@
+                 * -../../objc/Nu.h
+                 * \ No newline at end of file
+                 * diff --git a/include/Nu/Nu.h b/include/Nu/Nu.h
+                 * new file mode 100644
+                 * index 0000000..f9e6561
+                 * --- /dev/null
+                 * +++ b/include/Nu/Nu.h
+                 * @@ -0,0 +1 @@
+                 * +awesome content
+                 * diff --git a/objc/Nu.h b/objc/Nu.h
+                 * deleted file mode 100644
+                 * index f9e6561..0000000
+                 * --- a/objc/Nu.h
+                 * +++ /dev/null
+                 * @@ -1 +0,0 @@
+                 * -awesome content
+                 */
+
+                Assert.Equal(1, changes.Deleted.Count());
+                Assert.Equal(0, changes.Modified.Count());
+                Assert.Equal(1, changes.TypeChanged.Count());
+
+                TreeEntryChanges change = changes[path];
+                Assert.Equal(Mode.SymbolicLink, change.OldMode);
+                Assert.Equal(Mode.NonExecutableFile, change.Mode);
+                Assert.Equal(ChangeKind.TypeChanged, change.Status);
+                Assert.Equal(path, change.Path);
+            }
+        }
+
+        private static Blob CreateBlob(Repository repo, string content)
+        {
+            using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(content)))
+            using (var binReader = new BinaryReader(stream))
+            {
+                return repo.ObjectDatabase.CreateBlob(binReader);
+            }
+        }
+
+        [Fact]
         public void CanCompareATreeAgainstANullTree()
         {
             using (var repo = new Repository(StandardTestRepoPath))

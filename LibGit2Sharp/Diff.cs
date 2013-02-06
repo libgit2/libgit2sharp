@@ -22,6 +22,8 @@ namespace LibGit2Sharp
         {
             var options = new GitDiffOptions();
 
+            options.Flags |= GitDiffOptionFlags.GIT_DIFF_INCLUDE_TYPECHANGE;
+
             if (diffOptions.HasFlag(DiffOptions.IncludeUntracked))
             {
                 options.Flags |= GitDiffOptionFlags.GIT_DIFF_INCLUDE_UNTRACKED |

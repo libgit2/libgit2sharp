@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -135,8 +135,7 @@ namespace LibGit2Sharp
         public virtual TreeDefinition Add(string targetTreeEntryPath, Blob blob, Mode mode)
         {
             Ensure.ArgumentNotNull(blob, "blob");
-            Ensure.ArgumentConformsTo(mode,
-                                      m => m.HasAny(new[] { Mode.ExecutableFile, Mode.NonExecutableFile, Mode.NonExecutableGroupWritableFile }), "mode");
+            Ensure.ArgumentConformsTo(mode, m => m.HasAny(TreeEntryDefinition.BlobModes), "mode");
 
             TreeEntryDefinition ted = TreeEntryDefinition.From(blob, mode);
 

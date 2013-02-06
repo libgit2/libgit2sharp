@@ -44,5 +44,11 @@ namespace LibGit2Sharp
         ///   The file is untracked in the workdir.
         /// </summary>
         Untracked = 7,
+
+        /// <summary>
+        ///   The type (i.e. regular file, symlink, submodule, ...)
+        ///   of the file was changed.
+        /// </summary>
+        TypeChanged = 8,
     }
 }

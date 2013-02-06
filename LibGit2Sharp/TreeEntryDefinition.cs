@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Compat;
 
@@ -13,6 +13,8 @@ namespace LibGit2Sharp
 
         private static readonly LambdaEqualityHelper<TreeEntryDefinition> equalityHelper =
             new LambdaEqualityHelper<TreeEntryDefinition>(x => x.Mode, x => x.Type, x => x.TargetId);
+
+        internal static readonly Mode[] BlobModes = new[] { Mode.NonExecutableFile, Mode.ExecutableFile, Mode.NonExecutableGroupWritableFile, Mode.SymbolicLink };
 
         /// <summary>
         ///   Needed for mocking purposes.
@@ -65,7 +67,7 @@ namespace LibGit2Sharp
 
         internal static TreeEntryDefinition TransientBlobFrom(string filePath, Mode mode)
         {
-            Ensure.ArgumentConformsTo(mode, m => m.HasAny(new[] { Mode.NonExecutableFile, Mode.ExecutableFile, Mode.NonExecutableGroupWritableFile }), "mode");
+            Ensure.ArgumentConformsTo(mode, m => m.HasAny(BlobModes), "mode");
 
             return new TransientBlobTreeEntryDefinition
                        {
