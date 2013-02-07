@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 
 namespace LibGit2Sharp.Tests.TestHelpers
@@ -31,6 +32,15 @@ namespace LibGit2Sharp.Tests.TestHelpers
         public static void DeleteDirectory(string directoryPath)
         {
             // From http://stackoverflow.com/questions/329355/cannot-delete-directory-with-directory-deletepath-true/329502#329502
+
+            if (!Directory.Exists(directoryPath))
+            {
+                Trace.WriteLine(
+                    string.Format("Directory '{0}' is missing and can't be removed.",
+                        directoryPath));
+
+                return;
+            }
 
             string[] files = Directory.GetFiles(directoryPath);
             string[] dirs = Directory.GetDirectories(directoryPath);
