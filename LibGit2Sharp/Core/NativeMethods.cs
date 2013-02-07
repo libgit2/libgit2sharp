@@ -26,7 +26,7 @@ namespace LibGit2Sharp.Core
             // Ensure mono can JIT the .cctor and adjust the PATH before trying to load the native library.
             // See https://github.com/libgit2/libgit2sharp/pull/190
             [MethodImpl(MethodImplOptions.NoInlining)]
-            public LibraryLifetimeObject() { Ensure.Success(NativeMethods.git_threads_init()); }
+            public LibraryLifetimeObject() { Ensure.ZeroResult(NativeMethods.git_threads_init()); }
             ~LibraryLifetimeObject() { NativeMethods.git_threads_shutdown(); }
         }
 
@@ -988,7 +988,7 @@ namespace LibGit2Sharp.Core
         internal static extern void git_treebuilder_free(IntPtr bld);
 
         [DllImport(libgit2)]
-        internal static extern bool git_blob_is_binary(GitObjectSafeHandle blob);
+        internal static extern int git_blob_is_binary(GitObjectSafeHandle blob);
     }
 }
 // ReSharper restore InconsistentNaming
