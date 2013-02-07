@@ -240,4 +240,37 @@ namespace LibGit2Sharp.Core
         GIT_DIFF_LINE_HUNK_HDR = 0x48, //'H',
         GIT_DIFF_LINE_BINARY = 0x42, //'B',
     }
+
+    [Flags]
+    internal enum GitDiffFindOptionFlags
+    {
+        GIT_DIFF_FIND_DEFAULT = 0,
+
+        /** look for renames? (`--find-renames`) */
+        GIT_DIFF_FIND_RENAMES = (1 << 0),
+
+        /** consider old size of modified for renames? (`--break-rewrites=N`) */
+        GIT_DIFF_FIND_RENAMES_FROM_REWRITES = (1 << 1),
+
+        /** look for copies? (a la `--find-copies`) */
+        GIT_DIFF_FIND_COPIES = (1 << 2),
+
+        /** consider unmodified as copy sources? (`--find-copies-harder`) */
+        GIT_DIFF_FIND_COPIES_FROM_UNMODIFIED = (1 << 3),
+
+        /** split large rewrites into delete/add pairs (`--break-rewrites=/M`) */
+        GIT_DIFF_FIND_AND_BREAK_REWRITES = (1 << 4),
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    internal class GitDiffFindOptions
+    {
+        public uint Version = 1;
+        public GitDiffFindOptionFlags Flags;
+        public uint RenameThreshold;
+        public uint RenameFromRewriteThreshold;
+        public uint CopyThreshold;
+        public uint BreakRewriteThreshold;
+        public uint TargetLimit;
+    }
 }

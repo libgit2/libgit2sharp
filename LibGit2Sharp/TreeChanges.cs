@@ -21,6 +21,8 @@ namespace LibGit2Sharp
         private readonly List<TreeEntryChanges> added = new List<TreeEntryChanges>();
         private readonly List<TreeEntryChanges> deleted = new List<TreeEntryChanges>();
         private readonly List<TreeEntryChanges> modified = new List<TreeEntryChanges>();
+        private readonly List<TreeEntryChanges> copied = new List<TreeEntryChanges>();
+        private readonly List<TreeEntryChanges> renamed = new List<TreeEntryChanges>();
         private int linesAdded;
         private int linesDeleted;
 
@@ -37,6 +39,8 @@ namespace LibGit2Sharp
                            { ChangeKind.Modified, (de, d) => de.modified.Add(d) },
                            { ChangeKind.Deleted, (de, d) => de.deleted.Add(d) },
                            { ChangeKind.Added, (de, d) => de.added.Add(d) },
+                           { ChangeKind.Copied, (de,d) => de.copied.Add(d) },
+                           { ChangeKind.Renamed, (de,d) => de.renamed.Add(d) },
                        };
         }
 
@@ -174,6 +178,22 @@ namespace LibGit2Sharp
         public virtual IEnumerable<TreeEntryChanges> Modified
         {
             get { return modified; }
+        }
+
+        /// <summary>
+        ///   List of <see cref = "TreeEntryChanges"/> that have been copied.
+        /// </summary>
+        public virtual IEnumerable<TreeEntryChanges> Copied
+        {
+            get { return copied; }
+        }
+
+        /// <summary>
+        ///   List of <see cref = "TreeEntryChanges"/> that have been renamed.
+        /// </summary>
+        public virtual IEnumerable<TreeEntryChanges> Renamed
+        {
+            get { return renamed; }
         }
 
         /// <summary>

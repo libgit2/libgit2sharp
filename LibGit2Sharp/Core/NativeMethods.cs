@@ -344,6 +344,11 @@ namespace LibGit2Sharp.Core
             DiffListSafeHandle from);
 
         [DllImport(libgit2)]
+        internal static extern int git_diff_find_similar(
+            DiffListSafeHandle diff,
+            GitDiffFindOptions options);
+
+        [DllImport(libgit2)]
         internal static extern int git_diff_index_to_workdir(
             out DiffListSafeHandle diff,
             RepositorySafeHandle repo,
