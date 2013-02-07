@@ -201,18 +201,21 @@ namespace LibGit2Sharp
         /// <param name="onUpdateTips">UpdateTips callback. Corresponds to libgit2 update_tips callback.</param>
         /// <param name="onTransferProgress">Callback method that transfer progress will be reported through.
         ///   Reports the client's state regarding the received and processed (bytes, objects) from the server.</param>
+        /// <param name="credentials">Credentials to use for username/password authentication.</param>
         public static void Fetch(this IRepository repository, string remoteName,
             TagFetchMode tagFetchMode = TagFetchMode.Auto,
             ProgressHandler onProgress = null,
             CompletionHandler onCompletion = null,
             UpdateTipsHandler onUpdateTips = null,
-            TransferProgressHandler onTransferProgress = null)
+            TransferProgressHandler onTransferProgress = null,
+            Credentials credentials = null)
         {
             Ensure.ArgumentNotNull(repository, "repository");
             Ensure.ArgumentNotNullOrEmptyString(remoteName, "remoteName");
 
             Remote remote = repository.Remotes.RemoteForName(remoteName, true);
-            remote.Fetch(tagFetchMode, onProgress, onCompletion, onUpdateTips, onTransferProgress);
+            remote.Fetch(tagFetchMode, onProgress, onCompletion, onUpdateTips,
+                onTransferProgress, credentials);
         }
 
         private static Signature BuildSignatureFromGlobalConfiguration(IRepository repository, DateTimeOffset now)
