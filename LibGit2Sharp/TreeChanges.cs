@@ -215,7 +215,7 @@ namespace LibGit2Sharp
             get
             {
                 return string.Format(CultureInfo.InvariantCulture,
-                    "Add: {0}, Del: {1}, Mod: {2}, Typ: {3}",
+                    "+{0} ~{2} -{1} \u00B1{3}",
                     Added.Count(), Deleted.Count(),
                     Modified.Count(), TypeChanged.Count());
             }
