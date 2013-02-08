@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
@@ -6,6 +7,7 @@ namespace LibGit2Sharp
     /// <summary>
     ///   Holds the calculated status of a particular file at a particular instant.
     /// </summary>
+    [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class StatusEntry : IEquatable<StatusEntry>
     {
         private readonly string filePath;
@@ -91,6 +93,11 @@ namespace LibGit2Sharp
         public static bool operator !=(StatusEntry left, StatusEntry right)
         {
             return !Equals(left, right);
+        }
+
+        private string DebuggerDisplay
+        {
+            get { return string.Format("{0}: {1}", State, FilePath); }
         }
     }
 }
