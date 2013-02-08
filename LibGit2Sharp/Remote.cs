@@ -96,8 +96,8 @@ namespace LibGit2Sharp
                 //
                 // Also, if GitRemoteCallbacks were a class instead of a struct, we would need to guard against
                 // GC occuring in between setting the remote callbacks and actual usage in one of the functions afterwords.
-                Proxy.git_remote_set_callbacks(remoteHandle, ref gitCallbacks); 
-                
+                Proxy.git_remote_set_callbacks(remoteHandle, ref gitCallbacks);
+
                 try
                 {
                     Proxy.git_remote_connect(remoteHandle, GitDirection.Fetch);

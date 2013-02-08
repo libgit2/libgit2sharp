@@ -6,7 +6,7 @@
     public enum StageLevel
     {
         /// <summary>
-        ///   The standard fully merged state for an index entry. 
+        ///   The standard fully merged state for an index entry.
         /// </summary>
         Staged = 0,
 
@@ -14,7 +14,7 @@
         ///   Version of the entry as it was in the common base merge commit.
         /// </summary>
         Ancestor = 1,
-        
+
         /// <summary>
         ///   Version of the entry as it is in the commit of the Head.
         /// </summary>

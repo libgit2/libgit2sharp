@@ -647,7 +647,7 @@ namespace LibGit2Sharp.Core
 
         public static void git_ignore_add_rule(RepositorySafeHandle repo, string rules)
         {
-            using (ThreadAffinity()) 
+            using (ThreadAffinity())
             {
                 int res = NativeMethods.git_ignore_add_rule(repo, rules);
                 Ensure.Success(res);
@@ -656,7 +656,7 @@ namespace LibGit2Sharp.Core
 
         public static void git_ignore_clear_internal_rules(RepositorySafeHandle repo)
         {
-            using (ThreadAffinity()) 
+            using (ThreadAffinity())
             {
                 int res = NativeMethods.git_ignore_clear_internal_rules(repo);
                 Ensure.Success(res);
@@ -665,7 +665,7 @@ namespace LibGit2Sharp.Core
 
         public static bool git_ignore_path_is_ignored(RepositorySafeHandle repo, string path)
         {
-            using (ThreadAffinity()) 
+            using (ThreadAffinity())
             {
                 int ignored;
                 int res = NativeMethods.git_ignore_path_is_ignored(out ignored, repo, path);

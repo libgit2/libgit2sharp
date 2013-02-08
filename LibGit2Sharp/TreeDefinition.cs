@@ -104,7 +104,7 @@ namespace LibGit2Sharp
 
             if (treeEntryDefinition is TransientTreeTreeEntryDefinition)
             {
-                throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, 
+                throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture,
                     "The {0} references a target which hasn't been created in the {1} yet. " +
                     "This situation can occur when the target is a whole new {2} being created, or when an existing {2} is being updated because some of its children were added/removed.",
                     typeof(TreeEntryDefinition).Name, typeof(ObjectDatabase).Name, typeof(Tree).Name));

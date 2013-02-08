@@ -542,7 +542,7 @@ namespace LibGit2Sharp
                 public ForEachCallback ManagedCallback;
 
                 private GitOdbBackend.foreach_callback_callback cb;
-                private IntPtr data;                
+                private IntPtr data;
             }
         }
 

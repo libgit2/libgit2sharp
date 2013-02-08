@@ -17,13 +17,13 @@ namespace LibGit2Sharp.Core
         private static readonly LibraryLifetimeObject lifetimeObject;
 
         /// <summary>
-        /// Internal hack to ensure that the call to git_threads_shutdown is called after all handle finalizers 
-        /// have run to completion ensuring that no dangling git-related finalizer runs after git_threads_shutdown. 
+        /// Internal hack to ensure that the call to git_threads_shutdown is called after all handle finalizers
+        /// have run to completion ensuring that no dangling git-related finalizer runs after git_threads_shutdown.
         /// There should never be more than one instance of this object per AppDomain.
         /// </summary>
         private sealed class LibraryLifetimeObject : CriticalFinalizerObject
         {
-            // Ensure mono can JIT the .cctor and adjust the PATH before trying to load the native library. 
+            // Ensure mono can JIT the .cctor and adjust the PATH before trying to load the native library.
             // See https://github.com/libgit2/libgit2sharp/pull/190
             [MethodImpl(MethodImplOptions.NoInlining)]
             public LibraryLifetimeObject() { Ensure.Success(NativeMethods.git_threads_init()); }
@@ -104,7 +104,7 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(FilePathMarshaler))] FilePath hintpath,
             source_callback fileCallback,
             IntPtr data);
-        
+
         [DllImport(libgit2)]
         internal static extern IntPtr git_blob_rawcontent(GitObjectSafeHandle blob);
 
