@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Compat;
@@ -12,6 +13,7 @@ namespace LibGit2Sharp
     ///   Holds the result of the determination of the state of the working directory.
     ///   <para>Only files that differ from the current index and/or commit will be considered.</para>
     /// </summary>
+    [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class RepositoryStatus : IEnumerable<StatusEntry>
     {
         private readonly ICollection<StatusEntry> statusEntries;
@@ -172,6 +174,19 @@ namespace LibGit2Sharp
         public virtual bool IsDirty
         {
             get { return isDirty; }
+        }
+
+        private string DebuggerDisplay
+        {
+            get
+            {
+                return string.Format(
+                    CultureInfo.InvariantCulture,
+                    "+{0} ~{1} -{2} | +{3} ~{4} -{5} | i{6}",
+                    Added.Count(), Staged.Count(), Removed.Count(),
+                    Untracked.Count(), Modified.Count(), Missing.Count(),
+                    Ignored.Count());
+            }
         }
     }
 }
