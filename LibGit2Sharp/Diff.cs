@@ -92,32 +92,55 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Show changes between two <see cref = "Tree"/>s.
+        /// Show changes between two <see cref="Tree" />s.
         /// </summary>
-        /// <param name = "oldTree">The <see cref = "Tree"/> you want to compare from.</param>
-        /// <param name = "newTree">The <see cref = "Tree"/> you want to compare to.</param>
-        /// <param name = "paths">The list of paths (either files or directories) that should be compared.</param>
-        /// <returns>A <see cref = "TreeChanges"/> containing the changes between the <paramref name = "oldTree"/> and the <paramref name = "newTree"/>.</returns>
-        public virtual TreeChanges Compare(Tree oldTree, Tree newTree, IEnumerable<string> paths = null)
+        /// <param name="oldTree">The <see cref="Tree" /> you want to compare from.</param>
+        /// <param name="newTree">The <see cref="Tree" /> you want to compare to.</param>
+        /// <param name="paths">The list of paths (either files or directories) that should be compared.</param>
+        /// <param name="detectRenames">if set to <c>true</c> renames will be detected in the diff.</param>
+        /// <param name="detectCopies">if set to <c>true</c> copies will be detected in the diff.</param>
+        /// <returns>
+        /// A <see cref="TreeChanges" /> containing the changes between the <paramref name="oldTree" /> and the <paramref name="newTree" />.
+        /// </returns>
+        public virtual TreeChanges Compare(Tree oldTree, Tree newTree, IEnumerable<string> paths = null, bool detectRenames = false, bool detectCopies = false)
         {
             using(GitDiffOptions options = BuildOptions(DiffOptions.None, paths))
             using (DiffListSafeHandle diff = BuildDiffListFromTrees(
                 oldTree != null ? oldTree.Id : null,
                 newTree != null ? newTree.Id : null,
-                options))
+                options,
+                detectRenames,
+                detectCopies))
             {
-                Proxy.git_diff_find_similar(diff, new GitDiffFindOptions
-                                                      {
-                                                          Flags = GitDiffFindOptionFlags.GIT_DIFF_FIND_RENAMES
-                                                      });
-
                 return new TreeChanges(diff);
             }
         }
 
-        private DiffListSafeHandle BuildDiffListFromTrees(ObjectId oldTree, ObjectId newTree, GitDiffOptions options)
+        private DiffListSafeHandle BuildDiffListFromTrees(ObjectId oldTree, ObjectId newTree, GitDiffOptions options, bool detectRenames, bool detectCopies)
         {
-            return Proxy.git_diff_tree_to_tree(repo.Handle, oldTree, newTree, options);
+            var diff = Proxy.git_diff_tree_to_tree(repo.Handle, oldTree, newTree, options);
+            return HandleRenameAndCopyDetection(diff, detectRenames, detectCopies);
+        }
+
+        private DiffListSafeHandle HandleRenameAndCopyDetection(DiffListSafeHandle diff, bool detectRenames, bool detectCopies)
+        {
+            if (detectRenames || detectCopies)
+            {
+                var diffFindOptions = new GitDiffFindOptions();
+
+                if (!detectCopies)
+                {
+                    diffFindOptions.Flags = GitDiffFindOptionFlags.GIT_DIFF_FIND_RENAMES;
+                }
+                else if (!detectRenames)
+                {
+                    diffFindOptions.Flags = GitDiffFindOptionFlags.GIT_DIFF_FIND_COPIES;
+                }
+
+                Proxy.git_diff_find_similar(diff, diffFindOptions);
+            }
+
+            return diff;
         }
 
         /// <summary>
