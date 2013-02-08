@@ -141,5 +141,10 @@ namespace LibGit2Sharp
         ///   Gets the references to the tips that are currently being merged.
         /// </summary>
         IEnumerable<MergeHead> MergeHeads { get; }
+
+        /// <summary>
+        ///   Provides access to network functionality for a repository.
+        /// </summary>
+        Network Network { get; }
     }
 }
