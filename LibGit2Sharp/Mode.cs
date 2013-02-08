@@ -27,7 +27,7 @@
         ///   <para>0100664 mode is an early Git design mistake. It's kept for
         ///     ascendant compatibility as some <see cref="Tree"/> and
         ///     <see cref="Repository.Index"/> entries may still bear
-	    ///     this mode in some old git repositories, but it's now deprecated.
+        ///     this mode in some old git repositories, but it's now deprecated.
         ///   </para>
         /// </summary>
         NonExecutableGroupWritableFile = 0x81B4,
