@@ -11,7 +11,7 @@ namespace LibGit2Sharp
     public class TreeEntryChanges : Changes
     {
         /// <summary>
-        ///   Needed for mocking purposes. 
+        ///   Needed for mocking purposes.
         /// </summary>
         protected TreeEntryChanges()
         { }

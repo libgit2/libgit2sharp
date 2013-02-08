@@ -65,7 +65,7 @@ namespace LibGit2Sharp
         {
             get { return !Proxy.git_index_has_conflicts(handle); }
         }
-        
+
         /// <summary>
         ///   Gets the <see cref = "IndexEntry" /> with the specified relative path.
         /// </summary>
@@ -491,7 +491,7 @@ namespace LibGit2Sharp
                     case ChangeKind.Deleted:
                         /* Fall through */
                     case ChangeKind.Modified:
-                        ReplaceIndexEntryWith(treeEntryChanges);    
+                        ReplaceIndexEntryWith(treeEntryChanges);
                         continue;
 
                     default:

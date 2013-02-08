@@ -29,7 +29,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   A pointer to a commit object or a list of pointers to consider as starting points.
         ///   <para>
-        ///     Can be either a <see cref = "string" /> containing the sha or reference canonical name to use, 
+        ///     Can be either a <see cref = "string" /> containing the sha or reference canonical name to use,
         ///     a <see cref = "Branch" />, a <see cref = "Reference" />, a <see cref = "Commit" />, a <see cref = "Tag" />,
         ///     a <see cref = "TagAnnotation" />, an <see cref="ObjectId"/> or even a mixed collection of all of the above.
         ///     By default, the <see cref = "Repository.Head" /> will be used as boundary.
@@ -45,7 +45,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   A pointer to a commit object or a list of pointers which will be excluded (along with ancestors) from the enumeration.
         ///   <para>
-        ///     Can be either a <see cref = "string" /> containing the sha or reference canonical name to use, 
+        ///     Can be either a <see cref = "string" /> containing the sha or reference canonical name to use,
         ///     a <see cref = "Branch" />, a <see cref = "Reference" />, a <see cref = "Commit" />, a <see cref = "Tag" />,
         ///     a <see cref = "TagAnnotation" />, an <see cref="ObjectId"/> or even a mixed collection of all of the above.
         ///   </para>

@@ -5,8 +5,8 @@ using LibGit2Sharp.Handlers;
 namespace LibGit2Sharp
 {
     /// <summary>
-    ///   Class to handle the mapping between libgit2 git_transfer_progress_callback function and 
-    ///   a corresponding <see cref = "TransferProgressHandler" />. Generates a delegate that 
+    ///   Class to handle the mapping between libgit2 git_transfer_progress_callback function and
+    ///   a corresponding <see cref = "TransferProgressHandler" />. Generates a delegate that
     ///   wraps the <see cref = "TransferProgressHandler" /> delegate with a delegate that matches
     ///   the git_transfer_progress_callback signature.
     /// </summary>

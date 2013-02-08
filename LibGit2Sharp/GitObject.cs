@@ -26,7 +26,7 @@ namespace LibGit2Sharp
             new LambdaEqualityHelper<GitObject>(x => x.Id);
 
         /// <summary>
-        ///   The <see cref = "Repository" /> containing the object. 
+        ///   The <see cref = "Repository" /> containing the object.
         /// </summary>
         protected readonly Repository repo;
 

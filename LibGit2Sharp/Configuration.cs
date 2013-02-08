@@ -48,7 +48,7 @@ namespace LibGit2Sharp
 
             if (repository != null)
             {
-                //TODO: push back this logic into libgit2. 
+                //TODO: push back this logic into libgit2.
                 // As stated by @carlosmn "having a helper function to load the defaults and then allowing you
                 // to modify it before giving it to git_repository_open_ext() would be a good addition, I think."
                 //  -- Agreed :)
@@ -164,14 +164,14 @@ namespace LibGit2Sharp
         ///   </para>
         ///   <para>
         ///     For example in  order to get the value for this in a .git\config file:
-        /// 
+        ///
         ///     <code>
         ///     [core]
         ///     bare = true
         ///     </code>
-        /// 
+        ///
         ///     You would call:
-        /// 
+        ///
         ///     <code>
         ///     bool isBare = repo.Config.Get&lt;bool&gt;("core.bare").Value;
         ///     </code>
@@ -227,12 +227,12 @@ namespace LibGit2Sharp
         ///   Set a configuration value for a key. Keys are in the form 'section.name'.
         ///   <para>
         ///     For example in order to set the value for this in a .git\config file:
-        ///   
+        ///
         ///     [test]
         ///     boolsetting = true
-        ///   
+        ///
         ///     You would call:
-        ///   
+        ///
         ///     repo.Config.Set("test.boolsetting", true);
         ///   </para>
         /// </summary>
@@ -265,7 +265,7 @@ namespace LibGit2Sharp
 
             if (handle == null && throwIfStoreHasNotBeenFound)
             {
-                throw new LibGit2SharpException(string.Format("No {0} configuration file has been found.", 
+                throw new LibGit2SharpException(string.Format("No {0} configuration file has been found.",
                     Enum.GetName(typeof(ConfigurationLevel), level)));
             }
 
