@@ -189,7 +189,7 @@ namespace LibGit2Sharp
                     return null;
                 }
 
-                return repo.Remotes[remoteName];
+                return repo.Network.Remotes[remoteName];
             }
         }
 

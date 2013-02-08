@@ -46,7 +46,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(1, clonedRepo.Branches.Count(b => !b.IsRemote));
 
                 Assert.Equal(originalRepo.Tags.Count(), clonedRepo.Tags.Count());
-                Assert.Equal(1, clonedRepo.Remotes.Count());
+                Assert.Equal(1, clonedRepo.Network.Remotes.Count());
             }
         }
 

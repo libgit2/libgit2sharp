@@ -86,7 +86,7 @@ namespace LibGit2Sharp.Tests
             var scd = BuildSelfCleaningDirectory();
             using (var repo = Repository.Init(scd.RootedDirectoryPath))
             {
-                Remote remote = repo.Remotes.Add(remoteName, url);
+                Remote remote = repo.Network.Remotes.Add(remoteName, url);
 
                 // We will first fetch without specifying any Tag options.
                 // After we verify this fetch, we will perform a second fetch

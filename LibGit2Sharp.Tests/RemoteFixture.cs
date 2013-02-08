@@ -14,7 +14,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(StandardTestRepoPath))
             {
-                Remote origin = repo.Remotes["origin"];
+                Remote origin = repo.Network.Remotes["origin"];
                 Assert.NotNull(origin);
                 Assert.Equal("origin", origin.Name);
                 Assert.Equal("c:/GitHub/libgit2sharp/Resources/testrepo.git", origin.Url);
@@ -26,7 +26,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(StandardTestRepoPath))
             {
-                Assert.Null(repo.Remotes["test"]);
+                Assert.Null(repo.Network.Remotes["test"]);
             }
         }
 
@@ -37,7 +37,7 @@ namespace LibGit2Sharp.Tests
             {
                 int count = 0;
 
-                foreach (Remote remote in repo.Remotes)
+                foreach (Remote remote in repo.Network.Remotes)
                 {
                     Assert.NotNull(remote);
                     count++;
@@ -54,15 +54,15 @@ namespace LibGit2Sharp.Tests
 
             using (var repo = new Repository(path.RepositoryPath))
             {
-                Remote oneOrigin = repo.Remotes["origin"];
+                Remote oneOrigin = repo.Network.Remotes["origin"];
                 Assert.NotNull(oneOrigin);
 
-                Remote otherOrigin = repo.Remotes["origin"];
+                Remote otherOrigin = repo.Network.Remotes["origin"];
                 Assert.Equal(oneOrigin, otherOrigin);
 
-                Remote createdRemote = repo.Remotes.Add("origin2", oneOrigin.Url);
+                Remote createdRemote = repo.Network.Remotes.Add("origin2", oneOrigin.Url);
 
-                Remote loadedRemote = repo.Remotes["origin2"];
+                Remote loadedRemote = repo.Network.Remotes["origin2"];
                 Assert.NotNull(loadedRemote);
                 Assert.Equal(createdRemote, loadedRemote);
 
@@ -81,7 +81,7 @@ namespace LibGit2Sharp.Tests
             var scd = BuildSelfCleaningDirectory();
             using (var repo = Repository.Init(scd.RootedDirectoryPath))
             {
-                Remote remote = repo.Remotes.Add(remoteName, url);
+                Remote remote = repo.Network.Remotes.Add(remoteName, url);
 
                 // Set up structures for the expected results
                 // and verifying the RemoteUpdateTips callback.
@@ -121,7 +121,7 @@ namespace LibGit2Sharp.Tests
             var scd = BuildSelfCleaningDirectory();
             using (var repo = Repository.Init(scd.RootedDirectoryPath))
             {
-                Remote remote = repo.Remotes.Add(remoteName, Constants.PrivateRepoUrl);
+                Remote remote = repo.Network.Remotes.Add(remoteName, Constants.PrivateRepoUrl);
 
                 // Perform the actual fetch
                 remote.Fetch(credentials: new Credentials
@@ -143,7 +143,7 @@ namespace LibGit2Sharp.Tests
             var scd = BuildSelfCleaningDirectory();
             using (var repo = Repository.Init(scd.RootedDirectoryPath))
             {
-                Remote remote = repo.Remotes.Add(remoteName, url);
+                Remote remote = repo.Network.Remotes.Add(remoteName, url);
 
                 // Set up structures for the expected results
                 // and verifying the RemoteUpdateTips callback.
@@ -180,8 +180,8 @@ namespace LibGit2Sharp.Tests
                 const string name = "upstream";
                 const string url = "https://github.com/libgit2/libgit2sharp.git";
 
-                repo.Remotes.Add(name, url);
-                Remote remote = repo.Remotes[name];
+                repo.Network.Remotes.Add(name, url);
+                Remote remote = repo.Network.Remotes[name];
                 Assert.NotNull(remote);
 
                 Assert.Equal(name, remote.Name);
@@ -205,7 +205,7 @@ namespace LibGit2Sharp.Tests
                 const string url = "https://github.com/libgit2/libgit2sharp.git";
                 const string fetchRefSpec = "+refs/pull/*:refs/remotes/pull-requests/*";
 
-                repo.Remotes.Add(name, url, fetchRefSpec);
+                repo.Network.Remotes.Add(name, url, fetchRefSpec);
 
                 var refSpec = repo.Config.Get<string>("remote", name, "fetch");
                 Assert.NotNull(refSpec);

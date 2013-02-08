@@ -254,7 +254,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(StandardTestRepoPath))
             {
                 Branch master = repo.Branches["master"];
-                Assert.Equal(repo.Remotes["origin"], master.Remote);
+                Assert.Equal(repo.Network.Remotes["origin"], master.Remote);
             }
         }
 
