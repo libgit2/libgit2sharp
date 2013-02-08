@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using LibGit2Sharp.Core;
+using LibGit2Sharp.Core.Compat;
 using LibGit2Sharp.Core.Handles;
 using LibGit2Sharp.Handlers;
 
@@ -14,6 +14,7 @@ namespace LibGit2Sharp
     public class Network
     {
         private readonly Repository repository;
+        private readonly Lazy<RemoteCollection> remotes;
 
         /// <summary>
         ///   Needed for mocking purposes.
@@ -24,6 +25,7 @@ namespace LibGit2Sharp
         internal Network(Repository repository)
         {
             this.repository = repository;
+            remotes = new Lazy<RemoteCollection>(() => new RemoteCollection(repository));
         }
 
         /// <summary>
@@ -39,6 +41,14 @@ namespace LibGit2Sharp
                     repository.Handle,
                     (name, url, oid, isMerge) => new FetchHead(repository, name, url, new ObjectId(oid), isMerge, i++));
             }
+        }
+
+        /// <summary>
+        ///   Lookup and manage remotes in the repository.
+        /// </summary>
+        public virtual RemoteCollection Remotes
+        {
+            get { return remotes.Value; }
         }
 
         /// <summary>

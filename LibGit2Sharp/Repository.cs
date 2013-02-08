@@ -25,13 +25,12 @@ namespace LibGit2Sharp
         private readonly RepositorySafeHandle handle;
         private readonly Index index;
         private readonly ReferenceCollection refs;
-        private readonly Lazy<RemoteCollection> remotes;
         private readonly TagCollection tags;
         private readonly Lazy<RepositoryInformation> info;
         private readonly Diff diff;
         private readonly NoteCollection notes;
         private readonly Lazy<ObjectDatabase> odb;
-        private readonly Network network;
+        private readonly Lazy<Network> network;
         private readonly Stack<IDisposable> toCleanup = new Stack<IDisposable>();
         private readonly Ignore ignore;
         private static readonly Lazy<string> versionRetriever = new Lazy<string>(RetrieveVersion);
@@ -100,12 +99,11 @@ namespace LibGit2Sharp
             tags = new TagCollection(this);
             info = new Lazy<RepositoryInformation>(() => new RepositoryInformation(this, isBare));
             config = new Lazy<Configuration>(() => RegisterForCleanup(new Configuration(this, configurationGlobalFilePath, configurationXDGFilePath, configurationSystemFilePath)));
-            remotes = new Lazy<RemoteCollection>(() => new RemoteCollection(this));
             odb = new Lazy<ObjectDatabase>(() => new ObjectDatabase(this));
             diff = new Diff(this);
             notes = new NoteCollection(this);
             ignore = new Ignore(this);
-            network = new Network(this);
+            network = new Lazy<Network>(() => new Network(this));
 
             EagerlyLoadTheConfigIfAnyPathHaveBeenPassed(options);
         }
@@ -207,7 +205,7 @@ namespace LibGit2Sharp
         {
             get
             {
-                return network;
+                return network.Value;
             }
         }
 
@@ -235,7 +233,7 @@ namespace LibGit2Sharp
         /// </summary>
         public RemoteCollection Remotes
         {
-            get { return remotes.Value; }
+            get { return Network.Remotes; }
         }
 
         /// <summary>
