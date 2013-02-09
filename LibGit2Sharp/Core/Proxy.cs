@@ -43,7 +43,7 @@ namespace LibGit2Sharp.Core
             {
                 var oid = new GitOid();
                 int res = NativeMethods.git_blob_create_fromchunks(ref oid, repo, hintpath, fileCallback, IntPtr.Zero);
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
 
                 return new ObjectId(oid);
             }
@@ -55,7 +55,7 @@ namespace LibGit2Sharp.Core
             {
                 var oid = new GitOid();
                 int res = NativeMethods.git_blob_create_fromdisk(ref oid, repo, path);
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
 
                 return new ObjectId(oid);
             }
@@ -67,7 +67,7 @@ namespace LibGit2Sharp.Core
             {
                 var oid = new GitOid();
                 int res = NativeMethods.git_blob_create_fromworkdir(ref oid, repo, path);
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
 
                 return new ObjectId(oid);
             }
@@ -102,7 +102,10 @@ namespace LibGit2Sharp.Core
 
         public static bool git_blob_is_binary(GitObjectSafeHandle obj)
         {
-            return NativeMethods.git_blob_is_binary(obj);
+            int res = NativeMethods.git_blob_is_binary(obj);
+            Ensure.BooleanResult(res);
+
+            return (res == 1);
         }
 
         #endregion
@@ -116,7 +119,7 @@ namespace LibGit2Sharp.Core
             {
                 ReferenceSafeHandle reference;
                 int res = NativeMethods.git_branch_create(out reference, repo, branch_name, osw.ObjectPtr, force);
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
                 return reference;
             }
         }
@@ -127,7 +130,7 @@ namespace LibGit2Sharp.Core
             {
                 int res = NativeMethods.git_branch_delete(reference);
                 reference.SetHandleAsInvalid();
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
             }
         }
 
@@ -144,7 +147,7 @@ namespace LibGit2Sharp.Core
             using (ThreadAffinity())
             {
                 int res = NativeMethods.git_branch_move(reference, new_branch_name, force);
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
             }
         }
 
@@ -160,13 +163,13 @@ namespace LibGit2Sharp.Core
                     return null;
                 }
 
-                Ensure.Success(bufSize, true);
+                Ensure.Int32Result(bufSize);
 
                 var buffer = new byte[bufSize];
 
                 int res = NativeMethods.git_branch_tracking_name(
                     buffer, (UIntPtr)buffer.Length, handle, canonicalReferenceName);
-                Ensure.Success(res, true);
+                Ensure.Int32Result(res);
 
                 return Utf8Marshaler.Utf8FromBuffer(buffer);
             }
@@ -185,7 +188,7 @@ namespace LibGit2Sharp.Core
             using (var osw = new ObjectSafeWrapper(treeId, repo))
             {
                 int res = NativeMethods.git_checkout_tree(repo, osw.ObjectPtr, ref opts);
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
             }
         }
 
@@ -194,7 +197,7 @@ namespace LibGit2Sharp.Core
             using (ThreadAffinity())
             {
                 int res = NativeMethods.git_checkout_head(repo, ref opts);
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
             }
         }
 
@@ -203,7 +206,7 @@ namespace LibGit2Sharp.Core
             using (ThreadAffinity())
             {
                 int res = NativeMethods.git_checkout_index(repo, treeish, ref opts);
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
             }
         }
 
@@ -220,7 +223,7 @@ namespace LibGit2Sharp.Core
             {
                 RepositorySafeHandle repo;
                 int res = NativeMethods.git_clone(out repo, url, workdir, opts);
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
                 return repo;
             }
         }
@@ -260,7 +263,7 @@ namespace LibGit2Sharp.Core
                 IntPtr[] parentsPtrs = parentObjectPtrs.Select(o => o.ObjectPtr.DangerousGetHandle()).ToArray();
                 int res = NativeMethods.git_commit_create(out commitOid, repo, referenceName, authorHandle,
                                                       committerHandle, encoding, prettifiedMessage, treePtr.ObjectPtr, parentObjectPtrs.Count(), parentsPtrs);
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
 
                 return new ObjectId(commitOid);
             }
@@ -282,7 +285,7 @@ namespace LibGit2Sharp.Core
             {
                 GitObjectSafeHandle parentCommit;
                 int res = NativeMethods.git_commit_parent(out parentCommit, obj.ObjectPtr, i);
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
 
                 return parentCommit;
             }
@@ -320,7 +323,7 @@ namespace LibGit2Sharp.Core
             using (ThreadAffinity())
             {
                 int res = NativeMethods.git_config_add_file_ondisk(config, path, (uint)level, true);
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
             }
         }
 
@@ -335,7 +338,7 @@ namespace LibGit2Sharp.Core
                     return false;
                 }
 
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
                 return true;
             }
         }
@@ -377,7 +380,7 @@ namespace LibGit2Sharp.Core
                     return null;
                 }
 
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
             }
 
             GitConfigEntry entry = handle.MarshalAsGitConfigEntry();
@@ -393,7 +396,7 @@ namespace LibGit2Sharp.Core
             {
                 ConfigurationSafeHandle handle;
                 int res = NativeMethods.git_config_new(out handle);
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
 
                 return handle;
             }
@@ -411,7 +414,7 @@ namespace LibGit2Sharp.Core
                     return null;
                 }
 
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
 
                 return handle;
             }
@@ -423,7 +426,7 @@ namespace LibGit2Sharp.Core
             {
                 ConfigurationSafeHandle handle;
                 int res = NativeMethods.git_config_open_ondisk(out handle, path);
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
 
                 return handle;
             }
@@ -436,7 +439,7 @@ namespace LibGit2Sharp.Core
                 bool outVal;
                 var res = NativeMethods.git_config_parse_bool(out outVal, value);
 
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
                 return outVal;
             }
         }
@@ -448,7 +451,7 @@ namespace LibGit2Sharp.Core
                 int outVal;
                 var res = NativeMethods.git_config_parse_int32(out outVal, value);
 
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
                 return outVal;
             }
         }
@@ -460,7 +463,7 @@ namespace LibGit2Sharp.Core
                 long outVal;
                 var res = NativeMethods.git_config_parse_int64(out outVal, value);
 
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
                 return outVal;
             }
         }
@@ -470,7 +473,7 @@ namespace LibGit2Sharp.Core
             using (ThreadAffinity())
             {
                 int res = NativeMethods.git_config_set_bool(config, name, value);
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
             }
         }
 
@@ -479,7 +482,7 @@ namespace LibGit2Sharp.Core
             using (ThreadAffinity())
             {
                 int res = NativeMethods.git_config_set_int32(config, name, value);
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
             }
         }
 
@@ -488,7 +491,7 @@ namespace LibGit2Sharp.Core
             using (ThreadAffinity())
             {
                 int res = NativeMethods.git_config_set_int64(config, name, value);
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
             }
         }
 
@@ -497,7 +500,7 @@ namespace LibGit2Sharp.Core
             using (ThreadAffinity())
             {
                 int res = NativeMethods.git_config_set_string(config, name, value);
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
             }
         }
 
@@ -526,7 +529,7 @@ namespace LibGit2Sharp.Core
             using (var osw2 = new ObjectSafeWrapper(newBlob, repo, true))
             {
                 int res = NativeMethods.git_diff_blobs(osw1.ObjectPtr, osw2.ObjectPtr, options, fileCallback, hunkCallback, lineCallback, IntPtr.Zero);
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
             }
         }
 
@@ -541,7 +544,7 @@ namespace LibGit2Sharp.Core
             {
                 DiffListSafeHandle diff;
                 int res = NativeMethods.git_diff_tree_to_index(out diff, repo, osw.ObjectPtr, index, options);
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
 
                 return diff;
             }
@@ -557,7 +560,7 @@ namespace LibGit2Sharp.Core
             using (ThreadAffinity())
             {
                 int res = NativeMethods.git_diff_merge(onto, from);
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
             }
         }
 
@@ -566,7 +569,7 @@ namespace LibGit2Sharp.Core
             using (ThreadAffinity())
             {
                 int res = NativeMethods.git_diff_print_patch(diff, printCallback, IntPtr.Zero);
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
             }
         }
 
@@ -582,7 +585,7 @@ namespace LibGit2Sharp.Core
             {
                 DiffListSafeHandle diff;
                 int res = NativeMethods.git_diff_tree_to_tree(out diff, repo, osw1.ObjectPtr, osw2.ObjectPtr, options);
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
 
                 return diff;
             }
@@ -597,7 +600,7 @@ namespace LibGit2Sharp.Core
             {
                 DiffListSafeHandle diff;
                 int res = NativeMethods.git_diff_index_to_workdir(out diff, repo, index, options);
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
 
                 return diff;
             }
@@ -613,7 +616,7 @@ namespace LibGit2Sharp.Core
             {
                 DiffListSafeHandle diff;
                 int res = NativeMethods.git_diff_tree_to_workdir(out diff, repo, osw.ObjectPtr, options);
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
 
                 return diff;
             }
@@ -635,7 +638,7 @@ namespace LibGit2Sharp.Core
 
                 int res = NativeMethods.git_graph_ahead_behind(out ahead, out behind, repo, ref oid1, ref oid2);
 
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
 
                 return new Tuple<int, int>((int)ahead, (int)behind);
             }
@@ -650,7 +653,7 @@ namespace LibGit2Sharp.Core
             using (ThreadAffinity())
             {
                 int res = NativeMethods.git_ignore_add_rule(repo, rules);
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
             }
         }
 
@@ -659,7 +662,7 @@ namespace LibGit2Sharp.Core
             using (ThreadAffinity())
             {
                 int res = NativeMethods.git_ignore_clear_internal_rules(repo);
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
             }
         }
 
@@ -669,7 +672,7 @@ namespace LibGit2Sharp.Core
             {
                 int ignored;
                 int res = NativeMethods.git_ignore_path_is_ignored(out ignored, repo, path);
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
 
                 return (ignored != 0);
             }
@@ -684,7 +687,7 @@ namespace LibGit2Sharp.Core
             using (ThreadAffinity())
             {
                 int res = NativeMethods.git_index_add(index, entry);
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
             }
         }
 
@@ -693,7 +696,7 @@ namespace LibGit2Sharp.Core
             using (ThreadAffinity())
             {
                 int res = NativeMethods.git_index_add_bypath(index, path);
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
             }
         }
 
@@ -721,7 +724,7 @@ namespace LibGit2Sharp.Core
                 return null;
             }
 
-            Ensure.Success(res, true);
+            Ensure.Int32Result(res);
 
             return res;
         }
@@ -745,7 +748,10 @@ namespace LibGit2Sharp.Core
 
         public static bool git_index_has_conflicts(IndexSafeHandle index)
         {
-            return NativeMethods.git_index_has_conflicts(index) != 0;
+            int res = NativeMethods.git_index_has_conflicts(index);
+            Ensure.BooleanResult(res);
+
+            return res != 0;
         }
 
         public static IndexSafeHandle git_index_open(FilePath indexpath)
@@ -754,7 +760,7 @@ namespace LibGit2Sharp.Core
             {
                 IndexSafeHandle handle;
                 int res = NativeMethods.git_index_open(out handle, indexpath);
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
 
                 return handle;
             }
@@ -766,7 +772,7 @@ namespace LibGit2Sharp.Core
             using (var osw = new ObjectSafeWrapper(tree.Id, repo))
             {
                 int res = NativeMethods.git_index_read_tree(index, osw.ObjectPtr, IntPtr.Zero);
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
             }
         }
 
@@ -775,7 +781,7 @@ namespace LibGit2Sharp.Core
             using (ThreadAffinity())
             {
                 int res = NativeMethods.git_index_remove(index, path, stage);
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
             }
         }
 
@@ -784,7 +790,7 @@ namespace LibGit2Sharp.Core
             using (ThreadAffinity())
             {
                 int res = NativeMethods.git_index_write(index);
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
             }
         }
 
@@ -794,7 +800,7 @@ namespace LibGit2Sharp.Core
             {
                 GitOid treeOid;
                 int res = NativeMethods.git_index_write_tree(out treeOid, index.Handle);
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
 
                 return treeOid;
             }
@@ -818,7 +824,7 @@ namespace LibGit2Sharp.Core
                     return null;
                 }
 
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
 
                 return new ObjectId(ret);
             }
@@ -833,12 +839,12 @@ namespace LibGit2Sharp.Core
             using (ThreadAffinity())
             {
                 int bufSize = NativeMethods.git_message_prettify(null, UIntPtr.Zero, message, false);
-                Ensure.Success(bufSize, true);
+                Ensure.Int32Result(bufSize);
 
                 var buffer = new byte[bufSize];
 
                 int res = NativeMethods.git_message_prettify(buffer, (UIntPtr)buffer.Length, message, false);
-                Ensure.Success(res, true);
+                Ensure.Int32Result(res);
 
                 return Utf8Marshaler.Utf8FromBuffer(buffer) ?? string.Empty;
             }
@@ -865,7 +871,7 @@ namespace LibGit2Sharp.Core
                 GitOid oid = targetId.Oid;
 
                 int res = NativeMethods.git_note_create(out noteOid, repo, authorHandle, committerHandle, notes_ref, ref oid, note, force ? 1 : 0);
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
 
                 return new ObjectId(noteOid);
             }
@@ -877,7 +883,7 @@ namespace LibGit2Sharp.Core
             {
                 string notes_ref;
                 int res = NativeMethods.git_note_default_ref(out notes_ref, repo);
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
 
                 return notes_ref;
             }
@@ -918,7 +924,7 @@ namespace LibGit2Sharp.Core
                     return null;
                 }
 
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
 
                 return note;
             }
@@ -939,7 +945,7 @@ namespace LibGit2Sharp.Core
                     return;
                 }
 
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
             }
         }
 
@@ -971,7 +977,7 @@ namespace LibGit2Sharp.Core
                         return null;
 
                     default:
-                        Ensure.Success(res);
+                        Ensure.ZeroResult(res);
                         break;
                 }
 
@@ -997,7 +1003,7 @@ namespace LibGit2Sharp.Core
                     return null;
                 }
 
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
                 return peeled;
             }
         }
@@ -1013,7 +1019,7 @@ namespace LibGit2Sharp.Core
 
         public static void git_odb_add_backend(ObjectDatabaseSafeHandle odb, IntPtr backend, int priority)
         {
-            Ensure.Success(NativeMethods.git_odb_add_backend(odb, backend, priority));
+            Ensure.ZeroResult(NativeMethods.git_odb_add_backend(odb, backend, priority));
         }
 
         public static IntPtr git_odb_backend_malloc(IntPtr backend, UIntPtr len)
@@ -1034,7 +1040,11 @@ namespace LibGit2Sharp.Core
         public static bool git_odb_exists(ObjectDatabaseSafeHandle odb, ObjectId id)
         {
             GitOid oid = id.Oid;
-            return NativeMethods.git_odb_exists(odb, ref oid) != (int)GitErrorCode.Ok;
+
+            int res = NativeMethods.git_odb_exists(odb, ref oid);
+            Ensure.BooleanResult(res);
+
+            return (res == 1);
         }
 
         public static void git_odb_free(IntPtr odb)
@@ -1051,7 +1061,7 @@ namespace LibGit2Sharp.Core
             using (ThreadAffinity())
             {
                 int res = NativeMethods.git_push_add_refspec(push, pushRefSpec);
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
             }
         }
 
@@ -1060,7 +1070,7 @@ namespace LibGit2Sharp.Core
             using (ThreadAffinity())
             {
                 int res = NativeMethods.git_push_finish(push);
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
             }
         }
 
@@ -1075,7 +1085,7 @@ namespace LibGit2Sharp.Core
             {
                 PushSafeHandle handle;
                 int res = NativeMethods.git_push_new(out handle, remote);
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
                 return handle;
             }
         }
@@ -1085,7 +1095,7 @@ namespace LibGit2Sharp.Core
             using (ThreadAffinity())
             {
                 int res = NativeMethods.git_push_status_foreach(push, status_cb, IntPtr.Zero);
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
             }
         }
 
@@ -1100,7 +1110,7 @@ namespace LibGit2Sharp.Core
             using (ThreadAffinity())
             {
                 int res = NativeMethods.git_push_update_tips(push);
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
             }
         }
 
@@ -1116,7 +1126,7 @@ namespace LibGit2Sharp.Core
                 ReferenceSafeHandle handle;
 
                 int res = NativeMethods.git_reference_create(out handle, repo, name, ref oid, allowOverwrite);
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
 
                 return handle;
             }
@@ -1128,7 +1138,7 @@ namespace LibGit2Sharp.Core
             {
                 ReferenceSafeHandle handle;
                 int res = NativeMethods.git_reference_symbolic_create(out handle, repo, name, target, allowOverwrite);
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
 
                 return handle;
             }
@@ -1141,7 +1151,7 @@ namespace LibGit2Sharp.Core
                 int res = NativeMethods.git_reference_delete(reference);
                 reference.SetHandleAsInvalid();
 
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
             }
         }
 
@@ -1161,7 +1171,10 @@ namespace LibGit2Sharp.Core
 
         public static bool git_reference_is_valid_name(string refname)
         {
-            return NativeMethods.git_reference_is_valid_name(refname) != 0;
+            int res = NativeMethods.git_reference_is_valid_name(refname);
+            Ensure.BooleanResult(res);
+
+            return (res == 1);
         }
 
         public static IList<string> git_reference_list(RepositorySafeHandle repo, GitReferenceType flags)
@@ -1170,7 +1183,7 @@ namespace LibGit2Sharp.Core
             {
                 UnSafeNativeMethods.git_strarray arr;
                 int res = UnSafeNativeMethods.git_reference_list(out arr, repo, flags);
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
 
                 return Libgit2UnsafeHelper.BuildListOf(arr);
             }
@@ -1188,7 +1201,7 @@ namespace LibGit2Sharp.Core
                     return null;
                 }
 
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
 
                 return handle;
             }
@@ -1209,7 +1222,7 @@ namespace LibGit2Sharp.Core
             using (ThreadAffinity())
             {
                 int res = NativeMethods.git_reference_rename(reference, newName, allowOverwrite);
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
             }
         }
 
@@ -1225,7 +1238,7 @@ namespace LibGit2Sharp.Core
                     return null;
                 }
 
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
 
                 return resolvedHandle;
             }
@@ -1237,7 +1250,7 @@ namespace LibGit2Sharp.Core
             {
                 GitOid oid = id.Oid;
                 int res = NativeMethods.git_reference_set_target(reference, ref oid);
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
             }
         }
 
@@ -1246,7 +1259,7 @@ namespace LibGit2Sharp.Core
             using (ThreadAffinity())
             {
                 int res = NativeMethods.git_reference_symbolic_set_target(reference, target);
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
             }
         }
 
@@ -1270,7 +1283,7 @@ namespace LibGit2Sharp.Core
             {
                 RemoteSafeHandle handle;
                 int res = NativeMethods.git_remote_create(out handle, repo, name, url);
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
 
                 return handle;
             }
@@ -1281,7 +1294,7 @@ namespace LibGit2Sharp.Core
             using (ThreadAffinity())
             {
                 int res = NativeMethods.git_remote_connect(remote, direction);
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
             }
         }
 
@@ -1300,7 +1313,7 @@ namespace LibGit2Sharp.Core
                 NativeMethods.git_transfer_progress_callback cb = TransferCallbacks.GenerateCallback(onTransferProgress);
 
                 int res = NativeMethods.git_remote_download(remote, cb, IntPtr.Zero);
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
             }
         }
 
@@ -1315,7 +1328,7 @@ namespace LibGit2Sharp.Core
             {
                 UnSafeNativeMethods.git_strarray arr;
                 int res = UnSafeNativeMethods.git_remote_list(out arr, repo);
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
 
                 return Libgit2UnsafeHelper.BuildListOf(arr);
             }
@@ -1333,7 +1346,7 @@ namespace LibGit2Sharp.Core
                     return null;
                 }
 
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
                 return handle;
             }
         }
@@ -1348,7 +1361,7 @@ namespace LibGit2Sharp.Core
             using (ThreadAffinity())
             {
                 int res = NativeMethods.git_remote_save(remote);
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
             }
         }
 
@@ -1362,7 +1375,7 @@ namespace LibGit2Sharp.Core
             using (ThreadAffinity())
             {
                 int res = NativeMethods.git_remote_set_fetchspec(remote, fetchspec);
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
             }
         }
 
@@ -1371,7 +1384,7 @@ namespace LibGit2Sharp.Core
             using (ThreadAffinity())
             {
                 int res = NativeMethods.git_remote_set_callbacks(remote, ref callbacks);
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
             }
         }
 
@@ -1385,7 +1398,7 @@ namespace LibGit2Sharp.Core
             using (ThreadAffinity())
             {
                 int res = NativeMethods.git_remote_update_tips(remote);
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
             }
         }
 
@@ -1437,7 +1450,7 @@ namespace LibGit2Sharp.Core
             {
                 IndexSafeHandle handle;
                 int res = NativeMethods.git_repository_index(out handle, repo);
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
 
                 return handle;
             }
@@ -1449,7 +1462,7 @@ namespace LibGit2Sharp.Core
             {
                 RepositorySafeHandle repo;
                 int res = NativeMethods.git_repository_init(out repo, path, isBare);
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
 
                 return repo;
             }
@@ -1470,7 +1483,7 @@ namespace LibGit2Sharp.Core
             using (ThreadAffinity())
             {
                 int res = NativeMethods.git_repository_merge_cleanup(repo);
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
             }
         }
 
@@ -1491,7 +1504,7 @@ namespace LibGit2Sharp.Core
             {
                 ObjectDatabaseSafeHandle handle;
                 int res = NativeMethods.git_repository_odb(out handle, repo);
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
 
                 return handle;
             }
@@ -1509,7 +1522,7 @@ namespace LibGit2Sharp.Core
                     throw new RepositoryNotFoundException(String.Format(CultureInfo.InvariantCulture, "Path '{0}' doesn't point at a valid Git repository or workdir.", path));
                 }
 
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
 
                 return repo;
             }
@@ -1535,7 +1548,7 @@ namespace LibGit2Sharp.Core
             using (ThreadAffinity())
             {
                 int res = NativeMethods.git_repository_set_workdir(repo, workdir, false);
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
             }
         }
 
@@ -1544,7 +1557,7 @@ namespace LibGit2Sharp.Core
             using (ThreadAffinity())
             {
                 int res = NativeMethods.git_repository_state(repo);
-                Ensure.Success(res, true);
+                Ensure.Int32Result(res);
                 return (CurrentOperation)res;
             }
         }
@@ -1567,7 +1580,7 @@ namespace LibGit2Sharp.Core
             using (var osw = new ObjectSafeWrapper(committishId, repo))
             {
                 int res = NativeMethods.git_reset(repo, osw.ObjectPtr, resetKind);
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
             }
         }
 
@@ -1591,7 +1604,7 @@ namespace LibGit2Sharp.Core
                         throw new AmbiguousSpecificationException(string.Format(CultureInfo.InvariantCulture, "Provided abbreviated ObjectId '{0}' is too short.", objectish));
 
                     default:
-                        Ensure.Success(res);
+                        Ensure.ZeroResult(res);
                         break;
                 }
 
@@ -1614,7 +1627,7 @@ namespace LibGit2Sharp.Core
             {
                 GitOid oid = commit_id.Oid;
                 int res = NativeMethods.git_revwalk_hide(walker, ref oid);
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
             }
         }
 
@@ -1624,7 +1637,7 @@ namespace LibGit2Sharp.Core
             {
                 RevWalkerSafeHandle handle;
                 int res = NativeMethods.git_revwalk_new(out handle, repo);
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
 
                 return handle;
             }
@@ -1642,7 +1655,7 @@ namespace LibGit2Sharp.Core
                     return null;
                 }
 
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
 
                 return new ObjectId(ret);
             }
@@ -1654,7 +1667,7 @@ namespace LibGit2Sharp.Core
             {
                 GitOid oid = id.Oid;
                 int res = NativeMethods.git_revwalk_push(walker, ref oid);
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
             }
         }
 
@@ -1684,7 +1697,7 @@ namespace LibGit2Sharp.Core
                 SignatureSafeHandle handle;
                 int res = NativeMethods.git_signature_new(out handle, name, email, when.ToSecondsSinceEpoch(),
                                                           (int)when.Offset.TotalMinutes);
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
 
                 return handle;
             }
@@ -1710,7 +1723,7 @@ namespace LibGit2Sharp.Core
                         throw new AmbiguousSpecificationException(string.Format(CultureInfo.InvariantCulture, "More than one file matches the pathspec '{0}'. You can either force a literal path evaluation (GIT_STATUS_OPT_DISABLE_PATHSPEC_MATCH), or use git_status_foreach().", path));
 
                     default:
-                        Ensure.Success(res);
+                        Ensure.ZeroResult(res);
                         break;
                 }
 
@@ -1741,7 +1754,7 @@ namespace LibGit2Sharp.Core
             {
                 GitOid oid;
                 int res = NativeMethods.git_tag_create(out oid, repo, name, objectPtr.ObjectPtr, taggerHandle, message, allowOverwrite);
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
 
                 return new ObjectId(oid);
             }
@@ -1754,7 +1767,7 @@ namespace LibGit2Sharp.Core
             {
                 GitOid oid;
                 int res = NativeMethods.git_tag_create_lightweight(out oid, repo, name, objectPtr.ObjectPtr, allowOverwrite);
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
 
                 return new ObjectId(oid);
             }
@@ -1765,7 +1778,7 @@ namespace LibGit2Sharp.Core
             using (ThreadAffinity())
             {
                 int res = NativeMethods.git_tag_delete(repo, name);
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
             }
         }
 
@@ -1775,7 +1788,7 @@ namespace LibGit2Sharp.Core
             {
                 UnSafeNativeMethods.git_strarray arr;
                 int res = UnSafeNativeMethods.git_tag_list(out arr, repo);
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
 
                 return Libgit2UnsafeHelper.BuildListOf(arr);
             }
@@ -1833,7 +1846,7 @@ namespace LibGit2Sharp.Core
                     return null;
                 }
 
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
 
                 return treeEntryPtr;
             }
@@ -1874,7 +1887,7 @@ namespace LibGit2Sharp.Core
             {
                 TreeBuilderSafeHandle builder;
                 int res = NativeMethods.git_treebuilder_create(out builder, IntPtr.Zero);
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
 
                 return builder;
             }
@@ -1891,7 +1904,7 @@ namespace LibGit2Sharp.Core
             {
                 GitOid oid = treeEntryDefinition.TargetId.Oid;
                 int res = NativeMethods.git_treebuilder_insert(IntPtr.Zero, builder, treeentry_name, ref oid, (uint)treeEntryDefinition.Mode);
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
             }
         }
 
@@ -1901,7 +1914,7 @@ namespace LibGit2Sharp.Core
             {
                 GitOid oid;
                 int res = NativeMethods.git_treebuilder_write(out oid, repo, bld);
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
 
                 return new ObjectId(oid);
             }
@@ -1928,7 +1941,7 @@ namespace LibGit2Sharp.Core
                     return new TResult[0];
                 }
 
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
                 return result;
             }
         }
@@ -1952,7 +1965,7 @@ namespace LibGit2Sharp.Core
                     return new TResult[0];
                 }
 
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
                 return result;
             }
         }
@@ -1978,7 +1991,7 @@ namespace LibGit2Sharp.Core
                     return new TResult[0];
                 }
 
-                Ensure.Success(res);
+                Ensure.ZeroResult(res);
                 return result;
             }
         }
@@ -2016,7 +2029,7 @@ namespace LibGit2Sharp.Core
             using (ThreadAffinity())
             {
                 int res = checker(repo);
-                Ensure.Success(res, true);
+                Ensure.BooleanResult(res);
 
                 return (res == 1);
             }
@@ -2035,7 +2048,7 @@ namespace LibGit2Sharp.Core
                     return null;
                 }
 
-                Ensure.Success(result);
+                Ensure.ZeroResult(result);
 
                 return Utf8Marshaler.Utf8FromBuffer(buffer);
             }

@@ -38,33 +38,10 @@ namespace LibGit2Sharp.Core
             }
         }
 
-        /// <summary>
-        ///   Check that the result of a C call was successful
-        ///   <para>
-        ///     This usually means that the method is expected to return 0.
-        ///     In some rare cases, some methods may return negative values for errors and
-        ///     positive values carrying information. Those positive values should be interpreted
-        ///     as successful calls as well.
-        ///   </para>
-        /// </summary>
-        /// <param name = "result">The result to examine.</param>
-        /// <param name = "allowPositiveResult">False to only allow success when comparing against 0,
-        ///   True when positive values are allowed as well.</param>
-        public static void Success(int result, bool allowPositiveResult = false)
+        private static void HandleError(int result)
         {
-            if (result == (int)GitErrorCode.Ok)
-            {
-                return;
-            }
-
-            if (allowPositiveResult && result > (int)GitErrorCode.Ok)
-            {
-                return;
-            }
-
             string errorMessage;
             GitError error = NativeMethods.giterr_last().MarshalAsGitError();
-
 
             if (error == null)
             {
@@ -96,6 +73,62 @@ namespace LibGit2Sharp.Core
                 default:
                     throw new LibGit2SharpException(errorMessage, (GitErrorCode)result, error.Category);
             }
+        }
+
+        /// <summary>
+        ///   Check that the result of a C call was successful
+        ///   <para>
+        ///     The native function is expected to return strictly 0 for
+        ///     success or a negative value in the case of failure.
+        ///   </para>
+        /// </summary>
+        /// <param name = "result">The result to examine.</param>
+        public static void ZeroResult(int result)
+        {
+            if (result == (int)GitErrorCode.Ok)
+            {
+                return;
+            }
+
+            HandleError(result);
+        }
+
+        /// <summary>
+        ///   Check that the result of a C call that returns a boolean value
+        ///   was successful
+        ///   <para>
+        ///     The native function is expected to return strictly 0 for
+        ///     success or a negative value in the case of failure.
+        ///   </para>
+        /// </summary>
+        /// <param name = "result">The result to examine.</param>
+        public static void BooleanResult(int result)
+        {
+            if (result == (int)GitErrorCode.Ok || result == 1)
+            {
+                return;
+            }
+
+            HandleError(result);
+        }
+
+        /// <summary>
+        ///   Check that the result of a C call that returns an integer value
+        ///   was successful
+        ///   <para>
+        ///     The native function is expected to return strictly 0 for
+        ///     success or a negative value in the case of failure.
+        ///   </para>
+        /// </summary>
+        /// <param name = "result">The result to examine.</param>
+        public static void Int32Result(int result)
+        {
+            if (result >= (int)GitErrorCode.Ok)
+            {
+                return;
+            }
+
+            HandleError(result);
         }
 
         /// <summary>
