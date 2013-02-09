@@ -64,7 +64,7 @@ namespace LibGit2Sharp
             string objectish,
             string destinationSpec,
             PushStatusErrorHandler onPushStatusError,
-			Credentials credentials)
+            Credentials credentials = null)
         {
             Ensure.ArgumentNotNull(remote, "remote");
             Ensure.ArgumentNotNull(objectish, "objectish");
@@ -119,16 +119,17 @@ namespace LibGit2Sharp
             // Load the remote.
             using (RemoteSafeHandle remoteHandle = Proxy.git_remote_load(repository.Handle, remote.Name, true))
             {
-				if ( credentials != null ) {
-					Proxy.git_remote_set_cred_acquire_cb(
-						remoteHandle,
-						( out IntPtr cred, IntPtr url, uint types, IntPtr payload ) =>
-						NativeMethods.git_cred_userpass_plaintext_new( out cred, credentials.Username, credentials.Password ),
-						IntPtr.Zero
-					);	
-				}
+	            if (credentials != null)
+	            {
+		            Proxy.git_remote_set_cred_acquire_cb(
+			            remoteHandle,
+			            (out IntPtr cred, IntPtr url, uint types, IntPtr payload) =>
+			            NativeMethods.git_cred_userpass_plaintext_new(out cred, credentials.Username, credentials.Password),
+			            IntPtr.Zero
+			            );
+	            }
 
-                try
+	            try
                 {
                     Proxy.git_remote_connect(remoteHandle, GitDirection.Push);
 
