@@ -29,6 +29,11 @@ namespace LibGit2Sharp
                 GitDiffOptionFlags.GIT_DIFF_INCLUDE_UNTRACKED_CONTENT;
             }
 
+            if (diffOptions.HasFlag(DiffOptions.IncludeUnmodified))
+            {
+                options.Flags |= GitDiffOptionFlags.GIT_DIFF_INCLUDE_UNMODIFIED;
+            }
+
             if (paths == null)
             {
                 return options;
@@ -97,50 +102,42 @@ namespace LibGit2Sharp
         /// <param name="oldTree">The <see cref="Tree" /> you want to compare from.</param>
         /// <param name="newTree">The <see cref="Tree" /> you want to compare to.</param>
         /// <param name="paths">The list of paths (either files or directories) that should be compared.</param>
-        /// <param name="detectRenames">if set to <c>true</c> renames will be detected in the diff.</param>
-        /// <param name="detectCopies">if set to <c>true</c> copies will be detected in the diff.</param>
+        /// <param name="find">The options for finding renames and copies.</param>
         /// <returns>
         /// A <see cref="TreeChanges" /> containing the changes between the <paramref name="oldTree" /> and the <paramref name="newTree" />.
         /// </returns>
-        public virtual TreeChanges Compare(Tree oldTree, Tree newTree, IEnumerable<string> paths = null, bool detectRenames = false, bool detectCopies = false)
+        public virtual TreeChanges Compare(Tree oldTree, Tree newTree, IEnumerable<string> paths = null, Find find = null)
         {
-            using(GitDiffOptions options = BuildOptions(DiffOptions.None, paths))
+            var diffOptions = DiffOptions.None;
+            if (find != null && find.RequiresUnmodifiedFiles)
+            {
+                diffOptions |= DiffOptions.IncludeUnmodified;
+            }
+
+            using(GitDiffOptions options = BuildOptions(diffOptions, paths))
             using (DiffListSafeHandle diff = BuildDiffListFromTrees(
                 oldTree != null ? oldTree.Id : null,
                 newTree != null ? newTree.Id : null,
                 options,
-                detectRenames,
-                detectCopies))
+                find))
             {
                 return new TreeChanges(diff);
             }
         }
 
-        private DiffListSafeHandle BuildDiffListFromTrees(ObjectId oldTree, ObjectId newTree, GitDiffOptions options, bool detectRenames, bool detectCopies)
+        private DiffListSafeHandle BuildDiffListFromTrees(ObjectId oldTree, ObjectId newTree, GitDiffOptions options, Find find)
         {
             var diff = Proxy.git_diff_tree_to_tree(repo.Handle, oldTree, newTree, options);
-            return HandleRenameAndCopyDetection(diff, detectRenames, detectCopies);
+            HandleRenameAndCopyDetection(diff, find);
+            return diff;
         }
 
-        private DiffListSafeHandle HandleRenameAndCopyDetection(DiffListSafeHandle diff, bool detectRenames, bool detectCopies)
+        private void HandleRenameAndCopyDetection(DiffListSafeHandle diff, Find find)
         {
-            if (detectRenames || detectCopies)
+            if (find != null)
             {
-                var diffFindOptions = new GitDiffFindOptions();
-
-                if (!detectCopies)
-                {
-                    diffFindOptions.Flags = GitDiffFindOptionFlags.GIT_DIFF_FIND_RENAMES;
-                }
-                else if (!detectRenames)
-                {
-                    diffFindOptions.Flags = GitDiffFindOptionFlags.GIT_DIFF_FIND_COPIES;
-                }
-
-                Proxy.git_diff_find_similar(diff, diffFindOptions);
+                Proxy.git_diff_find_similar(diff, find.Options);
             }
-
-            return diff;
         }
 
         /// <summary>

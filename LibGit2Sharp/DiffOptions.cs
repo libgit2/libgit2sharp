@@ -19,5 +19,11 @@ namespace LibGit2Sharp
         ///   diffing against the working directory.
         /// </summary>
         IncludeUntracked,
+
+        /// <summary>
+        ///   Include unmodified files among the files to be processed. This
+        ///   is a requirement when emulating --find-copies-harder
+        /// </summary>
+        IncludeUnmodified,
     }
 }

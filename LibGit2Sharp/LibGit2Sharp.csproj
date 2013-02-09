@@ -65,6 +65,7 @@
     <Compile Include="Changes.cs" />
     <Compile Include="CheckoutCallbacks.cs" />
     <Compile Include="CheckoutOptions.cs" />
+    <Compile Include="Find.cs" />
     <Compile Include="Network.cs" />
     <Compile Include="OrphanedHeadException.cs" />
     <Compile Include="UnmergedIndexEntriesException.cs" />

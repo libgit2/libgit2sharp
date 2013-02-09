@@ -63,6 +63,12 @@ namespace LibGit2Sharp
             string formattedoutput = Utf8Marshaler.FromNative(content, (int)contentlen);
 
             TreeEntryChanges currentChange = AddFileChange(delta, lineorigin);
+
+            if (currentChange == null)
+            {
+                return 0;
+            }
+
             AddLineChange(currentChange, lineorigin);
 
             currentChange.AppendToPatch(formattedoutput);
@@ -89,6 +95,11 @@ namespace LibGit2Sharp
 
         private TreeEntryChanges AddFileChange(GitDiffDelta delta, GitDiffLineOrigin lineorigin)
         {
+            if (delta.Status == ChangeKind.Unmodified)
+            {
+                return null;
+            }
+
             var newFilePath = FilePathMarshaler.FromNative(delta.NewFile.Path);
 
             if (lineorigin != GitDiffLineOrigin.GIT_DIFF_LINE_FILE_HDR)
