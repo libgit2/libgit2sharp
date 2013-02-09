@@ -18,7 +18,7 @@ namespace LibGit2Sharp
         /// <param name="remote">The <see cref = "Remote" /> to push to.</param>
         /// <param name="objectish">The source objectish to push.</param>
         /// <param name="destinationSpec">The reference to update on the remote.</param>
-        /// <param name="credentials">Optional <see cref = "Credentials" /> instance for SSH authentication.</param>
+        /// <param name="credentials">Credentials to use for user/pass authentication</param>
         /// <returns>Results of the push operation.</returns>
         public static PushResult Push(
             this Network network,
@@ -40,7 +40,7 @@ namespace LibGit2Sharp
         /// <param name="network">The <see cref="Network"/> being worked with.</param>
         /// <param name="remote">The <see cref = "Remote" /> to push to.</param>
         /// <param name="pushRefSpec">The pushRefSpec to push.</param>
-        /// <param name="credentials">Optional <see cref = "Credentials" /> instance for SSH authentication.</param>
+        /// <param name="credentials">Credentials to use for user/pass authentication</param>
         /// <returns>Results of the push operation.</returns>
         public static PushResult Push(this Network network, Remote remote, string pushRefSpec, Credentials credentials = null)
         {
@@ -56,7 +56,7 @@ namespace LibGit2Sharp
         /// <param name="network">The <see cref="Network"/> being worked with.</param>
         /// <param name="remote">The <see cref="Remote"/> to push to.</param>
         /// <param name="pushRefSpecs">The pushRefSpecs to push.</param>
-        /// <param name="credentials">Optional <see cref = "Credentials" /> instance for SSH authentication.</param>
+        /// <param name="credentials">Credentials to use for user/pass authentication</param>
         /// <returns>Results of the push operation.</returns>
         public static PushResult Push(this Network network, Remote remote, IEnumerable<string> pushRefSpecs, Credentials credentials = null)
         {

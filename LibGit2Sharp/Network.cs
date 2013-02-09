@@ -58,7 +58,7 @@ namespace LibGit2Sharp
         /// <param name="objectish">The source objectish to push.</param>
         /// <param name="destinationSpec">The reference to update on the remote.</param>
         /// <param name="onPushStatusError">Handler for reporting failed push updates.</param>
-        /// <param name="credentials">Optional <see cref = "Credentials" /> instance for SSH authentication.</param>
+        /// <param name="credentials">Credentials to use for user/pass authentication</param>
         public virtual void Push(
             Remote remote,
             string objectish,
@@ -79,7 +79,7 @@ namespace LibGit2Sharp
         /// <param name="remote">The <see cref = "Remote" /> to push to.</param>
         /// <param name="pushRefSpec">The pushRefSpec to push.</param>
         /// <param name="onPushStatusError">Handler for reporting failed push updates.</param>
-        /// <param name="credentials">Optional <see cref = "Credentials" /> instance for SSH authentication.</param>
+        /// <param name="credentials">Credentials to use for user/pass authentication</param>
         public virtual void Push(
             Remote remote,
             string pushRefSpec,
@@ -98,7 +98,7 @@ namespace LibGit2Sharp
         /// <param name="remote">The <see cref = "Remote" /> to push to.</param>
         /// <param name="pushRefSpecs">The pushRefSpecs to push.</param>
         /// <param name="onPushStatusError">Handler for reporting failed push updates.</param>
-        /// <param name="credentials">Optional <see cref = "Credentials" /> instance for SSH authentication.</param>
+        /// <param name="credentials">Credentials to use for user/pass authentication</param>
         public virtual void Push(
             Remote remote,
             IEnumerable<string> pushRefSpecs,
@@ -125,8 +125,7 @@ namespace LibGit2Sharp
                         remoteHandle,
                         (out IntPtr cred, IntPtr url, uint types, IntPtr payload) =>
                         NativeMethods.git_cred_userpass_plaintext_new(out cred, credentials.Username, credentials.Password),
-                        IntPtr.Zero
-                        );
+                        IntPtr.Zero);
                 }
 
                 try
