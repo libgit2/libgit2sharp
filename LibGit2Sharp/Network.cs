@@ -58,7 +58,7 @@ namespace LibGit2Sharp
         /// <param name="objectish">The source objectish to push.</param>
         /// <param name="destinationSpec">The reference to update on the remote.</param>
         /// <param name="onPushStatusError">Handler for reporting failed push updates.</param>
-		/// <param name="credentials">Optional <see cref = "Credentials" /> instance for SSH authentication.</param>
+        /// <param name="credentials">Optional <see cref = "Credentials" /> instance for SSH authentication.</param>
         public virtual void Push(
             Remote remote,
             string objectish,
@@ -78,13 +78,13 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="remote">The <see cref = "Remote" /> to push to.</param>
         /// <param name="pushRefSpec">The pushRefSpec to push.</param>
-		/// <param name="onPushStatusError">Handler for reporting failed push updates.</param>
-		/// <param name="credentials">Optional <see cref = "Credentials" /> instance for SSH authentication.</param>
+        /// <param name="onPushStatusError">Handler for reporting failed push updates.</param>
+        /// <param name="credentials">Optional <see cref = "Credentials" /> instance for SSH authentication.</param>
         public virtual void Push(
             Remote remote,
             string pushRefSpec,
             PushStatusErrorHandler onPushStatusError,
-			Credentials credentials = null)
+            Credentials credentials = null)
         {
             Ensure.ArgumentNotNull(remote, "remote");
             Ensure.ArgumentNotNullOrEmptyString(pushRefSpec, "pushRefSpec");
@@ -98,12 +98,12 @@ namespace LibGit2Sharp
         /// <param name="remote">The <see cref = "Remote" /> to push to.</param>
         /// <param name="pushRefSpecs">The pushRefSpecs to push.</param>
         /// <param name="onPushStatusError">Handler for reporting failed push updates.</param>
-		/// <param name="credentials">Optional <see cref = "Credentials" /> instance for SSH authentication.</param>
+        /// <param name="credentials">Optional <see cref = "Credentials" /> instance for SSH authentication.</param>
         public virtual void Push(
             Remote remote,
             IEnumerable<string> pushRefSpecs,
             PushStatusErrorHandler onPushStatusError,
-			Credentials credentials = null)
+            Credentials credentials = null)
         {
             Ensure.ArgumentNotNull(remote, "remote");
             Ensure.ArgumentNotNull(pushRefSpecs, "pushRefSpecs");
@@ -119,17 +119,17 @@ namespace LibGit2Sharp
             // Load the remote.
             using (RemoteSafeHandle remoteHandle = Proxy.git_remote_load(repository.Handle, remote.Name, true))
             {
-	            if (credentials != null)
-	            {
-		            Proxy.git_remote_set_cred_acquire_cb(
-			            remoteHandle,
-			            (out IntPtr cred, IntPtr url, uint types, IntPtr payload) =>
-			            NativeMethods.git_cred_userpass_plaintext_new(out cred, credentials.Username, credentials.Password),
-			            IntPtr.Zero
-			            );
-	            }
+                if (credentials != null)
+                {
+                    Proxy.git_remote_set_cred_acquire_cb(
+                        remoteHandle,
+                        (out IntPtr cred, IntPtr url, uint types, IntPtr payload) =>
+                        NativeMethods.git_cred_userpass_plaintext_new(out cred, credentials.Username, credentials.Password),
+                        IntPtr.Zero
+                        );
+                }
 
-	            try
+                try
                 {
                     Proxy.git_remote_connect(remoteHandle, GitDirection.Push);
 
