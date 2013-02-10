@@ -85,14 +85,7 @@ namespace LibGit2Sharp.Core
 
         public static UnmanagedMemoryStream git_blob_rawcontent_stream(RepositorySafeHandle repo, ObjectId id, Int64 size)
         {
-            using (var obj = new ObjectSafeWrapper(id, repo))
-            {
-                IntPtr ptr = NativeMethods.git_blob_rawcontent(obj.ObjectPtr);
-                unsafe
-                {
-                    return new UnmanagedMemoryStream((byte*)ptr.ToPointer(), size);
-                }
-            }
+            return new RawContentStream(id, repo, NativeMethods.git_blob_rawcontent, size);
         }
 
         public static Int64 git_blob_rawsize(GitObjectSafeHandle obj)

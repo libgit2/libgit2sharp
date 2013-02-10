@@ -216,6 +216,7 @@
     <Compile Include="TreeEntry.cs" />
     <Compile Include="TreeEntryDefinition.cs" />
     <Compile Include="VoidReference.cs" />
+    <Compile Include="Core\RawContentStream.cs" />
   </ItemGroup>
   <ItemGroup>
     <CodeAnalysisDictionary Include="CustomDictionary.xml" />
