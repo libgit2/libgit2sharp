@@ -174,6 +174,9 @@ namespace LibGit2Sharp.Core
         public GitStrArrayIn PathSpec;
         public Int64 MaxSize;
 
+        public IntPtr NotifyCallback;
+        public IntPtr NotifyPayload;
+
         public void Dispose()
         {
             if (PathSpec == null)
