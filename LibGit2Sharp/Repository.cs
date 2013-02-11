@@ -231,7 +231,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Lookup and manage remotes in the repository.
         /// </summary>
-        [Obsolete]
+        [Obsolete("This property will be removed in the next release. Please use Repository.Network.Remotes instead.")]
         public RemoteCollection Remotes
         {
             get { return Network.Remotes; }
@@ -373,9 +373,9 @@ namespace LibGit2Sharp
             return Lookup(objectish, type, LookUpOptions.None);
         }
 
-        private string PathFromRevparseSpec(string spec)
+        private static string PathFromRevparseSpec(string spec)
         {
-            if (spec.StartsWith(":/"))
+            if (spec.StartsWith(":/", StringComparison.Ordinal))
             {
                 return null;
             }
@@ -544,7 +544,8 @@ namespace LibGit2Sharp
             if (branch.Tip == null)
             {
                 throw new OrphanedHeadException(
-                    string.Format("The tip of branch '{0}' is null. There's nothing to checkout.", branch.Name));
+                    string.Format(CultureInfo.InvariantCulture,
+                    "The tip of branch '{0}' is null. There's nothing to checkout.", branch.Name));
             }
 
             CheckoutTree(branch.Tip.Tree, checkoutOptions, onCheckoutProgress);

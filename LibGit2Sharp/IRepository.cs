@@ -33,7 +33,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Lookup and manage remotes in the repository.
         /// </summary>
-        [Obsolete]
+        [Obsolete("This property will be removed in the next release. Please use Repository.Network.Remotes instead.")]
         RemoteCollection Remotes { get; }
 
         /// <summary>

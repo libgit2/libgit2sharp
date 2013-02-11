@@ -34,12 +34,9 @@
             {
                 GitObject target = TargetObject;
 
-                if ((!(target is TagAnnotation)))
-                {
-                    return target;
-                }
+                var annotation = target as TagAnnotation;
 
-                return ((TagAnnotation)target).Target;
+                return annotation == null ? target : annotation.Target;
             }
         }
 

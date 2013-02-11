@@ -172,7 +172,7 @@ namespace LibGit2Sharp
             return string.Concat(refsTagsPrefix, name);
         }
 
-        internal string UnCanonicalizeName(string name)
+        internal static string UnCanonicalizeName(string name)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
 

@@ -50,7 +50,7 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
 
-            Proxy.git_tag_delete(tags.repo.Handle, tags.UnCanonicalizeName(name));
+            Proxy.git_tag_delete(tags.repo.Handle, TagCollection.UnCanonicalizeName(name));
         }
     }
 }

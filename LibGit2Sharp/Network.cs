@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Compat;
@@ -70,7 +71,8 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(objectish, "objectish");
             Ensure.ArgumentNotNullOrEmptyString(destinationSpec, destinationSpec);
 
-            Push(remote, string.Format("{0}:{1}", objectish, destinationSpec), onPushStatusError, credentials);
+            Push(remote, string.Format(CultureInfo.InvariantCulture,
+                "{0}:{1}", objectish, destinationSpec), onPushStatusError, credentials);
         }
 
         /// <summary>

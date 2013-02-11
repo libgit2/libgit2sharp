@@ -185,15 +185,6 @@ namespace LibGit2Sharp.Core
             }
         }
 
-        public static void git_checkout_head(RepositorySafeHandle repo, ref GitCheckoutOpts opts)
-        {
-            using (ThreadAffinity())
-            {
-                int res = NativeMethods.git_checkout_head(repo, ref opts);
-                Ensure.ZeroResult(res);
-            }
-        }
-
         public static void git_checkout_index(RepositorySafeHandle repo, GitObjectSafeHandle treeish, ref GitCheckoutOpts opts)
         {
             using (ThreadAffinity())
@@ -270,18 +261,6 @@ namespace LibGit2Sharp.Core
         public static string git_commit_message_encoding(GitObjectSafeHandle obj)
         {
             return NativeMethods.git_commit_message_encoding(obj);
-        }
-
-        public static GitObjectSafeHandle git_commit_parent(ObjectSafeWrapper obj, uint i)
-        {
-            using (ThreadAffinity())
-            {
-                GitObjectSafeHandle parentCommit;
-                int res = NativeMethods.git_commit_parent(out parentCommit, obj.ObjectPtr, i);
-                Ensure.ZeroResult(res);
-
-                return parentCommit;
-            }
         }
 
         public static ObjectId git_commit_parent_oid(GitObjectSafeHandle obj, uint i)
@@ -407,18 +386,6 @@ namespace LibGit2Sharp.Core
                     return null;
                 }
 
-                Ensure.ZeroResult(res);
-
-                return handle;
-            }
-        }
-
-        public static ConfigurationSafeHandle git_config_open_ondisk(FilePath path)
-        {
-            using (ThreadAffinity())
-            {
-                ConfigurationSafeHandle handle;
-                int res = NativeMethods.git_config_open_ondisk(out handle, path);
                 Ensure.ZeroResult(res);
 
                 return handle;
@@ -708,20 +675,6 @@ namespace LibGit2Sharp.Core
             return (StageLevel)NativeMethods.git_index_entry_stage(index);
         }
 
-        public static int? git_index_find(IndexSafeHandle index, FilePath path)
-        {
-            int res = NativeMethods.git_index_find(index, path);
-
-            if (res == (int)GitErrorCode.NotFound)
-            {
-                return null;
-            }
-
-            Ensure.Int32Result(res);
-
-            return res;
-        }
-
         public static void git_index_free(IntPtr index)
         {
             NativeMethods.git_index_free(index);
@@ -756,16 +709,6 @@ namespace LibGit2Sharp.Core
                 Ensure.ZeroResult(res);
 
                 return handle;
-            }
-        }
-
-        public static void git_index_read_tree(RepositorySafeHandle repo, IndexSafeHandle index, Tree tree)
-        {
-            using (ThreadAffinity())
-            using (var osw = new ObjectSafeWrapper(tree.Id, repo))
-            {
-                int res = NativeMethods.git_index_read_tree(index, osw.ObjectPtr, IntPtr.Zero);
-                Ensure.ZeroResult(res);
             }
         }
 

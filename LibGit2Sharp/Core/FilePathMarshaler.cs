@@ -79,24 +79,24 @@ namespace LibGit2Sharp.Core
                 return IntPtr.Zero;
             }
 
-            FilePath filePath = managedObj as FilePath;
+            var filePath = managedObj as FilePath;
 
             if (null == filePath)
             {
                 throw new MarshalDirectiveException("FilePathMarshaler must be used on a FilePath.");
             }
 
-            return FilePathMarshaler.FromManaged(filePath);
+            return FromManaged(filePath);
         }
 
         public Object MarshalNativeToManaged(IntPtr pNativeData)
         {
-            return FilePathMarshaler.FromNative(pNativeData);
+            return FromNative(pNativeData);
         }
 
         #endregion
 
-        public static unsafe IntPtr FromManaged(FilePath filePath)
+        public static IntPtr FromManaged(FilePath filePath)
         {
             if (null == filePath)
             {
@@ -106,7 +106,7 @@ namespace LibGit2Sharp.Core
             return Utf8Marshaler.FromManaged(filePath.Posix);
         }
 
-        public static unsafe FilePath FromNative(IntPtr pNativeData)
+        public static FilePath FromNative(IntPtr pNativeData)
         {
             if (IntPtr.Zero == pNativeData)
             {
@@ -118,17 +118,17 @@ namespace LibGit2Sharp.Core
                 return FilePath.Empty;
             }
 
-            return (FilePath)Utf8Marshaler.FromNative(pNativeData);
+            return Utf8Marshaler.FromNative(pNativeData);
         }
 
-        public static unsafe FilePath FromNative(IntPtr pNativeData, int length)
+        public static FilePath FromNative(IntPtr pNativeData, int length)
         {
             if (0 == length)
             {
                 return FilePath.Empty;
             }
 
-            return (FilePath)Utf8Marshaler.FromNative(pNativeData, length);
+            return Utf8Marshaler.FromNative(pNativeData, length);
         }
     }
 }

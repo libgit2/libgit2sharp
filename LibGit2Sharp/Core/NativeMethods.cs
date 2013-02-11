@@ -155,11 +155,6 @@ namespace LibGit2Sharp.Core
             ref GitCheckoutOpts opts);
 
         [DllImport(libgit2)]
-        internal static extern int git_checkout_head(
-            RepositorySafeHandle repo,
-            ref GitCheckoutOpts opts);
-
-        [DllImport(libgit2)]
         internal static extern int git_checkout_index(
             RepositorySafeHandle repo,
             GitObjectSafeHandle treeish,
@@ -198,9 +193,6 @@ namespace LibGit2Sharp.Core
         [DllImport(libgit2)]
         [return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8NoCleanupMarshaler))]
         internal static extern string git_commit_message_encoding(GitObjectSafeHandle commit);
-
-        [DllImport(libgit2)]
-        internal static extern int git_commit_parent(out GitObjectSafeHandle parentCommit, GitObjectSafeHandle commit, uint n);
 
         [DllImport(libgit2)]
         internal static extern OidSafeHandle git_commit_parent_id(GitObjectSafeHandle commit, uint n);
@@ -247,11 +239,6 @@ namespace LibGit2Sharp.Core
             out ConfigurationSafeHandle cfg,
             ConfigurationSafeHandle parent,
             uint level);
-
-        [DllImport(libgit2)]
-        internal static extern int git_config_open_ondisk(
-            out ConfigurationSafeHandle cfg,
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(FilePathMarshaler))] FilePath path);
 
         [DllImport(libgit2)]
         internal static extern int git_config_parse_bool(
@@ -427,11 +414,6 @@ namespace LibGit2Sharp.Core
         internal static extern int git_index_entry_stage(IndexEntrySafeHandle indexentry);
 
         [DllImport(libgit2)]
-        internal static extern int git_index_find(
-            IndexSafeHandle index,
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(FilePathMarshaler))] FilePath path);
-
-        [DllImport(libgit2)]
         internal static extern void git_index_free(IntPtr index);
 
         [DllImport(libgit2)]
@@ -450,9 +432,6 @@ namespace LibGit2Sharp.Core
         internal static extern int git_index_open(
             out IndexSafeHandle index,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(FilePathMarshaler))] FilePath indexpath);
-
-        [DllImport(libgit2)]
-        internal static extern int git_index_read_tree(IndexSafeHandle index, GitObjectSafeHandle tree, IntPtr payload);
 
         [DllImport(libgit2)]
         internal static extern int git_index_remove(

@@ -1,4 +1,5 @@
-﻿using LibGit2Sharp.Core;
+﻿using System.Globalization;
+using LibGit2Sharp.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,7 +32,8 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(objectish, "objectish");
             Ensure.ArgumentNotNullOrEmptyString(destinationSpec, "destinationSpec");
 
-            return network.Push(remote, string.Format("{0}:{1}", objectish, destinationSpec), credentials);
+            return network.Push(remote, string.Format(CultureInfo.InvariantCulture,
+                "{0}:{1}", objectish, destinationSpec), credentials);
         }
 
         /// <summary>

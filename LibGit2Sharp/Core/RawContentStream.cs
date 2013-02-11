@@ -1,13 +1,12 @@
 using System;
 using System.IO;
-using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Handles;
 
 namespace LibGit2Sharp.Core
 {
     internal class RawContentStream : UnmanagedMemoryStream
     {
-        readonly ObjectSafeWrapper wrapper;
+        private readonly ObjectSafeWrapper wrapper;
 
         internal RawContentStream(ObjectId id, RepositorySafeHandle repo,
             Func<GitObjectSafeHandle, IntPtr> bytePtrProvider, long length)
@@ -17,7 +16,7 @@ namespace LibGit2Sharp.Core
 
         unsafe RawContentStream(ObjectSafeWrapper wrapper,
             Func<GitObjectSafeHandle, IntPtr> bytePtrProvider, long length)
-            : base((byte *)bytePtrProvider(wrapper.ObjectPtr).ToPointer(), length)
+            : base((byte*)bytePtrProvider(wrapper.ObjectPtr).ToPointer(), length)
         {
             this.wrapper = wrapper;
         }
