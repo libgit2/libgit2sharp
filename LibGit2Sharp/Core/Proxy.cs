@@ -1270,6 +1270,15 @@ namespace LibGit2Sharp.Core
             }
         }
 
+        public static void git_remote_ls(RemoteSafeHandle remote, NativeMethods.git_headlist_cb headlist_cb)
+        {
+            using (ThreadAffinity())
+            {
+                int res = NativeMethods.git_remote_ls(remote, headlist_cb, IntPtr.Zero);
+                Ensure.ZeroResult(res);
+            }
+        }
+
         public static RemoteSafeHandle git_remote_load(RepositorySafeHandle repo, string name, bool throwsIfNotFound)
         {
             using (ThreadAffinity())

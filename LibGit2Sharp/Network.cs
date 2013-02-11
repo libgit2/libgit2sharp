@@ -53,6 +53,43 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        ///   List references in a <see cref = "Remote" /> repository.
+        /// </summary>
+        /// <param name="remote">The <see cref = "Remote" /> to list from.</param>
+        /// <returns>The references in the <see cref = "Remote" /> repository.</returns>
+        public virtual IEnumerable<DirectReference> ListReferences(Remote remote)
+        {
+            Ensure.ArgumentNotNull(remote, "remote");
+
+            List<DirectReference> directReferences = new List<DirectReference>();
+            using (RemoteSafeHandle remoteHandle = Proxy.git_remote_load(repository.Handle, remote.Name, true))
+            {
+                Proxy.git_remote_connect(remoteHandle, GitDirection.Fetch);
+
+                NativeMethods.git_headlist_cb cb = (ref GitRemoteHead remoteHead, IntPtr payload) =>
+                {
+                    // The name pointer should never be null - if it is,
+                    // this indicates a bug somewhere (libgit2, server, etc).
+                    if (remoteHead.NamePtr == IntPtr.Zero)
+                    {
+                        Proxy.giterr_set_str(GitErrorCategory.Invalid, "Not expecting null value for reference name.");
+                        return -1;
+                    }
+
+                    ObjectId oid = new ObjectId(remoteHead.Oid);
+                    string name = Utf8Marshaler.FromNative(remoteHead.NamePtr);
+                    directReferences.Add(new DirectReference(name, this.repository, oid));
+
+                    return 0;
+                };
+
+                Proxy.git_remote_ls(remoteHandle, cb);
+            }
+
+            return directReferences;
+        }
+
+        /// <summary>
         ///   Push the objectish to the destination reference on the <see cref = "Remote" />.
         /// </summary>
         /// <param name="remote">The <see cref = "Remote" /> to push to.</param>

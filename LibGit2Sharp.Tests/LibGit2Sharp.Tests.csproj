@@ -69,6 +69,7 @@
     <Compile Include="ConfigurationFixture.cs" />
     <Compile Include="AttributesFixture.cs" />
     <Compile Include="CommitAncestorFixture.cs" />
+    <Compile Include="NetworkFixture.cs" />
     <Compile Include="NoteFixture.cs" />
     <Compile Include="DiffBlobToBlobFixture.cs" />
     <Compile Include="DiffTreeToTargetFixture.cs" />
