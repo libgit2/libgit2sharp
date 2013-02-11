@@ -97,6 +97,14 @@ namespace LibGit2Sharp.Tests
                         TargetSha = "8f50ba15d49353813cc6e20298002c0d17b0a9ee",
                         ForMerge = false,
                     },
+                     new FetchHeadExpected
+                    {
+                        Name = "FETCH_HEAD[6]",
+                        RemoteName = "refs/tags/nearly-dangling",
+                        Url = "git://github.com/libgit2/TestGitRepository.git",
+                        TargetSha = "6e0c7bdb9b4ed93212491ee778ca1c65047cab4e",
+                        ForMerge = false,
+                    },
                 };
 
                 VerifyFetchHead(repo.Network.FetchHeads.ToArray(), expected);
