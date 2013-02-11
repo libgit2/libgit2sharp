@@ -427,7 +427,7 @@ namespace LibGit2Sharp
 
         private void RemoveFromIndex(string relativePath)
         {
-            Proxy.git_index_remove(handle, relativePath, 0);
+            Proxy.git_index_remove_bypath(handle, relativePath);
         }
 
         private void UpdatePhysicalIndex()

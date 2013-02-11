@@ -461,6 +461,11 @@ namespace LibGit2Sharp.Core
             int stage);
 
         [DllImport(libgit2)]
+        internal static extern int git_index_remove_bypath(
+            IndexSafeHandle index,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(FilePathMarshaler))] FilePath path);
+
+        [DllImport(libgit2)]
         internal static extern int git_index_write(IndexSafeHandle index);
 
         [DllImport(libgit2)]
