@@ -691,6 +691,11 @@ namespace LibGit2Sharp.Core
         internal static extern void git_remote_disconnect(RemoteSafeHandle remote);
 
         [DllImport(libgit2)]
+        internal static extern int git_remote_ls(RemoteSafeHandle remote, git_headlist_cb headlist_cb, IntPtr payload);
+
+        internal delegate int git_headlist_cb(ref GitRemoteHead remoteHeadPtr, IntPtr payload);
+
+        [DllImport(libgit2)]
         internal static extern int git_remote_download(
             RemoteSafeHandle remote,
             git_transfer_progress_callback progress_cb,
