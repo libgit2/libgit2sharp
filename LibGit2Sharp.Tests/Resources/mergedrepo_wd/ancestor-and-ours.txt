@@ -1,0 +1,5 @@
+this file is modified in
+the "ours" side and deleted
+in the "theirs" side so that
+a conflict will only include
+the ancestor and ours side

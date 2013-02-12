@@ -19,11 +19,13 @@ namespace LibGit2Sharp
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class Repository : IRepository
     {
+        private readonly bool isBare;
         private readonly BranchCollection branches;
         private readonly CommitLog commits;
         private readonly Lazy<Configuration> config;
         private readonly RepositorySafeHandle handle;
         private readonly Index index;
+        private readonly ConflictCollection conflicts;
         private readonly ReferenceCollection refs;
         private readonly TagCollection tags;
         private readonly Lazy<RepositoryInformation> info;
@@ -53,7 +55,7 @@ namespace LibGit2Sharp
             handle = Proxy.git_repository_open(path);
             RegisterForCleanup(handle);
 
-            bool isBare = Proxy.git_repository_is_bare(handle);
+            isBare = Proxy.git_repository_is_bare(handle);
 
             Func<Index> indexBuilder = () => new Index(this);
 
@@ -91,6 +93,7 @@ namespace LibGit2Sharp
             if (!isBare)
             {
                 index = indexBuilder();
+                conflicts = new ConflictCollection(this);
             }
 
             commits = new CommitLog(this);
@@ -178,12 +181,28 @@ namespace LibGit2Sharp
         {
             get
             {
-                if (index == null)
+                if (isBare)
                 {
                     throw new BareRepositoryException("Index is not available in a bare repository.");
                 }
 
                 return index;
+            }
+        }
+
+        /// <summary>
+        ///  Gets the conflicts that exist.
+        /// </summary>
+        public ConflictCollection Conflicts
+        {
+            get
+            {
+                if (isBare)
+                {
+                    throw new BareRepositoryException("Conflicts are not available in a bare repository.");
+                }
+
+                return conflicts;
             }
         }
 

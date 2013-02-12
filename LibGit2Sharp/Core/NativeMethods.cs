@@ -415,10 +415,24 @@ namespace LibGit2Sharp.Core
             GitIndexEntry entry);
 
         [DllImport(libgit2)]
+        internal static extern int git_index_conflict_get(
+            out IndexEntrySafeHandle ancestor,
+            out IndexEntrySafeHandle ours,
+            out IndexEntrySafeHandle theirs,
+            IndexSafeHandle index,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(FilePathMarshaler))] FilePath path);
+
+        [DllImport(libgit2)]
         internal static extern UIntPtr git_index_entrycount(IndexSafeHandle index);
 
         [DllImport(libgit2)]
         internal static extern int git_index_entry_stage(IndexEntrySafeHandle indexentry);
+
+        [DllImport(libgit2)]
+        internal static extern int git_index_find(
+            out UIntPtr pos,
+            IndexSafeHandle index,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(FilePathMarshaler))] FilePath path);
 
         [DllImport(libgit2)]
         internal static extern void git_index_free(IntPtr index);
