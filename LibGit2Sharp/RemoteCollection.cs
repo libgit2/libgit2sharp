@@ -40,6 +40,8 @@ namespace LibGit2Sharp
 
         internal Remote RemoteForName(string name, bool shouldThrowIfNotFound = true)
         {
+            Ensure.ArgumentNotNull(name, "name");
+
             using (RemoteSafeHandle handle = Proxy.git_remote_load(repository.Handle, name, shouldThrowIfNotFound))
             {
                 return handle == null ? null : Remote.BuildFromPtr(handle, this.repository);
