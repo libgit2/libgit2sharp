@@ -131,14 +131,6 @@ namespace LibGit2Sharp
             }
         }
 
-        /// <summary>
-        ///   Takes care of releasing all non-managed remaining resources.
-        /// </summary>
-        ~Repository()
-        {
-            Dispose(false);
-        }
-
         internal RepositorySafeHandle Handle
         {
             get { return handle; }
