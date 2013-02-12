@@ -37,10 +37,5 @@ namespace LibGit2Sharp.Core
         {
             objectPtr.SafeDispose();
         }
-
-        ~ObjectSafeWrapper()
-        {
-            Dispose(false);
-        }
     }
 }
