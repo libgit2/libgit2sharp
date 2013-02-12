@@ -439,6 +439,102 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
+        public void CanSetUpstreamBranch()
+        {
+            const string testBranchName = "branchToSetUpstreamInfoFor";
+            const string upstreamBranchName = "refs/remotes/origin/master";
+
+            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoPath);
+
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                Branch branch = repo.CreateBranch(testBranchName);
+                Assert.False(branch.IsTracking);
+
+                Branch upstreamBranch = repo.Branches[upstreamBranchName];
+                repo.Branches.Update(branch,
+                    b => b.Upstream = upstreamBranch.CanonicalName);
+
+                // Verify the immutability of the branch.
+                Assert.False(branch.IsTracking);
+
+                // Get the updated branch information.
+                branch = repo.Branches[testBranchName];
+
+                Remote upstreamRemote = repo.Network.Remotes["origin"];
+                Assert.NotNull(upstreamRemote);
+
+                Assert.True(branch.IsTracking);
+                Assert.Equal(upstreamBranch, branch.TrackedBranch);
+                Assert.Equal(upstreamRemote, branch.Remote);
+            }
+        }
+
+        [Fact]
+        public void CanSetLocalUpstreamBranch()
+        {
+            const string testBranchName = "branchToSetUpstreamInfoFor";
+            const string upstreamBranchName = "refs/heads/master";
+
+            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoPath);
+
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                Branch branch = repo.CreateBranch(testBranchName);
+                Assert.False(branch.IsTracking);
+
+                Branch upstreamBranch = repo.Branches[upstreamBranchName];
+                
+                repo.Branches.Update(branch,
+                    b => b.Upstream = upstreamBranch.CanonicalName);
+
+                // Get the updated branch information.
+                branch = repo.Branches[testBranchName];
+
+                // Branches that track the local remote do not have the "Remote" property set.
+                // Verify (through the configuration entry) that the local remote is set as expected.
+                Assert.Null(branch.Remote);
+                ConfigurationEntry<string> remoteConfigEntry = repo.Config.Get<string>("branch", testBranchName, "remote");
+                Assert.NotNull(remoteConfigEntry);
+                Assert.Equal(".", remoteConfigEntry.Value);
+
+                ConfigurationEntry<string> mergeConfigEntry = repo.Config.Get<string>("branch", testBranchName, "merge");
+                Assert.NotNull(mergeConfigEntry);
+                Assert.Equal("refs/heads/master", mergeConfigEntry.Value);
+
+                // Verify the IsTracking and TrackedBranch properties.
+                Assert.True(branch.IsTracking);
+                Assert.Equal(upstreamBranch, branch.TrackedBranch);
+            }
+        }
+
+        [Fact]
+        public void CanUnsetUpstreamBranch()
+        {
+            const string testBranchName = "branchToSetUpstreamInfoFor";
+            const string upstreamBranchName = "refs/remotes/origin/master";
+
+            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoPath);
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                Branch branch = repo.CreateBranch(testBranchName);
+                Assert.False(branch.IsTracking);
+
+                branch = repo.Branches.Update(branch,
+                    b => b.Upstream = upstreamBranchName);
+
+                // Got the updated branch from the Update() method
+                Assert.True(branch.IsTracking);
+
+                branch = repo.Branches.Update(branch,
+                    b => b.Upstream = null);
+
+                // Verify this is no longer a tracking branch
+                Assert.False(branch.IsTracking);
+            }
+        }
+
+        [Fact]
         public void CanWalkCommitsFromBranch()
         {
             using (var repo = new Repository(BareTestRepoPath))
