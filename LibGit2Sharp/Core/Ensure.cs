@@ -67,6 +67,9 @@ namespace LibGit2Sharp.Core
                 case (int)GitErrorCode.UnmergedEntries:
                     throw new UnmergedIndexEntriesException(errorMessage, (GitErrorCode)result, error.Category);
 
+                case (int)GitErrorCode.NonFastForward:
+                    throw new NonFastForwardException(errorMessage, (GitErrorCode)result, error.Category);
+
                 case (int)GitErrorCode.MergeConflict:
                     throw new MergeConflictException(errorMessage, (GitErrorCode)result, error.Category);
 
