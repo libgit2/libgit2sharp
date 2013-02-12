@@ -675,6 +675,9 @@ namespace LibGit2Sharp.Tests
         [InlineData("refs/stash", true)]
         [InlineData("refs/heads/pmiossec-branch", true)]
         [InlineData("refs/heads/pmiossec@{0}", false)]
+        [InlineData("refs/heads/sher.lock", false)]
+        [InlineData("refs/heads/sher.lock/holmes", false)]
+        [InlineData("/", false)]
         public void CanTellIfAReferenceIsValid(string refname, bool expectedResult)
         {
             using (var repo = new Repository(BareTestRepoPath))
