@@ -19,9 +19,9 @@ namespace LibGit2Sharp.Core.Handles
 #endif
         }
 
+#if DEBUG
         protected override void Dispose(bool disposing)
         {
-#if DEBUG
             if (!disposing && !IsInvalid)
             {
                 Trace.WriteLine(string.Format(CultureInfo.InvariantCulture, "A {0} handle wrapper has not been properly disposed.", GetType().Name));
@@ -30,9 +30,10 @@ namespace LibGit2Sharp.Core.Handles
 #endif
                 Trace.WriteLine("");
             }
-#endif
+
             base.Dispose(disposing);
         }
+#endif
 
         public override bool IsInvalid
         {
