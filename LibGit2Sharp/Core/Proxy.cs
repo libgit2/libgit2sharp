@@ -1250,6 +1250,26 @@ namespace LibGit2Sharp.Core
 
         #endregion
 
+        #region git_refspec
+
+        public static string git_fetchspec_rtransform(GitFetchSpecHandle refSpecPtr, string name)
+        {
+            using (ThreadAffinity())
+            {
+                // libgit2 API does not support querying for required buffer size.
+                // Use a sufficiently large buffer until it does.
+                var buffer = new byte[1024];
+
+                // TODO: Use code pattern similar to Proxy.git_message_prettify() when available
+                int res = NativeMethods.git_refspec_rtransform(buffer, (UIntPtr)buffer.Length, refSpecPtr, name);
+                Ensure.ZeroResult(res);
+
+                return Utf8Marshaler.Utf8FromBuffer(buffer) ?? string.Empty;
+            }
+        }
+
+        #endregion
+
         #region git_remote_
 
         public static RemoteSafeHandle git_remote_create(RepositorySafeHandle repo, string name, string url)
@@ -1279,6 +1299,11 @@ namespace LibGit2Sharp.Core
             {
                 NativeMethods.git_remote_disconnect(remote);
             }
+        }
+
+        public static GitFetchSpecHandle git_remote_fetchspec(RemoteSafeHandle remote)
+        {
+            return NativeMethods.git_remote_fetchspec(remote);
         }
 
         public static void git_remote_download(RemoteSafeHandle remote, TransferProgressHandler onTransferProgress)

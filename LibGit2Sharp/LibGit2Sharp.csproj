@@ -62,11 +62,13 @@
     <Compile Include="Branch.cs" />
     <Compile Include="BranchCollection.cs" />
     <Compile Include="BranchCollectionExtensions.cs" />
+    <Compile Include="BranchUpdater.cs" />
     <Compile Include="Changes.cs" />
     <Compile Include="CheckoutCallbacks.cs" />
     <Compile Include="CheckoutOptions.cs" />
     <Compile Include="Conflict.cs" />
     <Compile Include="ConflictCollection.cs" />
+    <Compile Include="Core\Handles\GitFetchSpecHandle.cs" />
     <Compile Include="Network.cs" />
     <Compile Include="Core\GitRemoteHead.cs" />
     <Compile Include="OrphanedHeadException.cs" />

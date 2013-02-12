@@ -190,6 +190,24 @@ namespace LibGit2Sharp
             return this[newName];
         }
 
+        /// <summary>
+        ///   Update properties of a branch.
+        /// </summary>
+        /// <param name="branch">The branch to update.</param>
+        /// <param name="actions">Delegate to perform updates on the branch.</param>
+        /// <returns>The updated branch.</returns>
+        public virtual Branch Update(Branch branch, params Action<BranchUpdater>[] actions)
+        {
+            var updater = new BranchUpdater(repo, branch);
+
+            foreach (Action<BranchUpdater> action in actions)
+            {
+                action(updater);
+            }
+
+            return this[branch.Name];
+        }
+
         private static bool LooksLikeABranchName(string referenceName)
         {
             return referenceName == "HEAD" ||
