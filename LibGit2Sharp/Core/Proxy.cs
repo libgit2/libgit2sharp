@@ -144,6 +144,22 @@ namespace LibGit2Sharp.Core
             }
         }
 
+        public static string git_branch_remote_name(RepositorySafeHandle repo, ReferenceSafeHandle branch)
+        {
+            using (ThreadAffinity())
+            {
+                int bufSize = NativeMethods.git_branch_remote_name(null, UIntPtr.Zero, repo, branch);
+                Ensure.Int32Result(bufSize);
+
+                var buffer = new byte[bufSize];
+
+                int res = NativeMethods.git_branch_remote_name(buffer, (UIntPtr)buffer.Length, repo, branch);
+                Ensure.Int32Result(res);
+
+                return Utf8Marshaler.Utf8FromBuffer(buffer) ?? string.Empty;
+            }
+        }
+
         public static string git_branch_tracking_name(RepositorySafeHandle handle, string canonicalReferenceName)
         {
             using (ThreadAffinity())

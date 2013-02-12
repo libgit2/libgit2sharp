@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Globalization;
-using System.Linq;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Compat;
 using LibGit2Sharp.Core.Handles;
@@ -174,22 +173,52 @@ namespace LibGit2Sharp
         {
             get
             {
-                ConfigurationEntry<string> remoteEntry = repo.Config.Get<string>("branch", Name, "remote");
+                string remoteName;
 
-                if (remoteEntry == null)
+                if (IsRemote)
                 {
-                    return null;
+                    remoteName = RemoteNameFromRemoteTrackingBranch();
                 }
-
-                string remoteName = remoteEntry.Value;
-
-                if (string.IsNullOrEmpty(remoteName) ||
-                    string.Equals(remoteName, ".", StringComparison.Ordinal))
+                else
                 {
-                    return null;
+                    remoteName = RemoteNameFromLocalBranch();
+
+                    if (remoteName == null)
+                    {
+                        return null;
+                    }
                 }
 
                 return repo.Network.Remotes[remoteName];
+            }
+        }
+
+        private string RemoteNameFromLocalBranch()
+        {
+            ConfigurationEntry<string> remoteEntry = repo.Config.Get<string>("branch", Name, "remote");
+
+            if (remoteEntry == null)
+            {
+                return null;
+            }
+
+            string remoteName = remoteEntry.Value;
+
+            if (string.IsNullOrEmpty(remoteName) ||
+                string.Equals(remoteName, ".", StringComparison.Ordinal))
+            {
+                return null;
+            }
+
+            return remoteName;
+
+        }
+
+        private string RemoteNameFromRemoteTrackingBranch()
+        {
+            using (ReferenceSafeHandle branchPtr = repo.Refs.RetrieveReferencePtr(CanonicalName))
+            {
+                return Proxy.git_branch_remote_name(repo.Handle, branchPtr);
             }
         }
 
