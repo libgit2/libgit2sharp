@@ -1258,6 +1258,14 @@ namespace LibGit2Sharp.Core
             NativeMethods.git_remote_free(remote);
         }
 
+        public static bool git_remote_is_valid_name(string refname)
+        {
+            int res = NativeMethods.git_remote_is_valid_name(refname);
+            Ensure.BooleanResult(res);
+
+            return (res == 1);
+        }
+
         public static IList<string> git_remote_list(RepositorySafeHandle repo)
         {
             using (ThreadAffinity())

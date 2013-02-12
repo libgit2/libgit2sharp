@@ -213,5 +213,17 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(fetchRefSpec, refSpec.Value);
             }
         }
+
+        [Theory]
+        [InlineData("valid/remote", true)]
+        [InlineData("sher.lock", false)]
+        [InlineData("/", false)]
+        public void CanTellIfARemoteNameIsValid(string refname, bool expectedResult)
+        {
+            using (var repo = new Repository(BareTestRepoPath))
+            {
+                Assert.Equal(expectedResult, repo.Network.Remotes.IsValidName(refname));
+            }
+        }
     }
 }

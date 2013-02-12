@@ -652,6 +652,10 @@ namespace LibGit2Sharp.Core
         internal static extern void git_remote_free(IntPtr remote);
 
         [DllImport(libgit2)]
+        internal static extern int git_remote_is_valid_name(
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string remote_name);
+
+        [DllImport(libgit2)]
         internal static extern int git_remote_load(
             out RemoteSafeHandle remote,
             RepositorySafeHandle repo,

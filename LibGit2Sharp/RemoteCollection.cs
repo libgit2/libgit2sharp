@@ -136,6 +136,16 @@ namespace LibGit2Sharp
             return Add(name, url);
         }
 
+        /// <summary>
+        ///   Determines if the proposed remote name is well-formed.
+        /// </summary>
+        /// <param name="name">The name to be checked.</param>
+        /// <returns>true is the name is valid; false otherwise.</returns>
+        public virtual bool IsValidName(string name)
+        {
+            return Proxy.git_remote_is_valid_name(name);
+        }
+
         private string DebuggerDisplay
         {
             get
