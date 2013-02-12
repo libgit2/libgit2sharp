@@ -13,7 +13,7 @@ namespace LibGit2Sharp.Core
 
         public bool Equals(T instance, T other)
         {
-            if (ReferenceEquals(null, other))
+            if (ReferenceEquals(null, instance) || ReferenceEquals(null, other))
             {
                 return false;
             }
