@@ -649,6 +649,25 @@ namespace LibGit2Sharp.Core
         internal static extern GitReferenceType git_reference_type(ReferenceSafeHandle reference);
 
         [DllImport(libgit2)]
+        internal static extern int git_remote_connect(RemoteSafeHandle remote, GitDirection direction);
+
+        [DllImport(libgit2)]
+        internal static extern int git_remote_create(
+            out RemoteSafeHandle remote,
+            RepositorySafeHandle repo,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string name,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string url);
+
+        [DllImport(libgit2)]
+        internal static extern void git_remote_disconnect(RemoteSafeHandle remote);
+
+        [DllImport(libgit2)]
+        internal static extern int git_remote_download(
+            RemoteSafeHandle remote,
+            git_transfer_progress_callback progress_cb,
+            IntPtr payload);
+
+        [DllImport(libgit2)]
         internal static extern void git_remote_free(IntPtr remote);
 
         [DllImport(libgit2)]
@@ -661,20 +680,14 @@ namespace LibGit2Sharp.Core
             RepositorySafeHandle repo,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string name);
 
+        internal delegate int git_headlist_cb(ref GitRemoteHead remoteHeadPtr, IntPtr payload);
+
+        [DllImport(libgit2)]
+        internal static extern int git_remote_ls(RemoteSafeHandle remote, git_headlist_cb headlist_cb, IntPtr payload);
+
         [DllImport(libgit2)]
         [return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8NoCleanupMarshaler))]
         internal static extern string git_remote_name(RemoteSafeHandle remote);
-
-        [DllImport(libgit2)]
-        internal static extern int git_remote_create(
-            out RemoteSafeHandle remote,
-            RepositorySafeHandle repo,
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string name,
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string url);
-
-        [DllImport(libgit2)]
-        [return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8NoCleanupMarshaler))]
-        internal static extern string git_remote_url(RemoteSafeHandle remote);
 
         [DllImport(libgit2)]
         internal static extern int git_remote_save(RemoteSafeHandle remote);
@@ -686,37 +699,21 @@ namespace LibGit2Sharp.Core
             IntPtr payload);
 
         [DllImport(libgit2)]
-        internal static extern int git_repository_odb(out ObjectDatabaseSafeHandle odb, RepositorySafeHandle repo);
-
-        [DllImport(libgit2)]
-        internal static extern int git_remote_connect(RemoteSafeHandle remote, GitDirection direction);
-
-        [DllImport(libgit2)]
-        internal static extern void git_remote_disconnect(RemoteSafeHandle remote);
-
-        [DllImport(libgit2)]
-        internal static extern int git_remote_ls(RemoteSafeHandle remote, git_headlist_cb headlist_cb, IntPtr payload);
-
-        internal delegate int git_headlist_cb(ref GitRemoteHead remoteHeadPtr, IntPtr payload);
-
-        [DllImport(libgit2)]
-        internal static extern int git_remote_download(
-            RemoteSafeHandle remote,
-            git_transfer_progress_callback progress_cb,
-            IntPtr payload);
+        [return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8NoCleanupMarshaler))]
+        internal static extern string git_remote_url(RemoteSafeHandle remote);
 
         [DllImport(libgit2)]
         internal static extern void git_remote_set_autotag(RemoteSafeHandle remote, TagFetchMode option);
 
         [DllImport(libgit2)]
-        internal static extern int git_remote_set_fetchspec(
-            RemoteSafeHandle remote,
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof (Utf8Marshaler))] string fetchrefspec);
-
-        [DllImport(libgit2)]
         internal static extern int git_remote_set_callbacks(
             RemoteSafeHandle remote,
             ref GitRemoteCallbacks callbacks);
+
+        [DllImport(libgit2)]
+        internal static extern int git_remote_set_fetchspec(
+            RemoteSafeHandle remote,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof (Utf8Marshaler))] string fetchrefspec);
 
         internal delegate void remote_progress_callback(IntPtr str, int len, IntPtr data);
 
@@ -788,6 +785,9 @@ namespace LibGit2Sharp.Core
             RepositorySafeHandle repo,
             git_repository_mergehead_foreach_cb cb,
             IntPtr payload);
+
+        [DllImport(libgit2)]
+        internal static extern int git_repository_odb(out ObjectDatabaseSafeHandle odb, RepositorySafeHandle repo);
 
         [DllImport(libgit2)]
         internal static extern int git_repository_open(
