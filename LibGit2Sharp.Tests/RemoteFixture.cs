@@ -215,6 +215,19 @@ namespace LibGit2Sharp.Tests
         }
 
         [Theory]
+        [InlineData("sher.lock")]
+        [InlineData("/")]
+        public void AddingARemoteWithAnInvalidNameThrows(string name)
+        {
+            using (var repo = new Repository(BareTestRepoPath))
+            {
+                const string url = "https://github.com/libgit2/libgit2sharp.git";
+
+                Assert.Throws<InvalidSpecificationException>(() => repo.Network.Remotes.Add(name, url));
+            }
+        }
+
+        [Theory]
         [InlineData("valid/remote", true)]
         [InlineData("sher.lock", false)]
         [InlineData("/", false)]
