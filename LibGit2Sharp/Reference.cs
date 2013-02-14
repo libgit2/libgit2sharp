@@ -24,6 +24,11 @@ namespace LibGit2Sharp
         protected Reference()
         { }
 
+        /// <summary>
+        ///   Initializes a new instance of the <see cref = "Reference" /> class.
+        /// </summary>
+        /// <param name="canonicalName">The canonical name.</param>
+        /// <param name="targetIdentifier">The target identifier.</param>
         protected Reference(string canonicalName, string targetIdentifier)
         {
             this.canonicalName = canonicalName;
