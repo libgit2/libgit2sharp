@@ -10,7 +10,7 @@ namespace LibGit2Sharp
     ///   A reference to a <see cref = "Blob" /> known by the <see cref = "Index" />.
     /// </summary>
     [DebuggerDisplayAttribute("{DebuggerDisplay,nq}")]
-    public class IndexEntry : IEquatable<IndexEntry>
+    public class IndexEntry : IEquatable<IndexEntry>, IComparable<IndexEntry>
     {
         private static readonly LambdaEqualityHelper<IndexEntry> equalityHelper =
             new LambdaEqualityHelper<IndexEntry>(x => x.Path, x => x.Id, x => x.Mode, x => x.StageLevel);
@@ -66,6 +66,16 @@ namespace LibGit2Sharp
                            StageLevel = Proxy.git_index_entry_stage(handle),
                            Mode = (Mode)entry.Mode
                        };
+        }
+
+        /// <summary>
+        ///   Compares the current instance with another <see cref="IndexEntry"/>.
+        /// </summary>
+        /// <param name="other">The other index entry.</param>
+        /// <returns>A member of Z.</returns>
+        public int CompareTo(IndexEntry other)
+        {
+            return other == null ? 1 : StringComparer.Ordinal.Compare(Path, other.Path);
         }
 
         /// <summary>
