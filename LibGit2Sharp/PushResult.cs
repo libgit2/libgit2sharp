@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace LibGit2Sharp
 {
@@ -44,6 +41,6 @@ namespace LibGit2Sharp
             this.failedPushUpdates = failedPushUpdates ?? new List<PushStatusError>();
         }
 
-        private List<PushStatusError> failedPushUpdates;
+        private readonly List<PushStatusError> failedPushUpdates;
     }
 }

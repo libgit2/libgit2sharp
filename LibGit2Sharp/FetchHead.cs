@@ -26,6 +26,9 @@ namespace LibGit2Sharp
             RemoteCanonicalName = remoteCanonicalName;
         }
 
+        /// <summary>
+        ///   Returns "FETCH_HEAD[i]", where i is the index of this fetch head.
+        /// </summary>
         protected override string Shorten()
         {
             return CanonicalName;

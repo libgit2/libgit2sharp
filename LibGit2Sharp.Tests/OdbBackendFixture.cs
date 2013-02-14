@@ -184,7 +184,7 @@ namespace LibGit2Sharp.Tests
                 throw new NotImplementedException();
             }
 
-            public override int ForEach(OdbBackend.ForEachCallback callback)
+            public override int ForEach(ForEachCallback callback)
             {
                 throw new NotImplementedException();
             }

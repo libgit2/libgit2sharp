@@ -15,7 +15,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Managed delegate to be called in response to a git_transfer_progress_callback callback from libgit2.
         /// </summary>
-        private TransferProgressHandler onTransferProgress;
+        private readonly TransferProgressHandler onTransferProgress;
 
         /// <summary>
         ///   Constructor to set up the native callback given managed delegate.

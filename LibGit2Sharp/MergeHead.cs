@@ -26,6 +26,9 @@ namespace LibGit2Sharp
             get { return TargetObject; }
         }
 
+        /// <summary>
+        ///   Returns "MERGE_HEAD[i]", where i is the index of this merge head.
+        /// </summary>
         protected override string Shorten()
         {
             return CanonicalName;

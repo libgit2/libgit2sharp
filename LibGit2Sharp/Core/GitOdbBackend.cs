@@ -19,7 +19,7 @@ namespace LibGit2Sharp.Core
         /// This field is populated by libgit2 at backend addition time, and exists for its
         /// use only. From this side of the interop, it is unreferenced.
         /// </summary>
-        private IntPtr Odb;
+        private readonly IntPtr Odb;
 
 #pragma warning restore 169
 

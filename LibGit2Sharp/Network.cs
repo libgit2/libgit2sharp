@@ -204,17 +204,17 @@ namespace LibGit2Sharp
         /// </summary>
         private class PushCallbacks
         {
-            PushStatusErrorHandler OnError;
+            readonly PushStatusErrorHandler onError;
 
             public PushCallbacks(PushStatusErrorHandler onError)
             {
-                OnError = onError;
+                this.onError = onError;
             }
 
             public int Callback(IntPtr referenceNamePtr, IntPtr msgPtr, IntPtr payload)
             {
                 // Exit early if there is no callback.
-                if (OnError == null)
+                if (onError == null)
                 {
                     return 0;
                 }
@@ -233,7 +233,7 @@ namespace LibGit2Sharp
                 {
                     string referenceName = Utf8Marshaler.FromNative(referenceNamePtr);
                     string msg = Utf8Marshaler.FromNative(msgPtr);
-                    OnError(new PushStatusError(referenceName, msg));
+                    onError(new PushStatusError(referenceName, msg));
                 }
 
                 return 0;

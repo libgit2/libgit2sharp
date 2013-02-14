@@ -982,7 +982,7 @@ namespace LibGit2Sharp.Core
             {
                 throw new LibGit2SharpException(String.Format(CultureInfo.InvariantCulture,
                                                               "Unable to allocate {0} bytes; out of memory",
-                                                              len.ToString()),
+                                                              len),
                                                 GitErrorCode.Error, GitErrorCategory.NoMemory);
             }
 
@@ -1969,13 +1969,13 @@ namespace LibGit2Sharp.Core
         {
             public static IList<string> BuildListOf(UnSafeNativeMethods.git_strarray strArray)
             {
-                var list = new List<string>();
 
                 try
                 {
                     UnSafeNativeMethods.git_strarray* gitStrArray = &strArray;
 
-                    uint numberOfEntries = (uint)gitStrArray->size;
+                    var numberOfEntries = (int)gitStrArray->size;
+                    var list = new List<string>(numberOfEntries);
                     for (uint i = 0; i < numberOfEntries; i++)
                     {
                         var name = Utf8Marshaler.FromNative((IntPtr)gitStrArray->strings[i]);
@@ -1983,13 +1983,12 @@ namespace LibGit2Sharp.Core
                     }
 
                     list.Sort(StringComparer.Ordinal);
+                    return list;
                 }
                 finally
                 {
                     UnSafeNativeMethods.git_strarray_free(ref strArray);
                 }
-
-                return list;
             }
         }
 

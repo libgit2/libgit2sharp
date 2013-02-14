@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using LibGit2Sharp.Core.Compat;
+﻿using System.Collections.Generic;
 
 namespace LibGit2Sharp.Tests.TestHelpers
 {

@@ -13,7 +13,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Managed delegate to call in response to checkout progress_cb callback.
         /// </summary>
-        private CheckoutProgressHandler onCheckoutProgress;
+        private readonly CheckoutProgressHandler onCheckoutProgress;
 
         /// <summary>
         ///   Constructor to set up native callback for given managed delegate.

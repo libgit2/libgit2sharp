@@ -89,7 +89,7 @@ namespace LibGit2Sharp
             }
         }
 
-        private OdbBackend backend;
+        private readonly OdbBackend backend;
         private IntPtr nativeBackendStreamPointer;
 
         internal IntPtr GitOdbBackendStreamPointer
@@ -133,10 +133,10 @@ namespace LibGit2Sharp
             // to native memory with StructureToPtr), we need to bind to static delegates. If at construction time
             // we were to bind to the methods directly, that's the same as newing up a fresh delegate every time.
             // Those delegates won't be rooted in the object graph and can be collected as soon as StructureToPtr finishes.
-            public static GitOdbBackendStream.read_callback ReadCallback = new GitOdbBackendStream.read_callback(Read);
-            public static GitOdbBackendStream.write_callback WriteCallback = new GitOdbBackendStream.write_callback(Write);
-            public static GitOdbBackendStream.finalize_write_callback FinalizeWriteCallback = new GitOdbBackendStream.finalize_write_callback(FinalizeWrite);
-            public static GitOdbBackendStream.free_callback FreeCallback = new GitOdbBackendStream.free_callback(Free);
+            public static readonly GitOdbBackendStream.read_callback ReadCallback = Read;
+            public static readonly GitOdbBackendStream.write_callback WriteCallback = Write;
+            public static readonly GitOdbBackendStream.finalize_write_callback FinalizeWriteCallback = FinalizeWrite;
+            public static readonly GitOdbBackendStream.free_callback FreeCallback = Free;
 
             private unsafe static int Read(
                 IntPtr stream,
@@ -146,7 +146,7 @@ namespace LibGit2Sharp
                 OdbBackendStream odbBackendStream = GCHandle.FromIntPtr(Marshal.ReadIntPtr(stream, GitOdbBackendStream.GCHandleOffset)).Target as OdbBackendStream;
 
                 if (odbBackendStream != null &&
-                    len.ToUInt64() < (ulong)long.MaxValue)
+                    len.ToUInt64() < long.MaxValue)
                 {
                     using (UnmanagedMemoryStream memoryStream = new UnmanagedMemoryStream((byte*)buffer, 0, (long)len.ToUInt64(), FileAccess.ReadWrite))
                     {
@@ -172,7 +172,7 @@ namespace LibGit2Sharp
                 OdbBackendStream odbBackendStream = GCHandle.FromIntPtr(Marshal.ReadIntPtr(stream, GitOdbBackendStream.GCHandleOffset)).Target as OdbBackendStream;
 
                 if (odbBackendStream != null &&
-                    len.ToUInt64() < (ulong)long.MaxValue)
+                    len.ToUInt64() < long.MaxValue)
                 {
                     long length = (long)len.ToUInt64();
 

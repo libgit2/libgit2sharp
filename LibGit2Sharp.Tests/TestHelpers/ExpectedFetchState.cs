@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Xunit;
 
 namespace LibGit2Sharp.Tests.TestHelpers
@@ -41,7 +39,6 @@ namespace LibGit2Sharp.Tests.TestHelpers
         ///   Constructor.
         /// </summary>
         /// <param name="remoteName">Name of the remote being updated.</param>
-        /// <param name="url">Url of the remote.</param>
         public ExpectedFetchState(string remoteName)
         {
             RemoteName = remoteName;
