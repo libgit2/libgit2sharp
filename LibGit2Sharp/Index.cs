@@ -108,9 +108,10 @@ namespace LibGit2Sharp
 
         private List<IndexEntry> AllIndexEntries()
         {
-            var list = new List<IndexEntry>();
+            var entryCount = Count;
+            var list = new List<IndexEntry>(entryCount);
 
-            for (int i = 0; i < Count; i++)
+            for (int i = 0; i < entryCount; i++)
             {
                 list.Add(this[i]);
             }

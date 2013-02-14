@@ -229,7 +229,7 @@ namespace LibGit2Sharp
 
             using (var builder = new TreeBuilder())
             {
-                var builtTreeEntryDefinitions = new List<Tuple<string, TreeEntryDefinition>>();
+                var builtTreeEntryDefinitions = new List<Tuple<string, TreeEntryDefinition>>(entries.Count);
 
                 foreach (KeyValuePair<string, TreeEntryDefinition> kvp in entries)
                 {
