@@ -365,7 +365,7 @@ namespace LibGit2Sharp
                 OdbBackend odbBackend = GCHandle.FromIntPtr(Marshal.ReadIntPtr(backend, GitOdbBackend.GCHandleOffset)).Target as OdbBackend;
 
                 if (odbBackend != null &&
-                    len.ToUInt64() < (ulong)long.MaxValue)
+                    len.ToUInt64() < long.MaxValue)
                 {
                     try
                     {
@@ -403,7 +403,7 @@ namespace LibGit2Sharp
                 OdbBackend odbBackend = GCHandle.FromIntPtr(Marshal.ReadIntPtr(backend, GitOdbBackend.GCHandleOffset)).Target as OdbBackend;
 
                 if (odbBackend != null &&
-                    length.ToUInt64() < (ulong)long.MaxValue)
+                    length.ToUInt64() < long.MaxValue)
                 {
                     OdbBackendStream stream;
 

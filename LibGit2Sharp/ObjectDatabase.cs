@@ -77,7 +77,7 @@ namespace LibGit2Sharp
         public virtual void AddBackend(OdbBackend backend, int priority)
         {
             Ensure.ArgumentNotNull(backend, "backend");
-            Ensure.ArgumentConformsTo<int>(priority, s => s > 0, "priority");
+            Ensure.ArgumentConformsTo(priority, s => s > 0, "priority");
 
             Proxy.git_odb_add_backend(this.handle, backend.GitOdbBackendPointer, priority);
         }
