@@ -819,6 +819,12 @@ namespace LibGit2Sharp.Core
             IntPtr payload);
 
         [DllImport(libgit2)]
+        internal static extern int git_repository_message(
+            byte[] message_out,
+            UIntPtr buffer_size,
+            RepositorySafeHandle repository);
+
+        [DllImport(libgit2)]
         internal static extern int git_repository_odb(out ObjectDatabaseSafeHandle odb, RepositorySafeHandle repo);
 
         [DllImport(libgit2)]

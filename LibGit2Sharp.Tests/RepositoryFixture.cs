@@ -477,5 +477,30 @@ namespace LibGit2Sharp.Tests
                 Assert.Null(trackLocal.Remote);
             }
         }
+
+        [Fact]
+        public void ReadingEmptyRepositoryMessageReturnsNull()
+        {
+            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+
+            using (var repo = Repository.Init(scd.DirectoryPath))
+            {
+                Assert.Null(repo.Info.Message);
+            }
+        }
+
+        [Fact]
+        public void CanReadRepositoryMessage()
+        {
+            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            string testMessage = "This is a test message!";
+
+            using (var repo = Repository.Init(scd.DirectoryPath))
+            {
+                File.WriteAllText(Path.Combine(repo.Info.Path, "MERGE_MSG"), testMessage);
+
+                Assert.Equal(testMessage, repo.Info.Message);
+            }
+        }
     }
 }
