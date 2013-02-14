@@ -79,5 +79,13 @@ namespace LibGit2Sharp
         {
             get { return Proxy.git_repository_state(repo.Handle); }
         }
+
+        /// <summary>
+        ///   The message for a pending interactive operation.
+        /// </summary>
+        public virtual string Message
+        {
+            get { return Proxy.git_repository_message(repo.Handle); }
+        }
     }
 }

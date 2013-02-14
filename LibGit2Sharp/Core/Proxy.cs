@@ -1515,6 +1515,31 @@ namespace LibGit2Sharp.Core
                 GitErrorCode.NotFound);
         }
 
+        public static string git_repository_message(RepositorySafeHandle repo)
+        {
+            using (ThreadAffinity())
+            {
+                int bufSize = NativeMethods.git_repository_message(null, (UIntPtr)0, repo);
+
+                if (bufSize == (int)GitErrorCode.NotFound)
+                {
+                    return null;
+                }
+
+                Ensure.Int32Result(bufSize);
+
+                byte[] buf = new byte[bufSize];
+                int len = NativeMethods.git_repository_message(buf, (UIntPtr)bufSize, repo);
+
+                if (len != bufSize)
+                {
+                    throw new LibGit2SharpException("Repository message file changed as we were reading it");
+                }
+
+                return Utf8Marshaler.Utf8FromBuffer(buf);
+            }
+        }
+
         public static ObjectDatabaseSafeHandle git_repository_odb(RepositorySafeHandle repo)
         {
             using (ThreadAffinity())
