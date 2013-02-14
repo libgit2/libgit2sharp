@@ -49,7 +49,7 @@ namespace LibGit2Sharp
 
         internal static IndexEntry BuildFromPtr(Repository repo, IndexEntrySafeHandle handle)
         {
-            if (handle == null)
+            if (handle == null || handle.IsZero)
             {
                 return null;
             }

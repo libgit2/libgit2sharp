@@ -1,0 +1,6 @@
+this file will be modified
+in the "theirs" side from the
+"ancestor" side, but will be
+deleted from the "ours" side
+to test that we can handle
+a missing "ours" side conflict

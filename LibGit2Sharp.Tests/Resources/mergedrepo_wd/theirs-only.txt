@@ -1,0 +1,4 @@
+this file will exist
+only in the ancestor side
+and will be renamed in
+"ours" and "theirs"
