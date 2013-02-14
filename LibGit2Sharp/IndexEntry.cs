@@ -124,7 +124,7 @@ namespace LibGit2Sharp
             get
             {
                 return string.Format(CultureInfo.InvariantCulture,
-                    "{0} => \"{1}\"", Path, Id.ToString(7));
+                    "{0} ({1}) => \"{2}\"", Path, StageLevel, Id.ToString(7));
             }
         }
     }
