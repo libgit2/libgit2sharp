@@ -87,12 +87,12 @@ namespace LibGit2Sharp.Core
                 throw new MarshalDirectiveException("Utf8Marshaler must be used on a string.");
             }
 
-            return Utf8Marshaler.FromManaged(str);
+            return FromManaged(str);
         }
 
         public Object MarshalNativeToManaged(IntPtr pNativeData)
         {
-            return Utf8Marshaler.FromNative(pNativeData);
+            return FromNative(pNativeData);
         }
 
         #endregion
