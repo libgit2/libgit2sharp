@@ -1,5 +1,11 @@
 Merge branch 'branch'
 
 Conflicts:
+	ancestor-and-ours.txt
+	ancestor-and-theirs.txt
+	ancestor-only.txt
 	conflicts-one.txt
 	conflicts-two.txt
+	ours-and-theirs.txt
+	ours-only.txt
+	theirs-only.txt

@@ -676,6 +676,29 @@ namespace LibGit2Sharp.Core
             }
         }
 
+        public static Conflict git_index_conflict_get(
+            IndexSafeHandle index,
+            Repository repo,
+            FilePath path)
+        {
+            IndexEntrySafeHandle ancestor, ours, theirs;
+
+            int res = NativeMethods.git_index_conflict_get(
+                out ancestor, out ours, out theirs, index, path);
+
+            if (res == (int)GitErrorCode.NotFound)
+            {
+                return null;
+            }
+
+            Ensure.ZeroResult(res);
+
+            return new Conflict(
+                IndexEntry.BuildFromPtr(repo, ancestor),
+                IndexEntry.BuildFromPtr(repo, ours),
+                IndexEntry.BuildFromPtr(repo, theirs));
+        }
+
         public static int git_index_entrycount(IndexSafeHandle index)
         {
             UIntPtr count = NativeMethods.git_index_entrycount(index);

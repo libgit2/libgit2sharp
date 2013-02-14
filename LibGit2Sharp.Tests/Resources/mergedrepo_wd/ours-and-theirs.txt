@@ -1,0 +1,14 @@
+<<<<<<< HEAD
+this file will exist only
+in the "ours" and "theirs"
+side to ensure that we can
+handle a conflict that is
+added in both sides
+=======
+a file with this name
+is added in both the
+"ours" and the "theirs"
+side, to ensure that we
+can read and resolve
+add/add conflicts
+>>>>>>> branch
