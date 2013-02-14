@@ -44,6 +44,6 @@ namespace LibGit2Sharp
             this.failedPushUpdates = failedPushUpdates ?? new List<PushStatusError>();
         }
 
-        private List<PushStatusError> failedPushUpdates;
+        private readonly List<PushStatusError> failedPushUpdates;
     }
 }

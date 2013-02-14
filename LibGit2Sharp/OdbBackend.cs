@@ -184,15 +184,15 @@ namespace LibGit2Sharp
             // to native memory with StructureToPtr), we need to bind to static delegates. If at construction time
             // we were to bind to the methods directly, that's the same as newing up a fresh delegate every time.
             // Those delegates won't be rooted in the object graph and can be collected as soon as StructureToPtr finishes.
-            public static GitOdbBackend.read_callback ReadCallback = new GitOdbBackend.read_callback(Read);
-            public static GitOdbBackend.read_prefix_callback ReadPrefixCallback = new GitOdbBackend.read_prefix_callback(ReadPrefix);
-            public static GitOdbBackend.read_header_callback ReadHeaderCallback = new GitOdbBackend.read_header_callback(ReadHeader);
-            public static GitOdbBackend.readstream_callback ReadStreamCallback = new GitOdbBackend.readstream_callback(ReadStream);
-            public static GitOdbBackend.write_callback WriteCallback = new GitOdbBackend.write_callback(Write);
-            public static GitOdbBackend.writestream_callback WriteStreamCallback = new GitOdbBackend.writestream_callback(WriteStream);
-            public static GitOdbBackend.exists_callback ExistsCallback = new GitOdbBackend.exists_callback(Exists);
-            public static GitOdbBackend.foreach_callback ForEachCallback = new GitOdbBackend.foreach_callback(Foreach);
-            public static GitOdbBackend.free_callback FreeCallback = new GitOdbBackend.free_callback(Free);
+            public static readonly GitOdbBackend.read_callback ReadCallback = new GitOdbBackend.read_callback(Read);
+            public static readonly GitOdbBackend.read_prefix_callback ReadPrefixCallback = new GitOdbBackend.read_prefix_callback(ReadPrefix);
+            public static readonly GitOdbBackend.read_header_callback ReadHeaderCallback = new GitOdbBackend.read_header_callback(ReadHeader);
+            public static readonly GitOdbBackend.readstream_callback ReadStreamCallback = new GitOdbBackend.readstream_callback(ReadStream);
+            public static readonly GitOdbBackend.write_callback WriteCallback = new GitOdbBackend.write_callback(Write);
+            public static readonly GitOdbBackend.writestream_callback WriteStreamCallback = new GitOdbBackend.writestream_callback(WriteStream);
+            public static readonly GitOdbBackend.exists_callback ExistsCallback = new GitOdbBackend.exists_callback(Exists);
+            public static readonly GitOdbBackend.foreach_callback ForEachCallback = new GitOdbBackend.foreach_callback(Foreach);
+            public static readonly GitOdbBackend.free_callback FreeCallback = new GitOdbBackend.free_callback(Free);
 
             private unsafe static int Read(
                 out IntPtr buffer_p,
@@ -539,10 +539,10 @@ namespace LibGit2Sharp
                     return cb(ref gitOid, data);
                 }
 
-                public ForEachCallback ManagedCallback;
+                public readonly ForEachCallback ManagedCallback;
 
-                private GitOdbBackend.foreach_callback_callback cb;
-                private IntPtr data;
+                private readonly GitOdbBackend.foreach_callback_callback cb;
+                private readonly IntPtr data;
             }
         }
 
