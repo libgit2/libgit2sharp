@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -46,21 +47,23 @@ namespace LibGit2Sharp
         ///   Write permanent path ignore rules to the .gitignore file for the repository.
         /// </summary>
         /// <param name="rules">The rules to be written to the repository's .gitignore file.</param>
-        public virtual void AddPermanentRules( IEnumerable<string> rules )
+        public virtual void AddPermanentRules(IEnumerable<string> rules)
         {
-            string gitIgnorePath = repo.Info.Path + "..\\.gitignore";
-            StreamWriter gitIgnoreFile = new StreamWriter( gitIgnorePath, true );
+            string gitIgnorePath = repo.Info.Path+".."+Path.DirectorySeparatorChar+".gitignore";
+            StreamWriter gitIgnoreFile = new StreamWriter(gitIgnorePath, true);
 
-            var allRules = rules.Aggregate( new StringBuilder(), ( acc, x ) => {
-                acc.Append( x.Replace( "\\", "/" ) );
-                acc.Append( "\r\n" );
+            var allRules = rules.Aggregate(new StringBuilder(), (acc, x) =>
+            {
+                //# .gitignore wants forward-slashes
+                acc.Append(x.Replace("\\", "/"));
+                acc.AppendLine();
                 return acc;
-            } );
+            });
 
-            gitIgnoreFile.Write( allRules.ToString() );
+            gitIgnoreFile.Write(allRules.ToString());
             gitIgnoreFile.Close();
 
-            Proxy.git_ignore_add_rule( repo.Handle, allRules.ToString() );
+            Proxy.git_ignore_add_rule(repo.Handle, allRules.ToString());
         }
 
         /// <summary>
