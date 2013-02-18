@@ -150,7 +150,7 @@ namespace LibGit2Sharp
         /// <param name = "diffTarget">The target to compare to.</param>
         /// <param name = "paths">The list of paths (either files or directories) that should be compared.</param>
         /// <returns>A <see cref = "TreeChanges"/> containing the changes between the <see cref="Tree"/> and the selected target.</returns>
-        [Obsolete("This method will be removed in the next release. Please use Compare(Tree, Tree, DiffTargets, IEnumerable<string>) instead.")]
+        [Obsolete("This method will be removed in the next release. Please use Compare(Tree, DiffTargets, IEnumerable<string>) instead.")]
         public virtual TreeChanges Compare(Tree oldTree, DiffTarget diffTarget, IEnumerable<string> paths = null)
         {
             DiffTargets targets;
