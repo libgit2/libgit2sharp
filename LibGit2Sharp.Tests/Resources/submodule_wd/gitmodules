@@ -1,0 +1,24 @@
+[submodule "sm_missing_commits"]
+	path = sm_missing_commits
+	url = ../submodule_target_wd
+[submodule "sm_unchanged"]
+	path = sm_unchanged
+	url = ../submodule_target_wd
+[submodule "sm_changed_file"]
+	path = sm_changed_file
+	url = ../submodule_target_wd
+[submodule "sm_changed_index"]
+	path = sm_changed_index
+	url = ../submodule_target_wd
+[submodule "sm_changed_head"]
+	path = sm_changed_head
+	url = ../submodule_target_wd
+[submodule "sm_changed_untracked_file"]
+	path = sm_changed_untracked_file
+	url = ../submodule_target_wd
+[submodule "sm_added_and_uncommited"]
+	path = sm_added_and_uncommited
+	url = ../submodule_target_wd
+[submodule "sm_gitmodules_only"]
+	path = sm_gitmodules_only
+	url = ../submodule_target_wd

@@ -1,0 +1,20 @@
+[core]
+	repositoryformatversion = 0
+	filemode = true
+	bare = false
+	logallrefupdates = true
+	ignorecase = true
+[submodule "sm_missing_commits"]
+	url = ../submodule_target_wd
+[submodule "sm_unchanged"]
+	url = ../submodule_target_wd
+[submodule "sm_changed_file"]
+	url = ../submodule_target_wd
+[submodule "sm_changed_index"]
+	url = ../submodule_target_wd
+[submodule "sm_changed_head"]
+	url = ../submodule_target_wd
+[submodule "sm_changed_untracked_file"]
+	url = ../submodule_target_wd
+[submodule "sm_added_and_uncommited"]
+	url = ../submodule_target_wd

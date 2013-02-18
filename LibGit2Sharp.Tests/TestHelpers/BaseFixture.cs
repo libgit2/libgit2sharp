@@ -79,6 +79,13 @@ namespace LibGit2Sharp.Tests.TestHelpers
             return Clone(StandardTestRepoWorkingDirPath);
         }
 
+        public string CloneSubmoduleTestRepo()
+        {
+            var submodule = Path.Combine(ResourcesDirectory.FullName, "submodule_wd");
+            var submoduleTarget = Path.Combine(ResourcesDirectory.FullName, "submodule_target_wd");
+            return Clone(submodule, submoduleTarget);
+        }
+
         private string Clone(string sourceDirectoryPath, params string[] additionalSourcePaths)
         {
             var scd = BuildSelfCleaningDirectory();

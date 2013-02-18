@@ -10,6 +10,7 @@ namespace LibGit2Sharp.Tests.TestHelpers
         private static readonly Dictionary<string, string> toRename = new Dictionary<string, string>
         {
             { "dot_git", ".git" },
+            { "gitmodules", ".gitmodules" },
         };
 
         public static void CopyFilesRecursively(DirectoryInfo source, DirectoryInfo target)
