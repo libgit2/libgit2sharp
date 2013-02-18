@@ -79,13 +79,22 @@ namespace LibGit2Sharp.Tests.TestHelpers
             return Clone(StandardTestRepoWorkingDirPath);
         }
 
-        private string Clone(string sourceDirectoryPath)
+        private string Clone(string sourceDirectoryPath, params string[] additionalSourcePaths)
         {
             var scd = BuildSelfCleaningDirectory();
             var source = new DirectoryInfo(sourceDirectoryPath);
 
             var clonePath = Path.Combine(scd.DirectoryPath, source.Name);
             DirectoryHelper.CopyFilesRecursively(source, new DirectoryInfo(clonePath));
+
+            foreach (var additionalPath in additionalSourcePaths)
+            {
+                var additional = new DirectoryInfo(additionalPath);
+                var targetForAdditional = Path.Combine(scd.DirectoryPath, additional.Name);
+
+                DirectoryHelper.CopyFilesRecursively(additional, new DirectoryInfo(targetForAdditional));
+            }
+
             return clonePath;
         }
 
