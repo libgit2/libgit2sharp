@@ -253,7 +253,7 @@ namespace LibGit2Sharp.Core
         {
             using (ThreadAffinity())
             using (var treePtr = new ObjectSafeWrapper(tree.Id, repo))
-            using (var parentObjectPtrs = new DisposableEnumerable<ObjectSafeWrapper>(parentIds.Select(id => new ObjectSafeWrapper(id, repo))))
+            using (var parentObjectPtrs = new DisposableEnumerable<ObjectSafeWrapper>(parentIds.Select(id => new ObjectSafeWrapper(id, repo)).ToList()))
             using (SignatureSafeHandle authorHandle = author.BuildHandle())
             using (SignatureSafeHandle committerHandle = committer.BuildHandle())
             {
@@ -262,7 +262,7 @@ namespace LibGit2Sharp.Core
 
                 IntPtr[] parentsPtrs = parentObjectPtrs.Select(o => o.ObjectPtr.DangerousGetHandle()).ToArray();
                 int res = NativeMethods.git_commit_create(out commitOid, repo, referenceName, authorHandle,
-                                                      committerHandle, encoding, prettifiedMessage, treePtr.ObjectPtr, parentObjectPtrs.Count(), parentsPtrs);
+                                                      committerHandle, encoding, prettifiedMessage, treePtr.ObjectPtr, parentObjectPtrs.Count, parentsPtrs);
                 Ensure.ZeroResult(res);
 
                 return new ObjectId(commitOid);

@@ -6,11 +6,16 @@ namespace LibGit2Sharp.Core
 {
     internal class DisposableEnumerable<T> : IEnumerable<T>, IDisposable where T : IDisposable
     {
-        private readonly IEnumerable<T> enumerable;
+        private readonly IList<T> enumerable;
 
-        public DisposableEnumerable(IEnumerable<T> enumerable)
+        public DisposableEnumerable(IList<T> enumerable)
         {
             this.enumerable = enumerable;
+        }
+
+        public int Count
+        {
+            get { return enumerable.Count; }
         }
 
         public IEnumerator<T> GetEnumerator()
