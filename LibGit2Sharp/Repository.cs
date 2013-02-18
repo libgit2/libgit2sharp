@@ -52,63 +52,76 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(path, "path");
 
-            handle = Proxy.git_repository_open(path);
-            RegisterForCleanup(handle);
-
-            isBare = Proxy.git_repository_is_bare(handle);
-
-            Func<Index> indexBuilder = () => new Index(this);
-
-            string configurationGlobalFilePath = null;
-            string configurationXDGFilePath = null;
-            string configurationSystemFilePath = null;
-
-            if (options != null)
+            try
             {
-                bool isWorkDirNull = string.IsNullOrEmpty(options.WorkingDirectoryPath);
-                bool isIndexNull = string.IsNullOrEmpty(options.IndexPath);
+                handle = Proxy.git_repository_open(path);
+                RegisterForCleanup(handle);
 
-                if (isBare && (isWorkDirNull ^ isIndexNull))
+                isBare = Proxy.git_repository_is_bare(handle);
+
+                Func<Index> indexBuilder = () => new Index(this);
+
+                string configurationGlobalFilePath = null;
+                string configurationXDGFilePath = null;
+                string configurationSystemFilePath = null;
+
+                if (options != null)
                 {
-                    throw new ArgumentException("When overriding the opening of a bare repository, both RepositoryOptions.WorkingDirectoryPath an RepositoryOptions.IndexPath have to be provided.");
+                    bool isWorkDirNull = string.IsNullOrEmpty(options.WorkingDirectoryPath);
+                    bool isIndexNull = string.IsNullOrEmpty(options.IndexPath);
+
+                    if (isBare && (isWorkDirNull ^ isIndexNull))
+                    {
+                        throw new ArgumentException(
+                            "When overriding the opening of a bare repository, both RepositoryOptions.WorkingDirectoryPath an RepositoryOptions.IndexPath have to be provided.");
+                    }
+
+                    isBare = false;
+
+                    if (!isIndexNull)
+                    {
+                        indexBuilder = () => new Index(this, options.IndexPath);
+                    }
+
+                    if (!isWorkDirNull)
+                    {
+                        Proxy.git_repository_set_workdir(handle, options.WorkingDirectoryPath);
+                    }
+
+                    configurationGlobalFilePath = options.GlobalConfigurationLocation;
+                    configurationXDGFilePath = options.XdgConfigurationLocation;
+                    configurationSystemFilePath = options.SystemConfigurationLocation;
                 }
 
-                isBare = false;
-
-                if (!isIndexNull)
+                if (!isBare)
                 {
-                    indexBuilder = () => new Index(this, options.IndexPath);
+                    index = indexBuilder();
+                    conflicts = new ConflictCollection(this);
                 }
 
-                if (!isWorkDirNull)
-                {
-                    Proxy.git_repository_set_workdir(handle, options.WorkingDirectoryPath);
-                }
+                commits = new CommitLog(this);
+                refs = new ReferenceCollection(this);
+                branches = new BranchCollection(this);
+                tags = new TagCollection(this);
+                info = new Lazy<RepositoryInformation>(() => new RepositoryInformation(this, isBare));
+                config =
+                    new Lazy<Configuration>(
+                        () =>
+                        RegisterForCleanup(new Configuration(this, configurationGlobalFilePath, configurationXDGFilePath,
+                                                             configurationSystemFilePath)));
+                odb = new Lazy<ObjectDatabase>(() => new ObjectDatabase(this));
+                diff = new Diff(this);
+                notes = new NoteCollection(this);
+                ignore = new Ignore(this);
+                network = new Lazy<Network>(() => new Network(this));
 
-                configurationGlobalFilePath = options.GlobalConfigurationLocation;
-                configurationXDGFilePath = options.XdgConfigurationLocation;
-                configurationSystemFilePath = options.SystemConfigurationLocation;
+                EagerlyLoadTheConfigIfAnyPathHaveBeenPassed(options);
             }
-
-            if (!isBare)
+            catch
             {
-                index = indexBuilder();
-                conflicts = new ConflictCollection(this);
+                CleanupDisposableDependencies();
+                throw;
             }
-
-            commits = new CommitLog(this);
-            refs = new ReferenceCollection(this);
-            branches = new BranchCollection(this);
-            tags = new TagCollection(this);
-            info = new Lazy<RepositoryInformation>(() => new RepositoryInformation(this, isBare));
-            config = new Lazy<Configuration>(() => RegisterForCleanup(new Configuration(this, configurationGlobalFilePath, configurationXDGFilePath, configurationSystemFilePath)));
-            odb = new Lazy<ObjectDatabase>(() => new ObjectDatabase(this));
-            diff = new Diff(this);
-            notes = new NoteCollection(this);
-            ignore = new Ignore(this);
-            network = new Lazy<Network>(() => new Network(this));
-
-            EagerlyLoadTheConfigIfAnyPathHaveBeenPassed(options);
         }
 
         private void EagerlyLoadTheConfigIfAnyPathHaveBeenPassed(RepositoryOptions options)
@@ -312,10 +325,7 @@ namespace LibGit2Sharp
         /// </summary>
         protected virtual void Dispose(bool disposing)
         {
-            while (toCleanup.Count > 0)
-            {
-                toCleanup.Pop().SafeDispose();
-            }
+            CleanupDisposableDependencies();
         }
 
         #endregion
@@ -699,6 +709,14 @@ namespace LibGit2Sharp
             };
 
             Proxy.git_checkout_index(Handle, new NullGitObjectSafeHandle(), ref options);
+        }
+
+        private void CleanupDisposableDependencies()
+        {
+            while (toCleanup.Count > 0)
+            {
+                toCleanup.Pop().SafeDispose();
+            }
         }
 
         internal T RegisterForCleanup<T>(T disposable) where T : IDisposable

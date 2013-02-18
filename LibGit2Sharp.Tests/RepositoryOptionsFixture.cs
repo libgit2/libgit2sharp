@@ -96,10 +96,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void OpeningABareRepoWithoutProvidingBothWorkDirAndIndexThrows()
         {
-            Repository repo;
-
-            Assert.Throws<ArgumentException>(() => repo = new Repository(BareTestRepoPath, new RepositoryOptions { IndexPath = newIndex }));
-            Assert.Throws<ArgumentException>(() => repo = new Repository(BareTestRepoPath, new RepositoryOptions { WorkingDirectoryPath = newWorkdir }));
+            Assert.Throws<ArgumentException>(() => new Repository(BareTestRepoPath, new RepositoryOptions {IndexPath = newIndex}));
+            Assert.Throws<ArgumentException>(() => new Repository(BareTestRepoPath, new RepositoryOptions {WorkingDirectoryPath = newWorkdir}));
         }
 
         [Fact]
