@@ -50,13 +50,6 @@ namespace LibGit2Sharp.Tests.TestHelpers
             StandardTestRepoWorkingDirPath = Path.Combine(ResourcesDirectory.FullName, "testrepo_wd");
             StandardTestRepoPath = Path.Combine(StandardTestRepoWorkingDirPath, ".git");
             MergedTestRepoWorkingDirPath = Path.Combine(ResourcesDirectory.FullName, "mergedrepo_wd");
-
-            // The test repo under source control has its .git folder renamed to dot_git to avoid confusing git,
-            // so we need to rename it back to .git in our copy under the target folder
-            string tempDotGit = Path.Combine(StandardTestRepoWorkingDirPath, "dot_git");
-            Directory.Move(tempDotGit, StandardTestRepoPath);
-            tempDotGit = Path.Combine(MergedTestRepoWorkingDirPath, "dot_git");
-            Directory.Move(tempDotGit, Path.Combine(MergedTestRepoWorkingDirPath, ".git"));
         }
 
         protected void CreateCorruptedDeadBeefHead(string repoPath)

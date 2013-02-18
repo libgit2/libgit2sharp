@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 
@@ -6,18 +7,28 @@ namespace LibGit2Sharp.Tests.TestHelpers
 {
     public static class DirectoryHelper
     {
+        private static readonly Dictionary<string, string> toRename = new Dictionary<string, string>
+        {
+            { "dot_git", ".git" },
+        };
+
         public static void CopyFilesRecursively(DirectoryInfo source, DirectoryInfo target)
         {
             // From http://stackoverflow.com/questions/58744/best-way-to-copy-the-entire-contents-of-a-directory-in-c/58779#58779
 
             foreach (DirectoryInfo dir in source.GetDirectories())
             {
-                CopyFilesRecursively(dir, target.CreateSubdirectory(dir.Name));
+                CopyFilesRecursively(dir, target.CreateSubdirectory(Rename(dir.Name)));
             }
             foreach (FileInfo file in source.GetFiles())
             {
-                file.CopyTo(Path.Combine(target.FullName, file.Name));
+                file.CopyTo(Path.Combine(target.FullName, Rename(file.Name)));
             }
+        }
+
+        private static string Rename(string name)
+        {
+            return toRename.ContainsKey(name) ? toRename[name] : name;
         }
 
         public static void DeleteSubdirectories(string parentPath)
