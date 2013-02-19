@@ -69,6 +69,7 @@
     <Compile Include="Conflict.cs" />
     <Compile Include="ConflictCollection.cs" />
     <Compile Include="Core\Handles\GitFetchSpecHandle.cs" />
+    <Compile Include="Core\PathCase.cs" />
     <Compile Include="Network.cs" />
     <Compile Include="Core\GitRemoteHead.cs" />
     <Compile Include="Stash.cs" />

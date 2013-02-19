@@ -37,6 +37,7 @@ namespace LibGit2Sharp
         private readonly Stack<IDisposable> toCleanup = new Stack<IDisposable>();
         private readonly Ignore ignore;
         private static readonly Lazy<string> versionRetriever = new Lazy<string>(RetrieveVersion);
+        private readonly Lazy<PathCase> pathCase;
 
         /// <summary>
         ///   Initializes a new instance of the <see cref = "Repository" /> class, providing ooptional behavioral overrides through <paramref name="options"/> parameter.
@@ -116,6 +117,7 @@ namespace LibGit2Sharp
                 notes = new NoteCollection(this);
                 ignore = new Ignore(this);
                 network = new Lazy<Network>(() => new Network(this));
+                pathCase = new Lazy<PathCase>(() => new PathCase(this));
 
                 EagerlyLoadTheConfigIfAnyPathHaveBeenPassed(options);
             }
@@ -792,6 +794,16 @@ namespace LibGit2Sharp
                 return Proxy.git_repository_mergehead_foreach(Handle,
                     commitId => new MergeHead(this, commitId, i++));
             }
+        }
+
+        internal StringComparer PathComparer
+        {
+            get { return pathCase.Value.Comparer; }
+        }
+
+        internal bool PathStartsWith(string path, string value)
+        {
+            return pathCase.Value.StartsWith(path, value);
         }
 
         private string DebuggerDisplay
