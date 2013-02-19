@@ -188,7 +188,6 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(clone.DirectoryPath))
             {
                 var names = new DirectoryInfo(repo.Info.WorkingDirectory).GetFileSystemInfos().Select(fsi => fsi.Name).ToList();
-                names.Sort(StringComparer.Ordinal);
 
                 File.Delete(Path.Combine(repo.Info.WorkingDirectory, "README"));
                 File.WriteAllText(Path.Combine(repo.Info.WorkingDirectory, "WillNotBeRemoved.txt"), "content\n");

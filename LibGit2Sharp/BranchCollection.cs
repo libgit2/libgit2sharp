@@ -93,7 +93,6 @@ namespace LibGit2Sharp
         {
             return Proxy.git_branch_foreach(repo.Handle, GitBranchType.GIT_BRANCH_LOCAL | GitBranchType.GIT_BRANCH_REMOTE, branchToCanoncialName)
                 .Select(n => this[n])
-                .OrderBy(b => b.CanonicalName, StringComparer.Ordinal)
                 .GetEnumerator();
         }
 

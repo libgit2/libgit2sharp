@@ -40,7 +40,8 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(StandardTestRepoPath))
             {
-                Assert.Equal(expectedEntries, repo.Index.Select(e => e.Path).ToArray());
+                Assert.Equal(expectedEntries,
+                    repo.Index.Select(e => e.Path).OrderBy(p => p, StringComparer.Ordinal).ToArray());
             }
         }
 

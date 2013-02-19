@@ -589,7 +589,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                Assert.Equal(expectedTags, repo.Tags.Select(t => t.Name).ToArray());
+                Assert.Equal(expectedTags, SortedTags(repo.Tags, t => t.Name));
 
                 Assert.Equal(4, repo.Tags.Count());
             }
@@ -605,21 +605,6 @@ namespace LibGit2Sharp.Tests
             {
                 Assert.True(repo.Info.IsHeadOrphaned);
                 Assert.Equal(0, repo.Tags.Count());
-            }
-        }
-
-        [Fact]
-        // Ported from cgit (https://github.com/git/git/blob/1c08bf50cfcf924094eca56c2486a90e2bf1e6e2/t/t7004-tag.sh#L165)
-        public void ListAllTagsShouldOutputThemInAnOrderedWay()
-        {
-            using (var repo = new Repository(BareTestRepoPath))
-            {
-                List<string> tagNames = repo.Tags.Select(t => t.Name).ToList();
-
-                List<string> sortedTags = expectedTags.ToList();
-                sortedTags.Sort();
-
-                Assert.Equal(sortedTags, tagNames);
             }
         }
 
@@ -692,6 +677,11 @@ namespace LibGit2Sharp.Tests
             {
                 Assert.Throws<ArgumentNullException>(() => { Tag t = repo.Tags[null]; });
             }
+        }
+
+        private static T[] SortedTags<T>(IEnumerable<Tag> tags, Func<Tag, T> selector)
+        {
+            return tags.OrderBy(t => t.CanonicalName, StringComparer.Ordinal).Select(selector).ToArray();
         }
     }
 }

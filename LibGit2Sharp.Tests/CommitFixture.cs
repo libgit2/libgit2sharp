@@ -347,7 +347,10 @@ namespace LibGit2Sharp.Tests
         public void CanEnumerateAllCommits()
         {
             AssertEnumerationOfCommits(
-                repo => new Filter { Since = repo.Refs },
+                repo => new Filter
+                    {
+                        Since = repo.Refs.OrderBy(r => r.CanonicalName, StringComparer.Ordinal),
+                    },
                 new[]
                     {
                         "44d5d18", "bb65291", "532740a", "503a16f", "3dfd6fd",

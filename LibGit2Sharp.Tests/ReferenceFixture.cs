@@ -283,7 +283,7 @@ namespace LibGit2Sharp.Tests
             {
                 CreateCorruptedDeadBeefHead(repo.Info.Path);
 
-                Assert.Equal(expectedRefs, repo.Refs.Select(r => r.CanonicalName).ToArray());
+                Assert.Equal(expectedRefs, SortedRefs(repo, r => r.CanonicalName));
 
                 Assert.Equal(13, repo.Refs.Count());
             }
@@ -684,6 +684,11 @@ namespace LibGit2Sharp.Tests
             {
                 Assert.Equal(expectedResult, repo.Refs.IsValidName(refname));
             }
+        }
+
+        private static T[] SortedRefs<T>(IRepository repo, Func<Reference, T> selector)
+        {
+            return repo.Refs.OrderBy(r => r.CanonicalName, StringComparer.Ordinal).Select(selector).ToArray();
         }
     }
 }

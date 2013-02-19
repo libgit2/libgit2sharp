@@ -91,21 +91,6 @@ namespace LibGit2Sharp
 
         #region IEnumerable<IndexEntry> Members
 
-        private class OrdinalComparer<T> : IComparer<T>
-        {
-            Func<T, string> accessor;
-
-            public OrdinalComparer(Func<T, string> accessor)
-            {
-                this.accessor = accessor;
-            }
-
-            public int Compare(T x, T y)
-            {
-                return string.CompareOrdinal(accessor(x), accessor(y));
-            }
-        }
-
         private List<IndexEntry> AllIndexEntries()
         {
             var entryCount = Count;
@@ -116,7 +101,6 @@ namespace LibGit2Sharp
                 list.Add(this[i]);
             }
 
-            list.Sort(new OrdinalComparer<IndexEntry>(i => i.Path));
             return list;
         }
 
