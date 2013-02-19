@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Handlers;
 
@@ -253,5 +255,26 @@ namespace LibGit2Sharp
         {
             return repository.Checkout(branch, CheckoutOptions.None, null);
         }
+
+        internal static string BuildRelativePathFrom(this Repository repo, string path)
+        {
+            //TODO: To be removed when libgit2 natively implements this
+            if (!Path.IsPathRooted(path))
+            {
+                return path;
+            }
+
+            string normalizedPath = Path.GetFullPath(path);
+
+            if (!repo.PathStartsWith(normalizedPath, repo.Info.WorkingDirectory))
+            {
+                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture,
+                                                          "Unable to process file '{0}'. This file is not located under the working directory of the repository ('{1}').",
+                                                          normalizedPath, repo.Info.WorkingDirectory));
+            }
+
+            return normalizedPath.Substring(repo.Info.WorkingDirectory.Length);
+        }
+
     }
 }

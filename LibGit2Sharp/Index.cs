@@ -355,7 +355,7 @@ namespace LibGit2Sharp
                     throw new ArgumentException("At least one provided path is either null or empty.", "paths");
                 }
 
-                string relativePath = BuildRelativePathFrom(repo, path);
+                string relativePath = repo.BuildRelativePathFrom(path);
                 FileStatus fileStatus = RetrieveStatus(relativePath);
 
                 dic.Add(relativePath, fileStatus);
@@ -388,7 +388,7 @@ namespace LibGit2Sharp
 
         private Tuple<string, FileStatus> BuildFrom(string path)
         {
-            string relativePath = BuildRelativePathFrom(repo, path);
+            string relativePath = repo.BuildRelativePathFrom(path);
             return new Tuple<string, FileStatus>(relativePath, RetrieveStatus(relativePath));
         }
 
@@ -420,26 +420,6 @@ namespace LibGit2Sharp
             Proxy.git_index_write(handle);
         }
 
-        private static string BuildRelativePathFrom(Repository repo, string path)
-        {
-            //TODO: To be removed when libgit2 natively implements this
-            if (!Path.IsPathRooted(path))
-            {
-                return path;
-            }
-
-            string normalizedPath = Path.GetFullPath(path);
-
-            if (!normalizedPath.StartsWith(repo.Info.WorkingDirectory, StringComparison.Ordinal))
-            {
-                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture,
-                                                          "Unable to process file '{0}'. This file is not located under the working directory of the repository ('{1}').",
-                                                          normalizedPath, repo.Info.WorkingDirectory));
-            }
-
-            return normalizedPath.Substring(repo.Info.WorkingDirectory.Length);
-        }
-
         /// <summary>
         ///   Retrieves the state of a file in the working directory, comparing it against the staging area and the latest commmit.
         /// </summary>
@@ -449,7 +429,7 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(filePath, "filePath");
 
-            string relativePath = BuildRelativePathFrom(repo, filePath);
+            string relativePath = repo.BuildRelativePathFrom(filePath);
 
             return Proxy.git_status_file(repo.Handle, relativePath);
         }

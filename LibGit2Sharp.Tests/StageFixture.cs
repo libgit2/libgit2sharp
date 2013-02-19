@@ -121,10 +121,14 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Fact]
-        public void CanStageANewFileWithAFullPath()
+        [SkippableTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void CanStageANewFileWithAFullPath(bool ignorecase)
         {
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
+            SetIgnoreCaseOrSkip(path.RepositoryPath, ignorecase);
+
             using (var repo = new Repository(path.RepositoryPath))
             {
                 int count = repo.Index.Count;
@@ -133,10 +137,24 @@ namespace LibGit2Sharp.Tests
                 string fullPath = Path.Combine(repo.Info.WorkingDirectory, filename);
                 Assert.True(File.Exists(fullPath));
 
-                repo.Index.Stage(fullPath);
+                AssertStage(null, repo, fullPath);
+                AssertStage(ignorecase, repo, fullPath.ToUpperInvariant());
+                AssertStage(ignorecase, repo, fullPath.ToLowerInvariant());
+            }
+        }
 
-                Assert.Equal(count + 1, repo.Index.Count);
-                Assert.NotNull(repo.Index[filename]);
+        private static void AssertStage(bool? ignorecase, IRepository repo, string path)
+        {
+            try
+            {
+                repo.Index.Stage(path);
+                Assert.Equal(FileStatus.Added, repo.Index.RetrieveStatus(path));
+                repo.Reset();
+                Assert.Equal(FileStatus.Untracked, repo.Index.RetrieveStatus(path));
+            }
+            catch (ArgumentException)
+            {
+                Assert.False(ignorecase ?? true);
             }
         }
 
