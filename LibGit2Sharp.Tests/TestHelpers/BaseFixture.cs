@@ -120,6 +120,18 @@ namespace LibGit2Sharp.Tests.TestHelpers
             Assert.True(r.Success, text);
         }
 
+        protected static void SetIgnoreCaseOrSkip(string path, bool ignorecase)
+        {
+            var canIgnoreCase = Directory.Exists(path.ToUpperInvariant()) && Directory.Exists(path.ToLowerInvariant());
+            if (!canIgnoreCase && ignorecase)
+                throw new SkipException("Skipping 'ignorecase = true' test on case-sensitive file system.");
+
+            using (var repo = new Repository(path))
+            {
+                repo.Config.Set("core.ignorecase", ignorecase);
+            }
+        }
+
         public RepositoryOptions BuildFakeConfigs(SelfCleaningDirectory scd)
         {
             var options = BuildFakeRepositoryOptions(scd);

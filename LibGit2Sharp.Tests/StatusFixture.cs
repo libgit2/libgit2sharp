@@ -293,6 +293,21 @@ namespace LibGit2Sharp.Tests
 
                 Assert.Equal(expectedlowerCasedFileStatus, repo.Index.RetrieveStatus("plop"));
                 Assert.Equal(expectedCamelCasedFileStatus, repo.Index.RetrieveStatus("Plop"));
+
+                AssertStatus(shouldIgnoreCase, expectedlowerCasedFileStatus, repo, camelCasedPath.ToLowerInvariant());
+                AssertStatus(shouldIgnoreCase, expectedCamelCasedFileStatus, repo, camelCasedPath.ToUpperInvariant());
+            }
+        }
+
+        private static void AssertStatus(bool shouldIgnoreCase, FileStatus expectedFileStatus, IRepository repo, string path)
+        {
+            try
+            {
+                Assert.Equal(expectedFileStatus, repo.Index.RetrieveStatus(path));
+            }
+            catch (ArgumentException)
+            {
+                Assert.False(shouldIgnoreCase);
             }
         }
     }
