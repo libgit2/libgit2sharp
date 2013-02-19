@@ -93,6 +93,10 @@ namespace LibGit2Sharp.Tests.TestHelpers
 
         public void Dispose()
         {
+#if LEAKS
+            GC.Collect();
+#endif
+
             foreach (string directory in directories)
             {
                 DirectoryHelper.DeleteDirectory(directory);
