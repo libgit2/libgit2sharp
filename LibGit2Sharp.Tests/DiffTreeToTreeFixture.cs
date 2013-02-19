@@ -125,7 +125,7 @@ namespace LibGit2Sharp.Tests
 
                 Assert.Equal("readme.txt", changes.Deleted.Single().Path);
                 Assert.Equal(new[] { "1.txt", subBranchFilePath, "README", "branch_file.txt", "deleted_staged_file.txt", "deleted_unstaged_file.txt", "modified_staged_file.txt", "modified_unstaged_file.txt", "new.txt" },
-                             changes.Added.Select(x => x.Path));
+                             changes.Added.Select(x => x.Path).OrderBy(p => p, StringComparer.Ordinal).ToArray());
 
                 Assert.Equal(9, changes.LinesAdded);
                 Assert.Equal(2, changes.LinesDeleted);

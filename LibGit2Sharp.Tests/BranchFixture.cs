@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
@@ -183,7 +184,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                Assert.Equal(expectedBranches, repo.Branches.Select(b => b.Name).ToArray());
+                Assert.Equal(expectedBranches, SortedBranches(repo.Branches, b => b.Name));
 
                 Assert.Equal(5, repo.Branches.Count());
             }
@@ -204,9 +205,8 @@ namespace LibGit2Sharp.Tests
                                                  "diff-test-cases", "i-do-numbers", "logo", "master", "origin/master", "track-local",
                                              };
 
-                Assert.Equal(expectedWdBranches, repo.Branches
-                    .Where(b => !b.IsRemote)
-                    .Select(b => b.Name).ToArray());
+                Assert.Equal(expectedWdBranches,
+                             SortedBranches(repo.Branches.Where(b => !b.IsRemote), b => b.Name));
             }
         }
 
@@ -222,7 +222,7 @@ namespace LibGit2Sharp.Tests
                                                  "origin/test"
                                              };
 
-                Assert.Equal(expectedWdBranches, repo.Branches.Select(b => b.Name).ToArray());
+                Assert.Equal(expectedWdBranches, SortedBranches(repo.Branches, b => b.Name));
             }
         }
 
@@ -244,7 +244,8 @@ namespace LibGit2Sharp.Tests
                                                                   new { Name = "origin/packed-test", Sha = "4a202b346bb0fb0db7eff3cffeb3c70babbd2045", IsRemote = true },
                                                                   new { Name = "origin/test", Sha = "e90810b8df3e80c413d903f631643c716887138d", IsRemote = true },
                                                               };
-                Assert.Equal(expectedBranchesIncludingRemoteRefs, repo.Branches.Select(b => new { b.Name, b.Tip.Sha, b.IsRemote }).ToArray());
+                Assert.Equal(expectedBranchesIncludingRemoteRefs,
+                             SortedBranches(repo.Branches, b => new { b.Name, b.Tip.Sha, b.IsRemote }));
             }
         }
 
@@ -810,6 +811,11 @@ namespace LibGit2Sharp.Tests
                     Assert.Null(branch.BehindBy);
                 }
             }
+        }
+
+        private static T[] SortedBranches<T>(IEnumerable<Branch> branches, Func<Branch, T> selector)
+        {
+            return branches.OrderBy(b => b.CanonicalName, StringComparer.Ordinal).Select(selector).ToArray();
         }
     }
 }

@@ -244,7 +244,7 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNullOrEmptyString(pattern, "pattern");
 
             return Proxy.git_reference_foreach_glob(repo.Handle, pattern, GitReferenceType.ListAll, Utf8Marshaler.FromNative)
-                .OrderBy(name => name, StringComparer.Ordinal).Select(n => this[n]);
+                .Select(n => this[n]);
         }
 
         /// <summary>

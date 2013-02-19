@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Compat;
@@ -61,19 +62,19 @@ namespace LibGit2Sharp.Tests
                 var notes = repo.Notes[new ObjectId("4a202b346bb0fb0db7eff3cffeb3c70babbd2045")];
 
                 Assert.NotNull(notes);
-                Assert.Equal(3, notes.Count());
-                Assert.Equal(expectedMessages, notes.Select(n => n.Message));
+                Assert.Equal(expectedMessages, SortedNotes(notes, n => n.Message));
             }
         }
 
         [Fact]
         public void CanGetListOfNotesNamespaces()
         {
-            var expectedNamespaces = new[] { "commits", "answer", "answer2" };
+            var expectedNamespaces = new[] { "answer", "answer2", "commits", };
 
             using (var repo = new Repository(BareTestRepoPath))
             {
-                Assert.Equal(expectedNamespaces, repo.Notes.Namespaces);
+                Assert.Equal(expectedNamespaces,
+                             repo.Notes.Namespaces.OrderBy(n => n, StringComparer.Ordinal).ToArray());
                 Assert.Equal(repo.Notes.DefaultNamespace, repo.Notes.Namespaces.First());
             }
         }
@@ -105,12 +106,12 @@ namespace LibGit2Sharp.Tests
             {
                 var commit = repo.Lookup<Commit>("4a202b346bb0fb0db7eff3cffeb3c70babbd2045");
 
-                Assert.Equal(expectedNamespaces, commit.Notes.Select(n => n.Message));
+                Assert.Equal(expectedNamespaces, SortedNotes(commit.Notes, n => n.Message));
 
                 // Make sure that Commit.Notes is not refreshed automatically
                 repo.Notes.Add(commit.Id, "I'm batman!\n", signatureNullToken, signatureYorah, "batmobile");
 
-                Assert.Equal(expectedNamespaces, commit.Notes.Select(n => n.Message));
+                Assert.Equal(expectedNamespaces, SortedNotes(commit.Notes, m => m.Message));
             }
         }
 
@@ -228,16 +229,26 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanRetrieveTheListOfNotesForAGivenNamespace()
         {
-            var expectedNotes = new[] { new Tuple<string, string>("1a550e416326cdb4a8e127a04dd69d7a01b11cf4", "4a202b346bb0fb0db7eff3cffeb3c70babbd2045"),
-                new Tuple<string, string>("272a41cf2b22e57f2bc5bf6ef37b63568cd837e4", "8496071c1b46c854b31185ea97743be6a8774479") };
+            var expectedNotes = new[]
+            {
+                new { Blob = "272a41cf2b22e57f2bc5bf6ef37b63568cd837e4", Target = "8496071c1b46c854b31185ea97743be6a8774479" },
+                new { Blob = "1a550e416326cdb4a8e127a04dd69d7a01b11cf4", Target = "4a202b346bb0fb0db7eff3cffeb3c70babbd2045" },
+            };
 
             using (var repo = new Repository(BareTestRepoPath))
             {
-                Assert.Equal(expectedNotes, repo.Notes["commits"].Select(n => new Tuple<string, string>(n.BlobId.Sha, n.TargetObjectId.Sha)).ToArray());
+                Assert.Equal(expectedNotes,
+                             SortedNotes(repo.Notes["commits"], n => new { Blob = n.BlobId.Sha, Target = n.TargetObjectId.Sha }));
 
                 Assert.Equal("commits", repo.Notes.DefaultNamespace);
-                Assert.Equal(expectedNotes, repo.Notes.Select(n => new Tuple<string, string>(n.BlobId.Sha, n.TargetObjectId.Sha)).ToArray());
+                Assert.Equal(expectedNotes,
+                             SortedNotes(repo.Notes, n => new { Blob = n.BlobId.Sha, Target = n.TargetObjectId.Sha }));
             }
+        }
+
+        private static T[] SortedNotes<T>(IEnumerable<Note> notes, Func<Note, T> selector)
+        {
+            return notes.OrderBy(n => n.Message, StringComparer.Ordinal).Select(selector).ToArray();
         }
     }
 }

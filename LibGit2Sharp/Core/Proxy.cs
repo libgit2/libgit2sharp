@@ -2130,7 +2130,6 @@ namespace LibGit2Sharp.Core
                         list.Add(name);
                     }
 
-                    list.Sort(StringComparer.Ordinal);
                     return list;
                 }
                 finally
