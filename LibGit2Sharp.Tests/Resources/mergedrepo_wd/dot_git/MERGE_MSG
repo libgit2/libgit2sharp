@@ -1,6 +1,8 @@
 Merge branch 'branch'
 
 Conflicts:
+	DIFFERS-IN-CASE.TXT
+	Differs-In-Case.txt
 	ancestor-and-ours.txt
 	ancestor-and-theirs.txt
 	ancestor-only.txt

@@ -1,0 +1,10 @@
+this will be a file that will be renamed
+in "ours" to have a path that differs only
+in case from a different file in "theirs"
+
+<<<<<<< HEAD:DIFFERS-IN-CASE.TXT
+of course it's edited in both...
+=======
+to produce a conflict, of course, it will
+also be modified in "theirs"
+>>>>>>> branch:case-sensitive-ancestor-one.txt
