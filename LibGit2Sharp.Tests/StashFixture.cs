@@ -47,12 +47,16 @@ namespace LibGit2Sharp.Tests
                 // Create extra file
                 string newFileFullPath = Path.Combine(repo.Info.WorkingDirectory, "stash_candidate.txt");
                 File.WriteAllText(newFileFullPath, "Oh, I'm going to be stashed!\n");
-                
+
                 Stash secondStash = repo.Stashes.Add(stasher, "My second stash", StashOptions.IncludeUntracked);
-                
+
                 Assert.NotNull(stash);
                 Assert.Equal("stash@{0}", stash.CanonicalName);
                 Assert.Contains("My second stash", secondStash.Message);
+
+                Assert.Equal(2, repo.Stashes.Count());
+                Assert.Equal("stash@{0}", repo.Stashes.First().CanonicalName);
+                Assert.Equal("stash@{1}", repo.Stashes.Last().CanonicalName);
 
                 Assert.Equal(2, repo.Stashes.Count());
                 Assert.Equal("stash@{0}", repo.Stashes.First().CanonicalName);

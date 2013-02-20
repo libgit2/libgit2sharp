@@ -12,11 +12,10 @@
         protected Stash()
         { }
 
-        internal Stash(Repository repo, ObjectId targetId)
-            : base(repo, new DirectReference("stash@{0}", repo, targetId), r => r.CanonicalName)
-        {
-        }
-        
+        internal Stash(Repository repo, ObjectId targetId, int index)
+            : base(repo, new DirectReference(string.Format("stash@{{{0}}}", index), repo, targetId), r => r.CanonicalName)
+        { }
+
         /// <summary>
         ///   Gets the <see cref = "Commit" /> that this stash points to.
         /// </summary>

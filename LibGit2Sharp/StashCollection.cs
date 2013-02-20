@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
@@ -39,7 +38,8 @@ namespace LibGit2Sharp
         /// <returns>An <see cref = "IEnumerator{T}" /> object that can be used to iterate through the collection.</returns>
         public IEnumerator<Stash> GetEnumerator()
         {
-            throw new NotImplementedException();
+            return Proxy.git_stash_foreach(repo.Handle,
+                (index, message, commitId) => new Stash(repo, new ObjectId(commitId), index)).GetEnumerator();
         }
 
         /// <summary>
