@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
 
@@ -53,8 +54,13 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal("stash@{0}", stash.CanonicalName);
                 Assert.Contains("My second stash", secondStash.Message);
 
+                Assert.Equal(2, repo.Stashes.Count());
+                Assert.Equal("stash@{0}", repo.Stashes.First().CanonicalName);
+                Assert.Equal("stash@{1}", repo.Stashes.Last().CanonicalName);
+
                 // Stash history has been shifted
                 Assert.Equal(repo.Lookup<Commit>("stash@{0}").Sha, secondStash.Target.Sha);
+                Assert.Equal(repo.Lookup<Commit>("stash@{1}").Sha, stash.Target.Sha);
             }
         }
 

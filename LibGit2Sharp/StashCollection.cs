@@ -1,11 +1,17 @@
-﻿using LibGit2Sharp.Core;
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Globalization;
+using System.Linq;
+using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
 {
     /// <summary>
     ///   The collection of <see cref = "Stash" />es in a <see cref = "Repository" />
     /// </summary>
-    public class StashCollection
+    [DebuggerDisplay("{DebuggerDisplay,nq}")]
+    public class StashCollection : IEnumerable<Stash>
     {
         internal readonly Repository repo;
 
@@ -23,6 +29,29 @@ namespace LibGit2Sharp
         {
             this.repo = repo;
         }
+
+        #region Implementation of IEnumerable
+
+        /// <summary>
+        ///   Returns an enumerator that iterates through the collection.
+        /// </summary>
+        /// <returns>An <see cref = "IEnumerator{T}" /> object that can be used to iterate through the collection.</returns>
+        public IEnumerator<Stash> GetEnumerator()
+        {
+            return Proxy.git_stash_foreach(repo.Handle,
+                (index, message, commitId) => new Stash(repo, new ObjectId(commitId), index)).GetEnumerator();
+        }
+
+        /// <summary>
+        ///   Returns an enumerator that iterates through the collection.
+        /// </summary>
+        /// <returns>An <see cref = "IEnumerator" /> object that can be used to iterate through the collection.</returns>
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
+        #endregion
 
         /// <summary>
         ///   Creates a stash with the specified message.
@@ -45,7 +74,16 @@ namespace LibGit2Sharp
                 return null;
             }
 
-            return new Stash(repo, oid);
+            return new Stash(repo, oid, 0);
+        }
+
+        private string DebuggerDisplay
+        {
+            get
+            {
+                return string.Format(CultureInfo.InvariantCulture,
+                    "Count = {0}", this.Count());
+            }
         }
     }
 }
