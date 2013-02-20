@@ -670,8 +670,15 @@ namespace LibGit2Sharp.Core
         internal static extern GitReferenceType git_reference_type(ReferenceSafeHandle reference);
 
         [DllImport(libgit2)]
+        internal static extern int git_refspec_transform(
+            byte[] reference,
+            UIntPtr outlen,
+            GitFetchSpecHandle refSpec,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string name);
+
+        [DllImport(libgit2)]
         internal static extern int git_refspec_rtransform(
-            byte[] target,
+            byte[] reference,
             UIntPtr outlen,
             GitFetchSpecHandle refSpec,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string name);

@@ -236,5 +236,29 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(expectedResult, repo.Network.Remotes.IsValidName(refname));
             }
         }
+
+        [Fact]
+        public void CanFetchSpecTransformReferenceToTarget()
+        {
+            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoPath);
+            using (var repo = new Repository(StandardTestRepoPath))
+            {
+                Remote remote = repo.Network.Remotes["origin"];
+                Assert.NotNull(remote);
+                Assert.Equal("refs/remotes/origin/test", remote.FetchSpecTransformToTarget("refs/heads/test"));
+            }
+        }
+
+        [Fact]
+        public void CanFetchSpecTransformReferenceToSource()
+        {
+            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoPath);
+            using (var repo = new Repository(StandardTestRepoPath))
+            {
+                Remote remote = repo.Network.Remotes["origin"];
+                Assert.NotNull(remote);
+                Assert.Equal("refs/heads/test", remote.FetchSpecTransformToSource("refs/remotes/origin/test"));
+            }
+        }
     }
 }

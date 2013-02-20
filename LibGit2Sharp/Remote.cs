@@ -52,6 +52,34 @@ namespace LibGit2Sharp
         public virtual string Url { get; private set; }
 
         /// <summary>
+        ///   Transform a reference to its target reference using the <see cref = "Remote" />'s default fetchspec.
+        /// </summary>
+        /// <param name="reference">The reference to transform.</param>
+        /// <returns>The transformed reference.</returns>
+        public virtual string FetchSpecTransformToTarget(string reference)
+        {
+            using (RemoteSafeHandle remoteHandle = Proxy.git_remote_load(repository.Handle, Name, true))
+            {
+                GitFetchSpecHandle fetchSpecPtr = Proxy.git_remote_fetchspec(remoteHandle);
+                return Proxy.git_fetchspec_transform(fetchSpecPtr, reference);
+            }
+        }
+
+        /// <summary>
+        ///   Transform a reference to its source reference using the <see cref = "Remote" />'s default fetchspec.
+        /// </summary>
+        /// <param name="reference">The reference to transform.</param>
+        /// <returns>The transformed reference.</returns>
+        public virtual string FetchSpecTransformToSource(string reference)
+        {
+            using (RemoteSafeHandle remoteHandle = Proxy.git_remote_load(repository.Handle, Name, true))
+            {
+                GitFetchSpecHandle fetchSpecPtr = Proxy.git_remote_fetchspec(remoteHandle);
+                return Proxy.git_fetchspec_rtransform(fetchSpecPtr, reference);
+            }
+        }
+
+        /// <summary>
         ///   Fetch from the <see cref = "Remote" />.
         /// </summary>
         /// <param name="tagFetchMode">Optional parameter indicating what tags to download.</param>
