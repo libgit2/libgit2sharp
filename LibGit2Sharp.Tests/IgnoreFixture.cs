@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
@@ -44,7 +45,26 @@ namespace LibGit2Sharp.Tests
                 repo.Ignore.ResetAllTemporaryRules();
 
                 Assert.False(repo.Ignore.IsPathIgnored("Foo.cs"));
-            }           
+            }
+        }
+
+        [Fact]
+        public void CallingIsPathIgnoredWithBadParamsThrows()
+        {
+            using (var repo = new Repository(StandardTestRepoWorkingDirPath))
+            {
+                Assert.Throws<ArgumentException>(() => repo.Ignore.IsPathIgnored(string.Empty));
+                Assert.Throws<ArgumentNullException>(() => repo.Ignore.IsPathIgnored(null));
+            }
+        }
+
+        [Fact]
+        public void AddingATemporaryRuleWithBadParamsThrows()
+        {
+            using (var repo = new Repository(StandardTestRepoWorkingDirPath))
+            {
+                Assert.Throws<ArgumentNullException>(() => repo.Ignore.AddTemporaryRules(null));
+            }
         }
     }
 }
