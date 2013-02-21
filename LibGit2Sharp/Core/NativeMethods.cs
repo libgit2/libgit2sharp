@@ -304,6 +304,7 @@ namespace LibGit2Sharp.Core
         internal delegate int git_cred_acquire_cb(
             out IntPtr cred,
             IntPtr url,
+            IntPtr username_from_url,
             uint allowed_types,
             IntPtr payload);
 

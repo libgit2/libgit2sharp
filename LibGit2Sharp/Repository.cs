@@ -503,11 +503,16 @@ namespace LibGit2Sharp
             if (credentials != null)
             {
                 cloneOpts.CredAcquireCallback =
-                    (out IntPtr cred, IntPtr url, uint types, IntPtr payload) =>
+                    (out IntPtr cred, IntPtr url, IntPtr username_from_url, uint types, IntPtr payload) =>
                     NativeMethods.git_cred_userpass_plaintext_new(out cred, credentials.Username, credentials.Password);
             }
 
             using(Proxy.git_clone(sourceUrl, workdirPath, cloneOpts)) {}
+
+            // To be safe, make sure the credential callback is kept until
+            // alive until at least this point.
+            GC.KeepAlive(cloneOpts.CredAcquireCallback);
+
             return new Repository(workdirPath, options);
         }
 

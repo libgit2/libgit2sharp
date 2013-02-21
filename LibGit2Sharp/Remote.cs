@@ -69,6 +69,11 @@ namespace LibGit2Sharp
             TransferProgressHandler onTransferProgress = null,
             Credentials credentials = null)
         {
+            // We need to keep a reference to the git_cred_acquire_cb callback around
+            // so it will not be garbage collected before we are done with it.
+            // Note that we also have a GC.KeepAlive call at the end of the method.
+            NativeMethods.git_cred_acquire_cb credentialCallback = null;
+
             using (RemoteSafeHandle remoteHandle = Proxy.git_remote_load(repository.Handle, this.Name, true))
             {
                 var callbacks = new RemoteCallbacks(onProgress, onCompletion, onUpdateTips);
@@ -76,15 +81,14 @@ namespace LibGit2Sharp
 
                 Proxy.git_remote_set_autotag(remoteHandle, tagFetchMode);
 
-                // Username/password auth
                 if (credentials != null)
                 {
+                    credentialCallback = (out IntPtr cred, IntPtr url, IntPtr username_from_url, uint types, IntPtr payload) =>
+                        NativeMethods.git_cred_userpass_plaintext_new(out cred, credentials.Username, credentials.Password);
+
                     Proxy.git_remote_set_cred_acquire_cb(
                         remoteHandle,
-                        (out IntPtr cred, IntPtr url, uint types, IntPtr payload) =>
-                        NativeMethods.git_cred_userpass_plaintext_new(out cred,
-                                                                      credentials.Username,
-                                                                      credentials.Password),
+                        credentialCallback,
                         IntPtr.Zero);
                 }
 
@@ -109,6 +113,10 @@ namespace LibGit2Sharp
                     Proxy.git_remote_disconnect(remoteHandle);
                 }
             }
+
+            // To be safe, make sure the credential callback is kept until
+            // alive until at least this point.
+            GC.KeepAlive(credentialCallback);
         }
 
         /// <summary>
