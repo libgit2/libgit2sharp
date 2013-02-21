@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
+using Xunit.Extensions;
 
 namespace LibGit2Sharp.Tests
 {
@@ -64,6 +65,23 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(StandardTestRepoWorkingDirPath))
             {
                 Assert.Throws<ArgumentNullException>(() => repo.Ignore.AddTemporaryRules(null));
+            }
+        }
+
+        [Fact]
+        public void CanCheckIfAPathIsIgnoredUsingThePreferedPlatformDirectorySeparatorChar()
+        {
+            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
+
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                string ignorePath = Path.Combine(repo.Info.WorkingDirectory, ".gitignore");
+                File.WriteAllText(ignorePath, "/NewFolder\n/NewFolder/NewFolder");
+
+                Assert.False(repo.Ignore.IsPathIgnored("File.txt"));
+                Assert.True(repo.Ignore.IsPathIgnored("NewFolder"));
+                Assert.True(repo.Ignore.IsPathIgnored(string.Format(@"NewFolder{0}NewFolder", Path.DirectorySeparatorChar)));
+                Assert.True(repo.Ignore.IsPathIgnored(string.Format(@"NewFolder{0}NewFolder{0}File.txt", Path.DirectorySeparatorChar)));
             }
         }
     }
