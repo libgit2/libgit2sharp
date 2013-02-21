@@ -10,7 +10,7 @@
                TaskName="Xunit.Runner.MSBuild.xunit" />
   <Target Name="Clean">
 	<Message Text="Commit SHA = $(CommitSha)" />
-    
+
 	<WriteLinesToFile Condition="'$(CommitSha)' != ''"
 		File="$(RootDir)\LibGit2Sharp\libgit2sharp_hash.txt"
 		Lines="$(CommitSha)"

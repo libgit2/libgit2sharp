@@ -593,32 +593,32 @@ namespace LibGit2Sharp.Tests
         {
             // Initialize a new repository
             SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
-            
+
             const string directoryName = "directory";
             const string fileName = "Testfile.txt";
-            
+
             // Create a file and insert some content
             string directoryPath = Path.Combine(scd.RootedDirectoryPath, directoryName);
             string filePath = Path.Combine(directoryPath, fileName);
-            
+
             Directory.CreateDirectory(directoryPath);
             File.WriteAllText(filePath, "Anybody out there?");
-               
+
             // Initialize the repository
-            using (var repo = Repository.Init(scd.DirectoryPath)) 
+            using (var repo = Repository.Init(scd.DirectoryPath))
             {
                 // Stage the file
                 repo.Index.Stage(filePath);
-                
+
                 // Get the index
                 Index index = repo.Index;
-                
+
                 // Build relative path
                 string relFilePath = Path.Combine(directoryName, fileName);
-                
+
                 // Get the index entry
                 IndexEntry ie = index[relFilePath];
-                
+
                 // Make sure the IndexEntry has been found
                 Assert.NotNull(ie);
 

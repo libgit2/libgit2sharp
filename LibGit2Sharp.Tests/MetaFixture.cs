@@ -133,7 +133,7 @@ namespace LibGit2Sharp.Tests
 
             foreach (var kvp in nonTestableTypes)
             {
-                sb.AppendFormat("'{0}' cannot be easily abstracted in a testing context. Please make sure it either has a public constructor, or an empty protected constructor.{1}", 
+                sb.AppendFormat("'{0}' cannot be easily abstracted in a testing context. Please make sure it either has a public constructor, or an empty protected constructor.{1}",
                     kvp.Key, Environment.NewLine);
 
                 foreach (string methodName in kvp.Value)

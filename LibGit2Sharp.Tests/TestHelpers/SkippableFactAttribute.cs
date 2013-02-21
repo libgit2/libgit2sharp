@@ -1,53 +1,53 @@
 ﻿using System;
 //**********************************************************************
-//* This file is based on the DynamicSkipExample.cs in xUnit which is 
+//* This file is based on the DynamicSkipExample.cs in xUnit which is
 //* provided under the following Ms-PL license:
 //*
-//* This license governs use of the accompanying software. If you use 
-//* the software, you accept this license. If you do not accept the 
+//* This license governs use of the accompanying software. If you use
+//* the software, you accept this license. If you do not accept the
 //* license, do not use the software.
-//* 
+//*
 //* 1. Definitions
-//* 
-//* The terms "reproduce," "reproduction," "derivative works," and 
-//* "distribution" have the same meaning here as under U.S. copyright 
+//*
+//* The terms "reproduce," "reproduction," "derivative works," and
+//* "distribution" have the same meaning here as under U.S. copyright
 //* law.
 //*
-//* A "contribution" is the original software, or any additions or 
+//* A "contribution" is the original software, or any additions or
 //* changes to the software.
-//* 
-//* A "contributor" is any person that distributes its contribution 
+//*
+//* A "contributor" is any person that distributes its contribution
 //* under this license.
-//* 
-//* "Licensed patents" are a contributor's patent claims that read 
+//*
+//* "Licensed patents" are a contributor's patent claims that read
 //* directly on its contribution.
-//* 
+//*
 //* 2. Grant of Rights
-//* 
+//*
 //* (A) Copyright Grant- Subject to the terms of this license, including
-//* the license conditions and limitations in section 3, each 
-//* contributor grants you a non-exclusive, worldwide, royalty-free 
+//* the license conditions and limitations in section 3, each
+//* contributor grants you a non-exclusive, worldwide, royalty-free
 //* copyright license to reproduce its contribution, prepare derivative
-//* works of its contribution, and distribute its contribution or any 
+//* works of its contribution, and distribute its contribution or any
 //* derivative works that you create.
 //*
-//* (B) Patent Grant- Subject to the terms of this license, including 
-//* the license conditions and limitations in section 3, each 
-//* contributor grants you a non-exclusive, worldwide, royalty-free 
+//* (B) Patent Grant- Subject to the terms of this license, including
+//* the license conditions and limitations in section 3, each
+//* contributor grants you a non-exclusive, worldwide, royalty-free
 //* license under its licensed patents to make, have made, use, sell,
 //* offer for sale, import, and/or otherwise dispose of its contribution
 //* in the software or derivative works of the contribution in the
 //* software.
 //*
 //* 3. Conditions and Limitations
-//* 
+//*
 //* (A) No Trademark License- This license does not grant you rights to
 //* use any contributors' name, logo, or trademarks.
-//* 
+//*
 //* (B) If you bring a patent claim against any contributor over patents
 //* that you claim are infringed by the software, your patent license
 //* from such contributor to the software ends automatically.
-//* 
+//*
 //* (C) If you distribute any portion of the software, you must retain
 //* all copyright, patent, trademark, and attribution notices that are
 //* present in the software.

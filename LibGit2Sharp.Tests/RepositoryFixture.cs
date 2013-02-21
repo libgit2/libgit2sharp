@@ -132,7 +132,7 @@ namespace LibGit2Sharp.Tests
         public void CanReinitARepository()
         {
             SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
-        
+
             using (Repository repository = Repository.Init(scd.DirectoryPath))
             using (Repository repository2 = Repository.Init(scd.DirectoryPath))
             {

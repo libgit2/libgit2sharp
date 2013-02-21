@@ -36,7 +36,7 @@
  - Direct creation or Blobs, Trees and Commits without the workdir nor index involvement (#135)
  - New Diff namespace: supports tree-to-tree, tree-to-index and blob-to-blob comparisons (#136)
  - Add Commits.FindCommonAncestor() (#149)
- 
+
 ### Changes
 
  - Deprecate repo.Branches.Checkout() in favor of repo.Checkout()

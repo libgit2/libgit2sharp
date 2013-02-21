@@ -159,7 +159,7 @@ namespace LibGit2Sharp.Tests
                 TreeEntry blobTreeEntry = commitTree["1/branch_file.txt"];
                 Assert.Equal(completePath, blobTreeEntry.Path);
 
-                // A tree entry is now fetched through a relative path to the 
+                // A tree entry is now fetched through a relative path to the
                 // tree but exposes a complete path through its Path property
                 var subTree = treeTreeEntry.Target as Tree;
                 Assert.NotNull(subTree);

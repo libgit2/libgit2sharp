@@ -12,7 +12,7 @@ namespace LibGit2Sharp.Tests
         private readonly string[] expectedRefs = new[]
                                                      {
                                                          "refs/heads/br2", "refs/heads/deadbeef", "refs/heads/master", "refs/heads/packed", "refs/heads/packed-test",
-                                                         "refs/heads/test", "refs/notes/answer", "refs/notes/answer2", "refs/notes/commits", "refs/tags/e90810b", 
+                                                         "refs/heads/test", "refs/notes/answer", "refs/notes/answer2", "refs/notes/commits", "refs/tags/e90810b",
                                                          "refs/tags/lw", "refs/tags/point_to_blob", "refs/tags/test"
                                                      };
 

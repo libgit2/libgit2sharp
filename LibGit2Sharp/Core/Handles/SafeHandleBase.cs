@@ -98,7 +98,7 @@ namespace LibGit2Sharp.Core.Handles
                      *  2. The IsInvalid property is evaluated, and the result is false
                      *  3. The IsInvalid property is evaluated by the runtime to determine if
                      *     finalization is necessary, and the result is now true
-                     *  
+                     *
                      * This can only happen if the value of `handle` is manipulated in an unexpected
                      * way (through the Reflection API or by a specially-crafted derived type that
                      * does not currently exist). The only safe course of action at this point in

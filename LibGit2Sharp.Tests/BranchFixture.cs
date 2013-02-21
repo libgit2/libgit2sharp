@@ -484,7 +484,7 @@ namespace LibGit2Sharp.Tests
                 Assert.False(branch.IsTracking);
 
                 Branch upstreamBranch = repo.Branches[upstreamBranchName];
-                
+
                 repo.Branches.Update(branch,
                     b => b.Upstream = upstreamBranch.CanonicalName);
 

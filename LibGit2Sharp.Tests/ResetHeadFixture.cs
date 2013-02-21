@@ -94,7 +94,7 @@ namespace LibGit2Sharp.Tests
         {
             SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
 
-            using (var repo = Repository.Init(scd.DirectoryPath)) 
+            using (var repo = Repository.Init(scd.DirectoryPath))
             {
                 FeedTheRepository(repo);
 

@@ -1229,7 +1229,7 @@ namespace LibGit2Sharp.Core
             {
                 GitOid oid = id.Oid;
                 ReferenceSafeHandle ref_out;
-                
+
                 int res = NativeMethods.git_reference_set_target(out ref_out, reference, ref oid);
                 Ensure.ZeroResult(res);
 

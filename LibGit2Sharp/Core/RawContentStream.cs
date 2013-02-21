@@ -28,4 +28,3 @@ namespace LibGit2Sharp.Core
         }
     }
 }
-

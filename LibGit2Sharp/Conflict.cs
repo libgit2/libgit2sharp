@@ -7,7 +7,7 @@ namespace LibGit2Sharp
     ///  Represents a group of index entries that describe a merge conflict
     ///  in the index.  This is typically a set of ancestor, ours and theirs
     ///  entries for a given path.
-    ///  
+    ///
     /// Any side may be missing to reflect additions or deletions in the
     /// branches being merged.
     /// </summary>
@@ -19,7 +19,7 @@ namespace LibGit2Sharp
 
         private static readonly LambdaEqualityHelper<Conflict> equalityHelper =
             new LambdaEqualityHelper<Conflict>(x => x.Ancestor, x => x.Ours, x => x.Theirs);
-        
+
         /// <summary>
         ///   Needed for mocking purposes.
         /// </summary>

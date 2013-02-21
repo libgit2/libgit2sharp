@@ -86,7 +86,7 @@ namespace LibGit2Sharp.Tests
 
                 RepositoryStatus newStatus = repo.Index.RetrieveStatus();
 
-                var expected = new[] { "1.txt", Path.Combine("1", "branch_file.txt"), "deleted_staged_file.txt", 
+                var expected = new[] { "1.txt", Path.Combine("1", "branch_file.txt"), "deleted_staged_file.txt",
                     "deleted_unstaged_file.txt", "modified_staged_file.txt", "modified_unstaged_file.txt" };
 
                 Assert.Equal(expected.Length, newStatus.Where(IsStaged).Count());
@@ -105,7 +105,7 @@ namespace LibGit2Sharp.Tests
 
                 RepositoryStatus newStatus = repo.Index.RetrieveStatus();
 
-                var expected = new[] { "1.txt", Path.Combine("1", "branch_file.txt"), "deleted_staged_file.txt", 
+                var expected = new[] { "1.txt", Path.Combine("1", "branch_file.txt"), "deleted_staged_file.txt",
                     "deleted_unstaged_file.txt", "modified_staged_file.txt", "modified_unstaged_file.txt" };
 
                 Assert.Equal(expected.Length, newStatus.Where(IsStaged).Count());

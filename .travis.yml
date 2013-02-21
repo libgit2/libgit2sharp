@@ -2,7 +2,7 @@
 # see travis-ci.org for details
 
 language: c
-      
+
 # Make sure CMake is installed
 install:
  - sudo apt-get install cmake mono-devel mono-gmcs
@@ -22,7 +22,7 @@ script:
 branches:
  only:
    - vNext
-   
+
 # Notify development list when needed
 notifications:
  recipients:
