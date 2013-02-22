@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
+using Xunit.Extensions;
 
 namespace LibGit2Sharp.Tests
 {
@@ -21,7 +22,7 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
-        public void CanAddStash()
+        public void CanAddAndRemoveStash()
         {
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
             using (var repo = new Repository(path.RepositoryPath))
@@ -61,6 +62,17 @@ namespace LibGit2Sharp.Tests
                 // Stash history has been shifted
                 Assert.Equal(repo.Lookup<Commit>("stash@{0}").Sha, secondStash.Target.Sha);
                 Assert.Equal(repo.Lookup<Commit>("stash@{1}").Sha, stash.Target.Sha);
+
+                //Remove one stash
+                repo.Stashes.Remove("stash@{0}");
+                Assert.Equal(1, repo.Stashes.Count());
+                Stash newTopStash = repo.Stashes.First();
+                Assert.Equal("stash@{0}", newTopStash.CanonicalName);
+                Assert.Equal(stash.Target.Sha, newTopStash.Target.Sha);
+
+                // Stash history has been shifted
+                Assert.Equal(stash.Target.Sha, repo.Lookup<Commit>("stash").Sha);
+                Assert.Equal(stash.Target.Sha, repo.Lookup<Commit>("stash@{0}").Sha);
             }
         }
 
@@ -181,6 +193,20 @@ namespace LibGit2Sharp.Tests
 
                 var blob = repo.Lookup<Blob>("stash^3:ignored_file.txt");
                 Assert.NotNull(blob);
+            }
+        }
+
+        [Theory]
+        [InlineData("stah@{0}")]
+        [InlineData("stash@{0")]
+        [InlineData("stash@{fake}")]
+        [InlineData("dummy")]
+        public void RemovingStashWithBadParamShouldThrow(string stashRefLog)
+        {
+            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                Assert.Throws<ArgumentException>(() => repo.Stashes.Remove(stashRefLog));
             }
         }
     }

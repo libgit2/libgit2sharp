@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
@@ -75,6 +76,42 @@ namespace LibGit2Sharp
             }
 
             return new Stash(repo, oid, 0);
+        }
+
+        /// <summary>
+        ///   Remove a single stashed state from the stash list.
+        /// </summary>
+        /// <param name = "stashRefLog">The log reference of the stash to delete. Pattern is "stash@{i}" where i is the index of the stash to remove</param>
+        public virtual void Remove(string stashRefLog)
+        {
+            Ensure.ArgumentNotNullOrEmptyString(stashRefLog, "stashRefLog");
+
+            int index;
+            if(!TryExtractStashIndexFromRefLog(stashRefLog, out index) || index < 0)
+            {
+                throw new ArgumentException("must be a valid stash log reference. Pattern is 'stash@{i}' where 'i' is an integer", "stashRefLog");
+            }
+
+            Proxy.git_stash_drop(repo.Handle, index);
+        }
+
+        private static bool TryExtractStashIndexFromRefLog(string stashRefLog, out int index)
+        {
+            index = -1;
+
+            if (!stashRefLog.StartsWith("stash@{"))
+            {
+                return false;
+            }
+
+            if (!stashRefLog.EndsWith("}"))
+            {
+                return false;
+            }
+
+            var indexAsString = stashRefLog.Substring(7, stashRefLog.Length - 8);
+
+            return int.TryParse(indexAsString, out index);
         }
 
         private string DebuggerDisplay
