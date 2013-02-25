@@ -70,6 +70,9 @@ namespace LibGit2Sharp.Tests
 
         public static void CopyStream(Stream input, Stream output)
         {
+            // Reused from the following Stack Overflow post with permission
+            // of Jon Skeet (obtained on 25 Feb 2013)
+            // http://stackoverflow.com/questions/411592/how-do-i-save-a-stream-to-a-file/411605#411605
             var buffer = new byte[8*1024];
             int len;
             while ((len = input.Read(buffer, 0, buffer.Length)) > 0)
