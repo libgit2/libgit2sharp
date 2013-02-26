@@ -814,5 +814,28 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(committer, c.Committer);
             }
         }
+
+        [Fact]
+        public void CanCommitOnOrphanedBranch()
+        {
+            string newBranchName = "refs/heads/newBranch";
+            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+
+            using (var repo = Repository.Init(scd.DirectoryPath))
+            {
+                // Set Head to point to branch other than master
+                repo.Refs.UpdateTarget("HEAD", newBranchName);
+                Assert.Equal(newBranchName, repo.Head.CanonicalName);
+
+                const string relativeFilepath = "test.txt";
+                string filePath = Path.Combine(repo.Info.WorkingDirectory, relativeFilepath);
+
+                File.WriteAllText(filePath, "test\n");
+                repo.Index.Stage(relativeFilepath);
+
+                repo.Commit("Initial commit", DummySignature, DummySignature);
+                Assert.Equal(1, repo.Head.Commits.Count());
+            }
+        }
     }
 }
