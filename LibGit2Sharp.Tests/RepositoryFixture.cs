@@ -150,7 +150,6 @@ namespace LibGit2Sharp.Tests
         private static void AssertInitializedRepository(Repository repo)
         {
             Assert.NotNull(repo.Info.Path);
-            Assert.True(repo.Info.IsEmpty);
             Assert.False(repo.Info.IsHeadDetached);
             Assert.True(repo.Info.IsHeadOrphaned);
 
@@ -215,7 +214,6 @@ namespace LibGit2Sharp.Tests
                 Assert.NotNull(repo.Info.Path);
                 Assert.Null(repo.Info.WorkingDirectory);
                 Assert.True(repo.Info.IsBare);
-                Assert.False(repo.Info.IsEmpty);
                 Assert.False(repo.Info.IsHeadDetached);
             }
         }

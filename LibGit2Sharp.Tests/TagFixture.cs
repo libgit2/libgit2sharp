@@ -603,7 +603,7 @@ namespace LibGit2Sharp.Tests
 
             using (var repo = Repository.Init(scd.DirectoryPath))
             {
-                Assert.True(repo.Info.IsEmpty);
+                Assert.True(repo.Info.IsHeadOrphaned);
                 Assert.Equal(0, repo.Tags.Count());
             }
         }

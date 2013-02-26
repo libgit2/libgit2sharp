@@ -618,7 +618,7 @@ namespace LibGit2Sharp.Tests
                 AssertBlobContent(commit[relativeFilepath], "nulltoken\n");
 
                 Assert.Equal(0, commit.Parents.Count());
-                Assert.False(repo.Info.IsEmpty);
+                Assert.False(repo.Info.IsHeadOrphaned);
 
                 File.WriteAllText(filePath, "nulltoken commits!\n");
                 repo.Index.Stage(relativeFilepath);

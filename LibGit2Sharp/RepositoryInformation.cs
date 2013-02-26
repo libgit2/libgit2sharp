@@ -1,4 +1,5 @@
-﻿using LibGit2Sharp.Core;
+﻿using System;
+using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
 {
@@ -51,6 +52,7 @@ namespace LibGit2Sharp
         /// <value>
         ///   <c>true</c> if this repository is empty; otherwise, <c>false</c>.
         /// </value>
+        [Obsolete("This method will be removed in the next release.")]
         public virtual bool IsEmpty
         {
             get { return Proxy.git_repository_is_empty(repo.Handle); }
