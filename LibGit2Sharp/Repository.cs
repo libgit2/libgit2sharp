@@ -657,7 +657,7 @@ namespace LibGit2Sharp
         /// <returns>The generated <see cref = "Commit" />.</returns>
         public Commit Commit(string message, Signature author, Signature committer, bool amendPreviousCommit = false)
         {
-            if (amendPreviousCommit && Info.IsEmpty)
+            if (amendPreviousCommit && Info.IsHeadOrphaned)
             {
                 throw new LibGit2SharpException("Can not amend anything. The Head doesn't point at any commit.");
             }
