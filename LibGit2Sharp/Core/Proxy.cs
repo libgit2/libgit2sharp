@@ -1747,6 +1747,45 @@ namespace LibGit2Sharp.Core
 
         #endregion
 
+        #region git_stash_
+
+        public static ObjectId git_stash_save(
+            RepositorySafeHandle repo,
+            Signature stasher,
+            string prettifiedMessage,
+            StashOptions options)
+        {
+            using (ThreadAffinity())
+            using (SignatureSafeHandle stasherHandle = stasher.BuildHandle())
+            {
+                GitOid stashOid;
+
+                int res = NativeMethods.git_stash_save(out stashOid, repo, stasherHandle, prettifiedMessage, options);
+
+                if (res == (int)GitErrorCode.NotFound)
+                {
+                    return null;
+                }
+
+                Ensure.Int32Result(res);
+
+                return new ObjectId(stashOid);
+            }
+        }
+
+        public static ICollection<TResult> git_stash_foreach<TResult>(
+            RepositorySafeHandle repo,
+            Func<int, IntPtr, GitOid, TResult> resultSelector)
+        {
+            return git_foreach(
+                resultSelector,
+                c => NativeMethods.git_stash_foreach(
+                    repo, (UIntPtr i, IntPtr m, ref GitOid x, IntPtr p) => c((int)i, m, x, p), IntPtr.Zero),
+                GitErrorCode.NotFound);
+        }
+
+        #endregion
+
         #region git_status_
 
         public static FileStatus git_status_file(RepositorySafeHandle repo, FilePath path)
@@ -2001,6 +2040,30 @@ namespace LibGit2Sharp.Core
                                            result.Add(resultSelector(x, y));
                                            return 0;
                                        });
+
+                if (ignoredErrorCodes != null && ignoredErrorCodes.Contains((GitErrorCode)res))
+                {
+                    return new TResult[0];
+                }
+
+                Ensure.ZeroResult(res);
+                return result;
+            }
+        }
+
+        private static ICollection<TResult> git_foreach<T1, T2, T3, TResult>(
+            Func<T1, T2, T3, TResult> resultSelector,
+            Func<Func<T1, T2, T3, IntPtr, int>, int> iterator,
+            params GitErrorCode[] ignoredErrorCodes)
+        {
+            using (ThreadAffinity())
+            {
+                var result = new List<TResult>();
+                var res = iterator((w, x, y, payload) =>
+                {
+                    result.Add(resultSelector(w, x, y));
+                    return 0;
+                });
 
                 if (ignoredErrorCodes != null && ignoredErrorCodes.Contains((GitErrorCode)res))
                 {

@@ -905,6 +905,26 @@ namespace LibGit2Sharp.Core
             int offset);
 
         [DllImport(libgit2)]
+        internal static extern int git_stash_save(
+            out GitOid id,
+            RepositorySafeHandle repo,
+            SignatureSafeHandle stasher,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string message,
+            StashOptions flags);
+
+        internal delegate int git_stash_cb(
+            UIntPtr index,
+            IntPtr message,
+            ref GitOid stash_id,
+            IntPtr payload);
+
+        [DllImport(libgit2)]
+        internal static extern int git_stash_foreach(
+            RepositorySafeHandle repo,
+            git_stash_cb callback,
+            IntPtr payload);
+
+        [DllImport(libgit2)]
         internal static extern int git_status_file(
             out FileStatus statusflags,
             RepositorySafeHandle repo,
