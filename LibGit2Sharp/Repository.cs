@@ -681,7 +681,7 @@ namespace LibGit2Sharp
                 return Head.Tip.Parents;
             }
 
-            if (Info.IsEmpty)
+            if (Info.IsHeadOrphaned)
             {
                 return Enumerable.Empty<Commit>();
             }
