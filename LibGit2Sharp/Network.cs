@@ -40,7 +40,7 @@ namespace LibGit2Sharp
 
                 return Proxy.git_repository_fetchhead_foreach(
                     repository.Handle,
-                    (name, url, oid, isMerge) => new FetchHead(repository, name, url, new ObjectId(oid), isMerge, i++));
+                    (name, url, oid, isMerge) => new FetchHead(repository, name, url, oid, isMerge, i++));
             }
         }
 
@@ -76,7 +76,7 @@ namespace LibGit2Sharp
                         return -1;
                     }
 
-                    ObjectId oid = new ObjectId(remoteHead.Oid);
+                    ObjectId oid = remoteHead.Oid;
                     string name = Utf8Marshaler.FromNative(remoteHead.NamePtr);
                     directReferences.Add(new DirectReference(name, this.repository, oid));
 

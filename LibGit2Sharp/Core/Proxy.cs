@@ -45,7 +45,7 @@ namespace LibGit2Sharp.Core
                 int res = NativeMethods.git_blob_create_fromchunks(ref oid, repo, hintpath, fileCallback, IntPtr.Zero);
                 Ensure.ZeroResult(res);
 
-                return new ObjectId(oid);
+                return oid;
             }
         }
 
@@ -57,7 +57,7 @@ namespace LibGit2Sharp.Core
                 int res = NativeMethods.git_blob_create_fromdisk(ref oid, repo, path);
                 Ensure.ZeroResult(res);
 
-                return new ObjectId(oid);
+                return oid;
             }
         }
 
@@ -69,7 +69,7 @@ namespace LibGit2Sharp.Core
                 int res = NativeMethods.git_blob_create_fromworkdir(ref oid, repo, path);
                 Ensure.ZeroResult(res);
 
-                return new ObjectId(oid);
+                return oid;
             }
         }
 
@@ -265,7 +265,7 @@ namespace LibGit2Sharp.Core
                                                       committerHandle, encoding, prettifiedMessage, treePtr.ObjectPtr, parentObjectPtrs.Count, parentsPtrs);
                 Ensure.ZeroResult(res);
 
-                return new ObjectId(commitOid);
+                return commitOid;
             }
         }
 
@@ -769,7 +769,7 @@ namespace LibGit2Sharp.Core
             }
         }
 
-        public static GitOid git_tree_create_fromindex(Index index)
+        public static ObjectId git_tree_create_fromindex(Index index)
         {
             using (ThreadAffinity())
             {
@@ -801,7 +801,7 @@ namespace LibGit2Sharp.Core
 
                 Ensure.ZeroResult(res);
 
-                return new ObjectId(ret);
+                return ret;
             }
         }
 
@@ -848,7 +848,7 @@ namespace LibGit2Sharp.Core
                 int res = NativeMethods.git_note_create(out noteOid, repo, authorHandle, committerHandle, notes_ref, ref oid, note, force ? 1 : 0);
                 Ensure.ZeroResult(res);
 
-                return new ObjectId(noteOid);
+                return noteOid;
             }
         }
 
@@ -1699,7 +1699,7 @@ namespace LibGit2Sharp.Core
 
                 Ensure.ZeroResult(res);
 
-                return new ObjectId(ret);
+                return ret;
             }
         }
 
@@ -1837,7 +1837,7 @@ namespace LibGit2Sharp.Core
                 int res = NativeMethods.git_tag_create(out oid, repo, name, objectPtr.ObjectPtr, taggerHandle, message, allowOverwrite);
                 Ensure.ZeroResult(res);
 
-                return new ObjectId(oid);
+                return oid;
             }
         }
 
@@ -1850,7 +1850,7 @@ namespace LibGit2Sharp.Core
                 int res = NativeMethods.git_tag_create_lightweight(out oid, repo, name, objectPtr.ObjectPtr, allowOverwrite);
                 Ensure.ZeroResult(res);
 
-                return new ObjectId(oid);
+                return oid;
             }
         }
 
@@ -1997,7 +1997,7 @@ namespace LibGit2Sharp.Core
                 int res = NativeMethods.git_treebuilder_write(out oid, repo, bld);
                 Ensure.ZeroResult(res);
 
-                return new ObjectId(oid);
+                return oid;
             }
         }
 
