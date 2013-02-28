@@ -61,7 +61,7 @@ namespace LibGit2Sharp
             return new IndexEntry
                        {
                            Path = path.Native,
-                           Id = new ObjectId(entry.oid),
+                           Id = entry.oid,
                            state = () => repo.Index.RetrieveStatus(path.Native),
                            StageLevel = Proxy.git_index_entry_stage(handle),
                            Mode = (Mode)entry.Mode

@@ -662,8 +662,8 @@ namespace LibGit2Sharp
                 throw new LibGit2SharpException("Can not amend anything. The Head doesn't point at any commit.");
             }
 
-            GitOid treeOid = Proxy.git_tree_create_fromindex(Index);
-            var tree = this.Lookup<Tree>(new ObjectId(treeOid));
+            var treeId = Proxy.git_tree_create_fromindex(Index);
+            var tree = this.Lookup<Tree>(treeId);
 
             var parents = RetrieveParentsOfTheCommitBeingCreated(amendPreviousCommit);
 
@@ -774,7 +774,7 @@ namespace LibGit2Sharp
             {
                 int i = 0;
                 return Proxy.git_repository_mergehead_foreach(Handle,
-                    commitId => new MergeHead(this, new ObjectId(commitId), i++));
+                    commitId => new MergeHead(this, commitId, i++));
             }
         }
 

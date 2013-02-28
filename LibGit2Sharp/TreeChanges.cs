@@ -95,8 +95,8 @@ namespace LibGit2Sharp
             var oldFilePath = FilePathMarshaler.FromNative(delta.OldFile.Path);
             var newMode = (Mode)delta.NewFile.Mode;
             var oldMode = (Mode)delta.OldFile.Mode;
-            var newOid = new ObjectId(delta.NewFile.Oid);
-            var oldOid = new ObjectId(delta.OldFile.Oid);
+            var newOid = delta.NewFile.Oid;
+            var oldOid = delta.OldFile.Oid;
 
             if (delta.Status == ChangeKind.Untracked)
             {

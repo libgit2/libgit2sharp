@@ -99,7 +99,7 @@ namespace LibGit2Sharp
             if (onUpdateTips != null)
             {
                 string refName = Utf8Marshaler.FromNative(str);
-                result = onUpdateTips(refName, new ObjectId(oldId), new ObjectId(newId));
+                result = onUpdateTips(refName, oldId, newId);
             }
 
             return result;
