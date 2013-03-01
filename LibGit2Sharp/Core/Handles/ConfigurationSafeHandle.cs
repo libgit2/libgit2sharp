@@ -2,7 +2,7 @@
 {
     internal class ConfigurationSafeHandle : SafeHandleBase
     {
-        protected override bool ReleaseHandle()
+        protected override bool InternalReleaseHandle()
         {
             Proxy.git_config_free(handle);
             return true;

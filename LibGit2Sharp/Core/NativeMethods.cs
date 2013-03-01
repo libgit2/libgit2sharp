@@ -18,7 +18,6 @@ namespace LibGit2Sharp.Core
         private const string libgit2 = "git2";
         private static readonly LibraryLifetimeObject lifetimeObject;
         private static int handlesCount = 0;
-        private static bool appShuttingDown = false;
 
         /// <summary>
         /// Internal hack to ensure that the call to git_threads_shutdown is called after all handle finalizers
@@ -30,31 +29,29 @@ namespace LibGit2Sharp.Core
             // Ensure mono can JIT the .cctor and adjust the PATH before trying to load the native library.
             // See https://github.com/libgit2/libgit2sharp/pull/190
             [MethodImpl(MethodImplOptions.NoInlining)]
-            public LibraryLifetimeObject() { Ensure.ZeroResult(git_threads_init()); }
+            public LibraryLifetimeObject() 
+            {
+                Ensure.ZeroResult(git_threads_init());
+                AddHandle();
+            }
+
             ~LibraryLifetimeObject()
             {
-                appShuttingDown = true;
-                CheckForShutdown();
+                RemoveHandle();
             }
         }
 
-        internal static void AddHandle(int delta)
+        internal static void AddHandle()
         {
-            int oldCount;
-            do
-            {
-                oldCount = handlesCount;
-                //handles count never should be less than 0
-                Debug.Assert(oldCount + delta >= 0, oldCount.ToString());
-
-            } while (Interlocked.CompareExchange(ref handlesCount, oldCount + delta, oldCount) != oldCount);
-
-            CheckForShutdown();
+            Interlocked.Increment(ref handlesCount);            
         }
 
-        private static void CheckForShutdown()
+        internal static void RemoveHandle()
         {
-            if (appShuttingDown && handlesCount == 0)
+            int hCount = Interlocked.Increment(ref handlesCount);
+            Debug.Assert(hCount >= 0, hCount.ToString());
+
+            if (hCount == 0)
                 git_threads_shutdown();
         }
 

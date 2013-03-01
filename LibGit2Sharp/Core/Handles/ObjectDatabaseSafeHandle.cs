@@ -2,7 +2,7 @@
 {
     internal class ObjectDatabaseSafeHandle : SafeHandleBase
     {
-        protected override bool ReleaseHandle()
+        protected override bool InternalReleaseHandle()
         {
             Proxy.git_odb_free(handle);
             return true;

@@ -14,7 +14,7 @@ namespace LibGit2Sharp.Core.Handles
         protected SafeHandleBase()
             : base(IntPtr.Zero, true)
         {
-            NativeMethods.AddHandle(1);
+            NativeMethods.AddHandle();
 #if LEAKS
             trace = new StackTrace(2, true).ToString();
 #endif
@@ -32,9 +32,7 @@ namespace LibGit2Sharp.Core.Handles
                 Trace.WriteLine("");
             }
 #endif
-            base.Dispose(disposing);
-
-            NativeMethods.AddHandle(-1);
+            base.Dispose(disposing);            
         }
 
         public override bool IsInvalid
@@ -42,6 +40,18 @@ namespace LibGit2Sharp.Core.Handles
             get { return (handle == IntPtr.Zero); }
         }
 
-        protected abstract override bool ReleaseHandle();
+        protected abstract bool InternalReleaseHandle();
+
+        protected override bool ReleaseHandle()
+        {
+            try
+            {
+                return InternalReleaseHandle();
+            }
+            finally
+            {
+                NativeMethods.RemoveHandle();
+            }
+        }
     }
 }
