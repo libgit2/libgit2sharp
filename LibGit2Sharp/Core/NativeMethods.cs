@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.ConstrainedExecution;
 using System.Runtime.InteropServices;
+using System.Threading;
 using LibGit2Sharp.Core.Handles;
 
 // ReSharper disable InconsistentNaming
@@ -15,6 +17,8 @@ namespace LibGit2Sharp.Core
         public const uint GIT_PATH_MAX = 4096;
         private const string libgit2 = "git2";
         private static readonly LibraryLifetimeObject lifetimeObject;
+        private static int handlesCount = 0;
+        private static bool appShuttingDown = false;
 
         /// <summary>
         /// Internal hack to ensure that the call to git_threads_shutdown is called after all handle finalizers
@@ -27,7 +31,31 @@ namespace LibGit2Sharp.Core
             // See https://github.com/libgit2/libgit2sharp/pull/190
             [MethodImpl(MethodImplOptions.NoInlining)]
             public LibraryLifetimeObject() { Ensure.ZeroResult(git_threads_init()); }
-            ~LibraryLifetimeObject() { git_threads_shutdown(); }
+            ~LibraryLifetimeObject()
+            {
+                appShuttingDown = true;
+                CheckForShutdown();
+            }
+        }
+
+        internal static void AddHandle(int delta)
+        {
+            int oldCount;
+            do
+            {
+                oldCount = handlesCount;
+                //handles count never should be less than 0
+                Debug.Assert(oldCount + delta >= 0, oldCount.ToString());
+
+            } while (Interlocked.CompareExchange(ref handlesCount, oldCount + delta, oldCount) != oldCount);
+
+            CheckForShutdown();
+        }
+
+        private static void CheckForShutdown()
+        {
+            if (appShuttingDown && handlesCount == 0)
+                git_threads_shutdown();
         }
 
         static NativeMethods()

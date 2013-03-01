@@ -14,14 +14,15 @@ namespace LibGit2Sharp.Core.Handles
         protected SafeHandleBase()
             : base(IntPtr.Zero, true)
         {
+            NativeMethods.AddHandle(1);
 #if LEAKS
             trace = new StackTrace(2, true).ToString();
 #endif
         }
 
-#if DEBUG
         protected override void Dispose(bool disposing)
         {
+#if DEBUG
             if (!disposing && !IsInvalid)
             {
                 Trace.WriteLine(string.Format(CultureInfo.InvariantCulture, "A {0} handle wrapper has not been properly disposed.", GetType().Name));
@@ -30,10 +31,11 @@ namespace LibGit2Sharp.Core.Handles
 #endif
                 Trace.WriteLine("");
             }
-
-            base.Dispose(disposing);
-        }
 #endif
+            base.Dispose(disposing);
+
+            NativeMethods.AddHandle(-1);
+        }
 
         public override bool IsInvalid
         {
