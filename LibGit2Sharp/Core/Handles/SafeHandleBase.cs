@@ -43,7 +43,7 @@ namespace LibGit2Sharp.Core.Handles
 
         protected abstract bool InternalReleaseHandle();
 
-        protected override bool ReleaseHandle()
+        protected override sealed bool ReleaseHandle()
         {
             try
             {
