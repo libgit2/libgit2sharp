@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.ConstrainedExecution;
 using System.Runtime.InteropServices;
+using System.Threading;
 using LibGit2Sharp.Core.Handles;
 
 // ReSharper disable InconsistentNaming
@@ -15,6 +17,7 @@ namespace LibGit2Sharp.Core
         public const uint GIT_PATH_MAX = 4096;
         private const string libgit2 = "git2";
         private static readonly LibraryLifetimeObject lifetimeObject;
+        private static int handlesCount = 0;
 
         /// <summary>
         /// Internal hack to ensure that the call to git_threads_shutdown is called after all handle finalizers
@@ -26,8 +29,32 @@ namespace LibGit2Sharp.Core
             // Ensure mono can JIT the .cctor and adjust the PATH before trying to load the native library.
             // See https://github.com/libgit2/libgit2sharp/pull/190
             [MethodImpl(MethodImplOptions.NoInlining)]
-            public LibraryLifetimeObject() { Ensure.ZeroResult(git_threads_init()); }
-            ~LibraryLifetimeObject() { git_threads_shutdown(); }
+            public LibraryLifetimeObject() 
+            {
+                Ensure.ZeroResult(git_threads_init());
+                AddHandle();
+            }
+
+            ~LibraryLifetimeObject()
+            {
+                RemoveHandle();
+            }
+        }
+
+        [ReliabilityContract(Consistency.WillNotCorruptState, Cer.Success)]
+        internal static void AddHandle()
+        {
+            Interlocked.Increment(ref handlesCount);
+        }
+
+        [ReliabilityContract(Consistency.WillNotCorruptState, Cer.Success)]
+        internal static void RemoveHandle()
+        {
+            int count = Interlocked.Decrement(ref handlesCount);
+            if (count == 0)
+            {
+                git_threads_shutdown();
+            }
         }
 
         static NativeMethods()

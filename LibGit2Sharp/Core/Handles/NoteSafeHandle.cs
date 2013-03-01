@@ -2,7 +2,7 @@
 {
     internal class NoteSafeHandle : SafeHandleBase
     {
-        protected override bool ReleaseHandle()
+        protected override bool ReleaseHandleImpl()
         {
             Proxy.git_note_free(handle);
             return true;
