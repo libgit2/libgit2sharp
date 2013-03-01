@@ -2,7 +2,7 @@
 {
     internal class PushSafeHandle : SafeHandleBase
     {
-        protected override bool ReleaseHandleImpl()
+        protected override bool ReleaseHandle()
         {
             Proxy.git_push_free(handle);
             return true;

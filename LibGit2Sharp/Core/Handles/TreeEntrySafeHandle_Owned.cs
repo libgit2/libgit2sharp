@@ -2,7 +2,7 @@
 {
     internal class TreeEntrySafeHandle_Owned : SafeHandleBase
     {
-        protected override bool ReleaseHandleImpl()
+        protected override bool ReleaseHandle()
         {
             Proxy.git_tree_entry_free(handle);
             return true;

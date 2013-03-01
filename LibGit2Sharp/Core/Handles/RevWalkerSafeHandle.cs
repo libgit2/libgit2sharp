@@ -2,7 +2,7 @@
 {
     internal class RevWalkerSafeHandle : SafeHandleBase
     {
-        protected override bool ReleaseHandleImpl()
+        protected override bool ReleaseHandle()
         {
             Proxy.git_revwalk_free(handle);
             return true;
