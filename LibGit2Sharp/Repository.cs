@@ -164,6 +164,11 @@ namespace LibGit2Sharp
             {
                 Reference reference = Refs.Head;
 
+                if (reference == null)
+                {
+                    throw new LibGit2SharpException("Corrupt repository. The 'HEAD' reference is missing.");
+                }
+
                 if (reference is SymbolicReference)
                 {
                     return new Branch(this, reference);

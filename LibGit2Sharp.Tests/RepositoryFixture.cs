@@ -502,5 +502,20 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(testMessage, repo.Info.Message);
             }
         }
+
+        [Fact]
+        public void AccessingADeletedHeadThrows()
+        {
+            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+
+            using (var repo = Repository.Init(scd.DirectoryPath))
+            {
+                Assert.NotNull(repo.Head);
+
+                File.Delete(Path.Combine(repo.Info.Path, "HEAD"));
+
+                Assert.Throws<LibGit2SharpException>(() => repo.Head);
+            }
+        }
     }
 }
