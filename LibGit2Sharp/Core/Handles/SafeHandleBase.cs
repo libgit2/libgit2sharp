@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.InteropServices;
+using Interlocked = System.Threading.Interlocked;
 
 namespace LibGit2Sharp.Core.Handles
 {
@@ -11,10 +12,15 @@ namespace LibGit2Sharp.Core.Handles
         private readonly string trace;
 #endif
 
+        /// <summary>
+        /// This is set to non-zero when <see cref="NativeMethods.AddHandle"/> has
+        /// been called for this handle.
+        /// </summary>
+        private int registered;
+
         protected SafeHandleBase()
             : base(IntPtr.Zero, true)
         {
-            NativeMethods.AddHandle();
 #if LEAKS
             trace = new StackTrace(2, true).ToString();
 #endif
@@ -36,9 +42,26 @@ namespace LibGit2Sharp.Core.Handles
         }
 #endif
 
-        public override bool IsInvalid
+        public override sealed bool IsInvalid
         {
-            get { return (handle == IntPtr.Zero); }
+            get
+            {
+                bool invalid = IsInvalidImpl();
+                if (!invalid && Interlocked.CompareExchange(ref registered, 1, 0) == 0)
+                {
+                    // Call AddHandle at most 1 time for this handle, and only after
+                    // we know that the handle is valid (i.e. ReleaseHandle will eventually
+                    // be called).
+                    NativeMethods.AddHandle();
+                }
+
+                return invalid;
+            }
+        }
+
+        protected virtual bool IsInvalidImpl()
+        {
+            return handle == IntPtr.Zero;
         }
 
         protected abstract bool ReleaseHandleImpl();
