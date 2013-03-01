@@ -41,13 +41,13 @@ namespace LibGit2Sharp.Core.Handles
             get { return (handle == IntPtr.Zero); }
         }
 
-        protected abstract bool InternalReleaseHandle();
+        protected abstract bool ReleaseHandleImpl();
 
         protected override sealed bool ReleaseHandle()
         {
             try
             {
-                return InternalReleaseHandle();
+                return ReleaseHandleImpl();
             }
             finally
             {
