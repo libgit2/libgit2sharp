@@ -8,14 +8,14 @@ namespace LibGit2Sharp.Core.Handles
 {
     internal abstract class SafeHandleBase : SafeHandle
     {
-        private int isInvalidCallCount = 0;
 #if LEAKS
         private readonly string trace;
 #endif
 
         /// <summary>
         /// This is set to non-zero when <see cref="NativeMethods.AddHandle"/> has
-        /// been called for this handle.
+        /// been called for this handle, but <see cref="NativeMethods.RemoveHandle"/>
+        /// has not yet been called.
         /// </summary>
         private int registered;
 
@@ -23,6 +23,7 @@ namespace LibGit2Sharp.Core.Handles
             : base(IntPtr.Zero, true)
         {
             NativeMethods.AddHandle();
+            registered = 1;
 #if LEAKS
             trace = new StackTrace(2, true).ToString();
 #endif
@@ -49,27 +50,16 @@ namespace LibGit2Sharp.Core.Handles
             get
             {
                 bool invalid = IsInvalidImpl();
-                bool firstTimeCall = false;
-
-                if (Interlocked.Increment(ref isInvalidCallCount) == 1)
+                if (invalid && Interlocked.CompareExchange(ref registered, 0, 1) == 1)
                 {
-                    //remove handle if it is invalid
-                    //it will be added if it becomes valid
-                    if(invalid)
-                        NativeMethods.RemoveHandle();
-
-                    firstTimeCall = true;
+                    NativeMethods.RemoveHandle();
                 }
-
-                if (!invalid && Interlocked.CompareExchange(ref registered, 1, 0) == 0)
+                else if (!invalid && Interlocked.CompareExchange(ref registered, 1, 0) == 0)
                 {
                     // Call AddHandle at most 1 time for this handle, and only after
                     // we know that the handle is valid (i.e. ReleaseHandle will eventually
                     // be called).
-                    //if this is the first time call, don't add it
-                    //it was already added in constructor
-                    if (!firstTimeCall)
-                        NativeMethods.AddHandle();
+                    NativeMethods.AddHandle();
                 }
 
                 return invalid;
