@@ -48,7 +48,7 @@ namespace LibGit2Sharp.Core
 
         internal static void RemoveHandle()
         {
-            int hCount = Interlocked.Increment(ref handlesCount);
+            int hCount = Interlocked.Decrement(ref handlesCount);
             Debug.Assert(hCount >= 0, hCount.ToString());
 
             if (hCount == 0)
