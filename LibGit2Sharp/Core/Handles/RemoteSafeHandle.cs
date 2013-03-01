@@ -2,7 +2,7 @@
 {
     internal class RemoteSafeHandle : SafeHandleBase
     {
-        protected override bool ReleaseHandle()
+        protected override bool ReleaseHandleImpl()
         {
             Proxy.git_remote_free(handle);
             return true;
