@@ -8,6 +8,7 @@ namespace LibGit2Sharp.Core.Handles
 {
     internal abstract class SafeHandleBase : SafeHandle
     {
+        private int isInvalidCallCount = 0;
 #if LEAKS
         private readonly string trace;
 #endif
@@ -21,6 +22,7 @@ namespace LibGit2Sharp.Core.Handles
         protected SafeHandleBase()
             : base(IntPtr.Zero, true)
         {
+            NativeMethods.AddHandle();
 #if LEAKS
             trace = new StackTrace(2, true).ToString();
 #endif
@@ -47,12 +49,27 @@ namespace LibGit2Sharp.Core.Handles
             get
             {
                 bool invalid = IsInvalidImpl();
+                bool firstTimeCall = false;
+
+                if (Interlocked.Increment(ref isInvalidCallCount) == 1)
+                {
+                    //remove handle if it is invalid
+                    //it will be added if it becomes valid
+                    if(invalid)
+                        NativeMethods.RemoveHandle();
+
+                    firstTimeCall = true;
+                }
+
                 if (!invalid && Interlocked.CompareExchange(ref registered, 1, 0) == 0)
                 {
                     // Call AddHandle at most 1 time for this handle, and only after
                     // we know that the handle is valid (i.e. ReleaseHandle will eventually
                     // be called).
-                    NativeMethods.AddHandle();
+                    //if this is the first time call, don't add it
+                    //it was already added in constructor
+                    if (!firstTimeCall)
+                        NativeMethods.AddHandle();
                 }
 
                 return invalid;
