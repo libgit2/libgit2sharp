@@ -54,14 +54,10 @@ namespace LibGit2Sharp.Core.Handles
                 bool invalid = IsInvalidImpl();
                 if (invalid && Interlocked.CompareExchange(ref registered, 0, 1) == 1)
                 {
+                    /* Unregister the handle because we know ReleaseHandle won't be called
+                     * to do it for us.
+                     */
                     NativeMethods.RemoveHandle();
-                }
-                else if (!invalid && Interlocked.CompareExchange(ref registered, 1, 0) == 0)
-                {
-                    // Call AddHandle at most 1 time for this handle, and only after
-                    // we know that the handle is valid (i.e. ReleaseHandle will eventually
-                    // be called).
-                    NativeMethods.AddHandle();
                 }
 
                 return invalid;
@@ -77,14 +73,41 @@ namespace LibGit2Sharp.Core.Handles
 
         protected override sealed bool ReleaseHandle()
         {
+            bool result;
+
             try
             {
-                return ReleaseHandleImpl();
+                result = ReleaseHandleImpl();
             }
             finally
             {
-                NativeMethods.RemoveHandle();
+                if (Interlocked.CompareExchange(ref registered, 0, 1) == 1)
+                {
+                    // if the handle is still registered at this point, we definitely
+                    // want to unregister it
+                    NativeMethods.RemoveHandle();
+                }
+                else
+                {
+                    /* For this to be called, the following sequence of events must occur:
+                     *
+                     *  1. The handle is created
+                     *  2. The IsInvalid property is evaluated, and the result is false
+                     *  3. The IsInvalid property is evaluated by the runtime to determine if
+                     *     finalization is necessary, and the result is now true
+                     *  
+                     * This can only happen if the value of `handle` is manipulated in an unexpected
+                     * way (through the Reflection API or by a specially-crafted derived type that
+                     * does not currently exist). The only safe course of action at this point in
+                     * the shutdown process is returning false, which will trigger the
+                     * releaseHandleFailed MDA but have no other impact on the CLR state.
+                     * http://msdn.microsoft.com/en-us/library/85eak4a0.aspx
+                     */
+                    result = false;
+                }
             }
+
+            return result;
         }
     }
 }
