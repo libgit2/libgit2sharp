@@ -41,17 +41,17 @@ namespace LibGit2Sharp.Core
             }
         }
 
+        [ReliabilityContract(Consistency.WillNotCorruptState, Cer.Success)]
         internal static void AddHandle()
         {
-            Interlocked.Increment(ref handlesCount);            
+            Interlocked.Increment(ref handlesCount);
         }
 
+        [ReliabilityContract(Consistency.WillNotCorruptState, Cer.Success)]
         internal static void RemoveHandle()
         {
-            int hCount = Interlocked.Decrement(ref handlesCount);
-            Debug.Assert(hCount >= 0, hCount.ToString());
-
-            if (hCount == 0)
+            int count = Interlocked.Decrement(ref handlesCount);
+            if (count == 0)
                 git_threads_shutdown();
         }
 
