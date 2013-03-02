@@ -35,13 +35,13 @@ The [build][3] is generously hosted and run on the [CodeBetter TeamCity][7] infr
 | **vNext (Mono)** | [![vNext Mono][14]][15] |
 
  [7]: http://codebetter.com/codebetter-ci/
- [8]: http://teamcity.codebetter.com/app/rest/builds/buildType:\(id:bt398\)/statusIcon
+ [8]: http://teamcity.codebetter.com/app/rest/builds/buildType:(id:bt398)/statusIcon
  [9]: http://teamcity.codebetter.com/viewType.html?buildTypeId=bt398&guest=1
- [10]: http://teamcity.codebetter.com/app/rest/builds/buildType:\(id:bt651\)/statusIcon
+ [10]: http://teamcity.codebetter.com/app/rest/builds/buildType:(id:bt651)/statusIcon
  [11]: http://teamcity.codebetter.com/viewType.html?buildTypeId=bt651&guest=1
- [12]: http://teamcity.codebetter.com/app/rest/builds/buildType:\(id:bt652\)/statusIcon
+ [12]: http://teamcity.codebetter.com/app/rest/builds/buildType:(id:bt652)/statusIcon
  [13]: http://teamcity.codebetter.com/viewType.html?buildTypeId=bt652&guest=1
- [14]: http://teamcity.codebetter.com/app/rest/builds/buildType:\(id:bt656\)/statusIcon
+ [14]: http://teamcity.codebetter.com/app/rest/builds/buildType:(id:bt656)/statusIcon
  [15]: http://teamcity.codebetter.com/viewType.html?buildTypeId=bt656&guest=1
 
 ## Quick contributing guide
