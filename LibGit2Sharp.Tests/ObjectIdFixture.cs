@@ -40,6 +40,24 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
+        public void CanCastShaToObjectId()
+        {
+            var id = (ObjectId)validSha1;
+
+            Assert.Equal(bytes, id.RawId);
+        }
+
+        [Fact]
+        public void CanCastNullToObjectId()
+        {
+            string sha = null;
+
+            var id = (ObjectId)sha;
+
+            Assert.Null(id);
+        }
+
+        [Fact]
         public void CreatingObjectIdWithWrongNumberOfBytesThrows()
         {
             var invalidBytes = new byte[] { 206, 8, 254, 72, 132, 101, 15, 6, 123, 213, 112, 59, 106, 89, 168, 179, 179, 201, 154 };

@@ -199,6 +199,16 @@ namespace LibGit2Sharp
             return !Equals(left, right);
         }
 
+        /// <summary>
+        ///   Create an <see cref="ObjectId"/> for the given <paramref name="sha"/>.
+        /// </summary>
+        /// <param name="sha">The object SHA.</param>
+        /// <returns>An <see cref="ObjectId"/>, or null if <paramref name="sha"/> is null.</returns>
+        public static explicit operator ObjectId(string sha)
+        {
+            return sha == null ? null : new ObjectId(sha);
+        }
+
         private static byte[] BuildReverseHexDigits()
         {
             var bytes = new byte['f' - '0' + 1];
