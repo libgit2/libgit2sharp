@@ -45,6 +45,8 @@ namespace LibGit2Sharp.Core.Handles
         }
 #endif
 
+        // Prevent the debugger from evaluating this property because it has side effects
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public override sealed bool IsInvalid
         {
             get
