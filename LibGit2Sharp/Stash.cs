@@ -32,6 +32,9 @@
             get { return Target.Message; }
         }
 
+        /// <summary>
+        ///   Returns "stash@{i}", where i is the index of this <see cref="Stash"/>.
+        /// </summary>
         protected override string Shorten()
         {
             return CanonicalName;
