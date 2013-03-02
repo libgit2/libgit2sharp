@@ -2,13 +2,12 @@
 using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.InteropServices;
-using Interlocked = System.Threading.Interlocked;
+using System.Threading;
 
 namespace LibGit2Sharp.Core.Handles
 {
     internal abstract class SafeHandleBase : SafeHandle
     {
-        private int isInvalidCallCount = 0;
 #if LEAKS
         private readonly string trace;
 #endif
@@ -17,20 +16,30 @@ namespace LibGit2Sharp.Core.Handles
         /// This is set to non-zero when <see cref="NativeMethods.AddHandle"/> has
         /// been called for this handle.
         /// </summary>
-        private int registered;
+        private int registered = 0;
 
         protected SafeHandleBase()
             : base(IntPtr.Zero, true)
         {
             NativeMethods.AddHandle();
+            registered = 1;
 #if LEAKS
             trace = new StackTrace(2, true).ToString();
 #endif
         }
 
-#if DEBUG
+        //SafeHandle inherits from CriticalFinalizerObject
+        //thus there is strong guarantee that finalizer will be called
+        //unless GC.SuppressFinalize was called from Dispose
+        //for that reason handle is unregistered from finalizer either Dispose
+        ~SafeHandleBase()
+        {
+            UnregisterHandle();
+        }
+
         protected override void Dispose(bool disposing)
         {
+#if DEBUG
             if (!disposing && !IsInvalid)
             {
                 Trace.WriteLine(string.Format(CultureInfo.InvariantCulture, "A {0} handle wrapper has not been properly disposed.", GetType().Name));
@@ -39,60 +48,23 @@ namespace LibGit2Sharp.Core.Handles
 #endif
                 Trace.WriteLine("");
             }
-
-            base.Dispose(disposing);
-        }
 #endif
-
-        public override sealed bool IsInvalid
-        {
-            get
-            {
-                bool invalid = IsInvalidImpl();
-                bool firstTimeCall = false;
-
-                if (Interlocked.Increment(ref isInvalidCallCount) == 1)
-                {
-                    //remove handle if it is invalid
-                    //it will be added if it becomes valid
-                    if(invalid)
-                        NativeMethods.RemoveHandle();
-
-                    firstTimeCall = true;
-                }
-
-                if (!invalid && Interlocked.CompareExchange(ref registered, 1, 0) == 0)
-                {
-                    // Call AddHandle at most 1 time for this handle, and only after
-                    // we know that the handle is valid (i.e. ReleaseHandle will eventually
-                    // be called).
-                    //if this is the first time call, don't add it
-                    //it was already added in constructor
-                    if (!firstTimeCall)
-                        NativeMethods.AddHandle();
-                }
-
-                return invalid;
-            }
+            base.Dispose(disposing);
+            UnregisterHandle();
         }
 
-        protected virtual bool IsInvalidImpl()
+        private void UnregisterHandle()
         {
-            return handle == IntPtr.Zero;
-        }
-
-        protected abstract bool ReleaseHandleImpl();
-
-        protected override sealed bool ReleaseHandle()
-        {
-            try
-            {
-                return ReleaseHandleImpl();
-            }
-            finally
-            {
+            int n = Interlocked.Decrement(ref registered);
+            if (n == 0)
                 NativeMethods.RemoveHandle();
-            }
         }
+
+        public override bool IsInvalid
+        {
+            get { return (handle == IntPtr.Zero); }
+        }
+
+        protected abstract override bool ReleaseHandle();
     }
 }
