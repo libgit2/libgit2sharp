@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Runtime.ConstrainedExecution;
 using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -13,7 +14,7 @@ namespace LibGit2Sharp.Core.Handles
 #endif
 
         /// <summary>
-        /// This is set to non-zero when <see cref="NativeMethods.AddHandle"/> has
+        /// This is set to 1 when <see cref="NativeMethods.AddHandle"/> has
         /// been called for this handle.
         /// </summary>
         private int registered = 0;
@@ -53,6 +54,7 @@ namespace LibGit2Sharp.Core.Handles
             UnregisterHandle();
         }
 
+        [ReliabilityContract(Consistency.WillNotCorruptState, Cer.Success)]
         private void UnregisterHandle()
         {
             int n = Interlocked.Decrement(ref registered);
