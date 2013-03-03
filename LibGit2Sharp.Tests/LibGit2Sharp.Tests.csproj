@@ -49,6 +49,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Xml" />
     <Reference Include="xunit">
       <HintPath>..\Lib\xUnit\xunit.dll</HintPath>
     </Reference>

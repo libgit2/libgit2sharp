@@ -59,7 +59,10 @@
 //* only do so under a license that complies with this license.
 //**********************************************************************
 using System.Collections.Generic;
+using System.Linq;
+using System.Xml;
 using Xunit;
+using Xunit.Extensions;
 using Xunit.Sdk;
 
 namespace LibGit2Sharp.Tests.TestHelpers
@@ -68,24 +71,64 @@ namespace LibGit2Sharp.Tests.TestHelpers
     {
         protected override IEnumerable<ITestCommand> EnumerateTestCommands(IMethodInfo method)
         {
-            yield return new SkippableTestCommand(method);
+            return base.EnumerateTestCommands(method).Select(SkippableTestCommand.Wrap(method));
+        }
+    }
+
+    class SkippableTheoryAttribute : TheoryAttribute
+    {
+        protected override IEnumerable<ITestCommand> EnumerateTestCommands(IMethodInfo method)
+        {
+            return base.EnumerateTestCommands(method).Select(SkippableTestCommand.Wrap(method));
+        }
+    }
+
+    class SkippableTestCommand : ITestCommand
+    {
+        public static Func<ITestCommand, ITestCommand> Wrap(IMethodInfo method)
+        {
+            return c => new SkippableTestCommand(method, c);
         }
 
-        class SkippableTestCommand : FactCommand
-        {
-            public SkippableTestCommand(IMethodInfo method) : base(method) { }
+        private readonly IMethodInfo method;
+        private readonly ITestCommand inner;
 
-            public override MethodResult Execute(object testClass)
+        private SkippableTestCommand(IMethodInfo method, ITestCommand inner)
+        {
+            this.method = method;
+            this.inner = inner;
+        }
+
+        public MethodResult Execute(object testClass)
+        {
+            try
             {
-                try
-                {
-                    return base.Execute(testClass);
-                }
-                catch (SkipException e)
-                {
-                    return new SkipResult(testMethod, DisplayName, e.Reason);
-                }
+                return inner.Execute(testClass);
             }
+            catch (SkipException e)
+            {
+                return new SkipResult(method, DisplayName, e.Reason);
+            }
+        }
+
+        public XmlNode ToStartXml()
+        {
+            return inner.ToStartXml();
+        }
+
+        public string DisplayName
+        {
+            get { return inner.DisplayName; }
+        }
+
+        public bool ShouldCreateInstance
+        {
+            get { return inner.ShouldCreateInstance; }
+        }
+
+        public int Timeout
+        {
+            get { return inner.Timeout; }
         }
     }
 
@@ -96,6 +139,6 @@ namespace LibGit2Sharp.Tests.TestHelpers
             Reason = reason;
         }
 
-        public string Reason { get; set; }
+        public string Reason { get; private set; }
     }
 }
