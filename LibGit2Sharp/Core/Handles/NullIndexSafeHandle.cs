@@ -9,7 +9,7 @@ namespace LibGit2Sharp.Core.Handles
             handle = IntPtr.Zero;
         }
 
-        protected override bool ReleaseHandle()
+        protected override bool ReleaseHandleImpl()
         {
             // Nothing to release
             return true;

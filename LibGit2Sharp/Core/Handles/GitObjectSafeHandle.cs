@@ -2,7 +2,7 @@
 {
     internal class GitObjectSafeHandle : SafeHandleBase
     {
-        protected override bool ReleaseHandle()
+        protected override bool ReleaseHandleImpl()
         {
             Proxy.git_object_free(handle);
             return true;
