@@ -46,9 +46,10 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="progress"><see cref = "GitTransferProgress" /> structure containing progress information.</param>
         /// <param name="payload">Payload data.</param>
-        private void OnGitTransferProgress(ref GitTransferProgress progress, IntPtr payload)
+        /// <returns>the result of the wrapped <see cref = "TransferProgressHandler" /></returns>
+        private int OnGitTransferProgress(ref GitTransferProgress progress, IntPtr payload)
         {
-            onTransferProgress(new TransferProgress(progress));
+            return onTransferProgress(new TransferProgress(progress));
         }
     }
 }

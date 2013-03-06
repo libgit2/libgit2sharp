@@ -108,10 +108,7 @@ namespace LibGit2Sharp
             }
             else if (canonicalName.StartsWith(remotePrefix, StringComparison.Ordinal))
             {
-                using (ReferenceSafeHandle branchPtr = repo.Refs.RetrieveReferencePtr(canonicalName))
-                {
-                    remoteName = Proxy.git_branch_remote_name(repo.Handle, branchPtr);
-                }
+                remoteName = Proxy.git_branch_remote_name(repo.Handle, canonicalName);
 
                 Remote remote = repo.Network.Remotes.RemoteForName(remoteName);
                 using (RemoteSafeHandle remoteHandle = Proxy.git_remote_load(repo.Handle, remote.Name, true))

@@ -135,25 +135,27 @@ namespace LibGit2Sharp.Core
             return git_foreach(resultSelector, c => NativeMethods.git_branch_foreach(repo, branch_type, (x, y, p) => c(x, y, p), IntPtr.Zero));
         }
 
-        public static void git_branch_move(ReferenceSafeHandle reference, string new_branch_name, bool force)
+        public static ReferenceSafeHandle git_branch_move(ReferenceSafeHandle reference, string new_branch_name, bool force)
         {
             using (ThreadAffinity())
             {
-                int res = NativeMethods.git_branch_move(reference, new_branch_name, force);
+                ReferenceSafeHandle ref_out;
+                int res = NativeMethods.git_branch_move(out ref_out, reference, new_branch_name, force);
                 Ensure.ZeroResult(res);
+                return ref_out;
             }
         }
 
-        public static string git_branch_remote_name(RepositorySafeHandle repo, ReferenceSafeHandle branch)
+        public static string git_branch_remote_name(RepositorySafeHandle repo, string canonical_branch_name)
         {
             using (ThreadAffinity())
             {
-                int bufSize = NativeMethods.git_branch_remote_name(null, UIntPtr.Zero, repo, branch);
+                int bufSize = NativeMethods.git_branch_remote_name(null, UIntPtr.Zero, repo, canonical_branch_name);
                 Ensure.Int32Result(bufSize);
 
                 var buffer = new byte[bufSize];
 
-                int res = NativeMethods.git_branch_remote_name(buffer, (UIntPtr)buffer.Length, repo, branch);
+                int res = NativeMethods.git_branch_remote_name(buffer, (UIntPtr)buffer.Length, repo, canonical_branch_name);
                 Ensure.Int32Result(res);
 
                 return Utf8Marshaler.Utf8FromBuffer(buffer) ?? string.Empty;
@@ -1124,8 +1126,6 @@ namespace LibGit2Sharp.Core
             using (ThreadAffinity())
             {
                 int res = NativeMethods.git_reference_delete(reference);
-                reference.SetHandleAsInvalid();
-
                 Ensure.ZeroResult(res);
             }
         }
@@ -1192,12 +1192,16 @@ namespace LibGit2Sharp.Core
             return NativeMethods.git_reference_target(reference).MarshalAsObjectId();
         }
 
-        public static void git_reference_rename(ReferenceSafeHandle reference, string newName, bool allowOverwrite)
+        public static ReferenceSafeHandle git_reference_rename(ReferenceSafeHandle reference, string newName, bool allowOverwrite)
         {
             using (ThreadAffinity())
             {
-                int res = NativeMethods.git_reference_rename(reference, newName, allowOverwrite);
+                ReferenceSafeHandle ref_out;
+
+                int res = NativeMethods.git_reference_rename(out ref_out, reference, newName, allowOverwrite);
                 Ensure.ZeroResult(res);
+
+                return ref_out;
             }
         }
 
@@ -1219,22 +1223,30 @@ namespace LibGit2Sharp.Core
             }
         }
 
-        public static void git_reference_set_oid(ReferenceSafeHandle reference, ObjectId id)
+        public static ReferenceSafeHandle git_reference_set_target(ReferenceSafeHandle reference, ObjectId id)
         {
             using (ThreadAffinity())
             {
                 GitOid oid = id.Oid;
-                int res = NativeMethods.git_reference_set_target(reference, ref oid);
+                ReferenceSafeHandle ref_out;
+                
+                int res = NativeMethods.git_reference_set_target(out ref_out, reference, ref oid);
                 Ensure.ZeroResult(res);
+
+                return ref_out;
             }
         }
 
-        public static void git_reference_set_target(ReferenceSafeHandle reference, string target)
+        public static ReferenceSafeHandle git_reference_symbolic_set_target(ReferenceSafeHandle reference, string target)
         {
             using (ThreadAffinity())
             {
-                int res = NativeMethods.git_reference_symbolic_set_target(reference, target);
+                ReferenceSafeHandle ref_out;
+
+                int res = NativeMethods.git_reference_symbolic_set_target(out ref_out, reference, target);
                 Ensure.ZeroResult(res);
+
+                return ref_out;
             }
         }
 
