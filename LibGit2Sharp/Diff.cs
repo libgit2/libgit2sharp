@@ -200,12 +200,13 @@ namespace LibGit2Sharp
         ///   Show changes between the working directory and the index.
         /// </summary>
         /// <param name = "paths">The list of paths (either files or directories) that should be compared.</param>
+        /// <param name = "includeUntracked">If true, include untracked files from the working dir as additions. Otherwise ignore them.</param>
         /// <returns>A <see cref = "TreeChanges"/> containing the changes between the working directory and the index.</returns>
-        public virtual TreeChanges Compare(IEnumerable<string> paths = null)
+        public virtual TreeChanges Compare(IEnumerable<string> paths = null, bool includeUntracked = false)
         {
             var comparer = WorkdirToIndex(repo);
 
-            using (GitDiffOptions options = BuildOptions(DiffOptions.None, paths))
+            using (GitDiffOptions options = BuildOptions(includeUntracked ? DiffOptions.IncludeUntracked : DiffOptions.None, paths))
             using (DiffListSafeHandle dl = BuildDiffListFromComparer(null, comparer, options))
             {
                 return new TreeChanges(dl);
