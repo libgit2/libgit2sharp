@@ -35,5 +35,19 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal("modified_unstaged_file.txt", changes.Modified.Single().Path);
             }
         }
+
+        [Fact]
+        public void CanCompareTheWorkDirAgainstTheIndexWithUntrackedFiles()
+        {
+            using (var repo = new Repository(StandardTestRepoPath))
+            {
+                TreeChanges changes = repo.Diff.Compare(null, true);
+
+                Assert.Equal(3, changes.Count());
+                Assert.Equal("deleted_unstaged_file.txt", changes.Deleted.Single().Path);
+                Assert.Equal("modified_unstaged_file.txt", changes.Modified.Single().Path);
+                Assert.Equal("new_untracked_file.txt", changes.Added.Single().Path);
+            }
+        }
     }
 }
