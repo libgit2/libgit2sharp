@@ -125,7 +125,11 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name = "commit">The target commit object.</param>
         /// <param name = "paths">The list of paths (either files or directories) that should be considered.</param>
-        void Reset(Commit commit, IEnumerable<string> paths = null);
+        /// <param name = "explicitPathsOptions">
+        ///   If set, the passed <paramref name="paths"/> will be treated as explicit paths.
+        ///   Use these options to determine how unmatched explicit paths should be handled.
+        /// </param>
+        void Reset(Commit commit, IEnumerable<string> paths = null, ExplicitPathsOptions explicitPathsOptions = null);
 
         /// <summary>
         /// Clean the working tree by removing files that are not under version control.

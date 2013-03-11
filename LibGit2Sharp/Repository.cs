@@ -641,7 +641,11 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name = "commit">The target commit object.</param>
         /// <param name = "paths">The list of paths (either files or directories) that should be considered.</param>
-        public void Reset(Commit commit, IEnumerable<string> paths = null)
+        /// <param name = "explicitPathsOptions">
+        ///   If set, the passed <paramref name="paths"/> will be treated as explicit paths.
+        ///   Use these options to determine how unmatched explicit paths should be handled.
+        /// </param>
+        public void Reset(Commit commit, IEnumerable<string> paths = null, ExplicitPathsOptions explicitPathsOptions = null)
         {
             if (Info.IsBare)
             {
@@ -650,7 +654,7 @@ namespace LibGit2Sharp
 
             Ensure.ArgumentNotNull(commit, "commit");
 
-            TreeChanges changes = Diff.Compare(commit.Tree, DiffTargets.Index, paths);
+            TreeChanges changes = Diff.Compare(commit.Tree, DiffTargets.Index, paths, explicitPathsOptions);
             Index.Reset(changes);
         }
 

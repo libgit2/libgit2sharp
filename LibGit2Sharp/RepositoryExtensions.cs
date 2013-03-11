@@ -136,7 +136,11 @@ namespace LibGit2Sharp
         /// <param name = "repository">The <see cref = "Repository" /> being worked with.</param>
         /// <param name = "committish">A revparse spec for the target commit object.</param>
         /// <param name = "paths">The list of paths (either files or directories) that should be considered.</param>
-        public static void Reset(this IRepository repository, string committish = "HEAD", IEnumerable<string> paths = null)
+        /// <param name = "explicitPathsOptions">
+        ///   If set, the passed <paramref name="paths"/> will be treated as explicit paths.
+        ///   Use these options to determine how unmatched explicit paths should be handled.
+        /// </param>
+        public static void Reset(this IRepository repository, string committish = "HEAD", IEnumerable<string> paths = null, ExplicitPathsOptions explicitPathsOptions = null)
         {
             if (repository.Info.IsBare)
             {
@@ -147,7 +151,7 @@ namespace LibGit2Sharp
 
             Commit commit = LookUpCommit(repository, committish);
 
-            repository.Reset(commit, paths);
+            repository.Reset(commit, paths, explicitPathsOptions);
         }
 
         private static Commit LookUpCommit(IRepository repository, string committish)
