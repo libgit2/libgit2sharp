@@ -153,9 +153,10 @@ namespace LibGit2Sharp
 
             using (ReferenceSafeHandle handle = RetrieveReferencePtr(reference.CanonicalName))
             {
-                Proxy.git_reference_rename(handle, newName, allowOverwrite);
-
-                return Reference.BuildFromPtr<Reference>(handle, repo);
+                using (ReferenceSafeHandle handle_out = Proxy.git_reference_rename(handle, newName, allowOverwrite))
+                {
+                    return Reference.BuildFromPtr<Reference>(handle_out, repo);
+                }
             }
         }
 
@@ -181,7 +182,7 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(targetId, "targetId");
 
             return UpdateTarget(directRef, targetId,
-                (h, id) => Proxy.git_reference_set_oid(h, id));
+                (h, id) => Proxy.git_reference_set_target(h, id));
         }
 
         /// <summary>
@@ -196,10 +197,10 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(targetRef, "targetRef");
 
             return UpdateTarget(symbolicRef, targetRef,
-                (h, r) => Proxy.git_reference_set_target(h, r.CanonicalName));
+                (h, r) => Proxy.git_reference_symbolic_set_target(h, r.CanonicalName));
         }
 
-        private Reference UpdateTarget<T>(Reference reference, T target, Action<ReferenceSafeHandle, T> setter)
+        private Reference UpdateTarget<T>(Reference reference, T target, Func<ReferenceSafeHandle, T, ReferenceSafeHandle> setter)
         {
             if (reference.CanonicalName == "HEAD")
             {
@@ -219,8 +220,10 @@ namespace LibGit2Sharp
 
             using (ReferenceSafeHandle referencePtr = RetrieveReferencePtr(reference.CanonicalName))
             {
-                setter(referencePtr, target);
-                return Reference.BuildFromPtr<Reference>(referencePtr, repo);
+                using (ReferenceSafeHandle ref_out = setter(referencePtr, target))
+                {
+                    return Reference.BuildFromPtr<Reference>(ref_out, repo);
+                }
             }
         }
 

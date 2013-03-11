@@ -216,10 +216,7 @@ namespace LibGit2Sharp
 
         private string RemoteNameFromRemoteTrackingBranch()
         {
-            using (ReferenceSafeHandle branchPtr = repo.Refs.RetrieveReferencePtr(CanonicalName))
-            {
-                return Proxy.git_branch_remote_name(repo.Handle, branchPtr);
-            }
+            return Proxy.git_branch_remote_name(repo.Handle, CanonicalName);
         }
 
         /// <summary>

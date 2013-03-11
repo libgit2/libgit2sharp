@@ -137,6 +137,7 @@ namespace LibGit2Sharp.Core
 
         [DllImport(libgit2)]
         internal static extern int git_branch_move(
+            out ReferenceSafeHandle ref_out,
             ReferenceSafeHandle reference,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string new_branch_name,
             [MarshalAs(UnmanagedType.Bool)] bool force);
@@ -146,7 +147,7 @@ namespace LibGit2Sharp.Core
             byte[] remote_name_out,
             UIntPtr buffer_size,
             RepositorySafeHandle repo,
-            ReferenceSafeHandle branch);
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string canonical_branch_name);
 
         [DllImport(libgit2)]
         internal static extern int git_branch_tracking_name(
@@ -648,6 +649,7 @@ namespace LibGit2Sharp.Core
 
         [DllImport(libgit2)]
         internal static extern int git_reference_rename(
+            out ReferenceSafeHandle ref_out,
             ReferenceSafeHandle reference,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string newName,
             [MarshalAs(UnmanagedType.Bool)] bool force);
@@ -656,10 +658,11 @@ namespace LibGit2Sharp.Core
         internal static extern int git_reference_resolve(out ReferenceSafeHandle resolvedReference, ReferenceSafeHandle reference);
 
         [DllImport(libgit2)]
-        internal static extern int git_reference_set_target(ReferenceSafeHandle reference, ref GitOid id);
+        internal static extern int git_reference_set_target(out ReferenceSafeHandle ref_out, ReferenceSafeHandle reference, ref GitOid id);
 
         [DllImport(libgit2)]
         internal static extern int git_reference_symbolic_set_target(
+            out ReferenceSafeHandle ref_out,
             ReferenceSafeHandle reference,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string target);
 
@@ -986,7 +989,7 @@ namespace LibGit2Sharp.Core
         [DllImport(libgit2)]
         internal static extern void git_threads_shutdown();
 
-        internal delegate void git_transfer_progress_callback(ref GitTransferProgress stats, IntPtr payload);
+        internal delegate int git_transfer_progress_callback(ref GitTransferProgress stats, IntPtr payload);
 
         [DllImport(libgit2)]
         internal static extern uint git_tree_entry_filemode(SafeHandle entry);

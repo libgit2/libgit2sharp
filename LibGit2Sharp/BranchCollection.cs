@@ -184,7 +184,9 @@ namespace LibGit2Sharp
 
             using (ReferenceSafeHandle referencePtr = repo.Refs.RetrieveReferencePtr("refs/heads/" + branch.Name))
             {
-                Proxy.git_branch_move(referencePtr, newName, allowOverwrite);
+                using (ReferenceSafeHandle ref_out = Proxy.git_branch_move(referencePtr, newName, allowOverwrite))
+                {
+                }
             }
 
             return this[newName];

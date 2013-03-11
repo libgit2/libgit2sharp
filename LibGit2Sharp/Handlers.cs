@@ -30,7 +30,8 @@
     ///   Delegate definition for transfer progress callback.
     /// </summary>
     /// <param name="progress">The <see cref = "TransferProgress" /> object containing progress information.</param>
-    public delegate void TransferProgressHandler(TransferProgress progress);
+    /// <returns>Return negative integer to cancel.</returns>
+    public delegate int TransferProgressHandler(TransferProgress progress);
 
     /// <summary>
     ///   Delegate definition to handle reporting errors when updating references on the remote.
