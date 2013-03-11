@@ -46,4 +46,13 @@
     /// <param name="completedSteps">Number of completed steps.</param>
     /// <param name="totalSteps">Total number of steps.</param>
     public delegate void CheckoutProgressHandler(string path, int completedSteps, int totalSteps);
+
+    /// <summary>
+    ///   Delegate definition for unmatched path callback.
+    ///   <para>
+    ///     This callback will be called to notify the caller of unmatched path.
+    ///   </para>
+    /// </summary>
+    /// <param name="unmatchedPath">The unmatched path.</param>
+    public delegate void UnmatchedPathHandler(string unmatchedPath);
 }

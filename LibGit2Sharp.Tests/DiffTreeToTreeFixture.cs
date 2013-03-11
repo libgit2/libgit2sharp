@@ -87,7 +87,7 @@ namespace LibGit2Sharp.Tests
                 Tree tree = repo.Head.Tip.Tree;
                 Tree ancestor = repo.Lookup<Commit>("9fd738e").Tree;
 
-                TreeChanges changes = repo.Diff.Compare(ancestor, tree, new[]{ "1", "2/" });
+                TreeChanges changes = repo.Diff.Compare(ancestor, tree, new[]{ "1" });
                 Assert.NotNull(changes);
 
                 Assert.Equal(1, changes.Count());
@@ -130,6 +130,38 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(9, changes.LinesAdded);
                 Assert.Equal(2, changes.LinesDeleted);
                 Assert.Equal(2, changes["readme.txt"].LinesDeleted);
+            }
+        }
+
+        [Fact]
+        public void CanCompareATreeAgainstAnotherTreeWithLaxExplicitPathsValidationAndNonExistentPath()
+        {
+            using (var repo = new Repository(StandardTestRepoPath))
+            {
+                Tree commitTree = repo.Head.Tip.Tree;
+                Tree commitTreeWithDifferentAncestor = repo.Branches["refs/remotes/origin/test"].Tip.Tree;
+
+                TreeChanges changes = repo.Diff.Compare(commitTreeWithDifferentAncestor, commitTree,
+                        new[] { "if-I-exist-this-test-is-really-unlucky.txt" }, new ExplicitPathsOptions { ShouldFailOnUnmatchedPath = false });
+                Assert.Equal(0, changes.Count());
+
+                changes = repo.Diff.Compare(commitTreeWithDifferentAncestor, commitTree,
+                    new[] { "if-I-exist-this-test-is-really-unlucky.txt" });
+                Assert.Equal(0, changes.Count());
+            }
+        }
+
+        [Fact]
+        public void ComparingATreeAgainstAnotherTreeWithStrictExplicitPathsValidationThrows()
+        {
+            using (var repo = new Repository(StandardTestRepoPath))
+            {
+                Tree commitTree = repo.Head.Tip.Tree;
+                Tree commitTreeWithDifferentAncestor = repo.Branches["refs/remotes/origin/test"].Tip.Tree;
+
+                Assert.Throws<UnmatchedPathException>(() =>
+                    repo.Diff.Compare(commitTreeWithDifferentAncestor, commitTree,
+                        new[] { "if-I-exist-this-test-is-really-unlucky.txt" }, new ExplicitPathsOptions()));
             }
         }
 

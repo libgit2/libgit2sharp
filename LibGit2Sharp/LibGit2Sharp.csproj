@@ -70,13 +70,16 @@
     <Compile Include="Conflict.cs" />
     <Compile Include="ConflictCollection.cs" />
     <Compile Include="Core\Handles\GitRefSpecHandle.cs" />
+    <Compile Include="UnmatchedPathException.cs" />
     <Compile Include="Core\PathCase.cs" />
+    <Compile Include="MatchedPathsAggregator.cs" />
     <Compile Include="Network.cs" />
     <Compile Include="Core\GitRemoteHead.cs" />
     <Compile Include="Stash.cs" />
     <Compile Include="StashOptions.cs" />
     <Compile Include="OrphanedHeadException.cs" />
     <Compile Include="StashCollection.cs" />
+    <Compile Include="ExplicitPathsOptions.cs" />
     <Compile Include="UnmergedIndexEntriesException.cs" />
     <Compile Include="Commit.cs" />
     <Compile Include="CommitLog.cs" />

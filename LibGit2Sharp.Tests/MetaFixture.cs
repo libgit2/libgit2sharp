@@ -18,6 +18,7 @@ namespace LibGit2Sharp.Tests
             typeof(Repository),
             typeof(RepositoryOptions),
             typeof(Signature),
+            typeof(ExplicitPathsOptions),
         };
 
         // Related to https://github.com/libgit2/libgit2sharp/pull/251
