@@ -159,6 +159,12 @@ namespace LibGit2Sharp.Core
         }
     }
 
+    internal delegate int diff_notify_cb(
+        IntPtr diff_so_far,
+        IntPtr delta_to_add,
+        IntPtr matched_pathspec,
+        IntPtr payload);
+
     [StructLayout(LayoutKind.Sequential)]
     internal class GitDiffOptions : IDisposable
     {
@@ -174,7 +180,7 @@ namespace LibGit2Sharp.Core
         public GitStrArrayIn PathSpec;
         public Int64 MaxSize;
 
-        public IntPtr NotifyCallback;
+        public diff_notify_cb NotifyCallback;
         public IntPtr NotifyPayload;
 
         public void Dispose()

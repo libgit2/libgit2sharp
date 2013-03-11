@@ -283,12 +283,48 @@ namespace LibGit2Sharp.Tests
                 Tree tree = repo.Head.Tip.Tree;
 
                 TreeChanges changes = repo.Diff.Compare(tree, DiffTargets.Index,
-                    new[] { "deleted_staged_file.txt", "1/branch_file.txt", "I-do/not-exist" });
+                    new[] { "deleted_staged_file.txt", "1/branch_file.txt" });
 
                 Assert.NotNull(changes);
 
                 Assert.Equal(1, changes.Count());
                 Assert.Equal("deleted_staged_file.txt", changes.Deleted.Single().Path);
+            }
+        }
+
+        private static void AssertCanCompareASubsetOfTheTreeAgainstTheIndex(TreeChanges changes)
+        {
+            Assert.NotNull(changes);
+            Assert.Equal(1, changes.Count());
+            Assert.Equal("deleted_staged_file.txt", changes.Deleted.Single().Path);
+        }
+
+        [Fact]
+        public void CanCompareASubsetofTheTreeAgainstTheIndexWithLaxExplicitPathsValidationAndANonExistentPath()
+        {
+            using (var repo = new Repository(StandardTestRepoPath))
+            {
+                Tree tree = repo.Head.Tip.Tree;
+
+                TreeChanges changes = repo.Diff.Compare(tree, DiffTargets.Index,
+                    new[] { "deleted_staged_file.txt", "1/branch_file.txt", "I-do/not-exist" }, new ExplicitPathsOptions { ShouldFailOnUnmatchedPath = false });
+                AssertCanCompareASubsetOfTheTreeAgainstTheIndex(changes);
+
+                changes = repo.Diff.Compare(tree, DiffTargets.Index,
+                    new[] { "deleted_staged_file.txt", "1/branch_file.txt", "I-do/not-exist" });
+                AssertCanCompareASubsetOfTheTreeAgainstTheIndex(changes);
+            }
+        }
+
+        [Fact]
+        public void ComparingASubsetofTheTreeAgainstTheIndexWithStrictExplicitPathsValidationAndANonExistentPathThrows()
+        {
+            using (var repo = new Repository(StandardTestRepoPath))
+            {
+                Tree tree = repo.Head.Tip.Tree;
+
+                Assert.Throws<UnmatchedPathException>(() => repo.Diff.Compare(tree, DiffTargets.Index,
+                    new[] { "deleted_staged_file.txt", "1/branch_file.txt", "I-do/not-exist" }, new ExplicitPathsOptions()));
             }
         }
 
