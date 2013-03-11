@@ -33,6 +33,11 @@ namespace LibGit2Sharp
                 GitDiffOptionFlags.GIT_DIFF_INCLUDE_UNTRACKED_CONTENT;
             }
 
+            if (diffOptions.HasFlag(DiffOptions.IncludeIgnored))
+            {
+                options.Flags |= GitDiffOptionFlags.GIT_DIFF_INCLUDE_IGNORED;
+            }
+
             if (diffOptions.HasFlag(DiffOptions.IncludeUnmodified))
             {
                 options.Flags |= GitDiffOptionFlags.GIT_DIFF_INCLUDE_UNMODIFIED;

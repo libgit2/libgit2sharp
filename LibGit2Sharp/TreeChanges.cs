@@ -60,6 +60,7 @@ namespace LibGit2Sharp
             {
                 return 0;
             }
+
             AddLineChange(currentChange, lineorigin);
 
             currentChange.AppendToPatch(formattedoutput);
@@ -102,7 +103,7 @@ namespace LibGit2Sharp
             var newOid = delta.NewFile.Oid;
             var oldOid = delta.OldFile.Oid;
 
-            if (delta.Status == ChangeKind.Untracked)
+            if (delta.Status == ChangeKind.Untracked || delta.Status == ChangeKind.Ignored)
             {
                 delta.Status = ChangeKind.Added;
             }
