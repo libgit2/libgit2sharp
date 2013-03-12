@@ -2,7 +2,7 @@
 {
     internal class IndexSafeHandle : SafeHandleBase
     {
-        protected override bool ReleaseHandle()
+        protected override bool ReleaseHandleImpl()
         {
             Proxy.git_index_free(handle);
             return true;

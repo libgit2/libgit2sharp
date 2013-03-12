@@ -2,7 +2,7 @@
 {
     internal class SignatureSafeHandle : SafeHandleBase
     {
-        protected override bool ReleaseHandle()
+        protected override bool ReleaseHandleImpl()
         {
             Proxy.git_signature_free(handle);
             return true;
