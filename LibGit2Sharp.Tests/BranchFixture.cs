@@ -471,6 +471,38 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
+        public void CanSetUpstreamMergeBranch()
+        {
+            const string testBranchName = "branchToSetUpstreamInfoFor";
+            const string mergeBranchName = "refs/heads/master";
+            const string upstreamBranchName = "refs/remotes/origin/master";
+            const string upstreamRemoteName = "origin";
+
+            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoPath);
+
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                Branch branch = repo.CreateBranch(testBranchName);
+                Assert.False(branch.IsTracking);
+
+                Branch upstreamBranch = repo.Branches[upstreamBranchName];
+                Branch updatedBranch = repo.Branches.Update(branch,
+                    b => b.UpstreamRemote = upstreamRemoteName,
+                    b => b.UpstreamMergeBranch =  mergeBranchName);
+
+                // Verify the immutability of the branch.
+                Assert.False(branch.IsTracking);
+
+                Remote upstreamRemote = repo.Network.Remotes[upstreamRemoteName];
+                Assert.NotNull(upstreamRemote);
+
+                Assert.True(updatedBranch.IsTracking);
+                Assert.Equal(upstreamBranch, updatedBranch.TrackedBranch);
+                Assert.Equal(upstreamRemote, updatedBranch.Remote);
+            }
+        }
+
+        [Fact]
         public void CanSetLocalUpstreamBranch()
         {
             const string testBranchName = "branchToSetUpstreamInfoFor";

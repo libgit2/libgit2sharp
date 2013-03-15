@@ -33,6 +33,13 @@ namespace LibGit2Sharp
         ///   <para>
         ///     Passing null or string.Empty will unset the upstream.
         ///   </para>
+        ///   <para>
+        ///   The upstream branch name is with respect to the current repository.
+        ///   So, passing "refs/remotes/origin/master" will set the current branch
+        ///   to track "refs/heads/master" on the origin. Passing in
+        ///   "refs/heads/master" will result in the branch tracking the local
+        ///   master branch.
+        ///   </para>
         /// </summary>
         public virtual string Upstream
         {
@@ -48,17 +55,56 @@ namespace LibGit2Sharp
             }
         }
 
+        /// <summary>
+        ///   Set the upstream merge branch directly for this branch.
+        ///   <para>
+        ///   To track the "master" branch on the "origin" remote, set the
+        ///   UpstreamRemote property to "origin" and the UpstreamMergeBranch
+        ///   property to "refs/heads/master".
+        /// </para>
+        /// </summary>
+        public virtual string UpstreamMergeBranch
+        {
+            set
+            {
+                SetUpstreamMergeBranch(value);
+            }
+        }
+
+        /// <summary>
+        ///   Set the upstream remote for this branch.
+        ///   <para>
+        ///   To track the "master" branch on the "origin" remote, set the
+        ///   UpstreamRemote property to "origin" and the UpstreamMergeBranch
+        ///   property to "refs/heads/master".
+        /// </para>
+        /// </summary>
+        public virtual string UpstreamRemote
+        {
+            set
+            {
+                SetUpstreamRemote(value);
+            }
+        }
+
         private void UnsetUpstream()
         {
-            repo.Config.Unset(string.Format("branch.{0}.remote", branch.Name));
-            repo.Config.Unset(string.Format("branch.{0}.merge", branch.Name));
+            SetUpstreamRemote(string.Empty);
+            SetUpstreamMergeBranch(string.Empty);
         }
 
         /// <summary>
         ///   Set the upstream information for the current branch.
-        /// </summary>
-        /// <param name="upStreamBranchName">The upstream branch to track.</param>
-        private void SetUpstream(string upStreamBranchName)
+        ///   <para>
+        ///   The upstream branch name is with respect to the current repository.
+        ///   So, passing "refs/remotes/origin/master" will set the current branch
+        ///   to track "refs/heads/master" on the origin. Passing in
+        ///   "refs/heads/master" will result in the branch tracking the local
+        ///   master branch.
+        ///   </para>
+        ///   </summary>
+        /// <param name="upstreamBranchName">The remote branch to track (e.g. refs/remotes/origin/master).</param>
+        private void SetUpstream(string upstreamBranchName)
         {
             if (branch.IsRemote)
             {
@@ -68,21 +114,52 @@ namespace LibGit2Sharp
             string remoteName;
             string branchName;
 
-            GetUpstreamInformation(upStreamBranchName, out remoteName, out branchName);
+            GetUpstreamInformation(upstreamBranchName, out remoteName, out branchName);
 
-            SetUpstreamTo(remoteName, branchName);
+            SetUpstreamRemote(remoteName);
+            SetUpstreamMergeBranch(branchName);
         }
 
-        private void SetUpstreamTo(string remoteName, string branchName)
+        /// <summary>
+        ///   Set the upstream merge branch for the local branch.
+        /// </summary>
+        /// <param name="mergeBranchName">The merge branch in the upstream remote's namespace.</param>
+        private void SetUpstreamMergeBranch(string mergeBranchName)
         {
-            if (!remoteName.Equals(".", StringComparison.Ordinal))
-            {
-                // Verify that remote exists.
-                repo.Network.Remotes.RemoteForName(remoteName);
-            }
+            string configKey = string.Format("branch.{0}.merge", branch.Name);
 
-            repo.Config.Set(string.Format("branch.{0}.remote", branch.Name), remoteName);
-            repo.Config.Set(string.Format("branch.{0}.merge", branch.Name), branchName);
+            if (string.IsNullOrEmpty(mergeBranchName))
+            {
+                repo.Config.Unset(configKey);
+            }
+            else
+            {
+                repo.Config.Set(configKey, mergeBranchName);
+            }
+        }
+
+        /// <summary>
+        ///   Set the upstream remote for the local branch.
+        /// </summary>
+        /// <param name="remoteName">The name of the remote to set as the upstream branch.</param>
+        private void SetUpstreamRemote(string remoteName)
+        {
+            string configKey = string.Format("branch.{0}.remote", branch.Name);
+
+            if (string.IsNullOrEmpty(remoteName))
+            {
+                repo.Config.Unset(configKey);
+            }
+            else
+            {
+                if (!remoteName.Equals(".", StringComparison.Ordinal))
+                {
+                    // Verify that remote exists.
+                    repo.Network.Remotes.RemoteForName(remoteName);
+                }
+
+                repo.Config.Set(configKey, remoteName);
+            }
         }
 
         /// <summary>
