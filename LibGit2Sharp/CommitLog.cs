@@ -59,11 +59,6 @@ namespace LibGit2Sharp
         /// <returns>An <see cref = "IEnumerator{T}" /> object that can be used to iterate through the log.</returns>
         public virtual IEnumerator<Commit> GetEnumerator()
         {
-            if ((repo.Info.IsEmpty) && queryFilter.SinceList.Any(o => PointsAtTheHead(o.ToString()))) // TODO: ToString() == fragile
-            {
-                return Enumerable.Empty<Commit>().GetEnumerator();
-            }
-
             return new CommitEnumerator(repo, queryFilter);
         }
 
@@ -90,11 +85,6 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNullOrEmptyString(filter.Since.ToString(), "filter.Since");
 
             return new CommitLog(repo, filter);
-        }
-
-        private static bool PointsAtTheHead(string shaOrRefName)
-        {
-            return ("HEAD".Equals(shaOrRefName, StringComparison.Ordinal) || "refs/heads/master".Equals(shaOrRefName, StringComparison.Ordinal));
         }
 
         /// <summary>
@@ -266,10 +256,23 @@ namespace LibGit2Sharp
 
             private ObjectId DereferenceToCommit(string identifier)
             {
+                var options = LookUpOptions.DereferenceResultToCommit;
+
+                if (!AllowOrphanReference(identifier))
+                {
+                    options |= LookUpOptions.ThrowWhenNoGitObjectHasBeenFound;
+                }
+
                 // TODO: Should we check the type? Git-log allows TagAnnotation oid as parameter. But what about Blobs and Trees?
-                GitObject commit = repo.Lookup(identifier, GitObjectType.Any, LookUpOptions.ThrowWhenNoGitObjectHasBeenFound | LookUpOptions.DereferenceResultToCommit);
+                GitObject commit = repo.Lookup(identifier, GitObjectType.Any, options);
 
                 return commit != null ? commit.Id : null;
+            }
+
+            private bool AllowOrphanReference(string identifier)
+            {
+                return string.Equals(identifier, "HEAD", StringComparison.Ordinal)
+                       || string.Equals(identifier, repo.Head.CanonicalName, StringComparison.Ordinal);
             }
 
             private IEnumerable<ObjectId> RetrieveCommitOids(object identifier)
@@ -307,6 +310,12 @@ namespace LibGit2Sharp
                 if (identifier is Branch)
                 {
                     var branch = (Branch)identifier;
+                    if (branch.Tip == null && branch.IsCurrentRepositoryHead)
+                    {
+                        yield return null;
+                        yield break;
+                    }
+
                     Ensure.GitObjectIsNotNull(branch.Tip, branch.CanonicalName);
 
                     yield return branch.Tip.Id;
