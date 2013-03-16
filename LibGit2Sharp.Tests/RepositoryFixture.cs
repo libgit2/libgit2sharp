@@ -26,7 +26,10 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(scd.RootedDirectoryPath + Path.DirectorySeparatorChar, repo.Info.Path);
                 Assert.True(repo.Info.IsBare);
 
-                AssertInitializedRepository(repo);
+                AssertInitializedRepository(repo, "refs/heads/master");
+
+                repo.Refs.Add("HEAD", "refs/heads/orphan", true);
+                AssertInitializedRepository(repo, "refs/heads/orphan");
             }
         }
 
@@ -57,7 +60,10 @@ namespace LibGit2Sharp.Tests
 
                 AssertIsHidden(repo.Info.Path);
 
-                AssertInitializedRepository(repo);
+                AssertInitializedRepository(repo, "refs/heads/master");
+
+                repo.Refs.Add("HEAD", "refs/heads/orphan", true);
+                AssertInitializedRepository(repo, "refs/heads/orphan");
             }
         }
 
@@ -147,7 +153,7 @@ namespace LibGit2Sharp.Tests
             Assert.Throws<ArgumentNullException>(() => Repository.Init(null));
         }
 
-        private static void AssertInitializedRepository(Repository repo)
+        private static void AssertInitializedRepository(Repository repo, string expectedHeadTargetIdentifier)
         {
             Assert.NotNull(repo.Info.Path);
             Assert.False(repo.Info.IsHeadDetached);
@@ -155,7 +161,7 @@ namespace LibGit2Sharp.Tests
 
             Reference headRef = repo.Refs.Head;
             Assert.NotNull(headRef);
-            Assert.Equal("refs/heads/master", headRef.TargetIdentifier);
+            Assert.Equal(expectedHeadTargetIdentifier, headRef.TargetIdentifier);
             Assert.Null(headRef.ResolveToDirectReference());
 
             Assert.NotNull(repo.Head);
@@ -164,9 +170,11 @@ namespace LibGit2Sharp.Tests
             Assert.Null(repo.Head.Tip);
 
             Assert.Equal(0, repo.Commits.Count());
+            Assert.Equal(0, repo.Commits.QueryBy(new Filter()).Count());
+            Assert.Equal(0, repo.Commits.QueryBy(new Filter { Since = repo.Refs.Head }).Count());
             Assert.Equal(0, repo.Commits.QueryBy(new Filter { Since = repo.Head }).Count());
             Assert.Equal(0, repo.Commits.QueryBy(new Filter { Since = "HEAD" }).Count());
-            Assert.Equal(0, repo.Commits.QueryBy(new Filter { Since = "refs/heads/master" }).Count());
+            Assert.Throws<LibGit2SharpException>(() => repo.Commits.QueryBy(new Filter { Since = expectedHeadTargetIdentifier }).Count());
 
             Assert.Null(repo.Head["subdir/I-do-not-exist"]);
 
