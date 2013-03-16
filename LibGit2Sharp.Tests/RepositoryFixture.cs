@@ -174,7 +174,7 @@ namespace LibGit2Sharp.Tests
             Assert.Equal(0, repo.Commits.QueryBy(new Filter { Since = repo.Refs.Head }).Count());
             Assert.Equal(0, repo.Commits.QueryBy(new Filter { Since = repo.Head }).Count());
             Assert.Equal(0, repo.Commits.QueryBy(new Filter { Since = "HEAD" }).Count());
-            Assert.Throws<LibGit2SharpException>(() => repo.Commits.QueryBy(new Filter { Since = expectedHeadTargetIdentifier }).Count());
+            Assert.Equal(0, repo.Commits.QueryBy(new Filter { Since = expectedHeadTargetIdentifier }).Count());
 
             Assert.Null(repo.Head["subdir/I-do-not-exist"]);
 

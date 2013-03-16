@@ -271,7 +271,8 @@ namespace LibGit2Sharp
 
             private bool AllowOrphanReference(string identifier)
             {
-                return string.Equals(identifier, "HEAD", StringComparison.Ordinal);
+                return string.Equals(identifier, "HEAD", StringComparison.Ordinal)
+                       || string.Equals(identifier, repo.Head.CanonicalName, StringComparison.Ordinal);
             }
 
             private IEnumerable<ObjectId> RetrieveCommitOids(object identifier)
