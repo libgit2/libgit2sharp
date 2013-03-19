@@ -47,18 +47,6 @@ namespace LibGit2Sharp
         public virtual bool IsBare { get; private set; }
 
         /// <summary>
-        ///   Gets a value indicating whether this repository is empty.
-        /// </summary>
-        /// <value>
-        ///   <c>true</c> if this repository is empty; otherwise, <c>false</c>.
-        /// </value>
-        [Obsolete("This method will be removed in the next release.")]
-        public virtual bool IsEmpty
-        {
-            get { return Proxy.git_repository_is_empty(repo.Handle); }
-        }
-
-        /// <summary>
         ///   Indicates whether the Head points to an arbitrary commit instead of the tip of a local branch.
         /// </summary>
         public virtual bool IsHeadDetached

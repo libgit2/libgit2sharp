@@ -31,12 +31,6 @@ namespace LibGit2Sharp
         ReferenceCollection Refs { get; }
 
         /// <summary>
-        ///   Lookup and manage remotes in the repository.
-        /// </summary>
-        [Obsolete("This property will be removed in the next release. Please use Repository.Network.Remotes instead.")]
-        RemoteCollection Remotes { get; }
-
-        /// <summary>
         ///   Lookup and enumerate commits in the repository.
         ///   Iterating this collection directly starts walking from the HEAD.
         /// </summary>

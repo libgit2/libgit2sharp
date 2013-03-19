@@ -15,18 +15,6 @@ namespace LibGit2Sharp
         private static readonly LambdaEqualityHelper<IndexEntry> equalityHelper =
             new LambdaEqualityHelper<IndexEntry>(x => x.Path, x => x.Id, x => x.Mode, x => x.StageLevel);
 
-        private Func<FileStatus> state;
-
-        /// <summary>
-        ///   State of the version of the <see cref = "Blob" /> pointed at by this <see cref = "IndexEntry" />,
-        ///   compared against the <see cref = "Blob" /> known from the <see cref = "Repository.Head" /> and the file in the working directory.
-        /// </summary>
-        [Obsolete("This method will be removed in the next release. Please use Repository.Index.RetrieveStatus(filePath) overload instead.")]
-        public virtual FileStatus State
-        {
-            get { return state(); }
-        }
-
         /// <summary>
         ///   Gets the relative path to the file within the working directory.
         /// </summary>
@@ -62,7 +50,6 @@ namespace LibGit2Sharp
                        {
                            Path = path.Native,
                            Id = entry.oid,
-                           state = () => repo.Index.RetrieveStatus(path.Native),
                            StageLevel = Proxy.git_index_entry_stage(handle),
                            Mode = (Mode)entry.Mode
                        };
