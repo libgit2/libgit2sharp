@@ -96,12 +96,6 @@ namespace LibGit2Sharp
         public virtual IEnumerable<Commit> Parents { get { return parents; } }
 
         /// <summary>
-        ///   Gets The count of parent commits.
-        /// </summary>
-        [Obsolete("This property will be removed in the next release. Please use Parents.Count() instead.")]
-        public virtual int ParentsCount { get { return Parents.Count(); } }
-
-        /// <summary>
         ///   Gets the notes of this commit.
         /// </summary>
         public virtual IEnumerable<Note> Notes { get { return lazyNotes.Value; } }
