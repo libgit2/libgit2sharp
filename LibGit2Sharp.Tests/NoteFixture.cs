@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using LibGit2Sharp.Core;
-using LibGit2Sharp.Core.Compat;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
 
