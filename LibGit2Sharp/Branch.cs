@@ -2,7 +2,6 @@
 using System.Globalization;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Compat;
-using LibGit2Sharp.Core.Handles;
 using LibGit2Sharp.Handlers;
 
 namespace LibGit2Sharp

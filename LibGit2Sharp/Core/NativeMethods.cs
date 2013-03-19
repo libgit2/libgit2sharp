@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
@@ -17,7 +16,7 @@ namespace LibGit2Sharp.Core
         public const uint GIT_PATH_MAX = 4096;
         private const string libgit2 = "git2";
         private static readonly LibraryLifetimeObject lifetimeObject;
-        private static int handlesCount = 0;
+        private static int handlesCount;
 
         /// <summary>
         /// Internal hack to ensure that the call to git_threads_shutdown is called after all handle finalizers
