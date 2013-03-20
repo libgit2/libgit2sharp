@@ -94,48 +94,36 @@ namespace LibGit2Sharp
             get { return TrackedBranch != null; }
         }
 
-        private bool ExistsPathToTrackedBranch()
-        {
-            if (!IsTracking)
-            {
-                return false;
-            }
-
-            if (Tip == null || TrackedBranch.Tip == null)
-            {
-                return false;
-            }
-
-            if (repo.Commits.FindCommonAncestor(Tip, TrackedBranch.Tip) == null)
-            {
-                return false;
-            }
-
-            return true;
-        }
-
         /// <summary>
-        ///   Gets the number of commits, starting from the <see cref="Tip"/>, that have been performed on this local branch and aren't known from the remote one.
+        ///   Gets the number of commits that exist in this local branch but don't exist in the tracked one.
         ///   <para>
-        ///     This property will return null if there is no remote branch linked to this local branch, or if the remote branch and the local branch do
-        ///     not share a common ancestor.
+        ///     This property will return null if there is no tracked branch linked to this local branch.
         ///   </para>
         /// </summary>
+        [Obsolete("This property will be removed in the next release. Please use TrackingDetails.AheadBy instead.")]
         public virtual int? AheadBy
         {
-            get { return ExistsPathToTrackedBranch() ? Proxy.git_graph_ahead_behind(repo.Handle, TrackedBranch.Tip.Id, Tip.Id).Item1 : (int?)null; }
+            get { return TrackingDetails.AheadBy; }
         }
 
         /// <summary>
-        ///   Gets the number of commits that exist in the remote branch, on top of <see cref="Tip"/>, and aren't known from the local one.
+        ///   Gets the number of commits that exist in the tracked branch but don't exist in this local one.
         ///   <para>
-        ///     This property will return null if there is no remote branch linked to this local branch, or if the remote branch and the local branch do
-        ///     not share a common ancestor.
+        ///     This property will return null if there is no tracked branch linked to this local branch.
         ///   </para>
         /// </summary>
+        [Obsolete("This property will be removed in the next release. Please use TrackingDetails.BehindBy instead.")]
         public virtual int? BehindBy
         {
-            get { return ExistsPathToTrackedBranch() ? Proxy.git_graph_ahead_behind(repo.Handle, TrackedBranch.Tip.Id, Tip.Id).Item2 : (int?)null; }
+            get { return TrackingDetails.BehindBy; }
+        }
+
+        /// <summary>
+        ///   Gets additional information about the tracked branch.
+        /// </summary>
+        public virtual BranchTrackingDetails TrackingDetails
+        {
+            get { return new BranchTrackingDetails(repo, this); }
         }
 
         /// <summary>
