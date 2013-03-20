@@ -1,6 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Compat;
@@ -11,6 +13,7 @@ namespace LibGit2Sharp
     /// <summary>
     ///   A Commit
     /// </summary>
+    [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class Commit : GitObject
     {
         private readonly GitObjectLazyGroup group;
@@ -123,6 +126,15 @@ namespace LibGit2Sharp
             string encoding = Proxy.git_commit_message_encoding(obj);
 
             return encoding ?? "UTF-8";
+        }
+
+        private string DebuggerDisplay
+        {
+            get
+            {
+                return string.Format(CultureInfo.InvariantCulture,
+                                     "{0} {1}", Id.ToString(7), MessageShort);
+            }
         }
 
         private class ParentsCollection : ICollection<Commit>

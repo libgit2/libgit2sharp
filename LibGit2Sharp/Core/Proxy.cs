@@ -604,10 +604,15 @@ namespace LibGit2Sharp.Core
 
         #region git_graph_
 
-        public static Tuple<int, int> git_graph_ahead_behind(RepositorySafeHandle repo, ObjectId firstId, ObjectId secondId)
+        public static Tuple<int?, int?> git_graph_ahead_behind(RepositorySafeHandle repo, Commit first, Commit second)
         {
-            GitOid oid1 = firstId.Oid;
-            GitOid oid2 = secondId.Oid;
+            if (first == null || second == null)
+            {
+                return new Tuple<int?, int?>(null, null);
+            }
+
+            GitOid oid1 = first.Id.Oid;
+            GitOid oid2 = second.Id.Oid;
 
             using (ThreadAffinity())
             {
@@ -618,7 +623,7 @@ namespace LibGit2Sharp.Core
 
                 Ensure.ZeroResult(res);
 
-                return new Tuple<int, int>((int)ahead, (int)behind);
+                return new Tuple<int?, int?>((int)ahead, (int)behind);
             }
         }
 

@@ -141,6 +141,15 @@ namespace LibGit2Sharp
             return !Equals(left, right);
         }
 
+        /// <summary>
+        ///   Returns the <see cref = "Id" />, a <see cref = "String" /> representation of the current <see cref = "GitObject" />.
+        /// </summary>
+        /// <returns>The <see cref = "Id" /> that represents the current <see cref = "GitObject" />.</returns>
+        public override string ToString()
+        {
+            return Id.ToString();
+        }
+
         private string DebuggerDisplay
         {
             get { return Id.ToString(7); }

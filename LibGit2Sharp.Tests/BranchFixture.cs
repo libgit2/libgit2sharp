@@ -355,10 +355,13 @@ namespace LibGit2Sharp.Tests
                 Assert.Null(head.Tip);
                 Assert.Null(head["huh?"]);
 
-                Assert.Null(head.AheadBy);
-                Assert.Null(head.BehindBy);
                 Assert.False(head.IsTracking);
                 Assert.Null(head.TrackedBranch);
+
+                Assert.NotNull(head.TrackingDetails);
+                Assert.Null(head.TrackingDetails.AheadBy);
+                Assert.Null(head.TrackingDetails.BehindBy);
+                Assert.Null(head.TrackingDetails.CommonAncestor);
             }
         }
 
@@ -372,9 +375,12 @@ namespace LibGit2Sharp.Tests
                 repo.Refs.UpdateTarget("refs/remotes/origin/master", "origin/test");
 
                 Assert.True(master.IsTracking);
-                Assert.Null(master.AheadBy);
-                Assert.Null(master.BehindBy);
                 Assert.NotNull(master.TrackedBranch);
+
+                Assert.NotNull(master.TrackingDetails);
+                Assert.Equal(9, master.TrackingDetails.AheadBy);
+                Assert.Equal(2, master.TrackingDetails.BehindBy);
+                Assert.Null(repo.Head.TrackingDetails.CommonAncestor);
             }
         }
 
@@ -386,8 +392,11 @@ namespace LibGit2Sharp.Tests
                 Branch branch = repo.Branches["test"];
                 Assert.False(branch.IsTracking);
                 Assert.Null(branch.TrackedBranch);
-                Assert.Null(branch.AheadBy);
-                Assert.Null(branch.BehindBy);
+
+                Assert.NotNull(branch.TrackingDetails);
+                Assert.Null(branch.TrackingDetails.AheadBy);
+                Assert.Null(branch.TrackingDetails.BehindBy);
+                Assert.Null(branch.TrackingDetails.CommonAncestor);
             }
         }
 
@@ -399,8 +408,11 @@ namespace LibGit2Sharp.Tests
                 Branch master = repo.Branches["master"];
                 Assert.True(master.IsTracking);
                 Assert.Equal(repo.Branches["refs/remotes/origin/master"], master.TrackedBranch);
-                Assert.Equal(2, master.AheadBy);
-                Assert.Equal(2, master.BehindBy);
+
+                Assert.NotNull(master.TrackingDetails);
+                Assert.Equal(2, master.TrackingDetails.AheadBy);
+                Assert.Equal(2, master.TrackingDetails.BehindBy);
+                Assert.Equal(repo.Lookup<Commit>("4c062a6"), master.TrackingDetails.CommonAncestor);
             }
         }
 
@@ -412,8 +424,11 @@ namespace LibGit2Sharp.Tests
                 var branch = repo.Branches["track-local"];
                 Assert.True(branch.IsTracking);
                 Assert.Equal(repo.Branches["master"], branch.TrackedBranch);
-                Assert.Equal(2, branch.AheadBy);
-                Assert.Equal(2, branch.BehindBy);
+
+                Assert.NotNull(branch.TrackingDetails);
+                Assert.Equal(2, branch.TrackingDetails.AheadBy);
+                Assert.Equal(2, branch.TrackingDetails.BehindBy);
+                Assert.Equal(repo.Lookup<Commit>("4c062a6"), branch.TrackingDetails.CommonAncestor);
             }
         }
 
@@ -752,6 +767,11 @@ namespace LibGit2Sharp.Tests
 
                 Assert.False(repo.Head.IsTracking);
                 Assert.Null(repo.Head.TrackedBranch);
+
+                Assert.NotNull(repo.Head.TrackingDetails);
+                Assert.Null(repo.Head.TrackingDetails.AheadBy);
+                Assert.Null(repo.Head.TrackingDetails.BehindBy);
+                Assert.Null(repo.Head.TrackingDetails.CommonAncestor);
             }
         }
 
@@ -776,8 +796,10 @@ namespace LibGit2Sharp.Tests
                 Assert.NotNull(repo.Head.TrackedBranch);
                 Assert.Null(repo.Head.TrackedBranch.Tip);
 
-                Assert.Null(repo.Head.AheadBy);
-                Assert.Null(repo.Head.BehindBy);
+                Assert.NotNull(repo.Head.TrackingDetails);
+                Assert.Null(repo.Head.TrackingDetails.AheadBy);
+                Assert.Null(repo.Head.TrackingDetails.BehindBy);
+                Assert.Null(repo.Head.TrackingDetails.CommonAncestor);
 
                 Assert.NotNull(repo.Head.Remote);
                 Assert.Equal("origin", repo.Head.Remote.Name);
@@ -788,9 +810,12 @@ namespace LibGit2Sharp.Tests
 
                 Assert.NotNull(repo.Head.Tip);
                 Assert.NotNull(repo.Head.TrackedBranch);
+                Assert.Null(repo.Head.TrackedBranch.Tip);
 
-                Assert.Null(repo.Head.AheadBy);
-                Assert.Null(repo.Head.BehindBy);
+                Assert.NotNull(repo.Head.TrackingDetails);
+                Assert.Null(repo.Head.TrackingDetails.AheadBy);
+                Assert.Null(repo.Head.TrackingDetails.BehindBy);
+                Assert.Null(repo.Head.TrackingDetails.CommonAncestor);
             }
         }
 
@@ -807,8 +832,11 @@ namespace LibGit2Sharp.Tests
                     Assert.NotNull(branch.Remote);
                     Assert.False(branch.IsTracking);
                     Assert.Null(branch.TrackedBranch);
-                    Assert.Null(branch.AheadBy);
-                    Assert.Null(branch.BehindBy);
+
+                    Assert.NotNull(branch.TrackingDetails);
+                    Assert.Null(branch.TrackingDetails.AheadBy);
+                    Assert.Null(branch.TrackingDetails.BehindBy);
+                    Assert.Null(branch.TrackingDetails.CommonAncestor);
                 }
             }
         }
