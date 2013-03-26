@@ -77,6 +77,7 @@
     <Compile Include="Core\PathCase.cs" />
     <Compile Include="MatchedPathsAggregator.cs" />
     <Compile Include="Core\Handles\SubmoduleSafeHandle.cs" />
+    <Compile Include="Core\SubmoduleLazyGroup.cs" />
     <Compile Include="Network.cs" />
     <Compile Include="Core\GitRemoteHead.cs" />
     <Compile Include="ReflogEntry.cs" />
