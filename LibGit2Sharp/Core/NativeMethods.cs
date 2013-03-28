@@ -954,6 +954,9 @@ namespace LibGit2Sharp.Core
             IntPtr payload);
 
         [DllImport(libgit2)]
+        internal static extern int git_stash_drop(RepositorySafeHandle repo, UIntPtr index);
+
+        [DllImport(libgit2)]
         internal static extern int git_status_file(
             out FileStatus statusflags,
             RepositorySafeHandle repo,

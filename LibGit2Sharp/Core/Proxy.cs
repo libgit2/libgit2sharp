@@ -1801,6 +1801,15 @@ namespace LibGit2Sharp.Core
                 GitErrorCode.NotFound);
         }
 
+        public static void git_stash_drop(RepositorySafeHandle repo, int index)
+        {
+            using (ThreadAffinity())
+            {
+                int res = NativeMethods.git_stash_drop(repo, (UIntPtr) index);
+                Ensure.BooleanResult(res);
+            }
+        }
+
         #endregion
 
         #region git_status_
