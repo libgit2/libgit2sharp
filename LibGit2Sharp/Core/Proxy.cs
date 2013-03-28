@@ -1267,6 +1267,58 @@ namespace LibGit2Sharp.Core
 
         #endregion
 
+        #region git_reflog_
+
+        public static void git_reflog_free(IntPtr reflog)
+        {
+            NativeMethods.git_reflog_free(reflog);
+        }
+
+        public static ReflogSafeHandle git_reflog_read(ReferenceSafeHandle reference)
+        {
+            using (ThreadAffinity())
+            {
+                ReflogSafeHandle reflog_out;
+
+                int res = NativeMethods.git_reflog_read(out reflog_out, reference);
+                Ensure.ZeroResult(res);
+
+                return reflog_out;
+            }
+        }
+
+        public static int git_reflog_entrycount(ReflogSafeHandle reflog)
+        {
+            return (int)NativeMethods.git_reflog_entrycount(reflog);
+        }
+
+        public static ReflogEntrySafeHandle git_reflog_entry_byindex(ReflogSafeHandle reflog, int idx)
+        {
+            return NativeMethods.git_reflog_entry_byindex(reflog, (UIntPtr)idx);
+        }
+
+        public static ObjectId git_reflog_entry_id_old(SafeHandle entry)
+        {
+            return NativeMethods.git_reflog_entry_id_old(entry).MarshalAsObjectId();
+        }
+
+        public static ObjectId git_reflog_entry_id_new(SafeHandle entry)
+        {
+            return NativeMethods.git_reflog_entry_id_new(entry).MarshalAsObjectId();
+        }
+
+        public static Signature git_reflog_entry_committer(SafeHandle entry)
+        {
+            return new Signature(NativeMethods.git_reflog_entry_committer(entry));
+        }
+
+        public static string git_reflog_entry_message(SafeHandle entry)
+        {
+            return NativeMethods.git_reflog_entry_message(entry);
+        }
+
+        #endregion
+
         #region git_refspec
 
         public static string git_refspec_rtransform(GitRefSpecHandle refSpecPtr, string name)

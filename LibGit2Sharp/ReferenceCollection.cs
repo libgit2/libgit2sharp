@@ -267,5 +267,29 @@ namespace LibGit2Sharp
                     "Count = {0}", this.Count());
             }
         }
+
+        /// <summary>
+        ///   Returns as a <see cref="ReflogCollection"/> the reflog of the <see cref="Reference"/> named <paramref name="canonicalName"/>
+        /// </summary>
+        /// <param name="canonicalName">The canonical name of the reference</param>
+        /// <returns>a <see cref="ReflogCollection"/>, enumerable of <see cref="ReflogEntry"/></returns>
+        public virtual ReflogCollection Log(string canonicalName)
+        {
+            Ensure.ArgumentNotNullOrEmptyString(canonicalName, "canonicalName");
+
+            return new ReflogCollection(repo, canonicalName);
+        }
+
+        /// <summary>
+        ///   Returns as a <see cref="ReflogCollection"/> the reflog of the <see cref="Reference"/> <paramref name="reference"/>
+        /// </summary>
+        /// <param name="reference">The reference</param>
+        /// <returns>a <see cref="ReflogCollection"/>, enumerable of <see cref="ReflogEntry"/></returns>
+        public virtual ReflogCollection Log(Reference reference)
+        {
+            Ensure.ArgumentNotNull(reference, "reference");
+
+            return new ReflogCollection(repo, reference.CanonicalName);
+        }
     }
 }
