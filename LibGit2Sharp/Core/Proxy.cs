@@ -1269,6 +1269,21 @@ namespace LibGit2Sharp.Core
 
         #region git_refspec
 
+        public static string git_fetchspec_transform(GitFetchSpecHandle refSpecPtr, string name)
+        {
+            using (ThreadAffinity())
+            {
+                // libgit2 API does not support querying for required buffer size.
+                // Use a sufficiently large buffer until it does.
+                var buffer = new byte[1024];
+
+                int res = NativeMethods.git_refspec_transform(buffer, (UIntPtr)buffer.Length, refSpecPtr, name);
+                Ensure.ZeroResult(res);
+
+                return Utf8Marshaler.Utf8FromBuffer(buffer) ?? string.Empty;
+            }
+        }
+
         public static string git_fetchspec_rtransform(GitFetchSpecHandle refSpecPtr, string name)
         {
             using (ThreadAffinity())
