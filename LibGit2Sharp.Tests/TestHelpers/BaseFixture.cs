@@ -175,5 +175,18 @@ namespace LibGit2Sharp.Tests.TestHelpers
                 SystemConfigurationLocation = systemLocation,
             };
         }
+
+        protected void Touch(string parent, string file, string content = null)
+        {
+            var lastIndex = file.LastIndexOf('/');
+            if (lastIndex > 0)
+            {
+                var parents = file.Substring(0, lastIndex);
+                Directory.CreateDirectory(Path.Combine(parent, parents));
+            }
+
+            var filePath = Path.Combine(parent, file);
+            File.AppendAllText(filePath, content ?? string.Empty, Encoding.ASCII);
+        }
     }
 }

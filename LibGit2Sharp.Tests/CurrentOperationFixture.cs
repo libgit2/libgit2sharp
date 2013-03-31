@@ -50,18 +50,5 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(expectedState, repo.Info.CurrentOperation);
             }
         }
-
-        private void Touch(string parent, string file)
-        {
-            var lastIndex = file.LastIndexOf('/');
-            if (lastIndex > 0)
-            {
-                var parents = file.Substring(0, lastIndex);
-                Directory.CreateDirectory(Path.Combine(parent, parents));
-            }
-
-            var filePath = Path.Combine(parent, file);
-            File.AppendAllText(filePath, string.Empty, Encoding.ASCII);
-        }
     }
 }
