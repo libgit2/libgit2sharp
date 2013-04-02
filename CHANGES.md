@@ -8,6 +8,64 @@
  - CI server: <http://teamcity.codebetter.com/project.html?projectId=project127&guest=1>
  - @libgit2sharp: <http://twitter.com/libgit2sharp>
 
+## v0.10.0 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.9.5...v0.10.0))
+
+### Additions
+
+ - Update working directory on checkout
+ - New network related features: clone, fetch, push, list remote references
+ - Expose the heads that have been updated during the last fetch in Repository.Network.FetchHeads
+ - Introduce Repository.Network.Remotes.IsValidName()
+ - New .gitignore related features: temporary rules, path checking
+ - Add support for custom, managed ODB backends
+ - Add revparse support in Repository.Lookup()
+ - Improve Repository.Commit(): add merged branches as parents, cleanup merge data
+ - Introduce Blob.IsBinary
+ - Add strongly-typed exceptions (NonFastForwardException, UnmergedIndexEntriesException, ...)
+ - Add basic stashing support: add, retrieve, list and remove
+ - Add git clean support in Repository.RemoveUntrackedFiles()
+ - Add shortcut to HEAD in Repository.Refs.Head
+ - Introduce Repository.Refs.IsValidName()
+ - Add Repository.Refs.FromGlob() to enumerate references matching a specified glob
+ - Add support for XDG configuration store
+ - Make Config.Get() and Config.Delete() able to target a specific store
+ - Diff.Compare() enhancements: work against workdir and index, consider untracked changes, expose typechanges
+ - Allow retrieval of the remote of a non-local branch through Branch.Remote
+ - Allow modification of the branch properties through Repository.Branches.Update()
+ - Expose merge related information: Repository.Index.IsFullyMerged, Repository.Conflicts, IndexEntry.StageLevel
+ - Expose the heads being merged in Repository.MergeHeads
+ - Introduce IndexEntry.Mode
+ - Add more repository information: Repository.Info.CurrentOperation, Repository.Info.Message, Repository.Info.IsHeadOrphaned
+ - Allow passing an optional RepositoryOptions to Repository.Init()
+ - Allow reset filtering by passing a list of paths to consider
+
+### Changes
+
+ - Make TreeChanges and TreeEntryChanges expose native paths
+ - Make Repository.Reset accept a Commit instead of a string
+ - Stop sorting collections (references, remotes, notes ...)
+ - Move AheadBy/BehindBy into new Branch.TrackingDetails
+ - Move Repository.Remotes to Repository.Network.Remotes
+ - Move Configuration.HasXXXConfig() to Configuration.HasConfig()
+ - Rename CommitCollection to CommitLog
+ - Rename LibGit2Exception to LibGit2SharpException
+ - Rename Delete() to Unset() in Configuration
+ - Rename Delete() to Remove() in TagCollection, ReferenceCollection, NoteCollection, BranchCollection
+ - Rename Create() to Add() in TagCollection, BranchCollection, ReferenceCollection, RemoteCollection, NoteCollection
+ - Obsolete RepositoryInformation.IsEmpty, DiffTarget, IndexEntry.State, Commit.ParentsCount
+
+### Fixes
+
+ - Allow abstracting LibGit2Sharp in testing context (#138)
+ - Ease the detection of a specific key in a specific store (#162)
+ - Expose libgit2 error information through the LibGit2SharpException.Data property(#137)
+ - Preserve non-ASCII characters in commit messages (#191)
+ - Fix retrieval of the author of a commit (#242)
+ - Prevent duplicated tree entries in commits (#243)
+ - Fix Repository.Discover behaviour with UNC paths (#256)
+ - Make Index.Unstage work against an orphaned head (#257)
+ - Make IsTracking & TrackedBranch property not throw for a detached head (#266, #268)
+
 ## v0.9.5 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.9.0...v0.9.5))
 
 ### Additions
