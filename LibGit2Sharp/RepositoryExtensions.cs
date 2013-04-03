@@ -216,7 +216,7 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNullOrEmptyString(remoteName, "remoteName");
 
             Remote remote = repository.Network.Remotes.RemoteForName(remoteName, true);
-            remote.Fetch(tagFetchMode, onProgress, onCompletion, onUpdateTips,
+            repository.Network.Fetch(remote, tagFetchMode, onProgress, onCompletion, onUpdateTips,
                 onTransferProgress, credentials);
         }
 

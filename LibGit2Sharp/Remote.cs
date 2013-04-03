@@ -27,8 +27,8 @@ namespace LibGit2Sharp
         private Remote(Repository repository, string name, string url)
         {
             this.repository = repository;
-            this.Name = name;
-            this.Url = url;
+            Name = name;
+            Url = url;
         }
 
         internal static Remote BuildFromPtr(RemoteSafeHandle handle, Repository repo)
@@ -61,6 +61,7 @@ namespace LibGit2Sharp
         /// <param name="onTransferProgress">Callback method that transfer progress will be reported through.
         ///   Reports the client's state regarding the received and processed (bytes, objects) from the server.</param>
         /// <param name="credentials">Credentials to use for username/password authentication.</param>
+        [Obsolete("This method will be removed in the next release. Please use Repository.Network.Fetch() instead.")]
         public virtual void Fetch(
             TagFetchMode tagFetchMode = TagFetchMode.Auto,
             ProgressHandler onProgress = null,
@@ -69,54 +70,7 @@ namespace LibGit2Sharp
             TransferProgressHandler onTransferProgress = null,
             Credentials credentials = null)
         {
-            // We need to keep a reference to the git_cred_acquire_cb callback around
-            // so it will not be garbage collected before we are done with it.
-            // Note that we also have a GC.KeepAlive call at the end of the method.
-            NativeMethods.git_cred_acquire_cb credentialCallback = null;
-
-            using (RemoteSafeHandle remoteHandle = Proxy.git_remote_load(repository.Handle, this.Name, true))
-            {
-                var callbacks = new RemoteCallbacks(onProgress, onCompletion, onUpdateTips);
-                GitRemoteCallbacks gitCallbacks = callbacks.GenerateCallbacks();
-
-                Proxy.git_remote_set_autotag(remoteHandle, tagFetchMode);
-
-                if (credentials != null)
-                {
-                    credentialCallback = (out IntPtr cred, IntPtr url, IntPtr username_from_url, uint types, IntPtr payload) =>
-                        NativeMethods.git_cred_userpass_plaintext_new(out cred, credentials.Username, credentials.Password);
-
-                    Proxy.git_remote_set_cred_acquire_cb(
-                        remoteHandle,
-                        credentialCallback,
-                        IntPtr.Zero);
-                }
-
-                // It is OK to pass the reference to the GitCallbacks directly here because libgit2 makes a copy of
-                // the data in the git_remote_callbacks structure. If, in the future, libgit2 changes its implementation
-                // to store a reference to the git_remote_callbacks structure this would introduce a subtle bug
-                // where the managed layer could move the git_remote_callbacks to a different location in memory,
-                // but libgit2 would still reference the old address.
-                //
-                // Also, if GitRemoteCallbacks were a class instead of a struct, we would need to guard against
-                // GC occuring in between setting the remote callbacks and actual usage in one of the functions afterwords.
-                Proxy.git_remote_set_callbacks(remoteHandle, ref gitCallbacks);
-
-                try
-                {
-                    Proxy.git_remote_connect(remoteHandle, GitDirection.Fetch);
-                    Proxy.git_remote_download(remoteHandle, onTransferProgress);
-                    Proxy.git_remote_update_tips(remoteHandle);
-                }
-                finally
-                {
-                    Proxy.git_remote_disconnect(remoteHandle);
-                }
-            }
-
-            // To be safe, make sure the credential callback is kept until
-            // alive until at least this point.
-            GC.KeepAlive(credentialCallback);
+            repository.Network.Fetch(this, tagFetchMode, onProgress, onCompletion, onUpdateTips, onTransferProgress, credentials);
         }
 
         /// <summary>

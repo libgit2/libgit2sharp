@@ -39,7 +39,7 @@ namespace LibGit2Sharp.Tests
                 }
 
                 // Perform the actual fetch
-                remote.Fetch(onUpdateTips: expectedFetchState.RemoteUpdateTipsHandler);
+                repo.Network.Fetch(remote, onUpdateTips: expectedFetchState.RemoteUpdateTipsHandler);
 
                 // Verify the expected
                 expectedFetchState.CheckUpdatedReferences(repo);
@@ -58,7 +58,7 @@ namespace LibGit2Sharp.Tests
                 Remote remote = repo.Network.Remotes.Add(remoteName, Constants.PrivateRepoUrl);
 
                 // Perform the actual fetch
-                remote.Fetch(credentials: new Credentials
+                repo.Network.Fetch(remote, credentials: new Credentials
                                               {
                                                   Username = Constants.PrivateRepoUsername,
                                                   Password = Constants.PrivateRepoPassword
@@ -95,7 +95,7 @@ namespace LibGit2Sharp.Tests
                 }
 
                 // Perform the actual fetch
-                remote.Fetch(TagFetchMode.All, onUpdateTips: expectedFetchState.RemoteUpdateTipsHandler);
+                repo.Network.Fetch(remote, TagFetchMode.All, onUpdateTips: expectedFetchState.RemoteUpdateTipsHandler);
 
                 // Verify the expected
                 expectedFetchState.CheckUpdatedReferences(repo);
