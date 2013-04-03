@@ -74,6 +74,8 @@
     <Compile Include="Core\Handles\ReflogEntrySafeHandle.cs" />
     <Compile Include="Core\Handles\ReflogSafeHandle.cs" />
     <Compile Include="ReflogCollection.cs" />
+    <Compile Include="Core\GitRefdbBackend.cs" />
+    <Compile Include="Core\Handles\ReferenceDatabaseSafeHandle.cs" />
     <Compile Include="Core\PathCase.cs" />
     <Compile Include="MatchedPathsAggregator.cs" />
     <Compile Include="Core\Handles\SubmoduleSafeHandle.cs" />
@@ -81,6 +83,9 @@
     <Compile Include="Network.cs" />
     <Compile Include="Core\GitRemoteHead.cs" />
     <Compile Include="ReflogEntry.cs" />
+    <Compile Include="RefdbBackend.cs" />
+    <Compile Include="ReferenceDatabase.cs" />
+    <Compile Include="ReferenceType.cs" />
     <Compile Include="Stash.cs" />
     <Compile Include="StashOptions.cs" />
     <Compile Include="OrphanedHeadException.cs" />
@@ -181,7 +186,6 @@
     <Compile Include="Core\GitErrorCode.cs" />
     <Compile Include="Core\GitObjectTypeMap.cs" />
     <Compile Include="Core\GitOid.cs" />
-    <Compile Include="Core\GitReferenceType.cs" />
     <Compile Include="Core\GitSignature.cs" />
     <Compile Include="FileStatus.cs" />
     <Compile Include="Core\GitTime.cs" />

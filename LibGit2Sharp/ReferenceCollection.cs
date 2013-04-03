@@ -50,7 +50,7 @@ namespace LibGit2Sharp
         /// <returns>An <see cref = "IEnumerator{T}" /> object that can be used to iterate through the collection.</returns>
         public virtual IEnumerator<Reference> GetEnumerator()
         {
-            return Proxy.git_reference_list(repo.Handle, GitReferenceType.ListAll)
+            return Proxy.git_reference_list(repo.Handle, ReferenceType.Oid | ReferenceType.Symbolic)
                 .Select(n => this[n])
                 .GetEnumerator();
         }
@@ -225,7 +225,7 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(pattern, "pattern");
 
-            return Proxy.git_reference_foreach_glob(repo.Handle, pattern, GitReferenceType.ListAll, Utf8Marshaler.FromNative)
+            return Proxy.git_reference_foreach_glob(repo.Handle, pattern, ReferenceType.Oid | ReferenceType.Symbolic, Utf8Marshaler.FromNative)
                 .Select(n => this[n]);
         }
 

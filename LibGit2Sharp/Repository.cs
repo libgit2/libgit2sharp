@@ -33,6 +33,7 @@ namespace LibGit2Sharp
         private readonly Diff diff;
         private readonly NoteCollection notes;
         private readonly Lazy<ObjectDatabase> odb;
+        private readonly Lazy<ReferenceDatabase> refdb;
         private readonly Lazy<Network> network;
         private readonly Stack<IDisposable> toCleanup = new Stack<IDisposable>();
         private readonly Ignore ignore;
@@ -114,6 +115,7 @@ namespace LibGit2Sharp
                         RegisterForCleanup(new Configuration(this, configurationGlobalFilePath, configurationXDGFilePath,
                                                              configurationSystemFilePath)));
                 odb = new Lazy<ObjectDatabase>(() => new ObjectDatabase(this));
+                refdb = new Lazy<ReferenceDatabase>(() => new ReferenceDatabase(this));
                 diff = new Diff(this);
                 notes = new NoteCollection(this);
                 ignore = new Ignore(this);
@@ -252,6 +254,17 @@ namespace LibGit2Sharp
             get
             {
                 return odb.Value;
+            }
+        }
+
+        /// <summary>
+        ///   Gets the reference database.
+        /// </summary>
+        public ReferenceDatabase ReferenceDatabase
+        {
+            get
+            {
+                return refdb.Value;
             }
         }
 
