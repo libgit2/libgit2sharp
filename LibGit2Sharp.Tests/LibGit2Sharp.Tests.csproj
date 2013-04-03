@@ -59,6 +59,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CheckoutFixture.cs" />
+    <Compile Include="RemoteFixture.cs" />
     <Compile Include="StageFixture.cs" />
     <Compile Include="StashFixture.cs" />
     <Compile Include="CloneFixture.cs" />
@@ -84,7 +85,7 @@
     <Compile Include="RepositoryOptionsFixture.cs" />
     <Compile Include="ResetHeadFixture.cs" />
     <Compile Include="LazyFixture.cs" />
-    <Compile Include="RemoteFixture.cs" />
+    <Compile Include="FetchFixture.cs" />
     <Compile Include="ResetIndexFixture.cs" />
     <Compile Include="StatusFixture.cs" />
     <Compile Include="TestHelpers\BaseFixture.cs" />
