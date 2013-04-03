@@ -16,6 +16,7 @@ namespace LibGit2Sharp
     public class ReferenceCollection : IEnumerable<Reference>
     {
         internal readonly Repository repo;
+        internal readonly ReferenceDatabaseSafeHandle refDbHandle;
 
         /// <summary>
         /// Needed for mocking purposes.
@@ -30,6 +31,9 @@ namespace LibGit2Sharp
         internal ReferenceCollection(Repository repo)
         {
             this.repo = repo;
+            refDbHandle = Proxy.git_repository_refdb(repo.Handle);
+
+            repo.RegisterForCleanup(refDbHandle);
         }
 
         /// <summary>
@@ -807,12 +811,24 @@ namespace LibGit2Sharp
             return new ReflogCollection(repo, reference.CanonicalName);
         }
 
-        /// <summary>
-        /// Rewrite some of the commits in the repository and all the references that can reach them.
-        /// </summary>
-        /// <param name="options">Specifies behavior for this rewrite.</param>
-        /// <param name="commitsToRewrite">The <see cref="Commit"/> objects to rewrite.</param>
-        public virtual void RewriteHistory(RewriteHistoryOptions options, params Commit[] commitsToRewrite)
+        /// <summary>  
+        ///   Sets the provided backend to be the reference database provider.  
+        /// </summary>  
+        /// <param name="backend">The backend to add</param>  
+        public virtual void SetBackend(RefdbBackend backend)
+        {  
+            Ensure.ArgumentNotNull(backend, "backend");  
+  
+            Proxy.git_refdb_set_backend(refDbHandle, backend.GitRefdbBackendPointer);  
+        }
+
+
+    /// <summary>
+    /// Rewrite some of the commits in the repository and all the references that can reach them.
+    /// </summary>
+    /// <param name="options">Specifies behavior for this rewrite.</param>
+    /// <param name="commitsToRewrite">The <see cref="Commit"/> objects to rewrite.</param>
+    public virtual void RewriteHistory(RewriteHistoryOptions options, params Commit[] commitsToRewrite)
         {
             Ensure.ArgumentNotNull(commitsToRewrite, "commitsToRewrite");
 
