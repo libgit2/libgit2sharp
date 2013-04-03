@@ -185,21 +185,6 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Creates or updates a <see cref = "Note"/> on the specified object, and for the given namespace.
-        /// </summary>
-        /// <param name = "targetId">The target <see cref = "ObjectId"/>, for which the note will be created.</param>
-        /// <param name = "message">The note message.</param>
-        /// <param name = "author">The author.</param>
-        /// <param name = "committer">The committer.</param>
-        /// <param name = "namespace">The namespace on which the note will be created. It can be either a canonical namespace or an abbreviated namespace ('refs/notes/myNamespace' or just 'myNamespace').</param>
-        /// <returns>The note which was just saved.</returns>
-        [Obsolete("This method will be removed in the next release. Please use Add() instead.")]
-        public virtual Note Create(ObjectId targetId, string message, Signature author, Signature committer, string @namespace)
-        {
-            return Add(targetId, message, author, committer, @namespace);
-        }
-
-        /// <summary>
         ///   Deletes the note on the specified object, and for the given namespace.
         /// </summary>
         /// <param name = "targetId">The target <see cref = "ObjectId"/>, for which the note will be created.</param>
@@ -216,19 +201,6 @@ namespace LibGit2Sharp
             string canonicalNamespace = NormalizeToCanonicalName(@namespace);
 
             Proxy.git_note_remove(repo.Handle, canonicalNamespace, author, committer, targetId);
-        }
-
-        /// <summary>
-        ///   Deletes the note on the specified object, and for the given namespace.
-        /// </summary>
-        /// <param name = "targetId">The target <see cref = "ObjectId"/>, for which the note will be created.</param>
-        /// <param name = "author">The author.</param>
-        /// <param name = "committer">The committer.</param>
-        /// <param name = "namespace">The namespace on which the note will be removed. It can be either a canonical namespace or an abbreviated namespace ('refs/notes/myNamespace' or just 'myNamespace').</param>
-        [Obsolete("This method will be removed in the next release. Please use Remove() instead.")]
-        public virtual void Delete(ObjectId targetId, Signature author, Signature committer, string @namespace)
-        {
-            Remove(targetId, author, committer, @namespace);
         }
 
         private string DebuggerDisplay

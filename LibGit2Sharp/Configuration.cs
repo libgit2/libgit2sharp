@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Runtime.InteropServices;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Handles;
@@ -13,7 +12,6 @@ namespace LibGit2Sharp
     ///   Provides access to configuration variables for a repository.
     /// </summary>
     public class Configuration : IDisposable,
-        IEnumerable<ConfigurationEntry>,
         IEnumerable<ConfigurationEntry<string>>
     {
         private readonly FilePath globalConfigPath;
@@ -83,24 +81,6 @@ namespace LibGit2Sharp
         public Configuration(string globalConfigurationFileLocation = null, string xdgConfigurationFileLocation = null, string systemConfigurationFileLocation = null)
             : this(null, globalConfigurationFileLocation, xdgConfigurationFileLocation, systemConfigurationFileLocation)
         {
-        }
-
-        /// <summary>
-        ///   Determines if a Git configuration file specific to the current interactive user has been found.
-        /// </summary>
-        [Obsolete("This property will be removed in the next release. Please use HasConfig() instead.")]
-        public virtual bool HasGlobalConfig
-        {
-            get { return HasConfig(ConfigurationLevel.Global); }
-        }
-
-        /// <summary>
-        ///   Determines if a system-wide Git configuration file has been found.
-        /// </summary>
-        [Obsolete("This property will be removed in the next release. Please use HasConfig() instead.")]
-        public virtual bool HasSystemConfig
-        {
-            get { return HasConfig(ConfigurationLevel.System); }
         }
 
         /// <summary>
@@ -288,12 +268,6 @@ namespace LibGit2Sharp
 
         IEnumerator<ConfigurationEntry<string>> IEnumerable<ConfigurationEntry<String>>.GetEnumerator()
         {
-            return BuildConfigEntries().Cast<ConfigurationEntry<string>>().GetEnumerator();
-        }
-
-        [Obsolete("This method will be removed in the next release. Please use a different overload instead.")]
-        IEnumerator<ConfigurationEntry> IEnumerable<ConfigurationEntry>.GetEnumerator()
-        {
             return BuildConfigEntries().GetEnumerator();
         }
 
@@ -302,15 +276,15 @@ namespace LibGit2Sharp
             return ((IEnumerable<ConfigurationEntry<string>>)this).GetEnumerator();
         }
 
-        private ICollection<ConfigurationEntry> BuildConfigEntries()
+        private IEnumerable<ConfigurationEntry<string>> BuildConfigEntries()
         {
             return Proxy.git_config_foreach(configHandle, entryPtr =>
             {
                 var entry = (GitConfigEntry)Marshal.PtrToStructure(entryPtr, typeof(GitConfigEntry));
 
-                return new ConfigurationEntry(Utf8Marshaler.FromNative(entry.namePtr),
-                                              Utf8Marshaler.FromNative(entry.valuePtr),
-                                              (ConfigurationLevel)entry.level);
+                return new ConfigurationEntry<string>(Utf8Marshaler.FromNative(entry.namePtr),
+                                                      Utf8Marshaler.FromNative(entry.valuePtr),
+                                                      (ConfigurationLevel)entry.level);
             });
         }
     }

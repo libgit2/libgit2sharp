@@ -95,30 +95,6 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Gets the number of commits that exist in this local branch but don't exist in the tracked one.
-        ///   <para>
-        ///     This property will return null if there is no tracked branch linked to this local branch.
-        ///   </para>
-        /// </summary>
-        [Obsolete("This property will be removed in the next release. Please use TrackingDetails.AheadBy instead.")]
-        public virtual int? AheadBy
-        {
-            get { return TrackingDetails.AheadBy; }
-        }
-
-        /// <summary>
-        ///   Gets the number of commits that exist in the tracked branch but don't exist in this local one.
-        ///   <para>
-        ///     This property will return null if there is no tracked branch linked to this local branch.
-        ///   </para>
-        /// </summary>
-        [Obsolete("This property will be removed in the next release. Please use TrackingDetails.BehindBy instead.")]
-        public virtual int? BehindBy
-        {
-            get { return TrackingDetails.BehindBy; }
-        }
-
-        /// <summary>
         ///   Gets additional information about the tracked branch.
         /// </summary>
         public virtual BranchTrackingDetails TrackingDetails
