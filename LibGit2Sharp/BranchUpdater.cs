@@ -190,8 +190,8 @@ namespace LibGit2Sharp
                 Remote remote = repo.Network.Remotes.RemoteForName(remoteName);
                 using (RemoteSafeHandle remoteHandle = Proxy.git_remote_load(repo.Handle, remote.Name, true))
                 {
-                    GitFetchSpecHandle fetchSpecPtr = Proxy.git_remote_fetchspec(remoteHandle);
-                    mergeBranchName = Proxy.git_fetchspec_rtransform(fetchSpecPtr, canonicalName);
+                    GitRefSpecHandle refSpecPtr = Proxy.git_remote_fetchspec(remoteHandle);
+                    mergeBranchName = Proxy.git_refspec_rtransform(refSpecPtr, canonicalName);
                 }
             }
             else
