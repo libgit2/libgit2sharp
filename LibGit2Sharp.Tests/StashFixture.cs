@@ -64,7 +64,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(repo.Lookup<Commit>("stash@{1}").Sha, stash.Target.Sha);
 
                 //Remove one stash
-                repo.Stashes.Remove("stash@{0}");
+                repo.Stashes.Remove(0);
                 Assert.Equal(1, repo.Stashes.Count());
                 Stash newTopStash = repo.Stashes.First();
                 Assert.Equal("stash@{0}", newTopStash.CanonicalName);
@@ -197,16 +197,14 @@ namespace LibGit2Sharp.Tests
         }
 
         [Theory]
-        [InlineData("stah@{0}")]
-        [InlineData("stash@{0")]
-        [InlineData("stash@{fake}")]
-        [InlineData("dummy")]
-        public void RemovingStashWithBadParamShouldThrow(string stashRefLog)
+        [InlineData(-1)]
+        [InlineData(-42)]
+        public void RemovingStashWithBadParamShouldThrow(int badIndex)
         {
             TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
             using (var repo = new Repository(path.RepositoryPath))
             {
-                Assert.Throws<ArgumentException>(() => repo.Stashes.Remove(stashRefLog));
+                Assert.Throws<ArgumentException>(() => repo.Stashes.Remove(badIndex));
             }
         }
     }

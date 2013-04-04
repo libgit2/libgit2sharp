@@ -35,6 +35,9 @@ namespace LibGit2Sharp
 
         /// <summary>
         ///   Returns an enumerator that iterates through the collection.
+        ///   <para>
+        ///     The enumerator returns the stashes by descending order (last stash is returned first).
+        ///   </para>
         /// </summary>
         /// <returns>An <see cref = "IEnumerator{T}" /> object that can be used to iterate through the collection.</returns>
         public IEnumerator<Stash> GetEnumerator()
@@ -81,18 +84,33 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Remove a single stashed state from the stash list.
         /// </summary>
+        /// <param name = "index">The index of the stash to remove (0 being the most recent one).</param>
+        public virtual void Remove(int index)
+        {
+            if (index < 0)
+            {
+                throw new ArgumentException("The passed index must be a positive integer.", "index");
+            }
+
+            Proxy.git_stash_drop(repo.Handle, index);
+        }
+
+        /// <summary>
+        ///   Remove a single stashed state from the stash list.
+        /// </summary>
         /// <param name = "stashRefLog">The log reference of the stash to delete. Pattern is "stash@{i}" where i is the index of the stash to remove</param>
+        [Obsolete("This method will be removed in the next release. Please use Repository.Stashes.Remove(int) instead.")]
         public virtual void Remove(string stashRefLog)
         {
             Ensure.ArgumentNotNullOrEmptyString(stashRefLog, "stashRefLog");
 
             int index;
-            if(!TryExtractStashIndexFromRefLog(stashRefLog, out index) || index < 0)
+            if (!TryExtractStashIndexFromRefLog(stashRefLog, out index) || index < 0)
             {
                 throw new ArgumentException("must be a valid stash log reference. Pattern is 'stash@{i}' where 'i' is an integer", "stashRefLog");
             }
 
-            Proxy.git_stash_drop(repo.Handle, index);
+            Remove(index);
         }
 
         private static bool TryExtractStashIndexFromRefLog(string stashRefLog, out int index)
@@ -113,6 +131,7 @@ namespace LibGit2Sharp
 
             return int.TryParse(indexAsString, out index);
         }
+
 
         private string DebuggerDisplay
         {
