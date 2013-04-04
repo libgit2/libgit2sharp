@@ -207,5 +207,71 @@ namespace LibGit2Sharp.Tests
                 Assert.Throws<ArgumentException>(() => repo.Stashes.Remove(badIndex));
             }
         }
+
+        [Fact]
+        public void CanGetStashByIndexer()
+        {
+            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
+            using (var repo = new Repository(path.RepositoryPath))
+            {
+                var stasher = DummySignature;
+                const string firstStashMessage = "My very first stash";
+                const string secondStashMessage = "My second stash";
+                const string thirdStashMessage = "My third stash";
+
+                // Create first stash
+                Stash firstStash = repo.Stashes.Add(stasher, firstStashMessage, StashOptions.IncludeUntracked);
+                Assert.NotNull(firstStash);
+
+                // Create second stash
+                string newFileFullPath = Path.Combine(repo.Info.WorkingDirectory, "stash_candidate.txt");
+                File.WriteAllText(newFileFullPath, "Oh, I'm going to be stashed!\n");
+
+                Stash secondStash = repo.Stashes.Add(stasher, secondStashMessage, StashOptions.IncludeUntracked);
+                Assert.NotNull(secondStash);
+
+                // Create third stash
+                newFileFullPath = Path.Combine(repo.Info.WorkingDirectory, "stash_candidate_again.txt");
+                File.WriteAllText(newFileFullPath, "Oh, I'm going to be stashed!\n");
+
+
+                Stash thirdStash = repo.Stashes.Add(stasher, thirdStashMessage, StashOptions.IncludeUntracked);
+                Assert.NotNull(thirdStash);
+
+                // Get by indexer
+                Assert.Equal(3, repo.Stashes.Count());
+                Assert.Equal("stash@{0}", repo.Stashes[0].CanonicalName);
+                Assert.Contains(thirdStashMessage, repo.Stashes[0].Message);
+                Assert.Equal(thirdStash.Target, repo.Stashes[0].Target);
+                Assert.Equal("stash@{1}", repo.Stashes[1].CanonicalName);
+                Assert.Contains(secondStashMessage, repo.Stashes[1].Message);
+                Assert.Equal(secondStash.Target, repo.Stashes[1].Target);
+                Assert.Equal("stash@{2}", repo.Stashes[2].CanonicalName);
+                Assert.Contains(firstStashMessage, repo.Stashes[2].Message);
+                Assert.Equal(firstStash.Target, repo.Stashes[2].Target);
+            }
+        }
+
+        [Theory]
+        [InlineData(-1)]
+        [InlineData(-42)]
+        public void GettingStashWithBadIndexThrows(int badIndex)
+        {
+            using (var repo = new Repository(StandardTestRepoWorkingDirPath))
+            {
+                Assert.Throws<ArgumentOutOfRangeException>(() => repo.Stashes[badIndex]);
+            }
+        }
+
+        [Theory]
+        [InlineData(28)]
+        [InlineData(42)]
+        public void GettingAStashThatDoesNotExistReturnsNull(int bigIndex)
+        {
+            using (var repo = new Repository(StandardTestRepoWorkingDirPath))
+            {
+                Assert.Null(repo.Stashes[bigIndex]);
+            }
+        }
     }
 }

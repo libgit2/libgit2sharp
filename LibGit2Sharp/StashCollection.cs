@@ -58,6 +58,24 @@ namespace LibGit2Sharp
         #endregion
 
         /// <summary>
+        ///   Gets the <see cref = "Stash" /> corresponding to the specified index (0 being the most recent one).
+        /// </summary>
+        public virtual Stash this[int index]
+        {
+            get
+            {
+                if (index < 0)
+                {
+                    throw new ArgumentOutOfRangeException("index", "The passed index must be a positive integer.");
+                }
+
+                GitObject stashCommit = repo.Lookup(string.Format("stash@{{{0}}}", index), GitObjectType.Commit, LookUpOptions.None);
+
+                return stashCommit == null ? null : new Stash(repo, stashCommit.Id, index);
+            }
+        }
+
+        /// <summary>
         ///   Creates a stash with the specified message.
         /// </summary>
         /// <param name="stasher">The <see cref="Signature"/> of the user who stashes </param>
@@ -131,7 +149,6 @@ namespace LibGit2Sharp
 
             return int.TryParse(indexAsString, out index);
         }
-
 
         private string DebuggerDisplay
         {
