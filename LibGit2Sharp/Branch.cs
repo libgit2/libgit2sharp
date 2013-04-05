@@ -130,6 +130,26 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        ///   Gets the configured canonical name of the upstream branch.
+        ///   <para>
+        ///     This is the upstream reference to which this branch will be pushed.
+        ///     It corresponds to the "branch.branch_name.merge" property of the config file.
+        ///   </para>
+        /// </summary>
+        public virtual string UpstreamBranchCanonicalName
+        {
+            get
+            {
+                if (IsRemote)
+                {
+                    return Remote.FetchSpecTransformToSource(CanonicalName);
+                }
+
+                return UpstreamBranchCanonicalNameFromLocalBranch();
+            }
+        }
+
+        /// <summary>
         ///   Gets the configured <see cref="Remote"/> to fetch from and push to.
         /// </summary>
         public virtual Remote Remote
@@ -154,6 +174,18 @@ namespace LibGit2Sharp
 
                 return repo.Network.Remotes[remoteName];
             }
+        }
+
+        private string UpstreamBranchCanonicalNameFromLocalBranch()
+        {
+            ConfigurationEntry<string> mergeRefEntry = repo.Config.Get<string>("branch", Name, "merge");
+
+            if (mergeRefEntry == null)
+            {
+                return null;
+            }
+
+            return mergeRefEntry.Value;
         }
 
         private string RemoteNameFromLocalBranch()
