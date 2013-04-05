@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
@@ -13,8 +14,7 @@ namespace LibGit2Sharp.Tests
                 pushStatusErrors.Reference, pushStatusErrors.Message));
         }
 
-        [Fact]
-        public void CanLocallyCloneAndCommitAndPush()
+        private void AssertPush(Action<Repository> push)
         {
             var scd = BuildSelfCleaningDirectory();
             using (var originalRepo = new Repository(CloneBareTestRepo()))
@@ -24,8 +24,9 @@ namespace LibGit2Sharp.Tests
 
                 // Compare before
                 Assert.Equal(originalRepo.Refs["HEAD"].ResolveToDirectReference().TargetIdentifier,
-                    clonedRepo.Refs["HEAD"].ResolveToDirectReference().TargetIdentifier);
-                Assert.Equal(clonedRepo.Network.ListReferences(remote).Single(r => r.CanonicalName == "refs/heads/master"),
+                             clonedRepo.Refs["HEAD"].ResolveToDirectReference().TargetIdentifier);
+                Assert.Equal(
+                    clonedRepo.Network.ListReferences(remote).Single(r => r.CanonicalName == "refs/heads/master"),
                     clonedRepo.Refs.Head.ResolveToDirectReference());
 
                 // Change local state (commit)
@@ -37,19 +38,42 @@ namespace LibGit2Sharp.Tests
 
                 // Assert local state has changed
                 Assert.NotEqual(originalRepo.Refs["HEAD"].ResolveToDirectReference().TargetIdentifier,
-                    clonedRepo.Refs["HEAD"].ResolveToDirectReference().TargetIdentifier);
-                Assert.NotEqual(clonedRepo.Network.ListReferences(remote).Single(r => r.CanonicalName == "refs/heads/master"),
+                                clonedRepo.Refs["HEAD"].ResolveToDirectReference().TargetIdentifier);
+                Assert.NotEqual(
+                    clonedRepo.Network.ListReferences(remote).Single(r => r.CanonicalName == "refs/heads/master"),
                     clonedRepo.Refs.Head.ResolveToDirectReference());
 
                 // Push the change upstream (remote state is supposed to change)
-                clonedRepo.Network.Push(remote, "HEAD", @"refs/heads/master", OnPushStatusError);
+                push(clonedRepo);
 
                 // Assert that both local and remote repos are in sync
                 Assert.Equal(originalRepo.Refs["HEAD"].ResolveToDirectReference().TargetIdentifier,
-                    clonedRepo.Refs["HEAD"].ResolveToDirectReference().TargetIdentifier);
-                Assert.Equal(clonedRepo.Network.ListReferences(remote).Single(r => r.CanonicalName == "refs/heads/master"),
+                             clonedRepo.Refs["HEAD"].ResolveToDirectReference().TargetIdentifier);
+                Assert.Equal(
+                    clonedRepo.Network.ListReferences(remote).Single(r => r.CanonicalName == "refs/heads/master"),
                     clonedRepo.Refs.Head.ResolveToDirectReference());
             }
+        }
+
+        [Fact]
+        public void CanPushABranchTrackingAnUpstreamBranch()
+        {
+            AssertPush(repo => repo.Network.Push(repo.Head));
+            AssertPush(repo => repo.Network.Push(repo.Branches["master"]));
+            AssertPush(repo => repo.Network.Push(repo.Network.Remotes["origin"], "HEAD", @"refs/heads/master", OnPushStatusError));
+        }
+
+        [Fact]
+        public void PushingABranchThatDoesNotTrackAnUpstreamBranchThrows()
+        {
+            Assert.Throws<LibGit2SharpException>(
+                () =>
+                AssertPush(repo =>
+                    {
+                        Branch branch = repo.Branches["master"];
+                        repo.Branches.Update(branch, b => b.TrackedBranch = null);
+                        repo.Network.Push(branch);
+                    }));
         }
     }
 }
