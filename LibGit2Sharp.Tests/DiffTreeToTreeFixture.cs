@@ -465,11 +465,10 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void ComparingReliesOnProvidedConfigEntriesIfAny()
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
-
             const string file = "1/branch_file.txt";
 
-            using (var repo = new Repository(path.DirectoryPath))
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 TreeEntry entry = repo.Head[file];
                 Assert.Equal(Mode.ExecutableFile, entry.Mode);
@@ -487,7 +486,7 @@ namespace LibGit2Sharp.Tests
 
             var options = BuildFakeSystemConfigFilemodeOption(scd, true);
 
-            using (var repo = new Repository(path.DirectoryPath, options))
+            using (var repo = new Repository(path, options))
             {
                 TreeChanges changes = repo.Diff.Compare(new []{ file });
 
@@ -500,7 +499,7 @@ namespace LibGit2Sharp.Tests
 
             options = BuildFakeSystemConfigFilemodeOption(scd, false);
 
-            using (var repo = new Repository(path.DirectoryPath, options))
+            using (var repo = new Repository(path, options))
             {
                 TreeChanges changes = repo.Diff.Compare(new[] { file });
 

@@ -54,7 +54,7 @@ namespace LibGit2Sharp.Tests
         public void CanLocallyCloneAndCommitAndPush()
         {
             var scd = BuildSelfCleaningDirectory();
-            using (var originalRepo = new Repository(BuildTemporaryCloneOfTestRepo(BareTestRepoPath).RepositoryPath))
+            using (var originalRepo = new Repository(CloneBareTestRepo()))
             using (Repository clonedRepo = Repository.Clone(originalRepo.Info.Path, scd.RootedDirectoryPath))
             {
                 Remote remote = clonedRepo.Network.Remotes["origin"];

@@ -19,8 +19,8 @@ namespace LibGit2Sharp.Tests
         [InlineData("diff-test-cases")]
         public void CanCheckoutAnExistingBranch(string branchName)
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 Branch master = repo.Branches["master"];
                 Assert.True(master.IsCurrentRepositoryHead);
@@ -52,8 +52,8 @@ namespace LibGit2Sharp.Tests
         [InlineData("diff-test-cases")]
         public void CanCheckoutAnExistingBranchByName(string branchName)
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 Branch master = repo.Branches["master"];
                 Assert.True(master.IsCurrentRepositoryHead);
@@ -82,8 +82,8 @@ namespace LibGit2Sharp.Tests
         [InlineData("refs/tags/lw")]
         public void CanCheckoutAnArbitraryCommit(string commitPointer)
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 Branch master = repo.Branches["master"];
                 Assert.True(master.IsCurrentRepositoryHead);
@@ -202,9 +202,8 @@ namespace LibGit2Sharp.Tests
             // 4) Create conflicting change
             // 5) Forcefully checkout master
 
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
-
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 string fileFullPath = Path.Combine(repo.Info.WorkingDirectory, originalFilePath);
                 Branch master = repo.Branches["master"];
@@ -556,8 +555,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CheckingOutRemoteBranchResultsInDetachedHead()
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 Branch master = repo.Branches["master"];
                 Assert.True(master.IsCurrentRepositoryHead);
@@ -576,8 +575,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CheckingOutABranchDoesNotAlterBinaryFiles()
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 // $ git hash-object square-logo.png
                 // b758c5bc1c8117c2a4c545dae2903e36360501c5

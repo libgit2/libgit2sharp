@@ -11,8 +11,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void TemporaryRulesShouldApplyUntilCleared()
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 File.WriteAllText(Path.Combine(repo.Info.WorkingDirectory, "Foo.cs"), "Bar");
 
@@ -31,8 +31,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void IsPathIgnoredShouldVerifyWhetherPathIsIgnored()
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 File.WriteAllText(Path.Combine(repo.Info.WorkingDirectory, "Foo.cs"), "Bar");
 
@@ -70,9 +70,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCheckIfAPathIsIgnoredUsingThePreferedPlatformDirectorySeparatorChar()
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
-
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 string ignorePath = Path.Combine(repo.Info.WorkingDirectory, ".gitignore");
                 File.WriteAllText(ignorePath, "/NewFolder\n/NewFolder/NewFolder");

@@ -31,8 +31,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanRetrieveTheStatusOfTheWholeWorkingDirectory()
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 const string file = "modified_staged_file.txt";
 
@@ -155,8 +155,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void RetrievingTheStatusOfTheRepositoryHonorsTheGitIgnoreDirectives()
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 string relativePath = Path.Combine("1", "look-ma.txt");
                 string fullFilePath = Path.Combine(repo.Info.WorkingDirectory, relativePath);
@@ -246,8 +246,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void RetrievingTheStatusOfAnAmbiguousFileThrows()
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 string relativePath = Path.Combine("1", "ambiguous1.txt");
                 string fullFilePath = Path.Combine(repo.Info.WorkingDirectory, relativePath);

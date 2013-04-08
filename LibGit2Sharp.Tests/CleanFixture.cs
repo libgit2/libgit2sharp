@@ -9,8 +9,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCleanWorkingDirectory()
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 // Verify that there are the expected number of entries and untracked files
                 Assert.Equal(6, repo.Index.RetrieveStatus().Count());

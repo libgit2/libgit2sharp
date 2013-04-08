@@ -78,9 +78,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CannotFindAncestorForTwoCommmitsWithoutCommonAncestor()
         {
-            var scd = BuildTemporaryCloneOfTestRepo();
-
-            using (var repo = new Repository(scd.RepositoryPath))
+            string path = CloneBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 var first = repo.Lookup<Commit>("4c062a6361ae6959e06292c1fa5e2822d9c96345");
                 var second = repo.Lookup<Commit>("be3563ae3f795b2b4353bcce3a527ad0a4f7f644");
@@ -97,9 +96,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CannotFindCommonAncestorForSeveralCommmitsWithoutCommonAncestor()
         {
-            var scd = BuildTemporaryCloneOfTestRepo();
-
-            using (var repo = new Repository(scd.RepositoryPath))
+            string path = CloneBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 var first = repo.Lookup<Commit>("4c062a6361ae6959e06292c1fa5e2822d9c96345");
 

@@ -21,8 +21,8 @@ namespace LibGit2Sharp.Tests
         {
             const string name = "refs/heads/unit_test";
 
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 var newRef = (DirectReference)repo.Refs.Add(name, "be3563ae3f795b2b4353bcce3a527ad0a4f7f644");
                 Assert.NotNull(newRef);
@@ -39,8 +39,8 @@ namespace LibGit2Sharp.Tests
         {
             const string name = "refs/heads/extendedShaSyntaxRulz";
 
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 var newRef = (DirectReference)repo.Refs.Add(name, "master^1^2");
                 Assert.NotNull(newRef);
@@ -57,8 +57,8 @@ namespace LibGit2Sharp.Tests
         {
             const string name = "refs/heads/extendedShaSyntaxRulz";
 
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.Throws<LibGit2SharpException>(() => repo.Refs.Add(name, "master^42"));
             }
@@ -70,8 +70,8 @@ namespace LibGit2Sharp.Tests
             const string name = "refs/heads/unit_test";
             const string target = "refs/heads/master";
 
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 var newRef = (SymbolicReference)repo.Refs.Add(name, target);
 
@@ -85,8 +85,8 @@ namespace LibGit2Sharp.Tests
             const string name = "refs/heads/unit_test";
             const string target = "refs/heads/master";
 
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 var targetRef = repo.Refs[target];
 
@@ -109,8 +109,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void BlindlyCreatingADirectReferenceOverAnExistingOneThrows()
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.Throws<NameConflictException>(() => repo.Refs.Add("refs/heads/master", "be3563ae3f795b2b4353bcce3a527ad0a4f7f644"));
             }
@@ -119,8 +119,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void BlindlyCreatingASymbolicReferenceOverAnExistingOneThrows()
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.Throws<NameConflictException>(() => repo.Refs.Add("HEAD", "refs/heads/br2"));
             }
@@ -132,8 +132,8 @@ namespace LibGit2Sharp.Tests
             const string name = "refs/heads/br2";
             const string target = "4c062a6361ae6959e06292c1fa5e2822d9c96345";
 
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 var newRef = (DirectReference)repo.Refs.Add(name, target, true);
                 Assert.NotNull(newRef);
@@ -150,8 +150,8 @@ namespace LibGit2Sharp.Tests
             const string name = "HEAD";
             const string target = "refs/heads/br2";
 
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 var newRef = (SymbolicReference)repo.Refs.Add(name, target, true);
                 Assert.NotNull(newRef);
@@ -202,8 +202,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanRemoveAReference()
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 repo.Refs.Remove("refs/heads/packed");
             }
@@ -212,8 +212,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanRemoveANonExistingReference()
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 const string unknown = "refs/heads/dahlbyk/has/hawkeyes";
 
@@ -226,8 +226,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void ARemovedReferenceCannotBeLookedUp()
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 const string refName = "refs/heads/test";
 
@@ -239,8 +239,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void RemovingAReferenceDecreasesTheRefsCount()
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 const string refName = "refs/heads/test";
 
@@ -278,8 +278,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanListAllReferencesEvenCorruptedOnes()
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 CreateCorruptedDeadBeefHead(repo.Info.Path);
 
@@ -374,8 +374,8 @@ namespace LibGit2Sharp.Tests
         public void CanUpdateTargetOfADirectReference()
         {
             const string masterRef = "refs/heads/master";
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 string sha = repo.Refs["refs/heads/test"].ResolveToDirectReference().Target.Sha;
                 Reference master = repo.Refs[masterRef];
@@ -394,8 +394,8 @@ namespace LibGit2Sharp.Tests
         public void CanUpdateTargetOfADirectReferenceWithAnAbbreviatedSha()
         {
             const string masterRef = "refs/heads/master";
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 string sha = repo.Refs["refs/heads/test"].ResolveToDirectReference().Target.Sha;
                 Reference master = repo.Refs[masterRef];
@@ -414,8 +414,8 @@ namespace LibGit2Sharp.Tests
         public void CanUpdateTargetOfASymbolicReference()
         {
             const string name = "refs/heads/unit_test";
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 var newRef = (SymbolicReference)repo.Refs.Add(name, "refs/heads/master");
                 Assert.NotNull(newRef);
@@ -432,8 +432,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanUpdateHeadWithARevparseSpec()
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 Branch test = repo.Branches["test"];
 
@@ -450,8 +450,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanUpdateHeadWithEitherAnObjectIdOrAReference()
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 Reference head = repo.Refs.Head;
                 Reference test = repo.Refs["refs/heads/test"];
@@ -471,8 +471,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanUpdateTargetOfADirectReferenceWithARevparseSpec()
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 const string name = "refs/heads/master";
 
@@ -492,8 +492,8 @@ namespace LibGit2Sharp.Tests
         public void UpdatingADirectRefWithSymbolFails()
         {
             const string name = "refs/heads/unit_test";
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 var newRef = (SymbolicReference)repo.Refs.Add(name, "refs/heads/master");
                 Assert.NotNull(newRef);
@@ -509,8 +509,8 @@ namespace LibGit2Sharp.Tests
         public void CanUpdateTargetOfADirectReferenceWithAShortReferenceNameAsARevparseSpec()
         {
             const string masterRef = "refs/heads/master";
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 Reference updatedMaster = repo.Refs.UpdateTarget(masterRef, "heads/test");
                 Assert.Equal(repo.Refs["refs/heads/test"].TargetIdentifier, updatedMaster.TargetIdentifier);
@@ -542,8 +542,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanMoveAReferenceToADeeperReferenceHierarchy()
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 const string newName = "refs/tags/test/deep";
 
@@ -556,8 +556,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanMoveAReferenceToAUpperReferenceHierarchy()
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 const string newName = "refs/heads/o/sole";
                 const string oldName = newName + "/mio";
@@ -572,8 +572,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanMoveAReferenceToADifferentReferenceHierarchy()
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 const string newName = "refs/atic/tagtest";
 
@@ -595,8 +595,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanMoveAndOverWriteAExistingReference()
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 const string oldName = "refs/heads/packed";
                 const string newName = "refs/heads/br2";
@@ -620,8 +620,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void MovingAReferenceDoesNotDecreaseTheRefsCount()
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 const string oldName = "refs/tags/test";
                 const string newName = "refs/atic/tagtest";
@@ -642,8 +642,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanLookupAMovedReference()
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 const string oldName = "refs/tags/test";
                 const string newName = "refs/atic/tagtest";

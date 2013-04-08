@@ -25,8 +25,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCorrectlyCountCommitsWhenSwitchingToAnotherBranch()
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 // Hard reset and then remove untracked files
                 repo.Reset(ResetOptions.Hard);
@@ -60,8 +60,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanEnumerateCommitsInDetachedHeadState()
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 ObjectId parentOfHead = repo.Head.Tip.Parents.First().Id;
 
@@ -110,8 +110,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void QueryingTheCommitHistoryFromACorruptedReferenceThrows()
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 CreateCorruptedDeadBeefHead(repo.Info.Path);
 
@@ -226,8 +226,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanEnumerateFromDetachedHead()
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
-            using (var repoClone = new Repository(path.RepositoryPath))
+            string path = CloneStandardTestRepo();
+            using (var repoClone = new Repository(path))
             {
                 // Hard reset and then remove untracked files
                 repoClone.Reset(ResetOptions.Hard);
@@ -371,9 +371,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanEnumerateCommitsFromATagWhichPointsToATree()
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(BareTestRepoPath);
-
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 string headTreeSha = repo.Head.Tip.Tree.Sha;
 
@@ -533,8 +532,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CommitParentsAreMergeHeads()
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoPath);
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 repo.Reset(ResetOptions.Hard, "c47800");
 
@@ -722,8 +721,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanAmendACommitWithMoreThanOneParent()
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoPath);
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 var mergedCommit = repo.Lookup<Commit>("be3563a");
                 Assert.NotNull(mergedCommit);
@@ -771,8 +770,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanRetrieveChildrenOfASpecificCommit()
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoPath);
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 const string parentSha = "5b5b025afb0b4c913b4c338a42934a3863bf3644";
 
@@ -803,8 +802,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCorrectlyDistinguishAuthorFromCommitter()
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoPath);
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 var author = new Signature("Wilbert van Dolleweerd", "getit@xs4all.nl",
                                            Epoch.ToDateTimeOffset(1244187936, 120));
