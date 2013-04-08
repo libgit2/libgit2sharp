@@ -141,8 +141,8 @@ namespace LibGit2Sharp.Tests
         [InlineData("modified_unstaged_file.txt", FileStatus.Modified, "deleted_unstaged_file.txt", FileStatus.Missing, FileStatus.Removed, FileStatus.Staged)]
         public void CanMoveAnExistingFileOverANonExistingFile(string sourcePath, FileStatus sourceStatus, string destPath, FileStatus destStatus, FileStatus sourcePostStatus, FileStatus destPostStatus)
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.Equal(sourceStatus, repo.Index.RetrieveStatus(sourcePath));
                 Assert.Equal(destStatus, repo.Index.RetrieveStatus(destPath));
@@ -199,8 +199,8 @@ namespace LibGit2Sharp.Tests
         [InlineData("deleted_unstaged_file.txt", FileStatus.Missing, false, FileStatus.Removed)]
         public void CanRemoveAFile(string filename, FileStatus initialStatus, bool shouldInitiallyExist, FileStatus finalStatus)
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 int count = repo.Index.Count;
 

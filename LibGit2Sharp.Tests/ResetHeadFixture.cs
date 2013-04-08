@@ -38,9 +38,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void SoftResetToAParentCommitChangesTheTargetOfTheHead()
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
-
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 var headCommit = repo.Head.Tip;
                 var firstCommitParent = headCommit.Parents.First();
@@ -53,9 +52,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void SoftResetSetsTheHeadToTheDereferencedCommitOfAChainedTag()
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
-
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 Tag tag = repo.Tags["test"];
                 repo.Reset(ResetOptions.Soft, tag.CanonicalName);
@@ -183,9 +181,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void HardResetUpdatesTheContentOfTheWorkingDirectory()
         {
-            var clone = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
-
-            using (var repo = new Repository(clone.DirectoryPath))
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 var names = new DirectoryInfo(repo.Info.WorkingDirectory).GetFileSystemInfos().Select(fsi => fsi.Name).ToList();
 

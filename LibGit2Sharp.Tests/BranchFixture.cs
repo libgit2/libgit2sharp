@@ -17,8 +17,8 @@ namespace LibGit2Sharp.Tests
         [InlineData("Ångström")]
         public void CanCreateBranch(string name)
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 Branch newBranch = repo.CreateBranch(name, "be3563ae3f795b2b4353bcce3a527ad0a4f7f644");
                 Assert.NotNull(newBranch);
@@ -35,8 +35,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCreateBranchUsingAbbreviatedSha()
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 const string name = "unit_test";
                 Branch newBranch = repo.CreateBranch(name, "be3563a");
@@ -48,8 +48,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCreateBranchFromImplicitHead()
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 const string name = "unit_test";
                 Branch newBranch = repo.CreateBranch(name);
@@ -66,8 +66,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCreateBranchFromExplicitHead()
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 const string name = "unit_test";
                 Branch newBranch = repo.CreateBranch(name, "HEAD");
@@ -79,8 +79,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCreateBranchFromCommit()
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 const string name = "unit_test";
                 var commit = repo.Lookup<Commit>("HEAD");
@@ -93,8 +93,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCreateBranchFromRevparseSpec()
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 const string name = "revparse_branch";
                 var target = repo.Lookup<Commit>("master~2");
@@ -107,8 +107,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CreatingABranchFromATagPeelsToTheCommit()
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 const string name = "i-peel-tag";
                 Branch newBranch = repo.CreateBranch(name, "refs/tags/test");
@@ -120,8 +120,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CreatingABranchTriggersTheCreationOfADirectReference()
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 Branch newBranch = repo.CreateBranch("clone-of-master");
                 Assert.False(newBranch.IsCurrentRepositoryHead);
@@ -193,9 +193,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanListBranchesWithRemoteAndLocalBranchWithSameShortName()
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
-
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 // Create a local branch with the same short name as a remote branch.
                 repo.Branches.Add("origin/master", repo.Branches["origin/test"].Tip);
@@ -316,8 +315,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanLookupABranchWhichNameIsMadeOfNon7BitsAsciiCharacters()
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 const string name = "Ångström";
                 Branch newBranch = repo.CreateBranch(name, "be3563a");
@@ -368,8 +367,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanGetTrackingInformationFromBranchSharingNoHistoryWithItsTrackedBranch()
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 Branch master = repo.Branches["master"];
                 repo.Refs.UpdateTarget("refs/remotes/origin/master", "origin/test");
@@ -460,9 +459,8 @@ namespace LibGit2Sharp.Tests
             const string testBranchName = "branchToSetUpstreamInfoFor";
             const string upstreamBranchName = "refs/remotes/origin/master";
 
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoPath);
-
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 Branch branch = repo.CreateBranch(testBranchName);
                 Assert.False(branch.IsTracking);
@@ -494,9 +492,8 @@ namespace LibGit2Sharp.Tests
             const string upstreamBranchName = "refs/remotes/origin/master";
             const string upstreamRemoteName = "origin";
 
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoPath);
-
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 Branch branch = repo.CreateBranch(testBranchName);
                 Assert.False(branch.IsTracking);
@@ -524,9 +521,8 @@ namespace LibGit2Sharp.Tests
             const string testBranchName = "branchToSetUpstreamInfoFor";
             const string upstreamBranchName = "refs/heads/master";
 
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoPath);
-
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 Branch branch = repo.CreateBranch(testBranchName);
                 Assert.False(branch.IsTracking);
@@ -562,8 +558,8 @@ namespace LibGit2Sharp.Tests
             const string testBranchName = "branchToSetUpstreamInfoFor";
             const string upstreamBranchName = "refs/remotes/origin/master";
 
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoPath);
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 Branch branch = repo.CreateBranch(testBranchName);
                 Assert.False(branch.IsTracking);
@@ -594,9 +590,8 @@ namespace LibGit2Sharp.Tests
 
         private void AssertRemoval(string branchName, bool isRemote, bool shouldPreviouslyAssertExistence)
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoPath);
-
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 if (shouldPreviouslyAssertExistence)
                 {
@@ -622,9 +617,8 @@ namespace LibGit2Sharp.Tests
         [InlineData("origin/br2")]
         public void CanRemoveAnExistingBranch(string branchName)
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoPath);
-
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 Branch curBranch = repo.Branches[branchName];
 
@@ -693,8 +687,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void TwoBranchesPointingAtTheSameCommitAreNotBothCurrent()
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 Branch master = repo.Branches["refs/heads/master"];
 
@@ -706,8 +700,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanMoveABranch()
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.Null(repo.Branches["br3"]);
 
@@ -731,8 +725,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanMoveABranchWhileOverwritingAnExistingOne()
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 Branch test = repo.Branches["test"];
                 Assert.NotNull(test);
@@ -756,8 +750,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void DetachedHeadIsNotATrackingBranch()
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
-            using (var repo = new Repository(path.DirectoryPath))
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 repo.Reset(ResetOptions.Hard);
                 repo.RemoveUntrackedFiles();

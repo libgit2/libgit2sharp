@@ -18,8 +18,8 @@ namespace LibGit2Sharp.Tests
         [InlineData("new_tracked_file.txt", FileStatus.Added, true, FileStatus.Added, true, 0)]
         public void CanStage(string relativePath, FileStatus currentStatus, bool doesCurrentlyExistInTheIndex, FileStatus expectedStatusOnceStaged, bool doesExistInTheIndexOnceStaged, int expectedIndexCountVariation)
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 int count = repo.Index.Count;
                 Assert.Equal(doesCurrentlyExistInTheIndex, (repo.Index[relativePath] != null));
@@ -36,8 +36,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanStageTheUpdationOfAStagedFile()
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 int count = repo.Index.Count;
                 const string filename = "new_tracked_file.txt";
@@ -74,8 +74,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanStageTheRemovalOfAStagedFile()
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 int count = repo.Index.Count;
                 const string filename = "new_tracked_file.txt";
@@ -97,8 +97,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanStageANewFileInAPersistentManner()
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoPath);
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 const string filename = "unit_test.txt";
                 Assert.Equal(FileStatus.Nonexistent, repo.Index.RetrieveStatus(filename));
@@ -113,7 +113,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(FileStatus.Added, repo.Index.RetrieveStatus(filename));
             }
 
-            using (var repo = new Repository(path.RepositoryPath))
+            using (var repo = new Repository(path))
             {
                 const string filename = "unit_test.txt";
                 Assert.NotNull(repo.Index[filename]);
@@ -126,10 +126,10 @@ namespace LibGit2Sharp.Tests
         [InlineData(true)]
         public void CanStageANewFileWithAFullPath(bool ignorecase)
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
-            SetIgnoreCaseOrSkip(path.RepositoryPath, ignorecase);
+            string path = CloneStandardTestRepo();
+            SetIgnoreCaseOrSkip(path, ignorecase);
 
-            using (var repo = new Repository(path.RepositoryPath))
+            using (var repo = new Repository(path))
             {
                 int count = repo.Index.Count;
 
@@ -161,8 +161,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanStageANewFileWithARelativePathContainingNativeDirectorySeparatorCharacters()
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 int count = repo.Index.Count;
 
@@ -185,8 +185,8 @@ namespace LibGit2Sharp.Tests
         public void StagingANewFileWithAFullPathWhichEscapesOutOfTheWorkingDirThrows()
         {
             SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 DirectoryInfo di = Directory.CreateDirectory(scd.DirectoryPath);
 

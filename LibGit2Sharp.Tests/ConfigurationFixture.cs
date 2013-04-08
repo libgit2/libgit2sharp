@@ -10,7 +10,7 @@ namespace LibGit2Sharp.Tests
     {
         private static void AssertValueInLocalConfigFile(string repoPath, string regex)
         {
-            var configFilePath = Path.Combine(repoPath, "config");
+            var configFilePath = Path.Combine(repoPath, ".git/config");
             AssertValueInConfigFile(configFilePath, regex);
         }
 
@@ -46,8 +46,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanUnsetAnEntryFromTheLocalConfiguration()
         {
-            var path = BuildTemporaryCloneOfTestRepo(StandardTestRepoPath);
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.Null(repo.Config.Get<bool>("unittests.boolsetting"));
 
@@ -181,12 +181,12 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanSetBooleanValue()
         {
-            var path = BuildTemporaryCloneOfTestRepo(StandardTestRepoPath);
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 repo.Config.Set("unittests.boolsetting", true);
 
-                AssertValueInLocalConfigFile(path.RepositoryPath, "boolsetting = true$");
+                AssertValueInLocalConfigFile(path, "boolsetting = true$");
             }
         }
 
@@ -250,55 +250,55 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanSetIntValue()
         {
-            var path = BuildTemporaryCloneOfTestRepo(StandardTestRepoPath);
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 repo.Config.Set("unittests.intsetting", 3);
 
-                AssertValueInLocalConfigFile(path.RepositoryPath, "intsetting = 3$");
+                AssertValueInLocalConfigFile(path, "intsetting = 3$");
             }
         }
 
         [Fact]
         public void CanSetLongValue()
         {
-            var path = BuildTemporaryCloneOfTestRepo(StandardTestRepoPath);
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 repo.Config.Set("unittests.longsetting", (long)451);
 
-                AssertValueInLocalConfigFile(path.RepositoryPath, "longsetting = 451");
+                AssertValueInLocalConfigFile(path, "longsetting = 451");
             }
         }
 
         [Fact]
         public void CanSetStringValue()
         {
-            var path = BuildTemporaryCloneOfTestRepo(StandardTestRepoPath);
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 repo.Config.Set("unittests.stringsetting", "val");
 
-                AssertValueInLocalConfigFile(path.RepositoryPath, "stringsetting = val$");
+                AssertValueInLocalConfigFile(path, "stringsetting = val$");
             }
         }
 
         [Fact]
         public void CanSetAndReadUnicodeStringValue()
         {
-            var path = BuildTemporaryCloneOfTestRepo(StandardTestRepoPath);
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 repo.Config.Set("unittests.stringsetting", "Juliën");
 
-                AssertValueInLocalConfigFile(path.RepositoryPath, "stringsetting = Juliën$");
+                AssertValueInLocalConfigFile(path, "stringsetting = Juliën$");
 
                 string val = repo.Config.Get<string>("unittests.stringsetting").Value;
                 Assert.Equal("Juliën", val);
             }
 
             // Make sure the change is permanent
-            using (var repo = new Repository(path.RepositoryPath))
+            using (var repo = new Repository(path))
             {
                 string val = repo.Config.Get<string>("unittests.stringsetting").Value;
                 Assert.Equal("Juliën", val);
@@ -344,8 +344,8 @@ namespace LibGit2Sharp.Tests
 
             var options = BuildFakeConfigs(scd);
 
-            var path = BuildTemporaryCloneOfTestRepo(StandardTestRepoPath);
-            using (var repo = new Repository(path.RepositoryPath, options))
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path, options))
             {
                 Assert.True(repo.Config.HasConfig(ConfigurationLevel.Local));
                 Assert.True(repo.Config.HasConfig(ConfigurationLevel.Global));

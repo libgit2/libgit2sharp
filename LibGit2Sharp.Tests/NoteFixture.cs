@@ -100,8 +100,8 @@ namespace LibGit2Sharp.Tests
         {
             var expectedNamespaces = new[] { "Just Note, don't you understand?\n", "Nope\n", "Not Nope, Note!\n" };
 
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 var commit = repo.Lookup<Commit>("4a202b346bb0fb0db7eff3cffeb3c70babbd2045");
 
@@ -117,8 +117,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanAddANoteOnAGitObject()
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 var commit = repo.Lookup<Commit>("9fd738e8f7967c078dceed8190330fc8648ee56a");
                 var note = repo.Notes.Add(commit.Id, "I'm batman!\n", signatureNullToken, signatureYorah, "batmobile");
@@ -134,8 +134,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CreatingANoteWhichAlreadyExistsOverwritesThePreviousNote()
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 var commit = repo.Lookup<Commit>("5b5b025afb0b4c913b4c338a42934a3863bf3644");
                 Assert.NotNull(commit.Notes.FirstOrDefault(x => x.Namespace == "answer"));
@@ -153,8 +153,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCompareTwoUniqueNotes()
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 var commit = repo.Lookup<Commit>("9fd738e8f7967c078dceed8190330fc8648ee56a");
 
@@ -188,8 +188,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanRemoveANoteFromAGitObject()
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 var commit = repo.Lookup<Commit>("8496071c1b46c854b31185ea97743be6a8774479");
                 var notes = repo.Notes[commit.Id];
@@ -216,8 +216,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void RemovingANonExistingNoteDoesntThrow()
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo();
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 var commit = repo.Lookup<Commit>("5b5b025afb0b4c913b4c338a42934a3863bf3644");
 

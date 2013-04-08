@@ -10,8 +10,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void StagingHonorsTheAttributesFiles()
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 CreateAttributesFile(repo);
 

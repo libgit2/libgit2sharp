@@ -63,8 +63,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanRetrieveTheBranchBeingMerged()
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoPath);
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 const string firstBranch = "9fd738e8f7967c078dceed8190330fc8648ee56a";
                 const string secondBranch = "deadbeefdeadbeefdeadbeefdeadbeefdeadbeef";

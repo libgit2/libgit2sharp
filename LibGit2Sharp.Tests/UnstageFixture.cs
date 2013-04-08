@@ -14,8 +14,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void StagingANewVersionOfAFileThenUnstagingItRevertsTheBlobToTheVersionOfHead()
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 int count = repo.Index.Count;
 
@@ -41,8 +41,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanStageAndUnstageAnIgnoredFile()
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 string gitignorePath = Path.Combine(repo.Info.WorkingDirectory, ".gitignore");
                 File.WriteAllText(gitignorePath, "*.ign" + Environment.NewLine);
@@ -71,8 +71,8 @@ namespace LibGit2Sharp.Tests
         [InlineData("where-am-I.txt", FileStatus.Nonexistent, false, FileStatus.Nonexistent, false, 0)]
         public void CanUnStage(string relativePath, FileStatus currentStatus, bool doesCurrentlyExistInTheIndex, FileStatus expectedStatusOnceStaged, bool doesExistInTheIndexOnceStaged, int expectedIndexCountVariation)
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 int count = repo.Index.Count;
                 Assert.Equal(doesCurrentlyExistInTheIndex, (repo.Index[relativePath] != null));
@@ -89,8 +89,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanUnstageTheRemovalOfAFile()
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 int count = repo.Index.Count;
 
@@ -132,8 +132,8 @@ namespace LibGit2Sharp.Tests
         public void UnstagingANewFileWithAFullPathWhichEscapesOutOfTheWorkingDirThrows()
         {
             SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoWorkingDirPath);
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 DirectoryInfo di = Directory.CreateDirectory(scd.DirectoryPath);
 

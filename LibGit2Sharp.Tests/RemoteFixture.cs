@@ -47,9 +47,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCheckEqualityOfRemote()
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoPath);
-
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 Remote oneOrigin = repo.Network.Remotes["origin"];
                 Assert.NotNull(oneOrigin);
@@ -70,9 +69,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CreatingANewRemoteAddsADefaultRefSpec()
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoPath);
-
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 const string name = "upstream";
                 const string url = "https://github.com/libgit2/libgit2sharp.git";
@@ -94,9 +92,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanAddANewRemoteWithAFetchRefSpec()
         {
-            TemporaryCloneOfTestRepo path = BuildTemporaryCloneOfTestRepo(StandardTestRepoPath);
-
-            using (var repo = new Repository(path.RepositoryPath))
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 const string name = "pull-requests";
                 const string url = "https://github.com/libgit2/libgit2sharp.git";
