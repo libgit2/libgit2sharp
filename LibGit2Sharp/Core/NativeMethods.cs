@@ -730,6 +730,16 @@ namespace LibGit2Sharp.Core
             SafeHandle entry);
 
         [DllImport(libgit2)]
+        internal static extern int git_reflog_append(
+            ReflogSafeHandle reflog,
+            ref GitOid id,
+            SignatureSafeHandle committer,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string msg);
+
+        [DllImport(libgit2)]
+        internal static extern int git_reflog_write(ReflogSafeHandle reflog);
+
+        [DllImport(libgit2)]
         [return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8NoCleanupMarshaler))]
         internal static extern string git_reflog_entry_message(SafeHandle entry);
 

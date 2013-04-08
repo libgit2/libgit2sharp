@@ -684,7 +684,37 @@ namespace LibGit2Sharp
 
             Proxy.git_repository_merge_cleanup(handle);
 
+            // Insert reflog entry
+            LogCommit(result, amendPreviousCommit, parents.Count() == 0);
+
             return result;
+        }
+
+        private void LogCommit(Commit commit, bool amendPreviousCommit, bool isInitialCommit)
+        {
+            // Compute reflog message
+            string reflogMessage = "commit";
+            if (isInitialCommit)
+            {
+                reflogMessage += " (initial)";
+            }
+            else if(amendPreviousCommit)
+            {
+                reflogMessage += " (amend)";
+            }
+
+            reflogMessage = string.Format("{0}: {1}", reflogMessage, commit.Message);
+
+            var headRef = Refs.Head;
+
+            // in case HEAD targets a symbolic reference, log commit on the targeted direct reference
+            if(headRef is SymbolicReference)
+            {
+                Refs.Log(headRef.ResolveToDirectReference()).Append(commit.Id, commit.Committer, reflogMessage);
+            }
+
+            // Log commit on HEAD
+            Refs.Log(headRef).Append(commit.Id, commit.Committer, reflogMessage);
         }
 
         private IEnumerable<Commit> RetrieveParentsOfTheCommitBeingCreated(bool amendPreviousCommit)

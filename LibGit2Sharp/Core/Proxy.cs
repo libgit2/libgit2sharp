@@ -1317,6 +1317,21 @@ namespace LibGit2Sharp.Core
             return NativeMethods.git_reflog_entry_message(entry);
         }
 
+        public static void git_reflog_append(ReflogSafeHandle reflog, ObjectId commit_id, Signature committer, string message)
+        {
+            using (ThreadAffinity())
+            using (SignatureSafeHandle committerHandle = committer.BuildHandle())
+            {
+                var oid = commit_id.Oid;
+
+                int res = NativeMethods.git_reflog_append(reflog, ref oid, committerHandle, message);
+                Ensure.ZeroResult(res);
+
+                res = NativeMethods.git_reflog_write(reflog);
+                Ensure.ZeroResult(res);
+            }
+        }
+
         #endregion
 
         #region git_refspec
