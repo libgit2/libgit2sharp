@@ -1,8 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Compat;
 using LibGit2Sharp.Core.Handles;
+using Environment = System.Environment;
 
 namespace LibGit2Sharp
 {
@@ -16,7 +19,7 @@ namespace LibGit2Sharp
     {
         private readonly Repository repo;
 
-        private GitDiffOptions BuildOptions(DiffOptions diffOptions, IEnumerable<string> paths = null)
+        private static GitDiffOptions BuildOptions(DiffOptions diffOptions, FilePath[] filePaths = null, MatchedPathsAggregator matchedPathsAggregator = null)
         {
             var options = new GitDiffOptions();
 
@@ -30,17 +33,42 @@ namespace LibGit2Sharp
                 GitDiffOptionFlags.GIT_DIFF_INCLUDE_UNTRACKED_CONTENT;
             }
 
-            if (paths == null)
+            if (diffOptions.HasFlag(DiffOptions.IncludeIgnored))
+            {
+                options.Flags |= GitDiffOptionFlags.GIT_DIFF_INCLUDE_IGNORED;
+            }
+
+            if (diffOptions.HasFlag(DiffOptions.IncludeUnmodified))
+            {
+                options.Flags |= GitDiffOptionFlags.GIT_DIFF_INCLUDE_UNMODIFIED;
+            }
+
+            if (diffOptions.HasFlag(DiffOptions.DisablePathspecMatch))
+            {
+                options.Flags |= GitDiffOptionFlags.GIT_DIFF_DISABLE_PATHSPEC_MATCH;
+            }
+
+            if (matchedPathsAggregator != null)
+            {
+                options.NotifyCallback = matchedPathsAggregator.OnGitDiffNotify;
+            }
+
+            if (filePaths == null)
             {
                 return options;
             }
 
-            options.PathSpec = GitStrArrayIn.BuildFrom(ToFilePaths(repo, paths));
+            options.PathSpec = GitStrArrayIn.BuildFrom(filePaths);
             return options;
         }
 
         private static FilePath[] ToFilePaths(Repository repo, IEnumerable<string> paths)
         {
+            if (paths == null)
+            {
+                return null;
+            }
+
             var filePaths = new List<FilePath>();
 
             foreach (string path in paths)
@@ -78,22 +106,30 @@ namespace LibGit2Sharp
         /// <param name = "oldTree">The <see cref = "Tree"/> you want to compare from.</param>
         /// <param name = "newTree">The <see cref = "Tree"/> you want to compare to.</param>
         /// <param name = "paths">The list of paths (either files or directories) that should be compared.</param>
+        /// <param name = "explicitPathsOptions">
+        ///   If set, the passed <paramref name="paths"/> will be treated as explicit paths.
+        ///   Use these options to determine how unmatched explicit paths should be handled.
+        /// </param>
         /// <returns>A <see cref = "TreeChanges"/> containing the changes between the <paramref name = "oldTree"/> and the <paramref name = "newTree"/>.</returns>
-        public virtual TreeChanges Compare(Tree oldTree, Tree newTree, IEnumerable<string> paths = null)
+        public virtual TreeChanges Compare(Tree oldTree, Tree newTree, IEnumerable<string> paths = null, ExplicitPathsOptions explicitPathsOptions = null)
         {
-            using(GitDiffOptions options = BuildOptions(DiffOptions.None, paths))
-            using (DiffListSafeHandle diff = BuildDiffListFromTrees(
-                oldTree != null ? oldTree.Id : null,
-                newTree != null ? newTree.Id : null,
-                options))
-            {
-                return new TreeChanges(diff);
-            }
-        }
+            var comparer = TreeToTree(repo);
+            ObjectId oldTreeId = oldTree != null ? oldTree.Id : null;
+            ObjectId newTreeId = newTree != null ? newTree.Id : null;
+            var diffOptions = DiffOptions.None;
 
-        private DiffListSafeHandle BuildDiffListFromTrees(ObjectId oldTree, ObjectId newTree, GitDiffOptions options)
-        {
-            return Proxy.git_diff_tree_to_tree(repo.Handle, oldTree, newTree, options);
+            if (explicitPathsOptions != null)
+            {
+                diffOptions |= DiffOptions.DisablePathspecMatch;
+
+                if (explicitPathsOptions.ShouldFailOnUnmatchedPath ||
+                    explicitPathsOptions.OnUnmatchedPath != null)
+                {
+                    diffOptions |= DiffOptions.IncludeUnmodified;
+                }
+            }
+
+            return BuildTreeChangesFromComparer(oldTreeId, newTreeId, comparer, diffOptions, paths, explicitPathsOptions);
         }
 
         /// <summary>
@@ -128,21 +164,31 @@ namespace LibGit2Sharp
         /// <param name = "oldTree">The <see cref = "Tree"/> to compare from.</param>
         /// <param name = "diffTargets">The targets to compare to.</param>
         /// <param name = "paths">The list of paths (either files or directories) that should be compared.</param>
+        /// <param name = "explicitPathsOptions">
+        ///   If set, the passed <paramref name="paths"/> will be treated as explicit paths.
+        ///   Use these options to determine how unmatched explicit paths should be handled.
+        /// </param>
         /// <returns>A <see cref = "TreeChanges"/> containing the changes between the <see cref="Tree"/> and the selected target.</returns>
-        public virtual TreeChanges Compare(Tree oldTree, DiffTargets diffTargets, IEnumerable<string> paths = null)
+        public virtual TreeChanges Compare(Tree oldTree, DiffTargets diffTargets, IEnumerable<string> paths = null, ExplicitPathsOptions explicitPathsOptions = null)
         {
             var comparer = handleRetrieverDispatcher[diffTargets](repo);
+            ObjectId oldTreeId = oldTree != null ? oldTree.Id : null;
 
             DiffOptions diffOptions = diffTargets.HasFlag(DiffTargets.WorkingDirectory) ?
                 DiffOptions.IncludeUntracked : DiffOptions.None;
 
-            using (GitDiffOptions options = BuildOptions(diffOptions, paths))
-            using (DiffListSafeHandle dl = BuildDiffListFromTreeAndComparer(
-                oldTree != null ? oldTree.Id : null,
-                comparer, options))
+            if (explicitPathsOptions != null)
             {
-                return new TreeChanges(dl);
+                diffOptions |= DiffOptions.DisablePathspecMatch;
+
+                if (explicitPathsOptions.ShouldFailOnUnmatchedPath ||
+                    explicitPathsOptions.OnUnmatchedPath != null)
+                {
+                    diffOptions |= DiffOptions.IncludeUnmodified;
+                }
             }
+
+            return BuildTreeChangesFromComparer(oldTreeId, null, comparer, diffOptions, paths, explicitPathsOptions);
         }
 
         /// <summary>
@@ -150,39 +196,61 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name = "paths">The list of paths (either files or directories) that should be compared.</param>
         /// <param name = "includeUntracked">If true, include untracked files from the working dir as additions. Otherwise ignore them.</param>
+        /// <param name = "explicitPathsOptions">
+        ///   If set, the passed <paramref name="paths"/> will be treated as explicit paths.
+        ///   Use these options to determine how unmatched explicit paths should be handled.
+        /// </param>
         /// <returns>A <see cref = "TreeChanges"/> containing the changes between the working directory and the index.</returns>
-        public virtual TreeChanges Compare(IEnumerable<string> paths = null, bool includeUntracked = false)
+        public virtual TreeChanges Compare(IEnumerable<string> paths = null, bool includeUntracked = false, ExplicitPathsOptions explicitPathsOptions = null)
+        {
+            return Compare(includeUntracked ? DiffOptions.IncludeUntracked : DiffOptions.None, paths, explicitPathsOptions);
+        }
+
+        internal virtual TreeChanges Compare(DiffOptions diffOptions, IEnumerable<string> paths = null,
+                                             ExplicitPathsOptions explicitPathsOptions = null)
         {
             var comparer = WorkdirToIndex(repo);
 
-            using (GitDiffOptions options = BuildOptions(includeUntracked ? DiffOptions.IncludeUntracked : DiffOptions.None, paths))
-            using (DiffListSafeHandle dl = BuildDiffListFromComparer(null, comparer, options))
+            if (explicitPathsOptions != null)
             {
-                return new TreeChanges(dl);
+                diffOptions |= DiffOptions.DisablePathspecMatch;
+
+                if (explicitPathsOptions.ShouldFailOnUnmatchedPath ||
+                    explicitPathsOptions.OnUnmatchedPath != null)
+                {
+                    diffOptions |= DiffOptions.IncludeUnmodified;
+                }
             }
+
+            return BuildTreeChangesFromComparer(null, null, comparer, diffOptions, paths, explicitPathsOptions);
         }
 
-        private delegate DiffListSafeHandle TreeComparisonHandleRetriever(ObjectId id, GitDiffOptions options);
+        private delegate DiffListSafeHandle TreeComparisonHandleRetriever(ObjectId oldTreeId, ObjectId newTreeId, GitDiffOptions options);
+
+        private static TreeComparisonHandleRetriever TreeToTree(Repository repo)
+        {
+            return (oh, nh, o) => Proxy.git_diff_tree_to_tree(repo.Handle, oh, nh, o);
+        }
 
         private static TreeComparisonHandleRetriever WorkdirToIndex(Repository repo)
         {
-            return (h, o) => Proxy.git_diff_index_to_workdir(repo.Handle, repo.Index.Handle, o);
+            return (oh, nh, o) => Proxy.git_diff_index_to_workdir(repo.Handle, repo.Index.Handle, o);
         }
 
         private static TreeComparisonHandleRetriever WorkdirToTree(Repository repo)
         {
-            return (h, o) => Proxy.git_diff_tree_to_workdir(repo.Handle, h, o);
+            return (oh, nh, o) => Proxy.git_diff_tree_to_workdir(repo.Handle, oh, o);
         }
 
         private static TreeComparisonHandleRetriever WorkdirAndIndexToTree(Repository repo)
         {
-            TreeComparisonHandleRetriever comparisonHandleRetriever = (h, o) =>
+            TreeComparisonHandleRetriever comparisonHandleRetriever = (oh, nh, o) =>
             {
                 DiffListSafeHandle diff = null, diff2 = null;
 
                 try
                 {
-                    diff = Proxy.git_diff_tree_to_index(repo.Handle, repo.Index.Handle, h, o);
+                    diff = Proxy.git_diff_tree_to_index(repo.Handle, repo.Index.Handle, oh, o);
                     diff2 = Proxy.git_diff_index_to_workdir(repo.Handle, repo.Index.Handle, o);
                     Proxy.git_diff_merge(diff, diff2);
                 }
@@ -204,17 +272,57 @@ namespace LibGit2Sharp
 
         private static TreeComparisonHandleRetriever IndexToTree(Repository repo)
         {
-            return (h, o) => Proxy.git_diff_tree_to_index(repo.Handle, repo.Index.Handle, h, o);
+            return (oh, nh, o) => Proxy.git_diff_tree_to_index(repo.Handle, repo.Index.Handle, oh, o);
         }
 
-        private static DiffListSafeHandle BuildDiffListFromTreeAndComparer(ObjectId treeId, TreeComparisonHandleRetriever comparisonHandleRetriever, GitDiffOptions options)
+        private TreeChanges BuildTreeChangesFromComparer(
+            ObjectId oldTreeId, ObjectId newTreeId, TreeComparisonHandleRetriever comparisonHandleRetriever,
+            DiffOptions diffOptions, IEnumerable<string> paths = null, ExplicitPathsOptions explicitPathsOptions = null)
         {
-            return BuildDiffListFromComparer(treeId, comparisonHandleRetriever, options);
+            var matchedPaths = new MatchedPathsAggregator();
+            var filePaths = ToFilePaths(repo, paths);
+
+            using (GitDiffOptions options = BuildOptions(diffOptions, filePaths, matchedPaths))
+            using (DiffListSafeHandle diffList = comparisonHandleRetriever(oldTreeId, newTreeId, options))
+            {
+                if (explicitPathsOptions != null)
+                {
+                    DispatchUnmatchedPaths(explicitPathsOptions, filePaths, matchedPaths);
+                }
+
+                return new TreeChanges(diffList);
+            }
         }
 
-        private static DiffListSafeHandle BuildDiffListFromComparer(ObjectId treeId, TreeComparisonHandleRetriever comparisonHandleRetriever, GitDiffOptions options)
+        private static void DispatchUnmatchedPaths(ExplicitPathsOptions explicitPathsOptions,
+                                                       IEnumerable<FilePath> filePaths,
+                                                       IEnumerable<FilePath> matchedPaths)
         {
-            return comparisonHandleRetriever(treeId, options);
+            List<FilePath> unmatchedPaths = (filePaths != null ?
+                filePaths.Except(matchedPaths) : Enumerable.Empty<FilePath>()).ToList();
+
+            if (!unmatchedPaths.Any())
+            {
+                return;
+            }
+
+            if (explicitPathsOptions.OnUnmatchedPath != null)
+            {
+                unmatchedPaths.ForEach(filePath => explicitPathsOptions.OnUnmatchedPath(filePath.Native));
+            }
+
+            if (explicitPathsOptions.ShouldFailOnUnmatchedPath)
+            {
+                throw new UnmatchedPathException(BuildUnmatchedPathsMessage(unmatchedPaths));
+            }
+        }
+
+        private static string BuildUnmatchedPathsMessage(List<FilePath> unmatchedPaths)
+        {
+            var message = new StringBuilder("There were some unmatched paths:" + Environment.NewLine);
+            unmatchedPaths.ForEach(filePath => message.AppendFormat("- {0}{1}", filePath.Native, Environment.NewLine));
+
+            return message.ToString();
         }
     }
 }

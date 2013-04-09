@@ -128,51 +128,51 @@ namespace LibGit2Sharp
         ///   Promotes to the staging area the latest modifications of a file in the working directory (addition, updation or removal).
         /// </summary>
         /// <param name = "path">The path of the file within the working directory.</param>
-        public virtual void Stage(string path)
+        /// <param name = "explicitPathsOptions">
+        ///   If set, the passed <paramref name="path"/> will be treated as explicit paths.
+        ///   Use these options to determine how unmatched explicit paths should be handled.
+        /// </param>
+        public virtual void Stage(string path, ExplicitPathsOptions explicitPathsOptions = null)
         {
             Ensure.ArgumentNotNull(path, "path");
 
-            Stage(new[] { path });
+            Stage(new[] { path }, explicitPathsOptions);
         }
 
         /// <summary>
         ///   Promotes to the staging area the latest modifications of a collection of files in the working directory (addition, updation or removal).
         /// </summary>
         /// <param name = "paths">The collection of paths of the files within the working directory.</param>
-        public virtual void Stage(IEnumerable<string> paths)
+        /// <param name = "explicitPathsOptions">
+        ///   If set, the passed <paramref name="paths"/> will be treated as explicit paths.
+        ///   Use these options to determine how unmatched explicit paths should be handled.
+        /// </param>
+        public virtual void Stage(IEnumerable<string> paths, ExplicitPathsOptions explicitPathsOptions = null)
         {
-            //TODO: Stage() should support following use cases:
-            // - Recursively staging the content of a directory
+            Ensure.ArgumentNotNull(paths, "paths");
 
-            IEnumerable<KeyValuePair<string, FileStatus>> batch = PrepareBatch(paths);
+            TreeChanges changes = repo.Diff.Compare(DiffOptions.IncludeUntracked | DiffOptions.IncludeIgnored, paths, explicitPathsOptions);
 
-            foreach (KeyValuePair<string, FileStatus> kvp in batch)
+            foreach (var treeEntryChanges in changes)
             {
-                if (Directory.Exists(kvp.Key))
+                switch (treeEntryChanges.Status)
                 {
-                    throw new NotImplementedException();
-                }
+                    case ChangeKind.Unmodified:
+                        continue;
 
-                if (!kvp.Value.HasFlag(FileStatus.Nonexistent))
-                {
-                    continue;
-                }
+                    case ChangeKind.Deleted:
+                        RemoveFromIndex(treeEntryChanges.Path);
+                        continue;
 
-                throw new LibGit2SharpException(string.Format(CultureInfo.InvariantCulture, "Can not stage '{0}'. The file does not exist.", kvp.Key));
-            }
+                    case ChangeKind.Added:
+                        /* Fall through */
+                    case ChangeKind.Modified:
+                        AddToIndex(treeEntryChanges.Path);
+                        continue;
 
-            foreach (KeyValuePair<string, FileStatus> kvp in batch)
-            {
-                string relativePath = kvp.Key;
-                FileStatus fileStatus = kvp.Value;
-
-                if (fileStatus.HasFlag(FileStatus.Missing))
-                {
-                    RemoveFromIndex(relativePath);
-                }
-                else
-                {
-                    AddToIndex(relativePath);
+                    default:
+                        throw new InvalidOperationException(
+                            string.Format(CultureInfo.InvariantCulture, "Entry '{0}' bears an unexpected ChangeKind '{1}'", treeEntryChanges.Path, treeEntryChanges.Status));
                 }
             }
 
@@ -183,30 +183,38 @@ namespace LibGit2Sharp
         ///   Removes from the staging area all the modifications of a file since the latest commit (addition, updation or removal).
         /// </summary>
         /// <param name = "path">The path of the file within the working directory.</param>
-        public virtual void Unstage(string path)
+        /// <param name = "explicitPathsOptions">
+        ///   If set, the passed <paramref name="path"/> will be treated as explicit paths.
+        ///   Use these options to determine how unmatched explicit paths should be handled.
+        /// </param>
+        public virtual void Unstage(string path, ExplicitPathsOptions explicitPathsOptions = null)
         {
             Ensure.ArgumentNotNull(path, "path");
 
-            Unstage(new[] { path });
+            Unstage(new[] { path }, explicitPathsOptions);
         }
 
         /// <summary>
         ///   Removes from the staging area all the modifications of a collection of file since the latest commit (addition, updation or removal).
         /// </summary>
         /// <param name = "paths">The collection of paths of the files within the working directory.</param>
-        public virtual void Unstage(IEnumerable<string> paths)
+        /// <param name = "explicitPathsOptions">
+        ///   If set, the passed <paramref name="paths"/> will be treated as explicit paths.
+        ///   Use these options to determine how unmatched explicit paths should be handled.
+        /// </param>
+        public virtual void Unstage(IEnumerable<string> paths, ExplicitPathsOptions explicitPathsOptions = null)
         {
             Ensure.ArgumentNotNull(paths, "paths");
 
             if (repo.Info.IsHeadOrphaned)
             {
-                TreeChanges changes = repo.Diff.Compare(null, DiffTargets.Index, paths);
+                TreeChanges changes = repo.Diff.Compare(null, DiffTargets.Index, paths, explicitPathsOptions);
 
                 Reset(changes);
             }
             else
             {
-                repo.Reset("HEAD", paths);
+                repo.Reset("HEAD", paths, explicitPathsOptions);
             }
         }
 
@@ -449,6 +457,9 @@ namespace LibGit2Sharp
             {
                 switch (treeEntryChanges.Status)
                 {
+                    case ChangeKind.Unmodified:
+                        continue;
+
                     case ChangeKind.Added:
                         RemoveFromIndex(treeEntryChanges.Path);
                         continue;

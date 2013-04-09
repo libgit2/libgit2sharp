@@ -12,12 +12,29 @@ namespace LibGit2Sharp
         /// <summary>
         ///   No special behavior.
         /// </summary>
-        None,
+        None = 0,
 
         /// <summary>
         ///   Include untracked files among the files to be processed, when
         ///   diffing against the working directory.
         /// </summary>
-        IncludeUntracked,
+        IncludeUntracked = (1 << 1),
+
+        /// <summary>
+        ///   Include unmodified files among the files to be processed, when
+        ///   diffing against the working directory.
+        /// </summary>
+        IncludeUnmodified = (1 << 2),
+
+        /// <summary>
+        ///   Treats the passed pathspecs as explicit paths (no pathspec match).
+        /// </summary>
+        DisablePathspecMatch = (1 << 3),
+
+        /// <summary>
+        ///   Include ignored files among the files to be processed, when
+        ///   diffing against the working directory.
+        /// </summary>
+        IncludeIgnored = (1 << 4),
     }
 }

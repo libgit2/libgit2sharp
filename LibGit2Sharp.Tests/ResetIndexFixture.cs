@@ -124,15 +124,26 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
-        public void CanResetTheIndexToASubsetOfTheContentOfACommitWithCommitAsArgument()
+        public void CanResetTheIndexToASubsetOfTheContentOfACommitWithCommitAsArgumentAndLaxUnmatchedExplicitPathsValidation()
         {
             string path = CloneStandardTestRepo();
             using (var repo = new Repository(path))
             {
-                repo.Reset(repo.Lookup<Commit>("5b5b025"), new[] { "new.txt" });
+                repo.Reset(repo.Lookup<Commit>("5b5b025"), new[] { "new.txt", "non-existent-path-28.txt" },
+                    new ExplicitPathsOptions { ShouldFailOnUnmatchedPath = false });
 
                 Assert.Equal("a8233120f6ad708f843d861ce2b7228ec4e3dec6", repo.Index["README"].Id.Sha);
                 Assert.Equal("fa49b077972391ad58037050f2a75f74e3671e92", repo.Index["new.txt"].Id.Sha);
+            }
+        }
+
+        [Fact]
+        public void ResettingTheIndexToASubsetOfTheContentOfACommitWithCommitAsArgumentAndStrictUnmatchedPathspecsValidationThrows()
+        {
+            using (var repo = new Repository(CloneStandardTestRepo()))
+            {
+                Assert.Throws<UnmatchedPathException>(() =>
+                    repo.Reset(repo.Lookup<Commit>("5b5b025"), new[] { "new.txt", "non-existent-path-28.txt" }, new ExplicitPathsOptions()));
             }
         }
     }
