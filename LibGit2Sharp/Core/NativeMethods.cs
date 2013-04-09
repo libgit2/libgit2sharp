@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
@@ -703,7 +703,7 @@ namespace LibGit2Sharp.Core
         internal static extern int git_refspec_rtransform(
             byte[] target,
             UIntPtr outlen,
-            GitFetchSpecHandle refSpec,
+            GitRefSpecHandle refSpec,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string name);
 
         [DllImport(libgit2)]
@@ -744,7 +744,7 @@ namespace LibGit2Sharp.Core
         internal static extern int git_remote_ls(RemoteSafeHandle remote, git_headlist_cb headlist_cb, IntPtr payload);
 
         [DllImport(libgit2)]
-        internal static extern GitFetchSpecHandle git_remote_fetchspec(RemoteSafeHandle remote);
+        internal static extern GitRefSpecHandle git_remote_fetchspec(RemoteSafeHandle remote);
 
         [DllImport(libgit2)]
         [return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8NoCleanupMarshaler))]

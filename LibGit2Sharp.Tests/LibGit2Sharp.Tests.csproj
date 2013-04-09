@@ -60,6 +60,7 @@
   <ItemGroup>
     <Compile Include="CheckoutFixture.cs" />
     <Compile Include="RemoteFixture.cs" />
+    <Compile Include="PushFixture.cs" />
     <Compile Include="StageFixture.cs" />
     <Compile Include="StashFixture.cs" />
     <Compile Include="CloneFixture.cs" />

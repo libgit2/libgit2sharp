@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -1269,7 +1269,7 @@ namespace LibGit2Sharp.Core
 
         #region git_refspec
 
-        public static string git_fetchspec_rtransform(GitFetchSpecHandle refSpecPtr, string name)
+        public static string git_refspec_rtransform(GitRefSpecHandle refSpecPtr, string name)
         {
             using (ThreadAffinity())
             {
@@ -1318,7 +1318,7 @@ namespace LibGit2Sharp.Core
             }
         }
 
-        public static GitFetchSpecHandle git_remote_fetchspec(RemoteSafeHandle remote)
+        public static GitRefSpecHandle git_remote_fetchspec(RemoteSafeHandle remote)
         {
             return NativeMethods.git_remote_fetchspec(remote);
         }

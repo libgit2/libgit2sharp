@@ -259,12 +259,13 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
-        public void RemoteForNonTrackingBranchIsNull()
+        public void RemoteAndUpstreamBranchCanonicalNameForNonTrackingBranchIsNull()
         {
             using (var repo = new Repository(StandardTestRepoPath))
             {
                 Branch test = repo.Branches["i-do-numbers"];
                 Assert.Null(test.Remote);
+                Assert.Null(test.UpstreamBranchCanonicalName);
             }
         }
 
@@ -276,6 +277,16 @@ namespace LibGit2Sharp.Tests
             {
                 Branch trackLocal = repo.Branches["track-local"];
                 Assert.Null(trackLocal.Remote);
+            }
+        }
+
+        [Fact]
+        public void QueryUpstreamBranchCanonicalNameForLocalTrackingBranch()
+        {
+            using (var repo = new Repository(StandardTestRepoPath))
+            {
+                Branch trackLocal = repo.Branches["track-local"];
+                Assert.Equal("refs/heads/master", trackLocal.UpstreamBranchCanonicalName);
             }
         }
 
@@ -454,10 +465,10 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
-        public void CanSetUpstreamBranch()
+        public void CanSetTrackedBranch()
         {
             const string testBranchName = "branchToSetUpstreamInfoFor";
-            const string upstreamBranchName = "refs/remotes/origin/master";
+            const string trackedBranchName = "refs/remotes/origin/master";
 
             string path = CloneStandardTestRepo();
             using (var repo = new Repository(path))
@@ -465,9 +476,9 @@ namespace LibGit2Sharp.Tests
                 Branch branch = repo.CreateBranch(testBranchName);
                 Assert.False(branch.IsTracking);
 
-                Branch upstreamBranch = repo.Branches[upstreamBranchName];
+                Branch trackedBranch = repo.Branches[trackedBranchName];
                 repo.Branches.Update(branch,
-                    b => b.Upstream = upstreamBranch.CanonicalName);
+                    b => b.TrackedBranch = trackedBranch.CanonicalName);
 
                 // Verify the immutability of the branch.
                 Assert.False(branch.IsTracking);
@@ -479,18 +490,18 @@ namespace LibGit2Sharp.Tests
                 Assert.NotNull(upstreamRemote);
 
                 Assert.True(branch.IsTracking);
-                Assert.Equal(upstreamBranch, branch.TrackedBranch);
+                Assert.Equal(trackedBranch, branch.TrackedBranch);
                 Assert.Equal(upstreamRemote, branch.Remote);
             }
         }
 
         [Fact]
-        public void CanSetUpstreamMergeBranch()
+        public void CanSetUpstreamBranch()
         {
             const string testBranchName = "branchToSetUpstreamInfoFor";
-            const string mergeBranchName = "refs/heads/master";
-            const string upstreamBranchName = "refs/remotes/origin/master";
-            const string upstreamRemoteName = "origin";
+            const string upstreamBranchName = "refs/heads/master";
+            const string trackedBranchName = "refs/remotes/origin/master";
+            const string remoteName = "origin";
 
             string path = CloneStandardTestRepo();
             using (var repo = new Repository(path))
@@ -498,28 +509,29 @@ namespace LibGit2Sharp.Tests
                 Branch branch = repo.CreateBranch(testBranchName);
                 Assert.False(branch.IsTracking);
 
-                Branch upstreamBranch = repo.Branches[upstreamBranchName];
+                Branch trackedBranch = repo.Branches[trackedBranchName];
                 Branch updatedBranch = repo.Branches.Update(branch,
-                    b => b.UpstreamRemote = upstreamRemoteName,
-                    b => b.UpstreamMergeBranch =  mergeBranchName);
+                    b => b.Remote = remoteName,
+                    b => b.UpstreamBranch =  upstreamBranchName);
 
                 // Verify the immutability of the branch.
                 Assert.False(branch.IsTracking);
 
-                Remote upstreamRemote = repo.Network.Remotes[upstreamRemoteName];
+                Remote upstreamRemote = repo.Network.Remotes[remoteName];
                 Assert.NotNull(upstreamRemote);
 
                 Assert.True(updatedBranch.IsTracking);
-                Assert.Equal(upstreamBranch, updatedBranch.TrackedBranch);
+                Assert.Equal(trackedBranch, updatedBranch.TrackedBranch);
+                Assert.Equal(upstreamBranchName, updatedBranch.UpstreamBranchCanonicalName);
                 Assert.Equal(upstreamRemote, updatedBranch.Remote);
             }
         }
 
         [Fact]
-        public void CanSetLocalUpstreamBranch()
+        public void CanSetLocalTrackedBranch()
         {
             const string testBranchName = "branchToSetUpstreamInfoFor";
-            const string upstreamBranchName = "refs/heads/master";
+            const string localTrackedBranchName = "refs/heads/master";
 
             string path = CloneStandardTestRepo();
             using (var repo = new Repository(path))
@@ -527,10 +539,10 @@ namespace LibGit2Sharp.Tests
                 Branch branch = repo.CreateBranch(testBranchName);
                 Assert.False(branch.IsTracking);
 
-                Branch upstreamBranch = repo.Branches[upstreamBranchName];
+                Branch trackedBranch = repo.Branches[localTrackedBranchName];
 
                 repo.Branches.Update(branch,
-                    b => b.Upstream = upstreamBranch.CanonicalName);
+                    b => b.TrackedBranch = trackedBranch.CanonicalName);
 
                 // Get the updated branch information.
                 branch = repo.Branches[testBranchName];
@@ -548,15 +560,16 @@ namespace LibGit2Sharp.Tests
 
                 // Verify the IsTracking and TrackedBranch properties.
                 Assert.True(branch.IsTracking);
-                Assert.Equal(upstreamBranch, branch.TrackedBranch);
+                Assert.Equal(trackedBranch, branch.TrackedBranch);
+                Assert.Equal("refs/heads/master", branch.UpstreamBranchCanonicalName);
             }
         }
 
         [Fact]
-        public void CanUnsetUpstreamBranch()
+        public void CanUnsetTrackedBranch()
         {
             const string testBranchName = "branchToSetUpstreamInfoFor";
-            const string upstreamBranchName = "refs/remotes/origin/master";
+            const string trackedBranchName = "refs/remotes/origin/master";
 
             string path = CloneStandardTestRepo();
             using (var repo = new Repository(path))
@@ -565,16 +578,18 @@ namespace LibGit2Sharp.Tests
                 Assert.False(branch.IsTracking);
 
                 branch = repo.Branches.Update(branch,
-                    b => b.Upstream = upstreamBranchName);
+                    b => b.TrackedBranch = trackedBranchName);
 
                 // Got the updated branch from the Update() method
                 Assert.True(branch.IsTracking);
 
                 branch = repo.Branches.Update(branch,
-                    b => b.Upstream = null);
+                    b => b.TrackedBranch = null);
 
                 // Verify this is no longer a tracking branch
                 Assert.False(branch.IsTracking);
+                Assert.Null(branch.Remote);
+                Assert.Null(branch.UpstreamBranchCanonicalName);
             }
         }
 

@@ -74,6 +74,20 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        ///   Transform a reference to its source reference using the <see cref = "Remote" />'s default fetchspec.
+        /// </summary>
+        /// <param name="reference">The reference to transform.</param>
+        /// <returns>The transformed reference.</returns>
+        internal string FetchSpecTransformToSource(string reference)
+        {
+            using (RemoteSafeHandle remoteHandle = Proxy.git_remote_load(repository.Handle, Name, true))
+            {
+                GitRefSpecHandle fetchSpecPtr = Proxy.git_remote_fetchspec(remoteHandle);
+                return Proxy.git_refspec_rtransform(fetchSpecPtr, reference);
+            }
+        }
+
+        /// <summary>
         ///   Determines whether the specified <see cref = "Object" /> is equal to the current <see cref = "Remote" />.
         /// </summary>
         /// <param name = "obj">The <see cref = "Object" /> to compare with the current <see cref = "Remote" />.</param>
