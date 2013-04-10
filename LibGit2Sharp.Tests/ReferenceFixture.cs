@@ -686,6 +686,21 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        [Fact]
+        public void CanUpdateTheTargetOfASymbolicReferenceWithAnotherSymbolicReference()
+        {
+            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+
+            using (var repo = Repository.Init(scd.DirectoryPath))
+            {
+                Reference symbolicRef = repo.Refs.Add("refs/heads/unit_test", "refs/heads/master");
+
+                Reference newHead = repo.Refs.UpdateTarget(repo.Refs.Head, symbolicRef);
+                Assert.IsType<SymbolicReference>(newHead);
+                Assert.Equal(symbolicRef.CanonicalName, newHead.TargetIdentifier);
+            }
+        }
+
         private static T[] SortedRefs<T>(IRepository repo, Func<Reference, T> selector)
         {
             return repo.Refs.OrderBy(r => r.CanonicalName, StringComparer.Ordinal).Select(selector).ToArray();
