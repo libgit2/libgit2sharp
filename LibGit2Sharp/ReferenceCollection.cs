@@ -191,6 +191,11 @@ namespace LibGit2Sharp
                     return Add("HEAD", target as DirectReference, true);
                 }
 
+                if (target is SymbolicReference)
+                {
+                    return Add("HEAD", target as SymbolicReference, true);
+                }
+
                 throw new ArgumentException(string.Format(CultureInfo.InvariantCulture,
                     "'{0}' is not a valid target type.", typeof(T)));
             }
