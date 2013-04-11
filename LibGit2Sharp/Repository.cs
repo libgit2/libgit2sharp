@@ -674,7 +674,7 @@ namespace LibGit2Sharp
 
             if (amendPreviousCommit && isHeadOrphaned)
             {
-                throw new LibGit2SharpException("Can not amend anything. The Head doesn't point at any commit.");
+                throw new OrphanedHeadException("Can not amend anything. The Head doesn't point at any commit.");
             }
 
             var treeId = Proxy.git_tree_create_fromindex(Index);

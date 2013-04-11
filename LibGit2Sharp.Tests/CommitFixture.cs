@@ -783,7 +783,7 @@ namespace LibGit2Sharp.Tests
 
             using (Repository repo = Repository.Init(scd.DirectoryPath))
             {
-                Assert.Throws<LibGit2SharpException>(() => repo.Commit("I can not amend anything !:(", DummySignature, DummySignature, true));
+                Assert.Throws<OrphanedHeadException>(() => repo.Commit("I can not amend anything !:(", DummySignature, DummySignature, true));
             }
         }
 
