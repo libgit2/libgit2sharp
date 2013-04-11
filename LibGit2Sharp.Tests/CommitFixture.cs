@@ -623,13 +623,18 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(0, commit.Parents.Count());
                 Assert.False(repo.Info.IsHeadOrphaned);
 
-                // Assert a reflog entry is created
+                // Assert a reflog entry is created on HEAD
                 Assert.Equal(1, repo.Refs.Log("HEAD").Count());
                 var reflogEntry = repo.Refs.Log("HEAD").First();
                 Assert.Equal(author, reflogEntry.Commiter);
                 Assert.Equal(commit.Id, reflogEntry.To);
                 Assert.Equal(ObjectId.Zero, reflogEntry.From);
                 Assert.Equal(string.Format("commit (initial): {0}", commitMessage), reflogEntry.Message);
+
+                // Assert a reflog entry is created on HEAD target
+                var targetCanonicalName = repo.Refs.Head.TargetIdentifier;
+                Assert.Equal(1, repo.Refs.Log(targetCanonicalName).Count());
+                Assert.Equal(commit.Id, repo.Refs.Log(targetCanonicalName).First().To);
 
                 File.WriteAllText(filePath, "nulltoken commits!\n");
                 repo.Index.Stage(relativeFilepath);
