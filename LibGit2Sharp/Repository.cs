@@ -670,9 +670,11 @@ namespace LibGit2Sharp
         /// <returns>The generated <see cref = "Commit" />.</returns>
         public Commit Commit(string message, Signature author, Signature committer, bool amendPreviousCommit = false)
         {
-            if (amendPreviousCommit && Info.IsHeadOrphaned)
+            bool isHeadOrphaned = Info.IsHeadOrphaned;
+
+            if (amendPreviousCommit && isHeadOrphaned)
             {
-                throw new LibGit2SharpException("Can not amend anything. The Head doesn't point at any commit.");
+                throw new OrphanedHeadException("Can not amend anything. The Head doesn't point at any commit.");
             }
 
             var treeId = Proxy.git_tree_create_fromindex(Index);
@@ -685,16 +687,16 @@ namespace LibGit2Sharp
             Proxy.git_repository_merge_cleanup(handle);
 
             // Insert reflog entry
-            LogCommit(result, amendPreviousCommit, parents.Count() == 0);
+            LogCommit(result, amendPreviousCommit, isHeadOrphaned);
 
             return result;
         }
 
-        private void LogCommit(Commit commit, bool amendPreviousCommit, bool isInitialCommit)
+        private void LogCommit(Commit commit, bool amendPreviousCommit, bool isHeadOrphaned)
         {
             // Compute reflog message
             string reflogMessage = "commit";
-            if (isInitialCommit)
+            if (isHeadOrphaned)
             {
                 reflogMessage += " (initial)";
             }

@@ -102,5 +102,36 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(string.Format("commit (initial): {0}", commitMessage), repo.Refs.Log("HEAD").First().Message);
             }
         }
+
+        [Fact]
+        public void CommitOnDetachedHeadShouldInsertReflogEntry()
+        {
+            string repoPath = CloneStandardTestRepo();
+
+            using (var repo = new Repository(repoPath))
+            {
+                Assert.False(repo.Info.IsHeadDetached);
+
+                var parentCommit = repo.Head.Tip.Parents.First();
+                repo.Checkout(parentCommit.Sha);
+                Assert.True(repo.Info.IsHeadDetached);
+
+                const string relativeFilepath = "new.txt";
+                string filePath = Path.Combine(repo.Info.WorkingDirectory, relativeFilepath);
+
+                File.WriteAllText(filePath, "content\n");
+                repo.Index.Stage(relativeFilepath);
+
+                var author = DummySignature;
+                const string commitMessage = "Commit on detached head";
+                var commit = repo.Commit(commitMessage, author, author);
+
+                // Assert a reflog entry is created on HEAD
+                var reflogEntry = repo.Refs.Log("HEAD").First();
+                Assert.Equal(author, reflogEntry.Commiter);
+                Assert.Equal(commit.Id, reflogEntry.To);
+                Assert.Equal(string.Format("commit: {0}", commitMessage), repo.Refs.Log("HEAD").First().Message);
+            }
+        }
     }
 }
