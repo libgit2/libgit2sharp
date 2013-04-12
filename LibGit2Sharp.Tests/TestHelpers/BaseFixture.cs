@@ -27,6 +27,8 @@ namespace LibGit2Sharp.Tests.TestHelpers
 
         public static readonly Signature DummySignature = new Signature("Author N. Ame", "him@there.com", TruncateSubSeconds(DateTimeOffset.Now));
 
+        public static bool IsFileSystemCaseSensitive { get; private set; }
+
         protected static DateTimeOffset TruncateSubSeconds(DateTimeOffset dto)
         {
             int seconds = dto.ToSecondsSinceEpoch();
@@ -35,6 +37,8 @@ namespace LibGit2Sharp.Tests.TestHelpers
 
         private static void SetUpTestEnvironment()
         {
+            IsFileSystemCaseSensitive = IsFileSystemCaseSensitiveInternal();
+
             var source = new DirectoryInfo(@"../../Resources");
             ResourcesDirectory = new DirectoryInfo(string.Format(@"Resources/{0}", Guid.NewGuid()));
             var parent = new DirectoryInfo(@"Resources");
@@ -52,6 +56,23 @@ namespace LibGit2Sharp.Tests.TestHelpers
             StandardTestRepoPath = Path.Combine(StandardTestRepoWorkingDirPath, ".git");
             MergedTestRepoWorkingDirPath = Path.Combine(ResourcesDirectory.FullName, "mergedrepo_wd");
             SubmoduleTestRepoWorkingDirPath = Path.Combine(ResourcesDirectory.FullName, "submodule_wd");
+        }
+
+        private static bool IsFileSystemCaseSensitiveInternal()
+        {
+            var mixedPath = Path.Combine(Constants.TemporaryReposPath, "mIxEdCase");
+
+            if (Directory.Exists(mixedPath))
+            {
+                Directory.Delete(mixedPath);
+            }
+
+            Directory.CreateDirectory(mixedPath);
+            bool isInsensitive = Directory.Exists(mixedPath.ToLowerInvariant());
+
+            Directory.Delete(mixedPath);
+
+            return !isInsensitive;
         }
 
         protected void CreateCorruptedDeadBeefHead(string repoPath)
