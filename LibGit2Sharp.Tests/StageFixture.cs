@@ -158,13 +158,18 @@ namespace LibGit2Sharp.Tests
         [InlineData(true)]
         public void CanStageANewFileWithAFullPath(bool ignorecase)
         {
+            InconclusiveIf(() => IsFileSystemCaseSensitive && ignorecase,
+                "Skipping 'ignorecase = true' test on case-sensitive file system.");
+
             string path = CloneStandardTestRepo();
-            SetIgnoreCaseOrSkip(path, ignorecase);
 
             using (var repo = new Repository(path))
             {
-                int count = repo.Index.Count;
+                repo.Config.Set("core.ignorecase", ignorecase);
+            }
 
+            using (var repo = new Repository(path))
+            {
                 const string filename = "new_untracked_file.txt";
                 string fullPath = Path.Combine(repo.Info.WorkingDirectory, filename);
                 Assert.True(File.Exists(fullPath));

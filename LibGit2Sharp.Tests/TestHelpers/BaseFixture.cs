@@ -149,7 +149,7 @@ namespace LibGit2Sharp.Tests.TestHelpers
             }
         }
 
-        protected void InconclusiveIf(Func<bool> predicate, string message)
+        protected static void InconclusiveIf(Func<bool> predicate, string message)
         {
             if (!predicate())
             {
@@ -164,18 +164,6 @@ namespace LibGit2Sharp.Tests.TestHelpers
             var text = File.ReadAllText(configFilePath);
             var r = new Regex(regex, RegexOptions.Multiline).Match(text);
             Assert.True(r.Success, text);
-        }
-
-        protected static void SetIgnoreCaseOrSkip(string path, bool ignorecase)
-        {
-            var canIgnoreCase = Directory.Exists(path.ToUpperInvariant()) && Directory.Exists(path.ToLowerInvariant());
-            if (!canIgnoreCase && ignorecase)
-                throw new SkipException("Skipping 'ignorecase = true' test on case-sensitive file system.");
-
-            using (var repo = new Repository(path))
-            {
-                repo.Config.Set("core.ignorecase", ignorecase);
-            }
         }
 
         public RepositoryOptions BuildFakeConfigs(SelfCleaningDirectory scd)
