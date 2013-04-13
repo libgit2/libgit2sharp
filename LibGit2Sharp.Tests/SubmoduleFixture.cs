@@ -64,7 +64,15 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal((ObjectId)headId, submodule.HeadCommitId);
                 Assert.Equal((ObjectId)indexId, submodule.IndexCommitId);
                 Assert.Equal((ObjectId)workDirId, submodule.WorkDirCommitId);
+
+                AssertEntryId((ObjectId)headId, repo.Head[name], c => c.Target.Id);
+                AssertEntryId((ObjectId)indexId, repo.Index[name], i => i.Id);
             }
+        }
+
+        private static void AssertEntryId<T>(ObjectId expected, T entry, Func<T, ObjectId> selector)
+        {
+            Assert.Equal(expected, ReferenceEquals(entry, null) ? null : selector(entry));
         }
 
         [Fact]

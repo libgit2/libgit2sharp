@@ -70,6 +70,7 @@
     <Compile Include="Conflict.cs" />
     <Compile Include="ConflictCollection.cs" />
     <Compile Include="Core\Handles\GitRefSpecHandle.cs" />
+    <Compile Include="GitLink.cs" />
     <Compile Include="UnmatchedPathException.cs" />
     <Compile Include="Core\Handles\ReflogEntrySafeHandle.cs" />
     <Compile Include="Core\Handles\ReflogSafeHandle.cs" />
