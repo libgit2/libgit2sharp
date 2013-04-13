@@ -72,12 +72,19 @@ namespace LibGit2Sharp
 
         private GitObject RetrieveTreeEntryTarget()
         {
-            if (!Type.HasAny(new[]{GitObjectType.Tree, GitObjectType.Blob}))
+            switch (Type)
             {
-                throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "TreeEntry target of type '{0}' are not supported.", Type));
+                case GitObjectType.Commit:
+                    return new GitLink(repo, targetOid);
+                case GitObjectType.Blob:
+                case GitObjectType.Tree:
+                    return GitObject.BuildFrom(repo, targetOid, Type, Path);
+                default:
+                    throw new InvalidOperationException(
+                        string.Format(CultureInfo.InvariantCulture,
+                                      "TreeEntry target of type '{0}' is not supported.",
+                                      Type));
             }
-
-            return GitObject.BuildFrom(repo, targetOid, Type, Path);
         }
 
         /// <summary>
