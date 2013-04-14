@@ -22,6 +22,7 @@ namespace LibGit2Sharp.Tests.TestHelpers
         public static string StandardTestRepoWorkingDirPath { get; private set; }
         public static string StandardTestRepoPath { get; private set; }
         public static string MergedTestRepoWorkingDirPath { get; private set; }
+        public static string SubmoduleTestRepoWorkingDirPath { get; private set; }
         public static DirectoryInfo ResourcesDirectory { get; private set; }
 
         public static readonly Signature DummySignature = new Signature("Author N. Ame", "him@there.com", TruncateSubSeconds(DateTimeOffset.Now));
@@ -50,6 +51,7 @@ namespace LibGit2Sharp.Tests.TestHelpers
             StandardTestRepoWorkingDirPath = Path.Combine(ResourcesDirectory.FullName, "testrepo_wd");
             StandardTestRepoPath = Path.Combine(StandardTestRepoWorkingDirPath, ".git");
             MergedTestRepoWorkingDirPath = Path.Combine(ResourcesDirectory.FullName, "mergedrepo_wd");
+            SubmoduleTestRepoWorkingDirPath = Path.Combine(ResourcesDirectory.FullName, "submodule_wd");
         }
 
         protected void CreateCorruptedDeadBeefHead(string repoPath)
@@ -86,9 +88,8 @@ namespace LibGit2Sharp.Tests.TestHelpers
 
         public string CloneSubmoduleTestRepo()
         {
-            var submodule = Path.Combine(ResourcesDirectory.FullName, "submodule_wd");
             var submoduleTarget = Path.Combine(ResourcesDirectory.FullName, "submodule_target_wd");
-            return Clone(submodule, submoduleTarget);
+            return Clone(SubmoduleTestRepoWorkingDirPath, submoduleTarget);
         }
 
         private string Clone(string sourceDirectoryPath, params string[] additionalSourcePaths)
