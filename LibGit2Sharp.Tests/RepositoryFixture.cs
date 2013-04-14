@@ -47,8 +47,14 @@ namespace LibGit2Sharp.Tests
         {
             SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
 
+            Assert.False(Repository.IsValid(scd.DirectoryPath));
+
             using (var repo = Repository.Init(scd.DirectoryPath))
             {
+                Assert.True(Repository.IsValid(scd.DirectoryPath));
+                Assert.True(Repository.IsValid(repo.Info.WorkingDirectory));
+                Assert.True(Repository.IsValid(repo.Info.Path));
+
                 string dir = repo.Info.Path;
                 Assert.True(Path.IsPathRooted(dir));
                 Assert.True(Directory.Exists(dir));
