@@ -579,7 +579,7 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(committishOrBranchSpec, "committishOrBranchSpec");
 
-            var branch = Branches[committishOrBranchSpec];
+            Branch branch = TryResolveBranch(committishOrBranchSpec);
 
             if (branch != null)
             {
@@ -593,6 +593,18 @@ namespace LibGit2Sharp
             Refs.UpdateTarget("HEAD", commit.Id.Sha);
 
             return Head;
+        }
+
+        private Branch TryResolveBranch(string committishOrBranchSpec)
+        {
+            try
+            {
+                return Branches[committishOrBranchSpec];
+            }
+            catch (InvalidSpecificationException)
+            {
+                return null;
+            }
         }
 
         /// <summary>

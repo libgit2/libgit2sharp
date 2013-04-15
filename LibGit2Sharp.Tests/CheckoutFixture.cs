@@ -80,6 +80,7 @@ namespace LibGit2Sharp.Tests
         [Theory]
         [InlineData("6dcf9bf")]
         [InlineData("refs/tags/lw")]
+        [InlineData("HEAD~2")]
         public void CanCheckoutAnArbitraryCommit(string commitPointer)
         {
             string path = CloneStandardTestRepo();
@@ -93,10 +94,12 @@ namespace LibGit2Sharp.Tests
 
                 Assert.False(repo.Index.RetrieveStatus().IsDirty);
 
+                var commitSha = repo.Lookup(commitPointer).Sha;
+
                 Branch detachedHead = repo.Checkout(commitPointer);
 
                 Assert.Equal(repo.Head, detachedHead);
-                Assert.Equal(repo.Lookup(commitPointer).Sha, detachedHead.Tip.Sha);
+                Assert.Equal(commitSha, detachedHead.Tip.Sha);
                 Assert.True(repo.Head.IsCurrentRepositoryHead);
                 Assert.True(repo.Info.IsHeadDetached);
                 Assert.False(repo.Index.RetrieveStatus().IsDirty);
