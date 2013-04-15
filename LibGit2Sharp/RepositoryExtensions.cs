@@ -173,7 +173,7 @@ namespace LibGit2Sharp
         /// <returns>The generated <see cref = "LibGit2Sharp.Commit" />.</returns>
         public static Commit Commit(this IRepository repository, string message, bool amendPreviousCommit = false)
         {
-            Signature author = BuildSignatureFromGlobalConfiguration(repository, DateTimeOffset.Now);
+            Signature author = repository.Config.BuildSignatureFromGlobalConfiguration(DateTimeOffset.Now);
 
             return repository.Commit(message, author, amendPreviousCommit);
         }
@@ -191,7 +191,7 @@ namespace LibGit2Sharp
         /// <returns>The generated <see cref = "LibGit2Sharp.Commit" />.</returns>
         public static Commit Commit(this IRepository repository, string message, Signature author, bool amendPreviousCommit = false)
         {
-            Signature committer = BuildSignatureFromGlobalConfiguration(repository, DateTimeOffset.Now);
+            Signature committer = repository.Config.BuildSignatureFromGlobalConfiguration(DateTimeOffset.Now);
 
             return repository.Commit(message, author, committer, amendPreviousCommit);
         }
@@ -222,19 +222,6 @@ namespace LibGit2Sharp
             Remote remote = repository.Network.Remotes.RemoteForName(remoteName, true);
             repository.Network.Fetch(remote, tagFetchMode, onProgress, onCompletion, onUpdateTips,
                 onTransferProgress, credentials);
-        }
-
-        private static Signature BuildSignatureFromGlobalConfiguration(IRepository repository, DateTimeOffset now)
-        {
-            var name = repository.Config.Get<string>("user.name");
-            var email = repository.Config.Get<string>("user.email");
-
-            if ((name == null) || (email == null))
-            {
-                throw new LibGit2SharpException("Can not find Name and Email settings of the current user in Git configuration.");
-            }
-
-            return new Signature(name.Value, email.Value, now);
         }
 
         /// <summary>

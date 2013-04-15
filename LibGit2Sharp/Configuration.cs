@@ -287,5 +287,18 @@ namespace LibGit2Sharp
                                                       (ConfigurationLevel)entry.level);
             });
         }
+
+        internal Signature BuildSignatureFromGlobalConfiguration(DateTimeOffset now)
+        {
+            var name = Get<string>("user.name");
+            var email = Get<string>("user.email");
+
+            if ((name == null) || (email == null))
+            {
+                throw new LibGit2SharpException("Can not find Name and Email settings of the current user in Git configuration.");
+            }
+
+            return new Signature(name.Value, email.Value, now);
+        }
     }
 }
