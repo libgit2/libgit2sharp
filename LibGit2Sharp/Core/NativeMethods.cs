@@ -623,6 +623,19 @@ namespace LibGit2Sharp.Core
         internal static extern int git_push_update_tips(PushSafeHandle push);
 
         [DllImport(libgit2)]
+        internal static extern int git_refdb_set_backend(ReferenceDatabaseSafeHandle refdb, IntPtr backend);
+
+        [DllImport(libgit2)]
+        internal static extern void git_refdb_free(IntPtr refdb);
+
+        [DllImport(libgit2)]
+        internal static extern IntPtr git_reference__alloc(
+            ReferenceDatabaseSafeHandle refdb,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string name,
+            IntPtr oid,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string symbolic);
+
+        [DllImport(libgit2)]
         internal static extern int git_reference_create(
             out ReferenceSafeHandle reference,
             RepositorySafeHandle repo,
@@ -649,7 +662,7 @@ namespace LibGit2Sharp.Core
         internal static extern int git_reference_foreach_glob(
             RepositorySafeHandle repo,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string glob,
-            GitReferenceType flags,
+            ReferenceType flags,
             ref_glob_callback callback,
             IntPtr payload);
 
@@ -697,7 +710,7 @@ namespace LibGit2Sharp.Core
         internal static extern string git_reference_symbolic_target(ReferenceSafeHandle reference);
 
         [DllImport(libgit2)]
-        internal static extern GitReferenceType git_reference_type(ReferenceSafeHandle reference);
+        internal static extern ReferenceType git_reference_type(ReferenceSafeHandle reference);
 
         [DllImport(libgit2)]
         internal static extern void git_reflog_free(
@@ -908,6 +921,9 @@ namespace LibGit2Sharp.Core
         [DllImport(libgit2)]
         [return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(FilePathNoCleanupMarshaler))]
         internal static extern FilePath git_repository_path(RepositorySafeHandle repository);
+
+        [DllImport(libgit2)]
+        internal static extern int git_repository_refdb(out ReferenceDatabaseSafeHandle refdb, RepositorySafeHandle repo);
 
         [DllImport(libgit2)]
         internal static extern void git_repository_set_config(

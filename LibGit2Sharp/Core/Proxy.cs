@@ -1098,7 +1098,52 @@ namespace LibGit2Sharp.Core
 
         #endregion
 
+        #region git_refdb_
+
+        public static void git_refdb_set_backend(ReferenceDatabaseSafeHandle refdb, IntPtr backend)
+        {
+            Ensure.ZeroResult(NativeMethods.git_refdb_set_backend(refdb, backend));
+        }
+
+        public static void git_refdb_free(IntPtr refdb)
+        {
+            NativeMethods.git_refdb_free(refdb);
+        }
+
+        #endregion
+
         #region git_reference_
+
+        public static IntPtr git_reference__alloc(ReferenceDatabaseSafeHandle refdb, string name, ObjectId oid, string symbolic)
+        {
+            using (ThreadAffinity())
+            {
+                // GitOid is not nullable, do the IntPtr marshalling ourselves
+                IntPtr oidPtr;
+
+                if (oid == null)
+                {
+                    oidPtr = IntPtr.Zero;
+                }
+                else
+                {
+                    oidPtr = Marshal.AllocHGlobal(20);
+                    Marshal.Copy(oid.Oid.Id, 0, oidPtr, 20);
+                }
+
+                try
+                {
+                    return NativeMethods.git_reference__alloc(refdb, name, oidPtr, symbolic);
+                }
+                finally
+                {
+                    if (oidPtr != (IntPtr)0)
+                    {
+                        Marshal.FreeHGlobal(oidPtr);
+                    }
+                }
+            }
+        }
 
         public static ReferenceSafeHandle git_reference_create_oid(RepositorySafeHandle repo, string name, ObjectId targetId, bool allowOverwrite)
         {
@@ -1138,7 +1183,7 @@ namespace LibGit2Sharp.Core
         public static ICollection<TResult> git_reference_foreach_glob<TResult>(
             RepositorySafeHandle repo,
             string glob,
-            GitReferenceType flags,
+            ReferenceType flags,
             Func<IntPtr, TResult> resultSelector)
         {
             return git_foreach(resultSelector, c => NativeMethods.git_reference_foreach_glob(repo, glob, flags, (x, p) => c(x, p), IntPtr.Zero));
@@ -1157,7 +1202,7 @@ namespace LibGit2Sharp.Core
             return (res == 1);
         }
 
-        public static IList<string> git_reference_list(RepositorySafeHandle repo, GitReferenceType flags)
+        public static IList<string> git_reference_list(RepositorySafeHandle repo, ReferenceType flags)
         {
             using (ThreadAffinity())
             {
@@ -1260,7 +1305,7 @@ namespace LibGit2Sharp.Core
             return NativeMethods.git_reference_symbolic_target(reference);
         }
 
-        public static GitReferenceType git_reference_type(ReferenceSafeHandle reference)
+        public static ReferenceType git_reference_type(ReferenceSafeHandle reference)
         {
             return NativeMethods.git_reference_type(reference);
         }
@@ -1657,6 +1702,18 @@ namespace LibGit2Sharp.Core
         public static FilePath git_repository_path(RepositorySafeHandle repo)
         {
             return NativeMethods.git_repository_path(repo);
+        }
+
+        public static ReferenceDatabaseSafeHandle git_repository_refdb(RepositorySafeHandle repo)
+        {
+            using (ThreadAffinity())
+            {
+                ReferenceDatabaseSafeHandle handle;
+                int res = NativeMethods.git_repository_refdb(out handle, repo);
+                Ensure.ZeroResult(res);
+
+                return handle;
+            }
         }
 
         public static void git_repository_set_config(RepositorySafeHandle repo, ConfigurationSafeHandle config)
