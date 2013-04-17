@@ -1654,6 +1654,26 @@ namespace LibGit2Sharp.Core
             }
         }
 
+        public static void git_repository_open_ext(string path, RepositoryOpenFlags flags, string ceilingDirs)
+        {
+            using (ThreadAffinity())
+            {
+                int res;
+
+                using (var repo = new NullRepositorySafeHandle())
+                {
+                    res = NativeMethods.git_repository_open_ext(repo, path, flags, ceilingDirs);
+                }
+
+                if (res == (int)GitErrorCode.NotFound)
+                {
+                    throw new RepositoryNotFoundException(String.Format(CultureInfo.InvariantCulture, "Path '{0}' doesn't point at a valid Git repository or workdir.", path));
+                }
+
+                Ensure.ZeroResult(res);
+            }
+        }
+
         public static FilePath git_repository_path(RepositorySafeHandle repo)
         {
             return NativeMethods.git_repository_path(repo);

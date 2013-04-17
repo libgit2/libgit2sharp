@@ -130,6 +130,30 @@ namespace LibGit2Sharp
             }
         }
 
+        /// <summary>
+        ///   Check if parameter <paramref name="path"/> leads to a valid git repository.
+        /// </summary>
+        /// <param name = "path">
+        ///   The path to the git repository to check, can be either the path to the git directory (for non-bare repositories this
+        ///   would be the ".git" folder inside the working directory) or the path to the working directory.
+        /// </param>
+        /// <returns>True if a repository can be resolved through this path; false otherwise</returns>
+        static public bool IsValid(string path)
+        {
+            Ensure.ArgumentNotNullOrEmptyString(path, "path");
+
+            try
+            {
+                Proxy.git_repository_open_ext(path, RepositoryOpenFlags.NoSearch, null);
+            }
+            catch (RepositoryNotFoundException)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
         private void EagerlyLoadTheConfigIfAnyPathHaveBeenPassed(RepositoryOptions options)
         {
             if (options == null)

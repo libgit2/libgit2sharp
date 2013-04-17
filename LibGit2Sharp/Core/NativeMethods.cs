@@ -906,6 +906,13 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(FilePathMarshaler))] FilePath path);
 
         [DllImport(libgit2)]
+        internal static extern int git_repository_open_ext(
+            NullRepositorySafeHandle repository,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(FilePathMarshaler))] FilePath path,
+            RepositoryOpenFlags flags,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(FilePathMarshaler))] FilePath ceilingDirs);
+
+        [DllImport(libgit2)]
         [return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(FilePathNoCleanupMarshaler))]
         internal static extern FilePath git_repository_path(RepositorySafeHandle repository);
 
