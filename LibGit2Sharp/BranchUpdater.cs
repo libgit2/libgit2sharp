@@ -34,25 +34,6 @@ namespace LibGit2Sharp
         ///     Passing null or string.Empty will unset the upstream.
         ///   </para>
         ///   <para>
-        ///   The upstream branch name is with respect to the current repository.
-        ///   So, passing "refs/remotes/origin/master" will set the current branch
-        ///   to track "refs/heads/master" on the origin. Passing in
-        ///   "refs/heads/master" will result in the branch tracking the local
-        ///   master branch.
-        ///   </para>
-        /// </summary>
-        [Obsolete("This property will be removed in the next release. Please use BranchUpdate.TrackedBranch instead.")]
-        public virtual string Upstream
-        {
-            set { TrackedBranch = value; }
-        }
-
-        /// <summary>
-        ///   Sets the upstream information for the branch.
-        ///   <para>
-        ///     Passing null or string.Empty will unset the upstream.
-        ///   </para>
-        ///   <para>
         ///     The upstream branch name is with respect to the current repository.
         ///     So, passing "refs/remotes/origin/master" will set the current branch
         ///     to track "refs/heads/master" on the origin. Passing in
@@ -75,20 +56,6 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Set the upstream merge branch directly for this branch.
-        ///   <para>
-        ///     To track the "master" branch on the "origin" remote, set the
-        ///     <see cref="Remote"/> property to "origin" and the <see cref="UpstreamBranch"/>
-        ///     property to "refs/heads/master".
-        ///   </para>
-        /// </summary>
-        [Obsolete("This property will be removed in the next release. Please use BranchUpdate.UpstreamBranch instead.")]
-        public virtual string UpstreamMergeBranch
-        {
-            set { UpstreamBranch = value; }
-        }
-
-        /// <summary>
         ///   Set the upstream branch for this branch.
         ///   <para>
         ///     To track the "master" branch on the "origin" remote, set the
@@ -102,20 +69,6 @@ namespace LibGit2Sharp
             {
                 SetUpstreamBranch(value);
             }
-        }
-
-        /// <summary>
-        ///   Set the upstream merge branch directly for this branch.
-        ///   <para>
-        ///   To track the "master" branch on the "origin" remote, set the
-        ///   RemoteName property to "origin" and the UpstreamMergeBranch
-        ///   property to "refs/heads/master".
-        /// </para>
-        /// </summary>
-        [Obsolete("This property will be removed in the next release. Please use BranchUpdate.Remote instead.")]
-        public virtual string UpstreamRemote
-        {
-            set { Remote = value; }
         }
 
         /// <summary>
