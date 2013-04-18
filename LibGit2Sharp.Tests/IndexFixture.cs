@@ -194,6 +194,28 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        [Fact]
+        public void CanRemoveAFolderThroughUsageOfPathspecs()
+        {
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
+            {
+                repo.Index.Stage(Touch(repo.Info.WorkingDirectory, "2/subdir1/2.txt", "whone"));
+                repo.Index.Stage(Touch(repo.Info.WorkingDirectory, "2/subdir1/3.txt", "too"));
+                repo.Index.Stage(Touch(repo.Info.WorkingDirectory, "2/subdir2/4.txt", "tree"));
+                repo.Index.Stage(Touch(repo.Info.WorkingDirectory, "2/5.txt", "for"));
+                repo.Index.Stage(Touch(repo.Info.WorkingDirectory, "2/6.txt", "fyve"));
+
+                int count = repo.Index.Count;
+
+                Assert.True(Directory.Exists(Path.Combine(repo.Info.WorkingDirectory, "2")));
+                repo.Index.Remove("2");
+
+                Assert.False(Directory.Exists(Path.Combine(repo.Info.WorkingDirectory, "2")));
+                Assert.Equal(count - 5, repo.Index.Count);
+            }
+        }
+
         [Theory]
         [InlineData("1/branch_file.txt", FileStatus.Unaltered, true, FileStatus.Removed)]
         [InlineData("deleted_unstaged_file.txt", FileStatus.Missing, false, FileStatus.Removed)]

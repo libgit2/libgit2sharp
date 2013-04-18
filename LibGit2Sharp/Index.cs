@@ -298,6 +298,11 @@ namespace LibGit2Sharp
         ///     If the file has already been deleted from the working directory, this method will only deal
         ///     with promoting the removal to the staging area.
         ///   </para>
+        ///   <para>
+        ///     When not passing a <paramref name = "explicitPathsOptions"/>, the passed path will be treated as
+        ///     a pathspec. You can for example use it to pass the relative path to a folder inside the working directory,
+        ///     so that all files beneath this folders, and the folder itself, will be removed.
+        ///   </para>
         /// </summary>
         /// <param name = "path">The path of the file within the working directory.</param>
         /// <param name = "explicitPathsOptions">
@@ -317,6 +322,11 @@ namespace LibGit2Sharp
         ///     If a file has already been deleted from the working directory, this method will only deal
         ///     with promoting the removal to the staging area.
         ///   </para>
+        ///   <para>
+        ///     When not passing a <paramref name = "explicitPathsOptions"/>, the passed paths will be treated as
+        ///     a pathspec. You can for example use it to pass the relative paths to folders inside the working directory,
+        ///     so that all files beneath these folders, and the folders themselves, will be removed.
+        ///   </para>
         /// </summary>
         /// <param name = "paths">The collection of paths of the files within the working directory.</param>
         /// <param name = "explicitPathsOptions">
@@ -325,11 +335,10 @@ namespace LibGit2Sharp
         /// </param>
         public virtual void Remove(IEnumerable<string> paths, ExplicitPathsOptions explicitPathsOptions = null)
         {
-            //TODO: Remove() should support following use cases:
-            // - Removing a directory and its content
-
             var pathsList = paths.ToList();
             TreeChanges changes = repo.Diff.Compare(DiffOptions.IncludeUnmodified | DiffOptions.IncludeUntracked, pathsList, explicitPathsOptions);
+
+            var pathsTodelete = pathsList.Where(p => Directory.Exists(Path.Combine(repo.Info.WorkingDirectory, p))).ToList();
 
             foreach (var treeEntryChanges in changes)
             {
@@ -337,8 +346,11 @@ namespace LibGit2Sharp
                 {
                     case ChangeKind.Added:
                     case ChangeKind.Deleted:
+                        pathsTodelete.Add(RemoveFromIndex(treeEntryChanges.Path));
+                        break;
+
                     case ChangeKind.Unmodified:
-                        RemoveFromIndex(treeEntryChanges.Path);
+                        pathsTodelete.Add(RemoveFromIndex(treeEntryChanges.Path));
                         continue;
 
                     default:
@@ -347,17 +359,32 @@ namespace LibGit2Sharp
                 }
             }
 
-            string wd = repo.Info.WorkingDirectory;
-            foreach (string path in pathsList.Where(p => !Directory.Exists(p)))
-            {
-                string fullPath = Path.Combine(wd, path);
-                if (File.Exists(fullPath))
-                {
-                    File.Delete(fullPath);
-                }
-            }
+                RemoveFilesAndFolders(pathsTodelete);
 
             UpdatePhysicalIndex();
+        }
+
+        private void RemoveFilesAndFolders(IEnumerable<string> pathsList)
+        {
+            string wd = repo.Info.WorkingDirectory;
+
+            foreach (string path in pathsList)
+            {
+                string fileName = Path.Combine(wd, path);
+
+                if (Directory.Exists(fileName))
+                {
+                    Directory.Delete(fileName, true);
+                    continue;
+                }
+
+                if (!File.Exists(fileName))
+                {
+                    continue;
+                }
+
+                File.Delete(fileName);
+            }
         }
 
         private IDictionary<Tuple<string, FileStatus>, Tuple<string, FileStatus>> PrepareBatch(IEnumerable<string> leftPaths, IEnumerable<string> rightPaths)
@@ -404,9 +431,11 @@ namespace LibGit2Sharp
             }
         }
 
-        private void RemoveFromIndex(string relativePath)
+        private string RemoveFromIndex(string relativePath)
         {
             Proxy.git_index_remove(handle, relativePath, 0);
+
+            return relativePath;
         }
 
         private void UpdatePhysicalIndex()
