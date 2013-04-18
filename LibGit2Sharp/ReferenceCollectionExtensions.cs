@@ -50,7 +50,7 @@ namespace LibGit2Sharp
 
             if (refState == RefState.Exists || (refState == RefState.DoesNotExistButLooksValid && gitObject == null))
             {
-                using (ReferenceSafeHandle handle = Proxy.git_reference_create_symbolic(refsColl.repo.Handle, name, canonicalRefNameOrObjectish, allowOverwrite))
+                using (ReferenceSafeHandle handle = Proxy.git_reference_symbolic_create(refsColl.repo.Handle, name, canonicalRefNameOrObjectish, allowOverwrite))
                 {
                     return Reference.BuildFromPtr<Reference>(handle, refsColl.repo);
                 }

@@ -78,7 +78,7 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
             Ensure.ArgumentNotNull(targetId, "targetId");
 
-            using (ReferenceSafeHandle handle = Proxy.git_reference_create_oid(repo.Handle, name, targetId, allowOverwrite))
+            using (ReferenceSafeHandle handle = Proxy.git_reference_create(repo.Handle, name, targetId, allowOverwrite))
             {
                 return (DirectReference)Reference.BuildFromPtr<Reference>(handle, repo);
             }
@@ -96,7 +96,7 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
             Ensure.ArgumentNotNull(targetRef, "targetRef");
 
-            using (ReferenceSafeHandle handle = Proxy.git_reference_create_symbolic(repo.Handle, name, targetRef.CanonicalName, allowOverwrite))
+            using (ReferenceSafeHandle handle = Proxy.git_reference_symbolic_create(repo.Handle, name, targetRef.CanonicalName, allowOverwrite))
             {
                 return (SymbolicReference)Reference.BuildFromPtr<Reference>(handle, repo);
             }

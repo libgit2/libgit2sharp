@@ -1100,7 +1100,7 @@ namespace LibGit2Sharp.Core
 
         #region git_reference_
 
-        public static ReferenceSafeHandle git_reference_create_oid(RepositorySafeHandle repo, string name, ObjectId targetId, bool allowOverwrite)
+        public static ReferenceSafeHandle git_reference_create(RepositorySafeHandle repo, string name, ObjectId targetId, bool allowOverwrite)
         {
             using (ThreadAffinity())
             {
@@ -1114,7 +1114,7 @@ namespace LibGit2Sharp.Core
             }
         }
 
-        public static ReferenceSafeHandle git_reference_create_symbolic(RepositorySafeHandle repo, string name, string target, bool allowOverwrite)
+        public static ReferenceSafeHandle git_reference_symbolic_create(RepositorySafeHandle repo, string name, string target, bool allowOverwrite)
         {
             using (ThreadAffinity())
             {
@@ -1192,7 +1192,7 @@ namespace LibGit2Sharp.Core
             return NativeMethods.git_reference_name(reference);
         }
 
-        public static ObjectId git_reference_oid(ReferenceSafeHandle reference)
+        public static ObjectId git_reference_target(ReferenceSafeHandle reference)
         {
             return NativeMethods.git_reference_target(reference).MarshalAsObjectId();
         }
@@ -1255,7 +1255,7 @@ namespace LibGit2Sharp.Core
             }
         }
 
-        public static string git_reference_target(ReferenceSafeHandle reference)
+        public static string git_reference_symbolic_target(ReferenceSafeHandle reference)
         {
             return NativeMethods.git_reference_symbolic_target(reference);
         }

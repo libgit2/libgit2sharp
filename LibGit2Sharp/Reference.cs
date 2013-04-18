@@ -45,7 +45,7 @@ namespace LibGit2Sharp
             switch (type)
             {
                 case GitReferenceType.Symbolic:
-                    string targetIdentifier = Proxy.git_reference_target(handle);
+                    string targetIdentifier = Proxy.git_reference_symbolic_target(handle);
 
                     using (ReferenceSafeHandle resolvedHandle = Proxy.git_reference_resolve(handle))
                     {
@@ -61,7 +61,7 @@ namespace LibGit2Sharp
                     }
 
                 case GitReferenceType.Oid:
-                    ObjectId targetOid = Proxy.git_reference_oid(handle);
+                    ObjectId targetOid = Proxy.git_reference_target(handle);
 
                     reference = new DirectReference(name, repo, targetOid);
                     break;
