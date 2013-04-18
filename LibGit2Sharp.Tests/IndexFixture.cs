@@ -217,6 +217,35 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        [Theory]
+        [InlineData("deleted_staged_file.txt", FileStatus.Removed)]
+        [InlineData("1/I-do-not-exist.txt", FileStatus.Nonexistent)]
+        public void RemovingAnUnknownFileWithLaxExplicitPathsValidationDoesntThrow(string relativePath, FileStatus status)
+        {
+            using (var repo = new Repository(StandardTestRepoPath))
+            {
+                Assert.Null(repo.Index[relativePath]);
+                Assert.Equal(status, repo.Index.RetrieveStatus(relativePath));
+
+                repo.Index.Remove(relativePath);
+                repo.Index.Remove(relativePath, new ExplicitPathsOptions { ShouldFailOnUnmatchedPath = false });
+            }
+        }
+
+        [Theory]
+        [InlineData("deleted_staged_file.txt", FileStatus.Removed)]
+        [InlineData("1/I-do-not-exist.txt", FileStatus.Nonexistent)]
+        public void RemovingAnUnknownFileThrowsIfExplicitPath(string relativePath, FileStatus status)
+        {
+            using (var repo = new Repository(StandardTestRepoPath))
+            {
+                Assert.Null(repo.Index[relativePath]);
+                Assert.Equal(status, repo.Index.RetrieveStatus(relativePath));
+
+                Assert.Throws<UnmatchedPathException>(() => repo.Index.Remove(relativePath, new ExplicitPathsOptions()));
+            }
+        }
+
         [Fact]
         public void RemovingAModifiedFileThrows()
         {
