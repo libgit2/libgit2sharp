@@ -2,6 +2,7 @@
 
 PREVIOUS_LD=$LD_LIBRARY_PATH
 
+rm -rf cmake-build
 mkdir cmake-build && cd cmake-build
 
 cmake -DBUILD_SHARED_LIBS:BOOL=ON -DTHREADSAFE:BOOL=ON -DBUILD_CLAR:BOOL=OFF -DCMAKE_INSTALL_PREFIX=./libgit2-bin ../libgit2
