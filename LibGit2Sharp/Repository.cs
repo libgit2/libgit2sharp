@@ -392,7 +392,7 @@ namespace LibGit2Sharp
         /// <returns>The <see cref = "GitObject" /> or null if it was not found.</returns>
         public GitObject Lookup(ObjectId id)
         {
-            return LookupInternal(id, Core.GitObjectType.Any, null);
+            return LookupInternal(id, GitObjectType.Any, null);
         }
 
         /// <summary>
@@ -402,7 +402,7 @@ namespace LibGit2Sharp
         /// <returns>The <see cref = "GitObject" /> or null if it was not found.</returns>
         public GitObject Lookup(string objectish)
         {
-            return Lookup(objectish, Core.GitObjectType.Any, LookUpOptions.None);
+            return Lookup(objectish, GitObjectType.Any, LookUpOptions.None);
         }
 
         /// <summary>
@@ -427,19 +427,7 @@ namespace LibGit2Sharp
             return Lookup(objectish, type.ToGitObjectType(), LookUpOptions.None);
         }
 
-        /// <summary>
-        ///   Try to lookup an object by its <see cref = "ObjectId" /> and <see cref = "GitObjectType" />. If no matching object is found, null will be returned.
-        /// </summary>
-        /// <param name = "id">The id to lookup.</param>
-        /// <param name = "type">The kind of GitObject being looked up</param>
-        /// <returns>The <see cref = "GitObject" /> or null if it was not found.</returns>
-        [Obsolete("This method will be removed in the next release. Please use another Repository.Lookup() overload instead.")]
-        public GitObject Lookup(ObjectId id, GitObjectType type = GitObjectType.Any)
-        {
-            return LookupInternal(id, type.ToCoreGitObjectType(), null);
-        }
-
-        internal GitObject LookupInternal(ObjectId id, Core.GitObjectType type, FilePath knownPath)
+        internal GitObject LookupInternal(ObjectId id, GitObjectType type, FilePath knownPath)
         {
             Ensure.ArgumentNotNull(id, "id");
 
@@ -462,18 +450,6 @@ namespace LibGit2Sharp
             }
         }
 
-        /// <summary>
-        ///   Try to lookup an object by its sha or a reference canonical name and <see cref = "GitObjectType" />. If no matching object is found, null will be returned.
-        /// </summary>
-        /// <param name = "objectish">A revparse spec for the object to lookup.</param>
-        /// <param name = "type">The kind of <see cref = "GitObject" /> being looked up</param>
-        /// <returns>The <see cref = "GitObject" /> or null if it was not found.</returns>
-        [Obsolete("This method will be removed in the next release. Please use another Repository.Lookup() overload instead.")]
-        public GitObject Lookup(string objectish, GitObjectType type = GitObjectType.Any)
-        {
-            return Lookup(objectish, type.ToCoreGitObjectType(), LookUpOptions.None);
-        }
-
         private static string PathFromRevparseSpec(string spec)
         {
             if (spec.StartsWith(":/", StringComparison.Ordinal))
@@ -490,7 +466,7 @@ namespace LibGit2Sharp
             return (m.Groups.Count > 1) ? m.Groups[1].Value : null;
         }
 
-        internal GitObject Lookup(string objectish, Core.GitObjectType type, LookUpOptions lookUpOptions)
+        internal GitObject Lookup(string objectish, GitObjectType type, LookUpOptions lookUpOptions)
         {
             Ensure.ArgumentNotNullOrEmptyString(objectish, "commitOrBranchSpec");
 
@@ -507,9 +483,9 @@ namespace LibGit2Sharp
                     return null;
                 }
 
-                Core.GitObjectType objType = Proxy.git_object_type(sh);
+                GitObjectType objType = Proxy.git_object_type(sh);
 
-                if (type != Core.GitObjectType.Any && objType != type)
+                if (type != GitObjectType.Any && objType != type)
                 {
                     return null;
                 }
@@ -533,7 +509,7 @@ namespace LibGit2Sharp
         /// <returns>The commit.</returns>
         internal Commit LookupCommit(string committish)
         {
-            return (Commit)Lookup(committish, Core.GitObjectType.Any, LookUpOptions.ThrowWhenNoGitObjectHasBeenFound | LookUpOptions.DereferenceResultToCommit | LookUpOptions.ThrowWhenCanNotBeDereferencedToACommit);
+            return (Commit)Lookup(committish, GitObjectType.Any, LookUpOptions.ThrowWhenNoGitObjectHasBeenFound | LookUpOptions.DereferenceResultToCommit | LookUpOptions.ThrowWhenCanNotBeDereferencedToACommit);
         }
 
         /// <summary>

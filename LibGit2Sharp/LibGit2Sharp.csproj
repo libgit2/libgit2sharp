@@ -206,7 +206,6 @@
     <Compile Include="Core\GitIndexTime.cs" />
     <Compile Include="Core\GitIndexEntry.cs" />
     <Compile Include="GitObject.cs" />
-    <Compile Include="GitObjectType.cs" />
     <Compile Include="Core\GitObjectType.cs" />
     <Compile Include="GitSortOptions.cs" />
     <Compile Include="Core\LambdaEqualityHelper.cs" />

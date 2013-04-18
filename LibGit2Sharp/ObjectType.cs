@@ -1,4 +1,5 @@
 ﻿using System;
+using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
 {
@@ -30,21 +31,21 @@ namespace LibGit2Sharp
 
     internal static class ObjectTypeExtensions
     {
-        public static Core.GitObjectType ToGitObjectType(this ObjectType type)
+        public static GitObjectType ToGitObjectType(this ObjectType type)
         {
             switch (type)
             {
                 case ObjectType.Commit:
-                    return Core.GitObjectType.Commit;
+                    return GitObjectType.Commit;
 
                 case ObjectType.Tree:
-                    return Core.GitObjectType.Tree;
+                    return GitObjectType.Tree;
 
                 case ObjectType.Blob:
-                    return Core.GitObjectType.Blob;
+                    return GitObjectType.Blob;
 
                 case ObjectType.Tag:
-                    return Core.GitObjectType.Tag;
+                    return GitObjectType.Tag;
 
                 default:
                     throw new InvalidOperationException(string.Format("Cannot map {0} to a GitObjectType.", type));

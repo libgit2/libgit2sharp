@@ -47,7 +47,7 @@ namespace LibGit2Sharp
             Reference reference;
             RefState refState = TryResolveReference(out reference, refsColl, canonicalRefNameOrObjectish);
 
-            var gitObject = refsColl.repo.Lookup(canonicalRefNameOrObjectish, Core.GitObjectType.Any, LookUpOptions.None);
+            var gitObject = refsColl.repo.Lookup(canonicalRefNameOrObjectish, GitObjectType.Any, LookUpOptions.None);
 
             if (refState == RefState.Exists)
             {

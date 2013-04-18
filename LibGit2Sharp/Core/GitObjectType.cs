@@ -98,10 +98,5 @@ namespace LibGit2Sharp.Core
                     throw new InvalidOperationException(string.Format("Cannot map {0} to a ObjectType.", type));
             }
         }
-
-        public static LibGit2Sharp.GitObjectType ToGitObjectType(this GitObjectType type)
-        {
-            return (LibGit2Sharp.GitObjectType)type;
-        }
     }
 }

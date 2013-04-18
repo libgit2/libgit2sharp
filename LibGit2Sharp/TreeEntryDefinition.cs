@@ -29,12 +29,6 @@ namespace LibGit2Sharp
         public virtual Mode Mode { get; private set; }
 
         /// <summary>
-        ///   Gets the <see cref = "GitObjectType" /> of the target being pointed at.
-        /// </summary>
-        [Obsolete("This property will be removed in the next release. Please use TreeEntryDefinition.TargetType instead.")]
-        public virtual GitObjectType Type { get; private set; }
-
-        /// <summary>
         ///   Gets the <see cref = "TreeEntryTargetType" /> of the target being pointed at.
         /// </summary>
         public virtual TreeEntryTargetType TargetType { get; private set; }
@@ -54,7 +48,6 @@ namespace LibGit2Sharp
             return new TreeEntryDefinition
                        {
                            Mode = treeEntry.Mode,
-                           Type = treeEntry.Type,
                            TargetType = treeEntry.TargetType,
                            TargetId = treeEntry.TargetId,
                            target = new Lazy<GitObject>(() => treeEntry.Target)
@@ -66,7 +59,6 @@ namespace LibGit2Sharp
             return new TreeEntryDefinition
                        {
                            Mode = mode,
-                           Type = GitObjectType.Blob,
                            TargetType = TreeEntryTargetType.Blob,
                            TargetId = blob.Id,
                            target = new Lazy<GitObject>(() => blob)
@@ -89,7 +81,6 @@ namespace LibGit2Sharp
             return new TreeEntryDefinition
                        {
                            Mode = Mode.GitLink,
-                           Type = GitObjectType.Commit,
                            TargetType = TreeEntryTargetType.GitLink,
                            TargetId = objectId,
                            target = new Lazy<GitObject>(() => { throw new InvalidOperationException("Shouldn't be necessary."); }),
@@ -101,7 +92,6 @@ namespace LibGit2Sharp
             return new TreeEntryDefinition
                        {
                            Mode = Mode.Directory,
-                           Type = GitObjectType.Tree,
                            TargetType = TreeEntryTargetType.Tree,
                            TargetId = tree.Id,
                            target = new Lazy<GitObject>(() => tree)
@@ -180,12 +170,6 @@ namespace LibGit2Sharp
             get { return Mode.Directory; }
         }
 
-        [Obsolete("This property will be removed in the next release. Please use TransientTreeTreeEntryDefinition.TargetType instead.")]
-        public override GitObjectType Type
-        {
-            get { return GitObjectType.Tree; }
-        }
-
         public override TreeEntryTargetType TargetType
         {
             get { return TreeEntryTargetType.Tree; }
@@ -194,12 +178,6 @@ namespace LibGit2Sharp
 
     internal class TransientBlobTreeEntryDefinition : TransientTreeEntryDefinition
     {
-        [Obsolete("This property will be removed in the next release. Please use TransientBlobTreeEntryDefinition.TargetType instead.")]
-        public override GitObjectType Type
-        {
-            get { return GitObjectType.Blob; }
-        }
-
         public override TreeEntryTargetType TargetType
         {
             get { return TreeEntryTargetType.Blob; }

@@ -1,4 +1,5 @@
 ﻿using System;
+using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
 {
@@ -30,15 +31,15 @@ namespace LibGit2Sharp
 
     internal static class TreeEntryTargetTypeExtensions
     {
-        public static Core.GitObjectType ToGitObjectType(this TreeEntryTargetType type)
+        public static GitObjectType ToGitObjectType(this TreeEntryTargetType type)
         {
             switch (type)
             {
                 case TreeEntryTargetType.Tree:
-                    return Core.GitObjectType.Tree;
+                    return GitObjectType.Tree;
 
                 case TreeEntryTargetType.Blob:
-                    return Core.GitObjectType.Blob;
+                    return GitObjectType.Blob;
 
                 default:
                     throw new InvalidOperationException(string.Format("Cannot map {0} to a GitObjectType.", type));

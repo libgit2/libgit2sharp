@@ -69,7 +69,7 @@ namespace LibGit2Sharp
                     throw new ArgumentOutOfRangeException("index", "The passed index must be a positive integer.");
                 }
 
-                GitObject stashCommit = repo.Lookup(string.Format("stash@{{{0}}}", index), Core.GitObjectType.Commit, LookUpOptions.None);
+                GitObject stashCommit = repo.Lookup(string.Format("stash@{{{0}}}", index), GitObjectType.Commit, LookUpOptions.None);
 
                 return stashCommit == null ? null : new Stash(repo, stashCommit.Id, index);
             }
@@ -111,43 +111,6 @@ namespace LibGit2Sharp
             }
 
             Proxy.git_stash_drop(repo.Handle, index);
-        }
-
-        /// <summary>
-        ///   Remove a single stashed state from the stash list.
-        /// </summary>
-        /// <param name = "stashRefLog">The log reference of the stash to delete. Pattern is "stash@{i}" where i is the index of the stash to remove</param>
-        [Obsolete("This method will be removed in the next release. Please use Repository.Stashes.Remove(int) instead.")]
-        public virtual void Remove(string stashRefLog)
-        {
-            Ensure.ArgumentNotNullOrEmptyString(stashRefLog, "stashRefLog");
-
-            int index;
-            if (!TryExtractStashIndexFromRefLog(stashRefLog, out index) || index < 0)
-            {
-                throw new ArgumentException("must be a valid stash log reference. Pattern is 'stash@{i}' where 'i' is an integer", "stashRefLog");
-            }
-
-            Remove(index);
-        }
-
-        private static bool TryExtractStashIndexFromRefLog(string stashRefLog, out int index)
-        {
-            index = -1;
-
-            if (!stashRefLog.StartsWith("stash@{"))
-            {
-                return false;
-            }
-
-            if (!stashRefLog.EndsWith("}"))
-            {
-                return false;
-            }
-
-            var indexAsString = stashRefLog.Substring(7, stashRefLog.Length - 8);
-
-            return int.TryParse(indexAsString, out index);
         }
 
         private string DebuggerDisplay

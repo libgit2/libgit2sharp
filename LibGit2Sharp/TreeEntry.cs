@@ -32,8 +32,7 @@ namespace LibGit2Sharp
             this.repo = repo;
             targetOid = Proxy.git_tree_entry_id(obj);
 
-            Core.GitObjectType treeEntryTargetType = Proxy.git_tree_entry_type(obj);
-            Type = treeEntryTargetType.ToGitObjectType();
+            GitObjectType treeEntryTargetType = Proxy.git_tree_entry_type(obj);
             TargetType = treeEntryTargetType.ToTreeEntryTargetType();
 
             target = new Lazy<GitObject>(RetrieveTreeEntryTarget);
@@ -68,12 +67,6 @@ namespace LibGit2Sharp
         {
             get { return targetOid; }
         }
-
-        /// <summary>
-        ///   Gets the <see cref = "GitObjectType" /> of the <see cref = "Target" /> being pointed at.
-        /// </summary>
-        [Obsolete("This property will be removed in the next release. Please use TreeEntry.TargetType instead.")]
-        public virtual GitObjectType Type { get; private set; }
 
         /// <summary>
         ///   Gets the <see cref = "TreeEntryTargetType" /> of the <see cref = "Target" /> being pointed at.

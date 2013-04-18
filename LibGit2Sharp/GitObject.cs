@@ -60,17 +60,17 @@ namespace LibGit2Sharp
             get { return Id.Sha; }
         }
 
-        internal static GitObject BuildFrom(Repository repo, ObjectId id, Core.GitObjectType type, FilePath path)
+        internal static GitObject BuildFrom(Repository repo, ObjectId id, GitObjectType type, FilePath path)
         {
             switch (type)
             {
-                case Core.GitObjectType.Commit:
+                case GitObjectType.Commit:
                     return new Commit(repo, id);
-                case Core.GitObjectType.Tree:
+                case GitObjectType.Tree:
                     return new Tree(repo, id, path);
-                case Core.GitObjectType.Tag:
+                case GitObjectType.Tag:
                     return new TagAnnotation(repo, id);
-                case Core.GitObjectType.Blob:
+                case GitObjectType.Blob:
                     return new Blob(repo, id);
                 default:
                     throw new LibGit2SharpException(string.Format(CultureInfo.InvariantCulture, "Unexpected type '{0}' for object '{1}'.", type, id));
@@ -79,14 +79,14 @@ namespace LibGit2Sharp
 
         internal Commit DereferenceToCommit(bool throwsIfCanNotBeDereferencedToACommit)
         {
-            using (GitObjectSafeHandle peeledHandle = Proxy.git_object_peel(repo.Handle, Id, Core.GitObjectType.Commit, throwsIfCanNotBeDereferencedToACommit))
+            using (GitObjectSafeHandle peeledHandle = Proxy.git_object_peel(repo.Handle, Id, GitObjectType.Commit, throwsIfCanNotBeDereferencedToACommit))
             {
                 if (peeledHandle == null)
                 {
                     return null;
                 }
 
-                return (Commit)BuildFrom(repo, Proxy.git_object_id(peeledHandle), Core.GitObjectType.Commit, null);
+                return (Commit)BuildFrom(repo, Proxy.git_object_id(peeledHandle), GitObjectType.Commit, null);
             }
         }
 
