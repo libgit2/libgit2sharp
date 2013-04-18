@@ -217,15 +217,12 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Theory]
-        [InlineData("deleted_staged_file.txt")]
-        [InlineData("modified_unstaged_file.txt")]
-        [InlineData("shadowcopy_of_an_unseen_ghost.txt")]
-        public void RemovingAInvalidFileThrows(string filepath)
+        [Fact]
+        public void RemovingAModifiedFileThrows()
         {
             using (var repo = new Repository(StandardTestRepoPath))
             {
-                Assert.Throws<LibGit2SharpException>(() => repo.Index.Remove(filepath));
+                Assert.Throws<LibGit2SharpException>(() => repo.Index.Remove("modified_unstaged_file.txt"));
             }
         }
 

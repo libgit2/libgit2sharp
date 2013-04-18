@@ -22,6 +22,7 @@ namespace LibGit2Sharp
         private readonly List<TreeEntryChanges> deleted = new List<TreeEntryChanges>();
         private readonly List<TreeEntryChanges> modified = new List<TreeEntryChanges>();
         private readonly List<TreeEntryChanges> typeChanged = new List<TreeEntryChanges>();
+        private readonly List<TreeEntryChanges> unmodified = new List<TreeEntryChanges>();
         private int linesAdded;
         private int linesDeleted;
 
@@ -37,6 +38,7 @@ namespace LibGit2Sharp
                            { ChangeKind.Deleted, (de, d) => de.deleted.Add(d) },
                            { ChangeKind.Added, (de, d) => de.added.Add(d) },
                            { ChangeKind.TypeChanged, (de, d) => de.typeChanged.Add(d) },
+                           { ChangeKind.Unmodified, (de, d) => de.unmodified.Add(d) },
                        };
         }
 
@@ -56,7 +58,7 @@ namespace LibGit2Sharp
             string formattedoutput = Utf8Marshaler.FromNative(content, (int)contentlen);
 
             TreeEntryChanges currentChange = AddFileChange(delta, lineorigin);
-            if (currentChange == null)
+            if (delta.Status == ChangeKind.Unmodified)
             {
                 return 0;
             }
@@ -87,11 +89,6 @@ namespace LibGit2Sharp
 
         private TreeEntryChanges AddFileChange(GitDiffDelta delta, GitDiffLineOrigin lineorigin)
         {
-            if (delta.Status == ChangeKind.Unmodified)
-            {
-                return null;
-            }
-
             var newFilePath = FilePathMarshaler.FromNative(delta.NewFile.Path);
 
             if (lineorigin != GitDiffLineOrigin.GIT_DIFF_LINE_FILE_HDR)
