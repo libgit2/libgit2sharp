@@ -14,6 +14,8 @@ namespace LibGit2Sharp.Tests
             {
                 return new[]
                 {
+                    new string[] { "DIFFERS-IN-CASE.TXT", "0a636a157ae305b03f3f4eb8c37fbfca7ab7564a", "e8f3bf056a12d2efa65f0a46f444e5eadb827913", "b607afb8beef6d80d8007c76f8600f3287d4b84c" },
+                    new string[] { "Differs-In-Case.txt", "a1531c7e02a3aa4938858d6840a8b4859b188525", "920826a357cfa0867f8598e05038136c9d1a1f5e", "9dc12deeb6c9ed1746b788e3442df3e38e5deeae" },
                     new string[] { "ancestor-and-ours.txt", "5dee68477001f447f50fa7ee7e6a818370b5c2fb", "dad0664ae617d36e464ec08ed969ff496432b075", null },
                     new string[] { "ancestor-and-theirs.txt", "3aafd4d0bac33cc3c78c4c070f3966fb6e6f641a", null, "7b26cd5ac0ee68483ae4d5e1e00b064547ea8c9b" },
                     new string[] { "ancestor-only.txt", "9736f4cd77759672322f3222ed3ddead1412d969", null, null },

@@ -1,15 +1,41 @@
-0000000000000000000000000000000000000000 9107b30fe11ff310fec93876469147b263fb958c Edward Thomson <ethomson@microsoft.com> 1360632480 -0600	commit (initial): ancestor
-9107b30fe11ff310fec93876469147b263fb958c 9107b30fe11ff310fec93876469147b263fb958c Edward Thomson <ethomson@microsoft.com> 1360632483 -0600	checkout: moving from master to branch
-9107b30fe11ff310fec93876469147b263fb958c d4c107581ff54a41fd496e0a1f1b7b3354752103 Edward Thomson <ethomson@microsoft.com> 1360632833 -0600	commit: branch
-d4c107581ff54a41fd496e0a1f1b7b3354752103 9107b30fe11ff310fec93876469147b263fb958c Edward Thomson <ethomson@microsoft.com> 1360632835 -0600	checkout: moving from branch to master
-9107b30fe11ff310fec93876469147b263fb958c 8b19fd77de5995e6e502e7c3b82657248f510325 Edward Thomson <ethomson@microsoft.com> 1360633224 -0600	commit: ours
-8b19fd77de5995e6e502e7c3b82657248f510325 91116bad97c50a2daa278ca6cffe16d0118befe5 Edward Thomson <ethomson@microsoft.com> 1360633337 -0600	commit: ours
-91116bad97c50a2daa278ca6cffe16d0118befe5 8b19fd77de5995e6e502e7c3b82657248f510325 Edward Thomson <ethomson@microsoft.com> 1360633358 -0600	checkout: moving from master to 8b19fd7
-8b19fd77de5995e6e502e7c3b82657248f510325 9b2f98b1c086d3929eac387d39fae94425e0115f Edward Thomson <ethomson@microsoft.com> 1360633359 -0600	rebase -i (squash): ours
-9b2f98b1c086d3929eac387d39fae94425e0115f 9b2f98b1c086d3929eac387d39fae94425e0115f Edward Thomson <ethomson@microsoft.com> 1360633362 -0600	rebase -i (finish): returning to refs/heads/master
-9b2f98b1c086d3929eac387d39fae94425e0115f d4c107581ff54a41fd496e0a1f1b7b3354752103 Edward Thomson <ethomson@microsoft.com> 1360633367 -0600	checkout: moving from master to branch
-d4c107581ff54a41fd496e0a1f1b7b3354752103 493209f496e504d63fd78e8c5b800083b442ea34 Edward Thomson <ethomson@microsoft.com> 1360633416 -0600	commit: branch
-493209f496e504d63fd78e8c5b800083b442ea34 d4c107581ff54a41fd496e0a1f1b7b3354752103 Edward Thomson <ethomson@microsoft.com> 1360633427 -0600	checkout: moving from branch to d4c1075
-d4c107581ff54a41fd496e0a1f1b7b3354752103 8eefb6f8061e4d10a7a59aac8771dc17958d93eb Edward Thomson <ethomson@microsoft.com> 1360633429 -0600	rebase -i (squash): branch
-8eefb6f8061e4d10a7a59aac8771dc17958d93eb 8eefb6f8061e4d10a7a59aac8771dc17958d93eb Edward Thomson <ethomson@microsoft.com> 1360633436 -0600	rebase -i (finish): returning to refs/heads/branch
-8eefb6f8061e4d10a7a59aac8771dc17958d93eb 9b2f98b1c086d3929eac387d39fae94425e0115f Edward Thomson <ethomson@microsoft.com> 1360633440 -0600	checkout: moving from branch to master
+0000000000000000000000000000000000000000 2b76b92053e9efe82a0f14beb6ac7acfbb379152 Edward Thomson <ethomson@microsoft.com> 1361388250 -0600	commit (initial): initial revision
+2b76b92053e9efe82a0f14beb6ac7acfbb379152 2b76b92053e9efe82a0f14beb6ac7acfbb379152 Edward Thomson <ethomson@microsoft.com> 1361388263 -0600	checkout: moving from master to theirs
+2b76b92053e9efe82a0f14beb6ac7acfbb379152 13cec9650a916e4c56f25190374feaa7d5b2a7a0 Edward Thomson <ethomson@microsoft.com> 1361388388 -0600	commit: branch
+13cec9650a916e4c56f25190374feaa7d5b2a7a0 2b76b92053e9efe82a0f14beb6ac7acfbb379152 Edward Thomson <ethomson@microsoft.com> 1361388397 -0600	checkout: moving from theirs to master
+2b76b92053e9efe82a0f14beb6ac7acfbb379152 5a72e1a3f30b8293837a0a484b73cdb38b837af6 Edward Thomson <ethomson@microsoft.com> 1361389221 -0600	commit: master
+5a72e1a3f30b8293837a0a484b73cdb38b837af6 c36b153fea52530b41949987577542eec6312282 Edward Thomson <ethomson@microsoft.com> 1361389283 -0600	commit: master
+c36b153fea52530b41949987577542eec6312282 5a72e1a3f30b8293837a0a484b73cdb38b837af6 Edward Thomson <ethomson@microsoft.com> 1361389302 -0600	checkout: moving from master to 5a72e1a
+5a72e1a3f30b8293837a0a484b73cdb38b837af6 2b76b92053e9efe82a0f14beb6ac7acfbb379152 Edward Thomson <ethomson@microsoft.com> 1361389302 -0600	rebase -i (squash): updating HEAD
+2b76b92053e9efe82a0f14beb6ac7acfbb379152 3e1bdb064a067e4ef4c70f1c0e237a114212e24e Edward Thomson <ethomson@microsoft.com> 1361389302 -0600	rebase -i (squash): master
+3e1bdb064a067e4ef4c70f1c0e237a114212e24e 3e1bdb064a067e4ef4c70f1c0e237a114212e24e Edward Thomson <ethomson@microsoft.com> 1361389306 -0600	rebase -i (finish): returning to refs/heads/master
+3e1bdb064a067e4ef4c70f1c0e237a114212e24e 8b892154edc67fd70272f3aec4c343d3c0288781 Edward Thomson <ethomson@microsoft.com> 1361389647 -0600	commit: foo
+8b892154edc67fd70272f3aec4c343d3c0288781 3e1bdb064a067e4ef4c70f1c0e237a114212e24e Edward Thomson <ethomson@microsoft.com> 1361389657 -0600	checkout: moving from master to 3e1bdb0
+3e1bdb064a067e4ef4c70f1c0e237a114212e24e 2b76b92053e9efe82a0f14beb6ac7acfbb379152 Edward Thomson <ethomson@microsoft.com> 1361389657 -0600	rebase -i (squash): updating HEAD
+2b76b92053e9efe82a0f14beb6ac7acfbb379152 53e30938e49c5fcea36d7d6f5957e4e57983ddd4 Edward Thomson <ethomson@microsoft.com> 1361389657 -0600	rebase -i (squash): master
+53e30938e49c5fcea36d7d6f5957e4e57983ddd4 53e30938e49c5fcea36d7d6f5957e4e57983ddd4 Edward Thomson <ethomson@microsoft.com> 1361389659 -0600	rebase -i (finish): returning to refs/heads/master
+53e30938e49c5fcea36d7d6f5957e4e57983ddd4 13cec9650a916e4c56f25190374feaa7d5b2a7a0 Edward Thomson <ethomson@microsoft.com> 1361389670 -0600	checkout: moving from master to branch
+13cec9650a916e4c56f25190374feaa7d5b2a7a0 de789ec44c23aaff846394af42989f68cf839201 Edward Thomson <ethomson@microsoft.com> 1361389786 -0600	commit: foo
+de789ec44c23aaff846394af42989f68cf839201 13cec9650a916e4c56f25190374feaa7d5b2a7a0 Edward Thomson <ethomson@microsoft.com> 1361389793 -0600	checkout: moving from branch to 13cec96
+13cec9650a916e4c56f25190374feaa7d5b2a7a0 2b76b92053e9efe82a0f14beb6ac7acfbb379152 Edward Thomson <ethomson@microsoft.com> 1361389794 -0600	rebase -i (squash): updating HEAD
+2b76b92053e9efe82a0f14beb6ac7acfbb379152 f5368e572a1034743cbb728451dce4633a834781 Edward Thomson <ethomson@microsoft.com> 1361389794 -0600	rebase -i (squash): branch
+f5368e572a1034743cbb728451dce4633a834781 f5368e572a1034743cbb728451dce4633a834781 Edward Thomson <ethomson@microsoft.com> 1361389795 -0600	rebase -i (finish): returning to refs/heads/branch
+f5368e572a1034743cbb728451dce4633a834781 53e30938e49c5fcea36d7d6f5957e4e57983ddd4 Edward Thomson <ethomson@microsoft.com> 1361389800 -0600	checkout: moving from branch to master
+53e30938e49c5fcea36d7d6f5957e4e57983ddd4 f5368e572a1034743cbb728451dce4633a834781 Edward Thomson <ethomson@microsoft.com> 1361389832 -0600	checkout: moving from master to branch
+f5368e572a1034743cbb728451dce4633a834781 1249d12517e2735c3aa90e3a4d3e2fd45fcbe729 Edward Thomson <ethomson@microsoft.com> 1361389854 -0600	commit: branch
+1249d12517e2735c3aa90e3a4d3e2fd45fcbe729 f5368e572a1034743cbb728451dce4633a834781 Edward Thomson <ethomson@microsoft.com> 1361389861 -0600	checkout: moving from branch to f5368e5
+f5368e572a1034743cbb728451dce4633a834781 2b76b92053e9efe82a0f14beb6ac7acfbb379152 Edward Thomson <ethomson@microsoft.com> 1361389861 -0600	rebase -i (squash): updating HEAD
+2b76b92053e9efe82a0f14beb6ac7acfbb379152 6056409e3075f145072e623491007723326df3b9 Edward Thomson <ethomson@microsoft.com> 1361389861 -0600	rebase -i (squash): branch
+6056409e3075f145072e623491007723326df3b9 6056409e3075f145072e623491007723326df3b9 Edward Thomson <ethomson@microsoft.com> 1361389863 -0600	rebase -i (finish): returning to refs/heads/branch
+6056409e3075f145072e623491007723326df3b9 53e30938e49c5fcea36d7d6f5957e4e57983ddd4 Edward Thomson <ethomson@microsoft.com> 1361389870 -0600	checkout: moving from branch to master
+53e30938e49c5fcea36d7d6f5957e4e57983ddd4 381740f5bae5d776f0ab5d1bbd06f6b5f2191c7d Edward Thomson <ethomson@microsoft.com> 1361390064 -0600	commit: master
+381740f5bae5d776f0ab5d1bbd06f6b5f2191c7d 53e30938e49c5fcea36d7d6f5957e4e57983ddd4 Edward Thomson <ethomson@microsoft.com> 1361390073 -0600	checkout: moving from master to 53e3093
+53e30938e49c5fcea36d7d6f5957e4e57983ddd4 2b76b92053e9efe82a0f14beb6ac7acfbb379152 Edward Thomson <ethomson@microsoft.com> 1361390073 -0600	rebase -i (squash): updating HEAD
+2b76b92053e9efe82a0f14beb6ac7acfbb379152 1fb39db5a5c17e76627c8af5dda3e0143c9d3425 Edward Thomson <ethomson@microsoft.com> 1361390073 -0600	rebase -i (squash): master
+1fb39db5a5c17e76627c8af5dda3e0143c9d3425 1fb39db5a5c17e76627c8af5dda3e0143c9d3425 Edward Thomson <ethomson@microsoft.com> 1361390075 -0600	rebase -i (finish): returning to refs/heads/master
+1fb39db5a5c17e76627c8af5dda3e0143c9d3425 6056409e3075f145072e623491007723326df3b9 Edward Thomson <ethomson@microsoft.com> 1361390078 -0600	checkout: moving from master to branch
+6056409e3075f145072e623491007723326df3b9 08dcaefb23daaf07d96afcd42e603d328721a20c Edward Thomson <ethomson@microsoft.com> 1361390098 -0600	commit: branch
+08dcaefb23daaf07d96afcd42e603d328721a20c 6056409e3075f145072e623491007723326df3b9 Edward Thomson <ethomson@microsoft.com> 1361390104 -0600	checkout: moving from branch to 6056409
+6056409e3075f145072e623491007723326df3b9 2b76b92053e9efe82a0f14beb6ac7acfbb379152 Edward Thomson <ethomson@microsoft.com> 1361390104 -0600	rebase -i (squash): updating HEAD
+2b76b92053e9efe82a0f14beb6ac7acfbb379152 1a5284b70c1b2a405ff99172b20c9d41cf56227a Edward Thomson <ethomson@microsoft.com> 1361390104 -0600	rebase -i (squash): branch
+1a5284b70c1b2a405ff99172b20c9d41cf56227a 1a5284b70c1b2a405ff99172b20c9d41cf56227a Edward Thomson <ethomson@microsoft.com> 1361390105 -0600	rebase -i (finish): returning to refs/heads/branch
+1a5284b70c1b2a405ff99172b20c9d41cf56227a 1fb39db5a5c17e76627c8af5dda3e0143c9d3425 Edward Thomson <ethomson@microsoft.com> 1361390112 -0600	checkout: moving from branch to master

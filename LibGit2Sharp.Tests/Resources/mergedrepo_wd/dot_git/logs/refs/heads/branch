@@ -1,4 +1,6 @@
-0000000000000000000000000000000000000000 9107b30fe11ff310fec93876469147b263fb958c Edward Thomson <ethomson@microsoft.com> 1360632483 -0600	branch: Created from HEAD
-9107b30fe11ff310fec93876469147b263fb958c d4c107581ff54a41fd496e0a1f1b7b3354752103 Edward Thomson <ethomson@microsoft.com> 1360632833 -0600	commit: branch
-d4c107581ff54a41fd496e0a1f1b7b3354752103 493209f496e504d63fd78e8c5b800083b442ea34 Edward Thomson <ethomson@microsoft.com> 1360633416 -0600	commit: branch
-493209f496e504d63fd78e8c5b800083b442ea34 8eefb6f8061e4d10a7a59aac8771dc17958d93eb Edward Thomson <ethomson@microsoft.com> 1360633436 -0600	rebase -i (finish): refs/heads/branch onto d4c1075
+13cec9650a916e4c56f25190374feaa7d5b2a7a0 de789ec44c23aaff846394af42989f68cf839201 Edward Thomson <ethomson@microsoft.com> 1361389786 -0600	commit: foo
+de789ec44c23aaff846394af42989f68cf839201 f5368e572a1034743cbb728451dce4633a834781 Edward Thomson <ethomson@microsoft.com> 1361389795 -0600	rebase -i (finish): refs/heads/branch onto 13cec96
+f5368e572a1034743cbb728451dce4633a834781 1249d12517e2735c3aa90e3a4d3e2fd45fcbe729 Edward Thomson <ethomson@microsoft.com> 1361389854 -0600	commit: branch
+1249d12517e2735c3aa90e3a4d3e2fd45fcbe729 6056409e3075f145072e623491007723326df3b9 Edward Thomson <ethomson@microsoft.com> 1361389863 -0600	rebase -i (finish): refs/heads/branch onto f5368e5
+6056409e3075f145072e623491007723326df3b9 08dcaefb23daaf07d96afcd42e603d328721a20c Edward Thomson <ethomson@microsoft.com> 1361390098 -0600	commit: branch
+08dcaefb23daaf07d96afcd42e603d328721a20c 1a5284b70c1b2a405ff99172b20c9d41cf56227a Edward Thomson <ethomson@microsoft.com> 1361390105 -0600	rebase -i (finish): refs/heads/branch onto 6056409
