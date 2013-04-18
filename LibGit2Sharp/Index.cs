@@ -293,10 +293,13 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Removes a file from the working directory and promotes the removal to the staging area.
+        ///   Removes a file from the staging area, and optionally removes it from the working directory as well.
         ///   <para>
         ///     If the file has already been deleted from the working directory, this method will only deal
         ///     with promoting the removal to the staging area.
+        ///   </para>
+        ///   <para>
+        ///     The default behavior is to remove the file from the working directory as well.
         ///   </para>
         ///   <para>
         ///     When not passing a <paramref name = "explicitPathsOptions"/>, the passed path will be treated as
@@ -305,22 +308,26 @@ namespace LibGit2Sharp
         ///   </para>
         /// </summary>
         /// <param name = "path">The path of the file within the working directory.</param>
+        /// <param name = "removeFromWorkingDirectory">True to remove the file from the working directory, False otherwise.</param>
         /// <param name = "explicitPathsOptions">
         ///   If set, the passed <paramref name="path"/> will be treated as an explicit path.
         ///   Use these options to determine how unmatched explicit paths should be handled.
         /// </param>
-        public virtual void Remove(string path, ExplicitPathsOptions explicitPathsOptions = null)
+        public virtual void Remove(string path, bool removeFromWorkingDirectory = true, ExplicitPathsOptions explicitPathsOptions = null)
         {
             Ensure.ArgumentNotNull(path, "path");
 
-            Remove(new[] { path }, explicitPathsOptions);
+            Remove(new[] { path }, removeFromWorkingDirectory, explicitPathsOptions);
         }
 
         /// <summary>
-        ///   Removes a collection of files from the working directory and promotes the removal to the staging area.
+        ///   Removes a collection of fileS from the staging, and optionally removes them from the working directory as well.
         ///   <para>
         ///     If a file has already been deleted from the working directory, this method will only deal
         ///     with promoting the removal to the staging area.
+        ///   </para>
+        ///   <para>
+        ///     The default behavior is to remove the files from the working directory as well.
         ///   </para>
         ///   <para>
         ///     When not passing a <paramref name = "explicitPathsOptions"/>, the passed paths will be treated as
@@ -329,11 +336,12 @@ namespace LibGit2Sharp
         ///   </para>
         /// </summary>
         /// <param name = "paths">The collection of paths of the files within the working directory.</param>
+        /// <param name = "removeFromWorkingDirectory">True to remove the files from the working directory, False otherwise.</param>
         /// <param name = "explicitPathsOptions">
         ///   If set, the passed <paramref name="paths"/> will be treated as explicit paths.
         ///   Use these options to determine how unmatched explicit paths should be handled.
         /// </param>
-        public virtual void Remove(IEnumerable<string> paths, ExplicitPathsOptions explicitPathsOptions = null)
+        public virtual void Remove(IEnumerable<string> paths, bool removeFromWorkingDirectory = true, ExplicitPathsOptions explicitPathsOptions = null)
         {
             var pathsList = paths.ToList();
             TreeChanges changes = repo.Diff.Compare(DiffOptions.IncludeUnmodified | DiffOptions.IncludeUntracked, pathsList, explicitPathsOptions);
@@ -359,7 +367,10 @@ namespace LibGit2Sharp
                 }
             }
 
+            if (removeFromWorkingDirectory)
+            {
                 RemoveFilesAndFolders(pathsTodelete);
+            }
 
             UpdatePhysicalIndex();
         }
