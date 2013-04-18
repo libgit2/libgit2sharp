@@ -112,7 +112,7 @@ namespace LibGit2Sharp
         ///   property to "refs/heads/master".
         /// </para>
         /// </summary>
-        [Obsolete("This property will be removed in the next release. Please use BranchUpdate.UpstreamMergeBranchCanonicalName instead.")]
+        [Obsolete("This property will be removed in the next release. Please use BranchUpdate.Remote instead.")]
         public virtual string UpstreamRemote
         {
             set { Remote = value; }
