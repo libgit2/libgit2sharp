@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Compat;
@@ -319,62 +320,36 @@ namespace LibGit2Sharp
             //TODO: Remove() should support following use cases:
             // - Removing a directory and its content
 
-            IEnumerable<KeyValuePair<string, FileStatus>> batch = PrepareBatch(paths);
+            var pathsList = paths.ToList();
+            TreeChanges changes = repo.Diff.Compare(DiffOptions.IncludeUnmodified | DiffOptions.IncludeUntracked, pathsList);
 
-            foreach (KeyValuePair<string, FileStatus> keyValuePair in batch)
+            foreach (var treeEntryChanges in changes)
             {
-                if (Directory.Exists(keyValuePair.Key))
+                switch (treeEntryChanges.Status)
                 {
-                    throw new NotImplementedException();
-                }
+                    case ChangeKind.Added:
+                    case ChangeKind.Deleted:
+                    case ChangeKind.Unmodified:
+                        RemoveFromIndex(treeEntryChanges.Path);
+                        continue;
 
-                if (!keyValuePair.Value.HasAny(new[] { FileStatus.Nonexistent, FileStatus.Removed, FileStatus.Modified, FileStatus.Untracked }))
-                {
-                    continue;
+                    default:
+                        throw new LibGit2SharpException(string.Format(CultureInfo.InvariantCulture, "Unable to remove file '{0}'. Its current status is '{1}'.",
+                            treeEntryChanges.Path, treeEntryChanges.Status));
                 }
-
-                throw new LibGit2SharpException(string.Format(CultureInfo.InvariantCulture, "Unable to remove file '{0}'. Its current status is '{1}'.", keyValuePair.Key, keyValuePair.Value));
             }
 
             string wd = repo.Info.WorkingDirectory;
-            foreach (KeyValuePair<string, FileStatus> keyValuePair in batch)
+            foreach (string path in pathsList.Where(p => !Directory.Exists(p)))
             {
-                RemoveFromIndex(keyValuePair.Key);
-
-                if (File.Exists(Path.Combine(wd, keyValuePair.Key)))
+                string fullPath = Path.Combine(wd, path);
+                if (File.Exists(fullPath))
                 {
-                    File.Delete(Path.Combine(wd, keyValuePair.Key));
+                    File.Delete(fullPath);
                 }
             }
 
             UpdatePhysicalIndex();
-        }
-
-        private IEnumerable<KeyValuePair<string, FileStatus>> PrepareBatch(IEnumerable<string> paths)
-        {
-            Ensure.ArgumentNotNull(paths, "paths");
-
-            IDictionary<string, FileStatus> dic = new Dictionary<string, FileStatus>();
-
-            foreach (string path in paths)
-            {
-                if (string.IsNullOrEmpty(path))
-                {
-                    throw new ArgumentException("At least one provided path is either null or empty.", "paths");
-                }
-
-                string relativePath = repo.BuildRelativePathFrom(path);
-                FileStatus fileStatus = RetrieveStatus(relativePath);
-
-                dic.Add(relativePath, fileStatus);
-            }
-
-            if (dic.Count == 0)
-            {
-                throw new ArgumentException("No path has been provided.", "paths");
-            }
-
-            return dic;
         }
 
         private IDictionary<Tuple<string, FileStatus>, Tuple<string, FileStatus>> PrepareBatch(IEnumerable<string> leftPaths, IEnumerable<string> rightPaths)
