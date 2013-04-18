@@ -216,6 +216,29 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        [Fact]
+        public void CanRemoveAFileWithoutRemovingItFromTheWorkingDirectory()
+        {
+            const string fileName = "1/branch_file.txt";
+
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
+            {
+                int count = repo.Index.Count;
+
+                string fullpath = Path.Combine(repo.Info.WorkingDirectory, fileName);
+
+                Assert.Equal(FileStatus.Unaltered, repo.Index.RetrieveStatus(fileName));
+                Assert.True(File.Exists(fullpath));
+
+                repo.Index.Remove(fileName, false);
+
+                Assert.Equal(count - 1, repo.Index.Count);
+                Assert.True(File.Exists(fullpath));
+                Assert.Equal(FileStatus.Untracked | FileStatus.Removed, repo.Index.RetrieveStatus(fileName));
+            }
+        }
+
         [Theory]
         [InlineData("1/branch_file.txt", FileStatus.Unaltered, true, FileStatus.Removed)]
         [InlineData("deleted_unstaged_file.txt", FileStatus.Missing, false, FileStatus.Removed)]
@@ -250,7 +273,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(status, repo.Index.RetrieveStatus(relativePath));
 
                 repo.Index.Remove(relativePath);
-                repo.Index.Remove(relativePath, new ExplicitPathsOptions { ShouldFailOnUnmatchedPath = false });
+                repo.Index.Remove(relativePath, explicitPathsOptions: new ExplicitPathsOptions { ShouldFailOnUnmatchedPath = false });
             }
         }
 
