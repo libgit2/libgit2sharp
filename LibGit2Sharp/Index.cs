@@ -350,6 +350,8 @@ namespace LibGit2Sharp
 
             foreach (var treeEntryChanges in changes)
             {
+                var status = repo.Index.RetrieveStatus(treeEntryChanges.Path);
+
                 switch (treeEntryChanges.Status)
                 {
                     case ChangeKind.Added:
@@ -358,11 +360,33 @@ namespace LibGit2Sharp
                         break;
 
                     case ChangeKind.Unmodified:
+                        if (removeFromWorkingDirectory && (
+                            status.HasFlag(FileStatus.Staged) ||
+                            status.HasFlag(FileStatus.Added)))
+                        {
+                            throw new RemoveFromIndexException(string.Format(CultureInfo.InvariantCulture, "Unable to remove file '{0}', as it has changes staged in the index. You can call the Remove() method with removeFromWorkingDirectory=false if you want to remove it from the index only.",
+                                treeEntryChanges.Path));
+                        }
                         pathsTodelete.Add(RemoveFromIndex(treeEntryChanges.Path));
                         continue;
 
+                    case ChangeKind.Modified:
+                        if (status.HasFlag(FileStatus.Modified) && status.HasFlag(FileStatus.Staged))
+                        {
+                            throw new RemoveFromIndexException(string.Format(CultureInfo.InvariantCulture, "Unable to remove file '{0}', as it has staged content different from both the working directory and the HEAD.",
+                                treeEntryChanges.Path));
+                        }
+                        if (removeFromWorkingDirectory)
+                        {
+                            throw new RemoveFromIndexException(string.Format(CultureInfo.InvariantCulture, "Unable to remove file '{0}', as it has local modifications. You can call the Remove() method with removeFromWorkingDirectory=false if you want to remove it from the index only.",
+                                treeEntryChanges.Path));
+                        }
+                        pathsTodelete.Add(RemoveFromIndex(treeEntryChanges.Path));
+                        continue;
+
+
                     default:
-                        throw new LibGit2SharpException(string.Format(CultureInfo.InvariantCulture, "Unable to remove file '{0}'. Its current status is '{1}'.",
+                        throw new RemoveFromIndexException(string.Format(CultureInfo.InvariantCulture, "Unable to remove file '{0}'. Its current status is '{1}'.",
                             treeEntryChanges.Path, treeEntryChanges.Status));
                 }
             }

@@ -195,7 +195,7 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
-        public void CanRemoveAFolderThroughUsageOfPathspecs()
+        public void CanRemoveAFolderThroughUsageOfPathspecsForNewlyAddedFiles()
         {
             string path = CloneStandardTestRepo();
             using (var repo = new Repository(path))
@@ -209,15 +209,30 @@ namespace LibGit2Sharp.Tests
                 int count = repo.Index.Count;
 
                 Assert.True(Directory.Exists(Path.Combine(repo.Info.WorkingDirectory, "2")));
-                repo.Index.Remove("2");
+                repo.Index.Remove("2", false);
 
-                Assert.False(Directory.Exists(Path.Combine(repo.Info.WorkingDirectory, "2")));
                 Assert.Equal(count - 5, repo.Index.Count);
             }
         }
 
         [Fact]
-        public void CanRemoveAFileWithoutRemovingItFromTheWorkingDirectory()
+        public void CanRemoveAFolderThroughUsageOfPathspecsForFilesAlreadyInTheIndexAndInTheHEAD()
+        {
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
+            {
+                int count = repo.Index.Count;
+
+                Assert.True(Directory.Exists(Path.Combine(repo.Info.WorkingDirectory, "1")));
+                repo.Index.Remove("1");
+
+                Assert.False(Directory.Exists(Path.Combine(repo.Info.WorkingDirectory, "1")));
+                Assert.Equal(count - 1, repo.Index.Count);
+            }
+        }
+
+        [Fact]
+        public void CanRemoveAnUnalteredFileFromTheIndexWithoutRemovingItFromTheWorkingDirectory()
         {
             const string fileName = "1/branch_file.txt";
 
@@ -267,13 +282,17 @@ namespace LibGit2Sharp.Tests
         [InlineData("1/I-do-not-exist.txt", FileStatus.Nonexistent)]
         public void RemovingAnUnknownFileWithLaxExplicitPathsValidationDoesntThrow(string relativePath, FileStatus status)
         {
-            using (var repo = new Repository(StandardTestRepoPath))
+            for (int i = 0; i < 2; i++)
             {
-                Assert.Null(repo.Index[relativePath]);
-                Assert.Equal(status, repo.Index.RetrieveStatus(relativePath));
+                using (var repo = new Repository(StandardTestRepoPath))
+                {
+                    Assert.Null(repo.Index[relativePath]);
+                    Assert.Equal(status, repo.Index.RetrieveStatus(relativePath));
 
-                repo.Index.Remove(relativePath);
-                repo.Index.Remove(relativePath, explicitPathsOptions: new ExplicitPathsOptions { ShouldFailOnUnmatchedPath = false });
+                    repo.Index.Remove(relativePath, i % 2 == 0);
+                    repo.Index.Remove(relativePath, i % 2 == 0,
+                                      new ExplicitPathsOptions {ShouldFailOnUnmatchedPath = false});
+                }
             }
         }
 
@@ -282,21 +301,189 @@ namespace LibGit2Sharp.Tests
         [InlineData("1/I-do-not-exist.txt", FileStatus.Nonexistent)]
         public void RemovingAnUnknownFileThrowsIfExplicitPath(string relativePath, FileStatus status)
         {
-            using (var repo = new Repository(StandardTestRepoPath))
+            for (int i = 0; i < 2; i++)
             {
-                Assert.Null(repo.Index[relativePath]);
-                Assert.Equal(status, repo.Index.RetrieveStatus(relativePath));
+                using (var repo = new Repository(StandardTestRepoPath))
+                {
+                    Assert.Null(repo.Index[relativePath]);
+                    Assert.Equal(status, repo.Index.RetrieveStatus(relativePath));
 
-                Assert.Throws<UnmatchedPathException>(() => repo.Index.Remove(relativePath, new ExplicitPathsOptions()));
+                    Assert.Throws<UnmatchedPathException>(
+                        () => repo.Index.Remove(relativePath, i%2 == 0, new ExplicitPathsOptions()));
+                }
             }
         }
 
+        /* Test case: modified file in wd, the modifications have not been promoted to the index yet.
+         * 'git rm <file>' fails ("error: '<file>' has local modifications").
+         */
         [Fact]
-        public void RemovingAModifiedFileThrows()
+        public void RemovingAModifiedFileWhoseChangesHaveNotBeenPromotedToTheIndexThrows()
         {
             using (var repo = new Repository(StandardTestRepoPath))
             {
-                Assert.Throws<LibGit2SharpException>(() => repo.Index.Remove("modified_unstaged_file.txt"));
+                Assert.Throws<RemoveFromIndexException>(() => repo.Index.Remove("modified_unstaged_file.txt"));
+            }
+        }
+
+        /* Test case: modified file in wd, the modifications have not been promoted to the index yet.
+         * 'git rm --cached <file>' works (removes the file from the index)
+         */
+        [Fact]
+        public void CanRemoveAModifiedFileWhoseChangesHaveNotBeenPromotedToTheIndex()
+        {
+            const string filename = "modified_unstaged_file.txt";
+
+            var path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
+            {
+                int count = repo.Index.Count;
+
+                string fullpath = Path.Combine(repo.Info.WorkingDirectory, filename);
+
+                Assert.Equal(true, File.Exists(fullpath));
+                Assert.Equal(FileStatus.Modified, repo.Index.RetrieveStatus(filename));
+
+                repo.Index.Remove(filename, false);
+
+                Assert.Equal(count - 1, repo.Index.Count);
+                Assert.True(File.Exists(fullpath));
+                Assert.Equal(FileStatus.Untracked | FileStatus.Removed, repo.Index.RetrieveStatus(filename));
+            }
+        }
+
+        /* Test case: modified file in wd, the modifications have already been promoted to the index.
+         * 'git rm <file>' fails ("error: '<file>' has changes staged in the index")
+         */
+        [Fact]
+        public void RemovingAModifiedFileWhoseChangesHaveBeenPromotedToTheIndexThrows()
+        {
+            using (var repo = new Repository(StandardTestRepoPath))
+            {
+                Assert.Throws<RemoveFromIndexException>(() => repo.Index.Remove("modified_staged_file.txt"));
+            }
+        }
+
+        /* Test case: modified file in wd, the modifications have already been promoted to the index.
+         * 'git rm --cached <file>' works (removes the file from the index)
+         */
+        [Fact]
+        public void CanRemoveAModifiedFileWhoseChangesHaveBeenPromotedToTheIndex()
+        {
+            const string filename = "modified_staged_file.txt";
+
+            var path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
+            {
+                int count = repo.Index.Count;
+
+                string fullpath = Path.Combine(repo.Info.WorkingDirectory, filename);
+
+                Assert.Equal(true, File.Exists(fullpath));
+                Assert.Equal(FileStatus.Staged, repo.Index.RetrieveStatus(filename));
+
+                repo.Index.Remove(filename, false);
+
+                Assert.Equal(count - 1, repo.Index.Count);
+                Assert.True(File.Exists(fullpath));
+                Assert.Equal(FileStatus.Untracked | FileStatus.Removed, repo.Index.RetrieveStatus(filename));
+            }
+        }
+
+        /* Test case: modified file in wd, the modifications have already been promoted to the index, and
+         * new modifications have been made in the wd.
+         * 'git rm <file>' and 'git rm --cached <file>' both fail ("error: '<file>' has staged content different from both the file and the HEAD")
+         */
+        [Fact]
+        public void RemovingAModifiedFileWhoseChangesHaveBeenPromotedToTheIndexAndWithAdditionalModificationsMadeToItThrows()
+        {
+            const string filename = "modified_staged_file.txt";
+
+            var path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
+            {
+                string fullpath = Path.Combine(repo.Info.WorkingDirectory, filename);
+
+                Assert.Equal(true, File.Exists(fullpath));
+
+                File.AppendAllText(fullpath, "additional content");
+                Assert.Equal(FileStatus.Staged | FileStatus.Modified, repo.Index.RetrieveStatus(filename));
+
+                Assert.Throws<RemoveFromIndexException>(() => repo.Index.Remove(filename));
+                Assert.Throws<RemoveFromIndexException>(() => repo.Index.Remove(filename, false));
+            }
+        }
+
+        /* Test case: modified file in wd, the modifications have already been promoted to the index, and
+         * the file does not exist in the HEAD.
+         * 'git rm <file>' throws ("error: '<file>' has changes staged in the index")
+         */
+        [Fact]
+        public void RemovingANewlyAddedFileThrows()
+        {
+            const string filename = "new_tracked_file.txt";
+
+            var path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
+            {
+                string fullpath = Path.Combine(repo.Info.WorkingDirectory, filename);
+
+                Assert.Equal(true, File.Exists(fullpath));
+                Assert.Equal(FileStatus.Added, repo.Index.RetrieveStatus(filename));
+
+                Assert.Throws<RemoveFromIndexException>(() => repo.Index.Remove(filename));
+            }
+        }
+
+        /* Test case: modified file in wd, the modifications have already been promoted to the index, and
+         * the file does not exist in the HEAD.
+         * 'git rm --cached <file>' works (removes the file from the index)
+         */
+        [Fact]
+        public void CanRemoveANewlyAddedFile()
+        {
+            const string filename = "new_tracked_file.txt";
+
+            var path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
+            {
+                int count = repo.Index.Count;
+
+                string fullpath = Path.Combine(repo.Info.WorkingDirectory, filename);
+
+                Assert.Equal(true, File.Exists(fullpath));
+                Assert.Equal(FileStatus.Added, repo.Index.RetrieveStatus(filename));
+
+                repo.Index.Remove(filename, false);
+
+                Assert.Equal(count - 1, repo.Index.Count);
+                Assert.True(File.Exists(fullpath));
+                Assert.Equal(FileStatus.Untracked, repo.Index.RetrieveStatus(filename));
+            }
+        }
+
+        /* Test case: file exists in the index, and has been removed from the wd.
+         * 'git rm <file> and 'git rm --cached <file>' both work (remove the file from the index)
+         */
+        [Fact]
+        public void CanRemoveAFileAlreadyDeletedFromTheWorkdir()
+        {
+            const string filename = "deleted_unstaged_file.txt";
+
+            for (int i = 0; i < 2; i++)
+            {
+                var path = CloneStandardTestRepo();
+                using (var repo = new Repository(path))
+                {
+                    int count = repo.Index.Count;
+
+                    Assert.Equal(FileStatus.Missing, repo.Index.RetrieveStatus(filename));
+
+                    repo.Index.Remove(filename, i % 2 == 0);
+
+                    Assert.Equal(count - 1, repo.Index.Count);
+                    Assert.Equal(FileStatus.Removed, repo.Index.RetrieveStatus(filename));
+                }
             }
         }
 
