@@ -468,7 +468,7 @@ namespace LibGit2Sharp
 
         private string RemoveFromIndex(string relativePath)
         {
-            Proxy.git_index_remove(handle, relativePath, 0);
+            Proxy.git_index_remove_bypath(handle, relativePath);
 
             return relativePath;
         }
