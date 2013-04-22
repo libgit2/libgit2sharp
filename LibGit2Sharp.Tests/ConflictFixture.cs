@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
@@ -23,6 +24,50 @@ namespace LibGit2Sharp.Tests
                     new[] { "ours-only.txt", null, "9736f4cd77759672322f3222ed3ddead1412d969", null },
                     new[] { "theirs-only.txt", null, null, "9736f4cd77759672322f3222ed3ddead1412d969" },
                 };
+            }
+        }
+
+        [Theory]
+        [InlineData(true, "ancestor-and-ours.txt", true, false, FileStatus.Removed, 2)]
+        [InlineData(false, "ancestor-and-ours.txt", true, true, FileStatus.Removed |FileStatus.Untracked, 2)]
+        [InlineData(true, "ancestor-and-theirs.txt", true, false, FileStatus.Nonexistent, 2)]
+        [InlineData(false, "ancestor-and-theirs.txt", true, true, FileStatus.Untracked, 2)]
+        [InlineData(true, "conflicts-one.txt", true, false, FileStatus.Removed, 3)]
+        [InlineData(false, "conflicts-one.txt", true, true, FileStatus.Removed | FileStatus.Untracked, 3)]
+        [InlineData(true, "conflicts-two.txt", true, false, FileStatus.Removed, 3)]
+        [InlineData(false, "conflicts-two.txt", true, true, FileStatus.Removed | FileStatus.Untracked, 3)]
+        [InlineData(true, "ours-and-theirs.txt", true, false, FileStatus.Removed, 2)]
+        [InlineData(false, "ours-and-theirs.txt", true, true, FileStatus.Removed | FileStatus.Untracked, 2)]
+        [InlineData(true, "ours-only.txt", true, false, FileStatus.Removed, 1)]
+        [InlineData(false, "ours-only.txt", true, true, FileStatus.Removed | FileStatus.Untracked, 1)]
+        [InlineData(true, "theirs-only.txt", true, false, FileStatus.Nonexistent, 1)]
+        [InlineData(false, "theirs-only.txt", true, true, FileStatus.Untracked, 1)]
+        /* Conflicts clearing through Index.Remove() only works when a version of the entry exists in the workdir.
+         * This is because libgit2's git_iterator_for_index() seem to only care about stage level 0.
+         * Corrolary: other cases only work out of sheer luck (however, the behaviour is stable, so I guess we
+         *   can rely on it for the moment.
+         * [InlineData(true, "ancestor-only.txt", false, false, FileStatus.Nonexistent, 0)]
+         * [InlineData(false, "ancestor-only.txt", false, false, FileStatus.Nonexistent, 0)]
+         */
+        public void CanClearConflictsByRemovingFromTheIndex(
+            bool removeFromWorkdir, string filename, bool existsBeforeRemove, bool existsAfterRemove, FileStatus lastStatus, int removedIndexEntries)
+        {
+            var path = CloneMergedTestRepo();
+            using (var repo = new Repository(path))
+            {
+                int count = repo.Index.Count;
+
+                string fullpath = Path.Combine(repo.Info.WorkingDirectory, filename);
+
+                Assert.Equal(existsBeforeRemove, File.Exists(fullpath));
+                Assert.NotNull(repo.Conflicts[filename]);
+
+                repo.Index.Remove(filename, removeFromWorkdir);
+
+                Assert.Null(repo.Conflicts[filename]);
+                Assert.Equal(count - removedIndexEntries, repo.Index.Count);
+                Assert.Equal(existsAfterRemove, File.Exists(fullpath));
+                Assert.Equal(lastStatus, repo.Index.RetrieveStatus(filename));
             }
         }
 
