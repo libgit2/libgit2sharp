@@ -614,7 +614,8 @@ namespace LibGit2Sharp.Tests
                 Assert.Null(repo.Head[relativeFilepath]);
 
                 var author = DummySignature;
-                const string commitMessage = "Initial egotistic commit";
+                const string commitMessage = "Initial egotistic commit\n\nOnly the coolest commits from us";
+                const string shortMessage = "Initial egotistic commit";
                 Commit commit = repo.Commit(commitMessage, author, author);
 
                 AssertBlobContent(repo.Head[relativeFilepath], "nulltoken\n");
@@ -629,7 +630,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(author, reflogEntry.Commiter);
                 Assert.Equal(commit.Id, reflogEntry.To);
                 Assert.Equal(ObjectId.Zero, reflogEntry.From);
-                Assert.Equal(string.Format("commit (initial): {0}", commitMessage), reflogEntry.Message);
+                Assert.Equal(string.Format("commit (initial): {0}", shortMessage), reflogEntry.Message);
 
                 // Assert a reflog entry is created on HEAD target
                 var targetCanonicalName = repo.Refs.Head.TargetIdentifier;
