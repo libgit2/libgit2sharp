@@ -739,7 +739,7 @@ namespace LibGit2Sharp
                 reflogMessage += " (amend)";
             }
 
-            reflogMessage = string.Format("{0}: {1}", reflogMessage, commit.Message);
+            reflogMessage = string.Format("{0}: {1}", reflogMessage, commit.MessageShort);
 
             var headRef = Refs.Head;
 
