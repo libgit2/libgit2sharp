@@ -721,12 +721,12 @@ namespace LibGit2Sharp
             Proxy.git_repository_merge_cleanup(handle);
 
             // Insert reflog entry
-            LogCommit(result, amendPreviousCommit, isHeadOrphaned);
+            LogCommit(result, amendPreviousCommit, isHeadOrphaned, parents.Count() > 1);
 
             return result;
         }
 
-        private void LogCommit(Commit commit, bool amendPreviousCommit, bool isHeadOrphaned)
+        private void LogCommit(Commit commit, bool amendPreviousCommit, bool isHeadOrphaned, bool isMergeCommit)
         {
             // Compute reflog message
             string reflogMessage = "commit";
@@ -737,6 +737,10 @@ namespace LibGit2Sharp
             else if(amendPreviousCommit)
             {
                 reflogMessage += " (amend)";
+            }
+            else if(isMergeCommit)
+            {
+                reflogMessage += " (merge)";
             }
 
             reflogMessage = string.Format("{0}: {1}", reflogMessage, commit.Message);

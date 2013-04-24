@@ -542,11 +542,22 @@ namespace LibGit2Sharp.Tests
                 string mergeHeadPath = Path.Combine(repo.Info.Path, "MERGE_HEAD");
                 File.WriteAllText(mergeHeadPath, "9fd738e8f7967c078dceed8190330fc8648ee56a\n");
 
-                Commit newMergedCommit = repo.Commit("Merge commit", DummySignature, DummySignature, false);
+                Assert.Equal(CurrentOperation.Merge, repo.Info.CurrentOperation);
+
+                Commit newMergedCommit = repo.Commit("Merge commit", DummySignature, DummySignature);
+
+                Assert.Equal(CurrentOperation.None, repo.Info.CurrentOperation);
 
                 Assert.Equal(2, newMergedCommit.Parents.Count());
                 Assert.Equal(newMergedCommit.Parents.First().Sha, "c47800c7266a2be04c571c04d5a6614691ea99bd");
                 Assert.Equal(newMergedCommit.Parents.Skip(1).First().Sha, "9fd738e8f7967c078dceed8190330fc8648ee56a");
+
+                // Assert reflog entry is created
+                var reflogEntry = repo.Refs.Log(repo.Refs.Head).First();
+                Assert.Equal(repo.Head.Tip.Id, reflogEntry.To);
+                Assert.NotNull(reflogEntry.Commiter.Email);
+                Assert.NotNull(reflogEntry.Commiter.Name);
+                Assert.Equal(string.Format("commit (merge): {0}", newMergedCommit.MessageShort), reflogEntry.Message);
             }
         }
 
