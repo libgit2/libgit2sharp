@@ -174,6 +174,35 @@ namespace LibGit2Sharp
             return Add(targetTreeEntryPath, ted);
         }
 
+        /// <summary>
+        ///   Adds or replaces a gitlink <see cref="TreeEntryDefinition"/> equivalent to <paramref name="submodule"/>.
+        /// </summary>
+        /// <param name="submodule">The <see cref="Submodule"/> to be linked.</param>
+        /// <returns>The current <see cref="TreeDefinition"/>.</returns>
+        public virtual TreeDefinition Add(Submodule submodule)
+        {
+            Ensure.ArgumentNotNull(submodule, "submodule");
+
+            return AddGitLink(submodule.Path, submodule.HeadCommitId);
+        }
+
+        /// <summary>
+        ///   Adds or replaces a gitlink <see cref="TreeEntryDefinition"/>,
+        ///   referencing the commit identified by <paramref name="objectId"/>,
+        ///   at the specified <paramref name="targetTreeEntryPath"/> location.
+        /// </summary>
+        /// <param name="targetTreeEntryPath">The path within this <see cref="TreeDefinition"/>.</param>
+        /// <param name="objectId">The <see cref="ObjectId"/> of the commit to be linked at the described location.</param>
+        /// <returns>The current <see cref="TreeDefinition"/>.</returns>
+        public virtual TreeDefinition AddGitLink(string targetTreeEntryPath, ObjectId objectId)
+        {
+            Ensure.ArgumentNotNull(objectId, "objectId");
+
+            var ted = TreeEntryDefinition.From(objectId);
+
+            return Add(targetTreeEntryPath, ted);
+        }
+
         private TreeDefinition RetrieveOrBuildTreeDefinition(string treeName, bool shouldOverWrite)
         {
             TreeDefinition td;
@@ -195,6 +224,7 @@ namespace LibGit2Sharp
                         break;
 
                     case GitObjectType.Blob:
+                    case GitObjectType.Commit:
                         if (shouldOverWrite)
                         {
                             td = new TreeDefinition();

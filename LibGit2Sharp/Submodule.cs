@@ -18,8 +18,8 @@ namespace LibGit2Sharp
         private readonly string name;
         private readonly string path;
         private readonly string url;
-        private readonly ILazy<ObjectId> indexCommitId;
         private readonly ILazy<ObjectId> headCommitId;
+        private readonly ILazy<ObjectId> indexCommitId;
         private readonly ILazy<ObjectId> workdirCommitId;
         private readonly ILazy<bool> fetchRecurseSubmodulesRule;
         private readonly ILazy<SubmoduleIgnore> ignoreRule;
@@ -39,8 +39,8 @@ namespace LibGit2Sharp
             this.url = url;
 
             var commitIds = new SubmoduleLazyGroup(repo, name);
-            indexCommitId = commitIds.AddLazy(Proxy.git_submodule_index_id);
             headCommitId = commitIds.AddLazy(Proxy.git_submodule_head_id);
+            indexCommitId = commitIds.AddLazy(Proxy.git_submodule_index_id);
             workdirCommitId = commitIds.AddLazy(Proxy.git_submodule_wd_id);
 
             var rules = new SubmoduleLazyGroup(repo, name);
@@ -65,14 +65,14 @@ namespace LibGit2Sharp
         public virtual string Url { get { return url; } }
 
         /// <summary>
-        ///   The commit ID for this submodule in the index.
-        /// </summary>
-        public virtual ObjectId IndexCommitId { get { return indexCommitId.Value; } }
-
-        /// <summary>
         ///   The commit ID for this submodule in the current HEAD tree.
         /// </summary>
         public virtual ObjectId HeadCommitId { get { return headCommitId.Value; } }
+
+        /// <summary>
+        ///   The commit ID for this submodule in the index.
+        /// </summary>
+        public virtual ObjectId IndexCommitId { get { return indexCommitId.Value; } }
 
         /// <summary>
         ///   The commit ID for this submodule in the current working directory.

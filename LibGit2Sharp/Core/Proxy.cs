@@ -2022,6 +2022,15 @@ namespace LibGit2Sharp.Core
             return NativeMethods.git_submodule_fetch_recurse_submodules(submodule);
         }
 
+        public static void git_submodule_reload(SubmoduleSafeHandle submodule)
+        {
+            using (ThreadAffinity())
+            {
+                var res = NativeMethods.git_submodule_reload(submodule);
+                Ensure.ZeroResult(res);
+            }
+        }
+
         public static SubmoduleStatus git_submodule_status(SubmoduleSafeHandle submodule)
         {
             using (ThreadAffinity())
