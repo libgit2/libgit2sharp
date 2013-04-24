@@ -175,6 +175,18 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        ///   Adds or replaces a gitlink <see cref="TreeEntryDefinition"/> equivalent to <paramref name="submodule"/>.
+        /// </summary>
+        /// <param name="submodule">The <see cref="Submodule"/> to be linked.</param>
+        /// <returns>The current <see cref="TreeDefinition"/>.</returns>
+        public virtual TreeDefinition Add(Submodule submodule)
+        {
+            Ensure.ArgumentNotNull(submodule, "submodule");
+
+            return AddGitLink(submodule.Path, submodule.HeadCommitId);
+        }
+
+        /// <summary>
         ///   Adds or replaces a gitlink <see cref="TreeEntryDefinition"/>,
         ///   referencing the commit identified by <paramref name="objectId"/>,
         ///   at the specified <paramref name="targetTreeEntryPath"/> location.

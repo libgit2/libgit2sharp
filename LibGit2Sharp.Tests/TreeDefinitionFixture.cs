@@ -158,6 +158,33 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
+        public void CanAddAnExistingSubmodule()
+        {
+            const string submodulePath = "sm_unchanged";
+
+            using (var repo = new Repository(SubmoduleTestRepoWorkingDirPath))
+            {
+                var submodule = repo.Submodules[submodulePath];
+                Assert.NotNull(submodule);
+
+                TreeDefinition td = TreeDefinition.From(repo.Head.Tip.Tree);
+                Assert.NotNull(td[submodulePath]);
+
+                td.Remove(submodulePath);
+                Assert.Null(td[submodulePath]);
+
+                td.Add(submodule);
+
+                TreeEntryDefinition fetched = td[submodulePath];
+                Assert.NotNull(fetched);
+
+                Assert.Equal(submodule.HeadCommitId, fetched.TargetId);
+                Assert.Equal(GitObjectType.Commit, fetched.Type);
+                Assert.Equal(Mode.GitLink, fetched.Mode);
+            }
+        }
+
+        [Fact]
         public void CanAddAnExistingTree()
         {
             const string treeSha = "7f76480d939dc401415927ea7ef25c676b8ddb8f";
