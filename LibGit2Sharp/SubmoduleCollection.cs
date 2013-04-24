@@ -86,6 +86,7 @@ namespace LibGit2Sharp
             {
                 if (handle != null)
                 {
+                    Proxy.git_submodule_reload(handle);
                     return selector(handle);
                 }
 

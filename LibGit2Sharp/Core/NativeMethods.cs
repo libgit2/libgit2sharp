@@ -1081,6 +1081,10 @@ namespace LibGit2Sharp.Core
             SubmoduleSafeHandle submodule);
 
         [DllImport(libgit2)]
+        internal static extern int git_submodule_reload(
+            SubmoduleSafeHandle submodule);
+
+        [DllImport(libgit2)]
         internal static extern int git_submodule_status(
             out SubmoduleStatus status,
             SubmoduleSafeHandle submodule);
