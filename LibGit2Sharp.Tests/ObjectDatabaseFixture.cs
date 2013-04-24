@@ -245,6 +245,48 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
+        public void CanCreateATreeContainingAGitLinkFromAnUntrackedSubmoduleInTheWorkingDirectory()
+        {
+            string path = CloneSubmoduleTestRepo();
+            using (var repo = new Repository(path))
+            {
+                const string submodulePath = "sm_added_and_uncommited";
+
+                var submoduleBefore = repo.Submodules[submodulePath];
+                Assert.NotNull(submoduleBefore);
+                Assert.Null(submoduleBefore.HeadCommitId);
+
+                var objectId = (ObjectId)"480095882d281ed676fe5b863569520e54a7d5c0";
+
+                TreeDefinition td = TreeDefinition.From(repo.Head.Tip.Tree)
+                                                  .AddGitLink(submodulePath, objectId);
+
+                TreeEntryDefinition ted = td[submodulePath];
+                Assert.NotNull(ted);
+                Assert.Equal(Mode.GitLink, ted.Mode);
+                Assert.Equal(objectId, ted.TargetId);
+                Assert.Equal(GitObjectType.Commit, ted.Type);
+
+                Tree tree = repo.ObjectDatabase.CreateTree(td);
+
+                TreeEntry te = tree[submodulePath];
+                Assert.NotNull(te.Target);
+                Assert.IsType<GitLink>(te.Target);
+                Assert.Equal(objectId, te.Target.Id);
+
+                var commitWithSubmodule = repo.ObjectDatabase.CreateCommit("Submodule!", DummySignature, DummySignature, tree,
+                                                                           new[] { repo.Head.Tip });
+                repo.Reset(ResetOptions.Soft, commitWithSubmodule);
+
+                var submodule = repo.Submodules[submodulePath];
+                Assert.NotNull(submodule);
+                Assert.Equal(submodulePath, submodule.Name);
+                Assert.Equal(submodulePath, submodule.Path);
+                Assert.Equal(objectId, submodule.HeadCommitId);
+            }
+        }
+
+        [Fact]
         public void CannotCreateATreeContainingABlobFromARelativePathAgainstABareRepository()
         {
             using (var repo = new Repository(BareTestRepoPath))

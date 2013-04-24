@@ -76,6 +76,17 @@ namespace LibGit2Sharp
                        };
         }
 
+        internal static TreeEntryDefinition From(ObjectId objectId)
+        {
+            return new TreeEntryDefinition
+                       {
+                           Mode = Mode.GitLink,
+                           Type = GitObjectType.Commit,
+                           TargetId = objectId,
+                           target = new Lazy<GitObject>(() => { throw new InvalidOperationException("Shouldn't be necessary."); }),
+                       };
+        }
+
         internal static TreeEntryDefinition From(Tree tree)
         {
             return new TreeEntryDefinition

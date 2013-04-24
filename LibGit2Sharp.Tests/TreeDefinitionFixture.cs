@@ -111,6 +111,27 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        [Fact]
+        public void CanAddAnExistingGitLinkTreeEntryDefinition()
+        {
+            const string sourcePath = "sm_unchanged";
+            const string targetPath = "sm_from_td";
+
+            using (var repo = new Repository(SubmoduleTestRepoWorkingDirPath))
+            {
+                TreeDefinition td = TreeDefinition.From(repo.Head.Tip.Tree);
+                Assert.Null(td[targetPath]);
+
+                TreeEntryDefinition ted = td[sourcePath];
+                td.Add(targetPath, ted);
+
+                TreeEntryDefinition fetched = td[targetPath];
+                Assert.NotNull(fetched);
+
+                Assert.Equal(ted, fetched);
+            }
+        }
+
         [Theory]
         [InlineData("a8233120f6ad708f843d861ce2b7228ec4e3dec6", "README_TOO")]
         [InlineData("a8233120f6ad708f843d861ce2b7228ec4e3dec6", "1/README")]
@@ -214,6 +235,109 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(GitObjectType.Tree, td[targetPath].Type);
                 Assert.Equal(objectId, fetched.TargetId);
                 Assert.Equal(Mode.Directory, fetched.Mode);
+            }
+        }
+
+        [Fact]
+        public void CanReplaceAnExistingTreeWithAGitLink()
+        {
+            var commitId = (ObjectId)"480095882d281ed676fe5b863569520e54a7d5c0";
+            const string targetPath = "just_a_dir";
+
+            using (var repo = new Repository(SubmoduleTestRepoWorkingDirPath))
+            {
+                TreeDefinition td = TreeDefinition.From(repo.Head.Tip.Tree);
+                Assert.Equal(GitObjectType.Tree, td[targetPath].Type);
+
+                Assert.NotNull(td["just_a_dir/contents"]);
+
+                td.AddGitLink(targetPath, commitId);
+
+                TreeEntryDefinition fetched = td[targetPath];
+                Assert.NotNull(fetched);
+
+                Assert.Equal(commitId, fetched.TargetId);
+                Assert.Equal(GitObjectType.Commit, fetched.Type);
+                Assert.Equal(Mode.GitLink, fetched.Mode);
+
+                Assert.Null(td["just_a_dir/contents"]);
+            }
+        }
+
+        [Fact]
+        public void CanReplaceAnExistingGitLinkWithATree()
+        {
+            const string treeSha = "607d96653d4d0a4f733107f7890c2e67b55b620d";
+            const string targetPath = "sm_unchanged";
+
+            using (var repo = new Repository(SubmoduleTestRepoWorkingDirPath))
+            {
+                TreeDefinition td = TreeDefinition.From(repo.Head.Tip.Tree);
+                Assert.NotNull(td[targetPath]);
+                Assert.Equal(GitObjectType.Commit, td[targetPath].Type);
+                Assert.Equal(Mode.GitLink, td[targetPath].Mode);
+
+                var objectId = new ObjectId(treeSha);
+                var tree = repo.Lookup<Tree>(objectId);
+
+                td.Add(targetPath, tree);
+
+                TreeEntryDefinition fetched = td[targetPath];
+                Assert.NotNull(fetched);
+
+                Assert.Equal(objectId, fetched.TargetId);
+                Assert.Equal(GitObjectType.Tree, fetched.Type);
+                Assert.Equal(Mode.Directory, fetched.Mode);
+            }
+        }
+
+        [Fact]
+        public void CanReplaceAnExistingBlobWithAGitLink()
+        {
+            var commitId = (ObjectId)"480095882d281ed676fe5b863569520e54a7d5c0";
+            const string targetPath = "just_a_file";
+
+            using (var repo = new Repository(SubmoduleTestRepoWorkingDirPath))
+            {
+                TreeDefinition td = TreeDefinition.From(repo.Head.Tip.Tree);
+                Assert.NotNull(td[targetPath]);
+                Assert.Equal(GitObjectType.Blob, td[targetPath].Type);
+
+                td.AddGitLink(targetPath, commitId);
+
+                TreeEntryDefinition fetched = td[targetPath];
+                Assert.NotNull(fetched);
+
+                Assert.Equal(GitObjectType.Commit, td[targetPath].Type);
+                Assert.Equal(commitId, fetched.TargetId);
+                Assert.Equal(Mode.GitLink, fetched.Mode);
+            }
+        }
+
+        [Fact]
+        public void CanReplaceAnExistingGitLinkWithABlob()
+        {
+            const string blobSha = "42cfb95cd01bf9225b659b5ee3edcc78e8eeb478";
+            const string targetPath = "sm_unchanged";
+
+            using (var repo = new Repository(SubmoduleTestRepoWorkingDirPath))
+            {
+                TreeDefinition td = TreeDefinition.From(repo.Head.Tip.Tree);
+                Assert.NotNull(td[targetPath]);
+                Assert.Equal(GitObjectType.Commit, td[targetPath].Type);
+                Assert.Equal(Mode.GitLink, td[targetPath].Mode);
+
+                var objectId = new ObjectId(blobSha);
+                var blob = repo.Lookup<Blob>(objectId);
+
+                td.Add(targetPath, blob, Mode.NonExecutableFile);
+
+                TreeEntryDefinition fetched = td[targetPath];
+                Assert.NotNull(fetched);
+
+                Assert.Equal(objectId, fetched.TargetId);
+                Assert.Equal(GitObjectType.Blob, fetched.Type);
+                Assert.Equal(Mode.NonExecutableFile, fetched.Mode);
             }
         }
 
