@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
@@ -91,17 +92,32 @@ namespace LibGit2Sharp
         ///   Add a new <see cref="ReflogEntry"/> to the current <see cref="ReflogCollection"/>. It will be created as first item of the collection
         ///   The native reflog object will be saved right after inserting the entry.
         /// </summary>
-        /// <param name="objectId">the <see cref="ObjectId"/> of the new commit the <see cref="Reference"/> will point out.</param>
-        /// <param name="committer"><see cref="Signature"/> of the author of the new commit.</param>
-        /// <param name="message">the message associated with the new <see cref="ReflogEntry"/>.</param>
-        internal virtual void Append(ObjectId objectId, Signature committer, string message)
+        /// <param name="target">the <see cref="ObjectId"/> of the new target the <see cref="Reference"/> will point out to.</param>
+        /// <param name="reflogMessage">the message associated with the new <see cref="ReflogEntry"/>.</param>
+        /// <param name="committer"><see cref="Signature"/> of the comitter.</param>
+        internal virtual void Append(ObjectId target, string reflogMessage, Signature committer)
         {
             using (ReferenceSafeHandle reference = Proxy.git_reference_lookup(repo.Handle, canonicalName, true))
             using (ReflogSafeHandle reflog = Proxy.git_reflog_read(reference))
             {
-                string prettifiedMessage = Proxy.git_message_prettify(message);
-                Proxy.git_reflog_append(reflog, objectId, committer, prettifiedMessage);
+                string prettifiedMessage = Proxy.git_message_prettify(reflogMessage);
+                Proxy.git_reflog_append(reflog, target, committer, prettifiedMessage);
             }
+        }
+
+        /// <summary>
+        ///   Add a new <see cref="ReflogEntry"/> to the current <see cref="ReflogCollection"/>. It will be created as first item of the collection
+        ///   The native reflog object will be saved right after inserting the entry.
+        ///   <para>
+        ///     The <see cref="Signature"/> will be built from the current Git configuration.
+        ///   </para>
+        /// </summary>
+        /// <param name="target">the <see cref="ObjectId"/> of the new target the <see cref="Reference"/> will point out to.</param>
+        /// <param name="reflogMessage">the message associated with the new <see cref="ReflogEntry"/>.</param>
+        internal void Append(ObjectId target, string reflogMessage)
+        {
+            Signature author = repo.Config.BuildSignatureFromGlobalConfiguration(DateTimeOffset.Now, false);
+            Append(target, reflogMessage, author);
         }
     }
 }

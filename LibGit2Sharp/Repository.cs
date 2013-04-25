@@ -675,8 +675,7 @@ namespace LibGit2Sharp
             string reflogMessage = string.Format("checkout: moving from {0} to {1}", previousHeadName, newHeadSpec);
 
             // Log checkout
-            Signature author = Config.BuildSignatureFromGlobalConfiguration(DateTimeOffset.Now, false);
-            Refs.Log(Refs.Head).Append(newHeadTip, author, reflogMessage);
+            Refs.Log(Refs.Head).Append(newHeadTip, reflogMessage);
         }
 
         /// <summary>
@@ -796,11 +795,11 @@ namespace LibGit2Sharp
             // in case HEAD targets a symbolic reference, log commit on the targeted direct reference
             if (headRef is SymbolicReference)
             {
-                Refs.Log(headRef.ResolveToDirectReference()).Append(commit.Id, commit.Committer, reflogMessage);
+                Refs.Log(headRef.ResolveToDirectReference()).Append(commit.Id, reflogMessage, commit.Committer);
             }
 
             // Log commit on HEAD
-            Refs.Log(headRef).Append(commit.Id, commit.Committer, reflogMessage);
+            Refs.Log(headRef).Append(commit.Id, reflogMessage, commit.Committer);
         }
 
         private IEnumerable<Commit> RetrieveParentsOfTheCommitBeingCreated(bool amendPreviousCommit)

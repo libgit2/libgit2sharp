@@ -456,15 +456,34 @@ namespace LibGit2Sharp.Tests
                 Reference head = repo.Refs.Head;
                 Reference test = repo.Refs["refs/heads/test"];
 
-                Reference direct = repo.Refs.UpdateTarget(head, new ObjectId(test.TargetIdentifier));
+                const string firstLogMessage = "first update target message";
+                Reference direct = repo.Refs.UpdateTarget(head, new ObjectId(test.TargetIdentifier), firstLogMessage);
                 Assert.True((direct is DirectReference));
                 Assert.Equal(test.TargetIdentifier, direct.TargetIdentifier);
                 Assert.Equal(repo.Refs.Head, direct);
 
-                Reference symref = repo.Refs.UpdateTarget(head, test);
+                // Assert reflog entry is created
+                var reflogEntry = repo.Refs.Log(repo.Refs.Head).First();
+                ObjectId testTargetId = test.ResolveToDirectReference().Target.Id;
+
+                Assert.Equal(testTargetId, reflogEntry.To);
+                Assert.NotNull(reflogEntry.Commiter.Email);
+                Assert.NotNull(reflogEntry.Commiter.Name);
+                Assert.Equal(firstLogMessage, reflogEntry.Message);
+
+                const string secondLogMessage = "second update target message";
+                Reference symref = repo.Refs.UpdateTarget(head, test, secondLogMessage);
                 Assert.True((symref is SymbolicReference));
                 Assert.Equal(test.CanonicalName, symref.TargetIdentifier);
                 Assert.Equal(repo.Refs.Head, symref);
+
+                // Assert reflog entry is created
+                reflogEntry = repo.Refs.Log(repo.Refs.Head).First();
+                Assert.Equal(testTargetId, reflogEntry.From);
+                Assert.Equal(testTargetId, reflogEntry.To);
+                Assert.NotNull(reflogEntry.Commiter.Email);
+                Assert.NotNull(reflogEntry.Commiter.Name);
+                Assert.Equal(secondLogMessage, reflogEntry.Message);
             }
         }
 
@@ -478,13 +497,19 @@ namespace LibGit2Sharp.Tests
 
                 var master = (DirectReference) repo.Refs[name];
 
-                var newRef = (DirectReference)repo.Refs.UpdateTarget(master, "master^1^2");
+                const string logMessage = "update target message";
+                var newRef = (DirectReference)repo.Refs.UpdateTarget(master, "master^1^2", logMessage);
                 Assert.NotNull(newRef);
                 Assert.Equal(name, newRef.CanonicalName);
                 Assert.NotNull(newRef.Target);
                 Assert.Equal("c47800c7266a2be04c571c04d5a6614691ea99bd", newRef.Target.Sha);
                 Assert.Equal(newRef.Target.Sha, newRef.TargetIdentifier);
                 Assert.NotNull(repo.Refs[name]);
+
+                // Assert reflog entry is created
+                var reflogEntry = repo.Refs.Log(master).First();
+                Assert.Equal(newRef.Target.Id, reflogEntry.To);
+                Assert.Equal(logMessage, reflogEntry.Message);
             }
         }
 
