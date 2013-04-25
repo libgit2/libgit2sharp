@@ -50,23 +50,32 @@ namespace LibGit2Sharp
 
         internal TreeChanges(DiffListSafeHandle diff)
         {
+            Proxy.git_diff_foreach(diff, FileCallback, null, DataCallback);
             Proxy.git_diff_print_patch(diff, PrintCallBack);
+        }
+
+        private int DataCallback(GitDiffDelta delta, GitDiffRange range, GitDiffLineOrigin lineOrigin, IntPtr content, UIntPtr contentLen, IntPtr payload)
+        {
+            var filePath = FilePathMarshaler.FromNative(delta.NewFile.Path);
+
+            AddLineChange(this[filePath], lineOrigin);
+
+            return 0;
+        }
+
+        private int FileCallback(GitDiffDelta delta, float progress, IntPtr payload)
+        {
+            AddFileChange(delta);
+            return 0;
         }
 
         private int PrintCallBack(GitDiffDelta delta, GitDiffRange range, GitDiffLineOrigin lineorigin, IntPtr content, UIntPtr contentlen, IntPtr payload)
         {
             string formattedoutput = Utf8Marshaler.FromNative(content, (int)contentlen);
+            var filePath = FilePathMarshaler.FromNative(delta.NewFile.Path);
 
-            TreeEntryChanges currentChange = AddFileChange(delta, lineorigin);
-            if (delta.Status == ChangeKind.Unmodified)
-            {
-                return 0;
-            }
-
-            AddLineChange(currentChange, lineorigin);
-
-            currentChange.AppendToPatch(formattedoutput);
             fullPatchBuilder.Append(formattedoutput);
+            this[filePath].AppendToPatch(formattedoutput);
 
             return 0;
         }
@@ -87,12 +96,9 @@ namespace LibGit2Sharp
             }
         }
 
-        private TreeEntryChanges AddFileChange(GitDiffDelta delta, GitDiffLineOrigin lineorigin)
+        private void AddFileChange(GitDiffDelta delta)
         {
             var newFilePath = FilePathMarshaler.FromNative(delta.NewFile.Path);
-
-            if (lineorigin != GitDiffLineOrigin.GIT_DIFF_LINE_FILE_HDR)
-                return this[newFilePath];
 
             var oldFilePath = FilePathMarshaler.FromNative(delta.OldFile.Path);
             var newMode = (Mode)delta.NewFile.Mode;
@@ -109,7 +115,6 @@ namespace LibGit2Sharp
 
             fileDispatcher[delta.Status](this, diffFile);
             changes.Add(newFilePath, diffFile);
-            return diffFile;
         }
 
         #region IEnumerable<Tag> Members

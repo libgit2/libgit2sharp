@@ -245,7 +245,7 @@ namespace LibGit2Sharp
                 return null;
             }
 
-            string trackedReferenceName = Proxy.git_branch_tracking_name(repo.Handle, CanonicalName);
+            string trackedReferenceName = Proxy.git_branch_upstream_name(repo.Handle, CanonicalName);
 
             if (trackedReferenceName == null)
             {

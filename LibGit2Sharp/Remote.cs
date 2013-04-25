@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
+using System.Linq;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Handles;
 using LibGit2Sharp.Handlers;
@@ -82,8 +84,8 @@ namespace LibGit2Sharp
         {
             using (RemoteSafeHandle remoteHandle = Proxy.git_remote_load(repository.Handle, Name, true))
             {
-                GitRefSpecHandle fetchSpecPtr = Proxy.git_remote_fetchspec(remoteHandle);
-                return Proxy.git_refspec_rtransform(fetchSpecPtr, reference);
+                IList<string> refspecs = Proxy.git_remote_transform_ref(remoteHandle, reference, false, true);
+                return refspecs.First();
             }
         }
 
