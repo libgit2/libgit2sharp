@@ -126,7 +126,7 @@ namespace LibGit2Sharp.Core
 
             for (int i = 0; i < nbOfPaths; i++)
             {
-                var s = paths[i];
+                var s = paths[i].Posix;
                 pathPtrs[i] = FilePathMarshaler.FromManaged(s);
             }
 

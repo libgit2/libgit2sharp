@@ -103,7 +103,7 @@ namespace LibGit2Sharp
 
             using (RemoteSafeHandle handle = Proxy.git_remote_create(repository.Handle, name, url))
             {
-                Proxy.git_remote_set_fetchspec(handle, fetchRefSpec);
+                Proxy.git_remote_add_fetch(handle, fetchRefSpec);
                 Proxy.git_remote_save(handle);
                 return Remote.BuildFromPtr(handle, this.repository);
             }

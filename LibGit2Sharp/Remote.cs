@@ -82,7 +82,7 @@ namespace LibGit2Sharp
         {
             using (RemoteSafeHandle remoteHandle = Proxy.git_remote_load(repository.Handle, Name, true))
             {
-                GitRefSpecHandle fetchSpecPtr = Proxy.git_remote_fetchspec(remoteHandle);
+                GitRefSpecHandle fetchSpecPtr = Proxy.git_remote_get_refspec(remoteHandle, 0);
                 return Proxy.git_refspec_rtransform(fetchSpecPtr, reference);
             }
         }

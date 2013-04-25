@@ -162,11 +162,11 @@ namespace LibGit2Sharp.Core
             }
         }
 
-        public static string git_branch_tracking_name(RepositorySafeHandle handle, string canonicalReferenceName)
+        public static string git_branch_upstream_name(RepositorySafeHandle handle, string canonicalReferenceName)
         {
             using (ThreadAffinity())
             {
-                int bufSize = NativeMethods.git_branch_tracking_name(
+                int bufSize = NativeMethods.git_branch_upstream_name(
                     null, UIntPtr.Zero, handle, canonicalReferenceName);
 
                 if (bufSize == (int)GitErrorCode.NotFound)
@@ -178,7 +178,7 @@ namespace LibGit2Sharp.Core
 
                 var buffer = new byte[bufSize];
 
-                int res = NativeMethods.git_branch_tracking_name(
+                int res = NativeMethods.git_branch_upstream_name(
                     buffer, (UIntPtr)buffer.Length, handle, canonicalReferenceName);
                 Ensure.Int32Result(res);
 
@@ -507,6 +507,19 @@ namespace LibGit2Sharp.Core
             using (var osw2 = new ObjectSafeWrapper(newBlob, repo, true))
             {
                 int res = NativeMethods.git_diff_blobs(osw1.ObjectPtr, osw2.ObjectPtr, options, fileCallback, hunkCallback, lineCallback, IntPtr.Zero);
+                Ensure.ZeroResult(res);
+            }
+        }
+
+        public static void git_diff_foreach(
+            DiffListSafeHandle diff,
+            NativeMethods.git_diff_file_cb fileCallback,
+            NativeMethods.git_diff_hunk_cb hunkCallback,
+            NativeMethods.git_diff_data_cb dataCallback)
+        {
+            using (ThreadAffinity())
+            {
+                int res = NativeMethods.git_diff_foreach(diff, fileCallback, hunkCallback, dataCallback, IntPtr.Zero);
                 Ensure.ZeroResult(res);
             }
         }
@@ -1385,9 +1398,9 @@ namespace LibGit2Sharp.Core
             }
         }
 
-        public static GitRefSpecHandle git_remote_fetchspec(RemoteSafeHandle remote)
+        public static GitRefSpecHandle git_remote_get_refspec(RemoteSafeHandle remote, int n)
         {
-            return NativeMethods.git_remote_fetchspec(remote);
+            return NativeMethods.git_remote_get_refspec(remote, (UIntPtr)n);
         }
 
         public static void git_remote_download(RemoteSafeHandle remote, TransferProgressHandler onTransferProgress)
@@ -1471,11 +1484,11 @@ namespace LibGit2Sharp.Core
             NativeMethods.git_remote_set_autotag(remote, value);
         }
 
-        public static void git_remote_set_fetchspec(RemoteSafeHandle remote, string fetchspec)
+        public static void git_remote_add_fetch(RemoteSafeHandle remote, string refspec)
         {
             using (ThreadAffinity())
             {
-                int res = NativeMethods.git_remote_set_fetchspec(remote, fetchspec);
+                int res = NativeMethods.git_remote_add_fetch(remote, refspec);
                 Ensure.ZeroResult(res);
             }
         }

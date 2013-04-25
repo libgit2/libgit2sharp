@@ -176,7 +176,7 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string canonical_branch_name);
 
         [DllImport(libgit2)]
-        internal static extern int git_branch_tracking_name(
+        internal static extern int git_branch_upstream_name(
             byte[] tracking_branch_name_out, // NB: This is more properly a StringBuilder, but it's UTF8
             UIntPtr buffer_size,
             RepositorySafeHandle repo,
@@ -410,6 +410,14 @@ namespace LibGit2Sharp.Core
             GitObjectSafeHandle oldBlob,
             GitObjectSafeHandle newBlob,
             GitDiffOptions options,
+            git_diff_file_cb fileCallback,
+            git_diff_hunk_cb hunkCallback,
+            git_diff_data_cb lineCallback,
+            IntPtr payload);
+
+        [DllImport(libgit2)]
+        internal static extern int git_diff_foreach(
+            DiffListSafeHandle diff,
             git_diff_file_cb fileCallback,
             git_diff_hunk_cb hunkCallback,
             git_diff_data_cb lineCallback,
@@ -772,6 +780,9 @@ namespace LibGit2Sharp.Core
         internal static extern void git_remote_free(IntPtr remote);
 
         [DllImport(libgit2)]
+        internal static extern GitRefSpecHandle git_remote_get_refspec(RemoteSafeHandle remote, UIntPtr n);
+
+        [DllImport(libgit2)]
         internal static extern int git_remote_is_valid_name(
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string remote_name);
 
@@ -785,9 +796,6 @@ namespace LibGit2Sharp.Core
 
         [DllImport(libgit2)]
         internal static extern int git_remote_ls(RemoteSafeHandle remote, git_headlist_cb headlist_cb, IntPtr payload);
-
-        [DllImport(libgit2)]
-        internal static extern GitRefSpecHandle git_remote_fetchspec(RemoteSafeHandle remote);
 
         [DllImport(libgit2)]
         [return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8NoCleanupMarshaler))]
@@ -815,9 +823,9 @@ namespace LibGit2Sharp.Core
             ref GitRemoteCallbacks callbacks);
 
         [DllImport(libgit2)]
-        internal static extern int git_remote_set_fetchspec(
+        internal static extern int git_remote_add_fetch(
             RemoteSafeHandle remote,
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof (Utf8Marshaler))] string fetchrefspec);
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof (Utf8Marshaler))] string refspec);
 
         internal delegate void remote_progress_callback(IntPtr str, int len, IntPtr data);
 
