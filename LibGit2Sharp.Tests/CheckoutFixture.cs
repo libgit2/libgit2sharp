@@ -601,6 +601,15 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        [Fact]
+        public void CheckoutLowerCasedHeadThrows()
+        {
+            using (var repo = new Repository(StandardTestRepoWorkingDirPath))
+            {
+                Assert.Throws<LibGit2SharpException>(() => repo.Checkout("head"));
+            }
+        }
+
         /// <summary>
         ///   Helper method to populate a simple repository with
         ///   a single file and two branches.
