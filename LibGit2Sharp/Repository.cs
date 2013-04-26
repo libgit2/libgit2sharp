@@ -25,7 +25,6 @@ namespace LibGit2Sharp
         private readonly Lazy<Configuration> config;
         private readonly RepositorySafeHandle handle;
         private readonly Index index;
-        private readonly ConflictCollection conflicts;
         private readonly ReferenceCollection refs;
         private readonly TagCollection tags;
         private readonly StashCollection stashes;
@@ -99,7 +98,6 @@ namespace LibGit2Sharp
                 if (!isBare)
                 {
                     index = indexBuilder();
-                    conflicts = new ConflictCollection(this);
                 }
 
                 commits = new CommitLog(this);
@@ -233,16 +231,12 @@ namespace LibGit2Sharp
         /// <summary>
         ///  Gets the conflicts that exist.
         /// </summary>
+        [Obsolete("This property will be removed in the next release. Please use Index.Conflicts instead.")]
         public ConflictCollection Conflicts
         {
             get
             {
-                if (isBare)
-                {
-                    throw new BareRepositoryException("Conflicts are not available in a bare repository.");
-                }
-
-                return conflicts;
+                return Index.Conflicts;
             }
         }
 
