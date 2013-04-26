@@ -55,7 +55,7 @@
         /// <returns>The friendly shortened name</returns>
         protected override string Shorten()
         {
-            return CanonicalName.Substring("refs/tags/".Length);
+            return CanonicalName.Substring(Reference.TagPrefix.Length);
         }
     }
 }

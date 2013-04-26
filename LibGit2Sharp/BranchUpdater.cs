@@ -222,15 +222,12 @@ namespace LibGit2Sharp
             remoteName = null;
             mergeBranchName = null;
 
-            const string localPrefix = "refs/heads/";
-            const string remotePrefix = "refs/remotes/";
-
-            if (canonicalName.StartsWith(localPrefix, StringComparison.Ordinal))
+            if (canonicalName.StartsWith(Reference.LocalBranchPrefix, StringComparison.Ordinal))
             {
                 remoteName = ".";
                 mergeBranchName = canonicalName;
             }
-            else if (canonicalName.StartsWith(remotePrefix, StringComparison.Ordinal))
+            else if (canonicalName.StartsWith(Reference.RemoteTrackingBranchPrefix, StringComparison.Ordinal))
             {
                 remoteName = Proxy.git_branch_remote_name(repo.Handle, canonicalName);
 

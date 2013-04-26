@@ -15,7 +15,6 @@ namespace LibGit2Sharp
     public class TagCollection : IEnumerable<Tag>
     {
         internal readonly Repository repo;
-        private const string refsTagsPrefix = "refs/tags/";
 
         /// <summary>
         ///   Needed for mocking purposes.
@@ -126,24 +125,24 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
 
-            if (name.StartsWith(refsTagsPrefix, StringComparison.Ordinal))
+            if (name.StartsWith(Reference.TagPrefix, StringComparison.Ordinal))
             {
                 return name;
             }
 
-            return string.Concat(refsTagsPrefix, name);
+            return string.Concat(Reference.TagPrefix, name);
         }
 
         internal static string UnCanonicalizeName(string name)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
 
-            if (!name.StartsWith(refsTagsPrefix, StringComparison.Ordinal))
+            if (!name.StartsWith(Reference.TagPrefix, StringComparison.Ordinal))
             {
                 return name;
             }
 
-            return name.Substring(refsTagsPrefix.Length);
+            return name.Substring(Reference.TagPrefix.Length);
         }
 
         private string DebuggerDisplay

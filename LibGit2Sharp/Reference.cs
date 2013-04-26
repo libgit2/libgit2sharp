@@ -160,6 +160,26 @@ namespace LibGit2Sharp
             return CanonicalName;
         }
 
+        internal static string LocalBranchPrefix
+        {
+            get { return "refs/heads/"; }
+        }
+
+        internal static string RemoteTrackingBranchPrefix
+        {
+            get { return "refs/remotes/"; }
+        }
+
+        internal static string TagPrefix
+        {
+            get { return "refs/tags/"; }
+        }
+
+        internal static string NotePrefix
+        {
+            get { return "refs/notes/"; }
+        }
+
         private string DebuggerDisplay
         {
             get
