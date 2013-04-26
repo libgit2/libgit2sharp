@@ -60,11 +60,11 @@ namespace LibGit2Sharp.Tests
                 string fullpath = Path.Combine(repo.Info.WorkingDirectory, filename);
 
                 Assert.Equal(existsBeforeRemove, File.Exists(fullpath));
-                Assert.NotNull(repo.Conflicts[filename]);
+                Assert.NotNull(repo.Index.Conflicts[filename]);
 
                 repo.Index.Remove(filename, removeFromWorkdir);
 
-                Assert.Null(repo.Conflicts[filename]);
+                Assert.Null(repo.Index.Conflicts[filename]);
                 Assert.Equal(count - removedIndexEntries, repo.Index.Count);
                 Assert.Equal(existsAfterRemove, File.Exists(fullpath));
                 Assert.Equal(lastStatus, repo.Index.RetrieveStatus(filename));
@@ -76,7 +76,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(MergedTestRepoWorkingDirPath))
             {
-                Conflict conflict = repo.Conflicts[filepath];
+                Conflict conflict = repo.Index.Conflicts[filepath];
                 Assert.NotNull(conflict);
 
                 ObjectId expectedAncestor = ancestorId != null ? new ObjectId(ancestorId) : null;
@@ -123,7 +123,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(MergedTestRepoWorkingDirPath))
             {
-                var expected = repo.Conflicts.Select(c => new[] { GetPath(c), GetId(c.Ancestor), GetId(c.Ours), GetId(c.Theirs) }).ToArray();
+                var expected = repo.Index.Conflicts.Select(c => new[] { GetPath(c), GetId(c.Ancestor), GetId(c.Ours), GetId(c.Theirs) }).ToArray();
                 Assert.Equal(expected, ConflictData);
             }
         }

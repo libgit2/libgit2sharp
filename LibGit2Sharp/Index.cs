@@ -21,6 +21,7 @@ namespace LibGit2Sharp
     {
         private readonly IndexSafeHandle handle;
         private readonly Repository repo;
+        private readonly ConflictCollection conflicts;
 
         /// <summary>
         ///   Needed for mocking purposes.
@@ -33,6 +34,8 @@ namespace LibGit2Sharp
             this.repo = repo;
 
             handle = Proxy.git_repository_index(repo.Handle);
+            conflicts = new ConflictCollection(repo);
+
             repo.RegisterForCleanup(handle);
         }
 
@@ -42,6 +45,7 @@ namespace LibGit2Sharp
 
             handle = Proxy.git_index_open(indexPath);
             Proxy.git_repository_set_index(repo.Handle, handle);
+            conflicts = new ConflictCollection(repo);
 
             repo.RegisterForCleanup(handle);
         }
@@ -526,6 +530,17 @@ namespace LibGit2Sharp
             }
 
             UpdatePhysicalIndex();
+        }
+
+        /// <summary>
+        ///  Gets the conflicts that exist.
+        /// </summary>
+        public virtual ConflictCollection Conflicts
+        {
+            get
+            {
+                return conflicts;
+            }
         }
 
         private void ReplaceIndexEntryWith(TreeEntryChanges treeEntryChanges)
