@@ -780,11 +780,11 @@ namespace LibGit2Sharp
             {
                 reflogMessage += " (initial)";
             }
-            else if(amendPreviousCommit)
+            else if (amendPreviousCommit)
             {
                 reflogMessage += " (amend)";
             }
-            else if(isMergeCommit)
+            else if (isMergeCommit)
             {
                 reflogMessage += " (merge)";
             }
@@ -794,7 +794,7 @@ namespace LibGit2Sharp
             var headRef = Refs.Head;
 
             // in case HEAD targets a symbolic reference, log commit on the targeted direct reference
-            if(headRef is SymbolicReference)
+            if (headRef is SymbolicReference)
             {
                 Refs.Log(headRef.ResolveToDirectReference()).Append(commit.Id, commit.Committer, reflogMessage);
             }
