@@ -35,7 +35,7 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
 
-            string branchName = isRemote ? "refs/remotes/" + name : name;
+            string branchName = isRemote ? Reference.RemoteTrackingBranchPrefix + name : name;
 
             Branch branch = branches[branchName];
 

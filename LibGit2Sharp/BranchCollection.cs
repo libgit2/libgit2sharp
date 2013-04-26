@@ -64,12 +64,12 @@ namespace LibGit2Sharp
 
         private static string ShortToLocalName(string name)
         {
-            return string.Format(CultureInfo.InvariantCulture, "{0}{1}", "refs/heads/", name);
+            return string.Format(CultureInfo.InvariantCulture, "{0}{1}", Reference.LocalBranchPrefix, name);
         }
 
         private static string ShortToRemoteName(string name)
         {
-            return string.Format(CultureInfo.InvariantCulture, "{0}{1}", "refs/remotes/", name);
+            return string.Format(CultureInfo.InvariantCulture, "{0}{1}", Reference.RemoteTrackingBranchPrefix, name);
         }
 
         private static string ShortToRefName(string name)
@@ -157,7 +157,7 @@ namespace LibGit2Sharp
                         "Cannot rename branch '{0}'. It's a remote tracking branch.", branch.Name));
             }
 
-            using (ReferenceSafeHandle referencePtr = repo.Refs.RetrieveReferencePtr("refs/heads/" + branch.Name))
+            using (ReferenceSafeHandle referencePtr = repo.Refs.RetrieveReferencePtr(Reference.LocalBranchPrefix + branch.Name))
             {
                 using (ReferenceSafeHandle ref_out = Proxy.git_branch_move(referencePtr, newName, allowOverwrite))
                 {
@@ -188,8 +188,8 @@ namespace LibGit2Sharp
         private static bool LooksLikeABranchName(string referenceName)
         {
             return referenceName == "HEAD" ||
-                referenceName.StartsWith("refs/heads/", StringComparison.Ordinal) ||
-                referenceName.StartsWith("refs/remotes/", StringComparison.Ordinal);
+                referenceName.StartsWith(Reference.LocalBranchPrefix, StringComparison.Ordinal) ||
+                referenceName.StartsWith(Reference.RemoteTrackingBranchPrefix, StringComparison.Ordinal);
         }
 
         private static string branchToCanoncialName(IntPtr namePtr, GitBranchType branchType)

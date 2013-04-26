@@ -19,8 +19,6 @@ namespace LibGit2Sharp
         private readonly Repository repo;
         private readonly Lazy<string> defaultNamespace;
 
-        private const string refsNotesPrefix = "refs/notes/";
-
         /// <summary>
         ///   Needed for mocking purposes.
         /// </summary>
@@ -81,7 +79,7 @@ namespace LibGit2Sharp
                 return new[] { NormalizeToCanonicalName(DefaultNamespace) }.Concat(
                    from reference in repo.Refs
                    select reference.CanonicalName into refCanonical
-                   where refCanonical.StartsWith(refsNotesPrefix, StringComparison.Ordinal) && refCanonical != NormalizeToCanonicalName(DefaultNamespace)
+                   where refCanonical.StartsWith(Reference.NotePrefix, StringComparison.Ordinal) && refCanonical != NormalizeToCanonicalName(DefaultNamespace)
                    select refCanonical);
             }
         }
@@ -138,24 +136,24 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
 
-            if (name.StartsWith(refsNotesPrefix, StringComparison.Ordinal))
+            if (name.StartsWith(Reference.NotePrefix, StringComparison.Ordinal))
             {
                 return name;
             }
 
-            return string.Concat(refsNotesPrefix, name);
+            return string.Concat(Reference.NotePrefix, name);
         }
 
         internal string UnCanonicalizeName(string name)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
 
-            if (!name.StartsWith(refsNotesPrefix, StringComparison.Ordinal))
+            if (!name.StartsWith(Reference.NotePrefix, StringComparison.Ordinal))
             {
                 return name;
             }
 
-            return name.Substring(refsNotesPrefix.Length);
+            return name.Substring(Reference.NotePrefix.Length);
         }
 
         /// <summary>
