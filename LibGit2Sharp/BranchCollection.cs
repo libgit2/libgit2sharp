@@ -188,8 +188,8 @@ namespace LibGit2Sharp
         private static bool LooksLikeABranchName(string referenceName)
         {
             return referenceName == "HEAD" ||
-                referenceName.StartsWith(Reference.LocalBranchPrefix, StringComparison.Ordinal) ||
-                referenceName.StartsWith(Reference.RemoteTrackingBranchPrefix, StringComparison.Ordinal);
+                referenceName.LooksLikeLocalBranch() ||
+                referenceName.LooksLikeRemoteTrackingBranch();
         }
 
         private static string branchToCanoncialName(IntPtr namePtr, GitBranchType branchType)

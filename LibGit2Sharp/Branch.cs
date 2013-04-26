@@ -264,7 +264,7 @@ namespace LibGit2Sharp
 
         private static bool IsRemoteBranch(string canonicalName)
         {
-            return canonicalName.StartsWith(Reference.RemoteTrackingBranchPrefix, StringComparison.Ordinal);
+            return canonicalName.LooksLikeRemoteTrackingBranch();
         }
 
         /// <summary>
@@ -274,12 +274,12 @@ namespace LibGit2Sharp
         /// <returns>The friendly shortened name</returns>
         protected override string Shorten()
         {
-            if (CanonicalName.StartsWith(Reference.LocalBranchPrefix, StringComparison.Ordinal))
+            if (CanonicalName.LooksLikeLocalBranch())
             {
                 return CanonicalName.Substring(Reference.LocalBranchPrefix.Length);
             }
 
-            if (CanonicalName.StartsWith(Reference.RemoteTrackingBranchPrefix, StringComparison.Ordinal))
+            if (CanonicalName.LooksLikeRemoteTrackingBranch())
             {
                 return CanonicalName.Substring(Reference.RemoteTrackingBranchPrefix.Length);
             }
