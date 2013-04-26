@@ -579,20 +579,43 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(committishOrBranchSpec, "committishOrBranchSpec");
 
-            var branch = Branches[committishOrBranchSpec];
+            Branch branch = TryResolveBranch(committishOrBranchSpec);
 
             if (branch != null)
             {
                 return Checkout(branch, checkoutOptions, onCheckoutProgress);
             }
 
+            var previousHeadName = Info.IsHeadDetached ? Head.Tip.Sha : Head.Name;
+
             Commit commit = LookupCommit(committishOrBranchSpec);
             CheckoutTree(commit.Tree, checkoutOptions, onCheckoutProgress);
 
             // Update HEAD.
             Refs.UpdateTarget("HEAD", commit.Id.Sha);
+            if (committishOrBranchSpec != "HEAD")
+            {
+                LogCheckout(previousHeadName, commit.Id, committishOrBranchSpec);
+            }
 
             return Head;
+        }
+
+        private Branch TryResolveBranch(string committishOrBranchSpec)
+        {
+            if (committishOrBranchSpec == "HEAD")
+            {
+                return Head;
+            }
+
+            try
+            {
+                return Branches[committishOrBranchSpec];
+            }
+            catch (InvalidSpecificationException)
+            {
+                return null;
+            }
         }
 
         /// <summary>
@@ -616,10 +639,13 @@ namespace LibGit2Sharp
                     "The tip of branch '{0}' is null. There's nothing to checkout.", branch.Name));
             }
 
+            var branchIsCurrentRepositoryHead = branch.IsCurrentRepositoryHead;
+            var previousHeadName = Info.IsHeadDetached ? Head.Tip.Sha : Head.Name;
+
             CheckoutTree(branch.Tip.Tree, checkoutOptions, onCheckoutProgress);
 
             // Update HEAD.
-            if (!branch.IsRemote &&
+            if (!branch.IsRemote && !(branch is DetachedHead) &&
                 string.Equals(Refs[branch.CanonicalName].TargetIdentifier, branch.Tip.Id.Sha,
                 StringComparison.OrdinalIgnoreCase))
             {
@@ -630,7 +656,26 @@ namespace LibGit2Sharp
                 Refs.UpdateTarget("HEAD", branch.Tip.Id.Sha);
             }
 
+            if (!branchIsCurrentRepositoryHead)
+            {
+                LogCheckout(previousHeadName, branch);
+            }
+
             return Head;
+        }
+
+        private void LogCheckout(string previousHeadName, Branch newHead)
+        {
+            LogCheckout(previousHeadName, newHead.Tip.Id, newHead.Name);
+        }
+
+        private void LogCheckout(string previousHeadName, ObjectId newHeadTip, string newHeadSpec)
+        {
+            // Compute reflog message
+            string reflogMessage = string.Format("checkout: moving from {0} to {1}", previousHeadName, newHeadSpec);
+
+            // Log checkout
+            Refs.Log(Refs.Head).Append(newHeadTip, reflogMessage);
         }
 
         /// <summary>
@@ -734,11 +779,11 @@ namespace LibGit2Sharp
             {
                 reflogMessage += " (initial)";
             }
-            else if(amendPreviousCommit)
+            else if (amendPreviousCommit)
             {
                 reflogMessage += " (amend)";
             }
-            else if(isMergeCommit)
+            else if (isMergeCommit)
             {
                 reflogMessage += " (merge)";
             }
@@ -748,13 +793,13 @@ namespace LibGit2Sharp
             var headRef = Refs.Head;
 
             // in case HEAD targets a symbolic reference, log commit on the targeted direct reference
-            if(headRef is SymbolicReference)
+            if (headRef is SymbolicReference)
             {
-                Refs.Log(headRef.ResolveToDirectReference()).Append(commit.Id, commit.Committer, reflogMessage);
+                Refs.Log(headRef.ResolveToDirectReference()).Append(commit.Id, reflogMessage, commit.Committer);
             }
 
             // Log commit on HEAD
-            Refs.Log(headRef).Append(commit.Id, commit.Committer, reflogMessage);
+            Refs.Log(headRef).Append(commit.Id, reflogMessage, commit.Committer);
         }
 
         private IEnumerable<Commit> RetrieveParentsOfTheCommitBeingCreated(bool amendPreviousCommit)

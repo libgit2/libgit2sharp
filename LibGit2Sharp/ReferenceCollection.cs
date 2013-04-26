@@ -152,14 +152,19 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name = "directRef">The direct reference which target should be updated.</param>
         /// <param name = "targetId">The new target.</param>
+        /// <param name="logMessage">The optional message to log in the <see cref="ReflogCollection"/> of the <paramref name="directRef"/> reference</param>
         /// <returns>A new <see cref = "Reference" />.</returns>
-        public virtual Reference UpdateTarget(Reference directRef, ObjectId targetId)
+        public virtual Reference UpdateTarget(Reference directRef, ObjectId targetId, string logMessage = null)
         {
             Ensure.ArgumentNotNull(directRef, "directRef");
             Ensure.ArgumentNotNull(targetId, "targetId");
 
-            return UpdateTarget(directRef, targetId,
-                (h, id) => Proxy.git_reference_set_target(h, id));
+            Reference newTarget = UpdateTarget(directRef, targetId,
+                Proxy.git_reference_set_target);
+
+            LogUpdateTarget(directRef, targetId, logMessage);
+
+            return newTarget;
         }
 
         /// <summary>
@@ -167,14 +172,19 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name = "symbolicRef">The symbolic reference which target should be updated.</param>
         /// <param name = "targetRef">The new target.</param>
+        /// <param name="logMessage">The optional message to log in the <see cref="ReflogCollection"/> of the <paramref name="symbolicRef"/> reference.</param>
         /// <returns>A new <see cref = "Reference" />.</returns>
-        public virtual Reference UpdateTarget(Reference symbolicRef, Reference targetRef)
+        public virtual Reference UpdateTarget(Reference symbolicRef, Reference targetRef, string logMessage = null)
         {
             Ensure.ArgumentNotNull(symbolicRef, "symbolicRef");
             Ensure.ArgumentNotNull(targetRef, "targetRef");
 
-            return UpdateTarget(symbolicRef, targetRef,
+            Reference newTarget = UpdateTarget(symbolicRef, targetRef,
                 (h, r) => Proxy.git_reference_symbolic_set_target(h, r.CanonicalName));
+
+            LogUpdateTarget(symbolicRef, targetRef, logMessage);
+
+            return newTarget;
         }
 
         private Reference UpdateTarget<T>(Reference reference, T target, Func<ReferenceSafeHandle, T, ReferenceSafeHandle> setter)
@@ -207,6 +217,28 @@ namespace LibGit2Sharp
                     return Reference.BuildFromPtr<Reference>(ref_out, repo);
                 }
             }
+        }
+
+        private void LogUpdateTarget(Reference reference, Reference target, string logMessage)
+        {
+            var directReference = target.ResolveToDirectReference();
+
+            if (directReference == null)
+            {
+                return;
+            }
+
+            LogUpdateTarget(reference, directReference.Target.Id, logMessage);
+        }
+
+        private void LogUpdateTarget(Reference reference, ObjectId target, string logMessage)
+        {
+            if (string.IsNullOrEmpty(logMessage))
+            {
+                return;
+            }
+
+            repo.Refs.Log(reference).Append(target, logMessage);
         }
 
         internal ReferenceSafeHandle RetrieveReferencePtr(string referenceName, bool shouldThrowIfNotFound = true)

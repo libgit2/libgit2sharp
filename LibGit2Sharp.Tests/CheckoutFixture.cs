@@ -44,6 +44,14 @@ namespace LibGit2Sharp.Tests
 
                 // Working directory should not be dirty
                 Assert.False(repo.Index.RetrieveStatus().IsDirty);
+
+                // Assert reflog entry is created
+                var reflogEntry = repo.Refs.Log(repo.Refs.Head).First();
+                Assert.Equal(master.Tip.Id, reflogEntry.From);
+                Assert.Equal(branch.Tip.Id, reflogEntry.To);
+                Assert.NotNull(reflogEntry.Commiter.Email);
+                Assert.NotNull(reflogEntry.Commiter.Name);
+                Assert.Equal(string.Format("checkout: moving from master to {0}", branchName), reflogEntry.Message);
             }
         }
 
@@ -74,12 +82,21 @@ namespace LibGit2Sharp.Tests
 
                 // Working directory should not be dirty
                 Assert.False(repo.Index.RetrieveStatus().IsDirty);
+
+                // Assert reflog entry is created
+                var reflogEntry = repo.Refs.Log(repo.Refs.Head).First();
+                Assert.Equal(master.Tip.Id, reflogEntry.From);
+                Assert.Equal(repo.Branches[branchName].Tip.Id, reflogEntry.To);
+                Assert.NotNull(reflogEntry.Commiter.Email);
+                Assert.NotNull(reflogEntry.Commiter.Name);
+                Assert.Equal(string.Format("checkout: moving from master to {0}", branchName), reflogEntry.Message);
             }
         }
 
         [Theory]
         [InlineData("6dcf9bf")]
         [InlineData("refs/tags/lw")]
+        [InlineData("HEAD~2")]
         public void CanCheckoutAnArbitraryCommit(string commitPointer)
         {
             string path = CloneStandardTestRepo();
@@ -93,10 +110,12 @@ namespace LibGit2Sharp.Tests
 
                 Assert.False(repo.Index.RetrieveStatus().IsDirty);
 
+                var commitSha = repo.Lookup(commitPointer).Sha;
+
                 Branch detachedHead = repo.Checkout(commitPointer);
 
                 Assert.Equal(repo.Head, detachedHead);
-                Assert.Equal(repo.Lookup(commitPointer).Sha, detachedHead.Tip.Sha);
+                Assert.Equal(commitSha, detachedHead.Tip.Sha);
                 Assert.True(repo.Head.IsCurrentRepositoryHead);
                 Assert.True(repo.Info.IsHeadDetached);
                 Assert.False(repo.Index.RetrieveStatus().IsDirty);
@@ -108,6 +127,14 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal("(no branch)", detachedHead.CanonicalName);
 
                 Assert.False(master.IsCurrentRepositoryHead);
+
+                // Assert reflog entry is created
+                var reflogEntry = repo.Refs.Log(repo.Refs.Head).First();
+                Assert.Equal(master.Tip.Id, reflogEntry.From);
+                Assert.Equal(commitSha, reflogEntry.To.Sha);
+                Assert.NotNull(reflogEntry.Commiter.Email);
+                Assert.NotNull(reflogEntry.Commiter.Name);
+                Assert.Equal(string.Format("checkout: moving from master to {0}", commitPointer), reflogEntry.Message);
             }
         }
 
@@ -569,6 +596,14 @@ namespace LibGit2Sharp.Tests
                 // Verify that HEAD is detached.
                 Assert.Equal(repo.Refs["HEAD"].TargetIdentifier, repo.Branches["origin/master"].Tip.Sha);
                 Assert.True(repo.Info.IsHeadDetached);
+
+                // Assert reflog entry is created
+                var reflogEntry = repo.Refs.Log(repo.Refs.Head).First();
+                Assert.Equal(master.Tip.Id, reflogEntry.From);
+                Assert.Equal(repo.Branches["origin/master"].Tip.Id, reflogEntry.To);
+                Assert.NotNull(reflogEntry.Commiter.Email);
+                Assert.NotNull(reflogEntry.Commiter.Name);
+                Assert.Equal("checkout: moving from master to origin/master", reflogEntry.Message);
             }
         }
 
@@ -595,6 +630,179 @@ namespace LibGit2Sharp.Tests
 
                 // ...generates the same Sha
                 Assert.Equal(expectedSha, blob.Id.Sha);
+            }
+        }
+
+        [Theory]
+        [InlineData("a447ba2ca8")]
+        [InlineData("refs/tags/lw")]
+        [InlineData("e90810^{}")]
+        public void CheckoutFromDetachedHead(string commitPointer)
+        {
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
+            {
+                // Set the working directory to the current head
+                ResetAndCleanWorkingDirectory(repo);
+                Assert.False(repo.Index.RetrieveStatus().IsDirty);
+
+                var commitSha = repo.Lookup(commitPointer).Sha;
+
+                Branch initialHead = repo.Checkout("6dcf9bf");
+
+                repo.Checkout(commitPointer);
+
+                // Assert reflog entry is created
+                var reflogEntry = repo.Refs.Log(repo.Refs.Head).First();
+                Assert.Equal(initialHead.Tip.Id, reflogEntry.From);
+                Assert.Equal(commitSha, reflogEntry.To.Sha);
+                Assert.NotNull(reflogEntry.Commiter.Email);
+                Assert.NotNull(reflogEntry.Commiter.Name);
+                Assert.Equal(string.Format("checkout: moving from {0} to {1}", initialHead.Tip.Sha, commitPointer), reflogEntry.Message);
+            }
+        }
+
+        [Fact]
+        public void CheckoutBranchFromDetachedHead()
+        {
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
+            {
+                // Set the working directory to the current head
+                ResetAndCleanWorkingDirectory(repo);
+                Assert.False(repo.Index.RetrieveStatus().IsDirty);
+
+                Branch initialHead = repo.Checkout("6dcf9bf");
+
+                Assert.True(repo.Info.IsHeadDetached);
+
+                Branch newHead = repo.Checkout(repo.Branches["master"]);
+
+                // Assert reflog entry is created
+                var reflogEntry = repo.Refs.Log(repo.Refs.Head).First();
+                Assert.Equal(initialHead.Tip.Id, reflogEntry.From);
+                Assert.Equal(newHead.Tip.Id, reflogEntry.To);
+                Assert.NotNull(reflogEntry.Commiter.Email);
+                Assert.NotNull(reflogEntry.Commiter.Name);
+                Assert.Equal(string.Format("checkout: moving from {0} to {1}", initialHead.Tip.Sha, newHead.Name), reflogEntry.Message);
+            }
+        }
+
+
+        [Fact(Skip = "Current libgit2 revparse implementation only returns the object being pointed at, not the reference pointing at it.")]
+        public void CheckoutPreviousCheckedOutBranch()
+        {
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
+            {
+                // Set the working directory to the current head
+                ResetAndCleanWorkingDirectory(repo);
+                Assert.False(repo.Index.RetrieveStatus().IsDirty);
+
+                Branch previousHead = repo.Checkout("i-do-numbers");
+                Branch newHead = repo.Checkout("diff-test-cases");
+
+                //Go back to previous branch checked out
+                repo.Checkout(@"@{-1}");
+
+                // Assert reflog entry is created
+                var reflogEntry = repo.Refs.Log(repo.Refs.Head).First();
+                Assert.Equal(newHead.Tip.Id, reflogEntry.From);
+                Assert.Equal(previousHead.Tip.Id, reflogEntry.To);
+                Assert.NotNull(reflogEntry.Commiter.Email);
+                Assert.NotNull(reflogEntry.Commiter.Name);
+                Assert.Equal("checkout: moving from diff-test-cases to i-do-numbers", reflogEntry.Message);
+            }
+        }
+
+        [Fact]
+        public void CheckoutCurrentReference()
+        {
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
+            {
+                Branch master = repo.Branches["master"];
+                Assert.True(master.IsCurrentRepositoryHead);
+
+                ResetAndCleanWorkingDirectory(repo);
+                Assert.False(repo.Index.RetrieveStatus().IsDirty);
+
+                var reflogEntriesCount = repo.Refs.Log(repo.Refs.Head).Count();
+
+                // Checkout branch
+                repo.Checkout(master);
+
+                Assert.Equal(reflogEntriesCount, repo.Refs.Log(repo.Refs.Head).Count());
+
+                // Checkout in detached mode
+                repo.Checkout(master.Tip.Sha);
+
+                Assert.True(repo.Info.IsHeadDetached);
+                var reflogEntry = repo.Refs.Log(repo.Refs.Head).First();
+                Assert.True(reflogEntry.To == reflogEntry.From);
+                Assert.Equal(string.Format("checkout: moving from master to {0}", master.Tip.Sha), reflogEntry.Message);
+
+                // Checkout detached "HEAD" => nothing should happen
+                reflogEntriesCount = repo.Refs.Log(repo.Refs.Head).Count();
+
+                repo.Checkout(repo.Head);
+
+                Assert.Equal(reflogEntriesCount, repo.Refs.Log(repo.Refs.Head).Count());
+
+                // Checkout attached "HEAD" => nothing should happen
+                repo.Checkout("master");
+                reflogEntriesCount = repo.Refs.Log(repo.Refs.Head).Count();
+
+                repo.Checkout(repo.Head);
+
+                Assert.Equal(reflogEntriesCount, repo.Refs.Log(repo.Refs.Head).Count());
+
+                repo.Checkout("HEAD");
+
+                Assert.Equal(reflogEntriesCount, repo.Refs.Log(repo.Refs.Head).Count());
+            }
+        }
+
+        [Fact]
+        public void CheckoutLowerCasedHeadThrows()
+        {
+            using (var repo = new Repository(StandardTestRepoWorkingDirPath))
+            {
+                Assert.Throws<LibGit2SharpException>(() => repo.Checkout("head"));
+            }
+        }
+
+        [Fact]
+        public void CanCheckoutAttachedHead()
+        {
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
+            {
+                Assert.False(repo.Info.IsHeadDetached);
+
+                repo.Checkout(repo.Head);
+                Assert.False(repo.Info.IsHeadDetached);
+
+                repo.Checkout("HEAD");
+                Assert.False(repo.Info.IsHeadDetached);
+            }
+        }
+
+        [Fact]
+        public void CanCheckoutDetachedHead()
+        {
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
+            {
+                repo.Checkout(repo.Head.Tip.Sha);
+
+                Assert.True(repo.Info.IsHeadDetached);
+
+                repo.Checkout(repo.Head);
+                Assert.True(repo.Info.IsHeadDetached);
+
+                repo.Checkout("HEAD");
+                Assert.True(repo.Info.IsHeadDetached);
             }
         }
 

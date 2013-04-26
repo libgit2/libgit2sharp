@@ -382,7 +382,8 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path))
             {
                 Branch master = repo.Branches["master"];
-                repo.Refs.UpdateTarget("refs/remotes/origin/master", "origin/test");
+                const string logMessage = "update target message";
+                repo.Refs.UpdateTarget("refs/remotes/origin/master", "origin/test", logMessage);
 
                 Assert.True(master.IsTracking);
                 Assert.NotNull(master.TrackedBranch);
@@ -391,6 +392,11 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(9, master.TrackingDetails.AheadBy);
                 Assert.Equal(2, master.TrackingDetails.BehindBy);
                 Assert.Null(repo.Head.TrackingDetails.CommonAncestor);
+
+                // Assert reflog entry is created
+                var reflogEntry = repo.Refs.Log("refs/remotes/origin/master").First();
+                Assert.Equal(repo.Branches["origin/test"].Tip.Id, reflogEntry.To);
+                Assert.Equal(logMessage, reflogEntry.Message);
             }
         }
 
