@@ -610,6 +610,40 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        [Fact]
+        public void CanCheckoutAttachedHead()
+        {
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
+            {
+                Assert.False(repo.Info.IsHeadDetached);
+
+                repo.Checkout(repo.Head);
+                Assert.False(repo.Info.IsHeadDetached);
+
+                repo.Checkout("HEAD");
+                Assert.False(repo.Info.IsHeadDetached);
+            }
+        }
+
+        [Fact]
+        public void CanCheckoutDetachedHead()
+        {
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
+            {
+                repo.Checkout(repo.Head.Tip.Sha);
+
+                Assert.True(repo.Info.IsHeadDetached);
+
+                repo.Checkout(repo.Head);
+                Assert.True(repo.Info.IsHeadDetached);
+
+                repo.Checkout("HEAD");
+                Assert.True(repo.Info.IsHeadDetached);
+            }
+        }
+
         /// <summary>
         ///   Helper method to populate a simple repository with
         ///   a single file and two branches.

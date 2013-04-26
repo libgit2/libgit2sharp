@@ -597,6 +597,11 @@ namespace LibGit2Sharp
 
         private Branch TryResolveBranch(string committishOrBranchSpec)
         {
+            if (committishOrBranchSpec == "HEAD")
+            {
+                return Head;
+            }
+
             try
             {
                 return Branches[committishOrBranchSpec];
@@ -631,7 +636,7 @@ namespace LibGit2Sharp
             CheckoutTree(branch.Tip.Tree, checkoutOptions, onCheckoutProgress);
 
             // Update HEAD.
-            if (!branch.IsRemote &&
+            if (!branch.IsRemote && !(branch is DetachedHead) &&
                 string.Equals(Refs[branch.CanonicalName].TargetIdentifier, branch.Tip.Id.Sha,
                 StringComparison.OrdinalIgnoreCase))
             {
