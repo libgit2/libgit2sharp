@@ -701,6 +701,15 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        [Fact]
+        public void LookingForLowerCaseHeadThrows()
+        {
+            using (var repo = new Repository(BareTestRepoPath))
+            {
+                Assert.Throws<InvalidSpecificationException>(() => repo.Refs["head"]);
+            }
+        }
+
         private static T[] SortedRefs<T>(IRepository repo, Func<Reference, T> selector)
         {
             return repo.Refs.OrderBy(r => r.CanonicalName, StringComparer.Ordinal).Select(selector).ToArray();
