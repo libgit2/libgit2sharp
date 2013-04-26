@@ -705,5 +705,21 @@ namespace LibGit2Sharp.Tests
         {
             return repo.Refs.OrderBy(r => r.CanonicalName, StringComparer.Ordinal).Select(selector).ToArray();
         }
+
+        [Fact]
+        public void CanIdentifyReferenceKind()
+        {
+            using (var repo = new Repository(StandardTestRepoWorkingDirPath))
+            {
+                Assert.True(repo.Refs["refs/heads/master"].IsLocalBranch());
+                Assert.True(repo.Refs["refs/remotes/origin/master"].IsRemoteTrackingBranch());
+                Assert.True(repo.Refs["refs/tags/lw"].IsTag());
+            }
+
+            using (var repo = new Repository(BareTestRepoPath))
+            {
+                Assert.True(repo.Refs["refs/notes/commits"].IsNote());
+            }
+        }
     }
 }
