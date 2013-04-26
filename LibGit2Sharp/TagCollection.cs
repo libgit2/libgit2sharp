@@ -125,7 +125,7 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
 
-            if (name.StartsWith(Reference.TagPrefix, StringComparison.Ordinal))
+            if (name.LooksLikeTag())
             {
                 return name;
             }
@@ -137,7 +137,7 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
 
-            if (!name.StartsWith(Reference.TagPrefix, StringComparison.Ordinal))
+            if (!name.LooksLikeTag())
             {
                 return name;
             }

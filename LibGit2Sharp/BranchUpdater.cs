@@ -222,12 +222,12 @@ namespace LibGit2Sharp
             remoteName = null;
             mergeBranchName = null;
 
-            if (canonicalName.StartsWith(Reference.LocalBranchPrefix, StringComparison.Ordinal))
+            if (canonicalName.LooksLikeLocalBranch())
             {
                 remoteName = ".";
                 mergeBranchName = canonicalName;
             }
-            else if (canonicalName.StartsWith(Reference.RemoteTrackingBranchPrefix, StringComparison.Ordinal))
+            else if (canonicalName.LooksLikeRemoteTrackingBranch())
             {
                 remoteName = Proxy.git_branch_remote_name(repo.Handle, canonicalName);
 
