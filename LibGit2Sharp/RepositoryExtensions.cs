@@ -21,6 +21,8 @@ namespace LibGit2Sharp
         /// <returns></returns>
         public static T Lookup<T>(this IRepository repository, string objectish) where T : GitObject
         {
+            EnsureNoGitLink<T>();
+
             return (T)repository.Lookup(objectish, GitObject.TypeToTypeMap[typeof (T)]);
         }
 
@@ -33,7 +35,19 @@ namespace LibGit2Sharp
         /// <returns></returns>
         public static T Lookup<T>(this IRepository repository, ObjectId id) where T : GitObject
         {
+            EnsureNoGitLink<T>();
+
             return (T)repository.Lookup(id, GitObject.TypeToTypeMap[typeof(T)]);
+        }
+
+        private static void EnsureNoGitLink<T>() where T : GitObject
+        {
+            if (typeof(T) != typeof(GitLink))
+            {
+                return;
+            }
+
+            throw new ArgumentException("A GitObject of type 'GitLink' cannot be looked up.");
         }
 
         /// <summary>

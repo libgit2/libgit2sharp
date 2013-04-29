@@ -413,6 +413,15 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
+        public void LookingUpAGitLinkThrows()
+        {
+            using (var repo = new Repository(BareTestRepoPath))
+            {
+                Assert.Throws<ArgumentException>(() => repo.Lookup<GitLink>("e90810b"));
+            }
+        }
+
+        [Fact]
         public void CanDiscoverABareRepoGivenTheRepoPath()
         {
             string path = Repository.Discover(BareTestRepoPath);
