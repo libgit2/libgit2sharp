@@ -76,7 +76,7 @@ namespace LibGit2Sharp
             get
             {
                 return this
-                    .Where(e => e.Type == GitObjectType.Tree)
+                    .Where(e => e.TargetType == TreeEntryTargetType.Tree)
                     .Select(e => e.Target)
                     .Cast<Tree>();
             }
@@ -90,7 +90,7 @@ namespace LibGit2Sharp
             get
             {
                 return this
-                    .Where(e => e.Type == GitObjectType.Blob)
+                    .Where(e => e.TargetType == TreeEntryTargetType.Blob)
                     .Select(e => e.Target)
                     .Cast<Blob>();
             }

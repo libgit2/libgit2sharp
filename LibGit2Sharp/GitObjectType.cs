@@ -1,4 +1,6 @@
-﻿namespace LibGit2Sharp
+﻿using System;
+
+namespace LibGit2Sharp
 {
     /// <summary>
     ///   Underlying type of a <see cref = "GitObject" />
@@ -54,5 +56,26 @@
         ///   A delta, base is given by object id.
         /// </summary>
         RefDelta = 7
+    }
+
+    internal static class GitObjectTypeExtensions
+    {
+        public static TreeEntryTargetType ToTreeEntryTargetType(this GitObjectType type)
+        {
+            switch (type)
+            {
+                case GitObjectType.Commit:
+                    return TreeEntryTargetType.GitLink;
+
+                case GitObjectType.Tree:
+                    return TreeEntryTargetType.Tree;
+
+                case GitObjectType.Blob:
+                    return TreeEntryTargetType.Blob;
+
+                default:
+                    throw new InvalidOperationException(string.Format("Cannot map {0} to a TreeEntryTargetType.", type));
+            }
+        }
     }
 }

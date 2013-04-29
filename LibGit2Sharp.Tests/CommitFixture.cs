@@ -688,7 +688,7 @@ namespace LibGit2Sharp.Tests
 
         private static void AssertBlobContent(TreeEntry entry, string expectedContent)
         {
-            Assert.Equal(GitObjectType.Blob, entry.Type);
+            Assert.Equal(TreeEntryTargetType.Blob, entry.TargetType);
             Assert.Equal(expectedContent, ((Blob)(entry.Target)).ContentAsUtf8());
         }
 

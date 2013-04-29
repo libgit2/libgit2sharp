@@ -217,14 +217,14 @@ namespace LibGit2Sharp
 
             if (hasAnEntryBeenFound)
             {
-                switch (treeEntryDefinition.Type)
+                switch (treeEntryDefinition.TargetType)
                 {
-                    case GitObjectType.Tree:
+                    case TreeEntryTargetType.Tree:
                         td = From(treeEntryDefinition.Target as Tree);
                         break;
 
-                    case GitObjectType.Blob:
-                    case GitObjectType.Commit:
+                    case TreeEntryTargetType.Blob:
+                    case TreeEntryTargetType.GitLink:
                         if (shouldOverWrite)
                         {
                             td = new TreeDefinition();

@@ -63,12 +63,12 @@ namespace LibGit2Sharp.Tests
         }
 
         [Theory]
-        [InlineData("1/branch_file.txt", "100755", GitObjectType.Blob, "45b983be36b73c0788dc9cbcb76cbb80fc7bb057")]
-        [InlineData("README",            "100644", GitObjectType.Blob, "a8233120f6ad708f843d861ce2b7228ec4e3dec6")]
-        [InlineData("branch_file.txt",   "100644", GitObjectType.Blob, "45b983be36b73c0788dc9cbcb76cbb80fc7bb057")]
-        [InlineData("new.txt",           "100644", GitObjectType.Blob, "a71586c1dfe8a71c6cbf6c129f404c5642ff31bd")]
-        [InlineData("1",                 "040000", GitObjectType.Tree, "7f76480d939dc401415927ea7ef25c676b8ddb8f")]
-        public void CanRetrieveEntries(string path, string expectedAttributes, GitObjectType expectedType, string expectedSha)
+        [InlineData("1/branch_file.txt", "100755", TreeEntryTargetType.Blob, "45b983be36b73c0788dc9cbcb76cbb80fc7bb057")]
+        [InlineData("README",            "100644", TreeEntryTargetType.Blob, "a8233120f6ad708f843d861ce2b7228ec4e3dec6")]
+        [InlineData("branch_file.txt",   "100644", TreeEntryTargetType.Blob, "45b983be36b73c0788dc9cbcb76cbb80fc7bb057")]
+        [InlineData("new.txt",           "100644", TreeEntryTargetType.Blob, "a71586c1dfe8a71c6cbf6c129f404c5642ff31bd")]
+        [InlineData("1",                 "040000", TreeEntryTargetType.Tree, "7f76480d939dc401415927ea7ef25c676b8ddb8f")]
+        public void CanRetrieveEntries(string path, string expectedAttributes, TreeEntryTargetType expectedType, string expectedSha)
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
@@ -77,7 +77,7 @@ namespace LibGit2Sharp.Tests
                 TreeEntryDefinition ted = td[path];
 
                 Assert.Equal(ToMode(expectedAttributes), ted.Mode);
-                Assert.Equal(expectedType, ted.Type);
+                Assert.Equal(expectedType, ted.TargetType);
                 Assert.Equal(new ObjectId(expectedSha), ted.TargetId);
             }
         }
@@ -179,7 +179,7 @@ namespace LibGit2Sharp.Tests
                 Assert.NotNull(fetched);
 
                 Assert.Equal(submodule.HeadCommitId, fetched.TargetId);
-                Assert.Equal(GitObjectType.Commit, fetched.Type);
+                Assert.Equal(TreeEntryTargetType.GitLink, fetched.TargetType);
                 Assert.Equal(Mode.GitLink, fetched.Mode);
             }
         }
@@ -218,7 +218,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(BareTestRepoPath))
             {
                 TreeDefinition td = TreeDefinition.From(repo.Head.Tip.Tree);
-                Assert.Equal(GitObjectType.Tree, td[targetPath].Type);
+                Assert.Equal(TreeEntryTargetType.Tree, td[targetPath].TargetType);
 
                 var objectId = new ObjectId(blobSha);
                 var blob = repo.Lookup<Blob>(objectId);
@@ -230,7 +230,7 @@ namespace LibGit2Sharp.Tests
                 TreeEntryDefinition fetched = td[targetPath];
                 Assert.NotNull(fetched);
 
-                Assert.Equal(GitObjectType.Blob, td[targetPath].Type);
+                Assert.Equal(TreeEntryTargetType.Blob, td[targetPath].TargetType);
                 Assert.Equal(objectId, fetched.TargetId);
                 Assert.Equal(Mode.NonExecutableFile, fetched.Mode);
 
@@ -249,7 +249,7 @@ namespace LibGit2Sharp.Tests
             {
                 TreeDefinition td = TreeDefinition.From(repo.Head.Tip.Tree);
                 Assert.NotNull(td[targetPath]);
-                Assert.Equal(GitObjectType.Blob, td[targetPath].Type);
+                Assert.Equal(TreeEntryTargetType.Blob, td[targetPath].TargetType);
 
                 var objectId = new ObjectId(treeSha);
                 var tree = repo.Lookup<Tree>(objectId);
@@ -259,7 +259,7 @@ namespace LibGit2Sharp.Tests
                 TreeEntryDefinition fetched = td[targetPath];
                 Assert.NotNull(fetched);
 
-                Assert.Equal(GitObjectType.Tree, td[targetPath].Type);
+                Assert.Equal(TreeEntryTargetType.Tree, td[targetPath].TargetType);
                 Assert.Equal(objectId, fetched.TargetId);
                 Assert.Equal(Mode.Directory, fetched.Mode);
             }
@@ -274,7 +274,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(SubmoduleTestRepoWorkingDirPath))
             {
                 TreeDefinition td = TreeDefinition.From(repo.Head.Tip.Tree);
-                Assert.Equal(GitObjectType.Tree, td[targetPath].Type);
+                Assert.Equal(TreeEntryTargetType.Tree, td[targetPath].TargetType);
 
                 Assert.NotNull(td["just_a_dir/contents"]);
 
@@ -284,7 +284,7 @@ namespace LibGit2Sharp.Tests
                 Assert.NotNull(fetched);
 
                 Assert.Equal(commitId, fetched.TargetId);
-                Assert.Equal(GitObjectType.Commit, fetched.Type);
+                Assert.Equal(TreeEntryTargetType.GitLink, fetched.TargetType);
                 Assert.Equal(Mode.GitLink, fetched.Mode);
 
                 Assert.Null(td["just_a_dir/contents"]);
@@ -301,7 +301,7 @@ namespace LibGit2Sharp.Tests
             {
                 TreeDefinition td = TreeDefinition.From(repo.Head.Tip.Tree);
                 Assert.NotNull(td[targetPath]);
-                Assert.Equal(GitObjectType.Commit, td[targetPath].Type);
+                Assert.Equal(TreeEntryTargetType.GitLink, td[targetPath].TargetType);
                 Assert.Equal(Mode.GitLink, td[targetPath].Mode);
 
                 var objectId = new ObjectId(treeSha);
@@ -313,7 +313,7 @@ namespace LibGit2Sharp.Tests
                 Assert.NotNull(fetched);
 
                 Assert.Equal(objectId, fetched.TargetId);
-                Assert.Equal(GitObjectType.Tree, fetched.Type);
+                Assert.Equal(TreeEntryTargetType.Tree, fetched.TargetType);
                 Assert.Equal(Mode.Directory, fetched.Mode);
             }
         }
@@ -328,14 +328,14 @@ namespace LibGit2Sharp.Tests
             {
                 TreeDefinition td = TreeDefinition.From(repo.Head.Tip.Tree);
                 Assert.NotNull(td[targetPath]);
-                Assert.Equal(GitObjectType.Blob, td[targetPath].Type);
+                Assert.Equal(TreeEntryTargetType.Blob, td[targetPath].TargetType);
 
                 td.AddGitLink(targetPath, commitId);
 
                 TreeEntryDefinition fetched = td[targetPath];
                 Assert.NotNull(fetched);
 
-                Assert.Equal(GitObjectType.Commit, td[targetPath].Type);
+                Assert.Equal(TreeEntryTargetType.GitLink, td[targetPath].TargetType);
                 Assert.Equal(commitId, fetched.TargetId);
                 Assert.Equal(Mode.GitLink, fetched.Mode);
             }
@@ -351,7 +351,7 @@ namespace LibGit2Sharp.Tests
             {
                 TreeDefinition td = TreeDefinition.From(repo.Head.Tip.Tree);
                 Assert.NotNull(td[targetPath]);
-                Assert.Equal(GitObjectType.Commit, td[targetPath].Type);
+                Assert.Equal(TreeEntryTargetType.GitLink, td[targetPath].TargetType);
                 Assert.Equal(Mode.GitLink, td[targetPath].Mode);
 
                 var objectId = new ObjectId(blobSha);
@@ -363,7 +363,7 @@ namespace LibGit2Sharp.Tests
                 Assert.NotNull(fetched);
 
                 Assert.Equal(objectId, fetched.TargetId);
-                Assert.Equal(GitObjectType.Blob, fetched.Type);
+                Assert.Equal(TreeEntryTargetType.Blob, fetched.TargetType);
                 Assert.Equal(Mode.NonExecutableFile, fetched.Mode);
             }
         }
@@ -374,7 +374,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(BareTestRepoPath))
             {
                 TreeDefinition td = TreeDefinition.From(repo.Head.Tip.Tree);
-                Assert.Equal(GitObjectType.Tree, td["1"].Type);
+                Assert.Equal(TreeEntryTargetType.Tree, td["1"].TargetType);
 
                 td.Add("new/one", repo.Lookup<Blob>("a823312"), Mode.NonExecutableFile)
                     .Add("new/two", repo.Lookup<Blob>("a71586c"), Mode.NonExecutableFile)

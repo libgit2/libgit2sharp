@@ -31,7 +31,11 @@ namespace LibGit2Sharp
             this.parentTreeId = parentTreeId;
             this.repo = repo;
             targetOid = Proxy.git_tree_entry_id(obj);
-            Type = Proxy.git_tree_entry_type(obj);
+
+            GitObjectType treeEntryTargetType = Proxy.git_tree_entry_type(obj);
+            Type = treeEntryTargetType;
+            TargetType = treeEntryTargetType.ToTreeEntryTargetType();
+
             target = new Lazy<GitObject>(RetrieveTreeEntryTarget);
 
             Mode = Proxy.git_tree_entry_attributes(obj);
@@ -70,20 +74,27 @@ namespace LibGit2Sharp
         /// </summary>
         public virtual GitObjectType Type { get; private set; }
 
+        /// <summary>
+        ///   Gets the <see cref = "TreeEntryTargetType" /> of the <see cref = "Target" /> being pointed at.
+        /// </summary>
+        public virtual TreeEntryTargetType TargetType { get; private set; }
+
         private GitObject RetrieveTreeEntryTarget()
         {
-            switch (Type)
+            switch (TargetType)
             {
-                case GitObjectType.Commit:
+                case TreeEntryTargetType.GitLink:
                     return new GitLink(repo, targetOid);
-                case GitObjectType.Blob:
-                case GitObjectType.Tree:
-                    return GitObject.BuildFrom(repo, targetOid, Type, Path);
+
+                case TreeEntryTargetType.Blob:
+                case TreeEntryTargetType.Tree:
+                    return GitObject.BuildFrom(repo, targetOid, TargetType.ToGitObjectType(), Path);
+
                 default:
                     throw new InvalidOperationException(
                         string.Format(CultureInfo.InvariantCulture,
                                       "TreeEntry target of type '{0}' is not supported.",
-                                      Type));
+                                      TargetType));
             }
         }
 
