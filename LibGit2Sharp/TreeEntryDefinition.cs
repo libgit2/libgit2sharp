@@ -31,6 +31,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Gets the <see cref = "GitObjectType" /> of the target being pointed at.
         /// </summary>
+        [Obsolete("This property will be removed in the next release. Please use TreeEntryDefinition.TargetType instead.")]
         public virtual GitObjectType Type { get; private set; }
 
         /// <summary>
