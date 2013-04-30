@@ -77,5 +77,26 @@ namespace LibGit2Sharp
                     throw new InvalidOperationException(string.Format("Cannot map {0} to a TreeEntryTargetType.", type));
             }
         }
+
+        public static ObjectType ToObjectType(this GitObjectType type)
+        {
+            switch (type)
+            {
+                case GitObjectType.Commit:
+                    return ObjectType.Commit;
+
+                case GitObjectType.Tree:
+                    return ObjectType.Tree;
+
+                case GitObjectType.Blob:
+                    return ObjectType.Blob;
+
+                case GitObjectType.Tag:
+                    return ObjectType.Tag;
+
+                default:
+                    throw new InvalidOperationException(string.Format("Cannot map {0} to a ObjectType.", type));
+            }
+        }
     }
 }

@@ -55,7 +55,7 @@ namespace LibGit2Sharp
         /// </summary>
         public abstract int Read(byte[] oid,
             out Stream data,
-            out GitObjectType objectType);
+            out ObjectType objectType);
 
         /// <summary>
         ///   Requests that this backend read an object. The object ID may not be complete (may be a prefix).
@@ -63,14 +63,14 @@ namespace LibGit2Sharp
         public abstract int ReadPrefix(byte[] shortOid,
             out byte[] oid,
             out Stream data,
-            out GitObjectType objectType);
+            out ObjectType objectType);
 
         /// <summary>
         ///   Requests that this backend read an object's header (length and object type) but not its contents.
         /// </summary>
         public abstract int ReadHeader(byte[] oid,
             out int length,
-            out GitObjectType objectType);
+            out ObjectType objectType);
 
         /// <summary>
         ///   Requests that this backend write an object to the backing store. The backend may need to compute the object ID
@@ -79,7 +79,7 @@ namespace LibGit2Sharp
         public abstract int Write(byte[] oid,
             Stream dataStream,
             long length,
-            GitObjectType objectType,
+            ObjectType objectType,
             out byte[] finalOid);
 
         /// <summary>
@@ -93,7 +93,7 @@ namespace LibGit2Sharp
         ///   the data in chunks.
         /// </summary>
         public abstract int WriteStream(long length,
-            GitObjectType objectType,
+            ObjectType objectType,
             out OdbBackendStream stream);
 
         /// <summary>
@@ -210,7 +210,7 @@ namespace LibGit2Sharp
                 if (odbBackend != null)
                 {
                     Stream dataStream = null;
-                    GitObjectType objectType;
+                    ObjectType objectType;
 
                     try
                     {
@@ -227,7 +227,7 @@ namespace LibGit2Sharp
                             }
 
                             len_p = new UIntPtr((ulong)memoryStream.Capacity);
-                            type_p = objectType;
+                            type_p = objectType.ToGitObjectType();
 
                             memoryStream.Seek(0, SeekOrigin.Begin);
                             buffer_p = new IntPtr(memoryStream.PositionPointer);
@@ -271,7 +271,7 @@ namespace LibGit2Sharp
                 {
                     byte[] oid;
                     Stream dataStream = null;
-                    GitObjectType objectType;
+                    ObjectType objectType;
 
                     try
                     {
@@ -294,7 +294,7 @@ namespace LibGit2Sharp
 
                             out_oid.Id = oid;
                             len_p = new UIntPtr((ulong)memoryStream.Capacity);
-                            type_p = objectType;
+                            type_p = objectType.ToGitObjectType();
 
                             memoryStream.Seek(0, SeekOrigin.Begin);
                             buffer_p = new IntPtr(memoryStream.PositionPointer);
@@ -332,7 +332,7 @@ namespace LibGit2Sharp
                 if (odbBackend != null)
                 {
                     int length;
-                    GitObjectType objectType;
+                    ObjectType objectType;
 
                     try
                     {
@@ -341,7 +341,7 @@ namespace LibGit2Sharp
                         if (0 == toReturn)
                         {
                             len_p = new UIntPtr((uint)length);
-                            type_p = objectType;
+                            type_p = objectType.ToGitObjectType();
                         }
 
                         return toReturn;
@@ -364,6 +364,8 @@ namespace LibGit2Sharp
             {
                 OdbBackend odbBackend = GCHandle.FromIntPtr(Marshal.ReadIntPtr(backend, GitOdbBackend.GCHandleOffset)).Target as OdbBackend;
 
+                ObjectType objectType = type.ToObjectType();
+
                 if (odbBackend != null &&
                     len.ToUInt64() < long.MaxValue)
                 {
@@ -373,7 +375,7 @@ namespace LibGit2Sharp
                         {
                             byte[] finalOid;
 
-                            int toReturn = odbBackend.Write(oid.Id, stream, (long)len.ToUInt64(), type, out finalOid);
+                            int toReturn = odbBackend.Write(oid.Id, stream, (long)len.ToUInt64(), objectType, out finalOid);
 
                             if (0 == toReturn)
                             {
@@ -402,6 +404,8 @@ namespace LibGit2Sharp
 
                 OdbBackend odbBackend = GCHandle.FromIntPtr(Marshal.ReadIntPtr(backend, GitOdbBackend.GCHandleOffset)).Target as OdbBackend;
 
+                ObjectType objectType = type.ToObjectType();
+
                 if (odbBackend != null &&
                     length.ToUInt64() < long.MaxValue)
                 {
@@ -409,7 +413,7 @@ namespace LibGit2Sharp
 
                     try
                     {
-                        int toReturn = odbBackend.WriteStream((long)length.ToUInt64(), type, out stream);
+                        int toReturn = odbBackend.WriteStream((long)length.ToUInt64(), objectType, out stream);
 
                         if (0 == toReturn)
                         {

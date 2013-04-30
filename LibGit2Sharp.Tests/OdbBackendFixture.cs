@@ -52,10 +52,10 @@ namespace LibGit2Sharp.Tests
                 }
             }
 
-            public override int Read(byte[] oid, out Stream data, out GitObjectType objectType)
+            public override int Read(byte[] oid, out Stream data, out ObjectType objectType)
             {
                 data = null;
-                objectType = GitObjectType.Bad;
+                objectType = default(ObjectType);
 
                 MockGitObject gitObject;
 
@@ -72,11 +72,11 @@ namespace LibGit2Sharp.Tests
                 return GIT_ENOTFOUND;
             }
 
-            public override int ReadPrefix(byte[] shortOid, out byte[] oid, out Stream data, out GitObjectType objectType)
+            public override int ReadPrefix(byte[] shortOid, out byte[] oid, out Stream data, out ObjectType objectType)
             {
                 oid = null;
                 data = null;
-                objectType = GitObjectType.Bad;
+                objectType = default(ObjectType);
 
                 MockGitObject gitObjectAlreadyFound = null;
 
@@ -120,7 +120,7 @@ namespace LibGit2Sharp.Tests
                 return GIT_ENOTFOUND;
             }
 
-            public override int Write(byte[] oid, Stream dataStream, long length, GitObjectType objectType, out byte[] finalOid)
+            public override int Write(byte[] oid, Stream dataStream, long length, ObjectType objectType, out byte[] finalOid)
             {
                 using (var sha1 = new SHA1CryptoServiceProvider())
                 {
@@ -152,7 +152,7 @@ namespace LibGit2Sharp.Tests
                 return GIT_OK;
             }
 
-            public override int WriteStream(long length, GitObjectType objectType, out OdbBackendStream stream)
+            public override int WriteStream(long length, ObjectType objectType, out OdbBackendStream stream)
             {
                 stream = new MockOdbBackendStream(this, objectType, length);
 
@@ -174,7 +174,7 @@ namespace LibGit2Sharp.Tests
 
             #region Unimplemented
 
-            public override int ReadHeader(byte[] oid, out int length, out GitObjectType objectType)
+            public override int ReadHeader(byte[] oid, out int length, out ObjectType objectType)
             {
                 throw new NotImplementedException();
             }
@@ -195,7 +195,7 @@ namespace LibGit2Sharp.Tests
 
             private class MockOdbBackendStream : OdbBackendStream
             {
-                public MockOdbBackendStream(MockOdbBackend backend, GitObjectType objectType, long length)
+                public MockOdbBackendStream(MockOdbBackend backend, ObjectType objectType, long length)
                     : base(backend)
                 {
                     m_type = objectType;
@@ -287,7 +287,7 @@ namespace LibGit2Sharp.Tests
 
                 private byte[] m_buffer;
 
-                private readonly GitObjectType m_type;
+                private readonly ObjectType m_type;
                 private readonly long m_length;
                 private readonly HashAlgorithm m_hash;
 
@@ -307,7 +307,7 @@ namespace LibGit2Sharp.Tests
 
             private class MockGitObject
             {
-                public MockGitObject(byte[] objectId, GitObjectType objectType, byte[] data)
+                public MockGitObject(byte[] objectId, ObjectType objectType, byte[] data)
                 {
                     if (objectId.Length != 20)
                     {
@@ -320,7 +320,7 @@ namespace LibGit2Sharp.Tests
                 }
 
                 public byte[] ObjectId;
-                public GitObjectType ObjectType;
+                public ObjectType ObjectType;
                 public byte[] Data;
 
                 public int Length
