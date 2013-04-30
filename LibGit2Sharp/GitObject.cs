@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using LibGit2Sharp.Core;
@@ -12,14 +13,13 @@ namespace LibGit2Sharp
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public abstract class GitObject : IEquatable<GitObject>
     {
-        internal static GitObjectTypeMap TypeToTypeMap =
-            new GitObjectTypeMap
+        internal static IDictionary<Type, ObjectType> TypeToKindMap =
+            new Dictionary<Type, ObjectType>
                 {
-                    { typeof(Commit), GitObjectType.Commit },
-                    { typeof(Tree), GitObjectType.Tree },
-                    { typeof(Blob), GitObjectType.Blob },
-                    { typeof(TagAnnotation), GitObjectType.Tag },
-                    { typeof(GitObject), GitObjectType.Any },
+                    { typeof(Commit), ObjectType.Commit },
+                    { typeof(Tree), ObjectType.Tree },
+                    { typeof(Blob), ObjectType.Blob },
+                    { typeof(TagAnnotation), ObjectType.Tag },
                 };
 
         private static readonly LambdaEqualityHelper<GitObject> equalityHelper =
