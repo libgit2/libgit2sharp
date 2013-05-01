@@ -721,7 +721,8 @@ namespace LibGit2Sharp.Tests
                 Tree tree = commit.Tree;
                 Assert.Equal("2b297e643c551e76cfa1f93810c50811382f9117", tree.Sha);
 
-                Blob blob = tree.Blobs.Single();
+                GitObject blob = tree.Single().Target;
+                Assert.IsAssignableFrom<Blob>(blob);
                 Assert.Equal("9daeafb9864cf43055ae93beb0afd6c7d144bfa4", blob.Sha);
             }
         }

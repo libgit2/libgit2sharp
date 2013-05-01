@@ -356,8 +356,7 @@ namespace LibGit2Sharp.Tests
             string path = CloneBareTestRepo();
             using (var repo = new Repository(path))
             {
-                Commit headCommit = repo.Head.Tip;
-                Blob blob = headCommit.Tree.Blobs.First();
+                var blob = repo.Lookup<Blob>("a823312");
 
                 Tag tag = repo.ApplyTag("blob-tag", blob.Sha);
                 Assert.NotNull(tag);
