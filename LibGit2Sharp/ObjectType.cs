@@ -30,21 +30,21 @@ namespace LibGit2Sharp
 
     internal static class ObjectTypeExtensions
     {
-        public static GitObjectType ToGitObjectType(this ObjectType type)
+        public static Core.GitObjectType ToGitObjectType(this ObjectType type)
         {
             switch (type)
             {
                 case ObjectType.Commit:
-                    return GitObjectType.Commit;
+                    return Core.GitObjectType.Commit;
 
                 case ObjectType.Tree:
-                    return GitObjectType.Tree;
+                    return Core.GitObjectType.Tree;
 
                 case ObjectType.Blob:
-                    return GitObjectType.Blob;
+                    return Core.GitObjectType.Blob;
 
                 case ObjectType.Tag:
-                    return GitObjectType.Tag;
+                    return Core.GitObjectType.Tag;
 
                 default:
                     throw new InvalidOperationException(string.Format("Cannot map {0} to a GitObjectType.", type));

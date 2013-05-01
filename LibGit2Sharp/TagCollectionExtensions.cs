@@ -20,7 +20,7 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(objectish, "target");
 
-            GitObject objectToTag = tags.repo.Lookup(objectish, GitObjectType.Any, LookUpOptions.ThrowWhenNoGitObjectHasBeenFound);
+            GitObject objectToTag = tags.repo.Lookup(objectish, Core.GitObjectType.Any, LookUpOptions.ThrowWhenNoGitObjectHasBeenFound);
 
             return tags.Add(name, objectToTag, tagger, message, allowOverwrite);
         }
@@ -36,7 +36,7 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(objectish, "objectish");
 
-            GitObject objectToTag = tags.repo.Lookup(objectish, GitObjectType.Any, LookUpOptions.ThrowWhenNoGitObjectHasBeenFound);
+            GitObject objectToTag = tags.repo.Lookup(objectish, Core.GitObjectType.Any, LookUpOptions.ThrowWhenNoGitObjectHasBeenFound);
 
             return tags.Add(name, objectToTag, allowOverwrite);
         }

@@ -95,6 +95,7 @@ namespace LibGit2Sharp
         /// <param name = "id">The id to lookup.</param>
         /// <param name = "type">The kind of GitObject being looked up</param>
         /// <returns>The <see cref = "GitObject" /> or null if it was not found.</returns>
+        [Obsolete("This method will be removed in the next release. Please use another Repository.Lookup() overload instead.")]
         GitObject Lookup(ObjectId id, GitObjectType type = GitObjectType.Any);
 
         /// <summary>
@@ -103,6 +104,7 @@ namespace LibGit2Sharp
         /// <param name = "objectish">A revparse spec for the object to lookup.</param>
         /// <param name = "type">The kind of <see cref = "GitObject" /> being looked up</param>
         /// <returns>The <see cref = "GitObject" /> or null if it was not found.</returns>
+        [Obsolete("This method will be removed in the next release. Please use another Repository.Lookup() overload instead.")]
         GitObject Lookup(string objectish, GitObjectType type = GitObjectType.Any);
 
         /// <summary>

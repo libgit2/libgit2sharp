@@ -5,6 +5,7 @@ namespace LibGit2Sharp
     /// <summary>
     ///   Underlying type of a <see cref = "GitObject" />
     /// </summary>
+    [Obsolete("This type will be removed in the next release.")]
     public enum GitObjectType
     {
         /// <summary>
@@ -60,43 +61,9 @@ namespace LibGit2Sharp
 
     internal static class GitObjectTypeExtensions
     {
-        public static TreeEntryTargetType ToTreeEntryTargetType(this GitObjectType type)
+        public static Core.GitObjectType ToCoreGitObjectType(this GitObjectType type)
         {
-            switch (type)
-            {
-                case GitObjectType.Commit:
-                    return TreeEntryTargetType.GitLink;
-
-                case GitObjectType.Tree:
-                    return TreeEntryTargetType.Tree;
-
-                case GitObjectType.Blob:
-                    return TreeEntryTargetType.Blob;
-
-                default:
-                    throw new InvalidOperationException(string.Format("Cannot map {0} to a TreeEntryTargetType.", type));
-            }
-        }
-
-        public static ObjectType ToObjectType(this GitObjectType type)
-        {
-            switch (type)
-            {
-                case GitObjectType.Commit:
-                    return ObjectType.Commit;
-
-                case GitObjectType.Tree:
-                    return ObjectType.Tree;
-
-                case GitObjectType.Blob:
-                    return ObjectType.Blob;
-
-                case GitObjectType.Tag:
-                    return ObjectType.Tag;
-
-                default:
-                    throw new InvalidOperationException(string.Format("Cannot map {0} to a ObjectType.", type));
-            }
+            return (Core.GitObjectType)type;
         }
     }
 }

@@ -30,15 +30,15 @@ namespace LibGit2Sharp
 
     internal static class TreeEntryTargetTypeExtensions
     {
-        public static GitObjectType ToGitObjectType(this TreeEntryTargetType type)
+        public static Core.GitObjectType ToGitObjectType(this TreeEntryTargetType type)
         {
             switch (type)
             {
                 case TreeEntryTargetType.Tree:
-                    return GitObjectType.Tree;
+                    return Core.GitObjectType.Tree;
 
                 case TreeEntryTargetType.Blob:
-                    return GitObjectType.Blob;
+                    return Core.GitObjectType.Blob;
 
                 default:
                     throw new InvalidOperationException(string.Format("Cannot map {0} to a GitObjectType.", type));

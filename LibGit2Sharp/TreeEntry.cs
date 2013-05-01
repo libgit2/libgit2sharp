@@ -32,8 +32,8 @@ namespace LibGit2Sharp
             this.repo = repo;
             targetOid = Proxy.git_tree_entry_id(obj);
 
-            GitObjectType treeEntryTargetType = Proxy.git_tree_entry_type(obj);
-            Type = treeEntryTargetType;
+            Core.GitObjectType treeEntryTargetType = Proxy.git_tree_entry_type(obj);
+            Type = treeEntryTargetType.ToGitObjectType();
             TargetType = treeEntryTargetType.ToTreeEntryTargetType();
 
             target = new Lazy<GitObject>(RetrieveTreeEntryTarget);

@@ -197,13 +197,13 @@ namespace LibGit2Sharp
             private unsafe static int Read(
                 out IntPtr buffer_p,
                 out UIntPtr len_p,
-                out GitObjectType type_p,
+                out Core.GitObjectType type_p,
                 IntPtr backend,
                 ref GitOid oid)
             {
                 buffer_p = IntPtr.Zero;
                 len_p = UIntPtr.Zero;
-                type_p = GitObjectType.Bad;
+                type_p = Core.GitObjectType.Bad;
 
                 OdbBackend odbBackend = GCHandle.FromIntPtr(Marshal.ReadIntPtr(backend, GitOdbBackend.GCHandleOffset)).Target as OdbBackend;
 
@@ -255,7 +255,7 @@ namespace LibGit2Sharp
                 out GitOid out_oid,
                 out IntPtr buffer_p,
                 out UIntPtr len_p,
-                out GitObjectType type_p,
+                out Core.GitObjectType type_p,
                 IntPtr backend,
                 ref GitOid short_oid,
                 UIntPtr len)
@@ -263,7 +263,7 @@ namespace LibGit2Sharp
                 out_oid = default(GitOid);
                 buffer_p = IntPtr.Zero;
                 len_p = UIntPtr.Zero;
-                type_p = GitObjectType.Bad;
+                type_p = Core.GitObjectType.Bad;
 
                 OdbBackend odbBackend = GCHandle.FromIntPtr(Marshal.ReadIntPtr(backend, GitOdbBackend.GCHandleOffset)).Target as OdbBackend;
 
@@ -320,12 +320,12 @@ namespace LibGit2Sharp
 
             private static int ReadHeader(
                 out UIntPtr len_p,
-                out GitObjectType type_p,
+                out Core.GitObjectType type_p,
                 IntPtr backend,
                 ref GitOid oid)
             {
                 len_p = UIntPtr.Zero;
-                type_p = GitObjectType.Bad;
+                type_p = Core.GitObjectType.Bad;
 
                 OdbBackend odbBackend = GCHandle.FromIntPtr(Marshal.ReadIntPtr(backend, GitOdbBackend.GCHandleOffset)).Target as OdbBackend;
 
@@ -360,7 +360,7 @@ namespace LibGit2Sharp
                 IntPtr backend,
                 IntPtr data,
                 UIntPtr len,
-                GitObjectType type)
+                Core.GitObjectType type)
             {
                 OdbBackend odbBackend = GCHandle.FromIntPtr(Marshal.ReadIntPtr(backend, GitOdbBackend.GCHandleOffset)).Target as OdbBackend;
 
@@ -398,7 +398,7 @@ namespace LibGit2Sharp
                 out IntPtr stream_out,
                 IntPtr backend,
                 UIntPtr length,
-                GitObjectType type)
+                Core.GitObjectType type)
             {
                 stream_out = IntPtr.Zero;
 

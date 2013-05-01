@@ -180,6 +180,7 @@ namespace LibGit2Sharp
             get { return Mode.Directory; }
         }
 
+        [Obsolete("This property will be removed in the next release. Please use TransientTreeTreeEntryDefinition.TargetType instead.")]
         public override GitObjectType Type
         {
             get { return GitObjectType.Tree; }
@@ -193,6 +194,7 @@ namespace LibGit2Sharp
 
     internal class TransientBlobTreeEntryDefinition : TransientTreeEntryDefinition
     {
+        [Obsolete("This property will be removed in the next release. Please use TransientBlobTreeEntryDefinition.TargetType instead.")]
         public override GitObjectType Type
         {
             get { return GitObjectType.Blob; }
