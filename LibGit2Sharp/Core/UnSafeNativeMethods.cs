@@ -20,6 +20,14 @@ namespace LibGit2Sharp.Core
         [DllImport(libgit2)]
         internal static extern void git_strarray_free(ref git_strarray array);
 
+        [DllImport(libgit2)]
+        internal static extern int git_remote_transform_ref(
+            out git_strarray array,
+            RemoteSafeHandle remote,
+            string reference,
+            bool usePushRefSpec,
+            bool applyLeftTransform);
+
         #region Nested type: git_strarray
 
         internal struct git_strarray
