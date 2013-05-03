@@ -37,8 +37,9 @@ namespace LibGit2Sharp
         /// <param name = "canonicalRefNameOrObjectish">The target which can be either the canonical name of a reference or a revparse spec.</param>
         /// <param name = "allowOverwrite">True to allow silent overwriting a potentially existing reference, false otherwise.</param>
         /// <param name = "refsColl">The <see cref="ReferenceCollection"/> being worked with.</param>
+        /// <param name="logMessage">The optional message to log in the <see cref="ReflogCollection"/> when adding the <see cref="Reference"/></param>
         /// <returns>A new <see cref = "Reference" />.</returns>
-        public static Reference Add(this ReferenceCollection refsColl, string name, string canonicalRefNameOrObjectish, bool allowOverwrite = false)
+        public static Reference Add(this ReferenceCollection refsColl, string name, string canonicalRefNameOrObjectish, bool allowOverwrite = false, string logMessage = null)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
             Ensure.ArgumentNotNullOrEmptyString(canonicalRefNameOrObjectish, "canonicalRefNameOrObjectish");
@@ -48,7 +49,12 @@ namespace LibGit2Sharp
 
             var gitObject = refsColl.repo.Lookup(canonicalRefNameOrObjectish, GitObjectType.Any, LookUpOptions.None);
 
-            if (refState == RefState.Exists || (refState == RefState.DoesNotExistButLooksValid && gitObject == null))
+            if (refState == RefState.Exists)
+            {
+                return refsColl.Add(name, reference, allowOverwrite, logMessage);
+            }
+
+            if (refState == RefState.DoesNotExistButLooksValid && gitObject == null)
             {
                 using (ReferenceSafeHandle handle = Proxy.git_reference_symbolic_create(refsColl.repo.Handle, name, canonicalRefNameOrObjectish, allowOverwrite))
                 {
@@ -58,7 +64,7 @@ namespace LibGit2Sharp
 
             Ensure.GitObjectIsNotNull(gitObject, canonicalRefNameOrObjectish);
 
-            return refsColl.Add(name, gitObject.Id, allowOverwrite);
+            return refsColl.Add(name, gitObject.Id, allowOverwrite, logMessage);
         }
         /// <summary>
         ///   Updates the target of a direct reference.
