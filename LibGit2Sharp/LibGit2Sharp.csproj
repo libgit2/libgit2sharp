@@ -67,6 +67,7 @@
     <Compile Include="Changes.cs" />
     <Compile Include="CheckoutCallbacks.cs" />
     <Compile Include="CheckoutOptions.cs" />
+    <Compile Include="ObjectType.cs" />
     <Compile Include="ReferenceExtensions.cs" />
     <Compile Include="Conflict.cs" />
     <Compile Include="ConflictCollection.cs" />
@@ -75,6 +76,7 @@
     <Compile Include="Core\Handles\NullRepositorySafeHandle.cs" />
     <Compile Include="GitLink.cs" />
     <Compile Include="Core\RepositoryOpenFlags.cs" />
+    <Compile Include="TreeEntryTargetType.cs" />
     <Compile Include="UnmatchedPathException.cs" />
     <Compile Include="Core\Handles\ReflogEntrySafeHandle.cs" />
     <Compile Include="Core\Handles\ReflogSafeHandle.cs" />
@@ -184,7 +186,6 @@
     <Compile Include="Core\Ensure.cs" />
     <Compile Include="Core\Epoch.cs" />
     <Compile Include="Core\GitErrorCode.cs" />
-    <Compile Include="Core\GitObjectTypeMap.cs" />
     <Compile Include="Core\GitOid.cs" />
     <Compile Include="Core\GitReferenceType.cs" />
     <Compile Include="Core\GitSignature.cs" />
@@ -206,6 +207,7 @@
     <Compile Include="Core\GitIndexEntry.cs" />
     <Compile Include="GitObject.cs" />
     <Compile Include="GitObjectType.cs" />
+    <Compile Include="Core\GitObjectType.cs" />
     <Compile Include="GitSortOptions.cs" />
     <Compile Include="Core\LambdaEqualityHelper.cs" />
     <Compile Include="ICommitLog.cs" />

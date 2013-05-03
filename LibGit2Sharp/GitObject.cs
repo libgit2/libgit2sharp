@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using LibGit2Sharp.Core;
@@ -12,14 +13,13 @@ namespace LibGit2Sharp
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public abstract class GitObject : IEquatable<GitObject>
     {
-        internal static GitObjectTypeMap TypeToTypeMap =
-            new GitObjectTypeMap
+        internal static IDictionary<Type, ObjectType> TypeToKindMap =
+            new Dictionary<Type, ObjectType>
                 {
-                    { typeof(Commit), GitObjectType.Commit },
-                    { typeof(Tree), GitObjectType.Tree },
-                    { typeof(Blob), GitObjectType.Blob },
-                    { typeof(TagAnnotation), GitObjectType.Tag },
-                    { typeof(GitObject), GitObjectType.Any },
+                    { typeof(Commit), ObjectType.Commit },
+                    { typeof(Tree), ObjectType.Tree },
+                    { typeof(Blob), ObjectType.Blob },
+                    { typeof(TagAnnotation), ObjectType.Tag },
                 };
 
         private static readonly LambdaEqualityHelper<GitObject> equalityHelper =
@@ -60,17 +60,17 @@ namespace LibGit2Sharp
             get { return Id.Sha; }
         }
 
-        internal static GitObject BuildFrom(Repository repo, ObjectId id, GitObjectType type, FilePath path)
+        internal static GitObject BuildFrom(Repository repo, ObjectId id, Core.GitObjectType type, FilePath path)
         {
             switch (type)
             {
-                case GitObjectType.Commit:
+                case Core.GitObjectType.Commit:
                     return new Commit(repo, id);
-                case GitObjectType.Tree:
+                case Core.GitObjectType.Tree:
                     return new Tree(repo, id, path);
-                case GitObjectType.Tag:
+                case Core.GitObjectType.Tag:
                     return new TagAnnotation(repo, id);
-                case GitObjectType.Blob:
+                case Core.GitObjectType.Blob:
                     return new Blob(repo, id);
                 default:
                     throw new LibGit2SharpException(string.Format(CultureInfo.InvariantCulture, "Unexpected type '{0}' for object '{1}'.", type, id));
@@ -79,14 +79,14 @@ namespace LibGit2Sharp
 
         internal Commit DereferenceToCommit(bool throwsIfCanNotBeDereferencedToACommit)
         {
-            using (GitObjectSafeHandle peeledHandle = Proxy.git_object_peel(repo.Handle, Id, GitObjectType.Commit, throwsIfCanNotBeDereferencedToACommit))
+            using (GitObjectSafeHandle peeledHandle = Proxy.git_object_peel(repo.Handle, Id, Core.GitObjectType.Commit, throwsIfCanNotBeDereferencedToACommit))
             {
                 if (peeledHandle == null)
                 {
                     return null;
                 }
 
-                return (Commit) BuildFrom(repo, Proxy.git_object_id(peeledHandle), GitObjectType.Commit, null);
+                return (Commit)BuildFrom(repo, Proxy.git_object_id(peeledHandle), Core.GitObjectType.Commit, null);
             }
         }
 

@@ -1,8 +1,11 @@
-﻿namespace LibGit2Sharp
+﻿using System;
+
+namespace LibGit2Sharp
 {
     /// <summary>
     ///   Underlying type of a <see cref = "GitObject" />
     /// </summary>
+    [Obsolete("This type will be removed in the next release.")]
     public enum GitObjectType
     {
         /// <summary>
@@ -54,5 +57,13 @@
         ///   A delta, base is given by object id.
         /// </summary>
         RefDelta = 7
+    }
+
+    internal static class GitObjectTypeExtensions
+    {
+        public static Core.GitObjectType ToCoreGitObjectType(this GitObjectType type)
+        {
+            return (Core.GitObjectType)type;
+        }
     }
 }

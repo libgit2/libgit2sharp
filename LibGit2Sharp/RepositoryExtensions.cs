@@ -23,7 +23,12 @@ namespace LibGit2Sharp
         {
             EnsureNoGitLink<T>();
 
-            return (T)repository.Lookup(objectish, GitObject.TypeToTypeMap[typeof (T)]);
+            if (typeof (T) == typeof (GitObject))
+            {
+                return (T)repository.Lookup(objectish);
+            }
+
+            return (T)repository.Lookup(objectish, GitObject.TypeToKindMap[typeof(T)]);
         }
 
         /// <summary>
@@ -37,7 +42,12 @@ namespace LibGit2Sharp
         {
             EnsureNoGitLink<T>();
 
-            return (T)repository.Lookup(id, GitObject.TypeToTypeMap[typeof(T)]);
+            if (typeof(T) == typeof(GitObject))
+            {
+                return (T)repository.Lookup(id);
+            }
+
+            return (T)repository.Lookup(id, GitObject.TypeToKindMap[typeof(T)]);
         }
 
         private static void EnsureNoGitLink<T>() where T : GitObject

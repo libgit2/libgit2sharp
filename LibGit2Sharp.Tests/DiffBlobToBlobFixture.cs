@@ -13,7 +13,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(StandardTestRepoPath))
             {
-                Blob blob = repo.Head.Tip.Tree.Blobs.First();
+                var blob = repo.Lookup<Blob>("7909961");
 
                 ContentChanges changes = repo.Diff.Compare(blob, blob);
 
@@ -78,7 +78,7 @@ namespace LibGit2Sharp.Tests
             {
                 Blob binBlob = CreateBinaryBlob(repo);
 
-                Blob blob = repo.Head.Tip.Tree.Blobs.First();
+                var blob = repo.Lookup<Blob>("7909961");
 
                 ContentChanges changes = repo.Diff.Compare(blob, binBlob);
 
@@ -94,7 +94,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(StandardTestRepoPath))
             {
-                Blob blob = repo.Head.Tip.Tree.Blobs.First();
+                var blob = repo.Lookup<Blob>("7909961");
 
                 ContentChanges changes = repo.Diff.Compare(null, blob);
 

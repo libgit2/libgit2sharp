@@ -198,7 +198,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path))
             {
                 TreeDefinition td = TreeDefinition.From(repo.Head.Tip.Tree);
-                Assert.Equal(GitObjectType.Tree, td["1"].Type);
+                Assert.Equal(TreeEntryTargetType.Tree, td["1"].TargetType);
 
                 TreeDefinition newTd = new TreeDefinition()
                     .Add("new/one", repo.Lookup<Blob>("a823312"), Mode.NonExecutableFile)
@@ -208,7 +208,7 @@ namespace LibGit2Sharp.Tests
                 repo.ObjectDatabase.CreateTree(newTd);
 
                 td.Add("1", newTd["new"]);
-                Assert.Equal(GitObjectType.Tree, td["1/tree"].Type);
+                Assert.Equal(TreeEntryTargetType.Tree, td["1/tree"].TargetType);
             }
         }
 
@@ -265,7 +265,7 @@ namespace LibGit2Sharp.Tests
                 Assert.NotNull(ted);
                 Assert.Equal(Mode.GitLink, ted.Mode);
                 Assert.Equal(objectId, ted.TargetId);
-                Assert.Equal(GitObjectType.Commit, ted.Type);
+                Assert.Equal(TreeEntryTargetType.GitLink, ted.TargetType);
 
                 Tree tree = repo.ObjectDatabase.CreateTree(td);
 
