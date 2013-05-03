@@ -406,7 +406,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Try to lookup an object by its <see cref = "ObjectId" /> and <see cref = "GitObjectType" />. If no matching object is found, null will be returned.
+        ///   Try to lookup an object by its <see cref = "ObjectId" /> and <see cref = "ObjectType" />. If no matching object is found, null will be returned.
         /// </summary>
         /// <param name = "id">The id to lookup.</param>
         /// <param name = "type">The kind of GitObject being looked up</param>
@@ -417,7 +417,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Try to lookup an object by its sha or a reference canonical name and <see cref = "GitObjectType" />. If no matching object is found, null will be returned.
+        ///   Try to lookup an object by its sha or a reference canonical name and <see cref = "ObjectType" />. If no matching object is found, null will be returned.
         /// </summary>
         /// <param name = "objectish">A revparse spec for the object to lookup.</param>
         /// <param name = "type">The kind of <see cref = "GitObject" /> being looked up</param>
