@@ -8,6 +8,48 @@
  - CI server: <http://teamcity.codebetter.com/project.html?projectId=project127&guest=1>
  - @libgit2sharp: <http://twitter.com/libgit2sharp>
 
+## v0.11.0 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.10.0...v0.11.0))
+
+### Additions
+
+ - Introduce Repository.Refs.Log()
+ - Teach Checkout() and Commit() to append to the reflog
+ - Teach Refs.Add(), Refs.UpdateTarget() to optionally append to the reflog
+ - Add Repository.Submodules namespace
+ - Add submodule support to Index.Stage()
+ - Add TreeDefinition.Add(Submodule) and TreeDefinition.AddGitLink()
+ - Introduce ExplicitPathsOptions type to control handling of unmatched pathspecs
+ - Make Index.Remove(), Index.Unstage()/Stage(), Diff.Compare() and Reset() accept ExplicitPathsOptions
+ - Add an indexer to the StashCollection
+ - Add the UpstreamBranchCanonicalName property to Branch
+ - Make Push accept Branch instances
+ - Introduce Reference.IsTag, Reference.IsLocalBranch and Reference.IsRemoteTrackingBranch
+ - Add Repository.IsValid()
+ - Refine build resilience on Linux
+
+### Changes
+
+ - Obsolete Tree.Trees and Tree.Blobs properties
+ - Replace GitObjectType with ObjectType and TreeEntryTargetType
+ - Rename TreeEntry.Type and TreeEntryDefinition.Type to *.TargetType
+ - Move Repository.Conflicts to Index.Conflicts
+ - Move Remote.Fetch() in Repository.Network
+ - Modify StashCollection.Remove() to accept an integer param rather than a revparse expression
+ - Rename BranchUpdater.Upstream to TrackedBranch
+ - Rename BranchUpdater.UpstreamMergeBranch to UpstreamBranch
+ - Rename BranchUpdater.UpstreamRemote to Remote
+
+### Fixes
+
+ - Make Commit() append to the reflog (#371)
+ - Make Index.Remove() able to only remove from index (#270)
+ - Teach Index.Remove() to clear the associated conflicts (#325)
+ - Make Index.Remove() able to remove folders (#327)
+ - Fix repo.Checkout() when working against repo.Head
+ - Fix update of the target of repo.Refs.Head
+ - Teach Checkout() to cope with revparse syntax
+ - Support TreeEntry.Target for GitLink entries
+
 ## v0.10.0 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.9.5...v0.10.0))
 
 ### Additions
