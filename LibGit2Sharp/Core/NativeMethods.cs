@@ -218,7 +218,7 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string message,
             GitObjectSafeHandle tree,
             int parentCount,
-            [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 7)] [In] IntPtr[] parents);
+            [MarshalAs(UnmanagedType.LPArray)] [In] IntPtr[] parents);
 
         [DllImport(libgit2)]
         [return : MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8NoCleanupMarshaler))]
