@@ -442,6 +442,44 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        [SkippableFact]
+        public void RetrievingStatusMustAlwaysBeCaseSensitive()
+        {
+            InconclusiveIf(() => IsFileSystemCaseSensitive,
+                "Skipping 'ignorecase = true' test on case-sensitive file system.");
+
+            string repoPath = InitNewRepository();
+            using (Repository repo = new Repository(repoPath))
+            {
+                repo.Config.Set("core.ignorecase", true);
+
+                Blob mainContent = OdbHelper.CreateBlob(repo, "awesome content\n");
+
+                var tdOld = new TreeDefinition()
+                    .Add("A.TXT", mainContent, Mode.NonExecutableFile)
+                    .Add("a.txt", mainContent, Mode.NonExecutableFile);
+
+                Tree treeOld = repo.ObjectDatabase.CreateTree(tdOld);
+
+                var commit = repo.ObjectDatabase.CreateCommit(Constants.Signature, Constants.Signature, "blah", treeOld, new Commit[] { }, true);
+
+                repo.Refs.Add("refs/heads/master", commit.Sha);
+
+                Assert.Equal(commit, repo.Head.Tip);
+            }
+
+            using (var repo = new Repository(repoPath))
+            {
+                File.WriteAllText(Path.Combine(repo.Info.WorkingDirectory, "a.TxT"), "blah\n");
+
+                var status = repo.RetrieveStatus();
+
+                Assert.Equal(FileStatus.Removed, status["a.txt"].State);
+                Assert.Equal(FileStatus.Removed, status["A.TXT"].State);
+                Assert.Equal(FileStatus.Untracked, status["a.TxT"].State);
+            }
+        }
+
         private static void AssertStatus(bool shouldIgnoreCase, FileStatus expectedFileStatus, IRepository repo, string path)
         {
             try
