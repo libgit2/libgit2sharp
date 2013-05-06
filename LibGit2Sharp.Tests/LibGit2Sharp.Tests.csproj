@@ -104,6 +104,7 @@
     <Compile Include="ReferenceFixture.cs" />
     <Compile Include="RepositoryFixture.cs" />
     <Compile Include="TagFixture.cs" />
+    <Compile Include="TestHelpers\OdbHelper.cs" />
     <Compile Include="TestHelpers\DirectoryHelper.cs" />
     <Compile Include="TestHelpers\ExpectedFetchState.cs" />
     <Compile Include="TestHelpers\TestRemoteInfo.cs" />

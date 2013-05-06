@@ -395,8 +395,8 @@ namespace LibGit2Sharp.Tests
 
             using (Repository repo = Repository.Init(scd.DirectoryPath))
             {
-                Blob mainContent = CreateBlob(repo, "awesome content\n");
-                Blob linkContent = CreateBlob(repo, "../../objc/Nu.h");
+                Blob mainContent = OdbHelper.CreateBlob(repo, "awesome content\n");
+                Blob linkContent = OdbHelper.CreateBlob(repo, "../../objc/Nu.h");
 
                 string path = string.Format("include{0}Nu{0}Nu.h", Path.DirectorySeparatorChar);
 
@@ -448,15 +448,6 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(Mode.NonExecutableFile, change.Mode);
                 Assert.Equal(ChangeKind.TypeChanged, change.Status);
                 Assert.Equal(path, change.Path);
-            }
-        }
-
-        private static Blob CreateBlob(Repository repo, string content)
-        {
-            using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(content)))
-            using (var binReader = new BinaryReader(stream))
-            {
-                return repo.ObjectDatabase.CreateBlob(binReader);
             }
         }
 
@@ -557,6 +548,39 @@ namespace LibGit2Sharp.Tests
             File.WriteAllText(options.SystemConfigurationLocation, sb.ToString());
 
             return options;
+        }
+
+        [Fact]
+        public void RetrievingDiffChangesMustAlwaysBeCaseSensitive()
+        {
+            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            ObjectId treeOldOid, treeNewOid;
+
+            using (Repository repo = Repository.Init(scd.DirectoryPath))
+            {
+                Blob oldContent = OdbHelper.CreateBlob(repo, "awesome content\n");
+                Blob newContent = OdbHelper.CreateBlob(repo, "more awesome content\n");
+
+                var td = new TreeDefinition()
+                    .Add("A.TXT", oldContent, Mode.NonExecutableFile)
+                    .Add("a.txt", oldContent, Mode.NonExecutableFile);
+
+                treeOldOid = repo.ObjectDatabase.CreateTree(td).Id;
+
+                td = new TreeDefinition()
+                    .Add("A.TXT", newContent, Mode.NonExecutableFile)
+                    .Add("a.txt", newContent, Mode.NonExecutableFile);
+
+                treeNewOid = repo.ObjectDatabase.CreateTree(td).Id;
+            }
+
+            using (var repo = new Repository(scd.DirectoryPath))
+            {
+                var changes = repo.Diff.Compare(repo.Lookup<Tree>(treeOldOid), repo.Lookup<Tree>(treeNewOid));
+
+                Assert.Equal(ChangeKind.Modified, changes["a.txt"].Status);
+                Assert.Equal(ChangeKind.Modified, changes["A.TXT"].Status);
+            }
         }
     }
 }
