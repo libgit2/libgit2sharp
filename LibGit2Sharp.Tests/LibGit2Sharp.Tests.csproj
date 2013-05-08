@@ -116,6 +116,7 @@
     <Compile Include="TreeFixture.cs" />
     <Compile Include="TupleFixture.cs" />
     <Compile Include="UnstageFixture.cs" />
+    <Compile Include="EncodingFixture.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\LibGit2Sharp\LibGit2Sharp.csproj">
