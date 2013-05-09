@@ -2,39 +2,25 @@
 using System;
 using System.IO;
 using Xunit;
+using Xunit.Extensions;
 
 namespace LibGit2Sharp.Tests
 {
     public class EncodingFixture : BaseFixture
     {
-        [Fact]
-        public void CorruptAuthorNameIssue387()
+        [Theory]
+        [InlineData("7bc349e5efdb52884cf47d860852e4912b12c244", "MãcRömãñ", 1000)]
+        [InlineData("782dced4c3930bc3c291b24c115ba9a231049d80", "Lãtïñ Òñê", 1250)]
+        [InlineData("29b28e7d3e84aef886c0e00ff9de1a8cc1fda352", "Cõdêpâgê850", 850)]
+        public void CorruptAuthorNameEncoding(string commitId, string authorName, int commitEncoding)
         {
-            string name = "Märtin Woodwärd";
-
-            // Get byte array for UTF8 version of author name.
-            byte[] authorNameBytes = System.Text.Encoding.UTF8.GetBytes(name);
+            string path = CloneEncodingTestRepo();
             
-            var path = CloneStandardTestRepo();
             using (var repo = new Repository(path))
             {
-                string newFile = "enctest.txt";
-                
-                Touch(path,newFile,"Some content here");
-                
-                repo.Index.Stage(newFile);
-                
-                // Create an author name as if UTF8 bytes were CP-1252
-                Commit commit = repo.Commit("Commit from lg2#",
-                  new Signature(
-                    System.Text.Encoding.GetEncoding(1252)
-                      .GetString(authorNameBytes),
-                    "martinwo@microsoft.com",
-                    DateTimeOffset.Now));
-
-                Assert.Equal(name, commit.Author.Name);
+                Commit commit = repo.Lookup<Commit>(commitId);
+                Assert.Equal(authorName, commit.Author.Name);
             }
-
         }
 
     }

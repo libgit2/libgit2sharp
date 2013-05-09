@@ -23,6 +23,7 @@ namespace LibGit2Sharp.Tests.TestHelpers
         public static string StandardTestRepoPath { get; private set; }
         public static string MergedTestRepoWorkingDirPath { get; private set; }
         public static string SubmoduleTestRepoWorkingDirPath { get; private set; }
+        public static string BareEncodingRepoPath { get; private set; }
         public static DirectoryInfo ResourcesDirectory { get; private set; }
 
         public static readonly Signature DummySignature = new Signature("Author N. Ame", "him@there.com", TruncateSubSeconds(DateTimeOffset.Now));
@@ -56,6 +57,7 @@ namespace LibGit2Sharp.Tests.TestHelpers
             StandardTestRepoPath = Path.Combine(StandardTestRepoWorkingDirPath, ".git");
             MergedTestRepoWorkingDirPath = Path.Combine(ResourcesDirectory.FullName, "mergedrepo_wd");
             SubmoduleTestRepoWorkingDirPath = Path.Combine(ResourcesDirectory.FullName, "submodule_wd");
+            BareEncodingRepoPath = Path.Combine(ResourcesDirectory.FullName, "commitencodings.git");
         }
 
         private static bool IsFileSystemCaseSensitiveInternal()
@@ -105,6 +107,11 @@ namespace LibGit2Sharp.Tests.TestHelpers
         protected string CloneMergedTestRepo()
         {
             return Clone(MergedTestRepoWorkingDirPath);
+        }
+
+        protected string CloneEncodingTestRepo()
+        {
+            return Clone(BareEncodingRepoPath);
         }
 
         public string CloneSubmoduleTestRepo()
