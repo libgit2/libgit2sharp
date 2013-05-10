@@ -1,5 +1,3 @@
 # pack-refs with: peeled 
 29b28e7d3e84aef886c0e00ff9de1a8cc1fda352 refs/heads/dos850
-782dced4c3930bc3c291b24c115ba9a231049d80 refs/heads/latin1
-7bc349e5efdb52884cf47d860852e4912b12c244 refs/heads/macroman
-782dced4c3930bc3c291b24c115ba9a231049d80 refs/heads/master
+c62f9da614246e7f459a2a9d3dc2c325748435b3 refs/heads/master
