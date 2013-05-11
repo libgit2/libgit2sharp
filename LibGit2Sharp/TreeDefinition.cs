@@ -35,6 +35,18 @@ namespace LibGit2Sharp
             return td;
         }
 
+        /// <summary>
+        ///   Builds a <see cref = "TreeDefinition" /> from a <see cref="Commit"/>'s <see cref = "Tree" />.
+        /// </summary>
+        /// <param name="commit">The <see cref="Commit"/> whose tree is to be processed</param>
+        /// <returns>A new <see cref = "TreeDefinition" /> holding the meta data of the <paramref name = "commit" />'s <see cref="Tree"/>.</returns>
+        public static TreeDefinition From(Commit commit)
+        {
+            Ensure.ArgumentNotNull(commit, "commit");
+
+            return From(commit.Tree);
+        }
+
         private void AddEntry(string targetTreeEntryName, TreeEntryDefinition treeEntryDefinition)
         {
             if (entries.ContainsKey(targetTreeEntryName))
