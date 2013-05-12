@@ -11,10 +11,9 @@ using LibGit2Sharp.Core.Handles;
 // ReSharper disable InconsistentNaming
 namespace LibGit2Sharp.Core
 {
-    internal static class NativeMethods
+    internal static partial class NativeMethods
     {
         public const uint GIT_PATH_MAX = 4096;
-        private const string libgit2 = "git2";
         private static readonly LibraryLifetimeObject lifetimeObject;
         private static int handlesCount;
 

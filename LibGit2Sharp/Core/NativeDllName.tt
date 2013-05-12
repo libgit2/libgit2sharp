@@ -1,0 +1,20 @@
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.IO" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ output extension=".cs" #>
+
+<#
+	var fullhash = File.ReadAllText(@"c:\users\ben\documents\github\libgit2sharp\libgit2sharp\libgit2_hash.txt");
+	var shorthash = fullhash.Substring(0,7);
+	var dllname = String.Format("git2_{0}", shorthash);
+#>
+
+namespace LibGit2Sharp.Core
+{
+    internal static partial class NativeMethods
+	{
+		private const string libgit2 = "<#= dllname #>";
+	}
+}

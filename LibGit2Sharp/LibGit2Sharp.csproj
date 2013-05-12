@@ -67,6 +67,11 @@
     <Compile Include="Changes.cs" />
     <Compile Include="CheckoutCallbacks.cs" />
     <Compile Include="CheckoutOptions.cs" />
+    <Compile Include="Core\NativeDllName.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>NativeDllName.tt</DependentUpon>
+    </Compile>
     <Compile Include="ObjectType.cs" />
     <Compile Include="ReferenceExtensions.cs" />
     <Compile Include="Conflict.cs" />
@@ -257,6 +262,15 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="libgit2sharp_hash.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Core\NativeDllName.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>NativeDllName.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
