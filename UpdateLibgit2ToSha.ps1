@@ -89,6 +89,12 @@ function Find-Git {
 	throw "Error: Can't find git"
 }
 
+function Rename-Binaries ([string]$extension) {
+	ls | foreach {
+		mv $_ ($_.BaseName + "_" + $extension + $_.Extension)
+	}
+}
+
 Push-Location $libgit2Directory
 
 & {
@@ -111,6 +117,7 @@ Push-Location $libgit2Directory
 		popd
 		break
 	}
+	$shortsha = $sha.Substring(0,7)
 
 	Write-Output "Checking out $sha..."
 	Run-Command -Quiet -Fatal { & $git checkout $sha }
@@ -124,6 +131,7 @@ Push-Location $libgit2Directory
 	if ($test.IsPresent) { Run-Command -Quiet -Fatal { & $ctest -V . } }
 	cd $configuration
 	Run-Command -Quiet { & rm *.exp }
+	Rename-Binaries $shortsha
 	Run-Command -Quiet -Fatal { & copy -fo * $x86Directory }
 
 	Write-Output "Building 64-bit..."
@@ -135,6 +143,7 @@ Push-Location $libgit2Directory
 	if ($test.IsPresent) { Run-Command -Quiet -Fatal { & $ctest -V . } }
 	cd $configuration
 	Run-Command -Quiet { & rm *.exp }
+	Rename-Binaries $shortsha
 	Run-Command -Quiet -Fatal { & copy -fo * $x64Directory }
 
 	Write-Output "Done!"
