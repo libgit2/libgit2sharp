@@ -14,7 +14,7 @@ namespace LibGit2Sharp
         private static readonly LambdaEqualityHelper<TreeEntryDefinition> equalityHelper =
             new LambdaEqualityHelper<TreeEntryDefinition>(x => x.Mode, x => x.TargetType, x => x.TargetId);
 
-        internal static readonly Mode[] BlobModes = new[] { Mode.NonExecutableFile, Mode.ExecutableFile, Mode.NonExecutableGroupWritableFile, Mode.SymbolicLink };
+        internal static readonly Enum[] BlobModes = new Enum[] { Mode.NonExecutableFile, Mode.ExecutableFile, Mode.NonExecutableGroupWritableFile, Mode.SymbolicLink };
 
         /// <summary>
         ///   Needed for mocking purposes.

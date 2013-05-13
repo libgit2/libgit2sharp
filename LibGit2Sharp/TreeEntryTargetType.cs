@@ -21,6 +21,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   An annotated tag object.
         /// </summary>
+        [Obsolete("This entry will be removed in the next release as it is not a valid TreeEntryTargetType.")]
         Tag,
 
         /// <summary>

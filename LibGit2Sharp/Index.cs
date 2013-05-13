@@ -268,13 +268,13 @@ namespace LibGit2Sharp
                 }
 
                 FileStatus sourceStatus = keyValuePair.Key.Item2;
-                if (sourceStatus.HasAny(new[] { FileStatus.Nonexistent, FileStatus.Removed, FileStatus.Untracked, FileStatus.Missing }))
+                if (sourceStatus.HasAny(new Enum[] { FileStatus.Nonexistent, FileStatus.Removed, FileStatus.Untracked, FileStatus.Missing }))
                 {
                     throw new LibGit2SharpException(string.Format(CultureInfo.InvariantCulture, "Unable to move file '{0}'. Its current status is '{1}'.", sourcePath, sourceStatus));
                 }
 
                 FileStatus desStatus = keyValuePair.Value.Item2;
-                if (desStatus.HasAny(new[] { FileStatus.Nonexistent, FileStatus.Missing }))
+                if (desStatus.HasAny(new Enum[] { FileStatus.Nonexistent, FileStatus.Missing }))
                 {
                     continue;
                 }
