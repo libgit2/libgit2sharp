@@ -18,6 +18,7 @@ Param(
 	[switch]$debug
 )
 
+
 Set-StrictMode -Version Latest
 
 $self = Split-Path -Leaf $MyInvocation.MyCommand.Path
@@ -146,8 +147,19 @@ Push-Location $libgit2Directory
 	Rename-Binaries $shortsha
 	Run-Command -Quiet -Fatal { & copy -fo * $x64Directory }
 
-	Write-Output "Done!"
 	pop-location
+	$dllNameClass = "
+namespace LibGit2Sharp.Core
+{
+	internal static partial class NativeMethods
+	{
+		private const string libgit2 = `"git2_$shortsha`";
+	}
+}
+"
+	sc -Encoding UTF8 .\Libgit2sharp\Core\NativeDllName.cs $dllNameClass
 	sc -Encoding UTF8 libgit2sharp\libgit2_hash.txt $sha
+
+	Write-Output "Done!"
 }
 exit
