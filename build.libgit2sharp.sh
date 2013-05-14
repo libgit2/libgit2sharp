@@ -3,7 +3,7 @@
 PREVIOUS_LD=$LD_LIBRARY_PATH
 
 LIBGIT2SHA=`cat ./LibGit2Sharp/libgit2_hash.txt`
-SHORTSHA=${LIBGIT2SHA:1:7}
+SHORTSHA=${LIBGIT2SHA:0:7}
 echo $SHORTSHA
 
 rm -rf cmake-build
