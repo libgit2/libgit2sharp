@@ -67,10 +67,15 @@ namespace LibGit2Sharp.Tests
                 RepositoryStatus oldStatus = repo.Index.RetrieveStatus();
                 Assert.Equal(3, oldStatus.Where(IsStaged).Count());
 
+                var reflogEntriesCount = repo.Refs.Log(repo.Refs.Head).Count();
+
                 repo.Reset();
 
                 RepositoryStatus newStatus = repo.Index.RetrieveStatus();
                 Assert.Equal(0, newStatus.Where(IsStaged).Count());
+
+                // Assert that no reflog entry is created
+                Assert.Equal(reflogEntriesCount, repo.Refs.Log(repo.Refs.Head).Count());
             }
         }
 

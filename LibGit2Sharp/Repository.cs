@@ -727,6 +727,8 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(commit, "commit");
 
             Proxy.git_reset(handle, commit.Id, resetOptions);
+
+            Refs.Log(Refs.Head).Append(commit.Id, string.Format("reset: moving to {0}", commit.Sha));
         }
 
         /// <summary>
