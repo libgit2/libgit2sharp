@@ -2,6 +2,6 @@
 {
 	internal static class NativeDllName
 	{
-        public const string Name = "git2.b641c00.dll";
+		public const string Name = "git2.686c24a.dll";
 	}
 }
