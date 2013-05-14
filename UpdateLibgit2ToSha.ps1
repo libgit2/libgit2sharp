@@ -126,6 +126,7 @@ Push-Location $libgit2Directory
 	if ($test.IsPresent) { Run-Command -Quiet -Fatal { & $ctest -V . } }
 	cd $configuration
 	Run-Command -Quiet { & rm *.exp }
+	Run-Command -Quiet { & rm $x86Directory\* }
 	Run-Command -Quiet -Fatal { & copy -fo * $x86Directory }
 
 	Write-Output "Building 64-bit..."
@@ -137,6 +138,7 @@ Push-Location $libgit2Directory
 	if ($test.IsPresent) { Run-Command -Quiet -Fatal { & $ctest -V . } }
 	cd $configuration
 	Run-Command -Quiet { & rm *.exp }
+	Run-Command -Quiet { & rm $x64Directory\* }
 	Run-Command -Quiet -Fatal { & copy -fo * $x64Directory }
 
 	pop-location
