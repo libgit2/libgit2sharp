@@ -160,9 +160,9 @@ namespace LibGit2Sharp.Core
 }
 "@
 
-	sc -Encoding UTF8 .\Libgit2sharp\Core\NativeDllName.cs $dllNameClass
-	sc -Encoding UTF8 .\Lib\Libgit2sharp.dll.config $dllMap
-	sc -Encoding UTF8 libgit2sharp\libgit2_hash.txt $sha
+	sc -Encoding ASCII .\Libgit2sharp\Core\NativeDllName.cs $dllNameClass
+	sc -Encoding ASCII .\Lib\Libgit2sharp.dll.config $dllMap
+	sc -Encoding ASCII libgit2sharp\libgit2_hash.txt $sha
 
 	Write-Output "Done!"
 }
