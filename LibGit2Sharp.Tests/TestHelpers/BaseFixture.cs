@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using LibGit2Sharp.Core;
@@ -220,6 +221,22 @@ namespace LibGit2Sharp.Tests.TestHelpers
             File.AppendAllText(filePath, content ?? string.Empty, Encoding.ASCII);
 
             return file;
+        }
+
+        protected static void AssertReflogEntryIsCreated(IEnumerable<ReflogEntry> reflog, string targetSha, 
+            string logMessage, string fromSha = null)
+        {
+            var reflogEntry = reflog.First();
+
+            if (!string.IsNullOrEmpty(fromSha))
+            {
+                Assert.Equal(fromSha, reflogEntry.From.Sha);
+            }
+
+            Assert.Equal(targetSha, reflogEntry.To.Sha);
+            Assert.NotNull(reflogEntry.Commiter.Email);
+            Assert.NotNull(reflogEntry.Commiter.Name);
+            Assert.Equal(logMessage, reflogEntry.Message);
         }
     }
 }
