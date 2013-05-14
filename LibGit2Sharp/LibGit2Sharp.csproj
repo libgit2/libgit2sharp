@@ -264,6 +264,9 @@
     <PreBuildEvent>
     </PreBuildEvent>
   </PropertyGroup>
+  <PropertyGroup>
+    <PostBuildEvent>copy /y $(SolutionDir)Lib\libgit2sharp.dll.config $(TargetDir)</PostBuildEvent>
+  </PropertyGroup>
   <Target Name="BeforeBuild">
   </Target>
   <Target Name="AfterBuild">
