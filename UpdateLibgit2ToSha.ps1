@@ -140,6 +140,14 @@ Push-Location $libgit2Directory
 	Run-Command -Quiet -Fatal { & copy -fo * $x64Directory }
 
 	pop-location
+
+	$dllMap = @"
+<configuration>
+  <dllmap os="!windows,osx" dll="git2.$shortsha" target="git2.so"/>
+  <dllmap os="osx" dll="git2.$shortsha" target="git2.dylib"/>
+  <dllmap os="windows" dll="git2.$shortsha" target="git2.$shortsha.dll"/>
+</configuration>
+"@
 	$dllNameClass = @"
 namespace LibGit2Sharp.Core
 {
@@ -151,6 +159,7 @@ namespace LibGit2Sharp.Core
 "@
 
 	sc -Encoding UTF8 .\Libgit2sharp\Core\NativeDllName.cs $dllNameClass
+	sc -Encoding UTF8 .\Lib\Libgit2sharp.dll.config $dllMap
 	sc -Encoding UTF8 libgit2sharp\libgit2_hash.txt $sha
 
 	Write-Output "Done!"
