@@ -35,3 +35,6 @@ _ReSharper*/
 *.userprefs
 *.swp
 *.DotSettings
+
+!Lib/NativeBinaries/x86/*.pdb
+!Lib/NativeBinaries/amd64/*.pdb
