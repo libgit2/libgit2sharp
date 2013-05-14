@@ -90,12 +90,6 @@ function Find-Git {
 	throw "Error: Can't find git"
 }
 
-function Rename-Binaries ([string]$extension) {
-	ls | foreach {
-		mv $_ ($_.BaseName + "_" + $extension + $_.Extension)
-	}
-}
-
 Push-Location $libgit2Directory
 
 & {
@@ -127,36 +121,35 @@ Push-Location $libgit2Directory
 	Run-Command -Quiet { & remove-item build -recurse -force }
 	Run-Command -Quiet { & mkdir build }
 	cd build
-	Run-Command -Quiet -Fatal { & $cmake -G "Visual Studio $vs" -D THREADSAFE=ON -D "BUILD_CLAR=$build_clar" .. }
+	Run-Command -Quiet -Fatal { & $cmake -G "Visual Studio $vs" -D THREADSAFE=ON -D "BUILD_CLAR=$build_clar" -D "VENDOR_VERSION=$shortsha" .. }
 	Run-Command -Quiet -Fatal { & $cmake --build . --config $configuration }
 	if ($test.IsPresent) { Run-Command -Quiet -Fatal { & $ctest -V . } }
 	cd $configuration
 	Run-Command -Quiet { & rm *.exp }
-	Rename-Binaries $shortsha
 	Run-Command -Quiet -Fatal { & copy -fo * $x86Directory }
 
 	Write-Output "Building 64-bit..."
 	cd ..
 	Run-Command -Quiet { & mkdir build64 }
 	cd build64
-	Run-Command -Quiet -Fatal { & $cmake -G "Visual Studio $vs Win64" -D THREADSAFE=ON -D "BUILD_CLAR=$build_clar" ../.. }
+	Run-Command -Quiet -Fatal { & $cmake -G "Visual Studio $vs Win64" -D THREADSAFE=ON -D "BUILD_CLAR=$build_clar" -D "VENDOR_VERSION=$shortsha" ../.. }
 	Run-Command -Quiet -Fatal { & $cmake --build . --config $configuration }
 	if ($test.IsPresent) { Run-Command -Quiet -Fatal { & $ctest -V . } }
 	cd $configuration
 	Run-Command -Quiet { & rm *.exp }
-	Rename-Binaries $shortsha
 	Run-Command -Quiet -Fatal { & copy -fo * $x64Directory }
 
 	pop-location
-	$dllNameClass = "
+	$dllNameClass = @"
 namespace LibGit2Sharp.Core
 {
 	internal static partial class NativeMethods
 	{
-		private const string libgit2 = `"git2_$shortsha`";
+		private const string libgit2 = "git2.$shortsha";
 	}
 }
-"
+"@
+
 	sc -Encoding UTF8 .\Libgit2sharp\Core\NativeDllName.cs $dllNameClass
 	sc -Encoding UTF8 libgit2sharp\libgit2_hash.txt $sha
 
