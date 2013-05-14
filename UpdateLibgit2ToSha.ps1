@@ -151,9 +151,9 @@ Push-Location $libgit2Directory
 	$dllNameClass = @"
 namespace LibGit2Sharp.Core
 {
-	internal static partial class NativeMethods
+	internal static class NativeDllName
 	{
-		private const string libgit2 = "git2.$shortsha";
+		public const string Name = "git2.$shortsha.dll";
 	}
 }
 "@

@@ -1,9 +1,7 @@
-﻿
-namespace LibGit2Sharp.Core
+﻿namespace LibGit2Sharp.Core
 {
-	internal static partial class NativeMethods
+	internal static class NativeDllName
 	{
-		private const string libgit2 = "git2_b641c00";
+        public const string Name = "git2.b641c00.dll";
 	}
 }
-
