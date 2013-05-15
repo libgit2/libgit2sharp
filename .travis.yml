@@ -11,8 +11,10 @@ install:
 script:
  - git submodule update --init
  - mkdir cmake-build
+ - LIBGIT2SHA=`cat ./LibGit2Sharp/libgit2_hash.txt`
+ - SHORTSHA=${LIBGIT2SHA:0:7}
  - cd cmake-build
- - cmake -DTHREADSAFE=ON -DCMAKE_BUILD_TYPE=Release -DBUILD_CLAR=OFF -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=./libgit2-bin ../libgit2
+ - cmake -DTHREADSAFE=ON -DCMAKE_BUILD_TYPE=Release -DBUILD_CLAR=OFF -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=./libgit2-bin -DSONAME_APPEND=$SHORTSHA ../libgit2
  - export LD_LIBRARY_PATH=$PWD/libgit2-bin/lib
  - cmake --build . --target install
  - cd ..

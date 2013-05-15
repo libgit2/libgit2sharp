@@ -82,13 +82,7 @@ namespace LibGit2Sharp.Tests
                 TestRemoteInfo remoteInfo = TestRemoteInfo.TestRemoteInstance;
                 var expectedFetchState = new ExpectedFetchState(remoteName);
 
-                // Add expected branch objects
-                foreach (KeyValuePair<string, ObjectId> kvp in remoteInfo.BranchTips)
-                {
-                    expectedFetchState.AddExpectedBranch(kvp.Key, ObjectId.Zero, kvp.Value);
-                }
-
-                // Add expected tags
+                // Add expected tags only as no branches are expected to be fetched
                 foreach (KeyValuePair<string, TestRemoteInfo.ExpectedTagInfo> kvp in remoteInfo.Tags)
                 {
                     expectedFetchState.AddExpectedTag(kvp.Key, ObjectId.Zero, kvp.Value);

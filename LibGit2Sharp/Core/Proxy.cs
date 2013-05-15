@@ -1151,10 +1151,9 @@ namespace LibGit2Sharp.Core
         public static ICollection<TResult> git_reference_foreach_glob<TResult>(
             RepositorySafeHandle repo,
             string glob,
-            GitReferenceType flags,
             Func<IntPtr, TResult> resultSelector)
         {
-            return git_foreach(resultSelector, c => NativeMethods.git_reference_foreach_glob(repo, glob, flags, (x, p) => c(x, p), IntPtr.Zero));
+            return git_foreach(resultSelector, c => NativeMethods.git_reference_foreach_glob(repo, glob, (x, p) => c(x, p), IntPtr.Zero));
         }
 
         public static void git_reference_free(IntPtr reference)
@@ -1170,12 +1169,12 @@ namespace LibGit2Sharp.Core
             return (res == 1);
         }
 
-        public static IList<string> git_reference_list(RepositorySafeHandle repo, GitReferenceType flags)
+        public static IList<string> git_reference_list(RepositorySafeHandle repo)
         {
             using (ThreadAffinity())
             {
                 UnSafeNativeMethods.git_strarray arr;
-                int res = UnSafeNativeMethods.git_reference_list(out arr, repo, flags);
+                int res = UnSafeNativeMethods.git_reference_list(out arr, repo);
                 Ensure.ZeroResult(res);
 
                 return Libgit2UnsafeHelper.BuildListOf(arr);

@@ -14,7 +14,7 @@ namespace LibGit2Sharp.Core
     internal static class NativeMethods
     {
         public const uint GIT_PATH_MAX = 4096;
-        private const string libgit2 = "git2";
+        private const string libgit2 = NativeDllName.Name;
         private static readonly LibraryLifetimeObject lifetimeObject;
         private static int handlesCount;
 
@@ -656,7 +656,6 @@ namespace LibGit2Sharp.Core
         internal static extern int git_reference_foreach_glob(
             RepositorySafeHandle repo,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string glob,
-            GitReferenceType flags,
             ref_glob_callback callback,
             IntPtr payload);
 

@@ -35,3 +35,5 @@ _ReSharper*/
 *.userprefs
 *.swp
 *.DotSettings
+
+!Lib/NativeBinaries/*/*.pdb

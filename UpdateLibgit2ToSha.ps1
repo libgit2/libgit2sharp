@@ -111,6 +111,7 @@ Push-Location $libgit2Directory
 		popd
 		break
 	}
+	$shortsha = $sha.Substring(0,7)
 
 	Write-Output "Checking out $sha..."
 	Run-Command -Quiet -Fatal { & $git checkout $sha }
@@ -119,26 +120,41 @@ Push-Location $libgit2Directory
 	Run-Command -Quiet { & remove-item build -recurse -force }
 	Run-Command -Quiet { & mkdir build }
 	cd build
-	Run-Command -Quiet -Fatal { & $cmake -G "Visual Studio $vs" -D THREADSAFE=ON -D "BUILD_CLAR=$build_clar" .. }
+	Run-Command -Quiet -Fatal { & $cmake -G "Visual Studio $vs" -D THREADSAFE=ON -D "BUILD_CLAR=$build_clar" -D "SONAME_APPEND=$shortsha" .. }
 	Run-Command -Quiet -Fatal { & $cmake --build . --config $configuration }
 	if ($test.IsPresent) { Run-Command -Quiet -Fatal { & $ctest -V . } }
 	cd $configuration
 	Run-Command -Quiet { & rm *.exp }
+	Run-Command -Quiet { & rm $x86Directory\* }
 	Run-Command -Quiet -Fatal { & copy -fo * $x86Directory }
 
 	Write-Output "Building 64-bit..."
 	cd ..
 	Run-Command -Quiet { & mkdir build64 }
 	cd build64
-	Run-Command -Quiet -Fatal { & $cmake -G "Visual Studio $vs Win64" -D THREADSAFE=ON -D "BUILD_CLAR=$build_clar" ../.. }
+	Run-Command -Quiet -Fatal { & $cmake -G "Visual Studio $vs Win64" -D THREADSAFE=ON -D "BUILD_CLAR=$build_clar" -D "SONAME_APPEND=$shortsha" ../.. }
 	Run-Command -Quiet -Fatal { & $cmake --build . --config $configuration }
 	if ($test.IsPresent) { Run-Command -Quiet -Fatal { & $ctest -V . } }
 	cd $configuration
 	Run-Command -Quiet { & rm *.exp }
+	Run-Command -Quiet { & rm $x64Directory\* }
 	Run-Command -Quiet -Fatal { & copy -fo * $x64Directory }
 
-	Write-Output "Done!"
 	pop-location
-	sc -Encoding UTF8 libgit2sharp\libgit2_hash.txt $sha
+
+	$dllNameClass = @"
+namespace LibGit2Sharp.Core
+{
+	internal static class NativeDllName
+	{
+		public const string Name = "git2-$shortsha";
+	}
+}
+"@
+
+	sc -Encoding ASCII .\Libgit2sharp\Core\NativeDllName.cs $dllNameClass
+	sc -Encoding ASCII libgit2sharp\libgit2_hash.txt $sha
+
+	Write-Output "Done!"
 }
 exit
