@@ -8,6 +8,25 @@
  - CI server: <http://teamcity.codebetter.com/project.html?projectId=project127&guest=1>
  - @libgit2sharp: <http://twitter.com/libgit2sharp>
 
+## v0.12.0 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.11.0...v0.12.0))
+
+### Additions
+
+ - Introduce repo.Info.IsShallow
+ - Teach repo.Reset to append to the Reflog
+ - Introduce repo.ObjectDatabase.CreateTag()
+ - Make repo.Diff.Compare() able to define the expected number of context and interhunk lines (#423)
+
+### Changes
+
+ - Obsolete TreeEntryTargetType.Tag
+ - Update libgit2 binaries to libgit2/libgit2@9d9fff3
+
+### Fixes
+
+ - Change probing mechanism to rely on specifically named versions of libgit2 binaries (#241)
+ - Ensure that two versions of LibGit2Sharp can run side by side (#241)
+
 ## v0.11.0 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.10.0...v0.11.0))
 
 ### Additions

@@ -3,6 +3,11 @@ SET BASEDIR=%~dp0
 SET SRCDIR=%BASEDIR%..\LibGit2Sharp\
 SET CommitSha=%~1
 
+IF "%CommitSha%" == "" (
+	ECHO "Please provide the Libgit2Sharp commit Sha this package is being built from."
+	EXIT /B 1
+)
+
 REM the nuspec file needs to be next to the csproj, so copy it there during the pack operation
 COPY "%BASEDIR%LibGit2Sharp.nuspec" "%SRCDIR%"
 
