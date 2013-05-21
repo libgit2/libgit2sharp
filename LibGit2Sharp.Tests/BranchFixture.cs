@@ -518,7 +518,7 @@ namespace LibGit2Sharp.Tests
                 Branch trackedBranch = repo.Branches[trackedBranchName];
                 Branch updatedBranch = repo.Branches.Update(branch,
                     b => b.Remote = remoteName,
-                    b => b.UpstreamBranch =  upstreamBranchName);
+                    b => b.UpstreamBranch = upstreamBranchName);
 
                 // Verify the immutability of the branch.
                 Assert.False(branch.IsTracking);

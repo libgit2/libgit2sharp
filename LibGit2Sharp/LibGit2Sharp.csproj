@@ -74,6 +74,7 @@
     <Compile Include="ReferenceExtensions.cs" />
     <Compile Include="Conflict.cs" />
     <Compile Include="ConflictCollection.cs" />
+    <Compile Include="RemoteUpdater.cs" />
     <Compile Include="RemoveFromIndexException.cs" />
     <Compile Include="Core\Handles\GitRefSpecHandle.cs" />
     <Compile Include="Core\Handles\NullRepositorySafeHandle.cs" />

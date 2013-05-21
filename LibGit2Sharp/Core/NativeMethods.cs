@@ -757,6 +757,9 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(Utf8Marshaler))] string name);
 
         [DllImport(libgit2)]
+        internal static extern int git_remote_autotag(RemoteSafeHandle remote);
+
+        [DllImport(libgit2)]
         internal static extern int git_remote_connect(RemoteSafeHandle remote, GitDirection direction);
 
         [DllImport(libgit2)]

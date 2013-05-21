@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
@@ -45,6 +46,24 @@ namespace LibGit2Sharp
             {
                 return handle == null ? null : Remote.BuildFromPtr(handle, this.repository);
             }
+        }
+
+        /// <summary>
+        ///   Update properties of a remote.
+        /// </summary>
+        /// <param name="remote">The remote to update.</param>
+        /// <param name="actions">Delegate to perform updates on the remote.</param>
+        /// <returns>The updated remote.</returns>
+        public virtual Remote Update(Remote remote, params Action<RemoteUpdater>[] actions)
+        {
+            var updater = new RemoteUpdater(this.repository, remote);
+
+            foreach (Action<RemoteUpdater> action in actions)
+            {
+                action(updater);
+            }
+
+            return this[remote.Name];
         }
 
         /// <summary>
