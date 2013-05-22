@@ -1,0 +1,44 @@
+diff --git a/my-name-does-not-feel-right.txt b/my-name-does-not-feel-right.txt
+deleted file mode 100644
+index e8953ab..0000000
+--- a/my-name-does-not-feel-right.txt
++++ /dev/null
+@@ -1,4 +0,0 @@
+-That's a terrible name!
+-I don't like it.
+-People look down at me and laugh. :-(
+-Really!!!!
+diff --git a/numbers.txt b/numbers.txt
+index 7909961..4e935b7 100644
+--- a/numbers.txt
++++ b/numbers.txt
+@@ -1,15 +1,17 @@
+ 1
++2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 7.2
+ 8
+ 9
+ 10
+-12
++11
+ 12
+ 13
+ 14
+ 15
++16
+diff --git a/super-file.txt b/super-file.txt
+new file mode 100644
+index 0000000..16bdf1d
+--- /dev/null
++++ b/super-file.txt
+@@ -0,0 +1,5 @@
++That's a terrible name!
++I don't like it.
++People look down at me and laugh. :-(
++Really!!!!
++Yeah! Better!

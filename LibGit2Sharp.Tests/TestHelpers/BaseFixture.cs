@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -220,6 +221,16 @@ namespace LibGit2Sharp.Tests.TestHelpers
             File.AppendAllText(filePath, content ?? string.Empty, Encoding.ASCII);
 
             return file;
+        }
+
+        protected string Expected(string filename)
+        {
+            return File.ReadAllText(Path.Combine(ResourcesDirectory.FullName, "expected/" + filename));
+        }
+
+        protected string Expected(string filenameFormat, params object[] args)
+        {
+            return Expected(string.Format(CultureInfo.InvariantCulture, filenameFormat, args));
         }
     }
 }
