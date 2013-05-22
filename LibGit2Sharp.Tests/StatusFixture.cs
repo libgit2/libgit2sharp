@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Text;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
 using Xunit.Extensions;
@@ -308,6 +309,42 @@ namespace LibGit2Sharp.Tests
             catch (ArgumentException)
             {
                 Assert.False(shouldIgnoreCase);
+            }
+        }
+
+        [Fact]
+        public void RetrievingTheStatusOfTheRepositoryHonorsTheGitIgnoreDirectivesThroughoutDirectories()
+        {
+            char dirSep = Path.DirectorySeparatorChar;
+
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
+            {
+                Touch(repo.Info.WorkingDirectory, "bin/look-ma.txt", "I'm going to be ignored!");
+                Touch(repo.Info.WorkingDirectory, "bin/what-about-me.txt", "Huh?");
+
+                string gitignorePath = Path.Combine(repo.Info.WorkingDirectory, ".gitignore");
+
+                File.WriteAllText(gitignorePath, "bin");
+
+                Assert.Equal(FileStatus.Ignored, repo.Index.RetrieveStatus("bin/look-ma.txt"));
+                Assert.Equal(FileStatus.Ignored, repo.Index.RetrieveStatus("bin/what-about-me.txt"));
+
+                RepositoryStatus newStatus = repo.Index.RetrieveStatus();
+                Assert.Equal(new[] { "bin" + dirSep }, newStatus.Ignored);
+
+                var sb = new StringBuilder();
+                sb.AppendLine("bin/*");
+                sb.AppendLine("!bin/w*");
+                File.WriteAllText(gitignorePath, sb.ToString());
+
+                Assert.Equal(FileStatus.Ignored, repo.Index.RetrieveStatus("bin/look-ma.txt"));
+                Assert.Equal(FileStatus.Untracked, repo.Index.RetrieveStatus("bin/what-about-me.txt"));
+
+                newStatus = repo.Index.RetrieveStatus();
+
+                Assert.Equal(new[] { "bin" + dirSep + "look-ma.txt" }, newStatus.Ignored);
+                Assert.True(newStatus.Untracked.Contains("bin" + dirSep + "what-about-me.txt" ));
             }
         }
     }
