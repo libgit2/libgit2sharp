@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Runtime.InteropServices;
 
 namespace LibGit2Sharp.Core
@@ -83,7 +84,14 @@ namespace LibGit2Sharp.Core
 
             if (null == filePath)
             {
-                throw new MarshalDirectiveException("FilePathMarshaler must be used on a FilePath.");
+                var expectedType = typeof(FilePath);
+                var actualType = managedObj.GetType();
+
+                throw new MarshalDirectiveException(
+                    string.Format(CultureInfo.InvariantCulture,
+                    "FilePathMarshaler must be used on a FilePath. Expected '{0}' from '{1}'; received '{2}' from '{3}'.",
+                    expectedType.FullName, expectedType.Assembly.Location,
+                    actualType.FullName, actualType.Assembly.Location));
             }
 
             return FromManaged(filePath);
