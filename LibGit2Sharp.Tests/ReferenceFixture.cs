@@ -778,20 +778,5 @@ namespace LibGit2Sharp.Tests
                 Assert.True(repo.Refs["refs/notes/commits"].IsNote());
             }
         }
-
-        private static void AssertReflogEntryIsCreated(IEnumerable<ReflogEntry> reflog, string targetSha, string logMessage, string fromSha = null)
-        {
-            var reflogEntry = reflog.First();
-
-            if (!string.IsNullOrEmpty(fromSha))
-            {
-                Assert.Equal(fromSha, reflogEntry.From.Sha);
-            }
-
-            Assert.Equal(targetSha, reflogEntry.To.Sha);
-            Assert.NotNull(reflogEntry.Commiter.Email);
-            Assert.NotNull(reflogEntry.Commiter.Name);
-            Assert.Equal(logMessage, reflogEntry.Message);
-        }
     }
 }
