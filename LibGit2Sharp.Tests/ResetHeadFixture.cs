@@ -25,7 +25,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void SoftResetToTheHeadOfARepositoryDoesNotChangeTheTargetOfTheHead()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = CloneBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 Branch oldHead = repo.Head;
 
