@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -237,6 +238,16 @@ namespace LibGit2Sharp.Tests.TestHelpers
             Assert.NotNull(reflogEntry.Commiter.Email);
             Assert.NotNull(reflogEntry.Commiter.Name);
             Assert.Equal(logMessage, reflogEntry.Message);
+        }
+
+        protected string Expected(string filename)
+        {
+            return File.ReadAllText(Path.Combine(ResourcesDirectory.FullName, "expected/" + filename));
+        }
+
+        protected string Expected(string filenameFormat, params object[] args)
+        {
+            return Expected(string.Format(CultureInfo.InvariantCulture, filenameFormat, args));
         }
     }
 }

@@ -67,6 +67,7 @@
     <Compile Include="Changes.cs" />
     <Compile Include="CheckoutCallbacks.cs" />
     <Compile Include="CheckoutOptions.cs" />
+    <Compile Include="CompareOptions.cs" />
     <Compile Include="ObjectType.cs" />
     <Compile Include="ReferenceExtensions.cs" />
     <Compile Include="Conflict.cs" />

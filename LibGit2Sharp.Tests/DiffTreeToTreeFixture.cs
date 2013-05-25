@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
+using Xunit.Extensions;
 
 namespace LibGit2Sharp.Tests
 {
@@ -222,23 +223,31 @@ namespace LibGit2Sharp.Tests
          * $ git diff --shortstat f8d44d7..ec9e401
          *  1 file changed, 2 insertions(+), 1 deletion(-)
          */
-        [Fact]
-        public void CanCompareTwoVersionsOfAFileWithATrailingNewlineDeletion()
+        [Theory]
+        [InlineData(0, 175)]
+        [InlineData(1, 191)]
+        [InlineData(2, 184)]
+        [InlineData(3, 187)]
+        [InlineData(4, 193)]
+        public void CanCompareTwoVersionsOfAFileWithATrailingNewlineDeletion(int contextLines, int expectedPatchLength)
         {
             using (var repo = new Repository(StandardTestRepoPath))
             {
                 Tree rootCommitTree = repo.Lookup<Commit>("f8d44d7").Tree;
                 Tree commitTreeWithUpdatedFile = repo.Lookup<Commit>("ec9e401").Tree;
 
-                TreeChanges changes = repo.Diff.Compare(rootCommitTree, commitTreeWithUpdatedFile);
+                TreeChanges changes = repo.Diff.Compare(rootCommitTree, commitTreeWithUpdatedFile,
+                                                        compareOptions: new CompareOptions { ContextLines = contextLines });
 
                 Assert.Equal(1, changes.Count());
                 Assert.Equal(1, changes.Modified.Count());
+                Assert.Equal(expectedPatchLength, changes.Patch.Length);
 
                 TreeEntryChanges treeEntryChanges = changes.Modified.Single();
 
                 Assert.Equal(2, treeEntryChanges.LinesAdded);
                 Assert.Equal(1, treeEntryChanges.LinesDeleted);
+                Assert.Equal(expectedPatchLength, treeEntryChanges.Patch.Length);
             }
         }
 
@@ -293,15 +302,31 @@ namespace LibGit2Sharp.Tests
          *  super-file.txt                  |    5 +++++
          *  3 files changed, 8 insertions(+), 5 deletions(-)
          */
-        [Fact]
-        public void CanCompareTwoVersionsOfAFileWithADiffOfTwoHunks()
+        [Theory]
+        [InlineData(0, 3)]
+        [InlineData(0, 4)]
+        [InlineData(1, 1)]
+        [InlineData(1, 2)]
+        [InlineData(2, 4)]
+        [InlineData(2, 5)]
+        [InlineData(3, 2)]
+        [InlineData(3, 3)]
+        [InlineData(4, 0)]
+        [InlineData(4, 1)]
+        public void CanCompareTwoVersionsOfAFileWithADiffOfTwoHunks(int contextLines, int interhunkLines)
         {
+            var compareOptions = new CompareOptions
+            {
+                ContextLines = contextLines,
+                InterhunkLines = interhunkLines,
+            };
+
             using (var repo = new Repository(StandardTestRepoPath))
             {
                 Tree rootCommitTree = repo.Lookup<Commit>("f8d44d7").Tree;
                 Tree mergedCommitTree = repo.Lookup<Commit>("7252fe2").Tree;
 
-                TreeChanges changes = repo.Diff.Compare(rootCommitTree, mergedCommitTree);
+                TreeChanges changes = repo.Diff.Compare(rootCommitTree, mergedCommitTree, compareOptions: compareOptions);
 
                 Assert.Equal(3, changes.Count());
                 Assert.Equal(1, changes.Modified.Count());
@@ -314,77 +339,10 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(1, treeEntryChanges.LinesDeleted);
 
                 Assert.Equal(Mode.Nonexistent, changes["my-name-does-not-feel-right.txt"].Mode);
-
-                var expected = new StringBuilder()
-                    .Append("diff --git a/numbers.txt b/numbers.txt\n")
-                    .Append("index 7909961..4e935b7 100644\n")
-                    .Append("--- a/numbers.txt\n")
-                    .Append("+++ b/numbers.txt\n")
-                    .Append("@@ -1,4 +1,5 @@\n")
-                    .Append(" 1\n")
-                    .Append("+2\n")
-                    .Append(" 3\n")
-                    .Append(" 4\n")
-                    .Append(" 5\n")
-                    .Append("@@ -8,8 +9,9 @@\n")
-                    .Append(" 8\n")
-                    .Append(" 9\n")
-                    .Append(" 10\n")
-                    .Append("-12\n")
-                    .Append("+11\n")
-                    .Append(" 12\n")
-                    .Append(" 13\n")
-                    .Append(" 14\n")
-                    .Append(" 15\n")
-                    .Append("+16\n");
-
-                Assert.Equal(expected.ToString(), treeEntryChanges.Patch);
-
-                expected = new StringBuilder()
-                    .Append("diff --git a/my-name-does-not-feel-right.txt b/my-name-does-not-feel-right.txt\n")
-                    .Append("deleted file mode 100644\n")
-                    .Append("index e8953ab..0000000\n")
-                    .Append("--- a/my-name-does-not-feel-right.txt\n")
-                    .Append("+++ /dev/null\n")
-                    .Append("@@ -1,4 +0,0 @@\n")
-                    .Append("-That's a terrible name!\n")
-                    .Append("-I don't like it.\n")
-                    .Append("-People look down at me and laugh. :-(\n")
-                    .Append("-Really!!!!\n")
-                    .Append("diff --git a/numbers.txt b/numbers.txt\n")
-                    .Append("index 7909961..4e935b7 100644\n")
-                    .Append("--- a/numbers.txt\n")
-                    .Append("+++ b/numbers.txt\n")
-                    .Append("@@ -1,4 +1,5 @@\n")
-                    .Append(" 1\n")
-                    .Append("+2\n")
-                    .Append(" 3\n")
-                    .Append(" 4\n")
-                    .Append(" 5\n")
-                    .Append("@@ -8,8 +9,9 @@\n")
-                    .Append(" 8\n")
-                    .Append(" 9\n")
-                    .Append(" 10\n")
-                    .Append("-12\n")
-                    .Append("+11\n")
-                    .Append(" 12\n")
-                    .Append(" 13\n")
-                    .Append(" 14\n")
-                    .Append(" 15\n")
-                    .Append("+16\n")
-                    .Append("diff --git a/super-file.txt b/super-file.txt\n")
-                    .Append("new file mode 100644\n")
-                    .Append("index 0000000..16bdf1d\n")
-                    .Append("--- /dev/null\n")
-                    .Append("+++ b/super-file.txt\n")
-                    .Append("@@ -0,0 +1,5 @@\n")
-                    .Append("+That's a terrible name!\n")
-                    .Append("+I don't like it.\n")
-                    .Append("+People look down at me and laugh. :-(\n")
-                    .Append("+Really!!!!\n")
-                    .Append("+Yeah! Better!\n");
-
-                Assert.Equal(expected.ToString(), changes.Patch);
+                Assert.Equal(Expected("f8d44d7...7252fe2/numbers.txt-{0}-{1}.diff", contextLines, interhunkLines),
+                             treeEntryChanges.Patch);
+                Assert.Equal(Expected("f8d44d7...7252fe2/full-{0}-{1}.diff", contextLines, interhunkLines),
+                             changes.Patch);
             }
         }
 
@@ -479,7 +437,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(StandardTestRepoPath))
             {
-                TreeChanges changes = repo.Diff.Compare(null, null, null);
+                TreeChanges changes = repo.Diff.Compare(default(Tree), default(Tree));
 
                 Assert.Equal(0, changes.Count());
             }

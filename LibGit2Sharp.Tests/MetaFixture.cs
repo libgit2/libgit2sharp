@@ -12,13 +12,14 @@ namespace LibGit2Sharp.Tests
     {
         private static readonly Type[] excludedTypes = new[]
         {
+            typeof(CompareOptions),
             typeof(Credentials),
+            typeof(ExplicitPathsOptions),
             typeof(Filter),
             typeof(ObjectId),
             typeof(Repository),
             typeof(RepositoryOptions),
             typeof(Signature),
-            typeof(ExplicitPathsOptions),
         };
 
         // Related to https://github.com/libgit2/libgit2sharp/pull/251
