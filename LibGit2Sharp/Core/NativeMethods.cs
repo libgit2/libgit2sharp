@@ -1097,6 +1097,15 @@ namespace LibGit2Sharp.Core
             SubmoduleSafeHandle submodule);
 
         [DllImport(libgit2)]
+        internal static extern int git_tag_annotation_create(
+            out GitOid oid,
+            RepositorySafeHandle repo,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string name,
+            GitObjectSafeHandle target,
+            SignatureSafeHandle signature,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))] string message);
+
+        [DllImport(libgit2)]
         internal static extern int git_tag_create(
             out GitOid oid,
             RepositorySafeHandle repo,

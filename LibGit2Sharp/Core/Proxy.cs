@@ -2058,6 +2058,25 @@ namespace LibGit2Sharp.Core
 
         #region git_tag_
 
+        public static ObjectId git_tag_annotation_create(
+            RepositorySafeHandle repo,
+            string name,
+            GitObject target,
+            Signature tagger,
+            string message)
+        {
+            using (ThreadAffinity())
+            using (var objectPtr = new ObjectSafeWrapper(target.Id, repo))
+            using (SignatureSafeHandle taggerHandle = tagger.BuildHandle())
+            {
+                GitOid oid;
+                int res = NativeMethods.git_tag_annotation_create(out oid, repo, name, objectPtr.ObjectPtr, taggerHandle, message);
+                Ensure.ZeroResult(res);
+
+                return oid;
+            }
+        }
+
         public static ObjectId git_tag_create(
             RepositorySafeHandle repo,
             string name,

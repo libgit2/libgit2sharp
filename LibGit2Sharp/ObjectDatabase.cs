@@ -159,5 +159,22 @@ namespace LibGit2Sharp
 
             return repo.Lookup<Commit>(commitId);
         }
+
+        /// <summary>
+        ///   Inserts a <see cref = "TagAnnotation"/> into the object database, pointing to a specific <see cref = "GitObject"/>.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="target">The <see cref="GitObject"/> being pointed at.</param>
+        /// <param name="tagger">The tagger.</param>
+        /// <param name="message">The message.</param>
+        /// <returns>The created <see cref = "Commit"/>.</returns>
+        public virtual TagAnnotation CreateTag(string name, GitObject target, Signature tagger, string message)
+        {
+            string prettifiedMessage = Proxy.git_message_prettify(message);
+
+            ObjectId tagId = Proxy.git_tag_annotation_create(repo.Handle, name, target, tagger, prettifiedMessage);
+
+            return repo.Lookup<TagAnnotation>(tagId);
+        }
     }
 }

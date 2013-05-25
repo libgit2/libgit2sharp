@@ -338,5 +338,31 @@ namespace LibGit2Sharp.Tests
                 }
             }
         }
+
+        [Fact]
+        public void CanCreateATagAnnotationPointingToAGitObject()
+        {
+            string path = CloneBareTestRepo();
+            using (var repo = new Repository(path))
+            {
+                var blob = repo.Head.Tip["README"].Target as Blob;
+                Assert.NotNull(blob);
+
+                TagAnnotation tag = repo.ObjectDatabase.CreateTag(
+                    "nice_blob",
+                    blob,
+                    DummySignature,
+                    "I can point at blobs, too!");
+
+                Assert.NotNull(tag);
+
+                // The TagAnnotation is not pointed at by any reference...
+                Assert.Null(repo.Tags["nice_blob"]);
+
+                // ...but exists in the odb.
+                var fetched = repo.Lookup<TagAnnotation>(tag.Id);
+                Assert.Equal(tag, fetched);
+            }
+        }
     }
 }
