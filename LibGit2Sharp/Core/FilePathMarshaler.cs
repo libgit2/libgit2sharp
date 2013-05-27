@@ -89,6 +89,16 @@ namespace LibGit2Sharp.Core
             var expectedType = typeof(FilePath);
             var actualType = managedObj.GetType();
 
+            if (actualType.FullName == expectedType.FullName)
+            {
+                var posixProperty = actualType.GetProperty("Posix");
+                if (posixProperty != null && posixProperty.PropertyType == typeof(string))
+                {
+                    var reflectedFilePath = (string)posixProperty.GetValue(managedObj, null);
+                    return FromManaged(reflectedFilePath);
+                }
+            }
+
             throw new MarshalDirectiveException(
                 string.Format(CultureInfo.InvariantCulture,
                               "FilePathMarshaler must be used on a FilePath. Expected '{0}' from '{1}'; received '{2}' from '{3}'.",
@@ -110,7 +120,12 @@ namespace LibGit2Sharp.Core
                 return IntPtr.Zero;
             }
 
-            return Utf8Marshaler.FromManaged(filePath.Posix);
+            return FromManaged(filePath.Posix);
+        }
+
+        private static IntPtr FromManaged(string posixFilePath)
+        {
+            return Utf8Marshaler.FromManaged(posixFilePath);
         }
 
         public static FilePath FromNative(IntPtr pNativeData)
