@@ -81,20 +81,19 @@ namespace LibGit2Sharp.Core
             }
 
             var filePath = managedObj as FilePath;
-
-            if (null == filePath)
+            if (null != filePath)
             {
-                var expectedType = typeof(FilePath);
-                var actualType = managedObj.GetType();
-
-                throw new MarshalDirectiveException(
-                    string.Format(CultureInfo.InvariantCulture,
-                    "FilePathMarshaler must be used on a FilePath. Expected '{0}' from '{1}'; received '{2}' from '{3}'.",
-                    expectedType.FullName, expectedType.Assembly.Location,
-                    actualType.FullName, actualType.Assembly.Location));
+                return FromManaged(filePath);
             }
 
-            return FromManaged(filePath);
+            var expectedType = typeof(FilePath);
+            var actualType = managedObj.GetType();
+
+            throw new MarshalDirectiveException(
+                string.Format(CultureInfo.InvariantCulture,
+                              "FilePathMarshaler must be used on a FilePath. Expected '{0}' from '{1}'; received '{2}' from '{3}'.",
+                              expectedType.FullName, expectedType.Assembly.Location,
+                              actualType.FullName, actualType.Assembly.Location));
         }
 
         public Object MarshalNativeToManaged(IntPtr pNativeData)
