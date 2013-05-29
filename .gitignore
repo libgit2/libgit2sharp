@@ -35,5 +35,7 @@ _ReSharper*/
 *.userprefs
 *.swp
 *.DotSettings
+#Ignore custom generated files
+LibGit2Sharp/Core/UniqueIdentifier.cs
 
 !Lib/NativeBinaries/*/*.pdb
