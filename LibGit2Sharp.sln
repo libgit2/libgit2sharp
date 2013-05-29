@@ -5,6 +5,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibGit2Sharp", "LibGit2Shar
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibGit2Sharp.Tests", "LibGit2Sharp.Tests\LibGit2Sharp.Tests.csproj", "{286E63EB-04DD-4ADE-88D6-041B57800761}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CustomBuildTasks", "CustomBuildTasks\CustomBuildTasks.csproj", "{B6138573-A4B9-44E7-83C2-8964CAF51EDA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,6 +26,12 @@ Global
 		{286E63EB-04DD-4ADE-88D6-041B57800761}.Leaks|Any CPU.Build.0 = Leaks|Any CPU
 		{286E63EB-04DD-4ADE-88D6-041B57800761}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{286E63EB-04DD-4ADE-88D6-041B57800761}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B6138573-A4B9-44E7-83C2-8964CAF51EDA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B6138573-A4B9-44E7-83C2-8964CAF51EDA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B6138573-A4B9-44E7-83C2-8964CAF51EDA}.Leaks|Any CPU.ActiveCfg = Release|Any CPU
+		{B6138573-A4B9-44E7-83C2-8964CAF51EDA}.Leaks|Any CPU.Build.0 = Release|Any CPU
+		{B6138573-A4B9-44E7-83C2-8964CAF51EDA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B6138573-A4B9-44E7-83C2-8964CAF51EDA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -11,6 +11,7 @@ namespace LibGit2Sharp.Core
     ///
     ///   Use this marshaler for return values, for example:
     ///   [return: MarshalAs(UnmanagedType.CustomMarshaler,
+    ///                      MarshalCookie = UniqueId.UniqueIdentifier,
     ///                      MarshalTypeRef = typeof(Utf8NoCleanupMarshaler))]
     /// </summary>
     internal class Utf8NoCleanupMarshaler : Utf8Marshaler
@@ -42,6 +43,7 @@ namespace LibGit2Sharp.Core
     ///   [DllImport(libgit2)]
     ///   internal static extern int git_tag_delete(RepositorySafeHandle repo,
     ///       [MarshalAs(UnmanagedType.CustomMarshaler,
+    ///                  MarshalCookie = UniqueId.UniqueIdentifier,
     ///                  MarshalTypeRef = typeof(Utf8Marshaler))] String tagName);
     /// </summary>
     internal class Utf8Marshaler : ICustomMarshaler

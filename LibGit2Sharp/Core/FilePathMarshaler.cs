@@ -11,6 +11,7 @@ namespace LibGit2Sharp.Core
     ///
     ///   Use this marshaler for return values, for example:
     ///   [return: MarshalAs(UnmanagedType.CustomMarshaler,
+    ///                      MarshalCookie = UniqueId.UniqueIdentifier,
     ///                      MarshalTypeRef = typeof(FilePathNoCleanupMarshaler))]
     /// </summary>
     internal class FilePathNoCleanupMarshaler : FilePathMarshaler
@@ -42,6 +43,7 @@ namespace LibGit2Sharp.Core
     ///   [DllImport(libgit2)]
     ///   internal static extern int git_index_open(out IndexSafeHandle index,
     ///       [MarshalAs(UnmanagedType.CustomMarshaler,
+    ///                  MarshalCookie = UniqueId.UniqueIdentifier,
     ///                  MarshalTypeRef = typeof(FilePathMarshaler))] FilePath indexpath);
     /// </summary>
     internal class FilePathMarshaler : ICustomMarshaler
