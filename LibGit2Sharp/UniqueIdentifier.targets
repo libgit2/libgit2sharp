@@ -2,7 +2,7 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
   <!-- Import the version of CustomBuildTasks.dll that is dropped in the repository. -->
-  <UsingTask TaskName="GenerateUniqueIdentifierTask" AssemblyFile="..\CustomBuildTasks\Drop\CustomBuildTasks.dll" />
+  <UsingTask TaskName="GenerateUniqueIdentifierTask" AssemblyFile="..\Lib\CustomBuildTasks\CustomBuildTasks.dll" />
 
   <!-- Set the path of the generated UniqueIdentifier.cs file. -->
   <PropertyGroup>
