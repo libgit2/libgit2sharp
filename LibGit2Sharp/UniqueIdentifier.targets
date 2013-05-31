@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <!-- Import the version of CustomBuildTasks.dll that is dropped in the repository. -->
+  <UsingTask TaskName="GenerateUniqueIdentifierTask" AssemblyFile="..\Lib\CustomBuildTasks\CustomBuildTasks.dll" />
+
+  <!-- Set the path of the generated UniqueIdentifier.cs file. -->
+  <PropertyGroup>
+    <UniqueIdentifierPath>Core\UniqueIdentifier.cs</UniqueIdentifierPath>
+    <CoreCompileDependsOn>$(CoreCompileDependsOn);GenerateUniqueIdentifierCs</CoreCompileDependsOn>
+    <CoreCleanDependsOn>$(CoreCleanDependsOn);CleanUniqueIdentifierCs</CoreCleanDependsOn>
+  </PropertyGroup>
+
+  <!-- This target runs if any of the projects or .cs files for the project have changed since the last time
+      the UniqueIdentifier.cs file was generated. -->
+  <Target Name="GenerateUniqueIdentifierCs"
+          Inputs="$(MSBuildThisFileFullPath);$(MSBuildAllProjects);@(Compile)"
+          Outputs="$(UniqueIdentifierPath)">
+    <GenerateUniqueIdentifierTask OutputFile="$(UniqueIdentifierPath)" />
+  </Target>
+
+  <Target Name="CleanUniqueIdentifierCs">
+    <Delete Files="$(UniqueIdentifierPath)" />
+  </Target>
+
+</Project>
