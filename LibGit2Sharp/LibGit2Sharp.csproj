@@ -250,6 +250,7 @@
     <Compile Include="TreeEntryDefinition.cs" />
     <Compile Include="VoidReference.cs" />
     <Compile Include="Core\RawContentStream.cs" />
+    <Compile Include="Core\UniqueIdentifier.cs" />
   </ItemGroup>
   <ItemGroup>
     <CodeAnalysisDictionary Include="CustomDictionary.xml" />

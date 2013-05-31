@@ -6,8 +6,9 @@
 
   <!-- Set the path of the generated UniqueIdentifier.cs file. -->
   <PropertyGroup>
-    <UniqueIdentifierPath>$(IntermediateOutputPath)UniqueIdentifier.cs</UniqueIdentifierPath>
-    <CoreCompileDependsOn>$(CoreCompileDependsOn);CreateUniqueIdentifierItem</CoreCompileDependsOn>
+    <UniqueIdentifierPath>Core\UniqueIdentifier.cs</UniqueIdentifierPath>
+    <CoreCompileDependsOn>$(CoreCompileDependsOn);GenerateUniqueIdentifierCs</CoreCompileDependsOn>
+    <CoreCleanDependsOn>$(CoreCleanDependsOn);CleanUniqueIdentifierCs</CoreCleanDependsOn>
   </PropertyGroup>
 
   <!-- This target runs if any of the projects or .cs files for the project have changed since the last time
@@ -18,11 +19,8 @@
     <GenerateUniqueIdentifierTask OutputFile="$(UniqueIdentifierPath)" />
   </Target>
 
-  <!-- This target always runs, so that the .cs file that was generated is included in the build. -->
-  <Target Name="CreateUniqueIdentifierItem"
-          DependsOnTargets="GenerateUniqueIdentifierCs">
-    <CreateItem Include="$(UniqueIdentifierPath)">
-      <Output TaskParameter="Include" ItemName="Compile" />
-    </CreateItem>
+  <Target Name="CleanUniqueIdentifierCs">
+    <Delete Files="$(UniqueIdentifierPath)" />
   </Target>
+
 </Project>
