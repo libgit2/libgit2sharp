@@ -26,6 +26,7 @@ namespace LibGit2Sharp
 
             Path = path.Native;
             WorkingDirectory = workingDirectoryPath == null ? null : workingDirectoryPath.Native;
+            IsShallow = Proxy.git_repository_is_shallow(repo.Handle);
         }
 
         /// <summary>
@@ -45,6 +46,11 @@ namespace LibGit2Sharp
         ///   Indicates whether the repository has a working directory.
         /// </summary>
         public virtual bool IsBare { get; private set; }
+
+        /// <summary>
+        ///   Indicates whether the repository is shallow (the result of `git clone --depth ...`)
+        /// </summary>
+        public virtual bool IsShallow { get; private set; }
 
         /// <summary>
         ///   Indicates whether the Head points to an arbitrary commit instead of the tip of a local branch.
