@@ -529,9 +529,7 @@ namespace LibGit2Sharp.Tests
                 string ignoredFilePath = Path.Combine(repo.Info.WorkingDirectory, Path.Combine("bin", "some_ignored_file.txt"));
                 File.WriteAllText(ignoredFilePath, "hello from this ignored file.");
 
-                // The following check does not report ignored entries...
-                // TODO: Uncomment once libgit2/libgit2#1251 is merged
-                // Assert.Equal(1, repo.Index.RetrieveStatus().Ignored.Count());
+                Assert.Equal(1, repo.Index.RetrieveStatus().Ignored.Count());
 
                 Assert.Equal(FileStatus.Ignored, repo.Index.RetrieveStatus(ignoredFilePath));
 
