@@ -538,5 +538,19 @@ namespace LibGit2Sharp.Tests
                 Assert.Throws<LibGit2SharpException>(() => repo.Head);
             }
         }
+
+        [Fact]
+        public void CanDetectShallowness()
+        {
+            using (var repo = new Repository(ShallowTestRepoPath))
+            {
+                Assert.True(repo.Info.IsShallow);
+            }
+
+            using (var repo = new Repository(StandardTestRepoPath))
+            {
+                Assert.False(repo.Info.IsShallow);
+            }
+        }
     }
 }

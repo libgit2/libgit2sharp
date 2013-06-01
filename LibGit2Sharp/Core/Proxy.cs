@@ -1591,6 +1591,11 @@ namespace LibGit2Sharp.Core
             return RepositoryStateChecker(repo, NativeMethods.git_repository_is_empty);
         }
 
+        public static bool git_repository_is_shallow(RepositorySafeHandle repo)
+        {
+            return RepositoryStateChecker(repo, NativeMethods.git_repository_is_shallow);
+        }
+
         public static void git_repository_merge_cleanup(RepositorySafeHandle repo)
         {
             using (ThreadAffinity())
