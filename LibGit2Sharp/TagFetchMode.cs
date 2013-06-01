@@ -7,15 +7,15 @@
     public enum TagFetchMode
     {
         /// <summary>
-        ///   No tag will be retrieved.
-        /// </summary>
-        None = 1,  // GIT_REMOTE_DOWNLOAD_TAGS_NONE
-
-        /// <summary>
         ///   Default behavior. Will automatically retrieve tags that
         ///   point to objects retrieved during this fetch.
         /// </summary>
-        Auto,  // GIT_REMOTE_DOWNLOAD_TAGS_AUTO
+        Auto = 0,  // GIT_REMOTE_DOWNLOAD_TAGS_AUTO
+        
+        /// <summary>
+        ///   No tag will be retrieved.
+        /// </summary>
+        None,  // GIT_REMOTE_DOWNLOAD_TAGS_NONE
 
         /// <summary>
         ///   All tags will be downloaded, but _only_ tags, along with
