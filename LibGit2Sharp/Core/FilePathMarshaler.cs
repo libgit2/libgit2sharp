@@ -83,20 +83,29 @@ namespace LibGit2Sharp.Core
             }
 
             var filePath = managedObj as FilePath;
-
-            if (null == filePath)
+            if (null != filePath)
             {
-                var expectedType = typeof(FilePath);
-                var actualType = managedObj.GetType();
-
-                throw new MarshalDirectiveException(
-                    string.Format(CultureInfo.InvariantCulture,
-                    "FilePathMarshaler must be used on a FilePath. Expected '{0}' from '{1}'; received '{2}' from '{3}'.",
-                    expectedType.FullName, expectedType.Assembly.Location,
-                    actualType.FullName, actualType.Assembly.Location));
+                return FromManaged(filePath);
             }
 
-            return FromManaged(filePath);
+            var expectedType = typeof(FilePath);
+            var actualType = managedObj.GetType();
+
+            if (actualType.FullName == expectedType.FullName)
+            {
+                var posixProperty = actualType.GetProperty("Posix");
+                if (posixProperty != null && posixProperty.PropertyType == typeof(string))
+                {
+                    var reflectedFilePath = (string)posixProperty.GetValue(managedObj, null);
+                    return FromManaged(reflectedFilePath);
+                }
+            }
+
+            throw new MarshalDirectiveException(
+                string.Format(CultureInfo.InvariantCulture,
+                              "FilePathMarshaler must be used on a FilePath. Expected '{0}' from '{1}'; received '{2}' from '{3}'.",
+                              expectedType.FullName, expectedType.Assembly.Location,
+                              actualType.FullName, actualType.Assembly.Location));
         }
 
         public Object MarshalNativeToManaged(IntPtr pNativeData)
@@ -113,7 +122,12 @@ namespace LibGit2Sharp.Core
                 return IntPtr.Zero;
             }
 
-            return Utf8Marshaler.FromManaged(filePath.Posix);
+            return FromManaged(filePath.Posix);
+        }
+
+        private static IntPtr FromManaged(string posixFilePath)
+        {
+            return Utf8Marshaler.FromManaged(posixFilePath);
         }
 
         public static FilePath FromNative(IntPtr pNativeData)
