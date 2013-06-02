@@ -229,18 +229,6 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///  Gets the conflicts that exist.
-        /// </summary>
-        [Obsolete("This property will be removed in the next release. Please use Index.Conflicts instead.")]
-        public ConflictCollection Conflicts
-        {
-            get
-            {
-                return Index.Conflicts;
-            }
-        }
-
-        /// <summary>
         ///   Manipulate the currently ignored files.
         /// </summary>
         public Ignore Ignore

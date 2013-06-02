@@ -69,36 +69,6 @@ namespace LibGit2Sharp
             }
         }
 
-        /// <summary>
-        ///   Gets the <see cref = "Tree" />s immediately under this <see cref = "Tree" />.
-        /// </summary>
-        [Obsolete("This property will be removed in the next release.")]
-        public virtual IEnumerable<Tree> Trees
-        {
-            get
-            {
-                return this
-                    .Where(e => e.TargetType == TreeEntryTargetType.Tree)
-                    .Select(e => e.Target)
-                    .Cast<Tree>();
-            }
-        }
-
-        /// <summary>
-        ///   Gets the <see cref = "Blob" />s immediately under this <see cref = "Tree" />.
-        /// </summary>
-        [Obsolete("This property will be removed in the next release.")]
-        public virtual IEnumerable<Blob> Blobs
-        {
-            get
-            {
-                return this
-                    .Where(e => e.TargetType == TreeEntryTargetType.Blob)
-                    .Select(e => e.Target)
-                    .Cast<Blob>();
-            }
-        }
-
         internal string Path
         {
             get { return path.Native; }

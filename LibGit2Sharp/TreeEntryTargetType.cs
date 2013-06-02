@@ -11,18 +11,12 @@ namespace LibGit2Sharp
         /// <summary>
         ///   A file revision object.
         /// </summary>
-        Blob = 1,
+        Blob,
 
         /// <summary>
         ///   A tree object.
         /// </summary>
         Tree,
-
-        /// <summary>
-        ///   An annotated tag object.
-        /// </summary>
-        [Obsolete("This entry will be removed in the next release as it is not a valid TreeEntryTargetType.")]
-        Tag,
 
         /// <summary>
         ///   A pointer to a commit object in another repository.
