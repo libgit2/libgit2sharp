@@ -102,7 +102,7 @@ namespace LibGit2Sharp
         /// <param name="credentials">Credentials to use for username/password authentication.</param>
         public virtual void Fetch(
             Remote remote,
-            TagFetchMode tagFetchMode = TagFetchMode.Auto,
+            TagFetchMode? tagFetchMode = null,
             ProgressHandler onProgress = null,
             CompletionHandler onCompletion = null,
             UpdateTipsHandler onUpdateTips = null,
@@ -121,7 +121,10 @@ namespace LibGit2Sharp
                 var callbacks = new RemoteCallbacks(onProgress, onCompletion, onUpdateTips);
                 GitRemoteCallbacks gitCallbacks = callbacks.GenerateCallbacks();
 
-                Proxy.git_remote_set_autotag(remoteHandle, tagFetchMode);
+                if (tagFetchMode.HasValue)
+                {
+                    Proxy.git_remote_set_autotag(remoteHandle, tagFetchMode.Value);
+                }
 
                 if (credentials != null)
                 {

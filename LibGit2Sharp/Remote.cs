@@ -23,19 +23,21 @@ namespace LibGit2Sharp
         protected Remote()
         { }
 
-        private Remote(Repository repository, string name, string url)
+        private Remote(Repository repository, string name, string url, TagFetchMode tagFetchMode)
         {
             this.repository = repository;
             Name = name;
             Url = url;
+            TagFetchMode = tagFetchMode;
         }
 
         internal static Remote BuildFromPtr(RemoteSafeHandle handle, Repository repo)
         {
             string name = Proxy.git_remote_name(handle);
             string url = Proxy.git_remote_url(handle);
+            TagFetchMode tagFetchMode = Proxy.git_remote_autotag(handle);
 
-            var remote = new Remote(repo, name, url);
+            var remote = new Remote(repo, name, url, tagFetchMode);
 
             return remote;
         }
@@ -49,6 +51,11 @@ namespace LibGit2Sharp
         ///   Gets the url to use to communicate with this remote repository.
         /// </summary>
         public virtual string Url { get; private set; }
+
+        /// <summary>
+        /// Gets the Tag Fetch Mode of the remote - indicating how tags are fetched.
+        /// </summary>
+        public virtual TagFetchMode TagFetchMode { get; private set; }
 
         /// <summary>
         ///   Transform a reference to its source reference using the <see cref = "Remote" />'s default fetchspec.

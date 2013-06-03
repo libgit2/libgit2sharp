@@ -1368,6 +1368,11 @@ namespace LibGit2Sharp.Core
 
         #region git_remote_
 
+        public static TagFetchMode git_remote_autotag(RemoteSafeHandle remote)
+        {
+            return (TagFetchMode) NativeMethods.git_remote_autotag(remote);
+        }
+
         public static RemoteSafeHandle git_remote_create(RepositorySafeHandle repo, string name, string url)
         {
             using (ThreadAffinity())

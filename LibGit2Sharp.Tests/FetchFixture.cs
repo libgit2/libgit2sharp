@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
+using Xunit;
 using Xunit.Extensions;
 
 namespace LibGit2Sharp.Tests
@@ -93,6 +95,32 @@ namespace LibGit2Sharp.Tests
 
                 // Verify the expected
                 expectedFetchState.CheckUpdatedReferences(repo);
+            }
+        }
+
+        [Theory]
+        [InlineData(TagFetchMode.All, 4)]
+        [InlineData(TagFetchMode.None, 0)]
+        [InlineData(TagFetchMode.Auto, 3)]
+        public void FetchRespectsConfiguredAutoTagSetting(TagFetchMode tagFetchMode, int expectedTagCount)
+        {
+            string url = "http://github.com/libgit2/TestGitRepository";
+
+            var scd = BuildSelfCleaningDirectory();
+            using (var repo = Repository.Init(scd.RootedDirectoryPath))
+            {
+                Remote remote = repo.Network.Remotes.Add(remoteName, url);
+                Assert.NotNull(remote);
+
+                // Update the configured autotag setting.
+                repo.Network.Remotes.Update(remote,
+                    r => r.TagFetchMode = tagFetchMode);
+
+                // Perform the actual fetch.
+                repo.Network.Fetch(remote);
+
+                // Verify the number of fetched tags.
+                Assert.Equal(expectedTagCount, repo.Tags.Count());
             }
         }
     }
