@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Handles;
 
@@ -171,6 +173,69 @@ namespace LibGit2Sharp
             }
 
             refsColl.Remove(reference);
+        }
+
+        /// <summary>
+        ///   Find the <see cref="Reference"/>s among <paramref name="refSubset"/>
+        ///   that can reach at least one <see cref="Commit"/> in the specified <paramref name="targets"/>.
+        /// </summary>
+        /// <param name = "refsColl">The <see cref="ReferenceCollection"/> being worked with.</param>
+        /// <param name="refSubset">The set of <see cref="Reference"/>s to examine.</param>
+        /// <param name="targets">The set of <see cref="Commit"/>s that are interesting.</param>
+        /// <returns>A subset of <paramref name="refSubset"/> that can reach at least one <see cref="Commit"/> within <paramref name="targets"/>.</returns>
+        public static IEnumerable<Reference> ReachableFrom(
+            this ReferenceCollection refsColl,
+            IEnumerable<Reference> refSubset,
+            IEnumerable<Commit> targets)
+        {
+            Ensure.ArgumentNotNull(refSubset, "refSubset");
+            Ensure.ArgumentNotNull(targets, "targets");
+
+            var refs = new List<Reference>(refSubset);
+            if (refs.Count == 0)
+            {
+                return Enumerable.Empty<Reference>();
+            }
+
+            var targetsSet = new HashSet<Commit>(targets);
+            if (targetsSet.Count == 0)
+            {
+                return Enumerable.Empty<Reference>();
+            }
+
+            var allCommits = refsColl.repo.Commits;
+
+            var result = new List<Reference>();
+
+            foreach (var reference in refs)
+            {
+                foreach (var commit in allCommits.QueryBy(new Filter { Since = reference }))
+                {
+                    if (!targetsSet.Contains(commit))
+                    {
+                        continue;
+                    }
+
+                    result.Add(reference);
+                    break;
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        ///   Find the <see cref="Reference"/>s
+        ///   that can reach at least one <see cref="Commit"/> in the specified <paramref name="targets"/>.
+        /// </summary>
+        /// <param name = "refsColl">The <see cref="ReferenceCollection"/> being worked with.</param>
+        /// <param name="targets">The set of <see cref="Commit"/>s that are interesting.</param>
+        /// <returns>The list of <see cref="Reference"/> that can reach at least one <see cref="Commit"/> within <paramref name="targets"/>.</returns>
+        public static IEnumerable<Reference> ReachableFrom(
+            this ReferenceCollection refsColl,
+            IEnumerable<Commit> targets)
+        {
+            return ReachableFrom(refsColl, refsColl, targets);
         }
     }
 }
