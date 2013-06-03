@@ -69,6 +69,7 @@
     <Compile Include="CheckoutOptions.cs" />
     <Compile Include="CompareOptions.cs" />
     <Compile Include="Core\NativeDllName.cs" />
+    <Compile Include="CommitRewriteInfo.cs" />
     <Compile Include="ObjectType.cs" />
     <Compile Include="Core\UniqueIdentifier.cs" />
     <Compile Include="ReferenceExtensions.cs" />

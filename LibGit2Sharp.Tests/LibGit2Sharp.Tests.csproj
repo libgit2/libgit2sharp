@@ -59,6 +59,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CheckoutFixture.cs" />
+    <Compile Include="FilterBranchFixture.cs" />
     <Compile Include="RemoveFixture.cs" />
     <Compile Include="RemoteFixture.cs" />
     <Compile Include="PushFixture.cs" />
