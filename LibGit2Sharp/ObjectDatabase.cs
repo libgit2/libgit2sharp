@@ -119,6 +119,31 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        /// Inserts a <see cref="Blob" /> into the object database, created from the content of a buffer
+        /// in memory.
+        /// </summary>
+        /// <param name="buffer">The buffer content of the blob.</param>
+        /// <param name="offset">The offset from the buffer.</param>
+        /// <param name="count">The number of bytes to read from the buffer .</param>
+        /// <returns>The created <see cref="Blob" />.</returns>
+        /// <exception cref="System.ArgumentOutOfRangeException">offset must be >=0 or offset + count must be &lt;= buffer.Length</exception>
+        public virtual Blob CreateBlob(byte[] buffer, int offset, int count)
+        {
+            Ensure.ArgumentNotNull(buffer, "buffer");
+
+            if (offset < 0)
+                throw new ArgumentOutOfRangeException("offset", "offset must be >=0");
+
+            if ((offset + count) > buffer.Length)
+                throw new ArgumentOutOfRangeException("count", "offset + count must be <= buffer.Length");
+
+
+            var id = Proxy.git_blob_create_frombuffer(repo.Handle, buffer, offset, count);
+
+            return repo.Lookup<Blob>(id);
+        }
+
+        /// <summary>
         ///   Inserts a <see cref = "Tree"/> into the object database, created from a <see cref = "TreeDefinition"/>.
         /// </summary>
         /// <param name = "treeDefinition">The <see cref = "TreeDefinition"/>.</param>

@@ -73,6 +73,21 @@ namespace LibGit2Sharp.Core
             }
         }
 
+        public unsafe static ObjectId git_blob_create_frombuffer(RepositorySafeHandle repo, byte[] buffer, int offset, int count)
+        {
+            using (ThreadAffinity())
+            {
+                var oid = new GitOid();
+                fixed (void* pBuffer = &buffer[offset])
+                {
+                    int res = NativeMethods.git_blob_create_frombuffer(ref oid, repo, (IntPtr)pBuffer, count);
+                    Ensure.ZeroResult(res);
+                }
+
+                return oid;
+            }
+        }
+
         public static byte[] git_blob_rawcontent(RepositorySafeHandle repo, ObjectId id, int size)
         {
             using (var obj = new ObjectSafeWrapper(id, repo))

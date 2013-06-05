@@ -132,6 +132,9 @@ namespace LibGit2Sharp.Core
             IntPtr data);
 
         [DllImport(libgit2)]
+        internal static extern int git_blob_create_frombuffer(ref GitOid oid, RepositorySafeHandle repo, IntPtr buffer, int length);
+
+        [DllImport(libgit2)]
         internal static extern IntPtr git_blob_rawcontent(GitObjectSafeHandle blob);
 
         [DllImport(libgit2)]
