@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Target Name="AfterBuild">
+    <CreateItem Include="$(NativeBinariesDirectory)\**\*.*">
+      <Output TaskParameter="Include" ItemName="NativeBinaries" />
+    </CreateItem>
+
+    <Copy
+      SourceFiles="@(NativeBinaries)"
+      DestinationFiles="@(NativeBinaries->'$(OutputPath)NativeBinaries\%(RecursiveDir)%(Filename)%(Extension)')"
+      SkipUnchangedFiles="true" />
+  </Target>
+</Project>
