@@ -91,6 +91,22 @@ function Find-Git {
 
 Push-Location $libgit2Directory
 
+function Ensure-Property($expected, $propertyValue, $propertyName, $path) {
+	if ($propertyValue -eq $expected) {
+		return
+	}
+
+	throw "Error: Invalid '$propertyName' property in generated '$path' (Expected: $expected - Actual: $propertyValue)"
+}
+
+function Assert-Consistent-Naming($expected, $path) {
+	$dll = get-item $path
+
+	Ensure-Property $expected $dll.Name "Name" $dll.Fullname
+	Ensure-Property $expected $dll.VersionInfo.InternalName "VersionInfo.InternalName" $dll.Fullname
+	Ensure-Property $expected $dll.VersionInfo.OriginalFilename "VersionInfo.OriginalFilename" $dll.Fullname
+}
+
 & {
 	trap {
 		Pop-Location
@@ -112,6 +128,7 @@ Push-Location $libgit2Directory
 		break
 	}
 	$shortsha = $sha.Substring(0,7)
+	$expected = "git2-$shortsha.dll"
 
 	Write-Output "Checking out $sha..."
 	Run-Command -Quiet -Fatal { & $git checkout $sha }
@@ -124,6 +141,7 @@ Push-Location $libgit2Directory
 	Run-Command -Quiet -Fatal { & $cmake --build . --config $configuration }
 	if ($test.IsPresent) { Run-Command -Quiet -Fatal { & $ctest -V . } }
 	cd $configuration
+	Assert-Consistent-Naming $expected "*.dll"
 	Run-Command -Quiet { & rm *.exp }
 	Run-Command -Quiet { & rm $x86Directory\* }
 	Run-Command -Quiet -Fatal { & copy -fo * $x86Directory }
@@ -136,6 +154,7 @@ Push-Location $libgit2Directory
 	Run-Command -Quiet -Fatal { & $cmake --build . --config $configuration }
 	if ($test.IsPresent) { Run-Command -Quiet -Fatal { & $ctest -V . } }
 	cd $configuration
+	Assert-Consistent-Naming $expected "*.dll"
 	Run-Command -Quiet { & rm *.exp }
 	Run-Command -Quiet { & rm $x64Directory\* }
 	Run-Command -Quiet -Fatal { & copy -fo * $x64Directory }
