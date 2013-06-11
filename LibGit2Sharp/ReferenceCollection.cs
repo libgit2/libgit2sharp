@@ -530,14 +530,11 @@ namespace LibGit2Sharp
                     }
                 }
 
-                foreach (var tagref in refsToRewrite.Where(x => x.IsTag())
-                                                    .OrderBy(TagReferenceDepth))
+                foreach (var tagref in refsToRewrite.Where(x => x.IsTag()))
                 {
                     var oldTag = repo.Tags[tagref.CanonicalName];
-                    var newTargetOid = shaMap.ContainsKey(oldTag.Target.Id) ? shaMap[oldTag.Target.Id] : oldTag.Target.Id;
-                    var newTarget = repo.Lookup(newTargetOid);
+                    var newTarget = RewriteTagAnnotationsDownToObject(shaMap, oldTag.Target);
                     var newTagName = tagNameRewriter(oldTag.Name, oldTag.IsAnnotated, newTarget);
-                    //var newTag = tagRewriter(oldTag, newTarget);
                     if (!string.IsNullOrEmpty(newTagName))
                     {
                         var newTag = oldTag.IsAnnotated
@@ -586,20 +583,26 @@ namespace LibGit2Sharp
             }
         }
 
-        private int TagReferenceDepth(Reference reference)
+        private GitObject RewriteTagAnnotationsDownToObject(Dictionary<ObjectId, ObjectId> shaMap, GitObject oldTarget)
         {
-            var t = repo.Tags[reference.CanonicalName];
-            return t.IsAnnotated
-                ? TagAnnotationDepth(t.Annotation)
-                : 0;
-        }
+            // Has this target already been rewritten?
+            if (shaMap.ContainsKey(oldTarget.Id))
+            {
+                return repo.Lookup(shaMap[oldTarget.Id]);
+            }
 
-        private int TagAnnotationDepth(TagAnnotation ta)
-        {
-            var target = ta.Target as TagAnnotation;
-            return target == null
-                ? 1
-                : 1 + TagAnnotationDepth(target);
+            // Recursively rewrite annotations if necessary
+            var annotation = oldTarget as TagAnnotation;
+            if (annotation != null)
+            {
+                var newTarget = RewriteTagAnnotationsDownToObject(shaMap, annotation.Target);
+                var newAnnotation = repo.ObjectDatabase.CreateTag(annotation.Name, newTarget, annotation.Tagger,
+                                                                  annotation.Message);
+                shaMap[annotation.Id] = newAnnotation.Id;
+                return newAnnotation;
+            }
+
+            return shaMap.ContainsKey(oldTarget.Id) ? repo.Lookup(shaMap[oldTarget.Id]) : oldTarget;
         }
 
         private int ReferenceDepth(Reference reference)

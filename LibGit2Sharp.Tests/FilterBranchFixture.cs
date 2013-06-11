@@ -263,17 +263,33 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void HandlesChainedTags()
         {
-            // Add a tag (A) that points to another tag (B)
-            repo.Tags.Add("chained", repo.Tags["e90810b"].Annotation,
-                          new Signature("Me", "me@example.com", DateTimeOffset.Now),
-                          "Chained tag");
-            repo.Refs.RewriteHistory(repo.Commits.QueryBy(new Filter { Since = repo.Refs["refs/heads/test"] }),
+            // Add a lightweight tag (A) that points to tag annotation (B) that points to another tag annotation (C),
+            // which points to a commit
+            var sig = new Signature("Me", "me@example.com", DateTimeOffset.Now);
+            var theCommit = repo.Lookup<Commit>("6dcf9bf");
+            var annotationC = repo.ObjectDatabase.CreateTag("annotationC", theCommit, sig, "");
+            var annotationB = repo.ObjectDatabase.CreateTag("annotationB", annotationC, sig, "");
+            var tagA = repo.Tags.Add("annotatedA", annotationB, sig, "");
+
+            // Rewrite the commit, renaming the tag
+            repo.Refs.RewriteHistory(new[] {repo.Lookup<Commit>("6dcf9bf")},
                                      c => CommitRewriteInfo.From(c, message: ""),
-                                     tagNameRewriter: (oldName, isAnnotated, o) => oldName + "_new");
-            // Verify the new (A) points to the new (B)
-            ObjectId newTarget = repo.Tags["e90810b_new"].Annotation.Id;
-            ObjectId newChainedTarget = repo.Tags["chained_new"].Target.Id;
-            Assert.Equal(newTarget, newChainedTarget);
+                                     tagNameRewriter: (oldName, isAnnoted, newTarget) => oldName + "_new");
+
+            // Verify the tag-annotation chain
+            var newTag = repo.Tags["annotatedA_new"];
+            Assert.NotNull(newTag);
+            Assert.NotEqual(newTag, tagA);
+            Assert.True(newTag.IsAnnotated);
+            var newAnnotationB = newTag.Target as TagAnnotation;
+            Assert.NotNull(newAnnotationB);
+            Assert.NotEqual(newAnnotationB, annotationB);
+            var newAnnotationC = newAnnotationB.Target as TagAnnotation;
+            Assert.NotNull(newAnnotationC);
+            Assert.NotEqual(newAnnotationC, annotationC);
+            var newCommit = newAnnotationC.Target as Commit;
+            Assert.NotNull(newCommit);
+            Assert.NotEqual(newCommit, theCommit);
         }
     }
 }
