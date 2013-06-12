@@ -334,31 +334,7 @@ namespace LibGit2Sharp
             return new ReflogCollection(repo, reference.CanonicalName);
         }
 
-        /// <summary>
-        /// Default implementation of direct reference rewriting, used by <see cref="RewriteHistory"/>.
-        /// In addition to moving the reference to point to the new target, this makes a backup copy in
-        /// "refs/original".
-        /// </summary>
-        /// <param name="oldRef">The reference to be rewritten.</param>
-        /// <param name="newTarget">The target the new reference should point to.</param>
-        /// <param name="namePrefix">Namespace for backing up refs. The default is "refs/original".</param>
-        /// <returns>The newly-created reference.</returns>
-        /// <exception cref="InvalidOperationException">This is thrown if the backup reference already exists.</exception>
-        private Reference DefaultDirectReferenceRewriter(DirectReference oldRef, ObjectId newTarget, string namePrefix)
-        {
-            var newName = namePrefix + oldRef.CanonicalName.Substring("refs/".Length);
 
-            if (Resolve<Reference>(newName) != null)
-            {
-                throw new InvalidOperationException(
-                    String.Format("Can't back up reference '{0}' - '{1}' already exists", oldRef.CanonicalName, newName));
-            }
-
-            this.Add(newName, oldRef.TargetIdentifier, false, "filter-branch: backup");
-
-            // Move the ref
-            return UpdateTarget(oldRef, newTarget, "filter-branch: rewrite");
-        }
 
         /// <summary>
         /// Rewrite some or all of the repository's commits and references
@@ -395,104 +371,89 @@ namespace LibGit2Sharp
                 return;
             }
 
-            var targetedCommits = new HashSet<Commit>(commitsToRewrite);
+            var historyRewriter = new HistoryRewriter(repo, commitsToRewrite, commitHeaderRewriter, commitTreeRewriter,
+                                                      parentRewriter, tagNameRewriter, backupRefsNamespace);
 
-            commitHeaderRewriter = commitHeaderRewriter ?? CommitRewriteInfo.From;
-            parentRewriter = parentRewriter ?? (p => p);
-            tagNameRewriter = tagNameRewriter ?? ((n, a, t) => null);
+            historyRewriter.AmazeMe();
+        }
+    }
+}
 
+namespace LibGit2Sharp.Core
+{
+    internal class HistoryRewriter
+    {
+        private readonly Repository repo;
+
+        private readonly HashSet<Commit> targetedCommits;
+        private readonly Dictionary<ObjectId, ObjectId> shaMap = new Dictionary<ObjectId, ObjectId>();
+
+        private readonly Func<Commit, CommitRewriteInfo> headerRewriter;
+        private readonly Func<Commit, TreeDefinition> treeRewriter;
+        private readonly string backupRefsNamespace;
+        private readonly Func<IEnumerable<Commit>, IEnumerable<Commit>> parentsRewriter;
+        private readonly Func<String, bool, GitObject, string> tagNameRewriter;
+
+        public HistoryRewriter(
+            Repository repo,
+            IEnumerable<Commit> commitsToRewrite,
+            Func<Commit, CommitRewriteInfo> headerRewriter,
+            Func<Commit, TreeDefinition> treeRewriter,
+            Func<IEnumerable<Commit>, IEnumerable<Commit>> parentsRewriter,
+            Func<String, bool, GitObject, string> tagNameRewriter,
+            string backupRefsNamespace)
+        {
+            this.repo = repo;
+            targetedCommits = new HashSet<Commit>(commitsToRewrite);
+
+            this.headerRewriter = headerRewriter ?? CommitRewriteInfo.From;
+            this.treeRewriter = treeRewriter;
+            this.tagNameRewriter = tagNameRewriter;
+            this.parentsRewriter = parentsRewriter ?? (ps => ps);
+
+            this.backupRefsNamespace = backupRefsNamespace;
+        }
+
+        public void AmazeMe()
+        {
             // Find out which refs lead to at least one the commits
-            var refsToRewrite = this.ReachableFrom(targetedCommits).ToList();
+            var refsToRewrite = repo.Refs.ReachableFrom(targetedCommits).ToList();
 
-            var shaMap = new Dictionary<ObjectId, ObjectId>();
             var filter = new Filter
-                             {
-                                 Since = refsToRewrite,
-                                 SortBy = GitSortOptions.Reverse | GitSortOptions.Topological
-                             };
+            {
+                Since = refsToRewrite,
+                SortBy = GitSortOptions.Reverse | GitSortOptions.Topological
+            };
 
             var commits = repo.Commits.QueryBy(filter);
             foreach (var commit in commits)
             {
-                var newHeader = CommitRewriteInfo.From(commit);
-                var newTree = commit.Tree;
-
-                // Find the new parents
-                var newParents = commit.Parents
-                                       .Select(oldParent =>
-                                               shaMap.ContainsKey(oldParent.Id)
-                                                   ? shaMap[oldParent.Id]
-                                                   : oldParent.Id)
-                                       .Select(id => repo.Lookup<Commit>(id));
-
-                if (targetedCommits.Contains(commit))
-                {
-                    // Get the new commit header
-                    newHeader = commitHeaderRewriter(commit);
-
-                    if (commitTreeRewriter != null)
-                    {
-                        // Get the new commit tree
-                        var newTreeDefinition = commitTreeRewriter(commit);
-                        newTree = repo.ObjectDatabase.CreateTree(newTreeDefinition);
-                    }
-
-                    // Retrieve new parents
-                    newParents = parentRewriter(newParents);
-                }
-
-                // Create the new commit
-                var newCommit = repo.ObjectDatabase.CreateCommit(newHeader.Message, newHeader.Author,
-                                                                 newHeader.Committer, newTree,
-                                                                 newParents);
-
-                // Record the rewrite
-                shaMap[commit.Id] = newCommit.Id;
+                RewriteCommit(commit);
             }
 
             // Rewrite the refs
             var refsToRollBack = new List<Reference>();
-            var tagsToRollBack = new List<Tag>();
+
             try
             {
                 // Ordering matters. In the case of `A -> B -> commit`, we need to make sure B is rewritten
                 // before A.
-                foreach (var reference in refsToRewrite.Where(x => !x.IsTag())
-                                                       .OrderBy(ReferenceDepth))
+                foreach (var reference in refsToRewrite.OrderBy(ReferenceDepth))
                 {
                     var dref = reference as DirectReference;
                     if (dref == null)
                     {
+                        //TODO: Handle a cornercase where a symbolic reference
+                        //      points to a Tag which name has been rewritten
                         continue;
                     }
 
-                    var newTarget = shaMap[dref.Target.Id];
+                    var newTarget = RewriteTarget(dref.Target);
                     var newDref = DefaultDirectReferenceRewriter(dref, newTarget, backupRefsNamespace);
 
                     if (newDref != dref)
                     {
                         refsToRollBack.Add(dref);
-                    }
-                }
-
-                foreach (var tagref in refsToRewrite.Where(x => x.IsTag()))
-                {
-                    var oldTag = repo.Tags[tagref.CanonicalName];
-                    var newTarget = RewriteTagAnnotationsDownToObject(shaMap, oldTag.Target);
-                    var newTagName = tagNameRewriter(oldTag.Name, oldTag.IsAnnotated, newTarget);
-                    if (!string.IsNullOrEmpty(newTagName))
-                    {
-                        var newTag = oldTag.IsAnnotated
-                                         ? repo.Tags.Add(newTagName, newTarget, oldTag.Annotation.Tagger, oldTag.Annotation.Message, true)
-                                         : repo.Tags.Add(newTagName, newTarget, true);
-                        if (oldTag != newTag)
-                        {
-                            if (oldTag.IsAnnotated && newTag != null && newTag.Annotation != oldTag.Annotation)
-                            {
-                                shaMap[oldTag.Annotation.Id] = newTag.Annotation.Id;
-                            }
-                            tagsToRollBack.Add(oldTag);
-                        }
                     }
                 }
             }
@@ -512,43 +473,116 @@ namespace LibGit2Sharp
                                         "filter-branch: abort");
                     }
                 }
-                foreach (var t in tagsToRollBack)
-                {
-                    if (t.IsAnnotated)
-                    {
-                        repo.Tags.Add(t.CanonicalName, t.Annotation.Target, t.Annotation.Tagger, t.Annotation.Message,
-                                      true);
-                    }
-                    else
-                    {
-                        repo.Tags.Add(t.Name, t.Target, true);
-                    }
-                }
+
                 throw;
             }
         }
 
-        private GitObject RewriteTagAnnotationsDownToObject(Dictionary<ObjectId, ObjectId> shaMap, GitObject oldTarget)
+        private Reference DefaultDirectReferenceRewriter(DirectReference oldRef, ObjectId newTarget, string namePrefix)
+        {
+            var backupName = namePrefix + oldRef.CanonicalName.Substring("refs/".Length);
+
+            if (repo.Refs.Resolve<Reference>(backupName) != null)
+            {
+                throw new InvalidOperationException(
+                    String.Format("Can't back up reference '{0}' - '{1}' already exists", oldRef.CanonicalName, backupName));
+            }
+
+            repo.Refs.Add(backupName, oldRef.TargetIdentifier, false, "filter-branch: backup");
+
+            if (tagNameRewriter == null || !oldRef.IsTag())
+            {
+                return repo.Refs.UpdateTarget(oldRef, newTarget, "filter-branch: rewrite");
+            }
+
+            var newTagName = oldRef.CanonicalName;
+            
+            if (tagNameRewriter != null)
+            {
+                newTagName = "refs/tags/" + 
+                    tagNameRewriter(oldRef.CanonicalName.Substring("refs/tags/".Length), false, oldRef.Target);
+            }
+
+            return repo.Refs.Add(newTagName, newTarget, false, "filter-branch: rewrite");
+        }
+
+        private ObjectId RewriteCommit(Commit commit)
+        {
+            var newHeader = CommitRewriteInfo.From(commit);
+            var newTree = commit.Tree;
+
+            // Find the new parents
+            var newParents = commit.Parents
+                .Select(oldParent =>
+                        shaMap.ContainsKey(oldParent.Id)
+                            ? shaMap[oldParent.Id]
+                            : oldParent.Id)
+                .Select(id => repo.Lookup<Commit>(id));
+
+            if (targetedCommits.Contains(commit))
+            {
+                // Get the new commit header
+                newHeader = headerRewriter(commit);
+
+                if (treeRewriter != null)
+                {
+                    // Get the new commit tree
+                    var newTreeDefinition = treeRewriter(commit);
+                    newTree = repo.ObjectDatabase.CreateTree(newTreeDefinition);
+                }
+
+                // Retrieve new parents
+                newParents = parentsRewriter(newParents);
+            }
+
+            // Create the new commit
+            var newCommit = repo.ObjectDatabase.CreateCommit(newHeader.Message, newHeader.Author,
+                                                             newHeader.Committer, newTree,
+                                                             newParents);
+
+            // Record the rewrite
+            shaMap[commit.Id] = newCommit.Id;
+
+            return newCommit.Id;
+        }
+
+        private ObjectId RewriteTarget(GitObject oldTarget)
         {
             // Has this target already been rewritten?
             if (shaMap.ContainsKey(oldTarget.Id))
             {
-                return repo.Lookup(shaMap[oldTarget.Id]);
+                return shaMap[oldTarget.Id];
+            }
+
+            var commit = oldTarget as Commit;
+            if (commit != null)
+            {
+                return RewriteCommit(commit);
             }
 
             var annotation = oldTarget as TagAnnotation;
             if (annotation == null)
             {
-                //TODO: This is not covered by any test
-                return shaMap.ContainsKey(oldTarget.Id) ? repo.Lookup(shaMap[oldTarget.Id]) : oldTarget;
+                //TODO: Probably a Tree or a Blob. This is not covered by any test
+                return oldTarget.Id;
             }
 
             // Recursively rewrite annotations if necessary
-            var newTarget = RewriteTagAnnotationsDownToObject(shaMap, annotation.Target);
-            var newAnnotation = repo.ObjectDatabase.CreateTag(annotation.Name, newTarget, annotation.Tagger,
+            ObjectId newTargetId = RewriteTarget(annotation.Target);
+
+            var newTarget = repo.Lookup(newTargetId);
+
+            string newName = annotation.Name;
+
+            if (tagNameRewriter != null)
+            {
+                newName = tagNameRewriter(annotation.Name, true, annotation.Target);
+            }
+
+            var newAnnotation = repo.ObjectDatabase.CreateTag(newName, newTarget, annotation.Tagger,
                                                               annotation.Message);
             shaMap[annotation.Id] = newAnnotation.Id;
-            return newAnnotation;
+            return newAnnotation.Id;
         }
 
         private int ReferenceDepth(Reference reference)

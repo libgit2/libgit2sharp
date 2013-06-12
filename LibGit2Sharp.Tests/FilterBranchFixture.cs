@@ -66,6 +66,29 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
+        public void CanRewriteAuthorOfCommitsOnlyBeingPointedAtByTags()
+        {
+            var commit = repo.ObjectDatabase.CreateCommit(
+                "I'm a lonesome commit", DummySignature, DummySignature,
+                repo.Head.Tip.Tree, Enumerable.Empty<Commit>());
+
+            repo.Tags.Add("so-lonely", commit);
+
+            repo.Tags.Add("so-lonely-but-annotated", commit, DummySignature,
+                "Yeah, baby! I'm going to be rewritten as well");
+
+            repo.Refs.RewriteHistory(
+                new[] { commit },
+                commitHeaderRewriter: c => CommitRewriteInfo.From(c, message: "Bam!"));
+
+            var lightweightTag = repo.Tags["so-lonely"];
+            Assert.Equal("Bam!\n", ((Commit)lightweightTag.Target).Message);
+
+            var annotatedTag = repo.Tags["so-lonely-but-annotated"];
+            Assert.Equal("Bam!\n", ((Commit)annotatedTag.Target).Message);
+        }
+
+        [Fact]
         public void CanRewriteTrees()
         {
             repo.Refs.RewriteHistory(repo.Head.Commits, commitTreeRewriter: c =>
@@ -254,27 +277,6 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
-        public void DoesntMoveTagsByDefault()
-        {
-            var originalTags = repo.Tags.ToArray();
-            repo.Refs.RewriteHistory(repo.Commits.QueryBy(new Filter { Since = repo.Refs["refs/heads/test"] }),
-                                     c => CommitRewriteInfo.From(c, message: ""));
-            var newTags = repo.Tags.ToArray();
-            Assert.Equal(originalTags, newTags);
-        }
-
-        [Fact]
-        public void CanLeaveTagsAlone()
-        {
-            var origTags = repo.Tags.ToArray();
-            repo.Refs.RewriteHistory(repo.Commits.QueryBy(new Filter { Since = repo.Refs["refs/heads/test"] }),
-                         c => CommitRewriteInfo.From(c, message: ""),
-                         tagNameRewriter: (oldName, isAnnotated, o) => null);
-            var newTags = repo.Tags.ToArray();
-            Assert.Equal(origTags, newTags);
-        }
-
-        [Fact]
         public void CanProvideNewNamesForTags()
         {
             repo.Refs.RewriteHistory(repo.Commits.QueryBy(new Filter { Since = repo.Refs["refs/heads/test"] }),
@@ -286,7 +288,7 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
-        public void HandlesChainedTags()
+        public void HandlesNameRewritingOfChainedTags()
         {
             // Add a lightweight tag (A) that points to tag annotation (B) that points to another tag annotation (C),
             // which points to a commit
@@ -294,27 +296,35 @@ namespace LibGit2Sharp.Tests
             var theCommit = repo.Lookup<Commit>("6dcf9bf");
             var annotationC = repo.ObjectDatabase.CreateTag("annotationC", theCommit, sig, "");
             var annotationB = repo.ObjectDatabase.CreateTag("annotationB", annotationC, sig, "");
-            var tagA = repo.Tags.Add("annotatedA", annotationB, sig, "");
+            var tagA = repo.Tags.Add("annotatedA", annotationB);
 
             // Rewrite the commit, renaming the tag
             repo.Refs.RewriteHistory(new[] {repo.Lookup<Commit>("6dcf9bf")},
-                                     c => CommitRewriteInfo.From(c, message: ""),
-                                     tagNameRewriter: (oldName, isAnnoted, newTarget) => oldName + "_new");
+                                     c => CommitRewriteInfo.From(c, message: "Rewrote"),
+                                     tagNameRewriter:
+                                         (oldName, isAnnoted, newTarget) =>
+                                         isAnnoted ? oldName + "_ann" : oldName + "_lw");
 
             // Verify the tag-annotation chain
-            var newTag = repo.Tags["annotatedA_new"];
+            var newTag = repo.Tags["annotatedA_lw"];
             Assert.NotNull(newTag);
             Assert.NotEqual(newTag, tagA);
             Assert.True(newTag.IsAnnotated);
-            var newAnnotationB = newTag.Target as TagAnnotation;
+
+            var newAnnotationB = newTag.Annotation;
             Assert.NotNull(newAnnotationB);
             Assert.NotEqual(newAnnotationB, annotationB);
-            var newAnnotationC = newAnnotationB.Target as TagAnnotation;
+            Assert.Equal("annotationB_ann", newAnnotationB.Name);
+
+            var newAnnotationC = newTag.Target as TagAnnotation;
             Assert.NotNull(newAnnotationC);
             Assert.NotEqual(newAnnotationC, annotationC);
+            Assert.Equal("annotationC_ann", newAnnotationC.Name);
+
             var newCommit = newAnnotationC.Target as Commit;
             Assert.NotNull(newCommit);
             Assert.NotEqual(newCommit, theCommit);
+            Assert.Equal("Rewrote\n", newCommit.Message);
         }
     }
 }
