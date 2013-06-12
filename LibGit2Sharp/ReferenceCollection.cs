@@ -388,7 +388,6 @@ namespace LibGit2Sharp
                 backupRefsNamespace += "/";
             }
 
-
             IList<Reference> originalRefs = this.ToList();
             if (originalRefs.Count == 0)
             {
@@ -396,13 +395,15 @@ namespace LibGit2Sharp
                 return;
             }
 
+            var targetedCommits = new HashSet<Commit>(commitsToRewrite);
+
             commitHeaderRewriter = commitHeaderRewriter ?? CommitRewriteInfo.From;
             commitTreeRewriter = commitTreeRewriter ?? TreeDefinition.From;
             parentRewriter = parentRewriter ?? (p => p);
             tagNameRewriter = tagNameRewriter ?? ((n, a, t) => null);
 
             // Find out which refs lead to at least one the commits
-            var refsToRewrite = this.ReachableFrom(commitsToRewrite).ToList();
+            var refsToRewrite = this.ReachableFrom(targetedCommits).ToList();
 
             var shaMap = new Dictionary<ObjectId, ObjectId>();
             var filter = new Filter
@@ -425,7 +426,7 @@ namespace LibGit2Sharp
                                                    : oldParent.Id)
                                        .Select(id => repo.Lookup<Commit>(id));
 
-                if (commitsToRewrite.Contains(commit))
+                if (targetedCommits.Contains(commit))
                 {
                     // Get the new commit header
                     newHeader = commitHeaderRewriter(commit);
