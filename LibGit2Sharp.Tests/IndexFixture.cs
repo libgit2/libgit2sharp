@@ -242,5 +242,37 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(Mode.ExecutableFile, repo.Index["1/branch_file.txt"].Mode);
             }
         }
+
+        [Fact]
+        public void CanCopeWithExternalChangesToTheIndex()
+        {
+            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+
+            Touch(scd.DirectoryPath, "a.txt", "a\n");
+            Touch(scd.DirectoryPath, "b.txt", "b\n");
+
+            using (var repoWrite = Repository.Init(scd.DirectoryPath))
+            using (var repoRead = new Repository(scd.DirectoryPath))
+            {
+                var writeStatus = repoWrite.Index.RetrieveStatus();
+                Assert.True(writeStatus.IsDirty);
+                Assert.Equal(0, repoWrite.Index.Count);
+
+                var readStatus = repoRead.Index.RetrieveStatus();
+                Assert.True(readStatus.IsDirty);
+                Assert.Equal(0, repoRead.Index.Count);
+
+                repoWrite.Index.Stage("*");
+                repoWrite.Commit("message", DummySignature);
+
+                writeStatus = repoWrite.Index.RetrieveStatus();
+                Assert.False(writeStatus.IsDirty);
+                Assert.Equal(2, repoWrite.Index.Count);
+
+                readStatus = repoRead.Index.RetrieveStatus();
+                Assert.False(readStatus.IsDirty);
+                Assert.Equal(2, repoRead.Index.Count);
+            }
+        }
     }
 }

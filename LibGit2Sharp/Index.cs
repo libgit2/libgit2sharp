@@ -477,6 +477,16 @@ namespace LibGit2Sharp
             return relativePath;
         }
 
+        private void UpdateFromPhysicalIndex()
+        {
+            Proxy.git_index_read(handle);
+            var tip = repo.Head.Tip;
+            if (tip != null)
+            {
+                Proxy.git_index_read_tree(handle, repo, tip.Tree);
+            }
+        }
+
         private void UpdatePhysicalIndex()
         {
             Proxy.git_index_write(handle);
@@ -502,6 +512,7 @@ namespace LibGit2Sharp
         /// <returns>A <see cref = "RepositoryStatus" /> holding the state of all the files.</returns>
         public virtual RepositoryStatus RetrieveStatus()
         {
+            UpdateFromPhysicalIndex();
             return new RepositoryStatus(repo);
         }
 

@@ -771,6 +771,25 @@ namespace LibGit2Sharp.Core
             }
         }
 
+        public static void git_index_read(IndexSafeHandle index)
+        {
+            using (ThreadAffinity())
+            {
+                int res = NativeMethods.git_index_read(index);
+                Ensure.ZeroResult(res);
+            }
+        }
+
+        public static void git_index_read_tree(IndexSafeHandle index, Repository repo, Tree tree)
+        {
+            using (ThreadAffinity())
+            using (var treePtr = new ObjectSafeWrapper(tree.Id, repo.Handle))
+            {
+                int res = NativeMethods.git_index_read_tree(index, treePtr.ObjectPtr);
+                Ensure.ZeroResult(res);
+            }
+        }
+
         public static void git_index_remove_bypath(IndexSafeHandle index, FilePath path)
         {
             using (ThreadAffinity())
