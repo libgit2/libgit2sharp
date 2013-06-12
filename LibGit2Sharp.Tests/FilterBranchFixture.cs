@@ -78,6 +78,31 @@ namespace LibGit2Sharp.Tests
             Assert.Empty(repo.Head.Commits.Where(c => c["README"] != null));
         }
 
+        // * 41bc8c6  (packed)
+        // |
+        // * 5001298            <----- rewrite this commit message
+        [Fact]
+        public void OnlyRewriteSelectedCommits()
+        {
+            var commit = repo.Branches["packed"].Tip;
+            var parent = commit.Parents.Single();
+
+            Assert.True(parent.Sha.StartsWith("5001298"));
+            Assert.NotEqual(DummySignature, commit.Author);
+            Assert.NotEqual(DummySignature, parent.Author);
+
+            repo.Refs.RewriteHistory(
+                new[] { parent },
+                commitHeaderRewriter: c => CommitRewriteInfo.From(c, author: DummySignature));
+
+            commit = repo.Branches["packed"].Tip;
+            parent = commit.Parents.Single();
+
+            Assert.False(parent.Sha.StartsWith("5001298"));
+            Assert.NotEqual(DummySignature, commit.Author);
+            Assert.Equal(DummySignature, parent.Author);
+        }
+
         [Fact]
         public void CanCustomizeRefRewriting()
         {

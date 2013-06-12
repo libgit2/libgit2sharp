@@ -414,12 +414,8 @@ namespace LibGit2Sharp
             var commits = repo.Commits.QueryBy(filter);
             foreach (var commit in commits)
             {
-                // Get the new commit header
-                var newHeader = commitHeaderRewriter(commit);
-
-                // Get the new commit tree
-                var newTreeDefinition = commitTreeRewriter(commit);
-                var newTree = repo.ObjectDatabase.CreateTree(newTreeDefinition);
+                var newHeader = CommitRewriteInfo.From(commit);
+                var newTree = commit.Tree;
 
                 // Find the new parents
                 var newParents = commit.Parents
@@ -429,9 +425,19 @@ namespace LibGit2Sharp
                                                    : oldParent.Id)
                                        .Select(id => repo.Lookup<Commit>(id));
 
-                // Only allow rewriting of the parents if this commit was directly asked for
                 if (commitsToRewrite.Contains(commit))
+                {
+                    // Get the new commit header
+                    newHeader = commitHeaderRewriter(commit);
+
+                    // Get the new commit tree
+                    var newTreeDefinition = commitTreeRewriter(commit);
+                    newTree = repo.ObjectDatabase.CreateTree(newTreeDefinition);
+
+
+                    // Retrieve new parents
                     newParents = parentRewriter(newParents);
+                }
 
                 // Create the new commit
                 var newCommit = repo.ObjectDatabase.CreateCommit(newHeader.Message, newHeader.Author,
