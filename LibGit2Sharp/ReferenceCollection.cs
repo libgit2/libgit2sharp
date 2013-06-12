@@ -528,18 +528,19 @@ namespace LibGit2Sharp
                 return repo.Lookup(shaMap[oldTarget.Id]);
             }
 
-            // Recursively rewrite annotations if necessary
             var annotation = oldTarget as TagAnnotation;
-            if (annotation != null)
+            if (annotation == null)
             {
-                var newTarget = RewriteTagAnnotationsDownToObject(shaMap, annotation.Target);
-                var newAnnotation = repo.ObjectDatabase.CreateTag(annotation.Name, newTarget, annotation.Tagger,
-                                                                  annotation.Message);
-                shaMap[annotation.Id] = newAnnotation.Id;
-                return newAnnotation;
+                //TODO: This is not covered by any test
+                return shaMap.ContainsKey(oldTarget.Id) ? repo.Lookup(shaMap[oldTarget.Id]) : oldTarget;
             }
 
-            return shaMap.ContainsKey(oldTarget.Id) ? repo.Lookup(shaMap[oldTarget.Id]) : oldTarget;
+            // Recursively rewrite annotations if necessary
+            var newTarget = RewriteTagAnnotationsDownToObject(shaMap, annotation.Target);
+            var newAnnotation = repo.ObjectDatabase.CreateTag(annotation.Name, newTarget, annotation.Tagger,
+                                                              annotation.Message);
+            shaMap[annotation.Id] = newAnnotation.Id;
+            return newAnnotation;
         }
 
         private int ReferenceDepth(Reference reference)
