@@ -255,7 +255,7 @@ namespace LibGit2Sharp.Tests
             var newParent = repo.Lookup<Commit>("41bc8c6");
             bool hasBeenCalled = false;
 
-            repo.Refs.RewriteHistory(new[] { commitToRewrite }, parentRewriter: originalParents =>
+            repo.Refs.RewriteHistory(new[] { commitToRewrite }, commitParentsRewriter: originalParents =>
             {
                 Assert.False(hasBeenCalled);
                 Assert.Empty(originalParents);
@@ -279,12 +279,17 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanProvideNewNamesForTags()
         {
+            GitObject lwTarget = repo.Tags["lw"].Target;
+            GitObject e908Target = repo.Tags["e90810b"].Target;
+            GitObject testTarget = repo.Tags["test"].Target;
+
             repo.Refs.RewriteHistory(repo.Commits.QueryBy(new Filter { Since = repo.Refs["refs/heads/test"] }),
                                      c => CommitRewriteInfo.From(c, message: ""),
                                      tagNameRewriter: (oldName, isAnnotated, o) => oldName + "_new");
-            Assert.NotEqual(repo.Tags["lw"].Target, repo.Tags["lw_new"].Target);
-            Assert.NotEqual(repo.Tags["e90810b"].Target, repo.Tags["e90810b_new"].Target);
-            Assert.NotEqual(repo.Tags["test"].Target, repo.Tags["test_new"].Target);
+
+            Assert.NotEqual(lwTarget, repo.Tags["lw_new"].Target);
+            Assert.NotEqual(e908Target, repo.Tags["e90810b_new"].Target);
+            Assert.NotEqual(testTarget, repo.Tags["test_new"].Target);
         }
 
         [Fact]
@@ -296,7 +301,7 @@ namespace LibGit2Sharp.Tests
             var theCommit = repo.Lookup<Commit>("6dcf9bf");
             var annotationC = repo.ObjectDatabase.CreateTag("annotationC", theCommit, sig, "");
             var annotationB = repo.ObjectDatabase.CreateTag("annotationB", annotationC, sig, "");
-            var tagA = repo.Tags.Add("annotatedA", annotationB);
+            var tagA = repo.Tags.Add("lightweightA", annotationB);
 
             // Rewrite the commit, renaming the tag
             repo.Refs.RewriteHistory(new[] {repo.Lookup<Commit>("6dcf9bf")},
@@ -305,8 +310,9 @@ namespace LibGit2Sharp.Tests
                                          (oldName, isAnnoted, newTarget) =>
                                          isAnnoted ? oldName + "_ann" : oldName + "_lw");
 
-            // Verify the tag-annotation chain
-            var newTag = repo.Tags["annotatedA_lw"];
+
+            // Verify the rewritten tag-annotation chain
+            var newTag = repo.Tags["lightweightA_lw"];
             Assert.NotNull(newTag);
             Assert.NotEqual(newTag, tagA);
             Assert.True(newTag.IsAnnotated);
@@ -325,6 +331,14 @@ namespace LibGit2Sharp.Tests
             Assert.NotNull(newCommit);
             Assert.NotEqual(newCommit, theCommit);
             Assert.Equal("Rewrote\n", newCommit.Message);
+
+            // Ensure the original tag doesn't exist anymore
+            Assert.Null(repo.Tags["lightweightA"]);
+
+            // Ensure the original tag doesn't exist anymore
+            Reference backedUpTag = repo.Refs["refs/original/tags/lightweightA"];
+            Assert.NotNull(backedUpTag);
+            Assert.Equal(annotationB, backedUpTag.ResolveToDirectReference().Target);
         }
     }
 }

@@ -334,8 +334,6 @@ namespace LibGit2Sharp
             return new ReflogCollection(repo, reference.CanonicalName);
         }
 
-
-
         /// <summary>
         /// Rewrite some or all of the repository's commits and references
         /// </summary>
@@ -346,14 +344,14 @@ namespace LibGit2Sharp
         ///                               If it returns null or the empty string, the tag will not be changed.
         ///                               If it returns the input, the tag will be moved.
         ///                               Any other value results in a new tag.</param>
-        /// <param name="parentRewriter">Visitor for mangling parent links</param>
+        /// <param name="commitParentsRewriter">Visitor for mangling parent links</param>
         /// <param name="backupRefsNamespace">Namespace where to store the rewritten references (defaults to "refs/original/")</param>
         public virtual void RewriteHistory(
             IEnumerable<Commit> commitsToRewrite,
             Func<Commit, CommitRewriteInfo> commitHeaderRewriter = null,
             Func<Commit, TreeDefinition> commitTreeRewriter = null,
             Func<String, bool, GitObject, string> tagNameRewriter = null,
-            Func<IEnumerable<Commit>, IEnumerable<Commit>> parentRewriter = null,
+            Func<IEnumerable<Commit>, IEnumerable<Commit>> commitParentsRewriter = null,
             string backupRefsNamespace = "refs/original/")
         {
             Ensure.ArgumentNotNull(commitsToRewrite, "commitsToRewrite");
@@ -372,7 +370,7 @@ namespace LibGit2Sharp
             }
 
             var historyRewriter = new HistoryRewriter(repo, commitsToRewrite, commitHeaderRewriter, commitTreeRewriter,
-                                                      parentRewriter, tagNameRewriter, backupRefsNamespace);
+                                                      commitParentsRewriter, tagNameRewriter, backupRefsNamespace);
 
             historyRewriter.AmazeMe();
         }

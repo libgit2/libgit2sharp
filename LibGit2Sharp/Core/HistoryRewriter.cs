@@ -101,7 +101,7 @@ namespace LibGit2Sharp.Core
             }
         }
 
-        private Reference RewriteReference(DirectReference oldRef, ObjectId newTarget, string namePrefix)
+        private void RewriteReference(DirectReference oldRef, ObjectId newTarget, string namePrefix)
         {
             var backupName = namePrefix + oldRef.CanonicalName.Substring("refs/".Length);
 
@@ -113,9 +113,11 @@ namespace LibGit2Sharp.Core
 
             repo.Refs.Add(backupName, oldRef.TargetIdentifier, false, "filter-branch: backup");
 
+            Reference newRef = repo.Refs.UpdateTarget(oldRef, newTarget, "filter-branch: rewrite");
+
             if (tagNameRewriter == null || !oldRef.IsTag())
             {
-                return repo.Refs.UpdateTarget(oldRef, newTarget, "filter-branch: rewrite");
+                return;
             }
 
             var newTagName = oldRef.CanonicalName;
@@ -126,7 +128,7 @@ namespace LibGit2Sharp.Core
                              tagNameRewriter(oldRef.CanonicalName.Substring(Reference.TagPrefix.Length), false, oldRef.Target);
             }
 
-            return repo.Refs.Add(newTagName, newTarget, false, "filter-branch: rewrite");
+            repo.Refs.Move(newRef, newTagName);
         }
 
         private ObjectId RewriteCommit(Commit commit)
