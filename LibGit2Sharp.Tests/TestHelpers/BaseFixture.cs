@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -213,14 +214,12 @@ namespace LibGit2Sharp.Tests.TestHelpers
 
         protected string Touch(string parent, string file, string content = null)
         {
-            var lastIndex = file.LastIndexOf('/');
-            if (lastIndex > 0)
-            {
-                var parents = file.Substring(0, lastIndex);
-                Directory.CreateDirectory(Path.Combine(parent, parents));
-            }
+            string filePath = Path.Combine(parent, file);
+            string dir = Path.GetDirectoryName(filePath);
+            Debug.Assert(dir != null);
 
-            var filePath = Path.Combine(parent, file);
+            Directory.CreateDirectory(dir);
+
             File.AppendAllText(filePath, content ?? string.Empty, Encoding.ASCII);
 
             return file;
