@@ -220,6 +220,9 @@ namespace LibGit2Sharp.Tests.TestHelpers
                 Directory.CreateDirectory(Path.Combine(parent, parents));
             }
 
+            if (!Directory.Exists(parent))
+                Directory.CreateDirectory(parent);
+
             var filePath = Path.Combine(parent, file);
             File.AppendAllText(filePath, content ?? string.Empty, Encoding.ASCII);
 
