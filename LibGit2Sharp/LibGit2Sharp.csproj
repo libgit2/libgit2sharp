@@ -68,6 +68,7 @@
     <Compile Include="CheckoutCallbacks.cs" />
     <Compile Include="CheckoutOptions.cs" />
     <Compile Include="CompareOptions.cs" />
+    <Compile Include="Core\HistoryRewriter.cs" />
     <Compile Include="Core\NativeDllName.cs" />
     <Compile Include="CommitRewriteInfo.cs" />
     <Compile Include="ObjectType.cs" />
