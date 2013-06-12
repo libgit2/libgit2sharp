@@ -334,47 +334,6 @@ namespace LibGit2Sharp
             return new ReflogCollection(repo, reference.CanonicalName);
         }
 
-        private Tag RewriteTag(Tag tag, Dictionary<Tag, Tag> tagMap, Dictionary<ObjectId, ObjectId> shaMap, Func<string, string> tagNameRewriter)
-        {
-            var newName = tagNameRewriter(tag.Name);
-            if (newName == null)
-            {
-                repo.Tags.Remove(tag);
-                return null;
-            }
-            if (newName == string.Empty)
-            {
-                return tag;
-            }
-
-            // Has this tag already been rewritten?
-            if (tagMap.ContainsKey(tag))
-            {
-                return tagMap[tag];
-            }
-
-            // If this points to an annotated tag, make sure that tag has been rewritten
-            var targetTag = tag.Target as TagAnnotation;
-            if (targetTag != null)
-            {
-                Tag oldTarget = repo.Tags.First(t => t.Annotation == targetTag);
-                var newTargetTag = RewriteTag(oldTarget, tagMap, shaMap, tagNameRewriter);
-                var newChainedTag = repo.Tags.Add(newName, newTargetTag.Annotation, tag.Annotation.Tagger,
-                                           tag.Annotation.Message, true);
-                tagMap[tag] = newChainedTag;
-                return newChainedTag;
-            }
-
-            // Tag points to a regular object.
-            var newTargetId = shaMap.ContainsKey(tag.Target.Id) ? shaMap[tag.Target.Id] : tag.Target.Id;
-            var newTarget = repo.Lookup(newTargetId);
-            Tag newTag = tag.IsAnnotated
-                ? repo.Tags.Add(newName, newTarget, tag.Annotation.Tagger, tag.Annotation.Message, true)
-                : repo.Tags.Add(newName, newTarget, true);
-            tagMap[tag] = newTag;
-            return newTag;
-        }
-
         /// <summary>
         /// Default implementation of direct reference rewriting, used by <see cref="RewriteHistory"/>.
         /// In addition to moving the reference to point to the new target, this makes a backup copy in
@@ -385,32 +344,20 @@ namespace LibGit2Sharp
         /// <param name="namePrefix">Namespace for backing up refs. The default is "refs/original".</param>
         /// <returns>The newly-created reference.</returns>
         /// <exception cref="InvalidOperationException">This is thrown if the backup reference already exists.</exception>
-        public virtual Reference DefaultDirectReferenceRewriter(DirectReference oldRef, ObjectId newTarget, string namePrefix)
+        private Reference DefaultDirectReferenceRewriter(DirectReference oldRef, ObjectId newTarget, string namePrefix)
         {
-            if (!string.IsNullOrEmpty(namePrefix))
+            var newName = namePrefix + oldRef.CanonicalName.Substring("refs/".Length);
+
+            if (Resolve<Reference>(newName) != null)
             {
-                var newName = namePrefix + oldRef.CanonicalName.Substring("refs/".Length);
-                if (Resolve<Reference>(newName) != null)
-                {
-                    throw new InvalidOperationException(String.Format("Can't back up refs - {0} exists", newName));
-                }
-                this.Add(newName, oldRef.TargetIdentifier, false, "filter-branch: backup");
+                throw new InvalidOperationException(
+                    String.Format("Can't back up reference '{0}' - '{1}' already exists", oldRef.CanonicalName, newName));
             }
+
+            this.Add(newName, oldRef.TargetIdentifier, false, "filter-branch: backup");
 
             // Move the ref
             return UpdateTarget(oldRef, newTarget, "filter-branch: rewrite");
-        }
-
-        /// <summary>
-        /// Default implementation of symbolic reference rewriting, used by <see cref="RewriteHistory"/>.
-        /// Since symbolic references don't typically need rewriting, this simply returns the input.
-        /// </summary>
-        /// <param name="oldRef"></param>
-        /// <param name="oldTarget"></param>
-        /// <returns></returns>
-        public virtual Reference DefaultSymbolicReferenceRewriter(Reference oldRef, Reference oldTarget)
-        {
-            return oldRef;
         }
 
         /// <summary>
@@ -441,8 +388,6 @@ namespace LibGit2Sharp
                 backupRefsNamespace += "/";
             }
 
-            Func<DirectReference, ObjectId, Reference> directReferenceRewriter = null;
-            Func<Reference, Reference, Reference> symbolicReferenceRewriter = null;
 
             IList<Reference> originalRefs = this.ToList();
             if (originalRefs.Count == 0)
@@ -454,8 +399,6 @@ namespace LibGit2Sharp
             commitHeaderRewriter = commitHeaderRewriter ?? CommitRewriteInfo.From;
             commitTreeRewriter = commitTreeRewriter ?? TreeDefinition.From;
             parentRewriter = parentRewriter ?? (p => p);
-            directReferenceRewriter = directReferenceRewriter ?? ((r, t) => DefaultDirectReferenceRewriter(r, t, backupRefsNamespace));
-            symbolicReferenceRewriter = symbolicReferenceRewriter ?? DefaultSymbolicReferenceRewriter;
             tagNameRewriter = tagNameRewriter ?? ((n, a, t) => null);
 
             // Find out which refs lead to at least one the commits
@@ -510,23 +453,17 @@ namespace LibGit2Sharp
                                                        .OrderBy(ReferenceDepth))
                 {
                     var dref = reference as DirectReference;
-                    if (dref != null)
+                    if (dref == null)
                     {
-                        var newTarget = shaMap[dref.Target.Id];
-                        var newDref = directReferenceRewriter(dref, newTarget);
-                        if (newDref != dref)
-                        {
-                            refsToRollBack.Add(dref);
-                        }
+                        continue;
                     }
-                    else
+
+                    var newTarget = shaMap[dref.Target.Id];
+                    var newDref = DefaultDirectReferenceRewriter(dref, newTarget, backupRefsNamespace);
+
+                    if (newDref != dref)
                     {
-                        var sref = (SymbolicReference)reference;
-                        var newSref = symbolicReferenceRewriter(sref, sref.Target);
-                        if (newSref != sref)
-                        {
-                            refsToRollBack.Add(sref);
-                        }
+                        refsToRollBack.Add(dref);
                     }
                 }
 
