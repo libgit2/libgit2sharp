@@ -398,7 +398,6 @@ namespace LibGit2Sharp
             var targetedCommits = new HashSet<Commit>(commitsToRewrite);
 
             commitHeaderRewriter = commitHeaderRewriter ?? CommitRewriteInfo.From;
-            commitTreeRewriter = commitTreeRewriter ?? TreeDefinition.From;
             parentRewriter = parentRewriter ?? (p => p);
             tagNameRewriter = tagNameRewriter ?? ((n, a, t) => null);
 
@@ -431,10 +430,12 @@ namespace LibGit2Sharp
                     // Get the new commit header
                     newHeader = commitHeaderRewriter(commit);
 
-                    // Get the new commit tree
-                    var newTreeDefinition = commitTreeRewriter(commit);
-                    newTree = repo.ObjectDatabase.CreateTree(newTreeDefinition);
-
+                    if (commitTreeRewriter != null)
+                    {
+                        // Get the new commit tree
+                        var newTreeDefinition = commitTreeRewriter(commit);
+                        newTree = repo.ObjectDatabase.CreateTree(newTreeDefinition);
+                    }
 
                     // Retrieve new parents
                     newParents = parentRewriter(newParents);
