@@ -292,6 +292,21 @@ namespace LibGit2Sharp.Tests
             Assert.NotEqual(testTarget, repo.Tags["test_new"].Target);
         }
 
+        [Fact(Skip = "No supported yet")]
+        public void CanRewriteSymbolicRefsPointingToTags()
+        {
+            const string tagRefName = "refs/tags/test";
+            repo.Refs.Add("refs/tags/one_tracker", tagRefName);
+            repo.Refs.Add("refs/tags/another_tracker", tagRefName);
+
+            repo.Refs.RewriteHistory(new[] { repo.Lookup<Commit>("e90810b8df") },
+                                     c => CommitRewriteInfo.From(c, author: DummySignature),
+                                     tagNameRewriter: (oldName, isAnnotated, o) => oldName + "_new");
+
+            Assert.Equal(tagRefName + "_new", repo.Refs["refs/tags/one_tracker"].TargetIdentifier);
+            Assert.Equal(tagRefName + "_new", repo.Refs["refs/tags/another_tracker"].TargetIdentifier);
+        }
+
         [Fact]
         public void HandlesNameRewritingOfChainedTags()
         {
