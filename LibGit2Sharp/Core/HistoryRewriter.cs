@@ -86,6 +86,9 @@ namespace LibGit2Sharp.Core
                 // Something went wrong. Roll back the rewrites
                 foreach (var r in refsToRollBack)
                 {
+                    //TODO: This messes up the reflog. Try to update the references back to their original target
+                    //      and then move them back to their initial location if the name has changed
+
                     var dref = r as DirectReference;
                     if (dref != null)
                     {
@@ -97,6 +100,8 @@ namespace LibGit2Sharp.Core
                                       "filter-branch: abort");
                     }
                 }
+
+                //TODO: Drop the backed up references
 
                 throw;
             }
