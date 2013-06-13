@@ -178,6 +178,9 @@ namespace LibGit2Sharp.Tests
         public void TagRewritingRollsBackOnFailure()
         {
             var origTags = repo.Tags.ToArray();
+            int foundTags = 0;
+
+            Assert.Equal(0, repo.Refs.FromGlob("refs/original/*").Count());
 
             Assert.Throws<Exception>(
                 () =>
@@ -186,17 +189,22 @@ namespace LibGit2Sharp.Tests
                     c => CommitRewriteInfo.From(c, message: ""),
                     tagNameRewriter: (oldName, isAnnotated, newTarget) =>
                         {
-                            if (oldName == "e90810b")
+                            foundTags++;
+
+                            if (foundTags > 2)
                             {
+                                Assert.True(repo.Refs.FromGlob("refs/original/*").Any());
                                 throw new Exception("BREAK");
                             }
-                            // Move tags
-                            return oldName;
+
+                            // Rename tags
+                            return oldName + foundTags;
                         }));
 
             var newTags = repo.Tags.ToArray();
 
             Assert.Equal(origTags, newTags);
+            Assert.Equal(0, repo.Refs.FromGlob("refs/original/*").Count());
         }
 
         // This test should rewrite br2, but not packed-test:

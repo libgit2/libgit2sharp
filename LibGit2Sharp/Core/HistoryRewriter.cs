@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using LibGit2Sharp.Core.Compat;
 
 namespace LibGit2Sharp.Core
 {
@@ -56,7 +57,7 @@ namespace LibGit2Sharp.Core
             }
 
             // Rewrite the refs
-            var refsToRollBack = new List<Reference>();
+            var refsToRollBack = new Dictionary<Reference, Tuple<Reference, string>>();
 
             try
             {
@@ -76,40 +77,45 @@ namespace LibGit2Sharp.Core
 
                     var newTarget = RewriteTarget(dref.Target);
 
-                    RewriteReference(dref, newTarget, backupRefsNamespace);
+                    Tuple<Reference, string> updateInfo = RewriteReference(dref, newTarget, backupRefsNamespace);
 
-                    refsToRollBack.Add(dref);
+                    refsToRollBack.Add(dref, updateInfo);
                 }
             }
             catch (Exception)
             {
                 // Something went wrong. Roll back the rewrites
-                foreach (var r in refsToRollBack)
+                foreach (var kvp in refsToRollBack)
                 {
-                    //TODO: This messes up the reflog. Try to update the references back to their original target
-                    //      and then move them back to their initial location if the name has changed
+                    var oldRef = kvp.Key;
+                    var rewrittenRef = kvp.Value.Item1;
 
-                    var dref = r as DirectReference;
-                    if (dref != null)
+                    var dRef = oldRef as DirectReference;
+                    if (dRef != null)
                     {
-                        repo.Refs.Add(dref.CanonicalName, dref.Target.Id, true, "filter-branch: abort");
+                        repo.Refs.UpdateTarget(rewrittenRef, dRef.Target.Id, "filter-branch: abort");
+
+                        if (rewrittenRef.CanonicalName != oldRef.CanonicalName)
+                        {
+                            repo.Refs.Move(rewrittenRef, oldRef.CanonicalName);
+                        }
                     }
                     else
                     {
-                        repo.Refs.Add(r.CanonicalName, ((SymbolicReference)r).Target, true,
-                                      "filter-branch: abort");
+                        // TODO: This isn't covered by any test
+                        throw new NotSupportedException();
                     }
-                }
 
-                //TODO: Drop the backed up references
+                    repo.Refs.Remove(kvp.Value.Item2);
+                }
 
                 throw;
             }
         }
 
-        private void RewriteReference(DirectReference oldRef, ObjectId newTarget, string namePrefix)
+        private Tuple<Reference, string> RewriteReference(DirectReference oldRef, ObjectId newTarget, string namePrefix)
         {
-            var backupName = namePrefix + oldRef.CanonicalName.Substring("refs/".Length);
+            string backupName = namePrefix + oldRef.CanonicalName.Substring("refs/".Length);
 
             if (repo.Refs.Resolve<Reference>(backupName) != null)
             {
@@ -117,24 +123,25 @@ namespace LibGit2Sharp.Core
                     String.Format("Can't back up reference '{0}' - '{1}' already exists", oldRef.CanonicalName, backupName));
             }
 
-            repo.Refs.Add(backupName, oldRef.TargetIdentifier, false, "filter-branch: backup");
-
-            Reference newRef = repo.Refs.UpdateTarget(oldRef, newTarget, "filter-branch: rewrite");
-
-            if (tagNameRewriter == null || !oldRef.IsTag())
-            {
-                return;
-            }
-
-            var newTagName = oldRef.CanonicalName;
-            
-            if (tagNameRewriter != null)
+            string newTagName = oldRef.CanonicalName;
+            if (oldRef.IsTag() && tagNameRewriter != null)
             {
                 newTagName = Reference.TagPrefix +
                              tagNameRewriter(oldRef.CanonicalName.Substring(Reference.TagPrefix.Length), false, oldRef.Target);
             }
 
-            repo.Refs.Move(newRef, newTagName);
+            repo.Refs.Add(backupName, oldRef.TargetIdentifier, false, "filter-branch: backup");
+
+            Reference newRef = repo.Refs.UpdateTarget(oldRef, newTarget, "filter-branch: rewrite");
+
+            if (!oldRef.IsTag() || newRef.CanonicalName == newTagName)
+            {
+                return new Tuple<Reference, string>(newRef, backupName);
+            }
+
+            Reference newTag = repo.Refs.Move(newRef, newTagName);
+
+            return new Tuple<Reference, string>(newTag, backupName);
         }
 
         private void RewriteCommit(Commit commit)
