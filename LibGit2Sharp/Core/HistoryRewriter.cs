@@ -132,7 +132,7 @@ namespace LibGit2Sharp.Core
             repo.Refs.Move(newRef, newTagName);
         }
 
-        private ObjectId RewriteCommit(Commit commit)
+        private void RewriteCommit(Commit commit)
         {
             var newHeader = CommitRewriteInfo.From(commit);
             var newTree = commit.Tree;
@@ -168,8 +168,6 @@ namespace LibGit2Sharp.Core
 
             // Record the rewrite
             shaMap[commit.Id] = newCommit.Id;
-
-            return newCommit.Id;
         }
 
         private ObjectId RewriteTarget(GitObject oldTarget)
