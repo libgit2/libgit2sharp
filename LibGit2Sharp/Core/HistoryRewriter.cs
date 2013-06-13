@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace LibGit2Sharp.Core
@@ -179,11 +180,7 @@ namespace LibGit2Sharp.Core
                 return shaMap[oldTarget.Id];
             }
 
-            var commit = oldTarget as Commit;
-            if (commit != null)
-            {
-                return RewriteCommit(commit);
-            }
+            Debug.Assert((oldTarget as Commit) == null);
 
             var annotation = oldTarget as TagAnnotation;
             if (annotation == null)
