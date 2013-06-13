@@ -372,7 +372,7 @@ namespace LibGit2Sharp
             var historyRewriter = new HistoryRewriter(repo, commitsToRewrite, commitHeaderRewriter, commitTreeRewriter,
                                                       commitParentsRewriter, tagNameRewriter, backupRefsNamespace);
 
-            historyRewriter.AmazeMe();
+            historyRewriter.Execute();
         }
     }
 }

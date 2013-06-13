@@ -37,7 +37,7 @@ namespace LibGit2Sharp.Core
             this.backupRefsNamespace = backupRefsNamespace;
         }
 
-        public void AmazeMe()
+        public void Execute()
         {
             // Find out which refs lead to at least one the commits
             var refsToRewrite = repo.Refs.ReachableFrom(targetedCommits).ToList();
