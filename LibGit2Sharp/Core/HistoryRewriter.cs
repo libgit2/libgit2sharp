@@ -56,8 +56,7 @@ namespace LibGit2Sharp.Core
                 RewriteCommit(commit);
             }
 
-            // Rewrite the refs
-            var refsToRollBack = new Dictionary<Reference, Tuple<Reference, string>>();
+            var rollbackActions = new Queue<Action>();
 
             try
             {
@@ -77,44 +76,35 @@ namespace LibGit2Sharp.Core
 
                     var newTarget = RewriteTarget(dref.Target);
 
-                    Tuple<Reference, string> updateInfo = RewriteReference(dref, newTarget, backupRefsNamespace);
-
-                    refsToRollBack.Add(dref, updateInfo);
+                    RewriteReference(dref, newTarget, backupRefsNamespace, rollbackActions);
                 }
             }
             catch (Exception)
             {
-                // Something went wrong. Roll back the rewrites
-                foreach (var kvp in refsToRollBack)
+                foreach (var action in rollbackActions)
                 {
-                    var oldRef = kvp.Key;
-                    var rewrittenRef = kvp.Value.Item1;
-
-                    var dRef = oldRef as DirectReference;
-                    if (dRef != null)
-                    {
-                        repo.Refs.UpdateTarget(rewrittenRef, dRef.Target.Id, "filter-branch: abort");
-
-                        if (rewrittenRef.CanonicalName != oldRef.CanonicalName)
-                        {
-                            repo.Refs.Move(rewrittenRef, oldRef.CanonicalName);
-                        }
-                    }
-                    else
-                    {
-                        // TODO: This isn't covered by any test
-                        throw new NotSupportedException();
-                    }
-
-                    repo.Refs.Remove(kvp.Value.Item2);
+                    action();
                 }
 
                 throw;
             }
         }
 
-        private Tuple<Reference, string> RewriteReference(DirectReference oldRef, ObjectId newTarget, string namePrefix)
+        private void RewriteReference(DirectReference oldRef, ObjectId newTarget, string namePrefix, Queue<Action> rollbackActions)
         {
+            string newRefName = oldRef.CanonicalName;
+            if (oldRef.IsTag() && tagNameRewriter != null)
+            {
+                newRefName = Reference.TagPrefix +
+                             tagNameRewriter(oldRef.CanonicalName.Substring(Reference.TagPrefix.Length), false, oldRef.Target);
+            }
+
+            if (oldRef.Target.Id == newTarget && oldRef.CanonicalName == newRefName)
+            {
+                // The reference isn't rewritten
+                return;
+            }
+
             string backupName = namePrefix + oldRef.CanonicalName.Substring("refs/".Length);
 
             if (repo.Refs.Resolve<Reference>(backupName) != null)
@@ -123,25 +113,19 @@ namespace LibGit2Sharp.Core
                     String.Format("Can't back up reference '{0}' - '{1}' already exists", oldRef.CanonicalName, backupName));
             }
 
-            string newTagName = oldRef.CanonicalName;
-            if (oldRef.IsTag() && tagNameRewriter != null)
-            {
-                newTagName = Reference.TagPrefix +
-                             tagNameRewriter(oldRef.CanonicalName.Substring(Reference.TagPrefix.Length), false, oldRef.Target);
-            }
-
             repo.Refs.Add(backupName, oldRef.TargetIdentifier, false, "filter-branch: backup");
+            rollbackActions.Enqueue(() => repo.Refs.Remove(backupName));
 
             Reference newRef = repo.Refs.UpdateTarget(oldRef, newTarget, "filter-branch: rewrite");
+            rollbackActions.Enqueue(() => repo.Refs.UpdateTarget(oldRef, oldRef.Target.Id, "filter-branch: abort"));
 
-            if (!oldRef.IsTag() || newRef.CanonicalName == newTagName)
+            if (newRef.CanonicalName == newRefName)
             {
-                return new Tuple<Reference, string>(newRef, backupName);
+                return;
             }
 
-            Reference newTag = repo.Refs.Move(newRef, newTagName);
-
-            return new Tuple<Reference, string>(newTag, backupName);
+            repo.Refs.Move(newRef, newRefName);
+            rollbackActions.Enqueue(() => repo.Refs.Move(newRef, oldRef.CanonicalName));
         }
 
         private void RewriteCommit(Commit commit)

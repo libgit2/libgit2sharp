@@ -29,10 +29,8 @@ namespace LibGit2Sharp.Tests
 
             // Noop header rewriter
             repo.Refs.RewriteHistory(commits, commitHeaderRewriter: CommitRewriteInfo.From);
-            Assert.Equal(originalRefs,
-                         repo.Refs.Where(x => !x.CanonicalName.StartsWith("refs/original"))
-                             .OrderBy(r => r.CanonicalName)
-                             .ToList());
+            
+            Assert.Equal(originalRefs, repo.Refs.ToList().OrderBy(r => r.CanonicalName));
             Assert.Equal(commits, repo.Commits.QueryBy(new Filter { Since = repo.Refs }).ToArray());
         }
 
@@ -45,10 +43,7 @@ namespace LibGit2Sharp.Tests
             // Noop tree rewriter
             repo.Refs.RewriteHistory(commits, commitTreeRewriter: TreeDefinition.From);
 
-            Assert.Equal(originalRefs,
-                         repo.Refs.Where(x => !x.CanonicalName.StartsWith("refs/original"))
-                             .OrderBy(r => r.CanonicalName)
-                             .ToList());
+            Assert.Equal(originalRefs, repo.Refs.ToList().OrderBy(r => r.CanonicalName));
             Assert.Equal(commits, repo.Commits.QueryBy(new Filter { Since = repo.Refs }).ToArray());
         }
 
@@ -142,7 +137,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void RefRewritingRollsBackOnFailure()
         {
-            Dictionary<string, Reference> origRefs = repo.Refs.ToDictionary(r => r.CanonicalName);
+            IList<Reference> origRefs = repo.Refs.OrderBy(r => r.CanonicalName).ToList();
 
             const string backupNamespace = "refs/original/";
 
@@ -162,7 +157,7 @@ namespace LibGit2Sharp.Tests
                                                 // At least one of the refs have been rewritten
                                                 // Let's make sure it's been updated to a new target
                                                 var oldName = newRef.CanonicalName.Replace(backupNamespace, "refs/");
-                                                Assert.NotEqual(origRefs[oldName], newRef);
+                                                Assert.NotEqual(origRefs.Single(r => r.CanonicalName == oldName), newRef);
 
                                                 // Violently interrupt the process
                                                 throw new Exception("BREAK");
@@ -170,41 +165,8 @@ namespace LibGit2Sharp.Tests
                     ));
 
             // Ensure all the refs have been restored to their original targets
-            var newRefs = repo.Refs.Where(x => !x.CanonicalName.StartsWith(backupNamespace)).ToArray();
-            Assert.Equal(newRefs, origRefs.Values);
-        }
-
-        [Fact]
-        public void TagRewritingRollsBackOnFailure()
-        {
-            var origTags = repo.Tags.ToArray();
-            int foundTags = 0;
-
-            Assert.Equal(0, repo.Refs.FromGlob("refs/original/*").Count());
-
-            Assert.Throws<Exception>(
-                () =>
-                repo.Refs.RewriteHistory(
-                    repo.Commits.QueryBy(new Filter { Since = repo.Refs }),
-                    c => CommitRewriteInfo.From(c, message: ""),
-                    tagNameRewriter: (oldName, isAnnotated, newTarget) =>
-                        {
-                            foundTags++;
-
-                            if (foundTags > 2)
-                            {
-                                Assert.True(repo.Refs.FromGlob("refs/original/*").Any());
-                                throw new Exception("BREAK");
-                            }
-
-                            // Rename tags
-                            return oldName + foundTags;
-                        }));
-
-            var newTags = repo.Tags.ToArray();
-
-            Assert.Equal(origTags, newTags);
-            Assert.Equal(0, repo.Refs.FromGlob("refs/original/*").Count());
+            var newRefs = repo.Refs.OrderBy(r => r.CanonicalName);
+            Assert.Equal(newRefs, origRefs);
         }
 
         // This test should rewrite br2, but not packed-test:
@@ -221,19 +183,40 @@ namespace LibGit2Sharp.Tests
         {
             repo.Refs.RewriteHistory(new[] { repo.Lookup<Commit>("c47800c") },
                                 c => CommitRewriteInfo.From(c, message: "abc"));
+
             Assert.Null(repo.Refs["refs/original/heads/packed-test"]);
             Assert.NotNull(repo.Refs["refs/original/heads/br2"]);
         }
 
         [Fact]
-        public void HandlesExistingBackedUpRefs()
+        public void CanNotOverWriteBackedUpReferences()
         {
             Func<Commit, CommitRewriteInfo> headerRewriter = c => CommitRewriteInfo.From(c, message: "abc");
+            Assert.Equal(0, repo.Refs.FromGlob("refs/original/*").Count());
 
             repo.Refs.RewriteHistory(repo.Head.Commits, commitHeaderRewriter: headerRewriter);
+            var originalRefs = repo.Refs.FromGlob("refs/original/*").OrderBy(r => r.CanonicalName).ToArray();
+            Assert.NotEmpty(originalRefs);
+
+            headerRewriter = c => CommitRewriteInfo.From(c, message: "def");
+
             Assert.Throws<InvalidOperationException>(() =>
                 repo.Refs.RewriteHistory(repo.Head.Commits, commitHeaderRewriter: headerRewriter));
+
+            var newOriginalRefs = repo.Refs.FromGlob("refs/original/*").OrderBy(r => r.CanonicalName).ToArray();
+            Assert.Equal(originalRefs, newOriginalRefs);
+
             Assert.Empty(repo.Refs.Where(x => x.CanonicalName.StartsWith("refs/original/original/")));
+        }
+
+        [Fact]
+        public void CanNotOverWriteAnExistingReference()
+        {
+            var commits = repo.Commits.QueryBy(new Filter { Since = repo.Refs }).ToArray();
+
+            Assert.Throws<NameConflictException>(() => repo.Refs.RewriteHistory(commits, tagNameRewriter: (n, b, t) => "test"));
+
+            Assert.Equal(0, repo.Refs.FromGlob("refs/original/*").Count());
         }
 
         // Graft the orphan "test" branch to the tip of "packed"
