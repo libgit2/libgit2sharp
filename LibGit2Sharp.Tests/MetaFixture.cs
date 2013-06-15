@@ -12,6 +12,7 @@ namespace LibGit2Sharp.Tests
     {
         private static readonly Type[] excludedTypes = new[]
         {
+            typeof(CommitRewriteInfo),
             typeof(CompareOptions),
             typeof(Credentials),
             typeof(ExplicitPathsOptions),

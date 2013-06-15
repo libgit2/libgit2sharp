@@ -333,5 +333,43 @@ namespace LibGit2Sharp
 
             return new ReflogCollection(repo, reference.CanonicalName);
         }
+
+        /// <summary>
+        ///   Rewrite some of the commits in the repository and all the references that can reach them.
+        /// </summary>
+        /// <param name="commitsToRewrite">The <see cref="Commit"/> objects to rewrite.</param>
+        /// <param name="commitHeaderRewriter">Visitor for rewriting commit metadata.</param>
+        /// <param name="commitTreeRewriter">Visitor for rewriting commit trees.</param>
+        /// <param name="tagNameRewriter">Visitor for renaming tags. This is called with (OldTag.Name, OldTag.IsAnnotated, OldTarget).</param>
+        /// <param name="commitParentsRewriter">Visitor for mangling parent links.</param>
+        /// <param name="backupRefsNamespace">Namespace where to store the rewritten references (defaults to "refs/original/")</param>
+        public virtual void RewriteHistory(
+            IEnumerable<Commit> commitsToRewrite,
+            Func<Commit, CommitRewriteInfo> commitHeaderRewriter = null,
+            Func<Commit, TreeDefinition> commitTreeRewriter = null,
+            Func<String, bool, GitObject, string> tagNameRewriter = null,
+            Func<IEnumerable<Commit>, IEnumerable<Commit>> commitParentsRewriter = null,
+            string backupRefsNamespace = "refs/original/")
+        {
+            Ensure.ArgumentNotNull(commitsToRewrite, "commitsToRewrite");
+            Ensure.ArgumentNotNullOrEmptyString(backupRefsNamespace, "backupRefsNamespace");
+
+            if (!backupRefsNamespace.EndsWith("/"))
+            {
+                backupRefsNamespace += "/";
+            }
+
+            IList<Reference> originalRefs = this.ToList();
+            if (originalRefs.Count == 0)
+            {
+                // Nothing to do
+                return;
+            }
+
+            var historyRewriter = new HistoryRewriter(repo, commitsToRewrite, commitHeaderRewriter, commitTreeRewriter,
+                                                      commitParentsRewriter, tagNameRewriter, backupRefsNamespace);
+
+            historyRewriter.Execute();
+        }
     }
 }
