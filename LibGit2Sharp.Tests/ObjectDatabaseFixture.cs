@@ -82,7 +82,7 @@ namespace LibGit2Sharp.Tests
         [InlineData("321cbdf08803c744082332332838df6bd160f8f9", "dummy.data")]
         [InlineData("e9671e138a780833cb689753570fd10a55be84fb", "dummy.txt")]
         [InlineData("e9671e138a780833cb689753570fd10a55be84fb", "dummy.guess")]
-        public void CanCreateABlobFromABinaryReader(string expectedSha, string hintPath)
+        public void CanCreateABlobFromAStream(string expectedSha, string hintPath)
         {
             string path = CloneBareTestRepo();
 
@@ -97,11 +97,22 @@ namespace LibGit2Sharp.Tests
                 CreateAttributesFiles(Path.Combine(repo.Info.Path, "info"), "attributes");
 
                 using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(sb.ToString())))
-                using (var binReader = new BinaryReader(stream))
                 {
-                    Blob blob = repo.ObjectDatabase.CreateBlob(binReader, hintPath);
+                    Blob blob = repo.ObjectDatabase.CreateBlob(stream, hintPath);
                     Assert.Equal(expectedSha, blob.Sha);
                 }
+            }
+        }
+
+        [Fact]
+        public void CreatingABlobFromANonReadableStreamThrows()
+        {
+            string path = CloneStandardTestRepo();
+
+            using (var stream = new FileStream(Path.Combine(path, "file.txt"), FileMode.CreateNew, FileAccess.Write))
+            using (var repo = new Repository(path))
+            {
+                Assert.Throws<ArgumentException>(() => repo.ObjectDatabase.CreateBlob(stream));
             }
         }
 
@@ -322,7 +333,7 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
-        public void CanCreateABinaryBlobFromABinaryReader()
+        public void CanCreateABinaryBlobFromAStream()
         {
             var binaryContent = new byte[] { 0, 1, 2, 3, 4, 5 };
 
@@ -330,9 +341,8 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path))
             {
                 using (var stream = new MemoryStream(binaryContent))
-                using (var binReader = new BinaryReader(stream))
                 {
-                    Blob blob = repo.ObjectDatabase.CreateBlob(binReader);
+                    Blob blob = repo.ObjectDatabase.CreateBlob(stream);
                     Assert.Equal(6, blob.Size);
                     Assert.Equal(true, blob.IsBinary);
                 }

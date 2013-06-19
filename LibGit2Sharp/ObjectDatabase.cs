@@ -84,17 +84,17 @@ namespace LibGit2Sharp
 
         private class Processor
         {
-            private readonly BinaryReader _reader;
+            private readonly Stream _stream;
 
-            public Processor(BinaryReader reader)
+            public Processor(Stream stream)
             {
-                _reader = reader;
+                _stream = stream;
             }
 
             public int Provider(IntPtr content, int max_length, IntPtr data)
             {
                 var local = new byte[max_length];
-                int numberOfReadBytes = _reader.Read(local, 0, max_length);
+                int numberOfReadBytes = _stream.Read(local, 0, max_length);
 
                 Marshal.Copy(local, 0, content, numberOfReadBytes);
 
@@ -112,7 +112,25 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNull(reader, "reader");
 
-            var proc = new Processor(reader);
+            return CreateBlob(reader.BaseStream, hintpath);
+        }
+
+        /// <summary>
+        ///   Inserts a <see cref="Blob"/> into the object database, created from the content of a data provider.
+        /// </summary>
+        /// <param name="stream">The stream from which will be read the content of the blob to be created.</param>
+        /// <param name="hintpath">The hintpath is used to determine what git filters should be applied to the object before it can be placed to the object database.</param>
+        /// <returns>The created <see cref="Blob"/>.</returns>
+        public virtual Blob CreateBlob(Stream stream, string hintpath = null)
+        {
+            Ensure.ArgumentNotNull(stream, "stream");
+            
+            if (!stream.CanRead)
+            {
+                throw new ArgumentException("The stream cannot be read from.", "stream");
+            }
+
+            var proc = new Processor(stream);
             ObjectId id = Proxy.git_blob_create_fromchunks(repo.Handle, hintpath, proc.Provider);
 
             return repo.Lookup<Blob>(id);
