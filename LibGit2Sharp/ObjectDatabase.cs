@@ -108,6 +108,7 @@ namespace LibGit2Sharp
         /// <param name="reader">The reader that will provide the content of the blob to be created.</param>
         /// <param name="hintpath">The hintpath is used to determine what git filters should be applied to the object before it can be placed to the object database.</param>
         /// <returns>The created <see cref="Blob"/>.</returns>
+        [Obsolete("This method will be removed in the next release. Please use CreateBlob(Stream, string) instead.")]
         public virtual Blob CreateBlob(BinaryReader reader, string hintpath = null)
         {
             Ensure.ArgumentNotNull(reader, "reader");
