@@ -348,7 +348,7 @@ namespace LibGit2Sharp.Tests
                 var blob = repo.Head.Tip["README"].Target as Blob;
                 Assert.NotNull(blob);
 
-                TagAnnotation tag = repo.ObjectDatabase.CreateTag(
+                TagAnnotation tag = repo.ObjectDatabase.CreateTagAnnotation(
                     "nice_blob",
                     blob,
                     DummySignature,
