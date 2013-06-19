@@ -167,8 +167,22 @@ namespace LibGit2Sharp
         /// <param name="target">The <see cref="GitObject"/> being pointed at.</param>
         /// <param name="tagger">The tagger.</param>
         /// <param name="message">The message.</param>
-        /// <returns>The created <see cref = "Commit"/>.</returns>
+        /// <returns>The created <see cref = "TagAnnotation"/>.</returns>
+        [Obsolete("This method will be removed in the next release. Please use CreateTagAnnontation(string, GitObject, Signature, string) instead.")]
         public virtual TagAnnotation CreateTag(string name, GitObject target, Signature tagger, string message)
+        {
+            return CreateTagAnnotation(name, target, tagger, message);
+        }
+
+        /// <summary>
+        ///   Inserts a <see cref = "TagAnnotation"/> into the object database, pointing to a specific <see cref = "GitObject"/>.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="target">The <see cref="GitObject"/> being pointed at.</param>
+        /// <param name="tagger">The tagger.</param>
+        /// <param name="message">The message.</param>
+        /// <returns>The created <see cref = "TagAnnotation"/>.</returns>
+        public virtual TagAnnotation CreateTagAnnotation(string name, GitObject target, Signature tagger, string message)
         {
             string prettifiedMessage = Proxy.git_message_prettify(message);
 

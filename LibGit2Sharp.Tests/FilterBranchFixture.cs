@@ -330,8 +330,8 @@ namespace LibGit2Sharp.Tests
             // Add a lightweight tag (A) that points to tag annotation (B) that points to another tag annotation (C),
             // which points to a commit
             var theCommit = repo.Lookup<Commit>("6dcf9bf");
-            var annotationC = repo.ObjectDatabase.CreateTag("annotationC", theCommit, DummySignature, "");
-            var annotationB = repo.ObjectDatabase.CreateTag("annotationB", annotationC, DummySignature, "");
+            var annotationC = repo.ObjectDatabase.CreateTagAnnotation("annotationC", theCommit, DummySignature, "");
+            var annotationB = repo.ObjectDatabase.CreateTagAnnotation("annotationB", annotationC, DummySignature, "");
             var tagA = repo.Tags.Add("lightweightA", annotationB);
 
             // Rewrite the commit, renaming the tag
