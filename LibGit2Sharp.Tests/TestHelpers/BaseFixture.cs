@@ -220,7 +220,7 @@ namespace LibGit2Sharp.Tests.TestHelpers
 
             Directory.CreateDirectory(dir);
 
-            File.AppendAllText(filePath, content ?? string.Empty, Encoding.ASCII);
+            File.WriteAllText(filePath, content ?? string.Empty, Encoding.ASCII);
 
             return filePath;
         }
