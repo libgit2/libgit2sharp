@@ -84,17 +84,34 @@ namespace LibGit2Sharp
 
         private class Processor
         {
-            private readonly Stream _stream;
+            private readonly Stream stream;
+            private readonly int? numberOfBytesToConsume;
+            private int totalNumberOfReadBytes;
 
-            public Processor(Stream stream)
+            public Processor(Stream stream, int? numberOfBytesToConsume)
             {
-                _stream = stream;
+                this.stream = stream;
+                this.numberOfBytesToConsume = numberOfBytesToConsume;
             }
 
             public int Provider(IntPtr content, int max_length, IntPtr data)
             {
                 var local = new byte[max_length];
-                int numberOfReadBytes = _stream.Read(local, 0, max_length);
+
+                int bytesToRead = max_length;
+
+                if (numberOfBytesToConsume.HasValue)
+                {
+                    int totalRemainingBytesToRead = numberOfBytesToConsume.Value - totalNumberOfReadBytes;
+
+                    if (totalRemainingBytesToRead < max_length)
+                    {
+                        bytesToRead = totalRemainingBytesToRead;
+                    }
+                }
+
+                int numberOfReadBytes = stream.Read(local, 0, bytesToRead);
+                totalNumberOfReadBytes += numberOfReadBytes;
 
                 Marshal.Copy(local, 0, content, numberOfReadBytes);
 
@@ -121,8 +138,9 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="stream">The stream from which will be read the content of the blob to be created.</param>
         /// <param name="hintpath">The hintpath is used to determine what git filters should be applied to the object before it can be placed to the object database.</param>
+        /// <param name="numberOfBytesToConsume">The number of bytes to consume from the stream.</param>
         /// <returns>The created <see cref="Blob"/>.</returns>
-        public virtual Blob CreateBlob(Stream stream, string hintpath = null)
+        public virtual Blob CreateBlob(Stream stream, string hintpath = null, int? numberOfBytesToConsume = null)
         {
             Ensure.ArgumentNotNull(stream, "stream");
             
@@ -131,7 +149,7 @@ namespace LibGit2Sharp
                 throw new ArgumentException("The stream cannot be read from.", "stream");
             }
 
-            var proc = new Processor(stream);
+            var proc = new Processor(stream, numberOfBytesToConsume);
             ObjectId id = Proxy.git_blob_create_fromchunks(repo.Handle, hintpath, proc.Provider);
 
             return repo.Lookup<Blob>(id);
