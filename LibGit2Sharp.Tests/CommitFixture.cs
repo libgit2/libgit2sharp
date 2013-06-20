@@ -506,10 +506,9 @@ namespace LibGit2Sharp.Tests
                     "No Git global configuration available");
 
                 const string relativeFilepath = "new.txt";
-                string filePath = Path.Combine(repo.Info.WorkingDirectory, relativeFilepath);
-
-                File.WriteAllText(filePath, "null");
+                string filePath = Touch(repo.Info.WorkingDirectory, relativeFilepath, "null");
                 repo.Index.Stage(relativeFilepath);
+
                 File.AppendAllText(filePath, "token\n");
                 repo.Index.Stage(relativeFilepath);
 
@@ -539,8 +538,7 @@ namespace LibGit2Sharp.Tests
 
                 CreateAndStageANewFile(repo);
 
-                string mergeHeadPath = Path.Combine(repo.Info.Path, "MERGE_HEAD");
-                File.WriteAllText(mergeHeadPath, "9fd738e8f7967c078dceed8190330fc8648ee56a\n");
+                Touch(repo.Info.Path, "MERGE_HEAD", "9fd738e8f7967c078dceed8190330fc8648ee56a\n");
 
                 Assert.Equal(CurrentOperation.Merge, repo.Info.CurrentOperation);
 
@@ -573,20 +571,13 @@ namespace LibGit2Sharp.Tests
                 Assert.True(Directory.Exists(dir));
 
                 const string relativeFilepath = "new.txt";
-                string filePath = Path.Combine(repo.Info.WorkingDirectory, relativeFilepath);
-
-                File.WriteAllText(filePath, "this is a new file");
+                Touch(repo.Info.WorkingDirectory, relativeFilepath, "this is a new file");
                 repo.Index.Stage(relativeFilepath);
 
-                string mergeHeadPath = Path.Combine(repo.Info.Path, "MERGE_HEAD");
-                string mergeMsgPath = Path.Combine(repo.Info.Path, "MERGE_MSG");
-                string mergeModePath = Path.Combine(repo.Info.Path, "MERGE_MODE");
-                string origHeadPath = Path.Combine(repo.Info.Path, "ORIG_HEAD");
-
-                File.WriteAllText(mergeHeadPath, "abcdefabcdefabcdefabcdefabcdefabcdefabcd");
-                File.WriteAllText(mergeMsgPath, "This is a dummy merge.\n");
-                File.WriteAllText(mergeModePath, "no-ff");
-                File.WriteAllText(origHeadPath, "beefbeefbeefbeefbeefbeefbeefbeefbeefbeef");
+                string mergeHeadPath = Touch(repo.Info.Path, "MERGE_HEAD", "abcdefabcdefabcdefabcdefabcdefabcdefabcd");
+                string mergeMsgPath = Touch(repo.Info.Path, "MERGE_MSG", "This is a dummy merge.\n");
+                string mergeModePath = Touch(repo.Info.Path, "MERGE_MODE", "no-ff");
+                string origHeadPath = Touch(repo.Info.Path, "ORIG_HEAD", "beefbeefbeefbeefbeefbeefbeefbeefbeefbeef");
 
                 Assert.True(File.Exists(mergeHeadPath));
                 Assert.True(File.Exists(mergeMsgPath));
@@ -615,9 +606,7 @@ namespace LibGit2Sharp.Tests
                 Assert.True(Directory.Exists(dir));
 
                 const string relativeFilepath = "new.txt";
-                string filePath = Path.Combine(repo.Info.WorkingDirectory, relativeFilepath);
-
-                File.WriteAllText(filePath, "null");
+                string filePath = Touch(repo.Info.WorkingDirectory, relativeFilepath, "null");
                 repo.Index.Stage(relativeFilepath);
                 File.AppendAllText(filePath, "token\n");
                 repo.Index.Stage(relativeFilepath);
@@ -697,9 +686,7 @@ namespace LibGit2Sharp.Tests
             using (Repository repo = Repository.Init(path))
             {
                 const string relativeFilepath = "test.txt";
-                string filePath = Path.Combine(repo.Info.WorkingDirectory, relativeFilepath);
-
-                File.WriteAllText(filePath, "test\n");
+                Touch(repo.Info.WorkingDirectory, relativeFilepath, "test\n");
                 repo.Index.Stage(relativeFilepath);
 
                 var author = new Signature("nulltoken", "emeric.fermas@gmail.com", DateTimeOffset.Parse("Wed, Dec 14 2011 08:29:03 +0100"));
@@ -781,9 +768,7 @@ namespace LibGit2Sharp.Tests
         private static void CreateAndStageANewFile(Repository repo)
         {
             string relativeFilepath = string.Format("new-file-{0}.txt", Guid.NewGuid());
-            string filePath = Path.Combine(repo.Info.WorkingDirectory, relativeFilepath);
-
-            File.WriteAllText(filePath, "brand new content\n");
+            Touch(repo.Info.WorkingDirectory, relativeFilepath, "brand new content\n");
             repo.Index.Stage(relativeFilepath);
         }
 
@@ -870,9 +855,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(newBranchName, repo.Head.CanonicalName);
 
                 const string relativeFilepath = "test.txt";
-                string filePath = Path.Combine(repo.Info.WorkingDirectory, relativeFilepath);
-
-                File.WriteAllText(filePath, "test\n");
+                Touch(repo.Info.WorkingDirectory, relativeFilepath, "test\n");
                 repo.Index.Stage(relativeFilepath);
 
                 repo.Commit("Initial commit", DummySignature, DummySignature);

@@ -83,8 +83,9 @@ namespace LibGit2Sharp.Tests.TestHelpers
         protected void CreateCorruptedDeadBeefHead(string repoPath)
         {
             const string deadbeef = "deadbeef";
-            string headPath = string.Format("{0}refs/heads/{1}", repoPath, deadbeef);
-            File.WriteAllText(headPath, string.Format("{0}{0}{0}{0}{0}\n", deadbeef));
+            string headPath = string.Format("refs/heads/{0}", deadbeef);
+
+            Touch(repoPath, headPath, string.Format("{0}{0}{0}{0}{0}\n", deadbeef));
         }
 
         protected SelfCleaningDirectory BuildSelfCleaningDirectory()
@@ -212,7 +213,7 @@ namespace LibGit2Sharp.Tests.TestHelpers
             };
         }
 
-        protected string Touch(string parent, string file, string content = null)
+        protected static string Touch(string parent, string file, string content = null)
         {
             string filePath = Path.Combine(parent, file);
             string dir = Path.GetDirectoryName(filePath);

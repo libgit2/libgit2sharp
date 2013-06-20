@@ -29,7 +29,7 @@ namespace LibGit2Sharp.Tests
             sb.Append("...are going to be\n");
             sb.Append("normalized!\r\n");
 
-            File.WriteAllText(Path.Combine(repo.Info.WorkingDirectory, filename), sb.ToString());
+            Touch(repo.Info.WorkingDirectory, filename, sb.ToString());
 
             repo.Index.Stage(filename);
 
@@ -46,15 +46,12 @@ namespace LibGit2Sharp.Tests
 
         private static void CreateAttributesFile(Repository repo)
         {
-            const string relativePath = ".gitattributes";
-            string fullFilePath = Path.Combine(repo.Info.WorkingDirectory, relativePath);
-
             var sb = new StringBuilder();
             sb.Append("* text=auto\n");
             sb.Append("*.txt text\n");
             sb.Append("*.data binary\n");
 
-            File.WriteAllText(fullFilePath, sb.ToString());
+            Touch(repo.Info.WorkingDirectory, ".gitattributes", sb.ToString());
         }
     }
 }

@@ -45,7 +45,7 @@ namespace LibGit2Sharp.Tests
 
                 Assert.Equal(FileStatus.Added, repo.Index.RetrieveStatus(filename));
 
-                File.WriteAllText(Path.Combine(repo.Info.WorkingDirectory, filename), "brand new content");
+                Touch(repo.Info.WorkingDirectory, filename, "brand new content");
                 Assert.Equal(FileStatus.Added | FileStatus.Modified, repo.Index.RetrieveStatus(filename));
 
                 repo.Index.Stage(filename);
@@ -136,7 +136,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(FileStatus.Nonexistent, repo.Index.RetrieveStatus(filename));
                 Assert.Null(repo.Index[filename]);
 
-                File.WriteAllText(Path.Combine(repo.Info.WorkingDirectory, filename), "some contents");
+                Touch(repo.Info.WorkingDirectory, filename, "some contents");
                 Assert.Equal(FileStatus.Untracked, repo.Index.RetrieveStatus(filename));
                 Assert.Null(repo.Index[filename]);
 
@@ -203,10 +203,9 @@ namespace LibGit2Sharp.Tests
             {
                 int count = repo.Index.Count;
 
-                DirectoryInfo di = Directory.CreateDirectory(Path.Combine(repo.Info.WorkingDirectory, "Project"));
                 string file = Path.Combine("Project", "a_file.txt");
 
-                File.WriteAllText(Path.Combine(di.FullName, "a_file.txt"), "With backward slash on Windows!");
+                Touch(repo.Info.WorkingDirectory, file, "With backward slash on Windows!");
 
                 repo.Index.Stage(file);
 
@@ -225,11 +224,7 @@ namespace LibGit2Sharp.Tests
             string path = CloneStandardTestRepo();
             using (var repo = new Repository(path))
             {
-                DirectoryInfo di = Directory.CreateDirectory(scd.DirectoryPath);
-
-                const string filename = "unit_test.txt";
-                string fullPath = Path.Combine(di.FullName, filename);
-                File.WriteAllText(fullPath, "some contents");
+                string fullPath = Touch(scd.RootedDirectoryPath, "unit_test.txt", "some contents");
 
                 Assert.Throws<ArgumentException>(() => repo.Index.Stage(fullPath));
             }

@@ -175,8 +175,9 @@ namespace LibGit2Sharp.Tests
 
                 // Add extra file in master branch
                 // Verify it is removed after checking out otherBranch.
-                string newFileFullPath = Path.Combine(repo.Info.WorkingDirectory, "b.txt");
-                File.WriteAllText(newFileFullPath, "hello from master branch!\n");
+                string newFileFullPath = Touch(
+                    repo.Info.WorkingDirectory, "b.txt", "hello from master branch!\n");
+
                 repo.Index.Stage(newFileFullPath);
                 repo.Commit("2nd commit", Constants.Signature, Constants.Signature);
 
@@ -202,8 +203,9 @@ namespace LibGit2Sharp.Tests
 
                 // Modify file in master branch.
                 // Verify contents match initial commit after checking out other branch.
-                string fullPath = Path.Combine(repo.Info.WorkingDirectory, originalFilePath);
-                File.WriteAllText(fullPath, "Update : hello from master branch!\n");
+                string fullPath = Touch(
+                    repo.Info.WorkingDirectory, originalFilePath, "Update : hello from master branch!\n");
+
                 repo.Index.Stage(fullPath);
                 repo.Commit("2nd commit", Constants.Signature, Constants.Signature);
 
@@ -232,7 +234,6 @@ namespace LibGit2Sharp.Tests
             string path = CloneStandardTestRepo();
             using (var repo = new Repository(path))
             {
-                string fileFullPath = Path.Combine(repo.Info.WorkingDirectory, originalFilePath);
                 Branch master = repo.Branches["master"];
                 Assert.True(master.IsCurrentRepositoryHead);
 
@@ -245,17 +246,17 @@ namespace LibGit2Sharp.Tests
                 repo.Branches.Add(otherBranchName, master.Tip);
 
                 // Add change to master.
-                string fullPath = Path.Combine(repo.Info.WorkingDirectory, fileFullPath);
-                File.WriteAllText(fullPath, originalFileContent);
-                repo.Index.Stage(fullPath);
+                Touch(repo.Info.WorkingDirectory, originalFilePath, originalFileContent);
+
+                repo.Index.Stage(originalFilePath);
                 repo.Commit("change in master", Constants.Signature, Constants.Signature);
 
                 // Checkout otherBranch.
                 repo.Checkout(otherBranchName);
 
                 // Add change to otherBranch.
-                File.WriteAllText(fullPath, alternateFileContent);
-                repo.Index.Stage(fullPath);
+                Touch(repo.Info.WorkingDirectory, originalFilePath, alternateFileContent);
+                repo.Index.Stage(originalFilePath);
 
                 // Assert that normal checkout throws exception
                 // for the conflict.
@@ -279,29 +280,28 @@ namespace LibGit2Sharp.Tests
 
             using (var repo = Repository.Init(scd.DirectoryPath))
             {
-                string fullPath = Path.Combine(repo.Info.WorkingDirectory, "a.txt");
-                File.WriteAllText(fullPath, "Hello\n");
-                repo.Index.Stage(fullPath);
+                Touch(repo.Info.WorkingDirectory, originalFilePath, "Hello\n");
+                repo.Index.Stage(originalFilePath);
                 repo.Commit("Initial commit", Constants.Signature, Constants.Signature);
 
                 // Create 2nd branch
                 repo.CreateBranch("branch2");
 
                 // Update file in main
-                File.WriteAllText(fullPath, "Hello from master!\n");
-                repo.Index.Stage(fullPath);
+                Touch(repo.Info.WorkingDirectory, originalFilePath, "Hello from master!\n");
+                repo.Index.Stage(originalFilePath);
                 repo.Commit("2nd commit", Constants.Signature, Constants.Signature);
 
                 // Checkout branch2
                 repo.Checkout("branch2");
-                File.WriteAllText(fullPath, "Hello From branch2!\n");
+                Touch(repo.Info.WorkingDirectory, originalFilePath, "Hello From branch2!\n");
 
                 // Assert that checking out master throws
                 // when there are unstaged commits
                 Assert.Throws<MergeConflictException>(() => repo.Checkout("master"));
 
                 // And when there are staged commits
-                repo.Index.Stage(fullPath);
+                repo.Index.Stage(originalFilePath);
                 Assert.Throws<MergeConflictException>(() => repo.Checkout("master"));
             }
         }
@@ -392,8 +392,7 @@ namespace LibGit2Sharp.Tests
                 PopulateBasicRepository(repo);
 
                 // Generate an unstaged change.
-                string fullPathFileB = Path.Combine(repo.Info.WorkingDirectory, "b.txt");
-                File.WriteAllText(fullPathFileB, alternateFileContent);
+                string fullPathFileB = Touch(repo.Info.WorkingDirectory, "b.txt", alternateFileContent);
 
                 // Verify that there is an untracked entry.
                 Assert.Equal(1, repo.Index.RetrieveStatus().Untracked.Count());
@@ -417,8 +416,7 @@ namespace LibGit2Sharp.Tests
                 PopulateBasicRepository(repo);
 
                 // Generate an unstaged change.
-                string fullPathFileB = Path.Combine(repo.Info.WorkingDirectory, "b.txt");
-                File.WriteAllText(fullPathFileB, alternateFileContent);
+                string fullPathFileB = Touch(repo.Info.WorkingDirectory, "b.txt", alternateFileContent);
 
                 // Verify that there is an untracked entry.
                 Assert.Equal(1, repo.Index.RetrieveStatus().Untracked.Count());
@@ -442,8 +440,7 @@ namespace LibGit2Sharp.Tests
                 PopulateBasicRepository(repo);
 
                 // Generate an unstaged change.
-                string fullPathFileA = Path.Combine(repo.Info.WorkingDirectory, originalFilePath);
-                File.WriteAllText(fullPathFileA, alternateFileContent);
+                string fullPathFileA = Touch(repo.Info.WorkingDirectory, originalFilePath, alternateFileContent);
 
                 // Verify that there is a modified entry.
                 Assert.Equal(1, repo.Index.RetrieveStatus().Modified.Count());
@@ -467,8 +464,7 @@ namespace LibGit2Sharp.Tests
                 PopulateBasicRepository(repo);
 
                 // Generate a staged change.
-                string fullPathFileA = Path.Combine(repo.Info.WorkingDirectory, originalFilePath);
-                File.WriteAllText(fullPathFileA, alternateFileContent);
+                string fullPathFileA = Touch(repo.Info.WorkingDirectory, originalFilePath, alternateFileContent);
                 repo.Index.Stage(fullPathFileA);
 
                 // Verify that there is a staged entry.
@@ -492,13 +488,11 @@ namespace LibGit2Sharp.Tests
             {
                 PopulateBasicRepository(repo);
 
-                // Create a bin directory.
-                string ignoredDirectoryPath = Path.Combine(repo.Info.WorkingDirectory, "bin");
-                Directory.CreateDirectory(ignoredDirectoryPath);
-
                 // Create file in ignored bin directory.
-                string ignoredFilePath = Path.Combine(repo.Info.WorkingDirectory, Path.Combine("bin", "some_ignored_file.txt"));
-                File.WriteAllText(ignoredFilePath, "hello from this ignored file.");
+                string ignoredFilePath = Touch(
+                    repo.Info.WorkingDirectory,
+                    "bin/some_ignored_file.txt",
+                    "hello from this ignored file.");
 
                 Assert.Equal(1, repo.Index.RetrieveStatus().Ignored.Count());
 
@@ -521,13 +515,11 @@ namespace LibGit2Sharp.Tests
             {
                 PopulateBasicRepository(repo);
 
-                // Create a bin directory.
-                string ignoredDirectoryPath = Path.Combine(repo.Info.WorkingDirectory, "bin");
-                Directory.CreateDirectory(ignoredDirectoryPath);
-
                 // Create file in ignored bin directory.
-                string ignoredFilePath = Path.Combine(repo.Info.WorkingDirectory, Path.Combine("bin", "some_ignored_file.txt"));
-                File.WriteAllText(ignoredFilePath, "hello from this ignored file.");
+                string ignoredFilePath = Touch(
+                    repo.Info.WorkingDirectory,
+                    "bin/some_ignored_file.txt",
+                    "hello from this ignored file.");
 
                 Assert.Equal(1, repo.Index.RetrieveStatus().Ignored.Count());
 
@@ -556,8 +548,7 @@ namespace LibGit2Sharp.Tests
                 Commit initialCommit = initial.Tip;
 
                 // Add commit to master
-                string fullPath = Path.Combine(repo.Info.WorkingDirectory, originalFilePath);
-                File.WriteAllText(fullPath, "Update : hello from master branch!\n");
+                string fullPath = Touch(repo.Info.WorkingDirectory, originalFilePath, "Update : hello from master branch!\n");
                 repo.Index.Stage(fullPath);
                 repo.Commit("2nd commit", Constants.Signature, Constants.Signature);
 
@@ -810,12 +801,10 @@ namespace LibGit2Sharp.Tests
         private void PopulateBasicRepository(Repository repo)
         {
             // Generate a .gitignore file.
-            string gitIgnoreFilePath = Path.Combine(repo.Info.WorkingDirectory, ".gitignore");
-            File.WriteAllText(gitIgnoreFilePath, "bin");
+            string gitIgnoreFilePath = Touch(repo.Info.WorkingDirectory, ".gitignore", "bin");
             repo.Index.Stage(gitIgnoreFilePath);
 
-            string fullPathFileA = Path.Combine(repo.Info.WorkingDirectory, originalFilePath);
-            File.WriteAllText(fullPathFileA, originalFileContent);
+            string fullPathFileA = Touch(repo.Info.WorkingDirectory, originalFilePath, originalFileContent);
             repo.Index.Stage(fullPathFileA);
 
             repo.Commit("Initial commit", Constants.Signature, Constants.Signature);

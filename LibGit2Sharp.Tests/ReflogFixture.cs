@@ -52,9 +52,7 @@ namespace LibGit2Sharp.Tests
                 repo.Refs.UpdateTarget(repo.Refs.Head, newRef);
 
                 const string relativeFilepath = "new.txt";
-                string filePath = Path.Combine(repo.Info.WorkingDirectory, relativeFilepath);
-
-                File.WriteAllText(filePath, "content\n");
+                Touch(repo.Info.WorkingDirectory, relativeFilepath, "content\n");
                 repo.Index.Stage(relativeFilepath);
 
                 var author = DummySignature;
@@ -88,9 +86,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = Repository.Init(scd.DirectoryPath))
             {
                 const string relativeFilepath = "new.txt";
-                string filePath = Path.Combine(repo.Info.WorkingDirectory, relativeFilepath);
-
-                File.WriteAllText(filePath, "content\n");
+                Touch(repo.Info.WorkingDirectory, relativeFilepath, "content\n");
                 repo.Index.Stage(relativeFilepath);
 
                 var author = DummySignature;
@@ -117,9 +113,7 @@ namespace LibGit2Sharp.Tests
                 Assert.True(repo.Info.IsHeadDetached);
 
                 const string relativeFilepath = "new.txt";
-                string filePath = Path.Combine(repo.Info.WorkingDirectory, relativeFilepath);
-
-                File.WriteAllText(filePath, "content\n");
+                Touch(repo.Info.WorkingDirectory, relativeFilepath, "content\n");
                 repo.Index.Stage(relativeFilepath);
 
                 var author = DummySignature;

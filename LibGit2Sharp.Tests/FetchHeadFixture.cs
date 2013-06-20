@@ -38,9 +38,8 @@ namespace LibGit2Sharp.Tests
                 repo.Reset(ResetOptions.Hard, "HEAD~2");
 
                 // Create a file, stage it, and commit it.
-                String filename = "b.txt";
-                String fullPath = Path.Combine(repo.Info.WorkingDirectory, filename);
-                File.WriteAllText(fullPath, "");
+                const string filename = "b.txt";
+                Touch(repo.Info.WorkingDirectory, filename);
                 repo.Index.Stage(filename);
                 repo.Commit("comment", Constants.Signature, Constants.Signature);
 

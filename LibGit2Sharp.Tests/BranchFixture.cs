@@ -819,7 +819,7 @@ namespace LibGit2Sharp.Tests
                 Assert.NotNull(repo.Head.Remote);
                 Assert.Equal("origin", repo.Head.Remote.Name);
 
-                File.WriteAllText(Path.Combine(scd2.RootedDirectoryPath, "a.txt"), "a");
+                Touch(repo.Info.WorkingDirectory, "a.txt", "a");
                 repo.Index.Stage("a.txt");
                 repo.Commit("A file", DummySignature, DummySignature);
 

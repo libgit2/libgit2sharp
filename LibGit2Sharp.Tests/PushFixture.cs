@@ -31,8 +31,7 @@ namespace LibGit2Sharp.Tests
 
                 // Change local state (commit)
                 const string relativeFilepath = "new_file.txt";
-                string filePath = Path.Combine(clonedRepo.Info.WorkingDirectory, relativeFilepath);
-                File.WriteAllText(filePath, "__content__");
+                Touch(clonedRepo.Info.WorkingDirectory, relativeFilepath, "__content__");
                 clonedRepo.Index.Stage(relativeFilepath);
                 clonedRepo.Commit("__commit_message__", DummySignature, DummySignature);
 

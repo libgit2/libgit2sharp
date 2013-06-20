@@ -69,9 +69,7 @@ namespace LibGit2Sharp.Tests
                 const string firstBranch = "9fd738e8f7967c078dceed8190330fc8648ee56a";
                 const string secondBranch = "deadbeefdeadbeefdeadbeefdeadbeefdeadbeef";
 
-                string mergeHeadPath = Path.Combine(repo.Info.Path, "MERGE_HEAD");
-                File.WriteAllText(mergeHeadPath,
-                    string.Format("{0}{1}{2}{1}", firstBranch, "\n", secondBranch));
+                Touch(repo.Info.Path, "MERGE_HEAD", string.Format("{0}{1}{2}{1}", firstBranch, "\n", secondBranch));
 
                 Assert.Equal(CurrentOperation.Merge, repo.Info.CurrentOperation);
 

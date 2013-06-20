@@ -10,8 +10,7 @@ namespace LibGit2Sharp.Tests
     {
         private static void SetUpSimpleDiffContext(Repository repo)
         {
-            var fullpath = Path.Combine(repo.Info.WorkingDirectory, "file.txt");
-            File.WriteAllText(fullpath, "hello\n");
+            var fullpath = Touch(repo.Info.WorkingDirectory, "file.txt", "hello\n");
 
             repo.Index.Stage(fullpath);
             repo.Commit("Initial commit", DummySignature, DummySignature);
@@ -352,8 +351,7 @@ namespace LibGit2Sharp.Tests
 
             using (var repo = Repository.Init(scd.RootedDirectoryPath))
             {
-                var fullpath = Path.Combine(repo.Info.WorkingDirectory, "file.txt");
-                File.WriteAllText(fullpath, "a");
+                var fullpath = Touch(repo.Info.WorkingDirectory, "file.txt", "a");
 
                 repo.Index.Stage("file.txt");
                 repo.Commit("Add file without line ending", DummySignature, DummySignature);

@@ -54,9 +54,7 @@ namespace LibGit2Sharp.Tests
 
             SelfCleaningDirectory directory = BuildSelfCleaningDirectory();
 
-            Directory.CreateDirectory(directory.RootedDirectoryPath);
-            string filepath = Path.Combine(directory.RootedDirectoryPath, "hello.txt");
-            File.WriteAllText(filepath, "I'm a new file\n");
+            string filepath = Touch(directory.RootedDirectoryPath, "hello.txt", "I'm a new file\n");
 
             using (var repo = new Repository(path))
             {
@@ -149,8 +147,7 @@ namespace LibGit2Sharp.Tests
         {
             const string attributes = "* text=auto\n*.txt text\n*.data binary\n";
 
-            Directory.CreateDirectory(where);
-            File.WriteAllText(Path.Combine(where, filename), attributes);
+            Touch(where, filename, attributes);
         }
 
         [Theory]

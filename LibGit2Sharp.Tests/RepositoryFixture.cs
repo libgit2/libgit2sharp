@@ -342,10 +342,9 @@ namespace LibGit2Sharp.Tests
 
             using (var repo = Repository.Init(scd.DirectoryPath))
             {
-                string filePath = Path.Combine(repo.Info.WorkingDirectory, "new.txt");
-
-                File.WriteAllText(filePath, "one ");
-                repo.Index.Stage(filePath);
+                const string filename = "new.txt";
+                Touch(repo.Info.WorkingDirectory, filename, "one ");
+                repo.Index.Stage(filename);
 
                 Signature author = Constants.Signature;
                 Commit commit = repo.Commit("Initial commit", author, author);
@@ -518,7 +517,7 @@ namespace LibGit2Sharp.Tests
 
             using (var repo = Repository.Init(scd.DirectoryPath))
             {
-                File.WriteAllText(Path.Combine(repo.Info.Path, "MERGE_MSG"), testMessage);
+                Touch(repo.Info.Path, "MERGE_MSG", testMessage);
 
                 Assert.Equal(testMessage, repo.Info.Message);
             }

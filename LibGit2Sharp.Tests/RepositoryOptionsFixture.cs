@@ -129,10 +129,10 @@ namespace LibGit2Sharp.Tests
 
                 sneakyRepo.Reset(ResetOptions.Mixed, sneakyRepo.Head.Tip.Sha);
 
-                var filepath = Path.Combine(sneakyRepo.Info.WorkingDirectory, "zomg.txt");
-                File.WriteAllText(filepath, "I'm being sneaked in!\n");
+                const string filename = "zomg.txt";
+                Touch(sneakyRepo.Info.WorkingDirectory, filename, "I'm being sneaked in!\n");
 
-                sneakyRepo.Index.Stage(filepath);
+                sneakyRepo.Index.Stage(filename);
                 return sneakyRepo.Commit("Tadaaaa!", DummySignature, DummySignature).Sha;
             }
         }

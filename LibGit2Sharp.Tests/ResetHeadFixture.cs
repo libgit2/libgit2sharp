@@ -131,8 +131,7 @@ namespace LibGit2Sharp.Tests
 
         private static void FeedTheRepository(Repository repo)
         {
-            string fullPath = Path.Combine(repo.Info.WorkingDirectory, "a.txt");
-            File.WriteAllText(fullPath, "Hello\n");
+            string fullPath = Touch(repo.Info.WorkingDirectory, "a.txt", "Hello\n");
             repo.Index.Stage(fullPath);
             repo.Commit("Initial commit", Constants.Signature, Constants.Signature);
             repo.ApplyTag("mytag");
@@ -196,7 +195,7 @@ namespace LibGit2Sharp.Tests
                 var names = new DirectoryInfo(repo.Info.WorkingDirectory).GetFileSystemInfos().Select(fsi => fsi.Name).ToList();
 
                 File.Delete(Path.Combine(repo.Info.WorkingDirectory, "README"));
-                File.WriteAllText(Path.Combine(repo.Info.WorkingDirectory, "WillNotBeRemoved.txt"), "content\n");
+                Touch(repo.Info.WorkingDirectory, "WillNotBeRemoved.txt", "content\n");
 
                 Assert.True(names.Count > 4);
 

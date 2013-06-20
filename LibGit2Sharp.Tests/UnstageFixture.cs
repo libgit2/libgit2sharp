@@ -44,12 +44,10 @@ namespace LibGit2Sharp.Tests
             string path = CloneStandardTestRepo();
             using (var repo = new Repository(path))
             {
-                string gitignorePath = Path.Combine(repo.Info.WorkingDirectory, ".gitignore");
-                File.WriteAllText(gitignorePath, "*.ign" + Environment.NewLine);
+                Touch(repo.Info.WorkingDirectory, ".gitignore", "*.ign" + Environment.NewLine);
 
                 const string relativePath = "Champa.ign";
-                string gitignoredFile = Path.Combine(repo.Info.WorkingDirectory, relativePath);
-                File.WriteAllText(gitignoredFile, "On stage!" + Environment.NewLine);
+                Touch(repo.Info.WorkingDirectory, relativePath, "On stage!" + Environment.NewLine);
 
                 Assert.Equal(FileStatus.Ignored, repo.Index.RetrieveStatus(relativePath));
 
@@ -143,11 +141,10 @@ namespace LibGit2Sharp.Tests
 
             using (var repo = Repository.Init(scd.DirectoryPath))
             {
-                string relativePath = "a.txt";
-                string absolutePath = Path.Combine(repo.Info.WorkingDirectory, relativePath);
+                const string relativePath = "a.txt";
+                Touch(repo.Info.WorkingDirectory, relativePath, "hello test file\n");
 
-                File.WriteAllText(absolutePath, "hello test file\n", Encoding.ASCII);
-                repo.Index.Stage(absolutePath);
+                repo.Index.Stage(relativePath);
 
                 repo.Index.Unstage(relativePath);
                 RepositoryStatus status = repo.Index.RetrieveStatus();
@@ -202,8 +199,7 @@ namespace LibGit2Sharp.Tests
                 DirectoryInfo di = Directory.CreateDirectory(scd.DirectoryPath);
 
                 const string filename = "unit_test.txt";
-                string fullPath = Path.Combine(di.FullName, filename);
-                File.WriteAllText(fullPath, "some contents");
+                string fullPath = Touch(di.FullName, filename, "some contents");
 
                 Assert.Throws<ArgumentException>(() => repo.Index.Unstage(fullPath));
             }
@@ -220,8 +216,7 @@ namespace LibGit2Sharp.Tests
                 DirectoryInfo di = Directory.CreateDirectory(scd.DirectoryPath);
 
                 const string filename = "unit_test.txt";
-                string fullPath = Path.Combine(di.FullName, filename);
-                File.WriteAllText(fullPath, "some contents");
+                string fullPath = Touch(di.FullName, filename, "some contents");
 
                 Assert.Throws<ArgumentException>(() => repo.Index.Unstage(fullPath));
             }
