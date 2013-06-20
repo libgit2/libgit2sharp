@@ -222,7 +222,7 @@ namespace LibGit2Sharp.Tests.TestHelpers
 
             File.AppendAllText(filePath, content ?? string.Empty, Encoding.ASCII);
 
-            return file;
+            return filePath;
         }
 
         protected static void AssertReflogEntryIsCreated(IEnumerable<ReflogEntry> reflog, string targetSha, 
