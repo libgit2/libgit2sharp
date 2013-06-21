@@ -72,7 +72,11 @@ namespace LibGit2Sharp
         SubmoduleCollection Submodules { get; }
 
         /// <summary>
-        ///   Checkout the specified <see cref = "Branch" />.
+        ///   Checkout the commit pointed at by the tip of the specified <see cref = "Branch" />.
+        ///   <para>
+        ///     If this commit is the current tip of the branch as it exists in the repository, the HEAD
+        ///     will point to this branch. Otherwise, the HEAD will be detached, pointing at the commit sha.
+        ///   </para>
         /// </summary>
         /// <param name="branch">The <see cref = "Branch" /> to check out. </param>
         /// <param name="checkoutOptions"><see cref = "CheckoutOptions" /> controlling checkout behavior.</param>
@@ -88,6 +92,18 @@ namespace LibGit2Sharp
         /// <param name="onCheckoutProgress">Callback method to report checkout progress updates through.</param>
         /// <returns>The new HEAD.</returns>
         Branch Checkout(string committishOrBranchSpec, CheckoutOptions checkoutOptions, CheckoutProgressHandler onCheckoutProgress);
+
+        /// <summary>
+        ///   Checkout the specified <see cref = "Commit" />.
+        ///   <para>
+        ///     Will detach the HEAD and make it point to this commit sha.
+        ///   </para>
+        /// </summary>
+        /// <param name="commit">The <see cref = "Commit" /> to check out. </param>
+        /// <param name="checkoutOptions"><see cref = "CheckoutOptions" /> controlling checkout behavior.</param>
+        /// <param name="onCheckoutProgress"><see cref = "CheckoutProgressHandler" /> that checkout progress is reported through.</param>
+        /// <returns>The <see cref = "Branch" /> that was checked out.</returns>
+        Branch Checkout(Commit commit, CheckoutOptions checkoutOptions, CheckoutProgressHandler onCheckoutProgress);
 
         /// <summary>
         ///   Try to lookup an object by its <see cref = "ObjectId" />. If no matching object is found, null will be returned.

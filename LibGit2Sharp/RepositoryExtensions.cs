@@ -259,9 +259,12 @@ namespace LibGit2Sharp
             return repository.Checkout(commitOrBranchSpec, CheckoutOptions.None, null);
         }
 
-
         /// <summary>
-        ///   Checkout the specified <see cref = "Branch" />.
+        ///   Checkout the commit pointed at by the tip of the specified <see cref = "Branch" />.
+        ///   <para>
+        ///     If this commit is the current tip of the branch as it exists in the repository, the HEAD
+        ///     will point to this branch. Otherwise, the HEAD will be detached, pointing at the commit sha.
+        ///   </para>
         /// </summary>
         /// <param name="repository">The <see cref = "Repository" /> being worked with.</param>
         /// <param name="branch">The <see cref = "Branch" /> to check out.</param>
@@ -269,6 +272,20 @@ namespace LibGit2Sharp
         public static Branch Checkout(this IRepository repository, Branch branch)
         {
             return repository.Checkout(branch, CheckoutOptions.None, null);
+        }
+
+        /// <summary>
+        ///   Checkout the specified <see cref = "LibGit2Sharp.Commit" />.
+        ///   <para>
+        ///     Will detach the HEAD and make it point to this commit sha.
+        ///   </para>
+        /// </summary>
+        /// <param name="repository">The <see cref = "Repository" /> being worked with.</param>
+        /// <param name="commit">The <see cref = "LibGit2Sharp.Commit" /> to check out.</param>
+        /// <returns>The <see cref = "Branch" /> that was checked out.</returns>
+        public static Branch Checkout(this IRepository repository, Commit commit)
+        {
+            return repository.Checkout(commit, CheckoutOptions.None, null);
         }
 
         internal static string BuildRelativePathFrom(this Repository repo, string path)
