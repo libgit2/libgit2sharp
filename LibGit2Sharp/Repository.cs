@@ -364,12 +364,44 @@ namespace LibGit2Sharp
         /// <returns> a new instance of the <see cref = "Repository" /> class. The client code is responsible for calling <see cref = "Dispose()" /> on this instance.</returns>
         public static Repository Init(string path, bool isBare = false, RepositoryOptions options = null)
         {
+            string gitDirPath = Init(path, isBare);
+
+            return new Repository(gitDirPath, options);
+        }
+
+        private static string Init(string path, bool isBare = false)
+        {
             Ensure.ArgumentNotNullOrEmptyString(path, "path");
 
-            using (RepositorySafeHandle repo = Proxy.git_repository_init(path, isBare))
+            using (RepositorySafeHandle repo = Proxy.git_repository_init_ext(null, path, isBare))
             {
                 FilePath repoPath = Proxy.git_repository_path(repo);
-                return new Repository(repoPath.Native, options);
+                return repoPath.Native;
+            }
+        }
+
+        /// <summary>
+        ///   Initialize a repository by explictly setting the path to both the working directory and the git directory.
+        /// </summary>
+        /// <param name = "workingDirectoryPath">The path to the working directory.</param>
+        /// <param name = "gitDirectoryPath">The path to the git repository to be created.</param>
+        /// <returns>The path to the created repository.</returns>
+        public static string Init(string workingDirectoryPath, string gitDirectoryPath)
+        {
+            Ensure.ArgumentNotNullOrEmptyString(workingDirectoryPath, "workingDirectoryPath");
+            Ensure.ArgumentNotNullOrEmptyString(gitDirectoryPath, "gitDirectoryPath");
+
+            // When being passed a relative workdir path, libgit2 will evaluate it from the
+            // path to the repository. We pass a fully rooted path in order for the LibGit2Sharp caller
+            // to pass a path relatively to his current directory.
+            string wd = Path.GetFullPath(workingDirectoryPath);
+
+            // TODO: Shouldn't we ensure that the working folder isn't under the gitDir?
+
+            using (RepositorySafeHandle repo = Proxy.git_repository_init_ext(wd, gitDirectoryPath, false))
+            {
+                FilePath repoPath = Proxy.git_repository_path(repo);
+                return repoPath.Native;
             }
         }
 

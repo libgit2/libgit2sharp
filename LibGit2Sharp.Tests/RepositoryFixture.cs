@@ -81,6 +81,54 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        [Fact]
+        public void CanCreateStandardRepoAndSpecifyAFolderWhichWillContainTheNewlyCreatedGitDirectory()
+        {
+            var scd1 = BuildSelfCleaningDirectory();
+            var scd2 = BuildSelfCleaningDirectory();
+
+            string repoPath = Repository.Init(scd1.DirectoryPath, scd2.DirectoryPath);
+
+            Assert.True(Repository.IsValid(repoPath));
+
+            using (var repo = new Repository(repoPath))
+            {
+                Assert.True(Repository.IsValid(repo.Info.WorkingDirectory));
+                Assert.True(Repository.IsValid(repo.Info.Path));
+
+                Assert.Equal(false, repo.Info.IsBare);
+
+                char sep = Path.DirectorySeparatorChar;
+                Assert.Equal(scd1.RootedDirectoryPath + sep, repo.Info.WorkingDirectory);
+                Assert.Equal(scd2.RootedDirectoryPath + sep + ".git" + sep, repo.Info.Path);
+            }
+        }
+
+        [Fact]
+        public void CanCreateStandardRepoAndDirectlySpecifyAGitDirectory()
+        {
+            var scd1 = BuildSelfCleaningDirectory();
+            var scd2 = BuildSelfCleaningDirectory();
+
+            var gitDir = Path.Combine(scd2.DirectoryPath, ".git/");
+
+            string repoPath = Repository.Init(scd1.DirectoryPath, gitDir);
+
+            Assert.True(Repository.IsValid(repoPath));
+
+            using (var repo = new Repository(repoPath))
+            {
+                Assert.True(Repository.IsValid(repo.Info.WorkingDirectory));
+                Assert.True(Repository.IsValid(repo.Info.Path));
+
+                Assert.Equal(false, repo.Info.IsBare);
+
+                char sep = Path.DirectorySeparatorChar;
+                Assert.Equal(scd1.RootedDirectoryPath + sep, repo.Info.WorkingDirectory);
+                Assert.Equal(Path.GetFullPath(gitDir), repo.Info.Path);
+            }
+        }
+
         private static void CheckGitConfigFile(string dir)
         {
             string configFilePath = Path.Combine(dir, "config");

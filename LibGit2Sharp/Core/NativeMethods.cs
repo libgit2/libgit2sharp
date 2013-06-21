@@ -876,10 +876,10 @@ namespace LibGit2Sharp.Core
         internal static extern int git_repository_index(out IndexSafeHandle index, RepositorySafeHandle repo);
 
         [DllImport(libgit2)]
-        internal static extern int git_repository_init(
+        internal static extern int git_repository_init_ext(
             out RepositorySafeHandle repository,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(FilePathMarshaler))] FilePath path,
-            [MarshalAs(UnmanagedType.Bool)] bool isBare);
+            GitRepositoryInitOptions options);
 
         [DllImport(libgit2)]
         internal static extern int git_repository_is_bare(RepositorySafeHandle handle);

@@ -69,6 +69,7 @@
     <Compile Include="CheckoutNotificationOptions.cs" />
     <Compile Include="CheckoutOptions.cs" />
     <Compile Include="CompareOptions.cs" />
+    <Compile Include="Core\GitRepositoryInitOptions.cs" />
     <Compile Include="Core\HistoryRewriter.cs" />
     <Compile Include="Core\NativeDllName.cs" />
     <Compile Include="CommitRewriteInfo.cs" />
