@@ -138,6 +138,16 @@ namespace LibGit2Sharp.Tests.TestHelpers
             return clonePath;
         }
 
+        protected string InitNewRepository(bool isBare = false)
+        {
+            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+
+            using (var repo = Repository.Init(scd.DirectoryPath, isBare, null))
+            {
+                return repo.Info.Path;
+            }
+        }
+
         public void Register(string directoryPath)
         {
             directories.Add(directoryPath);

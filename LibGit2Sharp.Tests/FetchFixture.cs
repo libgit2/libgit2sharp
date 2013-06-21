@@ -16,8 +16,9 @@ namespace LibGit2Sharp.Tests
         [InlineData("git://github.com/libgit2/TestGitRepository.git")]
         public void CanFetchIntoAnEmptyRepository(string url)
         {
-            var scd = BuildSelfCleaningDirectory();
-            using (var repo = Repository.Init(scd.RootedDirectoryPath))
+            string repoPath = InitNewRepository();
+
+            using (var repo = new Repository(repoPath))
             {
                 Remote remote = repo.Network.Remotes.Add(remoteName, url);
 
@@ -54,8 +55,9 @@ namespace LibGit2Sharp.Tests
             InconclusiveIf(() => string.IsNullOrEmpty(Constants.PrivateRepoUrl),
                 "Populate Constants.PrivateRepo* to run this test");
 
-            var scd = BuildSelfCleaningDirectory();
-            using (var repo = Repository.Init(scd.RootedDirectoryPath))
+            string repoPath = InitNewRepository();
+
+            using (var repo = new Repository(repoPath))
             {
                 Remote remote = repo.Network.Remotes.Add(remoteName, Constants.PrivateRepoUrl);
 
@@ -74,8 +76,9 @@ namespace LibGit2Sharp.Tests
         [InlineData("git://github.com/libgit2/TestGitRepository.git")]
         public void CanFetchAllTagsIntoAnEmptyRepository(string url)
         {
-            var scd = BuildSelfCleaningDirectory();
-            using (var repo = Repository.Init(scd.RootedDirectoryPath))
+            string repoPath = InitNewRepository();
+
+            using (var repo = new Repository(repoPath))
             {
                 Remote remote = repo.Network.Remotes.Add(remoteName, url);
 
@@ -106,8 +109,9 @@ namespace LibGit2Sharp.Tests
         {
             string url = "http://github.com/libgit2/TestGitRepository";
 
-            var scd = BuildSelfCleaningDirectory();
-            using (var repo = Repository.Init(scd.RootedDirectoryPath))
+            string repoPath = InitNewRepository();
+
+            using (var repo = new Repository(repoPath))
             {
                 Remote remote = repo.Network.Remotes.Add(remoteName, url);
                 Assert.NotNull(remote);

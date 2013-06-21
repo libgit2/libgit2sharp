@@ -86,9 +86,9 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanRenameAFile()
         {
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            string repoPath = InitNewRepository();
 
-            using (var repo = Repository.Init(scd.DirectoryPath))
+            using (var repo = new Repository(repoPath))
             {
                 Assert.Equal(0, repo.Index.Count);
 
@@ -196,17 +196,14 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void PathsOfIndexEntriesAreExpressedInNativeFormat()
         {
-            // Initialize a new repository
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
-
             // Build relative path
             string relFilePath = Path.Combine("directory", "Testfile.txt");
 
-            Touch(scd.DirectoryPath, relFilePath,"Anybody out there?");
+            string repoPath = InitNewRepository();
 
-            // Initialize the repository
-            using (var repo = Repository.Init(scd.DirectoryPath))
+            using (var repo = new Repository(repoPath))
             {
+                Touch(repo.Info.WorkingDirectory, relFilePath, "Anybody out there?");
 
                 // Stage the file
                 repo.Index.Stage(relFilePath);

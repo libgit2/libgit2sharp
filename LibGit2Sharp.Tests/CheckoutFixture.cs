@@ -141,9 +141,9 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CheckoutAddsMissingFilesInWorkingDirectory()
         {
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            string repoPath = InitNewRepository();
 
-            using (var repo = Repository.Init(scd.DirectoryPath))
+            using (var repo = new Repository(repoPath))
             {
                 PopulateBasicRepository(repo);
 
@@ -167,9 +167,9 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CheckoutRemovesExtraFilesInWorkingDirectory()
         {
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            string repoPath = InitNewRepository();
 
-            using (var repo = Repository.Init(scd.DirectoryPath))
+            using (var repo = new Repository(repoPath))
             {
                 PopulateBasicRepository(repo);
 
@@ -195,9 +195,9 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CheckoutUpdatesModifiedFilesInWorkingDirectory()
         {
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            string repoPath = InitNewRepository();
 
-            using (var repo = Repository.Init(scd.DirectoryPath))
+            using (var repo = new Repository(repoPath))
             {
                 PopulateBasicRepository(repo);
 
@@ -276,9 +276,9 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CheckingOutWithMergeConflictsThrows()
         {
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            string repoPath = InitNewRepository();
 
-            using (var repo = Repository.Init(scd.DirectoryPath))
+            using (var repo = new Repository(repoPath))
             {
                 Touch(repo.Info.WorkingDirectory, originalFilePath, "Hello\n");
                 repo.Index.Stage(originalFilePath);
@@ -319,9 +319,9 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CheckingOutAgainstAnUnbornBranchThrows()
         {
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            string repoPath = InitNewRepository();
 
-            using (var repo = Repository.Init(scd.DirectoryPath))
+            using (var repo = new Repository(repoPath))
             {
                 Assert.True(repo.Info.IsHeadOrphaned);
 
@@ -352,9 +352,9 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CheckingOutThroughBranchCallsCheckoutProgress()
         {
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            string repoPath = InitNewRepository();
 
-            using (var repo = Repository.Init(scd.DirectoryPath))
+            using (var repo = new Repository(repoPath))
             {
                 PopulateBasicRepository(repo);
                 bool wasCalled = false;
@@ -369,9 +369,9 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CheckingOutThroughRepositoryCallsCheckoutProgress()
         {
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            string repoPath = InitNewRepository();
 
-            using (var repo = Repository.Init(scd.DirectoryPath))
+            using (var repo = new Repository(repoPath))
             {
                 PopulateBasicRepository(repo);
                 bool wasCalled = false;
@@ -385,9 +385,9 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CheckoutRetainsUntrackedChanges()
         {
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            string repoPath = InitNewRepository();
 
-            using (var repo = Repository.Init(scd.DirectoryPath))
+            using (var repo = new Repository(repoPath))
             {
                 PopulateBasicRepository(repo);
 
@@ -409,9 +409,9 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void ForceCheckoutRetainsUntrackedChanges()
         {
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            string repoPath = InitNewRepository();
 
-            using (var repo = Repository.Init(scd.DirectoryPath))
+            using (var repo = new Repository(repoPath))
             {
                 PopulateBasicRepository(repo);
 
@@ -433,9 +433,9 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CheckoutRetainsUnstagedChanges()
         {
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            string repoPath = InitNewRepository();
 
-            using (var repo = Repository.Init(scd.DirectoryPath))
+            using (var repo = new Repository(repoPath))
             {
                 PopulateBasicRepository(repo);
 
@@ -457,9 +457,9 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CheckoutRetainsStagedChanges()
         {
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            string repoPath = InitNewRepository();
 
-            using (var repo = Repository.Init(scd.DirectoryPath))
+            using (var repo = new Repository(repoPath))
             {
                 PopulateBasicRepository(repo);
 
@@ -482,9 +482,9 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CheckoutRetainsIgnoredChanges()
         {
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            string repoPath = InitNewRepository();
 
-            using (var repo = Repository.Init(scd.DirectoryPath))
+            using (var repo = new Repository(repoPath))
             {
                 PopulateBasicRepository(repo);
 
@@ -509,9 +509,9 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void ForceCheckoutRetainsIgnoredChanges()
         {
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            string repoPath = InitNewRepository();
 
-            using (var repo = Repository.Init(scd.DirectoryPath))
+            using (var repo = new Repository(repoPath))
             {
                 PopulateBasicRepository(repo);
 
@@ -536,9 +536,9 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CheckoutBranchSnapshot()
         {
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            string repoPath = InitNewRepository();
 
-            using (var repo = Repository.Init(scd.DirectoryPath))
+            using (var repo = new Repository(repoPath))
             {
                 PopulateBasicRepository(repo);
 

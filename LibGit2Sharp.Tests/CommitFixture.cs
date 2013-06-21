@@ -494,9 +494,9 @@ namespace LibGit2Sharp.Tests
         [SkippableFact]
         public void CanCommitWithSignatureFromConfig()
         {
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            string repoPath = InitNewRepository();
 
-            using (var repo = Repository.Init(scd.DirectoryPath))
+            using (var repo = new Repository(repoPath))
             {
                 string dir = repo.Info.Path;
                 Assert.True(Path.IsPathRooted(dir));
@@ -562,9 +562,9 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CommitCleansUpMergeMetadata()
         {
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            string repoPath = InitNewRepository();
 
-            using (var repo = Repository.Init(scd.DirectoryPath))
+            using (var repo = new Repository(repoPath))
             {
                 string dir = repo.Info.Path;
                 Assert.True(Path.IsPathRooted(dir));
@@ -597,9 +597,9 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCommitALittleBit()
         {
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            string repoPath = InitNewRepository();
 
-            using (var repo = Repository.Init(scd.DirectoryPath))
+            using (var repo = new Repository(repoPath))
             {
                 string dir = repo.Info.Path;
                 Assert.True(Path.IsPathRooted(dir));
@@ -681,9 +681,9 @@ namespace LibGit2Sharp.Tests
             Assert.Equal(expectedContent, ((Blob)(entry.Target)).ContentAsUtf8());
         }
 
-        private static void CommitToANewRepository(string path)
+        private static void AddCommitToRepo(string path)
         {
-            using (Repository repo = Repository.Init(path))
+            using (var repo = new Repository(path))
             {
                 const string relativeFilepath = "test.txt";
                 Touch(repo.Info.WorkingDirectory, relativeFilepath, "test\n");
@@ -697,11 +697,11 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanGeneratePredictableObjectShas()
         {
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            string repoPath = InitNewRepository();
 
-            CommitToANewRepository(scd.DirectoryPath);
+            AddCommitToRepo(repoPath);
 
-            using (var repo = new Repository(scd.DirectoryPath))
+            using (var repo = new Repository(repoPath))
             {
                 Commit commit = repo.Commits.Single();
                 Assert.Equal("1fe3126578fc4eca68c193e4a3a0a14a0704624d", commit.Sha);
@@ -717,11 +717,11 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanAmendARootCommit()
         {
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            string repoPath = InitNewRepository();
 
-            CommitToANewRepository(scd.DirectoryPath);
+            AddCommitToRepo(repoPath);
 
-            using (var repo = new Repository(scd.DirectoryPath))
+            using (var repo = new Repository(repoPath))
             {
                 Assert.Equal(1, repo.Head.Commits.Count());
 
@@ -784,9 +784,9 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanNotAmendAnEmptyRepository()
         {
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            string repoPath = InitNewRepository();
 
-            using (Repository repo = Repository.Init(scd.DirectoryPath))
+            using (var repo = new Repository(repoPath))
             {
                 Assert.Throws<OrphanedHeadException>(() => repo.Commit("I can not amend anything !:(", DummySignature, DummySignature, true));
             }
@@ -846,9 +846,10 @@ namespace LibGit2Sharp.Tests
         public void CanCommitOnOrphanedBranch()
         {
             string newBranchName = "refs/heads/newBranch";
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
 
-            using (var repo = Repository.Init(scd.DirectoryPath))
+            string repoPath = InitNewRepository();
+
+            using (var repo = new Repository(repoPath))
             {
                 // Set Head to point to branch other than master
                 repo.Refs.UpdateTarget("HEAD", newBranchName);

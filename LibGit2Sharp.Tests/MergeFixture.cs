@@ -10,8 +10,9 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void ANewRepoIsFullyMerged()
         {
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
-            using (var repo = Repository.Init(scd.DirectoryPath))
+            string repoPath = InitNewRepository();
+
+            using (var repo = new Repository(repoPath))
             {
                 Assert.Equal(true, repo.Index.IsFullyMerged);
                 Assert.Empty(repo.MergeHeads);

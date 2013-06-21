@@ -42,9 +42,9 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CommitShouldCreateReflogEntryOnHeadandOnTargetedDirectReference()
         {
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            string repoPath = InitNewRepository();
 
-            using (var repo = Repository.Init(scd.DirectoryPath))
+            using (var repo = new Repository(repoPath))
             {
                 // setup refs as HEAD => unit_test => master
                 var newRef = repo.Refs.Add("refs/heads/unit_test", "refs/heads/master");
@@ -81,9 +81,9 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CommitOnUnbornReferenceShouldCreateReflogEntryWithInitialTag()
         {
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            string repoPath = InitNewRepository();
 
-            using (var repo = Repository.Init(scd.DirectoryPath))
+            using (var repo = new Repository(repoPath))
             {
                 const string relativeFilepath = "new.txt";
                 Touch(repo.Info.WorkingDirectory, relativeFilepath, "content\n");

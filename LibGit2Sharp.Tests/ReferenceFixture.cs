@@ -737,9 +737,9 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanUpdateTheTargetOfASymbolicReferenceWithAnotherSymbolicReference()
         {
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            string repoPath = InitNewRepository();
 
-            using (var repo = Repository.Init(scd.DirectoryPath))
+            using (var repo = new Repository(repoPath))
             {
                 Reference symbolicRef = repo.Refs.Add("refs/heads/unit_test", "refs/heads/master");
 

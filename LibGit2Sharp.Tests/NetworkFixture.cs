@@ -17,8 +17,9 @@ namespace LibGit2Sharp.Tests
         {
             string remoteName = "testRemote";
 
-            var scd = BuildSelfCleaningDirectory();
-            using (var repo = Repository.Init(scd.RootedDirectoryPath))
+            string repoPath = InitNewRepository();
+
+            using (var repo = new Repository(repoPath))
             {
                 Remote remote = repo.Network.Remotes.Add(remoteName, url);
                 IEnumerable<DirectReference> references = repo.Network.ListReferences(remote);

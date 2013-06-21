@@ -137,9 +137,9 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanUnstageUntrackedFileAgainstAnOrphanedHead()
         {
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            string repoPath = InitNewRepository();
 
-            using (var repo = Repository.Init(scd.DirectoryPath))
+            using (var repo = new Repository(repoPath))
             {
                 const string relativePath = "a.txt";
                 Touch(repo.Info.WorkingDirectory, relativePath, "hello test file\n");
@@ -209,9 +209,10 @@ namespace LibGit2Sharp.Tests
         public void UnstagingANewFileWithAFullPathWhichEscapesOutOfTheWorkingDirAgainstAnOrphanedHeadThrows()
         {
             SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
-            SelfCleaningDirectory scd2 = BuildSelfCleaningDirectory();
 
-            using (var repo = Repository.Init(scd2.DirectoryPath))
+            string repoPath = InitNewRepository();
+
+            using (var repo = new Repository(repoPath))
             {
                 DirectoryInfo di = Directory.CreateDirectory(scd.DirectoryPath);
 

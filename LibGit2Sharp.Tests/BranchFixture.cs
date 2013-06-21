@@ -352,8 +352,9 @@ namespace LibGit2Sharp.Tests
 
         public void CanGetInformationFromUnbornBranch()
         {
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
-            using (var repo = Repository.Init(scd.DirectoryPath, true))
+            string repoPath = InitNewRepository(true);
+
+            using (var repo = new Repository(repoPath))
             {
                 var head = repo.Head;
 
@@ -793,10 +794,11 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void TrackedBranchExistsFromDefaultConfigInEmptyClone()
         {
-            SelfCleaningDirectory scd1 = BuildSelfCleaningDirectory();
+            string repoPath = InitNewRepository(true);
 
             Uri uri;
-            using (var emptyRepo = Repository.Init(scd1.DirectoryPath, true))
+
+            using (var emptyRepo = new Repository(repoPath))
             {
                 uri = new Uri(emptyRepo.Info.Path);
             }

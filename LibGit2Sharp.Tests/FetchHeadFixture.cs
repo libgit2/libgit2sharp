@@ -12,8 +12,9 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void FetchHeadIsEmptyByDefault()
         {
-            var scd = BuildSelfCleaningDirectory();
-            using (var repo = Repository.Init(scd.RootedDirectoryPath))
+            string repoPath = InitNewRepository();
+
+            using (var repo = new Repository(repoPath))
             {
                 Assert.Equal(0, repo.Network.FetchHeads.Count());
             }

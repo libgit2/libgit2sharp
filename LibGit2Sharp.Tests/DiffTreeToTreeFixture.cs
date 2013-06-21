@@ -349,9 +349,9 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanHandleTwoTreeEntryChangesWithTheSamePath()
         {
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            string repoPath = InitNewRepository();
 
-            using (Repository repo = Repository.Init(scd.DirectoryPath))
+            using (var repo = new Repository(repoPath))
             {
                 Blob mainContent = OdbHelper.CreateBlob(repo, "awesome content\n");
                 Blob linkContent = OdbHelper.CreateBlob(repo, "../../objc/Nu.h");
@@ -511,10 +511,11 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void RetrievingDiffChangesMustAlwaysBeCaseSensitive()
         {
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
             ObjectId treeOldOid, treeNewOid;
 
-            using (Repository repo = Repository.Init(scd.DirectoryPath))
+            string repoPath = InitNewRepository();
+
+            using (var repo = new Repository(repoPath))
             {
                 Blob oldContent = OdbHelper.CreateBlob(repo, "awesome content\n");
                 Blob newContent = OdbHelper.CreateBlob(repo, "more awesome content\n");
@@ -532,7 +533,7 @@ namespace LibGit2Sharp.Tests
                 treeNewOid = repo.ObjectDatabase.CreateTree(td).Id;
             }
 
-            using (var repo = new Repository(scd.DirectoryPath))
+            using (var repo = new Repository(repoPath))
             {
                 var changes = repo.Diff.Compare(repo.Lookup<Tree>(treeOldOid), repo.Lookup<Tree>(treeNewOid));
 

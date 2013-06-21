@@ -76,9 +76,9 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanRetrieveTheStatusOfANewRepository()
         {
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            string repoPath = InitNewRepository();
 
-            using (Repository repo = Repository.Init(scd.DirectoryPath))
+            using (var repo = new Repository(repoPath))
             {
                 RepositoryStatus status = repo.Index.RetrieveStatus();
                 Assert.NotNull(status);
@@ -97,17 +97,16 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void RetrievingTheStatusOfARepositoryReturnNativeFilePaths()
         {
-            // Initialize a new repository
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
-
             // Build relative path
             string relFilePath = Path.Combine("directory", "Testfile.txt");
 
-            Touch(scd.DirectoryPath, relFilePath, "Anybody out there?");
-
             // Open the repository
-            using (Repository repo = Repository.Init(scd.DirectoryPath))
+            string repoPath = InitNewRepository();
+
+            using (var repo = new Repository(repoPath))
             {
+                Touch(repo.Info.WorkingDirectory, relFilePath, "Anybody out there?");
+
                 // Add the file to the index
                 repo.Index.Stage(relFilePath);
 
@@ -126,9 +125,9 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void RetrievingTheStatusOfAnEmptyRepositoryHonorsTheGitIgnoreDirectives()
         {
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            string repoPath = InitNewRepository();
 
-            using (Repository repo = Repository.Init(scd.DirectoryPath))
+            using (var repo = new Repository(repoPath))
             {
                 const string relativePath = "look-ma.txt";
                 Touch(repo.Info.WorkingDirectory, relativePath, "I'm going to be ignored!");
@@ -259,12 +258,12 @@ namespace LibGit2Sharp.Tests
             FileStatus expectedCamelCasedFileStatus
             )
         {
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
-
             string lowerCasedPath;
             const string lowercasedFilename = "plop";
 
-            using (Repository repo = Repository.Init(scd.DirectoryPath))
+            string repoPath = InitNewRepository();
+
+            using (var repo = new Repository(repoPath))
             {
                 repo.Config.Set("core.ignorecase", shouldIgnoreCase);
 
@@ -274,7 +273,7 @@ namespace LibGit2Sharp.Tests
                 repo.Commit("initial", DummySignature, DummySignature);
             }
 
-            using (var repo = new Repository(scd.DirectoryPath))
+            using (var repo = new Repository(repoPath))
             {
                 const string upercasedFilename = "Plop";
 
