@@ -94,10 +94,13 @@ namespace LibGit2Sharp.Tests
         }
 
         [Theory]
-        [InlineData("6dcf9bf")]
-        [InlineData("refs/tags/lw")]
-        [InlineData("HEAD~2")]
-        public void CanCheckoutAnArbitraryCommit(string commitPointer)
+        [InlineData("6dcf9bf", true, "6dcf9bf")]
+        [InlineData("refs/tags/lw", true, "refs/tags/lw")]
+        [InlineData("HEAD~2", true, "HEAD~2")]
+        [InlineData("6dcf9bf", false, "6dcf9bf7541ee10456529833502442f385010c3d")]
+        [InlineData("refs/tags/lw", false, "e90810b8df3e80c413d903f631643c716887138d")]
+        [InlineData("HEAD~2", false, "4c062a6361ae6959e06292c1fa5e2822d9c96345")]
+        public void CanCheckoutAnArbitraryCommit(string commitPointer, bool checkoutByCommitOrBranchSpec, string expectedReflogTarget)
         {
             string path = CloneStandardTestRepo();
             using (var repo = new Repository(path))
@@ -110,12 +113,12 @@ namespace LibGit2Sharp.Tests
 
                 Assert.False(repo.Index.RetrieveStatus().IsDirty);
 
-                var commitSha = repo.Lookup(commitPointer).Sha;
+                var commit = repo.Lookup<Commit>(commitPointer);
 
-                Branch detachedHead = repo.Checkout(commitPointer);
+                Branch detachedHead = checkoutByCommitOrBranchSpec ? repo.Checkout(commitPointer) : repo.Checkout(commit);
 
                 Assert.Equal(repo.Head, detachedHead);
-                Assert.Equal(commitSha, detachedHead.Tip.Sha);
+                Assert.Equal(commit.Sha, detachedHead.Tip.Sha);
                 Assert.True(repo.Head.IsCurrentRepositoryHead);
                 Assert.True(repo.Info.IsHeadDetached);
                 Assert.False(repo.Index.RetrieveStatus().IsDirty);
@@ -131,10 +134,10 @@ namespace LibGit2Sharp.Tests
                 // Assert reflog entry is created
                 var reflogEntry = repo.Refs.Log(repo.Refs.Head).First();
                 Assert.Equal(master.Tip.Id, reflogEntry.From);
-                Assert.Equal(commitSha, reflogEntry.To.Sha);
+                Assert.Equal(commit.Sha, reflogEntry.To.Sha);
                 Assert.NotNull(reflogEntry.Commiter.Email);
                 Assert.NotNull(reflogEntry.Commiter.Name);
-                Assert.Equal(string.Format("checkout: moving from master to {0}", commitPointer), reflogEntry.Message);
+                Assert.Equal(string.Format("checkout: moving from master to {0}", expectedReflogTarget), reflogEntry.Message);
             }
         }
 

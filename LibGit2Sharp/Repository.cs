@@ -588,17 +588,8 @@ namespace LibGit2Sharp
                 return Checkout(branch, checkoutOptions, onCheckoutProgress);
             }
 
-            var previousHeadName = Info.IsHeadDetached ? Head.Tip.Sha : Head.Name;
-
             Commit commit = LookupCommit(committishOrBranchSpec);
-            CheckoutTree(commit.Tree, checkoutOptions, onCheckoutProgress);
-
-            // Update HEAD.
-            Refs.UpdateTarget("HEAD", commit.Id.Sha);
-            if (committishOrBranchSpec != "HEAD")
-            {
-                LogCheckout(previousHeadName, commit.Id, committishOrBranchSpec);
-            }
+            CheckoutTree(commit.Tree, checkoutOptions, onCheckoutProgress, commit.Id.Sha, committishOrBranchSpec, committishOrBranchSpec != "HEAD");
 
             return Head;
         }
@@ -621,9 +612,11 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Checkout the tip commit of the specified <see cref = "Branch" /> object. If this commit is the
-        ///   current tip of the branch, will checkout the named branch. Otherwise, will checkout the tip commit
-        ///   as a detached HEAD.
+        ///   Checkout the commit pointed at by the tip of the specified <see cref = "Branch" />.
+        ///   <para>
+        ///     If this commit is the current tip of the branch as it exists in the repository, the HEAD
+        ///     will point to this branch. Otherwise, the HEAD will be detached, pointing at the commit sha.
+        ///   </para>
         /// </summary>
         /// <param name="branch">The <see cref = "Branch" /> to check out. </param>
         /// <param name="checkoutOptions"><see cref = "CheckoutOptions" /> controlling checkout behavior.</param>
@@ -642,33 +635,36 @@ namespace LibGit2Sharp
             }
 
             var branchIsCurrentRepositoryHead = branch.IsCurrentRepositoryHead;
-            var previousHeadName = Info.IsHeadDetached ? Head.Tip.Sha : Head.Name;
 
-            CheckoutTree(branch.Tip.Tree, checkoutOptions, onCheckoutProgress);
-
-            // Update HEAD.
             if (!branch.IsRemote && !(branch is DetachedHead) &&
                 string.Equals(Refs[branch.CanonicalName].TargetIdentifier, branch.Tip.Id.Sha,
                 StringComparison.OrdinalIgnoreCase))
             {
-                Refs.UpdateTarget("HEAD", branch.CanonicalName);
+                CheckoutTree(branch.Tip.Tree, checkoutOptions, onCheckoutProgress, branch.CanonicalName, branch.Name, !branchIsCurrentRepositoryHead);
             }
             else
             {
-                Refs.UpdateTarget("HEAD", branch.Tip.Id.Sha);
-            }
-
-            if (!branchIsCurrentRepositoryHead)
-            {
-                LogCheckout(previousHeadName, branch);
+                CheckoutTree(branch.Tip.Tree, checkoutOptions, onCheckoutProgress, branch.Tip.Id.Sha, branch.Name, !branchIsCurrentRepositoryHead);
             }
 
             return Head;
         }
 
-        private void LogCheckout(string previousHeadName, Branch newHead)
+        /// <summary>
+        ///   Checkout the specified <see cref = "LibGit2Sharp.Commit" />.
+        ///   <para>
+        ///     Will detach the HEAD and make it point to this commit sha.
+        ///   </para>
+        /// </summary>
+        /// <param name="commit">The <see cref = "LibGit2Sharp.Commit" /> to check out. </param>
+        /// <param name="checkoutOptions"><see cref = "CheckoutOptions" /> controlling checkout behavior.</param>
+        /// <param name="onCheckoutProgress"><see cref = "CheckoutProgressHandler" /> that checkout progress is reported through.</param>
+        /// <returns>The <see cref = "Branch" /> that was checked out.</returns>
+        public Branch Checkout(Commit commit, CheckoutOptions checkoutOptions, CheckoutProgressHandler onCheckoutProgress)
         {
-            LogCheckout(previousHeadName, newHead.Tip.Id, newHead.Name);
+            CheckoutTree(commit.Tree, checkoutOptions, onCheckoutProgress, commit.Id.Sha, commit.Id.Sha, true);
+            
+            return Head;
         }
 
         private void LogCheckout(string previousHeadName, ObjectId newHeadTip, string newHeadSpec)
@@ -687,9 +683,15 @@ namespace LibGit2Sharp
         /// <param name="tree">The <see cref="Tree"/> to checkout.</param>
         /// <param name="checkoutOptions"><see cref = "CheckoutOptions" /> controlling checkout behavior.</param>
         /// <param name="onCheckoutProgress"><see cref = "CheckoutProgressHandler" /> that checkout progress is reported through.</param>
-        private void CheckoutTree(Tree tree, CheckoutOptions checkoutOptions, CheckoutProgressHandler onCheckoutProgress)
+        /// <param name="headTarget">Target for the new HEAD.</param>
+        /// <param name="refLogHeadSpec">The spec which will be written as target in the reflog.</param>
+        /// <param name="writeReflogEntry">Will a reflog entry be created.</param>
+        private void CheckoutTree(Tree tree, CheckoutOptions checkoutOptions, CheckoutProgressHandler onCheckoutProgress,
+            string headTarget, string refLogHeadSpec, bool writeReflogEntry)
         {
-            GitCheckoutOpts options = new GitCheckoutOpts
+            var previousHeadName = Info.IsHeadDetached ? Head.Tip.Sha : Head.Name;
+
+            var options = new GitCheckoutOpts
             {
                 version = 1,
                 checkout_strategy = CheckoutStrategy.GIT_CHECKOUT_SAFE,
@@ -701,7 +703,14 @@ namespace LibGit2Sharp
                 options.checkout_strategy = CheckoutStrategy.GIT_CHECKOUT_FORCE;
             }
 
-            Proxy.git_checkout_tree(this.Handle, tree.Id, ref options);
+            Proxy.git_checkout_tree(Handle, tree.Id, ref options);
+
+            Refs.UpdateTarget("HEAD", headTarget);
+
+            if (writeReflogEntry)
+            {
+                LogCheckout(previousHeadName, Head.Tip.Id, refLogHeadSpec);
+            }
         }
 
         /// <summary>
