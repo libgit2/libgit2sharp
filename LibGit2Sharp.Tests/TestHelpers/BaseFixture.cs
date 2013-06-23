@@ -142,10 +142,7 @@ namespace LibGit2Sharp.Tests.TestHelpers
         {
             SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
 
-            using (var repo = Repository.Init(scd.DirectoryPath, isBare, null))
-            {
-                return repo.Info.Path;
-            }
+            return Repository.Init(scd.DirectoryPath, isBare);
         }
 
         public void Register(string directoryPath)

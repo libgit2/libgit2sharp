@@ -203,9 +203,13 @@ namespace LibGit2Sharp.Tests
             string repoPath = InitNewRepository();
 
             using (var repository = new Repository(repoPath))
-            using (var repository2 = new Repository(repoPath))
             {
-                Assert.Equal(repository2.Info.Path, repository.Info.Path);
+                string repoPath2 = Repository.Init(repoPath, false);
+
+                using (var repository2 = new Repository(repoPath2))
+                {
+                    Assert.Equal(repository2.Info.Path, repository.Info.Path);
+                }
             }
         }
 

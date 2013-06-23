@@ -312,9 +312,9 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCancelCheckoutThroughNotifyCallback()
         {
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            string repoPath = InitNewRepository();
 
-            using (var repo = Repository.Init(scd.DirectoryPath))
+            using (var repo = new Repository(repoPath))
             {
                 string relativePath = "a.txt";
                 Touch(repo.Info.WorkingDirectory, relativePath, "Hello\n");
@@ -432,8 +432,9 @@ namespace LibGit2Sharp.Tests
                 expectedNotificationPath = expectedNotificationPath + Path.DirectorySeparatorChar;
             }
 
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
-            using (var repo = Repository.Init(scd.DirectoryPath))
+            string repoPath = InitNewRepository();
+
+            using (var repo = new Repository(repoPath))
             {
                 PopulateBasicRepository(repo);
 
