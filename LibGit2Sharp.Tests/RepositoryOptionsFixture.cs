@@ -174,40 +174,5 @@ namespace LibGit2Sharp.Tests
 
             AssertValueInConfigFile(systemLocation, "xpaulbettsx");
         }
-
-        [Fact]
-        public void CanProvideDifferentWorkingDirOnClone()
-        {
-            string url = "https://github.com/libgit2/TestGitRepository";
-            var scd = BuildSelfCleaningDirectory();
-            var options = new RepositoryOptions { WorkingDirectoryPath = newWorkdir };
-
-            using (var repo = Repository.Clone(url, scd.DirectoryPath, false, true, null, null, options))
-            {
-                Assert.Equal(Path.GetFullPath(newWorkdir) + Path.DirectorySeparatorChar, repo.Info.WorkingDirectory);
-            }
-        }
-
-        [Fact]
-        public void CanProvideDifferentConfigurationFilesOnClone()
-        {
-            string url = "https://github.com/libgit2/TestGitRepository";
-            var scd = BuildSelfCleaningDirectory();
-            var configScd = BuildSelfCleaningDirectory();
-            var options = BuildFakeConfigs(configScd);
-
-            using (var repo = Repository.Clone(url, scd.DirectoryPath, false, true, null, null, options))
-            {
-                Assert.True(repo.Config.HasConfig(ConfigurationLevel.Global));
-                Assert.Equal("global", repo.Config.Get<string>("woot.this-rocks").Value);
-                Assert.Equal(42, repo.Config.Get<int>("wow.man-I-am-totally-global").Value);
-
-                Assert.True(repo.Config.HasConfig(ConfigurationLevel.Xdg));
-                Assert.Equal("xdg", repo.Config.Get<string>("woot.this-rocks", ConfigurationLevel.Xdg).Value);
-
-                Assert.True(repo.Config.HasConfig(ConfigurationLevel.System));
-                Assert.Equal("system", repo.Config.Get<string>("woot.this-rocks", ConfigurationLevel.System).Value);
-            }
-        }
     }
 }

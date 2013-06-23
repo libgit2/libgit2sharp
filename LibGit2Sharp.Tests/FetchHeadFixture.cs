@@ -34,7 +34,10 @@ namespace LibGit2Sharp.Tests
         public void CanIterateFetchHead(string url)
         {
             var scd = BuildSelfCleaningDirectory();
-            using (var repo = Repository.Clone(url, scd.RootedDirectoryPath))
+
+            string clonedRepoPath = Repository.Clone(url, scd.DirectoryPath);
+
+            using (var repo = new Repository(clonedRepoPath))
             {
                 repo.Reset(ResetOptions.Hard, "HEAD~2");
 
