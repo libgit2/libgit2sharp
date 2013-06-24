@@ -66,6 +66,7 @@
     <Compile Include="BranchUpdater.cs" />
     <Compile Include="Changes.cs" />
     <Compile Include="CheckoutCallbacks.cs" />
+    <Compile Include="CheckoutNotificationOptions.cs" />
     <Compile Include="CheckoutOptions.cs" />
     <Compile Include="CompareOptions.cs" />
     <Compile Include="Core\HistoryRewriter.cs" />

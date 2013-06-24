@@ -266,7 +266,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Throws<MergeConflictException>(() => repo.Checkout(master.CanonicalName));
 
                 // Checkout with force option should succeed.
-                repo.Checkout(master.CanonicalName, CheckoutOptions.Force, null);
+                repo.Checkout(master.CanonicalName, CheckoutOptions.Force, null, null);
 
                 // Assert that master branch is checked out.
                 Assert.True(repo.Branches["master"].IsCurrentRepositoryHead);
@@ -306,6 +306,41 @@ namespace LibGit2Sharp.Tests
                 // And when there are staged commits
                 repo.Index.Stage(originalFilePath);
                 Assert.Throws<MergeConflictException>(() => repo.Checkout("master"));
+            }
+        }
+
+        [Fact]
+        public void CanCancelCheckoutThroughNotifyCallback()
+        {
+            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+
+            using (var repo = Repository.Init(scd.DirectoryPath))
+            {
+                string relativePath = "a.txt";
+                Touch(repo.Info.WorkingDirectory, relativePath, "Hello\n");
+
+                repo.Index.Stage(relativePath);
+                repo.Commit("Initial commit", Constants.Signature, Constants.Signature);
+
+                // Create 2nd branch
+                repo.CreateBranch("branch2");
+
+                // Update file in main
+                Touch(repo.Info.WorkingDirectory, relativePath, "Hello from master!\n");
+                repo.Index.Stage(relativePath);
+                repo.Commit("2nd commit", Constants.Signature, Constants.Signature);
+
+                // Checkout branch2
+                repo.Checkout("branch2");
+
+                // Update the context of a.txt - a.txt will then conflict between branch2 and master.
+                Touch(repo.Info.WorkingDirectory, relativePath, "Hello From branch2!\n");
+
+                // Verify that we get called for the notify conflict cb
+                string conflictPath = string.Empty;
+                CheckoutNotificationOptions checkoutNotifications = new CheckoutNotificationOptions((path, flags) => { conflictPath = path; return false; }, CheckoutNotifyFlags.Conflict);
+                Assert.Throws<UserCancelledException>(() => repo.Checkout("master", CheckoutOptions.None, null, checkoutNotifications));
+                Assert.Equal(relativePath, conflictPath);
             }
         }
 
@@ -363,7 +398,7 @@ namespace LibGit2Sharp.Tests
                 bool wasCalled = false;
 
                 Branch branch = repo.Branches[otherBranchName];
-                branch.Checkout(CheckoutOptions.None, (path, completed, total) => wasCalled = true);
+                branch.Checkout(CheckoutOptions.None, (path, completed, total) => wasCalled = true, null);
 
                 Assert.True(wasCalled);
             }
@@ -379,9 +414,86 @@ namespace LibGit2Sharp.Tests
                 PopulateBasicRepository(repo);
                 bool wasCalled = false;
 
-                repo.Checkout(otherBranchName, CheckoutOptions.None, (path, completed, total) => wasCalled = true);
+                repo.Checkout(otherBranchName, CheckoutOptions.None, (path, completed, total) => wasCalled = true, null);
 
                 Assert.True(wasCalled);
+            }
+        }
+
+        [Theory]
+        [InlineData(CheckoutNotifyFlags.Conflict, "conflict.txt", false)]
+        [InlineData(CheckoutNotifyFlags.Updated, "updated.txt", false)]
+        [InlineData(CheckoutNotifyFlags.Untracked, "untracked.txt", false)]
+        [InlineData(CheckoutNotifyFlags.Ignored, "bin", true)]
+        public void CheckingOutCallsCheckoutNotify(CheckoutNotifyFlags notifyFlags, string expectedNotificationPath, bool isDirectory)
+        {
+            if (isDirectory)
+            {
+                expectedNotificationPath = expectedNotificationPath + Path.DirectorySeparatorChar;
+            }
+
+            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            using (var repo = Repository.Init(scd.DirectoryPath))
+            {
+                PopulateBasicRepository(repo);
+
+                string relativePathUpdated = "updated.txt";
+                Touch(repo.Info.WorkingDirectory, relativePathUpdated, "updated file text A");
+                repo.Index.Stage(relativePathUpdated);
+                repo.Commit("Commit initial update file", Constants.Signature, Constants.Signature);
+
+                // Create conflicting change
+                string relativePathConflict = "conflict.txt";
+                Touch(repo.Info.WorkingDirectory, relativePathConflict, "conflict file text A");
+                repo.Index.Stage(relativePathConflict);
+                repo.Commit("Initial commit of conflict.txt and update.txt", Constants.Signature, Constants.Signature);
+
+                // Create another branch
+                repo.CreateBranch("newbranch");
+
+                // Make an edit to conflict.txt and update.txt
+                Touch(repo.Info.WorkingDirectory, relativePathUpdated, "updated file text BB");
+                repo.Index.Stage(relativePathUpdated);
+                Touch(repo.Info.WorkingDirectory, relativePathConflict, "conflict file text BB");
+                repo.Index.Stage(relativePathConflict);
+
+                repo.Commit("2nd commit of conflict.txt and update.txt on master branch", Constants.Signature, Constants.Signature);
+
+                // Checkout other branch
+                repo.Checkout("newbranch");
+
+                // Make alternate edits to conflict.txt and update.txt
+                Touch(repo.Info.WorkingDirectory, relativePathUpdated, "updated file text CCC");
+                repo.Index.Stage(relativePathUpdated);
+                Touch(repo.Info.WorkingDirectory, relativePathConflict, "conflict file text CCC");
+                repo.Index.Stage(relativePathConflict);
+                repo.Commit("2nd commit of conflict.txt and update.txt on newbranch", Constants.Signature, Constants.Signature);
+
+                // make conflicting change to conflict.txt
+                Touch(repo.Info.WorkingDirectory, relativePathConflict, "conflict file text DDDD");
+                repo.Index.Stage(relativePathConflict);
+
+                // Create ignored change
+                string relativePathIgnore = Path.Combine("bin", "ignored.txt");
+                Touch(repo.Info.WorkingDirectory, relativePathIgnore, "ignored file");
+
+                // Create untracked change
+                string relativePathUntracked = "untracked.txt";
+                Touch(repo.Info.WorkingDirectory, relativePathUntracked, "untracked file");
+
+                bool wasCalled = false;
+                string actualNotificationPath = string.Empty;
+                CheckoutNotifyFlags actualNotifyFlags = CheckoutNotifyFlags.None;
+
+                CheckoutNotificationOptions checkoutNotifications = new CheckoutNotificationOptions(
+                    (path, notificationType) => { wasCalled = true; actualNotificationPath = path; actualNotifyFlags = notificationType; return true; },
+                    notifyFlags);
+
+                Assert.Throws<MergeConflictException>(() => repo.Checkout("master", CheckoutOptions.None, null, checkoutNotifications));
+
+                Assert.True(wasCalled);
+                Assert.Equal(expectedNotificationPath, actualNotificationPath);
+                Assert.Equal(notifyFlags, actualNotifyFlags);
             }
         }
 
@@ -425,7 +537,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(1, repo.Index.RetrieveStatus().Untracked.Count());
                 Assert.Equal(FileStatus.Untracked, repo.Index.RetrieveStatus(fullPathFileB));
 
-                repo.Checkout(otherBranchName, CheckoutOptions.Force, null);
+                repo.Checkout(otherBranchName, CheckoutOptions.Force, null, null);
 
                 // Verify untracked entry still exists.
                 Assert.Equal(1, repo.Index.RetrieveStatus().Untracked.Count());
@@ -528,7 +640,7 @@ namespace LibGit2Sharp.Tests
 
                 Assert.Equal(FileStatus.Ignored, repo.Index.RetrieveStatus(ignoredFilePath));
 
-                repo.Checkout(otherBranchName, CheckoutOptions.Force, null);
+                repo.Checkout(otherBranchName, CheckoutOptions.Force, null, null);
 
                 // Verify that the ignored file still exists.
                 Assert.Equal(FileStatus.Ignored, repo.Index.RetrieveStatus(ignoredFilePath));
@@ -610,7 +722,7 @@ namespace LibGit2Sharp.Tests
                 // The blob actually exists in the object database with the correct Sha
                 Assert.Equal(expectedSha, repo.Lookup<Blob>(expectedSha).Sha);
 
-                repo.Checkout("refs/heads/logo", CheckoutOptions.Force, null);
+                repo.Checkout("refs/heads/logo", CheckoutOptions.Force, null, null);
 
                 // The Index has been updated as well with the blob
                 Assert.Equal(expectedSha, repo.Index["square-logo.png"].Id.Sha);

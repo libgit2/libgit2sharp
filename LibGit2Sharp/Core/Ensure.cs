@@ -55,6 +55,9 @@ namespace LibGit2Sharp.Core
 
             switch (result)
             {
+                case (int) GitErrorCode.User:
+                    throw new UserCancelledException(errorMessage, (GitErrorCode)result, error.Category);
+
                 case (int)GitErrorCode.BareRepo:
                     throw new BareRepositoryException(errorMessage, (GitErrorCode)result, error.Category);
 

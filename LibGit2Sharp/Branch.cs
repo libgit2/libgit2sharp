@@ -233,9 +233,24 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="checkoutOptions">Options controlling checkout behavior.</param>
         /// <param name="onCheckoutProgress">Callback method to report checkout progress updates through.</param>
+        [Obsolete("This method will be removed in the next release. Please use Checkout(CheckoutOptions, CheckoutProgressHandler, CheckoutNotificationOptions) instead.")]
         public virtual void Checkout(CheckoutOptions checkoutOptions, CheckoutProgressHandler onCheckoutProgress)
         {
-            repo.Checkout(this, checkoutOptions, onCheckoutProgress);
+            Checkout(checkoutOptions, onCheckoutProgress, null);
+        }
+
+        /// <summary>
+        ///   Checkout the tip commit of this <see cref = "Branch" /> object
+        ///   with a callback for progress reporting. If this commit is the
+        ///   current tip of the branch, will checkout the named branch. Otherwise,
+        ///   will checkout the tip commit as a detached HEAD.
+        /// </summary>
+        /// <param name="checkoutOptions">Options controlling checkout behavior.</param>
+        /// <param name="onCheckoutProgress">Callback method to report checkout progress updates through.</param>
+        /// <param name="checkoutNotificationOptions"><see cref="CheckoutNotificationOptions"/> to manage checkout notifications.</param>
+        public virtual void Checkout(CheckoutOptions checkoutOptions, CheckoutProgressHandler onCheckoutProgress, CheckoutNotificationOptions checkoutNotificationOptions)
+        {
+            repo.Checkout(this, checkoutOptions, onCheckoutProgress, checkoutNotificationOptions);
         }
 
         private Branch ResolveTrackedBranch()

@@ -5,8 +5,7 @@ using LibGit2Sharp.Core;
 namespace LibGit2Sharp
 {
     /// <summary>
-    ///   The exception that is thrown when an operation which requires a
-    ///   working directory is performed against a bare repository.
+    ///   The exception that is thrown when an operation is canceled.
     /// </summary>
     [Serializable]
     public class UserCancelledException : LibGit2SharpException
