@@ -804,7 +804,10 @@ namespace LibGit2Sharp.Tests
             }
 
             SelfCleaningDirectory scd2 = BuildSelfCleaningDirectory();
-            using (Repository repo = Repository.Clone(uri.AbsoluteUri, scd2.RootedDirectoryPath))
+
+            string clonedRepoPath = Repository.Clone(uri.AbsoluteUri, scd2.DirectoryPath);
+
+            using (var repo = new Repository(clonedRepoPath))
             {
                 Assert.Empty(Directory.GetFiles(scd2.RootedDirectoryPath));
                 Assert.Equal(repo.Head.Name, "master");

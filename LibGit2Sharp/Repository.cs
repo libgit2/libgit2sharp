@@ -362,14 +362,53 @@ namespace LibGit2Sharp
         /// <param name = "isBare">true to initialize a bare repository. False otherwise, to initialize a standard ".git" repository.</param>
         /// <param name="options">Overrides to the way a repository is opened.</param>
         /// <returns> a new instance of the <see cref = "Repository" /> class. The client code is responsible for calling <see cref = "Dispose()" /> on this instance.</returns>
-        public static Repository Init(string path, bool isBare = false, RepositoryOptions options = null)
+        [Obsolete("This method will be removed in the next release. Please use Init(string, bool) instead.")]
+        public static Repository Init(string path, bool isBare, RepositoryOptions options)
+        {
+            string gitDirPath = Init(path, isBare);
+
+            return new Repository(gitDirPath, options);
+        }
+
+        /// <summary>
+        ///   Initialize a repository at the specified <paramref name = "path" />.
+        /// </summary>
+        /// <param name = "path">The path to the working folder when initializing a standard ".git" repository. Otherwise, when initializing a bare repository, the path to the expected location of this later.</param>
+        /// <param name = "isBare">true to initialize a bare repository. False otherwise, to initialize a standard ".git" repository.</param>
+        /// <returns>The path to the created repository.</returns>
+        public static string Init(string path, bool isBare = false)
         {
             Ensure.ArgumentNotNullOrEmptyString(path, "path");
 
-            using (RepositorySafeHandle repo = Proxy.git_repository_init(path, isBare))
+            using (RepositorySafeHandle repo = Proxy.git_repository_init_ext(null, path, isBare))
             {
                 FilePath repoPath = Proxy.git_repository_path(repo);
-                return new Repository(repoPath.Native, options);
+                return repoPath.Native;
+            }
+        }
+
+        /// <summary>
+        ///   Initialize a repository by explictly setting the path to both the working directory and the git directory.
+        /// </summary>
+        /// <param name = "workingDirectoryPath">The path to the working directory.</param>
+        /// <param name = "gitDirectoryPath">The path to the git repository to be created.</param>
+        /// <returns>The path to the created repository.</returns>
+        public static string Init(string workingDirectoryPath, string gitDirectoryPath)
+        {
+            Ensure.ArgumentNotNullOrEmptyString(workingDirectoryPath, "workingDirectoryPath");
+            Ensure.ArgumentNotNullOrEmptyString(gitDirectoryPath, "gitDirectoryPath");
+
+            // When being passed a relative workdir path, libgit2 will evaluate it from the
+            // path to the repository. We pass a fully rooted path in order for the LibGit2Sharp caller
+            // to pass a path relatively to his current directory.
+            string wd = Path.GetFullPath(workingDirectoryPath);
+
+            // TODO: Shouldn't we ensure that the working folder isn't under the gitDir?
+
+            using (RepositorySafeHandle repo = Proxy.git_repository_init_ext(wd, gitDirectoryPath, false))
+            {
+                FilePath repoPath = Proxy.git_repository_path(repo);
+                return repoPath.Native;
             }
         }
 
@@ -530,31 +569,57 @@ namespace LibGit2Sharp
         /// <param name="onCheckoutProgress">Handler for checkout progress information</param>
         /// <param name="options">Overrides to the way a repository is opened.</param>
         /// <param name="credentials">Credentials to use for user/pass authentication</param>
-        /// <returns></returns>
+        /// <returns> a new instance of the <see cref = "Repository" /> class. The client code is responsible for calling <see cref = "Dispose()" /> on this instance.</returns>
+        [Obsolete("This method will be removed in the next release. Please use Clone(string, string, bool, bool, TransferProgressHandler, CheckoutProgressHandler, Credentials) instead.")]
         public static Repository Clone(string sourceUrl, string workdirPath,
+            bool bare,
+            bool checkout,
+            TransferProgressHandler onTransferProgress,
+            CheckoutProgressHandler onCheckoutProgress,
+            RepositoryOptions options,
+            Credentials credentials)
+        {
+            string gitDirPath = Clone(sourceUrl, workdirPath, bare,
+                checkout, onTransferProgress, onCheckoutProgress, credentials);
+
+            return new Repository(gitDirPath, options);
+        }
+
+        /// <summary>
+        /// Clone with specified options.
+        /// </summary>
+        /// <param name="sourceUrl">URI for the remote repository</param>
+        /// <param name="workdirPath">Local path to clone into</param>
+        /// <param name="bare">True will result in a bare clone, false a full clone.</param>
+        /// <param name="checkout">If true, the origin's HEAD will be checked out. This only applies
+        /// to non-bare repositories.</param>
+        /// <param name="onTransferProgress">Handler for network transfer and indexing progress information</param>
+        /// <param name="onCheckoutProgress">Handler for checkout progress information</param>
+        /// <param name="credentials">Credentials to use for user/pass authentication</param>
+        /// <returns>The path to the created repository.</returns>
+        public static string Clone(string sourceUrl, string workdirPath,
             bool bare = false,
             bool checkout = true,
             TransferProgressHandler onTransferProgress = null,
             CheckoutProgressHandler onCheckoutProgress = null,
-            RepositoryOptions options = null,
             Credentials credentials = null)
         {
             CheckoutCallbacks checkoutCallbacks = CheckoutCallbacks.GenerateCheckoutCallbacks(onCheckoutProgress, null);
 
             var cloneOpts = new GitCloneOptions
+            {
+                Bare = bare ? 1 : 0,
+                TransferProgressCallback = TransferCallbacks.GenerateCallback(onTransferProgress),
+                CheckoutOpts =
                 {
-                    Bare = bare ? 1 : 0,
-                    TransferProgressCallback = TransferCallbacks.GenerateCallback(onTransferProgress),
-                    CheckoutOpts =
-                        {
-                            version = 1,
-                            progress_cb =
+                    version = 1,
+                    progress_cb =
                                 checkoutCallbacks.CheckoutProgressCallback,
-                            checkout_strategy = checkout
-                                                    ? CheckoutStrategy.GIT_CHECKOUT_SAFE_CREATE
-                                                    : CheckoutStrategy.GIT_CHECKOUT_NONE
-                        },
-                };
+                    checkout_strategy = checkout
+                                            ? CheckoutStrategy.GIT_CHECKOUT_SAFE_CREATE
+                                            : CheckoutStrategy.GIT_CHECKOUT_NONE
+                },
+            };
 
             if (credentials != null)
             {
@@ -563,13 +628,17 @@ namespace LibGit2Sharp
                     NativeMethods.git_cred_userpass_plaintext_new(out cred, credentials.Username, credentials.Password);
             }
 
-            using(Proxy.git_clone(sourceUrl, workdirPath, cloneOpts)) {}
+            FilePath repoPath;
+            using (RepositorySafeHandle repo = Proxy.git_clone(sourceUrl, workdirPath, cloneOpts))
+            {
+                repoPath = Proxy.git_repository_path(repo);
+            }
 
             // To be safe, make sure the credential callback is kept until
             // alive until at least this point.
             GC.KeepAlive(cloneOpts.CredAcquireCallback);
 
-            return new Repository(workdirPath, options);
+            return repoPath.Native;
         }
 
         /// <summary>
