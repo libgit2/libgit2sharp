@@ -1,4 +1,6 @@
-﻿namespace LibGit2Sharp.Handlers
+﻿using System;
+
+namespace LibGit2Sharp.Handlers
 {
     /// <summary>
     ///   Delegate definition to handle Progress callback.
@@ -46,6 +48,14 @@
     /// <param name="completedSteps">Number of completed steps.</param>
     /// <param name="totalSteps">Total number of steps.</param>
     public delegate void CheckoutProgressHandler(string path, int completedSteps, int totalSteps);
+
+    /// <summary>
+    ///   Delegate definition for checkout notification callback.
+    /// </summary>
+    /// <param name="path">The path the callback corresponds to.</param>
+    /// <param name="notifyFlags">The checkout notification type.</param>
+    /// <returns>True to continue checkout operation; false to cancel checkout operation.</returns>
+    public delegate bool CheckoutNotifyHandler(string path, CheckoutNotifyFlags notifyFlags);
 
     /// <summary>
     ///   Delegate definition for unmatched path callback.

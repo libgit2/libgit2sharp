@@ -1,5 +1,6 @@
 using System;
 using System.Runtime.InteropServices;
+using LibGit2Sharp.Handlers;
 
 namespace LibGit2Sharp.Core
 {
@@ -80,19 +81,8 @@ namespace LibGit2Sharp.Core
         GIT_CHECKOUT_UPDATE_SUBMODULES_IF_CHANGED = (1 << 17),
     }
 
-    [Flags]
-    internal enum NotifyFlags
-    {
-        GIT_CHECKOUT_NOTIFY_NONE = 0,
-        GIT_CHECKOUT_NOTIFY_CONFLICT = (1 << 0),
-        GIT_CHECKOUT_NOTIFY_DIRTY = (1 << 1),
-        GIT_CHECKOUT_NOTIFY_UPDATED = (1 << 2),
-        GIT_CHECKOUT_NOTIFY_UNTRACKED = (1 << 3),
-        GIT_CHECKOUT_NOTIFY_IGNORED = (1 << 4),
-    }
-
     internal delegate int checkout_notify_cb(
-        NotifyFlags why,
+        CheckoutNotifyFlags why,
         IntPtr path,
         IntPtr baseline,
         IntPtr target,
@@ -117,7 +107,7 @@ namespace LibGit2Sharp.Core
         public uint FileMode;
         public int FileOpenFlags;
 
-        public NotifyFlags notify_flags;
+        public CheckoutNotifyFlags notify_flags;
         public checkout_notify_cb notify_cb;
         public IntPtr notify_payload;
 
