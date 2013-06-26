@@ -25,38 +25,38 @@ namespace LibGit2Sharp.Tests
         public void CanRewriteHistoryWithoutChangingCommitMetadata()
         {
             var originalRefs = repo.Refs.ToList().OrderBy(r => r.CanonicalName);
-            var commits = repo.Commits.QueryBy(new Filter { Since = repo.Refs }).ToArray();
+            var commits = repo.Commits.QueryBy(new CommitFilter { Since = repo.Refs }).ToArray();
 
             // Noop header rewriter
             repo.Refs.RewriteHistory(commits, commitHeaderRewriter: CommitRewriteInfo.From);
 
             Assert.Equal(originalRefs, repo.Refs.ToList().OrderBy(r => r.CanonicalName));
-            Assert.Equal(commits, repo.Commits.QueryBy(new Filter { Since = repo.Refs }).ToArray());
+            Assert.Equal(commits, repo.Commits.QueryBy(new CommitFilter { Since = repo.Refs }).ToArray());
         }
 
         [Fact]
         public void CanRewriteHistoryWithoutChangingTrees()
         {
             var originalRefs = repo.Refs.ToList().OrderBy(r => r.CanonicalName);
-            var commits = repo.Commits.QueryBy(new Filter { Since = repo.Refs }).ToArray();
+            var commits = repo.Commits.QueryBy(new CommitFilter { Since = repo.Refs }).ToArray();
 
             // Noop tree rewriter
             repo.Refs.RewriteHistory(commits, commitTreeRewriter: TreeDefinition.From);
 
             Assert.Equal(originalRefs, repo.Refs.ToList().OrderBy(r => r.CanonicalName));
-            Assert.Equal(commits, repo.Commits.QueryBy(new Filter { Since = repo.Refs }).ToArray());
+            Assert.Equal(commits, repo.Commits.QueryBy(new CommitFilter { Since = repo.Refs }).ToArray());
         }
 
         [Fact]
         public void CanRewriteAuthorOfCommits()
         {
-            var commits = repo.Commits.QueryBy(new Filter { Since = repo.Refs }).ToArray();
+            var commits = repo.Commits.QueryBy(new CommitFilter { Since = repo.Refs }).ToArray();
             repo.Refs.RewriteHistory(
                 commits,
                 commitHeaderRewriter: c => CommitRewriteInfo.From(c, author: new Signature("Ben Straub", "me@example.com", c.Author.When)));
 
             var nonBackedUpRefs = repo.Refs.Where(x => !x.CanonicalName.StartsWith("refs/original"));
-            Assert.Empty(repo.Commits.QueryBy(new Filter { Since = nonBackedUpRefs })
+            Assert.Empty(repo.Commits.QueryBy(new CommitFilter { Since = nonBackedUpRefs })
                              .Where(c => c.Author.Name != "Ben Straub"));
         }
 
@@ -221,7 +221,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanNotOverWriteAnExistingReference()
         {
-            var commits = repo.Commits.QueryBy(new Filter { Since = repo.Refs }).ToArray();
+            var commits = repo.Commits.QueryBy(new CommitFilter { Since = repo.Refs }).ToArray();
 
             Assert.Throws<NameConflictException>(() => repo.Refs.RewriteHistory(commits, tagNameRewriter: (n, b, t) => "test"));
 
@@ -283,7 +283,7 @@ namespace LibGit2Sharp.Tests
             GitObject e908Target = repo.Tags["e90810b"].Target;
             GitObject testTarget = repo.Tags["test"].Target;
 
-            repo.Refs.RewriteHistory(repo.Commits.QueryBy(new Filter { Since = repo.Refs["refs/heads/test"] }),
+            repo.Refs.RewriteHistory(repo.Commits.QueryBy(new CommitFilter { Since = repo.Refs["refs/heads/test"] }),
                                      c => CommitRewriteInfo.From(c, message: ""),
                                      tagNameRewriter: (oldName, isAnnotated, o) => oldName + "_new");
 

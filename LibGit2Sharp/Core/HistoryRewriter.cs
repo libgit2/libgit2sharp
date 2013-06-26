@@ -43,7 +43,7 @@ namespace LibGit2Sharp.Core
             // Find out which refs lead to at least one the commits
             var refsToRewrite = repo.Refs.ReachableFrom(targetedCommits).ToList();
 
-            var filter = new Filter
+            var filter = new CommitFilter()
                              {
                                  Since = refsToRewrite,
                                  SortBy = GitSortOptions.Reverse | GitSortOptions.Topological
