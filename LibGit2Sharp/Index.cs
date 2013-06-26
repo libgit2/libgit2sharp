@@ -156,7 +156,7 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNull(paths, "paths");
 
-            TreeChanges changes = repo.Diff.Compare(DiffOptions.IncludeUntracked | DiffOptions.IncludeIgnored, paths, explicitPathsOptions);
+            TreeChanges changes = repo.Diff.Compare(DiffModifiers.IncludeUntracked | DiffModifiers.IncludeIgnored, paths, explicitPathsOptions);
 
             foreach (var treeEntryChanges in changes)
             {
@@ -348,7 +348,7 @@ namespace LibGit2Sharp
         public virtual void Remove(IEnumerable<string> paths, bool removeFromWorkingDirectory = true, ExplicitPathsOptions explicitPathsOptions = null)
         {
             var pathsList = paths.ToList();
-            TreeChanges changes = repo.Diff.Compare(DiffOptions.IncludeUnmodified | DiffOptions.IncludeUntracked, pathsList, explicitPathsOptions);
+            TreeChanges changes = repo.Diff.Compare(DiffModifiers.IncludeUnmodified | DiffModifiers.IncludeUntracked, pathsList, explicitPathsOptions);
 
             var pathsTodelete = pathsList.Where(p => Directory.Exists(Path.Combine(repo.Info.WorkingDirectory, p))).ToList();
 

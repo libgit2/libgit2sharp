@@ -19,7 +19,7 @@ namespace LibGit2Sharp
     {
         private readonly Repository repo;
 
-        private static GitDiffOptions BuildOptions(DiffOptions diffOptions, FilePath[] filePaths = null, MatchedPathsAggregator matchedPathsAggregator = null, CompareOptions compareOptions = null)
+        private static GitDiffOptions BuildOptions(DiffModifiers diffOptions, FilePath[] filePaths = null, MatchedPathsAggregator matchedPathsAggregator = null, CompareOptions compareOptions = null)
         {
             var options = new GitDiffOptions();
 
@@ -29,24 +29,24 @@ namespace LibGit2Sharp
             options.ContextLines = (ushort)compareOptions.ContextLines;
             options.InterhunkLines = (ushort)compareOptions.InterhunkLines;
 
-            if (diffOptions.HasFlag(DiffOptions.IncludeUntracked))
+            if (diffOptions.HasFlag(DiffModifiers.IncludeUntracked))
             {
                 options.Flags |= GitDiffOptionFlags.GIT_DIFF_INCLUDE_UNTRACKED |
                 GitDiffOptionFlags.GIT_DIFF_RECURSE_UNTRACKED_DIRS |
                 GitDiffOptionFlags.GIT_DIFF_INCLUDE_UNTRACKED_CONTENT;
             }
 
-            if (diffOptions.HasFlag(DiffOptions.IncludeIgnored))
+            if (diffOptions.HasFlag(DiffModifiers.IncludeIgnored))
             {
                 options.Flags |= GitDiffOptionFlags.GIT_DIFF_INCLUDE_IGNORED;
             }
 
-            if (diffOptions.HasFlag(DiffOptions.IncludeUnmodified))
+            if (diffOptions.HasFlag(DiffModifiers.IncludeUnmodified))
             {
                 options.Flags |= GitDiffOptionFlags.GIT_DIFF_INCLUDE_UNMODIFIED;
             }
 
-            if (diffOptions.HasFlag(DiffOptions.DisablePathspecMatch))
+            if (diffOptions.HasFlag(DiffModifiers.DisablePathspecMatch))
             {
                 options.Flags |= GitDiffOptionFlags.GIT_DIFF_DISABLE_PATHSPEC_MATCH;
             }
@@ -120,16 +120,16 @@ namespace LibGit2Sharp
             var comparer = TreeToTree(repo);
             ObjectId oldTreeId = oldTree != null ? oldTree.Id : null;
             ObjectId newTreeId = newTree != null ? newTree.Id : null;
-            var diffOptions = DiffOptions.None;
+            var diffOptions = DiffModifiers.None;
 
             if (explicitPathsOptions != null)
             {
-                diffOptions |= DiffOptions.DisablePathspecMatch;
+                diffOptions |= DiffModifiers.DisablePathspecMatch;
 
                 if (explicitPathsOptions.ShouldFailOnUnmatchedPath ||
                     explicitPathsOptions.OnUnmatchedPath != null)
                 {
-                    diffOptions |= DiffOptions.IncludeUnmodified;
+                    diffOptions |= DiffModifiers.IncludeUnmodified;
                 }
             }
 
@@ -145,7 +145,7 @@ namespace LibGit2Sharp
         /// <returns>A <see cref = "ContentChanges"/> containing the changes between the <paramref name = "oldBlob"/> and the <paramref name = "newBlob"/>.</returns>
         public virtual ContentChanges Compare(Blob oldBlob, Blob newBlob, CompareOptions compareOptions = null)
         {
-            using (GitDiffOptions options = BuildOptions(DiffOptions.None, compareOptions: compareOptions))
+            using (GitDiffOptions options = BuildOptions(DiffModifiers.None, compareOptions: compareOptions))
             {
                 return new ContentChanges(repo, oldBlob, newBlob, options);
             }
@@ -180,17 +180,17 @@ namespace LibGit2Sharp
             var comparer = handleRetrieverDispatcher[diffTargets](repo);
             ObjectId oldTreeId = oldTree != null ? oldTree.Id : null;
 
-            DiffOptions diffOptions = diffTargets.HasFlag(DiffTargets.WorkingDirectory) ?
-                DiffOptions.IncludeUntracked : DiffOptions.None;
+            DiffModifiers diffOptions = diffTargets.HasFlag(DiffTargets.WorkingDirectory) ?
+                DiffModifiers.IncludeUntracked : DiffModifiers.None;
 
             if (explicitPathsOptions != null)
             {
-                diffOptions |= DiffOptions.DisablePathspecMatch;
+                diffOptions |= DiffModifiers.DisablePathspecMatch;
 
                 if (explicitPathsOptions.ShouldFailOnUnmatchedPath ||
                     explicitPathsOptions.OnUnmatchedPath != null)
                 {
-                    diffOptions |= DiffOptions.IncludeUnmodified;
+                    diffOptions |= DiffModifiers.IncludeUnmodified;
                 }
             }
 
@@ -210,22 +210,22 @@ namespace LibGit2Sharp
         /// <returns>A <see cref = "TreeChanges"/> containing the changes between the working directory and the index.</returns>
         public virtual TreeChanges Compare(IEnumerable<string> paths = null, bool includeUntracked = false, ExplicitPathsOptions explicitPathsOptions = null, CompareOptions compareOptions = null)
         {
-            return Compare(includeUntracked ? DiffOptions.IncludeUntracked : DiffOptions.None, paths, explicitPathsOptions, compareOptions);
+            return Compare(includeUntracked ? DiffModifiers.IncludeUntracked : DiffModifiers.None, paths, explicitPathsOptions, compareOptions);
         }
 
-        internal virtual TreeChanges Compare(DiffOptions diffOptions, IEnumerable<string> paths = null,
+        internal virtual TreeChanges Compare(DiffModifiers diffOptions, IEnumerable<string> paths = null,
                                              ExplicitPathsOptions explicitPathsOptions = null, CompareOptions compareOptions = null)
         {
             var comparer = WorkdirToIndex(repo);
 
             if (explicitPathsOptions != null)
             {
-                diffOptions |= DiffOptions.DisablePathspecMatch;
+                diffOptions |= DiffModifiers.DisablePathspecMatch;
 
                 if (explicitPathsOptions.ShouldFailOnUnmatchedPath ||
                     explicitPathsOptions.OnUnmatchedPath != null)
                 {
-                    diffOptions |= DiffOptions.IncludeUnmodified;
+                    diffOptions |= DiffModifiers.IncludeUnmodified;
                 }
             }
 
@@ -284,7 +284,7 @@ namespace LibGit2Sharp
 
         private TreeChanges BuildTreeChangesFromComparer(
             ObjectId oldTreeId, ObjectId newTreeId, TreeComparisonHandleRetriever comparisonHandleRetriever,
-            DiffOptions diffOptions, IEnumerable<string> paths = null, ExplicitPathsOptions explicitPathsOptions = null, CompareOptions compareOptions = null)
+            DiffModifiers diffOptions, IEnumerable<string> paths = null, ExplicitPathsOptions explicitPathsOptions = null, CompareOptions compareOptions = null)
         {
             var matchedPaths = new MatchedPathsAggregator();
             var filePaths = ToFilePaths(repo, paths);
