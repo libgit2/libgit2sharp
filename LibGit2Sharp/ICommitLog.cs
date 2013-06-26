@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace LibGit2Sharp
 {
@@ -11,6 +10,6 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Gets the current sorting strategy applied when enumerating the log.
         /// </summary>
-        GitSortOptions SortedBy { get; }
+        CommitSortStrategies SortedBy { get; }
     }
 }

@@ -46,7 +46,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Gets the current sorting strategy applied when enumerating the log
         /// </summary>
-        public virtual GitSortOptions SortedBy
+        public virtual CommitSortStrategies SortedBy
         {
             get { return queryFilter.SortBy; }
         }
@@ -248,7 +248,7 @@ namespace LibGit2Sharp
                 InternalHidePush(identifier, Proxy.git_revwalk_hide);
             }
 
-            private void Sort(GitSortOptions options)
+            private void Sort(CommitSortStrategies options)
             {
                 Proxy.git_revwalk_sorting(handle, options);
             }

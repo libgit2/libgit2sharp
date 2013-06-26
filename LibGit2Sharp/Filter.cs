@@ -51,7 +51,7 @@ namespace LibGit2Sharp
             var cf = new CommitFilter
                          {
                              Since = Since,
-                             SortBy = SortBy,
+                             SortBy = (CommitSortStrategies) SortBy,
                              Until = Until
                          };
 

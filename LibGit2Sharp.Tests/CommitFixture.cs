@@ -77,7 +77,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                Assert.Equal(GitSortOptions.Time, repo.Commits.SortedBy);
+                Assert.Equal(CommitSortStrategies.Time, repo.Commits.SortedBy);
             }
         }
 
@@ -140,7 +140,11 @@ namespace LibGit2Sharp.Tests
             int count = 0;
             using (var repo = new Repository(BareTestRepoPath))
             {
-                foreach (Commit commit in repo.Commits.QueryBy(new CommitFilter { Since = "a4a7dce85cf63874e984719f4fdd239f5145052f", SortBy = GitSortOptions.Time | GitSortOptions.Reverse }))
+                foreach (Commit commit in repo.Commits.QueryBy(new CommitFilter
+                                                                    {
+                                                                        Since = "a4a7dce85cf63874e984719f4fdd239f5145052f",
+                                                                        SortBy = CommitSortStrategies.Time | CommitSortStrategies.Reverse
+                                                                    }))
                 {
                     Assert.NotNull(commit);
                     Assert.True(commit.Sha.StartsWith(reversedShas[count]));
@@ -155,7 +159,11 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                List<Commit> commits = repo.Commits.QueryBy(new CommitFilter { Since = "a4a7dce85cf63874e984719f4fdd239f5145052f", SortBy = GitSortOptions.Time | GitSortOptions.Reverse }).ToList();
+                List<Commit> commits = repo.Commits.QueryBy(new CommitFilter
+                                                                {
+                                                                    Since = "a4a7dce85cf63874e984719f4fdd239f5145052f",
+                                                                    SortBy = CommitSortStrategies.Time | CommitSortStrategies.Reverse
+                                                                }).ToList();
                 foreach (Commit commit in commits)
                 {
                     Assert.NotNull(commit);
@@ -183,7 +191,11 @@ namespace LibGit2Sharp.Tests
             int count = 0;
             using (var repo = new Repository(BareTestRepoPath))
             {
-                foreach (Commit commit in repo.Commits.QueryBy(new CommitFilter { Since = "a4a7dce85cf63874e984719f4fdd239f5145052f", SortBy = GitSortOptions.Time }))
+                foreach (Commit commit in repo.Commits.QueryBy(new CommitFilter
+                                                                    { 
+                                                                        Since = "a4a7dce85cf63874e984719f4fdd239f5145052f",
+                                                                        SortBy = CommitSortStrategies.Time
+                                                                    }))
                 {
                     Assert.NotNull(commit);
                     Assert.True(commit.Sha.StartsWith(expectedShas[count]));
@@ -198,7 +210,11 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                List<Commit> commits = repo.Commits.QueryBy(new CommitFilter { Since = "a4a7dce85cf63874e984719f4fdd239f5145052f", SortBy = GitSortOptions.Topological }).ToList();
+                List<Commit> commits = repo.Commits.QueryBy(new CommitFilter
+                                                                {
+                                                                    Since = "a4a7dce85cf63874e984719f4fdd239f5145052f",
+                                                                    SortBy = CommitSortStrategies.Topological
+                                                                }).ToList();
                 foreach (Commit commit in commits)
                 {
                     Assert.NotNull(commit);

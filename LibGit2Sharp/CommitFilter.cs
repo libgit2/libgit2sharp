@@ -14,7 +14,7 @@ namespace LibGit2Sharp
         /// </summary>
         public CommitFilter()
         {
-            SortBy = GitSortOptions.Time;
+            SortBy = CommitSortStrategies.Time;
             Since = "HEAD";
         }
 
@@ -24,7 +24,7 @@ namespace LibGit2Sharp
         ///     By default, the commits are shown in reverse chronological order.
         ///   </para>
         /// </summary>
-        public GitSortOptions SortBy { get; set; }
+        public CommitSortStrategies SortBy { get; set; }
 
         /// <summary>
         ///   A pointer to a commit object or a list of pointers to consider as starting points.

@@ -983,7 +983,7 @@ namespace LibGit2Sharp.Core
         internal static extern void git_revwalk_reset(RevWalkerSafeHandle walker);
 
         [DllImport(libgit2)]
-        internal static extern void git_revwalk_sorting(RevWalkerSafeHandle walk, GitSortOptions sort);
+        internal static extern void git_revwalk_sorting(RevWalkerSafeHandle walk, CommitSortStrategies sort);
 
         [DllImport(libgit2)]
         internal static extern void git_signature_free(IntPtr signature);
