@@ -128,6 +128,19 @@ namespace LibGit2Sharp
         Branch Checkout(string committishOrBranchSpec, CheckoutOptions checkoutOptions, CheckoutProgressHandler onCheckoutProgress, CheckoutNotificationOptions checkoutNotificationOptions);
 
         /// <summary>
+        ///   Checkout the specified <see cref = "LibGit2Sharp.Commit" />.
+        ///   <para>
+        ///     Will detach the HEAD and make it point to this commit sha.
+        ///   </para>
+        /// </summary>
+        /// <param name="commit">The <see cref = "LibGit2Sharp.Commit" /> to check out. </param>
+        /// <param name="checkoutOptions"><see cref = "CheckoutOptions" /> controlling checkout behavior.</param>
+        /// <param name="onCheckoutProgress"><see cref = "CheckoutProgressHandler" /> that checkout progress is reported through.</param>
+        /// <returns>The <see cref = "Branch" /> that was checked out.</returns>
+        [Obsolete("This method will be removed in the next release. Please use Checkout(Commit, CheckoutOptions, CheckoutProgressHandler, CheckoutNotificationOptions) instead.")]
+        Branch Checkout(Commit commit, CheckoutOptions checkoutOptions, CheckoutProgressHandler onCheckoutProgress);
+
+        /// <summary>
         ///   Checkout the specified <see cref = "Commit" />.
         ///   <para>
         ///     Will detach the HEAD and make it point to this commit sha.
