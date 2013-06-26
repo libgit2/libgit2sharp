@@ -1002,7 +1002,7 @@ namespace LibGit2Sharp.Core
             RepositorySafeHandle repo,
             SignatureSafeHandle stasher,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(Utf8Marshaler))] string message,
-            StashOptions flags);
+            StashModifiers flags);
 
         internal delegate int git_stash_cb(
             UIntPtr index,

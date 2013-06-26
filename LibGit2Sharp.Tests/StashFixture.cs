@@ -17,7 +17,7 @@ namespace LibGit2Sharp.Tests
             {
                 var stasher = DummySignature;
 
-                Assert.Throws<BareRepositoryException>(() => repo.Stashes.Add(stasher, "My very first stash"));
+                Assert.Throws<BareRepositoryException>(() => repo.Stashes.Add(stasher, "My very first stash", StashModifiers.Default));
             }
         }
 
@@ -31,7 +31,7 @@ namespace LibGit2Sharp.Tests
 
                 Assert.True(repo.Index.RetrieveStatus().IsDirty);
 
-                Stash stash = repo.Stashes.Add(stasher, "My very first stash", StashOptions.IncludeUntracked);
+                Stash stash = repo.Stashes.Add(stasher, "My very first stash", StashModifiers.IncludeUntracked);
 
                 // Check that untracked files are deleted from working directory
                 Assert.False(File.Exists(Path.Combine(repo.Info.WorkingDirectory, "new_untracked_file.txt")));
@@ -48,7 +48,7 @@ namespace LibGit2Sharp.Tests
                 // Create extra file
                 Touch(repo.Info.WorkingDirectory, "stash_candidate.txt", "Oh, I'm going to be stashed!\n");
 
-                Stash secondStash = repo.Stashes.Add(stasher, "My second stash", StashOptions.IncludeUntracked);
+                Stash secondStash = repo.Stashes.Add(stasher, "My second stash", StashModifiers.IncludeUntracked);
 
                 Assert.NotNull(stash);
                 Assert.Equal("stash@{0}", stash.CanonicalName);
@@ -83,7 +83,7 @@ namespace LibGit2Sharp.Tests
             {
                 var stasher = DummySignature;
 
-                Stash stash = repo.Stashes.Add(stasher);
+                Stash stash = repo.Stashes.Add(stasher, options: StashModifiers.Default);
 
                 Assert.NotNull(stash);
                 Assert.Equal("stash@{0}", stash.CanonicalName);
@@ -100,7 +100,7 @@ namespace LibGit2Sharp.Tests
             string path = CloneStandardTestRepo();
             using (var repo = new Repository(path))
             {
-                Assert.Throws<ArgumentNullException>(() => repo.Stashes.Add(null));
+                Assert.Throws<ArgumentNullException>(() => repo.Stashes.Add(default(Signature), options: StashModifiers.Default));
             }
         }
 
@@ -112,12 +112,12 @@ namespace LibGit2Sharp.Tests
             {
                 var stasher = DummySignature;
 
-                Stash stash = repo.Stashes.Add(stasher, "My very first stash", StashOptions.IncludeUntracked);
+                Stash stash = repo.Stashes.Add(stasher, "My very first stash", StashModifiers.IncludeUntracked);
 
                 Assert.NotNull(stash);
 
                 //Stash against clean working directory
-                Assert.Null(repo.Stashes.Add(stasher));
+                Assert.Null(repo.Stashes.Add(stasher, options: StashModifiers.Default));
             }
         }
 
@@ -136,7 +136,7 @@ namespace LibGit2Sharp.Tests
                 Touch(repo.Info.WorkingDirectory, staged, "I'm staged\n");
                 repo.Index.Stage(staged);
 
-                Stash stash = repo.Stashes.Add(stasher, "Stash with default options");
+                Stash stash = repo.Stashes.Add(stasher, "Stash with default options", StashModifiers.Default);
 
                 Assert.NotNull(stash);
 
@@ -160,7 +160,7 @@ namespace LibGit2Sharp.Tests
                 Touch(repo.Info.WorkingDirectory, filename, "I'm staged\n");
                 repo.Index.Stage(filename);
 
-                Stash stash = repo.Stashes.Add(stasher, "This stash wil keep index", StashOptions.KeepIndex);
+                Stash stash = repo.Stashes.Add(stasher, "This stash wil keep index", StashModifiers.KeepIndex);
 
                 Assert.NotNull(stash);
                 Assert.Equal(FileStatus.Added, repo.Index.RetrieveStatus(filename));
@@ -185,7 +185,7 @@ namespace LibGit2Sharp.Tests
                 Assert.True(repo.Ignore.IsPathIgnored(ignoredFilename));
 
                 var stasher = DummySignature;
-                repo.Stashes.Add(stasher, "This stash includes ignore files", StashOptions.IncludeIgnored);
+                repo.Stashes.Add(stasher, "This stash includes ignore files", StashModifiers.IncludeIgnored);
 
                 //TODO : below assertion doesn't pass. Bug?
                 //Assert.False(File.Exists(ignoredFilePath));
@@ -219,20 +219,20 @@ namespace LibGit2Sharp.Tests
                 const string thirdStashMessage = "My third stash";
 
                 // Create first stash
-                Stash firstStash = repo.Stashes.Add(stasher, firstStashMessage, StashOptions.IncludeUntracked);
+                Stash firstStash = repo.Stashes.Add(stasher, firstStashMessage, StashModifiers.IncludeUntracked);
                 Assert.NotNull(firstStash);
 
                 // Create second stash
                 Touch(repo.Info.WorkingDirectory, "stash_candidate.txt", "Oh, I'm going to be stashed!\n");
 
-                Stash secondStash = repo.Stashes.Add(stasher, secondStashMessage, StashOptions.IncludeUntracked);
+                Stash secondStash = repo.Stashes.Add(stasher, secondStashMessage, StashModifiers.IncludeUntracked);
                 Assert.NotNull(secondStash);
 
                 // Create third stash
                 Touch(repo.Info.WorkingDirectory, "stash_candidate_again.txt", "Oh, I'm going to be stashed!\n");
 
 
-                Stash thirdStash = repo.Stashes.Add(stasher, thirdStashMessage, StashOptions.IncludeUntracked);
+                Stash thirdStash = repo.Stashes.Add(stasher, thirdStashMessage, StashModifiers.IncludeUntracked);
                 Assert.NotNull(thirdStash);
 
                 // Get by indexer

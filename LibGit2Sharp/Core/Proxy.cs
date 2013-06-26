@@ -1885,7 +1885,7 @@ namespace LibGit2Sharp.Core
             RepositorySafeHandle repo,
             Signature stasher,
             string prettifiedMessage,
-            StashOptions options)
+            StashModifiers options)
         {
             using (ThreadAffinity())
             using (SignatureSafeHandle stasherHandle = stasher.BuildHandle())
