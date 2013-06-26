@@ -256,7 +256,7 @@ namespace LibGit2Sharp
         /// <returns>The <see cref = "Branch" /> that was checked out.</returns>
         public static Branch Checkout(this IRepository repository, string commitOrBranchSpec)
         {
-            return repository.Checkout(commitOrBranchSpec, CheckoutOptions.None, null, null);
+            return repository.Checkout(commitOrBranchSpec, CheckoutModifiers.None, null, null);
         }
 
         /// <summary>
@@ -271,7 +271,7 @@ namespace LibGit2Sharp
         /// <returns>The <see cref = "Branch" /> that was checked out.</returns>
         public static Branch Checkout(this IRepository repository, Branch branch)
         {
-            return repository.Checkout(branch, CheckoutOptions.None, null, null);
+            return repository.Checkout(branch, CheckoutModifiers.None, null, null);
         }
 
         /// <summary>
@@ -285,7 +285,7 @@ namespace LibGit2Sharp
         /// <returns>The <see cref = "Branch" /> that was checked out.</returns>
         public static Branch Checkout(this IRepository repository, Commit commit)
         {
-            return repository.Checkout(commit, CheckoutOptions.None, null, null);
+            return repository.Checkout(commit, CheckoutModifiers.None, null, null);
         }
 
         internal static string BuildRelativePathFrom(this Repository repo, string path)
@@ -307,6 +307,5 @@ namespace LibGit2Sharp
 
             return normalizedPath.Substring(repo.Info.WorkingDirectory.Length);
         }
-
     }
 }

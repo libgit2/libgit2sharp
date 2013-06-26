@@ -652,10 +652,10 @@ namespace LibGit2Sharp
         /// <param name="checkoutOptions"><see cref = "CheckoutOptions" /> controlling checkout behavior.</param>
         /// <param name="onCheckoutProgress"><see cref = "CheckoutProgressHandler" /> that checkout progress is reported through.</param>
         /// <returns>The <see cref = "Branch" /> that was checked out.</returns>
-        [Obsolete("This method will be removed in the next release. Please use Checkout(string, CheckoutOptions, CheckoutProgressHandler, CheckoutNotificationOptions) instead.")]
+        [Obsolete("This method will be removed in the next release. Please use Checkout(string, CheckoutModifiers, CheckoutProgressHandler, CheckoutNotificationOptions) instead.")]
         public Branch Checkout(string committishOrBranchSpec, CheckoutOptions checkoutOptions, CheckoutProgressHandler onCheckoutProgress)
         {
-            return Checkout(committishOrBranchSpec, checkoutOptions, onCheckoutProgress, null);
+            return Checkout(committishOrBranchSpec, (CheckoutModifiers)checkoutOptions, onCheckoutProgress, null);
         }
 
         /// <summary>
@@ -666,11 +666,11 @@ namespace LibGit2Sharp
         ///   </para>
         /// </summary>
         /// <param name = "committishOrBranchSpec">A revparse spec for the commit or branch to checkout.</param>
-        /// <param name="checkoutOptions"><see cref = "CheckoutOptions" /> controlling checkout behavior.</param>
+        /// <param name="checkoutModifiers"><see cref = "CheckoutModifiers" /> controlling checkout behavior.</param>
         /// <param name="onCheckoutProgress"><see cref = "CheckoutProgressHandler" /> that checkout progress is reported through.</param>
         /// <param name="checkoutNotifications"><see cref="CheckoutNotificationOptions"/> to manage checkout notifications.</param>
         /// <returns>The <see cref = "Branch" /> that was checked out.</returns>
-        public Branch Checkout(string committishOrBranchSpec, CheckoutOptions checkoutOptions, CheckoutProgressHandler onCheckoutProgress, CheckoutNotificationOptions checkoutNotifications)
+        public Branch Checkout(string committishOrBranchSpec, CheckoutModifiers checkoutModifiers, CheckoutProgressHandler onCheckoutProgress, CheckoutNotificationOptions checkoutNotifications)
         {
             Ensure.ArgumentNotNullOrEmptyString(committishOrBranchSpec, "committishOrBranchSpec");
 
@@ -678,11 +678,11 @@ namespace LibGit2Sharp
 
             if (branch != null)
             {
-                return Checkout(branch, checkoutOptions, onCheckoutProgress, checkoutNotifications);
+                return Checkout(branch, checkoutModifiers, onCheckoutProgress, checkoutNotifications);
             }
 
             Commit commit = LookupCommit(committishOrBranchSpec);
-            CheckoutTree(commit.Tree, checkoutOptions, onCheckoutProgress, checkoutNotifications, commit.Id.Sha, committishOrBranchSpec, committishOrBranchSpec != "HEAD");
+            CheckoutTree(commit.Tree, checkoutModifiers, onCheckoutProgress, checkoutNotifications, commit.Id.Sha, committishOrBranchSpec, committishOrBranchSpec != "HEAD");
 
             return Head;
         }
@@ -715,10 +715,10 @@ namespace LibGit2Sharp
         /// <param name="checkoutOptions"><see cref = "CheckoutOptions" /> controlling checkout behavior.</param>
         /// <param name="onCheckoutProgress"><see cref = "CheckoutProgressHandler" /> that checkout progress is reported through.</param>
         /// <returns>The <see cref = "Branch" /> that was checked out.</returns>
-        [Obsolete("This method will be removed in the next release. Please use Checkout(Branch, CheckoutOptions, CheckoutProgressHandler, CheckoutNotificationOptions) instead.")]
+        [Obsolete("This method will be removed in the next release. Please use Checkout(Branch, CheckoutModifiers, CheckoutProgressHandler, CheckoutNotificationOptions) instead.")]
         public Branch Checkout(Branch branch, CheckoutOptions checkoutOptions, CheckoutProgressHandler onCheckoutProgress)
         {
-            return Checkout(branch, checkoutOptions, onCheckoutProgress, null);
+            return Checkout(branch, (CheckoutModifiers)checkoutOptions, onCheckoutProgress, null);
         }
 
         /// <summary>
@@ -727,11 +727,11 @@ namespace LibGit2Sharp
         ///   as a detached HEAD.
         /// </summary>
         /// <param name="branch">The <see cref = "Branch" /> to check out. </param>
-        /// <param name="checkoutOptions"><see cref = "CheckoutOptions" /> controlling checkout behavior.</param>
+        /// <param name="checkoutModifiers"><see cref = "CheckoutModifiers" /> controlling checkout behavior.</param>
         /// <param name="onCheckoutProgress"><see cref = "CheckoutProgressHandler" /> that checkout progress is reported through.</param>
         /// <param name="checkoutNotificationOptions"><see cref="CheckoutNotificationOptions"/> to manage checkout notifications.</param>
         /// <returns>The <see cref = "Branch" /> that was checked out.</returns>
-        public Branch Checkout(Branch branch, CheckoutOptions checkoutOptions, CheckoutProgressHandler onCheckoutProgress, CheckoutNotificationOptions checkoutNotificationOptions)
+        public Branch Checkout(Branch branch, CheckoutModifiers checkoutModifiers, CheckoutProgressHandler onCheckoutProgress, CheckoutNotificationOptions checkoutNotificationOptions)
         {
             Ensure.ArgumentNotNull(branch, "branch");
 
@@ -749,11 +749,11 @@ namespace LibGit2Sharp
                 string.Equals(Refs[branch.CanonicalName].TargetIdentifier, branch.Tip.Id.Sha,
                 StringComparison.OrdinalIgnoreCase))
             {
-                CheckoutTree(branch.Tip.Tree, checkoutOptions, onCheckoutProgress, checkoutNotificationOptions, branch.CanonicalName, branch.Name, !branchIsCurrentRepositoryHead);
+                CheckoutTree(branch.Tip.Tree, checkoutModifiers, onCheckoutProgress, checkoutNotificationOptions, branch.CanonicalName, branch.Name, !branchIsCurrentRepositoryHead);
             }
             else
             {
-                CheckoutTree(branch.Tip.Tree, checkoutOptions, onCheckoutProgress, checkoutNotificationOptions, branch.Tip.Id.Sha, branch.Name, !branchIsCurrentRepositoryHead);
+                CheckoutTree(branch.Tip.Tree, checkoutModifiers, onCheckoutProgress, checkoutNotificationOptions, branch.Tip.Id.Sha, branch.Name, !branchIsCurrentRepositoryHead);
             }
 
             return Head;
@@ -769,10 +769,10 @@ namespace LibGit2Sharp
         /// <param name="checkoutOptions"><see cref = "CheckoutOptions" /> controlling checkout behavior.</param>
         /// <param name="onCheckoutProgress"><see cref = "CheckoutProgressHandler" /> that checkout progress is reported through.</param>
         /// <returns>The <see cref = "Branch" /> that was checked out.</returns>
-        [Obsolete("This method will be removed in the next release. Please use Checkout(Commit, CheckoutOptions, CheckoutProgressHandler, CheckoutNotificationOptions) instead.")]
+        [Obsolete("This method will be removed in the next release. Please use Checkout(Commit, CheckoutModifiers, CheckoutProgressHandler, CheckoutNotificationOptions) instead.")]
         public Branch Checkout(Commit commit, CheckoutOptions checkoutOptions, CheckoutProgressHandler onCheckoutProgress)
         {
-            CheckoutTree(commit.Tree, checkoutOptions, onCheckoutProgress, null, commit.Id.Sha, commit.Id.Sha, true);
+            CheckoutTree(commit.Tree, (CheckoutModifiers)checkoutOptions, onCheckoutProgress, null, commit.Id.Sha, commit.Id.Sha, true);
 
             return Head;
         }
@@ -784,13 +784,13 @@ namespace LibGit2Sharp
         ///   </para>
         /// </summary>
         /// <param name="commit">The <see cref = "LibGit2Sharp.Commit" /> to check out. </param>
-        /// <param name="checkoutOptions"><see cref = "CheckoutOptions" /> controlling checkout behavior.</param>
+        /// <param name="checkoutModifiers"><see cref = "CheckoutModifiers" /> controlling checkout behavior.</param>
         /// <param name="onCheckoutProgress"><see cref = "CheckoutProgressHandler" /> that checkout progress is reported through.</param>
         /// <param name="checkoutNotificationOptions"><see cref="CheckoutNotificationOptions"/> to manage checkout notifications.</param>
         /// <returns>The <see cref = "Branch" /> that was checked out.</returns>
-        public Branch Checkout(Commit commit, CheckoutOptions checkoutOptions, CheckoutProgressHandler onCheckoutProgress, CheckoutNotificationOptions checkoutNotificationOptions)
+        public Branch Checkout(Commit commit, CheckoutModifiers checkoutModifiers, CheckoutProgressHandler onCheckoutProgress, CheckoutNotificationOptions checkoutNotificationOptions)
         {
-            CheckoutTree(commit.Tree, checkoutOptions, onCheckoutProgress, checkoutNotificationOptions, commit.Id.Sha, commit.Id.Sha, true);
+            CheckoutTree(commit.Tree, checkoutModifiers, onCheckoutProgress, checkoutNotificationOptions, commit.Id.Sha, commit.Id.Sha, true);
 
             return Head;
         }
@@ -809,13 +809,13 @@ namespace LibGit2Sharp
         ///   to already be in the form of a canonical branch name or a commit ID.
         /// </summary>
         /// <param name="tree">The <see cref="Tree"/> to checkout.</param>
-        /// <param name="checkoutOptions"><see cref = "CheckoutOptions" /> controlling checkout behavior.</param>
+        /// <param name="checkoutModifiers"><see cref = "CheckoutModifiers" /> controlling checkout behavior.</param>
         /// <param name="onCheckoutProgress"><see cref = "CheckoutProgressHandler" /> that checkout progress is reported through.</param>
         /// <param name="checkoutNotificationOptions"><see cref="CheckoutNotificationOptions"/> to manage checkout notifications.</param>
         /// <param name="headTarget">Target for the new HEAD.</param>
         /// <param name="refLogHeadSpec">The spec which will be written as target in the reflog.</param>
         /// <param name="writeReflogEntry">Will a reflog entry be created.</param>
-        private void CheckoutTree(Tree tree, CheckoutOptions checkoutOptions, CheckoutProgressHandler onCheckoutProgress, CheckoutNotificationOptions checkoutNotificationOptions,
+        private void CheckoutTree(Tree tree, CheckoutModifiers checkoutModifiers, CheckoutProgressHandler onCheckoutProgress, CheckoutNotificationOptions checkoutNotificationOptions,
             string headTarget, string refLogHeadSpec, bool writeReflogEntry)
         {
             var previousHeadName = Info.IsHeadDetached ? Head.Tip.Sha : Head.Name;
@@ -833,7 +833,7 @@ namespace LibGit2Sharp
                 notify_flags = checkoutNotifyFlags
             };
 
-            if (checkoutOptions.HasFlag(CheckoutOptions.Force))
+            if (checkoutModifiers.HasFlag(CheckoutModifiers.Force))
             {
                 options.checkout_strategy = CheckoutStrategy.GIT_CHECKOUT_FORCE;
             }

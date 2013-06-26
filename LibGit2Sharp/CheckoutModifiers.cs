@@ -6,8 +6,7 @@ namespace LibGit2Sharp
     ///   Options controlling Checkout behavior.
     /// </summary>
     [Flags]
-    [Obsolete("This type will be removed in the next release.")]
-    public enum CheckoutOptions
+    public enum CheckoutModifiers
     {
         /// <summary>
         ///   No checkout flags - use default behavior.
