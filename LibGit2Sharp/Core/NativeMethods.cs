@@ -208,7 +208,7 @@ namespace LibGit2Sharp.Core
         internal static extern IntPtr git_commit_committer(GitObjectSafeHandle commit);
 
         [DllImport(libgit2)]
-        internal static extern int git_commit_create(
+        internal static extern int git_commit_create_from_oids(
             out GitOid id,
             RepositorySafeHandle repo,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(Utf8Marshaler))] string updateRef,
@@ -216,7 +216,7 @@ namespace LibGit2Sharp.Core
             SignatureSafeHandle committer,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(Utf8Marshaler))] string encoding,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(Utf8Marshaler))] string message,
-            GitObjectSafeHandle tree,
+            ref GitOid tree,
             int parentCount,
             [MarshalAs(UnmanagedType.LPArray)] [In] IntPtr[] parents);
 

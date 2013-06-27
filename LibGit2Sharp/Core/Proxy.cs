@@ -251,20 +251,22 @@ namespace LibGit2Sharp.Core
             Signature committer,
             string prettifiedMessage,
             Tree tree,
-            IEnumerable<ObjectId> parentIds)
+            GitOid[] parentIds)
         {
             using (ThreadAffinity())
-            using (var treePtr = new ObjectSafeWrapper(tree.Id, repo))
-            using (var parentObjectPtrs = new DisposableEnumerable<ObjectSafeWrapper>(parentIds.Select(id => new ObjectSafeWrapper(id, repo)).ToList()))
             using (SignatureSafeHandle authorHandle = author.BuildHandle())
             using (SignatureSafeHandle committerHandle = committer.BuildHandle())
+            using (var parentPtrs = new ArrayMarshaler<GitOid>(parentIds))
             {
                 GitOid commitOid;
-                string encoding = null; //TODO: Handle the encoding of the commit to be created
 
-                IntPtr[] parentsPtrs = parentObjectPtrs.Select(o => o.ObjectPtr.DangerousGetHandle()).ToArray();
-                int res = NativeMethods.git_commit_create(out commitOid, repo, referenceName, authorHandle,
-                                                      committerHandle, encoding, prettifiedMessage, treePtr.ObjectPtr, parentObjectPtrs.Count, parentsPtrs);
+                var treeOid = tree.Id.Oid;
+
+                int res = NativeMethods.git_commit_create_from_oids(
+                    out commitOid, repo, referenceName, authorHandle,
+                    committerHandle, null, prettifiedMessage,
+                    ref treeOid, parentPtrs.Count, parentPtrs.ToArray());
+
                 Ensure.ZeroResult(res);
 
                 return commitOid;
