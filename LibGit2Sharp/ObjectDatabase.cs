@@ -190,7 +190,7 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(parents, "parents");
 
             string prettifiedMessage = Proxy.git_message_prettify(message);
-            IEnumerable<ObjectId> parentIds = parents.Select(p => p.Id);
+            GitOid[] parentIds = parents.Select(p => p.Id.Oid).ToArray();
 
             ObjectId commitId = Proxy.git_commit_create(repo.Handle, referenceName, author, committer, prettifiedMessage, tree, parentIds);
 
