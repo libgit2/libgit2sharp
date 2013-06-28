@@ -128,7 +128,7 @@ function Assert-Consistent-Naming($expected, $path) {
 		break
 	}
 	$shortsha = $sha.Substring(0,7)
-	$expected = "git2-$shortsha.dll"
+	$binaryFilename = "git2-$shortsha"
 
 	Write-Output "Checking out $sha..."
 	Run-Command -Quiet -Fatal { & $git checkout $sha }
@@ -137,11 +137,11 @@ function Assert-Consistent-Naming($expected, $path) {
 	Run-Command -Quiet { & remove-item build -recurse -force }
 	Run-Command -Quiet { & mkdir build }
 	cd build
-	Run-Command -Quiet -Fatal { & $cmake -G "Visual Studio $vs" -D THREADSAFE=ON -D "BUILD_CLAR=$build_clar" -D "SONAME_APPEND=$shortsha" .. }
+	Run-Command -Quiet -Fatal { & $cmake -G "Visual Studio $vs" -D THREADSAFE=ON -D "BUILD_CLAR=$build_clar" -D "LIBGIT2_FILENAME=$binaryFilename" .. }
 	Run-Command -Quiet -Fatal { & $cmake --build . --config $configuration }
 	if ($test.IsPresent) { Run-Command -Quiet -Fatal { & $ctest -V . } }
 	cd $configuration
-	Assert-Consistent-Naming $expected "*.dll"
+	Assert-Consistent-Naming "$binaryFilename.dll" "*.dll"
 	Run-Command -Quiet { & rm *.exp }
 	Run-Command -Quiet { & rm $x86Directory\* }
 	Run-Command -Quiet -Fatal { & copy -fo * $x86Directory }
@@ -150,11 +150,11 @@ function Assert-Consistent-Naming($expected, $path) {
 	cd ..
 	Run-Command -Quiet { & mkdir build64 }
 	cd build64
-	Run-Command -Quiet -Fatal { & $cmake -G "Visual Studio $vs Win64" -D THREADSAFE=ON -D "BUILD_CLAR=$build_clar" -D "SONAME_APPEND=$shortsha" ../.. }
+	Run-Command -Quiet -Fatal { & $cmake -G "Visual Studio $vs Win64" -D THREADSAFE=ON -D "BUILD_CLAR=$build_clar" -D "LIBGIT2_FILENAME=$binaryFilename" ../.. }
 	Run-Command -Quiet -Fatal { & $cmake --build . --config $configuration }
 	if ($test.IsPresent) { Run-Command -Quiet -Fatal { & $ctest -V . } }
 	cd $configuration
-	Assert-Consistent-Naming $expected "*.dll"
+	Assert-Consistent-Naming "$binaryFilename.dll" "*.dll"
 	Run-Command -Quiet { & rm *.exp }
 	Run-Command -Quiet { & rm $x64Directory\* }
 	Run-Command -Quiet -Fatal { & copy -fo * $x64Directory }

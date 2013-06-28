@@ -116,5 +116,6 @@ namespace LibGit2Sharp.Core
         public UnSafeNativeMethods.git_strarray paths;
 
         public IntPtr baseline;
+        public IntPtr target_directory;
     }
 }
