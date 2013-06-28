@@ -1,19 +1,20 @@
-﻿using System;
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace LibGit2Sharp
 {
     /// <summary>
     ///   Criterias used to filter out and order the commits of the repository when querying its history.
     /// </summary>
-    [Obsolete("This type will be removed in the next release.")]
-    public class Filter
+    public class CommitFilter
     {
         /// <summary>
-        ///   Initializes a new instance of <see cref = "Filter" />.
+        ///   Initializes a new instance of <see cref = "LibGit2Sharp.Filter" />.
         /// </summary>
-        public Filter()
+        public CommitFilter()
         {
-            SortBy = GitSortOptions.Time;
+            SortBy = CommitSortStrategies.Time;
             Since = "HEAD";
         }
 
@@ -23,7 +24,7 @@ namespace LibGit2Sharp
         ///     By default, the commits are shown in reverse chronological order.
         ///   </para>
         /// </summary>
-        public GitSortOptions SortBy { get; set; }
+        public CommitSortStrategies SortBy { get; set; }
 
         /// <summary>
         ///   A pointer to a commit object or a list of pointers to consider as starting points.
@@ -36,6 +37,11 @@ namespace LibGit2Sharp
         /// </summary>
         public object Since { get; set; }
 
+        internal IList<object> SinceList
+        {
+            get { return ToList(Since); }
+        }
+
         /// <summary>
         ///   A pointer to a commit object or a list of pointers which will be excluded (along with ancestors) from the enumeration.
         ///   <para>
@@ -46,16 +52,36 @@ namespace LibGit2Sharp
         /// </summary>
         public object Until { get; set; }
 
-        internal CommitFilter ToCommitFilter()
+        internal IList<object> UntilList
         {
-            var cf = new CommitFilter
-                         {
-                             Since = Since,
-                             SortBy = (CommitSortStrategies) SortBy,
-                             Until = Until
-                         };
+            get { return ToList(Until); }
+        }
 
-            return cf;
+        private static IList<object> ToList(object obj)
+        {
+            var list = new List<object>();
+
+            if (obj == null)
+            {
+                return list;
+            }
+
+            var types = new[]
+                            {
+                                typeof(string), typeof(ObjectId),
+                                typeof(Commit), typeof(TagAnnotation),
+                                typeof(Tag), typeof(Branch), typeof(DetachedHead),
+                                typeof(Reference), typeof(DirectReference), typeof(SymbolicReference)
+                            };
+
+            if (types.Contains(obj.GetType()))
+            {
+                list.Add(obj);
+                return list;
+            }
+
+            list.AddRange(((IEnumerable)obj).Cast<object>());
+            return list;
         }
     }
 }

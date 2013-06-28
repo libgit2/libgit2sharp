@@ -983,7 +983,7 @@ namespace LibGit2Sharp.Core
         internal static extern void git_revwalk_reset(RevWalkerSafeHandle walker);
 
         [DllImport(libgit2)]
-        internal static extern void git_revwalk_sorting(RevWalkerSafeHandle walk, GitSortOptions sort);
+        internal static extern void git_revwalk_sorting(RevWalkerSafeHandle walk, CommitSortStrategies sort);
 
         [DllImport(libgit2)]
         internal static extern void git_signature_free(IntPtr signature);
@@ -1002,7 +1002,7 @@ namespace LibGit2Sharp.Core
             RepositorySafeHandle repo,
             SignatureSafeHandle stasher,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(Utf8Marshaler))] string message,
-            StashOptions flags);
+            StashModifiers flags);
 
         internal delegate int git_stash_cb(
             UIntPtr index,

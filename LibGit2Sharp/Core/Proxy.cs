@@ -1850,7 +1850,7 @@ namespace LibGit2Sharp.Core
             NativeMethods.git_revwalk_reset(walker);
         }
 
-        public static void git_revwalk_sorting(RevWalkerSafeHandle walker, GitSortOptions options)
+        public static void git_revwalk_sorting(RevWalkerSafeHandle walker, CommitSortStrategies options)
         {
             NativeMethods.git_revwalk_sorting(walker, options);
         }
@@ -1885,7 +1885,7 @@ namespace LibGit2Sharp.Core
             RepositorySafeHandle repo,
             Signature stasher,
             string prettifiedMessage,
-            StashOptions options)
+            StashModifiers options)
         {
             using (ThreadAffinity())
             using (SignatureSafeHandle stasherHandle = stasher.BuildHandle())

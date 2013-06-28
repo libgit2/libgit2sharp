@@ -14,7 +14,7 @@ namespace LibGit2Sharp
     public class CommitLog : IQueryableCommitLog
     {
         private readonly Repository repo;
-        private readonly Filter queryFilter;
+        private readonly CommitFilter queryFilter;
 
         /// <summary>
         ///   Needed for mocking purposes.
@@ -28,7 +28,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name = "repo">The repository.</param>
         internal CommitLog(Repository repo)
-            : this(repo, new Filter())
+            : this(repo, new CommitFilter())
         {
         }
 
@@ -37,7 +37,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name = "repo">The repository.</param>
         /// <param name="queryFilter">The filter to use in querying commits</param>
-        internal CommitLog(Repository repo, Filter queryFilter)
+        internal CommitLog(Repository repo, CommitFilter queryFilter)
         {
             this.repo = repo;
             this.queryFilter = queryFilter;
@@ -46,7 +46,7 @@ namespace LibGit2Sharp
         /// <summary>
         ///   Gets the current sorting strategy applied when enumerating the log
         /// </summary>
-        public virtual GitSortOptions SortedBy
+        public virtual CommitSortStrategies SortedBy
         {
             get { return queryFilter.SortBy; }
         }
@@ -78,13 +78,28 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name = "filter">The options used to control which commits will be returned.</param>
         /// <returns>A list of commits, ready to be enumerated.</returns>
-        public virtual ICommitLog QueryBy(Filter filter)
+        public virtual ICommitLog QueryBy(CommitFilter filter)
         {
             Ensure.ArgumentNotNull(filter, "filter");
             Ensure.ArgumentNotNull(filter.Since, "filter.Since");
             Ensure.ArgumentNotNullOrEmptyString(filter.Since.ToString(), "filter.Since");
 
             return new CommitLog(repo, filter);
+        }
+
+        /// <summary>
+        ///   Returns the list of commits of the repository matching the specified <paramref name = "filter" />.
+        /// </summary>
+        /// <param name = "filter">The options used to control which commits will be returned.</param>
+        /// <returns>A list of commits, ready to be enumerated.</returns>
+        [Obsolete("This method will be removed in the next release. Please use QueryBy(CommitFilter) instead.")]
+        public virtual ICommitLog QueryBy(Filter filter)
+        {
+            Ensure.ArgumentNotNull(filter, "filter");
+            Ensure.ArgumentNotNull(filter.Since, "filter.Since");
+            Ensure.ArgumentNotNullOrEmptyString(filter.Since.ToString(), "filter.Since");
+
+            return new CommitLog(repo, filter.ToCommitFilter());
         }
 
         /// <summary>
@@ -151,7 +166,7 @@ namespace LibGit2Sharp
             private readonly RevWalkerSafeHandle handle;
             private ObjectId currentOid;
 
-            public CommitEnumerator(Repository repo, Filter filter)
+            public CommitEnumerator(Repository repo, CommitFilter filter)
             {
                 this.repo = repo;
                 handle = Proxy.git_revwalk_new(repo.Handle);
@@ -233,7 +248,7 @@ namespace LibGit2Sharp
                 InternalHidePush(identifier, Proxy.git_revwalk_hide);
             }
 
-            private void Sort(GitSortOptions options)
+            private void Sort(CommitSortStrategies options)
             {
                 Proxy.git_revwalk_sorting(handle, options);
             }

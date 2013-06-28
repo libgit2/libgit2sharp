@@ -237,11 +237,11 @@ namespace LibGit2Sharp.Tests
             Assert.Null(repo.Head.Tip);
 
             Assert.Equal(0, repo.Commits.Count());
-            Assert.Equal(0, repo.Commits.QueryBy(new Filter()).Count());
-            Assert.Equal(0, repo.Commits.QueryBy(new Filter { Since = repo.Refs.Head }).Count());
-            Assert.Equal(0, repo.Commits.QueryBy(new Filter { Since = repo.Head }).Count());
-            Assert.Equal(0, repo.Commits.QueryBy(new Filter { Since = "HEAD" }).Count());
-            Assert.Equal(0, repo.Commits.QueryBy(new Filter { Since = expectedHeadTargetIdentifier }).Count());
+            Assert.Equal(0, repo.Commits.QueryBy(new CommitFilter()).Count());
+            Assert.Equal(0, repo.Commits.QueryBy(new CommitFilter { Since = repo.Refs.Head }).Count());
+            Assert.Equal(0, repo.Commits.QueryBy(new CommitFilter { Since = repo.Head }).Count());
+            Assert.Equal(0, repo.Commits.QueryBy(new CommitFilter { Since = "HEAD" }).Count());
+            Assert.Equal(0, repo.Commits.QueryBy(new CommitFilter { Since = expectedHeadTargetIdentifier }).Count());
 
             Assert.Null(repo.Head["subdir/I-do-not-exist"]);
 
@@ -553,7 +553,7 @@ namespace LibGit2Sharp.Tests
             string path = CloneStandardTestRepo();
             using (var repo = new Repository(path))
             {
-                repo.Checkout(repo.Head.Tip.Sha, CheckoutOptions.Force, null, null);
+                repo.Checkout(repo.Head.Tip.Sha, CheckoutModifiers.Force, null, null);
                 Branch trackLocal = repo.Head;
                 Assert.Null(trackLocal.Remote);
             }

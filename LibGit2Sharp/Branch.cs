@@ -126,7 +126,7 @@ namespace LibGit2Sharp
         /// </summary>
         public virtual ICommitLog Commits
         {
-            get { return repo.Commits.QueryBy(new Filter { Since = this }); }
+            get { return repo.Commits.QueryBy(new CommitFilter { Since = this }); }
         }
 
         /// <summary>
@@ -233,10 +233,10 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="checkoutOptions">Options controlling checkout behavior.</param>
         /// <param name="onCheckoutProgress">Callback method to report checkout progress updates through.</param>
-        [Obsolete("This method will be removed in the next release. Please use Checkout(CheckoutOptions, CheckoutProgressHandler, CheckoutNotificationOptions) instead.")]
+        [Obsolete("This method will be removed in the next release. Please use Checkout(CheckoutModifiers, CheckoutProgressHandler, CheckoutNotificationOptions) instead.")]
         public virtual void Checkout(CheckoutOptions checkoutOptions, CheckoutProgressHandler onCheckoutProgress)
         {
-            Checkout(checkoutOptions, onCheckoutProgress, null);
+            Checkout((CheckoutModifiers)checkoutOptions, onCheckoutProgress, null);
         }
 
         /// <summary>
@@ -245,12 +245,12 @@ namespace LibGit2Sharp
         ///   current tip of the branch, will checkout the named branch. Otherwise,
         ///   will checkout the tip commit as a detached HEAD.
         /// </summary>
-        /// <param name="checkoutOptions">Options controlling checkout behavior.</param>
+        /// <param name="checkoutModifiers">Options controlling checkout behavior.</param>
         /// <param name="onCheckoutProgress">Callback method to report checkout progress updates through.</param>
         /// <param name="checkoutNotificationOptions"><see cref="CheckoutNotificationOptions"/> to manage checkout notifications.</param>
-        public virtual void Checkout(CheckoutOptions checkoutOptions, CheckoutProgressHandler onCheckoutProgress, CheckoutNotificationOptions checkoutNotificationOptions)
+        public virtual void Checkout(CheckoutModifiers checkoutModifiers, CheckoutProgressHandler onCheckoutProgress, CheckoutNotificationOptions checkoutNotificationOptions)
         {
-            repo.Checkout(this, checkoutOptions, onCheckoutProgress, checkoutNotificationOptions);
+            repo.Checkout(this, checkoutModifiers, onCheckoutProgress, checkoutNotificationOptions);
         }
 
         private Branch ResolveTrackedBranch()

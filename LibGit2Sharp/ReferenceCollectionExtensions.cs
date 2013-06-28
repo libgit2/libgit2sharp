@@ -209,7 +209,7 @@ namespace LibGit2Sharp
 
             foreach (var reference in refs)
             {
-                foreach (var commit in allCommits.QueryBy(new Filter { Since = reference }))
+                foreach (var commit in allCommits.QueryBy(new CommitFilter { Since = reference }))
                 {
                     if (!targetsSet.Contains(commit))
                     {
