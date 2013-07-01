@@ -7,37 +7,37 @@ using LibGit2Sharp.Handlers;
 namespace LibGit2Sharp
 {
     /// <summary>
-    ///   A branch is a special kind of reference
+    /// A branch is a special kind of reference
     /// </summary>
     public class Branch : ReferenceWrapper<Commit>
     {
         private readonly Lazy<Branch> trackedBranch;
 
         /// <summary>
-        ///   Needed for mocking purposes.
+        /// Needed for mocking purposes.
         /// </summary>
         protected Branch()
         { }
 
         /// <summary>
-        ///   Initializes a new instance of the <see cref = "Branch" /> class.
+        /// Initializes a new instance of the <see cref="Branch"/> class.
         /// </summary>
-        /// <param name = "repo">The repo.</param>
-        /// <param name = "reference">The reference.</param>
-        /// <param name = "canonicalName">The full name of the reference</param>
+        /// <param name="repo">The repo.</param>
+        /// <param name="reference">The reference.</param>
+        /// <param name="canonicalName">The full name of the reference</param>
         internal Branch(Repository repo, Reference reference, string canonicalName)
             : this(repo, reference, _ => canonicalName)
         {
         }
 
         /// <summary>
-        ///   Initializes a new instance of an orphaned <see cref = "Branch" /> class.
-        ///   <para>
-        ///     This <see cref = "Branch" /> instance will point to no commit.
-        ///   </para>
+        /// Initializes a new instance of an orphaned <see cref="Branch"/> class.
+        /// <para>
+        ///   This <see cref="Branch"/> instance will point to no commit.
+        /// </para>
         /// </summary>
-        /// <param name = "repo">The repo.</param>
-        /// <param name = "reference">The reference.</param>
+        /// <param name="repo">The repo.</param>
+        /// <param name="reference">The reference.</param>
         internal Branch(Repository repo, Reference reference)
             : this(repo, reference, r => r.TargetIdentifier)
         {
@@ -50,10 +50,10 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Gets the <see cref = "TreeEntry" /> pointed at by the <paramref name = "relativePath" /> in the <see cref = "Tip" />.
+        /// Gets the <see cref="TreeEntry"/> pointed at by the <paramref name="relativePath"/> in the <see cref="Tip"/>.
         /// </summary>
-        /// <param name = "relativePath">The relative path to the <see cref = "TreeEntry" /> from the <see cref = "Tip" /> working directory.</param>
-        /// <returns><c>null</c> if nothing has been found, the <see cref = "TreeEntry" /> otherwise.</returns>
+        /// <param name="relativePath">The relative path to the <see cref="TreeEntry"/> from the <see cref="Tip"/> working directory.</param>
+        /// <returns><c>null</c> if nothing has been found, the <see cref="TreeEntry"/> otherwise.</returns>
         public virtual TreeEntry this[string relativePath]
         {
             get
@@ -68,10 +68,10 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Gets a value indicating whether this instance is a remote.
+        /// Gets a value indicating whether this instance is a remote.
         /// </summary>
         /// <value>
-        ///   <c>true</c> if this instance is remote; otherwise, <c>false</c>.
+        /// <c>true</c> if this instance is remote; otherwise, <c>false</c>.
         /// </value>
         public virtual bool IsRemote
         {
@@ -79,7 +79,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Gets the remote branch which is connected to this local one, or null if there is none.
+        /// Gets the remote branch which is connected to this local one, or null if there is none.
         /// </summary>
         public virtual Branch TrackedBranch
         {
@@ -87,7 +87,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Determines if this local branch is connected to a remote one.
+        /// Determines if this local branch is connected to a remote one.
         /// </summary>
         public virtual bool IsTracking
         {
@@ -95,7 +95,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Gets additional information about the tracked branch.
+        /// Gets additional information about the tracked branch.
         /// </summary>
         public virtual BranchTrackingDetails TrackingDetails
         {
@@ -103,10 +103,10 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Gets a value indicating whether this instance is current branch (HEAD) in the repository.
+        /// Gets a value indicating whether this instance is current branch (HEAD) in the repository.
         /// </summary>
         /// <value>
-        ///   <c>true</c> if this instance is the current branch; otherwise, <c>false</c>.
+        /// <c>true</c> if this instance is the current branch; otherwise, <c>false</c>.
         /// </value>
         public virtual bool IsCurrentRepositoryHead
         {
@@ -114,7 +114,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Gets the <see cref="Commit"/> that this branch points to.
+        /// Gets the <see cref="Commit"/> that this branch points to.
         /// </summary>
         public virtual Commit Tip
         {
@@ -122,7 +122,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Gets the commits on this branch. (Starts walking from the References's target).
+        /// Gets the commits on this branch. (Starts walking from the References's target).
         /// </summary>
         public virtual ICommitLog Commits
         {
@@ -130,11 +130,11 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Gets the configured canonical name of the upstream branch.
-        ///   <para>
-        ///     This is the upstream reference to which this branch will be pushed.
-        ///     It corresponds to the "branch.branch_name.merge" property of the config file.
-        ///   </para>
+        /// Gets the configured canonical name of the upstream branch.
+        /// <para>
+        ///   This is the upstream reference to which this branch will be pushed.
+        ///   It corresponds to the "branch.branch_name.merge" property of the config file.
+        /// </para>
         /// </summary>
         public virtual string UpstreamBranchCanonicalName
         {
@@ -150,7 +150,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Gets the configured <see cref="Remote"/> to fetch from and push to.
+        /// Gets the configured <see cref="Remote"/> to fetch from and push to.
         /// </summary>
         public virtual Remote Remote
         {
@@ -215,10 +215,10 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Checkout the tip commit of this <see cref = "Branch" /> object.
-        ///   If this commit is the current tip of the branch, will checkout
-        ///   the named branch. Otherwise, will checkout the tip commit as a
-        ///   detached HEAD.
+        /// Checkout the tip commit of this <see cref="Branch"/> object.
+        /// If this commit is the current tip of the branch, will checkout
+        /// the named branch. Otherwise, will checkout the tip commit as a
+        /// detached HEAD.
         /// </summary>
         public virtual void Checkout()
         {
@@ -226,10 +226,10 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Checkout the tip commit of this <see cref = "Branch" /> object
-        ///   with a callback for progress reporting. If this commit is the
-        ///   current tip of the branch, will checkout the named branch. Otherwise,
-        ///   will checkout the tip commit as a detached HEAD.
+        /// Checkout the tip commit of this <see cref="Branch"/> object
+        /// with a callback for progress reporting. If this commit is the
+        /// current tip of the branch, will checkout the named branch. Otherwise,
+        /// will checkout the tip commit as a detached HEAD.
         /// </summary>
         /// <param name="checkoutOptions">Options controlling checkout behavior.</param>
         /// <param name="onCheckoutProgress">Callback method to report checkout progress updates through.</param>
@@ -240,10 +240,10 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Checkout the tip commit of this <see cref = "Branch" /> object
-        ///   with a callback for progress reporting. If this commit is the
-        ///   current tip of the branch, will checkout the named branch. Otherwise,
-        ///   will checkout the tip commit as a detached HEAD.
+        /// Checkout the tip commit of this <see cref="Branch"/> object
+        /// with a callback for progress reporting. If this commit is the
+        /// current tip of the branch, will checkout the named branch. Otherwise,
+        /// will checkout the tip commit as a detached HEAD.
         /// </summary>
         /// <param name="checkoutModifiers">Options controlling checkout behavior.</param>
         /// <param name="onCheckoutProgress">Callback method to report checkout progress updates through.</param>
@@ -283,8 +283,8 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Removes redundent leading namespaces (regarding the kind of
-        ///   reference being wrapped) from the canonical name.
+        /// Removes redundent leading namespaces (regarding the kind of
+        /// reference being wrapped) from the canonical name.
         /// </summary>
         /// <returns>The friendly shortened name</returns>
         protected override string Shorten()

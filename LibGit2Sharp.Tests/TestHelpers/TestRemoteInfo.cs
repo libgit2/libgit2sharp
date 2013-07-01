@@ -3,18 +3,18 @@
 namespace LibGit2Sharp.Tests.TestHelpers
 {
     /// <summary>
-    ///   This is the state of the test repository based at:
-    ///   github.com/libgit2/TestGitRepository
+    /// This is the state of the test repository based at:
+    /// github.com/libgit2/TestGitRepository
     /// </summary>
     public class TestRemoteInfo
     {
         /// <summary>
-        ///   Expected Branch tips of the remote repository.
+        /// Expected Branch tips of the remote repository.
         /// </summary>
         public Dictionary<string, ObjectId> BranchTips = new Dictionary<string, ObjectId>();
 
         /// <summary>
-        ///   Expected Tags of the remote repository.
+        /// Expected Tags of the remote repository.
         /// </summary>
         public Dictionary<string, ExpectedTagInfo> Tags = new Dictionary<string, ExpectedTagInfo>();
 
@@ -35,7 +35,7 @@ namespace LibGit2Sharp.Tests.TestHelpers
         #region ExpectedTagInfo class
 
         /// <summary>
-        ///   Helper class to contain expected info of tags in the test repository.
+        /// Helper class to contain expected info of tags in the test repository.
         /// </summary>
         public class ExpectedTagInfo
         {

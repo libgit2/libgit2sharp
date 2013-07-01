@@ -910,8 +910,8 @@ namespace LibGit2Sharp.Tests
         }
 
         /// <summary>
-        ///   Helper method to populate a simple repository with
-        ///   a single file and two branches.
+        /// Helper method to populate a simple repository with
+        /// a single file and two branches.
         /// </summary>
         /// <param name="repo">Repository to populate</param>
         private void PopulateBasicRepository(Repository repo)

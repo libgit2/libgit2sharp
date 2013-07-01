@@ -8,22 +8,22 @@ namespace LibGit2Sharp.Core
     internal enum CheckoutStrategy
     {
         /// <summary>
-        ///   Default is a dry run, no actual updates.
+        /// Default is a dry run, no actual updates.
         /// </summary>
         GIT_CHECKOUT_NONE = 0,
 
         /// <summary>
-        ///   Allow safe updates that cannot overwrite uncommited data.
+        /// Allow safe updates that cannot overwrite uncommited data.
         /// </summary>
         GIT_CHECKOUT_SAFE = (1 << 0),
 
         /// <summary>
-        ///   Allow safe updates plus creation of missing files.
+        /// Allow safe updates plus creation of missing files.
         /// </summary>
         GIT_CHECKOUT_SAFE_CREATE = (1 << 1),
 
         /// <summary>
-        ///   Allow update of entries in working dir that are modified from HEAD.
+        /// Allow update of entries in working dir that are modified from HEAD.
         /// </summary>
         GIT_CHECKOUT_FORCE = (1 << 2),
 

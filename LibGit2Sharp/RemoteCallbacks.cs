@@ -5,10 +5,10 @@ using LibGit2Sharp.Handlers;
 namespace LibGit2Sharp
 {
     /// <summary>
-    ///   Class to translate libgit2 callbacks into delegates exposed by LibGit2Sharp.
-    ///   Handles generating libgit2 git_remote_callbacks datastructure given a set
-    ///   of LibGit2Sharp delegates and handles propagating libgit2 callbacks into
-    ///   corresponding LibGit2Sharp exposed delegates.
+    /// Class to translate libgit2 callbacks into delegates exposed by LibGit2Sharp.
+    /// Handles generating libgit2 git_remote_callbacks datastructure given a set
+    /// of LibGit2Sharp delegates and handles propagating libgit2 callbacks into
+    /// corresponding LibGit2Sharp exposed delegates.
     /// </summary>
     internal class RemoteCallbacks
     {
@@ -22,17 +22,17 @@ namespace LibGit2Sharp
         #region Delegates
 
         /// <summary>
-        ///   Progress callback. Corresponds to libgit2 progress callback.
+        /// Progress callback. Corresponds to libgit2 progress callback.
         /// </summary>
         private readonly ProgressHandler Progress;
 
         /// <summary>
-        ///   UpdateTips callback. Corresponds to libgit2 update_tips callback.
+        /// UpdateTips callback. Corresponds to libgit2 update_tips callback.
         /// </summary>
         private readonly UpdateTipsHandler UpdateTips;
 
         /// <summary>
-        ///   Completion callback. Corresponds to libgit2 Completion callback.
+        /// Completion callback. Corresponds to libgit2 Completion callback.
         /// </summary>
         private readonly CompletionHandler Completion;
 
@@ -40,7 +40,7 @@ namespace LibGit2Sharp
 
         internal GitRemoteCallbacks GenerateCallbacks()
         {
-            GitRemoteCallbacks callbacks = new GitRemoteCallbacks {version = 1};
+            var callbacks = new GitRemoteCallbacks {version = 1};
 
             if (Progress != null)
             {
@@ -63,13 +63,13 @@ namespace LibGit2Sharp
         #region Handlers to respond to callbacks raised by libgit2
 
         /// <summary>
-        ///   Handler for libgit2 Progress callback. Converts values
-        ///   received from libgit2 callback to more suitable types
-        ///   and calls delegate provided by LibGit2Sharp consumer.
+        /// Handler for libgit2 Progress callback. Converts values
+        /// received from libgit2 callback to more suitable types
+        /// and calls delegate provided by LibGit2Sharp consumer.
         /// </summary>
         /// <param name="str">IntPtr to string from libgit2</param>
         /// <param name="len">length of string</param>
-        /// <param name="data"></param>
+        /// <param name="data">IntPtr to optional payload passed back to the callback.</param>
         private void GitProgressHandler(IntPtr str, int len, IntPtr data)
         {
             ProgressHandler onProgress = Progress;
@@ -82,15 +82,15 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Handler for libgit2 update_tips callback. Converts values
-        ///   received from libgit2 callback to more suitable types
-        ///   and calls delegate provided by LibGit2Sharp consumer.
+        /// Handler for libgit2 update_tips callback. Converts values
+        /// received from libgit2 callback to more suitable types
+        /// and calls delegate provided by LibGit2Sharp consumer.
         /// </summary>
         /// <param name="str">IntPtr to string</param>
         /// <param name="oldId">Old reference ID</param>
         /// <param name="newId">New referene ID</param>
-        /// <param name="data"></param>
-        /// <returns></returns>
+        /// <param name="data">IntPtr to optional payload passed back to the callback.</param>
+        /// <returns>0 on success; a negative value to abort the process.</returns>
         private int GitUpdateTipsHandler(IntPtr str, ref GitOid oldId, ref GitOid newId, IntPtr data)
         {
             UpdateTipsHandler onUpdateTips = UpdateTips;
@@ -106,13 +106,13 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Handler for libgit2 completion callback. Converts values
-        ///   received from libgit2 callback to more suitable types
-        ///   and calls delegate provided by LibGit2Sharp consumer.
+        /// Handler for libgit2 completion callback. Converts values
+        /// received from libgit2 callback to more suitable types
+        /// and calls delegate provided by LibGit2Sharp consumer.
         /// </summary>
-        /// <param name="remoteCompletionType"></param>
-        /// <param name="data"></param>
-        /// <returns></returns>
+        /// <param name="remoteCompletionType">Which operation completed.</param>
+        /// <param name="data">IntPtr to optional payload passed back to the callback.</param>
+        /// <returns>0 on success; a negative value to abort the process.</returns>
         private int GitCompletionHandler(RemoteCompletionType remoteCompletionType, IntPtr data)
         {
             CompletionHandler completion = Completion;

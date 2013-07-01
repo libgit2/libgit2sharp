@@ -9,7 +9,7 @@ using LibGit2Sharp.Core.Handles;
 namespace LibGit2Sharp
 {
     /// <summary>
-    ///   A log of commits in a <see cref = "Repository" />
+    /// A log of commits in a <see cref="Repository"/>
     /// </summary>
     public class CommitLog : IQueryableCommitLog
     {
@@ -17,25 +17,25 @@ namespace LibGit2Sharp
         private readonly CommitFilter queryFilter;
 
         /// <summary>
-        ///   Needed for mocking purposes.
+        /// Needed for mocking purposes.
         /// </summary>
         protected CommitLog()
         { }
 
         /// <summary>
-        ///   Initializes a new instance of the <see cref = "CommitLog" /> class.
-        ///   The commits will be enumerated according in reverse chronological order.
+        /// Initializes a new instance of the <see cref="CommitLog"/> class.
+        /// The commits will be enumerated according in reverse chronological order.
         /// </summary>
-        /// <param name = "repo">The repository.</param>
+        /// <param name="repo">The repository.</param>
         internal CommitLog(Repository repo)
             : this(repo, new CommitFilter())
         {
         }
 
         /// <summary>
-        ///   Initializes a new instance of the <see cref = "CommitLog" /> class.
+        /// Initializes a new instance of the <see cref="CommitLog"/> class.
         /// </summary>
-        /// <param name = "repo">The repository.</param>
+        /// <param name="repo">The repository.</param>
         /// <param name="queryFilter">The filter to use in querying commits</param>
         internal CommitLog(Repository repo, CommitFilter queryFilter)
         {
@@ -44,7 +44,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Gets the current sorting strategy applied when enumerating the log
+        /// Gets the current sorting strategy applied when enumerating the log
         /// </summary>
         public virtual CommitSortStrategies SortedBy
         {
@@ -54,18 +54,18 @@ namespace LibGit2Sharp
         #region IEnumerable<Commit> Members
 
         /// <summary>
-        ///   Returns an enumerator that iterates through the log.
+        /// Returns an enumerator that iterates through the log.
         /// </summary>
-        /// <returns>An <see cref = "IEnumerator{T}" /> object that can be used to iterate through the log.</returns>
+        /// <returns>An <see cref="IEnumerator{T}"/> object that can be used to iterate through the log.</returns>
         public virtual IEnumerator<Commit> GetEnumerator()
         {
             return new CommitEnumerator(repo, queryFilter);
         }
 
         /// <summary>
-        ///   Returns an enumerator that iterates through the log.
+        /// Returns an enumerator that iterates through the log.
         /// </summary>
-        /// <returns>An <see cref = "IEnumerator" /> object that can be used to iterate through the log.</returns>
+        /// <returns>An <see cref="IEnumerator"/> object that can be used to iterate through the log.</returns>
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
@@ -74,9 +74,9 @@ namespace LibGit2Sharp
         #endregion
 
         /// <summary>
-        ///   Returns the list of commits of the repository matching the specified <paramref name = "filter" />.
+        /// Returns the list of commits of the repository matching the specified <paramref name="filter"/>.
         /// </summary>
-        /// <param name = "filter">The options used to control which commits will be returned.</param>
+        /// <param name="filter">The options used to control which commits will be returned.</param>
         /// <returns>A list of commits, ready to be enumerated.</returns>
         public virtual ICommitLog QueryBy(CommitFilter filter)
         {
@@ -88,9 +88,9 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Returns the list of commits of the repository matching the specified <paramref name = "filter" />.
+        /// Returns the list of commits of the repository matching the specified <paramref name="filter"/>.
         /// </summary>
-        /// <param name = "filter">The options used to control which commits will be returned.</param>
+        /// <param name="filter">The options used to control which commits will be returned.</param>
         /// <returns>A list of commits, ready to be enumerated.</returns>
         [Obsolete("This method will be removed in the next release. Please use QueryBy(CommitFilter) instead.")]
         public virtual ICommitLog QueryBy(Filter filter)
@@ -103,10 +103,10 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Find the best possible common ancestor given two <see cref = "Commit"/>s.
+        /// Find the best possible common ancestor given two <see cref="Commit"/>s.
         /// </summary>
-        /// <param name = "first">The first <see cref = "Commit"/>.</param>
-        /// <param name = "second">The second <see cref = "Commit"/>.</param>
+        /// <param name="first">The first <see cref="Commit"/>.</param>
+        /// <param name="second">The second <see cref="Commit"/>.</param>
         /// <returns>The common ancestor or null if none found.</returns>
         public virtual Commit FindCommonAncestor(Commit first, Commit second)
         {
@@ -119,9 +119,9 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Find the best possible common ancestor given two or more <see cref="Commit"/>.
+        /// Find the best possible common ancestor given two or more <see cref="Commit"/>.
         /// </summary>
-        /// <param name = "commits">The <see cref = "Commit"/>s for which to find the common ancestor.</param>
+        /// <param name="commits">The <see cref="Commit"/>s for which to find the common ancestor.</param>
         /// <returns>The common ancestor or null if none found.</returns>
         public virtual Commit FindCommonAncestor(IEnumerable<Commit> commits)
         {

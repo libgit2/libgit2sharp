@@ -4,13 +4,13 @@ using System.Globalization;
 namespace LibGit2Sharp
 {
     /// <summary>
-    ///   Represents a local reference data from a remote repository which
-    ///   has been retreived through a Fetch process.
+    /// Represents a local reference data from a remote repository which
+    /// has been retreived through a Fetch process.
     /// </summary>
     public class FetchHead : ReferenceWrapper<GitObject>
     {
         /// <summary>
-        ///   Needed for mocking purposes.
+        /// Needed for mocking purposes.
         /// </summary>
         protected FetchHead()
         { }
@@ -27,7 +27,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Returns "FETCH_HEAD[i]", where i is the index of this fetch head.
+        /// Returns "FETCH_HEAD[i]", where i is the index of this fetch head.
         /// </summary>
         protected override string Shorten()
         {
@@ -35,13 +35,13 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Gets the canonical name of the reference this <see cref="FetchHead"/>
-        ///   points to in the remote repository it's been fetched from.
+        /// Gets the canonical name of the reference this <see cref="FetchHead"/>
+        /// points to in the remote repository it's been fetched from.
         /// </summary>
         public virtual string RemoteCanonicalName { get; private set; }
 
         /// <summary>
-        ///   Gets the <see cref="GitObject"/> that this fetch head points to.
+        /// Gets the <see cref="GitObject"/> that this fetch head points to.
         /// </summary>
         public virtual GitObject Target
         {
@@ -49,13 +49,13 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   The URL of the remote repository this <see cref="FetchHead"/>
-        ///   has been built from.
+        /// The URL of the remote repository this <see cref="FetchHead"/>
+        /// has been built from.
         /// </summary>
         public virtual String Url { get; private set; }
 
         /// <summary>
-        ///   Determines if this fetch head entry has been explicitly fetched.
+        /// Determines if this fetch head entry has been explicitly fetched.
         /// </summary>
         public virtual bool ForMerge { get; private set; }
     }

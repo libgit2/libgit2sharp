@@ -7,12 +7,12 @@ using LibGit2Sharp.Handlers;
 namespace LibGit2Sharp
 {
     /// <summary>
-    ///   Provides helper overloads to a <see cref = "Network" />.
+    /// Provides helper overloads to a <see cref="Network"/>.
     /// </summary>
     public static class NetworkExtensions
     {
         /// <summary>
-        ///   Push the specified branch to its tracked branch on the remote.
+        /// Push the specified branch to its tracked branch on the remote.
         /// </summary>
         /// <param name="network">The <see cref="Network"/> being worked with.</param>
         /// <param name="branch">The branch to push.</param>
@@ -29,7 +29,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Push the specified branches to their tracked branches on the remote.
+        /// Push the specified branches to their tracked branches on the remote.
         /// </summary>
         /// <param name="network">The <see cref="Network"/> being worked with.</param>
         /// <param name="branches">The branches to push.</param>
@@ -60,10 +60,10 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Push the objectish to the destination reference on the <see cref = "Remote" />.
+        /// Push the objectish to the destination reference on the <see cref="Remote"/>.
         /// </summary>
         /// <param name="network">The <see cref="Network"/> being worked with.</param>
-        /// <param name="remote">The <see cref = "Remote" /> to push to.</param>
+        /// <param name="remote">The <see cref="Remote"/> to push to.</param>
         /// <param name="objectish">The source objectish to push.</param>
         /// <param name="destinationSpec">The reference to update on the remote.</param>
         /// <param name="credentials">Credentials to use for user/pass authentication</param>
@@ -84,10 +84,10 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Push specified reference to the <see cref="Remote"/>.
+        /// Push specified reference to the <see cref="Remote"/>.
         /// </summary>
         /// <param name="network">The <see cref="Network"/> being worked with.</param>
-        /// <param name="remote">The <see cref = "Remote" /> to push to.</param>
+        /// <param name="remote">The <see cref="Remote"/> to push to.</param>
         /// <param name="pushRefSpec">The pushRefSpec to push.</param>
         /// <param name="credentials">Credentials to use for user/pass authentication</param>
         /// <returns>Results of the push operation.</returns>
@@ -100,7 +100,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Push specified references to the <see cref="Remote"/>.
+        /// Push specified references to the <see cref="Remote"/>.
         /// </summary>
         /// <param name="network">The <see cref="Network"/> being worked with.</param>
         /// <param name="remote">The <see cref="Remote"/> to push to.</param>

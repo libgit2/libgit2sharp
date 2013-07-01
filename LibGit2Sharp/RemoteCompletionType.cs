@@ -1,22 +1,22 @@
 ﻿namespace LibGit2Sharp
 {
     /// <summary>
-    ///   git_remote_completion types.
+    /// git_remote_completion types.
     /// </summary>
     public enum RemoteCompletionType
     {
         /// <summary>
-        ///   Download.
+        /// Download.
         /// </summary>
         Download = 0, /* GIT_REMOTE_COMPLETION_DOWNLOAD */
 
         /// <summary>
-        ///   Indexing.
+        /// Indexing.
         /// </summary>
         Indexing, /* GIT_REMOTE_COMPLETION_INDEXING */
 
         /// <summary>
-        ///   Error.
+        /// Error.
         /// </summary>
         Error,    /* GIT_REMOTE_COMPLETION_ERROR */
     }

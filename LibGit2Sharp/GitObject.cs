@@ -8,7 +8,7 @@ using LibGit2Sharp.Core.Handles;
 namespace LibGit2Sharp
 {
     /// <summary>
-    ///   A GitObject
+    /// A GitObject
     /// </summary>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public abstract class GitObject : IEquatable<GitObject>
@@ -26,21 +26,21 @@ namespace LibGit2Sharp
             new LambdaEqualityHelper<GitObject>(x => x.Id);
 
         /// <summary>
-        ///   The <see cref = "Repository" /> containing the object.
+        /// The <see cref="Repository"/> containing the object.
         /// </summary>
         protected readonly Repository repo;
 
         /// <summary>
-        ///   Needed for mocking purposes.
+        /// Needed for mocking purposes.
         /// </summary>
         protected GitObject()
         { }
 
         /// <summary>
-        ///   Initializes a new instance of the <see cref = "GitObject" /> class.
+        /// Initializes a new instance of the <see cref="GitObject"/> class.
         /// </summary>
-        /// <param name = "repo">The <see cref = "Repository" /> containing the object.</param>
-        /// <param name = "id">The <see cref = "ObjectId" /> it should be identified by.</param>
+        /// <param name="repo">The <see cref="Repository"/> containing the object.</param>
+        /// <param name="id">The <see cref="ObjectId"/> it should be identified by.</param>
         protected GitObject(Repository repo, ObjectId id)
         {
             this.repo = repo;
@@ -48,12 +48,12 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Gets the id of this object
+        /// Gets the id of this object
         /// </summary>
         public virtual ObjectId Id { get; private set; }
 
         /// <summary>
-        ///   Gets the 40 character sha1 of this object.
+        /// Gets the 40 character sha1 of this object.
         /// </summary>
         public virtual string Sha
         {
@@ -91,27 +91,27 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Determines whether the specified <see cref = "Object" /> is equal to the current <see cref = "GitObject" />.
+        /// Determines whether the specified <see cref="Object"/> is equal to the current <see cref="GitObject"/>.
         /// </summary>
-        /// <param name = "obj">The <see cref = "Object" /> to compare with the current <see cref = "GitObject" />.</param>
-        /// <returns>True if the specified <see cref = "Object" /> is equal to the current <see cref = "GitObject" />; otherwise, false.</returns>
+        /// <param name="obj">The <see cref="Object"/> to compare with the current <see cref="GitObject"/>.</param>
+        /// <returns>True if the specified <see cref="Object"/> is equal to the current <see cref="GitObject"/>; otherwise, false.</returns>
         public override bool Equals(object obj)
         {
             return Equals(obj as GitObject);
         }
 
         /// <summary>
-        ///   Determines whether the specified <see cref = "GitObject" /> is equal to the current <see cref = "GitObject" />.
+        /// Determines whether the specified <see cref="GitObject"/> is equal to the current <see cref="GitObject"/>.
         /// </summary>
-        /// <param name = "other">The <see cref = "GitObject" /> to compare with the current <see cref = "GitObject" />.</param>
-        /// <returns>True if the specified <see cref = "GitObject" /> is equal to the current <see cref = "GitObject" />; otherwise, false.</returns>
+        /// <param name="other">The <see cref="GitObject"/> to compare with the current <see cref="GitObject"/>.</param>
+        /// <returns>True if the specified <see cref="GitObject"/> is equal to the current <see cref="GitObject"/>; otherwise, false.</returns>
         public bool Equals(GitObject other)
         {
             return equalityHelper.Equals(this, other);
         }
 
         /// <summary>
-        ///   Returns the hash code for this instance.
+        /// Returns the hash code for this instance.
         /// </summary>
         /// <returns>A 32-bit signed integer hash code.</returns>
         public override int GetHashCode()
@@ -120,10 +120,10 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Tests if two <see cref = "GitObject" /> are equal.
+        /// Tests if two <see cref="GitObject"/> are equal.
         /// </summary>
-        /// <param name = "left">First <see cref = "GitObject" /> to compare.</param>
-        /// <param name = "right">Second <see cref = "GitObject" /> to compare.</param>
+        /// <param name="left">First <see cref="GitObject"/> to compare.</param>
+        /// <param name="right">Second <see cref="GitObject"/> to compare.</param>
         /// <returns>True if the two objects are equal; false otherwise.</returns>
         public static bool operator ==(GitObject left, GitObject right)
         {
@@ -131,10 +131,10 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Tests if two <see cref = "GitObject" /> are different.
+        /// Tests if two <see cref="GitObject"/> are different.
         /// </summary>
-        /// <param name = "left">First <see cref = "GitObject" /> to compare.</param>
-        /// <param name = "right">Second <see cref = "GitObject" /> to compare.</param>
+        /// <param name="left">First <see cref="GitObject"/> to compare.</param>
+        /// <param name="right">Second <see cref="GitObject"/> to compare.</param>
         /// <returns>True if the two objects are different; false otherwise.</returns>
         public static bool operator !=(GitObject left, GitObject right)
         {
@@ -142,9 +142,9 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Returns the <see cref = "Id" />, a <see cref = "String" /> representation of the current <see cref = "GitObject" />.
+        /// Returns the <see cref="Id"/>, a <see cref="String"/> representation of the current <see cref="GitObject"/>.
         /// </summary>
-        /// <returns>The <see cref = "Id" /> that represents the current <see cref = "GitObject" />.</returns>
+        /// <returns>The <see cref="Id"/> that represents the current <see cref="GitObject"/>.</returns>
         public override string ToString()
         {
             return Id.ToString();

@@ -3,7 +3,7 @@
 namespace LibGit2Sharp
 {
     /// <summary>
-    ///   Provides helpers to a <see cref = "Reference" />.
+    /// Provides helpers to a <see cref="Reference"/>.
     /// </summary>
     public static class ReferenceExtensions
     {
@@ -33,7 +33,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Determine if the current <see cref="Reference"/> is a local branch.
+        /// Determine if the current <see cref="Reference"/> is a local branch.
         /// </summary>
         /// <param name="reference">The <see cref="Reference"/> to test.</param>
         /// <returns>true if the current <see cref="Reference"/> is a local branch, false otherwise.</returns>
@@ -43,7 +43,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Determine if the current <see cref="Reference"/> is a remote tracking branch.
+        /// Determine if the current <see cref="Reference"/> is a remote tracking branch.
         /// </summary>
         /// <param name="reference">The <see cref="Reference"/> to test.</param>
         /// <returns>true if the current <see cref="Reference"/> is a remote tracking branch, false otherwise.</returns>
@@ -53,7 +53,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Determine if the current <see cref="Reference"/> is a tag.
+        /// Determine if the current <see cref="Reference"/> is a tag.
         /// </summary>
         /// <param name="reference">The <see cref="Reference"/> to test.</param>
         /// <returns>true if the current <see cref="Reference"/> is a tag, false otherwise.</returns>
@@ -63,7 +63,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Determine if the current <see cref="Reference"/> is a note.
+        /// Determine if the current <see cref="Reference"/> is a note.
         /// </summary>
         /// <param name="reference">The <see cref="Reference"/> to test.</param>
         /// <returns>true if the current <see cref="Reference"/> is a note, false otherwise.</returns>

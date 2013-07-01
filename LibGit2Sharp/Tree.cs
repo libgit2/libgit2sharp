@@ -10,7 +10,7 @@ using LibGit2Sharp.Core.Handles;
 namespace LibGit2Sharp
 {
     /// <summary>
-    ///   A container which references a list of other <see cref="Tree"/>s and <see cref="Blob"/>s.
+    /// A container which references a list of other <see cref="Tree"/>s and <see cref="Blob"/>s.
     /// </summary>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class Tree : GitObject, IEnumerable<TreeEntry>
@@ -20,7 +20,7 @@ namespace LibGit2Sharp
         private readonly ILazy<int> lazyCount;
 
         /// <summary>
-        ///   Needed for mocking purposes.
+        /// Needed for mocking purposes.
         /// </summary>
         protected Tree()
         { }
@@ -34,15 +34,15 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Gets the number of <see cref = "TreeEntry" /> immediately under this <see cref = "Tree" />.
+        /// Gets the number of <see cref="TreeEntry"/> immediately under this <see cref="Tree"/>.
         /// </summary>
         public virtual int Count { get { return lazyCount.Value; } }
 
         /// <summary>
-        ///   Gets the <see cref = "TreeEntry" /> pointed at by the <paramref name = "relativePath" /> in this <see cref = "Tree" /> instance.
+        /// Gets the <see cref="TreeEntry"/> pointed at by the <paramref name="relativePath"/> in this <see cref="Tree"/> instance.
         /// </summary>
-        /// <param name = "relativePath">The relative path to the <see cref = "TreeEntry" /> from this instance.</param>
-        /// <returns><c>null</c> if nothing has been found, the <see cref = "TreeEntry" /> otherwise.</returns>
+        /// <param name="relativePath">The relative path to the <see cref="TreeEntry"/> from this instance.</param>
+        /// <returns><c>null</c> if nothing has been found, the <see cref="TreeEntry"/> otherwise.</returns>
         public virtual TreeEntry this[string relativePath]
         {
             get { return RetrieveFromPath(relativePath); }
@@ -77,9 +77,9 @@ namespace LibGit2Sharp
         #region IEnumerable<TreeEntry> Members
 
         /// <summary>
-        ///   Returns an enumerator that iterates through the collection.
+        /// Returns an enumerator that iterates through the collection.
         /// </summary>
-        /// <returns>An <see cref = "IEnumerator{T}" /> object that can be used to iterate through the collection.</returns>
+        /// <returns>An <see cref="IEnumerator{T}"/> object that can be used to iterate through the collection.</returns>
         public virtual IEnumerator<TreeEntry> GetEnumerator()
         {
             using (var obj = new ObjectSafeWrapper(Id, repo.Handle))
@@ -93,9 +93,9 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Returns an enumerator that iterates through the collection.
+        /// Returns an enumerator that iterates through the collection.
         /// </summary>
-        /// <returns>An <see cref = "IEnumerator" /> object that can be used to iterate through the collection.</returns>
+        /// <returns>An <see cref="IEnumerator"/> object that can be used to iterate through the collection.</returns>
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();

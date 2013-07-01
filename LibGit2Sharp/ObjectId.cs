@@ -6,7 +6,7 @@ using LibGit2Sharp.Core;
 namespace LibGit2Sharp
 {
     /// <summary>
-    ///   Uniquely identifies a <see cref = "GitObject" />.
+    /// Uniquely identifies a <see cref="GitObject"/>.
     /// </summary>
     public class ObjectId : IEquatable<ObjectId>
     {
@@ -15,7 +15,7 @@ namespace LibGit2Sharp
         private readonly string sha;
 
         /// <summary>
-        ///   Size of the string-based representation of a SHA-1.
+        /// Size of the string-based representation of a SHA-1.
         /// </summary>
         protected const int HexSize = rawSize * 2;
 
@@ -27,14 +27,14 @@ namespace LibGit2Sharp
             new LambdaEqualityHelper<ObjectId>(x => x.Sha);
 
         /// <summary>
-        ///   Zero ObjectId
+        /// Zero ObjectId
         /// </summary>
         public static ObjectId Zero = new ObjectId(new string('0', HexSize));
 
         /// <summary>
-        ///   Initializes a new instance of the <see cref = "ObjectId" /> class.
+        /// Initializes a new instance of the <see cref="ObjectId"/> class.
         /// </summary>
-        /// <param name = "oid">The oid.</param>
+        /// <param name="oid">The oid.</param>
         internal ObjectId(GitOid oid)
         {
             this.oid = oid;
@@ -42,9 +42,9 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Initializes a new instance of the <see cref = "ObjectId" /> class.
+        /// Initializes a new instance of the <see cref="ObjectId"/> class.
         /// </summary>
-        /// <param name = "rawId">The byte array.</param>
+        /// <param name="rawId">The byte array.</param>
         public ObjectId(byte[] rawId)
             : this(new GitOid { Id = rawId })
         {
@@ -53,9 +53,9 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Initializes a new instance of the <see cref = "ObjectId" /> class.
+        /// Initializes a new instance of the <see cref="ObjectId"/> class.
         /// </summary>
-        /// <param name = "sha">The sha.</param>
+        /// <param name="sha">The sha.</param>
         public ObjectId(string sha)
         {
             GitOid? parsedOid = BuildOidFrom(sha, true);
@@ -75,7 +75,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Gets the raw id.
+        /// Gets the raw id.
         /// </summary>
         public byte[] RawId
         {
@@ -83,7 +83,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Gets the sha.
+        /// Gets the sha.
         /// </summary>
         public virtual string Sha
         {
@@ -91,11 +91,11 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Converts the specified string representation of a Sha-1 to its <see cref = "ObjectId" /> equivalent and returns a value that indicates whether the conversion succeeded.
+        /// Converts the specified string representation of a Sha-1 to its <see cref="ObjectId"/> equivalent and returns a value that indicates whether the conversion succeeded.
         /// </summary>
-        /// <param name = "sha">A string containing a Sha-1 to convert. </param>
-        /// <param name = "result">When this method returns, contains the <see cref = "ObjectId" /> value equivalent to the Sha-1 contained in <paramref name = "sha" />, if the conversion succeeded, or <code>null</code> if the conversion failed.</param>
-        /// <returns>true if the <paramref name = "sha" /> parameter was converted successfully; otherwise, false.</returns>
+        /// <param name="sha">A string containing a Sha-1 to convert.</param>
+        /// <param name="result">When this method returns, contains the <see cref="ObjectId"/> value equivalent to the Sha-1 contained in <paramref name="sha"/>, if the conversion succeeded, or <code>null</code> if the conversion failed.</param>
+        /// <returns>true if the <paramref name="sha"/> parameter was converted successfully; otherwise, false.</returns>
         public static bool TryParse(string sha, out ObjectId result)
         {
             result = BuildOidFrom(sha, false);
@@ -114,27 +114,27 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Determines whether the specified <see cref = "Object" /> is equal to the current <see cref = "ObjectId" />.
+        /// Determines whether the specified <see cref="Object"/> is equal to the current <see cref="ObjectId"/>.
         /// </summary>
-        /// <param name = "obj">The <see cref = "Object" /> to compare with the current <see cref = "ObjectId" />.</param>
-        /// <returns>True if the specified <see cref = "Object" /> is equal to the current <see cref = "ObjectId" />; otherwise, false.</returns>
+        /// <param name="obj">The <see cref="Object"/> to compare with the current <see cref="ObjectId"/>.</param>
+        /// <returns>True if the specified <see cref="Object"/> is equal to the current <see cref="ObjectId"/>; otherwise, false.</returns>
         public override bool Equals(object obj)
         {
             return Equals(obj as ObjectId);
         }
 
         /// <summary>
-        ///   Determines whether the specified <see cref = "ObjectId" /> is equal to the current <see cref = "ObjectId" />.
+        /// Determines whether the specified <see cref="ObjectId"/> is equal to the current <see cref="ObjectId"/>.
         /// </summary>
-        /// <param name = "other">The <see cref = "ObjectId" /> to compare with the current <see cref = "ObjectId" />.</param>
-        /// <returns>True if the specified <see cref = "ObjectId" /> is equal to the current <see cref = "ObjectId" />; otherwise, false.</returns>
+        /// <param name="other">The <see cref="ObjectId"/> to compare with the current <see cref="ObjectId"/>.</param>
+        /// <returns>True if the specified <see cref="ObjectId"/> is equal to the current <see cref="ObjectId"/>; otherwise, false.</returns>
         public bool Equals(ObjectId other)
         {
             return equalityHelper.Equals(this, other);
         }
 
         /// <summary>
-        ///   Returns the hash code for this instance.
+        /// Returns the hash code for this instance.
         /// </summary>
         /// <returns>A 32-bit signed integer hash code.</returns>
         public override int GetHashCode()
@@ -143,19 +143,19 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Returns the <see cref = "Sha" />, a <see cref = "String" /> representation of the current <see cref = "ObjectId" />.
+        /// Returns the <see cref="Sha"/>, a <see cref="String"/> representation of the current <see cref="ObjectId"/>.
         /// </summary>
-        /// <returns>The <see cref = "Sha" /> that represents the current <see cref = "ObjectId" />.</returns>
+        /// <returns>The <see cref="Sha"/> that represents the current <see cref="ObjectId"/>.</returns>
         public override string ToString()
         {
             return Sha;
         }
 
         /// <summary>
-        ///   Returns the <see cref = "Sha" />, a <see cref = "String" /> representation of the current <see cref = "ObjectId" />.
+        /// Returns the <see cref="Sha"/>, a <see cref="String"/> representation of the current <see cref="ObjectId"/>.
         /// </summary>
-        /// <param name = "prefixLength">The number of chars the <see cref = "Sha" /> should be truncated to.</param>
-        /// <returns>The <see cref = "Sha" /> that represents the current <see cref = "ObjectId" />.</returns>
+        /// <param name="prefixLength">The number of chars the <see cref="Sha"/> should be truncated to.</param>
+        /// <returns>The <see cref="Sha"/> that represents the current <see cref="ObjectId"/>.</returns>
         public string ToString(int prefixLength)
         {
             int normalizedLength = NormalizeLength(prefixLength);
@@ -178,10 +178,10 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Tests if two <see cref = "ObjectId" /> are equal.
+        /// Tests if two <see cref="ObjectId"/> are equal.
         /// </summary>
-        /// <param name = "left">First <see cref = "ObjectId" /> to compare.</param>
-        /// <param name = "right">Second <see cref = "ObjectId" /> to compare.</param>
+        /// <param name="left">First <see cref="ObjectId"/> to compare.</param>
+        /// <param name="right">Second <see cref="ObjectId"/> to compare.</param>
         /// <returns>True if the two objects are equal; false otherwise.</returns>
         public static bool operator ==(ObjectId left, ObjectId right)
         {
@@ -189,10 +189,10 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Tests if two <see cref = "ObjectId" /> are different.
+        /// Tests if two <see cref="ObjectId"/> are different.
         /// </summary>
-        /// <param name = "left">First <see cref = "ObjectId" /> to compare.</param>
-        /// <param name = "right">Second <see cref = "ObjectId" /> to compare.</param>
+        /// <param name="left">First <see cref="ObjectId"/> to compare.</param>
+        /// <param name="right">Second <see cref="ObjectId"/> to compare.</param>
         /// <returns>True if the two objects are different; false otherwise.</returns>
         public static bool operator !=(ObjectId left, ObjectId right)
         {
@@ -200,7 +200,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Create an <see cref="ObjectId"/> for the given <paramref name="sha"/>.
+        /// Create an <see cref="ObjectId"/> for the given <paramref name="sha"/>.
         /// </summary>
         /// <param name="sha">The object SHA.</param>
         /// <returns>An <see cref="ObjectId"/>, or null if <paramref name="sha"/> is null.</returns>

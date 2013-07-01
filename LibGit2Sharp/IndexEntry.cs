@@ -7,7 +7,7 @@ using LibGit2Sharp.Core.Handles;
 namespace LibGit2Sharp
 {
     /// <summary>
-    ///   A reference to a <see cref = "Blob" /> known by the <see cref = "Index" />.
+    /// A reference to a <see cref="Blob"/> known by the <see cref="Index"/>.
     /// </summary>
     [DebuggerDisplayAttribute("{DebuggerDisplay,nq}")]
     public class IndexEntry : IEquatable<IndexEntry>
@@ -16,22 +16,22 @@ namespace LibGit2Sharp
             new LambdaEqualityHelper<IndexEntry>(x => x.Path, x => x.Id, x => x.Mode, x => x.StageLevel);
 
         /// <summary>
-        ///   Gets the relative path to the file within the working directory.
+        /// Gets the relative path to the file within the working directory.
         /// </summary>
         public virtual string Path { get; private set; }
 
         /// <summary>
-        ///   Gets the file mode.
+        /// Gets the file mode.
         /// </summary>
         public virtual Mode Mode { get; private set; }
 
         /// <summary>
-        ///   Gets the stage number.
+        /// Gets the stage number.
         /// </summary>
         public virtual StageLevel StageLevel { get; private set; }
 
         /// <summary>
-        ///   Gets the id of the <see cref = "Blob" /> pointed at by this index entry.
+        /// Gets the id of the <see cref="Blob"/> pointed at by this index entry.
         /// </summary>
         public virtual ObjectId Id { get; private set; }
 
@@ -56,27 +56,27 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Determines whether the specified <see cref = "Object" /> is equal to the current <see cref = "IndexEntry" />.
+        /// Determines whether the specified <see cref="Object"/> is equal to the current <see cref="IndexEntry"/>.
         /// </summary>
-        /// <param name = "obj">The <see cref = "Object" /> to compare with the current <see cref = "IndexEntry" />.</param>
-        /// <returns>True if the specified <see cref = "Object" /> is equal to the current <see cref = "IndexEntry" />; otherwise, false.</returns>
+        /// <param name="obj">The <see cref="Object"/> to compare with the current <see cref="IndexEntry"/>.</param>
+        /// <returns>True if the specified <see cref="Object"/> is equal to the current <see cref="IndexEntry"/>; otherwise, false.</returns>
         public override bool Equals(object obj)
         {
             return Equals(obj as IndexEntry);
         }
 
         /// <summary>
-        ///   Determines whether the specified <see cref = "IndexEntry" /> is equal to the current <see cref = "IndexEntry" />.
+        /// Determines whether the specified <see cref="IndexEntry"/> is equal to the current <see cref="IndexEntry"/>.
         /// </summary>
-        /// <param name = "other">The <see cref = "IndexEntry" /> to compare with the current <see cref = "IndexEntry" />.</param>
-        /// <returns>True if the specified <see cref = "IndexEntry" /> is equal to the current <see cref = "IndexEntry" />; otherwise, false.</returns>
+        /// <param name="other">The <see cref="IndexEntry"/> to compare with the current <see cref="IndexEntry"/>.</param>
+        /// <returns>True if the specified <see cref="IndexEntry"/> is equal to the current <see cref="IndexEntry"/>; otherwise, false.</returns>
         public bool Equals(IndexEntry other)
         {
             return equalityHelper.Equals(this, other);
         }
 
         /// <summary>
-        ///   Returns the hash code for this instance.
+        /// Returns the hash code for this instance.
         /// </summary>
         /// <returns>A 32-bit signed integer hash code.</returns>
         public override int GetHashCode()
@@ -85,10 +85,10 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Tests if two <see cref = "IndexEntry" /> are equal.
+        /// Tests if two <see cref="IndexEntry"/> are equal.
         /// </summary>
-        /// <param name = "left">First <see cref = "IndexEntry" /> to compare.</param>
-        /// <param name = "right">Second <see cref = "IndexEntry" /> to compare.</param>
+        /// <param name="left">First <see cref="IndexEntry"/> to compare.</param>
+        /// <param name="right">Second <see cref="IndexEntry"/> to compare.</param>
         /// <returns>True if the two objects are equal; false otherwise.</returns>
         public static bool operator ==(IndexEntry left, IndexEntry right)
         {
@@ -96,10 +96,10 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Tests if two <see cref = "IndexEntry" /> are different.
+        /// Tests if two <see cref="IndexEntry"/> are different.
         /// </summary>
-        /// <param name = "left">First <see cref = "IndexEntry" /> to compare.</param>
-        /// <param name = "right">Second <see cref = "IndexEntry" /> to compare.</param>
+        /// <param name="left">First <see cref="IndexEntry"/> to compare.</param>
+        /// <param name="right">Second <see cref="IndexEntry"/> to compare.</param>
         /// <returns>True if the two objects are different; false otherwise.</returns>
         public static bool operator !=(IndexEntry left, IndexEntry right)
         {

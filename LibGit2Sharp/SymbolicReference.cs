@@ -4,7 +4,7 @@ using System.Globalization;
 namespace LibGit2Sharp
 {
     /// <summary>
-    ///   A SymbolicReference is a reference that points to another reference
+    /// A SymbolicReference is a reference that points to another reference
     /// </summary>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class SymbolicReference : Reference
@@ -12,7 +12,7 @@ namespace LibGit2Sharp
         private readonly Reference target;
 
         /// <summary>
-        ///   Needed for mocking purposes.
+        /// Needed for mocking purposes.
         /// </summary>
         protected SymbolicReference()
         { }
@@ -24,7 +24,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Gets the target of this <see cref = "SymbolicReference" />
+        /// Gets the target of this <see cref="SymbolicReference"/>
         /// </summary>
         public virtual Reference Target
         {
@@ -32,9 +32,9 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Recursively peels the target of the reference until a direct reference is encountered.
+        /// Recursively peels the target of the reference until a direct reference is encountered.
         /// </summary>
-        /// <returns>The <see cref = "DirectReference" /> this <see cref = "SymbolicReference" /> points to.</returns>
+        /// <returns>The <see cref="DirectReference"/> this <see cref="SymbolicReference"/> points to.</returns>
         public override DirectReference ResolveToDirectReference()
         {
             return (Target == null) ? null : Target.ResolveToDirectReference();

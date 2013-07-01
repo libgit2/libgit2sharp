@@ -3,12 +3,12 @@
 namespace LibGit2Sharp
 {
     /// <summary>
-    ///   A merge head is a parent for the next commit.
+    /// A merge head is a parent for the next commit.
     /// </summary>
     public class MergeHead : ReferenceWrapper<Commit>
     {
         /// <summary>
-        ///   Needed for mocking purposes.
+        /// Needed for mocking purposes.
         /// </summary>
         protected MergeHead()
         { }
@@ -19,7 +19,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Gets the <see cref="Commit"/> that this merge head points to.
+        /// Gets the <see cref="Commit"/> that this merge head points to.
         /// </summary>
         public virtual Commit Tip
         {
@@ -27,7 +27,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Returns "MERGE_HEAD[i]", where i is the index of this merge head.
+        /// Returns "MERGE_HEAD[i]", where i is the index of this merge head.
         /// </summary>
         protected override string Shorten()
         {

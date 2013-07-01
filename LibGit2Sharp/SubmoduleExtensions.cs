@@ -1,7 +1,7 @@
 namespace LibGit2Sharp
 {
     /// <summary>
-    ///   Extensions related to submodules
+    /// Extensions related to submodules
     /// </summary>
     public static class SubmoduleExtensions
     {
@@ -9,7 +9,7 @@ namespace LibGit2Sharp
         private const SubmoduleStatus WorkDirDirtyMask = SubmoduleStatus.WorkDirFilesIndexDirty | SubmoduleStatus.WorkDirFilesModified | SubmoduleStatus.WorkDirFilesUntracked;
 
         /// <summary>
-        ///   The submodule is unmodified.
+        /// The submodule is unmodified.
         /// </summary>
         public static bool IsUnmodified(this SubmoduleStatus @this)
         {
@@ -17,7 +17,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   The submodule working directory is dirty.
+        /// The submodule working directory is dirty.
         /// </summary>
         public static bool IsWorkingDirectoryDirty(this SubmoduleStatus @this)
         {

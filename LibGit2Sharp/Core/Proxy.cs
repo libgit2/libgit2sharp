@@ -1963,8 +1963,8 @@ namespace LibGit2Sharp.Core
         #region git_submodule_
 
         /// <summary>
-        ///   Returns a handle to the corresponding submodule,
-        ///   or an invalid handle if a submodule is not found.
+        /// Returns a handle to the corresponding submodule,
+        /// or an invalid handle if a submodule is not found.
         /// </summary>
         public static SubmoduleSafeHandle git_submodule_lookup(RepositorySafeHandle repo, string name)
         {
