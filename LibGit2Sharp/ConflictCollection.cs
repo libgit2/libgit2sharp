@@ -16,7 +16,7 @@ namespace LibGit2Sharp
         private readonly Repository repo;
 
         /// <summary>
-        ///   Needed for mocking purposes.
+        /// Needed for mocking purposes.
         /// </summary>
         protected ConflictCollection()
         { }
@@ -27,7 +27,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///  Gets the <see cref="LibGit2Sharp.Conflict" /> for the
+        ///  Gets the <see cref="LibGit2Sharp.Conflict"/> for the
         ///  specified relative path.
         /// </summary>
         /// <param name="path">The relative path to query</param>
@@ -94,18 +94,18 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Returns an enumerator that iterates through the collection.
+        /// Returns an enumerator that iterates through the collection.
         /// </summary>
-        /// <returns>An <see cref = "IEnumerator{T}" /> object that can be used to iterate through the collection.</returns>
+        /// <returns>An <see cref="IEnumerator{T}"/> object that can be used to iterate through the collection.</returns>
         public virtual IEnumerator<Conflict> GetEnumerator()
         {
             return AllConflicts().GetEnumerator();
         }
 
         /// <summary>
-        ///   Returns an enumerator that iterates through the collection.
+        /// Returns an enumerator that iterates through the collection.
         /// </summary>
-        /// <returns>An <see cref = "IEnumerator" /> object that can be used to iterate through the collection.</returns>
+        /// <returns>An <see cref="IEnumerator"/> object that can be used to iterate through the collection.</returns>
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();

@@ -10,10 +10,10 @@ using Environment = System.Environment;
 namespace LibGit2Sharp
 {
     /// <summary>
-    ///   Show changes between the working tree and the index or a tree, changes between the index and a tree, changes between two trees, or changes between two files on disk.
-    ///   <para>
-    ///     Copied and renamed files currently cannot be detected, as the feature is not supported by libgit2 yet.
-    ///     These files will be shown as a pair of Deleted/Added files.</para>
+    /// Show changes between the working tree and the index or a tree, changes between the index and a tree, changes between two trees, or changes between two files on disk.
+    /// <para>
+    ///   Copied and renamed files currently cannot be detected, as the feature is not supported by libgit2 yet.
+    ///   These files will be shown as a pair of Deleted/Added files.</para>
     /// </summary>
     public class Diff
     {
@@ -93,7 +93,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Needed for mocking purposes.
+        /// Needed for mocking purposes.
         /// </summary>
         protected Diff()
         { }
@@ -104,17 +104,17 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Show changes between two <see cref = "Tree"/>s.
+        /// Show changes between two <see cref="Tree"/>s.
         /// </summary>
-        /// <param name = "oldTree">The <see cref = "Tree"/> you want to compare from.</param>
-        /// <param name = "newTree">The <see cref = "Tree"/> you want to compare to.</param>
-        /// <param name = "paths">The list of paths (either files or directories) that should be compared.</param>
-        /// <param name = "explicitPathsOptions">
-        ///   If set, the passed <paramref name="paths"/> will be treated as explicit paths.
-        ///   Use these options to determine how unmatched explicit paths should be handled.
+        /// <param name="oldTree">The <see cref="Tree"/> you want to compare from.</param>
+        /// <param name="newTree">The <see cref="Tree"/> you want to compare to.</param>
+        /// <param name="paths">The list of paths (either files or directories) that should be compared.</param>
+        /// <param name="explicitPathsOptions">
+        /// If set, the passed <paramref name="paths"/> will be treated as explicit paths.
+        /// Use these options to determine how unmatched explicit paths should be handled.
         /// </param>
-        /// <param name = "compareOptions">Additional options to define comparison behavior.</param>
-        /// <returns>A <see cref = "TreeChanges"/> containing the changes between the <paramref name = "oldTree"/> and the <paramref name = "newTree"/>.</returns>
+        /// <param name="compareOptions">Additional options to define comparison behavior.</param>
+        /// <returns>A <see cref="TreeChanges"/> containing the changes between the <paramref name="oldTree"/> and the <paramref name="newTree"/>.</returns>
         public virtual TreeChanges Compare(Tree oldTree, Tree newTree, IEnumerable<string> paths = null, ExplicitPathsOptions explicitPathsOptions = null, CompareOptions compareOptions = null)
         {
             var comparer = TreeToTree(repo);
@@ -137,12 +137,12 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Show changes between two <see cref = "Blob"/>s.
+        /// Show changes between two <see cref="Blob"/>s.
         /// </summary>
-        /// <param name = "oldBlob">The <see cref = "Blob"/> you want to compare from.</param>
-        /// <param name = "newBlob">The <see cref = "Blob"/> you want to compare to.</param>
-        /// <param name = "compareOptions">Additional options to define comparison behavior.</param>
-        /// <returns>A <see cref = "ContentChanges"/> containing the changes between the <paramref name = "oldBlob"/> and the <paramref name = "newBlob"/>.</returns>
+        /// <param name="oldBlob">The <see cref="Blob"/> you want to compare from.</param>
+        /// <param name="newBlob">The <see cref="Blob"/> you want to compare to.</param>
+        /// <param name="compareOptions">Additional options to define comparison behavior.</param>
+        /// <returns>A <see cref="ContentChanges"/> containing the changes between the <paramref name="oldBlob"/> and the <paramref name="newBlob"/>.</returns>
         public virtual ContentChanges Compare(Blob oldBlob, Blob newBlob, CompareOptions compareOptions = null)
         {
             using (GitDiffOptions options = BuildOptions(DiffModifiers.None, compareOptions: compareOptions))
@@ -164,17 +164,17 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Show changes between a <see cref = "Tree"/> and the Index, the Working Directory, or both.
+        /// Show changes between a <see cref="Tree"/> and the Index, the Working Directory, or both.
         /// </summary>
-        /// <param name = "oldTree">The <see cref = "Tree"/> to compare from.</param>
-        /// <param name = "diffTargets">The targets to compare to.</param>
-        /// <param name = "paths">The list of paths (either files or directories) that should be compared.</param>
-        /// <param name = "explicitPathsOptions">
-        ///   If set, the passed <paramref name="paths"/> will be treated as explicit paths.
-        ///   Use these options to determine how unmatched explicit paths should be handled.
+        /// <param name="oldTree">The <see cref="Tree"/> to compare from.</param>
+        /// <param name="diffTargets">The targets to compare to.</param>
+        /// <param name="paths">The list of paths (either files or directories) that should be compared.</param>
+        /// <param name="explicitPathsOptions">
+        /// If set, the passed <paramref name="paths"/> will be treated as explicit paths.
+        /// Use these options to determine how unmatched explicit paths should be handled.
         /// </param>
-        /// <param name = "compareOptions">Additional options to define comparison behavior.</param>
-        /// <returns>A <see cref = "TreeChanges"/> containing the changes between the <see cref="Tree"/> and the selected target.</returns>
+        /// <param name="compareOptions">Additional options to define comparison behavior.</param>
+        /// <returns>A <see cref="TreeChanges"/> containing the changes between the <see cref="Tree"/> and the selected target.</returns>
         public virtual TreeChanges Compare(Tree oldTree, DiffTargets diffTargets, IEnumerable<string> paths = null, ExplicitPathsOptions explicitPathsOptions = null, CompareOptions compareOptions = null)
         {
             var comparer = handleRetrieverDispatcher[diffTargets](repo);
@@ -198,16 +198,16 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Show changes between the working directory and the index.
+        /// Show changes between the working directory and the index.
         /// </summary>
-        /// <param name = "paths">The list of paths (either files or directories) that should be compared.</param>
-        /// <param name = "includeUntracked">If true, include untracked files from the working dir as additions. Otherwise ignore them.</param>
-        /// <param name = "explicitPathsOptions">
-        ///   If set, the passed <paramref name="paths"/> will be treated as explicit paths.
-        ///   Use these options to determine how unmatched explicit paths should be handled.
+        /// <param name="paths">The list of paths (either files or directories) that should be compared.</param>
+        /// <param name="includeUntracked">If true, include untracked files from the working dir as additions. Otherwise ignore them.</param>
+        /// <param name="explicitPathsOptions">
+        /// If set, the passed <paramref name="paths"/> will be treated as explicit paths.
+        /// Use these options to determine how unmatched explicit paths should be handled.
         /// </param>
-        /// <param name = "compareOptions">Additional options to define comparison behavior.</param>
-        /// <returns>A <see cref = "TreeChanges"/> containing the changes between the working directory and the index.</returns>
+        /// <param name="compareOptions">Additional options to define comparison behavior.</param>
+        /// <returns>A <see cref="TreeChanges"/> containing the changes between the working directory and the index.</returns>
         public virtual TreeChanges Compare(IEnumerable<string> paths = null, bool includeUntracked = false, ExplicitPathsOptions explicitPathsOptions = null, CompareOptions compareOptions = null)
         {
             return Compare(includeUntracked ? DiffModifiers.IncludeUntracked : DiffModifiers.None, paths, explicitPathsOptions, compareOptions);

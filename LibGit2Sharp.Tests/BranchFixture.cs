@@ -826,7 +826,7 @@ namespace LibGit2Sharp.Tests
 
                 Touch(repo.Info.WorkingDirectory, "a.txt", "a");
                 repo.Index.Stage("a.txt");
-                repo.Commit("A file", DummySignature, DummySignature);
+                repo.Commit("A file", Constants.Signature, Constants.Signature);
 
                 Assert.NotNull(repo.Head.Tip);
                 Assert.NotNull(repo.Head.TrackedBranch);

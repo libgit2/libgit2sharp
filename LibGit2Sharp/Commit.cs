@@ -11,7 +11,7 @@ using LibGit2Sharp.Core.Handles;
 namespace LibGit2Sharp
 {
     /// <summary>
-    ///   A Commit
+    /// A Commit
     /// </summary>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class Commit : GitObject
@@ -28,7 +28,7 @@ namespace LibGit2Sharp
         private readonly Lazy<IEnumerable<Note>> lazyNotes;
 
         /// <summary>
-        ///   Needed for mocking purposes.
+        /// Needed for mocking purposes.
         /// </summary>
         protected Commit()
         { }
@@ -51,52 +51,52 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Gets the <see cref = "TreeEntry" /> pointed at by the <paramref name = "relativePath" /> in the <see cref = "Tree" />.
+        /// Gets the <see cref="TreeEntry"/> pointed at by the <paramref name="relativePath"/> in the <see cref="Tree"/>.
         /// </summary>
-        /// <param name = "relativePath">The relative path to the <see cref = "TreeEntry" /> from the <see cref = "Commit" /> working directory.</param>
-        /// <returns><c>null</c> if nothing has been found, the <see cref = "TreeEntry" /> otherwise.</returns>
+        /// <param name="relativePath">The relative path to the <see cref="TreeEntry"/> from the <see cref="Commit"/> working directory.</param>
+        /// <returns><c>null</c> if nothing has been found, the <see cref="TreeEntry"/> otherwise.</returns>
         public virtual TreeEntry this[string relativePath]
         {
             get { return Tree[relativePath]; }
         }
 
         /// <summary>
-        ///   Gets the commit message.
+        /// Gets the commit message.
         /// </summary>
         public virtual string Message { get { return lazyMessage.Value; } }
 
         /// <summary>
-        ///   Gets the short commit message which is usually the first line of the commit.
+        /// Gets the short commit message which is usually the first line of the commit.
         /// </summary>
         public virtual string MessageShort { get { return lazyShortMessage.Value; } }
 
         /// <summary>
-        ///   Gets the encoding of the message.
+        /// Gets the encoding of the message.
         /// </summary>
         public virtual string Encoding { get { return lazyEncoding.Value; } }
 
         /// <summary>
-        ///   Gets the author of this commit.
+        /// Gets the author of this commit.
         /// </summary>
         public virtual Signature Author { get { return lazyAuthor.Value; } }
 
         /// <summary>
-        ///   Gets the committer.
+        /// Gets the committer.
         /// </summary>
         public virtual Signature Committer { get { return lazyCommitter.Value; } }
 
         /// <summary>
-        ///   Gets the Tree associated to this commit.
+        /// Gets the Tree associated to this commit.
         /// </summary>
         public virtual Tree Tree { get { return lazyTree.Value; } }
 
         /// <summary>
-        ///   Gets the parents of this commit. This property is lazy loaded and can throw an exception if the commit no longer exists in the repo.
+        /// Gets the parents of this commit. This property is lazy loaded and can throw an exception if the commit no longer exists in the repo.
         /// </summary>
         public virtual IEnumerable<Commit> Parents { get { return parents; } }
 
         /// <summary>
-        ///   Gets the notes of this commit.
+        /// Gets the notes of this commit.
         /// </summary>
         public virtual IEnumerable<Note> Notes { get { return lazyNotes.Value; } }
 

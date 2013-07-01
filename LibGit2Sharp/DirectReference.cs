@@ -3,14 +3,14 @@
 namespace LibGit2Sharp
 {
     /// <summary>
-    ///   A DirectReference points directly to a <see cref = "GitObject" />
+    /// A DirectReference points directly to a <see cref="GitObject"/>
     /// </summary>
     public class DirectReference : Reference
     {
         private readonly Lazy<GitObject> targetBuilder;
 
         /// <summary>
-        ///   Needed for mocking purposes.
+        /// Needed for mocking purposes.
         /// </summary>
         protected DirectReference()
         { }
@@ -22,7 +22,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Gets the target of this <see cref = "DirectReference" />
+        /// Gets the target of this <see cref="DirectReference"/>
         /// </summary>
         public virtual GitObject Target
         {
@@ -30,7 +30,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   As a <see cref = "DirectReference" /> is already peeled, invoking this will return the same <see cref = "DirectReference" />.
+        /// As a <see cref="DirectReference"/> is already peeled, invoking this will return the same <see cref="DirectReference"/>.
         /// </summary>
         /// <returns>This instance.</returns>
         public override DirectReference ResolveToDirectReference()

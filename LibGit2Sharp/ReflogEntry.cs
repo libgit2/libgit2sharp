@@ -4,8 +4,8 @@ using LibGit2Sharp.Core;
 namespace LibGit2Sharp
 {
     /// <summary>
-    ///   As single entry of a <see cref="ReflogCollection"/>
-    ///   a <see cref="ReflogEntry"/> describes one single update on a particular reference
+    /// As single entry of a <see cref="ReflogCollection"/>
+    /// a <see cref="ReflogEntry"/> describes one single update on a particular reference
     /// </summary>
     public class ReflogEntry
     {
@@ -15,13 +15,13 @@ namespace LibGit2Sharp
         private readonly string message;
 
         /// <summary>
-        ///   Needed for mocking purposes.
+        /// Needed for mocking purposes.
         /// </summary>
         protected ReflogEntry()
         { }
 
         /// <summary>
-        ///   Initializes a new instance of the <see cref = "ReflogEntry" /> class.
+        /// Initializes a new instance of the <see cref="ReflogEntry"/> class.
         /// </summary>
         /// <param name="entryHandle">a <see cref="SafeHandle"/> to the reflog entry</param>
         public ReflogEntry(SafeHandle entryHandle)
@@ -33,7 +33,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   <see cref="ObjectId"/> targeted before the reference update described by this <see cref="ReflogEntry"/>
+        /// <see cref="ObjectId"/> targeted before the reference update described by this <see cref="ReflogEntry"/>
         /// </summary>
         public virtual ObjectId From
         {
@@ -41,7 +41,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   <see cref="ObjectId"/> targeted after the reference update described by this <see cref="ReflogEntry"/>
+        /// <see cref="ObjectId"/> targeted after the reference update described by this <see cref="ReflogEntry"/>
         /// </summary>
         public virtual ObjectId To
         {
@@ -49,7 +49,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   <see cref="Signature"/> of the commiter of this reference update
+        /// <see cref="Signature"/> of the commiter of this reference update
         /// </summary>
         public virtual Signature Commiter
         {
@@ -57,7 +57,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   the message assiocated to this reference update
+        /// the message assiocated to this reference update
         /// </summary>
         public virtual string Message
         {

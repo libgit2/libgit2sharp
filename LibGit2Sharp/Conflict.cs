@@ -21,7 +21,7 @@ namespace LibGit2Sharp
             new LambdaEqualityHelper<Conflict>(x => x.Ancestor, x => x.Ours, x => x.Theirs);
 
         /// <summary>
-        ///   Needed for mocking purposes.
+        /// Needed for mocking purposes.
         /// </summary>
         protected Conflict()
         { }
@@ -61,13 +61,13 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Determines whether the specified <see cref = "Object" /> is
-        ///   equal to the current <see cref = "Conflict" />.
+        /// Determines whether the specified <see cref="Object"/> is
+        /// equal to the current <see cref="Conflict"/>.
         /// </summary>
-        /// <param name = "obj">The <see cref = "Object" /> to compare with
-        /// the current <see cref = "Conflict" />.</param>
-        /// <returns>true if the specified <see cref = "Object" /> is equal
-        /// to the current <see cref = "Conflict" />; otherwise,
+        /// <param name="obj">The <see cref="Object"/> to compare with
+        /// the current <see cref="Conflict"/>.</param>
+        /// <returns>true if the specified <see cref="Object"/> is equal
+        /// to the current <see cref="Conflict"/>; otherwise,
         /// false.</returns>
         public override bool Equals(object obj)
         {
@@ -75,13 +75,13 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Determines whether the specified <see cref = "Conflict" />
-        ///   is equal to the current <see cref = "Conflict" />.
+        /// Determines whether the specified <see cref="Conflict"/>
+        /// is equal to the current <see cref="Conflict"/>.
         /// </summary>
-        /// <param name = "other">The <see cref = "Conflict" /> to compare
-        /// with the current <see cref = "Conflict" />.</param>
-        /// <returns>true if the specified <see cref = "Conflict" /> is equal
-        /// to the current <see cref = "Conflict" />; otherwise,
+        /// <param name="other">The <see cref="Conflict"/> to compare
+        /// with the current <see cref="Conflict"/>.</param>
+        /// <returns>true if the specified <see cref="Conflict"/> is equal
+        /// to the current <see cref="Conflict"/>; otherwise,
         /// false.</returns>
         public bool Equals(Conflict other)
         {
@@ -89,7 +89,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Returns the hash code for this instance.
+        /// Returns the hash code for this instance.
         /// </summary>
         /// <returns>A 32-bit signed integer hash code.</returns>
         public override int GetHashCode()
@@ -98,10 +98,10 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Tests if two <see cref = "Conflict" /> are equal.
+        /// Tests if two <see cref="Conflict"/> are equal.
         /// </summary>
-        /// <param name = "left">First <see cref = "Conflict" /> to compare.</param>
-        /// <param name = "right">Second <see cref = "Conflict" /> to compare.</param>
+        /// <param name="left">First <see cref="Conflict"/> to compare.</param>
+        /// <param name="right">Second <see cref="Conflict"/> to compare.</param>
         /// <returns>True if the two objects are equal; false otherwise.</returns>
         public static bool operator ==(Conflict left, Conflict right)
         {
@@ -109,10 +109,10 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Tests if two <see cref = "Conflict" /> are different.
+        /// Tests if two <see cref="Conflict"/> are different.
         /// </summary>
-        /// <param name = "left">First <see cref = "Conflict" /> to compare.</param>
-        /// <param name = "right">Second <see cref = "Conflict" /> to compare.</param>
+        /// <param name="left">First <see cref="Conflict"/> to compare.</param>
+        /// <param name="right">Second <see cref="Conflict"/> to compare.</param>
         /// <returns>True if the two objects are different; false otherwise.</returns>
         public static bool operator !=(Conflict left, Conflict right)
         {

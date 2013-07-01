@@ -10,8 +10,8 @@ using LibGit2Sharp.Core.Compat;
 namespace LibGit2Sharp
 {
     /// <summary>
-    ///   Holds the result of the determination of the state of the working directory.
-    ///   <para>Only files that differ from the current index and/or commit will be considered.</para>
+    /// Holds the result of the determination of the state of the working directory.
+    /// <para>Only files that differ from the current index and/or commit will be considered.</para>
     /// </summary>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class RepositoryStatus : IEnumerable<StatusEntry>
@@ -43,7 +43,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Needed for mocking purposes.
+        /// Needed for mocking purposes.
         /// </summary>
         protected RepositoryStatus()
         { }
@@ -73,7 +73,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Gets the <see cref = "FileStatus" /> for the specified relative path.
+        /// Gets the <see cref="FileStatus"/> for the specified relative path.
         /// </summary>
         public virtual FileStatus this[string path]
         {
@@ -95,25 +95,25 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Returns an enumerator that iterates through the collection.
+        /// Returns an enumerator that iterates through the collection.
         /// </summary>
-        /// <returns>An <see cref = "IEnumerator{T}" /> object that can be used to iterate through the collection.</returns>
+        /// <returns>An <see cref="IEnumerator{T}"/> object that can be used to iterate through the collection.</returns>
         public virtual IEnumerator<StatusEntry> GetEnumerator()
         {
             return statusEntries.GetEnumerator();
         }
 
         /// <summary>
-        ///   Returns an enumerator that iterates through the collection.
+        /// Returns an enumerator that iterates through the collection.
         /// </summary>
-        /// <returns>An <see cref = "IEnumerator" /> object that can be used to iterate through the collection.</returns>
+        /// <returns>An <see cref="IEnumerator"/> object that can be used to iterate through the collection.</returns>
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
         }
 
         /// <summary>
-        ///   List of files added to the index, which are not in the current commit
+        /// List of files added to the index, which are not in the current commit
         /// </summary>
         public virtual IEnumerable<string> Added
         {
@@ -121,7 +121,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   List of files added to the index, which are already in the current commit with different content
+        /// List of files added to the index, which are already in the current commit with different content
         /// </summary>
         public virtual IEnumerable<string> Staged
         {
@@ -129,7 +129,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   List of files removed from the index but are existent in the current commit
+        /// List of files removed from the index but are existent in the current commit
         /// </summary>
         public virtual IEnumerable<string> Removed
         {
@@ -137,7 +137,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   List of files existent in the index but are missing in the working directory
+        /// List of files existent in the index but are missing in the working directory
         /// </summary>
         public virtual IEnumerable<string> Missing
         {
@@ -145,7 +145,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   List of files with unstaged modifications. A file may be modified and staged at the same time if it has been modified after adding.
+        /// List of files with unstaged modifications. A file may be modified and staged at the same time if it has been modified after adding.
         /// </summary>
         public virtual IEnumerable<string> Modified
         {
@@ -153,7 +153,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   List of files existing in the working directory but are neither tracked in the index nor in the current commit.
+        /// List of files existing in the working directory but are neither tracked in the index nor in the current commit.
         /// </summary>
         public virtual IEnumerable<string> Untracked
         {
@@ -161,7 +161,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   List of files existing in the working directory that are ignored.
+        /// List of files existing in the working directory that are ignored.
         /// </summary>
         public virtual IEnumerable<string> Ignored
         {
@@ -169,7 +169,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   True if the index or the working directory has been altered since the last commit. False otherwise.
+        /// True if the index or the working directory has been altered since the last commit. False otherwise.
         /// </summary>
         public virtual bool IsDirty
         {

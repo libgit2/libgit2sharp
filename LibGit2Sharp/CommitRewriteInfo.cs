@@ -1,27 +1,27 @@
 namespace LibGit2Sharp
 {
     /// <summary>
-    ///   Commit metadata when rewriting history
+    /// Commit metadata when rewriting history
     /// </summary>
     public class CommitRewriteInfo
     {
         /// <summary>
-        ///   The author to be used for the new commit
+        /// The author to be used for the new commit
         /// </summary>
         public Signature Author { get; set; }
 
         /// <summary>
-        ///   The committer to be used for the new commit
+        /// The committer to be used for the new commit
         /// </summary>
         public Signature Committer { get; set; }
 
         /// <summary>
-        ///   The message to be used for the new commit
+        /// The message to be used for the new commit
         /// </summary>
         public string Message { get; set; }
 
         /// <summary>
-        ///   Build a <see cref="CommitRewriteInfo"/> from the <see cref="Commit"/> passed in
+        /// Build a <see cref="CommitRewriteInfo"/> from the <see cref="Commit"/> passed in
         /// </summary>
         /// <param name="commit">The <see cref="Commit"/> whose information is to be copied</param>
         /// <returns>A new <see cref="CommitRewriteInfo"/> object that matches the info for the <paramref name="commit"/>.</returns>
@@ -36,8 +36,8 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Build a <see cref="CommitRewriteInfo"/> from the <see cref="Commit"/> passed in,
-        ///   optionally overriding some of its properties 
+        /// Build a <see cref="CommitRewriteInfo"/> from the <see cref="Commit"/> passed in,
+        /// optionally overriding some of its properties 
         /// </summary>
         /// <param name="commit">The <see cref="Commit"/> whose information is to be copied</param>
         /// <param name="author">Optional override for the author</param>

@@ -6,7 +6,7 @@ using LibGit2Sharp.Core;
 namespace LibGit2Sharp
 {
     /// <summary>
-    ///   A Submodule.
+    /// A Submodule.
     /// </summary>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class Submodule : IEquatable<Submodule>
@@ -26,7 +26,7 @@ namespace LibGit2Sharp
         private readonly ILazy<SubmoduleUpdate> updateRule;
 
         /// <summary>
-        ///   Needed for mocking purposes.
+        /// Needed for mocking purposes.
         /// </summary>
         protected Submodule()
         { }
@@ -50,57 +50,57 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   The name of the submodule.
+        /// The name of the submodule.
         /// </summary>
         public virtual string Name { get { return name; } }
 
         /// <summary>
-        ///   The path of the submodule.
+        /// The path of the submodule.
         /// </summary>
         public virtual string Path { get { return path; } }
 
         /// <summary>
-        ///   The URL of the submodule.
+        /// The URL of the submodule.
         /// </summary>
         public virtual string Url { get { return url; } }
 
         /// <summary>
-        ///   The commit ID for this submodule in the current HEAD tree.
+        /// The commit ID for this submodule in the current HEAD tree.
         /// </summary>
         public virtual ObjectId HeadCommitId { get { return headCommitId.Value; } }
 
         /// <summary>
-        ///   The commit ID for this submodule in the index.
+        /// The commit ID for this submodule in the index.
         /// </summary>
         public virtual ObjectId IndexCommitId { get { return indexCommitId.Value; } }
 
         /// <summary>
-        ///   The commit ID for this submodule in the current working directory.
+        /// The commit ID for this submodule in the current working directory.
         /// </summary>
         public virtual ObjectId WorkDirCommitId { get { return workdirCommitId.Value; } }
 
         /// <summary>
-        ///   The fetchRecurseSubmodules rule for the submodule.
+        /// The fetchRecurseSubmodules rule for the submodule.
         ///
-        ///   Note that at this time, LibGit2Sharp does not honor this setting and the
-        ///   fetch functionality current ignores submodules.
+        /// Note that at this time, LibGit2Sharp does not honor this setting and the
+        /// fetch functionality current ignores submodules.
         /// </summary>
         public virtual bool FetchRecurseSubmodulesRule { get { return fetchRecurseSubmodulesRule.Value; } }
 
         /// <summary>
-        ///   The ignore rule of the submodule.
+        /// The ignore rule of the submodule.
         /// </summary>
         public virtual SubmoduleIgnore IgnoreRule { get { return ignoreRule.Value; } }
 
         /// <summary>
-        ///   The update rule of the submodule.
+        /// The update rule of the submodule.
         /// </summary>
         public virtual SubmoduleUpdate UpdateRule { get { return updateRule.Value; } }
 
         /// <summary>
-        ///   Retrieves the state of this submodule in the working directory compared to the staging area and the latest commmit.
+        /// Retrieves the state of this submodule in the working directory compared to the staging area and the latest commmit.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The <see cref="SubmoduleStatus"/> of this submodule.</returns>
         public virtual SubmoduleStatus RetrieveStatus()
         {
             using (var handle = Proxy.git_submodule_lookup(repo.Handle, Name))
@@ -110,27 +110,27 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Determines whether the specified <see cref = "Object" /> is equal to the current <see cref = "Submodule" />.
+        /// Determines whether the specified <see cref="Object"/> is equal to the current <see cref="Submodule"/>.
         /// </summary>
-        /// <param name = "obj">The <see cref = "Object" /> to compare with the current <see cref = "Submodule" />.</param>
-        /// <returns>True if the specified <see cref = "Object" /> is equal to the current <see cref = "Submodule" />; otherwise, false.</returns>
+        /// <param name="obj">The <see cref="Object"/> to compare with the current <see cref="Submodule"/>.</param>
+        /// <returns>True if the specified <see cref="Object"/> is equal to the current <see cref="Submodule"/>; otherwise, false.</returns>
         public override bool Equals(object obj)
         {
             return Equals(obj as Submodule);
         }
 
         /// <summary>
-        ///   Determines whether the specified <see cref = "Submodule" /> is equal to the current <see cref = "Submodule" />.
+        /// Determines whether the specified <see cref="Submodule"/> is equal to the current <see cref="Submodule"/>.
         /// </summary>
-        /// <param name = "other">The <see cref = "Submodule" /> to compare with the current <see cref = "Submodule" />.</param>
-        /// <returns>True if the specified <see cref = "Submodule" /> is equal to the current <see cref = "Submodule" />; otherwise, false.</returns>
+        /// <param name="other">The <see cref="Submodule"/> to compare with the current <see cref="Submodule"/>.</param>
+        /// <returns>True if the specified <see cref="Submodule"/> is equal to the current <see cref="Submodule"/>; otherwise, false.</returns>
         public bool Equals(Submodule other)
         {
             return equalityHelper.Equals(this, other);
         }
 
         /// <summary>
-        ///   Returns the hash code for this instance.
+        /// Returns the hash code for this instance.
         /// </summary>
         /// <returns>A 32-bit signed integer hash code.</returns>
         public override int GetHashCode()
@@ -139,9 +139,9 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Returns the <see cref = "Name" />, a <see cref = "String" /> representation of the current <see cref = "Submodule" />.
+        /// Returns the <see cref="Name"/>, a <see cref="String"/> representation of the current <see cref="Submodule"/>.
         /// </summary>
-        /// <returns>The <see cref = "Name" /> that represents the current <see cref = "Submodule" />.</returns>
+        /// <returns>The <see cref="Name"/> that represents the current <see cref="Submodule"/>.</returns>
         public override string ToString()
         {
             return Name;

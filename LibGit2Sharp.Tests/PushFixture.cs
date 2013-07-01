@@ -1,5 +1,4 @@
 using System;
-using System.IO;
 using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
@@ -37,7 +36,7 @@ namespace LibGit2Sharp.Tests
                 const string relativeFilepath = "new_file.txt";
                 Touch(clonedRepo.Info.WorkingDirectory, relativeFilepath, "__content__");
                 clonedRepo.Index.Stage(relativeFilepath);
-                clonedRepo.Commit("__commit_message__", DummySignature, DummySignature);
+                clonedRepo.Commit("__commit_message__", Constants.Signature, Constants.Signature);
 
                 // Assert local state has changed
                 Assert.NotEqual(originalRepo.Refs["HEAD"].ResolveToDirectReference().TargetIdentifier,

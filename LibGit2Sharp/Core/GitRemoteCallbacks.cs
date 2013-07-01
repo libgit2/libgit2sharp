@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 namespace LibGit2Sharp.Core
 {
     /// <summary>
-    ///   Structure for git_remote_callbacks
+    /// Structure for git_remote_callbacks
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
     internal struct GitRemoteCallbacks

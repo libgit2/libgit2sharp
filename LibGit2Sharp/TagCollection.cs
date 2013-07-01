@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
@@ -9,7 +8,7 @@ using LibGit2Sharp.Core;
 namespace LibGit2Sharp
 {
     /// <summary>
-    ///   The collection of <see cref = "Tag" />s in a <see cref = "Repository" />
+    /// The collection of <see cref="Tag"/>s in a <see cref="Repository"/>
     /// </summary>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class TagCollection : IEnumerable<Tag>
@@ -17,22 +16,22 @@ namespace LibGit2Sharp
         internal readonly Repository repo;
 
         /// <summary>
-        ///   Needed for mocking purposes.
+        /// Needed for mocking purposes.
         /// </summary>
         protected TagCollection()
         { }
 
         /// <summary>
-        ///   Initializes a new instance of the <see cref = "TagCollection" /> class.
+        /// Initializes a new instance of the <see cref="TagCollection"/> class.
         /// </summary>
-        /// <param name = "repo">The repo.</param>
+        /// <param name="repo">The repo.</param>
         internal TagCollection(Repository repo)
         {
             this.repo = repo;
         }
 
         /// <summary>
-        ///   Gets the <see cref = "Tag" /> with the specified name.
+        /// Gets the <see cref="Tag"/> with the specified name.
         /// </summary>
         public virtual Tag this[string name]
         {
@@ -48,9 +47,9 @@ namespace LibGit2Sharp
         #region IEnumerable<Tag> Members
 
         /// <summary>
-        ///   Returns an enumerator that iterates through the collection.
+        /// Returns an enumerator that iterates through the collection.
         /// </summary>
-        /// <returns>An <see cref = "IEnumerator{T}" /> object that can be used to iterate through the collection.</returns>
+        /// <returns>An <see cref="IEnumerator{T}"/> object that can be used to iterate through the collection.</returns>
         public virtual IEnumerator<Tag> GetEnumerator()
         {
             return Proxy
@@ -60,9 +59,9 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Returns an enumerator that iterates through the collection.
+        /// Returns an enumerator that iterates through the collection.
         /// </summary>
-        /// <returns>An <see cref = "IEnumerator" /> object that can be used to iterate through the collection.</returns>
+        /// <returns>An <see cref="IEnumerator"/> object that can be used to iterate through the collection.</returns>
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
@@ -71,14 +70,14 @@ namespace LibGit2Sharp
         #endregion
 
         /// <summary>
-        ///   Creates an annotated tag with the specified name.
+        /// Creates an annotated tag with the specified name.
         /// </summary>
-        /// <param name = "name">The name.</param>
-        /// <param name = "target">The target <see cref="GitObject"/>.</param>
-        /// <param name = "tagger">The tagger.</param>
-        /// <param name = "message">The message.</param>
-        /// <param name = "allowOverwrite">True to allow silent overwriting a potentially existing tag, false otherwise.</param>
-        /// <returns></returns>
+        /// <param name="name">The name.</param>
+        /// <param name="target">The target <see cref="GitObject"/>.</param>
+        /// <param name="tagger">The tagger.</param>
+        /// <param name="message">The message.</param>
+        /// <param name="allowOverwrite">True to allow silent overwriting a potentially existing tag, false otherwise.</param>
+        /// <returns>The added <see cref="Tag"/>.</returns>
         public virtual Tag Add(string name, GitObject target, Signature tagger, string message, bool allowOverwrite = false)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
@@ -94,12 +93,12 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Creates a lightweight tag with the specified name.
+        /// Creates a lightweight tag with the specified name.
         /// </summary>
-        /// <param name = "name">The name.</param>
-        /// <param name = "target">The target <see cref="GitObject"/>.</param>
-        /// <param name = "allowOverwrite">True to allow silent overwriting a potentially existing tag, false otherwise.</param>
-        /// <returns></returns>
+        /// <param name="name">The name.</param>
+        /// <param name="target">The target <see cref="GitObject"/>.</param>
+        /// <param name="allowOverwrite">True to allow silent overwriting a potentially existing tag, false otherwise.</param>
+        /// <returns>The added <see cref="Tag"/>.</returns>
         public virtual Tag Add(string name, GitObject target, bool allowOverwrite = false)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
@@ -111,9 +110,9 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Deletes the tag with the specified name.
+        /// Deletes the tag with the specified name.
         /// </summary>
-        /// <param name = "tag">The tag to delete.</param>
+        /// <param name="tag">The tag to delete.</param>
         public virtual void Remove(Tag tag)
         {
             Ensure.ArgumentNotNull(tag, "tag");

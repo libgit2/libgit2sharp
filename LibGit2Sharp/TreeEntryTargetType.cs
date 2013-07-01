@@ -4,22 +4,22 @@ using LibGit2Sharp.Core;
 namespace LibGit2Sharp
 {
     /// <summary>
-    ///   Underlying type of the target a <see cref = "TreeEntry" />
+    /// Underlying type of the target a <see cref="TreeEntry"/>
     /// </summary>
     public enum TreeEntryTargetType
     {
         /// <summary>
-        ///   A file revision object.
+        /// A file revision object.
         /// </summary>
         Blob,
 
         /// <summary>
-        ///   A tree object.
+        /// A tree object.
         /// </summary>
         Tree,
 
         /// <summary>
-        ///   A pointer to a commit object in another repository.
+        /// A pointer to a commit object in another repository.
         /// </summary>
         GitLink,
     }

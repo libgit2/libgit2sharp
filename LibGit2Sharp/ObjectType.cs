@@ -4,27 +4,27 @@ using LibGit2Sharp.Core;
 namespace LibGit2Sharp
 {
     /// <summary>
-    ///   Underlying type of a <see cref = "GitObject" />
+    /// Underlying type of a <see cref="GitObject"/>
     /// </summary>
     public enum ObjectType
     {
         /// <summary>
-        ///   A commit object.
+        /// A commit object.
         /// </summary>
         Commit = 1,
 
         /// <summary>
-        ///   A tree (directory listing) object.
+        /// A tree (directory listing) object.
         /// </summary>
         Tree = 2,
 
         /// <summary>
-        ///   A file revision object.
+        /// A file revision object.
         /// </summary>
         Blob = 3,
 
         /// <summary>
-        ///   An annotated tag object.
+        /// An annotated tag object.
         /// </summary>
         Tag = 4,
     }

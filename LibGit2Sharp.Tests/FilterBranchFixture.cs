@@ -64,12 +64,12 @@ namespace LibGit2Sharp.Tests
         public void CanRewriteAuthorOfCommitsOnlyBeingPointedAtByTags()
         {
             var commit = repo.ObjectDatabase.CreateCommit(
-                "I'm a lonesome commit", DummySignature, DummySignature,
+                "I'm a lonesome commit", Constants.Signature, Constants.Signature,
                 repo.Head.Tip.Tree, Enumerable.Empty<Commit>());
 
             repo.Tags.Add("so-lonely", commit);
 
-            repo.Tags.Add("so-lonely-but-annotated", commit, DummySignature,
+            repo.Tags.Add("so-lonely-but-annotated", commit, Constants.Signature,
                 "Yeah, baby! I'm going to be rewritten as well");
 
             repo.Refs.RewriteHistory(
@@ -106,19 +106,19 @@ namespace LibGit2Sharp.Tests
             var parent = commit.Parents.Single();
 
             Assert.True(parent.Sha.StartsWith("5001298"));
-            Assert.NotEqual(DummySignature, commit.Author);
-            Assert.NotEqual(DummySignature, parent.Author);
+            Assert.NotEqual(Constants.Signature, commit.Author);
+            Assert.NotEqual(Constants.Signature, parent.Author);
 
             repo.Refs.RewriteHistory(
                 new[] { parent },
-                commitHeaderRewriter: c => CommitRewriteInfo.From(c, author: DummySignature));
+                commitHeaderRewriter: c => CommitRewriteInfo.From(c, author: Constants.Signature));
 
             commit = repo.Branches["packed"].Tip;
             parent = commit.Parents.Single();
 
             Assert.False(parent.Sha.StartsWith("5001298"));
-            Assert.NotEqual(DummySignature, commit.Author);
-            Assert.Equal(DummySignature, parent.Author);
+            Assert.NotEqual(Constants.Signature, commit.Author);
+            Assert.Equal(Constants.Signature, parent.Author);
         }
 
         [Fact]
@@ -302,7 +302,7 @@ namespace LibGit2Sharp.Tests
             repo.Refs.Add("refs/attic/dusty_tracker", "refs/tags/another_tracker");
 
             repo.Refs.RewriteHistory(new[] { repo.Lookup<Commit>("e90810b8df") },
-                                     c => CommitRewriteInfo.From(c, author: DummySignature),
+                                     c => CommitRewriteInfo.From(c, author: Constants.Signature),
                                      tagNameRewriter: (oldName, isAnnotated, o) => oldName + "_new");
 
             // Ensure the initial tags don't exist anymore...
@@ -330,8 +330,8 @@ namespace LibGit2Sharp.Tests
             // Add a lightweight tag (A) that points to tag annotation (B) that points to another tag annotation (C),
             // which points to a commit
             var theCommit = repo.Lookup<Commit>("6dcf9bf");
-            var annotationC = repo.ObjectDatabase.CreateTagAnnotation("annotationC", theCommit, DummySignature, "");
-            var annotationB = repo.ObjectDatabase.CreateTagAnnotation("annotationB", annotationC, DummySignature, "");
+            var annotationC = repo.ObjectDatabase.CreateTagAnnotation("annotationC", theCommit, Constants.Signature, "");
+            var annotationB = repo.ObjectDatabase.CreateTagAnnotation("annotationB", annotationC, Constants.Signature, "");
             var tagA = repo.Tags.Add("lightweightA", annotationB);
 
             // Rewrite the commit, renaming the tag

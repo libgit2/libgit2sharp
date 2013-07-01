@@ -3,20 +3,20 @@
 namespace LibGit2Sharp
 {
     /// <summary>
-    ///   Expose progress values from a fetch operation.
+    /// Expose progress values from a fetch operation.
     /// </summary>
     public class TransferProgress
     {
         private GitTransferProgress gitTransferProgress;
 
         /// <summary>
-        ///   Empty constructor.
+        /// Empty constructor.
         /// </summary>
         protected TransferProgress()
         { }
 
         /// <summary>
-        ///   Constructor.
+        /// Constructor.
         /// </summary>
         internal TransferProgress(GitTransferProgress gitTransferProgress)
         {
@@ -24,7 +24,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Total number of objects.
+        /// Total number of objects.
         /// </summary>
         public virtual int TotalObjects
         {
@@ -35,7 +35,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Number of objects indexed.
+        /// Number of objects indexed.
         /// </summary>
         public virtual int IndexedObjects
         {
@@ -46,7 +46,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Number of objects received.
+        /// Number of objects received.
         /// </summary>
         public virtual int ReceivedObjects
         {
@@ -57,7 +57,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Number of bytes received.
+        /// Number of bytes received.
         /// </summary>
         public virtual long ReceivedBytes
         {

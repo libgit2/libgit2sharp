@@ -7,14 +7,14 @@ using LibGit2Sharp.Core.Compat;
 namespace LibGit2Sharp
 {
     /// <summary>
-    ///   A base class for things that wrap a <see cref = "Reference" /> (branch, tag, etc).
+    /// A base class for things that wrap a <see cref="Reference"/> (branch, tag, etc).
     /// </summary>
     /// <typeparam name="TObject">The type of the referenced Git object.</typeparam>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public abstract class ReferenceWrapper<TObject> : IEquatable<ReferenceWrapper<TObject>> where TObject : GitObject
     {
         /// <summary>
-        ///   The repository.
+        /// The repository.
         /// </summary>
         protected readonly Repository repo;
         private readonly Lazy<TObject> objectBuilder;
@@ -25,7 +25,7 @@ namespace LibGit2Sharp
         private readonly string canonicalName;
 
         /// <summary>
-        ///   Needed for mocking purposes.
+        /// Needed for mocking purposes.
         /// </summary>
         protected ReferenceWrapper()
         { }
@@ -45,7 +45,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Gets the full name of this reference.
+        /// Gets the full name of this reference.
         /// </summary>
         public virtual string CanonicalName
         {
@@ -53,7 +53,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Gets the name of this reference.
+        /// Gets the name of this reference.
         /// </summary>
         public virtual string Name
         {
@@ -61,16 +61,16 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Returns the <see cref = "CanonicalName" />, a <see cref = "string" /> representation of the current reference.
+        /// Returns the <see cref="CanonicalName"/>, a <see cref="string"/> representation of the current reference.
         /// </summary>
-        /// <returns>The <see cref = "CanonicalName" /> that represents the current reference.</returns>
+        /// <returns>The <see cref="CanonicalName"/> that represents the current reference.</returns>
         public override string ToString()
         {
             return CanonicalName;
         }
 
         /// <summary>
-        ///   Gets the <typeparamref name="TObject"/> this <see cref = "ReferenceWrapper{TObject}" /> points to.
+        /// Gets the <typeparamref name="TObject"/> this <see cref="ReferenceWrapper{TObject}"/> points to.
         /// </summary>
         protected TObject TargetObject
         {
@@ -78,8 +78,8 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Removes redundent leading namespaces (regarding the kind of
-        ///   reference being wrapped) from the canonical name.
+        /// Removes redundent leading namespaces (regarding the kind of
+        /// reference being wrapped) from the canonical name.
         /// </summary>
         /// <returns>The friendly shortened name</returns>
         protected abstract string Shorten();
@@ -102,27 +102,27 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Determines whether the specified <see cref = "ReferenceWrapper{TObject}" /> is equal to the current <see cref = "ReferenceWrapper{TObject}" />.
+        /// Determines whether the specified <see cref="ReferenceWrapper{TObject}"/> is equal to the current <see cref="ReferenceWrapper{TObject}"/>.
         /// </summary>
-        /// <param name = "other">The <see cref = "ReferenceWrapper{TObject}" /> to compare with the current <see cref = "ReferenceWrapper{TObject}" />.</param>
-        /// <returns>True if the specified <see cref = "ReferenceWrapper{TObject}" /> is equal to the current <see cref = "ReferenceWrapper{TObject}" />; otherwise, false.</returns>
+        /// <param name="other">The <see cref="ReferenceWrapper{TObject}"/> to compare with the current <see cref="ReferenceWrapper{TObject}"/>.</param>
+        /// <returns>True if the specified <see cref="ReferenceWrapper{TObject}"/> is equal to the current <see cref="ReferenceWrapper{TObject}"/>; otherwise, false.</returns>
         public bool Equals(ReferenceWrapper<TObject> other)
         {
             return equalityHelper.Equals(this, other);
         }
 
         /// <summary>
-        ///   Determines whether the specified <see cref = "Object" /> is equal to the current <see cref = "ReferenceWrapper{TObject}" />.
+        /// Determines whether the specified <see cref="Object"/> is equal to the current <see cref="ReferenceWrapper{TObject}"/>.
         /// </summary>
-        /// <param name = "obj">The <see cref = "Object" /> to compare with the current <see cref = "ReferenceWrapper{TObject}" />.</param>
-        /// <returns>True if the specified <see cref = "Object" /> is equal to the current <see cref = "ReferenceWrapper{TObject}" />; otherwise, false.</returns>
+        /// <param name="obj">The <see cref="Object"/> to compare with the current <see cref="ReferenceWrapper{TObject}"/>.</param>
+        /// <returns>True if the specified <see cref="Object"/> is equal to the current <see cref="ReferenceWrapper{TObject}"/>; otherwise, false.</returns>
         public override bool Equals(object obj)
         {
             return Equals(obj as ReferenceWrapper<TObject>);
         }
 
         /// <summary>
-        ///   Returns the hash code for this instance.
+        /// Returns the hash code for this instance.
         /// </summary>
         /// <returns>A 32-bit signed integer hash code.</returns>
         public override int GetHashCode()
@@ -131,10 +131,10 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Tests if two <see cref = "ReferenceWrapper{TObject}" /> are equal.
+        /// Tests if two <see cref="ReferenceWrapper{TObject}"/> are equal.
         /// </summary>
-        /// <param name = "left">First <see cref = "ReferenceWrapper{TObject}" /> to compare.</param>
-        /// <param name = "right">Second <see cref = "ReferenceWrapper{TObject}" /> to compare.</param>
+        /// <param name="left">First <see cref="ReferenceWrapper{TObject}"/> to compare.</param>
+        /// <param name="right">Second <see cref="ReferenceWrapper{TObject}"/> to compare.</param>
         /// <returns>True if the two objects are equal; false otherwise.</returns>
         public static bool operator ==(ReferenceWrapper<TObject> left, ReferenceWrapper<TObject> right)
         {
@@ -142,10 +142,10 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Tests if two <see cref = "ReferenceWrapper{TObject}" /> are different.
+        /// Tests if two <see cref="ReferenceWrapper{TObject}"/> are different.
         /// </summary>
-        /// <param name = "left">First <see cref = "ReferenceWrapper{TObject}" /> to compare.</param>
-        /// <param name = "right">Second <see cref = "ReferenceWrapper{TObject}" /> to compare.</param>
+        /// <param name="left">First <see cref="ReferenceWrapper{TObject}"/> to compare.</param>
+        /// <param name="right">Second <see cref="ReferenceWrapper{TObject}"/> to compare.</param>
         /// <returns>True if the two objects are different; false otherwise.</returns>
         public static bool operator !=(ReferenceWrapper<TObject> left, ReferenceWrapper<TObject> right)
         {

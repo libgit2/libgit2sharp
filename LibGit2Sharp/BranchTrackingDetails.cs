@@ -4,7 +4,7 @@ using LibGit2Sharp.Core.Compat;
 namespace LibGit2Sharp
 {
     /// <summary>
-    ///   Tracking information for a <see cref="Branch" />
+    /// Tracking information for a <see cref="Branch"/>
     /// </summary>
     public class BranchTrackingDetails
     {
@@ -14,7 +14,7 @@ namespace LibGit2Sharp
         private readonly Lazy<Commit> commonAncestor;
 
         /// <summary>
-        ///   Needed for mocking purposes.
+        /// Needed for mocking purposes.
         /// </summary>
         protected BranchTrackingDetails()
         { }
@@ -29,10 +29,10 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Gets the number of commits that exist in this local branch but don't exist in the tracked one.
-        ///   <para>
-        ///     This property will return null if there is no tracked branch linked to this local branch.
-        ///   </para>
+        /// Gets the number of commits that exist in this local branch but don't exist in the tracked one.
+        /// <para>
+        ///   This property will return null if there is no tracked branch linked to this local branch.
+        /// </para>
         /// </summary>
         public virtual int? AheadBy
         {
@@ -40,10 +40,10 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Gets the number of commits that exist in the tracked branch but don't exist in this local one.
-        ///   <para>
-        ///     This property will return null if there is no tracked branch linked to this local branch.
-        ///   </para>
+        /// Gets the number of commits that exist in the tracked branch but don't exist in this local one.
+        /// <para>
+        ///   This property will return null if there is no tracked branch linked to this local branch.
+        /// </para>
         /// </summary>
         public virtual int? BehindBy
         {
@@ -51,11 +51,11 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Gets the common ancestor of the local branch and its tracked remote branch.
-        ///   <para>
-        ///     This property will return null if there is no tracked branch linked to this local branch,
-        ///     or if either branch is an orphan.
-        ///   </para>
+        /// Gets the common ancestor of the local branch and its tracked remote branch.
+        /// <para>
+        ///   This property will return null if there is no tracked branch linked to this local branch,
+        ///   or if either branch is an orphan.
+        /// </para>
         /// </summary>
         public virtual Commit CommonAncestor
         {

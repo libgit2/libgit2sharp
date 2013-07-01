@@ -15,7 +15,7 @@ namespace LibGit2Sharp.Tests
             string path = CloneBareTestRepo();
             using (var repo = new Repository(path))
             {
-                var stasher = DummySignature;
+                var stasher = Constants.Signature;
 
                 Assert.Throws<BareRepositoryException>(() => repo.Stashes.Add(stasher, "My very first stash", StashModifiers.Default));
             }
@@ -27,26 +27,29 @@ namespace LibGit2Sharp.Tests
             string path = CloneStandardTestRepo();
             using (var repo = new Repository(path))
             {
-                var stasher = DummySignature;
+                var stasher = Constants.Signature;
 
                 Assert.True(repo.Index.RetrieveStatus().IsDirty);
 
                 Stash stash = repo.Stashes.Add(stasher, "My very first stash", StashModifiers.IncludeUntracked);
 
                 // Check that untracked files are deleted from working directory
-                Assert.False(File.Exists(Path.Combine(repo.Info.WorkingDirectory, "new_untracked_file.txt")));
+                string untrackedFilename = "new_untracked_file.txt";
+                Assert.False(File.Exists(Path.Combine(repo.Info.WorkingDirectory, untrackedFilename)));
+                Assert.NotNull(stash.Untracked[untrackedFilename]);
 
                 Assert.NotNull(stash);
                 Assert.Equal("stash@{0}", stash.CanonicalName);
                 Assert.Contains("My very first stash", stash.Message);
 
                 var stashRef = repo.Refs["refs/stash"];
-                Assert.Equal(stash.Target.Sha, stashRef.TargetIdentifier);
+                Assert.Equal(stash.WorkTree.Sha, stashRef.TargetIdentifier);
 
                 Assert.False(repo.Index.RetrieveStatus().IsDirty);
 
                 // Create extra file
-                Touch(repo.Info.WorkingDirectory, "stash_candidate.txt", "Oh, I'm going to be stashed!\n");
+                untrackedFilename = "stash_candidate.txt";
+                Touch(repo.Info.WorkingDirectory, untrackedFilename, "Oh, I'm going to be stashed!\n");
 
                 Stash secondStash = repo.Stashes.Add(stasher, "My second stash", StashModifiers.IncludeUntracked);
 
@@ -58,20 +61,22 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal("stash@{0}", repo.Stashes.First().CanonicalName);
                 Assert.Equal("stash@{1}", repo.Stashes.Last().CanonicalName);
 
+                Assert.NotNull(secondStash.Untracked[untrackedFilename]);
+
                 // Stash history has been shifted
-                Assert.Equal(repo.Lookup<Commit>("stash@{0}").Sha, secondStash.Target.Sha);
-                Assert.Equal(repo.Lookup<Commit>("stash@{1}").Sha, stash.Target.Sha);
+                Assert.Equal(repo.Lookup<Commit>("stash@{0}").Sha, secondStash.WorkTree.Sha);
+                Assert.Equal(repo.Lookup<Commit>("stash@{1}").Sha, stash.WorkTree.Sha);
 
                 //Remove one stash
                 repo.Stashes.Remove(0);
                 Assert.Equal(1, repo.Stashes.Count());
                 Stash newTopStash = repo.Stashes.First();
                 Assert.Equal("stash@{0}", newTopStash.CanonicalName);
-                Assert.Equal(stash.Target.Sha, newTopStash.Target.Sha);
+                Assert.Equal(stash.WorkTree.Sha, newTopStash.WorkTree.Sha);
 
                 // Stash history has been shifted
-                Assert.Equal(stash.Target.Sha, repo.Lookup<Commit>("stash").Sha);
-                Assert.Equal(stash.Target.Sha, repo.Lookup<Commit>("stash@{0}").Sha);
+                Assert.Equal(stash.WorkTree.Sha, repo.Lookup<Commit>("stash").Sha);
+                Assert.Equal(stash.WorkTree.Sha, repo.Lookup<Commit>("stash@{0}").Sha);
             }
         }
 
@@ -81,16 +86,16 @@ namespace LibGit2Sharp.Tests
             string path = CloneStandardTestRepo();
             using (var repo = new Repository(path))
             {
-                var stasher = DummySignature;
+                var stasher = Constants.Signature;
 
                 Stash stash = repo.Stashes.Add(stasher, options: StashModifiers.Default);
 
                 Assert.NotNull(stash);
                 Assert.Equal("stash@{0}", stash.CanonicalName);
-                Assert.NotEmpty(stash.Target.Message);
+                Assert.NotEmpty(stash.WorkTree.Message);
 
                 var stashRef = repo.Refs["refs/stash"];
-                Assert.Equal(stash.Target.Sha, stashRef.TargetIdentifier);
+                Assert.Equal(stash.WorkTree.Sha, stashRef.TargetIdentifier);
             }
         }
 
@@ -110,7 +115,7 @@ namespace LibGit2Sharp.Tests
             string path = CloneStandardTestRepo();
             using (var repo = new Repository(path))
             {
-                var stasher = DummySignature;
+                var stasher = Constants.Signature;
 
                 Stash stash = repo.Stashes.Add(stasher, "My very first stash", StashModifiers.IncludeUntracked);
 
@@ -127,7 +132,7 @@ namespace LibGit2Sharp.Tests
             string path = CloneStandardTestRepo();
             using (var repo = new Repository(path))
             {
-                var stasher = DummySignature;
+                var stasher = Constants.Signature;
 
                 const string untracked = "new_untracked_file.txt";
                 Touch(repo.Info.WorkingDirectory, untracked, "I'm untracked\n");
@@ -142,9 +147,11 @@ namespace LibGit2Sharp.Tests
 
                 //It should not keep staged files
                 Assert.Equal(FileStatus.Nonexistent, repo.Index.RetrieveStatus(staged));
+                Assert.NotNull(stash.Index[staged]);
 
                 //It should leave untracked files untracked
                 Assert.Equal(FileStatus.Untracked, repo.Index.RetrieveStatus(untracked));
+                Assert.Null(stash.Untracked);
             }
         }
 
@@ -154,16 +161,18 @@ namespace LibGit2Sharp.Tests
             string path = CloneStandardTestRepo();
             using (var repo = new Repository(path))
             {
-                var stasher = DummySignature;
+                var stasher = Constants.Signature;
 
                 const string filename = "staged_file_path.txt";
                 Touch(repo.Info.WorkingDirectory, filename, "I'm staged\n");
                 repo.Index.Stage(filename);
 
-                Stash stash = repo.Stashes.Add(stasher, "This stash wil keep index", StashModifiers.KeepIndex);
+                Stash stash = repo.Stashes.Add(stasher, "This stash will keep index", StashModifiers.KeepIndex);
 
                 Assert.NotNull(stash);
+                Assert.NotNull(stash.Index[filename]);
                 Assert.Equal(FileStatus.Added, repo.Index.RetrieveStatus(filename));
+                Assert.Null(stash.Untracked);
             }
         }
 
@@ -180,18 +189,19 @@ namespace LibGit2Sharp.Tests
                 repo.Index.Stage(gitIgnore);
                 repo.Commit("Modify gitignore", Constants.Signature, Constants.Signature);
 
-                string ignoredFilePath = Touch(repo.Info.WorkingDirectory, ignoredFilename, "I'm ignored\n");
+                Touch(repo.Info.WorkingDirectory, ignoredFilename, "I'm ignored\n");
 
                 Assert.True(repo.Ignore.IsPathIgnored(ignoredFilename));
 
-                var stasher = DummySignature;
-                repo.Stashes.Add(stasher, "This stash includes ignore files", StashModifiers.IncludeIgnored);
+                var stasher = Constants.Signature;
+                var stash = repo.Stashes.Add(stasher, "This stash includes ignore files", StashModifiers.IncludeIgnored);
 
                 //TODO : below assertion doesn't pass. Bug?
                 //Assert.False(File.Exists(ignoredFilePath));
 
                 var blob = repo.Lookup<Blob>("stash^3:ignored_file.txt");
                 Assert.NotNull(blob);
+                Assert.NotNull(stash.Untracked[ignoredFilename]);
             }
         }
 
@@ -213,7 +223,7 @@ namespace LibGit2Sharp.Tests
             string path = CloneStandardTestRepo();
             using (var repo = new Repository(path))
             {
-                var stasher = DummySignature;
+                var stasher = Constants.Signature;
                 const string firstStashMessage = "My very first stash";
                 const string secondStashMessage = "My second stash";
                 const string thirdStashMessage = "My third stash";
@@ -239,13 +249,13 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(3, repo.Stashes.Count());
                 Assert.Equal("stash@{0}", repo.Stashes[0].CanonicalName);
                 Assert.Contains(thirdStashMessage, repo.Stashes[0].Message);
-                Assert.Equal(thirdStash.Target, repo.Stashes[0].Target);
+                Assert.Equal(thirdStash.WorkTree, repo.Stashes[0].WorkTree);
                 Assert.Equal("stash@{1}", repo.Stashes[1].CanonicalName);
                 Assert.Contains(secondStashMessage, repo.Stashes[1].Message);
-                Assert.Equal(secondStash.Target, repo.Stashes[1].Target);
+                Assert.Equal(secondStash.WorkTree, repo.Stashes[1].WorkTree);
                 Assert.Equal("stash@{2}", repo.Stashes[2].CanonicalName);
                 Assert.Contains(firstStashMessage, repo.Stashes[2].Message);
-                Assert.Equal(firstStash.Target, repo.Stashes[2].Target);
+                Assert.Equal(firstStash.WorkTree, repo.Stashes[2].WorkTree);
             }
         }
 

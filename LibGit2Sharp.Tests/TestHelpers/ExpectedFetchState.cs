@@ -5,38 +5,38 @@ using Xunit;
 namespace LibGit2Sharp.Tests.TestHelpers
 {
     /// <summary>
-    ///   Class to verify the expected state after fetching github.com/nulltoken/TestGitRepository into an empty repository.
-    ///   Includes the expected reference callbacks and the expected branches / tags after fetch is completed.
+    /// Class to verify the expected state after fetching github.com/nulltoken/TestGitRepository into an empty repository.
+    /// Includes the expected reference callbacks and the expected branches / tags after fetch is completed.
     /// </summary>
     internal class ExpectedFetchState
     {
         /// <summary>
-        ///   Name of the Remote being fetched from.
+        /// Name of the Remote being fetched from.
         /// </summary>
         internal string RemoteName { get; private set; }
 
         /// <summary>
-        ///   Expected branch tips after fetching into an empty repository.
+        /// Expected branch tips after fetching into an empty repository.
         /// </summary>
         private Dictionary<string, ObjectId> ExpectedBranchTips = new Dictionary<string, ObjectId>();
 
         /// <summary>
-        ///   Expected tags after fetching into an empty repository
+        /// Expected tags after fetching into an empty repository
         /// </summary>
         private Dictionary<string, TestRemoteInfo.ExpectedTagInfo> ExpectedTags = new Dictionary<string, TestRemoteInfo.ExpectedTagInfo>();
 
         /// <summary>
-        ///   References that we expect to be updated in the UpdateReferenceTips callback.
+        /// References that we expect to be updated in the UpdateReferenceTips callback.
         /// </summary>
         private Dictionary<string, ReferenceUpdate> ExpectedReferenceUpdates = new Dictionary<string, ReferenceUpdate>();
 
         /// <summary>
-        ///   References that were actually updated in the UpdateReferenceTips callback.
+        /// References that were actually updated in the UpdateReferenceTips callback.
         /// </summary>
         private Dictionary<string, ReferenceUpdate> ObservedReferenceUpdates = new Dictionary<string, ReferenceUpdate>();
 
         /// <summary>
-        ///   Constructor.
+        /// Constructor.
         /// </summary>
         /// <param name="remoteName">Name of the remote being updated.</param>
         public ExpectedFetchState(string remoteName)
@@ -45,7 +45,7 @@ namespace LibGit2Sharp.Tests.TestHelpers
         }
 
         /// <summary>
-        ///   Add information on a branch that is expected to be updated during a fetch.
+        /// Add information on a branch that is expected to be updated during a fetch.
         /// </summary>
         /// <param name="branchName">Name of the branch.</param>
         /// <param name="oldId">Old ID of the branch reference.</param>
@@ -58,7 +58,7 @@ namespace LibGit2Sharp.Tests.TestHelpers
         }
 
         /// <summary>
-        ///   Add information on a tag that is expected to be updated during a fetch.
+        /// Add information on a tag that is expected to be updated during a fetch.
         /// </summary>
         /// <param name="tagName">Name of the tag.</param>
         /// <param name="oldId">Old ID of the tag.</param>
@@ -73,12 +73,12 @@ namespace LibGit2Sharp.Tests.TestHelpers
         }
 
         /// <summary>
-        ///   Handler to hook up to UpdateTips callback.
+        /// Handler to hook up to UpdateTips callback.
         /// </summary>
         /// <param name="referenceName">Name of reference being updated.</param>
         /// <param name="oldId">Old ID of reference.</param>
         /// <param name="newId">New ID of reference.</param>
-        /// <returns></returns>
+        /// <returns>0 on success; a negative value to abort the process.</returns>
         public int RemoteUpdateTipsHandler(string referenceName, ObjectId oldId, ObjectId newId)
         {
             // assert that we have not seen this reference before
@@ -101,7 +101,7 @@ namespace LibGit2Sharp.Tests.TestHelpers
         }
 
         /// <summary>
-        ///   Check that all expected references have been updated.
+        /// Check that all expected references have been updated.
         /// </summary>
         /// <param name="repo">Repository object whose state will be checked against expected state.</param>
         public void CheckUpdatedReferences(Repository repo)
@@ -157,17 +157,17 @@ namespace LibGit2Sharp.Tests.TestHelpers
         #region ExpectedFetchState
 
         /// <summary>
-        ///   Structure to track a reference that has been updated.
+        /// Structure to track a reference that has been updated.
         /// </summary>
         private struct ReferenceUpdate
         {
             /// <summary>
-            ///   Old ID of the reference.
+            /// Old ID of the reference.
             /// </summary>
             public ObjectId OldId;
 
             /// <summary>
-            ///   New ID of the reference.
+            /// New ID of the reference.
             /// </summary>
             public ObjectId NewId;
 
