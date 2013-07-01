@@ -15,7 +15,7 @@ namespace LibGit2Sharp.Tests
             string path = CloneBareTestRepo();
             using (var repo = new Repository(path))
             {
-                var stasher = DummySignature;
+                var stasher = Constants.Signature;
 
                 Assert.Throws<BareRepositoryException>(() => repo.Stashes.Add(stasher, "My very first stash", StashModifiers.Default));
             }
@@ -27,7 +27,7 @@ namespace LibGit2Sharp.Tests
             string path = CloneStandardTestRepo();
             using (var repo = new Repository(path))
             {
-                var stasher = DummySignature;
+                var stasher = Constants.Signature;
 
                 Assert.True(repo.Index.RetrieveStatus().IsDirty);
 
@@ -81,7 +81,7 @@ namespace LibGit2Sharp.Tests
             string path = CloneStandardTestRepo();
             using (var repo = new Repository(path))
             {
-                var stasher = DummySignature;
+                var stasher = Constants.Signature;
 
                 Stash stash = repo.Stashes.Add(stasher, options: StashModifiers.Default);
 
@@ -110,7 +110,7 @@ namespace LibGit2Sharp.Tests
             string path = CloneStandardTestRepo();
             using (var repo = new Repository(path))
             {
-                var stasher = DummySignature;
+                var stasher = Constants.Signature;
 
                 Stash stash = repo.Stashes.Add(stasher, "My very first stash", StashModifiers.IncludeUntracked);
 
@@ -127,7 +127,7 @@ namespace LibGit2Sharp.Tests
             string path = CloneStandardTestRepo();
             using (var repo = new Repository(path))
             {
-                var stasher = DummySignature;
+                var stasher = Constants.Signature;
 
                 const string untracked = "new_untracked_file.txt";
                 Touch(repo.Info.WorkingDirectory, untracked, "I'm untracked\n");
@@ -154,7 +154,7 @@ namespace LibGit2Sharp.Tests
             string path = CloneStandardTestRepo();
             using (var repo = new Repository(path))
             {
-                var stasher = DummySignature;
+                var stasher = Constants.Signature;
 
                 const string filename = "staged_file_path.txt";
                 Touch(repo.Info.WorkingDirectory, filename, "I'm staged\n");
@@ -184,7 +184,7 @@ namespace LibGit2Sharp.Tests
 
                 Assert.True(repo.Ignore.IsPathIgnored(ignoredFilename));
 
-                var stasher = DummySignature;
+                var stasher = Constants.Signature;
                 repo.Stashes.Add(stasher, "This stash includes ignore files", StashModifiers.IncludeIgnored);
 
                 //TODO : below assertion doesn't pass. Bug?
@@ -213,7 +213,7 @@ namespace LibGit2Sharp.Tests
             string path = CloneStandardTestRepo();
             using (var repo = new Repository(path))
             {
-                var stasher = DummySignature;
+                var stasher = Constants.Signature;
                 const string firstStashMessage = "My very first stash";
                 const string secondStashMessage = "My second stash";
                 const string thirdStashMessage = "My third stash";

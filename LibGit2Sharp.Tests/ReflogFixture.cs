@@ -54,7 +54,7 @@ namespace LibGit2Sharp.Tests
                 Touch(repo.Info.WorkingDirectory, relativeFilepath, "content\n");
                 repo.Index.Stage(relativeFilepath);
 
-                var author = DummySignature;
+                var author = Constants.Signature;
                 const string commitMessage = "Hope reflog behaves as it should";
                 Commit commit = repo.Commit(commitMessage, author, author);
 
@@ -88,7 +88,7 @@ namespace LibGit2Sharp.Tests
                 Touch(repo.Info.WorkingDirectory, relativeFilepath, "content\n");
                 repo.Index.Stage(relativeFilepath);
 
-                var author = DummySignature;
+                var author = Constants.Signature;
                 const string commitMessage = "First commit should be logged as initial";
                 repo.Commit(commitMessage, author, author);
 
@@ -115,7 +115,7 @@ namespace LibGit2Sharp.Tests
                 Touch(repo.Info.WorkingDirectory, relativeFilepath, "content\n");
                 repo.Index.Stage(relativeFilepath);
 
-                var author = DummySignature;
+                var author = Constants.Signature;
                 const string commitMessage = "Commit on detached head";
                 var commit = repo.Commit(commitMessage, author, author);
 

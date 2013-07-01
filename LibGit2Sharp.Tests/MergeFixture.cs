@@ -54,7 +54,7 @@ namespace LibGit2Sharp.Tests
             {
                 Assert.Equal(false, repo.Index.IsFullyMerged);
 
-                var author = DummySignature;
+                var author = Constants.Signature;
                 Assert.Throws<UnmergedIndexEntriesException>(
                     () => repo.Commit("Try commit unmerged entries", author, author));
             }

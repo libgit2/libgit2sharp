@@ -558,7 +558,7 @@ namespace LibGit2Sharp.Tests
 
                 Assert.Equal(CurrentOperation.Merge, repo.Info.CurrentOperation);
 
-                Commit newMergedCommit = repo.Commit("Merge commit", DummySignature, DummySignature);
+                Commit newMergedCommit = repo.Commit("Merge commit", Constants.Signature, Constants.Signature);
 
                 Assert.Equal(CurrentOperation.None, repo.Info.CurrentOperation);
 
@@ -600,7 +600,7 @@ namespace LibGit2Sharp.Tests
                 Assert.True(File.Exists(mergeModePath));
                 Assert.True(File.Exists(origHeadPath));
 
-                var author = DummySignature;
+                var author = Constants.Signature;
                 repo.Commit("Initial egotistic commit", author, author);
 
                 Assert.False(File.Exists(mergeHeadPath));
@@ -629,7 +629,7 @@ namespace LibGit2Sharp.Tests
 
                 Assert.Null(repo.Head[relativeFilepath]);
 
-                var author = DummySignature;
+                var author = Constants.Signature;
 
                 const string shortMessage = "Initial egotistic commit"; 
                 const string commitMessage = shortMessage + "\n\nOnly the coolest commits from us";
@@ -746,7 +746,7 @@ namespace LibGit2Sharp.Tests
 
                 CreateAndStageANewFile(repo);
 
-                Commit amendedCommit = repo.Commit("I'm rewriting the history!", DummySignature, DummySignature, true);
+                Commit amendedCommit = repo.Commit("I'm rewriting the history!", Constants.Signature, Constants.Signature, true);
 
                 Assert.Equal(1, repo.Head.Commits.Count());
 
@@ -769,7 +769,7 @@ namespace LibGit2Sharp.Tests
                 CreateAndStageANewFile(repo);
                 const string commitMessage = "I'm rewriting the history!";
 
-                Commit amendedCommit = repo.Commit(commitMessage, DummySignature, DummySignature, true);
+                Commit amendedCommit = repo.Commit(commitMessage, Constants.Signature, Constants.Signature, true);
 
                 AssertCommitHasBeenAmended(repo, amendedCommit, mergedCommit);
 
@@ -804,7 +804,7 @@ namespace LibGit2Sharp.Tests
 
             using (var repo = new Repository(repoPath))
             {
-                Assert.Throws<OrphanedHeadException>(() => repo.Commit("I can not amend anything !:(", DummySignature, DummySignature, true));
+                Assert.Throws<OrphanedHeadException>(() => repo.Commit("I can not amend anything !:(", Constants.Signature, Constants.Signature, true));
             }
         }
 
@@ -875,7 +875,7 @@ namespace LibGit2Sharp.Tests
                 Touch(repo.Info.WorkingDirectory, relativeFilepath, "test\n");
                 repo.Index.Stage(relativeFilepath);
 
-                repo.Commit("Initial commit", DummySignature, DummySignature);
+                repo.Commit("Initial commit", Constants.Signature, Constants.Signature);
                 Assert.Equal(1, repo.Head.Commits.Count());
             }
         }

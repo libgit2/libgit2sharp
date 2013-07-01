@@ -270,7 +270,7 @@ namespace LibGit2Sharp.Tests
                 lowerCasedPath = Touch(repo.Info.WorkingDirectory, lowercasedFilename);
 
                 repo.Index.Stage(lowercasedFilename);
-                repo.Commit("initial", DummySignature, DummySignature);
+                repo.Commit("initial", Constants.Signature, Constants.Signature);
             }
 
             using (var repo = new Repository(repoPath))

@@ -133,7 +133,7 @@ namespace LibGit2Sharp.Tests
                 Touch(sneakyRepo.Info.WorkingDirectory, filename, "I'm being sneaked in!\n");
 
                 sneakyRepo.Index.Stage(filename);
-                return sneakyRepo.Commit("Tadaaaa!", DummySignature, DummySignature).Sha;
+                return sneakyRepo.Commit("Tadaaaa!", Constants.Signature, Constants.Signature).Sha;
             }
         }
 

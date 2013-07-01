@@ -13,7 +13,7 @@ namespace LibGit2Sharp.Tests
             var fullpath = Touch(repo.Info.WorkingDirectory, "file.txt", "hello\n");
 
             repo.Index.Stage(fullpath);
-            repo.Commit("Initial commit", DummySignature, DummySignature);
+            repo.Commit("Initial commit", Constants.Signature, Constants.Signature);
 
             File.AppendAllText(fullpath, "world\n");
 
@@ -354,7 +354,7 @@ namespace LibGit2Sharp.Tests
                 var fullpath = Touch(repo.Info.WorkingDirectory, "file.txt", "a");
 
                 repo.Index.Stage("file.txt");
-                repo.Commit("Add file without line ending", DummySignature, DummySignature);
+                repo.Commit("Add file without line ending", Constants.Signature, Constants.Signature);
 
                 File.AppendAllText(fullpath, "\n");
                 repo.Index.Stage("file.txt");

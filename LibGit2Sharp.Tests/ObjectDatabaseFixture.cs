@@ -311,7 +311,7 @@ namespace LibGit2Sharp.Tests
                 Assert.IsType<GitLink>(te.Target);
                 Assert.Equal(objectId, te.Target.Id);
 
-                var commitWithSubmodule = repo.ObjectDatabase.CreateCommit("Submodule!", DummySignature, DummySignature, tree,
+                var commitWithSubmodule = repo.ObjectDatabase.CreateCommit("Submodule!", Constants.Signature, Constants.Signature, tree,
                                                                            new[] { repo.Head.Tip });
                 repo.Reset(ResetOptions.Soft, commitWithSubmodule);
 
@@ -348,7 +348,7 @@ namespace LibGit2Sharp.Tests
 
                 Tree tree = repo.ObjectDatabase.CreateTree(td);
 
-                Commit commit = repo.ObjectDatabase.CreateCommit("Ü message", DummySignature, DummySignature, tree, new[] { repo.Head.Tip });
+                Commit commit = repo.ObjectDatabase.CreateCommit("Ü message", Constants.Signature, Constants.Signature, tree, new[] { repo.Head.Tip });
 
                 Branch newHead = repo.Head;
 
@@ -387,7 +387,7 @@ namespace LibGit2Sharp.Tests
                 TagAnnotation tag = repo.ObjectDatabase.CreateTagAnnotation(
                     "nice_blob",
                     blob,
-                    DummySignature,
+                    Constants.Signature,
                     "I can point at blobs, too!");
 
                 Assert.NotNull(tag);

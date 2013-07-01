@@ -29,8 +29,6 @@ namespace LibGit2Sharp.Tests.TestHelpers
         public static string SubmoduleTestRepoWorkingDirPath { get; private set; }
         public static DirectoryInfo ResourcesDirectory { get; private set; }
 
-        public static readonly Signature DummySignature = new Signature("Author N. Ame", "him@there.com", TruncateSubSeconds(DateTimeOffset.Now));
-
         public static bool IsFileSystemCaseSensitive { get; private set; }
 
         protected static DateTimeOffset TruncateSubSeconds(DateTimeOffset dto)
