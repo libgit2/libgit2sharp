@@ -1,5 +1,4 @@
-﻿using System.IO;
-using System.Linq;
+﻿using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
 

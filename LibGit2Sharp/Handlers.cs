@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace LibGit2Sharp.Handlers
+﻿namespace LibGit2Sharp.Handlers
 {
     /// <summary>
     /// Delegate definition to handle Progress callback.

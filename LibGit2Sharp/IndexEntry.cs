@@ -9,7 +9,7 @@ namespace LibGit2Sharp
     /// <summary>
     /// A reference to a <see cref="Blob"/> known by the <see cref="Index"/>.
     /// </summary>
-    [DebuggerDisplayAttribute("{DebuggerDisplay,nq}")]
+    [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class IndexEntry : IEquatable<IndexEntry>
     {
         private static readonly LambdaEqualityHelper<IndexEntry> equalityHelper =
