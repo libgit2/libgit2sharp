@@ -5,12 +5,12 @@ using LibGit2Sharp.Core;
 namespace LibGit2Sharp
 {
     /// <summary>
-    ///   Holds the changes between two <see cref = "Blob" />s.
+    /// Holds the changes between two <see cref="Blob"/>s.
     /// </summary>
     public class ContentChanges : Changes
     {
         /// <summary>
-        ///   Needed for mocking purposes.
+        /// Needed for mocking purposes.
         /// </summary>
         protected ContentChanges()
         { }

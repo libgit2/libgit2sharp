@@ -5,7 +5,7 @@ using System.Text;
 namespace LibGit2Sharp
 {
     /// <summary>
-    ///   Base class for changes.
+    /// Base class for changes.
     /// </summary>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public abstract class Changes
@@ -18,17 +18,17 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   The number of lines added.
+        /// The number of lines added.
         /// </summary>
         public virtual int LinesAdded { get; internal set; }
 
         /// <summary>
-        ///   The number of lines deleted.
+        /// The number of lines deleted.
         /// </summary>
         public virtual int LinesDeleted { get; internal set; }
 
         /// <summary>
-        ///   The patch corresponding to these changes.
+        /// The patch corresponding to these changes.
         /// </summary>
         public virtual string Patch
         {
@@ -36,7 +36,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Determines if at least one side of the comparison holds binary content.
+        /// Determines if at least one side of the comparison holds binary content.
         /// </summary>
         public virtual bool IsBinaryComparison { get; protected set; }
 

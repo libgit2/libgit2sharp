@@ -5,7 +5,7 @@ using LibGit2Sharp.Core;
 namespace LibGit2Sharp
 {
     /// <summary>
-    ///   Stores the binary content of a tracked file.
+    /// Stores the binary content of a tracked file.
     /// </summary>
     public class Blob : GitObject
     {
@@ -13,7 +13,7 @@ namespace LibGit2Sharp
         private readonly ILazy<bool> lazyIsBinary;
 
         /// <summary>
-        ///   Needed for mocking purposes.
+        /// Needed for mocking purposes.
         /// </summary>
         protected Blob()
         { }
@@ -26,17 +26,17 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Gets the size in bytes of the contents of a blob
+        /// Gets the size in bytes of the contents of a blob
         /// </summary>
         public virtual int Size { get { return (int)lazySize.Value; } }
 
         /// <summary>
-        ///    Determine if the blob content is most certainly binary or not.
+        ///  Determine if the blob content is most certainly binary or not.
         /// </summary>
         public virtual bool IsBinary { get { return lazyIsBinary.Value; } }
 
         /// <summary>
-        ///   Gets the blob content in a <see cref="byte" /> array.
+        /// Gets the blob content in a <see cref="byte"/> array.
         /// </summary>
         public virtual byte[] Content
         {
@@ -47,7 +47,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Gets the blob content in a <see cref="Stream" />.
+        /// Gets the blob content in a <see cref="Stream"/>.
         /// </summary>
         public virtual Stream ContentStream
         {

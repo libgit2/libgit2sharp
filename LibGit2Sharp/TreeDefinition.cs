@@ -9,7 +9,7 @@ using LibGit2Sharp.Core.Handles;
 namespace LibGit2Sharp
 {
     /// <summary>
-    ///   Holds the meta data of a <see cref = "Tree" />.
+    /// Holds the meta data of a <see cref="Tree"/>.
     /// </summary>
     public class TreeDefinition
     {
@@ -17,10 +17,10 @@ namespace LibGit2Sharp
         private readonly Dictionary<string, TreeDefinition> unwrappedTrees = new Dictionary<string, TreeDefinition>();
 
         /// <summary>
-        ///   Builds a <see cref = "TreeDefinition" /> from an existing <see cref = "Tree" />.
+        /// Builds a <see cref="TreeDefinition"/> from an existing <see cref="Tree"/>.
         /// </summary>
-        /// <param name = "tree">The <see cref = "Tree" /> to be processed.</param>
-        /// <returns>A new <see cref = "TreeDefinition" /> holding the meta data of the <paramref name = "tree" />.</returns>
+        /// <param name="tree">The <see cref="Tree"/> to be processed.</param>
+        /// <returns>A new <see cref="TreeDefinition"/> holding the meta data of the <paramref name="tree"/>.</returns>
         public static TreeDefinition From(Tree tree)
         {
             Ensure.ArgumentNotNull(tree, "tree");
@@ -36,10 +36,10 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Builds a <see cref = "TreeDefinition" /> from a <see cref="Commit"/>'s <see cref = "Tree" />.
+        /// Builds a <see cref="TreeDefinition"/> from a <see cref="Commit"/>'s <see cref="Tree"/>.
         /// </summary>
         /// <param name="commit">The <see cref="Commit"/> whose tree is to be processed</param>
-        /// <returns>A new <see cref = "TreeDefinition" /> holding the meta data of the <paramref name = "commit" />'s <see cref="Tree"/>.</returns>
+        /// <returns>A new <see cref="TreeDefinition"/> holding the meta data of the <paramref name="commit"/>'s <see cref="Tree"/>.</returns>
         public static TreeDefinition From(Commit commit)
         {
             Ensure.ArgumentNotNull(commit, "commit");
@@ -59,7 +59,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Removes a <see cref="TreeEntryDefinition"/> located the specified <paramref name="treeEntryPath"/> path.
+        /// Removes a <see cref="TreeEntryDefinition"/> located the specified <paramref name="treeEntryPath"/> path.
         /// </summary>
         /// <param name="treeEntryPath">The path within this <see cref="TreeDefinition"/>.</param>
         /// <returns>The current <see cref="TreeDefinition"/>.</returns>
@@ -99,7 +99,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Adds or replaces a <see cref="TreeEntryDefinition"/> at the specified <paramref name="targetTreeEntryPath"/> location.
+        /// Adds or replaces a <see cref="TreeEntryDefinition"/> at the specified <paramref name="targetTreeEntryPath"/> location.
         /// </summary>
         /// <param name="targetTreeEntryPath">The path within this <see cref="TreeDefinition"/>.</param>
         /// <param name="treeEntryDefinition">The <see cref="TreeEntryDefinition"/> to be stored at the described location.</param>
@@ -138,7 +138,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Adds or replaces a <see cref="TreeEntryDefinition"/>, dynamically built from the provided <see cref="Blob"/>, at the specified <paramref name="targetTreeEntryPath"/> location.
+        /// Adds or replaces a <see cref="TreeEntryDefinition"/>, dynamically built from the provided <see cref="Blob"/>, at the specified <paramref name="targetTreeEntryPath"/> location.
         /// </summary>
         /// <param name="targetTreeEntryPath">The path within this <see cref="TreeDefinition"/>.</param>
         /// <param name="blob">The <see cref="Blob"/> to be stored at the described location.</param>
@@ -155,11 +155,11 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Adds or replaces a <see cref="TreeEntryDefinition"/>, dynamically built from the content of the file, at the specified <paramref name="targetTreeEntryPath"/> location.
+        /// Adds or replaces a <see cref="TreeEntryDefinition"/>, dynamically built from the content of the file, at the specified <paramref name="targetTreeEntryPath"/> location.
         /// </summary>
         /// <param name="targetTreeEntryPath">The path within this <see cref="TreeDefinition"/>.</param>
         /// <param name="filePath">The path to the file from which a <see cref="Blob"/> will be built and stored at the described location. A relative path is allowed to be passed if the target
-        /// <see cref="Repository" /> is a standard, non-bare, repository. The path will then be considered as a path relative to the root of the working directory.</param>
+        /// <see cref="Repository"/> is a standard, non-bare, repository. The path will then be considered as a path relative to the root of the working directory.</param>
         /// <param name="mode">The file related <see cref="Mode"/> attributes.</param>
         /// <returns>The current <see cref="TreeDefinition"/>.</returns>
         public virtual TreeDefinition Add(string targetTreeEntryPath, string filePath, Mode mode)
@@ -172,7 +172,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Adds or replaces a <see cref="TreeEntryDefinition"/>, dynamically built from the provided <see cref="Tree"/>, at the specified <paramref name="targetTreeEntryPath"/> location.
+        /// Adds or replaces a <see cref="TreeEntryDefinition"/>, dynamically built from the provided <see cref="Tree"/>, at the specified <paramref name="targetTreeEntryPath"/> location.
         /// </summary>
         /// <param name="targetTreeEntryPath">The path within this <see cref="TreeDefinition"/>.</param>
         /// <param name="tree">The <see cref="Tree"/> to be stored at the described location.</param>
@@ -187,7 +187,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Adds or replaces a gitlink <see cref="TreeEntryDefinition"/> equivalent to <paramref name="submodule"/>.
+        /// Adds or replaces a gitlink <see cref="TreeEntryDefinition"/> equivalent to <paramref name="submodule"/>.
         /// </summary>
         /// <param name="submodule">The <see cref="Submodule"/> to be linked.</param>
         /// <returns>The current <see cref="TreeDefinition"/>.</returns>
@@ -199,9 +199,9 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Adds or replaces a gitlink <see cref="TreeEntryDefinition"/>,
-        ///   referencing the commit identified by <paramref name="objectId"/>,
-        ///   at the specified <paramref name="targetTreeEntryPath"/> location.
+        /// Adds or replaces a gitlink <see cref="TreeEntryDefinition"/>,
+        /// referencing the commit identified by <paramref name="objectId"/>,
+        /// at the specified <paramref name="targetTreeEntryPath"/> location.
         /// </summary>
         /// <param name="targetTreeEntryPath">The path within this <see cref="TreeDefinition"/>.</param>
         /// <param name="objectId">The <see cref="ObjectId"/> of the commit to be linked at the described location.</param>
@@ -318,7 +318,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Retrieves the <see cref="TreeEntryDefinition"/> located the specified <paramref name="treeEntryPath"/> path.
+        /// Retrieves the <see cref="TreeEntryDefinition"/> located the specified <paramref name="treeEntryPath"/> path.
         /// </summary>
         /// <param name="treeEntryPath">The path within this <see cref="TreeDefinition"/>.</param>
         /// <returns>The found <see cref="TreeEntryDefinition"/> if any; null otherwise.</returns>

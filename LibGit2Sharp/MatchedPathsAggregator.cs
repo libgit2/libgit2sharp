@@ -10,7 +10,7 @@ namespace LibGit2Sharp
         private readonly List<FilePath> matchedPaths = new List<FilePath>();
 
         /// <summary>
-        ///   The delegate with a signature that matches the native diff git_diff_notify_cb function's signature.
+        /// The delegate with a signature that matches the native diff git_diff_notify_cb function's signature.
         /// </summary>
         /// <param name="diffListSoFar">The diff list so far, before the delta is inserted.</param>
         /// <param name="deltaToAdd">The delta that is being diffed</param>

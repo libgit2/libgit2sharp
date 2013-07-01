@@ -10,7 +10,7 @@ using LibGit2Sharp.Core.Handles;
 namespace LibGit2Sharp
 {
     /// <summary>
-    ///   The collection of submodules in a <see cref = "Repository" />
+    /// The collection of submodules in a <see cref="Repository"/>
     /// </summary>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class SubmoduleCollection : IEnumerable<Submodule>
@@ -18,22 +18,22 @@ namespace LibGit2Sharp
         internal readonly Repository repo;
 
         /// <summary>
-        ///   Needed for mocking purposes.
+        /// Needed for mocking purposes.
         /// </summary>
         protected SubmoduleCollection()
         { }
 
         /// <summary>
-        ///   Initializes a new instance of the <see cref = "LibGit2Sharp.SubmoduleCollection" /> class.
+        /// Initializes a new instance of the <see cref="LibGit2Sharp.SubmoduleCollection"/> class.
         /// </summary>
-        /// <param name = "repo">The repo.</param>
+        /// <param name="repo">The repo.</param>
         internal SubmoduleCollection(Repository repo)
         {
             this.repo = repo;
         }
 
         /// <summary>
-        ///   Gets the <see cref = "LibGit2Sharp.Submodule" /> with the specified name.
+        /// Gets the <see cref="LibGit2Sharp.Submodule"/> with the specified name.
         /// </summary>
         public virtual Submodule this[string name]
         {
@@ -49,9 +49,9 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Returns an enumerator that iterates through the collection.
+        /// Returns an enumerator that iterates through the collection.
         /// </summary>
-        /// <returns>An <see cref = "IEnumerator{T}" /> object that can be used to iterate through the collection.</returns>
+        /// <returns>An <see cref="IEnumerator{T}"/> object that can be used to iterate through the collection.</returns>
         public IEnumerator<Submodule> GetEnumerator()
         {
             return Proxy.git_submodule_foreach(repo.Handle, (h, n) => Utf8Marshaler.FromNative(n))
@@ -60,9 +60,9 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Returns an enumerator that iterates through the collection.
+        /// Returns an enumerator that iterates through the collection.
         /// </summary>
-        /// <returns>An <see cref = "IEnumerator" /> object that can be used to iterate through the collection.</returns>
+        /// <returns>An <see cref="IEnumerator"/> object that can be used to iterate through the collection.</returns>
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();

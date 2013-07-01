@@ -1,10 +1,10 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Reflection;
 using System.Text;
 using Xunit;
-using System.Reflection;
-using System;
-using System.Linq;
-using System.Collections.Generic;
 
 namespace LibGit2Sharp.Tests
 {

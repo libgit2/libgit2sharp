@@ -10,7 +10,7 @@ using LibGit2Sharp.Core.Handles;
 namespace LibGit2Sharp
 {
     /// <summary>
-    ///   The collection of Branches in a <see cref = "Repository" />
+    /// The collection of Branches in a <see cref="Repository"/>
     /// </summary>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class BranchCollection : IEnumerable<Branch>
@@ -18,22 +18,22 @@ namespace LibGit2Sharp
         internal readonly Repository repo;
 
         /// <summary>
-        ///   Needed for mocking purposes.
+        /// Needed for mocking purposes.
         /// </summary>
         protected BranchCollection()
         { }
 
         /// <summary>
-        ///   Initializes a new instance of the <see cref = "BranchCollection" /> class.
+        /// Initializes a new instance of the <see cref="BranchCollection"/> class.
         /// </summary>
-        /// <param name = "repo">The repo.</param>
+        /// <param name="repo">The repo.</param>
         internal BranchCollection(Repository repo)
         {
             this.repo = repo;
         }
 
         /// <summary>
-        ///   Gets the <see cref = "LibGit2Sharp.Branch" /> with the specified name.
+        /// Gets the <see cref="LibGit2Sharp.Branch"/> with the specified name.
         /// </summary>
         public virtual Branch this[string name]
         {
@@ -86,9 +86,9 @@ namespace LibGit2Sharp
         #region IEnumerable<Branch> Members
 
         /// <summary>
-        ///   Returns an enumerator that iterates through the collection.
+        /// Returns an enumerator that iterates through the collection.
         /// </summary>
-        /// <returns>An <see cref = "IEnumerator{T}" /> object that can be used to iterate through the collection.</returns>
+        /// <returns>An <see cref="IEnumerator{T}"/> object that can be used to iterate through the collection.</returns>
         public virtual IEnumerator<Branch> GetEnumerator()
         {
             return Proxy.git_branch_foreach(repo.Handle, GitBranchType.GIT_BRANCH_LOCAL | GitBranchType.GIT_BRANCH_REMOTE, branchToCanoncialName)
@@ -97,9 +97,9 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Returns an enumerator that iterates through the collection.
+        /// Returns an enumerator that iterates through the collection.
         /// </summary>
-        /// <returns>An <see cref = "IEnumerator" /> object that can be used to iterate through the collection.</returns>
+        /// <returns>An <see cref="IEnumerator"/> object that can be used to iterate through the collection.</returns>
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
@@ -108,11 +108,11 @@ namespace LibGit2Sharp
         #endregion
 
         /// <summary>
-        ///   Create a new local branch with the specified name
+        /// Create a new local branch with the specified name
         /// </summary>
-        /// <param name = "name">The name of the branch.</param>
-        /// <param name = "commit">The target commit.</param>
-        /// <param name = "allowOverwrite">True to allow silent overwriting a potentially existing branch, false otherwise.</param>
+        /// <param name="name">The name of the branch.</param>
+        /// <param name="commit">The target commit.</param>
+        /// <param name="allowOverwrite">True to allow silent overwriting a potentially existing branch, false otherwise.</param>
         /// <returns>A new <see cref="Branch"/>.</returns>
         public virtual Branch Add(string name, Commit commit, bool allowOverwrite = false)
         {
@@ -125,9 +125,9 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Deletes the specified branch.
+        /// Deletes the specified branch.
         /// </summary>
-        /// <param name = "branch">The branch to delete.</param>
+        /// <param name="branch">The branch to delete.</param>
         public virtual void Remove(Branch branch)
         {
             Ensure.ArgumentNotNull(branch, "branch");
@@ -139,11 +139,11 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Renames an existing local branch with a new name.
+        /// Renames an existing local branch with a new name.
         /// </summary>
-        /// <param name = "branch">The current local branch.</param>
-        /// <param name = "newName">The new name the existing branch should bear.</param>
-        /// <param name = "allowOverwrite">True to allow silent overwriting a potentially existing branch, false otherwise.</param>
+        /// <param name="branch">The current local branch.</param>
+        /// <param name="newName">The new name the existing branch should bear.</param>
+        /// <param name="allowOverwrite">True to allow silent overwriting a potentially existing branch, false otherwise.</param>
         /// <returns>A new <see cref="Branch"/>.</returns>
         public virtual Branch Move(Branch branch, string newName, bool allowOverwrite = false)
         {
@@ -168,7 +168,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Update properties of a branch.
+        /// Update properties of a branch.
         /// </summary>
         /// <param name="branch">The branch to update.</param>
         /// <param name="actions">Delegate to perform updates on the branch.</param>

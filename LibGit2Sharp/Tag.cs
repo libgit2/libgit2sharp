@@ -1,12 +1,12 @@
 ﻿namespace LibGit2Sharp
 {
     /// <summary>
-    ///   A Tag
+    /// A Tag
     /// </summary>
     public class Tag : ReferenceWrapper<GitObject>
     {
         /// <summary>
-        ///   Needed for mocking purposes.
+        /// Needed for mocking purposes.
         /// </summary>
         protected Tag()
         { }
@@ -17,8 +17,8 @@
         }
 
         /// <summary>
-        ///   Gets the optional information associated to this tag.
-        ///   <para>When the <see cref = "Tag" /> is a lightweight tag, <c>null</c> is returned.</para>
+        /// Gets the optional information associated to this tag.
+        /// <para>When the <see cref="Tag"/> is a lightweight tag, <c>null</c> is returned.</para>
         /// </summary>
         public virtual TagAnnotation Annotation
         {
@@ -26,7 +26,7 @@
         }
 
         /// <summary>
-        ///   Gets the <see cref = "GitObject" /> that this tag points to.
+        /// Gets the <see cref="GitObject"/> that this tag points to.
         /// </summary>
         public virtual GitObject Target
         {
@@ -41,7 +41,7 @@
         }
 
         /// <summary>
-        ///   Indicates whether the tag holds any metadata.
+        /// Indicates whether the tag holds any metadata.
         /// </summary>
         public virtual bool IsAnnotated
         {
@@ -49,8 +49,8 @@
         }
 
         /// <summary>
-        ///   Removes redundent leading namespaces (regarding the kind of
-        ///   reference being wrapped) from the canonical name.
+        /// Removes redundent leading namespaces (regarding the kind of
+        /// reference being wrapped) from the canonical name.
         /// </summary>
         /// <returns>The friendly shortened name</returns>
         protected override string Shorten()

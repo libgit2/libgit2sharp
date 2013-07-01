@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 namespace LibGit2Sharp.Core
 {
     /// <summary>
-    ///   Managed structure corresponding to git_transfer_progress native structure.
+    /// Managed structure corresponding to git_transfer_progress native structure.
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
     internal struct GitTransferProgress

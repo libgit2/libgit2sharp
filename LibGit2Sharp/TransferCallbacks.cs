@@ -5,20 +5,20 @@ using LibGit2Sharp.Handlers;
 namespace LibGit2Sharp
 {
     /// <summary>
-    ///   Class to handle the mapping between libgit2 git_transfer_progress_callback function and
-    ///   a corresponding <see cref = "TransferProgressHandler" />. Generates a delegate that
-    ///   wraps the <see cref = "TransferProgressHandler" /> delegate with a delegate that matches
-    ///   the git_transfer_progress_callback signature.
+    /// Class to handle the mapping between libgit2 git_transfer_progress_callback function and
+    /// a corresponding <see cref="TransferProgressHandler"/>. Generates a delegate that
+    /// wraps the <see cref="TransferProgressHandler"/> delegate with a delegate that matches
+    /// the git_transfer_progress_callback signature.
     /// </summary>
     internal class TransferCallbacks
     {
         /// <summary>
-        ///   Managed delegate to be called in response to a git_transfer_progress_callback callback from libgit2.
+        /// Managed delegate to be called in response to a git_transfer_progress_callback callback from libgit2.
         /// </summary>
         private readonly TransferProgressHandler onTransferProgress;
 
         /// <summary>
-        ///   Constructor to set up the native callback given managed delegate.
+        /// Constructor to set up the native callback given managed delegate.
         /// </summary>
         /// <param name="onTransferProgress">The <see cref="TransferProgressHandler"/> delegate that the git_transfer_progress_callback will call.</param>
         private TransferCallbacks(TransferProgressHandler onTransferProgress)
@@ -27,9 +27,9 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Generates a delegate that matches the native git_transfer_progress_callback function's signature and wraps the <see cref = "TransferProgressHandler" /> delegate.
+        /// Generates a delegate that matches the native git_transfer_progress_callback function's signature and wraps the <see cref="TransferProgressHandler"/> delegate.
         /// </summary>
-        /// <param name="onTransferProgress">The <see cref = "TransferProgressHandler" /> delegate to call in responde to a the native git_transfer_progress_callback callback.</param>
+        /// <param name="onTransferProgress">The <see cref="TransferProgressHandler"/> delegate to call in responde to a the native git_transfer_progress_callback callback.</param>
         /// <returns>A delegate method with a signature that matches git_transfer_progress_callback.</returns>
         internal static NativeMethods.git_transfer_progress_callback GenerateCallback(TransferProgressHandler onTransferProgress)
         {
@@ -42,11 +42,11 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   The delegate with the signature that matches the native git_transfer_progress_callback function's signature.
+        /// The delegate with the signature that matches the native git_transfer_progress_callback function's signature.
         /// </summary>
-        /// <param name="progress"><see cref = "GitTransferProgress" /> structure containing progress information.</param>
+        /// <param name="progress"><see cref="GitTransferProgress"/> structure containing progress information.</param>
         /// <param name="payload">Payload data.</param>
-        /// <returns>the result of the wrapped <see cref = "TransferProgressHandler" /></returns>
+        /// <returns>the result of the wrapped <see cref="TransferProgressHandler"/></returns>
         private int OnGitTransferProgress(ref GitTransferProgress progress, IntPtr payload)
         {
             return onTransferProgress(new TransferProgress(progress));

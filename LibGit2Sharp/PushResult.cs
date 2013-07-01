@@ -3,18 +3,18 @@
 namespace LibGit2Sharp
 {
     /// <summary>
-    ///   Contains the results of a push operation.
+    /// Contains the results of a push operation.
     /// </summary>
     public class PushResult
     {
         /// <summary>
-        ///   Needed for mocking purposes.
+        /// Needed for mocking purposes.
         /// </summary>
         protected PushResult()
         { }
 
         /// <summary>
-        ///   <see cref="PushStatusError"/>s that failed to update.
+        /// <see cref="PushStatusError"/>s that failed to update.
         /// </summary>
         public virtual IEnumerable<PushStatusError> FailedPushUpdates
         {
@@ -25,8 +25,8 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Flag indicating if there were errors reported
-        ///   when updating references on the remote.
+        /// Flag indicating if there were errors reported
+        /// when updating references on the remote.
         /// </summary>
         public virtual bool HasErrors
         {

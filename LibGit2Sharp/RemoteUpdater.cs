@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using LibGit2Sharp.Core;
+﻿using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Handles;
 
 namespace LibGit2Sharp
 {
     /// <summary>
-    ///   Exposes properties of a remote that can be updated.
+    /// Exposes properties of a remote that can be updated.
     /// </summary>
     public class RemoteUpdater
     {
@@ -16,7 +12,7 @@ namespace LibGit2Sharp
         private readonly Remote remote;
 
         /// <summary>
-        ///   Needed for mocking purposes.
+        /// Needed for mocking purposes.
         /// </summary>
         protected RemoteUpdater()
         { }
@@ -31,7 +27,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Set the default TagFetchMode value for the remote.
+        /// Set the default TagFetchMode value for the remote.
         /// </summary>
         public virtual TagFetchMode TagFetchMode
         {

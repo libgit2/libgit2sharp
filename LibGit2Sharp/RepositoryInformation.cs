@@ -1,17 +1,16 @@
-﻿using System;
-using LibGit2Sharp.Core;
+﻿using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
 {
     /// <summary>
-    ///   Provides high level information about a repository.
+    /// Provides high level information about a repository.
     /// </summary>
     public class RepositoryInformation
     {
         private readonly Repository repo;
 
         /// <summary>
-        ///   Needed for mocking purposes.
+        /// Needed for mocking purposes.
         /// </summary>
         protected RepositoryInformation()
         { }
@@ -30,30 +29,30 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Gets the normalized path to the git repository.
+        /// Gets the normalized path to the git repository.
         /// </summary>
         public virtual string Path { get; private set; }
 
         /// <summary>
-        ///   Gets the normalized path to the working directory.
-        ///   <para>
-        ///     Is the repository is bare, null is returned.
-        ///   </para>
+        /// Gets the normalized path to the working directory.
+        /// <para>
+        ///   Is the repository is bare, null is returned.
+        /// </para>
         /// </summary>
         public virtual string WorkingDirectory { get; private set; }
 
         /// <summary>
-        ///   Indicates whether the repository has a working directory.
+        /// Indicates whether the repository has a working directory.
         /// </summary>
         public virtual bool IsBare { get; private set; }
 
         /// <summary>
-        ///   Indicates whether the repository is shallow (the result of `git clone --depth ...`)
+        /// Indicates whether the repository is shallow (the result of `git clone --depth ...`)
         /// </summary>
         public virtual bool IsShallow { get; private set; }
 
         /// <summary>
-        ///   Indicates whether the Head points to an arbitrary commit instead of the tip of a local branch.
+        /// Indicates whether the Head points to an arbitrary commit instead of the tip of a local branch.
         /// </summary>
         public virtual bool IsHeadDetached
         {
@@ -61,7 +60,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Indicates whether the Head points to a reference which doesn't exist.
+        /// Indicates whether the Head points to a reference which doesn't exist.
         /// </summary>
         public virtual bool IsHeadOrphaned
         {
@@ -69,7 +68,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   The pending interactive operation.
+        /// The pending interactive operation.
         /// </summary>
         public virtual CurrentOperation CurrentOperation
         {
@@ -77,7 +76,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   The message for a pending interactive operation.
+        /// The message for a pending interactive operation.
         /// </summary>
         public virtual string Message
         {

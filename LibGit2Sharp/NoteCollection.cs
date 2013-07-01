@@ -11,7 +11,7 @@ using LibGit2Sharp.Core.Handles;
 namespace LibGit2Sharp
 {
     /// <summary>
-    ///   A collection of <see cref = "Note"/> exposed in the <see cref = "Repository"/>.
+    /// A collection of <see cref="Note"/> exposed in the <see cref="Repository"/>.
     /// </summary>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class NoteCollection : IEnumerable<Note>
@@ -20,7 +20,7 @@ namespace LibGit2Sharp
         private readonly Lazy<string> defaultNamespace;
 
         /// <summary>
-        ///   Needed for mocking purposes.
+        /// Needed for mocking purposes.
         /// </summary>
         protected NoteCollection()
         { }
@@ -34,18 +34,18 @@ namespace LibGit2Sharp
         #region Implementation of IEnumerable
 
         /// <summary>
-        ///   Returns an enumerator that iterates through the collection.
+        /// Returns an enumerator that iterates through the collection.
         /// </summary>
-        /// <returns>An <see cref = "IEnumerator{T}" /> object that can be used to iterate through the collection.</returns>
+        /// <returns>An <see cref="IEnumerator{T}"/> object that can be used to iterate through the collection.</returns>
         public virtual IEnumerator<Note> GetEnumerator()
         {
             return this[DefaultNamespace].GetEnumerator();
         }
 
         /// <summary>
-        ///   Returns an enumerator that iterates through the collection.
+        /// Returns an enumerator that iterates through the collection.
         /// </summary>
-        /// <returns>An <see cref = "IEnumerator" /> object that can be used to iterate through the collection.</returns>
+        /// <returns>An <see cref="IEnumerator"/> object that can be used to iterate through the collection.</returns>
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
@@ -54,7 +54,7 @@ namespace LibGit2Sharp
         #endregion
 
         /// <summary>
-        ///   The default namespace for notes.
+        /// The default namespace for notes.
         /// </summary>
         public virtual string DefaultNamespace
         {
@@ -62,7 +62,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   The list of canonicalized namespaces related to notes.
+        /// The list of canonicalized namespaces related to notes.
         /// </summary>
         public virtual IEnumerable<string> Namespaces
         {
@@ -85,7 +85,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Gets the collection of <see cref = "Note"/> associated with the specified <see cref = "ObjectId"/>.
+        /// Gets the collection of <see cref="Note"/> associated with the specified <see cref="ObjectId"/>.
         /// </summary>
         public virtual IEnumerable<Note> this[ObjectId id]
         {
@@ -100,8 +100,8 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Gets the collection of <see cref = "Note"/> associated with the specified namespace.
-        ///   <para>This is similar to the 'get notes list' command.</para>
+        /// Gets the collection of <see cref="Note"/> associated with the specified namespace.
+        /// <para>This is similar to the 'get notes list' command.</para>
         /// </summary>
         public virtual IEnumerable<Note> this[string @namespace]
         {
@@ -157,13 +157,13 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Creates or updates a <see cref = "Note"/> on the specified object, and for the given namespace.
+        /// Creates or updates a <see cref="Note"/> on the specified object, and for the given namespace.
         /// </summary>
-        /// <param name = "targetId">The target <see cref = "ObjectId"/>, for which the note will be created.</param>
-        /// <param name = "message">The note message.</param>
-        /// <param name = "author">The author.</param>
-        /// <param name = "committer">The committer.</param>
-        /// <param name = "namespace">The namespace on which the note will be created. It can be either a canonical namespace or an abbreviated namespace ('refs/notes/myNamespace' or just 'myNamespace').</param>
+        /// <param name="targetId">The target <see cref="ObjectId"/>, for which the note will be created.</param>
+        /// <param name="message">The note message.</param>
+        /// <param name="author">The author.</param>
+        /// <param name="committer">The committer.</param>
+        /// <param name="namespace">The namespace on which the note will be created. It can be either a canonical namespace or an abbreviated namespace ('refs/notes/myNamespace' or just 'myNamespace').</param>
         /// <returns>The note which was just saved.</returns>
         public virtual Note Add(ObjectId targetId, string message, Signature author, Signature committer, string @namespace)
         {
@@ -183,12 +183,12 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Deletes the note on the specified object, and for the given namespace.
+        /// Deletes the note on the specified object, and for the given namespace.
         /// </summary>
-        /// <param name = "targetId">The target <see cref = "ObjectId"/>, for which the note will be created.</param>
-        /// <param name = "author">The author.</param>
-        /// <param name = "committer">The committer.</param>
-        /// <param name = "namespace">The namespace on which the note will be removed. It can be either a canonical namespace or an abbreviated namespace ('refs/notes/myNamespace' or just 'myNamespace').</param>
+        /// <param name="targetId">The target <see cref="ObjectId"/>, for which the note will be created.</param>
+        /// <param name="author">The author.</param>
+        /// <param name="committer">The committer.</param>
+        /// <param name="namespace">The namespace on which the note will be removed. It can be either a canonical namespace or an abbreviated namespace ('refs/notes/myNamespace' or just 'myNamespace').</param>
         public virtual void Remove(ObjectId targetId, Signature author, Signature committer, string @namespace)
         {
             Ensure.ArgumentNotNull(targetId, "targetId");

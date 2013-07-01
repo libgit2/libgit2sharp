@@ -26,7 +26,7 @@ namespace LibGit2Sharp
         public virtual ConfigurationLevel Level { get; private set; }
 
         /// <summary>
-        ///   Needed for mocking purposes.
+        /// Needed for mocking purposes.
         /// </summary>
         protected ConfigurationEntry()
         { }

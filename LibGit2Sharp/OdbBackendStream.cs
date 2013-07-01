@@ -6,8 +6,8 @@ using LibGit2Sharp.Core;
 namespace LibGit2Sharp
 {
     /// <summary>
-    ///   When an OdbBackend implements the WriteStream or ReadStream methods, it returns an OdbBackendStream to libgit2.
-    ///   Libgit2 then uses the OdbBackendStream to read or write from the backend in a streaming fashion.
+    /// When an OdbBackend implements the WriteStream or ReadStream methods, it returns an OdbBackendStream to libgit2.
+    /// Libgit2 then uses the OdbBackendStream to read or write from the backend in a streaming fashion.
     /// </summary>
     public abstract class OdbBackendStream
     {
@@ -30,7 +30,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Invoked by libgit2 when this stream is no longer needed.
+        /// Invoked by libgit2 when this stream is no longer needed.
         /// </summary>
         protected virtual void Dispose()
         {
@@ -43,7 +43,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   If true, then it is legal to call the Read method.
+        /// If true, then it is legal to call the Read method.
         /// </summary>
         public abstract bool CanRead
         {
@@ -51,7 +51,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   If true, then it is legal to call the Write and FinalizeWrite methods.
+        /// If true, then it is legal to call the Write and FinalizeWrite methods.
         /// </summary>
         public abstract bool CanWrite
         {
@@ -59,27 +59,27 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Requests that the stream write the next length bytes of the stream to the provided Stream object.
+        /// Requests that the stream write the next length bytes of the stream to the provided Stream object.
         /// </summary>
         public abstract int Read(
             Stream dataStream,
             long length);
 
         /// <summary>
-        ///   Requests that the stream write the first length bytes of the provided Stream object to the stream.
+        /// Requests that the stream write the first length bytes of the provided Stream object to the stream.
         /// </summary>
         public abstract int Write(
             Stream dataStream,
             long length);
 
         /// <summary>
-        ///   After all bytes have been written to the stream, the object ID can be retrieved by calling FinalizeWrite.
+        /// After all bytes have been written to the stream, the object ID can be retrieved by calling FinalizeWrite.
         /// </summary>
         public abstract int FinalizeWrite(
             out byte[] oid);
 
         /// <summary>
-        ///   The backend object this stream was created by.
+        /// The backend object this stream was created by.
         /// </summary>
         public virtual OdbBackend Backend
         {
