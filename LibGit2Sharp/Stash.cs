@@ -1,4 +1,7 @@
-﻿namespace LibGit2Sharp
+﻿using System;
+using System.Linq;
+
+namespace LibGit2Sharp
 {
     ///<summary>
     /// A Stash
@@ -19,9 +22,51 @@
         /// <summary>
         /// Gets the <see cref="Commit"/> that this stash points to.
         /// </summary>
+        [Obsolete("This property will be removed in the next release. Please use Stash.WorkTree instead.")]
         public virtual Commit Target
         {
+            get { return WorkTree; }
+        }
+
+        /// <summary>
+        /// Gets the <see cref="Commit"/> that contains to the captured content of the worktree when the
+        /// stash was created.
+        /// </summary>
+        public virtual Commit WorkTree
+        {
             get { return TargetObject; }
+        }
+
+        /// <summary>
+        /// Gets the base <see cref="Commit"/> (i.e. the HEAD when the stash was
+        /// created).
+        /// </summary>
+        public virtual Commit Base
+        {
+            get { return TargetObject.Parents.First(); }
+        }
+
+        /// <summary>
+        /// Gets the <see cref="Commit"/> that contains the captured content of the index when the stash was
+        /// created.
+        /// </summary>
+        public virtual Commit Index
+        {
+            get { return GetParentAtOrDefault(1); }
+        }
+
+        /// <summary>
+        /// Gets the <see cref="Commit"/> that contains the list of either the untracked files, the ignored files, or both,
+        /// depending on the <see cref="StashModifiers"/> options passed when the stash was created.
+        /// </summary>
+        public virtual Commit Untracked
+        {
+            get { return GetParentAtOrDefault(2); }
+        }
+
+        private Commit GetParentAtOrDefault(int parentIndex)
+        {
+            return TargetObject.Parents.ElementAtOrDefault(parentIndex);
         }
 
         /// <summary>
@@ -29,7 +74,7 @@
         /// </summary>
         public virtual string Message
         {
-            get { return Target.Message; }
+            get { return WorkTree.Message; }
         }
 
         /// <summary>
