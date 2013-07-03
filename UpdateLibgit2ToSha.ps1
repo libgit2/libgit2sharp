@@ -5,6 +5,8 @@
 	Desired libgit2 version. This is run through `git rev-parse`, so branch names are okay too.
 .PARAMETER vs
 	Version of Visual Studio project files to generate. Cmake supports "10" (default) and "11".
+.PARAMETER libgit2Name
+	The base name (i.e without the file extension) of the libgit2 DLL to generate. Default is to use git2-$suffix, where $suffix is the first 7 characters of the SHA1 of the corresponding libgi2 commit as the suffix.
 .PARAMETER test
 	If set, run the libgit2 tests on the desired version.
 .PARAMETER debug
@@ -14,6 +16,7 @@
 Param(
 	[string]$sha = 'HEAD',
 	[string]$vs = '10',
+	[string]$libgit2Name = '',
 	[switch]$test,
 	[switch]$debug
 )
@@ -127,8 +130,12 @@ function Assert-Consistent-Naming($expected, $path) {
 		popd
 		break
 	}
-	$shortsha = $sha.Substring(0,7)
-	$binaryFilename = "git2-$shortsha"
+
+	if(![string]::IsNullOrEmpty($libgit2Name)) {
+		$binaryFilename = $libgit2Name
+	} else {
+		$binaryFilename = "git2-" + $sha.Substring(0,7)
+	}
 
 	Write-Output "Checking out $sha..."
 	Run-Command -Quiet -Fatal { & $git checkout $sha }
@@ -166,7 +173,7 @@ namespace LibGit2Sharp.Core
 {
 	internal static class NativeDllName
 	{
-		public const string Name = "git2-$shortsha";
+		public const string Name = "$binaryFilename.dll";
 	}
 }
 "@
