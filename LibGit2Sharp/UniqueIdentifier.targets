@@ -6,7 +6,14 @@
 
   <!-- Set the path of the generated UniqueIdentifier.cs file. -->
   <PropertyGroup>
-    <UniqueIdentifierPath>Core\UniqueIdentifier.cs</UniqueIdentifierPath>
+    <!-- To allow this target to be run from other directories besides the current one,
+         we use construct the relative path to output UniqueIdentifer.cs from this directory.
+         As not all versions of xbuild support the MSBuildThisFileDirectory property, we
+         we check and fall back to the current directory if the MSBuildThisFileDirectory property
+         is empty. -->
+    <LibGit2SharpPath Condition="'$(MSBuildThisFileDirectory)' == ''">.</LibGit2SharpPath>
+    <LibGit2SharpPath Condition="'$(MSBuildThisFileDirectory)' != ''">$(MSBuildThisFileDirectory)</LibGit2SharpPath>
+    <UniqueIdentifierPath>$(LibGit2SharpPath)\Core\UniqueIdentifier.cs</UniqueIdentifierPath>
     <CoreCompileDependsOn>$(CoreCompileDependsOn);GenerateUniqueIdentifierCs</CoreCompileDependsOn>
     <CoreCleanDependsOn>$(CoreCleanDependsOn);CleanUniqueIdentifierCs</CoreCleanDependsOn>
   </PropertyGroup>
