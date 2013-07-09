@@ -617,6 +617,9 @@ namespace LibGit2Sharp.Core
         internal static extern int git_push_new(out PushSafeHandle push, RemoteSafeHandle remote);
 
         [DllImport(libgit2)]
+        internal static extern int git_push_set_options(PushSafeHandle push, GitPushOptions options);
+
+        [DllImport(libgit2)]
         internal static extern int git_push_add_refspec(
             PushSafeHandle push,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string pushRefSpec);
