@@ -508,7 +508,10 @@ namespace LibGit2Sharp.Core
             using (var osw1 = new ObjectSafeWrapper(oldBlob, repo, true))
             using (var osw2 = new ObjectSafeWrapper(newBlob, repo, true))
             {
-                int res = NativeMethods.git_diff_blobs(osw1.ObjectPtr, osw2.ObjectPtr, options, fileCallback, hunkCallback, lineCallback, IntPtr.Zero);
+                int res = NativeMethods.git_diff_blobs(
+                    osw1.ObjectPtr, null, osw2.ObjectPtr, null,
+                    options, fileCallback, hunkCallback, lineCallback, IntPtr.Zero);
+
                 Ensure.ZeroResult(res);
             }
         }

@@ -158,8 +158,13 @@ namespace LibGit2Sharp.Tests
         [InlineData(true)]
         public void CanStageANewFileWithAFullPath(bool ignorecase)
         {
-            InconclusiveIf(() => IsFileSystemCaseSensitive && ignorecase,
-                "Skipping 'ignorecase = true' test on case-sensitive file system.");
+            // Skipping due to ignorecase issue in libgit2.
+            // See: https://github.com/libgit2/libgit2/pull/1689.
+            InconclusiveIf(() => ignorecase,
+                "Skipping 'ignorecase = true' test due to ignorecase issue in libgit2.");
+
+            //InconclusiveIf(() => IsFileSystemCaseSensitive && ignorecase,
+            //    "Skipping 'ignorecase = true' test on case-sensitive file system.");
 
             string path = CloneStandardTestRepo();
 

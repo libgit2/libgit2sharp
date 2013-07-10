@@ -408,7 +408,9 @@ namespace LibGit2Sharp.Core
         [DllImport(libgit2)]
         internal static extern int git_diff_blobs(
             GitObjectSafeHandle oldBlob,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(FilePathMarshaler))] FilePath old_as_path,
             GitObjectSafeHandle newBlob,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(FilePathMarshaler))] FilePath new_as_path,
             GitDiffOptions options,
             git_diff_file_cb fileCallback,
             git_diff_hunk_cb hunkCallback,

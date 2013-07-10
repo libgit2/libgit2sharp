@@ -5,6 +5,8 @@
 	Desired libgit2 version. This is run through `git rev-parse`, so branch names are okay too.
 .PARAMETER vs
 	Version of Visual Studio project files to generate. Cmake supports "10" (default) and "11".
+.PARAMETER libgit2Name
+	The base name (i.e without the file extension) of the libgit2 DLL to generate. Default is to use git2-$suffix, where $suffix is the first 7 characters of the SHA1 of the corresponding libgi2 commit as the suffix.
 .PARAMETER test
 	If set, run the libgit2 tests on the desired version.
 .PARAMETER debug
@@ -14,6 +16,7 @@
 Param(
 	[string]$sha = 'HEAD',
 	[string]$vs = '10',
+	[string]$libgit2Name = '',
 	[switch]$test,
 	[switch]$debug
 )
@@ -127,8 +130,12 @@ function Assert-Consistent-Naming($expected, $path) {
 		popd
 		break
 	}
-	$shortsha = $sha.Substring(0,7)
-	$expected = "git2-$shortsha.dll"
+
+	if(![string]::IsNullOrEmpty($libgit2Name)) {
+		$binaryFilename = $libgit2Name
+	} else {
+		$binaryFilename = "git2-" + $sha.Substring(0,7)
+	}
 
 	Write-Output "Checking out $sha..."
 	Run-Command -Quiet -Fatal { & $git checkout $sha }
@@ -137,11 +144,11 @@ function Assert-Consistent-Naming($expected, $path) {
 	Run-Command -Quiet { & remove-item build -recurse -force }
 	Run-Command -Quiet { & mkdir build }
 	cd build
-	Run-Command -Quiet -Fatal { & $cmake -G "Visual Studio $vs" -D THREADSAFE=ON -D "BUILD_CLAR=$build_clar" -D "SONAME_APPEND=$shortsha" .. }
+	Run-Command -Quiet -Fatal { & $cmake -G "Visual Studio $vs" -D THREADSAFE=ON -D "BUILD_CLAR=$build_clar" -D "LIBGIT2_FILENAME=$binaryFilename" .. }
 	Run-Command -Quiet -Fatal { & $cmake --build . --config $configuration }
 	if ($test.IsPresent) { Run-Command -Quiet -Fatal { & $ctest -V . } }
 	cd $configuration
-	Assert-Consistent-Naming $expected "*.dll"
+	Assert-Consistent-Naming "$binaryFilename.dll" "*.dll"
 	Run-Command -Quiet { & rm *.exp }
 	Run-Command -Quiet { & rm $x86Directory\* }
 	Run-Command -Quiet -Fatal { & copy -fo * $x86Directory }
@@ -150,11 +157,11 @@ function Assert-Consistent-Naming($expected, $path) {
 	cd ..
 	Run-Command -Quiet { & mkdir build64 }
 	cd build64
-	Run-Command -Quiet -Fatal { & $cmake -G "Visual Studio $vs Win64" -D THREADSAFE=ON -D "BUILD_CLAR=$build_clar" -D "SONAME_APPEND=$shortsha" ../.. }
+	Run-Command -Quiet -Fatal { & $cmake -G "Visual Studio $vs Win64" -D THREADSAFE=ON -D "BUILD_CLAR=$build_clar" -D "LIBGIT2_FILENAME=$binaryFilename" ../.. }
 	Run-Command -Quiet -Fatal { & $cmake --build . --config $configuration }
 	if ($test.IsPresent) { Run-Command -Quiet -Fatal { & $ctest -V . } }
 	cd $configuration
-	Assert-Consistent-Naming $expected "*.dll"
+	Assert-Consistent-Naming "$binaryFilename.dll" "*.dll"
 	Run-Command -Quiet { & rm *.exp }
 	Run-Command -Quiet { & rm $x64Directory\* }
 	Run-Command -Quiet -Fatal { & copy -fo * $x64Directory }
@@ -166,7 +173,7 @@ namespace LibGit2Sharp.Core
 {
 	internal static class NativeDllName
 	{
-		public const string Name = "git2-$shortsha";
+		public const string Name = "$binaryFilename.dll";
 	}
 }
 "@
