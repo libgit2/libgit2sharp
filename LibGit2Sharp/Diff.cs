@@ -65,33 +65,6 @@ namespace LibGit2Sharp
             return options;
         }
 
-        private static FilePath[] ToFilePaths(Repository repo, IEnumerable<string> paths)
-        {
-            if (paths == null)
-            {
-                return null;
-            }
-
-            var filePaths = new List<FilePath>();
-
-            foreach (string path in paths)
-            {
-                if (string.IsNullOrEmpty(path))
-                {
-                    throw new ArgumentException("At least one provided path is either null or empty.", "paths");
-                }
-
-                filePaths.Add(repo.BuildRelativePathFrom(path));
-            }
-
-            if (filePaths.Count == 0)
-            {
-                throw new ArgumentException("No path has been provided.", "paths");
-            }
-
-            return filePaths.ToArray();
-        }
-
         /// <summary>
         /// Needed for mocking purposes.
         /// </summary>
@@ -287,7 +260,7 @@ namespace LibGit2Sharp
             DiffModifiers diffOptions, IEnumerable<string> paths = null, ExplicitPathsOptions explicitPathsOptions = null, CompareOptions compareOptions = null)
         {
             var matchedPaths = new MatchedPathsAggregator();
-            var filePaths = ToFilePaths(repo, paths);
+            var filePaths = repo.ToFilePaths(paths);
 
             using (GitDiffOptions options = BuildOptions(diffOptions, filePaths, matchedPaths, compareOptions))
             using (DiffListSafeHandle diffList = comparisonHandleRetriever(oldTreeId, newTreeId, options))

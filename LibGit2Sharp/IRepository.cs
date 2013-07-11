@@ -153,6 +153,19 @@ namespace LibGit2Sharp
         Branch Checkout(Commit commit, CheckoutModifiers checkoutModifiers, CheckoutProgressHandler onCheckoutProgress, CheckoutNotificationOptions checkoutNotificationOptions);
 
         /// <summary>
+        /// Checkout files from the specified branch, reference or SHA.
+        /// <para>
+        /// This method does not switch branches or update the current repository HEAD.
+        /// </para>
+        /// </summary>
+        /// <param name="committishOrBranchSpec">A revparse spec for the commit or branch to checkout paths from.</param>
+        /// <param name="paths">The paths to checkout.</param>
+        /// <param name="checkoutOptions">Options controlling checkout behavior.</param>
+        /// <param name="onCheckoutProgress">Callback method to report checkout progress updates through.</param>
+        /// <param name="checkoutNotificationOptions"><see cref="CheckoutNotificationOptions"/> to manage checkout notifications.</param>
+        void CheckoutPaths(string committishOrBranchSpec, IList<string> paths, CheckoutModifiers checkoutOptions, CheckoutProgressHandler onCheckoutProgress, CheckoutNotificationOptions checkoutNotificationOptions);
+
+        /// <summary>
         /// Try to lookup an object by its <see cref="ObjectId"/>. If no matching object is found, null will be returned.
         /// </summary>
         /// <param name="id">The id to lookup.</param>
