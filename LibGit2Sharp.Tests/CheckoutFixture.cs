@@ -909,6 +909,74 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        [Theory]
+        [InlineData("master", "6dcf9bf", "readme.txt", FileStatus.Added)]
+        [InlineData("master", "refs/tags/lw", "readme.txt", FileStatus.Added)]
+        [InlineData("master", "i-do-numbers", "super-file.txt", FileStatus.Added)]
+        [InlineData("I-do-numbers", "diff-test-cases", "numbers.txt", FileStatus.Staged)]
+        public void CanCheckoutPath(string originalBranch, string checkoutFrom, string path, FileStatus expectedStatus)
+        {
+            string repoPath = CloneStandardTestRepo();
+            using (var repo = new Repository(repoPath))
+            {
+                // Set the working directory to the current head
+                ResetAndCleanWorkingDirectory(repo);
+
+                repo.Checkout(originalBranch);
+                Assert.False(repo.Index.RetrieveStatus().IsDirty);
+
+                repo.CheckoutPaths(checkoutFrom, new string[] { path }, CheckoutModifiers.None, null, null);
+
+                Assert.Equal(expectedStatus, repo.Index.RetrieveStatus(path));
+                Assert.Equal(1, repo.Index.RetrieveStatus().Count());
+            }
+        }
+
+        [Fact]
+        public void CanCheckoutPaths()
+        {
+            string repoPath = CloneStandardTestRepo();
+            string[] checkoutPaths = new string[] { "numbers.txt", "super-file.txt" };
+
+            using (var repo = new Repository(repoPath))
+            {
+                // Set the working directory to the current head
+                ResetAndCleanWorkingDirectory(repo);
+                Assert.False(repo.Index.RetrieveStatus().IsDirty);
+
+                repo.CheckoutPaths("i-do-numbers", checkoutPaths, CheckoutModifiers.None, null, null);
+
+                foreach (string checkoutPath in checkoutPaths)
+                {
+                    Assert.Equal(FileStatus.Added, repo.Index.RetrieveStatus(checkoutPath));
+                }
+            }
+        }
+
+        [Theory]
+        [InlineData("new.txt")]
+        [InlineData("1.txt")]
+        public void CanCheckoutPathFromCurrentBranch(string fileName)
+        {
+            string repoPath = CloneStandardTestRepo();
+
+            using (var repo = new Repository(repoPath))
+            {
+                // Set the working directory to the current head
+                ResetAndCleanWorkingDirectory(repo);
+
+                Assert.False(repo.Index.RetrieveStatus().IsDirty);
+
+                Touch(repo.Info.WorkingDirectory, fileName, "new text file");
+
+                Assert.True(repo.Index.RetrieveStatus().IsDirty);
+
+                repo.CheckoutPaths("HEAD", new string[] { fileName }, CheckoutModifiers.Force, null, null);
+
+                Assert.False(repo.Index.RetrieveStatus().IsDirty);
+            }
+        }
+
         /// <summary>
         /// Helper method to populate a simple repository with
         /// a single file and two branches.
