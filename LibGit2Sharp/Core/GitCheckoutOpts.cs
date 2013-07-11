@@ -95,7 +95,7 @@ namespace LibGit2Sharp.Core
             IntPtr payload);
 
     [StructLayout(LayoutKind.Sequential)]
-    internal struct GitCheckoutOpts
+    internal struct GitCheckoutOpts :IDisposable
     {
         public uint version;
 
@@ -113,9 +113,19 @@ namespace LibGit2Sharp.Core
         public progress_cb progress_cb;
         public IntPtr progress_payload;
 
-        public UnSafeNativeMethods.git_strarray paths;
+        public GitStrArrayIn paths;
 
         public IntPtr baseline;
         public IntPtr target_directory;
+
+        public void Dispose()
+        {
+            if (paths == null)
+            {
+                return;
+            }
+
+            paths.Dispose();
+        }
     }
 }
