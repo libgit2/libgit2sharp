@@ -20,7 +20,10 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
             Ensure.ArgumentNotNullOrEmptyString(committish, "committish");
 
-            Commit commit = branches.repo.LookupCommit(committish);
+            var commit = (Commit)branches.repo.Lookup(committish, GitObjectType.Any,
+                LookUpOptions.ThrowWhenNoGitObjectHasBeenFound |
+                LookUpOptions.DereferenceResultToCommit |
+                LookUpOptions.ThrowWhenCanNotBeDereferencedToACommit);
 
             return branches.Add(name, commit, allowOverwrite);
         }

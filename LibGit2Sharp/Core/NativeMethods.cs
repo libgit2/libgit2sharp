@@ -961,8 +961,9 @@ namespace LibGit2Sharp.Core
             ResetOptions reset_type);
 
         [DllImport(libgit2)]
-        internal static extern int git_revparse_single(
+        internal static extern int git_revparse_ext(
             out GitObjectSafeHandle obj,
+            out ReferenceSafeHandle reference,
             RepositorySafeHandle repo,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(Utf8Marshaler))] string spec);
 

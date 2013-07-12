@@ -529,16 +529,6 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Lookup a commit by its SHA or name, or throw if a commit is not found.
-        /// </summary>
-        /// <param name="committish">A revparse spec for the commit.</param>
-        /// <returns>The commit.</returns>
-        internal Commit LookupCommit(string committish)
-        {
-            return (Commit)Lookup(committish, GitObjectType.Any, LookUpOptions.ThrowWhenNoGitObjectHasBeenFound | LookUpOptions.DereferenceResultToCommit | LookUpOptions.ThrowWhenCanNotBeDereferencedToACommit);
-        }
-
-        /// <summary>
         /// Probe for a git repository.
         /// <para>The lookup start from <paramref name="startingPath"/> and walk upward parent directories if nothing has been found.</para>
         /// </summary>
@@ -673,34 +663,41 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(committishOrBranchSpec, "committishOrBranchSpec");
 
-            Branch branch = TryResolveBranch(committishOrBranchSpec);
-
-            if (branch != null)
+            var handles = Proxy.git_revparse_ext(Handle, committishOrBranchSpec);
+            if (handles == null)
             {
-                return Checkout(branch, checkoutModifiers, onCheckoutProgress, checkoutNotifications);
+                Ensure.GitObjectIsNotNull(null, committishOrBranchSpec);
             }
 
-            Commit commit = LookupCommit(committishOrBranchSpec);
-            CheckoutTree(commit.Tree, checkoutModifiers, onCheckoutProgress, checkoutNotifications, commit.Id.Sha, committishOrBranchSpec, committishOrBranchSpec != "HEAD");
-
-            return Head;
-        }
-
-        private Branch TryResolveBranch(string committishOrBranchSpec)
-        {
-            if (committishOrBranchSpec == "HEAD")
-            {
-                return Head;
-            }
-
+            var objH = handles.Item1;
+            var refH = handles.Item2;
+            GitObject obj;
             try
             {
-                return Branches[committishOrBranchSpec];
+                if (!refH.IsInvalid)
+                {
+                    var reference = Reference.BuildFromPtr<Reference>(refH, this);
+                    if (reference.IsLocalBranch())
+                    {
+                        Branch branch = Branches[reference.CanonicalName];
+                        return Checkout(branch, checkoutModifiers, onCheckoutProgress, checkoutNotifications);
+                    }
+                }
+
+                obj = GitObject.BuildFrom(this, Proxy.git_object_id(objH), Proxy.git_object_type(objH),
+                                              PathFromRevparseSpec(committishOrBranchSpec));
             }
-            catch (InvalidSpecificationException)
+            finally
             {
-                return null;
+                objH.Dispose();
+                refH.Dispose();
             }
+
+            Commit commit = obj.DereferenceToCommit(true);
+            CheckoutTree(commit.Tree, checkoutModifiers, onCheckoutProgress, checkoutNotifications, commit.Id.Sha, committishOrBranchSpec,
+                committishOrBranchSpec != "HEAD");
+
+            return Head;
         }
 
         /// <summary>
