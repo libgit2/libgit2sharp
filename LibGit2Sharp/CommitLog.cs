@@ -56,7 +56,7 @@ namespace LibGit2Sharp
         /// <summary>
         /// Returns an enumerator that iterates through the log.
         /// </summary>
-        /// <returns>An <see cref="IEnumerator{T}"/> object that can be used to iterate through the log.</returns>
+        /// <returns>An <see cref="T:System.Collections.Generic.IEnumerator`1"/> object that can be used to iterate through the log.</returns>
         public virtual IEnumerator<Commit> GetEnumerator()
         {
             return new CommitEnumerator(repo, queryFilter);

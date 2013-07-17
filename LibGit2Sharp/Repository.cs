@@ -360,7 +360,7 @@ namespace LibGit2Sharp
         /// <param name="path">The path to the working folder when initializing a standard ".git" repository. Otherwise, when initializing a bare repository, the path to the expected location of this later.</param>
         /// <param name="isBare">true to initialize a bare repository. False otherwise, to initialize a standard ".git" repository.</param>
         /// <param name="options">Overrides to the way a repository is opened.</param>
-        /// <returns> a new instance of the <see cref="Repository"/> class. The client code is responsible for calling <see cref="Dispose()"/> on this instance.</returns>
+        /// <returns> a new instance of the <see cref="Repository"/> class. The client code is responsible for calling <see cref="Repository.Dispose()"/> on this instance.</returns>
         [Obsolete("This method will be removed in the next release. Please use Init(string, bool) instead.")]
         public static Repository Init(string path, bool isBare, RepositoryOptions options)
         {
@@ -568,7 +568,7 @@ namespace LibGit2Sharp
         /// <param name="onCheckoutProgress">Handler for checkout progress information</param>
         /// <param name="options">Overrides to the way a repository is opened.</param>
         /// <param name="credentials">Credentials to use for user/pass authentication</param>
-        /// <returns> a new instance of the <see cref="Repository"/> class. The client code is responsible for calling <see cref="Dispose()"/> on this instance.</returns>
+        /// <returns> a new instance of the <see cref="Repository"/> class. The client code is responsible for calling <see cref="Repository.Dispose()"/> on this instance.</returns>
         [Obsolete("This method will be removed in the next release. Please use Clone(string, string, bool, bool, TransferProgressHandler, CheckoutProgressHandler, Credentials) instead.")]
         public static Repository Clone(string sourceUrl, string workdirPath,
             bool bare,

@@ -32,7 +32,7 @@ namespace LibGit2Sharp
         { }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ConfigurationEntry{T}"/> class with a given key and value
+        /// Initializes a new instance of the <see cref="T:LibGit2Sharp.ConfigurationEntry`1"/> class with a given key and value
         /// </summary>
         /// <param name="key">The option name</param>
         /// <param name="value">The option value</param>

@@ -27,7 +27,7 @@ namespace LibGit2Sharp
         /// <typeparam name="T">The configuration value type</typeparam>
         /// <param name="config">The configuration being worked with.</param>
         /// <param name="keyParts">The key parts</param>
-        /// <returns>The <see cref="ConfigurationEntry{T}"/>, or null if not set</returns>
+        /// <returns>The <see cref="T:LibGit2Sharp.ConfigurationEntry`1"/>, or null if not set</returns>
         public static ConfigurationEntry<T> Get<T>(this Configuration config, string[] keyParts)
         {
             Ensure.ArgumentNotNull(keyParts, "keyParts");
@@ -57,7 +57,7 @@ namespace LibGit2Sharp
         /// <param name="firstKeyPart">The first key part</param>
         /// <param name="secondKeyPart">The second key part</param>
         /// <param name="thirdKeyPart">The third key part</param>
-        /// <returns>The <see cref="ConfigurationEntry{T}"/>, or null if not set</returns>
+        /// <returns>The <see cref="T:LibGit2Sharp.ConfigurationEntry`1"/>, or null if not set</returns>
         public static ConfigurationEntry<T> Get<T>(this Configuration config, string firstKeyPart, string secondKeyPart, string thirdKeyPart)
         {
             Ensure.ArgumentNotNullOrEmptyString(firstKeyPart, "firstKeyPart");

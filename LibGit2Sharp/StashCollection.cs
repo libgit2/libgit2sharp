@@ -39,7 +39,7 @@ namespace LibGit2Sharp
         ///   The enumerator returns the stashes by descending order (last stash is returned first).
         /// </para>
         /// </summary>
-        /// <returns>An <see cref="IEnumerator{T}"/> object that can be used to iterate through the collection.</returns>
+        /// <returns>An <see cref="T:System.Collections.Generic.IEnumerator`1"/> object that can be used to iterate through the collection.</returns>
         public IEnumerator<Stash> GetEnumerator()
         {
             return Proxy.git_stash_foreach(repo.Handle,

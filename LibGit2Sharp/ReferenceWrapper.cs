@@ -70,7 +70,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Gets the <typeparamref name="TObject"/> this <see cref="ReferenceWrapper{TObject}"/> points to.
+        /// Gets the <typeparamref name="TObject"/> this <see cref="T:LibGit2Sharp.ReferenceWrapper`1"/> points to.
         /// </summary>
         protected TObject TargetObject
         {
@@ -102,20 +102,20 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Determines whether the specified <see cref="ReferenceWrapper{TObject}"/> is equal to the current <see cref="ReferenceWrapper{TObject}"/>.
+        /// Determines whether the specified <see cref="T:LibGit2Sharp.ReferenceWrapper`1"/> is equal to the current <see cref="T:LibGit2Sharp.ReferenceWrapper`1"/>.
         /// </summary>
-        /// <param name="other">The <see cref="ReferenceWrapper{TObject}"/> to compare with the current <see cref="ReferenceWrapper{TObject}"/>.</param>
-        /// <returns>True if the specified <see cref="ReferenceWrapper{TObject}"/> is equal to the current <see cref="ReferenceWrapper{TObject}"/>; otherwise, false.</returns>
+        /// <param name="other">The <see cref="T:LibGit2Sharp.ReferenceWrapper`1"/> to compare with the current <see cref="T:LibGit2Sharp.ReferenceWrapper`1"/>.</param>
+        /// <returns>True if the specified <see cref="T:LibGit2Sharp.ReferenceWrapper`1"/> is equal to the current <see cref="T:LibGit2Sharp.ReferenceWrapper`1"/>; otherwise, false.</returns>
         public bool Equals(ReferenceWrapper<TObject> other)
         {
             return equalityHelper.Equals(this, other);
         }
 
         /// <summary>
-        /// Determines whether the specified <see cref="Object"/> is equal to the current <see cref="ReferenceWrapper{TObject}"/>.
+        /// Determines whether the specified <see cref="Object"/> is equal to the current <see cref="T:LibGit2Sharp.ReferenceWrapper`1"/>.
         /// </summary>
-        /// <param name="obj">The <see cref="Object"/> to compare with the current <see cref="ReferenceWrapper{TObject}"/>.</param>
-        /// <returns>True if the specified <see cref="Object"/> is equal to the current <see cref="ReferenceWrapper{TObject}"/>; otherwise, false.</returns>
+        /// <param name="obj">The <see cref="Object"/> to compare with the current <see cref="T:LibGit2Sharp.ReferenceWrapper`1"/>.</param>
+        /// <returns>True if the specified <see cref="Object"/> is equal to the current <see cref="T:LibGit2Sharp.ReferenceWrapper`1"/>; otherwise, false.</returns>
         public override bool Equals(object obj)
         {
             return Equals(obj as ReferenceWrapper<TObject>);
@@ -131,10 +131,10 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Tests if two <see cref="ReferenceWrapper{TObject}"/> are equal.
+        /// Tests if two <see cref="T:LibGit2Sharp.ReferenceWrapper`1"/> are equal.
         /// </summary>
-        /// <param name="left">First <see cref="ReferenceWrapper{TObject}"/> to compare.</param>
-        /// <param name="right">Second <see cref="ReferenceWrapper{TObject}"/> to compare.</param>
+        /// <param name="left">First <see cref="T:LibGit2Sharp.ReferenceWrapper`1"/> to compare.</param>
+        /// <param name="right">Second <see cref="T:LibGit2Sharp.ReferenceWrapper`1"/> to compare.</param>
         /// <returns>True if the two objects are equal; false otherwise.</returns>
         public static bool operator ==(ReferenceWrapper<TObject> left, ReferenceWrapper<TObject> right)
         {
@@ -142,10 +142,10 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Tests if two <see cref="ReferenceWrapper{TObject}"/> are different.
+        /// Tests if two <see cref="T:LibGit2Sharp.ReferenceWrapper`1"/> are different.
         /// </summary>
-        /// <param name="left">First <see cref="ReferenceWrapper{TObject}"/> to compare.</param>
-        /// <param name="right">Second <see cref="ReferenceWrapper{TObject}"/> to compare.</param>
+        /// <param name="left">First <see cref="T:LibGit2Sharp.ReferenceWrapper`1"/> to compare.</param>
+        /// <param name="right">Second <see cref="T:LibGit2Sharp.ReferenceWrapper`1"/> to compare.</param>
         /// <returns>True if the two objects are different; false otherwise.</returns>
         public static bool operator !=(ReferenceWrapper<TObject> left, ReferenceWrapper<TObject> right)
         {
