@@ -15,8 +15,11 @@ namespace LibGit2Sharp.Core
     {
         public const uint GIT_PATH_MAX = 4096;
         private const string libgit2 = NativeDllName.Name;
-        private static readonly LibraryLifetimeObject lifetimeObject;
         private static int handlesCount;
+
+#pragma warning disable 414
+        private static readonly LibraryLifetimeObject lifetimeObject;
+#pragma warning restore 414
 
         /// <summary>
         /// Internal hack to ensure that the call to git_threads_shutdown is called after all handle finalizers

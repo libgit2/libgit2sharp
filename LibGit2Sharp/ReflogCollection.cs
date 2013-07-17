@@ -48,7 +48,7 @@ namespace LibGit2Sharp
         ///   The enumerator returns the <see cref="ReflogEntry"/> by descending order (last reflog entry is returned first).
         /// </para>
         /// </summary>
-        /// <returns>An <see cref="IEnumerator{T}"/> object that can be used to iterate through the collection.</returns>
+        /// <returns>An <see cref="T:System.Collections.Generic.IEnumerator`1"/> object that can be used to iterate through the collection.</returns>
         public IEnumerator<ReflogEntry> GetEnumerator()
         {
             var entries = new List<ReflogEntry>();

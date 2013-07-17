@@ -159,7 +159,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <typeparam name="T">The configuration value type</typeparam>
         /// <param name="key">The key</param>
-        /// <returns>The <see cref="ConfigurationEntry{T}"/>, or null if not set</returns>
+        /// <returns>The <see cref="T:LibGit2Sharp.ConfigurationEntry`1"/>, or null if not set</returns>
         public virtual ConfigurationEntry<T> Get<T>(string key)
         {
             Ensure.ArgumentNotNullOrEmptyString(key, "key");
@@ -187,7 +187,7 @@ namespace LibGit2Sharp
         /// <typeparam name="T">The configuration value type</typeparam>
         /// <param name="key">The key</param>
         /// <param name="level">The configuration file into which the key should be searched for</param>
-        /// <returns>The <see cref="ConfigurationEntry{T}"/>, or null if not set</returns>
+        /// <returns>The <see cref="T:LibGit2Sharp.ConfigurationEntry`1"/>, or null if not set</returns>
         public virtual ConfigurationEntry<T> Get<T>(string key, ConfigurationLevel level)
         {
             Ensure.ArgumentNotNullOrEmptyString(key, "key");

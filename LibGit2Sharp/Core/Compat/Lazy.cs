@@ -16,9 +16,9 @@ namespace LibGit2Sharp.Core.Compat
         private readonly object padLock = new object();
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Lazy{TType}"/> class.
+        /// Initializes a new instance of the <see cref="T:LibGit2Sharp.Core.Compat.Lazy`1"/> class.
         /// </summary>
-        /// <param name="evaluator">The <see cref="Func{TResult}"/> that will be called to evaluate the value of this Lazy instance.</param>
+        /// <param name="evaluator">The <see cref="T:System.Func`1"/> that will be called to evaluate the value of this Lazy instance.</param>
         public Lazy(Func<TType> evaluator)
         {
             Ensure.ArgumentNotNull(evaluator, "evaluator");

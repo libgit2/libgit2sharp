@@ -12,7 +12,7 @@ namespace LibGit2Sharp.Core.Compat
         private readonly KeyValuePair<T1, T2> kvp;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Tuple{T1,T2}"/> class.
+        /// Initializes a new instance of the <see cref="T:LibGit2Sharp.Core.Compat.Tuple`2"/> class.
         /// </summary>
         /// <param name="item1">The value of the tuple's first component.</param>
         /// <param name="item2">The value of the tuple's second component.</param>
@@ -22,7 +22,7 @@ namespace LibGit2Sharp.Core.Compat
         }
 
         /// <summary>
-        /// Gets the value of the current <see cref="Tuple{T1,T2}"/> object's second component.
+        /// Gets the value of the current <see cref="T:LibGit2Sharp.Core.Compat.Tuple`2"/> object's second component.
         /// </summary>
         public T2 Item2
         {
@@ -30,7 +30,7 @@ namespace LibGit2Sharp.Core.Compat
         }
 
         /// <summary>
-        /// Gets the value of the current <see cref="Tuple{T1,T2}"/> object's first component.
+        /// Gets the value of the current <see cref="T:LibGit2Sharp.Core.Compat.Tuple`2"/> object's first component.
         /// </summary>
         public T1 Item1
         {
@@ -38,7 +38,7 @@ namespace LibGit2Sharp.Core.Compat
         }
 
         /// <summary>
-        /// Returns the hash code for the current <see cref="Tuple{T1,T2}"/> object.
+        /// Returns the hash code for the current <see cref="T:LibGit2Sharp.Core.Compat.Tuple`2"/> object.
         /// </summary>
         /// <returns>A 32-bit signed integer hash code.</returns>
         public override int GetHashCode()
@@ -47,7 +47,7 @@ namespace LibGit2Sharp.Core.Compat
         }
 
         /// <summary>
-        /// Returns a value that indicates whether the current <see cref="Tuple{T1,T2}"/> object is equal to a specified object.
+        /// Returns a value that indicates whether the current <see cref="T:LibGit2Sharp.Core.Compat.Tuple`2"/> object is equal to a specified object.
         /// </summary>
         /// <param name="obj">The object to compare with this instance.</param>
         /// <returns>true if the current instance is equal to the specified object; otherwise, false.</returns>
