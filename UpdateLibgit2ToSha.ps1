@@ -173,7 +173,7 @@ namespace LibGit2Sharp.Core
 {
 	internal static class NativeDllName
 	{
-		public const string Name = "$binaryFilename.dll";
+		public const string Name = "$binaryFilename";
 	}
 }
 "@
