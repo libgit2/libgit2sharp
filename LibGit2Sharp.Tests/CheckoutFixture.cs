@@ -682,8 +682,11 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Fact]
-        public void CheckingOutRemoteBranchResultsInDetachedHead()
+        [Theory]
+        [InlineData("refs/remotes/origin/master")]
+        [InlineData("master@{u}")]
+        [InlineData("origin/master")]
+        public void CheckingOutRemoteBranchResultsInDetachedHead(string remoteBranchSpec)
         {
             string path = CloneStandardTestRepo();
             using (var repo = new Repository(path))
@@ -694,19 +697,11 @@ namespace LibGit2Sharp.Tests
                 // Set the working directory to the current head
                 ResetAndCleanWorkingDirectory(repo);
 
-                repo.Checkout("refs/remotes/origin/master");
+                repo.Checkout(remoteBranchSpec);
 
                 // Verify that HEAD is detached.
                 Assert.Equal(repo.Refs["HEAD"].TargetIdentifier, repo.Branches["origin/master"].Tip.Sha);
                 Assert.True(repo.Info.IsHeadDetached);
-
-                // Assert reflog entry is created
-                var reflogEntry = repo.Refs.Log(repo.Refs.Head).First();
-                Assert.Equal(master.Tip.Id, reflogEntry.From);
-                Assert.Equal(repo.Branches["origin/master"].Tip.Id, reflogEntry.To);
-                Assert.NotNull(reflogEntry.Commiter.Email);
-                Assert.NotNull(reflogEntry.Commiter.Name);
-                Assert.Equal("checkout: moving from master to origin/master", reflogEntry.Message);
             }
         }
 
@@ -791,8 +786,30 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        [Theory]
+        [InlineData("master", "refs/heads/master")]
+        [InlineData("heads/master", "refs/heads/master")]
+        public void CheckoutBranchByShortNameAttachesTheHead(string shortBranchName, string referenceName)
+        {
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
+            {
+                // Set the working directory to the current head
+                ResetAndCleanWorkingDirectory(repo);
+                Assert.False(repo.Index.RetrieveStatus().IsDirty);
 
-        [Fact(Skip = "Current libgit2 revparse implementation only returns the object being pointed at, not the reference pointing at it.")]
+                repo.Checkout("6dcf9bf");
+                Assert.True(repo.Info.IsHeadDetached);
+
+                var branch = repo.Checkout(shortBranchName);
+
+                Assert.False(repo.Info.IsHeadDetached);
+                Assert.Equal(referenceName, repo.Head.CanonicalName);
+                Assert.Equal(referenceName, branch.CanonicalName);
+            }
+        }
+
+        [Fact]
         public void CheckoutPreviousCheckedOutBranch()
         {
             string path = CloneStandardTestRepo();
@@ -803,18 +820,14 @@ namespace LibGit2Sharp.Tests
                 Assert.False(repo.Index.RetrieveStatus().IsDirty);
 
                 Branch previousHead = repo.Checkout("i-do-numbers");
-                Branch newHead = repo.Checkout("diff-test-cases");
+                repo.Checkout("diff-test-cases");
 
                 //Go back to previous branch checked out
-                repo.Checkout(@"@{-1}");
+                var branch = repo.Checkout(@"@{-1}");
 
-                // Assert reflog entry is created
-                var reflogEntry = repo.Refs.Log(repo.Refs.Head).First();
-                Assert.Equal(newHead.Tip.Id, reflogEntry.From);
-                Assert.Equal(previousHead.Tip.Id, reflogEntry.To);
-                Assert.NotNull(reflogEntry.Commiter.Email);
-                Assert.NotNull(reflogEntry.Commiter.Name);
-                Assert.Equal("checkout: moving from diff-test-cases to i-do-numbers", reflogEntry.Message);
+                Assert.False(repo.Info.IsHeadDetached);
+                Assert.Equal(previousHead.CanonicalName, repo.Head.CanonicalName);
+                Assert.Equal(previousHead.CanonicalName, branch.CanonicalName);
             }
         }
 
