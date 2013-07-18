@@ -144,7 +144,7 @@ function Assert-Consistent-Naming($expected, $path) {
 	Run-Command -Quiet { & remove-item build -recurse -force }
 	Run-Command -Quiet { & mkdir build }
 	cd build
-	Run-Command -Quiet -Fatal { & $cmake -G "Visual Studio $vs" -D THREADSAFE=ON -D "BUILD_CLAR=$build_clar" -D "LIBGIT2_FILENAME=$binaryFilename" .. }
+	Run-Command -Quiet -Fatal { & $cmake -G "Visual Studio $vs" -D THREADSAFE=ON -D "BUILD_CLAR=$build_clar" -D "LIBGIT2_FILENAME=$binaryFilename" -DSTDCALL=ON .. }
 	Run-Command -Quiet -Fatal { & $cmake --build . --config $configuration }
 	if ($test.IsPresent) { Run-Command -Quiet -Fatal { & $ctest -V . } }
 	cd $configuration
@@ -157,7 +157,7 @@ function Assert-Consistent-Naming($expected, $path) {
 	cd ..
 	Run-Command -Quiet { & mkdir build64 }
 	cd build64
-	Run-Command -Quiet -Fatal { & $cmake -G "Visual Studio $vs Win64" -D THREADSAFE=ON -D "BUILD_CLAR=$build_clar" -D "LIBGIT2_FILENAME=$binaryFilename" ../.. }
+	Run-Command -Quiet -Fatal { & $cmake -G "Visual Studio $vs Win64" -D THREADSAFE=ON -D "BUILD_CLAR=$build_clar" -D "LIBGIT2_FILENAME=$binaryFilename" -DSTDCALL=ON ../.. }
 	Run-Command -Quiet -Fatal { & $cmake --build . --config $configuration }
 	if ($test.IsPresent) { Run-Command -Quiet -Fatal { & $ctest -V . } }
 	cd $configuration
@@ -173,7 +173,7 @@ namespace LibGit2Sharp.Core
 {
 	internal static class NativeDllName
 	{
-		public const string Name = "$binaryFilename.dll";
+		public const string Name = "$binaryFilename";
 	}
 }
 "@
