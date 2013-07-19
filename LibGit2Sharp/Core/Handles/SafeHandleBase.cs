@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.ConstrainedExecution;
 using System.Runtime.InteropServices;
-using Interlocked = System.Threading.Interlocked;
+using System.Threading;
 
 namespace LibGit2Sharp.Core.Handles
 {

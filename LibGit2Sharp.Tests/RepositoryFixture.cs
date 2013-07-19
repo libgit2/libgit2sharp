@@ -14,8 +14,9 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCreateBareRepo()
         {
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
-            using (var repo = Repository.Init(scd.DirectoryPath, true))
+            string repoPath = InitNewRepository(true);
+
+            using (var repo = new Repository(repoPath))
             {
                 string dir = repo.Info.Path;
                 Assert.True(Path.IsPathRooted(dir));
@@ -23,7 +24,7 @@ namespace LibGit2Sharp.Tests
                 CheckGitConfigFile(dir);
 
                 Assert.Null(repo.Info.WorkingDirectory);
-                Assert.Equal(scd.RootedDirectoryPath + Path.DirectorySeparatorChar, repo.Info.Path);
+                Assert.Equal(Path.GetFullPath(repoPath), repo.Info.Path);
                 Assert.True(repo.Info.IsBare);
 
                 AssertInitializedRepository(repo, "refs/heads/master");
@@ -43,15 +44,26 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
-        public void CanCreateStandardRepo()
+        public void CanCheckIfADirectoryLeadsToAValidRepository()
         {
             SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
 
             Assert.False(Repository.IsValid(scd.DirectoryPath));
 
-            using (var repo = Repository.Init(scd.DirectoryPath))
+            Directory.CreateDirectory(scd.DirectoryPath);
+
+            Assert.False(Repository.IsValid(scd.DirectoryPath));
+        }
+
+        [Fact]
+        public void CanCreateStandardRepo()
+        {
+            string repoPath = InitNewRepository();
+
+            Assert.True(Repository.IsValid(repoPath));
+
+            using (var repo = new Repository(repoPath))
             {
-                Assert.True(Repository.IsValid(scd.DirectoryPath));
                 Assert.True(Repository.IsValid(repo.Info.WorkingDirectory));
                 Assert.True(Repository.IsValid(repo.Info.Path));
 
@@ -61,7 +73,7 @@ namespace LibGit2Sharp.Tests
                 CheckGitConfigFile(dir);
 
                 Assert.NotNull(repo.Info.WorkingDirectory);
-                Assert.Equal(Path.Combine(scd.RootedDirectoryPath, ".git" + Path.DirectorySeparatorChar), repo.Info.Path);
+                Assert.Equal(repoPath, repo.Info.Path);
                 Assert.False(repo.Info.IsBare);
 
                 AssertIsHidden(repo.Info.Path);
@@ -70,6 +82,54 @@ namespace LibGit2Sharp.Tests
 
                 repo.Refs.Add("HEAD", "refs/heads/orphan", true);
                 AssertInitializedRepository(repo, "refs/heads/orphan");
+            }
+        }
+
+        [Fact]
+        public void CanCreateStandardRepoAndSpecifyAFolderWhichWillContainTheNewlyCreatedGitDirectory()
+        {
+            var scd1 = BuildSelfCleaningDirectory();
+            var scd2 = BuildSelfCleaningDirectory();
+
+            string repoPath = Repository.Init(scd1.DirectoryPath, scd2.DirectoryPath);
+
+            Assert.True(Repository.IsValid(repoPath));
+
+            using (var repo = new Repository(repoPath))
+            {
+                Assert.True(Repository.IsValid(repo.Info.WorkingDirectory));
+                Assert.True(Repository.IsValid(repo.Info.Path));
+
+                Assert.Equal(false, repo.Info.IsBare);
+
+                char sep = Path.DirectorySeparatorChar;
+                Assert.Equal(scd1.RootedDirectoryPath + sep, repo.Info.WorkingDirectory);
+                Assert.Equal(scd2.RootedDirectoryPath + sep + ".git" + sep, repo.Info.Path);
+            }
+        }
+
+        [Fact]
+        public void CanCreateStandardRepoAndDirectlySpecifyAGitDirectory()
+        {
+            var scd1 = BuildSelfCleaningDirectory();
+            var scd2 = BuildSelfCleaningDirectory();
+
+            var gitDir = Path.Combine(scd2.DirectoryPath, ".git/");
+
+            string repoPath = Repository.Init(scd1.DirectoryPath, gitDir);
+
+            Assert.True(Repository.IsValid(repoPath));
+
+            using (var repo = new Repository(repoPath))
+            {
+                Assert.True(Repository.IsValid(repo.Info.WorkingDirectory));
+                Assert.True(Repository.IsValid(repo.Info.Path));
+
+                Assert.Equal(false, repo.Info.IsBare);
+
+                char sep = Path.DirectorySeparatorChar;
+                Assert.Equal(scd1.RootedDirectoryPath + sep, repo.Info.WorkingDirectory);
+                Assert.Equal(Path.GetFullPath(gitDir), repo.Info.Path);
             }
         }
 
@@ -95,8 +155,9 @@ namespace LibGit2Sharp.Tests
             string remoteName = "testRemote";
             string url = "http://github.com/libgit2/TestGitRepository";
 
-            var scd = BuildSelfCleaningDirectory();
-            using (var repo = Repository.Init(scd.RootedDirectoryPath))
+            string repoPath = InitNewRepository();
+
+            using (var repo = new Repository(repoPath))
             {
                 Remote remote = repo.Network.Remotes.Add(remoteName, url);
 
@@ -143,12 +204,16 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanReinitARepository()
         {
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            string repoPath = InitNewRepository();
 
-            using (Repository repository = Repository.Init(scd.DirectoryPath))
-            using (Repository repository2 = Repository.Init(scd.DirectoryPath))
+            using (var repository = new Repository(repoPath))
             {
-                Assert.Equal(repository2.Info.Path, repository.Info.Path);
+                string repoPath2 = Repository.Init(repoPath, false);
+
+                using (var repository2 = new Repository(repoPath2))
+                {
+                    Assert.Equal(repository2.Info.Path, repository.Info.Path);
+                }
             }
         }
 
@@ -176,11 +241,11 @@ namespace LibGit2Sharp.Tests
             Assert.Null(repo.Head.Tip);
 
             Assert.Equal(0, repo.Commits.Count());
-            Assert.Equal(0, repo.Commits.QueryBy(new Filter()).Count());
-            Assert.Equal(0, repo.Commits.QueryBy(new Filter { Since = repo.Refs.Head }).Count());
-            Assert.Equal(0, repo.Commits.QueryBy(new Filter { Since = repo.Head }).Count());
-            Assert.Equal(0, repo.Commits.QueryBy(new Filter { Since = "HEAD" }).Count());
-            Assert.Equal(0, repo.Commits.QueryBy(new Filter { Since = expectedHeadTargetIdentifier }).Count());
+            Assert.Equal(0, repo.Commits.QueryBy(new CommitFilter()).Count());
+            Assert.Equal(0, repo.Commits.QueryBy(new CommitFilter { Since = repo.Refs.Head }).Count());
+            Assert.Equal(0, repo.Commits.QueryBy(new CommitFilter { Since = repo.Head }).Count());
+            Assert.Equal(0, repo.Commits.QueryBy(new CommitFilter { Since = "HEAD" }).Count());
+            Assert.Equal(0, repo.Commits.QueryBy(new CommitFilter { Since = expectedHeadTargetIdentifier }).Count());
 
             Assert.Null(repo.Head["subdir/I-do-not-exist"]);
 
@@ -338,14 +403,13 @@ namespace LibGit2Sharp.Tests
             const string expectedAbbrevSha = "fe8410b";
             const string expectedSha = expectedAbbrevSha + "6bfdf69ccfd4f397110d61f8070e46e40";
 
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            string repoPath = InitNewRepository();
 
-            using (var repo = Repository.Init(scd.DirectoryPath))
+            using (var repo = new Repository(repoPath))
             {
-                string filePath = Path.Combine(repo.Info.WorkingDirectory, "new.txt");
-
-                File.WriteAllText(filePath, "one ");
-                repo.Index.Stage(filePath);
+                const string filename = "new.txt";
+                Touch(repo.Info.WorkingDirectory, filename, "one ");
+                repo.Index.Stage(filename);
 
                 Signature author = Constants.Signature;
                 Commit commit = repo.Commit("Initial commit", author, author);
@@ -493,7 +557,7 @@ namespace LibGit2Sharp.Tests
             string path = CloneStandardTestRepo();
             using (var repo = new Repository(path))
             {
-                repo.Checkout(repo.Head.Tip.Sha, CheckoutOptions.Force, null);
+                repo.Checkout(repo.Head.Tip.Sha, CheckoutModifiers.Force, null, null);
                 Branch trackLocal = repo.Head;
                 Assert.Null(trackLocal.Remote);
             }
@@ -502,9 +566,9 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void ReadingEmptyRepositoryMessageReturnsNull()
         {
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            string repoPath = InitNewRepository();
 
-            using (var repo = Repository.Init(scd.DirectoryPath))
+            using (var repo = new Repository(repoPath))
             {
                 Assert.Null(repo.Info.Message);
             }
@@ -513,12 +577,13 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanReadRepositoryMessage()
         {
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
             string testMessage = "This is a test message!";
 
-            using (var repo = Repository.Init(scd.DirectoryPath))
+            string repoPath = InitNewRepository();
+
+            using (var repo = new Repository(repoPath))
             {
-                File.WriteAllText(Path.Combine(repo.Info.Path, "MERGE_MSG"), testMessage);
+                Touch(repo.Info.Path, "MERGE_MSG", testMessage);
 
                 Assert.Equal(testMessage, repo.Info.Message);
             }
@@ -527,9 +592,9 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void AccessingADeletedHeadThrows()
         {
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            string repoPath = InitNewRepository();
 
-            using (var repo = Repository.Init(scd.DirectoryPath))
+            using (var repo = new Repository(repoPath))
             {
                 Assert.NotNull(repo.Head);
 

@@ -251,20 +251,22 @@ namespace LibGit2Sharp.Core
             Signature committer,
             string prettifiedMessage,
             Tree tree,
-            IEnumerable<ObjectId> parentIds)
+            GitOid[] parentIds)
         {
             using (ThreadAffinity())
-            using (var treePtr = new ObjectSafeWrapper(tree.Id, repo))
-            using (var parentObjectPtrs = new DisposableEnumerable<ObjectSafeWrapper>(parentIds.Select(id => new ObjectSafeWrapper(id, repo)).ToList()))
             using (SignatureSafeHandle authorHandle = author.BuildHandle())
             using (SignatureSafeHandle committerHandle = committer.BuildHandle())
+            using (var parentPtrs = new ArrayMarshaler<GitOid>(parentIds))
             {
                 GitOid commitOid;
-                string encoding = null; //TODO: Handle the encoding of the commit to be created
 
-                IntPtr[] parentsPtrs = parentObjectPtrs.Select(o => o.ObjectPtr.DangerousGetHandle()).ToArray();
-                int res = NativeMethods.git_commit_create(out commitOid, repo, referenceName, authorHandle,
-                                                      committerHandle, encoding, prettifiedMessage, treePtr.ObjectPtr, parentObjectPtrs.Count, parentsPtrs);
+                var treeOid = tree.Id.Oid;
+
+                int res = NativeMethods.git_commit_create_from_oids(
+                    out commitOid, repo, referenceName, authorHandle,
+                    committerHandle, null, prettifiedMessage,
+                    ref treeOid, parentPtrs.Count, parentPtrs.ToArray());
+
                 Ensure.ZeroResult(res);
 
                 return commitOid;
@@ -506,7 +508,10 @@ namespace LibGit2Sharp.Core
             using (var osw1 = new ObjectSafeWrapper(oldBlob, repo, true))
             using (var osw2 = new ObjectSafeWrapper(newBlob, repo, true))
             {
-                int res = NativeMethods.git_diff_blobs(osw1.ObjectPtr, osw2.ObjectPtr, options, fileCallback, hunkCallback, lineCallback, IntPtr.Zero);
+                int res = NativeMethods.git_diff_blobs(
+                    osw1.ObjectPtr, null, osw2.ObjectPtr, null,
+                    options, fileCallback, hunkCallback, lineCallback, IntPtr.Zero);
+
                 Ensure.ZeroResult(res);
             }
         }
@@ -1368,6 +1373,11 @@ namespace LibGit2Sharp.Core
 
         #region git_remote_
 
+        public static TagFetchMode git_remote_autotag(RemoteSafeHandle remote)
+        {
+            return (TagFetchMode) NativeMethods.git_remote_autotag(remote);
+        }
+
         public static RemoteSafeHandle git_remote_create(RepositorySafeHandle repo, string name, string url)
         {
             using (ThreadAffinity())
@@ -1569,12 +1579,16 @@ namespace LibGit2Sharp.Core
             }
         }
 
-        public static RepositorySafeHandle git_repository_init(FilePath path, bool isBare)
+        public static RepositorySafeHandle git_repository_init_ext(
+            FilePath workdirPath,
+            FilePath gitdirPath,
+            bool isBare)
         {
             using (ThreadAffinity())
+            using (var opts = GitRepositoryInitOptions.BuildFrom(workdirPath, isBare))
             {
                 RepositorySafeHandle repo;
-                int res = NativeMethods.git_repository_init(out repo, path, isBare);
+                int res = NativeMethods.git_repository_init_ext(out repo, gitdirPath, opts);
                 Ensure.ZeroResult(res);
 
                 return repo;
@@ -1751,12 +1765,13 @@ namespace LibGit2Sharp.Core
 
         #region git_revparse_
 
-        public static GitObjectSafeHandle git_revparse_single(RepositorySafeHandle repo, string objectish)
+        public static Tuple<GitObjectSafeHandle, ReferenceSafeHandle> git_revparse_ext(RepositorySafeHandle repo, string objectish)
         {
             using (ThreadAffinity())
             {
                 GitObjectSafeHandle obj;
-                int res = NativeMethods.git_revparse_single(out obj, repo, objectish);
+                ReferenceSafeHandle reference;
+                int res = NativeMethods.git_revparse_ext(out obj, out reference, repo, objectish);
 
                 switch (res)
                 {
@@ -1771,8 +1786,22 @@ namespace LibGit2Sharp.Core
                         break;
                 }
 
-                return obj;
+                return new Tuple<GitObjectSafeHandle, ReferenceSafeHandle>(obj, reference);
             }
+        }
+
+        public static GitObjectSafeHandle git_revparse_single(RepositorySafeHandle repo, string objectish)
+        {
+            var handles = git_revparse_ext(repo, objectish);
+
+            if (handles == null)
+            {
+                return null;
+            }
+
+            handles.Item2.Dispose();
+
+            return handles.Item1;
         }
 
         #endregion
@@ -1839,7 +1868,7 @@ namespace LibGit2Sharp.Core
             NativeMethods.git_revwalk_reset(walker);
         }
 
-        public static void git_revwalk_sorting(RevWalkerSafeHandle walker, GitSortOptions options)
+        public static void git_revwalk_sorting(RevWalkerSafeHandle walker, CommitSortStrategies options)
         {
             NativeMethods.git_revwalk_sorting(walker, options);
         }
@@ -1874,7 +1903,7 @@ namespace LibGit2Sharp.Core
             RepositorySafeHandle repo,
             Signature stasher,
             string prettifiedMessage,
-            StashOptions options)
+            StashModifiers options)
         {
             using (ThreadAffinity())
             using (SignatureSafeHandle stasherHandle = stasher.BuildHandle())
@@ -1952,8 +1981,8 @@ namespace LibGit2Sharp.Core
         #region git_submodule_
 
         /// <summary>
-        ///   Returns a handle to the corresponding submodule,
-        ///   or an invalid handle if a submodule is not found.
+        /// Returns a handle to the corresponding submodule,
+        /// or an invalid handle if a submodule is not found.
         /// </summary>
         public static SubmoduleSafeHandle git_submodule_lookup(RepositorySafeHandle repo, string name)
         {

@@ -10,9 +10,9 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void ResetANewlyInitializedBareRepositoryThrows()
         {
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            string repoPath = InitNewRepository(true);
 
-            using (Repository repo = Repository.Init(scd.DirectoryPath, true))
+            using (var repo = new Repository(repoPath))
             {
                 Assert.Throws<BareRepositoryException>(() => repo.Reset());
             }
@@ -21,9 +21,9 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void ResetANewlyInitializedNonBareRepositoryThrows()
         {
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            string repoPath = InitNewRepository(false);
 
-            using (Repository repo = Repository.Init(scd.DirectoryPath, false))
+            using (var repo = new Repository(repoPath))
             {
                 Assert.Throws<LibGit2SharpException>(() => repo.Reset());
             }

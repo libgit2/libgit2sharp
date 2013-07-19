@@ -1,7 +1,6 @@
-﻿using LibGit2Sharp.Tests.TestHelpers;
-using System;
-using System.IO;
+﻿using System;
 using System.Linq;
+using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
 using Xunit.Extensions;
 
@@ -12,8 +11,9 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void FetchHeadIsEmptyByDefault()
         {
-            var scd = BuildSelfCleaningDirectory();
-            using (var repo = Repository.Init(scd.RootedDirectoryPath))
+            string repoPath = InitNewRepository();
+
+            using (var repo = new Repository(repoPath))
             {
                 Assert.Equal(0, repo.Network.FetchHeads.Count());
             }
@@ -33,14 +33,16 @@ namespace LibGit2Sharp.Tests
         public void CanIterateFetchHead(string url)
         {
             var scd = BuildSelfCleaningDirectory();
-            using (var repo = Repository.Clone(url, scd.RootedDirectoryPath))
+
+            string clonedRepoPath = Repository.Clone(url, scd.DirectoryPath);
+
+            using (var repo = new Repository(clonedRepoPath))
             {
                 repo.Reset(ResetOptions.Hard, "HEAD~2");
 
                 // Create a file, stage it, and commit it.
-                String filename = "b.txt";
-                String fullPath = Path.Combine(repo.Info.WorkingDirectory, filename);
-                File.WriteAllText(fullPath, "");
+                const string filename = "b.txt";
+                Touch(repo.Info.WorkingDirectory, filename);
                 repo.Index.Stage(filename);
                 repo.Commit("comment", Constants.Signature, Constants.Signature);
 

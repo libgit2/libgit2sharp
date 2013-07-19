@@ -5,16 +5,16 @@ using System.Globalization;
 namespace LibGit2Sharp.Core
 {
     /// <summary>
-    ///   Ensure input parameters
+    /// Ensure input parameters
     /// </summary>
     [DebuggerStepThrough]
     internal static class Ensure
     {
         /// <summary>
-        ///   Checks an argument to ensure it isn't null.
+        /// Checks an argument to ensure it isn't null.
         /// </summary>
-        /// <param name = "argumentValue">The argument value to check.</param>
-        /// <param name = "argumentName">The name of the argument.</param>
+        /// <param name="argumentValue">The argument value to check.</param>
+        /// <param name="argumentName">The name of the argument.</param>
         public static void ArgumentNotNull(object argumentValue, string argumentName)
         {
             if (argumentValue == null)
@@ -24,10 +24,10 @@ namespace LibGit2Sharp.Core
         }
 
         /// <summary>
-        ///   Checks a string argument to ensure it isn't null or empty.
+        /// Checks a string argument to ensure it isn't null or empty.
         /// </summary>
-        /// <param name = "argumentValue">The argument value to check.</param>
-        /// <param name = "argumentName">The name of the argument.</param>
+        /// <param name="argumentValue">The argument value to check.</param>
+        /// <param name="argumentName">The name of the argument.</param>
         public static void ArgumentNotNullOrEmptyString(string argumentValue, string argumentName)
         {
             ArgumentNotNull(argumentValue, argumentName);
@@ -55,6 +55,9 @@ namespace LibGit2Sharp.Core
 
             switch (result)
             {
+                case (int) GitErrorCode.User:
+                    throw new UserCancelledException(errorMessage, (GitErrorCode)result, error.Category);
+
                 case (int)GitErrorCode.BareRepo:
                     throw new BareRepositoryException(errorMessage, (GitErrorCode)result, error.Category);
 
@@ -79,13 +82,13 @@ namespace LibGit2Sharp.Core
         }
 
         /// <summary>
-        ///   Check that the result of a C call was successful
-        ///   <para>
-        ///     The native function is expected to return strictly 0 for
-        ///     success or a negative value in the case of failure.
-        ///   </para>
+        /// Check that the result of a C call was successful
+        /// <para>
+        ///   The native function is expected to return strictly 0 for
+        ///   success or a negative value in the case of failure.
+        /// </para>
         /// </summary>
-        /// <param name = "result">The result to examine.</param>
+        /// <param name="result">The result to examine.</param>
         public static void ZeroResult(int result)
         {
             if (result == (int)GitErrorCode.Ok)
@@ -97,14 +100,14 @@ namespace LibGit2Sharp.Core
         }
 
         /// <summary>
-        ///   Check that the result of a C call that returns a boolean value
-        ///   was successful
-        ///   <para>
-        ///     The native function is expected to return strictly 0 for
-        ///     success or a negative value in the case of failure.
-        ///   </para>
+        /// Check that the result of a C call that returns a boolean value
+        /// was successful
+        /// <para>
+        ///   The native function is expected to return strictly 0 for
+        ///   success or a negative value in the case of failure.
+        /// </para>
         /// </summary>
-        /// <param name = "result">The result to examine.</param>
+        /// <param name="result">The result to examine.</param>
         public static void BooleanResult(int result)
         {
             if (result == (int)GitErrorCode.Ok || result == 1)
@@ -116,14 +119,14 @@ namespace LibGit2Sharp.Core
         }
 
         /// <summary>
-        ///   Check that the result of a C call that returns an integer value
-        ///   was successful
-        ///   <para>
-        ///     The native function is expected to return strictly 0 for
-        ///     success or a negative value in the case of failure.
-        ///   </para>
+        /// Check that the result of a C call that returns an integer value
+        /// was successful
+        /// <para>
+        ///   The native function is expected to return strictly 0 for
+        ///   success or a negative value in the case of failure.
+        /// </para>
         /// </summary>
-        /// <param name = "result">The result to examine.</param>
+        /// <param name="result">The result to examine.</param>
         public static void Int32Result(int result)
         {
             if (result >= (int)GitErrorCode.Ok)
@@ -135,11 +138,11 @@ namespace LibGit2Sharp.Core
         }
 
         /// <summary>
-        ///   Checks an argument by applying provided checker.
+        /// Checks an argument by applying provided checker.
         /// </summary>
-        /// <param name = "argumentValue">The argument value to check.</param>
-        /// <param name = "checker">The predicate which has to be satisfied</param>
-        /// <param name = "argumentName">The name of the argument.</param>
+        /// <param name="argumentValue">The argument value to check.</param>
+        /// <param name="checker">The predicate which has to be satisfied</param>
+        /// <param name="argumentName">The name of the argument.</param>
         public static void ArgumentConformsTo<T>(T argumentValue, Func<T, bool> checker, string argumentName)
         {
             if (checker(argumentValue))

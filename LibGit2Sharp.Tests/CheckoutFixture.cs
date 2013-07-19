@@ -1,9 +1,9 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
 using Xunit.Extensions;
-using System.IO;
 
 namespace LibGit2Sharp.Tests
 {
@@ -94,10 +94,13 @@ namespace LibGit2Sharp.Tests
         }
 
         [Theory]
-        [InlineData("6dcf9bf")]
-        [InlineData("refs/tags/lw")]
-        [InlineData("HEAD~2")]
-        public void CanCheckoutAnArbitraryCommit(string commitPointer)
+        [InlineData("6dcf9bf", true, "6dcf9bf")]
+        [InlineData("refs/tags/lw", true, "refs/tags/lw")]
+        [InlineData("HEAD~2", true, "HEAD~2")]
+        [InlineData("6dcf9bf", false, "6dcf9bf7541ee10456529833502442f385010c3d")]
+        [InlineData("refs/tags/lw", false, "e90810b8df3e80c413d903f631643c716887138d")]
+        [InlineData("HEAD~2", false, "4c062a6361ae6959e06292c1fa5e2822d9c96345")]
+        public void CanCheckoutAnArbitraryCommit(string commitPointer, bool checkoutByCommitOrBranchSpec, string expectedReflogTarget)
         {
             string path = CloneStandardTestRepo();
             using (var repo = new Repository(path))
@@ -110,12 +113,12 @@ namespace LibGit2Sharp.Tests
 
                 Assert.False(repo.Index.RetrieveStatus().IsDirty);
 
-                var commitSha = repo.Lookup(commitPointer).Sha;
+                var commit = repo.Lookup<Commit>(commitPointer);
 
-                Branch detachedHead = repo.Checkout(commitPointer);
+                Branch detachedHead = checkoutByCommitOrBranchSpec ? repo.Checkout(commitPointer) : repo.Checkout(commit);
 
                 Assert.Equal(repo.Head, detachedHead);
-                Assert.Equal(commitSha, detachedHead.Tip.Sha);
+                Assert.Equal(commit.Sha, detachedHead.Tip.Sha);
                 Assert.True(repo.Head.IsCurrentRepositoryHead);
                 Assert.True(repo.Info.IsHeadDetached);
                 Assert.False(repo.Index.RetrieveStatus().IsDirty);
@@ -131,19 +134,19 @@ namespace LibGit2Sharp.Tests
                 // Assert reflog entry is created
                 var reflogEntry = repo.Refs.Log(repo.Refs.Head).First();
                 Assert.Equal(master.Tip.Id, reflogEntry.From);
-                Assert.Equal(commitSha, reflogEntry.To.Sha);
+                Assert.Equal(commit.Sha, reflogEntry.To.Sha);
                 Assert.NotNull(reflogEntry.Commiter.Email);
                 Assert.NotNull(reflogEntry.Commiter.Name);
-                Assert.Equal(string.Format("checkout: moving from master to {0}", commitPointer), reflogEntry.Message);
+                Assert.Equal(string.Format("checkout: moving from master to {0}", expectedReflogTarget), reflogEntry.Message);
             }
         }
 
         [Fact]
         public void CheckoutAddsMissingFilesInWorkingDirectory()
         {
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            string repoPath = InitNewRepository();
 
-            using (var repo = Repository.Init(scd.DirectoryPath))
+            using (var repo = new Repository(repoPath))
             {
                 PopulateBasicRepository(repo);
 
@@ -167,16 +170,17 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CheckoutRemovesExtraFilesInWorkingDirectory()
         {
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            string repoPath = InitNewRepository();
 
-            using (var repo = Repository.Init(scd.DirectoryPath))
+            using (var repo = new Repository(repoPath))
             {
                 PopulateBasicRepository(repo);
 
                 // Add extra file in master branch
                 // Verify it is removed after checking out otherBranch.
-                string newFileFullPath = Path.Combine(repo.Info.WorkingDirectory, "b.txt");
-                File.WriteAllText(newFileFullPath, "hello from master branch!\n");
+                string newFileFullPath = Touch(
+                    repo.Info.WorkingDirectory, "b.txt", "hello from master branch!\n");
+
                 repo.Index.Stage(newFileFullPath);
                 repo.Commit("2nd commit", Constants.Signature, Constants.Signature);
 
@@ -194,16 +198,17 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CheckoutUpdatesModifiedFilesInWorkingDirectory()
         {
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            string repoPath = InitNewRepository();
 
-            using (var repo = Repository.Init(scd.DirectoryPath))
+            using (var repo = new Repository(repoPath))
             {
                 PopulateBasicRepository(repo);
 
                 // Modify file in master branch.
                 // Verify contents match initial commit after checking out other branch.
-                string fullPath = Path.Combine(repo.Info.WorkingDirectory, originalFilePath);
-                File.WriteAllText(fullPath, "Update : hello from master branch!\n");
+                string fullPath = Touch(
+                    repo.Info.WorkingDirectory, originalFilePath, "Update : hello from master branch!\n");
+
                 repo.Index.Stage(fullPath);
                 repo.Commit("2nd commit", Constants.Signature, Constants.Signature);
 
@@ -232,7 +237,6 @@ namespace LibGit2Sharp.Tests
             string path = CloneStandardTestRepo();
             using (var repo = new Repository(path))
             {
-                string fileFullPath = Path.Combine(repo.Info.WorkingDirectory, originalFilePath);
                 Branch master = repo.Branches["master"];
                 Assert.True(master.IsCurrentRepositoryHead);
 
@@ -245,24 +249,24 @@ namespace LibGit2Sharp.Tests
                 repo.Branches.Add(otherBranchName, master.Tip);
 
                 // Add change to master.
-                string fullPath = Path.Combine(repo.Info.WorkingDirectory, fileFullPath);
-                File.WriteAllText(fullPath, originalFileContent);
-                repo.Index.Stage(fullPath);
+                Touch(repo.Info.WorkingDirectory, originalFilePath, originalFileContent);
+
+                repo.Index.Stage(originalFilePath);
                 repo.Commit("change in master", Constants.Signature, Constants.Signature);
 
                 // Checkout otherBranch.
                 repo.Checkout(otherBranchName);
 
                 // Add change to otherBranch.
-                File.WriteAllText(fullPath, alternateFileContent);
-                repo.Index.Stage(fullPath);
+                Touch(repo.Info.WorkingDirectory, originalFilePath, alternateFileContent);
+                repo.Index.Stage(originalFilePath);
 
                 // Assert that normal checkout throws exception
                 // for the conflict.
                 Assert.Throws<MergeConflictException>(() => repo.Checkout(master.CanonicalName));
 
                 // Checkout with force option should succeed.
-                repo.Checkout(master.CanonicalName, CheckoutOptions.Force, null);
+                repo.Checkout(master.CanonicalName, CheckoutModifiers.Force, null, null);
 
                 // Assert that master branch is checked out.
                 Assert.True(repo.Branches["master"].IsCurrentRepositoryHead);
@@ -275,34 +279,68 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CheckingOutWithMergeConflictsThrows()
         {
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            string repoPath = InitNewRepository();
 
-            using (var repo = Repository.Init(scd.DirectoryPath))
+            using (var repo = new Repository(repoPath))
             {
-                string fullPath = Path.Combine(repo.Info.WorkingDirectory, "a.txt");
-                File.WriteAllText(fullPath, "Hello\n");
-                repo.Index.Stage(fullPath);
+                Touch(repo.Info.WorkingDirectory, originalFilePath, "Hello\n");
+                repo.Index.Stage(originalFilePath);
                 repo.Commit("Initial commit", Constants.Signature, Constants.Signature);
 
                 // Create 2nd branch
                 repo.CreateBranch("branch2");
 
                 // Update file in main
-                File.WriteAllText(fullPath, "Hello from master!\n");
-                repo.Index.Stage(fullPath);
+                Touch(repo.Info.WorkingDirectory, originalFilePath, "Hello from master!\n");
+                repo.Index.Stage(originalFilePath);
                 repo.Commit("2nd commit", Constants.Signature, Constants.Signature);
 
                 // Checkout branch2
                 repo.Checkout("branch2");
-                File.WriteAllText(fullPath, "Hello From branch2!\n");
+                Touch(repo.Info.WorkingDirectory, originalFilePath, "Hello From branch2!\n");
 
                 // Assert that checking out master throws
                 // when there are unstaged commits
                 Assert.Throws<MergeConflictException>(() => repo.Checkout("master"));
 
                 // And when there are staged commits
-                repo.Index.Stage(fullPath);
+                repo.Index.Stage(originalFilePath);
                 Assert.Throws<MergeConflictException>(() => repo.Checkout("master"));
+            }
+        }
+
+        [Fact]
+        public void CanCancelCheckoutThroughNotifyCallback()
+        {
+            string repoPath = InitNewRepository();
+
+            using (var repo = new Repository(repoPath))
+            {
+                string relativePath = "a.txt";
+                Touch(repo.Info.WorkingDirectory, relativePath, "Hello\n");
+
+                repo.Index.Stage(relativePath);
+                repo.Commit("Initial commit", Constants.Signature, Constants.Signature);
+
+                // Create 2nd branch
+                repo.CreateBranch("branch2");
+
+                // Update file in main
+                Touch(repo.Info.WorkingDirectory, relativePath, "Hello from master!\n");
+                repo.Index.Stage(relativePath);
+                repo.Commit("2nd commit", Constants.Signature, Constants.Signature);
+
+                // Checkout branch2
+                repo.Checkout("branch2");
+
+                // Update the context of a.txt - a.txt will then conflict between branch2 and master.
+                Touch(repo.Info.WorkingDirectory, relativePath, "Hello From branch2!\n");
+
+                // Verify that we get called for the notify conflict cb
+                string conflictPath = string.Empty;
+                CheckoutNotificationOptions checkoutNotifications = new CheckoutNotificationOptions((path, flags) => { conflictPath = path; return false; }, CheckoutNotifyFlags.Conflict);
+                Assert.Throws<UserCancelledException>(() => repo.Checkout("master", CheckoutModifiers.None, null, checkoutNotifications));
+                Assert.Equal(relativePath, conflictPath);
             }
         }
 
@@ -319,9 +357,9 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CheckingOutAgainstAnUnbornBranchThrows()
         {
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            string repoPath = InitNewRepository();
 
-            using (var repo = Repository.Init(scd.DirectoryPath))
+            using (var repo = new Repository(repoPath))
             {
                 Assert.True(repo.Info.IsHeadOrphaned);
 
@@ -352,15 +390,15 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CheckingOutThroughBranchCallsCheckoutProgress()
         {
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            string repoPath = InitNewRepository();
 
-            using (var repo = Repository.Init(scd.DirectoryPath))
+            using (var repo = new Repository(repoPath))
             {
                 PopulateBasicRepository(repo);
                 bool wasCalled = false;
 
                 Branch branch = repo.Branches[otherBranchName];
-                branch.Checkout(CheckoutOptions.None, (path, completed, total) => wasCalled = true);
+                branch.Checkout(CheckoutModifiers.None, (path, completed, total) => wasCalled = true, null);
 
                 Assert.True(wasCalled);
             }
@@ -369,31 +407,108 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CheckingOutThroughRepositoryCallsCheckoutProgress()
         {
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            string repoPath = InitNewRepository();
 
-            using (var repo = Repository.Init(scd.DirectoryPath))
+            using (var repo = new Repository(repoPath))
             {
                 PopulateBasicRepository(repo);
                 bool wasCalled = false;
 
-                repo.Checkout(otherBranchName, CheckoutOptions.None, (path, completed, total) => wasCalled = true);
+                repo.Checkout(otherBranchName, CheckoutModifiers.None, (path, completed, total) => wasCalled = true, null);
 
                 Assert.True(wasCalled);
+            }
+        }
+
+        [Theory]
+        [InlineData(CheckoutNotifyFlags.Conflict, "conflict.txt", false)]
+        [InlineData(CheckoutNotifyFlags.Updated, "updated.txt", false)]
+        [InlineData(CheckoutNotifyFlags.Untracked, "untracked.txt", false)]
+        [InlineData(CheckoutNotifyFlags.Ignored, "bin", true)]
+        public void CheckingOutCallsCheckoutNotify(CheckoutNotifyFlags notifyFlags, string expectedNotificationPath, bool isDirectory)
+        {
+            if (isDirectory)
+            {
+                expectedNotificationPath = expectedNotificationPath + Path.DirectorySeparatorChar;
+            }
+
+            string repoPath = InitNewRepository();
+
+            using (var repo = new Repository(repoPath))
+            {
+                PopulateBasicRepository(repo);
+
+                string relativePathUpdated = "updated.txt";
+                Touch(repo.Info.WorkingDirectory, relativePathUpdated, "updated file text A");
+                repo.Index.Stage(relativePathUpdated);
+                repo.Commit("Commit initial update file", Constants.Signature, Constants.Signature);
+
+                // Create conflicting change
+                string relativePathConflict = "conflict.txt";
+                Touch(repo.Info.WorkingDirectory, relativePathConflict, "conflict file text A");
+                repo.Index.Stage(relativePathConflict);
+                repo.Commit("Initial commit of conflict.txt and update.txt", Constants.Signature, Constants.Signature);
+
+                // Create another branch
+                repo.CreateBranch("newbranch");
+
+                // Make an edit to conflict.txt and update.txt
+                Touch(repo.Info.WorkingDirectory, relativePathUpdated, "updated file text BB");
+                repo.Index.Stage(relativePathUpdated);
+                Touch(repo.Info.WorkingDirectory, relativePathConflict, "conflict file text BB");
+                repo.Index.Stage(relativePathConflict);
+
+                repo.Commit("2nd commit of conflict.txt and update.txt on master branch", Constants.Signature, Constants.Signature);
+
+                // Checkout other branch
+                repo.Checkout("newbranch");
+
+                // Make alternate edits to conflict.txt and update.txt
+                Touch(repo.Info.WorkingDirectory, relativePathUpdated, "updated file text CCC");
+                repo.Index.Stage(relativePathUpdated);
+                Touch(repo.Info.WorkingDirectory, relativePathConflict, "conflict file text CCC");
+                repo.Index.Stage(relativePathConflict);
+                repo.Commit("2nd commit of conflict.txt and update.txt on newbranch", Constants.Signature, Constants.Signature);
+
+                // make conflicting change to conflict.txt
+                Touch(repo.Info.WorkingDirectory, relativePathConflict, "conflict file text DDDD");
+                repo.Index.Stage(relativePathConflict);
+
+                // Create ignored change
+                string relativePathIgnore = Path.Combine("bin", "ignored.txt");
+                Touch(repo.Info.WorkingDirectory, relativePathIgnore, "ignored file");
+
+                // Create untracked change
+                string relativePathUntracked = "untracked.txt";
+                Touch(repo.Info.WorkingDirectory, relativePathUntracked, "untracked file");
+
+                bool wasCalled = false;
+                string actualNotificationPath = string.Empty;
+                CheckoutNotifyFlags actualNotifyFlags = CheckoutNotifyFlags.None;
+
+                CheckoutNotificationOptions checkoutNotifications = new CheckoutNotificationOptions(
+                    (path, notificationType) => { wasCalled = true; actualNotificationPath = path; actualNotifyFlags = notificationType; return true; },
+                    notifyFlags);
+
+                Assert.Throws<MergeConflictException>(() => repo.Checkout("master", CheckoutModifiers.None, null, checkoutNotifications));
+
+                Assert.True(wasCalled);
+                Assert.Equal(expectedNotificationPath, actualNotificationPath);
+                Assert.Equal(notifyFlags, actualNotifyFlags);
             }
         }
 
         [Fact]
         public void CheckoutRetainsUntrackedChanges()
         {
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            string repoPath = InitNewRepository();
 
-            using (var repo = Repository.Init(scd.DirectoryPath))
+            using (var repo = new Repository(repoPath))
             {
                 PopulateBasicRepository(repo);
 
                 // Generate an unstaged change.
-                string fullPathFileB = Path.Combine(repo.Info.WorkingDirectory, "b.txt");
-                File.WriteAllText(fullPathFileB, alternateFileContent);
+                string fullPathFileB = Touch(repo.Info.WorkingDirectory, "b.txt", alternateFileContent);
 
                 // Verify that there is an untracked entry.
                 Assert.Equal(1, repo.Index.RetrieveStatus().Untracked.Count());
@@ -410,21 +525,20 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void ForceCheckoutRetainsUntrackedChanges()
         {
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            string repoPath = InitNewRepository();
 
-            using (var repo = Repository.Init(scd.DirectoryPath))
+            using (var repo = new Repository(repoPath))
             {
                 PopulateBasicRepository(repo);
 
                 // Generate an unstaged change.
-                string fullPathFileB = Path.Combine(repo.Info.WorkingDirectory, "b.txt");
-                File.WriteAllText(fullPathFileB, alternateFileContent);
+                string fullPathFileB = Touch(repo.Info.WorkingDirectory, "b.txt", alternateFileContent);
 
                 // Verify that there is an untracked entry.
                 Assert.Equal(1, repo.Index.RetrieveStatus().Untracked.Count());
                 Assert.Equal(FileStatus.Untracked, repo.Index.RetrieveStatus(fullPathFileB));
 
-                repo.Checkout(otherBranchName, CheckoutOptions.Force, null);
+                repo.Checkout(otherBranchName, CheckoutModifiers.Force, null, null);
 
                 // Verify untracked entry still exists.
                 Assert.Equal(1, repo.Index.RetrieveStatus().Untracked.Count());
@@ -435,15 +549,14 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CheckoutRetainsUnstagedChanges()
         {
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            string repoPath = InitNewRepository();
 
-            using (var repo = Repository.Init(scd.DirectoryPath))
+            using (var repo = new Repository(repoPath))
             {
                 PopulateBasicRepository(repo);
 
                 // Generate an unstaged change.
-                string fullPathFileA = Path.Combine(repo.Info.WorkingDirectory, originalFilePath);
-                File.WriteAllText(fullPathFileA, alternateFileContent);
+                string fullPathFileA = Touch(repo.Info.WorkingDirectory, originalFilePath, alternateFileContent);
 
                 // Verify that there is a modified entry.
                 Assert.Equal(1, repo.Index.RetrieveStatus().Modified.Count());
@@ -460,15 +573,14 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CheckoutRetainsStagedChanges()
         {
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            string repoPath = InitNewRepository();
 
-            using (var repo = Repository.Init(scd.DirectoryPath))
+            using (var repo = new Repository(repoPath))
             {
                 PopulateBasicRepository(repo);
 
                 // Generate a staged change.
-                string fullPathFileA = Path.Combine(repo.Info.WorkingDirectory, originalFilePath);
-                File.WriteAllText(fullPathFileA, alternateFileContent);
+                string fullPathFileA = Touch(repo.Info.WorkingDirectory, originalFilePath, alternateFileContent);
                 repo.Index.Stage(fullPathFileA);
 
                 // Verify that there is a staged entry.
@@ -486,19 +598,17 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CheckoutRetainsIgnoredChanges()
         {
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            string repoPath = InitNewRepository();
 
-            using (var repo = Repository.Init(scd.DirectoryPath))
+            using (var repo = new Repository(repoPath))
             {
                 PopulateBasicRepository(repo);
 
-                // Create a bin directory.
-                string ignoredDirectoryPath = Path.Combine(repo.Info.WorkingDirectory, "bin");
-                Directory.CreateDirectory(ignoredDirectoryPath);
-
                 // Create file in ignored bin directory.
-                string ignoredFilePath = Path.Combine(repo.Info.WorkingDirectory, Path.Combine("bin", "some_ignored_file.txt"));
-                File.WriteAllText(ignoredFilePath, "hello from this ignored file.");
+                string ignoredFilePath = Touch(
+                    repo.Info.WorkingDirectory,
+                    "bin/some_ignored_file.txt",
+                    "hello from this ignored file.");
 
                 Assert.Equal(1, repo.Index.RetrieveStatus().Ignored.Count());
 
@@ -515,25 +625,23 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void ForceCheckoutRetainsIgnoredChanges()
         {
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            string repoPath = InitNewRepository();
 
-            using (var repo = Repository.Init(scd.DirectoryPath))
+            using (var repo = new Repository(repoPath))
             {
                 PopulateBasicRepository(repo);
 
-                // Create a bin directory.
-                string ignoredDirectoryPath = Path.Combine(repo.Info.WorkingDirectory, "bin");
-                Directory.CreateDirectory(ignoredDirectoryPath);
-
                 // Create file in ignored bin directory.
-                string ignoredFilePath = Path.Combine(repo.Info.WorkingDirectory, Path.Combine("bin", "some_ignored_file.txt"));
-                File.WriteAllText(ignoredFilePath, "hello from this ignored file.");
+                string ignoredFilePath = Touch(
+                    repo.Info.WorkingDirectory,
+                    "bin/some_ignored_file.txt",
+                    "hello from this ignored file.");
 
                 Assert.Equal(1, repo.Index.RetrieveStatus().Ignored.Count());
 
                 Assert.Equal(FileStatus.Ignored, repo.Index.RetrieveStatus(ignoredFilePath));
 
-                repo.Checkout(otherBranchName, CheckoutOptions.Force, null);
+                repo.Checkout(otherBranchName, CheckoutModifiers.Force, null, null);
 
                 // Verify that the ignored file still exists.
                 Assert.Equal(FileStatus.Ignored, repo.Index.RetrieveStatus(ignoredFilePath));
@@ -544,9 +652,9 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CheckoutBranchSnapshot()
         {
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            string repoPath = InitNewRepository();
 
-            using (var repo = Repository.Init(scd.DirectoryPath))
+            using (var repo = new Repository(repoPath))
             {
                 PopulateBasicRepository(repo);
 
@@ -556,8 +664,7 @@ namespace LibGit2Sharp.Tests
                 Commit initialCommit = initial.Tip;
 
                 // Add commit to master
-                string fullPath = Path.Combine(repo.Info.WorkingDirectory, originalFilePath);
-                File.WriteAllText(fullPath, "Update : hello from master branch!\n");
+                string fullPath = Touch(repo.Info.WorkingDirectory, originalFilePath, "Update : hello from master branch!\n");
                 repo.Index.Stage(fullPath);
                 repo.Commit("2nd commit", Constants.Signature, Constants.Signature);
 
@@ -575,8 +682,11 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Fact]
-        public void CheckingOutRemoteBranchResultsInDetachedHead()
+        [Theory]
+        [InlineData("refs/remotes/origin/master")]
+        [InlineData("master@{u}")]
+        [InlineData("origin/master")]
+        public void CheckingOutRemoteBranchResultsInDetachedHead(string remoteBranchSpec)
         {
             string path = CloneStandardTestRepo();
             using (var repo = new Repository(path))
@@ -587,19 +697,11 @@ namespace LibGit2Sharp.Tests
                 // Set the working directory to the current head
                 ResetAndCleanWorkingDirectory(repo);
 
-                repo.Checkout("refs/remotes/origin/master");
+                repo.Checkout(remoteBranchSpec);
 
                 // Verify that HEAD is detached.
                 Assert.Equal(repo.Refs["HEAD"].TargetIdentifier, repo.Branches["origin/master"].Tip.Sha);
                 Assert.True(repo.Info.IsHeadDetached);
-
-                // Assert reflog entry is created
-                var reflogEntry = repo.Refs.Log(repo.Refs.Head).First();
-                Assert.Equal(master.Tip.Id, reflogEntry.From);
-                Assert.Equal(repo.Branches["origin/master"].Tip.Id, reflogEntry.To);
-                Assert.NotNull(reflogEntry.Commiter.Email);
-                Assert.NotNull(reflogEntry.Commiter.Name);
-                Assert.Equal("checkout: moving from master to origin/master", reflogEntry.Message);
             }
         }
 
@@ -616,7 +718,7 @@ namespace LibGit2Sharp.Tests
                 // The blob actually exists in the object database with the correct Sha
                 Assert.Equal(expectedSha, repo.Lookup<Blob>(expectedSha).Sha);
 
-                repo.Checkout("refs/heads/logo", CheckoutOptions.Force, null);
+                repo.Checkout("refs/heads/logo", CheckoutModifiers.Force, null, null);
 
                 // The Index has been updated as well with the blob
                 Assert.Equal(expectedSha, repo.Index["square-logo.png"].Id.Sha);
@@ -684,8 +786,30 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        [Theory]
+        [InlineData("master", "refs/heads/master")]
+        [InlineData("heads/master", "refs/heads/master")]
+        public void CheckoutBranchByShortNameAttachesTheHead(string shortBranchName, string referenceName)
+        {
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
+            {
+                // Set the working directory to the current head
+                ResetAndCleanWorkingDirectory(repo);
+                Assert.False(repo.Index.RetrieveStatus().IsDirty);
 
-        [Fact(Skip = "Current libgit2 revparse implementation only returns the object being pointed at, not the reference pointing at it.")]
+                repo.Checkout("6dcf9bf");
+                Assert.True(repo.Info.IsHeadDetached);
+
+                var branch = repo.Checkout(shortBranchName);
+
+                Assert.False(repo.Info.IsHeadDetached);
+                Assert.Equal(referenceName, repo.Head.CanonicalName);
+                Assert.Equal(referenceName, branch.CanonicalName);
+            }
+        }
+
+        [Fact]
         public void CheckoutPreviousCheckedOutBranch()
         {
             string path = CloneStandardTestRepo();
@@ -696,18 +820,14 @@ namespace LibGit2Sharp.Tests
                 Assert.False(repo.Index.RetrieveStatus().IsDirty);
 
                 Branch previousHead = repo.Checkout("i-do-numbers");
-                Branch newHead = repo.Checkout("diff-test-cases");
+                repo.Checkout("diff-test-cases");
 
                 //Go back to previous branch checked out
-                repo.Checkout(@"@{-1}");
+                var branch = repo.Checkout(@"@{-1}");
 
-                // Assert reflog entry is created
-                var reflogEntry = repo.Refs.Log(repo.Refs.Head).First();
-                Assert.Equal(newHead.Tip.Id, reflogEntry.From);
-                Assert.Equal(previousHead.Tip.Id, reflogEntry.To);
-                Assert.NotNull(reflogEntry.Commiter.Email);
-                Assert.NotNull(reflogEntry.Commiter.Name);
-                Assert.Equal("checkout: moving from diff-test-cases to i-do-numbers", reflogEntry.Message);
+                Assert.False(repo.Info.IsHeadDetached);
+                Assert.Equal(previousHead.CanonicalName, repo.Head.CanonicalName);
+                Assert.Equal(previousHead.CanonicalName, branch.CanonicalName);
             }
         }
 
@@ -803,19 +923,17 @@ namespace LibGit2Sharp.Tests
         }
 
         /// <summary>
-        ///   Helper method to populate a simple repository with
-        ///   a single file and two branches.
+        /// Helper method to populate a simple repository with
+        /// a single file and two branches.
         /// </summary>
         /// <param name="repo">Repository to populate</param>
         private void PopulateBasicRepository(Repository repo)
         {
             // Generate a .gitignore file.
-            string gitIgnoreFilePath = Path.Combine(repo.Info.WorkingDirectory, ".gitignore");
-            File.WriteAllText(gitIgnoreFilePath, "bin");
+            string gitIgnoreFilePath = Touch(repo.Info.WorkingDirectory, ".gitignore", "bin");
             repo.Index.Stage(gitIgnoreFilePath);
 
-            string fullPathFileA = Path.Combine(repo.Info.WorkingDirectory, originalFilePath);
-            File.WriteAllText(fullPathFileA, originalFileContent);
+            string fullPathFileA = Touch(repo.Info.WorkingDirectory, originalFilePath, originalFileContent);
             repo.Index.Stage(fullPathFileA);
 
             repo.Commit("Initial commit", Constants.Signature, Constants.Signature);

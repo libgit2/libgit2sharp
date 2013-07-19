@@ -1,5 +1,4 @@
-﻿using System.IO;
-using System.Linq;
+﻿using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
 
@@ -10,8 +9,9 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void ANewRepoIsFullyMerged()
         {
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
-            using (var repo = Repository.Init(scd.DirectoryPath))
+            string repoPath = InitNewRepository();
+
+            using (var repo = new Repository(repoPath))
             {
                 Assert.Equal(true, repo.Index.IsFullyMerged);
                 Assert.Empty(repo.MergeHeads);
@@ -54,7 +54,7 @@ namespace LibGit2Sharp.Tests
             {
                 Assert.Equal(false, repo.Index.IsFullyMerged);
 
-                var author = DummySignature;
+                var author = Constants.Signature;
                 Assert.Throws<UnmergedIndexEntriesException>(
                     () => repo.Commit("Try commit unmerged entries", author, author));
             }
@@ -69,9 +69,7 @@ namespace LibGit2Sharp.Tests
                 const string firstBranch = "9fd738e8f7967c078dceed8190330fc8648ee56a";
                 const string secondBranch = "deadbeefdeadbeefdeadbeefdeadbeefdeadbeef";
 
-                string mergeHeadPath = Path.Combine(repo.Info.Path, "MERGE_HEAD");
-                File.WriteAllText(mergeHeadPath,
-                    string.Format("{0}{1}{2}{1}", firstBranch, "\n", secondBranch));
+                Touch(repo.Info.Path, "MERGE_HEAD", string.Format("{0}{1}{2}{1}", firstBranch, "\n", secondBranch));
 
                 Assert.Equal(CurrentOperation.Merge, repo.Info.CurrentOperation);
 

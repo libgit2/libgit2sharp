@@ -59,6 +59,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CheckoutFixture.cs" />
+    <Compile Include="FilterBranchFixture.cs" />
     <Compile Include="RemoveFixture.cs" />
     <Compile Include="RemoteFixture.cs" />
     <Compile Include="PushFixture.cs" />
@@ -125,15 +126,18 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
+    <NativeBinariesDirectory>$(MSBuildProjectDirectory)\..\Lib\NativeBinaries</NativeBinariesDirectory>
+  </PropertyGroup>
+  <Import Project="$(MSBuildProjectDirectory)\..\LibGit2Sharp\CopyNativeDependencies.targets" />
+  <PropertyGroup>
     <PreBuildEvent>
     </PreBuildEvent>
   </PropertyGroup>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>
   <Target Name="AfterBuild">
-    <CreateItem Include="$(MSBuildProjectDirectory)\..\Lib\NativeBinaries\**\*.*">
-      <Output TaskParameter="Include" ItemName="NativeBinaries" />
-    </CreateItem>
-    <Copy SourceFiles="@(NativeBinaries)" DestinationFiles="@(NativeBinaries->'$(OutputPath)NativeBinaries\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
   </Target>
+  -->
 </Project>

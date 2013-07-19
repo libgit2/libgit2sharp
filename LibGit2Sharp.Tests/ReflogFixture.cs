@@ -1,6 +1,5 @@
-﻿using System.IO;
+﻿using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
-using System.Linq;
 using Xunit;
 
 namespace LibGit2Sharp.Tests
@@ -42,9 +41,9 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CommitShouldCreateReflogEntryOnHeadandOnTargetedDirectReference()
         {
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            string repoPath = InitNewRepository();
 
-            using (var repo = Repository.Init(scd.DirectoryPath))
+            using (var repo = new Repository(repoPath))
             {
                 // setup refs as HEAD => unit_test => master
                 var newRef = repo.Refs.Add("refs/heads/unit_test", "refs/heads/master");
@@ -52,12 +51,10 @@ namespace LibGit2Sharp.Tests
                 repo.Refs.UpdateTarget(repo.Refs.Head, newRef);
 
                 const string relativeFilepath = "new.txt";
-                string filePath = Path.Combine(repo.Info.WorkingDirectory, relativeFilepath);
-
-                File.WriteAllText(filePath, "content\n");
+                Touch(repo.Info.WorkingDirectory, relativeFilepath, "content\n");
                 repo.Index.Stage(relativeFilepath);
 
-                var author = DummySignature;
+                var author = Constants.Signature;
                 const string commitMessage = "Hope reflog behaves as it should";
                 Commit commit = repo.Commit(commitMessage, author, author);
 
@@ -83,17 +80,15 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CommitOnUnbornReferenceShouldCreateReflogEntryWithInitialTag()
         {
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            string repoPath = InitNewRepository();
 
-            using (var repo = Repository.Init(scd.DirectoryPath))
+            using (var repo = new Repository(repoPath))
             {
                 const string relativeFilepath = "new.txt";
-                string filePath = Path.Combine(repo.Info.WorkingDirectory, relativeFilepath);
-
-                File.WriteAllText(filePath, "content\n");
+                Touch(repo.Info.WorkingDirectory, relativeFilepath, "content\n");
                 repo.Index.Stage(relativeFilepath);
 
-                var author = DummySignature;
+                var author = Constants.Signature;
                 const string commitMessage = "First commit should be logged as initial";
                 repo.Commit(commitMessage, author, author);
 
@@ -117,12 +112,10 @@ namespace LibGit2Sharp.Tests
                 Assert.True(repo.Info.IsHeadDetached);
 
                 const string relativeFilepath = "new.txt";
-                string filePath = Path.Combine(repo.Info.WorkingDirectory, relativeFilepath);
-
-                File.WriteAllText(filePath, "content\n");
+                Touch(repo.Info.WorkingDirectory, relativeFilepath, "content\n");
                 repo.Index.Stage(relativeFilepath);
 
-                var author = DummySignature;
+                var author = Constants.Signature;
                 const string commitMessage = "Commit on detached head";
                 var commit = repo.Commit(commitMessage, author, author);
 

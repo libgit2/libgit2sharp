@@ -6,6 +6,7 @@ namespace LibGit2Sharp
     /// Options controlling Stash behavior.
     ///</summary>
     [Flags]
+    [Obsolete("This type will be removed in the next release.")]
     public enum StashOptions
     {
         /// <summary>

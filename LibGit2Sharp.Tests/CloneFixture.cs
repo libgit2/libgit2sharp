@@ -17,7 +17,10 @@ namespace LibGit2Sharp.Tests
         public void CanClone(string url)
         {
             var scd = BuildSelfCleaningDirectory();
-            using (Repository repo = Repository.Clone(url, scd.RootedDirectoryPath))
+
+            string clonedRepoPath = Repository.Clone(url, scd.DirectoryPath);
+
+            using (var repo = new Repository(clonedRepoPath))
             {
                 string dir = repo.Info.Path;
                 Assert.True(Path.IsPathRooted(dir));
@@ -36,7 +39,10 @@ namespace LibGit2Sharp.Tests
         private void AssertLocalClone(string path)
         {
             var scd = BuildSelfCleaningDirectory();
-            using (Repository clonedRepo = Repository.Clone(path, scd.RootedDirectoryPath))
+
+            string clonedRepoPath = Repository.Clone(path, scd.DirectoryPath);
+
+            using (var clonedRepo = new Repository(clonedRepoPath))
             using (var originalRepo = new Repository(BareTestRepoPath))
             {
                 Assert.NotEqual(originalRepo.Info.Path, clonedRepo.Info.Path);
@@ -71,7 +77,10 @@ namespace LibGit2Sharp.Tests
         public void CanCloneBarely(string url)
         {
             var scd = BuildSelfCleaningDirectory();
-            using (Repository repo = Repository.Clone(url, scd.RootedDirectoryPath, bare: true))
+
+            string clonedRepoPath = Repository.Clone(url, scd.DirectoryPath, bare: true);
+
+            using (var repo = new Repository(clonedRepoPath))
             {
                 string dir = repo.Info.Path;
                 Assert.True(Path.IsPathRooted(dir));
@@ -88,9 +97,12 @@ namespace LibGit2Sharp.Tests
         public void WontCheckoutIfAskedNotTo(string url)
         {
             var scd = BuildSelfCleaningDirectory();
-            using (Repository repo = Repository.Clone(url, scd.RootedDirectoryPath, checkout: false))
+
+            string clonedRepoPath = Repository.Clone(url, scd.DirectoryPath, checkout: false);
+
+            using (var repo = new Repository(clonedRepoPath))
             {
-                Assert.False(File.Exists(Path.Combine(scd.RootedDirectoryPath, "master.txt")));
+                Assert.False(File.Exists(Path.Combine(repo.Info.WorkingDirectory, "master.txt")));
             }
         }
 
@@ -102,13 +114,13 @@ namespace LibGit2Sharp.Tests
             bool checkoutWasCalled = false;
 
             var scd = BuildSelfCleaningDirectory();
-            using (Repository repo = Repository.Clone(url, scd.RootedDirectoryPath,
-                onTransferProgress: (_) => { transferWasCalled = true; return 0; },
-                onCheckoutProgress: (a, b, c) => checkoutWasCalled = true))
-            {
-                Assert.True(transferWasCalled);
-                Assert.True(checkoutWasCalled);
-            }
+
+            Repository.Clone(url, scd.DirectoryPath, 
+                onTransferProgress: _ => { transferWasCalled = true; return 0; },
+                onCheckoutProgress: (a, b, c) => checkoutWasCalled = true);
+
+            Assert.True(transferWasCalled);
+            Assert.True(checkoutWasCalled);
         }
 
         [SkippableFact]
@@ -118,13 +130,16 @@ namespace LibGit2Sharp.Tests
                 "Populate Constants.PrivateRepo* to run this test");
 
             var scd = BuildSelfCleaningDirectory();
-            using (Repository repo = Repository.Clone(
-                Constants.PrivateRepoUrl, scd.RootedDirectoryPath,
+
+            string clonedRepoPath = Repository.Clone(Constants.PrivateRepoUrl, scd.DirectoryPath,
                 credentials: new Credentials
                                  {
                                      Username = Constants.PrivateRepoUsername,
                                      Password = Constants.PrivateRepoPassword
-                                 }))
+                                 });
+
+
+            using (var repo = new Repository(clonedRepoPath))
             {
                 string dir = repo.Info.Path;
                 Assert.True(Path.IsPathRooted(dir));

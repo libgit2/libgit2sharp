@@ -352,8 +352,9 @@ namespace LibGit2Sharp.Tests
 
         public void CanGetInformationFromUnbornBranch()
         {
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
-            using (var repo = Repository.Init(scd.DirectoryPath, true))
+            string repoPath = InitNewRepository(true);
+
+            using (var repo = new Repository(repoPath))
             {
                 var head = repo.Head;
 
@@ -518,7 +519,7 @@ namespace LibGit2Sharp.Tests
                 Branch trackedBranch = repo.Branches[trackedBranchName];
                 Branch updatedBranch = repo.Branches.Update(branch,
                     b => b.Remote = remoteName,
-                    b => b.UpstreamBranch =  upstreamBranchName);
+                    b => b.UpstreamBranch = upstreamBranchName);
 
                 // Verify the immutability of the branch.
                 Assert.False(branch.IsTracking);
@@ -793,16 +794,20 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void TrackedBranchExistsFromDefaultConfigInEmptyClone()
         {
-            SelfCleaningDirectory scd1 = BuildSelfCleaningDirectory();
+            string repoPath = InitNewRepository(true);
 
             Uri uri;
-            using (var emptyRepo = Repository.Init(scd1.DirectoryPath, true))
+
+            using (var emptyRepo = new Repository(repoPath))
             {
                 uri = new Uri(emptyRepo.Info.Path);
             }
 
             SelfCleaningDirectory scd2 = BuildSelfCleaningDirectory();
-            using (Repository repo = Repository.Clone(uri.AbsoluteUri, scd2.RootedDirectoryPath))
+
+            string clonedRepoPath = Repository.Clone(uri.AbsoluteUri, scd2.DirectoryPath);
+
+            using (var repo = new Repository(clonedRepoPath))
             {
                 Assert.Empty(Directory.GetFiles(scd2.RootedDirectoryPath));
                 Assert.Equal(repo.Head.Name, "master");
@@ -819,9 +824,9 @@ namespace LibGit2Sharp.Tests
                 Assert.NotNull(repo.Head.Remote);
                 Assert.Equal("origin", repo.Head.Remote.Name);
 
-                File.WriteAllText(Path.Combine(scd2.RootedDirectoryPath, "a.txt"), "a");
+                Touch(repo.Info.WorkingDirectory, "a.txt", "a");
                 repo.Index.Stage("a.txt");
-                repo.Commit("A file", DummySignature, DummySignature);
+                repo.Commit("A file", Constants.Signature, Constants.Signature);
 
                 Assert.NotNull(repo.Head.Tip);
                 Assert.NotNull(repo.Head.TrackedBranch);

@@ -14,7 +14,7 @@ using LibGit2Sharp.Handlers;
 namespace LibGit2Sharp
 {
     /// <summary>
-    ///   A Repository is the primary interface into a git repository
+    /// A Repository is the primary interface into a git repository
     /// </summary>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class Repository : IRepository
@@ -40,15 +40,15 @@ namespace LibGit2Sharp
         private readonly Lazy<PathCase> pathCase;
 
         /// <summary>
-        ///   Initializes a new instance of the <see cref = "Repository" /> class, providing ooptional behavioral overrides through <paramref name="options"/> parameter.
-        ///   <para>For a standard repository, <paramref name = "path" /> should either point to the ".git" folder or to the working directory. For a bare repository, <paramref name = "path" /> should directly point to the repository folder.</para>
+        /// Initializes a new instance of the <see cref="Repository"/> class, providing ooptional behavioral overrides through <paramref name="options"/> parameter.
+        /// <para>For a standard repository, <paramref name="path"/> should either point to the ".git" folder or to the working directory. For a bare repository, <paramref name="path"/> should directly point to the repository folder.</para>
         /// </summary>
-        /// <param name = "path">
-        ///   The path to the git repository to open, can be either the path to the git directory (for non-bare repositories this
-        ///   would be the ".git" folder inside the working directory) or the path to the working directory.
+        /// <param name="path">
+        /// The path to the git repository to open, can be either the path to the git directory (for non-bare repositories this
+        /// would be the ".git" folder inside the working directory) or the path to the working directory.
         /// </param>
         /// <param name="options">
-        ///   Overrides to the way a repository is opened.
+        /// Overrides to the way a repository is opened.
         /// </param>
         public Repository(string path, RepositoryOptions options = null)
         {
@@ -129,11 +129,11 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Check if parameter <paramref name="path"/> leads to a valid git repository.
+        /// Check if parameter <paramref name="path"/> leads to a valid git repository.
         /// </summary>
-        /// <param name = "path">
-        ///   The path to the git repository to check, can be either the path to the git directory (for non-bare repositories this
-        ///   would be the ".git" folder inside the working directory) or the path to the working directory.
+        /// <param name="path">
+        /// The path to the git repository to check, can be either the path to the git directory (for non-bare repositories this
+        /// would be the ".git" folder inside the working directory) or the path to the working directory.
         /// </param>
         /// <returns>True if a repository can be resolved through this path; false otherwise</returns>
         static public bool IsValid(string path)
@@ -181,9 +181,8 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Shortcut to return the branch pointed to by HEAD
+        /// Shortcut to return the branch pointed to by HEAD
         /// </summary>
-        /// <returns></returns>
         public Branch Head
         {
             get
@@ -205,7 +204,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Provides access to the configuration settings for this repository.
+        /// Provides access to the configuration settings for this repository.
         /// </summary>
         public Configuration Config
         {
@@ -213,7 +212,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Gets the index.
+        /// Gets the index.
         /// </summary>
         public Index Index
         {
@@ -229,19 +228,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///  Gets the conflicts that exist.
-        /// </summary>
-        [Obsolete("This property will be removed in the next release. Please use Index.Conflicts instead.")]
-        public ConflictCollection Conflicts
-        {
-            get
-            {
-                return Index.Conflicts;
-            }
-        }
-
-        /// <summary>
-        ///   Manipulate the currently ignored files.
+        /// Manipulate the currently ignored files.
         /// </summary>
         public Ignore Ignore
         {
@@ -252,7 +239,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Provides access to network functionality for a repository.
+        /// Provides access to network functionality for a repository.
         /// </summary>
         public Network Network
         {
@@ -263,7 +250,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Gets the database.
+        /// Gets the database.
         /// </summary>
         public ObjectDatabase ObjectDatabase
         {
@@ -274,7 +261,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Lookup and enumerate references in the repository.
+        /// Lookup and enumerate references in the repository.
         /// </summary>
         public ReferenceCollection Refs
         {
@@ -282,8 +269,8 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Lookup and enumerate commits in the repository.
-        ///   Iterating this collection directly starts walking from the HEAD.
+        /// Lookup and enumerate commits in the repository.
+        /// Iterating this collection directly starts walking from the HEAD.
         /// </summary>
         public IQueryableCommitLog Commits
         {
@@ -291,7 +278,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Lookup and enumerate branches in the repository.
+        /// Lookup and enumerate branches in the repository.
         /// </summary>
         public BranchCollection Branches
         {
@@ -299,7 +286,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Lookup and enumerate tags in the repository.
+        /// Lookup and enumerate tags in the repository.
         /// </summary>
         public TagCollection Tags
         {
@@ -315,7 +302,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Provides high level information about this repository.
+        /// Provides high level information about this repository.
         /// </summary>
         public RepositoryInformation Info
         {
@@ -323,7 +310,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Provides access to diffing functionalities to show changes between the working tree and the index or a tree, changes between the index and a tree, changes between two trees, or changes between two files on disk.
+        /// Provides access to diffing functionalities to show changes between the working tree and the index or a tree, changes between the index and a tree, changes between two trees, or changes between two files on disk.
         /// </summary>
         public Diff Diff
         {
@@ -331,7 +318,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Lookup notes in the repository.
+        /// Lookup notes in the repository.
         /// </summary>
         public NoteCollection Notes
         {
@@ -339,7 +326,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Submodules in the repository.
+        /// Submodules in the repository.
         /// </summary>
         public SubmoduleCollection Submodules
         {
@@ -349,7 +336,7 @@ namespace LibGit2Sharp
         #region IDisposable Members
 
         /// <summary>
-        ///   Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         public void Dispose()
         {
@@ -358,7 +345,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         protected virtual void Dispose(bool disposing)
         {
@@ -368,60 +355,99 @@ namespace LibGit2Sharp
         #endregion
 
         /// <summary>
-        ///   Initialize a repository at the specified <paramref name = "path" />.
+        /// Initialize a repository at the specified <paramref name="path"/>.
         /// </summary>
-        /// <param name = "path">The path to the working folder when initializing a standard ".git" repository. Otherwise, when initializing a bare repository, the path to the expected location of this later.</param>
-        /// <param name = "isBare">true to initialize a bare repository. False otherwise, to initialize a standard ".git" repository.</param>
+        /// <param name="path">The path to the working folder when initializing a standard ".git" repository. Otherwise, when initializing a bare repository, the path to the expected location of this later.</param>
+        /// <param name="isBare">true to initialize a bare repository. False otherwise, to initialize a standard ".git" repository.</param>
         /// <param name="options">Overrides to the way a repository is opened.</param>
-        /// <returns> a new instance of the <see cref = "Repository" /> class. The client code is responsible for calling <see cref = "Dispose()" /> on this instance.</returns>
-        public static Repository Init(string path, bool isBare = false, RepositoryOptions options = null)
+        /// <returns> a new instance of the <see cref="Repository"/> class. The client code is responsible for calling <see cref="Dispose()"/> on this instance.</returns>
+        [Obsolete("This method will be removed in the next release. Please use Init(string, bool) instead.")]
+        public static Repository Init(string path, bool isBare, RepositoryOptions options)
+        {
+            string gitDirPath = Init(path, isBare);
+
+            return new Repository(gitDirPath, options);
+        }
+
+        /// <summary>
+        /// Initialize a repository at the specified <paramref name="path"/>.
+        /// </summary>
+        /// <param name="path">The path to the working folder when initializing a standard ".git" repository. Otherwise, when initializing a bare repository, the path to the expected location of this later.</param>
+        /// <param name="isBare">true to initialize a bare repository. False otherwise, to initialize a standard ".git" repository.</param>
+        /// <returns>The path to the created repository.</returns>
+        public static string Init(string path, bool isBare = false)
         {
             Ensure.ArgumentNotNullOrEmptyString(path, "path");
 
-            using (RepositorySafeHandle repo = Proxy.git_repository_init(path, isBare))
+            using (RepositorySafeHandle repo = Proxy.git_repository_init_ext(null, path, isBare))
             {
                 FilePath repoPath = Proxy.git_repository_path(repo);
-                return new Repository(repoPath.Native, options);
+                return repoPath.Native;
             }
         }
 
         /// <summary>
-        ///   Try to lookup an object by its <see cref = "ObjectId" />. If no matching object is found, null will be returned.
+        /// Initialize a repository by explictly setting the path to both the working directory and the git directory.
         /// </summary>
-        /// <param name = "id">The id to lookup.</param>
-        /// <returns>The <see cref = "GitObject" /> or null if it was not found.</returns>
+        /// <param name="workingDirectoryPath">The path to the working directory.</param>
+        /// <param name="gitDirectoryPath">The path to the git repository to be created.</param>
+        /// <returns>The path to the created repository.</returns>
+        public static string Init(string workingDirectoryPath, string gitDirectoryPath)
+        {
+            Ensure.ArgumentNotNullOrEmptyString(workingDirectoryPath, "workingDirectoryPath");
+            Ensure.ArgumentNotNullOrEmptyString(gitDirectoryPath, "gitDirectoryPath");
+
+            // When being passed a relative workdir path, libgit2 will evaluate it from the
+            // path to the repository. We pass a fully rooted path in order for the LibGit2Sharp caller
+            // to pass a path relatively to his current directory.
+            string wd = Path.GetFullPath(workingDirectoryPath);
+
+            // TODO: Shouldn't we ensure that the working folder isn't under the gitDir?
+
+            using (RepositorySafeHandle repo = Proxy.git_repository_init_ext(wd, gitDirectoryPath, false))
+            {
+                FilePath repoPath = Proxy.git_repository_path(repo);
+                return repoPath.Native;
+            }
+        }
+
+        /// <summary>
+        /// Try to lookup an object by its <see cref="ObjectId"/>. If no matching object is found, null will be returned.
+        /// </summary>
+        /// <param name="id">The id to lookup.</param>
+        /// <returns>The <see cref="GitObject"/> or null if it was not found.</returns>
         public GitObject Lookup(ObjectId id)
         {
             return LookupInternal(id, GitObjectType.Any, null);
         }
 
         /// <summary>
-        ///   Try to lookup an object by its sha or a reference canonical name. If no matching object is found, null will be returned.
+        /// Try to lookup an object by its sha or a reference canonical name. If no matching object is found, null will be returned.
         /// </summary>
-        /// <param name = "objectish">A revparse spec for the object to lookup.</param>
-        /// <returns>The <see cref = "GitObject" /> or null if it was not found.</returns>
+        /// <param name="objectish">A revparse spec for the object to lookup.</param>
+        /// <returns>The <see cref="GitObject"/> or null if it was not found.</returns>
         public GitObject Lookup(string objectish)
         {
             return Lookup(objectish, GitObjectType.Any, LookUpOptions.None);
         }
 
         /// <summary>
-        ///   Try to lookup an object by its <see cref = "ObjectId" /> and <see cref = "ObjectType" />. If no matching object is found, null will be returned.
+        /// Try to lookup an object by its <see cref="ObjectId"/> and <see cref="ObjectType"/>. If no matching object is found, null will be returned.
         /// </summary>
-        /// <param name = "id">The id to lookup.</param>
-        /// <param name = "type">The kind of GitObject being looked up</param>
-        /// <returns>The <see cref = "GitObject" /> or null if it was not found.</returns>
+        /// <param name="id">The id to lookup.</param>
+        /// <param name="type">The kind of GitObject being looked up</param>
+        /// <returns>The <see cref="GitObject"/> or null if it was not found.</returns>
         public GitObject Lookup(ObjectId id, ObjectType type)
         {
             return LookupInternal(id, type.ToGitObjectType(), null);
         }
 
         /// <summary>
-        ///   Try to lookup an object by its sha or a reference canonical name and <see cref = "ObjectType" />. If no matching object is found, null will be returned.
+        /// Try to lookup an object by its sha or a reference canonical name and <see cref="ObjectType"/>. If no matching object is found, null will be returned.
         /// </summary>
-        /// <param name = "objectish">A revparse spec for the object to lookup.</param>
-        /// <param name = "type">The kind of <see cref = "GitObject" /> being looked up</param>
-        /// <returns>The <see cref = "GitObject" /> or null if it was not found.</returns>
+        /// <param name="objectish">A revparse spec for the object to lookup.</param>
+        /// <param name="type">The kind of <see cref="GitObject"/> being looked up</param>
+        /// <returns>The <see cref="GitObject"/> or null if it was not found.</returns>
         public GitObject Lookup(string objectish, ObjectType type)
         {
             return Lookup(objectish, type.ToGitObjectType(), LookUpOptions.None);
@@ -503,20 +529,10 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Lookup a commit by its SHA or name, or throw if a commit is not found.
+        /// Probe for a git repository.
+        /// <para>The lookup start from <paramref name="startingPath"/> and walk upward parent directories if nothing has been found.</para>
         /// </summary>
-        /// <param name="committish">A revparse spec for the commit.</param>
-        /// <returns>The commit.</returns>
-        internal Commit LookupCommit(string committish)
-        {
-            return (Commit)Lookup(committish, GitObjectType.Any, LookUpOptions.ThrowWhenNoGitObjectHasBeenFound | LookUpOptions.DereferenceResultToCommit | LookUpOptions.ThrowWhenCanNotBeDereferencedToACommit);
-        }
-
-        /// <summary>
-        ///   Probe for a git repository.
-        ///   <para>The lookup start from <paramref name = "startingPath" /> and walk upward parent directories if nothing has been found.</para>
-        /// </summary>
-        /// <param name = "startingPath">The base path where the lookup starts.</param>
+        /// <param name="startingPath">The base path where the lookup starts.</param>
         /// <returns>The path to the git repository.</returns>
         public static string Discover(string startingPath)
         {
@@ -542,29 +558,57 @@ namespace LibGit2Sharp
         /// <param name="onCheckoutProgress">Handler for checkout progress information</param>
         /// <param name="options">Overrides to the way a repository is opened.</param>
         /// <param name="credentials">Credentials to use for user/pass authentication</param>
-        /// <returns></returns>
+        /// <returns> a new instance of the <see cref="Repository"/> class. The client code is responsible for calling <see cref="Dispose()"/> on this instance.</returns>
+        [Obsolete("This method will be removed in the next release. Please use Clone(string, string, bool, bool, TransferProgressHandler, CheckoutProgressHandler, Credentials) instead.")]
         public static Repository Clone(string sourceUrl, string workdirPath,
+            bool bare,
+            bool checkout,
+            TransferProgressHandler onTransferProgress,
+            CheckoutProgressHandler onCheckoutProgress,
+            RepositoryOptions options,
+            Credentials credentials)
+        {
+            string gitDirPath = Clone(sourceUrl, workdirPath, bare,
+                checkout, onTransferProgress, onCheckoutProgress, credentials);
+
+            return new Repository(gitDirPath, options);
+        }
+
+        /// <summary>
+        /// Clone with specified options.
+        /// </summary>
+        /// <param name="sourceUrl">URI for the remote repository</param>
+        /// <param name="workdirPath">Local path to clone into</param>
+        /// <param name="bare">True will result in a bare clone, false a full clone.</param>
+        /// <param name="checkout">If true, the origin's HEAD will be checked out. This only applies
+        /// to non-bare repositories.</param>
+        /// <param name="onTransferProgress">Handler for network transfer and indexing progress information</param>
+        /// <param name="onCheckoutProgress">Handler for checkout progress information</param>
+        /// <param name="credentials">Credentials to use for user/pass authentication</param>
+        /// <returns>The path to the created repository.</returns>
+        public static string Clone(string sourceUrl, string workdirPath,
             bool bare = false,
             bool checkout = true,
             TransferProgressHandler onTransferProgress = null,
             CheckoutProgressHandler onCheckoutProgress = null,
-            RepositoryOptions options = null,
             Credentials credentials = null)
         {
+            CheckoutCallbacks checkoutCallbacks = CheckoutCallbacks.GenerateCheckoutCallbacks(onCheckoutProgress, null);
+
             var cloneOpts = new GitCloneOptions
+            {
+                Bare = bare ? 1 : 0,
+                TransferProgressCallback = TransferCallbacks.GenerateCallback(onTransferProgress),
+                CheckoutOpts =
                 {
-                    Bare = bare ? 1 : 0,
-                    TransferProgressCallback = TransferCallbacks.GenerateCallback(onTransferProgress),
-                    CheckoutOpts =
-                        {
-                            version = 1,
-                            progress_cb =
-                                CheckoutCallbacks.GenerateCheckoutCallbacks(onCheckoutProgress),
-                            checkout_strategy = checkout
-                                                    ? CheckoutStrategy.GIT_CHECKOUT_SAFE_CREATE
-                                                    : CheckoutStrategy.GIT_CHECKOUT_NONE
-                        },
-                };
+                    version = 1,
+                    progress_cb =
+                                checkoutCallbacks.CheckoutProgressCallback,
+                    checkout_strategy = checkout
+                                            ? CheckoutStrategy.GIT_CHECKOUT_SAFE_CREATE
+                                            : CheckoutStrategy.GIT_CHECKOUT_NONE
+                },
+            };
 
             if (credentials != null)
             {
@@ -573,75 +617,117 @@ namespace LibGit2Sharp
                     NativeMethods.git_cred_userpass_plaintext_new(out cred, credentials.Username, credentials.Password);
             }
 
-            using(Proxy.git_clone(sourceUrl, workdirPath, cloneOpts)) {}
+            FilePath repoPath;
+            using (RepositorySafeHandle repo = Proxy.git_clone(sourceUrl, workdirPath, cloneOpts))
+            {
+                repoPath = Proxy.git_repository_path(repo);
+            }
 
             // To be safe, make sure the credential callback is kept until
             // alive until at least this point.
             GC.KeepAlive(cloneOpts.CredAcquireCallback);
 
-            return new Repository(workdirPath, options);
+            return repoPath.Native;
         }
 
         /// <summary>
-        ///   Checkout the specified <see cref = "Branch" />, reference or SHA.
+        /// Checkout the specified <see cref="Branch"/>, reference or SHA.
+        /// <para>
+        ///   If the committishOrBranchSpec parameter resolves to a branch name, then the checked out HEAD will
+        ///   will point to the branch. Otherwise, the HEAD will be detached, pointing at the commit sha.
+        /// </para>
         /// </summary>
-        /// <param name = "committishOrBranchSpec">A revparse spec for the commit or branch to checkout.</param>
-        /// <param name="checkoutOptions"><see cref = "CheckoutOptions" /> controlling checkout behavior.</param>
-        /// <param name="onCheckoutProgress"><see cref = "CheckoutProgressHandler" /> that checkout progress is reported through.</param>
-        /// <returns>The <see cref = "Branch" /> that was checked out.</returns>
+        /// <param name="committishOrBranchSpec">A revparse spec for the commit or branch to checkout.</param>
+        /// <param name="checkoutOptions"><see cref="CheckoutOptions"/> controlling checkout behavior.</param>
+        /// <param name="onCheckoutProgress"><see cref="CheckoutProgressHandler"/> that checkout progress is reported through.</param>
+        /// <returns>The <see cref="Branch"/> that was checked out.</returns>
+        [Obsolete("This method will be removed in the next release. Please use Checkout(string, CheckoutModifiers, CheckoutProgressHandler, CheckoutNotificationOptions) instead.")]
         public Branch Checkout(string committishOrBranchSpec, CheckoutOptions checkoutOptions, CheckoutProgressHandler onCheckoutProgress)
+        {
+            return Checkout(committishOrBranchSpec, (CheckoutModifiers)checkoutOptions, onCheckoutProgress, null);
+        }
+
+        /// <summary>
+        /// Checkout the specified <see cref="Branch"/>, reference or SHA.
+        /// <para>
+        ///   If the committishOrBranchSpec parameter resolves to a branch name, then the checked out HEAD will
+        ///   will point to the branch. Otherwise, the HEAD will be detached, pointing at the commit sha.
+        /// </para>
+        /// </summary>
+        /// <param name="committishOrBranchSpec">A revparse spec for the commit or branch to checkout.</param>
+        /// <param name="checkoutModifiers"><see cref="CheckoutModifiers"/> controlling checkout behavior.</param>
+        /// <param name="onCheckoutProgress"><see cref="CheckoutProgressHandler"/> that checkout progress is reported through.</param>
+        /// <param name="checkoutNotifications"><see cref="CheckoutNotificationOptions"/> to manage checkout notifications.</param>
+        /// <returns>The <see cref="Branch"/> that was checked out.</returns>
+        public Branch Checkout(string committishOrBranchSpec, CheckoutModifiers checkoutModifiers, CheckoutProgressHandler onCheckoutProgress, CheckoutNotificationOptions checkoutNotifications)
         {
             Ensure.ArgumentNotNullOrEmptyString(committishOrBranchSpec, "committishOrBranchSpec");
 
-            Branch branch = TryResolveBranch(committishOrBranchSpec);
-
-            if (branch != null)
+            var handles = Proxy.git_revparse_ext(Handle, committishOrBranchSpec);
+            if (handles == null)
             {
-                return Checkout(branch, checkoutOptions, onCheckoutProgress);
+                Ensure.GitObjectIsNotNull(null, committishOrBranchSpec);
             }
 
-            var previousHeadName = Info.IsHeadDetached ? Head.Tip.Sha : Head.Name;
-
-            Commit commit = LookupCommit(committishOrBranchSpec);
-            CheckoutTree(commit.Tree, checkoutOptions, onCheckoutProgress);
-
-            // Update HEAD.
-            Refs.UpdateTarget("HEAD", commit.Id.Sha);
-            if (committishOrBranchSpec != "HEAD")
+            var objH = handles.Item1;
+            var refH = handles.Item2;
+            GitObject obj;
+            try
             {
-                LogCheckout(previousHeadName, commit.Id, committishOrBranchSpec);
+                if (!refH.IsInvalid)
+                {
+                    var reference = Reference.BuildFromPtr<Reference>(refH, this);
+                    if (reference.IsLocalBranch())
+                    {
+                        Branch branch = Branches[reference.CanonicalName];
+                        return Checkout(branch, checkoutModifiers, onCheckoutProgress, checkoutNotifications);
+                    }
+                }
+
+                obj = GitObject.BuildFrom(this, Proxy.git_object_id(objH), Proxy.git_object_type(objH),
+                                              PathFromRevparseSpec(committishOrBranchSpec));
             }
+            finally
+            {
+                objH.Dispose();
+                refH.Dispose();
+            }
+
+            Commit commit = obj.DereferenceToCommit(true);
+            CheckoutTree(commit.Tree, checkoutModifiers, onCheckoutProgress, checkoutNotifications, commit.Id.Sha, committishOrBranchSpec,
+                committishOrBranchSpec != "HEAD");
 
             return Head;
         }
 
-        private Branch TryResolveBranch(string committishOrBranchSpec)
+        /// <summary>
+        /// Checkout the commit pointed at by the tip of the specified <see cref="Branch"/>.
+        /// <para>
+        ///   If this commit is the current tip of the branch as it exists in the repository, the HEAD
+        ///   will point to this branch. Otherwise, the HEAD will be detached, pointing at the commit sha.
+        /// </para>
+        /// </summary>
+        /// <param name="branch">The <see cref="Branch"/> to check out.</param>
+        /// <param name="checkoutOptions"><see cref="CheckoutOptions"/> controlling checkout behavior.</param>
+        /// <param name="onCheckoutProgress"><see cref="CheckoutProgressHandler"/> that checkout progress is reported through.</param>
+        /// <returns>The <see cref="Branch"/> that was checked out.</returns>
+        [Obsolete("This method will be removed in the next release. Please use Checkout(Branch, CheckoutModifiers, CheckoutProgressHandler, CheckoutNotificationOptions) instead.")]
+        public Branch Checkout(Branch branch, CheckoutOptions checkoutOptions, CheckoutProgressHandler onCheckoutProgress)
         {
-            if (committishOrBranchSpec == "HEAD")
-            {
-                return Head;
-            }
-
-            try
-            {
-                return Branches[committishOrBranchSpec];
-            }
-            catch (InvalidSpecificationException)
-            {
-                return null;
-            }
+            return Checkout(branch, (CheckoutModifiers)checkoutOptions, onCheckoutProgress, null);
         }
 
         /// <summary>
-        ///   Checkout the tip commit of the specified <see cref = "Branch" /> object. If this commit is the
-        ///   current tip of the branch, will checkout the named branch. Otherwise, will checkout the tip commit
-        ///   as a detached HEAD.
+        /// Checkout the tip commit of the specified <see cref="Branch"/> object. If this commit is the
+        /// current tip of the branch, will checkout the named branch. Otherwise, will checkout the tip commit
+        /// as a detached HEAD.
         /// </summary>
-        /// <param name="branch">The <see cref = "Branch" /> to check out. </param>
-        /// <param name="checkoutOptions"><see cref = "CheckoutOptions" /> controlling checkout behavior.</param>
-        /// <param name="onCheckoutProgress"><see cref = "CheckoutProgressHandler" /> that checkout progress is reported through.</param>
-        /// <returns>The <see cref = "Branch" /> that was checked out.</returns>
-        public Branch Checkout(Branch branch, CheckoutOptions checkoutOptions, CheckoutProgressHandler onCheckoutProgress)
+        /// <param name="branch">The <see cref="Branch"/> to check out.</param>
+        /// <param name="checkoutModifiers"><see cref="CheckoutModifiers"/> controlling checkout behavior.</param>
+        /// <param name="onCheckoutProgress"><see cref="CheckoutProgressHandler"/> that checkout progress is reported through.</param>
+        /// <param name="checkoutNotificationOptions"><see cref="CheckoutNotificationOptions"/> to manage checkout notifications.</param>
+        /// <returns>The <see cref="Branch"/> that was checked out.</returns>
+        public Branch Checkout(Branch branch, CheckoutModifiers checkoutModifiers, CheckoutProgressHandler onCheckoutProgress, CheckoutNotificationOptions checkoutNotificationOptions)
         {
             Ensure.ArgumentNotNull(branch, "branch");
 
@@ -654,33 +740,55 @@ namespace LibGit2Sharp
             }
 
             var branchIsCurrentRepositoryHead = branch.IsCurrentRepositoryHead;
-            var previousHeadName = Info.IsHeadDetached ? Head.Tip.Sha : Head.Name;
 
-            CheckoutTree(branch.Tip.Tree, checkoutOptions, onCheckoutProgress);
-
-            // Update HEAD.
             if (!branch.IsRemote && !(branch is DetachedHead) &&
                 string.Equals(Refs[branch.CanonicalName].TargetIdentifier, branch.Tip.Id.Sha,
                 StringComparison.OrdinalIgnoreCase))
             {
-                Refs.UpdateTarget("HEAD", branch.CanonicalName);
+                CheckoutTree(branch.Tip.Tree, checkoutModifiers, onCheckoutProgress, checkoutNotificationOptions, branch.CanonicalName, branch.Name, !branchIsCurrentRepositoryHead);
             }
             else
             {
-                Refs.UpdateTarget("HEAD", branch.Tip.Id.Sha);
-            }
-
-            if (!branchIsCurrentRepositoryHead)
-            {
-                LogCheckout(previousHeadName, branch);
+                CheckoutTree(branch.Tip.Tree, checkoutModifiers, onCheckoutProgress, checkoutNotificationOptions, branch.Tip.Id.Sha, branch.Name, !branchIsCurrentRepositoryHead);
             }
 
             return Head;
         }
 
-        private void LogCheckout(string previousHeadName, Branch newHead)
+        /// <summary>
+        /// Checkout the specified <see cref="LibGit2Sharp.Commit"/>.
+        /// <para>
+        ///   Will detach the HEAD and make it point to this commit sha.
+        /// </para>
+        /// </summary>
+        /// <param name="commit">The <see cref="LibGit2Sharp.Commit"/> to check out.</param>
+        /// <param name="checkoutOptions"><see cref="CheckoutOptions"/> controlling checkout behavior.</param>
+        /// <param name="onCheckoutProgress"><see cref="CheckoutProgressHandler"/> that checkout progress is reported through.</param>
+        /// <returns>The <see cref="Branch"/> that was checked out.</returns>
+        [Obsolete("This method will be removed in the next release. Please use Checkout(Commit, CheckoutModifiers, CheckoutProgressHandler, CheckoutNotificationOptions) instead.")]
+        public Branch Checkout(Commit commit, CheckoutOptions checkoutOptions, CheckoutProgressHandler onCheckoutProgress)
         {
-            LogCheckout(previousHeadName, newHead.Tip.Id, newHead.Name);
+            CheckoutTree(commit.Tree, (CheckoutModifiers)checkoutOptions, onCheckoutProgress, null, commit.Id.Sha, commit.Id.Sha, true);
+
+            return Head;
+        }
+
+        /// <summary>
+        /// Checkout the specified <see cref="LibGit2Sharp.Commit"/>.
+        /// <para>
+        ///   Will detach the HEAD and make it point to this commit sha.
+        /// </para>
+        /// </summary>
+        /// <param name="commit">The <see cref="LibGit2Sharp.Commit"/> to check out.</param>
+        /// <param name="checkoutModifiers"><see cref="CheckoutModifiers"/> controlling checkout behavior.</param>
+        /// <param name="onCheckoutProgress"><see cref="CheckoutProgressHandler"/> that checkout progress is reported through.</param>
+        /// <param name="checkoutNotificationOptions"><see cref="CheckoutNotificationOptions"/> to manage checkout notifications.</param>
+        /// <returns>The <see cref="Branch"/> that was checked out.</returns>
+        public Branch Checkout(Commit commit, CheckoutModifiers checkoutModifiers, CheckoutProgressHandler onCheckoutProgress, CheckoutNotificationOptions checkoutNotificationOptions)
+        {
+            CheckoutTree(commit.Tree, checkoutModifiers, onCheckoutProgress, checkoutNotificationOptions, commit.Id.Sha, commit.Id.Sha, true);
+
+            return Head;
         }
 
         private void LogCheckout(string previousHeadName, ObjectId newHeadTip, string newHeadSpec)
@@ -693,35 +801,55 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Internal implementation of Checkout that expects the ID of the checkout target
-        ///   to already be in the form of a canonical branch name or a commit ID.
+        /// Internal implementation of Checkout that expects the ID of the checkout target
+        /// to already be in the form of a canonical branch name or a commit ID.
         /// </summary>
         /// <param name="tree">The <see cref="Tree"/> to checkout.</param>
-        /// <param name="checkoutOptions"><see cref = "CheckoutOptions" /> controlling checkout behavior.</param>
-        /// <param name="onCheckoutProgress"><see cref = "CheckoutProgressHandler" /> that checkout progress is reported through.</param>
-        private void CheckoutTree(Tree tree, CheckoutOptions checkoutOptions, CheckoutProgressHandler onCheckoutProgress)
+        /// <param name="checkoutModifiers"><see cref="CheckoutModifiers"/> controlling checkout behavior.</param>
+        /// <param name="onCheckoutProgress"><see cref="CheckoutProgressHandler"/> that checkout progress is reported through.</param>
+        /// <param name="checkoutNotificationOptions"><see cref="CheckoutNotificationOptions"/> to manage checkout notifications.</param>
+        /// <param name="headTarget">Target for the new HEAD.</param>
+        /// <param name="refLogHeadSpec">The spec which will be written as target in the reflog.</param>
+        /// <param name="writeReflogEntry">Will a reflog entry be created.</param>
+        private void CheckoutTree(Tree tree, CheckoutModifiers checkoutModifiers, CheckoutProgressHandler onCheckoutProgress, CheckoutNotificationOptions checkoutNotificationOptions,
+            string headTarget, string refLogHeadSpec, bool writeReflogEntry)
         {
+            var previousHeadName = Info.IsHeadDetached ? Head.Tip.Sha : Head.Name;
+
+            CheckoutNotifyHandler onCheckoutNotify = checkoutNotificationOptions != null ? checkoutNotificationOptions.CheckoutNotifyHandler : null;
+            CheckoutNotifyFlags checkoutNotifyFlags = checkoutNotificationOptions != null ? checkoutNotificationOptions.NotifyFlags : default(CheckoutNotifyFlags);
+            CheckoutCallbacks checkoutCallbacks = CheckoutCallbacks.GenerateCheckoutCallbacks(onCheckoutProgress, onCheckoutNotify);
+
             GitCheckoutOpts options = new GitCheckoutOpts
             {
                 version = 1,
                 checkout_strategy = CheckoutStrategy.GIT_CHECKOUT_SAFE,
-                progress_cb = CheckoutCallbacks.GenerateCheckoutCallbacks(onCheckoutProgress)
+                progress_cb = checkoutCallbacks.CheckoutProgressCallback,
+                notify_cb = checkoutCallbacks.CheckoutNotifyCallback,
+                notify_flags = checkoutNotifyFlags
             };
 
-            if (checkoutOptions.HasFlag(CheckoutOptions.Force))
+            if (checkoutModifiers.HasFlag(CheckoutModifiers.Force))
             {
                 options.checkout_strategy = CheckoutStrategy.GIT_CHECKOUT_FORCE;
             }
 
-            Proxy.git_checkout_tree(this.Handle, tree.Id, ref options);
+            Proxy.git_checkout_tree(Handle, tree.Id, ref options);
+
+            Refs.UpdateTarget("HEAD", headTarget);
+
+            if (writeReflogEntry)
+            {
+                LogCheckout(previousHeadName, Head.Tip.Id, refLogHeadSpec);
+            }
         }
 
         /// <summary>
-        ///   Sets the current <see cref = "Head" /> to the specified commit and optionally resets the <see cref = "Index" /> and
-        ///   the content of the working tree to match.
+        /// Sets the current <see cref="Head"/> to the specified commit and optionally resets the <see cref="Index"/> and
+        /// the content of the working tree to match.
         /// </summary>
-        /// <param name = "resetOptions">Flavor of reset operation to perform.</param>
-        /// <param name = "commit">The target commit object.</param>
+        /// <param name="resetOptions">Flavor of reset operation to perform.</param>
+        /// <param name="commit">The target commit object.</param>
         public void Reset(ResetOptions resetOptions, Commit commit)
         {
             Ensure.ArgumentNotNull(commit, "commit");
@@ -732,13 +860,13 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Replaces entries in the <see cref="Repository.Index"/> with entries from the specified commit.
+        /// Replaces entries in the <see cref="Repository.Index"/> with entries from the specified commit.
         /// </summary>
-        /// <param name = "commit">The target commit object.</param>
-        /// <param name = "paths">The list of paths (either files or directories) that should be considered.</param>
-        /// <param name = "explicitPathsOptions">
-        ///   If set, the passed <paramref name="paths"/> will be treated as explicit paths.
-        ///   Use these options to determine how unmatched explicit paths should be handled.
+        /// <param name="commit">The target commit object.</param>
+        /// <param name="paths">The list of paths (either files or directories) that should be considered.</param>
+        /// <param name="explicitPathsOptions">
+        /// If set, the passed <paramref name="paths"/> will be treated as explicit paths.
+        /// Use these options to determine how unmatched explicit paths should be handled.
         /// </param>
         public void Reset(Commit commit, IEnumerable<string> paths = null, ExplicitPathsOptions explicitPathsOptions = null)
         {
@@ -754,15 +882,15 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Stores the content of the <see cref = "Repository.Index" /> as a new <see cref = "Commit" /> into the repository.
-        ///   The tip of the <see cref = "Repository.Head"/> will be used as the parent of this new Commit.
-        ///   Once the commit is created, the <see cref = "Repository.Head"/> will move forward to point at it.
+        /// Stores the content of the <see cref="Repository.Index"/> as a new <see cref="Commit"/> into the repository.
+        /// The tip of the <see cref="Repository.Head"/> will be used as the parent of this new Commit.
+        /// Once the commit is created, the <see cref="Repository.Head"/> will move forward to point at it.
         /// </summary>
-        /// <param name = "message">The description of why a change was made to the repository.</param>
-        /// <param name = "author">The <see cref = "Signature" /> of who made the change.</param>
-        /// <param name = "committer">The <see cref = "Signature" /> of who added the change to the repository.</param>
-        /// <param name = "amendPreviousCommit">True to amend the current <see cref = "Commit"/> pointed at by <see cref = "Repository.Head"/>, false otherwise.</param>
-        /// <returns>The generated <see cref = "Commit" />.</returns>
+        /// <param name="message">The description of why a change was made to the repository.</param>
+        /// <param name="author">The <see cref="Signature"/> of who made the change.</param>
+        /// <param name="committer">The <see cref="Signature"/> of who added the change to the repository.</param>
+        /// <param name="amendPreviousCommit">True to amend the current <see cref="Commit"/> pointed at by <see cref="Repository.Head"/>, false otherwise.</param>
+        /// <returns>The generated <see cref="Commit"/>.</returns>
         public Commit Commit(string message, Signature author, Signature committer, bool amendPreviousCommit = false)
         {
             bool isHeadOrphaned = Info.IsHeadOrphaned;
@@ -870,11 +998,11 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Gets the current LibGit2Sharp version.
-        ///   <para>
-        ///     The format of the version number is as follows:
-        ///     <para>Major.Minor.Patch-LibGit2Sharp_abbrev_hash-libgit2_abbrev_hash (x86|amd64)</para>
-        ///   </para>
+        /// Gets the current LibGit2Sharp version.
+        /// <para>
+        ///   The format of the version number is as follows:
+        ///   <para>Major.Minor.Patch-LibGit2Sharp_abbrev_hash-libgit2_abbrev_hash (x86|amd64)</para>
+        /// </para>
         /// </summary>
         public static string Version
         {
@@ -910,7 +1038,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Gets the references to the tips that are currently being merged.
+        /// Gets the references to the tips that are currently being merged.
         /// </summary>
         public virtual IEnumerable<MergeHead> MergeHeads
         {

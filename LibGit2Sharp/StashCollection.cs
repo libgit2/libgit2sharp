@@ -9,7 +9,7 @@ using LibGit2Sharp.Core;
 namespace LibGit2Sharp
 {
     /// <summary>
-    ///   The collection of <see cref = "Stash" />es in a <see cref = "Repository" />
+    /// The collection of <see cref="Stash"/>es in a <see cref="Repository"/>
     /// </summary>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class StashCollection : IEnumerable<Stash>
@@ -17,15 +17,15 @@ namespace LibGit2Sharp
         internal readonly Repository repo;
 
         /// <summary>
-        ///   Needed for mocking purposes.
+        /// Needed for mocking purposes.
         /// </summary>
         protected StashCollection()
         { }
 
         /// <summary>
-        ///   Initializes a new instance of the <see cref = "StashCollection" /> class.
+        /// Initializes a new instance of the <see cref="StashCollection"/> class.
         /// </summary>
-        /// <param name = "repo">The repo.</param>
+        /// <param name="repo">The repo.</param>
         internal StashCollection(Repository repo)
         {
             this.repo = repo;
@@ -34,12 +34,12 @@ namespace LibGit2Sharp
         #region Implementation of IEnumerable
 
         /// <summary>
-        ///   Returns an enumerator that iterates through the collection.
-        ///   <para>
-        ///     The enumerator returns the stashes by descending order (last stash is returned first).
-        ///   </para>
+        /// Returns an enumerator that iterates through the collection.
+        /// <para>
+        ///   The enumerator returns the stashes by descending order (last stash is returned first).
+        /// </para>
         /// </summary>
-        /// <returns>An <see cref = "IEnumerator{T}" /> object that can be used to iterate through the collection.</returns>
+        /// <returns>An <see cref="IEnumerator{T}"/> object that can be used to iterate through the collection.</returns>
         public IEnumerator<Stash> GetEnumerator()
         {
             return Proxy.git_stash_foreach(repo.Handle,
@@ -47,9 +47,9 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Returns an enumerator that iterates through the collection.
+        /// Returns an enumerator that iterates through the collection.
         /// </summary>
-        /// <returns>An <see cref = "IEnumerator" /> object that can be used to iterate through the collection.</returns>
+        /// <returns>An <see cref="IEnumerator"/> object that can be used to iterate through the collection.</returns>
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
@@ -58,7 +58,7 @@ namespace LibGit2Sharp
         #endregion
 
         /// <summary>
-        ///   Gets the <see cref = "Stash" /> corresponding to the specified index (0 being the most recent one).
+        /// Gets the <see cref="Stash"/> corresponding to the specified index (0 being the most recent one).
         /// </summary>
         public virtual Stash this[int index]
         {
@@ -76,13 +76,26 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Creates a stash with the specified message.
+        /// Creates a stash with the specified message.
         /// </summary>
         /// <param name="stasher">The <see cref="Signature"/> of the user who stashes </param>
-        /// <param name = "message">The message of the stash.</param>
-        /// <param name = "options">A combination of <see cref="StashOptions"/> flags</param>
+        /// <param name="message">The message of the stash.</param>
+        /// <param name="options">A combination of <see cref="StashOptions"/> flags</param>
         /// <returns>the newly created <see cref="Stash"/></returns>
+        [Obsolete("This method will be removed in the next release. Please use Add(Signature, string, StashModifiers) instead.")]
         public virtual Stash Add(Signature stasher, string message = null, StashOptions options = StashOptions.Default)
+        {
+            return Add(stasher, message, (StashModifiers) options);
+        }
+
+        /// <summary>
+        /// Creates a stash with the specified message.
+        /// </summary>
+        /// <param name="stasher">The <see cref="Signature"/> of the user who stashes </param>
+        /// <param name="message">The message of the stash.</param>
+        /// <param name="options">A combination of <see cref="StashOptions"/> flags</param>
+        /// <returns>the newly created <see cref="Stash"/></returns>
+        public virtual Stash Add(Signature stasher, string message = null, StashModifiers options = StashModifiers.Default)
         {
             Ensure.ArgumentNotNull(stasher, "stasher");
 
@@ -100,9 +113,9 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Remove a single stashed state from the stash list.
+        /// Remove a single stashed state from the stash list.
         /// </summary>
-        /// <param name = "index">The index of the stash to remove (0 being the most recent one).</param>
+        /// <param name="index">The index of the stash to remove (0 being the most recent one).</param>
         public virtual void Remove(int index)
         {
             if (index < 0)

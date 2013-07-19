@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
+using Xunit;
 using Xunit.Extensions;
 
 namespace LibGit2Sharp.Tests
@@ -14,8 +16,9 @@ namespace LibGit2Sharp.Tests
         [InlineData("git://github.com/libgit2/TestGitRepository.git")]
         public void CanFetchIntoAnEmptyRepository(string url)
         {
-            var scd = BuildSelfCleaningDirectory();
-            using (var repo = Repository.Init(scd.RootedDirectoryPath))
+            string repoPath = InitNewRepository();
+
+            using (var repo = new Repository(repoPath))
             {
                 Remote remote = repo.Network.Remotes.Add(remoteName, url);
 
@@ -52,8 +55,9 @@ namespace LibGit2Sharp.Tests
             InconclusiveIf(() => string.IsNullOrEmpty(Constants.PrivateRepoUrl),
                 "Populate Constants.PrivateRepo* to run this test");
 
-            var scd = BuildSelfCleaningDirectory();
-            using (var repo = Repository.Init(scd.RootedDirectoryPath))
+            string repoPath = InitNewRepository();
+
+            using (var repo = new Repository(repoPath))
             {
                 Remote remote = repo.Network.Remotes.Add(remoteName, Constants.PrivateRepoUrl);
 
@@ -72,8 +76,9 @@ namespace LibGit2Sharp.Tests
         [InlineData("git://github.com/libgit2/TestGitRepository.git")]
         public void CanFetchAllTagsIntoAnEmptyRepository(string url)
         {
-            var scd = BuildSelfCleaningDirectory();
-            using (var repo = Repository.Init(scd.RootedDirectoryPath))
+            string repoPath = InitNewRepository();
+
+            using (var repo = new Repository(repoPath))
             {
                 Remote remote = repo.Network.Remotes.Add(remoteName, url);
 
@@ -93,6 +98,33 @@ namespace LibGit2Sharp.Tests
 
                 // Verify the expected
                 expectedFetchState.CheckUpdatedReferences(repo);
+            }
+        }
+
+        [Theory]
+        [InlineData(TagFetchMode.All, 4)]
+        [InlineData(TagFetchMode.None, 0)]
+        [InlineData(TagFetchMode.Auto, 3)]
+        public void FetchRespectsConfiguredAutoTagSetting(TagFetchMode tagFetchMode, int expectedTagCount)
+        {
+            string url = "http://github.com/libgit2/TestGitRepository";
+
+            string repoPath = InitNewRepository();
+
+            using (var repo = new Repository(repoPath))
+            {
+                Remote remote = repo.Network.Remotes.Add(remoteName, url);
+                Assert.NotNull(remote);
+
+                // Update the configured autotag setting.
+                repo.Network.Remotes.Update(remote,
+                    r => r.TagFetchMode = tagFetchMode);
+
+                // Perform the actual fetch.
+                repo.Network.Fetch(remote);
+
+                // Verify the number of fetched tags.
+                Assert.Equal(expectedTagCount, repo.Tags.Count());
             }
         }
     }

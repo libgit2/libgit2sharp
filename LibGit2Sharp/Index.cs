@@ -13,8 +13,8 @@ using LibGit2Sharp.Core.Handles;
 namespace LibGit2Sharp
 {
     /// <summary>
-    ///   The Index is a staging area between the Working directory and the Repository.
-    ///   It's used to prepare and aggregate the changes that will be part of the next commit.
+    /// The Index is a staging area between the Working directory and the Repository.
+    /// It's used to prepare and aggregate the changes that will be part of the next commit.
     /// </summary>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class Index : IEnumerable<IndexEntry>
@@ -24,7 +24,7 @@ namespace LibGit2Sharp
         private readonly ConflictCollection conflicts;
 
         /// <summary>
-        ///   Needed for mocking purposes.
+        /// Needed for mocking purposes.
         /// </summary>
         protected Index()
         { }
@@ -56,7 +56,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Gets the number of <see cref = "IndexEntry" /> in the index.
+        /// Gets the number of <see cref="IndexEntry"/> in the index.
         /// </summary>
         public virtual int Count
         {
@@ -64,7 +64,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Determines if the index is free from conflicts.
+        /// Determines if the index is free from conflicts.
         /// </summary>
         public virtual bool IsFullyMerged
         {
@@ -72,7 +72,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Gets the <see cref = "IndexEntry" /> with the specified relative path.
+        /// Gets the <see cref="IndexEntry"/> with the specified relative path.
         /// </summary>
         public virtual IndexEntry this[string path]
         {
@@ -110,18 +110,18 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Returns an enumerator that iterates through the collection.
+        /// Returns an enumerator that iterates through the collection.
         /// </summary>
-        /// <returns>An <see cref = "IEnumerator{T}" /> object that can be used to iterate through the collection.</returns>
+        /// <returns>An <see cref="IEnumerator{T}"/> object that can be used to iterate through the collection.</returns>
         public virtual IEnumerator<IndexEntry> GetEnumerator()
         {
             return AllIndexEntries().GetEnumerator();
         }
 
         /// <summary>
-        ///   Returns an enumerator that iterates through the collection.
+        /// Returns an enumerator that iterates through the collection.
         /// </summary>
-        /// <returns>An <see cref = "IEnumerator" /> object that can be used to iterate through the collection.</returns>
+        /// <returns>An <see cref="IEnumerator"/> object that can be used to iterate through the collection.</returns>
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
@@ -130,12 +130,12 @@ namespace LibGit2Sharp
         #endregion
 
         /// <summary>
-        ///   Promotes to the staging area the latest modifications of a file in the working directory (addition, updation or removal).
+        /// Promotes to the staging area the latest modifications of a file in the working directory (addition, updation or removal).
         /// </summary>
-        /// <param name = "path">The path of the file within the working directory.</param>
-        /// <param name = "explicitPathsOptions">
-        ///   If set, the passed <paramref name="path"/> will be treated as explicit paths.
-        ///   Use these options to determine how unmatched explicit paths should be handled.
+        /// <param name="path">The path of the file within the working directory.</param>
+        /// <param name="explicitPathsOptions">
+        /// If set, the passed <paramref name="path"/> will be treated as explicit paths.
+        /// Use these options to determine how unmatched explicit paths should be handled.
         /// </param>
         public virtual void Stage(string path, ExplicitPathsOptions explicitPathsOptions = null)
         {
@@ -145,18 +145,18 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Promotes to the staging area the latest modifications of a collection of files in the working directory (addition, updation or removal).
+        /// Promotes to the staging area the latest modifications of a collection of files in the working directory (addition, updation or removal).
         /// </summary>
-        /// <param name = "paths">The collection of paths of the files within the working directory.</param>
-        /// <param name = "explicitPathsOptions">
-        ///   If set, the passed <paramref name="paths"/> will be treated as explicit paths.
-        ///   Use these options to determine how unmatched explicit paths should be handled.
+        /// <param name="paths">The collection of paths of the files within the working directory.</param>
+        /// <param name="explicitPathsOptions">
+        /// If set, the passed <paramref name="paths"/> will be treated as explicit paths.
+        /// Use these options to determine how unmatched explicit paths should be handled.
         /// </param>
         public virtual void Stage(IEnumerable<string> paths, ExplicitPathsOptions explicitPathsOptions = null)
         {
             Ensure.ArgumentNotNull(paths, "paths");
 
-            TreeChanges changes = repo.Diff.Compare(DiffOptions.IncludeUntracked | DiffOptions.IncludeIgnored, paths, explicitPathsOptions);
+            TreeChanges changes = repo.Diff.Compare(DiffModifiers.IncludeUntracked | DiffModifiers.IncludeIgnored, paths, explicitPathsOptions);
 
             foreach (var treeEntryChanges in changes)
             {
@@ -185,12 +185,12 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Removes from the staging area all the modifications of a file since the latest commit (addition, updation or removal).
+        /// Removes from the staging area all the modifications of a file since the latest commit (addition, updation or removal).
         /// </summary>
-        /// <param name = "path">The path of the file within the working directory.</param>
-        /// <param name = "explicitPathsOptions">
-        ///   If set, the passed <paramref name="path"/> will be treated as explicit paths.
-        ///   Use these options to determine how unmatched explicit paths should be handled.
+        /// <param name="path">The path of the file within the working directory.</param>
+        /// <param name="explicitPathsOptions">
+        /// If set, the passed <paramref name="path"/> will be treated as explicit paths.
+        /// Use these options to determine how unmatched explicit paths should be handled.
         /// </param>
         public virtual void Unstage(string path, ExplicitPathsOptions explicitPathsOptions = null)
         {
@@ -200,12 +200,12 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Removes from the staging area all the modifications of a collection of file since the latest commit (addition, updation or removal).
+        /// Removes from the staging area all the modifications of a collection of file since the latest commit (addition, updation or removal).
         /// </summary>
-        /// <param name = "paths">The collection of paths of the files within the working directory.</param>
-        /// <param name = "explicitPathsOptions">
-        ///   If set, the passed <paramref name="paths"/> will be treated as explicit paths.
-        ///   Use these options to determine how unmatched explicit paths should be handled.
+        /// <param name="paths">The collection of paths of the files within the working directory.</param>
+        /// <param name="explicitPathsOptions">
+        /// If set, the passed <paramref name="paths"/> will be treated as explicit paths.
+        /// Use these options to determine how unmatched explicit paths should be handled.
         /// </param>
         public virtual void Unstage(IEnumerable<string> paths, ExplicitPathsOptions explicitPathsOptions = null)
         {
@@ -224,20 +224,20 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Moves and/or renames a file in the working directory and promotes the change to the staging area.
+        /// Moves and/or renames a file in the working directory and promotes the change to the staging area.
         /// </summary>
-        /// <param name = "sourcePath">The path of the file within the working directory which has to be moved/renamed.</param>
-        /// <param name = "destinationPath">The target path of the file within the working directory.</param>
+        /// <param name="sourcePath">The path of the file within the working directory which has to be moved/renamed.</param>
+        /// <param name="destinationPath">The target path of the file within the working directory.</param>
         public virtual void Move(string sourcePath, string destinationPath)
         {
             Move(new[] { sourcePath }, new[] { destinationPath });
         }
 
         /// <summary>
-        ///   Moves and/or renames a collection of files in the working directory and promotes the changes to the staging area.
+        /// Moves and/or renames a collection of files in the working directory and promotes the changes to the staging area.
         /// </summary>
-        /// <param name = "sourcePaths">The paths of the files within the working directory which have to be moved/renamed.</param>
-        /// <param name = "destinationPaths">The target paths of the files within the working directory.</param>
+        /// <param name="sourcePaths">The paths of the files within the working directory which have to be moved/renamed.</param>
+        /// <param name="destinationPaths">The target paths of the files within the working directory.</param>
         public virtual void Move(IEnumerable<string> sourcePaths, IEnumerable<string> destinationPaths)
         {
             Ensure.ArgumentNotNull(sourcePaths, "sourcePaths");
@@ -297,25 +297,25 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Removes a file from the staging area, and optionally removes it from the working directory as well.
-        ///   <para>
-        ///     If the file has already been deleted from the working directory, this method will only deal
-        ///     with promoting the removal to the staging area.
-        ///   </para>
-        ///   <para>
-        ///     The default behavior is to remove the file from the working directory as well.
-        ///   </para>
-        ///   <para>
-        ///     When not passing a <paramref name = "explicitPathsOptions"/>, the passed path will be treated as
-        ///     a pathspec. You can for example use it to pass the relative path to a folder inside the working directory,
-        ///     so that all files beneath this folders, and the folder itself, will be removed.
-        ///   </para>
+        /// Removes a file from the staging area, and optionally removes it from the working directory as well.
+        /// <para>
+        ///   If the file has already been deleted from the working directory, this method will only deal
+        ///   with promoting the removal to the staging area.
+        /// </para>
+        /// <para>
+        ///   The default behavior is to remove the file from the working directory as well.
+        /// </para>
+        /// <para>
+        ///   When not passing a <paramref name="explicitPathsOptions"/>, the passed path will be treated as
+        ///   a pathspec. You can for example use it to pass the relative path to a folder inside the working directory,
+        ///   so that all files beneath this folders, and the folder itself, will be removed.
+        /// </para>
         /// </summary>
-        /// <param name = "path">The path of the file within the working directory.</param>
-        /// <param name = "removeFromWorkingDirectory">True to remove the file from the working directory, False otherwise.</param>
-        /// <param name = "explicitPathsOptions">
-        ///   If set, the passed <paramref name="path"/> will be treated as an explicit path.
-        ///   Use these options to determine how unmatched explicit paths should be handled.
+        /// <param name="path">The path of the file within the working directory.</param>
+        /// <param name="removeFromWorkingDirectory">True to remove the file from the working directory, False otherwise.</param>
+        /// <param name="explicitPathsOptions">
+        /// If set, the passed <paramref name="path"/> will be treated as an explicit path.
+        /// Use these options to determine how unmatched explicit paths should be handled.
         /// </param>
         public virtual void Remove(string path, bool removeFromWorkingDirectory = true, ExplicitPathsOptions explicitPathsOptions = null)
         {
@@ -325,30 +325,30 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Removes a collection of fileS from the staging, and optionally removes them from the working directory as well.
-        ///   <para>
-        ///     If a file has already been deleted from the working directory, this method will only deal
-        ///     with promoting the removal to the staging area.
-        ///   </para>
-        ///   <para>
-        ///     The default behavior is to remove the files from the working directory as well.
-        ///   </para>
-        ///   <para>
-        ///     When not passing a <paramref name = "explicitPathsOptions"/>, the passed paths will be treated as
-        ///     a pathspec. You can for example use it to pass the relative paths to folders inside the working directory,
-        ///     so that all files beneath these folders, and the folders themselves, will be removed.
-        ///   </para>
+        /// Removes a collection of fileS from the staging, and optionally removes them from the working directory as well.
+        /// <para>
+        ///   If a file has already been deleted from the working directory, this method will only deal
+        ///   with promoting the removal to the staging area.
+        /// </para>
+        /// <para>
+        ///   The default behavior is to remove the files from the working directory as well.
+        /// </para>
+        /// <para>
+        ///   When not passing a <paramref name="explicitPathsOptions"/>, the passed paths will be treated as
+        ///   a pathspec. You can for example use it to pass the relative paths to folders inside the working directory,
+        ///   so that all files beneath these folders, and the folders themselves, will be removed.
+        /// </para>
         /// </summary>
-        /// <param name = "paths">The collection of paths of the files within the working directory.</param>
-        /// <param name = "removeFromWorkingDirectory">True to remove the files from the working directory, False otherwise.</param>
-        /// <param name = "explicitPathsOptions">
-        ///   If set, the passed <paramref name="paths"/> will be treated as explicit paths.
-        ///   Use these options to determine how unmatched explicit paths should be handled.
+        /// <param name="paths">The collection of paths of the files within the working directory.</param>
+        /// <param name="removeFromWorkingDirectory">True to remove the files from the working directory, False otherwise.</param>
+        /// <param name="explicitPathsOptions">
+        /// If set, the passed <paramref name="paths"/> will be treated as explicit paths.
+        /// Use these options to determine how unmatched explicit paths should be handled.
         /// </param>
         public virtual void Remove(IEnumerable<string> paths, bool removeFromWorkingDirectory = true, ExplicitPathsOptions explicitPathsOptions = null)
         {
             var pathsList = paths.ToList();
-            TreeChanges changes = repo.Diff.Compare(DiffOptions.IncludeUnmodified | DiffOptions.IncludeUntracked, pathsList, explicitPathsOptions);
+            TreeChanges changes = repo.Diff.Compare(DiffModifiers.IncludeUnmodified | DiffModifiers.IncludeUntracked, pathsList, explicitPathsOptions);
 
             var pathsTodelete = pathsList.Where(p => Directory.Exists(Path.Combine(repo.Info.WorkingDirectory, p))).ToList();
 
@@ -483,10 +483,10 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Retrieves the state of a file in the working directory, comparing it against the staging area and the latest commmit.
+        /// Retrieves the state of a file in the working directory, comparing it against the staging area and the latest commmit.
         /// </summary>
-        /// <param name = "filePath">The relative path within the working directory to the file.</param>
-        /// <returns>A <see cref = "FileStatus" /> representing the state of the <paramref name = "filePath" /> parameter.</returns>
+        /// <param name="filePath">The relative path within the working directory to the file.</param>
+        /// <returns>A <see cref="FileStatus"/> representing the state of the <paramref name="filePath"/> parameter.</returns>
         public virtual FileStatus RetrieveStatus(string filePath)
         {
             Ensure.ArgumentNotNullOrEmptyString(filePath, "filePath");
@@ -497,9 +497,9 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Retrieves the state of all files in the working directory, comparing them against the staging area and the latest commmit.
+        /// Retrieves the state of all files in the working directory, comparing them against the staging area and the latest commmit.
         /// </summary>
-        /// <returns>A <see cref = "RepositoryStatus" /> holding the state of all the files.</returns>
+        /// <returns>A <see cref="RepositoryStatus"/> holding the state of all the files.</returns>
         public virtual RepositoryStatus RetrieveStatus()
         {
             return new RepositoryStatus(repo);

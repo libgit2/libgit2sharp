@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
 using Xunit.Extensions;
@@ -86,18 +85,17 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanRenameAFile()
         {
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            string repoPath = InitNewRepository();
 
-            using (var repo = Repository.Init(scd.DirectoryPath))
+            using (var repo = new Repository(repoPath))
             {
                 Assert.Equal(0, repo.Index.Count);
 
                 const string oldName = "polite.txt";
-                string oldPath = Path.Combine(repo.Info.WorkingDirectory, oldName);
 
                 Assert.Equal(FileStatus.Nonexistent, repo.Index.RetrieveStatus(oldName));
 
-                File.WriteAllText(oldPath, "hello test file\n", Encoding.ASCII);
+                Touch(repo.Info.WorkingDirectory, oldName, "hello test file\n");
                 Assert.Equal(FileStatus.Untracked, repo.Index.RetrieveStatus(oldName));
 
                 repo.Index.Stage(oldName);
@@ -197,30 +195,20 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void PathsOfIndexEntriesAreExpressedInNativeFormat()
         {
-            // Initialize a new repository
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            // Build relative path
+            string relFilePath = Path.Combine("directory", "Testfile.txt");
 
-            const string directoryName = "directory";
-            const string fileName = "Testfile.txt";
+            string repoPath = InitNewRepository();
 
-            // Create a file and insert some content
-            string directoryPath = Path.Combine(scd.RootedDirectoryPath, directoryName);
-            string filePath = Path.Combine(directoryPath, fileName);
-
-            Directory.CreateDirectory(directoryPath);
-            File.WriteAllText(filePath, "Anybody out there?");
-
-            // Initialize the repository
-            using (var repo = Repository.Init(scd.DirectoryPath))
+            using (var repo = new Repository(repoPath))
             {
+                Touch(repo.Info.WorkingDirectory, relFilePath, "Anybody out there?");
+
                 // Stage the file
-                repo.Index.Stage(filePath);
+                repo.Index.Stage(relFilePath);
 
                 // Get the index
                 Index index = repo.Index;
-
-                // Build relative path
-                string relFilePath = Path.Combine(directoryName, fileName);
 
                 // Get the index entry
                 IndexEntry ie = index[relFilePath];

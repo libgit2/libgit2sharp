@@ -28,7 +28,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void BuildingATreeDefinitionWithBadParamsThrows()
         {
-            Assert.Throws<ArgumentNullException>(() => TreeDefinition.From(null));
+            Assert.Throws<ArgumentNullException>(() => TreeDefinition.From(default(Tree)));
         }
 
         [Fact]

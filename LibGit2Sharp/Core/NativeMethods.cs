@@ -208,7 +208,7 @@ namespace LibGit2Sharp.Core
         internal static extern IntPtr git_commit_committer(GitObjectSafeHandle commit);
 
         [DllImport(libgit2)]
-        internal static extern int git_commit_create(
+        internal static extern int git_commit_create_from_oids(
             out GitOid id,
             RepositorySafeHandle repo,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(Utf8Marshaler))] string updateRef,
@@ -216,7 +216,7 @@ namespace LibGit2Sharp.Core
             SignatureSafeHandle committer,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(Utf8Marshaler))] string encoding,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(Utf8Marshaler))] string message,
-            GitObjectSafeHandle tree,
+            ref GitOid tree,
             int parentCount,
             [MarshalAs(UnmanagedType.LPArray)] [In] IntPtr[] parents);
 
@@ -408,7 +408,9 @@ namespace LibGit2Sharp.Core
         [DllImport(libgit2)]
         internal static extern int git_diff_blobs(
             GitObjectSafeHandle oldBlob,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(FilePathMarshaler))] FilePath old_as_path,
             GitObjectSafeHandle newBlob,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(FilePathMarshaler))] FilePath new_as_path,
             GitDiffOptions options,
             git_diff_file_cb fileCallback,
             git_diff_hunk_cb hunkCallback,
@@ -757,6 +759,9 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(Utf8Marshaler))] string name);
 
         [DllImport(libgit2)]
+        internal static extern int git_remote_autotag(RemoteSafeHandle remote);
+
+        [DllImport(libgit2)]
         internal static extern int git_remote_connect(RemoteSafeHandle remote, GitDirection direction);
 
         [DllImport(libgit2)]
@@ -873,10 +878,10 @@ namespace LibGit2Sharp.Core
         internal static extern int git_repository_index(out IndexSafeHandle index, RepositorySafeHandle repo);
 
         [DllImport(libgit2)]
-        internal static extern int git_repository_init(
+        internal static extern int git_repository_init_ext(
             out RepositorySafeHandle repository,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(FilePathMarshaler))] FilePath path,
-            [MarshalAs(UnmanagedType.Bool)] bool isBare);
+            GitRepositoryInitOptions options);
 
         [DllImport(libgit2)]
         internal static extern int git_repository_is_bare(RepositorySafeHandle handle);
@@ -956,8 +961,9 @@ namespace LibGit2Sharp.Core
             ResetOptions reset_type);
 
         [DllImport(libgit2)]
-        internal static extern int git_revparse_single(
+        internal static extern int git_revparse_ext(
             out GitObjectSafeHandle obj,
+            out ReferenceSafeHandle reference,
             RepositorySafeHandle repo,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(Utf8Marshaler))] string spec);
 
@@ -980,7 +986,7 @@ namespace LibGit2Sharp.Core
         internal static extern void git_revwalk_reset(RevWalkerSafeHandle walker);
 
         [DllImport(libgit2)]
-        internal static extern void git_revwalk_sorting(RevWalkerSafeHandle walk, GitSortOptions sort);
+        internal static extern void git_revwalk_sorting(RevWalkerSafeHandle walk, CommitSortStrategies sort);
 
         [DllImport(libgit2)]
         internal static extern void git_signature_free(IntPtr signature);
@@ -999,7 +1005,7 @@ namespace LibGit2Sharp.Core
             RepositorySafeHandle repo,
             SignatureSafeHandle stasher,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(Utf8Marshaler))] string message,
-            StashOptions flags);
+            StashModifiers flags);
 
         internal delegate int git_stash_cb(
             UIntPtr index,

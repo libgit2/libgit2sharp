@@ -12,18 +12,18 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void SimpleOdbBackendFixtureTest()
         {
-            var scd = new SelfCleaningDirectory(this);
+            string repoPath = InitNewRepository();
 
-            using (Repository repository = Repository.Init(scd.RootedDirectoryPath))
+            using (var repository = new Repository(repoPath))
             {
                 repository.ObjectDatabase.AddBackend(new MockOdbBackend(), priority: 5);
 
-                String filePath = Path.Combine(scd.RootedDirectoryPath, "file.txt");
-                String fileContents = "Hello!";
+                const string filename = "file.txt";
+                const string fileContents = "Hello!";
 
                 // Exercises read, write, writestream, exists
-                File.WriteAllText(filePath, fileContents);
-                repository.Index.Stage(filePath);
+                Touch(repository.Info.WorkingDirectory, filename, fileContents);
+                repository.Index.Stage(filename);
 
                 var signature = new Signature("SimpleOdbBackendFixtureTest", "user@example.com", DateTimeOffset.Now);
                 repository.Commit(String.Empty, signature, signature);

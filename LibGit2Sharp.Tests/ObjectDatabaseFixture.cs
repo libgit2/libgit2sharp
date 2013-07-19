@@ -54,9 +54,7 @@ namespace LibGit2Sharp.Tests
 
             SelfCleaningDirectory directory = BuildSelfCleaningDirectory();
 
-            Directory.CreateDirectory(directory.RootedDirectoryPath);
-            string filepath = Path.Combine(directory.RootedDirectoryPath, "hello.txt");
-            File.WriteAllText(filepath, "I'm a new file\n");
+            string filepath = Touch(directory.RootedDirectoryPath, "hello.txt", "I'm a new file\n");
 
             using (var repo = new Repository(path))
             {
@@ -82,7 +80,7 @@ namespace LibGit2Sharp.Tests
         [InlineData("321cbdf08803c744082332332838df6bd160f8f9", "dummy.data")]
         [InlineData("e9671e138a780833cb689753570fd10a55be84fb", "dummy.txt")]
         [InlineData("e9671e138a780833cb689753570fd10a55be84fb", "dummy.guess")]
-        public void CanCreateABlobFromABinaryReader(string expectedSha, string hintPath)
+        public void CanCreateABlobFromAStream(string expectedSha, string hintPath)
         {
             string path = CloneBareTestRepo();
 
@@ -97,11 +95,51 @@ namespace LibGit2Sharp.Tests
                 CreateAttributesFiles(Path.Combine(repo.Info.Path, "info"), "attributes");
 
                 using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(sb.ToString())))
-                using (var binReader = new BinaryReader(stream))
                 {
-                    Blob blob = repo.ObjectDatabase.CreateBlob(binReader, hintPath);
+                    Blob blob = repo.ObjectDatabase.CreateBlob(stream, hintPath);
                     Assert.Equal(expectedSha, blob.Sha);
                 }
+            }
+        }
+
+        [Theory]
+        [InlineData(16, 32)]
+        [InlineData(34, 8)]
+        [InlineData(7584, 5879)]
+        [InlineData(7854, 1247)]
+        [InlineData(7854, 9785)]
+        [InlineData(8192, 4096)]
+        [InlineData(8192, 4095)]
+        [InlineData(8192, 4097)]
+        public void CanCreateABlobFromAStreamWithANumberOfBytesToConsume(int contentSize, int numberOfBytesToConsume)
+        {
+            string path = CloneBareTestRepo();
+
+            var sb = new StringBuilder();
+            for (int i = 0; i < contentSize; i++)
+            {
+                sb.Append(i % 10);
+            }
+
+            using (var repo = new Repository(path))
+            {
+                using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(sb.ToString())))
+                {
+                    Blob blob = repo.ObjectDatabase.CreateBlob(stream, numberOfBytesToConsume: numberOfBytesToConsume);
+                    Assert.Equal(Math.Min(numberOfBytesToConsume, contentSize), blob.Size);
+                }
+            }
+        }
+
+        [Fact]
+        public void CreatingABlobFromANonReadableStreamThrows()
+        {
+            string path = CloneStandardTestRepo();
+
+            using (var stream = new FileStream(Path.Combine(path, "file.txt"), FileMode.CreateNew, FileAccess.Write))
+            using (var repo = new Repository(path))
+            {
+                Assert.Throws<ArgumentException>(() => repo.ObjectDatabase.CreateBlob(stream));
             }
         }
 
@@ -109,8 +147,7 @@ namespace LibGit2Sharp.Tests
         {
             const string attributes = "* text=auto\n*.txt text\n*.data binary\n";
 
-            Directory.CreateDirectory(where);
-            File.WriteAllText(Path.Combine(where, filename), attributes);
+            Touch(where, filename, attributes);
         }
 
         [Theory]
@@ -274,7 +311,7 @@ namespace LibGit2Sharp.Tests
                 Assert.IsType<GitLink>(te.Target);
                 Assert.Equal(objectId, te.Target.Id);
 
-                var commitWithSubmodule = repo.ObjectDatabase.CreateCommit("Submodule!", DummySignature, DummySignature, tree,
+                var commitWithSubmodule = repo.ObjectDatabase.CreateCommit("Submodule!", Constants.Signature, Constants.Signature, tree,
                                                                            new[] { repo.Head.Tip });
                 repo.Reset(ResetOptions.Soft, commitWithSubmodule);
 
@@ -311,7 +348,7 @@ namespace LibGit2Sharp.Tests
 
                 Tree tree = repo.ObjectDatabase.CreateTree(td);
 
-                Commit commit = repo.ObjectDatabase.CreateCommit("Ü message", DummySignature, DummySignature, tree, new[] { repo.Head.Tip });
+                Commit commit = repo.ObjectDatabase.CreateCommit("Ü message", Constants.Signature, Constants.Signature, tree, new[] { repo.Head.Tip });
 
                 Branch newHead = repo.Head;
 
@@ -322,7 +359,7 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
-        public void CanCreateABinaryBlobFromABinaryReader()
+        public void CanCreateABinaryBlobFromAStream()
         {
             var binaryContent = new byte[] { 0, 1, 2, 3, 4, 5 };
 
@@ -330,9 +367,8 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path))
             {
                 using (var stream = new MemoryStream(binaryContent))
-                using (var binReader = new BinaryReader(stream))
                 {
-                    Blob blob = repo.ObjectDatabase.CreateBlob(binReader);
+                    Blob blob = repo.ObjectDatabase.CreateBlob(stream);
                     Assert.Equal(6, blob.Size);
                     Assert.Equal(true, blob.IsBinary);
                 }
@@ -348,10 +384,10 @@ namespace LibGit2Sharp.Tests
                 var blob = repo.Head.Tip["README"].Target as Blob;
                 Assert.NotNull(blob);
 
-                TagAnnotation tag = repo.ObjectDatabase.CreateTag(
+                TagAnnotation tag = repo.ObjectDatabase.CreateTagAnnotation(
                     "nice_blob",
                     blob,
-                    DummySignature,
+                    Constants.Signature,
                     "I can point at blobs, too!");
 
                 Assert.NotNull(tag);

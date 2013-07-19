@@ -13,7 +13,7 @@
         }
 
         /// <summary>
-        ///   Gets the remote branch which is connected to this local one, or null if there is none.
+        /// Gets the remote branch which is connected to this local one, or null if there is none.
         /// </summary>
         public override Branch TrackedBranch
         {

@@ -66,19 +66,29 @@
     <Compile Include="BranchUpdater.cs" />
     <Compile Include="Changes.cs" />
     <Compile Include="CheckoutCallbacks.cs" />
+    <Compile Include="CheckoutModifiers.cs" />
+    <Compile Include="CheckoutNotificationOptions.cs" />
     <Compile Include="CheckoutOptions.cs" />
+    <Compile Include="CommitFilter.cs" />
+    <Compile Include="CommitSortStrategies.cs" />
     <Compile Include="CompareOptions.cs" />
+    <Compile Include="Core\GitRepositoryInitOptions.cs" />
+    <Compile Include="Core\HistoryRewriter.cs" />
     <Compile Include="Core\NativeDllName.cs" />
+    <Compile Include="CommitRewriteInfo.cs" />
+    <Compile Include="DiffModifiers.cs" />
     <Compile Include="ObjectType.cs" />
     <Compile Include="Core\UniqueIdentifier.cs" />
     <Compile Include="ReferenceExtensions.cs" />
     <Compile Include="Conflict.cs" />
     <Compile Include="ConflictCollection.cs" />
+    <Compile Include="RemoteUpdater.cs" />
     <Compile Include="RemoveFromIndexException.cs" />
     <Compile Include="Core\Handles\GitRefSpecHandle.cs" />
     <Compile Include="Core\Handles\NullRepositorySafeHandle.cs" />
     <Compile Include="GitLink.cs" />
     <Compile Include="Core\RepositoryOpenFlags.cs" />
+    <Compile Include="StashModifiers.cs" />
     <Compile Include="TreeEntryTargetType.cs" />
     <Compile Include="UnmatchedPathException.cs" />
     <Compile Include="Core\Handles\ReflogEntrySafeHandle.cs" />
@@ -123,7 +133,6 @@
     <Compile Include="Core\Handles\GitConfigEntryHandle.cs" />
     <Compile Include="Core\Proxy.cs" />
     <Compile Include="Credentials.cs" />
-    <Compile Include="DiffOptions.cs" />
     <Compile Include="DiffTargets.cs" />
     <Compile Include="FetchHead.cs" />
     <Compile Include="Core\Handles\PushSafeHandle.cs" />
@@ -149,7 +158,7 @@
     <Compile Include="Core\FilePathMarshaler.cs" />
     <Compile Include="ConfigurationLevel.cs" />
     <Compile Include="Core\Compat\Tuple.cs" />
-    <Compile Include="Core\DisposableEnumerable.cs" />
+    <Compile Include="Core\ArrayMarshaler.cs" />
     <Compile Include="Core\EnumExtensions.cs" />
     <Compile Include="ChangeKind.cs" />
     <Compile Include="Core\GitBranchType.cs" />
@@ -249,6 +258,7 @@
     <Compile Include="TreeDefinition.cs" />
     <Compile Include="TreeEntry.cs" />
     <Compile Include="TreeEntryDefinition.cs" />
+    <Compile Include="UserCanceledException.cs" />
     <Compile Include="VoidReference.cs" />
     <Compile Include="Core\RawContentStream.cs" />
   </ItemGroup>

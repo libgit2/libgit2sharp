@@ -10,11 +10,10 @@ namespace LibGit2Sharp.Tests
     {
         private static void SetUpSimpleDiffContext(Repository repo)
         {
-            var fullpath = Path.Combine(repo.Info.WorkingDirectory, "file.txt");
-            File.WriteAllText(fullpath, "hello\n");
+            var fullpath = Touch(repo.Info.WorkingDirectory, "file.txt", "hello\n");
 
             repo.Index.Stage(fullpath);
-            repo.Commit("Initial commit", DummySignature, DummySignature);
+            repo.Commit("Initial commit", Constants.Signature, Constants.Signature);
 
             File.AppendAllText(fullpath, "world\n");
 
@@ -38,9 +37,9 @@ namespace LibGit2Sharp.Tests
          */
         public void CanCompareASimpleTreeAgainstTheWorkDir()
         {
-            var scd = BuildSelfCleaningDirectory();
+            string repoPath = InitNewRepository();
 
-            using (var repo = Repository.Init(scd.RootedDirectoryPath))
+            using (var repo = new Repository(repoPath))
             {
                 SetUpSimpleDiffContext(repo);
 
@@ -98,9 +97,9 @@ namespace LibGit2Sharp.Tests
          */
         public void CanCompareASimpleTreeAgainstTheWorkDirAndTheIndex()
         {
-            var scd = BuildSelfCleaningDirectory();
+            string repoPath = InitNewRepository();
 
-            using (var repo = Repository.Init(scd.RootedDirectoryPath))
+            using (var repo = new Repository(repoPath))
             {
                 SetUpSimpleDiffContext(repo);
 
@@ -145,9 +144,9 @@ namespace LibGit2Sharp.Tests
          */
         public void ShowcaseTheDifferenceBetweenTheTwoKindOfComparison()
         {
-            var scd = BuildSelfCleaningDirectory();
+            string repoPath = InitNewRepository();
 
-            using (var repo = Repository.Init(scd.RootedDirectoryPath))
+            using (var repo = new Repository(repoPath))
             {
                 SetUpSimpleDiffContext(repo);
 
@@ -202,9 +201,9 @@ namespace LibGit2Sharp.Tests
          */
         public void CanCompareASimpleTreeAgainstTheIndex()
         {
-            var scd = BuildSelfCleaningDirectory();
+            string repoPath = InitNewRepository();
 
-            using (var repo = Repository.Init(scd.RootedDirectoryPath))
+            using (var repo = new Repository(repoPath))
             {
                 SetUpSimpleDiffContext(repo);
 
@@ -348,15 +347,14 @@ namespace LibGit2Sharp.Tests
          */
         public void CanCopeWithEndOfFileNewlineChanges()
         {
-            var scd = BuildSelfCleaningDirectory();
+            string repoPath = InitNewRepository();
 
-            using (var repo = Repository.Init(scd.RootedDirectoryPath))
+            using (var repo = new Repository(repoPath))
             {
-                var fullpath = Path.Combine(repo.Info.WorkingDirectory, "file.txt");
-                File.WriteAllText(fullpath, "a");
+                var fullpath = Touch(repo.Info.WorkingDirectory, "file.txt", "a");
 
                 repo.Index.Stage("file.txt");
-                repo.Commit("Add file without line ending", DummySignature, DummySignature);
+                repo.Commit("Add file without line ending", Constants.Signature, Constants.Signature);
 
                 File.AppendAllText(fullpath, "\n");
                 repo.Index.Stage("file.txt");
@@ -397,9 +395,9 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCompareANullTreeAgainstTheIndex()
         {
-            var scd = BuildSelfCleaningDirectory();
+            string repoPath = InitNewRepository();
 
-            using (var repo = Repository.Init(scd.RootedDirectoryPath))
+            using (var repo = new Repository(repoPath))
             {
                 SetUpSimpleDiffContext(repo);
 
@@ -417,9 +415,9 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCompareANullTreeAgainstTheWorkdir()
         {
-            var scd = BuildSelfCleaningDirectory();
+            string repoPath = InitNewRepository();
 
-            using (var repo = Repository.Init(scd.RootedDirectoryPath))
+            using (var repo = new Repository(repoPath))
             {
                 SetUpSimpleDiffContext(repo);
 
@@ -437,9 +435,9 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCompareANullTreeAgainstTheWorkdirAndTheIndex()
         {
-            var scd = BuildSelfCleaningDirectory();
+            string repoPath = InitNewRepository();
 
-            using (var repo = Repository.Init(scd.RootedDirectoryPath))
+            using (var repo = new Repository(repoPath))
             {
                 SetUpSimpleDiffContext(repo);
 

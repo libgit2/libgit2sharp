@@ -10,7 +10,7 @@ using LibGit2Sharp.Handlers;
 namespace LibGit2Sharp
 {
     /// <summary>
-    ///   Provides access to network functionality for a repository.
+    /// Provides access to network functionality for a repository.
     /// </summary>
     public class Network
     {
@@ -18,7 +18,7 @@ namespace LibGit2Sharp
         private readonly Lazy<RemoteCollection> remotes;
 
         /// <summary>
-        ///   Needed for mocking purposes.
+        /// Needed for mocking purposes.
         /// </summary>
         protected Network()
         { }
@@ -30,7 +30,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   The heads that have been updated during the last fetch.
+        /// The heads that have been updated during the last fetch.
         /// </summary>
         public virtual IEnumerable<FetchHead> FetchHeads
         {
@@ -45,7 +45,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Lookup and manage remotes in the repository.
+        /// Lookup and manage remotes in the repository.
         /// </summary>
         public virtual RemoteCollection Remotes
         {
@@ -53,10 +53,10 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   List references in a <see cref = "Remote" /> repository.
+        /// List references in a <see cref="Remote"/> repository.
         /// </summary>
-        /// <param name="remote">The <see cref = "Remote" /> to list from.</param>
-        /// <returns>The references in the <see cref = "Remote" /> repository.</returns>
+        /// <param name="remote">The <see cref="Remote"/> to list from.</param>
+        /// <returns>The references in the <see cref="Remote"/> repository.</returns>
         public virtual IEnumerable<DirectReference> ListReferences(Remote remote)
         {
             Ensure.ArgumentNotNull(remote, "remote");
@@ -90,7 +90,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Fetch from the <see cref = "Remote" />.
+        /// Fetch from the <see cref="Remote"/>.
         /// </summary>
         /// <param name="remote">The remote to fetch</param>
         /// <param name="tagFetchMode">Optional parameter indicating what tags to download.</param>
@@ -98,11 +98,11 @@ namespace LibGit2Sharp
         /// <param name="onCompletion">Completion callback. Corresponds to libgit2 completion callback.</param>
         /// <param name="onUpdateTips">UpdateTips callback. Corresponds to libgit2 update_tips callback.</param>
         /// <param name="onTransferProgress">Callback method that transfer progress will be reported through.
-        ///   Reports the client's state regarding the received and processed (bytes, objects) from the server.</param>
+        /// Reports the client's state regarding the received and processed (bytes, objects) from the server.</param>
         /// <param name="credentials">Credentials to use for username/password authentication.</param>
         public virtual void Fetch(
             Remote remote,
-            TagFetchMode tagFetchMode = TagFetchMode.Auto,
+            TagFetchMode? tagFetchMode = null,
             ProgressHandler onProgress = null,
             CompletionHandler onCompletion = null,
             UpdateTipsHandler onUpdateTips = null,
@@ -121,7 +121,10 @@ namespace LibGit2Sharp
                 var callbacks = new RemoteCallbacks(onProgress, onCompletion, onUpdateTips);
                 GitRemoteCallbacks gitCallbacks = callbacks.GenerateCallbacks();
 
-                Proxy.git_remote_set_autotag(remoteHandle, tagFetchMode);
+                if (tagFetchMode.HasValue)
+                {
+                    Proxy.git_remote_set_autotag(remoteHandle, tagFetchMode.Value);
+                }
 
                 if (credentials != null)
                 {
@@ -162,9 +165,9 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Push the objectish to the destination reference on the <see cref = "Remote" />.
+        /// Push the objectish to the destination reference on the <see cref="Remote"/>.
         /// </summary>
-        /// <param name="remote">The <see cref = "Remote" /> to push to.</param>
+        /// <param name="remote">The <see cref="Remote"/> to push to.</param>
         /// <param name="objectish">The source objectish to push.</param>
         /// <param name="destinationSpec">The reference to update on the remote.</param>
         /// <param name="onPushStatusError">Handler for reporting failed push updates.</param>
@@ -185,9 +188,9 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Push specified reference to the <see cref="Remote"/>.
+        /// Push specified reference to the <see cref="Remote"/>.
         /// </summary>
-        /// <param name="remote">The <see cref = "Remote" /> to push to.</param>
+        /// <param name="remote">The <see cref="Remote"/> to push to.</param>
         /// <param name="pushRefSpec">The pushRefSpec to push.</param>
         /// <param name="onPushStatusError">Handler for reporting failed push updates.</param>
         /// <param name="credentials">Credentials to use for user/pass authentication</param>
@@ -204,9 +207,9 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Push specified references to the <see cref="Remote"/>.
+        /// Push specified references to the <see cref="Remote"/>.
         /// </summary>
-        /// <param name="remote">The <see cref = "Remote" /> to push to.</param>
+        /// <param name="remote">The <see cref="Remote"/> to push to.</param>
         /// <param name="pushRefSpecs">The pushRefSpecs to push.</param>
         /// <param name="onPushStatusError">Handler for reporting failed push updates.</param>
         /// <param name="credentials">Credentials to use for user/pass authentication</param>
@@ -283,7 +286,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Helper class to handle callbacks during push.
+        /// Helper class to handle callbacks during push.
         /// </summary>
         private class PushCallbacks
         {

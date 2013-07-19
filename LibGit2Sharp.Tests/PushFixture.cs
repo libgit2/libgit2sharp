@@ -1,5 +1,4 @@
 using System;
-using System.IO;
 using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
@@ -17,8 +16,12 @@ namespace LibGit2Sharp.Tests
         private void AssertPush(Action<Repository> push)
         {
             var scd = BuildSelfCleaningDirectory();
-            using (var originalRepo = new Repository(CloneBareTestRepo()))
-            using (Repository clonedRepo = Repository.Clone(originalRepo.Info.Path, scd.RootedDirectoryPath))
+
+            string originalRepoPath = CloneBareTestRepo();
+            string clonedRepoPath = Repository.Clone(originalRepoPath, scd.DirectoryPath);
+
+            using (var originalRepo = new Repository(originalRepoPath))
+            using (var clonedRepo = new Repository(clonedRepoPath))
             {
                 Remote remote = clonedRepo.Network.Remotes["origin"];
 
@@ -31,10 +34,9 @@ namespace LibGit2Sharp.Tests
 
                 // Change local state (commit)
                 const string relativeFilepath = "new_file.txt";
-                string filePath = Path.Combine(clonedRepo.Info.WorkingDirectory, relativeFilepath);
-                File.WriteAllText(filePath, "__content__");
+                Touch(clonedRepo.Info.WorkingDirectory, relativeFilepath, "__content__");
                 clonedRepo.Index.Stage(relativeFilepath);
-                clonedRepo.Commit("__commit_message__", DummySignature, DummySignature);
+                clonedRepo.Commit("__commit_message__", Constants.Signature, Constants.Signature);
 
                 // Assert local state has changed
                 Assert.NotEqual(originalRepo.Refs["HEAD"].ResolveToDirectReference().TargetIdentifier,

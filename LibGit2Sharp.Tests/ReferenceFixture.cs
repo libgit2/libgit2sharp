@@ -737,9 +737,9 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanUpdateTheTargetOfASymbolicReferenceWithAnotherSymbolicReference()
         {
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            string repoPath = InitNewRepository();
 
-            using (var repo = Repository.Init(scd.DirectoryPath))
+            using (var repo = new Repository(repoPath))
             {
                 Reference symbolicRef = repo.Refs.Add("refs/heads/unit_test", "refs/heads/master");
 
@@ -776,6 +776,60 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(BareTestRepoPath))
             {
                 Assert.True(repo.Refs["refs/notes/commits"].IsNote());
+            }
+        }
+
+        [Fact]
+        public void CanQueryReachability()
+        {
+            using (var repo = new Repository(StandardTestRepoWorkingDirPath))
+            {
+                var result = repo.Refs.ReachableFrom(
+                    new[] { repo.Lookup<Commit>("f8d44d7"), repo.Lookup<Commit>("6dcf9bf") });
+
+                var expected = new[]
+                {
+                    "refs/heads/diff-test-cases",
+                    "refs/heads/i-do-numbers",
+                    "refs/remotes/origin/test",
+                    "refs/tags/e90810b",
+                    "refs/tags/lw",
+                    "refs/tags/test",
+                };
+
+                Assert.Equal(expected, result.Select(x => x.CanonicalName).OrderBy(x => x).ToList());
+            }
+        }
+
+        [Fact]
+        public void CanQueryReachabilityAmongASubsetOfreferences()
+        {
+            using (var repo = new Repository(StandardTestRepoWorkingDirPath))
+            {
+                var result = repo.Refs.ReachableFrom(
+                    repo.Refs.Where(r => r.IsTag()),
+                    new[] { repo.Lookup<Commit>("f8d44d7"), repo.Lookup<Commit>("6dcf9bf") });
+
+                var expected = new[]
+                {
+                    "refs/tags/e90810b",
+                    "refs/tags/lw",
+                    "refs/tags/test",
+                };
+
+                Assert.Equal(expected, result.Select(x => x.CanonicalName).OrderBy(x => x).ToList());
+            }
+        }
+
+        [Fact]
+        public void CanHandleInvalidArguments()
+        {
+            using (var repo = new Repository(StandardTestRepoWorkingDirPath))
+            {
+                Assert.Throws<ArgumentNullException>(() => repo.Refs.ReachableFrom(null));
+                Assert.Throws<ArgumentNullException>(() => repo.Refs.ReachableFrom(null, repo.Commits.Take(2)));
+                Assert.Throws<ArgumentNullException>(() => repo.Refs.ReachableFrom(repo.Refs, null));
+                Assert.Empty(repo.Refs.ReachableFrom(new Commit[] { }));
             }
         }
     }

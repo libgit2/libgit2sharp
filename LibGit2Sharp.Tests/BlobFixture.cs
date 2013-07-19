@@ -84,9 +84,9 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanStageAFileGeneratedFromABlobContentStream()
         {
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            string repoPath = InitNewRepository();
 
-            using (Repository repo = Repository.Init(scd.DirectoryPath))
+            using (var repo = new Repository(repoPath))
             {
                 for (int i = 0; i < 5; i++)
                 {

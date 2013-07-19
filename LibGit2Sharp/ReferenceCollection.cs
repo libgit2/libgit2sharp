@@ -10,7 +10,7 @@ using LibGit2Sharp.Core.Handles;
 namespace LibGit2Sharp
 {
     /// <summary>
-    ///   The Collection of references in a <see cref = "Repository" />
+    /// The Collection of references in a <see cref="Repository"/>
     /// </summary>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class ReferenceCollection : IEnumerable<Reference>
@@ -18,25 +18,25 @@ namespace LibGit2Sharp
         internal readonly Repository repo;
 
         /// <summary>
-        ///   Needed for mocking purposes.
+        /// Needed for mocking purposes.
         /// </summary>
         protected ReferenceCollection()
         { }
 
         /// <summary>
-        ///   Initializes a new instance of the <see cref = "ReferenceCollection" /> class.
+        /// Initializes a new instance of the <see cref="ReferenceCollection"/> class.
         /// </summary>
-        /// <param name = "repo">The repo.</param>
+        /// <param name="repo">The repo.</param>
         internal ReferenceCollection(Repository repo)
         {
             this.repo = repo;
         }
 
         /// <summary>
-        ///   Gets the <see cref = "LibGit2Sharp.Reference" /> with the specified name.
+        /// Gets the <see cref="LibGit2Sharp.Reference"/> with the specified name.
         /// </summary>
-        /// <param name = "name">The canonical name of the reference to resolve.</param>
-        /// <returns>The resolved <see cref = "LibGit2Sharp.Reference" /> if it has been found, null otherwise.</returns>
+        /// <param name="name">The canonical name of the reference to resolve.</param>
+        /// <returns>The resolved <see cref="LibGit2Sharp.Reference"/> if it has been found, null otherwise.</returns>
         public virtual Reference this[string name]
         {
             get { return Resolve<Reference>(name); }
@@ -45,9 +45,9 @@ namespace LibGit2Sharp
         #region IEnumerable<Reference> Members
 
         /// <summary>
-        ///   Returns an enumerator that iterates through the collection.
+        /// Returns an enumerator that iterates through the collection.
         /// </summary>
-        /// <returns>An <see cref = "IEnumerator{T}" /> object that can be used to iterate through the collection.</returns>
+        /// <returns>An <see cref="IEnumerator{T}"/> object that can be used to iterate through the collection.</returns>
         public virtual IEnumerator<Reference> GetEnumerator()
         {
             return Proxy.git_reference_list(repo.Handle)
@@ -56,9 +56,9 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Returns an enumerator that iterates through the collection.
+        /// Returns an enumerator that iterates through the collection.
         /// </summary>
-        /// <returns>An <see cref = "IEnumerator" /> object that can be used to iterate through the collection.</returns>
+        /// <returns>An <see cref="IEnumerator"/> object that can be used to iterate through the collection.</returns>
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
@@ -67,13 +67,13 @@ namespace LibGit2Sharp
         #endregion
 
         /// <summary>
-        ///   Creates a direct reference with the specified name and target
+        /// Creates a direct reference with the specified name and target
         /// </summary>
-        /// <param name = "name">The canonical name of the reference to create.</param>
-        /// <param name = "targetId">Id of the target object.</param>
-        /// <param name = "allowOverwrite">True to allow silent overwriting a potentially existing reference, false otherwise.</param>
+        /// <param name="name">The canonical name of the reference to create.</param>
+        /// <param name="targetId">Id of the target object.</param>
+        /// <param name="allowOverwrite">True to allow silent overwriting a potentially existing reference, false otherwise.</param>
         /// <param name="logMessage">The optional message to log in the <see cref="ReflogCollection"/> when adding the <see cref="DirectReference"/></param>
-        /// <returns>A new <see cref = "Reference" />.</returns>
+        /// <returns>A new <see cref="Reference"/>.</returns>
         public virtual DirectReference Add(string name, ObjectId targetId, bool allowOverwrite = false, string logMessage = null)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
@@ -90,13 +90,13 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Creates a symbolic reference  with the specified name and target
+        /// Creates a symbolic reference  with the specified name and target
         /// </summary>
-        /// <param name = "name">The canonical name of the reference to create.</param>
-        /// <param name = "targetRef">The target reference.</param>
-        /// <param name = "allowOverwrite">True to allow silent overwriting a potentially existing reference, false otherwise.</param>
+        /// <param name="name">The canonical name of the reference to create.</param>
+        /// <param name="targetRef">The target reference.</param>
+        /// <param name="allowOverwrite">True to allow silent overwriting a potentially existing reference, false otherwise.</param>
         /// <param name="logMessage">The optional message to log in the <see cref="ReflogCollection"/> when adding the <see cref="SymbolicReference"/></param>
-        /// <returns>A new <see cref = "Reference" />.</returns>
+        /// <returns>A new <see cref="Reference"/>.</returns>
         public virtual SymbolicReference Add(string name, Reference targetRef, bool allowOverwrite = false, string logMessage = null)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
@@ -113,9 +113,9 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Remove a reference from the repository
+        /// Remove a reference from the repository
         /// </summary>
-        /// <param name = "reference">The reference to delete.</param>
+        /// <param name="reference">The reference to delete.</param>
         public virtual void Remove(Reference reference)
         {
             Ensure.ArgumentNotNull(reference, "reference");
@@ -127,12 +127,12 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Rename an existing reference with a new name
+        /// Rename an existing reference with a new name
         /// </summary>
-        /// <param name = "reference">The reference to rename.</param>
-        /// <param name = "newName">The new canonical name.</param>
-        /// <param name = "allowOverwrite">True to allow silent overwriting a potentially existing reference, false otherwise.</param>
-        /// <returns>A new <see cref = "Reference" />.</returns>
+        /// <param name="reference">The reference to rename.</param>
+        /// <param name="newName">The new canonical name.</param>
+        /// <param name="allowOverwrite">True to allow silent overwriting a potentially existing reference, false otherwise.</param>
+        /// <returns>A new <see cref="Reference"/>.</returns>
         public virtual Reference Move(Reference reference, string newName, bool allowOverwrite = false)
         {
             Ensure.ArgumentNotNull(reference, "reference");
@@ -158,12 +158,12 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Updates the target of a direct reference.
+        /// Updates the target of a direct reference.
         /// </summary>
-        /// <param name = "directRef">The direct reference which target should be updated.</param>
-        /// <param name = "targetId">The new target.</param>
+        /// <param name="directRef">The direct reference which target should be updated.</param>
+        /// <param name="targetId">The new target.</param>
         /// <param name="logMessage">The optional message to log in the <see cref="ReflogCollection"/> of the <paramref name="directRef"/> reference</param>
-        /// <returns>A new <see cref = "Reference" />.</returns>
+        /// <returns>A new <see cref="Reference"/>.</returns>
         public virtual Reference UpdateTarget(Reference directRef, ObjectId targetId, string logMessage = null)
         {
             Ensure.ArgumentNotNull(directRef, "directRef");
@@ -178,12 +178,12 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Updates the target of a symbolic reference.
+        /// Updates the target of a symbolic reference.
         /// </summary>
-        /// <param name = "symbolicRef">The symbolic reference which target should be updated.</param>
-        /// <param name = "targetRef">The new target.</param>
+        /// <param name="symbolicRef">The symbolic reference which target should be updated.</param>
+        /// <param name="targetRef">The new target.</param>
         /// <param name="logMessage">The optional message to log in the <see cref="ReflogCollection"/> of the <paramref name="symbolicRef"/> reference.</param>
-        /// <returns>A new <see cref = "Reference" />.</returns>
+        /// <returns>A new <see cref="Reference"/>.</returns>
         public virtual Reference UpdateTarget(Reference symbolicRef, Reference targetRef, string logMessage = null)
         {
             Ensure.ArgumentNotNull(symbolicRef, "symbolicRef");
@@ -259,9 +259,9 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Returns the list of references of the repository matching the specified <paramref name = "pattern" />.
+        /// Returns the list of references of the repository matching the specified <paramref name="pattern"/>.
         /// </summary>
-        /// <param name = "pattern">The glob pattern the reference name should match.</param>
+        /// <param name="pattern">The glob pattern the reference name should match.</param>
         /// <returns>A list of references, ready to be enumerated.</returns>
         public virtual IEnumerable<Reference> FromGlob(string pattern)
         {
@@ -272,15 +272,15 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Determines if the proposed reference name is well-formed.
+        /// Determines if the proposed reference name is well-formed.
         /// </summary>
         /// <para>
-        ///   - Top-level names must contain only capital letters and underscores,
-        ///   and must begin and end with a letter. (e.g. "HEAD", "ORIG_HEAD").
+        /// - Top-level names must contain only capital letters and underscores,
+        /// and must begin and end with a letter. (e.g. "HEAD", "ORIG_HEAD").
         ///
-        ///   - Names prefixed with "refs/" can be almost anything.  You must avoid
-        ///   the characters '~', '^', ':', '\\', '?', '[', and '*', and the
-        ///   sequences ".." and "@{" which have special meaning to revparse.
+        /// - Names prefixed with "refs/" can be almost anything.  You must avoid
+        /// the characters '~', '^', ':', '\\', '?', '[', and '*', and the
+        /// sequences ".." and "@{" which have special meaning to revparse.
         /// </para>
         /// <param name="canonicalName">The name to be checked.</param>
         /// <returns>true is the name is valid; false otherwise.</returns>
@@ -290,11 +290,11 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Shortcut to return the HEAD reference.
+        /// Shortcut to return the HEAD reference.
         /// </summary>
         /// <returns>
-        ///   A <see cref="DirectReference"/> if the HEAD is detached;
-        ///   otherwise a <see cref="SymbolicReference"/>.
+        /// A <see cref="DirectReference"/> if the HEAD is detached;
+        /// otherwise a <see cref="SymbolicReference"/>.
         /// </returns>
         public virtual Reference Head
         {
@@ -311,7 +311,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Returns as a <see cref="ReflogCollection"/> the reflog of the <see cref="Reference"/> named <paramref name="canonicalName"/>
+        /// Returns as a <see cref="ReflogCollection"/> the reflog of the <see cref="Reference"/> named <paramref name="canonicalName"/>
         /// </summary>
         /// <param name="canonicalName">The canonical name of the reference</param>
         /// <returns>a <see cref="ReflogCollection"/>, enumerable of <see cref="ReflogEntry"/></returns>
@@ -323,7 +323,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Returns as a <see cref="ReflogCollection"/> the reflog of the <see cref="Reference"/> <paramref name="reference"/>
+        /// Returns as a <see cref="ReflogCollection"/> the reflog of the <see cref="Reference"/> <paramref name="reference"/>
         /// </summary>
         /// <param name="reference">The reference</param>
         /// <returns>a <see cref="ReflogCollection"/>, enumerable of <see cref="ReflogEntry"/></returns>
@@ -332,6 +332,44 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(reference, "reference");
 
             return new ReflogCollection(repo, reference.CanonicalName);
+        }
+
+        /// <summary>
+        /// Rewrite some of the commits in the repository and all the references that can reach them.
+        /// </summary>
+        /// <param name="commitsToRewrite">The <see cref="Commit"/> objects to rewrite.</param>
+        /// <param name="commitHeaderRewriter">Visitor for rewriting commit metadata.</param>
+        /// <param name="commitTreeRewriter">Visitor for rewriting commit trees.</param>
+        /// <param name="tagNameRewriter">Visitor for renaming tags. This is called with (OldTag.Name, OldTag.IsAnnotated, OldTarget).</param>
+        /// <param name="commitParentsRewriter">Visitor for mangling parent links.</param>
+        /// <param name="backupRefsNamespace">Namespace where to store the rewritten references (defaults to "refs/original/")</param>
+        public virtual void RewriteHistory(
+            IEnumerable<Commit> commitsToRewrite,
+            Func<Commit, CommitRewriteInfo> commitHeaderRewriter = null,
+            Func<Commit, TreeDefinition> commitTreeRewriter = null,
+            Func<String, bool, GitObject, string> tagNameRewriter = null,
+            Func<IEnumerable<Commit>, IEnumerable<Commit>> commitParentsRewriter = null,
+            string backupRefsNamespace = "refs/original/")
+        {
+            Ensure.ArgumentNotNull(commitsToRewrite, "commitsToRewrite");
+            Ensure.ArgumentNotNullOrEmptyString(backupRefsNamespace, "backupRefsNamespace");
+
+            if (!backupRefsNamespace.EndsWith("/"))
+            {
+                backupRefsNamespace += "/";
+            }
+
+            IList<Reference> originalRefs = this.ToList();
+            if (originalRefs.Count == 0)
+            {
+                // Nothing to do
+                return;
+            }
+
+            var historyRewriter = new HistoryRewriter(repo, commitsToRewrite, commitHeaderRewriter, commitTreeRewriter,
+                                                      commitParentsRewriter, tagNameRewriter, backupRefsNamespace);
+
+            historyRewriter.Execute();
         }
     }
 }

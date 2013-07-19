@@ -1,5 +1,4 @@
 using System.IO;
-using System.Text;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
 using Xunit.Extensions;
@@ -13,8 +12,9 @@ namespace LibGit2Sharp.Tests
         [InlineData(false)]
         public void CurrentOperationIsNoneForNewRepo(bool isBare)
         {
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
-            using (var repo = Repository.Init(scd.DirectoryPath, isBare))
+            string repoPath = InitNewRepository(isBare);
+
+            using (var repo = new Repository(repoPath))
             {
                 Assert.Equal(CurrentOperation.None, repo.Info.CurrentOperation);
             }

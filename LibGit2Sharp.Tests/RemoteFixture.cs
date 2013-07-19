@@ -44,6 +44,29 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        [Theory]
+        [InlineData(TagFetchMode.All)]
+        [InlineData(TagFetchMode.Auto)]
+        [InlineData(TagFetchMode.None)]
+        public void CanSetTagFetchMode(TagFetchMode tagFetchMode)
+        {
+            string path = CloneBareTestRepo();
+            using (var repo = new Repository(path))
+            {
+                const string name = "upstream";
+                const string url = "https://github.com/libgit2/libgit2sharp.git";
+
+                repo.Network.Remotes.Add(name, url);
+                Remote remote = repo.Network.Remotes[name];
+                Assert.NotNull(remote);
+
+                Remote updatedremote = repo.Network.Remotes.Update(remote,
+                    r => r.TagFetchMode = tagFetchMode);
+
+                Assert.Equal(tagFetchMode, updatedremote.TagFetchMode);
+            }
+        }
+
         [Fact]
         public void CanCheckEqualityOfRemote()
         {

@@ -3,7 +3,7 @@
 namespace LibGit2Sharp
 {
     /// <summary>
-    ///   A TagAnnotation
+    /// A TagAnnotation
     /// </summary>
     public class TagAnnotation : GitObject
     {
@@ -14,7 +14,7 @@ namespace LibGit2Sharp
         private readonly ILazy<Signature> lazyTagger;
 
         /// <summary>
-        ///   Needed for mocking purposes.
+        /// Needed for mocking purposes.
         /// </summary>
         protected TagAnnotation()
         { }
@@ -32,22 +32,22 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        ///   Gets the name of this tag.
+        /// Gets the name of this tag.
         /// </summary>
         public virtual string Name { get { return lazyName.Value; } }
 
         /// <summary>
-        ///   Gets the message of this tag.
+        /// Gets the message of this tag.
         /// </summary>
         public virtual string Message { get { return lazyMessage.Value; } }
 
         /// <summary>
-        ///   Gets the <see cref = "GitObject" /> that this tag annotation points to.
+        /// Gets the <see cref="GitObject"/> that this tag annotation points to.
         /// </summary>
         public virtual GitObject Target { get { return lazyTarget.Value; } }
 
         /// <summary>
-        ///   Gets the tagger.
+        /// Gets the tagger.
         /// </summary>
         public virtual Signature Tagger { get { return lazyTagger.Value; } }
     }

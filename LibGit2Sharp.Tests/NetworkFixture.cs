@@ -17,8 +17,9 @@ namespace LibGit2Sharp.Tests
         {
             string remoteName = "testRemote";
 
-            var scd = BuildSelfCleaningDirectory();
-            using (var repo = Repository.Init(scd.RootedDirectoryPath))
+            string repoPath = InitNewRepository();
+
+            using (var repo = new Repository(repoPath))
             {
                 Remote remote = repo.Network.Remotes.Add(remoteName, url);
                 IEnumerable<DirectReference> references = repo.Network.ListReferences(remote);
@@ -38,16 +39,19 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanListRemoteReferenceObjects()
         {
-            string url = "http://github.com/libgit2/TestGitRepository";
-            string remoteName = "origin";
+            const string url = "http://github.com/libgit2/TestGitRepository";
+            const string remoteName = "origin";
 
             var scd = BuildSelfCleaningDirectory();
-            using (Repository repo = Repository.Clone(url, scd.RootedDirectoryPath))
+
+            string clonedRepoPath = Repository.Clone(url, scd.DirectoryPath);
+
+            using (var repo = new Repository(clonedRepoPath))
             {
                 Remote remote = repo.Network.Remotes[remoteName];
                 IEnumerable<DirectReference> references = repo.Network.ListReferences(remote);
 
-                List<Tuple<string, string>> actualRefs = new List<Tuple<string,string>>();
+                var actualRefs = new List<Tuple<string,string>>();
 
                 foreach(DirectReference reference in references)
                 {

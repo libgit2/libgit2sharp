@@ -14,7 +14,7 @@ namespace LibGit2Sharp.Tests
             string path = CloneStandardTestRepo();
             using (var repo = new Repository(path))
             {
-                File.WriteAllText(Path.Combine(repo.Info.WorkingDirectory, "Foo.cs"), "Bar");
+                Touch(repo.Info.WorkingDirectory, "Foo.cs", "Bar");
 
                 Assert.True(repo.Index.RetrieveStatus().Untracked.Contains("Foo.cs"));
 
@@ -34,7 +34,7 @@ namespace LibGit2Sharp.Tests
             string path = CloneStandardTestRepo();
             using (var repo = new Repository(path))
             {
-                File.WriteAllText(Path.Combine(repo.Info.WorkingDirectory, "Foo.cs"), "Bar");
+                Touch(repo.Info.WorkingDirectory, "Foo.cs", "Bar");
 
                 Assert.False(repo.Ignore.IsPathIgnored("Foo.cs"));
 
@@ -73,8 +73,7 @@ namespace LibGit2Sharp.Tests
             string path = CloneStandardTestRepo();
             using (var repo = new Repository(path))
             {
-                string ignorePath = Path.Combine(repo.Info.WorkingDirectory, ".gitignore");
-                File.WriteAllText(ignorePath, "/NewFolder\n/NewFolder/NewFolder");
+                Touch(repo.Info.WorkingDirectory, ".gitignore", "/NewFolder\n/NewFolder/NewFolder");
 
                 Assert.False(repo.Ignore.IsPathIgnored("File.txt"));
                 Assert.True(repo.Ignore.IsPathIgnored("NewFolder"));
