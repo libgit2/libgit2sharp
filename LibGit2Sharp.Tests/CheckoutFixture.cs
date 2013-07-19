@@ -925,7 +925,8 @@ namespace LibGit2Sharp.Tests
                 repo.Checkout(originalBranch);
                 Assert.False(repo.Index.RetrieveStatus().IsDirty);
 
-                repo.CheckoutPaths(checkoutFrom, new string[] { path }, CheckoutModifiers.None, null, null);
+                CheckoutOptions checkoutOptions = new CheckoutOptions(CheckoutModifiers.None, null, null);
+                repo.CheckoutPaths(checkoutFrom, new string[] { path }, checkoutOptions);
 
                 Assert.Equal(expectedStatus, repo.Index.RetrieveStatus(path));
                 Assert.Equal(1, repo.Index.RetrieveStatus().Count());
@@ -944,7 +945,8 @@ namespace LibGit2Sharp.Tests
                 ResetAndCleanWorkingDirectory(repo);
                 Assert.False(repo.Index.RetrieveStatus().IsDirty);
 
-                repo.CheckoutPaths("i-do-numbers", checkoutPaths, CheckoutModifiers.None, null, null);
+                CheckoutOptions checkoutOptions = new CheckoutOptions(CheckoutModifiers.None, null, null);
+                repo.CheckoutPaths("i-do-numbers", checkoutPaths, checkoutOptions);
 
                 foreach (string checkoutPath in checkoutPaths)
                 {
@@ -971,7 +973,8 @@ namespace LibGit2Sharp.Tests
 
                 Assert.True(repo.Index.RetrieveStatus().IsDirty);
 
-                repo.CheckoutPaths("HEAD", new string[] { fileName }, CheckoutModifiers.Force, null, null);
+                CheckoutOptions checkoutOptions = new CheckoutOptions(CheckoutModifiers.Force, null, null);
+                repo.CheckoutPaths("HEAD", new string[] { fileName }, checkoutOptions);
 
                 Assert.False(repo.Index.RetrieveStatus().IsDirty);
             }

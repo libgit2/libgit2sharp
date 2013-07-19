@@ -78,39 +78,11 @@ namespace LibGit2Sharp
         /// </para>
         /// </summary>
         /// <param name="branch">The <see cref="Branch"/> to check out.</param>
-        /// <param name="checkoutOptions"><see cref="CheckoutOptions"/> controlling checkout behavior.</param>
-        /// <param name="onCheckoutProgress"><see cref="CheckoutProgressHandler"/> that checkout progress is reported through.</param>
-        /// <returns>The <see cref="Branch"/> that was checked out.</returns>
-        [Obsolete("This method will be removed in the next release. Please use Checkout(Branch, CheckoutModifiers, CheckoutProgressHandler, CheckoutNotificationOptions) instead.")]
-        Branch Checkout(Branch branch, CheckoutOptions checkoutOptions, CheckoutProgressHandler onCheckoutProgress);
-
-        /// <summary>
-        /// Checkout the commit pointed at by the tip of the specified <see cref="Branch"/>.
-        /// <para>
-        ///   If this commit is the current tip of the branch as it exists in the repository, the HEAD
-        ///   will point to this branch. Otherwise, the HEAD will be detached, pointing at the commit sha.
-        /// </para>
-        /// </summary>
-        /// <param name="branch">The <see cref="Branch"/> to check out.</param>
         /// <param name="checkoutModifiers"><see cref="CheckoutModifiers"/> controlling checkout behavior.</param>
         /// <param name="onCheckoutProgress"><see cref="CheckoutProgressHandler"/> that checkout progress is reported through.</param>
         /// <param name="checkoutNotificationOptions"><see cref="CheckoutNotificationOptions"/> to manage checkout notifications.</param>
         /// <returns>The <see cref="Branch"/> that was checked out.</returns>
         Branch Checkout(Branch branch, CheckoutModifiers checkoutModifiers, CheckoutProgressHandler onCheckoutProgress, CheckoutNotificationOptions checkoutNotificationOptions);
-
-        /// <summary>
-        /// Checkout the specified branch, reference or SHA.
-        /// <para>
-        ///   If the committishOrBranchSpec parameter resolves to a branch name, then the checked out HEAD will
-        ///   will point to the branch. Otherwise, the HEAD will be detached, pointing at the commit sha.
-        /// </para>
-        /// </summary>
-        /// <param name="committishOrBranchSpec">A revparse spec for the commit or branch to checkout.</param>
-        /// <param name="checkoutOptions">Options controlling checkout behavior.</param>
-        /// <param name="onCheckoutProgress">Callback method to report checkout progress updates through.</param>
-        /// <returns>The <see cref="Branch"/> that was checked out.</returns>
-        [Obsolete("This method will be removed in the next release. Please use Checkout(string, CheckoutModifiers, CheckoutProgressHandler, CheckoutNotificationOptions) instead.")]
-        Branch Checkout(string committishOrBranchSpec, CheckoutOptions checkoutOptions, CheckoutProgressHandler onCheckoutProgress);
 
         /// <summary>
         /// Checkout the specified branch, reference or SHA.
@@ -127,19 +99,6 @@ namespace LibGit2Sharp
         Branch Checkout(string committishOrBranchSpec, CheckoutModifiers checkoutModifiers, CheckoutProgressHandler onCheckoutProgress, CheckoutNotificationOptions checkoutNotificationOptions);
 
         /// <summary>
-        /// Checkout the specified <see cref="LibGit2Sharp.Commit"/>.
-        /// <para>
-        ///   Will detach the HEAD and make it point to this commit sha.
-        /// </para>
-        /// </summary>
-        /// <param name="commit">The <see cref="LibGit2Sharp.Commit"/> to check out.</param>
-        /// <param name="checkoutOptions"><see cref="CheckoutOptions"/> controlling checkout behavior.</param>
-        /// <param name="onCheckoutProgress"><see cref="CheckoutProgressHandler"/> that checkout progress is reported through.</param>
-        /// <returns>The <see cref="Branch"/> that was checked out.</returns>
-        [Obsolete("This method will be removed in the next release. Please use Checkout(Commit, CheckoutModifiers, CheckoutProgressHandler, CheckoutNotificationOptions) instead.")]
-        Branch Checkout(Commit commit, CheckoutOptions checkoutOptions, CheckoutProgressHandler onCheckoutProgress);
-
-        /// <summary>
         /// Checkout the specified <see cref="Commit"/>.
         /// <para>
         ///   Will detach the HEAD and make it point to this commit sha.
@@ -153,14 +112,25 @@ namespace LibGit2Sharp
         Branch Checkout(Commit commit, CheckoutModifiers checkoutModifiers, CheckoutProgressHandler onCheckoutProgress, CheckoutNotificationOptions checkoutNotificationOptions);
 
         /// <summary>
-        /// Checkout files from the specified branch, reference or SHA.
+        /// Updates specifed paths in the index and working directory with the versions from the specified branch, reference, or SHA.
+        /// <para>
+        /// This method does not switch branches or update the current repository HEAD.
+        /// </para>
         /// </summary>
         /// <param name = "committishOrBranchSpec">A revparse spec for the commit or branch to checkout paths from.</param>
         /// <param name="paths">The paths to checkout.</param>
-        /// <param name="checkoutOptions">Options controlling checkout behavior.</param>
-        /// <param name="onCheckoutProgress">Callback method to report checkout progress updates through.</param>
-        /// <param name="checkoutNotificationOptions"><see cref="CheckoutNotificationOptions"/> to manage checkout notifications.</param>
-        void CheckoutPaths(string committishOrBranchSpec, IList<string> paths, CheckoutModifiers checkoutOptions, CheckoutProgressHandler onCheckoutProgress, CheckoutNotificationOptions checkoutNotificationOptions);
+        void CheckoutPaths(string committishOrBranchSpec, IList<string> paths);
+
+        /// <summary>
+        /// Updates specifed paths in the index and working directory with the versions from the specified branch, reference, or SHA.
+        /// <para>
+        /// This method does not switch branches or update the current repository HEAD.
+        /// </para>
+        /// </summary>
+        /// <param name = "committishOrBranchSpec">A revparse spec for the commit or branch to checkout paths from.</param>
+        /// <param name="paths">The paths to checkout.</param>
+        /// <param name="checkoutOptions">Collection of parameters controlling checkout behavior.</param>
+        void CheckoutPaths(string committishOrBranchSpec, IList<string> paths, CheckoutOptions checkoutOptions);
 
         /// <summary>
         /// Try to lookup an object by its <see cref="ObjectId"/>. If no matching object is found, null will be returned.
