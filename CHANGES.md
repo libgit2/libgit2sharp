@@ -8,6 +8,41 @@
  - CI server: <http://teamcity.codebetter.com/project.html?projectId=project127&guest=1>
  - @libgit2sharp: <http://twitter.com/libgit2sharp>
 
+## v0.13.0 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.12.0...v0.13.0))
+
+### Additions
+
+ - Teach Repository to Checkout paths
+ - Teach Checkout() to cope with revparse extended syntax leading to references
+ - Make Stash expose Base, Index and Untracked commits
+ - Teach Repository.Init() to set up a separate git directory
+ - Teach checkout to report notifications
+ - Create a new repo.Checkout() overload which accepts a Commit object
+ - Allow ObjectDatabase.CreateBlob() to limit the number of bytes to consume
+ - Make ObjectDatabase.CreateBlob() accept a Stream
+ - Introduce repo.Refs.RewriteHistory()
+ - Introduce repo.Refs.ReachableFrom()
+ - Introduce TreeDefinition.From(Commit)
+ - Expose TagFetchMode property on Remote type
+ - Add CopyNativeDependencies.targets
+
+### Changes
+
+ - Rename CheckoutOptions into CheckoutModifiers
+ - Rename DiffOptions into DiffModifiers
+ - Rename StashOptions into StashModifiers
+ - Rename GitSortOptions into CommitSortStrategies
+ - Rename Filter into CommitFilter
+ - Rename ObjectDatabase.CreateTag into ObjectDatabase.CreateTagAnnotation
+ - Obsolete repo.Clone() overload which returns a Repository
+ - Obsolete repo.Init() overload which returns a Repository
+ - Obsolete ObjectDatabase.CreateBlob(BinaryReader, string)
+ - Update libgit2 binaries to libgit2/libgit2@7940036
+
+### Fixes
+
+ - Fetch should respect the remote's configured tagopt setting unless explicitly specified
+
 ## v0.12.0 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.11.0...v0.12.0))
 
 ### Additions
