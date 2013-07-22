@@ -3,7 +3,7 @@ namespace LibGit2Sharp
     /// <summary>
     /// Options to define file comparison behavior.
     /// </summary>
-    public class CompareOptions
+    public sealed class CompareOptions
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="CompareOptions"/> class.

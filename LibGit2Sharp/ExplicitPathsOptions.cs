@@ -10,7 +10,7 @@ namespace LibGit2Sharp
     ///   explicit paths, and NOT pathspecs containing globs.
     /// </para>
     /// </summary>
-    public class ExplicitPathsOptions
+    public sealed class ExplicitPathsOptions
     {
         /// <summary>
         /// Associated paths will be treated as explicit paths.
