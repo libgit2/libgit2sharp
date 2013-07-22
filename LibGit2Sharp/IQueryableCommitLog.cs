@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace LibGit2Sharp
 {
@@ -8,14 +7,6 @@ namespace LibGit2Sharp
     /// </summary>
     public interface IQueryableCommitLog : ICommitLog
     {
-        /// <summary>
-        /// Returns the list of commits of the repository matching the specified <paramref name="filter"/>.
-        /// </summary>
-        /// <param name="filter">The options used to control which commits will be returned.</param>
-        /// <returns>A list of commits, ready to be enumerated.</returns>
-        [Obsolete("This method will be removed in the next release. Please use QueryBy(CommitFilter) instead.")]
-        ICommitLog QueryBy(Filter filter);
-
         /// <summary>
         /// Returns the list of commits of the repository matching the specified <paramref name="filter"/>.
         /// </summary>

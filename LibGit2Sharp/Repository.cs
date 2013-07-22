@@ -359,21 +359,6 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="path">The path to the working folder when initializing a standard ".git" repository. Otherwise, when initializing a bare repository, the path to the expected location of this later.</param>
         /// <param name="isBare">true to initialize a bare repository. False otherwise, to initialize a standard ".git" repository.</param>
-        /// <param name="options">Overrides to the way a repository is opened.</param>
-        /// <returns> a new instance of the <see cref="Repository"/> class. The client code is responsible for calling <see cref="Dispose()"/> on this instance.</returns>
-        [Obsolete("This method will be removed in the next release. Please use Init(string, bool) instead.")]
-        public static Repository Init(string path, bool isBare, RepositoryOptions options)
-        {
-            string gitDirPath = Init(path, isBare);
-
-            return new Repository(gitDirPath, options);
-        }
-
-        /// <summary>
-        /// Initialize a repository at the specified <paramref name="path"/>.
-        /// </summary>
-        /// <param name="path">The path to the working folder when initializing a standard ".git" repository. Otherwise, when initializing a bare repository, the path to the expected location of this later.</param>
-        /// <param name="isBare">true to initialize a bare repository. False otherwise, to initialize a standard ".git" repository.</param>
         /// <returns>The path to the created repository.</returns>
         public static string Init(string path, bool isBare = false)
         {
@@ -564,34 +549,6 @@ namespace LibGit2Sharp
         /// to non-bare repositories.</param>
         /// <param name="onTransferProgress">Handler for network transfer and indexing progress information</param>
         /// <param name="onCheckoutProgress">Handler for checkout progress information</param>
-        /// <param name="options">Overrides to the way a repository is opened.</param>
-        /// <param name="credentials">Credentials to use for user/pass authentication</param>
-        /// <returns> a new instance of the <see cref="Repository"/> class. The client code is responsible for calling <see cref="Dispose()"/> on this instance.</returns>
-        [Obsolete("This method will be removed in the next release. Please use Clone(string, string, bool, bool, TransferProgressHandler, CheckoutProgressHandler, Credentials) instead.")]
-        public static Repository Clone(string sourceUrl, string workdirPath,
-            bool bare,
-            bool checkout,
-            TransferProgressHandler onTransferProgress,
-            CheckoutProgressHandler onCheckoutProgress,
-            RepositoryOptions options,
-            Credentials credentials)
-        {
-            string gitDirPath = Clone(sourceUrl, workdirPath, bare,
-                checkout, onTransferProgress, onCheckoutProgress, credentials);
-
-            return new Repository(gitDirPath, options);
-        }
-
-        /// <summary>
-        /// Clone with specified options.
-        /// </summary>
-        /// <param name="sourceUrl">URI for the remote repository</param>
-        /// <param name="workdirPath">Local path to clone into</param>
-        /// <param name="bare">True will result in a bare clone, false a full clone.</param>
-        /// <param name="checkout">If true, the origin's HEAD will be checked out. This only applies
-        /// to non-bare repositories.</param>
-        /// <param name="onTransferProgress">Handler for network transfer and indexing progress information</param>
-        /// <param name="onCheckoutProgress">Handler for checkout progress information</param>
         /// <param name="credentials">Credentials to use for user/pass authentication</param>
         /// <returns>The path to the created repository.</returns>
         public static string Clone(string sourceUrl, string workdirPath,
@@ -636,23 +593,6 @@ namespace LibGit2Sharp
             GC.KeepAlive(cloneOpts.CredAcquireCallback);
 
             return repoPath.Native;
-        }
-
-        /// <summary>
-        /// Checkout the specified <see cref="Branch"/>, reference or SHA.
-        /// <para>
-        ///   If the committishOrBranchSpec parameter resolves to a branch name, then the checked out HEAD will
-        ///   will point to the branch. Otherwise, the HEAD will be detached, pointing at the commit sha.
-        /// </para>
-        /// </summary>
-        /// <param name="committishOrBranchSpec">A revparse spec for the commit or branch to checkout.</param>
-        /// <param name="checkoutOptions"><see cref="CheckoutOptions"/> controlling checkout behavior.</param>
-        /// <param name="onCheckoutProgress"><see cref="CheckoutProgressHandler"/> that checkout progress is reported through.</param>
-        /// <returns>The <see cref="Branch"/> that was checked out.</returns>
-        [Obsolete("This method will be removed in the next release. Please use Checkout(string, CheckoutModifiers, CheckoutProgressHandler, CheckoutNotificationOptions) instead.")]
-        public Branch Checkout(string committishOrBranchSpec, CheckoutOptions checkoutOptions, CheckoutProgressHandler onCheckoutProgress)
-        {
-            return Checkout(committishOrBranchSpec, (CheckoutModifiers)checkoutOptions, onCheckoutProgress, null);
         }
 
         /// <summary>
@@ -709,23 +649,6 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Checkout the commit pointed at by the tip of the specified <see cref="Branch"/>.
-        /// <para>
-        ///   If this commit is the current tip of the branch as it exists in the repository, the HEAD
-        ///   will point to this branch. Otherwise, the HEAD will be detached, pointing at the commit sha.
-        /// </para>
-        /// </summary>
-        /// <param name="branch">The <see cref="Branch"/> to check out.</param>
-        /// <param name="checkoutOptions"><see cref="CheckoutOptions"/> controlling checkout behavior.</param>
-        /// <param name="onCheckoutProgress"><see cref="CheckoutProgressHandler"/> that checkout progress is reported through.</param>
-        /// <returns>The <see cref="Branch"/> that was checked out.</returns>
-        [Obsolete("This method will be removed in the next release. Please use Checkout(Branch, CheckoutModifiers, CheckoutProgressHandler, CheckoutNotificationOptions) instead.")]
-        public Branch Checkout(Branch branch, CheckoutOptions checkoutOptions, CheckoutProgressHandler onCheckoutProgress)
-        {
-            return Checkout(branch, (CheckoutModifiers)checkoutOptions, onCheckoutProgress, null);
-        }
-
-        /// <summary>
         /// Checkout the tip commit of the specified <see cref="Branch"/> object. If this commit is the
         /// current tip of the branch, will checkout the named branch. Otherwise, will checkout the tip commit
         /// as a detached HEAD.
@@ -759,24 +682,6 @@ namespace LibGit2Sharp
             {
                 Checkout(branch.Tip.Tree, checkoutModifiers, onCheckoutProgress, checkoutNotificationOptions, branch.Tip.Id.Sha, branch.Name, !branchIsCurrentRepositoryHead);
             }
-
-            return Head;
-        }
-
-        /// <summary>
-        /// Checkout the specified <see cref="LibGit2Sharp.Commit"/>.
-        /// <para>
-        ///   Will detach the HEAD and make it point to this commit sha.
-        /// </para>
-        /// </summary>
-        /// <param name="commit">The <see cref="LibGit2Sharp.Commit"/> to check out.</param>
-        /// <param name="checkoutOptions"><see cref="CheckoutOptions"/> controlling checkout behavior.</param>
-        /// <param name="onCheckoutProgress"><see cref="CheckoutProgressHandler"/> that checkout progress is reported through.</param>
-        /// <returns>The <see cref="Branch"/> that was checked out.</returns>
-        [Obsolete("This method will be removed in the next release. Please use Checkout(Commit, CheckoutModifiers, CheckoutProgressHandler, CheckoutNotificationOptions) instead.")]
-        public Branch Checkout(Commit commit, CheckoutOptions checkoutOptions, CheckoutProgressHandler onCheckoutProgress)
-        {
-            Checkout(commit.Tree, (CheckoutModifiers)checkoutOptions, onCheckoutProgress, null, commit.Id.Sha, commit.Id.Sha, true);
 
             return Head;
         }

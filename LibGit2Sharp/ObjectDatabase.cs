@@ -122,20 +122,6 @@ namespace LibGit2Sharp
         /// <summary>
         /// Inserts a <see cref="Blob"/> into the object database, created from the content of a data provider.
         /// </summary>
-        /// <param name="reader">The reader that will provide the content of the blob to be created.</param>
-        /// <param name="hintpath">The hintpath is used to determine what git filters should be applied to the object before it can be placed to the object database.</param>
-        /// <returns>The created <see cref="Blob"/>.</returns>
-        [Obsolete("This method will be removed in the next release. Please use CreateBlob(Stream, string) instead.")]
-        public virtual Blob CreateBlob(BinaryReader reader, string hintpath = null)
-        {
-            Ensure.ArgumentNotNull(reader, "reader");
-
-            return CreateBlob(reader.BaseStream, hintpath);
-        }
-
-        /// <summary>
-        /// Inserts a <see cref="Blob"/> into the object database, created from the content of a data provider.
-        /// </summary>
         /// <param name="stream">The stream from which will be read the content of the blob to be created.</param>
         /// <param name="hintpath">The hintpath is used to determine what git filters should be applied to the object before it can be placed to the object database.</param>
         /// <param name="numberOfBytesToConsume">The number of bytes to consume from the stream.</param>
@@ -195,20 +181,6 @@ namespace LibGit2Sharp
             ObjectId commitId = Proxy.git_commit_create(repo.Handle, referenceName, author, committer, prettifiedMessage, tree, parentIds);
 
             return repo.Lookup<Commit>(commitId);
-        }
-
-        /// <summary>
-        /// Inserts a <see cref="TagAnnotation"/> into the object database, pointing to a specific <see cref="GitObject"/>.
-        /// </summary>
-        /// <param name="name">The name.</param>
-        /// <param name="target">The <see cref="GitObject"/> being pointed at.</param>
-        /// <param name="tagger">The tagger.</param>
-        /// <param name="message">The message.</param>
-        /// <returns>The created <see cref="TagAnnotation"/>.</returns>
-        [Obsolete("This method will be removed in the next release. Please use CreateTagAnnontation(string, GitObject, Signature, string) instead.")]
-        public virtual TagAnnotation CreateTag(string name, GitObject target, Signature tagger, string message)
-        {
-            return CreateTagAnnotation(name, target, tagger, message);
         }
 
         /// <summary>

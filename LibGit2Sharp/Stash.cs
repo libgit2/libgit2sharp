@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 
 namespace LibGit2Sharp
 {
@@ -18,15 +17,6 @@ namespace LibGit2Sharp
         internal Stash(Repository repo, ObjectId targetId, int index)
             : base(repo, new DirectReference(string.Format("stash@{{{0}}}", index), repo, targetId), r => r.CanonicalName)
         { }
-
-        /// <summary>
-        /// Gets the <see cref="Commit"/> that this stash points to.
-        /// </summary>
-        [Obsolete("This property will be removed in the next release. Please use Stash.WorkTree instead.")]
-        public virtual Commit Target
-        {
-            get { return WorkTree; }
-        }
 
         /// <summary>
         /// Gets the <see cref="Commit"/> that contains to the captured content of the worktree when the

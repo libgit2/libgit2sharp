@@ -88,21 +88,6 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Returns the list of commits of the repository matching the specified <paramref name="filter"/>.
-        /// </summary>
-        /// <param name="filter">The options used to control which commits will be returned.</param>
-        /// <returns>A list of commits, ready to be enumerated.</returns>
-        [Obsolete("This method will be removed in the next release. Please use QueryBy(CommitFilter) instead.")]
-        public virtual ICommitLog QueryBy(Filter filter)
-        {
-            Ensure.ArgumentNotNull(filter, "filter");
-            Ensure.ArgumentNotNull(filter.Since, "filter.Since");
-            Ensure.ArgumentNotNullOrEmptyString(filter.Since.ToString(), "filter.Since");
-
-            return new CommitLog(repo, filter.ToCommitFilter());
-        }
-
-        /// <summary>
         /// Find the best possible common ancestor given two <see cref="Commit"/>s.
         /// </summary>
         /// <param name="first">The first <see cref="Commit"/>.</param>

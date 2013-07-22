@@ -17,7 +17,6 @@ namespace LibGit2Sharp.Tests
             typeof(CompareOptions),
             typeof(Credentials),
             typeof(ExplicitPathsOptions),
-            typeof(Filter),
             typeof(ObjectId),
             typeof(Repository),
             typeof(RepositoryOptions),

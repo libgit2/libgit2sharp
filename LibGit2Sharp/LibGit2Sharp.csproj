@@ -68,7 +68,6 @@
     <Compile Include="CheckoutCallbacks.cs" />
     <Compile Include="CheckoutModifiers.cs" />
     <Compile Include="CheckoutNotificationOptions.cs" />
-    <Compile Include="CheckoutOptions.cs" />
     <Compile Include="CommitFilter.cs" />
     <Compile Include="CommitSortStrategies.cs" />
     <Compile Include="CompareOptions.cs" />
@@ -103,7 +102,6 @@
     <Compile Include="Core\GitRemoteHead.cs" />
     <Compile Include="ReflogEntry.cs" />
     <Compile Include="Stash.cs" />
-    <Compile Include="StashOptions.cs" />
     <Compile Include="OrphanedHeadException.cs" />
     <Compile Include="StashCollection.cs" />
     <Compile Include="ExplicitPathsOptions.cs" />
@@ -220,13 +218,11 @@
     <Compile Include="Core\GitIndexEntry.cs" />
     <Compile Include="GitObject.cs" />
     <Compile Include="Core\GitObjectType.cs" />
-    <Compile Include="GitSortOptions.cs" />
     <Compile Include="Core\LambdaEqualityHelper.cs" />
     <Compile Include="ICommitLog.cs" />
     <Compile Include="Index.cs" />
     <Compile Include="IndexEntry.cs" />
     <Compile Include="Core\Handles\IndexSafeHandle.cs" />
-    <Compile Include="Filter.cs" />
     <Compile Include="IQueryableCommitLog.cs" />
     <Compile Include="Core\LookUpOptions.cs" />
     <Compile Include="Mode.cs" />
