@@ -12,30 +12,24 @@ namespace LibGit2Sharp.Core
         private readonly HashSet<Commit> targetedCommits;
         private readonly Dictionary<ObjectId, ObjectId> shaMap = new Dictionary<ObjectId, ObjectId>();
 
-        private readonly Func<Commit, CommitRewriteInfo> headerRewriter;
-        private readonly Func<Commit, TreeDefinition> treeRewriter;
         private readonly string backupRefsNamespace;
-        private readonly Func<IEnumerable<Commit>, IEnumerable<Commit>> parentsRewriter;
-        private readonly Func<String, bool, GitObject, string> tagNameRewriter;
+        private readonly RewriteHistoryOptions options;
 
         public HistoryRewriter(
             Repository repo,
             IEnumerable<Commit> commitsToRewrite,
-            Func<Commit, CommitRewriteInfo> headerRewriter,
-            Func<Commit, TreeDefinition> treeRewriter,
-            Func<IEnumerable<Commit>, IEnumerable<Commit>> parentsRewriter,
-            Func<String, bool, GitObject, string> tagNameRewriter,
-            string backupRefsNamespace)
+            RewriteHistoryOptions options)
         {
             this.repo = repo;
+            this.options = options;
             targetedCommits = new HashSet<Commit>(commitsToRewrite);
 
-            this.headerRewriter = headerRewriter ?? CommitRewriteInfo.From;
-            this.treeRewriter = treeRewriter;
-            this.tagNameRewriter = tagNameRewriter;
-            this.parentsRewriter = parentsRewriter ?? (ps => ps);
+            backupRefsNamespace = this.options.BackupRefsNamespace;
 
-            this.backupRefsNamespace = backupRefsNamespace;
+            if (!backupRefsNamespace.EndsWith("/", StringComparison.Ordinal))
+            {
+                backupRefsNamespace += "/";
+            }
         }
 
         public void Execute()
@@ -92,10 +86,10 @@ namespace LibGit2Sharp.Core
         private void RewriteReference(DirectReference oldRef, ObjectId newTarget, string backupNamePrefix, Queue<Action> rollbackActions)
         {
             string newRefName = oldRef.CanonicalName;
-            if (oldRef.IsTag() && tagNameRewriter != null)
+            if (oldRef.IsTag() && options.TagNameRewriter != null)
             {
                 newRefName = Reference.TagPrefix +
-                             tagNameRewriter(oldRef.CanonicalName.Substring(Reference.TagPrefix.Length), false, oldRef.Target);
+                             options.TagNameRewriter(oldRef.CanonicalName.Substring(Reference.TagPrefix.Length), false, oldRef.Target);
             }
 
             if (oldRef.Target.Id == newTarget && oldRef.CanonicalName == newRefName)
@@ -143,17 +137,23 @@ namespace LibGit2Sharp.Core
             if (targetedCommits.Contains(commit))
             {
                 // Get the new commit header
-                newHeader = headerRewriter(commit);
+                if (options.CommitHeaderRewriter != null)
+                {
+                    newHeader = options.CommitHeaderRewriter(commit) ?? newHeader;
+                }
 
-                if (treeRewriter != null)
+                if (options.CommitTreeRewriter != null)
                 {
                     // Get the new commit tree
-                    var newTreeDefinition = treeRewriter(commit);
+                    var newTreeDefinition = options.CommitTreeRewriter(commit);
                     newTree = repo.ObjectDatabase.CreateTree(newTreeDefinition);
                 }
 
                 // Retrieve new parents
-                newParents = parentsRewriter(newParents);
+                if (options.CommitParentsRewriter != null)
+                {
+                    newParents = options.CommitParentsRewriter(commit);
+                }
             }
 
             // Create the new commit
@@ -189,9 +189,9 @@ namespace LibGit2Sharp.Core
 
             string newName = annotation.Name;
 
-            if (tagNameRewriter != null)
+            if (options.TagNameRewriter != null)
             {
-                newName = tagNameRewriter(annotation.Name, true, annotation.Target);
+                newName = options.TagNameRewriter(annotation.Name, true, annotation.Target);
             }
 
             var newAnnotation = repo.ObjectDatabase.CreateTagAnnotation(newName, newTarget, annotation.Tagger,

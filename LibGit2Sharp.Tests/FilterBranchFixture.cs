@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
+using Xunit.Extensions;
 
 namespace LibGit2Sharp.Tests
 {
@@ -28,7 +29,10 @@ namespace LibGit2Sharp.Tests
             var commits = repo.Commits.QueryBy(new CommitFilter { Since = repo.Refs }).ToArray();
 
             // Noop header rewriter
-            repo.Refs.RewriteHistory(commits, commitHeaderRewriter: CommitRewriteInfo.From);
+            repo.Refs.RewriteHistory(new RewriteHistoryOptions
+            {
+                CommitHeaderRewriter = CommitRewriteInfo.From,
+            }, commits);
 
             Assert.Equal(originalRefs, repo.Refs.ToList().OrderBy(r => r.CanonicalName));
             Assert.Equal(commits, repo.Commits.QueryBy(new CommitFilter { Since = repo.Refs }).ToArray());
@@ -41,7 +45,10 @@ namespace LibGit2Sharp.Tests
             var commits = repo.Commits.QueryBy(new CommitFilter { Since = repo.Refs }).ToArray();
 
             // Noop tree rewriter
-            repo.Refs.RewriteHistory(commits, commitTreeRewriter: TreeDefinition.From);
+            repo.Refs.RewriteHistory(new RewriteHistoryOptions
+            {
+                CommitTreeRewriter = TreeDefinition.From,
+            }, commits);
 
             Assert.Equal(originalRefs, repo.Refs.ToList().OrderBy(r => r.CanonicalName));
             Assert.Equal(commits, repo.Commits.QueryBy(new CommitFilter { Since = repo.Refs }).ToArray());
@@ -51,9 +58,12 @@ namespace LibGit2Sharp.Tests
         public void CanRewriteAuthorOfCommits()
         {
             var commits = repo.Commits.QueryBy(new CommitFilter { Since = repo.Refs }).ToArray();
-            repo.Refs.RewriteHistory(
-                commits,
-                commitHeaderRewriter: c => CommitRewriteInfo.From(c, author: new Signature("Ben Straub", "me@example.com", c.Author.When)));
+            repo.Refs.RewriteHistory(new RewriteHistoryOptions
+            {
+                CommitHeaderRewriter =
+                    c =>
+                    CommitRewriteInfo.From(c, author: new Signature("Ben Straub", "me@example.com", c.Author.When)),
+            }, commits);
 
             var nonBackedUpRefs = repo.Refs.Where(x => !x.CanonicalName.StartsWith("refs/original"));
             Assert.Empty(repo.Commits.QueryBy(new CommitFilter { Since = nonBackedUpRefs })
@@ -72,9 +82,11 @@ namespace LibGit2Sharp.Tests
             repo.Tags.Add("so-lonely-but-annotated", commit, Constants.Signature,
                 "Yeah, baby! I'm going to be rewritten as well");
 
-            repo.Refs.RewriteHistory(
-                new[] { commit },
-                commitHeaderRewriter: c => CommitRewriteInfo.From(c, message: "Bam!"));
+            repo.Refs.RewriteHistory(new RewriteHistoryOptions
+            {
+                CommitHeaderRewriter =
+                    c => CommitRewriteInfo.From(c, message: "Bam!"),
+            }, commit);
 
             var lightweightTag = repo.Tags["so-lonely"];
             Assert.Equal("Bam!\n", ((Commit)lightweightTag.Target).Message);
@@ -86,12 +98,12 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanRewriteTrees()
         {
-            repo.Refs.RewriteHistory(repo.Head.Commits, commitTreeRewriter: c =>
-                {
-                    var td = TreeDefinition.From(c);
-                    td.Remove("README");
-                    return td;
-                });
+            repo.Refs.RewriteHistory(new RewriteHistoryOptions
+            {
+                CommitTreeRewriter =
+                    c => TreeDefinition.From(c)
+                                       .Remove("README"),
+            }, repo.Head.Commits);
 
             Assert.True(repo.Head.Commits.All(c => c["README"] == null));
         }
@@ -109,9 +121,11 @@ namespace LibGit2Sharp.Tests
             Assert.NotEqual(Constants.Signature, commit.Author);
             Assert.NotEqual(Constants.Signature, parent.Author);
 
-            repo.Refs.RewriteHistory(
-                new[] { parent },
-                commitHeaderRewriter: c => CommitRewriteInfo.From(c, author: Constants.Signature));
+            repo.Refs.RewriteHistory(new RewriteHistoryOptions
+            {
+                CommitHeaderRewriter =
+                    c => CommitRewriteInfo.From(c, author: Constants.Signature),
+            }, parent);
 
             commit = repo.Branches["packed"].Tip;
             parent = commit.Parents.Single();
@@ -121,17 +135,26 @@ namespace LibGit2Sharp.Tests
             Assert.Equal(Constants.Signature, parent.Author);
         }
 
-        [Fact]
-        public void CanCustomizeTheNamespaceOfBackedUpRefs()
+        [Theory]
+        [InlineData("refs/rewritten")]
+        [InlineData("refs/rewritten/")]
+        public void CanCustomizeTheNamespaceOfBackedUpRefs(string backupRefsNamespace)
         {
-            repo.Refs.RewriteHistory(repo.Head.Commits, c => CommitRewriteInfo.From(c, message: ""));
+            repo.Refs.RewriteHistory(new RewriteHistoryOptions
+            {
+                CommitHeaderRewriter =
+                    c => CommitRewriteInfo.From(c, message: ""),
+            }, repo.Head.Commits);
             Assert.NotEmpty(repo.Refs.Where(x => x.CanonicalName.StartsWith("refs/original")));
 
             Assert.Empty(repo.Refs.Where(x => x.CanonicalName.StartsWith("refs/rewritten")));
 
-            repo.Refs.RewriteHistory(repo.Head.Commits,
-                                     commitHeaderRewriter: c => CommitRewriteInfo.From(c, message: "abc"),
-                                     backupRefsNamespace: "refs/rewritten");
+            repo.Refs.RewriteHistory(new RewriteHistoryOptions
+            {
+                BackupRefsNamespace = backupRefsNamespace,
+                CommitHeaderRewriter =
+                    c => CommitRewriteInfo.From(c, message: "abc"),
+            }, repo.Head.Commits);
 
             Assert.NotEmpty(repo.Refs.Where(x => x.CanonicalName.StartsWith("refs/rewritten")));
         }
@@ -145,26 +168,31 @@ namespace LibGit2Sharp.Tests
 
             Assert.Throws<Exception>(
                 () =>
-                repo.Refs.RewriteHistory(
-                    new[] { repo.Lookup<Commit>("6dcf9bf7541ee10456529833502442f385010c3d") },
-                    c => CommitRewriteInfo.From(c, message: ""),
-                    backupRefsNamespace: backupNamespace,
-                    tagNameRewriter: (n, isA, t) =>
-                                            {
-                                                var newRef = repo.Refs.FromGlob(backupNamespace + "*").FirstOrDefault();
+                repo.Refs.RewriteHistory(new RewriteHistoryOptions
+                {
+                    BackupRefsNamespace = backupNamespace,
+                    CommitHeaderRewriter =
+                        c => CommitRewriteInfo.From(c, message: ""),
+                    TagNameRewriter =
+                        (n, isA, t) =>
+                        {
+                            var newRef1 =
+                                repo.Refs.FromGlob(backupNamespace + "*").FirstOrDefault();
 
-                                                if (newRef == null)
-                                                    return n;
+                            if (newRef1 == null)
+                                return n;
 
-                                                // At least one of the refs have been rewritten
-                                                // Let's make sure it's been updated to a new target
-                                                var oldName = newRef.CanonicalName.Replace(backupNamespace, "refs/");
-                                                Assert.NotEqual(origRefs.Single(r => r.CanonicalName == oldName), newRef);
+                            // At least one of the refs have been rewritten
+                            // Let's make sure it's been updated to a new target
+                            var oldName1 = newRef1.CanonicalName.Replace(backupNamespace, "refs/");
+                            Assert.NotEqual(origRefs.Single(r => r.CanonicalName == oldName1),
+                                            newRef1);
 
-                                                // Violently interrupt the process
-                                                throw new Exception("BREAK");
-                                            }
-                    ));
+                            // Violently interrupt the process
+                            throw new Exception("BREAK");
+                        },
+                }, repo.Lookup<Commit>("6dcf9bf7541ee10456529833502442f385010c3d"))
+                );
 
             // Ensure all the refs have been restored to their original targets
             var newRefs = repo.Refs.OrderBy(r => r.CanonicalName).ToArray();
@@ -183,8 +211,11 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void DoesNotRewriteRefsThatDontChange()
         {
-            repo.Refs.RewriteHistory(new[] { repo.Lookup<Commit>("c47800c") },
-                                c => CommitRewriteInfo.From(c, message: "abc"));
+            repo.Refs.RewriteHistory(new RewriteHistoryOptions
+            {
+                CommitHeaderRewriter =
+                    c => CommitRewriteInfo.From(c, message: "abc"),
+            }, repo.Lookup<Commit>("c47800c"));
 
             Assert.Null(repo.Refs["refs/original/heads/packed-test"]);
             Assert.NotNull(repo.Refs["refs/original/heads/br2"]);
@@ -199,17 +230,24 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanNotOverWriteBackedUpReferences()
         {
-            Func<Commit, CommitRewriteInfo> headerRewriter = c => CommitRewriteInfo.From(c, message: "abc");
             Assert.Empty(repo.Refs.FromGlob("refs/original/*"));
 
-            repo.Refs.RewriteHistory(repo.Head.Commits, commitHeaderRewriter: headerRewriter);
+            repo.Refs.RewriteHistory(new RewriteHistoryOptions
+            {
+                CommitHeaderRewriter =
+                    c => CommitRewriteInfo.From(c, message: "abc"),
+            }, repo.Head.Commits);
             var originalRefs = repo.Refs.FromGlob("refs/original/*").OrderBy(r => r.CanonicalName).ToArray();
             Assert.NotEmpty(originalRefs);
 
-            headerRewriter = c => CommitRewriteInfo.From(c, message: "def");
-
-            Assert.Throws<InvalidOperationException>(() =>
-                repo.Refs.RewriteHistory(repo.Head.Commits, commitHeaderRewriter: headerRewriter));
+            Assert.Throws<InvalidOperationException>(
+                () =>
+                repo.Refs.RewriteHistory(new RewriteHistoryOptions
+                {
+                    CommitHeaderRewriter =
+                        c => CommitRewriteInfo.From(c, message: "def"),
+                }, repo.Head.Commits)
+                );
             Assert.Equal("abc\n", repo.Head.Tip.Message);
 
             var newOriginalRefs = repo.Refs.FromGlob("refs/original/*").OrderBy(r => r.CanonicalName).ToArray();
@@ -223,7 +261,13 @@ namespace LibGit2Sharp.Tests
         {
             var commits = repo.Commits.QueryBy(new CommitFilter { Since = repo.Refs }).ToArray();
 
-            Assert.Throws<NameConflictException>(() => repo.Refs.RewriteHistory(commits, tagNameRewriter: (n, b, t) => "test"));
+            Assert.Throws<NameConflictException>(
+                () =>
+                repo.Refs.RewriteHistory(new RewriteHistoryOptions
+                {
+                    TagNameRewriter = (n, b, t) => "test",
+                }, commits)
+                );
 
             Assert.Equal(0, repo.Refs.FromGlob("refs/original/*").Count());
         }
@@ -255,13 +299,17 @@ namespace LibGit2Sharp.Tests
             var newParent = repo.Lookup<Commit>("41bc8c6");
             bool hasBeenCalled = false;
 
-            repo.Refs.RewriteHistory(new[] { commitToRewrite }, commitParentsRewriter: originalParents =>
+            repo.Refs.RewriteHistory(new RewriteHistoryOptions
             {
-                Assert.False(hasBeenCalled);
-                Assert.Empty(originalParents);
-                hasBeenCalled = true;
-                return new[] { newParent };
-            });
+                CommitParentsRewriter =
+                    c =>
+                    {
+                        Assert.False(hasBeenCalled);
+                        Assert.Empty(c.Parents);
+                        hasBeenCalled = true;
+                        return new[] { newParent };
+                    },
+            }, commitToRewrite);
 
             Assert.Contains(newParent, repo.Lookup<Commit>("refs/heads/test~").Parents);
             Assert.True(hasBeenCalled);
@@ -270,7 +318,11 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void WritesCorrectReflogMessagesForSimpleRewrites()
         {
-            repo.Refs.RewriteHistory(repo.Head.Commits, c => CommitRewriteInfo.From(c, message: ""));
+            repo.Refs.RewriteHistory(new RewriteHistoryOptions
+            {
+                CommitHeaderRewriter =
+                    c => CommitRewriteInfo.From(c, message: ""),
+            }, repo.Head.Commits);
 
             Assert.Equal("filter-branch: rewrite", repo.Refs.Log(repo.Refs["refs/heads/master"]).First().Message);
             Assert.Equal("filter-branch: backup", repo.Refs.Log(repo.Refs["refs/original/heads/master"]).First().Message);
@@ -283,9 +335,13 @@ namespace LibGit2Sharp.Tests
             GitObject e908Target = repo.Tags["e90810b"].Target;
             GitObject testTarget = repo.Tags["test"].Target;
 
-            repo.Refs.RewriteHistory(repo.Commits.QueryBy(new CommitFilter { Since = repo.Refs["refs/heads/test"] }),
-                                     c => CommitRewriteInfo.From(c, message: ""),
-                                     tagNameRewriter: (oldName, isAnnotated, o) => oldName + "_new");
+            repo.Refs.RewriteHistory(new RewriteHistoryOptions
+            {
+                CommitHeaderRewriter =
+                    c => CommitRewriteInfo.From(c, message: ""),
+                TagNameRewriter =
+                    (oldName, isAnnotated, o) => oldName + "_new",
+            }, repo.Commits.QueryBy(new CommitFilter { Since = repo.Refs["refs/heads/test"] }));
 
             Assert.NotEqual(lwTarget, repo.Tags["lw_new"].Target);
             Assert.NotEqual(e908Target, repo.Tags["e90810b_new"].Target);
@@ -301,9 +357,13 @@ namespace LibGit2Sharp.Tests
             repo.Refs.Add("refs/tags/another_tracker", tagRefName);
             repo.Refs.Add("refs/attic/dusty_tracker", "refs/tags/another_tracker");
 
-            repo.Refs.RewriteHistory(new[] { repo.Lookup<Commit>("e90810b8df") },
-                                     c => CommitRewriteInfo.From(c, author: Constants.Signature),
-                                     tagNameRewriter: (oldName, isAnnotated, o) => oldName + "_new");
+            repo.Refs.RewriteHistory(new RewriteHistoryOptions
+            {
+                CommitHeaderRewriter =
+                    c => CommitRewriteInfo.From(c, author: Constants.Signature),
+                TagNameRewriter =
+                    (oldName, isAnnotated, o) => oldName + "_new",
+            }, repo.Lookup<Commit>("e90810b8df"));
 
             // Ensure the initial tags don't exist anymore...
             Assert.Null(repo.Refs["refs/tags/one_tracker"]);
@@ -335,12 +395,13 @@ namespace LibGit2Sharp.Tests
             var tagA = repo.Tags.Add("lightweightA", annotationB);
 
             // Rewrite the commit, renaming the tag
-            repo.Refs.RewriteHistory(new[] { repo.Lookup<Commit>("6dcf9bf") },
-                                     c => CommitRewriteInfo.From(c, message: "Rewrote"),
-                                     tagNameRewriter:
-                                         (oldName, isAnnoted, newTarget) =>
-                                         isAnnoted ? oldName + "_ann" : oldName + "_lw");
-
+            repo.Refs.RewriteHistory(new RewriteHistoryOptions
+            {
+                BackupRefsNamespace = "refs/original/",
+                CommitHeaderRewriter = c => CommitRewriteInfo.From(c, message: "Rewrote"),
+                TagNameRewriter = (oldName, isAnnoted, newTarget) =>
+                                  isAnnoted ? oldName + "_ann" : oldName + "_lw",
+            }, repo.Lookup<Commit>("6dcf9bf"));
 
             // Verify the rewritten tag-annotation chain
             var newTagA = repo.Tags["lightweightA_lw"];
