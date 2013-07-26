@@ -218,7 +218,7 @@ namespace LibGit2Sharp.Tests.TestHelpers
             };
         }
 
-        protected static string Touch(string parent, string file, string content = null)
+        protected static string Touch(string parent, string file, string content = null, Encoding encoding = null)
         {
             string filePath = Path.Combine(parent, file);
             string dir = Path.GetDirectoryName(filePath);
@@ -226,7 +226,7 @@ namespace LibGit2Sharp.Tests.TestHelpers
 
             Directory.CreateDirectory(dir);
 
-            File.WriteAllText(filePath, content ?? string.Empty, Encoding.ASCII);
+            File.WriteAllText(filePath, content ?? string.Empty, encoding ?? Encoding.ASCII);
 
             return filePath;
         }
