@@ -55,7 +55,7 @@ namespace LibGit2Sharp
 
             foreach (var branch in enumeratedBranches)
             {
-                network.Push(branch.Remote, string.Format("{0}:{1}", branch.CanonicalName, branch.UpstreamBranchCanonicalName), onPushStatusError);
+                network.Push(branch.Remote, string.Format("{0}:{1}", branch.CanonicalName, branch.UpstreamBranchCanonicalName), onPushStatusError, credentials);
             }
         }
 
