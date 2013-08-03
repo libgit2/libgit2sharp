@@ -19,5 +19,9 @@ cd ..
 echo $LD_LIBRARY_PATH
 xbuild CI-build.msbuild /t:Deploy
 
+EXIT_CODE=$?
+
 LD_LIBRARY_PATH=$PREVIOUS_LD
 export LD_LIBRARY_PATH
+
+exit $EXIT_CODE
