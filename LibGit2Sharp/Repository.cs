@@ -818,6 +818,7 @@ namespace LibGit2Sharp
         /// <param name="checkoutOptions">Options controlling checkout behavior.</param>
         /// <param name="onCheckoutProgress">Callback method to report checkout progress updates through.</param>
         /// <param name="checkoutNotificationOptions"><see cref="CheckoutNotificationOptions"/> to manage checkout notifications.</param>
+        [Obsolete("This method will be removed in the next release. Please use CheckoutPaths(string, IEnumerable<string>, CheckoutOptions) instead.")]
         public void CheckoutPaths(string committishOrBranchSpec, IList<string> paths, CheckoutModifiers checkoutOptions, CheckoutProgressHandler onCheckoutProgress, CheckoutNotificationOptions checkoutNotificationOptions)
         {
             var opts = new CheckoutOptions
