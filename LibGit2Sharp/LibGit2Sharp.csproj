@@ -68,6 +68,7 @@
     <Compile Include="CheckoutCallbacks.cs" />
     <Compile Include="CheckoutModifiers.cs" />
     <Compile Include="CheckoutNotificationOptions.cs" />
+    <Compile Include="CheckoutOptions.cs" />
     <Compile Include="CommitFilter.cs" />
     <Compile Include="CommitSortStrategies.cs" />
     <Compile Include="CompareOptions.cs" />
