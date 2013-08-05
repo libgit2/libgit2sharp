@@ -25,10 +25,10 @@ namespace LibGit2Sharp.Tests
         [Theory]
         [InlineData("ascii", 4, "31 32 33 34")]
         [InlineData("utf-7", 4, "31 32 33 34")]
-        // [InlineData("utf-8", 7, "EF BB BF 31 32 33 34")] // Fails due to BOM
-        // [InlineData("utf-16", 10, "FF FE 31 00 32 00 33 00 34 00")] // Fails due to BOM
-        // [InlineData("unicodeFFFE", 10, "FE FF 00 31 00 32 00 33 00 34")] // Fails due to BOM
-        // [InlineData("utf-32", 20, "FF FE 00 00 31 00 00 00 32 00 00 00 33 00 00 00 34 00 00 00")] // Fails due to BOM
+        [InlineData("utf-8", 7, "EF BB BF 31 32 33 34")]
+        [InlineData("utf-16", 10, "FF FE 31 00 32 00 33 00 34 00")]
+        [InlineData("unicodeFFFE", 10, "FE FF 00 31 00 32 00 33 00 34")]
+        [InlineData("utf-32", 20, "FF FE 00 00 31 00 00 00 32 00 00 00 33 00 00 00 34 00 00 00")]
         public void CanGetBlobAsTextWithVariousEncodings(string encodingName, int expectedContentBytes, string expectedUtf7Chars)
         {
             var path = CloneStandardTestRepo();
@@ -46,6 +46,9 @@ namespace LibGit2Sharp.Tests
 
                 var blob = (Blob)commit.Tree[bomFile].Target;
                 Assert.Equal(expectedContentBytes, blob.Content.Length);
+
+                var textDetected = blob.ContentAsText();
+                Assert.Equal(content, textDetected);
 
                 var text = blob.ContentAsText(encoding);
                 Assert.Equal(content, text);

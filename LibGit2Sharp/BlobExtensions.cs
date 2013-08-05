@@ -12,17 +12,20 @@ namespace LibGit2Sharp
     {
         /// <summary>
         /// Gets the blob content decoded with the specified encoding,
-        /// or UTF8 if encoding is not specified.
+        /// or according to byte order marks, with UTF8 as fallback,
+        /// if <paramref name="encoding"/> is null.
         /// </summary>
         /// <param name="blob">The blob for which the content will be returned.</param>
-        /// <param name="encoding">The encoding of the text. (default: UTF8)</param>
+        /// <param name="encoding">The encoding of the text. (default: detected or UTF8)</param>
         /// <returns>Blob content as text.</returns>
         public static string ContentAsText(this Blob blob, Encoding encoding = null)
         {
             Ensure.ArgumentNotNull(blob, "blob");
-            encoding = encoding ?? Encoding.UTF8;
 
-            return encoding.GetString(blob.Content);
+            using (var reader = new StreamReader(blob.ContentStream, encoding ?? Encoding.UTF8, encoding == null))
+            {
+                return reader.ReadToEnd();
+            }
         }
 
         /// <summary>
