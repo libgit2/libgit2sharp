@@ -3,7 +3,7 @@
     /// <summary>
     /// Class that holds credentials for remote repository access.
     /// </summary>
-    public class Credentials
+    public sealed class Credentials
     {
         /// <summary>
         /// Username for username/password authentication (as in HTTP basic auth).

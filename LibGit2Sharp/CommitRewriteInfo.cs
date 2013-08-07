@@ -3,7 +3,7 @@ namespace LibGit2Sharp
     /// <summary>
     /// Commit metadata when rewriting history
     /// </summary>
-    public class CommitRewriteInfo
+    public sealed class CommitRewriteInfo
     {
         /// <summary>
         /// The author to be used for the new commit

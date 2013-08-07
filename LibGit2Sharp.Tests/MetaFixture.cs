@@ -10,20 +10,6 @@ namespace LibGit2Sharp.Tests
 {
     public class MetaFixture
     {
-        private static readonly Type[] excludedTypes = new[]
-        {
-            typeof(CheckoutOptions),
-            typeof(CommitFilter),
-            typeof(CommitRewriteInfo),
-            typeof(CompareOptions),
-            typeof(Credentials),
-            typeof(ExplicitPathsOptions),
-            typeof(ObjectId),
-            typeof(Repository),
-            typeof(RepositoryOptions),
-            typeof(Signature),
-        };
-
         // Related to https://github.com/libgit2/libgit2sharp/pull/251
         [Fact]
         public void TypesInLibGit2DecoratedWithDebuggerDisplayMustFollowTheStandardImplPattern()
@@ -71,7 +57,7 @@ namespace LibGit2Sharp.Tests
             var nonTestableTypes = new Dictionary<Type, IEnumerable<string>>();
 
             IEnumerable<Type> libGit2SharpTypes = Assembly.GetAssembly(typeof(Repository)).GetExportedTypes()
-                .Where(t => !excludedTypes.Contains(t) && t.Namespace == typeof(Repository).Namespace && !t.IsSubclassOf(typeof(Delegate)));
+                .Where(t => !t.IsSealed && t.Namespace == typeof(Repository).Namespace);
 
             foreach (Type type in libGit2SharpTypes)
             {

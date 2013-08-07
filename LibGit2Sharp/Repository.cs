@@ -17,7 +17,7 @@ namespace LibGit2Sharp
     /// A Repository is the primary interface into a git repository
     /// </summary>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public class Repository : IRepository
+    public sealed class Repository : IRepository
     {
         private readonly bool isBare;
         private readonly BranchCollection branches;
@@ -347,7 +347,7 @@ namespace LibGit2Sharp
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
-        protected virtual void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             CleanupDisposableDependencies();
         }
@@ -960,7 +960,7 @@ namespace LibGit2Sharp
         /// <summary>
         /// Clean the working tree by removing files that are not under version control.
         /// </summary>
-        public virtual void RemoveUntrackedFiles()
+        public void RemoveUntrackedFiles()
         {
             var options = new GitCheckoutOpts
             {
@@ -1036,7 +1036,7 @@ namespace LibGit2Sharp
         /// <summary>
         /// Gets the references to the tips that are currently being merged.
         /// </summary>
-        public virtual IEnumerable<MergeHead> MergeHeads
+        public IEnumerable<MergeHead> MergeHeads
         {
             get
             {

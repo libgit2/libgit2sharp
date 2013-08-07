@@ -8,7 +8,7 @@ namespace LibGit2Sharp
     /// <summary>
     /// Uniquely identifies a <see cref="GitObject"/>.
     /// </summary>
-    public class ObjectId : IEquatable<ObjectId>
+    public sealed class ObjectId : IEquatable<ObjectId>
     {
         private readonly GitOid oid;
         private const int rawSize = 20;
@@ -17,7 +17,7 @@ namespace LibGit2Sharp
         /// <summary>
         /// Size of the string-based representation of a SHA-1.
         /// </summary>
-        protected const int HexSize = rawSize * 2;
+        private const int HexSize = rawSize * 2;
 
         private const string hexDigits = "0123456789abcdef";
         private static readonly byte[] reverseHexDigits = BuildReverseHexDigits();
@@ -85,7 +85,7 @@ namespace LibGit2Sharp
         /// <summary>
         /// Gets the sha.
         /// </summary>
-        public virtual string Sha
+        public string Sha
         {
             get { return sha; }
         }

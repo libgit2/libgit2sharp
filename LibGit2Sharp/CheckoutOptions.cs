@@ -5,7 +5,7 @@ namespace LibGit2Sharp
     /// <summary>
     /// Collection of parameters controlling Checkout behavior.
     /// </summary>
-    public class CheckoutOptions
+    public sealed class CheckoutOptions
     {
         /// <summary>
         /// Options controlling checkout behavior.

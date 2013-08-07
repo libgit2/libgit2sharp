@@ -7,7 +7,7 @@ namespace LibGit2Sharp
     /// <summary>
     /// Criterias used to filter out and order the commits of the repository when querying its history.
     /// </summary>
-    public class CommitFilter
+    public sealed class CommitFilter
     {
         /// <summary>
         /// Initializes a new instance of <see cref="CommitFilter"/>.

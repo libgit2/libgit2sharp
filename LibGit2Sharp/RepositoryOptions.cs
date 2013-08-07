@@ -3,7 +3,7 @@
     /// <summary>
     /// Provides optional additional information to the Repository to be opened.
     /// </summary>
-    public class RepositoryOptions
+    public sealed class RepositoryOptions
     {
         /// <summary>
         /// Overrides the probed location of the working directory of a standard repository,

@@ -8,7 +8,7 @@ namespace LibGit2Sharp
     /// <summary>
     /// A signature
     /// </summary>
-    public class Signature : IEquatable<Signature>
+    public sealed class Signature : IEquatable<Signature>
     {
         private readonly DateTimeOffset when;
         private readonly string name;
