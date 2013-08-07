@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Handles;
@@ -30,6 +31,36 @@ namespace LibGit2Sharp
         internal SubmoduleCollection(Repository repo)
         {
             this.repo = repo;
+        }
+
+        /// <summary>
+        /// Adds a new repository, checkout the selected branch and add it to superproject index  
+        /// </summary>
+        /// <param name="name">The name of the Submodule</param>
+        /// <param name="url">The url of the remote repository</param>
+        /// <param name="branch">The remote branch to checkout</param>
+        /// <param name="relativePath">The path of the submodule inside of the super repository, if none, name is taken.</param>
+        /// <param name="use_GitLink"></param>
+        /// <returns></returns>
+        public Submodule Add(string name, string url, string branch = "master",  string relativePath = null, int use_GitLink = 0)
+        {
+            Ensure.ArgumentNotNullOrEmptyString(name, "name");
+
+            Ensure.ArgumentNotNullOrEmptyString(url, "url");
+
+            relativePath = relativePath ?? name;
+
+            SubmoduleSafeHandle handle = Proxy.git_submodule_add_setup(repo.Handle, url, relativePath, use_GitLink);
+
+            using (Repository subRepo = new Repository(Path.Combine(repo.Info.WorkingDirectory, relativePath)))
+            {
+                subRepo.Fetch("origin");
+                subRepo.Checkout(subRepo.Branches["origin/" + branch]);
+            }
+
+            Proxy.git_submodule_add_finalize(handle);
+
+            return this[name];
         }
 
         /// <summary>
