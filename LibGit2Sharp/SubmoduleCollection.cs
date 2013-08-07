@@ -42,7 +42,7 @@ namespace LibGit2Sharp
         /// <param name="relativePath">The path of the submodule inside of the super repository, if none, name is taken.</param>
         /// <param name="use_GitLink"></param>
         /// <returns></returns>
-        public Submodule Add(string name, string url, string branch = "master",  string relativePath = null, int use_GitLink = 0)
+        public Submodule Add(string name, string url, string committish = null, string relativePath = null, bool useGitLink = true)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
 
@@ -50,15 +50,20 @@ namespace LibGit2Sharp
 
             relativePath = relativePath ?? name;
 
-            SubmoduleSafeHandle handle = Proxy.git_submodule_add_setup(repo.Handle, url, relativePath, use_GitLink);
-
-            using (Repository subRepo = new Repository(Path.Combine(repo.Info.WorkingDirectory, relativePath)))
+            using (SubmoduleSafeHandle handle = Proxy.git_submodule_add_setup(repo.Handle, url, relativePath, useGitLink))
             {
-                subRepo.Fetch("origin");
-                subRepo.Checkout(subRepo.Branches["origin/" + branch]);
-            }
+                string subPath = Path.Combine(repo.Info.WorkingDirectory, relativePath);
 
-            Proxy.git_submodule_add_finalize(handle);
+                Repository.Clone(url, subPath);
+
+                if (committish != null)
+                {
+                    using (Repository subRepo = new Repository(subPath))
+                        subRepo.Checkout(subRepo.Branches[committish]);
+                }
+                    
+                Proxy.git_submodule_add_finalize(handle);
+            }
 
             return this[name];
         }

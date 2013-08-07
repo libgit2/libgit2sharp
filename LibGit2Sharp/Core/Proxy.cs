@@ -2010,12 +2010,12 @@ namespace LibGit2Sharp.Core
             return git_foreach(resultSelector, c => NativeMethods.git_submodule_foreach(repo, (x, y, p) => c(x, y, p), IntPtr.Zero));
         }
 
-        public static SubmoduleSafeHandle git_submodule_add_setup(RepositorySafeHandle repo, string url, FilePath path, int use_gitlink)
+        public static SubmoduleSafeHandle git_submodule_add_setup(RepositorySafeHandle repo, string url, FilePath path, bool useGitLink)
         {
             using (ThreadAffinity())
             {
                 SubmoduleSafeHandle sub;
-                var res = NativeMethods.git_submodule_add_setup(out sub, repo, url, path, use_gitlink);
+                var res = NativeMethods.git_submodule_add_setup(out sub, repo, url, path, useGitLink);
                 Ensure.ZeroResult(res);
                 return sub; 
             }
