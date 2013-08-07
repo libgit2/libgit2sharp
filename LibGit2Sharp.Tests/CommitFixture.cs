@@ -480,7 +480,7 @@ namespace LibGit2Sharp.Tests
                 var blob = commit["1/branch_file.txt"].Target as Blob;
                 Assert.NotNull(blob);
 
-                Assert.Equal("hi\n", blob.ContentAsUtf8());
+                Assert.Equal("hi\n", blob.ContentAsText());
             }
         }
 
@@ -694,7 +694,7 @@ namespace LibGit2Sharp.Tests
         private static void AssertBlobContent(TreeEntry entry, string expectedContent)
         {
             Assert.Equal(TreeEntryTargetType.Blob, entry.TargetType);
-            Assert.Equal(expectedContent, ((Blob)(entry.Target)).ContentAsUtf8());
+            Assert.Equal(expectedContent, ((Blob)(entry.Target)).ContentAsText());
         }
 
         private static void AddCommitToRepo(string path)

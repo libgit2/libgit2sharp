@@ -1,21 +1,60 @@
 ﻿using System.IO;
+using System.Linq;
 using System.Text;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
+using Xunit.Extensions;
 
 namespace LibGit2Sharp.Tests
 {
     public class BlobFixture : BaseFixture
     {
         [Fact]
-        public void CanGetBlobAsUtf8()
+        public void CanGetBlobAsText()
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
                 var blob = repo.Lookup<Blob>("a8233120f6ad708f843d861ce2b7228ec4e3dec6");
 
-                string text = blob.ContentAsUtf8();
+                var text = blob.ContentAsText();
+
                 Assert.Equal("hey there\n", text);
+            }
+        }
+
+        [Theory]
+        [InlineData("ascii", 4, "31 32 33 34")]
+        [InlineData("utf-7", 4, "31 32 33 34")]
+        [InlineData("utf-8", 7, "EF BB BF 31 32 33 34")]
+        [InlineData("utf-16", 10, "FF FE 31 00 32 00 33 00 34 00")]
+        [InlineData("unicodeFFFE", 10, "FE FF 00 31 00 32 00 33 00 34")]
+        [InlineData("utf-32", 20, "FF FE 00 00 31 00 00 00 32 00 00 00 33 00 00 00 34 00 00 00")]
+        public void CanGetBlobAsTextWithVariousEncodings(string encodingName, int expectedContentBytes, string expectedUtf7Chars)
+        {
+            var path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
+            {
+                var bomFile = "bom.txt";
+                var content = "1234";
+                var encoding = Encoding.GetEncoding(encodingName);
+
+                var bomPath = Touch(repo.Info.WorkingDirectory, bomFile, content, encoding);
+                Assert.Equal(expectedContentBytes, File.ReadAllBytes(bomPath).Length);
+
+                repo.Index.Stage(bomFile);
+                var commit = repo.Commit("bom", Constants.Signature, Constants.Signature);
+
+                var blob = (Blob)commit.Tree[bomFile].Target;
+                Assert.Equal(expectedContentBytes, blob.Content.Length);
+
+                var textDetected = blob.ContentAsText();
+                Assert.Equal(content, textDetected);
+
+                var text = blob.ContentAsText(encoding);
+                Assert.Equal(content, text);
+
+                var utf7Chars = blob.ContentAsText(Encoding.UTF7).Select(c => ((int)c).ToString("X2")).ToArray();
+                Assert.Equal(expectedUtf7Chars, string.Join(" ", utf7Chars));
             }
         }
 
