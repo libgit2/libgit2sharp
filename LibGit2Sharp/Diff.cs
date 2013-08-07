@@ -270,7 +270,8 @@ namespace LibGit2Sharp
                     DispatchUnmatchedPaths(explicitPathsOptions, filePaths, matchedPaths);
                 }
 
-                return new TreeChanges(diffList);
+                bool skipPatchBuilding = (compareOptions != null) && compareOptions.SkipPatchBuilding;
+                return new TreeChanges(diffList, skipPatchBuilding);
             }
         }
 
