@@ -48,10 +48,14 @@ namespace LibGit2Sharp
         protected TreeChanges()
         { }
 
-        internal TreeChanges(DiffListSafeHandle diff)
+        internal TreeChanges(DiffListSafeHandle diff, bool skipPatchBuilding = false)
         {
             Proxy.git_diff_foreach(diff, FileCallback, null, DataCallback);
-            Proxy.git_diff_print_patch(diff, PrintCallBack);
+
+            if (!skipPatchBuilding)
+            {
+                Proxy.git_diff_print_patch(diff, PrintCallBack);
+            }
         }
 
         private int DataCallback(GitDiffDelta delta, GitDiffRange range, GitDiffLineOrigin lineOrigin, IntPtr content, UIntPtr contentLen, IntPtr payload)
