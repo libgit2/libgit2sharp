@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Handles;
+using LibGit2Sharp.Handlers;
 
 namespace LibGit2Sharp
 {
@@ -38,11 +39,19 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="name">The name of the Submodule</param>
         /// <param name="url">The url of the remote repository</param>
-        /// <param name="branch">The remote branch to checkout</param>
+        /// <param name="commitOrBranchSpec">The remote branch or commit to checkout</param>
         /// <param name="relativePath">The path of the submodule inside of the super repository, if none, name is taken.</param>
-        /// <param name="use_GitLink"></param>
+        /// <param name="useGitLink">Should workdir contain a gitlink to the repo in .git/modules vs. repo directly in workdir.</param>
         /// <returns></returns>
-        public Submodule Add(string name, string url, string committish = null, string relativePath = null, bool useGitLink = true)
+        public Submodule Add(string name, string url, string commitOrBranchSpec, string relativePath = null, bool useGitLink = true,
+            TagFetchMode tagFetchMode = TagFetchMode.Auto,
+            ProgressHandler onProgress = null,
+            CompletionHandler onCompletion = null,
+            UpdateTipsHandler onUpdateTips = null,
+            TransferProgressHandler onTransferProgress = null,
+            Credentials credentials = null,
+            CheckoutProgressHandler onCheckoutProgress = null, 
+            CheckoutNotificationOptions checkoutNotificationOptions = null)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
 
@@ -54,12 +63,10 @@ namespace LibGit2Sharp
             {
                 string subPath = Path.Combine(repo.Info.WorkingDirectory, relativePath);
 
-                Repository.Clone(url, subPath);
-
-                if (committish != null)
+                using (Repository subRep = new Repository(subPath))
                 {
-                    using (Repository subRepo = new Repository(subPath))
-                        subRepo.Checkout(subRepo.Branches[committish]);
+                    subRep.Fetch("origin", tagFetchMode, onProgress, onCompletion, onUpdateTips, onTransferProgress, credentials);
+                    subRep.Checkout(commitOrBranchSpec, CheckoutModifiers.None, onCheckoutProgress, checkoutNotificationOptions);
                 }
                     
                 Proxy.git_submodule_add_finalize(handle);
