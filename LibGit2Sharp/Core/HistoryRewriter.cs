@@ -127,12 +127,7 @@ namespace LibGit2Sharp.Core
             var newTree = commit.Tree;
 
             // Find the new parents
-            var newParents = commit.Parents
-                .Select(oldParent =>
-                        shaMap.ContainsKey(oldParent.Id)
-                            ? shaMap[oldParent.Id]
-                            : oldParent.Id)
-                .Select(id => repo.Lookup<Commit>(id));
+            var newParents = commit.Parents;
 
             if (targetedCommits.Contains(commit))
             {
@@ -157,6 +152,13 @@ namespace LibGit2Sharp.Core
             }
 
             // Create the new commit
+            newParents = newParents
+                .Select(oldParent =>
+                        shaMap.ContainsKey(oldParent.Id)
+                            ? shaMap[oldParent.Id]
+                            : oldParent.Id)
+                .Select(id => repo.Lookup<Commit>(id));
+
             var newCommit = repo.ObjectDatabase.CreateCommit(newHeader.Message, newHeader.Author,
                                                              newHeader.Committer, newTree,
                                                              newParents);

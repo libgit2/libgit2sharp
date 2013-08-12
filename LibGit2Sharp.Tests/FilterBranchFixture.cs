@@ -315,6 +315,51 @@ namespace LibGit2Sharp.Tests
             Assert.True(hasBeenCalled);
         }
 
+        // Graft the orphan "test" branch to the tip of "packed"
+        //
+        // Before:
+        // * e90810b  (test, lw, e90810b, test)
+        // |
+        // * 6dcf9bf
+        //     <------------------ note: no connection
+        // * 41bc8c6  (packed)
+        // |
+        // * 5001298
+        //
+        // ... and after:
+        //
+        // * f558880  (test, lw, e90810b, test)
+        // |
+        // * 0c25efa
+        // |   <------------------ add this link
+        // * 41bc8c6  (packed)
+        // |
+        // * 5001298
+        [Fact]
+        public void CanRewriteParentWithRewrittenCommit()
+        {
+            var commitToRewrite = repo.Lookup<Commit>("6dcf9bf");
+            var newParent = repo.Lookup<Commit>("41bc8c6");
+
+            repo.Refs.RewriteHistory(new RewriteHistoryOptions
+            {
+                CommitHeaderRewriter =
+                    c =>
+                    c.Id != newParent.Id
+                        ? null
+                        : CommitRewriteInfo.From(c, message: "changed"),
+                CommitParentsRewriter =
+                    c =>
+                    c.Id != commitToRewrite.Id
+                        ? c.Parents
+                        : new[] { newParent }
+            }, commitToRewrite, newParent);
+
+            var rewrittenParent = repo.Lookup<Commit>("refs/heads/test~").Parents.Single();
+            Assert.Equal(newParent.Tree, rewrittenParent.Tree);
+            Assert.NotEqual(newParent, rewrittenParent);
+        }
+
         [Fact]
         public void WritesCorrectReflogMessagesForSimpleRewrites()
         {
