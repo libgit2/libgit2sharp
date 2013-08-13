@@ -838,11 +838,18 @@ namespace LibGit2Sharp
         /// </para>
         /// </summary>
         /// <param name = "committishOrBranchSpec">A revparse spec for the commit or branch to checkout paths from.</param>
-        /// <param name="paths">The paths to checkout.</param>
+        /// <param name="paths">The paths to checkout. Will throw if null is passed in. Passing an empty enumeration results in nothing being checked out.</param>
         /// <param name="checkoutOptions">Collection of parameters controlling checkout behavior.</param>
         public void CheckoutPaths(string committishOrBranchSpec, IEnumerable<string> paths, CheckoutOptions checkoutOptions = null)
         {
             Ensure.ArgumentNotNullOrEmptyString(committishOrBranchSpec, "committishOrBranchSpec");
+            Ensure.ArgumentNotNull(paths, "paths");
+
+            // If there are no paths, then there is nothing to do.
+            if (!paths.Any())
+            {
+                return;
+            }
 
             Commit commit = LookupCommit(committishOrBranchSpec);
             CheckoutTree(commit.Tree, paths.ToList(), checkoutOptions ?? new CheckoutOptions());  

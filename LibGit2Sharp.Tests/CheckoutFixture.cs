@@ -966,6 +966,27 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        [Fact]
+        public void CannotCheckoutPathsWithEmptyOrNullPathArgument()
+        {
+            string repoPath = CloneStandardTestRepo();
+
+            using (var repo = new Repository(repoPath))
+            {
+                // Set the working directory to the current head
+                ResetAndCleanWorkingDirectory(repo);
+                Assert.False(repo.Index.RetrieveStatus().IsDirty);
+
+                // Passing null 'paths' parameter should throw
+                Assert.Throws(typeof(ArgumentNullException),
+                    () => repo.CheckoutPaths("i-do-numbers", null));
+
+                // Passing empty list should do nothing
+                repo.CheckoutPaths("i-do-numbers", Enumerable.Empty<string>());
+                Assert.False(repo.Index.RetrieveStatus().IsDirty);
+            }
+        }
+
         [Theory]
         [InlineData("new.txt")]
         [InlineData("1.txt")]
