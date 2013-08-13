@@ -193,6 +193,21 @@ namespace LibGit2Sharp
             public static readonly GitOdbBackend.foreach_callback ForEachCallback = Foreach;
             public static readonly GitOdbBackend.free_callback FreeCallback = Free;
 
+            private static OdbBackend MarshalOdbBackend(IntPtr backendPtr)
+            {
+
+                var intPtr = Marshal.ReadIntPtr(backendPtr, GitOdbBackend.GCHandleOffset);
+                var odbBackend = GCHandle.FromIntPtr(intPtr).Target as OdbBackend;
+
+                if (odbBackend == null)
+                {
+                    Proxy.giterr_set_str(GitErrorCategory.Reference, "Cannot retrieve the managed OdbBackend.");
+                    return null;
+                }
+
+                return odbBackend;
+            }
+
             private unsafe static int Read(
                 out IntPtr buffer_p,
                 out UIntPtr len_p,
@@ -204,50 +219,53 @@ namespace LibGit2Sharp
                 len_p = UIntPtr.Zero;
                 type_p = GitObjectType.Bad;
 
-                OdbBackend odbBackend = GCHandle.FromIntPtr(Marshal.ReadIntPtr(backend, GitOdbBackend.GCHandleOffset)).Target as OdbBackend;
-
-                if (odbBackend != null)
+                OdbBackend odbBackend = MarshalOdbBackend(backend);
+                if (odbBackend == null)
                 {
-                    Stream dataStream = null;
+                    return (int)GitErrorCode.Error;
+                }
+
+                Stream dataStream = null;
+
+                try
+                {
                     ObjectType objectType;
+                    int toReturn = odbBackend.Read(oid.Id, out dataStream, out objectType);
 
-                    try
+                    if (toReturn != 0)
                     {
-                        int toReturn = odbBackend.Read(oid.Id, out dataStream, out objectType);
-
-                        if (0 == toReturn)
-                        {
-                            // Caller is expected to give us back a stream created with the Allocate() method.
-                            UnmanagedMemoryStream memoryStream = dataStream as UnmanagedMemoryStream;
-
-                            if (null == memoryStream)
-                            {
-                                return (int)GitErrorCode.Error;
-                            }
-
-                            len_p = new UIntPtr((ulong)memoryStream.Capacity);
-                            type_p = objectType.ToGitObjectType();
-
-                            memoryStream.Seek(0, SeekOrigin.Begin);
-                            buffer_p = new IntPtr(memoryStream.PositionPointer);
-                        }
-
                         return toReturn;
                     }
-                    catch (Exception ex)
+
+                    // Caller is expected to give us back a stream created with the Allocate() method.
+                    var memoryStream = dataStream as UnmanagedMemoryStream;
+
+                    if (memoryStream == null)
                     {
-                        Proxy.giterr_set_str(GitErrorCategory.Odb, ex);
+                        return (int)GitErrorCode.Error;
                     }
-                    finally
+
+                    len_p = new UIntPtr((ulong)memoryStream.Capacity);
+                    type_p = objectType.ToGitObjectType();
+
+                    memoryStream.Seek(0, SeekOrigin.Begin);
+                    buffer_p = new IntPtr(memoryStream.PositionPointer);
+
+                }
+                catch (Exception ex)
+                {
+                    Proxy.giterr_set_str(GitErrorCategory.Odb, ex);
+                    return (int)GitErrorCode.Error;
+                }
+                finally
+                {
+                    if (dataStream != null)
                     {
-                        if (null != dataStream)
-                        {
-                            dataStream.Dispose();
-                        }
+                        dataStream.Dispose();
                     }
                 }
 
-                return (int)GitErrorCode.Error;
+                return (int)GitErrorCode.Ok;
             }
 
             private unsafe static int ReadPrefix(
@@ -264,61 +282,64 @@ namespace LibGit2Sharp
                 len_p = UIntPtr.Zero;
                 type_p = GitObjectType.Bad;
 
-                OdbBackend odbBackend = GCHandle.FromIntPtr(Marshal.ReadIntPtr(backend, GitOdbBackend.GCHandleOffset)).Target as OdbBackend;
-
-                if (odbBackend != null)
+                OdbBackend odbBackend = MarshalOdbBackend(backend);
+                if (odbBackend == null)
                 {
+                    return (int)GitErrorCode.Error;
+                }
+
+                Stream dataStream = null;
+
+                try
+                {
+                    // The length of short_oid is described in characters (40 per full ID) vs. bytes (20)
+                    // which is what we care about.
+                    var oidLen = (int)len;
+
+                    // Ensure we allocate enough space to cope with odd-sized prefix
+                    int arraySize = (oidLen + 1) >> 1;
+                    var shortOidArray = new byte[arraySize];
+                    Array.Copy(short_oid.Id, shortOidArray, arraySize);
+
                     byte[] oid;
-                    Stream dataStream = null;
                     ObjectType objectType;
 
-                    try
+                    int toReturn = odbBackend.ReadPrefix(shortOidArray, oidLen, out oid, out dataStream, out objectType);
+
+                    if (toReturn != 0)
                     {
-                        // The length of short_oid is described in characters (40 per full ID) vs. bytes (20)
-                        // which is what we care about.
-                        var oidLen = (int)len;
-
-                        // Ensure we allocate enough space to cope with odd-sized prefix
-                        int arraySize = (oidLen + 1) >> 1;
-                        var shortOidArray = new byte[arraySize];
-                        Array.Copy(short_oid.Id, shortOidArray, arraySize);
-
-                        int toReturn = odbBackend.ReadPrefix(shortOidArray, oidLen, out oid, out dataStream, out objectType);
-
-                        if (0 == toReturn)
-                        {
-                            // Caller is expected to give us back a stream created with the Allocate() method.
-                            UnmanagedMemoryStream memoryStream = dataStream as UnmanagedMemoryStream;
-
-                            if (null == memoryStream)
-                            {
-                                return (int)GitErrorCode.Error;
-                            }
-
-                            out_oid.Id = oid;
-                            len_p = new UIntPtr((ulong)memoryStream.Capacity);
-                            type_p = objectType.ToGitObjectType();
-
-                            memoryStream.Seek(0, SeekOrigin.Begin);
-                            buffer_p = new IntPtr(memoryStream.PositionPointer);
-                        }
-
                         return toReturn;
                     }
-                    catch (Exception ex)
+
+                    // Caller is expected to give us back a stream created with the Allocate() method.
+                    var memoryStream = dataStream as UnmanagedMemoryStream;
+
+                    if (memoryStream == null)
                     {
-                        Proxy.giterr_set_str(GitErrorCategory.Odb, ex);
+                        return (int)GitErrorCode.Error;
                     }
-                    finally
+
+                    out_oid.Id = oid;
+                    len_p = new UIntPtr((ulong)memoryStream.Capacity);
+                    type_p = objectType.ToGitObjectType();
+
+                    memoryStream.Seek(0, SeekOrigin.Begin);
+                    buffer_p = new IntPtr(memoryStream.PositionPointer);
+                }
+                catch (Exception ex)
+                {
+                    Proxy.giterr_set_str(GitErrorCategory.Odb, ex);
+                    return (int)GitErrorCode.Error;
+                }
+                finally
+                {
+                    if (null != dataStream)
                     {
-                        if (null != dataStream)
-                        {
-                            dataStream.Dispose();
-                        }
+                        dataStream.Dispose();
                     }
                 }
 
-                return (int)GitErrorCode.Error;
+                return (int)GitErrorCode.Ok;
             }
 
             private static int ReadHeader(
@@ -330,32 +351,33 @@ namespace LibGit2Sharp
                 len_p = UIntPtr.Zero;
                 type_p = GitObjectType.Bad;
 
-                OdbBackend odbBackend = GCHandle.FromIntPtr(Marshal.ReadIntPtr(backend, GitOdbBackend.GCHandleOffset)).Target as OdbBackend;
+                OdbBackend odbBackend = MarshalOdbBackend(backend);
+                if (odbBackend == null)
+                {
+                    return (int)GitErrorCode.Error;
+                }
 
-                if (odbBackend != null)
+                try
                 {
                     int length;
                     ObjectType objectType;
+                    int toReturn = odbBackend.ReadHeader(oid.Id, out length, out objectType);
 
-                    try
+                    if (toReturn != 0)
                     {
-                        int toReturn = odbBackend.ReadHeader(oid.Id, out length, out objectType);
-
-                        if (0 == toReturn)
-                        {
-                            len_p = new UIntPtr((uint)length);
-                            type_p = objectType.ToGitObjectType();
-                        }
-
                         return toReturn;
                     }
-                    catch (Exception ex)
-                    {
-                        Proxy.giterr_set_str(GitErrorCategory.Odb, ex);
-                    }
+
+                    len_p = new UIntPtr((uint)length);
+                    type_p = objectType.ToGitObjectType();
+                }
+                catch (Exception ex)
+                {
+                    Proxy.giterr_set_str(GitErrorCategory.Odb, ex);
+                    return (int)GitErrorCode.Error;
                 }
 
-                return (int)GitErrorCode.Error;
+                return (int)GitErrorCode.Ok;
             }
 
             private static unsafe int Write(
@@ -365,27 +387,29 @@ namespace LibGit2Sharp
                 UIntPtr len,
                 GitObjectType type)
             {
-                OdbBackend odbBackend = GCHandle.FromIntPtr(Marshal.ReadIntPtr(backend, GitOdbBackend.GCHandleOffset)).Target as OdbBackend;
-
-                ObjectType objectType = type.ToObjectType();
-
-                if (odbBackend != null &&
-                    len.ToUInt64() < long.MaxValue)
+                if (len.ToUInt64() > long.MaxValue)
                 {
-                    try
-                    {
-                        using (UnmanagedMemoryStream stream = new UnmanagedMemoryStream((byte*)data, (long)len.ToUInt64()))
-                        {
-                            return odbBackend.Write(oid.Id, stream, (long)len.ToUInt64(), objectType);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Proxy.giterr_set_str(GitErrorCategory.Odb, ex);
-                    }
+                    return (int)GitErrorCode.Error;
                 }
 
-                return (int)GitErrorCode.Error;
+                OdbBackend odbBackend = MarshalOdbBackend(backend);
+                if (odbBackend == null)
+                {
+                    return (int)GitErrorCode.Error;
+                }
+
+                try
+                {
+                    using (var stream = new UnmanagedMemoryStream((byte*)data, (long)len.ToUInt64()))
+                    {
+                        return odbBackend.Write(oid.Id, stream, (long)len.ToUInt64(), type.ToObjectType());
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Proxy.giterr_set_str(GitErrorCategory.Odb, ex);
+                    return (int)GitErrorCode.Error;
+                }
             }
 
             private static int WriteStream(
@@ -396,33 +420,36 @@ namespace LibGit2Sharp
             {
                 stream_out = IntPtr.Zero;
 
-                OdbBackend odbBackend = GCHandle.FromIntPtr(Marshal.ReadIntPtr(backend, GitOdbBackend.GCHandleOffset)).Target as OdbBackend;
+                if (length.ToUInt64() > long.MaxValue)
+                {
+                    return (int)GitErrorCode.Error;
+                }
+
+                OdbBackend odbBackend = MarshalOdbBackend(backend);
+                if (odbBackend == null)
+                {
+                    return (int)GitErrorCode.Error;
+                }
 
                 ObjectType objectType = type.ToObjectType();
 
-                if (odbBackend != null &&
-                    length.ToUInt64() < long.MaxValue)
+                try
                 {
                     OdbBackendStream stream;
+                    int toReturn = odbBackend.WriteStream((long)length.ToUInt64(), objectType, out stream);
 
-                    try
+                    if (toReturn == 0)
                     {
-                        int toReturn = odbBackend.WriteStream((long)length.ToUInt64(), objectType, out stream);
-
-                        if (0 == toReturn)
-                        {
-                            stream_out = stream.GitOdbBackendStreamPointer;
-                        }
-
-                        return toReturn;
+                        stream_out = stream.GitOdbBackendStreamPointer;
                     }
-                    catch (Exception ex)
-                    {
-                        Proxy.giterr_set_str(GitErrorCategory.Odb, ex);
-                    }
+
+                    return toReturn;
                 }
-
-                return (int)GitErrorCode.Error;
+                catch (Exception ex)
+                {
+                    Proxy.giterr_set_str(GitErrorCategory.Odb, ex);
+                    return (int)GitErrorCode.Error;
+                }
             }
 
             private static int ReadStream(
@@ -432,51 +459,50 @@ namespace LibGit2Sharp
             {
                 stream_out = IntPtr.Zero;
 
-                OdbBackend odbBackend = GCHandle.FromIntPtr(Marshal.ReadIntPtr(backend, GitOdbBackend.GCHandleOffset)).Target as OdbBackend;
-
-                if (odbBackend != null)
+                OdbBackend odbBackend = MarshalOdbBackend(backend);
+                if (odbBackend == null)
                 {
-                    OdbBackendStream stream;
-
-                    try
-                    {
-                        int toReturn = odbBackend.ReadStream(oid.Id, out stream);
-
-                        if (0 == toReturn)
-                        {
-                            stream_out = stream.GitOdbBackendStreamPointer;
-                        }
-
-                        return toReturn;
-                    }
-                    catch (Exception ex)
-                    {
-                        Proxy.giterr_set_str(GitErrorCategory.Odb, ex);
-                    }
+                    return (int)GitErrorCode.Error;
                 }
 
-                return (int)GitErrorCode.Error;
+                try
+                {
+                    OdbBackendStream stream;
+                    int toReturn = odbBackend.ReadStream(oid.Id, out stream);
+
+                    if (toReturn == 0)
+                    {
+                        stream_out = stream.GitOdbBackendStreamPointer;
+                    }
+
+                    return toReturn;
+                }
+                catch (Exception ex)
+                {
+                    Proxy.giterr_set_str(GitErrorCategory.Odb, ex);
+                    return (int)GitErrorCode.Error;
+                }
             }
 
             private static bool Exists(
                 IntPtr backend,
                 ref GitOid oid)
             {
-                OdbBackend odbBackend = GCHandle.FromIntPtr(Marshal.ReadIntPtr(backend, GitOdbBackend.GCHandleOffset)).Target as OdbBackend;
-
-                if (odbBackend != null)
+                OdbBackend odbBackend = MarshalOdbBackend(backend);
+                if (odbBackend == null)
                 {
-                    try
-                    {
-                        return odbBackend.Exists(oid.Id);
-                    }
-                    catch (Exception ex)
-                    {
-                        Proxy.giterr_set_str(GitErrorCategory.Odb, ex);
-                    }
+                    return false; // Weird
                 }
 
-                return false;
+                try
+                {
+                    return odbBackend.Exists(oid.Id);
+                }
+                catch (Exception ex)
+                {
+                    Proxy.giterr_set_str(GitErrorCategory.Odb, ex);
+                    return false;
+                }
             }
 
             private static int Foreach(
@@ -484,39 +510,39 @@ namespace LibGit2Sharp
                 GitOdbBackend.foreach_callback_callback cb,
                 IntPtr data)
             {
-                OdbBackend odbBackend = GCHandle.FromIntPtr(Marshal.ReadIntPtr(backend, GitOdbBackend.GCHandleOffset)).Target as OdbBackend;
-
-                if (odbBackend != null)
+                OdbBackend odbBackend = MarshalOdbBackend(backend);
+                if (odbBackend == null)
                 {
-                    try
-                    {
-                        return odbBackend.ForEach(new ForeachState(cb, data).ManagedCallback);
-                    }
-                    catch (Exception ex)
-                    {
-                        Proxy.giterr_set_str(GitErrorCategory.Odb, ex);
-                    }
+                    return (int)GitErrorCode.Error;
                 }
 
-                return (int)GitErrorCode.Error;
+                try
+                {
+                    return odbBackend.ForEach(new ForeachState(cb, data).ManagedCallback);
+                }
+                catch (Exception ex)
+                {
+                    Proxy.giterr_set_str(GitErrorCategory.Odb, ex);
+                    return (int)GitErrorCode.Error;
+                }
             }
 
             private static void Free(
                 IntPtr backend)
             {
-                GCHandle gcHandle = GCHandle.FromIntPtr(Marshal.ReadIntPtr(backend, GitOdbBackend.GCHandleOffset));
-                OdbBackend odbBackend = gcHandle.Target as OdbBackend;
-
-                if (odbBackend != null)
+                OdbBackend odbBackend = MarshalOdbBackend(backend);
+                if (odbBackend == null)
                 {
-                    try
-                    {
-                        odbBackend.Dispose();
-                    }
-                    catch (Exception ex)
-                    {
-                        Proxy.giterr_set_str(GitErrorCategory.Odb, ex);
-                    }
+                    return;
+                }
+
+                try
+                {
+                    odbBackend.Dispose();
+                }
+                catch (Exception ex)
+                {
+                    Proxy.giterr_set_str(GitErrorCategory.Odb, ex);
                 }
             }
 
