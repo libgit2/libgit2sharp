@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Text;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
 
@@ -85,6 +86,43 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        [Fact]
+        public void CanRetrieveObjectsThroughOddSizedShortShas()
+        {
+            string repoPath = InitNewRepository();
+
+            using (var repo = new Repository(repoPath))
+            {
+                var backend = new MockOdbBackend();
+                repo.ObjectDatabase.AddBackend(backend, priority: 5);
+
+                AddCommitToRepo(repo);
+
+                var blob1 = repo.Lookup<Blob>("9daeaf");
+                Assert.NotNull(blob1);
+
+                const string dummy = "dummy\n";
+
+                // Inserts a fake blob with a similarly prefixed sha
+                var fakeId = new ObjectId("9daeaf0000000000000000000000000000000000");
+                using (var ms = new MemoryStream(Encoding.UTF8.GetBytes(dummy)))
+                {
+                    Assert.Equal(0, backend.Write(fakeId.RawId, ms, dummy.Length, ObjectType.Blob));
+                }
+
+                var blob2 = repo.Lookup<Blob>(fakeId);
+                Assert.NotNull(blob2);
+
+                Assert.Throws<AmbiguousSpecificationException>(() => repo.Lookup<Blob>("9daeaf"));
+
+                var newBlob1 = repo.Lookup("9daeafb");
+                var newBlob2 = repo.Lookup("9daeaf0");
+
+                Assert.Equal(blob1, newBlob1);
+                Assert.Equal(blob2, newBlob2);
+            }
+        }
+
         #region MockOdbBackend
 
         private class MockOdbBackend : OdbBackend
@@ -125,7 +163,7 @@ namespace LibGit2Sharp.Tests
                 return GIT_ENOTFOUND;
             }
 
-            public override int ReadPrefix(byte[] shortOid, out byte[] oid, out Stream data, out ObjectType objectType)
+            public override int ReadPrefix(byte[] shortOid, int len, out byte[] oid, out Stream data, out ObjectType objectType)
             {
                 oid = null;
                 data = null;
@@ -137,12 +175,24 @@ namespace LibGit2Sharp.Tests
                 {
                     bool match = true;
 
-                    for (int i = 0; i < shortOid.Length; i++)
+                    int length = len >> 1;
+                    for (int i = 0; i < length; i++)
                     {
                         if (gitObject.ObjectId[i] != shortOid[i])
                         {
                             match = false;
                             break;
+                        }
+                    }
+
+                    if (match && ((len & 1) == 1))
+                    {
+                        var a = gitObject.ObjectId[length] >> 4;
+                        var b = shortOid[length] >> 4;
+
+                        if (a != b)
+                        {
+                            match = false;
                         }
                     }
 

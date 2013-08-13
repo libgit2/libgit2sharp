@@ -61,6 +61,7 @@ namespace LibGit2Sharp
         /// Requests that this backend read an object. The object ID may not be complete (may be a prefix).
         /// </summary>
         public abstract int ReadPrefix(byte[] shortOid,
+            int prefixLen,
             out byte[] oid,
             out Stream data,
             out ObjectType objectType);
@@ -275,10 +276,14 @@ namespace LibGit2Sharp
                     {
                         // The length of short_oid is described in characters (40 per full ID) vs. bytes (20)
                         // which is what we care about.
-                        byte[] shortOidArray = new byte[(long)len >> 1];
-                        Array.Copy(short_oid.Id, shortOidArray, shortOidArray.Length);
+                        var oidLen = (int)len;
 
-                        int toReturn = odbBackend.ReadPrefix(shortOidArray, out oid, out dataStream, out objectType);
+                        // Ensure we allocate enough space to cope with odd-sized prefix
+                        int arraySize = (oidLen + 1) >> 1;
+                        var shortOidArray = new byte[arraySize];
+                        Array.Copy(short_oid.Id, shortOidArray, arraySize);
+
+                        int toReturn = odbBackend.ReadPrefix(shortOidArray, oidLen, out oid, out dataStream, out objectType);
 
                         if (0 == toReturn)
                         {
