@@ -41,5 +41,10 @@ namespace LibGit2Sharp
         /// Rewriter for tag names. This is called with (OldTag.Name, OldTag.IsAnnotated, OldTarget).
         /// </summary>
         public Func<String, bool, GitObject, string> TagNameRewriter { get; set; }
+
+        /// <summary>
+        /// Empty commits should be removed while rewriting.
+        /// </summary>
+        public bool PruneEmptyCommits { get; set; }
     }
 }
