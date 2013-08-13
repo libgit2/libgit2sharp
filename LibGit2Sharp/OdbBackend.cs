@@ -73,14 +73,12 @@ namespace LibGit2Sharp
             out ObjectType objectType);
 
         /// <summary>
-        /// Requests that this backend write an object to the backing store. The backend may need to compute the object ID
-        /// and return it to the caller.
+        /// Requests that this backend write an object to the backing store.
         /// </summary>
         public abstract int Write(byte[] oid,
             Stream dataStream,
             long length,
-            ObjectType objectType,
-            out byte[] finalOid);
+            ObjectType objectType);
 
         /// <summary>
         /// Requests that this backend read an object. Returns a stream so that the caller can read the data in chunks.
@@ -373,16 +371,7 @@ namespace LibGit2Sharp
                     {
                         using (UnmanagedMemoryStream stream = new UnmanagedMemoryStream((byte*)data, (long)len.ToUInt64()))
                         {
-                            byte[] finalOid;
-
-                            int toReturn = odbBackend.Write(oid.Id, stream, (long)len.ToUInt64(), objectType, out finalOid);
-
-                            if (0 == toReturn)
-                            {
-                                oid.Id = finalOid;
-                            }
-
-                            return toReturn;
+                            return odbBackend.Write(oid.Id, stream, (long)len.ToUInt64(), objectType);
                         }
                     }
                     catch (Exception ex)
