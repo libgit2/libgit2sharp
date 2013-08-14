@@ -400,5 +400,22 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(tag, fetched);
             }
         }
+
+        [Fact]
+        public void CanEnumerateTheGitObjectsFromBareRepository()
+        {
+            using (var repo = new Repository(BareTestRepoPath))
+            {
+                int count = 0;
+
+                foreach (var obj in repo.ObjectDatabase)
+                {
+                    Assert.NotNull(obj);
+                    count++;
+                }
+
+                Assert.True(count >= 1683);
+            }
+        }
     }
 }

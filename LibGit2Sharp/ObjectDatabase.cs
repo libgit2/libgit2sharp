@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -13,7 +14,7 @@ namespace LibGit2Sharp
     /// Provides methods to directly work against the Git object database
     /// without involving the index nor the working directory.
     /// </summary>
-    public class ObjectDatabase
+    public class ObjectDatabase : IEnumerable<GitObject>
     {
         private readonly Repository repo;
         private readonly ObjectDatabaseSafeHandle handle;
@@ -32,6 +33,33 @@ namespace LibGit2Sharp
             repo.RegisterForCleanup(handle);
         }
 
+        #region Implementation of IEnumerable
+
+        /// <summary>
+        /// Returns an enumerator that iterates through the collection.
+        /// </summary>
+        /// <returns>An <see cref="IEnumerator{T}"/> object that can be used to iterate through the collection.</returns>
+        public virtual IEnumerator<GitObject> GetEnumerator()
+        {
+            ICollection<GitOid> oids = Proxy.git_odb_foreach(handle, 
+                ptr => (GitOid) Marshal.PtrToStructure(ptr, typeof (GitOid)));
+
+            return oids
+                .Select(gitOid => repo.Lookup<GitObject>(new ObjectId(gitOid)))
+                .GetEnumerator();
+        }
+
+        /// <summary>
+        /// Returns an enumerator that iterates through the collection.
+        /// </summary>
+        /// <returns>An <see cref="IEnumerator"/> object that can be used to iterate through the collection.</returns>
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
+        #endregion
+ 
         /// <summary>
         /// Determines if the given object can be found in the object database.
         /// </summary>
