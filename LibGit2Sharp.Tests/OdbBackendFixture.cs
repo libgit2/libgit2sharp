@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Security.Cryptography;
+using System.Text;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
 
@@ -9,30 +11,115 @@ namespace LibGit2Sharp.Tests
 {
     public class OdbBackendFixture : BaseFixture
     {
+        private const string content = "test\n";
+
+        private static void AddCommitToRepo(Repository repo)
+        {
+            string relativeFilepath = "test.txt";
+            Touch(repo.Info.WorkingDirectory, relativeFilepath, content);
+            repo.Index.Stage(relativeFilepath);
+
+            var ie = repo.Index[relativeFilepath];
+            Assert.NotNull(ie);
+            Assert.Equal("9daeafb9864cf43055ae93beb0afd6c7d144bfa4", ie.Id.Sha);
+
+            var author = new Signature("nulltoken", "emeric.fermas@gmail.com", DateTimeOffset.Parse("Wed, Dec 14 2011 08:29:03 +0100"));
+            repo.Commit("Initial commit", author, author);
+
+            relativeFilepath = "big.txt";
+            var zeros = new string('0', 32*1024 + 3);
+            Touch(repo.Info.WorkingDirectory, relativeFilepath, zeros);
+            repo.Index.Stage(relativeFilepath);
+
+            ie = repo.Index[relativeFilepath];
+            Assert.NotNull(ie);
+            Assert.Equal("6518215c4274845a759cb498998fe696c42e3e0f", ie.Id.Sha);
+        }
+
+        private static void AssertGeneratedShas(Repository repo)
+        {
+            Commit commit = repo.Commits.Single();
+            Assert.Equal("1fe3126578fc4eca68c193e4a3a0a14a0704624d", commit.Sha);
+            Tree tree = commit.Tree;
+            Assert.Equal("2b297e643c551e76cfa1f93810c50811382f9117", tree.Sha);
+
+            GitObject blob = tree.Single().Target;
+            Assert.IsAssignableFrom<Blob>(blob);
+            Assert.Equal("9daeafb9864cf43055ae93beb0afd6c7d144bfa4", blob.Sha);
+        }
+
         [Fact]
-        public void SimpleOdbBackendFixtureTest()
+        public void CanGeneratePredictableObjectShasWithTheDefaultBackend()
         {
             string repoPath = InitNewRepository();
 
-            using (var repository = new Repository(repoPath))
+            using (var repo = new Repository(repoPath))
             {
-                repository.ObjectDatabase.AddBackend(new MockOdbBackend(), priority: 5);
+                AddCommitToRepo(repo);
 
-                const string filename = "file.txt";
-                const string fileContents = "Hello!";
+                AssertGeneratedShas(repo);
+            }
+        }
 
-                // Exercises read, write, writestream, exists
-                Touch(repository.Info.WorkingDirectory, filename, fileContents);
-                repository.Index.Stage(filename);
+        [Fact]
+        public void CanGeneratePredictableObjectShasWithAProvidedBackend()
+        {
+            string repoPath = InitNewRepository();
 
-                var signature = new Signature("SimpleOdbBackendFixtureTest", "user@example.com", DateTimeOffset.Now);
-                repository.Commit(String.Empty, signature, signature);
+            using (var repo = new Repository(repoPath))
+            {
+                repo.ObjectDatabase.AddBackend(new MockOdbBackend(), priority: 5);
 
-                // Exercises read
-                var blob = repository.Lookup<Blob>(new ObjectId("69342c5c39e5ae5f0077aecc32c0f81811fb8193"));
+                AddCommitToRepo(repo);
 
-                Assert.NotNull(blob);
-                Assert.True(fileContents.Length == blob.Size);
+                AssertGeneratedShas(repo);
+
+                var objectId = new ObjectId("9daeafb9864cf43055ae93beb0afd6c7d144bfa4");
+
+                Assert.True(repo.ObjectDatabase.Contains(objectId));
+
+                var blob = repo.Lookup<Blob>(objectId);
+                Assert.True(content.Length == blob.Size);
+
+                var other = repo.Lookup<Blob>("9daeaf");
+                Assert.Equal(blob, other);
+            }
+        }
+
+        [Fact]
+        public void CanRetrieveObjectsThroughOddSizedShortShas()
+        {
+            string repoPath = InitNewRepository();
+
+            using (var repo = new Repository(repoPath))
+            {
+                var backend = new MockOdbBackend();
+                repo.ObjectDatabase.AddBackend(backend, priority: 5);
+
+                AddCommitToRepo(repo);
+
+                var blob1 = repo.Lookup<Blob>("9daeaf");
+                Assert.NotNull(blob1);
+
+                const string dummy = "dummy\n";
+
+                // Inserts a fake blob with a similarly prefixed sha
+                var fakeId = new ObjectId("9daeaf0000000000000000000000000000000000");
+                using (var ms = new MemoryStream(Encoding.UTF8.GetBytes(dummy)))
+                {
+                    Assert.Equal(0, backend.Write(fakeId.RawId, ms, dummy.Length, ObjectType.Blob));
+                }
+
+                var blob2 = repo.Lookup<Blob>(fakeId);
+                Assert.NotNull(blob2);
+
+                Assert.Throws<AmbiguousSpecificationException>(() => repo.Lookup<Blob>("9daeaf"));
+
+                var newBlob1 = repo.Lookup("9daeafb");
+                var newBlob2 = repo.Lookup("9daeaf0");
+
+                Assert.Equal(blob1, newBlob1);
+                Assert.Equal(blob2, newBlob2);
             }
         }
 
@@ -61,8 +148,12 @@ namespace LibGit2Sharp.Tests
 
                 if (m_objectIdToContent.TryGetValue(oid, out gitObject))
                 {
-                    data = Allocate(gitObject.Data.LongLength);
-                    data.Write(gitObject.Data, 0, gitObject.Data.Length);
+                    data = Allocate(gitObject.Length);
+
+                    foreach (var chunk in gitObject.Data)
+                    {
+                        data.Write(chunk, 0, chunk.Length);
+                    }
 
                     objectType = gitObject.ObjectType;
 
@@ -72,7 +163,7 @@ namespace LibGit2Sharp.Tests
                 return GIT_ENOTFOUND;
             }
 
-            public override int ReadPrefix(byte[] shortOid, out byte[] oid, out Stream data, out ObjectType objectType)
+            public override int ReadPrefix(byte[] shortOid, int len, out byte[] oid, out Stream data, out ObjectType objectType)
             {
                 oid = null;
                 data = null;
@@ -84,12 +175,24 @@ namespace LibGit2Sharp.Tests
                 {
                     bool match = true;
 
-                    for (int i = 0; i < shortOid.Length; i++)
+                    int length = len >> 1;
+                    for (int i = 0; i < length; i++)
                     {
                         if (gitObject.ObjectId[i] != shortOid[i])
                         {
                             match = false;
                             break;
+                        }
+                    }
+
+                    if (match && ((len & 1) == 1))
+                    {
+                        var a = gitObject.ObjectId[length] >> 4;
+                        var b = shortOid[length] >> 4;
+
+                        if (a != b)
+                        {
+                            match = false;
                         }
                     }
 
@@ -111,8 +214,12 @@ namespace LibGit2Sharp.Tests
                     oid = gitObjectAlreadyFound.ObjectId;
                     objectType = gitObjectAlreadyFound.ObjectType;
 
-                    data = Allocate(gitObjectAlreadyFound.Data.LongLength);
-                    data.Write(gitObjectAlreadyFound.Data, 0, gitObjectAlreadyFound.Data.Length);
+                    data = Allocate(gitObjectAlreadyFound.Length);
+
+                    foreach (var chunk in gitObjectAlreadyFound.Data)
+                    {
+                        data.Write(chunk, 0, chunk.Length);
+                    }
 
                     return GIT_OK;
                 }
@@ -120,26 +227,19 @@ namespace LibGit2Sharp.Tests
                 return GIT_ENOTFOUND;
             }
 
-            public override int Write(byte[] oid, Stream dataStream, long length, ObjectType objectType, out byte[] finalOid)
+            public override int Write(byte[] oid, Stream dataStream, long length, ObjectType objectType)
             {
-                using (var sha1 = new SHA1CryptoServiceProvider())
-                {
-                    finalOid = sha1.ComputeHash(dataStream);
-
-                    dataStream.Seek(0, SeekOrigin.Begin);
-                }
-
-                if (m_objectIdToContent.ContainsKey(finalOid))
+                if (m_objectIdToContent.ContainsKey(oid))
                 {
                     return GIT_EEXISTS;
                 }
 
-                if (length > (long)int.MaxValue)
+                if (length > int.MaxValue)
                 {
                     return GIT_ERROR;
                 }
 
-                byte[] buffer = new byte[length];
+                var buffer = new byte[length];
                 int bytesRead = dataStream.Read(buffer, 0, (int)length);
 
                 if (bytesRead != (int)length)
@@ -147,7 +247,7 @@ namespace LibGit2Sharp.Tests
                     return GIT_ERROR;
                 }
 
-                m_objectIdToContent.Add(finalOid, new MockGitObject(finalOid, objectType, buffer));
+                m_objectIdToContent.Add(oid, new MockGitObject(oid, objectType, length, new List<byte[]> { buffer }));
 
                 return GIT_OK;
             }
@@ -164,7 +264,8 @@ namespace LibGit2Sharp.Tests
                 return m_objectIdToContent.ContainsKey(oid);
             }
 
-            private Dictionary<byte[], MockGitObject> m_objectIdToContent = new Dictionary<byte[], MockGitObject>(MockGitObjectComparer.Instance);
+            private readonly Dictionary<byte[], MockGitObject> m_objectIdToContent =
+                new Dictionary<byte[], MockGitObject>(MockGitObjectComparer.Instance);
 
             private const int GIT_OK = 0;
             private const int GIT_ERROR = -1;
@@ -200,12 +301,12 @@ namespace LibGit2Sharp.Tests
                 {
                     m_type = objectType;
                     m_length = length;
-                    m_hash = new SHA1CryptoServiceProvider();
+                    m_hash = new OdbHasher(objectType, length);
                 }
 
                 protected override void Dispose()
                 {
-                    ((IDisposable)m_hash).Dispose();
+                    m_hash.Dispose();
 
                     base.Dispose();
                 }
@@ -228,74 +329,118 @@ namespace LibGit2Sharp.Tests
 
                 public override int Write(Stream dataStream, long length)
                 {
-                    if (null == m_buffer)
-                    {
-                        m_buffer = new byte[length];
+                    if (length > Int32.MaxValue)
+                        return GIT_ERROR;
 
-                        if (length > (long)int.MaxValue)
-                            return GIT_ERROR;
+                    var buffer = new byte[length];
 
-                        int bytesRead = dataStream.Read(m_buffer, 0, (int)length);
+                    int bytesRead = dataStream.Read(buffer, 0, (int)length);
 
-                        if (bytesRead != (int)length)
-                            return GIT_ERROR;
+                    if (bytesRead != (int)length)
+                        return GIT_ERROR;
 
-                        m_hash.TransformBlock(m_buffer, 0, (int)length, null, 0);
-                    }
-                    else
-                    {
-                        long newLength = m_buffer.LongLength + length;
-
-                        if (newLength > (long)int.MaxValue)
-                            return GIT_ERROR;
-
-                        byte[] newBuffer = new byte[newLength];
-                        Array.Copy(m_buffer, newBuffer, m_buffer.Length);
-
-                        int bytesRead = dataStream.Read(newBuffer, m_buffer.Length, (int)length);
-
-                        if (bytesRead != (int)length)
-                            return GIT_ERROR;
-
-                        m_hash.TransformBlock(newBuffer, m_buffer.Length, (int)length, null, 0);
-
-                        m_buffer = newBuffer;
-                    }
+                    m_hash.Update(buffer, (int)length);
+                    m_chunks.Add(buffer);
 
                     return GIT_OK;
                 }
 
                 public override int FinalizeWrite(out byte[] oid)
                 {
-                    m_hash.TransformFinalBlock(m_buffer, 0, 0);
-                    oid = m_hash.Hash;
+                    oid = null;
 
-                    if (m_buffer.Length != (int)m_length)
+                    long totalLength = m_chunks.Sum(chunk => chunk.Length);
+
+                    if (totalLength != m_length)
                     {
                         return GIT_ERROR;
                     }
+
+                    oid = m_hash.RetrieveHash();
 
                     var backend = (MockOdbBackend)Backend;
 
                     if (!backend.m_objectIdToContent.ContainsKey(oid))
                     {
-                        backend.m_objectIdToContent.Add(oid, new MockGitObject(oid, m_type, m_buffer));
+                        backend.m_objectIdToContent.Add(oid, new MockGitObject(oid, m_type, m_length, m_chunks));
                     }
 
                     return GIT_OK;
                 }
 
-                private byte[] m_buffer;
+                private readonly List<byte[]> m_chunks = new List<byte[]>();
 
                 private readonly ObjectType m_type;
                 private readonly long m_length;
-                private readonly HashAlgorithm m_hash;
+                private readonly OdbHasher m_hash;
 
                 #region Unimplemented
 
                 public override int Read(Stream dataStream, long length)
                 {
                     throw new NotImplementedException();
+                }
+
+                private class OdbHasher : IDisposable
+                {
+                    private readonly HashAlgorithm hasher;
+                    private bool hashing = true;
+
+                    public OdbHasher(ObjectType objectType, long length)
+                    {
+                        hasher = new SHA1CryptoServiceProvider();
+
+                        string header = String.Format("{0} {1} ", ToHeaderFormat(objectType), length);
+
+                        byte[] buffer = Encoding.ASCII.GetBytes(header);
+
+                        buffer[buffer.Length - 1] = 0;
+                        hasher.TransformBlock(buffer, 0, buffer.Length, null, 0);
+                    }
+
+                    public void Update(byte[] buffer, int length)
+                    {
+                        if (!hashing)
+                        {
+                            throw new InvalidOperationException();
+                        }
+
+                        hasher.TransformBlock(buffer, 0, length, null, 0);
+                    }
+
+                    public byte[] RetrieveHash()
+                    {
+                        hashing = false;
+
+                        hasher.TransformFinalBlock(new byte[]{}, 0, 0);
+                        return hasher.Hash;
+                    }
+
+                    private static string ToHeaderFormat(ObjectType type)
+                    {
+                        switch (type)
+                        {
+                            case ObjectType.Commit:
+                                return "commit";
+
+                            case ObjectType.Tree:
+                                return "tree";
+
+                            case ObjectType.Blob:
+                                return "blob";
+
+                            case ObjectType.Tag:
+                                return "tag";
+
+                            default:
+                                throw new InvalidOperationException(String.Format("Cannot map {0} to a header format entry.", type));
+                        }
+                    }
+
+                    public void Dispose()
+                    {
+                        ((IDisposable)hasher).Dispose();
+                    }
                 }
 
                 #endregion
@@ -307,29 +452,23 @@ namespace LibGit2Sharp.Tests
 
             private class MockGitObject
             {
-                public MockGitObject(byte[] objectId, ObjectType objectType, byte[] data)
+                public MockGitObject(byte[] objectId, ObjectType objectType, long length, List<byte[]> data)
                 {
                     if (objectId.Length != 20)
                     {
                         throw new InvalidOperationException();
                     }
 
-                    this.ObjectId = objectId;
-                    this.ObjectType = objectType;
-                    this.Data = data;
+                    ObjectId = objectId;
+                    ObjectType = objectType;
+                    Data = data;
+                    Length = length;
                 }
 
-                public byte[] ObjectId;
-                public ObjectType ObjectType;
-                public byte[] Data;
-
-                public int Length
-                {
-                    get
-                    {
-                        return this.Data.Length;
-                    }
-                }
+                public readonly byte[] ObjectId;
+                public readonly ObjectType ObjectType;
+                public readonly List<byte[]> Data;
+                public readonly long Length;
             }
 
             #endregion
