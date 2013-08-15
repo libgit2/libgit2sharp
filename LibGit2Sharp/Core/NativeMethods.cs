@@ -579,6 +579,16 @@ namespace LibGit2Sharp.Core
         [DllImport(libgit2)]
         internal static extern int git_odb_exists(ObjectDatabaseSafeHandle odb, ref GitOid id);
 
+        internal delegate int git_odb_foreach_cb(
+            IntPtr id,
+            IntPtr payload);
+
+        [DllImport(libgit2)]
+        internal static extern int git_odb_foreach(
+            ObjectDatabaseSafeHandle odb,
+            git_odb_foreach_cb cb,
+            IntPtr payload);
+
         [DllImport(libgit2)]
         internal static extern void git_odb_free(IntPtr odb);
 

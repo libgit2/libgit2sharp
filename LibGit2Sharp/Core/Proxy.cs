@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -1045,6 +1046,18 @@ namespace LibGit2Sharp.Core
             Ensure.BooleanResult(res);
 
             return (res == 1);
+        }
+
+        public static ICollection<TResult> git_odb_foreach<TResult>(
+            ObjectDatabaseSafeHandle odb,
+            Func<IntPtr, TResult> resultSelector)
+        {
+            return git_foreach(
+                resultSelector,
+                c => NativeMethods.git_odb_foreach(
+                    odb,
+                    (x, p) => c(x, p),
+                    IntPtr.Zero));
         }
 
         public static void git_odb_free(IntPtr odb)
