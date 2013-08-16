@@ -122,6 +122,31 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        [Fact]
+        public void CanEnumerateTheContentOfTheObjectDatabase()
+        {
+            string repoPath = InitNewRepository();
+
+            using (var repo = new Repository(repoPath))
+            {
+                var backend = new MockOdbBackend();
+                repo.ObjectDatabase.AddBackend(backend, priority: 5);
+
+                AddCommitToRepo(repo);
+
+                var expected = new[]{ "1fe3126", "2b297e6", "6518215", "9daeafb" };
+
+                IEnumerable<GitObject> objs = repo.ObjectDatabase;
+
+                IEnumerable<string> retrieved =
+                    objs
+                    .Select(o => o.Id.ToString(7))
+                    .OrderBy(s => s, StringComparer.Ordinal);
+
+                Assert.Equal(expected, retrieved);
+            }
+        }
+
         #region MockOdbBackend
 
         private class MockOdbBackend : OdbBackend
@@ -134,7 +159,8 @@ namespace LibGit2Sharp.Tests
                         OdbBackendOperations.ReadPrefix |
                         OdbBackendOperations.Write |
                         OdbBackendOperations.WriteStream |
-                        OdbBackendOperations.Exists;
+                        OdbBackendOperations.Exists |
+                        OdbBackendOperations.ForEach;
                 }
             }
 
@@ -286,7 +312,12 @@ namespace LibGit2Sharp.Tests
 
             public override int ForEach(ForEachCallback callback)
             {
-                throw new NotImplementedException();
+                foreach (var mockGitObject in m_objectIdToContent)
+                {
+                    callback(mockGitObject.Key);
+                }
+
+                return GIT_OK;
             }
 
             #endregion
