@@ -182,7 +182,7 @@ namespace LibGit2Sharp.Core
         /// <param name="data">The arbitrary parameter given to foreach_callback.</param>
         /// <returns>A non-negative result indicates the enumeration should continue. Otherwise, the enumeration should stop.</returns>
         public delegate int foreach_callback_callback(
-            ref GitOid oid,
+            IntPtr oid,
             IntPtr data);
     }
 }

@@ -555,12 +555,12 @@ namespace LibGit2Sharp
                     this.ManagedCallback = CallbackMethod;
                 }
 
-                private int CallbackMethod(byte[] oid)
+                private unsafe int CallbackMethod(byte[] oid)
                 {
-                    GitOid gitOid = new GitOid();
-                    gitOid.Id = oid;
-
-                    return cb(ref gitOid, data);
+                    fixed(void* ptr = &oid[0])
+                    {
+                        return cb(new IntPtr(ptr), data);  
+                    }
                 }
 
                 public readonly ForEachCallback ManagedCallback;
