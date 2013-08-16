@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Text;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
@@ -301,14 +300,6 @@ namespace LibGit2Sharp.Tests
                 {
                     m_type = objectType;
                     m_length = length;
-                    m_hash = new OdbHasher(objectType, length);
-                }
-
-                protected override void Dispose()
-                {
-                    m_hash.Dispose();
-
-                    base.Dispose();
                 }
 
                 public override bool CanRead
@@ -339,24 +330,19 @@ namespace LibGit2Sharp.Tests
                     if (bytesRead != (int)length)
                         return GIT_ERROR;
 
-                    m_hash.Update(buffer, (int)length);
                     m_chunks.Add(buffer);
 
                     return GIT_OK;
                 }
 
-                public override int FinalizeWrite(out byte[] oid)
+                public override int FinalizeWrite(byte[] oid)
                 {
-                    oid = null;
-
                     long totalLength = m_chunks.Sum(chunk => chunk.Length);
 
                     if (totalLength != m_length)
                     {
                         return GIT_ERROR;
                     }
-
-                    oid = m_hash.RetrieveHash();
 
                     var backend = (MockOdbBackend)Backend;
 
@@ -372,75 +358,12 @@ namespace LibGit2Sharp.Tests
 
                 private readonly ObjectType m_type;
                 private readonly long m_length;
-                private readonly OdbHasher m_hash;
 
                 #region Unimplemented
 
                 public override int Read(Stream dataStream, long length)
                 {
                     throw new NotImplementedException();
-                }
-
-                private class OdbHasher : IDisposable
-                {
-                    private readonly HashAlgorithm hasher;
-                    private bool hashing = true;
-
-                    public OdbHasher(ObjectType objectType, long length)
-                    {
-                        hasher = new SHA1CryptoServiceProvider();
-
-                        string header = String.Format("{0} {1} ", ToHeaderFormat(objectType), length);
-
-                        byte[] buffer = Encoding.ASCII.GetBytes(header);
-
-                        buffer[buffer.Length - 1] = 0;
-                        hasher.TransformBlock(buffer, 0, buffer.Length, null, 0);
-                    }
-
-                    public void Update(byte[] buffer, int length)
-                    {
-                        if (!hashing)
-                        {
-                            throw new InvalidOperationException();
-                        }
-
-                        hasher.TransformBlock(buffer, 0, length, null, 0);
-                    }
-
-                    public byte[] RetrieveHash()
-                    {
-                        hashing = false;
-
-                        hasher.TransformFinalBlock(new byte[]{}, 0, 0);
-                        return hasher.Hash;
-                    }
-
-                    private static string ToHeaderFormat(ObjectType type)
-                    {
-                        switch (type)
-                        {
-                            case ObjectType.Commit:
-                                return "commit";
-
-                            case ObjectType.Tree:
-                                return "tree";
-
-                            case ObjectType.Blob:
-                                return "blob";
-
-                            case ObjectType.Tag:
-                                return "tag";
-
-                            default:
-                                throw new InvalidOperationException(String.Format("Cannot map {0} to a header format entry.", type));
-                        }
-                    }
-
-                    public void Dispose()
-                    {
-                        ((IDisposable)hasher).Dispose();
-                    }
                 }
 
                 #endregion

@@ -381,8 +381,8 @@ namespace LibGit2Sharp
             }
 
             private static unsafe int Write(
-                ref GitOid oid,
                 IntPtr backend,
+                ref GitOid oid,
                 IntPtr data,
                 UIntPtr len,
                 GitObjectType type)
