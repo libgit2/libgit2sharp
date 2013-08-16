@@ -76,7 +76,7 @@ namespace LibGit2Sharp
         /// After all bytes have been written to the stream, the object ID is provided to FinalizeWrite.
         /// </summary>
         public abstract int FinalizeWrite(
-            byte[] oid);
+            ObjectId id);
 
         /// <summary>
         /// The backend object this stream was created by.
@@ -202,8 +202,7 @@ namespace LibGit2Sharp
                 {
                     try
                     {
-                        int toReturn = odbBackendStream.FinalizeWrite(oid.Id);
-                        return toReturn;
+                        return odbBackendStream.FinalizeWrite(new ObjectId(oid));
                     }
                     catch (Exception ex)
                     {

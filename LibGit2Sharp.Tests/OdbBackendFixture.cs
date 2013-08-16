@@ -106,7 +106,7 @@ namespace LibGit2Sharp.Tests
                 var fakeId = new ObjectId("9daeaf0000000000000000000000000000000000");
                 using (var ms = new MemoryStream(Encoding.UTF8.GetBytes(dummy)))
                 {
-                    Assert.Equal(0, backend.Write(fakeId.RawId, ms, dummy.Length, ObjectType.Blob));
+                    Assert.Equal(0, backend.Write(fakeId, ms, dummy.Length, ObjectType.Blob));
                 }
 
                 var blob2 = repo.Lookup<Blob>(fakeId);
@@ -138,7 +138,7 @@ namespace LibGit2Sharp.Tests
                 }
             }
 
-            public override int Read(byte[] oid, out Stream data, out ObjectType objectType)
+            public override int Read(ObjectId oid, out Stream data, out ObjectType objectType)
             {
                 data = null;
                 objectType = default(ObjectType);
@@ -177,7 +177,7 @@ namespace LibGit2Sharp.Tests
                     int length = len >> 1;
                     for (int i = 0; i < length; i++)
                     {
-                        if (gitObject.ObjectId[i] != shortOid[i])
+                        if (gitObject.ObjectId.RawId[i] != shortOid[i])
                         {
                             match = false;
                             break;
@@ -186,7 +186,7 @@ namespace LibGit2Sharp.Tests
 
                     if (match && ((len & 1) == 1))
                     {
-                        var a = gitObject.ObjectId[length] >> 4;
+                        var a = gitObject.ObjectId.RawId[length] >> 4;
                         var b = shortOid[length] >> 4;
 
                         if (a != b)
@@ -210,7 +210,7 @@ namespace LibGit2Sharp.Tests
 
                 if (null != gitObjectAlreadyFound)
                 {
-                    oid = gitObjectAlreadyFound.ObjectId;
+                    oid = gitObjectAlreadyFound.ObjectId.RawId;
                     objectType = gitObjectAlreadyFound.ObjectType;
 
                     data = Allocate(gitObjectAlreadyFound.Length);
@@ -226,7 +226,7 @@ namespace LibGit2Sharp.Tests
                 return GIT_ENOTFOUND;
             }
 
-            public override int Write(byte[] oid, Stream dataStream, long length, ObjectType objectType)
+            public override int Write(ObjectId oid, Stream dataStream, long length, ObjectType objectType)
             {
                 if (m_objectIdToContent.ContainsKey(oid))
                 {
@@ -258,13 +258,13 @@ namespace LibGit2Sharp.Tests
                 return GIT_OK;
             }
 
-            public override bool Exists(byte[] oid)
+            public override bool Exists(ObjectId oid)
             {
                 return m_objectIdToContent.ContainsKey(oid);
             }
 
-            private readonly Dictionary<byte[], MockGitObject> m_objectIdToContent =
-                new Dictionary<byte[], MockGitObject>(MockGitObjectComparer.Instance);
+            private readonly Dictionary<ObjectId, MockGitObject> m_objectIdToContent =
+                new Dictionary<ObjectId, MockGitObject>();
 
             private const int GIT_OK = 0;
             private const int GIT_ERROR = -1;
@@ -274,12 +274,12 @@ namespace LibGit2Sharp.Tests
 
             #region Unimplemented
 
-            public override int ReadHeader(byte[] oid, out int length, out ObjectType objectType)
+            public override int ReadHeader(ObjectId oid, out int length, out ObjectType objectType)
             {
                 throw new NotImplementedException();
             }
 
-            public override int ReadStream(byte[] oid, out OdbBackendStream stream)
+            public override int ReadStream(ObjectId oid, out OdbBackendStream stream)
             {
                 throw new NotImplementedException();
             }
@@ -335,7 +335,7 @@ namespace LibGit2Sharp.Tests
                     return GIT_OK;
                 }
 
-                public override int FinalizeWrite(byte[] oid)
+                public override int FinalizeWrite(ObjectId oid)
                 {
                     long totalLength = m_chunks.Sum(chunk => chunk.Length);
 
@@ -375,73 +375,18 @@ namespace LibGit2Sharp.Tests
 
             private class MockGitObject
             {
-                public MockGitObject(byte[] objectId, ObjectType objectType, long length, List<byte[]> data)
+                public MockGitObject(ObjectId objectId, ObjectType objectType, long length, List<byte[]> data)
                 {
-                    if (objectId.Length != 20)
-                    {
-                        throw new InvalidOperationException();
-                    }
-
                     ObjectId = objectId;
                     ObjectType = objectType;
                     Data = data;
                     Length = length;
                 }
 
-                public readonly byte[] ObjectId;
+                public readonly ObjectId ObjectId;
                 public readonly ObjectType ObjectType;
                 public readonly List<byte[]> Data;
                 public readonly long Length;
-            }
-
-            #endregion
-
-            #region MockGitObjectComparer
-
-            private class MockGitObjectComparer : IEqualityComparer<byte[]>
-            {
-                public bool Equals(byte[] x, byte[] y)
-                {
-                    for (int i = 0; i < 20; i++)
-                    {
-                        if (x[i] != y[i])
-                        {
-                            return false;
-                        }
-                    }
-
-                    return true;
-                }
-
-                public int GetHashCode(byte[] obj)
-                {
-                    int toReturn = 0;
-
-                    for (int i = 0; i < obj.Length / 4; i++)
-                    {
-                        toReturn ^= (int)obj[4 * i] << 24 +
-                                    (int)obj[4 * i + 1] << 16 +
-                                    (int)obj[4 * i + 2] << 8 +
-                                    (int)obj[4 * i + 3];
-                    }
-
-                    return toReturn;
-                }
-
-                public static MockGitObjectComparer Instance
-                {
-                    get
-                    {
-                        if (null == s_instance)
-                        {
-                            s_instance = new MockGitObjectComparer();
-                        }
-
-                        return s_instance;
-                    }
-                }
-
-                private static MockGitObjectComparer s_instance;
             }
 
             #endregion

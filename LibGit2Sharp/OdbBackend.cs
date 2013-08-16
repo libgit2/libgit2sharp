@@ -53,14 +53,16 @@ namespace LibGit2Sharp
         /// <summary>
         /// Requests that this backend read an object.
         /// </summary>
-        public abstract int Read(byte[] oid,
+        public abstract int Read(
+            ObjectId id,
             out Stream data,
             out ObjectType objectType);
 
         /// <summary>
         /// Requests that this backend read an object. The object ID may not be complete (may be a prefix).
         /// </summary>
-        public abstract int ReadPrefix(byte[] shortOid,
+        public abstract int ReadPrefix(
+            byte[] shortOid,
             int prefixLen,
             out byte[] oid,
             out Stream data,
@@ -69,14 +71,16 @@ namespace LibGit2Sharp
         /// <summary>
         /// Requests that this backend read an object's header (length and object type) but not its contents.
         /// </summary>
-        public abstract int ReadHeader(byte[] oid,
+        public abstract int ReadHeader(
+            ObjectId id,
             out int length,
             out ObjectType objectType);
 
         /// <summary>
         /// Requests that this backend write an object to the backing store.
         /// </summary>
-        public abstract int Write(byte[] oid,
+        public abstract int Write(
+            ObjectId id,
             Stream dataStream,
             long length,
             ObjectType objectType);
@@ -84,21 +88,23 @@ namespace LibGit2Sharp
         /// <summary>
         /// Requests that this backend read an object. Returns a stream so that the caller can read the data in chunks.
         /// </summary>
-        public abstract int ReadStream(byte[] oid,
+        public abstract int ReadStream(
+            ObjectId id,
             out OdbBackendStream stream);
 
         /// <summary>
         /// Requests that this backend write an object to the backing store. Returns a stream so that the caller can write
         /// the data in chunks.
         /// </summary>
-        public abstract int WriteStream(long length,
+        public abstract int WriteStream(
+            long length,
             ObjectType objectType,
             out OdbBackendStream stream);
 
         /// <summary>
         /// Requests that this backend check if an object ID exists.
         /// </summary>
-        public abstract bool Exists(byte[] oid);
+        public abstract bool Exists(ObjectId id);
 
         /// <summary>
         /// Requests that this backend enumerate all items in the backing store.
@@ -110,7 +116,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="oid">The object ID of the object in the backing store.</param>
         /// <returns>A non-negative result indicates the enumeration should continue. Otherwise, the enumeration should stop.</returns>
-        public delegate int ForEachCallback(byte[] oid);
+        public delegate int ForEachCallback(ObjectId oid);
 
         private IntPtr nativeBackendPointer;
 
@@ -230,7 +236,7 @@ namespace LibGit2Sharp
                 try
                 {
                     ObjectType objectType;
-                    int toReturn = odbBackend.Read(oid.Id, out dataStream, out objectType);
+                    int toReturn = odbBackend.Read(new ObjectId(oid), out dataStream, out objectType);
 
                     if (toReturn != 0)
                     {
@@ -361,7 +367,7 @@ namespace LibGit2Sharp
                 {
                     int length;
                     ObjectType objectType;
-                    int toReturn = odbBackend.ReadHeader(oid.Id, out length, out objectType);
+                    int toReturn = odbBackend.ReadHeader(new ObjectId(oid), out length, out objectType);
 
                     if (toReturn != 0)
                     {
@@ -402,7 +408,7 @@ namespace LibGit2Sharp
                 {
                     using (var stream = new UnmanagedMemoryStream((byte*)data, (long)len.ToUInt64()))
                     {
-                        return odbBackend.Write(oid.Id, stream, (long)len.ToUInt64(), type.ToObjectType());
+                        return odbBackend.Write(new ObjectId(oid), stream, (long)len.ToUInt64(), type.ToObjectType());
                     }
                 }
                 catch (Exception ex)
@@ -468,7 +474,7 @@ namespace LibGit2Sharp
                 try
                 {
                     OdbBackendStream stream;
-                    int toReturn = odbBackend.ReadStream(oid.Id, out stream);
+                    int toReturn = odbBackend.ReadStream(new ObjectId(oid), out stream);
 
                     if (toReturn == 0)
                     {
@@ -496,7 +502,7 @@ namespace LibGit2Sharp
 
                 try
                 {
-                    return odbBackend.Exists(oid.Id);
+                    return odbBackend.Exists(new ObjectId(oid));
                 }
                 catch (Exception ex)
                 {
@@ -555,8 +561,10 @@ namespace LibGit2Sharp
                     this.ManagedCallback = CallbackMethod;
                 }
 
-                private unsafe int CallbackMethod(byte[] oid)
+                private unsafe int CallbackMethod(ObjectId id)
                 {
+                    var oid = id.RawId;
+
                     fixed(void* ptr = &oid[0])
                     {
                         return cb(new IntPtr(ptr), data);  
