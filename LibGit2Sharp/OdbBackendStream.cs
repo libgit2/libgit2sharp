@@ -73,10 +73,10 @@ namespace LibGit2Sharp
             long length);
 
         /// <summary>
-        /// After all bytes have been written to the stream, the object ID can be retrieved by calling FinalizeWrite.
+        /// After all bytes have been written to the stream, the object ID is provided to FinalizeWrite.
         /// </summary>
         public abstract int FinalizeWrite(
-            out byte[] oid);
+            ObjectId id);
 
         /// <summary>
         /// The backend object this stream was created by.
@@ -193,27 +193,16 @@ namespace LibGit2Sharp
             }
 
             private static int FinalizeWrite(
-                out GitOid oid_p,
-                IntPtr stream)
+                IntPtr stream,
+                ref GitOid oid)
             {
-                oid_p = default(GitOid);
-
                 OdbBackendStream odbBackendStream = GCHandle.FromIntPtr(Marshal.ReadIntPtr(stream, GitOdbBackendStream.GCHandleOffset)).Target as OdbBackendStream;
 
                 if (odbBackendStream != null)
                 {
-                    byte[] computedObjectId;
-
                     try
                     {
-                        int toReturn = odbBackendStream.FinalizeWrite(out computedObjectId);
-
-                        if (0 == toReturn)
-                        {
-                            oid_p.Id = computedObjectId;
-                        }
-
-                        return toReturn;
+                        return odbBackendStream.FinalizeWrite(new ObjectId(oid));
                     }
                     catch (Exception ex)
                     {

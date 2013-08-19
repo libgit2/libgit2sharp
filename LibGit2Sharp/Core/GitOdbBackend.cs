@@ -110,8 +110,8 @@ namespace LibGit2Sharp.Core
         /// <param name="type">[in] The type of the object.</param>
         /// <returns>0 if successful; an error code otherwise.</returns>
         public delegate int write_callback(
-            ref GitOid oid,
             IntPtr backend,
+            ref GitOid oid,
             IntPtr data,
             UIntPtr len,
             GitObjectType type);
