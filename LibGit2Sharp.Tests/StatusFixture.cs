@@ -20,6 +20,42 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        [Theory]
+        [InlineData("file")]
+        [InlineData("file.txt")]
+        [InlineData("$file")]
+        [InlineData("$file.txt")]
+        [InlineData("$dir/file")]
+        [InlineData("$dir/file.txt")]
+        [InlineData("#file")]
+        [InlineData("#file.txt")]
+        [InlineData("#dir/file")]
+        [InlineData("#dir/file.txt")]
+        [InlineData("^file")]
+        [InlineData("^file.txt")]
+        [InlineData("^dir/file")]
+        [InlineData("^dir/file.txt")]
+        [InlineData("!file")]
+        [InlineData("!file.txt")]
+        [InlineData("!dir/file")]
+        [InlineData("!dir/file.txt")]
+        [InlineData("file!")]
+        [InlineData("file!.txt")]
+        [InlineData("dir!/file")]
+        [InlineData("dir!/file.txt")]
+        public void CanRetrieveTheStatusOfAnUntrackedFile(string filePath)
+        {
+            var clone = CloneStandardTestRepo();
+
+            using (var repo = new Repository(clone))
+            {
+                Touch(repo.Info.WorkingDirectory, filePath, "content");
+
+                FileStatus status = repo.Index.RetrieveStatus(filePath);
+                Assert.Equal(FileStatus.Untracked, status);
+            }
+        }
+
         [Fact]
         public void RetrievingTheStatusOfADirectoryThrows()
         {

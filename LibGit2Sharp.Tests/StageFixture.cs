@@ -126,13 +126,15 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Fact]
-        public void CanStageANewFileInAPersistentManner()
+        [Theory]
+        [InlineData("unit_test.txt")]
+        [InlineData("!unit_test.txt")]
+        [InlineData("!bang/unit_test.txt")]
+        public void CanStageANewFileInAPersistentManner(string filename)
         {
             string path = CloneStandardTestRepo();
             using (var repo = new Repository(path))
             {
-                const string filename = "unit_test.txt";
                 Assert.Equal(FileStatus.Nonexistent, repo.Index.RetrieveStatus(filename));
                 Assert.Null(repo.Index[filename]);
 
@@ -147,7 +149,6 @@ namespace LibGit2Sharp.Tests
 
             using (var repo = new Repository(path))
             {
-                const string filename = "unit_test.txt";
                 Assert.NotNull(repo.Index[filename]);
                 Assert.Equal(FileStatus.Added, repo.Index.RetrieveStatus(filename));
             }
