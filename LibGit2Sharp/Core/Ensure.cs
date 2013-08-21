@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 
@@ -49,6 +50,7 @@ namespace LibGit2Sharp.Core
                     { GitErrorCode.UnmergedEntries, (m, r, c) => new UnmergedIndexEntriesException(m, r, c) },
                     { GitErrorCode.NonFastForward, (m, r, c) => new NonFastForwardException(m, r, c) },
                     { GitErrorCode.MergeConflict, (m, r, c) => new MergeConflictException(m, r, c) },
+                    { GitErrorCode.LockedFile, (m, r, c) => new LockedFileException(m, r, c) },
                 };
 
         private static void HandleError(int result)
