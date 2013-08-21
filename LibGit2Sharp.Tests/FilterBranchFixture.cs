@@ -108,6 +108,117 @@ namespace LibGit2Sharp.Tests
             Assert.True(repo.Head.Commits.All(c => c["README"] == null));
         }
 
+        // git log --graph --oneline --name-status --decorate
+        //
+        // * 4c062a6 (HEAD, master) directory was added
+        // | A     1/branch_file.txt
+        // *   be3563a Merge branch 'br2'
+        // |\
+        // | * c47800c branch commit one
+        // | | A   branch_file.txt
+        // * | 9fd738e a fourth commit
+        // | | M   new.txt
+        // * | 4a202b3 (packed-test) a third commit
+        // |/
+        // |   M   README
+        // * 5b5b025 another commit
+        // | A     new.txt
+        // * 8496071 testing
+        //   A     README
+        [Theory]
+
+        // * 6d96779 (HEAD, master) directory was added
+        // | A     1/branch_file.txt
+        // *   ca7a3ed Merge branch 'br2'
+        // |\
+        // | * da8d9d0 branch commit one
+        // | | A   branch_file.txt
+        // * | 38f9fac a fourth commit
+        // |/
+        // |   M   new.txt
+        // * ded26fd (packed-test) another commit
+        //   A     new.txt
+        [InlineData(new[] { "README" }, 5, "6d96779")]
+
+        // * dfb164b (HEAD, master) directory was added
+        // | A     1/branch_file.txt
+        // *   8ab4a5f Merge branch 'br2'
+        // |\
+        // | * 23dd639 branch commit one
+        // | | A   branch_file.txt
+        // * | 5222c0f (packed-test) a third commit
+        // |/
+        // |   M   README
+        // * 8496071 testing
+        //   A     README
+        [InlineData(new[] { "new.txt" }, 5, "dfb164b")]
+
+        // * f9ee587 (HEAD, master) directory was added
+        // | A     1/branch_file.txt
+        // * b87858a branch commit one
+        //   A     branch_file.txt
+        //
+        // NB: packed-test is gone
+        [InlineData(new[] { "new.txt", "README" }, 2, "f9ee587")]
+
+        // * 446fde5 (HEAD, master) directory was added
+        // | A     1/branch_file.txt
+        // * 9fd738e a fourth commit
+        // | M     new.txt
+        // * 4a202b3 (packed-test) a third commit
+        // | M     README
+        // * 5b5b025 another commit
+        // | A     new.txt
+        // * 8496071 testing
+        //   A     README
+        [InlineData(new[] { "branch_file.txt" }, 5, "446fde5")]
+
+        // *   be3563a (HEAD, master) Merge branch 'br2'
+        // |\
+        // | * c47800c branch commit one
+        // | | A   branch_file.txt
+        // * | 9fd738e a fourth commit
+        // | | M   new.txt
+        // * | 4a202b3 (packed-test) a third commit
+        // |/
+        // |   M   README
+        // * 5b5b025 another commit
+        // | A     new.txt
+        // * 8496071 testing
+        //   A     README
+        [InlineData(new[] { "1" }, 6, "be3563a")]
+
+        // If all trees are empty, master should be an orphan
+        [InlineData(new[] { "1", "branch_file.txt", "new.txt", "README"  }, 0, null)]
+        public void CanPruneEmptyCommits(string[] treeEntriesToRemove, int expectedCommitCount, string expectedHead)
+        {
+            Assert.Equal(7, repo.Head.Commits.Count());
+
+            repo.Refs.RewriteHistory(new RewriteHistoryOptions
+            {
+                PruneEmptyCommits = true,
+                CommitTreeRewriter =
+                    c => TreeDefinition.From(c)
+                                       .Remove(treeEntriesToRemove),
+            }, repo.Head.Commits);
+
+            Assert.Equal(expectedCommitCount, repo.Head.Commits.Count());
+
+            if (expectedHead == null)
+            {
+                Assert.Null(repo.Head.Tip);
+            }
+            else
+            {
+                Assert.Equal(expectedHead, repo.Head.Tip.Id.Sha.Substring(0, expectedHead.Length));
+            }
+
+            foreach (var treeEntry in treeEntriesToRemove)
+            {
+                Assert.True(repo.Head.Commits.All(c => c[treeEntry] == null), "Did not expect a tree entry at " + treeEntry);
+            }
+        }
+
         // * 41bc8c6  (packed)
         // |
         // * 5001298            <----- rewrite this commit message

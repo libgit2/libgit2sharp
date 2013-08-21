@@ -109,6 +109,13 @@ namespace LibGit2Sharp.Core
             repo.Refs.Add(backupName, oldRef.TargetIdentifier, false, "filter-branch: backup");
             rollbackActions.Enqueue(() => repo.Refs.Remove(backupName));
 
+            if (newTarget == ObjectId.Zero)
+            {
+                repo.Refs.Remove(oldRef);
+                rollbackActions.Enqueue(() => repo.Refs.Add(oldRef.CanonicalName, oldRef, true, "filter-branch: abort"));
+                return;
+            }
+
             Reference newRef = repo.Refs.UpdateTarget(oldRef, newTarget, "filter-branch: rewrite");
             rollbackActions.Enqueue(() => repo.Refs.UpdateTarget(oldRef, oldRef.Target.Id, "filter-branch: abort"));
 
@@ -152,19 +159,48 @@ namespace LibGit2Sharp.Core
             }
 
             // Create the new commit
-            newParents = newParents
+            var mappedNewParents = newParents
                 .Select(oldParent =>
                         shaMap.ContainsKey(oldParent.Id)
                             ? shaMap[oldParent.Id]
                             : oldParent.Id)
-                .Select(id => repo.Lookup<Commit>(id));
+                .Where(id => id != ObjectId.Zero)
+                .Select(id => repo.Lookup<Commit>(id))
+                .ToList();
+
+            if (options.PruneEmptyCommits &&
+                TryPruneEmptyCommit(commit.Id, mappedNewParents, newTree))
+            {
+                return;
+            }
 
             var newCommit = repo.ObjectDatabase.CreateCommit(newHeader.Message, newHeader.Author,
                                                              newHeader.Committer, newTree,
-                                                             newParents);
+                                                             mappedNewParents);
 
             // Record the rewrite
             shaMap[commit.Id] = newCommit.Id;
+        }
+
+        private bool TryPruneEmptyCommit(ObjectId commitId, IList<Commit> mappedNewParents, Tree newTree)
+        {
+            var parent = mappedNewParents.Count > 0 ? mappedNewParents[0] : null;
+
+            if (parent == null)
+            {
+                if (newTree.Count == 0)
+                {
+                    shaMap[commitId] = ObjectId.Zero;
+                    return true;
+                }
+            }
+            else if (parent.Tree == newTree)
+            {
+                shaMap[commitId] = parent.Id;
+                return true;
+            }
+
+            return false;
         }
 
         private ObjectId RewriteTarget(GitObject oldTarget)
