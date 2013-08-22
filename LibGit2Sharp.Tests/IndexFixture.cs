@@ -230,5 +230,19 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(Mode.ExecutableFile, repo.Index["1/branch_file.txt"].Mode);
             }
         }
+
+        [Fact]
+        public void StagingAFileWhenTheIndexIsLockedThrowsALockedFileException()
+        {
+            string repoPath = InitNewRepository();
+
+            using (var repo = new Repository(repoPath))
+            {
+                Touch(repo.Info.Path, "index.lock");
+                
+                Touch(repo.Info.WorkingDirectory, "newfile", "my my, this is gonna crash\n");
+                Assert.Throws<LockedFileException>(() => repo.Index.Stage("newfile"));
+            }
+        }
     }
 }

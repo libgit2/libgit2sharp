@@ -61,6 +61,11 @@
         MergeConflict = -13,
 
         /// <summary>
+        /// A file operation failed because the file was locked.
+        /// </summary>
+        LockedFile = -14,
+
+        /// <summary>
         /// Skip and passthrough the given ODB backend.
         /// </summary>
         PassThrough = -30,

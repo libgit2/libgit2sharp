@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 
@@ -38,6 +39,20 @@ namespace LibGit2Sharp.Core
             }
         }
 
+        private static readonly Dictionary<GitErrorCode, Func<string, GitErrorCode, GitErrorCategory, LibGit2SharpException>>
+            GitErrorsToLibGit2SharpExceptions =
+                new Dictionary<GitErrorCode, Func<string, GitErrorCode, GitErrorCategory, LibGit2SharpException>>
+                {
+                    { GitErrorCode.User, (m, r, c) => new UserCancelledException(m, r, c) },
+                    { GitErrorCode.BareRepo, (m, r, c) => new BareRepositoryException(m, r, c) },
+                    { GitErrorCode.Exists, (m, r, c) => new NameConflictException(m, r, c) },
+                    { GitErrorCode.InvalidSpecification, (m, r, c) => new InvalidSpecificationException(m, r, c) },
+                    { GitErrorCode.UnmergedEntries, (m, r, c) => new UnmergedIndexEntriesException(m, r, c) },
+                    { GitErrorCode.NonFastForward, (m, r, c) => new NonFastForwardException(m, r, c) },
+                    { GitErrorCode.MergeConflict, (m, r, c) => new MergeConflictException(m, r, c) },
+                    { GitErrorCode.LockedFile, (m, r, c) => new LockedFileException(m, r, c) },
+                };
+
         private static void HandleError(int result)
         {
             string errorMessage;
@@ -53,32 +68,13 @@ namespace LibGit2Sharp.Core
                 errorMessage = Utf8Marshaler.FromNative(error.Message);
             }
 
-            switch (result)
+            Func<string, GitErrorCode, GitErrorCategory, LibGit2SharpException> exceptionBuilder;
+            if (!GitErrorsToLibGit2SharpExceptions.TryGetValue((GitErrorCode) result, out exceptionBuilder))
             {
-                case (int) GitErrorCode.User:
-                    throw new UserCancelledException(errorMessage, (GitErrorCode)result, error.Category);
-
-                case (int)GitErrorCode.BareRepo:
-                    throw new BareRepositoryException(errorMessage, (GitErrorCode)result, error.Category);
-
-                case (int)GitErrorCode.Exists:
-                    throw new NameConflictException(errorMessage, (GitErrorCode)result, error.Category);
-
-                case (int)GitErrorCode.InvalidSpecification:
-                    throw new InvalidSpecificationException(errorMessage, (GitErrorCode)result, error.Category);
-
-                case (int)GitErrorCode.UnmergedEntries:
-                    throw new UnmergedIndexEntriesException(errorMessage, (GitErrorCode)result, error.Category);
-
-                case (int)GitErrorCode.NonFastForward:
-                    throw new NonFastForwardException(errorMessage, (GitErrorCode)result, error.Category);
-
-                case (int)GitErrorCode.MergeConflict:
-                    throw new MergeConflictException(errorMessage, (GitErrorCode)result, error.Category);
-
-                default:
-                    throw new LibGit2SharpException(errorMessage, (GitErrorCode)result, error.Category);
+                exceptionBuilder = (m, r, c) => new LibGit2SharpException(m, r, c);
             }
+
+            throw exceptionBuilder(errorMessage, (GitErrorCode) result, error.Category);
         }
 
         /// <summary>
