@@ -239,7 +239,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(repoPath))
             {
                 Touch(repo.Info.Path, "index.lock");
-                
+
                 Touch(repo.Info.WorkingDirectory, "newfile", "my my, this is gonna crash\n");
                 Assert.Throws<LockedFileException>(() => repo.Index.Stage("newfile"));
             }

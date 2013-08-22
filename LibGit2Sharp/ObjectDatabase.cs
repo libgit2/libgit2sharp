@@ -41,7 +41,7 @@ namespace LibGit2Sharp
         /// <returns>An <see cref="IEnumerator{T}"/> object that can be used to iterate through the collection.</returns>
         public virtual IEnumerator<GitObject> GetEnumerator()
         {
-            ICollection<GitOid> oids = Proxy.git_odb_foreach(handle, 
+            ICollection<GitOid> oids = Proxy.git_odb_foreach(handle,
                 ptr => (GitOid) Marshal.PtrToStructure(ptr, typeof (GitOid)));
 
             return oids
@@ -59,7 +59,7 @@ namespace LibGit2Sharp
         }
 
         #endregion
- 
+
         /// <summary>
         /// Determines if the given object can be found in the object database.
         /// </summary>
@@ -157,7 +157,7 @@ namespace LibGit2Sharp
         public virtual Blob CreateBlob(Stream stream, string hintpath = null, int? numberOfBytesToConsume = null)
         {
             Ensure.ArgumentNotNull(stream, "stream");
-            
+
             if (!stream.CanRead)
             {
                 throw new ArgumentException("The stream cannot be read from.", "stream");

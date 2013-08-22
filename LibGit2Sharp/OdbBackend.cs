@@ -567,7 +567,7 @@ namespace LibGit2Sharp
 
                     fixed(void* ptr = &oid[0])
                     {
-                        return cb(new IntPtr(ptr), data);  
+                        return cb(new IntPtr(ptr), data);
                     }
                 }
 

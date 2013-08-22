@@ -11,7 +11,7 @@
         /// point to objects retrieved during this fetch.
         /// </summary>
         Auto = 0,  // GIT_REMOTE_DOWNLOAD_TAGS_AUTO
-        
+
         /// <summary>
         /// No tag will be retrieved.
         /// </summary>

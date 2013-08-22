@@ -260,7 +260,7 @@ namespace LibGit2Sharp.Tests
          *  M new.txt
          * A  new_tracked_file.txt
          * ?? new_untracked_file.txt
-         * 
+         *
          * By passing "*" to Stage, the following files will be added/removed/updated from the index:
          * - deleted_unstaged_file.txt : removed
          * - modified_unstaged_file.txt : updated

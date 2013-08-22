@@ -192,7 +192,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(BareTestRepoPath))
             {
                 foreach (Commit commit in repo.Commits.QueryBy(new CommitFilter
-                                                                    { 
+                                                                    {
                                                                         Since = "a4a7dce85cf63874e984719f4fdd239f5145052f",
                                                                         SortBy = CommitSortStrategies.Time
                                                                     }))
@@ -631,7 +631,7 @@ namespace LibGit2Sharp.Tests
 
                 var author = Constants.Signature;
 
-                const string shortMessage = "Initial egotistic commit"; 
+                const string shortMessage = "Initial egotistic commit";
                 const string commitMessage = shortMessage + "\n\nOnly the coolest commits from us";
 
                 Commit commit = repo.Commit(commitMessage, author, author);

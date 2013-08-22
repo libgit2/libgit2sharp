@@ -135,7 +135,7 @@ namespace LibGit2Sharp
         /// <param name="paths">The paths to checkout.</param>
         /// <param name="checkoutOptions">Collection of parameters controlling checkout behavior.</param>
         void CheckoutPaths(string committishOrBranchSpec, IEnumerable<string> paths, CheckoutOptions checkoutOptions = null);
-   
+
         /// <summary>
         /// Try to lookup an object by its <see cref="ObjectId"/>. If no matching object is found, null will be returned.
         /// </summary>

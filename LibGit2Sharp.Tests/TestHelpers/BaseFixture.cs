@@ -231,7 +231,7 @@ namespace LibGit2Sharp.Tests.TestHelpers
             return filePath;
         }
 
-        protected static void AssertReflogEntryIsCreated(IEnumerable<ReflogEntry> reflog, string targetSha, 
+        protected static void AssertReflogEntryIsCreated(IEnumerable<ReflogEntry> reflog, string targetSha,
             string logMessage, string fromSha = null)
         {
             var reflogEntry = reflog.First();

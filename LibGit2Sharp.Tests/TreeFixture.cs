@@ -55,7 +55,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(BareTestRepoPath))
             {
                 var tree = repo.Lookup<Tree>(sha);
-                
+
                 IEnumerable<Blob> blobs = tree
                     .Where(e => e.TargetType == TreeEntryTargetType.Blob)
                     .Select(e => e.Target)

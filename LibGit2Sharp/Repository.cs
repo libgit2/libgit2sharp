@@ -852,7 +852,7 @@ namespace LibGit2Sharp
             }
 
             Commit commit = LookupCommit(committishOrBranchSpec);
-            CheckoutTree(commit.Tree, paths.ToList(), checkoutOptions ?? new CheckoutOptions());  
+            CheckoutTree(commit.Tree, paths.ToList(), checkoutOptions ?? new CheckoutOptions());
         }
 
         /// <summary>
