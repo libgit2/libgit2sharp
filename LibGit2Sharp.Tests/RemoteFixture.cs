@@ -40,7 +40,7 @@ namespace LibGit2Sharp.Tests
                     count++;
                 }
 
-                Assert.Equal(1, count);
+                Assert.Equal(2, count);
             }
         }
 
@@ -153,6 +153,17 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(BareTestRepoPath))
             {
                 Assert.Equal(expectedResult, repo.Network.Remotes.IsValidName(refname));
+            }
+        }
+
+        [Fact]
+        public void DoesNotThrowWhenARemoteHasNoUrlSet()
+        {
+            using (var repo = new Repository(StandardTestRepoPath))
+            {
+                var noUrlRemote = repo.Network.Remotes["no_url"];
+                Assert.NotNull(noUrlRemote);
+                Assert.Equal(string.Empty, noUrlRemote.Url);
             }
         }
     }

@@ -9,6 +9,9 @@
 [remote "origin"]
 	fetch = +refs/heads/*:refs/remotes/origin/*
 	url = c:/GitHub/libgit2sharp/Resources/testrepo.git
+[remote "no_url"]
+	url =
+	fetch = +refs/heads/*:refs/remotes/no_url/*
 [branch "master"]
 	remote = origin
 	merge = refs/heads/master
