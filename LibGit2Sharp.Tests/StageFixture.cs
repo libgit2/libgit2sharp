@@ -298,5 +298,21 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(count, repo.Index.Count);  // 1 added file, 1 deleted file, so same count
             }
         }
+
+        [Theory]
+        [InlineData("ignored_file.txt")]
+        [InlineData("ignored_folder/file.txt")]
+        public void CanStageIgnoredPaths(string path)
+        {
+            using (var repo = new Repository(CloneStandardTestRepo()))
+            {
+                Touch(repo.Info.WorkingDirectory, ".gitignore", "ignored_file.txt\nignored_folder/\n");
+                Touch(repo.Info.WorkingDirectory, path, "This file is ignored.");
+
+                Assert.Equal(FileStatus.Ignored, repo.Index.RetrieveStatus(path));
+                repo.Index.Stage(path);
+                Assert.Equal(FileStatus.Added, repo.Index.RetrieveStatus(path));
+            }
+        }
     }
 }
