@@ -111,6 +111,13 @@ namespace LibGit2Sharp.Core
         /// Ignore file mode changes.
         /// </summary>
         GIT_DIFF_IGNORE_FILEMODE = (1 << 17),
+
+        /// <summary>
+        /// Even with GIT_DIFF_INCLUDE_IGNORED, an entire ignored directory
+        /// will be marked with only a single entry in the diff list; this flag
+        /// adds all files under the directory as IGNORED entries, too.
+        /// </summary>
+        GIT_DIFF_RECURSE_IGNORED_DIRS = (1 << 18),
     }
 
     internal delegate int diff_notify_cb(

@@ -38,7 +38,8 @@ namespace LibGit2Sharp
 
             if (diffOptions.HasFlag(DiffModifiers.IncludeIgnored))
             {
-                options.Flags |= GitDiffOptionFlags.GIT_DIFF_INCLUDE_IGNORED;
+                options.Flags |= GitDiffOptionFlags.GIT_DIFF_INCLUDE_IGNORED |
+                GitDiffOptionFlags.GIT_DIFF_RECURSE_IGNORED_DIRS;
             }
 
             if (diffOptions.HasFlag(DiffModifiers.IncludeUnmodified))
