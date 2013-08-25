@@ -110,6 +110,11 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(StandardTestRepoPath))
             {
                 Assert.True(repo.Config.Get<bool>("core.ignorecase").Value);
+                Assert.True(repo.Config.GetValueOrDefault<bool>("core.ignorecase"));
+
+                Assert.Equal(false, repo.Config.GetValueOrDefault<bool>("missing.key"));
+                Assert.Equal(true, repo.Config.GetValueOrDefault<bool>("missing.key", true));
+                Assert.Equal(true, repo.Config.GetValueOrDefault<bool>("missing.key", () => true));
             }
         }
 
@@ -119,6 +124,12 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(StandardTestRepoPath))
             {
                 Assert.Equal(2, repo.Config.Get<int>("unittests.intsetting").Value);
+                Assert.Equal(2, repo.Config.GetValueOrDefault<int>("unittests.intsetting"));
+                Assert.Equal(2, repo.Config.GetValueOrDefault<int>("unittests.intsetting", ConfigurationLevel.Local));
+
+                Assert.Equal(0, repo.Config.GetValueOrDefault<int>("missing.key"));
+                Assert.Equal(4, repo.Config.GetValueOrDefault<int>("missing.key", 4));
+                Assert.Equal(4, repo.Config.GetValueOrDefault<int>("missing.key", () => 4));
             }
         }
 
@@ -128,6 +139,11 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(StandardTestRepoPath))
             {
                 Assert.Equal(15234, repo.Config.Get<long>("unittests.longsetting").Value);
+                Assert.Equal(15234, repo.Config.GetValueOrDefault<long>("unittests.longsetting"));
+
+                Assert.Equal(0, repo.Config.GetValueOrDefault<long>("missing.key"));
+                Assert.Equal(4, repo.Config.GetValueOrDefault<long>("missing.key", 4));
+                Assert.Equal(4, repo.Config.GetValueOrDefault<long>("missing.key", () => 4));
             }
         }
 
@@ -138,6 +154,35 @@ namespace LibGit2Sharp.Tests
             {
                 Assert.Equal("+refs/heads/*:refs/remotes/origin/*", repo.Config.Get<string>("remote.origin.fetch").Value);
                 Assert.Equal("+refs/heads/*:refs/remotes/origin/*", repo.Config.Get<string>("remote", "origin", "fetch").Value);
+
+                Assert.Equal("+refs/heads/*:refs/remotes/origin/*", repo.Config.GetValueOrDefault<string>("remote.origin.fetch"));
+                Assert.Equal("+refs/heads/*:refs/remotes/origin/*", repo.Config.GetValueOrDefault<string>("remote.origin.fetch", ConfigurationLevel.Local));
+                Assert.Equal("+refs/heads/*:refs/remotes/origin/*", repo.Config.GetValueOrDefault<string>("remote", "origin", "fetch"));
+                Assert.Equal("+refs/heads/*:refs/remotes/origin/*", repo.Config.GetValueOrDefault<string>(new[] { "remote", "origin", "fetch" }));
+
+                Assert.Equal(null, repo.Config.GetValueOrDefault<string>("missing.key"));
+                Assert.Equal(null, repo.Config.GetValueOrDefault<string>("missing.key", default(string)));
+                Assert.Throws<ArgumentNullException>(() => repo.Config.GetValueOrDefault<string>("missing.key", default(Func<string>)));
+                Assert.Equal("value", repo.Config.GetValueOrDefault<string>("missing.key", "value"));
+                Assert.Equal("value", repo.Config.GetValueOrDefault<string>("missing.key", () => "value"));
+
+                Assert.Equal(null, repo.Config.GetValueOrDefault<string>("missing.key", ConfigurationLevel.Local));
+                Assert.Equal(null, repo.Config.GetValueOrDefault<string>("missing.key", ConfigurationLevel.Local, default(string)));
+                Assert.Throws<ArgumentNullException>(() => repo.Config.GetValueOrDefault<string>("missing.key", ConfigurationLevel.Local, default(Func<string>)));
+                Assert.Equal("value", repo.Config.GetValueOrDefault<string>("missing.key", ConfigurationLevel.Local, "value"));
+                Assert.Equal("value", repo.Config.GetValueOrDefault<string>("missing.key", ConfigurationLevel.Local, () => "value"));
+
+                Assert.Equal(null, repo.Config.GetValueOrDefault<string>("missing", "config", "key"));
+                Assert.Equal(null, repo.Config.GetValueOrDefault<string>("missing", "config", "key", default(string)));
+                Assert.Throws<ArgumentNullException>(() => repo.Config.GetValueOrDefault<string>("missing", "config", "key", default(Func<string>)));
+                Assert.Equal("value", repo.Config.GetValueOrDefault<string>("missing", "config", "key", "value"));
+                Assert.Equal("value", repo.Config.GetValueOrDefault<string>("missing", "config", "key", () => "value"));
+
+                Assert.Equal(null, repo.Config.GetValueOrDefault<string>(new[] { "missing", "key" }));
+                Assert.Equal(null, repo.Config.GetValueOrDefault<string>(new[] { "missing", "key" }, default(string)));
+                Assert.Throws<ArgumentNullException>(() => repo.Config.GetValueOrDefault<string>(new[] { "missing", "key" }, default(Func<string>)));
+                Assert.Equal("value", repo.Config.GetValueOrDefault<string>(new[] { "missing", "key" }, "value"));
+                Assert.Equal("value", repo.Config.GetValueOrDefault<string>(new[] { "missing", "key" }, () => "value"));
             }
         }
 
