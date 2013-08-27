@@ -22,7 +22,13 @@ namespace LibGit2Sharp
 
             var commit = branches.repo.LookupCommit(committish);
 
-            return branches.Add(name, commit, allowOverwrite);
+            var createdFrom = committish != "HEAD"
+                                  ? committish
+                                  : branches.repo.Info.IsHeadDetached
+                                        ? commit.Sha
+                                        : branches.repo.Head.Name;
+
+            return branches.Add(name, commit, allowOverwrite, "branch: Created from " + createdFrom);
         }
 
         /// <summary>

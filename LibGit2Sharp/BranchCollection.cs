@@ -119,9 +119,18 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
             Ensure.ArgumentNotNull(commit, "commit");
 
+            return Add(name, commit, allowOverwrite, "branch: Created from " + commit.Id);
+        }
+
+        internal Branch Add(string name, Commit commit, bool allowOverwrite, string logMessage)
+        {
+            Ensure.ArgumentNotNull(commit, "commit");
+
             using (Proxy.git_branch_create(repo.Handle, name, commit.Id, allowOverwrite)) {}
 
-            return this[ShortToLocalName(name)];
+            var branch = this[ShortToLocalName(name)];
+            LogBranch(branch, logMessage);
+            return branch;
         }
 
         /// <summary>
@@ -164,7 +173,9 @@ namespace LibGit2Sharp
                 }
             }
 
-            return this[newName];
+            var newBranch = this[newName];
+            LogBranch(newBranch, "Branch: renamed " + branch.CanonicalName + " to " + newBranch.CanonicalName);
+            return newBranch;
         }
 
         /// <summary>
@@ -214,6 +225,16 @@ namespace LibGit2Sharp
                 return string.Format(CultureInfo.InvariantCulture,
                     "Count = {0}", this.Count());
             }
+        }
+
+        private void LogBranch(Branch branch, string logMessage)
+        {
+            if (string.IsNullOrEmpty(logMessage))
+            {
+                return;
+            }
+
+            repo.Refs.Log(branch.CanonicalName).Append(branch.Tip.Id, logMessage, branch.Tip.Committer);
         }
     }
 }
