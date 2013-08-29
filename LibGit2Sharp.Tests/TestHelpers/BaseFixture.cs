@@ -261,5 +261,10 @@ namespace LibGit2Sharp.Tests.TestHelpers
                 Assert.Equal(committer, reflogEntry.Commiter);
             }
         }
+
+        protected static void EnableRefLog(Repository repository, bool enable = true)
+        {
+            repository.Config.Set("core.logAllRefUpdates", enable);
+        }
     }
 }

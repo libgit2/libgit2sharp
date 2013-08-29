@@ -43,6 +43,8 @@ namespace LibGit2Sharp.Tests
             string path = CloneBareTestRepo();
             using (var repo = new Repository(path))
             {
+                EnableRefLog(repo);
+
                 var newRef = (DirectReference)repo.Refs.Add(name, "master^1^2", logMessage: logMessage);
                 Assert.NotNull(newRef);
                 Assert.Equal(name, newRef.CanonicalName);
@@ -94,6 +96,8 @@ namespace LibGit2Sharp.Tests
             string path = CloneBareTestRepo();
             using (var repo = new Repository(path))
             {
+                EnableRefLog(repo);
+
                 var targetRef = repo.Refs[target];
 
                 var newRef = repo.Refs.Add(name, targetRef, logMessage: logMessage);
@@ -146,6 +150,8 @@ namespace LibGit2Sharp.Tests
             string path = CloneBareTestRepo();
             using (var repo = new Repository(path))
             {
+                EnableRefLog(repo);
+
                 var newRef = (DirectReference)repo.Refs.Add(name, target, true, logMessage);
                 Assert.NotNull(newRef);
                 Assert.Equal(name, newRef.CanonicalName);
@@ -169,6 +175,8 @@ namespace LibGit2Sharp.Tests
             string path = CloneBareTestRepo();
             using (var repo = new Repository(path))
             {
+                EnableRefLog(repo);
+
                 var newRef = (SymbolicReference)repo.Refs.Add(name, target, true, logMessage);
                 Assert.NotNull(newRef);
                 Assert.Equal(name, newRef.CanonicalName);
@@ -473,6 +481,8 @@ namespace LibGit2Sharp.Tests
             string path = CloneBareTestRepo();
             using (var repo = new Repository(path))
             {
+                EnableRefLog(repo);
+
                 Reference head = repo.Refs.Head;
                 Reference test = repo.Refs["refs/heads/test"];
 
@@ -506,6 +516,8 @@ namespace LibGit2Sharp.Tests
             string path = CloneBareTestRepo();
             using (var repo = new Repository(path))
             {
+                EnableRefLog(repo);
+
                 const string name = "refs/heads/master";
 
                 var master = (DirectReference) repo.Refs[name];

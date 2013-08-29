@@ -97,6 +97,12 @@ namespace LibGit2Sharp
         /// <param name="committer"><see cref="Signature"/> of the comitter.</param>
         internal virtual void Append(ObjectId target, string reflogMessage, Signature committer)
         {
+            var logAllRefUpdates = repo.Config.GetValueOrDefault<bool>("core.logAllRefUpdates", false);
+            if (!logAllRefUpdates)
+            {
+                return;
+            }
+
             using (ReferenceSafeHandle reference = Proxy.git_reference_lookup(repo.Handle, canonicalName, true))
             using (ReflogSafeHandle reflog = Proxy.git_reflog_read(reference))
             {

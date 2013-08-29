@@ -1,6 +1,8 @@
-﻿using System.Linq;
+﻿using System.IO;
+using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
+using Xunit.Extensions;
 
 namespace LibGit2Sharp.Tests
 {
@@ -124,6 +126,36 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(author, reflogEntry.Commiter);
                 Assert.Equal(commit.Id, reflogEntry.To);
                 Assert.Equal(string.Format("commit: {0}", commitMessage), repo.Refs.Log("HEAD").First().Message);
+            }
+        }
+
+        [Theory]
+        [InlineData(false, null, true)]
+        [InlineData(false, false, false)]
+        [InlineData(false, true, true)]
+        [InlineData(true, null, false)]
+        [InlineData(true, false, false)]
+        [InlineData(true, true, true)]
+        public void AppendingToReflogDependsOnCoreLogAllRefUpdatesSetting(bool isBare, bool? setting, bool expectAppend)
+        {
+            var repoPath = InitNewRepository(isBare);
+
+            using (var repo = new Repository(repoPath))
+            {
+                if (setting != null)
+                {
+                    EnableRefLog(repo, setting.Value);
+                }
+
+                var blob = repo.ObjectDatabase.CreateBlob(Stream.Null);
+                var tree = repo.ObjectDatabase.CreateTree(new TreeDefinition().Add("yoink", blob, Mode.NonExecutableFile));
+                var commit = repo.ObjectDatabase.CreateCommit("yoink", Constants.Signature, Constants.Signature,
+                                                 tree, Enumerable.Empty<Commit>());
+
+                var branch = repo.CreateBranch("yoink", commit);
+                var log = repo.Refs.Log(branch.CanonicalName);
+
+                Assert.Equal(expectAppend ? 1 : 0, log.Count());
             }
         }
     }

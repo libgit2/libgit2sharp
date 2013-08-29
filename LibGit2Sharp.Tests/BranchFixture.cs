@@ -20,6 +20,8 @@ namespace LibGit2Sharp.Tests
             string path = CloneBareTestRepo();
             using (var repo = new Repository(path))
             {
+                EnableRefLog(repo);
+
                 const string committish = "be3563ae3f795b2b4353bcce3a527ad0a4f7f644";
 
                 Branch newBranch = repo.CreateBranch(name, committish);
@@ -46,6 +48,8 @@ namespace LibGit2Sharp.Tests
             string path = CloneBareTestRepo();
             using (var repo = new Repository(path))
             {
+                EnableRefLog(repo);
+
                 const string name = "unit_test";
                 const string committish = "be3563a";
 
@@ -68,6 +72,8 @@ namespace LibGit2Sharp.Tests
             string path = CloneStandardTestRepo();
             using (var repo = new Repository(path))
             {
+                EnableRefLog(repo);
+
                 repo.Checkout(headCommitOrBranchSpec);
 
                 const string name = "unit_test";
@@ -95,6 +101,8 @@ namespace LibGit2Sharp.Tests
             string path = CloneStandardTestRepo();
             using (var repo = new Repository(path))
             {
+                EnableRefLog(repo);
+
                 repo.Checkout(headCommitOrBranchSpec);
 
                 const string name = "unit_test";
@@ -115,6 +123,8 @@ namespace LibGit2Sharp.Tests
             string path = CloneBareTestRepo();
             using (var repo = new Repository(path))
             {
+                EnableRefLog(repo);
+
                 const string name = "unit_test";
                 var commit = repo.Lookup<Commit>("HEAD");
                 Branch newBranch = repo.CreateBranch(name, commit);
@@ -134,6 +144,8 @@ namespace LibGit2Sharp.Tests
             string path = CloneBareTestRepo();
             using (var repo = new Repository(path))
             {
+                EnableRefLog(repo);
+
                 const string name = "revparse_branch";
                 const string committish = "master~2";
 
@@ -156,6 +168,8 @@ namespace LibGit2Sharp.Tests
             string path = CloneBareTestRepo();
             using (var repo = new Repository(path))
             {
+                EnableRefLog(repo);
+
                 const string name = "i-peel-tag";
 
                 Branch newBranch = repo.CreateBranch(name, committish);
@@ -777,6 +791,8 @@ namespace LibGit2Sharp.Tests
             string path = CloneBareTestRepo();
             using (var repo = new Repository(path))
             {
+                EnableRefLog(repo);
+
                 Assert.Null(repo.Branches["br3"]);
                 var br2 = repo.Branches["br2"];
                 Assert.NotNull(br2);
@@ -810,6 +826,8 @@ namespace LibGit2Sharp.Tests
             string path = CloneBareTestRepo();
             using (var repo = new Repository(path))
             {
+                EnableRefLog(repo);
+
                 Branch test = repo.Branches["test"];
                 Assert.NotNull(test);
 

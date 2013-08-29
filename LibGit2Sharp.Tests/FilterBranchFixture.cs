@@ -474,6 +474,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void WritesCorrectReflogMessagesForSimpleRewrites()
         {
+            EnableRefLog(repo);
+
             repo.Refs.RewriteHistory(new RewriteHistoryOptions
             {
                 CommitHeaderRewriter =
