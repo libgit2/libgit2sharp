@@ -119,5 +119,14 @@ namespace LibGit2Sharp
         {
             return !Equals(left, right);
         }
+
+        /// <summary>
+        /// Returns "<see cref="Name"/> &lt;<see cref="Email"/>&gt;" for the current <see cref="Signature"/>.
+        /// </summary>
+        /// <returns>The <see cref="Name"/> and <see cref="Email"/> of the current <see cref="Signature"/>.</returns>
+        public override string ToString()
+        {
+            return string.Format("{0} <{1}>", Name, Email);
+        }
     }
 }
