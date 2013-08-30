@@ -10,7 +10,7 @@ namespace LibGit2Sharp.Core
         private readonly Repository repo;
 
         private readonly HashSet<Commit> targetedCommits;
-        private readonly Dictionary<ObjectId, ObjectId> shaMap = new Dictionary<ObjectId, ObjectId>();
+        private readonly Dictionary<GitObject, GitObject> objectMap = new Dictionary<GitObject, GitObject>();
         private readonly Queue<Action> rollbackActions = new Queue<Action>();
 
         private readonly string backupRefsNamespace;
@@ -104,7 +104,7 @@ namespace LibGit2Sharp.Core
 
             var newTarget = RewriteTarget(oldRef.Target);
 
-            if (oldRef.Target.Id == newTarget && oldRef.CanonicalName == newRefName)
+            if (oldRef.Target == newTarget && oldRef.CanonicalName == newRefName)
             {
                 // The reference isn't rewritten
                 return;
@@ -121,14 +121,14 @@ namespace LibGit2Sharp.Core
             repo.Refs.Add(backupName, oldRef.TargetIdentifier, false, "filter-branch: backup");
             rollbackActions.Enqueue(() => repo.Refs.Remove(backupName));
 
-            if (newTarget == ObjectId.Zero)
+            if (newTarget == null)
             {
                 repo.Refs.Remove(oldRef);
                 rollbackActions.Enqueue(() => repo.Refs.Add(oldRef.CanonicalName, oldRef, true, "filter-branch: abort"));
                 return;
             }
 
-            Reference newRef = repo.Refs.UpdateTarget(oldRef, newTarget, "filter-branch: rewrite");
+            Reference newRef = repo.Refs.UpdateTarget(oldRef, newTarget.Id, "filter-branch: rewrite");
             rollbackActions.Enqueue(() => repo.Refs.UpdateTarget(oldRef, oldRef.Target.Id, "filter-branch: abort"));
 
             if (newRef.CanonicalName == newRefName)
@@ -173,15 +173,14 @@ namespace LibGit2Sharp.Core
             // Create the new commit
             var mappedNewParents = newParents
                 .Select(oldParent =>
-                        shaMap.ContainsKey(oldParent.Id)
-                            ? shaMap[oldParent.Id]
-                            : oldParent.Id)
-                .Where(id => id != ObjectId.Zero)
-                .Select(id => repo.Lookup<Commit>(id))
+                        objectMap.ContainsKey(oldParent)
+                            ? objectMap[oldParent] as Commit
+                            : oldParent)
+                .Where(newParent => newParent != null)
                 .ToList();
 
             if (options.PruneEmptyCommits &&
-                TryPruneEmptyCommit(commit.Id, mappedNewParents, newTree))
+                TryPruneEmptyCommit(commit, mappedNewParents, newTree))
             {
                 return;
             }
@@ -191,10 +190,10 @@ namespace LibGit2Sharp.Core
                                                              mappedNewParents);
 
             // Record the rewrite
-            shaMap[commit.Id] = newCommit.Id;
+            objectMap[commit] = newCommit;
         }
 
-        private bool TryPruneEmptyCommit(ObjectId commitId, IList<Commit> mappedNewParents, Tree newTree)
+        private bool TryPruneEmptyCommit(Commit commit, IList<Commit> mappedNewParents, Tree newTree)
         {
             var parent = mappedNewParents.Count > 0 ? mappedNewParents[0] : null;
 
@@ -202,25 +201,25 @@ namespace LibGit2Sharp.Core
             {
                 if (newTree.Count == 0)
                 {
-                    shaMap[commitId] = ObjectId.Zero;
+                    objectMap[commit] = null;
                     return true;
                 }
             }
             else if (parent.Tree == newTree)
             {
-                shaMap[commitId] = parent.Id;
+                objectMap[commit] = parent;
                 return true;
             }
 
             return false;
         }
 
-        private ObjectId RewriteTarget(GitObject oldTarget)
+        private GitObject RewriteTarget(GitObject oldTarget)
         {
             // Has this target already been rewritten?
-            if (shaMap.ContainsKey(oldTarget.Id))
+            if (objectMap.ContainsKey(oldTarget))
             {
-                return shaMap[oldTarget.Id];
+                return objectMap[oldTarget];
             }
 
             Debug.Assert((oldTarget as Commit) == null);
@@ -229,13 +228,11 @@ namespace LibGit2Sharp.Core
             if (annotation == null)
             {
                 //TODO: Probably a Tree or a Blob. This is not covered by any test
-                return oldTarget.Id;
+                return oldTarget;
             }
 
             // Recursively rewrite annotations if necessary
-            ObjectId newTargetId = RewriteTarget(annotation.Target);
-
-            var newTarget = repo.Lookup(newTargetId);
+            var newTarget = RewriteTarget(annotation.Target);
 
             string newName = annotation.Name;
 
@@ -246,8 +243,8 @@ namespace LibGit2Sharp.Core
 
             var newAnnotation = repo.ObjectDatabase.CreateTagAnnotation(newName, newTarget, annotation.Tagger,
                                                               annotation.Message);
-            shaMap[annotation.Id] = newAnnotation.Id;
-            return newAnnotation.Id;
+            objectMap[annotation] = newAnnotation;
+            return newAnnotation;
         }
 
         private int ReferenceDepth(Reference reference)
