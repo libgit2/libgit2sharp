@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -1237,24 +1236,6 @@ namespace LibGit2Sharp.Core
                 Ensure.ZeroResult(res);
 
                 return ref_out;
-            }
-        }
-
-        public static ReferenceSafeHandle git_reference_resolve(ReferenceSafeHandle reference)
-        {
-            using (ThreadAffinity())
-            {
-                ReferenceSafeHandle resolvedHandle;
-                int res = NativeMethods.git_reference_resolve(out resolvedHandle, reference);
-
-                if (res == (int)GitErrorCode.NotFound)
-                {
-                    return null;
-                }
-
-                Ensure.ZeroResult(res);
-
-                return resolvedHandle;
             }
         }
 
