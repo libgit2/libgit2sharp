@@ -285,7 +285,7 @@ namespace LibGit2Sharp.Tests
                     CommitHeaderRewriter =
                         c => CommitRewriteInfo.From(c, message: ""),
                     TagNameRewriter =
-                        (n, isA, t) =>
+                        (n, a, t) =>
                         {
                             var newRef1 =
                                 repo.Refs.FromGlob(backupNamespace + "*").FirstOrDefault();
@@ -376,7 +376,8 @@ namespace LibGit2Sharp.Tests
                 () =>
                 repo.Refs.RewriteHistory(new RewriteHistoryOptions
                 {
-                    TagNameRewriter = (n, b, t) => "test",
+                    TagNameRewriter =
+                        (n, a, t) => "test",
                 }, commits)
                 );
 
@@ -497,13 +498,12 @@ namespace LibGit2Sharp.Tests
             {
                 CommitHeaderRewriter =
                     c => CommitRewriteInfo.From(c, message: ""),
-                TagNameRewriter =
-                    (oldName, isAnnotated, o) => oldName + "_new",
+                TagNameRewriter = TagNameRewriter,
             }, repo.Commits.QueryBy(new CommitFilter { Since = repo.Refs["refs/heads/test"] }));
 
-            Assert.NotEqual(lwTarget, repo.Tags["lw_new"].Target);
-            Assert.NotEqual(e908Target, repo.Tags["e90810b_new"].Target);
-            Assert.NotEqual(testTarget, repo.Tags["test_new"].Target);
+            Assert.NotEqual(lwTarget, repo.Tags["lw_new_e90810b"].Target);
+            Assert.NotEqual(e908Target, repo.Tags["e90810b_new_7b43849"].Target);
+            Assert.NotEqual(testTarget, repo.Tags["test_new_b25fa35"].Target);
         }
 
         [Fact(Skip = "Rewriting of symbolic references is not supported yet")]
@@ -519,8 +519,7 @@ namespace LibGit2Sharp.Tests
             {
                 CommitHeaderRewriter =
                     c => CommitRewriteInfo.From(c, author: Constants.Signature),
-                TagNameRewriter =
-                    (oldName, isAnnotated, o) => oldName + "_new",
+                TagNameRewriter = TagNameRewriter,
             }, repo.Lookup<Commit>("e90810b8df"));
 
             // Ensure the initial tags don't exist anymore...
@@ -532,11 +531,12 @@ namespace LibGit2Sharp.Tests
             Assert.Equal(tagRefName, repo.Refs["refs/original/tags/another_tracker"].TargetIdentifier);
 
             // Ensure the renamed symref tags points to the renamed target
-            Assert.Equal(tagRefName + "_new", repo.Refs["refs/tags/one_tracker_new"].TargetIdentifier);
-            Assert.Equal(tagRefName + "_new", repo.Refs["refs/tags/another_tracker_new"].TargetIdentifier);
+            const string renamedTarget = "refs/tags/test_new_b25fa35";
+            Assert.Equal(renamedTarget, repo.Refs["refs/tags/one_tracker_new_test"].TargetIdentifier);
+            Assert.Equal(renamedTarget, repo.Refs["refs/tags/another_tracker_new_test"].TargetIdentifier);
 
             // Ensure that the non tag symref points to a renamed target...
-            Assert.Equal("refs/tags/another_tracker_new", repo.Refs["refs/attic/dusty_tracker"].TargetIdentifier);
+            Assert.Equal("refs/tags/another_tracker_new_test", repo.Refs["refs/attic/dusty_tracker"].TargetIdentifier);
 
             // ...and has been backed up as well.
             Assert.Equal("refs/tags/another_tracker", repo.Refs["refs/original/attic/dusty_tracker"].TargetIdentifier);
@@ -556,13 +556,13 @@ namespace LibGit2Sharp.Tests
             repo.Refs.RewriteHistory(new RewriteHistoryOptions
             {
                 BackupRefsNamespace = "refs/original/",
-                CommitHeaderRewriter = c => CommitRewriteInfo.From(c, message: "Rewrote"),
-                TagNameRewriter = (oldName, isAnnoted, newTarget) =>
-                                  isAnnoted ? oldName + "_ann" : oldName + "_lw",
+                CommitHeaderRewriter =
+                    c => CommitRewriteInfo.From(c, message: "Rewrote"),
+                TagNameRewriter = TagNameRewriter,
             }, repo.Lookup<Commit>("6dcf9bf"));
 
             // Verify the rewritten tag-annotation chain
-            var newTagA = repo.Tags["lightweightA_lw"];
+            var newTagA = repo.Tags["lightweightA_new_d53d92e"];
             Assert.NotNull(newTagA);
             Assert.NotEqual(newTagA, tagA);
             Assert.True(newTagA.IsAnnotated);
@@ -570,12 +570,12 @@ namespace LibGit2Sharp.Tests
             var newAnnotationB = newTagA.Annotation;
             Assert.NotNull(newAnnotationB);
             Assert.NotEqual(newAnnotationB, annotationB);
-            Assert.Equal("annotationB_ann", newAnnotationB.Name);
+            Assert.Equal("annotationB_ann_237c1b0", newAnnotationB.Name);
 
             var newAnnotationC = newAnnotationB.Target as TagAnnotation;
             Assert.NotNull(newAnnotationC);
             Assert.NotEqual(newAnnotationC, annotationC);
-            Assert.Equal("annotationC_ann", newAnnotationC.Name);
+            Assert.Equal("annotationC_ann_6dcf9bf", newAnnotationC.Name);
 
             var newCommit = newAnnotationC.Target as Commit;
             Assert.NotNull(newCommit);
@@ -589,6 +589,18 @@ namespace LibGit2Sharp.Tests
             Reference backedUpTag = repo.Refs["refs/original/tags/lightweightA"];
             Assert.NotNull(backedUpTag);
             Assert.Equal(annotationB, backedUpTag.ResolveToDirectReference().Target);
+        }
+
+        private static string TagNameRewriter(string name, bool isAnnotated, string target)
+        {
+            const string tagPrefix = "refs/tags/";
+            var t = target == null
+                        ? ""
+                        : target.StartsWith(tagPrefix)
+                              ? target.Substring(tagPrefix.Length)
+                              : target.Substring(0, 7);
+
+            return name + (isAnnotated ? "_ann_" : "_new_") + t;
         }
     }
 }

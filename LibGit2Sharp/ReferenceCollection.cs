@@ -360,7 +360,9 @@ namespace LibGit2Sharp
                                             ? default(Func<Commit, IEnumerable<Commit>>)
                                             : (c => commitParentsRewriter(c.Parents)),
                 CommitTreeRewriter = commitTreeRewriter,
-                TagNameRewriter = tagNameRewriter,
+                TagNameRewriter = tagNameRewriter == null
+                                      ? default(Func<string, bool, string, string>)
+                                      : (n, a, t) => tagNameRewriter(n, a, repo.Lookup(t)),
             }, commitsToRewrite);
         }
 

@@ -38,9 +38,12 @@ namespace LibGit2Sharp
         public Func<Commit, TreeDefinition> CommitTreeRewriter { get; set; }
 
         /// <summary>
-        /// Rewriter for tag names. This is called with (OldTag.Name, OldTag.IsAnnotated, OldTarget).
+        /// Rewriter for tag names. This is called with
+        /// (OldTag.Name, OldTag.IsAnnotated, OldTarget.Identifier).
+        /// OldTarget.Identifier is either the SHA of a direct reference,
+        /// or the canonical name of a symbolic reference.
         /// </summary>
-        public Func<String, bool, GitObject, string> TagNameRewriter { get; set; }
+        public Func<string, bool, string, string> TagNameRewriter { get; set; }
 
         /// <summary>
         /// Empty commits should be removed while rewriting.

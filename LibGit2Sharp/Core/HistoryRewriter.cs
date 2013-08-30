@@ -99,7 +99,8 @@ namespace LibGit2Sharp.Core
             if (oldRef.IsTag() && options.TagNameRewriter != null)
             {
                 newRefName = Reference.TagPrefix +
-                             options.TagNameRewriter(oldRef.CanonicalName.Substring(Reference.TagPrefix.Length), false, oldRef.Target);
+                             options.TagNameRewriter(oldRef.CanonicalName.Substring(Reference.TagPrefix.Length),
+                                                     false, oldRef.TargetIdentifier);
             }
 
             var newTarget = RewriteTarget(oldRef.Target);
@@ -238,7 +239,7 @@ namespace LibGit2Sharp.Core
 
             if (options.TagNameRewriter != null)
             {
-                newName = options.TagNameRewriter(annotation.Name, true, annotation.Target);
+                newName = options.TagNameRewriter(annotation.Name, true, annotation.Target.Sha);
             }
 
             var newAnnotation = repo.ObjectDatabase.CreateTagAnnotation(newName, newTarget, annotation.Tagger,
