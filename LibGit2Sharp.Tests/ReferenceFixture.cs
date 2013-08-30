@@ -738,15 +738,16 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanUpdateTheTargetOfASymbolicReferenceWithAnotherSymbolicReference()
         {
-            string repoPath = InitNewRepository();
+            string repoPath = CloneBareTestRepo();
 
             using (var repo = new Repository(repoPath))
             {
                 Reference symbolicRef = repo.Refs.Add("refs/heads/unit_test", "refs/heads/master");
 
                 Reference newHead = repo.Refs.UpdateTarget(repo.Refs.Head, symbolicRef);
-                Assert.IsType<SymbolicReference>(newHead);
+                var symbolicHead = Assert.IsType<SymbolicReference>(newHead);
                 Assert.Equal(symbolicRef.CanonicalName, newHead.TargetIdentifier);
+                Assert.Equal(symbolicRef, symbolicHead.Target);
             }
         }
 
