@@ -506,7 +506,7 @@ namespace LibGit2Sharp.Tests
             Assert.NotEqual(testTarget, repo.Tags["test_new_b25fa35"].Target);
         }
 
-        [Fact(Skip = "Rewriting of symbolic references is not supported yet")]
+        [Fact]
         public void CanRewriteSymbolicRefsPointingToTags()
         {
             const string tagRefName = "refs/tags/test";

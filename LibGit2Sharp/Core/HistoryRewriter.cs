@@ -11,6 +11,7 @@ namespace LibGit2Sharp.Core
 
         private readonly HashSet<Commit> targetedCommits;
         private readonly Dictionary<GitObject, GitObject> objectMap = new Dictionary<GitObject, GitObject>();
+        private readonly Dictionary<Reference, Reference> refMap = new Dictionary<Reference, Reference>();
         private readonly Queue<Action> rollbackActions = new Queue<Action>();
 
         private readonly string backupRefsNamespace;
@@ -76,25 +77,42 @@ namespace LibGit2Sharp.Core
             }
         }
 
-        private void RewriteReference(Reference reference)
+        private Reference RewriteReference(Reference reference)
         {
+            // Has this target already been rewritten?
+            if (refMap.ContainsKey(reference))
+            {
+                return refMap[reference];
+            }
+
             var sref = reference as SymbolicReference;
             if (sref != null)
             {
-                // TODO: Handle a cornercase where a symbolic reference
-                //       points to a Tag which name has been rewritten
-                return;
+                return RewriteReference(
+                    sref, old => old.Target, RewriteReference,
+                    (refs, old, target, logMessage) => refs.UpdateTarget(old, target, logMessage));
             }
 
             var dref = reference as DirectReference;
             if (dref != null)
             {
-                RewriteReference(dref);
+                return RewriteReference(
+                    dref, old => old.Target, RewriteTarget,
+                    (refs, old, target, logMessage) => refs.UpdateTarget(old, target.Id, logMessage));
             }
+
+            return reference;
         }
 
-        private void RewriteReference(DirectReference oldRef)
+        private Reference RewriteReference<TRef, TTarget>(
+            TRef oldRef, Func<TRef, TTarget> selectTarget,
+            Func<TTarget, TTarget> rewriteTarget,
+            Func<ReferenceCollection, TRef, TTarget, string, Reference> updateTarget)
+            where TRef : Reference
+            where TTarget : class
         {
+            var oldRefTarget = selectTarget(oldRef);
+
             string newRefName = oldRef.CanonicalName;
             if (oldRef.IsTag() && options.TagNameRewriter != null)
             {
@@ -103,12 +121,12 @@ namespace LibGit2Sharp.Core
                                                      false, oldRef.TargetIdentifier);
             }
 
-            var newTarget = RewriteTarget(oldRef.Target);
+            var newTarget = rewriteTarget(oldRefTarget);
 
-            if (oldRef.Target == newTarget && oldRef.CanonicalName == newRefName)
+            if (oldRefTarget.Equals(newTarget) && oldRef.CanonicalName == newRefName)
             {
                 // The reference isn't rewritten
-                return;
+                return oldRef;
             }
 
             string backupName = backupRefsNamespace + oldRef.CanonicalName.Substring("refs/".Length);
@@ -126,19 +144,20 @@ namespace LibGit2Sharp.Core
             {
                 repo.Refs.Remove(oldRef);
                 rollbackActions.Enqueue(() => repo.Refs.Add(oldRef.CanonicalName, oldRef, true, "filter-branch: abort"));
-                return;
+                return refMap[oldRef] = null;
             }
 
-            Reference newRef = repo.Refs.UpdateTarget(oldRef, newTarget.Id, "filter-branch: rewrite");
-            rollbackActions.Enqueue(() => repo.Refs.UpdateTarget(oldRef, oldRef.Target.Id, "filter-branch: abort"));
+            Reference newRef = updateTarget(repo.Refs, oldRef, newTarget, "filter-branch: rewrite");
+            rollbackActions.Enqueue(() => updateTarget(repo.Refs, oldRef, oldRefTarget, "filter-branch: abort"));
 
             if (newRef.CanonicalName == newRefName)
             {
-                return;
+                return refMap[oldRef] = newRef;
             }
 
-            repo.Refs.Move(newRef, newRefName);
+            var movedRef = repo.Refs.Move(newRef, newRefName);
             rollbackActions.Enqueue(() => repo.Refs.Move(newRef, oldRef.CanonicalName));
+            return refMap[oldRef] = movedRef;
         }
 
         private void RewriteCommit(Commit commit)
