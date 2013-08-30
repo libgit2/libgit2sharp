@@ -102,7 +102,7 @@ namespace LibGit2Sharp.Tests
 
                 string branchIdentifier = branchIdentifierRetriever(branch);
                 repo.Checkout(branchIdentifier);
-                var oldHeadSha = repo.Head.Tip.Sha;
+                var oldHeadId = repo.Head.Tip.Id;
                 Assert.Equal(shouldHeadBeDetached, repo.Info.IsHeadDetached);
 
                 string expectedHeadName = expectedHeadNameRetriever(branch);
@@ -116,7 +116,10 @@ namespace LibGit2Sharp.Tests
 
                 Assert.Equal(FileStatus.Staged, repo.Index.RetrieveStatus("a.txt"));
 
-                AssertReflogEntryIsCreated(repo.Refs.Log(repo.Refs.Head), tag.Target.Sha, string.Format("reset: moving to {0}", tag.Target.Sha), oldHeadSha);
+                AssertRefLogEntry(repo, "HEAD",
+                                  tag.Target.Id,
+                                  string.Format("reset: moving to {0}", tag.Target.Sha),
+                                  oldHeadId);
 
                 /* Reset --soft the Head to a commit through its sha */
                 repo.Reset(ResetOptions.Soft, branch.Tip.Sha);
@@ -125,7 +128,10 @@ namespace LibGit2Sharp.Tests
 
                 Assert.Equal(FileStatus.Unaltered, repo.Index.RetrieveStatus("a.txt"));
 
-                AssertReflogEntryIsCreated(repo.Refs.Log(repo.Refs.Head), branch.Tip.Sha, string.Format("reset: moving to {0}", branch.Tip.Sha), tag.Target.Sha);
+                AssertRefLogEntry(repo, "HEAD",
+                                  branch.Tip.Id,
+                                  string.Format("reset: moving to {0}", branch.Tip.Sha),
+                                  tag.Target.Id);
             }
         }
 
@@ -157,14 +163,18 @@ namespace LibGit2Sharp.Tests
             {
                 FeedTheRepository(repo);
 
+                var oldHeadId = repo.Head.Tip.Id;
+
                 Tag tag = repo.Tags["mytag"];
 
                 repo.Reset(ResetOptions.Mixed, tag.CanonicalName);
 
                 Assert.Equal(FileStatus.Modified, repo.Index.RetrieveStatus("a.txt"));
 
-                AssertReflogEntryIsCreated(repo.Refs.Log(repo.Refs.Head), tag.Target.Sha, string.Format("reset: moving to {0}", tag.Target.Sha));
-
+                AssertRefLogEntry(repo, "HEAD",
+                                  tag.Target.Id,
+                                  string.Format("reset: moving to {0}", tag.Target.Sha),
+                                  oldHeadId);
             }
         }
 

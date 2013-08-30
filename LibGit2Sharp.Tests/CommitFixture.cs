@@ -773,11 +773,11 @@ namespace LibGit2Sharp.Tests
 
                 AssertCommitHasBeenAmended(repo, amendedCommit, mergedCommit);
 
-                // Assert a reflog entry is created
-                var reflogEntry = repo.Refs.Log("HEAD").First();
-                Assert.Equal(amendedCommit.Committer, reflogEntry.Commiter);
-                Assert.Equal(amendedCommit.Id, reflogEntry.To);
-                Assert.Equal(string.Format("commit (amend): {0}", commitMessage), reflogEntry.Message);
+                AssertRefLogEntry(repo, "HEAD",
+                                  amendedCommit.Id,
+                                  string.Format("commit (amend): {0}", commitMessage),
+                                  mergedCommit.Id,
+                                  amendedCommit.Committer);
             }
         }
 

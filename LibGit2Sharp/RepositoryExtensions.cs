@@ -113,7 +113,7 @@ namespace LibGit2Sharp
         /// <param name="branchName">The name of the branch to create.</param>
         public static Branch CreateBranch(this IRepository repository, string branchName)
         {
-            return CreateBranch(repository, branchName, repository.Head.Tip);
+            return CreateBranch(repository, branchName, "HEAD");
         }
 
         /// <summary>

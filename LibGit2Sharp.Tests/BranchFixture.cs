@@ -20,15 +20,25 @@ namespace LibGit2Sharp.Tests
             string path = CloneBareTestRepo();
             using (var repo = new Repository(path))
             {
-                Branch newBranch = repo.CreateBranch(name, "be3563ae3f795b2b4353bcce3a527ad0a4f7f644");
+                EnableRefLog(repo);
+
+                const string committish = "be3563ae3f795b2b4353bcce3a527ad0a4f7f644";
+
+                Branch newBranch = repo.CreateBranch(name, committish);
                 Assert.NotNull(newBranch);
                 Assert.Equal(name, newBranch.Name);
                 Assert.Equal("refs/heads/" + name, newBranch.CanonicalName);
                 Assert.NotNull(newBranch.Tip);
-                Assert.Equal("be3563ae3f795b2b4353bcce3a527ad0a4f7f644", newBranch.Tip.Sha);
+                Assert.Equal(committish, newBranch.Tip.Sha);
                 Assert.NotNull(repo.Branches.SingleOrDefault(p => p.Name == name));
 
+                AssertRefLogEntry(repo, newBranch.CanonicalName,
+                                  newBranch.Tip.Id,
+                                  "branch: Created from " + committish,
+                                  committer: newBranch.Tip.Committer);
+
                 repo.Branches.Remove(newBranch.Name);
+                Assert.Null(repo.Branches[name]);
             }
         }
 
@@ -38,19 +48,34 @@ namespace LibGit2Sharp.Tests
             string path = CloneBareTestRepo();
             using (var repo = new Repository(path))
             {
+                EnableRefLog(repo);
+
                 const string name = "unit_test";
-                Branch newBranch = repo.CreateBranch(name, "be3563a");
+                const string committish = "be3563a";
+
+                Branch newBranch = repo.CreateBranch(name, committish);
                 Assert.Equal("refs/heads/" + name, newBranch.CanonicalName);
                 Assert.Equal("be3563ae3f795b2b4353bcce3a527ad0a4f7f644", newBranch.Tip.Sha);
+
+                AssertRefLogEntry(repo, newBranch.CanonicalName,
+                                  newBranch.Tip.Id,
+                                  "branch: Created from " + committish,
+                                  committer: newBranch.Tip.Committer);
             }
         }
 
-        [Fact]
-        public void CanCreateBranchFromImplicitHead()
+        [Theory]
+        [InlineData("32eab9cb1f450b5fe7ab663462b77d7f4b703344")]
+        [InlineData("master")]
+        public void CanCreateBranchFromImplicitHead(string headCommitOrBranchSpec)
         {
-            string path = CloneBareTestRepo();
+            string path = CloneStandardTestRepo();
             using (var repo = new Repository(path))
             {
+                EnableRefLog(repo);
+
+                repo.Checkout(headCommitOrBranchSpec);
+
                 const string name = "unit_test";
                 Branch newBranch = repo.CreateBranch(name);
                 Assert.NotNull(newBranch);
@@ -58,21 +83,37 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal("refs/heads/" + name, newBranch.CanonicalName);
                 Assert.False(newBranch.IsCurrentRepositoryHead);
                 Assert.NotNull(newBranch.Tip);
-                Assert.Equal("4c062a6361ae6959e06292c1fa5e2822d9c96345", newBranch.Tip.Sha);
+                Assert.Equal("32eab9cb1f450b5fe7ab663462b77d7f4b703344", newBranch.Tip.Sha);
                 Assert.NotNull(repo.Branches.SingleOrDefault(p => p.Name == name));
+
+                AssertRefLogEntry(repo, newBranch.CanonicalName,
+                                  newBranch.Tip.Id,
+                                  "branch: Created from " + headCommitOrBranchSpec,
+                                  committer: newBranch.Tip.Committer);
             }
         }
 
-        [Fact]
-        public void CanCreateBranchFromExplicitHead()
+        [Theory]
+        [InlineData("32eab9cb1f450b5fe7ab663462b77d7f4b703344")]
+        [InlineData("master")]
+        public void CanCreateBranchFromExplicitHead(string headCommitOrBranchSpec)
         {
-            string path = CloneBareTestRepo();
+            string path = CloneStandardTestRepo();
             using (var repo = new Repository(path))
             {
+                EnableRefLog(repo);
+
+                repo.Checkout(headCommitOrBranchSpec);
+
                 const string name = "unit_test";
                 Branch newBranch = repo.CreateBranch(name, "HEAD");
                 Assert.NotNull(newBranch);
-                Assert.Equal("4c062a6361ae6959e06292c1fa5e2822d9c96345", newBranch.Tip.Sha);
+                Assert.Equal("32eab9cb1f450b5fe7ab663462b77d7f4b703344", newBranch.Tip.Sha);
+
+                AssertRefLogEntry(repo, newBranch.CanonicalName,
+                                  newBranch.Tip.Id,
+                                  "branch: Created from " + headCommitOrBranchSpec,
+                                  committer: newBranch.Tip.Committer);
             }
         }
 
@@ -82,11 +123,18 @@ namespace LibGit2Sharp.Tests
             string path = CloneBareTestRepo();
             using (var repo = new Repository(path))
             {
+                EnableRefLog(repo);
+
                 const string name = "unit_test";
                 var commit = repo.Lookup<Commit>("HEAD");
                 Branch newBranch = repo.CreateBranch(name, commit);
                 Assert.NotNull(newBranch);
                 Assert.Equal("4c062a6361ae6959e06292c1fa5e2822d9c96345", newBranch.Tip.Sha);
+
+                AssertRefLogEntry(repo, newBranch.CanonicalName,
+                                  newBranch.Tip.Id,
+                                  "branch: Created from " + newBranch.Tip.Sha,
+                                  committer: newBranch.Tip.Committer);
             }
         }
 
@@ -96,24 +144,42 @@ namespace LibGit2Sharp.Tests
             string path = CloneBareTestRepo();
             using (var repo = new Repository(path))
             {
+                EnableRefLog(repo);
+
                 const string name = "revparse_branch";
-                var target = repo.Lookup<Commit>("master~2");
-                Branch newBranch = repo.CreateBranch(name, target);
+                const string committish = "master~2";
+
+                Branch newBranch = repo.CreateBranch(name, committish);
                 Assert.NotNull(newBranch);
                 Assert.Equal("9fd738e8f7967c078dceed8190330fc8648ee56a", newBranch.Tip.Sha);
+
+                AssertRefLogEntry(repo, newBranch.CanonicalName,
+                                  newBranch.Tip.Id,
+                                  "branch: Created from " + committish,
+                                  committer: newBranch.Tip.Committer);
             }
         }
 
-        [Fact]
-        public void CreatingABranchFromATagPeelsToTheCommit()
+        [Theory]
+        [InlineData("test")]
+        [InlineData("refs/tags/test")]
+        public void CreatingABranchFromATagPeelsToTheCommit(string committish)
         {
             string path = CloneBareTestRepo();
             using (var repo = new Repository(path))
             {
+                EnableRefLog(repo);
+
                 const string name = "i-peel-tag";
-                Branch newBranch = repo.CreateBranch(name, "refs/tags/test");
+
+                Branch newBranch = repo.CreateBranch(name, committish);
                 Assert.NotNull(newBranch);
                 Assert.Equal("e90810b8df3e80c413d903f631643c716887138d", newBranch.Tip.Sha);
+
+                AssertRefLogEntry(repo, newBranch.CanonicalName,
+                                  newBranch.Tip.Id,
+                                  "branch: Created from " + committish,
+                                  committer: newBranch.Tip.Committer);
             }
         }
 
@@ -725,13 +791,23 @@ namespace LibGit2Sharp.Tests
             string path = CloneBareTestRepo();
             using (var repo = new Repository(path))
             {
+                EnableRefLog(repo);
+
                 Assert.Null(repo.Branches["br3"]);
+                var br2 = repo.Branches["br2"];
+                Assert.NotNull(br2);
 
                 Branch newBranch = repo.Branches.Move("br2", "br3");
+
                 Assert.Equal("br3", newBranch.Name);
 
                 Assert.Null(repo.Branches["br2"]);
                 Assert.NotNull(repo.Branches["br3"]);
+
+                AssertRefLogEntry(repo, newBranch.CanonicalName,
+                                  newBranch.Tip.Id,
+                                  string.Format("Branch: renamed {0} to {1}", br2.CanonicalName, newBranch.CanonicalName),
+                                  committer: newBranch.Tip.Committer);
             }
         }
 
@@ -750,6 +826,8 @@ namespace LibGit2Sharp.Tests
             string path = CloneBareTestRepo();
             using (var repo = new Repository(path))
             {
+                EnableRefLog(repo);
+
                 Branch test = repo.Branches["test"];
                 Assert.NotNull(test);
 
@@ -766,6 +844,11 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(newBranch, newTest);
 
                 Assert.Equal(br2.Tip, newTest.Tip);
+
+                AssertRefLogEntry(repo, newBranch.CanonicalName,
+                                  newBranch.Tip.Id,
+                                  string.Format("Branch: renamed {0} to {1}", br2.CanonicalName, newBranch.CanonicalName),
+                                  committer: newBranch.Tip.Committer);
             }
         }
 

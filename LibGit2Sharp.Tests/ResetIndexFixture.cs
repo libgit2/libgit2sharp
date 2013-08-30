@@ -80,7 +80,7 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
-        public void CanResetTheIndexToTheContentOfACommitWithCommitishAsArgument()
+        public void CanResetTheIndexToTheContentOfACommitWithCommittishAsArgument()
         {
             string path = CloneStandardTestRepo();
             using (var repo = new Repository(path))
@@ -116,7 +116,7 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
-        public void CanResetTheIndexToASubsetOfTheContentOfACommitWithCommitishAsArgument()
+        public void CanResetTheIndexToASubsetOfTheContentOfACommitWithCommittishAsArgument()
         {
             string path = CloneStandardTestRepo();
             using (var repo = new Repository(path))
