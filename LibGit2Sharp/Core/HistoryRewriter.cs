@@ -11,6 +11,7 @@ namespace LibGit2Sharp.Core
 
         private readonly HashSet<Commit> targetedCommits;
         private readonly Dictionary<ObjectId, ObjectId> shaMap = new Dictionary<ObjectId, ObjectId>();
+        private readonly Queue<Action> rollbackActions = new Queue<Action>();
 
         private readonly string backupRefsNamespace;
         private readonly RewriteHistoryOptions options;
@@ -49,8 +50,6 @@ namespace LibGit2Sharp.Core
                 RewriteCommit(commit);
             }
 
-            var rollbackActions = new Queue<Action>();
-
             try
             {
                 // Ordering matters. In the case of `A -> B -> commit`, we need to make sure B is rewritten
@@ -59,17 +58,7 @@ namespace LibGit2Sharp.Core
                 {
                     // TODO: Check how rewriting of notes actually behaves
 
-                    var dref = reference as DirectReference;
-                    if (dref == null)
-                    {
-                        // TODO: Handle a cornercase where a symbolic reference
-                        //       points to a Tag which name has been rewritten
-                        continue;
-                    }
-
-                    var newTarget = RewriteTarget(dref.Target);
-
-                    RewriteReference(dref, newTarget, backupRefsNamespace, rollbackActions);
+                    RewriteReference(reference);
                 }
             }
             catch (Exception)
@@ -81,9 +70,30 @@ namespace LibGit2Sharp.Core
 
                 throw;
             }
+            finally
+            {
+                rollbackActions.Clear();
+            }
         }
 
-        private void RewriteReference(DirectReference oldRef, ObjectId newTarget, string backupNamePrefix, Queue<Action> rollbackActions)
+        private void RewriteReference(Reference reference)
+        {
+            var sref = reference as SymbolicReference;
+            if (sref != null)
+            {
+                // TODO: Handle a cornercase where a symbolic reference
+                //       points to a Tag which name has been rewritten
+                return;
+            }
+
+            var dref = reference as DirectReference;
+            if (dref != null)
+            {
+                RewriteReference(dref);
+            }
+        }
+
+        private void RewriteReference(DirectReference oldRef)
         {
             string newRefName = oldRef.CanonicalName;
             if (oldRef.IsTag() && options.TagNameRewriter != null)
@@ -92,13 +102,15 @@ namespace LibGit2Sharp.Core
                              options.TagNameRewriter(oldRef.CanonicalName.Substring(Reference.TagPrefix.Length), false, oldRef.Target);
             }
 
+            var newTarget = RewriteTarget(oldRef.Target);
+
             if (oldRef.Target.Id == newTarget && oldRef.CanonicalName == newRefName)
             {
                 // The reference isn't rewritten
                 return;
             }
 
-            string backupName = backupNamePrefix + oldRef.CanonicalName.Substring("refs/".Length);
+            string backupName = backupRefsNamespace + oldRef.CanonicalName.Substring("refs/".Length);
 
             if (repo.Refs.Resolve<Reference>(backupName) != null)
             {
