@@ -44,12 +44,10 @@ namespace LibGit2Sharp
         {
             get
             {
-                var directReference = ResolveToDirectReference();
-
                 return string.Format(CultureInfo.InvariantCulture,
                     "{0} => {1} => \"{2}\"",
                     CanonicalName, TargetIdentifier,
-                    (directReference != null) ? directReference.TargetIdentifier : "?");
+                    (Target != null) ? Target.TargetIdentifier : "?");
             }
         }
     }
