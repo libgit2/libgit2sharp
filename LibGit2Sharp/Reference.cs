@@ -47,18 +47,9 @@ namespace LibGit2Sharp
                 case GitReferenceType.Symbolic:
                     string targetIdentifier = Proxy.git_reference_symbolic_target(handle);
 
-                    using (ReferenceSafeHandle resolvedHandle = Proxy.git_reference_resolve(handle))
-                    {
-                        if (resolvedHandle == null)
-                        {
-                            reference = new SymbolicReference(name, targetIdentifier, null);
-                            break;
-                        }
-
-                        var targetRef = BuildFromPtr<DirectReference>(resolvedHandle, repo);
-                        reference = new SymbolicReference(name, targetIdentifier, targetRef);
-                        break;
-                    }
+                    var targetRef = repo.Refs[targetIdentifier];
+                    reference = new SymbolicReference(name, targetIdentifier, targetRef);
+                    break;
 
                 case GitReferenceType.Oid:
                     ObjectId targetOid = Proxy.git_reference_target(handle);
