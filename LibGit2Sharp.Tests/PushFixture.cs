@@ -79,10 +79,11 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
-        public void Issue_507()
+        public void CanPushToALocalBareRepository()
         {
             String path = InitNewRepository();
 
+            // Initial repo
             using (var repo = new Repository(path))
             {
                 Touch(repo.Info.WorkingDirectory,
@@ -94,19 +95,24 @@ namespace LibGit2Sharp.Tests
                 Assert.NotNull(repo.Head.Tip);
             }
 
+            // Cloning into a bare repository
+            // This will be behave like a server-side repository
+            SelfCleaningDirectory scd1 = BuildSelfCleaningDirectory();
+            string bareClonedPath = Repository.Clone(path, scd1.DirectoryPath, true);
 
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
-            string clonePath = Repository.Clone(path, scd.DirectoryPath);
+            // Cloning again into a standard repository
+            // This will be behave like a standard client repository
+            SelfCleaningDirectory scd2 = BuildSelfCleaningDirectory();
+            string standardClonedPath = Repository.Clone(bareClonedPath, scd2.DirectoryPath);
 
-            using (var repo = new Repository(path))
+            using (var repo = new Repository(standardClonedPath))
             {
-                repo.Branches.Add("otherBranch", repo.Head.Tip);
+                var branch = repo.Branches.Add("otherBranch", repo.Head.Tip);
+                repo.Branches.Update(branch, b => b.TrackedBranch = "refs/remotes/origin/otherBranch");
+
                 repo.Branches["otherBranch"].Checkout();
-            }
 
-            using (var clone = new Repository(clonePath))
-            {
-                Assert.DoesNotThrow(() => clone.Network.Push(clone.Head, OnPushStatusError));
+                Assert.DoesNotThrow(() => repo.Network.Push(repo.Head, OnPushStatusError));
             }
         }
     }
