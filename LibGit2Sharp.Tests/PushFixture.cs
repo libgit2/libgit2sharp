@@ -77,5 +77,37 @@ namespace LibGit2Sharp.Tests
                         repo.Network.Push(branch);
                     }));
         }
+
+        [Fact]
+        public void Issue_507()
+        {
+            String path = InitNewRepository();
+
+            using (var repo = new Repository(path))
+            {
+                Touch(repo.Info.WorkingDirectory,
+                    "test.txt",
+                    "This is a test document which will be committed.");
+
+                repo.Index.Stage("test.txt");
+                repo.Commit("Test commit.", Constants.Signature, Constants.Signature);
+                Assert.NotNull(repo.Head.Tip);
+            }
+
+
+            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            string clonePath = Repository.Clone(path, scd.DirectoryPath);
+
+            using (var repo = new Repository(path))
+            {
+                repo.Branches.Add("otherBranch", repo.Head.Tip);
+                repo.Branches["otherBranch"].Checkout();
+            }
+
+            using (var clone = new Repository(clonePath))
+            {
+                Assert.DoesNotThrow(() => clone.Network.Push(clone.Head, OnPushStatusError));
+            }
+        }
     }
 }
