@@ -1,4 +1,5 @@
-﻿using LibGit2Sharp.Tests.TestHelpers;
+﻿using System.Linq;
+using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
 using Xunit.Extensions;
 
@@ -163,7 +164,10 @@ namespace LibGit2Sharp.Tests
             {
                 var noUrlRemote = repo.Network.Remotes["no_url"];
                 Assert.NotNull(noUrlRemote);
-                Assert.Equal(string.Empty, noUrlRemote.Url);
+                Assert.Equal(null, noUrlRemote.Url);
+
+                var remotes = repo.Network.Remotes.ToList();
+                Assert.Equal(1, remotes.Count(r => r.Name == "no_url"));
             }
         }
     }
