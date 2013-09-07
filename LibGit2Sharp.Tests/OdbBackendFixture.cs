@@ -254,11 +254,6 @@ namespace LibGit2Sharp.Tests
 
             public override int Write(ObjectId oid, Stream dataStream, long length, ObjectType objectType)
             {
-                if (m_objectIdToContent.ContainsKey(oid))
-                {
-                    return GIT_EEXISTS;
-                }
-
                 if (length > int.MaxValue)
                 {
                     return GIT_ERROR;
@@ -295,7 +290,6 @@ namespace LibGit2Sharp.Tests
             private const int GIT_OK = 0;
             private const int GIT_ERROR = -1;
             private const int GIT_ENOTFOUND = -3;
-            private const int GIT_EEXISTS = -4;
             private const int GIT_EAMBIGUOUS = -5;
 
             #region Unimplemented
