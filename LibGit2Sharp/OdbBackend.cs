@@ -624,5 +624,26 @@ namespace LibGit2Sharp
             /// </summary>
             ForEach = 128,
         }
+
+        /// <summary>
+        /// Libgit2 expected backend return codes.
+        /// </summary>
+        protected enum ReturnCode
+        {
+            /// <summary>
+            /// No error has occured.
+            /// </summary>
+            GIT_OK = 0,
+
+            /// <summary>
+            /// No object matching the oid, or short oid, can be found in the backend.
+            /// </summary>
+            GIT_ENOTFOUND = -3,
+
+            /// <summary>
+            /// The given short oid is ambiguous.
+            /// </summary>
+            GIT_EAMBIGUOUS = -5,
+        }
     }
 }

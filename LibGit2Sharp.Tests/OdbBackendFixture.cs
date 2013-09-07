@@ -182,10 +182,10 @@ namespace LibGit2Sharp.Tests
 
                     objectType = gitObject.ObjectType;
 
-                    return GIT_OK;
+                    return (int)ReturnCode.GIT_OK;
                 }
 
-                return GIT_ENOTFOUND;
+                return (int)ReturnCode.GIT_ENOTFOUND;
             }
 
             public override int ReadPrefix(byte[] shortOid, int len, out byte[] oid, out Stream data, out ObjectType objectType)
@@ -228,7 +228,7 @@ namespace LibGit2Sharp.Tests
 
                     if (null != gitObjectAlreadyFound)
                     {
-                        return GIT_EAMBIGUOUS;
+                        return (int)ReturnCode.GIT_EAMBIGUOUS;
                     }
 
                     gitObjectAlreadyFound = gitObject;
@@ -246,17 +246,28 @@ namespace LibGit2Sharp.Tests
                         data.Write(chunk, 0, chunk.Length);
                     }
 
-                    return GIT_OK;
+                    return (int)ReturnCode.GIT_OK;
                 }
 
-                return GIT_ENOTFOUND;
+                return (int)ReturnCode.GIT_ENOTFOUND;
             }
 
             public override int Write(ObjectId oid, Stream dataStream, long length, ObjectType objectType)
             {
+                var buffer = ReadBuffer(dataStream, length);
+
+                m_objectIdToContent.Add(oid,
+                    new MockGitObject(oid, objectType, length, new List<byte[]> { buffer }));
+
+                return (int)ReturnCode.GIT_OK;
+            }
+
+            private static byte[] ReadBuffer(Stream dataStream, long length)
+            {
                 if (length > int.MaxValue)
                 {
-                    return GIT_ERROR;
+                    throw new InvalidOperationException(
+                        string.Format("Provided length ({0}) exceeds int.MaxValue ({1}).", length, int.MaxValue));
                 }
 
                 var buffer = new byte[length];
@@ -264,19 +275,18 @@ namespace LibGit2Sharp.Tests
 
                 if (bytesRead != (int)length)
                 {
-                    return GIT_ERROR;
+                    throw new InvalidOperationException(
+                        string.Format("Too short buffer. {0} bytes were expected. {1} have been successfully read.", length,
+                            bytesRead));
                 }
-
-                m_objectIdToContent.Add(oid, new MockGitObject(oid, objectType, length, new List<byte[]> { buffer }));
-
-                return GIT_OK;
+                return buffer;
             }
 
             public override int WriteStream(long length, ObjectType objectType, out OdbBackendStream stream)
             {
                 stream = new MockOdbBackendStream(this, objectType, length);
 
-                return GIT_OK;
+                return (int)ReturnCode.GIT_OK;
             }
 
             public override bool Exists(ObjectId oid)
@@ -286,11 +296,6 @@ namespace LibGit2Sharp.Tests
 
             private readonly Dictionary<ObjectId, MockGitObject> m_objectIdToContent =
                 new Dictionary<ObjectId, MockGitObject>();
-
-            private const int GIT_OK = 0;
-            private const int GIT_ERROR = -1;
-            private const int GIT_ENOTFOUND = -3;
-            private const int GIT_EAMBIGUOUS = -5;
 
             #region Unimplemented
 
@@ -311,7 +316,7 @@ namespace LibGit2Sharp.Tests
                     callback(mockGitObject.Key);
                 }
 
-                return GIT_OK;
+                return (int)ReturnCode.GIT_OK;
             }
 
             #endregion
@@ -345,19 +350,11 @@ namespace LibGit2Sharp.Tests
 
                 public override int Write(Stream dataStream, long length)
                 {
-                    if (length > Int32.MaxValue)
-                        return GIT_ERROR;
-
-                    var buffer = new byte[length];
-
-                    int bytesRead = dataStream.Read(buffer, 0, (int)length);
-
-                    if (bytesRead != (int)length)
-                        return GIT_ERROR;
+                    var buffer = ReadBuffer(dataStream, length);
 
                     m_chunks.Add(buffer);
 
-                    return GIT_OK;
+                    return (int)ReturnCode.GIT_OK;
                 }
 
                 public override int FinalizeWrite(ObjectId oid)
@@ -366,7 +363,8 @@ namespace LibGit2Sharp.Tests
 
                     if (totalLength != m_length)
                     {
-                        return GIT_ERROR;
+                        throw new InvalidOperationException(
+                            string.Format("Invalid final length. {0} was expected. The total size of the received chunks is {1}.", m_length, totalLength));
                     }
 
                     var backend = (MockOdbBackend)Backend;
@@ -374,7 +372,7 @@ namespace LibGit2Sharp.Tests
                     backend.m_objectIdToContent.Add(oid,
                         new MockGitObject(oid, m_type, m_length, m_chunks));
 
-                    return GIT_OK;
+                    return (int)ReturnCode.GIT_OK;
                 }
 
                 private readonly List<byte[]> m_chunks = new List<byte[]>();
