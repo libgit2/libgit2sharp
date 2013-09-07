@@ -393,10 +393,7 @@ namespace LibGit2Sharp
                 UIntPtr len,
                 GitObjectType type)
             {
-                if (len.ToUInt64() > long.MaxValue)
-                {
-                    return (int)GitErrorCode.Error;
-                }
+                long length = ConverToLong(len);
 
                 OdbBackend odbBackend = MarshalOdbBackend(backend);
                 if (odbBackend == null)
@@ -406,9 +403,9 @@ namespace LibGit2Sharp
 
                 try
                 {
-                    using (var stream = new UnmanagedMemoryStream((byte*)data, (long)len.ToUInt64()))
+                    using (var stream = new UnmanagedMemoryStream((byte*)data, length))
                     {
-                        return odbBackend.Write(new ObjectId(oid), stream, (long)len.ToUInt64(), type.ToObjectType());
+                        return odbBackend.Write(new ObjectId(oid), stream, length, type.ToObjectType());
                     }
                 }
                 catch (Exception ex)
@@ -421,15 +418,12 @@ namespace LibGit2Sharp
             private static int WriteStream(
                 out IntPtr stream_out,
                 IntPtr backend,
-                UIntPtr length,
+                UIntPtr len,
                 GitObjectType type)
             {
                 stream_out = IntPtr.Zero;
 
-                if (length.ToUInt64() > long.MaxValue)
-                {
-                    return (int)GitErrorCode.Error;
-                }
+                long length = ConverToLong(len);
 
                 OdbBackend odbBackend = MarshalOdbBackend(backend);
                 if (odbBackend == null)
@@ -442,7 +436,7 @@ namespace LibGit2Sharp
                 try
                 {
                     OdbBackendStream stream;
-                    int toReturn = odbBackend.WriteStream((long)length.ToUInt64(), objectType, out stream);
+                    int toReturn = odbBackend.WriteStream(length, objectType, out stream);
 
                     if (toReturn == 0)
                     {
@@ -576,6 +570,18 @@ namespace LibGit2Sharp
                 private readonly GitOdbBackend.foreach_callback_callback cb;
                 private readonly IntPtr data;
             }
+        }
+
+        internal static long ConverToLong(UIntPtr len)
+        {
+            if (len.ToUInt64() > long.MaxValue)
+            {
+                throw new InvalidOperationException(
+                    string.Format("Provided length ({0}) exceeds long.MaxValue ({1}).",
+                        len.ToUInt64(), long.MaxValue));
+            }
+
+            return (long)len.ToUInt64();
         }
 
         /// <summary>

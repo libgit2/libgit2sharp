@@ -145,14 +145,15 @@ namespace LibGit2Sharp
             {
                 OdbBackendStream odbBackendStream = GCHandle.FromIntPtr(Marshal.ReadIntPtr(stream, GitOdbBackendStream.GCHandleOffset)).Target as OdbBackendStream;
 
-                if (odbBackendStream != null &&
-                    len.ToUInt64() < long.MaxValue)
+                if (odbBackendStream != null)
                 {
-                    using (UnmanagedMemoryStream memoryStream = new UnmanagedMemoryStream((byte*)buffer, 0, (long)len.ToUInt64(), FileAccess.ReadWrite))
+                    long length = OdbBackend.ConverToLong(len);
+
+                    using (UnmanagedMemoryStream memoryStream = new UnmanagedMemoryStream((byte*)buffer, 0, length, FileAccess.ReadWrite))
                     {
                         try
                         {
-                            return odbBackendStream.Read(memoryStream, (long)len.ToUInt64());
+                            return odbBackendStream.Read(memoryStream, length);
                         }
                         catch (Exception ex)
                         {
@@ -171,10 +172,9 @@ namespace LibGit2Sharp
             {
                 OdbBackendStream odbBackendStream = GCHandle.FromIntPtr(Marshal.ReadIntPtr(stream, GitOdbBackendStream.GCHandleOffset)).Target as OdbBackendStream;
 
-                if (odbBackendStream != null &&
-                    len.ToUInt64() < long.MaxValue)
+                if (odbBackendStream != null)
                 {
-                    long length = (long)len.ToUInt64();
+                    long length = OdbBackend.ConverToLong(len);
 
                     using (UnmanagedMemoryStream dataStream = new UnmanagedMemoryStream((byte*)buffer, length))
                     {
