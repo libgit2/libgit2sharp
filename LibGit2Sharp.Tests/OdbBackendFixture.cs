@@ -371,10 +371,8 @@ namespace LibGit2Sharp.Tests
 
                     var backend = (MockOdbBackend)Backend;
 
-                    if (!backend.m_objectIdToContent.ContainsKey(oid))
-                    {
-                        backend.m_objectIdToContent.Add(oid, new MockGitObject(oid, m_type, m_length, m_chunks));
-                    }
+                    backend.m_objectIdToContent.Add(oid,
+                        new MockGitObject(oid, m_type, m_length, m_chunks));
 
                     return GIT_OK;
                 }
