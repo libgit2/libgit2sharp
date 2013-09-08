@@ -136,5 +136,25 @@ namespace LibGit2Sharp.Tests
             Assert.True(maybeSha.StartsWith(parsedObjectId.ToString(3)));
             Assert.Equal(maybeSha, parsedObjectId.ToString(42));
         }
+
+        [Theory]
+        [InlineData(new byte[] { 0xde, 0xad, 0xbe }, 6, true)]
+        [InlineData(new byte[] { 0xde, 0xad }, 4, true)]
+        [InlineData(new byte[] { 0xde, 0xad }, 3, true)]
+        [InlineData(new byte[] { 0xde, 0xad }, 2, true)]
+        [InlineData(new byte[] { 0xde, 0xad }, 1, true)]
+        [InlineData(new byte[] { 0xde, 0xaf }, 3, true)]
+        [InlineData(new byte[] { 0xde, 0xff }, 2, true)]
+        [InlineData(new byte[] { 0xdf, 0xff }, 1, true)]
+        [InlineData(new byte[] { 0x98, 0x76 }, 4, false)]
+        [InlineData(new byte[] { 0x98, 0x76 }, 3, false)]
+        [InlineData(new byte[] { 0x98, 0x76 }, 2, false)]
+        [InlineData(new byte[] { 0x98, 0x76 }, 1, false)]
+        public void StartsWith(byte[] rawId, int len, bool expected)
+        {
+            var id = new ObjectId("deadbeef84650f067bd5703b6a59a8b3b3c99a09");
+
+            Assert.Equal(expected, id.StartsWith(rawId, len));
+        }
     }
 }

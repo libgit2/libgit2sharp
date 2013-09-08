@@ -198,30 +198,7 @@ namespace LibGit2Sharp.Tests
 
                 foreach (ObjectId objectId in m_objectIdToContent.Keys)
                 {
-                    bool match = true;
-
-                    int length = len >> 1;
-                    for (int i = 0; i < length; i++)
-                    {
-                        if (objectId.RawId[i] != shortOid[i])
-                        {
-                            match = false;
-                            break;
-                        }
-                    }
-
-                    if (match && ((len & 1) == 1))
-                    {
-                        var a = objectId.RawId[length] >> 4;
-                        var b = shortOid[length] >> 4;
-
-                        if (a != b)
-                        {
-                            match = false;
-                        }
-                    }
-
-                    if (!match)
+                    if (!objectId.StartsWith(shortOid, len))
                     {
                         continue;
                     }
