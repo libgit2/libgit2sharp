@@ -311,9 +311,14 @@ namespace LibGit2Sharp.Tests
 
             public override int ForEach(ForEachCallback callback)
             {
-                foreach (var mockGitObject in m_objectIdToContent)
+                foreach (var objectId in m_objectIdToContent.Keys)
                 {
-                    callback(mockGitObject.Key);
+                    int result = callback(objectId);
+
+                    if (result != (int)ReturnCode.GIT_OK)
+                    {
+                        return result;
+                    }
                 }
 
                 return (int)ReturnCode.GIT_OK;

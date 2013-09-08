@@ -650,6 +650,11 @@ namespace LibGit2Sharp
             /// The given short oid is ambiguous.
             /// </summary>
             GIT_EAMBIGUOUS = -5,
+
+            /// <summary>
+            /// Interruption of the foreach() callback is requested.
+            /// </summary>
+            GIT_EUSER = -7,
         }
     }
 }
