@@ -171,21 +171,21 @@ namespace LibGit2Sharp.Tests
 
                 MockGitObject gitObject;
 
-                if (m_objectIdToContent.TryGetValue(oid, out gitObject))
+                if (!m_objectIdToContent.TryGetValue(oid, out gitObject))
                 {
-                    data = Allocate(gitObject.Length);
-
-                    foreach (var chunk in gitObject.Data)
-                    {
-                        data.Write(chunk, 0, chunk.Length);
-                    }
-
-                    objectType = gitObject.ObjectType;
-
-                    return (int)ReturnCode.GIT_OK;
+                    return (int) ReturnCode.GIT_ENOTFOUND;
                 }
 
-                return (int)ReturnCode.GIT_ENOTFOUND;
+                data = Allocate(gitObject.Length);
+
+                foreach (var chunk in gitObject.Data)
+                {
+                    data.Write(chunk, 0, chunk.Length);
+                }
+
+                objectType = gitObject.ObjectType;
+
+                return (int)ReturnCode.GIT_OK;
             }
 
             public override int ReadPrefix(byte[] shortOid, int len, out byte[] oid, out Stream data, out ObjectType objectType)
@@ -194,16 +194,16 @@ namespace LibGit2Sharp.Tests
                 data = null;
                 objectType = default(ObjectType);
 
-                MockGitObject gitObjectAlreadyFound = null;
+                ObjectId matchingKey = null;
 
-                foreach (MockGitObject gitObject in m_objectIdToContent.Values)
+                foreach (ObjectId objectId in m_objectIdToContent.Keys)
                 {
                     bool match = true;
 
                     int length = len >> 1;
                     for (int i = 0; i < length; i++)
                     {
-                        if (gitObject.ObjectId.RawId[i] != shortOid[i])
+                        if (objectId.RawId[i] != shortOid[i])
                         {
                             match = false;
                             break;
@@ -212,7 +212,7 @@ namespace LibGit2Sharp.Tests
 
                     if (match && ((len & 1) == 1))
                     {
-                        var a = gitObject.ObjectId.RawId[length] >> 4;
+                        var a = objectId.RawId[length] >> 4;
                         var b = shortOid[length] >> 4;
 
                         if (a != b)
@@ -226,30 +226,29 @@ namespace LibGit2Sharp.Tests
                         continue;
                     }
 
-                    if (null != gitObjectAlreadyFound)
+                    if (matchingKey != null)
                     {
                         return (int)ReturnCode.GIT_EAMBIGUOUS;
                     }
 
-                    gitObjectAlreadyFound = gitObject;
+                    matchingKey = objectId;
                 }
 
-                if (null != gitObjectAlreadyFound)
+                if (matchingKey == null)
                 {
-                    oid = gitObjectAlreadyFound.ObjectId.RawId;
-                    objectType = gitObjectAlreadyFound.ObjectType;
-
-                    data = Allocate(gitObjectAlreadyFound.Length);
-
-                    foreach (var chunk in gitObjectAlreadyFound.Data)
-                    {
-                        data.Write(chunk, 0, chunk.Length);
-                    }
-
-                    return (int)ReturnCode.GIT_OK;
+                    return (int)ReturnCode.GIT_ENOTFOUND;
                 }
 
-                return (int)ReturnCode.GIT_ENOTFOUND;
+                int ret = Read(matchingKey, out data, out objectType);
+
+                if (ret != (int)ReturnCode.GIT_OK)
+                {
+                    return ret;
+                }
+
+                oid = matchingKey.RawId;
+
+                return (int)ReturnCode.GIT_OK;
             }
 
             public override int Write(ObjectId oid, Stream dataStream, long length, ObjectType objectType)
