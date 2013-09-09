@@ -8,6 +8,37 @@
  - CI server: <http://teamcity.codebetter.com/project.html?projectId=project127&guest=1>
  - @libgit2sharp: <http://twitter.com/libgit2sharp>
 
+## v0.14.0 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.13.0...v0.14.0))
+
+### Additions
+
+ - Introduce Blob.ContentAsText()
+ - Teach repo.Refs.RewriteHistory() to prune empty commits
+ - Teach repo.Refs.RewriteHistory() to rewrite symbolic references
+ - Teach repo.ObjectDatabase to enumerate GitObjects
+ - Teach Branches.Add() and Move() to append to the reflog
+ - Honor core.logAllRefUpdates configuration setting
+ - Add strongly-typed LockedFileException
+ - Add TreeDefinition.Remove(IEnumerable<string>)
+ - Introduce ObjectId.StartsWith()
+ - Introduce repo.Config.GetValueOrDefault()
+
+### Changes
+
+ - Introduce RewriteHistoryOptions type and make repo.Refs.RewriteHistory() leverage it
+ - Introduce CheckoutOptions type and make repo.CheckoutPaths() leverage it
+ - Obsolete Blob.ContentAsUnicode and Blob.ContentAsUf8
+ - Make OdbBackend interface ObjectId based
+ - Update libgit2 binaries to libgit2/libgit2@32e4992
+
+### Fixes
+
+ - Ensure repo.Network.Push() overloads pass the Credentials down the call chain
+ - Make SymbolicReference.Target cope with chained symbolic references
+ - Do not throw when parsing a Remote with no url
+ - Prevent files or directories starting with ! from being ignored
+ - Teach Index.Stage to stage files in ignored dirs
+
 ## v0.13.0 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.12.0...v0.13.0))
 
 ### Additions
