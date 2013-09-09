@@ -12,7 +12,7 @@ namespace LibGit2Sharp.Tests
     {
         private const string content = "test\n";
 
-        private static void AddCommitToRepo(Repository repo)
+        private static Commit AddCommitToRepo(Repository repo)
         {
             string relativeFilepath = "test.txt";
             Touch(repo.Info.WorkingDirectory, relativeFilepath, content);
@@ -23,7 +23,7 @@ namespace LibGit2Sharp.Tests
             Assert.Equal("9daeafb9864cf43055ae93beb0afd6c7d144bfa4", ie.Id.Sha);
 
             var author = new Signature("nulltoken", "emeric.fermas@gmail.com", DateTimeOffset.Parse("Wed, Dec 14 2011 08:29:03 +0100"));
-            repo.Commit("Initial commit", author, author);
+            var commit = repo.Commit("Initial commit", author, author);
 
             relativeFilepath = "big.txt";
             var zeros = new string('0', 32*1024 + 3);
@@ -33,6 +33,8 @@ namespace LibGit2Sharp.Tests
             ie = repo.Index[relativeFilepath];
             Assert.NotNull(ie);
             Assert.Equal("6518215c4274845a759cb498998fe696c42e3e0f", ie.Id.Sha);
+
+            return commit;
         }
 
         private static void AssertGeneratedShas(Repository repo)
@@ -147,6 +149,34 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        [Fact]
+        public void CanPushWithACustomBackend()
+        {
+            string remoteRepoPath = InitNewRepository(true);
+            string localRepoPath = InitNewRepository();
+            Commit commit;
+
+            using (var localRepo = new Repository(localRepoPath))
+            {
+                localRepo.ObjectDatabase.AddBackend(new MockOdbBackend(), 5);
+
+                commit = AddCommitToRepo(localRepo);
+
+                Remote remote = localRepo.Network.Remotes.Add("origin", remoteRepoPath);
+
+                localRepo.Branches.Update(localRepo.Head,
+                    b => b.Remote = remote.Name,
+                    b => b.UpstreamBranch = localRepo.Head.CanonicalName);
+
+                localRepo.Network.Push(localRepo.Head);
+            }
+
+            using (var remoteRepo = new Repository(remoteRepoPath))
+            {
+                Assert.Equal(commit, remoteRepo.Head.Tip);
+            }
+        }
+
         #region MockOdbBackend
 
         private class MockOdbBackend : OdbBackend
@@ -160,7 +190,8 @@ namespace LibGit2Sharp.Tests
                         OdbBackendOperations.Write |
                         OdbBackendOperations.WriteStream |
                         OdbBackendOperations.Exists |
-                        OdbBackendOperations.ForEach;
+                        OdbBackendOperations.ForEach |
+                        OdbBackendOperations.ReadHeader;
                 }
             }
 
@@ -270,15 +301,28 @@ namespace LibGit2Sharp.Tests
                 return m_objectIdToContent.ContainsKey(oid);
             }
 
+            public override int ReadHeader(ObjectId oid, out int length, out ObjectType objectType)
+            {
+                objectType = default(ObjectType);
+                length = 0;
+
+                MockGitObject gitObject;
+
+                if (!m_objectIdToContent.TryGetValue(oid, out gitObject))
+                {
+                    return (int)ReturnCode.GIT_ENOTFOUND;
+                }
+
+                objectType = gitObject.ObjectType;
+                length = (int)gitObject.Length;
+
+                return (int)ReturnCode.GIT_OK;
+            }
+
             private readonly Dictionary<ObjectId, MockGitObject> m_objectIdToContent =
                 new Dictionary<ObjectId, MockGitObject>();
 
             #region Unimplemented
-
-            public override int ReadHeader(ObjectId oid, out int length, out ObjectType objectType)
-            {
-                throw new NotImplementedException();
-            }
 
             public override int ReadStream(ObjectId oid, out OdbBackendStream stream)
             {
