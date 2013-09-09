@@ -337,38 +337,6 @@ namespace LibGit2Sharp
         /// <summary>
         /// Rewrite some of the commits in the repository and all the references that can reach them.
         /// </summary>
-        /// <param name="commitsToRewrite">The <see cref="Commit"/> objects to rewrite.</param>
-        /// <param name="commitHeaderRewriter">Visitor for rewriting commit metadata.</param>
-        /// <param name="commitTreeRewriter">Visitor for rewriting commit trees.</param>
-        /// <param name="tagNameRewriter">Visitor for renaming tags. This is called with (OldTag.Name, OldTag.IsAnnotated, OldTarget).</param>
-        /// <param name="commitParentsRewriter">Visitor for mangling parent links.</param>
-        /// <param name="backupRefsNamespace">Namespace where to store the rewritten references (defaults to "refs/original/")</param>
-        [Obsolete("This method will be removed in the next release. Please use overload with RewriteHistoryOptions.")]
-        public virtual void RewriteHistory(
-            IEnumerable<Commit> commitsToRewrite,
-            Func<Commit, CommitRewriteInfo> commitHeaderRewriter = null,
-            Func<Commit, TreeDefinition> commitTreeRewriter = null,
-            Func<String, bool, GitObject, string> tagNameRewriter = null,
-            Func<IEnumerable<Commit>, IEnumerable<Commit>> commitParentsRewriter = null,
-            string backupRefsNamespace = "refs/original/")
-        {
-            RewriteHistory(new RewriteHistoryOptions
-            {
-                BackupRefsNamespace = backupRefsNamespace,
-                CommitHeaderRewriter = commitHeaderRewriter,
-                CommitParentsRewriter = commitParentsRewriter == null
-                                            ? default(Func<Commit, IEnumerable<Commit>>)
-                                            : (c => commitParentsRewriter(c.Parents)),
-                CommitTreeRewriter = commitTreeRewriter,
-                TagNameRewriter = tagNameRewriter == null
-                                      ? default(Func<string, bool, string, string>)
-                                      : (n, a, t) => tagNameRewriter(n, a, repo.Lookup(t)),
-            }, commitsToRewrite);
-        }
-
-        /// <summary>
-        /// Rewrite some of the commits in the repository and all the references that can reach them.
-        /// </summary>
         /// <param name="options">Specifies behavior for this rewrite.</param>
         /// <param name="commitsToRewrite">The <see cref="Commit"/> objects to rewrite.</param>
         public virtual void RewriteHistory(RewriteHistoryOptions options, params Commit[] commitsToRewrite)
