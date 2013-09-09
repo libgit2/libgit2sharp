@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
@@ -401,21 +403,88 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        private static void AddCommitToRepo(Repository repo, int howMany)
+        {
+            var author = new Signature("nulltoken", "emeric.fermas@gmail.com", DateTimeOffset.Parse("Wed, Dec 14 2011 08:29:03 +0100"));
+
+            for (int i = 0; i < howMany; i++)
+            {
+                string relativeFilepath = string.Format("{0}.txt", i);
+                Touch(repo.Info.WorkingDirectory, relativeFilepath, string.Format("{0}\n", i));
+                repo.Index.Stage(relativeFilepath);
+
+                repo.Commit("Initial commit", author, author);                
+            }
+        }
+
+        [Fact]
+        public void CanEnumerateGeneratedGitObjects()
+        {
+            string path = InitNewRepository();
+
+            using (var repo = new Repository(path))
+            {
+                AddCommitToRepo(repo, 200);
+
+                Console.WriteLine("Enumerate_Works");
+                repo.ObjectDatabase.Enumerate_Works();
+                Console.WriteLine();
+
+                Console.WriteLine("Enumerate_DoesNotWork");
+                repo.ObjectDatabase.Enumerate_DoesNotWork();
+                Console.WriteLine();
+            }
+        }
+
+        /*
+            $ git count-objects --verbose
+            count: 43
+            size: 4
+            in-pack: 1640
+            packs: 3
+            size-pack: 425
+            prune-packable: 0
+            garbage: 0
+        */
         [Fact]
         public void CanEnumerateTheGitObjectsFromBareRepository()
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                int count = 0;
+                Console.WriteLine("Enumerate_Works");
+                repo.ObjectDatabase.Enumerate_Works();
+                Console.WriteLine();
 
-                foreach (var obj in repo.ObjectDatabase)
-                {
-                    Assert.NotNull(obj);
-                    count++;
-                }
-
-                Assert.True(count >= 1683);
+                Console.WriteLine("Enumerate_DoesNotWork");
+                repo.ObjectDatabase.Enumerate_DoesNotWork();
+                Console.WriteLine();
             }
+
+            /*
+            ------ Test started: Assembly: LibGit2Sharp.Tests.dll ------
+
+            Test 'LibGit2Sharp.Tests.ObjectDatabaseFixture.CanEnumerateTheGitObjectsFromBareRepository' failed: System.OutOfMemoryException : Insufficient memory to continue the execution of the program.
+	            at LibGit2Sharp.Core.NativeMethods.git_odb_foreach(ObjectDatabaseSafeHandle odb, git_odb_foreach_cb cb, IntPtr payload)
+	            Core\Proxy.cs(1063,0): at LibGit2Sharp.Core.Proxy.git_odb_foreach2(ObjectDatabaseSafeHandle odb)
+	            ObjectDatabase.cs(37,0): at LibGit2Sharp.ObjectDatabase.Enumerate()
+	            ObjectDatabaseFixture.cs(448,0): at LibGit2Sharp.Tests.ObjectDatabaseFixture.CanEnumerateTheGitObjectsFromBareRepository()
+  
+              1 : 1385f264afb75a56a5bec74243be9b367ba4ca08
+              2 : 181037049a54a1eb5fab404658a3a250b44335d7
+              3 : 1810dff58d8a660512d4832e740f692884338ccd
+              4 : 1a550e416326cdb4a8e127a04dd69d7a01b11cf4
+
+            ...
+
+              40 : e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
+              41 : f60079018b664e4e79329a7ef9559c8d9e0378d1
+              42 : fa49b077972391ad58037050f2a75f74e3671e92
+              43 : fd093bff70906175335656e6ce6ae05783708765
+              44 : fb20a5a4b6185d9188d82c874db3d9729ef31f3b
+
+            0 passed, 1 failed, 0 skipped, took 5,46 seconds (xUnit.net 1.9.0 build 1566).
+
+            */
         }
     }
 }

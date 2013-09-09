@@ -1059,6 +1059,33 @@ namespace LibGit2Sharp.Core
                     IntPtr.Zero));
         }
 
+        public static void git_odb_foreach_doesnt_work(
+            ObjectDatabaseSafeHandle odb)
+        {
+            int count = 0;
+            int res = UnSafeNativeMethods.git_odb_foreach(odb, (ref GitOid id, IntPtr payload) =>
+            {
+                Console.WriteLine("{0} - {1}", ++count, new ObjectId(id));
+                return 0;
+            }, IntPtr.Zero);
+
+            Ensure.ZeroResult(res);
+        }
+
+        public static void git_odb_foreach_works(
+            ObjectDatabaseSafeHandle odb)
+        {
+            int count = 0;
+            int res = NativeMethods.git_odb_foreach(odb, (IntPtr id, IntPtr payload) =>
+            {
+                var t = (GitOid)Marshal.PtrToStructure(id, typeof(GitOid));
+                Console.WriteLine("{0} - {1}", ++count, new ObjectId(t));
+                return 0;
+            }, IntPtr.Zero);
+
+            Ensure.ZeroResult(res);
+        }
+
         public static void git_odb_free(IntPtr odb)
         {
             NativeMethods.git_odb_free(odb);
@@ -1369,7 +1396,7 @@ namespace LibGit2Sharp.Core
 
         public static TagFetchMode git_remote_autotag(RemoteSafeHandle remote)
         {
-            return (TagFetchMode) NativeMethods.git_remote_autotag(remote);
+            return (TagFetchMode)NativeMethods.git_remote_autotag(remote);
         }
 
         public static RemoteSafeHandle git_remote_create(RepositorySafeHandle repo, string name, string url)
@@ -1932,7 +1959,7 @@ namespace LibGit2Sharp.Core
         {
             using (ThreadAffinity())
             {
-                int res = NativeMethods.git_stash_drop(repo, (UIntPtr) index);
+                int res = NativeMethods.git_stash_drop(repo, (UIntPtr)index);
                 Ensure.BooleanResult(res);
             }
         }

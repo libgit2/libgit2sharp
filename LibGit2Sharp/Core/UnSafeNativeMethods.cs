@@ -20,6 +20,16 @@ namespace LibGit2Sharp.Core
         [DllImport(libgit2)]
         internal static extern void git_strarray_free(ref git_strarray array);
 
+        internal delegate int git_odb_foreach_cb(
+            [In] ref GitOid id,
+            IntPtr payload);
+
+        [DllImport(libgit2)]
+        internal static extern int git_odb_foreach(
+            ObjectDatabaseSafeHandle odb,
+            git_odb_foreach_cb cb,
+            IntPtr payload);
+
         #region Nested type: git_strarray
 
         internal struct git_strarray

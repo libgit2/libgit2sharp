@@ -33,6 +33,16 @@ namespace LibGit2Sharp
             repo.RegisterForCleanup(handle);
         }
 
+        public virtual void Enumerate_Works()
+        {
+            Proxy.git_odb_foreach_works(handle);
+        }
+
+        public virtual void Enumerate_DoesNotWork()
+        {
+            Proxy.git_odb_foreach_doesnt_work(handle);
+        }
+
         #region Implementation of IEnumerable
 
         /// <summary>
