@@ -1978,7 +1978,7 @@ namespace LibGit2Sharp.Core
         /// Returns a handle to the corresponding submodule,
         /// or an invalid handle if a submodule is not found.
         /// </summary>
-        public static SubmoduleSafeHandle git_submodule_lookup(RepositorySafeHandle repo, string name)
+        public static SubmoduleSafeHandle git_submodule_lookup(RepositorySafeHandle repo, FilePath name)
         {
             using (ThreadAffinity())
             {
