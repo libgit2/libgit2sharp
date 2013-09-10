@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
@@ -103,14 +104,17 @@ namespace LibGit2Sharp.Tests
         }
 
         [Theory]
-        [InlineData("sm_changed_head")]
-        [InlineData("sm_changed_head/")]
-        public void CanStageChangeInSubmoduleViaIndexStage(string submodulePath)
+        [InlineData("sm_changed_head", false)]
+        [InlineData("sm_changed_head", true)]
+        public void CanStageChangeInSubmoduleViaIndexStage(string submodulePath, bool appendPathSeparator)
         {
+            submodulePath += appendPathSeparator ? Path.DirectorySeparatorChar : default(char?);
+
             var path = CloneSubmoduleTestRepo();
             using (var repo = new Repository(path))
             {
                 var submodule = repo.Submodules[submodulePath];
+                Assert.NotNull(submodule);
 
                 var statusBefore = submodule.RetrieveStatus();
                 Assert.Equal(SubmoduleStatus.WorkDirModified, statusBefore & SubmoduleStatus.WorkDirModified);
@@ -123,21 +127,24 @@ namespace LibGit2Sharp.Tests
         }
 
         [Theory]
-        [InlineData("sm_changed_head")]
-        [InlineData("sm_changed_head/")]
-        public void CanStageChangeInSubmoduleViaIndexStageWithOtherPaths(string submodulePath)
+        [InlineData("sm_changed_head", false)]
+        [InlineData("sm_changed_head", true)]
+        public void CanStageChangeInSubmoduleViaIndexStageWithOtherPaths(string submodulePath, bool appendPathSeparator)
         {
+            submodulePath += appendPathSeparator ? Path.DirectorySeparatorChar : default(char?);
+
             var path = CloneSubmoduleTestRepo();
             using (var repo = new Repository(path))
             {
                 var submodule = repo.Submodules[submodulePath];
+                Assert.NotNull(submodule);
 
                 var statusBefore = submodule.RetrieveStatus();
                 Assert.Equal(SubmoduleStatus.WorkDirModified, statusBefore & SubmoduleStatus.WorkDirModified);
 
                 Touch(repo.Info.WorkingDirectory, "new-file.txt");
 
-                repo.Index.Stage(new[]{ "new-file.txt", submodulePath, "does-not-exist.txt" });
+                repo.Index.Stage(new[] { "new-file.txt", submodulePath, "does-not-exist.txt" });
 
                 var statusAfter = submodule.RetrieveStatus();
                 Assert.Equal(SubmoduleStatus.IndexModified, statusAfter & SubmoduleStatus.IndexModified);
