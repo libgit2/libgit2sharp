@@ -36,23 +36,24 @@ namespace LibGit2Sharp.Core
 
         public void Execute()
         {
-            // Find out which refs lead to at least one the commits
-            var refsToRewrite = repo.Refs.ReachableFrom(targetedCommits).ToList();
-
-            var filter = new CommitFilter
-                             {
-                                 Since = refsToRewrite,
-                                 SortBy = CommitSortStrategies.Reverse | CommitSortStrategies.Topological
-                             };
-
-            var commits = repo.Commits.QueryBy(filter);
-            foreach (var commit in commits)
-            {
-                RewriteCommit(commit);
-            }
-
+            var success = false;
             try
             {
+                // Find out which refs lead to at least one the commits
+                var refsToRewrite = repo.Refs.ReachableFrom(targetedCommits).ToList();
+
+                var filter = new CommitFilter
+                {
+                    Since = refsToRewrite,
+                    SortBy = CommitSortStrategies.Reverse | CommitSortStrategies.Topological
+                };
+
+                var commits = repo.Commits.QueryBy(filter);
+                foreach (var commit in commits)
+                {
+                    RewriteCommit(commit);
+                }
+
                 // Ordering matters. In the case of `A -> B -> commit`, we need to make sure B is rewritten
                 // before A.
                 foreach (var reference in refsToRewrite.OrderBy(ReferenceDepth))
@@ -61,12 +62,28 @@ namespace LibGit2Sharp.Core
 
                     RewriteReference(reference);
                 }
-            }
-            catch (Exception)
-            {
-                foreach (var action in rollbackActions)
+
+                success = true;
+                if (options.OnSucceeding != null)
                 {
-                    action();
+                    options.OnSucceeding();
+                }
+            }
+            catch (Exception ex)
+            {
+                try
+                {
+                    if (!success && options.OnError != null)
+                    {
+                        options.OnError(ex);
+                    }
+                }
+                finally
+                {
+                    foreach (var action in rollbackActions)
+                    {
+                        action();
+                    }
                 }
 
                 throw;
