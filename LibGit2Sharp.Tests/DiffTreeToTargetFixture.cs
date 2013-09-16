@@ -43,9 +43,12 @@ namespace LibGit2Sharp.Tests
             {
                 SetUpSimpleDiffContext(repo);
 
-                TreeChanges changes = repo.Diff.Compare(repo.Head.Tip.Tree,
+                var changes = repo.Diff.Compare<TreeChanges>(repo.Head.Tip.Tree,
                     DiffTargets.WorkingDirectory);
+                Assert.Equal(1, changes.Modified.Count());
 
+                var patch = repo.Diff.Compare<Patch>(repo.Head.Tip.Tree,
+                    DiffTargets.WorkingDirectory);
                 var expected = new StringBuilder()
                     .Append("diff --git a/file.txt b/file.txt\n")
                     .Append("index ce01362..4f125e3 100644\n")
@@ -56,7 +59,7 @@ namespace LibGit2Sharp.Tests
                     .Append("+world\n")
                     .Append("+!!!\n");
 
-                Assert.Equal(expected.ToString(), changes.Patch);
+                Assert.Equal(expected.ToString(), patch);
             }
         }
 
@@ -67,7 +70,7 @@ namespace LibGit2Sharp.Tests
             {
                 Tree tree = repo.Head.Tip.Tree;
 
-                TreeChanges changes = repo.Diff.Compare(tree, DiffTargets.WorkingDirectory);
+                var changes = repo.Diff.Compare<TreeChanges>(tree, DiffTargets.WorkingDirectory);
                 Assert.NotNull(changes);
 
                 Assert.Equal(6, changes.Count());
@@ -103,9 +106,12 @@ namespace LibGit2Sharp.Tests
             {
                 SetUpSimpleDiffContext(repo);
 
-                TreeChanges changes = repo.Diff.Compare(repo.Head.Tip.Tree,
+                var changes = repo.Diff.Compare<TreeChanges>(repo.Head.Tip.Tree,
                     DiffTargets.Index | DiffTargets.WorkingDirectory);
+                Assert.Equal(1, changes.Modified.Count());
 
+                var patch = repo.Diff.Compare<Patch>(repo.Head.Tip.Tree,
+                    DiffTargets.Index | DiffTargets.WorkingDirectory);
                 var expected = new StringBuilder()
                     .Append("diff --git a/file.txt b/file.txt\n")
                     .Append("index ce01362..4f125e3 100644\n")
@@ -116,7 +122,7 @@ namespace LibGit2Sharp.Tests
                     .Append("+world\n")
                     .Append("+!!!\n");
 
-                Assert.Equal(expected.ToString(), changes.Patch);
+                Assert.Equal(expected.ToString(), patch);
             }
         }
 
@@ -158,8 +164,13 @@ namespace LibGit2Sharp.Tests
                 FileStatus state = repo.Index.RetrieveStatus("file.txt");
                 Assert.Equal(FileStatus.Removed | FileStatus.Untracked, state);
 
+                var wrkDirToIdxToTree = repo.Diff.Compare<TreeChanges>(repo.Head.Tip.Tree,
+                    DiffTargets.Index | DiffTargets.WorkingDirectory);
 
-                TreeChanges wrkDirToIdxToTree = repo.Diff.Compare(repo.Head.Tip.Tree,
+                Assert.Equal(1, wrkDirToIdxToTree.Deleted.Count());
+                Assert.Equal(0, wrkDirToIdxToTree.Modified.Count());
+
+                var patch = repo.Diff.Compare<Patch>(repo.Head.Tip.Tree,
                     DiffTargets.Index | DiffTargets.WorkingDirectory);
                 var expected = new StringBuilder()
                     .Append("diff --git a/file.txt b/file.txt\n")
@@ -170,9 +181,15 @@ namespace LibGit2Sharp.Tests
                     .Append("@@ -1 +0,0 @@\n")
                     .Append("-hello\n");
 
-                Assert.Equal(expected.ToString(), wrkDirToIdxToTree.Patch);
+                Assert.Equal(expected.ToString(), patch);
 
-                TreeChanges wrkDirToTree = repo.Diff.Compare(repo.Head.Tip.Tree,
+                var wrkDirToTree = repo.Diff.Compare<TreeChanges>(repo.Head.Tip.Tree,
+                    DiffTargets.WorkingDirectory);
+
+                Assert.Equal(0, wrkDirToTree.Deleted.Count());
+                Assert.Equal(1, wrkDirToTree.Modified.Count());
+
+                patch = repo.Diff.Compare<Patch>(repo.Head.Tip.Tree,
                     DiffTargets.WorkingDirectory);
                 expected = new StringBuilder()
                     .Append("diff --git a/file.txt b/file.txt\n")
@@ -184,7 +201,7 @@ namespace LibGit2Sharp.Tests
                     .Append("+world\n")
                     .Append("+!!!\n");
 
-                Assert.Equal(expected.ToString(), wrkDirToTree.Patch);
+                Assert.Equal(expected.ToString(), patch);
             }
         }
 
@@ -207,9 +224,12 @@ namespace LibGit2Sharp.Tests
             {
                 SetUpSimpleDiffContext(repo);
 
-                TreeChanges changes = repo.Diff.Compare(repo.Head.Tip.Tree,
+                var changes = repo.Diff.Compare<TreeChanges>(repo.Head.Tip.Tree,
                     DiffTargets.Index);
+                Assert.Equal(1, changes.Modified.Count());
 
+                var patch = repo.Diff.Compare<Patch>(repo.Head.Tip.Tree,
+                    DiffTargets.Index);
                 var expected = new StringBuilder()
                     .Append("diff --git a/file.txt b/file.txt\n")
                     .Append("index ce01362..94954ab 100644\n")
@@ -219,7 +239,7 @@ namespace LibGit2Sharp.Tests
                     .Append(" hello\n")
                     .Append("+world\n");
 
-                Assert.Equal(expected.ToString(), changes.Patch);
+                Assert.Equal(expected.ToString(), patch);
             }
         }
 
@@ -254,7 +274,7 @@ namespace LibGit2Sharp.Tests
             {
                 Tree tree = repo.Head.Tip.Tree;
 
-                TreeChanges changes = repo.Diff.Compare(tree, DiffTargets.Index);
+                var changes = repo.Diff.Compare<TreeChanges>(tree, DiffTargets.Index);
                 Assert.NotNull(changes);
 
                 Assert.Equal(3, changes.Count());
@@ -281,7 +301,7 @@ namespace LibGit2Sharp.Tests
             {
                 Tree tree = repo.Head.Tip.Tree;
 
-                TreeChanges changes = repo.Diff.Compare(tree, DiffTargets.Index,
+                var changes = repo.Diff.Compare<TreeChanges>(tree, DiffTargets.Index,
                     new[] { "deleted_staged_file.txt", "1/branch_file.txt" });
 
                 Assert.NotNull(changes);
@@ -305,11 +325,11 @@ namespace LibGit2Sharp.Tests
             {
                 Tree tree = repo.Head.Tip.Tree;
 
-                TreeChanges changes = repo.Diff.Compare(tree, DiffTargets.Index,
+                var changes = repo.Diff.Compare<TreeChanges>(tree, DiffTargets.Index,
                     new[] { "deleted_staged_file.txt", "1/branch_file.txt", "I-do/not-exist" }, new ExplicitPathsOptions { ShouldFailOnUnmatchedPath = false });
                 AssertCanCompareASubsetOfTheTreeAgainstTheIndex(changes);
 
-                changes = repo.Diff.Compare(tree, DiffTargets.Index,
+                changes = repo.Diff.Compare<TreeChanges>(tree, DiffTargets.Index,
                     new[] { "deleted_staged_file.txt", "1/branch_file.txt", "I-do/not-exist" });
                 AssertCanCompareASubsetOfTheTreeAgainstTheIndex(changes);
             }
@@ -322,7 +342,7 @@ namespace LibGit2Sharp.Tests
             {
                 Tree tree = repo.Head.Tip.Tree;
 
-                Assert.Throws<UnmatchedPathException>(() => repo.Diff.Compare(tree, DiffTargets.Index,
+                Assert.Throws<UnmatchedPathException>(() => repo.Diff.Compare<TreeChanges>(tree, DiffTargets.Index,
                     new[] { "deleted_staged_file.txt", "1/branch_file.txt", "I-do/not-exist" }, new ExplicitPathsOptions()));
             }
         }
@@ -359,11 +379,10 @@ namespace LibGit2Sharp.Tests
                 File.AppendAllText(fullpath, "\n");
                 repo.Index.Stage("file.txt");
 
-                TreeChanges changes = repo.Diff.Compare(repo.Head.Tip.Tree, DiffTargets.Index);
+                var changes = repo.Diff.Compare<TreeChanges>(repo.Head.Tip.Tree, DiffTargets.Index);
                 Assert.Equal(1, changes.Modified.Count());
-                Assert.Equal(1, changes.LinesAdded);
-                Assert.Equal(1, changes.LinesDeleted);
 
+                var patch = repo.Diff.Compare<Patch>(repo.Head.Tip.Tree, DiffTargets.Index);
                 var expected = new StringBuilder()
                     .Append("diff --git a/file.txt b/file.txt\n")
                     .Append("index 2e65efe..7898192 100644\n")
@@ -374,7 +393,9 @@ namespace LibGit2Sharp.Tests
                     .Append("\\ No newline at end of file\n")
                     .Append("+a\n");
 
-                Assert.Equal(expected.ToString(), changes.Patch);
+                Assert.Equal(expected.ToString(), patch);
+                Assert.Equal(1, patch.LinesAdded);
+                Assert.Equal(1, patch.LinesDeleted);
             }
         }
 
@@ -384,11 +405,11 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(BareTestRepoPath))
             {
                 Assert.Throws<BareRepositoryException>(
-                    () => repo.Diff.Compare(repo.Head.Tip.Tree, DiffTargets.WorkingDirectory));
+                    () => repo.Diff.Compare<TreeChanges>(repo.Head.Tip.Tree, DiffTargets.WorkingDirectory));
                 Assert.Throws<BareRepositoryException>(
-                    () => repo.Diff.Compare(repo.Head.Tip.Tree, DiffTargets.Index));
+                    () => repo.Diff.Compare<TreeChanges>(repo.Head.Tip.Tree, DiffTargets.Index));
                 Assert.Throws<BareRepositoryException>(
-                    () => repo.Diff.Compare(repo.Head.Tip.Tree, DiffTargets.WorkingDirectory | DiffTargets.Index));
+                    () => repo.Diff.Compare<TreeChanges>(repo.Head.Tip.Tree, DiffTargets.WorkingDirectory | DiffTargets.Index));
             }
         }
 
@@ -401,14 +422,13 @@ namespace LibGit2Sharp.Tests
             {
                 SetUpSimpleDiffContext(repo);
 
-                TreeChanges changes = repo.Diff.Compare(null,
+                var changes = repo.Diff.Compare<TreeChanges>(null,
                     DiffTargets.Index);
 
                 Assert.Equal(1, changes.Count());
                 Assert.Equal(1, changes.Added.Count());
 
                 Assert.Equal("file.txt", changes.Added.Single().Path);
-                Assert.Equal(2, changes.Added.Single().LinesAdded);
             }
         }
 
@@ -421,14 +441,13 @@ namespace LibGit2Sharp.Tests
             {
                 SetUpSimpleDiffContext(repo);
 
-                TreeChanges changes = repo.Diff.Compare(null,
+                var changes = repo.Diff.Compare<TreeChanges>(null,
                     DiffTargets.WorkingDirectory);
 
                 Assert.Equal(1, changes.Count());
                 Assert.Equal(1, changes.Added.Count());
 
                 Assert.Equal("file.txt", changes.Added.Single().Path);
-                Assert.Equal(3, changes.Added.Single().LinesAdded);
             }
         }
 
@@ -441,14 +460,13 @@ namespace LibGit2Sharp.Tests
             {
                 SetUpSimpleDiffContext(repo);
 
-                TreeChanges changes = repo.Diff.Compare(null,
+                var changes = repo.Diff.Compare<TreeChanges>(null,
                     DiffTargets.WorkingDirectory | DiffTargets.Index);
 
                 Assert.Equal(1, changes.Count());
                 Assert.Equal(1, changes.Added.Count());
 
                 Assert.Equal("file.txt", changes.Added.Single().Path);
-                Assert.Equal(3, changes.Added.Single().LinesAdded);
             }
         }
     }

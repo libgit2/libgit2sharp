@@ -64,7 +64,6 @@
     <Compile Include="BranchCollectionExtensions.cs" />
     <Compile Include="BranchTrackingDetails.cs" />
     <Compile Include="BranchUpdater.cs" />
-    <Compile Include="Changes.cs" />
     <Compile Include="CheckoutCallbacks.cs" />
     <Compile Include="CheckoutModifiers.cs" />
     <Compile Include="CheckoutNotificationOptions.cs" />
@@ -83,6 +82,7 @@
     <Compile Include="DiffModifiers.cs" />
     <Compile Include="ObjectType.cs" />
     <Compile Include="Core\UniqueIdentifier.cs" />
+    <Compile Include="Patch.cs" />
     <Compile Include="ReferenceExtensions.cs" />
     <Compile Include="Conflict.cs" />
     <Compile Include="ConflictCollection.cs" />
