@@ -1,7 +1,7 @@
 $solutionDir = [System.IO.Path]::GetDirectoryName($dte.Solution.FullName) + "\"
 $path = $installPath.Replace($solutionDir, "`$(SolutionDir)")
 
-$NativeAssembliesDir = Join-Path $path "NativeBinaries"
+$NativeAssembliesDir = Join-Path $path "lib\net35\NativeBinaries"
 $x86 = $(Join-Path $NativeAssembliesDir "x86\*.*")
 $x64 = $(Join-Path $NativeAssembliesDir "amd64\*.*")
 
