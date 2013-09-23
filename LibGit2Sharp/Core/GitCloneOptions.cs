@@ -9,6 +9,7 @@ namespace LibGit2Sharp.Core
         public uint Version = 1;
 
         public GitCheckoutOpts CheckoutOpts;
+        public IntPtr InitOptions;
         public int Bare;
         public NativeMethods.git_transfer_progress_callback TransferProgressCallback;
         public IntPtr TransferProgressPayload;

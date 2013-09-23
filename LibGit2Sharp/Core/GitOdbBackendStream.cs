@@ -22,6 +22,9 @@ namespace LibGit2Sharp.Core
         public GitOdbBackendStreamMode Mode;
         public IntPtr HashCtx;
 
+        public UIntPtr DeclaredSize;
+        public UIntPtr ReceivedBytes;
+
         public read_callback Read;
         public write_callback Write;
         public finalize_write_callback FinalizeWrite;

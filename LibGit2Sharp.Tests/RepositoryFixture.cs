@@ -228,7 +228,7 @@ namespace LibGit2Sharp.Tests
         {
             Assert.NotNull(repo.Info.Path);
             Assert.False(repo.Info.IsHeadDetached);
-            Assert.True(repo.Info.IsHeadOrphaned);
+            Assert.True(repo.Info.IsHeadUnborn);
 
             Reference headRef = repo.Refs.Head;
             Assert.NotNull(headRef);
@@ -541,13 +541,13 @@ namespace LibGit2Sharp.Tests
             {
                 string branchName = repo.Head.CanonicalName;
 
-                Assert.False(repo.Info.IsHeadOrphaned);
+                Assert.False(repo.Info.IsHeadUnborn);
 
                 repo.Refs.Add("HEAD", "refs/heads/orphan", true);
-                Assert.True(repo.Info.IsHeadOrphaned);
+                Assert.True(repo.Info.IsHeadUnborn);
 
                 repo.Refs.Add("HEAD", branchName, true);
-                Assert.False(repo.Info.IsHeadOrphaned);
+                Assert.False(repo.Info.IsHeadUnborn);
             }
         }
 

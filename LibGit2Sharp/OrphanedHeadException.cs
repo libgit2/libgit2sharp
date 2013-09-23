@@ -8,7 +8,8 @@ namespace LibGit2Sharp
     /// branch is performed against an unborn branch.
     /// </summary>
     [Serializable]
-    public class OrphanedHeadException : LibGit2SharpException
+    [Obsolete("This type will be removed in the next release. Please use UnbornBranchException instead.")]
+    public class OrphanedHeadException : UnbornBranchException
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="OrphanedHeadException"/> class.

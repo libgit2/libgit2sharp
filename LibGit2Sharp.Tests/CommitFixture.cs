@@ -640,7 +640,7 @@ namespace LibGit2Sharp.Tests
                 AssertBlobContent(commit[relativeFilepath], "nulltoken\n");
 
                 Assert.Equal(0, commit.Parents.Count());
-                Assert.False(repo.Info.IsHeadOrphaned);
+                Assert.False(repo.Info.IsHeadUnborn);
 
                 // Assert a reflog entry is created on HEAD
                 Assert.Equal(1, repo.Refs.Log("HEAD").Count());
@@ -804,7 +804,7 @@ namespace LibGit2Sharp.Tests
 
             using (var repo = new Repository(repoPath))
             {
-                Assert.Throws<OrphanedHeadException>(() => repo.Commit("I can not amend anything !:(", Constants.Signature, Constants.Signature, true));
+                Assert.Throws<UnbornBranchException>(() => repo.Commit("I can not amend anything !:(", Constants.Signature, Constants.Signature, true));
             }
         }
 

@@ -665,7 +665,7 @@ namespace LibGit2Sharp
             // Make sure this is not an unborn branch.
             if (branch.Tip == null)
             {
-                throw new OrphanedHeadException(
+                throw new UnbornBranchException(
                     string.Format(CultureInfo.InvariantCulture,
                     "The tip of branch '{0}' is null. There's nothing to checkout.", branch.Name));
             }
@@ -865,11 +865,11 @@ namespace LibGit2Sharp
         /// <returns>The generated <see cref="Commit"/>.</returns>
         public Commit Commit(string message, Signature author, Signature committer, bool amendPreviousCommit = false)
         {
-            bool isHeadOrphaned = Info.IsHeadOrphaned;
+            bool isHeadOrphaned = Info.IsHeadUnborn;
 
             if (amendPreviousCommit && isHeadOrphaned)
             {
-                throw new OrphanedHeadException("Can not amend anything. The Head doesn't point at any commit.");
+                throw new UnbornBranchException("Can not amend anything. The Head doesn't point at any commit.");
             }
 
             var treeId = Proxy.git_tree_create_fromindex(Index);
@@ -925,7 +925,7 @@ namespace LibGit2Sharp
                 return Head.Tip.Parents;
             }
 
-            if (Info.IsHeadOrphaned)
+            if (Info.IsHeadUnborn)
             {
                 return Enumerable.Empty<Commit>();
             }

@@ -361,9 +361,9 @@ namespace LibGit2Sharp.Tests
 
             using (var repo = new Repository(repoPath))
             {
-                Assert.True(repo.Info.IsHeadOrphaned);
+                Assert.True(repo.Info.IsHeadUnborn);
 
-                Assert.Throws<OrphanedHeadException>(() => repo.Checkout(repo.Head));
+                Assert.Throws<UnbornBranchException>(() => repo.Checkout(repo.Head));
             }
         }
 

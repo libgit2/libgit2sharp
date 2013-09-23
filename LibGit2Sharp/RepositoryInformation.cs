@@ -1,4 +1,5 @@
-﻿using LibGit2Sharp.Core;
+﻿using System;
+using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
 {
@@ -62,9 +63,19 @@ namespace LibGit2Sharp
         /// <summary>
         /// Indicates whether the Head points to a reference which doesn't exist.
         /// </summary>
+        [Obsolete("This property will be removed in the next release. Please use IsHeadUnborn instead.")]
         public virtual bool IsHeadOrphaned
         {
-            get { return Proxy.git_repository_head_orphan(repo.Handle); }
+            get { return IsHeadUnborn; }
+        }
+
+
+        /// <summary>
+        /// Indicates whether the Head points to a reference which doesn't exist.
+        /// </summary>
+        public virtual bool IsHeadUnborn
+        {
+            get { return Proxy.git_repository_head_unborn(repo.Handle); }
         }
 
         /// <summary>

@@ -602,7 +602,7 @@ namespace LibGit2Sharp.Tests
 
             using (var repo = new Repository(repoPath))
             {
-                Assert.True(repo.Info.IsHeadOrphaned);
+                Assert.True(repo.Info.IsHeadUnborn);
                 Assert.Equal(0, repo.Tags.Count());
             }
         }

@@ -23,5 +23,9 @@ namespace LibGit2Sharp.Core
         Thread,
         Stash,
         Checkout,
+        FetchHead,
+        Merge,
+        Ssh,
+        Filter,
     }
 }

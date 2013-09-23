@@ -212,7 +212,7 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNull(paths, "paths");
 
-            if (repo.Info.IsHeadOrphaned)
+            if (repo.Info.IsHeadUnborn)
             {
                 var compareOptions = new CompareOptions { SkipPatchBuilding = true };
                 TreeChanges changes = repo.Diff.Compare(null, DiffTargets.Index, paths, explicitPathsOptions, compareOptions);

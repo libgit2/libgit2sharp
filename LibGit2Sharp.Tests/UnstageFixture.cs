@@ -162,7 +162,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(CloneStandardTestRepo()))
             {
                 repo.Refs.UpdateTarget("HEAD", "refs/heads/orphaned");
-                Assert.True(repo.Info.IsHeadOrphaned);
+                Assert.True(repo.Info.IsHeadUnborn);
 
                 Assert.Equal(currentStatus, repo.Index.RetrieveStatus(relativePath));
 
@@ -178,7 +178,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(CloneStandardTestRepo()))
             {
                 repo.Refs.UpdateTarget("HEAD", "refs/heads/orphaned");
-                Assert.True(repo.Info.IsHeadOrphaned);
+                Assert.True(repo.Info.IsHeadUnborn);
 
                 Assert.Equal(currentStatus, repo.Index.RetrieveStatus(relativePath));
 

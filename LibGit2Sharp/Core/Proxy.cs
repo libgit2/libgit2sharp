@@ -1556,9 +1556,9 @@ namespace LibGit2Sharp.Core
             NativeMethods.git_repository_free(repo);
         }
 
-        public static bool git_repository_head_orphan(RepositorySafeHandle repo)
+        public static bool git_repository_head_unborn(RepositorySafeHandle repo)
         {
-            return RepositoryStateChecker(repo, NativeMethods.git_repository_head_orphan);
+            return RepositoryStateChecker(repo, NativeMethods.git_repository_head_unborn);
         }
 
         public static IndexSafeHandle git_repository_index(RepositorySafeHandle repo)

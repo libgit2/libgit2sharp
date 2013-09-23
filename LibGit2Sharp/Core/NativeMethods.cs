@@ -879,7 +879,7 @@ namespace LibGit2Sharp.Core
         internal static extern int git_repository_head_detached(RepositorySafeHandle repo);
 
         [DllImport(libgit2)]
-        internal static extern int git_repository_head_orphan(RepositorySafeHandle repo);
+        internal static extern int git_repository_head_unborn(RepositorySafeHandle repo);
 
         [DllImport(libgit2)]
         internal static extern int git_repository_index(out IndexSafeHandle index, RepositorySafeHandle repo);

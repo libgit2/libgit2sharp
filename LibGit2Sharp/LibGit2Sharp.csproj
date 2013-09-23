@@ -72,6 +72,7 @@
     <Compile Include="CommitFilter.cs" />
     <Compile Include="CommitSortStrategies.cs" />
     <Compile Include="CompareOptions.cs" />
+    <Compile Include="UnbornBranchException.cs" />
     <Compile Include="LockedFileException.cs" />
     <Compile Include="Core\GitRepositoryInitOptions.cs" />
     <Compile Include="Core\HistoryRewriter.cs" />
