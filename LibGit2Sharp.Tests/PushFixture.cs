@@ -77,5 +77,43 @@ namespace LibGit2Sharp.Tests
                         repo.Network.Push(branch);
                     }));
         }
+
+        [Fact]
+        public void CanPushToALocalBareRepository()
+        {
+            String path = InitNewRepository();
+
+            // Initial repo
+            using (var repo = new Repository(path))
+            {
+                Touch(repo.Info.WorkingDirectory,
+                    "test.txt",
+                    "This is a test document which will be committed.");
+
+                repo.Index.Stage("test.txt");
+                repo.Commit("Test commit.", Constants.Signature, Constants.Signature);
+                Assert.NotNull(repo.Head.Tip);
+            }
+
+            // Cloning into a bare repository
+            // This will be behave like a server-side repository
+            SelfCleaningDirectory scd1 = BuildSelfCleaningDirectory();
+            string bareClonedPath = Repository.Clone(path, scd1.DirectoryPath, true);
+
+            // Cloning again into a standard repository
+            // This will be behave like a standard client repository
+            SelfCleaningDirectory scd2 = BuildSelfCleaningDirectory();
+            string standardClonedPath = Repository.Clone(bareClonedPath, scd2.DirectoryPath);
+
+            using (var repo = new Repository(standardClonedPath))
+            {
+                var branch = repo.Branches.Add("otherBranch", repo.Head.Tip);
+                repo.Branches.Update(branch, b => b.TrackedBranch = "refs/remotes/origin/otherBranch");
+
+                repo.Branches["otherBranch"].Checkout();
+
+                Assert.DoesNotThrow(() => repo.Network.Push(repo.Head, OnPushStatusError));
+            }
+        }
     }
 }
