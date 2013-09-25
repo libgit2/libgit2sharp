@@ -8,6 +8,18 @@
  - CI server: <http://teamcity.codebetter.com/project.html?projectId=project127&guest=1>
  - @libgit2sharp: <http://twitter.com/libgit2sharp>
 
+## v0.14.1 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.14.0...v0.14.1))
+
+### Changes
+
+ - Rename OrphanedHeadException into UnbornBranchException
+
+### Fixes
+
+ - Fix handling of http->https redirects
+ - Make probing for libgit2 binaries work from within the NuGet packages folder
+ - Accept submodule paths with native directory separators
+
 ## v0.14.0 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.13.0...v0.14.0))
 
 ### Additions
