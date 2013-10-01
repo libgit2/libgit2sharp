@@ -107,7 +107,6 @@
     <Compile Include="Core\GitRemoteHead.cs" />
     <Compile Include="ReflogEntry.cs" />
     <Compile Include="Stash.cs" />
-    <Compile Include="OrphanedHeadException.cs" />
     <Compile Include="StashCollection.cs" />
     <Compile Include="ExplicitPathsOptions.cs" />
     <Compile Include="Submodule.cs" />

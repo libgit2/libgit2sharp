@@ -63,16 +63,6 @@ namespace LibGit2Sharp
         /// <summary>
         /// Indicates whether the Head points to a reference which doesn't exist.
         /// </summary>
-        [Obsolete("This property will be removed in the next release. Please use IsHeadUnborn instead.")]
-        public virtual bool IsHeadOrphaned
-        {
-            get { return IsHeadUnborn; }
-        }
-
-
-        /// <summary>
-        /// Indicates whether the Head points to a reference which doesn't exist.
-        /// </summary>
         public virtual bool IsHeadUnborn
         {
             get { return Proxy.git_repository_head_unborn(repo.Handle); }
