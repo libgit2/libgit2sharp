@@ -19,6 +19,8 @@ namespace LibGit2Sharp.Tests.TestHelpers
         {
             // Do the set up in the static ctor so it only happens once
             SetUpTestEnvironment();
+
+            DirectoryHelper.DeleteSubdirectories(Constants.TemporaryReposPath);
         }
 
         public static string BareTestRepoPath { get; private set; }
