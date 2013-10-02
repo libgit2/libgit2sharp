@@ -4,8 +4,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using System.Runtime.InteropServices;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Compat;
+using LibGit2Sharp.Core.Handles;
 
 namespace LibGit2Sharp
 {
@@ -17,20 +19,22 @@ namespace LibGit2Sharp
     public class RepositoryStatus : IEnumerable<StatusEntry>
     {
         private readonly ICollection<StatusEntry> statusEntries;
-        private readonly List<string> added = new List<string>();
-        private readonly List<string> staged = new List<string>();
-        private readonly List<string> removed = new List<string>();
-        private readonly List<string> missing = new List<string>();
-        private readonly List<string> modified = new List<string>();
-        private readonly List<string> untracked = new List<string>();
-        private readonly List<string> ignored = new List<string>();
+        private readonly List<StatusEntry> added = new List<StatusEntry>();
+        private readonly List<StatusEntry> staged = new List<StatusEntry>();
+        private readonly List<StatusEntry> removed = new List<StatusEntry>();
+        private readonly List<StatusEntry> missing = new List<StatusEntry>();
+        private readonly List<StatusEntry> modified = new List<StatusEntry>();
+        private readonly List<StatusEntry> untracked = new List<StatusEntry>();
+        private readonly List<StatusEntry> ignored = new List<StatusEntry>();
+        private readonly List<StatusEntry> renamedInIndex = new List<StatusEntry>();
+        private readonly List<StatusEntry> renamedInWorkDir = new List<StatusEntry>();
         private readonly bool isDirty;
 
-        private readonly IDictionary<FileStatus, Action<RepositoryStatus, string>> dispatcher = Build();
+        private readonly IDictionary<FileStatus, Action<RepositoryStatus, StatusEntry>> dispatcher = Build();
 
-        private static IDictionary<FileStatus, Action<RepositoryStatus, string>> Build()
+        private static IDictionary<FileStatus, Action<RepositoryStatus, StatusEntry>> Build()
         {
-            return new Dictionary<FileStatus, Action<RepositoryStatus, string>>
+            return new Dictionary<FileStatus, Action<RepositoryStatus, StatusEntry>>
                        {
                            { FileStatus.Untracked, (rs, s) => rs.untracked.Add(s) },
                            { FileStatus.Modified, (rs, s) => rs.modified.Add(s) },
@@ -38,7 +42,9 @@ namespace LibGit2Sharp
                            { FileStatus.Added, (rs, s) => rs.added.Add(s) },
                            { FileStatus.Staged, (rs, s) => rs.staged.Add(s) },
                            { FileStatus.Removed, (rs, s) => rs.removed.Add(s) },
+                           { FileStatus.RenamedInIndex, (rs, s) => rs.renamedInIndex.Add(s) },
                            { FileStatus.Ignored, (rs, s) => rs.ignored.Add(s) },
+                           { FileStatus.RenamedInWorkDir, (rs, s) => rs.renamedInWorkDir.Add(s) }
                        };
         }
 
@@ -48,34 +54,118 @@ namespace LibGit2Sharp
         protected RepositoryStatus()
         { }
 
-        internal RepositoryStatus(Repository repo)
+        internal RepositoryStatus(Repository repo, StatusOptions options)
         {
-            statusEntries = Proxy.git_status_foreach(repo.Handle, StateChanged);
-            isDirty = statusEntries.Any(entry => entry.State != FileStatus.Ignored);
+            statusEntries = new List<StatusEntry>();
+
+            using (GitStatusOptions coreOptions = CreateStatusOptions(options ?? new StatusOptions()))
+            {
+                StatusListSafeHandle list = Proxy.git_status_list_new(repo.Handle, coreOptions);
+                int count = Proxy.git_status_list_entrycount(list);
+
+                for (int i = 0; i < count; i++)
+                {
+                    StatusEntrySafeHandle e = Proxy.git_status_byindex(list, i);
+                    GitStatusEntry entry = e.MarshalAsGitStatusEntry();
+
+                    GitDiffDelta deltaHeadToIndex = null;
+                    GitDiffDelta deltaIndexToWorkDir = null;
+
+                    if (entry.HeadToIndexPtr != IntPtr.Zero)
+                    {
+                        deltaHeadToIndex = (GitDiffDelta)Marshal.PtrToStructure(entry.HeadToIndexPtr, typeof(GitDiffDelta));
+                    }
+                    if (entry.IndexToWorkDirPtr != IntPtr.Zero)
+                    {
+                        deltaIndexToWorkDir = (GitDiffDelta)Marshal.PtrToStructure(entry.IndexToWorkDirPtr, typeof(GitDiffDelta));
+                    }
+
+                    AddStatusEntryForDelta(entry.Status, deltaHeadToIndex, deltaIndexToWorkDir);
+                }
+
+                isDirty = statusEntries.Any(entry => entry.State != FileStatus.Ignored);
+            }
         }
 
-        private StatusEntry StateChanged(IntPtr filePathPtr, uint state)
+        private static GitStatusOptions CreateStatusOptions(StatusOptions options)
         {
-            FilePath filePath = LaxFilePathMarshaler.FromNative(filePathPtr);
-            var gitStatus = (FileStatus)state;
+            var coreOptions = new GitStatusOptions
+            {
+                Version = 1,
+                Show = (GitStatusShow)options.Show,
+                Flags =
+                    GitStatusOptionFlags.IncludeIgnored |
+                    GitStatusOptionFlags.IncludeUntracked |
+                    GitStatusOptionFlags.RecurseUntrackedDirs,
+            };
 
-            foreach (KeyValuePair<FileStatus, Action<RepositoryStatus, string>> kvp in dispatcher)
+            if (options.DetectRenamesInIndex)
+            {
+                coreOptions.Flags |=
+                    GitStatusOptionFlags.RenamesHeadToIndex |
+                    GitStatusOptionFlags.RenamesFromRewrites;
+            }
+
+            if (options.DetectRenamesInWorkDir)
+            {
+                coreOptions.Flags |=
+                    GitStatusOptionFlags.RenamesIndexToWorkDir |
+                    GitStatusOptionFlags.RenamesFromRewrites;
+            }
+
+            if (options.ExcludeSubmodules)
+            {
+                coreOptions.Flags |=
+                    GitStatusOptionFlags.ExcludeSubmodules;
+            }
+
+            return coreOptions;
+        }
+
+        private void AddStatusEntryForDelta(FileStatus gitStatus, GitDiffDelta deltaHeadToIndex, GitDiffDelta deltaIndexToWorkDir)
+        {
+            RenameDetails headToIndexRenameDetails = null;
+            RenameDetails indexToWorkDirRenameDetails = null;
+
+            if ((gitStatus & FileStatus.RenamedInIndex) == FileStatus.RenamedInIndex)
+            {
+                headToIndexRenameDetails = new RenameDetails(
+                    LaxFilePathMarshaler.FromNative(deltaHeadToIndex.OldFile.Path).Native,
+                    LaxFilePathMarshaler.FromNative(deltaHeadToIndex.NewFile.Path).Native,
+                    (int)deltaHeadToIndex.Similarity);
+            }
+
+            if ((gitStatus & FileStatus.RenamedInWorkDir) == FileStatus.RenamedInWorkDir)
+            {
+                indexToWorkDirRenameDetails = new RenameDetails(
+                    LaxFilePathMarshaler.FromNative(deltaIndexToWorkDir.OldFile.Path).Native,
+                    LaxFilePathMarshaler.FromNative(deltaIndexToWorkDir.NewFile.Path).Native,
+                    (int)deltaIndexToWorkDir.Similarity);
+            }
+
+            var filePath = (deltaIndexToWorkDir != null) ?
+                LaxFilePathMarshaler.FromNative(deltaIndexToWorkDir.NewFile.Path).Native :
+                LaxFilePathMarshaler.FromNative(deltaHeadToIndex.NewFile.Path).Native;
+
+            StatusEntry statusEntry = new StatusEntry(filePath, gitStatus, headToIndexRenameDetails, indexToWorkDirRenameDetails);
+
+            foreach (KeyValuePair<FileStatus, Action<RepositoryStatus, StatusEntry>> kvp in dispatcher)
             {
                 if (!gitStatus.HasFlag(kvp.Key))
                 {
                     continue;
                 }
 
-                kvp.Value(this, filePath.Native);
+                kvp.Value(this, statusEntry);
             }
 
-            return new StatusEntry(filePath.Native, gitStatus);
+            statusEntries.Add(statusEntry);
         }
 
         /// <summary>
-        /// Gets the <see cref="FileStatus"/> for the specified relative path.
+        /// Gets the <see cref="StatusEntry"/> for the specified relative path.
         /// </summary>
-        public virtual FileStatus this[string path]
+        public virtual StatusEntry this[string path]
         {
             get
             {
@@ -87,10 +177,10 @@ namespace LibGit2Sharp
 
                 if (entries.Count == 0)
                 {
-                    return FileStatus.Nonexistent;
+                    return new StatusEntry(path, FileStatus.Nonexistent);
                 }
 
-                return entries.Single().State;
+                return entries.Single();
             }
         }
 
@@ -115,7 +205,7 @@ namespace LibGit2Sharp
         /// <summary>
         /// List of files added to the index, which are not in the current commit
         /// </summary>
-        public virtual IEnumerable<string> Added
+        public virtual IEnumerable<StatusEntry> Added
         {
             get { return added; }
         }
@@ -123,7 +213,7 @@ namespace LibGit2Sharp
         /// <summary>
         /// List of files added to the index, which are already in the current commit with different content
         /// </summary>
-        public virtual IEnumerable<string> Staged
+        public virtual IEnumerable<StatusEntry> Staged
         {
             get { return staged; }
         }
@@ -131,7 +221,7 @@ namespace LibGit2Sharp
         /// <summary>
         /// List of files removed from the index but are existent in the current commit
         /// </summary>
-        public virtual IEnumerable<string> Removed
+        public virtual IEnumerable<StatusEntry> Removed
         {
             get { return removed; }
         }
@@ -139,7 +229,7 @@ namespace LibGit2Sharp
         /// <summary>
         /// List of files existent in the index but are missing in the working directory
         /// </summary>
-        public virtual IEnumerable<string> Missing
+        public virtual IEnumerable<StatusEntry> Missing
         {
             get { return missing; }
         }
@@ -147,7 +237,7 @@ namespace LibGit2Sharp
         /// <summary>
         /// List of files with unstaged modifications. A file may be modified and staged at the same time if it has been modified after adding.
         /// </summary>
-        public virtual IEnumerable<string> Modified
+        public virtual IEnumerable<StatusEntry> Modified
         {
             get { return modified; }
         }
@@ -155,7 +245,7 @@ namespace LibGit2Sharp
         /// <summary>
         /// List of files existing in the working directory but are neither tracked in the index nor in the current commit.
         /// </summary>
-        public virtual IEnumerable<string> Untracked
+        public virtual IEnumerable<StatusEntry> Untracked
         {
             get { return untracked; }
         }
@@ -163,9 +253,25 @@ namespace LibGit2Sharp
         /// <summary>
         /// List of files existing in the working directory that are ignored.
         /// </summary>
-        public virtual IEnumerable<string> Ignored
+        public virtual IEnumerable<StatusEntry> Ignored
         {
             get { return ignored; }
+        }
+
+        /// <summary>
+        /// List of files that were renamed and staged.
+        /// </summary>
+        public virtual IEnumerable<StatusEntry> RenamedInIndex
+        {
+            get { return renamedInIndex; }
+        }
+
+        /// <summary>
+        /// List of files that were renamed in the working directory but have not been staged.
+        /// </summary>
+        public virtual IEnumerable<StatusEntry> RenamedInWorkDir
+        {
+            get { return renamedInWorkDir; }
         }
 
         /// <summary>

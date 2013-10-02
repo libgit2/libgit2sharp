@@ -1127,13 +1127,25 @@ namespace LibGit2Sharp.Core
             RepositorySafeHandle repo,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictFilePathMarshaler))] FilePath filepath);
 
-        internal delegate int git_status_cb(
-            IntPtr path,
-            uint statusflags,
-            IntPtr payload);
 
         [DllImport(libgit2)]
-        internal static extern int git_status_foreach(RepositorySafeHandle repo, git_status_cb cb, IntPtr payload);
+        internal static extern int git_status_list_new(
+            out StatusListSafeHandle git_status_list,
+            RepositorySafeHandle repo,
+            GitStatusOptions options);
+
+        [DllImport(libgit2)]
+        internal static extern int git_status_list_entrycount(
+            StatusListSafeHandle statusList);
+
+        [DllImport(libgit2)]
+        internal static extern StatusEntrySafeHandle git_status_byindex(
+            StatusListSafeHandle list,
+            UIntPtr idx);
+
+        [DllImport(libgit2)]
+        internal static extern void git_status_list_free(
+            IntPtr statusList);
 
         [DllImport(libgit2)]
         internal static extern int git_submodule_lookup(

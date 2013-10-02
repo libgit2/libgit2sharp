@@ -2178,9 +2178,35 @@ namespace LibGit2Sharp.Core
             }
         }
 
-        public static ICollection<TResult> git_status_foreach<TResult>(RepositorySafeHandle repo, Func<IntPtr, uint, TResult> resultSelector)
+        public static StatusListSafeHandle git_status_list_new(RepositorySafeHandle repo, GitStatusOptions options)
         {
-            return git_foreach(resultSelector, c => NativeMethods.git_status_foreach(repo, (x, y, p) => c(x, y, p), IntPtr.Zero));
+            using (ThreadAffinity())
+            {
+                StatusListSafeHandle handle;
+                int res = NativeMethods.git_status_list_new(out handle, repo, options);
+                Ensure.ZeroResult(res);
+                return handle;
+            }
+        }
+
+        public static int git_status_list_entrycount(StatusListSafeHandle list)
+        {
+            using (ThreadAffinity())
+            {
+                int res = NativeMethods.git_status_list_entrycount(list);
+                Ensure.Int32Result(res);
+                return res;
+            }
+        }
+
+        public static StatusEntrySafeHandle git_status_byindex(StatusListSafeHandle list, long idx)
+        {
+            return NativeMethods.git_status_byindex(list, (UIntPtr)idx);
+        }
+
+        public static void git_status_list_free(IntPtr statusList)
+        {
+            NativeMethods.git_status_list_free(statusList);
         }
 
         #endregion

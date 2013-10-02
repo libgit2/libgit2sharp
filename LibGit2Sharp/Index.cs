@@ -498,11 +498,13 @@ namespace LibGit2Sharp
         /// <summary>
         /// Retrieves the state of all files in the working directory, comparing them against the staging area and the latest commmit.
         /// </summary>
+        /// <param name="options">If set, the options that control the status investigation.</param>
         /// <returns>A <see cref="RepositoryStatus"/> holding the state of all the files.</returns>
-        public virtual RepositoryStatus RetrieveStatus()
+        public virtual RepositoryStatus RetrieveStatus(StatusOptions options = null)
         {
             ReloadFromDisk();
-            return new RepositoryStatus(repo);
+
+            return new RepositoryStatus(repo, options);
         }
 
         internal void Reset(TreeChanges changes)

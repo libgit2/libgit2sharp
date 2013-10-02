@@ -93,7 +93,7 @@ namespace LibGit2Sharp.Tests
                     "deleted_unstaged_file.txt", "modified_staged_file.txt", "modified_unstaged_file.txt" };
 
                 Assert.Equal(expected.Length, newStatus.Where(IsStaged).Count());
-                Assert.Equal(expected, newStatus.Removed);
+                Assert.Equal(expected, newStatus.Removed.Select(s => s.FilePath));
             }
         }
 
@@ -111,7 +111,7 @@ namespace LibGit2Sharp.Tests
                     "deleted_unstaged_file.txt", "modified_staged_file.txt", "modified_unstaged_file.txt" };
 
                 Assert.Equal(expected.Length, newStatus.Where(IsStaged).Count());
-                Assert.Equal(expected, newStatus.Removed);
+                Assert.Equal(expected, newStatus.Removed.Select(s => s.FilePath));
             }
         }
 

@@ -89,6 +89,12 @@
     <Compile Include="ResetMode.cs" />
     <Compile Include="NoteCollectionExtensions.cs" />
     <Compile Include="RefSpecDirection.cs" />
+    <Compile Include="Core\GitStatusEntry.cs" />
+    <Compile Include="Core\GitStatusOptions.cs" />
+    <Compile Include="Core\Handles\StatusEntrySafeHandle.cs" />
+    <Compile Include="Core\Handles\StatusListSafeHandle.cs" />
+    <Compile Include="RenameDetails.cs" />
+    <Compile Include="StatusOptions.cs" />
     <Compile Include="UnbornBranchException.cs" />
     <Compile Include="LockedFileException.cs" />
     <Compile Include="Core\GitRepositoryInitOptions.cs" />
