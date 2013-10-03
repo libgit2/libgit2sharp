@@ -783,9 +783,7 @@ namespace LibGit2Sharp.Core
 
         [DllImport(libgit2)]
         internal static extern int git_remote_download(
-            RemoteSafeHandle remote,
-            git_transfer_progress_callback progress_cb,
-            IntPtr payload);
+            RemoteSafeHandle remote);
 
         [DllImport(libgit2)]
         internal static extern void git_remote_free(IntPtr remote);
@@ -814,12 +812,6 @@ namespace LibGit2Sharp.Core
 
         [DllImport(libgit2)]
         internal static extern int git_remote_save(RemoteSafeHandle remote);
-
-        [DllImport(libgit2)]
-        internal static extern void git_remote_set_cred_acquire_cb(
-            RemoteSafeHandle remote,
-            git_cred_acquire_cb cred_acquire_cb,
-            IntPtr payload);
 
         [DllImport(libgit2)]
         [return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(Utf8NoCleanupMarshaler))]
