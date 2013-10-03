@@ -20,6 +20,7 @@ namespace LibGit2Sharp.Tests
         public override void Dispose()
         {
             repo.Dispose();
+            base.Dispose();
         }
 
         [Fact]
