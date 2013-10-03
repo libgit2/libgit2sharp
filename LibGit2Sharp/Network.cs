@@ -111,30 +111,14 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNull(remote, "remote");
 
-            // We need to keep a reference to the git_cred_acquire_cb callback around
-            // so it will not be garbage collected before we are done with it.
-            // Note that we also have a GC.KeepAlive call at the end of the method.
-            NativeMethods.git_cred_acquire_cb credentialCallback = null;
-
             using (RemoteSafeHandle remoteHandle = Proxy.git_remote_load(repository.Handle, remote.Name, true))
             {
-                var callbacks = new RemoteCallbacks(onProgress, onCompletion, onUpdateTips);
+                var callbacks = new RemoteCallbacks(onProgress, onTransferProgress, onCompletion, onUpdateTips, credentials);
                 GitRemoteCallbacks gitCallbacks = callbacks.GenerateCallbacks();
 
                 if (tagFetchMode.HasValue)
                 {
                     Proxy.git_remote_set_autotag(remoteHandle, tagFetchMode.Value);
-                }
-
-                if (credentials != null)
-                {
-                    credentialCallback = (out IntPtr cred, IntPtr url, IntPtr username_from_url, uint types, IntPtr payload) =>
-                        NativeMethods.git_cred_userpass_plaintext_new(out cred, credentials.Username, credentials.Password);
-
-                    Proxy.git_remote_set_cred_acquire_cb(
-                        remoteHandle,
-                        credentialCallback,
-                        IntPtr.Zero);
                 }
 
                 // It is OK to pass the reference to the GitCallbacks directly here because libgit2 makes a copy of
@@ -150,7 +134,7 @@ namespace LibGit2Sharp
                 try
                 {
                     Proxy.git_remote_connect(remoteHandle, GitDirection.Fetch);
-                    Proxy.git_remote_download(remoteHandle, onTransferProgress);
+                    Proxy.git_remote_download(remoteHandle);
                     Proxy.git_remote_update_tips(remoteHandle);
                 }
                 finally
@@ -158,10 +142,6 @@ namespace LibGit2Sharp
                     Proxy.git_remote_disconnect(remoteHandle);
                 }
             }
-
-            // To be safe, make sure the credential callback is kept until
-            // alive until at least this point.
-            GC.KeepAlive(credentialCallback);
         }
 
         /// <summary>
@@ -222,11 +202,6 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(remote, "remote");
             Ensure.ArgumentNotNull(pushRefSpecs, "pushRefSpecs");
 
-            // We need to keep a reference to the git_cred_acquire_cb callback around
-            // so it will not be garbage collected before we are done with it.
-            // Note that we also have a GC.KeepAlive call at the end of the method.
-            NativeMethods.git_cred_acquire_cb credentialCallback = null;
-
             // Return early if there is nothing to push.
             if (!pushRefSpecs.Any())
             {
@@ -238,16 +213,9 @@ namespace LibGit2Sharp
             // Load the remote.
             using (RemoteSafeHandle remoteHandle = Proxy.git_remote_load(repository.Handle, remote.Name, true))
             {
-                if (credentials != null)
-                {
-                    credentialCallback = (out IntPtr cred, IntPtr url, IntPtr username_from_url, uint types, IntPtr payload) =>
-                        NativeMethods.git_cred_userpass_plaintext_new(out cred, credentials.Username, credentials.Password);
-
-                    Proxy.git_remote_set_cred_acquire_cb(
-                        remoteHandle,
-                        credentialCallback,
-                        IntPtr.Zero);
-                }
+                var callbacks = new RemoteCallbacks(null, null, null, null, credentials);
+                GitRemoteCallbacks gitCallbacks = callbacks.GenerateCallbacks();
+                Proxy.git_remote_set_callbacks(remoteHandle, ref gitCallbacks);
 
                 try
                 {
@@ -279,10 +247,6 @@ namespace LibGit2Sharp
                     Proxy.git_remote_disconnect(remoteHandle);
                 }
             }
-
-            // To be safe, make sure the credential callback is kept
-            // alive until at least this point.
-            GC.KeepAlive(credentialCallback);
         }
 
         /// <summary>

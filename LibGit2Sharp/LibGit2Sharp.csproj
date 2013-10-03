@@ -192,7 +192,6 @@
     <Compile Include="Note.cs" />
     <Compile Include="RepositoryNotFoundException.cs" />
     <Compile Include="TagFetchMode.cs" />
-    <Compile Include="TransferCallbacks.cs" />
     <Compile Include="TransferProgress.cs" />
     <Compile Include="TreeChanges.cs" />
     <Compile Include="TreeEntryChanges.cs" />
