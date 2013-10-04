@@ -493,6 +493,9 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(FilePathMarshaler))] FilePath indexpath);
 
         [DllImport(libgit2)]
+        internal static extern int git_index_read(IndexSafeHandle index);
+
+        [DllImport(libgit2)]
         internal static extern int git_index_remove_bypath(
             IndexSafeHandle index,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(FilePathMarshaler))] FilePath path);

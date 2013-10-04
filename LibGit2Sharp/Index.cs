@@ -505,6 +505,7 @@ namespace LibGit2Sharp
         /// <returns>A <see cref="RepositoryStatus"/> holding the state of all the files.</returns>
         public virtual RepositoryStatus RetrieveStatus()
         {
+            ReloadFromDisk();
             return new RepositoryStatus(repo);
         }
 
@@ -557,6 +558,11 @@ namespace LibGit2Sharp
 
             Proxy.git_index_add(handle, indexEntry);
             Marshal.FreeHGlobal(indexEntry.Path);
+        }
+
+        internal void ReloadFromDisk()
+        {
+            Proxy.git_index_read(handle);
         }
 
         private string DebuggerDisplay
