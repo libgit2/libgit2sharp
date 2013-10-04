@@ -11,7 +11,7 @@ namespace LibGit2Sharp
     public class UnbornBranchException : LibGit2SharpException
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="OrphanedHeadException"/> class.
+        /// Initializes a new instance of the <see cref="UnbornBranchException"/> class.
         /// </summary>
         public UnbornBranchException()
         {

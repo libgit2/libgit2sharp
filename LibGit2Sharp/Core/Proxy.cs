@@ -1406,13 +1406,11 @@ namespace LibGit2Sharp.Core
             return NativeMethods.git_remote_get_refspec(remote, (UIntPtr)n);
         }
 
-        public static void git_remote_download(RemoteSafeHandle remote, TransferProgressHandler onTransferProgress)
+        public static void git_remote_download(RemoteSafeHandle remote)
         {
             using (ThreadAffinity())
             {
-                NativeMethods.git_transfer_progress_callback cb = TransferCallbacks.GenerateCallback(onTransferProgress);
-
-                int res = NativeMethods.git_remote_download(remote, cb, IntPtr.Zero);
+                int res = NativeMethods.git_remote_download(remote);
                 Ensure.ZeroResult(res);
             }
         }
@@ -1503,11 +1501,6 @@ namespace LibGit2Sharp.Core
                 int res = NativeMethods.git_remote_set_callbacks(remote, ref callbacks);
                 Ensure.ZeroResult(res);
             }
-        }
-
-        public static void git_remote_set_cred_acquire_cb(RemoteSafeHandle remote, NativeMethods.git_cred_acquire_cb cred_acquire_cb, IntPtr payload)
-        {
-            NativeMethods.git_remote_set_cred_acquire_cb(remote, cred_acquire_cb, payload);
         }
 
         public static void git_remote_update_tips(RemoteSafeHandle remote)

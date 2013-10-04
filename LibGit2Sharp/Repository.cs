@@ -559,11 +559,13 @@ namespace LibGit2Sharp
             Credentials credentials = null)
         {
             CheckoutCallbacks checkoutCallbacks = CheckoutCallbacks.GenerateCheckoutCallbacks(onCheckoutProgress, null);
+            
+            var callbacks = new RemoteCallbacks(null, onTransferProgress, null, null, credentials);
+            GitRemoteCallbacks gitCallbacks = callbacks.GenerateCallbacks();
 
             var cloneOpts = new GitCloneOptions
             {
                 Bare = bare ? 1 : 0,
-                TransferProgressCallback = TransferCallbacks.GenerateCallback(onTransferProgress),
                 CheckoutOpts =
                 {
                     version = 1,
@@ -573,24 +575,14 @@ namespace LibGit2Sharp
                                             ? CheckoutStrategy.GIT_CHECKOUT_SAFE_CREATE
                                             : CheckoutStrategy.GIT_CHECKOUT_NONE
                 },
+                RemoteCallbacks = gitCallbacks,
             };
-
-            if (credentials != null)
-            {
-                cloneOpts.CredAcquireCallback =
-                    (out IntPtr cred, IntPtr url, IntPtr username_from_url, uint types, IntPtr payload) =>
-                    NativeMethods.git_cred_userpass_plaintext_new(out cred, credentials.Username, credentials.Password);
-            }
 
             FilePath repoPath;
             using (RepositorySafeHandle repo = Proxy.git_clone(sourceUrl, workdirPath, cloneOpts))
             {
                 repoPath = Proxy.git_repository_path(repo);
             }
-
-            // To be safe, make sure the credential callback is kept until
-            // alive until at least this point.
-            GC.KeepAlive(cloneOpts.CredAcquireCallback);
 
             return repoPath.Native;
         }

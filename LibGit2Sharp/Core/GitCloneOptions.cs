@@ -9,21 +9,12 @@ namespace LibGit2Sharp.Core
         public uint Version = 1;
 
         public GitCheckoutOpts CheckoutOpts;
-        public IntPtr InitOptions;
+        public GitRemoteCallbacks RemoteCallbacks;
+
         public int Bare;
-        public NativeMethods.git_transfer_progress_callback TransferProgressCallback;
-        public IntPtr TransferProgressPayload;
+        public int IgnoreCertErrors;
 
         public IntPtr RemoteName;
-        public IntPtr PushUrl;
-        public IntPtr FetchSpec;
-        public IntPtr PushSpec;
-
-        public NativeMethods.git_cred_acquire_cb CredAcquireCallback;
-        public IntPtr CredAcquirePayload;
-
-        public IntPtr Transport;
-        public GitRemoteCallbacks RemoteCallbacks;
-        public int RemoteAutotag;
+        public IntPtr CheckoutBranch;
     }
 }
