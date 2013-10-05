@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using LibGit2Sharp.Core;
@@ -170,6 +171,42 @@ namespace LibGit2Sharp.Tests.TestHelpers
             }
 
             throw new SkipException(message);
+        }
+
+        protected void RequiresDotNetOrMonoGreaterThanOrEqualTo(Version minimumVersion)
+        {
+            Type type = Type.GetType("Mono.Runtime");
+
+            if (type == null)
+            {
+                // We're running on top of .Net
+                return;
+            }
+
+            MethodInfo displayName = type.GetMethod("GetDisplayName", BindingFlags.NonPublic | BindingFlags.Static);
+
+            if (displayName == null)
+            {
+                throw new InvalidOperationException("Cannot access Mono.RunTime.GetDisplayName() method.");
+            }
+
+            var version = (string) displayName.Invoke(null, null);
+
+            Version current;
+
+            try
+            {
+                current = new Version(version.Split(' ')[0]);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(string.Format("Cannot parse Mono version '{0}'.", version), e);
+            }
+
+            InconclusiveIf(() => current < minimumVersion,
+                string.Format(
+                    "Current Mono version is {0}. Minimum required version to run this test is {1}.",
+                    current, minimumVersion));
         }
 
         protected static void AssertValueInConfigFile(string configFilePath, string regex)
