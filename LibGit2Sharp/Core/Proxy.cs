@@ -776,6 +776,15 @@ namespace LibGit2Sharp.Core
             }
         }
 
+        public static void git_index_read(IndexSafeHandle index)
+        {
+            using (ThreadAffinity())
+            {
+                int res = NativeMethods.git_index_read(index);
+                Ensure.ZeroResult(res);
+            }
+        }
+
         public static void git_index_remove_bypath(IndexSafeHandle index, FilePath path)
         {
             using (ThreadAffinity())
