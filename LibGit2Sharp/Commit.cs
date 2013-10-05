@@ -107,7 +107,7 @@ namespace LibGit2Sharp
                 return string.Empty; //TODO: Add some test coverage
             }
 
-            return Message.Split('\n')[0];
+            return Message.Split('\n').FirstOrDefault(s => !string.IsNullOrEmpty(s)) ?? string.Empty;
         }
 
         private IEnumerable<Note> RetrieveNotesOfCommit(ObjectId oid)
