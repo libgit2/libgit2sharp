@@ -102,6 +102,7 @@
     <Compile Include="ResetHeadFixture.cs" />
     <Compile Include="FetchFixture.cs" />
     <Compile Include="ResetIndexFixture.cs" />
+    <Compile Include="SmartSubtransportFixture.cs" />
     <Compile Include="StatusFixture.cs" />
     <Compile Include="TestHelpers\BaseFixture.cs" />
     <Compile Include="BlobFixture.cs" />

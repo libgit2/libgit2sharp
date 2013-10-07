@@ -83,6 +83,7 @@
     <Compile Include="Core\GitIndexReucEntry.cs" />
     <Compile Include="Core\Handles\IndexNameEntrySafeHandle.cs" />
     <Compile Include="Core\Handles\IndexReucEntrySafeHandle.cs" />
+    <Compile Include="EntryExistsException.cs" />
     <Compile Include="IndexNameEntryCollection.cs" />
     <Compile Include="ContentChangeStats.cs" />
     <Compile Include="BuiltInFeatures.cs" />
@@ -103,6 +104,7 @@
     <Compile Include="IndexNameEntry.cs" />
     <Compile Include="MergeOptions.cs" />
     <Compile Include="MergeResult.cs" />
+    <Compile Include="NotFoundException.cs" />
     <Compile Include="PatchEntryChanges.cs" />
     <Compile Include="PatchStats.cs" />
     <Compile Include="PullOptions.cs" />
@@ -196,6 +198,7 @@
     <Compile Include="Core\GitCloneOptions.cs" />
     <Compile Include="Core\GitConfigEntry.cs" />
     <Compile Include="Core\GitObjectLazyGroup.cs" />
+    <Compile Include="Core\GitSmartSubtransportRegistration.cs" />
     <Compile Include="Core\GitTransferProgress.cs" />
     <Compile Include="Core\Handles\NullGitObjectSafeHandle.cs" />
     <Compile Include="Core\Handles\NullIndexSafeHandle.cs" />
@@ -223,6 +226,11 @@
     <Compile Include="RemoteCompletionType.cs" />
     <Compile Include="CurrentOperation.cs" />
     <Compile Include="StageLevel.cs" />
+    <Compile Include="SmartSubtransport.cs" />
+    <Compile Include="SmartSubtransportRegistration.cs" />
+    <Compile Include="SmartSubtransportStream.cs" />
+    <Compile Include="Core\GitSmartSubtransport.cs" />
+    <Compile Include="Core\GitSmartSubtransportStream.cs" />
     <Compile Include="TagCollectionExtensions.cs" />
     <Compile Include="Core\FilePath.cs" />
     <Compile Include="Core\FilePathExtensions.cs" />

@@ -2928,6 +2928,40 @@ namespace LibGit2Sharp.Core
 
         #endregion
 
+        #region git_transport_
+
+        public static void git_transport_register(String prefix, IntPtr transport_cb, IntPtr param)
+        {
+            using (ThreadAffinity())
+            {
+                int res = NativeMethods.git_transport_register(prefix, transport_cb, param);
+
+                if (res == (int)GitErrorCode.Exists)
+                {
+                    throw new EntryExistsException(String.Format("A custom transport for '{0}' is already registered", prefix));
+                }
+
+                Ensure.ZeroResult(res);
+            }
+        }
+
+        public static void git_transport_unregister(String prefix)
+        {
+            using (ThreadAffinity())
+            {
+                int res = NativeMethods.git_transport_unregister(prefix);
+
+                if (res == (int)GitErrorCode.NotFound)
+                {
+                    throw new NotFoundException("The given transport was not found");
+                }
+
+                Ensure.ZeroResult(res);
+            }
+        }
+
+        #endregion
+
         #region git_tree_
 
         public static Mode git_tree_entry_attributes(SafeHandle entry)

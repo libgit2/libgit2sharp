@@ -1491,6 +1491,24 @@ namespace LibGit2Sharp.Core
 
         internal delegate int git_transfer_progress_callback(ref GitTransferProgress stats, IntPtr payload);
 
+        internal delegate int git_transport_cb(out IntPtr transport, IntPtr remote, IntPtr payload);
+
+        [DllImport(libgit2)]
+        internal static extern int git_transport_register(
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string prefix,
+            IntPtr transport_cb,
+            IntPtr payload);
+
+        [DllImport(libgit2)]
+        internal static extern int git_transport_smart(
+            out IntPtr transport,
+            IntPtr remote,
+            IntPtr definition);
+
+        [DllImport(libgit2)]
+        internal static extern int git_transport_unregister(
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string prefix);
+
         [DllImport(libgit2)]
         internal static extern uint git_tree_entry_filemode(SafeHandle entry);
 
