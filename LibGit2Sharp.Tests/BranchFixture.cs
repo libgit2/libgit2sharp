@@ -43,6 +43,40 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
+        public void CanCreateAnUnbornBranch()
+        {
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
+            {
+                // No branch named orphan
+                Assert.Null(repo.Branches["orphan"]);
+
+                // HEAD doesn't point to an unborn branch
+                Assert.False(repo.Info.IsHeadUnborn);
+
+                // Let's move the HEAD to this branch to be created
+                repo.Refs.UpdateTarget("HEAD", "refs/heads/orphan");
+                Assert.True(repo.Info.IsHeadUnborn);
+
+                // The branch still doesn't exist
+                Assert.Null(repo.Branches["orphan"]);
+
+                // Create a commit against HEAD
+                Commit c = repo.Commit("New initial root commit", Constants.Signature, Constants.Signature);
+
+                // Ensure this commit has no parent
+                Assert.Equal(0, c.Parents.Count());
+
+                // The branch now exists...
+                Branch orphan = repo.Branches["orphan"];
+                Assert.NotNull(orphan);
+
+                // ...and points to that newly created commit
+                Assert.Equal(c, orphan.Tip);
+            }
+        }
+
+        [Fact]
         public void CanCreateBranchUsingAbbreviatedSha()
         {
             string path = CloneBareTestRepo();
