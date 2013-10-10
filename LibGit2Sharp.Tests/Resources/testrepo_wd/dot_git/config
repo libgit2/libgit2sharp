@@ -21,3 +21,4 @@
 [unittests]
 	longsetting = 15234
 	intsetting = 2
+[i18n]
