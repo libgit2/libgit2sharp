@@ -879,6 +879,27 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(1, repo.Head.Commits.Count());
             }
         }
+
+        [Fact]
+        public void HandlesWrite_i18n_commitEncoding()
+        {
+            string encoding = "windows-1250";
+            string message = "This commit is created by Janusz Białobrzewski";
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
+            {
+                repo.Config.Set("i18n.commitEncoding", encoding);
+
+                var committer = new Signature("Janusz Białobrzewski", "jbialobr@o2.pl",
+                                           Epoch.ToDateTimeOffset(1244286496, 120));
+
+                Commit c = repo.Commit(message, committer, committer);
+
+                Assert.Equal(encoding, c.Encoding);
+                Assert.Equal(message, c.Message);
+            }
+        }
+
         [Fact]
         public void HandlesRead_i18n_commitEncoding()
         {
