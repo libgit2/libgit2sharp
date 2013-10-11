@@ -56,7 +56,7 @@ namespace LibGit2Sharp
 
         private StatusEntry StateChanged(IntPtr filePathPtr, uint state)
         {
-            var filePath = FilePathMarshaler.FromNative(filePathPtr);
+            FilePath filePath = Utf8Marshaler.FromNative(filePathPtr);
             var gitStatus = (FileStatus)state;
 
             foreach (KeyValuePair<FileStatus, Action<RepositoryStatus, string>> kvp in dispatcher)

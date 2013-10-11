@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Globalization;
 using System.Runtime.InteropServices;
 
 namespace LibGit2Sharp.Core
@@ -46,36 +45,18 @@ namespace LibGit2Sharp.Core
     ///                MarshalCookie = UniqueId.UniqueIdentifier,
     ///                MarshalTypeRef = typeof(FilePathMarshaler))] FilePath indexpath);
     /// </summary>
-    internal class FilePathMarshaler : ICustomMarshaler
+    internal class FilePathMarshaler : Utf8Marshaler
     {
         private static readonly FilePathMarshaler staticInstance = new FilePathMarshaler();
 
-        public static ICustomMarshaler GetInstance(String cookie)
+        public new static ICustomMarshaler GetInstance(String cookie)
         {
             return staticInstance;
         }
 
         #region ICustomMarshaler
 
-        public void CleanUpManagedData(Object managedObj)
-        {
-        }
-
-        public virtual void CleanUpNativeData(IntPtr pNativeData)
-        {
-            if (IntPtr.Zero != pNativeData)
-            {
-                Marshal.FreeHGlobal(pNativeData);
-            }
-        }
-
-        public int GetNativeDataSize()
-        {
-            // Not a value type
-            return -1;
-        }
-
-        public IntPtr MarshalManagedToNative(Object managedObj)
+        public override IntPtr MarshalManagedToNative(Object managedObj)
         {
             if (null == managedObj)
             {
@@ -86,59 +67,28 @@ namespace LibGit2Sharp.Core
 
             if (null == filePath)
             {
-                var expectedType = typeof(FilePath);
-                var actualType = managedObj.GetType();
-
                 throw new MarshalDirectiveException(
-                    string.Format(CultureInfo.InvariantCulture,
-                    "FilePathMarshaler must be used on a FilePath. Expected '{0}' from '{1}'; received '{2}' from '{3}'.",
-                    expectedType.FullName, expectedType.Assembly.Location,
-                    actualType.FullName, actualType.Assembly.Location));
+                    string.Format("{0} must be used on a FilePath.", GetType().Name));
             }
 
             return FromManaged(filePath);
         }
 
-        public Object MarshalNativeToManaged(IntPtr pNativeData)
+        public override Object MarshalNativeToManaged(IntPtr pNativeData)
         {
-            return FromNative(pNativeData);
+            return (FilePath)FromNative(pNativeData);
         }
 
         #endregion
 
         public static IntPtr FromManaged(FilePath filePath)
         {
-            if (null == filePath)
+            if (filePath == null)
             {
                 return IntPtr.Zero;
             }
 
             return Utf8Marshaler.FromManaged(filePath.Posix);
-        }
-
-        public static FilePath FromNative(IntPtr pNativeData)
-        {
-            if (IntPtr.Zero == pNativeData)
-            {
-                return null;
-            }
-
-            if (0 == Marshal.ReadByte(pNativeData))
-            {
-                return FilePath.Empty;
-            }
-
-            return Utf8Marshaler.FromNative(pNativeData);
-        }
-
-        public static FilePath FromNative(IntPtr pNativeData, int length)
-        {
-            if (0 == length)
-            {
-                return FilePath.Empty;
-            }
-
-            return Utf8Marshaler.FromNative(pNativeData, length);
         }
     }
 }

@@ -103,7 +103,8 @@ namespace LibGit2Sharp
             int result = 0;
             if (this.onCheckoutNotify != null)
             {
-                string path = (pathPtr != IntPtr.Zero) ? FilePathMarshaler.FromNative(pathPtr).Native : string.Empty;
+                string path = (pathPtr != IntPtr.Zero) ?
+                    ((FilePath)Utf8Marshaler.FromNative(pathPtr)).Native : string.Empty;
                 result = onCheckoutNotify(path, why) ? 0 : 1;
             }
 

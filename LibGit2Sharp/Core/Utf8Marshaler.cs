@@ -46,143 +46,43 @@ namespace LibGit2Sharp.Core
     ///                MarshalCookie = UniqueId.UniqueIdentifier,
     ///                MarshalTypeRef = typeof(Utf8Marshaler))] String tagName);
     /// </summary>
-    internal class Utf8Marshaler : ICustomMarshaler
+    internal class Utf8Marshaler : EncodingMarshaler
     {
-        private static readonly Utf8Marshaler staticInstance = new Utf8Marshaler();
+        private static readonly Utf8Marshaler staticInstance;
+        private static readonly Encoding encoding;
+
+        static Utf8Marshaler()
+        {
+            encoding = Encoding.UTF8;
+            staticInstance = new Utf8Marshaler();
+        }
+
+        public Utf8Marshaler() : base(encoding)
+        { }
 
         public static ICustomMarshaler GetInstance(String cookie)
         {
             return staticInstance;
         }
 
-        #region ICustomMarshaler
-
-        public void CleanUpManagedData(Object managedObj)
+        public static IntPtr FromManaged(String value)
         {
+            return FromManaged(encoding, value);
         }
 
-        public virtual void CleanUpNativeData(IntPtr pNativeData)
+        public static string FromNative(IntPtr pNativeData)
         {
-            if (IntPtr.Zero != pNativeData)
-            {
-                Marshal.FreeHGlobal(pNativeData);
-            }
+            return FromNative(encoding, pNativeData);
         }
 
-        public int GetNativeDataSize()
+        public static String FromNative(IntPtr pNativeData, int length)
         {
-            // Not a value type
-            return -1;
-        }
-
-        public IntPtr MarshalManagedToNative(Object managedObj)
-        {
-            if (null == managedObj)
-            {
-                return IntPtr.Zero;
-            }
-
-            String str = managedObj as String;
-
-            if (null == str)
-            {
-                throw new MarshalDirectiveException("Utf8Marshaler must be used on a string.");
-            }
-
-            return FromManaged(str);
-        }
-
-        public Object MarshalNativeToManaged(IntPtr pNativeData)
-        {
-            return FromNative(pNativeData);
-        }
-
-        #endregion
-
-        public static unsafe IntPtr FromManaged(String value)
-        {
-            if (null == value)
-            {
-                return IntPtr.Zero;
-            }
-
-            int length = Encoding.UTF8.GetByteCount(value);
-            byte* buffer = (byte*)Marshal.AllocHGlobal(length + 1).ToPointer();
-
-            if (length > 0)
-            {
-                fixed (char* pValue = value)
-                {
-                    Encoding.UTF8.GetBytes(pValue, value.Length, buffer, length);
-                }
-            }
-
-            buffer[length] = 0;
-
-            return new IntPtr(buffer);
-        }
-
-        public static unsafe String FromNative(IntPtr pNativeData)
-        {
-            if (IntPtr.Zero == pNativeData)
-            {
-                return null;
-            }
-
-            byte* start = (byte*)pNativeData;
-            byte* walk = start;
-
-            // Find the end of the string
-            while (*walk != 0)
-            {
-                walk++;
-            }
-
-            if (walk == start)
-            {
-                return String.Empty;
-            }
-
-            return new String((sbyte*)pNativeData.ToPointer(), 0, (int)(walk - start), Encoding.UTF8);
-        }
-
-        public static unsafe String FromNative(IntPtr pNativeData, int length)
-        {
-            if (IntPtr.Zero == pNativeData)
-            {
-                return null;
-            }
-
-            if (0 == length)
-            {
-                return String.Empty;
-            }
-
-            return new String((sbyte*)pNativeData.ToPointer(), 0, length, Encoding.UTF8);
+            return FromNative(encoding, pNativeData, length);
         }
 
         public static String Utf8FromBuffer(byte[] buffer)
         {
-            if (null == buffer)
-            {
-                return null;
-            }
-
-            int length = 0;
-            int stop = buffer.Length;
-
-            while (length < stop &&
-                   0 != buffer[length])
-            {
-                length++;
-            }
-
-            if (0 == length)
-            {
-                return String.Empty;
-            }
-
-            return Encoding.UTF8.GetString(buffer, 0, length);
+            return FromBuffer(encoding, buffer);
         }
     }
 }
