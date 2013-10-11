@@ -35,6 +35,9 @@ namespace LibGit2Sharp
         /// <param name="when">The when.</param>
         public Signature(string name, string email, DateTimeOffset when)
         {
+            Ensure.ArgumentDoesNotContainZeroByte(name, "name");
+            Ensure.ArgumentDoesNotContainZeroByte(email, "email");
+
             this.name = name;
             this.email = email;
             this.when = when;

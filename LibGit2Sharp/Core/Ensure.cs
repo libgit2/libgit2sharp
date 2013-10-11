@@ -39,6 +39,37 @@ namespace LibGit2Sharp.Core
             }
         }
 
+        /// <summary>
+        /// Checks a string argument to ensure it doesn't contain a zero byte.
+        /// </summary>
+        /// <param name="argumentValue">The argument value to check.</param>
+        /// <param name="argumentName">The name of the argument.</param>
+        public static void ArgumentDoesNotContainZeroByte(string argumentValue, string argumentName)
+        {
+            if (string.IsNullOrEmpty(argumentValue))
+            {
+                return;
+            }
+
+            int zeroPos = -1;
+            for (var i = 0; i < argumentValue.Length; i++)
+            {
+                if (argumentValue[i] == '\0')
+                {
+                    zeroPos = i;
+                    break;
+                }
+            }
+
+            if (zeroPos == -1)
+            {
+                return;
+            }
+
+            throw new ArgumentException(
+                string.Format("Zero bytes ('\\0') are not allowed. A zero byte has been found at position {0}.", zeroPos), argumentName);
+        }
+
         private static readonly Dictionary<GitErrorCode, Func<string, GitErrorCode, GitErrorCategory, LibGit2SharpException>>
             GitErrorsToLibGit2SharpExceptions =
                 new Dictionary<GitErrorCode, Func<string, GitErrorCode, GitErrorCategory, LibGit2SharpException>>
