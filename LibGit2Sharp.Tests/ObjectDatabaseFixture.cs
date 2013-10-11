@@ -450,5 +450,36 @@ namespace LibGit2Sharp.Tests
                     "name", repo.Head.Tip, Constants.Signature, input));
             }
         }
+
+        [Fact]
+        public void CreatingATagAnnotationWithBadParametersThrows()
+        {
+            using (var repo = new Repository(BareTestRepoPath))
+            {
+                Assert.Throws<ArgumentNullException>(() => repo.ObjectDatabase.CreateTagAnnotation(
+                    null, repo.Head.Tip, Constants.Signature, "message"));
+                Assert.Throws<ArgumentException>(() => repo.ObjectDatabase.CreateTagAnnotation(
+                    string.Empty, repo.Head.Tip, Constants.Signature, "message"));
+                Assert.Throws<ArgumentNullException>(() => repo.ObjectDatabase.CreateTagAnnotation(
+                    "name", null, Constants.Signature, "message"));
+                Assert.Throws<ArgumentNullException>(() => repo.ObjectDatabase.CreateTagAnnotation(
+                    "name", repo.Head.Tip, null, "message"));
+                Assert.Throws<ArgumentNullException>(() => repo.ObjectDatabase.CreateTagAnnotation(
+                    "name", repo.Head.Tip, Constants.Signature, null));
+            }
+        }
+
+        [Fact]
+        public void CanCreateATagAnnotationWithAnEmptyMessage()
+        {
+            string path = CloneBareTestRepo();
+            using (var repo = new Repository(path))
+            {
+                var tagAnnotation = repo.ObjectDatabase.CreateTagAnnotation(
+                    "name", repo.Head.Tip, Constants.Signature, string.Empty);
+
+                Assert.Equal(string.Empty, tagAnnotation.Message);
+            }
+        }
     }
 }

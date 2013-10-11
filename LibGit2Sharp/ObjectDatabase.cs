@@ -222,6 +222,10 @@ namespace LibGit2Sharp
         /// <returns>The created <see cref="TagAnnotation"/>.</returns>
         public virtual TagAnnotation CreateTagAnnotation(string name, GitObject target, Signature tagger, string message)
         {
+            Ensure.ArgumentNotNullOrEmptyString(name, "name");
+            Ensure.ArgumentNotNull(message, "message");
+            Ensure.ArgumentNotNull(target, "target");
+            Ensure.ArgumentNotNull(tagger, "tagger");
             Ensure.ArgumentDoesNotContainZeroByte(name, "name");
             Ensure.ArgumentDoesNotContainZeroByte(message, "message");
 
