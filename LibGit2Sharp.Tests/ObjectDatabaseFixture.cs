@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Text;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
@@ -415,6 +416,21 @@ namespace LibGit2Sharp.Tests
                 }
 
                 Assert.True(count >= 1683);
+            }
+        }
+
+        [Theory]
+        [InlineData("\0Leading zero")]
+        [InlineData("Trailing zero\0")]
+        [InlineData("Zero \0inside")]
+        [InlineData("\0")]
+        [InlineData("\0\0\0")]
+        public void CreatingACommitWithMessageContainingZeroByteThrows(string message)
+        {
+            using (var repo = new Repository(BareTestRepoPath))
+            {
+                Assert.Throws<ArgumentException>(() => repo.ObjectDatabase.CreateCommit(
+                    message, Constants.Signature, Constants.Signature, repo.Head.Tip.Tree, Enumerable.Empty<Commit>()));
             }
         }
     }

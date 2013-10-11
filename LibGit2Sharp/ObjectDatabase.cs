@@ -198,6 +198,7 @@ namespace LibGit2Sharp
         internal Commit CreateCommit(string message, Signature author, Signature committer, Tree tree, IEnumerable<Commit> parents, string referenceName)
         {
             Ensure.ArgumentNotNull(message, "message");
+            Ensure.ArgumentDoesNotContainZeroByte(message, "message");
             Ensure.ArgumentNotNull(author, "author");
             Ensure.ArgumentNotNull(committer, "committer");
             Ensure.ArgumentNotNull(tree, "tree");
