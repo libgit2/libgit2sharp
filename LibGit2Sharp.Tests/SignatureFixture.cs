@@ -28,5 +28,20 @@ namespace LibGit2Sharp.Tests
         {
             Assert.Throws<ArgumentException>(() => new Signature("Me", email, DateTimeOffset.Now));
         }
+
+        [Fact]
+        public void CreatingASignatureWithBadParamsThrows()
+        {
+            Assert.Throws<ArgumentNullException>(() => new Signature(null, "me@there.com", DateTimeOffset.Now));
+            Assert.Throws<ArgumentException>(() => new Signature(string.Empty, "me@there.com", DateTimeOffset.Now));
+            Assert.Throws<ArgumentNullException>(() => new Signature("Me", null, DateTimeOffset.Now));
+        }
+
+        [Fact]
+        public void CanCreateASignatureWithAnEmptyEmail()
+        {
+            var sig = new Signature("Me", string.Empty, DateTimeOffset.Now);
+            Assert.Equal(string.Empty, sig.Email);
+        }
     }
 }
