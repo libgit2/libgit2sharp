@@ -222,6 +222,9 @@ namespace LibGit2Sharp
         /// <returns>The created <see cref="TagAnnotation"/>.</returns>
         public virtual TagAnnotation CreateTagAnnotation(string name, GitObject target, Signature tagger, string message)
         {
+            Ensure.ArgumentDoesNotContainZeroByte(name, "name");
+            Ensure.ArgumentDoesNotContainZeroByte(message, "message");
+
             string prettifiedMessage = Proxy.git_message_prettify(message);
 
             ObjectId tagId = Proxy.git_tag_annotation_create(repo.Handle, name, target, tagger, prettifiedMessage);

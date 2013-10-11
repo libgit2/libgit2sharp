@@ -433,5 +433,22 @@ namespace LibGit2Sharp.Tests
                     message, Constants.Signature, Constants.Signature, repo.Head.Tip.Tree, Enumerable.Empty<Commit>()));
             }
         }
+
+        [Theory]
+        [InlineData("\0Leading zero")]
+        [InlineData("Trailing zero\0")]
+        [InlineData("Zero \0inside")]
+        [InlineData("\0")]
+        [InlineData("\0\0\0")]
+        public void CreatingATagAnnotationWithNameOrMessageContainingZeroByteThrows(string input)
+        {
+            using (var repo = new Repository(BareTestRepoPath))
+            {
+                Assert.Throws<ArgumentException>(() => repo.ObjectDatabase.CreateTagAnnotation(
+                    input, repo.Head.Tip, Constants.Signature, "message"));
+                Assert.Throws<ArgumentException>(() => repo.ObjectDatabase.CreateTagAnnotation(
+                    "name", repo.Head.Tip, Constants.Signature, input));
+            }
+        }
     }
 }
