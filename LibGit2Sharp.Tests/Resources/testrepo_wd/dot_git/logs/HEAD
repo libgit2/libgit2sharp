@@ -1,3 +1,6 @@
 0000000000000000000000000000000000000000 4c062a6361ae6959e06292c1fa5e2822d9c96345 Tim Clem <timothy.clem@gmail.com> 1303768198 -0700	clone: from c:/GitHub/libgit2sharp/Resources/testrepo.git
 4c062a6361ae6959e06292c1fa5e2822d9c96345 592d3c869dbc4127fc57c189cb94f2794fa84e7e Tim Clem <timothy.clem@gmail.com> 1303835722 -0700	commit: add more test files
 592d3c869dbc4127fc57c189cb94f2794fa84e7e 32eab9cb1f450b5fe7ab663462b77d7f4b703344 nulltoken <emeric.fermas@gmail.com> 1320047537 +0100	commit: Add "1.txt" file beside "1" folder
+32eab9cb1f450b5fe7ab663462b77d7f4b703344 32eab9cb1f450b5fe7ab663462b77d7f4b703344 Janusz BiaÅ‚obrzewski <jbialobr@o2.pl> 1381379423 +0200	checkout: moving from master to win1250
+32eab9cb1f450b5fe7ab663462b77d7f4b703344 44d6630d4c4917e3eacc3e585bee47e8908efedf Janusz BiaÅ‚obrzewski <jbialobr@o2.pl> 1381379618 +0200	commit: Message in windows1250 encoding. ¹êæ³óœŸ¿
+44d6630d4c4917e3eacc3e585bee47e8908efedf 32eab9cb1f450b5fe7ab663462b77d7f4b703344 Janusz BiaÅ‚obrzewski <jbialobr@o2.pl> 1381379656 +0200	checkout: moving from win1250 to master

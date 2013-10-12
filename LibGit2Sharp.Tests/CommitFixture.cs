@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -877,6 +877,42 @@ namespace LibGit2Sharp.Tests
 
                 repo.Commit("Initial commit", Constants.Signature, Constants.Signature);
                 Assert.Equal(1, repo.Head.Commits.Count());
+            }
+        }
+
+        [Fact]
+        public void HandlesWrite_i18n_commitEncoding()
+        {
+            string encoding = "windows-1250";
+            string message = "This commit is created by Janusz Białobrzewski";
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
+            {
+                repo.Config.Set("i18n.commitEncoding", encoding);
+
+                var committer = new Signature("Janusz Białobrzewski", "jbialobr@o2.pl",
+                                           Epoch.ToDateTimeOffset(1244286496, 120));
+
+                Commit c = repo.Commit(message, committer, committer);
+
+                Assert.Equal(encoding, c.Encoding);
+                Assert.Equal(message, c.Message);
+            }
+        }
+
+        [Fact]
+        public void HandlesRead_i18n_commitEncoding()
+        {
+            string encoding = "windows-1250";
+            string message = "Message in windows1250 encoding. ąęćłóśźż";
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
+            {
+                Commit c = repo.Lookup<Commit>("44d6630d4c4917e3eacc3e585bee47e8908efedf");
+
+                Assert.NotNull(c);
+                Assert.Equal(encoding, c.Encoding);
+                Assert.Equal(message, c.Message);
             }
         }
     }
