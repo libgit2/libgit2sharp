@@ -21,12 +21,7 @@ namespace LibGit2Sharp.Core
 
         public virtual void CleanUpNativeData(IntPtr pNativeData)
         {
-            if (pNativeData == IntPtr.Zero)
-            {
-                return;
-            }
-
-            Marshal.FreeHGlobal(pNativeData);
+            Cleanup(pNativeData);
         }
 
         public int GetNativeDataSize()
@@ -81,6 +76,16 @@ namespace LibGit2Sharp.Core
             buffer[length] = 0;
 
             return new IntPtr(buffer);
+        }
+
+        public static void Cleanup(IntPtr pNativeData)
+        {
+            if (pNativeData == IntPtr.Zero)
+            {
+                return;
+            }
+
+            Marshal.FreeHGlobal(pNativeData);
         }
 
         public static unsafe String FromNative(Encoding encoding, IntPtr pNativeData)

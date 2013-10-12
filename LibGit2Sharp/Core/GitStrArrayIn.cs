@@ -45,7 +45,7 @@ namespace LibGit2Sharp.Core
 
             for (int i = 0; i < nbOfPaths; i++)
             {
-                Marshal.FreeHGlobal(pathPtrs[i]);
+                EncodingMarshaler.Cleanup(pathPtrs[i]);
             }
 
             Marshal.FreeHGlobal(strings);

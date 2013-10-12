@@ -41,12 +41,7 @@ namespace LibGit2Sharp.Core
 
         public void Dispose()
         {
-            if (WorkDirPath == IntPtr.Zero)
-            {
-                return;
-            }
-
-            Marshal.FreeHGlobal(WorkDirPath);
+            EncodingMarshaler.Cleanup(WorkDirPath);
             WorkDirPath = IntPtr.Zero;
         }
     }

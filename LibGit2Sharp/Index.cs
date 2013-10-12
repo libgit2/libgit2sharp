@@ -5,7 +5,6 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Compat;
 using LibGit2Sharp.Core.Handles;
@@ -554,7 +553,7 @@ namespace LibGit2Sharp
             };
 
             Proxy.git_index_add(handle, indexEntry);
-            Marshal.FreeHGlobal(indexEntry.Path);
+            EncodingMarshaler.Cleanup(indexEntry.Path);
         }
 
         internal void ReloadFromDisk()
