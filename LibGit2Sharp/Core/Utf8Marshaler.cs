@@ -50,6 +50,18 @@ namespace LibGit2Sharp.Core
     {
         private static readonly Utf8Marshaler staticInstance = new Utf8Marshaler();
 
+        private static readonly Encoding marshallerEncoding = UTF8EncodingWithFallBack;
+
+        public static Encoding UTF8EncodingWithFallBack
+        {
+            get
+            {
+                Encoding encoding = (Encoding)Encoding.UTF8.Clone();
+                encoding.DecoderFallback = new DecoderExceptionFallback();
+                return encoding;
+            }
+        }
+
         public static ICustomMarshaler GetInstance(String cookie)
         {
             return staticInstance;
@@ -143,7 +155,7 @@ namespace LibGit2Sharp.Core
                 return String.Empty;
             }
 
-            return new String((sbyte*)pNativeData.ToPointer(), 0, (int)(walk - start), Encoding.UTF8);
+            return FromNative(pNativeData, (int)(walk - start));
         }
 
         public static unsafe String FromNative(IntPtr pNativeData, int length)
@@ -158,7 +170,16 @@ namespace LibGit2Sharp.Core
                 return String.Empty;
             }
 
-            return new String((sbyte*)pNativeData.ToPointer(), 0, length, Encoding.UTF8);
+            try
+            {
+                // Try UTF8 with fallback
+                return new String((sbyte*)pNativeData.ToPointer(), 0, length, marshallerEncoding);
+            }
+            catch (DecoderFallbackException)
+            {
+                // If this fails, try the platform default.
+                return new String((sbyte*)pNativeData.ToPointer(), 0, length, Encoding.Default);
+            }
         }
 
         public static String Utf8FromBuffer(byte[] buffer)
@@ -182,7 +203,16 @@ namespace LibGit2Sharp.Core
                 return String.Empty;
             }
 
-            return Encoding.UTF8.GetString(buffer, 0, length);
+            try
+            {
+                // Try UTF8 with fallback
+                return marshallerEncoding.GetString(buffer, 0, length);
+            }
+            catch (DecoderFallbackException)
+            {
+                // If fails, use platform default
+                return Encoding.Default.GetString(buffer, 0, length);
+            }
         }
     }
 }
