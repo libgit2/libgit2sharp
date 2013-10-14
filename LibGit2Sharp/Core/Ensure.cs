@@ -96,7 +96,7 @@ namespace LibGit2Sharp.Core
             }
             else
             {
-                errorMessage = Utf8Marshaler.FromNative(error.Message);
+                errorMessage = LaxUtf8Marshaler.FromNative(error.Message);
             }
 
             Func<string, GitErrorCode, GitErrorCategory, LibGit2SharpException> exceptionBuilder;

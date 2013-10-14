@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using System.Text;
 
 namespace LibGit2Sharp.Core
 {
@@ -11,13 +12,13 @@ namespace LibGit2Sharp.Core
     /// Use this marshaler for return values, for example:
     /// [return: MarshalAs(UnmanagedType.CustomMarshaler,
     ///                    MarshalCookie = UniqueId.UniqueIdentifier,
-    ///                    MarshalTypeRef = typeof(FilePathNoCleanupMarshaler))]
+    ///                    MarshalTypeRef = typeof(LaxFilePathNoCleanupMarshaler))]
     /// </summary>
-    internal class FilePathNoCleanupMarshaler : FilePathMarshaler
+    internal class LaxFilePathNoCleanupMarshaler : LaxFilePathMarshaler
     {
-        private static readonly FilePathNoCleanupMarshaler staticInstance = new FilePathNoCleanupMarshaler();
+        private static readonly LaxFilePathNoCleanupMarshaler staticInstance = new LaxFilePathNoCleanupMarshaler();
 
-        public static new ICustomMarshaler GetInstance(String cookie)
+        public new static ICustomMarshaler GetInstance(String cookie)
         {
             return staticInstance;
         }
@@ -43,11 +44,11 @@ namespace LibGit2Sharp.Core
     /// internal static extern int git_index_open(out IndexSafeHandle index,
     ///     [MarshalAs(UnmanagedType.CustomMarshaler,
     ///                MarshalCookie = UniqueId.UniqueIdentifier,
-    ///                MarshalTypeRef = typeof(FilePathMarshaler))] FilePath indexpath);
+    ///                MarshalTypeRef = typeof(StrictFilePathMarshaler))] FilePath indexpath);
     /// </summary>
-    internal class FilePathMarshaler : Utf8Marshaler
+    internal class StrictFilePathMarshaler : StrictUtf8Marshaler
     {
-        private static readonly FilePathMarshaler staticInstance = new FilePathMarshaler();
+        private static readonly StrictFilePathMarshaler staticInstance = new StrictFilePathMarshaler();
 
         public new static ICustomMarshaler GetInstance(String cookie)
         {
@@ -74,11 +75,6 @@ namespace LibGit2Sharp.Core
             return FromManaged(filePath);
         }
 
-        public override Object MarshalNativeToManaged(IntPtr pNativeData)
-        {
-            return (FilePath)FromNative(pNativeData);
-        }
-
         #endregion
 
         public static IntPtr FromManaged(FilePath filePath)
@@ -88,7 +84,41 @@ namespace LibGit2Sharp.Core
                 return IntPtr.Zero;
             }
 
-            return Utf8Marshaler.FromManaged(filePath.Posix);
+            return StrictUtf8Marshaler.FromManaged(filePath.Posix);
+        }
+    }
+
+    /// <summary>
+    /// This marshaler is to be used for capturing a UTF-8 string allocated by libgit2 and
+    /// converting it to a managed FilePath instance. The marshaler will free the native pointer
+    /// after conversion.
+    /// </summary>
+    internal class LaxFilePathMarshaler : LaxUtf8Marshaler
+    {
+        private static readonly LaxFilePathMarshaler staticInstance = new LaxFilePathMarshaler();
+
+        public new static ICustomMarshaler GetInstance(String cookie)
+        {
+            return staticInstance;
+        }
+
+        #region ICustomMarshaler
+
+        public override Object MarshalNativeToManaged(IntPtr pNativeData)
+        {
+            return FromNative(pNativeData);
+        }
+
+        #endregion
+
+        public new static FilePath FromNative(IntPtr pNativeData)
+        {
+            return LaxUtf8Marshaler.FromNative(pNativeData);
+        }
+
+        public new static FilePath FromBuffer(byte[] buffer)
+        {
+            return LaxUtf8Marshaler.FromBuffer(buffer);
         }
     }
 }

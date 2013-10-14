@@ -22,8 +22,8 @@ namespace LibGit2Sharp
             var handle = new GitSignature();
             Marshal.PtrToStructure(signaturePtr, handle);
 
-            name = Utf8Marshaler.FromNative(handle.Name);
-            email = Utf8Marshaler.FromNative(handle.Email);
+            name = LaxUtf8Marshaler.FromNative(handle.Name);
+            email = LaxUtf8Marshaler.FromNative(handle.Email);
             when = Epoch.ToDateTimeOffset(handle.When.Time, handle.When.Offset);
         }
 

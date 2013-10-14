@@ -28,7 +28,7 @@ namespace LibGit2Sharp.Core
             {
                 Debug.Assert(!isBare);
 
-                opts.WorkDirPath = FilePathMarshaler.FromManaged(workdirPath);
+                opts.WorkDirPath = StrictFilePathMarshaler.FromManaged(workdirPath);
             }
 
             if (isBare)

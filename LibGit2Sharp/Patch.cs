@@ -45,7 +45,7 @@ namespace LibGit2Sharp
 
         private void AddFileChange(GitDiffDelta delta)
         {
-            var newFilePath = FilePathMarshaler.FromNative(delta.NewFile.Path);
+            var newFilePath = LaxFilePathMarshaler.FromNative(delta.NewFile.Path);
 
             changes.Add(newFilePath, new ContentChanges(delta.IsBinary()));
         }
@@ -53,7 +53,7 @@ namespace LibGit2Sharp
         private int DataCallback(GitDiffDelta delta, GitDiffRange range, GitDiffLineOrigin lineOrigin, IntPtr content,
             UIntPtr contentLen, IntPtr payload)
         {
-            var filePath = FilePathMarshaler.FromNative(delta.NewFile.Path);
+            var filePath = LaxFilePathMarshaler.FromNative(delta.NewFile.Path);
             AddLineChange(this[filePath], lineOrigin);
 
             return 0;
@@ -77,8 +77,8 @@ namespace LibGit2Sharp
 
         private int PrintCallBack(GitDiffDelta delta, GitDiffRange range, GitDiffLineOrigin lineorigin, IntPtr content, UIntPtr contentlen, IntPtr payload)
         {
-            string formattedoutput = Utf8Marshaler.FromNative(content, (int)contentlen);
-            var filePath = FilePathMarshaler.FromNative(delta.NewFile.Path);
+            string formattedoutput = LaxUtf8Marshaler.FromNative(content, (int)contentlen);
+            var filePath = LaxFilePathMarshaler.FromNative(delta.NewFile.Path);
 
             fullPatchBuilder.Append(formattedoutput);
             this[filePath].AppendToPatch(formattedoutput);

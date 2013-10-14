@@ -549,7 +549,7 @@ namespace LibGit2Sharp
             {
                 Mode = (uint)treeEntryChanges.OldMode,
                 oid = treeEntryChanges.OldOid.Oid,
-                Path = FilePathMarshaler.FromManaged(treeEntryChanges.OldPath),
+                Path = StrictFilePathMarshaler.FromManaged(treeEntryChanges.OldPath),
             };
 
             Proxy.git_index_add(handle, indexEntry);

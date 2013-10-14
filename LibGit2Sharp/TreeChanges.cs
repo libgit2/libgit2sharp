@@ -57,9 +57,9 @@ namespace LibGit2Sharp
 
         private void AddFileChange(GitDiffDelta delta)
         {
-            var newFilePath = FilePathMarshaler.FromNative(delta.NewFile.Path);
+            var newFilePath = LaxFilePathMarshaler.FromNative(delta.NewFile.Path);
 
-            var oldFilePath = FilePathMarshaler.FromNative(delta.OldFile.Path);
+            var oldFilePath = LaxFilePathMarshaler.FromNative(delta.OldFile.Path);
             var newMode = (Mode)delta.NewFile.Mode;
             var oldMode = (Mode)delta.OldFile.Mode;
             var newOid = delta.NewFile.Oid;
