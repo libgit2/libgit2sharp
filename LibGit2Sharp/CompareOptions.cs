@@ -12,7 +12,6 @@ namespace LibGit2Sharp
         {
             ContextLines = 3;
             InterhunkLines = 0;
-            SkipPatchBuilding = false;
         }
 
         /// <summary>
@@ -26,11 +25,5 @@ namespace LibGit2Sharp
         /// (Default = 0)
         /// </summary>
         public int InterhunkLines { get; set; }
-
-        /// <summary>
-        /// Flag to skip patch building. May be used if only file name and status required.
-        /// (Default = false)
-        /// </summary>
-        internal bool SkipPatchBuilding { get; set; }
     }
 }

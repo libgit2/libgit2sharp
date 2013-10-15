@@ -841,7 +841,7 @@ namespace LibGit2Sharp
 
             Ensure.ArgumentNotNull(commit, "commit");
 
-            TreeChanges changes = Diff.Compare(commit.Tree, DiffTargets.Index, paths, explicitPathsOptions);
+            var changes = Diff.Compare<TreeChanges>(commit.Tree, DiffTargets.Index, paths, explicitPathsOptions);
             Index.Reset(changes);
         }
 
