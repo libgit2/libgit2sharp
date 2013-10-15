@@ -580,7 +580,7 @@ namespace LibGit2Sharp.Tests
                 //compare changes
                 var changes = repo.Diff.Compare<Patch>(repo.Head.Tip.Tree,
                     DiffTargets.WorkingDirectory,
-                    new[] { testFile }).FirstOrDefault();
+                    new[] { testFile })[testFile];
 
                 Assert.NotNull(changes);
                 string expectedHunkHeader = "@@ -0,0 +1 @@\n+";
