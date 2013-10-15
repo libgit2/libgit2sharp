@@ -560,5 +560,36 @@ namespace LibGit2Sharp.Tests
                 Assert.Throws<LibGit2SharpException>(() => repo.Diff.Compare<string>());
             }
         }
+
+        [Fact]
+        public void CanShowChangesForAFileWithWin1250EncodingContent()
+        {
+            const string testFile = "windows1250.txt";
+
+            string repoPath = CloneStandardTestRepo();
+            using (var repo = new Repository(repoPath))
+            {
+                // Create the file in the workdir
+                string testFileFullPath = Path.Combine(repo.Info.WorkingDirectory, testFile);
+                Encoding win1250Encoding = Encoding.GetEncoding("windows-1250");
+                Assert.NotNull(win1250Encoding);
+                const string testFileContent = "Content in windows-1250 encoding."
+                    + "\u0105\u0119\u0107\u0142\u00F3\u015b\u017a\u017c"
+                    + "\n";
+                File.WriteAllText(testFileFullPath, testFileContent, win1250Encoding);
+
+                //compare changes
+                var changes = repo.Diff.Compare<Patch>(repo.Head.Tip.Tree,
+                    DiffTargets.WorkingDirectory,
+                    new[] { testFile }).FirstOrDefault();
+
+                Assert.NotNull(changes);
+                string expectedHunkHeader = "@@ -0,0 +1 @@\n+";
+                int hunkHeaderIdx = changes.Patch.IndexOf(expectedHunkHeader);
+                Assert.True(hunkHeaderIdx > 0, "Hunk header expected: " + expectedHunkHeader);
+                string fileContentFromPatch = changes.Patch.Substring(hunkHeaderIdx + expectedHunkHeader.Length);
+                Assert.Equal(testFileContent, fileContentFromPatch);
+            }
+        }
     }
 }
