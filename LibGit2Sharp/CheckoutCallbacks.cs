@@ -86,9 +86,9 @@ namespace LibGit2Sharp
             if (onCheckoutProgress != null)
             {
                 // Convert null strings into empty strings.
-                string path = (str != IntPtr.Zero) ? Utf8Marshaler.FromNative(str) : string.Empty;
+                FilePath path = LaxFilePathMarshaler.FromNative(str) ?? FilePath.Empty;
 
-                onCheckoutProgress(path, (int)completedSteps, (int)totalSteps);
+                onCheckoutProgress(path.Native, (int)completedSteps, (int)totalSteps);
             }
         }
 
@@ -103,9 +103,8 @@ namespace LibGit2Sharp
             int result = 0;
             if (this.onCheckoutNotify != null)
             {
-                string path = (pathPtr != IntPtr.Zero) ?
-                    ((FilePath)Utf8Marshaler.FromNative(pathPtr)).Native : string.Empty;
-                result = onCheckoutNotify(path, why) ? 0 : 1;
+                FilePath path = LaxFilePathMarshaler.FromNative(pathPtr) ?? FilePath.Empty;
+                result = onCheckoutNotify(path.Native, why) ? 0 : 1;
             }
 
             return result;

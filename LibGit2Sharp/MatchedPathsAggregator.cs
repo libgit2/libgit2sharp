@@ -19,7 +19,7 @@ namespace LibGit2Sharp
         internal int OnGitDiffNotify(IntPtr diffListSoFar, IntPtr deltaToAdd, IntPtr matchedPathspec, IntPtr payload)
         {
             // Convert null strings into empty strings.
-            var path = (matchedPathspec != IntPtr.Zero) ? FilePathMarshaler.FromNative(matchedPathspec) : FilePath.Empty;
+            var path = LaxFilePathMarshaler.FromNative(matchedPathspec) ?? FilePath.Empty;
 
             if (matchedPaths.Contains(path))
             {

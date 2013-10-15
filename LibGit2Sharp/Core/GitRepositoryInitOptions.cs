@@ -28,7 +28,7 @@ namespace LibGit2Sharp.Core
             {
                 Debug.Assert(!isBare);
 
-                opts.WorkDirPath = FilePathMarshaler.FromManaged(workdirPath);
+                opts.WorkDirPath = StrictFilePathMarshaler.FromManaged(workdirPath);
             }
 
             if (isBare)
@@ -41,12 +41,7 @@ namespace LibGit2Sharp.Core
 
         public void Dispose()
         {
-            if (WorkDirPath == IntPtr.Zero)
-            {
-                return;
-            }
-
-            Marshal.FreeHGlobal(WorkDirPath);
+            EncodingMarshaler.Cleanup(WorkDirPath);
             WorkDirPath = IntPtr.Zero;
         }
     }

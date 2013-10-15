@@ -77,7 +77,7 @@ namespace LibGit2Sharp
                     }
 
                     ObjectId oid = remoteHead.Oid;
-                    string name = Utf8Marshaler.FromNative(remoteHead.NamePtr);
+                    string name = LaxUtf8Marshaler.FromNative(remoteHead.NamePtr);
                     directReferences.Add(new DirectReference(name, this.repository, oid));
 
                     return 0;
@@ -281,8 +281,8 @@ namespace LibGit2Sharp
                 // that there was an error.
                 if (msgPtr != IntPtr.Zero)
                 {
-                    string referenceName = Utf8Marshaler.FromNative(referenceNamePtr);
-                    string msg = Utf8Marshaler.FromNative(msgPtr);
+                    string referenceName = LaxUtf8Marshaler.FromNative(referenceNamePtr);
+                    string msg = LaxUtf8Marshaler.FromNative(msgPtr);
                     onError(new PushStatusError(referenceName, msg));
                 }
 

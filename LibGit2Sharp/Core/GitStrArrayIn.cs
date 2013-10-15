@@ -20,7 +20,7 @@ namespace LibGit2Sharp.Core
             for (int i = 0; i < nbOfPaths; i++)
             {
                 var s = paths[i].Posix;
-                pathPtrs[i] = FilePathMarshaler.FromManaged(s);
+                pathPtrs[i] = StrictFilePathMarshaler.FromManaged(s);
             }
 
             int dim = IntPtr.Size * nbOfPaths;
@@ -45,7 +45,7 @@ namespace LibGit2Sharp.Core
 
             for (int i = 0; i < nbOfPaths; i++)
             {
-                Marshal.FreeHGlobal(pathPtrs[i]);
+                EncodingMarshaler.Cleanup(pathPtrs[i]);
             }
 
             Marshal.FreeHGlobal(strings);

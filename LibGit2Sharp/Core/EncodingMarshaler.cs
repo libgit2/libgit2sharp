@@ -21,12 +21,7 @@ namespace LibGit2Sharp.Core
 
         public virtual void CleanUpNativeData(IntPtr pNativeData)
         {
-            if (pNativeData == IntPtr.Zero)
-            {
-                return;
-            }
-
-            Marshal.FreeHGlobal(pNativeData);
+            Cleanup(pNativeData);
         }
 
         public int GetNativeDataSize()
@@ -83,7 +78,17 @@ namespace LibGit2Sharp.Core
             return new IntPtr(buffer);
         }
 
-        public static unsafe String FromNative(Encoding encoding, IntPtr pNativeData)
+        public static void Cleanup(IntPtr pNativeData)
+        {
+            if (pNativeData == IntPtr.Zero)
+            {
+                return;
+            }
+
+            Marshal.FreeHGlobal(pNativeData);
+        }
+
+        public static unsafe string FromNative(Encoding encoding, IntPtr pNativeData)
         {
             if (pNativeData == IntPtr.Zero)
             {
@@ -107,7 +112,7 @@ namespace LibGit2Sharp.Core
             return new String((sbyte*)pNativeData.ToPointer(), 0, (int)(walk - start), encoding);
         }
 
-        public static unsafe String FromNative(Encoding encoding, IntPtr pNativeData, int length)
+        public static unsafe string FromNative(Encoding encoding, IntPtr pNativeData, int length)
         {
             if (pNativeData == IntPtr.Zero)
             {
@@ -122,7 +127,7 @@ namespace LibGit2Sharp.Core
             return new String((sbyte*)pNativeData.ToPointer(), 0, length, encoding);
         }
 
-        public static String FromBuffer(Encoding encoding, byte[] buffer)
+        public static string FromBuffer(Encoding encoding, byte[] buffer)
         {
             if (buffer == null)
             {

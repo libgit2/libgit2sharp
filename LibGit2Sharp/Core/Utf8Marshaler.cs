@@ -12,11 +12,11 @@ namespace LibGit2Sharp.Core
     /// Use this marshaler for return values, for example:
     /// [return: MarshalAs(UnmanagedType.CustomMarshaler,
     ///                    MarshalCookie = UniqueId.UniqueIdentifier,
-    ///                    MarshalTypeRef = typeof(Utf8NoCleanupMarshaler))]
+    ///                    MarshalTypeRef = typeof(LaxUtf8NoCleanupMarshaler))]
     /// </summary>
-    internal class Utf8NoCleanupMarshaler : Utf8Marshaler
+    internal class LaxUtf8NoCleanupMarshaler : LaxUtf8Marshaler
     {
-        private static readonly Utf8NoCleanupMarshaler staticInstance = new Utf8NoCleanupMarshaler();
+        private static readonly LaxUtf8NoCleanupMarshaler staticInstance = new LaxUtf8NoCleanupMarshaler();
 
         public new static ICustomMarshaler GetInstance(String cookie)
         {
@@ -44,20 +44,20 @@ namespace LibGit2Sharp.Core
     /// internal static extern int git_tag_delete(RepositorySafeHandle repo,
     ///     [MarshalAs(UnmanagedType.CustomMarshaler,
     ///                MarshalCookie = UniqueId.UniqueIdentifier,
-    ///                MarshalTypeRef = typeof(Utf8Marshaler))] String tagName);
+    ///                MarshalTypeRef = typeof(StrictUtf8Marshaler))] String tagName);
     /// </summary>
-    internal class Utf8Marshaler : EncodingMarshaler
+    internal class StrictUtf8Marshaler : EncodingMarshaler
     {
-        private static readonly Utf8Marshaler staticInstance;
+        private static readonly StrictUtf8Marshaler staticInstance;
         private static readonly Encoding encoding;
 
-        static Utf8Marshaler()
+        static StrictUtf8Marshaler()
         {
-            encoding = Encoding.UTF8;
-            staticInstance = new Utf8Marshaler();
+            encoding = new UTF8Encoding(false, true);
+            staticInstance = new StrictUtf8Marshaler();
         }
 
-        public Utf8Marshaler() : base(encoding)
+        public StrictUtf8Marshaler() : base(encoding)
         { }
 
         public static ICustomMarshaler GetInstance(String cookie)
@@ -65,22 +65,62 @@ namespace LibGit2Sharp.Core
             return staticInstance;
         }
 
+        #region ICustomMarshaler
+
+        public override Object MarshalNativeToManaged(IntPtr pNativeData)
+        {
+            throw new InvalidOperationException(
+                string.Format("{0} cannot be used to retrieve data from libgit2.", GetType().Name));
+        }
+
+        #endregion
+
         public static IntPtr FromManaged(String value)
         {
             return FromManaged(encoding, value);
         }
+    }
+
+    /// <summary>
+    /// This marshaler is to be used for capturing a UTF-8 string allocated by libgit2 and
+    /// converting it to a managed String instance. The marshaler will free the native pointer
+    /// after conversion.
+    /// </summary>
+    internal class LaxUtf8Marshaler : EncodingMarshaler
+    {
+        private static readonly LaxUtf8Marshaler staticInstance = new LaxUtf8Marshaler();
+
+        private static readonly Encoding encoding = new UTF8Encoding(false, false);
+
+        public LaxUtf8Marshaler() : base(encoding)
+        { }
+
+        public static ICustomMarshaler GetInstance(String cookie)
+        {
+            return staticInstance;
+        }
+
+        #region ICustomMarshaler
+
+        public override IntPtr MarshalManagedToNative(object managedObj)
+        {
+            throw new InvalidOperationException(
+                string.Format("{0} cannot be used to pass data to libgit2.", GetType().Name));
+        }
+
+        #endregion
 
         public static string FromNative(IntPtr pNativeData)
         {
             return FromNative(encoding, pNativeData);
         }
 
-        public static String FromNative(IntPtr pNativeData, int length)
+        public static string FromNative(IntPtr pNativeData, int length)
         {
             return FromNative(encoding, pNativeData, length);
         }
 
-        public static String Utf8FromBuffer(byte[] buffer)
+        public static string FromBuffer(byte[] buffer)
         {
             return FromBuffer(encoding, buffer);
         }
