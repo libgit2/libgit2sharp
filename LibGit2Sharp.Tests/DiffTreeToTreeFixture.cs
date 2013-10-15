@@ -570,13 +570,12 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(repoPath))
             {
                 // Create the file in the workdir
-                string testFileFullPath = Path.Combine(repo.Info.WorkingDirectory, testFile);
                 Encoding win1250Encoding = Encoding.GetEncoding("windows-1250");
                 Assert.NotNull(win1250Encoding);
                 const string testFileContent = "Content in windows-1250 encoding."
                     + "\u0105\u0119\u0107\u0142\u00F3\u015b\u017a\u017c"
                     + "\n";
-                File.WriteAllText(testFileFullPath, testFileContent, win1250Encoding);
+                Touch(repo.Info.WorkingDirectory, testFile, testFileContent, win1250Encoding);
 
                 //compare changes
                 var changes = repo.Diff.Compare<Patch>(repo.Head.Tip.Tree,
