@@ -132,6 +132,13 @@ namespace LibGit2Sharp.Core
             IntPtr data);
 
         [DllImport(libgit2)]
+        internal static extern int git_blob_filtered_content(
+            GitBuf buf,
+            GitObjectSafeHandle blob,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictFilePathMarshaler))] FilePath as_path,
+            [MarshalAs(UnmanagedType.Bool)] bool check_for_binary_data);
+
+        [DllImport(libgit2)]
         internal static extern IntPtr git_blob_rawcontent(GitObjectSafeHandle blob);
 
         [DllImport(libgit2)]
@@ -181,6 +188,9 @@ namespace LibGit2Sharp.Core
             UIntPtr buffer_size,
             RepositorySafeHandle repo,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string referenceName);
+
+        [DllImport(libgit2)]
+        internal static extern void git_buf_free(GitBuf buf);
 
         [DllImport(libgit2)]
         internal static extern int git_checkout_tree(
