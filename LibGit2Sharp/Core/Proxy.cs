@@ -1111,6 +1111,15 @@ namespace LibGit2Sharp.Core
             }
         }
 
+        public static void git_push_set_options(PushSafeHandle push, GitPushOptions options)
+        {
+            using (ThreadAffinity())
+            {
+                int res = NativeMethods.git_push_set_options(push, options);
+                Ensure.ZeroResult(res);
+            }
+        }
+
         public static void git_push_status_foreach(PushSafeHandle push, NativeMethods.push_status_foreach_cb status_cb)
         {
             using (ThreadAffinity())
