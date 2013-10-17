@@ -77,5 +77,80 @@ namespace LibGit2Sharp.Tests
                         repo.Network.Push(branch);
                     }));
         }
+
+        [Fact]
+        public void CanForcePush()
+        {
+            string remoteRepoPath = InitNewRepository(true);
+
+            // Create a new repository
+            string localRepoPath = InitNewRepository();
+            using (var localRepo = new Repository(localRepoPath))
+            {
+                // Add a commit
+                Commit first = AddCommitToRepo(localRepo);
+
+                Remote remote = localRepo.Network.Remotes.Add("origin", remoteRepoPath);
+
+                localRepo.Branches.Update(localRepo.Head,
+                    b => b.Remote = remote.Name,
+                    b => b.UpstreamBranch = localRepo.Head.CanonicalName);
+
+                // Push this commit
+                localRepo.Network.Push(localRepo.Head);
+                AssertRemoteHeadTipEquals(localRepo, first.Sha);
+
+                UpdateTheRemoteRepositoryWithANewCommit(remoteRepoPath);
+
+                // Add another commit
+                Commit second = AddCommitToRepo(localRepo);
+
+                // Try to fast forward push this new commit
+                Assert.Throws<NonFastForwardException>(() => localRepo.Network.Push(localRepo.Head));
+
+                // Force push the new commit
+                string pushRefSpec = string.Format("+{0}:{0}", localRepo.Head.CanonicalName);
+                localRepo.Network.Push(localRepo.Network.Remotes.Single(), pushRefSpec);
+
+                AssertRemoteHeadTipEquals(localRepo, second.Sha);
+            }
+        }
+
+        private static void AssertRemoteHeadTipEquals(Repository localRepo, string sha)
+        {
+            var remoteReferences = localRepo.Network.ListReferences(localRepo.Network.Remotes.Single());
+            DirectReference remoteHead = remoteReferences.Single(r => r.CanonicalName == "HEAD");
+
+            Assert.Equal(sha, remoteHead.TargetIdentifier);
+        }
+
+        private void UpdateTheRemoteRepositoryWithANewCommit(string remoteRepoPath)
+        {
+            // Perform a fresh clone of the upstream repository
+            var scd = BuildSelfCleaningDirectory();
+            string clonedRepoPath = Repository.Clone(remoteRepoPath, scd.DirectoryPath);
+
+            using (var clonedRepo = new Repository(clonedRepoPath))
+            {
+                // Add a commit
+                AddCommitToRepo(clonedRepo);
+
+                // Push this new commit toward an upstream repository
+                clonedRepo.Network.Push(clonedRepo.Head);
+            }
+        }
+
+        private Commit AddCommitToRepo(Repository repository)
+        {
+
+            string random = Guid.NewGuid().ToString();
+            string filename = random + ".txt";
+
+            Touch(repository.Info.WorkingDirectory, filename, random);
+
+            repository.Index.Stage(filename);
+
+            return repository.Commit("New commit", Constants.Signature, Constants.Signature);
+        }
     }
 }
