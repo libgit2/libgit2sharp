@@ -22,7 +22,28 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNull(blob, "blob");
 
-            using (var reader = new StreamReader(blob.ContentStream, encoding ?? Encoding.UTF8, encoding == null))
+            using (var reader = new StreamReader(blob.ContentStream(), encoding ?? Encoding.UTF8, encoding == null))
+            {
+                return reader.ReadToEnd();
+            }
+        }
+
+        /// <summary>
+        /// Gets the blob content as it would be checked out to the
+        /// working directory, decoded with the specified encoding,
+        /// or according to byte order marks, with UTF8 as fallback,
+        /// if <paramref name="encoding"/> is null.
+        /// </summary>
+        /// <param name="blob">The blob for which the content will be returned.</param>
+        /// <param name="filteringOptions">Parameter controlling content filtering behavior</param>
+        /// <param name="encoding">The encoding of the text. (default: detected or UTF8)</param>
+        /// <returns>Blob content as text.</returns>
+        public static string ContentAsText(this Blob blob, FilteringOptions filteringOptions, Encoding encoding = null)
+        {
+            Ensure.ArgumentNotNull(blob, "blob");
+            Ensure.ArgumentNotNull(filteringOptions, "filteringOptions");
+
+            using(var reader = new StreamReader(blob.ContentStream(filteringOptions), encoding ?? Encoding.UTF8, encoding == null))
             {
                 return reader.ReadToEnd();
             }

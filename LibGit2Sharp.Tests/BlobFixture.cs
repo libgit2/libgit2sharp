@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Linq;
 using System.Text;
 using LibGit2Sharp.Tests.TestHelpers;
@@ -19,6 +20,28 @@ namespace LibGit2Sharp.Tests
                 var text = blob.ContentAsText();
 
                 Assert.Equal("hey there\n", text);
+            }
+        }
+
+        [Fact]
+        public void CanGetBlobAsFilteredText()
+        {
+            using (var repo = new Repository(BareTestRepoPath))
+            {
+                var blob = repo.Lookup<Blob>("a8233120f6ad708f843d861ce2b7228ec4e3dec6");
+
+                var text = blob.ContentAsText(new FilteringOptions("foo.txt"));
+
+                ConfigurationEntry<bool> autocrlf = repo.Config.Get<bool>("core.autocrlf");
+
+                if (autocrlf != null && autocrlf.Value)
+                {
+                    Assert.Equal("hey there\r\n", text);
+                }
+                else
+                {
+                    Assert.Equal("hey there\n", text);
+                }
             }
         }
 
@@ -99,10 +122,55 @@ namespace LibGit2Sharp.Tests
             {
                 var blob = repo.Lookup<Blob>("a8233120f6ad708f843d861ce2b7228ec4e3dec6");
 
-                using (var tr = new StreamReader(blob.ContentStream, Encoding.UTF8))
+                using (var tr = new StreamReader(blob.ContentStream(), Encoding.UTF8))
                 {
                     string content = tr.ReadToEnd();
                     Assert.Equal("hey there\n", content);
+                }
+            }
+        }
+
+        [Fact]
+        public void CanReadBlobFilteredStream()
+        {
+            using (var repo = new Repository(BareTestRepoPath))
+            {
+                var blob = repo.Lookup<Blob>("a8233120f6ad708f843d861ce2b7228ec4e3dec6");
+
+                using (var tr = new StreamReader(blob.ContentStream(new FilteringOptions("foo.txt")), Encoding.UTF8))
+                {
+                    string content = tr.ReadToEnd();
+
+                    ConfigurationEntry<bool> autocrlf = repo.Config.Get<bool>("core.autocrlf");
+
+                    if (autocrlf != null && autocrlf.Value)
+                    {
+                        Assert.Equal("hey there\r\n", content);
+                    }
+                    else
+                    {
+                        Assert.Equal("hey there\n", content);
+                    }
+                }
+            }
+        }
+
+        [Fact]
+        public void CanReadBlobFilteredStreamOfUnmodifiedBinary()
+        {
+            var binaryContent = new byte[] { 0, 1, 2, 3, 4, 5 };
+
+            string path = CloneBareTestRepo();
+            using (var repo = new Repository(path))
+            {
+                using (var stream = new MemoryStream(binaryContent))
+                {
+                    Blob blob = repo.ObjectDatabase.CreateBlob(stream);
+
+                    using (var filtered = blob.ContentStream(new FilteringOptions("foo.txt")))
+                    {
+                        Assert.True(StreamEquals(stream, filtered));
+                    }
                 }
             }
         }
@@ -118,6 +186,19 @@ namespace LibGit2Sharp.Tests
             {
                 output.Write(buffer, 0, len);
             }
+        }
+
+        public static bool StreamEquals(Stream one, Stream two)
+        {
+            int onebyte, twobyte;
+
+            while ((onebyte = one.ReadByte()) >= 0 && (twobyte = two.ReadByte()) >= 0)
+            {
+                if (onebyte != twobyte)
+                    return false;
+            }
+
+            return true;
         }
 
         [Fact]
@@ -143,7 +224,7 @@ namespace LibGit2Sharp.Tests
 
                 var blob = repo.Lookup<Blob>(entry.Id.Sha);
 
-                using (Stream stream = blob.ContentStream)
+                using (Stream stream = blob.ContentStream())
                 using (Stream file = File.OpenWrite(Path.Combine(repo.Info.WorkingDirectory, "small.fromblob.txt")))
                 {
                     CopyStream(stream, file);

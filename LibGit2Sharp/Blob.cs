@@ -49,12 +49,20 @@ namespace LibGit2Sharp
         /// <summary>
         /// Gets the blob content in a <see cref="Stream"/>.
         /// </summary>
-        public virtual Stream ContentStream
+        public virtual Stream ContentStream()
         {
-            get
-            {
-                return Proxy.git_blob_rawcontent_stream(repo.Handle, Id, Size);
-            }
+            return Proxy.git_blob_rawcontent_stream(repo.Handle, Id, Size);
+        }
+
+        /// <summary>
+        /// Gets the blob content in a <see cref="Stream"/> as it would be
+        /// checked out to the working directory.
+        /// <param name="filteringOptions">Parameter controlling content filtering behavior</param>
+        /// </summary>
+        public virtual Stream ContentStream(FilteringOptions filteringOptions)
+        {
+            Ensure.ArgumentNotNull(filteringOptions, "filteringOptions");
+            return Proxy.git_blob_filtered_content_stream(repo.Handle, Id, filteringOptions.HintPath, false);
         }
     }
 }

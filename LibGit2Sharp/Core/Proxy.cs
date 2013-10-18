@@ -73,6 +73,20 @@ namespace LibGit2Sharp.Core
             }
         }
 
+        public static UnmanagedMemoryStream git_blob_filtered_content_stream(RepositorySafeHandle repo, ObjectId id, FilePath path, bool check_for_binary_data)
+        {
+            var buf = new GitBuf();
+            var handle = new ObjectSafeWrapper(id, repo).ObjectPtr;
+
+            return new RawContentStream(handle, h =>
+            {
+                Ensure.ZeroResult(NativeMethods.git_blob_filtered_content(buf, h, path, check_for_binary_data));
+                return buf.ptr;
+            },
+            h => (long)buf.size,
+            new[] { buf });
+        }
+
         public static byte[] git_blob_rawcontent(RepositorySafeHandle repo, ObjectId id, int size)
         {
             using (var obj = new ObjectSafeWrapper(id, repo))
@@ -85,7 +99,8 @@ namespace LibGit2Sharp.Core
 
         public static UnmanagedMemoryStream git_blob_rawcontent_stream(RepositorySafeHandle repo, ObjectId id, Int64 size)
         {
-            return new RawContentStream(id, repo, NativeMethods.git_blob_rawcontent, size);
+            var handle = new ObjectSafeWrapper(id, repo).ObjectPtr;
+            return new RawContentStream(handle, NativeMethods.git_blob_rawcontent, h => size);
         }
 
         public static Int64 git_blob_rawsize(GitObjectSafeHandle obj)
@@ -184,6 +199,15 @@ namespace LibGit2Sharp.Core
 
                 return LaxUtf8Marshaler.FromBuffer(buffer);
             }
+        }
+
+        #endregion
+
+        #region git_buf_
+
+        public static void git_buf_free(GitBuf buf)
+        {
+            NativeMethods.git_buf_free(buf);
         }
 
         #endregion
