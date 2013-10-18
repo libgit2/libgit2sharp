@@ -1134,6 +1134,7 @@ namespace LibGit2Sharp.Core
                 return handle;
             }
         }
+
         public static void git_push_set_callbacks(
             PushSafeHandle push,
             NativeMethods.git_push_transfer_progress pushTransferProgress,
@@ -2524,6 +2525,19 @@ namespace LibGit2Sharp.Core
             { typeof(bool), value => git_config_parse_bool(value) },
             { typeof(string), value => value },
         };
+
+        /// <summary>
+        /// Helper method for consistent conversion of return value on
+        /// Callbacks that support cancellation from bool to native type.
+        /// True indicates that function should continue, false indicates
+        /// user wants to cancel.
+        /// </summary>
+        /// <param name="result"></param>
+        /// <returns></returns>
+        internal static int ConvertResultToCancelFlag(bool result)
+        {
+            return result ? 0 : -1;
+        }
     }
 }
 // ReSharper restore InconsistentNaming

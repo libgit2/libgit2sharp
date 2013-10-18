@@ -100,14 +100,14 @@ namespace LibGit2Sharp
             IntPtr workdirPtr,
             IntPtr payloadPtr)
         {
-            int result = 0;
+            bool result = true;
             if (this.onCheckoutNotify != null)
             {
                 FilePath path = LaxFilePathMarshaler.FromNative(pathPtr) ?? FilePath.Empty;
-                result = onCheckoutNotify(path.Native, why) ? 0 : 1;
+                result = onCheckoutNotify(path.Native, why);
             }
 
-            return result;
+            return Proxy.ConvertResultToCancelFlag(result);
         }
     }
 }

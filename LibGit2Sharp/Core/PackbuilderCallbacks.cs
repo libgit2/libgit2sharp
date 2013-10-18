@@ -3,7 +3,6 @@ using LibGit2Sharp.Handlers;
 
 namespace LibGit2Sharp.Core
 {
-    //
     internal class PackbuilderCallbacks
     {
         private readonly PackBuilderProgressHandler onPackBuilderProgress;
@@ -33,7 +32,7 @@ namespace LibGit2Sharp.Core
 
         private int OnGitPackBuilderProgress(int stage, uint current, uint total, IntPtr payload)
         {
-            return onPackBuilderProgress((PackBuilderStage) stage, (int)current, (int)total) ? -1 : 0;
+            return Proxy.ConvertResultToCancelFlag(onPackBuilderProgress((PackBuilderStage)stage, (int)current, (int)total));
         }
     }
 }

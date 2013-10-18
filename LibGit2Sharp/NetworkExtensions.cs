@@ -16,13 +16,11 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="network">The <see cref="Network"/> being worked with.</param>
         /// <param name="branch">The branch to push.</param>
-        /// <param name="onPushStatusError">Handler for reporting failed push updates.</param>
         /// <param name="pushOptions"><see cref="PushOptions"/> controlling push behavior</param>
         /// <exception cref="LibGit2SharpException">Throws if either the Remote or the UpstreamBranchCanonicalName is not set.</exception>
         public static void Push(
             this Network network,
             Branch branch,
-            PushStatusErrorHandler onPushStatusError = null,
             PushOptions pushOptions = null)
         {
             network.Push(new[] { branch }, pushOptions);

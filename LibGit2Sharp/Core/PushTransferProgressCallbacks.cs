@@ -32,7 +32,7 @@ namespace LibGit2Sharp.Core
 
         private int OnGitTransferProgress(uint current, uint total, UIntPtr bytes, IntPtr payload)
         {
-            return onPushTransferProgress((int)current, (int)total, (long)bytes) ? -1 : 0;
+            return Proxy.ConvertResultToCancelFlag(onPushTransferProgress((int)current, (int)total, (long)bytes));
         }
     }
 }

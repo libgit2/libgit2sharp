@@ -95,7 +95,6 @@ namespace LibGit2Sharp
         /// <param name="remote">The remote to fetch</param>
         /// <param name="tagFetchMode">Optional parameter indicating what tags to download.</param>
         /// <param name="onProgress">Progress callback. Corresponds to libgit2 progress callback.</param>
-        /// <param name="onCompletion">Completion callback. Corresponds to libgit2 completion callback.</param>
         /// <param name="onUpdateTips">UpdateTips callback. Corresponds to libgit2 update_tips callback.</param>
         /// <param name="onTransferProgress">Callback method that transfer progress will be reported through.
         /// Reports the client's state regarding the received and processed (bytes, objects) from the server.</param>
@@ -104,7 +103,6 @@ namespace LibGit2Sharp
             Remote remote,
             TagFetchMode? tagFetchMode = null,
             ProgressHandler onProgress = null,
-            CompletionHandler onCompletion = null,
             UpdateTipsHandler onUpdateTips = null,
             TransferProgressHandler onTransferProgress = null,
             Credentials credentials = null)
@@ -113,7 +111,7 @@ namespace LibGit2Sharp
 
             using (RemoteSafeHandle remoteHandle = Proxy.git_remote_load(repository.Handle, remote.Name, true))
             {
-                var callbacks = new RemoteCallbacks(onProgress, onTransferProgress, onCompletion, onUpdateTips, credentials);
+                var callbacks = new RemoteCallbacks(onProgress, onTransferProgress, onUpdateTips, credentials);
                 GitRemoteCallbacks gitCallbacks = callbacks.GenerateCallbacks();
 
                 if (tagFetchMode.HasValue)
@@ -212,7 +210,7 @@ namespace LibGit2Sharp
             // Load the remote.
             using (RemoteSafeHandle remoteHandle = Proxy.git_remote_load(repository.Handle, remote.Name, true))
             {
-                var callbacks = new RemoteCallbacks(null, null, null, null, pushOptions.Credentials);
+                var callbacks = new RemoteCallbacks(null, null, null, pushOptions.Credentials);
                 GitRemoteCallbacks gitCallbacks = callbacks.GenerateCallbacks();
                 Proxy.git_remote_set_callbacks(remoteHandle, ref gitCallbacks);
 
@@ -228,7 +226,7 @@ namespace LibGit2Sharp
 
                         NativeMethods.git_push_transfer_progress pushProgress = pushTransferCallbacks.GenerateCallback();
                         NativeMethods.git_packbuilder_progress packBuilderProgress = packBuilderCallbacks.GenerateCallback();
-                        
+
                         Proxy.git_push_set_callbacks(pushHandle, pushProgress, packBuilderProgress);
 
                         // Set push options.

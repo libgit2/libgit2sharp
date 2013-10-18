@@ -18,20 +18,15 @@
     /// <param name="referenceName">Name of the updated reference.</param>
     /// <param name="oldId">Old ID of the reference.</param>
     /// <param name="newId">New ID of the reference.</param>
-    /// <returns>Return negative integer to cancel.</returns>
-    public delegate int UpdateTipsHandler(string referenceName, ObjectId oldId, ObjectId newId);
-
-    /// <summary>
-    /// Delegate definition to handle Completion callback.
-    /// </summary>
-    public delegate int CompletionHandler(RemoteCompletionType remoteCompletionType);
+    /// <returns>True to continue, false to cancel.</returns>
+    public delegate bool UpdateTipsHandler(string referenceName, ObjectId oldId, ObjectId newId);
 
     /// <summary>
     /// Delegate definition for transfer progress callback.
     /// </summary>
     /// <param name="progress">The <see cref="TransferProgress"/> object containing progress information.</param>
-    /// <returns>Return negative integer to cancel.</returns>
-    public delegate int TransferProgressHandler(TransferProgress progress);
+    /// <returns>True to continue, false to cancel.</returns>
+    public delegate bool TransferProgressHandler(TransferProgress progress);
 
     /// <summary>
     /// Delegate definition for callback reporting push network progress.
@@ -39,7 +34,7 @@
     /// <param name="current">The current number of objects sent to server.</param>
     /// <param name="total">The total number of objects to send to the server.</param>
     /// <param name="bytes">The number of bytes sent to the server.</param>
-    /// <returns>True to cancel.</returns>
+    /// <returns>True to continue, false to cancel.</returns>
     public delegate bool PushTransferProgressHandler(int current, int total, long bytes);
 
     /// <summary>
@@ -48,7 +43,7 @@
     /// <param name="stage">The current stage progress is being reported for.</param>
     /// <param name="current">The current number of objects processed in this this stage.</param>
     /// <param name="total">The total number of objects to process for the current stage.</param>
-    /// <returns>True to cancel.</returns>
+    /// <returns>True to continue, false to cancel.</returns>
     public delegate bool PackBuilderProgressHandler(PackBuilderStage stage, int current, int total);
 
     /// <summary>

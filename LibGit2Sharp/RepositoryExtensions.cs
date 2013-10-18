@@ -227,7 +227,6 @@ namespace LibGit2Sharp
         /// <param name="remoteName">The name of the <see cref="Remote"/> to fetch from.</param>
         /// <param name="tagFetchMode">Optional parameter indicating what tags to download.</param>
         /// <param name="onProgress">Progress callback. Corresponds to libgit2 progress callback.</param>
-        /// <param name="onCompletion">Completion callback. Corresponds to libgit2 completion callback.</param>
         /// <param name="onUpdateTips">UpdateTips callback. Corresponds to libgit2 update_tips callback.</param>
         /// <param name="onTransferProgress">Callback method that transfer progress will be reported through.
         /// Reports the client's state regarding the received and processed (bytes, objects) from the server.</param>
@@ -235,7 +234,6 @@ namespace LibGit2Sharp
         public static void Fetch(this IRepository repository, string remoteName,
             TagFetchMode tagFetchMode = TagFetchMode.Auto,
             ProgressHandler onProgress = null,
-            CompletionHandler onCompletion = null,
             UpdateTipsHandler onUpdateTips = null,
             TransferProgressHandler onTransferProgress = null,
             Credentials credentials = null)
@@ -244,7 +242,7 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNullOrEmptyString(remoteName, "remoteName");
 
             Remote remote = repository.Network.Remotes.RemoteForName(remoteName, true);
-            repository.Network.Fetch(remote, tagFetchMode, onProgress, onCompletion, onUpdateTips,
+            repository.Network.Fetch(remote, tagFetchMode, onProgress, onUpdateTips,
                 onTransferProgress, credentials);
         }
 
