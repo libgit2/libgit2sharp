@@ -20,5 +20,20 @@ namespace LibGit2Sharp
         /// the number of threads to create.
         /// </summary>
         public int PackbuilderDegreeOfParallelism { get; set; }
+
+        /// <summary>
+        /// Delegate to report errors when updating references on the remote.
+        /// </summary>
+        public PushStatusErrorHandler OnPushStatusError { get; set; }
+
+        /// <summary>
+        /// Delegate to report push network transfer progress.
+        /// </summary>
+        public PushTransferProgressHandler OnPushTransferProgress { get; set; }
+
+        /// <summary>
+        /// Delagate to report pack builder progress.
+        /// </summary>
+        public PackBuilderProgressHandler OnPackBuilderProgress { get; set; }
     }
 }

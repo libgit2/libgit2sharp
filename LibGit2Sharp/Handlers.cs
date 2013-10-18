@@ -34,6 +34,24 @@
     public delegate int TransferProgressHandler(TransferProgress progress);
 
     /// <summary>
+    /// Delegate definition for callback reporting push network progress.
+    /// </summary>
+    /// <param name="current">The current number of objects sent to server.</param>
+    /// <param name="total">The total number of objects to send to the server.</param>
+    /// <param name="bytes">The number of bytes sent to the server.</param>
+    /// <returns>True to cancel.</returns>
+    public delegate bool PushTransferProgressHandler(int current, int total, long bytes);
+
+    /// <summary>
+    /// Delegate definition for callback reporting pack builder progress.
+    /// </summary>
+    /// <param name="stage">The current stage progress is being reported for.</param>
+    /// <param name="current">The current number of objects processed in this this stage.</param>
+    /// <param name="total">The total number of objects to process for the current stage.</param>
+    /// <returns>True to cancel.</returns>
+    public delegate bool PackBuilderProgressHandler(PackBuilderStage stage, int current, int total);
+
+    /// <summary>
     /// Delegate definition to handle reporting errors when updating references on the remote.
     /// </summary>
     /// <param name="pushStatusErrors">The reference name and error from the server.</param>
@@ -63,4 +81,20 @@
     /// </summary>
     /// <param name="unmatchedPath">The unmatched path.</param>
     public delegate void UnmatchedPathHandler(string unmatchedPath);
+
+    /// <summary>
+    /// The stages of pack building.
+    /// </summary>
+    public enum PackBuilderStage
+    {
+        /// <summary>
+        /// Counting stage.
+        /// </summary>
+        Counting,
+
+        /// <summary>
+        /// Deltafying stage.
+        /// </summary>
+        Deltafying
+    }
 }

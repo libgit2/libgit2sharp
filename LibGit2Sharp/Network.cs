@@ -150,13 +150,11 @@ namespace LibGit2Sharp
         /// <param name="remote">The <see cref="Remote"/> to push to.</param>
         /// <param name="objectish">The source objectish to push.</param>
         /// <param name="destinationSpec">The reference to update on the remote.</param>
-        /// <param name="onPushStatusError">Handler for reporting failed push updates.</param>
         /// <param name="pushOptions"><see cref="PushOptions"/> controlling push behavior</param>
         public virtual void Push(
             Remote remote,
             string objectish,
             string destinationSpec,
-            PushStatusErrorHandler onPushStatusError,
             PushOptions pushOptions = null)
         {
             Ensure.ArgumentNotNull(remote, "remote");
@@ -164,7 +162,7 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNullOrEmptyString(destinationSpec, destinationSpec);
 
             Push(remote, string.Format(CultureInfo.InvariantCulture,
-                "{0}:{1}", objectish, destinationSpec), onPushStatusError, pushOptions);
+                "{0}:{1}", objectish, destinationSpec), pushOptions);
         }
 
         /// <summary>
@@ -172,18 +170,16 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="remote">The <see cref="Remote"/> to push to.</param>
         /// <param name="pushRefSpec">The pushRefSpec to push.</param>
-        /// <param name="onPushStatusError">Handler for reporting failed push updates.</param>
         /// <param name="pushOptions"><see cref="PushOptions"/> controlling push behavior</param>
         public virtual void Push(
             Remote remote,
             string pushRefSpec,
-            PushStatusErrorHandler onPushStatusError,
             PushOptions pushOptions = null)
         {
             Ensure.ArgumentNotNull(remote, "remote");
             Ensure.ArgumentNotNullOrEmptyString(pushRefSpec, "pushRefSpec");
 
-            Push(remote, new string[] { pushRefSpec }, onPushStatusError, pushOptions);
+            Push(remote, new string[] { pushRefSpec }, pushOptions);
         }
 
         /// <summary>
@@ -191,12 +187,10 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="remote">The <see cref="Remote"/> to push to.</param>
         /// <param name="pushRefSpecs">The pushRefSpecs to push.</param>
-        /// <param name="onPushStatusError">Handler for reporting failed push updates.</param>
         /// <param name="pushOptions"><see cref="PushOptions"/> controlling push behavior</param>
         public virtual void Push(
             Remote remote,
             IEnumerable<string> pushRefSpecs,
-            PushStatusErrorHandler onPushStatusError,
             PushOptions pushOptions = null)
         {
             Ensure.ArgumentNotNull(remote, "remote");
@@ -213,7 +207,7 @@ namespace LibGit2Sharp
                 pushOptions = new PushOptions();
             }
 
-            PushCallbacks pushStatusUpdates = new PushCallbacks(onPushStatusError);
+            PushCallbacks pushStatusUpdates = new PushCallbacks(pushOptions.OnPushStatusError);
 
             // Load the remote.
             using (RemoteSafeHandle remoteHandle = Proxy.git_remote_load(repository.Handle, remote.Name, true))
@@ -229,6 +223,14 @@ namespace LibGit2Sharp
                     // Perform the actual push.
                     using (PushSafeHandle pushHandle = Proxy.git_push_new(remoteHandle))
                     {
+                        PushTransferCallbacks pushTransferCallbacks = new PushTransferCallbacks(pushOptions.OnPushTransferProgress);
+                        PackbuilderCallbacks packBuilderCallbacks = new PackbuilderCallbacks(pushOptions.OnPackBuilderProgress);
+
+                        NativeMethods.git_push_transfer_progress pushProgress = pushTransferCallbacks.GenerateCallback();
+                        NativeMethods.git_packbuilder_progress packBuilderProgress = packBuilderCallbacks.GenerateCallback();
+                        
+                        Proxy.git_push_set_callbacks(pushHandle, pushProgress, packBuilderProgress);
+
                         // Set push options.
                         Proxy.git_push_set_options(pushHandle,
                             new GitPushOptions()

@@ -1134,6 +1134,17 @@ namespace LibGit2Sharp.Core
                 return handle;
             }
         }
+        public static void git_push_set_callbacks(
+            PushSafeHandle push,
+            NativeMethods.git_push_transfer_progress pushTransferProgress,
+            NativeMethods.git_packbuilder_progress packBuilderProgress)
+        {
+            using (ThreadAffinity())
+            {
+                int res = NativeMethods.git_push_set_callbacks(push, packBuilderProgress, IntPtr.Zero, pushTransferProgress, IntPtr.Zero);
+                Ensure.ZeroResult(res);
+            }
+        }
 
         public static void git_push_set_options(PushSafeHandle push, GitPushOptions options)
         {
