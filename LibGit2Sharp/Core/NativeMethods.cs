@@ -626,6 +626,18 @@ namespace LibGit2Sharp.Core
         [DllImport(libgit2)]
         internal static extern int git_push_new(out PushSafeHandle push, RemoteSafeHandle remote);
 
+        /* Push network progress notification function */
+        internal delegate int git_push_transfer_progress(uint current, uint total, UIntPtr bytes, IntPtr payload);
+        internal delegate int git_packbuilder_progress(int stage, uint current, uint total, IntPtr payload);
+
+        [DllImport(libgit2)]
+        internal static extern int git_push_set_callbacks(
+            PushSafeHandle push,
+            git_packbuilder_progress pack_progress_cb,
+            IntPtr pack_progress_cb_payload,
+            git_push_transfer_progress transfer_progress_cb,
+            IntPtr transfer_progress_cb_payload);
+
         [DllImport(libgit2)]
         internal static extern int git_push_set_options(PushSafeHandle push, GitPushOptions options);
 

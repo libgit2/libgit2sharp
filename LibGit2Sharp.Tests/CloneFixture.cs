@@ -116,7 +116,7 @@ namespace LibGit2Sharp.Tests
             var scd = BuildSelfCleaningDirectory();
 
             Repository.Clone(url, scd.DirectoryPath,
-                onTransferProgress: _ => { transferWasCalled = true; return 0; },
+                onTransferProgress: _ => { transferWasCalled = true; return true; },
                 onCheckoutProgress: (a, b, c) => checkoutWasCalled = true);
 
             Assert.True(transferWasCalled);

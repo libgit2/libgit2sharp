@@ -1135,6 +1135,18 @@ namespace LibGit2Sharp.Core
             }
         }
 
+        public static void git_push_set_callbacks(
+            PushSafeHandle push,
+            NativeMethods.git_push_transfer_progress pushTransferProgress,
+            NativeMethods.git_packbuilder_progress packBuilderProgress)
+        {
+            using (ThreadAffinity())
+            {
+                int res = NativeMethods.git_push_set_callbacks(push, packBuilderProgress, IntPtr.Zero, pushTransferProgress, IntPtr.Zero);
+                Ensure.ZeroResult(res);
+            }
+        }
+
         public static void git_push_set_options(PushSafeHandle push, GitPushOptions options)
         {
             using (ThreadAffinity())
@@ -2513,6 +2525,19 @@ namespace LibGit2Sharp.Core
             { typeof(bool), value => git_config_parse_bool(value) },
             { typeof(string), value => value },
         };
+
+        /// <summary>
+        /// Helper method for consistent conversion of return value on
+        /// Callbacks that support cancellation from bool to native type.
+        /// True indicates that function should continue, false indicates
+        /// user wants to cancel.
+        /// </summary>
+        /// <param name="result"></param>
+        /// <returns></returns>
+        internal static int ConvertResultToCancelFlag(bool result)
+        {
+            return result ? 0 : -1;
+        }
     }
 }
 // ReSharper restore InconsistentNaming

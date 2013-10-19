@@ -16,16 +16,14 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="network">The <see cref="Network"/> being worked with.</param>
         /// <param name="branch">The branch to push.</param>
-        /// <param name="onPushStatusError">Handler for reporting failed push updates.</param>
         /// <param name="pushOptions"><see cref="PushOptions"/> controlling push behavior</param>
         /// <exception cref="LibGit2SharpException">Throws if either the Remote or the UpstreamBranchCanonicalName is not set.</exception>
         public static void Push(
             this Network network,
             Branch branch,
-            PushStatusErrorHandler onPushStatusError = null,
             PushOptions pushOptions = null)
         {
-            network.Push(new[] { branch }, onPushStatusError, pushOptions);
+            network.Push(new[] { branch }, pushOptions);
         }
 
         /// <summary>
@@ -33,13 +31,11 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="network">The <see cref="Network"/> being worked with.</param>
         /// <param name="branches">The branches to push.</param>
-        /// <param name="onPushStatusError">Handler for reporting failed push updates.</param>
         /// <param name="pushOptions"><see cref="PushOptions"/> controlling push behavior</param>
         /// <exception cref="LibGit2SharpException">Throws if either the Remote or the UpstreamBranchCanonicalName is not set.</exception>
         public static void Push(
             this Network network,
             IEnumerable<Branch> branches,
-            PushStatusErrorHandler onPushStatusError = null,
             PushOptions pushOptions = null)
         {
             var enumeratedBranches = branches as IList<Branch> ?? branches.ToList();
@@ -55,80 +51,8 @@ namespace LibGit2Sharp
 
             foreach (var branch in enumeratedBranches)
             {
-                network.Push(branch.Remote, string.Format("{0}:{1}", branch.CanonicalName, branch.UpstreamBranchCanonicalName), onPushStatusError, pushOptions);
+                network.Push(branch.Remote, string.Format("{0}:{1}", branch.CanonicalName, branch.UpstreamBranchCanonicalName), pushOptions);
             }
-        }
-
-        /// <summary>
-        /// Push the objectish to the destination reference on the <see cref="Remote"/>.
-        /// </summary>
-        /// <param name="network">The <see cref="Network"/> being worked with.</param>
-        /// <param name="remote">The <see cref="Remote"/> to push to.</param>
-        /// <param name="objectish">The source objectish to push.</param>
-        /// <param name="destinationSpec">The reference to update on the remote.</param>
-        /// <param name="pushOptions"><see cref="PushOptions"/> controlling push behavior</param>
-        /// <returns>Results of the push operation.</returns>
-        public static PushResult Push(
-            this Network network,
-            Remote remote,
-            string objectish,
-            string destinationSpec,
-            PushOptions pushOptions = null)
-        {
-            Ensure.ArgumentNotNull(remote, "remote");
-            Ensure.ArgumentNotNull(objectish, "objectish");
-            Ensure.ArgumentNotNullOrEmptyString(destinationSpec, "destinationSpec");
-
-            return network.Push(remote, string.Format(CultureInfo.InvariantCulture,
-                "{0}:{1}", objectish, destinationSpec), pushOptions);
-        }
-
-        /// <summary>
-        /// Push specified reference to the <see cref="Remote"/>.
-        /// </summary>
-        /// <param name="network">The <see cref="Network"/> being worked with.</param>
-        /// <param name="remote">The <see cref="Remote"/> to push to.</param>
-        /// <param name="pushRefSpec">The pushRefSpec to push.</param>
-        /// <param name="pushOptions"><see cref="PushOptions"/> controlling push behavior</param>
-        /// <returns>Results of the push operation.</returns>
-        public static PushResult Push(
-            this Network network,
-            Remote remote,
-            string pushRefSpec,
-            PushOptions pushOptions = null)
-        {
-            Ensure.ArgumentNotNull(remote, "remote");
-            Ensure.ArgumentNotNullOrEmptyString(pushRefSpec, "pushRefSpec");
-
-            return network.Push(remote, new string[] { pushRefSpec }, pushOptions);
-        }
-
-        /// <summary>
-        /// Push specified references to the <see cref="Remote"/>.
-        /// </summary>
-        /// <param name="network">The <see cref="Network"/> being worked with.</param>
-        /// <param name="remote">The <see cref="Remote"/> to push to.</param>
-        /// <param name="pushRefSpecs">The pushRefSpecs to push.</param>
-        /// <param name="pushOptions"><see cref="PushOptions"/> controlling push behavior</param>
-        /// <returns>Results of the push operation.</returns>
-        public static PushResult Push(
-            this Network network,
-            Remote remote,
-            IEnumerable<string> pushRefSpecs,
-            PushOptions pushOptions = null)
-        {
-            Ensure.ArgumentNotNull(remote, "remote");
-            Ensure.ArgumentNotNull(pushRefSpecs, "pushRefSpecs");
-
-            var failedRemoteUpdates = new List<PushStatusError>();
-
-            network.Push(
-                remote,
-                pushRefSpecs,
-                failedRemoteUpdates.Add,
-                pushOptions);
-
-            return new PushResult(failedRemoteUpdates);
         }
     }
 }

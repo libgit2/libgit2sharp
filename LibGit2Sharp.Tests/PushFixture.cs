@@ -60,9 +60,20 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanPushABranchTrackingAnUpstreamBranch()
         {
+            bool packBuilderCalled = false;
+            Handlers.PackBuilderProgressHandler packBuilderCb = (x, y, z) => { packBuilderCalled = true; return true; };
+
             AssertPush(repo => repo.Network.Push(repo.Head));
             AssertPush(repo => repo.Network.Push(repo.Branches["master"]));
-            AssertPush(repo => repo.Network.Push(repo.Network.Remotes["origin"], "HEAD", @"refs/heads/master", OnPushStatusError));
+
+            PushOptions options = new PushOptions()
+            {
+                OnPushStatusError = OnPushStatusError,
+                OnPackBuilderProgress = packBuilderCb,
+            };
+
+            AssertPush(repo => repo.Network.Push(repo.Network.Remotes["origin"], "HEAD", @"refs/heads/master", options));
+            Assert.True(packBuilderCalled);
         }
 
         [Fact]
