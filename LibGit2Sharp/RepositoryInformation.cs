@@ -37,7 +37,7 @@ namespace LibGit2Sharp
         /// <summary>
         /// Gets the normalized path to the working directory.
         /// <para>
-        ///   Is the repository is bare, null is returned.
+        ///   If the repository is bare, null is returned.
         /// </para>
         /// </summary>
         public virtual string WorkingDirectory { get; private set; }
