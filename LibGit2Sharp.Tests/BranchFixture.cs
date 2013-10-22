@@ -450,6 +450,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        [Fact]
         public void CanGetInformationFromUnbornBranch()
         {
             string repoPath = InitNewRepository(true);
