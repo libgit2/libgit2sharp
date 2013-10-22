@@ -4,12 +4,37 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
+using Xunit.Extensions;
 
 namespace LibGit2Sharp.Tests
 {
     public class MetaFixture
     {
+        [Fact]
+        public void PublicTestMethodsAreFactsOrTheories()
+        {
+            var exceptions = new[]
+            {
+                "LibGit2Sharp.Tests.FilterBranchFixture.Dispose",
+            };
+
+            var fixtures = from t in Assembly.GetAssembly(typeof(MetaFixture)).GetExportedTypes()
+                           where t.IsPublic && !t.IsNested
+                           where t.Namespace != typeof(BaseFixture).Namespace // Exclude helpers
+                           let methods = t.GetMethods(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public)
+                           from m in methods
+                           where !m.GetCustomAttributes(typeof(FactAttribute), false)
+                                   .Concat(m.GetCustomAttributes(typeof(TheoryAttribute), false))
+                                   .Any()
+                           let name = t.FullName + "." + m.Name
+                           where !exceptions.Contains(name)
+                           select name;
+
+            Assert.Equal("", string.Join(Environment.NewLine, fixtures.ToArray()));
+        }
+
         // Related to https://github.com/libgit2/libgit2sharp/pull/251
         [Fact]
         public void TypesInLibGit2DecoratedWithDebuggerDisplayMustFollowTheStandardImplPattern()
