@@ -88,6 +88,7 @@ namespace LibGit2Sharp.Core
             }
         }
 
+        // Should match LibGit2Sharp.Tests.TestHelpers.BaseFixture.IsRunningOnLinux()
         private static bool IsRunningOnLinux()
         {
             // see http://mono-project.com/FAQ%3a_Technical#Mono_Platforms
