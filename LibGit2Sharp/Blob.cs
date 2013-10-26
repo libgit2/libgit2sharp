@@ -38,6 +38,7 @@ namespace LibGit2Sharp
         /// <summary>
         /// Gets the blob content in a <see cref="byte"/> array.
         /// </summary>
+        [Obsolete("This property will be removed in the next release. Please use one of the GetContentStream() overloads instead.")]
         public virtual byte[] Content
         {
             get
@@ -49,7 +50,7 @@ namespace LibGit2Sharp
         /// <summary>
         /// Gets the blob content in a <see cref="Stream"/>.
         /// </summary>
-        public virtual Stream ContentStream()
+        public virtual Stream GetContentStream()
         {
             return Proxy.git_blob_rawcontent_stream(repo.Handle, Id, Size);
         }
@@ -59,10 +60,22 @@ namespace LibGit2Sharp
         /// checked out to the working directory.
         /// <param name="filteringOptions">Parameter controlling content filtering behavior</param>
         /// </summary>
-        public virtual Stream ContentStream(FilteringOptions filteringOptions)
+        public virtual Stream GetContentStream(FilteringOptions filteringOptions)
         {
             Ensure.ArgumentNotNull(filteringOptions, "filteringOptions");
             return Proxy.git_blob_filtered_content_stream(repo.Handle, Id, filteringOptions.HintPath, false);
+        }
+
+        /// <summary>
+        /// Gets the blob content in a <see cref="Stream"/>.
+        /// </summary>
+        [Obsolete("This property will be removed in the next release. Please use one of the GetContentStream() overloads instead.")]
+        public virtual Stream ContentStream
+        {
+            get
+            {
+                return GetContentStream();
+            }
         }
     }
 }
