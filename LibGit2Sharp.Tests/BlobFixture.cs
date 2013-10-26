@@ -17,7 +17,7 @@ namespace LibGit2Sharp.Tests
             {
                 var blob = repo.Lookup<Blob>("a8233120f6ad708f843d861ce2b7228ec4e3dec6");
 
-                var text = blob.ContentAsText();
+                var text = blob.GetContentText();
 
                 Assert.Equal("hey there\n", text);
             }
@@ -30,7 +30,7 @@ namespace LibGit2Sharp.Tests
             {
                 var blob = repo.Lookup<Blob>("a8233120f6ad708f843d861ce2b7228ec4e3dec6");
 
-                var text = blob.ContentAsText(new FilteringOptions("foo.txt"));
+                var text = blob.GetContentText(new FilteringOptions("foo.txt"));
 
                 ConfigurationEntry<bool> autocrlf = repo.Config.Get<bool>("core.autocrlf");
 
@@ -68,15 +68,15 @@ namespace LibGit2Sharp.Tests
                 var commit = repo.Commit("bom", Constants.Signature, Constants.Signature);
 
                 var blob = (Blob)commit.Tree[bomFile].Target;
-                Assert.Equal(expectedContentBytes, blob.Content.Length);
+                Assert.Equal(expectedContentBytes, blob.GetContentStream().Length);
 
-                var textDetected = blob.ContentAsText();
+                var textDetected = blob.GetContentText();
                 Assert.Equal(content, textDetected);
 
-                var text = blob.ContentAsText(encoding);
+                var text = blob.GetContentText(encoding);
                 Assert.Equal(content, text);
 
-                var utf7Chars = blob.ContentAsText(Encoding.UTF7).Select(c => ((int)c).ToString("X2")).ToArray();
+                var utf7Chars = blob.GetContentText(Encoding.UTF7).Select(c => ((int)c).ToString("X2")).ToArray();
                 Assert.Equal(expectedUtf7Chars, string.Join(" ", utf7Chars));
             }
         }
@@ -107,7 +107,12 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(BareTestRepoPath))
             {
                 var blob = repo.Lookup<Blob>("a8233120f6ad708f843d861ce2b7228ec4e3dec6");
-                byte[] bytes = blob.Content;
+                var size = blob.Size;
+                var bytes = new byte[size];
+                using (var stream = blob.GetContentStream())
+                {
+                    stream.Read(bytes, 0, size);
+                }
                 Assert.Equal(10, bytes.Length);
 
                 string content = Encoding.UTF8.GetString(bytes);
@@ -122,7 +127,7 @@ namespace LibGit2Sharp.Tests
             {
                 var blob = repo.Lookup<Blob>("a8233120f6ad708f843d861ce2b7228ec4e3dec6");
 
-                using (var tr = new StreamReader(blob.ContentStream(), Encoding.UTF8))
+                using (var tr = new StreamReader(blob.GetContentStream(), Encoding.UTF8))
                 {
                     string content = tr.ReadToEnd();
                     Assert.Equal("hey there\n", content);
@@ -137,7 +142,7 @@ namespace LibGit2Sharp.Tests
             {
                 var blob = repo.Lookup<Blob>("a8233120f6ad708f843d861ce2b7228ec4e3dec6");
 
-                using (var tr = new StreamReader(blob.ContentStream(new FilteringOptions("foo.txt")), Encoding.UTF8))
+                using (var tr = new StreamReader(blob.GetContentStream(new FilteringOptions("foo.txt")), Encoding.UTF8))
                 {
                     string content = tr.ReadToEnd();
 
@@ -167,38 +172,12 @@ namespace LibGit2Sharp.Tests
                 {
                     Blob blob = repo.ObjectDatabase.CreateBlob(stream);
 
-                    using (var filtered = blob.ContentStream(new FilteringOptions("foo.txt")))
+                    using (var filtered = blob.GetContentStream(new FilteringOptions("foo.txt")))
                     {
                         Assert.True(StreamEquals(stream, filtered));
                     }
                 }
             }
-        }
-
-        public static void CopyStream(Stream input, Stream output)
-        {
-            // Reused from the following Stack Overflow post with permission
-            // of Jon Skeet (obtained on 25 Feb 2013)
-            // http://stackoverflow.com/questions/411592/how-do-i-save-a-stream-to-a-file/411605#411605
-            var buffer = new byte[8*1024];
-            int len;
-            while ((len = input.Read(buffer, 0, buffer.Length)) > 0)
-            {
-                output.Write(buffer, 0, len);
-            }
-        }
-
-        public static bool StreamEquals(Stream one, Stream two)
-        {
-            int onebyte, twobyte;
-
-            while ((onebyte = one.ReadByte()) >= 0 && (twobyte = two.ReadByte()) >= 0)
-            {
-                if (onebyte != twobyte)
-                    return false;
-            }
-
-            return true;
         }
 
         [Fact]
@@ -224,7 +203,7 @@ namespace LibGit2Sharp.Tests
 
                 var blob = repo.Lookup<Blob>(entry.Id.Sha);
 
-                using (Stream stream = blob.ContentStream())
+                using (Stream stream = blob.GetContentStream())
                 using (Stream file = File.OpenWrite(Path.Combine(repo.Info.WorkingDirectory, "small.fromblob.txt")))
                 {
                     CopyStream(stream, file);

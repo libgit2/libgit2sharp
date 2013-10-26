@@ -40,7 +40,7 @@ namespace LibGit2Sharp.Tests
             var blob = repo.Lookup<Blob>(entry.Id);
             Assert.NotNull(blob);
 
-            Assert.Equal(!shouldHaveBeenNormalized, blob.ContentAsText().Contains("\r"));
+            Assert.Equal(!shouldHaveBeenNormalized, blob.GetContentText().Contains("\r"));
         }
 
         private static void CreateAttributesFile(Repository repo)
