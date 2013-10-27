@@ -38,6 +38,7 @@ namespace LibGit2Sharp
         /// <summary>
         /// Gets the blob content in a <see cref="byte"/> array.
         /// </summary>
+        [Obsolete("This property will be removed in the next release. Please use one of the GetContentStream() overloads instead.")]
         public virtual byte[] Content
         {
             get

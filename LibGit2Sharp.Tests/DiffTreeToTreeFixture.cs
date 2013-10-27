@@ -466,7 +466,10 @@ namespace LibGit2Sharp.Tests
                 // Recreate the file in the workdir without the executable bit
                 string fullpath = Path.Combine(repo.Info.WorkingDirectory, file);
                 File.Delete(fullpath);
-                File.WriteAllBytes(fullpath, ((Blob)(entry.Target)).Content);
+                using (var stream = ((Blob)(entry.Target)).GetContentStream())
+                {
+                    Touch(repo.Info.WorkingDirectory, file, stream);
+                }
 
                 // Unset the local core.filemode, if any.
                 repo.Config.Unset("core.filemode");

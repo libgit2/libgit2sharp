@@ -68,7 +68,7 @@ namespace LibGit2Sharp.Tests
                 var commit = repo.Commit("bom", Constants.Signature, Constants.Signature);
 
                 var blob = (Blob)commit.Tree[bomFile].Target;
-                Assert.Equal(expectedContentBytes, blob.Content.Length);
+                Assert.Equal(expectedContentBytes, blob.GetContentStream().Length);
 
                 var textDetected = blob.GetContentText();
                 Assert.Equal(content, textDetected);
@@ -98,20 +98,6 @@ namespace LibGit2Sharp.Tests
             {
                 var blob = repo.Lookup<Blob>("a8233120f6ad708f843d861ce2b7228ec4e3dec6");
                 Assert.NotNull(blob);
-            }
-        }
-
-        [Fact]
-        public void CanReadBlobContent()
-        {
-            using (var repo = new Repository(BareTestRepoPath))
-            {
-                var blob = repo.Lookup<Blob>("a8233120f6ad708f843d861ce2b7228ec4e3dec6");
-                byte[] bytes = blob.Content;
-                Assert.Equal(10, bytes.Length);
-
-                string content = Encoding.UTF8.GetString(bytes);
-                Assert.Equal("hey there\n", content);
             }
         }
 
