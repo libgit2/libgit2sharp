@@ -122,7 +122,7 @@ namespace LibGit2Sharp.Tests
             {
                 var blob = repo.Lookup<Blob>("a8233120f6ad708f843d861ce2b7228ec4e3dec6");
 
-                using (var tr = new StreamReader(blob.ContentStream(), Encoding.UTF8))
+                using (var tr = new StreamReader(blob.GetContentStream(), Encoding.UTF8))
                 {
                     string content = tr.ReadToEnd();
                     Assert.Equal("hey there\n", content);
@@ -137,7 +137,7 @@ namespace LibGit2Sharp.Tests
             {
                 var blob = repo.Lookup<Blob>("a8233120f6ad708f843d861ce2b7228ec4e3dec6");
 
-                using (var tr = new StreamReader(blob.ContentStream(new FilteringOptions("foo.txt")), Encoding.UTF8))
+                using (var tr = new StreamReader(blob.GetContentStream(new FilteringOptions("foo.txt")), Encoding.UTF8))
                 {
                     string content = tr.ReadToEnd();
 
@@ -167,7 +167,7 @@ namespace LibGit2Sharp.Tests
                 {
                     Blob blob = repo.ObjectDatabase.CreateBlob(stream);
 
-                    using (var filtered = blob.ContentStream(new FilteringOptions("foo.txt")))
+                    using (var filtered = blob.GetContentStream(new FilteringOptions("foo.txt")))
                     {
                         Assert.True(StreamEquals(stream, filtered));
                     }
@@ -198,7 +198,7 @@ namespace LibGit2Sharp.Tests
 
                 var blob = repo.Lookup<Blob>(entry.Id.Sha);
 
-                using (Stream stream = blob.ContentStream())
+                using (Stream stream = blob.GetContentStream())
                 using (Stream file = File.OpenWrite(Path.Combine(repo.Info.WorkingDirectory, "small.fromblob.txt")))
                 {
                     CopyStream(stream, file);
