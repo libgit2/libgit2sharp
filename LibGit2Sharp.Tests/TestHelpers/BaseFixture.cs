@@ -270,6 +270,25 @@ namespace LibGit2Sharp.Tests.TestHelpers
             return filePath;
         }
 
+        protected static string Touch(string parent, string file, Stream stream)
+        {
+            Debug.Assert(stream != null);
+
+            string filePath = Path.Combine(parent, file);
+            string dir = Path.GetDirectoryName(filePath);
+            Debug.Assert(dir != null);
+
+            Directory.CreateDirectory(dir);
+
+            using (var fs = File.Open(filePath, FileMode.Create))
+            {
+                CopyStream(stream, fs);
+                fs.Flush();
+            }
+
+            return filePath;
+        }
+
         protected string Expected(string filename)
         {
             return File.ReadAllText(Path.Combine(ResourcesDirectory.FullName, "expected/" + filename));
