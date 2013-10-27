@@ -17,7 +17,7 @@ namespace LibGit2Sharp.Tests
             {
                 var blob = repo.Lookup<Blob>("a8233120f6ad708f843d861ce2b7228ec4e3dec6");
 
-                var text = blob.ContentAsText();
+                var text = blob.GetContentText();
 
                 Assert.Equal("hey there\n", text);
             }
@@ -30,7 +30,7 @@ namespace LibGit2Sharp.Tests
             {
                 var blob = repo.Lookup<Blob>("a8233120f6ad708f843d861ce2b7228ec4e3dec6");
 
-                var text = blob.ContentAsText(new FilteringOptions("foo.txt"));
+                var text = blob.GetContentText(new FilteringOptions("foo.txt"));
 
                 ConfigurationEntry<bool> autocrlf = repo.Config.Get<bool>("core.autocrlf");
 
@@ -70,13 +70,13 @@ namespace LibGit2Sharp.Tests
                 var blob = (Blob)commit.Tree[bomFile].Target;
                 Assert.Equal(expectedContentBytes, blob.Content.Length);
 
-                var textDetected = blob.ContentAsText();
+                var textDetected = blob.GetContentText();
                 Assert.Equal(content, textDetected);
 
-                var text = blob.ContentAsText(encoding);
+                var text = blob.GetContentText(encoding);
                 Assert.Equal(content, text);
 
-                var utf7Chars = blob.ContentAsText(Encoding.UTF7).Select(c => ((int)c).ToString("X2")).ToArray();
+                var utf7Chars = blob.GetContentText(Encoding.UTF7).Select(c => ((int)c).ToString("X2")).ToArray();
                 Assert.Equal(expectedUtf7Chars, string.Join(" ", utf7Chars));
             }
         }
