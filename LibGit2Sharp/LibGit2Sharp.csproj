@@ -74,6 +74,7 @@
     <Compile Include="Core\EncodingMarshaler.cs" />
     <Compile Include="Core\PushTransferProgressCallbacks.cs" />
     <Compile Include="Core\PackbuilderCallbacks.cs" />
+    <Compile Include="IConfiguration.cs" />
     <Compile Include="PushOptions.cs" />
     <Compile Include="Core\GitBuf.cs" />
     <Compile Include="FilteringOptions.cs" />
