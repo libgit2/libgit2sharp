@@ -286,21 +286,5 @@ namespace LibGit2Sharp
                                                       (ConfigurationLevel)entry.level);
             });
         }
-
-        internal Signature BuildSignatureFromGlobalConfiguration(DateTimeOffset now, bool shouldThrowIfNotFound)
-        {
-            var name = Get<string>("user.name");
-            var email = Get<string>("user.email");
-
-            if (shouldThrowIfNotFound && ((name == null) || (email == null)))
-            {
-                throw new LibGit2SharpException("Can not find Name or Email setting of the current user in Git configuration.");
-            }
-
-            return new Signature(
-                name != null ? name.Value : "unknown",
-                email != null ? email.Value : string.Format("{0}@{1}", Environment.UserName, Environment.UserDomainName),
-                now);
-        }
     }
 }
