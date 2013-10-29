@@ -190,7 +190,14 @@ namespace LibGit2Sharp
             return ValueOrDefault(config.Get<T>(firstKeyPart, secondKeyPart, thirdKeyPart), defaultValueSelector);
         }
 
-        internal static Signature BuildSignatureFromGlobalConfiguration(this IConfiguration config, DateTimeOffset now, bool shouldThrowIfNotFound)
+        /// <summary>
+        /// Create a signature based on the user's current environment
+        /// </summary>
+        /// <param name="config">The configuration settings</param>
+        /// <param name="now">The timestamp of the signature</param>
+        /// <param name="shouldThrowIfNotFound">If the environment is not configured correctly, raise an exception</param>
+        /// <returns></returns>
+        public static Signature BuildSignatureFromGlobalConfiguration(this IConfiguration config, DateTimeOffset now, bool shouldThrowIfNotFound)
         {
             var name = config.Get<string>("user.name");
             var email = config.Get<string>("user.email");
