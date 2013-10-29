@@ -194,6 +194,14 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(remote, "remote");
             Ensure.ArgumentNotNull(pushRefSpecs, "pushRefSpecs");
 
+            // The following local variables are protected from garbage collection
+            // by a GC.KeepAlive call at the end of the method. Otherwise,
+            // random crashes during push progress reporting could occur.
+            PushTransferCallbacks pushTransferCallbacks;
+            PackbuilderCallbacks packBuilderCallbacks;
+            NativeMethods.git_push_transfer_progress pushProgress;
+            NativeMethods.git_packbuilder_progress packBuilderProgress;
+
             // Return early if there is nothing to push.
             if (!pushRefSpecs.Any())
             {
@@ -221,11 +229,11 @@ namespace LibGit2Sharp
                     // Perform the actual push.
                     using (PushSafeHandle pushHandle = Proxy.git_push_new(remoteHandle))
                     {
-                        PushTransferCallbacks pushTransferCallbacks = new PushTransferCallbacks(pushOptions.OnPushTransferProgress);
-                        PackbuilderCallbacks packBuilderCallbacks = new PackbuilderCallbacks(pushOptions.OnPackBuilderProgress);
+                        pushTransferCallbacks = new PushTransferCallbacks(pushOptions.OnPushTransferProgress);
+                        packBuilderCallbacks = new PackbuilderCallbacks(pushOptions.OnPackBuilderProgress);
 
-                        NativeMethods.git_push_transfer_progress pushProgress = pushTransferCallbacks.GenerateCallback();
-                        NativeMethods.git_packbuilder_progress packBuilderProgress = packBuilderCallbacks.GenerateCallback();
+                        pushProgress = pushTransferCallbacks.GenerateCallback();
+                        packBuilderProgress = packBuilderCallbacks.GenerateCallback();
 
                         Proxy.git_push_set_callbacks(pushHandle, pushProgress, packBuilderProgress);
 
@@ -259,6 +267,11 @@ namespace LibGit2Sharp
                     Proxy.git_remote_disconnect(remoteHandle);
                 }
             }
+
+            GC.KeepAlive(pushProgress);
+            GC.KeepAlive(packBuilderProgress);
+            GC.KeepAlive(pushTransferCallbacks);
+            GC.KeepAlive(packBuilderCallbacks);
         }
 
         /// <summary>
