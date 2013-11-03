@@ -23,25 +23,24 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Fact]
-        public void CanGetBlobAsFilteredText()
+        [SkippableTheory]
+        [InlineData("false", "hey there\n")]
+        [InlineData("input", "hey there\n")]
+        [InlineData("true", "hey there\r\n")]
+        public void CanGetBlobAsFilteredText(string autocrlf, string expectedText)
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            SkipIfNotSupported(autocrlf);
+
+            var path = CloneBareTestRepo();
+            using (var repo = new Repository(path))
             {
+                repo.Config.Set("core.autocrlf", autocrlf);
+
                 var blob = repo.Lookup<Blob>("a8233120f6ad708f843d861ce2b7228ec4e3dec6");
 
                 var text = blob.GetContentText(new FilteringOptions("foo.txt"));
 
-                ConfigurationEntry<bool> autocrlf = repo.Config.Get<bool>("core.autocrlf");
-
-                if (autocrlf != null && autocrlf.Value)
-                {
-                    Assert.Equal("hey there\r\n", text);
-                }
-                else
-                {
-                    Assert.Equal("hey there\n", text);
-                }
+                Assert.Equal(expectedText, text);
             }
         }
 
@@ -108,7 +107,10 @@ namespace LibGit2Sharp.Tests
             {
                 var blob = repo.Lookup<Blob>("a8233120f6ad708f843d861ce2b7228ec4e3dec6");
 
-                using (var tr = new StreamReader(blob.GetContentStream(), Encoding.UTF8))
+                var contentStream = blob.GetContentStream();
+                Assert.Equal(blob.Size, contentStream.Length);
+
+                using (var tr = new StreamReader(contentStream, Encoding.UTF8))
                 {
                     string content = tr.ReadToEnd();
                     Assert.Equal("hey there\n", content);
@@ -116,27 +118,29 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Fact]
-        public void CanReadBlobFilteredStream()
+        [SkippableTheory]
+        [InlineData("false", "hey there\n")]
+        [InlineData("input", "hey there\n")]
+        [InlineData("true", "hey there\r\n")]
+        public void CanReadBlobFilteredStream(string autocrlf, string expectedContent)
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            SkipIfNotSupported(autocrlf);
+
+            var path = CloneBareTestRepo();
+            using (var repo = new Repository(path))
             {
+                repo.Config.Set("core.autocrlf", autocrlf);
+
                 var blob = repo.Lookup<Blob>("a8233120f6ad708f843d861ce2b7228ec4e3dec6");
 
-                using (var tr = new StreamReader(blob.GetContentStream(new FilteringOptions("foo.txt")), Encoding.UTF8))
+                var contentStream = blob.GetContentStream(new FilteringOptions("foo.txt"));
+                Assert.Equal(expectedContent.Length, contentStream.Length);
+
+                using (var tr = new StreamReader(contentStream, Encoding.UTF8))
                 {
                     string content = tr.ReadToEnd();
 
-                    ConfigurationEntry<bool> autocrlf = repo.Config.Get<bool>("core.autocrlf");
-
-                    if (autocrlf != null && autocrlf.Value)
-                    {
-                        Assert.Equal("hey there\r\n", content);
-                    }
-                    else
-                    {
-                        Assert.Equal("hey there\n", content);
-                    }
+                    Assert.Equal(expectedContent, content);
                 }
             }
         }
@@ -155,6 +159,7 @@ namespace LibGit2Sharp.Tests
 
                     using (var filtered = blob.GetContentStream(new FilteringOptions("foo.txt")))
                     {
+                        Assert.Equal(blob.Size, filtered.Length);
                         Assert.True(StreamEquals(stream, filtered));
                     }
                 }
@@ -205,6 +210,12 @@ namespace LibGit2Sharp.Tests
                 var blob = repo.Lookup<Blob>("a8233120f6ad708f843d861ce2b7228ec4e3dec6");
                 Assert.Equal(false, blob.IsBinary);
             }
+        }
+
+        private static void SkipIfNotSupported(string autocrlf)
+        {
+            InconclusiveIf(() => autocrlf == "true" && IsRunningOnLinux(), "Non-Windows does not support core.autocrlf = true");
+            InconclusiveIf(() => autocrlf == "input" && !IsRunningOnLinux(), "Windows does not support core.autocrlf = input");
         }
     }
 }

@@ -26,7 +26,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Gets the size in bytes of the contents of a blob
+        /// Gets the size in bytes of the raw content of a blob.
         /// </summary>
         public virtual int Size { get { return (int)lazySize.Value; } }
 
