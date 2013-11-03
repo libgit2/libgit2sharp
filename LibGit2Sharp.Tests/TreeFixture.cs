@@ -200,5 +200,28 @@ namespace LibGit2Sharp.Tests
                 Assert.NotSame(anotherInstance, anInstance);
             }
         }
+
+        [Fact]
+        public void CanParseSymlinkTreeEntries()
+        {
+            var path = CloneBareTestRepo();
+
+            using (var repo = new Repository(path))
+            {
+                Blob linkContent = OdbHelper.CreateBlob(repo, "1/branch_file.txt");
+
+                var td = TreeDefinition.From(repo.Head.Tip)
+                    .Add("A symlink", linkContent, Mode.SymbolicLink);
+
+                Tree t = repo.ObjectDatabase.CreateTree(td);
+
+                var te = t["A symlink"];
+                
+                Assert.NotNull(te);
+                
+                Assert.Equal(Mode.SymbolicLink, te.Mode);
+                Assert.Equal(linkContent, te.Target);
+            }
+        }
     }
 }
