@@ -178,8 +178,8 @@ namespace LibGit2Sharp.Core
 }
 "@
 
-	sc -Encoding ASCII .\Libgit2sharp\Core\NativeDllName.cs $dllNameClass
-	sc -Encoding ASCII libgit2sharp\libgit2_hash.txt $sha
+	sc -Encoding ASCII (Join-Path $libgit2sharpDirectory "Libgit2sharp\Core\NativeDllName.cs") $dllNameClass
+	sc -Encoding ASCII (Join-Path $libgit2sharpDirectory "Libgit2sharp\libgit2_hash.txt") $sha
 
 	Write-Output "Done!"
 }
