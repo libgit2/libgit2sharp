@@ -10,6 +10,8 @@ namespace LibGit2Sharp.Tests
     public class FilterBranchFixture : BaseFixture
     {
         private readonly Repository repo;
+        private bool succeeding;
+        private Exception error;
 
         public FilterBranchFixture()
         {
@@ -32,8 +34,12 @@ namespace LibGit2Sharp.Tests
             // Noop header rewriter
             repo.Refs.RewriteHistory(new RewriteHistoryOptions
             {
+                OnError = OnError,
+                OnSucceeding = OnSucceeding,
                 CommitHeaderRewriter = CommitRewriteInfo.From,
             }, commits);
+
+            AssertSucceedingButNotError();
 
             Assert.Equal(originalRefs, repo.Refs.ToList().OrderBy(r => r.CanonicalName));
             Assert.Equal(commits, repo.Commits.QueryBy(new CommitFilter { Since = repo.Refs }).ToArray());
@@ -48,8 +54,94 @@ namespace LibGit2Sharp.Tests
             // Noop tree rewriter
             repo.Refs.RewriteHistory(new RewriteHistoryOptions
             {
+                OnError = OnError,
+                OnSucceeding = OnSucceeding,
                 CommitTreeRewriter = TreeDefinition.From,
             }, commits);
+
+            AssertSucceedingButNotError();
+
+            Assert.Equal(originalRefs, repo.Refs.ToList().OrderBy(r => r.CanonicalName));
+            Assert.Equal(commits, repo.Commits.QueryBy(new CommitFilter { Since = repo.Refs }).ToArray());
+        }
+
+        [Fact]
+        public void CanRollbackRewriteByThrowingInOnCompleting()
+        {
+            var originalRefs = repo.Refs.ToList().OrderBy(r => r.CanonicalName);
+            var commits = repo.Commits.QueryBy(new CommitFilter { Since = repo.Refs }).ToArray();
+
+            Assert.Throws<Exception>(
+                () =>
+                repo.Refs.RewriteHistory(new RewriteHistoryOptions
+                {
+                    OnError = OnError,
+                    OnSucceeding =
+                        () =>
+                            {
+                                succeeding = true;
+                                throw new Exception();
+                            },
+                    CommitHeaderRewriter =
+                        c => CommitRewriteInfo.From(c, message: "Rewritten " + c.Message),
+                }, commits)
+                );
+
+            AssertSucceedingButNotError();
+
+            Assert.Equal(originalRefs, repo.Refs.ToList().OrderBy(r => r.CanonicalName));
+            Assert.Equal(commits, repo.Commits.QueryBy(new CommitFilter { Since = repo.Refs }).ToArray());
+        }
+
+        [Fact]
+        public void ErrorThrownInOnErrorTakesPrecedenceOverErrorDuringCommitHeaderRewriter()
+        {
+            var originalRefs = repo.Refs.ToList().OrderBy(r => r.CanonicalName);
+            var commits = repo.Commits.QueryBy(new CommitFilter { Since = repo.Refs }).ToArray();
+
+            var thrown = Assert.Throws<Exception>(
+                () =>
+                repo.Refs.RewriteHistory(new RewriteHistoryOptions
+                {
+                    OnError =
+                        ex => { throw new Exception("From OnError", ex); },
+                    OnSucceeding = OnSucceeding,
+                    CommitHeaderRewriter =
+                        c => { throw new Exception("From CommitHeaderRewriter"); },
+                }, commits)
+                );
+
+            AssertSucceedingNotFired();
+            Assert.Equal("From OnError", thrown.Message);
+            Assert.NotNull(thrown.InnerException);
+            Assert.Equal("From CommitHeaderRewriter", thrown.InnerException.Message);
+
+            Assert.Equal(originalRefs, repo.Refs.ToList().OrderBy(r => r.CanonicalName));
+            Assert.Equal(commits, repo.Commits.QueryBy(new CommitFilter { Since = repo.Refs }).ToArray());
+        }
+
+        [Fact]
+        public void ErrorThrownInOnErrorTakesPrecedenceOverErrorDuringCommitTreeRewriter()
+        {
+            var originalRefs = repo.Refs.ToList().OrderBy(r => r.CanonicalName);
+            var commits = repo.Commits.QueryBy(new CommitFilter { Since = repo.Refs }).ToArray();
+
+            var thrown = Assert.Throws<Exception>(
+                () =>
+                repo.Refs.RewriteHistory(new RewriteHistoryOptions
+                {
+                    OnError =
+                        ex => { throw new Exception("From OnError", ex); },
+                    OnSucceeding = OnSucceeding,
+                    CommitTreeRewriter =
+                        c => { throw new Exception("From CommitTreeRewriter"); },
+                }, commits)
+                );
+
+            AssertSucceedingNotFired();
+            Assert.Equal("From OnError", thrown.Message);
+            Assert.NotNull(thrown.InnerException);
+            Assert.Equal("From CommitTreeRewriter", thrown.InnerException.Message);
 
             Assert.Equal(originalRefs, repo.Refs.ToList().OrderBy(r => r.CanonicalName));
             Assert.Equal(commits, repo.Commits.QueryBy(new CommitFilter { Since = repo.Refs }).ToArray());
@@ -61,10 +153,14 @@ namespace LibGit2Sharp.Tests
             var commits = repo.Commits.QueryBy(new CommitFilter { Since = repo.Refs }).ToArray();
             repo.Refs.RewriteHistory(new RewriteHistoryOptions
             {
+                OnError = OnError,
+                OnSucceeding = OnSucceeding,
                 CommitHeaderRewriter =
                     c =>
                     CommitRewriteInfo.From(c, author: new Signature("Ben Straub", "me@example.com", c.Author.When)),
             }, commits);
+
+            AssertSucceedingButNotError();
 
             var nonBackedUpRefs = repo.Refs.Where(x => !x.CanonicalName.StartsWith("refs/original"));
             Assert.Empty(repo.Commits.QueryBy(new CommitFilter { Since = nonBackedUpRefs })
@@ -85,9 +181,13 @@ namespace LibGit2Sharp.Tests
 
             repo.Refs.RewriteHistory(new RewriteHistoryOptions
             {
+                OnError = OnError,
+                OnSucceeding = OnSucceeding,
                 CommitHeaderRewriter =
                     c => CommitRewriteInfo.From(c, message: "Bam!"),
             }, commit);
+
+            AssertSucceedingButNotError();
 
             var lightweightTag = repo.Tags["so-lonely"];
             Assert.Equal("Bam!\n", ((Commit)lightweightTag.Target).Message);
@@ -101,10 +201,14 @@ namespace LibGit2Sharp.Tests
         {
             repo.Refs.RewriteHistory(new RewriteHistoryOptions
             {
+                OnError = OnError,
+                OnSucceeding = OnSucceeding,
                 CommitTreeRewriter =
                     c => TreeDefinition.From(c)
                                        .Remove("README"),
             }, repo.Head.Commits);
+
+            AssertSucceedingButNotError();
 
             Assert.True(repo.Head.Commits.All(c => c["README"] == null));
         }
@@ -190,18 +294,22 @@ namespace LibGit2Sharp.Tests
         [InlineData(new[] { "1" }, 6, "be3563a")]
 
         // If all trees are empty, master should be an orphan
-        [InlineData(new[] { "1", "branch_file.txt", "new.txt", "README"  }, 0, null)]
+        [InlineData(new[] { "1", "branch_file.txt", "new.txt", "README" }, 0, null)]
         public void CanPruneEmptyCommits(string[] treeEntriesToRemove, int expectedCommitCount, string expectedHead)
         {
             Assert.Equal(7, repo.Head.Commits.Count());
 
             repo.Refs.RewriteHistory(new RewriteHistoryOptions
             {
+                OnError = OnError,
+                OnSucceeding = OnSucceeding,
                 PruneEmptyCommits = true,
                 CommitTreeRewriter =
                     c => TreeDefinition.From(c)
                                        .Remove(treeEntriesToRemove),
             }, repo.Head.Commits);
+
+            AssertSucceedingButNotError();
 
             Assert.Equal(expectedCommitCount, repo.Head.Commits.Count());
 
@@ -235,9 +343,13 @@ namespace LibGit2Sharp.Tests
 
             repo.Refs.RewriteHistory(new RewriteHistoryOptions
             {
+                OnError = OnError,
+                OnSucceeding = OnSucceeding,
                 CommitHeaderRewriter =
                     c => CommitRewriteInfo.From(c, author: Constants.Signature),
             }, parent);
+
+            AssertSucceedingButNotError();
 
             commit = repo.Branches["packed"].Tip;
             parent = commit.Parents.Single();
@@ -254,19 +366,28 @@ namespace LibGit2Sharp.Tests
         {
             repo.Refs.RewriteHistory(new RewriteHistoryOptions
             {
+                OnError = OnError,
+                OnSucceeding = OnSucceeding,
                 CommitHeaderRewriter =
                     c => CommitRewriteInfo.From(c, message: ""),
             }, repo.Head.Commits);
+
+            AssertSucceedingButNotError();
+
             Assert.NotEmpty(repo.Refs.Where(x => x.CanonicalName.StartsWith("refs/original")));
 
             Assert.Empty(repo.Refs.Where(x => x.CanonicalName.StartsWith("refs/rewritten")));
 
             repo.Refs.RewriteHistory(new RewriteHistoryOptions
             {
+                OnError = OnError,
+                OnSucceeding = OnSucceeding,
                 BackupRefsNamespace = backupRefsNamespace,
                 CommitHeaderRewriter =
                     c => CommitRewriteInfo.From(c, message: "abc"),
             }, repo.Head.Commits);
+
+            AssertSucceedingButNotError();
 
             Assert.NotEmpty(repo.Refs.Where(x => x.CanonicalName.StartsWith("refs/rewritten")));
         }
@@ -278,10 +399,12 @@ namespace LibGit2Sharp.Tests
 
             const string backupNamespace = "refs/original/";
 
-            Assert.Throws<Exception>(
+            var ex = Assert.Throws<Exception>(
                 () =>
                 repo.Refs.RewriteHistory(new RewriteHistoryOptions
                 {
+                    OnError = OnError,
+                    OnSucceeding = OnSucceeding,
                     BackupRefsNamespace = backupNamespace,
                     CommitHeaderRewriter =
                         c => CommitRewriteInfo.From(c, message: ""),
@@ -306,6 +429,9 @@ namespace LibGit2Sharp.Tests
                 }, repo.Lookup<Commit>("6dcf9bf7541ee10456529833502442f385010c3d"))
                 );
 
+            AssertErrorFired(ex);
+            AssertSucceedingNotFired();
+
             // Ensure all the refs have been restored to their original targets
             var newRefs = repo.Refs.OrderBy(r => r.CanonicalName).ToArray();
             Assert.Equal(newRefs, origRefs);
@@ -325,9 +451,13 @@ namespace LibGit2Sharp.Tests
         {
             repo.Refs.RewriteHistory(new RewriteHistoryOptions
             {
+                OnError = OnError,
+                OnSucceeding = OnSucceeding,
                 CommitHeaderRewriter =
                     c => CommitRewriteInfo.From(c, message: "abc"),
             }, repo.Lookup<Commit>("c47800c"));
+
+            AssertSucceedingButNotError();
 
             Assert.Null(repo.Refs["refs/original/heads/packed-test"]);
             Assert.NotNull(repo.Refs["refs/original/heads/br2"]);
@@ -346,20 +476,31 @@ namespace LibGit2Sharp.Tests
 
             repo.Refs.RewriteHistory(new RewriteHistoryOptions
             {
+                OnError = OnError,
+                OnSucceeding = OnSucceeding,
                 CommitHeaderRewriter =
                     c => CommitRewriteInfo.From(c, message: "abc"),
             }, repo.Head.Commits);
+
+            AssertSucceedingButNotError();
+
             var originalRefs = repo.Refs.FromGlob("refs/original/*").OrderBy(r => r.CanonicalName).ToArray();
             Assert.NotEmpty(originalRefs);
 
-            Assert.Throws<InvalidOperationException>(
+            var ex = Assert.Throws<InvalidOperationException>(
                 () =>
                 repo.Refs.RewriteHistory(new RewriteHistoryOptions
                 {
+                    OnError = OnError,
+                    OnSucceeding = OnSucceeding,
                     CommitHeaderRewriter =
                         c => CommitRewriteInfo.From(c, message: "def"),
                 }, repo.Head.Commits)
                 );
+
+            AssertErrorFired(ex);
+            AssertSucceedingNotFired();
+
             Assert.Equal("abc\n", repo.Head.Tip.Message);
 
             var newOriginalRefs = repo.Refs.FromGlob("refs/original/*").OrderBy(r => r.CanonicalName).ToArray();
@@ -373,14 +514,19 @@ namespace LibGit2Sharp.Tests
         {
             var commits = repo.Commits.QueryBy(new CommitFilter { Since = repo.Refs }).ToArray();
 
-            Assert.Throws<NameConflictException>(
+            var ex = Assert.Throws<NameConflictException>(
                 () =>
                 repo.Refs.RewriteHistory(new RewriteHistoryOptions
                 {
+                    OnError = OnError,
+                    OnSucceeding = OnSucceeding,
                     TagNameRewriter =
                         (n, a, t) => "test",
                 }, commits)
                 );
+
+            AssertErrorFired(ex);
+            AssertSucceedingNotFired();
 
             Assert.Equal(0, repo.Refs.FromGlob("refs/original/*").Count());
         }
@@ -414,6 +560,8 @@ namespace LibGit2Sharp.Tests
 
             repo.Refs.RewriteHistory(new RewriteHistoryOptions
             {
+                OnError = OnError,
+                OnSucceeding = OnSucceeding,
                 CommitParentsRewriter =
                     c =>
                     {
@@ -423,6 +571,8 @@ namespace LibGit2Sharp.Tests
                         return new[] { newParent };
                     },
             }, commitToRewrite);
+
+            AssertSucceedingButNotError();
 
             Assert.Contains(newParent, repo.Lookup<Commit>("refs/heads/test~").Parents);
             Assert.True(hasBeenCalled);
@@ -456,6 +606,8 @@ namespace LibGit2Sharp.Tests
 
             repo.Refs.RewriteHistory(new RewriteHistoryOptions
             {
+                OnError = OnError,
+                OnSucceeding = OnSucceeding,
                 CommitHeaderRewriter =
                     c =>
                     c.Id != newParent.Id
@@ -467,6 +619,8 @@ namespace LibGit2Sharp.Tests
                         ? c.Parents
                         : new[] { newParent }
             }, commitToRewrite, newParent);
+
+            AssertSucceedingButNotError();
 
             var rewrittenParent = repo.Lookup<Commit>("refs/heads/test~").Parents.Single();
             Assert.Equal(newParent.Tree, rewrittenParent.Tree);
@@ -480,9 +634,13 @@ namespace LibGit2Sharp.Tests
 
             repo.Refs.RewriteHistory(new RewriteHistoryOptions
             {
+                OnError = OnError,
+                OnSucceeding = OnSucceeding,
                 CommitHeaderRewriter =
                     c => CommitRewriteInfo.From(c, message: ""),
             }, repo.Head.Commits);
+
+            AssertSucceedingButNotError();
 
             Assert.Equal("filter-branch: rewrite", repo.Refs.Log(repo.Refs["refs/heads/master"]).First().Message);
             Assert.Equal("filter-branch: backup", repo.Refs.Log(repo.Refs["refs/original/heads/master"]).First().Message);
@@ -497,10 +655,14 @@ namespace LibGit2Sharp.Tests
 
             repo.Refs.RewriteHistory(new RewriteHistoryOptions
             {
+                OnError = OnError,
+                OnSucceeding = OnSucceeding,
                 CommitHeaderRewriter =
                     c => CommitRewriteInfo.From(c, message: ""),
                 TagNameRewriter = TagNameRewriter,
             }, repo.Commits.QueryBy(new CommitFilter { Since = repo.Refs["refs/heads/test"] }));
+
+            AssertSucceedingButNotError();
 
             Assert.NotEqual(lwTarget, repo.Tags["lw_new_e90810b"].Target);
             Assert.NotEqual(e908Target, repo.Tags["e90810b_new_7b43849"].Target);
@@ -518,10 +680,14 @@ namespace LibGit2Sharp.Tests
 
             repo.Refs.RewriteHistory(new RewriteHistoryOptions
             {
+                OnError = OnError,
+                OnSucceeding = OnSucceeding,
                 CommitHeaderRewriter =
                     c => CommitRewriteInfo.From(c, author: Constants.Signature),
                 TagNameRewriter = TagNameRewriter,
             }, repo.Lookup<Commit>("e90810b8df"));
+
+            AssertSucceedingButNotError();
 
             // Ensure the initial tags don't exist anymore...
             Assert.Null(repo.Refs["refs/tags/one_tracker"]);
@@ -556,11 +722,15 @@ namespace LibGit2Sharp.Tests
             // Rewrite the commit, renaming the tag
             repo.Refs.RewriteHistory(new RewriteHistoryOptions
             {
+                OnError = OnError,
+                OnSucceeding = OnSucceeding,
                 BackupRefsNamespace = "refs/original/",
                 CommitHeaderRewriter =
                     c => CommitRewriteInfo.From(c, message: "Rewrote"),
                 TagNameRewriter = TagNameRewriter,
             }, repo.Lookup<Commit>("6dcf9bf"));
+
+            AssertSucceedingButNotError();
 
             // Verify the rewritten tag-annotation chain
             var newTagA = repo.Tags["lightweightA_new_d53d92e"];
@@ -602,6 +772,40 @@ namespace LibGit2Sharp.Tests
                               : target.Substring(0, 7);
 
             return name + (isAnnotated ? "_ann_" : "_new_") + t;
+        }
+
+        private Action OnSucceeding
+        {
+            get
+            {
+                succeeding = false;
+                return () => succeeding = true;
+            }
+        }
+
+        private void AssertSucceedingButNotError()
+        {
+            Assert.True(succeeding);
+            Assert.Null(error);
+        }
+
+        private void AssertSucceedingNotFired()
+        {
+            Assert.False(succeeding);
+        }
+
+        private Action<Exception> OnError
+        {
+            get
+            {
+                error = null;
+                return ex => error = ex;
+            }
+        }
+
+        private void AssertErrorFired(Exception ex)
+        {
+            Assert.Equal(ex, error);
         }
     }
 }
