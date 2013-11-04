@@ -12,6 +12,9 @@ namespace LibGit2Sharp.Core
         public uint total_objects;
         public uint indexed_objects;
         public uint received_objects;
+        public uint local_objects;
+        public uint total_deltas;
+        public uint indexed_deltas;
         public UIntPtr received_bytes;
     }
 }

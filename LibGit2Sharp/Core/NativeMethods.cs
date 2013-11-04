@@ -163,11 +163,14 @@ namespace LibGit2Sharp.Core
             IntPtr payload);
 
         [DllImport(libgit2)]
-        internal static extern int git_branch_foreach(
+        internal static extern void git_branch_iterator_free(
+            IntPtr iterator);
+
+        [DllImport(libgit2)]
+        internal static extern int git_branch_iterator_new(
+            out BranchIteratorSafeHandle iter_out,
             RepositorySafeHandle repo,
-            GitBranchType branch_type,
-            branch_foreach_callback branch_cb,
-            IntPtr payload);
+            GitBranchType branch_type);
 
         [DllImport(libgit2)]
         internal static extern int git_branch_move(
@@ -175,6 +178,12 @@ namespace LibGit2Sharp.Core
             ReferenceSafeHandle reference,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string new_branch_name,
             [MarshalAs(UnmanagedType.Bool)] bool force);
+
+        [DllImport(libgit2)]
+        internal static extern int git_branch_next(
+            out ReferenceSafeHandle ref_out,
+            out IntPtr type_out,
+            BranchIteratorSafeHandle iter);
 
         [DllImport(libgit2)]
         internal static extern int git_branch_remote_name(
@@ -353,11 +362,11 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof (StrictUtf8Marshaler))] string password);
 
         [DllImport(libgit2)]
-        internal static extern void git_diff_list_free(IntPtr diff);
+        internal static extern void git_diff_free(IntPtr diff);
 
         [DllImport(libgit2)]
         internal static extern int git_diff_tree_to_tree(
-            out DiffListSafeHandle diff,
+            out DiffSafeHandle diff,
             RepositorySafeHandle repo,
             GitObjectSafeHandle oldTree,
             GitObjectSafeHandle newTree,
@@ -365,7 +374,7 @@ namespace LibGit2Sharp.Core
 
         [DllImport(libgit2)]
         internal static extern int git_diff_tree_to_index(
-            out DiffListSafeHandle diff,
+            out DiffSafeHandle diff,
             RepositorySafeHandle repo,
             GitObjectSafeHandle oldTree,
             IndexSafeHandle index,
@@ -373,19 +382,19 @@ namespace LibGit2Sharp.Core
 
         [DllImport(libgit2)]
         internal static extern int git_diff_merge(
-            DiffListSafeHandle onto,
-            DiffListSafeHandle from);
+            DiffSafeHandle onto,
+            DiffSafeHandle from);
 
         [DllImport(libgit2)]
         internal static extern int git_diff_index_to_workdir(
-            out DiffListSafeHandle diff,
+            out DiffSafeHandle diff,
             RepositorySafeHandle repo,
             IndexSafeHandle index,
             GitDiffOptions options);
 
         [DllImport(libgit2)]
         internal static extern int git_diff_tree_to_workdir(
-            out DiffListSafeHandle diff,
+            out DiffSafeHandle diff,
             RepositorySafeHandle repo,
             GitObjectSafeHandle oldTree,
             GitDiffOptions options);
@@ -397,23 +406,20 @@ namespace LibGit2Sharp.Core
 
         internal delegate int git_diff_hunk_cb(
             GitDiffDelta delta,
-            GitDiffRange range,
-            IntPtr header,
-            UIntPtr headerLen,
+            GitDiffHunk hunk,
             IntPtr payload);
 
-        internal delegate int git_diff_data_cb(
+        internal delegate int git_diff_line_cb(
             GitDiffDelta delta,
-            GitDiffRange range,
-            GitDiffLineOrigin lineOrigin,
-            IntPtr content,
-            UIntPtr contentLen,
+            GitDiffHunk hunk,
+            GitDiffLine line,
             IntPtr payload);
 
         [DllImport(libgit2)]
-        internal static extern int git_diff_print_patch(
-            DiffListSafeHandle diff,
-            git_diff_data_cb printCallback,
+        internal static extern int git_diff_print(
+            DiffSafeHandle diff,
+            GitDiffFormat format,
+            git_diff_line_cb printCallback,
             IntPtr payload);
 
         [DllImport(libgit2)]
@@ -425,15 +431,15 @@ namespace LibGit2Sharp.Core
             GitDiffOptions options,
             git_diff_file_cb fileCallback,
             git_diff_hunk_cb hunkCallback,
-            git_diff_data_cb lineCallback,
+            git_diff_line_cb lineCallback,
             IntPtr payload);
 
         [DllImport(libgit2)]
         internal static extern int git_diff_foreach(
-            DiffListSafeHandle diff,
+            DiffSafeHandle diff,
             git_diff_file_cb fileCallback,
             git_diff_hunk_cb hunkCallback,
-            git_diff_data_cb lineCallback,
+            git_diff_line_cb lineCallback,
             IntPtr payload);
 
         [DllImport(libgit2)]
@@ -504,7 +510,7 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictFilePathMarshaler))] FilePath indexpath);
 
         [DllImport(libgit2)]
-        internal static extern int git_index_read(IndexSafeHandle index);
+        internal static extern int git_index_read(IndexSafeHandle index, bool force);
 
         [DllImport(libgit2)]
         internal static extern int git_index_remove_bypath(
@@ -750,7 +756,8 @@ namespace LibGit2Sharp.Core
         [DllImport(libgit2)]
         internal static extern int git_reflog_read(
             out ReflogSafeHandle ref_out,
-            ReferenceSafeHandle reference);
+            RepositorySafeHandle repo,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string name);
 
         [DllImport(libgit2)]
         internal static extern UIntPtr git_reflog_entrycount
@@ -859,7 +866,7 @@ namespace LibGit2Sharp.Core
             RemoteSafeHandle remote,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof (StrictUtf8Marshaler))] string refspec);
 
-        internal delegate void remote_progress_callback(IntPtr str, int len, IntPtr data);
+        internal delegate int remote_progress_callback(IntPtr str, int len, IntPtr data);
 
         internal delegate int remote_completion_callback(RemoteCompletionType type, IntPtr data);
 

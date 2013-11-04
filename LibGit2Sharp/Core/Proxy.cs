@@ -7,7 +7,6 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using LibGit2Sharp.Core.Compat;
 using LibGit2Sharp.Core.Handles;
-using LibGit2Sharp.Handlers;
 
 // ReSharper disable InconsistentNaming
 namespace LibGit2Sharp.Core
@@ -142,12 +141,57 @@ namespace LibGit2Sharp.Core
             }
         }
 
-        public static ICollection<TResult> git_branch_foreach<TResult>(
-            RepositorySafeHandle repo,
-            GitBranchType branch_type,
-            Func<IntPtr, GitBranchType, TResult> resultSelector)
+        public static IEnumerable<Branch> git_branch_iterator(Repository repo, GitBranchType branchType)
         {
-            return git_foreach(resultSelector, c => NativeMethods.git_branch_foreach(repo, branch_type, (x, y, p) => c(x, y, p), IntPtr.Zero));
+            using (ThreadAffinity())
+            {
+                BranchIteratorSafeHandle iter_out = null;
+
+                var branches = new List<Branch>();
+
+                try
+                {
+                    Ensure.ZeroResult(NativeMethods.git_branch_iterator_new(out iter_out, repo.Handle, branchType));
+
+                    int res = 0;
+
+                    while (res == (int)GitErrorCode.Ok)
+                    {
+                        ReferenceSafeHandle ref_out = null;
+                        try
+                        {
+                            IntPtr type_out;
+                            res = NativeMethods.git_branch_next(out ref_out, out type_out, iter_out);
+
+                            if (res == (int) GitErrorCode.IterOver)
+                            {
+                                break;
+                            }
+
+                            Ensure.ZeroResult(res);
+
+                            var reference = Reference.BuildFromPtr<Reference>(ref_out, repo);
+
+                            branches.Add(new Branch(repo, reference, reference.CanonicalName));
+                        }
+                        finally
+                        {
+                            ref_out.SafeDispose();
+                        }
+                    }
+                }
+                finally
+                {
+                    iter_out.SafeDispose();
+                }
+
+                return branches;
+            }
+        }
+
+        public static void git_branch_iterator_free(IntPtr iter)
+        {
+            NativeMethods.git_branch_iterator_free(iter);
         }
 
         public static ReferenceSafeHandle git_branch_move(ReferenceSafeHandle reference, string new_branch_name, bool force)
@@ -526,7 +570,7 @@ namespace LibGit2Sharp.Core
             GitDiffOptions options,
             NativeMethods.git_diff_file_cb fileCallback,
             NativeMethods.git_diff_hunk_cb hunkCallback,
-            NativeMethods.git_diff_data_cb lineCallback)
+            NativeMethods.git_diff_line_cb lineCallback)
         {
             using (ThreadAffinity())
             using (var osw1 = new ObjectSafeWrapper(oldBlob, repo, true))
@@ -541,19 +585,19 @@ namespace LibGit2Sharp.Core
         }
 
         public static void git_diff_foreach(
-            DiffListSafeHandle diff,
+            DiffSafeHandle diff,
             NativeMethods.git_diff_file_cb fileCallback,
             NativeMethods.git_diff_hunk_cb hunkCallback,
-            NativeMethods.git_diff_data_cb dataCallback)
+            NativeMethods.git_diff_line_cb lineCallback)
         {
             using (ThreadAffinity())
             {
-                int res = NativeMethods.git_diff_foreach(diff, fileCallback, hunkCallback, dataCallback, IntPtr.Zero);
+                int res = NativeMethods.git_diff_foreach(diff, fileCallback, hunkCallback, lineCallback, IntPtr.Zero);
                 Ensure.ZeroResult(res);
             }
         }
 
-        public static DiffListSafeHandle git_diff_tree_to_index(
+        public static DiffSafeHandle git_diff_tree_to_index(
             RepositorySafeHandle repo,
             IndexSafeHandle index,
             ObjectId oldTree,
@@ -562,7 +606,7 @@ namespace LibGit2Sharp.Core
             using (ThreadAffinity())
             using (var osw = new ObjectSafeWrapper(oldTree, repo, true))
             {
-                DiffListSafeHandle diff;
+                DiffSafeHandle diff;
                 int res = NativeMethods.git_diff_tree_to_index(out diff, repo, osw.ObjectPtr, index, options);
                 Ensure.ZeroResult(res);
 
@@ -570,12 +614,12 @@ namespace LibGit2Sharp.Core
             }
         }
 
-        public static void git_diff_list_free(IntPtr diff)
+        public static void git_diff_free(IntPtr diff)
         {
-            NativeMethods.git_diff_list_free(diff);
+            NativeMethods.git_diff_free(diff);
         }
 
-        public static void git_diff_merge(DiffListSafeHandle onto, DiffListSafeHandle from)
+        public static void git_diff_merge(DiffSafeHandle onto, DiffSafeHandle from)
         {
             using (ThreadAffinity())
             {
@@ -584,16 +628,17 @@ namespace LibGit2Sharp.Core
             }
         }
 
-        public static void git_diff_print_patch(DiffListSafeHandle diff, NativeMethods.git_diff_data_cb printCallback)
+        public static void git_diff_print(DiffSafeHandle diff, NativeMethods.git_diff_line_cb printCallback)
         {
             using (ThreadAffinity())
             {
-                int res = NativeMethods.git_diff_print_patch(diff, printCallback, IntPtr.Zero);
+                int res = NativeMethods.git_diff_print(diff, GitDiffFormat.GIT_DIFF_FORMAT_PATCH,
+                    printCallback, IntPtr.Zero);
                 Ensure.ZeroResult(res);
             }
         }
 
-        public static DiffListSafeHandle git_diff_tree_to_tree(
+        public static DiffSafeHandle git_diff_tree_to_tree(
             RepositorySafeHandle repo,
             ObjectId oldTree,
             ObjectId newTree,
@@ -603,7 +648,7 @@ namespace LibGit2Sharp.Core
             using (var osw1 = new ObjectSafeWrapper(oldTree, repo, true))
             using (var osw2 = new ObjectSafeWrapper(newTree, repo, true))
             {
-                DiffListSafeHandle diff;
+                DiffSafeHandle diff;
                 int res = NativeMethods.git_diff_tree_to_tree(out diff, repo, osw1.ObjectPtr, osw2.ObjectPtr, options);
                 Ensure.ZeroResult(res);
 
@@ -611,14 +656,14 @@ namespace LibGit2Sharp.Core
             }
         }
 
-        public static DiffListSafeHandle git_diff_index_to_workdir(
+        public static DiffSafeHandle git_diff_index_to_workdir(
             RepositorySafeHandle repo,
             IndexSafeHandle index,
             GitDiffOptions options)
         {
             using (ThreadAffinity())
             {
-                DiffListSafeHandle diff;
+                DiffSafeHandle diff;
                 int res = NativeMethods.git_diff_index_to_workdir(out diff, repo, index, options);
                 Ensure.ZeroResult(res);
 
@@ -626,7 +671,7 @@ namespace LibGit2Sharp.Core
             }
         }
 
-        public static DiffListSafeHandle git_diff_tree_to_workdir(
+        public static DiffSafeHandle git_diff_tree_to_workdir(
            RepositorySafeHandle repo,
            ObjectId oldTree,
            GitDiffOptions options)
@@ -634,7 +679,7 @@ namespace LibGit2Sharp.Core
             using (ThreadAffinity())
             using (var osw = new ObjectSafeWrapper(oldTree, repo, true))
             {
-                DiffListSafeHandle diff;
+                DiffSafeHandle diff;
                 int res = NativeMethods.git_diff_tree_to_workdir(out diff, repo, osw.ObjectPtr, options);
                 Ensure.ZeroResult(res);
 
@@ -804,7 +849,7 @@ namespace LibGit2Sharp.Core
         {
             using (ThreadAffinity())
             {
-                int res = NativeMethods.git_index_read(index);
+                int res = NativeMethods.git_index_read(index, false);
                 Ensure.ZeroResult(res);
             }
         }
@@ -1339,13 +1384,13 @@ namespace LibGit2Sharp.Core
             NativeMethods.git_reflog_free(reflog);
         }
 
-        public static ReflogSafeHandle git_reflog_read(ReferenceSafeHandle reference)
+        public static ReflogSafeHandle git_reflog_read(RepositorySafeHandle repo, string canonicalName)
         {
             using (ThreadAffinity())
             {
                 ReflogSafeHandle reflog_out;
 
-                int res = NativeMethods.git_reflog_read(out reflog_out, reference);
+                int res = NativeMethods.git_reflog_read(out reflog_out, repo, canonicalName);
                 Ensure.ZeroResult(res);
 
                 return reflog_out;

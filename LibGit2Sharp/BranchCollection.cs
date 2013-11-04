@@ -91,8 +91,7 @@ namespace LibGit2Sharp
         /// <returns>An <see cref="IEnumerator{T}"/> object that can be used to iterate through the collection.</returns>
         public virtual IEnumerator<Branch> GetEnumerator()
         {
-            return Proxy.git_branch_foreach(repo.Handle, GitBranchType.GIT_BRANCH_LOCAL | GitBranchType.GIT_BRANCH_REMOTE, BranchToCanonicalName)
-                .Select(n => this[n])
+            return Proxy.git_branch_iterator(repo, GitBranchType.GIT_BRANCH_LOCAL | GitBranchType.GIT_BRANCH_REMOTE)
                 .GetEnumerator();
         }
 
@@ -201,21 +200,6 @@ namespace LibGit2Sharp
             return referenceName == "HEAD" ||
                 referenceName.LooksLikeLocalBranch() ||
                 referenceName.LooksLikeRemoteTrackingBranch();
-        }
-
-        private static string BranchToCanonicalName(IntPtr namePtr, GitBranchType branchType)
-        {
-            string shortName = LaxUtf8Marshaler.FromNative(namePtr);
-
-            switch (branchType)
-            {
-                case GitBranchType.GIT_BRANCH_LOCAL:
-                    return ShortToLocalName(shortName);
-                case GitBranchType.GIT_BRANCH_REMOTE:
-                    return ShortToRemoteName(shortName);
-                default:
-                    return shortName;
-            }
         }
 
         private string DebuggerDisplay

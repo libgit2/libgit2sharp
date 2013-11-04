@@ -44,7 +44,7 @@ namespace LibGit2Sharp
         protected TreeChanges()
         { }
 
-        internal TreeChanges(DiffListSafeHandle diff)
+        internal TreeChanges(DiffSafeHandle diff)
         {
             Proxy.git_diff_foreach(diff, FileCallback, null, null);
         }

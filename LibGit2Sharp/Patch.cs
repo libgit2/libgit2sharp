@@ -30,11 +30,11 @@ namespace LibGit2Sharp
         protected Patch()
         { }
 
-        internal Patch(DiffListSafeHandle diff)
+        internal Patch(DiffSafeHandle diff)
         {
-            Proxy.git_diff_foreach(diff, FileCallback, null, DataCallback);
+            Proxy.git_diff_foreach(diff, FileCallback, null, null);
 
-            Proxy.git_diff_print_patch(diff, PrintCallBack);
+            Proxy.git_diff_print(diff, PrintCallBack);
         }
 
         private int FileCallback(GitDiffDelta delta, float progress, IntPtr payload)
@@ -50,38 +50,37 @@ namespace LibGit2Sharp
             changes.Add(newFilePath, new ContentChanges(delta.IsBinary()));
         }
 
-        private int DataCallback(GitDiffDelta delta, GitDiffRange range, GitDiffLineOrigin lineOrigin, IntPtr content,
-            UIntPtr contentLen, IntPtr payload)
+        private int PrintCallBack(GitDiffDelta delta, GitDiffHunk hunk, GitDiffLine line, IntPtr payload)
         {
+            string patchPart = LaxUtf8Marshaler.FromNative(line.content, (int)line.contentLen);
             var filePath = LaxFilePathMarshaler.FromNative(delta.NewFile.Path);
-            AddLineChange(this[filePath], lineOrigin);
 
-            return 0;
-        }
+            ContentChanges currentChange = this[filePath];
+            string prefix = string.Empty;
 
-        private void AddLineChange(ContentChanges currentChange, GitDiffLineOrigin lineOrigin)
-        {
-            switch (lineOrigin)
+            switch (line.lineOrigin)
             {
+                case GitDiffLineOrigin.GIT_DIFF_LINE_CONTEXT:
+                    prefix = " ";
+                    break;
+
                 case GitDiffLineOrigin.GIT_DIFF_LINE_ADDITION:
                     linesAdded++;
                     currentChange.LinesAdded++;
+                    prefix = "+";
                     break;
 
                 case GitDiffLineOrigin.GIT_DIFF_LINE_DELETION:
                     linesDeleted++;
                     currentChange.LinesDeleted++;
+                    prefix = "-";
                     break;
             }
-        }
 
-        private int PrintCallBack(GitDiffDelta delta, GitDiffRange range, GitDiffLineOrigin lineorigin, IntPtr content, UIntPtr contentlen, IntPtr payload)
-        {
-            string formattedoutput = LaxUtf8Marshaler.FromNative(content, (int)contentlen);
-            var filePath = LaxFilePathMarshaler.FromNative(delta.NewFile.Path);
+            string formatedOutput = string.Concat(prefix, patchPart);
 
-            fullPatchBuilder.Append(formattedoutput);
-            this[filePath].AppendToPatch(formattedoutput);
+            fullPatchBuilder.Append(formatedOutput);
+            this[filePath].AppendToPatch(formatedOutput);
 
             return 0;
         }

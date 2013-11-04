@@ -118,6 +118,9 @@ namespace LibGit2Sharp.Core
         public IntPtr baseline;
         public IntPtr target_directory;
 
+        public IntPtr our_label;
+        public IntPtr their_label;
+
         public void Dispose()
         {
             if (paths == null)

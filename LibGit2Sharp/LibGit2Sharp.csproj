@@ -72,6 +72,7 @@
     <Compile Include="CommitSortStrategies.cs" />
     <Compile Include="CompareOptions.cs" />
     <Compile Include="Core\EncodingMarshaler.cs" />
+    <Compile Include="Core\Handles\BranchIteratorSafeHandle.cs" />
     <Compile Include="Core\PushTransferProgressCallbacks.cs" />
     <Compile Include="Core\PackbuilderCallbacks.cs" />
     <Compile Include="PushOptions.cs" />
@@ -182,7 +183,7 @@
     <Compile Include="Core\Handles\GitErrorSafeHandle.cs" />
     <Compile Include="Core\Handles\NoteSafeHandle.cs" />
     <Compile Include="Core\Handles\ObjectDatabaseSafeHandle.cs" />
-    <Compile Include="Core\Handles\DiffListSafeHandle.cs" />
+    <Compile Include="Core\Handles\DiffSafeHandle.cs" />
     <Compile Include="Core\Handles\GitObjectSafeHandle.cs" />
     <Compile Include="Core\Handles\IndexEntrySafeHandle.cs" />
     <Compile Include="Core\Handles\NotOwnedSafeHandleBase.cs" />

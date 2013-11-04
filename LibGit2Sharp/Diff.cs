@@ -34,7 +34,7 @@ namespace LibGit2Sharp
             {
                 options.Flags |= GitDiffOptionFlags.GIT_DIFF_INCLUDE_UNTRACKED |
                 GitDiffOptionFlags.GIT_DIFF_RECURSE_UNTRACKED_DIRS |
-                GitDiffOptionFlags.GIT_DIFF_INCLUDE_UNTRACKED_CONTENT;
+                GitDiffOptionFlags.GIT_DIFF_SHOW_UNTRACKED_CONTENT;
             }
 
             if (diffOptions.HasFlag(DiffModifiers.IncludeIgnored))
@@ -90,7 +90,7 @@ namespace LibGit2Sharp
                        };
         }
 
-        private static readonly IDictionary<Type, Func<DiffListSafeHandle, object>> ChangesBuilders = new Dictionary<Type, Func<DiffListSafeHandle, object>>
+        private static readonly IDictionary<Type, Func<DiffSafeHandle, object>> ChangesBuilders = new Dictionary<Type, Func<DiffSafeHandle, object>>
         {
             { typeof(Patch), diff => new Patch(diff) },
             { typeof(TreeChanges), diff => new TreeChanges(diff) },
@@ -126,7 +126,7 @@ namespace LibGit2Sharp
         public virtual T Compare<T>(Tree oldTree, Tree newTree, IEnumerable<string> paths = null, ExplicitPathsOptions explicitPathsOptions = null,
             CompareOptions compareOptions = null) where T : class
         {
-            Func<DiffListSafeHandle, object> builder;
+            Func<DiffSafeHandle, object> builder;
 
             if (!ChangesBuilders.TryGetValue(typeof (T), out builder))
             {
@@ -151,10 +151,10 @@ namespace LibGit2Sharp
                 }
             }
 
-            using (DiffListSafeHandle diffList = BuildDiffList(oldTreeId, newTreeId, comparer,
+            using (DiffSafeHandle diff = BuildDiffList(oldTreeId, newTreeId, comparer,
                 diffOptions, paths, explicitPathsOptions, compareOptions))
             {
-                return (T)builder(diffList);
+                return (T)builder(diff);
             }
         }
 
@@ -179,7 +179,7 @@ namespace LibGit2Sharp
         public virtual T Compare<T>(Tree oldTree, DiffTargets diffTargets, IEnumerable<string> paths = null,
             ExplicitPathsOptions explicitPathsOptions = null, CompareOptions compareOptions = null) where T : class
         {
-            Func<DiffListSafeHandle, object> builder;
+            Func<DiffSafeHandle, object> builder;
 
             if (!ChangesBuilders.TryGetValue(typeof (T), out builder))
             {
@@ -206,10 +206,10 @@ namespace LibGit2Sharp
                 }
             }
 
-            using (DiffListSafeHandle diffList = BuildDiffList(oldTreeId, null, comparer,
+            using (DiffSafeHandle diff = BuildDiffList(oldTreeId, null, comparer,
                 diffOptions, paths, explicitPathsOptions, compareOptions))
             {
-                return (T)builder(diffList);
+                return (T)builder(diff);
             }
         }
 
@@ -239,7 +239,7 @@ namespace LibGit2Sharp
         internal virtual T Compare<T>(DiffModifiers diffOptions, IEnumerable<string> paths = null,
                                      ExplicitPathsOptions explicitPathsOptions = null, CompareOptions compareOptions = null) where T : class
         {
-            Func<DiffListSafeHandle, object> builder;
+            Func<DiffSafeHandle, object> builder;
 
             if (!ChangesBuilders.TryGetValue(typeof (T), out builder))
             {
@@ -261,14 +261,14 @@ namespace LibGit2Sharp
                 }
             }
 
-            using (DiffListSafeHandle diffList = BuildDiffList(null, null, comparer,
+            using (DiffSafeHandle diff = BuildDiffList(null, null, comparer,
                 diffOptions, paths, explicitPathsOptions, compareOptions))
             {
-                return (T)builder(diffList);
+                return (T)builder(diff);
             }
         }
 
-        internal delegate DiffListSafeHandle TreeComparisonHandleRetriever(ObjectId oldTreeId, ObjectId newTreeId, GitDiffOptions options);
+        internal delegate DiffSafeHandle TreeComparisonHandleRetriever(ObjectId oldTreeId, ObjectId newTreeId, GitDiffOptions options);
 
         private static TreeComparisonHandleRetriever TreeToTree(Repository repo)
         {
@@ -289,7 +289,7 @@ namespace LibGit2Sharp
         {
             TreeComparisonHandleRetriever comparisonHandleRetriever = (oh, nh, o) =>
             {
-                DiffListSafeHandle diff = null, diff2 = null;
+                DiffSafeHandle diff = null, diff2 = null;
 
                 try
                 {
@@ -318,7 +318,7 @@ namespace LibGit2Sharp
             return (oh, nh, o) => Proxy.git_diff_tree_to_index(repo.Handle, repo.Index.Handle, oh, o);
         }
 
-        private DiffListSafeHandle BuildDiffList(ObjectId oldTreeId, ObjectId newTreeId, TreeComparisonHandleRetriever comparisonHandleRetriever,
+        private DiffSafeHandle BuildDiffList(ObjectId oldTreeId, ObjectId newTreeId, TreeComparisonHandleRetriever comparisonHandleRetriever,
             DiffModifiers diffOptions, IEnumerable<string> paths, ExplicitPathsOptions explicitPathsOptions,
             CompareOptions compareOptions)
         {

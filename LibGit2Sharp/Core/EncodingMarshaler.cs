@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -142,6 +143,13 @@ namespace LibGit2Sharp.Core
             {
                 length++;
             }
+
+            return FromBuffer(encoding, buffer, length);
+        }
+
+        public static string FromBuffer(Encoding encoding, byte[] buffer, int length)
+        {
+            Debug.Assert(buffer != null);
 
             if (length == 0)
             {

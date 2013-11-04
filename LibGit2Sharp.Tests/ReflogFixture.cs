@@ -32,7 +32,7 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
-        public void CannotReadReflogOnUnknownReference()
+        public void ReadingReflogOfInvalidReferenceNameThrows()
         {
             using (var repo = new Repository(StandardTestRepoWorkingDirPath))
             {

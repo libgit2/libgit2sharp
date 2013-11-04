@@ -10,7 +10,8 @@
     /// <param name="serverProgressOutput">text reported by the server.
     /// Text can be chunked at arbitrary increments (i.e. can be composed
     /// of a partial line of text).</param>
-    public delegate void ProgressHandler(string serverProgressOutput);
+    /// <returns>True to continue, false to cancel.</returns>
+    public delegate bool ProgressHandler(string serverProgressOutput);
 
     /// <summary>
     /// Delegate definition to handle UpdateTips callback.
