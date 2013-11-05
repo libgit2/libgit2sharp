@@ -91,9 +91,13 @@ namespace LibGit2Sharp.Tests
         [Theory]
         [InlineData("README", "README_TOO")]
         [InlineData("README", "1/README")]
+        [InlineData("README", "1/2/README")]
         [InlineData("1/branch_file.txt", "1/another_one.txt")]
         [InlineData("1/branch_file.txt", "another_one.txt")]
         [InlineData("1/branch_file.txt", "1/2/another_one.txt")]
+        [InlineData("1/branch_file.txt", "1/2/3/another_one.txt")]
+        [InlineData("1", "2")]
+        [InlineData("1", "2/3")]
         public void CanAddAnExistingTreeEntryDefinition(string sourcePath, string targetPath)
         {
             using (var repo = new Repository(BareTestRepoPath))
@@ -129,6 +133,58 @@ namespace LibGit2Sharp.Tests
                 Assert.NotNull(fetched);
 
                 Assert.Equal(ted, fetched);
+            }
+        }
+
+        [Theory]
+        [InlineData("README", "README_TOO")]
+        [InlineData("README", "1/README")]
+        [InlineData("README", "1/2/README")]
+        [InlineData("1/branch_file.txt", "1/another_one.txt")]
+        [InlineData("1/branch_file.txt", "another_one.txt")]
+        [InlineData("1/branch_file.txt", "1/2/another_one.txt")]
+        [InlineData("1/branch_file.txt", "1/2/3/another_one.txt")]
+        [InlineData("1", "2")]
+        [InlineData("1", "2/3")]
+        public void CanAddAnExistingTreeEntry(string sourcePath, string targetPath)
+        {
+            using (var repo = new Repository(BareTestRepoPath))
+            {
+                var tree = repo.Head.Tip.Tree;
+                var td = TreeDefinition.From(tree);
+                Assert.Null(td[targetPath]);
+
+                var te = tree[sourcePath];
+                td.Add(targetPath, te);
+
+                var fetched = td[targetPath];
+                Assert.NotNull(fetched);
+
+                Assert.Equal(te.Target.Id, fetched.TargetId);
+            }
+        }
+
+        [Theory]
+        [InlineData("sm_from_td")]
+        [InlineData("1/sm_from_td")]
+        [InlineData("1/2/sm_from_td")]
+        public void CanAddAnExistingGitLinkTreeEntry(string targetPath)
+        {
+            const string sourcePath = "sm_unchanged";
+
+            using (var repo = new Repository(SubmoduleTestRepoWorkingDirPath))
+            {
+                var tree = repo.Head.Tip.Tree;
+                var td = TreeDefinition.From(tree);
+                Assert.Null(td[targetPath]);
+
+                var te = tree[sourcePath];
+                td.Add(targetPath, te);
+
+                var fetched = td[targetPath];
+                Assert.NotNull(fetched);
+
+                Assert.Equal(te.Target.Id, fetched.TargetId);
             }
         }
 

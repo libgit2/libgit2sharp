@@ -29,7 +29,7 @@ namespace LibGit2Sharp
 
             foreach (TreeEntry treeEntry in tree)
             {
-                td.AddEntry(treeEntry.Name, TreeEntryDefinition.From(treeEntry));
+                td.Add(treeEntry.Name, treeEntry);
             }
 
             return td;
@@ -135,6 +135,21 @@ namespace LibGit2Sharp
             }
 
             return this;
+        }
+
+        /// <summary>
+        /// Adds or replaces a <see cref="TreeEntryDefinition"/>, built from the provided <see cref="TreeEntry"/>, at the specified <paramref name="targetTreeEntryPath"/> location.
+        /// </summary>
+        /// <param name="targetTreeEntryPath">The path within this <see cref="TreeDefinition"/>.</param>
+        /// <param name="treeEntry">The <see cref="TreeEntry"/> to be stored at the described location.</param>
+        /// <returns>The current <see cref="TreeDefinition"/>.</returns>
+        public virtual TreeDefinition Add(string targetTreeEntryPath, TreeEntry treeEntry)
+        {
+            Ensure.ArgumentNotNull(treeEntry, "treeEntry");
+
+            TreeEntryDefinition ted = TreeEntryDefinition.From(treeEntry);
+
+            return Add(targetTreeEntryPath, ted);
         }
 
         /// <summary>
