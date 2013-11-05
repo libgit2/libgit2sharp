@@ -52,12 +52,12 @@ namespace LibGit2Sharp.Core
         
         public ObjectId FinalCommitId;
         public ushort FinalStartLineNumber;
-        public GitSignature FinalSignature;
+        public IntPtr FinalSignature;
 
         public ObjectId OrigCommitId;
-        public string OrigPath;
+        public IntPtr OrigPath;
         public ushort OrigStartLineNumber;
-        public GitSignature OrigSignature;
+        public IntPtr OrigSignature;
 
         public byte Boundary;
     }

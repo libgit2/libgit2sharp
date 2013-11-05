@@ -58,6 +58,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BlameFixture.cs" />
     <Compile Include="CheckoutFixture.cs" />
     <Compile Include="EqualityFixture.cs" />
     <Compile Include="SignatureFixture.cs" />

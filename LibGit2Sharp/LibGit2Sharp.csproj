@@ -57,6 +57,7 @@
   <ItemGroup>
     <Compile Include="AmbiguousSpecificationException.cs" />
     <Compile Include="BareRepositoryException.cs" />
+    <Compile Include="Blame.cs" />
     <Compile Include="Blob.cs" />
     <Compile Include="BlobExtensions.cs" />
     <Compile Include="Branch.cs" />

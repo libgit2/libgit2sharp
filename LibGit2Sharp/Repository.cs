@@ -587,6 +587,32 @@ namespace LibGit2Sharp
             return repoPath.Native;
         }
 
+        public Blame Blame(string path,
+            BlameStrategy strategy = BlameStrategy.Normal,
+            string newestCommitish = null,
+            string oldestCommitish = null,
+            int minLine = 0,
+            int maxLine = 0)
+        {
+            var rawopts = new GitBlameOptions
+            {
+                version = 1,
+                flags = new Dictionary<BlameStrategy, GitBlameOptionFlags> {
+                    {BlameStrategy.Normal,                      GitBlameOptionFlags.GIT_BLAME_NORMAL},
+                    {BlameStrategy.TrackCopiesSameFile,         GitBlameOptionFlags.GIT_BLAME_TRACK_COPIES_SAME_FILE},
+                    {BlameStrategy.TrackCopiesSameCommitMoves,  GitBlameOptionFlags.GIT_BLAME_TRACK_COPIES_SAME_COMMIT_MOVES},
+                    {BlameStrategy.TrackCopiesSameCommitCopies, GitBlameOptionFlags.GIT_BLAME_TRACK_COPIES_SAME_COMMIT_COPIES},
+                    {BlameStrategy.TrackCopiesAnyCommitCopies,  GitBlameOptionFlags.GIT_BLAME_TRACK_COPIES_ANY_COMMIT_COPIES},
+                }[strategy],
+                MinLine = (uint)minLine,
+                MaxLine = (uint)maxLine,
+            };
+            if (newestCommitish != null) rawopts.NewestCommit = Lookup(newestCommitish).Id;
+            if (oldestCommitish != null) rawopts.OldestCommit = Lookup(oldestCommitish).Id;
+
+            return new Blame(this, Proxy.git_blame_file(Handle, path, rawopts));
+        }
+
         /// <summary>
         /// Checkout the specified <see cref="Branch"/>, reference or SHA.
         /// <para>
