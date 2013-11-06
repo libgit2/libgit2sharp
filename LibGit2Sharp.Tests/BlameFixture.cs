@@ -15,9 +15,11 @@ namespace LibGit2Sharp.Tests
             
                 Assert.Equal(1, blame[0].FinalStartLineNumber);
                 Assert.Equal("schacon@gmail.com", blame[0].FinalSignature.Email);
+                Assert.Equal("4a202b3", blame[0].FinalCommit.Id.ToString(7));
 
                 Assert.Equal(1, blame.HunkForLine(1).FinalStartLineNumber);
                 Assert.Equal("schacon@gmail.com", blame.HunkForLine(1).FinalSignature.Email);
+                Assert.Equal("4a202b3", blame.HunkForLine(1).FinalCommit.Id.ToString(7));
             }
         }
 
