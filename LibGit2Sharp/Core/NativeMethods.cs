@@ -1064,6 +1064,9 @@ namespace LibGit2Sharp.Core
             int offset);
 
         [DllImport(libgit2)]
+        internal static extern IntPtr git_signature_dup(IntPtr sig);
+
+        [DllImport(libgit2)]
         internal static extern int git_stash_save(
             out GitOid id,
             RepositorySafeHandle repo,

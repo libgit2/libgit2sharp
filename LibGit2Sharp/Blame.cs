@@ -29,16 +29,22 @@ namespace LibGit2Sharp
 
                 finalCommit = new Lazy<Commit>(() => repository.Lookup<Commit>(rawHunk.FinalCommitId));
                 origCommit = new Lazy<Commit>(() => repository.Lookup<Commit>(rawHunk.OrigCommitId));
+
+                // Signature objects need to have ownership of their native pointers
+                if (rawHunk.FinalSignature != IntPtr.Zero)
+                    FinalSignature = new Signature(NativeMethods.git_signature_dup(rawHunk.FinalSignature));
+                if (rawHunk.OrigSignature != IntPtr.Zero)
+                    origSignature = new Signature(NativeMethods.git_signature_dup(rawHunk.OrigSignature));
             }
 
             public int NumLines { get { return rawHunk.LinesInHunk; } }
 
             public int FinalStartLineNumber { get { return rawHunk.FinalStartLineNumber; } }
-            public Signature FinalSignature { get { return new Signature(rawHunk.FinalSignature); } }
+            public Signature FinalSignature { get; private set; }
             public Commit FinalCommit { get { return finalCommit.Value; } }
 
             public int origStartLineNumber { get { return rawHunk.OrigStartLineNumber; } }
-            public Signature origSignature { get { return new Signature(rawHunk.OrigSignature); } }
+            public Signature origSignature { get; private set; }
             public Commit OrigCommit { get { return origCommit.Value; } }
 
             public string OrigPath
