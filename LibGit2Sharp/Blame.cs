@@ -1,5 +1,6 @@
 ﻿using System;
-using System.Text;
+using System.Collections.Generic;
+using System.Linq;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Compat;
 using LibGit2Sharp.Core.Handles;
@@ -37,6 +38,11 @@ namespace LibGit2Sharp
                     origSignature = new Signature(NativeMethods.git_signature_dup(rawHunk.OrigSignature));
             }
 
+            public bool ContainsLine(uint line)
+            {
+                return FinalStartLineNumber <= line && line < FinalStartLineNumber + NumLines;
+            }
+
             public int NumLines { get { return rawHunk.LinesInHunk; } }
 
             public int FinalStartLineNumber { get { return rawHunk.FinalStartLineNumber; } }
@@ -61,20 +67,32 @@ namespace LibGit2Sharp
 
         private readonly IRepository repo;
         private readonly BlameSafeHandle handle;
+        private readonly List<Hunk> hunks = new List<Hunk>(); 
 
         internal Blame(IRepository repo, BlameSafeHandle handle)
         {
             this.repo = repo;
             this.handle = handle;
+
+            // Pre-fetch all the hunks
+            var numHunks = NativeMethods.git_blame_get_hunk_count(handle);
+            for (uint i = 0; i < numHunks; ++i)
+            {
+                var rawHunk = NativeMethods.git_blame_get_hunk_byindex(handle, i);
+                hunks.Add(new Hunk(repo, rawHunk));
+            }
         }
 
         public Hunk this[int idx]
         {
-            get
-            {
-                var rawHunk = NativeMethods.git_blame_get_hunk_byindex(handle, (UInt32)idx);
-                return new Hunk(repo, rawHunk);
-            }
+            get { return hunks[idx]; }
+        }
+
+        public Hunk HunkForLine(uint line)
+        {
+            var hunk = hunks.FirstOrDefault(x => x.ContainsLine(line));
+            if (hunk != null) return hunk;
+            throw new ArgumentOutOfRangeException("line", "No hunk for that line");
         }
     }
 }
