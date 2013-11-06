@@ -38,9 +38,9 @@ namespace LibGit2Sharp.Core
     {
         public uint version = 1;
         public GitBlameOptionFlags flags;
-        public ushort MinMatchCharacters;
-        public ObjectId NewestCommit;
-        public ObjectId OldestCommit;
+        public UInt16 MinMatchCharacters;
+        public GitOid NewestCommit;
+        public GitOid OldestCommit;
         public uint MinLine;
         public uint MaxLine;
     }
@@ -49,12 +49,12 @@ namespace LibGit2Sharp.Core
     internal class GitBlameHunk
     {
         public ushort LinesInHunk;
-        
-        public ObjectId FinalCommitId;
+
+        public GitOid FinalCommitId;
         public ushort FinalStartLineNumber;
         public IntPtr FinalSignature;
 
-        public ObjectId OrigCommitId;
+        public GitOid OrigCommitId;
         public IntPtr OrigPath;
         public ushort OrigStartLineNumber;
         public IntPtr OrigSignature;

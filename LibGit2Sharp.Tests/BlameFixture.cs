@@ -13,8 +13,8 @@ namespace LibGit2Sharp.Tests
             {
                 var blame = repo.Blame("README");
                 Assert.Equal(1, blame[0].FinalStartLineNumber);
+                Assert.Equal("schacon@gmail.com", blame[0].FinalSignature.Email);
             }
         }
-
     }
 }
