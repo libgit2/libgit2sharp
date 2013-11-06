@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using LibGit2Sharp.Core;
-using LibGit2Sharp.Core.Compat;
 using LibGit2Sharp.Core.Handles;
 
 namespace LibGit2Sharp
@@ -18,56 +17,9 @@ namespace LibGit2Sharp
 
     public class Blame
     {
-        public class Hunk
-        {
-            private readonly IRepository repository;
-            private readonly GitBlameHunk rawHunk;
-
-            internal Hunk(IRepository repository, GitBlameHunk rawHunk)
-            {
-                this.repository = repository;
-                this.rawHunk = rawHunk;
-
-                finalCommit = new Lazy<Commit>(() => repository.Lookup<Commit>(rawHunk.FinalCommitId));
-                origCommit = new Lazy<Commit>(() => repository.Lookup<Commit>(rawHunk.OrigCommitId));
-
-                // Signature objects need to have ownership of their native pointers
-                if (rawHunk.FinalSignature != IntPtr.Zero)
-                    FinalSignature = new Signature(NativeMethods.git_signature_dup(rawHunk.FinalSignature));
-                if (rawHunk.OrigSignature != IntPtr.Zero)
-                    origSignature = new Signature(NativeMethods.git_signature_dup(rawHunk.OrigSignature));
-            }
-
-            public bool ContainsLine(uint line)
-            {
-                return FinalStartLineNumber <= line && line < FinalStartLineNumber + NumLines;
-            }
-
-            public int NumLines { get { return rawHunk.LinesInHunk; } }
-
-            public int FinalStartLineNumber { get { return rawHunk.FinalStartLineNumber; } }
-            public Signature FinalSignature { get; private set; }
-            public Commit FinalCommit { get { return finalCommit.Value; } }
-
-            public int origStartLineNumber { get { return rawHunk.OrigStartLineNumber; } }
-            public Signature origSignature { get; private set; }
-            public Commit OrigCommit { get { return origCommit.Value; } }
-
-            public string OrigPath
-            {
-                get
-                {
-                    return new StrictUtf8Marshaler().MarshalNativeToManaged(rawHunk.OrigPath) as string;
-                }
-            }
-
-            private readonly Lazy<Commit> finalCommit;
-            private readonly Lazy<Commit> origCommit;
-        }
-
         private readonly IRepository repo;
         private readonly BlameSafeHandle handle;
-        private readonly List<Hunk> hunks = new List<Hunk>(); 
+        private readonly List<BlameHunk> hunks = new List<BlameHunk>(); 
 
         internal Blame(IRepository repo, BlameSafeHandle handle)
         {
@@ -79,16 +31,16 @@ namespace LibGit2Sharp
             for (uint i = 0; i < numHunks; ++i)
             {
                 var rawHunk = NativeMethods.git_blame_get_hunk_byindex(handle, i);
-                hunks.Add(new Hunk(repo, rawHunk));
+                hunks.Add(new BlameHunk(repo, rawHunk));
             }
         }
 
-        public Hunk this[int idx]
+        public BlameHunk this[int idx]
         {
             get { return hunks[idx]; }
         }
 
-        public Hunk HunkForLine(uint line)
+        public BlameHunk HunkForLine(uint line)
         {
             var hunk = hunks.FirstOrDefault(x => x.ContainsLine(line));
             if (hunk != null) return hunk;
