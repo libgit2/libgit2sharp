@@ -36,6 +36,12 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNullOrEmptyString(canonicalName, "canonicalName");
             Ensure.ArgumentNotNull(repo, "repo");
 
+            if (!repo.Refs.IsValidName(canonicalName))
+            {
+                throw new InvalidSpecificationException(
+                    string.Format("The given reference name '{0}' is not valid", canonicalName));
+            }
+
             this.repo = repo;
             this.canonicalName = canonicalName;
         }
@@ -53,8 +59,7 @@ namespace LibGit2Sharp
         {
             var entries = new List<ReflogEntry>();
 
-            using (ReferenceSafeHandle reference = Proxy.git_reference_lookup(repo.Handle, canonicalName, true))
-            using (ReflogSafeHandle reflog = Proxy.git_reflog_read(reference))
+            using (ReflogSafeHandle reflog = Proxy.git_reflog_read(repo.Handle, canonicalName))
             {
                 var entriesCount = Proxy.git_reflog_entrycount(reflog);
 
@@ -103,8 +108,7 @@ namespace LibGit2Sharp
                 return;
             }
 
-            using (ReferenceSafeHandle reference = Proxy.git_reference_lookup(repo.Handle, canonicalName, true))
-            using (ReflogSafeHandle reflog = Proxy.git_reflog_read(reference))
+            using (ReflogSafeHandle reflog = Proxy.git_reflog_read(repo.Handle, canonicalName))
             {
                 string prettifiedMessage = Proxy.git_message_prettify(reflogMessage);
                 Proxy.git_reflog_append(reflog, target, committer, prettifiedMessage);

@@ -124,5 +124,10 @@ namespace LibGit2Sharp.Core
         {
             return FromBuffer(encoding, buffer);
         }
+
+        public static string FromBuffer(byte[] buffer, int length)
+        {
+            return FromBuffer(encoding, buffer, length);
+        }
     }
 }

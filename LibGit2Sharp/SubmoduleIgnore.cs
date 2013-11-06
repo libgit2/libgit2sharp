@@ -9,22 +9,26 @@ namespace LibGit2Sharp
         /// <summary>
         /// Reset to the last saved ignore rule.
         /// </summary>
-        Default = -1,
+        Reset = -1,
+
         /// <summary>
         /// Any change or untracked == dirty
         /// </summary>
-        None = 0,
+        None = 1,
+
         /// <summary>
         /// Dirty if tracked files change
         /// </summary>
-        Untracked = 1,
+        Untracked = 2,
+
         /// <summary>
         /// Only dirty if HEAD moved
         /// </summary>
-        Dirty = 2,
+        Dirty = 3,
+
         /// <summary>
         /// Never dirty
         /// </summary>
-        All = 3,
+        All = 4,
     }
 }

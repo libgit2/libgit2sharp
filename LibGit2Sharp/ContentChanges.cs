@@ -80,34 +80,34 @@ namespace LibGit2Sharp
             return 0;
         }
 
-        private int HunkCallback(GitDiffDelta delta, GitDiffRange range, IntPtr header, UIntPtr headerlen, IntPtr payload)
+        private int HunkCallback(GitDiffDelta delta, GitDiffHunk hunk, IntPtr payload)
         {
-            string decodedContent = LaxUtf8Marshaler.FromNative(header, (int)headerlen);
+            string decodedContent = LaxUtf8Marshaler.FromBuffer(hunk.Header, (int)hunk.HeaderLen);
 
             AppendToPatch(decodedContent);
             return 0;
         }
 
-        private int LineCallback(GitDiffDelta delta, GitDiffRange range, GitDiffLineOrigin lineorigin, IntPtr content, UIntPtr contentlen, IntPtr payload)
+        private int LineCallback(GitDiffDelta delta, GitDiffHunk hunk, GitDiffLine line, IntPtr payload)
         {
-            string decodedContent = LaxUtf8Marshaler.FromNative(content, (int)contentlen);
+            string decodedContent = LaxUtf8Marshaler.FromNative(line.content, (int)line.contentLen);
 
             string prefix;
 
-            switch (lineorigin)
+            switch (line.lineOrigin)
             {
                 case GitDiffLineOrigin.GIT_DIFF_LINE_ADDITION:
                     LinesAdded++;
-                    prefix = Encoding.ASCII.GetString(new[] { (byte)lineorigin });
+                    prefix = Encoding.ASCII.GetString(new[] { (byte)line.lineOrigin });
                     break;
 
                 case GitDiffLineOrigin.GIT_DIFF_LINE_DELETION:
                     LinesDeleted++;
-                    prefix = Encoding.ASCII.GetString(new[] { (byte)lineorigin });
+                    prefix = Encoding.ASCII.GetString(new[] { (byte)line.lineOrigin });
                     break;
 
                 case GitDiffLineOrigin.GIT_DIFF_LINE_CONTEXT:
-                    prefix = Encoding.ASCII.GetString(new[] { (byte)lineorigin });
+                    prefix = Encoding.ASCII.GetString(new[] { (byte)line.lineOrigin });
                     break;
 
                 default:

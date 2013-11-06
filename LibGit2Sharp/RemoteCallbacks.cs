@@ -86,15 +86,20 @@ namespace LibGit2Sharp
         /// <param name="str">IntPtr to string from libgit2</param>
         /// <param name="len">length of string</param>
         /// <param name="data">IntPtr to optional payload passed back to the callback.</param>
-        private void GitProgressHandler(IntPtr str, int len, IntPtr data)
+        /// <returns>0 on success; a negative value to abort the process.</returns>
+        private int GitProgressHandler(IntPtr str, int len, IntPtr data)
         {
             ProgressHandler onProgress = Progress;
+
+            bool shouldContinue = true;
 
             if (onProgress != null)
             {
                 string message = LaxUtf8Marshaler.FromNative(str, len);
-                onProgress(message);
+                shouldContinue = onProgress(message);
             }
+
+            return Proxy.ConvertResultToCancelFlag(shouldContinue);
         }
 
         /// <summary>
