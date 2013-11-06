@@ -35,12 +35,17 @@ namespace LibGit2Sharp
             }
         }
 
-        public BlameHunk this[int idx]
+        /// <summary>
+        /// For easy mocking
+        /// </summary>
+        protected Blame() { }
+
+        public virtual BlameHunk this[int idx]
         {
             get { return hunks[idx]; }
         }
 
-        public BlameHunk HunkForLine(uint line)
+        public virtual BlameHunk HunkForLine(uint line)
         {
             var hunk = hunks.FirstOrDefault(x => x.ContainsLine(line));
             if (hunk != null) return hunk;

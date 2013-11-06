@@ -24,22 +24,27 @@ namespace LibGit2Sharp
                 origSignature = new Signature(NativeMethods.git_signature_dup(rawHunk.OrigSignature));
         }
 
-        public bool ContainsLine(uint line)
+        /// <summary>
+        /// For easier mocking
+        /// </summary>
+        protected BlameHunk() { }
+
+        public virtual bool ContainsLine(uint line)
         {
             return FinalStartLineNumber <= line && line < FinalStartLineNumber + NumLines;
         }
 
-        public int NumLines { get { return rawHunk.LinesInHunk; } }
+        public virtual int NumLines { get { return rawHunk.LinesInHunk; } }
 
-        public int FinalStartLineNumber { get { return rawHunk.FinalStartLineNumber; } }
-        public Signature FinalSignature { get; private set; }
-        public Commit FinalCommit { get { return finalCommit.Value; } }
+        public virtual int FinalStartLineNumber { get { return rawHunk.FinalStartLineNumber; } }
+        public virtual Signature FinalSignature { get; private set; }
+        public virtual Commit FinalCommit { get { return finalCommit.Value; } }
 
-        public int origStartLineNumber { get { return rawHunk.OrigStartLineNumber; } }
-        public Signature origSignature { get; private set; }
-        public Commit OrigCommit { get { return origCommit.Value; } }
+        public virtual int origStartLineNumber { get { return rawHunk.OrigStartLineNumber; } }
+        public virtual Signature origSignature { get; private set; }
+        public virtual Commit OrigCommit { get { return origCommit.Value; } }
 
-        public string OrigPath
+        public virtual string OrigPath
         {
             get
             {
