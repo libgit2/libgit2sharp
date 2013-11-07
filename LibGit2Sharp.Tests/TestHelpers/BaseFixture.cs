@@ -307,7 +307,7 @@ namespace LibGit2Sharp.Tests.TestHelpers
             return Expected(string.Format(CultureInfo.InvariantCulture, filenameFormat, args));
         }
 
-        protected static void AssertRefLogEntry(Repository repo, string canonicalName,
+        protected static void AssertRefLogEntry(IRepository repo, string canonicalName,
                                                 ObjectId to, string message, ObjectId @from = null,
                                                 Signature committer = null)
         {
@@ -328,7 +328,7 @@ namespace LibGit2Sharp.Tests.TestHelpers
             }
         }
 
-        protected static void EnableRefLog(Repository repository, bool enable = true)
+        protected static void EnableRefLog(IRepository repository, bool enable = true)
         {
             repository.Config.Set("core.logAllRefUpdates", enable);
         }

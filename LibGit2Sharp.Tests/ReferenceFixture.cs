@@ -110,7 +110,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        private static void AssertSymbolicRef(SymbolicReference newRef, Repository repo, string expectedTargetName, string expectedName)
+        private static void AssertSymbolicRef(SymbolicReference newRef, IRepository repo, string expectedTargetName, string expectedName)
         {
             Assert.NotNull(newRef);
             Assert.Equal(expectedName, newRef.CanonicalName);

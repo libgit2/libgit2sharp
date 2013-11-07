@@ -60,7 +60,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        Blob CreateBinaryBlob(Repository repo)
+        Blob CreateBinaryBlob(IRepository repo)
         {
             string fullpath = Path.Combine(repo.Info.WorkingDirectory, "binary.bin");
 

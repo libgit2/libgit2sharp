@@ -108,7 +108,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        private static Commit CreateOrphanedCommit(Repository repo)
+        private static Commit CreateOrphanedCommit(IRepository repo)
         {
             Commit random = repo.Head.Tip;
 

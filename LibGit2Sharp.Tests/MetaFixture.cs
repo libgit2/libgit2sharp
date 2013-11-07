@@ -41,7 +41,7 @@ namespace LibGit2Sharp.Tests
         {
             var typesWithDebuggerDisplayAndInvalidImplPattern = new List<Type>();
 
-            IEnumerable<Type> libGit2SharpTypes = Assembly.GetAssembly(typeof(Repository)).GetExportedTypes()
+            IEnumerable<Type> libGit2SharpTypes = Assembly.GetAssembly(typeof(IRepository)).GetExportedTypes()
                 .Where(t => t.GetCustomAttributes(typeof(DebuggerDisplayAttribute), false).Any());
 
             foreach (Type type in libGit2SharpTypes)
@@ -81,8 +81,8 @@ namespace LibGit2Sharp.Tests
         {
             var nonTestableTypes = new Dictionary<Type, IEnumerable<string>>();
 
-            IEnumerable<Type> libGit2SharpTypes = Assembly.GetAssembly(typeof(Repository)).GetExportedTypes()
-                .Where(t => !t.IsSealed && t.Namespace == typeof(Repository).Namespace);
+            IEnumerable<Type> libGit2SharpTypes = Assembly.GetAssembly(typeof(IRepository)).GetExportedTypes()
+                .Where(t => !t.IsSealed && t.Namespace == typeof(IRepository).Namespace);
 
             foreach (Type type in libGit2SharpTypes)
             {
@@ -111,7 +111,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void EnumsWithFlagsHaveMutuallyExclusiveValues()
         {
-            var flagsEnums = Assembly.GetAssembly(typeof(Repository)).GetExportedTypes()
+            var flagsEnums = Assembly.GetAssembly(typeof(IRepository)).GetExportedTypes()
                                      .Where(t => t.IsEnum && t.GetCustomAttributes(typeof(FlagsAttribute), false).Any());
 
             var overlaps = from t in flagsEnums

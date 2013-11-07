@@ -13,7 +13,7 @@ namespace LibGit2Sharp.Tests
                 pushStatusErrors.Reference, pushStatusErrors.Message));
         }
 
-        private void AssertPush(Action<Repository> push)
+        private void AssertPush(Action<IRepository> push)
         {
             var scd = BuildSelfCleaningDirectory();
 
@@ -127,7 +127,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        private static void AssertRemoteHeadTipEquals(Repository localRepo, string sha)
+        private static void AssertRemoteHeadTipEquals(IRepository localRepo, string sha)
         {
             var remoteReferences = localRepo.Network.ListReferences(localRepo.Network.Remotes.Single());
             DirectReference remoteHead = remoteReferences.Single(r => r.CanonicalName == "HEAD");
@@ -151,7 +151,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        private Commit AddCommitToRepo(Repository repository)
+        private Commit AddCommitToRepo(IRepository repository)
         {
 
             string random = Guid.NewGuid().ToString();

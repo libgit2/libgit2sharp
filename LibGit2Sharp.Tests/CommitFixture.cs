@@ -400,7 +400,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        private static void AssertEnumerationOfCommits(Func<Repository, CommitFilter> filterBuilder, IEnumerable<string> abbrevIds)
+        private static void AssertEnumerationOfCommits(Func<IRepository, CommitFilter> filterBuilder, IEnumerable<string> abbrevIds)
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
@@ -408,7 +408,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        private static void AssertEnumerationOfCommitsInRepo(Repository repo, Func<Repository, CommitFilter> filterBuilder, IEnumerable<string> abbrevIds)
+        private static void AssertEnumerationOfCommitsInRepo(IRepository repo, Func<IRepository, CommitFilter> filterBuilder, IEnumerable<string> abbrevIds)
         {
             ICommitLog commits = repo.Commits.QueryBy(filterBuilder(repo));
 
@@ -781,14 +781,14 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        private static void CreateAndStageANewFile(Repository repo)
+        private static void CreateAndStageANewFile(IRepository repo)
         {
             string relativeFilepath = string.Format("new-file-{0}.txt", Guid.NewGuid());
             Touch(repo.Info.WorkingDirectory, relativeFilepath, "brand new content\n");
             repo.Index.Stage(relativeFilepath);
         }
 
-        private static void AssertCommitHasBeenAmended(Repository repo, Commit amendedCommit, Commit originalCommit)
+        private static void AssertCommitHasBeenAmended(IRepository repo, Commit amendedCommit, Commit originalCommit)
         {
             Commit headCommit = repo.Head.Tip;
             Assert.Equal(amendedCommit, headCommit);

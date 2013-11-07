@@ -43,7 +43,7 @@ namespace LibGit2Sharp.Tests
             string repoPath = BuildSelfCleaningDirectory().DirectoryPath;
             wrapper.CanInitANewRepositoryFromAShadowCopiedAssembly(repoPath);
 
-            Assembly sourceAssembly = typeof(Repository).Assembly;
+            Assembly sourceAssembly = typeof(IRepository).Assembly;
 
             // Ensure both assemblies share the same escaped code base...
             string cachedAssemblyEscapedCodeBase = wrapper.AssemblyEscapedCodeBase;
@@ -73,7 +73,7 @@ namespace LibGit2Sharp.Tests
             private readonly Assembly assembly;
             public Wrapper()
             {
-                assembly = typeof(Repository).Assembly;
+                assembly = typeof(IRepository).Assembly;
             }
 
             public void CanInitANewRepositoryFromAShadowCopiedAssembly(string path)

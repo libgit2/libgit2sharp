@@ -135,7 +135,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        private static void FeedTheRepository(Repository repo)
+        private static void FeedTheRepository(IRepository repo)
         {
             string fullPath = Touch(repo.Info.WorkingDirectory, "a.txt", "Hello\n");
             repo.Index.Stage(fullPath);

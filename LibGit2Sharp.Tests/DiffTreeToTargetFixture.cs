@@ -8,7 +8,7 @@ namespace LibGit2Sharp.Tests
 {
     public class DiffTreeToTargetFixture : BaseFixture
     {
-        private static void SetUpSimpleDiffContext(Repository repo)
+        private static void SetUpSimpleDiffContext(IRepository repo)
         {
             var fullpath = Touch(repo.Info.WorkingDirectory, "file.txt", "hello\n");
 
