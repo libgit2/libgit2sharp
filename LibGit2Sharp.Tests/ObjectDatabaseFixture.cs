@@ -314,7 +314,7 @@ namespace LibGit2Sharp.Tests
 
                 var commitWithSubmodule = repo.ObjectDatabase.CreateCommit("Submodule!", Constants.Signature, Constants.Signature, tree,
                                                                            new[] { repo.Head.Tip });
-                repo.Reset(ResetOptions.Soft, commitWithSubmodule);
+                repo.Reset(ResetMode.Soft, commitWithSubmodule);
 
                 var submodule = repo.Submodules[submodulePath];
                 Assert.NotNull(submodule);

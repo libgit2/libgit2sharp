@@ -18,7 +18,7 @@ namespace LibGit2Sharp.Tests
 
             using (var repo = new Repository(repoPath))
             {
-                Assert.Throws<LibGit2SharpException>(() => repo.Reset(ResetOptions.Soft));
+                Assert.Throws<LibGit2SharpException>(() => repo.Reset(ResetMode.Soft));
             }
         }
 
@@ -30,7 +30,7 @@ namespace LibGit2Sharp.Tests
             {
                 Branch oldHead = repo.Head;
 
-                repo.Reset(ResetOptions.Soft);
+                repo.Reset(ResetMode.Soft);
 
                 Assert.Equal(oldHead, repo.Head);
             }
@@ -44,7 +44,7 @@ namespace LibGit2Sharp.Tests
             {
                 var headCommit = repo.Head.Tip;
                 var firstCommitParent = headCommit.Parents.First();
-                repo.Reset(ResetOptions.Soft, firstCommitParent);
+                repo.Reset(ResetMode.Soft, firstCommitParent);
 
                 Assert.Equal(firstCommitParent, repo.Head.Tip);
             }
@@ -57,7 +57,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path))
             {
                 Tag tag = repo.Tags["test"];
-                repo.Reset(ResetOptions.Soft, tag.CanonicalName);
+                repo.Reset(ResetMode.Soft, tag.CanonicalName);
                 Assert.Equal("e90810b8df3e80c413d903f631643c716887138d", repo.Head.Tip.Sha);
             }
         }
@@ -67,11 +67,11 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                Assert.Throws<ArgumentNullException>(() => repo.Reset(ResetOptions.Soft, (string)null));
-                Assert.Throws<ArgumentNullException>(() => repo.Reset(ResetOptions.Soft, (Commit)null));
-                Assert.Throws<ArgumentException>(() => repo.Reset(ResetOptions.Soft, ""));
-                Assert.Throws<LibGit2SharpException>(() => repo.Reset(ResetOptions.Soft, Constants.UnknownSha));
-                Assert.Throws<LibGit2SharpException>(() => repo.Reset(ResetOptions.Soft, repo.Head.Tip.Tree.Sha));
+                Assert.Throws<ArgumentNullException>(() => repo.Reset(ResetMode.Soft, (string)null));
+                Assert.Throws<ArgumentNullException>(() => repo.Reset(ResetMode.Soft, (Commit)null));
+                Assert.Throws<ArgumentException>(() => repo.Reset(ResetMode.Soft, ""));
+                Assert.Throws<LibGit2SharpException>(() => repo.Reset(ResetMode.Soft, Constants.UnknownSha));
+                Assert.Throws<LibGit2SharpException>(() => repo.Reset(ResetMode.Soft, repo.Head.Tip.Tree.Sha));
             }
         }
 
@@ -110,7 +110,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(branch.Tip.Sha, repo.Head.Tip.Sha);
 
                 /* Reset --soft the Head to a tag through its canonical name */
-                repo.Reset(ResetOptions.Soft, tag.CanonicalName);
+                repo.Reset(ResetMode.Soft, tag.CanonicalName);
                 Assert.Equal(expectedHeadName, repo.Head.Name);
                 Assert.Equal(tag.Target.Id, repo.Head.Tip.Id);
 
@@ -122,7 +122,7 @@ namespace LibGit2Sharp.Tests
                                   oldHeadId);
 
                 /* Reset --soft the Head to a commit through its sha */
-                repo.Reset(ResetOptions.Soft, branch.Tip.Sha);
+                repo.Reset(ResetMode.Soft, branch.Tip.Sha);
                 Assert.Equal(expectedHeadName, repo.Head.Name);
                 Assert.Equal(branch.Tip.Sha, repo.Head.Tip.Sha);
 
@@ -167,7 +167,7 @@ namespace LibGit2Sharp.Tests
 
                 Tag tag = repo.Tags["mytag"];
 
-                repo.Reset(ResetOptions.Mixed, tag.CanonicalName);
+                repo.Reset(ResetMode.Mixed, tag.CanonicalName);
 
                 Assert.Equal(FileStatus.Modified, repo.Index.RetrieveStatus("a.txt"));
 
@@ -183,7 +183,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                Assert.Throws<BareRepositoryException>(() => repo.Reset(ResetOptions.Mixed));
+                Assert.Throws<BareRepositoryException>(() => repo.Reset(ResetMode.Mixed));
             }
         }
 
@@ -192,7 +192,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                Assert.Throws<BareRepositoryException>(() => repo.Reset(ResetOptions.Hard));
+                Assert.Throws<BareRepositoryException>(() => repo.Reset(ResetMode.Hard));
             }
         }
 
@@ -209,7 +209,7 @@ namespace LibGit2Sharp.Tests
 
                 Assert.True(names.Count > 4);
 
-                repo.Reset(ResetOptions.Hard, "HEAD~3");
+                repo.Reset(ResetMode.Hard, "HEAD~3");
 
                 names = new DirectoryInfo(repo.Info.WorkingDirectory).GetFileSystemInfos().Select(fsi => fsi.Name).ToList();
                 names.Sort(StringComparer.Ordinal);

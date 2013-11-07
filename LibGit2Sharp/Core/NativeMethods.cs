@@ -993,7 +993,7 @@ namespace LibGit2Sharp.Core
         internal static extern int git_reset(
             RepositorySafeHandle repo,
             GitObjectSafeHandle target,
-            ResetOptions reset_type);
+            ResetMode reset_type);
 
         [DllImport(libgit2)]
         internal static extern int git_revparse_ext(
