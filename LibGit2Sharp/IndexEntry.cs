@@ -35,7 +35,7 @@ namespace LibGit2Sharp
         /// </summary>
         public virtual ObjectId Id { get; private set; }
 
-        internal static IndexEntry BuildFromPtr(Repository repo, IndexEntrySafeHandle handle)
+        internal static IndexEntry BuildFromPtr(IndexEntrySafeHandle handle)
         {
             if (handle == null || handle.IsZero)
             {
