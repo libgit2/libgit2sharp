@@ -194,8 +194,18 @@ namespace LibGit2Sharp
         IEnumerable<MergeHead> MergeHeads { get; }
 
         /// <summary>
+        /// Manipulate the currently ignored files.
+        /// </summary>
+        Ignore Ignore { get; }
+
+        /// <summary>
         /// Provides access to network functionality for a repository.
         /// </summary>
         Network Network { get; }
+
+        ///<summary>
+        /// Lookup and enumerate stashes in the repository.
+        ///</summary>
+        StashCollection Stashes { get; }
     }
 }
