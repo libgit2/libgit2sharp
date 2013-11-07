@@ -610,7 +610,10 @@ namespace LibGit2Sharp
             if (newestCommitish != null) rawopts.NewestCommit = Lookup(newestCommitish).Id.Oid;
             if (oldestCommitish != null) rawopts.OldestCommit = Lookup(oldestCommitish).Id.Oid;
 
-            return new Blame(this, Proxy.git_blame_file(Handle, path, rawopts));
+            using (var b = Proxy.git_blame_file(Handle, path, rawopts))
+            {
+                return new Blame(this, b);
+            }
         }
 
         /// <summary>

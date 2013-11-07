@@ -18,13 +18,11 @@ namespace LibGit2Sharp
     public class Blame
     {
         private readonly IRepository repo;
-        private readonly BlameSafeHandle handle;
         private readonly List<BlameHunk> hunks = new List<BlameHunk>(); 
 
         internal Blame(IRepository repo, BlameSafeHandle handle)
         {
             this.repo = repo;
-            this.handle = handle;
 
             // Pre-fetch all the hunks
             var numHunks = NativeMethods.git_blame_get_hunk_count(handle);
