@@ -1,12 +1,9 @@
-using System;
-
 namespace LibGit2Sharp
 {
     /// <summary>
-    /// Specifies the kind of operation that <see cref="IRepository.Reset(LibGit2Sharp.ResetOptions, Commit)"/> should perform.
+    /// Specifies the kind of operation that <see cref="IRepository.Reset(LibGit2Sharp.ResetMode, Commit)"/> should perform.
     /// </summary>
-    [Obsolete("This enumeration will be removed in the next release. Please use ResetMode instead.")]
-    public enum ResetOptions
+    public enum ResetMode
     {
         /// <summary>
         /// Moves the branch pointed to by HEAD to the specified commit object.

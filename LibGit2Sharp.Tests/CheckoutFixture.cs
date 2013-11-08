@@ -1039,7 +1039,7 @@ namespace LibGit2Sharp.Tests
         private void ResetAndCleanWorkingDirectory(IRepository repo)
         {
             // Reset the index and the working tree.
-            repo.Reset(ResetOptions.Hard);
+            repo.Reset(ResetMode.Hard);
 
             // Clean the working directory.
             repo.RemoveUntrackedFiles();

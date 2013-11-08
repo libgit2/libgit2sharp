@@ -127,7 +127,7 @@ namespace LibGit2Sharp.Tests
             {
                 Assert.Equal(Path.GetFullPath(newWorkdir) + Path.DirectorySeparatorChar, Path.GetFullPath(sneakyRepo.Info.WorkingDirectory));
 
-                sneakyRepo.Reset(ResetOptions.Mixed, sneakyRepo.Head.Tip.Sha);
+                sneakyRepo.Reset(ResetMode.Mixed, sneakyRepo.Head.Tip.Sha);
 
                 const string filename = "zomg.txt";
                 Touch(sneakyRepo.Info.WorkingDirectory, filename, "I'm being sneaked in!\n");

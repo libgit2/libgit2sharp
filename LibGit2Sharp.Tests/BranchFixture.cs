@@ -893,7 +893,7 @@ namespace LibGit2Sharp.Tests
             string path = CloneStandardTestRepo();
             using (var repo = new Repository(path))
             {
-                repo.Reset(ResetOptions.Hard);
+                repo.Reset(ResetMode.Hard);
                 repo.RemoveUntrackedFiles();
 
                 string headSha = repo.Head.Tip.Sha;

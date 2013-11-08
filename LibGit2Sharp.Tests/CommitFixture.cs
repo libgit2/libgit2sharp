@@ -29,7 +29,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path))
             {
                 // Hard reset and then remove untracked files
-                repo.Reset(ResetOptions.Hard);
+                repo.Reset(ResetMode.Hard);
                 repo.RemoveUntrackedFiles();
 
                 repo.Checkout("test");
@@ -246,7 +246,7 @@ namespace LibGit2Sharp.Tests
             using (var repoClone = new Repository(path))
             {
                 // Hard reset and then remove untracked files
-                repoClone.Reset(ResetOptions.Hard);
+                repoClone.Reset(ResetMode.Hard);
                 repoClone.RemoveUntrackedFiles();
 
                 string headSha = repoClone.Head.Tip.Sha;
@@ -550,7 +550,7 @@ namespace LibGit2Sharp.Tests
             string path = CloneStandardTestRepo();
             using (var repo = new Repository(path))
             {
-                repo.Reset(ResetOptions.Hard, "c47800");
+                repo.Reset(ResetMode.Hard, "c47800");
 
                 CreateAndStageANewFile(repo);
 
@@ -764,7 +764,7 @@ namespace LibGit2Sharp.Tests
                 Assert.NotNull(mergedCommit);
                 Assert.Equal(2, mergedCommit.Parents.Count());
 
-                repo.Reset(ResetOptions.Soft, mergedCommit.Sha);
+                repo.Reset(ResetMode.Soft, mergedCommit.Sha);
 
                 CreateAndStageANewFile(repo);
                 const string commitMessage = "I'm rewriting the history!";

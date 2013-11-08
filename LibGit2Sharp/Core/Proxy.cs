@@ -1837,7 +1837,7 @@ namespace LibGit2Sharp.Core
         public static void git_reset(
             RepositorySafeHandle repo,
             ObjectId committishId,
-            ResetOptions resetKind)
+            ResetMode resetKind)
         {
             using (ThreadAffinity())
             using (var osw = new ObjectSafeWrapper(committishId, repo))
