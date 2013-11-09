@@ -197,5 +197,12 @@ namespace LibGit2Sharp
         /// Provides access to network functionality for a repository.
         /// </summary>
         Network Network { get; }
+
+        Blame Blame(string path,
+            BlameStrategy strategy = BlameStrategy.Normal,
+            string newestCommitish = null,
+            string oldestCommitish = null,
+            int minLine = 0,
+            int maxLine = 0);
     }
 }
