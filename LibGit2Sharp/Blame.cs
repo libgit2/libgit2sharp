@@ -8,7 +8,7 @@ namespace LibGit2Sharp
 {
     public enum BlameStrategy
     {
-        Normal,
+        Default,
         TrackCopiesSameFile,
         TrackCopiesSameCommitMoves,
         TrackCopiesSameCommitCopies,

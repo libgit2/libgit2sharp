@@ -588,7 +588,7 @@ namespace LibGit2Sharp
         }
 
         public Blame Blame(string path,
-            BlameStrategy strategy = BlameStrategy.Normal,
+            BlameStrategy strategy = BlameStrategy.Default,
             string newestCommitish = null,
             string oldestCommitish = null,
             int minLine = 0,

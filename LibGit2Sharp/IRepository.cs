@@ -199,7 +199,7 @@ namespace LibGit2Sharp
         Network Network { get; }
 
         Blame Blame(string path,
-            BlameStrategy strategy = BlameStrategy.Normal,
+            BlameStrategy strategy = BlameStrategy.Default,
             string newestCommitish = null,
             string oldestCommitish = null,
             int minLine = 0,

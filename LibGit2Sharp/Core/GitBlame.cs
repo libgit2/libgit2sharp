@@ -68,7 +68,7 @@ namespace LibGit2Sharp.Core
         {
             switch (strategy)
             {
-                case BlameStrategy.Normal:
+                case BlameStrategy.Default:
                     return GitBlameOptionFlags.GIT_BLAME_NORMAL;
 
                 default:
