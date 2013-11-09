@@ -48,7 +48,7 @@ namespace LibGit2Sharp
         {
             get
             {
-                return new StrictUtf8Marshaler().MarshalNativeToManaged(rawHunk.OrigPath) as string;
+                return LaxUtf8Marshaler.FromNative(rawHunk.OrigPath);
             }
         }
 
