@@ -587,27 +587,24 @@ namespace LibGit2Sharp
             return repoPath.Native;
         }
 
-        public Blame Blame(string path,
-            BlameStrategy strategy = BlameStrategy.Default,
-            string newestCommitish = null,
-            string oldestCommitish = null,
-            int minLine = 0,
-            int maxLine = 0)
+        public Blame Blame(string path, BlameOptions options = null)
         {
+            options = options ?? new BlameOptions();
+
             var rawopts = new GitBlameOptions
             {
                 version = 1,
-                flags = strategy.ToGitBlameOptionFlags(),
-                MinLine = (uint)minLine,
-                MaxLine = (uint)maxLine,
+                flags = options.Strategy.ToGitBlameOptionFlags(),
+                MinLine = (uint)options.MinLine,
+                MaxLine = (uint)options.MaxLine,
             };
-            if (newestCommitish != null)
+            if (options.Until != null)
             {
-                rawopts.NewestCommit = Lookup(newestCommitish).Id.Oid;
+                rawopts.NewestCommit = Lookup(options.Until).Id.Oid;
             }
-            if (oldestCommitish != null)
+            if (options.Since != null)
             {
-                rawopts.OldestCommit = Lookup(oldestCommitish).Id.Oid;
+                rawopts.OldestCommit = Lookup(options.Since).Id.Oid;
             }
 
             using (var b = Proxy.git_blame_file(Handle, path, rawopts))

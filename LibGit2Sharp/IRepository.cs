@@ -198,11 +198,6 @@ namespace LibGit2Sharp
         /// </summary>
         Network Network { get; }
 
-        Blame Blame(string path,
-            BlameStrategy strategy = BlameStrategy.Default,
-            string newestCommitish = null,
-            string oldestCommitish = null,
-            int minLine = 0,
-            int maxLine = 0);
+        Blame Blame(string path, BlameOptions options = null);
     }
 }
