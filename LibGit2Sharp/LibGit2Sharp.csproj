@@ -57,6 +57,9 @@
   <ItemGroup>
     <Compile Include="AmbiguousSpecificationException.cs" />
     <Compile Include="BareRepositoryException.cs" />
+    <Compile Include="Blame.cs" />
+    <Compile Include="BlameHunk.cs" />
+    <Compile Include="BlameOptions.cs" />
     <Compile Include="Blob.cs" />
     <Compile Include="BlobExtensions.cs" />
     <Compile Include="Branch.cs" />
@@ -73,6 +76,8 @@
     <Compile Include="CompareOptions.cs" />
     <Compile Include="Core\EncodingMarshaler.cs" />
     <Compile Include="Core\Handles\BranchIteratorSafeHandle.cs" />
+    <Compile Include="Core\GitBlame.cs" />
+    <Compile Include="Core\Handles\BlameSafeHandle.cs" />
     <Compile Include="Core\PushTransferProgressCallbacks.cs" />
     <Compile Include="Core\PackbuilderCallbacks.cs" />
     <Compile Include="PushOptions.cs" />

@@ -588,6 +588,38 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        /// Find where each line of a file originated.
+        /// </summary>
+        /// <param name="path">Path of the file to blame.</param>
+        /// <param name="options">Specifies optional parameters; if null, the defaults are used.</param>
+        /// <returns>The blame for the file.</returns>
+        public Blame Blame(string path, BlameOptions options = null)
+        {
+            options = options ?? new BlameOptions();
+
+            var rawopts = new GitBlameOptions
+            {
+                version = 1,
+                flags = options.Strategy.ToGitBlameOptionFlags(),
+                MinLine = (uint)options.MinLine,
+                MaxLine = (uint)options.MaxLine,
+            };
+            if (options.Until != null)
+            {
+                rawopts.NewestCommit = Lookup(options.Until).Id.Oid;
+            }
+            if (options.Since != null)
+            {
+                rawopts.OldestCommit = Lookup(options.Since).Id.Oid;
+            }
+
+            using (var b = Proxy.git_blame_file(Handle, path, rawopts))
+            {
+                return new Blame(this, b);
+            }
+        }
+
+        /// <summary>
         /// Checkout the specified <see cref="Branch"/>, reference or SHA.
         /// <para>
         ///   If the committishOrBranchSpec parameter resolves to a branch name, then the checked out HEAD will

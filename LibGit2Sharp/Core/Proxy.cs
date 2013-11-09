@@ -34,6 +34,29 @@ namespace LibGit2Sharp.Core
 
         #endregion
 
+        #region git_blame_
+
+        public static BlameSafeHandle git_blame_file(
+            RepositorySafeHandle repo,
+            FilePath path,
+            GitBlameOptions options)
+        {
+            using (ThreadAffinity())
+            {
+                BlameSafeHandle handle;
+                int res = NativeMethods.git_blame_file(out handle, repo, path, options);
+                Ensure.ZeroResult(res);
+                return handle;
+            }
+        }
+
+        public static void git_blame_free(IntPtr blame)
+        {
+            NativeMethods.git_blame_free(blame);
+        }
+
+        #endregion
+
         #region git_blob_
 
         public static ObjectId git_blob_create_fromchunks(RepositorySafeHandle repo, FilePath hintpath, NativeMethods.source_callback fileCallback)

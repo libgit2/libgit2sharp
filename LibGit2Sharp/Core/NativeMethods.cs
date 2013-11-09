@@ -108,6 +108,35 @@ namespace LibGit2Sharp.Core
         internal static extern void giterr_set_oom();
 
         [DllImport(libgit2)]
+        internal static extern UInt32 git_blame_get_hunk_count(BlameSafeHandle blame);
+
+        [DllImport(libgit2)]
+        internal static extern GitBlameHunk git_blame_get_hunk_byindex(
+            BlameSafeHandle blame, UInt32 index);
+
+        [DllImport(libgit2)]
+        internal static extern GitBlameHunk git_blame_get_hunk_byline(
+            BlameSafeHandle blame, UInt32 lineno);
+
+        [DllImport(libgit2)]
+        internal static extern int git_blame_file(
+            out BlameSafeHandle blame,
+            RepositorySafeHandle repo,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictFilePathMarshaler))] FilePath path,
+            GitBlameOptions options);
+
+        // TODO: should this instead be a byte[]?
+        [DllImport(libgit2)]
+        internal static extern int git_blame_buffer(
+            out BlameSafeHandle blame,
+            BlameSafeHandle reference,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string buffer,
+            UInt32 buffer_len);
+
+        [DllImport(libgit2)]
+        internal static extern int git_blame_free(IntPtr blame);
+
+        [DllImport(libgit2)]
         internal static extern int git_blob_create_fromdisk(
             ref GitOid id,
             RepositorySafeHandle repo,
@@ -1033,6 +1062,9 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string email,
             long time,
             int offset);
+
+        [DllImport(libgit2)]
+        internal static extern IntPtr git_signature_dup(IntPtr sig);
 
         [DllImport(libgit2)]
         internal static extern int git_stash_save(
