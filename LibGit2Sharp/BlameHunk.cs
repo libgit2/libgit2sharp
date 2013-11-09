@@ -33,7 +33,7 @@ namespace LibGit2Sharp
         /// </summary>
         protected BlameHunk() { }
 
-        public virtual bool ContainsLine(uint line)
+        public virtual bool ContainsLine(int line)
         {
             return FinalStartLineNumber <= line && line < FinalStartLineNumber + NumLines;
         }

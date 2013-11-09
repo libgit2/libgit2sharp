@@ -43,7 +43,7 @@ namespace LibGit2Sharp
             get { return hunks[idx]; }
         }
 
-        public virtual BlameHunk HunkForLine(uint line)
+        public virtual BlameHunk HunkForLine(int line)
         {
             var hunk = hunks.FirstOrDefault(x => x.ContainsLine(line));
             if (hunk != null)
