@@ -7,15 +7,21 @@ namespace LibGit2Sharp
     public class BlameHunk
     {
         private readonly IRepository repository;
-        private readonly GitBlameHunk rawHunk;
 
         internal BlameHunk(IRepository repository, GitBlameHunk rawHunk)
         {
             this.repository = repository;
-            this.rawHunk = rawHunk;
 
             finalCommit = new Lazy<Commit>(() => repository.Lookup<Commit>(rawHunk.FinalCommitId));
             origCommit = new Lazy<Commit>(() => repository.Lookup<Commit>(rawHunk.OrigCommitId));
+
+            if (rawHunk.OrigPath != IntPtr.Zero)
+            {
+                OrigPath = LaxUtf8Marshaler.FromNative(rawHunk.OrigPath);
+            }
+            NumLines = rawHunk.LinesInHunk;
+            FinalStartLineNumber = rawHunk.FinalStartLineNumber;
+            OrigStartLineNumber = rawHunk.FinalStartLineNumber;
 
             // Signature objects need to have ownership of their native pointers
             if (rawHunk.FinalSignature != IntPtr.Zero)
@@ -24,7 +30,7 @@ namespace LibGit2Sharp
             }
             if (rawHunk.OrigSignature != IntPtr.Zero)
             {
-                origSignature = new Signature(NativeMethods.git_signature_dup(rawHunk.OrigSignature));
+                OrigSignature = new Signature(NativeMethods.git_signature_dup(rawHunk.OrigSignature));
             }
         }
 
@@ -38,23 +44,17 @@ namespace LibGit2Sharp
             return FinalStartLineNumber <= line && line < FinalStartLineNumber + NumLines;
         }
 
-        public virtual int NumLines { get { return rawHunk.LinesInHunk; } }
+        public virtual int NumLines { get; private set; }
 
-        public virtual int FinalStartLineNumber { get { return rawHunk.FinalStartLineNumber; } }
+        public virtual int FinalStartLineNumber { get; private set; }
         public virtual Signature FinalSignature { get; private set; }
         public virtual Commit FinalCommit { get { return finalCommit.Value; } }
 
-        public virtual int origStartLineNumber { get { return rawHunk.OrigStartLineNumber; } }
-        public virtual Signature origSignature { get; private set; }
+        public virtual int OrigStartLineNumber { get; private set; }
+        public virtual Signature OrigSignature { get; private set; }
         public virtual Commit OrigCommit { get { return origCommit.Value; } }
 
-        public virtual string OrigPath
-        {
-            get
-            {
-                return LaxUtf8Marshaler.FromNative(rawHunk.OrigPath);
-            }
-        }
+        public virtual string OrigPath { get; private set; }
 
         private readonly Lazy<Commit> finalCommit;
         private readonly Lazy<Commit> origCommit;
