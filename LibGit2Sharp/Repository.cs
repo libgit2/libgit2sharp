@@ -587,6 +587,12 @@ namespace LibGit2Sharp
             return repoPath.Native;
         }
 
+        /// <summary>
+        /// Find where each line of a file originated.
+        /// </summary>
+        /// <param name="path">Path of the file to blame.</param>
+        /// <param name="options">Specifies optional parameters; if null, the defaults are used.</param>
+        /// <returns>The blame for the file.</returns>
         public Blame Blame(string path, BlameOptions options = null)
         {
             options = options ?? new BlameOptions();

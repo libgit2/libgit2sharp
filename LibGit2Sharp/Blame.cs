@@ -6,15 +6,44 @@ using LibGit2Sharp.Core.Handles;
 
 namespace LibGit2Sharp
 {
+    /// <summary>
+    /// Strategy used for blaming.
+    /// </summary>
     public enum BlameStrategy
     {
+        /// <summary>
+        /// Track renames of the file, but no block movement.
+        /// </summary>
         Default,
+
+        /// <summary>
+        /// Track copies within the same file.
+        /// </summary>
+        [Obsolete("Not supported in libgit2 yet")]
         TrackCopiesSameFile,
+
+        /// <summary>
+        /// Track movement across files within the same commit.
+        /// </summary>
+        [Obsolete("Not supported in libgit2 yet")]
         TrackCopiesSameCommitMoves,
+
+        /// <summary>
+        /// Track copies across files within the same commit.
+        /// </summary>
+        [Obsolete("Not supported in libgit2 yet")]
         TrackCopiesSameCommitCopies,
+
+        /// <summary>
+        /// Track copies across all files in all commits.
+        /// </summary>
+        [Obsolete("Not supported in libgit2 yet")]
         TrackCopiesAnyCommitCopies
     }
 
+    /// <summary>
+    /// The result of a blame operation.
+    /// </summary>
     public class Blame
     {
         private readonly IRepository repo;
@@ -38,11 +67,21 @@ namespace LibGit2Sharp
         /// </summary>
         protected Blame() { }
 
+        /// <summary>
+        /// Access blame hunks by index.
+        /// </summary>
+        /// <param name="idx">The 0-based index of the hunk to retrieve</param>
+        /// <returns>The <see cref="BlameHunk"/> at the given index.</returns>
         public virtual BlameHunk this[int idx]
         {
             get { return hunks[idx]; }
         }
 
+        /// <summary>
+        /// Access blame hunks by the file line.
+        /// </summary>
+        /// <param name="line">1-based line number to </param>
+        /// <returns>The <see cref="BlameHunk"/> for the specified file line.</returns>
         public virtual BlameHunk HunkForLine(int line)
         {
             var hunk = hunks.FirstOrDefault(x => x.ContainsLine(line));
