@@ -145,13 +145,26 @@ namespace LibGit2Sharp
         /// <param name="repository">The <see cref="Repository"/> being worked with.</param>
         /// <param name="resetOptions">Flavor of reset operation to perform.</param>
         /// <param name="committish">A revparse spec for the target commit object.</param>
+        [Obsolete("This method will be removed in the next release. Please use Reset(this IRepository, ResetMode, string) instead.")]
         public static void Reset(this IRepository repository, ResetOptions resetOptions, string committish = "HEAD")
+        {
+            repository.Reset((ResetMode) resetOptions, committish);
+        }
+
+        /// <summary>
+        /// Sets the current <see cref="Repository.Head"/> to the specified commit and optionally resets the <see cref="Index"/> and
+        /// the content of the working tree to match.
+        /// </summary>
+        /// <param name="repository">The <see cref="Repository"/> being worked with.</param>
+        /// <param name="resetMode">Flavor of reset operation to perform.</param>
+        /// <param name="committish">A revparse spec for the target commit object.</param>
+        public static void Reset(this IRepository repository, ResetMode resetMode, string committish = "HEAD")
         {
             Ensure.ArgumentNotNullOrEmptyString(committish, "committish");
 
             Commit commit = LookUpCommit(repository, committish);
 
-            repository.Reset(resetOptions, commit);
+            repository.Reset(resetMode, commit);
         }
 
         /// <summary>

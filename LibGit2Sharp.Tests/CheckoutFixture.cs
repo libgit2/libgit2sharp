@@ -1017,7 +1017,7 @@ namespace LibGit2Sharp.Tests
         /// a single file and two branches.
         /// </summary>
         /// <param name="repo">Repository to populate</param>
-        private void PopulateBasicRepository(Repository repo)
+        private void PopulateBasicRepository(IRepository repo)
         {
             // Generate a .gitignore file.
             string gitIgnoreFilePath = Touch(repo.Info.WorkingDirectory, ".gitignore", "bin");
@@ -1036,10 +1036,10 @@ namespace LibGit2Sharp.Tests
         /// working directory matches the current Head commit.
         /// </summary>
         /// <param name="repo">Repository whose current working directory should be operated on.</param>
-        private void ResetAndCleanWorkingDirectory(Repository repo)
+        private void ResetAndCleanWorkingDirectory(IRepository repo)
         {
             // Reset the index and the working tree.
-            repo.Reset(ResetOptions.Hard);
+            repo.Reset(ResetMode.Hard);
 
             // Clean the working directory.
             repo.RemoveUntrackedFiles();

@@ -224,7 +224,7 @@ namespace LibGit2Sharp.Tests
             Assert.Throws<ArgumentNullException>(() => Repository.Init(null));
         }
 
-        private static void AssertInitializedRepository(Repository repo, string expectedHeadTargetIdentifier)
+        private static void AssertInitializedRepository(IRepository repo, string expectedHeadTargetIdentifier)
         {
             Assert.NotNull(repo.Info.Path);
             Assert.False(repo.Info.IsHeadDetached);

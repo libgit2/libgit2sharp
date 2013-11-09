@@ -38,7 +38,7 @@ namespace LibGit2Sharp.Tests
 
             using (var repo = new Repository(clonedRepoPath))
             {
-                repo.Reset(ResetOptions.Hard, "HEAD~2");
+                repo.Reset(ResetMode.Hard, "HEAD~2");
 
                 // Create a file, stage it, and commit it.
                 const string filename = "b.txt";

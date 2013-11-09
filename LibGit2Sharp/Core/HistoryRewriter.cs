@@ -7,7 +7,7 @@ namespace LibGit2Sharp.Core
 {
     internal class HistoryRewriter
     {
-        private readonly Repository repo;
+        private readonly IRepository repo;
 
         private readonly HashSet<Commit> targetedCommits;
         private readonly Dictionary<GitObject, GitObject> objectMap = new Dictionary<GitObject, GitObject>();
@@ -18,7 +18,7 @@ namespace LibGit2Sharp.Core
         private readonly RewriteHistoryOptions options;
 
         public HistoryRewriter(
-            Repository repo,
+            IRepository repo,
             IEnumerable<Commit> commitsToRewrite,
             RewriteHistoryOptions options)
         {

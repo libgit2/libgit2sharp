@@ -104,7 +104,7 @@ namespace LibGit2Sharp.Tests.TestHelpers
         /// Check that all expected references have been updated.
         /// </summary>
         /// <param name="repo">Repository object whose state will be checked against expected state.</param>
-        public void CheckUpdatedReferences(Repository repo)
+        public void CheckUpdatedReferences(IRepository repo)
         {
             // Verify the expected branches.
             // First, verify the expected branches have been created and

@@ -43,7 +43,7 @@ namespace LibGit2Sharp.Tests
                 var headCommit = repo.Head.Tip;
                 var firstCommitParent = headCommit.Parents.First();
                 Assert.Throws<UnmergedIndexEntriesException>(
-                    () => repo.Reset(ResetOptions.Soft, firstCommitParent));
+                    () => repo.Reset(ResetMode.Soft, firstCommitParent));
             }
         }
 

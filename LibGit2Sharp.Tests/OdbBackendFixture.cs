@@ -12,7 +12,7 @@ namespace LibGit2Sharp.Tests
     {
         private const string content = "test\n";
 
-        private static Commit AddCommitToRepo(Repository repo)
+        private static Commit AddCommitToRepo(IRepository repo)
         {
             string relativeFilepath = "test.txt";
             Touch(repo.Info.WorkingDirectory, relativeFilepath, content);
@@ -37,7 +37,7 @@ namespace LibGit2Sharp.Tests
             return commit;
         }
 
-        private static void AssertGeneratedShas(Repository repo)
+        private static void AssertGeneratedShas(IRepository repo)
         {
             Commit commit = repo.Commits.Single();
             Assert.Equal("1fe3126578fc4eca68c193e4a3a0a14a0704624d", commit.Sha);

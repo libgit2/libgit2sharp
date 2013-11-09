@@ -811,9 +811,9 @@ namespace LibGit2Sharp.Core
             Ensure.ZeroResult(res);
 
             return new Conflict(
-                IndexEntry.BuildFromPtr(repo, ancestor),
-                IndexEntry.BuildFromPtr(repo, ours),
-                IndexEntry.BuildFromPtr(repo, theirs));
+                IndexEntry.BuildFromPtr(ancestor),
+                IndexEntry.BuildFromPtr(ours),
+                IndexEntry.BuildFromPtr(theirs));
         }
 
         public static int git_index_entrycount(IndexSafeHandle index)
@@ -1860,7 +1860,7 @@ namespace LibGit2Sharp.Core
         public static void git_reset(
             RepositorySafeHandle repo,
             ObjectId committishId,
-            ResetOptions resetKind)
+            ResetMode resetKind)
         {
             using (ThreadAffinity())
             using (var osw = new ObjectSafeWrapper(committishId, repo))

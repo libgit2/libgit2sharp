@@ -29,7 +29,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path))
             {
                 // Hard reset and then remove untracked files
-                repo.Reset(ResetOptions.Hard);
+                repo.Reset(ResetMode.Hard);
                 repo.RemoveUntrackedFiles();
 
                 repo.Checkout("test");
@@ -246,7 +246,7 @@ namespace LibGit2Sharp.Tests
             using (var repoClone = new Repository(path))
             {
                 // Hard reset and then remove untracked files
-                repoClone.Reset(ResetOptions.Hard);
+                repoClone.Reset(ResetMode.Hard);
                 repoClone.RemoveUntrackedFiles();
 
                 string headSha = repoClone.Head.Tip.Sha;
@@ -400,7 +400,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        private static void AssertEnumerationOfCommits(Func<Repository, CommitFilter> filterBuilder, IEnumerable<string> abbrevIds)
+        private static void AssertEnumerationOfCommits(Func<IRepository, CommitFilter> filterBuilder, IEnumerable<string> abbrevIds)
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
@@ -408,7 +408,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        private static void AssertEnumerationOfCommitsInRepo(Repository repo, Func<Repository, CommitFilter> filterBuilder, IEnumerable<string> abbrevIds)
+        private static void AssertEnumerationOfCommitsInRepo(IRepository repo, Func<IRepository, CommitFilter> filterBuilder, IEnumerable<string> abbrevIds)
         {
             ICommitLog commits = repo.Commits.QueryBy(filterBuilder(repo));
 
@@ -550,7 +550,7 @@ namespace LibGit2Sharp.Tests
             string path = CloneStandardTestRepo();
             using (var repo = new Repository(path))
             {
-                repo.Reset(ResetOptions.Hard, "c47800");
+                repo.Reset(ResetMode.Hard, "c47800");
 
                 CreateAndStageANewFile(repo);
 
@@ -764,7 +764,7 @@ namespace LibGit2Sharp.Tests
                 Assert.NotNull(mergedCommit);
                 Assert.Equal(2, mergedCommit.Parents.Count());
 
-                repo.Reset(ResetOptions.Soft, mergedCommit.Sha);
+                repo.Reset(ResetMode.Soft, mergedCommit.Sha);
 
                 CreateAndStageANewFile(repo);
                 const string commitMessage = "I'm rewriting the history!";
@@ -781,14 +781,14 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        private static void CreateAndStageANewFile(Repository repo)
+        private static void CreateAndStageANewFile(IRepository repo)
         {
             string relativeFilepath = string.Format("new-file-{0}.txt", Guid.NewGuid());
             Touch(repo.Info.WorkingDirectory, relativeFilepath, "brand new content\n");
             repo.Index.Stage(relativeFilepath);
         }
 
-        private static void AssertCommitHasBeenAmended(Repository repo, Commit amendedCommit, Commit originalCommit)
+        private static void AssertCommitHasBeenAmended(IRepository repo, Commit amendedCommit, Commit originalCommit)
         {
             Commit headCommit = repo.Head.Tip;
             Assert.Equal(amendedCommit, headCommit);
