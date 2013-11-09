@@ -61,4 +61,19 @@ namespace LibGit2Sharp.Core
 
         public byte Boundary;
     }
+
+    internal static class BlameStrategyExtensions
+    {
+        public static GitBlameOptionFlags ToGitBlameOptionFlags(this BlameStrategy strategy)
+        {
+            switch (strategy)
+            {
+                case BlameStrategy.Normal:
+                    return GitBlameOptionFlags.GIT_BLAME_NORMAL;
+
+                default:
+                    throw new NotSupportedException(string.Format("{0} is not supported at this time", strategy));
+            }
+        }
+    }
 }

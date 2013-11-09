@@ -597,13 +597,7 @@ namespace LibGit2Sharp
             var rawopts = new GitBlameOptions
             {
                 version = 1,
-                flags = new Dictionary<BlameStrategy, GitBlameOptionFlags> {
-                    {BlameStrategy.Normal,                      GitBlameOptionFlags.GIT_BLAME_NORMAL},
-                    {BlameStrategy.TrackCopiesSameFile,         GitBlameOptionFlags.GIT_BLAME_TRACK_COPIES_SAME_FILE},
-                    {BlameStrategy.TrackCopiesSameCommitMoves,  GitBlameOptionFlags.GIT_BLAME_TRACK_COPIES_SAME_COMMIT_MOVES},
-                    {BlameStrategy.TrackCopiesSameCommitCopies, GitBlameOptionFlags.GIT_BLAME_TRACK_COPIES_SAME_COMMIT_COPIES},
-                    {BlameStrategy.TrackCopiesAnyCommitCopies,  GitBlameOptionFlags.GIT_BLAME_TRACK_COPIES_ANY_COMMIT_COPIES},
-                }[strategy],
+                flags = strategy.ToGitBlameOptionFlags(),
                 MinLine = (uint)minLine,
                 MaxLine = (uint)maxLine,
             };
