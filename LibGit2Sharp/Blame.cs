@@ -46,7 +46,10 @@ namespace LibGit2Sharp
         public virtual BlameHunk HunkForLine(uint line)
         {
             var hunk = hunks.FirstOrDefault(x => x.ContainsLine(line));
-            if (hunk != null) return hunk;
+            if (hunk != null)
+            {
+                return hunk;
+            }
             throw new ArgumentOutOfRangeException("line", "No hunk for that line");
         }
     }

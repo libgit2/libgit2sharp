@@ -601,8 +601,14 @@ namespace LibGit2Sharp
                 MinLine = (uint)minLine,
                 MaxLine = (uint)maxLine,
             };
-            if (newestCommitish != null) rawopts.NewestCommit = Lookup(newestCommitish).Id.Oid;
-            if (oldestCommitish != null) rawopts.OldestCommit = Lookup(oldestCommitish).Id.Oid;
+            if (newestCommitish != null)
+            {
+                rawopts.NewestCommit = Lookup(newestCommitish).Id.Oid;
+            }
+            if (oldestCommitish != null)
+            {
+                rawopts.OldestCommit = Lookup(oldestCommitish).Id.Oid;
+            }
 
             using (var b = Proxy.git_blame_file(Handle, path, rawopts))
             {
