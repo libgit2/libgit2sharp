@@ -57,7 +57,7 @@ namespace LibGit2Sharp
             var numHunks = NativeMethods.git_blame_get_hunk_count(handle);
             for (uint i = 0; i < numHunks; ++i)
             {
-                var rawHunk = NativeMethods.git_blame_get_hunk_byindex(handle, i);
+                var rawHunk = Proxy.git_blame_get_hunk_byindex(handle, i);
                 hunks.Add(new BlameHunk(repo, rawHunk));
             }
         }

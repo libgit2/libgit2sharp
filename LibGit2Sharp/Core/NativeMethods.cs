@@ -111,7 +111,7 @@ namespace LibGit2Sharp.Core
         internal static extern UInt32 git_blame_get_hunk_count(BlameSafeHandle blame);
 
         [DllImport(libgit2)]
-        internal static extern GitBlameHunk git_blame_get_hunk_byindex(
+        internal static extern IntPtr git_blame_get_hunk_byindex(
             BlameSafeHandle blame, UInt32 index);
 
         [DllImport(libgit2)]
