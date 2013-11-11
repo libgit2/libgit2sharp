@@ -51,6 +51,11 @@ namespace LibGit2Sharp.Tests
 
             // ...but are currently loaded from different locations...
             string cachedAssemblyLocation = wrapper.AssemblyLocation;
+            if (cachedAssemblyLocation.StartsWith("/private"))
+            {
+                // On OS X, sometimes you get /private/var/… instead of /var/…, but they map to the same place.
+                cachedAssemblyLocation = cachedAssemblyLocation.Substring("/private".Length);
+            }
             Assert.NotEqual(sourceAssembly.Location, cachedAssemblyLocation);
 
             // ...that the assembly in the other domain is stored in the shadow copy cache...

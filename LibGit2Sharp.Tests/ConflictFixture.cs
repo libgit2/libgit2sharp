@@ -13,7 +13,7 @@ namespace LibGit2Sharp.Tests
         {
             get
             {
-                return new[]
+                return new List<object[]>
                 {
                     new[] { "ancestor-and-ours.txt", "5dee68477001f447f50fa7ee7e6a818370b5c2fb", "dad0664ae617d36e464ec08ed969ff496432b075", null },
                     new[] { "ancestor-and-theirs.txt", "3aafd4d0bac33cc3c78c4c070f3966fb6e6f641a", null, "7b26cd5ac0ee68483ae4d5e1e00b064547ea8c9b" },
