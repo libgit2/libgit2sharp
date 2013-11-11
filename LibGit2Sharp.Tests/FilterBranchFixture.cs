@@ -213,6 +213,34 @@ namespace LibGit2Sharp.Tests
             Assert.True(repo.Head.Commits.All(c => c["README"] == null));
         }
 
+        [Fact]
+        public void CanRewriteTreesByInjectingTreeEntry()
+        {
+            var commits = repo.Commits.QueryBy(new CommitFilter { Since = repo.Branches }).ToArray();
+
+            var currentReadme = repo.Head["README"];
+
+            repo.Refs.RewriteHistory(new RewriteHistoryOptions
+            {
+                OnError = OnError,
+                OnSucceeding = OnSucceeding,
+                CommitTreeRewriter =
+                    c => c["README"] == null
+                             ? TreeDefinition.From(c)
+                             : TreeDefinition.From(c)
+                                             .Add("README", currentReadme),
+            }, commits);
+
+            AssertSucceedingButNotError();
+
+            Assert.Equal(new Commit[0],
+                         repo.Commits
+                             .QueryBy(new CommitFilter {Since = repo.Branches})
+                             .Where(c => c["README"] != null
+                                         && c["README"].Target.Id != currentReadme.Target.Id)
+                             .ToArray());
+        }
+
         // git log --graph --oneline --name-status --decorate
         //
         // * 4c062a6 (HEAD, master) directory was added
