@@ -151,6 +151,28 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
+        public void CanAddANoteWithSignatureFromConfig()
+        {
+            string configPath = CreateConfigurationWithDummyUser(Constants.Signature);
+            RepositoryOptions options = new RepositoryOptions() { GlobalConfigurationLocation = configPath };
+            string path = CloneBareTestRepo();
+
+            using (var repo = new Repository(path, options))
+            {
+                var commit = repo.Lookup<Commit>("9fd738e8f7967c078dceed8190330fc8648ee56a");
+                var note = repo.Notes.Add(commit.Id, "I'm batman!\n", "batmobile");
+
+                var newNote = commit.Notes.Single();
+                Assert.Equal(note, newNote);
+
+                Assert.Equal("I'm batman!\n", newNote.Message);
+                Assert.Equal("batmobile", newNote.Namespace);
+
+                AssertCommitSignaturesAre(repo, "refs/notes/batmobile", Constants.Signature);
+            }
+        }
+
+        [Fact]
         public void CanCompareTwoUniqueNotes()
         {
             string path = CloneBareTestRepo();
@@ -226,6 +248,28 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
+        public void CanRemoveANoteWithSignatureFromConfig()
+        {
+            string configPath = CreateConfigurationWithDummyUser(Constants.Signature);
+            RepositoryOptions options = new RepositoryOptions() { GlobalConfigurationLocation = configPath };
+            string path = CloneBareTestRepo();
+
+            using (var repo = new Repository(path, options))
+            {
+                var commit = repo.Lookup<Commit>("8496071c1b46c854b31185ea97743be6a8774479");
+                var notes = repo.Notes[commit.Id];
+
+                Assert.NotEmpty(notes);
+
+                repo.Notes.Remove(commit.Id, repo.Notes.DefaultNamespace);
+
+                Assert.Empty(notes);
+
+                AssertCommitSignaturesAre(repo, "refs/notes/" + repo.Notes.DefaultNamespace, Constants.Signature);
+            }
+        }
+
+        [Fact]
         public void CanRetrieveTheListOfNotesForAGivenNamespace()
         {
             var expectedNotes = new[]
@@ -243,6 +287,22 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(expectedNotes,
                              SortedNotes(repo.Notes, n => new { Blob = n.BlobId.Sha, Target = n.TargetObjectId.Sha }));
             }
+        }
+
+        /// <summary>
+        /// Verifies that the commit has been authored and committed by the specified signature
+        /// </summary>
+        /// <param name="repo">The repository</param>
+        /// <param name="commitish">The commit whose author and commiter properties to verify</param>
+        /// <param name="signature">The signature to compare author and commiter to</param>
+        private void AssertCommitSignaturesAre(Repository repo, string commitish, Signature signature)
+        {
+            Commit commit = repo.Lookup<Commit>(commitish);
+            Assert.NotNull(commit);
+            Assert.Equal(signature.Name, commit.Author.Name);
+            Assert.Equal(signature.Email, commit.Author.Email);
+            Assert.Equal(signature.Name, commit.Committer.Name);
+            Assert.Equal(signature.Email, commit.Committer.Email);
         }
 
         private static T[] SortedNotes<T>(IEnumerable<Note> notes, Func<Note, T> selector)
