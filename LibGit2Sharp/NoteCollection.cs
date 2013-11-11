@@ -16,7 +16,7 @@ namespace LibGit2Sharp
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class NoteCollection : IEnumerable<Note>
     {
-        private readonly Repository repo;
+        internal readonly Repository repo;
         private readonly Lazy<string> defaultNamespace;
 
         /// <summary>

@@ -265,6 +265,27 @@ namespace LibGit2Sharp.Tests.TestHelpers
             };
         }
 
+        /// <summary>
+        /// Creates a configuration file with user.name and user.email set to signature
+        /// </summary>
+        /// <remarks>The configuration file will be removed automatically when the tests are finished</remarks>
+        /// <param name="signature">The signature to use for user.name and user.email</param>
+        /// <returns>The path to the configuration file</returns>
+        protected string CreateConfigurationWithDummyUser(Signature signature)
+        {
+            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            Directory.CreateDirectory(scd.DirectoryPath);
+            string configFilePath = Path.Combine(scd.DirectoryPath, "global-config");
+
+            using (Configuration config = new Configuration(configFilePath))
+            {
+                config.Set("user.name", signature.Name, ConfigurationLevel.Global);
+                config.Set("user.email", signature.Email, ConfigurationLevel.Global);
+            }
+
+            return configFilePath;
+        }
+
         protected static string Touch(string parent, string file, string content = null, Encoding encoding = null)
         {
             string filePath = Path.Combine(parent, file);

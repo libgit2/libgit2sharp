@@ -79,6 +79,7 @@
     <Compile Include="Core\GitBuf.cs" />
     <Compile Include="FilteringOptions.cs" />
     <Compile Include="ResetMode.cs" />
+    <Compile Include="NoteCollectionExtensions.cs" />
     <Compile Include="UnbornBranchException.cs" />
     <Compile Include="LockedFileException.cs" />
     <Compile Include="Core\GitRepositoryInitOptions.cs" />
