@@ -235,5 +235,20 @@ namespace LibGit2Sharp
 
             return repo.Lookup<TagAnnotation>(tagId);
         }
+
+        /// <summary>
+        /// Returns the merge base (best common ancestor) of the given commits
+        /// and the distance between each of these commits and this base.
+        /// </summary>
+        /// <param name="one">The <see cref="Commit"/> being used as a reference.</param>
+        /// <param name="another">The <see cref="Commit"/> being compared against <paramref name="one"/>.</param>
+        /// <returns>A instance of <see cref="HistoryDivergence"/>.</returns>
+        public virtual HistoryDivergence CalculateHistoryDivergence(Commit one, Commit another)
+        {
+            Ensure.ArgumentNotNull(one, "one");
+            Ensure.ArgumentNotNull(another, "another");
+
+            return new HistoryDivergence(repo, one, another);
+        }
     }
 }
