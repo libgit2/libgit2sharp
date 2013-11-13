@@ -59,6 +59,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CheckoutFixture.cs" />
+    <Compile Include="RefSpecFixture.cs" />
     <Compile Include="EqualityFixture.cs" />
     <Compile Include="SignatureFixture.cs" />
     <Compile Include="FilterBranchFixture.cs" />
