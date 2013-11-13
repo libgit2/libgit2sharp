@@ -154,7 +154,7 @@ namespace LibGit2Sharp.Tests
         public void CanAddANoteWithSignatureFromConfig()
         {
             string configPath = CreateConfigurationWithDummyUser(Constants.Signature);
-            RepositoryOptions options = new RepositoryOptions() { GlobalConfigurationLocation = configPath };
+            var options = new RepositoryOptions { GlobalConfigurationLocation = configPath };
             string path = CloneBareTestRepo();
 
             using (var repo = new Repository(path, options))
@@ -168,7 +168,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal("I'm batman!\n", newNote.Message);
                 Assert.Equal("batmobile", newNote.Namespace);
 
-                AssertCommitSignaturesAre(repo, "refs/notes/batmobile", Constants.Signature);
+                AssertCommitSignaturesAre(repo.Lookup<Commit>("refs/notes/batmobile"), Constants.Signature);
             }
         }
 
@@ -265,7 +265,7 @@ namespace LibGit2Sharp.Tests
 
                 Assert.Empty(notes);
 
-                AssertCommitSignaturesAre(repo, "refs/notes/" + repo.Notes.DefaultNamespace, Constants.Signature);
+                AssertCommitSignaturesAre(repo.Lookup<Commit>("refs/notes/" + repo.Notes.DefaultNamespace), Constants.Signature);
             }
         }
 
@@ -287,22 +287,6 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(expectedNotes,
                              SortedNotes(repo.Notes, n => new { Blob = n.BlobId.Sha, Target = n.TargetObjectId.Sha }));
             }
-        }
-
-        /// <summary>
-        /// Verifies that the commit has been authored and committed by the specified signature
-        /// </summary>
-        /// <param name="repo">The repository</param>
-        /// <param name="commitish">The commit whose author and commiter properties to verify</param>
-        /// <param name="signature">The signature to compare author and commiter to</param>
-        private void AssertCommitSignaturesAre(Repository repo, string commitish, Signature signature)
-        {
-            Commit commit = repo.Lookup<Commit>(commitish);
-            Assert.NotNull(commit);
-            Assert.Equal(signature.Name, commit.Author.Name);
-            Assert.Equal(signature.Email, commit.Author.Email);
-            Assert.Equal(signature.Name, commit.Committer.Name);
-            Assert.Equal(signature.Email, commit.Committer.Email);
         }
 
         private static T[] SortedNotes<T>(IEnumerable<Note> notes, Func<Note, T> selector)

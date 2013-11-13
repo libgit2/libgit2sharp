@@ -286,6 +286,19 @@ namespace LibGit2Sharp.Tests.TestHelpers
             return configFilePath;
         }
 
+        /// <summary>
+        /// Asserts that the commit has been authored and committed by the specified signature
+        /// </summary>
+        /// <param name="commit">The commit</param>
+        /// <param name="signature">The signature to compare author and commiter to</param>
+        protected void AssertCommitSignaturesAre(Commit commit, Signature signature)
+        {
+            Assert.Equal(signature.Name, commit.Author.Name);
+            Assert.Equal(signature.Email, commit.Author.Email);
+            Assert.Equal(signature.Name, commit.Committer.Name);
+            Assert.Equal(signature.Email, commit.Committer.Email);
+        }
+
         protected static string Touch(string parent, string file, string content = null, Encoding encoding = null)
         {
             string filePath = Path.Combine(parent, file);

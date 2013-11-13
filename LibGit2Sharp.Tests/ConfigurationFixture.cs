@@ -186,17 +186,20 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [SkippableFact]
+        [Fact]
         public void CanEnumerateGlobalConfig()
         {
-            using (var repo = new Repository(StandardTestRepoPath))
+            string configPath = CreateConfigurationWithDummyUser(Constants.Signature);
+            var options = new RepositoryOptions { GlobalConfigurationLocation = configPath };
+
+            using (var repo = new Repository(StandardTestRepoPath, options))
             {
                 InconclusiveIf(() => !repo.Config.HasConfig(ConfigurationLevel.Global),
                     "No Git global configuration available");
 
                 var entry = repo.Config.FirstOrDefault<ConfigurationEntry<string>>(e => e.Key == "user.name");
                 Assert.NotNull(entry);
-                Assert.NotNull(entry.Value);
+                Assert.Equal(Constants.Signature.Name, entry.Value);
             }
         }
 
