@@ -507,19 +507,18 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [SkippableFact]
+        [Fact]
         public void CanCommitWithSignatureFromConfig()
         {
             string repoPath = InitNewRepository();
+            string configPath = CreateConfigurationWithDummyUser(Constants.Signature);
+            var options = new RepositoryOptions { GlobalConfigurationLocation = configPath };
 
-            using (var repo = new Repository(repoPath))
+            using (var repo = new Repository(repoPath, options))
             {
                 string dir = repo.Info.Path;
                 Assert.True(Path.IsPathRooted(dir));
                 Assert.True(Directory.Exists(dir));
-
-                InconclusiveIf(() => !repo.Config.HasConfig(ConfigurationLevel.Global),
-                    "No Git global configuration available");
 
                 const string relativeFilepath = "new.txt";
                 string filePath = Touch(repo.Info.WorkingDirectory, relativeFilepath, "null");
@@ -535,12 +534,7 @@ namespace LibGit2Sharp.Tests
                 AssertBlobContent(repo.Head[relativeFilepath], "nulltoken\n");
                 AssertBlobContent(commit[relativeFilepath], "nulltoken\n");
 
-                var name = repo.Config.Get<string>("user.name");
-                var email = repo.Config.Get<string>("user.email");
-                Assert.Equal(commit.Author.Name, name.Value);
-                Assert.Equal(commit.Author.Email, email.Value);
-                Assert.Equal(commit.Committer.Name, name.Value);
-                Assert.Equal(commit.Committer.Email, email.Value);
+                AssertCommitSignaturesAre(commit, Constants.Signature);
             }
         }
 
