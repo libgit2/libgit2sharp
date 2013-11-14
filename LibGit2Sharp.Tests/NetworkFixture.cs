@@ -22,7 +22,14 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(repoPath))
             {
                 Remote remote = repo.Network.Remotes.Add(remoteName, url);
-                IEnumerable<DirectReference> references = repo.Network.ListReferences(remote);
+                IList<DirectReference> references = repo.Network.ListReferences(remote).ToList();
+
+                foreach (var directReference in references)
+                {
+                    // None of those references point to an existing
+                    // object in this brand new repository
+                    Assert.Null(directReference.Target);
+                }
 
                 List<Tuple<string, string>> actualRefs = references.
                     Select(directRef => new Tuple<string, string>(directRef.CanonicalName, directRef.TargetIdentifier)).ToList();
