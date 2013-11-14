@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using LibGit2Sharp.Core;
@@ -15,7 +16,9 @@ namespace LibGit2Sharp
         private static readonly LambdaEqualityHelper<Remote> equalityHelper =
             new LambdaEqualityHelper<Remote>(x => x.Name, x => x.Url);
 
-        private readonly Repository repository;
+        internal readonly Repository repository;
+
+        private readonly RefSpecCollection refSpecs;
 
         /// <summary>
         /// Needed for mocking purposes.
@@ -29,6 +32,7 @@ namespace LibGit2Sharp
             Name = name;
             Url = url;
             TagFetchMode = tagFetchMode;
+            refSpecs = new RefSpecCollection(this);
         }
 
         internal static Remote BuildFromPtr(RemoteSafeHandle handle, Repository repo)
@@ -56,6 +60,11 @@ namespace LibGit2Sharp
         /// Gets the Tag Fetch Mode of the remote - indicating how tags are fetched.
         /// </summary>
         public virtual TagFetchMode TagFetchMode { get; private set; }
+
+        /// <summary>
+        /// Gets the list of <see cref="RefSpec"/>s defined for this <see cref="Remote"/>
+        /// </summary>
+        public virtual IEnumerable<RefSpec> RefSpecs { get { return refSpecs; } }
 
         /// <summary>
         /// Transform a reference to its source reference using the <see cref="Remote"/>'s default fetchspec.
