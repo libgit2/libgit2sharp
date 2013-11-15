@@ -1569,13 +1569,34 @@ namespace LibGit2Sharp.Core
             }
         }
 
-        public static void git_remote_ls(RemoteSafeHandle remote, NativeMethods.git_headlist_cb headlist_cb)
+        public static IEnumerable<DirectReference> git_remote_ls(Repository repository, RemoteSafeHandle remote)
         {
+            var refs = new List<DirectReference>();
+            IntPtr heads;
+            UIntPtr size;
+
             using (ThreadAffinity())
             {
-                int res = NativeMethods.git_remote_ls(remote, headlist_cb, IntPtr.Zero);
+                int res = NativeMethods.git_remote_ls(out heads, out size, remote);
                 Ensure.ZeroResult(res);
             }
+
+            var grheads = Libgit2UnsafeHelper.RemoteLsHelper(heads, size);
+
+            foreach (var remoteHead in grheads)
+            {
+                // The name pointer should never be null - if it is,
+                // this indicates a bug somewhere (libgit2, server, etc).
+                if (remoteHead.NamePtr == IntPtr.Zero)
+                {
+                    throw new InvalidOperationException("Not expecting null value for reference name.");
+                }
+
+                string name = LaxUtf8Marshaler.FromNative(remoteHead.NamePtr);
+                refs.Add(new DirectReference(name, repository, remoteHead.Oid));
+            }
+
+            return refs;
         }
 
         public static RemoteSafeHandle git_remote_load(RepositorySafeHandle repo, string name, bool throwsIfNotFound)
@@ -2531,6 +2552,19 @@ namespace LibGit2Sharp.Core
                     UnSafeNativeMethods.git_strarray_free(ref strArray);
                 }
             }
+
+            public static IList<GitRemoteHead> RemoteLsHelper(IntPtr heads, UIntPtr size)
+            {
+                var rawHeads = (IntPtr*) heads;
+                var count = (int) size;
+
+                var list = new List<GitRemoteHead>(count);
+                for (int i = 0; i < count; i++)
+                {
+                    list.Add((GitRemoteHead)Marshal.PtrToStructure(rawHeads[i], typeof (GitRemoteHead)));
+                }
+                return list;
+            } 
         }
 
         private static bool RepositoryStateChecker(RepositorySafeHandle repo, Func<RepositorySafeHandle, int> checker)
