@@ -182,7 +182,7 @@ namespace LibGit2Sharp.Core
         [DllImport(libgit2)]
         internal static extern int git_branch_next(
             out ReferenceSafeHandle ref_out,
-            out IntPtr type_out,
+            out GitBranchType type_out,
             BranchIteratorSafeHandle iter);
 
         [DllImport(libgit2)]

@@ -147,32 +147,28 @@ namespace LibGit2Sharp.Core
             {
                 BranchIteratorSafeHandle iter_out = null;
 
-                var branches = new List<Branch>();
-
                 try
                 {
                     Ensure.ZeroResult(NativeMethods.git_branch_iterator_new(out iter_out, repo.Handle, branchType));
 
-                    int res = 0;
-
-                    while (res == (int)GitErrorCode.Ok)
+                    while(true)
                     {
                         ReferenceSafeHandle ref_out = null;
                         try
                         {
-                            IntPtr type_out;
-                            res = NativeMethods.git_branch_next(out ref_out, out type_out, iter_out);
+                            GitBranchType type_out;
+                            var res = NativeMethods.git_branch_next(out ref_out, out type_out, iter_out);
 
                             if (res == (int) GitErrorCode.IterOver)
                             {
-                                break;
+                                yield break;
                             }
 
                             Ensure.ZeroResult(res);
 
                             var reference = Reference.BuildFromPtr<Reference>(ref_out, repo);
 
-                            branches.Add(new Branch(repo, reference, reference.CanonicalName));
+                            yield return new Branch(repo, reference, reference.CanonicalName);
                         }
                         finally
                         {
@@ -184,8 +180,6 @@ namespace LibGit2Sharp.Core
                 {
                     iter_out.SafeDispose();
                 }
-
-                return branches;
             }
         }
 
