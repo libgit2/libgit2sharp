@@ -92,7 +92,7 @@ namespace LibGit2Sharp
         public virtual IEnumerator<Branch> GetEnumerator()
         {
             return Proxy.git_branch_iterator(repo, GitBranchType.GIT_BRANCH_LOCAL | GitBranchType.GIT_BRANCH_REMOTE)
-                .GetEnumerator();
+                        .ToList().GetEnumerator();
         }
 
         /// <summary>

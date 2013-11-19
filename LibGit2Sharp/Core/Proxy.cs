@@ -143,44 +143,21 @@ namespace LibGit2Sharp.Core
 
         public static IEnumerable<Branch> git_branch_iterator(Repository repo, GitBranchType branchType)
         {
-            using (ThreadAffinity())
-            {
-                BranchIteratorSafeHandle iter_out = null;
-
-                try
-                {
-                    Ensure.ZeroResult(NativeMethods.git_branch_iterator_new(out iter_out, repo.Handle, branchType));
-
-                    while(true)
+            return git_iterator(
+                (out BranchIteratorSafeHandle iter_out) =>
+                NativeMethods.git_branch_iterator_new(out iter_out, repo.Handle, branchType),
+                (BranchIteratorSafeHandle iter, out ReferenceSafeHandle ref_out, out int res) =>
                     {
-                        ReferenceSafeHandle ref_out = null;
-                        try
-                        {
-                            GitBranchType type_out;
-                            var res = NativeMethods.git_branch_next(out ref_out, out type_out, iter_out);
-
-                            if (res == (int) GitErrorCode.IterOver)
-                            {
-                                yield break;
-                            }
-
-                            Ensure.ZeroResult(res);
-
-                            var reference = Reference.BuildFromPtr<Reference>(ref_out, repo);
-
-                            yield return new Branch(repo, reference, reference.CanonicalName);
-                        }
-                        finally
-                        {
-                            ref_out.SafeDispose();
-                        }
+                        GitBranchType type_out;
+                        res = NativeMethods.git_branch_next(out ref_out, out type_out, iter);
+                        return new { BranchType = type_out };
+                    },
+                (handle, payload) =>
+                    {
+                        var reference = Reference.BuildFromPtr<Reference>(handle, repo);
+                        return new Branch(repo, reference, reference.CanonicalName);
                     }
-                }
-                finally
-                {
-                    iter_out.SafeDispose();
-                }
-            }
+                );
         }
 
         public static void git_branch_iterator_free(IntPtr iter)
@@ -2519,6 +2496,68 @@ namespace LibGit2Sharp.Core
 
                 Ensure.ZeroResult(res);
                 return result;
+            }
+        }
+
+        private delegate int IteratorNew<THandle>(out THandle iter);
+
+        private delegate TPayload IteratorNext<in TIterator, THandle, out TPayload>(TIterator iter, out THandle next, out int res);
+
+        private static THandle git_iterator_new<THandle>(IteratorNew<THandle> newFunc)
+            where THandle : SafeHandleBase
+        {
+            THandle iter;
+            Ensure.ZeroResult(newFunc(out iter));
+            return iter;
+        }
+
+        private static IEnumerable<TResult> git_iterator_next<TIterator, THandle, TPayload, TResult>(
+            TIterator iter,
+            IteratorNext<TIterator, THandle, TPayload> nextFunc,
+            Func<THandle, TPayload, TResult> resultSelector)
+            where THandle : SafeHandleBase
+        {
+            while (true)
+            {
+                var next = default(THandle);
+                try
+                {
+                    int res;
+                    var payload = nextFunc(iter, out next, out res);
+
+                    if (res == (int)GitErrorCode.IterOver)
+                    {
+                        yield break;
+                    }
+
+                    Ensure.ZeroResult(res);
+                    yield return resultSelector(next, payload);
+                }
+                finally
+                {
+                    if (next != null)
+                        next.SafeDispose();
+                }
+            }
+        }
+
+        private static IEnumerable<TResult> git_iterator<TIterator, THandle, TPayload, TResult>(
+            IteratorNew<TIterator> newFunc,
+            IteratorNext<TIterator, THandle, TPayload> nextFunc,
+            Func<THandle, TPayload, TResult> resultSelector
+            )
+            where TIterator : SafeHandleBase
+            where THandle : SafeHandleBase
+        {
+            using (ThreadAffinity())
+            {
+                using (var iter = git_iterator_new(newFunc))
+                {
+                    foreach (var next in git_iterator_next(iter, nextFunc, resultSelector))
+                    {
+                        yield return next;
+                    }
+                }
             }
         }
 
