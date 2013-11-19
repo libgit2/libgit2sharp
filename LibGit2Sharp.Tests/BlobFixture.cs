@@ -67,7 +67,11 @@ namespace LibGit2Sharp.Tests
                 var commit = repo.Commit("bom", Constants.Signature, Constants.Signature);
 
                 var blob = (Blob)commit.Tree[bomFile].Target;
-                Assert.Equal(expectedContentBytes, blob.GetContentStream().Length);
+                Assert.Equal(expectedContentBytes, blob.Size);
+                using (var stream = blob.GetContentStream())
+                {
+                    Assert.Equal(expectedContentBytes, stream.Length);
+                }
 
                 var textDetected = blob.GetContentText();
                 Assert.Equal(content, textDetected);
