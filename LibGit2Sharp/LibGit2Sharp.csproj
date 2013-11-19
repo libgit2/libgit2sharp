@@ -75,6 +75,7 @@
     <Compile Include="RefSpecCollection.cs" />
     <Compile Include="Core\EncodingMarshaler.cs" />
     <Compile Include="Core\Handles\BranchIteratorSafeHandle.cs" />
+    <Compile Include="Core\Handles\ConfigurationIteratorSafeHandle.cs" />
     <Compile Include="Core\PushTransferProgressCallbacks.cs" />
     <Compile Include="Core\PackbuilderCallbacks.cs" />
     <Compile Include="PushOptions.cs" />

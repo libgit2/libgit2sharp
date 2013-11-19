@@ -343,6 +343,20 @@ namespace LibGit2Sharp.Core
             config_foreach_callback callback,
             IntPtr payload);
 
+        [DllImport(libgit2)]
+        internal static extern int git_config_iterator_glob_new(
+            out ConfigurationIteratorSafeHandle iter,
+            ConfigurationSafeHandle cfg,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string regexp);
+
+        [DllImport(libgit2)]
+        internal static extern int git_config_next(
+            out IntPtr entry,
+            ConfigurationIteratorSafeHandle iter);
+
+        [DllImport(libgit2)]
+        internal static extern void git_config_iterator_free(IntPtr iter);
+
         // Ordinarily we would decorate the `url` parameter with the StrictUtf8Marshaler like we do everywhere
         // else, but apparently doing a native->managed callback with the 64-bit version of CLR 2.0 can
         // sometimes vomit when using a custom IMarshaler.  So yeah, don't do that.  If you need the url,

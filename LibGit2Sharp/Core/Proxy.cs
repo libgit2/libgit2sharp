@@ -530,6 +530,31 @@ namespace LibGit2Sharp.Core
             return git_foreach(resultSelector, c => NativeMethods.git_config_foreach(config, (e, p) => c(e, p), IntPtr.Zero));
         }
 
+        public static IEnumerable<ConfigurationEntry<string>> git_config_iterator_glob(
+            ConfigurationSafeHandle config,
+            string regexp,
+            Func<IntPtr, ConfigurationEntry<string>> resultSelector)
+        {
+            return git_iterator(
+                (out ConfigurationIteratorSafeHandle iter) =>
+                NativeMethods.git_config_iterator_glob_new(out iter, config, regexp),
+                (ConfigurationIteratorSafeHandle iter, out SafeHandleBase handle, out int res) =>
+                    {
+                        handle = null;
+
+                        IntPtr entry;
+                        res = NativeMethods.git_config_next(out entry, iter);
+                        return new { EntryPtr = entry };
+                    },
+                (handle, payload) => resultSelector(payload.EntryPtr)
+                );
+        }
+
+        public static void git_config_iterator_free(IntPtr iter)
+        {
+            NativeMethods.git_config_iterator_free(iter);
+        }
+
         #endregion
 
         #region git_diff_

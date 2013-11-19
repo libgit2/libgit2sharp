@@ -227,6 +227,35 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
+        public void CanFindInLocalConfig()
+        {
+            using (var repo = new Repository(StandardTestRepoPath))
+            {
+                var matches = repo.Config.Find("unit");
+
+                Assert.NotNull(matches);
+                Assert.Equal(new[] { "unittests.intsetting", "unittests.longsetting" },
+                             matches.Select(m => m.Key).ToArray());
+            }
+        }
+
+        [Fact]
+        public void CanFindInGlobalConfig()
+        {
+            string configPath = CreateConfigurationWithDummyUser(Constants.Signature);
+            var options = new RepositoryOptions { GlobalConfigurationLocation = configPath };
+
+            using (var repo = new Repository(StandardTestRepoPath, options))
+            {
+                var matches = repo.Config.Find(@"\.name", ConfigurationLevel.Global);
+
+                Assert.NotNull(matches);
+                Assert.Equal(new[] { "user.name" },
+                             matches.Select(m => m.Key).ToArray());
+            }
+        }
+
+        [Fact]
         public void CanSetBooleanValue()
         {
             string path = CloneStandardTestRepo();
