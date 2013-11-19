@@ -29,7 +29,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCountCommitsWithMockedRepository()
         {
-            var commitLog = Mock.Of<CommitLog>(cl => cl.GetEnumerator() == FakeCommitLog(17));
+            var commitLog = Mock.Of<IQueryableCommitLog>(cl => cl.GetEnumerator() == FakeCommitLog(17));
             var repo = Mock.Of<IRepository>(r => r.Commits == commitLog);
 
             var commitCounter = new CommitCounter(repo);

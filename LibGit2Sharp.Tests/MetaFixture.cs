@@ -109,6 +109,24 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
+        public void LibGit2SharpInterfacesCoverAllPublicMembers()
+        {
+            var methodsMissingFromInterfaces =
+                from t in Assembly.GetAssembly(typeof(IRepository)).GetExportedTypes()
+                where !t.IsInterface
+                where t.GetInterfaces().Any(i => i.Namespace == typeof(IRepository).Namespace)
+                let interfaceTargetMethods = from i in t.GetInterfaces()
+                                             from im in t.GetInterfaceMap(i).TargetMethods
+                                             select im
+                from tm in t.GetMethods(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance)
+                where !interfaceTargetMethods.Contains(tm)
+                select t.Name + " has extra method " + tm.Name;
+
+            Assert.Equal("", string.Join(Environment.NewLine,
+                                         methodsMissingFromInterfaces.ToArray()));
+        }
+
+        [Fact]
         public void EnumsWithFlagsHaveMutuallyExclusiveValues()
         {
             var flagsEnums = Assembly.GetAssembly(typeof(IRepository)).GetExportedTypes()
