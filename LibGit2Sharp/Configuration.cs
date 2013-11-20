@@ -308,7 +308,29 @@ namespace LibGit2Sharp
                                                   (ConfigurationLevel)entry.level);
         }
 
-        internal Signature BuildSignatureFromGlobalConfiguration(DateTimeOffset now, bool shouldThrowIfNotFound)
+        /// <summary>
+        /// Builds a <see cref="Signature"/> based on current configuration.
+        /// <para>
+        ///    Name is populated from the user.name setting, and is "unknown" if unspecified.
+        ///    Email is populated from the user.email setting, and is built from
+        ///    <see cref="Environment.UserName"/> and <see cref="Environment.UserDomainName"/> if unspecified.
+        /// </para>
+        /// <para>
+        ///    The same escalation logic than in git.git will be used when looking for the key in the config files:
+        ///       - local: the Git file in the current repository
+        ///       - global: the Git file specific to the current interactive user (usually in `$HOME/.gitconfig`)
+        ///       - xdg: another Git file specific to the current interactive user (usually in `$HOME/.config/git/config`)
+        ///       - system: the system-wide Git file
+        /// </para>
+        /// </summary>
+        /// <param name="now">The timestamp to use for the <see cref="Signature"/>.</param>
+        /// <returns>The signature.</returns>
+        public virtual Signature BuildSignature(DateTimeOffset now)
+        {
+            return BuildSignature(now, false);
+        }
+
+        internal Signature BuildSignature(DateTimeOffset now, bool shouldThrowIfNotFound)
         {
             var name = Get<string>("user.name");
             var email = Get<string>("user.email");
