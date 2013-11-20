@@ -17,7 +17,7 @@ namespace LibGit2Sharp
         /// <summary>
         /// Provides access to the configuration settings for this repository.
         /// </summary>
-        Configuration Config { get; }
+        IConfiguration Config { get; }
 
         /// <summary>
         /// Gets the index.

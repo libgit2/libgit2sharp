@@ -11,8 +11,7 @@ namespace LibGit2Sharp
     /// <summary>
     /// Provides access to configuration variables for a repository.
     /// </summary>
-    public class Configuration : IDisposable,
-        IEnumerable<ConfigurationEntry<string>>
+    public class Configuration : IConfiguration
     {
         private readonly FilePath globalConfigPath;
         private readonly FilePath xdgConfigPath;
@@ -286,22 +285,6 @@ namespace LibGit2Sharp
                                                       LaxUtf8Marshaler.FromNative(entry.valuePtr),
                                                       (ConfigurationLevel)entry.level);
             });
-        }
-
-        internal Signature BuildSignatureFromGlobalConfiguration(DateTimeOffset now, bool shouldThrowIfNotFound)
-        {
-            var name = Get<string>("user.name");
-            var email = Get<string>("user.email");
-
-            if (shouldThrowIfNotFound && ((name == null) || (email == null)))
-            {
-                throw new LibGit2SharpException("Can not find Name or Email setting of the current user in Git configuration.");
-            }
-
-            return new Signature(
-                name != null ? name.Value : "unknown",
-                email != null ? email.Value : string.Format("{0}@{1}", Environment.UserName, Environment.UserDomainName),
-                now);
         }
     }
 }
