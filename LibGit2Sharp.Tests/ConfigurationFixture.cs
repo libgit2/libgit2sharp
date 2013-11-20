@@ -194,9 +194,6 @@ namespace LibGit2Sharp.Tests
 
             using (var repo = new Repository(StandardTestRepoPath, options))
             {
-                InconclusiveIf(() => !repo.Config.HasConfig(ConfigurationLevel.Global),
-                    "No Git global configuration available");
-
                 var entry = repo.Config.FirstOrDefault<ConfigurationEntry<string>>(e => e.Key == "user.name");
                 Assert.NotNull(entry);
                 Assert.Equal(Constants.Signature.Name, entry.Value);
