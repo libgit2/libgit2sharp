@@ -284,7 +284,11 @@ namespace LibGit2Sharp
             { typeof(string), GetUpdater<string>(Proxy.git_config_set_string) },
         };
 
-        IEnumerator<ConfigurationEntry<string>> IEnumerable<ConfigurationEntry<String>>.GetEnumerator()
+        /// <summary>
+        /// Returns an enumerator that iterates through the configuration entries.
+        /// </summary>
+        /// <returns>An <see cref="IEnumerator{T}"/> object that can be used to iterate through the configuration entries.</returns>
+        public virtual IEnumerator<ConfigurationEntry<string>> GetEnumerator()
         {
             return BuildConfigEntries().GetEnumerator();
         }
