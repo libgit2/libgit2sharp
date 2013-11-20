@@ -194,9 +194,6 @@ namespace LibGit2Sharp.Tests
 
             using (var repo = new Repository(StandardTestRepoPath, options))
             {
-                InconclusiveIf(() => !repo.Config.HasConfig(ConfigurationLevel.Global),
-                    "No Git global configuration available");
-
                 var entry = repo.Config.FirstOrDefault<ConfigurationEntry<string>>(e => e.Key == "user.name");
                 Assert.NotNull(entry);
                 Assert.Equal(Constants.Signature.Name, entry.Value);
@@ -223,6 +220,35 @@ namespace LibGit2Sharp.Tests
                     .Single<ConfigurationEntry<string>>(c => c.Level == ConfigurationLevel.Local && c.Key == "core.pager");
 
                 Assert.Equal(string.Empty, entry.Value);
+            }
+        }
+
+        [Fact]
+        public void CanFindInLocalConfig()
+        {
+            using (var repo = new Repository(StandardTestRepoPath))
+            {
+                var matches = repo.Config.Find("unit");
+
+                Assert.NotNull(matches);
+                Assert.Equal(new[] { "unittests.intsetting", "unittests.longsetting" },
+                             matches.Select(m => m.Key).ToArray());
+            }
+        }
+
+        [Fact]
+        public void CanFindInGlobalConfig()
+        {
+            string configPath = CreateConfigurationWithDummyUser(Constants.Signature);
+            var options = new RepositoryOptions { GlobalConfigurationLocation = configPath };
+
+            using (var repo = new Repository(StandardTestRepoPath, options))
+            {
+                var matches = repo.Config.Find(@"\.name", ConfigurationLevel.Global);
+
+                Assert.NotNull(matches);
+                Assert.Equal(new[] { "user.name" },
+                             matches.Select(m => m.Key).ToArray());
             }
         }
 

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Handles;
@@ -235,6 +236,23 @@ namespace LibGit2Sharp
             }
         }
 
+        /// <summary>
+        /// Find configuration entries matching <paramref name="regexp"/>.
+        /// </summary>
+        /// <param name="regexp">A regular expression.</param>
+        /// <param name="level">The configuration file into which the key should be searched for.</param>
+        /// <returns>Matching entries.</returns>
+        public virtual IEnumerable<ConfigurationEntry<string>> Find(string regexp,
+                                                                     ConfigurationLevel level = ConfigurationLevel.Local)
+        {
+            Ensure.ArgumentNotNullOrEmptyString(regexp, "regexp");
+
+            using (ConfigurationSafeHandle h = RetrieveConfigurationHandle(level, true))
+            {
+                return Proxy.git_config_iterator_glob(h, regexp, BuildConfigEntry).ToList();
+            }
+        }
+
         private ConfigurationSafeHandle RetrieveConfigurationHandle(ConfigurationLevel level, bool throwIfStoreHasNotBeenFound)
         {
             ConfigurationSafeHandle handle = null;
@@ -278,14 +296,16 @@ namespace LibGit2Sharp
 
         private IEnumerable<ConfigurationEntry<string>> BuildConfigEntries()
         {
-            return Proxy.git_config_foreach(configHandle, entryPtr =>
-            {
-                var entry = (GitConfigEntry)Marshal.PtrToStructure(entryPtr, typeof(GitConfigEntry));
+            return Proxy.git_config_foreach(configHandle, BuildConfigEntry);
+        }
 
-                return new ConfigurationEntry<string>(LaxUtf8Marshaler.FromNative(entry.namePtr),
-                                                      LaxUtf8Marshaler.FromNative(entry.valuePtr),
-                                                      (ConfigurationLevel)entry.level);
-            });
+        private static ConfigurationEntry<string> BuildConfigEntry(IntPtr entryPtr)
+        {
+            var entry = (GitConfigEntry)Marshal.PtrToStructure(entryPtr, typeof(GitConfigEntry));
+
+            return new ConfigurationEntry<string>(LaxUtf8Marshaler.FromNative(entry.namePtr),
+                                                  LaxUtf8Marshaler.FromNative(entry.valuePtr),
+                                                  (ConfigurationLevel)entry.level);
         }
 
         internal Signature BuildSignatureFromGlobalConfiguration(DateTimeOffset now, bool shouldThrowIfNotFound)
