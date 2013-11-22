@@ -188,7 +188,7 @@ namespace LibGit2Sharp.Tests
          * $ git diff -M --shortstat f8d44d7..4be51d6
          *  1 file changed, 1 insertion(+)
          */
-        [Fact(Skip = "Not implemented in libgit2 yet.")]
+        [Fact]
         public void CanDetectTheRenamingOfAModifiedFile()
         {
             using (var repo = new Repository(StandardTestRepoPath))
@@ -196,15 +196,276 @@ namespace LibGit2Sharp.Tests
                 Tree rootCommitTree = repo.Lookup<Commit>("f8d44d7").Tree;
                 Tree commitTreeWithRenamedFile = repo.Lookup<Commit>("4be51d6").Tree;
 
-                var changes = repo.Diff.Compare<TreeChanges>(rootCommitTree, commitTreeWithRenamedFile);
+                var changes = repo.Diff.Compare<TreeChanges>(rootCommitTree, commitTreeWithRenamedFile,
+                                                             compareOptions: new CompareOptions
+                                                             {
+                                                                 DetectRenames = true,
+                                                             });
 
                 Assert.Equal(1, changes.Count());
                 Assert.Equal("super-file.txt", changes["super-file.txt"].Path);
                 Assert.Equal("my-name-does-not-feel-right.txt", changes["super-file.txt"].OldPath);
-                //Assert.Equal(1, changes.FilesRenamed.Count());
+                Assert.Equal(1, changes.Renamed.Count());
             }
         }
 
+        [Fact]
+        public void CanDetectTheExactRenamingOfFilesWhenEnabled()
+        {
+            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            var path = Repository.Init(scd.DirectoryPath);
+            using (var repo = new Repository(path))
+            {
+                string originalPath = Path.Combine(repo.Info.WorkingDirectory, "original.txt");
+                string renamedPath = Path.Combine(repo.Info.WorkingDirectory, "renamed.txt");
+
+                File.WriteAllText(originalPath, "a\nb\nc\nd\n");
+
+                repo.Index.Stage(originalPath);
+
+                Commit old = repo.Commit("Initial", Constants.Signature, Constants.Signature);
+
+                repo.Index.Move(originalPath, renamedPath);
+
+                Commit @new = repo.Commit("Updated", Constants.Signature, Constants.Signature);
+
+                TreeChanges changes = repo.Diff.Compare<TreeChanges>(old.Tree, @new.Tree,
+                                                                     compareOptions:
+                                                                         new CompareOptions
+                                                                         {
+                                                                             DetectRenames = true,
+                                                                         });
+
+                Assert.Equal(1, changes.Count());
+                Assert.Equal(1, changes.Renamed.Count());
+                Assert.Equal("original.txt", changes.Renamed.Single().OldPath);
+                Assert.Equal("renamed.txt", changes.Renamed.Single().Path);
+            }
+        }
+
+        [Fact]
+        public void CanNotDetectTheExactRenamingFilesWhenNotEnabled()
+        {
+            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            var path = Repository.Init(scd.DirectoryPath);
+            using (var repo = new Repository(path))
+            {
+                string originalPath = Path.Combine(repo.Info.WorkingDirectory, "original.txt");
+                string renamedPath = Path.Combine(repo.Info.WorkingDirectory, "renamed.txt");
+
+                File.WriteAllText(originalPath, "a\nb\nc\nd\n");
+
+                repo.Index.Stage(originalPath);
+
+                Commit old = repo.Commit("Initial", Constants.Signature, Constants.Signature);
+
+                repo.Index.Move(originalPath, renamedPath);
+
+                Commit @new = repo.Commit("Updated", Constants.Signature, Constants.Signature);
+
+                TreeChanges changes = repo.Diff.Compare<TreeChanges>(old.Tree, @new.Tree,
+                                                        compareOptions:
+                                                            new CompareOptions
+                                                            {
+                                                                DetectRenames = false,
+                                                            });
+
+                Assert.Equal(2, changes.Count());
+                Assert.Equal(0, changes.Renamed.Count());
+            }
+        }
+
+        [Fact]
+        public void CanDetectTheExactCopyingOfNonModifiedFilesWhenEnabled()
+        {
+            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            var path = Repository.Init(scd.DirectoryPath);
+            using (var repo = new Repository(path))
+            {
+                string originalPath = Path.Combine(repo.Info.WorkingDirectory, "original.txt");
+                string copiedPath = Path.Combine(repo.Info.WorkingDirectory, "copied.txt");
+
+                File.WriteAllText(originalPath, "a\nb\nc\nd\n");
+
+                repo.Index.Stage(originalPath);
+
+                Commit old = repo.Commit("Initial", Constants.Signature, Constants.Signature);
+
+                File.Copy(originalPath, copiedPath);
+                repo.Index.Stage(copiedPath);
+
+                Commit @new = repo.Commit("Updated", Constants.Signature, Constants.Signature);
+
+                TreeChanges changes = repo.Diff.Compare<TreeChanges>(old.Tree, @new.Tree,
+                                                        compareOptions:
+                                                            new CompareOptions
+                                                            {
+                                                                DetectCopiesFromUnmodified = true,
+                                                            });
+
+                Assert.Equal(1, changes.Count());
+                Assert.Equal(1, changes.Copied.Count());
+                Assert.Equal("original.txt", changes.Copied.Single().OldPath);
+                Assert.Equal("copied.txt", changes.Copied.Single().Path);
+            }
+        }
+
+        [Fact]
+        public void CanNotDetectTheExactCopyingOfNonModifiedFilesWhenNotEnabled()
+        {
+            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            var path = Repository.Init(scd.DirectoryPath);
+            using (var repo = new Repository(path))
+            {
+                string originalPath = Path.Combine(repo.Info.WorkingDirectory, "original.txt");
+                string copiedPath = Path.Combine(repo.Info.WorkingDirectory, "copied.txt");
+
+                File.WriteAllText(originalPath, "a\nb\nc\nd\n");
+
+                repo.Index.Stage(originalPath);
+
+                Commit old = repo.Commit("Initial", Constants.Signature, Constants.Signature);
+
+                File.Copy(originalPath, copiedPath);
+                repo.Index.Stage(copiedPath);
+
+                Commit @new = repo.Commit("Updated", Constants.Signature, Constants.Signature);
+
+                TreeChanges changes = repo.Diff.Compare<TreeChanges>(old.Tree, @new.Tree,
+                                                        compareOptions:
+                                                            new CompareOptions
+                                                            {
+                                                                DetectCopies = false,
+                                                            });
+
+                Assert.Equal(1, changes.Count());
+                Assert.Equal(0, changes.Copied.Count());
+            }
+        }
+
+        [Fact]
+        public void CanDetectTheExactCopyingOfModifiedFilesWhenEnabled()
+        {
+            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            var path = Repository.Init(scd.DirectoryPath);
+            using (var repo = new Repository(path))
+            {
+                string originalPath = Path.Combine(repo.Info.WorkingDirectory, "original.txt");
+                string copiedPath = Path.Combine(repo.Info.WorkingDirectory, "copied.txt");
+
+                File.WriteAllText(originalPath, "a\nb\nc\nd\n");
+
+                repo.Index.Stage(originalPath);
+
+                Commit old = repo.Commit("Initial", Constants.Signature, Constants.Signature);
+
+                File.Copy(originalPath, copiedPath);
+                File.AppendAllText(originalPath, "e\n");
+
+                repo.Index.Stage(originalPath);
+                repo.Index.Stage(copiedPath);
+
+                Commit @new = repo.Commit("Updated", Constants.Signature, Constants.Signature);
+
+                TreeChanges changes = repo.Diff.Compare<TreeChanges>(old.Tree, @new.Tree,
+                                                        compareOptions:
+                                                            new CompareOptions
+                                                            {
+                                                                DetectCopies = true,
+                                                            });
+
+                Assert.Equal(2, changes.Count());
+                Assert.Equal(1, changes.Copied.Count());
+                Assert.Equal("original.txt", changes.Copied.Single().OldPath);
+                Assert.Equal("copied.txt", changes.Copied.Single().Path);
+            }
+        }
+
+        [Fact]
+        public void CanNotDetectTheExactCopyingOfModifiedFilesWhenNotEnabled()
+        {
+            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            var path = Repository.Init(scd.DirectoryPath);
+            using (var repo = new Repository(path))
+            {
+                string originalPath = Path.Combine(repo.Info.WorkingDirectory, "original.txt");
+                string copiedPath = Path.Combine(repo.Info.WorkingDirectory, "copied.txt");
+
+                File.WriteAllText(originalPath, "a\nb\nc\nd\n");
+
+                repo.Index.Stage(originalPath);
+
+                Commit old = repo.Commit("Initial", Constants.Signature, Constants.Signature);
+
+                File.Copy(originalPath, copiedPath);
+                File.AppendAllText(originalPath, "e\n");
+
+                repo.Index.Stage(originalPath);
+                repo.Index.Stage(copiedPath);
+
+                Commit @new = repo.Commit("Updated", Constants.Signature, Constants.Signature);
+
+                TreeChanges changes = repo.Diff.Compare<TreeChanges>(old.Tree, @new.Tree);
+
+                Assert.Equal(2, changes.Count());
+                Assert.Equal(0, changes.Copied.Count());
+            }
+        }
+
+        [Fact]
+        public void CanDetectTheExactRenamingExactCopyingOfNonModifiedAndModifiedFilesWhenEnabled()
+        {
+            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            var path = Repository.Init(scd.DirectoryPath);
+            using (var repo = new Repository(path))
+            {
+                string originalPath = Path.Combine(repo.Info.WorkingDirectory, "original.txt");
+                string renamedPath = Path.Combine(repo.Info.WorkingDirectory, "renamed.txt");
+                string originalPath2 = Path.Combine(repo.Info.WorkingDirectory, "original2.txt");
+                string copiedPath1 = Path.Combine(repo.Info.WorkingDirectory, "copied.txt");
+                string originalPath3 = Path.Combine(repo.Info.WorkingDirectory, "original3.txt");
+                string copiedPath2 = Path.Combine(repo.Info.WorkingDirectory, "copied2.txt");
+
+                File.WriteAllText(originalPath, "a\nb\nc\nd\n");
+                File.WriteAllText(originalPath2, "1\n2\n3\n4\n");
+                File.WriteAllText(originalPath3, "5\n6\n7\n8\n");
+
+                repo.Index.Stage(originalPath);
+                repo.Index.Stage(originalPath2);
+                repo.Index.Stage(originalPath3);
+
+                Commit old = repo.Commit("Initial", Constants.Signature, Constants.Signature);
+
+                File.Copy(originalPath2, copiedPath1);
+                File.Copy(originalPath3, copiedPath2);
+                File.AppendAllText(originalPath3, "9\n");
+
+                repo.Index.Stage(originalPath3);
+                repo.Index.Stage(copiedPath1);
+                repo.Index.Stage(copiedPath2);
+                repo.Index.Move(originalPath, renamedPath);
+
+                Commit @new = repo.Commit("Updated", Constants.Signature, Constants.Signature);
+
+                TreeChanges changes = repo.Diff.Compare<TreeChanges>(old.Tree, @new.Tree,
+                                                        compareOptions:
+                                                            new CompareOptions
+                                                            {
+                                                                DetectCopiesFromUnmodified = true,
+                                                            });
+
+                Assert.Equal(4, changes.Count());
+                Assert.Equal(1, changes.Modified.Count());
+                Assert.Equal(1, changes.Renamed.Count());
+                Assert.Equal("original.txt", changes.Renamed.Single().OldPath);
+                Assert.Equal("renamed.txt", changes.Renamed.Single().Path);
+                Assert.Equal(2, changes.Copied.Count());
+                Assert.Equal("original2.txt", changes.Copied.ElementAt(0).OldPath);
+                Assert.Equal("copied.txt", changes.Copied.ElementAt(0).Path);
+                Assert.Equal("original3.txt", changes.Copied.ElementAt(1).OldPath);
+                Assert.Equal("copied2.txt", changes.Copied.ElementAt(1).Path);
+            }
+        }
         /*
          * $ git diff f8d44d7..ec9e401
          * diff --git a/numbers.txt b/numbers.txt

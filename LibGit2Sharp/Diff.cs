@@ -342,7 +342,36 @@ namespace LibGit2Sharp
                     throw;
                 }
 
+                DetectRenames(diffList, compareOptions);
+
                 return diffList;
+            }
+        }
+
+        private void DetectRenames(DiffSafeHandle diffList, CompareOptions compareOptions)
+        {
+            if (compareOptions == null) return;
+
+            var opts = new GitDiffFindOptions();
+            if (compareOptions.DetectRenames)
+            {
+                opts.Flags |= GitDiffFindFlags.GIT_DIFF_FIND_RENAMES;
+            }
+            if (compareOptions.DetectCopies)
+            {
+                opts.Flags |= GitDiffFindFlags.GIT_DIFF_FIND_RENAMES |
+                              GitDiffFindFlags.GIT_DIFF_FIND_COPIES;
+            }
+            if (compareOptions.DetectCopiesFromUnmodified)
+            {
+                opts.Flags |= GitDiffFindFlags.GIT_DIFF_FIND_RENAMES |
+                              GitDiffFindFlags.GIT_DIFF_FIND_COPIES |
+                              GitDiffFindFlags.GIT_DIFF_FIND_COPIES_FROM_UNMODIFIED;
+            }
+
+            if (opts.Flags != 0)
+            {
+                Proxy.git_diff_find_similar(diffList, opts);
             }
         }
 

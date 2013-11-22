@@ -25,5 +25,20 @@ namespace LibGit2Sharp
         /// (Default = 0)
         /// </summary>
         public int InterhunkLines { get; set; }
+
+        /// <summary>
+        /// Look for renames?
+        /// </summary>
+        public bool DetectRenames { get; set; }
+
+        /// <summary>
+        /// Look for copies?
+        /// </summary>
+        public bool DetectCopies { get; set; }
+
+        /// <summary>
+        /// Consider unmodified files as copy sources?
+        /// </summary>
+        public bool DetectCopiesFromUnmodified { get; set; }
     }
 }

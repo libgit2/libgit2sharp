@@ -23,6 +23,8 @@ namespace LibGit2Sharp
         private readonly List<TreeEntryChanges> modified = new List<TreeEntryChanges>();
         private readonly List<TreeEntryChanges> typeChanged = new List<TreeEntryChanges>();
         private readonly List<TreeEntryChanges> unmodified = new List<TreeEntryChanges>();
+        private readonly List<TreeEntryChanges> renamed = new List<TreeEntryChanges>();
+        private readonly List<TreeEntryChanges> copied = new List<TreeEntryChanges>();
 
         private readonly IDictionary<ChangeKind, Action<TreeChanges, TreeEntryChanges>> fileDispatcher = Build();
 
@@ -35,6 +37,8 @@ namespace LibGit2Sharp
                            { ChangeKind.Added, (de, d) => de.added.Add(d) },
                            { ChangeKind.TypeChanged, (de, d) => de.typeChanged.Add(d) },
                            { ChangeKind.Unmodified, (de, d) => de.unmodified.Add(d) },
+                           { ChangeKind.Renamed, (de, d) => de.renamed.Add(d) },
+                           { ChangeKind.Copied, (de, d) => de.copied.Add(d) },
                        };
         }
 
@@ -152,14 +156,30 @@ namespace LibGit2Sharp
             get { return typeChanged; }
         }
 
+        /// <summary>
+        /// List of <see cref="TreeEntryChanges"/> which have been renamed
+        /// </summary>
+        public virtual IEnumerable<TreeEntryChanges> Renamed
+        {
+            get { return renamed; }
+        }
+
+        /// <summary>
+        /// List of <see cref="TreeEntryChanges"/> which have been copied
+        /// </summary>
+        public virtual IEnumerable<TreeEntryChanges> Copied
+        {
+            get { return copied; }
+        }
+
         private string DebuggerDisplay
         {
             get
             {
                 return string.Format(CultureInfo.InvariantCulture,
-                    "+{0} ~{2} -{1} \u00B1{3}",
+                    "+{0} ~{2} -{1} \u00B1{3} R{4}",
                     Added.Count(), Deleted.Count(),
-                    Modified.Count(), TypeChanged.Count());
+                    Modified.Count(), TypeChanged.Count(), Renamed.Count());
             }
         }
     }
