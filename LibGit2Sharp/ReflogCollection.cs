@@ -126,7 +126,7 @@ namespace LibGit2Sharp
         /// <param name="reflogMessage">the message associated with the new <see cref="ReflogEntry"/>.</param>
         internal void Append(ObjectId target, string reflogMessage)
         {
-            Signature author = repo.Config.BuildSignatureFromGlobalConfiguration(DateTimeOffset.Now, false);
+            Signature author = repo.Config.BuildSignature(DateTimeOffset.Now, false);
             Append(target, reflogMessage, author);
         }
     }

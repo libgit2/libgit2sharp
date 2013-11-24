@@ -80,7 +80,7 @@
     <Compile Include="CleanFixture.cs" />
     <Compile Include="CurrentOperationFixture.cs" />
     <Compile Include="MetaFixture.cs" />
-    <Compile Include="MockedRepositoryFixture.cs" />
+    <Compile Include="MockingFixture.cs" />
     <Compile Include="ConfigurationFixture.cs" />
     <Compile Include="AttributesFixture.cs" />
     <Compile Include="CommitAncestorFixture.cs" />
