@@ -204,7 +204,7 @@ namespace LibGit2Sharp
 
             private void InternalHidePush(IList<object> identifier, HidePushSignature hidePush)
             {
-                IEnumerable<ObjectId> oids = RetrieveCommitOids(identifier).TakeWhile(o => o != null);
+                IEnumerable<ObjectId> oids = repo.Committishes(identifier).TakeWhile(o => o != null);
 
                 foreach (ObjectId actedOn in oids)
                 {
@@ -232,97 +232,6 @@ namespace LibGit2Sharp
                 Proxy.git_revwalk_sorting(handle, options);
             }
 
-            private ObjectId DereferenceToCommit(string identifier)
-            {
-                var options = LookUpOptions.DereferenceResultToCommit;
-
-                if (!AllowOrphanReference(identifier))
-                {
-                    options |= LookUpOptions.ThrowWhenNoGitObjectHasBeenFound;
-                }
-
-                // TODO: Should we check the type? Git-log allows TagAnnotation oid as parameter. But what about Blobs and Trees?
-                GitObject commit = repo.Lookup(identifier, GitObjectType.Any, options);
-
-                return commit != null ? commit.Id : null;
-            }
-
-            private bool AllowOrphanReference(string identifier)
-            {
-                return string.Equals(identifier, "HEAD", StringComparison.Ordinal)
-                       || string.Equals(identifier, repo.Head.CanonicalName, StringComparison.Ordinal);
-            }
-
-            private IEnumerable<ObjectId> RetrieveCommitOids(object identifier)
-            {
-                if (identifier is string)
-                {
-                    yield return DereferenceToCommit(identifier as string);
-                    yield break;
-                }
-
-                if (identifier is ObjectId)
-                {
-                    yield return DereferenceToCommit(((ObjectId)identifier).Sha);
-                    yield break;
-                }
-
-                if (identifier is Commit)
-                {
-                    yield return ((Commit)identifier).Id;
-                    yield break;
-                }
-
-                if (identifier is TagAnnotation)
-                {
-                    yield return DereferenceToCommit(((TagAnnotation)identifier).Target.Id.Sha);
-                    yield break;
-                }
-
-                if (identifier is Tag)
-                {
-                    yield return DereferenceToCommit(((Tag)identifier).Target.Id.Sha);
-                    yield break;
-                }
-
-                if (identifier is Branch)
-                {
-                    var branch = (Branch)identifier;
-                    if (branch.Tip == null && branch.IsCurrentRepositoryHead)
-                    {
-                        yield return null;
-                        yield break;
-                    }
-
-                    Ensure.GitObjectIsNotNull(branch.Tip, branch.CanonicalName);
-
-                    yield return branch.Tip.Id;
-                    yield break;
-                }
-
-                if (identifier is Reference)
-                {
-                    yield return DereferenceToCommit(((Reference)identifier).CanonicalName);
-                    yield break;
-                }
-
-                if (identifier is IEnumerable)
-                {
-                    var enumerable = (IEnumerable)identifier;
-
-                    foreach (object entry in enumerable)
-                    {
-                        foreach (ObjectId oid in RetrieveCommitOids(entry))
-                        {
-                            yield return oid;
-                        }
-                    }
-
-                    yield break;
-                }
-
-                throw new LibGit2SharpException(string.Format(CultureInfo.InvariantCulture, "Unexpected kind of identifier '{0}'.", identifier));
-            }
         }
     }
 }

@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Handlers;
 
@@ -317,6 +319,115 @@ namespace LibGit2Sharp
             }
 
             return normalizedPath.Substring(repo.Info.WorkingDirectory.Length);
+        }
+
+        private static ObjectId DereferenceToCommit(Repository repo, string identifier)
+        {
+            var options = LookUpOptions.DereferenceResultToCommit;
+
+            if (!AllowOrphanReference(repo, identifier))
+            {
+                options |= LookUpOptions.ThrowWhenNoGitObjectHasBeenFound;
+            }
+
+            // TODO: Should we check the type? Git-log allows TagAnnotation oid as parameter. But what about Blobs and Trees?
+            GitObject commit = repo.Lookup(identifier, GitObjectType.Any, options);
+
+            return commit != null ? commit.Id : null;
+        }
+
+        private static bool AllowOrphanReference(IRepository repo, string identifier)
+        {
+            return string.Equals(identifier, "HEAD", StringComparison.Ordinal)
+                   || string.Equals(identifier, repo.Head.CanonicalName, StringComparison.Ordinal);
+        }
+
+        /// <summary>
+        /// Dereferences the passed identifier to a commit. If the identifier is enumerable, all items are dereferenced.
+        /// </summary>
+        /// <param name="repo">Repository to search</param>
+        /// <param name="identifier">Committish to dereference</param>
+        /// <param name="throwIfNotFound">If true, allow thrown exceptions to propagate. If false, exceptions will be swallowed and null returned.</param>
+        /// <returns>A series of commit <see cref="ObjectId"/>s which identify commit objects.</returns>
+        internal static IEnumerable<ObjectId> Committishes(this Repository repo, object identifier, bool throwIfNotFound = false)
+        {
+            ObjectId singleReturnValue = null;
+
+            if (identifier is string) 
+            {
+                singleReturnValue = DereferenceToCommit(repo, identifier as string);
+            }
+
+            if (identifier is ObjectId)
+            {
+                singleReturnValue = DereferenceToCommit(repo, ((ObjectId) identifier).Sha);
+            }
+
+            if (identifier is Commit)
+            {
+                singleReturnValue = ((Commit) identifier).Id;
+            }
+
+            if (identifier is TagAnnotation)
+            {
+                singleReturnValue = DereferenceToCommit(repo, ((TagAnnotation) identifier).Target.Id.Sha);
+            }
+
+            if (identifier is Tag)
+            {
+                singleReturnValue = DereferenceToCommit(repo, ((Tag) identifier).Target.Id.Sha);
+            }
+
+            if (identifier is Branch)
+            {
+                var branch = (Branch) identifier;
+                if (branch.Tip != null || !branch.IsCurrentRepositoryHead)
+                {
+                    Ensure.GitObjectIsNotNull(branch.Tip, branch.CanonicalName);
+                    singleReturnValue = branch.Tip.Id;
+                }
+            }
+
+            if (identifier is Reference)
+            {
+                singleReturnValue = DereferenceToCommit(repo, ((Reference) identifier).CanonicalName);
+            }
+
+            if (singleReturnValue != null)
+            {
+                yield return singleReturnValue;
+                yield break;
+            }
+
+            if (identifier is IEnumerable)
+            {
+                foreach (object entry in (IEnumerable)identifier)
+                {
+                    foreach (ObjectId oid in Committishes(repo, entry))
+                    {
+                        yield return oid;
+                    }
+                }
+
+                yield break;
+            }
+
+            if (throwIfNotFound)
+            {
+                throw new LibGit2SharpException(string.Format(CultureInfo.InvariantCulture, "Unexpected kind of identifier '{0}'.", identifier));
+            }
+            yield return null;
+        }
+
+        /// <summary>
+        /// Dereference the identifier to a commit. If the identifier is enumerable, dereference the first element.
+        /// </summary>
+        /// <param name="repo">The <see cref="Repository"/> to search</param>
+        /// <param name="identifier">Committish to dereference</param>
+        /// <returns>An <see cref="ObjectId"/> for a commit object.</returns>
+        internal static ObjectId Committish(this Repository repo, object identifier)
+        {
+            return repo.Committishes(identifier, true).First();
         }
     }
 }
