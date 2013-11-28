@@ -559,7 +559,7 @@ namespace LibGit2Sharp
             Credentials credentials = null)
         {
             CheckoutCallbacks checkoutCallbacks = CheckoutCallbacks.GenerateCheckoutCallbacks(onCheckoutProgress, null);
-            
+
             var callbacks = new RemoteCallbacks(null, onTransferProgress, null, credentials);
             GitRemoteCallbacks gitCallbacks = callbacks.GenerateCallbacks();
 

@@ -615,7 +615,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(2, changes.Count());
                 Assert.Equal(1, changes.Unmodified.Count());
                 Assert.Equal(1, changes.Modified.Count());
-            }   
+            }
         }
 
         [Fact]

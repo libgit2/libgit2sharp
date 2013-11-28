@@ -13,7 +13,7 @@ namespace LibGit2Sharp
     public class BlameHunkCollection : IEnumerable<BlameHunk>
     {
         private readonly IRepository repo;
-        private readonly List<BlameHunk> hunks = new List<BlameHunk>(); 
+        private readonly List<BlameHunk> hunks = new List<BlameHunk>();
 
         /// <summary>
         /// For easy mocking

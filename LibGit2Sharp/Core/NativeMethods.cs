@@ -836,7 +836,7 @@ namespace LibGit2Sharp.Core
             UIntPtr outlen,
             GitRefSpecHandle refSpec,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string name);
-  
+
         [DllImport(libgit2)]
         [return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(LaxUtf8NoCleanupMarshaler))]
         internal static extern string git_refspec_string(

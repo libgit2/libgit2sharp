@@ -75,7 +75,7 @@ namespace LibGit2Sharp.Tests
                 // (be3563a comes after 9fd738e8)
                 var blame = repo.Blame("new.txt", new BlameOptions {StoppingAt = "be3563a"});
                 Assert.True(blame[0].FinalCommit.Sha.StartsWith("be3563a"));
-            }   
+            }
         }
     }
 }

@@ -216,9 +216,9 @@ namespace LibGit2Sharp.Tests
                 Tree t = repo.ObjectDatabase.CreateTree(td);
 
                 var te = t["A symlink"];
-                
+
                 Assert.NotNull(te);
-                
+
                 Assert.Equal(Mode.SymbolicLink, te.Mode);
                 Assert.Equal(linkContent, te.Target);
             }

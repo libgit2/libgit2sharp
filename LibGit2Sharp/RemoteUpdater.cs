@@ -99,10 +99,10 @@ namespace LibGit2Sharp
         /// be used during a Push operation
         /// </summary>
         /// <remarks>Changing the list updates the <see cref="Remote" />.</remarks>
-        public virtual ICollection<string> PushRefSpecs 
-        { 
+        public virtual ICollection<string> PushRefSpecs
+        {
             get { return pushRefSpecs; }
-            set { pushRefSpecs.ReplaceAll(value); } 
+            set { pushRefSpecs.ReplaceAll(value); }
         }
 
         private class UpdatingCollection<T> : ICollection<T>
