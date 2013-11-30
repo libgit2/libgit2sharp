@@ -63,7 +63,7 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(firstKeyPart, "firstKeyPart");
             Ensure.ArgumentNotNullOrEmptyString(secondKeyPart, "secondKeyPart");
-            Ensure.ArgumentNotNullOrEmptyString(thirdKeyPart, "secondKeyPart");
+            Ensure.ArgumentNotNullOrEmptyString(thirdKeyPart, "thirdKeyPart");
 
             return config.Get<T>(new[] { firstKeyPart, secondKeyPart, thirdKeyPart });
         }
