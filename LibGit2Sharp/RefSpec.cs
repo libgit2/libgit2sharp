@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Diagnostics;
+using System.Globalization;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Handles;
 
@@ -7,6 +9,7 @@ namespace LibGit2Sharp
     /// <summary>
     /// A push or fetch reference specification
     /// </summary>
+    [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class RefSpec
     {
         private RefSpec(string refSpec, RefSpecDirection direction, string source, string destination, bool forceUpdate)
@@ -60,5 +63,14 @@ namespace LibGit2Sharp
         /// Indicates whether the destination will be force-updated if fast-forwarding is not possible
         /// </summary>
         public virtual bool ForceUpdate { get; private set; }
+
+        private string DebuggerDisplay
+        {
+            get
+            {
+                return string.Format(CultureInfo.InvariantCulture,
+                    "{0}", Specification);
+            }
+        }
     }
 }
