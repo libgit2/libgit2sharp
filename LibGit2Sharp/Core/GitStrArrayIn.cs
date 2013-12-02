@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
 
 namespace LibGit2Sharp.Core
 {
@@ -12,23 +9,33 @@ namespace LibGit2Sharp.Core
         public IntPtr strings;
         public uint size;
 
+        public static GitStrArrayIn BuildFrom(string[] strings)
+        {
+            return BuildFrom(strings, StrictUtf8Marshaler.FromManaged);
+        }
+
         public static GitStrArrayIn BuildFrom(FilePath[] paths)
         {
-            var nbOfPaths = paths.Length;
-            var pathPtrs = new IntPtr[nbOfPaths];
+            return BuildFrom(paths, StrictFilePathMarshaler.FromManaged);
+        }
 
-            for (int i = 0; i < nbOfPaths; i++)
+        private static GitStrArrayIn BuildFrom<T>(T[] input, Func<T, IntPtr> marshaler)
+        {
+            var count = input.Length;
+            var pointers = new IntPtr[count];
+
+            for (int i = 0; i < count; i++)
             {
-                var s = paths[i].Posix;
-                pathPtrs[i] = StrictFilePathMarshaler.FromManaged(s);
+                var item = input[i];
+                pointers[i] = marshaler(item);
             }
 
-            int dim = IntPtr.Size * nbOfPaths;
+            int dim = IntPtr.Size * count;
 
             IntPtr arrayPtr = Marshal.AllocHGlobal(dim);
-            Marshal.Copy(pathPtrs, 0, arrayPtr, nbOfPaths);
+            Marshal.Copy(pointers, 0, arrayPtr, count);
 
-            return new GitStrArrayIn { strings = arrayPtr, size = (uint)nbOfPaths };
+            return new GitStrArrayIn { strings = arrayPtr, size = (uint)count };
         }
 
         public void Dispose()
@@ -38,14 +45,14 @@ namespace LibGit2Sharp.Core
                 return;
             }
 
-            var nbOfPaths = (int)size;
+            var count = (int)size;
 
-            var pathPtrs = new IntPtr[nbOfPaths];
-            Marshal.Copy(strings, pathPtrs, 0, nbOfPaths);
+            var pointers = new IntPtr[count];
+            Marshal.Copy(strings, pointers, 0, count);
 
-            for (int i = 0; i < nbOfPaths; i++)
+            for (int i = 0; i < count; i++)
             {
-                EncodingMarshaler.Cleanup(pathPtrs[i]);
+                EncodingMarshaler.Cleanup(pointers[i]);
             }
 
             Marshal.FreeHGlobal(strings);

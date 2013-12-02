@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Diagnostics;
 using System.Globalization;
 using LibGit2Sharp.Core;
@@ -65,6 +66,24 @@ namespace LibGit2Sharp
         /// Gets the list of <see cref="RefSpec"/>s defined for this <see cref="Remote"/>
         /// </summary>
         public virtual IEnumerable<RefSpec> RefSpecs { get { return refSpecs; } }
+
+        /// <summary>
+        /// Gets the list of <see cref="RefSpec"/>s defined for this <see cref="Remote"/>
+        /// that are intended to be used during a Fetch operation
+        /// </summary>
+        public virtual IEnumerable<RefSpec> FetchRefSpecs
+        {
+            get { return refSpecs.Where(r => r.Direction == RefSpecDirection.Fetch); }
+        }
+
+        /// <summary>
+        /// Gets the list of <see cref="RefSpec"/>s defined for this <see cref="Remote"/>
+        /// that are intended to be used during a Push operation
+        /// </summary>
+        public virtual IEnumerable<RefSpec> PushRefSpecs
+        {
+            get { return refSpecs.Where(r => r.Direction == RefSpecDirection.Push); }
+        }
 
         /// <summary>
         /// Transform a reference to its source reference using the <see cref="Remote"/>'s default fetchspec.
