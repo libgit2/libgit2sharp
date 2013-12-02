@@ -883,6 +883,12 @@ namespace LibGit2Sharp.Core
         internal static extern UIntPtr git_remote_refspec_count(RemoteSafeHandle remote);
 
         [DllImport(libgit2)]
+        internal static extern int git_remote_set_fetch_refspecs(RemoteSafeHandle remote, GitStrArrayIn array);
+
+        [DllImport(libgit2)]
+        internal static extern int git_remote_set_push_refspecs(RemoteSafeHandle remote, GitStrArrayIn array);
+
+        [DllImport(libgit2)]
         internal static extern int git_remote_is_valid_name(
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string remote_name);
 

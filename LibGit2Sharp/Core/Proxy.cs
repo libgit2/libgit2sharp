@@ -1561,6 +1561,50 @@ namespace LibGit2Sharp.Core
             return (int)NativeMethods.git_remote_refspec_count(remote);
         }
 
+        public static IList<string> git_remote_get_fetch_refspecs(RemoteSafeHandle remote)
+        {
+            using (ThreadAffinity())
+            {
+                UnSafeNativeMethods.git_strarray arr;
+                int res = UnSafeNativeMethods.git_remote_get_fetch_refspecs(out arr, remote);
+                Ensure.ZeroResult(res);
+
+                return Libgit2UnsafeHelper.BuildListOf(arr);
+            }
+        }
+
+        public static IList<string> git_remote_get_push_refspecs(RemoteSafeHandle remote)
+        {
+            using (ThreadAffinity())
+            {
+                UnSafeNativeMethods.git_strarray arr;
+                int res = UnSafeNativeMethods.git_remote_get_push_refspecs(out arr, remote);
+                Ensure.ZeroResult(res);
+
+                return Libgit2UnsafeHelper.BuildListOf(arr);
+            }
+        }
+
+        public static void git_remote_set_fetch_refspecs(RemoteSafeHandle remote, IEnumerable<string> refSpecs)
+        {
+            using (ThreadAffinity())
+            using (GitStrArrayIn array = GitStrArrayIn.BuildFrom(refSpecs.ToArray()))
+            {
+                int res = NativeMethods.git_remote_set_fetch_refspecs(remote, array);
+                Ensure.ZeroResult(res);
+            }
+        }
+
+        public static void git_remote_set_push_refspecs(RemoteSafeHandle remote, IEnumerable<string> refSpecs)
+        {
+            using (ThreadAffinity())
+            using (GitStrArrayIn array = GitStrArrayIn.BuildFrom(refSpecs.ToArray()))
+            {
+                int res = NativeMethods.git_remote_set_push_refspecs(remote, array);
+                Ensure.ZeroResult(res);
+            }
+        }
+
         public static void git_remote_download(RemoteSafeHandle remote)
         {
             using (ThreadAffinity())
