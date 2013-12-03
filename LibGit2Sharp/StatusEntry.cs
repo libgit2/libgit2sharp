@@ -12,9 +12,11 @@ namespace LibGit2Sharp
     {
         private readonly string filePath;
         private readonly FileStatus state;
+        private readonly RenameDetails headToIndexRenameDetails;
+        private readonly RenameDetails indexToWorkDirRenameDetails;
 
         private static readonly LambdaEqualityHelper<StatusEntry> equalityHelper =
-            new LambdaEqualityHelper<StatusEntry>(x => x.FilePath, x => x.State);
+            new LambdaEqualityHelper<StatusEntry>(x => x.FilePath, x => x.State, x => x.HeadToIndexRenameDetails, x => x.IndexToWorkDirRenameDetails);
 
         /// <summary>
         /// Needed for mocking purposes.
@@ -22,10 +24,12 @@ namespace LibGit2Sharp
         protected StatusEntry()
         { }
 
-        internal StatusEntry(string filePath, FileStatus state)
+        internal StatusEntry(string filePath, FileStatus state, RenameDetails headToIndexRenameDetails = null, RenameDetails indexToWorkDirRenameDetails = null)
         {
             this.filePath = filePath;
             this.state = state;
+            this.headToIndexRenameDetails = headToIndexRenameDetails;
+            this.indexToWorkDirRenameDetails = indexToWorkDirRenameDetails;
         }
 
         /// <summary>
@@ -37,11 +41,27 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Gets the relative filepath to the working directory of the file.
+        /// Gets the relative new filepath to the working directory of the file.
         /// </summary>
         public virtual string FilePath
         {
             get { return filePath; }
+        }
+
+        /// <summary>
+        /// Gets the rename details from the HEAD to the Index, if this <see cref="FileStatus"/> contains <see cref="FileStatus.RenamedInIndex"/>
+        /// </summary>
+        public virtual RenameDetails HeadToIndexRenameDetails
+        {
+            get { return headToIndexRenameDetails; }
+        }
+
+        /// <summary>
+        /// Gets the rename details from the Index to the working directory, if this <see cref="FileStatus"/> contains <see cref="FileStatus.RenamedInWorkDir"/>
+        /// </summary>
+        public virtual RenameDetails IndexToWorkDirRenameDetails
+        {
+            get { return indexToWorkDirRenameDetails; }
         }
 
         /// <summary>
@@ -97,7 +117,19 @@ namespace LibGit2Sharp
 
         private string DebuggerDisplay
         {
-            get { return string.Format("{0}: {1}", State, FilePath); }
+            get
+            {
+                if ((State & FileStatus.RenamedInIndex) == FileStatus.RenamedInIndex ||
+                    (State & FileStatus.RenamedInWorkDir) == FileStatus.RenamedInWorkDir)
+                {
+                    string oldFilePath = ((State & FileStatus.RenamedInIndex) == FileStatus.RenamedInIndex) ?
+                        HeadToIndexRenameDetails.OldFilePath : IndexToWorkDirRenameDetails.OldFilePath;
+
+                    return string.Format("{0}: {1} -> {2}", State, oldFilePath, FilePath);
+                }
+
+                return string.Format("{0}: {1}", State, FilePath);
+            }
         }
     }
 }
