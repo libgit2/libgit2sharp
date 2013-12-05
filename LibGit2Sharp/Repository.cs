@@ -1032,6 +1032,80 @@ namespace LibGit2Sharp
             }
         }
 
+        /// <summary>
+        /// Merges the given commit into HEAD as well as performing a Fast Forward if possible.
+        /// </summary>
+        /// <param name="commit">The commit to use as a reference for the changes that should be merged into HEAD.</param>
+        /// <param name="merger">If the merge generates a merge commit (i.e. a non-fast forward merge), the <see cref="Signature"/> of who made the merge.</param>
+        /// <returns>The result of the performed merge <see cref="MergeResult"/>.</returns>
+        public MergeResult Merge(Commit commit, Signature merger)
+        {
+            using (GitMergeHeadHandle mergeHeadHandle = Proxy.git_merge_head_from_oid(Handle, commit.Id.Oid))
+            {
+                GitMergeOpts opts = new GitMergeOpts()
+                {
+                    Version = 1,
+                    MergeTreeOpts = { Version = 1 },
+                    CheckoutOpts = { version = 1 },
+                };
+
+
+                // Perform the merge in libgit2 and get the result back.
+                GitMergeResult gitMergeResult;
+                using (GitMergeResultHandle mergeResultHandle = Proxy.git_merge(Handle, new GitMergeHeadHandle[] { mergeHeadHandle }, opts))
+                {
+                    gitMergeResult = new GitMergeResult(mergeResultHandle);
+                }
+
+                // Handle the result of the merge performed in libgit2
+                // and commit the result / update the working directory as necessary.
+                MergeResult mergeResult;
+                switch(gitMergeResult.Status)
+                {
+                    case MergeStatus.UpToDate:
+                        mergeResult = new MergeResult(MergeStatus.UpToDate);
+                        break;
+                    case MergeStatus.FastForward:
+                        Commit fastForwardCommit = this.Lookup<Commit>(gitMergeResult.FastForwardId);
+                        FastForward(fastForwardCommit);
+                        mergeResult = new MergeResult(MergeStatus.FastForward, fastForwardCommit);
+                        break;
+                    case MergeStatus.NonFastForward:
+                        {
+                            if (Index.IsFullyMerged)
+                            {
+                                // Commit the merge
+                                Commit mergeCommit = this.Commit(Info.Message, author: merger, committer: merger);
+                                mergeResult = new MergeResult(MergeStatus.NonFastForward, mergeCommit);
+                            }
+                            else
+                            {
+                                mergeResult = new MergeResult(MergeStatus.Conflicts);
+                            }
+                        }
+                        break;
+                    default:
+                        throw new NotImplementedException(string.Format("Unknown MergeStatus: {0}", gitMergeResult.Status));
+                }
+
+                return mergeResult;
+            }
+        }
+
+        private void FastForward(Commit fastForwardCommit)
+        {
+            var checkoutOpts = new CheckoutOptions
+            {
+                CheckoutModifiers = CheckoutModifiers.None,
+            };
+
+            CheckoutTree(fastForwardCommit.Tree, null, checkoutOpts);
+
+            Refs.UpdateTarget("HEAD", fastForwardCommit.Id.Sha);
+
+            // TODO: Update Reflog...
+        }
+
         internal StringComparer PathComparer
         {
             get { return pathCase.Value.Comparer; }
