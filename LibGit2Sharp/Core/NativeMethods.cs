@@ -562,6 +562,41 @@ namespace LibGit2Sharp.Core
             GitObjectSafeHandle two);
 
         [DllImport(libgit2)]
+        internal static extern int git_merge_head_from_oid(
+            out GitMergeHeadHandle their_heads,
+            RepositorySafeHandle repo,
+            ref GitOid mergeBase);
+
+        [DllImport(libgit2)]
+        internal static extern int git_merge(
+            out GitMergeResultHandle mergeResult,
+            RepositorySafeHandle repo,
+            ref GitMergeHeadHandle their_heads,
+            UIntPtr their_heads_len,
+            ref GitMergeOpts given_opts);
+
+        [DllImport(libgit2)]
+        internal static extern int git_merge_result_is_uptodate(
+            GitMergeResultHandle merge_result);
+
+        [DllImport(libgit2)]
+        internal static extern int git_merge_result_is_fastforward(
+            GitMergeResultHandle merge_result);
+
+        [DllImport(libgit2)]
+        internal static extern int git_merge_result_fastforward_oid(
+            out GitOid oid,
+            GitMergeResultHandle merge_result);
+
+        [DllImport(libgit2)]
+        internal static extern void git_merge_result_free(
+            IntPtr merge_result);
+
+        [DllImport(libgit2)]
+        internal static extern void git_merge_head_free(
+            IntPtr merge_head);
+
+        [DllImport(libgit2)]
         internal static extern int git_message_prettify(
             byte[] message_out, // NB: This is more properly a StringBuilder, but it's UTF8
             UIntPtr buffer_size,

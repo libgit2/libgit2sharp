@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
+using System;
 
 namespace LibGit2Sharp.Tests
 {
@@ -79,6 +80,49 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal("MERGE_HEAD[1]", mergedHeads[1].Name);
                 Assert.Null(mergedHeads[1].Tip);
             }
+        }
+
+        [Fact]
+        public void CanMergeRepos()
+        {
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
+            {
+                var firstBranch = repo.CreateBranch("FirstBranch");
+                firstBranch.Checkout();
+                AddFileCommitToRepo(repo, "first+second branch file");
+
+                var secondBranch = repo.CreateBranch("SecondBranch");
+                AddFileCommitToRepo(repo, "first branch file");
+                secondBranch.Checkout();
+                AddFileCommitToRepo(repo, "second branch file");
+
+                repo.MergeOnto(repo.Branches["FirstBranch"].Tip);
+
+                repo.Commit("Merge First+Second");
+            }
+        }
+
+        private Commit AddCommitToRepo(IRepository repository)
+        {
+            string random = Guid.NewGuid().ToString();
+            string filename = random + ".txt";
+
+            Touch(repository.Info.WorkingDirectory, filename, random);
+
+            repository.Index.Stage(filename);
+
+            return repository.Commit("New commit", Constants.Signature, Constants.Signature);
+        }
+
+        private Commit AddFileCommitToRepo(IRepository repository, string filename, string content = null)
+        {
+            filename = filename + ".txt";
+            Touch(repository.Info.WorkingDirectory, filename, content);
+
+            repository.Index.Stage(filename);
+
+            return repository.Commit("New commit", Constants.Signature, Constants.Signature);
         }
     }
 }

@@ -559,7 +559,7 @@ namespace LibGit2Sharp
             Credentials credentials = null)
         {
             CheckoutCallbacks checkoutCallbacks = CheckoutCallbacks.GenerateCheckoutCallbacks(onCheckoutProgress, null);
-            
+
             var callbacks = new RemoteCallbacks(null, onTransferProgress, null, credentials);
             GitRemoteCallbacks gitCallbacks = callbacks.GenerateCallbacks();
 
@@ -1042,6 +1042,21 @@ namespace LibGit2Sharp
                 return Proxy.git_repository_mergehead_foreach(Handle,
                     commitId => new MergeHead(this, commitId, i++));
             }
+        }
+
+        /// <summary>
+        /// Merges the HEAD onto the given commit.
+        /// </summary>
+        public void MergeOnto(
+            Commit commit)
+        {
+            GitMergeOpts opts = new GitMergeOpts()
+            {
+                Version = 1,
+                MergeTreeOpts = { Version = 1, Metric = UIntPtr.Zero },
+                CheckoutOpts = { version = 1 }
+            };
+            Proxy.git_merge(Handle, opts, commit.Id.Oid);
         }
 
         internal StringComparer PathComparer
