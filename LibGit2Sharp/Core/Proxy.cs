@@ -2731,7 +2731,7 @@ namespace LibGit2Sharp.Core
                     list.Add((GitRemoteHead)Marshal.PtrToStructure(rawHeads[i], typeof (GitRemoteHead)));
                 }
                 return list;
-            } 
+            }
         }
 
         private static bool RepositoryStateChecker(RepositorySafeHandle repo, Func<RepositorySafeHandle, int> checker)

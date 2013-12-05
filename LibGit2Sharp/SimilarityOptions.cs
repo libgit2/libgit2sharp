@@ -128,7 +128,7 @@ namespace LibGit2Sharp
         /// The mode for detecting renames and copies
         /// </summary>
         public RenameDetectionMode RenameDetectionMode { get; set; }
-            
+
         /// <summary>
         /// The mode for handling whitespace when comparing files
         /// </summary>

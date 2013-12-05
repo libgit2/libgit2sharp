@@ -481,5 +481,56 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(string.Empty, tagAnnotation.Message);
             }
         }
+
+        [Theory]
+        [InlineData("c47800c", "9fd738e", "5b5b025", 1, 2)]
+        [InlineData("9fd738e", "c47800c", "5b5b025", 2, 1)]
+        public void CanCalculateHistoryDivergence(
+            string sinceSha, string untilSha,
+            string expectedAncestorSha, int? expectedAheadBy, int? expectedBehindBy)
+        {
+            using (var repo = new Repository(BareTestRepoPath))
+            {
+                var since = repo.Lookup<Commit>(sinceSha);
+                var until = repo.Lookup<Commit>(untilSha);
+
+                HistoryDivergence div = repo.ObjectDatabase.CalculateHistoryDivergence(since, until);
+
+                Assert.Equal(expectedAheadBy, div.AheadBy);
+                Assert.Equal(expectedBehindBy, div.BehindBy);
+                Assert.Equal(expectedAncestorSha, div.CommonAncestor.Id.ToString(7));
+            }
+        }
+
+        [Theory]
+        [InlineData("c47800c", "41bc8c6907", 3, 2)]
+        public void CanCalculateHistoryDivergenceWhenNoAncestorIsShared(
+            string sinceSha, string untilSha,
+            int? expectedAheadBy, int? expectedBehindBy)
+        {
+            using (var repo = new Repository(BareTestRepoPath))
+            {
+                var since = repo.Lookup<Commit>(sinceSha);
+                var until = repo.Lookup<Commit>(untilSha);
+
+                HistoryDivergence div = repo.ObjectDatabase.CalculateHistoryDivergence(since, until);
+
+                Assert.Equal(expectedAheadBy, div.AheadBy);
+                Assert.Equal(expectedBehindBy, div.BehindBy);
+                Assert.Null(div.CommonAncestor);
+            }
+        }
+
+        [Fact]
+        public void CalculatingHistoryDivergenceWithBadParamsThrows()
+        {
+            using (var repo = new Repository(BareTestRepoPath))
+            {
+                Assert.Throws<ArgumentNullException>(
+                    () => repo.ObjectDatabase.CalculateHistoryDivergence(repo.Head.Tip, null));
+                Assert.Throws<ArgumentNullException>(
+                    () => repo.ObjectDatabase.CalculateHistoryDivergence(null, repo.Head.Tip));
+            }
+        }
     }
 }
