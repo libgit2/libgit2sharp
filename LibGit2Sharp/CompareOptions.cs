@@ -1,3 +1,5 @@
+using System;
+
 namespace LibGit2Sharp
 {
     /// <summary>
@@ -25,5 +27,15 @@ namespace LibGit2Sharp
         /// (Default = 0)
         /// </summary>
         public int InterhunkLines { get; set; }
+
+        /// <summary>
+        /// Options for rename detection. If null, the `diff.renames` configuration setting is used.
+        /// </summary>
+        public SimilarityOptions Similarity { get; set; }
+
+        /// <summary>
+        /// Include "unmodified" entries in the results.
+        /// </summary>
+        public bool IncludeUnmodified { get; set; }
     }
 }

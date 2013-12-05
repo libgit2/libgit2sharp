@@ -249,6 +249,7 @@ namespace LibGit2Sharp.Core
         public int NewLineNo;
         public int NumLines;
         public UIntPtr contentLen;
+        public Int64 contentOffset;
         public IntPtr content;
     }
 
@@ -273,5 +274,62 @@ namespace LibGit2Sharp.Core
         GIT_DIFF_FORMAT_RAW          = 3, // < like git diff --raw
         GIT_DIFF_FORMAT_NAME_ONLY    = 4, // < like git diff --name-only
         GIT_DIFF_FORMAT_NAME_STATUS  = 5, // < like git diff --name-status
+    }
+
+    [Flags]
+    enum GitDiffFindFlags
+    {
+        GIT_DIFF_FIND_RENAMES = (1 << 0),
+        // consider old side of modified for renames? (`--break-rewrites=N`)
+        GIT_DIFF_FIND_RENAMES_FROM_REWRITES = (1 << 1),
+
+        // look for copies? (a la `--find-copies`)
+        GIT_DIFF_FIND_COPIES = (1 << 2),
+        // consider unmodified as copy sources? (`--find-copies-harder`)
+        GIT_DIFF_FIND_COPIES_FROM_UNMODIFIED = (1 << 3),
+
+        // mark large rewrites for split (`--break-rewrites=/M`)
+        GIT_DIFF_FIND_REWRITES = (1 << 4),
+        // actually split large rewrites into delete/add pairs
+        GIT_DIFF_BREAK_REWRITES = (1 << 5),
+        // mark rewrites for split and break into delete/add pairs
+        GIT_DIFF_FIND_AND_BREAK_REWRITES =
+            (GIT_DIFF_FIND_REWRITES | GIT_DIFF_BREAK_REWRITES),
+
+        // find renames/copies for untracked items in working directory
+        GIT_DIFF_FIND_FOR_UNTRACKED = (1 << 6),
+
+        // turn on all finding features
+        GIT_DIFF_FIND_ALL = (0x0ff),
+
+        // measure similarity ignoring leading whitespace (default)
+        GIT_DIFF_FIND_IGNORE_LEADING_WHITESPACE = 0,
+        // measure similarity ignoring all whitespace
+        GIT_DIFF_FIND_IGNORE_WHITESPACE = (1 << 12),
+        // measure similarity including all data
+        GIT_DIFF_FIND_DONT_IGNORE_WHITESPACE = (1 << 13),
+        // measure similarity only by comparing SHAs (fast and cheap)
+        GIT_DIFF_FIND_EXACT_MATCH_ONLY = (1 << 14),
+
+        // do not break rewrites unless they contribute to a rename
+        GIT_DIFF_BREAK_REWRITES_FOR_RENAMES_ONLY = (1 << 15),
+
+        // Remove any UNMODIFIED deltas after find_similar is done.
+        GIT_DIFF_FIND_REMOVE_UNMODIFIED = (1 << 16),
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    internal class GitDiffFindOptions
+    {
+        public uint Version = 1;
+        public GitDiffFindFlags Flags;
+        public UInt16 RenameThreshold;
+        public UInt16 RenameFromRewriteThreshold;
+        public UInt16 CopyThreshold;
+        public UInt16 BreakRewriteThreshold;
+        public UIntPtr RenameLimit;
+
+        // TODO
+        public IntPtr SimilarityMetric;
     }
 }
