@@ -91,7 +91,7 @@
     <Compile Include="PushOptions.cs" />
     <Compile Include="Core\GitBuf.cs" />
     <Compile Include="FilteringOptions.cs" />
-    <Compile Include="GitMergeResult.cs" />
+    <Compile Include="MergeResult.cs" />
     <Compile Include="ResetMode.cs" />
     <Compile Include="NoteCollectionExtensions.cs" />
     <Compile Include="RefSpecDirection.cs" />

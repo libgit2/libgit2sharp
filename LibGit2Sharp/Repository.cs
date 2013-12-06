@@ -1045,18 +1045,19 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Merges the HEAD onto the given commit.
+        /// Merges the given commit into HEAD.
         /// </summary>
-        public void MergeOnto(
-            Commit commit)
+        public MergeResult Merge(Commit commit)
         {
+            var mergeHeadHandle = Proxy.git_merge_head_from_oid(Handle, commit.Id.Oid);
+
             GitMergeOpts opts = new GitMergeOpts()
             {
                 Version = 1,
-                MergeTreeOpts = { Version = 1, Metric = UIntPtr.Zero },
+                MergeTreeOpts = { Version = 1 },
                 CheckoutOpts = { version = 1 }
             };
-            Proxy.git_merge(Handle, opts, commit.Id.Oid);
+            return new MergeResult(Proxy.git_merge(Handle, new GitMergeHeadHandle[] { mergeHeadHandle }, opts));
         }
 
         internal StringComparer PathComparer

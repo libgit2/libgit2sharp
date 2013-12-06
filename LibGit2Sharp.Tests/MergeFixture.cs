@@ -1,7 +1,6 @@
-﻿using System.Linq;
-using LibGit2Sharp.Tests.TestHelpers;
+﻿using LibGit2Sharp.Tests.TestHelpers;
+using System.Linq;
 using Xunit;
-using System;
 
 namespace LibGit2Sharp.Tests
 {
@@ -97,22 +96,10 @@ namespace LibGit2Sharp.Tests
                 secondBranch.Checkout();
                 AddFileCommitToRepo(repo, "second branch file");
 
-                repo.MergeOnto(repo.Branches["FirstBranch"].Tip);
+                repo.Merge(repo.Branches["FirstBranch"].Tip);
 
                 repo.Commit("Merge First+Second");
             }
-        }
-
-        private Commit AddCommitToRepo(IRepository repository)
-        {
-            string random = Guid.NewGuid().ToString();
-            string filename = random + ".txt";
-
-            Touch(repository.Info.WorkingDirectory, filename, random);
-
-            repository.Index.Stage(filename);
-
-            return repository.Commit("New commit", Constants.Signature, Constants.Signature);
         }
 
         private Commit AddFileCommitToRepo(IRepository repository, string filename, string content = null)

@@ -934,30 +934,44 @@ namespace LibGit2Sharp.Core
             }
         }
 
-        public static GitMergeResult git_merge(RepositorySafeHandle repo, GitMergeOpts opts, GitOid oid)
+        public static GitMergeHeadHandle git_merge_head_from_oid(RepositorySafeHandle repo, GitOid oid)
         {
             using (ThreadAffinity())
             {
-                GitMergeHeadHandle their_heads;
+                GitMergeHeadHandle their_head;
 
-                int res1 = NativeMethods.git_merge_head_from_oid(out their_heads, repo, ref oid);
-                if (res1 == (int)GitErrorCode.NotFound)
+                int res = NativeMethods.git_merge_head_from_oid(out their_head, repo, ref oid);
+                if (res == (int)GitErrorCode.NotFound)
                     return null;
 
-                Ensure.ZeroResult(res1);
+                Ensure.ZeroResult(res);
 
+                return their_head;
+            }
+        }
+
+        public static GitMergeResultHandle git_merge(RepositorySafeHandle repo, GitMergeHeadHandle[] heads, GitMergeOpts options)
+        {
+            using (ThreadAffinity())
+            {
                 GitMergeResultHandle ret;
-                
-                int res2 = NativeMethods.git_merge(out ret, repo, ref their_heads, (UIntPtr)1, ref opts);
 
-                if (res2 == (int)GitErrorCode.NotFound)
+                IntPtr[] their_heads = new IntPtr[heads.Length];
+                for (int i = 0; i < heads.Length; i++)
                 {
-                    return null;
+                    their_heads[i] = heads[i].DangerousGetHandle();
                 }
 
-                Ensure.ZeroResult(res2);
+                int res = NativeMethods.git_merge(
+                    out ret,
+                    repo,
+                    their_heads,
+                    (UIntPtr)their_heads.Length,
+                    ref options);
 
-                return new GitMergeResult(ret);
+                Ensure.ZeroResult(res);
+
+                return ret;
             }
         }
 
@@ -966,7 +980,7 @@ namespace LibGit2Sharp.Core
             using (ThreadAffinity())
             {
                 int res = NativeMethods.git_merge_result_is_uptodate(handle);
-                Ensure.ZeroResult(res);
+                Ensure.BooleanResult(res);
 
                 return (res == 1);
             }
@@ -977,7 +991,7 @@ namespace LibGit2Sharp.Core
             using (ThreadAffinity())
             {
                 int res = NativeMethods.git_merge_result_is_fastforward(handle);
-                Ensure.ZeroResult(res);
+                Ensure.BooleanResult(res);
 
                 return (res == 1);
             }

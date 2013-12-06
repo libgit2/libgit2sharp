@@ -562,19 +562,33 @@ namespace LibGit2Sharp.Core
             GitObjectSafeHandle two);
 
         [DllImport(libgit2)]
-        internal static extern int git_merge_head_from_oid(
-            out GitMergeHeadHandle their_heads,
+        internal static extern int git_merge_head_from_ref(
+            out GitMergeHeadHandle mergehead,
             RepositorySafeHandle repo,
-            ref GitOid mergeBase);
+            ReferenceSafeHandle reference);
+
+        [DllImport(libgit2)]
+        internal static extern int git_merge_head_from_fetchhead(
+            out GitMergeHeadHandle mergehead,
+            RepositorySafeHandle repo,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string branch_name,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string remote_url,
+            ref GitOid oid);
+
+        [DllImport(libgit2)]
+        internal static extern int git_merge_head_from_oid(
+            out GitMergeHeadHandle mergehead,
+            RepositorySafeHandle repo,
+            ref GitOid oid);
 
         [DllImport(libgit2)]
         internal static extern int git_merge(
             out GitMergeResultHandle mergeResult,
             RepositorySafeHandle repo,
-            ref GitMergeHeadHandle their_heads,
+            [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 2)] [In] IntPtr[] their_heads,
             UIntPtr their_heads_len,
             ref GitMergeOpts given_opts);
-
+        
         [DllImport(libgit2)]
         internal static extern int git_merge_result_is_uptodate(
             GitMergeResultHandle merge_result);
