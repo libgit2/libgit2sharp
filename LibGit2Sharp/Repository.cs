@@ -1049,15 +1049,19 @@ namespace LibGit2Sharp
         /// </summary>
         public MergeResult Merge(Commit commit)
         {
-            var mergeHeadHandle = Proxy.git_merge_head_from_oid(Handle, commit.Id.Oid);
-
-            GitMergeOpts opts = new GitMergeOpts()
+            using (GitMergeHeadHandle mergeHeadHandle = Proxy.git_merge_head_from_oid(Handle, commit.Id.Oid))
             {
-                Version = 1,
-                MergeTreeOpts = { Version = 1 },
-                CheckoutOpts = { version = 1 }
-            };
-            return new MergeResult(Proxy.git_merge(Handle, new GitMergeHeadHandle[] { mergeHeadHandle }, opts));
+                GitMergeOpts opts = new GitMergeOpts()
+                {
+                    Version = 1,
+                    MergeTreeOpts = { Version = 1 },
+                    CheckoutOpts = { version = 1 }
+                };
+                using (GitMergeResultHandle mergeResultHandle = Proxy.git_merge(Handle, new GitMergeHeadHandle[] { mergeHeadHandle }, opts))
+                { 
+                    return new MergeResult(mergeResultHandle);
+                }
+            }
         }
 
         internal StringComparer PathComparer

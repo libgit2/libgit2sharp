@@ -89,16 +89,25 @@ namespace LibGit2Sharp.Tests
             {
                 var firstBranch = repo.CreateBranch("FirstBranch");
                 firstBranch.Checkout();
-                AddFileCommitToRepo(repo, "first+second branch file");
+                var originalTreeCount = firstBranch.Tip.Tree.Count;
 
+                //Commit with ONE new file to both first & second branch (SecondBranch is created on this commit).
+                AddFileCommitToRepo(repo, "first+second branch file");  
+                
                 var secondBranch = repo.CreateBranch("SecondBranch");
-                AddFileCommitToRepo(repo, "first branch file");
+                //Commit with ONE new file to first branch (FirstBranch moves forward as it is checked out, SecondBranch stays back one).
+                var firstBranchCommit = AddFileCommitToRepo(repo, "first branch file"); 
+
                 secondBranch.Checkout();
-                AddFileCommitToRepo(repo, "second branch file");
+                //Commit with ONE new file to second branch (FirstBranch and SecondBranch now point to separate commits that both have the same parent commit).
+                var secondBranchCommit = AddFileCommitToRepo(repo, "second branch file");
 
-                repo.Merge(repo.Branches["FirstBranch"].Tip);
+                MergeResult mergeResult = repo.Merge(repo.Branches["FirstBranch"].Tip);
 
-                repo.Commit("Merge First+Second");
+                var mergeCommit = repo.Commit("Merge First+Second");
+
+                Assert.Equal(mergeCommit.Tree.Count, originalTreeCount + 3);    //Expecting original tree count plussed by the 3 added files.
+                Assert.Equal(mergeCommit.Parents.Count(), 2);   //Merge commit should have 2 parents
             }
         }
 

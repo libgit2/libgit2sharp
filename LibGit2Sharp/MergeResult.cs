@@ -10,7 +10,10 @@ namespace LibGit2Sharp
         internal MergeResult(GitMergeResultHandle handle)
         {
             _isUpToDate = Proxy.git_merge_result_is_uptodate(handle);
-            _isUpToDate = Proxy.git_merge_result_is_fastforward(handle);
+            _isFastForward = Proxy.git_merge_result_is_fastforward(handle);
+
+            if (_isFastForward)
+                _oid = Proxy.git_merge_result_fastforward_oid(handle);
         }
 
         private bool _isUpToDate;
@@ -23,6 +26,12 @@ namespace LibGit2Sharp
         public virtual bool IsFastForward
         {
             get { return _isFastForward; }
+        }
+
+        private readonly GitOid _oid;
+        internal GitOid FastForwardOid
+        {
+            get { return _oid; }
         }
     }
 }
