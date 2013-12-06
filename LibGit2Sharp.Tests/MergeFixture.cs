@@ -104,7 +104,7 @@ namespace LibGit2Sharp.Tests
 
                 MergeResult mergeResult = repo.Merge(repo.Branches["FirstBranch"].Tip);
 
-                var mergeCommit = repo.Commit("Merge First+Second");
+                var mergeCommit = repo.Commit("Merge First+Second", Constants.Signature, Constants.Signature);
 
                 Assert.Equal(mergeCommit.Tree.Count, originalTreeCount + 3);    //Expecting original tree count plussed by the 3 added files.
                 Assert.Equal(mergeCommit.Parents.Count(), 2);   //Merge commit should have 2 parents
