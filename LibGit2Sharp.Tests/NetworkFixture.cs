@@ -43,6 +43,37 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        [Theory]
+        [InlineData("http://github.com/libgit2/TestGitRepository")]
+        [InlineData("https://github.com/libgit2/TestGitRepository")]
+        [InlineData("git://github.com/libgit2/TestGitRepository.git")]
+        public void CanListRemoteReferencesFromUrl(string url)
+        {
+            string repoPath = InitNewRepository();
+
+            using (var repo = new Repository(repoPath))
+            {
+                IList<DirectReference> references = repo.Network.ListReferences(url).ToList();
+
+                foreach (var directReference in references)
+                {
+                    // None of those references point to an existing
+                    // object in this brand new repository
+                    Assert.Null(directReference.Target);
+                }
+
+                List<Tuple<string, string>> actualRefs = references.
+                    Select(directRef => new Tuple<string, string>(directRef.CanonicalName, directRef.TargetIdentifier)).ToList();
+
+                Assert.Equal(ExpectedRemoteRefs.Count, actualRefs.Count);
+                for (int i = 0; i < ExpectedRemoteRefs.Count; i++)
+                {
+                    Assert.Equal(ExpectedRemoteRefs[i].Item2, actualRefs[i].Item2);
+                    Assert.Equal(ExpectedRemoteRefs[i].Item1, actualRefs[i].Item1);
+                }
+            }
+        }
+
         [Fact]
         public void CanListRemoteReferenceObjects()
         {
