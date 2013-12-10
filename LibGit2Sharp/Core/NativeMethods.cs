@@ -872,6 +872,13 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string url);
 
         [DllImport(libgit2)]
+        internal static extern int git_remote_create_inmemory(
+            out RemoteSafeHandle remote,
+            RepositorySafeHandle repo,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string refspec,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string url);
+
+        [DllImport(libgit2)]
         internal static extern void git_remote_disconnect(RemoteSafeHandle remote);
 
         [DllImport(libgit2)]
