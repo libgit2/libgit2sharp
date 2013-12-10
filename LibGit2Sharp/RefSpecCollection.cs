@@ -16,7 +16,7 @@ namespace LibGit2Sharp
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class RefSpecCollection : IEnumerable<RefSpec>
     {
-        private readonly Lazy<IList<RefSpec>> refSpecsLazy;
+        readonly IList<RefSpec> refspecs;
 
         /// <summary>
         /// Needed for mocking purposes.
@@ -24,30 +24,28 @@ namespace LibGit2Sharp
         protected RefSpecCollection()
         { }
 
-        internal RefSpecCollection(Remote remote)
+        internal RefSpecCollection(RemoteSafeHandle handle)
         {
-            Ensure.ArgumentNotNull(remote, "remote");
+            Ensure.ArgumentNotNull(handle, "handle");
 
-            refSpecsLazy = new Lazy<IList<RefSpec>>(() => RetrieveRefSpecs(remote));
+            refspecs = RetrieveRefSpecs(handle);
         }
 
-        private static IList<RefSpec> RetrieveRefSpecs(Remote remote)
+        static IList<RefSpec> RetrieveRefSpecs(RemoteSafeHandle remoteHandle)
         {
-            using (RemoteSafeHandle remoteHandle = Proxy.git_remote_load(remote.repository.Handle, remote.Name, true))
+            int count = Proxy.git_remote_refspec_count(remoteHandle);
+            List<RefSpec> refSpecs = new List<RefSpec>();
+
+            for (int i = 0; i < count; i++)
             {
-                int count = Proxy.git_remote_refspec_count(remoteHandle);
-                List<RefSpec> refSpecs = new List<RefSpec>();
-
-                for (int i = 0; i < count; i++)
+                using (GitRefSpecHandle handle = Proxy.git_remote_get_refspec(remoteHandle, i))
                 {
-                    using (GitRefSpecHandle handle = Proxy.git_remote_get_refspec(remoteHandle, i))
-                    {
-                        refSpecs.Add(RefSpec.BuildFromPtr(handle));
-                    }
+                    refSpecs.Add(RefSpec.BuildFromPtr(handle));
                 }
-
-                return refSpecs;
             }
+
+            return refSpecs;
+
         }
 
         /// <summary>
@@ -56,7 +54,7 @@ namespace LibGit2Sharp
         /// <returns>An <see cref="IEnumerator{T}"/> object that can be used to iterate through the collection.</returns>
         public virtual IEnumerator<RefSpec> GetEnumerator()
         {
-            return refSpecsLazy.Value.GetEnumerator();
+            return refspecs.GetEnumerator();
         }
 
         /// <summary>
