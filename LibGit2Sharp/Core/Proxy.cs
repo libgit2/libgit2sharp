@@ -713,6 +713,15 @@ namespace LibGit2Sharp.Core
             }
         }
 
+        public static void git_diff_find_similar(DiffSafeHandle diff, GitDiffFindOptions options)
+        {
+            using (ThreadAffinity())
+            {
+                int res = NativeMethods.git_diff_find_similar(diff, options);
+                Ensure.ZeroResult(res);
+            }
+        }
+
         #endregion
 
         #region git_graph_
@@ -2722,7 +2731,7 @@ namespace LibGit2Sharp.Core
                     list.Add((GitRemoteHead)Marshal.PtrToStructure(rawHeads[i], typeof (GitRemoteHead)));
                 }
                 return list;
-            } 
+            }
         }
 
         private static bool RepositoryStateChecker(RepositorySafeHandle repo, Func<RepositorySafeHandle, int> checker)

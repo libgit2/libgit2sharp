@@ -474,6 +474,11 @@ namespace LibGit2Sharp.Core
             IntPtr payload);
 
         [DllImport(libgit2)]
+        internal static extern int git_diff_find_similar(
+            DiffSafeHandle diff,
+            GitDiffFindOptions options);
+
+        [DllImport(libgit2)]
         internal static extern int git_graph_ahead_behind(out UIntPtr ahead, out UIntPtr behind, RepositorySafeHandle repo, ref GitOid one, ref GitOid two);
 
         [DllImport(libgit2)]
@@ -831,7 +836,7 @@ namespace LibGit2Sharp.Core
             UIntPtr outlen,
             GitRefSpecHandle refSpec,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string name);
-  
+
         [DllImport(libgit2)]
         [return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(LaxUtf8NoCleanupMarshaler))]
         internal static extern string git_refspec_string(

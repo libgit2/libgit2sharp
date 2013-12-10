@@ -353,7 +353,7 @@ namespace LibGit2Sharp
         {
             ObjectId singleReturnValue = null;
 
-            if (identifier is string) 
+            if (identifier is string)
             {
                 singleReturnValue = DereferenceToCommit(repo, identifier as string);
             }

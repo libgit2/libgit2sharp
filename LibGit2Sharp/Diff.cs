@@ -43,7 +43,10 @@ namespace LibGit2Sharp
                 GitDiffOptionFlags.GIT_DIFF_RECURSE_IGNORED_DIRS;
             }
 
-            if (diffOptions.HasFlag(DiffModifiers.IncludeUnmodified))
+            if (diffOptions.HasFlag(DiffModifiers.IncludeUnmodified) || compareOptions.IncludeUnmodified ||
+                (compareOptions.Similarity != null &&
+                 (compareOptions.Similarity.RenameDetectionMode == RenameDetectionMode.CopiesHarder ||
+                  compareOptions.Similarity.RenameDetectionMode == RenameDetectionMode.Exact)))
             {
                 options.Flags |= GitDiffOptionFlags.GIT_DIFF_INCLUDE_UNMODIFIED;
             }
@@ -342,8 +345,77 @@ namespace LibGit2Sharp
                     throw;
                 }
 
+                DetectRenames(diffList, compareOptions);
+
                 return diffList;
             }
+        }
+
+        private void DetectRenames(DiffSafeHandle diffList, CompareOptions compareOptions)
+        {
+            var similarityOptions = (compareOptions == null) ? null : compareOptions.Similarity;
+            if (similarityOptions == null ||
+                similarityOptions.RenameDetectionMode == RenameDetectionMode.Default)
+            {
+                Proxy.git_diff_find_similar(diffList, null);
+                return;
+            }
+
+            if (similarityOptions.RenameDetectionMode == RenameDetectionMode.None)
+            {
+                return;
+            }
+
+            var opts = new GitDiffFindOptions
+            {
+                RenameThreshold = (ushort)similarityOptions.RenameThreshold,
+                RenameFromRewriteThreshold = (ushort)similarityOptions.RenameFromRewriteThreshold,
+                CopyThreshold = (ushort)similarityOptions.CopyThreshold,
+                BreakRewriteThreshold = (ushort)similarityOptions.BreakRewriteThreshold,
+                RenameLimit = (UIntPtr)similarityOptions.RenameLimit,
+            };
+
+            switch (similarityOptions.RenameDetectionMode)
+            {
+                case RenameDetectionMode.Exact:
+                    opts.Flags = GitDiffFindFlags.GIT_DIFF_FIND_EXACT_MATCH_ONLY |
+                                 GitDiffFindFlags.GIT_DIFF_FIND_RENAMES |
+                                 GitDiffFindFlags.GIT_DIFF_FIND_COPIES |
+                                 GitDiffFindFlags.GIT_DIFF_FIND_COPIES_FROM_UNMODIFIED;
+                    break;
+                case RenameDetectionMode.Renames:
+                    opts.Flags = GitDiffFindFlags.GIT_DIFF_FIND_RENAMES;
+                    break;
+                case RenameDetectionMode.Copies:
+                    opts.Flags = GitDiffFindFlags.GIT_DIFF_FIND_RENAMES |
+                                 GitDiffFindFlags.GIT_DIFF_FIND_COPIES;
+                    break;
+                case RenameDetectionMode.CopiesHarder:
+                    opts.Flags = GitDiffFindFlags.GIT_DIFF_FIND_RENAMES |
+                                 GitDiffFindFlags.GIT_DIFF_FIND_COPIES |
+                                 GitDiffFindFlags.GIT_DIFF_FIND_COPIES_FROM_UNMODIFIED;
+                    break;
+            }
+
+            if (!compareOptions.IncludeUnmodified)
+            {
+                opts.Flags |= GitDiffFindFlags.GIT_DIFF_FIND_REMOVE_UNMODIFIED;
+            }
+
+            switch (similarityOptions.WhitespaceMode)
+            {
+                case WhitespaceMode.DontIgnoreWhitespace:
+                    opts.Flags |= GitDiffFindFlags.GIT_DIFF_FIND_DONT_IGNORE_WHITESPACE;
+                    break;
+                case WhitespaceMode.IgnoreLeadingWhitespace:
+                    opts.Flags |= GitDiffFindFlags.GIT_DIFF_FIND_IGNORE_LEADING_WHITESPACE;
+                    break;
+                case WhitespaceMode.IgnoreAllWhitespace:
+                    opts.Flags |= GitDiffFindFlags.GIT_DIFF_FIND_IGNORE_WHITESPACE;
+                    break;
+            }
+
+            Proxy.git_diff_find_similar(diffList, opts);
         }
 
         private static void DispatchUnmatchedPaths(ExplicitPathsOptions explicitPathsOptions,
