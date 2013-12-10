@@ -2101,6 +2101,11 @@ namespace LibGit2Sharp.Core
             NativeMethods.git_revwalk_sorting(walker, options);
         }
 
+        public static void git_revwalk_simplify_first_parent(RevWalkerSafeHandle walker)
+        {
+            NativeMethods.git_revwalk_simplify_first_parent(walker);
+        }
+
         #endregion
 
         #region git_signature_

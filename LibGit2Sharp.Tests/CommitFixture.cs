@@ -177,6 +177,18 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
+        public void CanSimplifyByFirstParent()
+        {
+            AssertEnumerationOfCommits(
+                repo => new CommitFilter { Since = repo.Head, FirstParent = true },
+            new[]
+            {
+                "4c062a6", "be3563a", "9fd738e",
+                "4a202b3", "5b5b025", "8496071",
+            });
+        }
+
+        [Fact]
         public void CanGetParentsCount()
         {
             using (var repo = new Repository(BareTestRepoPath))
