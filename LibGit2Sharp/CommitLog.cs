@@ -154,7 +154,7 @@ namespace LibGit2Sharp
                 Sort(filter.SortBy);
                 Push(filter.SinceList);
                 Hide(filter.UntilList);
-                FirstParent(filter.FirstParent);
+                FirstParentOnly(filter.FirstParentOnly);
             }
 
             #region IEnumerator<Commit> Members
@@ -233,7 +233,7 @@ namespace LibGit2Sharp
                 Proxy.git_revwalk_sorting(handle, options);
             }
 
-            private void FirstParent(bool firstParent)
+            private void FirstParentOnly(bool firstParent)
             {
                 if (firstParent)
                 {

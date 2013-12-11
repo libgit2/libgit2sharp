@@ -180,7 +180,7 @@ namespace LibGit2Sharp.Tests
         public void CanSimplifyByFirstParent()
         {
             AssertEnumerationOfCommits(
-                repo => new CommitFilter { Since = repo.Head, FirstParent = true },
+                repo => new CommitFilter { Since = repo.Head, FirstParentOnly = true },
             new[]
             {
                 "4c062a6", "be3563a", "9fd738e",
