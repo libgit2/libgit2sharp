@@ -189,6 +189,25 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        /// Fetch from the <see cref="Remote"/>, using custom refspecs.
+        /// </summary>
+        /// <param name="remote">The remote to fetch</param>
+        /// <param name="refspecs">Refspecs to use, replacing the remote's fetch refspecs</param>
+        /// <param name="options"><see cref="FetchOptions"/> controlling fetch behavior</param>
+        public virtual void Fetch(Remote remote, IEnumerable<string> refspecs, FetchOptions options = null)
+        {
+            Ensure.ArgumentNotNull(remote, "remote");
+            Ensure.ArgumentNotNull(refspecs, "refspecs");
+
+            using (RemoteSafeHandle remoteHandle = Proxy.git_remote_load(repository.Handle, remote.Name, true))
+            {
+                Proxy.git_remote_set_fetch_refspecs(remoteHandle, refspecs);
+
+                DoFetch(remoteHandle, options);
+            }
+        }
+
+        /// <summary>
         /// Fetch from a url with a set of fetch refspecs
         /// </summary>
         /// <param name="url">The url to fetch from</param>

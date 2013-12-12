@@ -108,6 +108,37 @@ namespace LibGit2Sharp.Tests
         }
 
         [Theory]
+        [InlineData("http://github.com/libgit2/TestGitRepository", "test-branch", "master")]
+        [InlineData("https://github.com/libgit2/TestGitRepository", "master", "master")]
+        [InlineData("git://github.com/libgit2/TestGitRepository.git", "master", "first-merge")]
+        public void CanFetchCustomRefSpecsIntoAnEmptyRepository(string url, string localBranchName, string remoteBranchName)
+        {
+            string repoPath = InitNewRepository();
+
+            using (var repo = new Repository(repoPath))
+            {
+                Remote remote = repo.Network.Remotes.Add(remoteName, url);
+
+                string refSpec = string.Format("refs/heads/{2}:refs/remotes/{0}/{1}", remoteName, localBranchName, remoteBranchName);
+                
+                // Set up structures for the expected results
+                // and verifying the RemoteUpdateTips callback.
+                TestRemoteInfo remoteInfo = TestRemoteInfo.TestRemoteInstance;
+                var expectedFetchState = new ExpectedFetchState(remoteName);
+                expectedFetchState.AddExpectedBranch(localBranchName, ObjectId.Zero, remoteInfo.BranchTips[remoteBranchName]);
+
+                // Perform the actual fetch
+                repo.Network.Fetch(remote, new string[] { refSpec }, new FetchOptions {
+                    TagFetchMode = TagFetchMode.None,
+                    OnUpdateTips = expectedFetchState.RemoteUpdateTipsHandler 
+                });
+
+                // Verify the expected
+                expectedFetchState.CheckUpdatedReferences(repo);
+            }
+        }
+
+        [Theory]
         [InlineData(TagFetchMode.All, 4)]
         [InlineData(TagFetchMode.None, 0)]
         [InlineData(TagFetchMode.Auto, 3)]
