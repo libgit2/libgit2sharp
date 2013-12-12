@@ -246,6 +246,7 @@ namespace LibGit2Sharp
         /// <param name="onTransferProgress">Callback method that transfer progress will be reported through.
         /// Reports the client's state regarding the received and processed (bytes, objects) from the server.</param>
         /// <param name="credentials">Credentials to use for username/password authentication.</param>
+        [Obsolete("This overload will be removed in the next release. Please use Fetch(Remote, FetchOptions) instead.")]
         public static void Fetch(this IRepository repository, string remoteName,
             TagFetchMode tagFetchMode = TagFetchMode.Auto,
             ProgressHandler onProgress = null,
@@ -257,8 +258,41 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNullOrEmptyString(remoteName, "remoteName");
 
             Remote remote = repository.Network.Remotes.RemoteForName(remoteName, true);
-            repository.Network.Fetch(remote, tagFetchMode, onProgress, onUpdateTips,
-                onTransferProgress, credentials);
+            repository.Network.Fetch(remote, new FetchOptions
+            {
+                TagFetchMode = tagFetchMode,
+                OnProgress = onProgress,
+                OnUpdateTips = onUpdateTips,
+                OnTransferProgress = onTransferProgress,
+                Credentials = credentials
+            });
+        }
+
+        /// <summary>
+        /// Fetch from the specified remote.
+        /// </summary>
+        /// <param name="repository">The <see cref="Repository"/> being worked with.</param>
+        /// <param name="remoteName">The name of the <see cref="Remote"/> to fetch from.</param>
+        public static void Fetch(this IRepository repository, string remoteName)
+        {
+            // This overload is required as long as the obsolete overload exists.
+            // Otherwise, Fetch(string) is ambiguous.
+            Fetch(repository, remoteName, (FetchOptions)null);
+        }
+
+        /// <summary>
+        /// Fetch from the specified remote.
+        /// </summary>
+        /// <param name="repository">The <see cref="Repository"/> being worked with.</param>
+        /// <param name="remoteName">The name of the <see cref="Remote"/> to fetch from.</param>
+        /// <param name="options"><see cref="FetchOptions"/> controlling fetch behavior</param>
+        public static void Fetch(this IRepository repository, string remoteName, FetchOptions options = null)
+        {
+            Ensure.ArgumentNotNull(repository, "repository");
+            Ensure.ArgumentNotNullOrEmptyString(remoteName, "remoteName");
+
+            Remote remote = repository.Network.Remotes.RemoteForName(remoteName, true);
+            repository.Network.Fetch(remote, options);
         }
 
         /// <summary>
