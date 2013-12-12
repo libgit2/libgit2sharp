@@ -24,6 +24,15 @@ namespace LibGit2Sharp
             Credentials = credentials;
         }
 
+        internal RemoteCallbacks(FetchOptions fetchOptions)
+        {
+            Ensure.ArgumentNotNull(fetchOptions, "fetchOptions");
+            Progress = fetchOptions.OnProgress;
+            DownloadTransferProgress = fetchOptions.OnTransferProgress;
+            UpdateTips = fetchOptions.OnUpdateTips;
+            Credentials = fetchOptions.Credentials;
+        }
+
         #region Delegates
 
         /// <summary>

@@ -96,12 +96,20 @@ namespace LibGit2Sharp
             }
         }
 
-        static void DoFetch(RemoteSafeHandle remoteHandle, GitRemoteCallbacks gitCallbacks, TagFetchMode? tagFetchMode)
+        static void DoFetch(RemoteSafeHandle remoteHandle, FetchOptions options)
         {
-            if (tagFetchMode.HasValue)
+            if (options == null)
             {
-                Proxy.git_remote_set_autotag(remoteHandle, tagFetchMode.Value);
+                options = new FetchOptions();
             }
+
+            if (options.TagFetchMode.HasValue)
+            {
+                Proxy.git_remote_set_autotag(remoteHandle, options.TagFetchMode.Value);
+            }
+
+            var callbacks = new RemoteCallbacks(options);
+            GitRemoteCallbacks gitCallbacks = callbacks.GenerateCallbacks();
 
             // It is OK to pass the reference to the GitCallbacks directly here because libgit2 makes a copy of
             // the data in the git_remote_callbacks structure. If, in the future, libgit2 changes its implementation
@@ -135,6 +143,7 @@ namespace LibGit2Sharp
         /// <param name="onTransferProgress">Callback method that transfer progress will be reported through.
         /// Reports the client's state regarding the received and processed (bytes, objects) from the server.</param>
         /// <param name="credentials">Credentials to use for username/password authentication.</param>
+        [Obsolete("This overload will be removed in the next release. Please use Fetch(Remote, FetchOptions) instead.")]
         public virtual void Fetch(
             Remote remote,
             TagFetchMode? tagFetchMode = null,
@@ -143,14 +152,58 @@ namespace LibGit2Sharp
             TransferProgressHandler onTransferProgress = null,
             Credentials credentials = null)
         {
+            Fetch(remote, new FetchOptions
+            {
+                TagFetchMode = tagFetchMode,
+                OnProgress = onProgress,
+                OnUpdateTips = onUpdateTips,
+                OnTransferProgress = onTransferProgress,
+                Credentials = credentials
+            });
+        }
+
+        /// <summary>
+        /// Fetch from the <see cref="Remote"/>.
+        /// </summary>
+        /// <param name="remote">The remote to fetch</param>
+        public virtual void Fetch(Remote remote)
+        {
+            // This overload is required as long as the obsolete overload exists.
+            // Otherwise, Fetch(Remote) is ambiguous.
+            Fetch(remote, (FetchOptions)null);
+        }
+
+        /// <summary>
+        /// Fetch from the <see cref="Remote"/>.
+        /// </summary>
+        /// <param name="remote">The remote to fetch</param>
+        /// <param name="options"><see cref="FetchOptions"/> controlling fetch behavior</param>
+        public virtual void Fetch(Remote remote, FetchOptions options = null)
+        {
             Ensure.ArgumentNotNull(remote, "remote");
 
             using (RemoteSafeHandle remoteHandle = Proxy.git_remote_load(repository.Handle, remote.Name, true))
             {
-                var callbacks = new RemoteCallbacks(onProgress, onTransferProgress, onUpdateTips, credentials);
-                GitRemoteCallbacks gitCallbacks = callbacks.GenerateCallbacks();
+                DoFetch(remoteHandle, options);
+            }
+        }
 
-                DoFetch(remoteHandle, gitCallbacks, tagFetchMode);
+        /// <summary>
+        /// Fetch from the <see cref="Remote"/>, using custom refspecs.
+        /// </summary>
+        /// <param name="remote">The remote to fetch</param>
+        /// <param name="refspecs">Refspecs to use, replacing the remote's fetch refspecs</param>
+        /// <param name="options"><see cref="FetchOptions"/> controlling fetch behavior</param>
+        public virtual void Fetch(Remote remote, IEnumerable<string> refspecs, FetchOptions options = null)
+        {
+            Ensure.ArgumentNotNull(remote, "remote");
+            Ensure.ArgumentNotNull(refspecs, "refspecs");
+
+            using (RemoteSafeHandle remoteHandle = Proxy.git_remote_load(repository.Handle, remote.Name, true))
+            {
+                Proxy.git_remote_set_fetch_refspecs(remoteHandle, refspecs);
+
+                DoFetch(remoteHandle, options);
             }
         }
 
@@ -159,30 +212,20 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="url">The url to fetch from</param>
         /// <param name="refspecs">The list of resfpecs to use</param>
-        /// <param name="tagFetchMode">Optional parameter indicating what tags to download.</param>
-        /// <param name="onProgress">Progress callback. Corresponds to libgit2 progress callback.</param>
-        /// <param name="onUpdateTips">UpdateTips callback. Corresponds to libgit2 update_tips callback.</param>
-        /// <param name="onTransferProgress">Callback method that transfer progress will be reported through.
-        /// Reports the client's state regarding the received and processed (bytes, objects) from the server.</param>
-        /// <param name="credentials">Credentials to use for username/password authentication.</param>
+        /// <param name="options"><see cref="FetchOptions"/> controlling fetch behavior</param>
         public virtual void Fetch(
             string url,
             IEnumerable<string> refspecs,
-            TagFetchMode? tagFetchMode = null,
-            ProgressHandler onProgress = null,
-            UpdateTipsHandler onUpdateTips = null,
-            TransferProgressHandler onTransferProgress = null,
-            Credentials credentials = null)
+            FetchOptions options = null)
         {
             Ensure.ArgumentNotNull(url, "url");
+            Ensure.ArgumentNotNull(refspecs, "refspecs");
 
             using (RemoteSafeHandle remoteHandle = Proxy.git_remote_create_inmemory(repository.Handle, null, url))
             {
                 Proxy.git_remote_set_fetch_refspecs(remoteHandle, refspecs);
-                var callbacks = new RemoteCallbacks(onProgress, onTransferProgress, onUpdateTips, credentials);
-                GitRemoteCallbacks gitCallbacks = callbacks.GenerateCallbacks();
 
-                DoFetch(remoteHandle, gitCallbacks, tagFetchMode);
+                DoFetch(remoteHandle, options);
             }
         }
 
