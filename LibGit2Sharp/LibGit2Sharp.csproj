@@ -56,6 +56,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AmbiguousSpecificationException.cs" />
+    <Compile Include="ArchiverBase.cs" />
     <Compile Include="BareRepositoryException.cs" />
     <Compile Include="BlameHunkCollection.cs" />
     <Compile Include="BlameHunk.cs" />
@@ -144,6 +145,8 @@
     <Compile Include="SubmoduleStatus.cs" />
     <Compile Include="SubmoduleUpdate.cs" />
     <Compile Include="UnmergedIndexEntriesException.cs" />
+    <Compile Include="Core\StringExtensions.cs" />
+    <Compile Include="ObjectDatabaseExtensions.cs" />
     <Compile Include="Commit.cs" />
     <Compile Include="CommitLog.cs" />
     <Compile Include="Configuration.cs" />
@@ -164,6 +167,7 @@
     <Compile Include="Core\Handles\GitConfigEntryHandle.cs" />
     <Compile Include="Core\Proxy.cs" />
     <Compile Include="Credentials.cs" />
+    <Compile Include="Core\TarWriter.cs" />
     <Compile Include="DiffTargets.cs" />
     <Compile Include="FetchHead.cs" />
     <Compile Include="Core\Handles\PushSafeHandle.cs" />
@@ -220,6 +224,7 @@
     <Compile Include="Note.cs" />
     <Compile Include="RepositoryNotFoundException.cs" />
     <Compile Include="TagFetchMode.cs" />
+    <Compile Include="TarArchiver.cs" />
     <Compile Include="TransferProgress.cs" />
     <Compile Include="TreeChanges.cs" />
     <Compile Include="TreeEntryChanges.cs" />

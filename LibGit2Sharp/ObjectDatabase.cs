@@ -7,6 +7,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Handles;
+using LibGit2Sharp.Handlers;
 
 namespace LibGit2Sharp
 {
@@ -234,6 +235,32 @@ namespace LibGit2Sharp
             ObjectId tagId = Proxy.git_tag_annotation_create(repo.Handle, name, target, tagger, prettifiedMessage);
 
             return repo.Lookup<TagAnnotation>(tagId);
+        }
+
+        /// <summary>
+        /// Archive the given commit.
+        /// </summary>
+        /// <param name="commit">The commit.</param>
+        /// <param name="archiver">The archiver to use.</param>
+        public virtual void Archive(Commit commit, ArchiverBase archiver)
+        {
+            Ensure.ArgumentNotNull(commit, "commit");
+            Ensure.ArgumentNotNull(archiver, "archiver");
+
+            archiver.OrchestrateArchiving(commit.Tree, commit.Id, commit.Committer.When);
+        }
+
+        /// <summary>
+        /// Archive the given tree.
+        /// </summary>
+        /// <param name="tree">The tree.</param>
+        /// <param name="archiver">The archiver to use.</param>
+        public virtual void Archive(Tree tree, ArchiverBase archiver)
+        {
+            Ensure.ArgumentNotNull(tree, "tree");
+            Ensure.ArgumentNotNull(archiver, "archiver");
+
+            archiver.OrchestrateArchiving(tree, null, DateTimeOffset.UtcNow);
         }
 
         /// <summary>
