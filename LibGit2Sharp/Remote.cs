@@ -27,22 +27,18 @@ namespace LibGit2Sharp
         protected Remote()
         { }
 
-        private Remote(Repository repository, string name, string url, TagFetchMode tagFetchMode)
+        private Remote(RemoteSafeHandle handle, Repository repository)
         {
             this.repository = repository;
-            Name = name;
-            Url = url;
-            TagFetchMode = tagFetchMode;
-            refSpecs = new RefSpecCollection(this);
+            Name = Proxy.git_remote_name(handle);
+            Url = Proxy.git_remote_url(handle);
+            TagFetchMode = Proxy.git_remote_autotag(handle);
+            refSpecs = new RefSpecCollection(handle);
         }
 
         internal static Remote BuildFromPtr(RemoteSafeHandle handle, Repository repo)
         {
-            string name = Proxy.git_remote_name(handle);
-            string url = Proxy.git_remote_url(handle);
-            TagFetchMode tagFetchMode = Proxy.git_remote_autotag(handle);
-
-            var remote = new Remote(repo, name, url, tagFetchMode);
+            var remote = new Remote(handle, repo);
 
             return remote;
         }

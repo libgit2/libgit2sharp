@@ -1543,6 +1543,18 @@ namespace LibGit2Sharp.Core
             }
         }
 
+        public static RemoteSafeHandle git_remote_create_inmemory(RepositorySafeHandle repo, string url, string refspec)
+        {
+            using (ThreadAffinity())
+            {
+                RemoteSafeHandle handle;
+                int res = NativeMethods.git_remote_create_inmemory(out handle, repo, url, refspec);
+                Ensure.ZeroResult(res);
+
+                return handle;
+            }
+        }
+
         public static void git_remote_connect(RemoteSafeHandle remote, GitDirection direction)
         {
             using (ThreadAffinity())
@@ -2087,6 +2099,11 @@ namespace LibGit2Sharp.Core
         public static void git_revwalk_sorting(RevWalkerSafeHandle walker, CommitSortStrategies options)
         {
             NativeMethods.git_revwalk_sorting(walker, options);
+        }
+
+        public static void git_revwalk_simplify_first_parent(RevWalkerSafeHandle walker)
+        {
+            NativeMethods.git_revwalk_simplify_first_parent(walker);
         }
 
         #endregion
