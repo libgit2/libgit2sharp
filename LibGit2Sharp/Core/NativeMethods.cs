@@ -435,19 +435,19 @@ namespace LibGit2Sharp.Core
             GitDiffOptions options);
 
         internal delegate int git_diff_file_cb(
-            GitDiffDelta delta,
+            [In] GitDiffDelta delta,
             float progress,
             IntPtr payload);
 
         internal delegate int git_diff_hunk_cb(
-            GitDiffDelta delta,
-            GitDiffHunk hunk,
+            [In] GitDiffDelta delta,
+            [In] GitDiffHunk hunk,
             IntPtr payload);
 
         internal delegate int git_diff_line_cb(
-            GitDiffDelta delta,
-            GitDiffHunk hunk,
-            GitDiffLine line,
+            [In] GitDiffDelta delta,
+            [In] GitDiffHunk hunk,
+            [In] GitDiffLine line,
             IntPtr payload);
 
         [DllImport(libgit2)]
@@ -481,6 +481,12 @@ namespace LibGit2Sharp.Core
         internal static extern int git_diff_find_similar(
             DiffSafeHandle diff,
             GitDiffFindOptions options);
+
+        [DllImport(libgit2)]
+        internal static extern UIntPtr git_diff_num_deltas(DiffSafeHandle diff);
+
+        [DllImport(libgit2)]
+        internal static extern IntPtr git_diff_get_delta(DiffSafeHandle diff, UIntPtr idx);
 
         [DllImport(libgit2)]
         internal static extern int git_graph_ahead_behind(out UIntPtr ahead, out UIntPtr behind, RepositorySafeHandle repo, ref GitOid one, ref GitOid two);
@@ -669,6 +675,15 @@ namespace LibGit2Sharp.Core
 
         [DllImport(libgit2)]
         internal static extern GitObjectType git_object_type(GitObjectSafeHandle obj);
+
+        [DllImport(libgit2)]
+        internal static extern int git_patch_from_diff(out PatchSafeHandle patch, DiffSafeHandle diff, UIntPtr idx);
+
+        [DllImport(libgit2)]
+        internal static extern int git_patch_print(PatchSafeHandle patch, git_diff_line_cb print_cb, IntPtr payload);
+
+        [DllImport(libgit2)]
+        internal static extern void git_patch_free(IntPtr patch);
 
         [DllImport(libgit2)]
         internal static extern int git_push_new(out PushSafeHandle push, RemoteSafeHandle remote);

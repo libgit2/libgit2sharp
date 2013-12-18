@@ -32,28 +32,34 @@ namespace LibGit2Sharp
 
         internal Patch(DiffSafeHandle diff)
         {
-            Proxy.git_diff_foreach(diff, FileCallback, null, null);
+            int count = Proxy.git_diff_num_deltas(diff);
+            for (int i = 0; i < count; i++)
+            {
+                using (var patch = Proxy.git_patch_from_diff(diff, i))
+                {
+                    var delta = Proxy.git_diff_get_delta(diff, i);
+                    AddFileChange(delta);
+                    Proxy.git_patch_print(patch, PrintCallBack);
+                }
 
-            Proxy.git_diff_print(diff, PrintCallBack);
-        }
-
-        private int FileCallback(GitDiffDelta delta, float progress, IntPtr payload)
-        {
-            AddFileChange(delta);
-            return 0;
+            }
         }
 
         private void AddFileChange(GitDiffDelta delta)
         {
-            var newFilePath = LaxFilePathMarshaler.FromNative(delta.NewFile.Path);
-
+            var pathPtr = delta.NewFile.Path != IntPtr.Zero ? delta.NewFile.Path : delta.OldFile.Path;
+            var newFilePath = LaxFilePathMarshaler.FromNative(pathPtr);
             changes.Add(newFilePath, new ContentChanges(delta.IsBinary()));
         }
 
         private int PrintCallBack(GitDiffDelta delta, GitDiffHunk hunk, GitDiffLine line, IntPtr payload)
         {
             string patchPart = LaxUtf8Marshaler.FromNative(line.content, (int)line.contentLen);
-            var filePath = LaxFilePathMarshaler.FromNative(delta.NewFile.Path);
+
+            // Deleted files mean no "new file" path
+
+            var pathPtr = delta.NewFile.Path != IntPtr.Zero ? delta.NewFile.Path : delta.OldFile.Path;
+            var filePath = LaxFilePathMarshaler.FromNative(pathPtr);
 
             ContentChanges currentChange = this[filePath];
             string prefix = string.Empty;
@@ -77,10 +83,10 @@ namespace LibGit2Sharp
                     break;
             }
 
-            string formatedOutput = string.Concat(prefix, patchPart);
+            string formattedOutput = string.Concat(prefix, patchPart);
 
-            fullPatchBuilder.Append(formatedOutput);
-            this[filePath].AppendToPatch(formatedOutput);
+            fullPatchBuilder.Append(formattedOutput);
+            currentChange.AppendToPatch(formattedOutput);
 
             return 0;
         }
