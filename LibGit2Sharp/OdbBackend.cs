@@ -62,9 +62,8 @@ namespace LibGit2Sharp
         /// Requests that this backend read an object. The object ID may not be complete (may be a prefix).
         /// </summary>
         public abstract int ReadPrefix(
-            byte[] shortOid,
-            int prefixLen,
-            out byte[] oid,
+            string shortSha,
+            out ObjectId oid,
             out Stream data,
             out ObjectType objectType);
 
@@ -298,19 +297,12 @@ namespace LibGit2Sharp
 
                 try
                 {
-                    // The length of short_oid is described in characters (40 per full ID) vs. bytes (20)
-                    // which is what we care about.
-                    var oidLen = (int)len;
+                    var shortSha = ObjectId.ToString(short_oid.Id, (int) len);
 
-                    // Ensure we allocate enough space to cope with odd-sized prefix
-                    int arraySize = (oidLen + 1) >> 1;
-                    var shortOidArray = new byte[arraySize];
-                    Array.Copy(short_oid.Id, shortOidArray, arraySize);
-
-                    byte[] oid;
+                    ObjectId oid;
                     ObjectType objectType;
 
-                    int toReturn = odbBackend.ReadPrefix(shortOidArray, oidLen, out oid, out dataStream, out objectType);
+                    int toReturn = odbBackend.ReadPrefix(shortSha, out oid, out dataStream, out objectType);
 
                     if (toReturn != 0)
                     {
@@ -325,7 +317,7 @@ namespace LibGit2Sharp
                         return (int)GitErrorCode.Error;
                     }
 
-                    out_oid.Id = oid;
+                    out_oid.Id = oid.RawId;
                     len_p = new UIntPtr((ulong)memoryStream.Capacity);
                     type_p = objectType.ToGitObjectType();
 

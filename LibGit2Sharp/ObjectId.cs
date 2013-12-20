@@ -37,8 +37,13 @@ namespace LibGit2Sharp
         /// <param name="oid">The oid.</param>
         internal ObjectId(GitOid oid)
         {
+            if (oid.Id == null || oid.Id.Length != rawSize)
+            {
+                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "A non null array of {0} bytes is expected.", rawSize), "oid");
+            }
+
             this.oid = oid;
-            sha = ToString(oid.Id);
+            sha = ToString(oid.Id, oid.Id.Length * 2);
         }
 
         /// <summary>
@@ -226,18 +231,13 @@ namespace LibGit2Sharp
             return bytes;
         }
 
-        private static string ToString(byte[] id)
+        internal static string ToString(byte[] id, int len)
         {
-            if (id == null || id.Length != rawSize)
-            {
-                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "A non null array of {0} bytes is expected.", rawSize), "id");
-            }
-
             // Inspired from http://stackoverflow.com/questions/623104/c-byte-to-hex-string/3974535#3974535
 
-            var c = new char[HexSize];
+            var c = new char[len];
 
-            for (int i = 0; i < HexSize; i++)
+            for (int i = 0; i < (len & -2); i++)
             {
                 int index0 = i >> 1;
                 var b = ((byte)(id[index0] >> 4));
@@ -245,6 +245,13 @@ namespace LibGit2Sharp
 
                 b = ((byte)(id[index0] & 0x0F));
                 c[i] = hexDigits[b];
+            }
+
+            if ((len & 1) == 1)
+            {
+                int index0 = len >> 1;
+                var b = ((byte)(id[index0] >> 4));
+                c[len - 1] = hexDigits[b];
             }
 
             return new string(c);
