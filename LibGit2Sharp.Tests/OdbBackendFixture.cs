@@ -229,7 +229,7 @@ namespace LibGit2Sharp.Tests
 
                 foreach (ObjectId objectId in m_objectIdToContent.Keys)
                 {
-                    if (!objectId.Sha.StartsWith(shortSha))
+                    if (!objectId.StartsWith(shortSha))
                     {
                         continue;
                     }

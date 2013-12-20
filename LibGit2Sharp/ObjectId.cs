@@ -231,13 +231,13 @@ namespace LibGit2Sharp
             return bytes;
         }
 
-        internal static string ToString(byte[] id, int len)
+        internal static string ToString(byte[] id, int lengthInNibbles)
         {
             // Inspired from http://stackoverflow.com/questions/623104/c-byte-to-hex-string/3974535#3974535
 
-            var c = new char[len];
+            var c = new char[lengthInNibbles];
 
-            for (int i = 0; i < (len & -2); i++)
+            for (int i = 0; i < (lengthInNibbles & -2); i++)
             {
                 int index0 = i >> 1;
                 var b = ((byte)(id[index0] >> 4));
@@ -247,11 +247,11 @@ namespace LibGit2Sharp
                 c[i] = hexDigits[b];
             }
 
-            if ((len & 1) == 1)
+            if ((lengthInNibbles & 1) == 1)
             {
-                int index0 = len >> 1;
+                int index0 = lengthInNibbles >> 1;
                 var b = ((byte)(id[index0] >> 4));
-                c[len - 1] = hexDigits[b];
+                c[lengthInNibbles - 1] = hexDigits[b];
             }
 
             return new string(c);
@@ -312,6 +312,7 @@ namespace LibGit2Sharp
         /// <param name="rawId">The byte array to compare the <see cref="ObjectId"/> against.</param>
         /// <param name="len">The number of nibbles from <paramref name="rawId"/> </param>
         /// <returns></returns>
+        [Obsolete("This method will be removed in the next release. Please use one of the StartsWith(string) overload instead.")]
         public bool StartsWith(byte[] rawId, int len)
         {
             Ensure.ArgumentNotNull(rawId, "rawId");
@@ -350,6 +351,22 @@ namespace LibGit2Sharp
             }
 
             return match;
+        }
+
+        /// <summary>
+        /// Determine whether <paramref name="shortSha"/> matches the hexified
+        /// representation of the first nibbles of this instance.
+        /// <para>
+        ///   Comparison is made in a case insensitive-manner.
+        /// </para>
+        /// </summary>
+        /// <returns>True if this instance starts with <paramref name="shortSha"/>,
+        /// false otherwise.</returns>
+        public bool StartsWith(string shortSha)
+        {
+            Ensure.ArgumentNotNullOrEmptyString(shortSha, "shortSha");
+
+            return Sha.StartsWith(shortSha, StringComparison.OrdinalIgnoreCase);
         }
     }
 }
