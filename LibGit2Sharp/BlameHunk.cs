@@ -12,8 +12,6 @@ namespace LibGit2Sharp
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class BlameHunk : IEquatable<BlameHunk>
     {
-        private readonly IRepository repository;
-
         private static readonly LambdaEqualityHelper<BlameHunk> equalityHelper =
             new LambdaEqualityHelper<BlameHunk>(x => x.LineCount,
                                                 x => x.FinalStartLineNumber,
@@ -25,8 +23,6 @@ namespace LibGit2Sharp
 
         internal BlameHunk(IRepository repository, GitBlameHunk rawHunk)
         {
-            this.repository = repository;
-
             finalCommit = new Lazy<Commit>(() => repository.Lookup<Commit>(rawHunk.FinalCommitId));
             origCommit = new Lazy<Commit>(() => repository.Lookup<Commit>(rawHunk.OrigCommitId));
 

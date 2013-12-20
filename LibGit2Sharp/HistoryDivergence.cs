@@ -34,33 +34,33 @@ namespace LibGit2Sharp
         public virtual Commit One { get; private set; }
 
         /// <summary>
-        /// Gets the <see cref="Commit"/> being compared against <see cref="One"/>.
+        /// Gets the <see cref="Commit"/> being compared against <see cref="HistoryDivergence.One"/>.
         /// </summary>
         public virtual Commit Another { get; private set; }
 
         /// <summary>
-        /// Gets the number of commits that are reachable from <see cref="One"/>,
-        /// but not from <see cref="Another"/>.
+        /// Gets the number of commits that are reachable from <see cref="HistoryDivergence.One"/>,
+        /// but not from <see cref="HistoryDivergence.Another"/>.
         /// <para>
-        ///   This property will return <c>null</c> when <see cref="One"/>
-        ///   and <see cref="Another"/> do not share a common ancestor.
+        ///   This property will return <c>null</c> when <see cref="HistoryDivergence.One"/>
+        ///   and <see cref="HistoryDivergence.Another"/> do not share a common ancestor.
         /// </para>
         /// </summary>
         public virtual int? AheadBy { get; private set; }
 
         /// <summary>
-        /// Gets the number of commits that are reachable from <see cref="Second"/>,
-        /// but not from <see cref="One"/>.
+        /// Gets the number of commits that are reachable from <see cref="HistoryDivergence.Another"/>,
+        /// but not from <see cref="HistoryDivergence.One"/>.
         /// <para>
-        ///   This property will return <c>null</c> when <see cref="One"/>
-        ///   and <see cref="Another"/> do not share a common ancestor.
+        ///   This property will return <c>null</c> when <see cref="HistoryDivergence.One"/>
+        ///   and <see cref="HistoryDivergence.Another"/> do not share a common ancestor.
         /// </para>
         /// </summary>
         public virtual int? BehindBy { get; private set; }
 
         /// <summary>
-        /// Returns the best possible common ancestor <see cref="Commit"/> of <see cref="One"/>
-        /// and <see cref="Another"/> or null if none found.
+        /// Returns the best possible common ancestor <see cref="Commit"/> of <see cref="HistoryDivergence.One"/>
+        /// and <see cref="HistoryDivergence.Another"/> or null if none found.
         /// </summary>
         public virtual Commit CommonAncestor
         {
