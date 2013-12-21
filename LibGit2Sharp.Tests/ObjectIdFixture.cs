@@ -138,23 +138,19 @@ namespace LibGit2Sharp.Tests
         }
 
         [Theory]
-        [InlineData(new byte[] { 0xde, 0xad, 0xbe }, 6, true)]
-        [InlineData(new byte[] { 0xde, 0xad }, 4, true)]
-        [InlineData(new byte[] { 0xde, 0xad }, 3, true)]
-        [InlineData(new byte[] { 0xde, 0xad }, 2, true)]
-        [InlineData(new byte[] { 0xde, 0xad }, 1, true)]
-        [InlineData(new byte[] { 0xde, 0xaf }, 3, true)]
-        [InlineData(new byte[] { 0xde, 0xff }, 2, true)]
-        [InlineData(new byte[] { 0xdf, 0xff }, 1, true)]
-        [InlineData(new byte[] { 0x98, 0x76 }, 4, false)]
-        [InlineData(new byte[] { 0x98, 0x76 }, 3, false)]
-        [InlineData(new byte[] { 0x98, 0x76 }, 2, false)]
-        [InlineData(new byte[] { 0x98, 0x76 }, 1, false)]
-        public void StartsWith(byte[] rawId, int len, bool expected)
+        [InlineData("d", true)]
+        [InlineData("dead", true)]
+        [InlineData("deadbe", true)]
+        [InlineData("DeAdBEE", true)]
+        [InlineData("deff", false)]
+        [InlineData("dfff", false)]
+        [InlineData("9876", false)]
+        [InlineData("This is not a valid short hexified sha!!!!!", false)]
+        public void StartsWith(string shortSha, bool expected)
         {
             var id = new ObjectId("deadbeef84650f067bd5703b6a59a8b3b3c99a09");
 
-            Assert.Equal(expected, id.StartsWith(rawId, len));
+            Assert.Equal(expected, id.StartsWith(shortSha));
         }
     }
 }

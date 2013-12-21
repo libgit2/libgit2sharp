@@ -219,9 +219,9 @@ namespace LibGit2Sharp.Tests
                 return (int)ReturnCode.GIT_OK;
             }
 
-            public override int ReadPrefix(byte[] shortOid, int len, out byte[] oid, out Stream data, out ObjectType objectType)
+            public override int ReadPrefix(string shortSha, out ObjectId id, out Stream data, out ObjectType objectType)
             {
-                oid = null;
+                id = null;
                 data = null;
                 objectType = default(ObjectType);
 
@@ -229,7 +229,7 @@ namespace LibGit2Sharp.Tests
 
                 foreach (ObjectId objectId in m_objectIdToContent.Keys)
                 {
-                    if (!objectId.StartsWith(shortOid, len))
+                    if (!objectId.StartsWith(shortSha))
                     {
                         continue;
                     }
@@ -254,7 +254,7 @@ namespace LibGit2Sharp.Tests
                     return ret;
                 }
 
-                oid = matchingKey.RawId;
+                id = matchingKey;
 
                 return (int)ReturnCode.GIT_OK;
             }
