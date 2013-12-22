@@ -1045,8 +1045,10 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Merges the given commit into HEAD.
+        /// Merges the given commit into HEAD as well as performing a Fast Forward if possible.
         /// </summary>
+        /// <param name="commit">The commit to use as a reference for the changes that should be merged into HEAD.</param>
+        /// <returns>The result of the performed merge <see cref="MergeResult"/>.</returns>
         public MergeResult Merge(Commit commit)
         {
             using (GitMergeHeadHandle mergeHeadHandle = Proxy.git_merge_head_from_oid(Handle, commit.Id.Oid))
@@ -1055,13 +1057,25 @@ namespace LibGit2Sharp
                 {
                     Version = 1,
                     MergeTreeOpts = { Version = 1 },
-                    CheckoutOpts = { version = 1 }
+                    CheckoutOpts = { version = 1 },
                 };
                 using (GitMergeResultHandle mergeResultHandle = Proxy.git_merge(Handle, new GitMergeHeadHandle[] { mergeHeadHandle }, opts))
-                { 
-                    return new MergeResult(mergeResultHandle);
+                {
+                    var result = new MergeResult(mergeResultHandle);
+                    if (result.IsFastForward)
+                        FastForward(result);
+                    return result;
                 }
             }
+        }
+
+        internal Branch FastForward(MergeResult mergeResult)
+        {
+            if (mergeResult == null)
+                throw new ArgumentNullException("A merge result must be provided.");
+            if (!mergeResult.IsFastForward)
+                throw new ArgumentException("The given merge result does not contain a Fast Forward OID.");
+            return this.Checkout(new ObjectId(mergeResult.FastForwardOid).Sha);
         }
 
         internal StringComparer PathComparer

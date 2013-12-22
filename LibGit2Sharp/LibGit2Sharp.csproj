@@ -77,7 +77,6 @@
     <Compile Include="RefSpec.cs" />
     <Compile Include="RefSpecCollection.cs" />
     <Compile Include="Core\EncodingMarshaler.cs" />
-    <Compile Include="Core\GitMergeHead.cs" />
     <Compile Include="Core\GitMergeOpts.cs" />
     <Compile Include="Core\GitMergeTreeOpts.cs" />
     <Compile Include="Core\Handles\BranchIteratorSafeHandle.cs" />

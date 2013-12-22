@@ -1,37 +1,26 @@
 ﻿using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Handles;
-using System.Diagnostics;
 
 namespace LibGit2Sharp
 {
     public class MergeResult
     {
-        public MergeResult(){}
+        protected MergeResult(){}
         internal MergeResult(GitMergeResultHandle handle)
         {
-            _isUpToDate = Proxy.git_merge_result_is_uptodate(handle);
-            _isFastForward = Proxy.git_merge_result_is_fastforward(handle);
+            IsUpToDate = Proxy.git_merge_result_is_uptodate(handle);
+            IsFastForward = Proxy.git_merge_result_is_fastforward(handle);
 
-            if (_isFastForward)
-                _oid = Proxy.git_merge_result_fastforward_oid(handle);
+            if (IsFastForward)
+            {
+                FastForwardOid = Proxy.git_merge_result_fastforward_oid(handle);
+            }
         }
 
-        private bool _isUpToDate;
-        public virtual bool IsUpToDate
-        {
-            get { return _isUpToDate; }
-        }
+        public virtual bool IsUpToDate { get; private set; }
 
-        private bool _isFastForward;
-        public virtual bool IsFastForward
-        {
-            get { return _isFastForward; }
-        }
+        public virtual bool IsFastForward { get; private set; }
 
-        private readonly GitOid _oid;
-        internal GitOid FastForwardOid
-        {
-            get { return _oid; }
-        }
+        internal GitOid FastForwardOid { get; private set; }
     }
 }

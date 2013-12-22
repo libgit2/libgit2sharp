@@ -941,8 +941,6 @@ namespace LibGit2Sharp.Core
                 GitMergeHeadHandle their_head;
 
                 int res = NativeMethods.git_merge_head_from_oid(out their_head, repo, ref oid);
-                if (res == (int)GitErrorCode.NotFound)
-                    return null;
 
                 Ensure.ZeroResult(res);
 

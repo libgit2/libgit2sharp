@@ -1,5 +1,4 @@
-﻿using LibGit2Sharp.Core.Handles;
-using System;
+﻿using System;
 using System.Runtime.InteropServices;
 
 namespace LibGit2Sharp.Core
@@ -9,7 +8,7 @@ namespace LibGit2Sharp.Core
     {
 	    GIT_MERGE_TREE_FIND_RENAMES = (1 << 0),
     }
-    [Flags]
+
     internal enum MergeAutomergeFlags
     {
 	    GIT_MERGE_AUTOMERGE_NORMAL = 0,
