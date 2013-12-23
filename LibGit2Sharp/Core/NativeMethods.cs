@@ -1001,7 +1001,7 @@ namespace LibGit2Sharp.Core
         internal static extern int git_repository_is_shallow(RepositorySafeHandle repo);
 
         [DllImport(libgit2)]
-        internal static extern int git_repository_merge_cleanup(RepositorySafeHandle repo);
+        internal static extern int git_repository_state_cleanup(RepositorySafeHandle repo);
 
         internal delegate int git_repository_mergehead_foreach_cb(
             ref GitOid oid,
