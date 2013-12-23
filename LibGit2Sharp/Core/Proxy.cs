@@ -2829,7 +2829,7 @@ namespace LibGit2Sharp.Core
         /// <returns></returns>
         internal static int ConvertResultToCancelFlag(bool result)
         {
-            return result ? 0 : -1;
+            return result ? 0 : (int)GitErrorCode.User;
         }
     }
 }
