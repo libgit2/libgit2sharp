@@ -894,7 +894,7 @@ namespace LibGit2Sharp
 
             Commit result = ObjectDatabase.CreateCommit(message, author, committer, tree, parents, "HEAD");
 
-            Proxy.git_repository_merge_cleanup(handle);
+            Proxy.git_repository_state_cleanup(handle);
 
             // Insert reflog entry
             LogCommit(result, amendPreviousCommit, isHeadOrphaned, parents.Count() > 1);
