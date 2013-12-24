@@ -137,46 +137,6 @@ namespace LibGit2Sharp
         /// Fetch from the <see cref="Remote"/>.
         /// </summary>
         /// <param name="remote">The remote to fetch</param>
-        /// <param name="tagFetchMode">Optional parameter indicating what tags to download.</param>
-        /// <param name="onProgress">Progress callback. Corresponds to libgit2 progress callback.</param>
-        /// <param name="onUpdateTips">UpdateTips callback. Corresponds to libgit2 update_tips callback.</param>
-        /// <param name="onTransferProgress">Callback method that transfer progress will be reported through.
-        /// Reports the client's state regarding the received and processed (bytes, objects) from the server.</param>
-        /// <param name="credentials">Credentials to use for username/password authentication.</param>
-        [Obsolete("This overload will be removed in the next release. Please use Fetch(Remote, FetchOptions) instead.")]
-        public virtual void Fetch(
-            Remote remote,
-            TagFetchMode? tagFetchMode = null,
-            ProgressHandler onProgress = null,
-            UpdateTipsHandler onUpdateTips = null,
-            TransferProgressHandler onTransferProgress = null,
-            Credentials credentials = null)
-        {
-            Fetch(remote, new FetchOptions
-            {
-                TagFetchMode = tagFetchMode,
-                OnProgress = onProgress,
-                OnUpdateTips = onUpdateTips,
-                OnTransferProgress = onTransferProgress,
-                Credentials = credentials
-            });
-        }
-
-        /// <summary>
-        /// Fetch from the <see cref="Remote"/>.
-        /// </summary>
-        /// <param name="remote">The remote to fetch</param>
-        public virtual void Fetch(Remote remote)
-        {
-            // This overload is required as long as the obsolete overload exists.
-            // Otherwise, Fetch(Remote) is ambiguous.
-            Fetch(remote, (FetchOptions)null);
-        }
-
-        /// <summary>
-        /// Fetch from the <see cref="Remote"/>.
-        /// </summary>
-        /// <param name="remote">The remote to fetch</param>
         /// <param name="options"><see cref="FetchOptions"/> controlling fetch behavior</param>
         public virtual void Fetch(Remote remote, FetchOptions options = null)
         {

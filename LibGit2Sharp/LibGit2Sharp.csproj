@@ -280,7 +280,6 @@
     <Compile Include="Core\Handles\RepositorySafeHandle.cs" />
     <Compile Include="RepositoryOptions.cs" />
     <Compile Include="RepositoryStatus.cs" />
-    <Compile Include="ResetOptions.cs" />
     <Compile Include="Signature.cs" />
     <Compile Include="StatusEntry.cs" />
     <Compile Include="SymbolicReference.cs" />

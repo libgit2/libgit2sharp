@@ -36,18 +36,6 @@ namespace LibGit2Sharp
         public virtual bool IsBinary { get { return lazyIsBinary.Value; } }
 
         /// <summary>
-        /// Gets the blob content in a <see cref="byte"/> array.
-        /// </summary>
-        [Obsolete("This property will be removed in the next release. Please use one of the GetContentStream() overloads instead.")]
-        public virtual byte[] Content
-        {
-            get
-            {
-                return Proxy.git_blob_rawcontent(repo.Handle, Id, Size);
-            }
-        }
-
-        /// <summary>
         /// Gets the blob content in a <see cref="Stream"/>.
         /// </summary>
         public virtual Stream GetContentStream()
@@ -64,18 +52,6 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNull(filteringOptions, "filteringOptions");
             return Proxy.git_blob_filtered_content_stream(repo.Handle, Id, filteringOptions.HintPath, false);
-        }
-
-        /// <summary>
-        /// Gets the blob content in a <see cref="Stream"/>.
-        /// </summary>
-        [Obsolete("This property will be removed in the next release. Please use one of the GetContentStream() overloads instead.")]
-        public virtual Stream ContentStream
-        {
-            get
-            {
-                return GetContentStream();
-            }
         }
     }
 }

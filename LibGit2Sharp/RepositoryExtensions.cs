@@ -145,19 +145,6 @@ namespace LibGit2Sharp
         /// the content of the working tree to match.
         /// </summary>
         /// <param name="repository">The <see cref="Repository"/> being worked with.</param>
-        /// <param name="resetOptions">Flavor of reset operation to perform.</param>
-        /// <param name="committish">A revparse spec for the target commit object.</param>
-        [Obsolete("This method will be removed in the next release. Please use Reset(this IRepository, ResetMode, string) instead.")]
-        public static void Reset(this IRepository repository, ResetOptions resetOptions, string committish = "HEAD")
-        {
-            repository.Reset((ResetMode) resetOptions, committish);
-        }
-
-        /// <summary>
-        /// Sets the current <see cref="Repository.Head"/> to the specified commit and optionally resets the <see cref="Index"/> and
-        /// the content of the working tree to match.
-        /// </summary>
-        /// <param name="repository">The <see cref="Repository"/> being worked with.</param>
         /// <param name="resetMode">Flavor of reset operation to perform.</param>
         /// <param name="committish">A revparse spec for the target commit object.</param>
         public static void Reset(this IRepository repository, ResetMode resetMode, string committish = "HEAD")
@@ -233,51 +220,6 @@ namespace LibGit2Sharp
             Signature committer = repository.Config.BuildSignature(DateTimeOffset.Now, true);
 
             return repository.Commit(message, author, committer, amendPreviousCommit);
-        }
-
-        /// <summary>
-        /// Fetch from the specified remote.
-        /// </summary>
-        /// <param name="repository">The <see cref="Repository"/> being worked with.</param>
-        /// <param name="remoteName">The name of the <see cref="Remote"/> to fetch from.</param>
-        /// <param name="tagFetchMode">Optional parameter indicating what tags to download.</param>
-        /// <param name="onProgress">Progress callback. Corresponds to libgit2 progress callback.</param>
-        /// <param name="onUpdateTips">UpdateTips callback. Corresponds to libgit2 update_tips callback.</param>
-        /// <param name="onTransferProgress">Callback method that transfer progress will be reported through.
-        /// Reports the client's state regarding the received and processed (bytes, objects) from the server.</param>
-        /// <param name="credentials">Credentials to use for username/password authentication.</param>
-        [Obsolete("This overload will be removed in the next release. Please use Fetch(Remote, FetchOptions) instead.")]
-        public static void Fetch(this IRepository repository, string remoteName,
-            TagFetchMode tagFetchMode = TagFetchMode.Auto,
-            ProgressHandler onProgress = null,
-            UpdateTipsHandler onUpdateTips = null,
-            TransferProgressHandler onTransferProgress = null,
-            Credentials credentials = null)
-        {
-            Ensure.ArgumentNotNull(repository, "repository");
-            Ensure.ArgumentNotNullOrEmptyString(remoteName, "remoteName");
-
-            Remote remote = repository.Network.Remotes.RemoteForName(remoteName, true);
-            repository.Network.Fetch(remote, new FetchOptions
-            {
-                TagFetchMode = tagFetchMode,
-                OnProgress = onProgress,
-                OnUpdateTips = onUpdateTips,
-                OnTransferProgress = onTransferProgress,
-                Credentials = credentials
-            });
-        }
-
-        /// <summary>
-        /// Fetch from the specified remote.
-        /// </summary>
-        /// <param name="repository">The <see cref="Repository"/> being worked with.</param>
-        /// <param name="remoteName">The name of the <see cref="Remote"/> to fetch from.</param>
-        public static void Fetch(this IRepository repository, string remoteName)
-        {
-            // This overload is required as long as the obsolete overload exists.
-            // Otherwise, Fetch(string) is ambiguous.
-            Fetch(repository, remoteName, (FetchOptions)null);
         }
 
         /// <summary>
