@@ -8,6 +8,45 @@
  - CI server: <http://teamcity.codebetter.com/project.html?projectId=project127&guest=1>
  - @libgit2sharp: <http://twitter.com/libgit2sharp>
 
+## v0.15.0 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.14.1...v0.15.0))
+
+### Additions
+
+ - Introduce ObjectDatabase.Archive()
+ - Introduce Repository.Blame()
+ - Introduce ObjectDatabase.CalculateHistoryDivergence()
+ - Add Configuration.Find(regexp)
+ - Add CommitFilter.FirstParentOnly
+ - Expose Configuration.BuildSignature()
+ - Add TreeDefinition.Add(string, TreeEntry)
+ - Make Remote expose its refspecs
+
+### Changes
+
+ - Make Network.Fetch() accepts optional refspec
+ - Extend Network.Fetch() and ListReferences() to allow downloading from a url
+ - Allow Network.Push() to control packbuilder parallelism
+ - Expose Network.Push() progress reporting
+ - Extend RemoteUpdater to allow updation of refspecs
+ - Teach Index.RetrieveStatus to detect renames in index and workdir
+ - Teach NoteCollection to optionally build a Signature from configuration
+ - Add RewriteHistoryOptions.OnSucceeding and OnError
+ - Introduce Blob FilteringOptions
+ - Rename Blob.ContentAsText() as Blob.GetContentText()
+ - Rename Blob.ContentStream() as Blob.GetContentStream()
+ - Deprecate Blob.Content
+ - Teach Diff.Compare<> to detect renames and copies
+ - Split Patch and TreeChanges generation
+ - Deprecate ResetOptions in favor of ResetMode.
+ - Simplify OdbBackend.ReadPrefix() implementation
+ - Deprecate ObjectId.StartsWith(byte[], int) in favor of ObjectId.StartsWith(string)
+ - Update libgit2 binaries to libgit2/libgit2@96fb6a6
+
+### Fixes
+
+ - Fix building with Mono on OS X (#557)
+ - Make RetrieveStatus() reload on-disk index beforehand (#322 and #519)
+
 ## v0.14.1 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.14.0...v0.14.1))
 
 ### Changes

@@ -14,7 +14,7 @@ namespace LibGit2Sharp
         /// based on the remote's <see cref="Remote.TagFetchMode"/> configuration.
         /// </para>
         /// <para>If neither this property nor the remote `tagopt` configuration is set,
-        /// this will default to <see cref="TagFetchMode.Auto"/> (i.e. tags that point to objects
+        /// this will default to <see cref="F:TagFetchMode.Auto"/> (i.e. tags that point to objects
         /// retrieved during this fetch will be retrieved as well).</para>
         /// </summary>
         public TagFetchMode? TagFetchMode { get; set; }
