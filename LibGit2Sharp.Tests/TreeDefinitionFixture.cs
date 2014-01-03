@@ -136,6 +136,16 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        private const string StringOf40Chars = "0123456789012345678901234567890123456789";
+        /// <summary>
+        /// Used to verify that windows path limitation to 260 chars is not limiting the size of
+        /// the keys present in the object database.
+        /// </summary>
+        private const string StringOf600Chars =
+            StringOf40Chars + StringOf40Chars + StringOf40Chars + StringOf40Chars + StringOf40Chars
+            + StringOf40Chars + StringOf40Chars + StringOf40Chars + StringOf40Chars + StringOf40Chars
+            + StringOf40Chars + StringOf40Chars + StringOf40Chars + StringOf40Chars + StringOf40Chars;
+
         [Theory]
         [InlineData("README", "README_TOO")]
         [InlineData("README", "1/README")]
@@ -146,7 +156,9 @@ namespace LibGit2Sharp.Tests
         [InlineData("1/branch_file.txt", "1/2/3/another_one.txt")]
         [InlineData("1", "2")]
         [InlineData("1", "2/3")]
-        public void CanAddAnExistingTreeEntry(string sourcePath, string targetPath)
+        [InlineData("1", "C:\\")]
+        [InlineData("1", StringOf600Chars)]
+        public void CanAddAndThenRemoveAnExistingTreeEntry(string sourcePath, string targetPath)
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
@@ -161,6 +173,13 @@ namespace LibGit2Sharp.Tests
                 Assert.NotNull(fetched);
 
                 Assert.Equal(te.Target.Id, fetched.TargetId);
+
+                // Ensuring that the object database can follow.
+                var newTree = repo.ObjectDatabase.CreateTree(td);
+                Assert.Equal(newTree[targetPath].Target.Id, te.Target.Id);
+
+                td.Remove(targetPath);
+                Assert.Null(td[targetPath]);
             }
         }
 
