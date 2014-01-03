@@ -156,9 +156,10 @@ namespace LibGit2Sharp.Tests
         [InlineData("1/branch_file.txt", "1/2/3/another_one.txt")]
         [InlineData("1", "2")]
         [InlineData("1", "2/3")]
-        [InlineData("1", "C:\\")]
+        //[InlineData("1", "C:\\")]
+        //[InlineData("1", " : * ? \" < > |")]
         [InlineData("1", StringOf600Chars)]
-        public void CanAddAndThenRemoveAnExistingTreeEntry(string sourcePath, string targetPath)
+        public void CanAddAndRemoveAnExistingTreeEntry(string sourcePath, string targetPath)
         {
             using (var repo = new Repository(BareTestRepoPath))
             {

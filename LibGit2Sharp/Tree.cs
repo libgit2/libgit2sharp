@@ -38,32 +38,31 @@ namespace LibGit2Sharp
         public virtual int Count { get { return lazyCount.Value; } }
 
         /// <summary>
-        /// Gets the <see cref="TreeEntry"/> pointed at by the <paramref name="relativePath"/> in this <see cref="Tree"/> instance.
+        /// Gets the <see cref="TreeEntry"/> pointed at by the <paramref name="relativePosixPath"/> in this <see cref="Tree"/> instance.
         /// </summary>
-        /// <param name="relativePath">The relative path to the <see cref="TreeEntry"/> from this instance.</param>
+        /// <param name="relativePosixPath">The relative path to the <see cref="TreeEntry"/> from this instance.</param>
         /// <returns><c>null</c> if nothing has been found, the <see cref="TreeEntry"/> otherwise.</returns>
-        public virtual TreeEntry this[string relativePath]
+        public virtual TreeEntry this[string relativePosixPath]
         {
-            get { return RetrieveFromPath(relativePath); }
+            get { return RetrieveFromPath(relativePosixPath); }
         }
 
-        private TreeEntry RetrieveFromPath(FilePath relativePath)
+        private TreeEntry RetrieveFromPath(string relativePosixPath)
         {
-            if (relativePath.IsNullOrEmpty())
+            if (string.IsNullOrEmpty(relativePosixPath))
             {
                 return null;
             }
 
-            using (TreeEntrySafeHandle_Owned treeEntryPtr = Proxy.git_tree_entry_bypath(repo.Handle, Id, relativePath))
+            using (TreeEntrySafeHandle_Owned treeEntryPtr = Proxy.git_tree_entry_bypath(repo.Handle, Id, relativePosixPath))
             {
                 if (treeEntryPtr == null)
                 {
                     return null;
                 }
 
-                string posixPath = relativePath.Posix;
-                string filename = posixPath.Split('/').Last();
-                string parentPath = posixPath.Substring(0, posixPath.Length - filename.Length);
+                string filename = relativePosixPath.Split('/').Last();
+                string parentPath = relativePosixPath.Substring(0, relativePosixPath.Length - filename.Length);
                 return new TreeEntry(treeEntryPtr, Id, repo, path.Combine(parentPath));
             }
         }

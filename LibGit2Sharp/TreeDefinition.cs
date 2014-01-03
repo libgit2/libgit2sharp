@@ -72,7 +72,7 @@ namespace LibGit2Sharp
                 return this;
             }
 
-            Tuple<string, string> segments = ExtractPosixLeadingSegment(treeEntryPath);
+            Tuple<string, string> segments = ExtractPosixPathLeadingSegment(treeEntryPath);
 
             if (segments.Item2 == null)
             {
@@ -109,11 +109,6 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNullOrEmptyString(targetTreeEntryPath, "targetTreeEntryPath");
             Ensure.ArgumentNotNull(treeEntryDefinition, "treeEntryDefinition");
 
-            if (Path.IsPathRooted(targetTreeEntryPath))
-            {
-                throw new ArgumentException("The provided path is an absolute path.");
-            }
-
             if (treeEntryDefinition is TransientTreeTreeEntryDefinition)
             {
                 throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture,
@@ -122,7 +117,7 @@ namespace LibGit2Sharp
                     typeof(TreeEntryDefinition).Name, typeof(ObjectDatabase).Name, typeof(Tree).Name));
             }
 
-            Tuple<string, string> segments = ExtractPosixLeadingSegment(targetTreeEntryPath);
+            Tuple<string, string> segments = ExtractPosixPathLeadingSegment(targetTreeEntryPath);
 
             if (segments.Item2 != null)
             {
@@ -343,7 +338,7 @@ namespace LibGit2Sharp
             {
                 Ensure.ArgumentNotNullOrEmptyString(treeEntryPath, "treeEntryPath");
 
-                Tuple<string, string> segments = ExtractPosixLeadingSegment(treeEntryPath);
+                Tuple<string, string> segments = ExtractPosixPathLeadingSegment(treeEntryPath);
 
                 if (segments.Item2 != null)
                 {
@@ -356,9 +351,14 @@ namespace LibGit2Sharp
             }
         }
 
-        private static Tuple<string, string> ExtractPosixLeadingSegment(FilePath targetPath)
+        private static Tuple<string, string> ExtractPosixPathLeadingSegment(string targetPath)
         {
-            string[] segments = targetPath.Posix.Split(new[] { '/' }, 2);
+            if (targetPath.StartsWith("/"))
+            {
+                throw new ArgumentException("The provided path is an absolute path.");
+            }
+
+            string[] segments = targetPath.Split(new[] { '/' }, 2);
 
             if (segments[0] == string.Empty || (segments.Length == 2 && (segments[1] == string.Empty || segments[1].StartsWith("/", StringComparison.Ordinal))))
             {
