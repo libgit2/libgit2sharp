@@ -2505,7 +2505,7 @@ namespace LibGit2Sharp.Core
             return NativeMethods.git_tree_entry_byindex(tree, (UIntPtr)idx);
         }
 
-        public static TreeEntrySafeHandle_Owned git_tree_entry_bypath(RepositorySafeHandle repo, ObjectId id, FilePath treeentry_path)
+        public static TreeEntrySafeHandle_Owned git_tree_entry_bypath(RepositorySafeHandle repo, ObjectId id, string treeentry_path)
         {
             using (ThreadAffinity())
             using (var obj = new ObjectSafeWrapper(id, repo))

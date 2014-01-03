@@ -14,7 +14,7 @@ namespace LibGit2Sharp
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class Tree : GitObject, IEnumerable<TreeEntry>
     {
-        private readonly FilePath path;
+        private readonly string path;
 
         private readonly ILazy<int> lazyCount;
 
@@ -24,7 +24,7 @@ namespace LibGit2Sharp
         protected Tree()
         { }
 
-        internal Tree(Repository repo, ObjectId id, FilePath path)
+        internal Tree(Repository repo, ObjectId id, string path)
             : base(repo, id)
         {
             this.path = path ?? "";
@@ -38,39 +38,37 @@ namespace LibGit2Sharp
         public virtual int Count { get { return lazyCount.Value; } }
 
         /// <summary>
-        /// Gets the <see cref="TreeEntry"/> pointed at by the <paramref name="relativePath"/> in this <see cref="Tree"/> instance.
+        /// Gets the <see cref="TreeEntry"/> pointed at by the <paramref name="relativePosixPath"/> in this <see cref="Tree"/> instance.
         /// </summary>
-        /// <param name="relativePath">The relative path to the <see cref="TreeEntry"/> from this instance.</param>
+        /// <param name="relativePosixPath">The posix-style relative path to the <see cref="TreeEntry"/> from this instance.</param>
         /// <returns><c>null</c> if nothing has been found, the <see cref="TreeEntry"/> otherwise.</returns>
-        public virtual TreeEntry this[string relativePath]
+        public virtual TreeEntry this[string relativePosixPath]
         {
-            get { return RetrieveFromPath(relativePath); }
+            get { return RetrieveFromPath(relativePosixPath); }
         }
 
-        private TreeEntry RetrieveFromPath(FilePath relativePath)
+        private TreeEntry RetrieveFromPath(string relativePosixPath)
         {
-            if (relativePath.IsNullOrEmpty())
+            if (string.IsNullOrEmpty(relativePosixPath))
             {
                 return null;
             }
 
-            using (TreeEntrySafeHandle_Owned treeEntryPtr = Proxy.git_tree_entry_bypath(repo.Handle, Id, relativePath))
+            using (TreeEntrySafeHandle_Owned treeEntryPtr = Proxy.git_tree_entry_bypath(repo.Handle, Id, relativePosixPath))
             {
                 if (treeEntryPtr == null)
                 {
                     return null;
                 }
 
-                string posixPath = relativePath.Posix;
-                string filename = posixPath.Split('/').Last();
-                string parentPath = posixPath.Substring(0, posixPath.Length - filename.Length);
-                return new TreeEntry(treeEntryPtr, Id, repo, path.Combine(parentPath));
+                string filename = relativePosixPath.Split('/').Last();
+                string parentPath = relativePosixPath.Substring(0, relativePosixPath.Length - filename.Length);
+                return new TreeEntry(treeEntryPtr, Id, repo, FilePath.CombineGitPaths(path,parentPath));
             }
         }
-
         internal string Path
         {
-            get { return path.Native; }
+            get { return path; }
         }
 
         #region IEnumerable<TreeEntry> Members

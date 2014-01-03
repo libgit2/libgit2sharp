@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Text;
 
 namespace LibGit2Sharp.Core
 {
@@ -71,6 +72,26 @@ namespace LibGit2Sharp.Core
         public override int GetHashCode()
         {
             return posix == null ? 0 : posix.GetHashCode();
+        }
+
+        public static string CombineGitPaths(params string[] paths)
+        {
+            var sb = new StringBuilder("");
+            bool previousSubPathEndsWithSlash = false;
+            foreach (var subPath in paths)
+            {
+                if (subPath == null)
+                {
+                    throw new ArgumentException("paths");
+                }
+                if (sb.Length != 0 &&  !previousSubPathEndsWithSlash)
+                {
+                    sb.Append("/");
+                }
+                sb.Append(subPath);
+                previousSubPathEndsWithSlash = subPath.EndsWith("/");
+            }
+            return sb.ToString();
         }
     }
 }

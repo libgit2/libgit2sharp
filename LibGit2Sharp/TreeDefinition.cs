@@ -61,7 +61,7 @@ namespace LibGit2Sharp
         /// <summary>
         /// Removes a <see cref="TreeEntryDefinition"/> located the specified <paramref name="treeEntryPath"/> path.
         /// </summary>
-        /// <param name="treeEntryPath">The path within this <see cref="TreeDefinition"/>.</param>
+        /// <param name="treeEntryPath">The posix-style relative path within this <see cref="TreeDefinition"/>.</param>
         /// <returns>The current <see cref="TreeDefinition"/>.</returns>
         public virtual TreeDefinition Remove(string treeEntryPath)
         {
@@ -72,7 +72,7 @@ namespace LibGit2Sharp
                 return this;
             }
 
-            Tuple<string, string> segments = ExtractPosixLeadingSegment(treeEntryPath);
+            Tuple<string, string> segments = ExtractPosixPathLeadingSegment(treeEntryPath);
 
             if (segments.Item2 == null)
             {
@@ -101,18 +101,13 @@ namespace LibGit2Sharp
         /// <summary>
         /// Adds or replaces a <see cref="TreeEntryDefinition"/> at the specified <paramref name="targetTreeEntryPath"/> location.
         /// </summary>
-        /// <param name="targetTreeEntryPath">The path within this <see cref="TreeDefinition"/>.</param>
+        /// <param name="targetTreeEntryPath">The posix-style relative path within this <see cref="TreeDefinition"/>.</param>
         /// <param name="treeEntryDefinition">The <see cref="TreeEntryDefinition"/> to be stored at the described location.</param>
         /// <returns>The current <see cref="TreeDefinition"/>.</returns>
         public virtual TreeDefinition Add(string targetTreeEntryPath, TreeEntryDefinition treeEntryDefinition)
         {
             Ensure.ArgumentNotNullOrEmptyString(targetTreeEntryPath, "targetTreeEntryPath");
             Ensure.ArgumentNotNull(treeEntryDefinition, "treeEntryDefinition");
-
-            if (Path.IsPathRooted(targetTreeEntryPath))
-            {
-                throw new ArgumentException("The provided path is an absolute path.");
-            }
 
             if (treeEntryDefinition is TransientTreeTreeEntryDefinition)
             {
@@ -122,7 +117,7 @@ namespace LibGit2Sharp
                     typeof(TreeEntryDefinition).Name, typeof(ObjectDatabase).Name, typeof(Tree).Name));
             }
 
-            Tuple<string, string> segments = ExtractPosixLeadingSegment(targetTreeEntryPath);
+            Tuple<string, string> segments = ExtractPosixPathLeadingSegment(targetTreeEntryPath);
 
             if (segments.Item2 != null)
             {
@@ -140,7 +135,7 @@ namespace LibGit2Sharp
         /// <summary>
         /// Adds or replaces a <see cref="TreeEntryDefinition"/>, built from the provided <see cref="TreeEntry"/>, at the specified <paramref name="targetTreeEntryPath"/> location.
         /// </summary>
-        /// <param name="targetTreeEntryPath">The path within this <see cref="TreeDefinition"/>.</param>
+        /// <param name="targetTreeEntryPath">The posix-style relative path within this <see cref="TreeDefinition"/>.</param>
         /// <param name="treeEntry">The <see cref="TreeEntry"/> to be stored at the described location.</param>
         /// <returns>The current <see cref="TreeDefinition"/>.</returns>
         public virtual TreeDefinition Add(string targetTreeEntryPath, TreeEntry treeEntry)
@@ -155,7 +150,7 @@ namespace LibGit2Sharp
         /// <summary>
         /// Adds or replaces a <see cref="TreeEntryDefinition"/>, dynamically built from the provided <see cref="Blob"/>, at the specified <paramref name="targetTreeEntryPath"/> location.
         /// </summary>
-        /// <param name="targetTreeEntryPath">The path within this <see cref="TreeDefinition"/>.</param>
+        /// <param name="targetTreeEntryPath">The posix-style relative path within this <see cref="TreeDefinition"/>.</param>
         /// <param name="blob">The <see cref="Blob"/> to be stored at the described location.</param>
         /// <param name="mode">The file related <see cref="Mode"/> attributes.</param>
         /// <returns>The current <see cref="TreeDefinition"/>.</returns>
@@ -172,7 +167,7 @@ namespace LibGit2Sharp
         /// <summary>
         /// Adds or replaces a <see cref="TreeEntryDefinition"/>, dynamically built from the content of the file, at the specified <paramref name="targetTreeEntryPath"/> location.
         /// </summary>
-        /// <param name="targetTreeEntryPath">The path within this <see cref="TreeDefinition"/>.</param>
+        /// <param name="targetTreeEntryPath">The posix-style relative path within this <see cref="TreeDefinition"/>.</param>
         /// <param name="filePath">The path to the file from which a <see cref="Blob"/> will be built and stored at the described location. A relative path is allowed to be passed if the target
         /// <see cref="Repository"/> is a standard, non-bare, repository. The path will then be considered as a path relative to the root of the working directory.</param>
         /// <param name="mode">The file related <see cref="Mode"/> attributes.</param>
@@ -189,7 +184,7 @@ namespace LibGit2Sharp
         /// <summary>
         /// Adds or replaces a <see cref="TreeEntryDefinition"/>, dynamically built from the provided <see cref="Tree"/>, at the specified <paramref name="targetTreeEntryPath"/> location.
         /// </summary>
-        /// <param name="targetTreeEntryPath">The path within this <see cref="TreeDefinition"/>.</param>
+        /// <param name="targetTreeEntryPath">The posix-style relative path within this <see cref="TreeDefinition"/>.</param>
         /// <param name="tree">The <see cref="Tree"/> to be stored at the described location.</param>
         /// <returns>The current <see cref="TreeDefinition"/>.</returns>
         public virtual TreeDefinition Add(string targetTreeEntryPath, Tree tree)
@@ -218,7 +213,7 @@ namespace LibGit2Sharp
         /// referencing the commit identified by <paramref name="objectId"/>,
         /// at the specified <paramref name="targetTreeEntryPath"/> location.
         /// </summary>
-        /// <param name="targetTreeEntryPath">The path within this <see cref="TreeDefinition"/>.</param>
+        /// <param name="targetTreeEntryPath">The posix-style relative path within this <see cref="TreeDefinition"/>.</param>
         /// <param name="objectId">The <see cref="ObjectId"/> of the commit to be linked at the described location.</param>
         /// <returns>The current <see cref="TreeDefinition"/>.</returns>
         public virtual TreeDefinition AddGitLink(string targetTreeEntryPath, ObjectId objectId)
@@ -335,7 +330,7 @@ namespace LibGit2Sharp
         /// <summary>
         /// Retrieves the <see cref="TreeEntryDefinition"/> located the specified <paramref name="treeEntryPath"/> path.
         /// </summary>
-        /// <param name="treeEntryPath">The path within this <see cref="TreeDefinition"/>.</param>
+        /// <param name="treeEntryPath">The posix-style relative path within this <see cref="TreeDefinition"/>.</param>
         /// <returns>The found <see cref="TreeEntryDefinition"/> if any; null otherwise.</returns>
         public virtual TreeEntryDefinition this[string treeEntryPath]
         {
@@ -343,7 +338,7 @@ namespace LibGit2Sharp
             {
                 Ensure.ArgumentNotNullOrEmptyString(treeEntryPath, "treeEntryPath");
 
-                Tuple<string, string> segments = ExtractPosixLeadingSegment(treeEntryPath);
+                Tuple<string, string> segments = ExtractPosixPathLeadingSegment(treeEntryPath);
 
                 if (segments.Item2 != null)
                 {
@@ -356,9 +351,14 @@ namespace LibGit2Sharp
             }
         }
 
-        private static Tuple<string, string> ExtractPosixLeadingSegment(FilePath targetPath)
+        private static Tuple<string, string> ExtractPosixPathLeadingSegment(string targetPath)
         {
-            string[] segments = targetPath.Posix.Split(new[] { '/' }, 2);
+            if (targetPath.StartsWith("/"))
+            {
+                throw new ArgumentException("The provided path is an absolute path.");
+            }
+
+            string[] segments = targetPath.Split(new[] { '/' }, 2);
 
             if (segments[0] == string.Empty || (segments.Length == 2 && (segments[1] == string.Empty || segments[1].StartsWith("/", StringComparison.Ordinal))))
             {
