@@ -21,10 +21,10 @@ namespace LibGit2Sharp
         private readonly ILazy<Signature> lazyAuthor;
         private readonly ILazy<Signature> lazyCommitter;
         private readonly ILazy<string> lazyMessage;
+        private readonly ILazy<string> lazyMessageShort;
         private readonly ILazy<string> lazyEncoding;
 
         private readonly ParentsCollection parents;
-        private readonly Lazy<string> lazyShortMessage;
         private readonly Lazy<IEnumerable<Note>> lazyNotes;
 
         /// <summary>
@@ -42,9 +42,9 @@ namespace LibGit2Sharp
             lazyAuthor = group.AddLazy(Proxy.git_commit_author);
             lazyCommitter = group.AddLazy(Proxy.git_commit_committer);
             lazyMessage = group.AddLazy(Proxy.git_commit_message);
+            lazyMessageShort = group.AddLazy(Proxy.git_commit_summary);
             lazyEncoding = group.AddLazy(RetrieveEncodingOf);
 
-            lazyShortMessage = new Lazy<string>(ExtractShortMessage);
             lazyNotes = new Lazy<IEnumerable<Note>>(() => RetrieveNotesOfCommit(id).ToList());
 
             parents = new ParentsCollection(repo, id);
@@ -68,7 +68,7 @@ namespace LibGit2Sharp
         /// <summary>
         /// Gets the short commit message which is usually the first line of the commit.
         /// </summary>
-        public virtual string MessageShort { get { return lazyShortMessage.Value; } }
+        public virtual string MessageShort { get { return lazyMessageShort.Value; } }
 
         /// <summary>
         /// Gets the encoding of the message.
