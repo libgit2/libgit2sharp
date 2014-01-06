@@ -263,6 +263,10 @@ namespace LibGit2Sharp.Core
 
         [DllImport(libgit2)]
         [return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(LaxUtf8NoCleanupMarshaler))]
+        internal static extern string git_commit_summary(GitObjectSafeHandle commit);
+
+        [DllImport(libgit2)]
+        [return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(LaxUtf8NoCleanupMarshaler))]
         internal static extern string git_commit_message_encoding(GitObjectSafeHandle commit);
 
         [DllImport(libgit2)]
