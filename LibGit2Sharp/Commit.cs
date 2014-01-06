@@ -100,16 +100,6 @@ namespace LibGit2Sharp
         /// </summary>
         public virtual IEnumerable<Note> Notes { get { return lazyNotes.Value; } }
 
-        private string ExtractShortMessage()
-        {
-            if (Message == null)
-            {
-                return string.Empty; //TODO: Add some test coverage
-            }
-
-            return Message.Split('\n')[0];
-        }
-
         private IEnumerable<Note> RetrieveNotesOfCommit(ObjectId oid)
         {
             return repo.Notes[oid];
