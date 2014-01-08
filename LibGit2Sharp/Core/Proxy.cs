@@ -61,9 +61,7 @@ namespace LibGit2Sharp.Core
 
         public static GitBlameHunk git_blame_get_hunk_byindex(BlameSafeHandle blame, uint idx)
         {
-            GitBlameHunk hunk = new GitBlameHunk();
-            Marshal.PtrToStructure(NativeMethods.git_blame_get_hunk_byindex(blame, idx), hunk);
-            return hunk;
+            return MarshalAs<GitBlameHunk>(NativeMethods.git_blame_get_hunk_byindex(blame, idx));
         }
 
         public static void git_blame_free(IntPtr blame)
@@ -2798,7 +2796,7 @@ namespace LibGit2Sharp.Core
                 var list = new List<GitRemoteHead>(count);
                 for (int i = 0; i < count; i++)
                 {
-                    list.Add((GitRemoteHead)Marshal.PtrToStructure(rawHeads[i], typeof (GitRemoteHead)));
+                    list.Add(MarshalAs<GitRemoteHead>(rawHeads[i]));
                 }
                 return list;
             }
