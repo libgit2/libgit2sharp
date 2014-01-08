@@ -15,7 +15,7 @@ namespace LibGit2Sharp.Core.Handles
                 return null;
             }
 
-            return (GitError)Marshal.PtrToStructure(handle, typeof(GitError));
+            return handle.MarshalAs<GitError>();
         }
     }
 }

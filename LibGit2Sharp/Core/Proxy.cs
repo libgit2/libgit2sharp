@@ -13,15 +13,6 @@ namespace LibGit2Sharp.Core
 {
     internal class Proxy
     {
-        private static T MarshalAs<T>(IntPtr ptr)
-        {
-            if (ptr == IntPtr.Zero)
-            {
-                return default(T);
-            }
-            return (T)Marshal.PtrToStructure(ptr, typeof(T));
-        }
-
         #region giterr_
 
         public static void giterr_set_str(GitErrorCategory error_class, Exception exception)
@@ -61,7 +52,7 @@ namespace LibGit2Sharp.Core
 
         public static GitBlameHunk git_blame_get_hunk_byindex(BlameSafeHandle blame, uint idx)
         {
-            return MarshalAs<GitBlameHunk>(NativeMethods.git_blame_get_hunk_byindex(blame, idx));
+            return NativeMethods.git_blame_get_hunk_byindex(blame, idx).MarshalAs<GitBlameHunk>(false);
         }
 
         public static void git_blame_free(IntPtr blame)
@@ -741,7 +732,7 @@ namespace LibGit2Sharp.Core
 
         public static GitDiffDelta git_diff_get_delta(DiffSafeHandle diff, int idx)
         {
-            return MarshalAs<GitDiffDelta>(NativeMethods.git_diff_get_delta(diff, (UIntPtr) idx));
+            return NativeMethods.git_diff_get_delta(diff, (UIntPtr) idx).MarshalAs<GitDiffDelta>(false);
         }
 
         #endregion
@@ -2796,7 +2787,7 @@ namespace LibGit2Sharp.Core
                 var list = new List<GitRemoteHead>(count);
                 for (int i = 0; i < count; i++)
                 {
-                    list.Add(MarshalAs<GitRemoteHead>(rawHeads[i]));
+                    list.Add(rawHeads[i].MarshalAs<GitRemoteHead>());
                 }
                 return list;
             }

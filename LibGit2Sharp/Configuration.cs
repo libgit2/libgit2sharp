@@ -305,7 +305,7 @@ namespace LibGit2Sharp
 
         private static ConfigurationEntry<string> BuildConfigEntry(IntPtr entryPtr)
         {
-            var entry = (GitConfigEntry)Marshal.PtrToStructure(entryPtr, typeof(GitConfigEntry));
+            var entry = entryPtr.MarshalAs<GitConfigEntry>();
 
             return new ConfigurationEntry<string>(LaxUtf8Marshaler.FromNative(entry.namePtr),
                                                   LaxUtf8Marshaler.FromNative(entry.valuePtr),

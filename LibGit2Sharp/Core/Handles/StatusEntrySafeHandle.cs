@@ -21,7 +21,7 @@ namespace LibGit2Sharp.Core.Handles
 
         public GitStatusEntry MarshalAsGitStatusEntry()
         {
-            return (GitStatusEntry)Marshal.PtrToStructure(handle, typeof(GitStatusEntry));
+            return handle.MarshalAs<GitStatusEntry>();
         }
     }
 }

@@ -73,11 +73,11 @@ namespace LibGit2Sharp
 
                     if (entry.HeadToIndexPtr != IntPtr.Zero)
                     {
-                        deltaHeadToIndex = (GitDiffDelta)Marshal.PtrToStructure(entry.HeadToIndexPtr, typeof(GitDiffDelta));
+                        deltaHeadToIndex = entry.HeadToIndexPtr.MarshalAs<GitDiffDelta>();
                     }
                     if (entry.IndexToWorkDirPtr != IntPtr.Zero)
                     {
-                        deltaIndexToWorkDir = (GitDiffDelta)Marshal.PtrToStructure(entry.IndexToWorkDirPtr, typeof(GitDiffDelta));
+                        deltaIndexToWorkDir = entry.IndexToWorkDirPtr.MarshalAs<GitDiffDelta>();
                     }
 
                     AddStatusEntryForDelta(entry.Status, deltaHeadToIndex, deltaIndexToWorkDir);
