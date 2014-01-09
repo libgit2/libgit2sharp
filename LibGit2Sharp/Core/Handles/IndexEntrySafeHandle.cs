@@ -6,7 +6,7 @@ namespace LibGit2Sharp.Core.Handles
     {
         public GitIndexEntry MarshalAsGitIndexEntry()
         {
-            return (GitIndexEntry)Marshal.PtrToStructure(handle, typeof(GitIndexEntry));
+            return handle.MarshalAs<GitIndexEntry>();
         }
     }
 }

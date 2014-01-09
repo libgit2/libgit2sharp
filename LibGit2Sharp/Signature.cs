@@ -19,8 +19,7 @@ namespace LibGit2Sharp
 
         internal Signature(IntPtr signaturePtr)
         {
-            var handle = new GitSignature();
-            Marshal.PtrToStructure(signaturePtr, handle);
+            var handle = signaturePtr.MarshalAs<GitSignature>();
 
             name = LaxUtf8Marshaler.FromNative(handle.Name);
             email = LaxUtf8Marshaler.FromNative(handle.Email);

@@ -43,7 +43,7 @@ namespace LibGit2Sharp
         public virtual IEnumerator<GitObject> GetEnumerator()
         {
             ICollection<GitOid> oids = Proxy.git_odb_foreach(handle,
-                ptr => (GitOid) Marshal.PtrToStructure(ptr, typeof (GitOid)));
+                ptr => ptr.MarshalAs<GitOid>());
 
             return oids
                 .Select(gitOid => repo.Lookup<GitObject>(new ObjectId(gitOid)))

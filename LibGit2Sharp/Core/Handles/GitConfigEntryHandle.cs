@@ -6,7 +6,7 @@ namespace LibGit2Sharp.Core.Handles
     {
         public GitConfigEntry MarshalAsGitConfigEntry()
         {
-            return (GitConfigEntry)Marshal.PtrToStructure(handle, typeof(GitConfigEntry));
+            return handle.MarshalAs<GitConfigEntry>();
         }
     }
 }
