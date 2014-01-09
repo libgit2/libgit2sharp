@@ -3,6 +3,7 @@ namespace LibGit2Sharp.Core
     internal enum GitErrorCategory
     {
         Unknown = -1,
+        None,
         NoMemory,
         Os,
         Invalid,
@@ -27,5 +28,7 @@ namespace LibGit2Sharp.Core
         Merge,
         Ssh,
         Filter,
+        Revert,
+        Callback,
     }
 }
