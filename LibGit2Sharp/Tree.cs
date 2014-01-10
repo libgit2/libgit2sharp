@@ -14,7 +14,7 @@ namespace LibGit2Sharp
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class Tree : GitObject, IEnumerable<TreeEntry>
     {
-        private readonly FilePath path;
+        private readonly string path;
 
         private readonly ILazy<int> lazyCount;
 
@@ -24,7 +24,7 @@ namespace LibGit2Sharp
         protected Tree()
         { }
 
-        internal Tree(Repository repo, ObjectId id, FilePath path)
+        internal Tree(Repository repo, ObjectId id, string path)
             : base(repo, id)
         {
             this.path = path ?? "";
@@ -63,13 +63,12 @@ namespace LibGit2Sharp
 
                 string filename = relativePosixPath.Split('/').Last();
                 string parentPath = relativePosixPath.Substring(0, relativePosixPath.Length - filename.Length);
-                return new TreeEntry(treeEntryPtr, Id, repo, path.Combine(parentPath));
+                return new TreeEntry(treeEntryPtr, Id, repo, FilePath.CombineGitPaths(path,parentPath));
             }
         }
-
         internal string Path
         {
-            get { return path.Native; }
+            get { return path; }
         }
 
         #region IEnumerable<TreeEntry> Members

@@ -26,7 +26,7 @@ namespace LibGit2Sharp
         protected TreeEntry()
         { }
 
-        internal TreeEntry(SafeHandle obj, ObjectId parentTreeId, Repository repo, FilePath parentPath)
+        internal TreeEntry(SafeHandle obj, ObjectId parentTreeId, Repository repo, string parentPath)
         {
             this.parentTreeId = parentTreeId;
             this.repo = repo;
@@ -39,7 +39,7 @@ namespace LibGit2Sharp
 
             Mode = Proxy.git_tree_entry_attributes(obj);
             Name = Proxy.git_tree_entry_name(obj);
-            path = new Lazy<string>(() => System.IO.Path.Combine(parentPath.Native, Name));
+            path = new Lazy<string>(() => FilePath.CombineGitPaths(parentPath,Name));
         }
 
         /// <summary>

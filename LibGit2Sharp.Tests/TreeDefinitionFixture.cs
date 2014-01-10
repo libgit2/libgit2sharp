@@ -156,8 +156,8 @@ namespace LibGit2Sharp.Tests
         [InlineData("1/branch_file.txt", "1/2/3/another_one.txt")]
         [InlineData("1", "2")]
         [InlineData("1", "2/3")]
-        //[InlineData("1", "C:\\")]
-        //[InlineData("1", " : * ? \" < > |")]
+        [InlineData("1", "C:\\/10")]
+        [InlineData("1", " : * ? \" < > |")]
         [InlineData("1", StringOf600Chars)]
         public void CanAddAndRemoveAnExistingTreeEntry(string sourcePath, string targetPath)
         {
@@ -181,6 +181,32 @@ namespace LibGit2Sharp.Tests
 
                 td.Remove(targetPath);
                 Assert.Null(td[targetPath]);
+            }
+        }
+
+        [Theory]
+        [InlineData("C:\\")]
+        [InlineData(" : * ? \" \n < > |")]
+        [InlineData("a\\b")]
+        [InlineData("\\\\b\a")]
+        // Interestingly, those entries are not valid in git, although they are
+        // valid on some filesystems (ext3, for example).
+        //[InlineData("..")]
+        //[InlineData(".")]
+        [InlineData("éàµ")]
+        [InlineData(StringOf600Chars)]
+        public void TreeNamesCanContainCharsForbiddenOnSomeOS(string targetName)
+        {
+            using (var repo = new Repository(BareTestRepoPath))
+            {
+                var pointedItem = repo.Head.Tip.Tree;
+
+                var td = new TreeDefinition();
+                td.Add(targetName, pointedItem);
+
+                var newTree = repo.ObjectDatabase.CreateTree(td);
+                Assert.Equal(newTree[targetName].Target.Sha, pointedItem.Sha);
+                Assert.Equal(newTree[targetName].Name, targetName);
             }
         }
 
