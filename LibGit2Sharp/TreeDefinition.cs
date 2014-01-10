@@ -61,7 +61,7 @@ namespace LibGit2Sharp
         /// <summary>
         /// Removes a <see cref="TreeEntryDefinition"/> located the specified <paramref name="treeEntryPath"/> path.
         /// </summary>
-        /// <param name="targetTreeEntryPath">The relative posix-style path within this <see cref="TreeDefinition"/>.</param>
+        /// <param name="treeEntryPath">The posix-style relative path within this <see cref="TreeDefinition"/>.</param>
         /// <returns>The current <see cref="TreeDefinition"/>.</returns>
         public virtual TreeDefinition Remove(string treeEntryPath)
         {
@@ -101,7 +101,7 @@ namespace LibGit2Sharp
         /// <summary>
         /// Adds or replaces a <see cref="TreeEntryDefinition"/> at the specified <paramref name="targetTreeEntryPath"/> location.
         /// </summary>
-        /// <param name="targetTreeEntryPath">The relative posix-style path within this <see cref="TreeDefinition"/>.</param>
+        /// <param name="targetTreeEntryPath">The posix-style relative path within this <see cref="TreeDefinition"/>.</param>
         /// <param name="treeEntryDefinition">The <see cref="TreeEntryDefinition"/> to be stored at the described location.</param>
         /// <returns>The current <see cref="TreeDefinition"/>.</returns>
         public virtual TreeDefinition Add(string targetTreeEntryPath, TreeEntryDefinition treeEntryDefinition)
@@ -135,7 +135,7 @@ namespace LibGit2Sharp
         /// <summary>
         /// Adds or replaces a <see cref="TreeEntryDefinition"/>, built from the provided <see cref="TreeEntry"/>, at the specified <paramref name="targetTreeEntryPath"/> location.
         /// </summary>
-        /// <param name="targetTreeEntryPath">The relative posix-style path within this <see cref="TreeDefinition"/>.</param>
+        /// <param name="targetTreeEntryPath">The posix-style relative path within this <see cref="TreeDefinition"/>.</param>
         /// <param name="treeEntry">The <see cref="TreeEntry"/> to be stored at the described location.</param>
         /// <returns>The current <see cref="TreeDefinition"/>.</returns>
         public virtual TreeDefinition Add(string targetTreeEntryPath, TreeEntry treeEntry)
@@ -150,7 +150,7 @@ namespace LibGit2Sharp
         /// <summary>
         /// Adds or replaces a <see cref="TreeEntryDefinition"/>, dynamically built from the provided <see cref="Blob"/>, at the specified <paramref name="targetTreeEntryPath"/> location.
         /// </summary>
-        /// <param name="targetTreeEntryPath">The relative posix-style path within this <see cref="TreeDefinition"/>.</param>
+        /// <param name="targetTreeEntryPath">The posix-style relative path within this <see cref="TreeDefinition"/>.</param>
         /// <param name="blob">The <see cref="Blob"/> to be stored at the described location.</param>
         /// <param name="mode">The file related <see cref="Mode"/> attributes.</param>
         /// <returns>The current <see cref="TreeDefinition"/>.</returns>
@@ -167,7 +167,7 @@ namespace LibGit2Sharp
         /// <summary>
         /// Adds or replaces a <see cref="TreeEntryDefinition"/>, dynamically built from the content of the file, at the specified <paramref name="targetTreeEntryPath"/> location.
         /// </summary>
-        /// <param name="targetTreeEntryPath">The relative posix-style path within this <see cref="TreeDefinition"/>.</param>
+        /// <param name="targetTreeEntryPath">The posix-style relative path within this <see cref="TreeDefinition"/>.</param>
         /// <param name="filePath">The path to the file from which a <see cref="Blob"/> will be built and stored at the described location. A relative path is allowed to be passed if the target
         /// <see cref="Repository"/> is a standard, non-bare, repository. The path will then be considered as a path relative to the root of the working directory.</param>
         /// <param name="mode">The file related <see cref="Mode"/> attributes.</param>
@@ -184,7 +184,7 @@ namespace LibGit2Sharp
         /// <summary>
         /// Adds or replaces a <see cref="TreeEntryDefinition"/>, dynamically built from the provided <see cref="Tree"/>, at the specified <paramref name="targetTreeEntryPath"/> location.
         /// </summary>
-        /// <param name="targetTreeEntryPath">The relative posix-style path within this <see cref="TreeDefinition"/>.</param>
+        /// <param name="targetTreeEntryPath">The posix-style relative path within this <see cref="TreeDefinition"/>.</param>
         /// <param name="tree">The <see cref="Tree"/> to be stored at the described location.</param>
         /// <returns>The current <see cref="TreeDefinition"/>.</returns>
         public virtual TreeDefinition Add(string targetTreeEntryPath, Tree tree)
@@ -213,7 +213,7 @@ namespace LibGit2Sharp
         /// referencing the commit identified by <paramref name="objectId"/>,
         /// at the specified <paramref name="targetTreeEntryPath"/> location.
         /// </summary>
-        /// <param name="targetTreeEntryPath">The relative posix-style path within this <see cref="TreeDefinition"/>.</param>
+        /// <param name="targetTreeEntryPath">The posix-style relative path within this <see cref="TreeDefinition"/>.</param>
         /// <param name="objectId">The <see cref="ObjectId"/> of the commit to be linked at the described location.</param>
         /// <returns>The current <see cref="TreeDefinition"/>.</returns>
         public virtual TreeDefinition AddGitLink(string targetTreeEntryPath, ObjectId objectId)
@@ -330,7 +330,7 @@ namespace LibGit2Sharp
         /// <summary>
         /// Retrieves the <see cref="TreeEntryDefinition"/> located the specified <paramref name="treeEntryPath"/> path.
         /// </summary>
-        /// <param name="targetTreeEntryPath">The relative posix-style path within this <see cref="TreeDefinition"/>.</param>
+        /// <param name="treeEntryPath">The posix-style relative path within this <see cref="TreeDefinition"/>.</param>
         /// <returns>The found <see cref="TreeEntryDefinition"/> if any; null otherwise.</returns>
         public virtual TreeEntryDefinition this[string treeEntryPath]
         {

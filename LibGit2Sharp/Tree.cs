@@ -40,7 +40,7 @@ namespace LibGit2Sharp
         /// <summary>
         /// Gets the <see cref="TreeEntry"/> pointed at by the <paramref name="relativePosixPath"/> in this <see cref="Tree"/> instance.
         /// </summary>
-        /// <param name="relativePosixPath">The relative path to the <see cref="TreeEntry"/> from this instance.</param>
+        /// <param name="relativePosixPath">The posix-style relative path to the <see cref="TreeEntry"/> from this instance.</param>
         /// <returns><c>null</c> if nothing has been found, the <see cref="TreeEntry"/> otherwise.</returns>
         public virtual TreeEntry this[string relativePosixPath]
         {

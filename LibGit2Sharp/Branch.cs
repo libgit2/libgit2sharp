@@ -50,11 +50,11 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Gets the <see cref="TreeEntry"/> pointed at by the <paramref name="relativePath"/> in the <see cref="Tip"/>.
+        /// Gets the <see cref="TreeEntry"/> pointed at by the <paramref name="relativePosixPath"/> in the <see cref="Tip"/>.
         /// </summary>
-        /// <param name="relativePath">The relative path to the <see cref="TreeEntry"/> from the <see cref="Tip"/> working directory.</param>
+        /// <param name="relativePosixPath">The relative path to the <see cref="TreeEntry"/> from the <see cref="Tip"/> working directory.</param>
         /// <returns><c>null</c> if nothing has been found, the <see cref="TreeEntry"/> otherwise.</returns>
-        public virtual TreeEntry this[string relativePath]
+        public virtual TreeEntry this[string relativePosixPath]
         {
             get
             {
@@ -63,7 +63,7 @@ namespace LibGit2Sharp
                     return null;
                 }
 
-                return Tip[relativePath];
+                return Tip[relativePosixPath];
             }
         }
 

@@ -137,6 +137,7 @@ namespace LibGit2Sharp.Tests
         }
 
         private const string StringOf40Chars = "0123456789012345678901234567890123456789";
+
         /// <summary>
         /// Used to verify that windows path limitation to 260 chars is not limiting the size of
         /// the keys present in the object database.
@@ -175,7 +176,7 @@ namespace LibGit2Sharp.Tests
 
                 Assert.Equal(te.Target.Id, fetched.TargetId);
 
-                // Ensuring that the object database can follow.
+                // Ensuring that the object database can handle uncommon paths.
                 var newTree = repo.ObjectDatabase.CreateTree(td);
                 Assert.Equal(newTree[targetPath].Target.Id, te.Target.Id);
 
