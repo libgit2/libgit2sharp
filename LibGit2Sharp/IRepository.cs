@@ -194,6 +194,11 @@ namespace LibGit2Sharp
         IEnumerable<MergeHead> MergeHeads { get; }
 
         /// <summary>
+        /// Merges the given commit into HEAD.
+        /// </summary>
+        MergeResult Merge(Commit commit);
+
+        /// <summary>
         /// Manipulate the currently ignored files.
         /// </summary>
         Ignore Ignore { get; }
