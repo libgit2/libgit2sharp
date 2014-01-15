@@ -16,9 +16,7 @@ namespace LibGit2Sharp.Tests
         [InlineData("git://github.com/libgit2/TestGitRepository.git")]
         public void CanFetchIntoAnEmptyRepository(string url)
         {
-            string repoPath = InitNewRepository();
-
-            using (var repo = new Repository(repoPath))
+            using (var repo = InitIsolatedRepository())
             {
                 Remote remote = repo.Network.Remotes.Add(remoteName, url);
 
@@ -55,9 +53,7 @@ namespace LibGit2Sharp.Tests
             InconclusiveIf(() => string.IsNullOrEmpty(Constants.PrivateRepoUrl),
                 "Populate Constants.PrivateRepo* to run this test");
 
-            string repoPath = InitNewRepository();
-
-            using (var repo = new Repository(repoPath))
+            using (var repo = InitIsolatedRepository())
             {
                 Remote remote = repo.Network.Remotes.Add(remoteName, Constants.PrivateRepoUrl);
 
@@ -79,9 +75,7 @@ namespace LibGit2Sharp.Tests
         [InlineData("git://github.com/libgit2/TestGitRepository.git")]
         public void CanFetchAllTagsIntoAnEmptyRepository(string url)
         {
-            string repoPath = InitNewRepository();
-
-            using (var repo = new Repository(repoPath))
+            using (var repo = InitIsolatedRepository())
             {
                 Remote remote = repo.Network.Remotes.Add(remoteName, url);
 
@@ -116,9 +110,7 @@ namespace LibGit2Sharp.Tests
         [InlineData("git://github.com/libgit2/TestGitRepository.git", "master", "first-merge")]
         public void CanFetchCustomRefSpecsIntoAnEmptyRepository(string url, string localBranchName, string remoteBranchName)
         {
-            string repoPath = InitNewRepository();
-
-            using (var repo = new Repository(repoPath))
+            using (var repo = InitIsolatedRepository())
             {
                 Remote remote = repo.Network.Remotes.Add(remoteName, url);
 
@@ -153,9 +145,7 @@ namespace LibGit2Sharp.Tests
         {
             string url = "http://github.com/libgit2/TestGitRepository";
 
-            string repoPath = InitNewRepository();
-
-            using (var repo = new Repository(repoPath))
+            using (var repo = InitIsolatedRepository())
             {
                 Remote remote = repo.Network.Remotes.Add(remoteName, url);
                 Assert.NotNull(remote);

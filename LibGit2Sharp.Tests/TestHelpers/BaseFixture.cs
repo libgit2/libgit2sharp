@@ -154,6 +154,11 @@ namespace LibGit2Sharp.Tests.TestHelpers
             return Repository.Init(scd.DirectoryPath, isBare);
         }
 
+        protected Repository InitIsolatedRepository(bool isBare = false)
+        {
+            return new Repository(InitNewRepository(), options: BuildFakeConfigs(BuildSelfCleaningDirectory()));
+        }
+
         public void Register(string directoryPath)
         {
             directories.Add(directoryPath);
