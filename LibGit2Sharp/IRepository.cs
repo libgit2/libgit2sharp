@@ -194,6 +194,13 @@ namespace LibGit2Sharp
         IEnumerable<MergeHead> MergeHeads { get; }
 
         /// <summary>
+        /// Merges the given commit into HEAD.
+        /// </summary>
+        /// <param name="commit">The commit to use as a reference for the changes that should be merged into HEAD.</param>
+        /// <param name="merger">If the merge generates a merge commit (i.e. a non-fast forward merge), the <see cref="Signature"/> of who made the merge.</param>
+        MergeResult Merge(Commit commit, Signature merger);
+
+        /// <summary>
         /// Manipulate the currently ignored files.
         /// </summary>
         Ignore Ignore { get; }
