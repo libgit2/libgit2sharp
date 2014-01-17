@@ -1302,6 +1302,17 @@ namespace LibGit2Sharp.Core
             }
         }
 
+        public static Tuple<int, int> git_patch_line_stats(PatchSafeHandle patch)
+        {
+            using (ThreadAffinity())
+            {
+                UIntPtr ctx, add, del;
+                int res = NativeMethods.git_patch_line_stats(out ctx, out add, out del, patch);
+                Ensure.ZeroResult(res);
+                return new Tuple<int, int>((int)add, (int)del);
+            }
+        } 
+
         #endregion
 
         #region git_push_
