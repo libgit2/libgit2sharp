@@ -97,6 +97,7 @@ namespace LibGit2Sharp
         {
             { typeof(Patch), diff => new Patch(diff) },
             { typeof(TreeChanges), diff => new TreeChanges(diff) },
+            { typeof(PatchStats), diff => new PatchStats(diff) },
         };
 
         /// <summary>
