@@ -144,7 +144,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// The total number of lines added in this diff.
+        /// The total number of lines deleted in this diff.
         /// </summary>
         public virtual int LinesDeleted
         {
