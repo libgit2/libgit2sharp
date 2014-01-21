@@ -732,6 +732,13 @@ namespace LibGit2Sharp.Core
         internal static extern int git_patch_print(PatchSafeHandle patch, git_diff_line_cb print_cb, IntPtr payload);
 
         [DllImport(libgit2)]
+        internal static extern int git_patch_line_stats(
+            out UIntPtr total_context,
+            out UIntPtr total_additions,
+            out UIntPtr total_deletions,
+            PatchSafeHandle patch);
+
+        [DllImport(libgit2)]
         internal static extern void git_patch_free(IntPtr patch);
 
         [DllImport(libgit2)]
