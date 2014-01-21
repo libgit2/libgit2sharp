@@ -194,7 +194,7 @@ namespace LibGit2Sharp
         [Obsolete("This method will be removed in the next release. Please use CreateCommit(Signature, Signature, string, bool, Tree, IEnumerable<Commit>) instead.")]
         public virtual Commit CreateCommit(string message, Signature author, Signature committer, Tree tree, IEnumerable<Commit> parents)
         {
-            return CreateCommit(author, committer, message, true, tree, parents, null);
+            return CreateCommit(author, committer, message, true, tree, parents);
         }
 
         /// <summary>
@@ -217,11 +217,6 @@ namespace LibGit2Sharp
         /// <returns>The created <see cref="Commit"/>.</returns>
         public virtual Commit CreateCommit(Signature author, Signature committer, string message, bool prettifyMessage, Tree tree, IEnumerable<Commit> parents)
         {
-            return CreateCommit(author, committer, message, prettifyMessage, tree, parents, null);
-        }
-
-        internal Commit CreateCommit(Signature author, Signature committer, string message, bool prettifyMessage, Tree tree, IEnumerable<Commit> parents, string referenceName)
-        {
             Ensure.ArgumentNotNull(message, "message");
             Ensure.ArgumentDoesNotContainZeroByte(message, "message");
             Ensure.ArgumentNotNull(author, "author");
@@ -235,7 +230,7 @@ namespace LibGit2Sharp
             }
             GitOid[] parentIds = parents.Select(p => p.Id.Oid).ToArray();
 
-            ObjectId commitId = Proxy.git_commit_create(repo.Handle, referenceName, author, committer, message, tree, parentIds);
+            ObjectId commitId = Proxy.git_commit_create(repo.Handle, null, author, committer, message, tree, parentIds);
 
             return repo.Lookup<Commit>(commitId);
         }

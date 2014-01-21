@@ -183,7 +183,7 @@ namespace LibGit2Sharp.Core
 
         public ushort ContextLines;
         public ushort InterhunkLines;
-        public ushort OidAbbrev;
+        public ushort IdAbbrev;
         public Int64 MaxSize;
         public IntPtr OldPrefixString;
         public IntPtr NewPrefixString;
@@ -204,13 +204,13 @@ namespace LibGit2Sharp.Core
     {
         GIT_DIFF_FLAG_BINARY = (1 << 0),
         GIT_DIFF_FLAG_NOT_BINARY = (1 << 1),
-        GIT_DIFF_FLAG_VALID_OID = (1 << 2),
+        GIT_DIFF_FLAG_VALID_ID = (1 << 2),
     }
 
     [StructLayout(LayoutKind.Sequential)]
     internal class GitDiffFile
     {
-        public GitOid Oid;
+        public GitOid Id;
         public IntPtr Path;
         public Int64 Size;
         public GitDiffFlags Flags;
@@ -279,6 +279,10 @@ namespace LibGit2Sharp.Core
     [Flags]
     enum GitDiffFindFlags
     {
+        // Obey `diff.renames`. Overridden by any other GIT_DIFF_FIND_... flag.
+        GIT_DIFF_FIND_BY_CONFIG = 0,
+
+        // Look for renames? (`--find-renames`) 
         GIT_DIFF_FIND_RENAMES = (1 << 0),
         // consider old side of modified for renames? (`--break-rewrites=N`)
         GIT_DIFF_FIND_RENAMES_FROM_REWRITES = (1 << 1),

@@ -11,6 +11,7 @@ export _BINPATH=`pwd`
 cmake -DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo \
       -DTHREADSAFE:BOOL=ON \
       -DBUILD_CLAR:BOOL=OFF \
+      -DUSE_SSH=OFF \
       -DLIBGIT2_FILENAME=git2-$SHORTSHA \
       -DCMAKE_OSX_ARCHITECTURES="i386;x86_64" \
       ..

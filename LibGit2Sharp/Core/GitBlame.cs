@@ -31,6 +31,12 @@ namespace LibGit2Sharp.Core
         /// commit (like `git blame -CCC`). Implies SAME_COMMIT_COPIES.
         /// </summary>
         GIT_BLAME_TRACK_COPIES_ANY_COMMIT_COPIES = (1 << 3),
+
+        /// <summary>
+        /// Restrict the search of commits to those reachable
+        /// following only the first parents.
+        /// </summary>
+    	GIT_BLAME_FIRST_PARENT = (1<<4),
     }
 
     [StructLayout(LayoutKind.Sequential)]

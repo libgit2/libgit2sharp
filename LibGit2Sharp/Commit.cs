@@ -36,7 +36,7 @@ namespace LibGit2Sharp
         internal Commit(Repository repo, ObjectId id)
             : base(repo, id)
         {
-            lazyTree = GitObjectLazyGroup.Singleton(this.repo, id, obj => new Tree(this.repo, Proxy.git_commit_tree_oid(obj), null));
+            lazyTree = GitObjectLazyGroup.Singleton(this.repo, id, obj => new Tree(this.repo, Proxy.git_commit_tree_id(obj), null));
 
             group = new GitObjectLazyGroup(this.repo, id);
             lazyAuthor = group.AddLazy(Proxy.git_commit_author);
@@ -141,7 +141,7 @@ namespace LibGit2Sharp
 
                     for (uint i = 0; i < parentsCount; i++)
                     {
-                        ObjectId parentCommitId = Proxy.git_commit_parent_oid(obj.ObjectPtr, i);
+                        ObjectId parentCommitId = Proxy.git_commit_parent_id(obj.ObjectPtr, i);
                         parents.Add(new Commit(repo, parentCommitId));
                     }
 

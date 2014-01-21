@@ -121,8 +121,16 @@ namespace LibGit2Sharp.Tests
                                   string.Format("reset: moving to {0}", tag.Target.Sha),
                                   oldHeadId);
 
+                if (!shouldHeadBeDetached)
+                {
+                    AssertRefLogEntry(repo, branch.CanonicalName,
+                                      tag.Target.Id,
+                                      string.Format("reset: moving to {0}", tag.Target.Sha),
+                                      oldHeadId);
+                }
+
                 /* Reset --soft the Head to a commit through its sha */
-                repo.Reset(ResetMode.Soft, branch.Tip.Sha);
+                repo.Reset(ResetMode.Soft, branch.Tip.Sha, Constants.Signature, "FOO");
                 Assert.Equal(expectedHeadName, repo.Head.Name);
                 Assert.Equal(branch.Tip.Sha, repo.Head.Tip.Sha);
 
@@ -130,8 +138,18 @@ namespace LibGit2Sharp.Tests
 
                 AssertRefLogEntry(repo, "HEAD",
                                   branch.Tip.Id,
-                                  string.Format("reset: moving to {0}", branch.Tip.Sha),
-                                  tag.Target.Id);
+                                  "FOO",
+                                  tag.Target.Id,
+                                  Constants.Signature);
+
+                if (!shouldHeadBeDetached)
+                {
+                    AssertRefLogEntry(repo, branch.CanonicalName,
+                                  branch.Tip.Id,
+                                  "FOO",
+                                  tag.Target.Id,
+                                  Constants.Signature);
+                }
             }
         }
 
@@ -172,6 +190,11 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(FileStatus.Modified, repo.Index.RetrieveStatus("a.txt"));
 
                 AssertRefLogEntry(repo, "HEAD",
+                                  tag.Target.Id,
+                                  string.Format("reset: moving to {0}", tag.Target.Sha),
+                                  oldHeadId);
+
+                AssertRefLogEntry(repo, "refs/heads/mybranch",
                                   tag.Target.Id,
                                   string.Format("reset: moving to {0}", tag.Target.Sha),
                                   oldHeadId);

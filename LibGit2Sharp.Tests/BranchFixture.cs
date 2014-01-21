@@ -32,7 +32,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(committish, newBranch.Tip.Sha);
 
                 // Note the call to String.Normalize(). This is because, on Mac OS X, the filesystem
-                // decomposes the  UTF-8 characters on write, which results in a different set of bytes
+                // decomposes the UTF-8 characters on write, which results in a different set of bytes
                 // when they're read back:
                 // - from InlineData: C5-00-6E-00-67-00-73-00-74-00-72-00-F6-00-6D-00
                 // - from filesystem: 41-00-0A-03-6E-00-67-00-73-00-74-00-72-00-6F-00-08-03-6D-00
@@ -40,8 +40,7 @@ namespace LibGit2Sharp.Tests
 
                 AssertRefLogEntry(repo, newBranch.CanonicalName,
                                   newBranch.Tip.Id,
-                                  "branch: Created from " + committish,
-                                  committer: newBranch.Tip.Committer);
+                                  "branch: Created from " + committish);
 
                 repo.Branches.Remove(newBranch.Name);
                 Assert.Null(repo.Branches[name]);
@@ -99,8 +98,7 @@ namespace LibGit2Sharp.Tests
 
                 AssertRefLogEntry(repo, newBranch.CanonicalName,
                                   newBranch.Tip.Id,
-                                  "branch: Created from " + committish,
-                                  committer: newBranch.Tip.Committer);
+                                  "branch: Created from " + committish);
             }
         }
 
@@ -128,8 +126,7 @@ namespace LibGit2Sharp.Tests
 
                 AssertRefLogEntry(repo, newBranch.CanonicalName,
                                   newBranch.Tip.Id,
-                                  "branch: Created from " + headCommitOrBranchSpec,
-                                  committer: newBranch.Tip.Committer);
+                                  "branch: Created from " + headCommitOrBranchSpec);
             }
         }
 
@@ -152,8 +149,7 @@ namespace LibGit2Sharp.Tests
 
                 AssertRefLogEntry(repo, newBranch.CanonicalName,
                                   newBranch.Tip.Id,
-                                  "branch: Created from " + headCommitOrBranchSpec,
-                                  committer: newBranch.Tip.Committer);
+                                  "branch: Created from " + headCommitOrBranchSpec);
             }
         }
 
@@ -173,8 +169,7 @@ namespace LibGit2Sharp.Tests
 
                 AssertRefLogEntry(repo, newBranch.CanonicalName,
                                   newBranch.Tip.Id,
-                                  "branch: Created from " + newBranch.Tip.Sha,
-                                  committer: newBranch.Tip.Committer);
+                                  "branch: Created from " + newBranch.Tip.Sha);
             }
         }
 
@@ -195,8 +190,7 @@ namespace LibGit2Sharp.Tests
 
                 AssertRefLogEntry(repo, newBranch.CanonicalName,
                                   newBranch.Tip.Id,
-                                  "branch: Created from " + committish,
-                                  committer: newBranch.Tip.Committer);
+                                  "branch: Created from " + committish);
             }
         }
 
@@ -218,8 +212,7 @@ namespace LibGit2Sharp.Tests
 
                 AssertRefLogEntry(repo, newBranch.CanonicalName,
                                   newBranch.Tip.Id,
-                                  "branch: Created from " + committish,
-                                  committer: newBranch.Tip.Committer);
+                                  "branch: Created from " + committish);
             }
         }
 
@@ -491,7 +484,7 @@ namespace LibGit2Sharp.Tests
             {
                 Branch master = repo.Branches["master"];
                 const string logMessage = "update target message";
-                repo.Refs.UpdateTarget("refs/remotes/origin/master", "origin/test", logMessage);
+                repo.Refs.UpdateTarget("refs/remotes/origin/master", "origin/test", Constants.Signature, logMessage);
 
                 Assert.True(master.IsTracking);
                 Assert.NotNull(master.TrackedBranch);
@@ -847,8 +840,7 @@ namespace LibGit2Sharp.Tests
 
                 AssertRefLogEntry(repo, newBranch.CanonicalName,
                                   newBranch.Tip.Id,
-                                  string.Format("Branch: renamed {0} to {1}", br2.CanonicalName, newBranch.CanonicalName),
-                                  committer: newBranch.Tip.Committer);
+                                  string.Format("branch: renamed {0} to {1}", br2.CanonicalName, newBranch.CanonicalName));
             }
         }
 
@@ -888,8 +880,8 @@ namespace LibGit2Sharp.Tests
 
                 AssertRefLogEntry(repo, newBranch.CanonicalName,
                                   newBranch.Tip.Id,
-                                  string.Format("Branch: renamed {0} to {1}", br2.CanonicalName, newBranch.CanonicalName),
-                                  committer: newBranch.Tip.Committer);
+                                  string.Format("branch: renamed {0} to {1}", br2.CanonicalName, newBranch.CanonicalName),
+                                  test.Tip.Id);
             }
         }
 
@@ -988,6 +980,39 @@ namespace LibGit2Sharp.Tests
         private static T[] SortedBranches<T>(IEnumerable<Branch> branches, Func<Branch, T> selector)
         {
             return branches.OrderBy(b => b.CanonicalName, StringComparer.Ordinal).Select(selector).ToArray();
+        }
+
+        [Fact]
+        public void CreatingABranchIncludesTheCorrectReflogEntries()
+        {
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
+            {
+                EnableRefLog(repo);
+                var branch = repo.Branches.Add("foo", repo.Head.Tip);
+                AssertRefLogEntry(repo, branch.CanonicalName, branch.Tip.Id,
+                    string.Format("branch: Created from {0}", repo.Head.Tip.Sha));
+
+                branch = repo.Branches.Add("bar", repo.Head.Tip, null, "BAR");
+                AssertRefLogEntry(repo, branch.CanonicalName, repo.Head.Tip.Id, "BAR");
+            }
+        }
+
+        [Fact]
+        public void MovingABranchIncludesTheCorrectReflogEntries()
+        {
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
+            {
+                EnableRefLog(repo);
+                var master = repo.Branches["master"];
+                var newMaster = repo.Branches.Move(master, "new-master");
+                AssertRefLogEntry(repo, newMaster.CanonicalName, newMaster.Tip.Id, 
+                    "branch: renamed refs/heads/master to refs/heads/new-master");
+
+                newMaster = repo.Branches.Move(newMaster, "new-master2", null, "MOVE");
+                AssertRefLogEntry(repo, newMaster.CanonicalName, newMaster.Tip.Id, "MOVE");
+            }
         }
     }
 }

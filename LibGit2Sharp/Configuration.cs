@@ -144,7 +144,7 @@ namespace LibGit2Sharp
         ///   The first occurence of the key will be returned.
         /// </para>
         /// <para>
-        ///   For example in  order to get the value for this in a .git\config file:
+        ///   For example in order to get the value for this in a .git\config file:
         ///
         ///   <code>
         ///   [core]
@@ -171,7 +171,7 @@ namespace LibGit2Sharp
         /// <summary>
         /// Get a configuration value for a key. Keys are in the form 'section.name'.
         /// <para>
-        ///   For example in  order to get the value for this in a .git\config file:
+        ///   For example in order to get the value for this in a .git\config file:
         ///
         ///   <code>
         ///   [core]

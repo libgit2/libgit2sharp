@@ -550,7 +550,7 @@ namespace LibGit2Sharp
             var indexEntry = new GitIndexEntry
             {
                 Mode = (uint)treeEntryChanges.OldMode,
-                oid = treeEntryChanges.OldOid.Oid,
+                Id = treeEntryChanges.OldOid.Oid,
                 Path = StrictFilePathMarshaler.FromManaged(treeEntryChanges.OldPath),
             };
 

@@ -24,6 +24,8 @@ namespace LibGit2Sharp.Tests
             string path = CloneBareTestRepo();
             using (var repo = new Repository(path))
             {
+                EnableRefLog(repo);
+
                 var newRef = (DirectReference)repo.Refs.Add(name, "be3563ae3f795b2b4353bcce3a527ad0a4f7f644");
                 Assert.NotNull(newRef);
                 Assert.Equal(name, newRef.CanonicalName);
@@ -31,6 +33,10 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal("be3563ae3f795b2b4353bcce3a527ad0a4f7f644", newRef.Target.Sha);
                 Assert.Equal(newRef.Target.Sha, newRef.TargetIdentifier);
                 Assert.NotNull(repo.Refs[name]);
+
+                AssertRefLogEntry(repo, name,
+                    newRef.ResolveToDirectReference().Target.Id,
+                    "branch: Created from be3563ae3f795b2b4353bcce3a527ad0a4f7f644");
             }
         }
 
@@ -45,7 +51,7 @@ namespace LibGit2Sharp.Tests
             {
                 EnableRefLog(repo);
 
-                var newRef = (DirectReference)repo.Refs.Add(name, "master^1^2", logMessage: logMessage);
+                var newRef = (DirectReference)repo.Refs.Add(name, "master^1^2", Constants.Signature, logMessage);
                 Assert.NotNull(newRef);
                 Assert.Equal(name, newRef.CanonicalName);
                 Assert.NotNull(newRef.Target);
@@ -55,7 +61,7 @@ namespace LibGit2Sharp.Tests
 
                 AssertRefLogEntry(repo, name,
                                   newRef.ResolveToDirectReference().Target.Id,
-                                  logMessage);
+                                  logMessage, committer: Constants.Signature);
             }
         }
 
@@ -100,13 +106,10 @@ namespace LibGit2Sharp.Tests
 
                 var targetRef = repo.Refs[target];
 
-                var newRef = repo.Refs.Add(name, targetRef, logMessage: logMessage);
+                var newRef = repo.Refs.Add(name, targetRef, Constants.Signature, logMessage);
 
                 AssertSymbolicRef(newRef, repo, target, name);
-
-                AssertRefLogEntry(repo, name,
-                                  newRef.ResolveToDirectReference().Target.Id,
-                                  logMessage);
+                Assert.Empty(repo.Refs.Log(newRef));
             }
         }
 
@@ -152,7 +155,8 @@ namespace LibGit2Sharp.Tests
             {
                 EnableRefLog(repo);
 
-                var newRef = (DirectReference)repo.Refs.Add(name, target, true, logMessage);
+                var oldRef = repo.Refs[name];
+                var newRef = (DirectReference)repo.Refs.Add(name, target, Constants.Signature, logMessage, true);
                 Assert.NotNull(newRef);
                 Assert.Equal(name, newRef.CanonicalName);
                 Assert.NotNull(newRef.Target);
@@ -161,7 +165,8 @@ namespace LibGit2Sharp.Tests
 
                 AssertRefLogEntry(repo, name,
                                   newRef.ResolveToDirectReference().Target.Id,
-                                  logMessage);
+                                  logMessage, ((DirectReference)oldRef).Target.Id,
+                                  Constants.Signature);
             }
         }
 
@@ -177,7 +182,8 @@ namespace LibGit2Sharp.Tests
             {
                 EnableRefLog(repo);
 
-                var newRef = (SymbolicReference)repo.Refs.Add(name, target, true, logMessage);
+                var oldtarget = repo.Refs[name].ResolveToDirectReference().Target.Id;
+                var newRef = (SymbolicReference)repo.Refs.Add(name, target, Constants.Signature, logMessage, true);
                 Assert.NotNull(newRef);
                 Assert.Equal(name, newRef.CanonicalName);
                 Assert.NotNull(newRef.Target);
@@ -186,7 +192,8 @@ namespace LibGit2Sharp.Tests
 
                 AssertRefLogEntry(repo, name,
                                   newRef.ResolveToDirectReference().Target.Id,
-                                  logMessage);
+                                  logMessage, oldtarget,
+                                  Constants.Signature);
             }
         }
 
@@ -486,8 +493,7 @@ namespace LibGit2Sharp.Tests
                 Reference head = repo.Refs.Head;
                 Reference test = repo.Refs["refs/heads/test"];
 
-                const string firstLogMessage = "first update target message";
-                Reference direct = repo.Refs.UpdateTarget(head, new ObjectId(test.TargetIdentifier), firstLogMessage);
+                Reference direct = repo.Refs.UpdateTarget(head, new ObjectId(test.TargetIdentifier), Constants.Signature, null);
                 Assert.True((direct is DirectReference));
                 Assert.Equal(test.TargetIdentifier, direct.TargetIdentifier);
                 Assert.Equal(repo.Refs.Head, direct);
@@ -495,10 +501,12 @@ namespace LibGit2Sharp.Tests
                 var testTargetId = test.ResolveToDirectReference().Target.Id;
                 AssertRefLogEntry(repo, "HEAD",
                                   testTargetId,
-                                  firstLogMessage);
+                                  null,
+                                  head.ResolveToDirectReference().Target.Id,
+                                  Constants.Signature);
 
                 const string secondLogMessage = "second update target message";
-                Reference symref = repo.Refs.UpdateTarget(head, test, secondLogMessage);
+                Reference symref = repo.Refs.UpdateTarget(head, test, Constants.Signature, secondLogMessage);
                 Assert.True((symref is SymbolicReference));
                 Assert.Equal(test.CanonicalName, symref.TargetIdentifier);
                 Assert.Equal(repo.Refs.Head, symref);
@@ -506,7 +514,8 @@ namespace LibGit2Sharp.Tests
                 AssertRefLogEntry(repo, "HEAD",
                                   testTargetId,
                                   secondLogMessage,
-                                  testTargetId);
+                                  testTargetId,
+                                  Constants.Signature);
             }
         }
 
@@ -521,9 +530,10 @@ namespace LibGit2Sharp.Tests
                 const string name = "refs/heads/master";
 
                 var master = (DirectReference) repo.Refs[name];
+                var @from = master.Target.Id;
 
                 const string logMessage = "update target message";
-                var newRef = (DirectReference)repo.Refs.UpdateTarget(master, "master^1^2", logMessage);
+                var newRef = (DirectReference)repo.Refs.UpdateTarget(master, "master^1^2", Constants.Signature, logMessage);
                 Assert.NotNull(newRef);
                 Assert.Equal(name, newRef.CanonicalName);
                 Assert.NotNull(newRef.Target);
@@ -533,7 +543,9 @@ namespace LibGit2Sharp.Tests
 
                 AssertRefLogEntry(repo, name,
                                   newRef.Target.Id,
-                                  logMessage);
+                                  logMessage,
+                                  @from,
+                                  Constants.Signature);
             }
         }
 
@@ -624,11 +636,20 @@ namespace LibGit2Sharp.Tests
             string path = CloneBareTestRepo();
             using (var repo = new Repository(path))
             {
+                const string oldName = "refs/tags/test";
                 const string newName = "refs/atic/tagtest";
 
-                Reference moved = repo.Refs.Move("refs/tags/test", newName);
+                EnableRefLog(repo);
+
+                var oldId = repo.Refs[oldName].ResolveToDirectReference().Target.Id;
+
+                Reference moved = repo.Refs.Move(oldName, newName);
                 Assert.NotNull(moved);
                 Assert.Equal(newName, moved.CanonicalName);
+                Assert.Equal(oldId, moved.ResolveToDirectReference().Target.Id);
+
+                AssertRefLogEntry(repo, newName, moved.ResolveToDirectReference().Target.Id, 
+                    string.Format("reference: renamed {0} to {1}", oldName, newName));
             }
         }
 
@@ -650,7 +671,7 @@ namespace LibGit2Sharp.Tests
                 const string oldName = "refs/heads/packed";
                 const string newName = "refs/heads/br2";
 
-                Reference moved = repo.Refs.Move(oldName, newName, true);
+                Reference moved = repo.Refs.Move(oldName, newName, allowOverwrite: true);
 
                 Assert.Null(repo.Refs[oldName]);
                 Assert.NotNull(repo.Refs[moved.CanonicalName]);
