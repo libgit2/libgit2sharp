@@ -953,6 +953,15 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string refspec,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string url);
 
+
+        [DllImport(libgit2)]
+        internal static extern int git_remote_create_with_fetchspec(
+            out RemoteSafeHandle remote,
+            RepositorySafeHandle repo,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string name,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string url,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string refspec);
+
         [DllImport(libgit2)]
         internal static extern void git_remote_disconnect(RemoteSafeHandle remote);
 
@@ -1008,11 +1017,6 @@ namespace LibGit2Sharp.Core
         internal static extern int git_remote_set_callbacks(
             RemoteSafeHandle remote,
             ref GitRemoteCallbacks callbacks);
-
-        [DllImport(libgit2)]
-        internal static extern int git_remote_add_fetch(
-            RemoteSafeHandle remote,
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof (StrictUtf8Marshaler))] string refspec);
 
         internal delegate int remote_progress_callback(IntPtr str, int len, IntPtr data);
 

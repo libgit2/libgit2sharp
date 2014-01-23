@@ -170,5 +170,27 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(1, remotes.Count(r => r.Name == "no_url"));
             }
         }
+
+        [Fact]
+        public void CreatingARemoteAddsADefaultFetchRefSpec()
+        {
+            var path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
+            {
+                var remote = repo.Network.Remotes.Add("one", "http://github.com/up/stream");
+                Assert.Equal("+refs/heads/*:refs/remotes/one/*", remote.RefSpecs.Single().Specification);
+            }
+        }
+
+        [Fact]
+        public void CanCreateARemoteWithASpecifiedFetchRefSpec()
+        {
+            var path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
+            {
+                var remote = repo.Network.Remotes.Add("two", "http://github.com/up/stream", "+refs/heads/*:refs/remotes/grmpf/*");
+                Assert.Equal("+refs/heads/*:refs/remotes/grmpf/*", remote.RefSpecs.Single().Specification);
+            }
+        }
     }
 }
