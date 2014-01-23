@@ -120,10 +120,8 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(url, "url");
             Ensure.ArgumentNotNull(fetchRefSpec, "fetchRefSpec");
 
-            using (RemoteSafeHandle handle = Proxy.git_remote_create(repository.Handle, name, url))
+            using (RemoteSafeHandle handle = Proxy.git_remote_create_with_fetchspec(repository.Handle, name, url, fetchRefSpec))
             {
-                Proxy.git_remote_add_fetch(handle, fetchRefSpec);
-                Proxy.git_remote_save(handle);
                 return Remote.BuildFromPtr(handle, this.repository);
             }
         }

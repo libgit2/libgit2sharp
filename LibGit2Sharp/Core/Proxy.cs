@@ -1679,6 +1679,18 @@ namespace LibGit2Sharp.Core
             }
         }
 
+        public static RemoteSafeHandle git_remote_create_with_fetchspec(RepositorySafeHandle repo, string name, string url, string refspec)
+        {
+            using (ThreadAffinity())
+            {
+                RemoteSafeHandle handle;
+                int res = NativeMethods.git_remote_create_with_fetchspec(out handle, repo, name, url, refspec);
+                Ensure.ZeroResult(res);
+
+                return handle;
+            }
+        }
+
         public static RemoteSafeHandle git_remote_create_inmemory(RepositorySafeHandle repo, string url, string refspec)
         {
             using (ThreadAffinity())
@@ -1860,15 +1872,6 @@ namespace LibGit2Sharp.Core
         public static void git_remote_set_autotag(RemoteSafeHandle remote, TagFetchMode value)
         {
             NativeMethods.git_remote_set_autotag(remote, value);
-        }
-
-        public static void git_remote_add_fetch(RemoteSafeHandle remote, string refspec)
-        {
-            using (ThreadAffinity())
-            {
-                int res = NativeMethods.git_remote_add_fetch(remote, refspec);
-                Ensure.ZeroResult(res);
-            }
         }
 
         public static void git_remote_set_callbacks(RemoteSafeHandle remote, ref GitRemoteCallbacks callbacks)
