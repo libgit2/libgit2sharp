@@ -1,0 +1,12 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+        <LibGit2SharpBinaries Include="$(MSBuildThisFileDirectory)..\lib\net35\**\*.*"/>
+  </ItemGroup>
+  <Target Name="CopyLibGit2SharpBinaries" AfterTargets="Build"  >
+    <MakeDir Directories="$(TargetDir)NativeBinaries\x86" />
+    <MakeDir Directories="$(TargetDir)NativeBinaries\amd64" />
+    <Copy
+        SourceFiles="@(LibGit2SharpBinaries)"
+        DestinationFiles="@(LibGit2SharpBinaries->'$(TargetDir)%(RecursiveDir)%(Filename)%(Extension)')" />
+  </Target>
+</Project>
