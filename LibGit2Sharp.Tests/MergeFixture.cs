@@ -173,9 +173,9 @@ namespace LibGit2Sharp.Tests
 
                 MergeResult mergeResult = repo.Merge(repo.Branches["FirstBranch"].Tip, Constants.Signature);
 
-                Assert.Equal(MergeStatus.FastForward, mergeResult.Status);
-                Assert.Equal(repo.Branches["FirstBranch"].Tip, mergeResult.Commit);
-                Assert.Equal(repo.Branches["FirstBranch"].Tip, repo.Head.Tip);
+                Assert.Equal(MergeStatus.FastForward, mergeResult.Status); 
+                Assert.Equal(repo.Branches["SecondBranch"].Tip, mergeResult.Commit);
+                Assert.Equal(repo.Branches["SecondBranch"].Tip, repo.Head.Tip);
                 Assert.Equal(0, repo.Index.RetrieveStatus().Count());
             }
         }

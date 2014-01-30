@@ -1101,7 +1101,7 @@ namespace LibGit2Sharp
 
             CheckoutTree(fastForwardCommit.Tree, null, checkoutOpts);
 
-            Refs.UpdateTarget("HEAD", fastForwardCommit.Id.Sha);
+            Refs.UpdateTarget(this.Head.CanonicalName, fastForwardCommit.Id.Sha);
 
             // TODO: Update Reflog...
         }
