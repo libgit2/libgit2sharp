@@ -1,7 +1,7 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
+using Xunit.Extensions;
 
 namespace LibGit2Sharp.Tests
 {
@@ -81,9 +81,11 @@ namespace LibGit2Sharp.Tests
                 Assert.Null(mergedHeads[1].Tip);
             }
         }
-
-        [Fact]
-        public void CanMergeRepoNonFastForward()
+        
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void CanMergeRepoNonFastForward(bool shouldMergeOccurInDetachedHeadState)
         {
             const string firstBranchFileName = "first branch file.txt";
             const string secondBranchFileName = "second branch file.txt";
@@ -104,7 +106,13 @@ namespace LibGit2Sharp.Tests
                 // Commit with ONE new file to first branch (FirstBranch moves forward as it is checked out, SecondBranch stays back one).
                 AddFileCommitToRepo(repo, firstBranchFileName);
 
-                secondBranch.Checkout();
+                if (shouldMergeOccurInDetachedHeadState)
+                {
+                    // Detaches HEAD
+                    repo.Checkout(secondBranch.Tip);
+                }
+                else
+                    secondBranch.Checkout();
 
                 // Commit with ONE new file to second branch (FirstBranch and SecondBranch now point to separate commits that both have the same parent commit).
                 AddFileCommitToRepo(repo, secondBranchFileName);
@@ -116,6 +124,13 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(repo.Head.Tip, mergeResult.Commit);
                 Assert.Equal(originalTreeCount + 3, mergeResult.Commit.Tree.Count);    // Expecting original tree count plussed by the 3 added files.
                 Assert.Equal(2, mergeResult.Commit.Parents.Count());   // Merge commit should have 2 parents
+                Assert.Equal(shouldMergeOccurInDetachedHeadState, repo.Info.IsHeadDetached);
+
+                if (!shouldMergeOccurInDetachedHeadState)
+                {
+                    // Ensure HEAD is still attached and points to SecondBranch
+                    Assert.Equal(repo.Refs.Head.TargetIdentifier, secondBranch.CanonicalName);
+                }
             }
         }
 
@@ -143,8 +158,10 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Fact]
-        public void CanFastForwardRepos()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void CanFastForwardRepos(bool shouldMergeOccurInDetachedHeadState)
         {
             const string firstBranchFileName = "first branch file.txt";
             const string sharedBranchFileName = "first+second branch file.txt";
@@ -169,14 +186,29 @@ namespace LibGit2Sharp.Tests
                 // Commit with ONE new file to first branch (FirstBranch moves forward as it is checked out, SecondBranch stays back one).
                 AddFileCommitToRepo(repo, firstBranchFileName);
 
-                secondBranch.Checkout();
+                if (shouldMergeOccurInDetachedHeadState)
+                {
+                    // Detaches HEAD
+                    repo.Checkout(secondBranch.Tip);
+                }
+                else
+                    secondBranch.Checkout();
+
+                Assert.Equal(shouldMergeOccurInDetachedHeadState, repo.Info.IsHeadDetached);
 
                 MergeResult mergeResult = repo.Merge(repo.Branches["FirstBranch"].Tip, Constants.Signature);
 
-                Assert.Equal(MergeStatus.FastForward, mergeResult.Status); 
-                Assert.Equal(repo.Branches["SecondBranch"].Tip, mergeResult.Commit);
-                Assert.Equal(repo.Branches["SecondBranch"].Tip, repo.Head.Tip);
+                Assert.Equal(MergeStatus.FastForward, mergeResult.Status);
+                Assert.Equal(repo.Head.Tip, mergeResult.Commit);
+
                 Assert.Equal(0, repo.Index.RetrieveStatus().Count());
+                Assert.Equal(shouldMergeOccurInDetachedHeadState, repo.Info.IsHeadDetached);
+
+                if (!shouldMergeOccurInDetachedHeadState)
+                {
+                    // Ensure HEAD is still attached and points to SecondBranch
+                    Assert.Equal(repo.Refs.Head.TargetIdentifier, secondBranch.CanonicalName);
+                }
             }
         }
 
