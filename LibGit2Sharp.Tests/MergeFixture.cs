@@ -112,7 +112,9 @@ namespace LibGit2Sharp.Tests
                     repo.Checkout(secondBranch.Tip);
                 }
                 else
+                {
                     secondBranch.Checkout();
+                }
 
                 // Commit with ONE new file to second branch (FirstBranch and SecondBranch now point to separate commits that both have the same parent commit).
                 AddFileCommitToRepo(repo, secondBranchFileName);
@@ -192,13 +194,17 @@ namespace LibGit2Sharp.Tests
                     repo.Checkout(secondBranch.Tip);
                 }
                 else
+                {
                     secondBranch.Checkout();
+                }
 
                 Assert.Equal(shouldMergeOccurInDetachedHeadState, repo.Info.IsHeadDetached);
 
                 MergeResult mergeResult = repo.Merge(repo.Branches["FirstBranch"].Tip, Constants.Signature);
 
                 Assert.Equal(MergeStatus.FastForward, mergeResult.Status);
+                Assert.Equal(repo.Branches["FirstBranch"].Tip, mergeResult.Commit);
+                Assert.Equal(repo.Branches["FirstBranch"].Tip, repo.Head.Tip);
                 Assert.Equal(repo.Head.Tip, mergeResult.Commit);
 
                 Assert.Equal(0, repo.Index.RetrieveStatus().Count());
