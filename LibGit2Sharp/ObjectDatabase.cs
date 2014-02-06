@@ -191,12 +191,36 @@ namespace LibGit2Sharp
         /// <param name="tree">The <see cref="Tree"/> of the <see cref="Commit"/> to be created.</param>
         /// <param name="parents">The parents of the <see cref="Commit"/> to be created.</param>
         /// <returns>The created <see cref="Commit"/>.</returns>
+        [Obsolete("This method will be removed in the next release. Please use CreateCommit(Signature, Signature, string, bool, Tree, IEnumerable<Commit>) instead.")]
         public virtual Commit CreateCommit(string message, Signature author, Signature committer, Tree tree, IEnumerable<Commit> parents)
         {
-            return CreateCommit(message, author, committer, tree, parents, null);
+            return CreateCommit(author, committer, message, true, tree, parents, null);
         }
 
-        internal Commit CreateCommit(string message, Signature author, Signature committer, Tree tree, IEnumerable<Commit> parents, string referenceName)
+        /// <summary>
+        /// Inserts a <see cref="Commit"/> into the object database, referencing an existing <see cref="Tree"/>.
+        /// <para>
+        /// Prettifing the message includes:
+        /// * Removing empty lines from the beginning and end.
+        /// * Removing trailing spaces from every line.
+        /// * Turning multiple consecutive empty lines between paragraphs into just one empty line.
+        /// * Ensuring the commit message ends with a newline.
+        /// * Removing every line starting with "#".
+        /// </para>
+        /// </summary>
+        /// <param name="author">The <see cref="Signature"/> of who made the change.</param>
+        /// <param name="committer">The <see cref="Signature"/> of who added the change to the repository.</param>
+        /// <param name="message">The description of why a change was made to the repository.</param>
+        /// <param name="prettifyMessage">True to prettify the message, or false to leave it as is</param>
+        /// <param name="tree">The <see cref="Tree"/> of the <see cref="Commit"/> to be created.</param>
+        /// <param name="parents">The parents of the <see cref="Commit"/> to be created.</param>
+        /// <returns>The created <see cref="Commit"/>.</returns>
+        public virtual Commit CreateCommit(Signature author, Signature committer, string message, bool prettifyMessage, Tree tree, IEnumerable<Commit> parents)
+        {
+            return CreateCommit(author, committer, message, prettifyMessage, tree, parents, null);
+        }
+
+        internal Commit CreateCommit(Signature author, Signature committer, string message, bool prettifyMessage, Tree tree, IEnumerable<Commit> parents, string referenceName)
         {
             Ensure.ArgumentNotNull(message, "message");
             Ensure.ArgumentDoesNotContainZeroByte(message, "message");
@@ -205,10 +229,13 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(tree, "tree");
             Ensure.ArgumentNotNull(parents, "parents");
 
-            string prettifiedMessage = Proxy.git_message_prettify(message);
+            if (prettifyMessage)
+            {
+                message = Proxy.git_message_prettify(message);
+            }
             GitOid[] parentIds = parents.Select(p => p.Id.Oid).ToArray();
 
-            ObjectId commitId = Proxy.git_commit_create(repo.Handle, referenceName, author, committer, prettifiedMessage, tree, parentIds);
+            ObjectId commitId = Proxy.git_commit_create(repo.Handle, referenceName, author, committer, message, tree, parentIds);
 
             return repo.Lookup<Commit>(commitId);
         }

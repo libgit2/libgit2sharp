@@ -880,7 +880,7 @@ namespace LibGit2Sharp
 
             var parents = RetrieveParentsOfTheCommitBeingCreated(amendPreviousCommit);
 
-            Commit result = ObjectDatabase.CreateCommit(message, author, committer, tree, parents, "HEAD");
+            Commit result = ObjectDatabase.CreateCommit(author, committer, message, true, tree, parents, "HEAD");
 
             Proxy.git_repository_state_cleanup(handle);
 
