@@ -8,6 +8,22 @@
  - CI server: <http://teamcity.codebetter.com/project.html?projectId=project127&guest=1>
  - @libgit2sharp: <http://twitter.com/libgit2sharp>
 
+## v0.16.0 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.15.0...v0.16.0))
+
+### Additions
+
+ - Introduce Repository.Merge() (#608 and #620)
+ - Teach Diff.Compare<>() to return a PatchStats (#610)
+
+### Changes
+
+ - Speed up NuGet post build copy of the native binaries (#613)
+
+### Fixes
+
+ - Fix Remotes.Add(name, url, refspec) to prevent the creation of a default fetch refspec beside the passed in one (#614)
+ - Make LibGit2SharpException.Data expose the correct libgit2 error categories (#601)
+
 ## v0.15.0 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.14.1...v0.15.0))
 
 ### Additions
