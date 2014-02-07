@@ -316,7 +316,7 @@ namespace LibGit2Sharp.Core
             string referenceName,
             Signature author,
             Signature committer,
-            string prettifiedMessage,
+            string message,
             Tree tree,
             GitOid[] parentIds)
         {
@@ -331,7 +331,7 @@ namespace LibGit2Sharp.Core
 
                 int res = NativeMethods.git_commit_create_from_oids(
                     out commitOid, repo, referenceName, authorHandle,
-                    committerHandle, null, prettifiedMessage,
+                    committerHandle, null, message,
                     ref treeOid, parentPtrs.Count, parentPtrs.ToArray());
 
                 Ensure.ZeroResult(res);

@@ -222,8 +222,11 @@ namespace LibGit2Sharp.Core
                 return;
             }
 
-            var newCommit = repo.ObjectDatabase.CreateCommit(newHeader.Message, newHeader.Author,
-                                                             newHeader.Committer, newTree,
+            var newCommit = repo.ObjectDatabase.CreateCommit(newHeader.Author,
+                                                             newHeader.Committer,
+                                                             newHeader.Message, 
+                                                             true,
+                                                             newTree,
                                                              mappedNewParents);
 
             // Record the rewrite
