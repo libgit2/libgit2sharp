@@ -5,7 +5,7 @@
     /// </summary>
     public sealed class Credentials
     {
-        public Credentials();
+        public Credentials(){};
         public Credentials(string username, string password)
         {
             Username = username;
