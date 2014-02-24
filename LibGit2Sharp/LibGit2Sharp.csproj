@@ -82,6 +82,7 @@
     <Compile Include="Core\GitBuiltInFeatures.cs" />
     <Compile Include="Core\GitCheckoutOptsWrapper.cs" />
     <Compile Include="Core\GitCredentialType.cs" />
+    <Compile Include="Core\GitRevertOpts.cs" />
     <Compile Include="Core\Handles\PatchSafeHandle.cs" />
     <Compile Include="Core\IntPtrExtensions.cs" />
     <Compile Include="DefaultCredentials.cs" />
@@ -115,6 +116,7 @@
     <Compile Include="Core\Handles\StatusListSafeHandle.cs" />
     <Compile Include="RenameDetails.cs" />
     <Compile Include="SignatureExtensions.cs" />
+    <Compile Include="RevertOptions.cs" />
     <Compile Include="StatusOptions.cs" />
     <Compile Include="SimilarityOptions.cs" />
     <Compile Include="UnbornBranchException.cs" />

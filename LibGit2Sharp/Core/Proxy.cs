@@ -2144,6 +2144,23 @@ namespace LibGit2Sharp.Core
 
         #endregion
 
+        #region git_revert_
+
+        public static void git_revert(
+            RepositorySafeHandle repo,
+            ObjectId commit,
+            GitRevertOpts opts)
+        {
+            using (ThreadAffinity())
+            using (var nativeCommit = git_object_lookup(repo, commit, GitObjectType.Commit))
+            {
+                int res = NativeMethods.git_revert(repo, nativeCommit, opts);
+                Ensure.ZeroResult(res);
+            }
+        }
+
+        #endregion
+
         #region git_revparse_
 
         public static Tuple<GitObjectSafeHandle, ReferenceSafeHandle> git_revparse_ext(RepositorySafeHandle repo, string objectish)

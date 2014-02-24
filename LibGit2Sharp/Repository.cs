@@ -1185,6 +1185,12 @@ namespace LibGit2Sharp
             }
         }
 
+        public void Revert(Commit commit, RevertOptions options = null)
+        {
+            options = options ?? new RevertOptions();
+            Proxy.git_revert(handle, commit.Id.Oid, options.ToNative());
+        }
+
         /// <summary>
         /// Internal implementation of merge.
         /// </summary>
