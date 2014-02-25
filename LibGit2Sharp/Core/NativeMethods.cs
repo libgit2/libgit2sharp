@@ -1148,6 +1148,12 @@ namespace LibGit2Sharp.Core
             ResetMode reset_type);
 
         [DllImport(libgit2)]
+        internal static extern int git_revert(
+            RepositorySafeHandle repo,
+            GitObjectSafeHandle commit,
+            GitRevertOpts opts);
+
+        [DllImport(libgit2)]
         internal static extern int git_revparse_ext(
             out GitObjectSafeHandle obj,
             out ReferenceSafeHandle reference,
