@@ -15,6 +15,8 @@ namespace LibGit2Sharp.Core
         public int IgnoreCertErrors;
 
         public IntPtr RemoteName;
-        public IntPtr CheckoutBranch;
+
+        [MarshalAs(UnmanagedType.LPStr)]
+        public string CheckoutBranch;
     }
 }
