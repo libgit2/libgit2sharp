@@ -29,6 +29,12 @@ namespace LibGit2Sharp
         public bool Checkout { get; set; }
 
         /// <summary>
+        /// The name of the branch to checkout. When unspecified the
+        /// remote's default branch will be used instead.
+        /// </summary>
+        public string BranchName { get; set; }
+
+        /// <summary>
         /// Handler for checkout progress information.
         /// </summary>
         public CheckoutProgressHandler OnCheckoutProgress { get; set; }

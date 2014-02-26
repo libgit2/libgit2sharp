@@ -553,6 +553,7 @@ namespace LibGit2Sharp
                     Bare = options.IsBare ? 1 : 0,
                     CheckoutOpts = gitCheckoutOptions,
                     RemoteCallbacks = gitRemoteCallbacks,
+                    CheckoutBranch = StrictUtf8Marshaler.FromManaged(options.BranchName)
                 };
 
                 FilePath repoPath;

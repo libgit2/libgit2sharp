@@ -36,6 +36,26 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        [Theory]
+        [InlineData("br2", "a4a7dce85cf63874e984719f4fdd239f5145052f")]
+        [InlineData("packed", "41bc8c69075bbdb46c5c6f0566cc8cc5b46e8bd9")]
+        [InlineData("test", "e90810b8df3e80c413d903f631643c716887138d")]
+        public void CanCloneWithCheckoutBranchName(string branchName, string headTipId)
+        {
+            var scd = BuildSelfCleaningDirectory();
+
+            string clonedRepoPath = Repository.Clone(BareTestRepoPath, scd.DirectoryPath, new CloneOptions { BranchName = branchName });
+
+            using (var repo = new Repository(clonedRepoPath))
+            {
+                var head = repo.Head;
+
+                Assert.Equal(branchName, head.Name);
+                Assert.True(head.IsTracking);
+                Assert.Equal(headTipId, head.Tip.Sha);
+            }
+        }
+
         private void AssertLocalClone(string url, string path = null, bool isCloningAnEmptyRepository = false)
         {
             var scd = BuildSelfCleaningDirectory();
