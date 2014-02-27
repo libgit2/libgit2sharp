@@ -1042,6 +1042,9 @@ namespace LibGit2Sharp
         {
             if (Info.IsHeadUnborn)
             {
+                if(Index.RetrieveStatus().Any())
+                    return new MergeResult(MergeStatus.Conflicts, null);
+
                 var checkoutOpts = new CheckoutOptions
                 {
                     CheckoutModifiers = CheckoutModifiers.None,
