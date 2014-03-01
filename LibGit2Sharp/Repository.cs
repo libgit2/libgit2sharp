@@ -558,10 +558,13 @@ namespace LibGit2Sharp
             CheckoutProgressHandler onCheckoutProgress = null,
             Credentials credentials = null)
         {
+            // checkoutCallbacks is protected from garbage collection by a call to GC.KeepAlive
+            // at the end of the method. gitRemoteCallbacks is a struct, and so doesn't need
+            // a call to GC.KeepAlive.
             CheckoutCallbacks checkoutCallbacks = CheckoutCallbacks.GenerateCheckoutCallbacks(onCheckoutProgress, null);
 
-            var callbacks = new RemoteCallbacks(null, onTransferProgress, null, credentials);
-            GitRemoteCallbacks gitCallbacks = callbacks.GenerateCallbacks();
+            var remoteCallbacks = new RemoteCallbacks(null, onTransferProgress, null, credentials);
+            GitRemoteCallbacks gitRemoteCallbacks = remoteCallbacks.GenerateCallbacks();
 
             var cloneOpts = new GitCloneOptions
             {
@@ -569,13 +572,12 @@ namespace LibGit2Sharp
                 CheckoutOpts =
                 {
                     version = 1,
-                    progress_cb =
-                                checkoutCallbacks.CheckoutProgressCallback,
+                    progress_cb = checkoutCallbacks.CheckoutProgressCallback,
                     checkout_strategy = checkout
                                             ? CheckoutStrategy.GIT_CHECKOUT_SAFE_CREATE
                                             : CheckoutStrategy.GIT_CHECKOUT_NONE
                 },
-                RemoteCallbacks = gitCallbacks,
+                RemoteCallbacks = gitRemoteCallbacks,
             };
 
             FilePath repoPath;
@@ -583,6 +585,8 @@ namespace LibGit2Sharp
             {
                 repoPath = Proxy.git_repository_path(repo);
             }
+
+            GC.KeepAlive(checkoutCallbacks);
 
             return repoPath.Native;
         }
@@ -766,6 +770,10 @@ namespace LibGit2Sharp
         {
             CheckoutNotifyHandler onCheckoutNotify = opts.CheckoutNotificationOptions != null ? opts.CheckoutNotificationOptions.CheckoutNotifyHandler : null;
             CheckoutNotifyFlags checkoutNotifyFlags = opts.CheckoutNotificationOptions != null ? opts.CheckoutNotificationOptions.NotifyFlags : default(CheckoutNotifyFlags);
+
+            // checkoutCallbacks is protected from garbage collection by a call to GC.KeepAlive
+            // at the end of the method. gitRemoteCallbacks is a struct, and so doesn't need
+            // a call to GC.KeepAlive.
             CheckoutCallbacks checkoutCallbacks = CheckoutCallbacks.GenerateCheckoutCallbacks(opts.OnCheckoutProgress, onCheckoutNotify);
 
             GitStrArrayIn strArray = (paths != null && paths.Count > 0) ? GitStrArrayIn.BuildFrom(ToFilePaths(paths)) : null;
@@ -793,6 +801,8 @@ namespace LibGit2Sharp
             {
                 options.Dispose();
             }
+
+            GC.KeepAlive(checkoutCallbacks);
         }
 
         /// <summary>
