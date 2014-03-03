@@ -544,34 +544,27 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="sourceUrl">URI for the remote repository</param>
         /// <param name="workdirPath">Local path to clone into</param>
-        /// <param name="bare">True will result in a bare clone, false a full clone.</param>
-        /// <param name="checkout">If true, the origin's HEAD will be checked out. This only applies
-        /// to non-bare repositories.</param>
-        /// <param name="onTransferProgress">Handler for network transfer and indexing progress information</param>
-        /// <param name="onCheckoutProgress">Handler for checkout progress information</param>
-        /// <param name="credentials">Credentials to use for user/pass authentication</param>
+        /// <param name="options"><see cref="CloneOptions"/> controlling clone behavior</param>
         /// <returns>The path to the created repository.</returns>
         public static string Clone(string sourceUrl, string workdirPath,
-            bool bare = false,
-            bool checkout = true,
-            TransferProgressHandler onTransferProgress = null,
-            CheckoutProgressHandler onCheckoutProgress = null,
-            Credentials credentials = null)
+            CloneOptions options)
         {
-            CheckoutCallbacks checkoutCallbacks = CheckoutCallbacks.GenerateCheckoutCallbacks(onCheckoutProgress, null);
+            CheckoutCallbacks checkoutCallbacks = CheckoutCallbacks.GenerateCheckoutCallbacks(
+                options.OnCheckoutProgress, null);
 
-            var callbacks = new RemoteCallbacks(null, onTransferProgress, null, credentials);
+            var callbacks = new RemoteCallbacks(null, options.OnTransferProgress, null,
+                options.Credentials);
             GitRemoteCallbacks gitCallbacks = callbacks.GenerateCallbacks();
 
             var cloneOpts = new GitCloneOptions
             {
-                Bare = bare ? 1 : 0,
+                Bare = options.IsBare ? 1 : 0,
                 CheckoutOpts =
                 {
                     version = 1,
                     progress_cb =
                                 checkoutCallbacks.CheckoutProgressCallback,
-                    checkout_strategy = checkout
+                    checkout_strategy = options.Checkout
                                             ? CheckoutStrategy.GIT_CHECKOUT_SAFE_CREATE
                                             : CheckoutStrategy.GIT_CHECKOUT_NONE
                 },
@@ -585,6 +578,49 @@ namespace LibGit2Sharp
             }
 
             return repoPath.Native;
+        }
+
+        /// <summary>
+        /// Clone with specified options.
+        /// </summary>
+        /// <param name="sourceUrl">URI for the remote repository</param>
+        /// <param name="workdirPath">Local path to clone into</param>
+        /// <param name="bare">True will result in a bare clone, false a full clone.</param>
+        /// <param name="checkout">If true, the origin's HEAD will be checked out. This only applies
+        /// to non-bare repositories.</param>
+        /// <param name="onTransferProgress">Handler for network transfer and indexing progress information</param>
+        /// <param name="onCheckoutProgress">Handler for checkout progress information</param>
+        /// <param name="credentials">Credentials to use for user/pass authentication</param>
+        /// <returns>The path to the created repository.</returns>
+        [Obsolete("This overload will be removed in the next release. Please use Repository.Clone(string, string, CloneOptions) instead.")]
+        public static string Clone(string sourceUrl, string workdirPath,
+            bool bare = false,
+            bool checkout = true,
+            TransferProgressHandler onTransferProgress = null,
+            CheckoutProgressHandler onCheckoutProgress = null,
+            Credentials credentials = null)
+        {
+            return Clone(sourceUrl, workdirPath, new CloneOptions()
+            {
+                IsBare = bare,
+                Checkout = checkout,
+                OnTransferProgress = onTransferProgress,
+                OnCheckoutProgress = onCheckoutProgress,
+                Credentials = credentials
+            });
+        }
+
+        /// <summary>
+        /// Clone without options.
+        /// </summary>
+        /// <param name="sourceUrl">URI for the remote repository</param>
+        /// <param name="workdirPath">Local path to clone into</param>
+        /// <returns>The path to the created repository.</returns>
+        public static string Clone(string sourceUrl, string workdirPath)
+        {
+            // This overload is required to supress the obsolete warning if called without arguments.
+            // Should be removed once the obsolete overload is removed.
+            return Clone(sourceUrl, workdirPath, new CloneOptions());
         }
 
         /// <summary>

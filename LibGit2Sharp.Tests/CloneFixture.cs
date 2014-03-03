@@ -78,7 +78,10 @@ namespace LibGit2Sharp.Tests
         {
             var scd = BuildSelfCleaningDirectory();
 
-            string clonedRepoPath = Repository.Clone(url, scd.DirectoryPath, bare: true);
+            string clonedRepoPath = Repository.Clone(url, scd.DirectoryPath, new CloneOptions
+                {
+                    IsBare = true
+                });
 
             using (var repo = new Repository(clonedRepoPath))
             {
@@ -98,7 +101,10 @@ namespace LibGit2Sharp.Tests
         {
             var scd = BuildSelfCleaningDirectory();
 
-            string clonedRepoPath = Repository.Clone(url, scd.DirectoryPath, checkout: false);
+            string clonedRepoPath = Repository.Clone(url, scd.DirectoryPath, new CloneOptions()
+            {
+                Checkout = false
+            });
 
             using (var repo = new Repository(clonedRepoPath))
             {
@@ -115,9 +121,11 @@ namespace LibGit2Sharp.Tests
 
             var scd = BuildSelfCleaningDirectory();
 
-            Repository.Clone(url, scd.DirectoryPath,
-                onTransferProgress: _ => { transferWasCalled = true; return true; },
-                onCheckoutProgress: (a, b, c) => checkoutWasCalled = true);
+            Repository.Clone(url, scd.DirectoryPath, new CloneOptions()
+            {
+                OnTransferProgress = _ => { transferWasCalled = true; return true; },
+                OnCheckoutProgress = (a, b, c) => checkoutWasCalled = true
+            });
 
             Assert.True(transferWasCalled);
             Assert.True(checkoutWasCalled);
@@ -132,11 +140,14 @@ namespace LibGit2Sharp.Tests
             var scd = BuildSelfCleaningDirectory();
 
             string clonedRepoPath = Repository.Clone(Constants.PrivateRepoUrl, scd.DirectoryPath,
-                credentials: new Credentials
-                                 {
-                                     Username = Constants.PrivateRepoUsername,
-                                     Password = Constants.PrivateRepoPassword
-                                 });
+                new CloneOptions()
+                {
+                    Credentials = new Credentials
+                    {
+                        Username = Constants.PrivateRepoUsername,
+                        Password = Constants.PrivateRepoPassword
+                    }
+                });
 
 
             using (var repo = new Repository(clonedRepoPath))
