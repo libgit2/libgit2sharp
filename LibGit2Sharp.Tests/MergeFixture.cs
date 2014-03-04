@@ -15,7 +15,6 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(repoPath))
             {
                 Assert.Equal(true, repo.Index.IsFullyMerged);
-                Assert.Empty(repo.MergeHeads);
             }
         }
 
@@ -25,7 +24,6 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(StandardTestRepoWorkingDirPath))
             {
                 Assert.Equal(true, repo.Index.IsFullyMerged);
-                Assert.Empty(repo.MergeHeads);
 
                 foreach (var entry in repo.Index)
                 {
@@ -73,12 +71,6 @@ namespace LibGit2Sharp.Tests
                 Touch(repo.Info.Path, "MERGE_HEAD", string.Format("{0}{1}{2}{1}", firstBranch, "\n", secondBranch));
 
                 Assert.Equal(CurrentOperation.Merge, repo.Info.CurrentOperation);
-
-                MergeHead[] mergedHeads = repo.MergeHeads.ToArray();
-                Assert.Equal("MERGE_HEAD[0]", mergedHeads[0].Name);
-                Assert.Equal(firstBranch, mergedHeads[0].Tip.Id.Sha);
-                Assert.Equal("MERGE_HEAD[1]", mergedHeads[1].Name);
-                Assert.Null(mergedHeads[1].Tip);
             }
         }
         
@@ -298,6 +290,180 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        [Theory]
+        [InlineData(true, FastForwardStrategy.Default, fastForwardBranchInitialId, MergeStatus.FastForward)]
+        [InlineData(true, FastForwardStrategy.FastForwardOnly, fastForwardBranchInitialId, MergeStatus.FastForward)]
+        [InlineData(false, FastForwardStrategy.Default, fastForwardBranchInitialId, MergeStatus.FastForward)]
+        [InlineData(false, FastForwardStrategy.FastForwardOnly, fastForwardBranchInitialId, MergeStatus.FastForward)]
+        public void CanFastForwardCommit(bool fromDetachedHead, FastForwardStrategy fastForwardStrategy, string expectedCommitId, MergeStatus expectedMergeStatus)
+        {
+            string path = CloneMergeTestRepo();
+            using (var repo = new Repository(path))
+            {
+                if(fromDetachedHead)
+                {
+                    repo.Checkout(repo.Head.Tip.Id.Sha);
+                }
+
+                Commit commitToMerge = repo.Branches["fast_forward"].Tip;
+
+                MergeResult result = repo.Merge(commitToMerge, Constants.Signature, new MergeOptions() { FastForwardStrategy = fastForwardStrategy });
+
+                Assert.Equal(expectedMergeStatus, result.Status);
+                Assert.Equal(expectedCommitId, result.Commit.Id.Sha);
+                Assert.False(repo.Index.RetrieveStatus().Any());
+                Assert.Equal(fromDetachedHead, repo.Info.IsHeadDetached);
+            }
+        }
+
+        [Theory]
+        [InlineData(true, FastForwardStrategy.Default, MergeStatus.NonFastForward)]
+        [InlineData(true, FastForwardStrategy.NoFastFoward, MergeStatus.NonFastForward)]
+        [InlineData(false, FastForwardStrategy.Default, MergeStatus.NonFastForward)]
+        [InlineData(false, FastForwardStrategy.NoFastFoward, MergeStatus.NonFastForward)]
+        public void CanNonFastForwardMergeCommit(bool fromDetachedHead, FastForwardStrategy fastForwardStrategy, MergeStatus expectedMergeStatus)
+        {
+            string path = CloneMergeTestRepo();
+            using (var repo = new Repository(path))
+            {
+                if (fromDetachedHead)
+                {
+                    repo.Checkout(repo.Head.Tip.Id.Sha);
+                }
+
+                Commit commitToMerge = repo.Branches["normal_merge"].Tip;
+
+                MergeResult result = repo.Merge(commitToMerge, Constants.Signature, new MergeOptions() { FastForwardStrategy = fastForwardStrategy });
+
+                Assert.Equal(expectedMergeStatus, result.Status);
+                Assert.False(repo.Index.RetrieveStatus().Any());
+                Assert.Equal(fromDetachedHead, repo.Info.IsHeadDetached);
+            }
+        }
+
+        [Fact]
+        public void FastForwardNonFastForwardableMergeThrows()
+        {
+            string path = CloneMergeTestRepo();
+            using (var repo = new Repository(path))
+            {
+                Commit commitToMerge = repo.Branches["normal_merge"].Tip;
+                Assert.Throws<NonFastForwardException>(() => repo.Merge(commitToMerge, Constants.Signature, new MergeOptions() { FastForwardStrategy = FastForwardStrategy.FastForwardOnly }));
+            }
+        }
+
+        [Fact]
+        public void CanMergeAndNotCommit()
+        {
+            string path = CloneMergeTestRepo();
+            using (var repo = new Repository(path))
+            {
+                Commit commitToMerge = repo.Branches["normal_merge"].Tip;
+
+                MergeResult result = repo.Merge(commitToMerge, Constants.Signature, new MergeOptions() { CommitOnSuccess = false});
+
+                Assert.Equal(MergeStatus.NonFastForward, result.Status);
+                Assert.Equal(null, result.Commit);
+
+                RepositoryStatus repoStatus = repo.Index.RetrieveStatus();
+
+                // Verify that there is a staged entry.
+                Assert.Equal(1, repoStatus.Count());
+                Assert.Equal(FileStatus.Staged, repo.Index.RetrieveStatus("b.txt"));
+            }
+        }
+
+        [Fact]
+        public void CanForceNonFastForwardMerge()
+        {
+            string path = CloneMergeTestRepo();
+            using (var repo = new Repository(path))
+            {
+                Commit commitToMerge = repo.Branches["fast_forward"].Tip;
+
+                MergeResult result = repo.Merge(commitToMerge, Constants.Signature, new MergeOptions() { FastForwardStrategy = FastForwardStrategy.NoFastFoward });
+
+                Assert.Equal(MergeStatus.NonFastForward, result.Status);
+                Assert.Equal("f58f780d5a0ae392efd4a924450b1bbdc0577d32", result.Commit.Id.Sha);
+                Assert.False(repo.Index.RetrieveStatus().Any());
+            }
+        }
+
+        [Fact]
+        public void VerifyUpToDateMerge()
+        {
+            string path = CloneMergeTestRepo();
+            using (var repo = new Repository(path))
+            {
+                Commit commitToMerge = repo.Branches["master"].Tip;
+
+                MergeResult result = repo.Merge(commitToMerge, Constants.Signature, new MergeOptions() { FastForwardStrategy = FastForwardStrategy.NoFastFoward });
+
+                Assert.Equal(MergeStatus.UpToDate, result.Status);
+                Assert.Equal(null, result.Commit);
+                Assert.False(repo.Index.RetrieveStatus().Any());
+            }
+        }
+
+        [Theory]
+        [InlineData("refs/heads/normal_merge", FastForwardStrategy.Default, MergeStatus.NonFastForward)]
+        [InlineData("normal_merge", FastForwardStrategy.Default, MergeStatus.NonFastForward)]
+        [InlineData("625186280ed2a6ec9b65d250ed90cf2e4acef957", FastForwardStrategy.Default, MergeStatus.NonFastForward)]
+        [InlineData("fast_forward", FastForwardStrategy.Default, MergeStatus.FastForward)]
+        public void CanMergeCommittish(string committish, FastForwardStrategy strategy, MergeStatus expectedMergeStatus)
+        {
+            string path = CloneMergeTestRepo();
+            using (var repo = new Repository(path))
+            {
+                MergeResult result = repo.Merge(committish, Constants.Signature, new MergeOptions() { FastForwardStrategy = strategy });
+
+                Assert.Equal(expectedMergeStatus, result.Status);
+                Assert.False(repo.Index.RetrieveStatus().Any());
+            }
+        }
+
+        [Theory]
+        [InlineData("refs/heads/normal_merge", FastForwardStrategy.Default, MergeStatus.NonFastForward)]
+        [InlineData("fast_forward", FastForwardStrategy.Default, MergeStatus.FastForward)]
+        public void CanMergeBranch(string branchName, FastForwardStrategy strategy, MergeStatus expectedMergeStatus)
+        {
+            string path = CloneMergeTestRepo();
+            using (var repo = new Repository(path))
+            {
+                Branch branch = repo. Branches[branchName];
+                MergeResult result = repo.Merge(branch, Constants.Signature, new MergeOptions() { FastForwardStrategy = strategy });
+
+                Assert.Equal(expectedMergeStatus, result.Status);
+                Assert.False(repo.Index.RetrieveStatus().Any());
+            }
+        }
+
+        [Fact]
+        public void CanMergeIntoOrphanedBranch()
+        {
+            string path = CloneMergeTestRepo();
+            using (var repo = new Repository(path))
+            {
+                repo.Refs.Add("HEAD", "refs/heads/orphan", true);
+
+                // Remove entries from the working directory
+                foreach(var entry in repo.Index.RetrieveStatus())
+                {
+                    repo.Index.Unstage(entry.FilePath);
+                    repo.Index.Remove(entry.FilePath, true);
+                }
+
+                // Assert that we have an empty working directory.
+                Assert.False(repo.Index.RetrieveStatus().Any());
+
+                MergeResult result = repo.Merge("master", Constants.Signature);
+
+                Assert.Equal(MergeStatus.FastForward, result.Status);
+                Assert.Equal(masterBranchInitialId, result.Commit.Id.Sha);
+                Assert.False(repo.Index.RetrieveStatus().Any());
+            }
+        }
+
         private Commit AddFileCommitToRepo(IRepository repository, string filename, string content = null)
         {
             Touch(repository.Info.WorkingDirectory, filename, content);
@@ -306,5 +472,9 @@ namespace LibGit2Sharp.Tests
 
             return repository.Commit("New commit", Constants.Signature, Constants.Signature);
         }
+
+        // Commit IDs of the checked in merge_testrepo
+        private const string masterBranchInitialId = "83cebf5389a4adbcb80bda6b68513caee4559802";
+        private const string fastForwardBranchInitialId = "4dfaa1500526214ae7b33f9b2c1144ca8b6b1f53";
     }
 }

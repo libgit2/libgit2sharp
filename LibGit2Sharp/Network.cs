@@ -30,21 +30,6 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// The heads that have been updated during the last fetch.
-        /// </summary>
-        public virtual IEnumerable<FetchHead> FetchHeads
-        {
-            get
-            {
-                int i = 0;
-
-                return Proxy.git_repository_fetchhead_foreach(
-                    repository.Handle,
-                    (name, url, oid, isMerge) => new FetchHead(repository, name, url, oid, isMerge, i++));
-            }
-        }
-
-        /// <summary>
         /// Lookup and manage remotes in the repository.
         /// </summary>
         public virtual RemoteCollection Remotes
@@ -333,6 +318,48 @@ namespace LibGit2Sharp
             GC.KeepAlive(packBuilderProgress);
             GC.KeepAlive(pushTransferCallbacks);
             GC.KeepAlive(packBuilderCallbacks);
+        }
+
+        /// <summary>
+        /// Pull changes from the configured upstream remote and branch into the branch pointed at by HEAD.
+        /// </summary>
+        /// <param name="merger">If the merge is a non-fast forward merge that generates a merge commit, the <see cref="Signature"/> of who made the merge.</param>
+        /// <param name="options">Specifies optional parameters controlling merge behavior of pull; if null, the defaults are used.</param>
+        public virtual MergeResult Pull(Signature merger, PullOptions options)
+        {
+            Ensure.ArgumentNotNull(merger, "merger");
+            Ensure.ArgumentNotNull(options, "options");
+
+            Branch currentBranch = repository.Head;
+
+            if(!currentBranch.IsTracking)
+            {
+                throw new LibGit2SharpException("There is no tracking information for the current branch.");
+            }
+
+            if (currentBranch.Remote == null)
+            {
+                throw new LibGit2SharpException("No upstream remote for the current branch.");
+            }
+
+            Fetch(currentBranch.Remote, options.FetchOptions);
+            return repository.MergeFetchHeads(merger, options.MergeOptions);
+        }
+
+        /// <summary>
+        /// The heads that have been updated during the last fetch.
+        /// </summary>
+        [Obsolete("This property is meant for internal use only and will not be public in the next release.")]
+        public virtual IEnumerable<FetchHead> FetchHeads
+        {
+            get
+            {
+                int i = 0;
+
+                return Proxy.git_repository_fetchhead_foreach(
+                    repository.Handle,
+                    (name, url, oid, isMerge) => new FetchHead(repository, name, url, oid, isMerge, i++));
+            }
         }
 
         /// <summary>

@@ -1,10 +1,12 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Globalization;
 
 namespace LibGit2Sharp
 {
     /// <summary>
     /// A merge head is a parent for the next commit.
     /// </summary>
+    [Obsolete("This class is meant for internal use only and will not be public in the next release.")]
     public class MergeHead : ReferenceWrapper<Commit>
     {
         /// <summary>

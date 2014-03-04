@@ -84,8 +84,10 @@
     <Compile Include="DefaultCredentials.cs" />
     <Compile Include="EmptyCommitException.cs" />
     <Compile Include="FetchOptions.cs" />
+    <Compile Include="MergeOptions.cs" />
     <Compile Include="MergeResult.cs" />
     <Compile Include="PatchStats.cs" />
+    <Compile Include="PullOptions.cs" />
     <Compile Include="RefSpec.cs" />
     <Compile Include="RefSpecCollection.cs" />
     <Compile Include="Core\EncodingMarshaler.cs" />

@@ -1,0 +1,2 @@
+this is file a.txt.
+It has 2 lines and this is the last line.

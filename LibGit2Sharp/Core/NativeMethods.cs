@@ -609,6 +609,10 @@ namespace LibGit2Sharp.Core
             ref GitOid id);
 
         [DllImport(libgit2)]
+        internal static extern OidSafeHandle git_merge_head_id(
+            GitMergeHeadHandle mergeHead);
+
+        [DllImport(libgit2)]
         internal static extern int git_merge(
             RepositorySafeHandle repo,
             [In] IntPtr[] their_heads,

@@ -107,6 +107,72 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        [Theory]
+        [InlineData(FastForwardStrategy.Default)]
+        [InlineData(FastForwardStrategy.NoFastFoward)]
+        public void CanPull(FastForwardStrategy fastForwardStrategy)
+        {
+            string url = "https://github.com/libgit2/TestGitRepository";
+
+            var scd = BuildSelfCleaningDirectory();
+            string clonedRepoPath = Repository.Clone(url, scd.DirectoryPath);
+
+            using (var repo = new Repository(clonedRepoPath))
+            {
+                repo.Reset(ResetMode.Hard, "HEAD~1");
+
+                Assert.False(repo.Index.RetrieveStatus().Any());
+                Assert.Equal(repo.Lookup<Commit>("refs/remotes/origin/master~1"), repo.Head.Tip);
+
+                PullOptions pullOptions = new PullOptions()
+                {
+                    MergeOptions = new MergeOptions()
+                    {
+                        FastForwardStrategy = fastForwardStrategy
+                    }
+                };
+
+                MergeResult mergeResult = repo.Network.Pull(Constants.Signature, pullOptions);
+
+                if(fastForwardStrategy == FastForwardStrategy.Default || fastForwardStrategy == FastForwardStrategy.FastForwardOnly)
+                {
+                    Assert.Equal(mergeResult.Status, MergeStatus.FastForward);
+                    Assert.Equal(mergeResult.Commit, repo.Branches["refs/remotes/origin/master"].Tip);
+                    Assert.Equal(repo.Head.Tip, repo.Branches["refs/remotes/origin/master"].Tip);
+                }
+                else
+                {
+                    Assert.Equal(mergeResult.Status, MergeStatus.NonFastForward);
+                }
+            }
+        }
+
+        [Fact]
+        public void CanPullIntoEmptyRepo()
+        {
+            string url = "https://github.com/libgit2/TestGitRepository";
+            string remoteName = "origin";
+            string repoPath = InitNewRepository();
+
+            using (var repo = new Repository(repoPath))
+            {
+                // Set up remote
+                Remote remote = repo.Network.Remotes.Add(remoteName, url);
+
+                // Set up tracking information
+                repo.Branches.Update(repo.Head,
+                    b => b.Remote = remoteName,
+                    b => b.UpstreamBranch = "refs/heads/master");
+
+                // Pull!
+                MergeResult mergeResult = repo.Network.Pull(Constants.Signature, new PullOptions());
+
+                Assert.Equal(mergeResult.Status, MergeStatus.FastForward);
+                Assert.Equal(mergeResult.Commit, repo.Branches["refs/remotes/origin/master"].Tip);
+                Assert.Equal(repo.Head.Tip, repo.Branches["refs/remotes/origin/master"].Tip);
+            }
+        }
+
         /*
         * git ls-remote http://github.com/libgit2/TestGitRepository
         * 49322bb17d3acc9146f98c97d078513228bbf3c0        HEAD

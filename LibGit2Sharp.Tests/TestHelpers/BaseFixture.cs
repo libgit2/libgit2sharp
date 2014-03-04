@@ -29,6 +29,7 @@ namespace LibGit2Sharp.Tests.TestHelpers
         public static string StandardTestRepoPath { get; private set; }
         public static string ShallowTestRepoPath { get; private set; }
         public static string MergedTestRepoWorkingDirPath { get; private set; }
+        public static string MergeTestRepoWorkingDirPath { get; private set; }
         public static string SubmoduleTestRepoWorkingDirPath { get; private set; }
         public static DirectoryInfo ResourcesDirectory { get; private set; }
 
@@ -61,6 +62,7 @@ namespace LibGit2Sharp.Tests.TestHelpers
             StandardTestRepoPath = Path.Combine(StandardTestRepoWorkingDirPath, ".git");
             ShallowTestRepoPath = Path.Combine(ResourcesDirectory.FullName, "shallow.git");
             MergedTestRepoWorkingDirPath = Path.Combine(ResourcesDirectory.FullName, "mergedrepo_wd");
+            MergeTestRepoWorkingDirPath = Path.Combine(ResourcesDirectory.FullName, "merge_testrepo_wd");
             SubmoduleTestRepoWorkingDirPath = Path.Combine(ResourcesDirectory.FullName, "submodule_wd");
         }
 
@@ -120,6 +122,11 @@ namespace LibGit2Sharp.Tests.TestHelpers
         protected string CloneMergedTestRepo()
         {
             return Clone(MergedTestRepoWorkingDirPath);
+        }
+
+        protected string CloneMergeTestRepo()
+        {
+            return Clone(MergeTestRepoWorkingDirPath);
         }
 
         public string CloneSubmoduleTestRepo()

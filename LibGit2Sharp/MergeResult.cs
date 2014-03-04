@@ -59,7 +59,7 @@ namespace LibGit2Sharp
         FastForward,
 
         /// <summary>
-        /// A non fast-forward merge.
+        /// Non-fast-forward merge.
         /// </summary>
         NonFastForward,
 

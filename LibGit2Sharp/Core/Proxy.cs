@@ -964,6 +964,20 @@ namespace LibGit2Sharp.Core
             }
         }
 
+        public static GitMergeHeadHandle git_merge_head_from_fetchhead(RepositorySafeHandle repo, string branchName, string remoteUrl, GitOid oid)
+        {
+            using (ThreadAffinity())
+            {
+                GitMergeHeadHandle merge_head;
+
+                int res = NativeMethods.git_merge_head_from_fetchhead(out merge_head, repo, branchName, remoteUrl, ref oid);
+
+                Ensure.ZeroResult(res);
+
+                return merge_head;
+            }
+        }
+
         public static GitMergeHeadHandle git_merge_head_from_id(RepositorySafeHandle repo, GitOid oid)
         {
             using (ThreadAffinity())
@@ -976,6 +990,25 @@ namespace LibGit2Sharp.Core
 
                 return their_head;
             }
+        }
+
+        public static GitMergeHeadHandle git_merge_head_from_ref(RepositorySafeHandle repo, ReferenceSafeHandle reference)
+        {
+            using (ThreadAffinity())
+            {
+                GitMergeHeadHandle their_head;
+
+                int res = NativeMethods.git_merge_head_from_ref(out their_head, repo, reference);
+
+                Ensure.ZeroResult(res);
+
+                return their_head;
+            }
+        }
+
+        public static ObjectId git_merge_head_id(GitMergeHeadHandle mergeHead)
+        {
+            return NativeMethods.git_merge_head_id(mergeHead).MarshalAsObjectId();
         }
 
         public static void git_merge(RepositorySafeHandle repo, GitMergeHeadHandle[] heads, GitMergeOpts mergeOptions, GitCheckoutOpts checkoutOptions)
