@@ -55,7 +55,7 @@ namespace LibGit2Sharp
         /// </para>
         /// </summary>
         /// <returns>An <see cref="IEnumerator{T}"/> object that can be used to iterate through the collection.</returns>
-        public IEnumerator<ReflogEntry> GetEnumerator()
+        public virtual IEnumerator<ReflogEntry> GetEnumerator()
         {
             var entries = new List<ReflogEntry>();
 

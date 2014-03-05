@@ -83,7 +83,7 @@ namespace LibGit2Sharp
         /// An <see cref="T:System.Collections.IEnumerator"/> object that can be used to iterate through the collection.
         /// </returns>
         /// <filterpriority>2</filterpriority>
-        public IEnumerator<BlameHunk> GetEnumerator()
+        public virtual IEnumerator<BlameHunk> GetEnumerator()
         {
             return hunks.GetEnumerator();
         }

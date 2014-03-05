@@ -196,5 +196,30 @@ namespace LibGit2Sharp.Tests
         {
             return type.IsAbstract && type.IsSealed;
         }
+
+        // Related to https://github.com/libgit2/libgit2sharp/issues/644 and https://github.com/libgit2/libgit2sharp/issues/645
+        [Fact]
+        public void GetEnumeratorMethodsInLibGit2SharpMustBeVirtualForTestability()
+        {
+            var nonVirtualGetEnumeratorMethods = Assembly.GetAssembly(typeof(IRepository))
+                .GetExportedTypes()
+                .Where(t =>
+                    t.Namespace == typeof (IRepository).Namespace &&
+                    !t.IsSealed &&
+                    !t.IsAbstract &&
+                    t.GetInterfaces().Any(i => i.IsAssignableFrom(typeof(IEnumerable<>))))
+                .Select(t => t.GetMethod("GetEnumerator"))
+                .Where(m => 
+                    m.ReturnType.Name == "IEnumerator`1" &&
+                    (!m.IsVirtual || m.IsFinal))
+                .ToList();
+
+            foreach (var method in nonVirtualGetEnumeratorMethods)
+            {
+                Debug.WriteLine(String.Format("GetEnumerator in type '{0}' isn't virtual.", method.DeclaringType));
+            }
+
+            Assert.Empty(nonVirtualGetEnumeratorMethods);
+        }
     }
 }
