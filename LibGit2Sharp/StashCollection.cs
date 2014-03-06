@@ -40,7 +40,7 @@ namespace LibGit2Sharp
         /// </para>
         /// </summary>
         /// <returns>An <see cref="IEnumerator{T}"/> object that can be used to iterate through the collection.</returns>
-        public IEnumerator<Stash> GetEnumerator()
+        public virtual IEnumerator<Stash> GetEnumerator()
         {
             return Proxy.git_stash_foreach(repo.Handle,
                 (index, message, commitId) => new Stash(repo, new ObjectId(commitId), index)).GetEnumerator();
