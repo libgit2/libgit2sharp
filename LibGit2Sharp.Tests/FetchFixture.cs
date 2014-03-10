@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.IO;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
 using Xunit.Extensions;
@@ -125,6 +126,25 @@ namespace LibGit2Sharp.Tests
 
                 // Verify the number of fetched tags.
                 Assert.Equal(expectedTagCount, repo.Tags.Count());
+            }
+        }
+
+        [Fact]
+        public void CanFetchFromRelativeRemoteURL()
+        {
+            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            string path1 = Path.Combine(scd.DirectoryPath, "repo1");
+            string path2 = Path.Combine(scd.DirectoryPath, "repo2");
+            string path2RelativeToPath1 = "../path2";
+
+            Repository.Init(path1);
+            DirectoryHelper.CopyFilesRecursively(new DirectoryInfo(BareTestRepoPath), new DirectoryInfo(path2));
+            using (var repo = new Repository(path1)) {
+                var remote = repo.Network.Remotes.Add("relative", path2RelativeToPath1);
+                repo.Network.Fetch(remote);
+                var remoteRef = repo.Refs ["refs/remotes/relative/master"];
+                Assert.NotNull(remoteRef);
+                Assert.Equal("c47800c7266a2be04c571c04d5a6614691ea99bd", remoteRef.TargetIdentifier);
             }
         }
     }
