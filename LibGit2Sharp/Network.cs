@@ -121,16 +121,7 @@ namespace LibGit2Sharp
             // GC occuring in between setting the remote callbacks and actual usage in one of the functions afterwords.
             Proxy.git_remote_set_callbacks(remoteHandle, ref gitCallbacks);
 
-            try
-            {
-                Proxy.git_remote_connect(remoteHandle, GitDirection.Fetch);
-                Proxy.git_remote_download(remoteHandle);
-                Proxy.git_remote_update_tips(remoteHandle, signature, logMessage);
-            }
-            finally
-            {
-                Proxy.git_remote_disconnect(remoteHandle);
-            }
+            Proxy.git_remote_fetch(remoteHandle, signature, logMessage);
         }
 
         /// <summary>

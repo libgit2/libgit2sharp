@@ -1781,11 +1781,12 @@ namespace LibGit2Sharp.Core
             }
         }
 
-        public static void git_remote_download(RemoteSafeHandle remote)
+        public static void git_remote_fetch(RemoteSafeHandle remote, Signature signature, string logMessage)
         {
             using (ThreadAffinity())
+            using (var sigHandle = signature.BuildHandle())
             {
-                int res = NativeMethods.git_remote_download(remote);
+                int res = NativeMethods.git_remote_fetch(remote, sigHandle, logMessage);
                 Ensure.ZeroResult(res);
             }
         }
@@ -1886,16 +1887,6 @@ namespace LibGit2Sharp.Core
             using (ThreadAffinity())
             {
                 int res = NativeMethods.git_remote_set_callbacks(remote, ref callbacks);
-                Ensure.ZeroResult(res);
-            }
-        }
-
-        public static void git_remote_update_tips(RemoteSafeHandle remote, Signature signature, string logMessage)
-        {
-            using (ThreadAffinity())
-            using (var sigHandle = signature.BuildHandle())
-            {
-                int res = NativeMethods.git_remote_update_tips(remote, sigHandle, logMessage);
                 Ensure.ZeroResult(res);
             }
         }

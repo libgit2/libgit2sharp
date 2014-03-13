@@ -987,8 +987,10 @@ namespace LibGit2Sharp.Core
         internal static extern void git_remote_disconnect(RemoteSafeHandle remote);
 
         [DllImport(libgit2)]
-        internal static extern int git_remote_download(
-            RemoteSafeHandle remote);
+        internal static extern int git_remote_fetch(
+            RemoteSafeHandle remote,
+            SignatureSafeHandle signature,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string log_message);
 
         [DllImport(libgit2)]
         internal static extern void git_remote_free(IntPtr remote);
@@ -1048,12 +1050,6 @@ namespace LibGit2Sharp.Core
             ref GitOid oldId,
             ref GitOid newId,
             IntPtr data);
-
-        [DllImport(libgit2)]
-        internal static extern int git_remote_update_tips(
-            RemoteSafeHandle remote,
-            SignatureSafeHandle signature,
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string log_message);
 
         [DllImport(libgit2)]
         internal static extern int git_repository_discover(
