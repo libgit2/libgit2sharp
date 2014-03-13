@@ -1424,15 +1424,6 @@ namespace LibGit2Sharp.Core
             }
         }
 
-        public static void git_reference_delete(ReferenceSafeHandle reference)
-        {
-            using (ThreadAffinity())
-            {
-                int res = NativeMethods.git_reference_delete(reference);
-                Ensure.ZeroResult(res);
-            }
-        }
-
         public static ICollection<TResult> git_reference_foreach_glob<TResult>(
             RepositorySafeHandle repo,
             string glob,
@@ -1487,6 +1478,15 @@ namespace LibGit2Sharp.Core
         public static string git_reference_name(ReferenceSafeHandle reference)
         {
             return NativeMethods.git_reference_name(reference);
+        }
+
+        public static void git_reference_remove(RepositorySafeHandle repo, string name)
+        {
+            using (ThreadAffinity())
+            {
+                int res = NativeMethods.git_reference_remove(repo, name);
+                Ensure.ZeroResult(res);
+            }
         }
 
         public static ObjectId git_reference_target(ReferenceSafeHandle reference)

@@ -811,9 +811,6 @@ namespace LibGit2Sharp.Core
             SignatureSafeHandle signature,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string log_message);
 
-        [DllImport(libgit2)]
-        internal static extern int git_reference_delete(ReferenceSafeHandle reference);
-
         internal delegate int ref_glob_callback(
             IntPtr reference_name,
             IntPtr payload);
@@ -841,6 +838,11 @@ namespace LibGit2Sharp.Core
         [DllImport(libgit2)]
         [return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(LaxUtf8NoCleanupMarshaler))]
         internal static extern string git_reference_name(ReferenceSafeHandle reference);
+
+        [DllImport(libgit2)]
+        internal static extern int git_reference_remove(
+            RepositorySafeHandle repo,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string name);
 
         [DllImport(libgit2)]
         internal static extern OidSafeHandle git_reference_target(ReferenceSafeHandle reference);

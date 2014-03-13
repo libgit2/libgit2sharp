@@ -167,10 +167,7 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNull(reference, "reference");
 
-            using (ReferenceSafeHandle handle = RetrieveReferencePtr(reference.CanonicalName))
-            {
-                Proxy.git_reference_delete(handle);
-            }
+            Proxy.git_reference_remove(repo.Handle, reference.CanonicalName);
         }
 
         /// <summary>
