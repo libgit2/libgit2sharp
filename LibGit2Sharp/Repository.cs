@@ -177,7 +177,10 @@ namespace LibGit2Sharp
 
         internal RepositorySafeHandle Handle
         {
-            get { return handle; }
+            get
+            {
+                return handle;
+            }
         }
 
         /// <summary>
@@ -208,7 +211,10 @@ namespace LibGit2Sharp
         /// </summary>
         public Configuration Config
         {
-            get { return config.Value; }
+            get
+            {
+                return config.Value;
+            }
         }
 
         /// <summary>
@@ -265,7 +271,10 @@ namespace LibGit2Sharp
         /// </summary>
         public ReferenceCollection Refs
         {
-            get { return refs; }
+            get
+            {
+                return refs;
+            }
         }
 
         /// <summary>
@@ -274,7 +283,10 @@ namespace LibGit2Sharp
         /// </summary>
         public IQueryableCommitLog Commits
         {
-            get { return commits; }
+            get
+            {
+                return commits;
+            }
         }
 
         /// <summary>
@@ -282,7 +294,10 @@ namespace LibGit2Sharp
         /// </summary>
         public BranchCollection Branches
         {
-            get { return branches; }
+            get
+            {
+                return branches;
+            }
         }
 
         /// <summary>
@@ -290,7 +305,10 @@ namespace LibGit2Sharp
         /// </summary>
         public TagCollection Tags
         {
-            get { return tags; }
+            get
+            {
+                return tags;
+            }
         }
 
         ///<summary>
@@ -298,7 +316,10 @@ namespace LibGit2Sharp
         ///</summary>
         public StashCollection Stashes
         {
-            get { return stashes; }
+            get
+            {
+                return stashes;
+            }
         }
 
         /// <summary>
@@ -306,7 +327,10 @@ namespace LibGit2Sharp
         /// </summary>
         public RepositoryInformation Info
         {
-            get { return info.Value; }
+            get
+            {
+                return info.Value;
+            }
         }
 
         /// <summary>
@@ -314,7 +338,10 @@ namespace LibGit2Sharp
         /// </summary>
         public Diff Diff
         {
-            get { return diff; }
+            get
+            {
+                return diff;
+            }
         }
 
         /// <summary>
@@ -322,7 +349,10 @@ namespace LibGit2Sharp
         /// </summary>
         public NoteCollection Notes
         {
-            get { return notes; }
+            get
+            {
+                return notes;
+            }
         }
 
         /// <summary>
@@ -330,7 +360,10 @@ namespace LibGit2Sharp
         /// </summary>
         public SubmoduleCollection Submodules
         {
-            get { return submodules; }
+            get
+            {
+                return submodules;
+            }
         }
 
         #region IDisposable Members
@@ -474,7 +507,7 @@ namespace LibGit2Sharp
             }
 
             var m = Regex.Match(spec, @"[^@^ ]*:(.*)");
-            return (m.Groups.Count > 1) ? m.Groups[1].Value : null;
+            return (m.Groups.Count > 1) ? m.Groups [1].Value : null;
         }
 
         internal GitObject Lookup(string objectish, GitObjectType type, LookUpOptions lookUpOptions)
@@ -515,7 +548,7 @@ namespace LibGit2Sharp
 
         internal Commit LookupCommit(string committish)
         {
-            return (Commit)Lookup(committish, GitObjectType.Any,
+            return (Commit) Lookup(committish, GitObjectType.Any,
                 LookUpOptions.ThrowWhenNoGitObjectHasBeenFound |
                 LookUpOptions.DereferenceResultToCommit |
                 LookUpOptions.ThrowWhenCanNotBeDereferencedToACommit);
@@ -610,6 +643,7 @@ namespace LibGit2Sharp
         /// <param name="onCheckoutProgress"><see cref="CheckoutProgressHandler"/> that checkout progress is reported through.</param>
         /// <param name="checkoutNotifications"><see cref="CheckoutNotificationOptions"/> to manage checkout notifications.</param>
         /// <returns>The <see cref="Branch"/> that was checked out.</returns>
+        [Obsolete]
         public Branch Checkout(string committishOrBranchSpec, CheckoutModifiers checkoutModifiers, CheckoutProgressHandler onCheckoutProgress, CheckoutNotificationOptions checkoutNotifications)
         {
             Ensure.ArgumentNotNullOrEmptyString(committishOrBranchSpec, "committishOrBranchSpec");
@@ -630,7 +664,7 @@ namespace LibGit2Sharp
                     var reference = Reference.BuildFromPtr<Reference>(refH, this);
                     if (reference.IsLocalBranch())
                     {
-                        Branch branch = Branches[reference.CanonicalName];
+                        Branch branch = Branches [reference.CanonicalName];
                         return Checkout(branch, checkoutModifiers, onCheckoutProgress, checkoutNotifications);
                     }
                 }
@@ -661,6 +695,7 @@ namespace LibGit2Sharp
         /// <param name="onCheckoutProgress"><see cref="CheckoutProgressHandler"/> that checkout progress is reported through.</param>
         /// <param name="checkoutNotificationOptions"><see cref="CheckoutNotificationOptions"/> to manage checkout notifications.</param>
         /// <returns>The <see cref="Branch"/> that was checked out.</returns>
+        [Obsolete]
         public Branch Checkout(Branch branch, CheckoutModifiers checkoutModifiers, CheckoutProgressHandler onCheckoutProgress, CheckoutNotificationOptions checkoutNotificationOptions)
         {
             Ensure.ArgumentNotNull(branch, "branch");
@@ -676,7 +711,7 @@ namespace LibGit2Sharp
             var branchIsCurrentRepositoryHead = branch.IsCurrentRepositoryHead;
 
             if (!branch.IsRemote && !(branch is DetachedHead) &&
-                string.Equals(Refs[branch.CanonicalName].TargetIdentifier, branch.Tip.Id.Sha,
+                string.Equals(Refs [branch.CanonicalName].TargetIdentifier, branch.Tip.Id.Sha,
                 StringComparison.OrdinalIgnoreCase))
             {
                 Checkout(branch.Tip.Tree, checkoutModifiers, onCheckoutProgress, checkoutNotificationOptions, branch.CanonicalName, branch.Name, !branchIsCurrentRepositoryHead);
@@ -700,11 +735,136 @@ namespace LibGit2Sharp
         /// <param name="onCheckoutProgress"><see cref="CheckoutProgressHandler"/> that checkout progress is reported through.</param>
         /// <param name="checkoutNotificationOptions"><see cref="CheckoutNotificationOptions"/> to manage checkout notifications.</param>
         /// <returns>The <see cref="Branch"/> that was checked out.</returns>
+        [Obsolete]
         public Branch Checkout(Commit commit, CheckoutModifiers checkoutModifiers, CheckoutProgressHandler onCheckoutProgress, CheckoutNotificationOptions checkoutNotificationOptions)
         {
-            Checkout(commit.Tree, checkoutModifiers, onCheckoutProgress, checkoutNotificationOptions, commit.Id.Sha, commit.Id.Sha, true);
+            Checkout(
+                commit.Tree,
+                checkoutModifiers,
+                onCheckoutProgress,
+                checkoutNotificationOptions,
+                commit.Id.Sha,
+                commit.Id.Sha,
+                true);
 
             return Head;
+        }
+
+        /// <summary>
+        /// Checkout the specified <see cref="LibGit2Sharp"/>, reference or SHA.
+        ///     <para>
+        ///     If the committishOrBranchSpec parameter resolves to a branch name, then the checked out HEAD
+        ///     will point  to the branch. Otherwise, the HEAD will be detached, pointing at the commit sha.
+        ///     </para>
+        /// </summary>
+        /// <param name="committishOrBranchSpec">A revparse spec for the commit or branch to checkout.</param>
+        /// <param name="options">The <see cref="LibGit2Sharp.CheckoutOptions"/> controlling the checkout behaviour.</param>
+        /// <returns>The <see cref="Branch"/> that was checked out.</returns>
+        public Branch Checkout(string committishOrBranchSpec, CheckoutOptions options)
+        {
+            Ensure.ArgumentNotNullOrEmptyString(committishOrBranchSpec, "committishOrBranchSpec");
+
+            var handles = Proxy.git_revparse_ext(handle, committishOrBranchSpec);
+            if (handles == null)
+            {
+                Ensure.GitObjectIsNotNull(null, committishOrBranchSpec);
+            }
+
+            var objH = handles.Item1;
+            var refH = handles.Item2;
+            GitObject obj;
+
+            try
+            {
+                if (!refH.IsInvalid)
+                {
+                    var reference = Reference.BuildFromPtr<Reference>(refH, this);
+
+                    if (reference.IsLocalBranch())
+                    {
+                        Branch branch = this.Branches [reference.CanonicalName];
+
+                        return this.Checkout(branch, options);
+                    }
+                }
+
+                obj = GitObject.BuildFrom(
+                    this,
+                    Proxy.git_object_id(objH),
+                    Proxy.git_object_type(objH),
+                    Repository.PathFromRevparseSpec(committishOrBranchSpec));
+            }
+            finally
+            {
+                objH.Dispose();
+                refH.Dispose();
+            }
+
+            Commit commit = obj.DereferenceToCommit(true);
+
+            this.Checkout(
+                commit.Tree,
+                options,
+                commit.Id.Sha,
+                committishOrBranchSpec,
+                committishOrBranchSpec != "HEAD");
+
+            return this.Head;
+        }
+        /// <summary>
+        /// Checkout the specified <see cref="LibGit2Sharp.Commit"/>
+        ///     <para>
+        ///     Will detach the HEAD and make it point to this commit sha.
+        ///     </para>
+        /// </summary>
+        /// <param name="commit">The <see cref="LibGit2Sharp.Commit"/> to check out.</param>
+        /// <param name="options">The <see cref="LibGit2Sharp.CheckoutOptions"/> controlling the checkout behaviour.</param>
+        /// <returns>The <see cref="Branch"/> that was checked out.</returns>
+        public Branch Checkout(Commit commit, CheckoutOptions options)
+        {
+            this.Checkout(
+                commit.Tree,
+                options,
+                commit.Id.Sha,
+                commit.Id.Sha,
+                true);
+
+            return this.Head;
+        }
+        /// <summary>
+        /// Checkout the tip commit of the specified <see cref="LibGit2Sharp.Branch"/> object. If this commit is the
+        /// current tip of the branch, will checkout the named branch. Otherwise, will checkout the tip commit
+        /// as a detached HEAD.
+        /// </summary>
+        /// <param name="branch">The <see cref="LibGit2Sharp.Branch"/> to check out.</param>
+        /// <param name="options">The <see cref="LibGit2Sharp.CheckoutOptions"/> controlling the checkout behaviour.</param>
+        /// <returns>The <see cref="Branch"/> that was checked out.</returns>
+        public Branch Checkout(Branch branch, CheckoutOptions options)
+        {
+            Ensure.ArgumentNotNull(branch, "branch");
+
+            //Ensure the branch isn't unborn
+            if (branch.Tip == null)
+            {
+                throw new UnbornBranchException(
+                    string.Format(CultureInfo.InvariantCulture,
+                    "The tip of branch '{0}' is null. There's nothing to checkout.", branch.Name));
+            }
+
+            var branchIsCurrentRepositoryHead = branch.IsCurrentRepositoryHead;
+
+            if (!branch.IsRemote && 
+                !(branch is DetachedHead) && 
+                string.Equals(this.Refs[branch.CanonicalName].TargetIdentifier, branch.Tip.Id.Sha,StringComparison.OrdinalIgnoreCase))
+            {
+                this.Checkout(branch.Tip.Tree, options, branch.CanonicalName, branch.Name, !branchIsCurrentRepositoryHead);
+            }
+            else
+            {
+                this.Checkout(branch.Tip.Tree, options, branch.Tip.Id.Sha, branch.Name, !branchIsCurrentRepositoryHead);
+            }
+
+            return this.Head;
         }
 
         private void LogCheckout(string previousHeadName, ObjectId newHeadTip, string newHeadSpec)
@@ -727,6 +887,7 @@ namespace LibGit2Sharp
         /// <param name="headTarget">Target for the new HEAD.</param>
         /// <param name="refLogHeadSpec">The spec which will be written as target in the reflog.</param>
         /// <param name="writeReflogEntry">Will a reflog entry be created.</param>
+        [Obsolete]
         private void Checkout(
             Tree tree,
             CheckoutModifiers checkoutModifiers,
@@ -737,11 +898,11 @@ namespace LibGit2Sharp
             var previousHeadName = Info.IsHeadDetached ? Head.Tip.Sha : Head.Name;
 
             var opts = new CheckoutOptions
-                           {
-                               CheckoutModifiers = checkoutModifiers,
-                               OnCheckoutProgress = onCheckoutProgress,
-                               CheckoutNotificationOptions = checkoutNotificationOptions
-                           };
+            {
+                CheckoutModifiers = checkoutModifiers,
+                OnCheckoutProgress = onCheckoutProgress,
+                CheckoutNotificationOptions = checkoutNotificationOptions
+            };
 
             CheckoutTree(tree, null, opts);
 
@@ -750,6 +911,31 @@ namespace LibGit2Sharp
             if (writeReflogEntry)
             {
                 LogCheckout(previousHeadName, Head.Tip.Id, refLogHeadSpec);
+            }
+        }
+
+        /// <summary>
+        /// Internal implementation of Checkout that expects the ID of the checkout target
+        /// to already be in the form of a canonical branch name or a commit ID.
+        /// </summary>
+        /// <param name="tree">The <see cref="Tree"/> to checkout.</param>
+        /// <param name="options">The <see cref="LibGit2Sharp.CheckoutOptions"/> controlling the checkout behaviour.</param>
+        /// <param name="headTarget">Target for the new HEAD.</param>
+        /// <param name="refLogHeadSpec">The spec which will be written as target in the reflog.</param>
+        /// <param name="writeReflogEntry">True if a reflog entry will be created.</param>
+        private void Checkout(
+            Tree tree,
+            CheckoutOptions options,
+            string headTarget, string refLogHeadSpec, bool writeReflogEntry)
+        {
+            var previousHeadName = this.Info.IsHeadDetached ? this.Head.Tip.Sha : this.Head.Name;
+
+            this.CheckoutTree(tree, null, options);
+            this.Refs.UpdateTarget("HEAD", headTarget);
+
+            if (writeReflogEntry)
+            {
+                this.LogCheckout(previousHeadName, Head.Tip.Id, refLogHeadSpec);
             }
         }
 
@@ -988,7 +1174,10 @@ namespace LibGit2Sharp
         /// </summary>
         public static string Version
         {
-            get { return versionRetriever.Value; }
+            get
+            {
+                return versionRetriever.Value;
+            }
         }
 
         private static string RetrieveVersion()
@@ -1110,7 +1299,10 @@ namespace LibGit2Sharp
 
         internal StringComparer PathComparer
         {
-            get { return pathCase.Value.Comparer; }
+            get
+            {
+                return pathCase.Value.Comparer;
+            }
         }
 
         internal bool PathStartsWith(string path, string value)
@@ -1118,7 +1310,7 @@ namespace LibGit2Sharp
             return pathCase.Value.StartsWith(path, value);
         }
 
-        internal FilePath[] ToFilePaths(IEnumerable<string> paths)
+        internal FilePath [] ToFilePaths(IEnumerable<string> paths)
         {
             if (paths == null)
             {
