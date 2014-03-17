@@ -113,9 +113,10 @@ namespace LibGit2Sharp.Tests
             Commit random = repo.Head.Tip;
 
             Commit orphanedCommit = repo.ObjectDatabase.CreateCommit(
-                "This is a test commit created by 'CommitFixture.CannotFindCommonAncestorForCommmitsWithoutCommonAncestor'",
                 random.Author,
                 random.Committer,
+                "This is a test commit created by 'CommitFixture.CannotFindCommonAncestorForCommmitsWithoutCommonAncestor'",
+                false,
                 random.Tree,
                 Enumerable.Empty<Commit>());
 

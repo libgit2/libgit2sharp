@@ -171,7 +171,7 @@ namespace LibGit2Sharp.Tests
         public void CanRewriteAuthorOfCommitsOnlyBeingPointedAtByTags()
         {
             var commit = repo.ObjectDatabase.CreateCommit(
-                "I'm a lonesome commit", Constants.Signature, Constants.Signature,
+                Constants.Signature, Constants.Signature, "I'm a lonesome commit", false,
                 repo.Head.Tip.Tree, Enumerable.Empty<Commit>());
 
             repo.Tags.Add("so-lonely", commit);

@@ -149,7 +149,7 @@ namespace LibGit2Sharp.Tests
 
                 var blob = repo.ObjectDatabase.CreateBlob(Stream.Null);
                 var tree = repo.ObjectDatabase.CreateTree(new TreeDefinition().Add("yoink", blob, Mode.NonExecutableFile));
-                var commit = repo.ObjectDatabase.CreateCommit("yoink", Constants.Signature, Constants.Signature,
+                var commit = repo.ObjectDatabase.CreateCommit(Constants.Signature, Constants.Signature, "yoink", false,
                                                  tree, Enumerable.Empty<Commit>());
 
                 var branch = repo.CreateBranch("yoink", commit);
