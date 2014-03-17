@@ -554,6 +554,7 @@ namespace LibGit2Sharp
         public static string Clone(string sourceUrl, string workdirPath,
             bool bare = false,
             bool checkout = true,
+            string branchName = null,
             TransferProgressHandler onTransferProgress = null,
             CheckoutProgressHandler onCheckoutProgress = null,
             Credentials credentials = null)
@@ -576,6 +577,7 @@ namespace LibGit2Sharp
                                             : CheckoutStrategy.GIT_CHECKOUT_NONE
                 },
                 RemoteCallbacks = gitCallbacks,
+                CheckoutBranch = branchName
             };
 
             FilePath repoPath;

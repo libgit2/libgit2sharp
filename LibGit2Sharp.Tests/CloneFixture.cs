@@ -36,6 +36,31 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        [Theory]
+        [InlineData("git://github.com/libgit2/TestGitRepository", "master", true, "49322bb17d3acc9146f98c97d078513228bbf3c0")]
+        [InlineData("git://github.com/libgit2/TestGitRepository", "no-parent", false, "42e4e7c5e507e113ebbb7801b16b52cf867b7ce1")]
+        public void CanCloneWithBranchName(string url, string branchName, bool isMasterTxtExist, string headTipId)
+        {
+            var scd = BuildSelfCleaningDirectory();
+
+            string clonedRepoPath = Repository.Clone(url, scd.DirectoryPath, branchName: branchName);
+
+            using (var repo = new Repository(clonedRepoPath))
+            {
+                string dir = repo.Info.Path;
+                Assert.True(Path.IsPathRooted(dir));
+                Assert.True(Directory.Exists(dir));
+
+                Assert.NotNull(repo.Info.WorkingDirectory);
+                Assert.Equal(Path.Combine(scd.RootedDirectoryPath, ".git" + Path.DirectorySeparatorChar), repo.Info.Path);
+                Assert.False(repo.Info.IsBare);
+
+                Assert.True(File.Exists(Path.Combine(scd.RootedDirectoryPath, "master.txt")) == isMasterTxtExist);
+                Assert.Equal(repo.Head.Name, branchName);
+                Assert.Equal(repo.Head.Tip.Id.ToString(), headTipId);
+            }
+        }
+
         private void AssertLocalClone(string path)
         {
             var scd = BuildSelfCleaningDirectory();
