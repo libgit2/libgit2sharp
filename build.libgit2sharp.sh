@@ -21,6 +21,8 @@ export DYLD_LIBRARY_PATH=$_BINPATH:$DYLD_LIBRARY_PATH
 
 popd
 
+export MONO_OPTIONS=--debug
+
 echo $DYLD_LIBRARY_PATH
 echo $LD_LIBRARY_PATH
 xbuild CI-build.msbuild /t:Deploy
