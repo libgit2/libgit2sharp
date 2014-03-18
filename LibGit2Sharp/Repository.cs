@@ -5,6 +5,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Compat;
@@ -578,7 +579,7 @@ namespace LibGit2Sharp
                                             : CheckoutStrategy.GIT_CHECKOUT_NONE
                 },
                 RemoteCallbacks = gitCallbacks,
-                CheckoutBranch = branchName
+                CheckoutBranch = branchName.ToNativeUtf8()
             };
 
             FilePath repoPath;

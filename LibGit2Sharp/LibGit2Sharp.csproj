@@ -76,6 +76,8 @@
     <Compile Include="CommitSortStrategies.cs" />
     <Compile Include="CompareOptions.cs" />
     <Compile Include="ContentChangeStats.cs" />
+    <Compile Include="Core\Compat\IntPtrExtensions.cs" />
+    <Compile Include="Core\Compat\StringExtensions.cs" />
     <Compile Include="Core\Handles\PatchSafeHandle.cs" />
     <Compile Include="Core\IntPtrExtensions.cs" />
     <Compile Include="FetchOptions.cs" />
