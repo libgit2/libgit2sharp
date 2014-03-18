@@ -550,14 +550,15 @@ namespace LibGit2Sharp
         /// <param name="onTransferProgress">Handler for network transfer and indexing progress information</param>
         /// <param name="onCheckoutProgress">Handler for checkout progress information</param>
         /// <param name="credentials">Credentials to use for user/pass authentication</param>
+        /// <param name="branchName">The name of branch, null means default</param>
         /// <returns>The path to the created repository.</returns>
         public static string Clone(string sourceUrl, string workdirPath,
             bool bare = false,
             bool checkout = true,
-            string branchName = null,
             TransferProgressHandler onTransferProgress = null,
             CheckoutProgressHandler onCheckoutProgress = null,
-            Credentials credentials = null)
+            Credentials credentials = null,
+            string branchName = null)
         {
             CheckoutCallbacks checkoutCallbacks = CheckoutCallbacks.GenerateCheckoutCallbacks(onCheckoutProgress, null);
 
