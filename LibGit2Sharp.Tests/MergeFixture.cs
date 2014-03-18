@@ -306,5 +306,30 @@ namespace LibGit2Sharp.Tests
 
             return repository.Commit("New commit", Constants.Signature, Constants.Signature);
         }
+
+        [Fact]
+        public void CanMergeIntoAnEmptyRepository()
+        {
+            string repoPath = InitNewRepository();
+
+            using (var repo = new Repository(repoPath))
+            {
+                Remote remote = repo.Network.Remotes.Add("origin", StandardTestRepoPath);
+
+                Assert.Equal("refs/heads/master", repo.Refs.Head.TargetIdentifier);
+                Assert.True(repo.Info.IsHeadUnborn);
+
+                repo.Network.Fetch(remote);
+
+                Branch r = repo.Branches["origin/i-do-numbers"];
+                MergeResult mergeResult = repo.Merge(r.Tip, Constants.Signature);
+
+                Assert.Equal(MergeStatus.FastForward, mergeResult.Status);
+                Assert.Equal(r.Tip, mergeResult.Commit);
+                Assert.Equal(r.Tip, repo.Branches["master"].Tip);
+                Assert.Equal("refs/heads/master", repo.Refs.Head.TargetIdentifier);
+                Assert.False(repo.Info.IsHeadUnborn);
+            }
+        }
     }
 }

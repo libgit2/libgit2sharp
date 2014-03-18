@@ -1076,6 +1076,21 @@ namespace LibGit2Sharp
         /// <returns>The result of the performed merge <see cref="MergeResult"/>.</returns>
         public MergeResult Merge(Commit commit, Signature merger)
         {
+            if (Info.IsHeadUnborn)
+            {
+                if(Index.RetrieveStatus().Any())
+                    return new MergeResult(MergeStatus.Conflicts, null);
+
+                var checkoutOpts = new CheckoutOptions
+                {
+                    CheckoutModifiers = CheckoutModifiers.None,
+                };
+
+                CheckoutTree(commit.Tree, null, checkoutOpts);
+                Proxy.git_reference_create(Handle, Head.CanonicalName, commit.Id, false);
+                return new MergeResult(MergeStatus.FastForward, commit);
+            }
+
             using (GitMergeHeadHandle mergeHeadHandle = Proxy.git_merge_head_from_oid(Handle, commit.Id.Oid))
             {
                 GitMergeOpts opts = new GitMergeOpts()
