@@ -16,5 +16,6 @@ namespace LibGit2Sharp.Core
 
         public IntPtr RemoteName;
         public IntPtr CheckoutBranch;
+        public IntPtr signature; // Really a SignatureSafeHandle
     }
 }

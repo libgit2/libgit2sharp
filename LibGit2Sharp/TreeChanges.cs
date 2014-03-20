@@ -66,8 +66,8 @@ namespace LibGit2Sharp
             var oldFilePath = LaxFilePathMarshaler.FromNative(delta.OldFile.Path);
             var newMode = (Mode)delta.NewFile.Mode;
             var oldMode = (Mode)delta.OldFile.Mode;
-            var newOid = delta.NewFile.Oid;
-            var oldOid = delta.OldFile.Oid;
+            var newOid = delta.NewFile.Id;
+            var oldOid = delta.OldFile.Id;
 
             if (delta.Status == ChangeKind.Untracked || delta.Status == ChangeKind.Ignored)
             {

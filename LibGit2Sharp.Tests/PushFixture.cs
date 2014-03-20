@@ -114,6 +114,7 @@ namespace LibGit2Sharp.Tests
                 UpdateTheRemoteRepositoryWithANewCommit(remoteRepoPath);
 
                 // Add another commit
+                var oldId = localRepo.Head.Tip.Id;
                 Commit second = AddCommitToRepo(localRepo);
 
                 // Try to fast forward push this new commit
@@ -124,6 +125,10 @@ namespace LibGit2Sharp.Tests
                 localRepo.Network.Push(localRepo.Network.Remotes.Single(), pushRefSpec);
 
                 AssertRemoteHeadTipEquals(localRepo, second.Sha);
+
+                AssertRefLogEntry(localRepo, "refs/remotes/origin/master",
+                    localRepo.Head.Tip.Id, "update by push",
+                    oldId);
             }
         }
 

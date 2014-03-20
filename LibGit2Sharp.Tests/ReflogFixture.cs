@@ -32,6 +32,15 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
+        public void ReflogOfUnbornReferenceIsEmpty()
+        {
+            using (var repo = new Repository(StandardTestRepoWorkingDirPath))
+            {
+                Assert.Empty(repo.Refs.Log("refs/heads/toto"));
+            }
+        }
+
+        [Fact]
         public void ReadingReflogOfInvalidReferenceNameThrows()
         {
             using (var repo = new Repository(StandardTestRepoWorkingDirPath))
@@ -41,7 +50,7 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
-        public void CommitShouldCreateReflogEntryOnHeadandOnTargetedDirectReference()
+        public void CommitShouldCreateReflogEntryOnHeadAndOnTargetedDirectReference()
         {
             string repoPath = InitNewRepository();
 
@@ -131,11 +140,11 @@ namespace LibGit2Sharp.Tests
 
         [Theory]
         [InlineData(false, null, true)]
-        [InlineData(false, false, false)]
         [InlineData(false, true, true)]
+        [InlineData(true, true, true)]
         [InlineData(true, null, false)]
         [InlineData(true, false, false)]
-        [InlineData(true, true, true)]
+        [InlineData(false, false, false)]
         public void AppendingToReflogDependsOnCoreLogAllRefUpdatesSetting(bool isBare, bool? setting, bool expectAppend)
         {
             var repoPath = InitNewRepository(isBare);
@@ -156,6 +165,27 @@ namespace LibGit2Sharp.Tests
                 var log = repo.Refs.Log(branch.CanonicalName);
 
                 Assert.Equal(expectAppend ? 1 : 0, log.Count());
+            }
+        }
+
+        [Fact]
+        public void UnsignedMethodsWriteCorrectlyToTheReflog()
+        {
+            var repoPath = InitNewRepository(true);
+            using (var repo = new Repository(repoPath))
+            {
+                EnableRefLog(repo);
+
+                var blob = repo.ObjectDatabase.CreateBlob(Stream.Null);
+                var tree = repo.ObjectDatabase.CreateTree(new TreeDefinition().Add("yoink", blob, Mode.NonExecutableFile));
+                var commit = repo.ObjectDatabase.CreateCommit(Constants.Signature, Constants.Signature, "yoink", false,
+                                                 tree, Enumerable.Empty<Commit>());
+
+                var direct = repo.Refs.Add("refs/heads/direct", commit.Id);
+                AssertRefLogEntry(repo, direct.CanonicalName, direct.ResolveToDirectReference().Target.Id, null);
+
+                var symbolic = repo.Refs.Add("refs/heads/symbolic", direct);
+                Assert.Empty(repo.Refs.Log(symbolic)); // creation of symbolic refs doesn't update the reflog
             }
         }
     }

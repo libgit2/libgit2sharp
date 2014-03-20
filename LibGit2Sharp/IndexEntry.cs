@@ -49,7 +49,7 @@ namespace LibGit2Sharp
             return new IndexEntry
                        {
                            Path = path.Native,
-                           Id = entry.oid,
+                           Id = entry.Id,
                            StageLevel = Proxy.git_index_entry_stage(handle),
                            Mode = (Mode)entry.Mode
                        };

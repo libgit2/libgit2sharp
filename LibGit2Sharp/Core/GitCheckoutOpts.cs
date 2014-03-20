@@ -56,18 +56,43 @@ namespace LibGit2Sharp.Core
         /// </summary>
         GIT_CHECKOUT_NO_REFRESH = (1 << 9),
 
-        ///Allow checkout to skip unmerged files (NOT IMPLEMENTED)
+        ///Allow checkout to skip unmerged files
         GIT_CHECKOUT_SKIP_UNMERGED = (1 << 10),
 
         /// <summary>
-        /// For unmerged files, checkout stage 2 from index (NOT IMPLEMENTED)
+        /// For unmerged files, checkout stage 2 from index
         /// </summary>
         GIT_CHECKOUT_USE_OURS = (1 << 11),
 
         /// <summary>
-        /// For unmerged files, checkout stage 3 from index (NOT IMPLEMENTED)
+        /// For unmerged files, checkout stage 3 from index
         /// </summary>
         GIT_CHECKOUT_USE_THEIRS = (1 << 12),
+
+        /// <summary>
+        /// Treat pathspec as simple list of exact match file paths
+        /// </summary>
+        GIT_CHECKOUT_DISABLE_PATHSPEC_MATCH = (1 << 13),
+
+        /// <summary>
+        /// Ignore directories in use, they will be left empty
+        /// </summary>
+        GIT_CHECKOUT_SKIP_LOCKED_DIRECTORIES = (1 << 18),
+
+        /// <summary>
+        /// Don't overwrite ignored files that exist in the checkout target
+        /// </summary>
+        GIT_CHECKOUT_DONT_OVERWRITE_IGNORED = (1 << 19),
+
+        /// <summary>
+        /// Write normal merge files for conflicts
+        /// </summary>
+        GIT_CHECKOUT_CONFLICT_STYLE_MERGE = (1 << 20),
+
+        /// <summary>
+        /// Include common ancestor data in diff3 format files for conflicts
+        /// </summary>
+        GIT_CHECKOUT_CONFLICT_STYLE_DIFF3 = (1 << 21),
 
         /// <summary>
         /// Recursively checkout submodules with same options (NOT IMPLEMENTED)
@@ -118,6 +143,7 @@ namespace LibGit2Sharp.Core
         public IntPtr baseline;
         public IntPtr target_directory;
 
+        public IntPtr ancestor_label;
         public IntPtr our_label;
         public IntPtr their_label;
 

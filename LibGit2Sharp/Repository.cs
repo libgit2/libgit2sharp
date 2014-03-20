@@ -645,8 +645,9 @@ namespace LibGit2Sharp
         /// <param name="checkoutModifiers"><see cref="CheckoutModifiers"/> controlling checkout behavior.</param>
         /// <param name="onCheckoutProgress"><see cref="CheckoutProgressHandler"/> that checkout progress is reported through.</param>
         /// <param name="checkoutNotifications"><see cref="CheckoutNotificationOptions"/> to manage checkout notifications.</param>
+        /// <param name="signature">Identity for use when updating the reflog.</param>
         /// <returns>The <see cref="Branch"/> that was checked out.</returns>
-        public Branch Checkout(string committishOrBranchSpec, CheckoutModifiers checkoutModifiers, CheckoutProgressHandler onCheckoutProgress, CheckoutNotificationOptions checkoutNotifications)
+        public Branch Checkout(string committishOrBranchSpec, CheckoutModifiers checkoutModifiers, CheckoutProgressHandler onCheckoutProgress, CheckoutNotificationOptions checkoutNotifications, Signature signature = null)
         {
             Ensure.ArgumentNotNullOrEmptyString(committishOrBranchSpec, "committishOrBranchSpec");
 
@@ -681,8 +682,7 @@ namespace LibGit2Sharp
             }
 
             Commit commit = obj.DereferenceToCommit(true);
-            Checkout(commit.Tree, checkoutModifiers, onCheckoutProgress, checkoutNotifications, commit.Id.Sha, committishOrBranchSpec,
-                committishOrBranchSpec != "HEAD");
+            Checkout(commit.Tree, checkoutModifiers, onCheckoutProgress, checkoutNotifications, commit.Id.Sha, committishOrBranchSpec, signature);
 
             return Head;
         }
@@ -696,8 +696,9 @@ namespace LibGit2Sharp
         /// <param name="checkoutModifiers"><see cref="CheckoutModifiers"/> controlling checkout behavior.</param>
         /// <param name="onCheckoutProgress"><see cref="CheckoutProgressHandler"/> that checkout progress is reported through.</param>
         /// <param name="checkoutNotificationOptions"><see cref="CheckoutNotificationOptions"/> to manage checkout notifications.</param>
+        /// <param name="signature">Identity for use when updating the reflog.</param>
         /// <returns>The <see cref="Branch"/> that was checked out.</returns>
-        public Branch Checkout(Branch branch, CheckoutModifiers checkoutModifiers, CheckoutProgressHandler onCheckoutProgress, CheckoutNotificationOptions checkoutNotificationOptions)
+        public Branch Checkout(Branch branch, CheckoutModifiers checkoutModifiers, CheckoutProgressHandler onCheckoutProgress, CheckoutNotificationOptions checkoutNotificationOptions, Signature signature = null)
         {
             Ensure.ArgumentNotNull(branch, "branch");
 
@@ -709,17 +710,15 @@ namespace LibGit2Sharp
                     "The tip of branch '{0}' is null. There's nothing to checkout.", branch.Name));
             }
 
-            var branchIsCurrentRepositoryHead = branch.IsCurrentRepositoryHead;
-
             if (!branch.IsRemote && !(branch is DetachedHead) &&
                 string.Equals(Refs[branch.CanonicalName].TargetIdentifier, branch.Tip.Id.Sha,
                 StringComparison.OrdinalIgnoreCase))
             {
-                Checkout(branch.Tip.Tree, checkoutModifiers, onCheckoutProgress, checkoutNotificationOptions, branch.CanonicalName, branch.Name, !branchIsCurrentRepositoryHead);
+                Checkout(branch.Tip.Tree, checkoutModifiers, onCheckoutProgress, checkoutNotificationOptions, branch.CanonicalName, branch.Name, signature);
             }
             else
             {
-                Checkout(branch.Tip.Tree, checkoutModifiers, onCheckoutProgress, checkoutNotificationOptions, branch.Tip.Id.Sha, branch.Name, !branchIsCurrentRepositoryHead);
+                Checkout(branch.Tip.Tree, checkoutModifiers, onCheckoutProgress, checkoutNotificationOptions, branch.Tip.Id.Sha, branch.Name, signature);
             }
 
             return Head;
@@ -735,21 +734,13 @@ namespace LibGit2Sharp
         /// <param name="checkoutModifiers"><see cref="CheckoutModifiers"/> controlling checkout behavior.</param>
         /// <param name="onCheckoutProgress"><see cref="CheckoutProgressHandler"/> that checkout progress is reported through.</param>
         /// <param name="checkoutNotificationOptions"><see cref="CheckoutNotificationOptions"/> to manage checkout notifications.</param>
+        /// <param name="signature">Identity for use when updating the reflog.</param>
         /// <returns>The <see cref="Branch"/> that was checked out.</returns>
-        public Branch Checkout(Commit commit, CheckoutModifiers checkoutModifiers, CheckoutProgressHandler onCheckoutProgress, CheckoutNotificationOptions checkoutNotificationOptions)
+        public Branch Checkout(Commit commit, CheckoutModifiers checkoutModifiers, CheckoutProgressHandler onCheckoutProgress, CheckoutNotificationOptions checkoutNotificationOptions, Signature signature = null)
         {
-            Checkout(commit.Tree, checkoutModifiers, onCheckoutProgress, checkoutNotificationOptions, commit.Id.Sha, commit.Id.Sha, true);
+            Checkout(commit.Tree, checkoutModifiers, onCheckoutProgress, checkoutNotificationOptions, commit.Id.Sha, commit.Id.Sha, signature);
 
             return Head;
-        }
-
-        private void LogCheckout(string previousHeadName, ObjectId newHeadTip, string newHeadSpec)
-        {
-            // Compute reflog message
-            string reflogMessage = string.Format("checkout: moving from {0} to {1}", previousHeadName, newHeadSpec);
-
-            // Log checkout
-            Refs.Log(Refs.Head).Append(newHeadTip, reflogMessage);
         }
 
         /// <summary>
@@ -762,13 +753,13 @@ namespace LibGit2Sharp
         /// <param name="checkoutNotificationOptions"><see cref="CheckoutNotificationOptions"/> to manage checkout notifications.</param>
         /// <param name="headTarget">Target for the new HEAD.</param>
         /// <param name="refLogHeadSpec">The spec which will be written as target in the reflog.</param>
-        /// <param name="writeReflogEntry">Will a reflog entry be created.</param>
+        /// <param name="signature">Identity for use when updating the reflog.</param>
         private void Checkout(
             Tree tree,
             CheckoutModifiers checkoutModifiers,
             CheckoutProgressHandler onCheckoutProgress,
             CheckoutNotificationOptions checkoutNotificationOptions,
-            string headTarget, string refLogHeadSpec, bool writeReflogEntry)
+            string headTarget, string refLogHeadSpec, Signature signature)
         {
             var previousHeadName = Info.IsHeadDetached ? Head.Tip.Sha : Head.Name;
 
@@ -781,12 +772,8 @@ namespace LibGit2Sharp
 
             CheckoutTree(tree, null, opts);
 
-            Refs.UpdateTarget("HEAD", headTarget);
-
-            if (writeReflogEntry)
-            {
-                LogCheckout(previousHeadName, Head.Tip.Id, refLogHeadSpec);
-            }
+            Refs.UpdateTarget("HEAD", headTarget, signature,
+                string.Format("checkout: moving from {0} to {1}", previousHeadName, refLogHeadSpec));
         }
 
         /// <summary>
@@ -837,13 +824,18 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="resetMode">Flavor of reset operation to perform.</param>
         /// <param name="commit">The target commit object.</param>
-        public void Reset(ResetMode resetMode, Commit commit)
+        /// <param name="signature">Identity for use when updating the reflog.</param>
+        /// <param name="logMessage">Message to use when updating the reflog.</param>
+        public void Reset(ResetMode resetMode, Commit commit, Signature signature = null, string logMessage = null)
         {
             Ensure.ArgumentNotNull(commit, "commit");
 
-            Proxy.git_reset(handle, commit.Id, resetMode);
+            if (logMessage == null)
+            {
+                logMessage = string.Format("reset: moving to {0}", commit.Sha);
+            }
 
-            Refs.Log(Refs.Head).Append(commit.Id, string.Format("reset: moving to {0}", commit.Sha));
+            Proxy.git_reset(handle, commit.Id, resetMode, signature.OrDefault(Config), logMessage);
         }
 
         /// <summary>
@@ -914,47 +906,65 @@ namespace LibGit2Sharp
             var treeId = Proxy.git_tree_create_fromindex(Index);
             var tree = this.Lookup<Tree>(treeId);
 
-            var parents = RetrieveParentsOfTheCommitBeingCreated(amendPreviousCommit);
+            var parents = RetrieveParentsOfTheCommitBeingCreated(amendPreviousCommit).ToList();
 
-            Commit result = ObjectDatabase.CreateCommit(author, committer, message, true, tree, parents, "HEAD");
+            Commit result = ObjectDatabase.CreateCommit(author, committer, message, true, tree, parents);
 
             Proxy.git_repository_state_cleanup(handle);
 
-            // Insert reflog entry
-            LogCommit(result, amendPreviousCommit, isHeadOrphaned, parents.Count() > 1);
+            var logAllRefUpdates = Config.GetValueOrDefault<bool>("core.logAllRefUpdates", false);
+            if (!logAllRefUpdates)
+            {
+                return result;
+            }
+
+            var logMessage = BuildCommitLogMessage(result, amendPreviousCommit, isHeadOrphaned, parents.Count > 1);
+            LogCommit(result, logMessage);
 
             return result;
         }
 
-        private void LogCommit(Commit commit, bool amendPreviousCommit, bool isHeadOrphaned, bool isMergeCommit)
+        private string BuildCommitLogMessage(Commit commit, bool amendPreviousCommit, bool isHeadOrphaned, bool isMergeCommit)
         {
-            // Compute reflog message
-            string reflogMessage = "commit";
+            string kind = string.Empty;
             if (isHeadOrphaned)
             {
-                reflogMessage += " (initial)";
+                kind = " (initial)";
             }
             else if (amendPreviousCommit)
             {
-                reflogMessage += " (amend)";
+                kind = " (amend)";
             }
             else if (isMergeCommit)
             {
-                reflogMessage += " (merge)";
+                kind = " (merge)";
             }
 
-            reflogMessage = string.Format("{0}: {1}", reflogMessage, commit.MessageShort);
+            return string.Format("commit{0}: {1}", kind, commit.MessageShort);
+        }
 
-            var headRef = Refs.Head;
+        private void LogCommit(Commit commit, string reflogMessage)
+        {
+            Reference reference = Refs.Head;
 
-            // in case HEAD targets a symbolic reference, log commit on the targeted direct reference
-            if (headRef is SymbolicReference)
+            while (true) //TODO: Implement max nesting level
             {
-                Refs.Log(headRef.ResolveToDirectReference()).Append(commit.Id, reflogMessage, commit.Committer);
-            }
+                if (reference is DirectReference)
+                {
+                    Refs.UpdateTarget(reference, commit.Id, commit.Committer, reflogMessage);
+                    return;
+                }
 
-            // Log commit on HEAD
-            Refs.Log(headRef).Append(commit.Id, reflogMessage, commit.Committer);
+                var symRef = (SymbolicReference) reference;
+
+                reference = symRef.Target;
+
+                if (reference == null)
+                {
+                    Refs.Add(symRef.TargetIdentifier, commit.Id, commit.Committer, reflogMessage);
+                    return;
+                }
+            }
         }
 
         private IEnumerable<Commit> RetrieveParentsOfTheCommitBeingCreated(bool amendPreviousCommit)
@@ -1076,7 +1086,7 @@ namespace LibGit2Sharp
         /// <returns>The result of the performed merge <see cref="MergeResult"/>.</returns>
         public MergeResult Merge(Commit commit, Signature merger)
         {
-            using (GitMergeHeadHandle mergeHeadHandle = Proxy.git_merge_head_from_oid(Handle, commit.Id.Oid))
+            using (GitMergeHeadHandle mergeHeadHandle = Proxy.git_merge_head_from_id(Handle, commit.Id.Oid))
             {
                 GitMergeOpts opts = new GitMergeOpts()
                 {

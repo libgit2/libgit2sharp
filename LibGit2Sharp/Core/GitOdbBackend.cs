@@ -30,6 +30,7 @@ namespace LibGit2Sharp.Core
         public writestream_callback WriteStream;
         public readstream_callback ReadStream;
         public exists_callback Exists;
+        public IntPtr ExistsPrefix;
         public IntPtr Refresh;
         public foreach_callback Foreach;
         public IntPtr Writepack;

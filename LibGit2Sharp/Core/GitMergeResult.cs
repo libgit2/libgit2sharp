@@ -12,7 +12,7 @@ namespace LibGit2Sharp
 
             if (IsFastForward)
             {
-                FastForwardId = Proxy.git_merge_result_fastforward_oid(handle);
+                FastForwardId = Proxy.git_merge_result_fastforward_id(handle);
             }
         }
 

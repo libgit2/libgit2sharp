@@ -66,6 +66,11 @@
         LockedFile = -14,
 
         /// <summary>
+        /// Reference value does not match expected.
+        /// </summary>
+        Modified = -15,
+
+        /// <summary>
         /// Skip and passthrough the given ODB backend.
         /// </summary>
         PassThrough = -30,

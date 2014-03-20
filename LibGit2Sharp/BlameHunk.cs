@@ -39,11 +39,11 @@ namespace LibGit2Sharp
             // Signature objects need to have ownership of their native pointers
             if (rawHunk.FinalSignature != IntPtr.Zero)
             {
-                FinalSignature = new Signature(NativeMethods.git_signature_dup(rawHunk.FinalSignature));
+                FinalSignature = new Signature(Proxy.git_signature_dup(rawHunk.FinalSignature));
             }
             if (rawHunk.OrigSignature != IntPtr.Zero)
             {
-                InitialSignature = new Signature(NativeMethods.git_signature_dup(rawHunk.OrigSignature));
+                InitialSignature = new Signature(Proxy.git_signature_dup(rawHunk.OrigSignature));
             }
         }
 
