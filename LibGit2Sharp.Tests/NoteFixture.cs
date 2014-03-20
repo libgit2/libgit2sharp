@@ -66,6 +66,16 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
+        public void CanRetrieveASpecificNoteFromAKnownNamespace()
+        {
+            using (var repo = new Repository(BareTestRepoPath))
+            {
+                var singleNote = repo.Notes["answer", new ObjectId("4a202b346bb0fb0db7eff3cffeb3c70babbd2045")];
+                Assert.Equal("Nope\n", singleNote.Message);
+            }
+        }
+
+        [Fact]
         public void CanGetListOfNotesNamespaces()
         {
             var expectedNamespaces = new[] { "answer", "answer2", "commits", };
