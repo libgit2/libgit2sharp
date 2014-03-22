@@ -154,10 +154,12 @@ namespace LibGit2Sharp.Tests.TestHelpers
             return Repository.Init(scd.DirectoryPath, isBare);
         }
 
-        protected Repository InitIsolatedRepository(string path = null, bool isBare = false)
+        protected Repository InitIsolatedRepository(string path = null, bool isBare = false, RepositoryOptions options = null)
         {
-            path = path ?? InitNewRepository();
-            return new Repository(path, options: BuildFakeConfigs(BuildSelfCleaningDirectory()));
+            path = path ?? InitNewRepository(isBare);
+            options = BuildFakeConfigs(BuildSelfCleaningDirectory(), options);
+
+            return new Repository(path, options);
         }
 
         public void Register(string directoryPath)
@@ -230,9 +232,9 @@ namespace LibGit2Sharp.Tests.TestHelpers
             Assert.True(r.Success, text);
         }
 
-        public RepositoryOptions BuildFakeConfigs(SelfCleaningDirectory scd)
+        public RepositoryOptions BuildFakeConfigs(SelfCleaningDirectory scd, RepositoryOptions options = null)
         {
-            var options = BuildFakeRepositoryOptions(scd);
+            options = BuildFakeRepositoryOptions(scd, options);
 
             StringBuilder sb = new StringBuilder()
                 .AppendFormat("[Woot]{0}", Environment.NewLine)
@@ -254,21 +256,18 @@ namespace LibGit2Sharp.Tests.TestHelpers
             return options;
         }
 
-        private static RepositoryOptions BuildFakeRepositoryOptions(SelfCleaningDirectory scd)
+        private static RepositoryOptions BuildFakeRepositoryOptions(SelfCleaningDirectory scd, RepositoryOptions options = null)
         {
+            options = options ?? new RepositoryOptions();
+
             string confs = Path.Combine(scd.DirectoryPath, "confs");
             Directory.CreateDirectory(confs);
 
-            string globalLocation = Path.Combine(confs, "my-global-config");
-            string xdgLocation = Path.Combine(confs, "my-xdg-config");
-            string systemLocation = Path.Combine(confs, "my-system-config");
+            options.GlobalConfigurationLocation = Path.Combine(confs, "my-global-config");
+            options.XdgConfigurationLocation = Path.Combine(confs, "my-xdg-config");
+            options.SystemConfigurationLocation = Path.Combine(confs, "my-system-config");
 
-            return new RepositoryOptions
-            {
-                GlobalConfigurationLocation = globalLocation,
-                XdgConfigurationLocation = xdgLocation,
-                SystemConfigurationLocation = systemLocation,
-            };
+            return options;
         }
 
         /// <summary>
