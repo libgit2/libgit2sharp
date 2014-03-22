@@ -345,28 +345,23 @@ namespace LibGit2Sharp
             {
                 singleReturnValue = DereferenceToCommit(repo, identifier as string);
             }
-
-            if (identifier is ObjectId)
+            else if (identifier is ObjectId)
             {
                 singleReturnValue = DereferenceToCommit(repo, ((ObjectId) identifier).Sha);
             }
-
-            if (identifier is Commit)
+            else if (identifier is Commit)
             {
                 singleReturnValue = ((Commit) identifier).Id;
             }
-
-            if (identifier is TagAnnotation)
+            else if (identifier is TagAnnotation)
             {
                 singleReturnValue = DereferenceToCommit(repo, ((TagAnnotation) identifier).Target.Id.Sha);
             }
-
-            if (identifier is Tag)
+            else if (identifier is Tag)
             {
                 singleReturnValue = DereferenceToCommit(repo, ((Tag) identifier).Target.Id.Sha);
             }
-
-            if (identifier is Branch)
+            else if (identifier is Branch)
             {
                 var branch = (Branch) identifier;
                 if (branch.Tip != null || !branch.IsCurrentRepositoryHead)
@@ -375,19 +370,11 @@ namespace LibGit2Sharp
                     singleReturnValue = branch.Tip.Id;
                 }
             }
-
-            if (identifier is Reference)
+            else if (identifier is Reference)
             {
                 singleReturnValue = DereferenceToCommit(repo, ((Reference) identifier).CanonicalName);
             }
-
-            if (singleReturnValue != null)
-            {
-                yield return singleReturnValue;
-                yield break;
-            }
-
-            if (identifier is IEnumerable)
+            else if (identifier is IEnumerable)
             {
                 foreach (object entry in (IEnumerable)identifier)
                 {
@@ -397,6 +384,12 @@ namespace LibGit2Sharp
                     }
                 }
 
+                yield break;
+            }
+
+            if (singleReturnValue != null)
+            {
+                yield return singleReturnValue;
                 yield break;
             }
 
@@ -415,6 +408,10 @@ namespace LibGit2Sharp
         /// <returns>An <see cref="ObjectId"/> for a commit object.</returns>
         internal static ObjectId Committish(this Repository repo, object identifier)
         {
+            while (!(identifier is string) && identifier is IEnumerable)
+            {
+                identifier = ((IEnumerable)identifier).Cast<object>().FirstOrDefault();
+            }
             return repo.Committishes(identifier, true).First();
         }
     }
