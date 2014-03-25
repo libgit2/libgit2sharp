@@ -278,12 +278,12 @@ namespace LibGit2Sharp.Core
         public static RepositorySafeHandle git_clone(
             string url,
             string workdir,
-            GitCloneOptions opts)
+            ref GitCloneOptions opts)
         {
             using (ThreadAffinity())
             {
                 RepositorySafeHandle repo;
-                int res = NativeMethods.git_clone(out repo, url, workdir, opts);
+                int res = NativeMethods.git_clone(out repo, url, workdir, ref opts);
                 Ensure.ZeroResult(res);
                 return repo;
             }

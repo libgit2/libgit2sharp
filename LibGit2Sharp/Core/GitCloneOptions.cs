@@ -4,9 +4,9 @@ using System.Runtime.InteropServices;
 namespace LibGit2Sharp.Core
 {
     [StructLayout(LayoutKind.Sequential)]
-    internal class GitCloneOptions
+    internal struct GitCloneOptions
     {
-        public uint Version = 1;
+        public uint Version;
 
         public GitCheckoutOpts CheckoutOpts;
         public GitRemoteCallbacks RemoteCallbacks;

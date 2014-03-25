@@ -558,6 +558,7 @@ namespace LibGit2Sharp
 
             var cloneOpts = new GitCloneOptions
             {
+                Version = 1,
                 Bare = options.IsBare ? 1 : 0,
                 CheckoutOpts =
                 {
@@ -572,7 +573,7 @@ namespace LibGit2Sharp
             };
 
             FilePath repoPath;
-            using (RepositorySafeHandle repo = Proxy.git_clone(sourceUrl, workdirPath, cloneOpts))
+            using (RepositorySafeHandle repo = Proxy.git_clone(sourceUrl, workdirPath, ref cloneOpts))
             {
                 repoPath = Proxy.git_repository_path(repo);
             }

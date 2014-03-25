@@ -238,7 +238,7 @@ namespace LibGit2Sharp.Core
             out RepositorySafeHandle repo,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string origin_url,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictFilePathMarshaler))] FilePath workdir_path,
-            GitCloneOptions opts);
+            ref GitCloneOptions opts);
 
         [DllImport(libgit2)]
         internal static extern IntPtr git_commit_author(GitObjectSafeHandle commit);
