@@ -389,8 +389,11 @@ namespace LibGit2Sharp.Core
             out IntPtr cred,
             IntPtr url,
             IntPtr username_from_url,
-            uint allowed_types,
+            GitCredentialType allowed_types,
             IntPtr payload);
+
+        [DllImport(libgit2)]
+        internal static extern int git_cred_default_new(out IntPtr cred);
 
         [DllImport(libgit2)]
         internal static extern int git_cred_userpass_plaintext_new(
