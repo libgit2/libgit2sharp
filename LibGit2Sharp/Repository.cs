@@ -1124,50 +1124,48 @@ namespace LibGit2Sharp
         {
             using (GitMergeHeadHandle mergeHeadHandle = Proxy.git_merge_head_from_id(Handle, commit.Id.Oid))
             {
-                GitMergeOpts opts = new GitMergeOpts()
-                {
-                    Version = 1,
-                    MergeTreeOpts = { Version = 1 },
-                    CheckoutOpts = { version = 1 },
-                };
+                GitMergeHeadHandle[] mergeHeadHandles = new GitMergeHeadHandle[] { mergeHeadHandle };
 
+                GitMergeAnalysis mergeAnalysis = Proxy.git_merge_analysis(Handle, mergeHeadHandles);
 
-                // Perform the merge in libgit2 and get the result back.
-                GitMergeResult gitMergeResult;
-                using (GitMergeResultHandle mergeResultHandle = Proxy.git_merge(Handle, new GitMergeHeadHandle[] { mergeHeadHandle }, opts))
-                {
-                    gitMergeResult = new GitMergeResult(mergeResultHandle);
-                }
-
-                // Handle the result of the merge performed in libgit2
-                // and commit the result / update the working directory as necessary.
                 MergeResult mergeResult;
-                switch(gitMergeResult.Status)
+                if ((mergeAnalysis & GitMergeAnalysis.GIT_MERGE_ANALYSIS_UP_TO_DATE) == GitMergeAnalysis.GIT_MERGE_ANALYSIS_UP_TO_DATE)
                 {
-                    case MergeStatus.UpToDate:
-                        mergeResult = new MergeResult(MergeStatus.UpToDate);
-                        break;
-                    case MergeStatus.FastForward:
-                        Commit fastForwardCommit = this.Lookup<Commit>(gitMergeResult.FastForwardId);
-                        FastForward(fastForwardCommit);
-                        mergeResult = new MergeResult(MergeStatus.FastForward, fastForwardCommit);
-                        break;
-                    case MergeStatus.NonFastForward:
-                        {
-                            if (Index.IsFullyMerged)
-                            {
-                                // Commit the merge
-                                Commit mergeCommit = this.Commit(Info.Message, author: merger, committer: merger);
-                                mergeResult = new MergeResult(MergeStatus.NonFastForward, mergeCommit);
-                            }
-                            else
-                            {
-                                mergeResult = new MergeResult(MergeStatus.Conflicts);
-                            }
-                        }
-                        break;
-                    default:
-                        throw new NotImplementedException(string.Format("Unknown MergeStatus: {0}", gitMergeResult.Status));
+                    mergeResult = new MergeResult(MergeStatus.UpToDate);
+                }
+                else if ((mergeAnalysis & GitMergeAnalysis.GIT_MERGE_ANALYSIS_FASTFORWARD) == GitMergeAnalysis.GIT_MERGE_ANALYSIS_FASTFORWARD)
+                {
+                    FastForward(commit);
+                    mergeResult = new MergeResult(MergeStatus.FastForward, commit);
+                }
+                else if ((mergeAnalysis & GitMergeAnalysis.GIT_MERGE_ANALYSIS_NORMAL) == GitMergeAnalysis.GIT_MERGE_ANALYSIS_NORMAL)
+                {
+                    GitMergeOpts mergeOptions = new GitMergeOpts()
+                    {
+                        Version = 1
+                    };
+
+                    GitCheckoutOpts checkoutOpts = new GitCheckoutOpts()
+                    {
+                        version = 1
+                    };
+
+                    Proxy.git_merge(Handle, mergeHeadHandles, mergeOptions, checkoutOpts);
+
+                    if (Index.IsFullyMerged)
+                    {
+                        // Commit the merge
+                        Commit mergeCommit = this.Commit(Info.Message, author: merger, committer: merger);
+                        mergeResult = new MergeResult(MergeStatus.NonFastForward, mergeCommit);
+                    }
+                    else
+                    {
+                        mergeResult = new MergeResult(MergeStatus.Conflicts);
+                    }
+                }
+                else
+                {
+                    throw new NotImplementedException(string.Format("Unknown merge analysis: {0}", mergeAnalysis));
                 }
 
                 return mergeResult;

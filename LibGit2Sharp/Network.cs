@@ -89,7 +89,7 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNull(url, "url");
 
-            using (RemoteSafeHandle remoteHandle = Proxy.git_remote_create_inmemory(repository.Handle, null, url))
+            using (RemoteSafeHandle remoteHandle = Proxy.git_remote_create_anonymous(repository.Handle, url, null))
             {
                 Proxy.git_remote_connect(remoteHandle, GitDirection.Fetch);
                 return Proxy.git_remote_ls(repository, remoteHandle);
@@ -184,7 +184,7 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(url, "url");
             Ensure.ArgumentNotNull(refspecs, "refspecs");
 
-            using (RemoteSafeHandle remoteHandle = Proxy.git_remote_create_inmemory(repository.Handle, null, url))
+            using (RemoteSafeHandle remoteHandle = Proxy.git_remote_create_anonymous(repository.Handle, url, null))
             {
                 Proxy.git_remote_set_fetch_refspecs(remoteHandle, refspecs);
 
