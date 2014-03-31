@@ -928,14 +928,30 @@ namespace LibGit2Sharp.Core
 
         #region git_merge_
 
-        public static ObjectId git_merge_base(RepositorySafeHandle repo, Commit first, Commit second)
+        public static ObjectId git_merge_base_many(RepositorySafeHandle repo, GitOid[] commitIds)
         {
             using (ThreadAffinity())
-            using (var osw1 = new ObjectSafeWrapper(first.Id, repo))
-            using (var osw2 = new ObjectSafeWrapper(second.Id, repo))
             {
                 GitOid ret;
-                int res = NativeMethods.git_merge_base(out ret, repo, osw1.ObjectPtr, osw2.ObjectPtr);
+                int res = NativeMethods.git_merge_base_many(out ret, repo, commitIds.Length, commitIds);
+
+                if (res == (int)GitErrorCode.NotFound)
+                {
+                    return null;
+                }
+
+                Ensure.ZeroResult(res);
+
+                return ret;
+            }
+        }
+
+        public static ObjectId git_merge_base_octopus(RepositorySafeHandle repo, GitOid[] commitIds)
+        {
+            using (ThreadAffinity())
+            {
+                GitOid ret;
+                int res = NativeMethods.git_merge_base_octopus(out ret, repo, commitIds.Length, commitIds);
 
                 if (res == (int)GitErrorCode.NotFound)
                 {

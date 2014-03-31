@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace LibGit2Sharp
 {
@@ -20,6 +21,7 @@ namespace LibGit2Sharp
         /// <param name="first">The first <see cref="Commit"/>.</param>
         /// <param name="second">The second <see cref="Commit"/>.</param>
         /// <returns>The common ancestor or null if none found.</returns>
+        [Obsolete("This method will be removed in the next release. Please use FindMergeBase(Commit, Commit).")]
         Commit FindCommonAncestor(Commit first, Commit second);
 
         /// <summary>
@@ -27,6 +29,23 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="commits">The <see cref="Commit"/> for which to find the common ancestor.</param>
         /// <returns>The common ancestor or null if none found.</returns>
+        [Obsolete("This method will be removed in the next release. Please use FindMergeBase(IEnumerable<Commit>, MergeBaseFindingStrategy).")]
         Commit FindCommonAncestor(IEnumerable<Commit> commits);
+
+        /// <summary>
+        /// Find the best possible merge base given two <see cref="Commit"/>s.
+        /// </summary>
+        /// <param name="first">The first <see cref="Commit"/>.</param>
+        /// <param name="second">The second <see cref="Commit"/>.</param>
+        /// <returns>The merge base or null if none found.</returns>
+        Commit FindMergeBase(Commit first, Commit second);
+
+        /// <summary>
+        /// Find the best possible merge base given two or more <see cref="Commit"/> according to the <see cref="MergeBaseFindingStrategy"/>.
+        /// </summary>
+        /// <param name="commits">The <see cref="Commit"/>s for which to find the merge base.</param>
+        /// <param name="strategy">The strategy to leverage in order to find the merge base.</param>
+        /// <returns>The merge base or null if none found.</returns>
+        Commit FindMergeBase(IEnumerable<Commit> commits, MergeBaseFindingStrategy strategy);
     }
 }
