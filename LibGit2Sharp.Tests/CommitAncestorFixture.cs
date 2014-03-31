@@ -2,6 +2,7 @@
 using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
+using Xunit.Extensions;
 
 namespace LibGit2Sharp.Tests
 {
@@ -28,83 +29,86 @@ namespace LibGit2Sharp.Tests
          *
         */
 
-        [Fact]
-        public void CanFindCommonAncestorForTwoCommits()
+        [Theory]
+        [InlineData("5b5b025afb0b4c913b4c338a42934a3863bf3644", "c47800c", "9fd738e")]
+        [InlineData("9fd738e8f7967c078dceed8190330fc8648ee56a", "be3563a", "9fd738e")]
+        [InlineData(null, "be3563a", "-")]
+        public void FindCommonAncestorForTwoCommits(string result, string sha1, string sha2)
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                var first = repo.Lookup<Commit>("c47800c7266a2be04c571c04d5a6614691ea99bd");
-                var second = repo.Lookup<Commit>("9fd738e8f7967c078dceed8190330fc8648ee56a");
+                var first = sha1 == "-" ? CreateOrphanedCommit(repo) : repo.Lookup<Commit>(sha1);
+                var second = sha2 == "-" ? CreateOrphanedCommit(repo) : repo.Lookup<Commit>(sha2);
 
-                Commit ancestor = repo.Commits.FindCommonAncestor(first, second);
+                Commit ancestor = repo.Commits.FindMergeBase(first, second);
 
-                Assert.NotNull(ancestor);
-                Assert.Equal("5b5b025afb0b4c913b4c338a42934a3863bf3644", ancestor.Id.Sha);
+                if (result == null)
+                {
+                    Assert.Null(ancestor);
+                }
+                else
+                {
+                    Assert.NotNull(ancestor);
+                    Assert.Equal(result, ancestor.Id.Sha);
+                }
             }
         }
 
-        [Fact]
-        public void CanFindCommonAncestorForTwoCommitsAsEnumerable()
+        [Theory]
+        [InlineData("5b5b025afb0b4c913b4c338a42934a3863bf3644", new[] { "c47800c", "9fd738e" }, MergeBaseFindingStrategy.Octopus)]
+        [InlineData("5b5b025afb0b4c913b4c338a42934a3863bf3644", new[] { "c47800c", "9fd738e" }, MergeBaseFindingStrategy.Standard)]
+        [InlineData("5b5b025afb0b4c913b4c338a42934a3863bf3644", new[] { "4c062a6", "be3563a", "c47800c", "5b5b025" }, MergeBaseFindingStrategy.Octopus)]
+        [InlineData("be3563ae3f795b2b4353bcce3a527ad0a4f7f644", new[] { "4c062a6", "be3563a", "c47800c", "5b5b025" }, MergeBaseFindingStrategy.Standard)]
+        [InlineData(null, new[] { "4c062a6", "be3563a", "-", "c47800c", "5b5b025" }, MergeBaseFindingStrategy.Octopus)]
+        [InlineData("be3563ae3f795b2b4353bcce3a527ad0a4f7f644", new[] { "4c062a6", "be3563a", "-", "c47800c", "5b5b025" }, MergeBaseFindingStrategy.Standard)]
+        [InlineData(null, new[] { "4c062a6", "-" }, MergeBaseFindingStrategy.Octopus)]
+        [InlineData(null, new[] { "4c062a6", "-" }, MergeBaseFindingStrategy.Standard)]
+        public void FindCommonAncestorForCommitsAsEnumerable(string result, string[] shas, MergeBaseFindingStrategy strategy)
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                var first = repo.Lookup<Commit>("c47800c7266a2be04c571c04d5a6614691ea99bd");
-                var second = repo.Lookup<Commit>("9fd738e8f7967c078dceed8190330fc8648ee56a");
+                var commits = shas.Select(sha => sha == "-" ? CreateOrphanedCommit(repo) : repo.Lookup<Commit>(sha)).ToArray();
 
-                Commit ancestor = repo.Commits.FindCommonAncestor(new[] { first, second });
+                Commit ancestor = repo.Commits.FindMergeBase(commits, strategy);
 
-                Assert.NotNull(ancestor);
-                Assert.Equal("5b5b025afb0b4c913b4c338a42934a3863bf3644", ancestor.Id.Sha);
+                if (result == null)
+                {
+                    Assert.Null(ancestor);
+                }
+                else
+                {
+                    Assert.NotNull(ancestor);
+                    Assert.Equal(result, ancestor.Id.Sha);
+                }
             }
         }
 
-        [Fact]
-        public void CanFindCommonAncestorForSeveralCommits()
+        [Theory]
+        [InlineData("4c062a6", "0000000")]
+        [InlineData("0000000", "4c062a6")]
+        public void FindCommonAncestorForTwoCommitsThrows(string sha1, string sha2)
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                var first = repo.Lookup<Commit>("4c062a6361ae6959e06292c1fa5e2822d9c96345");
-                var second = repo.Lookup<Commit>("be3563ae3f795b2b4353bcce3a527ad0a4f7f644");
-                var third = repo.Lookup<Commit>("c47800c7266a2be04c571c04d5a6614691ea99bd");
-                var fourth = repo.Lookup<Commit>("5b5b025afb0b4c913b4c338a42934a3863bf3644");
+                var first = repo.Lookup<Commit>(sha1);
+                var second = repo.Lookup<Commit>(sha2);
 
-                Commit ancestor = repo.Commits.FindCommonAncestor(new[] { first, second, third, fourth });
-
-                Assert.NotNull(ancestor);
-                Assert.Equal("5b5b025afb0b4c913b4c338a42934a3863bf3644", ancestor.Id.Sha);
+                Assert.Throws<ArgumentNullException>(() => repo.Commits.FindMergeBase(first, second));
             }
         }
 
-        [Fact]
-        public void CannotFindAncestorForTwoCommmitsWithoutCommonAncestor()
+        [Theory]
+        [InlineData(new[] { "4c062a6" }, MergeBaseFindingStrategy.Octopus)]
+        [InlineData(new[] { "4c062a6" }, MergeBaseFindingStrategy.Standard)]
+        [InlineData(new[] { "4c062a6", "be3563a", "000000" }, MergeBaseFindingStrategy.Octopus)]
+        [InlineData(new[] { "4c062a6", "be3563a", "000000" }, MergeBaseFindingStrategy.Standard)]
+        public void FindCommonAncestorForCommitsAsEnumerableThrows(string[] shas, MergeBaseFindingStrategy strategy)
         {
-            string path = CloneBareTestRepo();
-            using (var repo = new Repository(path))
+            using (var repo = new Repository(BareTestRepoPath))
             {
-                var first = repo.Lookup<Commit>("4c062a6361ae6959e06292c1fa5e2822d9c96345");
-                var second = repo.Lookup<Commit>("be3563ae3f795b2b4353bcce3a527ad0a4f7f644");
-                var third = repo.Lookup<Commit>("c47800c7266a2be04c571c04d5a6614691ea99bd");
-                var fourth = repo.Lookup<Commit>("5b5b025afb0b4c913b4c338a42934a3863bf3644");
+                var commits = shas.Select(sha => sha == "-" ? CreateOrphanedCommit(repo) : repo.Lookup<Commit>(sha)).ToArray();
 
-                Commit orphanedCommit = CreateOrphanedCommit(repo);
-
-                Commit ancestor = repo.Commits.FindCommonAncestor(new[] { first, second, orphanedCommit, third, fourth });
-                Assert.Null(ancestor);
-            }
-        }
-
-        [Fact]
-        public void CannotFindCommonAncestorForSeveralCommmitsWithoutCommonAncestor()
-        {
-            string path = CloneBareTestRepo();
-            using (var repo = new Repository(path))
-            {
-                var first = repo.Lookup<Commit>("4c062a6361ae6959e06292c1fa5e2822d9c96345");
-
-                var orphanedCommit = CreateOrphanedCommit(repo);
-
-                Commit ancestor = repo.Commits.FindCommonAncestor(first, orphanedCommit);
-                Assert.Null(ancestor);
+                Assert.Throws<ArgumentException>(() => repo.Commits.FindMergeBase(commits, strategy));
             }
         }
 
@@ -121,41 +125,6 @@ namespace LibGit2Sharp.Tests
                 Enumerable.Empty<Commit>());
 
             return orphanedCommit;
-        }
-
-        [Fact]
-        public void FindCommonAncestorForSingleCommitThrows()
-        {
-            using (var repo = new Repository(BareTestRepoPath))
-            {
-                var first = repo.Lookup<Commit>("4c062a6361ae6959e06292c1fa5e2822d9c96345");
-
-                Assert.Throws<ArgumentException>(() => repo.Commits.FindCommonAncestor(new[] { first }));
-            }
-        }
-
-        [Fact]
-        public void FindCommonAncestorForEnumerableWithNullCommitThrows()
-        {
-            using (var repo = new Repository(BareTestRepoPath))
-            {
-                var first = repo.Lookup<Commit>("4c062a6361ae6959e06292c1fa5e2822d9c96345");
-                var second = repo.Lookup<Commit>("be3563ae3f795b2b4353bcce3a527ad0a4f7f644");
-
-                Assert.Throws<ArgumentException>(() => repo.Commits.FindCommonAncestor(new[] { first, second, null }));
-            }
-        }
-
-        [Fact]
-        public void FindCommonAncestorForWithNullCommitThrows()
-        {
-            using (var repo = new Repository(BareTestRepoPath))
-            {
-                var first = repo.Lookup<Commit>("4c062a6361ae6959e06292c1fa5e2822d9c96345");
-
-                Assert.Throws<ArgumentNullException>(() => repo.Commits.FindCommonAncestor(first, null));
-                Assert.Throws<ArgumentNullException>(() => repo.Commits.FindCommonAncestor(null, first));
-            }
         }
     }
 }

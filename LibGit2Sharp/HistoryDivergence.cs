@@ -19,7 +19,7 @@ namespace LibGit2Sharp
 
         internal HistoryDivergence(Repository repo, Commit one, Commit another)
         {
-            commonAncestor = new Lazy<Commit>(() => repo.Commits.FindCommonAncestor(one, another));
+            commonAncestor = new Lazy<Commit>(() => repo.Commits.FindMergeBase(one, another));
             Tuple<int?, int?> div = Proxy.git_graph_ahead_behind(repo.Handle, another, one);
 
             One = one;
