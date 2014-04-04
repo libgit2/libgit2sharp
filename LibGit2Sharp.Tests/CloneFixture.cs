@@ -157,5 +157,29 @@ namespace LibGit2Sharp.Tests
                 Assert.False(repo.Info.IsBare);
             }
         }
+
+        [Fact]
+        public void CanCloneRecursively()
+        {
+            string sourcePath = BareSubmoduleTestRepoPath;
+            var scd = BuildSelfCleaningDirectory();
+
+            Repository.Clone(sourcePath, scd.DirectoryPath, new CloneOptions()
+            {
+                Recursive = true
+            });
+
+            using (var repo = new Repository(scd.DirectoryPath))
+            {
+                Assert.False(repo.Index.RetrieveStatus().IsDirty);
+            }
+
+            string clonedSubmodulePath = Path.Combine(scd.DirectoryPath, "testrepo");
+            using (var repo = new Repository(clonedSubmodulePath))
+            {
+                Assert.False(repo.Index.RetrieveStatus().IsDirty);
+                Assert.True(File.Exists(Path.Combine(clonedSubmodulePath, "new.txt")));
+            }
+        }
     }
 }

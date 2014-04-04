@@ -239,6 +239,14 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string origin_url,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictFilePathMarshaler))] FilePath workdir_path,
             ref GitCloneOptions opts);
+        
+        [DllImport(libgit2)]
+        internal static extern int git_clone_into(
+            RepositorySafeHandle repo,
+            RemoteSafeHandle remote,
+            ref GitCheckoutOpts co_opts,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string branch,
+            SignatureSafeHandle signature);
 
         [DllImport(libgit2)]
         internal static extern IntPtr git_commit_author(GitObjectSafeHandle commit);
@@ -1360,6 +1368,12 @@ namespace LibGit2Sharp.Core
         internal static extern int git_submodule_status(
             out SubmoduleStatus status,
             SubmoduleSafeHandle submodule);
+        
+        [DllImport(libgit2)]
+        internal static extern int git_submodule_resolve_url(
+            GitBuf buffer,
+            RepositorySafeHandle repo,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string url);
 
         [DllImport(libgit2)]
         internal static extern int git_tag_annotation_create(

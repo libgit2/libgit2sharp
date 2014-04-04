@@ -16,24 +16,21 @@ namespace LibGit2Sharp.Core
         public IntPtr InitialHead;
         public IntPtr OriginUrl;
 
-        public static GitRepositoryInitOptions BuildFrom(FilePath workdirPath, bool isBare)
+        public static GitRepositoryInitOptions BuildFrom(FilePath workdirPath, GitRepositoryInitFlags flags)
         {
+            flags |= GitRepositoryInitFlags.GIT_REPOSITORY_INIT_MKPATH;
+
             var opts = new GitRepositoryInitOptions
                            {
-                               Flags = GitRepositoryInitFlags.GIT_REPOSITORY_INIT_MKPATH,
+                               Flags = flags,
                                Mode = 0  /* GIT_REPOSITORY_INIT_SHARED_UMASK  */
                            };
 
             if (workdirPath != null)
             {
-                Debug.Assert(!isBare);
+                Debug.Assert((flags & GitRepositoryInitFlags.GIT_REPOSITORY_INIT_BARE) == 0);
 
                 opts.WorkDirPath = StrictFilePathMarshaler.FromManaged(workdirPath);
-            }
-
-            if (isBare)
-            {
-                opts.Flags |= GitRepositoryInitFlags.GIT_REPOSITORY_INIT_BARE;
             }
 
             return opts;

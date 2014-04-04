@@ -6,6 +6,7 @@ using System.Globalization;
 using System.Linq;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Handles;
+using System.IO;
 
 namespace LibGit2Sharp
 {
@@ -107,6 +108,22 @@ namespace LibGit2Sharp
             {
                 return string.Format(CultureInfo.InvariantCulture,
                                      "Count = {0}", this.Count());
+            }
+        }
+
+        /// <summary>
+        /// Initializes and updates all submodules, and their submodules recursively
+        /// </summary>
+        internal void InitAndUpdateRecursively(CloneOptions options)
+        {
+            foreach (Submodule module in this)
+            {
+                module.Init(options);
+                module.Update(options);
+                using (Repository subrepo = new Repository(module.WorkingDirectory))
+                {
+                    subrepo.Submodules.InitAndUpdateRecursively(options);
+                }
             }
         }
     }

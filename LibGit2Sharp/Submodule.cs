@@ -2,6 +2,8 @@
 using System.Diagnostics;
 using System.Globalization;
 using LibGit2Sharp.Core;
+using LibGit2Sharp.Core.Handles;
+using LibGit2Sharp.Handlers;
 
 namespace LibGit2Sharp
 {
@@ -55,9 +57,19 @@ namespace LibGit2Sharp
         public virtual string Name { get { return name; } }
 
         /// <summary>
-        /// The path of the submodule.
+        /// The path of the submodule relative to the workdir of the parent repository.
         /// </summary>
         public virtual string Path { get { return path; } }
+
+        /// <summary>
+        /// Gets the absolute path to the working directory of the submodule.
+        /// </summary>
+        public virtual string WorkingDirectory
+        { 
+            get { 
+                return System.IO.Path.Combine(repo.Info.WorkingDirectory, Path); 
+            } 
+        }
 
         /// <summary>
         /// The URL of the submodule.
@@ -153,6 +165,48 @@ namespace LibGit2Sharp
             {
                 return string.Format(CultureInfo.InvariantCulture,
                     "{0} => {1}", Name, Url);
+            }
+        }
+
+        /// <summary>
+        /// Inits this submodule
+        /// </summary>
+        /// <param name="options"></param>
+        internal void Init(CloneOptions options)
+        {
+            var remoteCallbacks = new RemoteCallbacks(null, options.OnTransferProgress, null,
+                options.Credentials);
+            GitRemoteCallbacks gitRemoteCallbacks = remoteCallbacks.GenerateCallbacks();
+            
+            string gitdirPath = System.IO.Path.Combine(System.IO.Path.Combine(repo.Info.Path, "modules"), Path);
+            string remoteURL = Proxy.git_submodule_resolve_url(repo.Handle, Url);
+            string fetchRefspec = "+refs/heads/*:refs/remotes/origin/*";
+            Signature signature = repo.Config.BuildSignature(DateTimeOffset.Now);
+
+            GitCheckoutOpts opts = new GitCheckoutOpts() {
+                    version = 1,
+                    checkout_strategy = CheckoutStrategy.GIT_CHECKOUT_NONE
+            };
+
+            using (RepositorySafeHandle subrepo = Proxy.git_repository_init_ext(
+                WorkingDirectory, gitdirPath, GitRepositoryInitFlags.GIT_REPOSITORY_INIT_NO_DOTGIT_DIR))
+            using (RemoteSafeHandle remote = Proxy.git_remote_create_anonymous(subrepo, remoteURL, fetchRefspec))
+            {
+                Proxy.git_remote_set_callbacks(remote, ref gitRemoteCallbacks);
+                Proxy.git_clone_into(subrepo, remote, opts, null /* no branch */, signature);
+            }
+        }
+
+        /// <summary>
+        /// Checks out the HEAD revision
+        /// </summary>
+        internal void Update(CloneOptions options)
+        {
+            using (Repository subrepo = new Repository(WorkingDirectory))
+            {
+                subrepo.Checkout(HeadCommitId.Sha, CheckoutModifiers.None, options.OnCheckoutProgress, null);
+                // This is required because Checkout() does not actually checkout the files
+                subrepo.Reset(ResetMode.Hard);
             }
         }
     }

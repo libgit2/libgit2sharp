@@ -578,6 +578,14 @@ namespace LibGit2Sharp
                 repoPath = Proxy.git_repository_path(repo);
             }
 
+            if (options.Recursive && !options.IsBare)
+            {
+                using (Repository repo = new Repository(repoPath.ToString()))
+                {
+                    repo.submodules.InitAndUpdateRecursively(options);
+                }
+            }
+
             return repoPath.Native;
         }
 
