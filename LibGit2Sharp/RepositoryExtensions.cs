@@ -345,28 +345,23 @@ namespace LibGit2Sharp
             {
                 singleReturnValue = DereferenceToCommit(repo, identifier as string);
             }
-
-            if (identifier is ObjectId)
+            else if (identifier is ObjectId)
             {
                 singleReturnValue = DereferenceToCommit(repo, ((ObjectId) identifier).Sha);
             }
-
-            if (identifier is Commit)
+            else if (identifier is Commit)
             {
                 singleReturnValue = ((Commit) identifier).Id;
             }
-
-            if (identifier is TagAnnotation)
+            else if (identifier is TagAnnotation)
             {
                 singleReturnValue = DereferenceToCommit(repo, ((TagAnnotation) identifier).Target.Id.Sha);
             }
-
-            if (identifier is Tag)
+            else if (identifier is Tag)
             {
                 singleReturnValue = DereferenceToCommit(repo, ((Tag) identifier).Target.Id.Sha);
             }
-
-            if (identifier is Branch)
+            else if (identifier is Branch)
             {
                 var branch = (Branch) identifier;
                 if (branch.Tip != null || !branch.IsCurrentRepositoryHead)
@@ -375,8 +370,7 @@ namespace LibGit2Sharp
                     singleReturnValue = branch.Tip.Id;
                 }
             }
-
-            if (identifier is Reference)
+            else if (identifier is Reference)
             {
                 singleReturnValue = DereferenceToCommit(repo, ((Reference) identifier).CanonicalName);
             }
@@ -404,6 +398,7 @@ namespace LibGit2Sharp
             {
                 throw new LibGit2SharpException(string.Format(CultureInfo.InvariantCulture, "Unexpected kind of identifier '{0}'.", identifier));
             }
+
             yield return null;
         }
 
