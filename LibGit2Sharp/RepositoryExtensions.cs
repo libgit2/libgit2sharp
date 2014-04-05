@@ -374,7 +374,14 @@ namespace LibGit2Sharp
             {
                 singleReturnValue = DereferenceToCommit(repo, ((Reference) identifier).CanonicalName);
             }
-            else if (identifier is IEnumerable)
+
+            if (singleReturnValue != null)
+            {
+                yield return singleReturnValue;
+                yield break;
+            }
+
+            if (identifier is IEnumerable)
             {
                 foreach (object entry in (IEnumerable)identifier)
                 {
@@ -387,16 +394,11 @@ namespace LibGit2Sharp
                 yield break;
             }
 
-            if (singleReturnValue != null)
-            {
-                yield return singleReturnValue;
-                yield break;
-            }
-
             if (throwIfNotFound)
             {
                 throw new LibGit2SharpException(string.Format(CultureInfo.InvariantCulture, "Unexpected kind of identifier '{0}'.", identifier));
             }
+
             yield return null;
         }
 
@@ -408,10 +410,6 @@ namespace LibGit2Sharp
         /// <returns>An <see cref="ObjectId"/> for a commit object.</returns>
         internal static ObjectId Committish(this Repository repo, object identifier)
         {
-            while (!(identifier is string) && identifier is IEnumerable)
-            {
-                identifier = ((IEnumerable)identifier).Cast<object>().FirstOrDefault();
-            }
             return repo.Committishes(identifier, true).First();
         }
     }
