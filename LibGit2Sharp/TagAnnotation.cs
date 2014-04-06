@@ -5,7 +5,7 @@ namespace LibGit2Sharp
     /// <summary>
     /// A TagAnnotation
     /// </summary>
-    public class TagAnnotation : GitObject
+    public class TagAnnotation : GitObject, ICommittish
     {
         private readonly GitObjectLazyGroup group;
         private readonly ILazy<GitObject> lazyTarget;
@@ -50,5 +50,7 @@ namespace LibGit2Sharp
         /// Gets the tagger.
         /// </summary>
         public virtual Signature Tagger { get { return lazyTagger.Value; } }
+
+        string ICommittish.Identifier { get { return Target.Id.Sha; } }
     }
 }

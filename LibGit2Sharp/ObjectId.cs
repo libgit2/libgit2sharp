@@ -8,7 +8,7 @@ namespace LibGit2Sharp
     /// <summary>
     /// Uniquely identifies a <see cref="GitObject"/>.
     /// </summary>
-    public sealed class ObjectId : IEquatable<ObjectId>
+    public sealed class ObjectId : IEquatable<ObjectId>, ICommittish
     {
         private readonly GitOid oid;
         private const int rawSize = 20;
@@ -320,5 +320,7 @@ namespace LibGit2Sharp
 
             return Sha.StartsWith(shortSha, StringComparison.OrdinalIgnoreCase);
         }
+
+        string ICommittish.Identifier { get { return Sha; } }
     }
 }

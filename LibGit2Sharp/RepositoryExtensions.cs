@@ -5,7 +5,6 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using LibGit2Sharp.Core;
-using LibGit2Sharp.Handlers;
 
 namespace LibGit2Sharp
 {
@@ -377,24 +376,14 @@ namespace LibGit2Sharp
                 return DereferenceToCommit(repo, (string)identifier);
             }
 
-            if (identifier is ObjectId)
-            {
-                return DereferenceToCommit(repo, ((ObjectId)identifier).Sha);
-            }
-
             if (identifier is Commit)
             {
                 return ((Commit)identifier).Id;
             }
 
-            if (identifier is TagAnnotation)
+            if (identifier is ICommittish)
             {
-                return DereferenceToCommit(repo, ((TagAnnotation)identifier).Target.Id.Sha);
-            }
-
-            if (identifier is Tag)
-            {
-                return DereferenceToCommit(repo, ((Tag)identifier).Target.Id.Sha);
+                return DereferenceToCommit(repo, ((ICommittish)identifier).Identifier);
             }
 
             var branch = identifier as Branch;
@@ -405,11 +394,6 @@ namespace LibGit2Sharp
                     Ensure.GitObjectIsNotNull(branch.Tip, branch.CanonicalName);
                     return branch.Tip.Id;
                 }
-            }
-
-            if (identifier is Reference)
-            {
-                return DereferenceToCommit(repo, ((Reference)identifier).CanonicalName);
             }
 
             return null;
@@ -462,5 +446,10 @@ namespace LibGit2Sharp
         {
             return repo.Committishes(identifier, true).First();
         }
+    }
+
+    internal interface ICommittish
+    {
+        string Identifier { get; }
     }
 }

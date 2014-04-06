@@ -3,7 +3,7 @@
     /// <summary>
     /// A Tag
     /// </summary>
-    public class Tag : ReferenceWrapper<GitObject>
+    public class Tag : ReferenceWrapper<GitObject>, ICommittish
     {
         /// <summary>
         /// Needed for mocking purposes.
@@ -57,5 +57,7 @@
         {
             return CanonicalName.Substring(Reference.TagPrefix.Length);
         }
+
+        string ICommittish.Identifier { get { return Target.Id.Sha; } }
     }
 }
