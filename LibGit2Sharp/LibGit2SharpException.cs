@@ -47,20 +47,11 @@ namespace LibGit2Sharp
         {
         }
 
-        internal LibGit2SharpException(string message, GitErrorCode code, GitErrorCategory category) : this(FormatMessage(message, code, category))
+        internal LibGit2SharpException(string message, GitErrorCode code, GitErrorCategory category) : this(message)
         {
             Data.Add("libgit2.code", (int)code);
             Data.Add("libgit2.category", (int)category);
 
-        }
-
-        private static string FormatMessage(string message, GitErrorCode code, GitErrorCategory category)
-        {
-            return String.Format(CultureInfo.InvariantCulture, "An error was raised by libgit2. Category = {0} ({1}).{2}{3}",
-                          category,
-                          code,
-                          Environment.NewLine,
-                          message);
         }
     }
 }
