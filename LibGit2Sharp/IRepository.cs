@@ -164,8 +164,9 @@ namespace LibGit2Sharp
         /// <param name="author">The <see cref="Signature"/> of who made the change.</param>
         /// <param name="committer">The <see cref="Signature"/> of who added the change to the repository.</param>
         /// <param name="amendPreviousCommit">True to amend the current <see cref="Commit"/> pointed at by <see cref="Repository.Head"/>, false otherwise.</param>
+        /// <param name="allowEmptyCommit">True to allow creation of an empty <see cref="Commit"/>, false otherwise.</param>
         /// <returns>The generated <see cref="Commit"/>.</returns>
-        Commit Commit(string message, Signature author, Signature committer, bool amendPreviousCommit = false);
+        Commit Commit(string message, Signature author, Signature committer, bool amendPreviousCommit = false, bool allowEmptyCommit = false);
 
         /// <summary>
         /// Sets the current <see cref="Head"/> to the specified commit and optionally resets the <see cref="Index"/> and

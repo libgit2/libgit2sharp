@@ -81,6 +81,7 @@
     <Compile Include="Core\Handles\PatchSafeHandle.cs" />
     <Compile Include="Core\IntPtrExtensions.cs" />
     <Compile Include="DefaultCredentials.cs" />
+    <Compile Include="EmptyCommitException.cs" />
     <Compile Include="FetchOptions.cs" />
     <Compile Include="MergeResult.cs" />
     <Compile Include="PatchStats.cs" />

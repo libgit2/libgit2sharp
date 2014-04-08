@@ -894,8 +894,9 @@ namespace LibGit2Sharp
         /// <param name="author">The <see cref="Signature"/> of who made the change.</param>
         /// <param name="committer">The <see cref="Signature"/> of who added the change to the repository.</param>
         /// <param name="amendPreviousCommit">True to amend the current <see cref="Commit"/> pointed at by <see cref="Repository.Head"/>, false otherwise.</param>
+        /// <param name="allowEmptyCommit">True to allow creation of an empty <see cref="Commit"/>, false otherwise.</param>
         /// <returns>The generated <see cref="Commit"/>.</returns>
-        public Commit Commit(string message, Signature author, Signature committer, bool amendPreviousCommit = false)
+        public Commit Commit(string message, Signature author, Signature committer, bool amendPreviousCommit = false, bool allowEmptyCommit = false)
         {
             bool isHeadOrphaned = Info.IsHeadUnborn;
 
@@ -908,6 +909,20 @@ namespace LibGit2Sharp
             var tree = this.Lookup<Tree>(treeId);
 
             var parents = RetrieveParentsOfTheCommitBeingCreated(amendPreviousCommit).ToList();
+
+            if (parents.Count == 1 && !allowEmptyCommit)
+            {
+                var treesame = parents[0].Tree.Id.Equals(treeId);
+                var amendMergeCommit = amendPreviousCommit && !isHeadOrphaned && Head.Tip.Parents.Count() > 1;
+
+                if (treesame && !amendMergeCommit)
+                {
+                    throw new EmptyCommitException(
+                        options.AmendPreviousCommit ?
+                        String.Format("Amending this commit would produce a commit that is identical to its parent (id = {0})", parents[0].Id) :
+                        "No changes; nothing to commit.");
+                }
+            }
 
             Commit result = ObjectDatabase.CreateCommit(author, committer, message, true, tree, parents);
 
