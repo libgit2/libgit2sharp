@@ -752,7 +752,8 @@ namespace LibGit2Sharp.Tests
 
                 CreateAndStageANewFile(repo);
 
-                Commit amendedCommit = repo.Commit("I'm rewriting the history!", Constants.Signature, Constants.Signature, true);
+                Commit amendedCommit = repo.Commit("I'm rewriting the history!", Constants.Signature, Constants.Signature,
+                    new CommitOptions { AmendPreviousCommit = true });
 
                 Assert.Equal(1, repo.Head.Commits.Count());
 
@@ -775,7 +776,8 @@ namespace LibGit2Sharp.Tests
                 CreateAndStageANewFile(repo);
                 const string commitMessage = "I'm rewriting the history!";
 
-                Commit amendedCommit = repo.Commit(commitMessage, Constants.Signature, Constants.Signature, true);
+                Commit amendedCommit = repo.Commit(commitMessage, Constants.Signature, Constants.Signature,
+                    new CommitOptions { AmendPreviousCommit = true });
 
                 AssertCommitHasBeenAmended(repo, amendedCommit, mergedCommit);
 
@@ -810,7 +812,8 @@ namespace LibGit2Sharp.Tests
 
             using (var repo = new Repository(repoPath))
             {
-                Assert.Throws<UnbornBranchException>(() => repo.Commit("I can not amend anything !:(", Constants.Signature, Constants.Signature, true));
+                Assert.Throws<UnbornBranchException>(() =>
+                    repo.Commit("I can not amend anything !:(", Constants.Signature, Constants.Signature, new CommitOptions { AmendPreviousCommit = true }));
             }
         }
 
@@ -908,7 +911,8 @@ namespace LibGit2Sharp.Tests
                 repo.Reset(ResetMode.Hard);
                 repo.RemoveUntrackedFiles();
 
-                repo.Commit("Empty commit!", Constants.Signature, Constants.Signature, false, true);
+                repo.Commit("Empty commit!", Constants.Signature, Constants.Signature,
+                    new CommitOptions { AllowEmptyCommit = true });
             }
         }
 
@@ -921,9 +925,11 @@ namespace LibGit2Sharp.Tests
                 repo.Reset(ResetMode.Hard);
                 repo.RemoveUntrackedFiles();
 
-                repo.Commit("Empty commit!", Constants.Signature, Constants.Signature, false, true);
+                repo.Commit("Empty commit!", Constants.Signature, Constants.Signature,
+                    new CommitOptions { AllowEmptyCommit = true });
 
-                Assert.Throws<EmptyCommitException>(() => repo.Commit("Empty commit!", Constants.Signature, Constants.Signature, true, false));
+                Assert.Throws<EmptyCommitException>(() => repo.Commit("Empty commit!", Constants.Signature, Constants.Signature,
+                    new CommitOptions { AmendPreviousCommit = true }));
             }
         }
 
@@ -936,9 +942,11 @@ namespace LibGit2Sharp.Tests
                 repo.Reset(ResetMode.Hard);
                 repo.RemoveUntrackedFiles();
 
-                Commit emptyCommit = repo.Commit("Empty commit!", Constants.Signature, Constants.Signature, false, true);
+                Commit emptyCommit = repo.Commit("Empty commit!", Constants.Signature, Constants.Signature,
+                    new CommitOptions { AllowEmptyCommit = true });
 
-                Commit amendedCommit = repo.Commit("I'm rewriting the history!", Constants.Signature, Constants.Signature, true, true);
+                Commit amendedCommit = repo.Commit("I'm rewriting the history!", Constants.Signature, Constants.Signature,
+                    new CommitOptions { AmendPreviousCommit = true, AllowEmptyCommit = true });
                 AssertCommitHasBeenAmended(repo, amendedCommit, emptyCommit);
             }
         }
@@ -976,7 +984,8 @@ namespace LibGit2Sharp.Tests
                 Touch(repo.Info.Path, "MERGE_HEAD", "f705abffe7015f2beacf2abe7a36583ebee3487e\n");
                 Commit newMergedCommit = repo.Commit("Merge commit", Constants.Signature, Constants.Signature);
 
-                Commit amendedCommit = repo.Commit("I'm rewriting the history!", Constants.Signature, Constants.Signature, true);
+                Commit amendedCommit = repo.Commit("I'm rewriting the history!", Constants.Signature, Constants.Signature,
+                    new CommitOptions { AmendPreviousCommit = true });
                 AssertCommitHasBeenAmended(repo, amendedCommit, newMergedCommit);
             }
         }

@@ -74,6 +74,7 @@
     <Compile Include="CheckoutOptions.cs" />
     <Compile Include="CloneOptions.cs" />
     <Compile Include="CommitFilter.cs" />
+    <Compile Include="CommitOptions.cs" />
     <Compile Include="CommitSortStrategies.cs" />
     <Compile Include="CompareOptions.cs" />
     <Compile Include="ContentChangeStats.cs" />
