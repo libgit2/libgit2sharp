@@ -209,14 +209,35 @@ namespace LibGit2Sharp
         /// <summary>
         /// Gets the references to the tips that are currently being merged.
         /// </summary>
+        [Obsolete("This property is meant for internal use only and will not be public in the next release.")]
         IEnumerable<MergeHead> MergeHeads { get; }
 
         /// <summary>
-        /// Merges the given commit into HEAD.
+        /// Merge changes from commit into the branch pointed at by HEAD..
         /// </summary>
-        /// <param name="commit">The commit to use as a reference for the changes that should be merged into HEAD.</param>
-        /// <param name="merger">If the merge generates a merge commit (i.e. a non-fast forward merge), the <see cref="Signature"/> of who made the merge.</param>
-        MergeResult Merge(Commit commit, Signature merger);
+        /// <param name="commit">The commit to merge into the branch pointed at by HEAD.</param>
+        /// <param name="merger">The <see cref="Signature"/> of who is performing the merge.</param>
+        /// <param name="options">Specifies optional parameters controlling merge behavior; if null, the defaults are used.</param>
+        /// <returns>The <see cref="MergeResult"/> of the merge.</returns>
+        MergeResult Merge(Commit commit, Signature merger, MergeOptions options = null);
+
+        /// <summary>
+        /// Merges changes from branch into the branch pointed at by HEAD..
+        /// </summary>
+        /// <param name="branch">The branch to merge into the branch pointed at by HEAD.</param>
+        /// <param name="merger">The <see cref="Signature"/> of who is performing the merge.</param>
+        /// <param name="options">Specifies optional parameters controlling merge behavior; if null, the defaults are used.</param>
+        /// <returns>The <see cref="MergeResult"/> of the merge.</returns>
+        MergeResult Merge(Branch branch, Signature merger, MergeOptions options = null);
+
+        /// <summary>
+        /// Merges changes from the commit into the branch pointed at by HEAD..
+        /// </summary>
+        /// <param name="committish">The commit to merge into branch pointed at by HEAD.</param>
+        /// <param name="merger">The <see cref="Signature"/> of who is performing the merge.</param>
+        /// <param name="options">Specifies optional parameters controlling merge behavior; if null, the defaults are used.</param>
+        /// <returns>The <see cref="MergeResult"/> of the merge.</returns>
+        MergeResult Merge(string committish, Signature merger, MergeOptions options = null);
 
         /// <summary>
         /// Manipulate the currently ignored files.

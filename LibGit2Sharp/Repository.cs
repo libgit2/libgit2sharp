@@ -1102,8 +1102,256 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        /// Merges changes from commit into the branch pointed at by HEAD.
+        /// </summary>
+        /// <param name="commit">The commit to merge into the branch pointed at by HEAD.</param>
+        /// <param name="merger">The <see cref="Signature"/> of who is performing the merge.</param>
+        /// <param name="options">Specifies optional parameters controlling merge behavior; if null, the defaults are used.</param>
+        /// <returns>The <see cref="MergeResult"/> of the merge.</returns>
+        public MergeResult Merge(Commit commit, Signature merger, MergeOptions options = null)
+        {
+            Ensure.ArgumentNotNull(commit, "commit");
+            Ensure.ArgumentNotNull(merger, "merger");
+
+            options = options ?? new MergeOptions();
+
+            using (GitMergeHeadHandle mergeHeadHandle = Proxy.git_merge_head_from_id(Handle, commit.Id.Oid))
+            {
+                return Merge(new GitMergeHeadHandle[] { mergeHeadHandle }, merger, options);
+            }
+        }
+
+        /// <summary>
+        /// Merges changes from branch into the branch pointed at by HEAD.
+        /// </summary>
+        /// <param name="branch">The branch to merge into the branch pointed at by HEAD.</param>
+        /// <param name="merger">The <see cref="Signature"/> of who is performing the merge.</param>
+        /// <param name="options">Specifies optional parameters controlling merge behavior; if null, the defaults are used.</param>
+        /// <returns>The <see cref="MergeResult"/> of the merge.</returns>
+        public MergeResult Merge(Branch branch, Signature merger, MergeOptions options = null)
+        {
+            Ensure.ArgumentNotNull(branch, "branch");
+            Ensure.ArgumentNotNull(merger, "merger");
+
+            options = options ?? new MergeOptions();
+
+            using (ReferenceSafeHandle referencePtr = Refs.RetrieveReferencePtr(branch.CanonicalName))
+            using (GitMergeHeadHandle mergeHeadHandle = Proxy.git_merge_head_from_ref(Handle, referencePtr))
+            {
+                return Merge(new GitMergeHeadHandle[] { mergeHeadHandle }, merger, options);
+            }
+        }
+
+        /// <summary>
+        /// Merges changes from the commit into the branch pointed at by HEAD.
+        /// </summary>
+        /// <param name="committish">The commit to merge into the branch pointed at by HEAD.</param>
+        /// <param name="merger">The <see cref="Signature"/> of who is performing the merge.</param>
+        /// <param name="options">Specifies optional parameters controlling merge behavior; if null, the defaults are used.</param>
+        /// <returns>The <see cref="MergeResult"/> of the merge.</returns>
+        public MergeResult Merge(string committish, Signature merger, MergeOptions options = null)
+        {
+            Ensure.ArgumentNotNull(committish, "committish");
+            Ensure.ArgumentNotNull(merger, "merger");
+
+            options = options ?? new MergeOptions();
+
+            Commit commit = this.LookupCommit(committish);
+            return Merge(commit, merger, options);
+        }
+
+        /// <summary>
+        /// Merge the current fetch heads into the branch pointed at by HEAD.
+        /// </summary>
+        /// <param name="merger">The <see cref="Signature"/> of who is performing the merge.</param>
+        /// <param name="options">Specifies optional parameters controlling merge behavior; if null, the defaults are used.</param>
+        /// <returns>The <see cref="MergeResult"/> of the merge.</returns>
+        internal MergeResult MergeFetchHeads(Signature merger, MergeOptions options)
+        {
+            Ensure.ArgumentNotNull(merger, "merger");
+
+            options = options ?? new MergeOptions();
+
+            // The current FetchHeads that are marked for merging.
+            FetchHead[] fetchHeads = Network.FetchHeads.Where(fetchHead => fetchHead.ForMerge).ToArray();
+
+            if (fetchHeads.Length == 0)
+            {
+                throw new LibGit2SharpException("Remote ref to merge from was not fetched.");
+            }
+
+            GitMergeHeadHandle[] mergeHeadHandles = fetchHeads.Select(fetchHead =>
+                Proxy.git_merge_head_from_fetchhead(Handle, fetchHead.RemoteCanonicalName, fetchHead.Url, fetchHead.Target.Id.Oid)).ToArray();
+
+            try
+            {
+                // Perform the merge.
+                return Merge(mergeHeadHandles, merger, options);
+            }
+            finally
+            {
+                // Cleanup.
+                foreach (GitMergeHeadHandle mergeHeadHandle in mergeHeadHandles)
+                {
+                    mergeHeadHandle.Dispose();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Internal implementation of merge.
+        /// </summary>
+        /// <param name="mergeHeads">Merge heads to operate on.</param>
+        /// <param name="merger">The <see cref="Signature"/> of who is performing the merge.</param>
+        /// <param name="options">Specifies optional parameters controlling merge behavior; if null, the defaults are used.</param>
+        /// <returns>The <see cref="MergeResult"/> of the merge.</returns>
+        private MergeResult Merge(GitMergeHeadHandle[] mergeHeads, Signature merger, MergeOptions options)
+        {
+            GitMergeAnalysis mergeAnalysis = Proxy.git_merge_analysis(Handle, mergeHeads);
+
+            MergeResult mergeResult = null;
+
+            if ((mergeAnalysis & GitMergeAnalysis.GIT_MERGE_ANALYSIS_UP_TO_DATE) == GitMergeAnalysis.GIT_MERGE_ANALYSIS_UP_TO_DATE)
+            {
+                return new MergeResult(MergeStatus.UpToDate);
+            }
+
+            switch(options.FastForwardStrategy)
+            {
+                case FastForwardStrategy.Default:
+                    if (mergeAnalysis.HasFlag(GitMergeAnalysis.GIT_MERGE_ANALYSIS_FASTFORWARD))
+                    {
+                        if (mergeHeads.Length != 1)
+                        {
+                            // We should not reach this code unless there is a bug somewhere.
+                            throw new LibGit2SharpException("Unable to perform Fast-Forward merge with mith multiple merge heads.");
+                        }
+
+                        mergeResult = FastForwardMerge(mergeHeads[0], merger);
+                    }
+                    else if (mergeAnalysis.HasFlag(GitMergeAnalysis.GIT_MERGE_ANALYSIS_NORMAL))
+                    {
+                        mergeResult = NormalMerge(mergeHeads, merger, options);
+                    }
+                    break;
+                case FastForwardStrategy.FastForwardOnly:
+                    if (mergeAnalysis.HasFlag(GitMergeAnalysis.GIT_MERGE_ANALYSIS_FASTFORWARD))
+                    {
+                        if (mergeHeads.Length != 1)
+                        {
+                            // We should not reach this code unless there is a bug somewhere.
+                            throw new LibGit2SharpException("Unable to perform Fast-Forward merge with mith multiple merge heads.");
+                        }
+
+                        mergeResult = FastForwardMerge(mergeHeads[0], merger);
+                    }
+                    else
+                    {
+                        // TODO: Maybe this condition should rather be indicated through the merge result
+                        //       instead of throwing an exception.
+                        throw new NonFastForwardException("Cannot perform fast-forward merge.");
+                    }
+                    break;
+                case FastForwardStrategy.NoFastFoward:
+                    if (mergeAnalysis.HasFlag(GitMergeAnalysis.GIT_MERGE_ANALYSIS_NORMAL))
+                    {
+                        mergeResult = NormalMerge(mergeHeads, merger, options);
+                    }
+                    break;
+                default:
+                    throw new NotImplementedException(string.Format("Unknown fast forward strategy: {0}", mergeAnalysis));
+            }
+
+            if (mergeResult == null)
+            {
+                throw new NotImplementedException(string.Format("Unknown merge analysis: {0}", options.FastForwardStrategy));
+            }
+
+            return mergeResult;
+        }
+
+        /// <summary>
+        /// Perform a normal merge (i.e. a non-fast-forward merge).
+        /// </summary>
+        /// <param name="mergeHeads">The merge head handles to merge.</param>
+        /// <param name="merger">The <see cref="Signature"/> of who is performing the merge.</param>
+        /// <param name="options">Specifies optional parameters controlling merge behavior; if null, the defaults are used.</param>
+        /// <returns>The <see cref="MergeResult"/> of the merge.</returns>
+        private MergeResult NormalMerge(GitMergeHeadHandle[] mergeHeads, Signature merger, MergeOptions options)
+        {
+            MergeResult mergeResult;
+
+            GitMergeOpts mergeOptions = new GitMergeOpts()
+                {
+                    Version = 1
+                };
+
+            GitCheckoutOpts checkoutOpts = new GitCheckoutOpts()
+            {
+                version = 1
+            };
+
+            Proxy.git_merge(Handle, mergeHeads, mergeOptions, checkoutOpts);
+
+            if (Index.IsFullyMerged)
+            {
+                Commit mergeCommit = null;
+                if (options.CommitOnSuccess)
+                {
+                    // Commit the merge
+                    mergeCommit = this.Commit(Info.Message, author: merger, committer: merger);
+                }
+
+                mergeResult = new MergeResult(MergeStatus.NonFastForward, mergeCommit);
+            }
+            else
+            {
+                mergeResult = new MergeResult(MergeStatus.Conflicts);
+            }
+
+            return mergeResult;
+        }
+
+        /// <summary>
+        /// Perform a fast-forward merge.
+        /// </summary>
+        /// <param name="mergeHead">The merge head handle to fast-forward merge.</param>
+        /// <param name="merger">The <see cref="Signature"/> of who is performing the merge.</param>
+        /// <returns>The <see cref="MergeResult"/> of the merge.</returns>
+        private MergeResult FastForwardMerge(GitMergeHeadHandle mergeHead, Signature merger)
+        {
+            ObjectId id = Proxy.git_merge_head_id(mergeHead);
+            Commit fastForwardCommit = (Commit) Lookup(id, ObjectType.Commit);
+            Ensure.GitObjectIsNotNull(fastForwardCommit, id.Sha);
+
+            var checkoutOpts = new CheckoutOptions
+            {
+                CheckoutModifiers = CheckoutModifiers.None,
+            };
+            CheckoutTree(fastForwardCommit.Tree, null, checkoutOpts);
+
+            var reference = Refs.Head.ResolveToDirectReference();
+
+            // TODO: This reflog entry could be more specific
+            string refLogEntry = string.Format("merge {0}: Fast-forward", fastForwardCommit.Sha);
+            if (reference == null)
+            {
+                // Reference does not exist, create it.
+                Refs.Add(Refs.Head.TargetIdentifier, fastForwardCommit.Id, merger, refLogEntry);
+            }
+            else
+            {
+                // Update target reference.
+                Refs.UpdateTarget(reference, fastForwardCommit.Id.Sha, merger, refLogEntry);
+            }
+
+            return new MergeResult(MergeStatus.FastForward, fastForwardCommit);
+        }
+
+        /// <summary>
         /// Gets the references to the tips that are currently being merged.
         /// </summary>
+        [Obsolete("This property is meant for internal use only and will not be public in the next release.")]
         public IEnumerable<MergeHead> MergeHeads
         {
             get
@@ -1112,82 +1360,6 @@ namespace LibGit2Sharp
                 return Proxy.git_repository_mergehead_foreach(Handle,
                     commitId => new MergeHead(this, commitId, i++));
             }
-        }
-
-        /// <summary>
-        /// Merges the given commit into HEAD as well as performing a Fast Forward if possible.
-        /// </summary>
-        /// <param name="commit">The commit to use as a reference for the changes that should be merged into HEAD.</param>
-        /// <param name="merger">If the merge generates a merge commit (i.e. a non-fast forward merge), the <see cref="Signature"/> of who made the merge.</param>
-        /// <returns>The result of the performed merge <see cref="MergeResult"/>.</returns>
-        public MergeResult Merge(Commit commit, Signature merger)
-        {
-            using (GitMergeHeadHandle mergeHeadHandle = Proxy.git_merge_head_from_id(Handle, commit.Id.Oid))
-            {
-                GitMergeOpts opts = new GitMergeOpts()
-                {
-                    Version = 1,
-                    MergeTreeOpts = { Version = 1 },
-                    CheckoutOpts = { version = 1 },
-                };
-
-
-                // Perform the merge in libgit2 and get the result back.
-                GitMergeResult gitMergeResult;
-                using (GitMergeResultHandle mergeResultHandle = Proxy.git_merge(Handle, new GitMergeHeadHandle[] { mergeHeadHandle }, opts))
-                {
-                    gitMergeResult = new GitMergeResult(mergeResultHandle);
-                }
-
-                // Handle the result of the merge performed in libgit2
-                // and commit the result / update the working directory as necessary.
-                MergeResult mergeResult;
-                switch(gitMergeResult.Status)
-                {
-                    case MergeStatus.UpToDate:
-                        mergeResult = new MergeResult(MergeStatus.UpToDate);
-                        break;
-                    case MergeStatus.FastForward:
-                        Commit fastForwardCommit = this.Lookup<Commit>(gitMergeResult.FastForwardId);
-                        FastForward(fastForwardCommit);
-                        mergeResult = new MergeResult(MergeStatus.FastForward, fastForwardCommit);
-                        break;
-                    case MergeStatus.NonFastForward:
-                        {
-                            if (Index.IsFullyMerged)
-                            {
-                                // Commit the merge
-                                Commit mergeCommit = this.Commit(Info.Message, author: merger, committer: merger);
-                                mergeResult = new MergeResult(MergeStatus.NonFastForward, mergeCommit);
-                            }
-                            else
-                            {
-                                mergeResult = new MergeResult(MergeStatus.Conflicts);
-                            }
-                        }
-                        break;
-                    default:
-                        throw new NotImplementedException(string.Format("Unknown MergeStatus: {0}", gitMergeResult.Status));
-                }
-
-                return mergeResult;
-            }
-        }
-
-        private void FastForward(Commit fastForwardCommit)
-        {
-            var checkoutOpts = new CheckoutOptions
-            {
-                CheckoutModifiers = CheckoutModifiers.None,
-            };
-
-            CheckoutTree(fastForwardCommit.Tree, null, checkoutOpts);
-
-            var reference = Refs.Head.ResolveToDirectReference();
-
-            Refs.UpdateTarget(reference, fastForwardCommit.Id.Sha);
-
-            // TODO: Update Reflog...
         }
 
         internal StringComparer PathComparer
