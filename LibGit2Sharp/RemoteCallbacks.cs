@@ -74,7 +74,7 @@ namespace LibGit2Sharp
 
             if (Credentials != null)
             {
-                callbacks.acquire_credentials = GitCredentialHandler;
+                callbacks.acquire_credentials = Credentials.GitCredentialHandler;
             }
 
             if (DownloadTransferProgress != null)
@@ -151,11 +151,6 @@ namespace LibGit2Sharp
             }
 
             return Proxy.ConvertResultToCancelFlag(shouldContinue);
-        }
-
-        private int GitCredentialHandler(out IntPtr cred, IntPtr url, IntPtr username_from_url, uint types, IntPtr payload)
-        {
-            return NativeMethods.git_cred_userpass_plaintext_new(out cred, Credentials.Username, Credentials.Password);
         }
 
         #endregion

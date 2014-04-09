@@ -60,11 +60,7 @@ namespace LibGit2Sharp.Tests
                 // Perform the actual fetch
                 repo.Network.Fetch(remote, new FetchOptions
                 {
-                    Credentials = new Credentials
-                        {
-                            Username = Constants.PrivateRepoUsername,
-                            Password = Constants.PrivateRepoPassword
-                        }
+                    Credentials = Constants.PrivateRepoCredentials
                 });
             }
         }

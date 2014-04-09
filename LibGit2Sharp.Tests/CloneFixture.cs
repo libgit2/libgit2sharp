@@ -142,11 +142,7 @@ namespace LibGit2Sharp.Tests
             string clonedRepoPath = Repository.Clone(Constants.PrivateRepoUrl, scd.DirectoryPath,
                 new CloneOptions()
                 {
-                    Credentials = new Credentials
-                    {
-                        Username = Constants.PrivateRepoUsername,
-                        Password = Constants.PrivateRepoPassword
-                    }
+                    Credentials = Constants.PrivateRepoCredentials
                 });
 
 

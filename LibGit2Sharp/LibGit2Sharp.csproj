@@ -77,8 +77,10 @@
     <Compile Include="CommitSortStrategies.cs" />
     <Compile Include="CompareOptions.cs" />
     <Compile Include="ContentChangeStats.cs" />
+    <Compile Include="Core\GitCredentialType.cs" />
     <Compile Include="Core\Handles\PatchSafeHandle.cs" />
     <Compile Include="Core\IntPtrExtensions.cs" />
+    <Compile Include="DefaultCredentials.cs" />
     <Compile Include="FetchOptions.cs" />
     <Compile Include="MergeResult.cs" />
     <Compile Include="PatchStats.cs" />
@@ -303,6 +305,7 @@
     <Compile Include="TreeEntry.cs" />
     <Compile Include="TreeEntryDefinition.cs" />
     <Compile Include="UserCanceledException.cs" />
+    <Compile Include="UsernamePasswordCredentials.cs" />
     <Compile Include="VoidReference.cs" />
     <Compile Include="Core\RawContentStream.cs" />
   </ItemGroup>
