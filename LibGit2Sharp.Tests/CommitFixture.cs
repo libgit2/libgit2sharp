@@ -752,7 +752,8 @@ namespace LibGit2Sharp.Tests
 
                 CreateAndStageANewFile(repo);
 
-                Commit amendedCommit = repo.Commit("I'm rewriting the history!", Constants.Signature, Constants.Signature, true);
+                Commit amendedCommit = repo.Commit("I'm rewriting the history!", Constants.Signature, Constants.Signature,
+                    new CommitOptions { AmendPreviousCommit = true });
 
                 Assert.Equal(1, repo.Head.Commits.Count());
 
@@ -775,7 +776,8 @@ namespace LibGit2Sharp.Tests
                 CreateAndStageANewFile(repo);
                 const string commitMessage = "I'm rewriting the history!";
 
-                Commit amendedCommit = repo.Commit(commitMessage, Constants.Signature, Constants.Signature, true);
+                Commit amendedCommit = repo.Commit(commitMessage, Constants.Signature, Constants.Signature,
+                    new CommitOptions { AmendPreviousCommit = true });
 
                 AssertCommitHasBeenAmended(repo, amendedCommit, mergedCommit);
 
@@ -810,7 +812,8 @@ namespace LibGit2Sharp.Tests
 
             using (var repo = new Repository(repoPath))
             {
-                Assert.Throws<UnbornBranchException>(() => repo.Commit("I can not amend anything !:(", Constants.Signature, Constants.Signature, true));
+                Assert.Throws<UnbornBranchException>(() =>
+                    repo.Commit("I can not amend anything !:(", Constants.Signature, Constants.Signature, new CommitOptions { AmendPreviousCommit = true }));
             }
         }
 
@@ -883,6 +886,131 @@ namespace LibGit2Sharp.Tests
 
                 repo.Commit("Initial commit", Constants.Signature, Constants.Signature);
                 Assert.Equal(1, repo.Head.Commits.Count());
+            }
+        }
+
+        [Fact]
+        public void CanNotCommitAnEmptyCommit()
+        {
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
+            {
+                repo.Reset(ResetMode.Hard);
+                repo.RemoveUntrackedFiles();
+
+                Assert.Throws<EmptyCommitException>(() => repo.Commit("Empty commit!", Constants.Signature, Constants.Signature));
+            }
+        }
+
+        [Fact]
+        public void CanCommitAnEmptyCommitWhenForced()
+        {
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
+            {
+                repo.Reset(ResetMode.Hard);
+                repo.RemoveUntrackedFiles();
+
+                repo.Commit("Empty commit!", Constants.Signature, Constants.Signature,
+                    new CommitOptions { AllowEmptyCommit = true });
+            }
+        }
+
+        [Fact]
+        public void CanNotAmendAnEmptyCommit()
+        {
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
+            {
+                repo.Reset(ResetMode.Hard);
+                repo.RemoveUntrackedFiles();
+
+                repo.Commit("Empty commit!", Constants.Signature, Constants.Signature,
+                    new CommitOptions { AllowEmptyCommit = true });
+
+                Assert.Throws<EmptyCommitException>(() => repo.Commit("Empty commit!", Constants.Signature, Constants.Signature,
+                    new CommitOptions { AmendPreviousCommit = true }));
+            }
+        }
+
+        [Fact]
+        public void CanAmendAnEmptyCommitWhenForced()
+        {
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
+            {
+                repo.Reset(ResetMode.Hard);
+                repo.RemoveUntrackedFiles();
+
+                Commit emptyCommit = repo.Commit("Empty commit!", Constants.Signature, Constants.Signature,
+                    new CommitOptions { AllowEmptyCommit = true });
+
+                Commit amendedCommit = repo.Commit("I'm rewriting the history!", Constants.Signature, Constants.Signature,
+                    new CommitOptions { AmendPreviousCommit = true, AllowEmptyCommit = true });
+                AssertCommitHasBeenAmended(repo, amendedCommit, emptyCommit);
+            }
+        }
+
+        [Fact]
+        public void CanCommitAnEmptyCommitWhenMerging()
+        {
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
+            {
+                repo.Reset(ResetMode.Hard);
+                repo.RemoveUntrackedFiles();
+
+                Touch(repo.Info.Path, "MERGE_HEAD", "f705abffe7015f2beacf2abe7a36583ebee3487e\n");
+
+                Assert.Equal(CurrentOperation.Merge, repo.Info.CurrentOperation);
+
+                Commit newMergedCommit = repo.Commit("Merge commit", Constants.Signature, Constants.Signature);
+
+                Assert.Equal(2, newMergedCommit.Parents.Count());
+                Assert.Equal(newMergedCommit.Parents.First().Sha, "32eab9cb1f450b5fe7ab663462b77d7f4b703344");
+                Assert.Equal(newMergedCommit.Parents.Skip(1).First().Sha, "f705abffe7015f2beacf2abe7a36583ebee3487e");
+            }
+        }
+
+        [Fact]
+        public void CanAmendAnEmptyMergeCommit()
+        {
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
+            {
+                repo.Reset(ResetMode.Hard);
+                repo.RemoveUntrackedFiles();
+
+                Touch(repo.Info.Path, "MERGE_HEAD", "f705abffe7015f2beacf2abe7a36583ebee3487e\n");
+                Commit newMergedCommit = repo.Commit("Merge commit", Constants.Signature, Constants.Signature);
+
+                Commit amendedCommit = repo.Commit("I'm rewriting the history!", Constants.Signature, Constants.Signature,
+                    new CommitOptions { AmendPreviousCommit = true });
+                AssertCommitHasBeenAmended(repo, amendedCommit, newMergedCommit);
+            }
+        }
+
+        [Fact]
+        public void CanNotAmendACommitInAWayThatWouldLeadTheNewCommitToBecomeEmpty()
+        {
+            string repoPath = InitNewRepository();
+
+            using (var repo = new Repository(repoPath))
+            {
+                Touch(repo.Info.WorkingDirectory, "test.txt", "test\n");
+                repo.Index.Stage("test.txt");
+
+                repo.Commit("Initial commit", Constants.Signature, Constants.Signature);
+
+                Touch(repo.Info.WorkingDirectory, "new.txt", "content\n");
+                repo.Index.Stage("new.txt");
+
+                repo.Commit("One commit", Constants.Signature, Constants.Signature);
+
+                repo.Index.Remove("new.txt");
+
+                Assert.Throws<EmptyCommitException>(() => repo.Commit("Oops", Constants.Signature, Constants.Signature,
+                    new CommitOptions { AmendPreviousCommit = true }));
             }
         }
     }

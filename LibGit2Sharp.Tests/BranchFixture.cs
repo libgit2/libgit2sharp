@@ -300,7 +300,7 @@ namespace LibGit2Sharp.Tests
 
                 var expectedWdBranches = new[]
                                              {
-                                                 "diff-test-cases", "i-do-numbers", "logo", "master", "origin/master", "track-local",
+                                                 "diff-test-cases", "i-do-numbers", "logo", "master", "origin/master", "track-local", "treesame_as_32eab"
                                              };
 
                 Assert.Equal(expectedWdBranches,
@@ -315,7 +315,7 @@ namespace LibGit2Sharp.Tests
             {
                 var expectedWdBranches = new[]
                                              {
-                                                 "diff-test-cases", "i-do-numbers", "logo", "master", "track-local",
+                                                 "diff-test-cases", "i-do-numbers", "logo", "master", "track-local", "treesame_as_32eab",
                                                  "origin/HEAD", "origin/br2", "origin/master", "origin/packed-test",
                                                  "origin/test"
                                              };
@@ -336,6 +336,7 @@ namespace LibGit2Sharp.Tests
                                                                   new { Name = "logo", Sha = "a447ba2ca8fffd46dece72f7db6faf324afb8fcd", IsRemote = false },
                                                                   new { Name = "master", Sha = "32eab9cb1f450b5fe7ab663462b77d7f4b703344", IsRemote = false },
                                                                   new { Name = "track-local", Sha = "580c2111be43802dab11328176d94c391f1deae9", IsRemote = false },
+                                                                  new { Name = "treesame_as_32eab", Sha = "f705abffe7015f2beacf2abe7a36583ebee3487e", IsRemote = false },
                                                                   new { Name = "origin/HEAD", Sha = "580c2111be43802dab11328176d94c391f1deae9", IsRemote = true },
                                                                   new { Name = "origin/br2", Sha = "a4a7dce85cf63874e984719f4fdd239f5145052f", IsRemote = true },
                                                                   new { Name = "origin/master", Sha = "580c2111be43802dab11328176d94c391f1deae9", IsRemote = true },

@@ -74,6 +74,7 @@
     <Compile Include="CheckoutOptions.cs" />
     <Compile Include="CloneOptions.cs" />
     <Compile Include="CommitFilter.cs" />
+    <Compile Include="CommitOptions.cs" />
     <Compile Include="CommitSortStrategies.cs" />
     <Compile Include="CompareOptions.cs" />
     <Compile Include="ContentChangeStats.cs" />
@@ -81,6 +82,7 @@
     <Compile Include="Core\Handles\PatchSafeHandle.cs" />
     <Compile Include="Core\IntPtrExtensions.cs" />
     <Compile Include="DefaultCredentials.cs" />
+    <Compile Include="EmptyCommitException.cs" />
     <Compile Include="FetchOptions.cs" />
     <Compile Include="MergeResult.cs" />
     <Compile Include="PatchStats.cs" />

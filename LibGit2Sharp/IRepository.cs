@@ -163,9 +163,22 @@ namespace LibGit2Sharp
         /// <param name="message">The description of why a change was made to the repository.</param>
         /// <param name="author">The <see cref="Signature"/> of who made the change.</param>
         /// <param name="committer">The <see cref="Signature"/> of who added the change to the repository.</param>
+        /// <param name="options">The <see cref="CommitOptions"/> that specify the commit behavior.</param>
+        /// <returns>The generated <see cref="Commit"/>.</returns>
+        Commit Commit(string message, Signature author, Signature committer, CommitOptions options = null);
+
+        /// <summary>
+        /// Stores the content of the <see cref="Repository.Index"/> as a new <see cref="Commit"/> into the repository.
+        /// The tip of the <see cref="Repository.Head"/> will be used as the parent of this new Commit.
+        /// Once the commit is created, the <see cref="Repository.Head"/> will move forward to point at it.
+        /// </summary>
+        /// <param name="message">The description of why a change was made to the repository.</param>
+        /// <param name="author">The <see cref="Signature"/> of who made the change.</param>
+        /// <param name="committer">The <see cref="Signature"/> of who added the change to the repository.</param>
         /// <param name="amendPreviousCommit">True to amend the current <see cref="Commit"/> pointed at by <see cref="Repository.Head"/>, false otherwise.</param>
         /// <returns>The generated <see cref="Commit"/>.</returns>
-        Commit Commit(string message, Signature author, Signature committer, bool amendPreviousCommit = false);
+        [Obsolete("This method will be removed in the next release. Please use a Commit overload that accepts a CommitOptions instead.")]
+        Commit Commit(string message, Signature author, Signature committer, bool amendPreviousCommit);
 
         /// <summary>
         /// Sets the current <see cref="Head"/> to the specified commit and optionally resets the <see cref="Index"/> and

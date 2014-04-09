@@ -893,13 +893,18 @@ namespace LibGit2Sharp
         /// <param name="message">The description of why a change was made to the repository.</param>
         /// <param name="author">The <see cref="Signature"/> of who made the change.</param>
         /// <param name="committer">The <see cref="Signature"/> of who added the change to the repository.</param>
-        /// <param name="amendPreviousCommit">True to amend the current <see cref="Commit"/> pointed at by <see cref="Repository.Head"/>, false otherwise.</param>
+        /// <param name="options">The <see cref="CommitOptions"/> that specify the commit behavior.</param>
         /// <returns>The generated <see cref="Commit"/>.</returns>
-        public Commit Commit(string message, Signature author, Signature committer, bool amendPreviousCommit = false)
+        public Commit Commit(string message, Signature author, Signature committer, CommitOptions options = null)
         {
+            if (options == null)
+            {
+                options = new CommitOptions();
+            }
+
             bool isHeadOrphaned = Info.IsHeadUnborn;
 
-            if (amendPreviousCommit && isHeadOrphaned)
+            if (options.AmendPreviousCommit && isHeadOrphaned)
             {
                 throw new UnbornBranchException("Can not amend anything. The Head doesn't point at any commit.");
             }
@@ -907,7 +912,21 @@ namespace LibGit2Sharp
             var treeId = Proxy.git_tree_create_fromindex(Index);
             var tree = this.Lookup<Tree>(treeId);
 
-            var parents = RetrieveParentsOfTheCommitBeingCreated(amendPreviousCommit).ToList();
+            var parents = RetrieveParentsOfTheCommitBeingCreated(options.AmendPreviousCommit).ToList();
+
+            if (parents.Count == 1 && !options.AllowEmptyCommit)
+            {
+                var treesame = parents[0].Tree.Id.Equals(treeId);
+                var amendMergeCommit = options.AmendPreviousCommit && !isHeadOrphaned && Head.Tip.Parents.Count() > 1;
+
+                if (treesame && !amendMergeCommit)
+                {
+                    throw new EmptyCommitException(
+                        options.AmendPreviousCommit ?
+                        String.Format("Amending this commit would produce a commit that is identical to its parent (id = {0})", parents[0].Id) :
+                        "No changes; nothing to commit.");
+                }
+            }
 
             Commit result = ObjectDatabase.CreateCommit(author, committer, message, true, tree, parents);
 
@@ -919,10 +938,26 @@ namespace LibGit2Sharp
                 return result;
             }
 
-            var logMessage = BuildCommitLogMessage(result, amendPreviousCommit, isHeadOrphaned, parents.Count > 1);
+            var logMessage = BuildCommitLogMessage(result, options.AmendPreviousCommit, isHeadOrphaned, parents.Count > 1);
             LogCommit(result, logMessage);
 
             return result;
+        }
+
+        /// <summary>
+        /// Stores the content of the <see cref="Repository.Index"/> as a new <see cref="Commit"/> into the repository.
+        /// The tip of the <see cref="Repository.Head"/> will be used as the parent of this new Commit.
+        /// Once the commit is created, the <see cref="Repository.Head"/> will move forward to point at it.
+        /// </summary>
+        /// <param name="message">The description of why a change was made to the repository.</param>
+        /// <param name="author">The <see cref="Signature"/> of who made the change.</param>
+        /// <param name="committer">The <see cref="Signature"/> of who added the change to the repository.</param>
+        /// <param name="amendPreviousCommit">True to amend the current <see cref="Commit"/> pointed at by <see cref="Repository.Head"/>, false otherwise.</param>
+        /// <returns>The generated <see cref="Commit"/>.</returns>
+        [Obsolete("This method will be removed in the next release. Please use a Commit overload that accepts a CommitOptions instead.")]
+        public Commit Commit(string message, Signature author, Signature committer, bool amendPreviousCommit)
+        {
+            return Commit(message, author, committer, new CommitOptions { AmendPreviousCommit = amendPreviousCommit });
         }
 
         private string BuildCommitLogMessage(Commit commit, bool amendPreviousCommit, bool isHeadOrphaned, bool isMergeCommit)
