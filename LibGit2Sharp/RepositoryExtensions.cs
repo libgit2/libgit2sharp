@@ -365,6 +365,56 @@ namespace LibGit2Sharp
                    || string.Equals(identifier, repo.Head.CanonicalName, StringComparison.Ordinal);
         }
 
+        private static ObjectId SingleCommittish(this Repository repo, object identifier)
+        {
+            if (ReferenceEquals(identifier, null))
+            {
+                return null;
+            }
+
+            if (identifier is string)
+            {
+                return DereferenceToCommit(repo, (string)identifier);
+            }
+
+            if (identifier is ObjectId)
+            {
+                return DereferenceToCommit(repo, ((ObjectId)identifier).Sha);
+            }
+
+            if (identifier is Commit)
+            {
+                return ((Commit)identifier).Id;
+            }
+
+            if (identifier is TagAnnotation)
+            {
+                return DereferenceToCommit(repo, ((TagAnnotation)identifier).Target.Id.Sha);
+            }
+
+            if (identifier is Tag)
+            {
+                return DereferenceToCommit(repo, ((Tag)identifier).Target.Id.Sha);
+            }
+
+            var branch = identifier as Branch;
+            if (branch != null)
+            {
+                if (branch.Tip != null || !branch.IsCurrentRepositoryHead)
+                {
+                    Ensure.GitObjectIsNotNull(branch.Tip, branch.CanonicalName);
+                    return branch.Tip.Id;
+                }
+            }
+
+            if (identifier is Reference)
+            {
+                return DereferenceToCommit(repo, ((Reference)identifier).CanonicalName);
+            }
+
+            return null;
+        }
+
         /// <summary>
         /// Dereferences the passed identifier to a commit. If the identifier is enumerable, all items are dereferenced.
         /// </summary>
@@ -374,47 +424,7 @@ namespace LibGit2Sharp
         /// <returns>A series of commit <see cref="ObjectId"/>s which identify commit objects.</returns>
         internal static IEnumerable<ObjectId> Committishes(this Repository repo, object identifier, bool throwIfNotFound = false)
         {
-            ObjectId singleReturnValue = null;
-
-            if (identifier is string)
-            {
-                singleReturnValue = DereferenceToCommit(repo, identifier as string);
-            }
-
-            if (identifier is ObjectId)
-            {
-                singleReturnValue = DereferenceToCommit(repo, ((ObjectId) identifier).Sha);
-            }
-
-            if (identifier is Commit)
-            {
-                singleReturnValue = ((Commit) identifier).Id;
-            }
-
-            if (identifier is TagAnnotation)
-            {
-                singleReturnValue = DereferenceToCommit(repo, ((TagAnnotation) identifier).Target.Id.Sha);
-            }
-
-            if (identifier is Tag)
-            {
-                singleReturnValue = DereferenceToCommit(repo, ((Tag) identifier).Target.Id.Sha);
-            }
-
-            if (identifier is Branch)
-            {
-                var branch = (Branch) identifier;
-                if (branch.Tip != null || !branch.IsCurrentRepositoryHead)
-                {
-                    Ensure.GitObjectIsNotNull(branch.Tip, branch.CanonicalName);
-                    singleReturnValue = branch.Tip.Id;
-                }
-            }
-
-            if (identifier is Reference)
-            {
-                singleReturnValue = DereferenceToCommit(repo, ((Reference) identifier).CanonicalName);
-            }
+            var singleReturnValue = repo.SingleCommittish(identifier);
 
             if (singleReturnValue != null)
             {
