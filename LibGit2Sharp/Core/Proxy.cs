@@ -754,6 +754,21 @@ namespace LibGit2Sharp.Core
             }
         }
 
+        public static bool git_graph_descendant_of(RepositorySafeHandle repo, ObjectId commitId, ObjectId ancestorId)
+        {
+            GitOid oid1 = commitId.Oid;
+            GitOid oid2 = ancestorId.Oid;
+
+            using (ThreadAffinity())
+            {
+                int res = NativeMethods.git_graph_descendant_of(repo, ref oid1, ref oid2);
+
+                Ensure.BooleanResult(res);
+
+                return (res == 1);
+            }
+        }
+
         #endregion
 
         #region git_ignore_

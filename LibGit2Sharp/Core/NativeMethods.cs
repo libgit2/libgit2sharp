@@ -497,6 +497,12 @@ namespace LibGit2Sharp.Core
         internal static extern int git_graph_ahead_behind(out UIntPtr ahead, out UIntPtr behind, RepositorySafeHandle repo, ref GitOid one, ref GitOid two);
 
         [DllImport(libgit2)]
+        internal static extern int git_graph_descendant_of(
+            RepositorySafeHandle repo,
+            ref GitOid commit,
+            ref GitOid ancestor);
+
+        [DllImport(libgit2)]
         internal static extern int git_ignore_add_rule(
             RepositorySafeHandle repo,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof (StrictUtf8Marshaler))] string rules);
