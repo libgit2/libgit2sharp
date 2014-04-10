@@ -347,6 +347,34 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        /// Pull changes from the configured upstream remote and branch into the branch pointed at by HEAD.
+        /// </summary>
+        /// <param name="branch"></param>
+        /// <param name="remote">The <see cref="Remote"/> to pull from.</param>
+        /// <param name="merger">If the merge is a non-fast forward merge that generates a merge commit, the <see cref="Signature"/> of who made the merge.</param>
+        /// <param name="options">Specifies optional parameters controlling merge behavior of pull; if null, the defaults are used.</param>
+        public virtual MergeResult Pull(Branch branch, Remote remote, Signature merger, PullOptions options)
+        {
+            Ensure.ArgumentNotNull(branch, "branch");
+            Ensure.ArgumentNotNull(remote, "remote");
+            Ensure.ArgumentNotNull(merger, "merger");
+            Ensure.ArgumentNotNull(options, "options");
+
+            if (!branch.IsTracking)
+            {
+                throw new LibGit2SharpException("There is no tracking information for the current branch.");
+            }
+
+            if (remote == null)
+            {
+                throw new LibGit2SharpException("No upstream remote for the current branch.");
+            }
+
+            Fetch(remote, options.FetchOptions);
+            return repository.MergeFetchHeads(merger, options.MergeOptions);
+        }
+
+        /// <summary>
         /// The heads that have been updated during the last fetch.
         /// </summary>
         [Obsolete("This property is meant for internal use only and will not be public in the next release.")]
