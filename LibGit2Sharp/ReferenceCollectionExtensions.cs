@@ -295,27 +295,40 @@ namespace LibGit2Sharp
                 return Enumerable.Empty<Reference>();
             }
 
-            var targetsSet = new HashSet<Commit>(targets);
+            List<ObjectId> targetsSet = targets.Select(c => c.Id).Distinct().ToList();
             if (targetsSet.Count == 0)
             {
                 return Enumerable.Empty<Reference>();
             }
 
-            var allCommits = refsColl.repo.Commits;
-
             var result = new List<Reference>();
 
             foreach (var reference in refs)
             {
-                foreach (var commit in allCommits.QueryBy(new CommitFilter { Since = reference }))
+                var peeledTargetCommit = reference
+                                            .ResolveToDirectReference()
+                                            .Target.DereferenceToCommit(false);
+
+                if (peeledTargetCommit == null)
                 {
-                    if (!targetsSet.Contains(commit))
+                    continue;
+                }
+
+                var commitId = peeledTargetCommit.Id;
+
+                foreach (var potentialAncestorId in targetsSet)
+                {
+                    if (potentialAncestorId == commitId)
                     {
-                        continue;
+                        result.Add(reference);
+                        break;
                     }
 
-                    result.Add(reference);
-                    break;
+                    if (Proxy.git_graph_descendant_of(refsColl.repo.Handle, commitId, potentialAncestorId))
+                    {
+                        result.Add(reference);
+                        break;
+                    }
                 }
             }
 
