@@ -8,6 +8,33 @@
  - CI server: <http://teamcity.codebetter.com/project.html?projectId=project127&guest=1>
  - @libgit2sharp: <http://twitter.com/libgit2sharp>
 
+## v0.17.0 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.16.0...v0.17.0))
+
+### Additions
+
+ - Introduce Network.Pull() (#643 and #65)
+ - Introduce DefaultCredentials for NTLM/Negotiate authentication (#660)
+ - Make repo.Merge() accept a Branch (#643)
+ - Introduce MergeOptions type, to specify the type of merge and whether to commit or not (#643, #662, #663)
+ - Teach reference altering methods to let the caller control how the reflog is valued (#612, #505 and #389)
+ - Teach repo.Commits.FindMergeBase to leverage either Standard or Octopus strategy (#634 and #629)
+ - Make ObjectDatabase.CreateCommit() accept an option controlling the prettifying of the message (#619)
+ - Allow notes retrieval by namespace and ObjectId (#653)
+ 
+### Changes
+
+ - Deprecate repo.Commits.FindCommonAncestor() in favor of repo.Commits.FindMergeBase() (#634)
+ - Deprecate Network.FetchHeads and Repository.MergeHeads (#643)
+ - Repository.Commit() overloads now accept a CommitOptions parameter (#668)
+ - Repository.Clone() now accepts a CloneOptions parameter
+ - Ease testability by making all GetEnumerator() methods fakeable (#646 and #644)
+ - Update libgit2 binaries to libgit2/libgit2@bcc6229
+
+### Fixes
+
+ - Make Branch.Add() and Branch.Move() use the correct indentity to feed the reflog (#612 and #616)
+ - Fix NullReferenceException occuring in Repository.Clone (#659 and #635)
+
 ## v0.16.0 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.15.0...v0.16.0))
 
 ### Additions
