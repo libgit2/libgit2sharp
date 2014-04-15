@@ -352,7 +352,7 @@ namespace LibGit2Sharp
             }
         }
 
-        private void DetectRenames(DiffSafeHandle diffList, CompareOptions compareOptions)
+        private static void DetectRenames(DiffSafeHandle diffList, CompareOptions compareOptions)
         {
             var similarityOptions = (compareOptions == null) ? null : compareOptions.Similarity;
             if (similarityOptions == null ||

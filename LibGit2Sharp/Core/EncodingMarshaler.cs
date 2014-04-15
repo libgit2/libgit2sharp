@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -43,7 +44,7 @@ namespace LibGit2Sharp.Core
             if (str == null)
             {
                 throw new MarshalDirectiveException(
-                    string.Format("{0} must be used on a string.", GetType().Name));
+                    string.Format(CultureInfo.InvariantCulture, "{0} must be used on a string.", GetType().Name));
             }
 
             return FromManaged(encoding, str);

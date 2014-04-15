@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
@@ -37,7 +38,8 @@ namespace LibGit2Sharp
                     return GitObjectType.Blob;
 
                 default:
-                    throw new InvalidOperationException(string.Format("Cannot map {0} to a GitObjectType.", type));
+                    throw new InvalidOperationException(
+                        string.Format(CultureInfo.InvariantCulture, "Cannot map {0} to a GitObjectType.", type));
             }
         }
     }

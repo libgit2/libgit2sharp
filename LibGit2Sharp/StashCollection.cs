@@ -69,7 +69,8 @@ namespace LibGit2Sharp
                     throw new ArgumentOutOfRangeException("index", "The passed index must be a positive integer.");
                 }
 
-                GitObject stashCommit = repo.Lookup(string.Format("stash@{{{0}}}", index), GitObjectType.Commit, LookUpOptions.None);
+                GitObject stashCommit = repo.Lookup(
+                    string.Format(CultureInfo.InvariantCulture, "stash@{{{0}}}", index), GitObjectType.Commit, LookUpOptions.None);
 
                 return stashCommit == null ? null : new Stash(repo, stashCommit.Id, index);
             }

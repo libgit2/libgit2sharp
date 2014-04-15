@@ -341,7 +341,6 @@ namespace LibGit2Sharp
         public void Dispose()
         {
             Dispose(true);
-            GC.SuppressFinalize(this);
         }
 
         /// <summary>
@@ -733,7 +732,9 @@ namespace LibGit2Sharp
             CheckoutTree(tree, null, opts);
 
             Refs.UpdateTarget("HEAD", headTarget, signature,
-                string.Format("checkout: moving from {0} to {1}", previousHeadName, refLogHeadSpec));
+                string.Format(
+                    CultureInfo.InvariantCulture,
+                    "checkout: moving from {0} to {1}", previousHeadName, refLogHeadSpec));
         }
 
         /// <summary>
@@ -792,7 +793,9 @@ namespace LibGit2Sharp
 
             if (logMessage == null)
             {
-                logMessage = string.Format("reset: moving to {0}", commit.Sha);
+                logMessage = string.Format(
+                    CultureInfo.InvariantCulture,
+                    "reset: moving to {0}", commit.Sha);
             }
 
             Proxy.git_reset(handle, commit.Id, resetMode, signature.OrDefault(Config), logMessage);
@@ -882,7 +885,8 @@ namespace LibGit2Sharp
                 {
                     throw new EmptyCommitException(
                         options.AmendPreviousCommit ?
-                        String.Format("Amending this commit would produce a commit that is identical to its parent (id = {0})", parents[0].Id) :
+                        String.Format(CultureInfo.InvariantCulture,
+                            "Amending this commit would produce a commit that is identical to its parent (id = {0})", parents[0].Id) :
                         "No changes; nothing to commit.");
                 }
             }
@@ -903,7 +907,7 @@ namespace LibGit2Sharp
             return result;
         }
 
-        private string BuildCommitLogMessage(Commit commit, bool amendPreviousCommit, bool isHeadOrphaned, bool isMergeCommit)
+        private static string BuildCommitLogMessage(Commit commit, bool amendPreviousCommit, bool isHeadOrphaned, bool isMergeCommit)
         {
             string kind = string.Empty;
             if (isHeadOrphaned)
@@ -919,7 +923,7 @@ namespace LibGit2Sharp
                 kind = " (merge)";
             }
 
-            return string.Format("commit{0}: {1}", kind, commit.MessageShort);
+            return string.Format(CultureInfo.InvariantCulture, "commit{0}: {1}", kind, commit.MessageShort);
         }
 
         private void LogCommit(Commit commit, string reflogMessage)
@@ -1060,7 +1064,7 @@ namespace LibGit2Sharp
 
             using (GitMergeHeadHandle mergeHeadHandle = Proxy.git_merge_head_from_id(Handle, commit.Id.Oid))
             {
-                return Merge(new GitMergeHeadHandle[] { mergeHeadHandle }, merger, options);
+                return Merge(new[] { mergeHeadHandle }, merger, options);
             }
         }
 
@@ -1081,7 +1085,7 @@ namespace LibGit2Sharp
             using (ReferenceSafeHandle referencePtr = Refs.RetrieveReferencePtr(branch.CanonicalName))
             using (GitMergeHeadHandle mergeHeadHandle = Proxy.git_merge_head_from_ref(Handle, referencePtr))
             {
-                return Merge(new GitMergeHeadHandle[] { mergeHeadHandle }, merger, options);
+                return Merge(new[] { mergeHeadHandle }, merger, options);
             }
         }
 
@@ -1099,7 +1103,7 @@ namespace LibGit2Sharp
 
             options = options ?? new MergeOptions();
 
-            Commit commit = this.LookupCommit(committish);
+            Commit commit = LookupCommit(committish);
             return Merge(commit, merger, options);
         }
 
@@ -1202,12 +1206,14 @@ namespace LibGit2Sharp
                     }
                     break;
                 default:
-                    throw new NotImplementedException(string.Format("Unknown fast forward strategy: {0}", mergeAnalysis));
+                    throw new NotImplementedException(
+                        string.Format(CultureInfo.InvariantCulture, "Unknown fast forward strategy: {0}", mergeAnalysis));
             }
 
             if (mergeResult == null)
             {
-                throw new NotImplementedException(string.Format("Unknown merge analysis: {0}", options.FastForwardStrategy));
+                throw new NotImplementedException(
+                    string.Format(CultureInfo.InvariantCulture, "Unknown merge analysis: {0}", options.FastForwardStrategy));
             }
 
             return mergeResult;
@@ -1224,12 +1230,12 @@ namespace LibGit2Sharp
         {
             MergeResult mergeResult;
 
-            GitMergeOpts mergeOptions = new GitMergeOpts()
+            var mergeOptions = new GitMergeOpts
                 {
                     Version = 1
                 };
 
-            GitCheckoutOpts checkoutOpts = new GitCheckoutOpts()
+            var checkoutOpts = new GitCheckoutOpts
             {
                 version = 1
             };
@@ -1242,7 +1248,7 @@ namespace LibGit2Sharp
                 if (options.CommitOnSuccess)
                 {
                     // Commit the merge
-                    mergeCommit = this.Commit(Info.Message, author: merger, committer: merger);
+                    mergeCommit = Commit(Info.Message, author: merger, committer: merger);
                 }
 
                 mergeResult = new MergeResult(MergeStatus.NonFastForward, mergeCommit);
@@ -1276,7 +1282,9 @@ namespace LibGit2Sharp
             var reference = Refs.Head.ResolveToDirectReference();
 
             // TODO: This reflog entry could be more specific
-            string refLogEntry = string.Format("merge {0}: Fast-forward", fastForwardCommit.Sha);
+            string refLogEntry = string.Format(
+                CultureInfo.InvariantCulture, "merge {0}: Fast-forward", fastForwardCommit.Sha);
+
             if (reference == null)
             {
                 // Reference does not exist, create it.

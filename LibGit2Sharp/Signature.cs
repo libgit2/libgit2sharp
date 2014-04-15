@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Runtime.InteropServices;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Handles;
@@ -130,7 +131,7 @@ namespace LibGit2Sharp
         /// <returns>The <see cref="Name"/> and <see cref="Email"/> of the current <see cref="Signature"/>.</returns>
         public override string ToString()
         {
-            return string.Format("{0} <{1}>", Name, Email);
+            return string.Format(CultureInfo.InvariantCulture, "{0} <{1}>", Name, Email);
         }
     }
 }

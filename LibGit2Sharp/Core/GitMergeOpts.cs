@@ -33,9 +33,10 @@ namespace LibGit2Sharp.Core
         public GitMergeFileFavorFlags MergeFileFavorFlags;
     }
 
-	/// <summary>
-	/// The results of `git_merge_analysis` indicate the merge opportunities.
-	/// </summary>
+    /// <summary>
+    /// The results of `git_merge_analysis` indicate the merge opportunities.
+    /// </summary>
+    [Flags]
     internal enum GitMergeAnalysis
     {
         /// <summary>
@@ -44,8 +45,8 @@ namespace LibGit2Sharp.Core
         GIT_MERGE_ANALYSIS_NONE = 0,
 
         /// <summary>
-	    /// A "normal" merge; both HEAD and the given merge input have diverged
-	    /// from their common ancestor.  The divergent commits must be merged.
+        /// A "normal" merge; both HEAD and the given merge input have diverged
+        /// from their common ancestor.  The divergent commits must be merged.
         /// </summary>
         GIT_MERGE_ANALYSIS_NORMAL = (1 << 0),
 

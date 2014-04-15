@@ -5,7 +5,6 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using LibGit2Sharp.Core;
-using LibGit2Sharp.Handlers;
 
 namespace LibGit2Sharp
 {
@@ -414,6 +413,7 @@ namespace LibGit2Sharp
             {
                 throw new LibGit2SharpException(string.Format(CultureInfo.InvariantCulture, "Unexpected kind of identifier '{0}'.", identifier));
             }
+
             yield return null;
         }
 

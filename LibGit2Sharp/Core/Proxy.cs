@@ -114,16 +114,6 @@ namespace LibGit2Sharp.Core
             new[] { buf });
         }
 
-        public static byte[] git_blob_rawcontent(RepositorySafeHandle repo, ObjectId id, int size)
-        {
-            using (var obj = new ObjectSafeWrapper(id, repo))
-            {
-                var arr = new byte[size];
-                Marshal.Copy(NativeMethods.git_blob_rawcontent(obj.ObjectPtr), arr, 0, size);
-                return arr;
-            }
-        }
-
         public static UnmanagedMemoryStream git_blob_rawcontent_stream(RepositorySafeHandle repo, ObjectId id, Int64 size)
         {
             var handle = new ObjectSafeWrapper(id, repo).ObjectPtr;
@@ -645,16 +635,6 @@ namespace LibGit2Sharp.Core
             using (ThreadAffinity())
             {
                 int res = NativeMethods.git_diff_merge(onto, from);
-                Ensure.ZeroResult(res);
-            }
-        }
-
-        public static void git_diff_print(DiffSafeHandle diff, NativeMethods.git_diff_line_cb printCallback)
-        {
-            using (ThreadAffinity())
-            {
-                int res = NativeMethods.git_diff_print(diff, GitDiffFormat.GIT_DIFF_FORMAT_PATCH,
-                    printCallback, IntPtr.Zero);
                 Ensure.ZeroResult(res);
             }
         }
@@ -1648,21 +1628,6 @@ namespace LibGit2Sharp.Core
             return NativeMethods.git_reflog_entry_message(entry);
         }
 
-        public static void git_reflog_append(ReflogSafeHandle reflog, ObjectId commit_id, Signature committer, string message)
-        {
-            using (ThreadAffinity())
-            using (SignatureSafeHandle sigHandle = committer.BuildHandle())
-            {
-                var oid = commit_id.Oid;
-
-                int res = NativeMethods.git_reflog_append(reflog, ref oid, sigHandle, message);
-                Ensure.ZeroResult(res);
-
-                res = NativeMethods.git_reflog_write(reflog);
-                Ensure.ZeroResult(res);
-            }
-        }
-
         #endregion
 
         #region git_refspec
@@ -2003,11 +1968,6 @@ namespace LibGit2Sharp.Core
         public static bool git_repository_is_bare(RepositorySafeHandle repo)
         {
             return RepositoryStateChecker(repo, NativeMethods.git_repository_is_bare);
-        }
-
-        public static bool git_repository_is_empty(RepositorySafeHandle repo)
-        {
-            return RepositoryStateChecker(repo, NativeMethods.git_repository_is_empty);
         }
 
         public static bool git_repository_is_shallow(RepositorySafeHandle repo)

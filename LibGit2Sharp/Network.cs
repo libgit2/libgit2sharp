@@ -220,7 +220,7 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(remote, "remote");
             Ensure.ArgumentNotNullOrEmptyString(pushRefSpec, "pushRefSpec");
 
-            Push(remote, new string[] { pushRefSpec }, pushOptions, signature, logMessage);
+            Push(remote, new[] { pushRefSpec }, pushOptions, signature, logMessage);
         }
 
         /// <summary>

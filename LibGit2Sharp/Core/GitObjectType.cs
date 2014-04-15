@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 
 namespace LibGit2Sharp.Core
 {
@@ -74,7 +75,8 @@ namespace LibGit2Sharp.Core
                     return TreeEntryTargetType.Blob;
 
                 default:
-                    throw new InvalidOperationException(string.Format("Cannot map {0} to a TreeEntryTargetType.", type));
+                    throw new InvalidOperationException(
+                        string.Format(CultureInfo.InvariantCulture, "Cannot map {0} to a TreeEntryTargetType.", type));
             }
         }
 
@@ -95,7 +97,8 @@ namespace LibGit2Sharp.Core
                     return ObjectType.Tag;
 
                 default:
-                    throw new InvalidOperationException(string.Format("Cannot map {0} to a ObjectType.", type));
+                    throw new InvalidOperationException(
+                        string.Format(CultureInfo.InvariantCulture, "Cannot map {0} to a ObjectType.", type));
             }
         }
     }

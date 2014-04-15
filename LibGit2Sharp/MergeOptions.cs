@@ -4,7 +4,7 @@ namespace LibGit2Sharp
     /// <summary>
     /// Options controlling Merge behavior.
     /// </summary>
-    public class MergeOptions
+    public sealed class MergeOptions
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="MergeOptions"/> class.
@@ -21,12 +21,12 @@ namespace LibGit2Sharp
         /// If this is a fast-forward merge, then there is no merge commit and this option
         /// will not affect the merge.
         /// </summary>
-        public virtual bool CommitOnSuccess { get; set; }
+        public bool CommitOnSuccess { get; set; }
 
         /// <summary>
         /// The type of merge to perform.
         /// </summary>
-        public virtual FastForwardStrategy FastForwardStrategy { get; set; }
+        public FastForwardStrategy FastForwardStrategy { get; set; }
     }
 
     /// <summary>
