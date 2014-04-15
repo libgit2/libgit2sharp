@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace LibGit2Sharp
 {
@@ -14,23 +13,6 @@ namespace LibGit2Sharp
         /// <param name="filter">The options used to control which commits will be returned.</param>
         /// <returns>A list of commits, ready to be enumerated.</returns>
         ICommitLog QueryBy(CommitFilter filter);
-
-        /// <summary>
-        /// Find the best possible common ancestor given two <see cref="Commit"/>s.
-        /// </summary>
-        /// <param name="first">The first <see cref="Commit"/>.</param>
-        /// <param name="second">The second <see cref="Commit"/>.</param>
-        /// <returns>The common ancestor or null if none found.</returns>
-        [Obsolete("This method will be removed in the next release. Please use FindMergeBase(Commit, Commit).")]
-        Commit FindCommonAncestor(Commit first, Commit second);
-
-        /// <summary>
-        /// Find the best possible common ancestor given two or more <see cref="Commit"/>s.
-        /// </summary>
-        /// <param name="commits">The <see cref="Commit"/> for which to find the common ancestor.</param>
-        /// <returns>The common ancestor or null if none found.</returns>
-        [Obsolete("This method will be removed in the next release. Please use FindMergeBase(IEnumerable<Commit>, MergeBaseFindingStrategy).")]
-        Commit FindCommonAncestor(IEnumerable<Commit> commits);
 
         /// <summary>
         /// Find the best possible merge base given two <see cref="Commit"/>s.
