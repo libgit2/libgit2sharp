@@ -70,7 +70,7 @@ namespace LibGit2Sharp
 
             if (logMessage == null)
             {
-                logMessage = string.Format("{0}: Created from {1}",
+                logMessage = string.Format(CultureInfo.InvariantCulture, "{0}: Created from {1}",
                     name.LooksLikeLocalBranch() ? "branch" : "reference", canonicalRefNameOrObjectish);
             }
 

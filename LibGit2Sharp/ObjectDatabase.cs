@@ -7,7 +7,6 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Handles;
-using LibGit2Sharp.Handlers;
 
 namespace LibGit2Sharp
 {
@@ -108,7 +107,7 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(backend, "backend");
             Ensure.ArgumentConformsTo(priority, s => s > 0, "priority");
 
-            Proxy.git_odb_add_backend(this.handle, backend.GitOdbBackendPointer, priority);
+            Proxy.git_odb_add_backend(handle, backend.GitOdbBackendPointer, priority);
         }
 
         private class Processor

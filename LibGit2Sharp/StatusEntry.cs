@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Globalization;
 using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
@@ -125,10 +126,10 @@ namespace LibGit2Sharp
                     string oldFilePath = ((State & FileStatus.RenamedInIndex) == FileStatus.RenamedInIndex) ?
                         HeadToIndexRenameDetails.OldFilePath : IndexToWorkDirRenameDetails.OldFilePath;
 
-                    return string.Format("{0}: {1} -> {2}", State, oldFilePath, FilePath);
+                    return string.Format(CultureInfo.InvariantCulture, "{0}: {1} -> {2}", State, oldFilePath, FilePath);
                 }
 
-                return string.Format("{0}: {1}", State, FilePath);
+                return string.Format(CultureInfo.InvariantCulture, "{0}: {1}", State, FilePath);
             }
         }
     }

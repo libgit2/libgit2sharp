@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Globalization;
 using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
@@ -109,7 +110,9 @@ namespace LibGit2Sharp
         {
             get
             {
-                return string.Format("{0} -> {1} [{2}%]", OldFilePath, NewFilePath, Similarity);
+                return string.Format(
+                    CultureInfo.InvariantCulture,
+                    "{0} -> {1} [{2}%]", OldFilePath, NewFilePath, Similarity);
             }
         }
     }

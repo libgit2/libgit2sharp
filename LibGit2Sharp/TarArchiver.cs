@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.IO;
 using System.Text;
 using LibGit2Sharp.Core;
@@ -28,7 +29,8 @@ namespace LibGit2Sharp
             }
 
             // Store the sha in the pax_global_header
-            using (var stream = new MemoryStream(Encoding.ASCII.GetBytes(string.Format("52 comment={0}\n", oid.Sha))))
+            using (var stream = new MemoryStream(Encoding.ASCII.GetBytes(
+                string.Format(CultureInfo.InvariantCulture, "52 comment={0}\n", oid.Sha))))
             {
                 writer.Write("pax_global_header", stream, modificationTime, "666".OctalToInt32(), 
                     "0", "0", 'g', "root", "root", "0", "0", oid.Sha, false);
@@ -60,7 +62,8 @@ namespace LibGit2Sharp
                     }
                     break;
                 default:
-                    throw new InvalidOperationException(string.Format("Unsupported file mode: {0} (sha1: {1}).", entry.Mode, entry.TargetId.Sha));
+                    throw new InvalidOperationException(
+                        string.Format(CultureInfo.InvariantCulture, "Unsupported file mode: {0} (sha1: {1}).", entry.Mode, entry.TargetId.Sha));
             }
         }
 

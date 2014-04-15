@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 
 namespace LibGit2Sharp.Core
@@ -157,7 +158,9 @@ namespace LibGit2Sharp.Core
             if (repo.Refs.Resolve<Reference>(backupName) != null)
             {
                 throw new InvalidOperationException(
-                    String.Format("Can't back up reference '{0}' - '{1}' already exists", oldRef.CanonicalName, backupName));
+                    String.Format(
+                        CultureInfo.InvariantCulture, "Can't back up reference '{0}' - '{1}' already exists",
+                        oldRef.CanonicalName, backupName));
             }
 
             repo.Refs.Add(backupName, oldRef.TargetIdentifier, signature, "filter-branch: backup");
