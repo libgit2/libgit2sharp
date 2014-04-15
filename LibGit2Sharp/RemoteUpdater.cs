@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Handles;
-using LibGit2Sharp.Core.Compat;
 
 namespace LibGit2Sharp
 {
