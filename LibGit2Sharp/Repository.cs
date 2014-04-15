@@ -547,8 +547,10 @@ namespace LibGit2Sharp
         /// <param name="options"><see cref="CloneOptions"/> controlling clone behavior</param>
         /// <returns>The path to the created repository.</returns>
         public static string Clone(string sourceUrl, string workdirPath,
-            CloneOptions options)
+            CloneOptions options = null)
         {
+            options = options ?? new CloneOptions();
+
             CheckoutCallbacks checkoutCallbacks = CheckoutCallbacks.GenerateCheckoutCallbacks(
                 options.OnCheckoutProgress, null);
 
@@ -579,49 +581,6 @@ namespace LibGit2Sharp
             }
 
             return repoPath.Native;
-        }
-
-        /// <summary>
-        /// Clone with specified options.
-        /// </summary>
-        /// <param name="sourceUrl">URI for the remote repository</param>
-        /// <param name="workdirPath">Local path to clone into</param>
-        /// <param name="bare">True will result in a bare clone, false a full clone.</param>
-        /// <param name="checkout">If true, the origin's HEAD will be checked out. This only applies
-        /// to non-bare repositories.</param>
-        /// <param name="onTransferProgress">Handler for network transfer and indexing progress information</param>
-        /// <param name="onCheckoutProgress">Handler for checkout progress information</param>
-        /// <param name="credentials">Credentials to use for user/pass authentication</param>
-        /// <returns>The path to the created repository.</returns>
-        [Obsolete("This overload will be removed in the next release. Please use Repository.Clone(string, string, CloneOptions) instead.")]
-        public static string Clone(string sourceUrl, string workdirPath,
-            bool bare = false,
-            bool checkout = true,
-            TransferProgressHandler onTransferProgress = null,
-            CheckoutProgressHandler onCheckoutProgress = null,
-            Credentials credentials = null)
-        {
-            return Clone(sourceUrl, workdirPath, new CloneOptions()
-            {
-                IsBare = bare,
-                Checkout = checkout,
-                OnTransferProgress = onTransferProgress,
-                OnCheckoutProgress = onCheckoutProgress,
-                Credentials = credentials
-            });
-        }
-
-        /// <summary>
-        /// Clone without options.
-        /// </summary>
-        /// <param name="sourceUrl">URI for the remote repository</param>
-        /// <param name="workdirPath">Local path to clone into</param>
-        /// <returns>The path to the created repository.</returns>
-        public static string Clone(string sourceUrl, string workdirPath)
-        {
-            // This overload is required to supress the obsolete warning if called without arguments.
-            // Should be removed once the obsolete overload is removed.
-            return Clone(sourceUrl, workdirPath, new CloneOptions());
         }
 
         /// <summary>
@@ -942,22 +901,6 @@ namespace LibGit2Sharp
             LogCommit(result, logMessage);
 
             return result;
-        }
-
-        /// <summary>
-        /// Stores the content of the <see cref="Repository.Index"/> as a new <see cref="LibGit2Sharp.Commit"/> into the repository.
-        /// The tip of the <see cref="Repository.Head"/> will be used as the parent of this new Commit.
-        /// Once the commit is created, the <see cref="Repository.Head"/> will move forward to point at it.
-        /// </summary>
-        /// <param name="message">The description of why a change was made to the repository.</param>
-        /// <param name="author">The <see cref="Signature"/> of who made the change.</param>
-        /// <param name="committer">The <see cref="Signature"/> of who added the change to the repository.</param>
-        /// <param name="amendPreviousCommit">True to amend the current <see cref="LibGit2Sharp.Commit"/> pointed at by <see cref="Repository.Head"/>, false otherwise.</param>
-        /// <returns>The generated <see cref="LibGit2Sharp.Commit"/>.</returns>
-        [Obsolete("This method will be removed in the next release. Please use a Commit overload that accepts a CommitOptions instead.")]
-        public Commit Commit(string message, Signature author, Signature committer, bool amendPreviousCommit)
-        {
-            return Commit(message, author, committer, new CommitOptions { AmendPreviousCommit = amendPreviousCommit });
         }
 
         private string BuildCommitLogMessage(Commit commit, bool amendPreviousCommit, bool isHeadOrphaned, bool isMergeCommit)
@@ -1351,8 +1294,7 @@ namespace LibGit2Sharp
         /// <summary>
         /// Gets the references to the tips that are currently being merged.
         /// </summary>
-        [Obsolete("This property is meant for internal use only and will not be public in the next release.")]
-        public IEnumerable<MergeHead> MergeHeads
+        internal IEnumerable<MergeHead> MergeHeads
         {
             get
             {

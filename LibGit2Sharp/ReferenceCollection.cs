@@ -99,20 +99,6 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Creates a direct reference with the specified name and target
-        /// </summary>
-        /// <param name="name">The canonical name of the reference to create.</param>
-        /// <param name="targetId">Id of the target object.</param>
-        /// <param name="logMessage">The optional message to log in the <see cref="ReflogCollection"/> when adding the <see cref="DirectReference"/></param>
-        /// <param name="allowOverwrite">True to allow silent overwriting a potentially existing reference, false otherwise.</param>
-        /// <returns>A new <see cref="Reference"/>.</returns>
-        [Obsolete("This method will be removed in the next release. Prefer the overload that takes a signature and a message for the reflog.")]
-        public virtual DirectReference Add(string name, ObjectId targetId, bool allowOverwrite, string logMessage)
-        {
-            return Add(name, targetId, null, logMessage, allowOverwrite);
-        }
-
-        /// <summary>
         /// Creates a symbolic reference with the specified name and target
         /// </summary>
         /// <param name="name">The canonical name of the reference to create.</param>
@@ -143,20 +129,6 @@ namespace LibGit2Sharp
         public virtual SymbolicReference Add(string name, Reference targetRef, bool allowOverwrite = false)
         {
             return Add(name, targetRef, null, null, allowOverwrite);
-        }
-
-        /// <summary>
-        /// Creates a symbolic reference with the specified name and target
-        /// </summary>
-        /// <param name="name">The canonical name of the reference to create.</param>
-        /// <param name="targetRef">The target reference.</param>
-        /// <param name="logMessage">The optional message to log in the <see cref="ReflogCollection"/> when adding the <see cref="SymbolicReference"/></param>
-        /// <param name="allowOverwrite">True to allow silent overwriting a potentially existing reference, false otherwise.</param>
-        /// <returns>A new <see cref="Reference"/>.</returns>
-        [Obsolete("This method will be removed in the next release. Prefer the overload that takes a signature and a message for the reflog.")]
-        public virtual SymbolicReference Add(string name, Reference targetRef, bool allowOverwrite, string logMessage)
-        {
-            return Add(name, targetRef, null, logMessage, allowOverwrite);
         }
 
         /// <summary>
@@ -258,19 +230,6 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Updates the target of a direct reference
-        /// </summary>
-        /// <param name="directRef">The direct reference which target should be updated.</param>
-        /// <param name="targetId">The new target.</param>
-        /// <param name="logMessage">The optional message to log in the <see cref="ReflogCollection"/> of the <paramref name="directRef"/> reference</param>
-        /// <returns>A new <see cref="Reference"/>.</returns>
-        [Obsolete("This method will be removed in the next release. Prefer the overload that takes a signature and a message for the reflog.")]
-        public virtual Reference UpdateTarget(Reference directRef, ObjectId targetId, string logMessage)
-        {
-            return UpdateTarget(directRef, targetId, null, logMessage);
-        }
-
-        /// <summary>
         /// Updates the target of a symbolic reference
         /// </summary>
         /// <param name="symbolicRef">The symbolic reference which target should be updated.</param>
@@ -306,19 +265,6 @@ namespace LibGit2Sharp
         public virtual Reference UpdateTarget(Reference symbolicRef, Reference targetRef)
         {
             return UpdateTarget(symbolicRef, targetRef, null, null);
-        }
-
-        /// <summary>
-        /// Updates the target of a symbolic reference
-        /// </summary>
-        /// <param name="symbolicRef">The symbolic reference which target should be updated.</param>
-        /// <param name="targetRef">The new target.</param>
-        /// <param name="logMessage">The optional message to log in the <see cref="ReflogCollection"/> of the <paramref name="symbolicRef"/> reference.</param>
-        /// <returns>A new <see cref="Reference"/>.</returns>
-        [Obsolete("This method will be removed in the next release. Prefer the overload that takes a signature and a message for the reflog.")]
-        public virtual Reference UpdateTarget(Reference symbolicRef, Reference targetRef, string logMessage)
-        {
-            return UpdateTarget(symbolicRef, targetRef, null, logMessage);
         }
 
         internal Reference UpdateHeadTarget<T>(T target, Signature signature, string logMessage)

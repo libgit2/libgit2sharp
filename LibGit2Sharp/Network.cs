@@ -349,8 +349,7 @@ namespace LibGit2Sharp
         /// <summary>
         /// The heads that have been updated during the last fetch.
         /// </summary>
-        [Obsolete("This property is meant for internal use only and will not be public in the next release.")]
-        public virtual IEnumerable<FetchHead> FetchHeads
+        internal virtual IEnumerable<FetchHead> FetchHeads
         {
             get
             {

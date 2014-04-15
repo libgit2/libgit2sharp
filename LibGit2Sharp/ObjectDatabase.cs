@@ -184,21 +184,6 @@ namespace LibGit2Sharp
 
         /// <summary>
         /// Inserts a <see cref="Commit"/> into the object database, referencing an existing <see cref="Tree"/>.
-        /// </summary>
-        /// <param name="message">The description of why a change was made to the repository.</param>
-        /// <param name="author">The <see cref="Signature"/> of who made the change.</param>
-        /// <param name="committer">The <see cref="Signature"/> of who added the change to the repository.</param>
-        /// <param name="tree">The <see cref="Tree"/> of the <see cref="Commit"/> to be created.</param>
-        /// <param name="parents">The parents of the <see cref="Commit"/> to be created.</param>
-        /// <returns>The created <see cref="Commit"/>.</returns>
-        [Obsolete("This method will be removed in the next release. Please use CreateCommit(Signature, Signature, string, bool, Tree, IEnumerable<Commit>) instead.")]
-        public virtual Commit CreateCommit(string message, Signature author, Signature committer, Tree tree, IEnumerable<Commit> parents)
-        {
-            return CreateCommit(author, committer, message, true, tree, parents);
-        }
-
-        /// <summary>
-        /// Inserts a <see cref="Commit"/> into the object database, referencing an existing <see cref="Tree"/>.
         /// <para>
         /// Prettifing the message includes:
         /// * Removing empty lines from the beginning and end.
