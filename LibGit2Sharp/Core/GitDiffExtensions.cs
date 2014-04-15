@@ -1,5 +1,3 @@
-using LibGit2Sharp.Core.Compat;
-
 namespace LibGit2Sharp.Core
 {
     internal static class GitDiffExtensions
