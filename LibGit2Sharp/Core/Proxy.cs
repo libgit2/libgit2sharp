@@ -2474,6 +2474,26 @@ namespace LibGit2Sharp.Core
             return git_foreach(resultSelector, c => NativeMethods.git_submodule_foreach(repo, (x, y, p) => c(x, y, p), IntPtr.Zero));
         }
 
+        public static SubmoduleSafeHandle git_submodule_add_setup(RepositorySafeHandle repo, string url, FilePath path, bool useGitLink)
+        {
+            using (ThreadAffinity())
+            {
+                SubmoduleSafeHandle sub;
+                var res = NativeMethods.git_submodule_add_setup(out sub, repo, url, path, useGitLink);
+                Ensure.ZeroResult(res);
+                return sub; 
+            }
+        }
+
+        public static void git_submodule_add_finalize(SubmoduleSafeHandle submodule)
+        {
+            using (ThreadAffinity())
+            {
+                var res = NativeMethods.git_submodule_add_finalize(submodule);
+                Ensure.ZeroResult(res);
+            }
+        }
+
         public static void git_submodule_add_to_index(SubmoduleSafeHandle submodule, bool write_index)
         {
             using (ThreadAffinity())
