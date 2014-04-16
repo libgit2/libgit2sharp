@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.IO;
 using System.Runtime.InteropServices;
 using LibGit2Sharp.Core;
@@ -569,7 +570,9 @@ namespace LibGit2Sharp
             if (len.ToUInt64() > long.MaxValue)
             {
                 throw new InvalidOperationException(
-                    string.Format("Provided length ({0}) exceeds long.MaxValue ({1}).",
+                    string.Format(
+                        CultureInfo.InvariantCulture,
+                        "Provided length ({0}) exceeds long.MaxValue ({1}).",
                         len.ToUInt64(), long.MaxValue));
             }
 

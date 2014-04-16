@@ -82,29 +82,6 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Find the best possible common ancestor given two <see cref="Commit"/>s.
-        /// </summary>
-        /// <param name="first">The first <see cref="Commit"/>.</param>
-        /// <param name="second">The second <see cref="Commit"/>.</param>
-        /// <returns>The common ancestor or null if none found.</returns>
-        [Obsolete("This method will be removed in the next release. Please use FindMergeBase(Commit, Commit).")]
-        public Commit FindCommonAncestor(Commit first, Commit second)
-        {
-            return FindMergeBase(first, second);
-        }
-
-        /// <summary>
-        /// Find the best possible common ancestor given two or more <see cref="Commit"/>.
-        /// </summary>
-        /// <param name="commits">The <see cref="Commit"/>s for which to find the common ancestor.</param>
-        /// <returns>The common ancestor or null if none found.</returns>
-        [Obsolete("This method will be removed in the next release. Please use FindMergeBase(IEnumerable<Commit>, MergeBaseFindingStrategy).")]
-        public Commit FindCommonAncestor(IEnumerable<Commit> commits)
-        {
-            return FindMergeBase(commits, MergeBaseFindingStrategy.Octopus);
-        }
-
-        /// <summary>
         /// Find the best possible merge base given two <see cref="Commit"/>s.
         /// </summary>
         /// <param name="first">The first <see cref="Commit"/>.</param>

@@ -4,7 +4,6 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using LibGit2Sharp.Core;
-using LibGit2Sharp.Core.Compat;
 using LibGit2Sharp.Core.Handles;
 using Environment = System.Environment;
 
@@ -352,7 +351,7 @@ namespace LibGit2Sharp
             }
         }
 
-        private void DetectRenames(DiffSafeHandle diffList, CompareOptions compareOptions)
+        private static void DetectRenames(DiffSafeHandle diffList, CompareOptions compareOptions)
         {
             var similarityOptions = (compareOptions == null) ? null : compareOptions.Similarity;
             if (similarityOptions == null ||

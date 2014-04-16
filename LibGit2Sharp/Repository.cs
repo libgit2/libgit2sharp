@@ -7,7 +7,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using LibGit2Sharp.Core;
-using LibGit2Sharp.Core.Compat;
 using LibGit2Sharp.Core.Handles;
 using LibGit2Sharp.Handlers;
 
@@ -341,7 +340,6 @@ namespace LibGit2Sharp
         public void Dispose()
         {
             Dispose(true);
-            GC.SuppressFinalize(this);
         }
 
         /// <summary>
@@ -547,8 +545,10 @@ namespace LibGit2Sharp
         /// <param name="options"><see cref="CloneOptions"/> controlling clone behavior</param>
         /// <returns>The path to the created repository.</returns>
         public static string Clone(string sourceUrl, string workdirPath,
-            CloneOptions options)
+            CloneOptions options = null)
         {
+            options = options ?? new CloneOptions();
+
             CheckoutCallbacks checkoutCallbacks = CheckoutCallbacks.GenerateCheckoutCallbacks(
                 options.OnCheckoutProgress, null);
 
@@ -579,49 +579,6 @@ namespace LibGit2Sharp
             }
 
             return repoPath.Native;
-        }
-
-        /// <summary>
-        /// Clone with specified options.
-        /// </summary>
-        /// <param name="sourceUrl">URI for the remote repository</param>
-        /// <param name="workdirPath">Local path to clone into</param>
-        /// <param name="bare">True will result in a bare clone, false a full clone.</param>
-        /// <param name="checkout">If true, the origin's HEAD will be checked out. This only applies
-        /// to non-bare repositories.</param>
-        /// <param name="onTransferProgress">Handler for network transfer and indexing progress information</param>
-        /// <param name="onCheckoutProgress">Handler for checkout progress information</param>
-        /// <param name="credentials">Credentials to use for user/pass authentication</param>
-        /// <returns>The path to the created repository.</returns>
-        [Obsolete("This overload will be removed in the next release. Please use Repository.Clone(string, string, CloneOptions) instead.")]
-        public static string Clone(string sourceUrl, string workdirPath,
-            bool bare = false,
-            bool checkout = true,
-            TransferProgressHandler onTransferProgress = null,
-            CheckoutProgressHandler onCheckoutProgress = null,
-            Credentials credentials = null)
-        {
-            return Clone(sourceUrl, workdirPath, new CloneOptions()
-            {
-                IsBare = bare,
-                Checkout = checkout,
-                OnTransferProgress = onTransferProgress,
-                OnCheckoutProgress = onCheckoutProgress,
-                Credentials = credentials
-            });
-        }
-
-        /// <summary>
-        /// Clone without options.
-        /// </summary>
-        /// <param name="sourceUrl">URI for the remote repository</param>
-        /// <param name="workdirPath">Local path to clone into</param>
-        /// <returns>The path to the created repository.</returns>
-        public static string Clone(string sourceUrl, string workdirPath)
-        {
-            // This overload is required to supress the obsolete warning if called without arguments.
-            // Should be removed once the obsolete overload is removed.
-            return Clone(sourceUrl, workdirPath, new CloneOptions());
         }
 
         /// <summary>
@@ -774,7 +731,9 @@ namespace LibGit2Sharp
             CheckoutTree(tree, null, opts);
 
             Refs.UpdateTarget("HEAD", headTarget, signature,
-                string.Format("checkout: moving from {0} to {1}", previousHeadName, refLogHeadSpec));
+                string.Format(
+                    CultureInfo.InvariantCulture,
+                    "checkout: moving from {0} to {1}", previousHeadName, refLogHeadSpec));
         }
 
         /// <summary>
@@ -833,7 +792,9 @@ namespace LibGit2Sharp
 
             if (logMessage == null)
             {
-                logMessage = string.Format("reset: moving to {0}", commit.Sha);
+                logMessage = string.Format(
+                    CultureInfo.InvariantCulture,
+                    "reset: moving to {0}", commit.Sha);
             }
 
             Proxy.git_reset(handle, commit.Id, resetMode, signature.OrDefault(Config), logMessage);
@@ -923,7 +884,8 @@ namespace LibGit2Sharp
                 {
                     throw new EmptyCommitException(
                         options.AmendPreviousCommit ?
-                        String.Format("Amending this commit would produce a commit that is identical to its parent (id = {0})", parents[0].Id) :
+                        String.Format(CultureInfo.InvariantCulture,
+                            "Amending this commit would produce a commit that is identical to its parent (id = {0})", parents[0].Id) :
                         "No changes; nothing to commit.");
                 }
             }
@@ -944,23 +906,7 @@ namespace LibGit2Sharp
             return result;
         }
 
-        /// <summary>
-        /// Stores the content of the <see cref="Repository.Index"/> as a new <see cref="LibGit2Sharp.Commit"/> into the repository.
-        /// The tip of the <see cref="Repository.Head"/> will be used as the parent of this new Commit.
-        /// Once the commit is created, the <see cref="Repository.Head"/> will move forward to point at it.
-        /// </summary>
-        /// <param name="message">The description of why a change was made to the repository.</param>
-        /// <param name="author">The <see cref="Signature"/> of who made the change.</param>
-        /// <param name="committer">The <see cref="Signature"/> of who added the change to the repository.</param>
-        /// <param name="amendPreviousCommit">True to amend the current <see cref="LibGit2Sharp.Commit"/> pointed at by <see cref="Repository.Head"/>, false otherwise.</param>
-        /// <returns>The generated <see cref="LibGit2Sharp.Commit"/>.</returns>
-        [Obsolete("This method will be removed in the next release. Please use a Commit overload that accepts a CommitOptions instead.")]
-        public Commit Commit(string message, Signature author, Signature committer, bool amendPreviousCommit)
-        {
-            return Commit(message, author, committer, new CommitOptions { AmendPreviousCommit = amendPreviousCommit });
-        }
-
-        private string BuildCommitLogMessage(Commit commit, bool amendPreviousCommit, bool isHeadOrphaned, bool isMergeCommit)
+        private static string BuildCommitLogMessage(Commit commit, bool amendPreviousCommit, bool isHeadOrphaned, bool isMergeCommit)
         {
             string kind = string.Empty;
             if (isHeadOrphaned)
@@ -976,7 +922,7 @@ namespace LibGit2Sharp
                 kind = " (merge)";
             }
 
-            return string.Format("commit{0}: {1}", kind, commit.MessageShort);
+            return string.Format(CultureInfo.InvariantCulture, "commit{0}: {1}", kind, commit.MessageShort);
         }
 
         private void LogCommit(Commit commit, string reflogMessage)
@@ -1117,7 +1063,7 @@ namespace LibGit2Sharp
 
             using (GitMergeHeadHandle mergeHeadHandle = Proxy.git_merge_head_from_id(Handle, commit.Id.Oid))
             {
-                return Merge(new GitMergeHeadHandle[] { mergeHeadHandle }, merger, options);
+                return Merge(new[] { mergeHeadHandle }, merger, options);
             }
         }
 
@@ -1138,7 +1084,7 @@ namespace LibGit2Sharp
             using (ReferenceSafeHandle referencePtr = Refs.RetrieveReferencePtr(branch.CanonicalName))
             using (GitMergeHeadHandle mergeHeadHandle = Proxy.git_merge_head_from_ref(Handle, referencePtr))
             {
-                return Merge(new GitMergeHeadHandle[] { mergeHeadHandle }, merger, options);
+                return Merge(new[] { mergeHeadHandle }, merger, options);
             }
         }
 
@@ -1156,7 +1102,7 @@ namespace LibGit2Sharp
 
             options = options ?? new MergeOptions();
 
-            Commit commit = this.LookupCommit(committish);
+            Commit commit = LookupCommit(committish);
             return Merge(commit, merger, options);
         }
 
@@ -1259,12 +1205,14 @@ namespace LibGit2Sharp
                     }
                     break;
                 default:
-                    throw new NotImplementedException(string.Format("Unknown fast forward strategy: {0}", mergeAnalysis));
+                    throw new NotImplementedException(
+                        string.Format(CultureInfo.InvariantCulture, "Unknown fast forward strategy: {0}", mergeAnalysis));
             }
 
             if (mergeResult == null)
             {
-                throw new NotImplementedException(string.Format("Unknown merge analysis: {0}", options.FastForwardStrategy));
+                throw new NotImplementedException(
+                    string.Format(CultureInfo.InvariantCulture, "Unknown merge analysis: {0}", options.FastForwardStrategy));
             }
 
             return mergeResult;
@@ -1281,12 +1229,12 @@ namespace LibGit2Sharp
         {
             MergeResult mergeResult;
 
-            GitMergeOpts mergeOptions = new GitMergeOpts()
+            var mergeOptions = new GitMergeOpts
                 {
                     Version = 1
                 };
 
-            GitCheckoutOpts checkoutOpts = new GitCheckoutOpts()
+            var checkoutOpts = new GitCheckoutOpts
             {
                 version = 1
             };
@@ -1299,7 +1247,7 @@ namespace LibGit2Sharp
                 if (options.CommitOnSuccess)
                 {
                     // Commit the merge
-                    mergeCommit = this.Commit(Info.Message, author: merger, committer: merger);
+                    mergeCommit = Commit(Info.Message, author: merger, committer: merger);
                 }
 
                 mergeResult = new MergeResult(MergeStatus.NonFastForward, mergeCommit);
@@ -1333,7 +1281,9 @@ namespace LibGit2Sharp
             var reference = Refs.Head.ResolveToDirectReference();
 
             // TODO: This reflog entry could be more specific
-            string refLogEntry = string.Format("merge {0}: Fast-forward", fastForwardCommit.Sha);
+            string refLogEntry = string.Format(
+                CultureInfo.InvariantCulture, "merge {0}: Fast-forward", fastForwardCommit.Sha);
+
             if (reference == null)
             {
                 // Reference does not exist, create it.
@@ -1351,8 +1301,7 @@ namespace LibGit2Sharp
         /// <summary>
         /// Gets the references to the tips that are currently being merged.
         /// </summary>
-        [Obsolete("This property is meant for internal use only and will not be public in the next release.")]
-        public IEnumerable<MergeHead> MergeHeads
+        internal IEnumerable<MergeHead> MergeHeads
         {
             get
             {

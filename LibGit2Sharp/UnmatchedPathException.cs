@@ -45,10 +45,5 @@ namespace LibGit2Sharp
             : base(info, context)
         {
         }
-
-        internal UnmatchedPathException(string message, GitErrorCode code, GitErrorCategory category)
-            : base(message, code, category)
-        {
-        }
     }
 }

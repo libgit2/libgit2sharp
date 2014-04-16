@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Handles;
 
@@ -346,7 +345,8 @@ namespace LibGit2Sharp
 
             return new Signature(
                 name != null ? name.Value : "unknown",
-                email != null ? email.Value : string.Format("{0}@{1}", Environment.UserName, Environment.UserDomainName),
+                email != null ? email.Value : string.Format(
+                        CultureInfo.InvariantCulture, "{0}@{1}", Environment.UserName, Environment.UserDomainName),
                 now);
         }
     }

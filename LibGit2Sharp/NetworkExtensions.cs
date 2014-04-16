@@ -44,14 +44,19 @@ namespace LibGit2Sharp
             {
                 if (string.IsNullOrEmpty(branch.UpstreamBranchCanonicalName))
                 {
-                    throw new LibGit2SharpException(string.Format("The branch '{0}' (\"{1}\") that you are trying to push does not track an upstream branch.",
-                                                                  branch.Name, branch.CanonicalName));
+                    throw new LibGit2SharpException(
+                        string.Format(
+                            CultureInfo.InvariantCulture, 
+                            "The branch '{0}' (\"{1}\") that you are trying to push does not track an upstream branch.",
+                            branch.Name, branch.CanonicalName));
                 }
             }
 
             foreach (var branch in enumeratedBranches)
             {
-                network.Push(branch.Remote, string.Format("{0}:{1}", branch.CanonicalName, branch.UpstreamBranchCanonicalName), pushOptions);
+                network.Push(branch.Remote, string.Format(
+                    CultureInfo.InvariantCulture,
+                    "{0}:{1}", branch.CanonicalName, branch.UpstreamBranchCanonicalName), pushOptions);
             }
         }
     }

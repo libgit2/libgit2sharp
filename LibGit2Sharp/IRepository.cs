@@ -168,19 +168,6 @@ namespace LibGit2Sharp
         Commit Commit(string message, Signature author, Signature committer, CommitOptions options = null);
 
         /// <summary>
-        /// Stores the content of the <see cref="Repository.Index"/> as a new <see cref="LibGit2Sharp.Commit"/> into the repository.
-        /// The tip of the <see cref="Repository.Head"/> will be used as the parent of this new Commit.
-        /// Once the commit is created, the <see cref="Repository.Head"/> will move forward to point at it.
-        /// </summary>
-        /// <param name="message">The description of why a change was made to the repository.</param>
-        /// <param name="author">The <see cref="Signature"/> of who made the change.</param>
-        /// <param name="committer">The <see cref="Signature"/> of who added the change to the repository.</param>
-        /// <param name="amendPreviousCommit">True to amend the current <see cref="LibGit2Sharp.Commit"/> pointed at by <see cref="Repository.Head"/>, false otherwise.</param>
-        /// <returns>The generated <see cref="LibGit2Sharp.Commit"/>.</returns>
-        [Obsolete("This method will be removed in the next release. Please use a Commit overload that accepts a CommitOptions instead.")]
-        Commit Commit(string message, Signature author, Signature committer, bool amendPreviousCommit);
-
-        /// <summary>
         /// Sets the current <see cref="Head"/> to the specified commit and optionally resets the <see cref="Index"/> and
         /// the content of the working tree to match.
         /// </summary>
@@ -205,12 +192,6 @@ namespace LibGit2Sharp
         /// Clean the working tree by removing files that are not under version control.
         /// </summary>
         void RemoveUntrackedFiles();
-
-        /// <summary>
-        /// Gets the references to the tips that are currently being merged.
-        /// </summary>
-        [Obsolete("This property is meant for internal use only and will not be public in the next release.")]
-        IEnumerable<MergeHead> MergeHeads { get; }
 
         /// <summary>
         /// Merge changes from commit into the branch pointed at by HEAD..

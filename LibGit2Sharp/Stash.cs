@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Globalization;
+using System.Linq;
 
 namespace LibGit2Sharp
 {
@@ -15,7 +16,7 @@ namespace LibGit2Sharp
         { }
 
         internal Stash(Repository repo, ObjectId targetId, int index)
-            : base(repo, new DirectReference(string.Format("stash@{{{0}}}", index), repo, targetId), r => r.CanonicalName)
+            : base(repo, new DirectReference(string.Format(CultureInfo.InvariantCulture, "stash@{{{0}}}", index), repo, targetId), r => r.CanonicalName)
         { }
 
         /// <summary>

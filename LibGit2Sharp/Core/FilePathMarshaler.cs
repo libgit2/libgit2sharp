@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -69,7 +70,7 @@ namespace LibGit2Sharp.Core
             if (null == filePath)
             {
                 throw new MarshalDirectiveException(
-                    string.Format("{0} must be used on a FilePath.", GetType().Name));
+                    string.Format(CultureInfo.InvariantCulture, "{0} must be used on a FilePath.", GetType().Name));
             }
 
             return FromManaged(filePath);

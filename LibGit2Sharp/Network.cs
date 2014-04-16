@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using LibGit2Sharp.Core;
-using LibGit2Sharp.Core.Compat;
 using LibGit2Sharp.Core.Handles;
 using LibGit2Sharp.Handlers;
 
@@ -220,7 +219,7 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(remote, "remote");
             Ensure.ArgumentNotNullOrEmptyString(pushRefSpec, "pushRefSpec");
 
-            Push(remote, new string[] { pushRefSpec }, pushOptions, signature, logMessage);
+            Push(remote, new[] { pushRefSpec }, pushOptions, signature, logMessage);
         }
 
         /// <summary>
@@ -349,8 +348,7 @@ namespace LibGit2Sharp
         /// <summary>
         /// The heads that have been updated during the last fetch.
         /// </summary>
-        [Obsolete("This property is meant for internal use only and will not be public in the next release.")]
-        public virtual IEnumerable<FetchHead> FetchHeads
+        internal virtual IEnumerable<FetchHead> FetchHeads
         {
             get
             {

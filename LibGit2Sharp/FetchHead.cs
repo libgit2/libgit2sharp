@@ -7,8 +7,7 @@ namespace LibGit2Sharp
     /// Represents a local reference data from a remote repository which
     /// has been retreived through a Fetch process.
     /// </summary>
-    [Obsolete("This class is meant for internal use only and will not be public in the next release.")]
-    public class FetchHead : ReferenceWrapper<GitObject>
+    internal class FetchHead : ReferenceWrapper<GitObject>
     {
         /// <summary>
         /// Needed for mocking purposes.

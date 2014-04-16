@@ -5,7 +5,6 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using LibGit2Sharp.Core;
-using LibGit2Sharp.Handlers;
 
 namespace LibGit2Sharp
 {
@@ -217,24 +216,6 @@ namespace LibGit2Sharp
         /// Stores the content of the <see cref="Repository.Index"/> as a new <see cref="LibGit2Sharp.Commit"/> into the repository.
         /// The tip of the <see cref="Repository.Head"/> will be used as the parent of this new Commit.
         /// Once the commit is created, the <see cref="Repository.Head"/> will move forward to point at it.
-        /// <para>Both the Author and Committer will be guessed from the Git configuration. An exception will be raised if no configuration is reachable.</para>
-        /// </summary>
-        /// <param name="repository">The <see cref="Repository"/> being worked with.</param>
-        /// <param name="message">The description of why a change was made to the repository.</param>
-        /// <param name="amendPreviousCommit">True to amend the current <see cref="LibGit2Sharp.Commit"/> pointed at by <see cref="Repository.Head"/>, false otherwise.</param>
-        /// <returns>The generated <see cref="LibGit2Sharp.Commit"/>.</returns>
-        [Obsolete("This method will be removed in the next release. Please use a Commit overload that accepts a CommitOptions instead.")]
-        public static Commit Commit(this IRepository repository, string message, bool amendPreviousCommit)
-        {
-            Signature author = repository.Config.BuildSignature(DateTimeOffset.Now, true);
-
-            return repository.Commit(message, author, new CommitOptions { AmendPreviousCommit = amendPreviousCommit });
-        }
-
-        /// <summary>
-        /// Stores the content of the <see cref="Repository.Index"/> as a new <see cref="LibGit2Sharp.Commit"/> into the repository.
-        /// The tip of the <see cref="Repository.Head"/> will be used as the parent of this new Commit.
-        /// Once the commit is created, the <see cref="Repository.Head"/> will move forward to point at it.
         /// <para>The Committer will be guessed from the Git configuration. An exception will be raised if no configuration is reachable.</para>
         /// </summary>
         /// <param name="repository">The <see cref="Repository"/> being worked with.</param>
@@ -247,23 +228,6 @@ namespace LibGit2Sharp
             Signature committer = repository.Config.BuildSignature(DateTimeOffset.Now, true);
 
             return repository.Commit(message, author, committer, options);
-        }
-
-        /// <summary>
-        /// Stores the content of the <see cref="Repository.Index"/> as a new <see cref="LibGit2Sharp.Commit"/> into the repository.
-        /// The tip of the <see cref="Repository.Head"/> will be used as the parent of this new Commit.
-        /// Once the commit is created, the <see cref="Repository.Head"/> will move forward to point at it.
-        /// <para>The Committer will be guessed from the Git configuration. An exception will be raised if no configuration is reachable.</para>
-        /// </summary>
-        /// <param name="repository">The <see cref="Repository"/> being worked with.</param>
-        /// <param name="author">The <see cref="Signature"/> of who made the change.</param>
-        /// <param name="message">The description of why a change was made to the repository.</param>
-        /// <param name="amendPreviousCommit">True to amend the current <see cref="LibGit2Sharp.Commit"/> pointed at by <see cref="Repository.Head"/>, false otherwise.</param>
-        /// <returns>The generated <see cref="LibGit2Sharp.Commit"/>.</returns>
-        [Obsolete("This method will be removed in the next release. Please use a Commit overload that accepts a CommitOptions instead.")]
-        public static Commit Commit(this IRepository repository, string message, Signature author, bool amendPreviousCommit)
-        {
-            return repository.Commit(message, author, new CommitOptions { AmendPreviousCommit = amendPreviousCommit });
         }
 
         /// <summary>
@@ -449,6 +413,7 @@ namespace LibGit2Sharp
             {
                 throw new LibGit2SharpException(string.Format(CultureInfo.InvariantCulture, "Unexpected kind of identifier '{0}'.", identifier));
             }
+
             yield return null;
         }
 

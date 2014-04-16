@@ -16,6 +16,7 @@
  */
 
 using System;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -85,7 +86,7 @@ namespace LibGit2Sharp.Core
             AlignTo512((data != null) ? data.Length : 0, false);
         }
 
-        protected void WriteContent(long count, Stream data, Stream dest)
+        protected static void WriteContent(long count, Stream data, Stream dest)
         {
             var buffer = new byte[1024];
 
@@ -148,7 +149,7 @@ namespace LibGit2Sharp.Core
             OutStream.Write(header, 0, header.Length);
         }
 
-        private LinkExtendedHeader ParseLink(bool isLink, Stream data, string entrySha)
+        private static LinkExtendedHeader ParseLink(bool isLink, Stream data, string entrySha)
         {
             if (!isLink)
             {
@@ -166,7 +167,8 @@ namespace LibGit2Sharp.Core
 
                     if (data.Length > 100)
                     {
-                        return new LinkExtendedHeader(link, string.Format("see %s.paxheader{0}", entrySha), true);
+                        return new LinkExtendedHeader(link,
+                            string.Format(CultureInfo.InvariantCulture, "see %s.paxheader{0}", entrySha), true);
                     }
 
                     return new LinkExtendedHeader(link, link, false);
@@ -196,19 +198,19 @@ namespace LibGit2Sharp.Core
 
             using (var stream = new MemoryStream(Encoding.ASCII.GetBytes(extHeader)))
             {
-                Write(string.Format("{0}.paxheader", entrySha), stream, modificationTime, "666".OctalToInt32(),
+                Write(string.Format(CultureInfo.InvariantCulture, "{0}.paxheader", entrySha), stream, modificationTime, "666".OctalToInt32(),
                     "0", "0", 'x', "root", "root", "0", "0", entrySha, false);
             }
         }
 
-        private string BuildKeyValueExtHeader(string key, string value)
+        private static string BuildKeyValueExtHeader(string key, string value)
         {
             // "%u %s=%s\n"
             int len = key.Length + value.Length + 3;
             for (int i = len; i > 9; i /= 10)
                 len++;
 
-            return string.Format("{0} {1}={2}\n", len, key, value);
+            return string.Format(CultureInfo.InvariantCulture, "{0} {1}={2}\n", len, key, value);
         }
 
         /// <summary>
@@ -331,7 +333,7 @@ namespace LibGit2Sharp.Core
                 return buffer;
             }
 
-            private string CalculateChecksum(byte[] buf)
+            private static string CalculateChecksum(byte[] buf)
             {
                 Encoding.ASCII.GetBytes(new string(' ', 8)).CopyTo(buf, 148);
 
@@ -408,7 +410,8 @@ namespace LibGit2Sharp.Core
                         return new FileNameExtendedHeader(posixPath, posixPath.Substring(0, position), posixPath.Substring(position, posixPath.Length - position), false);
                     }
 
-                    return new FileNameExtendedHeader(posixPath, string.Empty, string.Format("{0}.data", entrySha), true);
+                    return new FileNameExtendedHeader(posixPath, string.Empty,
+                        string.Format(CultureInfo.InvariantCulture, "{0}.data", entrySha), true);
                 }
 
                 return new FileNameExtendedHeader(posixPath, string.Empty, posixPath, false);

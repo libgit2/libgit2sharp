@@ -7,7 +7,6 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Handles;
-using LibGit2Sharp.Handlers;
 
 namespace LibGit2Sharp
 {
@@ -108,7 +107,7 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(backend, "backend");
             Ensure.ArgumentConformsTo(priority, s => s > 0, "priority");
 
-            Proxy.git_odb_add_backend(this.handle, backend.GitOdbBackendPointer, priority);
+            Proxy.git_odb_add_backend(handle, backend.GitOdbBackendPointer, priority);
         }
 
         private class Processor
@@ -180,21 +179,6 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(treeDefinition, "treeDefinition");
 
             return treeDefinition.Build(repo);
-        }
-
-        /// <summary>
-        /// Inserts a <see cref="Commit"/> into the object database, referencing an existing <see cref="Tree"/>.
-        /// </summary>
-        /// <param name="message">The description of why a change was made to the repository.</param>
-        /// <param name="author">The <see cref="Signature"/> of who made the change.</param>
-        /// <param name="committer">The <see cref="Signature"/> of who added the change to the repository.</param>
-        /// <param name="tree">The <see cref="Tree"/> of the <see cref="Commit"/> to be created.</param>
-        /// <param name="parents">The parents of the <see cref="Commit"/> to be created.</param>
-        /// <returns>The created <see cref="Commit"/>.</returns>
-        [Obsolete("This method will be removed in the next release. Please use CreateCommit(Signature, Signature, string, bool, Tree, IEnumerable<Commit>) instead.")]
-        public virtual Commit CreateCommit(string message, Signature author, Signature committer, Tree tree, IEnumerable<Commit> parents)
-        {
-            return CreateCommit(author, committer, message, true, tree, parents);
         }
 
         /// <summary>
