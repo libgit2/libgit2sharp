@@ -150,5 +150,22 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(SubmoduleStatus.IndexModified, statusAfter & SubmoduleStatus.IndexModified);
             }
         }
+
+        [Theory]
+        [InlineData("http://github.com/libgit2/TestGitRepository", false)]
+        [InlineData("https://github.com/libgit2/TestGitRepository", true)]
+        [InlineData("git://github.com/libgit2/TestGitRepository", true)]
+        public void CanAddASubmodule(string url, bool useGitLink)
+        {
+            var path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
+            {
+                var submodule = repo.Submodules.Add("test_submodule", url, null, "test_submodule", useGitLink);
+                Assert.NotNull(submodule);
+
+                Assert.True(Directory.Exists(repo.Info.WorkingDirectory + Path.DirectorySeparatorChar + "test_submodule"));
+                Assert.True(File.Exists(repo.Info.WorkingDirectory + Path.DirectorySeparatorChar + @"test_submodule" + Path.DirectorySeparatorChar + "master.txt"));
+            }
+        }
     }
 }

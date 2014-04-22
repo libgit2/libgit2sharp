@@ -36,16 +36,20 @@ namespace LibGit2Sharp
         /// <summary>
         /// Adds a new repository, checkout the selected branch and add it to superproject index  
         /// </summary>
+        /// <remarks>New style: sub-repo goes in &lt;repo-dir&gt;/modules/&lt;name&gt;/ with a
+        /// gitlink in the sub-repo workdir directory to that repository
+        /// 
+        /// Old style: sub-repo goes directly into repo/&lt;name&gt;/.git/
+        /// </remarks>
         /// <param name="name">The name of the Submodule</param>
         /// <param name="url">The url of the remote repository</param>
-        /// <param name="branch">The remote branch to checkout</param>
+        /// <param name="committish">A revparse spec for the submodule.</param>
         /// <param name="relativePath">The path of the submodule inside of the super repository, if none, name is taken.</param>
-        /// <param name="use_GitLink"></param>
+        /// <param name="useGitLink">Use new style git subrepos or oldstyle.</param>
         /// <returns></returns>
-        public Submodule Add(string name, string url, string committish = null, string relativePath = null, bool useGitLink = true)
+        public virtual Submodule Add(string name, string url, string committish = null, string relativePath = null, bool useGitLink = true)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
-
             Ensure.ArgumentNotNullOrEmptyString(url, "url");
 
             relativePath = relativePath ?? name;
@@ -54,14 +58,13 @@ namespace LibGit2Sharp
             {
                 string subPath = Path.Combine(repo.Info.WorkingDirectory, relativePath);
 
-                Repository.Clone(url, subPath);
-
-                if (committish != null)
+                string branch = committish ?? "refs/remotes/origin/master";
+                using (var subRepo = new Repository(subPath))
                 {
-                    using (Repository subRepo = new Repository(subPath))
-                        subRepo.Checkout(subRepo.Branches[committish]);
+                    subRepo.Fetch("origin");
+                    subRepo.Checkout(branch);
                 }
-                    
+
                 Proxy.git_submodule_add_finalize(handle);
             }
 
