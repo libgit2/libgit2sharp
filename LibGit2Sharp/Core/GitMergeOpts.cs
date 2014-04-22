@@ -30,7 +30,7 @@ namespace LibGit2Sharp.Core
         /// <summary>
         /// Flags for automerging content.
         /// </summary>
-        public GitMergeFileFavorFlags MergeFileFavorFlags;
+        public MergeFileFavor MergeFileFavorFlags;
     }
 
     /// <summary>
@@ -83,13 +83,5 @@ namespace LibGit2Sharp.Core
         /// GIT_MERGE_TREE_FIND_RENAMES in libgit2
         /// </summary>
         GIT_MERGE_TREE_FIND_RENAMES = (1 << 0),
-    }
-
-    internal enum GitMergeFileFavorFlags
-    {
-        GIT_MERGE_FILE_FAVOR_NORMAL = 0,
-        GIT_MERGE_FILE_FAVOR_OURS = 1,
-        GIT_MERGE_FILE_FAVOR_THEIRS = 2,
-        GIT_MERGE_FILE_FAVOR_UNION = 3,
     }
 }

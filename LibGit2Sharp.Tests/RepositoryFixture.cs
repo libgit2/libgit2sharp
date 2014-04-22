@@ -592,7 +592,7 @@ namespace LibGit2Sharp.Tests
             string path = CloneStandardTestRepo();
             using (var repo = new Repository(path))
             {
-                repo.Checkout(repo.Head.Tip.Sha, CheckoutModifiers.Force, null, null);
+                repo.Checkout(repo.Head.Tip.Sha, new CheckoutOptions() { CheckoutModifiers = CheckoutModifiers.Force });
                 Branch trackLocal = repo.Head;
                 Assert.Null(trackLocal.Remote);
             }

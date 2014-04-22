@@ -1,4 +1,7 @@
-﻿using System.Linq;
+﻿using System;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
 using Xunit.Extensions;
@@ -342,6 +345,122 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
+        public void MergeReportsCheckoutProgress()
+        {
+            string repoPath = CloneMergeTestRepo();
+            using (var repo = new Repository(repoPath))
+            {
+                Commit commitToMerge = repo.Branches["normal_merge"].Tip;
+                
+                bool wasCalled = false;
+
+                MergeOptions options = new MergeOptions()
+                {
+                    OnCheckoutProgress = (path, completed, total) => wasCalled = true,
+                };
+
+                MergeResult result = repo.Merge(commitToMerge, Constants.Signature, options);
+
+                Assert.True(wasCalled);
+            }
+        }
+
+        [Fact]
+        public void MergeReportsCheckoutNotifications()
+        {
+            string repoPath = CloneMergeTestRepo();
+            using (var repo = new Repository(repoPath))
+            {
+                Commit commitToMerge = repo.Branches["normal_merge"].Tip;
+
+                bool wasCalled = false;
+                CheckoutNotifyFlags actualNotifyFlags = CheckoutNotifyFlags.None;
+
+                MergeOptions options = new MergeOptions()
+                {
+                    OnCheckoutNotify = (path, notificationType) => { wasCalled = true; actualNotifyFlags = notificationType; return true; },
+                    CheckoutNotifyFlags = CheckoutNotifyFlags.Updated,
+                };
+
+                MergeResult result = repo.Merge(commitToMerge, Constants.Signature, options);
+
+                Assert.True(wasCalled);
+                Assert.Equal(CheckoutNotifyFlags.Updated, actualNotifyFlags);
+            }
+        }
+
+        [Fact]
+        public void FastForwardMergeReportsCheckoutProgress()
+        {
+            string repoPath = CloneMergeTestRepo();
+            using (var repo = new Repository(repoPath))
+            {
+                Commit commitToMerge = repo.Branches["fast_forward"].Tip;
+
+                bool wasCalled = false;
+
+                MergeOptions options = new MergeOptions()
+                {
+                    OnCheckoutProgress = (path, completed, total) => wasCalled = true,
+                };
+
+                MergeResult result = repo.Merge(commitToMerge, Constants.Signature, options);
+
+                Assert.True(wasCalled);
+            }
+        }
+
+        [Fact]
+        public void FastForwardMergeReportsCheckoutNotifications()
+        {
+            string repoPath = CloneMergeTestRepo();
+            using (var repo = new Repository(repoPath))
+            {
+                Commit commitToMerge = repo.Branches["fast_forward"].Tip;
+
+                bool wasCalled = false;
+                CheckoutNotifyFlags actualNotifyFlags = CheckoutNotifyFlags.None;
+
+                MergeOptions options = new MergeOptions()
+                {
+                    OnCheckoutNotify = (path, notificationType) => { wasCalled = true; actualNotifyFlags = notificationType; return true; },
+                    CheckoutNotifyFlags = CheckoutNotifyFlags.Updated,
+                };
+
+                MergeResult result = repo.Merge(commitToMerge, Constants.Signature, options);
+
+                Assert.True(wasCalled);
+                Assert.Equal(CheckoutNotifyFlags.Updated, actualNotifyFlags);
+            }
+        }
+
+        [Fact]
+        public void MergeCanDetectRenames()
+        {
+            // The environment is set up such that:
+            // file b.txt is edited in the "rename" branch and
+            // edited and renamed in the "rename_source" branch.
+            // The edits are automergable.
+            // We can rename "rename_source" into "rename"
+            // if rename detection is enabled,
+            // but the merge will fail with conflicts if this
+            // change is not detected as a rename.
+
+            string repoPath = CloneMergeTestRepo();
+            using (var repo = new Repository(repoPath))
+            {
+                Branch currentBranch = repo.Checkout("rename_source");
+                Assert.NotNull(currentBranch);
+
+                Branch branchToMerge = repo.Branches["rename"];
+
+                MergeResult result = repo.Merge(branchToMerge, Constants.Signature);
+
+                Assert.Equal(MergeStatus.NonFastForward, result.Status);
+            }
+        }
+
+        [Fact]
         public void FastForwardNonFastForwardableMergeThrows()
         {
             string path = CloneMergeTestRepo();
@@ -419,6 +538,112 @@ namespace LibGit2Sharp.Tests
 
                 Assert.Equal(expectedMergeStatus, result.Status);
                 Assert.False(repo.Index.RetrieveStatus().Any());
+            }
+        }
+
+        [Theory]
+        [InlineData(CheckoutFileConflictStrategy.Ours)]
+        [InlineData(CheckoutFileConflictStrategy.Theirs)]
+        public void CanSpecifyConflictFileStrategy(CheckoutFileConflictStrategy conflictStrategy)
+        {
+            const string conflictFile = "a.txt";
+            const string conflictBranchName = "conflicts";
+
+            string path = CloneMergeTestRepo();
+            using (var repo = new Repository(path))
+            {
+                Branch branch = repo.Branches[conflictBranchName];
+                Assert.NotNull(branch);
+
+                MergeOptions mergeOptions = new MergeOptions()
+                {
+                    FileConflictStrategy = conflictStrategy,
+                };
+
+                MergeResult result = repo.Merge(branch, Constants.Signature, mergeOptions);
+                Assert.Equal(MergeStatus.Conflicts, result.Status);
+
+                // Get the information on the conflict.
+                Conflict conflict = repo.Index.Conflicts[conflictFile];
+
+                Assert.NotNull(conflict);
+                Assert.NotNull(conflict.Theirs);
+                Assert.NotNull(conflict.Ours);
+
+                // Get the blob containing the expected content.
+                Blob expectedBlob = null;
+                switch(conflictStrategy)
+                {
+                    case CheckoutFileConflictStrategy.Theirs:
+                        expectedBlob = repo.Lookup<Blob>(conflict.Theirs.Id);
+                        break;
+                    case CheckoutFileConflictStrategy.Ours:
+                        expectedBlob = repo.Lookup<Blob>(conflict.Ours.Id);
+                        break;
+                    default:
+                        throw new Exception("Unexpected FileConflictStrategy");
+                }
+
+                Assert.NotNull(expectedBlob);
+
+                // Check the content of the file on disk matches what is expected.
+                string expectedContent = expectedBlob.GetContentText(new FilteringOptions(conflictFile));
+                Assert.Equal(expectedContent, File.ReadAllText(Path.Combine(repo.Info.WorkingDirectory, conflictFile)));
+            }
+        }
+
+        [Theory]
+        [InlineData(MergeFileFavor.Ours)]
+        [InlineData(MergeFileFavor.Theirs)]
+        public void MergeCanSpecifyMergeFileFavorOption(MergeFileFavor fileFavorFlag)
+        {
+            const string conflictFile = "a.txt";
+            const string conflictBranchName = "conflicts";
+
+            string path = CloneMergeTestRepo();
+            using (var repo = InitIsolatedRepository(path))
+            {
+                Branch branch = repo.Branches[conflictBranchName];
+                Assert.NotNull(branch);
+
+                var status = repo.Index.RetrieveStatus();
+                MergeOptions mergeOptions = new MergeOptions()
+                {
+                    MergeFileFavor = fileFavorFlag,
+                };
+
+                MergeResult result = repo.Merge(branch, Constants.Signature, mergeOptions);
+
+                Assert.Equal(MergeStatus.NonFastForward, result.Status);
+
+                // Verify that the index and working directory are clean
+                Assert.True(repo.Index.IsFullyMerged);
+                Assert.False(repo.Index.RetrieveStatus().IsDirty);
+
+                // Get the blob containing the expected content.
+                Blob expectedBlob = null;
+                switch (fileFavorFlag)
+                {
+                    case MergeFileFavor.Theirs:
+                        expectedBlob = repo.Lookup<Blob>("3dd9738af654bbf1c363f6c3bbc323bacdefa179");
+                        break;
+                    case MergeFileFavor.Ours:
+                        expectedBlob = repo.Lookup<Blob>("610b16886ca829cebd2767d9196f3c4378fe60b5");
+                        break;
+                    default:
+                        throw new Exception("Unexpected MergeFileFavor");
+                }
+
+                Assert.NotNull(expectedBlob);
+
+                // Verify the index has the expected contents
+                IndexEntry entry = repo.Index[conflictFile];
+                Assert.NotNull(entry);
+                Assert.Equal(expectedBlob.Id, entry.Id);
+
+                // Verify the content of the file on disk matches what is expected.
+                string expectedContent = expectedBlob.GetContentText(new FilteringOptions(conflictFile));
+                Assert.Equal(expectedContent, File.ReadAllText(Path.Combine(repo.Info.WorkingDirectory, conflictFile)));
             }
         }
 

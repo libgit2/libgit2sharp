@@ -120,7 +120,7 @@ namespace LibGit2Sharp.Core
             IntPtr payload);
 
     [StructLayout(LayoutKind.Sequential)]
-    internal struct GitCheckoutOpts :IDisposable
+    internal struct GitCheckoutOpts
     {
         public uint version;
 
@@ -146,15 +146,18 @@ namespace LibGit2Sharp.Core
         public IntPtr ancestor_label;
         public IntPtr our_label;
         public IntPtr their_label;
+    }
 
-        public void Dispose()
-        {
-            if (paths == null)
-            {
-                return;
-            }
+    /// <summary>
+    /// An inteface for objects that specify parameters from which a
+    /// GitCheckoutOpts struct can be populated.
+    /// </summary>
+    internal interface IConvertableToGitCheckoutOpts
+    {
+        CheckoutCallbacks GenerateCallbacks();
 
-            paths.Dispose();
-        }
+        CheckoutStrategy CheckoutStrategy { get; }
+
+        CheckoutNotifyFlags CheckoutNotifyFlags { get; }
     }
 }

@@ -45,6 +45,7 @@ namespace LibGit2Sharp
     /// <summary>
     /// Class to specify options and callback on CheckoutNotifications.
     /// </summary>
+    [Obsolete("This class will be removed in the next release. Specify CheckoutNotification options through CheckoutOptions instead.")]
     public class CheckoutNotificationOptions
     {
         /// <summary>

@@ -69,6 +69,7 @@
     <Compile Include="BranchTrackingDetails.cs" />
     <Compile Include="BranchUpdater.cs" />
     <Compile Include="CheckoutCallbacks.cs" />
+    <Compile Include="CheckoutFileConflictStrategy.cs" />
     <Compile Include="CheckoutModifiers.cs" />
     <Compile Include="CheckoutNotificationOptions.cs" />
     <Compile Include="CheckoutOptions.cs" />
@@ -79,6 +80,7 @@
     <Compile Include="CompareOptions.cs" />
     <Compile Include="ContentChangeStats.cs" />
     <Compile Include="Core\GitBuiltInFeatures.cs" />
+    <Compile Include="Core\GitCheckoutOptsWrapper.cs" />
     <Compile Include="Core\GitCredentialType.cs" />
     <Compile Include="Core\Handles\PatchSafeHandle.cs" />
     <Compile Include="Core\IntPtrExtensions.cs" />

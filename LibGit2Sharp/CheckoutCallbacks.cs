@@ -69,7 +69,7 @@ namespace LibGit2Sharp
         /// <param name="onCheckoutProgress"><see cref="CheckoutProgressHandler"/> that should be wrapped in the native callback.</param>
         /// <param name="onCheckoutNotify"><see cref="CheckoutNotifyHandler"/> delegate to call in response to checkout notification callback.</param>
         /// <returns>The delegate with signature matching the expected native callback.</returns>
-        internal static CheckoutCallbacks GenerateCheckoutCallbacks(CheckoutProgressHandler onCheckoutProgress, CheckoutNotifyHandler onCheckoutNotify)
+        internal static CheckoutCallbacks From(CheckoutProgressHandler onCheckoutProgress, CheckoutNotifyHandler onCheckoutNotify)
         {
             return new CheckoutCallbacks(onCheckoutProgress, onCheckoutNotify);
         }
