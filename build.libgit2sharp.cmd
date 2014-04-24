@@ -5,7 +5,7 @@ SET FrameworkVersion=v4.0.30319
 SET FrameworkDir=%SystemRoot%\Microsoft.NET\Framework
 SET CommitSha=%~1
 
-"%FrameworkDir%\%FrameworkVersion%\msbuild.exe" "%BASEDIR%CI-build.msbuild" /property:CommitSha=%CommitSha%
+"%FrameworkDir%\%FrameworkVersion%\msbuild.exe" "%BASEDIR%CI\build.msbuild" /property:CommitSha=%CommitSha%
 
 ENDLOCAL
 
