@@ -131,9 +131,10 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="name">The name to be checked.</param>
         /// <returns>true is the name is valid; false otherwise.</returns>
+        [Obsolete("This method will be removed in the next release. Please use Remote.IsValidName(string) instead.")]
         public virtual bool IsValidName(string name)
         {
-            return Proxy.git_remote_is_valid_name(name);
+            return Remote.IsValidName(name);
         }
 
         private string DebuggerDisplay
