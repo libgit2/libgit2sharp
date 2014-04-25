@@ -487,6 +487,9 @@ namespace LibGit2Sharp.Core
         internal static extern IntPtr git_diff_get_delta(DiffSafeHandle diff, UIntPtr idx);
 
         [DllImport(libgit2)]
+        internal static extern int git_libgit2_features();
+
+        [DllImport(libgit2)]
         internal static extern int git_graph_ahead_behind(out UIntPtr ahead, out UIntPtr behind, RepositorySafeHandle repo, ref GitOid one, ref GitOid two);
 
         [DllImport(libgit2)]
