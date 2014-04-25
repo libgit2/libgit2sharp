@@ -65,6 +65,24 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        /// Determines if the proposed reference name is well-formed.
+        /// </summary>
+        /// <para>
+        /// - Top-level names must contain only capital letters and underscores,
+        /// and must begin and end with a letter. (e.g. "HEAD", "ORIG_HEAD").
+        ///
+        /// - Names prefixed with "refs/" can be almost anything.  You must avoid
+        /// the characters '~', '^', ':', '\\', '?', '[', and '*', and the
+        /// sequences ".." and "@{" which have special meaning to revparse.
+        /// </para>
+        /// <param name="canonicalName">The name to be checked.</param>
+        /// <returns>true is the name is valid; false otherwise.</returns>
+        public static bool IsValidName(string canonicalName)
+        {
+            return Proxy.git_reference_is_valid_name(canonicalName);
+        }
+
+        /// <summary>
         /// Gets the full name of this reference.
         /// </summary>
         public virtual string CanonicalName
