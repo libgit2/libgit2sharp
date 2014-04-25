@@ -2721,6 +2721,24 @@ namespace LibGit2Sharp.Core
 
         #endregion
 
+        #region git_libgit2_
+
+        /// <summary>
+        /// Returns the features with which libgit2 was compiled.
+        /// </summary>
+        public static string git_libgit2_features()
+        {
+            GitBuiltInFeatures features;
+
+            int flags = NativeMethods.git_libgit2_features();
+
+            features = (GitBuiltInFeatures)Enum.ToObject(typeof(GitBuiltInFeatures), flags);
+
+            return features.ToString();
+        }
+
+        #endregion
+
         private static ICollection<TResult> git_foreach<T, TResult>(
             Func<T, TResult> resultSelector,
             Func<Func<T, IntPtr, int>, int> iterator,
