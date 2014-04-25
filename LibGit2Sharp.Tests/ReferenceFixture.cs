@@ -752,7 +752,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                Assert.Equal(expectedResult, repo.Refs.IsValidName(refname));
+                Assert.Equal(expectedResult, Reference.IsValidName(refname));
             }
         }
 

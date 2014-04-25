@@ -340,9 +340,10 @@ namespace LibGit2Sharp
         /// </para>
         /// <param name="canonicalName">The name to be checked.</param>
         /// <returns>true is the name is valid; false otherwise.</returns>
+        [Obsolete("This method will be removed in the next release. Please use Reference.IsValidName(string) instead.")]
         public virtual bool IsValidName(string canonicalName)
         {
-            return Proxy.git_reference_is_valid_name(canonicalName);
+            return Reference.IsValidName(canonicalName);
         }
 
         /// <summary>
