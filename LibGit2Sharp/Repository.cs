@@ -1011,7 +1011,7 @@ namespace LibGit2Sharp
         /// Gets the current LibGit2Sharp version.
         /// <para>
         ///   The format of the version number is as follows:
-        ///   <para>Major.Minor.Patch-LibGit2Sharp_abbrev_hash-libgit2_abbrev_hash (x86|amd64)</para>
+        ///   <para>Major.Minor.Patch-LibGit2Sharp_abbrev_hash-libgit2_abbrev_hash (x86|amd64 - capabilities)</para>
         /// </para>
         /// </summary>
         public static string Version
@@ -1030,11 +1030,12 @@ namespace LibGit2Sharp
 
             return string.Format(
                 CultureInfo.InvariantCulture,
-                "{0}-{1}-{2} ({3})",
+                "{0}-{1}-{2} ({3} - {4})",
                 version.ToString(3),
                 libgit2sharpHash.Substring(0, 7),
                 libgit2Hash.Substring(0, 7),
-                NativeMethods.ProcessorArchitecture
+                NativeMethods.ProcessorArchitecture,
+                Proxy.git_libgit2_features()
                 );
         }
 

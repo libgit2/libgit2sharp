@@ -86,6 +86,14 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
+        public void CanRetrieveValidVersionString()
+        {
+            string versionInfo = Repository.Version;
+
+            Assert.NotNull(versionInfo);
+        }
+
+        [Fact]
         public void CanCreateStandardRepoAndSpecifyAFolderWhichWillContainTheNewlyCreatedGitDirectory()
         {
             var scd1 = BuildSelfCleaningDirectory();
