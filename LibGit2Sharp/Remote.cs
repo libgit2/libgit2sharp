@@ -96,6 +96,16 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        /// Determines if the proposed remote name is well-formed.
+        /// </summary>
+        /// <param name="name">The name to be checked.</param>
+        /// <returns>true is the name is valid; false otherwise.</returns>
+        public static bool IsValidName(string name)
+        {
+            return Proxy.git_remote_is_valid_name(name);
+        }
+
+        /// <summary>
         /// Determines whether the specified <see cref="Object"/> is equal to the current <see cref="Remote"/>.
         /// </summary>
         /// <param name="obj">The <see cref="Object"/> to compare with the current <see cref="Remote"/>.</param>
