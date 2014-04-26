@@ -233,7 +233,7 @@ namespace LibGit2Sharp.Core
 
             var newCommit = repo.ObjectDatabase.CreateCommit(newHeader.Author,
                                                              newHeader.Committer,
-                                                             newHeader.Message, 
+                                                             newHeader.Message,
                                                              true,
                                                              newTree,
                                                              mappedNewParents);

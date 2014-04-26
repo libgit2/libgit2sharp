@@ -32,7 +32,7 @@ namespace LibGit2Sharp
             using (var stream = new MemoryStream(Encoding.ASCII.GetBytes(
                 string.Format(CultureInfo.InvariantCulture, "52 comment={0}\n", oid.Sha))))
             {
-                writer.Write("pax_global_header", stream, modificationTime, "666".OctalToInt32(), 
+                writer.Write("pax_global_header", stream, modificationTime, "666".OctalToInt32(),
                     "0", "0", 'g', "root", "root", "0", "0", oid.Sha, false);
             }
         }
@@ -43,7 +43,7 @@ namespace LibGit2Sharp
             {
                 case Mode.GitLink:
                 case Mode.Directory:
-                    writer.Write(path + "/", null, modificationTime, "775".OctalToInt32(), 
+                    writer.Write(path + "/", null, modificationTime, "775".OctalToInt32(),
                         "0", "0", '5', "root", "root", "0", "0", entry.TargetId.Sha, false);
                     break;
                 case Mode.ExecutableFile:
@@ -57,7 +57,7 @@ namespace LibGit2Sharp
                 case Mode.SymbolicLink:
                     using (Stream contentStream = ((Blob)entry.Target).GetContentStream(new FilteringOptions(path)))
                     {
-                        writer.Write(path, contentStream, modificationTime, "777".OctalToInt32(), 
+                        writer.Write(path, contentStream, modificationTime, "777".OctalToInt32(),
                             "0", "0", '2', "root", "root", "0", "0", entry.TargetId.Sha, true);
                     }
                     break;

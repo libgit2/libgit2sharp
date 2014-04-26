@@ -73,7 +73,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(CurrentOperation.Merge, repo.Info.CurrentOperation);
             }
         }
-        
+
         [Theory]
         [InlineData(true)]
         [InlineData(false)]

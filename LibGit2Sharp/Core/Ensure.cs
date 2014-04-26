@@ -67,7 +67,7 @@ namespace LibGit2Sharp.Core
             }
 
             throw new ArgumentException(
-                string.Format(CultureInfo.InvariantCulture, 
+                string.Format(CultureInfo.InvariantCulture,
                     "Zero bytes ('\\0') are not allowed. A zero byte has been found at position {0}.", zeroPos), argumentName);
         }
 

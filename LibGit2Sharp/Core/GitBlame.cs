@@ -37,7 +37,7 @@ namespace LibGit2Sharp.Core
         /// Restrict the search of commits to those reachable
         /// following only the first parents.
         /// </summary>
-    	GIT_BLAME_FIRST_PARENT = (1<<4),
+        GIT_BLAME_FIRST_PARENT = (1<<4),
     }
 
     [StructLayout(LayoutKind.Sequential)]

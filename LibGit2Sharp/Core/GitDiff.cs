@@ -282,7 +282,7 @@ namespace LibGit2Sharp.Core
         // Obey `diff.renames`. Overridden by any other GIT_DIFF_FIND_... flag.
         GIT_DIFF_FIND_BY_CONFIG = 0,
 
-        // Look for renames? (`--find-renames`) 
+        // Look for renames? (`--find-renames`)
         GIT_DIFF_FIND_RENAMES = (1 << 0),
         // consider old side of modified for renames? (`--break-rewrites=N`)
         GIT_DIFF_FIND_RENAMES_FROM_REWRITES = (1 << 1),
