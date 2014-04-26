@@ -894,14 +894,8 @@ namespace LibGit2Sharp
 
             Proxy.git_repository_state_cleanup(handle);
 
-            var logAllRefUpdates = Config.GetValueOrDefault<bool>("core.logAllRefUpdates", false);
-            if (!logAllRefUpdates)
-            {
-                return result;
-            }
-
             var logMessage = BuildCommitLogMessage(result, options.AmendPreviousCommit, isHeadOrphaned, parents.Count > 1);
-            LogCommit(result, logMessage);
+            UpdateHeadAndTerminalReference(result, logMessage);
 
             return result;
         }
@@ -925,7 +919,7 @@ namespace LibGit2Sharp
             return string.Format(CultureInfo.InvariantCulture, "commit{0}: {1}", kind, commit.MessageShort);
         }
 
-        private void LogCommit(Commit commit, string reflogMessage)
+        private void UpdateHeadAndTerminalReference(Commit commit, string reflogMessage)
         {
             Reference reference = Refs.Head;
 
