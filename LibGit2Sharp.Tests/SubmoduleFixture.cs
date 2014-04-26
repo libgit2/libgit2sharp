@@ -155,12 +155,13 @@ namespace LibGit2Sharp.Tests
         [InlineData("http://github.com/libgit2/TestGitRepository", false)]
         [InlineData("https://github.com/libgit2/TestGitRepository", true)]
         [InlineData("git://github.com/libgit2/TestGitRepository", true)]
+//        [InlineData("git://github.com/libgit2/libgit2sharp.git", true)]
         public void CanAddASubmodule(string url, bool useGitLink)
         {
             var path = CloneStandardTestRepo();
             using (var repo = new Repository(path))
             {
-                var submodule = repo.Submodules.Add("test_submodule", url, null, "test_submodule", useGitLink);
+                var submodule = repo.Submodules.Add("test_submodule", url, null, useGitLink);
                 Assert.NotNull(submodule);
 
                 Assert.True(Directory.Exists(repo.Info.WorkingDirectory + Path.DirectorySeparatorChar + "test_submodule"));

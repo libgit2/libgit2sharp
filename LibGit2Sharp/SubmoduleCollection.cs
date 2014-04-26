@@ -41,34 +41,33 @@ namespace LibGit2Sharp
         /// 
         /// Old style: sub-repo goes directly into repo/&lt;name&gt;/.git/
         /// </remarks>
-        /// <param name="name">The name of the Submodule</param>
+        /// <param name="relativePath">The path of the submodule inside of the super repository, if none, name is taken.</param>
         /// <param name="url">The url of the remote repository</param>
         /// <param name="committish">A revparse spec for the submodule.</param>
-        /// <param name="relativePath">The path of the submodule inside of the super repository, if none, name is taken.</param>
         /// <param name="useGitLink">Use new style git subrepos or oldstyle.</param>
         /// <returns></returns>
-        public virtual Submodule Add(string name, string url, string committish = null, string relativePath = null, bool useGitLink = true)
+        public virtual Submodule Add(string relativePath, string url, string committish = null, bool useGitLink = true)
         {
-            Ensure.ArgumentNotNullOrEmptyString(name, "name");
+            Ensure.ArgumentNotNullOrEmptyString(relativePath, "name");
             Ensure.ArgumentNotNullOrEmptyString(url, "url");
 
-            relativePath = relativePath ?? name;
+            string subPath = Path.Combine(repo.Info.WorkingDirectory, relativePath);
+            Repository.Clone(url, subPath);
 
             using (SubmoduleSafeHandle handle = Proxy.git_submodule_add_setup(repo.Handle, url, relativePath, useGitLink))
             {
-                string subPath = Path.Combine(repo.Info.WorkingDirectory, relativePath);
-
-                string branch = committish ?? "refs/remotes/origin/master";
-                using (var subRepo = new Repository(subPath))
+                if (committish != null)
                 {
-                    subRepo.Fetch("origin");
-                    subRepo.Checkout(branch);
+                    using (var subRepo = new Repository(subPath))
+                    {
+                        subRepo.Checkout(committish);
+                    }
                 }
 
                 Proxy.git_submodule_add_finalize(handle);
             }
 
-            return this[name];
+            return this[relativePath];
         }
 
         /// <summary>
