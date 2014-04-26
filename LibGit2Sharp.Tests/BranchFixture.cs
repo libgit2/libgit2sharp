@@ -1008,7 +1008,7 @@ namespace LibGit2Sharp.Tests
                 EnableRefLog(repo);
                 var master = repo.Branches["master"];
                 var newMaster = repo.Branches.Move(master, "new-master");
-                AssertRefLogEntry(repo, newMaster.CanonicalName, newMaster.Tip.Id, 
+                AssertRefLogEntry(repo, newMaster.CanonicalName, newMaster.Tip.Id,
                     "branch: renamed refs/heads/master to refs/heads/new-master");
 
                 newMaster = repo.Branches.Move(newMaster, "new-master2", null, "MOVE");

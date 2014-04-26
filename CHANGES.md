@@ -20,7 +20,7 @@
  - Teach repo.Commits.FindMergeBase to leverage either Standard or Octopus strategy (#634 and #629)
  - Make ObjectDatabase.CreateCommit() accept an option controlling the prettifying of the message (#619)
  - Allow notes retrieval by namespace and ObjectId (#653)
- 
+
 ### Changes
 
  - Deprecate repo.Commits.FindCommonAncestor() in favor of repo.Commits.FindMergeBase() (#634)

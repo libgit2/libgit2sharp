@@ -29,4 +29,3 @@ namespace LibGit2Sharp.Core
         Default = (1 << 3),
     }
 }
-

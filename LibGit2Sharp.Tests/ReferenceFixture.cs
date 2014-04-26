@@ -648,7 +648,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(newName, moved.CanonicalName);
                 Assert.Equal(oldId, moved.ResolveToDirectReference().Target.Id);
 
-                AssertRefLogEntry(repo, newName, moved.ResolveToDirectReference().Target.Id, 
+                AssertRefLogEntry(repo, newName, moved.ResolveToDirectReference().Target.Id,
                     string.Format("reference: renamed {0} to {1}", oldName, newName));
             }
         }

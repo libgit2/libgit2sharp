@@ -209,7 +209,7 @@ namespace LibGit2Sharp.Tests
                     !t.IsAbstract &&
                     t.GetInterfaces().Any(i => i.IsAssignableFrom(typeof(IEnumerable<>))))
                 .Select(t => t.GetMethod("GetEnumerator"))
-                .Where(m => 
+                .Where(m =>
                     m.ReturnType.Name == "IEnumerator`1" &&
                     (!m.IsVirtual || m.IsFinal))
                 .ToList();

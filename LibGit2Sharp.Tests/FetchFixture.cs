@@ -87,9 +87,9 @@ namespace LibGit2Sharp.Tests
                 }
 
                 // Perform the actual fetch
-                repo.Network.Fetch(remote, new FetchOptions { 
+                repo.Network.Fetch(remote, new FetchOptions {
                     TagFetchMode = TagFetchMode.All,
-                    OnUpdateTips = expectedFetchState.RemoteUpdateTipsHandler 
+                    OnUpdateTips = expectedFetchState.RemoteUpdateTipsHandler
                 });
 
                 // Verify the expected
@@ -111,7 +111,7 @@ namespace LibGit2Sharp.Tests
                 Remote remote = repo.Network.Remotes.Add(remoteName, url);
 
                 string refSpec = string.Format("refs/heads/{2}:refs/remotes/{0}/{1}", remoteName, localBranchName, remoteBranchName);
-                
+
                 // Set up structures for the expected results
                 // and verifying the RemoteUpdateTips callback.
                 TestRemoteInfo remoteInfo = TestRemoteInfo.TestRemoteInstance;
@@ -121,7 +121,7 @@ namespace LibGit2Sharp.Tests
                 // Perform the actual fetch
                 repo.Network.Fetch(remote, new string[] { refSpec }, new FetchOptions {
                     TagFetchMode = TagFetchMode.None,
-                    OnUpdateTips = expectedFetchState.RemoteUpdateTipsHandler 
+                    OnUpdateTips = expectedFetchState.RemoteUpdateTipsHandler
                 });
 
                 // Verify the expected

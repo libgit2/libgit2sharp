@@ -136,7 +136,7 @@ namespace LibGit2Sharp.Core
 
         #region git_branch_
 
-        public static ReferenceSafeHandle git_branch_create(RepositorySafeHandle repo, string branch_name, ObjectId targetId, bool force, 
+        public static ReferenceSafeHandle git_branch_create(RepositorySafeHandle repo, string branch_name, ObjectId targetId, bool force,
             Signature signature, string logMessage)
         {
             using (ThreadAffinity())
@@ -1322,7 +1322,7 @@ namespace LibGit2Sharp.Core
                 Ensure.ZeroResult(res);
                 return new Tuple<int, int>((int)add, (int)del);
             }
-        } 
+        }
 
         #endregion
 
