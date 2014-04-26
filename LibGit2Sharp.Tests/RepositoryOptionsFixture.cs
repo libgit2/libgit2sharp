@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Text;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
@@ -173,6 +174,32 @@ namespace LibGit2Sharp.Tests
             }
 
             AssertValueInConfigFile(systemLocation, "xpaulbettsx");
+        }
+
+        [Fact]
+        public void CanCommitOnBareRepository()
+        {
+            string repoPath = InitNewRepository(true);
+            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            string workPath = Path.Combine(scd.RootedDirectoryPath, "work");
+            Directory.CreateDirectory(workPath);
+
+            var repositoryOptions = new RepositoryOptions
+            {
+                WorkingDirectoryPath = workPath,
+                IndexPath = Path.Combine(scd.RootedDirectoryPath, "index")
+            };
+
+            using (var repo = new Repository(repoPath, repositoryOptions))
+            {
+                const string relativeFilepath = "test.txt";
+                Touch(repo.Info.WorkingDirectory, relativeFilepath, "test\n");
+                repo.Index.Stage(relativeFilepath);
+
+                Assert.NotNull(repo.Commit("Initial commit", Constants.Signature, Constants.Signature));
+                Assert.Equal(1, repo.Head.Commits.Count());
+                Assert.Equal(1, repo.Commits.Count());
+            }
         }
     }
 }
