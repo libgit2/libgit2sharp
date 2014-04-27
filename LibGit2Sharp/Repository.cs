@@ -1005,7 +1005,7 @@ namespace LibGit2Sharp
         /// Gets the current LibGit2Sharp version.
         /// <para>
         ///   The format of the version number is as follows:
-        ///   <para>Major.Minor.Patch-LibGit2Sharp_abbrev_hash-libgit2_abbrev_hash (x86|amd64 - capabilities)</para>
+        ///   <para>Major.Minor.Patch-LibGit2Sharp_abbrev_hash-libgit2_abbrev_hash (x86|amd64 - features)</para>
         /// </para>
         /// </summary>
         public static string Version
