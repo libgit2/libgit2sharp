@@ -283,7 +283,7 @@ namespace LibGit2Sharp
             {
                 var targetIdentifier = target as string;
 
-                if (IsValidName(targetIdentifier))
+                if (Reference.IsValidName(targetIdentifier))
                 {
                     Proxy.git_repository_set_head(repo.Handle, targetIdentifier, signature, logMessage);
                 }

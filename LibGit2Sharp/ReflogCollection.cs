@@ -36,7 +36,7 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNullOrEmptyString(canonicalName, "canonicalName");
             Ensure.ArgumentNotNull(repo, "repo");
 
-            if (!repo.Refs.IsValidName(canonicalName))
+            if (!Reference.IsValidName(canonicalName))
             {
                 throw new InvalidSpecificationException(
                     string.Format(CultureInfo.InvariantCulture, "The given reference name '{0}' is not valid", canonicalName));
