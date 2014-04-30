@@ -786,11 +786,12 @@ namespace LibGit2Sharp.Tests
 
                 Assert.Equal(expectedPatchLength, patch.Content.Length);
 
-                ContentChanges contentChanges = patch["numbers.txt"];
+                PatchEntryChanges entryChanges = patch["numbers.txt"];
 
-                Assert.Equal(2, contentChanges.LinesAdded);
-                Assert.Equal(1, contentChanges.LinesDeleted);
-                Assert.Equal(expectedPatchLength, contentChanges.Patch.Length);
+                Assert.Equal(2, entryChanges.LinesAdded);
+                Assert.Equal(1, entryChanges.LinesDeleted);
+                Assert.Equal(expectedPatchLength, entryChanges.Patch.Length);
+                Assert.Equal("numbers.txt", entryChanges.Path);
             }
         }
 
@@ -881,14 +882,15 @@ namespace LibGit2Sharp.Tests
 
                 var patch = repo.Diff.Compare<Patch>(rootCommitTree, mergedCommitTree, compareOptions: compareOptions);
 
-                ContentChanges contentChanges = patch["numbers.txt"];
+                PatchEntryChanges entryChanges = patch["numbers.txt"];
 
-                Assert.Equal(3, contentChanges.LinesAdded);
-                Assert.Equal(1, contentChanges.LinesDeleted);
+                Assert.Equal(3, entryChanges.LinesAdded);
+                Assert.Equal(1, entryChanges.LinesDeleted);
                 Assert.Equal(Expected("f8d44d7...7252fe2/numbers.txt-{0}-{1}.diff", contextLines, interhunkLines),
-                    contentChanges.Patch);
+                    entryChanges.Patch);
                 Assert.Equal(Expected("f8d44d7...7252fe2/full-{0}-{1}.diff", contextLines, interhunkLines),
                     patch);
+                Assert.Equal("numbers.txt", entryChanges.Path);
             }
         }
 

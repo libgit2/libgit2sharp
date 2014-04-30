@@ -95,6 +95,7 @@
     <Compile Include="GlobalSettings.cs" />
     <Compile Include="MergeOptions.cs" />
     <Compile Include="MergeResult.cs" />
+    <Compile Include="PatchEntryChanges.cs" />
     <Compile Include="PatchStats.cs" />
     <Compile Include="PullOptions.cs" />
     <Compile Include="RefSpec.cs" />

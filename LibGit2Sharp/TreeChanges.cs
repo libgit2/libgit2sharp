@@ -61,23 +61,10 @@ namespace LibGit2Sharp
 
         private void AddFileChange(GitDiffDelta delta)
         {
-            var newFilePath = LaxFilePathMarshaler.FromNative(delta.NewFile.Path);
+            var treeEntryChanges = new TreeEntryChanges(delta);
 
-            var oldFilePath = LaxFilePathMarshaler.FromNative(delta.OldFile.Path);
-            var newMode = (Mode)delta.NewFile.Mode;
-            var oldMode = (Mode)delta.OldFile.Mode;
-            var newOid = delta.NewFile.Id;
-            var oldOid = delta.OldFile.Id;
-
-            if (delta.Status == ChangeKind.Untracked || delta.Status == ChangeKind.Ignored)
-            {
-                delta.Status = ChangeKind.Added;
-            }
-
-            var diffFile = new TreeEntryChanges(newFilePath, newMode, newOid, delta.Status, oldFilePath, oldMode, oldOid);
-
-            fileDispatcher[delta.Status](this, diffFile);
-            changes.Add(newFilePath, diffFile);
+            fileDispatcher[treeEntryChanges.Status](this, treeEntryChanges);
+            changes.Add(treeEntryChanges.Path, treeEntryChanges);
         }
 
         #region IEnumerable<TreeEntryChanges> Members

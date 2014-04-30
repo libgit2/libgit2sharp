@@ -16,11 +16,11 @@ namespace LibGit2Sharp
     /// deleted, modified, ..., then consider using a simpler <see cref="TreeChanges"/>.</para>
     /// </summary>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public class Patch : IEnumerable<ContentChanges>
+    public class Patch : IEnumerable<PatchEntryChanges>
     {
         private readonly StringBuilder fullPatchBuilder = new StringBuilder();
 
-        private readonly IDictionary<FilePath, ContentChanges> changes = new Dictionary<FilePath, ContentChanges>();
+        private readonly IDictionary<FilePath, PatchEntryChanges> changes = new Dictionary<FilePath, PatchEntryChanges>();
         private int linesAdded;
         private int linesDeleted;
 
@@ -47,9 +47,9 @@ namespace LibGit2Sharp
 
         private void AddFileChange(GitDiffDelta delta)
         {
-            var pathPtr = delta.NewFile.Path != IntPtr.Zero ? delta.NewFile.Path : delta.OldFile.Path;
-            var newFilePath = LaxFilePathMarshaler.FromNative(pathPtr);
-            changes.Add(newFilePath, new ContentChanges(delta.IsBinary()));
+            var treeEntryChanges = new TreeEntryChanges(delta);
+
+            changes.Add(treeEntryChanges.Path, new PatchEntryChanges(delta.IsBinary(), treeEntryChanges));
         }
 
         private int PrintCallBack(GitDiffDelta delta, GitDiffHunk hunk, GitDiffLine line, IntPtr payload)
@@ -61,7 +61,7 @@ namespace LibGit2Sharp
             var pathPtr = delta.NewFile.Path != IntPtr.Zero ? delta.NewFile.Path : delta.OldFile.Path;
             var filePath = LaxFilePathMarshaler.FromNative(pathPtr);
 
-            ContentChanges currentChange = this[filePath];
+            PatchEntryChanges currentChange = this[filePath];
             string prefix = string.Empty;
 
             switch (line.lineOrigin)
@@ -91,13 +91,13 @@ namespace LibGit2Sharp
             return 0;
         }
 
-        #region IEnumerable<ContentChanges> Members
+        #region IEnumerable<PatchEntryChanges> Members
 
         /// <summary>
         /// Returns an enumerator that iterates through the collection.
         /// </summary>
         /// <returns>An <see cref="IEnumerator{T}"/> object that can be used to iterate through the collection.</returns>
-        public virtual IEnumerator<ContentChanges> GetEnumerator()
+        public virtual IEnumerator<PatchEntryChanges> GetEnumerator()
         {
             return changes.Values.GetEnumerator();
         }
@@ -116,19 +116,19 @@ namespace LibGit2Sharp
         /// <summary>
         /// Gets the <see cref="ContentChanges"/> corresponding to the specified <paramref name="path"/>.
         /// </summary>
-        public virtual ContentChanges this[string path]
+        public virtual PatchEntryChanges this[string path]
         {
             get { return this[(FilePath)path]; }
         }
 
-        private ContentChanges this[FilePath path]
+        private PatchEntryChanges this[FilePath path]
         {
             get
             {
-                ContentChanges contentChanges;
-                if (changes.TryGetValue(path, out contentChanges))
+                PatchEntryChanges entryChanges;
+                if (changes.TryGetValue(path, out entryChanges))
                 {
-                    return contentChanges;
+                    return entryChanges;
                 }
 
                 return null;
