@@ -278,6 +278,23 @@ namespace LibGit2Sharp.Core
             }
         }
 
+        public static RepositorySafeHandle git_clone_into(
+            RepositorySafeHandle repo,
+            RemoteSafeHandle remote,
+            GitCheckoutOpts checkoutOptions,
+            string branch,
+            Signature signature)
+        {
+            using (ThreadAffinity())
+            using (SignatureSafeHandle signatureHandle = signature.BuildHandle())
+            {
+                int res = NativeMethods.git_clone_into(repo, remote, ref checkoutOptions, 
+                    branch, signatureHandle);
+                Ensure.ZeroResult(res);
+                return repo;
+            }
+        }
+
         #endregion
 
         #region git_commit_
@@ -1951,10 +1968,10 @@ namespace LibGit2Sharp.Core
         public static RepositorySafeHandle git_repository_init_ext(
             FilePath workdirPath,
             FilePath gitdirPath,
-            bool isBare)
+            GitRepositoryInitFlags flags)
         {
             using (ThreadAffinity())
-            using (var opts = GitRepositoryInitOptions.BuildFrom(workdirPath, isBare))
+            using (var opts = GitRepositoryInitOptions.BuildFrom(workdirPath, flags))
             {
                 RepositorySafeHandle repo;
                 int res = NativeMethods.git_repository_init_ext(out repo, gitdirPath, opts);
@@ -1962,6 +1979,20 @@ namespace LibGit2Sharp.Core
 
                 return repo;
             }
+        }
+
+        public static RepositorySafeHandle git_repository_init_ext(
+            FilePath workdirPath,
+            FilePath gitdirPath,
+            bool isBare)
+        {
+            GitRepositoryInitFlags flags = 0;
+            if (isBare)
+            {
+                flags |= GitRepositoryInitFlags.GIT_REPOSITORY_INIT_BARE;
+            }
+
+            return git_repository_init_ext(workdirPath, gitdirPath, flags);
         }
 
         public static bool git_repository_is_bare(RepositorySafeHandle repo)
@@ -2513,6 +2544,19 @@ namespace LibGit2Sharp.Core
                 var res = NativeMethods.git_submodule_status(out status, submodule);
                 Ensure.ZeroResult(res);
                 return status;
+            }
+        }
+
+        public static string git_submodule_resolve_url(RepositorySafeHandle repo, string relativeURL)
+        {
+            using (ThreadAffinity())
+            {
+                using (GitBuf buffer = new GitBuf())
+                {
+                    int result = NativeMethods.git_submodule_resolve_url(buffer, repo, relativeURL);
+                    Ensure.ZeroResult(result);
+                    return LaxUtf8Marshaler.FromNative(buffer.ptr);
+                }
             }
         }
 

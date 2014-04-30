@@ -31,6 +31,7 @@ namespace LibGit2Sharp.Tests.TestHelpers
         public static string MergedTestRepoWorkingDirPath { get; private set; }
         public static string MergeTestRepoWorkingDirPath { get; private set; }
         public static string SubmoduleTestRepoWorkingDirPath { get; private set; }
+        public static string BareSubmoduleTestRepoPath { get; private set; }
         public static DirectoryInfo ResourcesDirectory { get; private set; }
 
         public static bool IsFileSystemCaseSensitive { get; private set; }
@@ -64,6 +65,7 @@ namespace LibGit2Sharp.Tests.TestHelpers
             MergedTestRepoWorkingDirPath = Path.Combine(ResourcesDirectory.FullName, "mergedrepo_wd");
             MergeTestRepoWorkingDirPath = Path.Combine(ResourcesDirectory.FullName, "merge_testrepo_wd");
             SubmoduleTestRepoWorkingDirPath = Path.Combine(ResourcesDirectory.FullName, "submodule_wd");
+            BareSubmoduleTestRepoPath = Path.Combine(ResourcesDirectory.FullName, "submodules.git");
         }
 
         private static bool IsFileSystemCaseSensitiveInternal()

@@ -27,6 +27,11 @@ namespace LibGit2Sharp
         public bool Checkout { get; set; }
 
         /// <summary>
+        /// True to init and update submodules recursively after checkout
+        /// </summary>
+        public bool Recursive { get; set; }
+
+        /// <summary>
         /// Handler for network transfer and indexing progress information
         /// </summary>
         public TransferProgressHandler OnTransferProgress { get; set; }
