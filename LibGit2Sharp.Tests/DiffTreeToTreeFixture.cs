@@ -290,12 +290,12 @@ namespace LibGit2Sharp.Tests
 
                 Commit @new = repo.Commit("Updated", Constants.Signature, Constants.Signature);
 
-                TreeChanges changes = repo.Diff.Compare<TreeChanges>(old.Tree, @new.Tree);
+                var changes = repo.Diff.Compare<TreeChanges>(old.Tree, @new.Tree);
 
                 Assert.Equal(1, changes.Count());
                 Assert.Equal(1, changes.Renamed.Count());
-                Assert.Equal("original.txt", changes.Renamed.Single().OldPath);
-                Assert.Equal("renamed.txt", changes.Renamed.Single().Path);
+                Assert.Equal(originalPath, changes.Renamed.Single().OldPath);
+                Assert.Equal(renamedPath, changes.Renamed.Single().Path);
             }
         }
 
@@ -337,7 +337,7 @@ namespace LibGit2Sharp.Tests
                 };
 
                 compareOptions.Similarity.RenameThreshold = 30;
-                TreeChanges changes = repo.Diff.Compare<TreeChanges>(old.Tree, @new.Tree, compareOptions: compareOptions);
+                var changes = repo.Diff.Compare<TreeChanges>(old.Tree, @new.Tree, compareOptions: compareOptions);
                 Assert.True(changes.All(x => x.Status == ChangeKind.Renamed));
 
                 compareOptions.Similarity.RenameThreshold = 90;
@@ -366,7 +366,7 @@ namespace LibGit2Sharp.Tests
 
                 Commit @new = repo.Commit("Updated", Constants.Signature, Constants.Signature);
 
-                TreeChanges changes = repo.Diff.Compare<TreeChanges>(old.Tree, @new.Tree,
+                var changes = repo.Diff.Compare<TreeChanges>(old.Tree, @new.Tree,
                     compareOptions: new CompareOptions
                     {
                         Similarity = SimilarityOptions.Exact,
@@ -374,8 +374,8 @@ namespace LibGit2Sharp.Tests
 
                 Assert.Equal(1, changes.Count());
                 Assert.Equal(1, changes.Renamed.Count());
-                Assert.Equal("original.txt", changes.Renamed.Single().OldPath);
-                Assert.Equal("renamed.txt", changes.Renamed.Single().Path);
+                Assert.Equal(originalPath, changes.Renamed.Single().OldPath);
+                Assert.Equal(renamedPath, changes.Renamed.Single().Path);
             }
         }
 
@@ -400,7 +400,7 @@ namespace LibGit2Sharp.Tests
 
                 Commit @new = repo.Commit("Updated", Constants.Signature, Constants.Signature);
 
-                TreeChanges changes = repo.Diff.Compare<TreeChanges>(old.Tree, @new.Tree,
+                var changes = repo.Diff.Compare<TreeChanges>(old.Tree, @new.Tree,
                     compareOptions: new CompareOptions
                     {
                         Similarity = SimilarityOptions.Exact,
@@ -433,7 +433,7 @@ namespace LibGit2Sharp.Tests
 
                 Commit @new = repo.Commit("Updated", Constants.Signature, Constants.Signature);
 
-                TreeChanges changes = repo.Diff.Compare<TreeChanges>(old.Tree, @new.Tree,
+                var changes = repo.Diff.Compare<TreeChanges>(old.Tree, @new.Tree,
                     compareOptions: new CompareOptions
                     {
                         Similarity = SimilarityOptions.Exact,
@@ -469,7 +469,7 @@ namespace LibGit2Sharp.Tests
 
                 Commit @new = repo.Commit("Updated", Constants.Signature, Constants.Signature);
 
-                TreeChanges changes = repo.Diff.Compare<TreeChanges>(old.Tree, @new.Tree,
+                var changes = repo.Diff.Compare<TreeChanges>(old.Tree, @new.Tree,
                     compareOptions:
                         new CompareOptions
                         {
@@ -480,8 +480,8 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(2, changes.Count());
                 Assert.Equal(1, changes.Unmodified.Count());
                 Assert.Equal(1, changes.Copied.Count());
-                Assert.Equal("original.txt", changes.Copied.Single().OldPath);
-                Assert.Equal("copied.txt", changes.Copied.Single().Path);
+                Assert.Equal(originalPath, changes.Copied.Single().OldPath);
+                Assert.Equal(copiedPath, changes.Copied.Single().Path);
             }
         }
 
@@ -505,7 +505,7 @@ namespace LibGit2Sharp.Tests
 
                 Commit @new = repo.Commit("Updated", Constants.Signature, Constants.Signature);
 
-                TreeChanges changes = repo.Diff.Compare<TreeChanges>(old.Tree, @new.Tree,
+                var changes = repo.Diff.Compare<TreeChanges>(old.Tree, @new.Tree,
                     compareOptions:
                         new CompareOptions
                         {
@@ -540,7 +540,7 @@ namespace LibGit2Sharp.Tests
 
                 Commit @new = repo.Commit("Updated", Constants.Signature, Constants.Signature);
 
-                TreeChanges changes = repo.Diff.Compare<TreeChanges>(old.Tree, @new.Tree,
+                var changes = repo.Diff.Compare<TreeChanges>(old.Tree, @new.Tree,
                     compareOptions:
                         new CompareOptions
                         {
@@ -549,8 +549,8 @@ namespace LibGit2Sharp.Tests
 
                 Assert.Equal(1, changes.Count());
                 Assert.Equal(1, changes.Copied.Count());
-                Assert.Equal("original.txt", changes.Copied.Single().OldPath);
-                Assert.Equal("copied.txt", changes.Copied.Single().Path);
+                Assert.Equal(originalPath, changes.Copied.Single().OldPath);
+                Assert.Equal(copiedPath, changes.Copied.Single().Path);
             }
         }
 
@@ -577,7 +577,7 @@ namespace LibGit2Sharp.Tests
 
                 Commit @new = repo.Commit("Updated", Constants.Signature, Constants.Signature);
 
-                TreeChanges changes = repo.Diff.Compare<TreeChanges>(old.Tree, @new.Tree);
+                var changes = repo.Diff.Compare<TreeChanges>(old.Tree, @new.Tree);
 
                 Assert.Equal(1, changes.Count());
                 Assert.Equal(0, changes.Copied.Count());
@@ -610,7 +610,7 @@ namespace LibGit2Sharp.Tests
 
                 Commit @new = repo.Commit("Updated", Constants.Signature, Constants.Signature);
 
-                TreeChanges changes = repo.Diff.Compare<TreeChanges>(old.Tree, @new.Tree,
+                var changes = repo.Diff.Compare<TreeChanges>(old.Tree, @new.Tree,
                     compareOptions:
                         new CompareOptions
                         {
@@ -619,8 +619,8 @@ namespace LibGit2Sharp.Tests
 
                 Assert.Equal(2, changes.Count());
                 Assert.Equal(1, changes.Copied.Count());
-                Assert.Equal("original.txt", changes.Copied.Single().OldPath);
-                Assert.Equal("copied.txt", changes.Copied.Single().Path);
+                Assert.Equal(originalPath, changes.Copied.Single().OldPath);
+                Assert.Equal(copiedPath, changes.Copied.Single().Path);
             }
         }
 
@@ -650,7 +650,7 @@ namespace LibGit2Sharp.Tests
 
                 Commit @new = repo.Commit("Updated", Constants.Signature, Constants.Signature);
 
-                TreeChanges changes = repo.Diff.Compare<TreeChanges>(old.Tree, @new.Tree);
+                var changes = repo.Diff.Compare<TreeChanges>(old.Tree, @new.Tree);
 
                 Assert.Equal(2, changes.Count());
                 Assert.Equal(0, changes.Copied.Count());
@@ -674,7 +674,7 @@ namespace LibGit2Sharp.Tests
                 repo.Index.Stage("b.txt");
                 Commit @new = repo.Commit("Updated", Constants.Signature, Constants.Signature);
 
-                TreeChanges changes = repo.Diff.Compare<TreeChanges>(old.Tree, @new.Tree,
+                var changes = repo.Diff.Compare<TreeChanges>(old.Tree, @new.Tree,
                     compareOptions: new CompareOptions {IncludeUnmodified = true});
 
                 Assert.Equal(2, changes.Count());
@@ -722,7 +722,7 @@ namespace LibGit2Sharp.Tests
 
                 Commit @new = repo.Commit("Updated", Constants.Signature, Constants.Signature);
 
-                TreeChanges changes = repo.Diff.Compare<TreeChanges>(old.Tree, @new.Tree,
+                var changes = repo.Diff.Compare<TreeChanges>(old.Tree, @new.Tree,
                     compareOptions:
                         new CompareOptions
                         {
@@ -732,13 +732,13 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(4, changes.Count());
                 Assert.Equal(1, changes.Modified.Count());
                 Assert.Equal(1, changes.Renamed.Count());
-                Assert.Equal("original.txt", changes.Renamed.Single().OldPath);
-                Assert.Equal("renamed.txt", changes.Renamed.Single().Path);
+                Assert.Equal(originalPath, changes.Renamed.Single().OldPath);
+                Assert.Equal(renamedPath, changes.Renamed.Single().Path);
                 Assert.Equal(2, changes.Copied.Count());
-                Assert.Equal("original2.txt", changes.Copied.ElementAt(0).OldPath);
-                Assert.Equal("copied.txt", changes.Copied.ElementAt(0).Path);
-                Assert.Equal("original3.txt", changes.Copied.ElementAt(1).OldPath);
-                Assert.Equal("copied2.txt", changes.Copied.ElementAt(1).Path);
+                Assert.Equal(originalPath2, changes.Copied.ElementAt(0).OldPath);
+                Assert.Equal(copiedPath1, changes.Copied.ElementAt(0).Path);
+                Assert.Equal(originalPath3, changes.Copied.ElementAt(1).OldPath);
+                Assert.Equal(copiedPath2, changes.Copied.ElementAt(1).Path);
             }
         }
         /*
