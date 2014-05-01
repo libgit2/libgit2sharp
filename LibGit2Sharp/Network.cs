@@ -79,7 +79,7 @@ namespace LibGit2Sharp
         /// <returns>The references in the remote repository.</returns>
         public virtual IEnumerable<DirectReference> ListReferences(string url)
         {
-            Ensure.ArgumentNotNull(url, "url");
+            Ensure.ArgumentNotNullOrEmptyString(url, "url");
 
             using (RemoteSafeHandle remoteHandle = Proxy.git_remote_create_anonymous(repository.Handle, url, null))
             {
@@ -90,6 +90,8 @@ namespace LibGit2Sharp
 
         static void DoFetch(RemoteSafeHandle remoteHandle, FetchOptions options, Signature signature, string logMessage)
         {
+            Ensure.ArgumentDoesNotContainZeroByte(logMessage, "logMessage");
+
             if (options == null)
             {
                 options = new FetchOptions();
@@ -173,7 +175,7 @@ namespace LibGit2Sharp
             Signature signature = null,
             string logMessage = null)
         {
-            Ensure.ArgumentNotNull(url, "url");
+            Ensure.ArgumentNotNullOrEmptyString(url, "url");
             Ensure.ArgumentNotNull(refspecs, "refspecs");
 
             using (RemoteSafeHandle remoteHandle = Proxy.git_remote_create_anonymous(repository.Handle, url, null))
@@ -203,7 +205,7 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNull(remote, "remote");
             Ensure.ArgumentNotNull(objectish, "objectish");
-            Ensure.ArgumentNotNullOrEmptyString(destinationSpec, destinationSpec);
+            Ensure.ArgumentNotNullOrEmptyString(destinationSpec, "destinationSpec");
 
             Push(remote, string.Format(CultureInfo.InvariantCulture,
                 "{0}:{1}", objectish, destinationSpec), pushOptions, signature, logMessage);
@@ -247,6 +249,7 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNull(remote, "remote");
             Ensure.ArgumentNotNull(pushRefSpecs, "pushRefSpecs");
+            Ensure.ArgumentDoesNotContainZeroByte(logMessage, "LogMessage");
 
             // The following local variables are protected from garbage collection
             // by a GC.KeepAlive call at the end of the method. Otherwise,

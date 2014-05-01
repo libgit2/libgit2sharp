@@ -443,6 +443,7 @@ namespace LibGit2Sharp
 
         private Tuple<string, FileStatus> BuildFrom(string path)
         {
+            Ensure.ArgumentDoesNotContainZeroByte(path, "path");
             string relativePath = repo.BuildRelativePathFrom(path);
             return new Tuple<string, FileStatus>(relativePath, RetrieveStatus(relativePath));
         }
@@ -464,12 +465,14 @@ namespace LibGit2Sharp
         {
             if (!repo.Submodules.TryStage(relativePath, true))
             {
+                Ensure.ArgumentDoesNotContainZeroByte(relativePath, "relativePath");
                 Proxy.git_index_add_bypath(handle, relativePath);
             }
         }
 
         private string RemoveFromIndex(string relativePath)
         {
+            Ensure.ArgumentDoesNotContainZeroByte(relativePath, "relativePath");
             Proxy.git_index_remove_bypath(handle, relativePath);
 
             return relativePath;

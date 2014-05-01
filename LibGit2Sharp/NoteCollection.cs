@@ -106,7 +106,7 @@ namespace LibGit2Sharp
         {
             get
             {
-                Ensure.ArgumentNotNull(@namespace, "@namespace");
+                Ensure.ArgumentNotNullOrEmptyString(@namespace, "@namespace");
 
                 string canonicalNamespace = NormalizeToCanonicalName(@namespace);
 
@@ -123,7 +123,7 @@ namespace LibGit2Sharp
             get
             {
                 Ensure.ArgumentNotNull(id, "id");
-                Ensure.ArgumentNotNull(@namespace, "@namespace");
+                Ensure.ArgumentNotNullOrEmptyString(@namespace, "@namespace");
 
                 string canonicalNamespace = NormalizeToCanonicalName(@namespace);
 

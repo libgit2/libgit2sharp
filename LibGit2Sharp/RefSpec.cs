@@ -15,8 +15,8 @@ namespace LibGit2Sharp
         private RefSpec(string refSpec, RefSpecDirection direction, string source, string destination, bool forceUpdate)
         {
             Ensure.ArgumentNotNullOrEmptyString(refSpec, "refSpec");
-            Ensure.ArgumentNotNull(source, "source");
-            Ensure.ArgumentNotNull(destination, "destination");
+            Ensure.ArgumentNotNullOrEmptyString(source, "source");
+            Ensure.ArgumentNotNullOrEmptyString(destination, "destination");
 
             Specification = refSpec;
             Direction = direction;

@@ -22,6 +22,8 @@ namespace LibGit2Sharp
 
         internal BlameHunkCollection(Repository repo, RepositorySafeHandle repoHandle, string path, BlameOptions options)
         {
+            Ensure.ArgumentNotNullOrEmptyString(path, "path");
+
             this.repo = repo;
 
             var rawopts = new GitBlameOptions

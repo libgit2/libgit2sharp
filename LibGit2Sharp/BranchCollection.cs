@@ -124,6 +124,10 @@ namespace LibGit2Sharp
             {
                 logMessage = "branch: Created from " + commit.Id;
             }
+            else
+            {
+                Ensure.ArgumentDoesNotContainZeroByte(logMessage, "logMessage");
+            }
 
             using (Proxy.git_branch_create(repo.Handle, name, commit.Id, allowOverwrite, signature.OrDefault(repo.Config), logMessage)) {}
 
@@ -182,6 +186,10 @@ namespace LibGit2Sharp
             {
                 logMessage = string.Format(CultureInfo.InvariantCulture,
                     "branch: renamed {0} to {1}", branch.CanonicalName, Reference.LocalBranchPrefix + newName);
+            }
+            else
+            {
+                Ensure.ArgumentDoesNotContainZeroByte(logMessage, "logMessage");
             }
 
             using (ReferenceSafeHandle referencePtr = repo.Refs.RetrieveReferencePtr(Reference.LocalBranchPrefix + branch.Name))

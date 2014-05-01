@@ -35,6 +35,7 @@ namespace LibGit2Sharp
 
             var allRules = rules.Aggregate(new StringBuilder(), (acc, x) =>
             {
+                Ensure.ArgumentDoesNotContainZeroByte(x, "rules");
                 acc.Append(x);
                 acc.Append("\n");
                 return acc;

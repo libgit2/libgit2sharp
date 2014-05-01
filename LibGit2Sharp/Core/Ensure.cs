@@ -32,6 +32,7 @@ namespace LibGit2Sharp.Core
         public static void ArgumentNotNullOrEmptyString(string argumentValue, string argumentName)
         {
             ArgumentNotNull(argumentValue, argumentName);
+            ArgumentDoesNotContainZeroByte(argumentValue, argumentName);
 
             if (argumentValue.Trim().Length == 0)
             {

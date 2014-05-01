@@ -40,6 +40,8 @@ namespace LibGit2Sharp
 
             this.repo = repo;
             canonicalName = canonicalNameSelector(reference);
+            Ensure.ArgumentDoesNotContainZeroByte(canonicalName, "cannonicalName");
+
             objectBuilder = new Lazy<TObject>(() => RetrieveTargetObject(reference));
         }
 

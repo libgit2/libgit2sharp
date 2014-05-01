@@ -84,6 +84,7 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(target, "target");
             Ensure.ArgumentNotNull(tagger, "tagger");
             Ensure.ArgumentNotNull(message, "message");
+            Ensure.ArgumentDoesNotContainZeroByte(message, "message");
 
             string prettifiedMessage = Proxy.git_message_prettify(message);
 

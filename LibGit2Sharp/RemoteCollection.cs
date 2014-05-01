@@ -40,7 +40,7 @@ namespace LibGit2Sharp
 
         internal Remote RemoteForName(string name, bool shouldThrowIfNotFound = true)
         {
-            Ensure.ArgumentNotNull(name, "name");
+            Ensure.ArgumentNotNullOrEmptyString(name, "name");
 
             using (RemoteSafeHandle handle = Proxy.git_remote_load(repository.Handle, name, shouldThrowIfNotFound))
             {
@@ -98,8 +98,8 @@ namespace LibGit2Sharp
         /// <returns>A new <see cref="Remote"/>.</returns>
         public virtual Remote Add(string name, string url)
         {
-            Ensure.ArgumentNotNull(name, "name");
-            Ensure.ArgumentNotNull(url, "url");
+            Ensure.ArgumentNotNullOrEmptyString(name, "name");
+            Ensure.ArgumentNotNullOrEmptyString(url, "url");
 
             using (RemoteSafeHandle handle = Proxy.git_remote_create(repository.Handle, name, url))
             {
@@ -116,8 +116,8 @@ namespace LibGit2Sharp
         /// <returns>A new <see cref="Remote"/>.</returns>
         public virtual Remote Add(string name, string url, string fetchRefSpec)
         {
-            Ensure.ArgumentNotNull(name, "name");
-            Ensure.ArgumentNotNull(url, "url");
+            Ensure.ArgumentNotNullOrEmptyString(name, "name");
+            Ensure.ArgumentNotNullOrEmptyString(url, "url");
             Ensure.ArgumentNotNull(fetchRefSpec, "fetchRefSpec");
 
             using (RemoteSafeHandle handle = Proxy.git_remote_create_with_fetchspec(repository.Handle, name, url, fetchRefSpec))

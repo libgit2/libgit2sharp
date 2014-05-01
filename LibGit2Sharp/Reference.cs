@@ -79,6 +79,7 @@ namespace LibGit2Sharp
         /// <returns>true is the name is valid; false otherwise.</returns>
         public static bool IsValidName(string canonicalName)
         {
+            Ensure.ArgumentDoesNotContainZeroByte(canonicalName, "canonicalName");
             return Proxy.git_reference_is_valid_name(canonicalName);
         }
 

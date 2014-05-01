@@ -102,6 +102,7 @@ namespace LibGit2Sharp
         /// <returns>true is the name is valid; false otherwise.</returns>
         public static bool IsValidName(string name)
         {
+            Ensure.ArgumentDoesNotContainZeroByte(name, "name");
             return Proxy.git_remote_is_valid_name(name);
         }
 

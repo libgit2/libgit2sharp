@@ -51,6 +51,7 @@ namespace LibGit2Sharp
                 // to modify it before giving it to git_repository_open_ext() would be a good addition, I think."
                 //  -- Agreed :)
                 string repoConfigLocation = Path.Combine(repository.Info.Path, "config");
+
                 Proxy.git_config_add_file_ondisk(configHandle, repoConfigLocation, ConfigurationLevel.Local);
 
                 Proxy.git_repository_set_config(repository.Handle, configHandle);
@@ -58,16 +59,19 @@ namespace LibGit2Sharp
 
             if (globalConfigPath != null)
             {
+                Ensure.ArgumentDoesNotContainZeroByte(globalConfigPath.Native, "globalConfigPath");
                 Proxy.git_config_add_file_ondisk(configHandle, globalConfigPath, ConfigurationLevel.Global);
             }
 
             if (xdgConfigPath != null)
             {
+                Ensure.ArgumentDoesNotContainZeroByte(xdgConfigPath.Native, "xdgConfigPath");
                 Proxy.git_config_add_file_ondisk(configHandle, xdgConfigPath, ConfigurationLevel.Xdg);
             }
 
             if (systemConfigPath != null)
             {
+                Ensure.ArgumentDoesNotContainZeroByte(systemConfigPath.Native, "systemConfigPath");
                 Proxy.git_config_add_file_ondisk(configHandle, systemConfigPath, ConfigurationLevel.System);
             }
         }

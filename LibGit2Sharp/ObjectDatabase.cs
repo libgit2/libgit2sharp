@@ -157,6 +157,7 @@ namespace LibGit2Sharp
         public virtual Blob CreateBlob(Stream stream, string hintpath = null, int? numberOfBytesToConsume = null)
         {
             Ensure.ArgumentNotNull(stream, "stream");
+            Ensure.ArgumentDoesNotContainZeroByte(hintpath, "hintpath");
 
             if (!stream.CanRead)
             {
@@ -164,6 +165,7 @@ namespace LibGit2Sharp
             }
 
             var proc = new Processor(stream, numberOfBytesToConsume);
+
             ObjectId id = Proxy.git_blob_create_fromchunks(repo.Handle, hintpath, proc.Provider);
 
             return repo.Lookup<Blob>(id);
@@ -201,10 +203,9 @@ namespace LibGit2Sharp
         /// <returns>The created <see cref="Commit"/>.</returns>
         public virtual Commit CreateCommit(Signature author, Signature committer, string message, bool prettifyMessage, Tree tree, IEnumerable<Commit> parents)
         {
-            Ensure.ArgumentNotNull(message, "message");
-            Ensure.ArgumentDoesNotContainZeroByte(message, "message");
             Ensure.ArgumentNotNull(author, "author");
             Ensure.ArgumentNotNull(committer, "committer");
+            Ensure.ArgumentDoesNotContainZeroByte(message, "message");
             Ensure.ArgumentNotNull(tree, "tree");
             Ensure.ArgumentNotNull(parents, "parents");
 
@@ -231,10 +232,9 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
             Ensure.ArgumentNotNull(message, "message");
+            Ensure.ArgumentDoesNotContainZeroByte(message, "message");
             Ensure.ArgumentNotNull(target, "target");
             Ensure.ArgumentNotNull(tagger, "tagger");
-            Ensure.ArgumentDoesNotContainZeroByte(name, "name");
-            Ensure.ArgumentDoesNotContainZeroByte(message, "message");
 
             string prettifiedMessage = Proxy.git_message_prettify(message);
 

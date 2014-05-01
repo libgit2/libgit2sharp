@@ -36,6 +36,7 @@ namespace LibGit2Sharp
         {
             get
             {
+                Ensure.ArgumentDoesNotContainZeroByte(path, "path");
                 return Proxy.git_index_conflict_get(repo.Index.Handle, repo, path);
             }
         }

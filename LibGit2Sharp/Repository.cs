@@ -849,6 +849,10 @@ namespace LibGit2Sharp
                     CultureInfo.InvariantCulture,
                     "reset: moving to {0}", commit.Sha);
             }
+            else
+            {
+                Ensure.ArgumentDoesNotContainZeroByte(logMessage, "logMessage");
+            }
 
             Proxy.git_reset(handle, commit.Id, resetMode, signature.OrDefault(Config), logMessage);
         }

@@ -20,6 +20,9 @@ namespace LibGit2Sharp
 
         private Note(ObjectId blobId, string message, ObjectId targetObjectId, string @namespace)
         {
+            Ensure.ArgumentDoesNotContainZeroByte(message, "message");
+            Ensure.ArgumentDoesNotContainZeroByte(@namespace, "@namespace");
+
             BlobId = blobId;
             Namespace = @namespace;
             Message = message;
@@ -51,6 +54,8 @@ namespace LibGit2Sharp
         {
             ObjectId oid = Proxy.git_note_id(note);
             string message = Proxy.git_note_message(note);
+            Ensure.ArgumentDoesNotContainZeroByte(message, "message");
+            Ensure.ArgumentDoesNotContainZeroByte(@namespace, "@namespace");
 
             return new Note(oid, message, targetObjectId, @namespace);
         }

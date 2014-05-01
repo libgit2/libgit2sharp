@@ -79,6 +79,7 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
             Ensure.ArgumentNotNull(targetId, "targetId");
+            Ensure.ArgumentDoesNotContainZeroByte(logMessage, "logMessage");
 
             using (ReferenceSafeHandle handle = Proxy.git_reference_create(repo.Handle, name, targetId, allowOverwrite, signature.OrDefault(repo.Config), logMessage))
             {
@@ -111,6 +112,7 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
             Ensure.ArgumentNotNull(targetRef, "targetRef");
+            Ensure.ArgumentDoesNotContainZeroByte(logMessage, "logMessage");
 
             using (ReferenceSafeHandle handle = Proxy.git_reference_symbolic_create(repo.Handle, name, targetRef.CanonicalName,
                 allowOverwrite, signature.OrDefault(repo.Config), logMessage))
@@ -161,6 +163,10 @@ namespace LibGit2Sharp
                 logMessage = string.Format(CultureInfo.InvariantCulture, "{0}: renamed {1} to {2}",
                     reference.IsLocalBranch() ? "branch" : "reference", reference.CanonicalName, newName);
             }
+            else
+            {
+                Ensure.ArgumentDoesNotContainZeroByte(logMessage, "logMessage");
+            }
 
             using (ReferenceSafeHandle referencePtr = RetrieveReferencePtr(reference.CanonicalName))
             using (ReferenceSafeHandle handle = Proxy.git_reference_rename(referencePtr, newName, allowOverwrite, signature.OrDefault(repo.Config), logMessage))
@@ -203,6 +209,7 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNull(directRef, "directRef");
             Ensure.ArgumentNotNull(targetId, "targetId");
+            Ensure.ArgumentDoesNotContainZeroByte(logMessage, "logMessage");
 
             signature = signature.OrDefault(repo.Config);
 
@@ -241,6 +248,7 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNull(symbolicRef, "symbolicRef");
             Ensure.ArgumentNotNull(targetRef, "targetRef");
+            Ensure.ArgumentDoesNotContainZeroByte(logMessage, "logMessage");
 
             signature = signature.OrDefault(repo.Config);
 
@@ -270,6 +278,7 @@ namespace LibGit2Sharp
         internal Reference UpdateHeadTarget<T>(T target, Signature signature, string logMessage)
         {
             Debug.Assert(signature != null);
+            Ensure.ArgumentDoesNotContainZeroByte(logMessage, "logMessage");
 
             if (target is ObjectId)
             {
@@ -309,6 +318,8 @@ namespace LibGit2Sharp
 
         internal ReferenceSafeHandle RetrieveReferencePtr(string referenceName, bool shouldThrowIfNotFound = true)
         {
+            Ensure.ArgumentNotNullOrEmptyString(referenceName, "referenceName");
+
             ReferenceSafeHandle reference = Proxy.git_reference_lookup(repo.Handle, referenceName, shouldThrowIfNotFound);
 
             return reference;

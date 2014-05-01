@@ -37,7 +37,6 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
             Ensure.ArgumentNotNull(email, "email");
-            Ensure.ArgumentDoesNotContainZeroByte(name, "name");
             Ensure.ArgumentDoesNotContainZeroByte(email, "email");
 
             this.name = name;
