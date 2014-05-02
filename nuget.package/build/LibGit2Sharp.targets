@@ -1,36 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-    <Target Name="CopyLibGit2SharpBinaries" AfterTargets="ResolveAssemblyReferences">
-        <PropertyGroup>
-            <LibGitNativeBinaries>..\packages\LibGit2Sharp.0.17.0.0\lib\net35\NativeBinaries\</LibGitNativeBinaries>
-        </PropertyGroup>
-        <ItemGroup>
-            <LibGitFiles Include="$(LibGitNativeBinaries)**\*" />
-        </ItemGroup>	
-		<Copy SourceFiles="@(LibGitFiles)" 
-			DestinationFiles="@(LibGitFiles->'$(ProjectDir)NativeBinaries\%(RecursiveDir)%(Filename)%(Extension)')" 
-			OverwriteReadOnlyFiles="true" SkipUnchangedFiles="true" />
-		<CreateItem Include="%(ReferencePath.FullPath)"
-					Condition="$([System.String]::new('%(ReferencePath.Filename)').StartsWith('LibGit2Sharp'))">
-			<Output TaskParameter="Include" ItemName="_LibGit2SharpReference"/>
-		</CreateItem>
-		<ItemGroup>
-			<Content Include="NativeBinaries\**\*" Condition="'%(_LibGit2SharpReference.FullPath)' != ''">
-				<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-			</Content>
-		</ItemGroup>
-    </Target>
-    <Target Name="AddLibGitFilesToOutput">
-		<ItemGroup>
-		  <CustomFilesToInclude Include="$(TargetDir)NativeBinaries\amd64\**\*">
-			<Dir>bin\NativeBinaries\amd64</Dir>
-		  </CustomFilesToInclude>
-		  <CustomFilesToInclude Include="$(TargetDir)NativeBinaries\x86\**\*">
-			<Dir>bin\NativeBinaries\x86</Dir>
-		  </CustomFilesToInclude>
-		  <FilesForPackagingFromProject Include="@(CustomFilesToInclude)">
-			<DestinationRelativePath>%(CustomFilesToInclude.Dir)\%(RecursiveDir)%(Filename)%(Extension)</DestinationRelativePath>
-		  </FilesForPackagingFromProject>
-		</ItemGroup>
-    </Target>
+  <Target Name="CopyLibGit2SharpBinaries" AfterTargets="ResolveAssemblyReferences">
+    <CreateItem Include="%(ReferencePath.FullPath)" Condition="$([System.String]::new('%(ReferencePath.Filename)').StartsWith('LibGit2Sharp'))">
+      <Output TaskParameter="Include" ItemName="_LibGit2SharpReference" />
+    </CreateItem>
+    <ItemGroup>
+      <_LibGitFiles Include="..\packages\LibGit2Sharp.0.17.0.0\lib\net40\NativeBinaries\**\*" Condition="'%(_LibGit2SharpReference.FullPath)' != ''" />
+      <Content Include="%(_LibGitFiles.Identity)" Condition="'$(OutDir)' == 'bin\'">
+        <Link>..\$(OutDir)NativeBinaries\%(RecursiveDir)%(Filename)%(Extension)</Link>
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+      <Content Include="%(_LibGitFiles.Identity)" Condition="'$(OutDir)' != 'bin\'">
+        <Link>NativeBinaries\%(RecursiveDir)%(Filename)%(Extension)</Link>
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
+  </Target>
+  <Target Name="CollectLibGitNativeBinaries">
+    <ItemGroup>
+      <_LibGitFiles Include="bin\NativeBinaries\**\*" />
+      <FilesForPackagingFromProject Include="%(_LibGitFiles.Identity)">
+        <DestinationRelativePath>bin\NativeBinaries\%(RecursiveDir)%(Filename)%(Extension)</DestinationRelativePath>
+      </FilesForPackagingFromProject>
+    </ItemGroup>
+  </Target>
 </Project>
