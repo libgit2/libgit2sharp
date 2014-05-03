@@ -549,36 +549,29 @@ namespace LibGit2Sharp
         {
             options = options ?? new CloneOptions();
 
-            CheckoutCallbacks checkoutCallbacks = CheckoutCallbacks.GenerateCheckoutCallbacks(
-                options.OnCheckoutProgress, null);
-
-            var callbacks = new RemoteCallbacks(null, options.OnTransferProgress, null,
-                options.Credentials);
-            GitRemoteCallbacks gitCallbacks = callbacks.GenerateCallbacks();
-
-            var cloneOpts = new GitCloneOptions
+            using (GitCheckoutOptsWrapper checkoutOptionsWrapper = new GitCheckoutOptsWrapper(options))
             {
-                Version = 1,
-                Bare = options.IsBare ? 1 : 0,
-                CheckoutOpts =
+                var gitCheckoutOptions = checkoutOptionsWrapper.Options;
+
+                var remoteCallbacks = new RemoteCallbacks(null, options.OnTransferProgress, null, options.Credentials);
+                var gitRemoteCallbacks = remoteCallbacks.GenerateCallbacks();
+
+                var cloneOpts = new GitCloneOptions
                 {
-                    version = 1,
-                    progress_cb =
-                                checkoutCallbacks.CheckoutProgressCallback,
-                    checkout_strategy = options.Checkout
-                                            ? CheckoutStrategy.GIT_CHECKOUT_SAFE_CREATE
-                                            : CheckoutStrategy.GIT_CHECKOUT_NONE
-                },
-                RemoteCallbacks = gitCallbacks,
-            };
+                    Version = 1,
+                    Bare = options.IsBare ? 1 : 0,
+                    CheckoutOpts = gitCheckoutOptions,
+                    RemoteCallbacks = gitRemoteCallbacks,
+                };
 
-            FilePath repoPath;
-            using (RepositorySafeHandle repo = Proxy.git_clone(sourceUrl, workdirPath, ref cloneOpts))
-            {
-                repoPath = Proxy.git_repository_path(repo);
+                FilePath repoPath;
+                using (RepositorySafeHandle repo = Proxy.git_clone(sourceUrl, workdirPath, ref cloneOpts))
+                {
+                    repoPath = Proxy.git_repository_path(repo);
+                }
+
+                return repoPath.Native;
             }
-
-            return repoPath.Native;
         }
 
         /// <summary>
@@ -605,9 +598,39 @@ namespace LibGit2Sharp
         /// <param name="checkoutNotifications"><see cref="CheckoutNotificationOptions"/> to manage checkout notifications.</param>
         /// <param name="signature">Identity for use when updating the reflog.</param>
         /// <returns>The <see cref="Branch"/> that was checked out.</returns>
+        [Obsolete("This overload will be removed in the next release. Please use Repository.Checkout(string, CheckoutOptions, Signature) instead.")]
         public Branch Checkout(string committishOrBranchSpec, CheckoutModifiers checkoutModifiers, CheckoutProgressHandler onCheckoutProgress, CheckoutNotificationOptions checkoutNotifications, Signature signature = null)
         {
+            var options = new CheckoutOptions()
+            {
+                CheckoutModifiers = checkoutModifiers,
+                OnCheckoutProgress = onCheckoutProgress
+            };
+
+            if (checkoutNotifications != null)
+            {
+                options.OnCheckoutNotify = checkoutNotifications.CheckoutNotifyHandler;
+                options.CheckoutNotifyFlags = checkoutNotifications.NotifyFlags;
+            }
+
+            return Checkout(committishOrBranchSpec, options, signature);
+        }
+
+        /// <summary>
+        /// Checkout the specified <see cref="Branch"/>, reference or SHA.
+        /// <para>
+        ///   If the committishOrBranchSpec parameter resolves to a branch name, then the checked out HEAD will
+        ///   will point to the branch. Otherwise, the HEAD will be detached, pointing at the commit sha.
+        /// </para>
+        /// </summary>
+        /// <param name="committishOrBranchSpec">A revparse spec for the commit or branch to checkout.</param>
+        /// <param name="options"><see cref="CheckoutOptions"/> controlling checkout behavior.</param>
+        /// <param name="signature">Identity for use when updating the reflog.</param>
+        /// <returns>The <see cref="Branch"/> that was checked out.</returns>
+        public Branch Checkout(string committishOrBranchSpec, CheckoutOptions options, Signature signature = null)
+        {
             Ensure.ArgumentNotNullOrEmptyString(committishOrBranchSpec, "committishOrBranchSpec");
+            Ensure.ArgumentNotNull(options, "options");
 
             var handles = Proxy.git_revparse_ext(Handle, committishOrBranchSpec);
             if (handles == null)
@@ -626,7 +649,7 @@ namespace LibGit2Sharp
                     if (reference.IsLocalBranch())
                     {
                         Branch branch = Branches[reference.CanonicalName];
-                        return Checkout(branch, checkoutModifiers, onCheckoutProgress, checkoutNotifications);
+                        return Checkout(branch, options, signature);
                     }
                 }
 
@@ -640,7 +663,7 @@ namespace LibGit2Sharp
             }
 
             Commit commit = obj.DereferenceToCommit(true);
-            Checkout(commit.Tree, checkoutModifiers, onCheckoutProgress, checkoutNotifications, commit.Id.Sha, committishOrBranchSpec, signature);
+            Checkout(commit.Tree, options, commit.Id.Sha, committishOrBranchSpec, signature);
 
             return Head;
         }
@@ -656,9 +679,39 @@ namespace LibGit2Sharp
         /// <param name="checkoutNotificationOptions"><see cref="CheckoutNotificationOptions"/> to manage checkout notifications.</param>
         /// <param name="signature">Identity for use when updating the reflog.</param>
         /// <returns>The <see cref="Branch"/> that was checked out.</returns>
+        [Obsolete("This overload will be removed in the next release. Please use Repository.Checkout(Branch, CheckoutOptions, Signature) instead.")]
         public Branch Checkout(Branch branch, CheckoutModifiers checkoutModifiers, CheckoutProgressHandler onCheckoutProgress, CheckoutNotificationOptions checkoutNotificationOptions, Signature signature = null)
         {
             Ensure.ArgumentNotNull(branch, "branch");
+
+            var options = new CheckoutOptions
+               {
+                   CheckoutModifiers = checkoutModifiers,
+                   OnCheckoutProgress = onCheckoutProgress,
+               };
+
+            if (checkoutNotificationOptions != null)
+            {
+                options.OnCheckoutNotify = checkoutNotificationOptions.CheckoutNotifyHandler;
+                options.CheckoutNotifyFlags = checkoutNotificationOptions.NotifyFlags;
+            }
+
+            return Checkout(branch, options, signature);
+        }
+
+        /// <summary>
+        /// Checkout the tip commit of the specified <see cref="Branch"/> object. If this commit is the
+        /// current tip of the branch, will checkout the named branch. Otherwise, will checkout the tip commit
+        /// as a detached HEAD.
+        /// </summary>
+        /// <param name="branch">The <see cref="Branch"/> to check out.</param>
+        /// <param name="options"><see cref="CheckoutOptions"/> controlling checkout behavior.</param>
+        /// <param name="signature">Identity for use when updating the reflog.</param>
+        /// <returns>The <see cref="Branch"/> that was checked out.</returns>
+        public Branch Checkout(Branch branch, CheckoutOptions options, Signature signature = null)
+        {
+            Ensure.ArgumentNotNull(branch, "branch");
+            Ensure.ArgumentNotNull(options, "options");
 
             // Make sure this is not an unborn branch.
             if (branch.Tip == null)
@@ -672,11 +725,11 @@ namespace LibGit2Sharp
                 string.Equals(Refs[branch.CanonicalName].TargetIdentifier, branch.Tip.Id.Sha,
                 StringComparison.OrdinalIgnoreCase))
             {
-                Checkout(branch.Tip.Tree, checkoutModifiers, onCheckoutProgress, checkoutNotificationOptions, branch.CanonicalName, branch.Name, signature);
+                Checkout(branch.Tip.Tree, options, branch.CanonicalName, branch.Name, signature);
             }
             else
             {
-                Checkout(branch.Tip.Tree, checkoutModifiers, onCheckoutProgress, checkoutNotificationOptions, branch.Tip.Id.Sha, branch.Name, signature);
+                Checkout(branch.Tip.Tree, options, branch.Tip.Id.Sha, branch.Name, signature);
             }
 
             return Head;
@@ -694,9 +747,43 @@ namespace LibGit2Sharp
         /// <param name="checkoutNotificationOptions"><see cref="CheckoutNotificationOptions"/> to manage checkout notifications.</param>
         /// <param name="signature">Identity for use when updating the reflog.</param>
         /// <returns>The <see cref="Branch"/> that was checked out.</returns>
+        [Obsolete("This overload will be removed in the next release. Please use Repository.Checkout(Commit, CheckoutOptions, Signature) instead.")]
         public Branch Checkout(Commit commit, CheckoutModifiers checkoutModifiers, CheckoutProgressHandler onCheckoutProgress, CheckoutNotificationOptions checkoutNotificationOptions, Signature signature = null)
         {
-            Checkout(commit.Tree, checkoutModifiers, onCheckoutProgress, checkoutNotificationOptions, commit.Id.Sha, commit.Id.Sha, signature);
+
+            var options = new CheckoutOptions
+            {
+                CheckoutModifiers = checkoutModifiers,
+                OnCheckoutProgress = onCheckoutProgress,
+            };
+
+            if (checkoutNotificationOptions != null)
+            {
+                options.OnCheckoutNotify = checkoutNotificationOptions.CheckoutNotifyHandler;
+                options.CheckoutNotifyFlags = checkoutNotificationOptions.NotifyFlags;
+            }
+
+            Checkout(commit.Tree, options, commit.Id.Sha, commit.Id.Sha, signature);
+
+            return Head;
+        }
+
+        /// <summary>
+        /// Checkout the specified <see cref="LibGit2Sharp.Commit"/>.
+        /// <para>
+        ///   Will detach the HEAD and make it point to this commit sha.
+        /// </para>
+        /// </summary>
+        /// <param name="commit">The <see cref="LibGit2Sharp.Commit"/> to check out.</param>
+        /// <param name="options"><see cref="CheckoutOptions"/> controlling checkout behavior.</param>
+        /// <param name="signature">Identity for use when updating the reflog.</param>
+        /// <returns>The <see cref="Branch"/> that was checked out.</returns>
+        public Branch Checkout(Commit commit, CheckoutOptions options, Signature signature = null)
+        {
+            Ensure.ArgumentNotNull(commit, "commit");
+            Ensure.ArgumentNotNull(options, "options");
+
+            Checkout(commit.Tree, options, commit.Id.Sha, commit.Id.Sha, signature);
 
             return Head;
         }
@@ -706,29 +793,18 @@ namespace LibGit2Sharp
         /// to already be in the form of a canonical branch name or a commit ID.
         /// </summary>
         /// <param name="tree">The <see cref="Tree"/> to checkout.</param>
-        /// <param name="checkoutModifiers"><see cref="CheckoutModifiers"/> controlling checkout behavior.</param>
-        /// <param name="onCheckoutProgress"><see cref="CheckoutProgressHandler"/> that checkout progress is reported through.</param>
-        /// <param name="checkoutNotificationOptions"><see cref="CheckoutNotificationOptions"/> to manage checkout notifications.</param>
+        /// <param name="checkoutOptions"><see cref="CheckoutOptions"/> controlling checkout behavior.</param>
         /// <param name="headTarget">Target for the new HEAD.</param>
         /// <param name="refLogHeadSpec">The spec which will be written as target in the reflog.</param>
         /// <param name="signature">Identity for use when updating the reflog.</param>
         private void Checkout(
             Tree tree,
-            CheckoutModifiers checkoutModifiers,
-            CheckoutProgressHandler onCheckoutProgress,
-            CheckoutNotificationOptions checkoutNotificationOptions,
+            CheckoutOptions checkoutOptions,
             string headTarget, string refLogHeadSpec, Signature signature)
         {
             var previousHeadName = Info.IsHeadDetached ? Head.Tip.Sha : Head.Name;
 
-            var opts = new CheckoutOptions
-                           {
-                               CheckoutModifiers = checkoutModifiers,
-                               OnCheckoutProgress = onCheckoutProgress,
-                               CheckoutNotificationOptions = checkoutNotificationOptions
-                           };
-
-            CheckoutTree(tree, null, opts);
+            CheckoutTree(tree, null, checkoutOptions);
 
             Refs.UpdateTarget("HEAD", headTarget, signature,
                 string.Format(
@@ -745,36 +821,13 @@ namespace LibGit2Sharp
         private void CheckoutTree(
             Tree tree,
             IList<string> paths,
-            CheckoutOptions opts)
+            IConvertableToGitCheckoutOpts opts)
         {
-            CheckoutNotifyHandler onCheckoutNotify = opts.CheckoutNotificationOptions != null ? opts.CheckoutNotificationOptions.CheckoutNotifyHandler : null;
-            CheckoutNotifyFlags checkoutNotifyFlags = opts.CheckoutNotificationOptions != null ? opts.CheckoutNotificationOptions.NotifyFlags : default(CheckoutNotifyFlags);
-            CheckoutCallbacks checkoutCallbacks = CheckoutCallbacks.GenerateCheckoutCallbacks(opts.OnCheckoutProgress, onCheckoutNotify);
 
-            GitStrArrayIn strArray = (paths != null && paths.Count > 0) ? GitStrArrayIn.BuildFrom(ToFilePaths(paths)) : null;
-
-            var options = new GitCheckoutOpts
+            using(GitCheckoutOptsWrapper checkoutOptionsWrapper = new GitCheckoutOptsWrapper(opts, ToFilePaths(paths)))
             {
-                version = 1,
-                checkout_strategy = CheckoutStrategy.GIT_CHECKOUT_SAFE,
-                progress_cb = checkoutCallbacks.CheckoutProgressCallback,
-                notify_cb = checkoutCallbacks.CheckoutNotifyCallback,
-                notify_flags = checkoutNotifyFlags,
-                paths = strArray
-            };
-
-            try
-            {
-                if (opts.CheckoutModifiers.HasFlag(CheckoutModifiers.Force))
-                {
-                    options.checkout_strategy = CheckoutStrategy.GIT_CHECKOUT_FORCE;
-                }
-
+                var options = checkoutOptionsWrapper.Options;
                 Proxy.git_checkout_tree(Handle, tree.Id, ref options);
-            }
-            finally
-            {
-                options.Dispose();
             }
         }
 
@@ -977,14 +1030,7 @@ namespace LibGit2Sharp
                                      | CheckoutStrategy.GIT_CHECKOUT_ALLOW_CONFLICTS,
             };
 
-            try
-            {
-                Proxy.git_checkout_index(Handle, new NullGitObjectSafeHandle(), ref options);
-            }
-            finally
-            {
-                options.Dispose();
-            }
+            Proxy.git_checkout_index(Handle, new NullGitObjectSafeHandle(), ref options);
         }
 
         private void CleanupDisposableDependencies()
@@ -1168,7 +1214,7 @@ namespace LibGit2Sharp
                             throw new LibGit2SharpException("Unable to perform Fast-Forward merge with mith multiple merge heads.");
                         }
 
-                        mergeResult = FastForwardMerge(mergeHeads[0], merger);
+                        mergeResult = FastForwardMerge(mergeHeads[0], merger, options);
                     }
                     else if (mergeAnalysis.HasFlag(GitMergeAnalysis.GIT_MERGE_ANALYSIS_NORMAL))
                     {
@@ -1184,7 +1230,7 @@ namespace LibGit2Sharp
                             throw new LibGit2SharpException("Unable to perform Fast-Forward merge with mith multiple merge heads.");
                         }
 
-                        mergeResult = FastForwardMerge(mergeHeads[0], merger);
+                        mergeResult = FastForwardMerge(mergeHeads[0], merger, options);
                     }
                     else
                     {
@@ -1226,15 +1272,20 @@ namespace LibGit2Sharp
 
             var mergeOptions = new GitMergeOpts
                 {
-                    Version = 1
+                    Version = 1,
+                    MergeFileFavorFlags = options.MergeFileFavor,
+                    MergeTreeFlags = options.FindRenames ? GitMergeTreeFlags.GIT_MERGE_TREE_FIND_RENAMES :
+                                                           GitMergeTreeFlags.GIT_MERGE_TREE_NORMAL,
+                    RenameThreshold = (uint) options.RenameThreshold,
+                    TargetLimit = (uint) options.TargetLimit,
                 };
 
-            var checkoutOpts = new GitCheckoutOpts
+            using (GitCheckoutOptsWrapper checkoutOptionsWrapper = new GitCheckoutOptsWrapper(options))
             {
-                version = 1
-            };
+                var checkoutOpts = checkoutOptionsWrapper.Options;
 
-            Proxy.git_merge(Handle, mergeHeads, mergeOptions, checkoutOpts);
+                Proxy.git_merge(Handle, mergeHeads, mergeOptions, checkoutOpts);
+            }
 
             if (Index.IsFullyMerged)
             {
@@ -1260,18 +1311,15 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="mergeHead">The merge head handle to fast-forward merge.</param>
         /// <param name="merger">The <see cref="Signature"/> of who is performing the merge.</param>
+        /// <param name="options">Options controlling merge behavior.</param>
         /// <returns>The <see cref="MergeResult"/> of the merge.</returns>
-        private MergeResult FastForwardMerge(GitMergeHeadHandle mergeHead, Signature merger)
+        private MergeResult FastForwardMerge(GitMergeHeadHandle mergeHead, Signature merger, MergeOptions options)
         {
             ObjectId id = Proxy.git_merge_head_id(mergeHead);
             Commit fastForwardCommit = (Commit) Lookup(id, ObjectType.Commit);
             Ensure.GitObjectIsNotNull(fastForwardCommit, id.Sha);
 
-            var checkoutOpts = new CheckoutOptions
-            {
-                CheckoutModifiers = CheckoutModifiers.None,
-            };
-            CheckoutTree(fastForwardCommit.Tree, null, checkoutOpts);
+            CheckoutTree(fastForwardCommit.Tree, null, options);
 
             var reference = Refs.Head.ResolveToDirectReference();
 

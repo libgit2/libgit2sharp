@@ -1,11 +1,12 @@
-﻿using LibGit2Sharp.Handlers;
+﻿using LibGit2Sharp.Core;
+using LibGit2Sharp.Handlers;
 
 namespace LibGit2Sharp
 {
     /// <summary>
     /// Options to define clone behaviour
     /// </summary>
-    public sealed class CloneOptions
+    public sealed class CloneOptions : IConvertableToGitCheckoutOpts
     {
         /// <summary>
         /// Creates default <see cref="CloneOptions"/> for a non-bare clone
@@ -40,5 +41,29 @@ namespace LibGit2Sharp
         /// Credentials to use for user/pass authentication
         /// </summary>
         public Credentials Credentials { get; set; }
+
+        #region IConvertableToGitCheckoutOpts
+
+        CheckoutCallbacks IConvertableToGitCheckoutOpts.GenerateCallbacks()
+        {
+            return CheckoutCallbacks.From(OnCheckoutProgress, null);
+        }
+
+        CheckoutStrategy IConvertableToGitCheckoutOpts.CheckoutStrategy
+        {
+            get
+            {
+                return this.Checkout ?
+                    CheckoutStrategy.GIT_CHECKOUT_SAFE_CREATE :
+                    CheckoutStrategy.GIT_CHECKOUT_NONE;
+            }
+        }
+
+        CheckoutNotifyFlags IConvertableToGitCheckoutOpts.CheckoutNotifyFlags
+        {
+            get { return CheckoutNotifyFlags.None; }
+        }
+
+        #endregion
     }
 }

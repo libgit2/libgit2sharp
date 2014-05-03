@@ -233,9 +233,37 @@ namespace LibGit2Sharp
         /// <param name="checkoutModifiers">Options controlling checkout behavior.</param>
         /// <param name="onCheckoutProgress">Callback method to report checkout progress updates through.</param>
         /// <param name="checkoutNotificationOptions"><see cref="CheckoutNotificationOptions"/> to manage checkout notifications.</param>
+        [Obsolete("This overload will be removed in the next release. Please use Branch.Checkout(CheckoutOptions, Signature) instead.")]
         public virtual void Checkout(CheckoutModifiers checkoutModifiers, CheckoutProgressHandler onCheckoutProgress, CheckoutNotificationOptions checkoutNotificationOptions)
         {
-            repo.Checkout(this, checkoutModifiers, onCheckoutProgress, checkoutNotificationOptions);
+            var options = new CheckoutOptions
+            {
+                CheckoutModifiers = checkoutModifiers,
+                OnCheckoutProgress = onCheckoutProgress,
+            };
+
+            if (checkoutNotificationOptions != null)
+            {
+                options.OnCheckoutNotify = checkoutNotificationOptions.CheckoutNotifyHandler;
+                options.CheckoutNotifyFlags = checkoutNotificationOptions.NotifyFlags;
+            }
+
+            Checkout(options, null);
+        }
+
+        /// <summary>
+        /// Checkout the tip commit of this <see cref="Branch"/> object with
+        /// <see cref="CheckoutOptions"/> parameter specifying checkout
+        /// behavior. If this commit is the current tip of the branch, will
+        /// checkout the named branch. Otherwise, will checkout the tip
+        /// commit as a detached HEAD.
+        /// </summary>
+        /// <param name="options"><see cref="CheckoutOptions"/> controlling checkout behavior.</param>
+        /// <param name="signature">Identity for use when updating the reflog.</param>
+        public virtual void Checkout(CheckoutOptions options, Signature signature = null)
+        {
+            Ensure.ArgumentNotNull(options, "options");
+            repo.Checkout(this, options, signature);
         }
 
         private Branch ResolveTrackedBranch()
