@@ -46,13 +46,21 @@ namespace LibGit2Sharp
         /// </para>
         /// </summary>
         /// <param name="remote">The <see cref="Remote"/> to list from.</param>
+        /// <param name="credentials">The optional <see cref="Credentials"/> used to connect to remote repository.</param>
         /// <returns>The references in the <see cref="Remote"/> repository.</returns>
-        public virtual IEnumerable<DirectReference> ListReferences(Remote remote)
+        public virtual IEnumerable<DirectReference> ListReferences(Remote remote, Credentials credentials = null)
         {
             Ensure.ArgumentNotNull(remote, "remote");
 
             using (RemoteSafeHandle remoteHandle = Proxy.git_remote_load(repository.Handle, remote.Name, true))
             {
+                if (credentials != null)
+                {
+                    var callbacks = new RemoteCallbacks(null, null, null, credentials);
+                    GitRemoteCallbacks gitCallbacks = callbacks.GenerateCallbacks();
+                    Proxy.git_remote_set_callbacks(remoteHandle, ref gitCallbacks);
+                }
+
                 Proxy.git_remote_connect(remoteHandle, GitDirection.Fetch);
                 return Proxy.git_remote_ls(repository, remoteHandle);
             }

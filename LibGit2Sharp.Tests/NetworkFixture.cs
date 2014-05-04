@@ -107,6 +107,29 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        [SkippableFact]
+        public void CanListRemoteReferencesWithCredentials()
+        {
+            InconclusiveIf(() => string.IsNullOrEmpty(Constants.PrivateRepoUrl),
+                "Populate Constants.PrivateRepo* to run this test");
+
+            string remoteName = "origin";
+
+            string repoPath = InitNewRepository();
+
+            using (var repo = new Repository(repoPath))
+            {
+                Remote remote = repo.Network.Remotes.Add(remoteName, Constants.PrivateRepoUrl);
+
+                var references = repo.Network.ListReferences(remote, Constants.PrivateRepoCredentials);
+
+                foreach (var directReference in references)
+                {
+                    Assert.NotNull(directReference);
+                }
+            }
+        }
+
         [Theory]
         [InlineData(FastForwardStrategy.Default)]
         [InlineData(FastForwardStrategy.NoFastFoward)]
