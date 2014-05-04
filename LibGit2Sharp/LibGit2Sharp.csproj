@@ -115,6 +115,7 @@
     <Compile Include="Core\Handles\StatusEntrySafeHandle.cs" />
     <Compile Include="Core\Handles\StatusListSafeHandle.cs" />
     <Compile Include="RenameDetails.cs" />
+    <Compile Include="RevertResult.cs" />
     <Compile Include="SignatureExtensions.cs" />
     <Compile Include="RevertOptions.cs" />
     <Compile Include="StatusOptions.cs" />
