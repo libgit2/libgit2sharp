@@ -3,9 +3,6 @@
 
 language: c
 
-env:
- - TRAVIS_OS_UNAME=$(uname -s)
-
 os:
  - osx
  - linux
@@ -17,8 +14,8 @@ before_install:
 
 # Make sure CMake and Mono are installed
 install:
- - if [[ $TRAVIS_OS_UNAME = 'Linux' ]]; then ./CI/travis.linux.install.deps.sh; fi
- - if [[ $TRAVIS_OS_UNAME = 'Darwin' ]]; then ./CI/travis.osx.install.deps.sh; fi
+ - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then ./CI/travis.linux.install.deps.sh; fi
+ - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then ./CI/travis.osx.install.deps.sh; fi
 
 # Build libgit2, LibGit2Sharp and run the tests
 script:
