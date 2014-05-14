@@ -1186,6 +1186,63 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        /// Revert the specified commit.
+        /// </summary>
+        /// <param name="commit">The <see cref="Commit"/> to revert.</param>
+        /// <param name="reverter">The <see cref="Signature"/> of who is performing the reverte.</param>
+        /// <param name="options"><see cref="RevertOptions"/> controlling revert behavior.</param>
+        /// <returns>The result of the revert.</returns>
+        public RevertResult Revert(Commit commit, Signature reverter, RevertOptions options = null)
+        {
+            Ensure.ArgumentNotNull(commit, "commit");
+            Ensure.ArgumentNotNull(reverter, "reverter");
+
+            options = options ?? new RevertOptions();
+
+            RevertResult result = null;
+
+            using (GitCheckoutOptsWrapper checkoutOptionsWrapper = new GitCheckoutOptsWrapper(options))
+            {
+                var mergeOptions = new GitMergeOpts
+                {
+                    Version = 1,
+                    MergeFileFavorFlags = options.MergeFileFavor,
+                    MergeTreeFlags = options.FindRenames ? GitMergeTreeFlags.GIT_MERGE_TREE_FIND_RENAMES :
+                                                           GitMergeTreeFlags.GIT_MERGE_TREE_NORMAL,
+                    RenameThreshold = (uint)options.RenameThreshold,
+                    TargetLimit = (uint)options.TargetLimit,
+                };
+
+                GitRevertOpts gitRevertOpts = new GitRevertOpts()
+                {
+                    Mainline = (uint) options.Mainline,
+                    MergeOpts = mergeOptions,
+
+                    CheckoutOpts = checkoutOptionsWrapper.Options,
+                };
+
+                Proxy.git_revert(handle, commit.Id.Oid, gitRevertOpts);
+
+                if(Index.IsFullyMerged)
+                {
+                    Commit revertCommit = null;
+                    if(options.CommitOnSuccess)
+                    {
+                        revertCommit = this.Commit(Info.Message, author: reverter, committer: reverter);
+                    }
+
+                    result = new RevertResult(RevertStatus.Reverted, revertCommit);
+                }
+                else
+                {
+                    result = new RevertResult(RevertStatus.Conflicts);
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
         /// Internal implementation of merge.
         /// </summary>
         /// <param name="mergeHeads">Merge heads to operate on.</param>

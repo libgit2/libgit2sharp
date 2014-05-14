@@ -235,6 +235,15 @@ namespace LibGit2Sharp
         void RemoveUntrackedFiles();
 
         /// <summary>
+        /// Revert the specified commit.
+        /// </summary>
+        /// <param name="commit">The <see cref="Commit"/> to revert.</param>
+        /// <param name="reverter">The <see cref="Signature"/> of who is performing the reverte.</param>
+        /// <param name="options"><see cref="RevertOptions"/> controlling revert behavior.</param>
+        /// <returns>The result of the revert.</returns>
+        RevertResult Revert(Commit commit, Signature reverter, RevertOptions options = null);
+
+        /// <summary>
         /// Merge changes from commit into the branch pointed at by HEAD..
         /// </summary>
         /// <param name="commit">The commit to merge into the branch pointed at by HEAD.</param>

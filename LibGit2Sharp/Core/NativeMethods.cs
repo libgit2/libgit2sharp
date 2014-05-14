@@ -1173,6 +1173,12 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string log_message);
 
         [DllImport(libgit2)]
+        internal static extern int git_revert(
+            RepositorySafeHandle repo,
+            GitObjectSafeHandle commit,
+            GitRevertOpts opts);
+
+        [DllImport(libgit2)]
         internal static extern int git_revparse_ext(
             out GitObjectSafeHandle obj,
             out ReferenceSafeHandle reference,
