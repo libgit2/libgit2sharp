@@ -372,5 +372,24 @@ namespace LibGit2Sharp.Tests
                 }
             }
         }
+
+        [Fact]
+        public void CanNotRevertAMergeCommitWithoutSpecifyingTheMainlineBranch()
+        {
+            const string revertBranchName = "refs/heads/revert_merge";
+            const string commitIdToRevert = "2747045";
+
+            string repoPath = CloneRevertTestRepo();
+            using (var repo = new Repository(repoPath))
+            {
+                Branch branch = repo.Checkout(revertBranchName);
+                Assert.NotNull(branch);
+
+                var commitToRevert = repo.Lookup<Commit>(commitIdToRevert);
+                Assert.NotNull(commitToRevert);
+
+                Assert.Throws<LibGit2SharpException>(() => repo.Revert(commitToRevert, Constants.Signature));
+            }
+        }
     }
 }
