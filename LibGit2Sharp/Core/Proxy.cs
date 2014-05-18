@@ -1251,6 +1251,19 @@ namespace LibGit2Sharp.Core
             }
         }
 
+        public static string git_object_short_id(RepositorySafeHandle repo, ObjectId id)
+        {
+            using (ThreadAffinity())
+            using (var obj = new ObjectSafeWrapper(id, repo))
+            using (var buf = new GitBuf())
+            {
+                int res = NativeMethods.git_object_short_id(buf, obj.ObjectPtr);
+                Ensure.Int32Result(res);
+
+                return LaxUtf8Marshaler.FromNative(buf.ptr);
+            }
+        }
+
         public static GitObjectType git_object_type(GitObjectSafeHandle obj)
         {
             return NativeMethods.git_object_type(obj);

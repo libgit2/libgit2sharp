@@ -368,5 +368,30 @@ namespace LibGit2Sharp
 
             return new HistoryDivergence(repo, one, another);
         }
+
+        /// <summary>
+        /// Calculates the current shortest abbreviated <see cref="ObjectId"/>
+        /// string representation for a <see cref="GitObject"/>.
+        /// </summary>
+        /// <param name="gitObject">The <see cref="GitObject"/> which identifier should be shortened.</param>
+        /// <param name="minLength">Minimum length of the shortened representation.</param>
+        /// <returns>A short string representation of the <see cref="ObjectId"/>.</returns>
+        public virtual string ShortenObjectId(GitObject gitObject, int? minLength = null)
+        {
+            if (minLength.HasValue && (minLength <= 0 || minLength > ObjectId.HexSize))
+            {
+                throw new ArgumentOutOfRangeException("minLength", minLength,
+                    string.Format("Expected value should be greater than zero and less than or equal to {0}.", ObjectId.HexSize));
+            }
+
+            string shortSha = Proxy.git_object_short_id(repo.Handle, gitObject.Id);
+
+            if (minLength == null || (minLength <= shortSha.Length))
+            {
+                return shortSha;
+            }
+
+            return gitObject.Sha.Substring(0, minLength.Value);
+        }
     }
 }

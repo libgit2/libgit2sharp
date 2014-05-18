@@ -11,13 +11,13 @@ namespace LibGit2Sharp
     public sealed class ObjectId : IEquatable<ObjectId>
     {
         private readonly GitOid oid;
-        private const int rawSize = 20;
+        private const int rawSize = GitOid.Size;
         private readonly string sha;
 
         /// <summary>
         /// Size of the string-based representation of a SHA-1.
         /// </summary>
-        private const int HexSize = rawSize * 2;
+        internal const int HexSize = rawSize * 2;
 
         private const string hexDigits = "0123456789abcdef";
         private static readonly byte[] reverseHexDigits = BuildReverseHexDigits();

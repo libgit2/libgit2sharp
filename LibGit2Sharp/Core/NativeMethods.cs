@@ -754,6 +754,11 @@ namespace LibGit2Sharp.Core
             GitObjectType type);
 
         [DllImport(libgit2)]
+        internal static extern int git_object_short_id(
+            GitBuf buf,
+            GitObjectSafeHandle obj);
+
+        [DllImport(libgit2)]
         internal static extern GitObjectType git_object_type(GitObjectSafeHandle obj);
 
         [DllImport(libgit2)]
