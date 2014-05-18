@@ -177,6 +177,50 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        [Fact]
+        public void CanShortenObjectIdentifier()
+        {
+            /*
+             * $ echo "aabqhq" | git hash-object -t blob --stdin
+             * dea509d0b3cb8ee0650f6ca210bc83f4678851ba
+             * 
+             * $ echo "aaazvc" | git hash-object -t blob --stdin
+             * dea509d097ce692e167dfc6a48a7a280cc5e877e
+             */
+
+            string path = CloneBareTestRepo();
+            using (var repo = new Repository(path))
+            {
+                repo.ObjectDatabase.AddBackend(new MockOdbBackend(), 5);
+
+                repo.Config.Set("core.abbrev", 4);
+
+                Blob blob1 = CreateBlob(repo, "aabqhq\n");
+                Assert.Equal("dea509d0b3cb8ee0650f6ca210bc83f4678851ba", blob1.Sha);
+
+                Assert.Equal("dea5", repo.ObjectDatabase.ShortenObjectId(blob1));
+                Assert.Equal("dea509d0b3cb", repo.ObjectDatabase.ShortenObjectId(blob1, 12));
+                Assert.Equal("dea509d0b3cb8ee0650f6ca210bc83f4678851b", repo.ObjectDatabase.ShortenObjectId(blob1, 39));
+
+                Blob blob2 = CreateBlob(repo, "aaazvc\n");
+                Assert.Equal("dea509d09", repo.ObjectDatabase.ShortenObjectId(blob2));
+                Assert.Equal("dea509d09", repo.ObjectDatabase.ShortenObjectId(blob2, 4));
+                Assert.Equal("dea509d0b", repo.ObjectDatabase.ShortenObjectId(blob1));
+                Assert.Equal("dea509d0b", repo.ObjectDatabase.ShortenObjectId(blob1, 7));
+
+                Assert.Equal("dea509d0b3cb", repo.ObjectDatabase.ShortenObjectId(blob1, 12));
+                Assert.Equal("dea509d097ce", repo.ObjectDatabase.ShortenObjectId(blob2, 12));
+            }
+        }
+
+        private static Blob CreateBlob(Repository repo, string content)
+        {
+            using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(content)))
+            {
+                return repo.ObjectDatabase.CreateBlob(stream);
+            }
+        }
+
         #region MockOdbBackend
 
         private class MockOdbBackend : OdbBackend
@@ -190,6 +234,7 @@ namespace LibGit2Sharp.Tests
                         OdbBackendOperations.Write |
                         OdbBackendOperations.WriteStream |
                         OdbBackendOperations.Exists |
+                        OdbBackendOperations.ExistsPrefix |
                         OdbBackendOperations.ForEach |
                         OdbBackendOperations.ReadHeader;
                 }
@@ -299,6 +344,37 @@ namespace LibGit2Sharp.Tests
             public override bool Exists(ObjectId oid)
             {
                 return m_objectIdToContent.ContainsKey(oid);
+            }
+
+            public override int ExistsPrefix(string shortSha, out ObjectId found)
+            {
+                found = null; 
+                int numFound = 0;
+
+                foreach (ObjectId id in m_objectIdToContent.Keys)
+                {
+                    if (!id.Sha.StartsWith(shortSha))
+                    {
+                        continue;
+                    }
+
+                    found = id;
+                    numFound++;
+
+                    if (numFound > 1)
+                    {
+                        found = null;
+                        return (int) ReturnCode.GIT_EAMBIGUOUS;
+                    }
+                }
+
+                if (numFound == 0)
+                {
+                    found = null;
+                    return (int)ReturnCode.GIT_ENOTFOUND;
+                }
+
+                return (int)ReturnCode.GIT_OK;
             }
 
             public override int ReadHeader(ObjectId oid, out int length, out ObjectType objectType)

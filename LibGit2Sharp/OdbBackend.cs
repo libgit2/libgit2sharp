@@ -107,6 +107,11 @@ namespace LibGit2Sharp
         public abstract bool Exists(ObjectId id);
 
         /// <summary>
+        /// Requests that this backend check if an object ID exists. The object ID may not be complete (may be a prefix).
+        /// </summary>
+        public abstract int ExistsPrefix(string shortSha, out ObjectId found);
+
+        /// <summary>
         /// Requests that this backend enumerate all items in the backing store.
         /// </summary>
         public abstract int ForEach(ForEachCallback callback);
@@ -169,6 +174,11 @@ namespace LibGit2Sharp
                         nativeBackend.Exists = BackendEntryPoints.ExistsCallback;
                     }
 
+                    if ((supportedOperations & OdbBackendOperations.ExistsPrefix) != 0)
+                    {
+                        nativeBackend.ExistsPrefix = BackendEntryPoints.ExistsPrefixCallback;
+                    }
+
                     if ((supportedOperations & OdbBackendOperations.ForEach) != 0)
                     {
                         nativeBackend.Foreach = BackendEntryPoints.ForEachCallback;
@@ -196,6 +206,7 @@ namespace LibGit2Sharp
             public static readonly GitOdbBackend.write_callback WriteCallback = Write;
             public static readonly GitOdbBackend.writestream_callback WriteStreamCallback = WriteStream;
             public static readonly GitOdbBackend.exists_callback ExistsCallback = Exists;
+            public static readonly GitOdbBackend.exists_prefix_callback ExistsPrefixCallback = ExistsPrefix;
             public static readonly GitOdbBackend.foreach_callback ForEachCallback = Foreach;
             public static readonly GitOdbBackend.free_callback FreeCallback = Free;
 
@@ -498,6 +509,40 @@ namespace LibGit2Sharp
                 }
             }
 
+            private static int ExistsPrefix(
+                ref GitOid found_oid,
+                IntPtr backend,
+                ref GitOid short_oid,
+                UIntPtr len)
+            {
+                OdbBackend odbBackend = MarshalOdbBackend(backend);
+                if (odbBackend == null)
+                {
+                    return (int)GitErrorCode.Error;
+                }
+
+                try
+                {
+                    ObjectId found;
+                    var shortSha = ObjectId.ToString(short_oid.Id, (int)len);
+
+                    found_oid.Id = ObjectId.Zero.RawId;
+                    int result = odbBackend.ExistsPrefix(shortSha, out found);
+
+                    if (result == (int) GitErrorCode.Ok)
+                    {
+                        found_oid.Id = found.RawId;
+                    }
+
+                    return result;
+                }
+                catch (Exception ex)
+                {
+                    Proxy.giterr_set_str(GitErrorCategory.Odb, ex);
+                    return (int)GitErrorCode.Error;
+                }
+            }
+
             private static int Foreach(
                 IntPtr backend,
                 GitOdbBackend.foreach_callback_callback cb,
@@ -621,9 +666,14 @@ namespace LibGit2Sharp
             Exists = 64,
 
             /// <summary>
+            /// This OdbBackend declares that it supports the ExistsPrefix method.
+            /// </summary>
+            ExistsPrefix = 128,
+
+            /// <summary>
             /// This OdbBackend declares that it supports the Foreach method.
             /// </summary>
-            ForEach = 128,
+            ForEach = 256,
         }
 
         /// <summary>
