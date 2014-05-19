@@ -5,7 +5,7 @@
       <Output TaskParameter="Include" ItemName="_LibGit2SharpReference" />
     </CreateItem>
     <ItemGroup>
-      <_LibGitFiles Include="..\packages\LibGit2Sharp.0.17.0.0\lib\net40\NativeBinaries\**\*" Condition="'%(_LibGit2SharpReference.FullPath)' != ''" />
+      <_LibGitFiles Include="$(MSBuildThisFileDirectory)..\lib\net40\NativeBinaries\**\*" Condition="'%(_LibGit2SharpReference.FullPath)' != ''" />
       <Content Include="%(_LibGitFiles.Identity)" Condition="'$(OutDir)' == 'bin\'">
         <Link>..\$(OutDir)NativeBinaries\%(RecursiveDir)%(Filename)%(Extension)</Link>
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
