@@ -83,7 +83,12 @@
     <Compile Include="Core\GitCheckoutOptsWrapper.cs" />
     <Compile Include="Core\GitCredentialType.cs" />
     <Compile Include="Core\GitRevertOpts.cs" />
+    <Compile Include="Core\GitSmartSubtransport.cs" />
+    <Compile Include="Core\GitSmartSubtransportDefinition.cs" />
+    <Compile Include="Core\GitSmartSubtransportStream.cs" />
     <Compile Include="Core\Handles\PatchSafeHandle.cs" />
+    <Compile Include="Core\Handles\SmartSubtransportSafeHandle.cs" />
+    <Compile Include="Core\Handles\TransportSafeHandle.cs" />
     <Compile Include="Core\IntPtrExtensions.cs" />
     <Compile Include="DefaultCredentials.cs" />
     <Compile Include="EmptyCommitException.cs" />
@@ -118,6 +123,8 @@
     <Compile Include="RevertResult.cs" />
     <Compile Include="SignatureExtensions.cs" />
     <Compile Include="RevertOptions.cs" />
+    <Compile Include="SmartSubtransport.cs" />
+    <Compile Include="SmartSubtransportStream.cs" />
     <Compile Include="StatusOptions.cs" />
     <Compile Include="SimilarityOptions.cs" />
     <Compile Include="UnbornBranchException.cs" />

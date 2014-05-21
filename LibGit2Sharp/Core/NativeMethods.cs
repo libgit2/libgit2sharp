@@ -1035,6 +1035,11 @@ namespace LibGit2Sharp.Core
             RemoteSafeHandle remote,
             ref GitRemoteCallbacks callbacks);
 
+        [DllImport(libgit2)]
+        internal static extern int git_remote_set_transport(
+            RemoteSafeHandle remote,
+            TransportSafeHandle transport);
+
         internal delegate int remote_progress_callback(IntPtr str, int len, IntPtr data);
 
         internal delegate int remote_completion_callback(RemoteCompletionType type, IntPtr data);
@@ -1404,6 +1409,12 @@ namespace LibGit2Sharp.Core
         internal static extern void git_threads_shutdown();
 
         internal delegate int git_transfer_progress_callback(ref GitTransferProgress stats, IntPtr payload);
+
+        [DllImport(libgit2)]
+        internal static extern int git_transport_smart(
+            out TransportSafeHandle transport,
+            RemoteSafeHandle remote,
+            IntPtr payload);
 
         [DllImport(libgit2)]
         internal static extern uint git_tree_entry_filemode(SafeHandle entry);
