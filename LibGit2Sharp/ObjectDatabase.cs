@@ -99,6 +99,10 @@ namespace LibGit2Sharp
 
         /// <summary>
         /// Adds the provided backend to the object database with the specified priority.
+        /// <para>
+        /// If the provided backend implements <see cref="IDisposable"/>, the <see cref="IDisposable.Dispose"/>
+        /// method will be honored and invoked upon the disposal of the repository.
+        /// </para>
         /// </summary>
         /// <param name="backend">The backend to add</param>
         /// <param name="priority">The priority at which libgit2 should consult this backend (higher values are consulted first)</param>

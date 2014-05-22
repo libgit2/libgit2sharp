@@ -8,20 +8,26 @@ namespace LibGit2Sharp
 {
     /// <summary>
     /// Base class for all custom managed backends for the libgit2 object database (ODB).
+    /// <para>
+    /// If the derived backend implements <see cref="IDisposable"/>, the <see cref="IDisposable.Dispose"/>
+    /// method will be honored and invoked upon the disposal of the repository.
+    /// </para>
     /// </summary>
     public abstract class OdbBackend
     {
         /// <summary>
         /// Invoked by libgit2 when this backend is no longer needed.
         /// </summary>
-        protected virtual void Dispose()
+        internal void Free()
         {
-            if (IntPtr.Zero != nativeBackendPointer)
+            if (nativeBackendPointer == IntPtr.Zero)
             {
-                GCHandle.FromIntPtr(Marshal.ReadIntPtr(nativeBackendPointer, GitOdbBackend.GCHandleOffset)).Free();
-                Marshal.FreeHGlobal(nativeBackendPointer);
-                nativeBackendPointer = IntPtr.Zero;
+                return;
             }
+
+            GCHandle.FromIntPtr(Marshal.ReadIntPtr(nativeBackendPointer, GitOdbBackend.GCHandleOffset)).Free();
+            Marshal.FreeHGlobal(nativeBackendPointer);
+            nativeBackendPointer = IntPtr.Zero;
         }
 
         /// <summary>
@@ -588,7 +594,16 @@ namespace LibGit2Sharp
 
                 try
                 {
-                    odbBackend.Dispose();
+                    odbBackend.Free();
+
+                    var disposable = odbBackend as IDisposable;
+
+                    if (disposable == null)
+                    {
+                        return;
+                    }
+
+                    disposable.Dispose();
                 }
                 catch (Exception ex)
                 {
