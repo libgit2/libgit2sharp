@@ -240,7 +240,7 @@ namespace LibGit2Sharp.Tests
                 }
             }
 
-            public override int Read(ObjectId oid, out Stream data, out ObjectType objectType)
+            public override int Read(ObjectId oid, out UnmanagedMemoryStream data, out ObjectType objectType)
             {
                 data = null;
                 objectType = default(ObjectType);
@@ -264,7 +264,7 @@ namespace LibGit2Sharp.Tests
                 return (int)ReturnCode.GIT_OK;
             }
 
-            public override int ReadPrefix(string shortSha, out ObjectId id, out Stream data, out ObjectType objectType)
+            public override int ReadPrefix(string shortSha, out ObjectId id, out UnmanagedMemoryStream data, out ObjectType objectType)
             {
                 id = null;
                 data = null;

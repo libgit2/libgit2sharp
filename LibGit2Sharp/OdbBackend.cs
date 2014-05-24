@@ -38,7 +38,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="bytes">Number of bytes to allocate</param>
         /// <returns>An Stream for you to write to and then return. Do not dispose this object before returning it.</returns>
-        protected unsafe Stream Allocate(long bytes)
+        protected unsafe UnmanagedMemoryStream Allocate(long bytes)
         {
             if (bytes < 0 ||
                 (UIntPtr.Size == sizeof(int) && bytes > int.MaxValue))
@@ -56,7 +56,7 @@ namespace LibGit2Sharp
         /// </summary>
         public abstract int Read(
             ObjectId id,
-            out Stream data,
+            out UnmanagedMemoryStream data,
             out ObjectType objectType);
 
         /// <summary>
@@ -65,7 +65,7 @@ namespace LibGit2Sharp
         public abstract int ReadPrefix(
             string shortSha,
             out ObjectId oid,
-            out Stream data,
+            out UnmanagedMemoryStream data,
             out ObjectType objectType);
 
         /// <summary>
@@ -242,20 +242,17 @@ namespace LibGit2Sharp
                     return (int)GitErrorCode.Error;
                 }
 
-                Stream dataStream = null;
+                UnmanagedMemoryStream memoryStream = null;
 
                 try
                 {
                     ObjectType objectType;
-                    int toReturn = odbBackend.Read(new ObjectId(oid), out dataStream, out objectType);
+                    int toReturn = odbBackend.Read(new ObjectId(oid), out memoryStream, out objectType);
 
                     if (toReturn != 0)
                     {
                         return toReturn;
                     }
-
-                    // Caller is expected to give us back a stream created with the Allocate() method.
-                    var memoryStream = dataStream as UnmanagedMemoryStream;
 
                     if (memoryStream == null)
                     {
@@ -276,9 +273,9 @@ namespace LibGit2Sharp
                 }
                 finally
                 {
-                    if (dataStream != null)
+                    if (memoryStream != null)
                     {
-                        dataStream.Dispose();
+                        memoryStream.Dispose();
                     }
                 }
 
@@ -305,7 +302,7 @@ namespace LibGit2Sharp
                     return (int)GitErrorCode.Error;
                 }
 
-                Stream dataStream = null;
+                UnmanagedMemoryStream memoryStream = null;
 
                 try
                 {
@@ -314,15 +311,12 @@ namespace LibGit2Sharp
                     ObjectId oid;
                     ObjectType objectType;
 
-                    int toReturn = odbBackend.ReadPrefix(shortSha, out oid, out dataStream, out objectType);
+                    int toReturn = odbBackend.ReadPrefix(shortSha, out oid, out memoryStream, out objectType);
 
                     if (toReturn != 0)
                     {
                         return toReturn;
                     }
-
-                    // Caller is expected to give us back a stream created with the Allocate() method.
-                    var memoryStream = dataStream as UnmanagedMemoryStream;
 
                     if (memoryStream == null)
                     {
@@ -343,9 +337,9 @@ namespace LibGit2Sharp
                 }
                 finally
                 {
-                    if (null != dataStream)
+                    if (memoryStream != null)
                     {
-                        dataStream.Dispose();
+                        memoryStream.Dispose();
                     }
                 }
 
