@@ -36,19 +36,37 @@ namespace LibGit2Sharp
         /// Call this method from your implementations of Read and ReadPrefix to allocate a buffer in
         /// which to return the object's data.
         /// </summary>
-        /// <param name="bytes">Number of bytes to allocate</param>
-        /// <returns>An Stream for you to write to and then return. Do not dispose this object before returning it.</returns>
-        protected unsafe UnmanagedMemoryStream Allocate(long bytes)
+        /// <param name="bytes">The bytes to be copied to the stream.</param>
+        /// <returns>
+        /// A Stream already filled with the content of provided the byte array.
+        /// Do not dispose this object before returning it.
+        /// </returns>
+        protected UnmanagedMemoryStream AllocateAndBuildFrom(byte[] bytes)
         {
-            if (bytes < 0 ||
-                (UIntPtr.Size == sizeof(int) && bytes > int.MaxValue))
+            var stream = Allocate(bytes.Length);
+
+            stream.Write(bytes, 0, bytes.Length);
+
+            return stream;
+        }
+
+        /// <summary>
+        /// Call this method from your implementations of Read and ReadPrefix to allocate a buffer in
+        /// which to return the object's data.
+        /// </summary>
+        /// <param name="size">Number of bytes to allocate</param>
+        /// <returns>A Stream for you to write to and then return. Do not dispose this object before returning it.</returns>
+        protected unsafe UnmanagedMemoryStream Allocate(long size)
+        {
+            if (size < 0 ||
+                (UIntPtr.Size == sizeof(int) && size > int.MaxValue))
             {
-                throw new ArgumentOutOfRangeException("bytes");
+                throw new ArgumentOutOfRangeException("size");
             }
 
-            IntPtr buffer = Proxy.git_odb_backend_malloc(this.GitOdbBackendPointer, new UIntPtr((ulong)bytes));
+            IntPtr buffer = Proxy.git_odb_backend_malloc(this.GitOdbBackendPointer, new UIntPtr((ulong)size));
 
-            return new UnmanagedMemoryStream((byte*)buffer, 0, bytes, FileAccess.ReadWrite);
+            return new UnmanagedMemoryStream((byte*)buffer, 0, size, FileAccess.ReadWrite);
         }
 
         /// <summary>
