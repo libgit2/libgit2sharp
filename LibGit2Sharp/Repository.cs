@@ -1067,6 +1067,7 @@ namespace LibGit2Sharp
 
             string libgit2Hash = ReadContentFromResource(assembly, "libgit2_hash.txt");
             string libgit2sharpHash = ReadContentFromResource(assembly, "libgit2sharp_hash.txt");
+            string features = GlobalSettings.Features().ToString();
 
             return string.Format(
                 CultureInfo.InvariantCulture,
@@ -1075,8 +1076,7 @@ namespace LibGit2Sharp
                 libgit2sharpHash.Substring(0, 7),
                 libgit2Hash.Substring(0, 7),
                 NativeMethods.ProcessorArchitecture,
-                Proxy.git_libgit2_features()
-                );
+                features);
         }
 
         private static string ReadContentFromResource(Assembly assembly, string partialResourceName)

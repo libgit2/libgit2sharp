@@ -79,7 +79,7 @@
     <Compile Include="CommitSortStrategies.cs" />
     <Compile Include="CompareOptions.cs" />
     <Compile Include="ContentChangeStats.cs" />
-    <Compile Include="Core\GitBuiltInFeatures.cs" />
+    <Compile Include="BuiltInFeatures.cs" />
     <Compile Include="Core\GitCheckoutOptsWrapper.cs" />
     <Compile Include="Core\GitCredentialType.cs" />
     <Compile Include="Core\GitRevertOpts.cs" />
@@ -88,6 +88,7 @@
     <Compile Include="DefaultCredentials.cs" />
     <Compile Include="EmptyCommitException.cs" />
     <Compile Include="FetchOptions.cs" />
+    <Compile Include="GlobalSettings.cs" />
     <Compile Include="MergeOptions.cs" />
     <Compile Include="MergeResult.cs" />
     <Compile Include="PatchStats.cs" />

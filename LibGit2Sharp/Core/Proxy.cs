@@ -2754,15 +2754,9 @@ namespace LibGit2Sharp.Core
         /// <summary>
         /// Returns the features with which libgit2 was compiled.
         /// </summary>
-        public static string git_libgit2_features()
+        public static BuiltInFeatures git_libgit2_features()
         {
-            GitBuiltInFeatures features;
-
-            int flags = NativeMethods.git_libgit2_features();
-
-            features = (GitBuiltInFeatures)Enum.ToObject(typeof(GitBuiltInFeatures), flags);
-
-            return features.ToString();
+            return (BuiltInFeatures)NativeMethods.git_libgit2_features();
         }
 
         #endregion
