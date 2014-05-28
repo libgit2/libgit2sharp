@@ -1251,7 +1251,10 @@ namespace LibGit2Sharp
         /// <returns>The <see cref="MergeResult"/> of the merge.</returns>
         private MergeResult Merge(GitMergeHeadHandle[] mergeHeads, Signature merger, MergeOptions options)
         {
-            GitMergeAnalysis mergeAnalysis = Proxy.git_merge_analysis(Handle, mergeHeads);
+            GitMergeAnalysis mergeAnalysis;
+            GitMergePreference mergePreference;
+
+            Proxy.git_merge_analysis(Handle, mergeHeads, out mergeAnalysis, out mergePreference);
 
             MergeResult mergeResult = null;
 

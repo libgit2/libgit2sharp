@@ -88,7 +88,8 @@ namespace LibGit2Sharp
         /// </summary>
         public virtual bool HasConfig(ConfigurationLevel level)
         {
-            using (ConfigurationSafeHandle handle = RetrieveConfigurationHandle(level, false))
+            using (ConfigurationSafeHandle snapshot = Snapshot ())
+            using (ConfigurationSafeHandle handle = RetrieveConfigurationHandle(level, false, snapshot))
             {
                 return handle != null;
             }
@@ -117,7 +118,7 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(key, "key");
 
-            using (ConfigurationSafeHandle h = RetrieveConfigurationHandle(level, true))
+            using (ConfigurationSafeHandle h = RetrieveConfigurationHandle(level, true, configHandle))
             {
                 Proxy.git_config_delete(h, key);
             }
@@ -164,7 +165,10 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(key, "key");
 
-            return Proxy.git_config_get_entry<T>(configHandle, key);
+            using (ConfigurationSafeHandle snapshot = Snapshot())
+            {
+                return Proxy.git_config_get_entry<T>(snapshot, key);
+            }
         }
 
         /// <summary>
@@ -192,7 +196,8 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(key, "key");
 
-            using (ConfigurationSafeHandle handle = RetrieveConfigurationHandle(level, false))
+            using (ConfigurationSafeHandle snapshot = Snapshot())
+            using (ConfigurationSafeHandle handle = RetrieveConfigurationHandle(level, false, snapshot))
             {
                 if (handle == null)
                 {
@@ -224,7 +229,7 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(key, "key");
 
-            using (ConfigurationSafeHandle h = RetrieveConfigurationHandle(level, true))
+            using (ConfigurationSafeHandle h = RetrieveConfigurationHandle(level, true, configHandle))
             {
                 if (!configurationTypedUpdater.ContainsKey(typeof(T)))
                 {
@@ -246,18 +251,19 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(regexp, "regexp");
 
-            using (ConfigurationSafeHandle h = RetrieveConfigurationHandle(level, true))
+            using (ConfigurationSafeHandle snapshot = Snapshot())
+            using (ConfigurationSafeHandle h = RetrieveConfigurationHandle(level, true, snapshot))
             {
                 return Proxy.git_config_iterator_glob(h, regexp, BuildConfigEntry).ToList();
             }
         }
 
-        private ConfigurationSafeHandle RetrieveConfigurationHandle(ConfigurationLevel level, bool throwIfStoreHasNotBeenFound)
+        private ConfigurationSafeHandle RetrieveConfigurationHandle(ConfigurationLevel level, bool throwIfStoreHasNotBeenFound, ConfigurationSafeHandle fromHandle)
         {
             ConfigurationSafeHandle handle = null;
-            if (configHandle != null)
+            if (fromHandle != null)
             {
-                handle = Proxy.git_config_open_level(configHandle, level);
+                handle = Proxy.git_config_open_level(fromHandle, level);
             }
 
             if (handle == null && throwIfStoreHasNotBeenFound)
@@ -348,6 +354,11 @@ namespace LibGit2Sharp
                 email != null ? email.Value : string.Format(
                         CultureInfo.InvariantCulture, "{0}@{1}", Environment.UserName, Environment.UserDomainName),
                 now);
+        }
+
+        private ConfigurationSafeHandle Snapshot()
+        {
+            return Proxy.git_config_snapshot(configHandle);
         }
     }
 }

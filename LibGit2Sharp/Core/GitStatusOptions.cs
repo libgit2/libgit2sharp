@@ -49,5 +49,7 @@ namespace LibGit2Sharp.Core
         SortCaseSensitively = (1 << 9),
         SortCaseInsensitively = (1 << 10),
         RenamesFromRewrites = (1 << 11),
+        NoRefresh = (1 << 12),
+        UpdateIndex = (1 << 13),
     }
 }

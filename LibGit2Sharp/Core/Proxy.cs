@@ -569,6 +569,18 @@ namespace LibGit2Sharp.Core
             NativeMethods.git_config_iterator_free(iter);
         }
 
+        public static ConfigurationSafeHandle git_config_snapshot(ConfigurationSafeHandle config)
+        {
+            using (ThreadAffinity())
+            {
+                ConfigurationSafeHandle handle;
+                int res = NativeMethods.git_config_snapshot(out handle, config);
+                Ensure.ZeroResult(res);
+
+                return handle;
+            }
+        }
+
         #endregion
 
         #region git_diff_
@@ -1022,25 +1034,24 @@ namespace LibGit2Sharp.Core
             }
         }
 
-        public static GitMergeAnalysis git_merge_analysis(
+        public static void git_merge_analysis(
             RepositorySafeHandle repo,
-            GitMergeHeadHandle[] heads)
+            GitMergeHeadHandle[] heads,
+            out GitMergeAnalysis analysis_out,
+            out GitMergePreference preference_out)
         {
             using (ThreadAffinity())
             {
-                GitMergeAnalysis ret;
-
                 IntPtr[] their_heads = heads.Select(head => head.DangerousGetHandle()).ToArray();
 
                 int res = NativeMethods.git_merge_analysis(
-                    out ret,
+                    out analysis_out,
+                    out preference_out,
                     repo,
                     their_heads,
                     their_heads.Length);
 
                 Ensure.ZeroResult(res);
-
-                return ret;
             }
         }
 
@@ -1063,7 +1074,7 @@ namespace LibGit2Sharp.Core
             using (ThreadAffinity())
             using (var buf = new GitBuf())
             {
-                int res= NativeMethods.git_message_prettify(buf, message, false);
+                int res= NativeMethods.git_message_prettify(buf, message, false, (sbyte)'#');
                 Ensure.Int32Result(res);
 
                 return LaxUtf8Marshaler.FromNative(buf.ptr) ?? string.Empty;

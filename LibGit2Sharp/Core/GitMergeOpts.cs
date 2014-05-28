@@ -71,6 +71,27 @@ namespace LibGit2Sharp.Core
         GIT_MERGE_ANALYSIS_UNBORN = (1 << 3),
     }
 
+    internal enum GitMergePreference
+    {
+        /// <summary>
+        /// No configuration was found that suggests a preferred behavior for
+        /// merge.
+        /// </summary>
+        GIT_MERGE_PREFERENCE_NONE = 0,
+
+        /// <summary>
+        /// There is a `merge.ff=false` configuration setting, suggesting that
+        /// the user does not want to allow a fast-forward merge.
+        /// </summary>
+        GIT_MERGE_PREFERENCE_NO_FASTFORWARD = (1 << 0),
+
+        /// <summary>
+        /// There is a `merge.ff=only` configuration setting, suggesting that
+        /// the user only wants fast-forward merges.
+        /// </summary>
+        GIT_MERGE_PREFERENCE_FASTFORWARD_ONLY = (1 << 1),
+    }
+
     [Flags]
     internal enum GitMergeTreeFlags
     {

@@ -91,7 +91,7 @@ namespace LibGit2Sharp
         /// <returns>An <see cref="IEnumerator{T}"/> object that can be used to iterate through the collection.</returns>
         public virtual IEnumerator<Branch> GetEnumerator()
         {
-            return Proxy.git_branch_iterator(repo, GitBranchType.GIT_BRANCH_LOCAL | GitBranchType.GIT_BRANCH_REMOTE)
+            return Proxy.git_branch_iterator(repo, GitBranchType.GIT_BRANCH_ALL)
                         .ToList().GetEnumerator();
         }
 

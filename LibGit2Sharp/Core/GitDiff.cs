@@ -104,6 +104,14 @@ namespace LibGit2Sharp.Core
         /// </summary>
         GIT_DIFF_ENABLE_FAST_UNTRACKED_DIRS = (1 << 14),
 
+        /// <summary>
+        /// When diff finds a file in the working directory with stat
+        /// information different from the index, but the OID ends up being the
+        /// same, write the correct stat information into the index.  Note:
+        /// without this flag, diff will always leave the index untouched.
+        /// </summary>
+        GIT_DIFF_UPDATE_INDEX = (1 << 15),
+
         /*
          * Options controlling how output will be generated
          */
@@ -158,6 +166,12 @@ namespace LibGit2Sharp.Core
         /// Take extra time to find minimal diff
         /// </summary>
         GIT_DIFF_MINIMAL = (1 << 29),
+
+        /// <summary>
+        /// Include the necessary deflate / delta information so that `git-apply`
+        /// can apply given diff information to binary files.
+        /// </summary>
+        GIT_DIFF_SHOW_BINARY = (1 << 30),
     }
 
     internal delegate int diff_notify_cb(

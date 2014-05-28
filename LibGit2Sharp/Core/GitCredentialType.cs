@@ -27,5 +27,10 @@ namespace LibGit2Sharp.Core
         /// A key for NTLM/Kerberos "default" credentials.
         /// </summary>
         Default = (1 << 3),
+
+        /// <summary>
+        /// TODO
+        /// </summary>
+        SshInteractive = (1 << 4),
     }
 }
