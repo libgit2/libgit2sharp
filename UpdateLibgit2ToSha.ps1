@@ -4,7 +4,7 @@
 .PARAMETER sha
 	Desired libgit2 version. This is run through `git rev-parse`, so branch names are okay too.
 .PARAMETER vs
-	Version of Visual Studio project files to generate. Cmake supports "10" (default) and "11".
+	Version of Visual Studio project files to generate. Cmake supports "10" (default), "11" and "12".
 .PARAMETER libgit2Name
 	The base name (i.e without the file extension) of the libgit2 DLL to generate. Default is to use git2-$suffix, where $suffix is the first 7 characters of the SHA1 of the corresponding libgi2 commit as the suffix.
 .PARAMETER test
