@@ -1894,6 +1894,14 @@ namespace LibGit2Sharp.Core
             }
         }
 
+        public static void git_remote_set_transport(RemoteSafeHandle remote, TransportSafeHandle transport)
+        {
+            using (ThreadAffinity())
+            {
+                Ensure.ZeroResult(NativeMethods.git_remote_set_transport(remote, transport));
+            }
+        }
+
         public static string git_remote_url(RemoteSafeHandle remote)
         {
             return NativeMethods.git_remote_url(remote);
@@ -2633,6 +2641,22 @@ namespace LibGit2Sharp.Core
         public static GitObjectType git_tag_target_type(GitObjectSafeHandle tag)
         {
             return NativeMethods.git_tag_target_type(tag);
+        }
+
+        #endregion
+
+        #region git_transport_
+
+        public static TransportSafeHandle git_transport_smart(RemoteSafeHandle remote, IntPtr payload)
+        {
+            using (ThreadAffinity())
+            {
+                TransportSafeHandle transport;
+
+                Ensure.ZeroResult(NativeMethods.git_transport_smart(out transport, remote, payload));
+
+                return transport;
+            }
         }
 
         #endregion

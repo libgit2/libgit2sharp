@@ -82,17 +82,45 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        /// Gets or sets the smart protocol subtransport used for this remote.
+        /// Callers may override one of the "smart" protocols (git or http)
+        /// in order to provide their own transport configuration.
+        /// </summary>
+        public virtual SmartSubtransport Transport { get; set; }
+
+        /// <summary>
         /// Transform a reference to its source reference using the <see cref="Remote"/>'s default fetchspec.
         /// </summary>
         /// <param name="reference">The reference to transform.</param>
         /// <returns>The transformed reference.</returns>
         internal string FetchSpecTransformToSource(string reference)
         {
-            using (RemoteSafeHandle remoteHandle = Proxy.git_remote_load(repository.Handle, Name, true))
+            using (RemoteSafeHandle remoteHandle = CreateNativeRemote(false))
             {
                 GitRefSpecHandle fetchSpecPtr = Proxy.git_remote_get_refspec(remoteHandle, 0);
                 return Proxy.git_refspec_rtransform(fetchSpecPtr, reference);
             }
+        }
+
+        internal RemoteSafeHandle CreateNativeRemote(bool forNetworkInteraction)
+        {
+            RemoteSafeHandle remoteHandle = Proxy.git_remote_load(repository.Handle, Name, true);
+
+            if (forNetworkInteraction && Transport != null)
+            {
+                try
+                {
+                    remoteHandle.TransportHandle = Transport.CreateNativeTransport(remoteHandle);
+                    Proxy.git_remote_set_transport(remoteHandle, remoteHandle.TransportHandle);
+                }
+                catch
+                {
+                    remoteHandle.Dispose();
+                    throw;
+                }
+            }
+
+            return remoteHandle;
         }
 
         /// <summary>
