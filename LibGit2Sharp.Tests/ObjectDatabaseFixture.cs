@@ -103,12 +103,21 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        Stream PrepareMemoryStream(int contentSize)
+        {
+            var sb = new StringBuilder();
+            for (int i = 0; i < contentSize; i++)
+            {
+                sb.Append(i % 10);
+            }
+
+            return new MemoryStream(Encoding.UTF8.GetBytes(sb.ToString()));
+        }
+
         [Theory]
-        [InlineData(16, 32)]
         [InlineData(34, 8)]
         [InlineData(7584, 5879)]
         [InlineData(7854, 1247)]
-        [InlineData(7854, 9785)]
         [InlineData(8192, 4096)]
         [InlineData(8192, 4095)]
         [InlineData(8192, 4097)]
@@ -116,18 +125,29 @@ namespace LibGit2Sharp.Tests
         {
             string path = InitNewRepository();
 
-            var sb = new StringBuilder();
-            for (int i = 0; i < contentSize; i++)
-            {
-                sb.Append(i % 10);
-            }
 
             using (var repo = new Repository(path))
             {
-                using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(sb.ToString())))
+                using (var stream = PrepareMemoryStream(contentSize))
                 {
                     Blob blob = repo.ObjectDatabase.CreateBlob(stream, numberOfBytesToConsume: numberOfBytesToConsume);
-                    Assert.Equal(Math.Min(numberOfBytesToConsume, contentSize), blob.Size);
+                    Assert.Equal(numberOfBytesToConsume, blob.Size);
+                }
+            }
+        }
+
+        [Theory]
+        [InlineData(16, 32)]
+        [InlineData(7854, 9785)]
+        public void CreatingABlobFromTooShortAStreamThrows(int contentSize, int numberOfBytesToConsume)
+        {
+            string path = InitNewRepository();
+
+            using (var repo = new Repository(path))
+            {
+                using (var stream = PrepareMemoryStream(contentSize))
+                {
+                    Assert.Throws<EndOfStreamException>(() => repo.ObjectDatabase.CreateBlob(stream, numberOfBytesToConsume: numberOfBytesToConsume));
                 }
             }
         }

@@ -69,6 +69,12 @@ namespace LibGit2Sharp.Core
             {
                 var oid = new GitOid();
                 int res = NativeMethods.git_blob_create_fromchunks(ref oid, repo, hintpath, fileCallback, IntPtr.Zero);
+
+                if (res == (int)GitErrorCode.User)
+                {
+                    throw new EndOfStreamException("The stream ended unexpectedly"); 
+                }
+
                 Ensure.ZeroResult(res);
 
                 return oid;

@@ -138,7 +138,19 @@ namespace LibGit2Sharp
                     }
                 }
 
+                if (bytesToRead == 0)
+                {
+                    return 0;
+                }
+
                 int numberOfReadBytes = stream.Read(local, 0, bytesToRead);
+
+                if (numberOfBytesToConsume.HasValue
+                    && numberOfReadBytes == 0)
+                {
+                    return (int)GitErrorCode.User;
+                }
+
                 totalNumberOfReadBytes += numberOfReadBytes;
 
                 Marshal.Copy(local, 0, content, numberOfReadBytes);
