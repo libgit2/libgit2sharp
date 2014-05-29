@@ -160,7 +160,8 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Inserts a <see cref="Blob"/> into the object database, created from the content of a data provider.
+        /// Inserts a <see cref="Blob"/> into the object database, created from the content of a stream.
+        /// <para>Optionally, git filters will be applied to the content before storing it.</para>
         /// </summary>
         /// <param name="stream">The stream from which will be read the content of the blob to be created.</param>
         /// <param name="hintpath">The hintpath is used to determine what git filters should be applied to the object before it can be placed to the object database.</param>
