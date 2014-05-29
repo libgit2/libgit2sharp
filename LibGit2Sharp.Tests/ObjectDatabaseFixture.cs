@@ -28,7 +28,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCreateABlobFromAFileInTheWorkingDirectory()
         {
-            string path = CloneStandardTestRepo();
+            string path = InitNewRepository();
             using (var repo = new Repository(path))
             {
                 Assert.Equal(FileStatus.Nonexistent, repo.Index.RetrieveStatus("hello.txt"));
@@ -51,7 +51,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCreateABlobIntoTheDatabaseOfABareRepository()
         {
-            string path = CloneBareTestRepo();
+            string path = InitNewRepository();
 
             SelfCleaningDirectory directory = BuildSelfCleaningDirectory();
 
@@ -83,7 +83,7 @@ namespace LibGit2Sharp.Tests
         [InlineData("e9671e138a780833cb689753570fd10a55be84fb", "dummy.guess")]
         public void CanCreateABlobFromAStream(string expectedSha, string hintPath)
         {
-            string path = CloneBareTestRepo();
+            string path = InitNewRepository();
 
             var sb = new StringBuilder();
             for (int i = 0; i < 6; i++)
@@ -114,7 +114,7 @@ namespace LibGit2Sharp.Tests
         [InlineData(8192, 4097)]
         public void CanCreateABlobFromAStreamWithANumberOfBytesToConsume(int contentSize, int numberOfBytesToConsume)
         {
-            string path = CloneBareTestRepo();
+            string path = InitNewRepository();
 
             var sb = new StringBuilder();
             for (int i = 0; i < contentSize; i++)
@@ -135,10 +135,12 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CreatingABlobFromANonReadableStreamThrows()
         {
-            string path = CloneStandardTestRepo();
+            string path = InitNewRepository();
 
-            using (var stream = new FileStream(Path.Combine(path, "file.txt"), FileMode.CreateNew, FileAccess.Write))
             using (var repo = new Repository(path))
+            using (var stream = new FileStream(
+                Path.Combine(repo.Info.WorkingDirectory, "file.txt"),
+                FileMode.CreateNew, FileAccess.Write))
             {
                 Assert.Throws<ArgumentException>(() => repo.ObjectDatabase.CreateBlob(stream));
             }
@@ -218,7 +220,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCreateAnEmptyTree()
         {
-            string path = CloneBareTestRepo();
+            string path = InitNewRepository();
             using (var repo = new Repository(path))
             {
                 var td = new TreeDefinition();
@@ -364,7 +366,7 @@ namespace LibGit2Sharp.Tests
         {
             var binaryContent = new byte[] { 0, 1, 2, 3, 4, 5 };
 
-            string path = CloneBareTestRepo();
+            string path = InitNewRepository();
             using (var repo = new Repository(path))
             {
                 using (var stream = new MemoryStream(binaryContent))
