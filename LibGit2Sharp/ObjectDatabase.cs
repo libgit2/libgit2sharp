@@ -170,6 +170,12 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNull(stream, "stream");
 
+            // there's no need to buffer the file for filtering, so simply use a stream
+            if (hintpath == null && numberOfBytesToConsume.HasValue)
+            {
+                return CreateBlob(stream, numberOfBytesToConsume.Value);
+            }
+
             if (!stream.CanRead)
             {
                 throw new ArgumentException("The stream cannot be read from.", "stream");
@@ -179,6 +185,47 @@ namespace LibGit2Sharp
             ObjectId id = Proxy.git_blob_create_fromchunks(repo.Handle, hintpath, proc.Provider);
 
             return repo.Lookup<Blob>(id);
+        }
+
+        /// <summary>
+        /// Inserts a <see cref="Blob"/> into the object database created from the content of the stream.
+        /// </summary>
+        /// <param name="stream">The stream from which will be read the content of the blob to be created.</param>
+        /// <param name="numberOfBytesToConsume">Number of bytes to consume from the stream.</param>
+        /// <returns>The created <see cref="Blob"/>.</returns>
+        public virtual Blob CreateBlob(Stream stream, int numberOfBytesToConsume)
+        {
+            Ensure.ArgumentNotNull(stream, "stream");
+
+            if (!stream.CanRead)
+            {
+                throw new ArgumentException("The stream cannot be read from.", "stream");
+            }
+
+            using (var odbStream = Proxy.git_odb_open_wstream(handle, (UIntPtr)numberOfBytesToConsume, GitObjectType.Blob))
+            {
+                var buffer = new byte[4*1024];
+                int totalRead = 0;
+
+                while (totalRead < numberOfBytesToConsume)
+                {
+                    var left = numberOfBytesToConsume - totalRead;
+                    var toRead = left < buffer.Length ? left : buffer.Length;
+                    var read = stream.Read(buffer, 0, toRead);
+
+                    if (read == 0)
+                    {
+                        throw new EndOfStreamException("The stream ended unexpectedly");
+                    }
+
+                    Proxy.git_odb_stream_write(odbStream, buffer, read);
+                    totalRead += read;
+                }
+
+                var id = Proxy.git_odb_stream_finalize_write(odbStream);
+
+                return repo.Lookup<Blob>(id);
+            }
         }
 
         /// <summary>

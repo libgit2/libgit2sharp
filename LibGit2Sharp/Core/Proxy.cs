@@ -1296,9 +1296,55 @@ namespace LibGit2Sharp.Core
                     IntPtr.Zero));
         }
 
+        public static OdbStreamSafeHandle git_odb_open_wstream(ObjectDatabaseSafeHandle odb, UIntPtr size, GitObjectType type)
+        {
+            using (ThreadAffinity())
+            {
+                OdbStreamSafeHandle stream;
+                int res = NativeMethods.git_odb_open_wstream(out stream, odb, size, type);
+                Ensure.ZeroResult(res);
+
+                return stream;
+            }
+        }
+
         public static void git_odb_free(IntPtr odb)
         {
             NativeMethods.git_odb_free(odb);
+        }
+
+        public static void git_odb_stream_write(OdbStreamSafeHandle stream, byte[] data, int len)
+        {
+            using (ThreadAffinity())
+            {
+                int res;
+                unsafe
+                {
+                    fixed (byte *p = data)
+                    {
+                        res = NativeMethods.git_odb_stream_write(stream, (IntPtr) p, (UIntPtr) len);
+                    }
+                }
+
+                Ensure.ZeroResult(res);
+            }
+        }
+
+        public static ObjectId git_odb_stream_finalize_write(OdbStreamSafeHandle stream)
+        {
+            using (ThreadAffinity())
+            {
+                GitOid id;
+                int res = NativeMethods.git_odb_stream_finalize_write(out id, stream);
+                Ensure.ZeroResult(res);
+
+                return id;
+            }
+        }
+
+        public static void git_odb_stream_free(IntPtr stream)
+        {
+            NativeMethods.git_odb_stream_free(stream);
         }
 
         #endregion

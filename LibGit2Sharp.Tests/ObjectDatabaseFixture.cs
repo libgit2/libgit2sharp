@@ -137,9 +137,11 @@ namespace LibGit2Sharp.Tests
         }
 
         [Theory]
-        [InlineData(16, 32)]
-        [InlineData(7854, 9785)]
-        public void CreatingABlobFromTooShortAStreamThrows(int contentSize, int numberOfBytesToConsume)
+        [InlineData(16, 32, null)]
+        [InlineData(7854, 9785, null)]
+        [InlineData(16, 32, "binary.bin")]
+        [InlineData(7854, 9785, "binary.bin")]
+        public void CreatingABlobFromTooShortAStreamThrows(int contentSize, int numberOfBytesToConsume, string hintpath)
         {
             string path = InitNewRepository();
 
@@ -147,7 +149,7 @@ namespace LibGit2Sharp.Tests
             {
                 using (var stream = PrepareMemoryStream(contentSize))
                 {
-                    Assert.Throws<EndOfStreamException>(() => repo.ObjectDatabase.CreateBlob(stream, numberOfBytesToConsume: numberOfBytesToConsume));
+                    Assert.Throws<EndOfStreamException>(() => repo.ObjectDatabase.CreateBlob(stream, hintpath, numberOfBytesToConsume));
                 }
             }
         }

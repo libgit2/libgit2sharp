@@ -713,10 +713,22 @@ namespace LibGit2Sharp.Core
             IntPtr payload);
 
         [DllImport(libgit2)]
+        internal static extern int git_odb_open_wstream(out OdbStreamSafeHandle stream, ObjectDatabaseSafeHandle odb, UIntPtr size, GitObjectType type);
+
+        [DllImport(libgit2)]
         internal static extern void git_odb_free(IntPtr odb);
 
         [DllImport(libgit2)]
         internal static extern void git_object_free(IntPtr obj);
+
+        [DllImport(libgit2)]
+        internal static extern int git_odb_stream_write(OdbStreamSafeHandle Stream, IntPtr Buffer, UIntPtr len);
+
+        [DllImport(libgit2)]
+        internal static extern int git_odb_stream_finalize_write(out GitOid id, OdbStreamSafeHandle stream);
+
+        [DllImport(libgit2)]
+        internal static extern void git_odb_stream_free(IntPtr stream);
 
         [DllImport(libgit2)]
         internal static extern OidSafeHandle git_object_id(GitObjectSafeHandle obj);
