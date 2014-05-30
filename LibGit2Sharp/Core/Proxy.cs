@@ -1785,6 +1785,24 @@ namespace LibGit2Sharp.Core
             }
         }
 
+        public static void git_remote_delete(RepositorySafeHandle repo, string name)
+        {
+            using (ThreadAffinity())
+            {
+                using (RemoteSafeHandle remote = git_remote_load(repo, name, false))
+                {
+                    if (remote == null)
+                    {
+                        return;
+                    }
+
+                    int res = NativeMethods.git_remote_delete(remote);
+                    Ensure.ZeroResult(res);
+                    remote.SetHandleAsInvalid();
+                }
+            }
+        }
+
         public static void git_remote_disconnect(RemoteSafeHandle remote)
         {
             using (ThreadAffinity())

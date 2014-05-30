@@ -137,6 +137,18 @@ namespace LibGit2Sharp
             return Remote.IsValidName(name);
         }
 
+        /// <summary>
+        /// Deletes the <see cref="Remote"/> with the specified name.
+        /// </summary>
+        /// <param name="name">The name of the remote to remove.</param>
+        /// <returns>A new <see cref="Remote"/>.</returns>
+        public virtual void Remove(string name)
+        {
+            Ensure.ArgumentNotNull(name, "name");
+
+            Proxy.git_remote_delete(repository.Handle, name);
+        }
+
         private string DebuggerDisplay
         {
             get

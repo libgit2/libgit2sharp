@@ -189,5 +189,30 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal("+refs/heads/*:refs/remotes/grmpf/*", remote.RefSpecs.Single().Specification);
             }
         }
+
+        [Fact]
+        public void CanDeleteExistingRemote()
+        {
+            var path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
+            {
+                Assert.NotNull(repo.Network.Remotes["origin"]);
+                Assert.NotEmpty(repo.Refs.FromGlob("refs/remotes/origin/*"));
+
+                repo.Network.Remotes.Remove("origin");
+                Assert.Null(repo.Network.Remotes["origin"]);
+                Assert.Empty(repo.Refs.FromGlob("refs/remotes/origin/*"));
+            }
+        }
+
+        [Fact]
+        public void CanDeleteNonExistingRemote()
+        {
+            using (var repo = new Repository(StandardTestRepoPath))
+            {
+                Assert.Null(repo.Network.Remotes["i_dont_exist"]);
+                repo.Network.Remotes.Remove("i_dont_exist");
+            }
+        }
     }
 }
