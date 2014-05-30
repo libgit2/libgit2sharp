@@ -61,5 +61,10 @@ namespace LibGit2Sharp
         /// Exclude submodules from being scanned for status
         /// </summary>
         public bool ExcludeSubmodules { get; set; }
+
+        /// <summary>
+        /// Recurse into ignored directories
+        /// </summary>
+        public bool RecurseIgnoredDirs { get; set; }
     }
 }

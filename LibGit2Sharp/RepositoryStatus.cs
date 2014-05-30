@@ -117,6 +117,12 @@ namespace LibGit2Sharp
                     GitStatusOptionFlags.ExcludeSubmodules;
             }
 
+            if (options.RecurseIgnoredDirs)
+            {
+                coreOptions.Flags |=
+                    GitStatusOptionFlags.RecurseIgnoredDirs;
+            }
+
             return coreOptions;
         }
 
