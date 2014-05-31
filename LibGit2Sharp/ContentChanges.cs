@@ -13,7 +13,6 @@ namespace LibGit2Sharp
     public class ContentChanges
     {
         private readonly StringBuilder patchBuilder = new StringBuilder();
-        private bool isBinaryComparison;
 
         /// <summary>
         /// Needed for mocking purposes.
@@ -31,7 +30,7 @@ namespace LibGit2Sharp
 
         internal ContentChanges(bool isBinaryComparison)
         {
-            this.isBinaryComparison = isBinaryComparison;
+            this.IsBinaryComparison = isBinaryComparison;
         }
 
         internal void AppendToPatch(string patch)
@@ -60,11 +59,7 @@ namespace LibGit2Sharp
         /// <summary>
         /// Determines if at least one side of the comparison holds binary content.
         /// </summary>
-        public virtual bool IsBinaryComparison
-        {
-            get { return isBinaryComparison; }
-            private set { isBinaryComparison = value; }
-        }
+        public virtual bool IsBinaryComparison { get; private set; }
 
         private int FileCallback(GitDiffDelta delta, float progress, IntPtr payload)
         {

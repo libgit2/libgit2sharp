@@ -75,11 +75,9 @@ namespace LibGit2Sharp
         {
             get
             {
-                return new[] { NormalizeToCanonicalName(DefaultNamespace) }.Concat(
-                   from reference in repo.Refs
-                   select reference.CanonicalName into refCanonical
-                   where refCanonical.StartsWith(Reference.NotePrefix, StringComparison.Ordinal) && refCanonical != NormalizeToCanonicalName(DefaultNamespace)
-                   select refCanonical);
+                return new[] { NormalizeToCanonicalName(DefaultNamespace) }.Concat(repo.Refs
+                    .Select(reference => reference.CanonicalName)
+                    .Where(refCanonical => refCanonical.StartsWith(Reference.NotePrefix, StringComparison.Ordinal) && refCanonical != NormalizeToCanonicalName(DefaultNamespace)));
             }
         }
 
@@ -155,7 +153,7 @@ namespace LibGit2Sharp
             return string.Concat(Reference.NotePrefix, name);
         }
 
-        internal string UnCanonicalizeName(string name)
+        internal static string UnCanonicalizeName(string name)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
 
