@@ -292,22 +292,11 @@ namespace LibGit2Sharp
         {
             TreeComparisonHandleRetriever comparisonHandleRetriever = (oh, nh, o) =>
             {
-                DiffSafeHandle diff = null, diff2 = null;
+                DiffSafeHandle diff = Proxy.git_diff_tree_to_index(repo.Handle, repo.Index.Handle, oh, o);
 
-                try
+                using (DiffSafeHandle diff2 = Proxy.git_diff_index_to_workdir(repo.Handle, repo.Index.Handle, o))
                 {
-                    diff = Proxy.git_diff_tree_to_index(repo.Handle, repo.Index.Handle, oh, o);
-                    diff2 = Proxy.git_diff_index_to_workdir(repo.Handle, repo.Index.Handle, o);
                     Proxy.git_diff_merge(diff, diff2);
-                }
-                catch
-                {
-                    diff.SafeDispose();
-                    throw;
-                }
-                finally
-                {
-                    diff2.SafeDispose();
                 }
 
                 return diff;
@@ -332,17 +321,9 @@ namespace LibGit2Sharp
             {
                 var diffList = comparisonHandleRetriever(oldTreeId, newTreeId, options);
 
-                try
+                if (explicitPathsOptions != null)
                 {
-                    if (explicitPathsOptions != null)
-                    {
-                        DispatchUnmatchedPaths(explicitPathsOptions, filePaths, matchedPaths);
-                    }
-                }
-                catch
-                {
-                    diffList.Dispose();
-                    throw;
+                    DispatchUnmatchedPaths(explicitPathsOptions, filePaths, matchedPaths);
                 }
 
                 DetectRenames(diffList, compareOptions);

@@ -440,22 +440,14 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNull(id, "id");
 
-            GitObjectSafeHandle obj = null;
-
-            try
+            using (GitObjectSafeHandle obj = Proxy.git_object_lookup(handle, id, type))
             {
-                obj = Proxy.git_object_lookup(handle, id, type);
-
                 if (obj == null)
                 {
                     return null;
                 }
 
                 return GitObject.BuildFrom(this, id, Proxy.git_object_type(obj), knownPath);
-            }
-            finally
-            {
-                obj.SafeDispose();
             }
         }
 

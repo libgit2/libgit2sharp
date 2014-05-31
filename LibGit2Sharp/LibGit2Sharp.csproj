@@ -83,6 +83,7 @@
     <Compile Include="Core\GitCheckoutOptsWrapper.cs" />
     <Compile Include="Core\GitCredentialType.cs" />
     <Compile Include="Core\GitRevertOpts.cs" />
+    <Compile Include="Core\Handles\DisposableExtensions.cs" />
     <Compile Include="Core\Handles\PatchSafeHandle.cs" />
     <Compile Include="Core\IntPtrExtensions.cs" />
     <Compile Include="DefaultCredentials.cs" />
@@ -258,7 +259,6 @@
     <Compile Include="FileStatus.cs" />
     <Compile Include="Core\GitTime.cs" />
     <Compile Include="Core\NativeMethods.cs" />
-    <Compile Include="Core\Handles\SafeHandleExtensions.cs" />
     <Compile Include="Core\ObjectSafeWrapper.cs" />
     <Compile Include="Core\Handles\RemoteSafeHandle.cs" />
     <Compile Include="Core\Handles\RevWalkerSafeHandle.cs">

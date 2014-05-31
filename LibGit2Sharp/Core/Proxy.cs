@@ -2965,8 +2965,7 @@ namespace LibGit2Sharp.Core
                 }
                 finally
                 {
-                    if (next != null)
-                        next.SafeDispose();
+                    next.SafeDispose();
                 }
             }
         }
