@@ -151,10 +151,7 @@ namespace LibGit2Sharp.Tests
         [InlineData("/", false)]
         public void CanTellIfARemoteNameIsValid(string refname, bool expectedResult)
         {
-            using (var repo = new Repository(BareTestRepoPath))
-            {
-                Assert.Equal(expectedResult, Remote.IsValidName(refname));
-            }
+            Assert.Equal(expectedResult, Remote.IsValidName(refname));
         }
 
         [Fact]
