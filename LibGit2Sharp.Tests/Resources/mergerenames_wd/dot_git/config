@@ -1,0 +1,11 @@
+[core]
+	repositoryformatversion = 0
+	filemode = false
+	bare = false
+	logallrefupdates = true
+	ignorecase = true
+	symlinks = false
+[submodule "submodule"]
+	url = ../submodule
+[merge]
+	conflictstyle = merge

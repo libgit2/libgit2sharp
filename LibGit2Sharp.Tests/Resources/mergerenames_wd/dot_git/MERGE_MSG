@@ -1,0 +1,23 @@
+Merge branch 'rename_conflict_theirs'
+
+Conflicts:
+	0b-rewritten-in-ours.txt
+	0c-rewritten-in-theirs.txt
+	3a-newname-in-ours-deleted-in-theirs.txt
+	3a-renamed-in-ours-deleted-in-theirs.txt
+	3b-newname-in-theirs-deleted-in-ours.txt
+	3b-renamed-in-theirs-deleted-in-ours.txt
+	4a-newname-in-ours-added-in-theirs.txt
+	4a-renamed-in-ours-added-in-theirs.txt
+	4b-newname-in-theirs-added-in-ours.txt
+	4b-renamed-in-theirs-added-in-ours.txt
+	5a-newname-in-ours-added-in-theirs.txt
+	5a-renamed-in-ours-added-in-theirs.txt
+	5b-newname-in-theirs-added-in-ours.txt
+	5b-renamed-in-theirs-added-in-ours.txt
+	6-both-renamed-1-to-2-ours.txt
+	6-both-renamed-1-to-2-theirs.txt
+	6-both-renamed-1-to-2.txt
+	7-both-renamed-side-1.txt
+	7-both-renamed-side-2.txt
+	7-both-renamed.txt

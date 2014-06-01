@@ -101,12 +101,12 @@ namespace LibGit2Sharp.Core
             }
 
             Func<string, GitErrorCode, GitErrorCategory, LibGit2SharpException> exceptionBuilder;
-            if (!GitErrorsToLibGit2SharpExceptions.TryGetValue((GitErrorCode) result, out exceptionBuilder))
+            if (!GitErrorsToLibGit2SharpExceptions.TryGetValue((GitErrorCode)result, out exceptionBuilder))
             {
                 exceptionBuilder = (m, r, c) => new LibGit2SharpException(m, r, c);
             }
 
-            throw exceptionBuilder(errorMessage, (GitErrorCode) result, error.Category);
+            throw exceptionBuilder(errorMessage, (GitErrorCode)result, error.Category);
         }
 
         /// <summary>
@@ -163,6 +163,16 @@ namespace LibGit2Sharp.Core
             }
 
             HandleError(result);
+        }
+
+        public static void NotNullResult(Object result)
+        {
+            if (result != null)
+            {
+                return;
+            }
+
+            HandleError((int)GitErrorCode.Error);
         }
 
         /// <summary>

@@ -1,0 +1,9 @@
+This file has
+the same name
+as a file that
+was renamed in
+the other branch.
+
+This will, upon
+merging, lead to
+a rename conflict.

@@ -52,6 +52,18 @@ namespace LibGit2Sharp
             }
         }
 
+        /// <summary>
+        /// Get the <see cref="IndexNameEntryCollection"/> that contains
+        /// the list of paths involved in rename conflicts.
+        /// </summary>
+        public virtual IndexNameEntryCollection Names
+        {
+            get
+            {
+                return new IndexNameEntryCollection(repo);
+            }
+        }
+
         #region IEnumerable<Conflict> Members
 
         private List<Conflict> AllConflicts()

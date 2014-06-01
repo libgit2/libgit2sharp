@@ -27,6 +27,25 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        private static List<object[]> RenameConflictData
+        {
+            get
+            {
+                return new List<object[]>
+                {
+                    new[] { "3a-renamed-in-ours-deleted-in-theirs.txt", "3a-newname-in-ours-deleted-in-theirs.txt", null },
+                    new[] { "3b-renamed-in-theirs-deleted-in-ours.txt", null, "3b-newname-in-theirs-deleted-in-ours.txt" },
+                    new[] { "4a-renamed-in-ours-added-in-theirs.txt", "4a-newname-in-ours-added-in-theirs.txt", null },
+                    new[] { "4b-renamed-in-theirs-added-in-ours.txt", null, "4b-newname-in-theirs-added-in-ours.txt" },
+                    new[] { "5a-renamed-in-ours-added-in-theirs.txt", "5a-newname-in-ours-added-in-theirs.txt", "5a-renamed-in-ours-added-in-theirs.txt" },
+                    new[] { "5b-renamed-in-theirs-added-in-ours.txt", "5b-renamed-in-theirs-added-in-ours.txt", "5b-newname-in-theirs-added-in-ours.txt" },
+                    new[] { "6-both-renamed-1-to-2.txt", "6-both-renamed-1-to-2-ours.txt", "6-both-renamed-1-to-2-theirs.txt" },
+                    new[] { "7-both-renamed-side-1.txt", "7-both-renamed.txt", "7-both-renamed-side-1.txt" },
+                    new[] { "7-both-renamed-side-2.txt", "7-both-renamed-side-2.txt", "7-both-renamed.txt" },
+                };
+            }
+        }
+
         [Theory]
         [InlineData(true, "ancestor-and-ours.txt", true, false, FileStatus.Removed, 2)]
         [InlineData(false, "ancestor-and-ours.txt", true, true, FileStatus.Removed |FileStatus.Untracked, 2)]
@@ -72,6 +91,29 @@ namespace LibGit2Sharp.Tests
 
                 Assert.Equal(1, repo.Index.Conflicts.ResolvedConflicts.Count());
                 Assert.NotNull(repo.Index.Conflicts.ResolvedConflicts[filename]);
+            }
+        }
+
+        [Fact]
+        public void CanGetOriginalNamesOfRenameConflicts()
+        {
+            var path = CloneMergeRenamesTestRepo();
+            using (var repo = new Repository(path))
+            {
+                var expected = RenameConflictData;
+                var actual = repo.Index.Conflicts.Names;
+
+                Assert.Equal(expected.Count, actual.Count());
+
+                int i = 0;
+                foreach(var name in actual)
+                {
+                    Assert.Equal(expected[i][0], name.Ancestor);
+                    Assert.Equal(expected[i][1], name.Ours);
+                    Assert.Equal(expected[i][2], name.Theirs);
+
+                    i++;
+                }
             }
         }
 

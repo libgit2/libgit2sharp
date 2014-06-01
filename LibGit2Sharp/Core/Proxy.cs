@@ -898,6 +898,21 @@ namespace LibGit2Sharp.Core
             return res != 0;
         }
 
+        public static int git_index_name_entrycount(IndexSafeHandle index)
+        {
+            uint count = NativeMethods.git_index_name_entrycount(index);
+            if ((long)count > int.MaxValue)
+            {
+                throw new LibGit2SharpException("Index name entry count exceeds size of int");
+            }
+            return (int)count;
+        }
+
+        public static IndexNameEntrySafeHandle git_index_name_get_byindex(IndexSafeHandle index, UIntPtr n)
+        {
+            return NativeMethods.git_index_name_get_byindex(index, n);
+        }
+
         public static IndexSafeHandle git_index_open(FilePath indexpath)
         {
             using (ThreadAffinity())

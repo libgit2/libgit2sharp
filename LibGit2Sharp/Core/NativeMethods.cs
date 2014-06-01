@@ -571,6 +571,12 @@ namespace LibGit2Sharp.Core
         internal static extern int git_index_has_conflicts(IndexSafeHandle index);
 
         [DllImport(libgit2)]
+        internal static extern uint git_index_name_entrycount(IndexSafeHandle handle);
+
+        [DllImport(libgit2)]
+        internal static extern IndexNameEntrySafeHandle git_index_name_get_byindex(IndexSafeHandle handle, UIntPtr n);
+
+        [DllImport(libgit2)]
         internal static extern int git_index_open(
             out IndexSafeHandle index,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictFilePathMarshaler))] FilePath indexpath);
