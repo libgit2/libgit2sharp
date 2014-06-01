@@ -49,7 +49,7 @@ namespace LibGit2Sharp.Tests
          * [InlineData(true, "ancestor-only.txt", false, false, FileStatus.Nonexistent, 0)]
          * [InlineData(false, "ancestor-only.txt", false, false, FileStatus.Nonexistent, 0)]
          */
-        public void CanClearConflictsByRemovingFromTheIndex(
+        public void CanResolveConflictsByRemovingFromTheIndex(
             bool removeFromWorkdir, string filename, bool existsBeforeRemove, bool existsAfterRemove, FileStatus lastStatus, int removedIndexEntries)
         {
             var path = CloneMergedTestRepo();
