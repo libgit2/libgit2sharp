@@ -161,8 +161,8 @@ namespace LibGit2Sharp.Core
             using (ThreadAffinity())
             {
                 int res = NativeMethods.git_branch_delete(reference);
-                reference.SetHandleAsInvalid();
                 Ensure.ZeroResult(res);
+                reference.SetHandleAsInvalid();
             }
         }
 
