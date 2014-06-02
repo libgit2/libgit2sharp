@@ -551,14 +551,14 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
-        public void MovingARemoteTrackingBranchThrows()
+        public void RenamingARemoteTrackingBranchThrows()
         {
             using (var repo = new Repository(StandardTestRepoPath))
             {
                 Branch master = repo.Branches["refs/remotes/origin/master"];
                 Assert.True(master.IsRemote);
 
-                Assert.Throws<LibGit2SharpException>(() => repo.Branches.Move(master, "new_name", true));
+                Assert.Throws<LibGit2SharpException>(() => repo.Branches.Rename(master, "new_name", true));
             }
         }
 
@@ -821,7 +821,7 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
-        public void CanMoveABranch()
+        public void CanRenameABranch()
         {
             string path = CloneBareTestRepo();
             using (var repo = new Repository(path))
@@ -832,7 +832,7 @@ namespace LibGit2Sharp.Tests
                 var br2 = repo.Branches["br2"];
                 Assert.NotNull(br2);
 
-                Branch newBranch = repo.Branches.Move("br2", "br3");
+                Branch newBranch = repo.Branches.Rename("br2", "br3");
 
                 Assert.Equal("br3", newBranch.Name);
 
@@ -846,16 +846,16 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
-        public void BlindlyMovingABranchOverAnExistingOneThrows()
+        public void BlindlyRenamingABranchOverAnExistingOneThrows()
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                Assert.Throws<NameConflictException>(() => repo.Branches.Move("br2", "test"));
+                Assert.Throws<NameConflictException>(() => repo.Branches.Rename("br2", "test"));
             }
         }
 
         [Fact]
-        public void CanMoveABranchWhileOverwritingAnExistingOne()
+        public void CanRenameABranchWhileOverwritingAnExistingOne()
         {
             string path = CloneBareTestRepo();
             using (var repo = new Repository(path))
@@ -868,7 +868,7 @@ namespace LibGit2Sharp.Tests
                 Branch br2 = repo.Branches["br2"];
                 Assert.NotNull(br2);
 
-                Branch newBranch = repo.Branches.Move("br2", "test", true);
+                Branch newBranch = repo.Branches.Rename("br2", "test", true);
                 Assert.Equal("test", newBranch.Name);
 
                 Assert.Null(repo.Branches["br2"]);
@@ -1000,18 +1000,18 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
-        public void MovingABranchIncludesTheCorrectReflogEntries()
+        public void RenamingABranchIncludesTheCorrectReflogEntries()
         {
             string path = CloneStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 EnableRefLog(repo);
                 var master = repo.Branches["master"];
-                var newMaster = repo.Branches.Move(master, "new-master");
+                var newMaster = repo.Branches.Rename(master, "new-master");
                 AssertRefLogEntry(repo, newMaster.CanonicalName, newMaster.Tip.Id,
                     "branch: renamed refs/heads/master to refs/heads/new-master");
 
-                newMaster = repo.Branches.Move(newMaster, "new-master2", null, "MOVE");
+                newMaster = repo.Branches.Rename(newMaster, "new-master2", null, "MOVE");
                 AssertRefLogEntry(repo, newMaster.CanonicalName, newMaster.Tip.Id, "MOVE");
             }
         }
