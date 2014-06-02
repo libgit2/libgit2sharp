@@ -5,8 +5,38 @@
  - Source code: <https://github.com/libgit2/libgit2sharp>
  - NuGet package: <http://nuget.org/List/Packages/LibGit2Sharp>
  - Issue tracker: <https://github.com/libgit2/libgit2sharp/issues>
- - CI server: <http://teamcity.codebetter.com/project.html?projectId=project127&guest=1>
  - @libgit2sharp: <http://twitter.com/libgit2sharp>
+ - CI servers:
+  - CodeBetter TeamCity: <http://teamcity.codebetter.com/project.html?projectId=LibGit2Sharp&guest=1>
+  - Travis: <https://travis-ci.org/libgit2/libgit2sharp>
+
+## v0.18.0 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.17.0...v0.18.0))
+
+### Additions
+
+ - Introduce repo.Revert() (#706)
+ - Enhanced control over Merge behavior through MergeOptions (#685)
+ - Introduce repo.Network.Remotes.Remove() (#729, #731)
+ - Teach repo.Network.ListReferences() to accept a Credentials (#647, #704)
+ - Introduce Reference.IsValidName() (#680, #691)
+ - Introduce Remote.IsValidName() (#679, #690)
+ - Expose StatusOptions.RecurseIgnoredDirs (#728)
+ - Introduce GlobalSettings.Features() (#717)
+ - Make Repository.Version output the libgit2 built-in features (#676, #694)
+
+### Changes
+
+ - LibGit2Sharp now requires .Net 4.0 (#654, #678)
+ - Repository.Checkout() and Branch.Checkout() overloads now accept a CheckoutOptions parameter (#685)
+ - Deprecate repo.Refs.IsValidName() (#680, #691)
+ - Deprecate repo.Network.Remotes.IsValidName() (#679, #690)
+ - Deprecate repo.Branches.Move() in favor of repo.Branches.Rename() (#737, #738)
+ - Update libgit2 binaries to libgit2/libgit2@2f6f6eb
+
+### Fixes
+
+ - Do not fail enumerating the ObjectDatabase content when an unexpected file is found under .git/objects (#704)
+ - Fix update of HEAD when committing against a bare repository with a temporary working directory (#692)
 
 ## v0.17.0 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.16.0...v0.17.0))
 
