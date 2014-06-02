@@ -213,6 +213,17 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string canonical_branch_name);
 
         [DllImport(libgit2)]
+        internal static extern int git_remote_rename(
+            RemoteSafeHandle remote,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string new_name,
+            git_remote_rename_problem_cb callback,
+            IntPtr payload);
+
+        internal delegate int git_remote_rename_problem_cb(
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(LaxUtf8NoCleanupMarshaler))] string problematic_refspec,
+            IntPtr payload);
+
+        [DllImport(libgit2)]
         internal static extern int git_branch_upstream_name(
             GitBuf buf,
             RepositorySafeHandle repo,

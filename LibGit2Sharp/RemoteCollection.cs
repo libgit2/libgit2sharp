@@ -6,6 +6,7 @@ using System.Globalization;
 using System.Linq;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Handles;
+using LibGit2Sharp.Handlers;
 
 namespace LibGit2Sharp
 {
@@ -136,6 +137,22 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(name, "name");
 
             Proxy.git_remote_delete(repository.Handle, name);
+        }
+
+        /// <summary>
+        /// Renames an existing <see cref="Remote"/>.
+        /// </summary>
+        /// <param name="name">The current remote name.</param>
+        /// <param name="newName">The new name the existing remote should bear.</param>
+        /// <param name"renameCallback">The callback to be used when problems with renaming occur. (e.g. non-default fetch refspecs)</para>
+        /// <returns>A new <see cref="Remote"/>.</returns>
+        public virtual Remote Rename(string name, string newName, RemoteRenameFailureHandler callback = null)
+        {
+            Ensure.ArgumentNotNull(name, "name");
+            Ensure.ArgumentNotNull(newName, "newName");
+
+            Proxy.git_remote_rename(repository.Handle, name, newName, callback);
+            return this[newName];
         }
 
         private string DebuggerDisplay

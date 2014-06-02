@@ -6,6 +6,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using LibGit2Sharp.Core.Handles;
+using LibGit2Sharp.Handlers;
 
 // ReSharper disable InconsistentNaming
 namespace LibGit2Sharp.Core
@@ -1956,6 +1957,33 @@ namespace LibGit2Sharp.Core
         public static string git_remote_name(RemoteSafeHandle remote)
         {
             return NativeMethods.git_remote_name(remote);
+        }
+
+        public static void git_remote_rename(RepositorySafeHandle repo, string name, string new_name, RemoteRenameFailureHandler callback)
+        {
+            using (ThreadAffinity())
+            {
+                using (RemoteSafeHandle remote = git_remote_load(repo, name, false))
+                {
+                    if (remote == null)
+                    {
+                        return;
+                    }
+
+                    if (callback == null)
+                    {
+                        callback = (problem) => {};
+                    }
+
+                    int res = NativeMethods.git_remote_rename(
+                        remote,
+                        new_name,
+                        (problem, payload) => { callback(problem); return 0; },
+                        IntPtr.Zero);
+
+                    Ensure.ZeroResult(res);
+                }
+            }
         }
 
         public static void git_remote_save(RemoteSafeHandle remote)

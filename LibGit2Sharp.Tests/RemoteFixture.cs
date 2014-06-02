@@ -214,5 +214,95 @@ namespace LibGit2Sharp.Tests
                 repo.Network.Remotes.Remove("i_dont_exist");
             }
         }
+
+        [Fact]
+        public void CanRenameExistingRemote()
+        {
+            var path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
+            {
+                Assert.NotNull(repo.Network.Remotes["origin"]);
+                Assert.Null(repo.Network.Remotes["renamed"]);
+                Assert.NotEmpty(repo.Refs.FromGlob("refs/remotes/origin/*"));
+                Assert.Empty(repo.Refs.FromGlob("refs/remotes/renamed/*"));
+
+                repo.Network.Remotes.Rename("origin", "renamed", problem => Assert.True(false));
+                Assert.Null(repo.Network.Remotes["origin"]);
+                Assert.Empty(repo.Refs.FromGlob("refs/remotes/origin/*"));
+
+                Assert.NotNull(repo.Network.Remotes["renamed"]);
+                Assert.NotEmpty(repo.Refs.FromGlob("refs/remotes/renamed/*"));
+            }
+        }
+
+        [Fact]
+        public void CanRenameNonExistingRemote()
+        {
+            using (var repo = new Repository(StandardTestRepoPath))
+            {
+                Assert.Null(repo.Network.Remotes["i_dont_exist"]);
+
+                repo.Network.Remotes.Rename("i_dont_exist", "i_dont_either", problem => Assert.True(false));
+                Assert.Null(repo.Network.Remotes["i_dont_either"]);
+            }
+        }
+
+        [Fact]
+        public void ReportsRemotesWithNonDefaultRefSpecs()
+        {
+            var path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
+            {
+                Assert.NotNull(repo.Network.Remotes["origin"]);
+
+                repo.Network.Remotes.Update(
+                    repo.Network.Remotes["origin"],
+                    r => r.FetchRefSpecs = new[] { "+refs/heads/*:refs/remotes/upstream/*" });
+
+                repo.Network.Remotes.Rename("origin", "nondefault", problem => Assert.Equal("+refs/heads/*:refs/remotes/upstream/*", problem));
+
+                Assert.NotEmpty(repo.Refs.FromGlob("refs/remotes/nondefault/*"));
+                Assert.Empty(repo.Refs.FromGlob("refs/remotes/upstream/*"));
+
+                Assert.Null(repo.Network.Remotes["origin"]);
+                Assert.NotNull(repo.Network.Remotes["nondefault"]);
+            }
+        }
+
+        [Fact]
+        public void DoesNotReportRemotesWithAlreadyExistingRefSpec()
+        {
+            var path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
+            {
+                Assert.NotNull(repo.Network.Remotes["origin"]);
+
+                repo.Refs.Add("refs/remotes/renamed/master", "32eab9cb1f450b5fe7ab663462b77d7f4b703344");
+
+                repo.Network.Remotes.Rename("origin", "renamed", problem => Assert.True(false));
+
+                Assert.NotEmpty(repo.Refs.FromGlob("refs/remotes/renamed/*"));
+                Assert.Empty(repo.Refs.FromGlob("refs/remotes/origin/*"));
+
+                Assert.Null(repo.Network.Remotes["origin"]);
+                Assert.NotNull(repo.Network.Remotes["renamed"]);
+            }
+        }
+
+        [Fact]
+        public void CanNotRenameWhenRemoteWithSameNameExists()
+        {
+            const string name = "upstream";
+            const string url = "https://github.com/libgit2/libgit2sharp.git";
+
+            var path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
+            {
+                Assert.NotNull(repo.Network.Remotes["origin"]);
+                repo.Network.Remotes.Add(name, url);
+
+                Assert.Throws<NameConflictException>(() => repo.Network.Remotes.Rename("origin", "upstream"));
+            }
+        }
     }
 }

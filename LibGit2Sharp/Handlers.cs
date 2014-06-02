@@ -79,6 +79,16 @@
     public delegate void UnmatchedPathHandler(string unmatchedPath);
 
     /// <summary>
+    /// Delegate definition for remote rename failure callback.
+    /// <para>
+    ///   This callback will be called to notify the caller of fetch refspecs
+    ///   that haven't been automatically updated and need potential manual tweaking.
+    /// </para>
+    /// </summary>
+    /// <param name="problematicRefspec">The refspec which didn't match the default.</param>
+    public delegate void RemoteRenameFailureHandler(string problematicRefspec);
+
+    /// <summary>
     /// The stages of pack building.
     /// </summary>
     public enum PackBuilderStage
