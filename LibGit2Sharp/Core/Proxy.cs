@@ -1070,17 +1070,23 @@ namespace LibGit2Sharp.Core
 
         #region git_message_
 
-        public static string git_message_prettify(string message)
+        public static string git_message_prettify(string message, char? commentChar)
         {
             if (string.IsNullOrEmpty(message))
             {
                 return string.Empty;
             }
 
+            int comment = commentChar.GetValueOrDefault();
+            if (comment > sbyte.MaxValue)
+            {
+                throw new InvalidOperationException("Only single byte characters are allowed as commentary characters in a message (eg. '#').");
+            }
+
             using (ThreadAffinity())
             using (var buf = new GitBuf())
             {
-                int res= NativeMethods.git_message_prettify(buf, message, false, (sbyte)'#');
+                int res = NativeMethods.git_message_prettify(buf, message, false, (sbyte)comment);
                 Ensure.Int32Result(res);
 
                 return LaxUtf8Marshaler.FromNative(buf.ptr) ?? string.Empty;

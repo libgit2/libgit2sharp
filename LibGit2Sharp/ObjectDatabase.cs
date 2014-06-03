@@ -259,7 +259,32 @@ namespace LibGit2Sharp
         /// <param name="tree">The <see cref="Tree"/> of the <see cref="Commit"/> to be created.</param>
         /// <param name="parents">The parents of the <see cref="Commit"/> to be created.</param>
         /// <returns>The created <see cref="Commit"/>.</returns>
+        [Obsolete("This will be removed in future relases. Use the overload CreateCommit(Signature, Signature, string, Tree, IEnumerable<Commit>, bool, char).")]
         public virtual Commit CreateCommit(Signature author, Signature committer, string message, bool prettifyMessage, Tree tree, IEnumerable<Commit> parents)
+        {
+            return CreateCommit(author, committer, message, tree, parents, prettifyMessage);
+        }
+
+        /// <summary>
+        /// Inserts a <see cref="Commit"/> into the object database, referencing an existing <see cref="Tree"/>.
+        /// <para>
+        /// Prettifing the message includes:
+        /// * Removing empty lines from the beginning and end.
+        /// * Removing trailing spaces from every line.
+        /// * Turning multiple consecutive empty lines between paragraphs into just one empty line.
+        /// * Ensuring the commit message ends with a newline.
+        /// * Removing every line starting with "#".
+        /// </para>
+        /// </summary>
+        /// <param name="author">The <see cref="Signature"/> of who made the change.</param>
+        /// <param name="committer">The <see cref="Signature"/> of who added the change to the repository.</param>
+        /// <param name="message">The description of why a change was made to the repository.</param>
+        /// <param name="tree">The <see cref="Tree"/> of the <see cref="Commit"/> to be created.</param>
+        /// <param name="parents">The parents of the <see cref="Commit"/> to be created.</param>
+        /// <param name="prettifyMessage">True to prettify the message, or false to leave it as is.</param>
+        /// <param name="commentChar">Character that lines start with to be stripped if prettifyMessage is true.</param>
+        /// <returns>The created <see cref="Commit"/>.</returns>
+        public virtual Commit CreateCommit(Signature author, Signature committer, string message, Tree tree, IEnumerable<Commit> parents, bool prettifyMessage, char? commentChar = null)
         {
             Ensure.ArgumentNotNull(message, "message");
             Ensure.ArgumentDoesNotContainZeroByte(message, "message");
@@ -270,7 +295,7 @@ namespace LibGit2Sharp
 
             if (prettifyMessage)
             {
-                message = Proxy.git_message_prettify(message);
+                message = Proxy.git_message_prettify(message, commentChar);
             }
             GitOid[] parentIds = parents.Select(p => p.Id.Oid).ToArray();
 
@@ -296,7 +321,7 @@ namespace LibGit2Sharp
             Ensure.ArgumentDoesNotContainZeroByte(name, "name");
             Ensure.ArgumentDoesNotContainZeroByte(message, "message");
 
-            string prettifiedMessage = Proxy.git_message_prettify(message);
+            string prettifiedMessage = Proxy.git_message_prettify(message, null);
 
             ObjectId tagId = Proxy.git_tag_annotation_create(repo.Handle, name, target, tagger, prettifiedMessage);
 

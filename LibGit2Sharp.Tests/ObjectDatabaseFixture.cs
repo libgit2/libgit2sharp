@@ -336,8 +336,8 @@ namespace LibGit2Sharp.Tests
                 Assert.IsType<GitLink>(te.Target);
                 Assert.Equal(objectId, te.Target.Id);
 
-                var commitWithSubmodule = repo.ObjectDatabase.CreateCommit(Constants.Signature, Constants.Signature, "Submodule!", false,
-                                                                           tree, new[] { repo.Head.Tip });
+                var commitWithSubmodule = repo.ObjectDatabase.CreateCommit(Constants.Signature, Constants.Signature, "Submodule!",
+                                                                           tree, new[] { repo.Head.Tip }, false);
                 repo.Reset(ResetMode.Soft, commitWithSubmodule);
 
                 var submodule = repo.Submodules[submodulePath];
@@ -373,7 +373,7 @@ namespace LibGit2Sharp.Tests
 
                 Tree tree = repo.ObjectDatabase.CreateTree(td);
 
-                Commit commit = repo.ObjectDatabase.CreateCommit(Constants.Signature, Constants.Signature, "Ü message", true, tree, new[] { repo.Head.Tip });
+                Commit commit = repo.ObjectDatabase.CreateCommit(Constants.Signature, Constants.Signature, "Ü message", tree, new[] { repo.Head.Tip }, true);
 
                 Branch newHead = repo.Head;
 
@@ -454,7 +454,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(BareTestRepoPath))
             {
                 Assert.Throws<ArgumentException>(() => repo.ObjectDatabase.CreateCommit(
-                    Constants.Signature, Constants.Signature, message, false, repo.Head.Tip.Tree, Enumerable.Empty<Commit>()));
+                    Constants.Signature, Constants.Signature, message, repo.Head.Tip.Tree, Enumerable.Empty<Commit>(), false));
             }
         }
 

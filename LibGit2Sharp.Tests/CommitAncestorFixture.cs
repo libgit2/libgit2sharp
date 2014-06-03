@@ -120,9 +120,9 @@ namespace LibGit2Sharp.Tests
                 random.Author,
                 random.Committer,
                 "This is a test commit created by 'CommitFixture.CannotFindCommonAncestorForCommmitsWithoutCommonAncestor'",
-                false,
                 random.Tree,
-                Enumerable.Empty<Commit>());
+                Enumerable.Empty<Commit>(),
+                false);
 
             return orphanedCommit;
         }

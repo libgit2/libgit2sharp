@@ -158,8 +158,8 @@ namespace LibGit2Sharp.Tests
 
                 var blob = repo.ObjectDatabase.CreateBlob(Stream.Null);
                 var tree = repo.ObjectDatabase.CreateTree(new TreeDefinition().Add("yoink", blob, Mode.NonExecutableFile));
-                var commit = repo.ObjectDatabase.CreateCommit(Constants.Signature, Constants.Signature, "yoink", false,
-                                                 tree, Enumerable.Empty<Commit>());
+                var commit = repo.ObjectDatabase.CreateCommit(Constants.Signature, Constants.Signature, "yoink",
+                                                 tree, Enumerable.Empty<Commit>(), false);
 
                 var branch = repo.CreateBranch("yoink", commit);
                 var log = repo.Refs.Log(branch.CanonicalName);
@@ -178,8 +178,8 @@ namespace LibGit2Sharp.Tests
 
                 var blob = repo.ObjectDatabase.CreateBlob(Stream.Null);
                 var tree = repo.ObjectDatabase.CreateTree(new TreeDefinition().Add("yoink", blob, Mode.NonExecutableFile));
-                var commit = repo.ObjectDatabase.CreateCommit(Constants.Signature, Constants.Signature, "yoink", false,
-                                                 tree, Enumerable.Empty<Commit>());
+                var commit = repo.ObjectDatabase.CreateCommit(Constants.Signature, Constants.Signature, "yoink",
+                                                 tree, Enumerable.Empty<Commit>(), false);
 
                 var direct = repo.Refs.Add("refs/heads/direct", commit.Id);
                 AssertRefLogEntry(repo, direct.CanonicalName, direct.ResolveToDirectReference().Target.Id, null);

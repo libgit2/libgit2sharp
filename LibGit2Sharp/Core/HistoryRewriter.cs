@@ -234,9 +234,9 @@ namespace LibGit2Sharp.Core
             var newCommit = repo.ObjectDatabase.CreateCommit(newHeader.Author,
                                                              newHeader.Committer,
                                                              newHeader.Message,
-                                                             true,
                                                              newTree,
-                                                             mappedNewParents);
+                                                             mappedNewParents,
+                                                             true);
 
             // Record the rewrite
             objectMap[commit] = newCommit;

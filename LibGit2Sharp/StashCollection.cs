@@ -87,7 +87,7 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNull(stasher, "stasher");
 
-            string prettifiedMessage = Proxy.git_message_prettify(string.IsNullOrEmpty(message) ? string.Empty : message);
+            string prettifiedMessage = Proxy.git_message_prettify(string.IsNullOrEmpty(message) ? string.Empty : message, null);
 
             ObjectId oid = Proxy.git_stash_save(repo.Handle, stasher, prettifiedMessage, options);
 

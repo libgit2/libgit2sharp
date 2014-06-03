@@ -935,7 +935,7 @@ namespace LibGit2Sharp
                 }
             }
 
-            Commit result = ObjectDatabase.CreateCommit(author, committer, message, true, tree, parents);
+            Commit result = ObjectDatabase.CreateCommit(author, committer, message, tree, parents, options.PrettifyMessage, options.CommentaryChar);
 
             Proxy.git_repository_state_cleanup(handle);
 
