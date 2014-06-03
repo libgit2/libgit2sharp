@@ -69,6 +69,15 @@ namespace LibGit2Sharp.Tests
             AssertLocalClone(BareTestRepoPath);
         }
 
+        [Fact]
+        public void CanCloneALocalRepositoryFromANewlyCreatedTemporaryPath()
+        {
+            var path = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString().Substring(0, 8));
+            SelfCleaningDirectory scd = BuildSelfCleaningDirectory(path);
+            Repository.Init(scd.DirectoryPath);
+            AssertLocalClone(scd.DirectoryPath);
+        }
+
         [Theory]
         [InlineData("http://github.com/libgit2/TestGitRepository")]
         [InlineData("https://github.com/libgit2/TestGitRepository")]
