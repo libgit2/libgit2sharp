@@ -196,21 +196,6 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Rename an existing local branch
-        /// </summary>
-        /// <param name="branch">The current local branch.</param>
-        /// <param name="newName">The new name the existing branch should bear.</param>
-        /// <param name="signature">Identity used for updating the reflog</param>
-        /// <param name="logMessage">Message added to the reflog. If null, the default is "branch: renamed [old] to [new]".</param>
-        /// <param name="allowOverwrite">True to allow silent overwriting a potentially existing branch, false otherwise.</param>
-        /// <returns>A new <see cref="Branch"/>.</returns>
-        [Obsolete("This will be removed in the next release. Please use BranchCollection.Rename(Branch, string, Signature, string, bool) instead.")]
-        public virtual Branch Move(Branch branch, string newName, Signature signature, string logMessage = null, bool allowOverwrite = false)
-        {
-            return Rename(branch, newName, signature, logMessage, allowOverwrite);
-        }
-
-        /// <summary>
         /// Rename an existing local branch, using the default reflog message
         /// </summary>
         /// <param name="branch">The current local branch.</param>
@@ -220,19 +205,6 @@ namespace LibGit2Sharp
         public virtual Branch Rename(Branch branch, string newName, bool allowOverwrite = false)
         {
             return Rename(branch, newName, null, null, allowOverwrite);
-        }
-
-        /// <summary>
-        /// Rename an existing local branch, using the default reflog message
-        /// </summary>
-        /// <param name="branch">The current local branch.</param>
-        /// <param name="newName">The new name the existing branch should bear.</param>
-        /// <param name="allowOverwrite">True to allow silent overwriting a potentially existing branch, false otherwise.</param>
-        /// <returns>A new <see cref="Branch"/>.</returns>
-        [Obsolete("This will be removed in the next release. Please use BranchCollection.Rename(Branch, string, bool) instead.")]
-        public virtual Branch Move(Branch branch, string newName, bool allowOverwrite = false)
-        {
-            return Rename(branch, newName, allowOverwrite);
         }
 
         /// <summary>

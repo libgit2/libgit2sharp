@@ -585,37 +585,6 @@ namespace LibGit2Sharp
         /// </para>
         /// </summary>
         /// <param name="committishOrBranchSpec">A revparse spec for the commit or branch to checkout.</param>
-        /// <param name="checkoutModifiers"><see cref="CheckoutModifiers"/> controlling checkout behavior.</param>
-        /// <param name="onCheckoutProgress"><see cref="CheckoutProgressHandler"/> that checkout progress is reported through.</param>
-        /// <param name="checkoutNotifications"><see cref="CheckoutNotificationOptions"/> to manage checkout notifications.</param>
-        /// <param name="signature">Identity for use when updating the reflog.</param>
-        /// <returns>The <see cref="Branch"/> that was checked out.</returns>
-        [Obsolete("This overload will be removed in the next release. Please use Repository.Checkout(string, CheckoutOptions, Signature) instead.")]
-        public Branch Checkout(string committishOrBranchSpec, CheckoutModifiers checkoutModifiers, CheckoutProgressHandler onCheckoutProgress, CheckoutNotificationOptions checkoutNotifications, Signature signature = null)
-        {
-            var options = new CheckoutOptions()
-            {
-                CheckoutModifiers = checkoutModifiers,
-                OnCheckoutProgress = onCheckoutProgress
-            };
-
-            if (checkoutNotifications != null)
-            {
-                options.OnCheckoutNotify = checkoutNotifications.CheckoutNotifyHandler;
-                options.CheckoutNotifyFlags = checkoutNotifications.NotifyFlags;
-            }
-
-            return Checkout(committishOrBranchSpec, options, signature);
-        }
-
-        /// <summary>
-        /// Checkout the specified <see cref="Branch"/>, reference or SHA.
-        /// <para>
-        ///   If the committishOrBranchSpec parameter resolves to a branch name, then the checked out HEAD will
-        ///   will point to the branch. Otherwise, the HEAD will be detached, pointing at the commit sha.
-        /// </para>
-        /// </summary>
-        /// <param name="committishOrBranchSpec">A revparse spec for the commit or branch to checkout.</param>
         /// <param name="options"><see cref="CheckoutOptions"/> controlling checkout behavior.</param>
         /// <param name="signature">Identity for use when updating the reflog.</param>
         /// <returns>The <see cref="Branch"/> that was checked out.</returns>
@@ -666,37 +635,6 @@ namespace LibGit2Sharp
         /// as a detached HEAD.
         /// </summary>
         /// <param name="branch">The <see cref="Branch"/> to check out.</param>
-        /// <param name="checkoutModifiers"><see cref="CheckoutModifiers"/> controlling checkout behavior.</param>
-        /// <param name="onCheckoutProgress"><see cref="CheckoutProgressHandler"/> that checkout progress is reported through.</param>
-        /// <param name="checkoutNotificationOptions"><see cref="CheckoutNotificationOptions"/> to manage checkout notifications.</param>
-        /// <param name="signature">Identity for use when updating the reflog.</param>
-        /// <returns>The <see cref="Branch"/> that was checked out.</returns>
-        [Obsolete("This overload will be removed in the next release. Please use Repository.Checkout(Branch, CheckoutOptions, Signature) instead.")]
-        public Branch Checkout(Branch branch, CheckoutModifiers checkoutModifiers, CheckoutProgressHandler onCheckoutProgress, CheckoutNotificationOptions checkoutNotificationOptions, Signature signature = null)
-        {
-            Ensure.ArgumentNotNull(branch, "branch");
-
-            var options = new CheckoutOptions
-               {
-                   CheckoutModifiers = checkoutModifiers,
-                   OnCheckoutProgress = onCheckoutProgress,
-               };
-
-            if (checkoutNotificationOptions != null)
-            {
-                options.OnCheckoutNotify = checkoutNotificationOptions.CheckoutNotifyHandler;
-                options.CheckoutNotifyFlags = checkoutNotificationOptions.NotifyFlags;
-            }
-
-            return Checkout(branch, options, signature);
-        }
-
-        /// <summary>
-        /// Checkout the tip commit of the specified <see cref="Branch"/> object. If this commit is the
-        /// current tip of the branch, will checkout the named branch. Otherwise, will checkout the tip commit
-        /// as a detached HEAD.
-        /// </summary>
-        /// <param name="branch">The <see cref="Branch"/> to check out.</param>
         /// <param name="options"><see cref="CheckoutOptions"/> controlling checkout behavior.</param>
         /// <param name="signature">Identity for use when updating the reflog.</param>
         /// <returns>The <see cref="Branch"/> that was checked out.</returns>
@@ -723,39 +661,6 @@ namespace LibGit2Sharp
             {
                 Checkout(branch.Tip.Tree, options, branch.Tip.Id.Sha, branch.Name, signature);
             }
-
-            return Head;
-        }
-
-        /// <summary>
-        /// Checkout the specified <see cref="LibGit2Sharp.Commit"/>.
-        /// <para>
-        ///   Will detach the HEAD and make it point to this commit sha.
-        /// </para>
-        /// </summary>
-        /// <param name="commit">The <see cref="LibGit2Sharp.Commit"/> to check out.</param>
-        /// <param name="checkoutModifiers"><see cref="CheckoutModifiers"/> controlling checkout behavior.</param>
-        /// <param name="onCheckoutProgress"><see cref="CheckoutProgressHandler"/> that checkout progress is reported through.</param>
-        /// <param name="checkoutNotificationOptions"><see cref="CheckoutNotificationOptions"/> to manage checkout notifications.</param>
-        /// <param name="signature">Identity for use when updating the reflog.</param>
-        /// <returns>The <see cref="Branch"/> that was checked out.</returns>
-        [Obsolete("This overload will be removed in the next release. Please use Repository.Checkout(Commit, CheckoutOptions, Signature) instead.")]
-        public Branch Checkout(Commit commit, CheckoutModifiers checkoutModifiers, CheckoutProgressHandler onCheckoutProgress, CheckoutNotificationOptions checkoutNotificationOptions, Signature signature = null)
-        {
-
-            var options = new CheckoutOptions
-            {
-                CheckoutModifiers = checkoutModifiers,
-                OnCheckoutProgress = onCheckoutProgress,
-            };
-
-            if (checkoutNotificationOptions != null)
-            {
-                options.OnCheckoutNotify = checkoutNotificationOptions.CheckoutNotifyHandler;
-                options.CheckoutNotifyFlags = checkoutNotificationOptions.NotifyFlags;
-            }
-
-            Checkout(commit.Tree, options, commit.Id.Sha, commit.Id.Sha, signature);
 
             return Head;
         }

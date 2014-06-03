@@ -97,19 +97,5 @@ namespace LibGit2Sharp
 
             return branches.Rename(branch, newName, allowOverwrite);
         }
-
-        /// <summary>
-        /// Rename an existing local branch, using the default reflog message
-        /// </summary>
-        /// <param name="currentName">The current branch name.</param>
-        /// <param name="newName">The new name the existing branch should bear.</param>
-        /// <param name="allowOverwrite">True to allow silent overwriting a potentially existing branch, false otherwise.</param>
-        /// <param name="branches">The <see cref="BranchCollection"/> being worked with.</param>
-        /// <returns>A new <see cref="Branch"/>.</returns>
-        [Obsolete("This will be removed in the next release. Please use BranchCollection.Rename(string, string, bool) instead.")]
-        public static Branch Move(this BranchCollection branches, string currentName, string newName, bool allowOverwrite = false)
-        {
-            return Rename(branches, currentName, newName, allowOverwrite);
-        }
     }
 }

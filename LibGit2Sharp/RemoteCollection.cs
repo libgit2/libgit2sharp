@@ -127,17 +127,6 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Determines if the proposed remote name is well-formed.
-        /// </summary>
-        /// <param name="name">The name to be checked.</param>
-        /// <returns>true is the name is valid; false otherwise.</returns>
-        [Obsolete("This method will be removed in the next release. Please use Remote.IsValidName(string) instead.")]
-        public virtual bool IsValidName(string name)
-        {
-            return Remote.IsValidName(name);
-        }
-
-        /// <summary>
         /// Deletes the <see cref="Remote"/> with the specified name.
         /// </summary>
         /// <param name="name">The name of the remote to remove.</param>
