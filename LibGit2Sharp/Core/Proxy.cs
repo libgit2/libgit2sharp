@@ -928,6 +928,26 @@ namespace LibGit2Sharp.Core
             }
         }
 
+        public static int git_index_reuc_entrycount(IndexSafeHandle index)
+        {
+            uint count = NativeMethods.git_index_reuc_entrycount(index);
+            if ((long)count > int.MaxValue)
+            {
+                throw new LibGit2SharpException("Index REUC entry count exceeds size of int");
+            }
+            return (int)count;
+        }
+
+        public static IndexReucEntrySafeHandle git_index_reuc_get_byindex(IndexSafeHandle index, UIntPtr n)
+        {
+            return NativeMethods.git_index_reuc_get_byindex(index, n);
+        }
+
+        public static IndexReucEntrySafeHandle git_index_reuc_get_bypath(IndexSafeHandle index, string path)
+        {
+            return NativeMethods.git_index_reuc_get_bypath(index, path);
+        }
+
         public static void git_index_write(IndexSafeHandle index)
         {
             using (ThreadAffinity())

@@ -40,7 +40,19 @@ namespace LibGit2Sharp
             }
         }
 
-        #region IEnumerable<IndexEntry> Members
+        /// <summary>
+        /// Get the <see cref="IndexReucEntryCollection"/> that contains
+        /// the list of conflicts that have been resolved.
+        /// </summary>
+        public virtual IndexReucEntryCollection ResolvedConflicts
+        {
+            get
+            {
+                return new IndexReucEntryCollection(repo);
+            }
+        }
+
+        #region IEnumerable<Conflict> Members
 
         private List<Conflict> AllConflicts()
         {

@@ -585,6 +585,18 @@ namespace LibGit2Sharp.Core
             IndexSafeHandle index,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictFilePathMarshaler))] FilePath path);
 
+
+        [DllImport(libgit2)]
+        internal static extern uint git_index_reuc_entrycount(IndexSafeHandle handle);
+
+        [DllImport(libgit2)]
+        internal static extern IndexReucEntrySafeHandle git_index_reuc_get_byindex(IndexSafeHandle handle, UIntPtr n);
+
+        [DllImport(libgit2)]
+        internal static extern IndexReucEntrySafeHandle git_index_reuc_get_bypath(
+            IndexSafeHandle handle,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictFilePathMarshaler))] FilePath path);
+
         [DllImport(libgit2)]
         internal static extern int git_index_write(IndexSafeHandle index);
 

@@ -80,6 +80,8 @@
     <Compile Include="CommitOptions.cs" />
     <Compile Include="CommitSortStrategies.cs" />
     <Compile Include="CompareOptions.cs" />
+    <Compile Include="Core\GitIndexReucEntry.cs" />
+    <Compile Include="Core\Handles\IndexReucEntrySafeHandle.cs" />
     <Compile Include="ContentChangeStats.cs" />
     <Compile Include="BuiltInFeatures.cs" />
     <Compile Include="Core\GitCheckoutOptsWrapper.cs" />
@@ -93,6 +95,8 @@
     <Compile Include="EmptyCommitException.cs" />
     <Compile Include="FetchOptions.cs" />
     <Compile Include="GlobalSettings.cs" />
+    <Compile Include="IndexReucEntry.cs" />
+    <Compile Include="IndexReucEntryCollection.cs" />
     <Compile Include="MergeOptions.cs" />
     <Compile Include="MergeResult.cs" />
     <Compile Include="PatchEntryChanges.cs" />
