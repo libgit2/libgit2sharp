@@ -10,6 +10,20 @@
   - CodeBetter TeamCity: <http://teamcity.codebetter.com/project.html?projectId=LibGit2Sharp&guest=1>
   - Travis: <https://travis-ci.org/libgit2/libgit2sharp>
 
+## v0.18.1 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.18.0...v0.18.1))
+
+### Additions
+
+ - Make CommitOptions expose additional properties to control how the message should be prettified (#744, #745)
+
+### Changes
+
+ - Update libgit2 binaries to libgit2/libgit2@90befde
+
+### Fixes
+
+ - Fix issue when cloning from a different local volume (#742, #743)
+
 ## v0.18.0 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.17.0...v0.18.0))
 
 ### Additions
