@@ -36,20 +36,20 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        private void AssertLocalClone(string path)
+        private void AssertLocalClone(string url, string path = null, bool isCloningAnEmptyRepository = false)
         {
             var scd = BuildSelfCleaningDirectory();
 
-            string clonedRepoPath = Repository.Clone(path, scd.DirectoryPath);
+            string clonedRepoPath = Repository.Clone(url, scd.DirectoryPath);
 
             using (var clonedRepo = new Repository(clonedRepoPath))
-            using (var originalRepo = new Repository(BareTestRepoPath))
+            using (var originalRepo = new Repository(path ?? url))
             {
                 Assert.NotEqual(originalRepo.Info.Path, clonedRepo.Info.Path);
                 Assert.Equal(originalRepo.Head, clonedRepo.Head);
 
                 Assert.Equal(originalRepo.Branches.Count(), clonedRepo.Branches.Count(b => b.IsRemote));
-                Assert.Equal(1, clonedRepo.Branches.Count(b => !b.IsRemote));
+                Assert.Equal(isCloningAnEmptyRepository ? 0 : 1, clonedRepo.Branches.Count(b => !b.IsRemote));
 
                 Assert.Equal(originalRepo.Tags.Count(), clonedRepo.Tags.Count());
                 Assert.Equal(1, clonedRepo.Network.Remotes.Count());
@@ -60,7 +60,7 @@ namespace LibGit2Sharp.Tests
         public void CanCloneALocalRepositoryFromALocalUri()
         {
             var uri = new Uri(BareTestRepoPath);
-            AssertLocalClone(uri.AbsoluteUri);
+            AssertLocalClone(uri.AbsoluteUri, BareTestRepoPath);
         }
 
         [Fact]
