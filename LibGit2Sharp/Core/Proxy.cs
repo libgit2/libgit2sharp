@@ -163,7 +163,6 @@ namespace LibGit2Sharp.Core
             {
                 int res = NativeMethods.git_branch_delete(reference);
                 Ensure.ZeroResult(res);
-                reference.SetHandleAsInvalid();
             }
         }
 
