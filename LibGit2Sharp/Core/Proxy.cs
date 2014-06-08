@@ -2026,6 +2026,11 @@ namespace LibGit2Sharp.Core
             return NativeMethods.git_remote_url(remote);
         }
 
+        public static bool git_remote_supported_url(string url)
+        {
+            return NativeMethods.git_remote_supported_url(url);
+        }
+
         #endregion
 
         #region git_repository_

@@ -99,10 +99,20 @@ namespace LibGit2Sharp
         /// Determines if the proposed remote name is well-formed.
         /// </summary>
         /// <param name="name">The name to be checked.</param>
-        /// <returns>true is the name is valid; false otherwise.</returns>
+        /// <returns>true if the name is valid; false otherwise.</returns>
         public static bool IsValidName(string name)
         {
             return Proxy.git_remote_is_valid_name(name);
+        }
+
+        /// <summary>
+        /// Determines if the proposed remote URL is supported by the library.
+        /// </summary>
+        /// <param name="url">The URL to be checked.</param>
+        /// <returns>true if the url is supported; false otherwise.</returns>
+        public static bool IsSupportedUrl(string url)
+        {
+            return Proxy.git_remote_supported_url(url);
         }
 
         /// <summary>

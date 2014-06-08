@@ -223,6 +223,12 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(LaxUtf8NoCleanupMarshaler))] string problematic_refspec,
             IntPtr payload);
 
+
+        [DllImport(libgit2)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        internal static extern bool git_remote_supported_url(
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string url);
+
         [DllImport(libgit2)]
         internal static extern int git_branch_upstream_name(
             GitBuf buf,
