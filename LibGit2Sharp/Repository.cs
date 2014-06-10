@@ -1086,7 +1086,7 @@ namespace LibGit2Sharp
         /// Revert the specified commit.
         /// </summary>
         /// <param name="commit">The <see cref="Commit"/> to revert.</param>
-        /// <param name="reverter">The <see cref="Signature"/> of who is performing the reverte.</param>
+        /// <param name="reverter">The <see cref="Signature"/> of who is performing the revert.</param>
         /// <param name="options"><see cref="RevertOptions"/> controlling revert behavior.</param>
         /// <returns>The result of the revert.</returns>
         public RevertResult Revert(Commit commit, Signature reverter, RevertOptions options = null)
@@ -1112,7 +1112,7 @@ namespace LibGit2Sharp
 
                 GitRevertOpts gitRevertOpts = new GitRevertOpts()
                 {
-                    Mainline = (uint) options.Mainline,
+                    Mainline = (uint)options.Mainline,
                     MergeOpts = mergeOptions,
 
                     CheckoutOpts = checkoutOptionsWrapper.Options,
@@ -1120,10 +1120,10 @@ namespace LibGit2Sharp
 
                 Proxy.git_revert(handle, commit.Id.Oid, gitRevertOpts);
 
-                if(Index.IsFullyMerged)
+                if (Index.IsFullyMerged)
                 {
                     Commit revertCommit = null;
-                    if(options.CommitOnSuccess)
+                    if (options.CommitOnSuccess)
                     {
                         revertCommit = this.Commit(Info.Message, author: reverter, committer: reverter);
                     }
@@ -1133,6 +1133,63 @@ namespace LibGit2Sharp
                 else
                 {
                     result = new RevertResult(RevertStatus.Conflicts);
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Cherry-picks the specified commit.
+        /// </summary>
+        /// <param name="commit">The <see cref="Commit"/> to cherry-pick.</param>
+        /// <param name="committer">The <see cref="Signature"/> of who is performing the cherry pick.</param>
+        /// <param name="options"><see cref="CherryPickOptions"/> controlling cherry pick behavior.</param>
+        /// <returns>The result of the cherry pick.</returns>
+        public CherryPickResult CherryPick(Commit commit, Signature committer, CherryPickOptions options = null)
+        {
+            Ensure.ArgumentNotNull(commit, "commit");
+            Ensure.ArgumentNotNull(committer, "committer");
+
+            options = options ?? new CherryPickOptions();
+
+            CherryPickResult result = null;
+
+            using (GitCheckoutOptsWrapper checkoutOptionsWrapper = new GitCheckoutOptsWrapper(options))
+            {
+                var mergeOptions = new GitMergeOpts
+                {
+                    Version = 1,
+                    MergeFileFavorFlags = options.MergeFileFavor,
+                    MergeTreeFlags = options.FindRenames ? GitMergeTreeFlags.GIT_MERGE_TREE_FIND_RENAMES :
+                                                           GitMergeTreeFlags.GIT_MERGE_TREE_NORMAL,
+                    RenameThreshold = (uint)options.RenameThreshold,
+                    TargetLimit = (uint)options.TargetLimit,
+                };
+
+                GitCherryPickOptions gitCherryPickOpts = new GitCherryPickOptions()
+                {
+                    Mainline = (uint)options.Mainline,
+                    MergeOpts = mergeOptions,
+
+                    CheckoutOpts = checkoutOptionsWrapper.Options,
+                };
+
+                Proxy.git_cherry_pick(handle, commit.Id.Oid, gitCherryPickOpts);
+
+                if (Index.IsFullyMerged)
+                {
+                    Commit cherryPickCommit = null;
+                    if (options.CommitOnSuccess)
+                    {
+                        cherryPickCommit = this.Commit(Info.Message, commit.Author, committer);
+                    }
+
+                    result = new CherryPickResult(CherryPickStatus.CherryPicked, cherryPickCommit);
+                }
+                else
+                {
+                    result = new CherryPickResult(CherryPickStatus.Conflicts);
                 }
             }
 

@@ -215,13 +215,22 @@ namespace LibGit2Sharp
         MergeResult Merge(Branch branch, Signature merger, MergeOptions options = null);
 
         /// <summary>
-        /// Merges changes from the commit into the branch pointed at by HEAD..
+        /// Merges changes from the commit into the branch pointed at by HEAD.
         /// </summary>
         /// <param name="committish">The commit to merge into branch pointed at by HEAD.</param>
         /// <param name="merger">The <see cref="Signature"/> of who is performing the merge.</param>
         /// <param name="options">Specifies optional parameters controlling merge behavior; if null, the defaults are used.</param>
         /// <returns>The <see cref="MergeResult"/> of the merge.</returns>
         MergeResult Merge(string committish, Signature merger, MergeOptions options = null);
+
+        /// <summary>
+        /// Cherry picks changes from the commit into the branch pointed at by HEAD.
+        /// </summary>
+        /// <param name="commit">The commit to cherry pick into branch pointed at by HEAD.</param>
+        /// <param name="committer">The <see cref="Signature"/> of who is performing the cherry pick.</param>
+        /// <param name="options">Specifies optional parameters controlling cherry pick behavior; if null, the defaults are used.</param>
+        /// <returns>The <see cref="MergeResult"/> of the merge.</returns>
+        CherryPickResult CherryPick(Commit commit, Signature committer, CherryPickOptions options = null);
 
         /// <summary>
         /// Manipulate the currently ignored files.
