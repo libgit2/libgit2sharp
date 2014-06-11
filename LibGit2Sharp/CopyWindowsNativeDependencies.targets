@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Target Name="AfterBuild" Condition="'$(OS)' == 'Windows_NT'">
-    <CreateItem Include="$(NativeBinariesDirectory)\**\*.*">
-      <Output TaskParameter="Include" ItemName="NativeBinaries" />
-    </CreateItem>
+    <ItemGroup>
+      <NativeBinaries Include="$(NativeBinariesDirectory)\**\*.*" />
+    </ItemGroup>
 
     <Copy
       SourceFiles="@(NativeBinaries)"

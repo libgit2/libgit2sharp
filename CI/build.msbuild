@@ -41,15 +41,17 @@
   </Target>
 
   <Target Name="Deploy" DependsOnTargets="Test">
-    <CreateItem Include="$(TestBuildDir)\LibGit2*.*">
-        <Output TaskParameter="Include" ItemName="OutputFiles" />
-    </CreateItem>
+    <ItemGroup>
+      <OutputFiles Include="$(TestBuildDir)\LibGit2*.*" />
+    </ItemGroup>
+
     <Copy SourceFiles="@(OutputFiles)"
         DestinationFiles="@(OutputFiles->'$(DeployFolder)\%(RecursiveDir)%(Filename)%(Extension)')" />
 
-    <CreateItem Include="$(TestBuildDir)\NativeBinaries\**\*.*">
-        <Output TaskParameter="Include" ItemName="NativeBinaries" />
-    </CreateItem>
+    <ItemGroup>
+      <NativeBinaries Include="$(TestBuildDir)\NativeBinaries\**\*.*" />
+    </ItemGroup>
+
     <Copy SourceFiles="@(NativeBinaries)"
       DestinationFiles="@(NativeBinaries->'$(DeployFolder)\NativeBinaries\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
   </Target>
