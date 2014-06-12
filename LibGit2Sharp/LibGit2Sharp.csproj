@@ -317,6 +317,7 @@
     <Compile Include="VoidReference.cs" />
     <Compile Include="Core\RawContentStream.cs" />
     <Compile Include="Core\Handles\OdbStreamSafeHandle.cs" />
+    <Compile Include="SupportedCredentialTypes.cs" />
   </ItemGroup>
   <ItemGroup>
     <CodeAnalysisDictionary Include="CustomDictionary.xml" />

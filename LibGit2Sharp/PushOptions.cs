@@ -1,4 +1,5 @@
-﻿using LibGit2Sharp.Handlers;
+﻿using System;
+using LibGit2Sharp.Handlers;
 
 namespace LibGit2Sharp
 {
@@ -10,7 +11,7 @@ namespace LibGit2Sharp
         /// <summary>
         /// The <see cref="Credentials"/> to authenticate with during the push.
         /// </summary>
-        public Credentials Credentials { get; set; }
+        public CredentialsHandler CredentialsProvider { get; set; }
 
         /// <summary>
         /// If the transport being used to push to the remote requires the creation

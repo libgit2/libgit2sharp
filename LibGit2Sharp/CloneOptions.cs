@@ -1,4 +1,5 @@
-﻿using LibGit2Sharp.Core;
+﻿using System;
+using LibGit2Sharp.Core;
 using LibGit2Sharp.Handlers;
 
 namespace LibGit2Sharp
@@ -40,7 +41,7 @@ namespace LibGit2Sharp
         /// <summary>
         /// Credentials to use for user/pass authentication
         /// </summary>
-        public Credentials Credentials { get; set; }
+        public CredentialsHandler CredentialsProvider { get; set; }
 
         #region IConvertableToGitCheckoutOpts
 

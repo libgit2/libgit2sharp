@@ -23,6 +23,14 @@
     public delegate bool UpdateTipsHandler(string referenceName, ObjectId oldId, ObjectId newId);
 
     /// <summary>
+    /// Delegate definition for the credentials retrieval callback
+    /// </summary>
+    /// <param name="usernameFromUrl">Username which was extracted form the url, if any</param>
+    /// <param name="url">The url</param>
+    /// <param name="types">Credential types which the server accepts</param>
+    public delegate Credentials CredentialsHandler(string url, string usernameFromUrl, SupportedCredentialTypes types);
+
+    /// <summary>
     /// Delegate definition for transfer progress callback.
     /// </summary>
     /// <param name="progress">The <see cref="TransferProgress"/> object containing progress information.</param>

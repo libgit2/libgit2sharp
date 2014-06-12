@@ -16,12 +16,12 @@ namespace LibGit2Sharp
             ProgressHandler onProgress = null,
             TransferProgressHandler onDownloadProgress = null,
             UpdateTipsHandler onUpdateTips = null,
-            Credentials credentials = null)
+            CredentialsHandler credentialsProvider = null)
         {
             Progress = onProgress;
             DownloadTransferProgress = onDownloadProgress;
             UpdateTips = onUpdateTips;
-            Credentials = credentials;
+            CredentialsProvider = credentialsProvider;
         }
 
         internal RemoteCallbacks(FetchOptions fetchOptions)
@@ -30,7 +30,7 @@ namespace LibGit2Sharp
             Progress = fetchOptions.OnProgress;
             DownloadTransferProgress = fetchOptions.OnTransferProgress;
             UpdateTips = fetchOptions.OnUpdateTips;
-            Credentials = fetchOptions.Credentials;
+            CredentialsProvider = fetchOptions.CredentialsProvider;
         }
 
         #region Delegates
@@ -54,9 +54,9 @@ namespace LibGit2Sharp
         #endregion
 
         /// <summary>
-        /// The credentials to use for the credential callback.
+        /// The credentials to use for authentication.
         /// </summary>
-        Credentials Credentials;
+        private readonly CredentialsHandler CredentialsProvider;
 
         internal GitRemoteCallbacks GenerateCallbacks()
         {
@@ -72,9 +72,9 @@ namespace LibGit2Sharp
                 callbacks.update_tips = GitUpdateTipsHandler;
             }
 
-            if (Credentials != null)
+            if (CredentialsProvider != null)
             {
-                callbacks.acquire_credentials = Credentials.GitCredentialHandler;
+                callbacks.acquire_credentials = GitCredentialHandler;
             }
 
             if (DownloadTransferProgress != null)
@@ -151,6 +151,26 @@ namespace LibGit2Sharp
             }
 
             return Proxy.ConvertResultToCancelFlag(shouldContinue);
+        }
+
+        private int GitCredentialHandler(out IntPtr ptr, IntPtr cUrl, IntPtr usernameFromUrl, GitCredentialType credTypes, IntPtr payload)
+        {
+            string url = LaxUtf8Marshaler.FromNative(cUrl);
+            string username = LaxUtf8Marshaler.FromNative(usernameFromUrl);
+
+            SupportedCredentialTypes types = default(SupportedCredentialTypes);
+            if (credTypes.HasFlag(GitCredentialType.UserPassPlaintext))
+            {
+                types |= SupportedCredentialTypes.UsernamePassword;
+            }
+            if (credTypes.HasFlag(GitCredentialType.Default))
+            {
+                types |= SupportedCredentialTypes.Default;
+            }
+
+            var cred = CredentialsProvider(url, username, types);
+
+            return cred.GitCredentialHandler(out ptr, cUrl, usernameFromUrl, credTypes, payload);
         }
 
         #endregion

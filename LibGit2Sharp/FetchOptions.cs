@@ -1,4 +1,5 @@
-﻿using LibGit2Sharp.Handlers;
+﻿using System;
+using LibGit2Sharp.Handlers;
 
 namespace LibGit2Sharp
 {
@@ -41,6 +42,6 @@ namespace LibGit2Sharp
         /// <summary>
         /// Credentials to use for username/password authentication.
         /// </summary>
-        public Credentials Credentials { get; set; }
+        public CredentialsHandler CredentialsProvider { get; set; }
     }
 }
