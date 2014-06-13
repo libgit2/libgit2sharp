@@ -1830,7 +1830,6 @@ namespace LibGit2Sharp.Core
 
                     int res = NativeMethods.git_remote_delete(remote);
                     Ensure.ZeroResult(res);
-                    remote.SetHandleAsInvalid();
                 }
             }
         }
@@ -1997,16 +1996,23 @@ namespace LibGit2Sharp.Core
 
                     if (callback == null)
                     {
-                        callback = (problem) => {};
+                        callback = problem => {};
                     }
 
-                    int res = NativeMethods.git_remote_rename(
-                        remote,
-                        new_name,
-                        (problem, payload) => { callback(problem); return 0; },
-                        IntPtr.Zero);
+                    using (var array = new GitStrArrayOut())
+                    {
+                        int res = NativeMethods.git_remote_rename(
+                                  array,
+                                  remote,
+                                  new_name);
 
-                    Ensure.ZeroResult(res);
+                        Ensure.ZeroResult(res);
+
+                        foreach (var item in array.Build ())
+                        {
+                            callback(item);
+                        }
+                    }
                 }
             }
         }
