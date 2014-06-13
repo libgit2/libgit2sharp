@@ -166,5 +166,30 @@ namespace LibGit2Sharp.Tests
                 Assert.False(repo.Info.IsBare);
             }
         }
+
+        [Theory]
+        [InlineData("https://libgit2@bitbucket.org/libgit2/testgitrepository.git", "libgit3", "libgit3")]
+        public void CanCloneFromBBWithCredentials(string url, string user, string pass)
+        {
+            var scd = BuildSelfCleaningDirectory();
+
+            string clonedRepoPath = Repository.Clone(url, scd.DirectoryPath, new CloneOptions() {
+                CredentialsProvider = (_url, _user, _cred) => new UsernamePasswordCredentials {
+                    Username = user,
+                    Password = pass,
+                }
+            });
+
+            using (var repo = new Repository(clonedRepoPath))
+            {
+                string dir = repo.Info.Path;
+                Assert.True(Path.IsPathRooted(dir));
+                Assert.True(Directory.Exists(dir));
+
+                Assert.NotNull(repo.Info.WorkingDirectory);
+                Assert.Equal(Path.Combine(scd.RootedDirectoryPath, ".git" + Path.DirectorySeparatorChar), repo.Info.Path);
+                Assert.False(repo.Info.IsBare);
+            }
+        }
     }
 }
