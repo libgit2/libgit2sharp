@@ -46,7 +46,7 @@ namespace LibGit2Sharp
         /// </para>
         /// </summary>
         /// <param name="remote">The <see cref="Remote"/> to list from.</param>
-        /// <param name="credentials">The optional <see cref="Func<Credentials>"/> used to connect to remote repository.</param>
+        /// <param name="credentialsProvider">The optional <see cref="Func{Credentials}"/> used to connect to remote repository.</param>
         /// <returns>The references in the <see cref="Remote"/> repository.</returns>
         public virtual IEnumerable<DirectReference> ListReferences(Remote remote, CredentialsHandler credentialsProvider = null)
         {
