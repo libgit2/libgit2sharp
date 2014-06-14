@@ -6,7 +6,7 @@ namespace LibGit2Sharp.Core
     /// Authentication type requested.
     /// </summary>
     [Flags]
-    public enum GitCredentialType
+    internal enum GitCredentialType
     {
         /// <summary>
         /// A plaintext username and password.
