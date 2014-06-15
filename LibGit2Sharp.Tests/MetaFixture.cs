@@ -109,12 +109,12 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
-        public void LibGit2SharpInterfacesCoverAllPublicMembers()
+        public void LibGit2SharpPublicInterfacesCoverAllPublicMembers()
         {
             var methodsMissingFromInterfaces =
                 from t in Assembly.GetAssembly(typeof(IRepository)).GetExportedTypes()
                 where !t.IsInterface
-                where t.GetInterfaces().Any(i => i.Namespace == typeof(IRepository).Namespace)
+                where t.GetInterfaces().Any(i => i.IsPublic && i.Namespace == typeof(IRepository).Namespace)
                 let interfaceTargetMethods = from i in t.GetInterfaces()
                                              from im in t.GetInterfaceMap(i).TargetMethods
                                              select im

@@ -16,6 +16,18 @@ namespace LibGit2Sharp
             ProgressHandler onProgress = null,
             TransferProgressHandler onDownloadProgress = null,
             UpdateTipsHandler onUpdateTips = null,
+            ICredentialsProvider credentialsProvider = null)
+        {
+            Progress = onProgress;
+            DownloadTransferProgress = onDownloadProgress;
+            UpdateTips = onUpdateTips;
+            CredentialsProvider = credentialsProvider.GetCredentialsHandler();
+        }
+
+        internal RemoteCallbacks(
+            ProgressHandler onProgress = null,
+            TransferProgressHandler onDownloadProgress = null,
+            UpdateTipsHandler onUpdateTips = null,
             CredentialsHandler credentialsProvider = null)
         {
             Progress = onProgress;
@@ -30,7 +42,7 @@ namespace LibGit2Sharp
             Progress = fetchOptions.OnProgress;
             DownloadTransferProgress = fetchOptions.OnTransferProgress;
             UpdateTips = fetchOptions.OnUpdateTips;
-            CredentialsProvider = fetchOptions.CredentialsProvider;
+            CredentialsProvider = fetchOptions.GetCredentialsHandler();
         }
 
         #region Delegates

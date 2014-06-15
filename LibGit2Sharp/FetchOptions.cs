@@ -6,7 +6,7 @@ namespace LibGit2Sharp
     /// <summary>
     /// Collection of parameters controlling Fetch behavior.
     /// </summary>
-    public sealed class FetchOptions
+    public sealed class FetchOptions : ICredentialsProvider
     {
         /// <summary>
         /// Specifies the tag-following behavior of the fetch operation.
@@ -41,6 +41,12 @@ namespace LibGit2Sharp
 
         /// <summary>
         /// Credentials to use for username/password authentication.
+        /// </summary>
+        [Obsolete("This will be removed in future release. Use CredentialsProvider.")]
+        public Credentials Credentials { get; set; }
+
+        /// <summary>
+        /// Handler to generate <see cref="LibGit2Sharp.Credentials"/> for authentication.
         /// </summary>
         public CredentialsHandler CredentialsProvider { get; set; }
     }

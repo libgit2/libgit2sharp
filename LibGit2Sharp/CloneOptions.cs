@@ -7,7 +7,7 @@ namespace LibGit2Sharp
     /// <summary>
     /// Options to define clone behaviour
     /// </summary>
-    public sealed class CloneOptions : IConvertableToGitCheckoutOpts
+    public sealed class CloneOptions : IConvertableToGitCheckoutOpts, ICredentialsProvider
     {
         /// <summary>
         /// Creates default <see cref="CloneOptions"/> for a non-bare clone
@@ -40,6 +40,12 @@ namespace LibGit2Sharp
 
         /// <summary>
         /// Credentials to use for user/pass authentication
+        /// </summary>
+        [Obsolete("This will be removed in future release. Use CredentialsProvider.")]
+        public Credentials Credentials { get; set; }
+
+        /// <summary>
+        /// Handler to generate <see cref="LibGit2Sharp.Credentials"/> for authentication.
         /// </summary>
         public CredentialsHandler CredentialsProvider { get; set; }
 
