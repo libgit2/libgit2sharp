@@ -10,19 +10,24 @@ namespace LibGit2Sharp.Tests.TestHelpers
 
         // Populate these to turn on live credential tests:  set the
         // PrivateRepoUrl to the URL of a repository that requires
-        // authentication.  Set PrivateRepoCredentials to an instance of
+        // authentication. Define PrivateRepoCredentials to return an instance of
         // UsernamePasswordCredentials (for HTTP Basic authentication) or
         // DefaultCredentials (for NTLM/Negotiate authentication).
         //
         // For example:
         // public const string PrivateRepoUrl = "https://github.com/username/PrivateRepo";
-        // public static readonly Credentials PrivateRepoCredentials = new UsernamePasswordCredentials { Username = "username", Password = "swordfish" };
+        // ... return new UsernamePasswordCredentials { Username = "username", Password = "swordfish" };
         //
         // Or:
         // public const string PrivateRepoUrl = "https://tfs.contoso.com/tfs/DefaultCollection/project/_git/project";
-        // public static readonly Credentials PrivateRepoCredentials = new DefaultCredentials();
+        // ... return new DefaultCredentials();
 
         public const string PrivateRepoUrl = "";
-        public static readonly Credentials PrivateRepoCredentials;
+
+        public static Credentials PrivateRepoCredentials(string url, string usernameFromUrl,
+                                                         SupportedCredentialTypes types)
+        {
+            return null;
+        }
     }
 }

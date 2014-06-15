@@ -121,7 +121,7 @@ namespace LibGit2Sharp.Tests
             {
                 Remote remote = repo.Network.Remotes.Add(remoteName, Constants.PrivateRepoUrl);
 
-                var references = repo.Network.ListReferences(remote, (_url, _user, _credtype) => Constants.PrivateRepoCredentials);
+                var references = repo.Network.ListReferences(remote, Constants.PrivateRepoCredentials);
 
                 foreach (var directReference in references)
                 {

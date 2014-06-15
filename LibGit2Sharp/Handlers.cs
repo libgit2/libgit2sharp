@@ -25,8 +25,8 @@
     /// <summary>
     /// Delegate definition for the credentials retrieval callback
     /// </summary>
-    /// <param name="usernameFromUrl">Username which was extracted form the url, if any</param>
     /// <param name="url">The url</param>
+    /// <param name="usernameFromUrl">Username which was extracted from the url, if any</param>
     /// <param name="types">Credential types which the server accepts</param>
     public delegate Credentials CredentialsHandler(string url, string usernameFromUrl, SupportedCredentialTypes types);
 
