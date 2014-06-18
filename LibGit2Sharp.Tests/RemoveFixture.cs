@@ -180,7 +180,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Throws<ArgumentException>(() => repo.Index.Remove(string.Empty));
                 Assert.Throws<ArgumentNullException>(() => repo.Index.Remove((string)null));
                 Assert.Throws<ArgumentException>(() => repo.Index.Remove(new string[] { }));
-                Assert.Throws<ArgumentException>(() => repo.Index.Remove(new string[] { null }));
+                Assert.Throws<ArgumentNullException>(() => repo.Index.Remove(new string[] { null }));
             }
         }
     }

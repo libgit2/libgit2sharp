@@ -345,10 +345,44 @@ namespace LibGit2Sharp
         /// </param>
         public virtual void Remove(IEnumerable<string> paths, bool removeFromWorkingDirectory = true, ExplicitPathsOptions explicitPathsOptions = null)
         {
-            var pathsList = paths.ToList();
-            var changes = repo.Diff.Compare<TreeChanges>(DiffModifiers.IncludeUnmodified | DiffModifiers.IncludeUntracked, pathsList, explicitPathsOptions);
+            Ensure.ArgumentNotNullOrEmptyEnumerable<string>(paths, "paths");
 
-            var pathsTodelete = pathsList.Where(p => Directory.Exists(Path.Combine(repo.Info.WorkingDirectory, p))).ToList();
+            var pathsToDelete = paths.Where(p => Directory.Exists(Path.Combine(repo.Info.WorkingDirectory, p))).ToList();
+            var notConflictedPaths = new List<string>();
+
+            foreach (var path in paths)
+            {
+                Ensure.ArgumentNotNullOrEmptyString(path, "path");
+
+                var conflict = repo.Index.Conflicts[path];
+
+                if (conflict != null)
+                {
+                    pathsToDelete.Add(RemoveFromIndex(path));
+                }
+                else
+                {
+                    notConflictedPaths.Add(path);
+                }
+            }
+
+            if (notConflictedPaths.Count > 0)
+            {
+                pathsToDelete.AddRange(RemoveStagedItems(notConflictedPaths, removeFromWorkingDirectory, explicitPathsOptions));
+            }
+
+            if (removeFromWorkingDirectory)
+            {
+                RemoveFilesAndFolders(pathsToDelete);
+            }
+
+            UpdatePhysicalIndex();
+        }
+
+        private IEnumerable<string> RemoveStagedItems(IEnumerable<string> paths, bool removeFromWorkingDirectory = true, ExplicitPathsOptions explicitPathsOptions = null)
+        {
+            var removed = new List<string>();
+            var changes = repo.Diff.Compare<TreeChanges>(DiffModifiers.IncludeUnmodified | DiffModifiers.IncludeUntracked, paths, explicitPathsOptions);
 
             foreach (var treeEntryChanges in changes)
             {
@@ -358,7 +392,7 @@ namespace LibGit2Sharp
                 {
                     case ChangeKind.Added:
                     case ChangeKind.Deleted:
-                        pathsTodelete.Add(RemoveFromIndex(treeEntryChanges.Path));
+                        removed.Add(RemoveFromIndex(treeEntryChanges.Path));
                         break;
 
                     case ChangeKind.Unmodified:
@@ -369,7 +403,7 @@ namespace LibGit2Sharp
                             throw new RemoveFromIndexException(string.Format(CultureInfo.InvariantCulture, "Unable to remove file '{0}', as it has changes staged in the index. You can call the Remove() method with removeFromWorkingDirectory=false if you want to remove it from the index only.",
                                 treeEntryChanges.Path));
                         }
-                        pathsTodelete.Add(RemoveFromIndex(treeEntryChanges.Path));
+                        removed.Add(RemoveFromIndex(treeEntryChanges.Path));
                         continue;
 
                     case ChangeKind.Modified:
@@ -383,9 +417,8 @@ namespace LibGit2Sharp
                             throw new RemoveFromIndexException(string.Format(CultureInfo.InvariantCulture, "Unable to remove file '{0}', as it has local modifications. You can call the Remove() method with removeFromWorkingDirectory=false if you want to remove it from the index only.",
                                 treeEntryChanges.Path));
                         }
-                        pathsTodelete.Add(RemoveFromIndex(treeEntryChanges.Path));
+                        removed.Add(RemoveFromIndex(treeEntryChanges.Path));
                         continue;
-
 
                     default:
                         throw new RemoveFromIndexException(string.Format(CultureInfo.InvariantCulture, "Unable to remove file '{0}'. Its current status is '{1}'.",
@@ -393,12 +426,7 @@ namespace LibGit2Sharp
                 }
             }
 
-            if (removeFromWorkingDirectory)
-            {
-                RemoveFilesAndFolders(pathsTodelete);
-            }
-
-            UpdatePhysicalIndex();
+            return removed;
         }
 
         private void RemoveFilesAndFolders(IEnumerable<string> pathsList)

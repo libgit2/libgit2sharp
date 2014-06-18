@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
@@ -21,6 +23,21 @@ namespace LibGit2Sharp.Core
             if (argumentValue == null)
             {
                 throw new ArgumentNullException(argumentName);
+            }
+        }
+
+        /// <summary>
+        /// Checks an array argument to ensure it isn't null or empty.
+        /// </summary>
+        /// <param name="argumentValue">The argument value to check.</param>
+        /// <param name="argumentName">The name of the argument.</param>
+        public static void ArgumentNotNullOrEmptyEnumerable<T>(IEnumerable<T> argumentValue, string argumentName)
+        {
+            ArgumentNotNull(argumentValue, argumentName);
+
+            if (argumentValue.Count() == 0)
+            {
+                throw new ArgumentException("Enumerable cannot be empty", argumentName);
             }
         }
 
