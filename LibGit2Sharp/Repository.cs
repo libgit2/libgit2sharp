@@ -1196,6 +1196,21 @@ namespace LibGit2Sharp
             return result;
         }
 
+        private FastForwardStrategy FastForwardStrategyFromMergePreference(GitMergePreference preference)
+        {
+            switch (preference)
+            {
+                case GitMergePreference.GIT_MERGE_PREFERENCE_NONE:
+                    return FastForwardStrategy.Default;
+                case GitMergePreference.GIT_MERGE_PREFERENCE_FASTFORWARD_ONLY:
+                    return FastForwardStrategy.FastForwardOnly;
+                case GitMergePreference.GIT_MERGE_PREFERENCE_NO_FASTFORWARD:
+                    return FastForwardStrategy.NoFastFoward;
+                default:
+                    throw new InvalidOperationException(String.Format("Unknown merge preference: {0}", preference));
+            }
+        }
+
         /// <summary>
         /// Internal implementation of merge.
         /// </summary>
@@ -1217,7 +1232,10 @@ namespace LibGit2Sharp
                 return new MergeResult(MergeStatus.UpToDate);
             }
 
-            switch(options.FastForwardStrategy)
+            FastForwardStrategy fastForwardStrategy = (options.FastForwardStrategy != FastForwardStrategy.Default) ?
+                options.FastForwardStrategy : FastForwardStrategyFromMergePreference(mergePreference);
+
+            switch(fastForwardStrategy)
             {
                 case FastForwardStrategy.Default:
                     if (mergeAnalysis.HasFlag(GitMergeAnalysis.GIT_MERGE_ANALYSIS_FASTFORWARD))

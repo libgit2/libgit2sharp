@@ -472,6 +472,19 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
+        public void CanForceFastForwardMergeThroughConfig()
+        {
+            string path = CloneMergeTestRepo();
+            using (var repo = new Repository(path))
+            {
+                repo.Config.Set("merge.ff", "only");
+
+                Commit commitToMerge = repo.Branches["normal_merge"].Tip;
+                Assert.Throws<NonFastForwardException>(() => repo.Merge(commitToMerge, Constants.Signature, new MergeOptions()));
+            }
+        }
+
+        [Fact]
         public void CanMergeAndNotCommit()
         {
             string path = CloneMergeTestRepo();
@@ -501,6 +514,24 @@ namespace LibGit2Sharp.Tests
                 Commit commitToMerge = repo.Branches["fast_forward"].Tip;
 
                 MergeResult result = repo.Merge(commitToMerge, Constants.Signature, new MergeOptions() { FastForwardStrategy = FastForwardStrategy.NoFastFoward });
+
+                Assert.Equal(MergeStatus.NonFastForward, result.Status);
+                Assert.Equal("f58f780d5a0ae392efd4a924450b1bbdc0577d32", result.Commit.Id.Sha);
+                Assert.False(repo.Index.RetrieveStatus().Any());
+            }
+        }
+
+        [Fact]
+        public void CanForceNonFastForwardMergeThroughConfig()
+        {
+            string path = CloneMergeTestRepo();
+            using (var repo = new Repository(path))
+            {
+                repo.Config.Set("merge.ff", "false");
+
+                Commit commitToMerge = repo.Branches["fast_forward"].Tip;
+
+                MergeResult result = repo.Merge(commitToMerge, Constants.Signature, new MergeOptions());
 
                 Assert.Equal(MergeStatus.NonFastForward, result.Status);
                 Assert.Equal("f58f780d5a0ae392efd4a924450b1bbdc0577d32", result.Commit.Id.Sha);

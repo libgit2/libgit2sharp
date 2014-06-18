@@ -12,7 +12,7 @@ namespace LibGit2Sharp
         /// Initializes a new instance of the <see cref="MergeOptions"/> class.
         /// <para>
         ///   Default behavior:
-        ///     A fast-forward merge will be performed if possible.
+        ///     A fast-forward merge will be performed if possible, unless the merge.ff configuration option is set.
         ///     A merge commit will be committed, if one was created.
         ///     Merge will attempt to find renames.
         /// </para>
@@ -110,9 +110,9 @@ namespace LibGit2Sharp
     public enum FastForwardStrategy
     {
         /// <summary>
-        /// Default fast-forward strategy. This will perform a fast-forward merge
-        /// if possible, otherwise will perform a non-fast-forward merge that
-        /// results in a merge commit.
+        /// Default fast-forward strategy.  If the merge.ff configuration option is set,
+        /// it will be used.  If it is not set, this will perform a fast-forward merge if
+        /// possible, otherwise a non-fast-forward merge that results in a merge commit.
         /// </summary>
         Default = 0,
 
