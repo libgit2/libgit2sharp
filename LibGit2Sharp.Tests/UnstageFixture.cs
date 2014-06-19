@@ -233,5 +233,60 @@ namespace LibGit2Sharp.Tests
                 Assert.Throws<ArgumentException>(() => repo.Index.Unstage(new string[] { null }));
             }
         }
+
+        [Fact]
+        public void CanUnstageSourceOfARename()
+        {
+            using (var repo = new Repository(CloneStandardTestRepo()))
+            {
+                repo.Index.Move("branch_file.txt", "renamed_branch_file.txt");
+
+                RepositoryStatus oldStatus = repo.Index.RetrieveStatus();
+                Assert.Equal(1, oldStatus.RenamedInIndex.Count());
+                Assert.Equal(FileStatus.Nonexistent, oldStatus["branch_file.txt"].State);
+                Assert.Equal(FileStatus.RenamedInIndex, oldStatus["renamed_branch_file.txt"].State);
+
+                repo.Index.Unstage(new string[] { "branch_file.txt" });
+
+                RepositoryStatus newStatus = repo.Index.RetrieveStatus();
+                Assert.Equal(0, newStatus.RenamedInIndex.Count());
+                Assert.Equal(FileStatus.Missing, newStatus["branch_file.txt"].State);
+                Assert.Equal(FileStatus.Added, newStatus["renamed_branch_file.txt"].State);
+            }
+        }
+
+        [Fact]
+        public void CanUnstageTargetOfARename()
+        {
+            using (var repo = new Repository(CloneStandardTestRepo()))
+            {
+                repo.Index.Move("branch_file.txt", "renamed_branch_file.txt");
+
+                RepositoryStatus oldStatus = repo.Index.RetrieveStatus();
+                Assert.Equal(1, oldStatus.RenamedInIndex.Count());
+                Assert.Equal(FileStatus.RenamedInIndex, oldStatus["renamed_branch_file.txt"].State);
+
+                repo.Index.Unstage(new string[] { "renamed_branch_file.txt" });
+
+                RepositoryStatus newStatus = repo.Index.RetrieveStatus();
+                Assert.Equal(0, newStatus.RenamedInIndex.Count());
+                Assert.Equal(FileStatus.Untracked, newStatus["renamed_branch_file.txt"].State);
+                Assert.Equal(FileStatus.Removed, newStatus["branch_file.txt"].State);
+            }
+        }
+
+        [Fact]
+        public void CanUnstageBothSidesOfARename()
+        {
+            using (var repo = new Repository(CloneStandardTestRepo()))
+            {
+                repo.Index.Move("branch_file.txt", "renamed_branch_file.txt");
+                repo.Index.Unstage(new string[] { "branch_file.txt", "renamed_branch_file.txt" });
+
+                RepositoryStatus status = repo.Index.RetrieveStatus();
+                Assert.Equal(FileStatus.Missing, status["branch_file.txt"].State);
+                Assert.Equal(FileStatus.Untracked, status["renamed_branch_file.txt"].State);
+            }
+        }
     }
 }

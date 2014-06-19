@@ -211,7 +211,7 @@ namespace LibGit2Sharp
 
             if (repo.Info.IsHeadUnborn)
             {
-                var changes = repo.Diff.Compare<TreeChanges>(null, DiffTargets.Index, paths, explicitPathsOptions);
+                var changes = repo.Diff.Compare<TreeChanges>(null, DiffTargets.Index, paths, explicitPathsOptions, new CompareOptions { Similarity = SimilarityOptions.None });
 
                 Reset(changes);
             }
