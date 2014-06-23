@@ -15,14 +15,13 @@
     <references>
       <reference file="LibGit2Sharp.dll" />
     </references>
+    <dependencies>
+      <dependency id="LibGit2Sharp-LibGit2" />
+    </dependencies>
   </metadata>
   <files>
-    <file src="..\Lib\NativeBinaries\**\*.dll" target="lib\net40\NativeBinaries" />
-    <file src="..\Lib\NativeBinaries\**\*.pdb" target="lib\net40\NativeBinaries" />
     <file src="..\README.md" target="App_Readme\LibGit2Sharp.README.md" />
     <file src="..\LICENSE.md" target="App_Readme\LibGit2Sharp.LICENSE.md" />
     <file src="..\CHANGES.md" target="App_Readme\LibGit2Sharp.CHANGES.md" />
-    <file src="..\nuget.package\Tools\*.*" target="Tools" />
-    <file src="..\Lib\NativeBinaries\libgit2.license.txt" target="App_Readme" />
   </files>
 </package>

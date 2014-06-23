@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>LibGit2Sharp-LibGit2</id>
+    <version>0.18.1.0</version>
+    <authors>The LibGit2 Authors</authors>
+    <owners>nulltoken ethomson</owners>
+    <licenseUrl>https://raw.githubusercontent.com/libgit2/libgit2/master/COPYING</licenseUrl>
+    <projectUrl>https://github.com/libgit2/libgit2/</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>LibGit2</description>
+    <iconUrl>https://github.com/libgit2/libgit2sharp/raw/master/square-logo.png</iconUrl>
+    <tags>libgit2</tags>
+    <references>
+      <reference file="LibGit2Dummy.dll" />
+    </references>
+  </metadata>
+  <files>
+    <!-- This is a tragedy -->
+    <file src="..\Lib\NativeBinaries\dummy\*.dll" target="lib\net40\NativeBinaries" />
+    <file src="..\libgit2\build\x86\RelWithDebInfo\git*.dll" target="lib\net40\NativeBinaries\x86" />
+    <file src="..\libgit2\build\x86\RelWithDebInfo\git*.pdb" target="lib\net40\NativeBinaries\x86" />
+    <file src="..\libgit2\build\amd64\RelWithDebInfo\git*.dll" target="lib\net40\NativeBinaries\amd64" />
+    <file src="..\libgit2\build\amd64\RelWithDebInfo\git*.pdb" target="lib\net40\NativeBinaries\amd64" />
+    <file src="..\nuget.package\Tools\*.*" target="Tools" />
+    <file src="..\Lib\NativeBinaries\libgit2.license.txt" target="App_Readme" />
+  </files>
+</package>

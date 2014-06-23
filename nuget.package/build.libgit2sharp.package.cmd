@@ -13,8 +13,6 @@ COPY "%BASEDIR%LibGit2Sharp.nuspec" "%SRCDIR%"
 
 PUSHD "%BASEDIR%"
 
-DEL *.nupkg
-
 CMD /c "..\build.libgit2sharp.cmd %CommitSha%"
 
 IF %ERRORLEVEL% NEQ 0 GOTO EXIT
