@@ -1597,11 +1597,19 @@ namespace LibGit2Sharp.Core
         {
             using (ThreadAffinity())
             {
-                UnSafeNativeMethods.git_strarray arr;
-                int res = UnSafeNativeMethods.git_reference_list(out arr, repo);
-                Ensure.ZeroResult(res);
+                var array = new GitStrArrayNative();
 
-                return Libgit2UnsafeHelper.BuildListOf(arr);
+                try
+                {
+                    int res = NativeMethods.git_reference_list(out array.Array, repo);
+                    Ensure.ZeroResult(res);
+
+                    return array.ReadStrings();
+                }
+                finally
+                {
+                    array.Dispose();
+                }
             }
         }
 
@@ -1891,11 +1899,19 @@ namespace LibGit2Sharp.Core
         {
             using (ThreadAffinity())
             {
-                UnSafeNativeMethods.git_strarray arr;
-                int res = UnSafeNativeMethods.git_remote_get_fetch_refspecs(out arr, remote);
-                Ensure.ZeroResult(res);
+                var array = new GitStrArrayNative();
 
-                return Libgit2UnsafeHelper.BuildListOf(arr);
+                try
+                {
+                    int res = NativeMethods.git_remote_get_fetch_refspecs(out array.Array, remote);
+                    Ensure.ZeroResult(res);
+
+                    return array.ReadStrings();
+                }
+                finally
+                {
+                    array.Dispose();
+                }
             }
         }
 
@@ -1903,31 +1919,59 @@ namespace LibGit2Sharp.Core
         {
             using (ThreadAffinity())
             {
-                UnSafeNativeMethods.git_strarray arr;
-                int res = UnSafeNativeMethods.git_remote_get_push_refspecs(out arr, remote);
-                Ensure.ZeroResult(res);
+                var array = new GitStrArrayNative();
 
-                return Libgit2UnsafeHelper.BuildListOf(arr);
+                try
+                {
+                    int res = NativeMethods.git_remote_get_push_refspecs(out array.Array, remote);
+                    Ensure.ZeroResult(res);
+
+                    return array.ReadStrings();
+                }
+                finally
+                {
+                    array.Dispose();
+                }
             }
         }
 
         public static void git_remote_set_fetch_refspecs(RemoteSafeHandle remote, IEnumerable<string> refSpecs)
         {
             using (ThreadAffinity())
-            using (GitStrArrayIn array = GitStrArrayIn.BuildFrom(refSpecs.ToArray()))
             {
-                int res = NativeMethods.git_remote_set_fetch_refspecs(remote, array);
-                Ensure.ZeroResult(res);
+                var array = new GitStrArrayManaged();
+
+                try
+                {
+                    array = GitStrArrayManaged.BuildFrom(refSpecs.ToArray());
+
+                    int res = NativeMethods.git_remote_set_fetch_refspecs(remote, ref array.Array);
+                    Ensure.ZeroResult(res);
+                }
+                finally
+                {
+                    array.Dispose();
+                }
             }
         }
 
         public static void git_remote_set_push_refspecs(RemoteSafeHandle remote, IEnumerable<string> refSpecs)
         {
             using (ThreadAffinity())
-            using (GitStrArrayIn array = GitStrArrayIn.BuildFrom(refSpecs.ToArray()))
             {
-                int res = NativeMethods.git_remote_set_push_refspecs(remote, array);
-                Ensure.ZeroResult(res);
+                var array = new GitStrArrayManaged();
+
+                try
+                {
+                    array = GitStrArrayManaged.BuildFrom(refSpecs.ToArray());
+
+                    int res = NativeMethods.git_remote_set_push_refspecs(remote, ref array.Array);
+                    Ensure.ZeroResult(res);
+                }
+                finally
+                {
+                    array.Dispose();
+                }
             }
         }
 
@@ -1958,30 +2002,47 @@ namespace LibGit2Sharp.Core
         {
             using (ThreadAffinity())
             {
-                UnSafeNativeMethods.git_strarray arr;
-                int res = UnSafeNativeMethods.git_remote_list(out arr, repo);
-                Ensure.ZeroResult(res);
+                var array = new GitStrArrayNative();
 
-                return Libgit2UnsafeHelper.BuildListOf(arr);
+                try
+                {
+                    int res = NativeMethods.git_remote_list(out array.Array, repo);
+                    Ensure.ZeroResult(res);
+
+                    return array.ReadStrings();
+                }
+                finally
+                {
+                    array.Dispose();
+                }
             }
         }
 
         public static IEnumerable<DirectReference> git_remote_ls(Repository repository, RemoteSafeHandle remote)
         {
-            var refs = new List<DirectReference>();
             IntPtr heads;
-            UIntPtr size;
+            UIntPtr count;
 
             using (ThreadAffinity())
             {
-                int res = NativeMethods.git_remote_ls(out heads, out size, remote);
+                int res = NativeMethods.git_remote_ls(out heads, out count, remote);
                 Ensure.ZeroResult(res);
             }
 
-            var grheads = Libgit2UnsafeHelper.RemoteLsHelper(heads, size);
+            var intCount = (int)count.ToUInt32();
 
-            foreach (var remoteHead in grheads)
+            if (intCount < 0)
             {
+                throw new OverflowException();
+            }
+
+            var refs = new List<DirectReference>();
+            IntPtr currentHead = heads;
+
+            for (int i = 0; i < intCount; i++)
+            {
+                var remoteHead = Marshal.ReadIntPtr(currentHead).MarshalAs<GitRemoteHead>();
+
                 // The name pointer should never be null - if it is,
                 // this indicates a bug somewhere (libgit2, server, etc).
                 if (remoteHead.NamePtr == IntPtr.Zero)
@@ -1991,6 +2052,8 @@ namespace LibGit2Sharp.Core
 
                 string name = LaxUtf8Marshaler.FromNative(remoteHead.NamePtr);
                 refs.Add(new DirectReference(name, repository, remoteHead.Oid));
+
+                currentHead = IntPtr.Add(currentHead, IntPtr.Size);
             }
 
             return refs;
@@ -2034,19 +2097,25 @@ namespace LibGit2Sharp.Core
                         callback = problem => {};
                     }
 
-                    using (var array = new GitStrArrayOut())
+                    var array = new GitStrArrayNative();
+
+                    try
                     {
                         int res = NativeMethods.git_remote_rename(
-                                  array,
-                                  remote,
-                                  new_name);
+                            ref array.Array,
+                            remote,
+                            new_name);
 
                         Ensure.ZeroResult(res);
 
-                        foreach (var item in array.Build ())
+                        foreach (var item in array.ReadStrings())
                         {
                             callback(item);
                         }
+                    }
+                    finally
+                    {
+                        array.Dispose();
                     }
                 }
             }
@@ -2788,11 +2857,19 @@ namespace LibGit2Sharp.Core
         {
             using (ThreadAffinity())
             {
-                UnSafeNativeMethods.git_strarray arr;
-                int res = UnSafeNativeMethods.git_tag_list(out arr, repo);
-                Ensure.ZeroResult(res);
+                var array = new GitStrArrayNative();
 
-                return Libgit2UnsafeHelper.BuildListOf(arr);
+                try
+                {
+                    int res = NativeMethods.git_tag_list(out array.Array, repo);
+                    Ensure.ZeroResult(res);
+
+                    return array.ReadStrings();
+                }
+                finally
+                {
+                    array.Dispose();
+                }
             }
         }
 
@@ -3092,45 +3169,6 @@ namespace LibGit2Sharp.Core
                         yield return next;
                     }
                 }
-            }
-        }
-
-        private static unsafe class Libgit2UnsafeHelper
-        {
-            public static IList<string> BuildListOf(UnSafeNativeMethods.git_strarray strArray)
-            {
-
-                try
-                {
-                    UnSafeNativeMethods.git_strarray* gitStrArray = &strArray;
-
-                    var numberOfEntries = (int)gitStrArray->size;
-                    var list = new List<string>(numberOfEntries);
-                    for (uint i = 0; i < numberOfEntries; i++)
-                    {
-                        var name = LaxUtf8Marshaler.FromNative((IntPtr)gitStrArray->strings[i]);
-                        list.Add(name);
-                    }
-
-                    return list;
-                }
-                finally
-                {
-                    UnSafeNativeMethods.git_strarray_free(ref strArray);
-                }
-            }
-
-            public static IList<GitRemoteHead> RemoteLsHelper(IntPtr heads, UIntPtr size)
-            {
-                var rawHeads = (IntPtr*) heads;
-                var count = (int) size;
-
-                var list = new List<GitRemoteHead>(count);
-                for (int i = 0; i < count; i++)
-                {
-                    list.Add(rawHeads[i].MarshalAs<GitRemoteHead>());
-                }
-                return list;
             }
         }
 

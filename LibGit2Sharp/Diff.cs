@@ -60,12 +60,11 @@ namespace LibGit2Sharp
                 options.NotifyCallback = matchedPathsAggregator.OnGitDiffNotify;
             }
 
-            if (filePaths == null)
+            if (filePaths != null)
             {
-                return options;
+                options.PathSpec = GitStrArrayManaged.BuildFrom(filePaths);
             }
 
-            options.PathSpec = GitStrArrayIn.BuildFrom(filePaths);
             return options;
         }
 

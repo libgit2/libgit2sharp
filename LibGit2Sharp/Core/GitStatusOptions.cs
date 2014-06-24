@@ -14,15 +14,10 @@ namespace LibGit2Sharp.Core
         public GitStatusShow Show;
         public GitStatusOptionFlags Flags;
 
-        GitStrArrayIn PathSpec;
+        GitStrArrayManaged PathSpec;
 
         public void Dispose()
         {
-            if (PathSpec == null)
-            {
-                return;
-            }
-
             PathSpec.Dispose();
         }
     }

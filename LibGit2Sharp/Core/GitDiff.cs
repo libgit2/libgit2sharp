@@ -189,7 +189,7 @@ namespace LibGit2Sharp.Core
         /* options controlling which files are in the diff */
 
         public SubmoduleIgnore IgnoreSubmodules;
-        public GitStrArrayIn PathSpec;
+        public GitStrArrayManaged PathSpec;
         public diff_notify_cb NotifyCallback;
         public IntPtr NotifyPayload;
 
@@ -204,11 +204,6 @@ namespace LibGit2Sharp.Core
 
         public void Dispose()
         {
-            if (PathSpec == null)
-            {
-                return;
-            }
-
             PathSpec.Dispose();
         }
     }

@@ -22,7 +22,7 @@ namespace LibGit2Sharp.Core
 
             if (paths != null)
             {
-                PathArray = GitStrArrayIn.BuildFrom(paths);
+                PathArray = GitStrArrayManaged.BuildFrom(paths);
             }
 
             Options = new GitCheckoutOpts
@@ -32,7 +32,7 @@ namespace LibGit2Sharp.Core
                 progress_cb = Callbacks.CheckoutProgressCallback,
                 notify_cb = Callbacks.CheckoutNotifyCallback,
                 notify_flags = options.CheckoutNotifyFlags,
-                paths = PathArray,
+                paths = PathArray.Array,
             };
         }
 
@@ -50,23 +50,11 @@ namespace LibGit2Sharp.Core
         /// <summary>
         /// Keep the paths around so we can dispose them.
         /// </summary>
-        private GitStrArrayIn PathArray;
+        private GitStrArrayManaged PathArray;
 
         public void Dispose()
         {
-            Dispose(true);
-        }
-
-        private void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                if (PathArray != null)
-                {
-                    PathArray.Dispose();
-                    PathArray = null;
-                }
-            }
+            PathArray.Dispose();
         }
 
         /// <summary>

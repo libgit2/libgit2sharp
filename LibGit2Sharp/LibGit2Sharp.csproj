@@ -138,7 +138,9 @@
     <Compile Include="LockedFileException.cs" />
     <Compile Include="Core\GitRepositoryInitOptions.cs" />
     <Compile Include="Core\HistoryRewriter.cs" />
-    <Compile Include="Core\GitStrArrayIn.cs" />
+    <Compile Include="Core\GitStrArray.cs" />
+    <Compile Include="Core\GitStrArrayManaged.cs" />
+    <Compile Include="Core\GitStrArrayNative.cs" />
     <Compile Include="Core\NativeDllName.cs" />
     <Compile Include="CommitRewriteInfo.cs" />
     <Compile Include="DiffModifiers.cs" />
@@ -277,7 +279,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Core\Handles\SafeHandleBase.cs" />
-    <Compile Include="Core\UnSafeNativeMethods.cs" />
     <Compile Include="Core\Utf8Marshaler.cs" />
     <Compile Include="DirectReference.cs" />
     <Compile Include="Core\GitIndexTime.cs" />
@@ -326,7 +327,6 @@
     <Compile Include="Core\RawContentStream.cs" />
     <Compile Include="Core\Handles\OdbStreamSafeHandle.cs" />
     <Compile Include="SupportedCredentialTypes.cs" />
-    <Compile Include="Core\GitStrArrayOut.cs" />
   </ItemGroup>
   <ItemGroup>
     <CodeAnalysisDictionary Include="CustomDictionary.xml" />

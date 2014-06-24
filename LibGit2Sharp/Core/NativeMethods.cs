@@ -214,7 +214,7 @@ namespace LibGit2Sharp.Core
 
         [DllImport(libgit2)]
         internal static extern int git_remote_rename(
-            GitStrArrayOut problems,
+            ref GitStrArray problems,
             RemoteSafeHandle remote,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string new_name);
 
@@ -888,6 +888,9 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string refname);
 
         [DllImport(libgit2)]
+        internal static extern int git_reference_list(out GitStrArray array, RepositorySafeHandle repo);
+
+        [DllImport(libgit2)]
         internal static extern int git_reference_lookup(
             out ReferenceSafeHandle reference,
             RepositorySafeHandle repo,
@@ -1049,20 +1052,29 @@ namespace LibGit2Sharp.Core
         internal static extern void git_remote_free(IntPtr remote);
 
         [DllImport(libgit2)]
+        internal static extern int git_remote_get_fetch_refspecs(out GitStrArray array, RemoteSafeHandle remote);
+
+        [DllImport(libgit2)]
         internal static extern GitRefSpecHandle git_remote_get_refspec(RemoteSafeHandle remote, UIntPtr n);
+
+        [DllImport(libgit2)]
+        internal static extern int git_remote_get_push_refspecs(out GitStrArray array, RemoteSafeHandle remote);
 
         [DllImport(libgit2)]
         internal static extern UIntPtr git_remote_refspec_count(RemoteSafeHandle remote);
 
         [DllImport(libgit2)]
-        internal static extern int git_remote_set_fetch_refspecs(RemoteSafeHandle remote, GitStrArrayIn array);
+        internal static extern int git_remote_set_fetch_refspecs(RemoteSafeHandle remote, ref GitStrArray array);
 
         [DllImport(libgit2)]
-        internal static extern int git_remote_set_push_refspecs(RemoteSafeHandle remote, GitStrArrayIn array);
+        internal static extern int git_remote_set_push_refspecs(RemoteSafeHandle remote, ref GitStrArray array);
 
         [DllImport(libgit2)]
         internal static extern int git_remote_is_valid_name(
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string remote_name);
+
+        [DllImport(libgit2)]
+        internal static extern int git_remote_list(out GitStrArray array, RepositorySafeHandle repo);
 
         [DllImport(libgit2)]
         internal static extern int git_remote_load(
@@ -1332,6 +1344,10 @@ namespace LibGit2Sharp.Core
             IntPtr statusList);
 
         [DllImport(libgit2)]
+        internal static extern void git_strarray_free(
+            ref GitStrArray array);
+
+        [DllImport(libgit2)]
         internal static extern int git_submodule_lookup(
             out SubmoduleSafeHandle reference,
             RepositorySafeHandle repo,
@@ -1438,6 +1454,9 @@ namespace LibGit2Sharp.Core
         internal static extern int git_tag_delete(
             RepositorySafeHandle repo,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string tagName);
+
+        [DllImport(libgit2)]
+        internal static extern int git_tag_list(out GitStrArray array, RepositorySafeHandle repo);
 
         [DllImport(libgit2)]
         [return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(LaxUtf8NoCleanupMarshaler))]

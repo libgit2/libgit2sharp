@@ -138,7 +138,7 @@ namespace LibGit2Sharp.Core
         public progress_cb progress_cb;
         public IntPtr progress_payload;
 
-        public GitStrArrayIn paths;
+        public GitStrArray paths;
 
         public IntPtr baseline;
         public IntPtr target_directory;
