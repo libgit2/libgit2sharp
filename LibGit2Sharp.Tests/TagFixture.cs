@@ -9,7 +9,7 @@ namespace LibGit2Sharp.Tests
 {
     public class TagFixture : BaseFixture
     {
-        private readonly string[] expectedTags = new[] { "e90810b", "lw", "point_to_blob", "test", };
+        private readonly string[] expectedTags = new[] { "e90810b", "lw", "point_to_blob", "tag_without_tagger", "test", };
 
         private static readonly Signature signatureTim = new Signature("Tim Clem", "timothy.clem@gmail.com", TruncateSubSeconds(DateTimeOffset.UtcNow));
         private static readonly Signature signatureNtk = new Signature("nulltoken", "emeric.fermas@gmail.com", Epoch.ToDateTimeOffset(1300557894, 60));
@@ -351,6 +351,25 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
+        public void CanReadTagWithoutTagger()
+        {
+            // Not all tags have a tagger.
+            using (var repo = new Repository(BareTestRepoPath))
+            {
+                Tag tag = repo.Tags["tag_without_tagger"];
+
+                Assert.True(tag.IsAnnotated);
+                Assert.NotNull(tag.Target);
+                Assert.Null(tag.Annotation.Tagger);
+
+                Tree tree = repo.Lookup<Tree>("581f9824ecaf824221bd36edf5430f2739a7c4f5");
+                Assert.NotNull(tree);
+                
+                Assert.Equal(tree.Id, tag.Target.Id);
+            }
+        }
+
+        [Fact]
         public void CanAddATagPointingToABlob()
         {
             string path = CloneBareTestRepo();
@@ -590,7 +609,7 @@ namespace LibGit2Sharp.Tests
             {
                 Assert.Equal(expectedTags, SortedTags(repo.Tags, t => t.Name));
 
-                Assert.Equal(4, repo.Tags.Count());
+                Assert.Equal(5, repo.Tags.Count());
             }
         }
 

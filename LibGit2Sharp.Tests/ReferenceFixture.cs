@@ -13,7 +13,7 @@ namespace LibGit2Sharp.Tests
                                                      {
                                                          "refs/heads/br2", "refs/heads/deadbeef", "refs/heads/master", "refs/heads/packed", "refs/heads/packed-test",
                                                          "refs/heads/test", "refs/notes/answer", "refs/notes/answer2", "refs/notes/commits", "refs/tags/e90810b",
-                                                         "refs/tags/lw", "refs/tags/point_to_blob", "refs/tags/test"
+                                                         "refs/tags/lw", "refs/tags/point_to_blob", "refs/tags/tag_without_tagger", "refs/tags/test"
                                                      };
 
         [Fact]
@@ -320,7 +320,7 @@ namespace LibGit2Sharp.Tests
 
                 Assert.Equal(expectedRefs, SortedRefs(repo, r => r.CanonicalName));
 
-                Assert.Equal(13, repo.Refs.Count());
+                Assert.Equal(14, repo.Refs.Count());
             }
         }
 
@@ -730,9 +730,9 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                Assert.Equal(12, repo.Refs.FromGlob("*").Count());
+                Assert.Equal(13, repo.Refs.FromGlob("*").Count());
                 Assert.Equal(5, repo.Refs.FromGlob("refs/heads/*").Count());
-                Assert.Equal(4, repo.Refs.FromGlob("refs/tags/*").Count());
+                Assert.Equal(5, repo.Refs.FromGlob("refs/tags/*").Count());
                 Assert.Equal(3, repo.Refs.FromGlob("*t?[pqrs]t*").Count());
                 Assert.Equal(0, repo.Refs.FromGlob("test").Count());
             }

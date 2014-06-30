@@ -2885,7 +2885,17 @@ namespace LibGit2Sharp.Core
 
         public static Signature git_tag_tagger(GitObjectSafeHandle tag)
         {
-            return new Signature(NativeMethods.git_tag_tagger(tag));
+            IntPtr taggerHandle = NativeMethods.git_tag_tagger(tag);
+
+            // Not all tags have a tagger signature - we need to handle
+            // this case.
+            Signature tagger = null;
+            if (taggerHandle != IntPtr.Zero)
+            {
+                tagger = new Signature(NativeMethods.git_tag_tagger(tag));
+            }
+
+            return tagger;
         }
 
         public static ObjectId git_tag_target_id(GitObjectSafeHandle tag)
