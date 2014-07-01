@@ -2892,7 +2892,7 @@ namespace LibGit2Sharp.Core
             Signature tagger = null;
             if (taggerHandle != IntPtr.Zero)
             {
-                tagger = new Signature(NativeMethods.git_tag_tagger(tag));
+                tagger = new Signature(taggerHandle);
             }
 
             return tagger;
