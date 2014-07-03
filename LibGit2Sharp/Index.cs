@@ -129,32 +129,70 @@ namespace LibGit2Sharp
 
         /// <summary>
         /// Promotes to the staging area the latest modifications of a file in the working directory (addition, updation or removal).
+        /// 
+        /// If this path is ignored by configuration then it will not be staged.
         /// </summary>
         /// <param name="path">The path of the file within the working directory.</param>
         /// <param name="explicitPathsOptions">
         /// If set, the passed <paramref name="path"/> will be treated as explicit paths.
         /// Use these options to determine how unmatched explicit paths should be handled.
         /// </param>
-        public virtual void Stage(string path, ExplicitPathsOptions explicitPathsOptions = null)
+        [Obsolete("This will be removed in a future release. Supply ExplicitPathsOptions to StageOptions.")]
+        public virtual void Stage(string path, ExplicitPathsOptions explicitPathsOptions)
+        {
+            Stage(path, new StageOptions { ExplicitPathsOptions = explicitPathsOptions });
+        }
+
+        /// <summary>
+        /// Promotes to the staging area the latest modifications of a file in the working directory (addition, updation or removal).
+        /// 
+        /// If this path is ignored by configuration then it will not be staged unless <see cref="StageOptions.IncludeIgnored"/> is unset.
+        /// </summary>
+        /// <param name="path">The path of the file within the working directory.</param>
+        /// <param name="stageOptions">If set, determines how paths will be staged.</param>
+        public virtual void Stage(string path, StageOptions stageOptions = null)
         {
             Ensure.ArgumentNotNull(path, "path");
 
-            Stage(new[] { path }, explicitPathsOptions);
+            Stage(new[] { path }, stageOptions);
         }
 
         /// <summary>
         /// Promotes to the staging area the latest modifications of a collection of files in the working directory (addition, updation or removal).
+        /// 
+        /// Any paths (even those listed explicitly) that are ignored by configuration will not be staged.
         /// </summary>
         /// <param name="paths">The collection of paths of the files within the working directory.</param>
         /// <param name="explicitPathsOptions">
         /// If set, the passed <paramref name="paths"/> will be treated as explicit paths.
         /// Use these options to determine how unmatched explicit paths should be handled.
         /// </param>
-        public virtual void Stage(IEnumerable<string> paths, ExplicitPathsOptions explicitPathsOptions = null)
+        [Obsolete("This will be removed in a future release. Supply ExplicitPathsOptions to StageOptions.")]
+        public virtual void Stage(IEnumerable<string> paths, ExplicitPathsOptions explicitPathsOptions)
+        {
+            Stage(paths, new StageOptions { ExplicitPathsOptions = explicitPathsOptions });
+        }
+
+        /// <summary>
+        /// Promotes to the staging area the latest modifications of a collection of files in the working directory (addition, updation or removal).
+        /// 
+        /// Any paths (even those listed explicitly) that are ignored by configuration will not be staged unless <see cref="StageOptions.IncludeIgnored"/> is unset.
+        /// </summary>
+        /// <param name="paths">The collection of paths of the files within the working directory.</param>
+        /// <param name="stageOptions">If set, determines how paths will be staged.</param>
+        public virtual void Stage(IEnumerable<string> paths, StageOptions stageOptions = null)
         {
             Ensure.ArgumentNotNull(paths, "paths");
 
-            var changes = repo.Diff.Compare<TreeChanges>(DiffModifiers.IncludeUntracked | DiffModifiers.IncludeIgnored, paths, explicitPathsOptions);
+            DiffModifiers diffModifiers = DiffModifiers.IncludeUntracked;
+            ExplicitPathsOptions explicitPathsOptions = stageOptions != null ? stageOptions.ExplicitPathsOptions : null;
+
+            if (stageOptions != null && stageOptions.IncludeIgnored)
+            {
+                diffModifiers |= DiffModifiers.IncludeIgnored;
+            }
+
+            var changes = repo.Diff.Compare<TreeChanges>(diffModifiers, paths, explicitPathsOptions);
 
             foreach (var treeEntryChanges in changes)
             {

@@ -50,7 +50,7 @@ namespace LibGit2Sharp.Tests
 
                 Assert.Equal(FileStatus.Ignored, repo.Index.RetrieveStatus(relativePath));
 
-                repo.Index.Stage(relativePath);
+                repo.Index.Stage(relativePath, new StageOptions { IncludeIgnored = true });
                 Assert.Equal(FileStatus.Added, repo.Index.RetrieveStatus(relativePath));
 
                 repo.Index.Unstage(relativePath);

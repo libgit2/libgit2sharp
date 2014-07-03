@@ -132,6 +132,7 @@
     <Compile Include="RevertResult.cs" />
     <Compile Include="SignatureExtensions.cs" />
     <Compile Include="RevertOptions.cs" />
+    <Compile Include="StageOptions.cs" />
     <Compile Include="StatusOptions.cs" />
     <Compile Include="SimilarityOptions.cs" />
     <Compile Include="UnbornBranchException.cs" />

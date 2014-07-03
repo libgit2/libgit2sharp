@@ -67,7 +67,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Null(repo.Index[relativePath]);
                 Assert.Equal(status, repo.Index.RetrieveStatus(relativePath));
 
-                Assert.Throws<UnmatchedPathException>(() => repo.Index.Stage(relativePath, new ExplicitPathsOptions()));
+                Assert.Throws<UnmatchedPathException>(() => repo.Index.Stage(relativePath, new StageOptions { ExplicitPathsOptions = new ExplicitPathsOptions() }));
             }
         }
 
@@ -82,7 +82,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(status, repo.Index.RetrieveStatus(relativePath));
 
                 Assert.DoesNotThrow(() => repo.Index.Stage(relativePath));
-                Assert.DoesNotThrow(() => repo.Index.Stage(relativePath, new ExplicitPathsOptions { ShouldFailOnUnmatchedPath = false }));
+                Assert.DoesNotThrow(() => repo.Index.Stage(relativePath, new StageOptions { ExplicitPathsOptions = new ExplicitPathsOptions { ShouldFailOnUnmatchedPath = false } }));
 
                 Assert.Equal(status, repo.Index.RetrieveStatus(relativePath));
             }
@@ -99,7 +99,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(status, repo.Index.RetrieveStatus(relativePath));
 
                 repo.Index.Stage(relativePath);
-                repo.Index.Stage(relativePath, new ExplicitPathsOptions { ShouldFailOnUnmatchedPath = false });
+                repo.Index.Stage(relativePath, new StageOptions { ExplicitPathsOptions = new ExplicitPathsOptions { ShouldFailOnUnmatchedPath = false } });
             }
         }
 
@@ -302,6 +302,22 @@ namespace LibGit2Sharp.Tests
         [Theory]
         [InlineData("ignored_file.txt")]
         [InlineData("ignored_folder/file.txt")]
+        public void CanIgnoreIgnoredPaths(string path)
+        {
+            using (var repo = new Repository(CloneStandardTestRepo()))
+            {
+                Touch(repo.Info.WorkingDirectory, ".gitignore", "ignored_file.txt\nignored_folder/\n");
+                Touch(repo.Info.WorkingDirectory, path, "This file is ignored.");
+
+                Assert.Equal(FileStatus.Ignored, repo.Index.RetrieveStatus(path));
+                repo.Index.Stage("*");
+                Assert.Equal(FileStatus.Ignored, repo.Index.RetrieveStatus(path));
+            }
+        }
+
+        [Theory]
+        [InlineData("ignored_file.txt")]
+        [InlineData("ignored_folder/file.txt")]
         public void CanStageIgnoredPaths(string path)
         {
             using (var repo = new Repository(CloneStandardTestRepo()))
@@ -310,7 +326,7 @@ namespace LibGit2Sharp.Tests
                 Touch(repo.Info.WorkingDirectory, path, "This file is ignored.");
 
                 Assert.Equal(FileStatus.Ignored, repo.Index.RetrieveStatus(path));
-                repo.Index.Stage(path);
+                repo.Index.Stage(path, new StageOptions { IncludeIgnored = true });
                 Assert.Equal(FileStatus.Added, repo.Index.RetrieveStatus(path));
             }
         }
