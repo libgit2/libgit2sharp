@@ -160,4 +160,50 @@ namespace LibGit2Sharp.Core
 
         CheckoutNotifyFlags CheckoutNotifyFlags { get; }
     }
+
+    /// <summary>
+    /// This wraps an IConvertableToGitCheckoutOpts object and can tweak the
+    /// properties so that they are appropriate for a checkout performed as
+    /// part of a FastForward merge. Most properties are passthrough to the
+    /// wrapped object.
+    /// </summary>
+    internal class FastForwardCheckoutOptionsAdapter : IConvertableToGitCheckoutOpts
+    {
+        private IConvertableToGitCheckoutOpts internalOptions;
+
+        internal FastForwardCheckoutOptionsAdapter(IConvertableToGitCheckoutOpts internalOptions)
+        {
+            this.internalOptions = internalOptions;
+        }
+
+        /// <summary>
+        /// Passthrough to the wrapped object.
+        /// </summary>
+        /// <returns></returns>
+        public CheckoutCallbacks GenerateCallbacks()
+        {
+            return internalOptions.GenerateCallbacks();
+        }
+
+        /// <summary>
+        /// There should be no resolvable conflicts in a FastForward merge.
+        /// Just perform checkout with the safe checkout strategy.
+        /// </summary>
+        public CheckoutStrategy CheckoutStrategy
+        {
+            get
+            {
+                return CheckoutStrategy.GIT_CHECKOUT_SAFE;
+            }
+        }
+
+        /// <summary>
+        /// Passthrough to the wrapped object.
+        /// </summary>
+        /// <returns></returns>
+        public CheckoutNotifyFlags CheckoutNotifyFlags
+        {
+            get { return internalOptions.CheckoutNotifyFlags; }
+        }
+    }
 }

@@ -1351,7 +1351,7 @@ namespace LibGit2Sharp
             Commit fastForwardCommit = (Commit) Lookup(id, ObjectType.Commit);
             Ensure.GitObjectIsNotNull(fastForwardCommit, id.Sha);
 
-            CheckoutTree(fastForwardCommit.Tree, null, options);
+            CheckoutTree(fastForwardCommit.Tree, null, new FastForwardCheckoutOptionsAdapter(options));
 
             var reference = Refs.Head.ResolveToDirectReference();
 

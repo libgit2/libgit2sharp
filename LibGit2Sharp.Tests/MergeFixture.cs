@@ -573,6 +573,32 @@ namespace LibGit2Sharp.Tests
         }
 
         [Theory]
+        [InlineData(true, FastForwardStrategy.FastForwardOnly)]
+        [InlineData(false, FastForwardStrategy.FastForwardOnly)]
+        [InlineData(true, FastForwardStrategy.NoFastFoward)]
+        [InlineData(false, FastForwardStrategy.NoFastFoward)]
+        public void MergeWithWorkDirConflictsThrows(bool shouldStage, FastForwardStrategy strategy)
+        {
+            // Merging the fast_forward branch results in a change to file
+            // b.txt. In this test we modify the file in the working directory
+            // and then attempt to perform a merge. We expect the merge to fail
+            // due to merge conflicts.
+            string committishToMerge = "fast_forward";
+
+            using (var repo = new Repository(CloneMergeTestRepo()))
+            {
+                Touch(repo.Info.WorkingDirectory, "b.txt", "this is an alternate change");
+
+                if (shouldStage)
+                {
+                    repo.Index.Stage("b.txt");
+                }
+
+                Assert.Throws<MergeConflictException>(() => repo.Merge(committishToMerge, Constants.Signature, new MergeOptions() { FastForwardStrategy = strategy }));
+            }
+        }
+
+        [Theory]
         [InlineData(CheckoutFileConflictStrategy.Ours)]
         [InlineData(CheckoutFileConflictStrategy.Theirs)]
         public void CanSpecifyConflictFileStrategy(CheckoutFileConflictStrategy conflictStrategy)
