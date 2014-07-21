@@ -15,6 +15,7 @@ namespace LibGit2Sharp
         public CloneOptions()
         {
             Checkout = true;
+            OnRemoteCreation = DefaultRemoteCreationHandler;
         }
 
         /// <summary>
@@ -48,6 +49,34 @@ namespace LibGit2Sharp
         /// Handler to generate <see cref="LibGit2Sharp.Credentials"/> for authentication.
         /// </summary>
         public CredentialsHandler CredentialsProvider { get; set; }
+
+        /// <summary>
+        /// Handler to use to create the remote.
+        /// </summary>
+        public RemoteCreationHandler OnRemoteCreation { get; set; }
+
+        /// <summary>
+        /// Default remote creation handler for the CloneOptions.
+        /// </summary>
+        /// <param name="repo">The repository where the remote should be created</param>
+        /// <param name="name">The suggested name of the remote</param>
+        /// <param name="url">The suggested URL of the remote</param>
+        /// <returns>The created remote</returns>
+        public Remote DefaultRemoteCreationHandler(Repository repo, string name, string url)
+        {
+            // Use the suggested remote name (generally "origin") and URI.
+            Remote remote = repo.Network.Remotes.Add(name, url);
+
+            // TODO: The caller ought to be able to invoke any or all of the following here:
+            //   git_remote_set_transport
+            //   git_remote_check_cert
+            //   git_remote_set_callbacks
+            //
+            // These all represent volatile properties of a git_remote instance, and are not
+            // serialized back to the "store" of remotes.
+
+            return remote;
+        }
 
         #region IConvertableToGitCheckoutOpts
 
