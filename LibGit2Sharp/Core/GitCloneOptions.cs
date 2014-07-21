@@ -20,11 +20,15 @@ namespace LibGit2Sharp.Core
         public GitRemoteCallbacks RemoteCallbacks;
 
         public int Bare;
-        public int IgnoreCertErrors;
         public GitCloneLocal Local;
-
-        public IntPtr RemoteName;
         public IntPtr CheckoutBranch;
+
         public IntPtr signature; // Really a SignatureSafeHandle
+
+        public IntPtr RepositoryCb;
+        public IntPtr RepositoryCbPayload;
+
+        public IntPtr RemoteCb;
+        public IntPtr RemoteCbPayload;
     }
 }
