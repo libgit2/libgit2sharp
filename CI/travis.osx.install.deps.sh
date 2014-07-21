@@ -4,7 +4,7 @@ set -ev
 MONO_VER=2.10.10
 
 brew update
-brew install cmake
+which cmake || brew install cmake
 
 wget "http://download.mono-project.com/archive/${MONO_VER}/macos-10-x86/MonoFramework-MDK-${MONO_VER}.macos10.xamarin.x86.dmg"
 hdid "MonoFramework-MDK-${MONO_VER}.macos10.xamarin.x86.dmg"
