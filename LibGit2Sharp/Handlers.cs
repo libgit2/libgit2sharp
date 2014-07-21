@@ -97,6 +97,21 @@
     public delegate void RemoteRenameFailureHandler(string problematicRefspec);
 
     /// <summary>
+    /// Delegate definition for remote creation callback during a clone operation.
+    /// <para>
+    ///   This callback is called to allow the caller of Repository.Clone to override
+    ///   the creation of the remote prior to its use in the clone process. The caller
+    ///   can use this callback to customize properties such as the remote name, SSL
+    ///   certificate validation, and the transport to be used to perform the clone.
+    /// </para>
+    /// </summary>
+    /// <param name="repo">The repository where the remote should be created</param>
+    /// <param name="name">The suggested name of the remote</param>
+    /// <param name="url">The suggested URL of the remote</param>
+    /// <returns>The created remote</returns>
+    public delegate Remote RemoteCreationHandler(Repository repo, string name, string url);
+
+    /// <summary>
     /// The stages of pack building.
     /// </summary>
     public enum PackBuilderStage

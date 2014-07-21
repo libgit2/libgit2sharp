@@ -28,7 +28,7 @@ namespace LibGit2Sharp.Core
         public IntPtr RepositoryCb;
         public IntPtr RepositoryCbPayload;
 
-        public IntPtr RemoteCb;
+        public NativeMethods.git_remote_create_cb RemoteCb;
         public IntPtr RemoteCbPayload;
     }
 }

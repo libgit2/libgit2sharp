@@ -39,7 +39,7 @@ namespace LibGit2Sharp
         private readonly Lazy<PathCase> pathCase;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Repository"/> class, providing ooptional behavioral overrides through <paramref name="options"/> parameter.
+        /// Initializes a new instance of the <see cref="Repository"/> class, providing optional behavioral overrides through <paramref name="options"/> parameter.
         /// <para>For a standard repository, <paramref name="path"/> should either point to the ".git" folder or to the working directory. For a bare repository, <paramref name="path"/> should directly point to the repository folder.</para>
         /// </summary>
         /// <param name="path">
@@ -50,12 +50,22 @@ namespace LibGit2Sharp
         /// Overrides to the way a repository is opened.
         /// </param>
         public Repository(string path, RepositoryOptions options = null)
+            : this(RepositoryHandleFromPath(path), options)
         {
-            Ensure.ArgumentNotNullOrEmptyString(path, "path");
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Repository"/> class from a pre-existing <see cref="RepositorySafeHandle"/>.
+        /// </summary>
+        /// <param name="repoHandle">
+        /// The RepositorySafeHandle from which to create the Repository instance.
+        /// </param>
+        internal Repository(RepositorySafeHandle repoHandle, RepositoryOptions options = null)
+        {
+            handle = repoHandle;
 
             try
             {
-                handle = Proxy.git_repository_open(path);
                 RegisterForCleanup(handle);
 
                 isBare = Proxy.git_repository_is_bare(handle);
@@ -125,6 +135,13 @@ namespace LibGit2Sharp
                 CleanupDisposableDependencies();
                 throw;
             }
+        }
+
+        private static RepositorySafeHandle RepositoryHandleFromPath(string path)
+        {
+            Ensure.ArgumentNotNullOrEmptyString(path, "path");
+
+            return Proxy.git_repository_open(path);
         }
 
         /// <summary>
@@ -548,12 +565,51 @@ namespace LibGit2Sharp
                 var remoteCallbacks = new RemoteCallbacks(null, options.OnTransferProgress, null, options.CredentialsProvider);
                 var gitRemoteCallbacks = remoteCallbacks.GenerateCallbacks();
 
+                NativeMethods.git_remote_create_cb remote_cb = delegate(
+                    out IntPtr remotePtr,
+                    IntPtr repoPtr,
+                    IntPtr name,
+                    IntPtr url,
+                    IntPtr payload)
+                {
+                    remotePtr = IntPtr.Zero;
+
+                    try
+                    {
+                        // Create a new RepositorySafeHandle and Repository from the provided pointer.
+                        using (RepositorySafeHandle repoHandle = new RepositorySafeHandle(repoPtr))
+                        using (Repository repository = new Repository(repoHandle))
+                        {
+                            Remote remote = options.OnRemoteCreation(repository, LaxUtf8Marshaler.FromNative(name), LaxUtf8Marshaler.FromNative(url));
+
+                            using (RemoteSafeHandle remoteHandle = Proxy.git_remote_load(repository.Handle, remote.Name, throwsIfNotFound: true))
+                            {
+                                // I want for this behavior to be done by the OnRemoteCreation callback. But because it doesn't return a git_remote
+                                // (it returns something else) I have to do it here.
+                                Proxy.git_remote_set_callbacks(remoteHandle, ref gitRemoteCallbacks);
+
+                                // Transfer ownership of this object back to libgit2.
+                                remotePtr = remoteHandle.DangerousGetHandle();
+                                remoteHandle.SetHandleAsInvalid();
+                            }
+                        }
+
+                        return (int)GitErrorCode.Ok;
+                    }
+                    catch (Exception ex)
+                    {
+                        Proxy.giterr_set_str(GitErrorCategory.Net, ex);
+
+                        return (int)GitErrorCode.Error;
+                    }
+                };
+
                 var cloneOpts = new GitCloneOptions
                 {
                     Version = 1,
                     Bare = options.IsBare ? 1 : 0,
                     CheckoutOpts = gitCheckoutOptions,
-                    RemoteCallbacks = gitRemoteCallbacks,
+                    RemoteCb = remote_cb
                 };
 
                 FilePath repoPath;

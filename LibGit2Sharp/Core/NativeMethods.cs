@@ -256,6 +256,13 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictFilePathMarshaler))] FilePath workdir_path,
             ref GitCloneOptions opts);
 
+        internal delegate int git_remote_create_cb(
+            out IntPtr remote,
+            IntPtr repo,
+            IntPtr name,
+            IntPtr url,
+            IntPtr payload);
+
         [DllImport(libgit2)]
         internal static extern IntPtr git_commit_author(GitObjectSafeHandle commit);
 
