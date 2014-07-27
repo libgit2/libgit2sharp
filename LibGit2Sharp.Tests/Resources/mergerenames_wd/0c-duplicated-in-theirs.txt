@@ -1,0 +1,23 @@
+this file will be rewritten in
+theirs, and its contents will be
+duplicated in another file.
+but it will not be eligible for
+rename detection.
+
+this file will be rewritten in
+theirs, and its contents will be
+duplicated in another file.
+but it will not be eligible for
+rename detection.
+
+this file will be rewritten in
+theirs, and its contents will be
+duplicated in another file.
+but it will not be eligible for
+rename detection.
+
+this file will be rewritten in
+theirs, and its contents will be
+duplicated in another file.
+but it will not be eligible for
+rename detection.

@@ -56,18 +56,43 @@ namespace LibGit2Sharp.Core
         /// </summary>
         GIT_CHECKOUT_NO_REFRESH = (1 << 9),
 
-        ///Allow checkout to skip unmerged files (NOT IMPLEMENTED)
+        ///Allow checkout to skip unmerged files
         GIT_CHECKOUT_SKIP_UNMERGED = (1 << 10),
 
         /// <summary>
-        /// For unmerged files, checkout stage 2 from index (NOT IMPLEMENTED)
+        /// For unmerged files, checkout stage 2 from index
         /// </summary>
         GIT_CHECKOUT_USE_OURS = (1 << 11),
 
         /// <summary>
-        /// For unmerged files, checkout stage 3 from index (NOT IMPLEMENTED)
+        /// For unmerged files, checkout stage 3 from index
         /// </summary>
         GIT_CHECKOUT_USE_THEIRS = (1 << 12),
+
+        /// <summary>
+        /// Treat pathspec as simple list of exact match file paths
+        /// </summary>
+        GIT_CHECKOUT_DISABLE_PATHSPEC_MATCH = (1 << 13),
+
+        /// <summary>
+        /// Ignore directories in use, they will be left empty
+        /// </summary>
+        GIT_CHECKOUT_SKIP_LOCKED_DIRECTORIES = (1 << 18),
+
+        /// <summary>
+        /// Don't overwrite ignored files that exist in the checkout target
+        /// </summary>
+        GIT_CHECKOUT_DONT_OVERWRITE_IGNORED = (1 << 19),
+
+        /// <summary>
+        /// Write normal merge files for conflicts
+        /// </summary>
+        GIT_CHECKOUT_CONFLICT_STYLE_MERGE = (1 << 20),
+
+        /// <summary>
+        /// Include common ancestor data in diff3 format files for conflicts
+        /// </summary>
+        GIT_CHECKOUT_CONFLICT_STYLE_DIFF3 = (1 << 21),
 
         /// <summary>
         /// Recursively checkout submodules with same options (NOT IMPLEMENTED)
@@ -95,7 +120,7 @@ namespace LibGit2Sharp.Core
             IntPtr payload);
 
     [StructLayout(LayoutKind.Sequential)]
-    internal struct GitCheckoutOpts :IDisposable
+    internal struct GitCheckoutOpts
     {
         public uint version;
 
@@ -113,19 +138,72 @@ namespace LibGit2Sharp.Core
         public progress_cb progress_cb;
         public IntPtr progress_payload;
 
-        public GitStrArrayIn paths;
+        public GitStrArray paths;
 
         public IntPtr baseline;
         public IntPtr target_directory;
 
-        public void Dispose()
-        {
-            if (paths == null)
-            {
-                return;
-            }
+        public IntPtr ancestor_label;
+        public IntPtr our_label;
+        public IntPtr their_label;
+    }
 
-            paths.Dispose();
+    /// <summary>
+    /// An inteface for objects that specify parameters from which a
+    /// GitCheckoutOpts struct can be populated.
+    /// </summary>
+    internal interface IConvertableToGitCheckoutOpts
+    {
+        CheckoutCallbacks GenerateCallbacks();
+
+        CheckoutStrategy CheckoutStrategy { get; }
+
+        CheckoutNotifyFlags CheckoutNotifyFlags { get; }
+    }
+
+    /// <summary>
+    /// This wraps an IConvertableToGitCheckoutOpts object and can tweak the
+    /// properties so that they are appropriate for a checkout performed as
+    /// part of a FastForward merge. Most properties are passthrough to the
+    /// wrapped object.
+    /// </summary>
+    internal class FastForwardCheckoutOptionsAdapter : IConvertableToGitCheckoutOpts
+    {
+        private IConvertableToGitCheckoutOpts internalOptions;
+
+        internal FastForwardCheckoutOptionsAdapter(IConvertableToGitCheckoutOpts internalOptions)
+        {
+            this.internalOptions = internalOptions;
+        }
+
+        /// <summary>
+        /// Passthrough to the wrapped object.
+        /// </summary>
+        /// <returns></returns>
+        public CheckoutCallbacks GenerateCallbacks()
+        {
+            return internalOptions.GenerateCallbacks();
+        }
+
+        /// <summary>
+        /// There should be no resolvable conflicts in a FastForward merge.
+        /// Just perform checkout with the safe checkout strategy.
+        /// </summary>
+        public CheckoutStrategy CheckoutStrategy
+        {
+            get
+            {
+                return CheckoutStrategy.GIT_CHECKOUT_SAFE;
+            }
+        }
+
+        /// <summary>
+        /// Passthrough to the wrapped object.
+        /// </summary>
+        /// <returns></returns>
+        public CheckoutNotifyFlags CheckoutNotifyFlags
+        {
+            get { return internalOptions.CheckoutNotifyFlags; }
         }
     }
 }

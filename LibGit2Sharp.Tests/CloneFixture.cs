@@ -36,20 +36,20 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        private void AssertLocalClone(string path)
+        private void AssertLocalClone(string url, string path = null, bool isCloningAnEmptyRepository = false)
         {
             var scd = BuildSelfCleaningDirectory();
 
-            string clonedRepoPath = Repository.Clone(path, scd.DirectoryPath);
+            string clonedRepoPath = Repository.Clone(url, scd.DirectoryPath);
 
             using (var clonedRepo = new Repository(clonedRepoPath))
-            using (var originalRepo = new Repository(BareTestRepoPath))
+            using (var originalRepo = new Repository(path ?? url))
             {
                 Assert.NotEqual(originalRepo.Info.Path, clonedRepo.Info.Path);
                 Assert.Equal(originalRepo.Head, clonedRepo.Head);
 
                 Assert.Equal(originalRepo.Branches.Count(), clonedRepo.Branches.Count(b => b.IsRemote));
-                Assert.Equal(1, clonedRepo.Branches.Count(b => !b.IsRemote));
+                Assert.Equal(isCloningAnEmptyRepository ? 0 : 1, clonedRepo.Branches.Count(b => !b.IsRemote));
 
                 Assert.Equal(originalRepo.Tags.Count(), clonedRepo.Tags.Count());
                 Assert.Equal(1, clonedRepo.Network.Remotes.Count());
@@ -60,13 +60,22 @@ namespace LibGit2Sharp.Tests
         public void CanCloneALocalRepositoryFromALocalUri()
         {
             var uri = new Uri(BareTestRepoPath);
-            AssertLocalClone(uri.AbsoluteUri);
+            AssertLocalClone(uri.AbsoluteUri, BareTestRepoPath);
         }
 
         [Fact]
         public void CanCloneALocalRepositoryFromAStandardPath()
         {
             AssertLocalClone(BareTestRepoPath);
+        }
+
+        [Fact]
+        public void CanCloneALocalRepositoryFromANewlyCreatedTemporaryPath()
+        {
+            var path = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString().Substring(0, 8));
+            SelfCleaningDirectory scd = BuildSelfCleaningDirectory(path);
+            Repository.Init(scd.DirectoryPath);
+            AssertLocalClone(scd.DirectoryPath, isCloningAnEmptyRepository: true);
         }
 
         [Theory]
@@ -78,7 +87,10 @@ namespace LibGit2Sharp.Tests
         {
             var scd = BuildSelfCleaningDirectory();
 
-            string clonedRepoPath = Repository.Clone(url, scd.DirectoryPath, bare: true);
+            string clonedRepoPath = Repository.Clone(url, scd.DirectoryPath, new CloneOptions
+                {
+                    IsBare = true
+                });
 
             using (var repo = new Repository(clonedRepoPath))
             {
@@ -98,7 +110,10 @@ namespace LibGit2Sharp.Tests
         {
             var scd = BuildSelfCleaningDirectory();
 
-            string clonedRepoPath = Repository.Clone(url, scd.DirectoryPath, checkout: false);
+            string clonedRepoPath = Repository.Clone(url, scd.DirectoryPath, new CloneOptions()
+            {
+                Checkout = false
+            });
 
             using (var repo = new Repository(clonedRepoPath))
             {
@@ -115,9 +130,11 @@ namespace LibGit2Sharp.Tests
 
             var scd = BuildSelfCleaningDirectory();
 
-            Repository.Clone(url, scd.DirectoryPath, 
-                onTransferProgress: _ => { transferWasCalled = true; return 0; },
-                onCheckoutProgress: (a, b, c) => checkoutWasCalled = true);
+            Repository.Clone(url, scd.DirectoryPath, new CloneOptions()
+            {
+                OnTransferProgress = _ => { transferWasCalled = true; return true; },
+                OnCheckoutProgress = (a, b, c) => checkoutWasCalled = true
+            });
 
             Assert.True(transferWasCalled);
             Assert.True(checkoutWasCalled);
@@ -132,12 +149,36 @@ namespace LibGit2Sharp.Tests
             var scd = BuildSelfCleaningDirectory();
 
             string clonedRepoPath = Repository.Clone(Constants.PrivateRepoUrl, scd.DirectoryPath,
-                credentials: new Credentials
-                                 {
-                                     Username = Constants.PrivateRepoUsername,
-                                     Password = Constants.PrivateRepoPassword
-                                 });
+                new CloneOptions()
+                {
+                    CredentialsProvider = Constants.PrivateRepoCredentials
+                });
 
+
+            using (var repo = new Repository(clonedRepoPath))
+            {
+                string dir = repo.Info.Path;
+                Assert.True(Path.IsPathRooted(dir));
+                Assert.True(Directory.Exists(dir));
+
+                Assert.NotNull(repo.Info.WorkingDirectory);
+                Assert.Equal(Path.Combine(scd.RootedDirectoryPath, ".git" + Path.DirectorySeparatorChar), repo.Info.Path);
+                Assert.False(repo.Info.IsBare);
+            }
+        }
+
+        [Theory]
+        [InlineData("https://libgit2@bitbucket.org/libgit2/testgitrepository.git", "libgit3", "libgit3")]
+        public void CanCloneFromBBWithCredentials(string url, string user, string pass)
+        {
+            var scd = BuildSelfCleaningDirectory();
+
+            string clonedRepoPath = Repository.Clone(url, scd.DirectoryPath, new CloneOptions() {
+                CredentialsProvider = (_url, _user, _cred) => new UsernamePasswordCredentials {
+                    Username = user,
+                    Password = pass,
+                }
+            });
 
             using (var repo = new Repository(clonedRepoPath))
             {

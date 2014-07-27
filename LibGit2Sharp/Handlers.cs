@@ -10,7 +10,8 @@
     /// <param name="serverProgressOutput">text reported by the server.
     /// Text can be chunked at arbitrary increments (i.e. can be composed
     /// of a partial line of text).</param>
-    public delegate void ProgressHandler(string serverProgressOutput);
+    /// <returns>True to continue, false to cancel.</returns>
+    public delegate bool ProgressHandler(string serverProgressOutput);
 
     /// <summary>
     /// Delegate definition to handle UpdateTips callback.
@@ -18,20 +19,41 @@
     /// <param name="referenceName">Name of the updated reference.</param>
     /// <param name="oldId">Old ID of the reference.</param>
     /// <param name="newId">New ID of the reference.</param>
-    /// <returns>Return negative integer to cancel.</returns>
-    public delegate int UpdateTipsHandler(string referenceName, ObjectId oldId, ObjectId newId);
+    /// <returns>True to continue, false to cancel.</returns>
+    public delegate bool UpdateTipsHandler(string referenceName, ObjectId oldId, ObjectId newId);
 
     /// <summary>
-    /// Delegate definition to handle Completion callback.
+    /// Delegate definition for the credentials retrieval callback
     /// </summary>
-    public delegate int CompletionHandler(RemoteCompletionType remoteCompletionType);
+    /// <param name="url">The url</param>
+    /// <param name="usernameFromUrl">Username which was extracted from the url, if any</param>
+    /// <param name="types">Credential types which the server accepts</param>
+    public delegate Credentials CredentialsHandler(string url, string usernameFromUrl, SupportedCredentialTypes types);
 
     /// <summary>
     /// Delegate definition for transfer progress callback.
     /// </summary>
     /// <param name="progress">The <see cref="TransferProgress"/> object containing progress information.</param>
-    /// <returns>Return negative integer to cancel.</returns>
-    public delegate int TransferProgressHandler(TransferProgress progress);
+    /// <returns>True to continue, false to cancel.</returns>
+    public delegate bool TransferProgressHandler(TransferProgress progress);
+
+    /// <summary>
+    /// Delegate definition for callback reporting push network progress.
+    /// </summary>
+    /// <param name="current">The current number of objects sent to server.</param>
+    /// <param name="total">The total number of objects to send to the server.</param>
+    /// <param name="bytes">The number of bytes sent to the server.</param>
+    /// <returns>True to continue, false to cancel.</returns>
+    public delegate bool PushTransferProgressHandler(int current, int total, long bytes);
+
+    /// <summary>
+    /// Delegate definition for callback reporting pack builder progress.
+    /// </summary>
+    /// <param name="stage">The current stage progress is being reported for.</param>
+    /// <param name="current">The current number of objects processed in this this stage.</param>
+    /// <param name="total">The total number of objects to process for the current stage.</param>
+    /// <returns>True to continue, false to cancel.</returns>
+    public delegate bool PackBuilderProgressHandler(PackBuilderStage stage, int current, int total);
 
     /// <summary>
     /// Delegate definition to handle reporting errors when updating references on the remote.
@@ -63,4 +85,30 @@
     /// </summary>
     /// <param name="unmatchedPath">The unmatched path.</param>
     public delegate void UnmatchedPathHandler(string unmatchedPath);
+
+    /// <summary>
+    /// Delegate definition for remote rename failure callback.
+    /// <para>
+    ///   This callback will be called to notify the caller of fetch refspecs
+    ///   that haven't been automatically updated and need potential manual tweaking.
+    /// </para>
+    /// </summary>
+    /// <param name="problematicRefspec">The refspec which didn't match the default.</param>
+    public delegate void RemoteRenameFailureHandler(string problematicRefspec);
+
+    /// <summary>
+    /// The stages of pack building.
+    /// </summary>
+    public enum PackBuilderStage
+    {
+        /// <summary>
+        /// Counting stage.
+        /// </summary>
+        Counting,
+
+        /// <summary>
+        /// Deltafying stage.
+        /// </summary>
+        Deltafying
+    }
 }

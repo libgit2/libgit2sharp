@@ -8,7 +8,7 @@ namespace LibGit2Sharp
     /// Holds the changes between two versions of a tree entry.
     /// </summary>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public class TreeEntryChanges : Changes
+    public class TreeEntryChanges
     {
         /// <summary>
         /// Needed for mocking purposes.
@@ -16,16 +16,19 @@ namespace LibGit2Sharp
         protected TreeEntryChanges()
         { }
 
-        internal TreeEntryChanges(FilePath path, Mode mode, ObjectId oid, ChangeKind status, FilePath oldPath, Mode oldMode, ObjectId oldOid, bool isBinaryComparison)
+        internal TreeEntryChanges(GitDiffDelta delta)
         {
-            Path = path.Native;
-            Mode = mode;
-            Oid = oid;
-            Status = status;
-            OldPath = oldPath.Native;
-            OldMode = oldMode;
-            OldOid = oldOid;
-            IsBinaryComparison = isBinaryComparison;
+            Path = LaxFilePathMarshaler.FromNative(delta.NewFile.Path).Native;
+            OldPath = LaxFilePathMarshaler.FromNative(delta.OldFile.Path).Native;
+
+            Mode = (Mode)delta.NewFile.Mode;
+            OldMode = (Mode)delta.OldFile.Mode;
+            Oid = delta.NewFile.Id;
+            OldOid = delta.OldFile.Id;
+
+            Status = (delta.Status == ChangeKind.Untracked || delta.Status == ChangeKind.Ignored)
+                ? ChangeKind.Added
+                : delta.Status;
         }
 
         /// <summary>

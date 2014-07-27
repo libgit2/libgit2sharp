@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Runtime.InteropServices;
+using System.Linq;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Handles;
 
@@ -88,7 +88,8 @@ namespace LibGit2Sharp
         /// </summary>
         public virtual bool HasConfig(ConfigurationLevel level)
         {
-            using (ConfigurationSafeHandle handle = RetrieveConfigurationHandle(level, false))
+            using (ConfigurationSafeHandle snapshot = Snapshot ())
+            using (ConfigurationSafeHandle handle = RetrieveConfigurationHandle(level, false, snapshot))
             {
                 return handle != null;
             }
@@ -117,7 +118,7 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(key, "key");
 
-            using (ConfigurationSafeHandle h = RetrieveConfigurationHandle(level, true))
+            using (ConfigurationSafeHandle h = RetrieveConfigurationHandle(level, true, configHandle))
             {
                 Proxy.git_config_delete(h, key);
             }
@@ -143,7 +144,7 @@ namespace LibGit2Sharp
         ///   The first occurence of the key will be returned.
         /// </para>
         /// <para>
-        ///   For example in  order to get the value for this in a .git\config file:
+        ///   For example in order to get the value for this in a .git\config file:
         ///
         ///   <code>
         ///   [core]
@@ -164,13 +165,16 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(key, "key");
 
-            return Proxy.git_config_get_entry<T>(configHandle, key);
+            using (ConfigurationSafeHandle snapshot = Snapshot())
+            {
+                return Proxy.git_config_get_entry<T>(snapshot, key);
+            }
         }
 
         /// <summary>
         /// Get a configuration value for a key. Keys are in the form 'section.name'.
         /// <para>
-        ///   For example in  order to get the value for this in a .git\config file:
+        ///   For example in order to get the value for this in a .git\config file:
         ///
         ///   <code>
         ///   [core]
@@ -192,7 +196,8 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(key, "key");
 
-            using (ConfigurationSafeHandle handle = RetrieveConfigurationHandle(level, false))
+            using (ConfigurationSafeHandle snapshot = Snapshot())
+            using (ConfigurationSafeHandle handle = RetrieveConfigurationHandle(level, false, snapshot))
             {
                 if (handle == null)
                 {
@@ -224,7 +229,7 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(key, "key");
 
-            using (ConfigurationSafeHandle h = RetrieveConfigurationHandle(level, true))
+            using (ConfigurationSafeHandle h = RetrieveConfigurationHandle(level, true, configHandle))
             {
                 if (!configurationTypedUpdater.ContainsKey(typeof(T)))
                 {
@@ -235,12 +240,30 @@ namespace LibGit2Sharp
             }
         }
 
-        private ConfigurationSafeHandle RetrieveConfigurationHandle(ConfigurationLevel level, bool throwIfStoreHasNotBeenFound)
+        /// <summary>
+        /// Find configuration entries matching <paramref name="regexp"/>.
+        /// </summary>
+        /// <param name="regexp">A regular expression.</param>
+        /// <param name="level">The configuration file into which the key should be searched for.</param>
+        /// <returns>Matching entries.</returns>
+        public virtual IEnumerable<ConfigurationEntry<string>> Find(string regexp,
+                                                                     ConfigurationLevel level = ConfigurationLevel.Local)
+        {
+            Ensure.ArgumentNotNullOrEmptyString(regexp, "regexp");
+
+            using (ConfigurationSafeHandle snapshot = Snapshot())
+            using (ConfigurationSafeHandle h = RetrieveConfigurationHandle(level, true, snapshot))
+            {
+                return Proxy.git_config_iterator_glob(h, regexp, BuildConfigEntry).ToList();
+            }
+        }
+
+        private ConfigurationSafeHandle RetrieveConfigurationHandle(ConfigurationLevel level, bool throwIfStoreHasNotBeenFound, ConfigurationSafeHandle fromHandle)
         {
             ConfigurationSafeHandle handle = null;
-            if (configHandle != null)
+            if (fromHandle != null)
             {
-                handle = Proxy.git_config_open_level(configHandle, level);
+                handle = Proxy.git_config_open_level(fromHandle, level);
             }
 
             if (handle == null && throwIfStoreHasNotBeenFound)
@@ -266,7 +289,11 @@ namespace LibGit2Sharp
             { typeof(string), GetUpdater<string>(Proxy.git_config_set_string) },
         };
 
-        IEnumerator<ConfigurationEntry<string>> IEnumerable<ConfigurationEntry<String>>.GetEnumerator()
+        /// <summary>
+        /// Returns an enumerator that iterates through the configuration entries.
+        /// </summary>
+        /// <returns>An <see cref="IEnumerator{T}"/> object that can be used to iterate through the configuration entries.</returns>
+        public virtual IEnumerator<ConfigurationEntry<string>> GetEnumerator()
         {
             return BuildConfigEntries().GetEnumerator();
         }
@@ -278,17 +305,41 @@ namespace LibGit2Sharp
 
         private IEnumerable<ConfigurationEntry<string>> BuildConfigEntries()
         {
-            return Proxy.git_config_foreach(configHandle, entryPtr =>
-            {
-                var entry = (GitConfigEntry)Marshal.PtrToStructure(entryPtr, typeof(GitConfigEntry));
-
-                return new ConfigurationEntry<string>(Utf8Marshaler.FromNative(entry.namePtr),
-                                                      Utf8Marshaler.FromNative(entry.valuePtr),
-                                                      (ConfigurationLevel)entry.level);
-            });
+            return Proxy.git_config_foreach(configHandle, BuildConfigEntry);
         }
 
-        internal Signature BuildSignatureFromGlobalConfiguration(DateTimeOffset now, bool shouldThrowIfNotFound)
+        private static ConfigurationEntry<string> BuildConfigEntry(IntPtr entryPtr)
+        {
+            var entry = entryPtr.MarshalAs<GitConfigEntry>();
+
+            return new ConfigurationEntry<string>(LaxUtf8Marshaler.FromNative(entry.namePtr),
+                                                  LaxUtf8Marshaler.FromNative(entry.valuePtr),
+                                                  (ConfigurationLevel)entry.level);
+        }
+
+        /// <summary>
+        /// Builds a <see cref="Signature"/> based on current configuration.
+        /// <para>
+        ///    Name is populated from the user.name setting, and is "unknown" if unspecified.
+        ///    Email is populated from the user.email setting, and is built from
+        ///    <see cref="Environment.UserName"/> and <see cref="Environment.UserDomainName"/> if unspecified.
+        /// </para>
+        /// <para>
+        ///    The same escalation logic than in git.git will be used when looking for the key in the config files:
+        ///       - local: the Git file in the current repository
+        ///       - global: the Git file specific to the current interactive user (usually in `$HOME/.gitconfig`)
+        ///       - xdg: another Git file specific to the current interactive user (usually in `$HOME/.config/git/config`)
+        ///       - system: the system-wide Git file
+        /// </para>
+        /// </summary>
+        /// <param name="now">The timestamp to use for the <see cref="Signature"/>.</param>
+        /// <returns>The signature.</returns>
+        public virtual Signature BuildSignature(DateTimeOffset now)
+        {
+            return BuildSignature(now, false);
+        }
+
+        internal Signature BuildSignature(DateTimeOffset now, bool shouldThrowIfNotFound)
         {
             var name = Get<string>("user.name");
             var email = Get<string>("user.email");
@@ -300,8 +351,14 @@ namespace LibGit2Sharp
 
             return new Signature(
                 name != null ? name.Value : "unknown",
-                email != null ? email.Value : string.Format("{0}@{1}", Environment.UserName, Environment.UserDomainName),
+                email != null ? email.Value : string.Format(
+                        CultureInfo.InvariantCulture, "{0}@{1}", Environment.UserName, Environment.UserDomainName),
                 now);
+        }
+
+        private ConfigurationSafeHandle Snapshot()
+        {
+            return Proxy.git_config_snapshot(configHandle);
         }
     }
 }

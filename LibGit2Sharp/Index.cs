@@ -5,9 +5,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using LibGit2Sharp.Core;
-using LibGit2Sharp.Core.Compat;
 using LibGit2Sharp.Core.Handles;
 
 namespace LibGit2Sharp
@@ -81,7 +79,7 @@ namespace LibGit2Sharp
                 Ensure.ArgumentNotNullOrEmptyString(path, "path");
 
                 IndexEntrySafeHandle entryHandle = Proxy.git_index_get_bypath(handle, path, 0);
-                return IndexEntry.BuildFromPtr(repo, entryHandle);
+                return IndexEntry.BuildFromPtr(entryHandle);
             }
         }
 
@@ -90,7 +88,7 @@ namespace LibGit2Sharp
             get
             {
                 IndexEntrySafeHandle entryHandle = Proxy.git_index_get_byindex(handle, (UIntPtr)index);
-                return IndexEntry.BuildFromPtr(repo, entryHandle);
+                return IndexEntry.BuildFromPtr(entryHandle);
             }
         }
 
@@ -156,8 +154,7 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNull(paths, "paths");
 
-            var compareOptions = new CompareOptions { SkipPatchBuilding = true };
-            TreeChanges changes = repo.Diff.Compare(DiffModifiers.IncludeUntracked | DiffModifiers.IncludeIgnored, paths, explicitPathsOptions, compareOptions);
+            var changes = repo.Diff.Compare<TreeChanges>(DiffModifiers.IncludeUntracked | DiffModifiers.IncludeIgnored, paths, explicitPathsOptions);
 
             foreach (var treeEntryChanges in changes)
             {
@@ -212,10 +209,9 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNull(paths, "paths");
 
-            if (repo.Info.IsHeadOrphaned)
+            if (repo.Info.IsHeadUnborn)
             {
-                var compareOptions = new CompareOptions { SkipPatchBuilding = true };
-                TreeChanges changes = repo.Diff.Compare(null, DiffTargets.Index, paths, explicitPathsOptions, compareOptions);
+                var changes = repo.Diff.Compare<TreeChanges>(null, DiffTargets.Index, paths, explicitPathsOptions, new CompareOptions { Similarity = SimilarityOptions.None });
 
                 Reset(changes);
             }
@@ -349,11 +345,44 @@ namespace LibGit2Sharp
         /// </param>
         public virtual void Remove(IEnumerable<string> paths, bool removeFromWorkingDirectory = true, ExplicitPathsOptions explicitPathsOptions = null)
         {
-            var pathsList = paths.ToList();
-            var compareOptions = new CompareOptions { SkipPatchBuilding = true };
-            TreeChanges changes = repo.Diff.Compare(DiffModifiers.IncludeUnmodified | DiffModifiers.IncludeUntracked, pathsList, explicitPathsOptions, compareOptions);
+            Ensure.ArgumentNotNullOrEmptyEnumerable<string>(paths, "paths");
 
-            var pathsTodelete = pathsList.Where(p => Directory.Exists(Path.Combine(repo.Info.WorkingDirectory, p))).ToList();
+            var pathsToDelete = paths.Where(p => Directory.Exists(Path.Combine(repo.Info.WorkingDirectory, p))).ToList();
+            var notConflictedPaths = new List<string>();
+
+            foreach (var path in paths)
+            {
+                Ensure.ArgumentNotNullOrEmptyString(path, "path");
+
+                var conflict = repo.Index.Conflicts[path];
+
+                if (conflict != null)
+                {
+                    pathsToDelete.Add(RemoveFromIndex(path));
+                }
+                else
+                {
+                    notConflictedPaths.Add(path);
+                }
+            }
+
+            if (notConflictedPaths.Count > 0)
+            {
+                pathsToDelete.AddRange(RemoveStagedItems(notConflictedPaths, removeFromWorkingDirectory, explicitPathsOptions));
+            }
+
+            if (removeFromWorkingDirectory)
+            {
+                RemoveFilesAndFolders(pathsToDelete);
+            }
+
+            UpdatePhysicalIndex();
+        }
+
+        private IEnumerable<string> RemoveStagedItems(IEnumerable<string> paths, bool removeFromWorkingDirectory = true, ExplicitPathsOptions explicitPathsOptions = null)
+        {
+            var removed = new List<string>();
+            var changes = repo.Diff.Compare<TreeChanges>(DiffModifiers.IncludeUnmodified | DiffModifiers.IncludeUntracked, paths, explicitPathsOptions);
 
             foreach (var treeEntryChanges in changes)
             {
@@ -363,7 +392,7 @@ namespace LibGit2Sharp
                 {
                     case ChangeKind.Added:
                     case ChangeKind.Deleted:
-                        pathsTodelete.Add(RemoveFromIndex(treeEntryChanges.Path));
+                        removed.Add(RemoveFromIndex(treeEntryChanges.Path));
                         break;
 
                     case ChangeKind.Unmodified:
@@ -374,7 +403,7 @@ namespace LibGit2Sharp
                             throw new RemoveFromIndexException(string.Format(CultureInfo.InvariantCulture, "Unable to remove file '{0}', as it has changes staged in the index. You can call the Remove() method with removeFromWorkingDirectory=false if you want to remove it from the index only.",
                                 treeEntryChanges.Path));
                         }
-                        pathsTodelete.Add(RemoveFromIndex(treeEntryChanges.Path));
+                        removed.Add(RemoveFromIndex(treeEntryChanges.Path));
                         continue;
 
                     case ChangeKind.Modified:
@@ -388,9 +417,8 @@ namespace LibGit2Sharp
                             throw new RemoveFromIndexException(string.Format(CultureInfo.InvariantCulture, "Unable to remove file '{0}', as it has local modifications. You can call the Remove() method with removeFromWorkingDirectory=false if you want to remove it from the index only.",
                                 treeEntryChanges.Path));
                         }
-                        pathsTodelete.Add(RemoveFromIndex(treeEntryChanges.Path));
+                        removed.Add(RemoveFromIndex(treeEntryChanges.Path));
                         continue;
-
 
                     default:
                         throw new RemoveFromIndexException(string.Format(CultureInfo.InvariantCulture, "Unable to remove file '{0}'. Its current status is '{1}'.",
@@ -398,12 +426,7 @@ namespace LibGit2Sharp
                 }
             }
 
-            if (removeFromWorkingDirectory)
-            {
-                RemoveFilesAndFolders(pathsTodelete);
-            }
-
-            UpdatePhysicalIndex();
+            return removed;
         }
 
         private void RemoveFilesAndFolders(IEnumerable<string> pathsList)
@@ -502,10 +525,13 @@ namespace LibGit2Sharp
         /// <summary>
         /// Retrieves the state of all files in the working directory, comparing them against the staging area and the latest commmit.
         /// </summary>
+        /// <param name="options">If set, the options that control the status investigation.</param>
         /// <returns>A <see cref="RepositoryStatus"/> holding the state of all the files.</returns>
-        public virtual RepositoryStatus RetrieveStatus()
+        public virtual RepositoryStatus RetrieveStatus(StatusOptions options = null)
         {
-            return new RepositoryStatus(repo);
+            ReloadFromDisk();
+
+            return new RepositoryStatus(repo, options);
         }
 
         internal void Reset(TreeChanges changes)
@@ -551,12 +577,17 @@ namespace LibGit2Sharp
             var indexEntry = new GitIndexEntry
             {
                 Mode = (uint)treeEntryChanges.OldMode,
-                oid = treeEntryChanges.OldOid.Oid,
-                Path = FilePathMarshaler.FromManaged(treeEntryChanges.OldPath),
+                Id = treeEntryChanges.OldOid.Oid,
+                Path = StrictFilePathMarshaler.FromManaged(treeEntryChanges.OldPath),
             };
 
             Proxy.git_index_add(handle, indexEntry);
-            Marshal.FreeHGlobal(indexEntry.Path);
+            EncodingMarshaler.Cleanup(indexEntry.Path);
+        }
+
+        internal void ReloadFromDisk()
+        {
+            Proxy.git_index_read(handle);
         }
 
         private string DebuggerDisplay

@@ -13,7 +13,7 @@ namespace LibGit2Sharp.Tests
         {
             get
             {
-                return new[]
+                return new List<object[]>
                 {
                     new[] { "ancestor-and-ours.txt", "5dee68477001f447f50fa7ee7e6a818370b5c2fb", "dad0664ae617d36e464ec08ed969ff496432b075", null },
                     new[] { "ancestor-and-theirs.txt", "3aafd4d0bac33cc3c78c4c070f3966fb6e6f641a", null, "7b26cd5ac0ee68483ae4d5e1e00b064547ea8c9b" },
@@ -27,11 +27,32 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        private static List<object[]> RenameConflictData
+        {
+            get
+            {
+                return new List<object[]>
+                {
+                    new[] { "3a-renamed-in-ours-deleted-in-theirs.txt", "3a-newname-in-ours-deleted-in-theirs.txt", null },
+                    new[] { "3b-renamed-in-theirs-deleted-in-ours.txt", null, "3b-newname-in-theirs-deleted-in-ours.txt" },
+                    new[] { "4a-renamed-in-ours-added-in-theirs.txt", "4a-newname-in-ours-added-in-theirs.txt", null },
+                    new[] { "4b-renamed-in-theirs-added-in-ours.txt", null, "4b-newname-in-theirs-added-in-ours.txt" },
+                    new[] { "5a-renamed-in-ours-added-in-theirs.txt", "5a-newname-in-ours-added-in-theirs.txt", "5a-renamed-in-ours-added-in-theirs.txt" },
+                    new[] { "5b-renamed-in-theirs-added-in-ours.txt", "5b-renamed-in-theirs-added-in-ours.txt", "5b-newname-in-theirs-added-in-ours.txt" },
+                    new[] { "6-both-renamed-1-to-2.txt", "6-both-renamed-1-to-2-ours.txt", "6-both-renamed-1-to-2-theirs.txt" },
+                    new[] { "7-both-renamed-side-1.txt", "7-both-renamed.txt", "7-both-renamed-side-1.txt" },
+                    new[] { "7-both-renamed-side-2.txt", "7-both-renamed-side-2.txt", "7-both-renamed.txt" },
+                };
+            }
+        }
+
         [Theory]
         [InlineData(true, "ancestor-and-ours.txt", true, false, FileStatus.Removed, 2)]
         [InlineData(false, "ancestor-and-ours.txt", true, true, FileStatus.Removed |FileStatus.Untracked, 2)]
         [InlineData(true, "ancestor-and-theirs.txt", true, false, FileStatus.Nonexistent, 2)]
         [InlineData(false, "ancestor-and-theirs.txt", true, true, FileStatus.Untracked, 2)]
+        [InlineData(true, "ancestor-only.txt", false, false, FileStatus.Nonexistent, 1)]
+        [InlineData(false, "ancestor-only.txt", false, false, FileStatus.Nonexistent, 1)]
         [InlineData(true, "conflicts-one.txt", true, false, FileStatus.Removed, 3)]
         [InlineData(false, "conflicts-one.txt", true, true, FileStatus.Removed | FileStatus.Untracked, 3)]
         [InlineData(true, "conflicts-two.txt", true, false, FileStatus.Removed, 3)]
@@ -42,14 +63,7 @@ namespace LibGit2Sharp.Tests
         [InlineData(false, "ours-only.txt", true, true, FileStatus.Removed | FileStatus.Untracked, 1)]
         [InlineData(true, "theirs-only.txt", true, false, FileStatus.Nonexistent, 1)]
         [InlineData(false, "theirs-only.txt", true, true, FileStatus.Untracked, 1)]
-        /* Conflicts clearing through Index.Remove() only works when a version of the entry exists in the workdir.
-         * This is because libgit2's git_iterator_for_index() seem to only care about stage level 0.
-         * Corrolary: other cases only work out of sheer luck (however, the behaviour is stable, so I guess we
-         *   can rely on it for the moment.
-         * [InlineData(true, "ancestor-only.txt", false, false, FileStatus.Nonexistent, 0)]
-         * [InlineData(false, "ancestor-only.txt", false, false, FileStatus.Nonexistent, 0)]
-         */
-        public void CanClearConflictsByRemovingFromTheIndex(
+        public void CanResolveConflictsByRemovingFromTheIndex(
             bool removeFromWorkdir, string filename, bool existsBeforeRemove, bool existsAfterRemove, FileStatus lastStatus, int removedIndexEntries)
         {
             var path = CloneMergedTestRepo();
@@ -61,6 +75,7 @@ namespace LibGit2Sharp.Tests
 
                 Assert.Equal(existsBeforeRemove, File.Exists(fullpath));
                 Assert.NotNull(repo.Index.Conflicts[filename]);
+                Assert.Equal(0, repo.Index.Conflicts.ResolvedConflicts.Count());
 
                 repo.Index.Remove(filename, removeFromWorkdir);
 
@@ -68,6 +83,32 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(count - removedIndexEntries, repo.Index.Count);
                 Assert.Equal(existsAfterRemove, File.Exists(fullpath));
                 Assert.Equal(lastStatus, repo.Index.RetrieveStatus(filename));
+
+                Assert.Equal(1, repo.Index.Conflicts.ResolvedConflicts.Count());
+                Assert.NotNull(repo.Index.Conflicts.ResolvedConflicts[filename]);
+            }
+        }
+
+        [Fact]
+        public void CanGetOriginalNamesOfRenameConflicts()
+        {
+            var path = CloneMergeRenamesTestRepo();
+            using (var repo = new Repository(path))
+            {
+                var expected = RenameConflictData;
+                var actual = repo.Index.Conflicts.Names;
+
+                Assert.Equal(expected.Count, actual.Count());
+
+                int i = 0;
+                foreach(var name in actual)
+                {
+                    Assert.Equal(expected[i][0], name.Ancestor);
+                    Assert.Equal(expected[i][1], name.Ours);
+                    Assert.Equal(expected[i][2], name.Theirs);
+
+                    i++;
+                }
             }
         }
 

@@ -47,18 +47,9 @@ namespace LibGit2Sharp
                 case GitReferenceType.Symbolic:
                     string targetIdentifier = Proxy.git_reference_symbolic_target(handle);
 
-                    using (ReferenceSafeHandle resolvedHandle = Proxy.git_reference_resolve(handle))
-                    {
-                        if (resolvedHandle == null)
-                        {
-                            reference = new SymbolicReference(name, targetIdentifier, null);
-                            break;
-                        }
-
-                        var targetRef = BuildFromPtr<DirectReference>(resolvedHandle, repo);
-                        reference = new SymbolicReference(name, targetIdentifier, targetRef);
-                        break;
-                    }
+                    var targetRef = repo.Refs[targetIdentifier];
+                    reference = new SymbolicReference(name, targetIdentifier, targetRef);
+                    break;
 
                 case GitReferenceType.Oid:
                     ObjectId targetOid = Proxy.git_reference_target(handle);
@@ -71,6 +62,24 @@ namespace LibGit2Sharp
             }
 
             return reference as T;
+        }
+
+        /// <summary>
+        /// Determines if the proposed reference name is well-formed.
+        /// </summary>
+        /// <para>
+        /// - Top-level names must contain only capital letters and underscores,
+        /// and must begin and end with a letter. (e.g. "HEAD", "ORIG_HEAD").
+        ///
+        /// - Names prefixed with "refs/" can be almost anything.  You must avoid
+        /// the characters '~', '^', ':', '\\', '?', '[', and '*', and the
+        /// sequences ".." and "@{" which have special meaning to revparse.
+        /// </para>
+        /// <param name="canonicalName">The name to be checked.</param>
+        /// <returns>true is the name is valid; false otherwise.</returns>
+        public static bool IsValidName(string canonicalName)
+        {
+            return Proxy.git_reference_is_valid_name(canonicalName);
         }
 
         /// <summary>

@@ -16,6 +16,7 @@ namespace LibGit2Sharp
         {
             SortBy = CommitSortStrategies.Time;
             Since = "HEAD";
+            FirstParentOnly = false;
         }
 
         /// <summary>
@@ -56,6 +57,11 @@ namespace LibGit2Sharp
         {
             get { return ToList(Until); }
         }
+
+        /// <summary>
+        /// Whether to limit the walk to each commit's first parent, instead of all of them
+        /// </summary>
+        public bool FirstParentOnly { get; set; }
 
         private static IList<object> ToList(object obj)
         {

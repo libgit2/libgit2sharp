@@ -1,18 +1,60 @@
-﻿namespace LibGit2Sharp
+﻿using System;
+using LibGit2Sharp.Core;
+using LibGit2Sharp.Handlers;
+
+namespace LibGit2Sharp
 {
     /// <summary>
     /// Class that holds credentials for remote repository access.
     /// </summary>
-    public sealed class Credentials
+    public abstract class Credentials
     {
         /// <summary>
-        /// Username for username/password authentication (as in HTTP basic auth).
+        /// Callback to acquire a credential object.
         /// </summary>
-        public string Username { get; set; }
+        /// <param name="cred">The newly created credential object.</param>
+        /// <param name="url">The resource for which we are demanding a credential.</param>
+        /// <param name="usernameFromUrl">The username that was embedded in a "user@host"</param>
+        /// <param name="types">A bitmask stating which cred types are OK to return.</param>
+        /// <param name="payload">The payload provided when specifying this callback.</param>
+        /// <returns>0 for success, &lt; 0 to indicate an error, &gt; 0 to indicate no credential was acquired.</returns>
+        protected internal abstract int GitCredentialHandler(out IntPtr cred, IntPtr url, IntPtr usernameFromUrl, GitCredentialType types, IntPtr payload);
+    }
+
+    internal interface ICredentialsProvider
+    {
+        /// <summary>
+        /// The <see cref="Credentials"/> to authenticate with during the push.
+        /// </summary>
+        [Obsolete("This will be removed in future release. Use CredentialsProvider.")]
+        Credentials Credentials { get; }
 
         /// <summary>
-        /// Password for username/password authentication (as in HTTP basic auth).
+        /// Handler to generate <see cref="LibGit2Sharp.Credentials"/> for authentication.
         /// </summary>
-        public string Password { get; set; }
+        CredentialsHandler CredentialsProvider { get; }
+    }
+
+    internal static class CredentialsProviderExtensions
+    {
+        public static CredentialsHandler GetCredentialsHandler(this ICredentialsProvider provider)
+        {
+            if (provider == null)
+            {
+                return null;
+            }
+
+            if (provider.CredentialsProvider != null)
+            {
+                return provider.CredentialsProvider;
+            }
+
+            if (provider.Credentials == null)
+            {
+                return null;
+            }
+
+            return (url, user, type) => provider.Credentials;
+        }
     }
 }

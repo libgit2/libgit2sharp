@@ -126,13 +126,15 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Fact]
-        public void CanStageANewFileInAPersistentManner()
+        [Theory]
+        [InlineData("unit_test.txt")]
+        [InlineData("!unit_test.txt")]
+        [InlineData("!bang/unit_test.txt")]
+        public void CanStageANewFileInAPersistentManner(string filename)
         {
             string path = CloneStandardTestRepo();
             using (var repo = new Repository(path))
             {
-                const string filename = "unit_test.txt";
                 Assert.Equal(FileStatus.Nonexistent, repo.Index.RetrieveStatus(filename));
                 Assert.Null(repo.Index[filename]);
 
@@ -147,7 +149,6 @@ namespace LibGit2Sharp.Tests
 
             using (var repo = new Repository(path))
             {
-                const string filename = "unit_test.txt";
                 Assert.NotNull(repo.Index[filename]);
                 Assert.Equal(FileStatus.Added, repo.Index.RetrieveStatus(filename));
             }
@@ -259,7 +260,7 @@ namespace LibGit2Sharp.Tests
          *  M new.txt
          * A  new_tracked_file.txt
          * ?? new_untracked_file.txt
-         * 
+         *
          * By passing "*" to Stage, the following files will be added/removed/updated from the index:
          * - deleted_unstaged_file.txt : removed
          * - modified_unstaged_file.txt : updated
@@ -295,6 +296,22 @@ namespace LibGit2Sharp.Tests
                 repo.Index.Stage(new string[] { "*", "u*" });
 
                 Assert.Equal(count, repo.Index.Count);  // 1 added file, 1 deleted file, so same count
+            }
+        }
+
+        [Theory]
+        [InlineData("ignored_file.txt")]
+        [InlineData("ignored_folder/file.txt")]
+        public void CanStageIgnoredPaths(string path)
+        {
+            using (var repo = new Repository(CloneStandardTestRepo()))
+            {
+                Touch(repo.Info.WorkingDirectory, ".gitignore", "ignored_file.txt\nignored_folder/\n");
+                Touch(repo.Info.WorkingDirectory, path, "This file is ignored.");
+
+                Assert.Equal(FileStatus.Ignored, repo.Index.RetrieveStatus(path));
+                repo.Index.Stage(path);
+                Assert.Equal(FileStatus.Added, repo.Index.RetrieveStatus(path));
             }
         }
     }

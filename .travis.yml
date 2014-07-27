@@ -3,13 +3,22 @@
 
 language: c
 
+os:
+ - osx
+ - linux
+
+before_install:
+ - date -u
+ - uname -a
+ - env | sort
+
 # Make sure CMake and Mono are installed
 install:
- - sudo apt-get install cmake mono-devel mono-gmcs
+ - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then ./CI/travis.linux.install.deps.sh; fi
+ - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then ./CI/travis.osx.install.deps.sh; fi
 
 # Build libgit2, LibGit2Sharp and run the tests
 script:
- - git submodule update --init
  - ./build.libgit2sharp.sh
 
 # Only watch the development branch
@@ -17,10 +26,7 @@ branches:
  only:
    - vNext
 
-# Notify development list when needed
+# Notify of build changes
 notifications:
- recipients:
-   - emeric.fermas@gmail.com
  email:
-   on_success: change
-   on_failure: always
+  - emeric.fermas@gmail.com

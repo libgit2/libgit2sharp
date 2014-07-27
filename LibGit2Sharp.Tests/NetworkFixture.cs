@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using LibGit2Sharp.Core.Compat;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
 using Xunit.Extensions;
@@ -22,7 +22,45 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(repoPath))
             {
                 Remote remote = repo.Network.Remotes.Add(remoteName, url);
-                IEnumerable<DirectReference> references = repo.Network.ListReferences(remote);
+                IList<DirectReference> references = repo.Network.ListReferences(remote).ToList();
+
+                foreach (var directReference in references)
+                {
+                    // None of those references point to an existing
+                    // object in this brand new repository
+                    Assert.Null(directReference.Target);
+                }
+
+                List<Tuple<string, string>> actualRefs = references.
+                    Select(directRef => new Tuple<string, string>(directRef.CanonicalName, directRef.TargetIdentifier)).ToList();
+
+                Assert.Equal(ExpectedRemoteRefs.Count, actualRefs.Count);
+                for (int i = 0; i < ExpectedRemoteRefs.Count; i++)
+                {
+                    Assert.Equal(ExpectedRemoteRefs[i].Item2, actualRefs[i].Item2);
+                    Assert.Equal(ExpectedRemoteRefs[i].Item1, actualRefs[i].Item1);
+                }
+            }
+        }
+
+        [Theory]
+        [InlineData("http://github.com/libgit2/TestGitRepository")]
+        [InlineData("https://github.com/libgit2/TestGitRepository")]
+        [InlineData("git://github.com/libgit2/TestGitRepository.git")]
+        public void CanListRemoteReferencesFromUrl(string url)
+        {
+            string repoPath = InitNewRepository();
+
+            using (var repo = new Repository(repoPath))
+            {
+                IList<DirectReference> references = repo.Network.ListReferences(url).ToList();
+
+                foreach (var directReference in references)
+                {
+                    // None of those references point to an existing
+                    // object in this brand new repository
+                    Assert.Null(directReference.Target);
+                }
 
                 List<Tuple<string, string>> actualRefs = references.
                     Select(directRef => new Tuple<string, string>(directRef.CanonicalName, directRef.TargetIdentifier)).ToList();
@@ -66,6 +104,95 @@ namespace LibGit2Sharp.Tests
                     Assert.Equal(ExpectedRemoteRefs[i].Item1, actualRefs[i].Item1);
                     Assert.Equal(ExpectedRemoteRefs[i].Item2, actualRefs[i].Item2);
                 }
+            }
+        }
+
+        [SkippableFact]
+        public void CanListRemoteReferencesWithCredentials()
+        {
+            InconclusiveIf(() => string.IsNullOrEmpty(Constants.PrivateRepoUrl),
+                "Populate Constants.PrivateRepo* to run this test");
+
+            string remoteName = "origin";
+
+            string repoPath = InitNewRepository();
+
+            using (var repo = new Repository(repoPath))
+            {
+                Remote remote = repo.Network.Remotes.Add(remoteName, Constants.PrivateRepoUrl);
+
+                var references = repo.Network.ListReferences(remote, Constants.PrivateRepoCredentials);
+
+                foreach (var directReference in references)
+                {
+                    Assert.NotNull(directReference);
+                }
+            }
+        }
+
+        [Theory]
+        [InlineData(FastForwardStrategy.Default)]
+        [InlineData(FastForwardStrategy.NoFastFoward)]
+        public void CanPull(FastForwardStrategy fastForwardStrategy)
+        {
+            string url = "https://github.com/libgit2/TestGitRepository";
+
+            var scd = BuildSelfCleaningDirectory();
+            string clonedRepoPath = Repository.Clone(url, scd.DirectoryPath);
+
+            using (var repo = new Repository(clonedRepoPath))
+            {
+                repo.Reset(ResetMode.Hard, "HEAD~1");
+
+                Assert.False(repo.Index.RetrieveStatus().Any());
+                Assert.Equal(repo.Lookup<Commit>("refs/remotes/origin/master~1"), repo.Head.Tip);
+
+                PullOptions pullOptions = new PullOptions()
+                {
+                    MergeOptions = new MergeOptions()
+                    {
+                        FastForwardStrategy = fastForwardStrategy
+                    }
+                };
+
+                MergeResult mergeResult = repo.Network.Pull(Constants.Signature, pullOptions);
+
+                if(fastForwardStrategy == FastForwardStrategy.Default || fastForwardStrategy == FastForwardStrategy.FastForwardOnly)
+                {
+                    Assert.Equal(mergeResult.Status, MergeStatus.FastForward);
+                    Assert.Equal(mergeResult.Commit, repo.Branches["refs/remotes/origin/master"].Tip);
+                    Assert.Equal(repo.Head.Tip, repo.Branches["refs/remotes/origin/master"].Tip);
+                }
+                else
+                {
+                    Assert.Equal(mergeResult.Status, MergeStatus.NonFastForward);
+                }
+            }
+        }
+
+        [Fact]
+        public void CanPullIntoEmptyRepo()
+        {
+            string url = "https://github.com/libgit2/TestGitRepository";
+            string remoteName = "origin";
+            string repoPath = InitNewRepository();
+
+            using (var repo = new Repository(repoPath))
+            {
+                // Set up remote
+                Remote remote = repo.Network.Remotes.Add(remoteName, url);
+
+                // Set up tracking information
+                repo.Branches.Update(repo.Head,
+                    b => b.Remote = remoteName,
+                    b => b.UpstreamBranch = "refs/heads/master");
+
+                // Pull!
+                MergeResult mergeResult = repo.Network.Pull(Constants.Signature, new PullOptions());
+
+                Assert.Equal(mergeResult.Status, MergeStatus.FastForward);
+                Assert.Equal(mergeResult.Commit, repo.Branches["refs/remotes/origin/master"].Tip);
+                Assert.Equal(repo.Head.Tip, repo.Branches["refs/remotes/origin/master"].Tip);
             }
         }
 

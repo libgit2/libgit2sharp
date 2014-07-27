@@ -196,8 +196,7 @@ namespace LibGit2Sharp.Tests
                 var stasher = Constants.Signature;
                 var stash = repo.Stashes.Add(stasher, "This stash includes ignore files", StashModifiers.IncludeIgnored);
 
-                //TODO : below assertion doesn't pass. Bug?
-                //Assert.False(File.Exists(ignoredFilePath));
+                Assert.False(File.Exists(Path.Combine(repo.Info.WorkingDirectory, ignoredFilename)));
 
                 var blob = repo.Lookup<Blob>("stash^3:ignored_file.txt");
                 Assert.NotNull(blob);

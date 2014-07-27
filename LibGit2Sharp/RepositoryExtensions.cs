@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using LibGit2Sharp.Core;
-using LibGit2Sharp.Handlers;
 
 namespace LibGit2Sharp
 {
@@ -111,9 +112,11 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="repository">The <see cref="Repository"/> being worked with.</param>
         /// <param name="branchName">The name of the branch to create.</param>
-        public static Branch CreateBranch(this IRepository repository, string branchName)
+        /// <param name="signature">Identification for use when updating the reflog</param>
+        /// <param name="logMessage">Message to append to the reflog</param>
+        public static Branch CreateBranch(this IRepository repository, string branchName, Signature signature = null, string logMessage = null)
         {
-            return CreateBranch(repository, branchName, repository.Head.Tip);
+            return CreateBranch(repository, branchName, "HEAD", signature, logMessage);
         }
 
         /// <summary>
@@ -122,9 +125,11 @@ namespace LibGit2Sharp
         /// <param name="repository">The <see cref="Repository"/> being worked with.</param>
         /// <param name="branchName">The name of the branch to create.</param>
         /// <param name="target">The commit which should be pointed at by the Branch.</param>
-        public static Branch CreateBranch(this IRepository repository, string branchName, Commit target)
+        /// <param name="signature">Identification for use when updating the reflog</param>
+        /// <param name="logMessage">Message to append to the reflog</param>
+        public static Branch CreateBranch(this IRepository repository, string branchName, Commit target, Signature signature = null, string logMessage = null)
         {
-            return repository.Branches.Add(branchName, target);
+            return repository.Branches.Add(branchName, target, signature, logMessage);
         }
 
         /// <summary>
@@ -133,9 +138,11 @@ namespace LibGit2Sharp
         /// <param name="repository">The <see cref="Repository"/> being worked with.</param>
         /// <param name="branchName">The name of the branch to create.</param>
         /// <param name="committish">The revparse spec for the target commit.</param>
-        public static Branch CreateBranch(this IRepository repository, string branchName, string committish)
+        /// <param name="signature">Identification for use when updating the reflog</param>
+        /// <param name="logMessage">Message to append to the reflog</param>
+        public static Branch CreateBranch(this IRepository repository, string branchName, string committish, Signature signature = null, string logMessage = null)
         {
-            return repository.Branches.Add(branchName, committish);
+            return repository.Branches.Add(branchName, committish, signature, logMessage);
         }
 
         /// <summary>
@@ -143,15 +150,18 @@ namespace LibGit2Sharp
         /// the content of the working tree to match.
         /// </summary>
         /// <param name="repository">The <see cref="Repository"/> being worked with.</param>
-        /// <param name="resetOptions">Flavor of reset operation to perform.</param>
+        /// <param name="resetMode">Flavor of reset operation to perform.</param>
         /// <param name="committish">A revparse spec for the target commit object.</param>
-        public static void Reset(this IRepository repository, ResetOptions resetOptions, string committish = "HEAD")
+        /// <param name="signature">Identification for use when updating the reflog</param>
+        /// <param name="logMessage">Message to append to the reflog</param>
+        public static void Reset(this IRepository repository, ResetMode resetMode, string committish = "HEAD",
+            Signature signature = null, string logMessage = null)
         {
             Ensure.ArgumentNotNullOrEmptyString(committish, "committish");
 
             Commit commit = LookUpCommit(repository, committish);
 
-            repository.Reset(resetOptions, commit);
+            repository.Reset(resetMode, commit, signature, logMessage);
         }
 
         /// <summary>
@@ -193,13 +203,13 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="repository">The <see cref="Repository"/> being worked with.</param>
         /// <param name="message">The description of why a change was made to the repository.</param>
-        /// <param name="amendPreviousCommit">True to amend the current <see cref="LibGit2Sharp.Commit"/> pointed at by <see cref="Repository.Head"/>, false otherwise.</param>
+        /// <param name="options">The <see cref="CommitOptions"/> that specify the commit behavior.</param>
         /// <returns>The generated <see cref="LibGit2Sharp.Commit"/>.</returns>
-        public static Commit Commit(this IRepository repository, string message, bool amendPreviousCommit = false)
+        public static Commit Commit(this IRepository repository, string message, CommitOptions options = null)
         {
-            Signature author = repository.Config.BuildSignatureFromGlobalConfiguration(DateTimeOffset.Now, true);
+            Signature author = repository.Config.BuildSignature(DateTimeOffset.Now, true);
 
-            return repository.Commit(message, author, amendPreviousCommit);
+            return repository.Commit(message, author, options);
         }
 
         /// <summary>
@@ -211,13 +221,13 @@ namespace LibGit2Sharp
         /// <param name="repository">The <see cref="Repository"/> being worked with.</param>
         /// <param name="author">The <see cref="Signature"/> of who made the change.</param>
         /// <param name="message">The description of why a change was made to the repository.</param>
-        /// <param name="amendPreviousCommit">True to amend the current <see cref="LibGit2Sharp.Commit"/> pointed at by <see cref="Repository.Head"/>, false otherwise.</param>
+        /// <param name="options">The <see cref="CommitOptions"/> that specify the commit behavior.</param>
         /// <returns>The generated <see cref="LibGit2Sharp.Commit"/>.</returns>
-        public static Commit Commit(this IRepository repository, string message, Signature author, bool amendPreviousCommit = false)
+        public static Commit Commit(this IRepository repository, string message, Signature author, CommitOptions options = null)
         {
-            Signature committer = repository.Config.BuildSignatureFromGlobalConfiguration(DateTimeOffset.Now, true);
+            Signature committer = repository.Config.BuildSignature(DateTimeOffset.Now, true);
 
-            return repository.Commit(message, author, committer, amendPreviousCommit);
+            return repository.Commit(message, author, committer, options);
         }
 
         /// <summary>
@@ -225,27 +235,14 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="repository">The <see cref="Repository"/> being worked with.</param>
         /// <param name="remoteName">The name of the <see cref="Remote"/> to fetch from.</param>
-        /// <param name="tagFetchMode">Optional parameter indicating what tags to download.</param>
-        /// <param name="onProgress">Progress callback. Corresponds to libgit2 progress callback.</param>
-        /// <param name="onCompletion">Completion callback. Corresponds to libgit2 completion callback.</param>
-        /// <param name="onUpdateTips">UpdateTips callback. Corresponds to libgit2 update_tips callback.</param>
-        /// <param name="onTransferProgress">Callback method that transfer progress will be reported through.
-        /// Reports the client's state regarding the received and processed (bytes, objects) from the server.</param>
-        /// <param name="credentials">Credentials to use for username/password authentication.</param>
-        public static void Fetch(this IRepository repository, string remoteName,
-            TagFetchMode tagFetchMode = TagFetchMode.Auto,
-            ProgressHandler onProgress = null,
-            CompletionHandler onCompletion = null,
-            UpdateTipsHandler onUpdateTips = null,
-            TransferProgressHandler onTransferProgress = null,
-            Credentials credentials = null)
+        /// <param name="options"><see cref="FetchOptions"/> controlling fetch behavior</param>
+        public static void Fetch(this IRepository repository, string remoteName, FetchOptions options = null)
         {
             Ensure.ArgumentNotNull(repository, "repository");
             Ensure.ArgumentNotNullOrEmptyString(remoteName, "remoteName");
 
             Remote remote = repository.Network.Remotes.RemoteForName(remoteName, true);
-            repository.Network.Fetch(remote, tagFetchMode, onProgress, onCompletion, onUpdateTips,
-                onTransferProgress, credentials);
+            repository.Network.Fetch(remote, options);
         }
 
         /// <summary>
@@ -253,10 +250,12 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="repository">The <see cref="Repository"/> being worked with.</param>
         /// <param name="commitOrBranchSpec">A revparse spec for the commit or branch to checkout.</param>
+        /// <param name="signature">The identity used for updating the reflog</param>
         /// <returns>The <see cref="Branch"/> that was checked out.</returns>
-        public static Branch Checkout(this IRepository repository, string commitOrBranchSpec)
+        public static Branch Checkout(this IRepository repository, string commitOrBranchSpec, Signature signature = null)
         {
-            return repository.Checkout(commitOrBranchSpec, CheckoutModifiers.None, null, null);
+            CheckoutOptions options = new CheckoutOptions();
+            return repository.Checkout(commitOrBranchSpec, options, signature);
         }
 
         /// <summary>
@@ -268,10 +267,12 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="repository">The <see cref="Repository"/> being worked with.</param>
         /// <param name="branch">The <see cref="Branch"/> to check out.</param>
+        /// <param name="signature">The identity used for updating the reflog</param>
         /// <returns>The <see cref="Branch"/> that was checked out.</returns>
-        public static Branch Checkout(this IRepository repository, Branch branch)
+        public static Branch Checkout(this IRepository repository, Branch branch, Signature signature = null)
         {
-            return repository.Checkout(branch, CheckoutModifiers.None, null, null);
+            CheckoutOptions options = new CheckoutOptions();
+            return repository.Checkout(branch, options, signature);
         }
 
         /// <summary>
@@ -282,10 +283,12 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="repository">The <see cref="Repository"/> being worked with.</param>
         /// <param name="commit">The <see cref="LibGit2Sharp.Commit"/> to check out.</param>
+        /// <param name="signature">The identity used for updating the reflog</param>
         /// <returns>The <see cref="Branch"/> that was checked out.</returns>
-        public static Branch Checkout(this IRepository repository, Commit commit)
+        public static Branch Checkout(this IRepository repository, Commit commit, Signature signature = null)
         {
-            return repository.Checkout(commit, CheckoutModifiers.None, null, null);
+            CheckoutOptions options = new CheckoutOptions();
+            return repository.Checkout(commit, options, signature);
         }
 
         internal static string BuildRelativePathFrom(this Repository repo, string path)
@@ -306,6 +309,126 @@ namespace LibGit2Sharp
             }
 
             return normalizedPath.Substring(repo.Info.WorkingDirectory.Length);
+        }
+
+        private static ObjectId DereferenceToCommit(Repository repo, string identifier)
+        {
+            var options = LookUpOptions.DereferenceResultToCommit;
+
+            if (!AllowOrphanReference(repo, identifier))
+            {
+                options |= LookUpOptions.ThrowWhenNoGitObjectHasBeenFound;
+            }
+
+            // TODO: Should we check the type? Git-log allows TagAnnotation oid as parameter. But what about Blobs and Trees?
+            GitObject commit = repo.Lookup(identifier, GitObjectType.Any, options);
+
+            return commit != null ? commit.Id : null;
+        }
+
+        private static bool AllowOrphanReference(IRepository repo, string identifier)
+        {
+            return string.Equals(identifier, "HEAD", StringComparison.Ordinal)
+                   || string.Equals(identifier, repo.Head.CanonicalName, StringComparison.Ordinal);
+        }
+
+        private static ObjectId SingleCommittish(this Repository repo, object identifier)
+        {
+            if (ReferenceEquals(identifier, null))
+            {
+                return null;
+            }
+
+            if (identifier is string)
+            {
+                return DereferenceToCommit(repo, (string)identifier);
+            }
+
+            if (identifier is ObjectId)
+            {
+                return DereferenceToCommit(repo, ((ObjectId)identifier).Sha);
+            }
+
+            if (identifier is Commit)
+            {
+                return ((Commit)identifier).Id;
+            }
+
+            if (identifier is TagAnnotation)
+            {
+                return DereferenceToCommit(repo, ((TagAnnotation)identifier).Target.Id.Sha);
+            }
+
+            if (identifier is Tag)
+            {
+                return DereferenceToCommit(repo, ((Tag)identifier).Target.Id.Sha);
+            }
+
+            var branch = identifier as Branch;
+            if (branch != null)
+            {
+                if (branch.Tip != null || !branch.IsCurrentRepositoryHead)
+                {
+                    Ensure.GitObjectIsNotNull(branch.Tip, branch.CanonicalName);
+                    return branch.Tip.Id;
+                }
+            }
+
+            if (identifier is Reference)
+            {
+                return DereferenceToCommit(repo, ((Reference)identifier).CanonicalName);
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Dereferences the passed identifier to a commit. If the identifier is enumerable, all items are dereferenced.
+        /// </summary>
+        /// <param name="repo">Repository to search</param>
+        /// <param name="identifier">Committish to dereference</param>
+        /// <param name="throwIfNotFound">If true, allow thrown exceptions to propagate. If false, exceptions will be swallowed and null returned.</param>
+        /// <returns>A series of commit <see cref="ObjectId"/>s which identify commit objects.</returns>
+        internal static IEnumerable<ObjectId> Committishes(this Repository repo, object identifier, bool throwIfNotFound = false)
+        {
+            var singleReturnValue = repo.SingleCommittish(identifier);
+
+            if (singleReturnValue != null)
+            {
+                yield return singleReturnValue;
+                yield break;
+            }
+
+            if (identifier is IEnumerable)
+            {
+                foreach (object entry in (IEnumerable)identifier)
+                {
+                    foreach (ObjectId oid in Committishes(repo, entry))
+                    {
+                        yield return oid;
+                    }
+                }
+
+                yield break;
+            }
+
+            if (throwIfNotFound)
+            {
+                throw new LibGit2SharpException(string.Format(CultureInfo.InvariantCulture, "Unexpected kind of identifier '{0}'.", identifier));
+            }
+
+            yield return null;
+        }
+
+        /// <summary>
+        /// Dereference the identifier to a commit. If the identifier is enumerable, dereference the first element.
+        /// </summary>
+        /// <param name="repo">The <see cref="Repository"/> to search</param>
+        /// <param name="identifier">Committish to dereference</param>
+        /// <returns>An <see cref="ObjectId"/> for a commit object.</returns>
+        internal static ObjectId Committish(this Repository repo, object identifier)
+        {
+            return repo.Committishes(identifier, true).First();
         }
     }
 }

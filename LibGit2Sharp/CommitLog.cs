@@ -11,16 +11,10 @@ namespace LibGit2Sharp
     /// <summary>
     /// A log of commits in a <see cref="Repository"/>
     /// </summary>
-    public class CommitLog : IQueryableCommitLog
+    public sealed class CommitLog : IQueryableCommitLog
     {
         private readonly Repository repo;
         private readonly CommitFilter queryFilter;
-
-        /// <summary>
-        /// Needed for mocking purposes.
-        /// </summary>
-        protected CommitLog()
-        { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CommitLog"/> class.
@@ -46,7 +40,7 @@ namespace LibGit2Sharp
         /// <summary>
         /// Gets the current sorting strategy applied when enumerating the log
         /// </summary>
-        public virtual CommitSortStrategies SortedBy
+        public CommitSortStrategies SortedBy
         {
             get { return queryFilter.SortBy; }
         }
@@ -57,7 +51,7 @@ namespace LibGit2Sharp
         /// Returns an enumerator that iterates through the log.
         /// </summary>
         /// <returns>An <see cref="IEnumerator{T}"/> object that can be used to iterate through the log.</returns>
-        public virtual IEnumerator<Commit> GetEnumerator()
+        public IEnumerator<Commit> GetEnumerator()
         {
             return new CommitEnumerator(repo, queryFilter);
         }
@@ -78,7 +72,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="filter">The options used to control which commits will be returned.</param>
         /// <returns>A list of commits, ready to be enumerated.</returns>
-        public virtual ICommitLog QueryBy(CommitFilter filter)
+        public ICommitLog QueryBy(CommitFilter filter)
         {
             Ensure.ArgumentNotNull(filter, "filter");
             Ensure.ArgumentNotNull(filter.Since, "filter.Since");
@@ -88,31 +82,31 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Find the best possible common ancestor given two <see cref="Commit"/>s.
+        /// Find the best possible merge base given two <see cref="Commit"/>s.
         /// </summary>
         /// <param name="first">The first <see cref="Commit"/>.</param>
         /// <param name="second">The second <see cref="Commit"/>.</param>
-        /// <returns>The common ancestor or null if none found.</returns>
-        public virtual Commit FindCommonAncestor(Commit first, Commit second)
+        /// <returns>The merge base or null if none found.</returns>
+        public Commit FindMergeBase(Commit first, Commit second)
         {
             Ensure.ArgumentNotNull(first, "first");
             Ensure.ArgumentNotNull(second, "second");
 
-            ObjectId id = Proxy.git_merge_base(repo.Handle, first, second);
-
-            return id == null ? null : repo.Lookup<Commit>(id);
+            return FindMergeBase(new[] { first, second }, MergeBaseFindingStrategy.Standard);
         }
 
         /// <summary>
-        /// Find the best possible common ancestor given two or more <see cref="Commit"/>.
+        /// Find the best possible merge base given two or more <see cref="Commit"/> according to the <see cref="MergeBaseFindingStrategy"/>.
         /// </summary>
-        /// <param name="commits">The <see cref="Commit"/>s for which to find the common ancestor.</param>
-        /// <returns>The common ancestor or null if none found.</returns>
-        public virtual Commit FindCommonAncestor(IEnumerable<Commit> commits)
+        /// <param name="commits">The <see cref="Commit"/>s for which to find the merge base.</param>
+        /// <param name="strategy">The strategy to leverage in order to find the merge base.</param>
+        /// <returns>The merge base or null if none found.</returns>
+        public Commit FindMergeBase(IEnumerable<Commit> commits, MergeBaseFindingStrategy strategy)
         {
             Ensure.ArgumentNotNull(commits, "commits");
 
-            Commit ret = null;
+            ObjectId id;
+            List<GitOid> ids = new List<GitOid>(8);
             int count = 0;
 
             foreach (var commit in commits)
@@ -121,20 +115,8 @@ namespace LibGit2Sharp
                 {
                     throw new ArgumentException("Enumerable contains null at position: " + count.ToString(CultureInfo.InvariantCulture), "commits");
                 }
-
+                ids.Add(commit.Id.Oid);
                 count++;
-
-                if (count == 1)
-                {
-                    ret = commit;
-                    continue;
-                }
-
-                ret = FindCommonAncestor(ret, commit);
-                if (ret == null)
-                {
-                    break;
-                }
             }
 
             if (count < 2)
@@ -142,7 +124,19 @@ namespace LibGit2Sharp
                 throw new ArgumentException("The enumerable must contains at least two commits.", "commits");
             }
 
-            return ret;
+            switch (strategy)
+            {
+                case MergeBaseFindingStrategy.Standard:
+                    id = Proxy.git_merge_base_many(repo.Handle, ids.ToArray());
+                    break;
+                case MergeBaseFindingStrategy.Octopus:
+                    id = Proxy.git_merge_base_octopus(repo.Handle, ids.ToArray());
+                    break;
+                default:
+                    throw new ArgumentException("", "strategy");
+            }
+
+            return id == null ? null : repo.Lookup<Commit>(id);
         }
 
         private class CommitEnumerator : IEnumerator<Commit>
@@ -160,6 +154,7 @@ namespace LibGit2Sharp
                 Sort(filter.SortBy);
                 Push(filter.SinceList);
                 Hide(filter.UntilList);
+                FirstParentOnly(filter.FirstParentOnly);
             }
 
             #region IEnumerator<Commit> Members
@@ -210,7 +205,7 @@ namespace LibGit2Sharp
 
             private void InternalHidePush(IList<object> identifier, HidePushSignature hidePush)
             {
-                IEnumerable<ObjectId> oids = RetrieveCommitOids(identifier).TakeWhile(o => o != null);
+                IEnumerable<ObjectId> oids = repo.Committishes(identifier).TakeWhile(o => o != null);
 
                 foreach (ObjectId actedOn in oids)
                 {
@@ -238,97 +233,32 @@ namespace LibGit2Sharp
                 Proxy.git_revwalk_sorting(handle, options);
             }
 
-            private ObjectId DereferenceToCommit(string identifier)
+            private void FirstParentOnly(bool firstParent)
             {
-                var options = LookUpOptions.DereferenceResultToCommit;
-
-                if (!AllowOrphanReference(identifier))
+                if (firstParent)
                 {
-                    options |= LookUpOptions.ThrowWhenNoGitObjectHasBeenFound;
+                    Proxy.git_revwalk_simplify_first_parent(handle);
                 }
-
-                // TODO: Should we check the type? Git-log allows TagAnnotation oid as parameter. But what about Blobs and Trees?
-                GitObject commit = repo.Lookup(identifier, GitObjectType.Any, options);
-
-                return commit != null ? commit.Id : null;
-            }
-
-            private bool AllowOrphanReference(string identifier)
-            {
-                return string.Equals(identifier, "HEAD", StringComparison.Ordinal)
-                       || string.Equals(identifier, repo.Head.CanonicalName, StringComparison.Ordinal);
-            }
-
-            private IEnumerable<ObjectId> RetrieveCommitOids(object identifier)
-            {
-                if (identifier is string)
-                {
-                    yield return DereferenceToCommit(identifier as string);
-                    yield break;
-                }
-
-                if (identifier is ObjectId)
-                {
-                    yield return DereferenceToCommit(((ObjectId)identifier).Sha);
-                    yield break;
-                }
-
-                if (identifier is Commit)
-                {
-                    yield return ((Commit)identifier).Id;
-                    yield break;
-                }
-
-                if (identifier is TagAnnotation)
-                {
-                    yield return DereferenceToCommit(((TagAnnotation)identifier).Target.Id.Sha);
-                    yield break;
-                }
-
-                if (identifier is Tag)
-                {
-                    yield return DereferenceToCommit(((Tag)identifier).Target.Id.Sha);
-                    yield break;
-                }
-
-                if (identifier is Branch)
-                {
-                    var branch = (Branch)identifier;
-                    if (branch.Tip == null && branch.IsCurrentRepositoryHead)
-                    {
-                        yield return null;
-                        yield break;
-                    }
-
-                    Ensure.GitObjectIsNotNull(branch.Tip, branch.CanonicalName);
-
-                    yield return branch.Tip.Id;
-                    yield break;
-                }
-
-                if (identifier is Reference)
-                {
-                    yield return DereferenceToCommit(((Reference)identifier).CanonicalName);
-                    yield break;
-                }
-
-                if (identifier is IEnumerable)
-                {
-                    var enumerable = (IEnumerable)identifier;
-
-                    foreach (object entry in enumerable)
-                    {
-                        foreach (ObjectId oid in RetrieveCommitOids(entry))
-                        {
-                            yield return oid;
-                        }
-                    }
-
-                    yield break;
-                }
-
-                throw new LibGit2SharpException(string.Format(CultureInfo.InvariantCulture, "Unexpected kind of identifier '{0}'.", identifier));
             }
         }
+
+    }
+
+    /// <summary>
+    /// Determines the finding strategy of merge base.
+    /// </summary>
+    public enum MergeBaseFindingStrategy
+    {
+        /// <summary>
+        /// Compute the best common ancestor between some commits to use in a three-way merge.
+        /// <para>
+        /// When more than two commits are provided, the computation is performed between the first commit and a hypothetical merge commit across all the remaining commits.
+        /// </para>
+        /// </summary>
+        Standard,
+        /// <summary>
+        /// Compute the best common ancestor of all supplied commits, in preparation for an n-way merge.
+        /// </summary>
+        Octopus,
     }
 }

@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using LibGit2Sharp.Core;
-using LibGit2Sharp.Core.Compat;
 using LibGit2Sharp.Core.Handles;
 using Environment = System.Environment;
 
@@ -33,15 +33,19 @@ namespace LibGit2Sharp
             {
                 options.Flags |= GitDiffOptionFlags.GIT_DIFF_INCLUDE_UNTRACKED |
                 GitDiffOptionFlags.GIT_DIFF_RECURSE_UNTRACKED_DIRS |
-                GitDiffOptionFlags.GIT_DIFF_INCLUDE_UNTRACKED_CONTENT;
+                GitDiffOptionFlags.GIT_DIFF_SHOW_UNTRACKED_CONTENT;
             }
 
             if (diffOptions.HasFlag(DiffModifiers.IncludeIgnored))
             {
-                options.Flags |= GitDiffOptionFlags.GIT_DIFF_INCLUDE_IGNORED;
+                options.Flags |= GitDiffOptionFlags.GIT_DIFF_INCLUDE_IGNORED |
+                GitDiffOptionFlags.GIT_DIFF_RECURSE_IGNORED_DIRS;
             }
 
-            if (diffOptions.HasFlag(DiffModifiers.IncludeUnmodified))
+            if (diffOptions.HasFlag(DiffModifiers.IncludeUnmodified) || compareOptions.IncludeUnmodified ||
+                (compareOptions.Similarity != null &&
+                 (compareOptions.Similarity.RenameDetectionMode == RenameDetectionMode.CopiesHarder ||
+                  compareOptions.Similarity.RenameDetectionMode == RenameDetectionMode.Exact)))
             {
                 options.Flags |= GitDiffOptionFlags.GIT_DIFF_INCLUDE_UNMODIFIED;
             }
@@ -56,12 +60,11 @@ namespace LibGit2Sharp
                 options.NotifyCallback = matchedPathsAggregator.OnGitDiffNotify;
             }
 
-            if (filePaths == null)
+            if (filePaths != null)
             {
-                return options;
+                options.PathSpec = GitStrArrayManaged.BuildFrom(filePaths);
             }
 
-            options.PathSpec = GitStrArrayIn.BuildFrom(filePaths);
             return options;
         }
 
@@ -76,38 +79,24 @@ namespace LibGit2Sharp
             this.repo = repo;
         }
 
-        /// <summary>
-        /// Show changes between two <see cref="Tree"/>s.
-        /// </summary>
-        /// <param name="oldTree">The <see cref="Tree"/> you want to compare from.</param>
-        /// <param name="newTree">The <see cref="Tree"/> you want to compare to.</param>
-        /// <param name="paths">The list of paths (either files or directories) that should be compared.</param>
-        /// <param name="explicitPathsOptions">
-        /// If set, the passed <paramref name="paths"/> will be treated as explicit paths.
-        /// Use these options to determine how unmatched explicit paths should be handled.
-        /// </param>
-        /// <param name="compareOptions">Additional options to define comparison behavior.</param>
-        /// <returns>A <see cref="TreeChanges"/> containing the changes between the <paramref name="oldTree"/> and the <paramref name="newTree"/>.</returns>
-        public virtual TreeChanges Compare(Tree oldTree, Tree newTree, IEnumerable<string> paths = null, ExplicitPathsOptions explicitPathsOptions = null, CompareOptions compareOptions = null)
+        private static readonly IDictionary<DiffTargets, Func<Repository, TreeComparisonHandleRetriever>> HandleRetrieverDispatcher = BuildHandleRetrieverDispatcher();
+
+        private static IDictionary<DiffTargets, Func<Repository, TreeComparisonHandleRetriever>> BuildHandleRetrieverDispatcher()
         {
-            var comparer = TreeToTree(repo);
-            ObjectId oldTreeId = oldTree != null ? oldTree.Id : null;
-            ObjectId newTreeId = newTree != null ? newTree.Id : null;
-            var diffOptions = DiffModifiers.None;
-
-            if (explicitPathsOptions != null)
-            {
-                diffOptions |= DiffModifiers.DisablePathspecMatch;
-
-                if (explicitPathsOptions.ShouldFailOnUnmatchedPath ||
-                    explicitPathsOptions.OnUnmatchedPath != null)
-                {
-                    diffOptions |= DiffModifiers.IncludeUnmodified;
-                }
-            }
-
-            return BuildTreeChangesFromComparer(oldTreeId, newTreeId, comparer, diffOptions, paths, explicitPathsOptions, compareOptions);
+            return new Dictionary<DiffTargets, Func<Repository, TreeComparisonHandleRetriever>>
+                       {
+                           { DiffTargets.Index, IndexToTree },
+                           { DiffTargets.WorkingDirectory, WorkdirToTree },
+                           { DiffTargets.Index | DiffTargets.WorkingDirectory, WorkdirAndIndexToTree },
+                       };
         }
+
+        private static readonly IDictionary<Type, Func<DiffSafeHandle, object>> ChangesBuilders = new Dictionary<Type, Func<DiffSafeHandle, object>>
+        {
+            { typeof(Patch), diff => new Patch(diff) },
+            { typeof(TreeChanges), diff => new TreeChanges(diff) },
+            { typeof(PatchStats), diff => new PatchStats(diff) },
+        };
 
         /// <summary>
         /// Show changes between two <see cref="Blob"/>s.
@@ -124,37 +113,34 @@ namespace LibGit2Sharp
             }
         }
 
-        private readonly IDictionary<DiffTargets, Func<Repository, TreeComparisonHandleRetriever>> handleRetrieverDispatcher = BuildHandleRetrieverDispatcher();
-
-        private static IDictionary<DiffTargets, Func<Repository, TreeComparisonHandleRetriever>> BuildHandleRetrieverDispatcher()
-        {
-            return new Dictionary<DiffTargets, Func<Repository, TreeComparisonHandleRetriever>>
-                       {
-                           { DiffTargets.Index, IndexToTree },
-                           { DiffTargets.WorkingDirectory, WorkdirToTree },
-                           { DiffTargets.Index | DiffTargets.WorkingDirectory, WorkdirAndIndexToTree },
-                       };
-        }
-
         /// <summary>
-        /// Show changes between a <see cref="Tree"/> and the Index, the Working Directory, or both.
+        /// Show changes between two <see cref="Tree"/>s.
         /// </summary>
-        /// <param name="oldTree">The <see cref="Tree"/> to compare from.</param>
-        /// <param name="diffTargets">The targets to compare to.</param>
+        /// <param name="oldTree">The <see cref="Tree"/> you want to compare from.</param>
+        /// <param name="newTree">The <see cref="Tree"/> you want to compare to.</param>
         /// <param name="paths">The list of paths (either files or directories) that should be compared.</param>
         /// <param name="explicitPathsOptions">
         /// If set, the passed <paramref name="paths"/> will be treated as explicit paths.
         /// Use these options to determine how unmatched explicit paths should be handled.
         /// </param>
-        /// <param name="compareOptions">Additional options to define comparison behavior.</param>
-        /// <returns>A <see cref="TreeChanges"/> containing the changes between the <see cref="Tree"/> and the selected target.</returns>
-        public virtual TreeChanges Compare(Tree oldTree, DiffTargets diffTargets, IEnumerable<string> paths = null, ExplicitPathsOptions explicitPathsOptions = null, CompareOptions compareOptions = null)
+        /// <param name="compareOptions">Additional options to define patch generation behavior.</param>
+        /// <returns>A <see cref="TreeChanges"/> containing the changes between the <paramref name="oldTree"/> and the <paramref name="newTree"/>.</returns>
+        public virtual T Compare<T>(Tree oldTree, Tree newTree, IEnumerable<string> paths = null, ExplicitPathsOptions explicitPathsOptions = null,
+            CompareOptions compareOptions = null) where T : class
         {
-            var comparer = handleRetrieverDispatcher[diffTargets](repo);
-            ObjectId oldTreeId = oldTree != null ? oldTree.Id : null;
+            Func<DiffSafeHandle, object> builder;
 
-            DiffModifiers diffOptions = diffTargets.HasFlag(DiffTargets.WorkingDirectory) ?
-                DiffModifiers.IncludeUntracked : DiffModifiers.None;
+            if (!ChangesBuilders.TryGetValue(typeof (T), out builder))
+            {
+                throw new LibGit2SharpException(string.Format(CultureInfo.InvariantCulture,
+                    "Unexpected type '{0}' passed to Compare. Supported values are either '{1}' or '{2}'.", typeof (T),
+                    typeof (TreeChanges), typeof (Patch)));
+            }
+
+            var comparer = TreeToTree(repo);
+            ObjectId oldTreeId = oldTree != null ? oldTree.Id : null;
+            ObjectId newTreeId = newTree != null ? newTree.Id : null;
+            var diffOptions = DiffModifiers.None;
 
             if (explicitPathsOptions != null)
             {
@@ -167,11 +153,74 @@ namespace LibGit2Sharp
                 }
             }
 
-            return BuildTreeChangesFromComparer(oldTreeId, null, comparer, diffOptions, paths, explicitPathsOptions, compareOptions);
+            using (DiffSafeHandle diff = BuildDiffList(oldTreeId, newTreeId, comparer,
+                diffOptions, paths, explicitPathsOptions, compareOptions))
+            {
+                return (T)builder(diff);
+            }
+        }
+
+        /// <summary>
+        /// Show changes between a <see cref="Tree"/> and the Index, the Working Directory, or both.
+        /// <para>
+        /// The level of diff performed can be specified by passing either a <see cref="TreeChanges"/>
+        /// or <see cref="Patch"/> type as the generic parameter.
+        /// </para>
+        /// </summary>
+        /// <param name="oldTree">The <see cref="Tree"/> to compare from.</param>
+        /// <param name="diffTargets">The targets to compare to.</param>
+        /// <param name="paths">The list of paths (either files or directories) that should be compared.</param>
+        /// <param name="explicitPathsOptions">
+        /// If set, the passed <paramref name="paths"/> will be treated as explicit paths.
+        /// Use these options to determine how unmatched explicit paths should be handled.
+        /// </param>
+        /// <param name="compareOptions">Additional options to define patch generation behavior.</param>
+        /// <typeparam name="T">Can be either a <see cref="TreeChanges"/> if you are only interested in the list of files modified, added, ..., or
+        /// a <see cref="Patch"/> if you want the actual patch content for the whole diff and for individual files.</typeparam>
+        /// <returns>A <typeparamref name="T"/> containing the changes between the <see cref="Tree"/> and the selected target.</returns>
+        public virtual T Compare<T>(Tree oldTree, DiffTargets diffTargets, IEnumerable<string> paths = null,
+            ExplicitPathsOptions explicitPathsOptions = null, CompareOptions compareOptions = null) where T : class
+        {
+            Func<DiffSafeHandle, object> builder;
+
+            if (!ChangesBuilders.TryGetValue(typeof (T), out builder))
+            {
+                throw new LibGit2SharpException(string.Format(CultureInfo.InvariantCulture,
+                    "Unexpected type '{0}' passed to Compare. Supported values are either '{1}' or '{2}'.", typeof (T),
+                    typeof (TreeChanges), typeof (Patch)));
+            }
+
+            var comparer = HandleRetrieverDispatcher[diffTargets](repo);
+            ObjectId oldTreeId = oldTree != null ? oldTree.Id : null;
+
+            DiffModifiers diffOptions = diffTargets.HasFlag(DiffTargets.WorkingDirectory)
+                ? DiffModifiers.IncludeUntracked
+                : DiffModifiers.None;
+
+            if (explicitPathsOptions != null)
+            {
+                diffOptions |= DiffModifiers.DisablePathspecMatch;
+
+                if (explicitPathsOptions.ShouldFailOnUnmatchedPath ||
+                    explicitPathsOptions.OnUnmatchedPath != null)
+                {
+                    diffOptions |= DiffModifiers.IncludeUnmodified;
+                }
+            }
+
+            using (DiffSafeHandle diff = BuildDiffList(oldTreeId, null, comparer,
+                diffOptions, paths, explicitPathsOptions, compareOptions))
+            {
+                return (T)builder(diff);
+            }
         }
 
         /// <summary>
         /// Show changes between the working directory and the index.
+        /// <para>
+        /// The level of diff performed can be specified by passing either a <see cref="TreeChanges"/>
+        /// or <see cref="Patch"/> type as the generic parameter.
+        /// </para>
         /// </summary>
         /// <param name="paths">The list of paths (either files or directories) that should be compared.</param>
         /// <param name="includeUntracked">If true, include untracked files from the working dir as additions. Otherwise ignore them.</param>
@@ -179,16 +228,28 @@ namespace LibGit2Sharp
         /// If set, the passed <paramref name="paths"/> will be treated as explicit paths.
         /// Use these options to determine how unmatched explicit paths should be handled.
         /// </param>
-        /// <param name="compareOptions">Additional options to define comparison behavior.</param>
-        /// <returns>A <see cref="TreeChanges"/> containing the changes between the working directory and the index.</returns>
-        public virtual TreeChanges Compare(IEnumerable<string> paths = null, bool includeUntracked = false, ExplicitPathsOptions explicitPathsOptions = null, CompareOptions compareOptions = null)
+        /// <param name="compareOptions">Additional options to define patch generation behavior.</param>
+        /// <typeparam name="T">Can be either a <see cref="TreeChanges"/> if you are only interested in the list of files modified, added, ..., or
+        /// a <see cref="Patch"/> if you want the actual patch content for the whole diff and for individual files.</typeparam>
+        /// <returns>A <typeparamref name="T"/> containing the changes between the working directory and the index.</returns>
+        public virtual T Compare<T>(IEnumerable<string> paths = null, bool includeUntracked = false, ExplicitPathsOptions explicitPathsOptions = null,
+            CompareOptions compareOptions = null) where T : class
         {
-            return Compare(includeUntracked ? DiffModifiers.IncludeUntracked : DiffModifiers.None, paths, explicitPathsOptions, compareOptions);
+            return Compare<T>(includeUntracked ? DiffModifiers.IncludeUntracked : DiffModifiers.None, paths, explicitPathsOptions);
         }
 
-        internal virtual TreeChanges Compare(DiffModifiers diffOptions, IEnumerable<string> paths = null,
-                                             ExplicitPathsOptions explicitPathsOptions = null, CompareOptions compareOptions = null)
+        internal virtual T Compare<T>(DiffModifiers diffOptions, IEnumerable<string> paths = null,
+                                     ExplicitPathsOptions explicitPathsOptions = null, CompareOptions compareOptions = null) where T : class
         {
+            Func<DiffSafeHandle, object> builder;
+
+            if (!ChangesBuilders.TryGetValue(typeof (T), out builder))
+            {
+                throw new LibGit2SharpException(string.Format(CultureInfo.InvariantCulture,
+                    "Unexpected type '{0}' passed to Compare. Supported values are either '{1}' or '{2}'.", typeof (T),
+                    typeof (TreeChanges), typeof (Patch)));
+            }
+
             var comparer = WorkdirToIndex(repo);
 
             if (explicitPathsOptions != null)
@@ -202,10 +263,14 @@ namespace LibGit2Sharp
                 }
             }
 
-            return BuildTreeChangesFromComparer(null, null, comparer, diffOptions, paths, explicitPathsOptions, compareOptions);
+            using (DiffSafeHandle diff = BuildDiffList(null, null, comparer,
+                diffOptions, paths, explicitPathsOptions, compareOptions))
+            {
+                return (T)builder(diff);
+            }
         }
 
-        private delegate DiffListSafeHandle TreeComparisonHandleRetriever(ObjectId oldTreeId, ObjectId newTreeId, GitDiffOptions options);
+        internal delegate DiffSafeHandle TreeComparisonHandleRetriever(ObjectId oldTreeId, ObjectId newTreeId, GitDiffOptions options);
 
         private static TreeComparisonHandleRetriever TreeToTree(Repository repo)
         {
@@ -226,22 +291,11 @@ namespace LibGit2Sharp
         {
             TreeComparisonHandleRetriever comparisonHandleRetriever = (oh, nh, o) =>
             {
-                DiffListSafeHandle diff = null, diff2 = null;
+                DiffSafeHandle diff = Proxy.git_diff_tree_to_index(repo.Handle, repo.Index.Handle, oh, o);
 
-                try
+                using (DiffSafeHandle diff2 = Proxy.git_diff_index_to_workdir(repo.Handle, repo.Index.Handle, o))
                 {
-                    diff = Proxy.git_diff_tree_to_index(repo.Handle, repo.Index.Handle, oh, o);
-                    diff2 = Proxy.git_diff_index_to_workdir(repo.Handle, repo.Index.Handle, o);
                     Proxy.git_diff_merge(diff, diff2);
-                }
-                catch
-                {
-                    diff.SafeDispose();
-                    throw;
-                }
-                finally
-                {
-                    diff2.SafeDispose();
                 }
 
                 return diff;
@@ -255,24 +309,93 @@ namespace LibGit2Sharp
             return (oh, nh, o) => Proxy.git_diff_tree_to_index(repo.Handle, repo.Index.Handle, oh, o);
         }
 
-        private TreeChanges BuildTreeChangesFromComparer(
-            ObjectId oldTreeId, ObjectId newTreeId, TreeComparisonHandleRetriever comparisonHandleRetriever,
-            DiffModifiers diffOptions, IEnumerable<string> paths = null, ExplicitPathsOptions explicitPathsOptions = null, CompareOptions compareOptions = null)
+        private DiffSafeHandle BuildDiffList(ObjectId oldTreeId, ObjectId newTreeId, TreeComparisonHandleRetriever comparisonHandleRetriever,
+            DiffModifiers diffOptions, IEnumerable<string> paths, ExplicitPathsOptions explicitPathsOptions,
+            CompareOptions compareOptions)
         {
             var matchedPaths = new MatchedPathsAggregator();
             var filePaths = repo.ToFilePaths(paths);
 
             using (GitDiffOptions options = BuildOptions(diffOptions, filePaths, matchedPaths, compareOptions))
-            using (DiffListSafeHandle diffList = comparisonHandleRetriever(oldTreeId, newTreeId, options))
             {
+                var diffList = comparisonHandleRetriever(oldTreeId, newTreeId, options);
+
                 if (explicitPathsOptions != null)
                 {
                     DispatchUnmatchedPaths(explicitPathsOptions, filePaths, matchedPaths);
                 }
 
-                bool skipPatchBuilding = (compareOptions != null) && compareOptions.SkipPatchBuilding;
-                return new TreeChanges(diffList, skipPatchBuilding);
+                DetectRenames(diffList, compareOptions);
+
+                return diffList;
             }
+        }
+
+        private static void DetectRenames(DiffSafeHandle diffList, CompareOptions compareOptions)
+        {
+            var similarityOptions = (compareOptions == null) ? null : compareOptions.Similarity;
+            if (similarityOptions == null ||
+                similarityOptions.RenameDetectionMode == RenameDetectionMode.Default)
+            {
+                Proxy.git_diff_find_similar(diffList, null);
+                return;
+            }
+
+            if (similarityOptions.RenameDetectionMode == RenameDetectionMode.None)
+            {
+                return;
+            }
+
+            var opts = new GitDiffFindOptions
+            {
+                RenameThreshold = (ushort)similarityOptions.RenameThreshold,
+                RenameFromRewriteThreshold = (ushort)similarityOptions.RenameFromRewriteThreshold,
+                CopyThreshold = (ushort)similarityOptions.CopyThreshold,
+                BreakRewriteThreshold = (ushort)similarityOptions.BreakRewriteThreshold,
+                RenameLimit = (UIntPtr)similarityOptions.RenameLimit,
+            };
+
+            switch (similarityOptions.RenameDetectionMode)
+            {
+                case RenameDetectionMode.Exact:
+                    opts.Flags = GitDiffFindFlags.GIT_DIFF_FIND_EXACT_MATCH_ONLY |
+                                 GitDiffFindFlags.GIT_DIFF_FIND_RENAMES |
+                                 GitDiffFindFlags.GIT_DIFF_FIND_COPIES |
+                                 GitDiffFindFlags.GIT_DIFF_FIND_COPIES_FROM_UNMODIFIED;
+                    break;
+                case RenameDetectionMode.Renames:
+                    opts.Flags = GitDiffFindFlags.GIT_DIFF_FIND_RENAMES;
+                    break;
+                case RenameDetectionMode.Copies:
+                    opts.Flags = GitDiffFindFlags.GIT_DIFF_FIND_RENAMES |
+                                 GitDiffFindFlags.GIT_DIFF_FIND_COPIES;
+                    break;
+                case RenameDetectionMode.CopiesHarder:
+                    opts.Flags = GitDiffFindFlags.GIT_DIFF_FIND_RENAMES |
+                                 GitDiffFindFlags.GIT_DIFF_FIND_COPIES |
+                                 GitDiffFindFlags.GIT_DIFF_FIND_COPIES_FROM_UNMODIFIED;
+                    break;
+            }
+
+            if (!compareOptions.IncludeUnmodified)
+            {
+                opts.Flags |= GitDiffFindFlags.GIT_DIFF_FIND_REMOVE_UNMODIFIED;
+            }
+
+            switch (similarityOptions.WhitespaceMode)
+            {
+                case WhitespaceMode.DontIgnoreWhitespace:
+                    opts.Flags |= GitDiffFindFlags.GIT_DIFF_FIND_DONT_IGNORE_WHITESPACE;
+                    break;
+                case WhitespaceMode.IgnoreLeadingWhitespace:
+                    opts.Flags |= GitDiffFindFlags.GIT_DIFF_FIND_IGNORE_LEADING_WHITESPACE;
+                    break;
+                case WhitespaceMode.IgnoreAllWhitespace:
+                    opts.Flags |= GitDiffFindFlags.GIT_DIFF_FIND_IGNORE_WHITESPACE;
+                    break;
+            }
+
+            Proxy.git_diff_find_similar(diffList, opts);
         }
 
         private static void DispatchUnmatchedPaths(ExplicitPathsOptions explicitPathsOptions,

@@ -1,0 +1,55 @@
+<Project DefaultTargets="Deploy" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
+    <RootDir>$(MSBuildProjectDirectory)\..</RootDir>
+    <TestBuildDir>$(RootDir)\LibGit2Sharp.Tests\bin\$(Configuration)</TestBuildDir>
+    <DeployFolder>$(RootDir)\Build</DeployFolder>
+  </PropertyGroup>
+
+  <UsingTask AssemblyFile="$(RootDir)\Lib\xUnit\xunit.runner.msbuild.dll"
+               TaskName="Xunit.Runner.MSBuild.xunit" />
+  <Target Name="Clean">
+	<Message Text="Commit SHA = $(CommitSha)" />
+
+	<WriteLinesToFile Condition="'$(CommitSha)' != ''"
+		File="$(RootDir)\LibGit2Sharp\libgit2sharp_hash.txt"
+		Lines="$(CommitSha)"
+		Overwrite="true" />
+
+	<!-- Workaround for xbuild -->
+    <Exec Condition=" ('$(OS)' != 'Windows_NT') " Command=" rm -r -f $(DeployFolder) " />
+    <Exec Condition=" ('$(OS)' != 'Windows_NT') " Command=" rm -r -f $(TestBuildDir) " />
+
+    <RemoveDir Directories="$(DeployFolder)" Condition="Exists('$(DeployFolder)')" />
+    <RemoveDir Directories="$(TestBuildDir)" Condition="Exists('$(TestBuildDir)')" />
+  </Target>
+
+  <Target Name="Init" DependsOnTargets="Clean">
+    <MakeDir Directories="$(DeployFolder)" />
+  </Target>
+
+  <Target Name="Build" DependsOnTargets="Init">
+    <MSBuild
+      Projects="$(RootDir)\LibGit2Sharp.sln"
+      Targets="Build"
+      Properties="Configuration=$(Configuration);TrackFileAccess=false" />
+  </Target>
+
+  <Target Name="Test" DependsOnTargets="Build">
+    <xunit Assembly="$(TestBuildDir)/LibGit2Sharp.Tests.dll" Xml="$(DeployFolder)/Test-result.xml" />
+  </Target>
+
+  <Target Name="Deploy" DependsOnTargets="Test">
+    <CreateItem Include="$(TestBuildDir)\LibGit2*.*">
+        <Output TaskParameter="Include" ItemName="OutputFiles" />
+    </CreateItem>
+    <Copy SourceFiles="@(OutputFiles)"
+        DestinationFiles="@(OutputFiles->'$(DeployFolder)\%(RecursiveDir)%(Filename)%(Extension)')" />
+
+    <CreateItem Include="$(TestBuildDir)\NativeBinaries\**\*.*">
+        <Output TaskParameter="Include" ItemName="NativeBinaries" />
+    </CreateItem>
+    <Copy SourceFiles="@(NativeBinaries)"
+      DestinationFiles="@(NativeBinaries->'$(DeployFolder)\NativeBinaries\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+  </Target>
+</Project>

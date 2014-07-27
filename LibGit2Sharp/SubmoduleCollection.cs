@@ -95,9 +95,9 @@ namespace LibGit2Sharp
         /// Returns an enumerator that iterates through the collection.
         /// </summary>
         /// <returns>An <see cref="IEnumerator{T}"/> object that can be used to iterate through the collection.</returns>
-        public IEnumerator<Submodule> GetEnumerator()
+        public virtual IEnumerator<Submodule> GetEnumerator()
         {
-            return Proxy.git_submodule_foreach(repo.Handle, (h, n) => Utf8Marshaler.FromNative(n))
+            return Proxy.git_submodule_foreach(repo.Handle, (h, n) => LaxUtf8Marshaler.FromNative(n))
                         .Select(n => this[n])
                         .GetEnumerator();
         }

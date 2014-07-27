@@ -5,7 +5,6 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using LibGit2Sharp.Core;
-using LibGit2Sharp.Core.Compat;
 using LibGit2Sharp.Core.Handles;
 
 namespace LibGit2Sharp
@@ -16,15 +15,16 @@ namespace LibGit2Sharp
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class Commit : GitObject
     {
-        private readonly GitObjectLazyGroup group;
+        private readonly GitObjectLazyGroup group1;
+        private readonly GitObjectLazyGroup group2;
         private readonly ILazy<Tree> lazyTree;
         private readonly ILazy<Signature> lazyAuthor;
         private readonly ILazy<Signature> lazyCommitter;
         private readonly ILazy<string> lazyMessage;
+        private readonly ILazy<string> lazyMessageShort;
         private readonly ILazy<string> lazyEncoding;
 
         private readonly ParentsCollection parents;
-        private readonly Lazy<string> lazyShortMessage;
         private readonly Lazy<IEnumerable<Note>> lazyNotes;
 
         /// <summary>
@@ -36,15 +36,16 @@ namespace LibGit2Sharp
         internal Commit(Repository repo, ObjectId id)
             : base(repo, id)
         {
-            lazyTree = GitObjectLazyGroup.Singleton(this.repo, id, obj => new Tree(this.repo, Proxy.git_commit_tree_oid(obj), null));
+            lazyTree = GitObjectLazyGroup.Singleton(this.repo, id, obj => new Tree(this.repo, Proxy.git_commit_tree_id(obj), null));
 
-            group = new GitObjectLazyGroup(this.repo, id);
-            lazyAuthor = group.AddLazy(Proxy.git_commit_author);
-            lazyCommitter = group.AddLazy(Proxy.git_commit_committer);
-            lazyMessage = group.AddLazy(Proxy.git_commit_message);
-            lazyEncoding = group.AddLazy(RetrieveEncodingOf);
+            group1 = new GitObjectLazyGroup(this.repo, id);
+            lazyAuthor = group1.AddLazy(Proxy.git_commit_author);
+            lazyCommitter = group1.AddLazy(Proxy.git_commit_committer);
+            group2 = new GitObjectLazyGroup(this.repo, id);
+            lazyMessage = group2.AddLazy(Proxy.git_commit_message);
+            lazyMessageShort = group2.AddLazy(Proxy.git_commit_summary);
+            lazyEncoding = group2.AddLazy(RetrieveEncodingOf);
 
-            lazyShortMessage = new Lazy<string>(ExtractShortMessage);
             lazyNotes = new Lazy<IEnumerable<Note>>(() => RetrieveNotesOfCommit(id).ToList());
 
             parents = new ParentsCollection(repo, id);
@@ -68,7 +69,7 @@ namespace LibGit2Sharp
         /// <summary>
         /// Gets the short commit message which is usually the first line of the commit.
         /// </summary>
-        public virtual string MessageShort { get { return lazyShortMessage.Value; } }
+        public virtual string MessageShort { get { return lazyMessageShort.Value; } }
 
         /// <summary>
         /// Gets the encoding of the message.
@@ -99,16 +100,6 @@ namespace LibGit2Sharp
         /// Gets the notes of this commit.
         /// </summary>
         public virtual IEnumerable<Note> Notes { get { return lazyNotes.Value; } }
-
-        private string ExtractShortMessage()
-        {
-            if (Message == null)
-            {
-                return string.Empty; //TODO: Add some test coverage
-            }
-
-            return Message.Split('\n')[0];
-        }
 
         private IEnumerable<Note> RetrieveNotesOfCommit(ObjectId oid)
         {
@@ -151,7 +142,7 @@ namespace LibGit2Sharp
 
                     for (uint i = 0; i < parentsCount; i++)
                     {
-                        ObjectId parentCommitId = Proxy.git_commit_parent_oid(obj.ObjectPtr, i);
+                        ObjectId parentCommitId = Proxy.git_commit_parent_id(obj.ObjectPtr, i);
                         parents.Add(new Commit(repo, parentCommitId));
                     }
 

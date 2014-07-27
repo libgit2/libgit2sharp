@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -12,11 +13,11 @@ namespace LibGit2Sharp.Core
     /// Use this marshaler for return values, for example:
     /// [return: MarshalAs(UnmanagedType.CustomMarshaler,
     ///                    MarshalCookie = UniqueId.UniqueIdentifier,
-    ///                    MarshalTypeRef = typeof(Utf8NoCleanupMarshaler))]
+    ///                    MarshalTypeRef = typeof(LaxUtf8NoCleanupMarshaler))]
     /// </summary>
-    internal class Utf8NoCleanupMarshaler : Utf8Marshaler
+    internal class LaxUtf8NoCleanupMarshaler : LaxUtf8Marshaler
     {
-        private static readonly Utf8NoCleanupMarshaler staticInstance = new Utf8NoCleanupMarshaler();
+        private static readonly LaxUtf8NoCleanupMarshaler staticInstance = new LaxUtf8NoCleanupMarshaler();
 
         public new static ICustomMarshaler GetInstance(String cookie)
         {
@@ -44,11 +45,21 @@ namespace LibGit2Sharp.Core
     /// internal static extern int git_tag_delete(RepositorySafeHandle repo,
     ///     [MarshalAs(UnmanagedType.CustomMarshaler,
     ///                MarshalCookie = UniqueId.UniqueIdentifier,
-    ///                MarshalTypeRef = typeof(Utf8Marshaler))] String tagName);
+    ///                MarshalTypeRef = typeof(StrictUtf8Marshaler))] String tagName);
     /// </summary>
-    internal class Utf8Marshaler : ICustomMarshaler
+    internal class StrictUtf8Marshaler : EncodingMarshaler
     {
-        private static readonly Utf8Marshaler staticInstance = new Utf8Marshaler();
+        private static readonly StrictUtf8Marshaler staticInstance;
+        private static readonly Encoding encoding;
+
+        static StrictUtf8Marshaler()
+        {
+            encoding = new UTF8Encoding(false, true);
+            staticInstance = new StrictUtf8Marshaler();
+        }
+
+        public StrictUtf8Marshaler() : base(encoding)
+        { }
 
         public static ICustomMarshaler GetInstance(String cookie)
         {
@@ -57,132 +68,67 @@ namespace LibGit2Sharp.Core
 
         #region ICustomMarshaler
 
-        public void CleanUpManagedData(Object managedObj)
+        public override Object MarshalNativeToManaged(IntPtr pNativeData)
         {
-        }
-
-        public virtual void CleanUpNativeData(IntPtr pNativeData)
-        {
-            if (IntPtr.Zero != pNativeData)
-            {
-                Marshal.FreeHGlobal(pNativeData);
-            }
-        }
-
-        public int GetNativeDataSize()
-        {
-            // Not a value type
-            return -1;
-        }
-
-        public IntPtr MarshalManagedToNative(Object managedObj)
-        {
-            if (null == managedObj)
-            {
-                return IntPtr.Zero;
-            }
-
-            String str = managedObj as String;
-
-            if (null == str)
-            {
-                throw new MarshalDirectiveException("Utf8Marshaler must be used on a string.");
-            }
-
-            return FromManaged(str);
-        }
-
-        public Object MarshalNativeToManaged(IntPtr pNativeData)
-        {
-            return FromNative(pNativeData);
+            throw new InvalidOperationException(
+                string.Format(CultureInfo.InvariantCulture, "{0} cannot be used to retrieve data from libgit2.", GetType().Name));
         }
 
         #endregion
 
-        public static unsafe IntPtr FromManaged(String value)
+        public static IntPtr FromManaged(String value)
         {
-            if (null == value)
-            {
-                return IntPtr.Zero;
-            }
+            return FromManaged(encoding, value);
+        }
+    }
 
-            int length = Encoding.UTF8.GetByteCount(value);
-            byte* buffer = (byte*)Marshal.AllocHGlobal(length + 1).ToPointer();
+    /// <summary>
+    /// This marshaler is to be used for capturing a UTF-8 string allocated by libgit2 and
+    /// converting it to a managed String instance. The marshaler will free the native pointer
+    /// after conversion.
+    /// </summary>
+    internal class LaxUtf8Marshaler : EncodingMarshaler
+    {
+        private static readonly LaxUtf8Marshaler staticInstance = new LaxUtf8Marshaler();
 
-            if (length > 0)
-            {
-                fixed (char* pValue = value)
-                {
-                    Encoding.UTF8.GetBytes(pValue, value.Length, buffer, length);
-                }
-            }
+        private static readonly Encoding encoding = new UTF8Encoding(false, false);
 
-            buffer[length] = 0;
+        public LaxUtf8Marshaler() : base(encoding)
+        { }
 
-            return new IntPtr(buffer);
+        public static ICustomMarshaler GetInstance(String cookie)
+        {
+            return staticInstance;
         }
 
-        public static unsafe String FromNative(IntPtr pNativeData)
+        #region ICustomMarshaler
+
+        public override IntPtr MarshalManagedToNative(object managedObj)
         {
-            if (IntPtr.Zero == pNativeData)
-            {
-                return null;
-            }
-
-            byte* start = (byte*)pNativeData;
-            byte* walk = start;
-
-            // Find the end of the string
-            while (*walk != 0)
-            {
-                walk++;
-            }
-
-            if (walk == start)
-            {
-                return String.Empty;
-            }
-
-            return new String((sbyte*)pNativeData.ToPointer(), 0, (int)(walk - start), Encoding.UTF8);
+            throw new InvalidOperationException(
+                string.Format(CultureInfo.InvariantCulture, "{0} cannot be used to pass data to libgit2.", GetType().Name));
         }
 
-        public static unsafe String FromNative(IntPtr pNativeData, int length)
+        #endregion
+
+        public static string FromNative(IntPtr pNativeData)
         {
-            if (IntPtr.Zero == pNativeData)
-            {
-                return null;
-            }
-
-            if (0 == length)
-            {
-                return String.Empty;
-            }
-
-            return new String((sbyte*)pNativeData.ToPointer(), 0, length, Encoding.UTF8);
+            return FromNative(encoding, pNativeData);
         }
 
-        public static String Utf8FromBuffer(byte[] buffer)
+        public static string FromNative(IntPtr pNativeData, int length)
         {
-            if (null == buffer)
-            {
-                return null;
-            }
+            return FromNative(encoding, pNativeData, length);
+        }
 
-            int length = 0;
-            int stop = buffer.Length;
+        public static string FromBuffer(byte[] buffer)
+        {
+            return FromBuffer(encoding, buffer);
+        }
 
-            while (length < stop &&
-                   0 != buffer[length])
-            {
-                length++;
-            }
-
-            if (0 == length)
-            {
-                return String.Empty;
-            }
-
-            return Encoding.UTF8.GetString(buffer, 0, length);
+        public static string FromBuffer(byte[] buffer, int length)
+        {
+            return FromBuffer(encoding, buffer, length);
         }
     }
 }

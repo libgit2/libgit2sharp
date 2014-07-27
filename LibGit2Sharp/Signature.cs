@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Runtime.InteropServices;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Handles;
@@ -19,11 +20,10 @@ namespace LibGit2Sharp
 
         internal Signature(IntPtr signaturePtr)
         {
-            var handle = new GitSignature();
-            Marshal.PtrToStructure(signaturePtr, handle);
+            var handle = signaturePtr.MarshalAs<GitSignature>();
 
-            name = Utf8Marshaler.FromNative(handle.Name);
-            email = Utf8Marshaler.FromNative(handle.Email);
+            name = LaxUtf8Marshaler.FromNative(handle.Name);
+            email = LaxUtf8Marshaler.FromNative(handle.Email);
             when = Epoch.ToDateTimeOffset(handle.When.Time, handle.When.Offset);
         }
 
@@ -35,6 +35,11 @@ namespace LibGit2Sharp
         /// <param name="when">The when.</param>
         public Signature(string name, string email, DateTimeOffset when)
         {
+            Ensure.ArgumentNotNullOrEmptyString(name, "name");
+            Ensure.ArgumentNotNull(email, "email");
+            Ensure.ArgumentDoesNotContainZeroByte(name, "name");
+            Ensure.ArgumentDoesNotContainZeroByte(email, "email");
+
             this.name = name;
             this.email = email;
             this.when = when;
@@ -118,6 +123,15 @@ namespace LibGit2Sharp
         public static bool operator !=(Signature left, Signature right)
         {
             return !Equals(left, right);
+        }
+
+        /// <summary>
+        /// Returns "<see cref="Name"/> &lt;<see cref="Email"/>&gt;" for the current <see cref="Signature"/>.
+        /// </summary>
+        /// <returns>The <see cref="Name"/> and <see cref="Email"/> of the current <see cref="Signature"/>.</returns>
+        public override string ToString()
+        {
+            return string.Format(CultureInfo.InvariantCulture, "{0} <{1}>", Name, Email);
         }
     }
 }

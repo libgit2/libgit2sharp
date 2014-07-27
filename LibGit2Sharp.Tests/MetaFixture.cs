@@ -4,19 +4,44 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
+using Xunit.Extensions;
 
 namespace LibGit2Sharp.Tests
 {
     public class MetaFixture
     {
+        [Fact]
+        public void PublicTestMethodsAreFactsOrTheories()
+        {
+            var exceptions = new[]
+            {
+                "LibGit2Sharp.Tests.FilterBranchFixture.Dispose",
+            };
+
+            var fixtures = from t in Assembly.GetAssembly(typeof(MetaFixture)).GetExportedTypes()
+                           where t.IsPublic && !t.IsNested
+                           where t.Namespace != typeof(BaseFixture).Namespace // Exclude helpers
+                           let methods = t.GetMethods(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public)
+                           from m in methods
+                           where !m.GetCustomAttributes(typeof(FactAttribute), false)
+                                   .Concat(m.GetCustomAttributes(typeof(TheoryAttribute), false))
+                                   .Any()
+                           let name = t.FullName + "." + m.Name
+                           where !exceptions.Contains(name)
+                           select name;
+
+            Assert.Equal("", string.Join(Environment.NewLine, fixtures.ToArray()));
+        }
+
         // Related to https://github.com/libgit2/libgit2sharp/pull/251
         [Fact]
         public void TypesInLibGit2DecoratedWithDebuggerDisplayMustFollowTheStandardImplPattern()
         {
             var typesWithDebuggerDisplayAndInvalidImplPattern = new List<Type>();
 
-            IEnumerable<Type> libGit2SharpTypes = Assembly.GetAssembly(typeof(Repository)).GetExportedTypes()
+            IEnumerable<Type> libGit2SharpTypes = Assembly.GetAssembly(typeof(IRepository)).GetExportedTypes()
                 .Where(t => t.GetCustomAttributes(typeof(DebuggerDisplayAttribute), false).Any());
 
             foreach (Type type in libGit2SharpTypes)
@@ -56,8 +81,8 @@ namespace LibGit2Sharp.Tests
         {
             var nonTestableTypes = new Dictionary<Type, IEnumerable<string>>();
 
-            IEnumerable<Type> libGit2SharpTypes = Assembly.GetAssembly(typeof(Repository)).GetExportedTypes()
-                .Where(t => !t.IsSealed && t.Namespace == typeof(Repository).Namespace);
+            IEnumerable<Type> libGit2SharpTypes = Assembly.GetAssembly(typeof(IRepository)).GetExportedTypes()
+                .Where(t => !t.IsSealed && t.Namespace == typeof(IRepository).Namespace);
 
             foreach (Type type in libGit2SharpTypes)
             {
@@ -84,9 +109,27 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
+        public void LibGit2SharpPublicInterfacesCoverAllPublicMembers()
+        {
+            var methodsMissingFromInterfaces =
+                from t in Assembly.GetAssembly(typeof(IRepository)).GetExportedTypes()
+                where !t.IsInterface
+                where t.GetInterfaces().Any(i => i.IsPublic && i.Namespace == typeof(IRepository).Namespace)
+                let interfaceTargetMethods = from i in t.GetInterfaces()
+                                             from im in t.GetInterfaceMap(i).TargetMethods
+                                             select im
+                from tm in t.GetMethods(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance)
+                where !interfaceTargetMethods.Contains(tm)
+                select t.Name + " has extra method " + tm.Name;
+
+            Assert.Equal("", string.Join(Environment.NewLine,
+                                         methodsMissingFromInterfaces.ToArray()));
+        }
+
+        [Fact]
         public void EnumsWithFlagsHaveMutuallyExclusiveValues()
         {
-            var flagsEnums = Assembly.GetAssembly(typeof(Repository)).GetExportedTypes()
+            var flagsEnums = Assembly.GetAssembly(typeof(IRepository)).GetExportedTypes()
                                      .Where(t => t.IsEnum && t.GetCustomAttributes(typeof(FlagsAttribute), false).Any());
 
             var overlaps = from t in flagsEnums
@@ -152,6 +195,31 @@ namespace LibGit2Sharp.Tests
         private static bool IsStatic(Type type)
         {
             return type.IsAbstract && type.IsSealed;
+        }
+
+        // Related to https://github.com/libgit2/libgit2sharp/issues/644 and https://github.com/libgit2/libgit2sharp/issues/645
+        [Fact]
+        public void GetEnumeratorMethodsInLibGit2SharpMustBeVirtualForTestability()
+        {
+            var nonVirtualGetEnumeratorMethods = Assembly.GetAssembly(typeof(IRepository))
+                .GetExportedTypes()
+                .Where(t =>
+                    t.Namespace == typeof (IRepository).Namespace &&
+                    !t.IsSealed &&
+                    !t.IsAbstract &&
+                    t.GetInterfaces().Any(i => i.IsAssignableFrom(typeof(IEnumerable<>))))
+                .Select(t => t.GetMethod("GetEnumerator"))
+                .Where(m =>
+                    m.ReturnType.Name == "IEnumerator`1" &&
+                    (!m.IsVirtual || m.IsFinal))
+                .ToList();
+
+            foreach (var method in nonVirtualGetEnumeratorMethods)
+            {
+                Debug.WriteLine(String.Format("GetEnumerator in type '{0}' isn't virtual.", method.DeclaringType));
+            }
+
+            Assert.Empty(nonVirtualGetEnumeratorMethods);
         }
     }
 }

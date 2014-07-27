@@ -6,6 +6,7 @@ using System.Globalization;
 using System.Linq;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Handles;
+using LibGit2Sharp.Handlers;
 
 namespace LibGit2Sharp
 {
@@ -120,22 +121,38 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(url, "url");
             Ensure.ArgumentNotNull(fetchRefSpec, "fetchRefSpec");
 
-            using (RemoteSafeHandle handle = Proxy.git_remote_create(repository.Handle, name, url))
+            using (RemoteSafeHandle handle = Proxy.git_remote_create_with_fetchspec(repository.Handle, name, url, fetchRefSpec))
             {
-                Proxy.git_remote_add_fetch(handle, fetchRefSpec);
-                Proxy.git_remote_save(handle);
                 return Remote.BuildFromPtr(handle, this.repository);
             }
         }
 
         /// <summary>
-        /// Determines if the proposed remote name is well-formed.
+        /// Deletes the <see cref="Remote"/> with the specified name.
         /// </summary>
-        /// <param name="name">The name to be checked.</param>
-        /// <returns>true is the name is valid; false otherwise.</returns>
-        public virtual bool IsValidName(string name)
+        /// <param name="name">The name of the remote to remove.</param>
+        /// <returns>A new <see cref="Remote"/>.</returns>
+        public virtual void Remove(string name)
         {
-            return Proxy.git_remote_is_valid_name(name);
+            Ensure.ArgumentNotNull(name, "name");
+
+            Proxy.git_remote_delete(repository.Handle, name);
+        }
+
+        /// <summary>
+        /// Renames an existing <see cref="Remote"/>.
+        /// </summary>
+        /// <param name="name">The current remote name.</param>
+        /// <param name="newName">The new name the existing remote should bear.</param>
+        /// <param name="callback">The callback to be used when problems with renaming occur. (e.g. non-default fetch refspecs)</param>
+        /// <returns>A new <see cref="Remote"/>.</returns>
+        public virtual Remote Rename(string name, string newName, RemoteRenameFailureHandler callback = null)
+        {
+            Ensure.ArgumentNotNull(name, "name");
+            Ensure.ArgumentNotNull(newName, "newName");
+
+            Proxy.git_remote_rename(repository.Handle, name, newName, callback);
+            return this[newName];
         }
 
         private string DebuggerDisplay

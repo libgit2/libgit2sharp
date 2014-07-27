@@ -1,0 +1,7 @@
+This is file b.txt
+This is the 3rd revision of this file.
+It
+also
+has
+several 
+lines.

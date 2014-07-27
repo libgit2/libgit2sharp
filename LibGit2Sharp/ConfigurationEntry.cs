@@ -37,7 +37,7 @@ namespace LibGit2Sharp
         /// <param name="key">The option name</param>
         /// <param name="value">The option value</param>
         /// <param name="level">The origin store</param>
-        internal ConfigurationEntry(string key, T value, ConfigurationLevel level)
+        protected internal ConfigurationEntry(string key, T value, ConfigurationLevel level)
         {
             Key = key;
             Value = value;

@@ -30,6 +30,7 @@ namespace LibGit2Sharp.Core
         public writestream_callback WriteStream;
         public readstream_callback ReadStream;
         public exists_callback Exists;
+        public exists_prefix_callback ExistsPrefix;
         public IntPtr Refresh;
         public foreach_callback Foreach;
         public IntPtr Writepack;
@@ -110,8 +111,8 @@ namespace LibGit2Sharp.Core
         /// <param name="type">[in] The type of the object.</param>
         /// <returns>0 if successful; an error code otherwise.</returns>
         public delegate int write_callback(
-            ref GitOid oid,
             IntPtr backend,
+            ref GitOid oid,
             IntPtr data,
             UIntPtr len,
             GitObjectType type);
@@ -157,6 +158,23 @@ namespace LibGit2Sharp.Core
             ref GitOid oid);
 
         /// <summary>
+        /// The backend is passed a short OID and the number of characters in that short OID.
+        /// The backend is asked to return a value that indicates whether or not
+        /// the object exists in the backing store. The short OID might not be long enough to resolve
+        /// to just one object. In that case the backend should return GIT_EAMBIGUOUS.
+        /// </summary>
+        /// <param name="found_oid">[out] If the call is successful, the backend will write the full OID if the object here.</param>
+        /// <param name="backend">[in] A pointer to the backend which is being asked to perform the task.</param>
+        /// <param name="short_oid">[in] The short-form OID which the backend is being asked to look up.</param>
+        /// <param name="len">[in] The length of the short-form OID (short_oid).</param>
+        /// <returns>1 if the object exists, 0 if the object doesn't; an error code otherwise.</returns>
+        public delegate int exists_prefix_callback(
+            ref GitOid found_oid,
+            IntPtr backend,
+            ref GitOid short_oid,
+            UIntPtr len);
+
+        /// <summary>
         /// The backend is passed a callback function and a void* to pass through to the callback. The backend is
         /// asked to iterate through all objects in the backing store, invoking the callback for each item.
         /// </summary>
@@ -182,7 +200,7 @@ namespace LibGit2Sharp.Core
         /// <param name="data">The arbitrary parameter given to foreach_callback.</param>
         /// <returns>A non-negative result indicates the enumeration should continue. Otherwise, the enumeration should stop.</returns>
         public delegate int foreach_callback_callback(
-            ref GitOid oid,
+            IntPtr oid,
             IntPtr data);
     }
 }

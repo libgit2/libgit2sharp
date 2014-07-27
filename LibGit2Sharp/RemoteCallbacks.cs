@@ -12,11 +12,37 @@ namespace LibGit2Sharp
     /// </summary>
     internal class RemoteCallbacks
     {
-        internal RemoteCallbacks(ProgressHandler onProgress = null, CompletionHandler onCompletion = null, UpdateTipsHandler onUpdateTips = null)
+        internal RemoteCallbacks(
+            ProgressHandler onProgress = null,
+            TransferProgressHandler onDownloadProgress = null,
+            UpdateTipsHandler onUpdateTips = null,
+            ICredentialsProvider credentialsProvider = null)
         {
             Progress = onProgress;
-            Completion = onCompletion;
+            DownloadTransferProgress = onDownloadProgress;
             UpdateTips = onUpdateTips;
+            CredentialsProvider = credentialsProvider.GetCredentialsHandler();
+        }
+
+        internal RemoteCallbacks(
+            ProgressHandler onProgress = null,
+            TransferProgressHandler onDownloadProgress = null,
+            UpdateTipsHandler onUpdateTips = null,
+            CredentialsHandler credentialsProvider = null)
+        {
+            Progress = onProgress;
+            DownloadTransferProgress = onDownloadProgress;
+            UpdateTips = onUpdateTips;
+            CredentialsProvider = credentialsProvider;
+        }
+
+        internal RemoteCallbacks(FetchOptions fetchOptions)
+        {
+            Ensure.ArgumentNotNull(fetchOptions, "fetchOptions");
+            Progress = fetchOptions.OnProgress;
+            DownloadTransferProgress = fetchOptions.OnTransferProgress;
+            UpdateTips = fetchOptions.OnUpdateTips;
+            CredentialsProvider = fetchOptions.GetCredentialsHandler();
         }
 
         #region Delegates
@@ -32,11 +58,17 @@ namespace LibGit2Sharp
         private readonly UpdateTipsHandler UpdateTips;
 
         /// <summary>
-        /// Completion callback. Corresponds to libgit2 Completion callback.
+        /// Managed delegate to be called in response to a git_transfer_progress_callback callback from libgit2.
+        /// This will in turn call the user provided delegate.
         /// </summary>
-        private readonly CompletionHandler Completion;
+        private readonly TransferProgressHandler DownloadTransferProgress;
 
         #endregion
+
+        /// <summary>
+        /// The credentials to use for authentication.
+        /// </summary>
+        private readonly CredentialsHandler CredentialsProvider;
 
         internal GitRemoteCallbacks GenerateCallbacks()
         {
@@ -52,9 +84,14 @@ namespace LibGit2Sharp
                 callbacks.update_tips = GitUpdateTipsHandler;
             }
 
-            if (Completion != null)
+            if (CredentialsProvider != null)
             {
-                callbacks.completion = GitCompletionHandler;
+                callbacks.acquire_credentials = GitCredentialHandler;
+            }
+
+            if (DownloadTransferProgress != null)
+            {
+                callbacks.download_progress = GitDownloadTransferProgressHandler;
             }
 
             return callbacks;
@@ -70,15 +107,20 @@ namespace LibGit2Sharp
         /// <param name="str">IntPtr to string from libgit2</param>
         /// <param name="len">length of string</param>
         /// <param name="data">IntPtr to optional payload passed back to the callback.</param>
-        private void GitProgressHandler(IntPtr str, int len, IntPtr data)
+        /// <returns>0 on success; a negative value to abort the process.</returns>
+        private int GitProgressHandler(IntPtr str, int len, IntPtr data)
         {
             ProgressHandler onProgress = Progress;
 
+            bool shouldContinue = true;
+
             if (onProgress != null)
             {
-                string message = Utf8Marshaler.FromNative(str, len);
-                onProgress(message);
+                string message = LaxUtf8Marshaler.FromNative(str, len);
+                shouldContinue = onProgress(message);
             }
+
+            return Proxy.ConvertResultToCancelFlag(shouldContinue);
         }
 
         /// <summary>
@@ -94,36 +136,53 @@ namespace LibGit2Sharp
         private int GitUpdateTipsHandler(IntPtr str, ref GitOid oldId, ref GitOid newId, IntPtr data)
         {
             UpdateTipsHandler onUpdateTips = UpdateTips;
-            int result = 0;
+            bool shouldContinue = true;
 
             if (onUpdateTips != null)
             {
-                string refName = Utf8Marshaler.FromNative(str);
-                result = onUpdateTips(refName, oldId, newId);
+                string refName = LaxUtf8Marshaler.FromNative(str);
+                shouldContinue = onUpdateTips(refName, oldId, newId);
             }
 
-            return result;
+            return Proxy.ConvertResultToCancelFlag(shouldContinue);
         }
 
         /// <summary>
-        /// Handler for libgit2 completion callback. Converts values
-        /// received from libgit2 callback to more suitable types
-        /// and calls delegate provided by LibGit2Sharp consumer.
+        /// The delegate with the signature that matches the native git_transfer_progress_callback function's signature.
         /// </summary>
-        /// <param name="remoteCompletionType">Which operation completed.</param>
-        /// <param name="data">IntPtr to optional payload passed back to the callback.</param>
-        /// <returns>0 on success; a negative value to abort the process.</returns>
-        private int GitCompletionHandler(RemoteCompletionType remoteCompletionType, IntPtr data)
+        /// <param name="progress"><see cref="GitTransferProgress"/> structure containing progress information.</param>
+        /// <param name="payload">Payload data.</param>
+        /// <returns>the result of the wrapped <see cref="TransferProgressHandler"/></returns>
+        private int GitDownloadTransferProgressHandler(ref GitTransferProgress progress, IntPtr payload)
         {
-            CompletionHandler completion = Completion;
-            int result = 0;
+            bool shouldContinue = true;
 
-            if (completion != null)
+            if (DownloadTransferProgress != null)
             {
-                result = completion(remoteCompletionType);
+                shouldContinue = DownloadTransferProgress(new TransferProgress(progress));
             }
 
-            return result;
+            return Proxy.ConvertResultToCancelFlag(shouldContinue);
+        }
+
+        private int GitCredentialHandler(out IntPtr ptr, IntPtr cUrl, IntPtr usernameFromUrl, GitCredentialType credTypes, IntPtr payload)
+        {
+            string url = LaxUtf8Marshaler.FromNative(cUrl);
+            string username = LaxUtf8Marshaler.FromNative(usernameFromUrl);
+
+            SupportedCredentialTypes types = default(SupportedCredentialTypes);
+            if (credTypes.HasFlag(GitCredentialType.UserPassPlaintext))
+            {
+                types |= SupportedCredentialTypes.UsernamePassword;
+            }
+            if (credTypes.HasFlag(GitCredentialType.Default))
+            {
+                types |= SupportedCredentialTypes.Default;
+            }
+
+            var cred = CredentialsProvider(url, username, types);
+
+            return cred.GitCredentialHandler(out ptr, cUrl, usernameFromUrl, credTypes, payload);
         }
 
         #endregion

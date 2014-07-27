@@ -36,6 +36,12 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNullOrEmptyString(canonicalName, "canonicalName");
             Ensure.ArgumentNotNull(repo, "repo");
 
+            if (!Reference.IsValidName(canonicalName))
+            {
+                throw new InvalidSpecificationException(
+                    string.Format(CultureInfo.InvariantCulture, "The given reference name '{0}' is not valid", canonicalName));
+            }
+
             this.repo = repo;
             this.canonicalName = canonicalName;
         }
@@ -49,12 +55,11 @@ namespace LibGit2Sharp
         /// </para>
         /// </summary>
         /// <returns>An <see cref="IEnumerator{T}"/> object that can be used to iterate through the collection.</returns>
-        public IEnumerator<ReflogEntry> GetEnumerator()
+        public virtual IEnumerator<ReflogEntry> GetEnumerator()
         {
             var entries = new List<ReflogEntry>();
 
-            using (ReferenceSafeHandle reference = Proxy.git_reference_lookup(repo.Handle, canonicalName, true))
-            using (ReflogSafeHandle reflog = Proxy.git_reflog_read(reference))
+            using (ReflogSafeHandle reflog = Proxy.git_reflog_read(repo.Handle, canonicalName))
             {
                 var entriesCount = Proxy.git_reflog_entrycount(reflog);
 
@@ -86,38 +91,6 @@ namespace LibGit2Sharp
                 return string.Format(CultureInfo.InvariantCulture,
                     "Count = {0}", this.Count());
             }
-        }
-
-        /// <summary>
-        /// Add a new <see cref="ReflogEntry"/> to the current <see cref="ReflogCollection"/>. It will be created as first item of the collection
-        /// The native reflog object will be saved right after inserting the entry.
-        /// </summary>
-        /// <param name="target">the <see cref="ObjectId"/> of the new target the <see cref="Reference"/> will point out to.</param>
-        /// <param name="reflogMessage">the message associated with the new <see cref="ReflogEntry"/>.</param>
-        /// <param name="committer"><see cref="Signature"/> of the comitter.</param>
-        internal virtual void Append(ObjectId target, string reflogMessage, Signature committer)
-        {
-            using (ReferenceSafeHandle reference = Proxy.git_reference_lookup(repo.Handle, canonicalName, true))
-            using (ReflogSafeHandle reflog = Proxy.git_reflog_read(reference))
-            {
-                string prettifiedMessage = Proxy.git_message_prettify(reflogMessage);
-                Proxy.git_reflog_append(reflog, target, committer, prettifiedMessage);
-            }
-        }
-
-        /// <summary>
-        /// Add a new <see cref="ReflogEntry"/> to the current <see cref="ReflogCollection"/>. It will be created as first item of the collection
-        /// The native reflog object will be saved right after inserting the entry.
-        /// <para>
-        ///   The <see cref="Signature"/> will be built from the current Git configuration.
-        /// </para>
-        /// </summary>
-        /// <param name="target">the <see cref="ObjectId"/> of the new target the <see cref="Reference"/> will point out to.</param>
-        /// <param name="reflogMessage">the message associated with the new <see cref="ReflogEntry"/>.</param>
-        internal void Append(ObjectId target, string reflogMessage)
-        {
-            Signature author = repo.Config.BuildSignatureFromGlobalConfiguration(DateTimeOffset.Now, false);
-            Append(target, reflogMessage, author);
         }
     }
 }

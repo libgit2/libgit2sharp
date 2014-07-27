@@ -7,7 +7,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using LibGit2Sharp.Core;
-using LibGit2Sharp.Core.Compat;
 using LibGit2Sharp.Core.Handles;
 using LibGit2Sharp.Handlers;
 
@@ -341,7 +340,6 @@ namespace LibGit2Sharp
         public void Dispose()
         {
             Dispose(true);
-            GC.SuppressFinalize(this);
         }
 
         /// <summary>
@@ -442,22 +440,14 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNull(id, "id");
 
-            GitObjectSafeHandle obj = null;
-
-            try
+            using (GitObjectSafeHandle obj = Proxy.git_object_lookup(handle, id, type))
             {
-                obj = Proxy.git_object_lookup(handle, id, type);
-
                 if (obj == null)
                 {
                     return null;
                 }
 
                 return GitObject.BuildFrom(this, id, Proxy.git_object_type(obj), knownPath);
-            }
-            finally
-            {
-                obj.SafeDispose();
             }
         }
 
@@ -544,55 +534,47 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="sourceUrl">URI for the remote repository</param>
         /// <param name="workdirPath">Local path to clone into</param>
-        /// <param name="bare">True will result in a bare clone, false a full clone.</param>
-        /// <param name="checkout">If true, the origin's HEAD will be checked out. This only applies
-        /// to non-bare repositories.</param>
-        /// <param name="onTransferProgress">Handler for network transfer and indexing progress information</param>
-        /// <param name="onCheckoutProgress">Handler for checkout progress information</param>
-        /// <param name="credentials">Credentials to use for user/pass authentication</param>
+        /// <param name="options"><see cref="CloneOptions"/> controlling clone behavior</param>
         /// <returns>The path to the created repository.</returns>
         public static string Clone(string sourceUrl, string workdirPath,
-            bool bare = false,
-            bool checkout = true,
-            TransferProgressHandler onTransferProgress = null,
-            CheckoutProgressHandler onCheckoutProgress = null,
-            Credentials credentials = null)
+            CloneOptions options = null)
         {
-            CheckoutCallbacks checkoutCallbacks = CheckoutCallbacks.GenerateCheckoutCallbacks(onCheckoutProgress, null);
+            options = options ?? new CloneOptions();
 
-            var cloneOpts = new GitCloneOptions
+            using (GitCheckoutOptsWrapper checkoutOptionsWrapper = new GitCheckoutOptsWrapper(options))
             {
-                Bare = bare ? 1 : 0,
-                TransferProgressCallback = TransferCallbacks.GenerateCallback(onTransferProgress),
-                CheckoutOpts =
+                var gitCheckoutOptions = checkoutOptionsWrapper.Options;
+
+                var remoteCallbacks = new RemoteCallbacks(null, options.OnTransferProgress, null, options.CredentialsProvider);
+                var gitRemoteCallbacks = remoteCallbacks.GenerateCallbacks();
+
+                var cloneOpts = new GitCloneOptions
                 {
-                    version = 1,
-                    progress_cb =
-                                checkoutCallbacks.CheckoutProgressCallback,
-                    checkout_strategy = checkout
-                                            ? CheckoutStrategy.GIT_CHECKOUT_SAFE_CREATE
-                                            : CheckoutStrategy.GIT_CHECKOUT_NONE
-                },
-            };
+                    Version = 1,
+                    Bare = options.IsBare ? 1 : 0,
+                    CheckoutOpts = gitCheckoutOptions,
+                    RemoteCallbacks = gitRemoteCallbacks,
+                };
 
-            if (credentials != null)
-            {
-                cloneOpts.CredAcquireCallback =
-                    (out IntPtr cred, IntPtr url, IntPtr username_from_url, uint types, IntPtr payload) =>
-                    NativeMethods.git_cred_userpass_plaintext_new(out cred, credentials.Username, credentials.Password);
+                FilePath repoPath;
+                using (RepositorySafeHandle repo = Proxy.git_clone(sourceUrl, workdirPath, ref cloneOpts))
+                {
+                    repoPath = Proxy.git_repository_path(repo);
+                }
+
+                return repoPath.Native;
             }
+        }
 
-            FilePath repoPath;
-            using (RepositorySafeHandle repo = Proxy.git_clone(sourceUrl, workdirPath, cloneOpts))
-            {
-                repoPath = Proxy.git_repository_path(repo);
-            }
-
-            // To be safe, make sure the credential callback is kept until
-            // alive until at least this point.
-            GC.KeepAlive(cloneOpts.CredAcquireCallback);
-
-            return repoPath.Native;
+        /// <summary>
+        /// Find where each line of a file originated.
+        /// </summary>
+        /// <param name="path">Path of the file to blame.</param>
+        /// <param name="options">Specifies optional parameters; if null, the defaults are used.</param>
+        /// <returns>The blame for the file.</returns>
+        public BlameHunkCollection Blame(string path, BlameOptions options = null)
+        {
+            return new BlameHunkCollection(this, Handle, path, options ?? new BlameOptions());
         }
 
         /// <summary>
@@ -603,13 +585,13 @@ namespace LibGit2Sharp
         /// </para>
         /// </summary>
         /// <param name="committishOrBranchSpec">A revparse spec for the commit or branch to checkout.</param>
-        /// <param name="checkoutModifiers"><see cref="CheckoutModifiers"/> controlling checkout behavior.</param>
-        /// <param name="onCheckoutProgress"><see cref="CheckoutProgressHandler"/> that checkout progress is reported through.</param>
-        /// <param name="checkoutNotifications"><see cref="CheckoutNotificationOptions"/> to manage checkout notifications.</param>
+        /// <param name="options"><see cref="CheckoutOptions"/> controlling checkout behavior.</param>
+        /// <param name="signature">Identity for use when updating the reflog.</param>
         /// <returns>The <see cref="Branch"/> that was checked out.</returns>
-        public Branch Checkout(string committishOrBranchSpec, CheckoutModifiers checkoutModifiers, CheckoutProgressHandler onCheckoutProgress, CheckoutNotificationOptions checkoutNotifications)
+        public Branch Checkout(string committishOrBranchSpec, CheckoutOptions options, Signature signature = null)
         {
             Ensure.ArgumentNotNullOrEmptyString(committishOrBranchSpec, "committishOrBranchSpec");
+            Ensure.ArgumentNotNull(options, "options");
 
             var handles = Proxy.git_revparse_ext(Handle, committishOrBranchSpec);
             if (handles == null)
@@ -628,7 +610,7 @@ namespace LibGit2Sharp
                     if (reference.IsLocalBranch())
                     {
                         Branch branch = Branches[reference.CanonicalName];
-                        return Checkout(branch, checkoutModifiers, onCheckoutProgress, checkoutNotifications);
+                        return Checkout(branch, options, signature);
                     }
                 }
 
@@ -642,8 +624,7 @@ namespace LibGit2Sharp
             }
 
             Commit commit = obj.DereferenceToCommit(true);
-            Checkout(commit.Tree, checkoutModifiers, onCheckoutProgress, checkoutNotifications, commit.Id.Sha, committishOrBranchSpec,
-                committishOrBranchSpec != "HEAD");
+            Checkout(commit.Tree, options, commit.Id.Sha, committishOrBranchSpec, signature);
 
             return Head;
         }
@@ -654,33 +635,31 @@ namespace LibGit2Sharp
         /// as a detached HEAD.
         /// </summary>
         /// <param name="branch">The <see cref="Branch"/> to check out.</param>
-        /// <param name="checkoutModifiers"><see cref="CheckoutModifiers"/> controlling checkout behavior.</param>
-        /// <param name="onCheckoutProgress"><see cref="CheckoutProgressHandler"/> that checkout progress is reported through.</param>
-        /// <param name="checkoutNotificationOptions"><see cref="CheckoutNotificationOptions"/> to manage checkout notifications.</param>
+        /// <param name="options"><see cref="CheckoutOptions"/> controlling checkout behavior.</param>
+        /// <param name="signature">Identity for use when updating the reflog.</param>
         /// <returns>The <see cref="Branch"/> that was checked out.</returns>
-        public Branch Checkout(Branch branch, CheckoutModifiers checkoutModifiers, CheckoutProgressHandler onCheckoutProgress, CheckoutNotificationOptions checkoutNotificationOptions)
+        public Branch Checkout(Branch branch, CheckoutOptions options, Signature signature = null)
         {
             Ensure.ArgumentNotNull(branch, "branch");
+            Ensure.ArgumentNotNull(options, "options");
 
             // Make sure this is not an unborn branch.
             if (branch.Tip == null)
             {
-                throw new OrphanedHeadException(
+                throw new UnbornBranchException(
                     string.Format(CultureInfo.InvariantCulture,
                     "The tip of branch '{0}' is null. There's nothing to checkout.", branch.Name));
             }
-
-            var branchIsCurrentRepositoryHead = branch.IsCurrentRepositoryHead;
 
             if (!branch.IsRemote && !(branch is DetachedHead) &&
                 string.Equals(Refs[branch.CanonicalName].TargetIdentifier, branch.Tip.Id.Sha,
                 StringComparison.OrdinalIgnoreCase))
             {
-                Checkout(branch.Tip.Tree, checkoutModifiers, onCheckoutProgress, checkoutNotificationOptions, branch.CanonicalName, branch.Name, !branchIsCurrentRepositoryHead);
+                Checkout(branch.Tip.Tree, options, branch.CanonicalName, branch.Name, signature);
             }
             else
             {
-                Checkout(branch.Tip.Tree, checkoutModifiers, onCheckoutProgress, checkoutNotificationOptions, branch.Tip.Id.Sha, branch.Name, !branchIsCurrentRepositoryHead);
+                Checkout(branch.Tip.Tree, options, branch.Tip.Id.Sha, branch.Name, signature);
             }
 
             return Head;
@@ -693,24 +672,17 @@ namespace LibGit2Sharp
         /// </para>
         /// </summary>
         /// <param name="commit">The <see cref="LibGit2Sharp.Commit"/> to check out.</param>
-        /// <param name="checkoutModifiers"><see cref="CheckoutModifiers"/> controlling checkout behavior.</param>
-        /// <param name="onCheckoutProgress"><see cref="CheckoutProgressHandler"/> that checkout progress is reported through.</param>
-        /// <param name="checkoutNotificationOptions"><see cref="CheckoutNotificationOptions"/> to manage checkout notifications.</param>
+        /// <param name="options"><see cref="CheckoutOptions"/> controlling checkout behavior.</param>
+        /// <param name="signature">Identity for use when updating the reflog.</param>
         /// <returns>The <see cref="Branch"/> that was checked out.</returns>
-        public Branch Checkout(Commit commit, CheckoutModifiers checkoutModifiers, CheckoutProgressHandler onCheckoutProgress, CheckoutNotificationOptions checkoutNotificationOptions)
+        public Branch Checkout(Commit commit, CheckoutOptions options, Signature signature = null)
         {
-            Checkout(commit.Tree, checkoutModifiers, onCheckoutProgress, checkoutNotificationOptions, commit.Id.Sha, commit.Id.Sha, true);
+            Ensure.ArgumentNotNull(commit, "commit");
+            Ensure.ArgumentNotNull(options, "options");
+
+            Checkout(commit.Tree, options, commit.Id.Sha, commit.Id.Sha, signature);
 
             return Head;
-        }
-
-        private void LogCheckout(string previousHeadName, ObjectId newHeadTip, string newHeadSpec)
-        {
-            // Compute reflog message
-            string reflogMessage = string.Format("checkout: moving from {0} to {1}", previousHeadName, newHeadSpec);
-
-            // Log checkout
-            Refs.Log(Refs.Head).Append(newHeadTip, reflogMessage);
         }
 
         /// <summary>
@@ -718,36 +690,23 @@ namespace LibGit2Sharp
         /// to already be in the form of a canonical branch name or a commit ID.
         /// </summary>
         /// <param name="tree">The <see cref="Tree"/> to checkout.</param>
-        /// <param name="checkoutModifiers"><see cref="CheckoutModifiers"/> controlling checkout behavior.</param>
-        /// <param name="onCheckoutProgress"><see cref="CheckoutProgressHandler"/> that checkout progress is reported through.</param>
-        /// <param name="checkoutNotificationOptions"><see cref="CheckoutNotificationOptions"/> to manage checkout notifications.</param>
+        /// <param name="checkoutOptions"><see cref="CheckoutOptions"/> controlling checkout behavior.</param>
         /// <param name="headTarget">Target for the new HEAD.</param>
         /// <param name="refLogHeadSpec">The spec which will be written as target in the reflog.</param>
-        /// <param name="writeReflogEntry">Will a reflog entry be created.</param>
+        /// <param name="signature">Identity for use when updating the reflog.</param>
         private void Checkout(
             Tree tree,
-            CheckoutModifiers checkoutModifiers,
-            CheckoutProgressHandler onCheckoutProgress,
-            CheckoutNotificationOptions checkoutNotificationOptions,
-            string headTarget, string refLogHeadSpec, bool writeReflogEntry)
+            CheckoutOptions checkoutOptions,
+            string headTarget, string refLogHeadSpec, Signature signature)
         {
             var previousHeadName = Info.IsHeadDetached ? Head.Tip.Sha : Head.Name;
 
-            var opts = new CheckoutOptions
-                           {
-                               CheckoutModifiers = checkoutModifiers,
-                               OnCheckoutProgress = onCheckoutProgress,
-                               CheckoutNotificationOptions = checkoutNotificationOptions
-                           };
+            CheckoutTree(tree, null, checkoutOptions);
 
-            CheckoutTree(tree, null, opts);
-
-            Refs.UpdateTarget("HEAD", headTarget);
-
-            if (writeReflogEntry)
-            {
-                LogCheckout(previousHeadName, Head.Tip.Id, refLogHeadSpec);
-            }
+            Refs.UpdateTarget("HEAD", headTarget, signature,
+                string.Format(
+                    CultureInfo.InvariantCulture,
+                    "checkout: moving from {0} to {1}", previousHeadName, refLogHeadSpec));
         }
 
         /// <summary>
@@ -759,36 +718,13 @@ namespace LibGit2Sharp
         private void CheckoutTree(
             Tree tree,
             IList<string> paths,
-            CheckoutOptions opts)
+            IConvertableToGitCheckoutOpts opts)
         {
-            CheckoutNotifyHandler onCheckoutNotify = opts.CheckoutNotificationOptions != null ? opts.CheckoutNotificationOptions.CheckoutNotifyHandler : null;
-            CheckoutNotifyFlags checkoutNotifyFlags = opts.CheckoutNotificationOptions != null ? opts.CheckoutNotificationOptions.NotifyFlags : default(CheckoutNotifyFlags);
-            CheckoutCallbacks checkoutCallbacks = CheckoutCallbacks.GenerateCheckoutCallbacks(opts.OnCheckoutProgress, onCheckoutNotify);
 
-            GitStrArrayIn strArray = (paths != null && paths.Count > 0) ? GitStrArrayIn.BuildFrom(ToFilePaths(paths)) : null;
-
-            var options = new GitCheckoutOpts
+            using(GitCheckoutOptsWrapper checkoutOptionsWrapper = new GitCheckoutOptsWrapper(opts, ToFilePaths(paths)))
             {
-                version = 1,
-                checkout_strategy = CheckoutStrategy.GIT_CHECKOUT_SAFE,
-                progress_cb = checkoutCallbacks.CheckoutProgressCallback,
-                notify_cb = checkoutCallbacks.CheckoutNotifyCallback,
-                notify_flags = checkoutNotifyFlags,
-                paths = strArray
-            };
-
-            try
-            {
-                if (opts.CheckoutModifiers.HasFlag(CheckoutModifiers.Force))
-                {
-                    options.checkout_strategy = CheckoutStrategy.GIT_CHECKOUT_FORCE;
-                }
-
+                var options = checkoutOptionsWrapper.Options;
                 Proxy.git_checkout_tree(Handle, tree.Id, ref options);
-            }
-            finally
-            {
-                options.Dispose();
             }
         }
 
@@ -796,39 +732,22 @@ namespace LibGit2Sharp
         /// Sets the current <see cref="Head"/> to the specified commit and optionally resets the <see cref="Index"/> and
         /// the content of the working tree to match.
         /// </summary>
-        /// <param name="resetOptions">Flavor of reset operation to perform.</param>
+        /// <param name="resetMode">Flavor of reset operation to perform.</param>
         /// <param name="commit">The target commit object.</param>
-        public void Reset(ResetOptions resetOptions, Commit commit)
+        /// <param name="signature">Identity for use when updating the reflog.</param>
+        /// <param name="logMessage">Message to use when updating the reflog.</param>
+        public void Reset(ResetMode resetMode, Commit commit, Signature signature = null, string logMessage = null)
         {
             Ensure.ArgumentNotNull(commit, "commit");
 
-            Proxy.git_reset(handle, commit.Id, resetOptions);
+            if (logMessage == null)
+            {
+                logMessage = string.Format(
+                    CultureInfo.InvariantCulture,
+                    "reset: moving to {0}", commit.Sha);
+            }
 
-            Refs.Log(Refs.Head).Append(commit.Id, string.Format("reset: moving to {0}", commit.Sha));
-        }
-
-        /// <summary>
-        /// Updates specifed paths in the index and working directory with the versions from the specified branch, reference, or SHA.
-        /// <para>
-        /// This method does not switch branches or update the current repository HEAD.
-        /// </para>
-        /// </summary>
-        /// <param name="committishOrBranchSpec">A revparse spec for the commit or branch to checkout paths from.</param>
-        /// <param name="paths">The paths to checkout.</param>
-        /// <param name="checkoutOptions">Options controlling checkout behavior.</param>
-        /// <param name="onCheckoutProgress">Callback method to report checkout progress updates through.</param>
-        /// <param name="checkoutNotificationOptions"><see cref="CheckoutNotificationOptions"/> to manage checkout notifications.</param>
-        [Obsolete("This method will be removed in the next release. Please use CheckoutPaths(string, IEnumerable<string>, CheckoutOptions) instead.")]
-        public void CheckoutPaths(string committishOrBranchSpec, IList<string> paths, CheckoutModifiers checkoutOptions, CheckoutProgressHandler onCheckoutProgress, CheckoutNotificationOptions checkoutNotificationOptions)
-        {
-            var opts = new CheckoutOptions
-                              {
-                                  CheckoutModifiers = checkoutOptions,
-                                  OnCheckoutProgress = onCheckoutProgress,
-                                  CheckoutNotificationOptions = checkoutNotificationOptions
-                              };
-
-            CheckoutPaths(committishOrBranchSpec, paths, opts);
+            Proxy.git_reset(handle, commit.Id, resetMode, signature.OrDefault(Config), logMessage);
         }
 
         /// <summary>
@@ -838,14 +757,21 @@ namespace LibGit2Sharp
         /// </para>
         /// </summary>
         /// <param name = "committishOrBranchSpec">A revparse spec for the commit or branch to checkout paths from.</param>
-        /// <param name="paths">The paths to checkout.</param>
+        /// <param name="paths">The paths to checkout. Will throw if null is passed in. Passing an empty enumeration results in nothing being checked out.</param>
         /// <param name="checkoutOptions">Collection of parameters controlling checkout behavior.</param>
         public void CheckoutPaths(string committishOrBranchSpec, IEnumerable<string> paths, CheckoutOptions checkoutOptions = null)
         {
             Ensure.ArgumentNotNullOrEmptyString(committishOrBranchSpec, "committishOrBranchSpec");
+            Ensure.ArgumentNotNull(paths, "paths");
+
+            // If there are no paths, then there is nothing to do.
+            if (!paths.Any())
+            {
+                return;
+            }
 
             Commit commit = LookupCommit(committishOrBranchSpec);
-            CheckoutTree(commit.Tree, paths.ToList(), checkoutOptions ?? new CheckoutOptions());  
+            CheckoutTree(commit.Tree, paths.ToList(), checkoutOptions ?? new CheckoutOptions());
         }
 
         /// <summary>
@@ -866,73 +792,105 @@ namespace LibGit2Sharp
 
             Ensure.ArgumentNotNull(commit, "commit");
 
-            TreeChanges changes = Diff.Compare(commit.Tree, DiffTargets.Index, paths, explicitPathsOptions);
+            var changes = Diff.Compare<TreeChanges>(commit.Tree, DiffTargets.Index, paths, explicitPathsOptions, new CompareOptions { Similarity = SimilarityOptions.None });
             Index.Reset(changes);
         }
 
         /// <summary>
-        /// Stores the content of the <see cref="Repository.Index"/> as a new <see cref="Commit"/> into the repository.
+        /// Stores the content of the <see cref="Repository.Index"/> as a new <see cref="LibGit2Sharp.Commit"/> into the repository.
         /// The tip of the <see cref="Repository.Head"/> will be used as the parent of this new Commit.
         /// Once the commit is created, the <see cref="Repository.Head"/> will move forward to point at it.
         /// </summary>
         /// <param name="message">The description of why a change was made to the repository.</param>
         /// <param name="author">The <see cref="Signature"/> of who made the change.</param>
         /// <param name="committer">The <see cref="Signature"/> of who added the change to the repository.</param>
-        /// <param name="amendPreviousCommit">True to amend the current <see cref="Commit"/> pointed at by <see cref="Repository.Head"/>, false otherwise.</param>
-        /// <returns>The generated <see cref="Commit"/>.</returns>
-        public Commit Commit(string message, Signature author, Signature committer, bool amendPreviousCommit = false)
+        /// <param name="options">The <see cref="CommitOptions"/> that specify the commit behavior.</param>
+        /// <returns>The generated <see cref="LibGit2Sharp.Commit"/>.</returns>
+        public Commit Commit(string message, Signature author, Signature committer, CommitOptions options = null)
         {
-            bool isHeadOrphaned = Info.IsHeadOrphaned;
-
-            if (amendPreviousCommit && isHeadOrphaned)
+            if (options == null)
             {
-                throw new OrphanedHeadException("Can not amend anything. The Head doesn't point at any commit.");
+                options = new CommitOptions();
+            }
+
+            bool isHeadOrphaned = Info.IsHeadUnborn;
+
+            if (options.AmendPreviousCommit && isHeadOrphaned)
+            {
+                throw new UnbornBranchException("Can not amend anything. The Head doesn't point at any commit.");
             }
 
             var treeId = Proxy.git_tree_create_fromindex(Index);
             var tree = this.Lookup<Tree>(treeId);
 
-            var parents = RetrieveParentsOfTheCommitBeingCreated(amendPreviousCommit);
+            var parents = RetrieveParentsOfTheCommitBeingCreated(options.AmendPreviousCommit).ToList();
 
-            Commit result = ObjectDatabase.CreateCommit(message, author, committer, tree, parents, "HEAD");
+            if (parents.Count == 1 && !options.AllowEmptyCommit)
+            {
+                var treesame = parents[0].Tree.Id.Equals(treeId);
+                var amendMergeCommit = options.AmendPreviousCommit && !isHeadOrphaned && Head.Tip.Parents.Count() > 1;
 
-            Proxy.git_repository_merge_cleanup(handle);
+                if (treesame && !amendMergeCommit)
+                {
+                    throw new EmptyCommitException(
+                        options.AmendPreviousCommit ?
+                        String.Format(CultureInfo.InvariantCulture,
+                            "Amending this commit would produce a commit that is identical to its parent (id = {0})", parents[0].Id) :
+                        "No changes; nothing to commit.");
+                }
+            }
 
-            // Insert reflog entry
-            LogCommit(result, amendPreviousCommit, isHeadOrphaned, parents.Count() > 1);
+            Commit result = ObjectDatabase.CreateCommit(author, committer, message, tree, parents, options.PrettifyMessage, options.CommentaryChar);
+
+            Proxy.git_repository_state_cleanup(handle);
+
+            var logMessage = BuildCommitLogMessage(result, options.AmendPreviousCommit, isHeadOrphaned, parents.Count > 1);
+            UpdateHeadAndTerminalReference(result, logMessage);
 
             return result;
         }
 
-        private void LogCommit(Commit commit, bool amendPreviousCommit, bool isHeadOrphaned, bool isMergeCommit)
+        private static string BuildCommitLogMessage(Commit commit, bool amendPreviousCommit, bool isHeadOrphaned, bool isMergeCommit)
         {
-            // Compute reflog message
-            string reflogMessage = "commit";
+            string kind = string.Empty;
             if (isHeadOrphaned)
             {
-                reflogMessage += " (initial)";
+                kind = " (initial)";
             }
             else if (amendPreviousCommit)
             {
-                reflogMessage += " (amend)";
+                kind = " (amend)";
             }
             else if (isMergeCommit)
             {
-                reflogMessage += " (merge)";
+                kind = " (merge)";
             }
 
-            reflogMessage = string.Format("{0}: {1}", reflogMessage, commit.MessageShort);
+            return string.Format(CultureInfo.InvariantCulture, "commit{0}: {1}", kind, commit.MessageShort);
+        }
 
-            var headRef = Refs.Head;
+        private void UpdateHeadAndTerminalReference(Commit commit, string reflogMessage)
+        {
+            Reference reference = Refs.Head;
 
-            // in case HEAD targets a symbolic reference, log commit on the targeted direct reference
-            if (headRef is SymbolicReference)
+            while (true) //TODO: Implement max nesting level
             {
-                Refs.Log(headRef.ResolveToDirectReference()).Append(commit.Id, reflogMessage, commit.Committer);
-            }
+                if (reference is DirectReference)
+                {
+                    Refs.UpdateTarget(reference, commit.Id, commit.Committer, reflogMessage);
+                    return;
+                }
 
-            // Log commit on HEAD
-            Refs.Log(headRef).Append(commit.Id, reflogMessage, commit.Committer);
+                var symRef = (SymbolicReference) reference;
+
+                reference = symRef.Target;
+
+                if (reference == null)
+                {
+                    Refs.Add(symRef.TargetIdentifier, commit.Id, commit.Committer, reflogMessage);
+                    return;
+                }
+            }
         }
 
         private IEnumerable<Commit> RetrieveParentsOfTheCommitBeingCreated(bool amendPreviousCommit)
@@ -942,7 +900,7 @@ namespace LibGit2Sharp
                 return Head.Tip.Parents;
             }
 
-            if (Info.IsHeadOrphaned)
+            if (Info.IsHeadUnborn)
             {
                 return Enumerable.Empty<Commit>();
             }
@@ -969,14 +927,7 @@ namespace LibGit2Sharp
                                      | CheckoutStrategy.GIT_CHECKOUT_ALLOW_CONFLICTS,
             };
 
-            try
-            {
-                Proxy.git_checkout_index(Handle, new NullGitObjectSafeHandle(), ref options);
-            }
-            finally
-            {
-                options.Dispose();
-            }
+            Proxy.git_checkout_index(Handle, new NullGitObjectSafeHandle(), ref options);
         }
 
         private void CleanupDisposableDependencies()
@@ -997,7 +948,7 @@ namespace LibGit2Sharp
         /// Gets the current LibGit2Sharp version.
         /// <para>
         ///   The format of the version number is as follows:
-        ///   <para>Major.Minor.Patch-LibGit2Sharp_abbrev_hash-libgit2_abbrev_hash (x86|amd64)</para>
+        ///   <para>Major.Minor.Patch-LibGit2Sharp_abbrev_hash-libgit2_abbrev_hash (x86|amd64 - features)</para>
         /// </para>
         /// </summary>
         public static string Version
@@ -1013,15 +964,16 @@ namespace LibGit2Sharp
 
             string libgit2Hash = ReadContentFromResource(assembly, "libgit2_hash.txt");
             string libgit2sharpHash = ReadContentFromResource(assembly, "libgit2sharp_hash.txt");
+            string features = GlobalSettings.Features().ToString();
 
             return string.Format(
                 CultureInfo.InvariantCulture,
-                "{0}-{1}-{2} ({3})",
+                "{0}-{1}-{2} ({3} - {4})",
                 version.ToString(3),
                 libgit2sharpHash.Substring(0, 7),
                 libgit2Hash.Substring(0, 7),
-                NativeMethods.ProcessorArchitecture
-                );
+                NativeMethods.ProcessorArchitecture,
+                features);
         }
 
         private static string ReadContentFromResource(Assembly assembly, string partialResourceName)
@@ -1034,9 +986,397 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        /// Merges changes from commit into the branch pointed at by HEAD.
+        /// </summary>
+        /// <param name="commit">The commit to merge into the branch pointed at by HEAD.</param>
+        /// <param name="merger">The <see cref="Signature"/> of who is performing the merge.</param>
+        /// <param name="options">Specifies optional parameters controlling merge behavior; if null, the defaults are used.</param>
+        /// <returns>The <see cref="MergeResult"/> of the merge.</returns>
+        public MergeResult Merge(Commit commit, Signature merger, MergeOptions options = null)
+        {
+            Ensure.ArgumentNotNull(commit, "commit");
+            Ensure.ArgumentNotNull(merger, "merger");
+
+            options = options ?? new MergeOptions();
+
+            using (GitMergeHeadHandle mergeHeadHandle = Proxy.git_merge_head_from_id(Handle, commit.Id.Oid))
+            {
+                return Merge(new[] { mergeHeadHandle }, merger, options);
+            }
+        }
+
+        /// <summary>
+        /// Merges changes from branch into the branch pointed at by HEAD.
+        /// </summary>
+        /// <param name="branch">The branch to merge into the branch pointed at by HEAD.</param>
+        /// <param name="merger">The <see cref="Signature"/> of who is performing the merge.</param>
+        /// <param name="options">Specifies optional parameters controlling merge behavior; if null, the defaults are used.</param>
+        /// <returns>The <see cref="MergeResult"/> of the merge.</returns>
+        public MergeResult Merge(Branch branch, Signature merger, MergeOptions options = null)
+        {
+            Ensure.ArgumentNotNull(branch, "branch");
+            Ensure.ArgumentNotNull(merger, "merger");
+
+            options = options ?? new MergeOptions();
+
+            using (ReferenceSafeHandle referencePtr = Refs.RetrieveReferencePtr(branch.CanonicalName))
+            using (GitMergeHeadHandle mergeHeadHandle = Proxy.git_merge_head_from_ref(Handle, referencePtr))
+            {
+                return Merge(new[] { mergeHeadHandle }, merger, options);
+            }
+        }
+
+        /// <summary>
+        /// Merges changes from the commit into the branch pointed at by HEAD.
+        /// </summary>
+        /// <param name="committish">The commit to merge into the branch pointed at by HEAD.</param>
+        /// <param name="merger">The <see cref="Signature"/> of who is performing the merge.</param>
+        /// <param name="options">Specifies optional parameters controlling merge behavior; if null, the defaults are used.</param>
+        /// <returns>The <see cref="MergeResult"/> of the merge.</returns>
+        public MergeResult Merge(string committish, Signature merger, MergeOptions options = null)
+        {
+            Ensure.ArgumentNotNull(committish, "committish");
+            Ensure.ArgumentNotNull(merger, "merger");
+
+            options = options ?? new MergeOptions();
+
+            Commit commit = LookupCommit(committish);
+            return Merge(commit, merger, options);
+        }
+
+        /// <summary>
+        /// Merge the current fetch heads into the branch pointed at by HEAD.
+        /// </summary>
+        /// <param name="merger">The <see cref="Signature"/> of who is performing the merge.</param>
+        /// <param name="options">Specifies optional parameters controlling merge behavior; if null, the defaults are used.</param>
+        /// <returns>The <see cref="MergeResult"/> of the merge.</returns>
+        internal MergeResult MergeFetchHeads(Signature merger, MergeOptions options)
+        {
+            Ensure.ArgumentNotNull(merger, "merger");
+
+            options = options ?? new MergeOptions();
+
+            // The current FetchHeads that are marked for merging.
+            FetchHead[] fetchHeads = Network.FetchHeads.Where(fetchHead => fetchHead.ForMerge).ToArray();
+
+            if (fetchHeads.Length == 0)
+            {
+                throw new LibGit2SharpException("Remote ref to merge from was not fetched.");
+            }
+
+            GitMergeHeadHandle[] mergeHeadHandles = fetchHeads.Select(fetchHead =>
+                Proxy.git_merge_head_from_fetchhead(Handle, fetchHead.RemoteCanonicalName, fetchHead.Url, fetchHead.Target.Id.Oid)).ToArray();
+
+            try
+            {
+                // Perform the merge.
+                return Merge(mergeHeadHandles, merger, options);
+            }
+            finally
+            {
+                // Cleanup.
+                foreach (GitMergeHeadHandle mergeHeadHandle in mergeHeadHandles)
+                {
+                    mergeHeadHandle.Dispose();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Revert the specified commit.
+        /// </summary>
+        /// <param name="commit">The <see cref="Commit"/> to revert.</param>
+        /// <param name="reverter">The <see cref="Signature"/> of who is performing the revert.</param>
+        /// <param name="options"><see cref="RevertOptions"/> controlling revert behavior.</param>
+        /// <returns>The result of the revert.</returns>
+        public RevertResult Revert(Commit commit, Signature reverter, RevertOptions options = null)
+        {
+            Ensure.ArgumentNotNull(commit, "commit");
+            Ensure.ArgumentNotNull(reverter, "reverter");
+
+            options = options ?? new RevertOptions();
+
+            RevertResult result = null;
+
+            using (GitCheckoutOptsWrapper checkoutOptionsWrapper = new GitCheckoutOptsWrapper(options))
+            {
+                var mergeOptions = new GitMergeOpts
+                {
+                    Version = 1,
+                    MergeFileFavorFlags = options.MergeFileFavor,
+                    MergeTreeFlags = options.FindRenames ? GitMergeTreeFlags.GIT_MERGE_TREE_FIND_RENAMES :
+                                                           GitMergeTreeFlags.GIT_MERGE_TREE_NORMAL,
+                    RenameThreshold = (uint)options.RenameThreshold,
+                    TargetLimit = (uint)options.TargetLimit,
+                };
+
+                GitRevertOpts gitRevertOpts = new GitRevertOpts()
+                {
+                    Mainline = (uint)options.Mainline,
+                    MergeOpts = mergeOptions,
+
+                    CheckoutOpts = checkoutOptionsWrapper.Options,
+                };
+
+                Proxy.git_revert(handle, commit.Id.Oid, gitRevertOpts);
+
+                if (Index.IsFullyMerged)
+                {
+                    Commit revertCommit = null;
+                    if (options.CommitOnSuccess)
+                    {
+                        revertCommit = this.Commit(Info.Message, author: reverter, committer: reverter);
+                    }
+
+                    result = new RevertResult(RevertStatus.Reverted, revertCommit);
+                }
+                else
+                {
+                    result = new RevertResult(RevertStatus.Conflicts);
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Cherry-picks the specified commit.
+        /// </summary>
+        /// <param name="commit">The <see cref="Commit"/> to cherry-pick.</param>
+        /// <param name="committer">The <see cref="Signature"/> of who is performing the cherry pick.</param>
+        /// <param name="options"><see cref="CherryPickOptions"/> controlling cherry pick behavior.</param>
+        /// <returns>The result of the cherry pick.</returns>
+        public CherryPickResult CherryPick(Commit commit, Signature committer, CherryPickOptions options = null)
+        {
+            Ensure.ArgumentNotNull(commit, "commit");
+            Ensure.ArgumentNotNull(committer, "committer");
+
+            options = options ?? new CherryPickOptions();
+
+            CherryPickResult result = null;
+
+            using (GitCheckoutOptsWrapper checkoutOptionsWrapper = new GitCheckoutOptsWrapper(options))
+            {
+                var mergeOptions = new GitMergeOpts
+                {
+                    Version = 1,
+                    MergeFileFavorFlags = options.MergeFileFavor,
+                    MergeTreeFlags = options.FindRenames ? GitMergeTreeFlags.GIT_MERGE_TREE_FIND_RENAMES :
+                                                           GitMergeTreeFlags.GIT_MERGE_TREE_NORMAL,
+                    RenameThreshold = (uint)options.RenameThreshold,
+                    TargetLimit = (uint)options.TargetLimit,
+                };
+
+                GitCherryPickOptions gitCherryPickOpts = new GitCherryPickOptions()
+                {
+                    Mainline = (uint)options.Mainline,
+                    MergeOpts = mergeOptions,
+
+                    CheckoutOpts = checkoutOptionsWrapper.Options,
+                };
+
+                Proxy.git_cherry_pick(handle, commit.Id.Oid, gitCherryPickOpts);
+
+                if (Index.IsFullyMerged)
+                {
+                    Commit cherryPickCommit = null;
+                    if (options.CommitOnSuccess)
+                    {
+                        cherryPickCommit = this.Commit(Info.Message, commit.Author, committer);
+                    }
+
+                    result = new CherryPickResult(CherryPickStatus.CherryPicked, cherryPickCommit);
+                }
+                else
+                {
+                    result = new CherryPickResult(CherryPickStatus.Conflicts);
+                }
+            }
+
+            return result;
+        }
+
+        private FastForwardStrategy FastForwardStrategyFromMergePreference(GitMergePreference preference)
+        {
+            switch (preference)
+            {
+                case GitMergePreference.GIT_MERGE_PREFERENCE_NONE:
+                    return FastForwardStrategy.Default;
+                case GitMergePreference.GIT_MERGE_PREFERENCE_FASTFORWARD_ONLY:
+                    return FastForwardStrategy.FastForwardOnly;
+                case GitMergePreference.GIT_MERGE_PREFERENCE_NO_FASTFORWARD:
+                    return FastForwardStrategy.NoFastFoward;
+                default:
+                    throw new InvalidOperationException(String.Format("Unknown merge preference: {0}", preference));
+            }
+        }
+
+        /// <summary>
+        /// Internal implementation of merge.
+        /// </summary>
+        /// <param name="mergeHeads">Merge heads to operate on.</param>
+        /// <param name="merger">The <see cref="Signature"/> of who is performing the merge.</param>
+        /// <param name="options">Specifies optional parameters controlling merge behavior; if null, the defaults are used.</param>
+        /// <returns>The <see cref="MergeResult"/> of the merge.</returns>
+        private MergeResult Merge(GitMergeHeadHandle[] mergeHeads, Signature merger, MergeOptions options)
+        {
+            GitMergeAnalysis mergeAnalysis;
+            GitMergePreference mergePreference;
+
+            Proxy.git_merge_analysis(Handle, mergeHeads, out mergeAnalysis, out mergePreference);
+
+            MergeResult mergeResult = null;
+
+            if ((mergeAnalysis & GitMergeAnalysis.GIT_MERGE_ANALYSIS_UP_TO_DATE) == GitMergeAnalysis.GIT_MERGE_ANALYSIS_UP_TO_DATE)
+            {
+                return new MergeResult(MergeStatus.UpToDate);
+            }
+
+            FastForwardStrategy fastForwardStrategy = (options.FastForwardStrategy != FastForwardStrategy.Default) ?
+                options.FastForwardStrategy : FastForwardStrategyFromMergePreference(mergePreference);
+
+            switch(fastForwardStrategy)
+            {
+                case FastForwardStrategy.Default:
+                    if (mergeAnalysis.HasFlag(GitMergeAnalysis.GIT_MERGE_ANALYSIS_FASTFORWARD))
+                    {
+                        if (mergeHeads.Length != 1)
+                        {
+                            // We should not reach this code unless there is a bug somewhere.
+                            throw new LibGit2SharpException("Unable to perform Fast-Forward merge with mith multiple merge heads.");
+                        }
+
+                        mergeResult = FastForwardMerge(mergeHeads[0], merger, options);
+                    }
+                    else if (mergeAnalysis.HasFlag(GitMergeAnalysis.GIT_MERGE_ANALYSIS_NORMAL))
+                    {
+                        mergeResult = NormalMerge(mergeHeads, merger, options);
+                    }
+                    break;
+                case FastForwardStrategy.FastForwardOnly:
+                    if (mergeAnalysis.HasFlag(GitMergeAnalysis.GIT_MERGE_ANALYSIS_FASTFORWARD))
+                    {
+                        if (mergeHeads.Length != 1)
+                        {
+                            // We should not reach this code unless there is a bug somewhere.
+                            throw new LibGit2SharpException("Unable to perform Fast-Forward merge with mith multiple merge heads.");
+                        }
+
+                        mergeResult = FastForwardMerge(mergeHeads[0], merger, options);
+                    }
+                    else
+                    {
+                        // TODO: Maybe this condition should rather be indicated through the merge result
+                        //       instead of throwing an exception.
+                        throw new NonFastForwardException("Cannot perform fast-forward merge.");
+                    }
+                    break;
+                case FastForwardStrategy.NoFastFoward:
+                    if (mergeAnalysis.HasFlag(GitMergeAnalysis.GIT_MERGE_ANALYSIS_NORMAL))
+                    {
+                        mergeResult = NormalMerge(mergeHeads, merger, options);
+                    }
+                    break;
+                default:
+                    throw new NotImplementedException(
+                        string.Format(CultureInfo.InvariantCulture, "Unknown fast forward strategy: {0}", mergeAnalysis));
+            }
+
+            if (mergeResult == null)
+            {
+                throw new NotImplementedException(
+                    string.Format(CultureInfo.InvariantCulture, "Unknown merge analysis: {0}", options.FastForwardStrategy));
+            }
+
+            return mergeResult;
+        }
+
+        /// <summary>
+        /// Perform a normal merge (i.e. a non-fast-forward merge).
+        /// </summary>
+        /// <param name="mergeHeads">The merge head handles to merge.</param>
+        /// <param name="merger">The <see cref="Signature"/> of who is performing the merge.</param>
+        /// <param name="options">Specifies optional parameters controlling merge behavior; if null, the defaults are used.</param>
+        /// <returns>The <see cref="MergeResult"/> of the merge.</returns>
+        private MergeResult NormalMerge(GitMergeHeadHandle[] mergeHeads, Signature merger, MergeOptions options)
+        {
+            MergeResult mergeResult;
+
+            var mergeOptions = new GitMergeOpts
+                {
+                    Version = 1,
+                    MergeFileFavorFlags = options.MergeFileFavor,
+                    MergeTreeFlags = options.FindRenames ? GitMergeTreeFlags.GIT_MERGE_TREE_FIND_RENAMES :
+                                                           GitMergeTreeFlags.GIT_MERGE_TREE_NORMAL,
+                    RenameThreshold = (uint) options.RenameThreshold,
+                    TargetLimit = (uint) options.TargetLimit,
+                };
+
+            using (GitCheckoutOptsWrapper checkoutOptionsWrapper = new GitCheckoutOptsWrapper(options))
+            {
+                var checkoutOpts = checkoutOptionsWrapper.Options;
+
+                Proxy.git_merge(Handle, mergeHeads, mergeOptions, checkoutOpts);
+            }
+
+            if (Index.IsFullyMerged)
+            {
+                Commit mergeCommit = null;
+                if (options.CommitOnSuccess)
+                {
+                    // Commit the merge
+                    mergeCommit = Commit(Info.Message, author: merger, committer: merger);
+                }
+
+                mergeResult = new MergeResult(MergeStatus.NonFastForward, mergeCommit);
+            }
+            else
+            {
+                mergeResult = new MergeResult(MergeStatus.Conflicts);
+            }
+
+            return mergeResult;
+        }
+
+        /// <summary>
+        /// Perform a fast-forward merge.
+        /// </summary>
+        /// <param name="mergeHead">The merge head handle to fast-forward merge.</param>
+        /// <param name="merger">The <see cref="Signature"/> of who is performing the merge.</param>
+        /// <param name="options">Options controlling merge behavior.</param>
+        /// <returns>The <see cref="MergeResult"/> of the merge.</returns>
+        private MergeResult FastForwardMerge(GitMergeHeadHandle mergeHead, Signature merger, MergeOptions options)
+        {
+            ObjectId id = Proxy.git_merge_head_id(mergeHead);
+            Commit fastForwardCommit = (Commit) Lookup(id, ObjectType.Commit);
+            Ensure.GitObjectIsNotNull(fastForwardCommit, id.Sha);
+
+            CheckoutTree(fastForwardCommit.Tree, null, new FastForwardCheckoutOptionsAdapter(options));
+
+            var reference = Refs.Head.ResolveToDirectReference();
+
+            // TODO: This reflog entry could be more specific
+            string refLogEntry = string.Format(
+                CultureInfo.InvariantCulture, "merge {0}: Fast-forward", fastForwardCommit.Sha);
+
+            if (reference == null)
+            {
+                // Reference does not exist, create it.
+                Refs.Add(Refs.Head.TargetIdentifier, fastForwardCommit.Id, merger, refLogEntry);
+            }
+            else
+            {
+                // Update target reference.
+                Refs.UpdateTarget(reference, fastForwardCommit.Id.Sha, merger, refLogEntry);
+            }
+
+            return new MergeResult(MergeStatus.FastForward, fastForwardCommit);
+        }
+
+        /// <summary>
         /// Gets the references to the tips that are currently being merged.
         /// </summary>
-        public IEnumerable<MergeHead> MergeHeads
+        internal IEnumerable<MergeHead> MergeHeads
         {
             get
             {

@@ -40,27 +40,18 @@ namespace LibGit2Sharp
         /// <summary>
         /// Initializes a new instance of the <see cref="LibGit2SharpException"/> class with a serialized data.
         /// </summary>
-        /// <param name="info">The <see cref="SerializationInfo "/> that holds the serialized object data about the exception being thrown.</param>
+        /// <param name="info">The <see cref="SerializationInfo"/> that holds the serialized object data about the exception being thrown.</param>
         /// <param name="context">The <see cref="StreamingContext"/> that contains contextual information about the source or destination.</param>
         protected LibGit2SharpException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
         }
 
-        internal LibGit2SharpException(string message, GitErrorCode code, GitErrorCategory category) : this(FormatMessage(message, code, category))
+        internal LibGit2SharpException(string message, GitErrorCode code, GitErrorCategory category) : this(message)
         {
             Data.Add("libgit2.code", (int)code);
             Data.Add("libgit2.category", (int)category);
 
-        }
-
-        private static string FormatMessage(string message, GitErrorCode code, GitErrorCategory category)
-        {
-            return String.Format(CultureInfo.InvariantCulture, "An error was raised by libgit2. Category = {0} ({1}).{2}{3}",
-                          category,
-                          code,
-                          Environment.NewLine,
-                          message);
         }
     }
 }

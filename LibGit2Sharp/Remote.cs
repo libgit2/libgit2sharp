@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Diagnostics;
 using System.Globalization;
 using LibGit2Sharp.Core;
@@ -15,7 +17,9 @@ namespace LibGit2Sharp
         private static readonly LambdaEqualityHelper<Remote> equalityHelper =
             new LambdaEqualityHelper<Remote>(x => x.Name, x => x.Url);
 
-        private readonly Repository repository;
+        internal readonly Repository repository;
+
+        private readonly RefSpecCollection refSpecs;
 
         /// <summary>
         /// Needed for mocking purposes.
@@ -23,21 +27,18 @@ namespace LibGit2Sharp
         protected Remote()
         { }
 
-        private Remote(Repository repository, string name, string url, TagFetchMode tagFetchMode)
+        private Remote(RemoteSafeHandle handle, Repository repository)
         {
             this.repository = repository;
-            Name = name;
-            Url = url;
-            TagFetchMode = tagFetchMode;
+            Name = Proxy.git_remote_name(handle);
+            Url = Proxy.git_remote_url(handle);
+            TagFetchMode = Proxy.git_remote_autotag(handle);
+            refSpecs = new RefSpecCollection(handle);
         }
 
         internal static Remote BuildFromPtr(RemoteSafeHandle handle, Repository repo)
         {
-            string name = Proxy.git_remote_name(handle);
-            string url = Proxy.git_remote_url(handle);
-            TagFetchMode tagFetchMode = Proxy.git_remote_autotag(handle);
-
-            var remote = new Remote(repo, name, url, tagFetchMode);
+            var remote = new Remote(handle, repo);
 
             return remote;
         }
@@ -58,6 +59,29 @@ namespace LibGit2Sharp
         public virtual TagFetchMode TagFetchMode { get; private set; }
 
         /// <summary>
+        /// Gets the list of <see cref="RefSpec"/>s defined for this <see cref="Remote"/>
+        /// </summary>
+        public virtual IEnumerable<RefSpec> RefSpecs { get { return refSpecs; } }
+
+        /// <summary>
+        /// Gets the list of <see cref="RefSpec"/>s defined for this <see cref="Remote"/>
+        /// that are intended to be used during a Fetch operation
+        /// </summary>
+        public virtual IEnumerable<RefSpec> FetchRefSpecs
+        {
+            get { return refSpecs.Where(r => r.Direction == RefSpecDirection.Fetch); }
+        }
+
+        /// <summary>
+        /// Gets the list of <see cref="RefSpec"/>s defined for this <see cref="Remote"/>
+        /// that are intended to be used during a Push operation
+        /// </summary>
+        public virtual IEnumerable<RefSpec> PushRefSpecs
+        {
+            get { return refSpecs.Where(r => r.Direction == RefSpecDirection.Push); }
+        }
+
+        /// <summary>
         /// Transform a reference to its source reference using the <see cref="Remote"/>'s default fetchspec.
         /// </summary>
         /// <param name="reference">The reference to transform.</param>
@@ -69,6 +93,26 @@ namespace LibGit2Sharp
                 GitRefSpecHandle fetchSpecPtr = Proxy.git_remote_get_refspec(remoteHandle, 0);
                 return Proxy.git_refspec_rtransform(fetchSpecPtr, reference);
             }
+        }
+
+        /// <summary>
+        /// Determines if the proposed remote name is well-formed.
+        /// </summary>
+        /// <param name="name">The name to be checked.</param>
+        /// <returns>true if the name is valid; false otherwise.</returns>
+        public static bool IsValidName(string name)
+        {
+            return Proxy.git_remote_is_valid_name(name);
+        }
+
+        /// <summary>
+        /// Determines if the proposed remote URL is supported by the library.
+        /// </summary>
+        /// <param name="url">The URL to be checked.</param>
+        /// <returns>true if the url is supported; false otherwise.</returns>
+        public static bool IsSupportedUrl(string url)
+        {
+            return Proxy.git_remote_supported_url(url);
         }
 
         /// <summary>

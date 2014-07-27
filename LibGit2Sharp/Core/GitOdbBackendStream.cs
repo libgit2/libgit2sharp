@@ -20,6 +20,10 @@ namespace LibGit2Sharp.Core
 
         public IntPtr Backend;
         public GitOdbBackendStreamMode Mode;
+        public IntPtr HashCtx;
+
+        public UIntPtr DeclaredSize;
+        public UIntPtr ReceivedBytes;
 
         public read_callback Read;
         public write_callback Write;
@@ -45,8 +49,8 @@ namespace LibGit2Sharp.Core
             UIntPtr len);
 
         public delegate int finalize_write_callback(
-            out GitOid oid_p,
-            IntPtr stream);
+            IntPtr stream,
+            ref GitOid oid);
 
         public delegate void free_callback(
             IntPtr stream);

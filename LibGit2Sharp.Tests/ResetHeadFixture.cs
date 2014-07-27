@@ -18,7 +18,7 @@ namespace LibGit2Sharp.Tests
 
             using (var repo = new Repository(repoPath))
             {
-                Assert.Throws<LibGit2SharpException>(() => repo.Reset(ResetOptions.Soft));
+                Assert.Throws<LibGit2SharpException>(() => repo.Reset(ResetMode.Soft));
             }
         }
 
@@ -30,7 +30,7 @@ namespace LibGit2Sharp.Tests
             {
                 Branch oldHead = repo.Head;
 
-                repo.Reset(ResetOptions.Soft);
+                repo.Reset(ResetMode.Soft);
 
                 Assert.Equal(oldHead, repo.Head);
             }
@@ -44,7 +44,7 @@ namespace LibGit2Sharp.Tests
             {
                 var headCommit = repo.Head.Tip;
                 var firstCommitParent = headCommit.Parents.First();
-                repo.Reset(ResetOptions.Soft, firstCommitParent);
+                repo.Reset(ResetMode.Soft, firstCommitParent);
 
                 Assert.Equal(firstCommitParent, repo.Head.Tip);
             }
@@ -57,7 +57,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path))
             {
                 Tag tag = repo.Tags["test"];
-                repo.Reset(ResetOptions.Soft, tag.CanonicalName);
+                repo.Reset(ResetMode.Soft, tag.CanonicalName);
                 Assert.Equal("e90810b8df3e80c413d903f631643c716887138d", repo.Head.Tip.Sha);
             }
         }
@@ -67,11 +67,11 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                Assert.Throws<ArgumentNullException>(() => repo.Reset(ResetOptions.Soft, (string)null));
-                Assert.Throws<ArgumentNullException>(() => repo.Reset(ResetOptions.Soft, (Commit)null));
-                Assert.Throws<ArgumentException>(() => repo.Reset(ResetOptions.Soft, ""));
-                Assert.Throws<LibGit2SharpException>(() => repo.Reset(ResetOptions.Soft, Constants.UnknownSha));
-                Assert.Throws<LibGit2SharpException>(() => repo.Reset(ResetOptions.Soft, repo.Head.Tip.Tree.Sha));
+                Assert.Throws<ArgumentNullException>(() => repo.Reset(ResetMode.Soft, (string)null));
+                Assert.Throws<ArgumentNullException>(() => repo.Reset(ResetMode.Soft, (Commit)null));
+                Assert.Throws<ArgumentException>(() => repo.Reset(ResetMode.Soft, ""));
+                Assert.Throws<LibGit2SharpException>(() => repo.Reset(ResetMode.Soft, Constants.UnknownSha));
+                Assert.Throws<LibGit2SharpException>(() => repo.Reset(ResetMode.Soft, repo.Head.Tip.Tree.Sha));
             }
         }
 
@@ -102,7 +102,7 @@ namespace LibGit2Sharp.Tests
 
                 string branchIdentifier = branchIdentifierRetriever(branch);
                 repo.Checkout(branchIdentifier);
-                var oldHeadSha = repo.Head.Tip.Sha;
+                var oldHeadId = repo.Head.Tip.Id;
                 Assert.Equal(shouldHeadBeDetached, repo.Info.IsHeadDetached);
 
                 string expectedHeadName = expectedHeadNameRetriever(branch);
@@ -110,26 +110,50 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(branch.Tip.Sha, repo.Head.Tip.Sha);
 
                 /* Reset --soft the Head to a tag through its canonical name */
-                repo.Reset(ResetOptions.Soft, tag.CanonicalName);
+                repo.Reset(ResetMode.Soft, tag.CanonicalName);
                 Assert.Equal(expectedHeadName, repo.Head.Name);
                 Assert.Equal(tag.Target.Id, repo.Head.Tip.Id);
 
                 Assert.Equal(FileStatus.Staged, repo.Index.RetrieveStatus("a.txt"));
 
-                AssertReflogEntryIsCreated(repo.Refs.Log(repo.Refs.Head), tag.Target.Sha, string.Format("reset: moving to {0}", tag.Target.Sha), oldHeadSha);
+                AssertRefLogEntry(repo, "HEAD",
+                                  tag.Target.Id,
+                                  string.Format("reset: moving to {0}", tag.Target.Sha),
+                                  oldHeadId);
+
+                if (!shouldHeadBeDetached)
+                {
+                    AssertRefLogEntry(repo, branch.CanonicalName,
+                                      tag.Target.Id,
+                                      string.Format("reset: moving to {0}", tag.Target.Sha),
+                                      oldHeadId);
+                }
 
                 /* Reset --soft the Head to a commit through its sha */
-                repo.Reset(ResetOptions.Soft, branch.Tip.Sha);
+                repo.Reset(ResetMode.Soft, branch.Tip.Sha, Constants.Signature, "FOO");
                 Assert.Equal(expectedHeadName, repo.Head.Name);
                 Assert.Equal(branch.Tip.Sha, repo.Head.Tip.Sha);
 
                 Assert.Equal(FileStatus.Unaltered, repo.Index.RetrieveStatus("a.txt"));
 
-                AssertReflogEntryIsCreated(repo.Refs.Log(repo.Refs.Head), branch.Tip.Sha, string.Format("reset: moving to {0}", branch.Tip.Sha), tag.Target.Sha);
+                AssertRefLogEntry(repo, "HEAD",
+                                  branch.Tip.Id,
+                                  "FOO",
+                                  tag.Target.Id,
+                                  Constants.Signature);
+
+                if (!shouldHeadBeDetached)
+                {
+                    AssertRefLogEntry(repo, branch.CanonicalName,
+                                  branch.Tip.Id,
+                                  "FOO",
+                                  tag.Target.Id,
+                                  Constants.Signature);
+                }
             }
         }
 
-        private static void FeedTheRepository(Repository repo)
+        private static void FeedTheRepository(IRepository repo)
         {
             string fullPath = Touch(repo.Info.WorkingDirectory, "a.txt", "Hello\n");
             repo.Index.Stage(fullPath);
@@ -157,14 +181,23 @@ namespace LibGit2Sharp.Tests
             {
                 FeedTheRepository(repo);
 
+                var oldHeadId = repo.Head.Tip.Id;
+
                 Tag tag = repo.Tags["mytag"];
 
-                repo.Reset(ResetOptions.Mixed, tag.CanonicalName);
+                repo.Reset(ResetMode.Mixed, tag.CanonicalName);
 
                 Assert.Equal(FileStatus.Modified, repo.Index.RetrieveStatus("a.txt"));
 
-                AssertReflogEntryIsCreated(repo.Refs.Log(repo.Refs.Head), tag.Target.Sha, string.Format("reset: moving to {0}", tag.Target.Sha));
+                AssertRefLogEntry(repo, "HEAD",
+                                  tag.Target.Id,
+                                  string.Format("reset: moving to {0}", tag.Target.Sha),
+                                  oldHeadId);
 
+                AssertRefLogEntry(repo, "refs/heads/mybranch",
+                                  tag.Target.Id,
+                                  string.Format("reset: moving to {0}", tag.Target.Sha),
+                                  oldHeadId);
             }
         }
 
@@ -173,7 +206,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                Assert.Throws<BareRepositoryException>(() => repo.Reset(ResetOptions.Mixed));
+                Assert.Throws<BareRepositoryException>(() => repo.Reset(ResetMode.Mixed));
             }
         }
 
@@ -182,7 +215,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                Assert.Throws<BareRepositoryException>(() => repo.Reset(ResetOptions.Hard));
+                Assert.Throws<BareRepositoryException>(() => repo.Reset(ResetMode.Hard));
             }
         }
 
@@ -199,7 +232,7 @@ namespace LibGit2Sharp.Tests
 
                 Assert.True(names.Count > 4);
 
-                repo.Reset(ResetOptions.Hard, "HEAD~3");
+                repo.Reset(ResetMode.Hard, "HEAD~3");
 
                 names = new DirectoryInfo(repo.Info.WorkingDirectory).GetFileSystemInfos().Select(fsi => fsi.Name).ToList();
                 names.Sort(StringComparer.Ordinal);

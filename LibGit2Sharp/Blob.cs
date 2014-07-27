@@ -26,7 +26,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Gets the size in bytes of the contents of a blob
+        /// Gets the size in bytes of the raw content of a blob.
         /// </summary>
         public virtual int Size { get { return (int)lazySize.Value; } }
 
@@ -36,25 +36,22 @@ namespace LibGit2Sharp
         public virtual bool IsBinary { get { return lazyIsBinary.Value; } }
 
         /// <summary>
-        /// Gets the blob content in a <see cref="byte"/> array.
+        /// Gets the blob content in a <see cref="Stream"/>.
         /// </summary>
-        public virtual byte[] Content
+        public virtual Stream GetContentStream()
         {
-            get
-            {
-                return Proxy.git_blob_rawcontent(repo.Handle, Id, Size);
-            }
+            return Proxy.git_blob_rawcontent_stream(repo.Handle, Id, Size);
         }
 
         /// <summary>
-        /// Gets the blob content in a <see cref="Stream"/>.
+        /// Gets the blob content in a <see cref="Stream"/> as it would be
+        /// checked out to the working directory.
+        /// <param name="filteringOptions">Parameter controlling content filtering behavior</param>
         /// </summary>
-        public virtual Stream ContentStream
+        public virtual Stream GetContentStream(FilteringOptions filteringOptions)
         {
-            get
-            {
-                return Proxy.git_blob_rawcontent_stream(repo.Handle, Id, Size);
-            }
+            Ensure.ArgumentNotNull(filteringOptions, "filteringOptions");
+            return Proxy.git_blob_filtered_content_stream(repo.Handle, Id, filteringOptions.HintPath, false);
         }
     }
 }

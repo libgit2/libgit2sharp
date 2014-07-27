@@ -8,9 +8,14 @@ namespace LibGit2Sharp.Core
     internal struct GitOid
     {
         /// <summary>
+        /// Number of bytes in the Id.
+        /// </summary>
+        public const int Size = 20;
+
+        /// <summary>
         /// The raw binary 20 byte Id.
         /// </summary>
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 20)]
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = Size)]
         public byte[] Id;
 
         public static implicit operator ObjectId(GitOid oid)

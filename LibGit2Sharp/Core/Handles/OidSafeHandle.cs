@@ -6,7 +6,14 @@ namespace LibGit2Sharp.Core.Handles
     {
         private GitOid? MarshalAsGitOid()
         {
-            return IsInvalid ? null : (GitOid?)Marshal.PtrToStructure(handle, typeof(GitOid));
+            return IsInvalid ? null : (GitOid?)MarshalAsGitOid(handle);
+        }
+
+        private static GitOid MarshalAsGitOid(System.IntPtr data)
+        {
+            var gitOid = new GitOid { Id = new byte[GitOid.Size] };
+            Marshal.Copy(data, gitOid.Id, 0, GitOid.Size);
+            return gitOid;
         }
 
         public ObjectId MarshalAsObjectId()

@@ -41,39 +41,4 @@ namespace LibGit2Sharp
         /// </summary>
         Ignored = (1 << 4), /* GIT_CHECKOUT_NOTIFY_IGNORED */
     }
-
-    /// <summary>
-    /// Class to specify options and callback on CheckoutNotifications.
-    /// </summary>
-    public class CheckoutNotificationOptions
-    {
-        /// <summary>
-        /// Needed for mocking purposes.
-        /// </summary>
-        protected CheckoutNotificationOptions()
-        {
-        }
-
-        /// <summary>
-        /// The delegate that will be called for files that match the
-        /// options specified in NotifyFlags.
-        /// </summary>
-        public virtual CheckoutNotifyHandler CheckoutNotifyHandler { get; private set; }
-
-        /// <summary>
-        /// The Flags specifying what notifications are reported.
-        /// </summary>
-        public virtual CheckoutNotifyFlags NotifyFlags { get; private set; }
-
-        /// <summary>
-        /// Construct the CheckoutNotificationOptions class.
-        /// </summary>
-        /// <param name="checkoutNotifyHandler"><see cref="CheckoutNotifyHandler"/> that checkout notifications are reported through.</param>
-        /// <param name="notifyFlags">The checkout notification type.</param>
-        public CheckoutNotificationOptions(CheckoutNotifyHandler checkoutNotifyHandler, CheckoutNotifyFlags notifyFlags)
-        {
-            CheckoutNotifyHandler = checkoutNotifyHandler;
-            NotifyFlags = notifyFlags;
-        }
-    }
 }

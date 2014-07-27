@@ -78,8 +78,8 @@ namespace LibGit2Sharp.Tests.TestHelpers
         /// <param name="referenceName">Name of reference being updated.</param>
         /// <param name="oldId">Old ID of reference.</param>
         /// <param name="newId">New ID of reference.</param>
-        /// <returns>0 on success; a negative value to abort the process.</returns>
-        public int RemoteUpdateTipsHandler(string referenceName, ObjectId oldId, ObjectId newId)
+        /// <returns>True to continue, false to cancel.</returns>
+        public bool RemoteUpdateTipsHandler(string referenceName, ObjectId oldId, ObjectId newId)
         {
             // assert that we have not seen this reference before
             Assert.DoesNotContain(referenceName, ObservedReferenceUpdates.Keys);
@@ -97,14 +97,14 @@ namespace LibGit2Sharp.Tests.TestHelpers
                 Assert.Equal(referenceUpdate.NewId, newId);
             }
 
-            return 0;
+            return true;
         }
 
         /// <summary>
         /// Check that all expected references have been updated.
         /// </summary>
         /// <param name="repo">Repository object whose state will be checked against expected state.</param>
-        public void CheckUpdatedReferences(Repository repo)
+        public void CheckUpdatedReferences(IRepository repo)
         {
             // Verify the expected branches.
             // First, verify the expected branches have been created and

@@ -1,0 +1,31 @@
+this file was rewritten in the
+ours branch, and the original
+file was copied to the file
+0b-duplicated-in-ours.txt.  that
+duplicated file will not be
+eligible for rename detection.
+
+<<<<<<< HEAD
+this file was rewritten in the
+ours branch, and the original
+file was copied to the file
+0b-duplicated-in-ours.txt.  that
+duplicated file will not be
+eligible for rename detection.
+=======
+note that it has also been edited
+in the theirs branch
+
+this file will be rewritten in
+ours, and its contents will be
+duplicated in another file.
+but it will not be eligible for
+rename detection.
+>>>>>>> rename_conflict_theirs
+
+this file was rewritten in the
+ours branch, and the original
+file was copied to the file
+0b-duplicated-in-ours.txt.  that
+duplicated file will not be
+eligible for rename detection.

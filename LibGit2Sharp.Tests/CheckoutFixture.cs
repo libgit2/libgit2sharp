@@ -266,7 +266,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Throws<MergeConflictException>(() => repo.Checkout(master.CanonicalName));
 
                 // Checkout with force option should succeed.
-                repo.Checkout(master.CanonicalName, CheckoutModifiers.Force, null, null);
+                repo.Checkout(master.CanonicalName, new CheckoutOptions() { CheckoutModifiers = CheckoutModifiers.Force});
 
                 // Assert that master branch is checked out.
                 Assert.True(repo.Branches["master"].IsCurrentRepositoryHead);
@@ -338,8 +338,14 @@ namespace LibGit2Sharp.Tests
 
                 // Verify that we get called for the notify conflict cb
                 string conflictPath = string.Empty;
-                CheckoutNotificationOptions checkoutNotifications = new CheckoutNotificationOptions((path, flags) => { conflictPath = path; return false; }, CheckoutNotifyFlags.Conflict);
-                Assert.Throws<UserCancelledException>(() => repo.Checkout("master", CheckoutModifiers.None, null, checkoutNotifications));
+
+                CheckoutOptions options = new CheckoutOptions()
+                {
+                    OnCheckoutNotify = (path, flags) => { conflictPath = path; return false; },
+                    CheckoutNotifyFlags = CheckoutNotifyFlags.Conflict,
+                };
+
+                Assert.Throws<UserCancelledException>(() => repo.Checkout("master", options));
                 Assert.Equal(relativePath, conflictPath);
             }
         }
@@ -361,9 +367,9 @@ namespace LibGit2Sharp.Tests
 
             using (var repo = new Repository(repoPath))
             {
-                Assert.True(repo.Info.IsHeadOrphaned);
+                Assert.True(repo.Info.IsHeadUnborn);
 
-                Assert.Throws<OrphanedHeadException>(() => repo.Checkout(repo.Head));
+                Assert.Throws<UnbornBranchException>(() => repo.Checkout(repo.Head));
             }
         }
 
@@ -398,7 +404,7 @@ namespace LibGit2Sharp.Tests
                 bool wasCalled = false;
 
                 Branch branch = repo.Branches[otherBranchName];
-                branch.Checkout(CheckoutModifiers.None, (path, completed, total) => wasCalled = true, null);
+                branch.Checkout(new CheckoutOptions() { OnCheckoutProgress = (path, completed, total) => wasCalled = true});
 
                 Assert.True(wasCalled);
             }
@@ -414,7 +420,7 @@ namespace LibGit2Sharp.Tests
                 PopulateBasicRepository(repo);
                 bool wasCalled = false;
 
-                repo.Checkout(otherBranchName, CheckoutModifiers.None, (path, completed, total) => wasCalled = true, null);
+                repo.Checkout(otherBranchName, new CheckoutOptions() { OnCheckoutProgress = (path, completed, total) => wasCalled = true});
 
                 Assert.True(wasCalled);
             }
@@ -486,11 +492,13 @@ namespace LibGit2Sharp.Tests
                 string actualNotificationPath = string.Empty;
                 CheckoutNotifyFlags actualNotifyFlags = CheckoutNotifyFlags.None;
 
-                CheckoutNotificationOptions checkoutNotifications = new CheckoutNotificationOptions(
-                    (path, notificationType) => { wasCalled = true; actualNotificationPath = path; actualNotifyFlags = notificationType; return true; },
-                    notifyFlags);
+                CheckoutOptions options = new CheckoutOptions()
+                {
+                    OnCheckoutNotify = (path, notificationType) => { wasCalled = true; actualNotificationPath = path; actualNotifyFlags = notificationType; return true; },
+                    CheckoutNotifyFlags = notifyFlags,
+                };
 
-                Assert.Throws<MergeConflictException>(() => repo.Checkout("master", CheckoutModifiers.None, null, checkoutNotifications));
+                Assert.Throws<MergeConflictException>(() => repo.Checkout("master", options));
 
                 Assert.True(wasCalled);
                 Assert.Equal(expectedNotificationPath, actualNotificationPath);
@@ -538,7 +546,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(1, repo.Index.RetrieveStatus().Untracked.Count());
                 Assert.Equal(FileStatus.Untracked, repo.Index.RetrieveStatus(fullPathFileB));
 
-                repo.Checkout(otherBranchName, CheckoutModifiers.Force, null, null);
+                repo.Checkout(otherBranchName, new CheckoutOptions() { CheckoutModifiers = CheckoutModifiers.Force });
 
                 // Verify untracked entry still exists.
                 Assert.Equal(1, repo.Index.RetrieveStatus().Untracked.Count());
@@ -641,7 +649,7 @@ namespace LibGit2Sharp.Tests
 
                 Assert.Equal(FileStatus.Ignored, repo.Index.RetrieveStatus(ignoredFilePath));
 
-                repo.Checkout(otherBranchName, CheckoutModifiers.Force, null, null);
+                repo.Checkout(otherBranchName, new CheckoutOptions() { CheckoutModifiers = CheckoutModifiers.Force });
 
                 // Verify that the ignored file still exists.
                 Assert.Equal(FileStatus.Ignored, repo.Index.RetrieveStatus(ignoredFilePath));
@@ -718,7 +726,7 @@ namespace LibGit2Sharp.Tests
                 // The blob actually exists in the object database with the correct Sha
                 Assert.Equal(expectedSha, repo.Lookup<Blob>(expectedSha).Sha);
 
-                repo.Checkout("refs/heads/logo", CheckoutModifiers.Force, null, null);
+                repo.Checkout("refs/heads/logo", new CheckoutOptions() { CheckoutModifiers = CheckoutModifiers.Force });
 
                 // The Index has been updated as well with the blob
                 Assert.Equal(expectedSha, repo.Index["square-logo.png"].Id.Sha);
@@ -774,15 +782,12 @@ namespace LibGit2Sharp.Tests
 
                 Assert.True(repo.Info.IsHeadDetached);
 
-                Branch newHead = repo.Checkout(repo.Branches["master"]);
+                Branch newHead = repo.Checkout(repo.Branches["master"], Constants.Signature);
 
                 // Assert reflog entry is created
-                var reflogEntry = repo.Refs.Log(repo.Refs.Head).First();
-                Assert.Equal(initialHead.Tip.Id, reflogEntry.From);
-                Assert.Equal(newHead.Tip.Id, reflogEntry.To);
-                Assert.NotNull(reflogEntry.Commiter.Email);
-                Assert.NotNull(reflogEntry.Commiter.Name);
-                Assert.Equal(string.Format("checkout: moving from {0} to {1}", initialHead.Tip.Sha, newHead.Name), reflogEntry.Message);
+                AssertRefLogEntry(repo, "HEAD", newHead.Tip.Id,
+                    string.Format("checkout: moving from {0} to {1}", initialHead.Tip.Sha, newHead.Name),
+                    initialHead.Tip.Id, Constants.Signature);
             }
         }
 
@@ -854,9 +859,8 @@ namespace LibGit2Sharp.Tests
                 repo.Checkout(master.Tip.Sha);
 
                 Assert.True(repo.Info.IsHeadDetached);
-                var reflogEntry = repo.Refs.Log(repo.Refs.Head).First();
-                Assert.True(reflogEntry.To == reflogEntry.From);
-                Assert.Equal(string.Format("checkout: moving from master to {0}", master.Tip.Sha), reflogEntry.Message);
+                AssertRefLogEntry(repo, "HEAD", master.Tip.Id,
+                    string.Format("checkout: moving from master to {0}", master.Tip.Sha), master.Tip.Id);
 
                 // Checkout detached "HEAD" => nothing should happen
                 reflogEntriesCount = repo.Refs.Log(repo.Refs.Head).Count();
@@ -966,6 +970,27 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        [Fact]
+        public void CannotCheckoutPathsWithEmptyOrNullPathArgument()
+        {
+            string repoPath = CloneStandardTestRepo();
+
+            using (var repo = new Repository(repoPath))
+            {
+                // Set the working directory to the current head
+                ResetAndCleanWorkingDirectory(repo);
+                Assert.False(repo.Index.RetrieveStatus().IsDirty);
+
+                // Passing null 'paths' parameter should throw
+                Assert.Throws(typeof(ArgumentNullException),
+                    () => repo.CheckoutPaths("i-do-numbers", null));
+
+                // Passing empty list should do nothing
+                repo.CheckoutPaths("i-do-numbers", Enumerable.Empty<string>());
+                Assert.False(repo.Index.RetrieveStatus().IsDirty);
+            }
+        }
+
         [Theory]
         [InlineData("new.txt")]
         [InlineData("1.txt")]
@@ -996,7 +1021,7 @@ namespace LibGit2Sharp.Tests
         /// a single file and two branches.
         /// </summary>
         /// <param name="repo">Repository to populate</param>
-        private void PopulateBasicRepository(Repository repo)
+        private void PopulateBasicRepository(IRepository repo)
         {
             // Generate a .gitignore file.
             string gitIgnoreFilePath = Touch(repo.Info.WorkingDirectory, ".gitignore", "bin");
@@ -1015,10 +1040,10 @@ namespace LibGit2Sharp.Tests
         /// working directory matches the current Head commit.
         /// </summary>
         /// <param name="repo">Repository whose current working directory should be operated on.</param>
-        private void ResetAndCleanWorkingDirectory(Repository repo)
+        private void ResetAndCleanWorkingDirectory(IRepository repo)
         {
             // Reset the index and the working tree.
-            repo.Reset(ResetOptions.Hard);
+            repo.Reset(ResetMode.Hard);
 
             // Clean the working directory.
             repo.RemoveUntrackedFiles();

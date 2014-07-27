@@ -1,0 +1,3 @@
+this is file b.txt.
+it has 3 lines.
+this is the last line.

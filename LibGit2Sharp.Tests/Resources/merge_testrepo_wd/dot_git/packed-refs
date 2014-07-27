@@ -1,0 +1,7 @@
+# pack-refs with: peeled fully-peeled 
+0771966a0d112d3787006a6fda5b6226a770e15a refs/heads/conflicts
+4dfaa1500526214ae7b33f9b2c1144ca8b6b1f53 refs/heads/fast_forward
+83cebf5389a4adbcb80bda6b68513caee4559802 refs/heads/master
+625186280ed2a6ec9b65d250ed90cf2e4acef957 refs/heads/normal_merge
+24434077dec097c1203ef9e1345c0545c190936a refs/heads/rename
+2bc71d0e8acfbb9fd1cc2d9d48c23dbf8aea52c9 refs/heads/rename_source

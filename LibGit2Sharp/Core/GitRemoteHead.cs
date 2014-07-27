@@ -10,5 +10,6 @@ namespace LibGit2Sharp.Core
         public GitOid Oid;
         public GitOid Loid;
         public IntPtr NamePtr;
+        public IntPtr SymRefTargetPtr;
     }
 }

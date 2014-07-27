@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
+using System.Text.RegularExpressions;
 
 namespace LibGit2Sharp.Tests
 {
@@ -86,6 +87,40 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
+        public void CanRetrieveValidVersionString()
+        {
+            // Version string format is:
+            //      Major.Minor.Patch-LibGit2Sharp_abbrev_hash-libgit2_abbrev_hash (x86|amd64 - features)
+            // Example output:
+            //      "0.17.0-unknown-06d772d (x86 - Threads, Https)"
+
+            string versionInfo = Repository.Version;
+
+            // The Repository.Version returned string should contain :
+            //      version:'0.17.0' LibGit2Sharp version number.
+            //      git2SharpHash:'unknown' ( when compiled from source ) else LibGit2Sharp library hash.
+            //      git2hash: '06d772d' LibGit2 library hash.
+            //      arch: 'x86' or 'amd64' LibGit2 target.
+            //      git2Features: 'Threads, Ssh' LibGit2 features compiled with.
+            string regex = @"^(?<version>\d{1,}\.\d{1,2}\.\d{1,3})-(?<git2SharpHash>\w+)-(?<git2Hash>\w+) \((?<arch>\w+) - (?<git2Features>(?:\w*(?:, )*\w+)*)\)$";
+
+            Assert.NotNull(versionInfo);
+
+            Match regexResult = Regex.Match(versionInfo, regex);
+
+            Assert.True(regexResult.Success, "The following version string format is enforced:" +
+                                             "Major.Minor.Patch-LibGit2Sharp_abbrev_hash-libgit2_abbrev_hash (x86|amd64 - features)");
+            
+            GroupCollection matchGroups = regexResult.Groups;
+
+            // Check that all groups are valid
+            foreach(Group group in matchGroups)
+            {
+                Assert.True(group.Success);
+            }
+        }
+
+        [Fact]
         public void CanCreateStandardRepoAndSpecifyAFolderWhichWillContainTheNewlyCreatedGitDirectory()
         {
             var scd1 = BuildSelfCleaningDirectory();
@@ -149,7 +184,7 @@ namespace LibGit2Sharp.Tests
             Assert.Equal(FileAttributes.Hidden, (attribs & FileAttributes.Hidden));
         }
 
-        [Fact]
+        [Fact(Skip = "Skipping due to recent github handling modification of --include-tag.")]
         public void CanFetchFromRemoteByName()
         {
             string remoteName = "testRemote";
@@ -186,13 +221,13 @@ namespace LibGit2Sharp.Tests
                 }
 
                 // Perform the actual fetch
-                repo.Fetch(remote.Name, onUpdateTips: expectedFetchState.RemoteUpdateTipsHandler);
+                repo.Fetch(remote.Name, new FetchOptions { OnUpdateTips = expectedFetchState.RemoteUpdateTipsHandler });
 
                 // Verify the expected state
                 expectedFetchState.CheckUpdatedReferences(repo);
 
                 // Now fetch the rest of the tags
-                repo.Fetch(remote.Name, tagFetchMode: TagFetchMode.All);
+                repo.Fetch(remote.Name, new FetchOptions { TagFetchMode = TagFetchMode.All });
 
                 // Verify that the "nearly-dangling" tag is now in the repo.
                 Tag nearlyDanglingTag = repo.Tags["nearly-dangling"];
@@ -224,11 +259,11 @@ namespace LibGit2Sharp.Tests
             Assert.Throws<ArgumentNullException>(() => Repository.Init(null));
         }
 
-        private static void AssertInitializedRepository(Repository repo, string expectedHeadTargetIdentifier)
+        private static void AssertInitializedRepository(IRepository repo, string expectedHeadTargetIdentifier)
         {
             Assert.NotNull(repo.Info.Path);
             Assert.False(repo.Info.IsHeadDetached);
-            Assert.True(repo.Info.IsHeadOrphaned);
+            Assert.True(repo.Info.IsHeadUnborn);
 
             Reference headRef = repo.Refs.Head;
             Assert.NotNull(headRef);
@@ -541,13 +576,13 @@ namespace LibGit2Sharp.Tests
             {
                 string branchName = repo.Head.CanonicalName;
 
-                Assert.False(repo.Info.IsHeadOrphaned);
+                Assert.False(repo.Info.IsHeadUnborn);
 
                 repo.Refs.Add("HEAD", "refs/heads/orphan", true);
-                Assert.True(repo.Info.IsHeadOrphaned);
+                Assert.True(repo.Info.IsHeadUnborn);
 
                 repo.Refs.Add("HEAD", branchName, true);
-                Assert.False(repo.Info.IsHeadOrphaned);
+                Assert.False(repo.Info.IsHeadUnborn);
             }
         }
 
@@ -557,7 +592,7 @@ namespace LibGit2Sharp.Tests
             string path = CloneStandardTestRepo();
             using (var repo = new Repository(path))
             {
-                repo.Checkout(repo.Head.Tip.Sha, CheckoutModifiers.Force, null, null);
+                repo.Checkout(repo.Head.Tip.Sha, new CheckoutOptions() { CheckoutModifiers = CheckoutModifiers.Force });
                 Branch trackLocal = repo.Head;
                 Assert.Null(trackLocal.Remote);
             }

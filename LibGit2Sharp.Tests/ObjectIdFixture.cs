@@ -136,5 +136,21 @@ namespace LibGit2Sharp.Tests
             Assert.True(maybeSha.StartsWith(parsedObjectId.ToString(3)));
             Assert.Equal(maybeSha, parsedObjectId.ToString(42));
         }
+
+        [Theory]
+        [InlineData("d", true)]
+        [InlineData("dead", true)]
+        [InlineData("deadbe", true)]
+        [InlineData("DeAdBEE", true)]
+        [InlineData("deff", false)]
+        [InlineData("dfff", false)]
+        [InlineData("9876", false)]
+        [InlineData("This is not a valid short hexified sha!!!!!", false)]
+        public void StartsWith(string shortSha, bool expected)
+        {
+            var id = new ObjectId("deadbeef84650f067bd5703b6a59a8b3b3c99a09");
+
+            Assert.Equal(expected, id.StartsWith(shortSha));
+        }
     }
 }

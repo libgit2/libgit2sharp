@@ -10,15 +10,13 @@ namespace LibGit2Sharp.Tests
     {
         private const string remoteName = "testRemote";
 
-        [Theory]
+        [Theory(Skip = "Skipping due to recent github handling modification of --include-tag.")]
         [InlineData("http://github.com/libgit2/TestGitRepository")]
         [InlineData("https://github.com/libgit2/TestGitRepository")]
         [InlineData("git://github.com/libgit2/TestGitRepository.git")]
         public void CanFetchIntoAnEmptyRepository(string url)
         {
-            string repoPath = InitNewRepository();
-
-            using (var repo = new Repository(repoPath))
+            using (var repo = InitIsolatedRepository())
             {
                 Remote remote = repo.Network.Remotes.Add(remoteName, url);
 
@@ -42,7 +40,7 @@ namespace LibGit2Sharp.Tests
                 }
 
                 // Perform the actual fetch
-                repo.Network.Fetch(remote, onUpdateTips: expectedFetchState.RemoteUpdateTipsHandler);
+                repo.Network.Fetch(remote, new FetchOptions { OnUpdateTips = expectedFetchState.RemoteUpdateTipsHandler });
 
                 // Verify the expected
                 expectedFetchState.CheckUpdatedReferences(repo);
@@ -55,18 +53,15 @@ namespace LibGit2Sharp.Tests
             InconclusiveIf(() => string.IsNullOrEmpty(Constants.PrivateRepoUrl),
                 "Populate Constants.PrivateRepo* to run this test");
 
-            string repoPath = InitNewRepository();
-
-            using (var repo = new Repository(repoPath))
+            using (var repo = InitIsolatedRepository())
             {
                 Remote remote = repo.Network.Remotes.Add(remoteName, Constants.PrivateRepoUrl);
 
                 // Perform the actual fetch
-                repo.Network.Fetch(remote, credentials: new Credentials
-                                              {
-                                                  Username = Constants.PrivateRepoUsername,
-                                                  Password = Constants.PrivateRepoPassword
-                                              });
+                repo.Network.Fetch(remote, new FetchOptions
+                {
+                    CredentialsProvider = Constants.PrivateRepoCredentials
+                });
             }
         }
 
@@ -76,9 +71,7 @@ namespace LibGit2Sharp.Tests
         [InlineData("git://github.com/libgit2/TestGitRepository.git")]
         public void CanFetchAllTagsIntoAnEmptyRepository(string url)
         {
-            string repoPath = InitNewRepository();
-
-            using (var repo = new Repository(repoPath))
+            using (var repo = InitIsolatedRepository())
             {
                 Remote remote = repo.Network.Remotes.Add(remoteName, url);
 
@@ -94,14 +87,53 @@ namespace LibGit2Sharp.Tests
                 }
 
                 // Perform the actual fetch
-                repo.Network.Fetch(remote, TagFetchMode.All, onUpdateTips: expectedFetchState.RemoteUpdateTipsHandler);
+                repo.Network.Fetch(remote, new FetchOptions {
+                    TagFetchMode = TagFetchMode.All,
+                    OnUpdateTips = expectedFetchState.RemoteUpdateTipsHandler
+                });
 
                 // Verify the expected
                 expectedFetchState.CheckUpdatedReferences(repo);
+
+                // Verify the reflog entries
+                Assert.Equal(0, repo.Refs.Log(string.Format("refs/remotes/{0}/master", remoteName)).Count()); // Only tags are retrieved
             }
         }
 
         [Theory]
+        [InlineData("http://github.com/libgit2/TestGitRepository", "test-branch", "master")]
+        [InlineData("https://github.com/libgit2/TestGitRepository", "master", "master")]
+        [InlineData("git://github.com/libgit2/TestGitRepository.git", "master", "first-merge")]
+        public void CanFetchCustomRefSpecsIntoAnEmptyRepository(string url, string localBranchName, string remoteBranchName)
+        {
+            using (var repo = InitIsolatedRepository())
+            {
+                Remote remote = repo.Network.Remotes.Add(remoteName, url);
+
+                string refSpec = string.Format("refs/heads/{2}:refs/remotes/{0}/{1}", remoteName, localBranchName, remoteBranchName);
+
+                // Set up structures for the expected results
+                // and verifying the RemoteUpdateTips callback.
+                TestRemoteInfo remoteInfo = TestRemoteInfo.TestRemoteInstance;
+                var expectedFetchState = new ExpectedFetchState(remoteName);
+                expectedFetchState.AddExpectedBranch(localBranchName, ObjectId.Zero, remoteInfo.BranchTips[remoteBranchName]);
+
+                // Perform the actual fetch
+                repo.Network.Fetch(remote, new string[] { refSpec }, new FetchOptions {
+                    TagFetchMode = TagFetchMode.None,
+                    OnUpdateTips = expectedFetchState.RemoteUpdateTipsHandler
+                });
+
+                // Verify the expected
+                expectedFetchState.CheckUpdatedReferences(repo);
+
+                // Verify the reflog entries
+                var reflogEntry = repo.Refs.Log(string.Format("refs/remotes/{0}/{1}", remoteName, localBranchName)).Single();
+                Assert.True(reflogEntry.Message.StartsWith("fetch "));
+            }
+        }
+
+        [Theory(Skip = "Skipping due to recent github handling modification of --include-tag.")]
         [InlineData(TagFetchMode.All, 4)]
         [InlineData(TagFetchMode.None, 0)]
         [InlineData(TagFetchMode.Auto, 3)]
@@ -109,9 +141,7 @@ namespace LibGit2Sharp.Tests
         {
             string url = "http://github.com/libgit2/TestGitRepository";
 
-            string repoPath = InitNewRepository();
-
-            using (var repo = new Repository(repoPath))
+            using (var repo = InitIsolatedRepository())
             {
                 Remote remote = repo.Network.Remotes.Add(remoteName, url);
                 Assert.NotNull(remote);

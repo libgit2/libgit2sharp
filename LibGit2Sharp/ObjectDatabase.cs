@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -13,7 +14,7 @@ namespace LibGit2Sharp
     /// Provides methods to directly work against the Git object database
     /// without involving the index nor the working directory.
     /// </summary>
-    public class ObjectDatabase
+    public class ObjectDatabase : IEnumerable<GitObject>
     {
         private readonly Repository repo;
         private readonly ObjectDatabaseSafeHandle handle;
@@ -31,6 +32,33 @@ namespace LibGit2Sharp
 
             repo.RegisterForCleanup(handle);
         }
+
+        #region Implementation of IEnumerable
+
+        /// <summary>
+        /// Returns an enumerator that iterates through the collection.
+        /// </summary>
+        /// <returns>An <see cref="IEnumerator{T}"/> object that can be used to iterate through the collection.</returns>
+        public virtual IEnumerator<GitObject> GetEnumerator()
+        {
+            ICollection<GitOid> oids = Proxy.git_odb_foreach(handle,
+                ptr => ptr.MarshalAs<GitOid>());
+
+            return oids
+                .Select(gitOid => repo.Lookup<GitObject>(new ObjectId(gitOid)))
+                .GetEnumerator();
+        }
+
+        /// <summary>
+        /// Returns an enumerator that iterates through the collection.
+        /// </summary>
+        /// <returns>An <see cref="IEnumerator"/> object that can be used to iterate through the collection.</returns>
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
+        #endregion
 
         /// <summary>
         /// Determines if the given object can be found in the object database.
@@ -71,6 +99,10 @@ namespace LibGit2Sharp
 
         /// <summary>
         /// Adds the provided backend to the object database with the specified priority.
+        /// <para>
+        /// If the provided backend implements <see cref="IDisposable"/>, the <see cref="IDisposable.Dispose"/>
+        /// method will be honored and invoked upon the disposal of the repository.
+        /// </para>
         /// </summary>
         /// <param name="backend">The backend to add</param>
         /// <param name="priority">The priority at which libgit2 should consult this backend (higher values are consulted first)</param>
@@ -79,7 +111,7 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(backend, "backend");
             Ensure.ArgumentConformsTo(priority, s => s > 0, "priority");
 
-            Proxy.git_odb_add_backend(this.handle, backend.GitOdbBackendPointer, priority);
+            Proxy.git_odb_add_backend(handle, backend.GitOdbBackendPointer, priority);
         }
 
         private class Processor
@@ -110,7 +142,19 @@ namespace LibGit2Sharp
                     }
                 }
 
+                if (bytesToRead == 0)
+                {
+                    return 0;
+                }
+
                 int numberOfReadBytes = stream.Read(local, 0, bytesToRead);
+
+                if (numberOfBytesToConsume.HasValue
+                    && numberOfReadBytes == 0)
+                {
+                    return (int)GitErrorCode.User;
+                }
+
                 totalNumberOfReadBytes += numberOfReadBytes;
 
                 Marshal.Copy(local, 0, content, numberOfReadBytes);
@@ -120,7 +164,8 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Inserts a <see cref="Blob"/> into the object database, created from the content of a data provider.
+        /// Inserts a <see cref="Blob"/> into the object database, created from the content of a stream.
+        /// <para>Optionally, git filters will be applied to the content before storing it.</para>
         /// </summary>
         /// <param name="stream">The stream from which will be read the content of the blob to be created.</param>
         /// <param name="hintpath">The hintpath is used to determine what git filters should be applied to the object before it can be placed to the object database.</param>
@@ -129,7 +174,13 @@ namespace LibGit2Sharp
         public virtual Blob CreateBlob(Stream stream, string hintpath = null, int? numberOfBytesToConsume = null)
         {
             Ensure.ArgumentNotNull(stream, "stream");
-            
+
+            // there's no need to buffer the file for filtering, so simply use a stream
+            if (hintpath == null && numberOfBytesToConsume.HasValue)
+            {
+                return CreateBlob(stream, numberOfBytesToConsume.Value);
+            }
+
             if (!stream.CanRead)
             {
                 throw new ArgumentException("The stream cannot be read from.", "stream");
@@ -139,6 +190,47 @@ namespace LibGit2Sharp
             ObjectId id = Proxy.git_blob_create_fromchunks(repo.Handle, hintpath, proc.Provider);
 
             return repo.Lookup<Blob>(id);
+        }
+
+        /// <summary>
+        /// Inserts a <see cref="Blob"/> into the object database created from the content of the stream.
+        /// </summary>
+        /// <param name="stream">The stream from which will be read the content of the blob to be created.</param>
+        /// <param name="numberOfBytesToConsume">Number of bytes to consume from the stream.</param>
+        /// <returns>The created <see cref="Blob"/>.</returns>
+        public virtual Blob CreateBlob(Stream stream, int numberOfBytesToConsume)
+        {
+            Ensure.ArgumentNotNull(stream, "stream");
+
+            if (!stream.CanRead)
+            {
+                throw new ArgumentException("The stream cannot be read from.", "stream");
+            }
+
+            using (var odbStream = Proxy.git_odb_open_wstream(handle, (UIntPtr)numberOfBytesToConsume, GitObjectType.Blob))
+            {
+                var buffer = new byte[4*1024];
+                int totalRead = 0;
+
+                while (totalRead < numberOfBytesToConsume)
+                {
+                    var left = numberOfBytesToConsume - totalRead;
+                    var toRead = left < buffer.Length ? left : buffer.Length;
+                    var read = stream.Read(buffer, 0, toRead);
+
+                    if (read == 0)
+                    {
+                        throw new EndOfStreamException("The stream ended unexpectedly");
+                    }
+
+                    Proxy.git_odb_stream_write(odbStream, buffer, read);
+                    totalRead += read;
+                }
+
+                var id = Proxy.git_odb_stream_finalize_write(odbStream);
+
+                return repo.Lookup<Blob>(id);
+            }
         }
 
         /// <summary>
@@ -155,30 +247,63 @@ namespace LibGit2Sharp
 
         /// <summary>
         /// Inserts a <see cref="Commit"/> into the object database, referencing an existing <see cref="Tree"/>.
+        /// <para>
+        /// Prettifing the message includes:
+        /// * Removing empty lines from the beginning and end.
+        /// * Removing trailing spaces from every line.
+        /// * Turning multiple consecutive empty lines between paragraphs into just one empty line.
+        /// * Ensuring the commit message ends with a newline.
+        /// * Removing every line starting with "#".
+        /// </para>
         /// </summary>
-        /// <param name="message">The description of why a change was made to the repository.</param>
         /// <param name="author">The <see cref="Signature"/> of who made the change.</param>
         /// <param name="committer">The <see cref="Signature"/> of who added the change to the repository.</param>
+        /// <param name="message">The description of why a change was made to the repository.</param>
+        /// <param name="prettifyMessage">True to prettify the message, or false to leave it as is</param>
         /// <param name="tree">The <see cref="Tree"/> of the <see cref="Commit"/> to be created.</param>
         /// <param name="parents">The parents of the <see cref="Commit"/> to be created.</param>
         /// <returns>The created <see cref="Commit"/>.</returns>
-        public virtual Commit CreateCommit(string message, Signature author, Signature committer, Tree tree, IEnumerable<Commit> parents)
+        [Obsolete("This will be removed in future relases. Use the overload CreateCommit(Signature, Signature, string, Tree, IEnumerable<Commit>, bool, char).")]
+        public virtual Commit CreateCommit(Signature author, Signature committer, string message, bool prettifyMessage, Tree tree, IEnumerable<Commit> parents)
         {
-            return CreateCommit(message, author, committer, tree, parents, null);
+            return CreateCommit(author, committer, message, tree, parents, prettifyMessage);
         }
 
-        internal Commit CreateCommit(string message, Signature author, Signature committer, Tree tree, IEnumerable<Commit> parents, string referenceName)
+        /// <summary>
+        /// Inserts a <see cref="Commit"/> into the object database, referencing an existing <see cref="Tree"/>.
+        /// <para>
+        /// Prettifing the message includes:
+        /// * Removing empty lines from the beginning and end.
+        /// * Removing trailing spaces from every line.
+        /// * Turning multiple consecutive empty lines between paragraphs into just one empty line.
+        /// * Ensuring the commit message ends with a newline.
+        /// * Removing every line starting with "#".
+        /// </para>
+        /// </summary>
+        /// <param name="author">The <see cref="Signature"/> of who made the change.</param>
+        /// <param name="committer">The <see cref="Signature"/> of who added the change to the repository.</param>
+        /// <param name="message">The description of why a change was made to the repository.</param>
+        /// <param name="tree">The <see cref="Tree"/> of the <see cref="Commit"/> to be created.</param>
+        /// <param name="parents">The parents of the <see cref="Commit"/> to be created.</param>
+        /// <param name="prettifyMessage">True to prettify the message, or false to leave it as is.</param>
+        /// <param name="commentChar">Character that lines start with to be stripped if prettifyMessage is true.</param>
+        /// <returns>The created <see cref="Commit"/>.</returns>
+        public virtual Commit CreateCommit(Signature author, Signature committer, string message, Tree tree, IEnumerable<Commit> parents, bool prettifyMessage, char? commentChar = null)
         {
             Ensure.ArgumentNotNull(message, "message");
+            Ensure.ArgumentDoesNotContainZeroByte(message, "message");
             Ensure.ArgumentNotNull(author, "author");
             Ensure.ArgumentNotNull(committer, "committer");
             Ensure.ArgumentNotNull(tree, "tree");
             Ensure.ArgumentNotNull(parents, "parents");
 
-            string prettifiedMessage = Proxy.git_message_prettify(message);
+            if (prettifyMessage)
+            {
+                message = Proxy.git_message_prettify(message, commentChar);
+            }
             GitOid[] parentIds = parents.Select(p => p.Id.Oid).ToArray();
 
-            ObjectId commitId = Proxy.git_commit_create(repo.Handle, referenceName, author, committer, prettifiedMessage, tree, parentIds);
+            ObjectId commitId = Proxy.git_commit_create(repo.Handle, null, author, committer, message, tree, parentIds);
 
             return repo.Lookup<Commit>(commitId);
         }
@@ -193,11 +318,84 @@ namespace LibGit2Sharp
         /// <returns>The created <see cref="TagAnnotation"/>.</returns>
         public virtual TagAnnotation CreateTagAnnotation(string name, GitObject target, Signature tagger, string message)
         {
-            string prettifiedMessage = Proxy.git_message_prettify(message);
+            Ensure.ArgumentNotNullOrEmptyString(name, "name");
+            Ensure.ArgumentNotNull(message, "message");
+            Ensure.ArgumentNotNull(target, "target");
+            Ensure.ArgumentNotNull(tagger, "tagger");
+            Ensure.ArgumentDoesNotContainZeroByte(name, "name");
+            Ensure.ArgumentDoesNotContainZeroByte(message, "message");
+
+            string prettifiedMessage = Proxy.git_message_prettify(message, null);
 
             ObjectId tagId = Proxy.git_tag_annotation_create(repo.Handle, name, target, tagger, prettifiedMessage);
 
             return repo.Lookup<TagAnnotation>(tagId);
+        }
+
+        /// <summary>
+        /// Archive the given commit.
+        /// </summary>
+        /// <param name="commit">The commit.</param>
+        /// <param name="archiver">The archiver to use.</param>
+        public virtual void Archive(Commit commit, ArchiverBase archiver)
+        {
+            Ensure.ArgumentNotNull(commit, "commit");
+            Ensure.ArgumentNotNull(archiver, "archiver");
+
+            archiver.OrchestrateArchiving(commit.Tree, commit.Id, commit.Committer.When);
+        }
+
+        /// <summary>
+        /// Archive the given tree.
+        /// </summary>
+        /// <param name="tree">The tree.</param>
+        /// <param name="archiver">The archiver to use.</param>
+        public virtual void Archive(Tree tree, ArchiverBase archiver)
+        {
+            Ensure.ArgumentNotNull(tree, "tree");
+            Ensure.ArgumentNotNull(archiver, "archiver");
+
+            archiver.OrchestrateArchiving(tree, null, DateTimeOffset.UtcNow);
+        }
+
+        /// <summary>
+        /// Returns the merge base (best common ancestor) of the given commits
+        /// and the distance between each of these commits and this base.
+        /// </summary>
+        /// <param name="one">The <see cref="Commit"/> being used as a reference.</param>
+        /// <param name="another">The <see cref="Commit"/> being compared against <paramref name="one"/>.</param>
+        /// <returns>A instance of <see cref="HistoryDivergence"/>.</returns>
+        public virtual HistoryDivergence CalculateHistoryDivergence(Commit one, Commit another)
+        {
+            Ensure.ArgumentNotNull(one, "one");
+            Ensure.ArgumentNotNull(another, "another");
+
+            return new HistoryDivergence(repo, one, another);
+        }
+
+        /// <summary>
+        /// Calculates the current shortest abbreviated <see cref="ObjectId"/>
+        /// string representation for a <see cref="GitObject"/>.
+        /// </summary>
+        /// <param name="gitObject">The <see cref="GitObject"/> which identifier should be shortened.</param>
+        /// <param name="minLength">Minimum length of the shortened representation.</param>
+        /// <returns>A short string representation of the <see cref="ObjectId"/>.</returns>
+        public virtual string ShortenObjectId(GitObject gitObject, int? minLength = null)
+        {
+            if (minLength.HasValue && (minLength <= 0 || minLength > ObjectId.HexSize))
+            {
+                throw new ArgumentOutOfRangeException("minLength", minLength,
+                    string.Format("Expected value should be greater than zero and less than or equal to {0}.", ObjectId.HexSize));
+            }
+
+            string shortSha = Proxy.git_object_short_id(repo.Handle, gitObject.Id);
+
+            if (minLength == null || (minLength <= shortSha.Length))
+            {
+                return shortSha;
+            }
+
+            return gitObject.Sha.Substring(0, minLength.Value);
         }
     }
 }

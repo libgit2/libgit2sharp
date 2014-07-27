@@ -3,26 +3,32 @@ using System.Runtime.InteropServices;
 
 namespace LibGit2Sharp.Core
 {
-    [StructLayout(LayoutKind.Sequential)]
-    internal class GitCloneOptions
+    internal enum GitCloneLocal
     {
-        public uint Version = 1;
+        CloneLocalAuto,
+        CloneLocal,
+        CloneNoLocal,
+        CloneLocalNoLinks
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct GitCloneOptions
+    {
+        public uint Version;
 
         public GitCheckoutOpts CheckoutOpts;
-        public int Bare;
-        public NativeMethods.git_transfer_progress_callback TransferProgressCallback;
-        public IntPtr TransferProgressPayload;
-
-        public IntPtr RemoteName;
-        public IntPtr PushUrl;
-        public IntPtr FetchSpec;
-        public IntPtr PushSpec;
-
-        public NativeMethods.git_cred_acquire_cb CredAcquireCallback;
-        public IntPtr CredAcquirePayload;
-
-        public IntPtr Transport;
         public GitRemoteCallbacks RemoteCallbacks;
-        public int RemoteAutotag;
+
+        public int Bare;
+        public GitCloneLocal Local;
+        public IntPtr CheckoutBranch;
+
+        public IntPtr signature; // Really a SignatureSafeHandle
+
+        public IntPtr RepositoryCb;
+        public IntPtr RepositoryCbPayload;
+
+        public IntPtr RemoteCb;
+        public IntPtr RemoteCbPayload;
     }
 }

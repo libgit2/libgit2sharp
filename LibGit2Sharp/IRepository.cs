@@ -78,11 +78,10 @@ namespace LibGit2Sharp
         /// </para>
         /// </summary>
         /// <param name="branch">The <see cref="Branch"/> to check out.</param>
-        /// <param name="checkoutModifiers"><see cref="CheckoutModifiers"/> controlling checkout behavior.</param>
-        /// <param name="onCheckoutProgress"><see cref="CheckoutProgressHandler"/> that checkout progress is reported through.</param>
-        /// <param name="checkoutNotificationOptions"><see cref="CheckoutNotificationOptions"/> to manage checkout notifications.</param>
+        /// <param name="options"><see cref="CheckoutOptions"/> controlling checkout behavior.</param>
+        /// <param name="signature">Identity for use when updating the reflog.</param>
         /// <returns>The <see cref="Branch"/> that was checked out.</returns>
-        Branch Checkout(Branch branch, CheckoutModifiers checkoutModifiers, CheckoutProgressHandler onCheckoutProgress, CheckoutNotificationOptions checkoutNotificationOptions);
+        Branch Checkout(Branch branch, CheckoutOptions options, Signature signature = null);
 
         /// <summary>
         /// Checkout the specified branch, reference or SHA.
@@ -92,38 +91,22 @@ namespace LibGit2Sharp
         /// </para>
         /// </summary>
         /// <param name="committishOrBranchSpec">A revparse spec for the commit or branch to checkout.</param>
-        /// <param name="checkoutModifiers">Options controlling checkout behavior.</param>
-        /// <param name="onCheckoutProgress">Callback method to report checkout progress updates through.</param>
-        /// <param name="checkoutNotificationOptions"><see cref="CheckoutNotificationOptions"/> to manage checkout notifications.</param>
+        /// <param name="options"><see cref="CheckoutOptions"/> controlling checkout behavior.</param>
+        /// <param name="signature">Identity for use when updating the reflog.</param>
         /// <returns>The <see cref="Branch"/> that was checked out.</returns>
-        Branch Checkout(string committishOrBranchSpec, CheckoutModifiers checkoutModifiers, CheckoutProgressHandler onCheckoutProgress, CheckoutNotificationOptions checkoutNotificationOptions);
+        Branch Checkout(string committishOrBranchSpec, CheckoutOptions options, Signature signature = null);
 
         /// <summary>
-        /// Checkout the specified <see cref="Commit"/>.
+        /// Checkout the specified <see cref="LibGit2Sharp.Commit"/>.
         /// <para>
         ///   Will detach the HEAD and make it point to this commit sha.
         /// </para>
         /// </summary>
-        /// <param name="commit">The <see cref="Commit"/> to check out.</param>
-        /// <param name="checkoutModifiers"><see cref="CheckoutModifiers"/> controlling checkout behavior.</param>
-        /// <param name="onCheckoutProgress"><see cref="CheckoutProgressHandler"/> that checkout progress is reported through.</param>
-        /// <param name="checkoutNotificationOptions"><see cref="CheckoutNotificationOptions"/> to manage checkout notifications.</param>
+        /// <param name="commit">The <see cref="LibGit2Sharp.Commit"/> to check out.</param>
+        /// <param name="options"><see cref="CheckoutOptions"/> controlling checkout behavior.</param>
+        /// <param name="signature">Identity for use when updating the reflog.</param>
         /// <returns>The <see cref="Branch"/> that was checked out.</returns>
-        Branch Checkout(Commit commit, CheckoutModifiers checkoutModifiers, CheckoutProgressHandler onCheckoutProgress, CheckoutNotificationOptions checkoutNotificationOptions);
-
-        /// <summary>
-        /// Checkout files from the specified branch, reference or SHA.
-        /// <para>
-        /// This method does not switch branches or update the current repository HEAD.
-        /// </para>
-        /// </summary>
-        /// <param name="committishOrBranchSpec">A revparse spec for the commit or branch to checkout paths from.</param>
-        /// <param name="paths">The paths to checkout.</param>
-        /// <param name="checkoutOptions">Options controlling checkout behavior.</param>
-        /// <param name="onCheckoutProgress">Callback method to report checkout progress updates through.</param>
-        /// <param name="checkoutNotificationOptions"><see cref="CheckoutNotificationOptions"/> to manage checkout notifications.</param>
-        [Obsolete("This method will be removed in the next release. Please use CheckoutPaths(string, IEnumerable<string>, CheckoutOptions) instead.")]
-        void CheckoutPaths(string committishOrBranchSpec, IList<string> paths, CheckoutModifiers checkoutOptions, CheckoutProgressHandler onCheckoutProgress, CheckoutNotificationOptions checkoutNotificationOptions);
+        Branch Checkout(Commit commit, CheckoutOptions options, Signature signature = null);
 
         /// <summary>
         /// Updates specifed paths in the index and working directory with the versions from the specified branch, reference, or SHA.
@@ -135,7 +118,7 @@ namespace LibGit2Sharp
         /// <param name="paths">The paths to checkout.</param>
         /// <param name="checkoutOptions">Collection of parameters controlling checkout behavior.</param>
         void CheckoutPaths(string committishOrBranchSpec, IEnumerable<string> paths, CheckoutOptions checkoutOptions = null);
-   
+
         /// <summary>
         /// Try to lookup an object by its <see cref="ObjectId"/>. If no matching object is found, null will be returned.
         /// </summary>
@@ -167,24 +150,26 @@ namespace LibGit2Sharp
         GitObject Lookup(string objectish, ObjectType type);
 
         /// <summary>
-        /// Stores the content of the <see cref="Repository.Index"/> as a new <see cref="Commit"/> into the repository.
+        /// Stores the content of the <see cref="Repository.Index"/> as a new <see cref="LibGit2Sharp.Commit"/> into the repository.
         /// The tip of the <see cref="Repository.Head"/> will be used as the parent of this new Commit.
         /// Once the commit is created, the <see cref="Repository.Head"/> will move forward to point at it.
         /// </summary>
         /// <param name="message">The description of why a change was made to the repository.</param>
         /// <param name="author">The <see cref="Signature"/> of who made the change.</param>
         /// <param name="committer">The <see cref="Signature"/> of who added the change to the repository.</param>
-        /// <param name="amendPreviousCommit">True to amend the current <see cref="Commit"/> pointed at by <see cref="Repository.Head"/>, false otherwise.</param>
-        /// <returns>The generated <see cref="Commit"/>.</returns>
-        Commit Commit(string message, Signature author, Signature committer, bool amendPreviousCommit = false);
+        /// <param name="options">The <see cref="CommitOptions"/> that specify the commit behavior.</param>
+        /// <returns>The generated <see cref="LibGit2Sharp.Commit"/>.</returns>
+        Commit Commit(string message, Signature author, Signature committer, CommitOptions options = null);
 
         /// <summary>
         /// Sets the current <see cref="Head"/> to the specified commit and optionally resets the <see cref="Index"/> and
         /// the content of the working tree to match.
         /// </summary>
-        /// <param name="resetOptions">Flavor of reset operation to perform.</param>
+        /// <param name="resetMode">Flavor of reset operation to perform.</param>
         /// <param name="commit">The target commit object.</param>
-        void Reset(ResetOptions resetOptions, Commit commit);
+        /// <param name="signature">Identity for use when updating the reflog.</param>
+        /// <param name="logMessage">Message to use when updating the reflog.</param>
+        void Reset(ResetMode resetMode, Commit commit, Signature signature = null, string logMessage = null);
 
         /// <summary>
         /// Replaces entries in the <see cref="Repository.Index"/> with entries from the specified commit.
@@ -203,13 +188,71 @@ namespace LibGit2Sharp
         void RemoveUntrackedFiles();
 
         /// <summary>
-        /// Gets the references to the tips that are currently being merged.
+        /// Revert the specified commit.
         /// </summary>
-        IEnumerable<MergeHead> MergeHeads { get; }
+        /// <param name="commit">The <see cref="Commit"/> to revert.</param>
+        /// <param name="reverter">The <see cref="Signature"/> of who is performing the reverte.</param>
+        /// <param name="options"><see cref="RevertOptions"/> controlling revert behavior.</param>
+        /// <returns>The result of the revert.</returns>
+        RevertResult Revert(Commit commit, Signature reverter, RevertOptions options = null);
+
+        /// <summary>
+        /// Merge changes from commit into the branch pointed at by HEAD..
+        /// </summary>
+        /// <param name="commit">The commit to merge into the branch pointed at by HEAD.</param>
+        /// <param name="merger">The <see cref="Signature"/> of who is performing the merge.</param>
+        /// <param name="options">Specifies optional parameters controlling merge behavior; if null, the defaults are used.</param>
+        /// <returns>The <see cref="MergeResult"/> of the merge.</returns>
+        MergeResult Merge(Commit commit, Signature merger, MergeOptions options = null);
+
+        /// <summary>
+        /// Merges changes from branch into the branch pointed at by HEAD..
+        /// </summary>
+        /// <param name="branch">The branch to merge into the branch pointed at by HEAD.</param>
+        /// <param name="merger">The <see cref="Signature"/> of who is performing the merge.</param>
+        /// <param name="options">Specifies optional parameters controlling merge behavior; if null, the defaults are used.</param>
+        /// <returns>The <see cref="MergeResult"/> of the merge.</returns>
+        MergeResult Merge(Branch branch, Signature merger, MergeOptions options = null);
+
+        /// <summary>
+        /// Merges changes from the commit into the branch pointed at by HEAD.
+        /// </summary>
+        /// <param name="committish">The commit to merge into branch pointed at by HEAD.</param>
+        /// <param name="merger">The <see cref="Signature"/> of who is performing the merge.</param>
+        /// <param name="options">Specifies optional parameters controlling merge behavior; if null, the defaults are used.</param>
+        /// <returns>The <see cref="MergeResult"/> of the merge.</returns>
+        MergeResult Merge(string committish, Signature merger, MergeOptions options = null);
+
+        /// <summary>
+        /// Cherry picks changes from the commit into the branch pointed at by HEAD.
+        /// </summary>
+        /// <param name="commit">The commit to cherry pick into branch pointed at by HEAD.</param>
+        /// <param name="committer">The <see cref="Signature"/> of who is performing the cherry pick.</param>
+        /// <param name="options">Specifies optional parameters controlling cherry pick behavior; if null, the defaults are used.</param>
+        /// <returns>The <see cref="MergeResult"/> of the merge.</returns>
+        CherryPickResult CherryPick(Commit commit, Signature committer, CherryPickOptions options = null);
+
+        /// <summary>
+        /// Manipulate the currently ignored files.
+        /// </summary>
+        Ignore Ignore { get; }
 
         /// <summary>
         /// Provides access to network functionality for a repository.
         /// </summary>
         Network Network { get; }
+
+        ///<summary>
+        /// Lookup and enumerate stashes in the repository.
+        ///</summary>
+        StashCollection Stashes { get; }
+
+        /// <summary>
+        /// Find where each line of a file originated.
+        /// </summary>
+        /// <param name="path">Path of the file to blame.</param>
+        /// <param name="options">Specifies optional parameters; if null, the defaults are used.</param>
+        /// <returns>The blame for the file.</returns>
+        BlameHunkCollection Blame(string path, BlameOptions options = null);
     }
 }

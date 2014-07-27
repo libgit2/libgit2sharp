@@ -11,13 +11,13 @@ namespace LibGit2Sharp
     public sealed class ObjectId : IEquatable<ObjectId>
     {
         private readonly GitOid oid;
-        private const int rawSize = 20;
+        private const int rawSize = GitOid.Size;
         private readonly string sha;
 
         /// <summary>
         /// Size of the string-based representation of a SHA-1.
         /// </summary>
-        private const int HexSize = rawSize * 2;
+        internal const int HexSize = rawSize * 2;
 
         private const string hexDigits = "0123456789abcdef";
         private static readonly byte[] reverseHexDigits = BuildReverseHexDigits();
@@ -37,8 +37,13 @@ namespace LibGit2Sharp
         /// <param name="oid">The oid.</param>
         internal ObjectId(GitOid oid)
         {
+            if (oid.Id == null || oid.Id.Length != rawSize)
+            {
+                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "A non null array of {0} bytes is expected.", rawSize), "oid");
+            }
+
             this.oid = oid;
-            sha = ToString(oid.Id);
+            sha = ToString(oid.Id, oid.Id.Length * 2);
         }
 
         /// <summary>
@@ -226,18 +231,13 @@ namespace LibGit2Sharp
             return bytes;
         }
 
-        private static string ToString(byte[] id)
+        internal static string ToString(byte[] id, int lengthInNibbles)
         {
-            if (id == null || id.Length != rawSize)
-            {
-                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "A non null array of {0} bytes is expected.", rawSize), "id");
-            }
-
             // Inspired from http://stackoverflow.com/questions/623104/c-byte-to-hex-string/3974535#3974535
 
-            var c = new char[HexSize];
+            var c = new char[lengthInNibbles];
 
-            for (int i = 0; i < HexSize; i++)
+            for (int i = 0; i < (lengthInNibbles & -2); i++)
             {
                 int index0 = i >> 1;
                 var b = ((byte)(id[index0] >> 4));
@@ -245,6 +245,13 @@ namespace LibGit2Sharp
 
                 b = ((byte)(id[index0] & 0x0F));
                 c[i] = hexDigits[b];
+            }
+
+            if ((lengthInNibbles & 1) == 1)
+            {
+                int index0 = lengthInNibbles >> 1;
+                var b = ((byte)(id[index0] >> 4));
+                c[lengthInNibbles - 1] = hexDigits[b];
             }
 
             return new string(c);
@@ -296,6 +303,22 @@ namespace LibGit2Sharp
             }
 
             return objectId.All(c => hexDigits.Contains(c.ToString(CultureInfo.InvariantCulture)));
+        }
+
+        /// <summary>
+        /// Determine whether <paramref name="shortSha"/> matches the hexified
+        /// representation of the first nibbles of this instance.
+        /// <para>
+        ///   Comparison is made in a case insensitive-manner.
+        /// </para>
+        /// </summary>
+        /// <returns>True if this instance starts with <paramref name="shortSha"/>,
+        /// false otherwise.</returns>
+        public bool StartsWith(string shortSha)
+        {
+            Ensure.ArgumentNotNullOrEmptyString(shortSha, "shortSha");
+
+            return Sha.StartsWith(shortSha, StringComparison.OrdinalIgnoreCase);
         }
     }
 }

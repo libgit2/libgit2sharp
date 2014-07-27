@@ -1,4 +1,5 @@
 using LibGit2Sharp.Core;
+using System;
 
 namespace LibGit2Sharp
 {
@@ -8,7 +9,7 @@ namespace LibGit2Sharp
     public static class BranchCollectionExtensions
     {
         /// <summary>
-        /// Create a new local branch with the specified name
+        /// Create a new local branch with the specified name, using the default reflog message
         /// </summary>
         /// <param name="name">The name of the branch.</param>
         /// <param name="committish">Revparse spec for the target commit.</param>
@@ -17,12 +18,39 @@ namespace LibGit2Sharp
         /// <returns>A new <see cref="Branch"/>.</returns>
         public static Branch Add(this BranchCollection branches, string name, string committish, bool allowOverwrite = false)
         {
+            return Add(branches, name, committish, null, null, allowOverwrite);
+        }
+
+        /// <summary>
+        /// Create a new local branch with the specified name
+        /// </summary>
+        /// <param name="branches">The <see cref="BranchCollection"/> being worked with.</param>
+        /// <param name="name">The name of the branch.</param>
+        /// <param name="committish">Revparse spec for the target commit.</param>
+        /// <param name="signature">The identity used for updating the reflog</param>
+        /// <param name="logMessage">The optional message to log in the <see cref="ReflogCollection"/></param>
+        /// <param name="allowOverwrite">True to allow silent overwriting a potentially existing branch, false otherwise.</param>
+        /// <returns>A new <see cref="Branch"/>.</returns>
+        public static Branch Add(this BranchCollection branches, string name, string committish, Signature signature,
+            string logMessage = null, bool allowOverwrite = false)
+        {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
             Ensure.ArgumentNotNullOrEmptyString(committish, "committish");
 
             var commit = branches.repo.LookupCommit(committish);
 
-            return branches.Add(name, commit, allowOverwrite);
+            if (logMessage == null)
+            {
+                var createdFrom = committish != "HEAD"
+                    ? committish
+                    : branches.repo.Info.IsHeadDetached
+                        ? commit.Sha
+                        : branches.repo.Head.Name;
+
+                logMessage = "branch: Created from " + createdFrom;
+            }
+
+            return branches.Add(name, commit, signature, logMessage, allowOverwrite);
         }
 
         /// <summary>
@@ -48,14 +76,14 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Renames an existing local branch with a new name.
+        /// Rename an existing local branch, using the default reflog message
         /// </summary>
         /// <param name="currentName">The current branch name.</param>
         /// <param name="newName">The new name the existing branch should bear.</param>
         /// <param name="allowOverwrite">True to allow silent overwriting a potentially existing branch, false otherwise.</param>
         /// <param name="branches">The <see cref="BranchCollection"/> being worked with.</param>
         /// <returns>A new <see cref="Branch"/>.</returns>
-        public static Branch Move(this BranchCollection branches, string currentName, string newName, bool allowOverwrite = false)
+        public static Branch Rename(this BranchCollection branches, string currentName, string newName, bool allowOverwrite = false)
         {
             Ensure.ArgumentNotNullOrEmptyString(currentName, "currentName");
             Ensure.ArgumentNotNullOrEmptyString(newName, "newName");
@@ -67,7 +95,7 @@ namespace LibGit2Sharp
                 throw new LibGit2SharpException("No branch named '{0}' exists in the repository.");
             }
 
-            return branches.Move(branch, newName, allowOverwrite);
+            return branches.Rename(branch, newName, allowOverwrite);
         }
     }
 }

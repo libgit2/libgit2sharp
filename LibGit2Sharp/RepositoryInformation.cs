@@ -1,4 +1,5 @@
-﻿using LibGit2Sharp.Core;
+﻿using System;
+using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
 {
@@ -36,7 +37,7 @@ namespace LibGit2Sharp
         /// <summary>
         /// Gets the normalized path to the working directory.
         /// <para>
-        ///   Is the repository is bare, null is returned.
+        ///   If the repository is bare, null is returned.
         /// </para>
         /// </summary>
         public virtual string WorkingDirectory { get; private set; }
@@ -62,9 +63,9 @@ namespace LibGit2Sharp
         /// <summary>
         /// Indicates whether the Head points to a reference which doesn't exist.
         /// </summary>
-        public virtual bool IsHeadOrphaned
+        public virtual bool IsHeadUnborn
         {
-            get { return Proxy.git_repository_head_orphan(repo.Handle); }
+            get { return Proxy.git_repository_head_unborn(repo.Handle); }
         }
 
         /// <summary>

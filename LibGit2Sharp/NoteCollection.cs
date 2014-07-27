@@ -5,7 +5,6 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using LibGit2Sharp.Core;
-using LibGit2Sharp.Core.Compat;
 using LibGit2Sharp.Core.Handles;
 
 namespace LibGit2Sharp
@@ -16,7 +15,7 @@ namespace LibGit2Sharp
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class NoteCollection : IEnumerable<Note>
     {
-        private readonly Repository repo;
+        internal readonly Repository repo;
         private readonly Lazy<string> defaultNamespace;
 
         /// <summary>
@@ -76,11 +75,9 @@ namespace LibGit2Sharp
         {
             get
             {
-                return new[] { NormalizeToCanonicalName(DefaultNamespace) }.Concat(
-                   from reference in repo.Refs
-                   select reference.CanonicalName into refCanonical
-                   where refCanonical.StartsWith(Reference.NotePrefix, StringComparison.Ordinal) && refCanonical != NormalizeToCanonicalName(DefaultNamespace)
-                   select refCanonical);
+                return new[] { NormalizeToCanonicalName(DefaultNamespace) }.Concat(repo.Refs
+                    .Select(reference => reference.CanonicalName)
+                    .Where(refCanonical => refCanonical.StartsWith(Reference.NotePrefix, StringComparison.Ordinal) && refCanonical != NormalizeToCanonicalName(DefaultNamespace)));
             }
         }
 
@@ -94,7 +91,7 @@ namespace LibGit2Sharp
                 Ensure.ArgumentNotNull(id, "id");
 
                 return NamespaceRefs
-                    .Select(ns => RetrieveNote(id, ns))
+                    .Select(ns => this[ns, id])
                     .Where(n => n != null);
             }
         }
@@ -112,16 +109,28 @@ namespace LibGit2Sharp
                 string canonicalNamespace = NormalizeToCanonicalName(@namespace);
 
                 return Proxy.git_note_foreach(repo.Handle, canonicalNamespace,
-                    (blobId,annotatedObjId) => RetrieveNote(annotatedObjId, canonicalNamespace));
+                    (blobId,annotatedObjId) => this[canonicalNamespace, annotatedObjId]);
             }
         }
 
-        internal Note RetrieveNote(ObjectId targetObjectId, string canonicalNamespace)
+        /// <summary>
+        /// Gets the <see cref="Note"/> associated with the specified objectId and the specified namespace.
+        /// </summary>
+        public virtual Note this[string @namespace, ObjectId id]
         {
-            using (NoteSafeHandle noteHandle = Proxy.git_note_read(repo.Handle, canonicalNamespace, targetObjectId))
+            get
             {
-                return noteHandle == null ? null :
-                    Note.BuildFromPtr(noteHandle, UnCanonicalizeName(canonicalNamespace), targetObjectId);
+                Ensure.ArgumentNotNull(id, "id");
+                Ensure.ArgumentNotNull(@namespace, "@namespace");
+
+                string canonicalNamespace = NormalizeToCanonicalName(@namespace);
+
+                using (NoteSafeHandle noteHandle = Proxy.git_note_read(repo.Handle, canonicalNamespace, id))
+                {
+                    return noteHandle == null
+                        ? null
+                        : Note.BuildFromPtr(noteHandle, UnCanonicalizeName(canonicalNamespace), id);
+                }
             }
         }
 
@@ -144,7 +153,7 @@ namespace LibGit2Sharp
             return string.Concat(Reference.NotePrefix, name);
         }
 
-        internal string UnCanonicalizeName(string name)
+        internal static string UnCanonicalizeName(string name)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
 
@@ -179,7 +188,7 @@ namespace LibGit2Sharp
 
             Proxy.git_note_create(repo.Handle, author, committer, canonicalNamespace, targetId, message, true);
 
-            return RetrieveNote(targetId, canonicalNamespace);
+            return this[canonicalNamespace, targetId];
         }
 
         /// <summary>

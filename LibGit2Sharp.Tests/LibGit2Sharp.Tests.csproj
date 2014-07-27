@@ -10,15 +10,16 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>LibGit2Sharp.Tests</RootNamespace>
     <AssemblyName>LibGit2Sharp.Tests</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;NET35</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;NET40</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile />
@@ -37,7 +38,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Leaks\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;NET35;LEAKS</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;NET40;LEAKS</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile />
@@ -58,24 +59,34 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BlameFixture.cs" />
+    <Compile Include="ArchiveTarFixture.cs" />
     <Compile Include="CheckoutFixture.cs" />
+    <Compile Include="CherryPickFixture.cs" />
+    <Compile Include="GlobalSettingsFixture.cs" />
+    <Compile Include="PatchStatsFixture.cs" />
+    <Compile Include="RefSpecFixture.cs" />
+    <Compile Include="EqualityFixture.cs" />
+    <Compile Include="RevertFixture.cs" />
+    <Compile Include="SignatureFixture.cs" />
     <Compile Include="FilterBranchFixture.cs" />
     <Compile Include="RemoveFixture.cs" />
     <Compile Include="RemoteFixture.cs" />
     <Compile Include="PushFixture.cs" />
     <Compile Include="ReflogFixture.cs" />
+    <Compile Include="ShadowCopyFixture.cs" />
     <Compile Include="StageFixture.cs" />
     <Compile Include="StashFixture.cs" />
     <Compile Include="CloneFixture.cs" />
     <Compile Include="ConflictFixture.cs" />
     <Compile Include="SubmoduleFixture.cs" />
     <Compile Include="IgnoreFixture.cs" />
-    <Compile Include="FetchHeadFixture.cs" />
+    <Compile Include="ArchiveFixture.cs" />
     <Compile Include="MergeFixture.cs" />
     <Compile Include="CleanFixture.cs" />
     <Compile Include="CurrentOperationFixture.cs" />
     <Compile Include="MetaFixture.cs" />
-    <Compile Include="MockedRepositoryFixture.cs" />
+    <Compile Include="MockingFixture.cs" />
     <Compile Include="ConfigurationFixture.cs" />
     <Compile Include="AttributesFixture.cs" />
     <Compile Include="CommitAncestorFixture.cs" />
@@ -89,7 +100,6 @@
     <Compile Include="DiffTreeToTreeFixture.cs" />
     <Compile Include="RepositoryOptionsFixture.cs" />
     <Compile Include="ResetHeadFixture.cs" />
-    <Compile Include="LazyFixture.cs" />
     <Compile Include="FetchFixture.cs" />
     <Compile Include="ResetIndexFixture.cs" />
     <Compile Include="StatusFixture.cs" />
@@ -115,7 +125,6 @@
     <Compile Include="TestHelpers\SkippableFactAttribute.cs" />
     <Compile Include="TreeDefinitionFixture.cs" />
     <Compile Include="TreeFixture.cs" />
-    <Compile Include="TupleFixture.cs" />
     <Compile Include="UnstageFixture.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -133,7 +142,7 @@
     <PreBuildEvent>
     </PreBuildEvent>
   </PropertyGroup>
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>

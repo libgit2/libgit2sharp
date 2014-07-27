@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using LibGit2Sharp.Core;
@@ -19,6 +20,8 @@ namespace LibGit2Sharp.Tests.TestHelpers
         {
             // Do the set up in the static ctor so it only happens once
             SetUpTestEnvironment();
+
+            DirectoryHelper.DeleteSubdirectories(Constants.TemporaryReposPath);
         }
 
         public static string BareTestRepoPath { get; private set; }
@@ -26,6 +29,9 @@ namespace LibGit2Sharp.Tests.TestHelpers
         public static string StandardTestRepoPath { get; private set; }
         public static string ShallowTestRepoPath { get; private set; }
         public static string MergedTestRepoWorkingDirPath { get; private set; }
+        public static string MergeTestRepoWorkingDirPath { get; private set; }
+        public static string MergeRenamesTestRepoWorkingDirPath { get; private set; }
+        public static string RevertTestRepoWorkingDirPath { get; private set; }
         public static string SubmoduleTestRepoWorkingDirPath { get; private set; }
         public static DirectoryInfo ResourcesDirectory { get; private set; }
 
@@ -58,6 +64,9 @@ namespace LibGit2Sharp.Tests.TestHelpers
             StandardTestRepoPath = Path.Combine(StandardTestRepoWorkingDirPath, ".git");
             ShallowTestRepoPath = Path.Combine(ResourcesDirectory.FullName, "shallow.git");
             MergedTestRepoWorkingDirPath = Path.Combine(ResourcesDirectory.FullName, "mergedrepo_wd");
+            MergeRenamesTestRepoWorkingDirPath = Path.Combine(ResourcesDirectory.FullName, "mergerenames_wd");
+            MergeTestRepoWorkingDirPath = Path.Combine(ResourcesDirectory.FullName, "merge_testrepo_wd");
+            RevertTestRepoWorkingDirPath = Path.Combine(ResourcesDirectory.FullName, "revert_testrepo_wd");
             SubmoduleTestRepoWorkingDirPath = Path.Combine(ResourcesDirectory.FullName, "submodule_wd");
         }
 
@@ -76,6 +85,14 @@ namespace LibGit2Sharp.Tests.TestHelpers
             Directory.Delete(mixedPath);
 
             return !isInsensitive;
+        }
+
+        // Should match LibGit2Sharp.Core.NativeMethods.IsRunningOnLinux()
+        protected static bool IsRunningOnLinux()
+        {
+            // see http://mono-project.com/FAQ%3a_Technical#Mono_Platforms
+            var p = (int)Environment.OSVersion.Platform;
+            return (p == 4) || (p == 6) || (p == 128);
         }
 
         protected void CreateCorruptedDeadBeefHead(string repoPath)
@@ -111,6 +128,21 @@ namespace LibGit2Sharp.Tests.TestHelpers
             return Clone(MergedTestRepoWorkingDirPath);
         }
 
+        protected string CloneMergeRenamesTestRepo()
+        {
+            return Clone(MergeRenamesTestRepoWorkingDirPath);
+        }
+
+        protected string CloneMergeTestRepo()
+        {
+            return Clone(MergeTestRepoWorkingDirPath);
+        }
+
+        protected string CloneRevertTestRepo()
+        {
+            return Clone(RevertTestRepoWorkingDirPath);
+        }
+
         public string CloneSubmoduleTestRepo()
         {
             var submoduleTarget = Path.Combine(ResourcesDirectory.FullName, "submodule_target_wd");
@@ -143,6 +175,14 @@ namespace LibGit2Sharp.Tests.TestHelpers
             return Repository.Init(scd.DirectoryPath, isBare);
         }
 
+        protected Repository InitIsolatedRepository(string path = null, bool isBare = false, RepositoryOptions options = null)
+        {
+            path = path ?? InitNewRepository(isBare);
+            options = BuildFakeConfigs(BuildSelfCleaningDirectory(), options);
+
+            return new Repository(path, options);
+        }
+
         public void Register(string directoryPath)
         {
             directories.Add(directoryPath);
@@ -170,6 +210,42 @@ namespace LibGit2Sharp.Tests.TestHelpers
             throw new SkipException(message);
         }
 
+        protected void RequiresDotNetOrMonoGreaterThanOrEqualTo(Version minimumVersion)
+        {
+            Type type = Type.GetType("Mono.Runtime");
+
+            if (type == null)
+            {
+                // We're running on top of .Net
+                return;
+            }
+
+            MethodInfo displayName = type.GetMethod("GetDisplayName", BindingFlags.NonPublic | BindingFlags.Static);
+
+            if (displayName == null)
+            {
+                throw new InvalidOperationException("Cannot access Mono.RunTime.GetDisplayName() method.");
+            }
+
+            var version = (string) displayName.Invoke(null, null);
+
+            Version current;
+
+            try
+            {
+                current = new Version(version.Split(' ')[0]);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(string.Format("Cannot parse Mono version '{0}'.", version), e);
+            }
+
+            InconclusiveIf(() => current < minimumVersion,
+                string.Format(
+                    "Current Mono version is {0}. Minimum required version to run this test is {1}.",
+                    current, minimumVersion));
+        }
+
         protected static void AssertValueInConfigFile(string configFilePath, string regex)
         {
             var text = File.ReadAllText(configFilePath);
@@ -177,9 +253,9 @@ namespace LibGit2Sharp.Tests.TestHelpers
             Assert.True(r.Success, text);
         }
 
-        public RepositoryOptions BuildFakeConfigs(SelfCleaningDirectory scd)
+        public RepositoryOptions BuildFakeConfigs(SelfCleaningDirectory scd, RepositoryOptions options = null)
         {
-            var options = BuildFakeRepositoryOptions(scd);
+            options = BuildFakeRepositoryOptions(scd, options);
 
             StringBuilder sb = new StringBuilder()
                 .AppendFormat("[Woot]{0}", Environment.NewLine)
@@ -201,21 +277,52 @@ namespace LibGit2Sharp.Tests.TestHelpers
             return options;
         }
 
-        private static RepositoryOptions BuildFakeRepositoryOptions(SelfCleaningDirectory scd)
+        private static RepositoryOptions BuildFakeRepositoryOptions(SelfCleaningDirectory scd, RepositoryOptions options = null)
         {
+            options = options ?? new RepositoryOptions();
+
             string confs = Path.Combine(scd.DirectoryPath, "confs");
             Directory.CreateDirectory(confs);
 
-            string globalLocation = Path.Combine(confs, "my-global-config");
-            string xdgLocation = Path.Combine(confs, "my-xdg-config");
-            string systemLocation = Path.Combine(confs, "my-system-config");
+            options.GlobalConfigurationLocation = Path.Combine(confs, "my-global-config");
+            options.XdgConfigurationLocation = Path.Combine(confs, "my-xdg-config");
+            options.SystemConfigurationLocation = Path.Combine(confs, "my-system-config");
 
-            return new RepositoryOptions
+            return options;
+        }
+
+        /// <summary>
+        /// Creates a configuration file with user.name and user.email set to signature
+        /// </summary>
+        /// <remarks>The configuration file will be removed automatically when the tests are finished</remarks>
+        /// <param name="signature">The signature to use for user.name and user.email</param>
+        /// <returns>The path to the configuration file</returns>
+        protected string CreateConfigurationWithDummyUser(Signature signature)
+        {
+            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+            Directory.CreateDirectory(scd.DirectoryPath);
+            string configFilePath = Path.Combine(scd.DirectoryPath, "global-config");
+
+            using (Configuration config = new Configuration(configFilePath))
             {
-                GlobalConfigurationLocation = globalLocation,
-                XdgConfigurationLocation = xdgLocation,
-                SystemConfigurationLocation = systemLocation,
-            };
+                config.Set("user.name", signature.Name, ConfigurationLevel.Global);
+                config.Set("user.email", signature.Email, ConfigurationLevel.Global);
+            }
+
+            return configFilePath;
+        }
+
+        /// <summary>
+        /// Asserts that the commit has been authored and committed by the specified signature
+        /// </summary>
+        /// <param name="commit">The commit</param>
+        /// <param name="signature">The signature to compare author and commiter to</param>
+        protected void AssertCommitSignaturesAre(Commit commit, Signature signature)
+        {
+            Assert.Equal(signature.Name, commit.Author.Name);
+            Assert.Equal(signature.Email, commit.Author.Email);
+            Assert.Equal(signature.Name, commit.Committer.Name);
+            Assert.Equal(signature.Email, commit.Committer.Email);
         }
 
         protected static string Touch(string parent, string file, string content = null, Encoding encoding = null)
@@ -231,20 +338,23 @@ namespace LibGit2Sharp.Tests.TestHelpers
             return filePath;
         }
 
-        protected static void AssertReflogEntryIsCreated(IEnumerable<ReflogEntry> reflog, string targetSha, 
-            string logMessage, string fromSha = null)
+        protected static string Touch(string parent, string file, Stream stream)
         {
-            var reflogEntry = reflog.First();
+            Debug.Assert(stream != null);
 
-            if (!string.IsNullOrEmpty(fromSha))
+            string filePath = Path.Combine(parent, file);
+            string dir = Path.GetDirectoryName(filePath);
+            Debug.Assert(dir != null);
+
+            Directory.CreateDirectory(dir);
+
+            using (var fs = File.Open(filePath, FileMode.Create))
             {
-                Assert.Equal(fromSha, reflogEntry.From.Sha);
+                CopyStream(stream, fs);
+                fs.Flush();
             }
 
-            Assert.Equal(targetSha, reflogEntry.To.Sha);
-            Assert.NotNull(reflogEntry.Commiter.Email);
-            Assert.NotNull(reflogEntry.Commiter.Name);
-            Assert.Equal(logMessage, reflogEntry.Message);
+            return filePath;
         }
 
         protected string Expected(string filename)
@@ -255,6 +365,52 @@ namespace LibGit2Sharp.Tests.TestHelpers
         protected string Expected(string filenameFormat, params object[] args)
         {
             return Expected(string.Format(CultureInfo.InvariantCulture, filenameFormat, args));
+        }
+
+        protected static void AssertRefLogEntry(IRepository repo, string canonicalName,
+                                                ObjectId to, string message, ObjectId @from = null,
+                                                Signature committer = null)
+        {
+            var reflogEntry = repo.Refs.Log(canonicalName).First();
+
+            Assert.Equal(to, reflogEntry.To);
+            Assert.Equal(message, reflogEntry.Message);
+            Assert.Equal(@from ?? ObjectId.Zero, reflogEntry.From);
+
+            committer = committer ?? repo.Config.BuildSignature(DateTimeOffset.Now);
+            Assert.Equal(committer.Email, reflogEntry.Commiter.Email);
+            Assert.InRange(reflogEntry.Commiter.When, committer.When - TimeSpan.FromSeconds(5), committer.When);
+        }
+
+        protected static void EnableRefLog(IRepository repository, bool enable = true)
+        {
+            repository.Config.Set("core.logAllRefUpdates", enable);
+        }
+
+        public static void CopyStream(Stream input, Stream output)
+        {
+            // Reused from the following Stack Overflow post with permission
+            // of Jon Skeet (obtained on 25 Feb 2013)
+            // http://stackoverflow.com/questions/411592/how-do-i-save-a-stream-to-a-file/411605#411605
+            var buffer = new byte[8 * 1024];
+            int len;
+            while ((len = input.Read(buffer, 0, buffer.Length)) > 0)
+            {
+                output.Write(buffer, 0, len);
+            }
+        }
+
+        public static bool StreamEquals(Stream one, Stream two)
+        {
+            int onebyte, twobyte;
+
+            while ((onebyte = one.ReadByte()) >= 0 && (twobyte = two.ReadByte()) >= 0)
+            {
+                if (onebyte != twobyte)
+                    return false;
+            }
+
+            return true;
         }
     }
 }

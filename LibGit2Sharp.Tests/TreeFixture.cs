@@ -55,7 +55,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(BareTestRepoPath))
             {
                 var tree = repo.Lookup<Tree>(sha);
-                
+
                 IEnumerable<Blob> blobs = tree
                     .Where(e => e.TargetType == TreeEntryTargetType.Blob)
                     .Select(e => e.Target)
@@ -198,6 +198,29 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(yetAnotherInstance, anotherInstance);
                 Assert.NotEqual(anotherInstance.Path, anInstance.Path);
                 Assert.NotSame(anotherInstance, anInstance);
+            }
+        }
+
+        [Fact]
+        public void CanParseSymlinkTreeEntries()
+        {
+            var path = CloneBareTestRepo();
+
+            using (var repo = new Repository(path))
+            {
+                Blob linkContent = OdbHelper.CreateBlob(repo, "1/branch_file.txt");
+
+                var td = TreeDefinition.From(repo.Head.Tip)
+                    .Add("A symlink", linkContent, Mode.SymbolicLink);
+
+                Tree t = repo.ObjectDatabase.CreateTree(td);
+
+                var te = t["A symlink"];
+
+                Assert.NotNull(te);
+
+                Assert.Equal(Mode.SymbolicLink, te.Mode);
+                Assert.Equal(linkContent, te.Target);
             }
         }
     }

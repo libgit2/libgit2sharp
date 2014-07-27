@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Text;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
@@ -27,7 +28,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCreateABlobFromAFileInTheWorkingDirectory()
         {
-            string path = CloneStandardTestRepo();
+            string path = InitNewRepository();
             using (var repo = new Repository(path))
             {
                 Assert.Equal(FileStatus.Nonexistent, repo.Index.RetrieveStatus("hello.txt"));
@@ -50,7 +51,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCreateABlobIntoTheDatabaseOfABareRepository()
         {
-            string path = CloneBareTestRepo();
+            string path = InitNewRepository();
 
             SelfCleaningDirectory directory = BuildSelfCleaningDirectory();
 
@@ -68,7 +69,7 @@ namespace LibGit2Sharp.Tests
 
                 Assert.NotNull(blob);
                 Assert.Equal("dc53d4c6b8684c21b0b57db29da4a2afea011565", blob.Sha);
-                Assert.Equal("I'm a new file\n", blob.ContentAsText());
+                Assert.Equal("I'm a new file\n", blob.GetContentText());
 
                 var fetchedBlob = repo.Lookup<Blob>(blob.Id);
                 Assert.Equal(blob, fetchedBlob);
@@ -82,7 +83,7 @@ namespace LibGit2Sharp.Tests
         [InlineData("e9671e138a780833cb689753570fd10a55be84fb", "dummy.guess")]
         public void CanCreateABlobFromAStream(string expectedSha, string hintPath)
         {
-            string path = CloneBareTestRepo();
+            string path = InitNewRepository();
 
             var sb = new StringBuilder();
             for (int i = 0; i < 6; i++)
@@ -102,31 +103,53 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Theory]
-        [InlineData(16, 32)]
-        [InlineData(34, 8)]
-        [InlineData(7584, 5879)]
-        [InlineData(7854, 1247)]
-        [InlineData(7854, 9785)]
-        [InlineData(8192, 4096)]
-        [InlineData(8192, 4095)]
-        [InlineData(8192, 4097)]
-        public void CanCreateABlobFromAStreamWithANumberOfBytesToConsume(int contentSize, int numberOfBytesToConsume)
+        Stream PrepareMemoryStream(int contentSize)
         {
-            string path = CloneBareTestRepo();
-
             var sb = new StringBuilder();
             for (int i = 0; i < contentSize; i++)
             {
                 sb.Append(i % 10);
             }
 
+            return new MemoryStream(Encoding.UTF8.GetBytes(sb.ToString()));
+        }
+
+        [Theory]
+        [InlineData(34, 8)]
+        [InlineData(7584, 5879)]
+        [InlineData(7854, 1247)]
+        [InlineData(8192, 4096)]
+        [InlineData(8192, 4095)]
+        [InlineData(8192, 4097)]
+        public void CanCreateABlobFromAStreamWithANumberOfBytesToConsume(int contentSize, int numberOfBytesToConsume)
+        {
+            string path = InitNewRepository();
+
+
             using (var repo = new Repository(path))
             {
-                using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(sb.ToString())))
+                using (var stream = PrepareMemoryStream(contentSize))
                 {
                     Blob blob = repo.ObjectDatabase.CreateBlob(stream, numberOfBytesToConsume: numberOfBytesToConsume);
-                    Assert.Equal(Math.Min(numberOfBytesToConsume, contentSize), blob.Size);
+                    Assert.Equal(numberOfBytesToConsume, blob.Size);
+                }
+            }
+        }
+
+        [Theory]
+        [InlineData(16, 32, null)]
+        [InlineData(7854, 9785, null)]
+        [InlineData(16, 32, "binary.bin")]
+        [InlineData(7854, 9785, "binary.bin")]
+        public void CreatingABlobFromTooShortAStreamThrows(int contentSize, int numberOfBytesToConsume, string hintpath)
+        {
+            string path = InitNewRepository();
+
+            using (var repo = new Repository(path))
+            {
+                using (var stream = PrepareMemoryStream(contentSize))
+                {
+                    Assert.Throws<EndOfStreamException>(() => repo.ObjectDatabase.CreateBlob(stream, hintpath, numberOfBytesToConsume));
                 }
             }
         }
@@ -134,10 +157,12 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CreatingABlobFromANonReadableStreamThrows()
         {
-            string path = CloneStandardTestRepo();
+            string path = InitNewRepository();
 
-            using (var stream = new FileStream(Path.Combine(path, "file.txt"), FileMode.CreateNew, FileAccess.Write))
             using (var repo = new Repository(path))
+            using (var stream = new FileStream(
+                Path.Combine(repo.Info.WorkingDirectory, "file.txt"),
+                FileMode.CreateNew, FileAccess.Write))
             {
                 Assert.Throws<ArgumentException>(() => repo.ObjectDatabase.CreateBlob(stream));
             }
@@ -217,7 +242,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCreateAnEmptyTree()
         {
-            string path = CloneBareTestRepo();
+            string path = InitNewRepository();
             using (var repo = new Repository(path))
             {
                 var td = new TreeDefinition();
@@ -311,9 +336,9 @@ namespace LibGit2Sharp.Tests
                 Assert.IsType<GitLink>(te.Target);
                 Assert.Equal(objectId, te.Target.Id);
 
-                var commitWithSubmodule = repo.ObjectDatabase.CreateCommit("Submodule!", Constants.Signature, Constants.Signature, tree,
-                                                                           new[] { repo.Head.Tip });
-                repo.Reset(ResetOptions.Soft, commitWithSubmodule);
+                var commitWithSubmodule = repo.ObjectDatabase.CreateCommit(Constants.Signature, Constants.Signature, "Submodule!",
+                                                                           tree, new[] { repo.Head.Tip }, false);
+                repo.Reset(ResetMode.Soft, commitWithSubmodule);
 
                 var submodule = repo.Submodules[submodulePath];
                 Assert.NotNull(submodule);
@@ -348,7 +373,7 @@ namespace LibGit2Sharp.Tests
 
                 Tree tree = repo.ObjectDatabase.CreateTree(td);
 
-                Commit commit = repo.ObjectDatabase.CreateCommit("Ü message", Constants.Signature, Constants.Signature, tree, new[] { repo.Head.Tip });
+                Commit commit = repo.ObjectDatabase.CreateCommit(Constants.Signature, Constants.Signature, "Ü message", tree, new[] { repo.Head.Tip }, true);
 
                 Branch newHead = repo.Head;
 
@@ -363,7 +388,7 @@ namespace LibGit2Sharp.Tests
         {
             var binaryContent = new byte[] { 0, 1, 2, 3, 4, 5 };
 
-            string path = CloneBareTestRepo();
+            string path = InitNewRepository();
             using (var repo = new Repository(path))
             {
                 using (var stream = new MemoryStream(binaryContent))
@@ -398,6 +423,179 @@ namespace LibGit2Sharp.Tests
                 // ...but exists in the odb.
                 var fetched = repo.Lookup<TagAnnotation>(tag.Id);
                 Assert.Equal(tag, fetched);
+            }
+        }
+
+        [Fact]
+        public void CanEnumerateTheGitObjectsFromBareRepository()
+        {
+            using (var repo = new Repository(BareTestRepoPath))
+            {
+                int count = 0;
+
+                foreach (var obj in repo.ObjectDatabase)
+                {
+                    Assert.NotNull(obj);
+                    count++;
+                }
+
+                Assert.True(count >= 1683);
+            }
+        }
+
+        [Theory]
+        [InlineData("\0Leading zero")]
+        [InlineData("Trailing zero\0")]
+        [InlineData("Zero \0inside")]
+        [InlineData("\0")]
+        [InlineData("\0\0\0")]
+        public void CreatingACommitWithMessageContainingZeroByteThrows(string message)
+        {
+            using (var repo = new Repository(BareTestRepoPath))
+            {
+                Assert.Throws<ArgumentException>(() => repo.ObjectDatabase.CreateCommit(
+                    Constants.Signature, Constants.Signature, message, repo.Head.Tip.Tree, Enumerable.Empty<Commit>(), false));
+            }
+        }
+
+        [Theory]
+        [InlineData("\0Leading zero")]
+        [InlineData("Trailing zero\0")]
+        [InlineData("Zero \0inside")]
+        [InlineData("\0")]
+        [InlineData("\0\0\0")]
+        public void CreatingATagAnnotationWithNameOrMessageContainingZeroByteThrows(string input)
+        {
+            using (var repo = new Repository(BareTestRepoPath))
+            {
+                Assert.Throws<ArgumentException>(() => repo.ObjectDatabase.CreateTagAnnotation(
+                    input, repo.Head.Tip, Constants.Signature, "message"));
+                Assert.Throws<ArgumentException>(() => repo.ObjectDatabase.CreateTagAnnotation(
+                    "name", repo.Head.Tip, Constants.Signature, input));
+            }
+        }
+
+        [Fact]
+        public void CreatingATagAnnotationWithBadParametersThrows()
+        {
+            using (var repo = new Repository(BareTestRepoPath))
+            {
+                Assert.Throws<ArgumentNullException>(() => repo.ObjectDatabase.CreateTagAnnotation(
+                    null, repo.Head.Tip, Constants.Signature, "message"));
+                Assert.Throws<ArgumentException>(() => repo.ObjectDatabase.CreateTagAnnotation(
+                    string.Empty, repo.Head.Tip, Constants.Signature, "message"));
+                Assert.Throws<ArgumentNullException>(() => repo.ObjectDatabase.CreateTagAnnotation(
+                    "name", null, Constants.Signature, "message"));
+                Assert.Throws<ArgumentNullException>(() => repo.ObjectDatabase.CreateTagAnnotation(
+                    "name", repo.Head.Tip, null, "message"));
+                Assert.Throws<ArgumentNullException>(() => repo.ObjectDatabase.CreateTagAnnotation(
+                    "name", repo.Head.Tip, Constants.Signature, null));
+            }
+        }
+
+        [Fact]
+        public void CanCreateATagAnnotationWithAnEmptyMessage()
+        {
+            string path = CloneBareTestRepo();
+            using (var repo = new Repository(path))
+            {
+                var tagAnnotation = repo.ObjectDatabase.CreateTagAnnotation(
+                    "name", repo.Head.Tip, Constants.Signature, string.Empty);
+
+                Assert.Equal(string.Empty, tagAnnotation.Message);
+            }
+        }
+
+        [Theory]
+        [InlineData("c47800c", "9fd738e", "5b5b025", 1, 2)]
+        [InlineData("9fd738e", "c47800c", "5b5b025", 2, 1)]
+        public void CanCalculateHistoryDivergence(
+            string sinceSha, string untilSha,
+            string expectedAncestorSha, int? expectedAheadBy, int? expectedBehindBy)
+        {
+            using (var repo = new Repository(BareTestRepoPath))
+            {
+                var since = repo.Lookup<Commit>(sinceSha);
+                var until = repo.Lookup<Commit>(untilSha);
+
+                HistoryDivergence div = repo.ObjectDatabase.CalculateHistoryDivergence(since, until);
+
+                Assert.Equal(expectedAheadBy, div.AheadBy);
+                Assert.Equal(expectedBehindBy, div.BehindBy);
+                Assert.Equal(expectedAncestorSha, div.CommonAncestor.Id.ToString(7));
+            }
+        }
+
+        [Theory]
+        [InlineData("c47800c", "41bc8c6907", 3, 2)]
+        public void CanCalculateHistoryDivergenceWhenNoAncestorIsShared(
+            string sinceSha, string untilSha,
+            int? expectedAheadBy, int? expectedBehindBy)
+        {
+            using (var repo = new Repository(BareTestRepoPath))
+            {
+                var since = repo.Lookup<Commit>(sinceSha);
+                var until = repo.Lookup<Commit>(untilSha);
+
+                HistoryDivergence div = repo.ObjectDatabase.CalculateHistoryDivergence(since, until);
+
+                Assert.Equal(expectedAheadBy, div.AheadBy);
+                Assert.Equal(expectedBehindBy, div.BehindBy);
+                Assert.Null(div.CommonAncestor);
+            }
+        }
+
+        [Fact]
+        public void CalculatingHistoryDivergenceWithBadParamsThrows()
+        {
+            using (var repo = new Repository(BareTestRepoPath))
+            {
+                Assert.Throws<ArgumentNullException>(
+                    () => repo.ObjectDatabase.CalculateHistoryDivergence(repo.Head.Tip, null));
+                Assert.Throws<ArgumentNullException>(
+                    () => repo.ObjectDatabase.CalculateHistoryDivergence(null, repo.Head.Tip));
+            }
+        }
+
+        [Fact]
+        public void CanShortenObjectIdentifier()
+        {
+            /*
+             * $ echo "aabqhq" | git hash-object -t blob --stdin
+             * dea509d0b3cb8ee0650f6ca210bc83f4678851ba
+             * 
+             * $ echo "aaazvc" | git hash-object -t blob --stdin
+             * dea509d097ce692e167dfc6a48a7a280cc5e877e
+             */
+
+            string path = CloneBareTestRepo();
+            using (var repo = new Repository(path))
+            {
+                repo.Config.Set("core.abbrev", 4);
+
+                Blob blob1 = CreateBlob(repo, "aabqhq\n");
+                Assert.Equal("dea509d0b3cb8ee0650f6ca210bc83f4678851ba", blob1.Sha);
+
+                Assert.Equal("dea5", repo.ObjectDatabase.ShortenObjectId(blob1));
+                Assert.Equal("dea509d0b3cb", repo.ObjectDatabase.ShortenObjectId(blob1, 12));
+                Assert.Equal("dea509d0b3cb8ee0650f6ca210bc83f4678851b", repo.ObjectDatabase.ShortenObjectId(blob1, 39));
+
+                Blob blob2 = CreateBlob(repo, "aaazvc\n");
+                Assert.Equal("dea509d09", repo.ObjectDatabase.ShortenObjectId(blob2));
+                Assert.Equal("dea509d09", repo.ObjectDatabase.ShortenObjectId(blob2, 4));
+                Assert.Equal("dea509d0b", repo.ObjectDatabase.ShortenObjectId(blob1));
+                Assert.Equal("dea509d0b", repo.ObjectDatabase.ShortenObjectId(blob1, 7));
+
+                Assert.Equal("dea509d0b3cb", repo.ObjectDatabase.ShortenObjectId(blob1, 12));
+                Assert.Equal("dea509d097ce", repo.ObjectDatabase.ShortenObjectId(blob2, 12));
+            }
+        }
+
+        private static Blob CreateBlob(Repository repo, string content)
+        {
+            using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(content)))
+            {
+                return repo.ObjectDatabase.CreateBlob(stream);
             }
         }
     }

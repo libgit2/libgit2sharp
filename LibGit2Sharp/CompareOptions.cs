@@ -1,3 +1,5 @@
+using System;
+
 namespace LibGit2Sharp
 {
     /// <summary>
@@ -12,7 +14,6 @@ namespace LibGit2Sharp
         {
             ContextLines = 3;
             InterhunkLines = 0;
-            SkipPatchBuilding = false;
         }
 
         /// <summary>
@@ -28,9 +29,13 @@ namespace LibGit2Sharp
         public int InterhunkLines { get; set; }
 
         /// <summary>
-        /// Flag to skip patch building. May be used if only file name and status required.
-        /// (Default = false)
+        /// Options for rename detection. If null, the `diff.renames` configuration setting is used.
         /// </summary>
-        internal bool SkipPatchBuilding { get; set; }
+        public SimilarityOptions Similarity { get; set; }
+
+        /// <summary>
+        /// Include "unmodified" entries in the results.
+        /// </summary>
+        public bool IncludeUnmodified { get; set; }
     }
 }

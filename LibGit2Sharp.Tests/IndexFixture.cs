@@ -230,5 +230,53 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(Mode.ExecutableFile, repo.Index["1/branch_file.txt"].Mode);
             }
         }
+
+        [Fact]
+        public void StagingAFileWhenTheIndexIsLockedThrowsALockedFileException()
+        {
+            string repoPath = InitNewRepository();
+
+            using (var repo = new Repository(repoPath))
+            {
+                Touch(repo.Info.Path, "index.lock");
+
+                Touch(repo.Info.WorkingDirectory, "newfile", "my my, this is gonna crash\n");
+                Assert.Throws<LockedFileException>(() => repo.Index.Stage("newfile"));
+            }
+        }
+
+        [Fact]
+        public void CanCopeWithExternalChangesToTheIndex()
+        {
+            SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
+
+            Touch(scd.DirectoryPath, "a.txt", "a\n");
+            Touch(scd.DirectoryPath, "b.txt", "b\n");
+
+            string path = Repository.Init(scd.DirectoryPath);
+
+            using (var repoWrite = new Repository(path))
+            using (var repoRead = new Repository(path))
+            {
+                var writeStatus = repoWrite.Index.RetrieveStatus();
+                Assert.True(writeStatus.IsDirty);
+                Assert.Equal(0, repoWrite.Index.Count);
+
+                var readStatus = repoRead.Index.RetrieveStatus();
+                Assert.True(readStatus.IsDirty);
+                Assert.Equal(0, repoRead.Index.Count);
+
+                repoWrite.Index.Stage("*");
+                repoWrite.Commit("message", Constants.Signature, Constants.Signature);
+
+                writeStatus = repoWrite.Index.RetrieveStatus();
+                Assert.False(writeStatus.IsDirty);
+                Assert.Equal(2, repoWrite.Index.Count);
+
+                readStatus = repoRead.Index.RetrieveStatus();
+                Assert.False(readStatus.IsDirty);
+                Assert.Equal(2, repoRead.Index.Count);
+            }
+        }
     }
 }

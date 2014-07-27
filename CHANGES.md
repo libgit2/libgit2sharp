@@ -5,8 +5,177 @@
  - Source code: <https://github.com/libgit2/libgit2sharp>
  - NuGet package: <http://nuget.org/List/Packages/LibGit2Sharp>
  - Issue tracker: <https://github.com/libgit2/libgit2sharp/issues>
- - CI server: <http://teamcity.codebetter.com/project.html?projectId=project127&guest=1>
  - @libgit2sharp: <http://twitter.com/libgit2sharp>
+ - CI servers:
+  - CodeBetter TeamCity: <http://teamcity.codebetter.com/project.html?projectId=LibGit2Sharp&guest=1>
+  - Travis: <https://travis-ci.org/libgit2/libgit2sharp>
+
+## v0.18.1 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.18.0...v0.18.1))
+
+### Additions
+
+ - Make CommitOptions expose additional properties to control how the message should be prettified (#744, #745)
+
+### Changes
+
+ - Update libgit2 binaries to libgit2/libgit2@90befde
+
+### Fixes
+
+ - Fix issue when cloning from a different local volume (#742, #743)
+
+## v0.18.0 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.17.0...v0.18.0))
+
+### Additions
+
+ - Introduce repo.Revert() (#706)
+ - Enhanced control over Merge behavior through MergeOptions (#685)
+ - Introduce repo.Network.Remotes.Remove() (#729, #731)
+ - Teach repo.Network.ListReferences() to accept a Credentials (#647, #704)
+ - Introduce Reference.IsValidName() (#680, #691)
+ - Introduce Remote.IsValidName() (#679, #690)
+ - Expose StatusOptions.RecurseIgnoredDirs (#728)
+ - Introduce GlobalSettings.Features() (#717)
+ - Make Repository.Version output the libgit2 built-in features (#676, #694)
+
+### Changes
+
+ - LibGit2Sharp now requires .Net 4.0 (#654, #678)
+ - Repository.Checkout() and Branch.Checkout() overloads now accept a CheckoutOptions parameter (#685)
+ - Deprecate repo.Refs.IsValidName() (#680, #691)
+ - Deprecate repo.Network.Remotes.IsValidName() (#679, #690)
+ - Deprecate repo.Branches.Move() in favor of repo.Branches.Rename() (#737, #738)
+ - Update libgit2 binaries to libgit2/libgit2@2f6f6eb
+
+### Fixes
+
+ - Do not fail enumerating the ObjectDatabase content when an unexpected file is found under .git/objects (#704)
+ - Fix update of HEAD when committing against a bare repository with a temporary working directory (#692)
+
+## v0.17.0 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.16.0...v0.17.0))
+
+### Additions
+
+ - Introduce Network.Pull() (#643 and #65)
+ - Introduce DefaultCredentials for NTLM/Negotiate authentication (#660)
+ - Make repo.Merge() accept a Branch (#643)
+ - Introduce MergeOptions type, to specify the type of merge and whether to commit or not (#643, #662, #663)
+ - Teach reference altering methods to let the caller control how the reflog is valued (#612, #505 and #389)
+ - Teach repo.Commits.FindMergeBase to leverage either Standard or Octopus strategy (#634 and #629)
+ - Make ObjectDatabase.CreateCommit() accept an option controlling the prettifying of the message (#619)
+ - Allow notes retrieval by namespace and ObjectId (#653)
+
+### Changes
+
+ - Deprecate repo.Commits.FindCommonAncestor() in favor of repo.Commits.FindMergeBase() (#634)
+ - Deprecate Network.FetchHeads and Repository.MergeHeads (#643)
+ - Repository.Commit() overloads now accept a CommitOptions parameter (#668)
+ - Repository.Clone() now accepts a CloneOptions parameter
+ - Ease testability by making all GetEnumerator() methods fakeable (#646 and #644)
+ - Update libgit2 binaries to libgit2/libgit2@bcc6229
+
+### Fixes
+
+ - Make Branch.Add() and Branch.Move() use the correct indentity to feed the reflog (#612 and #616)
+ - Fix NullReferenceException occuring in Repository.Clone (#659 and #635)
+
+## v0.16.0 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.15.0...v0.16.0))
+
+### Additions
+
+ - Introduce Repository.Merge() (#608 and #620)
+ - Teach Diff.Compare<>() to return a PatchStats (#610)
+
+### Changes
+
+ - Speed up NuGet post build copy of the native binaries (#613)
+
+### Fixes
+
+ - Fix Remotes.Add(name, url, refspec) to prevent the creation of a default fetch refspec beside the passed in one (#614)
+ - Make LibGit2SharpException.Data expose the correct libgit2 error categories (#601)
+
+## v0.15.0 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.14.1...v0.15.0))
+
+### Additions
+
+ - Introduce ObjectDatabase.Archive()
+ - Introduce Repository.Blame()
+ - Introduce ObjectDatabase.CalculateHistoryDivergence()
+ - Add Configuration.Find(regexp)
+ - Add CommitFilter.FirstParentOnly
+ - Expose Configuration.BuildSignature()
+ - Add TreeDefinition.Add(string, TreeEntry)
+ - Make Remote expose its refspecs
+
+### Changes
+
+ - Make Network.Fetch() accepts optional refspec
+ - Extend Network.Fetch() and ListReferences() to allow downloading from a url
+ - Allow Network.Push() to control packbuilder parallelism
+ - Expose Network.Push() progress reporting
+ - Extend RemoteUpdater to allow updation of refspecs
+ - Teach Index.RetrieveStatus to detect renames in index and workdir
+ - Teach NoteCollection to optionally build a Signature from configuration
+ - Add RewriteHistoryOptions.OnSucceeding and OnError
+ - Introduce Blob FilteringOptions
+ - Rename Blob.ContentAsText() as Blob.GetContentText()
+ - Rename Blob.ContentStream() as Blob.GetContentStream()
+ - Deprecate Blob.Content
+ - Teach Diff.Compare<> to detect renames and copies
+ - Split Patch and TreeChanges generation
+ - Deprecate ResetOptions in favor of ResetMode.
+ - Simplify OdbBackend.ReadPrefix() implementation
+ - Deprecate ObjectId.StartsWith(byte[], int) in favor of ObjectId.StartsWith(string)
+ - Update libgit2 binaries to libgit2/libgit2@96fb6a6
+
+### Fixes
+
+ - Fix building with Mono on OS X (#557)
+ - Make RetrieveStatus() reload on-disk index beforehand (#322 and #519)
+
+## v0.14.1 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.14.0...v0.14.1))
+
+### Changes
+
+ - Rename OrphanedHeadException into UnbornBranchException
+
+### Fixes
+
+ - Fix handling of http->https redirects
+ - Make probing for libgit2 binaries work from within the NuGet packages folder
+ - Accept submodule paths with native directory separators
+
+## v0.14.0 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.13.0...v0.14.0))
+
+### Additions
+
+ - Introduce Blob.ContentAsText()
+ - Teach repo.Refs.RewriteHistory() to prune empty commits
+ - Teach repo.Refs.RewriteHistory() to rewrite symbolic references
+ - Teach repo.ObjectDatabase to enumerate GitObjects
+ - Teach Branches.Add() and Move() to append to the reflog
+ - Honor core.logAllRefUpdates configuration setting
+ - Add strongly-typed LockedFileException
+ - Add TreeDefinition.Remove(IEnumerable<string>)
+ - Introduce ObjectId.StartsWith()
+ - Introduce repo.Config.GetValueOrDefault()
+
+### Changes
+
+ - Introduce RewriteHistoryOptions type and make repo.Refs.RewriteHistory() leverage it
+ - Introduce CheckoutOptions type and make repo.CheckoutPaths() leverage it
+ - Obsolete Blob.ContentAsUnicode and Blob.ContentAsUf8
+ - Make OdbBackend interface ObjectId based
+ - Update libgit2 binaries to libgit2/libgit2@32e4992
+
+### Fixes
+
+ - Ensure repo.Network.Push() overloads pass the Credentials down the call chain
+ - Make SymbolicReference.Target cope with chained symbolic references
+ - Do not throw when parsing a Remote with no url
+ - Prevent files or directories starting with ! from being ignored
+ - Teach Index.Stage to stage files in ignored dirs
 
 ## v0.13.0 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.12.0...v0.13.0))
 

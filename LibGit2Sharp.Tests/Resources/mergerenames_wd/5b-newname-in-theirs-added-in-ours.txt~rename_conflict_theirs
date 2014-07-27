@@ -1,0 +1,19 @@
+In the 'theirs' branch,
+this file will be renamed
+and in the 'ours' branch,
+a file of the same name
+will be added.  This file
+will continue to exist
+in the 'ours' branch,
+leading to a rename/add
+conflict.
+
+In the 'theirs' branch,
+this file will be renamed
+and in the 'ours' branch,
+a file of the same name
+will be added.  This file
+will continue to exist
+in the 'ours' branch,
+leading to a rename/add
+conflict.

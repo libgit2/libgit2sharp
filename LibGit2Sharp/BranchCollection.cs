@@ -91,9 +91,8 @@ namespace LibGit2Sharp
         /// <returns>An <see cref="IEnumerator{T}"/> object that can be used to iterate through the collection.</returns>
         public virtual IEnumerator<Branch> GetEnumerator()
         {
-            return Proxy.git_branch_foreach(repo.Handle, GitBranchType.GIT_BRANCH_LOCAL | GitBranchType.GIT_BRANCH_REMOTE, branchToCanoncialName)
-                .Select(n => this[n])
-                .GetEnumerator();
+            return Proxy.git_branch_iterator(repo, GitBranchType.GIT_BRANCH_ALL)
+                        .ToList().GetEnumerator();
         }
 
         /// <summary>
@@ -112,16 +111,36 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="name">The name of the branch.</param>
         /// <param name="commit">The target commit.</param>
+        /// <param name="signature">Identity used for updating the reflog</param>
+        /// <param name="logMessage">Message added to the reflog. If null, the default is "branch: Created from [sha]".</param>
         /// <param name="allowOverwrite">True to allow silent overwriting a potentially existing branch, false otherwise.</param>
         /// <returns>A new <see cref="Branch"/>.</returns>
-        public virtual Branch Add(string name, Commit commit, bool allowOverwrite = false)
+        public virtual Branch Add(string name, Commit commit, Signature signature, string logMessage = null, bool allowOverwrite = false)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
             Ensure.ArgumentNotNull(commit, "commit");
 
-            using (Proxy.git_branch_create(repo.Handle, name, commit.Id, allowOverwrite)) {}
+            if (logMessage == null)
+            {
+                logMessage = "branch: Created from " + commit.Id;
+            }
 
-            return this[ShortToLocalName(name)];
+            using (Proxy.git_branch_create(repo.Handle, name, commit.Id, allowOverwrite, signature.OrDefault(repo.Config), logMessage)) {}
+
+            var branch = this[ShortToLocalName(name)];
+            return branch;
+        }
+
+        /// <summary>
+        /// Create a new local branch with the specified name, using the default reflog message
+        /// </summary>
+        /// <param name="name">The name of the branch.</param>
+        /// <param name="commit">The target commit.</param>
+        /// <param name="allowOverwrite">True to allow silent overwriting a potentially existing branch, false otherwise.</param>
+        /// <returns>A new <see cref="Branch"/>.</returns>
+        public virtual Branch Add(string name, Commit commit, bool allowOverwrite = false)
+        {
+            return Add(name, commit, null, null, allowOverwrite);
         }
 
         /// <summary>
@@ -139,13 +158,15 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Renames an existing local branch with a new name.
+        /// Rename an existing local branch
         /// </summary>
         /// <param name="branch">The current local branch.</param>
         /// <param name="newName">The new name the existing branch should bear.</param>
+        /// <param name="signature">Identity used for updating the reflog</param>
+        /// <param name="logMessage">Message added to the reflog. If null, the default is "branch: renamed [old] to [new]".</param>
         /// <param name="allowOverwrite">True to allow silent overwriting a potentially existing branch, false otherwise.</param>
         /// <returns>A new <see cref="Branch"/>.</returns>
-        public virtual Branch Move(Branch branch, string newName, bool allowOverwrite = false)
+        public virtual Branch Rename(Branch branch, string newName, Signature signature, string logMessage = null, bool allowOverwrite = false)
         {
             Ensure.ArgumentNotNull(branch, "branch");
             Ensure.ArgumentNotNullOrEmptyString(newName, "newName");
@@ -157,14 +178,33 @@ namespace LibGit2Sharp
                         "Cannot rename branch '{0}'. It's a remote tracking branch.", branch.Name));
             }
 
+            if (logMessage == null)
+            {
+                logMessage = string.Format(CultureInfo.InvariantCulture,
+                    "branch: renamed {0} to {1}", branch.CanonicalName, Reference.LocalBranchPrefix + newName);
+            }
+
             using (ReferenceSafeHandle referencePtr = repo.Refs.RetrieveReferencePtr(Reference.LocalBranchPrefix + branch.Name))
             {
-                using (ReferenceSafeHandle ref_out = Proxy.git_branch_move(referencePtr, newName, allowOverwrite))
+                using (Proxy.git_branch_move(referencePtr, newName, allowOverwrite, signature.OrDefault(repo.Config), logMessage))
                 {
                 }
             }
 
-            return this[newName];
+            var newBranch = this[newName];
+            return newBranch;
+        }
+
+        /// <summary>
+        /// Rename an existing local branch, using the default reflog message
+        /// </summary>
+        /// <param name="branch">The current local branch.</param>
+        /// <param name="newName">The new name the existing branch should bear.</param>
+        /// <param name="allowOverwrite">True to allow silent overwriting a potentially existing branch, false otherwise.</param>
+        /// <returns>A new <see cref="Branch"/>.</returns>
+        public virtual Branch Rename(Branch branch, string newName, bool allowOverwrite = false)
+        {
+            return Rename(branch, newName, null, null, allowOverwrite);
         }
 
         /// <summary>
@@ -190,21 +230,6 @@ namespace LibGit2Sharp
             return referenceName == "HEAD" ||
                 referenceName.LooksLikeLocalBranch() ||
                 referenceName.LooksLikeRemoteTrackingBranch();
-        }
-
-        private static string branchToCanoncialName(IntPtr namePtr, GitBranchType branchType)
-        {
-            string shortName = Utf8Marshaler.FromNative(namePtr);
-
-            switch (branchType)
-            {
-                case GitBranchType.GIT_BRANCH_LOCAL:
-                    return ShortToLocalName(shortName);
-                case GitBranchType.GIT_BRANCH_REMOTE:
-                    return ShortToRemoteName(shortName);
-                default:
-                    return shortName;
-            }
         }
 
         private string DebuggerDisplay

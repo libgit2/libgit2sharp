@@ -29,7 +29,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path))
             {
                 // Hard reset and then remove untracked files
-                repo.Reset(ResetOptions.Hard);
+                repo.Reset(ResetMode.Hard);
                 repo.RemoveUntrackedFiles();
 
                 repo.Checkout("test");
@@ -177,6 +177,18 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
+        public void CanSimplifyByFirstParent()
+        {
+            AssertEnumerationOfCommits(
+                repo => new CommitFilter { Since = repo.Head, FirstParentOnly = true },
+            new[]
+            {
+                "4c062a6", "be3563a", "9fd738e",
+                "4a202b3", "5b5b025", "8496071",
+            });
+        }
+
+        [Fact]
         public void CanGetParentsCount()
         {
             using (var repo = new Repository(BareTestRepoPath))
@@ -192,7 +204,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(BareTestRepoPath))
             {
                 foreach (Commit commit in repo.Commits.QueryBy(new CommitFilter
-                                                                    { 
+                                                                    {
                                                                         Since = "a4a7dce85cf63874e984719f4fdd239f5145052f",
                                                                         SortBy = CommitSortStrategies.Time
                                                                     }))
@@ -246,7 +258,7 @@ namespace LibGit2Sharp.Tests
             using (var repoClone = new Repository(path))
             {
                 // Hard reset and then remove untracked files
-                repoClone.Reset(ResetOptions.Hard);
+                repoClone.Reset(ResetMode.Hard);
                 repoClone.RemoveUntrackedFiles();
 
                 string headSha = repoClone.Head.Tip.Sha;
@@ -400,7 +412,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        private static void AssertEnumerationOfCommits(Func<Repository, CommitFilter> filterBuilder, IEnumerable<string> abbrevIds)
+        private static void AssertEnumerationOfCommits(Func<IRepository, CommitFilter> filterBuilder, IEnumerable<string> abbrevIds)
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
@@ -408,7 +420,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        private static void AssertEnumerationOfCommitsInRepo(Repository repo, Func<Repository, CommitFilter> filterBuilder, IEnumerable<string> abbrevIds)
+        private static void AssertEnumerationOfCommitsInRepo(IRepository repo, Func<IRepository, CommitFilter> filterBuilder, IEnumerable<string> abbrevIds)
         {
             ICommitLog commits = repo.Commits.QueryBy(filterBuilder(repo));
 
@@ -480,7 +492,7 @@ namespace LibGit2Sharp.Tests
                 var blob = commit["1/branch_file.txt"].Target as Blob;
                 Assert.NotNull(blob);
 
-                Assert.Equal("hi\n", blob.ContentAsText());
+                Assert.Equal("hi\n", blob.GetContentText());
             }
         }
 
@@ -507,19 +519,18 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [SkippableFact]
+        [Fact]
         public void CanCommitWithSignatureFromConfig()
         {
             string repoPath = InitNewRepository();
+            string configPath = CreateConfigurationWithDummyUser(Constants.Signature);
+            var options = new RepositoryOptions { GlobalConfigurationLocation = configPath };
 
-            using (var repo = new Repository(repoPath))
+            using (var repo = new Repository(repoPath, options))
             {
                 string dir = repo.Info.Path;
                 Assert.True(Path.IsPathRooted(dir));
                 Assert.True(Directory.Exists(dir));
-
-                InconclusiveIf(() => !repo.Config.HasConfig(ConfigurationLevel.Global),
-                    "No Git global configuration available");
 
                 const string relativeFilepath = "new.txt";
                 string filePath = Touch(repo.Info.WorkingDirectory, relativeFilepath, "null");
@@ -535,12 +546,7 @@ namespace LibGit2Sharp.Tests
                 AssertBlobContent(repo.Head[relativeFilepath], "nulltoken\n");
                 AssertBlobContent(commit[relativeFilepath], "nulltoken\n");
 
-                var name = repo.Config.Get<string>("user.name");
-                var email = repo.Config.Get<string>("user.email");
-                Assert.Equal(commit.Author.Name, name.Value);
-                Assert.Equal(commit.Author.Email, email.Value);
-                Assert.Equal(commit.Committer.Name, name.Value);
-                Assert.Equal(commit.Committer.Email, email.Value);
+                AssertCommitSignaturesAre(commit, Constants.Signature);
             }
         }
 
@@ -550,7 +556,7 @@ namespace LibGit2Sharp.Tests
             string path = CloneStandardTestRepo();
             using (var repo = new Repository(path))
             {
-                repo.Reset(ResetOptions.Hard, "c47800");
+                repo.Reset(ResetMode.Hard, "c47800");
 
                 CreateAndStageANewFile(repo);
 
@@ -631,7 +637,7 @@ namespace LibGit2Sharp.Tests
 
                 var author = Constants.Signature;
 
-                const string shortMessage = "Initial egotistic commit"; 
+                const string shortMessage = "Initial egotistic commit";
                 const string commitMessage = shortMessage + "\n\nOnly the coolest commits from us";
 
                 Commit commit = repo.Commit(commitMessage, author, author);
@@ -640,7 +646,7 @@ namespace LibGit2Sharp.Tests
                 AssertBlobContent(commit[relativeFilepath], "nulltoken\n");
 
                 Assert.Equal(0, commit.Parents.Count());
-                Assert.False(repo.Info.IsHeadOrphaned);
+                Assert.False(repo.Info.IsHeadUnborn);
 
                 // Assert a reflog entry is created on HEAD
                 Assert.Equal(1, repo.Refs.Log("HEAD").Count());
@@ -694,7 +700,7 @@ namespace LibGit2Sharp.Tests
         private static void AssertBlobContent(TreeEntry entry, string expectedContent)
         {
             Assert.Equal(TreeEntryTargetType.Blob, entry.TargetType);
-            Assert.Equal(expectedContent, ((Blob)(entry.Target)).ContentAsText());
+            Assert.Equal(expectedContent, ((Blob)(entry.Target)).GetContentText());
         }
 
         private static void AddCommitToRepo(string path)
@@ -746,7 +752,8 @@ namespace LibGit2Sharp.Tests
 
                 CreateAndStageANewFile(repo);
 
-                Commit amendedCommit = repo.Commit("I'm rewriting the history!", Constants.Signature, Constants.Signature, true);
+                Commit amendedCommit = repo.Commit("I'm rewriting the history!", Constants.Signature, Constants.Signature,
+                    new CommitOptions { AmendPreviousCommit = true });
 
                 Assert.Equal(1, repo.Head.Commits.Count());
 
@@ -764,31 +771,32 @@ namespace LibGit2Sharp.Tests
                 Assert.NotNull(mergedCommit);
                 Assert.Equal(2, mergedCommit.Parents.Count());
 
-                repo.Reset(ResetOptions.Soft, mergedCommit.Sha);
+                repo.Reset(ResetMode.Soft, mergedCommit.Sha);
 
                 CreateAndStageANewFile(repo);
                 const string commitMessage = "I'm rewriting the history!";
 
-                Commit amendedCommit = repo.Commit(commitMessage, Constants.Signature, Constants.Signature, true);
+                Commit amendedCommit = repo.Commit(commitMessage, Constants.Signature, Constants.Signature,
+                    new CommitOptions { AmendPreviousCommit = true });
 
                 AssertCommitHasBeenAmended(repo, amendedCommit, mergedCommit);
 
-                // Assert a reflog entry is created
-                var reflogEntry = repo.Refs.Log("HEAD").First();
-                Assert.Equal(amendedCommit.Committer, reflogEntry.Commiter);
-                Assert.Equal(amendedCommit.Id, reflogEntry.To);
-                Assert.Equal(string.Format("commit (amend): {0}", commitMessage), reflogEntry.Message);
+                AssertRefLogEntry(repo, "HEAD",
+                                  amendedCommit.Id,
+                                  string.Format("commit (amend): {0}", commitMessage),
+                                  mergedCommit.Id,
+                                  amendedCommit.Committer);
             }
         }
 
-        private static void CreateAndStageANewFile(Repository repo)
+        private static void CreateAndStageANewFile(IRepository repo)
         {
             string relativeFilepath = string.Format("new-file-{0}.txt", Guid.NewGuid());
             Touch(repo.Info.WorkingDirectory, relativeFilepath, "brand new content\n");
             repo.Index.Stage(relativeFilepath);
         }
 
-        private static void AssertCommitHasBeenAmended(Repository repo, Commit amendedCommit, Commit originalCommit)
+        private static void AssertCommitHasBeenAmended(IRepository repo, Commit amendedCommit, Commit originalCommit)
         {
             Commit headCommit = repo.Head.Tip;
             Assert.Equal(amendedCommit, headCommit);
@@ -804,7 +812,8 @@ namespace LibGit2Sharp.Tests
 
             using (var repo = new Repository(repoPath))
             {
-                Assert.Throws<OrphanedHeadException>(() => repo.Commit("I can not amend anything !:(", Constants.Signature, Constants.Signature, true));
+                Assert.Throws<UnbornBranchException>(() =>
+                    repo.Commit("I can not amend anything !:(", Constants.Signature, Constants.Signature, new CommitOptions { AmendPreviousCommit = true }));
             }
         }
 
@@ -877,6 +886,131 @@ namespace LibGit2Sharp.Tests
 
                 repo.Commit("Initial commit", Constants.Signature, Constants.Signature);
                 Assert.Equal(1, repo.Head.Commits.Count());
+            }
+        }
+
+        [Fact]
+        public void CanNotCommitAnEmptyCommit()
+        {
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
+            {
+                repo.Reset(ResetMode.Hard);
+                repo.RemoveUntrackedFiles();
+
+                Assert.Throws<EmptyCommitException>(() => repo.Commit("Empty commit!", Constants.Signature, Constants.Signature));
+            }
+        }
+
+        [Fact]
+        public void CanCommitAnEmptyCommitWhenForced()
+        {
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
+            {
+                repo.Reset(ResetMode.Hard);
+                repo.RemoveUntrackedFiles();
+
+                repo.Commit("Empty commit!", Constants.Signature, Constants.Signature,
+                    new CommitOptions { AllowEmptyCommit = true });
+            }
+        }
+
+        [Fact]
+        public void CanNotAmendAnEmptyCommit()
+        {
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
+            {
+                repo.Reset(ResetMode.Hard);
+                repo.RemoveUntrackedFiles();
+
+                repo.Commit("Empty commit!", Constants.Signature, Constants.Signature,
+                    new CommitOptions { AllowEmptyCommit = true });
+
+                Assert.Throws<EmptyCommitException>(() => repo.Commit("Empty commit!", Constants.Signature, Constants.Signature,
+                    new CommitOptions { AmendPreviousCommit = true }));
+            }
+        }
+
+        [Fact]
+        public void CanAmendAnEmptyCommitWhenForced()
+        {
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
+            {
+                repo.Reset(ResetMode.Hard);
+                repo.RemoveUntrackedFiles();
+
+                Commit emptyCommit = repo.Commit("Empty commit!", Constants.Signature, Constants.Signature,
+                    new CommitOptions { AllowEmptyCommit = true });
+
+                Commit amendedCommit = repo.Commit("I'm rewriting the history!", Constants.Signature, Constants.Signature,
+                    new CommitOptions { AmendPreviousCommit = true, AllowEmptyCommit = true });
+                AssertCommitHasBeenAmended(repo, amendedCommit, emptyCommit);
+            }
+        }
+
+        [Fact]
+        public void CanCommitAnEmptyCommitWhenMerging()
+        {
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
+            {
+                repo.Reset(ResetMode.Hard);
+                repo.RemoveUntrackedFiles();
+
+                Touch(repo.Info.Path, "MERGE_HEAD", "f705abffe7015f2beacf2abe7a36583ebee3487e\n");
+
+                Assert.Equal(CurrentOperation.Merge, repo.Info.CurrentOperation);
+
+                Commit newMergedCommit = repo.Commit("Merge commit", Constants.Signature, Constants.Signature);
+
+                Assert.Equal(2, newMergedCommit.Parents.Count());
+                Assert.Equal(newMergedCommit.Parents.First().Sha, "32eab9cb1f450b5fe7ab663462b77d7f4b703344");
+                Assert.Equal(newMergedCommit.Parents.Skip(1).First().Sha, "f705abffe7015f2beacf2abe7a36583ebee3487e");
+            }
+        }
+
+        [Fact]
+        public void CanAmendAnEmptyMergeCommit()
+        {
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
+            {
+                repo.Reset(ResetMode.Hard);
+                repo.RemoveUntrackedFiles();
+
+                Touch(repo.Info.Path, "MERGE_HEAD", "f705abffe7015f2beacf2abe7a36583ebee3487e\n");
+                Commit newMergedCommit = repo.Commit("Merge commit", Constants.Signature, Constants.Signature);
+
+                Commit amendedCommit = repo.Commit("I'm rewriting the history!", Constants.Signature, Constants.Signature,
+                    new CommitOptions { AmendPreviousCommit = true });
+                AssertCommitHasBeenAmended(repo, amendedCommit, newMergedCommit);
+            }
+        }
+
+        [Fact]
+        public void CanNotAmendACommitInAWayThatWouldLeadTheNewCommitToBecomeEmpty()
+        {
+            string repoPath = InitNewRepository();
+
+            using (var repo = new Repository(repoPath))
+            {
+                Touch(repo.Info.WorkingDirectory, "test.txt", "test\n");
+                repo.Index.Stage("test.txt");
+
+                repo.Commit("Initial commit", Constants.Signature, Constants.Signature);
+
+                Touch(repo.Info.WorkingDirectory, "new.txt", "content\n");
+                repo.Index.Stage("new.txt");
+
+                repo.Commit("One commit", Constants.Signature, Constants.Signature);
+
+                repo.Index.Remove("new.txt");
+
+                Assert.Throws<EmptyCommitException>(() => repo.Commit("Oops", Constants.Signature, Constants.Signature,
+                    new CommitOptions { AmendPreviousCommit = true }));
             }
         }
     }
