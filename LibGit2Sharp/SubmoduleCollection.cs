@@ -39,19 +39,11 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="name">The name of the Submodule</param>
         /// <param name="url">The url of the remote repository</param>
-        /// <param name="commitOrBranchSpec">The remote branch or commit to checkout</param>
         /// <param name="relativePath">The path of the submodule inside of the super repository, if none, name is taken.</param>
         /// <param name="useGitLink">Should workdir contain a gitlink to the repo in .git/modules vs. repo directly in workdir.</param>
+        /// <param name="initiRepository">Should workdir contain a gitlink to the repo in .git/modules vs. repo directly in workdir.</param>
         /// <returns></returns>
-        public Submodule Add(string name, string url, string commitOrBranchSpec, string relativePath = null, bool useGitLink = true,
-            TagFetchMode tagFetchMode = TagFetchMode.Auto,
-            ProgressHandler onProgress = null,
-            CompletionHandler onCompletion = null,
-            UpdateTipsHandler onUpdateTips = null,
-            TransferProgressHandler onTransferProgress = null,
-            Credentials credentials = null,
-            CheckoutProgressHandler onCheckoutProgress = null, 
-            CheckoutNotificationOptions checkoutNotificationOptions = null)
+        public Submodule Add(string name, string url, string relativePath, bool useGitLink , Action<Repository> initiRepository)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
 
@@ -65,8 +57,7 @@ namespace LibGit2Sharp
 
                 using (Repository subRep = new Repository(subPath))
                 {
-                    subRep.Fetch("origin", tagFetchMode, onProgress, onCompletion, onUpdateTips, onTransferProgress, credentials);
-                    subRep.Checkout(commitOrBranchSpec, CheckoutModifiers.None, onCheckoutProgress, checkoutNotificationOptions);
+                    initiRepository(subRep);
                 }
                     
                 Proxy.git_submodule_add_finalize(handle);
