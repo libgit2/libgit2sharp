@@ -189,6 +189,24 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        /// Promotes to the staging area the latest modifications of a collection of files in the working directory (addition, updation or removal)
+        /// BUT DON'T DIFF IGNORED FILES BECAUSE FILE PATHS MIGHT BE SUPER TERRIBLE.
+        /// </summary>
+        /// <param name="paths">The collection of paths of the files within the working directory.</param>
+        /// <param name="explicitPathsOptions">
+        /// If set, the passed <paramref name="paths"/> will be treated as explicit paths.
+        /// Use these options to determine how unmatched explicit paths should be handled.
+        /// </param>
+        /// <remarks>kids don't try this at home</remarks>
+        public virtual void StageExcludeIgnored(IEnumerable<string> paths, ExplicitPathsOptions explicitPathsOptions = null)
+        {
+            Ensure.ArgumentNotNull(paths, "paths");
+
+            const DiffModifiers modifiers = DiffModifiers.IncludeUntracked;
+            StageInternal(paths, explicitPathsOptions, modifiers);
+        }
+
+        /// <summary>
         /// Removes from the staging area all the modifications of a file since the latest commit (addition, updation or removal).
         /// </summary>
         /// <param name="path">The path of the file within the working directory.</param>
