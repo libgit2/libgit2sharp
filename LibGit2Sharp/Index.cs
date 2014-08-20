@@ -154,7 +154,13 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNull(paths, "paths");
 
-            var changes = repo.Diff.Compare<TreeChanges>(DiffModifiers.IncludeUntracked | DiffModifiers.IncludeIgnored, paths, explicitPathsOptions);
+            const DiffModifiers modifiers = DiffModifiers.IncludeUntracked | DiffModifiers.IncludeIgnored;
+            StageInternal(paths, explicitPathsOptions, modifiers);
+        }
+
+        void StageInternal(IEnumerable<string> paths, ExplicitPathsOptions explicitPathsOptions, DiffModifiers modifiers)
+        {
+            var changes = repo.Diff.Compare<TreeChanges>(modifiers, paths, explicitPathsOptions);
 
             foreach (var treeEntryChanges in changes)
             {
