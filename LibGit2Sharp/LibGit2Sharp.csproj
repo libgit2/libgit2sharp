@@ -152,6 +152,7 @@
     <Compile Include="ConflictCollection.cs" />
     <Compile Include="RemoteUpdater.cs" />
     <Compile Include="RemoveFromIndexException.cs" />
+    <Compile Include="Core\GitReferenceType.cs" />
     <Compile Include="Core\Handles\GitRefSpecHandle.cs" />
     <Compile Include="Core\Handles\NullRepositorySafeHandle.cs" />
     <Compile Include="GitLink.cs" />
@@ -160,10 +161,13 @@
     <Compile Include="StashModifiers.cs" />
     <Compile Include="TreeDefinitionExtensions.cs" />
     <Compile Include="TreeEntryTargetType.cs" />
+    <Compile Include="Core\Handles\NotOwnedReferenceSafeHandle.cs" />
     <Compile Include="UnmatchedPathException.cs" />
     <Compile Include="Core\Handles\ReflogEntrySafeHandle.cs" />
     <Compile Include="Core\Handles\ReflogSafeHandle.cs" />
     <Compile Include="ReflogCollection.cs" />
+    <Compile Include="Core\GitRefdbBackend.cs" />
+    <Compile Include="Core\Handles\ReferenceDatabaseSafeHandle.cs" />
     <Compile Include="Core\PathCase.cs" />
     <Compile Include="MatchedPathsAggregator.cs" />
     <Compile Include="Core\Handles\SubmoduleSafeHandle.cs" />
@@ -172,6 +176,7 @@
     <Compile Include="Network.cs" />
     <Compile Include="Core\GitRemoteHead.cs" />
     <Compile Include="ReflogEntry.cs" />
+    <Compile Include="RefdbBackend.cs" />
     <Compile Include="Stash.cs" />
     <Compile Include="StashCollection.cs" />
     <Compile Include="ExplicitPathsOptions.cs" />
@@ -268,7 +273,6 @@
     <Compile Include="Core\Epoch.cs" />
     <Compile Include="Core\GitErrorCode.cs" />
     <Compile Include="Core\GitOid.cs" />
-    <Compile Include="Core\GitReferenceType.cs" />
     <Compile Include="Core\GitSignature.cs" />
     <Compile Include="FileStatus.cs" />
     <Compile Include="Core\GitTime.cs" />
