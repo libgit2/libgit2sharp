@@ -503,6 +503,28 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
+        public void TrackingInformationIsEmptyForBranchTrackingPrunedRemoteBranch()
+        {
+            var path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
+            {
+                const string remoteRef = "refs/remotes/origin/master";
+                repo.Refs.Remove(remoteRef);
+
+                Branch master = repo.Branches["master"];
+                Assert.True(master.IsTracking);
+                Assert.NotNull(master.TrackedBranch);
+                Assert.Equal(remoteRef, master.TrackedBranch.CanonicalName);
+                Assert.Null(master.TrackedBranch.Tip);
+
+                Assert.NotNull(master.TrackingDetails);
+                Assert.Null(master.TrackingDetails.AheadBy);
+                Assert.Null(master.TrackingDetails.BehindBy);
+                Assert.Null(master.TrackingDetails.CommonAncestor);
+            }
+        }
+
+        [Fact]
         public void TrackingInformationIsEmptyForNonTrackingBranch()
         {
             using (var repo = new Repository(BareTestRepoPath))
