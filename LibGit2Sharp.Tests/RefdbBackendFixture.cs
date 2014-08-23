@@ -27,8 +27,8 @@ namespace LibGit2Sharp.Tests
         public void CanReadFromRefdbBackend()
         {
             var scd = new SelfCleaningDirectory(this);
-
-            using (Repository repository = Repository.Init(scd.RootedDirectoryPath))
+            string path = Repository.Init ( scd.DirectoryPath );
+            using ( Repository repository = new Repository ( path ) )
             {
                 MockRefdbBackend backend = SetupBackend(repository);
 
@@ -49,7 +49,8 @@ namespace LibGit2Sharp.Tests
         {
             var scd = new SelfCleaningDirectory(this);
 
-            using (Repository repository = Repository.Init(scd.RootedDirectoryPath))
+            string path = Repository.Init ( scd.DirectoryPath );
+            using ( Repository repository = new Repository ( path ) )
             {
                 MockRefdbBackend backend = SetupBackend(repository);
 
@@ -81,7 +82,8 @@ namespace LibGit2Sharp.Tests
         {
             var scd = new SelfCleaningDirectory(this);
 
-            using (Repository repository = Repository.Init(scd.RootedDirectoryPath))
+            string path = Repository.Init ( scd.DirectoryPath );
+            using ( Repository repository = new Repository ( path ) )
             {
                 MockRefdbBackend backend = SetupBackend(repository);
 
@@ -98,7 +100,8 @@ namespace LibGit2Sharp.Tests
         {
             var scd = new SelfCleaningDirectory(this);
 
-            using (Repository repository = Repository.Init(scd.RootedDirectoryPath))
+            string path = Repository.Init ( scd.DirectoryPath );
+            using ( Repository repository = new Repository ( path ) )
             {
                 MockRefdbBackend backend = SetupBackend(repository);
 
@@ -116,7 +119,8 @@ namespace LibGit2Sharp.Tests
         {
             var scd = new SelfCleaningDirectory(this);
 
-            using (Repository repository = Repository.Init(scd.RootedDirectoryPath))
+            string path = Repository.Init ( scd.DirectoryPath );
+            using ( Repository repository = new Repository ( path ) )
             {
                 MockRefdbBackend backend = SetupBackend(repository);
 

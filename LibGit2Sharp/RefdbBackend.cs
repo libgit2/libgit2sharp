@@ -315,8 +315,7 @@ namespace LibGit2Sharp
                     return (int)GitErrorCode.Error;
                 }
 
-                
-                var referenceHandle = new ReferenceSafeHandle(referencePtr);
+                var referenceHandle = new NotOwnedReferenceSafeHandle(referencePtr);
                 string name = Proxy.git_reference_name(referenceHandle);
                 GitReferenceType type = Proxy.git_reference_type(referenceHandle);
 
@@ -359,7 +358,7 @@ namespace LibGit2Sharp
                     return (int)GitErrorCode.Error;
                 }
 
-                var referenceHandle = new ReferenceSafeHandle(referencePtr);
+                var referenceHandle = new NotOwnedReferenceSafeHandle ( referencePtr );
                 string name = Proxy.git_reference_name(referenceHandle);
 
                 try

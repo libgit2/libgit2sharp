@@ -16,6 +16,7 @@ namespace LibGit2Sharp
     public class ReferenceCollection : IEnumerable<Reference>
     {
         internal readonly Repository repo;
+        internal readonly ReferenceDatabaseSafeHandle refDbHandle;
 
         /// <summary>
         /// Needed for mocking purposes.
@@ -30,6 +31,9 @@ namespace LibGit2Sharp
         internal ReferenceCollection(Repository repo)
         {
             this.repo = repo;
+            refDbHandle = Proxy.git_repository_refdb(repo.Handle);
+
+            repo.RegisterForCleanup(refDbHandle);
         }
 
         /// <summary>
@@ -140,7 +144,7 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(reference, "reference");
 
             Proxy.git_reference_remove(repo.Handle, reference.CanonicalName);
-        }
+            }
 
         /// <summary>
         /// Rename an existing reference with a new name, and update the reflog
@@ -164,10 +168,10 @@ namespace LibGit2Sharp
 
             using (ReferenceSafeHandle referencePtr = RetrieveReferencePtr(reference.CanonicalName))
             using (ReferenceSafeHandle handle = Proxy.git_reference_rename(referencePtr, newName, allowOverwrite, signature.OrDefault(repo.Config), logMessage))
-            {
+                {
                 return Reference.BuildFromPtr<Reference>(handle, repo);
+                }
             }
-        }
 
         /// <summary>
         /// Rename an existing reference with a new name
@@ -245,16 +249,16 @@ namespace LibGit2Sharp
             signature = signature.OrDefault(repo.Config);
 
             if (symbolicRef.CanonicalName == "HEAD")
-            {
+                {
                 return UpdateHeadTarget(targetRef, signature, logMessage);
-            }
+                }
 
             using (ReferenceSafeHandle referencePtr = RetrieveReferencePtr(symbolicRef.CanonicalName))
             using (ReferenceSafeHandle handle = Proxy.git_reference_symbolic_set_target(referencePtr, targetRef.CanonicalName, signature, logMessage))
-            {
+                {
                 return Reference.BuildFromPtr<Reference>(handle, repo);
             }
-        }
+                }
 
         /// <summary>
         /// Updates the target of a symbolic reference
@@ -263,30 +267,30 @@ namespace LibGit2Sharp
         /// <param name="targetRef">The new target.</param>
         /// <returns>A new <see cref="Reference"/>.</returns>
         public virtual Reference UpdateTarget(Reference symbolicRef, Reference targetRef)
-        {
+                {
             return UpdateTarget(symbolicRef, targetRef, null, null);
-        }
+            }
 
         internal Reference UpdateHeadTarget<T>(T target, Signature signature, string logMessage)
-        {
+            {
             Debug.Assert(signature != null);
 
             if (target is ObjectId)
-            {
+                {
                 Proxy.git_repository_set_head_detached(repo.Handle, target as ObjectId, signature, logMessage);
             }
             else if (target is DirectReference || target is SymbolicReference)
             {
                 Proxy.git_repository_set_head(repo.Handle, (target as Reference).CanonicalName, signature, logMessage);
-            }
+        }
             else if (target is string)
-            {
+        {
                 var targetIdentifier = target as string;
 
                 if (Reference.IsValidName(targetIdentifier))
-                {
+            {
                     Proxy.git_repository_set_head(repo.Handle, targetIdentifier, signature, logMessage);
-                }
+            }
                 else
                 {
                     GitObject commit = repo.Lookup(targetIdentifier,
@@ -297,7 +301,7 @@ namespace LibGit2Sharp
 
                     Proxy.git_repository_set_head_detached(repo.Handle, commit.Id, signature, logMessage);
                 }
-            }
+        }
             else
             {
                 throw new ArgumentException(string.Format(CultureInfo.InvariantCulture,
@@ -415,5 +419,17 @@ namespace LibGit2Sharp
         {
             Proxy.git_reference_ensure_log(repo.Handle, canonicalName);
         }
+
+        /// <summary>
+        ///   Sets the provided backend to be the reference database provider.
+        /// </summary>
+        /// <param name="backend">The backend to add</param>
+        public virtual void SetBackend ( RefdbBackend backend )
+        {
+            Ensure.ArgumentNotNull ( backend, "backend" );
+
+            Proxy.git_refdb_set_backend ( refDbHandle, backend.GitRefdbBackendPointer );
+        }
+
     }
 }

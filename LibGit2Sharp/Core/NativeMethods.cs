@@ -850,6 +850,23 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string log_message);
 
         [DllImport(libgit2)]
+        internal static extern int git_refdb_set_backend(ReferenceDatabaseSafeHandle refdb, IntPtr backend);
+
+        [DllImport(libgit2)]
+        internal static extern void git_refdb_free(IntPtr refdb);
+
+        [DllImport(libgit2)]
+        internal static extern IntPtr git_reference__alloc(
+            [MarshalAs ( UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof ( StrictUtf8Marshaler ) )] string name,
+            IntPtr oid,
+            IntPtr peel);
+
+        [DllImport(libgit2)]
+        internal static extern IntPtr git_reference__alloc_symbolic(
+            [MarshalAs ( UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof ( StrictUtf8Marshaler ) )] string name,
+            [MarshalAs ( UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof ( StrictUtf8Marshaler ) )] string target );
+
+        [DllImport(libgit2)]
         internal static extern int git_reference_create(
             out ReferenceSafeHandle reference,
             RepositorySafeHandle repo,
@@ -900,15 +917,22 @@ namespace LibGit2Sharp.Core
         [return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(LaxUtf8NoCleanupMarshaler))]
         internal static extern string git_reference_name(ReferenceSafeHandle reference);
 
-        [DllImport(libgit2)]
+        [DllImport ( libgit2 )]
+        [return: MarshalAs ( UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof ( LaxUtf8NoCleanupMarshaler ) )]
+        internal static extern string git_reference_name ( NotOwnedReferenceSafeHandle reference );
+
+        [DllImport ( libgit2 )]
         internal static extern int git_reference_remove(
             RepositorySafeHandle repo,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string name);
 
-        [DllImport(libgit2)]
-        internal static extern OidSafeHandle git_reference_target(ReferenceSafeHandle reference);
+        [DllImport ( libgit2 )]
+        internal static extern OidSafeHandle git_reference_target ( ReferenceSafeHandle reference );
 
-        [DllImport(libgit2)]
+        [DllImport ( libgit2 )]
+        internal static extern OidSafeHandle git_reference_target ( NotOwnedReferenceSafeHandle reference );
+
+        [DllImport ( libgit2 )]
         internal static extern int git_reference_rename(
             out ReferenceSafeHandle ref_out,
             ReferenceSafeHandle reference,
@@ -937,10 +961,17 @@ namespace LibGit2Sharp.Core
         [return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(LaxUtf8NoCleanupMarshaler))]
         internal static extern string git_reference_symbolic_target(ReferenceSafeHandle reference);
 
-        [DllImport(libgit2)]
-        internal static extern GitReferenceType git_reference_type(ReferenceSafeHandle reference);
+        [DllImport ( libgit2 )]
+        [return: MarshalAs ( UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof ( LaxUtf8NoCleanupMarshaler ) )]
+        internal static extern string git_reference_symbolic_target ( NotOwnedReferenceSafeHandle reference );
 
-        [DllImport(libgit2)]
+        [DllImport ( libgit2 )]
+        internal static extern GitReferenceType git_reference_type ( ReferenceSafeHandle reference );
+
+        [DllImport ( libgit2 )]
+        internal static extern GitReferenceType git_reference_type ( NotOwnedReferenceSafeHandle reference );
+
+        [DllImport ( libgit2 )]
         internal static extern int git_reference_ensure_log(
             RepositorySafeHandle repo,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof (StrictUtf8Marshaler))] string refname);
@@ -1196,6 +1227,9 @@ namespace LibGit2Sharp.Core
         [DllImport(libgit2)]
         [return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(LaxFilePathNoCleanupMarshaler))]
         internal static extern FilePath git_repository_path(RepositorySafeHandle repository);
+
+        [DllImport(libgit2)]
+        internal static extern int git_repository_refdb(out ReferenceDatabaseSafeHandle refdb, RepositorySafeHandle repo);
 
         [DllImport(libgit2)]
         internal static extern void git_repository_set_config(
