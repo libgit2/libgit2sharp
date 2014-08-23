@@ -1602,6 +1602,7 @@ namespace LibGit2Sharp.Core
                 ReferenceSafeHandle handle;
 
                 int res = NativeMethods.git_reference_create(out handle, repo, name, ref oid, allowOverwrite, sigHandle, logMessage);
+
                 Ensure.ZeroResult(res);
 
                 return handle;
