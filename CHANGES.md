@@ -10,6 +10,37 @@
   - CodeBetter TeamCity: <http://teamcity.codebetter.com/project.html?projectId=LibGit2Sharp&guest=1>
   - Travis: <https://travis-ci.org/libgit2/libgit2sharp>
 
+## v0.19 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.18.1...v0.19))
+
+### Additions
+
+ - Introduce repo.Network.Remotes.Rename() (#730, #741)
+ - Introduce repo.ObjectDatabase.ShortenObjectId() (#677)
+ - Introduce Remote.IsSupportedUrl() (#754)
+ - Introduce repo.CherryPick() (#755, #756)
+ - Expose advanced conflict data (REUC, renames) (#748)
+
+### Changes
+
+ - Make Patch expose a richer PatchEntryChanges type (#686, #702)
+ - Make network operations accept Credentials through a callback (#759, #761, #767)
+ - Make repo.Index.Stage() respect ignored files by default (#777)
+ - Make OdbBackend IDisposable (#713)
+ - Update libgit2 binaries to libgit2/libgit2@d28b2b7
+
+### Fixes
+
+ - Don't require specific rights to the parent hierarchy of a repository (#795)
+ - Prevent Clone() from choking on empty packets (#794)
+ - Ensure Tags can be created in detached Head state (#791)
+ - Properly determine object size when calculating its CRC (#783)
+ - Prevent blind fast forwards merges when there are checkout conflicts (#781)
+ - Make repo.Reset() and repo.Index.Unstage() cope with renamed entries (#777)
+ - Do not throw when parsing annotated tags without a Signature (#775, #776)
+ - Remove conflicts upon repo.Index.Remove() call (#768)
+ - Honor the merge.ff configuration entry (#709)
+ - Make Clone() properly throws when passed an invalid url (#701)
+
 ## v0.18.1 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.18.0...v0.18.1))
 
 ### Additions
