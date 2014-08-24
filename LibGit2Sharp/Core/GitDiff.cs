@@ -112,6 +112,16 @@ namespace LibGit2Sharp.Core
         /// </summary>
         GIT_DIFF_UPDATE_INDEX = (1 << 15),
 
+        /// <summary>
+        /// Include unreadable files in the diff
+        /// </summary>
+        GIT_DIFF_INCLUDE_UNREADABLE = (1 << 16),
+
+        /// <summary>
+        /// Include unreadable files in the diff
+        /// </summary>
+        GIT_DIFF_INCLUDE_UNREADABLE_AS_UNTRACKED = (1 << 17),
+
         /*
          * Options controlling how output will be generated
          */

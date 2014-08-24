@@ -69,6 +69,11 @@ namespace LibGit2Sharp
         RenamedInWorkDir = (1 << 11), /* GIT_STATUS_WT_RENAMED */
 
         /// <summary>
+        /// The file is unreadable in the working directory.
+        /// </summary>
+        Unreadable = (1 << 12), /* GIT_STATUS_WT_UNREADABLE */
+
+        /// <summary>
         /// The file is <see cref="Untracked"/> but its name and/or path matches an exclude pattern in a <c>gitignore</c> file.
         /// </summary>
         Ignored = (1 << 14), /* GIT_STATUS_IGNORED */

@@ -495,12 +495,8 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(FileStatus.Ignored, repo.Index.RetrieveStatus("bin/look-ma.txt"));
                 Assert.Equal(FileStatus.Untracked, repo.Index.RetrieveStatus("bin/what-about-me.txt"));
 
-                // bin/* is considered as ignoring the dir itself
                 newStatus = repo.Index.RetrieveStatus();
-                Assert.Equal(new[] { "bin" + dirSep }, newStatus.Ignored.Select(s => s.FilePath));
 
-                // if we recurse into ignored dirs, then we get the actual list
-                newStatus = repo.Index.RetrieveStatus(new StatusOptions { RecurseIgnoredDirs = true });
                 Assert.Equal(new[] { "bin" + dirSep + "look-ma.txt" }, newStatus.Ignored.Select(s => s.FilePath));
                 Assert.True(newStatus.Untracked.Select(s => s.FilePath).Contains("bin" + dirSep + "what-about-me.txt"));
             }

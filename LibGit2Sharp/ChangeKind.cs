@@ -50,5 +50,10 @@ namespace LibGit2Sharp
         /// of the file was changed.
         /// </summary>
         TypeChanged = 8,
+
+        /// <summary>
+        /// Entry is unreadable.
+        /// </summary>
+        Unreadable = 9,
     }
 }

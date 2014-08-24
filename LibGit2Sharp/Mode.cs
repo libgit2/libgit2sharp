@@ -8,7 +8,7 @@
         // Inspired from http://stackoverflow.com/a/8347325/335418
 
         /// <summary>
-        /// 000000 file mode (the entry doesn't exist)
+        /// 000000 file mode (the entry doesn't exist or is unreadable)
         /// </summary>
         Nonexistent = 0,
 

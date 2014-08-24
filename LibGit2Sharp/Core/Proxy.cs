@@ -270,12 +270,12 @@ namespace LibGit2Sharp.Core
 
         #region git_cherry_pick_
 
-        internal static void git_cherry_pick(RepositorySafeHandle repo, ObjectId commit, GitCherryPickOptions options)
+        internal static void git_cherrypick(RepositorySafeHandle repo, ObjectId commit, GitCherryPickOptions options)
         {
             using (ThreadAffinity())
             using (var nativeCommit = git_object_lookup(repo, commit, GitObjectType.Commit))
             {
-                int res = NativeMethods.git_cherry_pick(repo, nativeCommit, options);
+                int res = NativeMethods.git_cherrypick(repo, nativeCommit, options);
                 Ensure.ZeroResult(res);
             }
         }

@@ -46,5 +46,7 @@ namespace LibGit2Sharp.Core
         RenamesFromRewrites = (1 << 11),
         NoRefresh = (1 << 12),
         UpdateIndex = (1 << 13),
+        IncludeUnreadable = (1 << 14),
+        IncludeUnreadableAsUntracked = (1 << 15),
     }
 }

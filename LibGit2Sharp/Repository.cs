@@ -1155,7 +1155,7 @@ namespace LibGit2Sharp
 
             CherryPickResult result = null;
 
-            using (GitCheckoutOptsWrapper checkoutOptionsWrapper = new GitCheckoutOptsWrapper(options))
+            using (var checkoutOptionsWrapper = new GitCheckoutOptsWrapper(options))
             {
                 var mergeOptions = new GitMergeOpts
                 {
@@ -1167,7 +1167,7 @@ namespace LibGit2Sharp
                     TargetLimit = (uint)options.TargetLimit,
                 };
 
-                GitCherryPickOptions gitCherryPickOpts = new GitCherryPickOptions()
+                var gitCherryPickOpts = new GitCherryPickOptions()
                 {
                     Mainline = (uint)options.Mainline,
                     MergeOpts = mergeOptions,
@@ -1175,7 +1175,7 @@ namespace LibGit2Sharp
                     CheckoutOpts = checkoutOptionsWrapper.Options,
                 };
 
-                Proxy.git_cherry_pick(handle, commit.Id.Oid, gitCherryPickOpts);
+                Proxy.git_cherrypick(handle, commit.Id.Oid, gitCherryPickOpts);
 
                 if (Index.IsFullyMerged)
                 {
