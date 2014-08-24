@@ -191,5 +191,13 @@ namespace LibGit2Sharp.Tests
                 Assert.False(repo.Info.IsBare);
             }
         }
+
+        [Fact]
+        public void CloningAnUrlWithoutPathThrows()
+        {
+            var scd = BuildSelfCleaningDirectory();
+
+            Assert.Throws<InvalidSpecificationException>(() => Repository.Clone("http://github.com", scd.DirectoryPath));
+        }
     }
 }
