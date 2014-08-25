@@ -210,12 +210,31 @@ namespace LibGit2Sharp.Core
 
         public static void GitObjectIsNotNull(GitObject gitObject, string identifier)
         {
+            Func<string, LibGit2SharpException> exceptionBuilder;
+
+            if (string.Equals("HEAD", identifier, StringComparison.Ordinal))
+            {
+                exceptionBuilder = m => new UnbornBranchException(m);
+            }
+            else
+            {
+                exceptionBuilder = m => new LibGit2SharpException(m);
+            }
+
+            GitObjectIsNotNull(gitObject, identifier, exceptionBuilder);
+        }
+
+        public static void GitObjectIsNotNull(
+            GitObject gitObject,
+            string identifier,
+            Func<string, LibGit2SharpException> exceptionBuilder)
+        {
             if (gitObject != null)
             {
                 return;
             }
 
-            throw new LibGit2SharpException(string.Format(CultureInfo.InvariantCulture,
+            throw exceptionBuilder(string.Format(CultureInfo.InvariantCulture,
                                                      "No valid git object identified by '{0}' exists in the repository.",
                                                      identifier));
         }

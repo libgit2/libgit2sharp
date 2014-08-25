@@ -18,7 +18,7 @@ namespace LibGit2Sharp.Tests
 
             using (var repo = new Repository(repoPath))
             {
-                Assert.Throws<LibGit2SharpException>(() => repo.Reset(ResetMode.Soft));
+                Assert.Throws<UnbornBranchException>(() => repo.Reset(ResetMode.Soft));
             }
         }
 

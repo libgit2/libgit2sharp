@@ -234,7 +234,7 @@ namespace LibGit2Sharp.Tests
 
             using (var repo = new Repository(repoPath))
             {
-                Assert.Throws<LibGit2SharpException>(() => repo.ApplyTag("mynotag"));
+                Assert.Throws<UnbornBranchException>(() => repo.ApplyTag("mynotag"));
             }
         }
 
@@ -246,7 +246,8 @@ namespace LibGit2Sharp.Tests
 
             using (var repo = new Repository(repoPath))
             {
-                Assert.Throws<LibGit2SharpException>(() => repo.ApplyTag("mytaghead", "HEAD"));
+                Assert.Throws<UnbornBranchException>(() => repo.ApplyTag("mytaghead", "HEAD"));
+                Assert.Throws<UnbornBranchException>(() => repo.ApplyTag("mytaghead"));
             }
         }
 
@@ -277,6 +278,26 @@ namespace LibGit2Sharp.Tests
             string path = CloneBareTestRepo();
             using (var repo = new Repository(path))
             {
+                Tag tag = repo.ApplyTag("mytag");
+                Assert.NotNull(tag);
+
+                Assert.Equal(repo.Head.Tip.Id, tag.Target.Id);
+
+                Tag retrievedTag = repo.Tags[tag.CanonicalName];
+                Assert.Equal(retrievedTag, tag);
+            }
+        }
+
+        [Fact]
+        public void CanAddATagForImplicitHeadInDetachedState()
+        {
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
+            {
+                repo.Checkout(repo.Head.Tip);
+
+                Assert.True(repo.Info.IsHeadDetached);
+
                 Tag tag = repo.ApplyTag("mytag");
                 Assert.NotNull(tag);
 

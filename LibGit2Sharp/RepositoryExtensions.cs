@@ -68,7 +68,7 @@ namespace LibGit2Sharp
         /// <param name="tagName">The name of the tag to create.</param>
         public static Tag ApplyTag(this IRepository repository, string tagName)
         {
-            return ApplyTag(repository, tagName, repository.Head.CanonicalName);
+            return repository.Tags.Add(tagName, RetrieveHeadCommit(repository));
         }
 
         /// <summary>
@@ -91,7 +91,16 @@ namespace LibGit2Sharp
         /// <param name="message">The annotation message.</param>
         public static Tag ApplyTag(this IRepository repository, string tagName, Signature tagger, string message)
         {
-            return ApplyTag(repository, tagName, repository.Head.CanonicalName, tagger, message);
+            return repository.Tags.Add(tagName, RetrieveHeadCommit(repository), tagger, message);
+        }
+
+        private static Commit RetrieveHeadCommit(IRepository repository)
+        {
+            Commit commit = repository.Head.Tip;
+
+            Ensure.GitObjectIsNotNull(commit, "HEAD", m => new UnbornBranchException(m));
+
+            return commit;
         }
 
         /// <summary>
