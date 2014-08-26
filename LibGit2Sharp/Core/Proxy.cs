@@ -73,7 +73,7 @@ namespace LibGit2Sharp.Core
 
                 if (res == (int)GitErrorCode.User)
                 {
-                    throw new EndOfStreamException("The stream ended unexpectedly"); 
+                    throw new EndOfStreamException("The stream ended unexpectedly");
                 }
 
                 Ensure.ZeroResult(res);

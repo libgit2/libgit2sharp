@@ -110,7 +110,7 @@ namespace LibGit2Sharp.Tests
 
             Assert.True(regexResult.Success, "The following version string format is enforced:" +
                                              "Major.Minor.Patch-LibGit2Sharp_abbrev_hash-libgit2_abbrev_hash (x86|amd64 - features)");
-            
+
             GroupCollection matchGroups = regexResult.Groups;
 
             // Check that all groups are valid

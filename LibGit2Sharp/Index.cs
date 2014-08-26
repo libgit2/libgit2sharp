@@ -129,7 +129,7 @@ namespace LibGit2Sharp
 
         /// <summary>
         /// Promotes to the staging area the latest modifications of a file in the working directory (addition, updation or removal).
-        /// 
+        ///
         /// If this path is ignored by configuration then it will not be staged.
         /// </summary>
         /// <param name="path">The path of the file within the working directory.</param>
@@ -145,7 +145,7 @@ namespace LibGit2Sharp
 
         /// <summary>
         /// Promotes to the staging area the latest modifications of a file in the working directory (addition, updation or removal).
-        /// 
+        ///
         /// If this path is ignored by configuration then it will not be staged unless <see cref="StageOptions.IncludeIgnored"/> is unset.
         /// </summary>
         /// <param name="path">The path of the file within the working directory.</param>
@@ -159,7 +159,7 @@ namespace LibGit2Sharp
 
         /// <summary>
         /// Promotes to the staging area the latest modifications of a collection of files in the working directory (addition, updation or removal).
-        /// 
+        ///
         /// Any paths (even those listed explicitly) that are ignored by configuration will not be staged.
         /// </summary>
         /// <param name="paths">The collection of paths of the files within the working directory.</param>
@@ -175,7 +175,7 @@ namespace LibGit2Sharp
 
         /// <summary>
         /// Promotes to the staging area the latest modifications of a collection of files in the working directory (addition, updation or removal).
-        /// 
+        ///
         /// Any paths (even those listed explicitly) that are ignored by configuration will not be staged unless <see cref="StageOptions.IncludeIgnored"/> is unset.
         /// </summary>
         /// <param name="paths">The collection of paths of the files within the working directory.</param>

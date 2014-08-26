@@ -563,7 +563,7 @@ namespace LibGit2Sharp.Tests
             /*
              * $ echo "aabqhq" | git hash-object -t blob --stdin
              * dea509d0b3cb8ee0650f6ca210bc83f4678851ba
-             * 
+             *
              * $ echo "aaazvc" | git hash-object -t blob --stdin
              * dea509d097ce692e167dfc6a48a7a280cc5e877e
              */

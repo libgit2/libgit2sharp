@@ -49,7 +49,7 @@ namespace LibGit2Sharp
 
         /// <summary>
         /// When reverting a merge commit, the parent number to consider as
-        /// mainline, starting from offset 1. 
+        /// mainline, starting from offset 1.
         /// <para>
         ///  As a merge commit has multiple parents, reverting a merge commit
         ///  will reverse all the changes brought in by the merge except for

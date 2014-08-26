@@ -385,7 +385,7 @@ namespace LibGit2Sharp.Tests
 
                 Tree tree = repo.Lookup<Tree>("581f9824ecaf824221bd36edf5430f2739a7c4f5");
                 Assert.NotNull(tree);
-                
+
                 Assert.Equal(tree.Id, tag.Target.Id);
             }
         }

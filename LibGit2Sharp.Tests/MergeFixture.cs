@@ -351,7 +351,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(repoPath))
             {
                 Commit commitToMerge = repo.Branches["normal_merge"].Tip;
-                
+
                 bool wasCalled = false;
 
                 MergeOptions options = new MergeOptions()

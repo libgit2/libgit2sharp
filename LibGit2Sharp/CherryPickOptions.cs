@@ -49,7 +49,7 @@ namespace LibGit2Sharp
 
         /// <summary>
         /// When cherry picking a merge commit, the parent number to consider as
-        /// mainline, starting from offset 1. 
+        /// mainline, starting from offset 1.
         /// <para>
         ///  As a merge commit has multiple parents, cherry picking a merge commit
         ///  will reverse all the changes brought in by the merge except for
