@@ -469,7 +469,7 @@ namespace LibGit2Sharp
 
         internal GitObject Lookup(string objectish, GitObjectType type, LookUpOptions lookUpOptions)
         {
-            Ensure.ArgumentNotNullOrEmptyString(objectish, "commitOrBranchSpec");
+            Ensure.ArgumentNotNullOrEmptyString(objectish, "objectish");
 
             GitObject obj;
             using (GitObjectSafeHandle sh = Proxy.git_revparse_single(handle, objectish))
