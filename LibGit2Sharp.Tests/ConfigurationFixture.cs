@@ -80,30 +80,6 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [SkippableFact]
-        public void CanGetGlobalStringValue()
-        {
-            using (var repo = new Repository(StandardTestRepoPath))
-            {
-                InconclusiveIf(() => !repo.Config.HasConfig(ConfigurationLevel.Global),
-                    "No Git global configuration available");
-
-                Assert.NotNull(repo.Config.Get<string>("user.name"));
-            }
-        }
-
-        [SkippableFact]
-        public void CanGetGlobalStringValueWithoutRepo()
-        {
-            using (var config = new Configuration())
-            {
-                InconclusiveIf(() => !config.HasConfig(ConfigurationLevel.Global),
-                    "No Git global configuration available");
-
-                Assert.NotNull(config.Get<string>("user.name"));
-            }
-        }
-
         [Fact]
         public void CanReadBooleanValue()
         {
@@ -261,54 +237,6 @@ namespace LibGit2Sharp.Tests
                 repo.Config.Set("unittests.boolsetting", true);
 
                 AssertValueInLocalConfigFile(path, "boolsetting = true$");
-            }
-        }
-
-        [SkippableFact]
-        public void CanSetGlobalStringValue()
-        {
-            using (var repo = new Repository(StandardTestRepoPath))
-            {
-                InconclusiveIf(() => !repo.Config.HasConfig(ConfigurationLevel.Global),
-                    "No Git global configuration available");
-
-                var existing = repo.Config.Get<string>("user.name");
-                Assert.NotNull(existing);
-
-                try
-                {
-                    repo.Config.Set("user.name", "Unit Test", ConfigurationLevel.Global);
-
-                    AssertValueInGlobalConfigFile("name = Unit Test$");
-                }
-                finally
-                {
-                    repo.Config.Set("user.name", existing.Value, ConfigurationLevel.Global);
-                }
-            }
-        }
-
-        [SkippableFact]
-        public void CanSetGlobalStringValueWithoutRepo()
-        {
-            using(var config = new Configuration())
-            {
-                InconclusiveIf(() => !config.HasConfig(ConfigurationLevel.Global),
-                    "No Git global configuration available");
-
-                var existing = config.Get<string>("user.name");
-                Assert.NotNull(existing);
-
-                try
-                {
-                    config.Set("user.name", "Unit Test", ConfigurationLevel.Global);
-
-                    AssertValueInGlobalConfigFile("name = Unit Test$");
-                }
-                finally
-                {
-                    config.Set("user.name", existing.Value, ConfigurationLevel.Global);
-                }
             }
         }
 
