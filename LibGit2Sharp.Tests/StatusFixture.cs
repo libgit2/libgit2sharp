@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
 using Xunit.Extensions;
@@ -534,6 +537,51 @@ namespace LibGit2Sharp.Tests
 
                 RepositoryStatus status = repo.Index.RetrieveStatus(new StatusOptions() { ExcludeSubmodules = true });
                 Assert.Equal(expected, status.Modified.Select(x => x.FilePath).ToArray());
+            }
+        }
+
+        [Fact]
+        public void CanConcurrentlyDeleteFilesWhileStatusIsBeingCalculated()
+        {
+            string repoPath = InitNewRepository();
+
+            using (var repo = new Repository(repoPath))
+            {
+                var paths = new List<string>();
+                const int numberOfFiles = 3000;
+
+                for (var i = 0; i < numberOfFiles; i++)
+                {
+                    string s = i.ToString(CultureInfo.InvariantCulture);
+                    string path = Path.Combine(repo.Info.WorkingDirectory, s + ".txt");
+                    File.AppendAllText(path, s);
+                    repo.Index.Stage(path);
+                    paths.Add(path);
+                }
+
+                bool deletionDone = false;
+                Assert.Equal(0, repo.Index.RetrieveStatus().Missing.Count());
+
+                Task.Factory.StartNew(() =>
+                {
+                    foreach (var path in paths)
+                    {
+                        File.Delete(path);
+                    }
+
+                    deletionDone = true;
+                });
+
+                var loops = 0;
+                while (!deletionDone)
+                {
+                    var filePaths = repo.Index.RetrieveStatus().Where(entry => entry.State != FileStatus.Ignored).ToArray();
+                    Assert.NotNull(filePaths);
+                    loops++;
+                }
+
+                Assert.True(loops > 0);
+                Assert.Equal(numberOfFiles, repo.Index.RetrieveStatus().Missing.Count());
             }
         }
     }
