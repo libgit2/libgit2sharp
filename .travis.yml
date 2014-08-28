@@ -3,6 +3,12 @@
 
 language: c
 
+env:
+  global:
+   # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
+   #   via the "travis encrypt" command using the project repo's public key
+   - secure: "D9NGp5DLAgV7ijJMGmI0XppO4/NR0pYVxHQatcPoFAMcWOBR+NoKSLVROfNldMauCedo6YXCJlh9xb1e3vurTFuUbl+gF+5p1Ji2cpNaTPdoC6vq2I3cJfHlTqbMA5lDQxw6TQ0h23CRQyeSr+0fFdHmpnEdvNk3uXugur8rZ40="
+
 os:
  - osx
  - linux
@@ -10,7 +16,6 @@ os:
 before_install:
  - date -u
  - uname -a
- - env | sort
 
 # Make sure CMake and Mono are installed
 install:
@@ -19,14 +24,24 @@ install:
 
 # Build libgit2, LibGit2Sharp and run the tests
 script:
- - ./build.libgit2sharp.sh
+ - if [ "${COVERITY_SCAN_BRANCH}" != "1" ]; then ./build.libgit2sharp.sh ; fi
 
 # Only watch the development branch
 branches:
  only:
    - vNext
+   - coverity
 
 # Notify of build changes
 notifications:
  email:
   - emeric.fermas@gmail.com
+
+addons:
+  coverity_scan:
+    project:
+      name: "libgit2/libgit2sharp"
+    notification_email: emeric.fermas@gmail.com
+    build_command_prepend: ./CI/travis.build.libgit2.sh
+    build_command: ./CI/travis.build.libgit2sharp.sh
+    branch_pattern: coverity

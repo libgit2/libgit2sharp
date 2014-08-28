@@ -1,4 +1,4 @@
 #!/bin/bash
-set -ev
+set -e
 
 sudo apt-get install cmake mono-devel mono-gmcs

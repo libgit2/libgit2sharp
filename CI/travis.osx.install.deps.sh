@@ -1,5 +1,5 @@
 #!/bin/bash
-set -ev
+set -e
 
 MONO_VER=2.10.10
 
