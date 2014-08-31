@@ -15,6 +15,7 @@ namespace LibGit2Sharp
         private static readonly LambdaEqualityHelper<Reference> equalityHelper =
             new LambdaEqualityHelper<Reference>(x => x.CanonicalName, x => x.TargetIdentifier);
 
+        private readonly IRepository repo;
         private readonly string canonicalName;
         private readonly string targetIdentifier;
 
@@ -29,8 +30,19 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="canonicalName">The canonical name.</param>
         /// <param name="targetIdentifier">The target identifier.</param>
+        [Obsolete("This ctor will be removed in a future release.")]
         protected Reference(string canonicalName, string targetIdentifier)
+            : this(null, canonicalName, targetIdentifier)
         {
+        }
+
+        /// <remarks>
+        /// This would be protected+internal, were that supported by C#.
+        /// Do not use except in subclasses.
+        /// </remarks>
+        internal Reference(IRepository repo, string canonicalName, string targetIdentifier)
+        {
+            this.repo = repo;
             this.canonicalName = canonicalName;
             this.targetIdentifier = targetIdentifier;
         }
@@ -48,7 +60,7 @@ namespace LibGit2Sharp
                     string targetIdentifier = Proxy.git_reference_symbolic_target(handle);
 
                     var targetRef = repo.Refs[targetIdentifier];
-                    reference = new SymbolicReference(name, targetIdentifier, targetRef);
+                    reference = new SymbolicReference(repo, name, targetIdentifier, targetRef);
                     break;
 
                 case GitReferenceType.Oid:

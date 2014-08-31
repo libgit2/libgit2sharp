@@ -17,8 +17,8 @@ namespace LibGit2Sharp
         protected SymbolicReference()
         { }
 
-        internal SymbolicReference(string canonicalName, string targetIdentifier, Reference target)
-            : base(canonicalName, targetIdentifier)
+        internal SymbolicReference(IRepository repo, string canonicalName, string targetIdentifier, Reference target)
+            : base(repo, canonicalName, targetIdentifier)
         {
             this.target = target;
         }

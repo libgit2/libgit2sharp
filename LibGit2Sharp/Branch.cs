@@ -260,7 +260,7 @@ namespace LibGit2Sharp
                 return branch;
             }
 
-            return new Branch(repo, new VoidReference(trackedReferenceName), trackedReferenceName);
+            return new Branch(repo, new VoidReference(repo, trackedReferenceName), trackedReferenceName);
         }
 
         private static bool IsRemoteBranch(string canonicalName)
