@@ -46,25 +46,6 @@ namespace LibGit2Sharp
         /// </para>
         /// </summary>
         /// <param name="remote">The <see cref="Remote"/> to list from.</param>
-        /// <param name="credentials">The optional <see cref="Credentials"/> used to connect to remote repository.</param>
-        /// <returns>The references in the <see cref="Remote"/> repository.</returns>
-        [Obsolete("This will be removed in future release. Use the overload ListReferences(Remote, CredentialsHandler).")]
-        public virtual IEnumerable<DirectReference> ListReferences(Remote remote, Credentials credentials)
-        {
-            return ListReferences(remote,
-                                  credentials == null ? null : new CredentialsHandler((url, user, type) => credentials));
-        }
-
-        /// <summary>
-        /// List references in a <see cref="Remote"/> repository.
-        /// <para>
-        /// When the remote tips are ahead of the local ones, the retrieved
-        /// <see cref="DirectReference"/>s may point to non existing
-        /// <see cref="GitObject"/>s in the local repository. In that
-        /// case, <see cref="DirectReference.Target"/> will return <c>null</c>.
-        /// </para>
-        /// </summary>
-        /// <param name="remote">The <see cref="Remote"/> to list from.</param>
         /// <param name="credentialsProvider">The optional <see cref="Func{Credentials}"/> used to connect to remote repository.</param>
         /// <returns>The references in the <see cref="Remote"/> repository.</returns>
         public virtual IEnumerable<DirectReference> ListReferences(Remote remote, CredentialsHandler credentialsProvider = null)

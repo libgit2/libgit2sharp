@@ -39,12 +39,6 @@ namespace LibGit2Sharp
         public CheckoutProgressHandler OnCheckoutProgress { get; set; }
 
         /// <summary>
-        /// Credentials to use for user/pass authentication
-        /// </summary>
-        [Obsolete("This will be removed in future release. Use CredentialsProvider.")]
-        public Credentials Credentials { get; set; }
-
-        /// <summary>
         /// Handler to generate <see cref="LibGit2Sharp.Credentials"/> for authentication.
         /// </summary>
         public CredentialsHandler CredentialsProvider { get; set; }

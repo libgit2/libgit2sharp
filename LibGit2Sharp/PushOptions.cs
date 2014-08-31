@@ -1,5 +1,4 @@
-﻿using System;
-using LibGit2Sharp.Handlers;
+﻿using LibGit2Sharp.Handlers;
 
 namespace LibGit2Sharp
 {
@@ -8,12 +7,6 @@ namespace LibGit2Sharp
     /// </summary>
     public sealed class PushOptions : ICredentialsProvider
     {
-        /// <summary>
-        /// The <see cref="LibGit2Sharp.Credentials"/> to authenticate with during the push.
-        /// </summary>
-        [Obsolete("This will be removed in future release. Use CredentialsProvider.")]
-        public Credentials Credentials { get; set; }
-
         /// <summary>
         /// Handler to generate <see cref="LibGit2Sharp.Credentials"/> for authentication.
         /// </summary>

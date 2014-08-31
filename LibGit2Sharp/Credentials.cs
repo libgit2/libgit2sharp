@@ -24,12 +24,6 @@ namespace LibGit2Sharp
     internal interface ICredentialsProvider
     {
         /// <summary>
-        /// The <see cref="Credentials"/> to authenticate with during the push.
-        /// </summary>
-        [Obsolete("This will be removed in future release. Use CredentialsProvider.")]
-        Credentials Credentials { get; }
-
-        /// <summary>
         /// Handler to generate <see cref="LibGit2Sharp.Credentials"/> for authentication.
         /// </summary>
         CredentialsHandler CredentialsProvider { get; }
@@ -44,17 +38,12 @@ namespace LibGit2Sharp
                 return null;
             }
 
-            if (provider.CredentialsProvider != null)
-            {
-                return provider.CredentialsProvider;
-            }
-
-            if (provider.Credentials == null)
+            if (provider.CredentialsProvider == null)
             {
                 return null;
             }
 
-            return (url, user, type) => provider.Credentials;
+            return provider.CredentialsProvider;
         }
     }
 }
