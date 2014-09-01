@@ -8,12 +8,11 @@ namespace LibGit2Sharp
     /// <summary>
     /// Exposes properties of a remote that can be updated.
     /// </summary>
-    public class RemoteUpdater
+    public class RemoteUpdater : IDisposable
     {
-        private readonly Repository repo;
-        private readonly Remote remote;
         private readonly UpdatingCollection<string> fetchRefSpecs;
         private readonly UpdatingCollection<string> pushRefSpecs;
+        private readonly RemoteSafeHandle remoteHandle;
 
         /// <summary>
         /// Needed for mocking purposes.
@@ -26,45 +25,32 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(repo, "repo");
             Ensure.ArgumentNotNull(remote, "remote");
 
-            this.repo = repo;
-            this.remote = remote;
-
             fetchRefSpecs = new UpdatingCollection<string>(GetFetchRefSpecs, SetFetchRefSpecs);
             pushRefSpecs = new UpdatingCollection<string>(GetPushRefSpecs, SetPushRefSpecs);
+
+            remoteHandle = Proxy.git_remote_load(repo.Handle, remote.Name, true);
         }
 
         private IEnumerable<string> GetFetchRefSpecs()
         {
-            using (RemoteSafeHandle remoteHandle = Proxy.git_remote_load(repo.Handle, remote.Name, true))
-            {
-                return Proxy.git_remote_get_fetch_refspecs(remoteHandle);
-            }
+            return Proxy.git_remote_get_fetch_refspecs(remoteHandle);
         }
 
         private void SetFetchRefSpecs(IEnumerable<string> value)
         {
-            using (RemoteSafeHandle remoteHandle = Proxy.git_remote_load(repo.Handle, remote.Name, true))
-            {
-                Proxy.git_remote_set_fetch_refspecs(remoteHandle, value);
-                Proxy.git_remote_save(remoteHandle);
-            }
+            Proxy.git_remote_set_fetch_refspecs(remoteHandle, value);
+            Proxy.git_remote_save(remoteHandle);
         }
 
         private IEnumerable<string> GetPushRefSpecs()
         {
-            using (RemoteSafeHandle remoteHandle = Proxy.git_remote_load(repo.Handle, remote.Name, true))
-            {
-                return Proxy.git_remote_get_push_refspecs(remoteHandle);
-            }
+            return Proxy.git_remote_get_push_refspecs(remoteHandle);
         }
 
         private void SetPushRefSpecs(IEnumerable<string> value)
         {
-            using (RemoteSafeHandle remoteHandle = Proxy.git_remote_load(repo.Handle, remote.Name, true))
-            {
-                Proxy.git_remote_set_push_refspecs(remoteHandle, value);
-                Proxy.git_remote_save(remoteHandle);
-            }
+            Proxy.git_remote_set_push_refspecs(remoteHandle, value);
+            Proxy.git_remote_save(remoteHandle);
         }
 
         /// <summary>
@@ -74,11 +60,8 @@ namespace LibGit2Sharp
         {
             set
             {
-                using (RemoteSafeHandle remoteHandle = Proxy.git_remote_load(repo.Handle, remote.Name, true))
-                {
-                    Proxy.git_remote_set_autotag(remoteHandle, value);
-                    Proxy.git_remote_save(remoteHandle);
-                }
+                Proxy.git_remote_set_autotag(remoteHandle, value);
+                Proxy.git_remote_save(remoteHandle);
             }
         }
 
@@ -89,11 +72,8 @@ namespace LibGit2Sharp
         {
             set
             {
-                using (RemoteSafeHandle remoteHandle = Proxy.git_remote_load(repo.Handle, remote.Name, true))
-                {
-                    Proxy.git_remote_set_url(remoteHandle, value);
-                    Proxy.git_remote_save(remoteHandle);
-                }
+                Proxy.git_remote_set_url(remoteHandle, value);
+                Proxy.git_remote_save(remoteHandle);
             }
         }
 
@@ -194,6 +174,11 @@ namespace LibGit2Sharp
             {
                 setter(list.Value);
             }
+        }
+
+        public void Dispose()
+        {
+            remoteHandle.Dispose();
         }
     }
 }
