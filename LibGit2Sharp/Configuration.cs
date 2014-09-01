@@ -342,30 +342,29 @@ namespace LibGit2Sharp
 
         internal Signature BuildSignature(DateTimeOffset now, bool shouldThrowIfNotFound)
         {
-            var name = Get<string>("user.name");
-            var email = Get<string>("user.email");
+            var name = this.GetValueOrDefault<string>("user.name");
+            var email = this.GetValueOrDefault<string>("user.email");
 
-            if (shouldThrowIfNotFound)
+            if (shouldThrowIfNotFound && (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(email)))
             {
-                if (name == null || string.IsNullOrEmpty(name.Value))
+                if (string.IsNullOrEmpty(name))
                 {
                     throw new LibGit2SharpException(
-                        "Can not find Name setting of the current user in Git configuration.");
+                        "Cannot find Name setting of the current user in Git configuration.");
                 }
 
-                if (email == null || string.IsNullOrEmpty(email.Value))
+                if (string.IsNullOrEmpty(email))
                 {
                     throw new LibGit2SharpException(
-                        "Can not find Email setting of the current user in Git configuration.");
+                        "Cannot find Email setting of the current user in Git configuration.");
                 }
             }
 
-            var nameForSignature = name == null || string.IsNullOrEmpty(name.Value) ? "unknown" : name.Value;
-            var emailForSignature = email == null || string.IsNullOrEmpty(email.Value)
-                                        ? string.Format("{0}@{1}", Environment.UserName, Environment.UserDomainName)
-                                        : email.Value;
-
-            return new Signature(nameForSignature, emailForSignature, now);
+            return new Signature(
+                !string.IsNullOrEmpty(name) ? name : "unknown",
+                !string.IsNullOrEmpty(email) ? email : string.Format(
+                        CultureInfo.InvariantCulture, "{0}@{1}", Environment.UserName, Environment.UserDomainName),
+                now);
         }
 
         private ConfigurationSafeHandle Snapshot()
