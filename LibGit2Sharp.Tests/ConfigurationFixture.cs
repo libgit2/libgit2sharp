@@ -432,5 +432,47 @@ namespace LibGit2Sharp.Tests
                 return base.Get<T>(key);
             }
         }
+
+        [Fact]
+        public void HandlesEmptySignatureName()
+        {
+            using (Configuration testConfiguraiton = new TestConfigurationClass() { Name = "" })
+            {
+                Signature signature = testConfiguraiton.BuildSignature(DateTime.Now);
+                Assert.Equal<string>("unknown", signature.Name);
+            }
+        }
+
+        [Fact]
+        public void HandlesNullSignatureName()
+        {
+            using (Configuration testConfiguraiton = new TestConfigurationClass() { Name = null })
+            {
+                Signature signature = testConfiguraiton.BuildSignature(DateTime.Now);
+                Assert.Equal<string>("unknown", signature.Name);
+            }
+        }
+
+        [Fact]
+        public void HandlesEmptySignatureEmail()
+        {
+            using (Configuration testConfiguraiton = new TestConfigurationClass() { Email = "" })
+            {
+                Signature signature = testConfiguraiton.BuildSignature(DateTime.Now);
+                Assert.NotNull(signature.Email);
+                Assert.True(signature.Email.Contains("@"));
+            }
+        }
+
+        [Fact]
+        public void HandlesNullSignatureEmail()
+        {
+            using (Configuration testConfiguraiton = new TestConfigurationClass() { Email = null })
+            {
+                Signature signature = testConfiguraiton.BuildSignature(DateTime.Now);
+                Assert.NotNull(signature.Email);
+                Assert.True(signature.Email.Contains("@"));
+            }
+        }
     }
 }
