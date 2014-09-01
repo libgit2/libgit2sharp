@@ -1975,6 +1975,15 @@ namespace LibGit2Sharp.Core
             }
         }
 
+        public static void git_remote_set_url(RemoteSafeHandle remote, string url)
+        {
+            using (ThreadAffinity())
+            {
+                int res = NativeMethods.git_remote_set_url(remote, url);
+                Ensure.ZeroResult(res);
+            }
+        }
+
         public static void git_remote_fetch(RemoteSafeHandle remote, Signature signature, string logMessage)
         {
             using (ThreadAffinity())

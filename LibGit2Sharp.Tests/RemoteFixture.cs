@@ -69,6 +69,27 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
+        public void CanSetRemoteUrl()
+        {
+            string path = CloneBareTestRepo();
+            using (var repo = new Repository(path))
+            {
+                const string name = "upstream";
+                const string url = "https://github.com/libgit2/libgit2sharp.git";
+                const string newUrl = "https://github.com/libgit2/libgit2.git";
+
+                repo.Network.Remotes.Add(name, url);
+                Remote remote = repo.Network.Remotes[name];
+                Assert.NotNull(remote);
+
+                Remote updatedremote = repo.Network.Remotes.Update(remote,
+                    r => r.Url = newUrl);
+
+                Assert.Equal(newUrl, updatedremote.Url);
+            }
+        }
+
+        [Fact]
         public void CanCheckEqualityOfRemote()
         {
             string path = CloneStandardTestRepo();

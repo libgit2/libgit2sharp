@@ -83,10 +83,24 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        /// Sets the url defined for this <see cref="Remote"/>
+        /// </summary>
+        public virtual string Url
+        {
+            set
+            {
+                using (RemoteSafeHandle remoteHandle = Proxy.git_remote_load(repo.Handle, remote.Name, true))
+                {
+                    Proxy.git_remote_set_url(remoteHandle, value);
+                    Proxy.git_remote_save(remoteHandle);
+                }
+            }
+        }
+
+        /// <summary>
         /// Sets the list of <see cref="RefSpec"/>s defined for this <see cref="Remote"/> that are intended to
         /// be used during a Fetch operation
         /// </summary>
-        /// <remarks>Changing the list updates the <see cref="Remote" />.</remarks>
         public virtual ICollection<string> FetchRefSpecs
         {
             get { return fetchRefSpecs; }
@@ -97,7 +111,6 @@ namespace LibGit2Sharp
         /// Sets or gets the list of <see cref="RefSpec"/>s defined for this <see cref="Remote"/> that are intended to
         /// be used during a Push operation
         /// </summary>
-        /// <remarks>Changing the list updates the <see cref="Remote" />.</remarks>
         public virtual ICollection<string> PushRefSpecs
         {
             get { return pushRefSpecs; }

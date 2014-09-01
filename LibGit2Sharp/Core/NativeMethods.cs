@@ -1070,6 +1070,11 @@ namespace LibGit2Sharp.Core
         internal static extern int git_remote_set_push_refspecs(RemoteSafeHandle remote, ref GitStrArray array);
 
         [DllImport(libgit2)]
+        internal static extern int git_remote_set_url(
+            RemoteSafeHandle remote,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string url);
+
+        [DllImport(libgit2)]
         internal static extern int git_remote_is_valid_name(
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string remote_name);
 
