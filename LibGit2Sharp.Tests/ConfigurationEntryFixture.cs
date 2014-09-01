@@ -46,5 +46,27 @@ namespace LibGit2Sharp.Tests
             Assert.Equal<int>(testIntValue, configurationEntry.Value);
             Assert.Equal<ConfigurationLevel>(testLevel, configurationEntry.Level);
         }
+
+        [Fact]
+        public void GetsValueOrDefaultForNonNull()
+        {
+            ConfigurationEntry<int> configurationEntry = ConfigurationEntryFixture.GetTestConfigurationEntry<int>();
+            int value = ConfigurationEntry<int>.ValueOrDefault(configurationEntry);
+            Assert.Equal<int>(testIntValue, value);
+        }
+
+        [Fact]
+        public void GetsValueOrDefaultForNull()
+        {
+            string value = ConfigurationEntry<string>.ValueOrDefault(null);
+            Assert.Equal<string>(null, value);
+        }
+
+        [Fact]
+        public void GetsValueOrDefaultForPrimitiveNull()
+        {
+            int value = ConfigurationEntry<int>.ValueOrDefault(null);
+            Assert.Equal<int>(0, value);
+        }
     }
 }
