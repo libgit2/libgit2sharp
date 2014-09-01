@@ -12,6 +12,11 @@ namespace LibGit2Sharp.Tests
 {
     public class MetaFixture
     {
+        private static readonly HashSet<Type> explicitOnlyInterfaces = new HashSet<Type>
+        {
+            typeof(IBelongToARepository),
+        };
+
         [Fact]
         public void PublicTestMethodsAreFactsOrTheories()
         {
@@ -114,13 +119,31 @@ namespace LibGit2Sharp.Tests
             var methodsMissingFromInterfaces =
                 from t in Assembly.GetAssembly(typeof(IRepository)).GetExportedTypes()
                 where !t.IsInterface
-                where t.GetInterfaces().Any(i => i.IsPublic && i.Namespace == typeof(IRepository).Namespace)
+                where t.GetInterfaces().Any(i => i.IsPublic && i.Namespace == typeof(IRepository).Namespace && !explicitOnlyInterfaces.Contains(i))
                 let interfaceTargetMethods = from i in t.GetInterfaces()
                                              from im in t.GetInterfaceMap(i).TargetMethods
                                              select im
                 from tm in t.GetMethods(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance)
                 where !interfaceTargetMethods.Contains(tm)
                 select t.Name + " has extra method " + tm.Name;
+
+            Assert.Equal("", string.Join(Environment.NewLine,
+                                         methodsMissingFromInterfaces.ToArray()));
+        }
+
+        [Fact]
+        public void LibGit2SharpExplicitOnlyInterfacesAreIndeedExplicitOnly()
+        {
+            var methodsMissingFromInterfaces =
+                from t in Assembly.GetAssembly(typeof(IRepository)).GetExportedTypes()
+                where t.GetInterfaces().Any(explicitOnlyInterfaces.Contains)
+                let interfaceTargetMethods = from i in t.GetInterfaces()
+                                             where explicitOnlyInterfaces.Contains(i)
+                                             from im in t.GetInterfaceMap(i).TargetMethods
+                                             select im
+                from tm in t.GetMethods(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance)
+                where interfaceTargetMethods.Contains(tm)
+                select t.Name + " has public method " + tm.Name + " which should be explicitly implemented.";
 
             Assert.Equal("", string.Join(Environment.NewLine,
                                          methodsMissingFromInterfaces.ToArray()));

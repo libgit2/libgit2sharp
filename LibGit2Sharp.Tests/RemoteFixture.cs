@@ -14,6 +14,7 @@ namespace LibGit2Sharp.Tests
             {
                 Remote origin = repo.Network.Remotes["origin"];
                 Assert.NotNull(origin);
+                AssertBelongsToARepository(repo, origin);
                 Assert.Equal("origin", origin.Name);
                 Assert.Equal("c:/GitHub/libgit2sharp/Resources/testrepo.git", origin.Url);
             }
@@ -38,6 +39,7 @@ namespace LibGit2Sharp.Tests
                 foreach (Remote remote in repo.Network.Remotes)
                 {
                     Assert.NotNull(remote);
+                    AssertBelongsToARepository(repo, remote);
                     count++;
                 }
 

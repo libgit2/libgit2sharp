@@ -10,7 +10,7 @@ namespace LibGit2Sharp
     /// A Reference to another git object
     /// </summary>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public abstract class Reference : IEquatable<Reference>
+    public abstract class Reference : IEquatable<Reference>, IBelongToARepository
     {
         private static readonly LambdaEqualityHelper<Reference> equalityHelper =
             new LambdaEqualityHelper<Reference>(x => x.CanonicalName, x => x.TargetIdentifier);
@@ -209,5 +209,7 @@ namespace LibGit2Sharp
                     "{0} => \"{1}\"", CanonicalName, TargetIdentifier);
             }
         }
+
+        IRepository IBelongToARepository.Repository { get { return repo; } }
     }
 }

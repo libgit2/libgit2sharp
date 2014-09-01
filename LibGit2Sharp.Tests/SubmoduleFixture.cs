@@ -60,6 +60,7 @@ namespace LibGit2Sharp.Tests
             {
                 var submodule = repo.Submodules[name];
                 Assert.NotNull(submodule);
+                AssertBelongsToARepository(repo, submodule);
                 Assert.Equal(name, submodule.Name);
 
                 Assert.Equal((ObjectId)headId, submodule.HeadCommitId);

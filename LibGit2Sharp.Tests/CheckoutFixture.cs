@@ -32,9 +32,11 @@ namespace LibGit2Sharp.Tests
 
                 Branch branch = repo.Branches[branchName];
                 Assert.NotNull(branch);
+                AssertBelongsToARepository(repo, branch);
 
                 Branch test = repo.Checkout(branch);
                 Assert.False(repo.Info.IsHeadDetached);
+                AssertBelongsToARepository(repo, test);
 
                 Assert.False(test.IsRemote);
                 Assert.True(test.IsCurrentRepositoryHead);
@@ -114,6 +116,7 @@ namespace LibGit2Sharp.Tests
                 Assert.False(repo.Index.RetrieveStatus().IsDirty);
 
                 var commit = repo.Lookup<Commit>(commitPointer);
+                AssertBelongsToARepository(repo, commit);
 
                 Branch detachedHead = checkoutByCommitOrBranchSpec ? repo.Checkout(commitPointer) : repo.Checkout(commit);
 

@@ -10,7 +10,7 @@ namespace LibGit2Sharp
     /// </summary>
     /// <typeparam name="TObject">The type of the referenced Git object.</typeparam>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public abstract class ReferenceWrapper<TObject> : IEquatable<ReferenceWrapper<TObject>> where TObject : GitObject
+    public abstract class ReferenceWrapper<TObject> : IEquatable<ReferenceWrapper<TObject>>, IBelongToARepository where TObject : GitObject
     {
         /// <summary>
         /// The repository.
@@ -160,5 +160,7 @@ namespace LibGit2Sharp
                     (TargetObject != null) ? TargetObject.Id.ToString(7) : "?");
             }
         }
+
+        IRepository IBelongToARepository.Repository { get { return repo; } }
     }
 }

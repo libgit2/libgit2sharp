@@ -412,5 +412,11 @@ namespace LibGit2Sharp.Tests.TestHelpers
 
             return true;
         }
+
+        public void AssertBelongsToARepository<T>(IRepository repo, T instance)
+            where T : IBelongToARepository
+        {
+            Assert.Same(repo, ((IBelongToARepository)instance).Repository);
+        }
     }
 }

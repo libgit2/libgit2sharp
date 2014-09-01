@@ -9,7 +9,7 @@ namespace LibGit2Sharp
     /// A Submodule.
     /// </summary>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public class Submodule : IEquatable<Submodule>
+    public class Submodule : IEquatable<Submodule>, IBelongToARepository
     {
         private static readonly LambdaEqualityHelper<Submodule> equalityHelper =
             new LambdaEqualityHelper<Submodule>(x => x.Name, x => x.HeadCommitId);
@@ -155,5 +155,7 @@ namespace LibGit2Sharp
                     "{0} => {1}", Name, Url);
             }
         }
+
+        IRepository IBelongToARepository.Repository { get { return repo; } }
     }
 }

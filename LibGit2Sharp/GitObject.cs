@@ -11,7 +11,7 @@ namespace LibGit2Sharp
     /// A GitObject
     /// </summary>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public abstract class GitObject : IEquatable<GitObject>
+    public abstract class GitObject : IEquatable<GitObject>, IBelongToARepository
     {
         internal static IDictionary<Type, ObjectType> TypeToKindMap =
             new Dictionary<Type, ObjectType>
@@ -154,5 +154,7 @@ namespace LibGit2Sharp
         {
             get { return Id.ToString(7); }
         }
+
+        IRepository IBelongToARepository.Repository { get { return repo; } }
     }
 }

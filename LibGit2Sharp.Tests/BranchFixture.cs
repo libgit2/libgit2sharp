@@ -75,6 +75,7 @@ namespace LibGit2Sharp.Tests
                 // The branch now exists...
                 Branch orphan = repo.Branches["orphan"];
                 Assert.NotNull(orphan);
+                AssertBelongsToARepository(repo, orphan);
 
                 // ...and points to that newly created commit
                 Assert.Equal(c, orphan.Tip);
@@ -489,6 +490,7 @@ namespace LibGit2Sharp.Tests
 
                 Assert.True(master.IsTracking);
                 Assert.NotNull(master.TrackedBranch);
+                AssertBelongsToARepository(repo, master.TrackedBranch);
 
                 Assert.NotNull(master.TrackingDetails);
                 Assert.Equal(9, master.TrackingDetails.AheadBy);

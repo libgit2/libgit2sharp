@@ -12,7 +12,7 @@ namespace LibGit2Sharp
     /// A remote repository whose branches are tracked.
     /// </summary>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public class Remote : IEquatable<Remote>
+    public class Remote : IEquatable<Remote>, IBelongToARepository
     {
         private static readonly LambdaEqualityHelper<Remote> equalityHelper =
             new LambdaEqualityHelper<Remote>(x => x.Name, x => x.Url);
@@ -174,5 +174,7 @@ namespace LibGit2Sharp
                     "{0} => {1}", Name, Url);
             }
         }
+
+        IRepository IBelongToARepository.Repository { get { return repository; } }
     }
 }
