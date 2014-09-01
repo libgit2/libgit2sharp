@@ -341,17 +341,17 @@ namespace LibGit2Sharp
 
         internal Signature BuildSignature(DateTimeOffset now, bool shouldThrowIfNotFound)
         {
-            var name = Get<string>("user.name");
-            var email = Get<string>("user.email");
+            string name = ConfigurationEntry<string>.ValueOrDefault(Get<string>("user.name"));
+            string email = ConfigurationEntry<string>.ValueOrDefault(Get<string>("user.email"));
 
-            if (shouldThrowIfNotFound && ((name == null) || (email == null)))
+            if (shouldThrowIfNotFound && (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(email)))
             {
                 throw new LibGit2SharpException("Can not find Name or Email setting of the current user in Git configuration.");
             }
 
             return new Signature(
-                name != null ? name.Value : "unknown",
-                email != null ? email.Value : string.Format(
+                !string.IsNullOrEmpty(name) ? name : "unknown",
+                !string.IsNullOrEmpty(email) ? email : string.Format(
                         CultureInfo.InvariantCulture, "{0}@{1}", Environment.UserName, Environment.UserDomainName),
                 now);
         }
