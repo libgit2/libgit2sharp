@@ -474,5 +474,45 @@ namespace LibGit2Sharp.Tests
                 Assert.True(signature.Email.Contains("@"));
             }
         }
+
+        [Fact]
+        public void ThrowsForEmptySignatureName()
+        {
+            using (Configuration testConfiguraiton = new TestConfigurationClass() { Name = "" })
+            {
+                Signature signature = testConfiguraiton.BuildSignature(DateTime.Now);
+                Assert.Throws<LibGit2SharpException>(() => { testConfiguraiton.BuildSignature(DateTime.Now, true); });
+            }
+        }
+
+        [Fact]
+        public void ThrowsForNullSignatureName()
+        {
+            using (Configuration testConfiguraiton = new TestConfigurationClass() { Name = null })
+            {
+                Signature signature = testConfiguraiton.BuildSignature(DateTime.Now);
+                Assert.Throws<LibGit2SharpException>(() => { testConfiguraiton.BuildSignature(DateTime.Now, true); });
+            }
+        }
+
+        [Fact]
+        public void ThrowsForEmptySignatureEmail()
+        {
+            using (Configuration testConfiguraiton = new TestConfigurationClass() { Email = "" })
+            {
+                Signature signature = testConfiguraiton.BuildSignature(DateTime.Now);
+                Assert.Throws<LibGit2SharpException>(() => { testConfiguraiton.BuildSignature(DateTime.Now, true); });
+            }
+        }
+
+        [Fact]
+        public void ThrowsForsNullSignatureEmail()
+        {
+            using (Configuration testConfiguraiton = new TestConfigurationClass() { Email = null })
+            {
+                Signature signature = testConfiguraiton.BuildSignature(DateTime.Now);
+                Assert.Throws<LibGit2SharpException>(() => { testConfiguraiton.BuildSignature(DateTime.Now, true); });
+            }
+        }
     }
 }
