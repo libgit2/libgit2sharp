@@ -63,6 +63,7 @@
     <Compile Include="ArchiveTarFixture.cs" />
     <Compile Include="CheckoutFixture.cs" />
     <Compile Include="CherryPickFixture.cs" />
+    <Compile Include="ConfigurationEntryFixture.cs" />
     <Compile Include="GlobalSettingsFixture.cs" />
     <Compile Include="PatchStatsFixture.cs" />
     <Compile Include="RefSpecFixture.cs" />
