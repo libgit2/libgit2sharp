@@ -361,6 +361,40 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
+        public void CreatingATreeFromIndexWithUnmergedEntriesThrows()
+        {
+            using (var repo = new Repository(MergedTestRepoWorkingDirPath))
+            {
+                Assert.False(repo.Index.IsFullyMerged);
+
+                Assert.Throws<UnmergedIndexEntriesException>(
+                    () => repo.ObjectDatabase.CreateTree(repo.Index));
+            }
+        }
+
+        [Fact]
+        public void CanCreateATreeFromIndex()
+        {
+            string path = CloneStandardTestRepo();
+
+            using (var repo = new Repository(path))
+            {
+                const string expectedIndexTreeSha = "0fe0fd1943a1b63ecca36fa6bbe9bbe045f791a4";
+
+                // The tree representing the index is not in the db.
+                Assert.Null(repo.Lookup(expectedIndexTreeSha));
+
+                var tree = repo.ObjectDatabase.CreateTree(repo.Index);
+                Assert.NotNull(tree);
+                Assert.Equal(expectedIndexTreeSha, tree.Id.Sha);
+
+                // The tree representing the index is now in the db.
+                tree = repo.Lookup<Tree>(expectedIndexTreeSha);
+                Assert.NotNull(tree);
+            }
+        }
+
+        [Fact]
         public void CanCreateACommit()
         {
             string path = CloneBareTestRepo();

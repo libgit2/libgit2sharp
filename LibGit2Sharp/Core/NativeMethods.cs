@@ -610,6 +610,9 @@ namespace LibGit2Sharp.Core
         internal static extern int git_index_write_tree(out GitOid treeOid, IndexSafeHandle index);
 
         [DllImport(libgit2)]
+        internal static extern int git_index_read_tree(IndexSafeHandle index, GitObjectSafeHandle tree);
+
+        [DllImport(libgit2)]
         internal static extern int git_merge_base_many(
             out GitOid mergeBase,
             RepositorySafeHandle repo,

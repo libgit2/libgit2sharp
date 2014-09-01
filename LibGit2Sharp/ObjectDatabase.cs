@@ -246,6 +246,25 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        /// Inserts a <see cref="Tree"/> into the object database, created from the <see cref="Index"/>.
+        /// <para>
+        ///   It recursively creates tree objects for each of the subtrees stored in the index, but only returns the root tree.
+        /// </para>
+        /// <para>
+        ///   The index must be fully merged.
+        /// </para>
+        /// </summary>
+        /// <param name="index">The <see cref="Index"/>.</param>
+        /// <returns>The created <see cref="Tree"/>. This can be used e.g. to create a <see cref="Commit"/>.</returns>
+        public virtual Tree CreateTree(Index index)
+        {
+            Ensure.ArgumentNotNull(index, "index");
+
+            var treeId = Proxy.git_tree_create_fromindex(index);
+            return this.repo.Lookup<Tree>(treeId);
+        }
+
+        /// <summary>
         /// Inserts a <see cref="Commit"/> into the object database, referencing an existing <see cref="Tree"/>.
         /// <para>
         /// Prettifing the message includes:

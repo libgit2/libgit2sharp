@@ -458,6 +458,23 @@ namespace LibGit2Sharp
             }
         }
 
+        /// <summary>
+        /// Replaces entries in the staging area with entries from the specified tree.
+        /// <para>
+        ///   This overwrites all existing state in the staging area.
+        /// </para>
+        /// </summary>
+        /// <param name="source">The <see cref="Tree"/> to read the entries from.</param>
+        public virtual void Reset(Tree source)
+        {
+            using (var obj = new ObjectSafeWrapper(source.Id, repo.Handle))
+            {
+                Proxy.git_index_read_fromtree(this, obj.ObjectPtr);
+            }
+
+            UpdatePhysicalIndex();
+        }
+
         private IDictionary<Tuple<string, FileStatus>, Tuple<string, FileStatus>> PrepareBatch(IEnumerable<string> leftPaths, IEnumerable<string> rightPaths)
         {
             IDictionary<Tuple<string, FileStatus>, Tuple<string, FileStatus>> dic = new Dictionary<Tuple<string, FileStatus>, Tuple<string, FileStatus>>();

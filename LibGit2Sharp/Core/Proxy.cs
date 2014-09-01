@@ -984,6 +984,15 @@ namespace LibGit2Sharp.Core
             }
         }
 
+        public static void git_index_read_fromtree(Index index, GitObjectSafeHandle tree)
+        {
+            using (ThreadAffinity())
+            {
+                int res = NativeMethods.git_index_read_tree(index.Handle, tree);
+                Ensure.ZeroResult(res);
+            }
+        }
+
         #endregion
 
         #region git_merge_

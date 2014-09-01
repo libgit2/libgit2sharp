@@ -278,5 +278,67 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(2, repoRead.Index.Count);
             }
         }
+
+        [Fact]
+        public void CanResetFullyMergedIndexFromTree()
+        {
+            string path = CloneStandardTestRepo();
+
+            const string testFile = "new_tracked_file.txt";
+
+            // It is sufficient to check just one of the stage area changes, such as the added file,
+            // to verify that the index has indeed been read from the tree.
+            using (var repo = new Repository(path))
+            {
+                const string headIndexTreeSha = "e5d221fc5da11a3169bf503d76497c81be3207b6";
+
+                Assert.True(repo.Index.IsFullyMerged);
+                Assert.Equal(FileStatus.Added, repo.Index.RetrieveStatus(testFile));
+
+                var headIndexTree = repo.Lookup<Tree>(headIndexTreeSha);
+                Assert.NotNull(headIndexTree);
+                repo.Index.Reset(headIndexTree);
+
+                Assert.True(repo.Index.IsFullyMerged);
+                Assert.Equal(FileStatus.Untracked, repo.Index.RetrieveStatus(testFile));
+            }
+
+            // Check that the index was persisted to disk.
+            using (var repo = new Repository(path))
+            {
+                Assert.Equal(FileStatus.Untracked, repo.Index.RetrieveStatus(testFile));
+            }
+        }
+
+        [Fact]
+        public void CanResetIndexWithUnmergedEntriesFromTree()
+        {
+            string path = CloneMergedTestRepo();
+
+            const string testFile = "one.txt";
+
+            // It is sufficient to check just one of the stage area changes, such as the modified file,
+            // to verify that the index has indeed been read from the tree.
+            using (var repo = new Repository(path))
+            {
+                const string headIndexTreeSha = "1cb365141a52dfbb24933515820eb3045fbca12b";
+
+                Assert.False(repo.Index.IsFullyMerged);
+                Assert.Equal(FileStatus.Staged, repo.Index.RetrieveStatus(testFile));
+
+                var headIndexTree = repo.Lookup<Tree>(headIndexTreeSha);
+                Assert.NotNull(headIndexTree);
+                repo.Index.Reset(headIndexTree);
+
+                Assert.True(repo.Index.IsFullyMerged);
+                Assert.Equal(FileStatus.Modified, repo.Index.RetrieveStatus(testFile));
+            }
+
+            // Check that the index was persisted to disk.
+            using (var repo = new Repository(path))
+            {
+                Assert.Equal(FileStatus.Modified, repo.Index.RetrieveStatus(testFile));
+            }
+        }
     }
 }
