@@ -227,6 +227,7 @@ namespace LibGit2Sharp
         /// <param name="level">The configuration file which should be considered as the target of this operation</param>
         public virtual void Set<T>(string key, T value, ConfigurationLevel level = ConfigurationLevel.Local)
         {
+            Ensure.ArgumentNotNull(value, "value");
             Ensure.ArgumentNotNullOrEmptyString(key, "key");
 
             using (ConfigurationSafeHandle h = RetrieveConfigurationHandle(level, true, configHandle))
