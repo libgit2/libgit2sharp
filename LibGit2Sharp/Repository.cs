@@ -927,6 +927,15 @@ namespace LibGit2Sharp
         /// Replaces entries in the <see cref="Repository.Index"/> with entries from the specified commit.
         /// </summary>
         /// <param name="commit">The target commit object.</param>
+        public void Reset(Commit commit)
+        {
+            Reset(commit, null, null);
+        }
+
+        /// <summary>
+        /// Replaces entries in the <see cref="Repository.Index"/> with entries from the specified commit.
+        /// </summary>
+        /// <param name="commit">The target commit object.</param>
         /// <param name="paths">The list of paths (either files or directories) that should be considered.</param>
         public void Reset(Commit commit, IEnumerable<string> paths)
         {
