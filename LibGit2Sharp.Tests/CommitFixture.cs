@@ -5,6 +5,7 @@ using System.Linq;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
+using Xunit.Extensions;
 
 namespace LibGit2Sharp.Tests
 {
@@ -516,6 +517,27 @@ namespace LibGit2Sharp.Tests
                 var commit = repo.Lookup<Commit>("4c062a6");
 
                 Assert.Null(commit["I-am-not-here"]);
+            }
+        }
+
+        [Theory]
+        [InlineData(null, "x@example.com")]
+        [InlineData("", "x@example.com")]
+        [InlineData("X", null)]
+        [InlineData("X", "")]
+        public void CommitWithInvalidSignatureConfigThrows(string name, string email)
+        {
+            string repoPath = InitNewRepository();
+            string configPath = CreateConfigurationWithDummyUser(name, email);
+            var options = new RepositoryOptions { GlobalConfigurationLocation = configPath };
+
+            using (var repo = new Repository(repoPath, options))
+            {
+                Assert.Equal(name, repo.Config.GetValueOrDefault<string>("user.name"));
+                Assert.Equal(email, repo.Config.GetValueOrDefault<string>("user.email"));
+
+                Assert.Throws<LibGit2SharpException>(
+                    () => repo.Commit("Initial egotistic commit", new CommitOptions { AllowEmptyCommit = true }));
             }
         }
 

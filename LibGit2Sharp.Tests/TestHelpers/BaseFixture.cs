@@ -299,14 +299,26 @@ namespace LibGit2Sharp.Tests.TestHelpers
         /// <returns>The path to the configuration file</returns>
         protected string CreateConfigurationWithDummyUser(Signature signature)
         {
+            return CreateConfigurationWithDummyUser(signature.Name, signature.Email);
+        }
+
+        protected string CreateConfigurationWithDummyUser(string name, string email)
+        {
             SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
             Directory.CreateDirectory(scd.DirectoryPath);
             string configFilePath = Path.Combine(scd.DirectoryPath, "global-config");
 
             using (Configuration config = new Configuration(configFilePath))
             {
-                config.Set("user.name", signature.Name, ConfigurationLevel.Global);
-                config.Set("user.email", signature.Email, ConfigurationLevel.Global);
+                if (name != null)
+                {
+                    config.Set("user.name", name, ConfigurationLevel.Global);
+                }
+
+                if (email != null)
+                {
+                    config.Set("user.email", email, ConfigurationLevel.Global);
+                }
             }
 
             return configFilePath;
