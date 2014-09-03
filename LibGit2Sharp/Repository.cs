@@ -690,7 +690,7 @@ namespace LibGit2Sharp
                     "The tip of branch '{0}' is null. There's nothing to checkout.", branch.Name));
             }
 
-            if (!branch.IsRemote && !( branch is DetachedHead ) &&
+            if (!branch.IsRemote && !(branch is DetachedHead) &&
                 string.Equals(Refs[branch.CanonicalName].TargetIdentifier, branch.Tip.Id.Sha,
                 StringComparison.OrdinalIgnoreCase))
             {
@@ -774,14 +774,14 @@ namespace LibGit2Sharp
             IConvertableToGitCheckoutOpts opts)
         {
 
-            using (GitCheckoutOptsWrapper checkoutOptionsWrapper = new GitCheckoutOptsWrapper(opts, ToFilePaths(paths)))
+            using(GitCheckoutOptsWrapper checkoutOptionsWrapper = new GitCheckoutOptsWrapper(opts, ToFilePaths(paths)))
             {
                 var options = checkoutOptionsWrapper.Options;
                 Proxy.git_checkout_tree(Handle, tree.Id, ref options);
             }
         }
 
-                /// <summary>
+        /// <summary>
         /// Sets the current <see cref="Head"/> to the specified commit and optionally resets the <see cref="Index"/> and
         /// the content of the working tree to match.
         /// </summary>
@@ -838,7 +838,7 @@ namespace LibGit2Sharp
             Proxy.git_reset(handle, commit.Id, resetMode, signature.OrDefault(Config), logMessage);
         }
 
-                /// <summary>
+        /// <summary>
         /// Updates specifed paths in the index and working directory with the versions from the specified branch, reference, or SHA.
         /// <para>
         /// This method does not switch branches or update the current repository HEAD.
@@ -1493,14 +1493,14 @@ namespace LibGit2Sharp
             MergeResult mergeResult;
 
             var mergeOptions = new GitMergeOpts
-            {
-                Version = 1,
-                MergeFileFavorFlags = options.MergeFileFavor,
-                MergeTreeFlags = options.FindRenames ? GitMergeTreeFlags.GIT_MERGE_TREE_FIND_RENAMES :
-                                                       GitMergeTreeFlags.GIT_MERGE_TREE_NORMAL,
-                RenameThreshold = (uint)options.RenameThreshold,
-                TargetLimit = (uint)options.TargetLimit,
-            };
+                {
+                    Version = 1,
+                    MergeFileFavorFlags = options.MergeFileFavor,
+                    MergeTreeFlags = options.FindRenames ? GitMergeTreeFlags.GIT_MERGE_TREE_FIND_RENAMES :
+                                                           GitMergeTreeFlags.GIT_MERGE_TREE_NORMAL,
+                    RenameThreshold = (uint)options.RenameThreshold,
+                    TargetLimit = (uint)options.TargetLimit,
+                };
 
             using (GitCheckoutOptsWrapper checkoutOptionsWrapper = new GitCheckoutOptsWrapper(options))
             {
@@ -1515,7 +1515,7 @@ namespace LibGit2Sharp
                 if (options.CommitOnSuccess)
                 {
                     // Commit the merge
-                    mergeCommit = Commit(Info.Message, author : merger, committer : merger);
+                    mergeCommit = Commit(Info.Message, author: merger, committer : merger);
                 }
 
                 mergeResult = new MergeResult(MergeStatus.NonFastForward, mergeCommit);
@@ -1538,7 +1538,7 @@ namespace LibGit2Sharp
         private MergeResult FastForwardMerge(GitMergeHeadHandle mergeHead, Signature merger, MergeOptions options)
         {
             ObjectId id = Proxy.git_merge_head_id(mergeHead);
-            Commit fastForwardCommit = (Commit)Lookup(id, ObjectType.Commit);
+            Commit fastForwardCommit = (Commit) Lookup(id, ObjectType.Commit);
             Ensure.GitObjectIsNotNull(fastForwardCommit, id.Sha);
 
             CheckoutTree(fastForwardCommit.Tree, null, new FastForwardCheckoutOptionsAdapter(options));
