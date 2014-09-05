@@ -52,6 +52,11 @@ namespace LibGit2Sharp
         /// <summary>
         /// The revert resulted in conflicts.
         /// </summary>
-        Conflicts
+        Conflicts,
+
+        /// <summary>
+        /// Revert was run, but there were no changes to commit.
+        /// </summary>
+        NothingToRevert,
     }
 }

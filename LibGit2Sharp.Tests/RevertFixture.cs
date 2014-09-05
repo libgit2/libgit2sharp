@@ -391,5 +391,48 @@ namespace LibGit2Sharp.Tests
                 Assert.Throws<LibGit2SharpException>(() => repo.Revert(commitToRevert, Constants.Signature));
             }
         }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void RevertWithNothingToRevert(bool commitOnSuccess)
+        {
+            // The branch name to perform the revert on
+            const string revertBranchName = "refs/heads/revert";
+
+            string path = CloneRevertTestRepo();
+            using (var repo = new Repository(path))
+            {
+                // Checkout the revert branch.
+                Branch branch = repo.Checkout(revertBranchName);
+                Assert.NotNull(branch);
+
+                Commit commitToRevert = repo.Head.Tip;
+
+                // Revert tip commit.
+                RevertResult result = repo.Revert(commitToRevert, Constants.Signature);
+                Assert.NotNull(result);
+                Assert.Equal(RevertStatus.Reverted, result.Status);
+
+                // Revert the same commit a second time
+                result = repo.Revert(
+                    commitToRevert,
+                    Constants.Signature,
+                    new RevertOptions() { CommitOnSuccess = commitOnSuccess });
+
+                Assert.NotNull(result);
+                Assert.Equal(null, result.Commit);
+                Assert.Equal(RevertStatus.NothingToRevert, result.Status);
+
+                if (commitOnSuccess)
+                {
+                    Assert.Equal(CurrentOperation.None, repo.Info.CurrentOperation);
+                }
+                else
+                {
+                    Assert.Equal(CurrentOperation.Revert, repo.Info.CurrentOperation);
+                }
+            }
+        }
     }
 }

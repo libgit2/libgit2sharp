@@ -43,7 +43,17 @@ namespace LibGit2Sharp
         public CheckoutNotifyHandler OnCheckoutNotify { get; set; }
 
         /// <summary>
-        /// Commit the revert if the revert is successful.
+        /// Commit changes if there are no conflicts and the revert results
+        /// in changes.
+        /// <para>
+        ///  Following command line behavior, if the revert results in no
+        ///  changes, then Revert will cleanup the repository state if
+        ///  <see cref="CommitOnSuccess"/> is true (i.e. the repository
+        ///  will not be left in a "revert in progress" state).
+        ///  If <see cref="CommitOnSuccess"/> is false and there are no
+        ///  changes to revert, then the repository will be left in
+        ///  the "revert in progress" state.
+        /// </para>
         /// </summary>
         public bool CommitOnSuccess { get; set; }
 

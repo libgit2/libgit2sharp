@@ -1084,6 +1084,14 @@ namespace LibGit2Sharp
 
         /// <summary>
         /// Revert the specified commit.
+        /// <para>
+        ///  If the revert is successful but there are no changes to commit,
+        ///  then the <see cref="RevertStatus"/> will be <see cref="RevertStatus.NothingToRevert"/>.
+        ///  If the revert is successful and there are changes to revert, then
+        ///  the <see cref="RevertStatus"/> will be <see cref="RevertStatus.Reverted"/>.
+        ///  If the revert resulted in conflicts, then the <see cref="RevertStatus"/>
+        ///  will be <see cref="RevertStatus.Conflicts"/>.
+        /// </para>
         /// </summary>
         /// <param name="commit">The <see cref="Commit"/> to revert.</param>
         /// <param name="reverter">The <see cref="Signature"/> of who is performing the revert.</param>
@@ -1123,12 +1131,38 @@ namespace LibGit2Sharp
                 if (Index.IsFullyMerged)
                 {
                     Commit revertCommit = null;
+
+                    // Check if the revert generated any changes
+                    // and set the revert status accordingly
+                    bool anythingToRevert = Index.RetrieveStatus(
+                        new StatusOptions()
+                        {
+                            DetectRenamesInIndex = false,
+                            Show = StatusShowOption.IndexOnly
+                        }).Any();
+
+                    RevertStatus revertStatus = anythingToRevert ?
+                        RevertStatus.Reverted : RevertStatus.NothingToRevert;
+
                     if (options.CommitOnSuccess)
                     {
-                        revertCommit = this.Commit(Info.Message, author: reverter, committer: reverter);
+                        if (!anythingToRevert)
+                        {
+                            // If there were no changes to revert, and we are
+                            // asked to commit the changes, then cleanup
+                            // the repository state (following command line behavior).
+                            Proxy.git_repository_state_cleanup(handle);
+                        }
+                        else
+                        {
+                            revertCommit = this.Commit(
+                                Info.Message,
+                                author: reverter,
+                                committer: reverter);
+                        }
                     }
 
-                    result = new RevertResult(RevertStatus.Reverted, revertCommit);
+                    result = new RevertResult(revertStatus, revertCommit);
                 }
                 else
                 {
