@@ -81,7 +81,7 @@ namespace LibGit2Sharp
         /// <param name="options"><see cref="CheckoutOptions"/> controlling checkout behavior.</param>
         /// <param name="signature">Identity for use when updating the reflog.</param>
         /// <returns>The <see cref="Branch"/> that was checked out.</returns>
-        Branch Checkout(Branch branch, CheckoutOptions options, Signature signature = null);
+        Branch Checkout(Branch branch, CheckoutOptions options, Signature signature);
 
         /// <summary>
         /// Checkout the specified branch, reference or SHA.
@@ -94,7 +94,7 @@ namespace LibGit2Sharp
         /// <param name="options"><see cref="CheckoutOptions"/> controlling checkout behavior.</param>
         /// <param name="signature">Identity for use when updating the reflog.</param>
         /// <returns>The <see cref="Branch"/> that was checked out.</returns>
-        Branch Checkout(string committishOrBranchSpec, CheckoutOptions options, Signature signature = null);
+        Branch Checkout(string committishOrBranchSpec, CheckoutOptions options, Signature signature);
 
         /// <summary>
         /// Checkout the specified <see cref="LibGit2Sharp.Commit"/>.
@@ -106,7 +106,7 @@ namespace LibGit2Sharp
         /// <param name="options"><see cref="CheckoutOptions"/> controlling checkout behavior.</param>
         /// <param name="signature">Identity for use when updating the reflog.</param>
         /// <returns>The <see cref="Branch"/> that was checked out.</returns>
-        Branch Checkout(Commit commit, CheckoutOptions options, Signature signature = null);
+        Branch Checkout(Commit commit, CheckoutOptions options, Signature signature);
 
         /// <summary>
         /// Updates specifed paths in the index and working directory with the versions from the specified branch, reference, or SHA.
@@ -117,7 +117,7 @@ namespace LibGit2Sharp
         /// <param name = "committishOrBranchSpec">A revparse spec for the commit or branch to checkout paths from.</param>
         /// <param name="paths">The paths to checkout.</param>
         /// <param name="checkoutOptions">Collection of parameters controlling checkout behavior.</param>
-        void CheckoutPaths(string committishOrBranchSpec, IEnumerable<string> paths, CheckoutOptions checkoutOptions = null);
+        void CheckoutPaths(string committishOrBranchSpec, IEnumerable<string> paths, CheckoutOptions checkoutOptions);
 
         /// <summary>
         /// Try to lookup an object by its <see cref="ObjectId"/>. If no matching object is found, null will be returned.
@@ -159,7 +159,7 @@ namespace LibGit2Sharp
         /// <param name="committer">The <see cref="Signature"/> of who added the change to the repository.</param>
         /// <param name="options">The <see cref="CommitOptions"/> that specify the commit behavior.</param>
         /// <returns>The generated <see cref="LibGit2Sharp.Commit"/>.</returns>
-        Commit Commit(string message, Signature author, Signature committer, CommitOptions options = null);
+        Commit Commit(string message, Signature author, Signature committer, CommitOptions options);
 
         /// <summary>
         /// Sets the current <see cref="Head"/> to the specified commit and optionally resets the <see cref="Index"/> and
@@ -169,7 +169,7 @@ namespace LibGit2Sharp
         /// <param name="commit">The target commit object.</param>
         /// <param name="signature">Identity for use when updating the reflog.</param>
         /// <param name="logMessage">Message to use when updating the reflog.</param>
-        void Reset(ResetMode resetMode, Commit commit, Signature signature = null, string logMessage = null);
+        void Reset(ResetMode resetMode, Commit commit, Signature signature, string logMessage);
 
         /// <summary>
         /// Replaces entries in the <see cref="Repository.Index"/> with entries from the specified commit.
@@ -180,7 +180,7 @@ namespace LibGit2Sharp
         /// If set, the passed <paramref name="paths"/> will be treated as explicit paths.
         /// Use these options to determine how unmatched explicit paths should be handled.
         /// </param>
-        void Reset(Commit commit, IEnumerable<string> paths = null, ExplicitPathsOptions explicitPathsOptions = null);
+        void Reset(Commit commit, IEnumerable<string> paths, ExplicitPathsOptions explicitPathsOptions);
 
         /// <summary>
         /// Clean the working tree by removing files that are not under version control.
@@ -194,7 +194,7 @@ namespace LibGit2Sharp
         /// <param name="reverter">The <see cref="Signature"/> of who is performing the reverte.</param>
         /// <param name="options"><see cref="RevertOptions"/> controlling revert behavior.</param>
         /// <returns>The result of the revert.</returns>
-        RevertResult Revert(Commit commit, Signature reverter, RevertOptions options = null);
+        RevertResult Revert(Commit commit, Signature reverter, RevertOptions options);
 
         /// <summary>
         /// Merge changes from commit into the branch pointed at by HEAD..
@@ -203,7 +203,7 @@ namespace LibGit2Sharp
         /// <param name="merger">The <see cref="Signature"/> of who is performing the merge.</param>
         /// <param name="options">Specifies optional parameters controlling merge behavior; if null, the defaults are used.</param>
         /// <returns>The <see cref="MergeResult"/> of the merge.</returns>
-        MergeResult Merge(Commit commit, Signature merger, MergeOptions options = null);
+        MergeResult Merge(Commit commit, Signature merger, MergeOptions options);
 
         /// <summary>
         /// Merges changes from branch into the branch pointed at by HEAD..
@@ -212,7 +212,7 @@ namespace LibGit2Sharp
         /// <param name="merger">The <see cref="Signature"/> of who is performing the merge.</param>
         /// <param name="options">Specifies optional parameters controlling merge behavior; if null, the defaults are used.</param>
         /// <returns>The <see cref="MergeResult"/> of the merge.</returns>
-        MergeResult Merge(Branch branch, Signature merger, MergeOptions options = null);
+        MergeResult Merge(Branch branch, Signature merger, MergeOptions options);
 
         /// <summary>
         /// Merges changes from the commit into the branch pointed at by HEAD.
@@ -221,7 +221,7 @@ namespace LibGit2Sharp
         /// <param name="merger">The <see cref="Signature"/> of who is performing the merge.</param>
         /// <param name="options">Specifies optional parameters controlling merge behavior; if null, the defaults are used.</param>
         /// <returns>The <see cref="MergeResult"/> of the merge.</returns>
-        MergeResult Merge(string committish, Signature merger, MergeOptions options = null);
+        MergeResult Merge(string committish, Signature merger, MergeOptions options);
 
         /// <summary>
         /// Cherry picks changes from the commit into the branch pointed at by HEAD.
@@ -230,7 +230,7 @@ namespace LibGit2Sharp
         /// <param name="committer">The <see cref="Signature"/> of who is performing the cherry pick.</param>
         /// <param name="options">Specifies optional parameters controlling cherry pick behavior; if null, the defaults are used.</param>
         /// <returns>The <see cref="MergeResult"/> of the merge.</returns>
-        CherryPickResult CherryPick(Commit commit, Signature committer, CherryPickOptions options = null);
+        CherryPickResult CherryPick(Commit commit, Signature committer, CherryPickOptions options);
 
         /// <summary>
         /// Manipulate the currently ignored files.
@@ -253,6 +253,6 @@ namespace LibGit2Sharp
         /// <param name="path">Path of the file to blame.</param>
         /// <param name="options">Specifies optional parameters; if null, the defaults are used.</param>
         /// <returns>The blame for the file.</returns>
-        BlameHunkCollection Blame(string path, BlameOptions options = null);
+        BlameHunkCollection Blame(string path, BlameOptions options);
     }
 }
