@@ -544,44 +544,48 @@ namespace LibGit2Sharp.Tests
         public void CanConcurrentlyDeleteFilesWhileStatusIsBeingCalculated()
         {
             string repoPath = InitNewRepository();
-
             using (var repo = new Repository(repoPath))
             {
-                var paths = new List<string>();
+                var files = new List<string>();
+                var dirs = new List<string>();
                 const int numberOfFiles = 3000;
-
+                string dirFormat = "D" + Math.Ceiling(Math.Log10(numberOfFiles));
                 for (var i = 0; i < numberOfFiles; i++)
                 {
-                    string s = i.ToString(CultureInfo.InvariantCulture);
-                    string path = Path.Combine(repo.Info.WorkingDirectory, s + ".txt");
-                    File.AppendAllText(path, s);
-                    repo.Index.Stage(path);
-                    paths.Add(path);
+                    string s = i.ToString(dirFormat, CultureInfo.InvariantCulture);
+                    string dirPath = Path.Combine(repo.Info.WorkingDirectory, s);
+                    Directory.CreateDirectory(dirPath);
+                    string filePath = Path.Combine(dirPath, s + ".txt");
+                    File.AppendAllText(filePath, s);
+                    files.Add(filePath);
+                    dirs.Add(dirPath);
                 }
-
                 bool deletionDone = false;
-                Assert.Equal(0, repo.Index.RetrieveStatus().Missing.Count());
-
-                Task.Factory.StartNew(() =>
+                var loops = 0;
+                Assert.Equal(numberOfFiles, repo.Index.RetrieveStatus().Untracked.Count());
+                Task task = Task.Factory.StartNew(() =>
                 {
-                    foreach (var path in paths)
+                    while (!deletionDone)
                     {
-                        File.Delete(path);
+                        var filePaths = repo.Index.RetrieveStatus().Where(entry => entry.State != FileStatus.Ignored).ToArray();
+                        Assert.NotNull(filePaths);
+                        loops++;
                     }
-
-                    deletionDone = true;
                 });
 
-                var loops = 0;
-                while (!deletionDone)
+                dirs.Reverse();
+
+                foreach (var path in dirs)
                 {
-                    var filePaths = repo.Index.RetrieveStatus().Where(entry => entry.State != FileStatus.Ignored).ToArray();
-                    Assert.NotNull(filePaths);
-                    loops++;
+                    Directory.Delete(path, true);
+                    System.Threading.Thread.Sleep(3);
                 }
+                deletionDone = true;
+
+                task.Wait();
 
                 Assert.True(loops > 0);
-                Assert.Equal(numberOfFiles, repo.Index.RetrieveStatus().Missing.Count());
+                Assert.Equal(0, repo.Index.RetrieveStatus().Untracked.Count());
             }
         }
     }
