@@ -1102,6 +1102,11 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(commit, "commit");
             Ensure.ArgumentNotNull(reverter, "reverter");
 
+            if (Info.IsHeadUnborn)
+            {
+                throw new UnbornBranchException("Can not revert the commit. The Head doesn't point at a commit.");
+            }
+
             options = options ?? new RevertOptions();
 
             RevertResult result = null;

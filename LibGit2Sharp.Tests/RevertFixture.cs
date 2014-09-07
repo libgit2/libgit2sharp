@@ -434,5 +434,29 @@ namespace LibGit2Sharp.Tests
                 }
             }
         }
+
+        [Fact]
+        public void RevertOrphanedBranchThrows()
+        {
+            // The branch name to perform the revert on
+            const string revertBranchName = "refs/heads/revert";
+
+            string path = CloneRevertTestRepo();
+            using (var repo = new Repository(path))
+            {
+                // Checkout the revert branch.
+                Branch branch = repo.Checkout(revertBranchName);
+                Assert.NotNull(branch);
+
+                Commit commitToRevert = repo.Head.Tip;
+
+                // Move the HEAD to an orphaned branch.
+                repo.Refs.UpdateTarget("HEAD", "refs/heads/orphan");
+                Assert.True(repo.Info.IsHeadUnborn);
+
+                // Revert the tip of the refs/heads/revert branch.
+                Assert.Throws<UnbornBranchException>(() => repo.Revert(commitToRevert, Constants.Signature));
+            }
+        }
     }
 }
