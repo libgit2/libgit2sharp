@@ -443,11 +443,11 @@ namespace LibGit2Sharp
         /// <summary>
         /// Merges changes from branch into the branch pointed at by HEAD.
         /// </summary>
-        /// <param name="repository">The <see cref="Repository"/> being worked with.</param>
+        /// <param name="repository">The <see cref="IRepository"/> being worked with.</param>
         /// <param name="branch">The branch to merge into the branch pointed at by HEAD.</param>
         /// <param name="merger">The <see cref="Signature"/> of who is performing the merge.</param>
         /// <returns>The <see cref="MergeResult"/> of the merge.</returns>
-        public static MergeResult Merge(this Repository repository, Branch branch, Signature merger)
+        public static MergeResult Merge(this IRepository repository, Branch branch, Signature merger)
         {
             return repository.Merge(branch, merger, null);
         }
@@ -455,11 +455,11 @@ namespace LibGit2Sharp
         /// <summary>
         /// Merges changes from the commit into the branch pointed at by HEAD.
         /// </summary>
-        /// <param name="repository">The <see cref="Repository"/> being worked with.</param>
+        /// <param name="repository">The <see cref="IRepository"/> being worked with.</param>
         /// <param name="committish">The commit to merge into the branch pointed at by HEAD.</param>
         /// <param name="merger">The <see cref="Signature"/> of who is performing the merge.</param>
         /// <returns>The <see cref="MergeResult"/> of the merge.</returns>
-        public static MergeResult Merge(this Repository repository, string committish, Signature merger)
+        public static MergeResult Merge(this IRepository repository, string committish, Signature merger)
         {
             return repository.Merge(committish, merger, null);
         }
@@ -469,11 +469,11 @@ namespace LibGit2Sharp
         /// current tip of the branch, will checkout the named branch. Otherwise, will checkout the tip commit
         /// as a detached HEAD.
         /// </summary>
-        /// <param name="repository">The <see cref="Repository"/> being worked with.</param>
+        /// <param name="repository">The <see cref="IRepository"/> being worked with.</param>
         /// <param name="branch">The <see cref="Branch"/> to check out.</param>
         /// <param name="options"><see cref="CheckoutOptions"/> controlling checkout behavior.</param>
         /// <returns>The <see cref="Branch"/> that was checked out.</returns>
-        public static Branch Checkout(this Repository repository, Branch branch, CheckoutOptions options)
+        public static Branch Checkout(this IRepository repository, Branch branch, CheckoutOptions options)
         {
             return repository.Checkout(branch, options, null);
         }
@@ -484,11 +484,11 @@ namespace LibGit2Sharp
         ///   Will detach the HEAD and make it point to this commit sha.
         /// </para>
         /// </summary>
-        /// <param name="repository">The <see cref="Repository"/> being worked with.</param>
+        /// <param name="repository">The <see cref="IRepository"/> being worked with.</param>
         /// <param name="commit">The <see cref="LibGit2Sharp.Commit"/> to check out.</param>
         /// <param name="options"><see cref="CheckoutOptions"/> controlling checkout behavior.</param>
         /// <returns>The <see cref="Branch"/> that was checked out.</returns>
-        public static Branch Checkout(this Repository repository, Commit commit, CheckoutOptions options)
+        public static Branch Checkout(this IRepository repository, Commit commit, CheckoutOptions options)
         {
             return repository.Checkout(commit, options, null);
         }
@@ -500,11 +500,11 @@ namespace LibGit2Sharp
         ///   will point to the branch. Otherwise, the HEAD will be detached, pointing at the commit sha.
         /// </para>
         /// </summary>
-        /// <param name="repository">The <see cref="Repository"/> being worked with.</param>
+        /// <param name="repository">The <see cref="IRepository"/> being worked with.</param>
         /// <param name="committishOrBranchSpec">A revparse spec for the commit or branch to checkout.</param>
         /// <param name="options"><see cref="CheckoutOptions"/> controlling checkout behavior.</param>
         /// <returns>The <see cref="Branch"/> that was checked out.</returns>
-        public static Branch Checkout(this Repository repository, string committishOrBranchSpec, CheckoutOptions options)
+        public static Branch Checkout(this IRepository repository, string committishOrBranchSpec, CheckoutOptions options)
         {
             return repository.Checkout(committishOrBranchSpec, options, null);
         }
@@ -515,10 +515,10 @@ namespace LibGit2Sharp
         /// This method does not switch branches or update the current repository HEAD.
         /// </para>
         /// </summary>
-        /// <param name="repository">The <see cref="Repository"/> being worked with.</param>
+        /// <param name="repository">The <see cref="IRepository"/> being worked with.</param>
         /// <param name = "committishOrBranchSpec">A revparse spec for the commit or branch to checkout paths from.</param>
         /// <param name="paths">The paths to checkout. Will throw if null is passed in. Passing an empty enumeration results in nothing being checked out.</param>
-        public static void CheckoutPaths(this Repository repository, string committishOrBranchSpec, IEnumerable<string> paths)
+        public static void CheckoutPaths(this IRepository repository, string committishOrBranchSpec, IEnumerable<string> paths)
         {
             repository.CheckoutPaths(committishOrBranchSpec, paths, null);
         }
@@ -530,7 +530,7 @@ namespace LibGit2Sharp
         /// <param name="repository">The <see cref="IRepository"/> being worked with.</param>
         /// <param name="resetMode">Flavor of reset operation to perform.</param>
         /// <param name="commit">The target commit object.</param>
-        public static void Reset(this Repository repository, ResetMode resetMode, Commit commit)
+        public static void Reset(this IRepository repository, ResetMode resetMode, Commit commit)
         {
             repository.Reset(resetMode, commit, null, null);
         }
@@ -541,7 +541,7 @@ namespace LibGit2Sharp
         /// <param name="repository">The <see cref="IRepository"/> being worked with.</param>
         /// <param name="commit">The target commit object.</param>
         /// <param name="paths">The list of paths (either files or directories) that should be considered.</param>
-        public static void Reset(this Repository repository, Commit commit, IEnumerable<string> paths)
+        public static void Reset(this IRepository repository, Commit commit, IEnumerable<string> paths)
         {
             repository.Reset(commit, paths, null);
         }
@@ -549,9 +549,9 @@ namespace LibGit2Sharp
         /// <summary>
         /// Replaces entries in the <see cref="Repository.Index"/> with entries from the specified commit.
         /// </summary>
-        /// <param name="repository">The <see cref="Repository"/> being worked with.</param>
+        /// <param name="repository">The <see cref="IRepository"/> being worked with.</param>
         /// <param name="commit">The target commit object.</param>
-        public static void Reset(this Repository repository, Commit commit)
+        public static void Reset(this IRepository repository, Commit commit)
         {
             repository.Reset(commit, null, null);
         }
@@ -574,10 +574,10 @@ namespace LibGit2Sharp
         /// <summary>
         /// Find where each line of a file originated.
         /// </summary>
-        /// <param name="repository">The <see cref="Repository"/> being worked with.</param>
+        /// <param name="repository">The <see cref="IRepository"/> being worked with.</param>
         /// <param name="path">Path of the file to blame.</param>
         /// <returns>The blame for the file.</returns>
-        public static BlameHunkCollection Blame(this Repository repository, string path)
+        public static BlameHunkCollection Blame(this IRepository repository, string path)
         {
             return repository.Blame(path, null);
         }
@@ -585,11 +585,11 @@ namespace LibGit2Sharp
         /// <summary>
         /// Cherry-picks the specified commit.
         /// </summary>
-        /// <param name="repository">The <see cref="Repository"/> being worked with.</param>
+        /// <param name="repository">The <see cref="IRepository"/> being worked with.</param>
         /// <param name="commit">The <see cref="Commit"/> to cherry-pick.</param>
         /// <param name="committer">The <see cref="Signature"/> of who is performing the cherry pick.</param>
         /// <returns>The result of the cherry pick.</returns>
-        public static CherryPickResult CherryPick(this Repository repository, Commit commit, Signature committer)
+        public static CherryPickResult CherryPick(this IRepository repository, Commit commit, Signature committer)
         {
             return repository.CherryPick(commit, committer, null);
         }
@@ -597,11 +597,11 @@ namespace LibGit2Sharp
         /// <summary>
         /// Merges changes from commit into the branch pointed at by HEAD.
         /// </summary>
-        /// <param name="repository">The <see cref="Repository"/> being worked with.</param>
+        /// <param name="repository">The <see cref="IRepository"/> being worked with.</param>
         /// <param name="commit">The commit to merge into the branch pointed at by HEAD.</param>
         /// <param name="merger">The <see cref="Signature"/> of who is performing the merge.</param>
         /// <returns>The <see cref="MergeResult"/> of the merge.</returns>
-        public static MergeResult Merge(this Repository repository, Commit commit, Signature merger)
+        public static MergeResult Merge(this IRepository repository, Commit commit, Signature merger)
         {
             return repository.Merge(commit, merger, null);
         }
@@ -609,11 +609,11 @@ namespace LibGit2Sharp
         /// <summary>
         /// Revert the specified commit.
         /// </summary>
-        /// <param name="repository">The <see cref="Repository"/> being worked with.</param>
+        /// <param name="repository">The <see cref="IRepository"/> being worked with.</param>
         /// <param name="commit">The <see cref="Commit"/> to revert.</param>
         /// <param name="reverter">The <see cref="Signature"/> of who is performing the revert.</param>
         /// <returns>The result of the revert.</returns>
-        public static RevertResult Revert(this Repository repository, Commit commit, Signature reverter)
+        public static RevertResult Revert(this IRepository repository, Commit commit, Signature reverter)
         {
             return repository.Revert(commit, reverter, null);
         }
