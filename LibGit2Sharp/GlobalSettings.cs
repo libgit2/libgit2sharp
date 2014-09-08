@@ -9,23 +9,13 @@ namespace LibGit2Sharp
     public static class GlobalSettings
     {
 
-        private static readonly Version versionRetriever = new Version();
-
-        ///// <summary>
-        ///// Returns all the optional features that were compiled into
-        ///// libgit2.
-        ///// </summary>
-        ///// <returns>A <see cref="BuiltInFeatures"/> enumeration.</returns>
-        //public static BuiltInFeatures Features()
-        //{
-        //    return Proxy.git_libgit2_features();
-        //}
+        private static readonly Version version = new Version();
 
         public static Version Version
         {
             get
             {
-                return versionRetriever;
+                return version;
             }
         }
 
