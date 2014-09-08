@@ -8,14 +8,29 @@ namespace LibGit2Sharp
     /// </summary>
     public static class GlobalSettings
     {
+        private static readonly Lazy<Version> version = new Lazy<Version>(Version.Build);
+
         /// <summary>
         /// Returns all the optional features that were compiled into
         /// libgit2.
         /// </summary>
         /// <returns>A <see cref="BuiltInFeatures"/> enumeration.</returns>
+        [Obsolete("This method will be removed in the next release. Use Version.Features instead.")]
         public static BuiltInFeatures Features()
         {
-            return Proxy.git_libgit2_features();
+            return Version.Features;
+        }
+
+        /// <summary>
+        /// Returns information related to the current LibGit2Sharp
+        /// library.
+        /// </summary>
+        public static Version Version
+        {
+            get
+            {
+                return version.Value;
+            }
         }
 
         /// <summary>
