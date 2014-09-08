@@ -35,7 +35,6 @@ namespace LibGit2Sharp
         private readonly Stack<IDisposable> toCleanup = new Stack<IDisposable>();
         private readonly Ignore ignore;
         private readonly SubmoduleCollection submodules;
-        private static readonly Lazy<string> versionRetriever = new Lazy<string>(RetrieveVersion);
         private readonly Lazy<PathCase> pathCase;
 
         /// <summary>
@@ -951,38 +950,10 @@ namespace LibGit2Sharp
         ///   <para>Major.Minor.Patch-LibGit2Sharp_abbrev_hash-libgit2_abbrev_hash (x86|amd64 - features)</para>
         /// </para>
         /// </summary>
+        [Obsolete("Use GlobalSettings.Version instead.")]
         public static string Version
         {
-            get { return versionRetriever.Value; }
-        }
-
-        private static string RetrieveVersion()
-        {
-            Assembly assembly = typeof(Repository).Assembly;
-
-            Version version = assembly.GetName().Version;
-
-            string libgit2Hash = ReadContentFromResource(assembly, "libgit2_hash.txt");
-            string libgit2sharpHash = ReadContentFromResource(assembly, "libgit2sharp_hash.txt");
-            string features = GlobalSettings.Features().ToString();
-
-            return string.Format(
-                CultureInfo.InvariantCulture,
-                "{0}-{1}-{2} ({3} - {4})",
-                version.ToString(3),
-                libgit2sharpHash.Substring(0, 7),
-                libgit2Hash.Substring(0, 7),
-                NativeMethods.ProcessorArchitecture,
-                features);
-        }
-
-        private static string ReadContentFromResource(Assembly assembly, string partialResourceName)
-        {
-            string name = string.Format(CultureInfo.InvariantCulture, "LibGit2Sharp.{0}", partialResourceName);
-            using (var sr = new StreamReader(assembly.GetManifestResourceStream(name)))
-            {
-                return sr.ReadLine();
-            }
+            get { return GlobalSettings.Version.ToString(); }
         }
 
         /// <summary>

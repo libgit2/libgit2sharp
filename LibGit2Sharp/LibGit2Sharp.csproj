@@ -332,6 +332,7 @@
     <Compile Include="TreeEntryDefinition.cs" />
     <Compile Include="UserCanceledException.cs" />
     <Compile Include="UsernamePasswordCredentials.cs" />
+    <Compile Include="Version.cs" />
     <Compile Include="VoidReference.cs" />
     <Compile Include="Core\RawContentStream.cs" />
     <Compile Include="Core\Handles\OdbStreamSafeHandle.cs" />

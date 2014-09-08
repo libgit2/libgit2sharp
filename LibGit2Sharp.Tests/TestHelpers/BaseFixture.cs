@@ -210,7 +210,7 @@ namespace LibGit2Sharp.Tests.TestHelpers
             throw new SkipException(message);
         }
 
-        protected void RequiresDotNetOrMonoGreaterThanOrEqualTo(Version minimumVersion)
+        protected void RequiresDotNetOrMonoGreaterThanOrEqualTo(System.Version minimumVersion)
         {
             Type type = Type.GetType("Mono.Runtime");
 
@@ -229,11 +229,11 @@ namespace LibGit2Sharp.Tests.TestHelpers
 
             var version = (string) displayName.Invoke(null, null);
 
-            Version current;
+            System.Version current;
 
             try
             {
-                current = new Version(version.Split(' ')[0]);
+                current = new System.Version(version.Split(' ')[0]);
             }
             catch (Exception e)
             {
