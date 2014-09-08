@@ -11,6 +11,10 @@ namespace LibGit2Sharp
 
         private static readonly Version version = new Version();
 
+        /// <summary>
+        /// Returns information related to the current LibGit2Sharp
+        /// library.
+        /// </summary>
         public static Version Version
         {
             get

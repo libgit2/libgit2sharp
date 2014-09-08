@@ -17,6 +17,11 @@ namespace LibGit2Sharp
         private Assembly assembly = typeof(Repository).Assembly;
 
         /// <summary>
+        /// ctor
+        /// </summary>
+        public Version() { }
+
+        /// <summary>
         /// Returns the <see cref="System.Version" /> of the 
         /// the LibGit2Sharp library.
         /// </summary>
