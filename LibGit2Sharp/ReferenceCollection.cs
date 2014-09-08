@@ -151,7 +151,35 @@ namespace LibGit2Sharp
         /// <param name="logMessage">Message added to the reflog.</param>
         /// <param name="allowOverwrite">True to allow silent overwriting a potentially existing reference, false otherwise.</param>
         /// <returns>A new <see cref="Reference"/>.</returns>
+        [Obsolete("This method will be removed in the next release. Please use Rename() instead.")]
         public virtual Reference Move(Reference reference, string newName, Signature signature, string logMessage = null, bool allowOverwrite = false)
+        {
+            return Rename(reference, newName, signature, logMessage, allowOverwrite);
+        }
+
+        /// <summary>
+        /// Rename an existing reference with a new name
+        /// </summary>
+        /// <param name="reference">The reference to rename.</param>
+        /// <param name="newName">The new canonical name.</param>
+        /// <param name="allowOverwrite">True to allow silent overwriting a potentially existing reference, false otherwise.</param>
+        /// <returns>A new <see cref="Reference"/>.</returns>
+        [Obsolete("This method will be removed in the next release. Please use Rename() instead.")]
+        public virtual Reference Move(Reference reference, string newName, bool allowOverwrite = false)
+        {
+            return Rename(reference, newName, null, null, allowOverwrite);
+        }
+
+        /// <summary>
+        /// Rename an existing reference with a new name, and update the reflog
+        /// </summary>
+        /// <param name="reference">The reference to rename.</param>
+        /// <param name="newName">The new canonical name.</param>
+        /// <param name="signature">Identity used for updating the reflog.</param>
+        /// <param name="logMessage">Message added to the reflog.</param>
+        /// <param name="allowOverwrite">True to allow silent overwriting a potentially existing reference, false otherwise.</param>
+        /// <returns>A new <see cref="Reference"/>.</returns>
+        public virtual Reference Rename(Reference reference, string newName, Signature signature, string logMessage = null, bool allowOverwrite = false)
         {
             Ensure.ArgumentNotNull(reference, "reference");
             Ensure.ArgumentNotNullOrEmptyString(newName, "newName");
@@ -176,9 +204,9 @@ namespace LibGit2Sharp
         /// <param name="newName">The new canonical name.</param>
         /// <param name="allowOverwrite">True to allow silent overwriting a potentially existing reference, false otherwise.</param>
         /// <returns>A new <see cref="Reference"/>.</returns>
-        public virtual Reference Move(Reference reference, string newName, bool allowOverwrite = false)
+        public virtual Reference Rename(Reference reference, string newName, bool allowOverwrite = false)
         {
-            return Move(reference, newName, null, null, allowOverwrite);
+            return Rename(reference, newName, null, null, allowOverwrite);
         }
 
         internal T Resolve<T>(string name) where T : Reference
