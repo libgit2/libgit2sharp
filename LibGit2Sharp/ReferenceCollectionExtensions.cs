@@ -148,7 +148,7 @@ namespace LibGit2Sharp
                         "Reference '{0}' doesn't exist. One cannot move a non existing reference.", currentName));
             }
 
-            return refsColl.Move(reference, newName, signature, logMessage, allowOverwrite);
+            return refsColl.Rename(reference, newName, signature, logMessage, allowOverwrite);
         }
 
         /// <summary>

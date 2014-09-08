@@ -181,8 +181,8 @@ namespace LibGit2Sharp.Core
                 return refMap[oldRef] = newRef;
             }
 
-            var movedRef = repo.Refs.Move(newRef, newRefName);
-            rollbackActions.Enqueue(() => repo.Refs.Move(newRef, oldRef.CanonicalName));
+            var movedRef = repo.Refs.Rename(newRef, newRefName);
+            rollbackActions.Enqueue(() => repo.Refs.Rename(newRef, oldRef.CanonicalName));
             return refMap[oldRef] = movedRef;
         }
 
