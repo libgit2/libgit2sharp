@@ -340,5 +340,31 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(FileStatus.Modified, repo.Index.RetrieveStatus(testFile));
             }
         }
+
+        [Fact]
+        public void CanClearTheIndex()
+        {
+            string path = CloneStandardTestRepo();
+            const string testFile = "1.txt";
+
+            // It is sufficient to check just one of the stage area changes, such as the modified file,
+            // to verify that the index has indeed been read from the tree.
+            using (var repo = new Repository(path))
+            {
+                Assert.Equal(FileStatus.Unaltered, repo.Index.RetrieveStatus(testFile));
+                Assert.NotEqual(0, repo.Index.Count);
+
+                repo.Index.Clear();
+                Assert.Equal(0, repo.Index.Count);
+
+                Assert.Equal(FileStatus.Removed | FileStatus.Untracked, repo.Index.RetrieveStatus(testFile));
+            }
+
+            // Check that the index was persisted to disk.
+            using (var repo = new Repository(path))
+            {
+                Assert.Equal(FileStatus.Removed | FileStatus.Untracked, repo.Index.RetrieveStatus(testFile));
+            }
+        }
     }
 }

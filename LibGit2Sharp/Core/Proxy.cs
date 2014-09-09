@@ -993,6 +993,15 @@ namespace LibGit2Sharp.Core
             }
         }
 
+        public static void git_index_clear(Index index)
+        {
+            using (ThreadAffinity())
+            {
+                int res = NativeMethods.git_index_clear(index.Handle);
+                Ensure.ZeroResult(res);
+            }
+        }
+
         #endregion
 
         #region git_merge_

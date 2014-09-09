@@ -475,6 +475,19 @@ namespace LibGit2Sharp
             UpdatePhysicalIndex();
         }
 
+        /// <summary>
+        /// Clears all entries the index. This is semantically equivalent to
+        /// creating an empty tree object and resetting the index to that tree.
+        /// <para>
+        ///   This overwrites all existing state in the staging area.
+        /// </para>
+        /// </summary>
+        public virtual void Clear()
+        {
+            Proxy.git_index_clear(this);
+            UpdatePhysicalIndex();
+        }
+
         private IDictionary<Tuple<string, FileStatus>, Tuple<string, FileStatus>> PrepareBatch(IEnumerable<string> leftPaths, IEnumerable<string> rightPaths)
         {
             IDictionary<Tuple<string, FileStatus>, Tuple<string, FileStatus>> dic = new Dictionary<Tuple<string, FileStatus>, Tuple<string, FileStatus>>();
