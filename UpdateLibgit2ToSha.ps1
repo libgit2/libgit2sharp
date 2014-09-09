@@ -181,6 +181,32 @@ namespace LibGit2Sharp.Core
 	sc -Encoding ASCII (Join-Path $libgit2sharpDirectory "Libgit2sharp\Core\NativeDllName.cs") $dllNameClass
 	sc -Encoding ASCII (Join-Path $libgit2sharpDirectory "Libgit2sharp\libgit2_hash.txt") $sha
 
+	$buildProperties = @"
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	<ItemGroup>
+		<None Include="`$(MSBuildThisFileDirectory)\..\..\lib\net40\NativeBinaries\amd64\$binaryFilename.dll">
+			<Link>NativeBinaries\amd64\$binaryFilename.dll</Link>
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Include="`$(MSBuildThisFileDirectory)\..\..\lib\net40\NativeBinaries\amd64\$binaryFilename.pdb">
+			<Link>NativeBinaries\amd64\$binaryFilename.pdb</Link>
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Include="`$(MSBuildThisFileDirectory)\..\..\lib\net40\NativeBinaries\x86\$binaryFilename.dll">
+			<Link>NativeBinaries\x86\$binaryFilename.dll</Link>
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Include="`$(MSBuildThisFileDirectory)\..\..\lib\net40\NativeBinaries\x86\$binaryFilename.pdb">
+			<Link>NativeBinaries\x86\$binaryFilename.pdb</Link>
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
+</Project>
+"@
+
+	sc -Encoding UTF8 (Join-Path $libgit2sharpDirectory "nuget.package\build\LibGit2Sharp.props") $buildProperties
+
 	Write-Output "Done!"
 }
 exit

@@ -39,4 +39,5 @@ _ReSharper*/
 LibGit2Sharp/Core/UniqueIdentifier.cs
 
 !Lib/NativeBinaries/*/*.pdb
+!nuget.package/build/
 _NCrunch_LibGit2Sharp/
