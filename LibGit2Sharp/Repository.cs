@@ -35,7 +35,6 @@ namespace LibGit2Sharp
         private readonly Stack<IDisposable> toCleanup = new Stack<IDisposable>();
         private readonly Ignore ignore;
         private readonly SubmoduleCollection submodules;
-        private static readonly Lazy<string> versionRetriever = new Lazy<string>(RetrieveVersion);
         private readonly Lazy<PathCase> pathCase;
 
         /// <summary>
@@ -572,7 +571,7 @@ namespace LibGit2Sharp
         /// <param name="path">Path of the file to blame.</param>
         /// <param name="options">Specifies optional parameters; if null, the defaults are used.</param>
         /// <returns>The blame for the file.</returns>
-        public BlameHunkCollection Blame(string path, BlameOptions options = null)
+        public BlameHunkCollection Blame(string path, BlameOptions options)
         {
             return new BlameHunkCollection(this, Handle, path, options ?? new BlameOptions());
         }
@@ -588,7 +587,7 @@ namespace LibGit2Sharp
         /// <param name="options"><see cref="CheckoutOptions"/> controlling checkout behavior.</param>
         /// <param name="signature">Identity for use when updating the reflog.</param>
         /// <returns>The <see cref="Branch"/> that was checked out.</returns>
-        public Branch Checkout(string committishOrBranchSpec, CheckoutOptions options, Signature signature = null)
+        public Branch Checkout(string committishOrBranchSpec, CheckoutOptions options, Signature signature)
         {
             Ensure.ArgumentNotNullOrEmptyString(committishOrBranchSpec, "committishOrBranchSpec");
             Ensure.ArgumentNotNull(options, "options");
@@ -638,7 +637,7 @@ namespace LibGit2Sharp
         /// <param name="options"><see cref="CheckoutOptions"/> controlling checkout behavior.</param>
         /// <param name="signature">Identity for use when updating the reflog.</param>
         /// <returns>The <see cref="Branch"/> that was checked out.</returns>
-        public Branch Checkout(Branch branch, CheckoutOptions options, Signature signature = null)
+        public Branch Checkout(Branch branch, CheckoutOptions options, Signature signature)
         {
             Ensure.ArgumentNotNull(branch, "branch");
             Ensure.ArgumentNotNull(options, "options");
@@ -675,7 +674,7 @@ namespace LibGit2Sharp
         /// <param name="options"><see cref="CheckoutOptions"/> controlling checkout behavior.</param>
         /// <param name="signature">Identity for use when updating the reflog.</param>
         /// <returns>The <see cref="Branch"/> that was checked out.</returns>
-        public Branch Checkout(Commit commit, CheckoutOptions options, Signature signature = null)
+        public Branch Checkout(Commit commit, CheckoutOptions options, Signature signature)
         {
             Ensure.ArgumentNotNull(commit, "commit");
             Ensure.ArgumentNotNull(options, "options");
@@ -736,7 +735,7 @@ namespace LibGit2Sharp
         /// <param name="commit">The target commit object.</param>
         /// <param name="signature">Identity for use when updating the reflog.</param>
         /// <param name="logMessage">Message to use when updating the reflog.</param>
-        public void Reset(ResetMode resetMode, Commit commit, Signature signature = null, string logMessage = null)
+        public void Reset(ResetMode resetMode, Commit commit, Signature signature, string logMessage)
         {
             Ensure.ArgumentNotNull(commit, "commit");
 
@@ -759,7 +758,7 @@ namespace LibGit2Sharp
         /// <param name = "committishOrBranchSpec">A revparse spec for the commit or branch to checkout paths from.</param>
         /// <param name="paths">The paths to checkout. Will throw if null is passed in. Passing an empty enumeration results in nothing being checked out.</param>
         /// <param name="checkoutOptions">Collection of parameters controlling checkout behavior.</param>
-        public void CheckoutPaths(string committishOrBranchSpec, IEnumerable<string> paths, CheckoutOptions checkoutOptions = null)
+        public void CheckoutPaths(string committishOrBranchSpec, IEnumerable<string> paths, CheckoutOptions checkoutOptions)
         {
             Ensure.ArgumentNotNullOrEmptyString(committishOrBranchSpec, "committishOrBranchSpec");
             Ensure.ArgumentNotNull(paths, "paths");
@@ -783,7 +782,7 @@ namespace LibGit2Sharp
         /// If set, the passed <paramref name="paths"/> will be treated as explicit paths.
         /// Use these options to determine how unmatched explicit paths should be handled.
         /// </param>
-        public void Reset(Commit commit, IEnumerable<string> paths = null, ExplicitPathsOptions explicitPathsOptions = null)
+        public void Reset(Commit commit, IEnumerable<string> paths, ExplicitPathsOptions explicitPathsOptions)
         {
             if (Info.IsBare)
             {
@@ -806,7 +805,7 @@ namespace LibGit2Sharp
         /// <param name="committer">The <see cref="Signature"/> of who added the change to the repository.</param>
         /// <param name="options">The <see cref="CommitOptions"/> that specify the commit behavior.</param>
         /// <returns>The generated <see cref="LibGit2Sharp.Commit"/>.</returns>
-        public Commit Commit(string message, Signature author, Signature committer, CommitOptions options = null)
+        public Commit Commit(string message, Signature author, Signature committer, CommitOptions options)
         {
             if (options == null)
             {
@@ -951,38 +950,10 @@ namespace LibGit2Sharp
         ///   <para>Major.Minor.Patch-LibGit2Sharp_abbrev_hash-libgit2_abbrev_hash (x86|amd64 - features)</para>
         /// </para>
         /// </summary>
+        [Obsolete("Use GlobalSettings.Version instead.")]
         public static string Version
         {
-            get { return versionRetriever.Value; }
-        }
-
-        private static string RetrieveVersion()
-        {
-            Assembly assembly = typeof(Repository).Assembly;
-
-            Version version = assembly.GetName().Version;
-
-            string libgit2Hash = ReadContentFromResource(assembly, "libgit2_hash.txt");
-            string libgit2sharpHash = ReadContentFromResource(assembly, "libgit2sharp_hash.txt");
-            string features = GlobalSettings.Features().ToString();
-
-            return string.Format(
-                CultureInfo.InvariantCulture,
-                "{0}-{1}-{2} ({3} - {4})",
-                version.ToString(3),
-                libgit2sharpHash.Substring(0, 7),
-                libgit2Hash.Substring(0, 7),
-                NativeMethods.ProcessorArchitecture,
-                features);
-        }
-
-        private static string ReadContentFromResource(Assembly assembly, string partialResourceName)
-        {
-            string name = string.Format(CultureInfo.InvariantCulture, "LibGit2Sharp.{0}", partialResourceName);
-            using (var sr = new StreamReader(assembly.GetManifestResourceStream(name)))
-            {
-                return sr.ReadLine();
-            }
+            get { return GlobalSettings.Version.ToString(); }
         }
 
         /// <summary>
@@ -992,7 +963,7 @@ namespace LibGit2Sharp
         /// <param name="merger">The <see cref="Signature"/> of who is performing the merge.</param>
         /// <param name="options">Specifies optional parameters controlling merge behavior; if null, the defaults are used.</param>
         /// <returns>The <see cref="MergeResult"/> of the merge.</returns>
-        public MergeResult Merge(Commit commit, Signature merger, MergeOptions options = null)
+        public MergeResult Merge(Commit commit, Signature merger, MergeOptions options)
         {
             Ensure.ArgumentNotNull(commit, "commit");
             Ensure.ArgumentNotNull(merger, "merger");
@@ -1012,7 +983,7 @@ namespace LibGit2Sharp
         /// <param name="merger">The <see cref="Signature"/> of who is performing the merge.</param>
         /// <param name="options">Specifies optional parameters controlling merge behavior; if null, the defaults are used.</param>
         /// <returns>The <see cref="MergeResult"/> of the merge.</returns>
-        public MergeResult Merge(Branch branch, Signature merger, MergeOptions options = null)
+        public MergeResult Merge(Branch branch, Signature merger, MergeOptions options)
         {
             Ensure.ArgumentNotNull(branch, "branch");
             Ensure.ArgumentNotNull(merger, "merger");
@@ -1033,7 +1004,7 @@ namespace LibGit2Sharp
         /// <param name="merger">The <see cref="Signature"/> of who is performing the merge.</param>
         /// <param name="options">Specifies optional parameters controlling merge behavior; if null, the defaults are used.</param>
         /// <returns>The <see cref="MergeResult"/> of the merge.</returns>
-        public MergeResult Merge(string committish, Signature merger, MergeOptions options = null)
+        public MergeResult Merge(string committish, Signature merger, MergeOptions options)
         {
             Ensure.ArgumentNotNull(committish, "committish");
             Ensure.ArgumentNotNull(merger, "merger");
@@ -1089,7 +1060,7 @@ namespace LibGit2Sharp
         /// <param name="reverter">The <see cref="Signature"/> of who is performing the revert.</param>
         /// <param name="options"><see cref="RevertOptions"/> controlling revert behavior.</param>
         /// <returns>The result of the revert.</returns>
-        public RevertResult Revert(Commit commit, Signature reverter, RevertOptions options = null)
+        public RevertResult Revert(Commit commit, Signature reverter, RevertOptions options)
         {
             Ensure.ArgumentNotNull(commit, "commit");
             Ensure.ArgumentNotNull(reverter, "reverter");
@@ -1125,7 +1096,7 @@ namespace LibGit2Sharp
                     Commit revertCommit = null;
                     if (options.CommitOnSuccess)
                     {
-                        revertCommit = this.Commit(Info.Message, author: reverter, committer: reverter);
+                        revertCommit = this.Commit(Info.Message, author: reverter, committer: reverter, options: null);
                     }
 
                     result = new RevertResult(RevertStatus.Reverted, revertCommit);
@@ -1146,7 +1117,7 @@ namespace LibGit2Sharp
         /// <param name="committer">The <see cref="Signature"/> of who is performing the cherry pick.</param>
         /// <param name="options"><see cref="CherryPickOptions"/> controlling cherry pick behavior.</param>
         /// <returns>The result of the cherry pick.</returns>
-        public CherryPickResult CherryPick(Commit commit, Signature committer, CherryPickOptions options = null)
+        public CherryPickResult CherryPick(Commit commit, Signature committer, CherryPickOptions options)
         {
             Ensure.ArgumentNotNull(commit, "commit");
             Ensure.ArgumentNotNull(committer, "committer");
@@ -1182,7 +1153,7 @@ namespace LibGit2Sharp
                     Commit cherryPickCommit = null;
                     if (options.CommitOnSuccess)
                     {
-                        cherryPickCommit = this.Commit(Info.Message, commit.Author, committer);
+                        cherryPickCommit = this.Commit(Info.Message, commit.Author, committer, null);
                     }
 
                     result = new CherryPickResult(CherryPickStatus.CherryPicked, cherryPickCommit);
@@ -1325,7 +1296,7 @@ namespace LibGit2Sharp
                 if (options.CommitOnSuccess)
                 {
                     // Commit the merge
-                    mergeCommit = Commit(Info.Message, author: merger, committer: merger);
+                    mergeCommit = Commit(Info.Message, author: merger, committer: merger, options: null);
                 }
 
                 mergeResult = new MergeResult(MergeStatus.NonFastForward, mergeCommit);
