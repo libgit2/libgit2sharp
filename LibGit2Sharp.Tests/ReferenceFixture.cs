@@ -601,21 +601,21 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
-        public void CanMoveAReferenceToADeeperReferenceHierarchy()
+        public void CanRenameAReferenceToADeeperReferenceHierarchy()
         {
             string path = CloneBareTestRepo();
             using (var repo = new Repository(path))
             {
                 const string newName = "refs/tags/test/deep";
 
-                Reference moved = repo.Refs.Move("refs/tags/test", newName);
-                Assert.NotNull(moved);
-                Assert.Equal(newName, moved.CanonicalName);
+                Reference renamed = repo.Refs.Rename("refs/tags/test", newName);
+                Assert.NotNull(renamed);
+                Assert.Equal(newName, renamed.CanonicalName);
             }
         }
 
         [Fact]
-        public void CanMoveAReferenceToAUpperReferenceHierarchy()
+        public void CanRenameAReferenceToAUpperReferenceHierarchy()
         {
             string path = CloneBareTestRepo();
             using (var repo = new Repository(path))
@@ -624,14 +624,14 @@ namespace LibGit2Sharp.Tests
                 const string oldName = newName + "/mio";
 
                 repo.Refs.Add(oldName, repo.Head.CanonicalName);
-                Reference moved = repo.Refs.Move(oldName, newName);
-                Assert.NotNull(moved);
-                Assert.Equal(newName, moved.CanonicalName);
+                Reference renamed = repo.Refs.Rename(oldName, newName);
+                Assert.NotNull(renamed);
+                Assert.Equal(newName, renamed.CanonicalName);
             }
         }
 
         [Fact]
-        public void CanMoveAReferenceToADifferentReferenceHierarchy()
+        public void CanRenameAReferenceToADifferentReferenceHierarchy()
         {
             string path = CloneBareTestRepo();
             using (var repo = new Repository(path))
@@ -643,27 +643,27 @@ namespace LibGit2Sharp.Tests
 
                 var oldId = repo.Refs[oldName].ResolveToDirectReference().Target.Id;
 
-                Reference moved = repo.Refs.Move(oldName, newName);
-                Assert.NotNull(moved);
-                Assert.Equal(newName, moved.CanonicalName);
-                Assert.Equal(oldId, moved.ResolveToDirectReference().Target.Id);
+                Reference renamed = repo.Refs.Rename(oldName, newName);
+                Assert.NotNull(renamed);
+                Assert.Equal(newName, renamed.CanonicalName);
+                Assert.Equal(oldId, renamed.ResolveToDirectReference().Target.Id);
 
-                AssertRefLogEntry(repo, newName, moved.ResolveToDirectReference().Target.Id,
+                AssertRefLogEntry(repo, newName, renamed.ResolveToDirectReference().Target.Id,
                     string.Format("reference: renamed {0} to {1}", oldName, newName));
             }
         }
 
         [Fact]
-        public void MovingANonExistingReferenceThrows()
+        public void RenamingANonExistingReferenceThrows()
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                Assert.Throws<LibGit2SharpException>(() => repo.Refs.Move("refs/tags/i-am-void", "refs/atic/tagtest"));
+                Assert.Throws<LibGit2SharpException>(() => repo.Refs.Rename("refs/tags/i-am-void", "refs/atic/tagtest"));
             }
         }
 
         [Fact]
-        public void CanMoveAndOverWriteAExistingReference()
+        public void CanRenameAndOverWriteAExistingReference()
         {
             string path = CloneBareTestRepo();
             using (var repo = new Repository(path))
@@ -671,10 +671,10 @@ namespace LibGit2Sharp.Tests
                 const string oldName = "refs/heads/packed";
                 const string newName = "refs/heads/br2";
 
-                Reference moved = repo.Refs.Move(oldName, newName, allowOverwrite: true);
+                Reference renamed = repo.Refs.Rename(oldName, newName, allowOverwrite: true);
 
                 Assert.Null(repo.Refs[oldName]);
-                Assert.NotNull(repo.Refs[moved.CanonicalName]);
+                Assert.NotNull(repo.Refs[renamed.CanonicalName]);
             }
         }
 
@@ -683,12 +683,12 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                Assert.Throws<NameConflictException>(() => repo.Refs.Move("refs/heads/packed", "refs/heads/br2"));
+                Assert.Throws<NameConflictException>(() => repo.Refs.Rename("refs/heads/packed", "refs/heads/br2"));
             }
         }
 
         [Fact]
-        public void MovingAReferenceDoesNotDecreaseTheRefsCount()
+        public void RenamingAReferenceDoesNotDecreaseTheRefsCount()
         {
             string path = CloneBareTestRepo();
             using (var repo = new Repository(path))
@@ -699,7 +699,7 @@ namespace LibGit2Sharp.Tests
                 List<string> refs = repo.Refs.Select(r => r.CanonicalName).ToList();
                 Assert.True(refs.Contains(oldName));
 
-                repo.Refs.Move(oldName, newName);
+                repo.Refs.Rename(oldName, newName);
 
                 List<string> refs2 = repo.Refs.Select(r => r.CanonicalName).ToList();
                 Assert.False(refs2.Contains(oldName));
@@ -710,7 +710,7 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
-        public void CanLookupAMovedReference()
+        public void CanLookupARenamedReference()
         {
             string path = CloneBareTestRepo();
             using (var repo = new Repository(path))
@@ -718,10 +718,10 @@ namespace LibGit2Sharp.Tests
                 const string oldName = "refs/tags/test";
                 const string newName = "refs/atic/tagtest";
 
-                Reference moved = repo.Refs.Move(oldName, newName);
+                Reference renamed = repo.Refs.Rename(oldName, newName);
 
                 Reference lookedUp = repo.Refs[newName];
-                Assert.Equal(lookedUp, moved);
+                Assert.Equal(lookedUp, renamed);
             }
         }
 

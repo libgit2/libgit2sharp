@@ -134,7 +134,24 @@ namespace LibGit2Sharp
         /// <param name="allowOverwrite">True to allow silent overwriting a potentially existing reference, false otherwise.</param>
         /// <param name="refsColl">The <see cref="ReferenceCollection"/> being worked with.</param>
         /// <returns>A new <see cref="Reference"/>.</returns>
+        [Obsolete("This method will be removed in the next release. Please use Rename() instead.")]
         public static Reference Move(this ReferenceCollection refsColl, string currentName, string newName,
+            Signature signature = null, string logMessage = null, bool allowOverwrite = false)
+        {
+            return refsColl.Rename(currentName, newName, signature, logMessage, allowOverwrite);
+        }
+
+        /// <summary>
+        /// Rename an existing reference with a new name
+        /// </summary>
+        /// <param name="currentName">The canonical name of the reference to rename.</param>
+        /// <param name="newName">The new canonical name.</param>
+        /// <param name="signature">The identity used for updating the reflog</param>
+        /// <param name="logMessage">The optional message to log in the <see cref="ReflogCollection"/></param>
+        /// <param name="allowOverwrite">True to allow silent overwriting a potentially existing reference, false otherwise.</param>
+        /// <param name="refsColl">The <see cref="ReferenceCollection"/> being worked with.</param>
+        /// <returns>A new <see cref="Reference"/>.</returns>
+        public static Reference Rename(this ReferenceCollection refsColl, string currentName, string newName,
             Signature signature = null, string logMessage = null, bool allowOverwrite = false)
         {
             Ensure.ArgumentNotNullOrEmptyString(currentName, "currentName");
