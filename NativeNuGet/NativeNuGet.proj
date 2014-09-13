@@ -20,10 +20,10 @@
     </None>
     <None Include="packages.config" />
   </ItemGroup>
-  <Target Name="CreateBuildDirectory">
+  <Target Name="PrepareForBuild">
     <MakeDir Directories="$(ProjectDir)bin\$(Configuration)\" />
   </Target>
-  <Target Name="Build" DependsOnTargets="CreateBuildDirectory">
+  <Target Name="Build" DependsOnTargets="PrepareForBuild">
   </Target>
   <Target Name="Clean" />
   <Target Name="Rebuild" DependsOnTargets="Clean;Build" />
