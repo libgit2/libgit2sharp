@@ -1,4 +1,4 @@
-﻿<?xml version="1.0"?>
+<?xml version="1.0"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>LibGit2.Native</id>
@@ -13,10 +13,11 @@
         <tags>libgit2 libgit2sharp git wrapper bindings API dvcs vcs</tags>
     </metadata>
     <files>
-        <file src="..\..\..\Lib\NativeBinaries\amd64\*.dll" target="lib\NativeBinaries\x64" />
-        <file src="..\..\..\Lib\NativeBinaries\amd64\*.pdb" target="lib\NativeBinaries\x64" />
-        <file src="..\..\..\Lib\NativeBinaries\x86\*.dll" target="lib\NativeBinaries\x86" />
-        <file src="..\..\..\Lib\NativeBinaries\x86\*.pdb" target="lib\NativeBinaries\x86" />
+        <file src="LibGit2.Native.targets" target="build" />
+        <file src="..\..\..\Lib\NativeBinaries\amd64\*.dll" target="libs\NativeBinaries\x64" />
+        <file src="..\..\..\Lib\NativeBinaries\amd64\*.pdb" target="libs\NativeBinaries\x64" />
+        <file src="..\..\..\Lib\NativeBinaries\x86\*.dll" target="libs\NativeBinaries\x86" />
+        <file src="..\..\..\Lib\NativeBinaries\x86\*.pdb" target="libs\NativeBinaries\x86" />
         <file src="..\..\..\README.md" target="App_Readme\LibGit2Sharp.README.md" />
         <file src="..\..\..\LICENSE.md" target="App_Readme\LibGit2Sharp.LICENSE.md" />
         <file src="..\..\..\CHANGES.md" target="App_Readme\LibGit2Sharp.CHANGES.md" />
