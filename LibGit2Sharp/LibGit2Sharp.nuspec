@@ -1,0 +1,27 @@
+﻿<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <authors>$author$</authors>
+    <owners>nulltoken</owners>
+    <licenseUrl>https://github.com/libgit2/libgit2sharp/raw/master/LICENSE.md</licenseUrl>
+    <iconUrl>https://github.com/libgit2/libgit2sharp/raw/master/square-logo.png</iconUrl>
+    <projectUrl>https://github.com/libgit2/libgit2sharp/</projectUrl>
+    <releaseNotes>https://github.com/libgit2/libgit2sharp/blob/master/CHANGES.md#libgit2sharp-changes</releaseNotes>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>$description$</description>
+    <tags>libgit2 git wrapper bindings API dvcs vcs</tags>
+    <references>
+      <reference file="LibGit2Sharp.dll" />
+    </references>
+    <dependencies>
+      <dependency id="LibGit2.Native" version="0.21.0" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="..\..\..\README.md" target="App_Readme\LibGit2Sharp.README.md" />
+    <file src="..\..\..\LICENSE.md" target="App_Readme\LibGit2Sharp.LICENSE.md" />
+    <file src="..\..\..\CHANGES.md" target="App_Readme\LibGit2Sharp.CHANGES.md" />
+  </files>
+</package>

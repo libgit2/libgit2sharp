@@ -1,0 +1,8 @@
+﻿<Project
+	xmlns="http://schemas.microsoft.com/developer/msbuild/2003"
+	DefaultTargets="Build">
+	<PropertyGroup>
+		<BuildNuGetSymbolsPackage>true</BuildNuGetSymbolsPackage>
+		<CustomNuGetPackSwitches></CustomNuGetPackSwitches>
+	</PropertyGroup>
+</Project>
