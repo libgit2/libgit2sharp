@@ -1,6 +1,7 @@
-﻿<Project
-	xmlns="http://schemas.microsoft.com/developer/msbuild/2003"
-	DefaultTargets="Build">
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	<Target Name="DisplayMessages" BeforeTargets="Build">
+		<Message Text="ProjectPath = '$(ProjectPath)'" Importance="high"/>
+	</Target>
 	<PropertyGroup>
 		<BuildNuGetSymbolsPackage>true</BuildNuGetSymbolsPackage>
 		<CustomNuGetPackSwitches></CustomNuGetPackSwitches>
