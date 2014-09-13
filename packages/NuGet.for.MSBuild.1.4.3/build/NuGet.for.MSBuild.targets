@@ -1,0 +1,316 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--
+***********************************************************************************************
+NuGet.for.MSBuild.targets
+
+WARNING:  DO NOT MODIFY this file unless you are knowledgeable about MSBuild and have
+          created a backup copy.  Incorrect changes to this file will make it
+          impossible to load or build your projects from the command-line or the IDE.
+
+***********************************************************************************************
+-->
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildThisFileDirectory).\NuGet.for.MSBuild.tasks" />
+  
+  <PropertyGroup>
+    <!-- Enables or disables the building of the NuGet package. -->
+    <BuildNuGetPackage Condition=" '$(BuildNuGetPackage)' == '' ">true</BuildNuGetPackage>
+    
+    <!-- Enables or disables the building of the NuGet symbols package. -->
+    <BuildNuGetSymbolsPackage Condition=" '$(BuildNuGetSymbolsPackage)' == '' ">false</BuildNuGetSymbolsPackage>
+
+    <!-- Enables or disables the use of the file version over the assembly version. 
+    
+    NOTE: Disabling this feature will require you to change the assembly version of your product to change the version your package.
+    This can cause other unintentional upgrade issues for your users, for example, if your product uses a configuration section.
+    -->
+    <UseFileVersion Condition=" '$(UseFileVersion)' == '' ">true</UseFileVersion>
+
+    <!-- Enables or disable the use of the informational version (semantic version) on the assembly. -->
+    <UseInfoVersion Condition=" '$(UseInfoVersion)' == '' ">true</UseInfoVersion>
+    
+    <!-- Enables or disables whether the assembly version should be determined. -->
+    <DetermineAssemblyVersion Condition=" '$(DetermineAssemblyVersion)' == '' ">true</DetermineAssemblyVersion>
+
+    <NuspecManifestFileName Condition=" '$(NuspecManifestFileName)' == '' ">$(ProjectName).nuspec</NuspecManifestFileName>
+    
+    <NuspecManifestPath Condition=" '$(NuspecManifestPath)' == '' ">$(ProjectDir)$(NuspecManifestFileName)</NuspecManifestPath>
+  </PropertyGroup>
+
+  <Target Name="GenerateNuspecManifest" Condition=" !Exists('$(NuspecManifestPath)') AND Exists('$(TargetPath)') ">
+    <PropertyGroup>
+      <GeneratedNuspecManifest>true</GeneratedNuspecManifest>
+    </PropertyGroup>
+    
+    <NuGet.MSBuild.Tools.Spec Project="$(ProjectPath)"
+                              AssemblyPath="$(TargetPath)"
+                              ToolPath="$(NuGetToolPath)"/>
+  </Target>
+
+  <Target Name="ReadNuspecManifest" Condition=" Exists('$(NuspecManifestPath)') ">
+    <Message Importance="low" Text="Harvesting manifest information from $(NuspecManifestPath)"/>
+
+    <NuGet.MSBuild.Tools.ReadNuspecManifest Manifest="$(NuspecManifestPath)">
+      <Output TaskParameter="PackageId" PropertyName="PackageId"/>
+      <Output TaskParameter="PackageVersion" PropertyName="PackageVersion"/>
+    </NuGet.MSBuild.Tools.ReadNuspecManifest>
+  </Target>
+  
+  <Target Name="CleanNuspecManifest" Condition=" '$(GeneratedNuspecManifest)' == 'true' ">
+    <Delete Files="$(NuspecManifestPath)"/>
+  </Target>
+
+  <PropertyGroup>
+    <HarvestNuspecManifestDependsOn>
+      GenerateNuspecManifest;
+      ReadNuspecManifest;
+      CleanNuspecManifest;
+    </HarvestNuspecManifestDependsOn>
+  </PropertyGroup>
+
+  <Target Name="HarvestNuspecManifest"
+          DependsOnTargets="$(HarvestNuspecManifestDependsOn)"/>
+
+  <Target Name="ReadAssemblyMetadata" Condition=" Exists('$(TargetPath)') ">
+    <Message Importance="low" Text="Harvesting assembly metadata from $(TargetPath)"/>
+
+    <NuGet.MSBuild.Tools.ReadAssemblyMetadata Assembly="$(TargetPath)"
+                                              UseFileVersion="$(UseFileVersion)"
+                                              UseInfoVersion="$(UseInfoVersion)">
+      <!-- We only need to read the assembly version from the extracted metadata since the assembly name property on the project is already set. -->
+      <Output TaskParameter="AssemblyVersion" PropertyName="AssemblyVersion"/>
+    </NuGet.MSBuild.Tools.ReadAssemblyMetadata>       
+  </Target>
+
+  <Target Name="ResolveNuGetPath" Condition=" '$(NuGetToolPath)' == '' OR !Exists('$(NuGetToolPath)') ">
+    <NuGet.MSBuild.Tools.ResolveNuGetToolPath Solution="$(SolutionPath)" ContinueOnError="true">
+      <Output TaskParameter="ToolPath" PropertyName="NuGetToolPath"/>
+    </NuGet.MSBuild.Tools.ResolveNuGetToolPath>
+
+    <Warning Text="The NuGet.exe path could not be resolved, or does not exist." Condition=" '$(NuGetToolPath)' == '' OR !Exists('$(NuGetToolPath)') "/>
+    <Message Importance="low" Text="NuGetToolPath=$(NuGetToolPath)"/>
+  </Target>
+  
+  <PropertyGroup>
+    <HarvestPackageMetadataDependsOn>
+      ResolveNuGetPath;
+      HarvestNuspecManifest;
+      ReadAssemblyMetadata;
+    </HarvestPackageMetadataDependsOn>
+  </PropertyGroup>
+
+  <Target Name="HarvestPackageMetadata" DependsOnTargets="$(HarvestPackageMetadataDependsOn)">    
+    <!-- Set the properties that will be used for package versioning -->
+    <CreateProperty Value="$(AssemblyName)" Condition=" '$(PackageId)' == '' OR '$(PackageId)' == '$id$' ">
+      <Output TaskParameter="Value" PropertyName="PackageId"/>
+    </CreateProperty>
+
+    <CreateProperty Value="$(AssemblyVersion)" Condition=" '$(PackageVersion)' == '' OR '$(PackageVersion)' == '$version$' ">
+      <Output TaskParameter="Value" PropertyName="PackageVersion"/>
+    </CreateProperty>
+  </Target>
+
+  <!--
+  ============================================================
+  PackNuGetPackage
+  ============================================================
+  -->
+
+  <Target Name="PackNuGetPackage">
+    <PropertyGroup>
+      <!-- Symbols cannot be built without a project file as the target. -->
+      <BuildNuGetSymbolsPackage Condition=" '$(UseNuspecOnly)' == 'true' ">false</BuildNuGetSymbolsPackage>
+    </PropertyGroup>
+
+    <CreateProperty Value="$(ProjectPath)">
+      <Output TaskParameter="Value" PropertyName="NuGetProjectPath"/>      
+    </CreateProperty>
+
+    <CreateProperty Value="$(NuspecManifestPath)" Condition=" '$(UseNuspecOnly)' == 'true' ">
+      <Output TaskParameter="Value" PropertyName="NuGetProjectPath"/>
+    </CreateProperty>
+
+    <NuGet.MSBuild.Tools.Pack Project="$(NuGetProjectPath)"
+                              OutputDirectory="$(OutDir)"
+                              Symbols="$(BuildNuGetSymbolsPackage)"
+                              BasePath="$(OutDir)"
+                              Version="$(PackageVersion)"
+                              CustomSwitches="$(CustomNuGetPackSwitches)"
+                              ToolPath="$(NuGetToolPath)"
+                              Configuration="$(Configuration)"
+                              Platform="$(Platform)"/>
+  </Target>
+
+  <!--
+  ============================================================
+  CoreCreateNuGetPackage
+  ============================================================
+  -->
+
+  <PropertyGroup>
+    <CoreCreateNuGetPackageDependsOn>
+      ResolveNuGetPath;
+    </CoreCreateNuGetPackageDependsOn>
+  </PropertyGroup>
+
+  <Target Name="CoreCreateNuGetPackage" DependsOnTargets="$(CoreCreateNuGetPackageDependsOn)">
+    <MSBuild Projects="$(MSBuildProjectFile)" Targets="StartCreateNuGetPackage" Condition=" '$(NuGetToolPath)' != '' AND Exists('$(NuGetToolPath)') "
+             Properties="_Stage=Build;NuGetToolPath=$(NuGetToolPath)"/>
+  </Target>
+  
+  <PropertyGroup>
+    <StartCreateNuGetPackageDependsOn>
+      HarvestPackageMetadata;
+      PackNuGetPackage;
+    </StartCreateNuGetPackageDependsOn>
+  </PropertyGroup>
+
+  <Target Name="StartCreateNuGetPackage"
+          DependsOnTargets="$(StartCreateNuGetPackageDependsOn)"/>
+
+  <!--
+  ============================================================
+  NupkgProjectOutputGroup
+  ============================================================
+  -->
+  
+  <PropertyGroup>
+    <NupkgProjectOutputGroupDependsOn>
+      HarvestPackageMetadata;
+    </NupkgProjectOutputGroupDependsOn>
+  </PropertyGroup>
+  
+  <Target Name="NupkgProjectOutputGroup"
+          DependsOnTargets="$(NupkgProjectOutputGroupDependsOn)"
+          Returns="@(NupkgProjectOutputGroupOutput)">
+    
+    <ItemGroup>
+      <NupkgProjectOutputGroupOutput Include="$(OutDir).\$(PackageId).$(PackageVersion).nupkg" />
+    </ItemGroup>
+  </Target>
+
+  <!--
+  ============================================================
+  NupkgSymbolsOutputGroup
+  ============================================================
+  -->
+
+  <PropertyGroup>
+    <NupkgSymbolsOutputGroupDependsOn>
+      HarvestPackageMetadata;
+    </NupkgSymbolsOutputGroupDependsOn>
+  </PropertyGroup>
+
+  <Target Name="NupkgSymbolsOutputGroup"
+          DependsOnTargets="$(NupkgSymbolsOutputGroupDependsOn)"
+          Returns="@(NupkgSymbolsOutputGroupOutput)">
+
+    <ItemGroup>
+      <NupkgSymbolsOutputGroupOutput Include="$(OutDir).\$(PackageId).$(PackageVersion).symbols.nupkg" />
+    </ItemGroup>
+  </Target>
+
+  <!--
+  ============================================================
+  AllNupkgProjectOutputGroup
+  ============================================================
+  -->
+  
+  <Target Name="AllNupkgProjectOutputGroups"
+          DependsOnTargets="
+            NupkgProjectOutputGroup;
+            NupkgSymbolsOutputGroup"/>
+
+  <!--
+  ============================================================
+  CleanNuGetPackage
+  ============================================================
+  -->
+
+  <PropertyGroup>
+    <CleanNuGetPackageDependsOn>
+      BeforeCleanNuGetPackage;
+      CoreCleanNuGetPackage;
+      AfterCleanNuGetPackage;
+    </CleanNuGetPackageDependsOn>
+  </PropertyGroup>
+
+  <Target Name="BeforeCleanNuGetPackage" />
+  <Target Name="AfterCleanNuGetPackage" />
+
+  <Target Name="CleanNuGetPackage" 
+          DependsOnTargets="$(CleanNuGetPackageDependsOn)"/>
+
+  <PropertyGroup>
+    <CoreCleanNuGetPackageDependsOn>
+      ResolveNuGetPath;
+    </CoreCleanNuGetPackageDependsOn>
+  </PropertyGroup>
+
+  <Target Name="CoreCleanNuGetPackage" DependsOnTargets="$(CoreCleanNuGetPackageDependsOn)">
+    <MSBuild Projects="$(MSBuildProjectFile)" Targets="StartCleanNuGetPackage" Condition=" '$(NuGetToolPath)' != '' AND Exists('$(NuGetToolPath)') "
+             Properties="_Stage=Clean;NuGetToolPath=$(NuGetToolPath)"/>
+  </Target>
+
+  <PropertyGroup>
+    <StartCleanNuGetPackageDependsOn>      
+      HarvestPackageMetadata;
+      DeleteNuGetPackages;
+    </StartCleanNuGetPackageDependsOn>
+  </PropertyGroup>
+
+  <Target Name="StartCleanNuGetPackage" 
+          DependsOnTargets="$(StartCleanNuGetPackageDependsOn)" />
+
+  <Target Name="DeleteNuGetPackages">
+    <Message Importance="low" Text="PackageId=$(PackageId)"/>
+    <Message Importance="low" Text="PackageVersion=$(PackageVersion)"/>
+
+    <ItemGroup>
+      <NuGetPackagesToDelete Include="$(OutDir).\$(PackageId).$(PackageVersion).nupkg;$(OutDir).\$(PackageId).$(PackageVersion).*.nupkg"/>
+    </ItemGroup>
+
+    <Delete Files="@(NugetPackagesToDelete)"/>
+  </Target>  
+  
+  <!--
+  ============================================================
+  CreateNuGetPackage
+  ============================================================
+  -->
+
+  <PropertyGroup>
+    <CreateNuGetPackageDependsOn>
+      BeforeCreateNuGetPackage;
+      CoreCreateNuGetPackage;
+      AfterCreateNuGetPackage;
+    </CreateNuGetPackageDependsOn>
+  </PropertyGroup>
+
+  <Target Name="BeforeCreateNuGetPackage"/>
+  <Target Name="AfterCreateNuGetPackage"/>
+
+  <Target Name="CreateNuGetPackage" Condition=" '$(BuildNuGetPackage)' == 'true' "
+          DependsOnTargets="$(CreateNuGetPackageDependsOn)"/>
+
+  <!--
+  ============================================================
+  Hook into the build targets.
+  ============================================================
+  -->
+
+  <PropertyGroup>
+    <CoreCleanDependsOn>
+      $(CoreCleanDependsOn);
+      CleanNuGetPackage;
+    </CoreCleanDependsOn>
+  </PropertyGroup>
+  
+  <PropertyGroup>
+    <BuildDependsOn>
+      $(BuildDependsOn);
+      CreateNuGetPackage;
+    </BuildDependsOn>
+  </PropertyGroup>
+  
+</Project>
