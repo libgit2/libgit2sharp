@@ -15,6 +15,7 @@
     </CreateItem>
     <Copy
       SourceFiles="@(NativeBinaries)"
-      DestinationFolder="$(TargetDir)%(RecursiveDir)"/>
+      DestinationFolder="$(TargetDir)%(RecursiveDir)"
+      SkipUnchangedFiles="true"/>
   </Target>
 </Project>
