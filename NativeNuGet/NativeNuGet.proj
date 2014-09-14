@@ -7,12 +7,14 @@
     <NuGetPackageImportStamp>2189a357</NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <OutputPath>bin\Debug\</OutputPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <OutputPath>bin\Release\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
     <None Include="LibGit2.Native.targets" />
-    <None Include="Native.nuspec">
+    <None Include="NativeNuGet.nuspec">
       <SubType>Designer</SubType>
     </None>
     <None Include="NativeNuGet.targets">
@@ -20,12 +22,31 @@
     </None>
     <None Include="packages.config" />
   </ItemGroup>
+  <PropertyGroup>
+    <OutDirWasSpecified Condition=" '$(OutDir)'!='' and '$(OutDirWasSpecified)'=='' ">true</OutDirWasSpecified>
+    <OutDir Condition=" '$(OutDir)' == '' ">$(OutputPath)</OutDir>
+    <OutDir Condition="'$(OutDir)' != '' and !HasTrailingSlash('$(OutDir)')">$(OutDir)\</OutDir>
+    <ProjectName Condition=" '$(ProjectName)' == '' ">$(MSBuildProjectName)</ProjectName>
+    <ProjectFileName Condition=" '$(ProjectFileName)' == '' ">$(MSBuildProjectFile)</ProjectFileName>
+    <ProjectExt Condition=" '$(ProjectExt)' == '' ">$(MSBuildProjectExtension)</ProjectExt>
+    <TargetDir Condition="'$(OutDir)' != ''">$([MSBuild]::Escape($([System.IO.Path]::GetFullPath(`$([System.IO.Path]::Combine(`$(MSBuildProjectDirectory)`, `$(OutDir)`))`))))</TargetDir>
+    <ProjectDir Condition=" '$(ProjectDir)' == '' ">$(MSBuildProjectDirectory)\</ProjectDir>
+    <ProjectPath Condition=" '$(ProjectPath)' == '' ">$(ProjectDir)$(ProjectFileName)</ProjectPath>
+    <PlatformName Condition=" '$(PlatformName)' == '' ">$(Platform)</PlatformName>
+  </PropertyGroup>
+  <PropertyGroup>
+    <CoreCleanDependsOn/>
+    <BuildDependsOn>
+      PrepareForBuild;
+    </BuildDependsOn>
+  </PropertyGroup>
   <Target Name="PrepareForBuild">
-    <MakeDir Directories="$(ProjectDir)bin\$(Configuration)\" />
+    <MakeDir Directories="$(OutputPath)" />
   </Target>
-  <Target Name="Build" DependsOnTargets="PrepareForBuild">
+  <Target Name="Clean" DependsOnTargets="$(CoreCleanDependsOn)">
+    <RemoveDir Directories="$(OutputPath)" />
   </Target>
-  <Target Name="Clean" />
+  <Target Name="Build" DependsOnTargets="$(BuildDependsOn)" />
   <Target Name="Rebuild" DependsOnTargets="Clean;Build" />
   <Import Project="$(ProjectDir)NativeNuGet.targets" />
   <Import Project="..\packages\NuGet.for.MSBuild.1.4.3\build\NuGet.for.MSBuild.targets" Condition="Exists('..\packages\NuGet.for.MSBuild.1.4.3\build\NuGet.for.MSBuild.targets')" />
