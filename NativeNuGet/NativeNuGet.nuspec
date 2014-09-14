@@ -13,7 +13,7 @@
         <tags>libgit2 libgit2sharp git wrapper bindings API dvcs vcs</tags>
     </metadata>
     <files>
-        <file src="LibGit2.Native.targets" target="build" />
+        <file src="..\..\LibGit2.Native.targets" target="build" />
         <file src="..\..\..\Lib\NativeBinaries\amd64\*.dll" target="libs\NativeBinaries\x64" />
         <file src="..\..\..\Lib\NativeBinaries\amd64\*.pdb" target="libs\NativeBinaries\x64" />
         <file src="..\..\..\Lib\NativeBinaries\x86\*.dll" target="libs\NativeBinaries\x86" />
