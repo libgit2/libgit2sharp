@@ -1,11 +1,4 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-	<Target Name="DisplayMessages" BeforeTargets="PrepareForBuild">
-		<Message Text="ProjectPath = '$(ProjectPath)'" Importance="high"/>
-		<Message Text="OutDir = '$(OutDir)'" Importance="high"/>
-	</Target>
-	<Target Name="DisplayNuGetMessages" BeforeTargets="PackNuGetPackage">
-		<Message Text="NuGetToolPath = '$(NuGetToolPath)'" Importance="high"/>
-	</Target>
 	<PropertyGroup>
 		<UseNuspecOnly>true</UseNuspecOnly>
 		<CustomNuGetPackSwitches></CustomNuGetPackSwitches>

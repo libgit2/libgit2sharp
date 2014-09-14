@@ -130,6 +130,7 @@ WARNING:  DO NOT MODIFY this file unless you are knowledgeable about MSBuild and
       <Output TaskParameter="Value" PropertyName="NuGetProjectPath"/>
     </CreateProperty>
 
+    <Message Text="NuGetToolPath = '$(NuGetToolPath)'" Importance="high"/>
     <NuGet.MSBuild.Tools.Pack Project="$(NuGetProjectPath)"
                               OutputDirectory="$(OutDir)"
                               Symbols="$(BuildNuGetSymbolsPackage)"
