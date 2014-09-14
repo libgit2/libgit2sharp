@@ -1,0 +1,21 @@
+﻿<Project
+	xmlns="http://schemas.microsoft.com/developer/msbuild/2003"
+	DefaultTargets="Build">
+
+  <PropertyGroup>
+    <BuildDependsOn>
+      $(BuildDependsOn);
+      CopyNativeBinaries;
+    </BuildDependsOn>
+  </PropertyGroup>
+
+  <Target Name="CopyNativeBinaries">
+    <CreateItem Include="$(SolutionDir)packages\LibGit2.Native.0.21.0\libs\**\*.*">
+      <Output TaskParameter="Include" ItemName="NativeBinaries"/>
+    </CreateItem>
+    <Copy
+      SourceFiles="@(NativeBinaries)"
+      DestinationFolder="$(TargetDir)%(RecursiveDir)"
+      SkipUnchangedFiles="true"/>
+  </Target>
+</Project>

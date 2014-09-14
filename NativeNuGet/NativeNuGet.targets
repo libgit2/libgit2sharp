@@ -1,0 +1,6 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	<PropertyGroup>
+		<UseNuspecOnly>true</UseNuspecOnly>
+		<CustomNuGetPackSwitches></CustomNuGetPackSwitches>
+	</PropertyGroup>
+</Project>
