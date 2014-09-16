@@ -966,7 +966,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal("origin", repo.Head.Remote.Name);
 
                 Touch(repo.Info.WorkingDirectory, "a.txt", "a");
-                repo.Index.Stage("a.txt");
+                repo.Stage("a.txt");
                 repo.Commit("A file", Constants.Signature, Constants.Signature);
 
                 Assert.NotNull(repo.Head.Tip);

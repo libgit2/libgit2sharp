@@ -48,7 +48,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(clone))
             {
                 Touch(repo.Info.WorkingDirectory, "file.txt", "content");
-                repo.Index.Stage("file.txt");
+                repo.Stage("file.txt");
 
                 RepositoryStatus status = repo.Index.RetrieveStatus(new StatusOptions() { Show = show });
                 Assert.Equal(expected, status["file.txt"].State);
@@ -157,7 +157,7 @@ namespace LibGit2Sharp.Tests
                     "This is a file with enough data to trigger similarity matching.\r\n" +
                     "This is a file with enough data to trigger similarity matching.\r\n");
 
-                repo.Index.Stage("old_name.txt");
+                repo.Stage("old_name.txt");
 
                 File.Move(Path.Combine(repo.Info.WorkingDirectory, "old_name.txt"),
                     Path.Combine(repo.Info.WorkingDirectory, "rename_target.txt"));
@@ -184,8 +184,8 @@ namespace LibGit2Sharp.Tests
                     Path.Combine(repo.Info.WorkingDirectory, "1.txt"),
                     Path.Combine(repo.Info.WorkingDirectory, "rename_target.txt"));
 
-                repo.Index.Stage("1.txt");
-                repo.Index.Stage("rename_target.txt");
+                repo.Stage("1.txt");
+                repo.Stage("rename_target.txt");
 
                 RepositoryStatus status = repo.Index.RetrieveStatus();
 
@@ -206,7 +206,7 @@ namespace LibGit2Sharp.Tests
                     "This is a file with enough data to trigger similarity matching.\r\n" +
                     "This is a file with enough data to trigger similarity matching.\r\n");
 
-                repo.Index.Stage("file.txt");
+                repo.Stage("file.txt");
                 repo.Commit("Initial commit", Constants.Signature, Constants.Signature);
 
                 File.Move(Path.Combine(repo.Info.WorkingDirectory, "file.txt"),
@@ -223,8 +223,8 @@ namespace LibGit2Sharp.Tests
                 // This passes as expected
                 Assert.Equal(FileStatus.RenamedInWorkDir, status.Single().State);
 
-                repo.Index.Stage("file.txt");
-                repo.Index.Stage("renamed.txt");
+                repo.Stage("file.txt");
+                repo.Stage("renamed.txt");
 
                 status = repo.Index.RetrieveStatus(opts);
 
@@ -275,7 +275,7 @@ namespace LibGit2Sharp.Tests
                 Touch(repo.Info.WorkingDirectory, relFilePath, "Anybody out there?");
 
                 // Add the file to the index
-                repo.Index.Stage(relFilePath);
+                repo.Stage(relFilePath);
 
                 // Get the repository status
                 RepositoryStatus repoStatus = repo.Index.RetrieveStatus();
@@ -436,7 +436,7 @@ namespace LibGit2Sharp.Tests
 
                 lowerCasedPath = Touch(repo.Info.WorkingDirectory, lowercasedFilename);
 
-                repo.Index.Stage(lowercasedFilename);
+                repo.Stage(lowercasedFilename);
                 repo.Commit("initial", Constants.Signature, Constants.Signature);
             }
 

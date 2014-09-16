@@ -35,7 +35,7 @@ namespace LibGit2Sharp.Tests
                 // Change local state (commit)
                 const string relativeFilepath = "new_file.txt";
                 Touch(clonedRepo.Info.WorkingDirectory, relativeFilepath, "__content__");
-                clonedRepo.Index.Stage(relativeFilepath);
+                clonedRepo.Stage(relativeFilepath);
                 clonedRepo.Commit("__commit_message__", Constants.Signature, Constants.Signature);
 
                 // Assert local state has changed
@@ -164,7 +164,7 @@ namespace LibGit2Sharp.Tests
 
             Touch(repository.Info.WorkingDirectory, filename, random);
 
-            repository.Index.Stage(filename);
+            repository.Stage(filename);
 
             return repository.Commit("New commit", Constants.Signature, Constants.Signature);
         }

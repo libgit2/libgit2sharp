@@ -98,7 +98,7 @@ namespace LibGit2Sharp.Tests
                 Touch(repo.Info.WorkingDirectory, oldName, "hello test file\n");
                 Assert.Equal(FileStatus.Untracked, repo.Index.RetrieveStatus(oldName));
 
-                repo.Index.Stage(oldName);
+                repo.Stage(oldName);
                 Assert.Equal(FileStatus.Added, repo.Index.RetrieveStatus(oldName));
 
                 // Generated through
@@ -115,7 +115,7 @@ namespace LibGit2Sharp.Tests
 
                 const string newName = "being.frakking.polite.txt";
 
-                repo.Index.Move(oldName, newName);
+                repo.Move(oldName, newName);
                 Assert.Equal(FileStatus.Removed, repo.Index.RetrieveStatus(oldName));
                 Assert.Equal(FileStatus.Added, repo.Index.RetrieveStatus(newName));
 
@@ -145,7 +145,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(sourceStatus, repo.Index.RetrieveStatus(sourcePath));
                 Assert.Equal(destStatus, repo.Index.RetrieveStatus(destPath));
 
-                repo.Index.Move(sourcePath, destPath);
+                repo.Move(sourcePath, destPath);
 
                 Assert.Equal(sourcePostStatus, repo.Index.RetrieveStatus(sourcePath));
                 Assert.Equal(destPostStatus, repo.Index.RetrieveStatus(destPath));
@@ -187,7 +187,7 @@ namespace LibGit2Sharp.Tests
                 foreach (var destPath in destPaths)
                 {
                     string path = destPath;
-                    Assert.Throws<LibGit2SharpException>(() => repo.Index.Move(sourcePath, path));
+                    Assert.Throws<LibGit2SharpException>(() => repo.Move(sourcePath, path));
                 }
             }
         }
@@ -205,7 +205,7 @@ namespace LibGit2Sharp.Tests
                 Touch(repo.Info.WorkingDirectory, relFilePath, "Anybody out there?");
 
                 // Stage the file
-                repo.Index.Stage(relFilePath);
+                repo.Stage(relFilePath);
 
                 // Get the index
                 Index index = repo.Index;
@@ -241,7 +241,7 @@ namespace LibGit2Sharp.Tests
                 Touch(repo.Info.Path, "index.lock");
 
                 Touch(repo.Info.WorkingDirectory, "newfile", "my my, this is gonna crash\n");
-                Assert.Throws<LockedFileException>(() => repo.Index.Stage("newfile"));
+                Assert.Throws<LockedFileException>(() => repo.Stage("newfile"));
             }
         }
 
@@ -266,7 +266,7 @@ namespace LibGit2Sharp.Tests
                 Assert.True(readStatus.IsDirty);
                 Assert.Equal(0, repoRead.Index.Count);
 
-                repoWrite.Index.Stage("*");
+                repoWrite.Stage("*");
                 repoWrite.Commit("message", Constants.Signature, Constants.Signature);
 
                 writeStatus = repoWrite.Index.RetrieveStatus();

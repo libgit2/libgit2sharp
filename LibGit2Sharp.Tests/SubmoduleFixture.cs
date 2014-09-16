@@ -120,7 +120,7 @@ namespace LibGit2Sharp.Tests
                 var statusBefore = submodule.RetrieveStatus();
                 Assert.Equal(SubmoduleStatus.WorkDirModified, statusBefore & SubmoduleStatus.WorkDirModified);
 
-                repo.Index.Stage(submodulePath);
+                repo.Stage(submodulePath);
 
                 var statusAfter = submodule.RetrieveStatus();
                 Assert.Equal(SubmoduleStatus.IndexModified, statusAfter & SubmoduleStatus.IndexModified);
@@ -145,7 +145,7 @@ namespace LibGit2Sharp.Tests
 
                 Touch(repo.Info.WorkingDirectory, "new-file.txt");
 
-                repo.Index.Stage(new[] { "new-file.txt", submodulePath, "does-not-exist.txt" });
+                repo.Stage(new[] { "new-file.txt", submodulePath, "does-not-exist.txt" });
 
                 var statusAfter = submodule.RetrieveStatus();
                 Assert.Equal(SubmoduleStatus.IndexModified, statusAfter & SubmoduleStatus.IndexModified);

@@ -139,7 +139,7 @@ namespace LibGit2Sharp.Tests
 
                 const string staged = "staged_file_path.txt";
                 Touch(repo.Info.WorkingDirectory, staged, "I'm staged\n");
-                repo.Index.Stage(staged);
+                repo.Stage(staged);
 
                 Stash stash = repo.Stashes.Add(stasher, "Stash with default options", StashModifiers.Default);
 
@@ -165,7 +165,7 @@ namespace LibGit2Sharp.Tests
 
                 const string filename = "staged_file_path.txt";
                 Touch(repo.Info.WorkingDirectory, filename, "I'm staged\n");
-                repo.Index.Stage(filename);
+                repo.Stage(filename);
 
                 Stash stash = repo.Stashes.Add(stasher, "This stash will keep index", StashModifiers.KeepIndex);
 
@@ -186,7 +186,7 @@ namespace LibGit2Sharp.Tests
                 const string ignoredFilename = "ignored_file.txt";
 
                 Touch(repo.Info.WorkingDirectory, gitIgnore, ignoredFilename);
-                repo.Index.Stage(gitIgnore);
+                repo.Stage(gitIgnore);
                 repo.Commit("Modify gitignore", Constants.Signature, Constants.Signature);
 
                 Touch(repo.Info.WorkingDirectory, ignoredFilename, "I'm ignored\n");

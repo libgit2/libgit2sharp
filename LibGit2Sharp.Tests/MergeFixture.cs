@@ -591,7 +591,7 @@ namespace LibGit2Sharp.Tests
 
                 if (shouldStage)
                 {
-                    repo.Index.Stage("b.txt");
+                    repo.Stage("b.txt");
                 }
 
                 Assert.Throws<MergeConflictException>(() => repo.Merge(committishToMerge, Constants.Signature, new MergeOptions() { FastForwardStrategy = strategy }));
@@ -731,8 +731,8 @@ namespace LibGit2Sharp.Tests
                 // Remove entries from the working directory
                 foreach(var entry in repo.Index.RetrieveStatus())
                 {
-                    repo.Index.Unstage(entry.FilePath);
-                    repo.Index.Remove(entry.FilePath, true);
+                    repo.Unstage(entry.FilePath);
+                    repo.Remove(entry.FilePath, true);
                 }
 
                 // Assert that we have an empty working directory.
@@ -750,7 +750,7 @@ namespace LibGit2Sharp.Tests
         {
             Touch(repository.Info.WorkingDirectory, filename, content);
 
-            repository.Index.Stage(filename);
+            repository.Stage(filename);
 
             return repository.Commit("New commit", Constants.Signature, Constants.Signature);
         }

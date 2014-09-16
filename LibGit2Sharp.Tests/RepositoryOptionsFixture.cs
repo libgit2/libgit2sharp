@@ -76,7 +76,7 @@ namespace LibGit2Sharp.Tests
             {
                 Assert.Equal(FileStatus.Untracked, repo.Index.RetrieveStatus("new_untracked_file.txt"));
 
-                repo.Index.Stage("new_untracked_file.txt");
+                repo.Stage("new_untracked_file.txt");
 
                 Assert.Equal(FileStatus.Added, repo.Index.RetrieveStatus("new_untracked_file.txt"));
 
@@ -133,7 +133,7 @@ namespace LibGit2Sharp.Tests
                 const string filename = "zomg.txt";
                 Touch(sneakyRepo.Info.WorkingDirectory, filename, "I'm being sneaked in!\n");
 
-                sneakyRepo.Index.Stage(filename);
+                sneakyRepo.Stage(filename);
                 return sneakyRepo.Commit("Tadaaaa!", Constants.Signature, Constants.Signature).Sha;
             }
         }
@@ -194,7 +194,7 @@ namespace LibGit2Sharp.Tests
             {
                 const string relativeFilepath = "test.txt";
                 Touch(repo.Info.WorkingDirectory, relativeFilepath, "test\n");
-                repo.Index.Stage(relativeFilepath);
+                repo.Stage(relativeFilepath);
 
                 Assert.NotNull(repo.Commit("Initial commit", Constants.Signature, Constants.Signature));
                 Assert.Equal(1, repo.Head.Commits.Count());

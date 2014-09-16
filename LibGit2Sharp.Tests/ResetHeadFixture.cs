@@ -156,12 +156,12 @@ namespace LibGit2Sharp.Tests
         private static void FeedTheRepository(IRepository repo)
         {
             string fullPath = Touch(repo.Info.WorkingDirectory, "a.txt", "Hello\n");
-            repo.Index.Stage(fullPath);
+            repo.Stage(fullPath);
             repo.Commit("Initial commit", Constants.Signature, Constants.Signature);
             repo.ApplyTag("mytag");
 
             File.AppendAllText(fullPath, "World\n");
-            repo.Index.Stage(fullPath);
+            repo.Stage(fullPath);
 
             Signature shiftedSignature = Constants.Signature.TimeShift(TimeSpan.FromMinutes(1));
             repo.Commit("Update file", shiftedSignature, shiftedSignature);

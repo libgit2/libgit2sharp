@@ -157,7 +157,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(CloneStandardTestRepo()))
             {
-                repo.Index.Move("branch_file.txt", "renamed_branch_file.txt");
+                repo.Move("branch_file.txt", "renamed_branch_file.txt");
                 repo.Reset(repo.Lookup<Commit>("32eab9c"));
 
                 RepositoryStatus status = repo.Index.RetrieveStatus();
@@ -170,7 +170,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(CloneStandardTestRepo()))
             {
-                repo.Index.Move("branch_file.txt", "renamed_branch_file.txt");
+                repo.Move("branch_file.txt", "renamed_branch_file.txt");
 
                 RepositoryStatus oldStatus = repo.Index.RetrieveStatus();
                 Assert.Equal(1, oldStatus.RenamedInIndex.Count());
@@ -191,7 +191,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(CloneStandardTestRepo()))
             {
-                repo.Index.Move("branch_file.txt", "renamed_branch_file.txt");
+                repo.Move("branch_file.txt", "renamed_branch_file.txt");
 
                 RepositoryStatus oldStatus = repo.Index.RetrieveStatus();
                 Assert.Equal(1, oldStatus.RenamedInIndex.Count());

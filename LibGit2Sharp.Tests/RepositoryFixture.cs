@@ -409,7 +409,7 @@ namespace LibGit2Sharp.Tests
             {
                 const string filename = "new.txt";
                 Touch(repo.Info.WorkingDirectory, filename, "one ");
-                repo.Index.Stage(filename);
+                repo.Stage(filename);
 
                 Signature author = Constants.Signature;
                 Commit commit = repo.Commit("Initial commit", author, author);
