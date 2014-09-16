@@ -31,7 +31,7 @@ namespace LibGit2Sharp.Tests
             string path = InitNewRepository();
             using (var repo = new Repository(path))
             {
-                Assert.Equal(FileStatus.Nonexistent, repo.Index.RetrieveStatus("hello.txt"));
+                Assert.Equal(FileStatus.Nonexistent, repo.RetrieveStatus("hello.txt"));
 
                 File.AppendAllText(Path.Combine(repo.Info.WorkingDirectory, "hello.txt"), "I'm a new file\n");
 
@@ -40,7 +40,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal("dc53d4c6b8684c21b0b57db29da4a2afea011565", blob.Sha);
 
                 /* The file is unknown from the Index nor the Head ... */
-                Assert.Equal(FileStatus.Untracked, repo.Index.RetrieveStatus("hello.txt"));
+                Assert.Equal(FileStatus.Untracked, repo.RetrieveStatus("hello.txt"));
 
                 /* ...however, it's indeed stored in the repository. */
                 var fetchedBlob = repo.Lookup<Blob>(blob.Id);
@@ -280,7 +280,7 @@ namespace LibGit2Sharp.Tests
             string path = CloneStandardTestRepo();
             using (var repo = new Repository(path))
             {
-                Assert.Equal(FileStatus.Nonexistent, repo.Index.RetrieveStatus("hello.txt"));
+                Assert.Equal(FileStatus.Nonexistent, repo.RetrieveStatus("hello.txt"));
                 File.AppendAllText(Path.Combine(repo.Info.WorkingDirectory, "hello.txt"), "I'm a new file\n");
 
                 TreeDefinition td = TreeDefinition.From(repo.Head.Tip.Tree)

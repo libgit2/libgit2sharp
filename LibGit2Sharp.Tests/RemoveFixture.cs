@@ -54,7 +54,7 @@ namespace LibGit2Sharp.Tests
 
                 string fullpath = Path.Combine(repo.Info.WorkingDirectory, filename);
 
-                Assert.Equal(initialStatus, repo.Index.RetrieveStatus(filename));
+                Assert.Equal(initialStatus, repo.RetrieveStatus(filename));
                 Assert.Equal(existsBeforeRemove, File.Exists(fullpath));
 
                 if (throws)
@@ -68,7 +68,7 @@ namespace LibGit2Sharp.Tests
 
                     Assert.Equal(count - 1, repo.Index.Count);
                     Assert.Equal(existsAfterRemove, File.Exists(fullpath));
-                    Assert.Equal(lastStatus, repo.Index.RetrieveStatus(filename));
+                    Assert.Equal(lastStatus, repo.RetrieveStatus(filename));
                 }
             }
         }
@@ -91,7 +91,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(true, File.Exists(fullpath));
 
                 File.AppendAllText(fullpath, "additional content");
-                Assert.Equal(FileStatus.Staged | FileStatus.Modified, repo.Index.RetrieveStatus(filename));
+                Assert.Equal(FileStatus.Staged | FileStatus.Modified, repo.RetrieveStatus(filename));
 
                 Assert.Throws<RemoveFromIndexException>(() => repo.Remove(filename));
                 Assert.Throws<RemoveFromIndexException>(() => repo.Remove(filename, false));
@@ -144,7 +144,7 @@ namespace LibGit2Sharp.Tests
                 using (var repo = new Repository(StandardTestRepoPath))
                 {
                     Assert.Null(repo.Index[relativePath]);
-                    Assert.Equal(status, repo.Index.RetrieveStatus(relativePath));
+                    Assert.Equal(status, repo.RetrieveStatus(relativePath));
 
                     repo.Remove(relativePath, i % 2 == 0);
                     repo.Remove(relativePath, i % 2 == 0,
@@ -163,7 +163,7 @@ namespace LibGit2Sharp.Tests
                 using (var repo = new Repository(StandardTestRepoPath))
                 {
                     Assert.Null(repo.Index[relativePath]);
-                    Assert.Equal(status, repo.Index.RetrieveStatus(relativePath));
+                    Assert.Equal(status, repo.RetrieveStatus(relativePath));
 
                     Assert.Throws<UnmatchedPathException>(
                         () => repo.Remove(relativePath, i%2 == 0, new ExplicitPathsOptions()));

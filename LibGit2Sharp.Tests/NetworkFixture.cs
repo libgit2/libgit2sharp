@@ -144,7 +144,7 @@ namespace LibGit2Sharp.Tests
             {
                 repo.Reset(ResetMode.Hard, "HEAD~1");
 
-                Assert.False(repo.Index.RetrieveStatus().Any());
+                Assert.False(repo.RetrieveStatus().Any());
                 Assert.Equal(repo.Lookup<Commit>("refs/remotes/origin/master~1"), repo.Head.Tip);
 
                 PullOptions pullOptions = new PullOptions()

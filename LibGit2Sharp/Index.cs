@@ -317,13 +317,10 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="filePath">The relative path within the working directory to the file.</param>
         /// <returns>A <see cref="FileStatus"/> representing the state of the <paramref name="filePath"/> parameter.</returns>
+        [Obsolete("This method will be removed in the next release. Use Repository.RetrieveStatus instead.")]
         public virtual FileStatus RetrieveStatus(string filePath)
         {
-            Ensure.ArgumentNotNullOrEmptyString(filePath, "filePath");
-
-            string relativePath = repo.BuildRelativePathFrom(filePath);
-
-            return Proxy.git_status_file(repo.Handle, relativePath);
+            return repo.RetrieveStatus(filePath);
         }
 
         /// <summary>
@@ -331,11 +328,10 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="options">If set, the options that control the status investigation.</param>
         /// <returns>A <see cref="RepositoryStatus"/> holding the state of all the files.</returns>
+        [Obsolete("This method will be removed in the next release. Use Repository.RetrieveStatus instead.")]
         public virtual RepositoryStatus RetrieveStatus(StatusOptions options = null)
         {
-            ReloadFromDisk();
-
-            return new RepositoryStatus(repo, options);
+            return repo.RetrieveStatus(options);
         }
 
         internal void Replace(TreeChanges changes)
@@ -388,12 +384,7 @@ namespace LibGit2Sharp
             Proxy.git_index_add(handle, indexEntry);
             EncodingMarshaler.Cleanup(indexEntry.Path);
         }
-
-        internal void ReloadFromDisk()
-        {
-            Proxy.git_index_read(handle);
-        }
-
+        
         private string DebuggerDisplay
         {
             get

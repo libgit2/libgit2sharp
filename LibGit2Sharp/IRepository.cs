@@ -351,5 +351,19 @@ namespace LibGit2Sharp
         /// Use these options to determine how unmatched explicit paths should be handled.
         /// </param>
         void Remove(IEnumerable<string> paths, bool removeFromWorkingDirectory = true, ExplicitPathsOptions explicitPathsOptions = null);
+
+        /// <summary>
+        /// Retrieves the state of a file in the working directory, comparing it against the staging area and the latest commmit.
+        /// </summary>
+        /// <param name="filePath">The relative path within the working directory to the file.</param>
+        /// <returns>A <see cref="FileStatus"/> representing the state of the <paramref name="filePath"/> parameter.</returns>
+        FileStatus RetrieveStatus(string filePath);
+
+        /// <summary>
+        /// Retrieves the state of all files in the working directory, comparing them against the staging area and the latest commmit.
+        /// </summary>
+        /// <param name="options">If set, the options that control the status investigation.</param>
+        /// <returns>A <see cref="RepositoryStatus"/> holding the state of all the files.</returns>
+        RepositoryStatus RetrieveStatus(StatusOptions options = null);
     }
 }

@@ -1110,7 +1110,7 @@ namespace LibGit2Sharp
 
                     // Check if the revert generated any changes
                     // and set the revert status accordingly
-                    bool anythingToRevert = Index.RetrieveStatus(
+                    bool anythingToRevert = RetrieveStatus(
                         new StatusOptions()
                         {
                             DetectRenamesInIndex = false,
@@ -1703,23 +1703,36 @@ namespace LibGit2Sharp
             UpdatePhysicalIndex();
         }
 
-        ///// <summary>
-        ///// Replaces entries in the staging area with entries from the specified tree.
-        ///// <para>
-        /////   This overwrites all existing state in the staging area.
-        ///// </para>
-        ///// </summary>
-        ///// <param name="source">The <see cref="Tree"/> to read the entries from.</param>
-        //public void Replace(Tree source)
-        //{
-        //    using (var obj = new ObjectSafeWrapper(source.Id, repo.Handle))
-        //    {
-        //        Proxy.git_index_read_fromtree(this, obj.ObjectPtr);
-        //    }
+        /// <summary>
+        /// Retrieves the state of a file in the working directory, comparing it against the staging area and the latest commmit.
+        /// </summary>
+        /// <param name="filePath">The relative path within the working directory to the file.</param>
+        /// <returns>A <see cref="FileStatus"/> representing the state of the <paramref name="filePath"/> parameter.</returns>
+        public FileStatus RetrieveStatus(string filePath)
+        {
+            Ensure.ArgumentNotNullOrEmptyString(filePath, "filePath");
 
-        //    UpdatePhysicalIndex();
-        //}
+            string relativePath = this.BuildRelativePathFrom(filePath);
 
+            return Proxy.git_status_file(Handle, relativePath);
+        }
+
+        /// <summary>
+        /// Retrieves the state of all files in the working directory, comparing them against the staging area and the latest commmit.
+        /// </summary>
+        /// <param name="options">If set, the options that control the status investigation.</param>
+        /// <returns>A <see cref="RepositoryStatus"/> holding the state of all the files.</returns>
+        public RepositoryStatus RetrieveStatus(StatusOptions options = null)
+        {
+            ReloadFromDisk();
+
+            return new RepositoryStatus(this, options);
+        }
+
+        internal void ReloadFromDisk()
+        {
+            Proxy.git_index_read(Index.Handle);
+        }
 
         private void AddToIndex(string relativePath)
         {
@@ -1744,7 +1757,7 @@ namespace LibGit2Sharp
         private Tuple<string, FileStatus> BuildFrom(string path)
         {
             string relativePath = this.BuildRelativePathFrom(path);
-            return new Tuple<string, FileStatus>(relativePath, Index.RetrieveStatus(relativePath));
+            return new Tuple<string, FileStatus>(relativePath, RetrieveStatus(relativePath));
         }
 
         private static bool Enumerate(IEnumerator<string> leftEnum, IEnumerator<string> rightEnum)
@@ -1807,7 +1820,7 @@ namespace LibGit2Sharp
 
             foreach (var treeEntryChanges in changes)
             {
-                var status = Index.RetrieveStatus(treeEntryChanges.Path);
+                var status = RetrieveStatus(treeEntryChanges.Path);
 
                 switch (treeEntryChanges.Status)
                 {

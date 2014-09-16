@@ -93,13 +93,13 @@ namespace LibGit2Sharp.Tests
 
                 const string oldName = "polite.txt";
 
-                Assert.Equal(FileStatus.Nonexistent, repo.Index.RetrieveStatus(oldName));
+                Assert.Equal(FileStatus.Nonexistent, repo.RetrieveStatus(oldName));
 
                 Touch(repo.Info.WorkingDirectory, oldName, "hello test file\n");
-                Assert.Equal(FileStatus.Untracked, repo.Index.RetrieveStatus(oldName));
+                Assert.Equal(FileStatus.Untracked, repo.RetrieveStatus(oldName));
 
                 repo.Stage(oldName);
-                Assert.Equal(FileStatus.Added, repo.Index.RetrieveStatus(oldName));
+                Assert.Equal(FileStatus.Added, repo.RetrieveStatus(oldName));
 
                 // Generated through
                 // $ echo "hello test file" | git hash-object --stdin
@@ -111,13 +111,13 @@ namespace LibGit2Sharp.Tests
                 Signature who = Constants.Signature;
                 repo.Commit("Initial commit", who, who);
 
-                Assert.Equal(FileStatus.Unaltered, repo.Index.RetrieveStatus(oldName));
+                Assert.Equal(FileStatus.Unaltered, repo.RetrieveStatus(oldName));
 
                 const string newName = "being.frakking.polite.txt";
 
                 repo.Move(oldName, newName);
-                Assert.Equal(FileStatus.Removed, repo.Index.RetrieveStatus(oldName));
-                Assert.Equal(FileStatus.Added, repo.Index.RetrieveStatus(newName));
+                Assert.Equal(FileStatus.Removed, repo.RetrieveStatus(oldName));
+                Assert.Equal(FileStatus.Added, repo.RetrieveStatus(newName));
 
                 Assert.Equal(1, repo.Index.Count);
                 Assert.Equal(expectedHash, repo.Index[newName].Id.Sha);
@@ -125,8 +125,8 @@ namespace LibGit2Sharp.Tests
                 who = who.TimeShift(TimeSpan.FromMinutes(5));
                 Commit commit = repo.Commit("Fix file name", who, who);
 
-                Assert.Equal(FileStatus.Nonexistent, repo.Index.RetrieveStatus(oldName));
-                Assert.Equal(FileStatus.Unaltered, repo.Index.RetrieveStatus(newName));
+                Assert.Equal(FileStatus.Nonexistent, repo.RetrieveStatus(oldName));
+                Assert.Equal(FileStatus.Unaltered, repo.RetrieveStatus(newName));
 
                 Assert.Equal(expectedHash, commit.Tree[newName].Target.Id.Sha);
             }
@@ -142,13 +142,13 @@ namespace LibGit2Sharp.Tests
             string path = CloneStandardTestRepo();
             using (var repo = new Repository(path))
             {
-                Assert.Equal(sourceStatus, repo.Index.RetrieveStatus(sourcePath));
-                Assert.Equal(destStatus, repo.Index.RetrieveStatus(destPath));
+                Assert.Equal(sourceStatus, repo.RetrieveStatus(sourcePath));
+                Assert.Equal(destStatus, repo.RetrieveStatus(destPath));
 
                 repo.Move(sourcePath, destPath);
 
-                Assert.Equal(sourcePostStatus, repo.Index.RetrieveStatus(sourcePath));
-                Assert.Equal(destPostStatus, repo.Index.RetrieveStatus(destPath));
+                Assert.Equal(sourcePostStatus, repo.RetrieveStatus(sourcePath));
+                Assert.Equal(destPostStatus, repo.RetrieveStatus(destPath));
             }
         }
 
@@ -182,7 +182,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(StandardTestRepoPath))
             {
-                Assert.Equal(sourceStatus, repo.Index.RetrieveStatus(sourcePath));
+                Assert.Equal(sourceStatus, repo.RetrieveStatus(sourcePath));
 
                 foreach (var destPath in destPaths)
                 {
@@ -258,22 +258,22 @@ namespace LibGit2Sharp.Tests
             using (var repoWrite = new Repository(path))
             using (var repoRead = new Repository(path))
             {
-                var writeStatus = repoWrite.Index.RetrieveStatus();
+                var writeStatus = repoWrite.RetrieveStatus();
                 Assert.True(writeStatus.IsDirty);
                 Assert.Equal(0, repoWrite.Index.Count);
 
-                var readStatus = repoRead.Index.RetrieveStatus();
+                var readStatus = repoRead.RetrieveStatus();
                 Assert.True(readStatus.IsDirty);
                 Assert.Equal(0, repoRead.Index.Count);
 
                 repoWrite.Stage("*");
                 repoWrite.Commit("message", Constants.Signature, Constants.Signature);
 
-                writeStatus = repoWrite.Index.RetrieveStatus();
+                writeStatus = repoWrite.RetrieveStatus();
                 Assert.False(writeStatus.IsDirty);
                 Assert.Equal(2, repoWrite.Index.Count);
 
-                readStatus = repoRead.Index.RetrieveStatus();
+                readStatus = repoRead.RetrieveStatus();
                 Assert.False(readStatus.IsDirty);
                 Assert.Equal(2, repoRead.Index.Count);
             }
@@ -293,20 +293,20 @@ namespace LibGit2Sharp.Tests
                 const string headIndexTreeSha = "e5d221fc5da11a3169bf503d76497c81be3207b6";
 
                 Assert.True(repo.Index.IsFullyMerged);
-                Assert.Equal(FileStatus.Added, repo.Index.RetrieveStatus(testFile));
+                Assert.Equal(FileStatus.Added, repo.RetrieveStatus(testFile));
 
                 var headIndexTree = repo.Lookup<Tree>(headIndexTreeSha);
                 Assert.NotNull(headIndexTree);
-                repo.Index.Reset(headIndexTree);
+                repo.Index.Replace(headIndexTree);
 
                 Assert.True(repo.Index.IsFullyMerged);
-                Assert.Equal(FileStatus.Untracked, repo.Index.RetrieveStatus(testFile));
+                Assert.Equal(FileStatus.Untracked, repo.RetrieveStatus(testFile));
             }
 
             // Check that the index was persisted to disk.
             using (var repo = new Repository(path))
             {
-                Assert.Equal(FileStatus.Untracked, repo.Index.RetrieveStatus(testFile));
+                Assert.Equal(FileStatus.Untracked, repo.RetrieveStatus(testFile));
             }
         }
 
@@ -324,20 +324,20 @@ namespace LibGit2Sharp.Tests
                 const string headIndexTreeSha = "1cb365141a52dfbb24933515820eb3045fbca12b";
 
                 Assert.False(repo.Index.IsFullyMerged);
-                Assert.Equal(FileStatus.Staged, repo.Index.RetrieveStatus(testFile));
+                Assert.Equal(FileStatus.Staged, repo.RetrieveStatus(testFile));
 
                 var headIndexTree = repo.Lookup<Tree>(headIndexTreeSha);
                 Assert.NotNull(headIndexTree);
-                repo.Index.Reset(headIndexTree);
+                repo.Index.Replace(headIndexTree);
 
                 Assert.True(repo.Index.IsFullyMerged);
-                Assert.Equal(FileStatus.Modified, repo.Index.RetrieveStatus(testFile));
+                Assert.Equal(FileStatus.Modified, repo.RetrieveStatus(testFile));
             }
 
             // Check that the index was persisted to disk.
             using (var repo = new Repository(path))
             {
-                Assert.Equal(FileStatus.Modified, repo.Index.RetrieveStatus(testFile));
+                Assert.Equal(FileStatus.Modified, repo.RetrieveStatus(testFile));
             }
         }
 
@@ -351,19 +351,19 @@ namespace LibGit2Sharp.Tests
             // to verify that the index has indeed been read from the tree.
             using (var repo = new Repository(path))
             {
-                Assert.Equal(FileStatus.Unaltered, repo.Index.RetrieveStatus(testFile));
+                Assert.Equal(FileStatus.Unaltered, repo.RetrieveStatus(testFile));
                 Assert.NotEqual(0, repo.Index.Count);
 
                 repo.Index.Clear();
                 Assert.Equal(0, repo.Index.Count);
 
-                Assert.Equal(FileStatus.Removed | FileStatus.Untracked, repo.Index.RetrieveStatus(testFile));
+                Assert.Equal(FileStatus.Removed | FileStatus.Untracked, repo.RetrieveStatus(testFile));
             }
 
             // Check that the index was persisted to disk.
             using (var repo = new Repository(path))
             {
-                Assert.Equal(FileStatus.Removed | FileStatus.Untracked, repo.Index.RetrieveStatus(testFile));
+                Assert.Equal(FileStatus.Removed | FileStatus.Untracked, repo.RetrieveStatus(testFile));
             }
         }
     }

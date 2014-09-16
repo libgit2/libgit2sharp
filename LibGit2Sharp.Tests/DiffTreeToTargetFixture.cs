@@ -161,7 +161,7 @@ namespace LibGit2Sharp.Tests
                 repo.Stage(fullpath);
                 File.Move(fullpath + ".bak", fullpath);
 
-                FileStatus state = repo.Index.RetrieveStatus("file.txt");
+                FileStatus state = repo.RetrieveStatus("file.txt");
                 Assert.Equal(FileStatus.Removed | FileStatus.Untracked, state);
 
                 var wrkDirToIdxToTree = repo.Diff.Compare<TreeChanges>(repo.Head.Tip.Tree,

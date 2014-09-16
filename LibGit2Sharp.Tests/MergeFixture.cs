@@ -202,7 +202,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(repo.Branches["FirstBranch"].Tip, repo.Head.Tip);
                 Assert.Equal(repo.Head.Tip, mergeResult.Commit);
 
-                Assert.Equal(0, repo.Index.RetrieveStatus().Count());
+                Assert.Equal(0, repo.RetrieveStatus().Count());
                 Assert.Equal(shouldMergeOccurInDetachedHeadState, repo.Info.IsHeadDetached);
 
                 if (!shouldMergeOccurInDetachedHeadState)
@@ -314,7 +314,7 @@ namespace LibGit2Sharp.Tests
 
                 Assert.Equal(expectedMergeStatus, result.Status);
                 Assert.Equal(expectedCommitId, result.Commit.Id.Sha);
-                Assert.False(repo.Index.RetrieveStatus().Any());
+                Assert.False(repo.RetrieveStatus().Any());
                 Assert.Equal(fromDetachedHead, repo.Info.IsHeadDetached);
             }
         }
@@ -339,7 +339,7 @@ namespace LibGit2Sharp.Tests
                 MergeResult result = repo.Merge(commitToMerge, Constants.Signature, new MergeOptions() { FastForwardStrategy = fastForwardStrategy });
 
                 Assert.Equal(expectedMergeStatus, result.Status);
-                Assert.False(repo.Index.RetrieveStatus().Any());
+                Assert.False(repo.RetrieveStatus().Any());
                 Assert.Equal(fromDetachedHead, repo.Info.IsHeadDetached);
             }
         }
@@ -497,11 +497,11 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(MergeStatus.NonFastForward, result.Status);
                 Assert.Equal(null, result.Commit);
 
-                RepositoryStatus repoStatus = repo.Index.RetrieveStatus();
+                RepositoryStatus repoStatus = repo.RetrieveStatus();
 
                 // Verify that there is a staged entry.
                 Assert.Equal(1, repoStatus.Count());
-                Assert.Equal(FileStatus.Staged, repo.Index.RetrieveStatus("b.txt"));
+                Assert.Equal(FileStatus.Staged, repo.RetrieveStatus("b.txt"));
             }
         }
 
@@ -517,7 +517,7 @@ namespace LibGit2Sharp.Tests
 
                 Assert.Equal(MergeStatus.NonFastForward, result.Status);
                 Assert.Equal("f58f780d5a0ae392efd4a924450b1bbdc0577d32", result.Commit.Id.Sha);
-                Assert.False(repo.Index.RetrieveStatus().Any());
+                Assert.False(repo.RetrieveStatus().Any());
             }
         }
 
@@ -535,7 +535,7 @@ namespace LibGit2Sharp.Tests
 
                 Assert.Equal(MergeStatus.NonFastForward, result.Status);
                 Assert.Equal("f58f780d5a0ae392efd4a924450b1bbdc0577d32", result.Commit.Id.Sha);
-                Assert.False(repo.Index.RetrieveStatus().Any());
+                Assert.False(repo.RetrieveStatus().Any());
             }
         }
 
@@ -551,7 +551,7 @@ namespace LibGit2Sharp.Tests
 
                 Assert.Equal(MergeStatus.UpToDate, result.Status);
                 Assert.Equal(null, result.Commit);
-                Assert.False(repo.Index.RetrieveStatus().Any());
+                Assert.False(repo.RetrieveStatus().Any());
             }
         }
 
@@ -568,7 +568,7 @@ namespace LibGit2Sharp.Tests
                 MergeResult result = repo.Merge(committish, Constants.Signature, new MergeOptions() { FastForwardStrategy = strategy });
 
                 Assert.Equal(expectedMergeStatus, result.Status);
-                Assert.False(repo.Index.RetrieveStatus().Any());
+                Assert.False(repo.RetrieveStatus().Any());
             }
         }
 
@@ -663,7 +663,7 @@ namespace LibGit2Sharp.Tests
                 Branch branch = repo.Branches[conflictBranchName];
                 Assert.NotNull(branch);
 
-                var status = repo.Index.RetrieveStatus();
+                var status = repo.RetrieveStatus();
                 MergeOptions mergeOptions = new MergeOptions()
                 {
                     MergeFileFavor = fileFavorFlag,
@@ -675,7 +675,7 @@ namespace LibGit2Sharp.Tests
 
                 // Verify that the index and working directory are clean
                 Assert.True(repo.Index.IsFullyMerged);
-                Assert.False(repo.Index.RetrieveStatus().IsDirty);
+                Assert.False(repo.RetrieveStatus().IsDirty);
 
                 // Get the blob containing the expected content.
                 Blob expectedBlob = null;
@@ -716,7 +716,7 @@ namespace LibGit2Sharp.Tests
                 MergeResult result = repo.Merge(branch, Constants.Signature, new MergeOptions() { FastForwardStrategy = strategy });
 
                 Assert.Equal(expectedMergeStatus, result.Status);
-                Assert.False(repo.Index.RetrieveStatus().Any());
+                Assert.False(repo.RetrieveStatus().Any());
             }
         }
 
@@ -729,20 +729,20 @@ namespace LibGit2Sharp.Tests
                 repo.Refs.Add("HEAD", "refs/heads/orphan", true);
 
                 // Remove entries from the working directory
-                foreach(var entry in repo.Index.RetrieveStatus())
+                foreach(var entry in repo.RetrieveStatus())
                 {
                     repo.Unstage(entry.FilePath);
                     repo.Remove(entry.FilePath, true);
                 }
 
                 // Assert that we have an empty working directory.
-                Assert.False(repo.Index.RetrieveStatus().Any());
+                Assert.False(repo.RetrieveStatus().Any());
 
                 MergeResult result = repo.Merge("master", Constants.Signature);
 
                 Assert.Equal(MergeStatus.FastForward, result.Status);
                 Assert.Equal(masterBranchInitialId, result.Commit.Id.Sha);
-                Assert.False(repo.Index.RetrieveStatus().Any());
+                Assert.False(repo.RetrieveStatus().Any());
             }
         }
 
