@@ -235,7 +235,7 @@ namespace LibGit2Sharp
         public virtual T Compare<T>(IEnumerable<string> paths = null, bool includeUntracked = false, ExplicitPathsOptions explicitPathsOptions = null,
             CompareOptions compareOptions = null) where T : class
         {
-            return Compare<T>(includeUntracked ? DiffModifiers.IncludeUntracked : DiffModifiers.None, paths, explicitPathsOptions);
+            return Compare<T>(includeUntracked ? DiffModifiers.IncludeUntracked : DiffModifiers.None, paths, explicitPathsOptions, compareOptions);
         }
 
         internal virtual T Compare<T>(DiffModifiers diffOptions, IEnumerable<string> paths = null,
