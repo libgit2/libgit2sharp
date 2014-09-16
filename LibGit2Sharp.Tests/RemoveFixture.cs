@@ -54,21 +54,21 @@ namespace LibGit2Sharp.Tests
 
                 string fullpath = Path.Combine(repo.Info.WorkingDirectory, filename);
 
-                Assert.Equal(initialStatus, repo.Index.RetrieveStatus(filename));
+                Assert.Equal(initialStatus, repo.RetrieveStatus(filename));
                 Assert.Equal(existsBeforeRemove, File.Exists(fullpath));
 
                 if (throws)
                 {
-                    Assert.Throws<RemoveFromIndexException>(() => repo.Index.Remove(filename, removeFromWorkdir));
+                    Assert.Throws<RemoveFromIndexException>(() => repo.Remove(filename, removeFromWorkdir));
                     Assert.Equal(count, repo.Index.Count);
                 }
                 else
                 {
-                    repo.Index.Remove(filename, removeFromWorkdir);
+                    repo.Remove(filename, removeFromWorkdir);
 
                     Assert.Equal(count - 1, repo.Index.Count);
                     Assert.Equal(existsAfterRemove, File.Exists(fullpath));
-                    Assert.Equal(lastStatus, repo.Index.RetrieveStatus(filename));
+                    Assert.Equal(lastStatus, repo.RetrieveStatus(filename));
                 }
             }
         }
@@ -91,10 +91,10 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(true, File.Exists(fullpath));
 
                 File.AppendAllText(fullpath, "additional content");
-                Assert.Equal(FileStatus.Staged | FileStatus.Modified, repo.Index.RetrieveStatus(filename));
+                Assert.Equal(FileStatus.Staged | FileStatus.Modified, repo.RetrieveStatus(filename));
 
-                Assert.Throws<RemoveFromIndexException>(() => repo.Index.Remove(filename));
-                Assert.Throws<RemoveFromIndexException>(() => repo.Index.Remove(filename, false));
+                Assert.Throws<RemoveFromIndexException>(() => repo.Remove(filename));
+                Assert.Throws<RemoveFromIndexException>(() => repo.Remove(filename, false));
             }
         }
 
@@ -104,16 +104,16 @@ namespace LibGit2Sharp.Tests
             string path = CloneStandardTestRepo();
             using (var repo = new Repository(path))
             {
-                repo.Index.Stage(Touch(repo.Info.WorkingDirectory, "2/subdir1/2.txt", "whone"));
-                repo.Index.Stage(Touch(repo.Info.WorkingDirectory, "2/subdir1/3.txt", "too"));
-                repo.Index.Stage(Touch(repo.Info.WorkingDirectory, "2/subdir2/4.txt", "tree"));
-                repo.Index.Stage(Touch(repo.Info.WorkingDirectory, "2/5.txt", "for"));
-                repo.Index.Stage(Touch(repo.Info.WorkingDirectory, "2/6.txt", "fyve"));
+                repo.Stage(Touch(repo.Info.WorkingDirectory, "2/subdir1/2.txt", "whone"));
+                repo.Stage(Touch(repo.Info.WorkingDirectory, "2/subdir1/3.txt", "too"));
+                repo.Stage(Touch(repo.Info.WorkingDirectory, "2/subdir2/4.txt", "tree"));
+                repo.Stage(Touch(repo.Info.WorkingDirectory, "2/5.txt", "for"));
+                repo.Stage(Touch(repo.Info.WorkingDirectory, "2/6.txt", "fyve"));
 
                 int count = repo.Index.Count;
 
                 Assert.True(Directory.Exists(Path.Combine(repo.Info.WorkingDirectory, "2")));
-                repo.Index.Remove("2", false);
+                repo.Remove("2", false);
 
                 Assert.Equal(count - 5, repo.Index.Count);
             }
@@ -128,7 +128,7 @@ namespace LibGit2Sharp.Tests
                 int count = repo.Index.Count;
 
                 Assert.True(Directory.Exists(Path.Combine(repo.Info.WorkingDirectory, "1")));
-                repo.Index.Remove("1");
+                repo.Remove("1");
 
                 Assert.False(Directory.Exists(Path.Combine(repo.Info.WorkingDirectory, "1")));
                 Assert.Equal(count - 1, repo.Index.Count);
@@ -145,10 +145,10 @@ namespace LibGit2Sharp.Tests
                 using (var repo = new Repository(StandardTestRepoPath))
                 {
                     Assert.Null(repo.Index[relativePath]);
-                    Assert.Equal(status, repo.Index.RetrieveStatus(relativePath));
+                    Assert.Equal(status, repo.RetrieveStatus(relativePath));
 
-                    repo.Index.Remove(relativePath, i % 2 == 0);
-                    repo.Index.Remove(relativePath, i % 2 == 0,
+                    repo.Remove(relativePath, i % 2 == 0);
+                    repo.Remove(relativePath, i % 2 == 0,
                                       new ExplicitPathsOptions {ShouldFailOnUnmatchedPath = false});
                 }
             }
@@ -164,10 +164,10 @@ namespace LibGit2Sharp.Tests
                 using (var repo = new Repository(StandardTestRepoPath))
                 {
                     Assert.Null(repo.Index[relativePath]);
-                    Assert.Equal(status, repo.Index.RetrieveStatus(relativePath));
+                    Assert.Equal(status, repo.RetrieveStatus(relativePath));
 
                     Assert.Throws<UnmatchedPathException>(
-                        () => repo.Index.Remove(relativePath, i%2 == 0, new ExplicitPathsOptions()));
+                        () => repo.Remove(relativePath, i%2 == 0, new ExplicitPathsOptions()));
                 }
             }
         }
@@ -177,10 +177,10 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(StandardTestRepoPath))
             {
-                Assert.Throws<ArgumentException>(() => repo.Index.Remove(string.Empty));
-                Assert.Throws<ArgumentNullException>(() => repo.Index.Remove((string)null));
-                Assert.Throws<ArgumentException>(() => repo.Index.Remove(new string[] { }));
-                Assert.Throws<ArgumentNullException>(() => repo.Index.Remove(new string[] { null }));
+                Assert.Throws<ArgumentException>(() => repo.Remove(string.Empty));
+                Assert.Throws<ArgumentNullException>(() => repo.Remove((string)null));
+                Assert.Throws<ArgumentException>(() => repo.Remove(new string[] { }));
+                Assert.Throws<ArgumentNullException>(() => repo.Remove(new string[] { null }));
             }
         }
     }

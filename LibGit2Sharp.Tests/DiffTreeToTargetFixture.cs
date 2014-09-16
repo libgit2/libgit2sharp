@@ -12,12 +12,12 @@ namespace LibGit2Sharp.Tests
         {
             var fullpath = Touch(repo.Info.WorkingDirectory, "file.txt", "hello\n");
 
-            repo.Index.Stage(fullpath);
+            repo.Stage(fullpath);
             repo.Commit("Initial commit", Constants.Signature, Constants.Signature);
 
             File.AppendAllText(fullpath, "world\n");
 
-            repo.Index.Stage(fullpath);
+            repo.Stage(fullpath);
 
             File.AppendAllText(fullpath, "!!!\n");
         }
@@ -158,10 +158,10 @@ namespace LibGit2Sharp.Tests
 
                 var fullpath = Path.Combine(repo.Info.WorkingDirectory, "file.txt");
                 File.Move(fullpath, fullpath + ".bak");
-                repo.Index.Stage(fullpath);
+                repo.Stage(fullpath);
                 File.Move(fullpath + ".bak", fullpath);
 
-                FileStatus state = repo.Index.RetrieveStatus("file.txt");
+                FileStatus state = repo.RetrieveStatus("file.txt");
                 Assert.Equal(FileStatus.Removed | FileStatus.Untracked, state);
 
                 var wrkDirToIdxToTree = repo.Diff.Compare<TreeChanges>(repo.Head.Tip.Tree,
@@ -373,11 +373,11 @@ namespace LibGit2Sharp.Tests
             {
                 var fullpath = Touch(repo.Info.WorkingDirectory, "file.txt", "a");
 
-                repo.Index.Stage("file.txt");
+                repo.Stage("file.txt");
                 repo.Commit("Add file without line ending", Constants.Signature, Constants.Signature);
 
                 File.AppendAllText(fullpath, "\n");
-                repo.Index.Stage("file.txt");
+                repo.Stage("file.txt");
 
                 var changes = repo.Diff.Compare<TreeChanges>(repo.Head.Tip.Tree, DiffTargets.Index);
                 Assert.Equal(1, changes.Modified.Count());

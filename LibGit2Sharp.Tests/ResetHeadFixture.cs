@@ -114,7 +114,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(expectedHeadName, repo.Head.Name);
                 Assert.Equal(tag.Target.Id, repo.Head.Tip.Id);
 
-                Assert.Equal(FileStatus.Staged, repo.Index.RetrieveStatus("a.txt"));
+                Assert.Equal(FileStatus.Staged, repo.RetrieveStatus("a.txt"));
 
                 AssertRefLogEntry(repo, "HEAD",
                                   tag.Target.Id,
@@ -134,7 +134,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(expectedHeadName, repo.Head.Name);
                 Assert.Equal(branch.Tip.Sha, repo.Head.Tip.Sha);
 
-                Assert.Equal(FileStatus.Unaltered, repo.Index.RetrieveStatus("a.txt"));
+                Assert.Equal(FileStatus.Unaltered, repo.RetrieveStatus("a.txt"));
 
                 AssertRefLogEntry(repo, "HEAD",
                                   branch.Tip.Id,
@@ -156,12 +156,12 @@ namespace LibGit2Sharp.Tests
         private static void FeedTheRepository(IRepository repo)
         {
             string fullPath = Touch(repo.Info.WorkingDirectory, "a.txt", "Hello\n");
-            repo.Index.Stage(fullPath);
+            repo.Stage(fullPath);
             repo.Commit("Initial commit", Constants.Signature, Constants.Signature);
             repo.ApplyTag("mytag");
 
             File.AppendAllText(fullPath, "World\n");
-            repo.Index.Stage(fullPath);
+            repo.Stage(fullPath);
 
             Signature shiftedSignature = Constants.Signature.TimeShift(TimeSpan.FromMinutes(1));
             repo.Commit("Update file", shiftedSignature, shiftedSignature);
@@ -169,7 +169,7 @@ namespace LibGit2Sharp.Tests
 
             repo.Checkout("mybranch");
 
-            Assert.False(repo.Index.RetrieveStatus().IsDirty);
+            Assert.False(repo.RetrieveStatus().IsDirty);
         }
 
         [Fact]
@@ -187,7 +187,7 @@ namespace LibGit2Sharp.Tests
 
                 repo.Reset(ResetMode.Mixed, tag.CanonicalName);
 
-                Assert.Equal(FileStatus.Modified, repo.Index.RetrieveStatus("a.txt"));
+                Assert.Equal(FileStatus.Modified, repo.RetrieveStatus("a.txt"));
 
                 AssertRefLogEntry(repo, "HEAD",
                                   tag.Target.Id,

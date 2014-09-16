@@ -13,14 +13,14 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path))
             {
                 // Verify that there are the expected number of entries and untracked files
-                Assert.Equal(6, repo.Index.RetrieveStatus().Count());
-                Assert.Equal(1, repo.Index.RetrieveStatus().Untracked.Count());
+                Assert.Equal(6, repo.RetrieveStatus().Count());
+                Assert.Equal(1, repo.RetrieveStatus().Untracked.Count());
 
                 repo.RemoveUntrackedFiles();
 
                 // Verify that there are the expected number of entries and 0 untracked files
-                Assert.Equal(5, repo.Index.RetrieveStatus().Count());
-                Assert.Equal(0, repo.Index.RetrieveStatus().Untracked.Count());
+                Assert.Equal(5, repo.RetrieveStatus().Count());
+                Assert.Equal(0, repo.RetrieveStatus().Untracked.Count());
             }
         }
 

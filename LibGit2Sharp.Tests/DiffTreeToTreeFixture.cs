@@ -96,7 +96,7 @@ namespace LibGit2Sharp.Tests
 
                 CreateBinaryFile(filepath);
 
-                repo.Index.Stage(filename);
+                repo.Stage(filename);
                 var commit = repo.Commit("Add binary file", Constants.Signature, Constants.Signature);
 
                 File.AppendAllText(filepath, "abcdef");
@@ -104,7 +104,7 @@ namespace LibGit2Sharp.Tests
                 var patch = repo.Diff.Compare<Patch>(commit.Tree, DiffTargets.WorkingDirectory, new[] { filename });
                 Assert.True(patch[filename].IsBinaryComparison);
 
-                repo.Index.Stage(filename);
+                repo.Stage(filename);
                 var commit2 = repo.Commit("Update binary file", Constants.Signature, Constants.Signature);
 
                 var patch2 = repo.Diff.Compare<Patch>(commit.Tree, commit2.Tree, new[] { filename });
@@ -122,7 +122,7 @@ namespace LibGit2Sharp.Tests
 
                 CreateBinaryFile(filepath);
 
-                repo.Index.Stage(filename);
+                repo.Stage(filename);
                 var commit = repo.Commit("Add binary file", Constants.Signature, Constants.Signature);
 
                 File.Delete(filepath);
@@ -130,7 +130,7 @@ namespace LibGit2Sharp.Tests
                 var patch = repo.Diff.Compare<Patch>(commit.Tree, DiffTargets.WorkingDirectory, new [] {filename});
                 Assert.True(patch[filename].IsBinaryComparison);
 
-                repo.Index.Remove(filename);
+                repo.Remove(filename);
                 var commit2 = repo.Commit("Delete binary file", Constants.Signature, Constants.Signature);
 
                 var patch2 = repo.Diff.Compare<Patch>(commit.Tree, commit2.Tree, new[] { filename });
@@ -282,11 +282,11 @@ namespace LibGit2Sharp.Tests
 
                 Touch(repo.Info.WorkingDirectory, originalPath, "a\nb\nc\nd\n");
 
-                repo.Index.Stage(originalPath);
+                repo.Stage(originalPath);
 
                 Commit old = repo.Commit("Initial", Constants.Signature, Constants.Signature);
 
-                repo.Index.Move(originalPath, renamedPath);
+                repo.Move(originalPath, renamedPath);
 
                 Commit @new = repo.Commit("Updated", Constants.Signature, Constants.Signature);
 
@@ -317,14 +317,14 @@ namespace LibGit2Sharp.Tests
 
                 // 4 lines
                 Touch(repo.Info.WorkingDirectory, originalPath, "a\nb\nc\nd\n");
-                repo.Index.Stage(originalPath);
+                repo.Stage(originalPath);
 
                 Commit old = repo.Commit("Initial", Constants.Signature, Constants.Signature);
 
                 // 8 lines, 50% are from original file
                 Touch(repo.Info.WorkingDirectory, originalPath, "a\nb\nc\nd\ne\nf\ng\nh\n");
-                repo.Index.Stage(originalPath);
-                repo.Index.Move(originalPath, renamedPath);
+                repo.Stage(originalPath);
+                repo.Move(originalPath, renamedPath);
 
                 Commit @new = repo.Commit("Updated", Constants.Signature, Constants.Signature);
 
@@ -358,11 +358,11 @@ namespace LibGit2Sharp.Tests
 
                 Touch(repo.Info.WorkingDirectory, originalPath, "a\nb\nc\nd\n");
 
-                repo.Index.Stage(originalPath);
+                repo.Stage(originalPath);
 
                 Commit old = repo.Commit("Initial", Constants.Signature, Constants.Signature);
 
-                repo.Index.Move(originalPath, renamedPath);
+                repo.Move(originalPath, renamedPath);
 
                 Commit @new = repo.Commit("Updated", Constants.Signature, Constants.Signature);
 
@@ -392,11 +392,11 @@ namespace LibGit2Sharp.Tests
                 var copiedFullPath = Path.Combine(repo.Info.WorkingDirectory, copiedPath);
 
                 Touch(repo.Info.WorkingDirectory, originalPath, "a\nb\nc\nd\n");
-                repo.Index.Stage(originalPath);
+                repo.Stage(originalPath);
                 Commit old = repo.Commit("Initial", Constants.Signature, Constants.Signature);
 
                 File.Copy(originalFullPath, copiedFullPath);
-                repo.Index.Stage(copiedPath);
+                repo.Stage(copiedPath);
 
                 Commit @new = repo.Commit("Updated", Constants.Signature, Constants.Signature);
 
@@ -423,13 +423,13 @@ namespace LibGit2Sharp.Tests
 
                 Touch(repo.Info.WorkingDirectory, originalPath, "a\nb\nc\nd\n");
 
-                repo.Index.Stage(originalPath);
+                repo.Stage(originalPath);
 
                 Commit old = repo.Commit("Initial", Constants.Signature, Constants.Signature);
 
-                repo.Index.Move(originalPath, renamedPath);
+                repo.Move(originalPath, renamedPath);
                 File.AppendAllText(Path.Combine(repo.Info.WorkingDirectory, renamedPath), "e\nf\n");
-                repo.Index.Stage(renamedPath);
+                repo.Stage(renamedPath);
 
                 Commit @new = repo.Commit("Updated", Constants.Signature, Constants.Signature);
 
@@ -460,12 +460,12 @@ namespace LibGit2Sharp.Tests
 
                 Touch(repo.Info.WorkingDirectory, originalPath, "a\nb\nc\nd\n");
 
-                repo.Index.Stage(originalPath);
+                repo.Stage(originalPath);
 
                 Commit old = repo.Commit("Initial", Constants.Signature, Constants.Signature);
 
                 File.Copy(originalFullPath, copiedFullPath);
-                repo.Index.Stage(copiedPath);
+                repo.Stage(copiedPath);
 
                 Commit @new = repo.Commit("Updated", Constants.Signature, Constants.Signature);
 
@@ -497,11 +497,11 @@ namespace LibGit2Sharp.Tests
 
                 Touch(repo.Info.WorkingDirectory, originalPath, "a\nb\nc\nd\n");
 
-                repo.Index.Stage(originalPath);
+                repo.Stage(originalPath);
 
                 Commit old = repo.Commit("Initial", Constants.Signature, Constants.Signature);
 
-                repo.Index.Move(originalPath, renamedPath);
+                repo.Move(originalPath, renamedPath);
 
                 Commit @new = repo.Commit("Updated", Constants.Signature, Constants.Signature);
 
@@ -531,12 +531,12 @@ namespace LibGit2Sharp.Tests
 
                 Touch(repo.Info.WorkingDirectory, originalPath, "a\nb\nc\nd\n");
 
-                repo.Index.Stage(originalPath);
+                repo.Stage(originalPath);
 
                 Commit old = repo.Commit("Initial", Constants.Signature, Constants.Signature);
 
                 File.Copy(originalFullPath, copiedFullPath);
-                repo.Index.Stage(copiedPath);
+                repo.Stage(copiedPath);
 
                 Commit @new = repo.Commit("Updated", Constants.Signature, Constants.Signature);
 
@@ -568,12 +568,12 @@ namespace LibGit2Sharp.Tests
 
                 Touch(repo.Info.WorkingDirectory, originalPath, "a\nb\nc\nd\n");
 
-                repo.Index.Stage(originalPath);
+                repo.Stage(originalPath);
 
                 Commit old = repo.Commit("Initial", Constants.Signature, Constants.Signature);
 
                 File.Copy(originalFullPath, copiedFullPath);
-                repo.Index.Stage(copiedPath);
+                repo.Stage(copiedPath);
 
                 Commit @new = repo.Commit("Updated", Constants.Signature, Constants.Signature);
 
@@ -598,15 +598,15 @@ namespace LibGit2Sharp.Tests
 
                 Touch(repo.Info.WorkingDirectory, originalPath, "a\nb\nc\nd\n");
 
-                repo.Index.Stage(originalPath);
+                repo.Stage(originalPath);
 
                 Commit old = repo.Commit("Initial", Constants.Signature, Constants.Signature);
 
                 File.Copy(originalFullPath, copiedFullPath);
                 Touch(repo.Info.WorkingDirectory, originalPath, "e\n");
 
-                repo.Index.Stage(originalPath);
-                repo.Index.Stage(copiedPath);
+                repo.Stage(originalPath);
+                repo.Stage(copiedPath);
 
                 Commit @new = repo.Commit("Updated", Constants.Signature, Constants.Signature);
 
@@ -638,15 +638,15 @@ namespace LibGit2Sharp.Tests
 
                 Touch(repo.Info.WorkingDirectory, originalPath, "a\nb\nc\nd\n");
 
-                repo.Index.Stage(originalPath);
+                repo.Stage(originalPath);
 
                 Commit old = repo.Commit("Initial", Constants.Signature, Constants.Signature);
 
                 File.Copy(originalFullPath, copiedFullPath);
                 File.AppendAllText(originalFullPath, "e\n");
 
-                repo.Index.Stage(originalPath);
-                repo.Index.Stage(copiedPath);
+                repo.Stage(originalPath);
+                repo.Stage(copiedPath);
 
                 Commit @new = repo.Commit("Updated", Constants.Signature, Constants.Signature);
 
@@ -667,11 +667,11 @@ namespace LibGit2Sharp.Tests
                 Touch(repo.Info.WorkingDirectory, "a.txt", "abc\ndef\n");
                 Touch(repo.Info.WorkingDirectory, "b.txt", "abc\ndef\n");
 
-                repo.Index.Stage(new[] {"a.txt", "b.txt"});
+                repo.Stage(new[] {"a.txt", "b.txt"});
                 Commit old = repo.Commit("Initial", Constants.Signature, Constants.Signature);
 
                 File.AppendAllText(Path.Combine(repo.Info.WorkingDirectory, "b.txt"), "ghi\njkl\n");
-                repo.Index.Stage("b.txt");
+                repo.Stage("b.txt");
                 Commit @new = repo.Commit("Updated", Constants.Signature, Constants.Signature);
 
                 var changes = repo.Diff.Compare<TreeChanges>(old.Tree, @new.Tree,
@@ -701,9 +701,9 @@ namespace LibGit2Sharp.Tests
                 Touch(repo.Info.WorkingDirectory, originalPath2, "1\n2\n3\n4\n");
                 Touch(repo.Info.WorkingDirectory, originalPath3, "5\n6\n7\n8\n");
 
-                repo.Index.Stage(originalPath);
-                repo.Index.Stage(originalPath2);
-                repo.Index.Stage(originalPath3);
+                repo.Stage(originalPath);
+                repo.Stage(originalPath2);
+                repo.Stage(originalPath3);
 
                 Commit old = repo.Commit("Initial", Constants.Signature, Constants.Signature);
 
@@ -715,10 +715,10 @@ namespace LibGit2Sharp.Tests
                 File.Copy(originalFullPath3, copiedFullPath2);
                 File.AppendAllText(originalFullPath3, "9\n");
 
-                repo.Index.Stage(originalPath3);
-                repo.Index.Stage(copiedPath1);
-                repo.Index.Stage(copiedPath2);
-                repo.Index.Move(originalPath, renamedPath);
+                repo.Stage(originalPath3);
+                repo.Stage(copiedPath1);
+                repo.Stage(copiedPath2);
+                repo.Move(originalPath, renamedPath);
 
                 Commit @new = repo.Commit("Updated", Constants.Signature, Constants.Signature);
 

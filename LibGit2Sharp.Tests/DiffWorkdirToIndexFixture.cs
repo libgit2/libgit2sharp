@@ -47,7 +47,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(StandardTestRepoPath))
             {
-                Assert.Equal(currentStatus, repo.Index.RetrieveStatus(relativePath));
+                Assert.Equal(currentStatus, repo.RetrieveStatus(relativePath));
 
                 var changes = repo.Diff.Compare<TreeChanges>(new[] { relativePath }, false, new ExplicitPathsOptions { ShouldFailOnUnmatchedPath = false });
                 Assert.Equal(0, changes.Count());
@@ -64,7 +64,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(StandardTestRepoPath))
             {
-                Assert.Equal(currentStatus, repo.Index.RetrieveStatus(relativePath));
+                Assert.Equal(currentStatus, repo.RetrieveStatus(relativePath));
 
                 Assert.Throws<UnmatchedPathException>(() => repo.Diff.Compare<TreeChanges>(new[] { relativePath }, false, new ExplicitPathsOptions()));
             }
@@ -79,7 +79,7 @@ namespace LibGit2Sharp.Tests
 
             using (var repo = new Repository(StandardTestRepoPath))
             {
-                Assert.Equal(currentStatus, repo.Index.RetrieveStatus(relativePath));
+                Assert.Equal(currentStatus, repo.RetrieveStatus(relativePath));
 
                 repo.Diff.Compare<TreeChanges>(new[] { relativePath }, false, new ExplicitPathsOptions
                 {
