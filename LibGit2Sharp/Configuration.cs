@@ -344,16 +344,27 @@ namespace LibGit2Sharp
             var name = Get<string>("user.name");
             var email = Get<string>("user.email");
 
-            if (shouldThrowIfNotFound && ((name == null) || (email == null)))
+            if (shouldThrowIfNotFound)
             {
-                throw new LibGit2SharpException("Can not find Name or Email setting of the current user in Git configuration.");
+                if (name == null || string.IsNullOrEmpty(name.Value))
+                {
+                    throw new LibGit2SharpException(
+                        "Can not find Name setting of the current user in Git configuration.");
+                }
+
+                if (email == null || string.IsNullOrEmpty(email.Value))
+                {
+                    throw new LibGit2SharpException(
+                        "Can not find Email setting of the current user in Git configuration.");
+                }
             }
 
-            return new Signature(
-                name != null ? name.Value : "unknown",
-                email != null ? email.Value : string.Format(
-                        CultureInfo.InvariantCulture, "{0}@{1}", Environment.UserName, Environment.UserDomainName),
-                now);
+            var nameForSignature = name == null || string.IsNullOrEmpty(name.Value) ? "unknown" : name.Value;
+            var emailForSignature = email == null || string.IsNullOrEmpty(email.Value)
+                                        ? string.Format("{0}@{1}", Environment.UserName, Environment.UserDomainName)
+                                        : email.Value;
+
+            return new Signature(nameForSignature, emailForSignature, now);
         }
 
         private ConfigurationSafeHandle Snapshot()
