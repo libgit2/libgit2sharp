@@ -11,6 +11,24 @@ namespace LibGit2Sharp
     public class ConfigurationEntry<T>
     {
         /// <summary>
+        /// Returns the value of the ConfigurationEntry or, if the ConfigurationEntry is null, the default
+        /// value for the ConfigurationEntry's value's type.
+        /// </summary>
+        /// <param name="configurationEntry">Entry to get the vlaue from.</param>
+        /// <returns>The ConfigurationEntry's value, or the default for the ConfigurationEntry's value's type.</returns>
+        public static T ValueOrDefault(ConfigurationEntry<T> configurationEntry)
+        {
+            if (configurationEntry == null)
+            {
+                return default(T);
+            }
+            else
+            {
+                return configurationEntry.Value;
+            }
+        }
+
+        /// <summary>
         /// The fully-qualified option name.
         /// </summary>
         public virtual string Key { get; private set; }

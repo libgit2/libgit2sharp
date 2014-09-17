@@ -378,5 +378,141 @@ namespace LibGit2Sharp.Tests
                 Assert.Null(repo.Config.Get<string>("MCHammer.You-cant-touch-this", ConfigurationLevel.System));
             }
         }
+
+        private class TestConfigurationClass : Configuration
+        {
+            private string name;
+            private bool NameSet { get; set; }
+            public string Name
+            {
+                get { return this.name; }
+                set
+                {
+                    this.NameSet = true;
+                    this.name = value;
+                }
+
+            }
+
+            private string email;
+            private bool EmailSet { get; set; }
+            public string Email
+            {
+                get { return this.email; }
+                set
+                {
+                    this.EmailSet = true;
+                    this.email = value;
+                }
+            }
+
+            public TestConfigurationClass() : base(null, null, null) { }
+
+            public override ConfigurationEntry<T> Get<T>(string key)
+            {
+                switch (key)
+                {
+                    case "user.name":
+                        if (this.NameSet)
+                        {
+                            return new ConfigurationEntry<string>(key, this.Name, ConfigurationLevel.Global)
+                                as ConfigurationEntry<T>;
+                        }
+                        break;
+                    case "user.email":
+                        if(this.EmailSet)
+                        {
+                            return new ConfigurationEntry<string>(key, this.Email, ConfigurationLevel.Global)
+                                as ConfigurationEntry<T>;
+                        }
+                        break;
+
+                }
+
+                return base.Get<T>(key);
+            }
+        }
+
+        [Fact]
+        public void HandlesEmptySignatureName()
+        {
+            using (Configuration testConfiguraiton = new TestConfigurationClass() { Name = "" })
+            {
+                Signature signature = testConfiguraiton.BuildSignature(DateTime.Now);
+                Assert.Equal<string>("unknown", signature.Name);
+            }
+        }
+
+        [Fact]
+        public void HandlesNullSignatureName()
+        {
+            using (Configuration testConfiguraiton = new TestConfigurationClass() { Name = null })
+            {
+                Signature signature = testConfiguraiton.BuildSignature(DateTime.Now);
+                Assert.Equal<string>("unknown", signature.Name);
+            }
+        }
+
+        [Fact]
+        public void HandlesEmptySignatureEmail()
+        {
+            using (Configuration testConfiguraiton = new TestConfigurationClass() { Email = "" })
+            {
+                Signature signature = testConfiguraiton.BuildSignature(DateTime.Now);
+                Assert.NotNull(signature.Email);
+                Assert.True(signature.Email.Contains("@"));
+            }
+        }
+
+        [Fact]
+        public void HandlesNullSignatureEmail()
+        {
+            using (Configuration testConfiguraiton = new TestConfigurationClass() { Email = null })
+            {
+                Signature signature = testConfiguraiton.BuildSignature(DateTime.Now);
+                Assert.NotNull(signature.Email);
+                Assert.True(signature.Email.Contains("@"));
+            }
+        }
+
+        [Fact]
+        public void ThrowsForEmptySignatureName()
+        {
+            using (Configuration testConfiguraiton = new TestConfigurationClass() { Name = "" })
+            {
+                Signature signature = testConfiguraiton.BuildSignature(DateTime.Now);
+                Assert.Throws<LibGit2SharpException>(() => { testConfiguraiton.BuildSignature(DateTime.Now, true); });
+            }
+        }
+
+        [Fact]
+        public void ThrowsForNullSignatureName()
+        {
+            using (Configuration testConfiguraiton = new TestConfigurationClass() { Name = null })
+            {
+                Signature signature = testConfiguraiton.BuildSignature(DateTime.Now);
+                Assert.Throws<LibGit2SharpException>(() => { testConfiguraiton.BuildSignature(DateTime.Now, true); });
+            }
+        }
+
+        [Fact]
+        public void ThrowsForEmptySignatureEmail()
+        {
+            using (Configuration testConfiguraiton = new TestConfigurationClass() { Email = "" })
+            {
+                Signature signature = testConfiguraiton.BuildSignature(DateTime.Now);
+                Assert.Throws<LibGit2SharpException>(() => { testConfiguraiton.BuildSignature(DateTime.Now, true); });
+            }
+        }
+
+        [Fact]
+        public void ThrowsForsNullSignatureEmail()
+        {
+            using (Configuration testConfiguraiton = new TestConfigurationClass() { Email = null })
+            {
+                Signature signature = testConfiguraiton.BuildSignature(DateTime.Now);
+                Assert.Throws<LibGit2SharpException>(() => { testConfiguraiton.BuildSignature(DateTime.Now, true); });
+            }
+        }
     }
 }
