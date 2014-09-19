@@ -617,5 +617,116 @@ namespace LibGit2Sharp
         {
             return repository.Revert(commit, reverter, null);
         }
+
+        /// <summary>
+        /// Promotes to the staging area the latest modifications of a file in the working directory (addition, updation or removal).
+        /// </summary>
+        /// <param name="path">The path of the file within the working directory.</param>
+        public static void Stage(this IRepository repository, string path)
+        {
+            repository.Stage(path, null);
+        }
+
+        /// <summary>
+        /// Promotes to the staging area the latest modifications of a collection of files in the working directory (addition, updation or removal).
+        /// </summary>
+        /// <param name="paths">The collection of paths of the files within the working directory.</param>
+        public static void Stage(this IRepository repository, IEnumerable<string> paths)
+        {
+            repository.Stage(paths, null);
+        }
+
+        /// <summary>
+        /// Removes from the staging area all the modifications of a file since the latest commit (addition, updation or removal).
+        /// </summary>
+        /// <param name="path">The path of the file within the working directory.</param>
+        public static void Unstage(this IRepository repository, string path)
+        {
+            repository.Unstage(path, null);
+        }
+
+        /// <summary>
+        /// Removes from the staging area all the modifications of a collection of file since the latest commit (addition, updation or removal).
+        /// </summary>
+        /// <param name="paths">The collection of paths of the files within the working directory.</param>
+        public static void Unstage(this IRepository repository, IEnumerable<string> paths)
+        {
+            repository.Unstage(paths, null);
+        }
+
+        /// <summary>
+        /// Removes a file from the staging area, and optionally removes it from the working directory as well.
+        /// <para>
+        ///   If the file has already been deleted from the working directory, this method will only deal
+        ///   with promoting the removal to the staging area.
+        /// </para>
+        /// <para>
+        ///   The default behavior is to remove the file from the working directory as well.
+        /// </para>
+        /// </summary>
+        /// <param name="path">The path of the file within the working directory.</param>
+        public static void Remove(this IRepository repository, string path)
+        {
+            repository.Remove(path, true, null);
+        }
+
+        /// <summary>
+        /// Removes a file from the staging area, and optionally removes it from the working directory as well.
+        /// <para>
+        ///   If the file has already been deleted from the working directory, this method will only deal
+        ///   with promoting the removal to the staging area.
+        /// </para>
+        /// <para>
+        ///   The default behavior is to remove the file from the working directory as well.
+        /// </para>
+        /// </summary>
+        /// <param name="path">The path of the file within the working directory.</param>
+        /// <param name="removeFromWorkingDirectory">True to remove the file from the working directory, False otherwise.</param>
+        public static void Remove(this IRepository repository, string path, bool removeFromWorkingDirectory)
+        {
+            repository.Remove(path, removeFromWorkingDirectory, null);
+        }
+
+        /// <summary>
+        /// Removes a collection of fileS from the staging, and optionally removes them from the working directory as well.
+        /// <para>
+        ///   If a file has already been deleted from the working directory, this method will only deal
+        ///   with promoting the removal to the staging area.
+        /// </para>
+        /// <para>
+        ///   The default behavior is to remove the files from the working directory as well.
+        /// </para>
+        /// </summary>  
+        public static void Remove(this IRepository repository, IEnumerable<string> paths)
+        {
+            repository.Remove(paths, true, null);
+        }
+
+        /// <summary>
+        /// Removes a collection of fileS from the staging, and optionally removes them from the working directory as well.
+        /// <para>
+        ///   If a file has already been deleted from the working directory, this method will only deal
+        ///   with promoting the removal to the staging area.
+        /// </para>
+        /// <para>
+        ///   The default behavior is to remove the files from the working directory as well.
+        /// </para>
+        /// </summary>
+        /// <param name="paths">The collection of paths of the files within the working directory.</param>
+        /// <param name="removeFromWorkingDirectory">True to remove the files from the working directory, False otherwise.</param>
+        public static void Remove(this IRepository repository, IEnumerable<string> paths, bool removeFromWorkingDirectory)
+        {
+            repository.Remove(paths, removeFromWorkingDirectory, null);
+        }
+
+        /// <summary>
+        /// Retrieves the state of all files in the working directory, comparing them against the staging area and the latest commmit.
+        /// </summary>
+        /// <returns>A <see cref="RepositoryStatus"/> holding the state of all the files.</returns>
+        public static RepositoryStatus RetrieveStatus(this IRepository repository)
+        {
+            Proxy.git_index_read(repository.Index.Handle);
+            return new RepositoryStatus((Repository)repository, null);
+        }
     }
 }

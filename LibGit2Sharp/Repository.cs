@@ -1451,8 +1451,8 @@ namespace LibGit2Sharp
         /// If this path is ignored by configuration then it will not be staged unless <see cref="StageOptions.IncludeIgnored"/> is unset.
         /// </summary>
         /// <param name="path">The path of the file within the working directory.</param>
-        /// <param name="stageOptions">If set, determines how paths will be staged.</param>
-        public void Stage(string path, StageOptions stageOptions = null)
+        /// <param name="stageOptions">Determines how paths will be staged.</param>
+        public void Stage(string path, StageOptions stageOptions)
         {
             Ensure.ArgumentNotNull(path, "path");
 
@@ -1465,8 +1465,8 @@ namespace LibGit2Sharp
         /// Any paths (even those listed explicitly) that are ignored by configuration will not be staged unless <see cref="StageOptions.IncludeIgnored"/> is unset.
         /// </summary>
         /// <param name="paths">The collection of paths of the files within the working directory.</param>
-        /// <param name="stageOptions">If set, determines how paths will be staged.</param>
-        public void Stage(IEnumerable<string> paths, StageOptions stageOptions = null)
+        /// <param name="stageOptions">Determines how paths will be staged.</param>
+        public void Stage(IEnumerable<string> paths, StageOptions stageOptions)
         {
             Ensure.ArgumentNotNull(paths, "paths");
 
@@ -1511,10 +1511,10 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="path">The path of the file within the working directory.</param>
         /// <param name="explicitPathsOptions">
-        /// If set, the passed <paramref name="path"/> will be treated as explicit paths.
+        /// The passed <paramref name="path"/> will be treated as explicit paths.
         /// Use these options to determine how unmatched explicit paths should be handled.
         /// </param>
-        public void Unstage(string path, ExplicitPathsOptions explicitPathsOptions = null)
+        public void Unstage(string path, ExplicitPathsOptions explicitPathsOptions)
         {
             Ensure.ArgumentNotNull(path, "path");
 
@@ -1526,10 +1526,10 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="paths">The collection of paths of the files within the working directory.</param>
         /// <param name="explicitPathsOptions">
-        /// If set, the passed <paramref name="paths"/> will be treated as explicit paths.
+        /// The passed <paramref name="paths"/> will be treated as explicit paths.
         /// Use these options to determine how unmatched explicit paths should be handled.
         /// </param>
-        public void Unstage(IEnumerable<string> paths, ExplicitPathsOptions explicitPathsOptions = null)
+        public void Unstage(IEnumerable<string> paths, ExplicitPathsOptions explicitPathsOptions)
         {
             Ensure.ArgumentNotNull(paths, "paths");
 
@@ -1636,10 +1636,10 @@ namespace LibGit2Sharp
         /// <param name="path">The path of the file within the working directory.</param>
         /// <param name="removeFromWorkingDirectory">True to remove the file from the working directory, False otherwise.</param>
         /// <param name="explicitPathsOptions">
-        /// If set, the passed <paramref name="path"/> will be treated as an explicit path.
+        /// The passed <paramref name="path"/> will be treated as an explicit path.
         /// Use these options to determine how unmatched explicit paths should be handled.
         /// </param>
-        public void Remove(string path, bool removeFromWorkingDirectory = true, ExplicitPathsOptions explicitPathsOptions = null)
+        public void Remove(string path, bool removeFromWorkingDirectory, ExplicitPathsOptions explicitPathsOptions)
         {
             Ensure.ArgumentNotNull(path, "path");
 
@@ -1664,10 +1664,10 @@ namespace LibGit2Sharp
         /// <param name="paths">The collection of paths of the files within the working directory.</param>
         /// <param name="removeFromWorkingDirectory">True to remove the files from the working directory, False otherwise.</param>
         /// <param name="explicitPathsOptions">
-        /// If set, the passed <paramref name="paths"/> will be treated as explicit paths.
+        /// The passed <paramref name="paths"/> will be treated as explicit paths.
         /// Use these options to determine how unmatched explicit paths should be handled.
         /// </param>
-        public void Remove(IEnumerable<string> paths, bool removeFromWorkingDirectory = true, ExplicitPathsOptions explicitPathsOptions = null)
+        public void Remove(IEnumerable<string> paths, bool removeFromWorkingDirectory, ExplicitPathsOptions explicitPathsOptions)
         {
             Ensure.ArgumentNotNullOrEmptyEnumerable<string>(paths, "paths");
 
@@ -1722,7 +1722,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="options">If set, the options that control the status investigation.</param>
         /// <returns>A <see cref="RepositoryStatus"/> holding the state of all the files.</returns>
-        public RepositoryStatus RetrieveStatus(StatusOptions options = null)
+        public RepositoryStatus RetrieveStatus(StatusOptions options)
         {
             ReloadFromDisk();
 

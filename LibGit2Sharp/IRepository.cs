@@ -261,8 +261,8 @@ namespace LibGit2Sharp
         /// If this path is ignored by configuration then it will not be staged unless <see cref="StageOptions.IncludeIgnored"/> is unset.
         /// </summary>
         /// <param name="path">The path of the file within the working directory.</param>
-        /// <param name="stageOptions">If set, determines how paths will be staged.</param>
-        void Stage(string path, StageOptions stageOptions = null);
+        /// <param name="stageOptions">Determines how paths will be staged.</param>
+        void Stage(string path, StageOptions stageOptions);
 
         /// <summary>
         /// Promotes to the staging area the latest modifications of a collection of files in the working directory (addition, updation or removal).
@@ -270,28 +270,28 @@ namespace LibGit2Sharp
         /// Any paths (even those listed explicitly) that are ignored by configuration will not be staged unless <see cref="StageOptions.IncludeIgnored"/> is unset.
         /// </summary>
         /// <param name="paths">The collection of paths of the files within the working directory.</param>
-        /// <param name="stageOptions">If set, determines how paths will be staged.</param>
-        void Stage(IEnumerable<string> paths, StageOptions stageOptions = null);
+        /// <param name="stageOptions">Determines how paths will be staged.</param>
+        void Stage(IEnumerable<string> paths, StageOptions stageOptions);
 
         /// <summary>
         /// Removes from the staging area all the modifications of a file since the latest commit (addition, updation or removal).
         /// </summary>
         /// <param name="path">The path of the file within the working directory.</param>
         /// <param name="explicitPathsOptions">
-        /// If set, the passed <paramref name="path"/> will be treated as explicit paths.
+        /// The passed <paramref name="path"/> will be treated as explicit paths.
         /// Use these options to determine how unmatched explicit paths should be handled.
         /// </param>
-        void Unstage(string path, ExplicitPathsOptions explicitPathsOptions = null);
+        void Unstage(string path, ExplicitPathsOptions explicitPathsOptions);
 
         /// <summary>
         /// Removes from the staging area all the modifications of a collection of file since the latest commit (addition, updation or removal).
         /// </summary>
         /// <param name="paths">The collection of paths of the files within the working directory.</param>
         /// <param name="explicitPathsOptions">
-        /// If set, the passed <paramref name="paths"/> will be treated as explicit paths.
+        /// The passed <paramref name="paths"/> will be treated as explicit paths.
         /// Use these options to determine how unmatched explicit paths should be handled.
         /// </param>
-        void Unstage(IEnumerable<string> paths, ExplicitPathsOptions explicitPathsOptions = null);
+        void Unstage(IEnumerable<string> paths, ExplicitPathsOptions explicitPathsOptions);
 
         /// <summary>
         /// Moves and/or renames a file in the working directory and promotes the change to the staging area.
@@ -324,10 +324,10 @@ namespace LibGit2Sharp
         /// <param name="path">The path of the file within the working directory.</param>
         /// <param name="removeFromWorkingDirectory">True to remove the file from the working directory, False otherwise.</param>
         /// <param name="explicitPathsOptions">
-        /// If set, the passed <paramref name="path"/> will be treated as an explicit path.
+        /// The passed <paramref name="path"/> will be treated as an explicit path.
         /// Use these options to determine how unmatched explicit paths should be handled.
         /// </param>
-        void Remove(string path, bool removeFromWorkingDirectory = true, ExplicitPathsOptions explicitPathsOptions = null);
+        void Remove(string path, bool removeFromWorkingDirectory, ExplicitPathsOptions explicitPathsOptions);
 
         /// <summary>
         /// Removes a collection of fileS from the staging, and optionally removes them from the working directory as well.
@@ -347,10 +347,10 @@ namespace LibGit2Sharp
         /// <param name="paths">The collection of paths of the files within the working directory.</param>
         /// <param name="removeFromWorkingDirectory">True to remove the files from the working directory, False otherwise.</param>
         /// <param name="explicitPathsOptions">
-        /// If set, the passed <paramref name="paths"/> will be treated as explicit paths.
+        /// The passed <paramref name="paths"/> will be treated as explicit paths.
         /// Use these options to determine how unmatched explicit paths should be handled.
         /// </param>
-        void Remove(IEnumerable<string> paths, bool removeFromWorkingDirectory = true, ExplicitPathsOptions explicitPathsOptions = null);
+        void Remove(IEnumerable<string> paths, bool removeFromWorkingDirectory, ExplicitPathsOptions explicitPathsOptions);
 
         /// <summary>
         /// Retrieves the state of a file in the working directory, comparing it against the staging area and the latest commmit.
@@ -364,6 +364,6 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="options">If set, the options that control the status investigation.</param>
         /// <returns>A <see cref="RepositoryStatus"/> holding the state of all the files.</returns>
-        RepositoryStatus RetrieveStatus(StatusOptions options = null);
+        RepositoryStatus RetrieveStatus(StatusOptions options);
     }
 }
