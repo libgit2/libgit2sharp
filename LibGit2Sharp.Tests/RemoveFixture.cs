@@ -104,6 +104,7 @@ namespace LibGit2Sharp.Tests
             string path = CloneStandardTestRepo();
             using (var repo = new Repository(path))
             {
+                repo.Stage(Touch(repo.Info.WorkingDirectory, "2/subdir1/2.txt", "whone"));
                 repo.Stage(Touch(repo.Info.WorkingDirectory, "2/subdir1/3.txt", "too"));
                 repo.Stage(Touch(repo.Info.WorkingDirectory, "2/subdir2/4.txt", "tree"));
                 repo.Stage(Touch(repo.Info.WorkingDirectory, "2/5.txt", "for"));
