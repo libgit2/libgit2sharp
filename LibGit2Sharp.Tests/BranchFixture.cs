@@ -686,6 +686,33 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
+        public void SetTrackedBranchForUnreasolvableRemoteThrows()
+        {
+            const string testBranchName = "branchToSetUpstreamInfoFor";
+            const string trackedBranchName = "refs/remotes/origin/master";
+            var fetchRefSpecs = new string[] { "+refs/heads/notfound/*:refs/remotes/origin/notfound/*" };
+
+            string path = CloneStandardTestRepo();
+            using (var repo = new Repository(path))
+            {
+                // Modify the fetch spec so that the remote for the remote-tracking branch
+                // cannot be resolved.
+                Remote remote = repo.Network.Remotes["origin"];
+                Assert.NotNull(remote);
+                repo.Network.Remotes.Update(remote, r => r.FetchRefSpecs = fetchRefSpecs);
+
+                // Now attempt to update the tracked branch
+                Branch branch = repo.CreateBranch(testBranchName);
+                Assert.False(branch.IsTracking);
+
+                Branch trackedBranch = repo.Branches[trackedBranchName];
+
+                Assert.Throws<LibGit2SharpException>(() => repo.Branches.Update(branch,
+                                                                                b => b.TrackedBranch = trackedBranch.CanonicalName));
+            }
+        }
+
+        [Fact]
         public void CanSetUpstreamBranch()
         {
             const string testBranchName = "branchToSetUpstreamInfoFor";
