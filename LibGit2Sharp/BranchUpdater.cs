@@ -181,7 +181,7 @@ namespace LibGit2Sharp
             }
             else if (canonicalName.LooksLikeRemoteTrackingBranch())
             {
-                remoteName = Proxy.git_branch_remote_name(repo.Handle, canonicalName);
+                remoteName = Proxy.git_branch_remote_name(repo.Handle, canonicalName, true);
 
                 Remote remote = repo.Network.Remotes.RemoteForName(remoteName);
                 mergeBranchName = remote.FetchSpecTransformToSource(canonicalName);

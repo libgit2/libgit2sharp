@@ -392,6 +392,64 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
+        public void QueryRemoteForRemoteBranch()
+        {
+            using (var repo = new Repository(StandardTestRepoPath))
+            {
+                var master = repo.Branches["origin/master"];
+                Assert.Equal(repo.Network.Remotes["origin"], master.Remote);
+            }
+        }
+
+        [Fact]
+        public void QueryUnresolvableRemoteForRemoteBranch()
+        {
+            var path = CloneStandardTestRepo();
+
+            var fetchRefSpecs = new string[] { "+refs/heads/notfound/*:refs/remotes/origin/notfound/*" };
+
+            using (var repo = InitIsolatedRepository(path))
+            {
+                // Update the remote config such that the remote for a
+                // remote branch cannot be resolved
+                Remote remote = repo.Network.Remotes["origin"];
+                Assert.NotNull(remote);
+
+                repo.Network.Remotes.Update(remote, r => r.FetchRefSpecs = fetchRefSpecs);
+
+                Branch branch = repo.Branches["refs/remotes/origin/master"];
+
+                Assert.NotNull(branch);
+                Assert.True(branch.IsRemote);
+
+                Assert.Null(branch.Remote);
+            }
+        }
+
+        [Fact]
+        public void QueryAmbigousRemoteForRemoteBranch()
+        {
+            var path = CloneStandardTestRepo();
+
+            var fetchRefSpec = "+refs/heads/*:refs/remotes/origin/*";
+            var url = "http://github.com/libgit2/TestGitRepository";
+
+            using (var repo = InitIsolatedRepository(path))
+            {
+                // Add a second remote so that it is ambiguous which remote
+                // the remote-tracking branch tracks.
+                repo.Network.Remotes.Add("ambiguous", url, fetchRefSpec);
+
+                Branch branch = repo.Branches["refs/remotes/origin/master"];
+
+                Assert.NotNull(branch);
+                Assert.True(branch.IsRemote);
+
+                Assert.Null(branch.Remote);
+            }
+        }
+
+        [Fact]
         public void CanLookupABranchByItsCanonicalName()
         {
             using (var repo = new Repository(BareTestRepoPath))

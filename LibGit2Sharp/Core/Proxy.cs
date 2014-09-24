@@ -203,15 +203,21 @@ namespace LibGit2Sharp.Core
             }
         }
 
-        public static string git_branch_remote_name(RepositorySafeHandle repo, string canonical_branch_name)
+        public static string git_branch_remote_name(RepositorySafeHandle repo, string canonical_branch_name, bool shouldThrowIfNotFound)
         {
             using (ThreadAffinity())
             using (var buf = new GitBuf())
             {
                 int res = NativeMethods.git_branch_remote_name(buf, repo, canonical_branch_name);
-                Ensure.Int32Result(res);
 
-                return LaxUtf8Marshaler.FromNative(buf.ptr) ?? string.Empty;
+                if (!shouldThrowIfNotFound &&
+                    (res == (int) GitErrorCode.NotFound || res == (int) GitErrorCode.Ambiguous))
+                {
+                    return null;
+                }
+
+                Ensure.ZeroResult(res);
+                return LaxUtf8Marshaler.FromNative(buf.ptr);
             }
         }
 

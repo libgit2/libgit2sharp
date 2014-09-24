@@ -149,7 +149,13 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Gets the configured <see cref="Remote"/> to fetch from and push to.
+        /// Get the remote for the branch.
+        /// <para>
+        ///   If this is a local branch, this will return the configured
+        ///   <see cref="Remote"/> to fetch from and push to. If this is a
+        ///   remote-tracking branch, this will return the remote containing
+        ///   the tracked branch.
+        /// </para>
         /// </summary>
         public virtual Remote Remote
         {
@@ -164,11 +170,11 @@ namespace LibGit2Sharp
                 else
                 {
                     remoteName = RemoteNameFromLocalBranch();
+                }
 
-                    if (remoteName == null)
-                    {
-                        return null;
-                    }
+                if (remoteName == null)
+                {
+                    return null;
                 }
 
                 return repo.Network.Remotes[remoteName];
@@ -210,7 +216,7 @@ namespace LibGit2Sharp
 
         private string RemoteNameFromRemoteTrackingBranch()
         {
-            return Proxy.git_branch_remote_name(repo.Handle, CanonicalName);
+            return Proxy.git_branch_remote_name(repo.Handle, CanonicalName, false);
         }
 
         /// <summary>
