@@ -107,8 +107,8 @@ namespace LibGit2Sharp.Tests
             string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
-                Assert.Throws<LibGit2SharpException>(() => repo.Commits.QueryBy(new CommitFilter { Since = Constants.UnknownSha }).Count());
-                Assert.Throws<LibGit2SharpException>(() => repo.Commits.QueryBy(new CommitFilter { Since = "refs/heads/deadbeef" }).Count());
+                Assert.Throws<NotFoundException>(() => repo.Commits.QueryBy(new CommitFilter { Since = Constants.UnknownSha }).Count());
+                Assert.Throws<NotFoundException>(() => repo.Commits.QueryBy(new CommitFilter { Since = "refs/heads/deadbeef" }).Count());
                 Assert.Throws<ArgumentNullException>(() => repo.Commits.QueryBy(new CommitFilter { Since = null }).Count());
             }
         }
@@ -121,8 +121,8 @@ namespace LibGit2Sharp.Tests
             {
                 CreateCorruptedDeadBeefHead(repo.Info.Path);
 
-                Assert.Throws<LibGit2SharpException>(() => repo.Commits.QueryBy(new CommitFilter { Since = repo.Branches["deadbeef"] }).Count());
-                Assert.Throws<LibGit2SharpException>(() => repo.Commits.QueryBy(new CommitFilter { Since = repo.Refs["refs/heads/deadbeef"] }).Count());
+                Assert.Throws<NotFoundException>(() => repo.Commits.QueryBy(new CommitFilter { Since = repo.Branches["deadbeef"] }).Count());
+                Assert.Throws<NotFoundException>(() => repo.Commits.QueryBy(new CommitFilter { Since = repo.Refs["refs/heads/deadbeef"] }).Count());
             }
         }
 
