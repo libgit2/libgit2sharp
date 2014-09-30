@@ -52,6 +52,16 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        /// This object is already a commit - no need to further dereference.
+        /// </summary>
+        /// <param name="throwsIfCanNotBeDereferencedToACommit"></param>
+        /// <returns></returns>
+        internal override Commit DereferenceToCommit(bool throwsIfCanNotBeDereferencedToACommit)
+        {
+            return this;
+        }
+
+        /// <summary>
         /// Gets the <see cref="TreeEntry"/> pointed at by the <paramref name="relativePath"/> in the <see cref="Tree"/>.
         /// </summary>
         /// <param name="relativePath">The relative path to the <see cref="TreeEntry"/> from the <see cref="Commit"/> working directory.</param>

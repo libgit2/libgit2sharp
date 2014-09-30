@@ -241,9 +241,9 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(BareTestRepoPath))
             {
                 const string name = "sorry-dude-i-do-not-do-blobs-nor-trees";
-                Assert.Throws<LibGit2SharpException>(() => repo.CreateBranch(name, "refs/tags/point_to_blob"));
-                Assert.Throws<LibGit2SharpException>(() => repo.CreateBranch(name, "53fc32d"));
-                Assert.Throws<LibGit2SharpException>(() => repo.CreateBranch(name, "0266163"));
+                Assert.Throws<CannotDereferenceException>(() => repo.CreateBranch(name, "refs/tags/point_to_blob"));
+                Assert.Throws<CannotDereferenceException>(() => repo.CreateBranch(name, "53fc32d"));
+                Assert.Throws<CannotDereferenceException>(() => repo.CreateBranch(name, "0266163"));
             }
         }
 
@@ -252,7 +252,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                Assert.Throws<LibGit2SharpException>(() => repo.Branches.Add("my_new_branch", "my_old_branch"));
+                Assert.Throws<NotFoundException>(() => repo.Branches.Add("my_new_branch", "my_old_branch"));
             }
         }
 
@@ -261,8 +261,8 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(BareTestRepoPath))
             {
-                Assert.Throws<LibGit2SharpException>(() => repo.Branches.Add("my_new_branch", Constants.UnknownSha));
-                Assert.Throws<LibGit2SharpException>(() => repo.Branches.Add("my_new_branch", Constants.UnknownSha.Substring(0, 7)));
+                Assert.Throws<NotFoundException>(() => repo.Branches.Add("my_new_branch", Constants.UnknownSha));
+                Assert.Throws<NotFoundException>(() => repo.Branches.Add("my_new_branch", Constants.UnknownSha.Substring(0, 7)));
             }
         }
 
@@ -707,7 +707,7 @@ namespace LibGit2Sharp.Tests
 
                 Branch trackedBranch = repo.Branches[trackedBranchName];
 
-                Assert.Throws<LibGit2SharpException>(() => repo.Branches.Update(branch,
+                Assert.Throws<NotFoundException>(() => repo.Branches.Update(branch,
                                                                                 b => b.TrackedBranch = trackedBranch.CanonicalName));
             }
         }

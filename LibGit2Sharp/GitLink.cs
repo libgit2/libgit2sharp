@@ -14,6 +14,21 @@ namespace LibGit2Sharp
         protected GitLink()
         { }
 
+        /// <summary>
+        /// A GitLink cannot be dereferenced to a commit - throws or returns null.
+        /// </summary>
+        /// <param name="throwsIfCanNotBeDereferencedToACommit"></param>
+        /// <returns></returns>
+        internal override Commit DereferenceToCommit(bool throwsIfCanNotBeDereferencedToACommit)
+        {
+            if (throwsIfCanNotBeDereferencedToACommit)
+            {
+                throw new CannotDereferenceException("Cannot dereference a git-link object to a commit.");
+            }
+
+            return null;
+        }
+
         internal GitLink(Repository repo, ObjectId id)
             : base(repo, id)
         {

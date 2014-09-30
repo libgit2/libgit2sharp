@@ -1,4 +1,5 @@
 ﻿using LibGit2Sharp.Core;
+using LibGit2Sharp.Core.Handles;
 
 namespace LibGit2Sharp
 {
@@ -29,6 +30,24 @@ namespace LibGit2Sharp
             group = new GitObjectLazyGroup(repo, id);
             lazyTagger = group.AddLazy(Proxy.git_tag_tagger);
             lazyMessage = group.AddLazy(Proxy.git_tag_message);
+        }
+
+        /// <summary>
+        /// Dereference tag to a commit.
+        /// </summary>
+        /// <param name="throwsIfCanNotBeDereferencedToACommit"></param>
+        /// <returns></returns>
+        internal override Commit DereferenceToCommit(bool throwsIfCanNotBeDereferencedToACommit)
+        {
+            using (GitObjectSafeHandle peeledHandle = Proxy.git_object_peel(repo.Handle, Id, GitObjectType.Commit, throwsIfCanNotBeDereferencedToACommit))
+            {
+                if (peeledHandle == null)
+                {
+                    return null;
+                }
+
+                return (Commit)BuildFrom(repo, Proxy.git_object_id(peeledHandle), GitObjectType.Commit, null);
+            }
         }
 
         /// <summary>

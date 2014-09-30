@@ -381,7 +381,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(StandardTestRepoWorkingDirPath))
             {
-                Assert.Throws<LibGit2SharpException>(() => repo.Checkout("i-do-not-exist"));
+                Assert.Throws<NotFoundException>(() => repo.Checkout("i-do-not-exist"));
             }
         }
 
@@ -891,7 +891,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(StandardTestRepoWorkingDirPath))
             {
-                Assert.Throws<LibGit2SharpException>(() => repo.Checkout("head"));
+                Assert.Throws<NotFoundException>(() => repo.Checkout("head"));
             }
         }
 

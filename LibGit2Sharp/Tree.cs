@@ -33,6 +33,21 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        /// A tree cannot be dereferenced to a commit - throws or returns null.
+        /// </summary>
+        /// <param name="throwsIfCanNotBeDereferencedToACommit"></param>
+        /// <returns></returns>
+        internal override Commit DereferenceToCommit(bool throwsIfCanNotBeDereferencedToACommit)
+        {
+            if (throwsIfCanNotBeDereferencedToACommit)
+            {
+                throw new CannotDereferenceException("Cannot dereference a tree object to a commit.");
+            }
+
+            return null;
+        }
+
+        /// <summary>
         /// Gets the number of <see cref="TreeEntry"/> immediately under this <see cref="Tree"/>.
         /// </summary>
         public virtual int Count { get { return lazyCount.Value; } }

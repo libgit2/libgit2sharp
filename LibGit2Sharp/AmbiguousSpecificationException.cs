@@ -1,5 +1,6 @@
 using System;
 using System.Runtime.Serialization;
+using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
 {
@@ -42,6 +43,11 @@ namespace LibGit2Sharp
         /// <param name="context">The <see cref="StreamingContext"/> that contains contextual information about the source or destination.</param>
         protected AmbiguousSpecificationException(SerializationInfo info, StreamingContext context)
             : base(info, context)
+        {
+        }
+
+        internal AmbiguousSpecificationException(string message, GitErrorCode code, GitErrorCategory category)
+            : base(message, code, category)
         {
         }
     }

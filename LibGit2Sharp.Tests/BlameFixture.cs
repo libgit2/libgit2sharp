@@ -34,7 +34,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(MergedTestRepoWorkingDirPath))
             {
                 // File doesn't exist at HEAD
-                Assert.Throws<LibGit2SharpException>(() => repo.Blame("ancestor-only.txt"));
+                Assert.Throws<NotFoundException>(() => repo.Blame("ancestor-only.txt"));
 
                 var blame = repo.Blame("ancestor-only.txt", new BlameOptions { StartingAt = "9107b30" });
                 Assert.Equal(1, blame.Count());

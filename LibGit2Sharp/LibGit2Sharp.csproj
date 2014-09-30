@@ -68,6 +68,7 @@
     <Compile Include="BranchCollectionExtensions.cs" />
     <Compile Include="BranchTrackingDetails.cs" />
     <Compile Include="BranchUpdater.cs" />
+    <Compile Include="CannotDereferenceException.cs" />
     <Compile Include="CheckoutCallbacks.cs" />
     <Compile Include="CheckoutFileConflictStrategy.cs" />
     <Compile Include="CheckoutModifiers.cs" />
