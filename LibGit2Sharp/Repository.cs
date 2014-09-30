@@ -1032,7 +1032,7 @@ namespace LibGit2Sharp
 
             if (fetchHeads.Length == 0)
             {
-                throw new LibGit2SharpException("Remote ref to merge from was not fetched.");
+                throw new MergeFetchHeadNotFoundException("The configured reference to merge with was not fetched from the remote.");
             }
 
             GitMergeHeadHandle[] mergeHeadHandles = fetchHeads.Select(fetchHead =>
