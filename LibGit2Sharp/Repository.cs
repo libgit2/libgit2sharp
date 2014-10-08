@@ -1032,7 +1032,9 @@ namespace LibGit2Sharp
 
             if (fetchHeads.Length == 0)
             {
-                throw new MergeFetchHeadNotFoundException("The configured reference to merge with was not fetched from the remote.");
+                var expectedRef = this.Head.UpstreamBranchCanonicalName;
+                throw new MergeFetchHeadNotFoundException(string.Format(CultureInfo.InvariantCulture,
+                    "The current branch is configured to merge with the reference '{0}' from the remote, but this reference was not fetched.", expectedRef));
             }
 
             GitMergeHeadHandle[] mergeHeadHandles = fetchHeads.Select(fetchHead =>

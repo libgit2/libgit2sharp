@@ -196,6 +196,38 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        [Fact]
+        public void PullWithoutMergeBranchThrows()
+        {
+            var scd = BuildSelfCleaningDirectory();
+            string clonedRepoPath = Repository.Clone(StandardTestRepoPath, scd.DirectoryPath);
+
+            using (var repo = new Repository(clonedRepoPath))
+            {
+                Branch branch = repo.Branches["master"];
+
+                // Update the Upstream merge branch
+                repo.Branches.Update(branch,
+                    b => b.UpstreamBranch = "refs/heads/another_master");
+
+                bool didPullThrow = false;
+                MergeFetchHeadNotFoundException thrownException = null;
+
+                try
+                {
+                    repo.Network.Pull(Constants.Signature, new PullOptions());
+                }
+                catch(MergeFetchHeadNotFoundException ex)
+                {
+                    didPullThrow = true;
+                    thrownException = ex;
+                }
+
+                Assert.True(didPullThrow, "Pull did not throw.");
+                Assert.True(thrownException.Message.Contains("refs/heads/another_master"), "Exception message did not contain expected reference.");
+            }
+        }
+
         /*
         * git ls-remote http://github.com/libgit2/TestGitRepository
         * 49322bb17d3acc9146f98c97d078513228bbf3c0        HEAD
