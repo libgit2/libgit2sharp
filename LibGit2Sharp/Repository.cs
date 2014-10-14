@@ -737,6 +737,20 @@ namespace LibGit2Sharp
         /// <param name="logMessage">Message to use when updating the reflog.</param>
         public void Reset(ResetMode resetMode, Commit commit, Signature signature, string logMessage)
         {
+            Reset(resetMode, commit, new CheckoutOptions(), signature, logMessage);
+        }
+
+        /// <summary>
+        /// Sets the current <see cref="Head"/> to the specified commit and optionally resets the <see cref="Index"/> and
+        /// the content of the working tree to match.
+        /// </summary>
+        /// <param name="resetMode">Flavor of reset operation to perform.</param>
+        /// <param name="commit">The target commit object.</param>
+        /// <param name="opts">Collection of parameters controlling checkout behavior.</param>
+        /// <param name="signature">Identity for use when updating the reflog.</param>
+        /// <param name="logMessage">Message to use when updating the reflog.</param>
+        private void Reset(ResetMode resetMode, Commit commit, IConvertableToGitCheckoutOpts opts, Signature signature, string logMessage)
+        {
             Ensure.ArgumentNotNull(commit, "commit");
 
             if (logMessage == null)
@@ -746,7 +760,11 @@ namespace LibGit2Sharp
                     "reset: moving to {0}", commit.Sha);
             }
 
-            Proxy.git_reset(handle, commit.Id, resetMode, signature.OrDefault(Config), logMessage);
+            using (GitCheckoutOptsWrapper checkoutOptionsWrapper = new GitCheckoutOptsWrapper(opts))
+            {
+                var options = checkoutOptionsWrapper.Options;
+                Proxy.git_reset(handle, commit.Id, resetMode, ref options, signature.OrDefault(Config), logMessage);
+            }
         }
 
         /// <summary>

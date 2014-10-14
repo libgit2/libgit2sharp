@@ -1888,16 +1888,14 @@ namespace LibGit2Sharp.Core
         {
             using (ThreadAffinity())
             {
-                using (RemoteSafeHandle remote = git_remote_load(repo, name, false))
-                {
-                    if (remote == null)
-                    {
-                        return;
-                    }
+                int res = NativeMethods.git_remote_delete(repo, name);
 
-                    int res = NativeMethods.git_remote_delete(remote);
-                    Ensure.ZeroResult(res);
+                if (res == (int)GitErrorCode.NotFound)
+                {
+                    return;
                 }
+
+                Ensure.ZeroResult(res);
             }
         }
 
@@ -2013,8 +2011,17 @@ namespace LibGit2Sharp.Core
             using (ThreadAffinity())
             using (var sigHandle = signature.BuildHandle())
             {
-                int res = NativeMethods.git_remote_fetch(remote, sigHandle, logMessage);
-                Ensure.ZeroResult(res);
+                var array = new GitStrArrayNative();
+
+                try
+                {
+                    int res = NativeMethods.git_remote_fetch(remote, ref array.Array, sigHandle, logMessage);
+                    Ensure.ZeroResult(res);
+                }
+                finally
+                {
+                    array.Dispose();
+                }
             }
         }
 
@@ -2418,6 +2425,7 @@ namespace LibGit2Sharp.Core
             RepositorySafeHandle repo,
             ObjectId committishId,
             ResetMode resetKind,
+            ref GitCheckoutOpts checkoutOptions,
             Signature signature,
             string logMessage)
         {
@@ -2425,7 +2433,7 @@ namespace LibGit2Sharp.Core
             using (var osw = new ObjectSafeWrapper(committishId, repo))
             using (var sigHandle = signature.BuildHandle())
             {
-                int res = NativeMethods.git_reset(repo, osw.ObjectPtr, resetKind, sigHandle, logMessage);
+                int res = NativeMethods.git_reset(repo, osw.ObjectPtr, resetKind, ref checkoutOptions, sigHandle, logMessage);
                 Ensure.ZeroResult(res);
             }
         }

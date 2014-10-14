@@ -609,7 +609,7 @@ namespace LibGit2Sharp.Tests
         // Graft the orphan "test" branch to the tip of "packed"
         //
         // Before:
-        // * e90810b  (test, lw, e90810b, test)
+        // * e90810b  (test, tag: lw, tag: e90810b, tag: test)
         // |
         // * 6dcf9bf
         //     <------------------ note: no connection
@@ -619,7 +619,7 @@ namespace LibGit2Sharp.Tests
         //
         // ... and after:
         //
-        // * f558880  (test, lw, e90810b, test)
+        // * f558880  (test, tag: lw, tag: e90810b, tag: test)
         // |
         // * 0c25efa
         // |   <------------------ add this link
@@ -630,29 +630,40 @@ namespace LibGit2Sharp.Tests
         public void CanRewriteParentWithRewrittenCommit()
         {
             var commitToRewrite = repo.Lookup<Commit>("6dcf9bf");
-            var newParent = repo.Lookup<Commit>("41bc8c6");
+            var newParent = repo.Branches["packed"].Tip;
+
+            Assert.True(newParent.Sha.StartsWith("41bc8c6"));
 
             repo.Refs.RewriteHistory(new RewriteHistoryOptions
             {
                 OnError = OnError,
                 OnSucceeding = OnSucceeding,
-                CommitHeaderRewriter =
-                    c =>
-                    c.Id != newParent.Id
-                        ? null
-                        : CommitRewriteInfo.From(c, message: "changed"),
                 CommitParentsRewriter =
                     c =>
                     c.Id != commitToRewrite.Id
                         ? c.Parents
                         : new[] { newParent }
-            }, commitToRewrite, newParent);
+            }, commitToRewrite);
 
             AssertSucceedingButNotError();
 
-            var rewrittenParent = repo.Lookup<Commit>("refs/heads/test~").Parents.Single();
-            Assert.Equal(newParent.Tree, rewrittenParent.Tree);
-            Assert.NotEqual(newParent, rewrittenParent);
+            // Assert "packed" hasn't been rewritten
+            Assert.True(repo.Branches["packed"].Tip.Sha.StartsWith("41bc8c6"));
+
+            // Assert (test, tag: lw, tag: e90810b, tag: test) have been rewritten
+            var rewrittenTestCommit = repo.Branches["test"].Tip;
+            Assert.True(rewrittenTestCommit.Sha.StartsWith("f558880"));
+            Assert.Equal(rewrittenTestCommit, repo.Lookup<Commit>("refs/tags/lw^{commit}"));
+            Assert.Equal(rewrittenTestCommit, repo.Lookup<Commit>("refs/tags/e90810b^{commit}"));
+            Assert.Equal(rewrittenTestCommit, repo.Lookup<Commit>("refs/tags/test^{commit}"));
+
+            // Assert parent of rewritten commit
+            var rewrittenTestCommitParent = rewrittenTestCommit.Parents.Single();
+            Assert.True(rewrittenTestCommitParent.Sha.StartsWith("0c25efa"));
+
+            // Assert grand parent of rewritten commit
+            var rewrittenTestCommitGrandParent = rewrittenTestCommitParent.Parents.Single();
+            Assert.True(rewrittenTestCommitGrandParent.Sha.StartsWith("41bc8c6"));
         }
 
         [Fact]
