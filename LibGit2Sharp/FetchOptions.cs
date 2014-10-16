@@ -6,7 +6,7 @@ namespace LibGit2Sharp
     /// <summary>
     /// Collection of parameters controlling Fetch behavior.
     /// </summary>
-    public sealed class FetchOptions : ICredentialsProvider
+    public sealed class FetchOptions
     {
         /// <summary>
         /// Specifies the tag-following behavior of the fetch operation.

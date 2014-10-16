@@ -100,7 +100,8 @@ namespace LibGit2Sharp
                 Proxy.git_remote_set_autotag(remoteHandle, options.TagFetchMode.Value);
             }
 
-            var callbacks = new RemoteCallbacks(options);
+            var callbacks = new RemoteCallbacks(
+                options.OnProgress, options.OnTransferProgress, options.OnUpdateTips, options.CredentialsProvider);
             GitRemoteCallbacks gitCallbacks = callbacks.GenerateCallbacks();
 
             // It is OK to pass the reference to the GitCallbacks directly here because libgit2 makes a copy of
@@ -272,7 +273,8 @@ namespace LibGit2Sharp
             // Load the remote.
             using (RemoteSafeHandle remoteHandle = Proxy.git_remote_load(repository.Handle, remote.Name, true))
             {
-                var callbacks = new RemoteCallbacks(null, null, null, pushOptions);
+                var callbacks = new RemoteCallbacks(
+                    null, null, null, pushOptions.CredentialsProvider);
                 GitRemoteCallbacks gitCallbacks = callbacks.GenerateCallbacks();
                 Proxy.git_remote_set_callbacks(remoteHandle, ref gitCallbacks);
 

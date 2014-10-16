@@ -5,7 +5,7 @@ namespace LibGit2Sharp
     /// <summary>
     /// Collection of parameters controlling Push behavior.
     /// </summary>
-    public sealed class PushOptions : ICredentialsProvider
+    public sealed class PushOptions
     {
         /// <summary>
         /// Handler to generate <see cref="LibGit2Sharp.Credentials"/> for authentication.
