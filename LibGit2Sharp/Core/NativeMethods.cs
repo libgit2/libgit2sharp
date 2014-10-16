@@ -1496,6 +1496,11 @@ namespace LibGit2Sharp.Core
         [DllImport(libgit2)]
         internal static extern void git_threads_shutdown();
 
+        internal delegate void git_trace_cb(LogLevel level, IntPtr message);
+
+        [DllImport(libgit2)]
+        internal static extern int git_trace_set(LogLevel level, git_trace_cb trace_cb);
+
         internal delegate int git_transfer_progress_callback(ref GitTransferProgress stats, IntPtr payload);
 
         internal delegate int git_transport_cb(out IntPtr transport, IntPtr remote, IntPtr payload);

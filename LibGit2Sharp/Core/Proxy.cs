@@ -2951,6 +2951,19 @@ namespace LibGit2Sharp.Core
 
         #endregion
 
+        #region git_trace_
+
+        public static void git_trace_set(LogLevel level, NativeMethods.git_trace_cb callback)
+        {
+            using (ThreadAffinity())
+            {
+                int res = NativeMethods.git_trace_set(level, callback);
+                Ensure.ZeroResult(res);
+            }
+        }
+
+        #endregion
+
         #region git_transport_
 
         public static void git_transport_register(String prefix, IntPtr transport_cb, IntPtr param)

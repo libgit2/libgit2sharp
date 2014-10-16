@@ -111,4 +111,12 @@
         /// </summary>
         Deltafying
     }
+
+    /// <summary>
+    /// Delegate definition for logging.  This callback will be used to
+    /// write logging messages in libgit2 and LibGit2Sharp.
+    /// </summary>
+    /// <param name="level">The level of the log message.</param>
+    /// <param name="message">The log message.</param>
+    public delegate void LogHandler(LogLevel level, string message);
 }
