@@ -606,7 +606,7 @@ namespace LibGit2Sharp.Tests
             Assert.True(hasBeenCalled);
         }
 
-        // Graft the orphan "test" branch to the tip of "packed"
+        // Graft the orphan "test" branch to the rewritten tip of "packed"
         //
         // Before:
         // * e90810b  (test, tag: lw, tag: e90810b, tag: test)
@@ -623,7 +623,7 @@ namespace LibGit2Sharp.Tests
         // |
         // * 0c25efa
         // |   <------------------ add this link
-        // * 41bc8c6  (packed)
+        // * 107e13b  (packed) <-- to this rewritten commit
         // |
         // * 5001298
         [Fact]
@@ -638,32 +638,48 @@ namespace LibGit2Sharp.Tests
             {
                 OnError = OnError,
                 OnSucceeding = OnSucceeding,
+                CommitHeaderRewriter =
+                    c =>
+                    {
+                        if (c.Id == newParent.Id)
+                        {
+                            return CommitRewriteInfo.From(c, message: "changed");
+                        }
+
+                        return null;
+                    },
                 CommitParentsRewriter =
                     c =>
-                    c.Id != commitToRewrite.Id
-                        ? c.Parents
-                        : new[] { newParent }
-            }, commitToRewrite);
+                    {
+                        if (c.Id == commitToRewrite.Id)
+                        {
+                            return new[] { newParent };
+                        }
+
+                        return c.Parents;
+                    },
+            }, commitToRewrite, newParent);
 
             AssertSucceedingButNotError();
 
-            // Assert "packed" hasn't been rewritten
-            Assert.True(repo.Branches["packed"].Tip.Sha.StartsWith("41bc8c6"));
+            // Assert "packed" has been rewritten
+            var newPackedCommit = repo.Branches["packed"].Tip;
+            Assert.True(newPackedCommit.Sha.StartsWith("107e13b"));
 
             // Assert (test, tag: lw, tag: e90810b, tag: test) have been rewritten
             var rewrittenTestCommit = repo.Branches["test"].Tip;
-            Assert.True(rewrittenTestCommit.Sha.StartsWith("f558880"));
+            Assert.True(rewrittenTestCommit.Sha.StartsWith("f558880")); // TODO: This SHA should change
             Assert.Equal(rewrittenTestCommit, repo.Lookup<Commit>("refs/tags/lw^{commit}"));
             Assert.Equal(rewrittenTestCommit, repo.Lookup<Commit>("refs/tags/e90810b^{commit}"));
             Assert.Equal(rewrittenTestCommit, repo.Lookup<Commit>("refs/tags/test^{commit}"));
 
             // Assert parent of rewritten commit
             var rewrittenTestCommitParent = rewrittenTestCommit.Parents.Single();
-            Assert.True(rewrittenTestCommitParent.Sha.StartsWith("0c25efa"));
+            Assert.True(rewrittenTestCommitParent.Sha.StartsWith("0c25efa")); // TODO: This SHA should change
 
             // Assert grand parent of rewritten commit
             var rewrittenTestCommitGrandParent = rewrittenTestCommitParent.Parents.Single();
-            Assert.True(rewrittenTestCommitGrandParent.Sha.StartsWith("41bc8c6"));
+            Assert.Equal(newPackedCommit, rewrittenTestCommitGrandParent);
         }
 
         [Fact]
