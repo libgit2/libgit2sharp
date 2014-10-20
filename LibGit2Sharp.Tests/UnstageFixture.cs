@@ -25,12 +25,12 @@ namespace LibGit2Sharp.Tests
                 string fullpath = Path.Combine(repo.Info.WorkingDirectory, filename);
 
                 File.AppendAllText(fullpath, "Is there there anybody out there?");
-                repo.Index.Stage(filename);
+                repo.Stage(filename);
 
                 Assert.Equal(count, repo.Index.Count);
                 Assert.NotEqual((blobId), repo.Index[posixifiedFileName].Id);
 
-                repo.Index.Unstage(posixifiedFileName);
+                repo.Unstage(posixifiedFileName);
 
                 Assert.Equal(count, repo.Index.Count);
                 Assert.Equal(blobId, repo.Index[posixifiedFileName].Id);
@@ -48,13 +48,13 @@ namespace LibGit2Sharp.Tests
                 const string relativePath = "Champa.ign";
                 Touch(repo.Info.WorkingDirectory, relativePath, "On stage!" + Environment.NewLine);
 
-                Assert.Equal(FileStatus.Ignored, repo.Index.RetrieveStatus(relativePath));
+                Assert.Equal(FileStatus.Ignored, repo.RetrieveStatus(relativePath));
 
-                repo.Index.Stage(relativePath, new StageOptions { IncludeIgnored = true });
-                Assert.Equal(FileStatus.Added, repo.Index.RetrieveStatus(relativePath));
+                repo.Stage(relativePath, new StageOptions { IncludeIgnored = true });
+                Assert.Equal(FileStatus.Added, repo.RetrieveStatus(relativePath));
 
-                repo.Index.Unstage(relativePath);
-                Assert.Equal(FileStatus.Ignored, repo.Index.RetrieveStatus(relativePath));
+                repo.Unstage(relativePath);
+                Assert.Equal(FileStatus.Ignored, repo.RetrieveStatus(relativePath));
             }
         }
 
@@ -74,13 +74,13 @@ namespace LibGit2Sharp.Tests
             {
                 int count = repo.Index.Count;
                 Assert.Equal(doesCurrentlyExistInTheIndex, (repo.Index[relativePath] != null));
-                Assert.Equal(currentStatus, repo.Index.RetrieveStatus(relativePath));
+                Assert.Equal(currentStatus, repo.RetrieveStatus(relativePath));
 
-                repo.Index.Unstage(relativePath);
+                repo.Unstage(relativePath);
 
                 Assert.Equal(count + expectedIndexCountVariation, repo.Index.Count);
                 Assert.Equal(doesExistInTheIndexOnceStaged, (repo.Index[relativePath] != null));
-                Assert.Equal(expectedStatusOnceStaged, repo.Index.RetrieveStatus(relativePath));
+                Assert.Equal(expectedStatusOnceStaged, repo.RetrieveStatus(relativePath));
             }
         }
 
@@ -91,9 +91,9 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(CloneStandardTestRepo()))
             {
-                Assert.Equal(currentStatus, repo.Index.RetrieveStatus(relativePath));
+                Assert.Equal(currentStatus, repo.RetrieveStatus(relativePath));
 
-                Assert.Throws<UnmatchedPathException>(() => repo.Index.Unstage(relativePath, new ExplicitPathsOptions()));
+                Assert.Throws<UnmatchedPathException>(() => repo.Unstage(relativePath, new ExplicitPathsOptions()));
             }
         }
 
@@ -104,10 +104,10 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(CloneStandardTestRepo()))
             {
-                Assert.Equal(currentStatus, repo.Index.RetrieveStatus(relativePath));
+                Assert.Equal(currentStatus, repo.RetrieveStatus(relativePath));
 
-                Assert.DoesNotThrow(() => repo.Index.Unstage(relativePath, new ExplicitPathsOptions() { ShouldFailOnUnmatchedPath = false }));
-                Assert.Equal(currentStatus, repo.Index.RetrieveStatus(relativePath));
+                Assert.DoesNotThrow(() => repo.Unstage(relativePath, new ExplicitPathsOptions() { ShouldFailOnUnmatchedPath = false }));
+                Assert.Equal(currentStatus, repo.RetrieveStatus(relativePath));
             }
         }
 
@@ -124,12 +124,12 @@ namespace LibGit2Sharp.Tests
                 string fullPath = Path.Combine(repo.Info.WorkingDirectory, filename);
                 Assert.False(File.Exists(fullPath));
 
-                Assert.Equal(FileStatus.Removed, repo.Index.RetrieveStatus(filename));
+                Assert.Equal(FileStatus.Removed, repo.RetrieveStatus(filename));
 
-                repo.Index.Unstage(filename);
+                repo.Unstage(filename);
                 Assert.Equal(count + 1, repo.Index.Count);
 
-                Assert.Equal(FileStatus.Missing, repo.Index.RetrieveStatus(filename));
+                Assert.Equal(FileStatus.Missing, repo.RetrieveStatus(filename));
             }
         }
 
@@ -143,14 +143,14 @@ namespace LibGit2Sharp.Tests
                 const string relativePath = "a.txt";
                 Touch(repo.Info.WorkingDirectory, relativePath, "hello test file\n");
 
-                repo.Index.Stage(relativePath);
+                repo.Stage(relativePath);
 
-                repo.Index.Unstage(relativePath);
-                RepositoryStatus status = repo.Index.RetrieveStatus();
+                repo.Unstage(relativePath);
+                RepositoryStatus status = repo.RetrieveStatus();
                 Assert.Equal(0, status.Staged.Count());
                 Assert.Equal(1, status.Untracked.Count());
 
-                Assert.Throws<UnmatchedPathException>(() => repo.Index.Unstage("i-dont-exist", new ExplicitPathsOptions()));
+                Assert.Throws<UnmatchedPathException>(() => repo.Unstage("i-dont-exist", new ExplicitPathsOptions()));
             }
         }
 
@@ -164,9 +164,9 @@ namespace LibGit2Sharp.Tests
                 repo.Refs.UpdateTarget("HEAD", "refs/heads/orphaned");
                 Assert.True(repo.Info.IsHeadUnborn);
 
-                Assert.Equal(currentStatus, repo.Index.RetrieveStatus(relativePath));
+                Assert.Equal(currentStatus, repo.RetrieveStatus(relativePath));
 
-                Assert.Throws<UnmatchedPathException>(() => repo.Index.Unstage(relativePath, new ExplicitPathsOptions()));
+                Assert.Throws<UnmatchedPathException>(() => repo.Unstage(relativePath, new ExplicitPathsOptions()));
             }
         }
 
@@ -180,11 +180,11 @@ namespace LibGit2Sharp.Tests
                 repo.Refs.UpdateTarget("HEAD", "refs/heads/orphaned");
                 Assert.True(repo.Info.IsHeadUnborn);
 
-                Assert.Equal(currentStatus, repo.Index.RetrieveStatus(relativePath));
+                Assert.Equal(currentStatus, repo.RetrieveStatus(relativePath));
 
-                Assert.DoesNotThrow(() => repo.Index.Unstage(relativePath));
-                Assert.DoesNotThrow(() => repo.Index.Unstage(relativePath, new ExplicitPathsOptions { ShouldFailOnUnmatchedPath = false }));
-                Assert.Equal(currentStatus, repo.Index.RetrieveStatus(relativePath));
+                Assert.DoesNotThrow(() => repo.Unstage(relativePath));
+                Assert.DoesNotThrow(() => repo.Unstage(relativePath, new ExplicitPathsOptions { ShouldFailOnUnmatchedPath = false }));
+                Assert.Equal(currentStatus, repo.RetrieveStatus(relativePath));
             }
         }
 
@@ -200,7 +200,7 @@ namespace LibGit2Sharp.Tests
                 const string filename = "unit_test.txt";
                 string fullPath = Touch(di.FullName, filename, "some contents");
 
-                Assert.Throws<ArgumentException>(() => repo.Index.Unstage(fullPath));
+                Assert.Throws<ArgumentException>(() => repo.Unstage(fullPath));
             }
         }
 
@@ -218,7 +218,7 @@ namespace LibGit2Sharp.Tests
                 const string filename = "unit_test.txt";
                 string fullPath = Touch(di.FullName, filename, "some contents");
 
-                Assert.Throws<ArgumentException>(() => repo.Index.Unstage(fullPath));
+                Assert.Throws<ArgumentException>(() => repo.Unstage(fullPath));
             }
         }
 
@@ -227,10 +227,10 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(StandardTestRepoPath))
             {
-                Assert.Throws<ArgumentException>(() => repo.Index.Unstage(string.Empty));
-                Assert.Throws<ArgumentNullException>(() => repo.Index.Unstage((string)null));
-                Assert.Throws<ArgumentException>(() => repo.Index.Unstage(new string[] { }));
-                Assert.Throws<ArgumentException>(() => repo.Index.Unstage(new string[] { null }));
+                Assert.Throws<ArgumentException>(() => repo.Unstage(string.Empty));
+                Assert.Throws<ArgumentNullException>(() => repo.Unstage((string)null));
+                Assert.Throws<ArgumentException>(() => repo.Unstage(new string[] { }));
+                Assert.Throws<ArgumentException>(() => repo.Unstage(new string[] { null }));
             }
         }
 
@@ -239,16 +239,16 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(CloneStandardTestRepo()))
             {
-                repo.Index.Move("branch_file.txt", "renamed_branch_file.txt");
+                repo.Move("branch_file.txt", "renamed_branch_file.txt");
 
-                RepositoryStatus oldStatus = repo.Index.RetrieveStatus();
+                RepositoryStatus oldStatus = repo.RetrieveStatus();
                 Assert.Equal(1, oldStatus.RenamedInIndex.Count());
                 Assert.Equal(FileStatus.Nonexistent, oldStatus["branch_file.txt"].State);
                 Assert.Equal(FileStatus.RenamedInIndex, oldStatus["renamed_branch_file.txt"].State);
 
-                repo.Index.Unstage(new string[] { "branch_file.txt" });
+                repo.Unstage(new string[] { "branch_file.txt" });
 
-                RepositoryStatus newStatus = repo.Index.RetrieveStatus();
+                RepositoryStatus newStatus = repo.RetrieveStatus();
                 Assert.Equal(0, newStatus.RenamedInIndex.Count());
                 Assert.Equal(FileStatus.Missing, newStatus["branch_file.txt"].State);
                 Assert.Equal(FileStatus.Added, newStatus["renamed_branch_file.txt"].State);
@@ -260,15 +260,15 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(CloneStandardTestRepo()))
             {
-                repo.Index.Move("branch_file.txt", "renamed_branch_file.txt");
+                repo.Move("branch_file.txt", "renamed_branch_file.txt");
 
-                RepositoryStatus oldStatus = repo.Index.RetrieveStatus();
+                RepositoryStatus oldStatus = repo.RetrieveStatus();
                 Assert.Equal(1, oldStatus.RenamedInIndex.Count());
                 Assert.Equal(FileStatus.RenamedInIndex, oldStatus["renamed_branch_file.txt"].State);
 
-                repo.Index.Unstage(new string[] { "renamed_branch_file.txt" });
+                repo.Unstage(new string[] { "renamed_branch_file.txt" });
 
-                RepositoryStatus newStatus = repo.Index.RetrieveStatus();
+                RepositoryStatus newStatus = repo.RetrieveStatus();
                 Assert.Equal(0, newStatus.RenamedInIndex.Count());
                 Assert.Equal(FileStatus.Untracked, newStatus["renamed_branch_file.txt"].State);
                 Assert.Equal(FileStatus.Removed, newStatus["branch_file.txt"].State);
@@ -280,10 +280,10 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(CloneStandardTestRepo()))
             {
-                repo.Index.Move("branch_file.txt", "renamed_branch_file.txt");
-                repo.Index.Unstage(new string[] { "branch_file.txt", "renamed_branch_file.txt" });
+                repo.Move("branch_file.txt", "renamed_branch_file.txt");
+                repo.Unstage(new string[] { "branch_file.txt", "renamed_branch_file.txt" });
 
-                RepositoryStatus status = repo.Index.RetrieveStatus();
+                RepositoryStatus status = repo.RetrieveStatus();
                 Assert.Equal(FileStatus.Missing, status["branch_file.txt"].State);
                 Assert.Equal(FileStatus.Untracked, status["renamed_branch_file.txt"].State);
             }

@@ -37,7 +37,7 @@ namespace LibGit2Sharp.Tests
 
                 // Verify workspace is clean.
                 Assert.True(repo.Index.IsFullyMerged);
-                Assert.False(repo.Index.RetrieveStatus().IsDirty);
+                Assert.False(repo.RetrieveStatus().IsDirty);
 
                 // Lookup the blob containing the expected reverted content of a.txt.
                 Blob expectedBlob = repo.Lookup<Blob>("bc90ea420cf6c5ae3db7dcdffa0d79df567f219b");
@@ -82,7 +82,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Null(result.Commit);
 
                 // Verify workspace is dirty.
-                FileStatus fileStatus = repo.Index.RetrieveStatus(revertedFile);
+                FileStatus fileStatus = repo.RetrieveStatus(revertedFile);
                 Assert.Equal(FileStatus.Staged, fileStatus);
 
                 // This is the ID of the blob containing the expected content.
@@ -131,8 +131,8 @@ namespace LibGit2Sharp.Tests
                 Assert.NotNull(repo.Index.Conflicts["a.txt"]);
 
                 // Verify the non-conflicting paths are staged.
-                Assert.Equal(FileStatus.Staged, repo.Index.RetrieveStatus("b.txt"));
-                Assert.Equal(FileStatus.Staged, repo.Index.RetrieveStatus("c.txt"));
+                Assert.Equal(FileStatus.Staged, repo.RetrieveStatus("b.txt"));
+                Assert.Equal(FileStatus.Staged, repo.RetrieveStatus("c.txt"));
             }
         }
 
@@ -344,7 +344,7 @@ namespace LibGit2Sharp.Tests
                 {
                     // In this case, we expect "d_renamed.txt" to be reverted (deleted),
                     // and a.txt to match the tip of the "revert" branch.
-                    Assert.Equal(FileStatus.Nonexistent, repo.Index.RetrieveStatus("d_renamed.txt"));
+                    Assert.Equal(FileStatus.Nonexistent, repo.RetrieveStatus("d_renamed.txt"));
 
                     // This is the commit containing the expected contents of a.txt.
                     Commit commit = repo.Lookup<Commit>("b6fbb29b625aabe0fb5736da6fd61d4147e4405e");
@@ -358,7 +358,7 @@ namespace LibGit2Sharp.Tests
 
                     // In this case, we expect "d_renamed.txt" to be reverted (deleted),
                     // and a.txt to match the tip of the "revert" branch.
-                    Assert.Equal(FileStatus.Unaltered, repo.Index.RetrieveStatus("d_renamed.txt"));
+                    Assert.Equal(FileStatus.Unaltered, repo.RetrieveStatus("d_renamed.txt"));
 
                     // This is the commit containing the expected contents of "d_renamed.txt".
                     Commit commit = repo.Lookup<Commit>("c4b5cea70e4cd5b633ed0f10ae0ed5384e8190d8");

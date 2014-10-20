@@ -15,7 +15,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(StandardTestRepoPath))
             {
-                FileStatus status = repo.Index.RetrieveStatus("new_tracked_file.txt");
+                FileStatus status = repo.RetrieveStatus("new_tracked_file.txt");
                 Assert.Equal(FileStatus.Added, status);
             }
         }
@@ -32,7 +32,7 @@ namespace LibGit2Sharp.Tests
             {
                 Touch(repo.Info.WorkingDirectory, "file.txt", "content");
 
-                RepositoryStatus status = repo.Index.RetrieveStatus(new StatusOptions() { Show = show });
+                RepositoryStatus status = repo.RetrieveStatus(new StatusOptions() { Show = show });
                 Assert.Equal(expected, status["file.txt"].State);
             }
         }
@@ -48,9 +48,9 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(clone))
             {
                 Touch(repo.Info.WorkingDirectory, "file.txt", "content");
-                repo.Index.Stage("file.txt");
+                repo.Stage("file.txt");
 
-                RepositoryStatus status = repo.Index.RetrieveStatus(new StatusOptions() { Show = show });
+                RepositoryStatus status = repo.RetrieveStatus(new StatusOptions() { Show = show });
                 Assert.Equal(expected, status["file.txt"].State);
             }
         }
@@ -87,7 +87,7 @@ namespace LibGit2Sharp.Tests
             {
                 Touch(repo.Info.WorkingDirectory, filePath, "content");
 
-                FileStatus status = repo.Index.RetrieveStatus(filePath);
+                FileStatus status = repo.RetrieveStatus(filePath);
                 Assert.Equal(FileStatus.Untracked, status);
             }
         }
@@ -97,7 +97,7 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(StandardTestRepoPath))
             {
-                Assert.Throws<AmbiguousSpecificationException>(() => { FileStatus status = repo.Index.RetrieveStatus("1"); });
+                Assert.Throws<AmbiguousSpecificationException>(() => { FileStatus status = repo.RetrieveStatus("1"); });
             }
         }
 
@@ -109,7 +109,7 @@ namespace LibGit2Sharp.Tests
             {
                 const string file = "modified_staged_file.txt";
 
-                RepositoryStatus status = repo.Index.RetrieveStatus();
+                RepositoryStatus status = repo.RetrieveStatus();
 
                 Assert.Equal(FileStatus.Staged, status[file].State);
 
@@ -127,9 +127,9 @@ namespace LibGit2Sharp.Tests
                 File.AppendAllText(Path.Combine(repo.Info.WorkingDirectory, file),
                                    "Tclem's favorite commit message: boom");
 
-                Assert.Equal(FileStatus.Staged | FileStatus.Modified, repo.Index.RetrieveStatus(file));
+                Assert.Equal(FileStatus.Staged | FileStatus.Modified, repo.RetrieveStatus(file));
 
-                RepositoryStatus status2 = repo.Index.RetrieveStatus();
+                RepositoryStatus status2 = repo.RetrieveStatus();
                 Assert.Equal(FileStatus.Staged | FileStatus.Modified, status2[file].State);
 
                 Assert.NotNull(status2);
@@ -157,12 +157,12 @@ namespace LibGit2Sharp.Tests
                     "This is a file with enough data to trigger similarity matching.\r\n" +
                     "This is a file with enough data to trigger similarity matching.\r\n");
 
-                repo.Index.Stage("old_name.txt");
+                repo.Stage("old_name.txt");
 
                 File.Move(Path.Combine(repo.Info.WorkingDirectory, "old_name.txt"),
                     Path.Combine(repo.Info.WorkingDirectory, "rename_target.txt"));
 
-                RepositoryStatus status = repo.Index.RetrieveStatus(
+                RepositoryStatus status = repo.RetrieveStatus(
                     new StatusOptions()
                     {
                         DetectRenamesInIndex = true,
@@ -184,10 +184,10 @@ namespace LibGit2Sharp.Tests
                     Path.Combine(repo.Info.WorkingDirectory, "1.txt"),
                     Path.Combine(repo.Info.WorkingDirectory, "rename_target.txt"));
 
-                repo.Index.Stage("1.txt");
-                repo.Index.Stage("rename_target.txt");
+                repo.Stage("1.txt");
+                repo.Stage("rename_target.txt");
 
-                RepositoryStatus status = repo.Index.RetrieveStatus();
+                RepositoryStatus status = repo.RetrieveStatus();
 
                 Assert.Equal(FileStatus.RenamedInIndex, status["rename_target.txt"].State);
                 Assert.Equal(100, status["rename_target.txt"].HeadToIndexRenameDetails.Similarity);
@@ -206,7 +206,7 @@ namespace LibGit2Sharp.Tests
                     "This is a file with enough data to trigger similarity matching.\r\n" +
                     "This is a file with enough data to trigger similarity matching.\r\n");
 
-                repo.Index.Stage("file.txt");
+                repo.Stage("file.txt");
                 repo.Commit("Initial commit", Constants.Signature, Constants.Signature);
 
                 File.Move(Path.Combine(repo.Info.WorkingDirectory, "file.txt"),
@@ -218,22 +218,22 @@ namespace LibGit2Sharp.Tests
                     DetectRenamesInWorkDir = true
                 };
 
-                RepositoryStatus status = repo.Index.RetrieveStatus(opts);
+                RepositoryStatus status = repo.RetrieveStatus(opts);
 
                 // This passes as expected
                 Assert.Equal(FileStatus.RenamedInWorkDir, status.Single().State);
 
-                repo.Index.Stage("file.txt");
-                repo.Index.Stage("renamed.txt");
+                repo.Stage("file.txt");
+                repo.Stage("renamed.txt");
 
-                status = repo.Index.RetrieveStatus(opts);
+                status = repo.RetrieveStatus(opts);
 
                 Assert.Equal(FileStatus.RenamedInIndex, status.Single().State);
 
                 File.Move(Path.Combine(repo.Info.WorkingDirectory, "renamed.txt"),
                     Path.Combine(repo.Info.WorkingDirectory, "renamed_again.txt"));
 
-                status = repo.Index.RetrieveStatus(opts);
+                status = repo.RetrieveStatus(opts);
 
                 Assert.Equal(FileStatus.RenamedInWorkDir | FileStatus.RenamedInIndex,
                     status.Single().State);
@@ -247,7 +247,7 @@ namespace LibGit2Sharp.Tests
 
             using (var repo = new Repository(repoPath))
             {
-                RepositoryStatus status = repo.Index.RetrieveStatus();
+                RepositoryStatus status = repo.RetrieveStatus();
                 Assert.NotNull(status);
                 Assert.Equal(0, status.Count());
                 Assert.False(status.IsDirty);
@@ -275,10 +275,10 @@ namespace LibGit2Sharp.Tests
                 Touch(repo.Info.WorkingDirectory, relFilePath, "Anybody out there?");
 
                 // Add the file to the index
-                repo.Index.Stage(relFilePath);
+                repo.Stage(relFilePath);
 
                 // Get the repository status
-                RepositoryStatus repoStatus = repo.Index.RetrieveStatus();
+                RepositoryStatus repoStatus = repo.RetrieveStatus();
 
                 Assert.Equal(1, repoStatus.Count());
                 StatusEntry statusEntry = repoStatus.Single();
@@ -299,15 +299,15 @@ namespace LibGit2Sharp.Tests
                 const string relativePath = "look-ma.txt";
                 Touch(repo.Info.WorkingDirectory, relativePath, "I'm going to be ignored!");
 
-                RepositoryStatus status = repo.Index.RetrieveStatus();
+                RepositoryStatus status = repo.RetrieveStatus();
                 Assert.Equal(new[] { relativePath }, status.Untracked.Select(s => s.FilePath));
 
                 Touch(repo.Info.WorkingDirectory, ".gitignore", "*.txt" + Environment.NewLine);
 
-                RepositoryStatus newStatus = repo.Index.RetrieveStatus();
+                RepositoryStatus newStatus = repo.RetrieveStatus();
                 Assert.Equal(".gitignore", newStatus.Untracked.Select(s => s.FilePath).Single());
 
-                Assert.Equal(FileStatus.Ignored, repo.Index.RetrieveStatus(relativePath));
+                Assert.Equal(FileStatus.Ignored, repo.RetrieveStatus(relativePath));
                 Assert.Equal(new[] { relativePath }, newStatus.Ignored.Select(s => s.FilePath));
             }
         }
@@ -352,7 +352,7 @@ namespace LibGit2Sharp.Tests
                  * #       new_untracked_file.txt
                  */
 
-                RepositoryStatus status = repo.Index.RetrieveStatus();
+                RepositoryStatus status = repo.RetrieveStatus();
 
                 Assert.Equal(new[] { relativePath, "new_untracked_file.txt" }, status.Untracked.Select(s => s.FilePath));
 
@@ -393,10 +393,10 @@ namespace LibGit2Sharp.Tests
                  * #       new_untracked_file.txt
                  */
 
-                RepositoryStatus newStatus = repo.Index.RetrieveStatus();
+                RepositoryStatus newStatus = repo.RetrieveStatus();
                 Assert.Equal(".gitignore", newStatus.Untracked.Select(s => s.FilePath).Single());
 
-                Assert.Equal(FileStatus.Ignored, repo.Index.RetrieveStatus(relativePath));
+                Assert.Equal(FileStatus.Ignored, repo.RetrieveStatus(relativePath));
                 Assert.Equal(new[] { relativePath, "new_untracked_file.txt" }, newStatus.Ignored.Select(s => s.FilePath));
             }
         }
@@ -412,7 +412,7 @@ namespace LibGit2Sharp.Tests
                 string relativePath = Path.Combine("1", "ambiguous[1].txt");
                 Touch(repo.Info.WorkingDirectory, relativePath, "Brackets all the way.");
 
-                Assert.Throws<AmbiguousSpecificationException>(() => repo.Index.RetrieveStatus(relativePath));
+                Assert.Throws<AmbiguousSpecificationException>(() => repo.RetrieveStatus(relativePath));
             }
         }
 
@@ -436,7 +436,7 @@ namespace LibGit2Sharp.Tests
 
                 lowerCasedPath = Touch(repo.Info.WorkingDirectory, lowercasedFilename);
 
-                repo.Index.Stage(lowercasedFilename);
+                repo.Stage(lowercasedFilename);
                 repo.Commit("initial", Constants.Signature, Constants.Signature);
             }
 
@@ -447,8 +447,8 @@ namespace LibGit2Sharp.Tests
                 string camelCasedPath = Path.Combine(repo.Info.WorkingDirectory, upercasedFilename);
                 File.Move(lowerCasedPath, camelCasedPath);
 
-                Assert.Equal(expectedlowerCasedFileStatus, repo.Index.RetrieveStatus(lowercasedFilename));
-                Assert.Equal(expectedCamelCasedFileStatus, repo.Index.RetrieveStatus(upercasedFilename));
+                Assert.Equal(expectedlowerCasedFileStatus, repo.RetrieveStatus(lowercasedFilename));
+                Assert.Equal(expectedCamelCasedFileStatus, repo.RetrieveStatus(upercasedFilename));
 
                 AssertStatus(shouldIgnoreCase, expectedlowerCasedFileStatus, repo, camelCasedPath.ToLowerInvariant());
                 AssertStatus(shouldIgnoreCase, expectedCamelCasedFileStatus, repo, camelCasedPath.ToUpperInvariant());
@@ -459,7 +459,7 @@ namespace LibGit2Sharp.Tests
         {
             try
             {
-                Assert.Equal(expectedFileStatus, repo.Index.RetrieveStatus(path));
+                Assert.Equal(expectedFileStatus, repo.RetrieveStatus(path));
             }
             catch (ArgumentException)
             {
@@ -481,10 +481,10 @@ namespace LibGit2Sharp.Tests
                 const string gitIgnore = ".gitignore";
                 Touch(repo.Info.WorkingDirectory, gitIgnore, "bin");
 
-                Assert.Equal(FileStatus.Ignored, repo.Index.RetrieveStatus("bin/look-ma.txt"));
-                Assert.Equal(FileStatus.Ignored, repo.Index.RetrieveStatus("bin/what-about-me.txt"));
+                Assert.Equal(FileStatus.Ignored, repo.RetrieveStatus("bin/look-ma.txt"));
+                Assert.Equal(FileStatus.Ignored, repo.RetrieveStatus("bin/what-about-me.txt"));
 
-                RepositoryStatus newStatus = repo.Index.RetrieveStatus();
+                RepositoryStatus newStatus = repo.RetrieveStatus();
                 Assert.Equal(new[] { "bin" + dirSep }, newStatus.Ignored.Select(s => s.FilePath));
 
                 var sb = new StringBuilder();
@@ -492,10 +492,10 @@ namespace LibGit2Sharp.Tests
                 sb.AppendLine("!bin/w*");
                 Touch(repo.Info.WorkingDirectory, gitIgnore, sb.ToString());
 
-                Assert.Equal(FileStatus.Ignored, repo.Index.RetrieveStatus("bin/look-ma.txt"));
-                Assert.Equal(FileStatus.Untracked, repo.Index.RetrieveStatus("bin/what-about-me.txt"));
+                Assert.Equal(FileStatus.Ignored, repo.RetrieveStatus("bin/look-ma.txt"));
+                Assert.Equal(FileStatus.Untracked, repo.RetrieveStatus("bin/what-about-me.txt"));
 
-                newStatus = repo.Index.RetrieveStatus();
+                newStatus = repo.RetrieveStatus();
 
                 Assert.Equal(new[] { "bin" + dirSep + "look-ma.txt" }, newStatus.Ignored.Select(s => s.FilePath));
                 Assert.True(newStatus.Untracked.Select(s => s.FilePath).Contains("bin" + dirSep + "what-about-me.txt"));
@@ -517,7 +517,7 @@ namespace LibGit2Sharp.Tests
                     "sm_missing_commits"
                 };
 
-                RepositoryStatus status = repo.Index.RetrieveStatus();
+                RepositoryStatus status = repo.RetrieveStatus();
                 Assert.Equal(expected, status.Modified.Select(x => x.FilePath).ToArray());
             }
         }
@@ -532,7 +532,7 @@ namespace LibGit2Sharp.Tests
                     ".gitmodules",
                 };
 
-                RepositoryStatus status = repo.Index.RetrieveStatus(new StatusOptions() { ExcludeSubmodules = true });
+                RepositoryStatus status = repo.RetrieveStatus(new StatusOptions() { ExcludeSubmodules = true });
                 Assert.Equal(expected, status.Modified.Select(x => x.FilePath).ToArray());
             }
         }

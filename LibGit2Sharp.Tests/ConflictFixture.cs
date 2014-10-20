@@ -77,12 +77,12 @@ namespace LibGit2Sharp.Tests
                 Assert.NotNull(repo.Index.Conflicts[filename]);
                 Assert.Equal(0, repo.Index.Conflicts.ResolvedConflicts.Count());
 
-                repo.Index.Remove(filename, removeFromWorkdir);
+                repo.Remove(filename, removeFromWorkdir);
 
                 Assert.Null(repo.Index.Conflicts[filename]);
                 Assert.Equal(count - removedIndexEntries, repo.Index.Count);
                 Assert.Equal(existsAfterRemove, File.Exists(fullpath));
-                Assert.Equal(lastStatus, repo.Index.RetrieveStatus(filename));
+                Assert.Equal(lastStatus, repo.RetrieveStatus(filename));
 
                 Assert.Equal(1, repo.Index.Conflicts.ResolvedConflicts.Count());
                 Assert.NotNull(repo.Index.Conflicts.ResolvedConflicts[filename]);

@@ -28,7 +28,7 @@ namespace LibGit2Sharp.Tests
 
                 Assert.Equal(CherryPickStatus.CherryPicked, result.Status);
                 Assert.Equal(cherryPickedCommitId, result.Commit.Id.Sha);
-                Assert.False(repo.Index.RetrieveStatus().Any());
+                Assert.False(repo.RetrieveStatus().Any());
                 Assert.Equal(fromDetachedHead, repo.Info.IsHeadDetached);
                 Assert.Equal(commitToMerge.Author, result.Commit.Author);
                 Assert.Equal(Constants.Signature, result.Commit.Committer);
@@ -130,7 +130,7 @@ namespace LibGit2Sharp.Tests
         {
             Touch(repository.Info.WorkingDirectory, filename, content);
 
-            repository.Index.Stage(filename);
+            repository.Stage(filename);
 
             return repository.Commit("New commit", Constants.Signature, Constants.Signature);
         }

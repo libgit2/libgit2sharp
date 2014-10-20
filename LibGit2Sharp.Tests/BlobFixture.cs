@@ -62,7 +62,7 @@ namespace LibGit2Sharp.Tests
                 var bomPath = Touch(repo.Info.WorkingDirectory, bomFile, content, encoding);
                 Assert.Equal(expectedContentBytes, File.ReadAllBytes(bomPath).Length);
 
-                repo.Index.Stage(bomFile);
+                repo.Stage(bomFile);
                 var commit = repo.Commit("bom", Constants.Signature, Constants.Signature);
 
                 var blob = (Blob)commit.Tree[bomFile].Target;
@@ -186,7 +186,7 @@ namespace LibGit2Sharp.Tests
                     File.AppendAllText(Path.Combine(repo.Info.WorkingDirectory, "small.txt"), sb.ToString());
                 }
 
-                repo.Index.Stage("small.txt");
+                repo.Stage("small.txt");
                 IndexEntry entry = repo.Index["small.txt"];
                 Assert.Equal("baae1fb3760a73481ced1fa03dc15614142c19ef", entry.Id.Sha);
 
@@ -198,7 +198,7 @@ namespace LibGit2Sharp.Tests
                     CopyStream(stream, file);
                 }
 
-                repo.Index.Stage("small.fromblob.txt");
+                repo.Stage("small.fromblob.txt");
                 IndexEntry newentry = repo.Index["small.fromblob.txt"];
 
                 Assert.Equal("baae1fb3760a73481ced1fa03dc15614142c19ef", newentry.Id.Sha);

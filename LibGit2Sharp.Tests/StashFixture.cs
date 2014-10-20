@@ -29,7 +29,7 @@ namespace LibGit2Sharp.Tests
             {
                 var stasher = Constants.Signature;
 
-                Assert.True(repo.Index.RetrieveStatus().IsDirty);
+                Assert.True(repo.RetrieveStatus().IsDirty);
 
                 Stash stash = repo.Stashes.Add(stasher, "My very first stash", StashModifiers.IncludeUntracked);
 
@@ -45,7 +45,7 @@ namespace LibGit2Sharp.Tests
                 var stashRef = repo.Refs["refs/stash"];
                 Assert.Equal(stash.WorkTree.Sha, stashRef.TargetIdentifier);
 
-                Assert.False(repo.Index.RetrieveStatus().IsDirty);
+                Assert.False(repo.RetrieveStatus().IsDirty);
 
                 // Create extra file
                 untrackedFilename = "stash_candidate.txt";
@@ -139,18 +139,18 @@ namespace LibGit2Sharp.Tests
 
                 const string staged = "staged_file_path.txt";
                 Touch(repo.Info.WorkingDirectory, staged, "I'm staged\n");
-                repo.Index.Stage(staged);
+                repo.Stage(staged);
 
                 Stash stash = repo.Stashes.Add(stasher, "Stash with default options", StashModifiers.Default);
 
                 Assert.NotNull(stash);
 
                 //It should not keep staged files
-                Assert.Equal(FileStatus.Nonexistent, repo.Index.RetrieveStatus(staged));
+                Assert.Equal(FileStatus.Nonexistent, repo.RetrieveStatus(staged));
                 Assert.NotNull(stash.Index[staged]);
 
                 //It should leave untracked files untracked
-                Assert.Equal(FileStatus.Untracked, repo.Index.RetrieveStatus(untracked));
+                Assert.Equal(FileStatus.Untracked, repo.RetrieveStatus(untracked));
                 Assert.Null(stash.Untracked);
             }
         }
@@ -165,13 +165,13 @@ namespace LibGit2Sharp.Tests
 
                 const string filename = "staged_file_path.txt";
                 Touch(repo.Info.WorkingDirectory, filename, "I'm staged\n");
-                repo.Index.Stage(filename);
+                repo.Stage(filename);
 
                 Stash stash = repo.Stashes.Add(stasher, "This stash will keep index", StashModifiers.KeepIndex);
 
                 Assert.NotNull(stash);
                 Assert.NotNull(stash.Index[filename]);
-                Assert.Equal(FileStatus.Added, repo.Index.RetrieveStatus(filename));
+                Assert.Equal(FileStatus.Added, repo.RetrieveStatus(filename));
                 Assert.Null(stash.Untracked);
             }
         }
@@ -186,7 +186,7 @@ namespace LibGit2Sharp.Tests
                 const string ignoredFilename = "ignored_file.txt";
 
                 Touch(repo.Info.WorkingDirectory, gitIgnore, ignoredFilename);
-                repo.Index.Stage(gitIgnore);
+                repo.Stage(gitIgnore);
                 repo.Commit("Modify gitignore", Constants.Signature, Constants.Signature);
 
                 Touch(repo.Info.WorkingDirectory, ignoredFilename, "I'm ignored\n");

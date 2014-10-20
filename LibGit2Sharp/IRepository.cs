@@ -254,5 +254,116 @@ namespace LibGit2Sharp
         /// <param name="options">Specifies optional parameters; if null, the defaults are used.</param>
         /// <returns>The blame for the file.</returns>
         BlameHunkCollection Blame(string path, BlameOptions options);
+
+        /// <summary>
+        /// Promotes to the staging area the latest modifications of a file in the working directory (addition, updation or removal).
+        ///
+        /// If this path is ignored by configuration then it will not be staged unless <see cref="StageOptions.IncludeIgnored"/> is unset.
+        /// </summary>
+        /// <param name="path">The path of the file within the working directory.</param>
+        /// <param name="stageOptions">Determines how paths will be staged.</param>
+        void Stage(string path, StageOptions stageOptions);
+
+        /// <summary>
+        /// Promotes to the staging area the latest modifications of a collection of files in the working directory (addition, updation or removal).
+        ///
+        /// Any paths (even those listed explicitly) that are ignored by configuration will not be staged unless <see cref="StageOptions.IncludeIgnored"/> is unset.
+        /// </summary>
+        /// <param name="paths">The collection of paths of the files within the working directory.</param>
+        /// <param name="stageOptions">Determines how paths will be staged.</param>
+        void Stage(IEnumerable<string> paths, StageOptions stageOptions);
+
+        /// <summary>
+        /// Removes from the staging area all the modifications of a file since the latest commit (addition, updation or removal).
+        /// </summary>
+        /// <param name="path">The path of the file within the working directory.</param>
+        /// <param name="explicitPathsOptions">
+        /// The passed <paramref name="path"/> will be treated as explicit paths.
+        /// Use these options to determine how unmatched explicit paths should be handled.
+        /// </param>
+        void Unstage(string path, ExplicitPathsOptions explicitPathsOptions);
+
+        /// <summary>
+        /// Removes from the staging area all the modifications of a collection of file since the latest commit (addition, updation or removal).
+        /// </summary>
+        /// <param name="paths">The collection of paths of the files within the working directory.</param>
+        /// <param name="explicitPathsOptions">
+        /// The passed <paramref name="paths"/> will be treated as explicit paths.
+        /// Use these options to determine how unmatched explicit paths should be handled.
+        /// </param>
+        void Unstage(IEnumerable<string> paths, ExplicitPathsOptions explicitPathsOptions);
+
+        /// <summary>
+        /// Moves and/or renames a file in the working directory and promotes the change to the staging area.
+        /// </summary>
+        /// <param name="sourcePath">The path of the file within the working directory which has to be moved/renamed.</param>
+        /// <param name="destinationPath">The target path of the file within the working directory.</param>
+        void Move(string sourcePath, string destinationPath);
+        /// <summary>
+        /// Moves and/or renames a collection of files in the working directory and promotes the changes to the staging area.
+        /// </summary>
+        /// <param name="sourcePaths">The paths of the files within the working directory which have to be moved/renamed.</param>
+        /// <param name="destinationPaths">The target paths of the files within the working directory.</param>
+        void Move(IEnumerable<string> sourcePaths, IEnumerable<string> destinationPaths);
+
+        /// <summary>
+        /// Removes a file from the staging area, and optionally removes it from the working directory as well.
+        /// <para>
+        ///   If the file has already been deleted from the working directory, this method will only deal
+        ///   with promoting the removal to the staging area.
+        /// </para>
+        /// <para>
+        ///   The default behavior is to remove the file from the working directory as well.
+        /// </para>
+        /// <para>
+        ///   When not passing a <paramref name="explicitPathsOptions"/>, the passed path will be treated as
+        ///   a pathspec. You can for example use it to pass the relative path to a folder inside the working directory,
+        ///   so that all files beneath this folders, and the folder itself, will be removed.
+        /// </para>
+        /// </summary>
+        /// <param name="path">The path of the file within the working directory.</param>
+        /// <param name="removeFromWorkingDirectory">True to remove the file from the working directory, False otherwise.</param>
+        /// <param name="explicitPathsOptions">
+        /// The passed <paramref name="path"/> will be treated as an explicit path.
+        /// Use these options to determine how unmatched explicit paths should be handled.
+        /// </param>
+        void Remove(string path, bool removeFromWorkingDirectory, ExplicitPathsOptions explicitPathsOptions);
+
+        /// <summary>
+        /// Removes a collection of fileS from the staging, and optionally removes them from the working directory as well.
+        /// <para>
+        ///   If a file has already been deleted from the working directory, this method will only deal
+        ///   with promoting the removal to the staging area.
+        /// </para>
+        /// <para>
+        ///   The default behavior is to remove the files from the working directory as well.
+        /// </para>
+        /// <para>
+        ///   When not passing a <paramref name="explicitPathsOptions"/>, the passed paths will be treated as
+        ///   a pathspec. You can for example use it to pass the relative paths to folders inside the working directory,
+        ///   so that all files beneath these folders, and the folders themselves, will be removed.
+        /// </para>
+        /// </summary>
+        /// <param name="paths">The collection of paths of the files within the working directory.</param>
+        /// <param name="removeFromWorkingDirectory">True to remove the files from the working directory, False otherwise.</param>
+        /// <param name="explicitPathsOptions">
+        /// The passed <paramref name="paths"/> will be treated as explicit paths.
+        /// Use these options to determine how unmatched explicit paths should be handled.
+        /// </param>
+        void Remove(IEnumerable<string> paths, bool removeFromWorkingDirectory, ExplicitPathsOptions explicitPathsOptions);
+
+        /// <summary>
+        /// Retrieves the state of a file in the working directory, comparing it against the staging area and the latest commmit.
+        /// </summary>
+        /// <param name="filePath">The relative path within the working directory to the file.</param>
+        /// <returns>A <see cref="FileStatus"/> representing the state of the <paramref name="filePath"/> parameter.</returns>
+        FileStatus RetrieveStatus(string filePath);
+
+        /// <summary>
+        /// Retrieves the state of all files in the working directory, comparing them against the staging area and the latest commmit.
+        /// </summary>
+        /// <param name="options">If set, the options that control the status investigation.</param>
+        /// <returns>A <see cref="RepositoryStatus"/> holding the state of all the files.</returns>
+        RepositoryStatus RetrieveStatus(StatusOptions options);
     }
 }
