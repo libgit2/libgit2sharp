@@ -32,5 +32,10 @@ namespace LibGit2Sharp.Core
         /// TODO
         /// </summary>
         SshInteractive = (1 << 4),
+
+        /// <summary>
+        /// Username only information.
+        /// </summary>
+        UsernameQuery = (1 << 5),
     }
 }

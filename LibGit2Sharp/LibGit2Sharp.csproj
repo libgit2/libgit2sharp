@@ -340,6 +340,9 @@
     <Compile Include="Core\RawContentStream.cs" />
     <Compile Include="Core\Handles\OdbStreamSafeHandle.cs" />
     <Compile Include="SupportedCredentialTypes.cs" />
+    <Compile Include="SshUserKeyCredentials.cs" />
+    <Compile Include="SshAgentCredentials.cs" />
+    <Compile Include="UsernameQueryCredentials.cs" />
   </ItemGroup>
   <ItemGroup>
     <CodeAnalysisDictionary Include="CustomDictionary.xml" />
