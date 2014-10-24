@@ -343,6 +343,7 @@
     <Compile Include="SshUserKeyCredentials.cs" />
     <Compile Include="SshAgentCredentials.cs" />
     <Compile Include="UsernameQueryCredentials.cs" />
+    <Compile Include="AuthenticationException.cs" />
   </ItemGroup>
   <ItemGroup>
     <CodeAnalysisDictionary Include="CustomDictionary.xml" />
