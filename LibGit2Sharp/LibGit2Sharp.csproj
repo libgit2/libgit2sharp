@@ -68,12 +68,14 @@
     <Compile Include="CommitOptions.cs" />
     <Compile Include="CommitSortStrategies.cs" />
     <Compile Include="CompareOptions.cs" />
+    <Compile Include="Core\GitFilter.cs" />
     <Compile Include="Core\GitIndexReucEntry.cs" />
     <Compile Include="Core\Handles\IndexNameEntrySafeHandle.cs" />
     <Compile Include="Core\Handles\IndexReucEntrySafeHandle.cs" />
     <Compile Include="EntryExistsException.cs" />
     <Compile Include="FetchOptionsBase.cs" />
     <Compile Include="IBelongToARepository.cs" />
+    <Compile Include="Filter.cs" />
     <Compile Include="IndexNameEntryCollection.cs" />
     <Compile Include="ContentChangeStats.cs" />
     <Compile Include="BuiltInFeatures.cs" />

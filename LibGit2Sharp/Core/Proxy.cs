@@ -745,6 +745,30 @@ namespace LibGit2Sharp.Core
 
         #endregion
 
+        #region git_filter_
+
+        public static GitFilter git_filter_register(string name, int priority)
+        {
+            using (ThreadAffinity())
+            {
+                GitFilter handle;
+                int res = NativeMethods.git_filter_register(name, out handle, priority);
+                Ensure.ZeroResult(res);
+                return handle;
+            }
+        }
+
+        public static void git_filter_unregister(string name)
+        {
+            using (ThreadAffinity())
+            {
+                int res = NativeMethods.git_filter_unregister(name);
+                Ensure.ZeroResult(res);
+            }
+        }
+
+        #endregion
+
         #region git_graph_
 
         public static Tuple<int?, int?> git_graph_ahead_behind(RepositorySafeHandle repo, Commit first, Commit second)

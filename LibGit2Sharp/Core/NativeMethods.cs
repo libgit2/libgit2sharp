@@ -223,7 +223,6 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(LaxUtf8NoCleanupMarshaler))] string problematic_refspec,
             IntPtr payload);
 
-
         [DllImport(libgit2)]
         internal static extern int git_branch_upstream_name(
             GitBuf buf,
@@ -500,6 +499,15 @@ namespace LibGit2Sharp.Core
 
         [DllImport(libgit2)]
         internal static extern IntPtr git_diff_get_delta(DiffSafeHandle diff, UIntPtr idx);
+
+        [DllImport(libgit2)]
+        internal static extern int git_filter_register(
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string name,
+            out GitFilter filterHandle, int priority);
+
+        [DllImport(libgit2)]
+        internal static extern int git_filter_unregister(
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string name);
 
         [DllImport(libgit2)]
         internal static extern int git_libgit2_features();
