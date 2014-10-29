@@ -771,14 +771,6 @@ namespace LibGit2Sharp.Core
             }
         }
 
-        public static void git_filter_free(ref GitFilter filter)
-        {
-            using (ThreadAffinity())
-            {
-                NativeMethods.git_filter_free(ref filter);
-            }
-        }
-
         #endregion
 
         #region git_graph_
