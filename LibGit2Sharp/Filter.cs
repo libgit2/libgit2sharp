@@ -14,20 +14,18 @@ namespace LibGit2Sharp
         /// <summary>
         /// Initializes a new instance of the <see cref="Filter"/> class.
         /// </summary>
-        public Filter(string name)
+        public Filter(string name, string attributes, int version)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
+            Ensure.ArgumentNotNullOrEmptyString(attributes, "attributes");
+            Ensure.ArgumentNotNull(version, "version");
+
             this.name = name;
-            try
-            {
-                filter = Proxy.git_filter_register(name, 1);
-            }
-            catch(Exception e)
-            {
-                Console.WriteLine(e);
-                //clean up
-                Dispose();
-            }
+
+            filter = new GitFilter();
+            filter.attributes = attributes;
+            filter.version = (uint)version;
+            filter = Proxy.git_filter_register(name, ref filter, 1);
         }
 
         /// <summary>
@@ -41,6 +39,7 @@ namespace LibGit2Sharp
         public void Dispose()
         {
             Proxy.git_filter_unregister(Name);
+            //Proxy.git_filter_free(ref filter);
         }
     }
 }
