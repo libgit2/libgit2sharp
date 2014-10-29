@@ -1,4 +1,3 @@
-using System;
 using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
@@ -6,10 +5,12 @@ namespace LibGit2Sharp
     /// <summary>
     /// A filter
     /// </summary>
-    public sealed class Filter : IDisposable
+    public sealed class Filter
     {
         private GitFilter filter;
         private readonly string name;
+        private readonly string attributes;
+        private readonly int version;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Filter"/> class.
@@ -21,11 +22,9 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(version, "version");
 
             this.name = name;
-
-            filter = new GitFilter();
-            filter.attributes = attributes;
-            filter.version = (uint)version;
-            filter = Proxy.git_filter_register(name, ref filter, 1);
+            this.attributes = attributes;
+            this.version = version;
+            filter = new GitFilter {attributes = attributes, version = (uint) version};
         }
 
         /// <summary>
@@ -36,10 +35,28 @@ namespace LibGit2Sharp
             get { return name; }
         }
 
-        public void Dispose()
+        /// <summary>
+        /// The filter attributes.
+        /// </summary>
+        public string Attributes
+        {
+            get { return attributes; }
+        }
+
+        /// <summary>
+        /// Register this filter
+        /// </summary>
+        public void Register()
+        {
+            filter = Proxy.git_filter_register(name, ref filter, 1);
+        }
+
+        /// <summary>
+        /// Remove the filter from the registry.
+        /// </summary>
+        public void Deregister()
         {
             Proxy.git_filter_unregister(Name);
-            //Proxy.git_filter_free(ref filter);
         }
     }
 }
