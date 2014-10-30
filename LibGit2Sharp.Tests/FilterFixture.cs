@@ -17,8 +17,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanNotRegisterFilterWithTheSameNameMoreThanOnce()
         {
-            var filterOne = CreateFilter("filter-one", "test", 1);
-            var filterTwo = CreateFilter("filter-one", "test", 1);
+            var filterOne = CreateFilterForAutomaticCleanUp("filter-one", "test", 1);
+            var filterTwo = CreateFilterForAutomaticCleanUp("filter-one", "test", 1);
 
             filterOne.Register();
             Assert.Throws<InvalidOperationException>(() => filterTwo.Register());
@@ -27,16 +27,16 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanRegisterAndUnregisterTheSameFilter()
         {
-            var filterOne = CreateFilter("filter-two", "test", 1);
+            var filterOne = new Filter("filter-two", "test", 1);
             filterOne.Register();
             filterOne.Deregister();
 
-            var filterTwo = CreateFilter("filter-two", "test", 1);
+            var filterTwo = new Filter("filter-two", "test", 1);
             filterTwo.Register();
             filterTwo.Deregister();
         }
 
-        private Filter CreateFilter(string name, string attributes, int version)
+        private Filter CreateFilterForAutomaticCleanUp(string name, string attributes, int version)
         {
             var filter = new Filter(name, attributes, version);
             filtersForCleanUp.Add(filter);
