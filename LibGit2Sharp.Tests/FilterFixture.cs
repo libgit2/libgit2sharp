@@ -45,7 +45,9 @@ namespace LibGit2Sharp.Tests
 
             var filter = CreateFilterForAutomaticCleanUp(filterName, attributes, version);
             filter.Register();
-            var lookedUpFilter = FilterRegistry.LookupByName(filterName);
+
+            var registry = new FilterRegistry();
+            var lookedUpFilter = registry.LookupByName(filterName);
 
             Assert.Equal(filterName, lookedUpFilter.Name);
             Assert.Equal(version, lookedUpFilter.Version);
