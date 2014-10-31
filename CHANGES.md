@@ -10,6 +10,36 @@
   - CodeBetter TeamCity: <http://teamcity.codebetter.com/project.html?projectId=LibGit2Sharp&guest=1>
   - Travis: <https://travis-ci.org/libgit2/libgit2sharp>
 
+## v0.20 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.19...v0.20))
+
+### Additions
+
+ - Teach RemoteUpdater to update the remote url (#803)
+ - Introduce ObjectDatabase.CreateTree(Index) and Index.Reset(Tree) (#788, #799)
+ - Add process wide logging feature (#832)
+ - Add process wide SmartSubtransport registration/unregistration (#528)
+ - Expose Index.Clear() (#814)
+
+### Changes
+
+ - Require Mono 3.6+ on non Windows platform (#800)
+ - Require NuGet 2.7+ to install the package (#836)
+ - Throw MergeFetchHeadNotFoundException when Pull cannot find ref to merge (#841)
+ - Drop Remote.IsSupportedUrl() (#857)
+ - Deprecate repo.Version in favor of GlobalSettings.Version (#726, #820)
+ - Remove optional parameters from IRepository (#779, #815)
+ - Move higher level Index operations to IRepository (#822, #851)
+ - Deprecate repo.Refs.Move() in favor of repo.Refs.Rename() (#752, #819)
+ - Update libgit2 binaries to libgit2/libgit2@3f8d005
+
+### Fixes
+
+ - Fix compareOptions handling in Diff.Compare<T> (#827, #828)
+ - Honor MSBuild Publish mechanism (#597, #821)
+ - Make Configuration.BuildSignature() throw a more descriptive message (#831, #858)
+ - Prevent Branch.Remote property from throwing when the remote is unresolvable (#823)
+ - Teach Revert() to clean up repository state when there is nothing to revert (#816)
+
 ## v0.19 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.18.1...v0.19))
 
 ### Additions

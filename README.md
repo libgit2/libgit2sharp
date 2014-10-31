@@ -4,9 +4,14 @@
 
  [0]: http://libgit2.github.com/
 
+## Prerequisites
+
+ - **Windows:** .Net 4.0+
+ - **Linux/MacOsX:** Mono 3.6+
+
 ## Online resources
 
- - [NuGet package][1]
+ - [NuGet package][1] (Requires NuGet 2.7+)
  - [Source code][2]
  - [Continuous integration][3]
 
