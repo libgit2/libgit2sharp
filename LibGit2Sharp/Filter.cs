@@ -1,3 +1,5 @@
+using System;
+using System.Text;
 using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
@@ -24,8 +26,21 @@ namespace LibGit2Sharp
             this.name = name;
             this.attributes = attributes;
             this.version = version;
-            filter = new GitFilter {attributes = attributes, version = (uint) version};
+            filter = new GitFilter
+            {
+                attributes = EncodingMarshaler.FromManaged(Encoding.UTF8, attributes),
+                version =  (uint)version
+            };
         }
+
+        internal Filter(string name, IntPtr filterPtr)
+        {
+            var handle = filterPtr.MarshalAs<GitFilter>();
+            this.name = name;
+            this.version = (int)handle.version;
+            this.attributes = LaxUtf8Marshaler.FromNative(handle.attributes);
+        }
+
 
         /// <summary>
         /// The name that this filter was registered with
@@ -44,6 +59,14 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        /// The version of the filter
+        /// </summary>
+        public int Version
+        {
+            get { return version; }
+        }
+
+        /// <summary>
         /// Register this filter
         /// </summary>
         public void Register()
@@ -57,6 +80,22 @@ namespace LibGit2Sharp
         public void Deregister()
         {
             Proxy.git_filter_unregister(Name);
+        }
+    }
+
+    /// <summary>
+    /// A filter registry
+    /// </summary>
+    public static class FilterRegistry
+    {
+        /// <summary>
+        /// Looks up a registered filter by its name. 
+        /// </summary>
+        /// <param name="name">The name to look up</param>
+        /// <returns>The found matching filter</returns>
+        public static Filter LookupByName(string name)
+        {
+            return new Filter(name, Proxy.git_filter_lookup(name));
         }
     }
 }
