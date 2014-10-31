@@ -36,6 +36,22 @@ namespace LibGit2Sharp.Tests
             filterTwo.Deregister();
         }
 
+        [Fact]
+        public void CanLookupRegisteredFilterByNameAndValuesAreMarshalCorrectly()
+        {
+            const string filterName = "filter-three";
+            const string attributes = "test";
+            const int version = 1;
+
+            var filter = CreateFilterForAutomaticCleanUp(filterName, attributes, version);
+            filter.Register();
+            var lookedUpFilter = FilterRegistry.LookupByName(filterName);
+
+            Assert.Equal(filterName, lookedUpFilter.Name);
+            Assert.Equal(version, lookedUpFilter.Version);
+            Assert.Equal(attributes, lookedUpFilter.Attributes);
+        }
+
         private Filter CreateFilterForAutomaticCleanUp(string name, string attributes, int version)
         {
             var filter = new Filter(name, attributes, version);
