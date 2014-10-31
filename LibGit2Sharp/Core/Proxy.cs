@@ -771,6 +771,15 @@ namespace LibGit2Sharp.Core
             }
         }
 
+        public static IntPtr git_filter_lookup(string name)
+        {
+            using (ThreadAffinity())
+            {
+                var res =  NativeMethods.git_filter_lookup(name);
+                return res;
+            }
+        }
+
         #endregion
 
         #region git_graph_
