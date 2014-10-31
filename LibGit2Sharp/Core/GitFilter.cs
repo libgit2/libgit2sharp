@@ -1,3 +1,4 @@
+using System;
 using System.Runtime.InteropServices;
 
 namespace LibGit2Sharp.Core
@@ -10,7 +11,16 @@ namespace LibGit2Sharp.Core
     {
         public uint version;
 
-        [MarshalAs(UnmanagedType.LPStr)]
-        public string attributes;
+        public IntPtr attributes;
+
+        public IntPtr init;
+
+        public IntPtr shutdown;
+        
+        public IntPtr check;
+
+        public IntPtr apply;
+
+        public IntPtr cleanup;
     }
 }
