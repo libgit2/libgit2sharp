@@ -14,7 +14,7 @@ namespace LibGit2Sharp.Core
         public GitStatusShow Show;
         public GitStatusOptionFlags Flags;
 
-        GitStrArrayManaged PathSpec;
+        public GitStrArrayManaged PathSpec;
 
         public void Dispose()
         {

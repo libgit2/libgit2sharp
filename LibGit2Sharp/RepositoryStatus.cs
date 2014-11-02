@@ -123,6 +123,11 @@ namespace LibGit2Sharp
                     GitStatusOptionFlags.RecurseIgnoredDirs;
             }
 
+            if (options.PathSpec != null)
+            {
+                coreOptions.PathSpec = GitStrArrayManaged.BuildFrom(options.PathSpec);
+            }
+
             return coreOptions;
         }
 

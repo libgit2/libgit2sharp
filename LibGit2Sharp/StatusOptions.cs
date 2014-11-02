@@ -66,5 +66,10 @@ namespace LibGit2Sharp
         /// Recurse into ignored directories
         /// </summary>
         public bool RecurseIgnoredDirs { get; set; }
+
+        /// <summary>
+        /// Limit the scope of paths to consider to the provided pathspecs
+        /// </summary>
+        public string[] PathSpec { get; set; }
     }
 }
