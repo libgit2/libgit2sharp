@@ -103,7 +103,9 @@ namespace LibGit2Sharp
 
             public static readonly GitFilter.git_filter_init_fn InitializeCallback = Initialize;
             public static readonly GitFilter.git_filter_shutdown_fn ShutdownCallback = Shutdown;
-
+            public static readonly GitFilter.git_filter_check_fn CheckCallback = Check;
+            public static readonly GitFilter.git_filter_apply_fn ApplyCallback = Apply;
+            public static readonly GitFilter.git_filter_cleanup_fn CleanUpCallback = CleanUp;
 
             private static int Initialize(IntPtr filter)
             {
@@ -114,6 +116,20 @@ namespace LibGit2Sharp
             {
             }
 
+            private static int Check(IntPtr gitFilter, IntPtr payload, IntPtr filterSource, IntPtr attributeValues)
+            {
+                return 0;
+            }
+
+            private static int Apply(IntPtr gitFilter, IntPtr payload, IntPtr gitBufferTo, IntPtr gitBufferFrom, IntPtr filterSource)
+            {
+                return 0;
+            }
+
+            private static void CleanUp(IntPtr gitFilter, IntPtr payload)
+            {
+
+            }
         }
     }
 
