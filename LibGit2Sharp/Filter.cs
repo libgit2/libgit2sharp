@@ -36,6 +36,7 @@ namespace LibGit2Sharp
             {
                 attributes = EncodingMarshaler.FromManaged(Encoding.UTF8, attributes),
                 version =  (uint)version,
+                init =  FilterCallbacks.InitializeCallback,
                 shutdown = FilterCallbacks.ShutdownCallback,
             };
 
@@ -99,11 +100,20 @@ namespace LibGit2Sharp
             // to native memory with StructureToPtr), we need to bind to static delegates. If at construction time
             // we were to bind to the methods directly, that's the same as newing up a fresh delegate every time.
             // Those delegates won't be rooted in the object graph and can be collected as soon as StructureToPtr finishes.
+
+            public static readonly GitFilter.git_filter_init_fn InitializeCallback = Initialize;
             public static readonly GitFilter.git_filter_shutdown_fn ShutdownCallback = Shutdown;
+
+
+            private static int Initialize(IntPtr filter)
+            {
+                return 0;
+            }
 
             private static void Shutdown(IntPtr gitFilter)
             {
             }
+
         }
     }
 
