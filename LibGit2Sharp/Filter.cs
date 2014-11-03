@@ -38,6 +38,9 @@ namespace LibGit2Sharp
                 version =  (uint)version,
                 init =  FilterCallbacks.InitializeCallback,
                 shutdown = FilterCallbacks.ShutdownCallback,
+                check = FilterCallbacks.CheckCallback,
+                apply = FilterCallbacks.ApplyCallback,
+                cleanup = FilterCallbacks.CleanUpCallback
             };
 
             nativeFilter = Marshal.AllocHGlobal(Marshal.SizeOf(managedFilter));
