@@ -16,7 +16,7 @@ namespace LibGit2Sharp.Core
         public git_filter_init_fn init;
 
         public git_filter_shutdown_fn shutdown;
-        
+
         public IntPtr check;
 
         public IntPtr apply;
@@ -48,5 +48,42 @@ namespace LibGit2Sharp.Core
         /// </summary>
         public delegate void git_filter_shutdown_fn(IntPtr filter);
 
+        /// <summary>
+        /// Callback to decide if a given source needs this filter
+        /// Specified as `filter.check`, this is an optional callback that checks if filtering is needed for a given source.
+        /// 
+        /// It should return 0 if the filter should be applied (i.e. success), GIT_PASSTHROUGH if the filter should 
+        /// not be applied, or an error code to fail out of the filter processing pipeline and return to the caller.
+        /// 
+        /// The `attr_values` will be set to the values of any attributes given in the filter definition.  See `git_filter` below for more detail.
+        /// 
+        /// The `payload` will be a pointer to a reference payload for the filter. This will start as NULL, but `check` can assign to this 
+        /// pointer for later use by the `apply` callback.  Note that the value should be heap allocated (not stack), so that it doesn't go
+        /// away before the `apply` callback can use it.  If a filter allocates and assigns a value to the `payload`, it will need a `cleanup` 
+        /// callback to free the payload.
+        /// </summary>
+        /// <returns></returns>
+        public delegate int git_filter_check_fn(
+            IntPtr gitFilter, IntPtr payload, IntPtr filterSource, IntPtr attributeValues);
+
+        /// <summary>
+        /// Callback to actually perform the data filtering
+        /// 
+        /// Specified as `filter.apply`, this is the callback that actually filters data.  
+        /// If it successfully writes the output, it should return 0.  Like `check`,
+        /// it can return GIT_PASSTHROUGH to indicate that the filter doesn't want to run. 
+        /// Other error codes will stop filter processing and return to the caller.
+        /// 
+        /// The `payload` value will refer to any payload that was set by the `check` callback.  It may be read from or written to as needed.
+        /// </summary>
+        public delegate int git_filter_apply_fn(
+            IntPtr gitFilter, IntPtr payload, IntPtr gitBufTo, IntPtr gitBufFrom, IntPtr filterSource);
+
+        /// <summary>
+        /// Callback to clean up after filtering has been applied. Specified as `filter.cleanup`, this is an optional callback invoked
+        /// after the filter has been applied.  If the `check` or `apply` callbacks allocated a `payload` 
+        /// to keep per-source filter state, use this  callback to free that payload and release resources as required.
+        /// </summary>
+        public delegate void git_filter_cleanup_fn(IntPtr gitFilter, IntPtr payload);
     }
 }
