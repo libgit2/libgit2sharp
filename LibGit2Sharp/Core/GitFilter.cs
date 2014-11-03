@@ -17,11 +17,11 @@ namespace LibGit2Sharp.Core
 
         public git_filter_shutdown_fn shutdown;
 
-        public IntPtr check;
+        public git_filter_check_fn check;
 
-        public IntPtr apply;
+        public git_filter_apply_fn apply;
 
-        public IntPtr cleanup;
+        public git_filter_cleanup_fn cleanup;
 
         /* The libgit2 structure definition ends here. Subsequent fields are for libgit2sharp bookkeeping. */
 
