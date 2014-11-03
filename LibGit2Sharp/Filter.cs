@@ -2,6 +2,7 @@ using System;
 using System.Runtime.InteropServices;
 using System.Text;
 using LibGit2Sharp.Core;
+using LibGit2Sharp.Core.Handles;
 
 namespace LibGit2Sharp
 {
@@ -124,8 +125,9 @@ namespace LibGit2Sharp
                 return 0;
             }
 
-            private static int Apply(IntPtr gitFilter, IntPtr payload, IntPtr gitBufferTo, IntPtr gitBufferFrom, GitFilterSource filterSource)
+            private static int Apply(IntPtr gitFilter, IntPtr payload, GitBuf gitBufferTo, GitBuf gitBufferFrom, GitFilterSource filterSource)
             {
+
                 return 0;
             }
 

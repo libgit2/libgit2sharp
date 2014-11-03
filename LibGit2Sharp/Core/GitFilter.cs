@@ -1,5 +1,6 @@
 using System;
 using System.Runtime.InteropServices;
+using LibGit2Sharp.Core.Handles;
 
 namespace LibGit2Sharp.Core
 {
@@ -77,7 +78,7 @@ namespace LibGit2Sharp.Core
         /// The `payload` value will refer to any payload that was set by the `check` callback.  It may be read from or written to as needed.
         /// </summary>
         public delegate int git_filter_apply_fn(
-            IntPtr gitFilter, IntPtr payload, IntPtr gitBufTo, IntPtr gitBufFrom, GitFilterSource filterSource);
+            IntPtr gitFilter, IntPtr payload, GitBuf gitBufTo, GitBuf gitBufFrom, GitFilterSource filterSource);
 
         /// <summary>
         /// Callback to clean up after filtering has been applied. Specified as `filter.cleanup`, this is an optional callback invoked
@@ -95,9 +96,10 @@ namespace LibGit2Sharp.Core
     {
         public IntPtr repositoryURL;
 
-        public IntPtr path;
+        [MarshalAs(UnmanagedType.LPStr)] 
+        public string path;
 
-        public IntPtr oId;
+        public ObjectId oId;
 
         public GitFilterMode filterMode;
     }
