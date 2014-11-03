@@ -758,7 +758,6 @@ namespace LibGit2Sharp.Core
                     throw new InvalidOperationException(message);
                 }
                 Ensure.ZeroResult(res);
-               // return filter;
             }
         }
 
