@@ -64,7 +64,7 @@ namespace LibGit2Sharp.Core
         /// </summary>
         /// <returns></returns>
         public delegate int git_filter_check_fn(
-            IntPtr gitFilter, IntPtr payload, IntPtr filterSource, IntPtr attributeValues);
+            IntPtr gitFilter, IntPtr payload, GitFilterSource filterSource, IntPtr attributeValues);
 
         /// <summary>
         /// Callback to actually perform the data filtering
@@ -77,7 +77,7 @@ namespace LibGit2Sharp.Core
         /// The `payload` value will refer to any payload that was set by the `check` callback.  It may be read from or written to as needed.
         /// </summary>
         public delegate int git_filter_apply_fn(
-            IntPtr gitFilter, IntPtr payload, IntPtr gitBufTo, IntPtr gitBufFrom, IntPtr filterSource);
+            IntPtr gitFilter, IntPtr payload, IntPtr gitBufTo, IntPtr gitBufFrom, GitFilterSource filterSource);
 
         /// <summary>
         /// Callback to clean up after filtering has been applied. Specified as `filter.cleanup`, this is an optional callback invoked
@@ -85,5 +85,37 @@ namespace LibGit2Sharp.Core
         /// to keep per-source filter state, use this  callback to free that payload and release resources as required.
         /// </summary>
         public delegate void git_filter_cleanup_fn(IntPtr gitFilter, IntPtr payload);
+    }
+
+    /// <summary>
+    /// The file source being filtered
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    internal class GitFilterSource
+    {
+        public IntPtr repositoryURL;
+
+        public IntPtr path;
+
+        public IntPtr oId;
+
+        public IntPtr filterMode;
+    }
+
+    /// <summary>
+    /// These values control which direction of change is with which which a filter is being applied.
+    /// </summary>
+    [Flags]
+    internal enum GitFilterMode
+    {
+        /// <summary>
+        /// Smudge - occurs when exporting a file from the Git object database to the working directory,
+        /// </summary>
+        GIT_FILTER_SMUDGE = 0,
+
+        /// <summary>
+        /// Clean - occurs when importing a file from the working directory to the Git object database.
+        /// </summary>
+        GIT_FILTER_CLEAN = (1 << 0)
     }
 }

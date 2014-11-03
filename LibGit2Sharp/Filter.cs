@@ -119,12 +119,12 @@ namespace LibGit2Sharp
             {
             }
 
-            private static int Check(IntPtr gitFilter, IntPtr payload, IntPtr filterSource, IntPtr attributeValues)
+            private static int Check(IntPtr gitFilter, IntPtr payload, GitFilterSource filterSource, IntPtr attributeValues)
             {
                 return 0;
             }
 
-            private static int Apply(IntPtr gitFilter, IntPtr payload, IntPtr gitBufferTo, IntPtr gitBufferFrom, IntPtr filterSource)
+            private static int Apply(IntPtr gitFilter, IntPtr payload, IntPtr gitBufferTo, IntPtr gitBufferFrom, GitFilterSource filterSource)
             {
                 return 0;
             }
