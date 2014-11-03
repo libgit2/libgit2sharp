@@ -215,18 +215,14 @@ namespace LibGit2Sharp.Core
         [DllImport(libgit2)]
         internal static extern int git_remote_rename(
             ref GitStrArray problems,
-            RemoteSafeHandle remote,
+            RepositorySafeHandle repo,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string old_name,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string new_name);
 
         internal delegate int git_remote_rename_problem_cb(
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(LaxUtf8NoCleanupMarshaler))] string problematic_refspec,
             IntPtr payload);
 
-
-        [DllImport(libgit2)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        internal static extern bool git_remote_supported_url(
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string url);
 
         [DllImport(libgit2)]
         internal static extern int git_branch_upstream_name(
@@ -630,28 +626,28 @@ namespace LibGit2Sharp.Core
             [In] GitOid[] input_array);
 
         [DllImport(libgit2)]
-        internal static extern int git_merge_head_from_ref(
-            out GitMergeHeadHandle mergehead,
+        internal static extern int git_annotated_commit_from_ref(
+            out GitAnnotatedCommitHandle annotatedCommit,
             RepositorySafeHandle repo,
             ReferenceSafeHandle reference);
 
         [DllImport(libgit2)]
-        internal static extern int git_merge_head_from_fetchhead(
-            out GitMergeHeadHandle mergehead,
+        internal static extern int git_annotated_commit_from_fetchhead(
+            out GitAnnotatedCommitHandle annotatedCommit,
             RepositorySafeHandle repo,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string branch_name,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string remote_url,
             ref GitOid oid);
 
         [DllImport(libgit2)]
-        internal static extern int git_merge_head_from_id(
-            out GitMergeHeadHandle mergehead,
+        internal static extern int git_annotated_commit_lookup(
+            out GitAnnotatedCommitHandle annotatedCommit,
             RepositorySafeHandle repo,
             ref GitOid id);
 
         [DllImport(libgit2)]
-        internal static extern OidSafeHandle git_merge_head_id(
-            GitMergeHeadHandle mergeHead);
+        internal static extern OidSafeHandle git_annotated_commit_id(
+            GitAnnotatedCommitHandle annotatedCommit);
 
         [DllImport(libgit2)]
         internal static extern int git_merge(
@@ -670,7 +666,7 @@ namespace LibGit2Sharp.Core
             int their_heads_len);
 
         [DllImport(libgit2)]
-        internal static extern void git_merge_head_free(
+        internal static extern void git_annotated_commit_free(
             IntPtr merge_head);
 
         [DllImport(libgit2)]

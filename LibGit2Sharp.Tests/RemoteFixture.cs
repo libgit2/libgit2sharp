@@ -259,14 +259,14 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
-        public void CanRenameNonExistingRemote()
+        public void RenamingNonExistingRemoteThrows()
         {
             using (var repo = new Repository(StandardTestRepoPath))
             {
-                Assert.Null(repo.Network.Remotes["i_dont_exist"]);
-
-                repo.Network.Remotes.Rename("i_dont_exist", "i_dont_either", problem => Assert.True(false));
-                Assert.Null(repo.Network.Remotes["i_dont_either"]);
+                Assert.Throws<NotFoundException>(() =>
+                {
+                    repo.Network.Remotes.Rename("i_dont_exist", "i_dont_either");
+                });
             }
         }
 
@@ -326,21 +326,6 @@ namespace LibGit2Sharp.Tests
 
                 Assert.Throws<NameConflictException>(() => repo.Network.Remotes.Rename("origin", "upstream"));
             }
-        }
-
-        [Theory]
-        [InlineData("git@github.com:org/repo.git", false)]
-        [InlineData("git://site.com:80/org/repo.git", true)]
-        [InlineData("ssh://user@host.com:80/org/repo.git", false)]
-        [InlineData("http://site.com:80/org/repo.git", true)]
-        [InlineData("https://github.com:80/org/repo.git", true)]
-        [InlineData("ftp://site.com:80/org/repo.git", false)]
-        [InlineData("ftps://site.com:80/org/repo.git", false)]
-        [InlineData("file:///path/repo.git", true)]
-        [InlineData("protocol://blah.meh/whatever.git", false)]
-        public void CanCheckIfUrlisSupported(string url, bool supported)
-        {
-            Assert.Equal(supported, Remote.IsSupportedUrl(url));
         }
     }
 }

@@ -988,9 +988,9 @@ namespace LibGit2Sharp
 
             options = options ?? new MergeOptions();
 
-            using (GitMergeHeadHandle mergeHeadHandle = Proxy.git_merge_head_from_id(Handle, commit.Id.Oid))
+            using (GitAnnotatedCommitHandle annotatedCommitHandle = Proxy.git_annotated_commit_lookup(Handle, commit.Id.Oid))
             {
-                return Merge(new[] { mergeHeadHandle }, merger, options);
+                return Merge(new[] { annotatedCommitHandle }, merger, options);
             }
         }
 
@@ -1009,9 +1009,9 @@ namespace LibGit2Sharp
             options = options ?? new MergeOptions();
 
             using (ReferenceSafeHandle referencePtr = Refs.RetrieveReferencePtr(branch.CanonicalName))
-            using (GitMergeHeadHandle mergeHeadHandle = Proxy.git_merge_head_from_ref(Handle, referencePtr))
+            using (GitAnnotatedCommitHandle annotatedCommitHandle = Proxy.git_annotated_commit_from_ref(Handle, referencePtr))
             {
-                return Merge(new[] { mergeHeadHandle }, merger, options);
+                return Merge(new[] { annotatedCommitHandle }, merger, options);
             }
         }
 
@@ -1055,20 +1055,20 @@ namespace LibGit2Sharp
                     "The current branch is configured to merge with the reference '{0}' from the remote, but this reference was not fetched.", expectedRef));
             }
 
-            GitMergeHeadHandle[] mergeHeadHandles = fetchHeads.Select(fetchHead =>
-                Proxy.git_merge_head_from_fetchhead(Handle, fetchHead.RemoteCanonicalName, fetchHead.Url, fetchHead.Target.Id.Oid)).ToArray();
+            GitAnnotatedCommitHandle[] annotatedCommitHandles = fetchHeads.Select(fetchHead =>
+                Proxy.git_annotated_commit_from_fetchhead(Handle, fetchHead.RemoteCanonicalName, fetchHead.Url, fetchHead.Target.Id.Oid)).ToArray();
 
             try
             {
                 // Perform the merge.
-                return Merge(mergeHeadHandles, merger, options);
+                return Merge(annotatedCommitHandles, merger, options);
             }
             finally
             {
                 // Cleanup.
-                foreach (GitMergeHeadHandle mergeHeadHandle in mergeHeadHandles)
+                foreach (GitAnnotatedCommitHandle annotatedCommitHandle in annotatedCommitHandles)
                 {
-                    mergeHeadHandle.Dispose();
+                    annotatedCommitHandle.Dispose();
                 }
             }
         }
@@ -1245,16 +1245,16 @@ namespace LibGit2Sharp
         /// <summary>
         /// Internal implementation of merge.
         /// </summary>
-        /// <param name="mergeHeads">Merge heads to operate on.</param>
+        /// <param name="annotatedCommits">Merge heads to operate on.</param>
         /// <param name="merger">The <see cref="Signature"/> of who is performing the merge.</param>
         /// <param name="options">Specifies optional parameters controlling merge behavior; if null, the defaults are used.</param>
         /// <returns>The <see cref="MergeResult"/> of the merge.</returns>
-        private MergeResult Merge(GitMergeHeadHandle[] mergeHeads, Signature merger, MergeOptions options)
+        private MergeResult Merge(GitAnnotatedCommitHandle[] annotatedCommits, Signature merger, MergeOptions options)
         {
             GitMergeAnalysis mergeAnalysis;
             GitMergePreference mergePreference;
 
-            Proxy.git_merge_analysis(Handle, mergeHeads, out mergeAnalysis, out mergePreference);
+            Proxy.git_merge_analysis(Handle, annotatedCommits, out mergeAnalysis, out mergePreference);
 
             MergeResult mergeResult = null;
 
@@ -1271,29 +1271,29 @@ namespace LibGit2Sharp
                 case FastForwardStrategy.Default:
                     if (mergeAnalysis.HasFlag(GitMergeAnalysis.GIT_MERGE_ANALYSIS_FASTFORWARD))
                     {
-                        if (mergeHeads.Length != 1)
+                        if (annotatedCommits.Length != 1)
                         {
                             // We should not reach this code unless there is a bug somewhere.
                             throw new LibGit2SharpException("Unable to perform Fast-Forward merge with mith multiple merge heads.");
                         }
 
-                        mergeResult = FastForwardMerge(mergeHeads[0], merger, options);
+                        mergeResult = FastForwardMerge(annotatedCommits[0], merger, options);
                     }
                     else if (mergeAnalysis.HasFlag(GitMergeAnalysis.GIT_MERGE_ANALYSIS_NORMAL))
                     {
-                        mergeResult = NormalMerge(mergeHeads, merger, options);
+                        mergeResult = NormalMerge(annotatedCommits, merger, options);
                     }
                     break;
                 case FastForwardStrategy.FastForwardOnly:
                     if (mergeAnalysis.HasFlag(GitMergeAnalysis.GIT_MERGE_ANALYSIS_FASTFORWARD))
                     {
-                        if (mergeHeads.Length != 1)
+                        if (annotatedCommits.Length != 1)
                         {
                             // We should not reach this code unless there is a bug somewhere.
                             throw new LibGit2SharpException("Unable to perform Fast-Forward merge with mith multiple merge heads.");
                         }
 
-                        mergeResult = FastForwardMerge(mergeHeads[0], merger, options);
+                        mergeResult = FastForwardMerge(annotatedCommits[0], merger, options);
                     }
                     else
                     {
@@ -1305,7 +1305,7 @@ namespace LibGit2Sharp
                 case FastForwardStrategy.NoFastFoward:
                     if (mergeAnalysis.HasFlag(GitMergeAnalysis.GIT_MERGE_ANALYSIS_NORMAL))
                     {
-                        mergeResult = NormalMerge(mergeHeads, merger, options);
+                        mergeResult = NormalMerge(annotatedCommits, merger, options);
                     }
                     break;
                 default:
@@ -1325,11 +1325,11 @@ namespace LibGit2Sharp
         /// <summary>
         /// Perform a normal merge (i.e. a non-fast-forward merge).
         /// </summary>
-        /// <param name="mergeHeads">The merge head handles to merge.</param>
+        /// <param name="annotatedCommits">The merge head handles to merge.</param>
         /// <param name="merger">The <see cref="Signature"/> of who is performing the merge.</param>
         /// <param name="options">Specifies optional parameters controlling merge behavior; if null, the defaults are used.</param>
         /// <returns>The <see cref="MergeResult"/> of the merge.</returns>
-        private MergeResult NormalMerge(GitMergeHeadHandle[] mergeHeads, Signature merger, MergeOptions options)
+        private MergeResult NormalMerge(GitAnnotatedCommitHandle[] annotatedCommits, Signature merger, MergeOptions options)
         {
             MergeResult mergeResult;
 
@@ -1347,7 +1347,7 @@ namespace LibGit2Sharp
             {
                 var checkoutOpts = checkoutOptionsWrapper.Options;
 
-                Proxy.git_merge(Handle, mergeHeads, mergeOptions, checkoutOpts);
+                Proxy.git_merge(Handle, annotatedCommits, mergeOptions, checkoutOpts);
             }
 
             if (Index.IsFullyMerged)
@@ -1372,13 +1372,13 @@ namespace LibGit2Sharp
         /// <summary>
         /// Perform a fast-forward merge.
         /// </summary>
-        /// <param name="mergeHead">The merge head handle to fast-forward merge.</param>
+        /// <param name="annotatedCommit">The merge head handle to fast-forward merge.</param>
         /// <param name="merger">The <see cref="Signature"/> of who is performing the merge.</param>
         /// <param name="options">Options controlling merge behavior.</param>
         /// <returns>The <see cref="MergeResult"/> of the merge.</returns>
-        private MergeResult FastForwardMerge(GitMergeHeadHandle mergeHead, Signature merger, MergeOptions options)
+        private MergeResult FastForwardMerge(GitAnnotatedCommitHandle annotatedCommit, Signature merger, MergeOptions options)
         {
-            ObjectId id = Proxy.git_merge_head_id(mergeHead);
+            ObjectId id = Proxy.git_annotated_commit_id(annotatedCommit);
             Commit fastForwardCommit = (Commit) Lookup(id, ObjectType.Commit);
             Ensure.GitObjectIsNotNull(fastForwardCommit, id.Sha);
 

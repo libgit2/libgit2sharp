@@ -9,7 +9,6 @@ pushd libgit2/build
 export _BINPATH=`pwd`
 
 cmake -DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo \
-      -DTHREADSAFE:BOOL=ON \
       -DBUILD_CLAR:BOOL=OFF \
       -DUSE_SSH=OFF \
       -DENABLE_TRACE=ON \

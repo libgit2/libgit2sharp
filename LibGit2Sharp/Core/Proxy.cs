@@ -1048,13 +1048,13 @@ namespace LibGit2Sharp.Core
             }
         }
 
-        public static GitMergeHeadHandle git_merge_head_from_fetchhead(RepositorySafeHandle repo, string branchName, string remoteUrl, GitOid oid)
+        public static GitAnnotatedCommitHandle git_annotated_commit_from_fetchhead(RepositorySafeHandle repo, string branchName, string remoteUrl, GitOid oid)
         {
             using (ThreadAffinity())
             {
-                GitMergeHeadHandle merge_head;
+                GitAnnotatedCommitHandle merge_head;
 
-                int res = NativeMethods.git_merge_head_from_fetchhead(out merge_head, repo, branchName, remoteUrl, ref oid);
+                int res = NativeMethods.git_annotated_commit_from_fetchhead(out merge_head, repo, branchName, remoteUrl, ref oid);
 
                 Ensure.ZeroResult(res);
 
@@ -1062,13 +1062,13 @@ namespace LibGit2Sharp.Core
             }
         }
 
-        public static GitMergeHeadHandle git_merge_head_from_id(RepositorySafeHandle repo, GitOid oid)
+        public static GitAnnotatedCommitHandle git_annotated_commit_lookup(RepositorySafeHandle repo, GitOid oid)
         {
             using (ThreadAffinity())
             {
-                GitMergeHeadHandle their_head;
+                GitAnnotatedCommitHandle their_head;
 
-                int res = NativeMethods.git_merge_head_from_id(out their_head, repo, ref oid);
+                int res = NativeMethods.git_annotated_commit_lookup(out their_head, repo, ref oid);
 
                 Ensure.ZeroResult(res);
 
@@ -1076,13 +1076,13 @@ namespace LibGit2Sharp.Core
             }
         }
 
-        public static GitMergeHeadHandle git_merge_head_from_ref(RepositorySafeHandle repo, ReferenceSafeHandle reference)
+        public static GitAnnotatedCommitHandle git_annotated_commit_from_ref(RepositorySafeHandle repo, ReferenceSafeHandle reference)
         {
             using (ThreadAffinity())
             {
-                GitMergeHeadHandle their_head;
+                GitAnnotatedCommitHandle their_head;
 
-                int res = NativeMethods.git_merge_head_from_ref(out their_head, repo, reference);
+                int res = NativeMethods.git_annotated_commit_from_ref(out their_head, repo, reference);
 
                 Ensure.ZeroResult(res);
 
@@ -1090,12 +1090,12 @@ namespace LibGit2Sharp.Core
             }
         }
 
-        public static ObjectId git_merge_head_id(GitMergeHeadHandle mergeHead)
+        public static ObjectId git_annotated_commit_id(GitAnnotatedCommitHandle mergeHead)
         {
-            return NativeMethods.git_merge_head_id(mergeHead).MarshalAsObjectId();
+            return NativeMethods.git_annotated_commit_id(mergeHead).MarshalAsObjectId();
         }
 
-        public static void git_merge(RepositorySafeHandle repo, GitMergeHeadHandle[] heads, GitMergeOpts mergeOptions, GitCheckoutOpts checkoutOptions)
+        public static void git_merge(RepositorySafeHandle repo, GitAnnotatedCommitHandle[] heads, GitMergeOpts mergeOptions, GitCheckoutOpts checkoutOptions)
         {
             using (ThreadAffinity())
             {
@@ -1114,7 +1114,7 @@ namespace LibGit2Sharp.Core
 
         public static void git_merge_analysis(
             RepositorySafeHandle repo,
-            GitMergeHeadHandle[] heads,
+            GitAnnotatedCommitHandle[] heads,
             out GitMergeAnalysis analysis_out,
             out GitMergePreference preference_out)
         {
@@ -1133,9 +1133,9 @@ namespace LibGit2Sharp.Core
             }
         }
 
-        public static void git_merge_head_free(IntPtr handle)
+        public static void git_annotated_commit_free(IntPtr handle)
         {
-            NativeMethods.git_merge_head_free(handle);
+            NativeMethods.git_annotated_commit_free(handle);
         }
 
         #endregion
@@ -2125,38 +2125,37 @@ namespace LibGit2Sharp.Core
         {
             using (ThreadAffinity())
             {
-                using (RemoteSafeHandle remote = git_remote_load(repo, name, false))
+                if (callback == null)
                 {
-                    if (remote == null)
+                    callback = problem => {};
+                }
+
+                var array = new GitStrArrayNative();
+
+                try
+                {
+                    int res = NativeMethods.git_remote_rename(
+                        ref array.Array,
+                        repo,
+                        name,
+                        new_name);
+
+                    if (res == (int)GitErrorCode.NotFound)
                     {
-                        return;
+                        throw new NotFoundException(
+                            string.Format("Remote '{0}' does not exist and cannot be renamed.", name));
                     }
 
-                    if (callback == null)
+                    Ensure.ZeroResult(res);
+
+                    foreach (var item in array.ReadStrings())
                     {
-                        callback = problem => {};
+                        callback(item);
                     }
-
-                    var array = new GitStrArrayNative();
-
-                    try
-                    {
-                        int res = NativeMethods.git_remote_rename(
-                            ref array.Array,
-                            remote,
-                            new_name);
-
-                        Ensure.ZeroResult(res);
-
-                        foreach (var item in array.ReadStrings())
-                        {
-                            callback(item);
-                        }
-                    }
-                    finally
-                    {
-                        array.Dispose();
-                    }
+                }
+                finally
+                {
+                    array.Dispose();
                 }
             }
         }
@@ -2187,11 +2186,6 @@ namespace LibGit2Sharp.Core
         public static string git_remote_url(RemoteSafeHandle remote)
         {
             return NativeMethods.git_remote_url(remote);
-        }
-
-        public static bool git_remote_supported_url(string url)
-        {
-            return NativeMethods.git_remote_supported_url(url);
         }
 
         #endregion

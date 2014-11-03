@@ -106,16 +106,6 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Determines if the proposed remote URL is supported by the library.
-        /// </summary>
-        /// <param name="url">The URL to be checked.</param>
-        /// <returns>true if the url is supported; false otherwise.</returns>
-        public static bool IsSupportedUrl(string url)
-        {
-            return Proxy.git_remote_supported_url(url);
-        }
-
-        /// <summary>
         /// Determines whether the specified <see cref="Object"/> is equal to the current <see cref="Remote"/>.
         /// </summary>
         /// <param name="obj">The <see cref="Object"/> to compare with the current <see cref="Remote"/>.</param>

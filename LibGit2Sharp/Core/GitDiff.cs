@@ -205,8 +205,8 @@ namespace LibGit2Sharp.Core
 
         /* options controlling how to diff text is generated */
 
-        public ushort ContextLines;
-        public ushort InterhunkLines;
+        public uint ContextLines;
+        public uint InterhunkLines;
         public ushort IdAbbrev;
         public Int64 MaxSize;
         public IntPtr OldPrefixString;
