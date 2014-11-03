@@ -15,6 +15,14 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
+        public void CanRegisterAndUnregisterFilter()
+        {
+            var filter = new Filter("radness-filter", "test", 1);
+            filter.Register();
+            filter.Deregister();
+        }
+
+        [Fact]
         public void CanNotRegisterFilterWithTheSameNameMoreThanOnce()
         {
             var filterOne = CreateFilterForAutomaticCleanUp("filter-one", "test", 1);
