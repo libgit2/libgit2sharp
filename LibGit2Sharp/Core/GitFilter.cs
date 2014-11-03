@@ -99,7 +99,7 @@ namespace LibGit2Sharp.Core
 
         public IntPtr oId;
 
-        public IntPtr filterMode;
+        public GitFilterMode filterMode;
     }
 
     /// <summary>
