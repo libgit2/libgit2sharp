@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.InteropServices;
 using System.Text;
 using LibGit2Sharp.Core;
 
@@ -9,13 +10,17 @@ namespace LibGit2Sharp
     /// </summary>
     public sealed class Filter
     {
-        private GitFilter filter;
-        private readonly string name;
+        private GitFilter managedFilter;
+        private IntPtr nativeFilter;
+
+        private readonly string filterName;
         private readonly string attributes;
         private readonly int version;
 
+
         /// <summary>
         /// Initializes a new instance of the <see cref="Filter"/> class.
+        /// And allocates the filter natively. 
         /// </summary>
         public Filter(string name, string attributes, int version)
         {
@@ -23,31 +28,36 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNullOrEmptyString(attributes, "attributes");
             Ensure.ArgumentNotNull(version, "version");
 
-            this.name = name;
+            this.filterName = name;
             this.attributes = attributes;
             this.version = version;
-            filter = new GitFilter
+
+            managedFilter = new GitFilter
             {
                 attributes = EncodingMarshaler.FromManaged(Encoding.UTF8, attributes),
-                version =  (uint)version
+                version =  (uint)version,
+                shutdown = FilterCallbacks.ShutdownCallback,
             };
+
+            nativeFilter = Marshal.AllocHGlobal(Marshal.SizeOf(managedFilter));
+            Marshal.StructureToPtr(managedFilter, nativeFilter, false);
         }
 
         internal Filter(string name, IntPtr filterPtr)
         {
-            var handle = filterPtr.MarshalAs<GitFilter>();
-            this.name = name;
-            this.version = (int)handle.version;
-            this.attributes = LaxUtf8Marshaler.FromNative(handle.attributes);
+            nativeFilter = filterPtr;
+            managedFilter = nativeFilter.MarshalAs<GitFilter>();
+            filterName = name;
+            attributes = EncodingMarshaler.FromNative(Encoding.UTF8, this.managedFilter.attributes);
+            version = (int) managedFilter.version;
         }
-
 
         /// <summary>
         /// The name that this filter was registered with
         /// </summary>
         public string Name
         {
-            get { return name; }
+            get { return filterName; }
         }
 
         /// <summary>
@@ -71,15 +81,29 @@ namespace LibGit2Sharp
         /// </summary>
         public void Register()
         {
-            filter = Proxy.git_filter_register(name, ref filter, 1);
+           Proxy.git_filter_register(filterName, nativeFilter, 1);
         }
 
         /// <summary>
-        /// Remove the filter from the registry.
+        /// Remove the filter from the registry, and frees the native heap allocation.
         /// </summary>
         public void Deregister()
         {
             Proxy.git_filter_unregister(Name);
+            Marshal.FreeHGlobal(nativeFilter);
+        }
+
+        private static class FilterCallbacks
+        {
+            // Because our GitFilter structure exists on the managed heap only for a short time (to be marshaled
+            // to native memory with StructureToPtr), we need to bind to static delegates. If at construction time
+            // we were to bind to the methods directly, that's the same as newing up a fresh delegate every time.
+            // Those delegates won't be rooted in the object graph and can be collected as soon as StructureToPtr finishes.
+            public static readonly GitFilter.git_filter_shutdown_fn ShutdownCallback = Shutdown;
+
+            private static void Shutdown(IntPtr gitFilter)
+            {
+            }
         }
     }
 

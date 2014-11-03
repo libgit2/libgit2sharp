@@ -747,18 +747,18 @@ namespace LibGit2Sharp.Core
 
         #region git_filter_
 
-        public static GitFilter git_filter_register(string name, ref GitFilter filter, int priority)
+        public static void git_filter_register(string name, IntPtr filter, int priority)
         {
             using (ThreadAffinity())
             {
-                int res = NativeMethods.git_filter_register(name, ref filter, priority);
+                int res = NativeMethods.git_filter_register(name, filter, priority);
                 if (res == (int)GitErrorCode.Exists)
                 {
                     var message = string.Format("A filter with the name '{0}' is already registered.", name);
                     throw new InvalidOperationException(message);
                 }
                 Ensure.ZeroResult(res);
-                return filter;
+               // return filter;
             }
         }
 

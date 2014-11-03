@@ -503,7 +503,7 @@ namespace LibGit2Sharp.Core
         [DllImport(libgit2)]
         internal static extern int git_filter_register(
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string name,
-            ref GitFilter gitFilter, int priority);
+            IntPtr gitFilter, int priority);
 
         [DllImport(libgit2)]
         internal static extern int git_filter_unregister(
