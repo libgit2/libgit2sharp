@@ -13,7 +13,7 @@ namespace LibGit2Sharp.Core
 
         public IntPtr attributes;
 
-        public IntPtr init;
+        public git_filter_init_fn init;
 
         public git_filter_shutdown_fn shutdown;
         
@@ -26,7 +26,19 @@ namespace LibGit2Sharp.Core
         /* The libgit2 structure definition ends here. Subsequent fields are for libgit2sharp bookkeeping. */
 
         /// <summary>
-        ///  Shutdown callback on filter
+        /// Initialize callback on filter
+        /// 
+        /// Specified as `filter.initialize`, this is an optional callback invoked
+        /// before a filter is first used.  It will be called once at most.
+        /// 
+        /// If non-NULL, the filter's `initialize` callback will be invoked right
+        /// before the first use of the filter, so you can defer expensive
+        /// initialization operations (in case libgit2 is being used in a way that doesn't need the filter).
+        /// </summary>
+        public delegate int git_filter_init_fn(IntPtr filter);
+
+        /// <summary>
+        /// Shutdown callback on filter
         /// 
         /// Specified as `filter.shutdown`, this is an optional callback invoked
         /// when the filter is unregistered or when libgit2 is shutting down.  It
