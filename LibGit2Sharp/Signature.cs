@@ -36,7 +36,7 @@ namespace LibGit2Sharp
         public Signature(string name, string email, DateTimeOffset when)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
-            Ensure.ArgumentNotNull(email, "email");
+            Ensure.ArgumentNotNullOrEmptyString(email, "email");
             Ensure.ArgumentDoesNotContainZeroByte(name, "name");
             Ensure.ArgumentDoesNotContainZeroByte(email, "email");
 
