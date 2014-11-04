@@ -342,29 +342,35 @@ namespace LibGit2Sharp
 
         internal Signature BuildSignature(DateTimeOffset now, bool shouldThrowIfNotFound)
         {
-            var name = this.GetValueOrDefault<string>("user.name");
-            var email = this.GetValueOrDefault<string>("user.email");
+            const string userNameKey = "user.name";
+            var name = this.GetValueOrDefault<string>(userNameKey);
+            var normalizedName = NormalizeUserSetting(shouldThrowIfNotFound, userNameKey, name,
+                () => "unknown");
 
-            if (shouldThrowIfNotFound && (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(email)))
+            const string userEmailKey = "user.email";
+            var email = this.GetValueOrDefault<string>(userEmailKey);
+            var normalizedEmail = NormalizeUserSetting(shouldThrowIfNotFound, userEmailKey, email,
+                () => string.Format(
+                    CultureInfo.InvariantCulture, "{0}@{1}", Environment.UserName, Environment.UserDomainName));
+
+            return new Signature(normalizedName, normalizedEmail, now);
+        }
+
+        private string NormalizeUserSetting(bool shouldThrowIfNotFound, string entryName, string currentValue, Func<string> defaultValue)
+        {
+            if (!string.IsNullOrEmpty(currentValue))
             {
-                if (string.IsNullOrEmpty(name))
-                {
-                    throw new LibGit2SharpException(
-                        "Cannot find Name setting of the current user in Git configuration.");
-                }
-
-                if (string.IsNullOrEmpty(email))
-                {
-                    throw new LibGit2SharpException(
-                        "Cannot find Email setting of the current user in Git configuration.");
-                }
+                return currentValue;
             }
 
-            return new Signature(
-                !string.IsNullOrEmpty(name) ? name : "unknown",
-                !string.IsNullOrEmpty(email) ? email : string.Format(
-                        CultureInfo.InvariantCulture, "{0}@{1}", Environment.UserName, Environment.UserDomainName),
-                now);
+            string message = string.Format("Configuration value '{0}' is missing or invalid.", entryName);
+
+            if (shouldThrowIfNotFound)
+            {
+                throw new LibGit2SharpException(message);
+            }
+
+            return defaultValue();
         }
 
         private ConfigurationSafeHandle Snapshot()
