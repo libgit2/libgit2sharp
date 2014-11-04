@@ -370,6 +370,8 @@ namespace LibGit2Sharp
                 throw new LibGit2SharpException(message);
             }
 
+            Log.Write(LogLevel.Warning, message);
+
             return defaultValue();
         }
 
