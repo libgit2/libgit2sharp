@@ -145,7 +145,7 @@ namespace LibGit2Sharp
         /// <returns></returns>
         private int CheckCallback(IntPtr gitFilter, IntPtr payload, GitFilterSource filterSource, IntPtr attributeValues)
         {
-            return customCheckCallback != null ? customCheckCallback() : 0;
+            return customCheckCallback != null ? customCheckCallback() : (int) GitErrorCode.PassThrough;
         }
 
         /// <summary>
