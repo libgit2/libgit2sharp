@@ -1,10 +1,13 @@
-﻿using LibGit2Sharp.Core;
+﻿using System.Diagnostics;
+using System.Globalization;
+using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
 {
     /// <summary>
     /// Expose progress values from a fetch operation.
     /// </summary>
+    [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class TransferProgress
     {
         private GitTransferProgress gitTransferProgress;
@@ -64,6 +67,15 @@ namespace LibGit2Sharp
             get
             {
                 return (long) gitTransferProgress.received_bytes;
+            }
+        }
+
+        private string DebuggerDisplay
+        {
+            get
+            {
+                return string.Format(CultureInfo.InvariantCulture,
+                                     "{0}/{1}, {2} bytes", ReceivedObjects, TotalObjects, ReceivedBytes);
             }
         }
     }
