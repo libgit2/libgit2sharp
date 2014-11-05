@@ -36,12 +36,12 @@ namespace LibGit2Sharp
             managedFilter = new GitFilter
             {
                 attributes = EncodingMarshaler.FromManaged(Encoding.UTF8, attributes),
-                version =  (uint)version,
-                init =  FilterCallbacks.InitializeCallback,
-                shutdown = FilterCallbacks.ShutdownCallback,
-                check = FilterCallbacks.CheckCallback,
-                apply = FilterCallbacks.ApplyCallback,
-                cleanup = FilterCallbacks.CleanUpCallback
+                version = (uint) version,
+                init = InitializeCallback,
+                shutdown = ShutdownCallback,
+                check = CheckCallback,
+                apply = ApplyCallback,
+                cleanup = CleanUpCallback
             };
 
             nativeFilter = Marshal.AllocHGlobal(Marshal.SizeOf(managedFilter));
@@ -86,7 +86,7 @@ namespace LibGit2Sharp
         /// </summary>
         public void Register()
         {
-           Proxy.git_filter_register(filterName, nativeFilter, 1);
+            Proxy.git_filter_register(filterName, nativeFilter, 1);
         }
 
         /// <summary>
@@ -98,43 +98,77 @@ namespace LibGit2Sharp
             Marshal.FreeHGlobal(nativeFilter);
         }
 
-        private static class FilterCallbacks
+        /// <summary>
+        /// Initialize callback on filter
+        /// 
+        /// Specified as `filter.initialize`, this is an optional callback invoked
+        /// before a filter is first used.  It will be called once at most.
+        /// 
+        /// If non-NULL, the filter's `initialize` callback will be invoked right
+        /// before the first use of the filter, so you can defer expensive
+        /// initialization operations (in case libgit2 is being used in a way that doesn't need the filter).
+        /// </summary>
+        private int InitializeCallback(IntPtr filter)
         {
-            // Because our GitFilter structure exists on the managed heap only for a short time (to be marshaled
-            // to native memory with StructureToPtr), we need to bind to static delegates. If at construction time
-            // we were to bind to the methods directly, that's the same as newing up a fresh delegate every time.
-            // Those delegates won't be rooted in the object graph and can be collected as soon as StructureToPtr finishes.
+            return 0;
+        }
 
-            public static readonly GitFilter.git_filter_init_fn InitializeCallback = Initialize;
-            public static readonly GitFilter.git_filter_shutdown_fn ShutdownCallback = Shutdown;
-            public static readonly GitFilter.git_filter_check_fn CheckCallback = Check;
-            public static readonly GitFilter.git_filter_apply_fn ApplyCallback = Apply;
-            public static readonly GitFilter.git_filter_cleanup_fn CleanUpCallback = CleanUp;
+        /// <summary>
+        /// Shutdown callback on filter
+        /// 
+        /// Specified as `filter.shutdown`, this is an optional callback invoked
+        /// when the filter is unregistered or when libgit2 is shutting down.  It
+        /// will be called once at most and should release resources as needed.
+        /// This may be called even if the `initialize` callback was not made.
+        /// Typically this function will free the `git_filter` object itself.
+        /// </summary>
+        private void ShutdownCallback(IntPtr gitFilter)
+        {
+        }
 
-            private static int Initialize(IntPtr filter)
-            {
-                return 0;
-            }
+        /// <summary>
+        /// Callback to decide if a given source needs this filter
+        /// Specified as `filter.check`, this is an optional callback that checks if filtering is needed for a given source.
+        /// 
+        /// It should return 0 if the filter should be applied (i.e. success), GIT_PASSTHROUGH if the filter should 
+        /// not be applied, or an error code to fail out of the filter processing pipeline and return to the caller.
+        /// 
+        /// The `attr_values` will be set to the values of any attributes given in the filter definition.  See `git_filter` below for more detail.
+        /// 
+        /// The `payload` will be a pointer to a reference payload for the filter. This will start as NULL, but `check` can assign to this 
+        /// pointer for later use by the `apply` callback.  Note that the value should be heap allocated (not stack), so that it doesn't go
+        /// away before the `apply` callback can use it.  If a filter allocates and assigns a value to the `payload`, it will need a `cleanup` 
+        /// callback to free the payload.
+        /// </summary>
+        /// <returns></returns>
+        private int CheckCallback(IntPtr gitFilter, IntPtr payload, GitFilterSource filterSource, IntPtr attributeValues)
+        {
+            return 0;
+        }
 
-            private static void Shutdown(IntPtr gitFilter)
-            {
-            }
+        /// <summary>
+        /// Callback to actually perform the data filtering
+        /// 
+        /// Specified as `filter.apply`, this is the callback that actually filters data.  
+        /// If it successfully writes the output, it should return 0.  Like `check`,
+        /// it can return GIT_PASSTHROUGH to indicate that the filter doesn't want to run. 
+        /// Other error codes will stop filter processing and return to the caller.
+        /// 
+        /// The `payload` value will refer to any payload that was set by the `check` callback.  It may be read from or written to as needed.
+        /// </summary>
+        private int ApplyCallback(IntPtr gitFilter, IntPtr payload, GitBuf gitBufferTo, GitBuf gitBufferFrom, GitFilterSource filterSource)
+        {
+            return 0;
+        }
 
-            private static int Check(IntPtr gitFilter, IntPtr payload, GitFilterSource filterSource, IntPtr attributeValues)
-            {
-                return 0;
-            }
+        /// <summary>
+        /// Callback to clean up after filtering has been applied. Specified as `filter.cleanup`, this is an optional callback invoked
+        /// after the filter has been applied.  If the `check` or `apply` callbacks allocated a `payload` 
+        /// to keep per-source filter state, use this  callback to free that payload and release resources as required.
+        /// </summary>
+        private void CleanUpCallback(IntPtr gitFilter, IntPtr payload)
+        {
 
-            private static int Apply(IntPtr gitFilter, IntPtr payload, GitBuf gitBufferTo, GitBuf gitBufferFrom, GitFilterSource filterSource)
-            {
-
-                return 0;
-            }
-
-            private static void CleanUp(IntPtr gitFilter, IntPtr payload)
-            {
-
-            }
         }
     }
 
