@@ -179,8 +179,10 @@ namespace LibGit2Sharp.Tests
         {
             var scd = BuildSelfCleaningDirectory();
 
-            string clonedRepoPath = Repository.Clone(url, scd.DirectoryPath, new CloneOptions() {
-                CredentialsProvider = (_url, _user, _cred) => new UsernamePasswordCredentials {
+            string clonedRepoPath = Repository.Clone(url, scd.DirectoryPath, new CloneOptions()
+            {
+                CredentialsProvider = (_url, _user, _cred) => new UsernamePasswordCredentials
+                {
                     Username = user,
                     Password = pass,
                 }
