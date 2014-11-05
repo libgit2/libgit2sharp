@@ -12,16 +12,22 @@ namespace LibGit2Sharp
     /// </summary>
     internal class RemoteCallbacks
     {
-        internal RemoteCallbacks(
-            ProgressHandler onProgress = null,
-            TransferProgressHandler onDownloadProgress = null,
-            UpdateTipsHandler onUpdateTips = null,
-            CredentialsHandler credentialsProvider = null)
+        internal RemoteCallbacks(CredentialsHandler credentialsProvider)
         {
-            Progress = onProgress;
-            DownloadTransferProgress = onDownloadProgress;
-            UpdateTips = onUpdateTips;
             CredentialsProvider = credentialsProvider;
+        }
+
+        internal RemoteCallbacks(FetchOptionsBase fetchOptions)
+        {
+            if (fetchOptions == null)
+            {
+                return;
+            }
+
+            Progress = fetchOptions.OnProgress;
+            DownloadTransferProgress = fetchOptions.OnTransferProgress;
+            UpdateTips = fetchOptions.OnUpdateTips;
+            CredentialsProvider = fetchOptions.CredentialsProvider;
         }
 
         #region Delegates

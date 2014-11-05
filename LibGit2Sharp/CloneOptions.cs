@@ -7,7 +7,7 @@ namespace LibGit2Sharp
     /// <summary>
     /// Options to define clone behaviour
     /// </summary>
-    public sealed class CloneOptions : IConvertableToGitCheckoutOpts
+    public sealed class CloneOptions : FetchOptionsBase, IConvertableToGitCheckoutOpts
     {
         /// <summary>
         /// Creates default <see cref="CloneOptions"/> for a non-bare clone
@@ -29,19 +29,9 @@ namespace LibGit2Sharp
         public bool Checkout { get; set; }
 
         /// <summary>
-        /// Handler for network transfer and indexing progress information
-        /// </summary>
-        public TransferProgressHandler OnTransferProgress { get; set; }
-
-        /// <summary>
-        /// Handler for checkout progress information
+        /// Handler for checkout progress information.
         /// </summary>
         public CheckoutProgressHandler OnCheckoutProgress { get; set; }
-
-        /// <summary>
-        /// Handler to generate <see cref="LibGit2Sharp.Credentials"/> for authentication.
-        /// </summary>
-        public CredentialsHandler CredentialsProvider { get; set; }
 
         #region IConvertableToGitCheckoutOpts
 

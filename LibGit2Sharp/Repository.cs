@@ -544,7 +544,7 @@ namespace LibGit2Sharp
             {
                 var gitCheckoutOptions = checkoutOptionsWrapper.Options;
 
-                var remoteCallbacks = new RemoteCallbacks(null, options.OnTransferProgress, null, options.CredentialsProvider);
+                var remoteCallbacks = new RemoteCallbacks(options);
                 var gitRemoteCallbacks = remoteCallbacks.GenerateCallbacks();
 
                 var cloneOpts = new GitCloneOptions

@@ -126,6 +126,8 @@ namespace LibGit2Sharp.Tests
         public void CallsProgressCallbacks(string url)
         {
             bool transferWasCalled = false;
+            bool progressWasCalled = false;
+            bool updateTipsWasCalled = false;
             bool checkoutWasCalled = false;
 
             var scd = BuildSelfCleaningDirectory();
@@ -133,10 +135,14 @@ namespace LibGit2Sharp.Tests
             Repository.Clone(url, scd.DirectoryPath, new CloneOptions()
             {
                 OnTransferProgress = _ => { transferWasCalled = true; return true; },
+                OnProgress = progress => { progressWasCalled = true; return true; },
+                OnUpdateTips = (name, oldId, newId) => { updateTipsWasCalled = true; return true; },
                 OnCheckoutProgress = (a, b, c) => checkoutWasCalled = true
             });
 
             Assert.True(transferWasCalled);
+            Assert.True(progressWasCalled);
+            Assert.True(updateTipsWasCalled);
             Assert.True(checkoutWasCalled);
         }
 

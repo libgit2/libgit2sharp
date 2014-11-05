@@ -87,7 +87,7 @@ namespace LibGit2Sharp.Tests
             var nonTestableTypes = new Dictionary<Type, IEnumerable<string>>();
 
             IEnumerable<Type> libGit2SharpTypes = Assembly.GetAssembly(typeof(IRepository)).GetExportedTypes()
-                .Where(t => !t.IsSealed && t.Namespace == typeof(IRepository).Namespace);
+                .Where(t => MustBeMockable(t) && t.Namespace == typeof(IRepository).Namespace);
 
             foreach (Type type in libGit2SharpTypes)
             {
@@ -111,6 +111,23 @@ namespace LibGit2Sharp.Tests
             {
                 Assert.True(false, Environment.NewLine + BuildNonTestableTypesMessage(nonTestableTypes));
             }
+        }
+
+        private static bool MustBeMockable(Type type)
+        {
+            if (type.IsSealed)
+            {
+                return false;
+            }
+
+            if (type.IsAbstract)
+            {
+                return !type.Assembly.GetExportedTypes()
+                            .Where(t => t.IsSubclassOf(type))
+                            .All(t => t.IsAbstract || t.IsSealed);
+            }
+
+            return true;
         }
 
         [Fact]
