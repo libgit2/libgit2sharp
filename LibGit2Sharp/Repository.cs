@@ -962,19 +962,6 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Gets the current LibGit2Sharp version.
-        /// <para>
-        ///   The format of the version number is as follows:
-        ///   <para>Major.Minor.Patch-LibGit2Sharp_abbrev_hash-libgit2_abbrev_hash (x86|amd64 - features)</para>
-        /// </para>
-        /// </summary>
-        [Obsolete("This property will be removed in the next release. Use GlobalSettings.Version instead.")]
-        public static string Version
-        {
-            get { return GlobalSettings.Version.ToString(); }
-        }
-
-        /// <summary>
         /// Merges changes from commit into the branch pointed at by HEAD.
         /// </summary>
         /// <param name="commit">The commit to merge into the branch pointed at by HEAD.</param>

@@ -14,17 +14,6 @@ namespace LibGit2Sharp
         private static LogConfiguration logConfiguration = LogConfiguration.None;
 
         /// <summary>
-        /// Returns all the optional features that were compiled into
-        /// libgit2.
-        /// </summary>
-        /// <returns>A <see cref="BuiltInFeatures"/> enumeration.</returns>
-        [Obsolete("This method will be removed in the next release. Use Version.Features instead.")]
-        public static BuiltInFeatures Features()
-        {
-            return Version.Features;
-        }
-
-        /// <summary>
         /// Returns information related to the current LibGit2Sharp
         /// library.
         /// </summary>
