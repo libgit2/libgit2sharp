@@ -11,19 +11,20 @@ namespace LibGit2Sharp
     /// </summary>
     public sealed class Filter
     {
-        private GitFilter managedFilter;
-        private IntPtr nativeFilter;
+        private readonly GitFilter managedFilter;
+        private readonly IntPtr nativeFilter;
 
         private readonly string filterName;
         private readonly string attributes;
         private readonly int version;
 
+        private readonly Func<int> customCheckCallback;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Filter"/> class.
         /// And allocates the filter natively. 
         /// </summary>
-        public Filter(string name, string attributes, int version)
+        public Filter(string name, string attributes, int version, Func<int> checkCallback = null)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
             Ensure.ArgumentNotNullOrEmptyString(attributes, "attributes");
@@ -32,6 +33,7 @@ namespace LibGit2Sharp
             this.filterName = name;
             this.attributes = attributes;
             this.version = version;
+            this.customCheckCallback = checkCallback;
 
             managedFilter = new GitFilter
             {
@@ -53,7 +55,7 @@ namespace LibGit2Sharp
             nativeFilter = filterPtr;
             managedFilter = nativeFilter.MarshalAs<GitFilter>();
             filterName = name;
-            attributes = EncodingMarshaler.FromNative(Encoding.UTF8, this.managedFilter.attributes);
+            attributes = EncodingMarshaler.FromNative(Encoding.UTF8, managedFilter.attributes);
             version = (int) managedFilter.version;
         }
 
