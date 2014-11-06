@@ -8,6 +8,7 @@ namespace LibGit2Sharp.Tests
     public class FilterFixture : BaseFixture
     {
         private const int GitPassThrough = -30;
+        private readonly FilterCallbacks emptyCallbacks = new FilterCallbacks(null, null);
         private readonly List<Filter> filtersForCleanUp;
 
         public FilterFixture()
@@ -18,7 +19,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanRegisterAndUnregisterFilter()
         {
-            var filter = new Filter("radness-filter", "test", 1);
+            var filter = new Filter("radness-filter", "test", 1, emptyCallbacks);
             filter.Register();
             filter.Deregister();
         }
@@ -36,11 +37,11 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanRegisterAndUnregisterTheSameFilter()
         {
-            var filterOne = new Filter("filter-two", "test", 1);
+            var filterOne = new Filter("filter-two", "test", 1, emptyCallbacks);
             filterOne.Register();
             filterOne.Deregister();
 
-            var filterTwo = new Filter("filter-two", "test", 1);
+            var filterTwo = new Filter("filter-two", "test", 1, emptyCallbacks);
             filterTwo.Register();
             filterTwo.Deregister();
         }
@@ -73,7 +74,8 @@ namespace LibGit2Sharp.Tests
                 return GitPassThrough; 
             };
             string repoPath = InitNewRepository();
-            new Filter("test-filter", "filter", 1, callback);
+            var callbacks = new FilterCallbacks(callback);
+            new Filter("test-filter", "filter", 1, callbacks);
             using (var repo = new Repository(repoPath))
             {
                 StageNewFile(repo);
@@ -92,7 +94,8 @@ namespace LibGit2Sharp.Tests
                 return GitPassThrough;
             };
             string repoPath = InitNewRepository();
-            var filter = new Filter("test-filter", "filter", 1, callback);
+            var callbacks = new FilterCallbacks(callback);
+            var filter = new Filter("test-filter", "filter", 1, callbacks);
             using (var repo = new Repository(repoPath))
             {
                 filter.Register();
@@ -107,7 +110,6 @@ namespace LibGit2Sharp.Tests
         public void ApplyCallbackMadeWhenCheckCallbackReturnsZero()
         {
             bool called = false;
-            Func<int> checkCallback = () => 0;
 
             Func<int> applyCallback = () =>
             {
@@ -116,7 +118,8 @@ namespace LibGit2Sharp.Tests
             };
 
             string repoPath = InitNewRepository();
-            var filter = new Filter("test-filter", "filter", 1, checkCallback, applyCallback);
+            var callbacks = new FilterCallbacks(() => 0, applyCallback);
+            var filter = new Filter("test-filter", "filter", 1, callbacks);
             using (var repo = new Repository(repoPath))
             {
                 filter.Register();
@@ -131,9 +134,6 @@ namespace LibGit2Sharp.Tests
         public void ApplyCallbackNotMadeWhenCheckCallbackReturnsPassThrough()
         {
             bool called = false;
-
-            Func<int> checkCallback = () => GitPassThrough;
-
             Func<int> applyCallback = () =>
             {
                 called = true;
@@ -141,7 +141,8 @@ namespace LibGit2Sharp.Tests
             };
 
             string repoPath = InitNewRepository();
-            var filter = new Filter("test-filter", "filter", 1, checkCallback, applyCallback);
+            var callbacks = new FilterCallbacks(() => GitPassThrough, applyCallback);
+            var filter = new Filter("test-filter", "filter", 1, callbacks);
             using (var repo = new Repository(repoPath))
             {
                 filter.Register();
@@ -161,7 +162,7 @@ namespace LibGit2Sharp.Tests
 
         private Filter CreateFilterForAutomaticCleanUp(string name, string attributes, int version)
         {
-            var filter = new Filter(name, attributes, version);
+            var filter = new Filter(name, attributes, version, emptyCallbacks);
             filtersForCleanUp.Add(filter);
             return filter;
         }

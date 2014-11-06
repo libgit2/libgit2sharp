@@ -11,33 +11,29 @@ namespace LibGit2Sharp
     /// </summary>
     public sealed class Filter
     {
-        private readonly GitFilter managedFilter;
         private readonly IntPtr nativeFilter;
-
         private readonly string filterName;
         private readonly string attributes;
         private readonly int version;
-
-        private readonly Func<int> customCheckCallback;
-        private readonly Func<int> customApplyCallback;
+        private readonly FilterCallbacks filterCallbacks;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Filter"/> class.
         /// And allocates the filter natively. 
         /// </summary>
-        public Filter(string name, string attributes, int version, Func<int> checkCallback = null, Func<int> applyCallback = null )
+        public Filter(string name, string attributes, int version, FilterCallbacks filterCallbacks)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
             Ensure.ArgumentNotNullOrEmptyString(attributes, "attributes");
             Ensure.ArgumentNotNull(version, "version");
+            Ensure.ArgumentNotNull(filterCallbacks, "filterCallbacks");
 
             this.filterName = name;
             this.attributes = attributes;
             this.version = version;
-            this.customCheckCallback = checkCallback;
-            this.customApplyCallback = applyCallback;
+            this.filterCallbacks = filterCallbacks;
 
-            managedFilter = new GitFilter
+            var managedFilter = new GitFilter
             {
                 attributes = EncodingMarshaler.FromManaged(Encoding.UTF8, attributes),
                 version = (uint) version,
@@ -55,7 +51,7 @@ namespace LibGit2Sharp
         internal Filter(string name, IntPtr filterPtr)
         {
             nativeFilter = filterPtr;
-            managedFilter = nativeFilter.MarshalAs<GitFilter>();
+            var managedFilter = nativeFilter.MarshalAs<GitFilter>();
             filterName = name;
             attributes = EncodingMarshaler.FromNative(Encoding.UTF8, managedFilter.attributes);
             version = (int) managedFilter.version;
@@ -147,7 +143,7 @@ namespace LibGit2Sharp
         /// <returns></returns>
         private int CheckCallback(IntPtr gitFilter, IntPtr payload, GitFilterSource filterSource, IntPtr attributeValues)
         {
-            return customCheckCallback != null ? customCheckCallback() : (int) GitErrorCode.PassThrough;
+            return filterCallbacks.CustomCheckCallback();
         }
 
         /// <summary>
@@ -162,7 +158,7 @@ namespace LibGit2Sharp
         /// </summary>
         private int ApplyCallback(IntPtr gitFilter, IntPtr payload, GitBuf gitBufferTo, GitBuf gitBufferFrom, GitFilterSource filterSource)
         {
-            return customApplyCallback != null ? customApplyCallback() : (int) GitErrorCode.PassThrough;
+            return filterCallbacks.CustomApplyCallback();
         }
 
         /// <summary>
@@ -189,6 +185,62 @@ namespace LibGit2Sharp
         public Filter LookupByName(string name)
         {
             return new Filter(name, Proxy.git_filter_lookup(name));
+        }
+    }
+
+    /// <summary>
+    /// The callbacks for a filter to execute
+    /// </summary>
+    public class FilterCallbacks
+    {
+        private readonly Func<int> customCheckCallback;
+        private readonly Func<int> customApplyCallback;
+
+        private readonly Func<int> passThroughFunc = () => (int) GitErrorCode.PassThrough;
+
+        /// <summary>
+        /// The callbacks for a filter to execute
+        /// </summary>
+        /// <param name="customCheckCallback">The check callback</param>
+        /// <param name="customApplyCallback">the apply callback</param>
+        public FilterCallbacks(Func<int> customCheckCallback = null, Func<int> customApplyCallback = null)
+        {
+            this.customCheckCallback = customCheckCallback ?? passThroughFunc;
+            this.customApplyCallback = customApplyCallback ?? passThroughFunc;
+        }
+
+        /// <summary>
+        /// Callback to decide if a given source needs this filter
+        /// Specified as `filter.check`, this is an optional callback that checks if filtering is needed for a given source.
+        /// 
+        /// It should return 0 if the filter should be applied (i.e. success), GIT_PASSTHROUGH if the filter should 
+        /// not be applied, or an error code to fail out of the filter processing pipeline and return to the caller.
+        /// 
+        /// The `attr_values` will be set to the values of any attributes given in the filter definition.  See `git_filter` below for more detail.
+        /// 
+        /// The `payload` will be a pointer to a reference payload for the filter. This will start as NULL, but `check` can assign to this 
+        /// pointer for later use by the `apply` callback.  Note that the value should be heap allocated (not stack), so that it doesn't go
+        /// away before the `apply` callback can use it.  If a filter allocates and assigns a value to the `payload`, it will need a `cleanup` 
+        /// callback to free the payload.
+        /// </summary>
+        public Func<int> CustomCheckCallback
+        {
+            get { return customCheckCallback; }
+        }
+
+        /// <summary>
+        /// Callback to actually perform the data filtering
+        /// 
+        /// Specified as `filter.apply`, this is the callback that actually filters data.  
+        /// If it successfully writes the output, it should return 0.  Like `check`,
+        /// it can return GIT_PASSTHROUGH to indicate that the filter doesn't want to run. 
+        /// Other error codes will stop filter processing and return to the caller.
+        /// 
+        /// The `payload` value will refer to any payload that was set by the `check` callback.  It may be read from or written to as needed.
+        /// </summary>
+        public Func<int> CustomApplyCallback
+        {
+            get { return customApplyCallback; }
         }
     }
 }
