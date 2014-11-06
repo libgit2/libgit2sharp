@@ -124,6 +124,7 @@ namespace LibGit2Sharp
         /// </summary>
         private void ShutdownCallback(IntPtr gitFilter)
         {
+            filterCallbacks.CustomShutdownCallback();
         }
 
         /// <summary>
@@ -195,6 +196,7 @@ namespace LibGit2Sharp
     {
         private readonly Func<int> customCheckCallback;
         private readonly Func<int> customApplyCallback;
+        private readonly Action customShutdownCallback;
 
         private readonly Func<int> passThroughFunc = () => (int) GitErrorCode.PassThrough;
 
@@ -203,10 +205,15 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="customCheckCallback">The check callback</param>
         /// <param name="customApplyCallback">the apply callback</param>
-        public FilterCallbacks(Func<int> customCheckCallback = null, Func<int> customApplyCallback = null)
+        /// <param name="customShutdownCallback">The shutdown callback</param>
+        public FilterCallbacks(
+            Func<int> customCheckCallback = null,
+            Func<int> customApplyCallback = null, 
+            Action customShutdownCallback = null)
         {
             this.customCheckCallback = customCheckCallback ?? passThroughFunc;
             this.customApplyCallback = customApplyCallback ?? passThroughFunc;
+            this.customShutdownCallback = customShutdownCallback ??  (() => { });
         }
 
         /// <summary>
@@ -241,6 +248,20 @@ namespace LibGit2Sharp
         public Func<int> CustomApplyCallback
         {
             get { return customApplyCallback; }
+        }
+
+        /// <summary>
+        /// Shutdown callback on filter
+        /// 
+        /// Specified as `filter.shutdown`, this is an optional callback invoked
+        /// when the filter is unregistered or when libgit2 is shutting down.  It
+        /// will be called once at most and should release resources as needed.
+        /// This may be called even if the `initialize` callback was not made.
+        /// Typically this function will free the `git_filter` object itself.
+        /// </summary>
+        public Action CustomShutdownCallback
+        {
+            get { return customShutdownCallback; }
         }
     }
 }
