@@ -62,6 +62,53 @@ namespace LibGit2Sharp.Tests
             Assert.Equal(attributes, lookedUpFilter.Attributes);
         }
 
+        [Fact]
+        public void CheckCallbackNotMadeWhenFileStagedAndFilterNotRegistered()
+        {
+            bool called = false;
+            Func<int> callback = () =>
+            {
+                called = true;
+                return -30; //pass through
+            };
+            string repoPath = InitNewRepository();
+            new Filter("test-filter", "filter", 1, callback);
+            using (var repo = new Repository(repoPath))
+            {
+                StageNewFile(repo);
+            }
+
+            Assert.False(called);
+        }
+
+        [Fact]
+        public void CheckCallbackMadeWhenFileStaged()
+        {
+            bool called = false;
+            Func<int> callback = () =>
+            {
+                called = true;
+                return -30; //pass through
+            };
+            string repoPath = InitNewRepository();
+            var filter = new Filter("test-filter", "filter", 1, callback);
+            using (var repo = new Repository(repoPath))
+            {
+                filter.Register();
+
+                StageNewFile(repo);
+            }
+
+            Assert.True(called);
+        }
+
+        private static void StageNewFile(Repository repo)
+        {
+            const string path = "new.txt";
+            Touch(repo.Info.WorkingDirectory, path, "null");
+            repo.Index.Stage(path);
+        }
+
         private Filter CreateFilterForAutomaticCleanUp(string name, string attributes, int version)
         {
             var filter = new Filter(name, attributes, version);
