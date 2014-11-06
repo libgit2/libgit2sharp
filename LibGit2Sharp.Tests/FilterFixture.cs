@@ -7,6 +7,7 @@ namespace LibGit2Sharp.Tests
 {
     public class FilterFixture : BaseFixture
     {
+        private const int GitPassThrough = -30;
         private readonly List<Filter> filtersForCleanUp;
 
         public FilterFixture()
@@ -69,7 +70,7 @@ namespace LibGit2Sharp.Tests
             Func<int> callback = () =>
             {
                 called = true;
-                return -30; //pass through
+                return GitPassThrough; 
             };
             string repoPath = InitNewRepository();
             new Filter("test-filter", "filter", 1, callback);
@@ -88,7 +89,7 @@ namespace LibGit2Sharp.Tests
             Func<int> callback = () =>
             {
                 called = true;
-                return -30; //pass through
+                return GitPassThrough;
             };
             string repoPath = InitNewRepository();
             var filter = new Filter("test-filter", "filter", 1, callback);
@@ -100,6 +101,55 @@ namespace LibGit2Sharp.Tests
             }
 
             Assert.True(called);
+        }
+
+        [Fact]
+        public void ApplyCallbackMadeWhenCheckCallbackReturnsZero()
+        {
+            bool called = false;
+            Func<int> checkCallback = () => 0;
+
+            Func<int> applyCallback = () =>
+            {
+                called = true;
+                return 0; //success
+            };
+
+            string repoPath = InitNewRepository();
+            var filter = new Filter("test-filter", "filter", 1, checkCallback, applyCallback);
+            using (var repo = new Repository(repoPath))
+            {
+                filter.Register();
+
+                StageNewFile(repo);
+            }
+
+            Assert.True(called);
+        }
+
+        [Fact]
+        public void ApplyCallbackNotMadeWhenCheckCallbackReturnsPassThrough()
+        {
+            bool called = false;
+
+            Func<int> checkCallback = () => GitPassThrough;
+
+            Func<int> applyCallback = () =>
+            {
+                called = true;
+                return 0;
+            };
+
+            string repoPath = InitNewRepository();
+            var filter = new Filter("test-filter", "filter", 1, checkCallback, applyCallback);
+            using (var repo = new Repository(repoPath))
+            {
+                filter.Register();
+
+                StageNewFile(repo);
+            }
+
+            Assert.False(called);
         }
 
         private static void StageNewFile(Repository repo)

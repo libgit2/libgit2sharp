@@ -19,12 +19,13 @@ namespace LibGit2Sharp
         private readonly int version;
 
         private readonly Func<int> customCheckCallback;
+        private readonly Func<int> customApplyCallback;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Filter"/> class.
         /// And allocates the filter natively. 
         /// </summary>
-        public Filter(string name, string attributes, int version, Func<int> checkCallback = null)
+        public Filter(string name, string attributes, int version, Func<int> checkCallback = null, Func<int> applyCallback = null )
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
             Ensure.ArgumentNotNullOrEmptyString(attributes, "attributes");
@@ -34,6 +35,7 @@ namespace LibGit2Sharp
             this.attributes = attributes;
             this.version = version;
             this.customCheckCallback = checkCallback;
+            this.customApplyCallback = applyCallback;
 
             managedFilter = new GitFilter
             {
@@ -160,7 +162,7 @@ namespace LibGit2Sharp
         /// </summary>
         private int ApplyCallback(IntPtr gitFilter, IntPtr payload, GitBuf gitBufferTo, GitBuf gitBufferFrom, GitFilterSource filterSource)
         {
-            return 0;
+            return customApplyCallback != null ? customApplyCallback() : (int) GitErrorCode.PassThrough;
         }
 
         /// <summary>
