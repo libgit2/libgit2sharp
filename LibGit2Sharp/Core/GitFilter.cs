@@ -14,14 +14,19 @@ namespace LibGit2Sharp.Core
 
         public IntPtr attributes;
 
+        [MarshalAs(UnmanagedType.FunctionPtr)]
         public git_filter_init_fn init;
 
+        [MarshalAs(UnmanagedType.FunctionPtr)]
         public git_filter_shutdown_fn shutdown;
 
+        [MarshalAs(UnmanagedType.FunctionPtr)]
         public git_filter_check_fn check;
 
+        [MarshalAs(UnmanagedType.FunctionPtr)]
         public git_filter_apply_fn apply;
 
+        [MarshalAs(UnmanagedType.FunctionPtr)]
         public git_filter_cleanup_fn cleanup;
 
         /* The libgit2 structure definition ends here. Subsequent fields are for libgit2sharp bookkeeping. */
@@ -36,6 +41,7 @@ namespace LibGit2Sharp.Core
         /// before the first use of the filter, so you can defer expensive
         /// initialization operations (in case libgit2 is being used in a way that doesn't need the filter).
         /// </summary>
+        [UnmanagedFunctionPointer(CallingConvention.StdCall)]
         public delegate int git_filter_init_fn(IntPtr filter);
 
         /// <summary>
@@ -47,6 +53,7 @@ namespace LibGit2Sharp.Core
         /// This may be called even if the `initialize` callback was not made.
         /// Typically this function will free the `git_filter` object itself.
         /// </summary>
+        [UnmanagedFunctionPointer(CallingConvention.StdCall)]
         public delegate void git_filter_shutdown_fn(IntPtr filter);
 
         /// <summary>
@@ -63,7 +70,7 @@ namespace LibGit2Sharp.Core
         /// away before the `apply` callback can use it.  If a filter allocates and assigns a value to the `payload`, it will need a `cleanup` 
         /// callback to free the payload.
         /// </summary>
-        /// <returns></returns>
+        [UnmanagedFunctionPointer(CallingConvention.StdCall)]
         public delegate int git_filter_check_fn(
             IntPtr gitFilter, IntPtr payload, GitFilterSource filterSource, IntPtr attributeValues);
 
@@ -77,6 +84,7 @@ namespace LibGit2Sharp.Core
         /// 
         /// The `payload` value will refer to any payload that was set by the `check` callback.  It may be read from or written to as needed.
         /// </summary>
+        [UnmanagedFunctionPointer(CallingConvention.StdCall)]
         public delegate int git_filter_apply_fn(
             IntPtr gitFilter, IntPtr payload, GitBuf gitBufTo, GitBuf gitBufFrom, GitFilterSource filterSource);
 
@@ -85,6 +93,7 @@ namespace LibGit2Sharp.Core
         /// after the filter has been applied.  If the `check` or `apply` callbacks allocated a `payload` 
         /// to keep per-source filter state, use this  callback to free that payload and release resources as required.
         /// </summary>
+        [UnmanagedFunctionPointer(CallingConvention.StdCall)]
         public delegate void git_filter_cleanup_fn(IntPtr gitFilter, IntPtr payload);
     }
 
