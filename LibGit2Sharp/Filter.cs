@@ -111,7 +111,7 @@ namespace LibGit2Sharp
         /// </summary>
         private int InitializeCallback(IntPtr filter)
         {
-            return 0;
+            return filterCallbacks.CustomInitializeCallback();
         }
 
         /// <summary>
@@ -197,9 +197,11 @@ namespace LibGit2Sharp
     {
         private readonly Func<int> customCheckCallback;
         private readonly Func<int> customApplyCallback;
+        private readonly Func<int> customInitializeCallback;
         private readonly Action customShutdownCallback;
 
         private readonly Func<int> passThroughFunc = () => (int) GitErrorCode.PassThrough;
+        private readonly Func<int> passThroughSuccess = () => 0;
 
         /// <summary>
         /// The callbacks for a filter to execute
@@ -215,6 +217,7 @@ namespace LibGit2Sharp
             this.customCheckCallback = customCheckCallback ?? passThroughFunc;
             this.customApplyCallback = customApplyCallback ?? passThroughFunc;
             this.customShutdownCallback = customShutdownCallback ??  (() => { });
+            this.customInitializeCallback = customInitializeCallback ?? passThroughFunc;
         }
 
         /// <summary>
@@ -233,7 +236,10 @@ namespace LibGit2Sharp
         /// </summary>
         public Func<int> CustomCheckCallback
         {
-            get { return customCheckCallback; }
+            get
+            {
+                return customCheckCallback;
+            }
         }
 
         /// <summary>
@@ -248,7 +254,10 @@ namespace LibGit2Sharp
         /// </summary>
         public Func<int> CustomApplyCallback
         {
-            get { return customApplyCallback; }
+            get
+            {
+                return customApplyCallback;
+            }
         }
 
         /// <summary>
@@ -262,7 +271,28 @@ namespace LibGit2Sharp
         /// </summary>
         public Action CustomShutdownCallback
         {
-            get { return customShutdownCallback; }
+            get
+            {
+                return customShutdownCallback;
+            }
+        }
+
+        /// <summary>
+        /// Initialize callback on filter
+        /// 
+        /// Specified as `filter.initialize`, this is an optional callback invoked
+        /// before a filter is first used.  It will be called once at most.
+        /// 
+        /// If non-NULL, the filter's `initialize` callback will be invoked right
+        /// before the first use of the filter, so you can defer expensive
+        /// initialization operations (in case libgit2 is being used in a way that doesn't need the filter).
+        /// </summary>
+        public Func<int> CustomInitializeCallback
+        {
+            get
+            {
+                return passThroughSuccess;
+            }
         }
     }
 }
