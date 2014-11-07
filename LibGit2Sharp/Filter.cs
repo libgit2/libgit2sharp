@@ -16,6 +16,7 @@ namespace LibGit2Sharp
         private readonly string attributes;
         private readonly int version;
         private readonly FilterCallbacks filterCallbacks;
+        private readonly GitFilter managedFilter;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Filter"/> class.
@@ -33,7 +34,7 @@ namespace LibGit2Sharp
             this.version = version;
             this.filterCallbacks = filterCallbacks;
 
-            var managedFilter = new GitFilter
+            managedFilter = new GitFilter
             {
                 attributes = EncodingMarshaler.FromManaged(Encoding.UTF8, attributes),
                 version = (uint) version,
@@ -51,7 +52,7 @@ namespace LibGit2Sharp
         internal Filter(string name, IntPtr filterPtr)
         {
             nativeFilter = filterPtr;
-            var managedFilter = nativeFilter.MarshalAs<GitFilter>();
+            managedFilter = nativeFilter.MarshalAs<GitFilter>();
             filterName = name;
             attributes = EncodingMarshaler.FromNative(Encoding.UTF8, managedFilter.attributes);
             version = (int) managedFilter.version;
