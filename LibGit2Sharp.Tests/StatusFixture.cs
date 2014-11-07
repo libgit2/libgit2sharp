@@ -103,20 +103,22 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Fact]
-        public void CanRetrieveTheStatusOfTheWholeWorkingDirectory()
+        [Theory]
+        [InlineData(false, 0)]
+        [InlineData(true, 5)]
+        public void CanRetrieveTheStatusOfTheWholeWorkingDirectory(bool includeUnaltered, int unalteredCount)
         {
             string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 const string file = "modified_staged_file.txt";
 
-                RepositoryStatus status = repo.RetrieveStatus();
+                RepositoryStatus status = repo.RetrieveStatus(new StatusOptions() { IncludeUnaltered = includeUnaltered });
 
                 Assert.Equal(FileStatus.Staged, status[file].State);
 
                 Assert.NotNull(status);
-                Assert.Equal(6, status.Count());
+                Assert.Equal(6 + unalteredCount, status.Count());
                 Assert.True(status.IsDirty);
 
                 Assert.Equal("new_untracked_file.txt", status.Untracked.Select(s => s.FilePath).Single());
@@ -131,11 +133,11 @@ namespace LibGit2Sharp.Tests
 
                 Assert.Equal(FileStatus.Staged | FileStatus.Modified, repo.RetrieveStatus(file));
 
-                RepositoryStatus status2 = repo.RetrieveStatus();
+                RepositoryStatus status2 = repo.RetrieveStatus(new StatusOptions() { IncludeUnaltered = includeUnaltered });
                 Assert.Equal(FileStatus.Staged | FileStatus.Modified, status2[file].State);
 
                 Assert.NotNull(status2);
-                Assert.Equal(6, status2.Count());
+                Assert.Equal(6 + unalteredCount, status2.Count());
                 Assert.True(status2.IsDirty);
 
                 Assert.Equal("new_untracked_file.txt", status2.Untracked.Select(s => s.FilePath).Single());
@@ -242,14 +244,16 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Fact]
-        public void CanRetrieveTheStatusOfANewRepository()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void CanRetrieveTheStatusOfANewRepository(bool includeUnaltered)
         {
             string repoPath = InitNewRepository();
 
             using (var repo = new Repository(repoPath))
             {
-                RepositoryStatus status = repo.RetrieveStatus();
+                RepositoryStatus status = repo.RetrieveStatus(new StatusOptions() { IncludeUnaltered = includeUnaltered });
                 Assert.NotNull(status);
                 Assert.Equal(0, status.Count());
                 Assert.False(status.IsDirty);
@@ -590,6 +594,44 @@ namespace LibGit2Sharp.Tests
             {
                 var status = repo.RetrieveStatus();
                 Assert.Equal("hello.txt", status.Modified.Single().FilePath);
+            }
+        }
+
+        [Fact]
+        public void CanIncludeStatusOfUnalteredFiles()
+        {
+            var path = SandboxStandardTestRepo();
+            string[] unalteredPaths = {
+                "1.txt",
+                "1" + Path.DirectorySeparatorChar + "branch_file.txt",
+                "branch_file.txt",
+                "new.txt",
+                "README",
+            };
+
+            using (var repo = new Repository(path))
+            {
+                RepositoryStatus status = repo.RetrieveStatus(new StatusOptions() { IncludeUnaltered = true });
+
+                Assert.Equal(unalteredPaths.Length, status.Unaltered.Count());
+                Assert.Equal(unalteredPaths, status.Unaltered.OrderBy(s => s.FilePath).Select(s => s.FilePath).ToArray());
+            }
+        }
+
+        [Fact]
+        public void UnalteredFilesDontMarkIndexAsDirty()
+        {
+            var path = SandboxStandardTestRepo();
+
+            using (var repo = new Repository(path))
+            {
+                repo.Reset(ResetMode.Hard);
+                repo.RemoveUntrackedFiles();
+
+                RepositoryStatus status = repo.RetrieveStatus(new StatusOptions() { IncludeUnaltered = true });
+
+                Assert.Equal(false, status.IsDirty);
+                Assert.Equal(9, status.Count());
             }
         }
     }
