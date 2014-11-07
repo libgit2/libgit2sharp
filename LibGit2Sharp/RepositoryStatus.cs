@@ -128,6 +128,12 @@ namespace LibGit2Sharp
                 coreOptions.PathSpec = GitStrArrayManaged.BuildFrom(options.PathSpec);
             }
 
+            if (options.DisablePathSpecMatch)
+            {
+                coreOptions.Flags |=
+                    GitStatusOptionFlags.DisablePathspecMatch;
+            }
+
             return coreOptions;
         }
 
