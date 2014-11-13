@@ -10,7 +10,7 @@ namespace LibGit2Sharp.Tests
 {
     public class ShadowCopyFixture : BaseFixture
     {
-        [SkippableFact]
+        [Fact]
         public void CanProbeForNativeBinariesFromAShadowCopiedAssembly()
         {
             Type type = typeof(Wrapper);
@@ -62,13 +62,17 @@ namespace LibGit2Sharp.Tests
             string cachedAssembliesPath = Path.Combine(setup.CachePath, setup.ApplicationName);
             Assert.True(cachedAssemblyLocation.StartsWith(cachedAssembliesPath));
 
-            // ...that this cache doesn't contain the `NativeBinaries` folder
-            string cachedAssemblyParentPath = Path.GetDirectoryName(cachedAssemblyLocation);
-            Assert.False(Directory.Exists(Path.Combine(cachedAssemblyParentPath, "NativeBinaries")));
+            if (!IsRunningOnLinux())
+            {
+                // ...that this cache doesn't contain the `NativeBinaries` folder
+                string cachedAssemblyParentPath = Path.GetDirectoryName(cachedAssemblyLocation);
+                Assert.False(Directory.Exists(Path.Combine(cachedAssemblyParentPath, "NativeBinaries")));
 
-            // ...whereas `NativeBinaries` of course exists next to the source assembly
-            string sourceAssemblyParentPath = Path.GetDirectoryName(new Uri(sourceAssembly.EscapedCodeBase).LocalPath);
-            Assert.True(Directory.Exists(Path.Combine(sourceAssemblyParentPath, "NativeBinaries")));
+                // ...whereas `NativeBinaries` of course exists next to the source assembly
+                string sourceAssemblyParentPath =
+                    Path.GetDirectoryName(new Uri(sourceAssembly.EscapedCodeBase).LocalPath);
+                Assert.True(Directory.Exists(Path.Combine(sourceAssemblyParentPath, "NativeBinaries")));
+            }
 
             AppDomain.Unload(domain);
         }
