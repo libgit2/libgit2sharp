@@ -186,7 +186,7 @@ namespace LibGit2Sharp
 
             Remove(targetId, author, committer, @namespace);
 
-            Proxy.git_note_create(repo.Handle, author, committer, canonicalNamespace, targetId, message, true);
+            Proxy.git_note_create(repo.Handle, canonicalNamespace, author, committer, targetId, message, true);
 
             return this[canonicalNamespace, targetId];
         }

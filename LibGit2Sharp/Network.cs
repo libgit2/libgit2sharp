@@ -52,7 +52,7 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNull(remote, "remote");
 
-            using (RemoteSafeHandle remoteHandle = Proxy.git_remote_load(repository.Handle, remote.Name, true))
+            using (RemoteSafeHandle remoteHandle = Proxy.git_remote_lookup(repository.Handle, remote.Name, true))
             {
                 if (credentialsProvider != null)
                 {
@@ -129,7 +129,7 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNull(remote, "remote");
 
-            using (RemoteSafeHandle remoteHandle = Proxy.git_remote_load(repository.Handle, remote.Name, true))
+            using (RemoteSafeHandle remoteHandle = Proxy.git_remote_lookup(repository.Handle, remote.Name, true))
             {
                 DoFetch(remoteHandle, options, signature.OrDefault(repository.Config), logMessage);
             }
@@ -150,7 +150,7 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(remote, "remote");
             Ensure.ArgumentNotNull(refspecs, "refspecs");
 
-            using (RemoteSafeHandle remoteHandle = Proxy.git_remote_load(repository.Handle, remote.Name, true))
+            using (RemoteSafeHandle remoteHandle = Proxy.git_remote_lookup(repository.Handle, remote.Name, true))
             {
                 Proxy.git_remote_set_fetch_refspecs(remoteHandle, refspecs);
 
@@ -270,7 +270,7 @@ namespace LibGit2Sharp
             PushCallbacks pushStatusUpdates = new PushCallbacks(pushOptions.OnPushStatusError);
 
             // Load the remote.
-            using (RemoteSafeHandle remoteHandle = Proxy.git_remote_load(repository.Handle, remote.Name, true))
+            using (RemoteSafeHandle remoteHandle = Proxy.git_remote_lookup(repository.Handle, remote.Name, true))
             {
                 var callbacks = new RemoteCallbacks(pushOptions.CredentialsProvider);
                 GitRemoteCallbacks gitCallbacks = callbacks.GenerateCallbacks();
