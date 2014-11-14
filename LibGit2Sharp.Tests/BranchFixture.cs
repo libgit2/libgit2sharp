@@ -241,9 +241,9 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(BareTestRepoPath))
             {
                 const string name = "sorry-dude-i-do-not-do-blobs-nor-trees";
-                Assert.Throws<LibGit2SharpException>(() => repo.CreateBranch(name, "refs/tags/point_to_blob"));
-                Assert.Throws<LibGit2SharpException>(() => repo.CreateBranch(name, "53fc32d"));
-                Assert.Throws<LibGit2SharpException>(() => repo.CreateBranch(name, "0266163"));
+                Assert.Throws<InvalidSpecificationException>(() => repo.CreateBranch(name, "refs/tags/point_to_blob"));
+                Assert.Throws<InvalidSpecificationException>(() => repo.CreateBranch(name, "53fc32d"));
+                Assert.Throws<InvalidSpecificationException>(() => repo.CreateBranch(name, "0266163"));
             }
         }
 

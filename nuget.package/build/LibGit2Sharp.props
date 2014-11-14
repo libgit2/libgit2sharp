@@ -1,20 +1,20 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 	<ItemGroup>
-		<None Include="$(MSBuildThisFileDirectory)\..\..\lib\net40\NativeBinaries\amd64\git2-3f8d005.dll">
-			<Link>NativeBinaries\amd64\git2-3f8d005.dll</Link>
+		<None Include="$(MSBuildThisFileDirectory)\..\..\lib\net40\NativeBinaries\amd64\git2-4eb97ef.dll">
+			<Link>NativeBinaries\amd64\git2-4eb97ef.dll</Link>
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
-		<None Include="$(MSBuildThisFileDirectory)\..\..\lib\net40\NativeBinaries\amd64\git2-3f8d005.pdb">
-			<Link>NativeBinaries\amd64\git2-3f8d005.pdb</Link>
+		<None Include="$(MSBuildThisFileDirectory)\..\..\lib\net40\NativeBinaries\amd64\git2-4eb97ef.pdb">
+			<Link>NativeBinaries\amd64\git2-4eb97ef.pdb</Link>
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
-		<None Include="$(MSBuildThisFileDirectory)\..\..\lib\net40\NativeBinaries\x86\git2-3f8d005.dll">
-			<Link>NativeBinaries\x86\git2-3f8d005.dll</Link>
+		<None Include="$(MSBuildThisFileDirectory)\..\..\lib\net40\NativeBinaries\x86\git2-4eb97ef.dll">
+			<Link>NativeBinaries\x86\git2-4eb97ef.dll</Link>
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
-		<None Include="$(MSBuildThisFileDirectory)\..\..\lib\net40\NativeBinaries\x86\git2-3f8d005.pdb">
-			<Link>NativeBinaries\x86\git2-3f8d005.pdb</Link>
+		<None Include="$(MSBuildThisFileDirectory)\..\..\lib\net40\NativeBinaries\x86\git2-4eb97ef.pdb">
+			<Link>NativeBinaries\x86\git2-4eb97ef.pdb</Link>
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
 	</ItemGroup>
