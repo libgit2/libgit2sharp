@@ -20,6 +20,10 @@ namespace LibGit2Sharp.Tests
         public void CanRegisterAndUnregisterFilter()
         {
             var filter = new Filter("radness-filter", "test", 1, emptyCallbacks);
+
+            filter.Register();
+            filter.Deregister();
+
             filter.Register();
             filter.Deregister();
         }
@@ -134,6 +138,7 @@ namespace LibGit2Sharp.Tests
         public void ApplyCallbackNotMadeWhenCheckCallbackReturnsPassThrough()
         {
             bool called = false;
+
             Func<int> applyCallback = () =>
             {
                 called = true;
@@ -151,6 +156,7 @@ namespace LibGit2Sharp.Tests
             }
 
             Assert.False(called);
+
         }
 
         private static void StageNewFile(Repository repo)
@@ -162,6 +168,7 @@ namespace LibGit2Sharp.Tests
 
         private Filter CreateFilterForAutomaticCleanUp(string name, string attributes, int version)
         {
+
             var filter = new Filter(name, attributes, version, emptyCallbacks);
             filtersForCleanUp.Add(filter);
             return filter;
@@ -176,10 +183,16 @@ namespace LibGit2Sharp.Tests
                     filter.Deregister();
                 }
                 catch (LibGit2SharpException)
-                {
-                }
+                { }
             }
             base.Dispose();
+        }
+
+        private static void StageNewFile(Repository repo, int n)
+        {
+            string path = "new" + n + ".txt";
+            Touch(repo.Info.WorkingDirectory, path, "null");
+            repo.Index.Stage(path);
         }
     }
 }
