@@ -218,8 +218,7 @@ namespace LibGit2Sharp
         private int CheckCallback(IntPtr gitFilter, IntPtr payload, IntPtr filterSource, IntPtr attributeValues)
         {
             Console.WriteLine("Check");
-            return 0;
-            //return filterCallbacks.CustomCheckCallback();
+            return filterCallbacks.CustomCheckCallback();
         }
 
         /// <summary>
@@ -366,7 +365,7 @@ namespace LibGit2Sharp
         {
             get
             {
-                return passThroughFunc;
+                return customCheckCallback;
             }
         }
 
