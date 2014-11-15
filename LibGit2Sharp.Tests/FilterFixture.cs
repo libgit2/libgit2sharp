@@ -57,8 +57,20 @@ namespace LibGit2Sharp.Tests
             const string attributes = "test";
             const int version = 1;
 
+            string repoPathOne = InitNewRepository();
+            string repoPathTwo = InitNewRepository();
+
+            using (var repoOne = new Repository(repoPathOne))
+            {
+                Console.WriteLine("First");
+                StageNewFile(repoOne, 1);
+                GC.Collect();
+                Console.WriteLine("Second");
+                StageNewFile(repoOne, 2);
+            }
             var filter = CreateFilterForAutomaticCleanUp(filterName, attributes, version);
             filter.Register();
+
 
             var registry = new FilterRegistry();
             var lookedUpFilter = registry.LookupByName(filterName);
@@ -106,6 +118,8 @@ namespace LibGit2Sharp.Tests
 
                 StageNewFile(repo);
             }
+
+            filter.Deregister();
 
             Assert.True(called);
         }
