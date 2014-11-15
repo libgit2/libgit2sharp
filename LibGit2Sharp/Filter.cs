@@ -265,7 +265,7 @@ namespace LibGit2Sharp
         private readonly Func<int> customApplyCallback;
         private readonly Func<int> customInitializeCallback;
         private readonly Action customShutdownCallback;
-        private Action customCleanUpCallback;
+        private readonly Action customCleanUpCallback;
 
         private readonly Func<int> passThroughFunc = () => (int) GitErrorCode.PassThrough;
         private readonly Func<int> passThroughSuccess = () => 0;
