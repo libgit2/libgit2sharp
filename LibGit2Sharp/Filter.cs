@@ -1,5 +1,4 @@
 using System;
-using System.Runtime.InteropServices;
 using System.Text;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Handles;
@@ -190,6 +189,7 @@ namespace LibGit2Sharp
         private void CleanUpCallback(IntPtr gitFilter, IntPtr payload)
         {
             Console.WriteLine("Cleanup");
+            filterCallbacks.CustomCleanUpCallback();
         }
 
         /// <summary>
@@ -270,6 +270,7 @@ namespace LibGit2Sharp
         private readonly Func<int> customApplyCallback;
         private readonly Func<int> customInitializeCallback;
         private readonly Action customShutdownCallback;
+        private Action customCleanUpCallback;
 
         private readonly Func<int> passThroughFunc = () => (int) GitErrorCode.PassThrough;
         private readonly Func<int> passThroughSuccess = () => 0;
@@ -285,12 +286,14 @@ namespace LibGit2Sharp
             Func<int> customCheckCallback = null,
             Func<int> customApplyCallback = null, 
             Action customShutdownCallback = null,
-            Func<int> customInitializeCallback = null)
+            Func<int> customInitializeCallback = null,
+            Action customCleanupCallback = null)
         {
             this.customCheckCallback = customCheckCallback ?? passThroughFunc;
             this.customApplyCallback = customApplyCallback ?? passThroughFunc;
             this.customShutdownCallback = customShutdownCallback ??  (() => { });
             this.customInitializeCallback = customInitializeCallback ?? passThroughSuccess;
+            this.customCleanUpCallback = customCleanupCallback ?? (() => { });
         }
 
         /// <summary>
@@ -347,6 +350,18 @@ namespace LibGit2Sharp
             get
             {
                 return customShutdownCallback;
+            }
+        }
+        /// <summary>
+        /// Callback to clean up after filtering has been applied. Specified as `filter.cleanup`, this is an optional callback invoked
+        /// after the filter has been applied.  If the `check` or `apply` callbacks allocated a `payload` 
+        /// to keep per-source filter state, use this  callback to free that payload and release resources as required.
+        /// </summary>
+        public Action CustomCleanUpCallback
+        {
+            get
+            {
+                return customCleanUpCallback;
             }
         }
 

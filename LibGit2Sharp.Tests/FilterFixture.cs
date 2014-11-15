@@ -204,6 +204,31 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
+        public void CleanUpIsCalledAfterStage()
+        {
+            bool called = false;
+
+            Action cleanUpCallback = () =>
+            {
+                called = true;
+            };
+
+            string repoPath = InitNewRepository();
+            var callbacks = new FilterCallbacks(() => 0, ()=> 0, () => {}, ()=>0, cleanUpCallback);
+            var test = new Filter("test-filter55", "filter", 1, callbacks);
+            using (var repo = new Repository(repoPath))
+            {
+                test.Register();
+
+                StageNewFile(repo, 44);
+            }
+
+            test.Deregister();
+            Assert.True(called);
+        }
+
+
+        [Fact]
         public void ShutdownCallbackNotMadeWhenFilterNeverUsed()
         {
             bool called = false;

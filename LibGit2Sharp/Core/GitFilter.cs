@@ -13,16 +13,6 @@ namespace LibGit2Sharp.Core
 
         public IntPtr attributes;
 
-        //public IntPtr init;
-
-        //public IntPtr shutdown;
-
-        //public IntPtr check;
-
-        //public IntPtr apply;
-
-        //public IntPtr cleanup;
-
         [MarshalAs(UnmanagedType.FunctionPtr)]
         public git_filter_init_fn init;
 
