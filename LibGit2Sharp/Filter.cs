@@ -125,7 +125,6 @@ namespace LibGit2Sharp
         /// </summary>
         private int InitializeCallback(IntPtr filter)
         {
-            Console.WriteLine("Init");
             return filterCallbacks.CustomInitializeCallback();
         }
 
@@ -140,7 +139,6 @@ namespace LibGit2Sharp
         /// </summary>
         private void ShutdownCallback(IntPtr gitFilter)
         {
-            Console.WriteLine("ShutDown");
             filterCallbacks.CustomShutdownCallback();
         }
 
@@ -161,7 +159,6 @@ namespace LibGit2Sharp
         /// <returns></returns>
         private int CheckCallback(IntPtr gitFilter, IntPtr payload, IntPtr filterSource, IntPtr attributeValues)
         {
-            Console.WriteLine("Check");
             return filterCallbacks.CustomCheckCallback();
         }
 
@@ -177,7 +174,6 @@ namespace LibGit2Sharp
         /// </summary>
         private int ApplyCallback(IntPtr gitFilter, IntPtr payload, IntPtr gitBufferTo, IntPtr gitBufferFrom, IntPtr filterSource)
         {
-            Console.WriteLine("Apply");
             return filterCallbacks.CustomApplyCallback();
         }
 
@@ -188,7 +184,6 @@ namespace LibGit2Sharp
         /// </summary>
         private void CleanUpCallback(IntPtr gitFilter, IntPtr payload)
         {
-            Console.WriteLine("Cleanup");
             filterCallbacks.CustomCleanUpCallback();
         }
 
