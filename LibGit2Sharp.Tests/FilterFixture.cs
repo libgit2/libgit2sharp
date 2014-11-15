@@ -145,6 +145,8 @@ namespace LibGit2Sharp.Tests
                 StageNewFile(repo);
             }
 
+            filter.Deregister();
+
             Assert.True(called);
         }
 
@@ -168,7 +170,6 @@ namespace LibGit2Sharp.Tests
 
                 StageNewFile(repo);
             }
-
             Assert.False(called);
 
         }

@@ -234,8 +234,7 @@ namespace LibGit2Sharp
         private int ApplyCallback(IntPtr gitFilter, IntPtr payload, IntPtr gitBufferTo, IntPtr gitBufferFrom, IntPtr filterSource)
         {
             Console.WriteLine("Apply");
-            return 0;
-            //return filterCallbacks.CustomApplyCallback();
+            return filterCallbacks.CustomApplyCallback();
         }
 
         /// <summary>
