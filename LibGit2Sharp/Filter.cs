@@ -9,14 +9,36 @@ namespace LibGit2Sharp
     /// <summary>
     /// A filter
     /// </summary>
-    public sealed class Filter
+    public sealed class Filter : IEquatable<Filter>
     {
-        private readonly IntPtr nativeFilter;
-        private readonly string filterName;
+        private static readonly LambdaEqualityHelper<Filter> equalityHelper =
+        new LambdaEqualityHelper<Filter>(x => x.Name, x => x.Attributes,x => x.Version);
+
+        private readonly string name;
         private readonly string attributes;
         private readonly int version;
         private readonly FilterCallbacks filterCallbacks;
-        private readonly GitFilter managedFilter;
+
+        private GitFilter managedFilter;
+        private GCHandle filterHandle;
+        private readonly GitFilterSafeHandle nativeFilter;
+
+        private GitFilter.git_filter_apply_fn applyCallback;
+        private GitFilter.git_filter_check_fn checkCallback;
+        private GitFilter.git_filter_init_fn initCallback;
+        private GitFilter.git_filter_shutdown_fn shutdownCallback;
+        private GitFilter.git_filter_cleanup_fn cleanCallback;
+
+        private IntPtr applyCallbackHandle;
+        private IntPtr checkCallbackHandle;
+        private IntPtr initCallbackHandle;
+        private GCHandle checkCallbackGCHandle;
+        private GCHandle applyCallbackGCHandle;
+        private GCHandle initCallbackGCHandle;
+        private IntPtr shutdownCallbackHandle;
+        private IntPtr cleanCallbackHandle;
+        private GCHandle shutdownCallbackGCHandle;
+        private GCHandle cleanCallbackGCHandle;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Filter"/> class.
@@ -29,31 +51,50 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(version, "version");
             Ensure.ArgumentNotNull(filterCallbacks, "filterCallbacks");
 
-            this.filterName = name;
+            this.name = name;
             this.attributes = attributes;
             this.version = version;
             this.filterCallbacks = filterCallbacks;
 
+            applyCallback = ApplyCallback;
+            checkCallback = CheckCallback;
+            initCallback = InitializeCallback;
+            shutdownCallback = ShutdownCallback;
+            cleanCallback = CleanUpCallback;
+
+            checkCallbackHandle = Marshal.GetFunctionPointerForDelegate(checkCallback);
+            applyCallbackHandle = Marshal.GetFunctionPointerForDelegate(applyCallback);
+            initCallbackHandle = Marshal.GetFunctionPointerForDelegate(initCallback);
+            shutdownCallbackHandle = Marshal.GetFunctionPointerForDelegate(shutdownCallback);
+            cleanCallbackHandle = Marshal.GetFunctionPointerForDelegate(cleanCallback);
+
+            checkCallbackGCHandle = GCHandle.Alloc(checkCallbackHandle, GCHandleType.Pinned);
+            applyCallbackGCHandle = GCHandle.Alloc(applyCallbackHandle, GCHandleType.Pinned);
+            initCallbackGCHandle = GCHandle.Alloc(initCallbackHandle, GCHandleType.Pinned);
+            shutdownCallbackGCHandle = GCHandle.Alloc(shutdownCallbackHandle, GCHandleType.Pinned);
+            cleanCallbackGCHandle = GCHandle.Alloc(cleanCallbackHandle, GCHandleType.Pinned);
+
             managedFilter = new GitFilter
             {
                 attributes = EncodingMarshaler.FromManaged(Encoding.UTF8, attributes),
-                version = (uint) version,
-                init = InitializeCallback,
-                shutdown = ShutdownCallback,
-                check = CheckCallback,
-                apply = ApplyCallback,
-                cleanup = CleanUpCallback
+                version = (uint)version,
+                init = initCallbackHandle,
+                apply = applyCallbackHandle,
+                check = checkCallbackHandle,
+                shutdown = shutdownCallbackHandle,
+                cleanup = cleanCallbackHandle
             };
 
-            nativeFilter = Marshal.AllocHGlobal(Marshal.SizeOf(managedFilter));
-            Marshal.StructureToPtr(managedFilter, nativeFilter, false);
+            filterHandle = GCHandle.Alloc(managedFilter, GCHandleType.Pinned);
+            nativeFilter = new GitFilterSafeHandle(managedFilter);
         }
 
-        internal Filter(string name, IntPtr filterPtr)
+        internal Filter(string name, GitFilterSafeHandle filterPtr)
         {
             nativeFilter = filterPtr;
-            managedFilter = nativeFilter.MarshalAs<GitFilter>();
-            filterName = name;
+            Console.WriteLine(nativeFilter != null);
+            managedFilter = nativeFilter.MarshalFromNative();
+            this.name = name;
             attributes = EncodingMarshaler.FromNative(Encoding.UTF8, managedFilter.attributes);
             version = (int) managedFilter.version;
         }
@@ -63,7 +104,7 @@ namespace LibGit2Sharp
         /// </summary>
         public string Name
         {
-            get { return filterName; }
+            get { return name; }
         }
 
         /// <summary>
@@ -87,7 +128,7 @@ namespace LibGit2Sharp
         /// </summary>
         public void Register()
         {
-            Proxy.git_filter_register(filterName, nativeFilter, 1);
+            Proxy.git_filter_register(name, nativeFilter, 0);
         }
 
         /// <summary>
@@ -95,8 +136,37 @@ namespace LibGit2Sharp
         /// </summary>
         public void Deregister()
         {
-            Proxy.git_filter_unregister(Name);
-            Marshal.FreeHGlobal(nativeFilter);
+            Proxy.git_filter_unregister(name);
+
+            if (filterHandle.IsAllocated)
+            {
+                filterHandle.Free();
+            }
+
+            if (applyCallbackGCHandle.IsAllocated)
+            {
+                applyCallbackGCHandle.Free();
+            }
+
+            if (checkCallbackGCHandle.IsAllocated)
+            {
+                checkCallbackGCHandle.Free();
+            }
+
+            if (initCallbackGCHandle.IsAllocated)
+            {
+                initCallbackGCHandle.Free();
+            }
+
+            if (shutdownCallbackGCHandle.IsAllocated)
+            {
+                shutdownCallbackGCHandle.Free();
+            }
+
+            if (cleanCallbackGCHandle.IsAllocated)
+            {
+                cleanCallbackGCHandle.Free();
+            }
         }
 
         /// <summary>
@@ -111,7 +181,9 @@ namespace LibGit2Sharp
         /// </summary>
         private int InitializeCallback(IntPtr filter)
         {
-            return filterCallbacks.CustomInitializeCallback();
+            Console.WriteLine("Init");
+            return 0;
+           // return filterCallbacks.CustomInitializeCallback();
         }
 
         /// <summary>
@@ -125,7 +197,8 @@ namespace LibGit2Sharp
         /// </summary>
         private void ShutdownCallback(IntPtr gitFilter)
         {
-            filterCallbacks.CustomShutdownCallback();
+            Console.WriteLine("ShutDown");
+           // filterCallbacks.CustomShutdownCallback();
         }
 
         /// <summary>
@@ -143,9 +216,11 @@ namespace LibGit2Sharp
         /// callback to free the payload.
         /// </summary>
         /// <returns></returns>
-        private int CheckCallback(IntPtr gitFilter, IntPtr payload, GitFilterSource filterSource, IntPtr attributeValues)
+        private int CheckCallback(IntPtr gitFilter, IntPtr payload, IntPtr filterSource, IntPtr attributeValues)
         {
-            return filterCallbacks.CustomCheckCallback();
+            Console.WriteLine("Check");
+            return 0;
+            //return filterCallbacks.CustomCheckCallback();
         }
 
         /// <summary>
@@ -158,9 +233,11 @@ namespace LibGit2Sharp
         /// 
         /// The `payload` value will refer to any payload that was set by the `check` callback.  It may be read from or written to as needed.
         /// </summary>
-        private int ApplyCallback(IntPtr gitFilter, IntPtr payload, GitBuf gitBufferTo, GitBuf gitBufferFrom, GitFilterSource filterSource)
+        private int ApplyCallback(IntPtr gitFilter, IntPtr payload, IntPtr gitBufferTo, IntPtr gitBufferFrom, IntPtr filterSource)
         {
-            return filterCallbacks.CustomApplyCallback();
+            Console.WriteLine("Apply");
+            return 0;
+            //return filterCallbacks.CustomApplyCallback();
         }
 
         /// <summary>
@@ -170,7 +247,58 @@ namespace LibGit2Sharp
         /// </summary>
         private void CleanUpCallback(IntPtr gitFilter, IntPtr payload)
         {
+            Console.WriteLine("Cleanup");
+        }
 
+        /// <summary>
+        /// Determines whether the specified <see cref="Object"/> is equal to the current <see cref="Filter"/>.
+        /// </summary>
+        /// <param name="obj">The <see cref="Object"/> to compare with the current <see cref="Filter"/>.</param>
+        /// <returns>True if the specified <see cref="Object"/> is equal to the current <see cref="Filter"/>; otherwise, false.</returns>
+        public override bool Equals(object obj)
+        {
+            return Equals(obj as Filter);
+        }
+
+        /// <summary>
+        /// Determines whether the specified <see cref="Filter"/> is equal to the current <see cref="Filter"/>.
+        /// </summary>
+        /// <param name="other">The <see cref="Filter"/> to compare with the current <see cref="Filter"/>.</param>
+        /// <returns>True if the specified <see cref="Filter"/> is equal to the current <see cref="Filter"/>; otherwise, false.</returns>
+        public bool Equals(Filter other)
+        {
+            return equalityHelper.Equals(this, other);
+        }
+
+        /// <summary>
+        /// Returns the hash code for this instance.
+        /// </summary>
+        /// <returns>A 32-bit signed integer hash code.</returns>
+        public override int GetHashCode()
+        {
+            return equalityHelper.GetHashCode(this);
+        }
+
+        /// <summary>
+        /// Tests if two <see cref="Filter"/> are equal.
+        /// </summary>
+        /// <param name="left">First <see cref="Filter"/> to compare.</param>
+        /// <param name="right">Second <see cref="Filter"/> to compare.</param>
+        /// <returns>True if the two objects are equal; false otherwise.</returns>
+        public static bool operator ==(Filter left, Filter right)
+        {
+            return Equals(left, right);
+        }
+
+        /// <summary>
+        /// Tests if two <see cref="Filter"/> are different.
+        /// </summary>
+        /// <param name="left">First <see cref="Filter"/> to compare.</param>
+        /// <param name="right">Second <see cref="Filter"/> to compare.</param>
+        /// <returns>True if the two objects are different; false otherwise.</returns>
+        public static bool operator !=(Filter left, Filter right)
+        {
+            return !Equals(left, right);
         }
     }
 
@@ -186,7 +314,8 @@ namespace LibGit2Sharp
         /// <returns>The found matching filter</returns>
         public Filter LookupByName(string name)
         {
-            return new Filter(name, Proxy.git_filter_lookup(name));
+            GitFilterSafeHandle gitFilterLookup = Proxy.git_filter_lookup(name);
+            return new Filter(name, gitFilterLookup);
         }
     }
 
@@ -238,7 +367,7 @@ namespace LibGit2Sharp
         {
             get
             {
-                return customCheckCallback;
+                return passThroughFunc;
             }
         }
 

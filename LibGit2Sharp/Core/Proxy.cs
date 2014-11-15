@@ -747,7 +747,7 @@ namespace LibGit2Sharp.Core
 
         #region git_filter_
 
-        public static void git_filter_register(string name, IntPtr filter, int priority)
+        public static void git_filter_register(string name, GitFilterSafeHandle filter, int priority)
         {
             using (ThreadAffinity())
             {
@@ -770,12 +770,21 @@ namespace LibGit2Sharp.Core
             }
         }
 
-        public static IntPtr git_filter_lookup(string name)
+        public static GitFilterSafeHandle git_filter_lookup(string name)
         {
             using (ThreadAffinity())
             {
                 var res =  NativeMethods.git_filter_lookup(name);
-                return res;
+
+                return new GitFilterSafeHandle(res);
+            }
+        }
+
+        public static void git_filter_free(IntPtr gitFilter)
+        {
+            using (ThreadAffinity())
+            {
+                NativeMethods.git_filter_free(gitFilter);
             }
         }
 

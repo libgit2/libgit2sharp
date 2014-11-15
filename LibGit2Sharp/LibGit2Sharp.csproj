@@ -70,6 +70,7 @@
     <Compile Include="CompareOptions.cs" />
     <Compile Include="Core\GitFilter.cs" />
     <Compile Include="Core\GitIndexReucEntry.cs" />
+    <Compile Include="Core\Handles\GitFilterSafeHandle.cs" />
     <Compile Include="Core\Handles\IndexNameEntrySafeHandle.cs" />
     <Compile Include="Core\Handles\IndexReucEntrySafeHandle.cs" />
     <Compile Include="EntryExistsException.cs" />

@@ -1,6 +1,5 @@
 using System;
 using System.Runtime.InteropServices;
-using LibGit2Sharp.Core.Handles;
 
 namespace LibGit2Sharp.Core
 {
@@ -14,20 +13,30 @@ namespace LibGit2Sharp.Core
 
         public IntPtr attributes;
 
-        [MarshalAs(UnmanagedType.FunctionPtr)]
-        public git_filter_init_fn init;
+        public IntPtr init;
 
-        [MarshalAs(UnmanagedType.FunctionPtr)]
-        public git_filter_shutdown_fn shutdown;
+        public IntPtr shutdown;
 
-        [MarshalAs(UnmanagedType.FunctionPtr)]
-        public git_filter_check_fn check;
+        public IntPtr check;
 
-        [MarshalAs(UnmanagedType.FunctionPtr)]
-        public git_filter_apply_fn apply;
+        public IntPtr apply;
 
-        [MarshalAs(UnmanagedType.FunctionPtr)]
-        public git_filter_cleanup_fn cleanup;
+        public IntPtr cleanup;
+
+        //[MarshalAs(UnmanagedType.FunctionPtr)]
+        //public git_filter_init_fn init;
+
+        //[MarshalAs(UnmanagedType.FunctionPtr)]
+        //public git_filter_shutdown_fn shutdown;
+
+        //[MarshalAs(UnmanagedType.FunctionPtr)]
+        //public git_filter_check_fn check;
+
+        //[MarshalAs(UnmanagedType.FunctionPtr)]
+        //public git_filter_apply_fn apply;
+
+        //[MarshalAs(UnmanagedType.FunctionPtr)]
+        //public git_filter_cleanup_fn cleanup;
 
         /* The libgit2 structure definition ends here. Subsequent fields are for libgit2sharp bookkeeping. */
 
@@ -72,7 +81,7 @@ namespace LibGit2Sharp.Core
         /// </summary>
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
         public delegate int git_filter_check_fn(
-            IntPtr gitFilter, IntPtr payload, GitFilterSource filterSource, IntPtr attributeValues);
+            IntPtr gitFilter, IntPtr payload, IntPtr filterSource, IntPtr attributeValues);
 
         /// <summary>
         /// Callback to actually perform the data filtering
@@ -86,7 +95,7 @@ namespace LibGit2Sharp.Core
         /// </summary>
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
         public delegate int git_filter_apply_fn(
-            IntPtr gitFilter, IntPtr payload, GitBuf gitBufTo, GitBuf gitBufFrom, GitFilterSource filterSource);
+            IntPtr gitFilter, IntPtr payload, IntPtr gitBufTo, IntPtr gitBufFrom, IntPtr filterSource);
 
         /// <summary>
         /// Callback to clean up after filtering has been applied. Specified as `filter.cleanup`, this is an optional callback invoked
@@ -105,8 +114,7 @@ namespace LibGit2Sharp.Core
     {
         public IntPtr repositoryURL;
 
-        [MarshalAs(UnmanagedType.LPStr)] 
-        public string path;
+        public FilePath path;
 
         public ObjectId oId;
 
