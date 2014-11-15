@@ -249,7 +249,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="name">The name to look up</param>
         /// <returns>The found matching filter</returns>
-        public Filter LookupByName(string name)
+        public virtual Filter LookupByName(string name)
         {
             GitFilterSafeHandle gitFilterLookup = Proxy.git_filter_lookup(name);
             return new Filter(name, gitFilterLookup);
@@ -269,6 +269,14 @@ namespace LibGit2Sharp
 
         private readonly Func<int> passThroughFunc = () => (int) GitErrorCode.PassThrough;
         private readonly Func<int> passThroughSuccess = () => 0;
+
+        /// <summary>
+        /// Needed for mocking purposes
+        /// </summary>
+        protected FilterCallbacks()
+        {
+            
+        }
 
         /// <summary>
         /// The callbacks for a filter to execute
@@ -305,7 +313,7 @@ namespace LibGit2Sharp
         /// away before the `apply` callback can use it.  If a filter allocates and assigns a value to the `payload`, it will need a `cleanup` 
         /// callback to free the payload.
         /// </summary>
-        public Func<int> CustomCheckCallback
+        public virtual Func<int> CustomCheckCallback
         {
             get
             {
@@ -323,7 +331,7 @@ namespace LibGit2Sharp
         /// 
         /// The `payload` value will refer to any payload that was set by the `check` callback.  It may be read from or written to as needed.
         /// </summary>
-        public Func<int> CustomApplyCallback
+        public virtual Func<int> CustomApplyCallback
         {
             get
             {
@@ -340,7 +348,7 @@ namespace LibGit2Sharp
         /// This may be called even if the `initialize` callback was not made.
         /// Typically this function will free the `git_filter` object itself.
         /// </summary>
-        public Action CustomShutdownCallback
+        public virtual Action CustomShutdownCallback
         {
             get
             {
@@ -352,7 +360,7 @@ namespace LibGit2Sharp
         /// after the filter has been applied.  If the `check` or `apply` callbacks allocated a `payload` 
         /// to keep per-source filter state, use this  callback to free that payload and release resources as required.
         /// </summary>
-        public Action CustomCleanUpCallback
+        public virtual Action CustomCleanUpCallback
         {
             get
             {
@@ -370,7 +378,7 @@ namespace LibGit2Sharp
         /// before the first use of the filter, so you can defer expensive
         /// initialization operations (in case libgit2 is being used in a way that doesn't need the filter).
         /// </summary>
-        public Func<int> CustomInitializeCallback
+        public virtual Func<int> CustomInitializeCallback
         {
             get
             {
