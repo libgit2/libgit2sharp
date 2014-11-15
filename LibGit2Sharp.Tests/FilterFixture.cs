@@ -342,7 +342,7 @@ namespace LibGit2Sharp.Tests
         {
             string path = "new" + n + ".txt";
             Touch(repo.Info.WorkingDirectory, path, "null");
-            repo.Index.Stage(path);
+            repo.Stage(path);
         }
     }
 }
