@@ -249,6 +249,52 @@ namespace LibGit2Sharp.Tests
             Assert.True(called);
         }
 
+        [Fact]
+        public void InitCallbackNotMadeWhenFilterNeverUsed()
+        {
+            bool called = false;
+            Func<int> initializeCallback = () =>
+            {
+                called = true;
+                return 0;
+            };
+
+            var callbacks = new FilterCallbacks(() => 0, () => 0, () => { }, initializeCallback);
+            var filter = new Filter("test-filter", "filter", 1, callbacks);
+
+            filter.Register();
+
+            Assert.False(called);
+
+            filter.Deregister();
+
+        }
+
+        [Fact]
+        public void InitCallbackMadeWhenUsingTheFilter()
+        {
+            bool called = false;
+            Func<int> initializeCallback = () =>
+            {
+                called = true;
+                return 0;
+            };
+
+            var callbacks = new FilterCallbacks(() => 0, () => 0, () => { }, initializeCallback);
+            var filter = new Filter("test-filter", "filter", 1, callbacks);
+
+            filter.Register();
+            Assert.False(called);
+
+            string repoPath = InitNewRepository();
+            using (var repo = new Repository(repoPath))
+            {
+                StageNewFile(repo, 77);
+            }
+            filter.Deregister();
+            Assert.True(called);
+        }
+
         private static void StageNewFile(Repository repo, int n)
         {
             string path = "new" + n + ".txt";

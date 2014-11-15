@@ -181,8 +181,7 @@ namespace LibGit2Sharp
         private int InitializeCallback(IntPtr filter)
         {
             Console.WriteLine("Init");
-            return 0;
-           // return filterCallbacks.CustomInitializeCallback();
+            return filterCallbacks.CustomInitializeCallback();
         }
 
         /// <summary>
@@ -335,15 +334,17 @@ namespace LibGit2Sharp
         /// <param name="customCheckCallback">The check callback</param>
         /// <param name="customApplyCallback">the apply callback</param>
         /// <param name="customShutdownCallback">The shutdown callback</param>
+        /// <param name="customInitializeCallback">The init callback</param>
         public FilterCallbacks(
             Func<int> customCheckCallback = null,
             Func<int> customApplyCallback = null, 
-            Action customShutdownCallback = null)
+            Action customShutdownCallback = null,
+            Func<int> customInitializeCallback = null)
         {
             this.customCheckCallback = customCheckCallback ?? passThroughFunc;
             this.customApplyCallback = customApplyCallback ?? passThroughFunc;
             this.customShutdownCallback = customShutdownCallback ??  (() => { });
-            this.customInitializeCallback = customInitializeCallback ?? passThroughFunc;
+            this.customInitializeCallback = customInitializeCallback ?? passThroughSuccess;
         }
 
         /// <summary>
@@ -417,7 +418,7 @@ namespace LibGit2Sharp
         {
             get
             {
-                return passThroughSuccess;
+                return customInitializeCallback;
             }
         }
     }
