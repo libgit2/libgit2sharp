@@ -197,7 +197,7 @@ namespace LibGit2Sharp
         private void ShutdownCallback(IntPtr gitFilter)
         {
             Console.WriteLine("ShutDown");
-           // filterCallbacks.CustomShutdownCallback();
+            filterCallbacks.CustomShutdownCallback();
         }
 
         /// <summary>

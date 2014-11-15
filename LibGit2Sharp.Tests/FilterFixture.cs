@@ -203,6 +203,52 @@ namespace LibGit2Sharp.Tests
             base.Dispose();
         }
 
+        [Fact]
+        public void ShutdownCallbackNotMadeWhenFilterNeverUsed()
+        {
+            bool called = false;
+            Action shutdownCallback = () =>
+            {
+                called = true;
+            };
+
+            var callbacks = new FilterCallbacks(() => 0, () => 0, shutdownCallback);
+            var filter = new Filter("test-filter", "filter", 1, callbacks);
+
+            filter.Register();
+
+            Assert.False(called);
+
+            filter.Deregister();
+            Assert.False(called);
+        }
+
+        [Fact]
+        public void ShutdownCallbackMadeWhenDeregisteringFilter()
+        {
+            bool called = false;
+            Action shutdownCallback = () =>
+            {
+                called = true;
+            };
+
+            var callbacks = new FilterCallbacks(() => 0, ()=> 0, shutdownCallback);
+            var filter = new Filter("test-filter", "filter", 1, callbacks);
+
+            filter.Register();
+
+            string repoPath = InitNewRepository();
+            using (var repo = new Repository(repoPath))
+            {
+                StageNewFile(repo, 77);
+            }
+
+            Assert.False(called);
+
+            filter.Deregister();
+            Assert.True(called);
+        }
+
         private static void StageNewFile(Repository repo, int n)
         {
             string path = "new" + n + ".txt";
