@@ -20,7 +20,6 @@ namespace LibGit2Sharp
         private readonly FilterCallbacks filterCallbacks;
 
         private GitFilter managedFilter;
-        private GCHandle filterHandle;
         private readonly GitFilterSafeHandle nativeFilter;
 
         private GitFilter.git_filter_apply_fn applyCallback;
@@ -28,17 +27,6 @@ namespace LibGit2Sharp
         private GitFilter.git_filter_init_fn initCallback;
         private GitFilter.git_filter_shutdown_fn shutdownCallback;
         private GitFilter.git_filter_cleanup_fn cleanCallback;
-
-        private IntPtr applyCallbackHandle;
-        private IntPtr checkCallbackHandle;
-        private IntPtr initCallbackHandle;
-        private GCHandle checkCallbackGCHandle;
-        private GCHandle applyCallbackGCHandle;
-        private GCHandle initCallbackGCHandle;
-        private IntPtr shutdownCallbackHandle;
-        private IntPtr cleanCallbackHandle;
-        private GCHandle shutdownCallbackGCHandle;
-        private GCHandle cleanCallbackGCHandle;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Filter"/> class.
@@ -62,30 +50,18 @@ namespace LibGit2Sharp
             shutdownCallback = ShutdownCallback;
             cleanCallback = CleanUpCallback;
 
-            checkCallbackHandle = Marshal.GetFunctionPointerForDelegate(checkCallback);
-            applyCallbackHandle = Marshal.GetFunctionPointerForDelegate(applyCallback);
-            initCallbackHandle = Marshal.GetFunctionPointerForDelegate(initCallback);
-            shutdownCallbackHandle = Marshal.GetFunctionPointerForDelegate(shutdownCallback);
-            cleanCallbackHandle = Marshal.GetFunctionPointerForDelegate(cleanCallback);
-
-            checkCallbackGCHandle = GCHandle.Alloc(checkCallbackHandle, GCHandleType.Pinned);
-            applyCallbackGCHandle = GCHandle.Alloc(applyCallbackHandle, GCHandleType.Pinned);
-            initCallbackGCHandle = GCHandle.Alloc(initCallbackHandle, GCHandleType.Pinned);
-            shutdownCallbackGCHandle = GCHandle.Alloc(shutdownCallbackHandle, GCHandleType.Pinned);
-            cleanCallbackGCHandle = GCHandle.Alloc(cleanCallbackHandle, GCHandleType.Pinned);
 
             managedFilter = new GitFilter
             {
                 attributes = EncodingMarshaler.FromManaged(Encoding.UTF8, attributes),
                 version = (uint)version,
-                init = initCallbackHandle,
-                apply = applyCallbackHandle,
-                check = checkCallbackHandle,
-                shutdown = shutdownCallbackHandle,
-                cleanup = cleanCallbackHandle
+                init = initCallback,
+                apply = applyCallback,
+                check = checkCallback,
+                shutdown = shutdownCallback,
+                cleanup = cleanCallback
             };
 
-            filterHandle = GCHandle.Alloc(managedFilter, GCHandleType.Pinned);
             nativeFilter = new GitFilterSafeHandle(managedFilter);
         }
 
@@ -136,36 +112,6 @@ namespace LibGit2Sharp
         public void Deregister()
         {
             Proxy.git_filter_unregister(name);
-
-            if (filterHandle.IsAllocated)
-            {
-                filterHandle.Free();
-            }
-
-            if (applyCallbackGCHandle.IsAllocated)
-            {
-                applyCallbackGCHandle.Free();
-            }
-
-            if (checkCallbackGCHandle.IsAllocated)
-            {
-                checkCallbackGCHandle.Free();
-            }
-
-            if (initCallbackGCHandle.IsAllocated)
-            {
-                initCallbackGCHandle.Free();
-            }
-
-            if (shutdownCallbackGCHandle.IsAllocated)
-            {
-                shutdownCallbackGCHandle.Free();
-            }
-
-            if (cleanCallbackGCHandle.IsAllocated)
-            {
-                cleanCallbackGCHandle.Free();
-            }
         }
 
         /// <summary>

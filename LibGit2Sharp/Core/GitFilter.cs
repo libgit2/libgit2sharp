@@ -13,30 +13,30 @@ namespace LibGit2Sharp.Core
 
         public IntPtr attributes;
 
-        public IntPtr init;
+        //public IntPtr init;
 
-        public IntPtr shutdown;
+        //public IntPtr shutdown;
 
-        public IntPtr check;
+        //public IntPtr check;
 
-        public IntPtr apply;
+        //public IntPtr apply;
 
-        public IntPtr cleanup;
+        //public IntPtr cleanup;
 
-        //[MarshalAs(UnmanagedType.FunctionPtr)]
-        //public git_filter_init_fn init;
+        [MarshalAs(UnmanagedType.FunctionPtr)]
+        public git_filter_init_fn init;
 
-        //[MarshalAs(UnmanagedType.FunctionPtr)]
-        //public git_filter_shutdown_fn shutdown;
+        [MarshalAs(UnmanagedType.FunctionPtr)]
+        public git_filter_shutdown_fn shutdown;
 
-        //[MarshalAs(UnmanagedType.FunctionPtr)]
-        //public git_filter_check_fn check;
+        [MarshalAs(UnmanagedType.FunctionPtr)]
+        public git_filter_check_fn check;
 
-        //[MarshalAs(UnmanagedType.FunctionPtr)]
-        //public git_filter_apply_fn apply;
+        [MarshalAs(UnmanagedType.FunctionPtr)]
+        public git_filter_apply_fn apply;
 
-        //[MarshalAs(UnmanagedType.FunctionPtr)]
-        //public git_filter_cleanup_fn cleanup;
+        [MarshalAs(UnmanagedType.FunctionPtr)]
+        public git_filter_cleanup_fn cleanup;
 
         /* The libgit2 structure definition ends here. Subsequent fields are for libgit2sharp bookkeeping. */
 
