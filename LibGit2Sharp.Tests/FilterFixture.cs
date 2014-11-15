@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
 
@@ -9,56 +8,91 @@ namespace LibGit2Sharp.Tests
     {
         private const int GitPassThrough = -30;
         private readonly FilterCallbacks emptyCallbacks = new FilterCallbacks(null, null);
-        private readonly List<Filter> filtersForCleanUp;
 
-        public FilterFixture()
-        {
-            filtersForCleanUp = new List<Filter>();
-        }
-
-        [Fact]
-        public void CanRegisterAndUnregisterFilter()
-        {
-            var filter = new Filter("radness-filter", "test", 1, emptyCallbacks);
-
-            filter.Register();
-            filter.Deregister();
-
-            filter.Register();
-            filter.Deregister();
-        }
-
-        [Fact]
-        public void CanNotRegisterFilterWithTheSameNameMoreThanOnce()
-        {
-            var filterOne = CreateFilterForAutomaticCleanUp("filter-one", "test", 1);
-            var filterTwo = CreateFilterForAutomaticCleanUp("filter-one", "test", 1);
-
-            filterOne.Register();
-            Assert.Throws<InvalidOperationException>(() => filterTwo.Register());
-        }
+        private const string FilterName = "the-filter";
+        const string Attributes = "test";
+        const int Version = 1;
 
         [Fact]
         public void CanRegisterAndUnregisterTheSameFilter()
         {
-            var filterOne = new Filter("filter-two", "test", 1, emptyCallbacks);
-            filterOne.Register();
-            filterOne.Deregister();
+            var filter = new Filter(FilterName + 1, Attributes, Version, emptyCallbacks);
 
-            var filterTwo = new Filter("filter-two", "test", 1, emptyCallbacks);
-            filterTwo.Register();
-            filterTwo.Deregister();
+            filter.Register();
+            filter.Deregister();
+
+            filter.Register();
+            filter.Deregister();
+        }
+
+        [Fact]
+        public void CanRegisterAndDeregisterAfterGarbageCollection()
+        {
+            var filter = new Filter(FilterName + 2, Attributes, Version, emptyCallbacks);
+            filter.Register();
+
+            GC.Collect();
+
+            filter.Deregister();
+        }
+
+        [Fact]
+        public void SameFilterIsEqual()
+        {
+            var filter = new Filter(FilterName + 3, Attributes, Version, emptyCallbacks);
+            Assert.Equal(filter, filter);
+        }
+
+        [Fact]
+        public void WhenLookingUpFilterResultIsEqual()
+        {
+            var filter = new Filter(FilterName + 4, Attributes, Version, emptyCallbacks);
+            filter.Register();
+
+            var registry = new FilterRegistry();
+            Filter lookupByName = registry.LookupByName(FilterName + 4);
+
+            filter.Deregister();
+            Assert.Equal(filter, lookupByName);
+        }
+
+        [Fact]
+        public void LookingUpFilterResultSurvivesGarbageCollection()
+        {
+            var filter = new Filter(FilterName + 5, Attributes, Version, emptyCallbacks);
+            filter.Register();
+
+            GC.Collect();
+
+            var registry = new FilterRegistry();
+            Filter lookupByName = registry.LookupByName(FilterName + 5);
+
+            filter.Deregister();
+            Assert.Equal(filter, lookupByName);
         }
 
         [Fact]
         public void CanLookupRegisteredFilterByNameAndValuesAreMarshalCorrectly()
         {
-            const string filterName = "filter-three";
-            const string attributes = "test";
-            const int version = 1;
+            var filter = new Filter(FilterName + 6, Attributes, Version, emptyCallbacks);
+            filter.Register();
 
+            var registry = new FilterRegistry();
+            var lookedUpFilter = registry.LookupByName(FilterName + 6);
+
+            filter.Deregister();
+
+            Assert.Equal(FilterName + 6, lookedUpFilter.Name);
+            Assert.Equal(Version, lookedUpFilter.Version);
+            Assert.Equal(Attributes, lookedUpFilter.Attributes);
+        }
+
+        [Fact]
+        public void TestingCallbacks()
+        {
             string repoPathOne = InitNewRepository();
             string repoPathTwo = InitNewRepository();
+            var filter = new Filter(FilterName + 7, Attributes, Version, emptyCallbacks);
 
             using (var repoOne = new Repository(repoPathOne))
             {
@@ -68,16 +102,30 @@ namespace LibGit2Sharp.Tests
                 Console.WriteLine("Second");
                 StageNewFile(repoOne, 2);
             }
-            var filter = CreateFilterForAutomaticCleanUp(filterName, attributes, version);
+
             filter.Register();
 
+            var lookup = new FilterRegistry();
+            Filter lookupByName = lookup.LookupByName(FilterName + 7);
 
-            var registry = new FilterRegistry();
-            var lookedUpFilter = registry.LookupByName(filterName);
+            Assert.Equal(Attributes, lookupByName.Attributes);
 
-            Assert.Equal(filterName, lookedUpFilter.Name);
-            Assert.Equal(version, lookedUpFilter.Version);
-            Assert.Equal(attributes, lookedUpFilter.Attributes);
+
+            Filter lookupByName1 = lookup.LookupByName(FilterName + 7);
+
+            Assert.Equal(Attributes, lookupByName1.Attributes);
+
+            GC.Collect();
+
+            using (var repoTwo = new Repository(repoPathTwo))
+            {
+                Console.WriteLine("Third");
+                StageNewFile(repoTwo, 3);
+
+                GC.Collect();
+            }
+
+            lookupByName.Deregister();
         }
 
         [Fact]
@@ -87,14 +135,14 @@ namespace LibGit2Sharp.Tests
             Func<int> callback = () =>
             {
                 called = true;
-                return GitPassThrough; 
+                return GitPassThrough;
             };
             string repoPath = InitNewRepository();
             var callbacks = new FilterCallbacks(callback);
             new Filter("test-filter", "filter", 1, callbacks);
             using (var repo = new Repository(repoPath))
             {
-                StageNewFile(repo);
+                StageNewFile(repo, 55);
             }
 
             Assert.False(called);
@@ -111,15 +159,15 @@ namespace LibGit2Sharp.Tests
             };
             string repoPath = InitNewRepository();
             var callbacks = new FilterCallbacks(callback);
-            var filter = new Filter("test-filter", "filter", 1, callbacks);
+            var test = new Filter("test-filter33", "filter", 1, callbacks);
             using (var repo = new Repository(repoPath))
             {
-                filter.Register();
+                test.Register();
 
-                StageNewFile(repo);
+                StageNewFile(repo, 22);
             }
 
-            filter.Deregister();
+            test.Deregister();
 
             Assert.True(called);
         }
@@ -137,16 +185,15 @@ namespace LibGit2Sharp.Tests
 
             string repoPath = InitNewRepository();
             var callbacks = new FilterCallbacks(() => 0, applyCallback);
-            var filter = new Filter("test-filter", "filter", 1, callbacks);
+            var test = new Filter("test-filter55", "filter", 1, callbacks);
             using (var repo = new Repository(repoPath))
             {
-                filter.Register();
+                test.Register();
 
-                StageNewFile(repo);
+                StageNewFile(repo, 44);
             }
 
-            filter.Deregister();
-
+            test.Deregister();
             Assert.True(called);
         }
 
@@ -154,7 +201,6 @@ namespace LibGit2Sharp.Tests
         public void ApplyCallbackNotMadeWhenCheckCallbackReturnsPassThrough()
         {
             bool called = false;
-
             Func<int> applyCallback = () =>
             {
                 called = true;
@@ -163,44 +209,16 @@ namespace LibGit2Sharp.Tests
 
             string repoPath = InitNewRepository();
             var callbacks = new FilterCallbacks(() => GitPassThrough, applyCallback);
-            var filter = new Filter("test-filter", "filter", 1, callbacks);
+            var test = new Filter("test-filter", "filter", 1, callbacks);
             using (var repo = new Repository(repoPath))
             {
-                filter.Register();
+                test.Register();
 
-                StageNewFile(repo);
+                StageNewFile(repo, 77);
             }
+
+            test.Deregister();
             Assert.False(called);
-
-        }
-
-        private static void StageNewFile(Repository repo)
-        {
-            const string path = "new.txt";
-            Touch(repo.Info.WorkingDirectory, path, "null");
-            repo.Index.Stage(path);
-        }
-
-        private Filter CreateFilterForAutomaticCleanUp(string name, string attributes, int version)
-        {
-
-            var filter = new Filter(name, attributes, version, emptyCallbacks);
-            filtersForCleanUp.Add(filter);
-            return filter;
-        }
-
-        public override void Dispose()
-        {
-            foreach (var filter in filtersForCleanUp)
-            {
-                try
-                {
-                    filter.Deregister();
-                }
-                catch (LibGit2SharpException)
-                { }
-            }
-            base.Dispose();
         }
 
         [Fact]
@@ -214,7 +232,7 @@ namespace LibGit2Sharp.Tests
             };
 
             string repoPath = InitNewRepository();
-            var callbacks = new FilterCallbacks(() => 0, ()=> 0, () => {}, ()=>0, cleanUpCallback);
+            var callbacks = new FilterCallbacks(() => 0, () => 0, () => { }, () => 0, cleanUpCallback);
             var test = new Filter("test-filter55", "filter", 1, callbacks);
             using (var repo = new Repository(repoPath))
             {
@@ -257,7 +275,7 @@ namespace LibGit2Sharp.Tests
                 called = true;
             };
 
-            var callbacks = new FilterCallbacks(() => 0, ()=> 0, shutdownCallback);
+            var callbacks = new FilterCallbacks(() => 0, () => 0, shutdownCallback);
             var filter = new Filter("test-filter", "filter", 1, callbacks);
 
             filter.Register();
