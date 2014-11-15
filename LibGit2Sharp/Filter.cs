@@ -91,9 +91,9 @@ namespace LibGit2Sharp
 
         internal Filter(string name, GitFilterSafeHandle filterPtr)
         {
+            this.name = name;
             nativeFilter = filterPtr;
             managedFilter = nativeFilter.MarshalFromNative();
-            this.name = name;
             attributes = EncodingMarshaler.FromNative(Encoding.UTF8, managedFilter.attributes);
             version = (int) managedFilter.version;
         }
