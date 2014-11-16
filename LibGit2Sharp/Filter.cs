@@ -19,7 +19,7 @@ namespace LibGit2Sharp
         private readonly FilterCallbacks filterCallbacks;
 
         private GitFilter managedFilter;
-        private readonly GitFilterSafeHandle nativeFilter;
+        private GitFilterSafeHandle nativeFilter;
 
         private GitFilter.git_filter_apply_fn applyCallback;
         private GitFilter.git_filter_check_fn checkCallback;
@@ -48,20 +48,6 @@ namespace LibGit2Sharp
             initCallback = InitializeCallback;
             shutdownCallback = ShutdownCallback;
             cleanCallback = CleanUpCallback;
-
-
-            managedFilter = new GitFilter
-            {
-                attributes = EncodingMarshaler.FromManaged(Encoding.UTF8, attributes),
-                version = (uint)version,
-                init = initCallback,
-                apply = applyCallback,
-                check = checkCallback,
-                shutdown = shutdownCallback,
-                cleanup = cleanCallback
-            };
-
-            nativeFilter = new GitFilterSafeHandle(managedFilter);
         }
 
         internal Filter(string name, GitFilterSafeHandle filterPtr)
@@ -102,6 +88,18 @@ namespace LibGit2Sharp
         /// </summary>
         public void Register()
         {
+            managedFilter = new GitFilter
+            {
+                attributes = EncodingMarshaler.FromManaged(Encoding.UTF8, attributes),
+                version = (uint)version,
+                init = initCallback,
+                apply = applyCallback,
+                check = checkCallback,
+                shutdown = shutdownCallback,
+                cleanup = cleanCallback
+            };
+            nativeFilter = new GitFilterSafeHandle(managedFilter);
+
             Proxy.git_filter_register(name, nativeFilter, 0);
         }
 
