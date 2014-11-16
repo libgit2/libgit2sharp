@@ -88,47 +88,6 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
-        public void TestingCallbacks()
-        {
-            string repoPathOne = InitNewRepository();
-            string repoPathTwo = InitNewRepository();
-            var filter = new Filter(FilterName + 7, Attributes, Version, emptyCallbacks);
-
-            using (var repoOne = new Repository(repoPathOne))
-            {
-                Console.WriteLine("First");
-                StageNewFile(repoOne, 1);
-                GC.Collect();
-                Console.WriteLine("Second");
-                StageNewFile(repoOne, 2);
-            }
-
-            filter.Register();
-
-            var lookup = new FilterRegistry();
-            Filter lookupByName = lookup.LookupByName(FilterName + 7);
-
-            Assert.Equal(Attributes, lookupByName.Attributes);
-
-
-            Filter lookupByName1 = lookup.LookupByName(FilterName + 7);
-
-            Assert.Equal(Attributes, lookupByName1.Attributes);
-
-            GC.Collect();
-
-            using (var repoTwo = new Repository(repoPathTwo))
-            {
-                Console.WriteLine("Third");
-                StageNewFile(repoTwo, 3);
-
-                GC.Collect();
-            }
-
-            lookupByName.Deregister();
-        }
-
-        [Fact]
         public void CheckCallbackNotMadeWhenFileStagedAndFilterNotRegistered()
         {
             bool called = false;

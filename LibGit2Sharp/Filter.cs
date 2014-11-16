@@ -285,6 +285,7 @@ namespace LibGit2Sharp
         /// <param name="customApplyCallback">the apply callback</param>
         /// <param name="customShutdownCallback">The shutdown callback</param>
         /// <param name="customInitializeCallback">The init callback</param>
+        /// <param name="customCleanupCallback">The clean callback</param>
         public FilterCallbacks(
             Func<int> customCheckCallback = null,
             Func<int> customApplyCallback = null, 
