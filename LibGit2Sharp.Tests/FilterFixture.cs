@@ -98,7 +98,9 @@ namespace LibGit2Sharp.Tests
             };
             string repoPath = InitNewRepository();
             var callbacks = new FilterCallbacks(callback);
-            new Filter("test-filter", "filter", 1, callbacks);
+
+            new Filter(FilterName + 7, Attributes, Version, callbacks);
+
             using (var repo = new Repository(repoPath))
             {
                 StageNewFile(repo, 55);
@@ -118,15 +120,14 @@ namespace LibGit2Sharp.Tests
             };
             string repoPath = InitNewRepository();
             var callbacks = new FilterCallbacks(callback);
-            var test = new Filter("test-filter33", "filter", 1, callbacks);
+            var filter = new Filter(FilterName + 8, Attributes, Version, callbacks);
+
+            filter.Register();
             using (var repo = new Repository(repoPath))
             {
-                test.Register();
-
                 StageNewFile(repo, 22);
             }
-
-            test.Deregister();
+            filter.Deregister();
 
             Assert.True(called);
         }
@@ -144,15 +145,15 @@ namespace LibGit2Sharp.Tests
 
             string repoPath = InitNewRepository();
             var callbacks = new FilterCallbacks(() => 0, applyCallback);
-            var test = new Filter("test-filter55", "filter", 1, callbacks);
+            var filter = new Filter(FilterName + 9, Attributes, Version, callbacks);
+
+            filter.Register();
             using (var repo = new Repository(repoPath))
             {
-                test.Register();
-
                 StageNewFile(repo, 44);
             }
+            filter.Deregister();
 
-            test.Deregister();
             Assert.True(called);
         }
 
@@ -168,15 +169,15 @@ namespace LibGit2Sharp.Tests
 
             string repoPath = InitNewRepository();
             var callbacks = new FilterCallbacks(() => GitPassThrough, applyCallback);
-            var test = new Filter("test-filter", "filter", 1, callbacks);
+            var filter = new Filter(FilterName + 10, Attributes, Version, callbacks);
+
+            filter.Register();
             using (var repo = new Repository(repoPath))
             {
-                test.Register();
-
                 StageNewFile(repo, 77);
             }
+            filter.Deregister();
 
-            test.Deregister();
             Assert.False(called);
         }
 
@@ -192,15 +193,16 @@ namespace LibGit2Sharp.Tests
 
             string repoPath = InitNewRepository();
             var callbacks = new FilterCallbacks(() => 0, () => 0, () => { }, () => 0, cleanUpCallback);
-            var test = new Filter("test-filter55", "filter", 1, callbacks);
+
+            var filter = new Filter(FilterName + 10, Attributes, Version, callbacks);
+            filter.Register();
+
             using (var repo = new Repository(repoPath))
             {
-                test.Register();
-
                 StageNewFile(repo, 44);
             }
+            filter.Deregister();
 
-            test.Deregister();
             Assert.True(called);
         }
 
@@ -215,10 +217,10 @@ namespace LibGit2Sharp.Tests
             };
 
             var callbacks = new FilterCallbacks(() => 0, () => 0, shutdownCallback);
-            var filter = new Filter("test-filter", "filter", 1, callbacks);
+
+            var filter = new Filter(FilterName + 11, Attributes, Version, callbacks);
 
             filter.Register();
-
             Assert.False(called);
 
             filter.Deregister();
@@ -235,8 +237,7 @@ namespace LibGit2Sharp.Tests
             };
 
             var callbacks = new FilterCallbacks(() => 0, () => 0, shutdownCallback);
-            var filter = new Filter("test-filter", "filter", 1, callbacks);
-
+            var filter = new Filter(FilterName + 11, Attributes, Version, callbacks);
             filter.Register();
 
             string repoPath = InitNewRepository();
@@ -244,7 +245,6 @@ namespace LibGit2Sharp.Tests
             {
                 StageNewFile(repo, 77);
             }
-
             Assert.False(called);
 
             filter.Deregister();
@@ -262,7 +262,7 @@ namespace LibGit2Sharp.Tests
             };
 
             var callbacks = new FilterCallbacks(() => 0, () => 0, () => { }, initializeCallback);
-            var filter = new Filter("test-filter", "filter", 1, callbacks);
+            var filter = new Filter(FilterName + 12, Attributes, Version, callbacks);
 
             filter.Register();
 
@@ -283,7 +283,7 @@ namespace LibGit2Sharp.Tests
             };
 
             var callbacks = new FilterCallbacks(() => 0, () => 0, () => { }, initializeCallback);
-            var filter = new Filter("test-filter", "filter", 1, callbacks);
+            var filter = new Filter(FilterName + 13, Attributes, Version, callbacks);
 
             filter.Register();
             Assert.False(called);
