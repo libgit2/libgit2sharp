@@ -4,6 +4,9 @@ using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
 {
+    /// <summary>
+    /// A filter source - describes the direction of filtering and the file being filtered.
+    /// </summary>
     public class FilterSource
     {
         /// <summary>
