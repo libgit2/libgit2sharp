@@ -47,6 +47,36 @@ namespace LibGit2Sharp
             this.customCleanUpCallback = customCleanupCallback ?? (() => { });
         }
 
+
+        /// <summary>
+        /// Initialize callback on filter
+        /// 
+        /// Specified as `filter.initialize`, this is an optional callback invoked
+        /// before a filter is first used.  It will be called once at most.
+        /// 
+        /// If non-NULL, the filter's `initialize` callback will be invoked right
+        /// before the first use of the filter, so you can defer expensive
+        /// initialization operations (in case libgit2 is being used in a way that doesn't need the filter).
+        /// </summary>
+        internal int InitializeCallback(IntPtr filter)
+        {
+            return customInitializeCallback();
+        }
+
+        /// <summary>
+        /// Shutdown callback on filter
+        /// 
+        /// Specified as `filter.shutdown`, this is an optional callback invoked
+        /// when the filter is unregistered or when libgit2 is shutting down.  It
+        /// will be called once at most and should release resources as needed.
+        /// This may be called even if the `initialize` callback was not made.
+        /// Typically this function will free the `git_filter` object itself.
+        /// </summary>
+        internal void ShutdownCallback(IntPtr gitFilter)
+        {
+            customShutdownCallback();
+        }
+
         /// <summary>
         /// Callback to decide if a given source needs this filter
         /// Specified as `filter.check`, this is an optional callback that checks if filtering is needed for a given source.
@@ -61,12 +91,10 @@ namespace LibGit2Sharp
         /// away before the `apply` callback can use it.  If a filter allocates and assigns a value to the `payload`, it will need a `cleanup` 
         /// callback to free the payload.
         /// </summary>
-        public virtual Func<FilterSource, int> CustomCheckCallback
+        /// <returns></returns>
+        internal int CheckCallback(IntPtr gitFilter, IntPtr payload, IntPtr filterSource, IntPtr attributeValues)
         {
-            get
-            {
-                return customCheckCallback;
-            }
+            return customCheckCallback(FilterSource.FromNativePtr(filterSource));
         }
 
         /// <summary>
@@ -79,59 +107,19 @@ namespace LibGit2Sharp
         /// 
         /// The `payload` value will refer to any payload that was set by the `check` callback.  It may be read from or written to as needed.
         /// </summary>
-        public virtual Func<FilterSource, int> CustomApplyCallback
+        internal int ApplyCallback(IntPtr gitFilter, IntPtr payload, IntPtr gitBufferTo, IntPtr gitBufferFrom, IntPtr filterSource)
         {
-            get
-            {
-                return customApplyCallback;
-            }
+            return customApplyCallback(FilterSource.FromNativePtr(filterSource));
         }
 
-        /// <summary>
-        /// Shutdown callback on filter
-        /// 
-        /// Specified as `filter.shutdown`, this is an optional callback invoked
-        /// when the filter is unregistered or when libgit2 is shutting down.  It
-        /// will be called once at most and should release resources as needed.
-        /// This may be called even if the `initialize` callback was not made.
-        /// Typically this function will free the `git_filter` object itself.
-        /// </summary>
-        public virtual Action CustomShutdownCallback
-        {
-            get
-            {
-                return customShutdownCallback;
-            }
-        }
         /// <summary>
         /// Callback to clean up after filtering has been applied. Specified as `filter.cleanup`, this is an optional callback invoked
         /// after the filter has been applied.  If the `check` or `apply` callbacks allocated a `payload` 
         /// to keep per-source filter state, use this  callback to free that payload and release resources as required.
         /// </summary>
-        public virtual Action CustomCleanUpCallback
+        internal void CleanUpCallback(IntPtr gitFilter, IntPtr payload)
         {
-            get
-            {
-                return customCleanUpCallback;
-            }
-        }
-
-        /// <summary>
-        /// Initialize callback on filter
-        /// 
-        /// Specified as `filter.initialize`, this is an optional callback invoked
-        /// before a filter is first used.  It will be called once at most.
-        /// 
-        /// If non-NULL, the filter's `initialize` callback will be invoked right
-        /// before the first use of the filter, so you can defer expensive
-        /// initialization operations (in case libgit2 is being used in a way that doesn't need the filter).
-        /// </summary>
-        public virtual Func<int> CustomInitializeCallback
-        {
-            get
-            {
-                return customInitializeCallback;
-            }
+            customCleanUpCallback();
         }
     }
 }
