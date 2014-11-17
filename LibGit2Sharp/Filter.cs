@@ -172,7 +172,7 @@ namespace LibGit2Sharp
         /// </summary>
         private int ApplyCallback(IntPtr gitFilter, IntPtr payload, IntPtr gitBufferTo, IntPtr gitBufferFrom, IntPtr filterSource)
         {
-            return filterCallbacks.CustomApplyCallback();
+            return filterCallbacks.CustomApplyCallback(FilterSource.FromNativePtr(filterSource));
         }
 
         /// <summary>
@@ -276,12 +276,12 @@ namespace LibGit2Sharp
     public class FilterCallbacks
     {
         private readonly Func<FilterSource, int> customCheckCallback;
-        private readonly Func<int> customApplyCallback;
+        private readonly Func<FilterSource, int> customApplyCallback;
         private readonly Func<int> customInitializeCallback;
         private readonly Action customShutdownCallback;
         private readonly Action customCleanUpCallback;
 
-        private readonly Func<int> passThroughFunc = () => (int) GitErrorCode.PassThrough;
+        private readonly Func<FilterSource, int> passThroughFunc = (source) => (int)GitErrorCode.PassThrough;
         private readonly Func<int> passThroughSuccess = () => 0;
 
         /// <summary>
@@ -302,12 +302,12 @@ namespace LibGit2Sharp
         /// <param name="customCleanupCallback">The clean callback</param>
         public FilterCallbacks(
             Func<FilterSource, int> customCheckCallback = null,
-            Func<int> customApplyCallback = null, 
+            Func<FilterSource, int> customApplyCallback = null, 
             Action customShutdownCallback = null,
             Func<int> customInitializeCallback = null,
             Action customCleanupCallback = null)
         {
-            this.customCheckCallback = customCheckCallback ?? (source => (int)GitErrorCode.PassThrough);
+            this.customCheckCallback = customCheckCallback ?? passThroughFunc;
             this.customApplyCallback = customApplyCallback ?? passThroughFunc;
             this.customShutdownCallback = customShutdownCallback ??  (() => { });
             this.customInitializeCallback = customInitializeCallback ?? passThroughSuccess;
@@ -328,7 +328,7 @@ namespace LibGit2Sharp
         /// away before the `apply` callback can use it.  If a filter allocates and assigns a value to the `payload`, it will need a `cleanup` 
         /// callback to free the payload.
         /// </summary>
-        public virtual Func<FilterSource,int> CustomCheckCallback
+        public virtual Func<FilterSource, int> CustomCheckCallback
         {
             get
             {
@@ -346,7 +346,7 @@ namespace LibGit2Sharp
         /// 
         /// The `payload` value will refer to any payload that was set by the `check` callback.  It may be read from or written to as needed.
         /// </summary>
-        public virtual Func<int> CustomApplyCallback
+        public virtual Func<FilterSource, int> CustomApplyCallback
         {
             get
             {

@@ -9,6 +9,7 @@ namespace LibGit2Sharp.Tests
     {
         private const int GitPassThrough = -30;
         private readonly FilterCallbacks emptyCallbacks = new FilterCallbacks();
+        readonly Func<FilterSource, int> successCallback = source => 0;
 
         private const string FilterName = "the-filter";
         const string Attributes = "test";
@@ -139,10 +140,10 @@ namespace LibGit2Sharp.Tests
         {
             bool called = false;
 
-            Func<int> applyCallback = () =>
+            Func<FilterSource, int> applyCallback = source =>
             {
                 called = true;
-                return 0; //success
+                return 0; //successCallback
             };
 
             string repoPath = InitNewRepository();
@@ -163,7 +164,7 @@ namespace LibGit2Sharp.Tests
         public void ApplyCallbackNotMadeWhenCheckCallbackReturnsPassThrough()
         {
             bool called = false;
-            Func<int> applyCallback = () =>
+            Func<FilterSource, int> applyCallback = source =>
             {
                 called = true;
                 return 0;
@@ -194,7 +195,7 @@ namespace LibGit2Sharp.Tests
             };
 
             string repoPath = InitNewRepository();
-            var callbacks = new FilterCallbacks(source => 0, () => 0, () => { }, () => 0, cleanUpCallback);
+            var callbacks = new FilterCallbacks(successCallback, successCallback, () => { }, () => 0, cleanUpCallback);
 
             var filter = new Filter(FilterName + 10, Attributes, Version, callbacks);
             filter.Register();
@@ -218,7 +219,7 @@ namespace LibGit2Sharp.Tests
                 called = true;
             };
 
-            var callbacks = new FilterCallbacks(source => 0, () => 0, shutdownCallback);
+            var callbacks = new FilterCallbacks(successCallback, successCallback, shutdownCallback);
 
             var filter = new Filter(FilterName + 11, Attributes, Version, callbacks);
 
@@ -238,7 +239,7 @@ namespace LibGit2Sharp.Tests
                 called = true;
             };
 
-            var callbacks = new FilterCallbacks(source => 0, () => 0, shutdownCallback);
+            var callbacks = new FilterCallbacks(successCallback, successCallback, shutdownCallback);
             var filter = new Filter(FilterName + 11, Attributes, Version, callbacks);
             filter.Register();
 
@@ -263,7 +264,7 @@ namespace LibGit2Sharp.Tests
                 return 0;
             };
 
-            var callbacks = new FilterCallbacks(source => 0, () => 0, () => { }, initializeCallback);
+            var callbacks = new FilterCallbacks(successCallback, successCallback, () => { }, initializeCallback);
             var filter = new Filter(FilterName + 12, Attributes, Version, callbacks);
 
             filter.Register();
@@ -284,7 +285,7 @@ namespace LibGit2Sharp.Tests
                 return 0;
             };
 
-            var callbacks = new FilterCallbacks(source => 0, () => 0, () => { }, initializeCallback);
+            var callbacks = new FilterCallbacks(successCallback, successCallback, () => { }, initializeCallback);
             var filter = new Filter(FilterName + 13, Attributes, Version, callbacks);
 
             filter.Register();
