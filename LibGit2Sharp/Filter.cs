@@ -173,7 +173,6 @@ namespace LibGit2Sharp
         /// </summary>
         private int ApplyCallback(IntPtr gitFilter, IntPtr payload, IntPtr gitBufferTo, IntPtr gitBufferFrom, IntPtr filterSource)
         {
-            Console.WriteLine("Apply");
             return filterCallbacks.CustomApplyCallback();
         }
 
@@ -241,12 +240,22 @@ namespace LibGit2Sharp
 
     public class FilterSource
     {
+        /// <summary>
+        /// Needed for mocking purposes
+        /// </summary>
+        protected FilterSource() {  }
+
         internal FilterSource(FilePath path, FilterMode mode)
         {
             SourceMode = mode;
             Path = GetPathSafely(path);
         }
 
+        /// <summary>
+        /// Take an unmanaged pointer and convert it to filter source callback paramater
+        /// </summary>
+        /// <param name="ptr"></param>
+        /// <returns></returns>
         public static FilterSource FromNativePtr(IntPtr ptr)
         {
             var source = ptr.MarshalAs<GitFilterSource>();
@@ -255,9 +264,15 @@ namespace LibGit2Sharp
             return new FilterSource(path, gitFilterSourceMode);
         }
 
-        public FilterMode SourceMode { get; private set; }
+        /// <summary>
+        /// The filter mode for current file being filtered
+        /// </summary>
+        public virtual FilterMode SourceMode { get; private set; }
 
-        public string Path { get; private set; }
+        /// <summary>
+        /// The relative path to the file
+        /// </summary>
+        public virtual string Path { get; private set; }
 
         /// <summary>
         /// When cleaning and smudging, relative and absolute paths are returned.
