@@ -1,5 +1,6 @@
 using System;
 using System.Runtime.InteropServices;
+using LibGit2Sharp.Core.Handles;
 
 namespace LibGit2Sharp.Core
 {
@@ -95,36 +96,14 @@ namespace LibGit2Sharp.Core
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
         public delegate void git_filter_cleanup_fn(IntPtr gitFilter, IntPtr payload);
     }
-
     /// <summary>
     /// The file source being filtered
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
     internal class GitFilterSource
     {
-        public IntPtr repositoryURL;
+        public IntPtr repository;
 
-        public FilePath path;
-
-        public ObjectId oId;
-
-        public GitFilterMode filterMode;
-    }
-
-    /// <summary>
-    /// These values control which direction of change is with which which a filter is being applied.
-    /// </summary>
-    [Flags]
-    internal enum GitFilterMode
-    {
-        /// <summary>
-        /// Smudge - occurs when exporting a file from the Git object database to the working directory,
-        /// </summary>
-        GIT_FILTER_SMUDGE = 0,
-
-        /// <summary>
-        /// Clean - occurs when importing a file from the working directory to the Git object database.
-        /// </summary>
-        GIT_FILTER_CLEAN = (1 << 0)
+        public IntPtr path;
     }
 }

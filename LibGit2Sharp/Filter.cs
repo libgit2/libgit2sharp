@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Text;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Handles;
@@ -157,7 +158,7 @@ namespace LibGit2Sharp
         /// <returns></returns>
         private int CheckCallback(IntPtr gitFilter, IntPtr payload, IntPtr filterSource, IntPtr attributeValues)
         {
-            return filterCallbacks.CustomCheckCallback();
+            return filterCallbacks.CustomCheckCallback(FilterSource.FromNativePtr(filterSource));
         }
 
         /// <summary>
@@ -172,6 +173,7 @@ namespace LibGit2Sharp
         /// </summary>
         private int ApplyCallback(IntPtr gitFilter, IntPtr payload, IntPtr gitBufferTo, IntPtr gitBufferFrom, IntPtr filterSource)
         {
+            Console.WriteLine("Apply");
             return filterCallbacks.CustomApplyCallback();
         }
 
@@ -237,6 +239,62 @@ namespace LibGit2Sharp
         }
     }
 
+    public class FilterSource
+    {
+        internal FilterSource(FilePath path, FilterMode mode)
+        {
+            SourceMode = mode;
+            Path = GetPathSafely(path);
+        }
+
+        public static FilterSource FromNativePtr(IntPtr ptr)
+        {
+            var source = ptr.MarshalAs<GitFilterSource>();
+            FilePath path = LaxFilePathMarshaler.FromNative(source.path) ?? FilePath.Empty;
+            FilterMode gitFilterSourceMode = Proxy.git_filter_source_mode(ptr);
+            return new FilterSource(path, gitFilterSourceMode);
+        }
+
+        public FilterMode SourceMode { get; private set; }
+
+        public string Path { get; private set; }
+
+        /// <summary>
+        /// When cleaning and smudging, relative and absolute paths are returned.
+        /// Try and just return the relative path if we can. 
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        string GetPathSafely(FilePath path)
+        {
+            try
+            {
+                var fileInfo = new FileInfo(path.Native);
+                return fileInfo.Name;
+            }
+            catch (Exception)
+            {
+                return path.Native;;
+            }
+        }
+    }
+
+    /// <summary>
+    /// These values control which direction of change is with which which a filter is being applied.
+    /// </summary>
+    public enum FilterMode
+    {
+        /// <summary>
+        /// Smudge - occurs when exporting a file from the Git object database to the working directory,
+        /// </summary>
+        Smudge = 0,
+
+        /// <summary>
+        /// Clean - occurs when importing a file from the working directory to the Git object database.
+        /// </summary>
+        Clean = (1 << 0),
+    }
+
     /// <summary>
     /// A filter registry
     /// </summary>
@@ -259,7 +317,7 @@ namespace LibGit2Sharp
     /// </summary>
     public class FilterCallbacks
     {
-        private readonly Func<int> customCheckCallback;
+        private readonly Func<FilterSource, int> customCheckCallback;
         private readonly Func<int> customApplyCallback;
         private readonly Func<int> customInitializeCallback;
         private readonly Action customShutdownCallback;
@@ -285,13 +343,13 @@ namespace LibGit2Sharp
         /// <param name="customInitializeCallback">The init callback</param>
         /// <param name="customCleanupCallback">The clean callback</param>
         public FilterCallbacks(
-            Func<int> customCheckCallback = null,
+            Func<FilterSource, int> customCheckCallback = null,
             Func<int> customApplyCallback = null, 
             Action customShutdownCallback = null,
             Func<int> customInitializeCallback = null,
             Action customCleanupCallback = null)
         {
-            this.customCheckCallback = customCheckCallback ?? passThroughFunc;
+            this.customCheckCallback = customCheckCallback ?? (source => (int)GitErrorCode.PassThrough);
             this.customApplyCallback = customApplyCallback ?? passThroughFunc;
             this.customShutdownCallback = customShutdownCallback ??  (() => { });
             this.customInitializeCallback = customInitializeCallback ?? passThroughSuccess;
@@ -312,7 +370,7 @@ namespace LibGit2Sharp
         /// away before the `apply` callback can use it.  If a filter allocates and assigns a value to the `payload`, it will need a `cleanup` 
         /// callback to free the payload.
         /// </summary>
-        public virtual Func<int> CustomCheckCallback
+        public virtual Func<FilterSource,int> CustomCheckCallback
         {
             get
             {

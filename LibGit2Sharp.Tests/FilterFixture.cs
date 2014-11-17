@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
 
@@ -7,7 +8,7 @@ namespace LibGit2Sharp.Tests
     public class FilterFixture : BaseFixture
     {
         private const int GitPassThrough = -30;
-        private readonly FilterCallbacks emptyCallbacks = new FilterCallbacks(null, null);
+        private readonly FilterCallbacks emptyCallbacks = new FilterCallbacks();
 
         private const string FilterName = "the-filter";
         const string Attributes = "test";
@@ -91,11 +92,12 @@ namespace LibGit2Sharp.Tests
         public void CheckCallbackNotMadeWhenFileStagedAndFilterNotRegistered()
         {
             bool called = false;
-            Func<int> callback = () =>
+            Func<FilterSource, int> callback = source =>
             {
                 called = true;
                 return GitPassThrough;
             };
+
             string repoPath = InitNewRepository();
             var callbacks = new FilterCallbacks(callback);
 
@@ -103,7 +105,7 @@ namespace LibGit2Sharp.Tests
 
             using (var repo = new Repository(repoPath))
             {
-                StageNewFile(repo, 55);
+                StageNewFile(repo);
             }
 
             Assert.False(called);
@@ -113,7 +115,7 @@ namespace LibGit2Sharp.Tests
         public void CheckCallbackMadeWhenFileStaged()
         {
             bool called = false;
-            Func<int> callback = () =>
+            Func<FilterSource, int> callback = source =>
             {
                 called = true;
                 return GitPassThrough;
@@ -125,7 +127,7 @@ namespace LibGit2Sharp.Tests
             filter.Register();
             using (var repo = new Repository(repoPath))
             {
-                StageNewFile(repo, 22);
+                StageNewFile(repo);
             }
             filter.Deregister();
 
@@ -144,13 +146,13 @@ namespace LibGit2Sharp.Tests
             };
 
             string repoPath = InitNewRepository();
-            var callbacks = new FilterCallbacks(() => 0, applyCallback);
+            var callbacks = new FilterCallbacks(source => 0, applyCallback);
             var filter = new Filter(FilterName + 9, Attributes, Version, callbacks);
 
             filter.Register();
             using (var repo = new Repository(repoPath))
             {
-                StageNewFile(repo, 44);
+                StageNewFile(repo);
             }
             filter.Deregister();
 
@@ -168,13 +170,13 @@ namespace LibGit2Sharp.Tests
             };
 
             string repoPath = InitNewRepository();
-            var callbacks = new FilterCallbacks(() => GitPassThrough, applyCallback);
+            var callbacks = new FilterCallbacks(source => GitPassThrough, applyCallback);
             var filter = new Filter(FilterName + 10, Attributes, Version, callbacks);
 
             filter.Register();
             using (var repo = new Repository(repoPath))
             {
-                StageNewFile(repo, 77);
+                StageNewFile(repo);
             }
             filter.Deregister();
 
@@ -192,14 +194,14 @@ namespace LibGit2Sharp.Tests
             };
 
             string repoPath = InitNewRepository();
-            var callbacks = new FilterCallbacks(() => 0, () => 0, () => { }, () => 0, cleanUpCallback);
+            var callbacks = new FilterCallbacks(source => 0, () => 0, () => { }, () => 0, cleanUpCallback);
 
             var filter = new Filter(FilterName + 10, Attributes, Version, callbacks);
             filter.Register();
 
             using (var repo = new Repository(repoPath))
             {
-                StageNewFile(repo, 44);
+                StageNewFile(repo);
             }
             filter.Deregister();
 
@@ -216,7 +218,7 @@ namespace LibGit2Sharp.Tests
                 called = true;
             };
 
-            var callbacks = new FilterCallbacks(() => 0, () => 0, shutdownCallback);
+            var callbacks = new FilterCallbacks(source => 0, () => 0, shutdownCallback);
 
             var filter = new Filter(FilterName + 11, Attributes, Version, callbacks);
 
@@ -228,7 +230,7 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
-        public void ShutdownCallbackMadeWhenDeregisteringFilter()
+        public void ShutdownCallbackMadeOnDeregisterOfFilter()
         {
             bool called = false;
             Action shutdownCallback = () =>
@@ -236,14 +238,14 @@ namespace LibGit2Sharp.Tests
                 called = true;
             };
 
-            var callbacks = new FilterCallbacks(() => 0, () => 0, shutdownCallback);
+            var callbacks = new FilterCallbacks(source => 0, () => 0, shutdownCallback);
             var filter = new Filter(FilterName + 11, Attributes, Version, callbacks);
             filter.Register();
 
             string repoPath = InitNewRepository();
             using (var repo = new Repository(repoPath))
             {
-                StageNewFile(repo, 77);
+                StageNewFile(repo);
             }
             Assert.False(called);
 
@@ -261,7 +263,7 @@ namespace LibGit2Sharp.Tests
                 return 0;
             };
 
-            var callbacks = new FilterCallbacks(() => 0, () => 0, () => { }, initializeCallback);
+            var callbacks = new FilterCallbacks(source => 0, () => 0, () => { }, initializeCallback);
             var filter = new Filter(FilterName + 12, Attributes, Version, callbacks);
 
             filter.Register();
@@ -282,7 +284,7 @@ namespace LibGit2Sharp.Tests
                 return 0;
             };
 
-            var callbacks = new FilterCallbacks(() => 0, () => 0, () => { }, initializeCallback);
+            var callbacks = new FilterCallbacks(source => 0, () => 0, () => { }, initializeCallback);
             var filter = new Filter(FilterName + 13, Attributes, Version, callbacks);
 
             filter.Register();
@@ -291,17 +293,100 @@ namespace LibGit2Sharp.Tests
             string repoPath = InitNewRepository();
             using (var repo = new Repository(repoPath))
             {
-                StageNewFile(repo, 77);
+                StageNewFile(repo);
             }
+
             filter.Deregister();
             Assert.True(called);
         }
 
-        private static void StageNewFile(Repository repo, int n)
+        [Fact]
+        public void WhenStagingFileCheckIsCalledWithCleanForCorrectPath()
         {
-            string path = "new" + n + ".txt";
-            Touch(repo.Info.WorkingDirectory, path, "null");
-            repo.Stage(path);
+            string repoPath = InitNewRepository();
+
+            var calledWithMode = FilterMode.Smudge;
+            string expectedPath;
+            string actualPath = string.Empty;
+            Func<FilterSource, int> callback = source =>
+            {
+                calledWithMode = source.SourceMode;
+                actualPath = source.Path;
+                return GitPassThrough;
+            };
+            var callbacks = new FilterCallbacks(callback);
+
+            var filter = new Filter(FilterName + 14, Attributes, Version, callbacks);
+
+            filter.Register();
+
+            using (var repo = new Repository(repoPath))
+            {
+                expectedPath = StageNewFile(repo);
+            }
+
+            filter.Deregister();
+
+            Assert.Equal(FilterMode.Clean, calledWithMode);
+            Assert.Equal(expectedPath, actualPath);
+        }
+
+
+        [Fact]
+        public void WhenCheckingOutAFileFileCheckIsCalledWithSmudgeForCorrectPath()
+        {
+            const string branchName = "branch";
+            string repoPath = InitNewRepository();
+
+            var calledWithMode = FilterMode.Clean;
+            string expectedPath;
+            string actualPath = string.Empty;
+
+            Func<FilterSource, int> callback = source =>
+            {
+                calledWithMode = source.SourceMode;
+                actualPath = source.Path;
+                return GitPassThrough;
+            };
+            var callbacks = new FilterCallbacks(callback);
+
+            var filter = new Filter(FilterName + 14, Attributes, Version, callbacks);
+
+            filter.Register();
+
+            using (var repo = new Repository(repoPath))
+            {
+                StageNewFile(repo);
+                repo.Commit("Initial commit", Constants.Signature, Constants.Signature);
+
+                expectedPath = CommitFileOnBranch(repo, branchName);
+
+                repo.Branches["master"].Checkout();
+
+                //should smudge file on checkout
+                repo.Branches[branchName].Checkout();
+            }
+
+            filter.Deregister();
+
+            Assert.Equal(FilterMode.Smudge, calledWithMode);
+            Assert.Equal(expectedPath, actualPath);
+        }
+
+        private static string CommitFileOnBranch(Repository repo, string branchName)
+        {
+            var branch = repo.CreateBranch(branchName);
+            branch.Checkout();
+            string expectedPath = StageNewFile(repo);
+            repo.Commit("Commit", Constants.Signature, Constants.Signature);
+            return expectedPath;
+        }
+
+        private static string StageNewFile(IRepository repo)
+        {
+            string newFilePath = Touch(repo.Info.WorkingDirectory, Guid.NewGuid() + ".txt", "null");
+            repo.Stage(newFilePath);
+            return new FileInfo(newFilePath).Name;
         }
     }
 }
