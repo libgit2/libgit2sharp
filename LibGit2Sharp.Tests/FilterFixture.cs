@@ -340,7 +340,6 @@ namespace LibGit2Sharp.Tests
             string repoPath = InitNewRepository();
 
             var calledWithMode = FilterMode.Clean;
-            string expectedPath;
             string actualPath = string.Empty;
 
             Func<FilterSource, int> callback = source =>
@@ -355,6 +354,78 @@ namespace LibGit2Sharp.Tests
 
             filter.Register();
 
+            string expectedPath = CheckoutFileForSmudge(repoPath, branchName);
+
+            filter.Deregister();
+
+            Assert.Equal(FilterMode.Smudge, calledWithMode);
+            Assert.Equal(expectedPath, actualPath);
+        }
+
+        [Fact]
+        public void WhenStagingFileApplyIsCalledWithCleanForCorrectPath()
+        {
+            string repoPath = InitNewRepository();
+
+            var calledWithMode = FilterMode.Smudge;
+            string expectedPath;
+            string actualPath = string.Empty;
+            Func<FilterSource, int> callback = source =>
+            {
+                calledWithMode = source.SourceMode;
+                actualPath = source.Path;
+                return GitPassThrough;
+            };
+            var callbacks = new FilterCallbacks(successCallback, callback);
+
+            var filter = new Filter(FilterName + 14, Attributes, Version, callbacks);
+
+            filter.Register();
+
+            using (var repo = new Repository(repoPath))
+            {
+                expectedPath = StageNewFile(repo);
+            }
+
+            filter.Deregister();
+
+            Assert.Equal(FilterMode.Clean, calledWithMode);
+            Assert.Equal(expectedPath, actualPath);
+        }
+
+
+        [Fact]
+        public void WhenCheckingOutAFileFileApplyIsCalledWithSmudgeForCorrectPath()
+        {
+            const string branchName = "branch";
+            string repoPath = InitNewRepository();
+
+            var calledWithMode = FilterMode.Clean;
+            string actualPath = string.Empty;
+
+            Func<FilterSource, int> callback = source =>
+            {
+                calledWithMode = source.SourceMode;
+                actualPath = source.Path;
+                return GitPassThrough;
+            };
+            var callbacks = new FilterCallbacks(successCallback, callback);
+
+            var filter = new Filter(FilterName + 14, Attributes, Version, callbacks);
+
+            filter.Register();
+
+            string expectedPath = CheckoutFileForSmudge(repoPath, branchName);
+
+            filter.Deregister();
+
+            Assert.Equal(FilterMode.Smudge, calledWithMode);
+            Assert.Equal(expectedPath, actualPath);
+        }
+
+        private static string CheckoutFileForSmudge(string repoPath, string branchName)
+        {
+            string expectedPath;
             using (var repo = new Repository(repoPath))
             {
                 StageNewFile(repo);
@@ -367,11 +438,7 @@ namespace LibGit2Sharp.Tests
                 //should smudge file on checkout
                 repo.Branches[branchName].Checkout();
             }
-
-            filter.Deregister();
-
-            Assert.Equal(FilterMode.Smudge, calledWithMode);
-            Assert.Equal(expectedPath, actualPath);
+            return expectedPath;
         }
 
         private static string CommitFileOnBranch(Repository repo, string branchName)
