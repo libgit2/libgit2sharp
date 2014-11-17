@@ -21,18 +21,4 @@ namespace LibGit2Sharp.Core.Handles
             return handle.MarshalAs<GitFilter>();
         }
     }
-
-    internal class GitFilterModeSafeHandle : NotOwnedSafeHandleBase
-    {
-        internal GitFilterModeSafeHandle(IntPtr intPtr)
-        {
-            handle = intPtr;
-        }
-
-        public GitFilterSource MarshalFromNative()
-        {
-            return handle.MarshalAs<GitFilterSource>();
-        }
-    }
-
 }
