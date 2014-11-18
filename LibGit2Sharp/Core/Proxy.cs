@@ -2093,7 +2093,10 @@ namespace LibGit2Sharp.Core
                 string name = LaxUtf8Marshaler.FromNative(remoteHead.NamePtr);
                 refs.Add(new DirectReference(name, repository, remoteHead.Oid));
 
-                currentHead = IntPtr.Add(currentHead, IntPtr.Size);
+                if (IntPtr.Size == 4)
+                    currentHead = new IntPtr(currentHead.ToInt32() + IntPtr.Size);
+                else
+                    currentHead = new IntPtr(currentHead.ToInt64() + IntPtr.Size);
             }
 
             return refs;
