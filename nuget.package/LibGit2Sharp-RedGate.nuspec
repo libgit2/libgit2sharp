@@ -1,14 +1,14 @@
 <?xml version="1.0"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2013/01/nuspec.xsd">
   <metadata minClientVersion="2.7">
-    <id>$id$</id>
+    <id>RedGate.ThirdParty.LibGit2Sharp.Fork</id>
     <version>$version$</version>
-    <authors>$author$</authors>
+    <authors>Red Gate Software</authors>
     <owners>nulltoken</owners>
     <licenseUrl>https://github.com/libgit2/libgit2sharp/raw/master/LICENSE.md</licenseUrl>
     <projectUrl>https://github.com/libgit2/libgit2sharp/</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>$description$</description>
+    <description>LibGit2Sharp fork for Red Gate</description>
     <releaseNotes>https://github.com/libgit2/libgit2sharp/blob/master/CHANGES.md#libgit2sharp-changes</releaseNotes>
     <iconUrl>https://github.com/libgit2/libgit2sharp/raw/master/square-logo.png</iconUrl>
     <tags>libgit2 git wrapper bindings API dvcs vcs</tags>
@@ -17,12 +17,13 @@
     </references>
   </metadata>
   <files>
-    <file src="..\Lib\NativeBinaries\**\*.dll" target="lib\net40\NativeBinaries" />
-    <file src="..\Lib\NativeBinaries\**\*.pdb" target="lib\net40\NativeBinaries" />
+    <file src="..\build\Release\NativeBinaries\**\*.dll" target="lib\net35\NativeBinaries" />
+    <file src="..\build\Release\NativeBinaries\**\*.pdb" target="lib\net35\NativeBinaries" />
     <file src="..\README.md" target="App_Readme\LibGit2Sharp.README.md" />
     <file src="..\LICENSE.md" target="App_Readme\LibGit2Sharp.LICENSE.md" />
     <file src="..\CHANGES.md" target="App_Readme\LibGit2Sharp.CHANGES.md" />
-    <file src="..\nuget.package\build\*.*" target="build\net35" />
+    <file src="..\build\Release\LibGit2Sharp-RedGate.dll" target="build\net35\LibGit2Sharp-RedGate.dll" />
+    <file src="..\build\Release\LibGit2Sharp-RedGate.xml" target="build\net35\LibGit2Sharp-RedGate.xml" />
     <file src="..\Lib\NativeBinaries\libgit2.license.txt" target="App_Readme" />
   </files>
 </package>
