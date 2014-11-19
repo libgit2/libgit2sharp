@@ -62,7 +62,7 @@ namespace LibGit2Sharp.Core
             {
                 string originalAssemblypath = new Uri(Assembly.GetExecutingAssembly().EscapedCodeBase).LocalPath;
 
-                string currentArchSubPath = "NativeBinaries/" + ProcessorArchitecture;
+                string currentArchSubPath = ProcessorArchitecture;
 
                 string path = Path.Combine(Path.GetDirectoryName(originalAssemblypath), currentArchSubPath);
 
@@ -81,7 +81,7 @@ namespace LibGit2Sharp.Core
             {
                 if (IntPtr.Size == 8)
                 {
-                    return "amd64";
+                    return "x64";
                 }
 
                 return "x86";

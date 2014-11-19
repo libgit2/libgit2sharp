@@ -374,6 +374,6 @@
     <CreateItem Include="$(MSBuildProjectDirectory)\..\Lib\NativeBinaries\**\*.*">
       <Output TaskParameter="Include" ItemName="NativeBinaries" />
     </CreateItem>
-    <Copy SourceFiles="@(NativeBinaries)" DestinationFiles="@(NativeBinaries->'$(OutputPath)NativeBinaries\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(NativeBinaries)" DestinationFiles="@(NativeBinaries->'$(OutputPath)%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
   </Target>
 </Project>

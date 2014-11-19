@@ -7,7 +7,7 @@
 
     <Copy
       SourceFiles="@(NativeBinaries)"
-      DestinationFiles="@(NativeBinaries->'$(OutputPath)NativeBinaries\%(RecursiveDir)%(Filename)%(Extension)')"
+      DestinationFiles="@(NativeBinaries->'$(OutputPath)%(RecursiveDir)%(Filename)%(Extension)')"
       SkipUnchangedFiles="true" />
   </Target>
 </Project>
