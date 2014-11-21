@@ -49,6 +49,25 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
+        public void RetrieveObjectMetadataReturnsCorrectSizeAndTypeForBlob()
+        {
+            string path = InitNewRepository();
+
+            using (var repo = new Repository(path))
+            {
+                Blob blob = CreateBlob(repo, "I'm a new file\n");
+                Assert.NotNull(blob);
+
+                GitObjectMetadata blobMetadata = repo.ObjectDatabase.RetrieveObjectMetadata(blob.Id);
+                Assert.Equal(blobMetadata.Size, blob.Size);
+                Assert.Equal(blobMetadata.Type, ObjectType.Blob);
+
+                Blob fetchedBlob = repo.Lookup<Blob>(blob.Id);
+                Assert.Equal(blobMetadata.Size, fetchedBlob.Size);
+            }
+        }
+
+        [Fact]
         public void CanCreateABlobIntoTheDatabaseOfABareRepository()
         {
             string path = InitNewRepository();

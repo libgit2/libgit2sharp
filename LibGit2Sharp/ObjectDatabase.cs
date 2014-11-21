@@ -73,6 +73,20 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        /// Retrieves the header of a GitObject from the object database. The header contains the Size
+        /// and Type of the object. Note that most backends do not support reading only the header
+        /// of an object, so the whole object will be read and then size would be returned.  
+        /// </summary>
+        /// <param name="objectId">Object Id of the queried object</param>
+        /// <returns>GitObjectMetadata object instance containg object header information</returns>
+        public virtual GitObjectMetadata RetrieveObjectMetadata(ObjectId objectId)
+        {
+            Ensure.ArgumentNotNull(objectId, "objectId");
+
+            return Proxy.git_odb_read_header(handle, objectId);
+        }
+
+        /// <summary>
         /// Inserts a <see cref="Blob"/> into the object database, created from the content of a file.
         /// </summary>
         /// <param name="path">Path to the file to create the blob from.  A relative path is allowed to

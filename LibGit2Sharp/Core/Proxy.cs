@@ -1378,6 +1378,21 @@ namespace LibGit2Sharp.Core
             }
         }
 
+        public static GitObjectMetadata git_odb_read_header(ObjectDatabaseSafeHandle odb, ObjectId id)
+        {
+            using (ThreadAffinity())
+            {
+                GitOid oid = id.Oid;
+                UIntPtr length;
+                GitObjectType objectType;
+
+                int res = NativeMethods.git_odb_read_header(out length, out objectType, odb, ref oid);
+                Ensure.ZeroResult(res);
+
+                return new GitObjectMetadata((long)length, objectType);
+            }
+        }
+
         public static ICollection<TResult> git_odb_foreach<TResult>(
             ObjectDatabaseSafeHandle odb,
             Func<IntPtr, TResult> resultSelector)
