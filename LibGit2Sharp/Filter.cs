@@ -43,7 +43,7 @@ namespace LibGit2Sharp
             this.name = name;
             nativeFilter = filterPtr;
             managedFilter = nativeFilter.MarshalFromNative();
-            attributes = EncodingMarshaler.FromNative(Encoding.UTF8, managedFilter.attributes);
+            attributes = managedFilter.ManagedAttributes();
             version = (int) managedFilter.version;
         }
 
@@ -78,7 +78,7 @@ namespace LibGit2Sharp
         {
             managedFilter = new GitFilter
             {
-                attributes = EncodingMarshaler.FromManaged(Encoding.UTF8, attributes),
+                attributes = GitFilter.GetAttributesFromManaged(attributes),
                 version = (uint)version,
                 init = filterCallbacks.InitializeCallback,
                 apply = filterCallbacks.ApplyCallback,

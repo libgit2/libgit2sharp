@@ -1,5 +1,13 @@
 using System;
+using System.CodeDom;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Runtime.InteropServices;
+using System.Text;
 using LibGit2Sharp.Core;
+using LibGit2Sharp.Core.Handles;
 
 namespace LibGit2Sharp
 {
@@ -8,7 +16,7 @@ namespace LibGit2Sharp
     /// </summary>
     public class FilterCallbacks
     {
-        private readonly Func<FilterSource, int> customCheckCallback;
+        private readonly Func<FilterSource, string, int> customCheckCallback;
         private readonly Func<FilterSource, int> customApplyCallback;
         private readonly Func<int> customInitializeCallback;
         private readonly Action customShutdownCallback;
@@ -34,13 +42,13 @@ namespace LibGit2Sharp
         /// <param name="customInitializeCallback">The init callback</param>
         /// <param name="customCleanupCallback">The clean callback</param>
         public FilterCallbacks(
-            Func<FilterSource, int> customCheckCallback = null,
+            Func<FilterSource, string, int> customCheckCallback = null,
             Func<FilterSource, int> customApplyCallback = null, 
             Action customShutdownCallback = null,
             Func<int> customInitializeCallback = null,
             Action customCleanupCallback = null)
         {
-            this.customCheckCallback = customCheckCallback ?? passThroughFunc;
+            this.customCheckCallback = customCheckCallback ?? ((source, attr) => (int)GitErrorCode.PassThrough);
             this.customApplyCallback = customApplyCallback ?? passThroughFunc;
             this.customShutdownCallback = customShutdownCallback ??  (() => { });
             this.customInitializeCallback = customInitializeCallback ?? passThroughSuccess;
@@ -92,9 +100,13 @@ namespace LibGit2Sharp
         /// callback to free the payload.
         /// </summary>
         /// <returns></returns>
-        internal int CheckCallback(IntPtr gitFilter, IntPtr payload, IntPtr filterSource, IntPtr attributeValues)
+        internal int CheckCallback(GitFilter gitFilter, IntPtr payload, IntPtr filterSource, IntPtr attributeValues)
         {
-            return customCheckCallback(FilterSource.FromNativePtr(filterSource));
+            Console.WriteLine("CHEEEECKKKK");
+            //string attributes = GitFilter.GetAttributesFromPointer(attributeValues);
+            //string attributes1 = GitFilter.GetAttributesFromPointer(gitFilter.attributes);
+            //return customCheckCallback(FilterSource.FromNativePtr(filterSource), attributes1);
+            return 0;
         }
 
         /// <summary>
@@ -107,9 +119,96 @@ namespace LibGit2Sharp
         /// 
         /// The `payload` value will refer to any payload that was set by the `check` callback.  It may be read from or written to as needed.
         /// </summary>
-        internal int ApplyCallback(IntPtr gitFilter, IntPtr payload, IntPtr gitBufferTo, IntPtr gitBufferFrom, IntPtr filterSource)
+        internal int ApplyCallback(GitFilter gitFilter, IntPtr payload, IntPtr gitBufferToPtr,  GitBuf gitBufferFrom,
+             IntPtr filterSourcePtr)
         {
-            return customApplyCallback(FilterSource.FromNativePtr(filterSource));
+            var gitBufferTo = gitBufferToPtr.MarshalAs<GitBuf>();
+
+            FilterMode mode = Proxy.git_filter_source_mode(filterSourcePtr);
+
+            if (mode == FilterMode.Smudge)
+            {
+                Console.WriteLine("-------------------------Apply Filter ----------------------");
+
+
+                Console.WriteLine("In  buffer: {0} Size:{1} Allocated: {2}", gitBufferFrom.ptr, gitBufferFrom.size,
+                    gitBufferFrom.asize);
+                Console.WriteLine("Out buffer: {0} Size:{1} Allocated: {2}", gitBufferTo.ptr, gitBufferTo.size,
+                    gitBufferTo.asize);
+
+
+
+                Console.WriteLine("Reading from in buffer");
+                Read(gitBufferFrom, gitBufferFrom.size, gitBufferFrom.asize);
+
+                Console.WriteLine("Writing via git buf set");
+
+                NativeMethods.git_buf_set(gitBufferTo, gitBufferFrom.ptr, gitBufferFrom.size);
+                gitBufferTo.size = gitBufferFrom.size;
+                gitBufferTo.asize = gitBufferFrom.asize;
+
+                Marshal.StructureToPtr(gitBufferTo, gitBufferToPtr, true);
+
+                Console.WriteLine("In  buffer: {0} Size:{1} Allocated: {2}", gitBufferFrom.ptr, gitBufferFrom.size,
+                    gitBufferFrom.asize);
+                Console.WriteLine("Out buffer: {0} Size:{1} Allocated: {2}", gitBufferTo.ptr, gitBufferTo.size,
+                    gitBufferTo.asize);
+
+
+
+                // Console.WriteLine("Reading from out buffer: {0} Size:{1} Allocated: {2}", gitBufferTo.ptr, gitBufferTo.size, gitBufferTo.asize);
+                //Read(gitBufferTo, gitBufferTo.size, gitBufferTo.asize);
+
+
+                Console.WriteLine("-------------------------End Apply --------------------------");
+                return 0;
+            }
+            return -30;
+        }
+
+
+        private static unsafe string Read(GitBuf gitBuf, UIntPtr lengthPtr, UIntPtr allocatedIntPrt)
+        {
+            Console.WriteLine("Reading buffer");
+
+            // Get a byte pointer from the IntPtr object. 
+            byte* memBytePtr = (byte*)gitBuf.ptr.ToPointer();
+            long size = ConvertToLong(lengthPtr);
+            long length = ConvertToLong(allocatedIntPrt);
+
+            // Create another UnmanagedMemoryStream object using a pointer to unmanaged memory.
+            var readStream = new UnmanagedMemoryStream(memBytePtr, size, length, FileAccess.Read);
+
+            // Create a byte array to hold data from unmanaged memory. 
+            byte[] outMessage = new byte[size];
+
+            // Read from unmanaged memory to the byte array.
+            readStream.Read(outMessage, 0, (int)size);
+
+            // Close the stream.
+            readStream.Close();
+
+            // Display the data to the console.
+            string result = UnicodeEncoding.UTF8.GetString(outMessage);
+
+            Console.WriteLine(result);
+            Console.WriteLine();
+
+            return result;
+        }
+
+        internal static long ConvertToLong(UIntPtr len)
+        {
+            if (len.ToUInt64() > long.MaxValue)
+            {
+                throw new InvalidOperationException(
+                    string.Format(
+                        CultureInfo.InvariantCulture,
+                        "Provided length ({0}) exceeds long.MaxValue ({1}).",
+                        len.ToUInt64(), long.MaxValue));
+            }
+
+            return (long)len.ToUInt64();
         }
 
         /// <summary>

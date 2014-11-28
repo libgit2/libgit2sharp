@@ -160,6 +160,9 @@ namespace LibGit2Sharp.Core
         internal static extern IntPtr git_blob_rawcontent(GitObjectSafeHandle blob);
 
         [DllImport(libgit2)]
+        internal static extern IntPtr git_blob_rawcontent(IntPtr blob);
+
+        [DllImport(libgit2)]
         internal static extern Int64 git_blob_rawsize(GitObjectSafeHandle blob);
 
         [DllImport(libgit2)]
@@ -211,6 +214,15 @@ namespace LibGit2Sharp.Core
             GitBuf buf,
             RepositorySafeHandle repo,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string canonical_branch_name);
+
+        [DllImport(libgit2)]
+        internal static extern int git_buf_grow(GitBuf buffer, UIntPtr targetSize);
+
+        [DllImport(libgit2)]
+        internal static extern int git_buf_set(GitBuf buffer, IntPtr data, UIntPtr targetSize);
+
+        [DllImport("msvcrt.dll", EntryPoint = "memcpy", CallingConvention = CallingConvention.Cdecl, SetLastError = false)]
+        public static extern IntPtr memcpy(IntPtr dest, IntPtr src, UIntPtr count);
 
         [DllImport(libgit2)]
         internal static extern int git_remote_rename(

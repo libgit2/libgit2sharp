@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using LibGit2Sharp.Core;
+using LibGit2Sharp.Core.Handles;
 
 namespace LibGit2Sharp
 {
@@ -14,10 +15,13 @@ namespace LibGit2Sharp
         /// </summary>
         protected FilterSource() {  }
 
-        internal FilterSource(FilePath path, FilterMode mode)
+        internal FilterSource(FilePath path, FilterMode mode, GitFilterSource source)
         {
             SourceMode = mode;
-            Path = GetPathSafely(path);
+            ObjectId = new ObjectId(source.oid);
+            RepositoryHandle = source.repository;
+            FullPath = path.Native;
+            Path = GetRelativePath(path);
         }
 
         /// <summary>
@@ -30,8 +34,13 @@ namespace LibGit2Sharp
             var source = ptr.MarshalAs<GitFilterSource>();
             FilePath path = LaxFilePathMarshaler.FromNative(source.path) ?? FilePath.Empty;
             FilterMode gitFilterSourceMode = Proxy.git_filter_source_mode(ptr);
-            return new FilterSource(path, gitFilterSourceMode);
+            return new FilterSource(path, gitFilterSourceMode, source);
         }
+
+        /// <summary>
+        /// The full path of the file
+        /// </summary>
+        public virtual string FullPath { get; private set; }
 
         /// <summary>
         /// The filter mode for current file being filtered
@@ -44,12 +53,23 @@ namespace LibGit2Sharp
         public virtual string Path { get; private set; }
 
         /// <summary>
+        /// A pointer to the repository
+        /// </summary>
+        public virtual IntPtr RepositoryHandle { get; private set; }
+
+        /// <summary>
+        /// The blob id
+        /// </summary>
+        public virtual ObjectId ObjectId { get; private set; }
+
+
+        /// <summary>
         /// When cleaning and smudging, relative and absolute paths are returned.
         /// Try and just return the relative path if we can. 
         /// </summary>
         /// <param name="path"></param>
         /// <returns></returns>
-        string GetPathSafely(FilePath path)
+        string GetRelativePath(FilePath path)
         {
             try
             {
@@ -58,7 +78,7 @@ namespace LibGit2Sharp
             }
             catch (Exception)
             {
-                return path.Native;;
+                return path.Native;
             }
         }
     }

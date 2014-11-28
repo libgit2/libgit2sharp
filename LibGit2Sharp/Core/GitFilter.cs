@@ -1,5 +1,7 @@
 using System;
 using System.Runtime.InteropServices;
+using System.Text;
+using LibGit2Sharp.Core.Handles;
 
 namespace LibGit2Sharp.Core
 {
@@ -71,7 +73,7 @@ namespace LibGit2Sharp.Core
         /// </summary>
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
         public delegate int git_filter_check_fn(
-            IntPtr gitFilter, IntPtr payload, IntPtr filterSource, IntPtr attributeValues);
+            GitFilter gitFilter, IntPtr payload, IntPtr filterSource, IntPtr attributeValues);
 
         /// <summary>
         /// Callback to actually perform the data filtering
@@ -85,7 +87,7 @@ namespace LibGit2Sharp.Core
         /// </summary>
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
         public delegate int git_filter_apply_fn(
-            IntPtr gitFilter, IntPtr payload, IntPtr gitBufTo, IntPtr gitBufFrom, IntPtr filterSource);
+             GitFilter gitFilter, IntPtr payload, IntPtr gitBufTo, GitBuf gitBufFrom, IntPtr filterSource);
 
         /// <summary>
         /// Callback to clean up after filtering has been applied. Specified as `filter.cleanup`, this is an optional callback invoked
@@ -94,6 +96,21 @@ namespace LibGit2Sharp.Core
         /// </summary>
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
         public delegate void git_filter_cleanup_fn(IntPtr gitFilter, IntPtr payload);
+
+        public static string GetAttributesFromPointer(IntPtr intPtr)
+        {
+            return EncodingMarshaler.FromNative(Encoding.UTF8, intPtr);
+        }
+
+        public string ManagedAttributes()
+        {
+            return GetAttributesFromPointer(attributes);
+        }
+
+        public static IntPtr GetAttributesFromManaged(string attributes)
+        {
+            return EncodingMarshaler.FromManaged(Encoding.UTF8, attributes);
+        }
     }
     /// <summary>
     /// The file source being filtered
@@ -104,5 +121,7 @@ namespace LibGit2Sharp.Core
         public IntPtr repository;
 
         public IntPtr path;
+
+        public GitOid oid;
     }
 }
