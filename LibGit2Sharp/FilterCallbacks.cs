@@ -119,8 +119,8 @@ namespace LibGit2Sharp
         /// 
         /// The `payload` value will refer to any payload that was set by the `check` callback.  It may be read from or written to as needed.
         /// </summary>
-        internal int ApplyCallback(GitFilter gitFilter, IntPtr payload, IntPtr gitBufferToPtr,  GitBuf gitBufferFrom,
-             IntPtr filterSourcePtr)
+        internal int ApplyCallback(GitFilter gitFilter, IntPtr payload, IntPtr gitBufferToPtr, GitBuf gitBufferFrom,
+            IntPtr filterSourcePtr)
         {
             var gitBufferTo = gitBufferToPtr.MarshalAs<GitBuf>();
 
@@ -137,11 +137,19 @@ namespace LibGit2Sharp
                     gitBufferTo.asize);
 
 
+                Console.WriteLine("Reading from in buffer");
+                string data = Read(gitBufferFrom, (UIntPtr)6, (UIntPtr)6);
+
+                IntPtr reverseData = GetReverse(data);
+
 
                 Console.WriteLine("Reading from in buffer");
                 Read(gitBufferFrom, gitBufferFrom.size, gitBufferFrom.asize);
 
-                Console.WriteLine("Writing via git buf set");
+                gitBufferTo.size = gitBufferFrom.size;
+                gitBufferTo.asize = gitBufferFrom.asize;
+                NativeMethods.git_buf_set(gitBufferTo, reverseData, gitBufferFrom.size);
+
 
                 NativeMethods.git_buf_set(gitBufferTo, gitBufferFrom.ptr, gitBufferFrom.size);
                 gitBufferTo.size = gitBufferFrom.size;
@@ -164,6 +172,25 @@ namespace LibGit2Sharp
                 return 0;
             }
             return -30;
+        }
+
+        private static  IntPtr GetReverse(string data)
+        {
+
+            char[] arr = data.ToCharArray();
+            Array.Reverse(arr);
+            var reversed =  new string(arr);
+
+                    // Create some data to read and write. 
+            byte[] message = UnicodeEncoding.UTF8.GetBytes(reversed);
+
+            // Allocate a block of unmanaged memory and return an IntPtr object.	
+            IntPtr memIntPtr = Marshal.AllocHGlobal(message.Length);
+
+
+            Marshal.Copy(message,0, memIntPtr, message.Length);
+
+            return memIntPtr;
         }
 
 
