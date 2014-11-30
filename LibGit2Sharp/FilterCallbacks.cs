@@ -1,13 +1,5 @@
 using System;
-using System.CodeDom;
-using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
 using LibGit2Sharp.Core;
-using LibGit2Sharp.Core.Handles;
 
 namespace LibGit2Sharp
 {
@@ -17,12 +9,11 @@ namespace LibGit2Sharp
     public class FilterCallbacks
     {
         private readonly Func<FilterSource, string, int> customCheckCallback;
-        private readonly Func<FilterSource, int> customApplyCallback;
+        private readonly Func<FilterSource, GitBufReader, GitBufWriter, int> customApplyCallback;
         private readonly Func<int> customInitializeCallback;
         private readonly Action customShutdownCallback;
         private readonly Action customCleanUpCallback;
 
-        private readonly Func<FilterSource, int> passThroughFunc = (source) => (int)GitErrorCode.PassThrough;
         private readonly Func<int> passThroughSuccess = () => 0;
 
         /// <summary>
@@ -43,13 +34,13 @@ namespace LibGit2Sharp
         /// <param name="customCleanupCallback">The clean callback</param>
         public FilterCallbacks(
             Func<FilterSource, string, int> customCheckCallback = null,
-            Func<FilterSource, int> customApplyCallback = null, 
+            Func<FilterSource, GitBufReader, GitBufWriter, int> customApplyCallback = null, 
             Action customShutdownCallback = null,
             Func<int> customInitializeCallback = null,
             Action customCleanupCallback = null)
         {
             this.customCheckCallback = customCheckCallback ?? ((source, attr) => (int)GitErrorCode.PassThrough);
-            this.customApplyCallback = customApplyCallback ?? passThroughFunc;
+            this.customApplyCallback = customApplyCallback ?? ((source, reader, writer) => (int)GitErrorCode.PassThrough);
             this.customShutdownCallback = customShutdownCallback ??  (() => { });
             this.customInitializeCallback = customInitializeCallback ?? passThroughSuccess;
             this.customCleanUpCallback = customCleanupCallback ?? (() => { });
@@ -100,11 +91,12 @@ namespace LibGit2Sharp
         /// callback to free the payload.
         /// </summary>
         /// <returns></returns>
-        internal int CheckCallback(GitFilter gitFilter, IntPtr payload, IntPtr filterSource, IntPtr attributeValues)
+        internal int CheckCallback(GitFilter gitFilter, IntPtr payload, IntPtr filterSourcePtr, IntPtr attributeValues)
         {
             //string attributes = GitFilter.GetAttributesFromPointer(attributeValues);
             string attributes1 = GitFilter.GetAttributesFromPointer(gitFilter.attributes);
-            return customCheckCallback(FilterSource.FromNativePtr(filterSource), attributes1);
+            var filterSource = FilterSource.FromNativePtr(filterSourcePtr);
+            return customCheckCallback(filterSource, attributes1);
 
         }
 
@@ -118,58 +110,14 @@ namespace LibGit2Sharp
         /// 
         /// The `payload` value will refer to any payload that was set by the `check` callback.  It may be read from or written to as needed.
         /// </summary>
-        internal int ApplyCallback(GitFilter gitFilter, IntPtr payload, IntPtr gitBufferToPtr, IntPtr gitBufferFrom,
+        internal int ApplyCallback(GitFilter gitFilter, IntPtr payload, IntPtr gitBufferToPtr, IntPtr gitBufferFromPtr,
              IntPtr filterSourcePtr)
         {
-            var gitBufferTo = gitBufferToPtr.MarshalAs<GitBuf>();
-
-            FilterMode mode = Proxy.git_filter_source_mode(filterSourcePtr);
-
-            if (mode == FilterMode.Smudge)
-            {
-                return ReverseInputAndWriteToOutput(gitBufferToPtr, gitBufferFrom, gitBufferTo);
-            }
-
-            if (mode == FilterMode.Clean)
-            {
-                return ReverseInputAndWriteToOutput(gitBufferToPtr, gitBufferFrom, gitBufferTo);
-            }
-            return -30;
-        }
-
-        private static int ReverseInputAndWriteToOutput(IntPtr gitBufferToPtr, IntPtr gitBufferFrom, GitBuf gitBufferTo)
-        {
-            var reader = new GitBufReader(gitBufferFrom);
-            var inputByes = reader.Read();
-            var reverseByes = ReverseBytes(inputByes);
-
+            var filterSource = FilterSource.FromNativePtr(filterSourcePtr);
+            var reader = new GitBufReader(gitBufferFromPtr);
             var writer = new GitBufWriter(gitBufferToPtr);
-            writer.Write(reverseByes);
 
-            return 0;
-        }
-
-        private static byte[] ReverseBytes(byte[] input)
-        {
-            string inputString = Encoding.UTF8.GetString(input);
-            char[] arr = inputString.ToCharArray();
-            Array.Reverse(arr);
-            var reversed = new string(arr);
-            return Encoding.UTF8.GetBytes(reversed);
-        }
-
-        internal static long ConvertToLong(UIntPtr len)
-        {
-            if (len.ToUInt64() > long.MaxValue)
-            {
-                throw new InvalidOperationException(
-                    string.Format(
-                        CultureInfo.InvariantCulture,
-                        "Provided length ({0}) exceeds long.MaxValue ({1}).",
-                        len.ToUInt64(), long.MaxValue));
-            }
-
-            return (long)len.ToUInt64();
+            return customApplyCallback(filterSource, reader, writer);
         }
 
         /// <summary>

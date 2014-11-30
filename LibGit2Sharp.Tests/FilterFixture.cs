@@ -1,5 +1,7 @@
 ﻿using System;
 using System.IO;
+using System.Text;
+using LibGit2Sharp.Core;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
 
@@ -9,7 +11,7 @@ namespace LibGit2Sharp.Tests
     {
         private const int GitPassThrough = -30;
         private readonly FilterCallbacks emptyCallbacks = new FilterCallbacks();
-        readonly Func<FilterSource, int> successCallback = source => 0;
+        readonly Func<FilterSource,GitBufReader, GitBufWriter, int> successCallback = (source, reader, writer) => 0;
         readonly Func<FilterSource, string, int> checkSuccess = (source, attr) => 0;
 
         private const string FilterName = "the-filter";
@@ -141,11 +143,12 @@ namespace LibGit2Sharp.Tests
         {
             bool called = false;
 
-            Func<FilterSource, int> applyCallback = source =>
-            {
-                called = true;
-                return 0; //successCallback
-            };
+            Func<FilterSource, GitBufReader, GitBufWriter, int> applyCallback =
+                (source, reader, writer) =>
+                {
+                    called = true;
+                    return 0; //successCallback
+                };
 
             string repoPath = InitNewRepository();
             var callbacks = new FilterCallbacks(checkSuccess, applyCallback);
@@ -165,11 +168,13 @@ namespace LibGit2Sharp.Tests
         public void ApplyCallbackNotMadeWhenCheckCallbackReturnsPassThrough()
         {
             bool called = false;
-            Func<FilterSource, int> applyCallback = source =>
-            {
-                called = true;
-                return 0;
-            };
+
+            Func<FilterSource, GitBufReader, GitBufWriter, int> applyCallback =
+                (source, reader, writer) =>
+                {
+                    called = true;
+                    return 0; //successCallback
+                };
 
             string repoPath = InitNewRepository();
             var callbacks = new FilterCallbacks((source, attr) => GitPassThrough, applyCallback);
@@ -376,7 +381,7 @@ namespace LibGit2Sharp.Tests
             var calledWithMode = FilterMode.Smudge;
             string expectedPath;
             string actualPath = string.Empty;
-            Func<FilterSource, int> callback = source =>
+            Func<FilterSource, GitBufReader, GitBufWriter, int> callback = (source, reader, writer) =>
             {
                 calledWithMode = source.SourceMode;
                 actualPath = source.Path;
@@ -402,16 +407,17 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CleanToObdb()
         {
-            const string branchName = "branch";
             string repoPath = InitNewRepository();
 
-            var calledWithMode = FilterMode.Clean;
+            var calledWithMode = FilterMode.Smudge;
             string actualPath = string.Empty;
 
-            Func<FilterSource, int> callback = source =>
+            Func<FilterSource, GitBufReader, GitBufWriter, int> callback = (source, reader, writer) =>
             {
                 calledWithMode = source.SourceMode;
                 actualPath = source.Path;
+                var input = reader.Read();
+                writer.Write(ReverseBytes(input));
                 return 0;
             };
 
@@ -424,7 +430,7 @@ namespace LibGit2Sharp.Tests
             string expectedPath;
             using (var repo = new Repository(repoPath))
             {
-                expectedPath = StageNewFile(repo);
+                expectedPath = StageNewFile(repo, "333777");
 
                 var commit = repo.Commit("bom", Constants.Signature, Constants.Signature);
 
@@ -441,13 +447,8 @@ namespace LibGit2Sharp.Tests
 
             filter1.Deregister();
 
-            // Assert.Equal(FilterMode.Smudge, calledWithMode);
-            //Assert.Equal(expectedPath, actualPath);
-
-            string combine = Path.Combine(repoPath, "..", expectedPath);
-            var fileInfo = new FileInfo(combine);
-            Console.WriteLine("Final read from:" + fileInfo.Name + "Size: " + fileInfo.Length);
-            Console.WriteLine("Final contents :" + File.ReadAllText(combine));
+            Assert.Equal(FilterMode.Clean, calledWithMode);
+            Assert.Equal(expectedPath, actualPath);
         }
 
 
@@ -460,9 +461,15 @@ namespace LibGit2Sharp.Tests
             var calledWithMode = FilterMode.Clean;
             string actualPath = string.Empty;
 
-            Func<FilterSource, int> callback = source =>
+            Func<FilterSource, GitBufReader, GitBufWriter, int> callback = (source, reader, writer) =>
             {
                 calledWithMode = source.SourceMode;
+                if (source.SourceMode == FilterMode.Smudge)
+                {
+                    var input = reader.Read();
+                    var reversedInput = ReverseBytes(input);
+                    writer.Write(reversedInput);
+                }
                 actualPath = source.Path;
                 return 0;
             };
@@ -480,11 +487,11 @@ namespace LibGit2Sharp.Tests
 
             filter1.Deregister();
 
+            Assert.Equal(FilterMode.Smudge, calledWithMode);
+            Assert.Equal(expectedPath, actualPath);
+
             string combine = Path.Combine(repoPath,"..", expectedPath);
-            var fileInfo = new FileInfo(combine);
-            Console.WriteLine("Final read from:" + fileInfo.Name + "Size: "+ fileInfo.Length);
             string readAllText = File.ReadAllText(combine);
-            Console.WriteLine("Final contents :" + readAllText);
             Assert.Equal("777333", readAllText);
         }
 
@@ -493,17 +500,13 @@ namespace LibGit2Sharp.Tests
             string expectedPath;
             using (var repo = new Repository(repoPath))
             {
-                Console.WriteLine("Staging File");
-                StageNewFile(repo);
-                Console.WriteLine("Comit File");
+                StageNewFile(repo, "333777");
                 repo.Commit("Initial commit", Constants.Signature, Constants.Signature);
 
                 expectedPath = CommitFileOnBranch(repo, branchName);
 
-                Console.WriteLine("Checkout master");
                 repo.Branches["master"].Checkout();
 
-                Console.WriteLine("Checkout " +branchName);
                 //should smudge file on checkout
                 repo.Branches[branchName].Checkout();
             }
@@ -512,29 +515,29 @@ namespace LibGit2Sharp.Tests
 
         private static string CommitFileOnBranch(Repository repo, string branchName)
         {
-            Console.WriteLine("Create Checkout branch " + branchName);
             var branch = repo.CreateBranch(branchName);
             branch.Checkout();
 
-            Console.WriteLine("Stage and comit on " + branchName);
-            string expectedPath = StageNewFile(repo);
+            string expectedPath = StageNewFile(repo, "333777");
             repo.Commit("Commit", Constants.Signature, Constants.Signature);
             return expectedPath;
         }
 
-        private static string StageNewFile(IRepository repo)
+        private static string StageNewFile(IRepository repo, string contents = "null")
         {
-            string newFilePath = Touch(repo.Info.WorkingDirectory, Guid.NewGuid() + ".txt", "333777");
+            string newFilePath = Touch(repo.Info.WorkingDirectory, Guid.NewGuid() + ".txt", contents);
             var stageNewFile = new FileInfo(newFilePath);
-
-            string combine = Path.Combine(repo.Info.WorkingDirectory, stageNewFile.Name);
-
-            Console.WriteLine("Pre stage from:" + stageNewFile.Name + "Size: " + stageNewFile.Length);
-            Console.WriteLine("Pre stage :" + File.ReadAllText(combine));
-           
             repo.Stage(newFilePath);
-
             return stageNewFile.Name;
+        }
+
+        private static byte[] ReverseBytes(byte[] input)
+        {
+            string inputString = Encoding.UTF8.GetString(input);
+            char[] arr = inputString.ToCharArray();
+            Array.Reverse(arr);
+            var reversed = new string(arr);
+            return Encoding.UTF8.GetBytes(reversed);
         }
     }
 }
