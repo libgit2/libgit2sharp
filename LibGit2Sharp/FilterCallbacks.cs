@@ -102,11 +102,10 @@ namespace LibGit2Sharp
         /// <returns></returns>
         internal int CheckCallback(GitFilter gitFilter, IntPtr payload, IntPtr filterSource, IntPtr attributeValues)
         {
-            Console.WriteLine("CHEEEECKKKK");
             //string attributes = GitFilter.GetAttributesFromPointer(attributeValues);
-            //string attributes1 = GitFilter.GetAttributesFromPointer(gitFilter.attributes);
-            //return customCheckCallback(FilterSource.FromNativePtr(filterSource), attributes1);
-            return 0;
+            string attributes1 = GitFilter.GetAttributesFromPointer(gitFilter.attributes);
+            return customCheckCallback(FilterSource.FromNativePtr(filterSource), attributes1);
+
         }
 
         /// <summary>
@@ -128,7 +127,7 @@ namespace LibGit2Sharp
 
             if (mode == FilterMode.Smudge)
             {
-                Console.WriteLine("-------------------------Apply Filter ----------------------");
+                Console.WriteLine("-------------------------Apply Smudge Filter ----------------------");
 
 
                 Console.WriteLine("In  buffer: {0} Size:{1} Allocated: {2}", gitBufferFrom.ptr, gitBufferFrom.size,
@@ -163,12 +162,41 @@ namespace LibGit2Sharp
                     gitBufferTo.asize);
 
 
+                Console.WriteLine("-------------------------End Apply Smudge --------------------------");
+                return 0;
+            }
 
-                // Console.WriteLine("Reading from out buffer: {0} Size:{1} Allocated: {2}", gitBufferTo.ptr, gitBufferTo.size, gitBufferTo.asize);
-                //Read(gitBufferTo, gitBufferTo.size, gitBufferTo.asize);
+            if (mode == FilterMode.Clean)
+            {
+                Console.WriteLine("-------------------------Apply Clean Filter ----------------------");
 
 
-                Console.WriteLine("-------------------------End Apply --------------------------");
+                Console.WriteLine("In  buffer: {0} Size:{1} Allocated: {2}", gitBufferFrom.ptr, gitBufferFrom.size,
+                    gitBufferFrom.asize);
+                Console.WriteLine("Out buffer: {0} Size:{1} Allocated: {2}", gitBufferTo.ptr, gitBufferTo.size,
+                    gitBufferTo.asize);
+
+
+                Console.WriteLine("Reading from in buffer");
+                string data = Read(gitBufferFrom, gitBufferFrom.size, gitBufferFrom.asize);
+
+                IntPtr reverseData = GetReverse(data);
+
+                Console.WriteLine("Writing via git buf set");
+
+                NativeMethods.git_buf_set(gitBufferTo, reverseData, gitBufferFrom.size);
+                gitBufferTo.size = gitBufferFrom.size;
+                gitBufferTo.asize = gitBufferFrom.asize;
+
+                Marshal.StructureToPtr(gitBufferTo, gitBufferToPtr, true);
+
+                Console.WriteLine("In  buffer: {0} Size:{1} Allocated: {2}", gitBufferFrom.ptr, gitBufferFrom.size,
+                    gitBufferFrom.asize);
+                Console.WriteLine("Out buffer: {0} Size:{1} Allocated: {2}", gitBufferTo.ptr, gitBufferTo.size,
+                    gitBufferTo.asize);
+
+
+                Console.WriteLine("-------------------------End Apply Clean --------------------------");
                 return 0;
             }
             return -30;

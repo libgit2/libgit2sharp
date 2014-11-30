@@ -467,24 +467,18 @@ namespace LibGit2Sharp.Tests
                 return 0;
             };
 
-            var callbacks = new FilterCallbacks(checkSuccess, callback);
+            Func<FilterSource, string, int> checkCallback = (source, s) => 
+                source.SourceMode == FilterMode.Smudge ? 0 : GitPassThrough;
+
+            var callbacks = new FilterCallbacks(checkCallback, callback);
 
             var filter1 = new Filter(FilterName + 14, Attributes, Version, callbacks);
-            var filter2 = new Filter(FilterName + 15, Attributes, Version, callbacks);
-            var filter3 = new Filter(FilterName + 16, Attributes, Version, callbacks);
 
             filter1.Register();
-            filter2.Register();
-            filter3.Register();
 
             string expectedPath = CheckoutFileForSmudge(repoPath, branchName);
 
             filter1.Deregister();
-            filter2.Deregister();
-            filter3.Deregister();
-
-           // Assert.Equal(FilterMode.Smudge, calledWithMode);
-            //Assert.Equal(expectedPath, actualPath);
 
             string combine = Path.Combine(repoPath,"..", expectedPath);
             var fileInfo = new FileInfo(combine);
