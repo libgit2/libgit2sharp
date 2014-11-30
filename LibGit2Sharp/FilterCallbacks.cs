@@ -118,8 +118,8 @@ namespace LibGit2Sharp
         /// 
         /// The `payload` value will refer to any payload that was set by the `check` callback.  It may be read from or written to as needed.
         /// </summary>
-        internal int ApplyCallback(GitFilter gitFilter, IntPtr payload, IntPtr gitBufferToPtr, GitBuf gitBufferFrom,
-            IntPtr filterSourcePtr)
+        internal int ApplyCallback(GitFilter gitFilter, IntPtr payload, IntPtr gitBufferToPtr, IntPtr gitBufferFrom,
+             IntPtr filterSourcePtr)
         {
             var gitBufferTo = gitBufferToPtr.MarshalAs<GitBuf>();
 
@@ -137,12 +137,13 @@ namespace LibGit2Sharp
             return -30;
         }
 
-        private static int ReverseInputAndWriteToOutput(IntPtr gitBufferToPtr, GitBuf gitBufferFrom, GitBuf gitBufferTo)
+        private static int ReverseInputAndWriteToOutput(IntPtr gitBufferToPtr, IntPtr gitBufferFrom, GitBuf gitBufferTo)
         {
-            var inputByes = ReadBytes(gitBufferFrom, gitBufferFrom.size, gitBufferFrom.asize);
+            var reader = new GitBufReader(gitBufferFrom);
+            var inputByes = reader.Read();
             var reverseByes = ReverseBytes(inputByes);
 
-            var writer = new GitBufStreamWriter(gitBufferToPtr);
+            var writer = new GitBufWriter(gitBufferToPtr);
             writer.Write(reverseByes);
 
             return 0;
@@ -155,27 +156,6 @@ namespace LibGit2Sharp
             Array.Reverse(arr);
             var reversed = new string(arr);
             return Encoding.UTF8.GetBytes(reversed);
-        }
-
-        private static unsafe byte[] ReadBytes(GitBuf gitBuf, UIntPtr lengthPtr, UIntPtr allocatedIntPrt)
-        {
-            // Get a byte pointer from the IntPtr object. 
-            byte* memBytePtr = (byte*)gitBuf.ptr.ToPointer();
-            long size = ConvertToLong(lengthPtr);
-            long length = ConvertToLong(allocatedIntPrt);
-
-            // Create another UnmanagedMemoryStream object using a pointer to unmanaged memory.
-            var readStream = new UnmanagedMemoryStream(memBytePtr, size, length, FileAccess.Read);
-
-            // Create a byte array to hold data from unmanaged memory. 
-            byte[] outMessage = new byte[size];
-
-            // Read from unmanaged memory to the byte array.
-            readStream.Read(outMessage, 0, (int)size);
-
-            // Close the stream.
-            readStream.Close();
-            return outMessage;
         }
 
         internal static long ConvertToLong(UIntPtr len)

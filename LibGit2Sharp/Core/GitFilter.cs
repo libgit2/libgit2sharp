@@ -87,7 +87,7 @@ namespace LibGit2Sharp.Core
         /// </summary>
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
         public delegate int git_filter_apply_fn(
-             GitFilter gitFilter, IntPtr payload, IntPtr gitBufTo, GitBuf gitBufFrom, IntPtr filterSource);
+             GitFilter gitFilter, IntPtr payload, IntPtr gitBufTo, IntPtr gitBufFrom, IntPtr filterSource);
 
         /// <summary>
         /// Callback to clean up after filtering has been applied. Specified as `filter.cleanup`, this is an optional callback invoked
