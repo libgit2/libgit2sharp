@@ -127,105 +127,44 @@ namespace LibGit2Sharp
 
             if (mode == FilterMode.Smudge)
             {
-                Console.WriteLine("-------------------------Apply Smudge Filter ----------------------");
-
-
-                Console.WriteLine("In  buffer: {0} Size:{1} Allocated: {2}", gitBufferFrom.ptr, gitBufferFrom.size,
-                    gitBufferFrom.asize);
-                Console.WriteLine("Out buffer: {0} Size:{1} Allocated: {2}", gitBufferTo.ptr, gitBufferTo.size,
-                    gitBufferTo.asize);
-
-
-                Console.WriteLine("Reading from in buffer");
-                string data = Read(gitBufferFrom, (UIntPtr)6, (UIntPtr)6);
-
-                IntPtr reverseData = GetReverse(data);
-
-
-                Console.WriteLine("Reading from in buffer");
-                Read(gitBufferFrom, gitBufferFrom.size, gitBufferFrom.asize);
-
-                gitBufferTo.size = gitBufferFrom.size;
-                gitBufferTo.asize = gitBufferFrom.asize;
-                NativeMethods.git_buf_set(gitBufferTo, reverseData, gitBufferFrom.size);
-
-
-                NativeMethods.git_buf_set(gitBufferTo, gitBufferFrom.ptr, gitBufferFrom.size);
-                gitBufferTo.size = gitBufferFrom.size;
-                gitBufferTo.asize = gitBufferFrom.asize;
-
-                Marshal.StructureToPtr(gitBufferTo, gitBufferToPtr, true);
-
-                Console.WriteLine("In  buffer: {0} Size:{1} Allocated: {2}", gitBufferFrom.ptr, gitBufferFrom.size,
-                    gitBufferFrom.asize);
-                Console.WriteLine("Out buffer: {0} Size:{1} Allocated: {2}", gitBufferTo.ptr, gitBufferTo.size,
-                    gitBufferTo.asize);
-
-
-                Console.WriteLine("-------------------------End Apply Smudge --------------------------");
-                return 0;
+                return ReverseInputAndWriteToOutput(gitBufferToPtr, gitBufferFrom, gitBufferTo);
             }
 
             if (mode == FilterMode.Clean)
             {
-                Console.WriteLine("-------------------------Apply Clean Filter ----------------------");
-
-
-                Console.WriteLine("In  buffer: {0} Size:{1} Allocated: {2}", gitBufferFrom.ptr, gitBufferFrom.size,
-                    gitBufferFrom.asize);
-                Console.WriteLine("Out buffer: {0} Size:{1} Allocated: {2}", gitBufferTo.ptr, gitBufferTo.size,
-                    gitBufferTo.asize);
-
-
-                Console.WriteLine("Reading from in buffer");
-                string data = Read(gitBufferFrom, gitBufferFrom.size, gitBufferFrom.asize);
-
-                IntPtr reverseData = GetReverse(data);
-
-                Console.WriteLine("Writing via git buf set");
-
-                NativeMethods.git_buf_set(gitBufferTo, reverseData, gitBufferFrom.size);
-                gitBufferTo.size = gitBufferFrom.size;
-                gitBufferTo.asize = gitBufferFrom.asize;
-
-                Marshal.StructureToPtr(gitBufferTo, gitBufferToPtr, true);
-
-                Console.WriteLine("In  buffer: {0} Size:{1} Allocated: {2}", gitBufferFrom.ptr, gitBufferFrom.size,
-                    gitBufferFrom.asize);
-                Console.WriteLine("Out buffer: {0} Size:{1} Allocated: {2}", gitBufferTo.ptr, gitBufferTo.size,
-                    gitBufferTo.asize);
-
-
-                Console.WriteLine("-------------------------End Apply Clean --------------------------");
-                return 0;
+                return ReverseInputAndWriteToOutput(gitBufferToPtr, gitBufferFrom, gitBufferTo);
             }
             return -30;
         }
 
-        private static  IntPtr GetReverse(string data)
+        private static int ReverseInputAndWriteToOutput(IntPtr gitBufferToPtr, GitBuf gitBufferFrom, GitBuf gitBufferTo)
         {
+            var inputByes = ReadBytes(gitBufferFrom, gitBufferFrom.size, gitBufferFrom.asize);
+            var reverseByes = ReverseBytes(inputByes);
 
-            char[] arr = data.ToCharArray();
-            Array.Reverse(arr);
-            var reversed =  new string(arr);
+            IntPtr reverseBytesPointer = Marshal.AllocHGlobal(reverseByes.Length);
+            Marshal.Copy(reverseByes, 0, reverseBytesPointer, reverseByes.Length);
 
-                    // Create some data to read and write. 
-            byte[] message = UnicodeEncoding.UTF8.GetBytes(reversed);
+            NativeMethods.git_buf_set(gitBufferTo, reverseBytesPointer, gitBufferFrom.size);
+            gitBufferTo.size = gitBufferFrom.size;
+            gitBufferTo.asize = gitBufferFrom.asize;
 
-            // Allocate a block of unmanaged memory and return an IntPtr object.	
-            IntPtr memIntPtr = Marshal.AllocHGlobal(message.Length);
+            Marshal.StructureToPtr(gitBufferTo, gitBufferToPtr, true);
 
-
-            Marshal.Copy(message,0, memIntPtr, message.Length);
-
-            return memIntPtr;
+            return 0;
         }
 
-
-        private static unsafe string Read(GitBuf gitBuf, UIntPtr lengthPtr, UIntPtr allocatedIntPrt)
+        private static byte[] ReverseBytes(byte[] input)
         {
-            Console.WriteLine("Reading buffer");
+            string inputString = Encoding.UTF8.GetString(input);
+            char[] arr = inputString.ToCharArray();
+            Array.Reverse(arr);
+            var reversed = new string(arr);
+            return Encoding.UTF8.GetBytes(reversed);
+        }
 
+        private static unsafe byte[] ReadBytes(GitBuf gitBuf, UIntPtr lengthPtr, UIntPtr allocatedIntPrt)
+        {
             // Get a byte pointer from the IntPtr object. 
             byte* memBytePtr = (byte*)gitBuf.ptr.ToPointer();
             long size = ConvertToLong(lengthPtr);
@@ -242,14 +181,7 @@ namespace LibGit2Sharp
 
             // Close the stream.
             readStream.Close();
-
-            // Display the data to the console.
-            string result = UnicodeEncoding.UTF8.GetString(outMessage);
-
-            Console.WriteLine(result);
-            Console.WriteLine();
-
-            return result;
+            return outMessage;
         }
 
         internal static long ConvertToLong(UIntPtr len)
