@@ -399,6 +399,57 @@ namespace LibGit2Sharp.Tests
             Assert.Equal(expectedPath, actualPath);
         }
 
+        [Fact]
+        public void CleanToObdb()
+        {
+            const string branchName = "branch";
+            string repoPath = InitNewRepository();
+
+            var calledWithMode = FilterMode.Clean;
+            string actualPath = string.Empty;
+
+            Func<FilterSource, int> callback = source =>
+            {
+                calledWithMode = source.SourceMode;
+                actualPath = source.Path;
+                return 0;
+            };
+
+            var callbacks = new FilterCallbacks(checkSuccess, callback);
+
+            var filter1 = new Filter(FilterName + 14, Attributes, Version, callbacks);
+
+            filter1.Register();
+
+            string expectedPath;
+            using (var repo = new Repository(repoPath))
+            {
+                expectedPath = StageNewFile(repo);
+
+                var commit = repo.Commit("bom", Constants.Signature, Constants.Signature);
+
+                var blob = (Blob)commit.Tree[expectedPath].Target;
+                Assert.Equal(6, blob.Size);
+                using (var stream = blob.GetContentStream())
+                {
+                    Assert.Equal(6, stream.Length);
+                }
+
+                var textDetected = blob.GetContentText();
+                Assert.Equal("777333", textDetected);
+            }
+
+            filter1.Deregister();
+
+            // Assert.Equal(FilterMode.Smudge, calledWithMode);
+            //Assert.Equal(expectedPath, actualPath);
+
+            string combine = Path.Combine(repoPath, "..", expectedPath);
+            var fileInfo = new FileInfo(combine);
+            Console.WriteLine("Final read from:" + fileInfo.Name + "Size: " + fileInfo.Length);
+            Console.WriteLine("Final contents :" + File.ReadAllText(combine));
+        }
+
 
         [Fact]
         public void WhenCheckingOutAFileFileApplyIsCalledWithSmudgeForCorrectPath()
@@ -419,18 +470,12 @@ namespace LibGit2Sharp.Tests
             var callbacks = new FilterCallbacks(checkSuccess, callback);
 
             var filter1 = new Filter(FilterName + 14, Attributes, Version, callbacks);
-            var filter2 = new Filter(FilterName + 15, Attributes, Version, callbacks);
-            var filter3 = new Filter(FilterName + 16, Attributes, Version, callbacks);
 
             filter1.Register();
-            filter2.Register();
-            filter3.Register();
 
             string expectedPath = CheckoutFileForSmudge(repoPath, branchName);
 
             filter1.Deregister();
-            filter2.Deregister();
-            filter3.Deregister();
 
            // Assert.Equal(FilterMode.Smudge, calledWithMode);
             //Assert.Equal(expectedPath, actualPath);
@@ -446,13 +491,17 @@ namespace LibGit2Sharp.Tests
             string expectedPath;
             using (var repo = new Repository(repoPath))
             {
+                Console.WriteLine("Staging File");
                 StageNewFile(repo);
+                Console.WriteLine("Comit File");
                 repo.Commit("Initial commit", Constants.Signature, Constants.Signature);
 
                 expectedPath = CommitFileOnBranch(repo, branchName);
 
+                Console.WriteLine("Checkout master");
                 repo.Branches["master"].Checkout();
 
+                Console.WriteLine("Checkout " +branchName);
                 //should smudge file on checkout
                 repo.Branches[branchName].Checkout();
             }
@@ -461,8 +510,11 @@ namespace LibGit2Sharp.Tests
 
         private static string CommitFileOnBranch(Repository repo, string branchName)
         {
+            Console.WriteLine("Create Checkout branch " + branchName);
             var branch = repo.CreateBranch(branchName);
             branch.Checkout();
+
+            Console.WriteLine("Stage and comit on " + branchName);
             string expectedPath = StageNewFile(repo);
             repo.Commit("Commit", Constants.Signature, Constants.Signature);
             return expectedPath;
