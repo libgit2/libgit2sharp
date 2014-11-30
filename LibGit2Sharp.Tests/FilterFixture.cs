@@ -470,12 +470,18 @@ namespace LibGit2Sharp.Tests
             var callbacks = new FilterCallbacks(checkSuccess, callback);
 
             var filter1 = new Filter(FilterName + 14, Attributes, Version, callbacks);
+            var filter2 = new Filter(FilterName + 15, Attributes, Version, callbacks);
+            var filter3 = new Filter(FilterName + 16, Attributes, Version, callbacks);
 
             filter1.Register();
+            filter2.Register();
+            filter3.Register();
 
             string expectedPath = CheckoutFileForSmudge(repoPath, branchName);
 
             filter1.Deregister();
+            filter2.Deregister();
+            filter3.Deregister();
 
            // Assert.Equal(FilterMode.Smudge, calledWithMode);
             //Assert.Equal(expectedPath, actualPath);
@@ -483,7 +489,9 @@ namespace LibGit2Sharp.Tests
             string combine = Path.Combine(repoPath,"..", expectedPath);
             var fileInfo = new FileInfo(combine);
             Console.WriteLine("Final read from:" + fileInfo.Name + "Size: "+ fileInfo.Length);
-            Console.WriteLine("Final contents :" + File.ReadAllText(combine));
+            string readAllText = File.ReadAllText(combine);
+            Console.WriteLine("Final contents :" + readAllText);
+            Assert.Equal("777333", readAllText);
         }
 
         private static string CheckoutFileForSmudge(string repoPath, string branchName)
