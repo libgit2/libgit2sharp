@@ -142,14 +142,8 @@ namespace LibGit2Sharp
             var inputByes = ReadBytes(gitBufferFrom, gitBufferFrom.size, gitBufferFrom.asize);
             var reverseByes = ReverseBytes(inputByes);
 
-            IntPtr reverseBytesPointer = Marshal.AllocHGlobal(reverseByes.Length);
-            Marshal.Copy(reverseByes, 0, reverseBytesPointer, reverseByes.Length);
-
-            NativeMethods.git_buf_set(gitBufferTo, reverseBytesPointer, gitBufferFrom.size);
-            gitBufferTo.size = gitBufferFrom.size;
-            gitBufferTo.asize = gitBufferFrom.asize;
-
-            Marshal.StructureToPtr(gitBufferTo, gitBufferToPtr, true);
+            var writer = new GitBufStreamWriter(gitBufferToPtr);
+            writer.Write(reverseByes);
 
             return 0;
         }

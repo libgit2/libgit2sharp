@@ -68,6 +68,7 @@
     <Compile Include="CommitOptions.cs" />
     <Compile Include="CommitSortStrategies.cs" />
     <Compile Include="CompareOptions.cs" />
+    <Compile Include="Core\GitBufStreamWriter.cs" />
     <Compile Include="Core\GitFilter.cs" />
     <Compile Include="Core\GitIndexReucEntry.cs" />
     <Compile Include="Core\Handles\GitFilterModeSafeHandle.cs" />
