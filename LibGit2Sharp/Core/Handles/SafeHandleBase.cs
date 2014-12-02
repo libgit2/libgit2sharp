@@ -1,4 +1,6 @@
-﻿using System;
+﻿//#define LEAKS   //Uncomment this or add a conditional symbol to activate this mode
+
+using System;
 using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.ConstrainedExecution;
