@@ -28,7 +28,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="ptr"></param>
         /// <returns></returns>
-        public static FilterSource FromNativePtr(IntPtr ptr)
+        internal static FilterSource FromNativePtr(IntPtr ptr)
         {
             var source = ptr.MarshalAs<GitFilterSource>();
             FilePath path = LaxFilePathMarshaler.FromNative(source.path) ?? FilePath.Empty;
