@@ -130,10 +130,10 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(repoPath))
             {
                 StageNewFile(repo);
+                Assert.True(called);
             }
-            filter.Deregister();
 
-            Assert.True(called);
+            filter.Deregister();
         }
 
         [Fact]
