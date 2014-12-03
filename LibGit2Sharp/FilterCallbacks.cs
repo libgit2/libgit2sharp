@@ -97,7 +97,6 @@ namespace LibGit2Sharp
             string attributes1 = GitFilter.GetAttributesFromPointer(gitFilter.attributes);
             var filterSource = FilterSource.FromNativePtr(filterSourcePtr);
             return customCheckCallback(filterSource, attributes1);
-
         }
 
         /// <summary>
