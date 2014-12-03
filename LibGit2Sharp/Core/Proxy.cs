@@ -1367,12 +1367,15 @@ namespace LibGit2Sharp.Core
 
         public static bool git_odb_exists(ObjectDatabaseSafeHandle odb, ObjectId id)
         {
-            GitOid oid = id.Oid;
+            using (ThreadAffinity())
+            {
+                GitOid oid = id.Oid;
 
-            int res = NativeMethods.git_odb_exists(odb, ref oid);
-            Ensure.BooleanResult(res);
+                int res = NativeMethods.git_odb_exists(odb, ref oid);
+                Ensure.BooleanResult(res);
 
-            return (res == 1);
+                return (res == 1);
+            }
         }
 
         public static ICollection<TResult> git_odb_foreach<TResult>(
