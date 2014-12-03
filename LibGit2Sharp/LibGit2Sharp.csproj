@@ -71,7 +71,6 @@
     <Compile Include="Core\GitBufWriter.cs" />
     <Compile Include="Core\GitFilter.cs" />
     <Compile Include="Core\GitIndexReucEntry.cs" />
-    <Compile Include="Core\Handles\GitFilterModeSafeHandle.cs" />
     <Compile Include="Core\Handles\GitFilterSafeHandle.cs" />
     <Compile Include="Core\Handles\IndexNameEntrySafeHandle.cs" />
     <Compile Include="Core\Handles\IndexReucEntrySafeHandle.cs" />
