@@ -1,5 +1,4 @@
 using System;
-using System.Text;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Handles;
 
@@ -11,7 +10,7 @@ namespace LibGit2Sharp
     public sealed class Filter : IEquatable<Filter>
     {
         private static readonly LambdaEqualityHelper<Filter> equalityHelper =
-        new LambdaEqualityHelper<Filter>(x => x.Name, x => x.Attributes,x => x.Version);
+        new LambdaEqualityHelper<Filter>(x => x.Name, x => x.Attributes);
 
         private readonly string name;
         private readonly string attributes;
@@ -25,7 +24,7 @@ namespace LibGit2Sharp
         /// Initializes a new instance of the <see cref="Filter"/> class.
         /// And allocates the filter natively. 
         /// </summary>
-        public Filter(string name, string attributes, int version, FilterCallbacks filterCallbacks)
+        public Filter(string name, string attributes, FilterCallbacks filterCallbacks)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
             Ensure.ArgumentNotNullOrEmptyString(attributes, "attributes");
@@ -34,7 +33,6 @@ namespace LibGit2Sharp
 
             this.name = name;
             this.attributes = attributes;
-            this.version = version;
             this.filterCallbacks = filterCallbacks;
         }
 
@@ -44,7 +42,7 @@ namespace LibGit2Sharp
             nativeFilter = filterPtr;
             managedFilter = nativeFilter.MarshalFromNative();
             attributes = managedFilter.ManagedAttributes();
-            version = (int) managedFilter.version;
+            version = 1;
         }
 
         /// <summary>
@@ -61,14 +59,6 @@ namespace LibGit2Sharp
         public string Attributes
         {
             get { return attributes; }
-        }
-
-        /// <summary>
-        /// The version of the filter
-        /// </summary>
-        public int Version
-        {
-            get { return version; }
         }
 
         /// <summary>
