@@ -755,7 +755,7 @@ namespace LibGit2Sharp.Core
                 if (res == (int)GitErrorCode.Exists)
                 {
                     var message = string.Format("A filter with the name '{0}' is already registered.", name);
-                    throw new InvalidOperationException(message);
+                    throw new EntryExistsException(message);
                 }
                 Ensure.ZeroResult(res);
             }
