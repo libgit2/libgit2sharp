@@ -14,7 +14,6 @@ namespace LibGit2Sharp
 
         private readonly string name;
         private readonly string attributes;
-        private readonly int version;
         private readonly FilterCallbacks filterCallbacks;
 
         private GitFilter managedFilter;
@@ -28,7 +27,6 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
             Ensure.ArgumentNotNullOrEmptyString(attributes, "attributes");
-            Ensure.ArgumentNotNull(version, "version");
             Ensure.ArgumentNotNull(filterCallbacks, "filterCallbacks");
 
             this.name = name;
@@ -42,7 +40,6 @@ namespace LibGit2Sharp
             nativeFilter = filterPtr;
             managedFilter = nativeFilter.MarshalFromNative();
             attributes = managedFilter.ManagedAttributes();
-            version = 1;
         }
 
         /// <summary>
@@ -69,7 +66,6 @@ namespace LibGit2Sharp
             managedFilter = new GitFilter
             {
                 attributes = GitFilter.GetAttributesFromManaged(attributes),
-                version = (uint)version,
                 init = filterCallbacks.InitializeCallback,
                 apply = filterCallbacks.ApplyCallback,
                 check = filterCallbacks.CheckCallback,

@@ -10,7 +10,7 @@ namespace LibGit2Sharp.Core
     [StructLayout(LayoutKind.Sequential)]
     internal class GitFilter
     {
-        public uint version;
+        public uint version = 1;
 
         public IntPtr attributes;
 
