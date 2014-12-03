@@ -251,8 +251,8 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(repoPath))
             {
                 StageNewFile(repo);
+                Assert.False(called);
             }
-            Assert.False(called);
 
             filter.Deregister();
             Assert.True(called);
@@ -276,7 +276,6 @@ namespace LibGit2Sharp.Tests
             Assert.False(called);
 
             filter.Deregister();
-
         }
 
         [Fact]
@@ -299,10 +298,10 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(repoPath))
             {
                 StageNewFile(repo);
+                Assert.True(called);
             }
 
             filter.Deregister();
-            Assert.True(called);
         }
 
         [Fact]
@@ -311,7 +310,6 @@ namespace LibGit2Sharp.Tests
             string repoPath = InitNewRepository();
 
             var calledWithMode = FilterMode.Smudge;
-            string expectedPath;
             string actualPath = string.Empty;
             string actualAttributes = string.Empty;
             Func<FilterSource, string, int> callback = (source, attr) =>
@@ -329,14 +327,14 @@ namespace LibGit2Sharp.Tests
 
             using (var repo = new Repository(repoPath))
             {
-                expectedPath = StageNewFile(repo);
+                string expectedPath = StageNewFile(repo);
+
+                Assert.Equal(FilterMode.Clean, calledWithMode);
+                Assert.Equal(expectedPath, actualPath);
+                Assert.Equal(Attributes, actualAttributes);
             }
 
             filter.Deregister();
-
-            Assert.Equal(FilterMode.Clean, calledWithMode);
-            Assert.Equal(expectedPath, actualPath);
-            Assert.Equal(Attributes, actualAttributes);
         }
 
 
@@ -363,12 +361,11 @@ namespace LibGit2Sharp.Tests
             filter.Register();
 
             string expectedPath = CheckoutFileForSmudge(repoPath, branchName);
-
-            filter.Deregister();
-
             Assert.Equal(FilterMode.Smudge, calledWithMode);
             Assert.Equal(expectedPath, actualPath);
             Assert.Equal(Attributes, actualAttributes);
+
+            filter.Deregister();
         }
 
         [Fact]
@@ -377,7 +374,6 @@ namespace LibGit2Sharp.Tests
             string repoPath = InitNewRepository();
 
             var calledWithMode = FilterMode.Smudge;
-            string expectedPath;
             string actualPath = string.Empty;
             Func<FilterSource, GitBufReader, GitBufWriter, int> callback = (source, reader, writer) =>
             {
@@ -393,13 +389,13 @@ namespace LibGit2Sharp.Tests
 
             using (var repo = new Repository(repoPath))
             {
-                expectedPath = StageNewFile(repo);
+                string expectedPath = StageNewFile(repo);
+
+                Assert.Equal(FilterMode.Clean, calledWithMode);
+                Assert.Equal(expectedPath, actualPath);
             }
 
             filter.Deregister();
-
-            Assert.Equal(FilterMode.Clean, calledWithMode);
-            Assert.Equal(expectedPath, actualPath);
         }
 
         [Fact]
@@ -425,10 +421,9 @@ namespace LibGit2Sharp.Tests
 
             filter1.Register();
 
-            string expectedPath;
             using (var repo = new Repository(repoPath))
             {
-                expectedPath = StageNewFile(repo, "333777");
+                string expectedPath = StageNewFile(repo, "333777");
 
                 var commit = repo.Commit("bom", Constants.Signature, Constants.Signature);
 
@@ -441,12 +436,11 @@ namespace LibGit2Sharp.Tests
 
                 var textDetected = blob.GetContentText();
                 Assert.Equal("777333", textDetected);
+                Assert.Equal(FilterMode.Clean, calledWithMode);
+                Assert.Equal(expectedPath, actualPath);
             }
 
             filter1.Deregister();
-
-            Assert.Equal(FilterMode.Clean, calledWithMode);
-            Assert.Equal(expectedPath, actualPath);
         }
 
 
@@ -482,15 +476,14 @@ namespace LibGit2Sharp.Tests
             filter1.Register();
 
             string expectedPath = CheckoutFileForSmudge(repoPath, branchName);
-
-            filter1.Deregister();
-
             Assert.Equal(FilterMode.Smudge, calledWithMode);
             Assert.Equal(expectedPath, actualPath);
 
-            string combine = Path.Combine(repoPath,"..", expectedPath);
+            string combine = Path.Combine(repoPath, "..", expectedPath);
             string readAllText = File.ReadAllText(combine);
             Assert.Equal("777333", readAllText);
+
+            filter1.Deregister();
         }
 
         private static string CheckoutFileForSmudge(string repoPath, string branchName)
