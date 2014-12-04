@@ -50,7 +50,6 @@ namespace LibGit2Sharp.Core
         /// Specified as `filter.shutdown`, this is an optional callback invoked
         /// when the filter is unregistered or when libgit2 is shutting down.  It
         /// will be called once at most and should release resources as needed.
-        /// This may be called even if the `initialize` callback was not made.
         /// Typically this function will free the `git_filter` object itself.
         /// </summary>
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
