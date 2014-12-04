@@ -76,14 +76,14 @@ namespace LibGit2Sharp.Tests
         public void CheckCallbackMadeWhenFileStaged()
         {
             bool called = false;
-            Func<FilterSource, string, int> callback = (source, attr) =>
+            Func<FilterSource, string, int> checkCallBack = (source, attr) =>
             {
                 called = true;
                 return GitPassThrough;
             };
             string repoPath = InitNewRepository();
 
-            var filter = new FakeFilter(FilterName + 8, Attributes, callback);
+            var filter = new FakeFilter(FilterName + 8, Attributes, checkCallBack);
 
             GlobalSettings.RegisterFilter(filter);
             using (var repo = new Repository(repoPath))
@@ -128,7 +128,7 @@ namespace LibGit2Sharp.Tests
             Func<GitBufReader, GitBufWriter, int> applyCallback = (reader, writer) =>
             {
                 called = true;
-                return 0; //successCallback
+                return 0; 
             };
 
             string repoPath = InitNewRepository();
@@ -353,12 +353,12 @@ namespace LibGit2Sharp.Tests
             string repoPath = InitNewRepository();
             bool called = false;
 
-            Func<GitBufReader, GitBufWriter, int> smudge = (reader, writer) =>
+            Func<GitBufReader, GitBufWriter, int> clean = (reader, writer) =>
             {
                 called = true;
                 return GitPassThrough;
             };
-            var filter = new FakeFilter(FilterName + 14, Attributes, checkSuccess, null, smudge);
+            var filter = new FakeFilter(FilterName + 14, Attributes, checkSuccess, clean);
 
             GlobalSettings.RegisterFilter(filter);
 
@@ -372,11 +372,9 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
-        public void CleanToObdb()
+        public void CleanFilterWritesOutputToObjectTree()
         {
             string repoPath = InitNewRepository();
-
-            string actualPath = string.Empty;
 
             Func<GitBufReader, GitBufWriter, int> cleanCallback =  (reader, writer) =>
             {
@@ -404,7 +402,6 @@ namespace LibGit2Sharp.Tests
 
                 var textDetected = blob.GetContentText();
                 Assert.Equal("777333", textDetected);
-                Assert.Equal(expectedPath, actualPath);
             }
 
             GlobalSettings.DeregisterFilter(filter);
@@ -412,12 +409,10 @@ namespace LibGit2Sharp.Tests
 
 
         [Fact]
-        public void WhenCheckingOutAFileFileApplyIsCalledWithSmudgeForCorrectPath()
+        public void WhenCheckingOutAFileFileSmudgeWritesCorrectFileToWorkingDirectory()
         {
             const string branchName = "branch";
             string repoPath = InitNewRepository();
-
-            string actualPath = string.Empty;
 
             Func<GitBufReader, GitBufWriter, int> callback = (reader, writer) =>
             {
@@ -430,12 +425,11 @@ namespace LibGit2Sharp.Tests
             Func<FilterSource, string, int> checkCallback = (source, s) => 
                 source.SourceMode == FilterMode.Smudge ? 0 : GitPassThrough;
 
-            var filter = new FakeFilter(FilterName + 14, Attributes, checkCallback, null, callback );
+            var filter = new FakeFilter(FilterName + 14, Attributes, checkCallback, null, callback);
 
             GlobalSettings.RegisterFilter(filter);
 
             string expectedPath = CheckoutFileForSmudge(repoPath, branchName);
-            Assert.Equal(expectedPath, actualPath);
 
             string combine = Path.Combine(repoPath, "..", expectedPath);
             string readAllText = File.ReadAllText(combine);
@@ -525,7 +519,7 @@ namespace LibGit2Sharp.Tests
 
             protected override int Check(string attributes, FilterSource filterSource)
             {
-                return cleanCallback != null ? checkCallBack(filterSource, attributes) : base.Check(attributes, filterSource);
+                return checkCallBack != null ? checkCallBack(filterSource, attributes) : base.Check(attributes, filterSource);
             }
 
             protected override int Clean(GitBufReader input, GitBufWriter output)
