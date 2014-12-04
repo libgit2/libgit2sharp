@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Handles;
 
@@ -17,14 +18,27 @@ namespace LibGit2Sharp
 
         private readonly GitFilter managedFilter;
 
+
         /// <summary>
         /// Initializes a new instance of the <see cref="Filter"/> class.
         /// And allocates the filter natively. 
+        /// <param name="name">The unique name with which this filtered is registered with</param>
+        /// <param name="attributes">A list of attributes which this filter applies to</param>
+        /// </summary>
+        protected Filter(string name, IEnumerable<string> attributes)
+            : this(name, string.Join(",", attributes)) 
+        { }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Filter"/> class.
+        /// And allocates the filter natively. 
+        /// <param name="name">The unique name with which this filtered is registered with</param>
+        /// <param name="attributes">Either a single attribute, or a comma separated list of attributes for which this filter applies to</param>
         /// </summary>
         protected Filter(string name, string attributes)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
-            Ensure.ArgumentNotNullOrEmptyString(attributes, "attributes");
+            Ensure.ArgumentNotNullOrEmptyEnumerable(attributes, "attributes");
 
             this.name = name;
             this.attributes = attributes;
@@ -58,9 +72,9 @@ namespace LibGit2Sharp
         /// <summary>
         /// The filter attributes.
         /// </summary>
-        public string Attributes
+        public IEnumerable<string> Attributes
         {
-            get { return attributes; }
+            get { return attributes.Split(','); }
         }
 
         /// <summary>
