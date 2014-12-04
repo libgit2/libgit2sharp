@@ -10,17 +10,98 @@ namespace LibGit2Sharp.Tests
     public class FilterFixture : BaseFixture
     {
         private const int GitPassThrough = -30;
-        private readonly FilterCallbacks emptyCallbacks = new FilterCallbacks();
-        readonly Func<FilterSource,GitBufReader, GitBufWriter, int> successCallback = (source, reader, writer) => 0;
+
+        readonly Func<FilterSource, string, int> checkPassThrough = (source, attr) => GitPassThrough;
+        readonly Func<GitBufReader, GitBufWriter, int> successCallback = (reader, writer) => 0;
         readonly Func<FilterSource, string, int> checkSuccess = (source, attr) => 0;
+        readonly Func<int> cleanUpSuccess = () => 0;
+        readonly Func<int> initSuccess = () => 0;
 
         private const string FilterName = "the-filter";
         const string Attributes = "test";
 
+        class EmptyFilter : Filter
+        {
+            public EmptyFilter(string name, string attributes)
+                : base(name, attributes)
+            { }
+        }
+
+        class FakeFilter : Filter
+        {
+            private readonly Func<FilterSource, string, int> checkCallBack;
+            private readonly Func<GitBufReader, GitBufWriter, int> cleanCallback;
+            private readonly Func<GitBufReader, GitBufWriter, int> smudgeCallback;
+            private readonly Func<int> initCallback;
+            private readonly Action shutdownCallback;
+            private readonly Func<int> cleanUpCallback;
+
+            public FakeFilter(string name, string attributes, 
+                Func<FilterSource, string, int> checkCallBack = null, 
+                Func<GitBufReader, GitBufWriter, int> cleanCallback = null,
+                Func<GitBufReader, GitBufWriter, int> smudgeCallback = null,
+                Func<int> initCallback = null,
+                Action shutdownCallback = null,
+                Func<int> cleanUpCallback = null)
+                : base(name, attributes)
+            {
+                this.checkCallBack = checkCallBack;
+                this.cleanCallback = cleanCallback;
+                this.smudgeCallback = smudgeCallback;
+                this.initCallback = initCallback;
+                this.shutdownCallback = shutdownCallback;
+                this.cleanUpCallback = cleanUpCallback;
+            }
+
+            protected override int Check(string attributes, FilterSource filterSource)
+            {
+                return cleanCallback != null ? checkCallBack(filterSource, attributes) : base.Check(attributes, filterSource);
+            }
+
+            protected override int Clean(GitBufReader input, GitBufWriter output)
+            {
+                return cleanCallback != null ? cleanCallback(input, output) : base.Clean(input, output);
+            }
+
+            protected override int Smudge(GitBufReader input, GitBufWriter output)
+            {
+                return smudgeCallback != null ? smudgeCallback(input, output) : base.Smudge(input, output);
+            }
+
+            protected override void ShutDown()
+            {
+                if (shutdownCallback != null)
+                {
+                    shutdownCallback();
+                }
+                else
+                {
+                    base.ShutDown();
+                }
+            }
+
+            protected override int Initialize()
+            {
+                return initCallback != null ? initCallback() : base.Initialize();
+            }
+
+            protected override void CleanUp()
+            {
+                if (cleanUpCallback != null)
+                {
+                    cleanUpCallback();
+                }
+                else
+                {
+                    base.CleanUp();
+                }
+            }
+        }
+
         [Fact]
         public void CanRegisterAndUnregisterTheSameFilter()
         {
-            var filter = new Filter(FilterName + 1, Attributes, emptyCallbacks);
+            var filter = new EmptyFilter(FilterName + 1, Attributes);
 
             filter.Register();
             filter.Deregister();
@@ -32,7 +113,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanRegisterAndDeregisterAfterGarbageCollection()
         {
-            var filter = new Filter(FilterName + 2, Attributes, emptyCallbacks);
+            var filter = new EmptyFilter(FilterName + 2, Attributes);
             filter.Register();
 
             GC.Collect();
@@ -43,18 +124,18 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void SameFilterIsEqual()
         {
-            var filter = new Filter(FilterName + 3, Attributes, emptyCallbacks);
+            var filter = new EmptyFilter(FilterName + 3, Attributes);
             Assert.Equal(filter, filter);
         }
 
         [Fact]
         public void WhenLookingUpFilterResultIsEqual()
         {
-            var filter = new Filter(FilterName + 4, Attributes, emptyCallbacks);
+            var filter = new EmptyFilter(FilterName + 4, Attributes);
             filter.Register();
 
             var registry = new FilterRegistry();
-            Filter lookupByName = registry.LookupByName(FilterName + 4);
+            Filter lookupByName = registry.LookupByName<EmptyFilter>(FilterName + 4);
 
             filter.Deregister();
             Assert.Equal(filter, lookupByName);
@@ -63,13 +144,13 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void LookingUpFilterResultSurvivesGarbageCollection()
         {
-            var filter = new Filter(FilterName + 5, Attributes, emptyCallbacks);
+            var filter = new EmptyFilter(FilterName + 5, Attributes);
             filter.Register();
 
             GC.Collect();
 
             var registry = new FilterRegistry();
-            Filter lookupByName = registry.LookupByName(FilterName + 5);
+            Filter lookupByName = registry.LookupByName<EmptyFilter>(FilterName + 5);
 
             filter.Deregister();
             Assert.Equal(filter, lookupByName);
@@ -78,11 +159,11 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanLookupRegisteredFilterByNameAndValuesAreMarshalCorrectly()
         {
-            var filter = new Filter(FilterName + 6, Attributes, emptyCallbacks);
+            var filter = new EmptyFilter(FilterName + 6, Attributes);
             filter.Register();
 
             var registry = new FilterRegistry();
-            var lookedUpFilter = registry.LookupByName(FilterName + 6);
+            var lookedUpFilter = registry.LookupByName<EmptyFilter>(FilterName + 6);
 
             filter.Deregister();
 
@@ -101,9 +182,8 @@ namespace LibGit2Sharp.Tests
             };
 
             string repoPath = InitNewRepository();
-            var callbacks = new FilterCallbacks(callback);
 
-            new Filter(FilterName + 7, Attributes, callbacks);
+            new FakeFilter(FilterName + 7, Attributes, callback);
 
             using (var repo = new Repository(repoPath))
             {
@@ -123,8 +203,8 @@ namespace LibGit2Sharp.Tests
                 return GitPassThrough;
             };
             string repoPath = InitNewRepository();
-            var callbacks = new FilterCallbacks(callback);
-            var filter = new Filter(FilterName + 8, Attributes, callbacks);
+
+            var filter = new FakeFilter(FilterName + 8, Attributes, callback);
 
             filter.Register();
             using (var repo = new Repository(repoPath))
@@ -141,16 +221,14 @@ namespace LibGit2Sharp.Tests
         {
             bool called = false;
 
-            Func<FilterSource, GitBufReader, GitBufWriter, int> applyCallback =
-                (source, reader, writer) =>
-                {
-                    called = true;
-                    return 0; //successCallback
-                };
+            Func<GitBufReader, GitBufWriter, int> applyCallback = (reader, writer) =>
+            {
+                called = true;
+                return 0; //successCallback
+            };
 
             string repoPath = InitNewRepository();
-            var callbacks = new FilterCallbacks(checkSuccess, applyCallback);
-            var filter = new Filter(FilterName + 9, Attributes, callbacks);
+            var filter = new FakeFilter(FilterName + 9, Attributes, checkSuccess, applyCallback);
 
             filter.Register();
             using (var repo = new Repository(repoPath))
@@ -167,16 +245,14 @@ namespace LibGit2Sharp.Tests
         {
             bool called = false;
 
-            Func<FilterSource, GitBufReader, GitBufWriter, int> applyCallback =
-                (source, reader, writer) =>
-                {
-                    called = true;
-                    return 0; //successCallback
-                };
+            Func<GitBufReader, GitBufWriter, int> applyCallback = (reader, writer) =>
+            {
+                called = true;
+                return 0; //successCallback
+            };
 
             string repoPath = InitNewRepository();
-            var callbacks = new FilterCallbacks((source, attr) => GitPassThrough, applyCallback);
-            var filter = new Filter(FilterName + 10, Attributes, callbacks);
+            var filter = new FakeFilter(FilterName + 10, Attributes, checkPassThrough, applyCallback);
 
             filter.Register();
             using (var repo = new Repository(repoPath))
@@ -193,15 +269,21 @@ namespace LibGit2Sharp.Tests
         {
             bool called = false;
 
-            Action cleanUpCallback = () =>
+            Func<int> cleanUpCallback = () =>
             {
                 called = true;
+                return 0;
             };
 
             string repoPath = InitNewRepository();
-            var callbacks = new FilterCallbacks(checkSuccess, successCallback, () => { }, () => 0, cleanUpCallback);
 
-            var filter = new Filter(FilterName + 10, Attributes, callbacks);
+            var filter = new FakeFilter(FilterName + 10, Attributes, 
+                checkSuccess, 
+                successCallback, 
+                successCallback,
+                cleanUpSuccess,
+                () => { }, 
+                cleanUpCallback);
             filter.Register();
 
             using (var repo = new Repository(repoPath))
@@ -223,9 +305,12 @@ namespace LibGit2Sharp.Tests
                 called = true;
             };
 
-            var callbacks = new FilterCallbacks(checkSuccess, successCallback, shutdownCallback);
-
-            var filter = new Filter(FilterName + 11, Attributes, callbacks);
+            var filter = new FakeFilter(FilterName + 11, Attributes,
+                checkSuccess,
+                successCallback,
+                successCallback,
+                cleanUpSuccess,
+                shutdownCallback);
 
             filter.Register();
             Assert.False(called);
@@ -243,8 +328,13 @@ namespace LibGit2Sharp.Tests
                 called = true;
             };
 
-            var callbacks = new FilterCallbacks(checkSuccess, successCallback, shutdownCallback);
-            var filter = new Filter(FilterName + 11, Attributes, callbacks);
+            var filter = new FakeFilter(FilterName + 11, Attributes,
+                checkSuccess,
+                successCallback,
+                successCallback,
+                initSuccess,
+                shutdownCallback);
+
             filter.Register();
 
             string repoPath = InitNewRepository();
@@ -268,8 +358,13 @@ namespace LibGit2Sharp.Tests
                 return 0;
             };
 
-            var callbacks = new FilterCallbacks(checkSuccess, successCallback, () => { }, initializeCallback);
-            var filter = new Filter(FilterName + 12, Attributes, callbacks);
+            var filter = new FakeFilter(FilterName + 12, Attributes,
+                checkSuccess,
+                successCallback,
+                successCallback,
+                initializeCallback,
+                () => { },
+                cleanUpSuccess);
 
             filter.Register();
 
@@ -288,8 +383,11 @@ namespace LibGit2Sharp.Tests
                 return 0;
             };
 
-            var callbacks = new FilterCallbacks(checkSuccess, successCallback, () => { }, initializeCallback);
-            var filter = new Filter(FilterName + 13, Attributes, callbacks);
+            var filter = new FakeFilter(FilterName + 13, Attributes,
+                checkSuccess,
+                successCallback,
+                successCallback,
+                initializeCallback);
 
             filter.Register();
             Assert.False(called);
@@ -319,9 +417,8 @@ namespace LibGit2Sharp.Tests
                 actualAttributes = attr;
                 return GitPassThrough;
             };
-            var callbacks = new FilterCallbacks(callback);
 
-            var filter = new Filter(FilterName + 14, Attributes, callbacks);
+            var filter = new FakeFilter(FilterName + 14, Attributes, callback);
 
             filter.Register();
 
@@ -354,9 +451,8 @@ namespace LibGit2Sharp.Tests
                 actualAttributes = attr;
                 return GitPassThrough;
             };
-            var callbacks = new FilterCallbacks(callback);
 
-            var filter = new Filter(FilterName + 14, Attributes, callbacks);
+            var filter = new FakeFilter(FilterName + 14, Attributes, callback);
 
             filter.Register();
 
@@ -372,27 +468,21 @@ namespace LibGit2Sharp.Tests
         public void WhenStagingFileApplyIsCalledWithCleanForCorrectPath()
         {
             string repoPath = InitNewRepository();
+            bool called = false;
 
-            var calledWithMode = FilterMode.Smudge;
-            string actualPath = string.Empty;
-            Func<FilterSource, GitBufReader, GitBufWriter, int> callback = (source, reader, writer) =>
+            Func<GitBufReader, GitBufWriter, int> smudge = (reader, writer) =>
             {
-                calledWithMode = source.SourceMode;
-                actualPath = source.Path;
+                called = true;
                 return GitPassThrough;
             };
-            var callbacks = new FilterCallbacks(checkSuccess, callback);
-
-            var filter = new Filter(FilterName + 14, Attributes, callbacks);
+            var filter = new FakeFilter(FilterName + 14, Attributes, checkSuccess, null, smudge);
 
             filter.Register();
 
             using (var repo = new Repository(repoPath))
             {
-                string expectedPath = StageNewFile(repo);
-
-                Assert.Equal(FilterMode.Clean, calledWithMode);
-                Assert.Equal(expectedPath, actualPath);
+                StageNewFile(repo);
+                Assert.True(called);
             }
 
             filter.Deregister();
@@ -403,21 +493,16 @@ namespace LibGit2Sharp.Tests
         {
             string repoPath = InitNewRepository();
 
-            var calledWithMode = FilterMode.Smudge;
             string actualPath = string.Empty;
 
-            Func<FilterSource, GitBufReader, GitBufWriter, int> callback = (source, reader, writer) =>
+            Func<GitBufReader, GitBufWriter, int> cleanCallback =  (reader, writer) =>
             {
-                calledWithMode = source.SourceMode;
-                actualPath = source.Path;
                 var input = reader.Read();
                 writer.Write(ReverseBytes(input));
                 return 0;
             };
 
-            var callbacks = new FilterCallbacks(checkSuccess, callback);
-
-            var filter1 = new Filter(FilterName + 14, Attributes, callbacks);
+            var filter1 = new FakeFilter(FilterName + 14, Attributes, checkSuccess, cleanCallback);
 
             filter1.Register();
 
@@ -436,7 +521,6 @@ namespace LibGit2Sharp.Tests
 
                 var textDetected = blob.GetContentText();
                 Assert.Equal("777333", textDetected);
-                Assert.Equal(FilterMode.Clean, calledWithMode);
                 Assert.Equal(expectedPath, actualPath);
             }
 
@@ -453,25 +537,18 @@ namespace LibGit2Sharp.Tests
             var calledWithMode = FilterMode.Clean;
             string actualPath = string.Empty;
 
-            Func<FilterSource, GitBufReader, GitBufWriter, int> callback = (source, reader, writer) =>
+            Func<GitBufReader, GitBufWriter, int> callback = (reader, writer) =>
             {
-                calledWithMode = source.SourceMode;
-                if (source.SourceMode == FilterMode.Smudge)
-                {
-                    var input = reader.Read();
-                    var reversedInput = ReverseBytes(input);
-                    writer.Write(reversedInput);
-                }
-                actualPath = source.Path;
+                var input = reader.Read();
+                var reversedInput = ReverseBytes(input);
+                writer.Write(reversedInput);
                 return 0;
             };
 
             Func<FilterSource, string, int> checkCallback = (source, s) => 
                 source.SourceMode == FilterMode.Smudge ? 0 : GitPassThrough;
 
-            var callbacks = new FilterCallbacks(checkCallback, callback);
-
-            var filter1 = new Filter(FilterName + 14, Attributes, callbacks);
+            var filter1 = new FakeFilter(FilterName + 14, Attributes, checkCallback, null, callback );
 
             filter1.Register();
 

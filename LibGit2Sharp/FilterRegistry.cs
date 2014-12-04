@@ -13,10 +13,11 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="name">The name to look up</param>
         /// <returns>The found matching filter</returns>
-        public virtual Filter LookupByName(string name)
+        public virtual T LookupByName<T>(string name) where T : Filter
         {
             GitFilterSafeHandle gitFilterLookup = Proxy.git_filter_lookup(name);
-            return new Filter(name, gitFilterLookup);
+            var filter = new Filter(name, gitFilterLookup);
+            return filter as T;
         }
     }
-}
+} 
