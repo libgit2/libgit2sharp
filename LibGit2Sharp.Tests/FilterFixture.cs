@@ -20,84 +20,6 @@ namespace LibGit2Sharp.Tests
         private const string FilterName = "the-filter";
         const string Attributes = "test";
 
-        class EmptyFilter : Filter
-        {
-            public EmptyFilter(string name, string attributes)
-                : base(name, attributes)
-            { }
-        }
-
-        class FakeFilter : Filter
-        {
-            private readonly Func<FilterSource, string, int> checkCallBack;
-            private readonly Func<GitBufReader, GitBufWriter, int> cleanCallback;
-            private readonly Func<GitBufReader, GitBufWriter, int> smudgeCallback;
-            private readonly Func<int> initCallback;
-            private readonly Action shutdownCallback;
-            private readonly Func<int> cleanUpCallback;
-
-            public FakeFilter(string name, string attributes, 
-                Func<FilterSource, string, int> checkCallBack = null, 
-                Func<GitBufReader, GitBufWriter, int> cleanCallback = null,
-                Func<GitBufReader, GitBufWriter, int> smudgeCallback = null,
-                Func<int> initCallback = null,
-                Action shutdownCallback = null,
-                Func<int> cleanUpCallback = null)
-                : base(name, attributes)
-            {
-                this.checkCallBack = checkCallBack;
-                this.cleanCallback = cleanCallback;
-                this.smudgeCallback = smudgeCallback;
-                this.initCallback = initCallback;
-                this.shutdownCallback = shutdownCallback;
-                this.cleanUpCallback = cleanUpCallback;
-            }
-
-            protected override int Check(string attributes, FilterSource filterSource)
-            {
-                return cleanCallback != null ? checkCallBack(filterSource, attributes) : base.Check(attributes, filterSource);
-            }
-
-            protected override int Clean(GitBufReader input, GitBufWriter output)
-            {
-                return cleanCallback != null ? cleanCallback(input, output) : base.Clean(input, output);
-            }
-
-            protected override int Smudge(GitBufReader input, GitBufWriter output)
-            {
-                return smudgeCallback != null ? smudgeCallback(input, output) : base.Smudge(input, output);
-            }
-
-            protected override void ShutDown()
-            {
-                if (shutdownCallback != null)
-                {
-                    shutdownCallback();
-                }
-                else
-                {
-                    base.ShutDown();
-                }
-            }
-
-            protected override int Initialize()
-            {
-                return initCallback != null ? initCallback() : base.Initialize();
-            }
-
-            protected override void CleanUp()
-            {
-                if (cleanUpCallback != null)
-                {
-                    cleanUpCallback();
-                }
-                else
-                {
-                    base.CleanUp();
-                }
-            }
-        }
-
         [Fact]
         public void CanRegisterAndUnregisterTheSameFilter()
         {
@@ -565,6 +487,85 @@ namespace LibGit2Sharp.Tests
             Array.Reverse(arr);
             var reversed = new string(arr);
             return Encoding.UTF8.GetBytes(reversed);
+        }
+
+
+        class EmptyFilter : Filter
+        {
+            public EmptyFilter(string name, string attributes)
+                : base(name, attributes)
+            { }
+        }
+
+        class FakeFilter : Filter
+        {
+            private readonly Func<FilterSource, string, int> checkCallBack;
+            private readonly Func<GitBufReader, GitBufWriter, int> cleanCallback;
+            private readonly Func<GitBufReader, GitBufWriter, int> smudgeCallback;
+            private readonly Func<int> initCallback;
+            private readonly Action shutdownCallback;
+            private readonly Func<int> cleanUpCallback;
+
+            public FakeFilter(string name, string attributes,
+                Func<FilterSource, string, int> checkCallBack = null,
+                Func<GitBufReader, GitBufWriter, int> cleanCallback = null,
+                Func<GitBufReader, GitBufWriter, int> smudgeCallback = null,
+                Func<int> initCallback = null,
+                Action shutdownCallback = null,
+                Func<int> cleanUpCallback = null)
+                : base(name, attributes)
+            {
+                this.checkCallBack = checkCallBack;
+                this.cleanCallback = cleanCallback;
+                this.smudgeCallback = smudgeCallback;
+                this.initCallback = initCallback;
+                this.shutdownCallback = shutdownCallback;
+                this.cleanUpCallback = cleanUpCallback;
+            }
+
+            protected override int Check(string attributes, FilterSource filterSource)
+            {
+                return cleanCallback != null ? checkCallBack(filterSource, attributes) : base.Check(attributes, filterSource);
+            }
+
+            protected override int Clean(GitBufReader input, GitBufWriter output)
+            {
+                return cleanCallback != null ? cleanCallback(input, output) : base.Clean(input, output);
+            }
+
+            protected override int Smudge(GitBufReader input, GitBufWriter output)
+            {
+                return smudgeCallback != null ? smudgeCallback(input, output) : base.Smudge(input, output);
+            }
+
+            protected override void ShutDown()
+            {
+                if (shutdownCallback != null)
+                {
+                    shutdownCallback();
+                }
+                else
+                {
+                    base.ShutDown();
+                }
+            }
+
+            protected override int Initialize()
+            {
+                return initCallback != null ? initCallback() : base.Initialize();
+            }
+
+            protected override void CleanUp()
+            {
+                if (cleanUpCallback != null)
+                {
+                    cleanUpCallback();
+                }
+                else
+                {
+                    base.CleanUp();
+                }
+            }
         }
     }
 }
