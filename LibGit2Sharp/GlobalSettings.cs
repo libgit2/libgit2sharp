@@ -1,5 +1,6 @@
 ﻿using System;
 using LibGit2Sharp.Core;
+using LibGit2Sharp.Core.Handles;
 
 namespace LibGit2Sharp
 {
@@ -107,6 +108,31 @@ namespace LibGit2Sharp
             {
                 return logConfiguration;
             }
+        }
+
+        /// <summary>
+        /// Register a filter globally
+        /// </summary>
+        public static void RegisterFilter(Filter filter)
+        {
+            var nativeFilter = new GitFilterSafeHandle(filter.ManagedFilter);
+            Proxy.git_filter_register(filter.Name, nativeFilter, 0);
+        }
+
+        /// <summary>
+        /// Remove the filter from the registry, and frees the native heap allocation.
+        /// </summary>
+        public static void DeregisterFilter(Filter filter)
+        {
+            DeregisterFilter(filter.Name);
+        }
+
+        /// <summary>
+        /// Remove the filter from the registry, and frees the native heap allocation.
+        /// </summary>
+        public static void DeregisterFilter(string name)
+        {
+            Proxy.git_filter_unregister(name);
         }
     }
 }

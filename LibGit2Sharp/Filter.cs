@@ -15,8 +15,7 @@ namespace LibGit2Sharp
         private readonly string name;
         private readonly string attributes;
 
-        private GitFilter managedFilter;
-        private GitFilterSafeHandle nativeFilter;
+        private readonly GitFilter managedFilter;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Filter"/> class.
@@ -29,13 +28,22 @@ namespace LibGit2Sharp
 
             this.name = name;
             this.attributes = attributes;
+
+            managedFilter = new GitFilter
+            {
+                attributes = GitFilter.GetAttributesFromManaged(attributes),
+                init = InitializeCallback,
+                apply = ApplyCallback,
+                check = CheckCallback,
+                shutdown = ShutdownCallback,
+                cleanup = CleanUpCallback
+            };
         }
 
         internal Filter(string name, GitFilterSafeHandle filterPtr)
         {
             this.name = name;
-            nativeFilter = filterPtr;
-            managedFilter = nativeFilter.MarshalFromNative();
+            managedFilter = filterPtr.MarshalFromNative();
             attributes = managedFilter.ManagedAttributes();
         }
 
@@ -56,31 +64,11 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Register this filter
+        /// The marshelled filter
         /// </summary>
-        public void Register()
+        internal GitFilter ManagedFilter
         {
-            managedFilter = new GitFilter
-            {
-                attributes = GitFilter.GetAttributesFromManaged(attributes),
-                init = InitializeCallback,
-                apply = ApplyCallback,
-                check = CheckCallback,
-                shutdown = ShutdownCallback,
-                cleanup = CleanUpCallback
-            };
-
-            nativeFilter = new GitFilterSafeHandle(managedFilter);
-
-            Proxy.git_filter_register(name, nativeFilter, 0);
-        }
-
-        /// <summary>
-        /// Remove the filter from the registry, and frees the native heap allocation.
-        /// </summary>
-        public void Deregister()
-        {
-            Proxy.git_filter_unregister(name);
+            get { return managedFilter; }
         }
 
         /// <summary>
