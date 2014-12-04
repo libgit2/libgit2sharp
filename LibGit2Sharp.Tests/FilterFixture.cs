@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Text;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
@@ -339,7 +338,7 @@ namespace LibGit2Sharp.Tests
 
             GlobalSettings.RegisterFilter(filter);
 
-            string expectedPath = CheckoutFileForSmudge(repoPath, branchName);
+            string expectedPath = CheckoutFileForSmudge(repoPath, branchName, "hello");
             Assert.Equal(FilterMode.Smudge, calledWithMode);
             Assert.Equal(expectedPath, actualPath);
             Assert.Equal(Attributes, actualAttributes);
@@ -374,14 +373,12 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CleanFilterWritesOutputToObjectTree()
         {
+            const string decodedInput = "This is a substitution cipher";
+            const string encodedInput = "Guvf vf n fhofgvghgvba pvcure";
+
             string repoPath = InitNewRepository();
 
-            Func<GitBufReader, GitBufWriter, int> cleanCallback =  (reader, writer) =>
-            {
-                var input = reader.Read();
-                writer.Write(ReverseBytes(input));
-                return 0;
-            };
+            Func<GitBufReader, GitBufWriter, int> cleanCallback =  SubstitutionCipherFilter.RotatByThirteenPlaces;
 
             var filter = new FakeFilter(FilterName + 14, Attributes, checkSuccess, cleanCallback);
 
@@ -389,19 +386,13 @@ namespace LibGit2Sharp.Tests
 
             using (var repo = new Repository(repoPath))
             {
-                string expectedPath = StageNewFile(repo, "333777");
-
-                var commit = repo.Commit("bom", Constants.Signature, Constants.Signature);
+                string expectedPath = StageNewFile(repo, decodedInput);
+                var commit = repo.Commit("Clean that file");
 
                 var blob = (Blob)commit.Tree[expectedPath].Target;
-                Assert.Equal(6, blob.Size);
-                using (var stream = blob.GetContentStream())
-                {
-                    Assert.Equal(6, stream.Length);
-                }
 
                 var textDetected = blob.GetContentText();
-                Assert.Equal("777333", textDetected);
+                Assert.Equal(encodedInput, textDetected);
             }
 
             GlobalSettings.DeregisterFilter(filter);
@@ -411,58 +402,50 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void WhenCheckingOutAFileFileSmudgeWritesCorrectFileToWorkingDirectory()
         {
+            const string decodedInput = "This is a substitution cipher";
+            const string encodedInput = "Guvf vf n fhofgvghgvba pvcure";
+
             const string branchName = "branch";
             string repoPath = InitNewRepository();
 
-            Func<GitBufReader, GitBufWriter, int> callback = (reader, writer) =>
-            {
-                var input = reader.Read();
-                var reversedInput = ReverseBytes(input);
-                writer.Write(reversedInput);
-                return 0;
-            };
+            Func<GitBufReader, GitBufWriter, int> smudgeCallback = SubstitutionCipherFilter.RotatByThirteenPlaces;
 
-            Func<FilterSource, string, int> checkCallback = (source, s) => 
-                source.SourceMode == FilterMode.Smudge ? 0 : GitPassThrough;
-
-            var filter = new FakeFilter(FilterName + 14, Attributes, checkCallback, null, callback);
-
+            var filter = new FakeFilter(FilterName + 14, Attributes, checkSuccess, null, smudgeCallback);
             GlobalSettings.RegisterFilter(filter);
 
-            string expectedPath = CheckoutFileForSmudge(repoPath, branchName);
+            string expectedPath = CheckoutFileForSmudge(repoPath, branchName, encodedInput);
 
             string combine = Path.Combine(repoPath, "..", expectedPath);
             string readAllText = File.ReadAllText(combine);
-            Assert.Equal("777333", readAllText);
+            Assert.Equal(decodedInput, readAllText);
 
             GlobalSettings.DeregisterFilter(filter);
         }
 
-        private static string CheckoutFileForSmudge(string repoPath, string branchName)
+        private static string CheckoutFileForSmudge(string repoPath, string branchName, string content)
         {
             string expectedPath;
             using (var repo = new Repository(repoPath))
             {
-                StageNewFile(repo, "333777");
-                repo.Commit("Initial commit", Constants.Signature, Constants.Signature);
+                StageNewFile(repo, content);
+                repo.Commit("Initial commit");
 
-                expectedPath = CommitFileOnBranch(repo, branchName);
+                expectedPath = CommitFileOnBranch(repo, branchName, content);
 
                 repo.Branches["master"].Checkout();
 
-                //should smudge file on checkout
                 repo.Branches[branchName].Checkout();
             }
             return expectedPath;
         }
 
-        private static string CommitFileOnBranch(Repository repo, string branchName)
+        private static string CommitFileOnBranch(Repository repo, string branchName, String content)
         {
             var branch = repo.CreateBranch(branchName);
             branch.Checkout();
 
-            string expectedPath = StageNewFile(repo, "333777");
-            repo.Commit("Commit", Constants.Signature, Constants.Signature);
+            string expectedPath = StageNewFile(repo, content);
+            repo.Commit("Commit");
             return expectedPath;
         }
 
@@ -473,16 +456,6 @@ namespace LibGit2Sharp.Tests
             repo.Stage(newFilePath);
             return stageNewFile.Name;
         }
-
-        private static byte[] ReverseBytes(byte[] input)
-        {
-            string inputString = Encoding.UTF8.GetString(input);
-            char[] arr = inputString.ToCharArray();
-            Array.Reverse(arr);
-            var reversed = new string(arr);
-            return Encoding.UTF8.GetBytes(reversed);
-        }
-
 
         class EmptyFilter : Filter
         {

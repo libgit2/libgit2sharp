@@ -94,7 +94,7 @@ namespace LibGit2Sharp
         /// <returns>0 if successful and -30 to skip and pass through</returns>
         protected virtual int Check(string attributes, FilterSource filterSource)
         {
-            return (int)GitErrorCode.PassThrough;
+            return 0;
         }
 
         /// <summary>

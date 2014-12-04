@@ -93,6 +93,7 @@
     <Compile Include="ResetIndexFixture.cs" />
     <Compile Include="SmartSubtransportFixture.cs" />
     <Compile Include="StatusFixture.cs" />
+    <Compile Include="SubstitutionCipherFilterFixture.cs" />
     <Compile Include="TestHelpers\BaseFixture.cs" />
     <Compile Include="BlobFixture.cs" />
     <Compile Include="BranchFixture.cs" />
@@ -108,6 +109,7 @@
     <Compile Include="TestHelpers\OdbHelper.cs" />
     <Compile Include="TestHelpers\DirectoryHelper.cs" />
     <Compile Include="TestHelpers\ExpectedFetchState.cs" />
+    <Compile Include="TestHelpers\SubstitutionCipherFilter.cs" />
     <Compile Include="TestHelpers\TestRemoteInfo.cs" />
     <Compile Include="TestHelpers\IPostTestDirectoryRemover.cs" />
     <Compile Include="TestHelpers\SelfCleaningDirectory.cs" />
