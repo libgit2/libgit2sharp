@@ -23,7 +23,7 @@ namespace LibGit2Sharp
         /// Initializes a new instance of the <see cref="Filter"/> class.
         /// And allocates the filter natively. 
         /// <param name="name">The unique name with which this filtered is registered with</param>
-        /// <param name="attributes">A list of attributes which this filter applies to</param>
+        /// <param name="attributes">A list of filterForAttributes which this filter applies to</param>
         /// </summary>
         protected Filter(string name, IEnumerable<string> attributes)
             : this(name, string.Join(",", attributes)) 
@@ -33,12 +33,12 @@ namespace LibGit2Sharp
         /// Initializes a new instance of the <see cref="Filter"/> class.
         /// And allocates the filter natively. 
         /// <param name="name">The unique name with which this filtered is registered with</param>
-        /// <param name="attributes">Either a single attribute, or a comma separated list of attributes for which this filter applies to</param>
+        /// <param name="attributes">Either a single attribute, or a comma separated list of filterForAttributes for which this filter applies to</param>
         /// </summary>
         protected Filter(string name, string attributes)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
-            Ensure.ArgumentNotNullOrEmptyEnumerable(attributes, "attributes");
+            Ensure.ArgumentNotNullOrEmptyEnumerable(attributes, "filterForAttributes");
 
             this.name = name;
             this.attributes = attributes;
@@ -70,7 +70,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// The filter attributes.
+        /// The filter filterForAttributes.
         /// </summary>
         public IEnumerable<string> Attributes
         {
@@ -103,10 +103,10 @@ namespace LibGit2Sharp
         /// <summary>
         /// Decides if a given source needs to be filtered.
         /// </summary>
-        /// <param name="attributes">The attributes that this filter was created for.</param>
+        /// <param name="filterForAttributes">The filterForAttributes that this filter was created for.</param>
         /// <param name="filterSource">The source of the filter</param>
         /// <returns>0 if successful and -30 to skip and pass through</returns>
-        protected virtual int Check(string attributes, FilterSource filterSource)
+        protected virtual int Check(IEnumerable<string> filterForAttributes, FilterSource filterSource)
         {
             return 0;
         }
@@ -228,7 +228,7 @@ namespace LibGit2Sharp
         /// It should return 0 if the filter should be applied (i.e. success), GIT_PASSTHROUGH if the filter should 
         /// not be applied, or an error code to fail out of the filter processing pipeline and return to the caller.
         /// 
-        /// The `attr_values` will be set to the values of any attributes given in the filter definition.  See `git_filter` below for more detail.
+        /// The `attr_values` will be set to the values of any filterForAttributes given in the filter definition.  See `git_filter` below for more detail.
         /// 
         /// The `payload` will be a pointer to a reference payload for the filter. This will start as NULL, but `check` can assign to this 
         /// pointer for later use by the `apply` callback.  Note that the value should be heap allocated (not stack), so that it doesn't go
@@ -238,10 +238,10 @@ namespace LibGit2Sharp
         /// <returns></returns>
         int CheckCallback(GitFilter gitFilter, IntPtr payload, IntPtr filterSourcePtr, IntPtr attributeValues)
         {
-            //string attributes = GitFilter.GetAttributesFromPointer(attributeValues);
+            //string filterForAttributes = GitFilter.GetAttributesFromPointer(attributeValues);
             string attributes1 = GitFilter.GetAttributesFromPointer(gitFilter.attributes);
             var filterSource = FilterSource.FromNativePtr(filterSourcePtr);
-            return Check(attributes1, filterSource);
+            return Check(attributes1.Split(','), filterSource);
         }
 
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
@@ -11,9 +12,9 @@ namespace LibGit2Sharp.Tests
     {
         private const int GitPassThrough = -30;
 
-        readonly Func<FilterSource, string, int> checkPassThrough = (source, attr) => GitPassThrough;
+        readonly Func<FilterSource, IEnumerable<string>, int> checkPassThrough = (source, attr) => GitPassThrough;
         readonly Func<GitBufReader, GitBufWriter, int> successCallback = (reader, writer) => 0;
-        readonly Func<FilterSource, string, int> checkSuccess = (source, attr) => 0;
+        readonly Func<FilterSource, IEnumerable<string>, int> checkSuccess = (source, attr) => 0;
         readonly Func<int> cleanUpSuccess = () => 0;
         readonly Func<int> initSuccess = () => 0;
 
@@ -68,7 +69,7 @@ namespace LibGit2Sharp.Tests
         public void CheckCallbackNotMadeWhenFileStagedAndFilterNotRegistered()
         {
             bool called = false;
-            Func<FilterSource, string, int> callback = (source, attr) =>
+            Func<FilterSource, IEnumerable<string>, int> callback = (source, attr) =>
             {
                 called = true;
                 return GitPassThrough;
@@ -90,7 +91,7 @@ namespace LibGit2Sharp.Tests
         public void CheckCallbackMadeWhenFileStaged()
         {
             bool called = false;
-            Func<FilterSource, string, int> checkCallBack = (source, attr) =>
+            Func<FilterSource, IEnumerable<string>, int> checkCallBack = (source, attr) =>
             {
                 called = true;
                 return GitPassThrough;
@@ -306,8 +307,8 @@ namespace LibGit2Sharp.Tests
 
             var calledWithMode = FilterMode.Smudge;
             string actualPath = string.Empty;
-            string actualAttributes = string.Empty;
-            Func<FilterSource, string, int> callback = (source, attr) =>
+            IEnumerable<string> actualAttributes = Enumerable.Empty<string>();
+            Func<FilterSource, IEnumerable<string>, int> callback = (source, attr) =>
             {
                 calledWithMode = source.SourceMode;
                 actualPath = source.Path;
@@ -325,7 +326,7 @@ namespace LibGit2Sharp.Tests
 
                 Assert.Equal(FilterMode.Clean, calledWithMode);
                 Assert.Equal(expectedPath, actualPath);
-                Assert.Equal(Attribute, actualAttributes);
+                Assert.Equal(new List<string>{Attribute}, actualAttributes);
             }
 
             GlobalSettings.DeregisterFilter(filter);
@@ -340,8 +341,8 @@ namespace LibGit2Sharp.Tests
 
             var calledWithMode = FilterMode.Clean;
             string actualPath = string.Empty;
-            string actualAttributes = string.Empty;
-            Func<FilterSource, string, int> callback = (source, attr) =>
+            IEnumerable<string> actualAttributes = Enumerable.Empty<string>();
+            Func<FilterSource, IEnumerable<string>, int> callback = (source, attr) =>
             {
                 calledWithMode = source.SourceMode;
                 actualPath = source.Path;
@@ -356,7 +357,7 @@ namespace LibGit2Sharp.Tests
             string expectedPath = CheckoutFileForSmudge(repoPath, branchName, "hello");
             Assert.Equal(FilterMode.Smudge, calledWithMode);
             Assert.Equal(expectedPath, actualPath);
-            Assert.Equal(Attribute, actualAttributes);
+            Assert.Equal(new List<string>{Attribute}, actualAttributes);
 
             GlobalSettings.DeregisterFilter(filter);
         }
@@ -481,7 +482,7 @@ namespace LibGit2Sharp.Tests
 
         class FakeFilter : Filter
         {
-            private readonly Func<FilterSource, string, int> checkCallBack;
+            private readonly Func<FilterSource, IEnumerable<string>, int> checkCallBack;
             private readonly Func<GitBufReader, GitBufWriter, int> cleanCallback;
             private readonly Func<GitBufReader, GitBufWriter, int> smudgeCallback;
             private readonly Func<int> initCallback;
@@ -489,7 +490,7 @@ namespace LibGit2Sharp.Tests
             private readonly Func<int> cleanUpCallback;
 
             public FakeFilter(string name, string attributes,
-                Func<FilterSource, string, int> checkCallBack = null,
+                Func<FilterSource, IEnumerable<string>, int> checkCallBack = null,
                 Func<GitBufReader, GitBufWriter, int> cleanCallback = null,
                 Func<GitBufReader, GitBufWriter, int> smudgeCallback = null,
                 Func<int> initCallback = null,
@@ -505,7 +506,7 @@ namespace LibGit2Sharp.Tests
                 this.cleanUpCallback = cleanUpCallback;
             }
 
-            protected override int Check(string attributes, FilterSource filterSource)
+            protected override int Check(IEnumerable<string> attributes, FilterSource filterSource)
             {
                 return checkCallBack != null ? checkCallBack(filterSource, attributes) : base.Check(attributes, filterSource);
             }

@@ -8,12 +8,12 @@ namespace LibGit2Sharp.Tests
     public class SubstitutionCipherFilterFixture : BaseFixture
     {
         [Fact]
-        public void CleanCorrectlyEncodesInput()
+        public void CorrectlyEncodesAndDecodesInput()
         {
             const string decodedInput = "This is a substitution cipher";
             const string encodedInput = "Guvf vf n fhofgvghgvba pvcure";
 
-            var filter = new SubstitutionCipherFilter("ROT13", "apply");
+            var filter = new SubstitutionCipherFilter("ROT13", ".rot13");
             GlobalSettings.RegisterFilter(filter);
 
             string repoPath = InitNewRepository();
@@ -37,6 +37,28 @@ namespace LibGit2Sharp.Tests
                 var fileContents = ReadTextFromFile(repo, fileName);
                 Assert.Equal(1, filter.SmudgeCalledCount);
                 Assert.Equal(decodedInput, fileContents);
+            }
+
+            GlobalSettings.DeregisterFilter(filter);
+        }
+
+        [Fact]
+        public void WhenAttributesDoNotMatchFileIsNotFilterd()
+        {
+            const string decodedInput = "This is a substitution cipher";
+
+            var filter = new SubstitutionCipherFilter("ROT13", ".rot13");
+            GlobalSettings.RegisterFilter(filter);
+
+            string repoPath = InitNewRepository();
+            string fileName = Guid.NewGuid() + ".rot131";
+            using (var repo = new Repository(repoPath))
+            {
+                CommitOnBranchAndReturnDatabaseBlob(repo, fileName, decodedInput);
+
+                Assert.Equal(0, filter.CleanCalledCount);
+                Assert.Equal(0, filter.SmudgeCalledCount);
+                Assert.Equal(1, filter.CheckCalledCount);
             }
 
             GlobalSettings.DeregisterFilter(filter);
