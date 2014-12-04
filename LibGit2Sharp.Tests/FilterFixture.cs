@@ -129,49 +129,6 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
-        public void WhenLookingUpFilterResultIsEqual()
-        {
-            var filter = new EmptyFilter(FilterName + 4, Attributes);
-            GlobalSettings.RegisterFilter(filter);
-
-            var registry = new FilterRegistry();
-            Filter lookupByName = registry.LookupByName<EmptyFilter>(FilterName + 4);
-
-            GlobalSettings.DeregisterFilter(filter);
-            Assert.Equal(filter, lookupByName);
-        }
-
-        [Fact]
-        public void LookingUpFilterResultSurvivesGarbageCollection()
-        {
-            var filter = new EmptyFilter(FilterName + 5, Attributes);
-            GlobalSettings.RegisterFilter(filter);
-
-            GC.Collect();
-
-            var registry = new FilterRegistry();
-            Filter lookupByName = registry.LookupByName<EmptyFilter>(FilterName + 5);
-
-            GlobalSettings.DeregisterFilter(filter);
-            Assert.Equal(filter, lookupByName);
-        }
-
-        [Fact]
-        public void CanLookupRegisteredFilterByNameAndValuesAreMarshalCorrectly()
-        {
-            var filter = new EmptyFilter(FilterName + 6, Attributes);
-            GlobalSettings.RegisterFilter(filter);
-
-            var registry = new FilterRegistry();
-            var lookedUpFilter = registry.LookupByName<EmptyFilter>(FilterName + 6);
-
-            GlobalSettings.DeregisterFilter(filter);
-
-            Assert.Equal(FilterName + 6, lookedUpFilter.Name);
-            Assert.Equal(Attributes, lookedUpFilter.Attributes);
-        }
-
-        [Fact]
         public void CheckCallbackNotMadeWhenFileStagedAndFilterNotRegistered()
         {
             bool called = false;

@@ -7,7 +7,7 @@ namespace LibGit2Sharp
     /// <summary>
     /// A filter
     /// </summary>
-    public class Filter : IEquatable<Filter>
+    public abstract class Filter : IEquatable<Filter>
     {
         private static readonly LambdaEqualityHelper<Filter> equalityHelper =
         new LambdaEqualityHelper<Filter>(x => x.Name, x => x.Attributes);

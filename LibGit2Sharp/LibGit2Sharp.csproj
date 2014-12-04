@@ -77,7 +77,6 @@
     <Compile Include="EntryExistsException.cs" />
     <Compile Include="FetchOptionsBase.cs" />
     <Compile Include="FilterMode.cs" />
-    <Compile Include="FilterRegistry.cs" />
     <Compile Include="FilterSource.cs" />
     <Compile Include="IBelongToARepository.cs" />
     <Compile Include="Filter.cs" />
