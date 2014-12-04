@@ -39,7 +39,7 @@ namespace LibGit2Sharp.Tests.TestHelpers
 
         public static int RotatByThirteenPlaces(GitBufReader input, GitBufWriter output)
         {
-            var inputString = Encoding.UTF8.GetString(input.Read());
+            var inputString = Encoding.UTF8.GetString(input.ReadAll());
             char[] array = inputString.ToCharArray();
             char value;
             for (int i = 0; i < inputString.Length; i++)
