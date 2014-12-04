@@ -1,5 +1,4 @@
 using System;
-using System.IO;
 using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
@@ -19,8 +18,7 @@ namespace LibGit2Sharp
             SourceMode = mode;
             ObjectId = new ObjectId(source.oid);
             RepositoryHandle = source.repository;
-            FullPath = path.Native;
-            Path = GetRelativePath(path);
+            Path = path.Native;
         }
 
         /// <summary>
@@ -35,11 +33,6 @@ namespace LibGit2Sharp
             FilterMode gitFilterSourceMode = Proxy.git_filter_source_mode(ptr);
             return new FilterSource(path, gitFilterSourceMode, source);
         }
-
-        /// <summary>
-        /// The full path of the file
-        /// </summary>
-        public virtual string FullPath { get; private set; }
 
         /// <summary>
         /// The filter mode for current file being filtered
@@ -60,25 +53,5 @@ namespace LibGit2Sharp
         /// The blob id
         /// </summary>
         public virtual ObjectId ObjectId { get; private set; }
-
-
-        /// <summary>
-        /// When cleaning and smudging, relative and absolute paths are returned.
-        /// Try and just return the relative path if we can. 
-        /// </summary>
-        /// <param name="path"></param>
-        /// <returns></returns>
-        string GetRelativePath(FilePath path)
-        {
-            try
-            {
-                var fileInfo = new FileInfo(path.Native);
-                return fileInfo.Name;
-            }
-            catch (Exception)
-            {
-                return path.Native;
-            }
-        }
     }
 }

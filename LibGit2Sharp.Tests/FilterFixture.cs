@@ -322,10 +322,10 @@ namespace LibGit2Sharp.Tests
 
             using (var repo = new Repository(repoPath))
             {
-                string expectedPath = StageNewFile(repo);
+                FileInfo expectedFile = StageNewFile(repo);
 
                 Assert.Equal(FilterMode.Clean, calledWithMode);
-                Assert.Equal(expectedPath, actualPath);
+                Assert.Equal(expectedFile.Name, actualPath);
                 Assert.Equal(new List<string>{Attribute}, actualAttributes);
             }
 
@@ -354,9 +354,9 @@ namespace LibGit2Sharp.Tests
 
             GlobalSettings.RegisterFilter(filter);
 
-            string expectedPath = CheckoutFileForSmudge(repoPath, branchName, "hello");
+            FileInfo expectedFile = CheckoutFileForSmudge(repoPath, branchName, "hello");
             Assert.Equal(FilterMode.Smudge, calledWithMode);
-            Assert.Equal(expectedPath, actualPath);
+            Assert.Equal(expectedFile.FullName, actualPath);
             Assert.Equal(new List<string>{Attribute}, actualAttributes);
 
             GlobalSettings.DeregisterFilter(filter);
@@ -402,10 +402,10 @@ namespace LibGit2Sharp.Tests
 
             using (var repo = new Repository(repoPath))
             {
-                string expectedPath = StageNewFile(repo, decodedInput);
+                FileInfo expectedFile = StageNewFile(repo, decodedInput);
                 var commit = repo.Commit("Clean that file");
 
-                var blob = (Blob)commit.Tree[expectedPath].Target;
+                var blob = (Blob)commit.Tree[expectedFile.Name].Target;
 
                 var textDetected = blob.GetContentText();
                 Assert.Equal(encodedInput, textDetected);
@@ -429,18 +429,18 @@ namespace LibGit2Sharp.Tests
             var filter = new FakeFilter(FilterName + 14, Attribute, checkSuccess, null, smudgeCallback);
             GlobalSettings.RegisterFilter(filter);
 
-            string expectedPath = CheckoutFileForSmudge(repoPath, branchName, encodedInput);
+            FileInfo expectedFile = CheckoutFileForSmudge(repoPath, branchName, encodedInput);
 
-            string combine = Path.Combine(repoPath, "..", expectedPath);
+            string combine = Path.Combine(repoPath, "..", expectedFile.Name);
             string readAllText = File.ReadAllText(combine);
             Assert.Equal(decodedInput, readAllText);
 
             GlobalSettings.DeregisterFilter(filter);
         }
 
-        private static string CheckoutFileForSmudge(string repoPath, string branchName, string content)
+        private static FileInfo CheckoutFileForSmudge(string repoPath, string branchName, string content)
         {
-            string expectedPath;
+            FileInfo expectedPath;
             using (var repo = new Repository(repoPath))
             {
                 StageNewFile(repo, content);
@@ -455,22 +455,22 @@ namespace LibGit2Sharp.Tests
             return expectedPath;
         }
 
-        private static string CommitFileOnBranch(Repository repo, string branchName, String content)
+        private static FileInfo CommitFileOnBranch(Repository repo, string branchName, String content)
         {
             var branch = repo.CreateBranch(branchName);
             branch.Checkout();
 
-            string expectedPath = StageNewFile(repo, content);
+            FileInfo expectedPath = StageNewFile(repo, content);
             repo.Commit("Commit");
             return expectedPath;
         }
 
-        private static string StageNewFile(IRepository repo, string contents = "null")
+        private static FileInfo StageNewFile(IRepository repo, string contents = "null")
         {
             string newFilePath = Touch(repo.Info.WorkingDirectory, Guid.NewGuid() + ".txt", contents);
             var stageNewFile = new FileInfo(newFilePath);
             repo.Stage(newFilePath);
-            return stageNewFile.Name;
+            return stageNewFile;
         }
 
         class EmptyFilter : Filter
