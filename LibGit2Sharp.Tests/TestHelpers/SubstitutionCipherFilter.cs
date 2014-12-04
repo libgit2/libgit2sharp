@@ -25,13 +25,13 @@ namespace LibGit2Sharp.Tests.TestHelpers
             return matches ? 0 : -30;
         }
 
-        protected override int Clean(GitBufReader input, GitBufWriter output)
+        protected override int Clean(string path, GitBufReader input, GitBufWriter output)
         {
             CleanCalledCount++;
             return RotatByThirteenPlaces(input, output);
         }
 
-        protected override int Smudge(GitBufReader input, GitBufWriter output)
+        protected override int Smudge(string path, GitBufReader input, GitBufWriter output)
         {
             SmudgeCalledCount++;
             return RotatByThirteenPlaces(input, output);

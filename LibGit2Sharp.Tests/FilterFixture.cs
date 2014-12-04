@@ -511,14 +511,14 @@ namespace LibGit2Sharp.Tests
                 return checkCallBack != null ? checkCallBack(filterSource, attributes) : base.Check(attributes, filterSource);
             }
 
-            protected override int Clean(GitBufReader input, GitBufWriter output)
+            protected override int Clean(string path, GitBufReader input, GitBufWriter output)
             {
-                return cleanCallback != null ? cleanCallback(input, output) : base.Clean(input, output);
+                return cleanCallback != null ? cleanCallback(input, output) : base.Clean(path, input, output);
             }
 
-            protected override int Smudge(GitBufReader input, GitBufWriter output)
+            protected override int Smudge(string path, GitBufReader input, GitBufWriter output)
             {
-                return smudgeCallback != null ? smudgeCallback(input, output) : base.Smudge(input, output);
+                return smudgeCallback != null ? smudgeCallback(input, output) : base.Smudge(path, input, output);
             }
 
             protected override void ShutDown()

@@ -114,10 +114,11 @@ namespace LibGit2Sharp
         /// <summary>
         /// Clean the input stream and write to the output stream.
         /// </summary>
+        /// <param name="path">The path of the file being filtered</param>
         /// <param name="input">The git buf input reader</param>
         /// <param name="output">The git buf output writer</param>
         /// <returns>0 if successful and -30 to skip and pass through</returns>
-        protected virtual int Clean(GitBufReader input, GitBufWriter output)
+        protected virtual int Clean(string path, GitBufReader input, GitBufWriter output)
         {
             return (int)GitErrorCode.PassThrough;
         }
@@ -125,10 +126,11 @@ namespace LibGit2Sharp
         /// <summary>
         /// Smudge the input stream and write to the output stream.
         /// </summary>
+        /// <param name="path">The path of the file being filtered</param>
         /// <param name="input">The git buf input reader</param>
         /// <param name="output">The git buf output writer</param>
         /// <returns>0 if successful and -30 to skip and pass through</returns>
-        protected virtual int Smudge(GitBufReader input, GitBufWriter output)
+        protected virtual int Smudge(string path, GitBufReader input, GitBufWriter output)
         {
             return (int)GitErrorCode.PassThrough;
         }
@@ -262,7 +264,9 @@ namespace LibGit2Sharp
             var reader = new GitBufReader(gitBufferFromPtr);
             var writer = new GitBufWriter(gitBufferToPtr);
 
-            return filterSource.SourceMode == FilterMode.Clean ? Clean(reader, writer) : Smudge(reader, writer);
+            return filterSource.SourceMode == FilterMode.Clean ? 
+                Clean(filterSource.Path,reader, writer) :
+                Smudge(filterSource.Path, reader, writer);
         }
 
         /// <summary>
