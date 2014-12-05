@@ -322,7 +322,15 @@ namespace LibGit2Sharp
 
                 if (explicitPathsOptions != null)
                 {
-                    DispatchUnmatchedPaths(explicitPathsOptions, filePaths, matchedPaths);
+                    try
+                    {
+                        DispatchUnmatchedPaths(explicitPathsOptions, filePaths, matchedPaths);
+                    }
+                    catch
+                    {
+                        diffList.Dispose();
+                        throw;
+                    }
                 }
 
                 DetectRenames(diffList, compareOptions);
