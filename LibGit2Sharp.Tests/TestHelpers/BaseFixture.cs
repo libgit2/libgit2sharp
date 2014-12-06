@@ -16,6 +16,13 @@ namespace LibGit2Sharp.Tests.TestHelpers
     {
         private readonly List<string> directories = new List<string>();
 
+#if LEAKS_IDENTIFYING
+        public BaseFixture()
+        {
+            LeaksContainer.Clear();
+        }
+#endif
+
         static BaseFixture()
         {
             // Do the set up in the static ctor so it only happens once
@@ -190,14 +197,22 @@ namespace LibGit2Sharp.Tests.TestHelpers
 
         public virtual void Dispose()
         {
-#if LEAKS
-            GC.Collect();
-#endif
-
             foreach (string directory in directories)
             {
                 DirectoryHelper.DeleteDirectory(directory);
             }
+
+#if LEAKS_IDENTIFYING
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+
+            if (LeaksContainer.TypeNames.Any())
+            {
+                Assert.False(true, string.Format("Some handles of the following types haven't been properly released: {0}.{1}"
+                    + "In order to get some help fixing those leaks, uncomment the define LEAKS_TRACKING in SafeHandleBase.cs{1}"
+                    + "and run the tests locally.", string.Join(", ", LeaksContainer.TypeNames), Environment.NewLine));
+            }
+#endif
         }
 
         protected static void InconclusiveIf(Func<bool> predicate, string message)

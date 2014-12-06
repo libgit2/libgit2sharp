@@ -9,14 +9,14 @@
   <UsingTask AssemblyFile="$(RootDir)\Lib\xUnit\xunit.runner.msbuild.dll"
                TaskName="Xunit.Runner.MSBuild.xunit" />
   <Target Name="Clean">
-	<Message Text="Commit SHA = $(CommitSha)" />
+    <Message Text="Commit SHA = $(CommitSha)" />
 
-	<WriteLinesToFile Condition="'$(CommitSha)' != ''"
-		File="$(RootDir)\LibGit2Sharp\libgit2sharp_hash.txt"
-		Lines="$(CommitSha)"
-		Overwrite="true" />
+    <WriteLinesToFile Condition="'$(CommitSha)' != ''"
+      File="$(RootDir)\LibGit2Sharp\libgit2sharp_hash.txt"
+      Lines="$(CommitSha)"
+      Overwrite="true" />
 
-	<!-- Workaround for xbuild -->
+    <!-- Workaround for xbuild -->
     <Exec Condition=" ('$(OS)' != 'Windows_NT') " Command=" rm -r -f $(DeployFolder) " />
     <Exec Condition=" ('$(OS)' != 'Windows_NT') " Command=" rm -r -f $(TestBuildDir) " />
 
@@ -29,10 +29,11 @@
   </Target>
 
   <Target Name="Build" DependsOnTargets="Init">
+    <Message Text="ExtraDefine = $(ExtraDefine)" />
     <MSBuild
       Projects="$(RootDir)\LibGit2Sharp.sln"
       Targets="Build"
-      Properties="Configuration=$(Configuration);TrackFileAccess=false" />
+      Properties="Configuration=$(Configuration);TrackFileAccess=false;ExtraDefine=$(ExtraDefine)" />
   </Target>
 
   <Target Name="Test" DependsOnTargets="Build">

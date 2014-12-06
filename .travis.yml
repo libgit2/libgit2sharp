@@ -18,7 +18,7 @@ install: ./CI/travis.${TRAVIS_OS_NAME}.install.deps.sh
 
 # Build libgit2, LibGit2Sharp and run the tests
 script:
- - ./build.libgit2sharp.sh
+ - ./build.libgit2sharp.sh 'LEAKS_IDENTIFYING'
 
 # Only watch the development branch
 branches:

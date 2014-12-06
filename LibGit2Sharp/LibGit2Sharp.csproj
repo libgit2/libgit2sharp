@@ -348,6 +348,7 @@
     <NativeBinariesDirectory>$(MSBuildProjectDirectory)\..\Lib\NativeBinaries</NativeBinariesDirectory>
   </PropertyGroup>
   <Import Project="CopyWindowsNativeDependencies.targets" />
+  <Import Project="ExtraDefine.targets" />
   <PropertyGroup>
     <PreBuildEvent>
     </PreBuildEvent>

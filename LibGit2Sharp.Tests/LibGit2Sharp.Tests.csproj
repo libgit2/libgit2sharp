@@ -127,7 +127,8 @@
   <PropertyGroup>
     <NativeBinariesDirectory>$(MSBuildProjectDirectory)\..\Lib\NativeBinaries</NativeBinariesDirectory>
   </PropertyGroup>
-  <Import Project="$(MSBuildProjectDirectory)\..\LibGit2Sharp\CopyWindowsNativeDependencies.targets" />
+  <Import Project="..\LibGit2Sharp\CopyWindowsNativeDependencies.targets" />
+  <Import Project="..\LibGit2Sharp\ExtraDefine.targets" />
   <PropertyGroup>
     <PreBuildEvent>
     </PreBuildEvent>

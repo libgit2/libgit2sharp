@@ -2,6 +2,7 @@
 
 LIBGIT2SHA=`cat ./LibGit2Sharp/libgit2_hash.txt`
 SHORTSHA=${LIBGIT2SHA:0:7}
+EXTRADEFINE="$1"
 
 rm -rf libgit2/build
 mkdir libgit2/build
@@ -26,6 +27,6 @@ export MONO_OPTIONS=--debug
 
 echo $DYLD_LIBRARY_PATH
 echo $LD_LIBRARY_PATH
-xbuild CI/build.msbuild /t:Deploy
+xbuild CI/build.msbuild /target:Deploy /property:ExtraDefine="$EXTRADEFINE"
 
 exit $?
