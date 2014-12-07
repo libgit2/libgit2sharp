@@ -77,7 +77,7 @@ namespace LibGit2Sharp.Tests
 
             string repoPath = InitNewRepository();
 
-            new FakeFilter(FilterName + 7, Attribute, callback);
+            new FakeFilter(FilterName + 4, Attribute, callback);
 
             using (var repo = new Repository(repoPath))
             {
@@ -98,7 +98,7 @@ namespace LibGit2Sharp.Tests
             };
             string repoPath = InitNewRepository();
 
-            var filter = new FakeFilter(FilterName + 8, Attribute, checkCallBack);
+            var filter = new FakeFilter(FilterName + 5, Attribute, checkCallBack);
 
             GlobalSettings.RegisterFilter(filter);
             using (var repo = new Repository(repoPath))
@@ -122,7 +122,7 @@ namespace LibGit2Sharp.Tests
             };
 
             string repoPath = InitNewRepository();
-            var filter = new FakeFilter(FilterName + 9, Attribute, checkSuccess, applyCallback);
+            var filter = new FakeFilter(FilterName + 6, Attribute, checkSuccess, applyCallback);
 
             GlobalSettings.RegisterFilter(filter);
             using (var repo = new Repository(repoPath))
@@ -147,7 +147,7 @@ namespace LibGit2Sharp.Tests
             };
 
             string repoPath = InitNewRepository();
-            var filter = new FakeFilter(FilterName + 10, Attribute, checkPassThrough, applyCallback);
+            var filter = new FakeFilter(FilterName + 7, Attribute, checkPassThrough, applyCallback);
 
             GlobalSettings.RegisterFilter(filter);
             using (var repo = new Repository(repoPath))
@@ -173,7 +173,7 @@ namespace LibGit2Sharp.Tests
 
             string repoPath = InitNewRepository();
 
-            var filter = new FakeFilter(FilterName + 10, Attribute, 
+            var filter = new FakeFilter(FilterName + 8, Attribute, 
                 checkSuccess, 
                 successCallback, 
                 successCallback,
@@ -203,7 +203,7 @@ namespace LibGit2Sharp.Tests
                 called = true;
             };
 
-            var filter = new FakeFilter(FilterName + 11, Attribute,
+            var filter = new FakeFilter(FilterName + 9, Attribute,
                 checkSuccess,
                 successCallback,
                 successCallback,
@@ -226,7 +226,7 @@ namespace LibGit2Sharp.Tests
                 called = true;
             };
 
-            var filter = new FakeFilter(FilterName + 11, Attribute,
+            var filter = new FakeFilter(FilterName + 10, Attribute,
                 checkSuccess,
                 successCallback,
                 successCallback,
@@ -256,7 +256,7 @@ namespace LibGit2Sharp.Tests
                 return 0;
             };
 
-            var filter = new FakeFilter(FilterName + 12, Attribute,
+            var filter = new FakeFilter(FilterName + 11, Attribute,
                 checkSuccess,
                 successCallback,
                 successCallback,
@@ -281,7 +281,7 @@ namespace LibGit2Sharp.Tests
                 return 0;
             };
 
-            var filter = new FakeFilter(FilterName + 13, Attribute,
+            var filter = new FakeFilter(FilterName + 12, Attribute,
                 checkSuccess,
                 successCallback,
                 successCallback,
@@ -316,7 +316,7 @@ namespace LibGit2Sharp.Tests
                 return GitPassThrough;
             };
 
-            var filter = new FakeFilter(FilterName + 14, Attribute, callback);
+            var filter = new FakeFilter(FilterName + 13, Attribute, callback);
 
             GlobalSettings.RegisterFilter(filter);
 
@@ -350,7 +350,7 @@ namespace LibGit2Sharp.Tests
                 return GitPassThrough;
             };
 
-            var filter = new FakeFilter(FilterName + 15, Attribute, callback);
+            var filter = new FakeFilter(FilterName + 14, Attribute, callback);
 
             GlobalSettings.RegisterFilter(filter);
 
@@ -373,7 +373,7 @@ namespace LibGit2Sharp.Tests
                 called = true;
                 return GitPassThrough;
             };
-            var filter = new FakeFilter(FilterName + 16, Attribute, checkSuccess, clean);
+            var filter = new FakeFilter(FilterName + 15, Attribute, checkSuccess, clean);
 
             GlobalSettings.RegisterFilter(filter);
 
@@ -396,7 +396,7 @@ namespace LibGit2Sharp.Tests
 
             Func<GitBufReader, GitBufWriter, int> cleanCallback =  SubstitutionCipherFilter.RotatByThirteenPlaces;
 
-            var filter = new FakeFilter(FilterName + 17, Attribute, checkSuccess, cleanCallback);
+            var filter = new FakeFilter(FilterName + 16, Attribute, checkSuccess, cleanCallback);
 
             GlobalSettings.RegisterFilter(filter);
 
@@ -426,7 +426,7 @@ namespace LibGit2Sharp.Tests
 
             Func<GitBufReader, GitBufWriter, int> smudgeCallback = SubstitutionCipherFilter.RotatByThirteenPlaces;
 
-            var filter = new FakeFilter(FilterName + 18, Attribute, checkSuccess, null, smudgeCallback);
+            var filter = new FakeFilter(FilterName + 17, Attribute, checkSuccess, null, smudgeCallback);
             GlobalSettings.RegisterFilter(filter);
 
             FileInfo expectedFile = CheckoutFileForSmudge(repoPath, branchName, encodedInput);
