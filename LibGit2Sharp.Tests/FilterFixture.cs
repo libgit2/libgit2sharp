@@ -350,7 +350,7 @@ namespace LibGit2Sharp.Tests
                 return GitPassThrough;
             };
 
-            var filter = new FakeFilter(FilterName + 14, Attribute, callback);
+            var filter = new FakeFilter(FilterName + 15, Attribute, callback);
 
             GlobalSettings.RegisterFilter(filter);
 
@@ -373,7 +373,7 @@ namespace LibGit2Sharp.Tests
                 called = true;
                 return GitPassThrough;
             };
-            var filter = new FakeFilter(FilterName + 14, Attribute, checkSuccess, clean);
+            var filter = new FakeFilter(FilterName + 16, Attribute, checkSuccess, clean);
 
             GlobalSettings.RegisterFilter(filter);
 
@@ -396,7 +396,7 @@ namespace LibGit2Sharp.Tests
 
             Func<GitBufReader, GitBufWriter, int> cleanCallback =  SubstitutionCipherFilter.RotatByThirteenPlaces;
 
-            var filter = new FakeFilter(FilterName + 14, Attribute, checkSuccess, cleanCallback);
+            var filter = new FakeFilter(FilterName + 17, Attribute, checkSuccess, cleanCallback);
 
             GlobalSettings.RegisterFilter(filter);
 
@@ -426,7 +426,7 @@ namespace LibGit2Sharp.Tests
 
             Func<GitBufReader, GitBufWriter, int> smudgeCallback = SubstitutionCipherFilter.RotatByThirteenPlaces;
 
-            var filter = new FakeFilter(FilterName + 14, Attribute, checkSuccess, null, smudgeCallback);
+            var filter = new FakeFilter(FilterName + 18, Attribute, checkSuccess, null, smudgeCallback);
             GlobalSettings.RegisterFilter(filter);
 
             FileInfo expectedFile = CheckoutFileForSmudge(repoPath, branchName, encodedInput);
