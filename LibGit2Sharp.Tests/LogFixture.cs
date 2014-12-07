@@ -1,7 +1,4 @@
-﻿using System;
-using LibGit2Sharp;
-using LibGit2Sharp.Core;
-using Xunit;
+﻿using Xunit;
 
 namespace LibGit2Sharp.Tests
 {

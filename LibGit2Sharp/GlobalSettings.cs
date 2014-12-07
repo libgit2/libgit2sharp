@@ -1,6 +1,5 @@
 ﻿using System;
 using LibGit2Sharp.Core;
-using LibGit2Sharp.Handlers;
 
 namespace LibGit2Sharp
 {
@@ -33,7 +32,7 @@ namespace LibGit2Sharp
         /// with the server This is not commonly
         /// used: some callers may want to re-use an existing connection to
         /// perform fetch / push operations to a remote.
-        /// 
+        ///
         /// Note that this configuration is global to an entire process
         /// and does not honor application domains.
         /// </summary>
