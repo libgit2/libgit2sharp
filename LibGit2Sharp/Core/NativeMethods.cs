@@ -221,9 +221,6 @@ namespace LibGit2Sharp.Core
         [DllImport(libgit2)]
         internal static extern int git_buf_set(GitBuf buffer, IntPtr data, UIntPtr targetSize);
 
-        [DllImport("msvcrt.dll", EntryPoint = "memcpy", CallingConvention = CallingConvention.Cdecl, SetLastError = false)]
-        public static extern IntPtr memcpy(IntPtr dest, IntPtr src, UIntPtr count);
-
         [DllImport(libgit2)]
         internal static extern int git_remote_rename(
             ref GitStrArray problems,
