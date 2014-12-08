@@ -35,7 +35,7 @@ namespace LibGit2Sharp.Core
         {
             ArgumentNotNull(argumentValue, argumentName);
 
-            if (argumentValue.Count() == 0)
+            if (!argumentValue.Any())
             {
                 throw new ArgumentException("Enumerable cannot be empty", argumentName);
             }
@@ -50,7 +50,7 @@ namespace LibGit2Sharp.Core
         {
             ArgumentNotNull(argumentValue, argumentName);
 
-            if (argumentValue.Trim().Length == 0)
+            if (String.IsNullOrWhiteSpace (argumentValue))
             {
                 throw new ArgumentException("String cannot be empty", argumentName);
             }
@@ -145,17 +145,15 @@ namespace LibGit2Sharp.Core
         }
 
         /// <summary>
-        /// Check that the result of a C call that returns a boolean value
-        /// was successful
+        /// Check that the result of a C call returns a boolean value.
         /// <para>
-        ///   The native function is expected to return strictly 0 for
-        ///   success or a negative value in the case of failure.
+        ///   The native function is expected to return strictly 0 or 1.
         /// </para>
         /// </summary>
         /// <param name="result">The result to examine.</param>
         public static void BooleanResult(int result)
         {
-            if (result == (int)GitErrorCode.Ok || result == 1)
+            if (result == 0 || result == 1)
             {
                 return;
             }
@@ -164,11 +162,11 @@ namespace LibGit2Sharp.Core
         }
 
         /// <summary>
-        /// Check that the result of a C call that returns an integer value
-        /// was successful
+        /// Check that the result of a C call that returns an integer
+        /// value was successful.
         /// <para>
-        ///   The native function is expected to return strictly 0 for
-        ///   success or a negative value in the case of failure.
+        ///   The native function is expected to return 0 or a positive
+        ///   value for success or a negative value in the case of failure.
         /// </para>
         /// </summary>
         /// <param name="result">The result to examine.</param>
@@ -180,16 +178,6 @@ namespace LibGit2Sharp.Core
             }
 
             HandleError(result);
-        }
-
-        public static void NotNullResult(Object result)
-        {
-            if (result != null)
-            {
-                return;
-            }
-
-            HandleError((int)GitErrorCode.Error);
         }
 
         /// <summary>
@@ -208,6 +196,15 @@ namespace LibGit2Sharp.Core
             throw new ArgumentException(argumentName);
         }
 
+        /// <summary>
+        /// Check that the result of a C call that returns a non-null GitObject
+        /// using the default exception builder.
+        /// <para>
+        ///   The native function is expected to return a valid object value.
+        /// </para>
+        /// </summary>
+        /// <param name="gitObject">The <see cref="GitObject"/> to examine.</param>
+        /// <param name="identifier">The <see cref="GitObject"/> identifier to examine.</param>
         public static void GitObjectIsNotNull(GitObject gitObject, string identifier)
         {
             Func<string, LibGit2SharpException> exceptionBuilder;
@@ -224,6 +221,17 @@ namespace LibGit2Sharp.Core
             GitObjectIsNotNull(gitObject, identifier, exceptionBuilder);
         }
 
+
+        /// <summary>
+        /// Check that the result of a C call that returns a non-null GitObject
+        /// using the default exception builder.
+        /// <para>
+        ///   The native function is expected to return a valid object value.
+        /// </para>
+        /// </summary>
+        /// <param name="gitObject">The <see cref="GitObject"/> to examine.</param>
+        /// <param name="identifier">The <see cref="GitObject"/> identifier to examine.</param>
+        /// <param name="exceptionBuilder">The builder which constructs an <see cref="LibGit2SharpException"/> from a message.</param>
         public static void GitObjectIsNotNull(
             GitObject gitObject,
             string identifier,
