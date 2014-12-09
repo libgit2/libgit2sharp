@@ -770,16 +770,6 @@ namespace LibGit2Sharp.Core
             }
         }
 
-        public static GitFilterSafeHandle git_filter_lookup(string name)
-        {
-            using (ThreadAffinity())
-            {
-                var res =  NativeMethods.git_filter_lookup(name);
-
-                return new GitFilterSafeHandle(res);
-            }
-        }
-
         public static FilterMode git_filter_source_mode(IntPtr filterSource)
         {
             using (ThreadAffinity())
@@ -788,7 +778,6 @@ namespace LibGit2Sharp.Core
                 return (FilterMode)res;
             }
         }
-
 
         public static void git_filter_free(IntPtr gitFilter)
         {

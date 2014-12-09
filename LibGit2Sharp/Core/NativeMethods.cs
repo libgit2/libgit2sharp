@@ -519,10 +519,6 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))]string name);
 
         [DllImport(libgit2)]
-        internal static extern IntPtr git_filter_lookup(
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))]string name);
-
-        [DllImport(libgit2)]
         internal static extern int git_filter_source_mode(IntPtr source);
 
         [DllImport(libgit2)]
