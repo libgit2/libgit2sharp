@@ -143,7 +143,7 @@ namespace LibGit2Sharp.Tests
             Func<GitBufReader, GitBufWriter, int> applyCallback = (reader, writer) =>
             {
                 called = true;
-                return 0; 
+                return 0;
             };
 
             string repoPath = InitNewRepository();
@@ -173,12 +173,12 @@ namespace LibGit2Sharp.Tests
 
             string repoPath = InitNewRepository();
 
-            var filter = new FakeFilter(FilterName + 8, Attribute, 
-                checkSuccess, 
-                successCallback, 
+            var filter = new FakeFilter(FilterName + 8, Attribute,
+                checkSuccess,
+                successCallback,
                 successCallback,
                 cleanUpSuccess,
-                () => { }, 
+                () => { },
                 cleanUpCallback);
 
             GlobalSettings.RegisterFilter(filter);
