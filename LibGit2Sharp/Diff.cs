@@ -26,8 +26,8 @@ namespace LibGit2Sharp
             options.Flags |= GitDiffOptionFlags.GIT_DIFF_INCLUDE_TYPECHANGE;
 
             compareOptions = compareOptions ?? new CompareOptions();
-            options.ContextLines = (ushort)compareOptions.ContextLines;
-            options.InterhunkLines = (ushort)compareOptions.InterhunkLines;
+            options.ContextLines = (uint)compareOptions.ContextLines;
+            options.InterhunkLines = (uint)compareOptions.InterhunkLines;
 
             if (diffOptions.HasFlag(DiffModifiers.IncludeUntracked))
             {

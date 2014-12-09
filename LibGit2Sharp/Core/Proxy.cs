@@ -1171,9 +1171,9 @@ namespace LibGit2Sharp.Core
 
         public static ObjectId git_note_create(
             RepositorySafeHandle repo,
+            string notes_ref,
             Signature author,
             Signature committer,
-            string notes_ref,
             ObjectId targetId,
             string note,
             bool force)
@@ -1185,7 +1185,7 @@ namespace LibGit2Sharp.Core
                 GitOid noteOid;
                 GitOid oid = targetId.Oid;
 
-                int res = NativeMethods.git_note_create(out noteOid, repo, authorHandle, committerHandle, notes_ref, ref oid, note, force ? 1 : 0);
+                int res = NativeMethods.git_note_create(out noteOid, repo, notes_ref, authorHandle, committerHandle, ref oid, note, force ? 1 : 0);
                 Ensure.ZeroResult(res);
 
                 return noteOid;
@@ -2117,12 +2117,12 @@ namespace LibGit2Sharp.Core
             return refs;
         }
 
-        public static RemoteSafeHandle git_remote_load(RepositorySafeHandle repo, string name, bool throwsIfNotFound)
+        public static RemoteSafeHandle git_remote_lookup(RepositorySafeHandle repo, string name, bool throwsIfNotFound)
         {
             using (ThreadAffinity())
             {
                 RemoteSafeHandle handle;
-                int res = NativeMethods.git_remote_load(out handle, repo, name);
+                int res = NativeMethods.git_remote_lookup(out handle, repo, name);
 
                 if (res == (int)GitErrorCode.NotFound && !throwsIfNotFound)
                 {

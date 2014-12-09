@@ -71,6 +71,26 @@
         Modified = -15,
 
         /// <summary>
+        /// Authentication error.
+        /// </summary>
+        Auth = -16,
+
+        /// <summary>
+        /// Server certificate is invalid.
+        /// </summary>
+        Certificate = -17,
+
+        /// <summary>
+        /// Patch/merge has already been applied.
+        /// </summary>
+        Applied = -18,
+
+        /// <summary>
+        /// The requested peel operation is not possible.
+        /// </summary>
+        Peel = -19,
+
+        /// <summary>
         /// Skip and passthrough the given ODB backend.
         /// </summary>
         PassThrough = -30,

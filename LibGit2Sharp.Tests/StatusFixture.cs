@@ -401,21 +401,6 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Fact]
-        public void RetrievingTheStatusOfAnAmbiguousFileThrows()
-        {
-            string path = CloneStandardTestRepo();
-            using (var repo = new Repository(path))
-            {
-                Touch(repo.Info.WorkingDirectory, "1/ambiguous1.txt", "I don't like brackets.");
-
-                string relativePath = Path.Combine("1", "ambiguous[1].txt");
-                Touch(repo.Info.WorkingDirectory, relativePath, "Brackets all the way.");
-
-                Assert.Throws<AmbiguousSpecificationException>(() => repo.RetrieveStatus(relativePath));
-            }
-        }
-
         [Theory]
         [InlineData(true, FileStatus.Unaltered, FileStatus.Unaltered)]
         [InlineData(false, FileStatus.Missing, FileStatus.Untracked)]

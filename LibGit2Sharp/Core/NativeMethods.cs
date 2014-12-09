@@ -30,7 +30,13 @@ namespace LibGit2Sharp.Core
             [MethodImpl(MethodImplOptions.NoInlining)]
             public LibraryLifetimeObject()
             {
-                Ensure.ZeroResult(git_threads_init());
+                int res = git_libgit2_init();
+                Ensure.Int32Result(res);
+                if (res == 1)
+                {
+                    // Ignore the error that this propagates. Call it in case openssl is being used.
+                    git_openssl_set_locking();
+                }
                 AddHandle();
             }
 
@@ -52,7 +58,7 @@ namespace LibGit2Sharp.Core
             int count = Interlocked.Decrement(ref handlesCount);
             if (count == 0)
             {
-                git_threads_shutdown();
+                git_libgit2_shutdown();
             }
         }
 
@@ -680,9 +686,9 @@ namespace LibGit2Sharp.Core
         internal static extern int git_note_create(
             out GitOid noteOid,
             RepositorySafeHandle repo,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string notes_ref,
             SignatureSafeHandle author,
             SignatureSafeHandle committer,
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string notes_ref,
             ref GitOid oid,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string note,
             int force);
@@ -1090,7 +1096,7 @@ namespace LibGit2Sharp.Core
         internal static extern int git_remote_list(out GitStrArray array, RepositorySafeHandle repo);
 
         [DllImport(libgit2)]
-        internal static extern int git_remote_load(
+        internal static extern int git_remote_lookup(
             out RemoteSafeHandle remote,
             RepositorySafeHandle repo,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string name);
@@ -1490,10 +1496,13 @@ namespace LibGit2Sharp.Core
         internal static extern GitObjectType git_tag_target_type(GitObjectSafeHandle tag);
 
         [DllImport(libgit2)]
-        internal static extern int git_threads_init();
+        internal static extern int git_libgit2_init();
 
         [DllImport(libgit2)]
-        internal static extern void git_threads_shutdown();
+        internal static extern void git_libgit2_shutdown();
+
+        [DllImport(libgit2)]
+        internal static extern int git_openssl_set_locking();
 
         internal delegate void git_trace_cb(LogLevel level, IntPtr message);
 

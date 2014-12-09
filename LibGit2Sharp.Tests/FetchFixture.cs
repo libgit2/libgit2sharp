@@ -80,10 +80,16 @@ namespace LibGit2Sharp.Tests
                 TestRemoteInfo remoteInfo = TestRemoteInfo.TestRemoteInstance;
                 var expectedFetchState = new ExpectedFetchState(remoteName);
 
-                // Add expected tags only as no branches are expected to be fetched
+                // Add expected tags
                 foreach (KeyValuePair<string, TestRemoteInfo.ExpectedTagInfo> kvp in remoteInfo.Tags)
                 {
                     expectedFetchState.AddExpectedTag(kvp.Key, ObjectId.Zero, kvp.Value);
+                }
+
+                // Add expected branch objects
+                foreach (KeyValuePair<string, ObjectId> kvp in remoteInfo.BranchTips)
+                {
+                    expectedFetchState.AddExpectedBranch(kvp.Key, ObjectId.Zero, kvp.Value);
                 }
 
                 // Perform the actual fetch
@@ -96,7 +102,7 @@ namespace LibGit2Sharp.Tests
                 expectedFetchState.CheckUpdatedReferences(repo);
 
                 // Verify the reflog entries
-                Assert.Equal(0, repo.Refs.Log(string.Format("refs/remotes/{0}/master", remoteName)).Count()); // Only tags are retrieved
+                Assert.Equal(1, repo.Refs.Log(string.Format("refs/remotes/{0}/master", remoteName)).Count()); // Branches are also retrieved
             }
         }
 
