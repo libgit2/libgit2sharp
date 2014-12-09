@@ -18,7 +18,10 @@ namespace LibGit2Sharp.Tests
 
             string repoPath = InitNewRepository();
             string fileName = Guid.NewGuid() + ".rot13";
-            using (var repo = new Repository(repoPath))
+            string configPath = CreateConfigurationWithDummyUser(Constants.Signature);
+            var repositoryOptions = new RepositoryOptions { GlobalConfigurationLocation = configPath };
+            using (var repo = new Repository(repoPath, repositoryOptions))
+
             {
                 var blob = CommitOnBranchAndReturnDatabaseBlob(repo, fileName, decodedInput);
                 var textDetected = blob.GetContentText();
@@ -52,7 +55,10 @@ namespace LibGit2Sharp.Tests
 
             string repoPath = InitNewRepository();
             string fileName = Guid.NewGuid() + ".rot131";
-            using (var repo = new Repository(repoPath))
+
+            string configPath = CreateConfigurationWithDummyUser(Constants.Signature);
+            var repositoryOptions = new RepositoryOptions { GlobalConfigurationLocation = configPath };
+            using (var repo = new Repository(repoPath, repositoryOptions))
             {
                 CommitOnBranchAndReturnDatabaseBlob(repo, fileName, decodedInput);
 

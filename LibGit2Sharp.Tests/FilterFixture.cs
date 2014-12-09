@@ -32,7 +32,7 @@ namespace LibGit2Sharp.Tests
         public void CanRegisterFilterWithCommaSeparatedListOfAttributes()
         {
             var filter = new EmptyFilter(FilterName, "one,two,three");
-            Assert.Equal(new List<string> { "one","two","three" }, filter.Attributes);
+            Assert.Equal(new List<string> { "one", "two", "three" }, filter.Attributes);
         }
 
         [Fact]
@@ -79,7 +79,7 @@ namespace LibGit2Sharp.Tests
 
             new FakeFilter(FilterName + 4, Attribute, callback);
 
-            using (var repo = new Repository(repoPath))
+            using (var repo = CreateTestRepository(repoPath))
             {
                 StageNewFile(repo);
             }
@@ -101,7 +101,7 @@ namespace LibGit2Sharp.Tests
             var filter = new FakeFilter(FilterName + 5, Attribute, checkCallBack);
 
             GlobalSettings.RegisterFilter(filter);
-            using (var repo = new Repository(repoPath))
+            using (var repo = CreateTestRepository(repoPath))
             {
                 StageNewFile(repo);
                 Assert.True(called);
@@ -125,7 +125,7 @@ namespace LibGit2Sharp.Tests
             var filter = new FakeFilter(FilterName + 6, Attribute, checkSuccess, applyCallback);
 
             GlobalSettings.RegisterFilter(filter);
-            using (var repo = new Repository(repoPath))
+            using (var repo = CreateTestRepository(repoPath))
             {
                 StageNewFile(repo);
             }
@@ -150,7 +150,7 @@ namespace LibGit2Sharp.Tests
             var filter = new FakeFilter(FilterName + 7, Attribute, checkPassThrough, applyCallback);
 
             GlobalSettings.RegisterFilter(filter);
-            using (var repo = new Repository(repoPath))
+            using (var repo = CreateTestRepository(repoPath))
             {
                 StageNewFile(repo);
             }
@@ -183,7 +183,7 @@ namespace LibGit2Sharp.Tests
 
             GlobalSettings.RegisterFilter(filter);
 
-            using (var repo = new Repository(repoPath))
+            using (var repo = CreateTestRepository(repoPath))
             {
                 StageNewFile(repo);
             }
@@ -236,7 +236,7 @@ namespace LibGit2Sharp.Tests
             GlobalSettings.RegisterFilter(filter);
 
             string repoPath = InitNewRepository();
-            using (var repo = new Repository(repoPath))
+            using (var repo = CreateTestRepository(repoPath))
             {
                 StageNewFile(repo);
                 Assert.False(called);
@@ -291,7 +291,7 @@ namespace LibGit2Sharp.Tests
             Assert.False(called);
 
             string repoPath = InitNewRepository();
-            using (var repo = new Repository(repoPath))
+            using (var repo = CreateTestRepository(repoPath))
             {
                 StageNewFile(repo);
                 Assert.True(called);
@@ -320,13 +320,13 @@ namespace LibGit2Sharp.Tests
 
             GlobalSettings.RegisterFilter(filter);
 
-            using (var repo = new Repository(repoPath))
+            using (var repo = CreateTestRepository(repoPath))
             {
                 FileInfo expectedFile = StageNewFile(repo);
 
                 Assert.Equal(FilterMode.Clean, calledWithMode);
                 Assert.Equal(expectedFile.Name, actualPath);
-                Assert.Equal(new List<string>{Attribute}, actualAttributes);
+                Assert.Equal(new List<string> { Attribute }, actualAttributes);
             }
 
             GlobalSettings.DeregisterFilter(filter);
@@ -357,7 +357,7 @@ namespace LibGit2Sharp.Tests
             FileInfo expectedFile = CheckoutFileForSmudge(repoPath, branchName, "hello");
             Assert.Equal(FilterMode.Smudge, calledWithMode);
             Assert.Equal(expectedFile.FullName, actualPath);
-            Assert.Equal(new List<string>{Attribute}, actualAttributes);
+            Assert.Equal(new List<string> { Attribute }, actualAttributes);
 
             GlobalSettings.DeregisterFilter(filter);
         }
@@ -377,7 +377,7 @@ namespace LibGit2Sharp.Tests
 
             GlobalSettings.RegisterFilter(filter);
 
-            using (var repo = new Repository(repoPath))
+            using (var repo = CreateTestRepository(repoPath))
             {
                 StageNewFile(repo);
                 Assert.True(called);
@@ -394,16 +394,16 @@ namespace LibGit2Sharp.Tests
 
             string repoPath = InitNewRepository();
 
-            Func<GitBufReader, GitBufWriter, int> cleanCallback =  SubstitutionCipherFilter.RotatByThirteenPlaces;
+            Func<GitBufReader, GitBufWriter, int> cleanCallback = SubstitutionCipherFilter.RotatByThirteenPlaces;
 
             var filter = new FakeFilter(FilterName + 16, Attribute, checkSuccess, cleanCallback);
 
             GlobalSettings.RegisterFilter(filter);
 
-            using (var repo = new Repository(repoPath))
+            using (var repo = CreateTestRepository(repoPath))
             {
                 FileInfo expectedFile = StageNewFile(repo, decodedInput);
-                var commit = repo.Commit("Clean that file", Constants.Signature, Constants.Signature);
+                var commit = repo.Commit("Clean that file");
 
                 var blob = (Blob)commit.Tree[expectedFile.Name].Target;
 
@@ -441,17 +441,17 @@ namespace LibGit2Sharp.Tests
         private FileInfo CheckoutFileForSmudge(string repoPath, string branchName, string content)
         {
             FileInfo expectedPath;
-
-            using (var repo = new Repository(repoPath))
+            using (var repo = CreateTestRepository(repoPath))
             {
                 StageNewFile(repo, content);
-                repo.Commit("Initial commit", Constants.Signature, Constants.Signature);
+
+                repo.Commit("Initial commit");
 
                 expectedPath = CommitFileOnBranch(repo, branchName, content);
 
-                repo.Branches["master"].Checkout(new CheckoutOptions(), Constants.Signature);
+                repo.Branches["master"].Checkout();
 
-                repo.Branches[branchName].Checkout(new CheckoutOptions(), Constants.Signature);
+                repo.Branches[branchName].Checkout();
             }
             return expectedPath;
         }
@@ -459,10 +459,10 @@ namespace LibGit2Sharp.Tests
         private static FileInfo CommitFileOnBranch(Repository repo, string branchName, String content)
         {
             var branch = repo.CreateBranch(branchName);
-            branch.Checkout(new CheckoutOptions(), Constants.Signature);
+            branch.Checkout();
 
             FileInfo expectedPath = StageNewFile(repo, content);
-            repo.Commit("Commit", Constants.Signature, Constants.Signature);
+            repo.Commit("Commit");
             return expectedPath;
         }
 
@@ -472,6 +472,13 @@ namespace LibGit2Sharp.Tests
             var stageNewFile = new FileInfo(newFilePath);
             repo.Stage(newFilePath);
             return stageNewFile;
+        }
+
+        private Repository CreateTestRepository(string path)
+        {
+            string configPath = CreateConfigurationWithDummyUser(Constants.Signature);
+            var repositoryOptions = new RepositoryOptions { GlobalConfigurationLocation = configPath };
+            return new Repository(path, repositoryOptions);
         }
 
         class EmptyFilter : Filter
