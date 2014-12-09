@@ -438,10 +438,14 @@ namespace LibGit2Sharp.Tests
             GlobalSettings.DeregisterFilter(filter);
         }
 
-        private static FileInfo CheckoutFileForSmudge(string repoPath, string branchName, string content)
+        private FileInfo CheckoutFileForSmudge(string repoPath, string branchName, string content)
         {
             FileInfo expectedPath;
-            using (var repo = new Repository(repoPath))
+
+            string configPath = CreateConfigurationWithDummyUser(Constants.Signature);
+            var options = new RepositoryOptions { GlobalConfigurationLocation = configPath };
+
+            using (var repo = new Repository(repoPath, options))
             {
                 StageNewFile(repo, content);
                 repo.Commit("Initial commit");
