@@ -442,19 +442,16 @@ namespace LibGit2Sharp.Tests
         {
             FileInfo expectedPath;
 
-            string configPath = CreateConfigurationWithDummyUser(Constants.Signature);
-            var options = new RepositoryOptions { GlobalConfigurationLocation = configPath };
-
-            using (var repo = new Repository(repoPath, options))
+            using (var repo = new Repository(repoPath))
             {
                 StageNewFile(repo, content);
-                repo.Commit("Initial commit");
+                repo.Commit("Initial commit", Constants.Signature, Constants.Signature);
 
                 expectedPath = CommitFileOnBranch(repo, branchName, content);
 
-                repo.Branches["master"].Checkout();
+                repo.Branches["master"].Checkout(new CheckoutOptions(), Constants.Signature);
 
-                repo.Branches[branchName].Checkout();
+                repo.Branches[branchName].Checkout(new CheckoutOptions(), Constants.Signature);
             }
             return expectedPath;
         }
@@ -462,10 +459,10 @@ namespace LibGit2Sharp.Tests
         private static FileInfo CommitFileOnBranch(Repository repo, string branchName, String content)
         {
             var branch = repo.CreateBranch(branchName);
-            branch.Checkout();
+            branch.Checkout(new CheckoutOptions(), Constants.Signature);
 
             FileInfo expectedPath = StageNewFile(repo, content);
-            repo.Commit("Commit");
+            repo.Commit("Commit", Constants.Signature, Constants.Signature);
             return expectedPath;
         }
 
