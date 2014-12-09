@@ -403,7 +403,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(repoPath))
             {
                 FileInfo expectedFile = StageNewFile(repo, decodedInput);
-                var commit = repo.Commit("Clean that file");
+                var commit = repo.Commit("Clean that file", Constants.Signature, Constants.Signature);
 
                 var blob = (Blob)commit.Tree[expectedFile.Name].Target;
 
