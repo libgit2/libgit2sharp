@@ -283,7 +283,7 @@ namespace LibGit2Sharp
         {
             WrapAllTreeDefinitions(repository);
 
-            using (var builder = new TreeBuilder())
+            using (var builder = new TreeBuilder(repository))
             {
                 var builtTreeEntryDefinitions = new List<Tuple<string, TreeEntryDefinition>>(entries.Count);
 
@@ -309,7 +309,7 @@ namespace LibGit2Sharp
 
                 builtTreeEntryDefinitions.ForEach(t => entries[t.Item1] = t.Item2);
 
-                ObjectId treeId = builder.Write(repository);
+                ObjectId treeId = builder.Write();
                 return repository.Lookup<Tree>(treeId);
             }
         }
@@ -371,9 +371,9 @@ namespace LibGit2Sharp
         {
             private readonly TreeBuilderSafeHandle handle;
 
-            public TreeBuilder()
+            public TreeBuilder(Repository repo)
             {
-                handle = Proxy.git_treebuilder_create();
+                handle = Proxy.git_treebuilder_create(repo.Handle);
             }
 
             public void Insert(string name, TreeEntryDefinition treeEntryDefinition)
@@ -381,9 +381,9 @@ namespace LibGit2Sharp
                 Proxy.git_treebuilder_insert(handle, name, treeEntryDefinition);
             }
 
-            public ObjectId Write(Repository repo)
+            public ObjectId Write()
             {
-                return Proxy.git_treebuilder_write(repo.Handle, handle);
+                return Proxy.git_treebuilder_write(handle);
             }
 
             public void Dispose()

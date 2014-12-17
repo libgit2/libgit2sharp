@@ -3064,12 +3064,12 @@ namespace LibGit2Sharp.Core
 
         #region git_treebuilder_
 
-        public static TreeBuilderSafeHandle git_treebuilder_create()
+        public static TreeBuilderSafeHandle git_treebuilder_create(RepositorySafeHandle repo)
         {
             using (ThreadAffinity())
             {
                 TreeBuilderSafeHandle builder;
-                int res = NativeMethods.git_treebuilder_create(out builder, IntPtr.Zero);
+                int res = NativeMethods.git_treebuilder_create(out builder, repo, IntPtr.Zero);
                 Ensure.ZeroResult(res);
 
                 return builder;
@@ -3091,12 +3091,12 @@ namespace LibGit2Sharp.Core
             }
         }
 
-        public static ObjectId git_treebuilder_write(RepositorySafeHandle repo, TreeBuilderSafeHandle bld)
+        public static ObjectId git_treebuilder_write(TreeBuilderSafeHandle bld)
         {
             using (ThreadAffinity())
             {
                 GitOid oid;
-                int res = NativeMethods.git_treebuilder_write(out oid, repo, bld);
+                int res = NativeMethods.git_treebuilder_write(out oid, bld);
                 Ensure.ZeroResult(res);
 
                 return oid;

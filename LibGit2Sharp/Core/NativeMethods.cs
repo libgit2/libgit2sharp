@@ -1555,7 +1555,7 @@ namespace LibGit2Sharp.Core
         internal static extern UIntPtr git_tree_entrycount(GitObjectSafeHandle tree);
 
         [DllImport(libgit2)]
-        internal static extern int git_treebuilder_create(out TreeBuilderSafeHandle builder, IntPtr src);
+        internal static extern int git_treebuilder_create(out TreeBuilderSafeHandle builder, RepositorySafeHandle repo, IntPtr src);
 
         [DllImport(libgit2)]
         internal static extern int git_treebuilder_insert(
@@ -1566,7 +1566,7 @@ namespace LibGit2Sharp.Core
             uint attributes);
 
         [DllImport(libgit2)]
-        internal static extern int git_treebuilder_write(out GitOid id, RepositorySafeHandle repo, TreeBuilderSafeHandle bld);
+        internal static extern int git_treebuilder_write(out GitOid id, TreeBuilderSafeHandle bld);
 
         [DllImport(libgit2)]
         internal static extern void git_treebuilder_free(IntPtr bld);
