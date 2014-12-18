@@ -25,6 +25,9 @@ popd
 
 export MONO_OPTIONS=--debug
 
+# Required for NuGet package restore to run.
+mozroots --import --sync
+
 echo $DYLD_LIBRARY_PATH
 echo $LD_LIBRARY_PATH
 xbuild CI/build.msbuild /target:Deploy /property:ExtraDefine="$EXTRADEFINE"
