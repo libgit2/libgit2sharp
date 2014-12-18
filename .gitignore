@@ -43,3 +43,4 @@ LibGit2Sharp/Core/UniqueIdentifier.cs
 _NCrunch_LibGit2Sharp/
 
 !NuGet.exe
+packages/
