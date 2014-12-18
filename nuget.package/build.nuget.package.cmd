@@ -19,7 +19,7 @@ CMD /c "..\build.libgit2sharp.cmd %CommitSha%"
 
 IF %ERRORLEVEL% NEQ 0 GOTO EXIT
 
-"..\Lib\NuGet\NuGet.exe" Pack -Symbols "%SRCDIR%LibGit2Sharp.csproj" -Prop Configuration=Release
+"..\.nuget\NuGet.exe" Pack -Symbols "%SRCDIR%LibGit2Sharp.csproj" -Prop Configuration=Release
 
 :EXIT
 DEL "%SRCDIR%LibGit2Sharp.nuspec"
