@@ -234,5 +234,13 @@ namespace LibGit2Sharp.Tests
         {
             Assert.Throws<ArgumentNullException>(() => Repository.Clone(url, null));
         }
+
+        [Fact]
+        public void CloningWithoutUrlThrows()
+        {
+            var scd = BuildSelfCleaningDirectory();
+
+            Assert.Throws<ArgumentNullException>(() => Repository.Clone(null, scd.DirectoryPath));
+        }
     }
 }

@@ -538,6 +538,7 @@ namespace LibGit2Sharp
         public static string Clone(string sourceUrl, string workdirPath,
             CloneOptions options = null)
         {
+            Ensure.ArgumentNotNull(sourceUrl, "sourceUrl");
             Ensure.ArgumentNotNull(workdirPath, "workdirPath");
 
             options = options ?? new CloneOptions();
