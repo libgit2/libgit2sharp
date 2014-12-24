@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2013/01/nuspec.xsd">
   <metadata minClientVersion="2.7">
     <id>RedGate.ThirdParty.LibGit2Sharp.Fork</id>
-    <version>0.20.2.1</version>
+    <version>0.20.2.2</version>
     <authors>Red Gate Software</authors>
     <owners>nulltoken, Richard Mitchell</owners>
     <licenseUrl>https://github.com/libgit2/libgit2sharp/raw/master/LICENSE.md</licenseUrl>
