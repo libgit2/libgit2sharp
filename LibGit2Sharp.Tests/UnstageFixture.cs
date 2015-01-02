@@ -225,7 +225,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void UnstagingFileWithBadParamsThrows()
         {
-            using (var repo = new Repository(StandardTestRepoPath))
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
             {
                 Assert.Throws<ArgumentException>(() => repo.Unstage(string.Empty));
                 Assert.Throws<ArgumentNullException>(() => repo.Unstage((string)null));

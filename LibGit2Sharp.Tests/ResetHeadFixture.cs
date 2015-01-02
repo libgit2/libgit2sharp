@@ -65,7 +65,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void ResettingWithBadParamsThrows()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.Throws<ArgumentNullException>(() => repo.Reset(ResetMode.Soft, (string)null));
                 Assert.Throws<ArgumentNullException>(() => repo.Reset(ResetMode.Soft, (Commit)null));
@@ -204,7 +205,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void MixedResetInABareRepositoryThrows()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.Throws<BareRepositoryException>(() => repo.Reset(ResetMode.Mixed));
             }
@@ -213,7 +215,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void HardResetInABareRepositoryThrows()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.Throws<BareRepositoryException>(() => repo.Reset(ResetMode.Hard));
             }

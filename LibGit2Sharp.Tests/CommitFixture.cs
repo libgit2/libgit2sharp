@@ -17,7 +17,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCountCommits()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.Equal(7, repo.Commits.Count());
             }
@@ -47,7 +48,8 @@ namespace LibGit2Sharp.Tests
         public void CanEnumerateCommits()
         {
             int count = 0;
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 foreach (Commit commit in repo.Commits)
                 {
@@ -76,7 +78,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void DefaultOrderingWhenEnumeratingCommitsIsTimeBased()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.Equal(CommitSortStrategies.Time, repo.Commits.SortedBy);
             }
@@ -86,7 +89,8 @@ namespace LibGit2Sharp.Tests
         public void CanEnumerateCommitsFromSha()
         {
             int count = 0;
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 foreach (Commit commit in repo.Commits.QueryBy(new CommitFilter { Since = "a4a7dce85cf63874e984719f4fdd239f5145052f" }))
                 {
@@ -100,7 +104,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void QueryingTheCommitHistoryWithUnknownShaOrInvalidEntryPointThrows()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.Throws<LibGit2SharpException>(() => repo.Commits.QueryBy(new CommitFilter { Since = Constants.UnknownSha }).Count());
                 Assert.Throws<LibGit2SharpException>(() => repo.Commits.QueryBy(new CommitFilter { Since = "refs/heads/deadbeef" }).Count());
@@ -124,7 +129,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void QueryingTheCommitHistoryWithBadParamsThrows()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.Throws<ArgumentException>(() => repo.Commits.QueryBy(new CommitFilter { Since = string.Empty }));
                 Assert.Throws<ArgumentNullException>(() => repo.Commits.QueryBy(new CommitFilter { Since = null }));
@@ -139,7 +145,8 @@ namespace LibGit2Sharp.Tests
             reversedShas.Reverse();
 
             int count = 0;
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 foreach (Commit commit in repo.Commits.QueryBy(new CommitFilter
                                                                     {
@@ -158,7 +165,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanEnumerateCommitsWithReverseTopoSorting()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 List<Commit> commits = repo.Commits.QueryBy(new CommitFilter
                                                                 {
@@ -192,7 +200,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanGetParentsCount()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.Equal(1, repo.Commits.First().Parents.Count());
             }
@@ -202,7 +211,8 @@ namespace LibGit2Sharp.Tests
         public void CanEnumerateCommitsWithTimeSorting()
         {
             int count = 0;
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 foreach (Commit commit in repo.Commits.QueryBy(new CommitFilter
                                                                     {
@@ -221,7 +231,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanEnumerateCommitsWithTopoSorting()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 List<Commit> commits = repo.Commits.QueryBy(new CommitFilter
                                                                 {
@@ -364,7 +375,7 @@ namespace LibGit2Sharp.Tests
             CanEnumerateCommitsFromATag(t => t.Annotation);
         }
 
-        private static void CanEnumerateCommitsFromATag(Func<Tag, object> transformer)
+        private void CanEnumerateCommitsFromATag(Func<Tag, object> transformer)
         {
             AssertEnumerationOfCommits(
                 repo => new CommitFilter { Since = transformer(repo.Tags["test"]) },
@@ -413,9 +424,10 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        private static void AssertEnumerationOfCommits(Func<IRepository, CommitFilter> filterBuilder, IEnumerable<string> abbrevIds)
+        private void AssertEnumerationOfCommits(Func<IRepository, CommitFilter> filterBuilder, IEnumerable<string> abbrevIds)
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 AssertEnumerationOfCommitsInRepo(repo, filterBuilder, abbrevIds);
             }
@@ -433,7 +445,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanLookupCommitGeneric()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 var commit = repo.Lookup<Commit>(sha);
                 Assert.Equal("testing\n", commit.Message);
@@ -445,7 +458,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanReadCommitData()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 GitObject obj = repo.Lookup(sha);
                 Assert.NotNull(obj);
@@ -476,7 +490,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanReadCommitWithMultipleParents()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 var commit = repo.Lookup<Commit>("a4a7dce85cf63874e984719f4fdd239f5145052f");
                 Assert.Equal(2, commit.Parents.Count());
@@ -486,7 +501,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanDirectlyAccessABlobOfTheCommit()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 var commit = repo.Lookup<Commit>("4c062a6");
 
@@ -500,7 +516,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanDirectlyAccessATreeOfTheCommit()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 var commit = repo.Lookup<Commit>("4c062a6");
 
@@ -512,7 +529,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void DirectlyAccessingAnUnknownTreeEntryOfTheCommitReturnsNull()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 var commit = repo.Lookup<Commit>("4c062a6");
 

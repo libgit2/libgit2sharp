@@ -23,7 +23,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CurrentOperationInNoneForABareRepo()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.Equal(CurrentOperation.None, repo.Info.CurrentOperation);
             }

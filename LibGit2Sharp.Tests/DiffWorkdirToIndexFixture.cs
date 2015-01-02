@@ -30,7 +30,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCompareTheWorkDirAgainstTheIndex()
         {
-            using (var repo = new Repository(StandardTestRepoPath))
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
             {
                 var changes = repo.Diff.Compare<TreeChanges>();
 
@@ -45,7 +46,8 @@ namespace LibGit2Sharp.Tests
         [InlineData("really-i-cant-exist.txt", FileStatus.Nonexistent)]
         public void CanCompareTheWorkDirAgainstTheIndexWithLaxUnmatchedExplicitPathsValidation(string relativePath, FileStatus currentStatus)
         {
-            using (var repo = new Repository(StandardTestRepoPath))
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
             {
                 Assert.Equal(currentStatus, repo.RetrieveStatus(relativePath));
 
@@ -62,7 +64,8 @@ namespace LibGit2Sharp.Tests
         [InlineData("really-i-cant-exist.txt", FileStatus.Nonexistent)]
         public void ComparingTheWorkDirAgainstTheIndexWithStrictUnmatchedExplicitPathsValidationAndANonExistentPathspecThrows(string relativePath, FileStatus currentStatus)
         {
-            using (var repo = new Repository(StandardTestRepoPath))
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
             {
                 Assert.Equal(currentStatus, repo.RetrieveStatus(relativePath));
 
@@ -77,7 +80,8 @@ namespace LibGit2Sharp.Tests
         {
             var callback = new AssertUnmatchedPathspecsCallbackIsCalled();
 
-            using (var repo = new Repository(StandardTestRepoPath))
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
             {
                 Assert.Equal(currentStatus, repo.RetrieveStatus(relativePath));
 
@@ -171,7 +175,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCompareTheWorkDirAgainstTheIndexWithUntrackedFiles()
         {
-            using (var repo = new Repository(StandardTestRepoPath))
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
             {
                 var changes = repo.Diff.Compare<TreeChanges>(null, true);
 

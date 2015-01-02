@@ -24,7 +24,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void AFullyMergedRepoOnlyContainsStagedIndexEntries()
         {
-            using (var repo = new Repository(StandardTestRepoWorkingDirPath))
+            string path = SandboxStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.Equal(true, repo.Index.IsFullyMerged);
 
@@ -38,7 +39,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void SoftResetARepoWithUnmergedEntriesThrows()
         {
-            using (var repo = new Repository(MergedTestRepoWorkingDirPath))
+            var path = SandboxMergedTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.Equal(false, repo.Index.IsFullyMerged);
 
@@ -52,7 +54,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CommitAgainARepoWithUnmergedEntriesThrows()
         {
-            using (var repo = new Repository(MergedTestRepoWorkingDirPath))
+            var path = SandboxMergedTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.Equal(false, repo.Index.IsFullyMerged);
 

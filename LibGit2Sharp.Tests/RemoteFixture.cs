@@ -10,7 +10,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanGetRemoteOrigin()
         {
-            using (var repo = new Repository(StandardTestRepoPath))
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
             {
                 Remote origin = repo.Network.Remotes["origin"];
                 Assert.NotNull(origin);
@@ -23,7 +24,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void GettingRemoteThatDoesntExistReturnsNull()
         {
-            using (var repo = new Repository(StandardTestRepoPath))
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
             {
                 Assert.Null(repo.Network.Remotes["test"]);
             }
@@ -32,7 +34,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanEnumerateTheRemotes()
         {
-            using (var repo = new Repository(StandardTestRepoPath))
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
             {
                 int count = 0;
 
@@ -160,7 +163,8 @@ namespace LibGit2Sharp.Tests
         [InlineData("/")]
         public void AddingARemoteWithAnInvalidNameThrows(string name)
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 const string url = "https://github.com/libgit2/libgit2sharp.git";
 
@@ -180,7 +184,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void DoesNotThrowWhenARemoteHasNoUrlSet()
         {
-            using (var repo = new Repository(StandardTestRepoPath))
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
             {
                 var noUrlRemote = repo.Network.Remotes["no_url"];
                 Assert.NotNull(noUrlRemote);
@@ -231,7 +236,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanDeleteNonExistingRemote()
         {
-            using (var repo = new Repository(StandardTestRepoPath))
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
             {
                 Assert.Null(repo.Network.Remotes["i_dont_exist"]);
                 repo.Network.Remotes.Remove("i_dont_exist");
@@ -261,7 +267,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void RenamingNonExistingRemoteThrows()
         {
-            using (var repo = new Repository(StandardTestRepoPath))
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
             {
                 Assert.Throws<NotFoundException>(() =>
                 {

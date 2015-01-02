@@ -12,7 +12,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanGetBlobAsText()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 var blob = repo.Lookup<Blob>("a8233120f6ad708f843d861ce2b7228ec4e3dec6");
 
@@ -86,7 +87,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanGetBlobSize()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 var blob = repo.Lookup<Blob>("a8233120f6ad708f843d861ce2b7228ec4e3dec6");
                 Assert.Equal(10, blob.Size);
@@ -96,7 +98,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanLookUpBlob()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 var blob = repo.Lookup<Blob>("a8233120f6ad708f843d861ce2b7228ec4e3dec6");
                 Assert.NotNull(blob);
@@ -106,7 +109,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanReadBlobStream()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 var blob = repo.Lookup<Blob>("a8233120f6ad708f843d861ce2b7228ec4e3dec6");
 
@@ -208,7 +212,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanTellIfTheBlobContentLooksLikeBinary()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 var blob = repo.Lookup<Blob>("a8233120f6ad708f843d861ce2b7228ec4e3dec6");
                 Assert.Equal(false, blob.IsBinary);

@@ -8,7 +8,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanExtractStatisticsFromDiff()
         {
-            using (var repo = new Repository(StandardTestRepoPath))
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
             {
                 var oldTree = repo.Lookup<Commit>("origin/packed-test").Tree;
                 var newTree = repo.Lookup<Commit>("HEAD").Tree;

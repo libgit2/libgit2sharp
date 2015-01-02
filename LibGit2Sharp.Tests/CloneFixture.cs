@@ -79,7 +79,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCloneALocalRepositoryFromALocalUri()
         {
-            var uri = new Uri(BareTestRepoPath);
+            var uri = new Uri(Path.GetFullPath(BareTestRepoPath));
             AssertLocalClone(uri.AbsoluteUri, BareTestRepoPath);
         }
 

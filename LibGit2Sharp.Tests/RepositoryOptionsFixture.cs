@@ -31,7 +31,8 @@ namespace LibGit2Sharp.Tests
 
             var options = new RepositoryOptions { WorkingDirectoryPath = newWorkdir, IndexPath = newIndex };
 
-            using (var repo = new Repository(BareTestRepoPath, options))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path, options))
             {
                 var st = repo.RetrieveStatus("1/branch_file.txt");
                 Assert.Equal(FileStatus.Missing, st);
@@ -43,7 +44,8 @@ namespace LibGit2Sharp.Tests
         {
             var options = new RepositoryOptions { WorkingDirectoryPath = newWorkdir, IndexPath = newIndex };
 
-            using (var repo = new Repository(BareTestRepoPath, options))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path, options))
             {
                 var st = repo.RetrieveStatus("1/branch_file.txt");
                 Assert.Equal(FileStatus.Removed, st);
@@ -95,8 +97,9 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void OpeningABareRepoWithoutProvidingBothWorkDirAndIndexThrows()
         {
-            Assert.Throws<ArgumentException>(() => new Repository(BareTestRepoPath, new RepositoryOptions {IndexPath = newIndex}));
-            Assert.Throws<ArgumentException>(() => new Repository(BareTestRepoPath, new RepositoryOptions {WorkingDirectoryPath = newWorkdir}));
+            string path = SandboxBareTestRepo();
+            Assert.Throws<ArgumentException>(() => new Repository(path, new RepositoryOptions {IndexPath = newIndex}));
+            Assert.Throws<ArgumentException>(() => new Repository(path, new RepositoryOptions {WorkingDirectoryPath = newWorkdir}));
         }
 
         [Fact]
@@ -163,7 +166,8 @@ namespace LibGit2Sharp.Tests
                 SystemConfigurationLocation = systemLocation,
             };
 
-            using (var repo = new Repository(BareTestRepoPath, options))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path, options))
             {
                 Assert.True(repo.Config.HasConfig(ConfigurationLevel.Global));
                 Assert.Equal(name, repo.Config.Get<string>("user.name").Value);

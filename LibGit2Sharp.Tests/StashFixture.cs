@@ -263,7 +263,8 @@ namespace LibGit2Sharp.Tests
         [InlineData(-42)]
         public void GettingStashWithBadIndexThrows(int badIndex)
         {
-            using (var repo = new Repository(StandardTestRepoWorkingDirPath))
+            string path = SandboxStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.Throws<ArgumentOutOfRangeException>(() => repo.Stashes[badIndex]);
             }
@@ -274,7 +275,8 @@ namespace LibGit2Sharp.Tests
         [InlineData(42)]
         public void GettingAStashThatDoesNotExistReturnsNull(int bigIndex)
         {
-            using (var repo = new Repository(StandardTestRepoWorkingDirPath))
+            string path = SandboxStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.Null(repo.Stashes[bigIndex]);
             }

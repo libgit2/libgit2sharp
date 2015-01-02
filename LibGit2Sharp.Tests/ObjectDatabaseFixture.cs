@@ -17,7 +17,8 @@ namespace LibGit2Sharp.Tests
         [InlineData("deadbeefdeadbeefdeadbeefdeadbeefdeadbeef", false)]
         public void CanTellIfObjectsExists(string sha, bool shouldExists)
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 var oid = new ObjectId(sha);
 
@@ -370,7 +371,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CannotCreateATreeContainingABlobFromARelativePathAgainstABareRepository()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 var td = new TreeDefinition()
                     .Add("1/new file", "hello.txt", Mode.NonExecutableFile);
@@ -382,7 +384,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CreatingATreeFromIndexWithUnmergedEntriesThrows()
         {
-            using (var repo = new Repository(MergedTestRepoWorkingDirPath))
+            var path = SandboxMergedTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.False(repo.Index.IsFullyMerged);
 
@@ -482,7 +485,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanEnumerateTheGitObjectsFromBareRepository()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 int count = 0;
 
@@ -504,7 +508,8 @@ namespace LibGit2Sharp.Tests
         [InlineData("\0\0\0")]
         public void CreatingACommitWithMessageContainingZeroByteThrows(string message)
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.Throws<ArgumentException>(() => repo.ObjectDatabase.CreateCommit(
                     Constants.Signature, Constants.Signature, message, repo.Head.Tip.Tree, Enumerable.Empty<Commit>(), false));
@@ -519,7 +524,8 @@ namespace LibGit2Sharp.Tests
         [InlineData("\0\0\0")]
         public void CreatingATagAnnotationWithNameOrMessageContainingZeroByteThrows(string input)
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.Throws<ArgumentException>(() => repo.ObjectDatabase.CreateTagAnnotation(
                     input, repo.Head.Tip, Constants.Signature, "message"));
@@ -531,7 +537,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CreatingATagAnnotationWithBadParametersThrows()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.Throws<ArgumentNullException>(() => repo.ObjectDatabase.CreateTagAnnotation(
                     null, repo.Head.Tip, Constants.Signature, "message"));
@@ -566,7 +573,8 @@ namespace LibGit2Sharp.Tests
             string sinceSha, string untilSha,
             string expectedAncestorSha, int? expectedAheadBy, int? expectedBehindBy)
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 var since = repo.Lookup<Commit>(sinceSha);
                 var until = repo.Lookup<Commit>(untilSha);
@@ -585,7 +593,8 @@ namespace LibGit2Sharp.Tests
             string sinceSha, string untilSha,
             int? expectedAheadBy, int? expectedBehindBy)
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 var since = repo.Lookup<Commit>(sinceSha);
                 var until = repo.Lookup<Commit>(untilSha);
@@ -601,7 +610,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CalculatingHistoryDivergenceWithBadParamsThrows()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.Throws<ArgumentNullException>(
                     () => repo.ObjectDatabase.CalculateHistoryDivergence(repo.Head.Tip, null));

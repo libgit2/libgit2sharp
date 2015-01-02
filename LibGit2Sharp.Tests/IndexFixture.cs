@@ -28,7 +28,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCountEntriesInIndex()
         {
-            using (var repo = new Repository(StandardTestRepoPath))
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
             {
                 Assert.Equal(expectedEntries.Count(), repo.Index.Count);
             }
@@ -37,7 +38,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanEnumerateIndex()
         {
-            using (var repo = new Repository(StandardTestRepoPath))
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
             {
                 Assert.Equal(expectedEntries,
                     repo.Index.Select(e => e.Path).OrderBy(p => p, StringComparer.Ordinal).ToArray());
@@ -47,7 +49,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanFetchAnIndexEntryByItsName()
         {
-            using (var repo = new Repository(StandardTestRepoPath))
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
             {
                 IndexEntry entry = repo.Index["README"];
                 Assert.Equal("README", entry.Path);
@@ -65,7 +68,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void FetchingAnUnknownIndexEntryReturnsNull()
         {
-            using (var repo = new Repository(StandardTestRepoPath))
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
             {
                 IndexEntry entry = repo.Index["I-do-not-exist.txt"];
                 Assert.Null(entry);
@@ -75,7 +79,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void ReadIndexWithBadParamsFails()
         {
-            using (var repo = new Repository(StandardTestRepoPath))
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
             {
                 Assert.Throws<ArgumentNullException>(() => { IndexEntry entry = repo.Index[null]; });
                 Assert.Throws<ArgumentException>(() => { IndexEntry entry = repo.Index[string.Empty]; });
@@ -178,9 +183,10 @@ namespace LibGit2Sharp.Tests
             InvalidMoveUseCases(sourcePath, sourceStatus, destPaths);
         }
 
-        private static void InvalidMoveUseCases(string sourcePath, FileStatus sourceStatus, IEnumerable<string> destPaths)
+        private void InvalidMoveUseCases(string sourcePath, FileStatus sourceStatus, IEnumerable<string> destPaths)
         {
-            using (var repo = new Repository(StandardTestRepoPath))
+            var repoPath = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(repoPath))
             {
                 Assert.Equal(sourceStatus, repo.RetrieveStatus(sourcePath));
 
@@ -224,7 +230,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanReadIndexEntryAttributes()
         {
-            using (var repo = new Repository(StandardTestRepoPath))
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
             {
                 Assert.Equal(Mode.NonExecutableFile, repo.Index["README"].Mode);
                 Assert.Equal(Mode.ExecutableFile, repo.Index["1/branch_file.txt"].Mode);

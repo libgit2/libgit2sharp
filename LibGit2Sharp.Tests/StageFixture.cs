@@ -62,7 +62,8 @@ namespace LibGit2Sharp.Tests
         [InlineData("deleted_staged_file.txt", FileStatus.Removed)]
         public void StagingAnUnknownFileThrowsIfExplicitPath(string relativePath, FileStatus status)
         {
-            using (var repo = new Repository(StandardTestRepoPath))
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
             {
                 Assert.Null(repo.Index[relativePath]);
                 Assert.Equal(status, repo.RetrieveStatus(relativePath));
@@ -76,7 +77,8 @@ namespace LibGit2Sharp.Tests
         [InlineData("deleted_staged_file.txt", FileStatus.Removed)]
         public void CanStageAnUnknownFileWithLaxUnmatchedExplicitPathsValidation(string relativePath, FileStatus status)
         {
-            using (var repo = new Repository(StandardTestRepoPath))
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
             {
                 Assert.Null(repo.Index[relativePath]);
                 Assert.Equal(status, repo.RetrieveStatus(relativePath));
@@ -93,7 +95,8 @@ namespace LibGit2Sharp.Tests
         [InlineData("deleted_staged_file.txt", FileStatus.Removed)]
         public void StagingAnUnknownFileWithLaxExplicitPathsValidationDoesntThrow(string relativePath, FileStatus status)
         {
-            using (var repo = new Repository(StandardTestRepoPath))
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
             {
                 Assert.Null(repo.Index[relativePath]);
                 Assert.Equal(status, repo.RetrieveStatus(relativePath));
@@ -239,7 +242,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void StagingFileWithBadParamsThrows()
         {
-            using (var repo = new Repository(StandardTestRepoPath))
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
             {
                 Assert.Throws<ArgumentException>(() => repo.Stage(string.Empty));
                 Assert.Throws<ArgumentNullException>(() => repo.Stage((string)null));

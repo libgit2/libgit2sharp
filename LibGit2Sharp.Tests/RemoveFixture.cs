@@ -142,7 +142,8 @@ namespace LibGit2Sharp.Tests
         {
             for (int i = 0; i < 2; i++)
             {
-                using (var repo = new Repository(StandardTestRepoPath))
+                var path = SandboxStandardTestRepoGitDir();
+                using (var repo = new Repository(path))
                 {
                     Assert.Null(repo.Index[relativePath]);
                     Assert.Equal(status, repo.RetrieveStatus(relativePath));
@@ -161,7 +162,8 @@ namespace LibGit2Sharp.Tests
         {
             for (int i = 0; i < 2; i++)
             {
-                using (var repo = new Repository(StandardTestRepoPath))
+                var path = SandboxStandardTestRepoGitDir();
+                using (var repo = new Repository(path))
                 {
                     Assert.Null(repo.Index[relativePath]);
                     Assert.Equal(status, repo.RetrieveStatus(relativePath));
@@ -175,7 +177,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void RemovingFileWithBadParamsThrows()
         {
-            using (var repo = new Repository(StandardTestRepoPath))
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
             {
                 Assert.Throws<ArgumentException>(() => repo.Remove(string.Empty));
                 Assert.Throws<ArgumentNullException>(() => repo.Remove((string)null));

@@ -13,7 +13,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanRetrieveTheStatusOfAFile()
         {
-            using (var repo = new Repository(StandardTestRepoPath))
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
             {
                 FileStatus status = repo.RetrieveStatus("new_tracked_file.txt");
                 Assert.Equal(FileStatus.Added, status);
@@ -95,7 +96,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void RetrievingTheStatusOfADirectoryThrows()
         {
-            using (var repo = new Repository(StandardTestRepoPath))
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
             {
                 Assert.Throws<AmbiguousSpecificationException>(() => { FileStatus status = repo.RetrieveStatus("1"); });
             }

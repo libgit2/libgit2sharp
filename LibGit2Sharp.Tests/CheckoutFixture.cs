@@ -356,7 +356,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CheckingOutInABareRepoThrows()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.Throws<BareRepositoryException>(() => repo.Checkout(repo.Branches["refs/heads/test"]));
                 Assert.Throws<BareRepositoryException>(() => repo.Checkout("refs/heads/test"));
@@ -379,7 +380,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CheckingOutANonExistingBranchThrows()
         {
-            using (var repo = new Repository(StandardTestRepoWorkingDirPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.Throws<LibGit2SharpException>(() => repo.Checkout("i-do-not-exist"));
             }
@@ -388,7 +390,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CheckingOutABranchWithBadParamsThrows()
         {
-            using (var repo = new Repository(StandardTestRepoWorkingDirPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.Throws<ArgumentException>(() => repo.Checkout(string.Empty));
                 Assert.Throws<ArgumentNullException>(() => repo.Checkout(default(Branch)));
@@ -889,7 +892,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CheckoutLowerCasedHeadThrows()
         {
-            using (var repo = new Repository(StandardTestRepoWorkingDirPath))
+            string path = SandboxStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.Throws<LibGit2SharpException>(() => repo.Checkout("head"));
             }

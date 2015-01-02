@@ -27,7 +27,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CannotCleanABareRepository()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.Throws<BareRepositoryException>(() => repo.RemoveUntrackedFiles());
             }
