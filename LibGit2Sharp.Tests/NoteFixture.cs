@@ -110,7 +110,7 @@ namespace LibGit2Sharp.Tests
         {
             var expectedNamespaces = new[] { "Just Note, don't you understand?\n", "Nope\n", "Not Nope, Note!\n" };
 
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 var commit = repo.Lookup<Commit>("4a202b346bb0fb0db7eff3cffeb3c70babbd2045");
@@ -127,7 +127,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanAddANoteOnAGitObject()
         {
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 var commit = repo.Lookup<Commit>("9fd738e8f7967c078dceed8190330fc8648ee56a");
@@ -144,7 +144,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CreatingANoteWhichAlreadyExistsOverwritesThePreviousNote()
         {
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 var commit = repo.Lookup<Commit>("5b5b025afb0b4c913b4c338a42934a3863bf3644");
@@ -165,7 +165,7 @@ namespace LibGit2Sharp.Tests
         {
             string configPath = CreateConfigurationWithDummyUser(Constants.Signature);
             var options = new RepositoryOptions { GlobalConfigurationLocation = configPath };
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
 
             using (var repo = new Repository(path, options))
             {
@@ -185,7 +185,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCompareTwoUniqueNotes()
         {
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 var commit = repo.Lookup<Commit>("9fd738e8f7967c078dceed8190330fc8648ee56a");
@@ -220,7 +220,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanRemoveANoteFromAGitObject()
         {
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 var commit = repo.Lookup<Commit>("8496071c1b46c854b31185ea97743be6a8774479");
@@ -248,7 +248,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void RemovingANonExistingNoteDoesntThrow()
         {
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 var commit = repo.Lookup<Commit>("5b5b025afb0b4c913b4c338a42934a3863bf3644");
@@ -262,7 +262,7 @@ namespace LibGit2Sharp.Tests
         {
             string configPath = CreateConfigurationWithDummyUser(Constants.Signature);
             RepositoryOptions options = new RepositoryOptions() { GlobalConfigurationLocation = configPath };
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
 
             using (var repo = new Repository(path, options))
             {

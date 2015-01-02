@@ -17,7 +17,7 @@ namespace LibGit2Sharp.Tests
         {
             var scd = BuildSelfCleaningDirectory();
 
-            string originalRepoPath = CloneBareTestRepo();
+            string originalRepoPath = SandboxBareTestRepo();
             string clonedRepoPath = Repository.Clone(originalRepoPath, scd.DirectoryPath);
 
             using (var originalRepo = new Repository(originalRepoPath))

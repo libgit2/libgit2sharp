@@ -536,7 +536,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanDetectIfTheHeadIsOrphaned()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 string branchName = repo.Head.CanonicalName;
@@ -554,7 +554,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void QueryingTheRemoteForADetachedHeadBranchReturnsNull()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 repo.Checkout(repo.Head.Tip.Sha, new CheckoutOptions() { CheckoutModifiers = CheckoutModifiers.Force });

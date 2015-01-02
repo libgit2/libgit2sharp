@@ -120,43 +120,43 @@ namespace LibGit2Sharp.Tests.TestHelpers
             return new SelfCleaningDirectory(this, path);
         }
 
-        protected string CloneBareTestRepo()
+        protected string SandboxBareTestRepo()
         {
-            return Clone(BareTestRepoPath);
+            return Sandbox(BareTestRepoPath);
         }
 
-        protected string CloneStandardTestRepo()
+        protected string SandboxStandardTestRepo()
         {
-            return Clone(StandardTestRepoWorkingDirPath);
+            return Sandbox(StandardTestRepoWorkingDirPath);
         }
 
-        protected string CloneMergedTestRepo()
+        protected string SandboxMergedTestRepo()
         {
-            return Clone(MergedTestRepoWorkingDirPath);
+            return Sandbox(MergedTestRepoWorkingDirPath);
         }
 
-        protected string CloneMergeRenamesTestRepo()
+        protected string SandboxMergeRenamesTestRepo()
         {
-            return Clone(MergeRenamesTestRepoWorkingDirPath);
+            return Sandbox(MergeRenamesTestRepoWorkingDirPath);
         }
 
-        protected string CloneMergeTestRepo()
+        protected string SandboxMergeTestRepo()
         {
-            return Clone(MergeTestRepoWorkingDirPath);
+            return Sandbox(MergeTestRepoWorkingDirPath);
         }
 
-        protected string CloneRevertTestRepo()
+        protected string SandboxRevertTestRepo()
         {
-            return Clone(RevertTestRepoWorkingDirPath);
+            return Sandbox(RevertTestRepoWorkingDirPath);
         }
 
-        public string CloneSubmoduleTestRepo()
+        public string SandboxSubmoduleTestRepo()
         {
             var submoduleTarget = Path.Combine(ResourcesDirectory.FullName, "submodule_target_wd");
-            return Clone(SubmoduleTestRepoWorkingDirPath, submoduleTarget);
+            return Sandbox(SubmoduleTestRepoWorkingDirPath, submoduleTarget);
         }
 
-        private string Clone(string sourceDirectoryPath, params string[] additionalSourcePaths)
+        private string Sandbox(string sourceDirectoryPath, params string[] additionalSourcePaths)
         {
             var scd = BuildSelfCleaningDirectory();
             var source = new DirectoryInfo(sourceDirectoryPath);

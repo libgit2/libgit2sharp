@@ -89,7 +89,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanDetectABinaryChange()
         {
-            using (var repo = new Repository(CloneStandardTestRepo()))
+            using (var repo = new Repository(SandboxStandardTestRepo()))
             {
                 const string filename = "binfile.foo";
                 var filepath = Path.Combine(repo.Info.WorkingDirectory, filename);
@@ -115,7 +115,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanDetectABinaryDeletion()
         {
-            using (var repo = new Repository(CloneStandardTestRepo()))
+            using (var repo = new Repository(SandboxStandardTestRepo()))
             {
                 const string filename = "binfile.foo";
                 var filepath = Path.Combine(repo.Info.WorkingDirectory, filename);
@@ -1000,7 +1000,7 @@ namespace LibGit2Sharp.Tests
         {
             const string file = "1/branch_file.txt";
 
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 TreeEntry entry = repo.Head[file];

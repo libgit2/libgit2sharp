@@ -204,7 +204,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanParseSymlinkTreeEntries()
         {
-            var path = CloneBareTestRepo();
+            var path = SandboxBareTestRepo();
 
             using (var repo = new Repository(path))
             {

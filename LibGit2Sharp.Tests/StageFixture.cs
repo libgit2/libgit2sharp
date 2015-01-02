@@ -18,7 +18,7 @@ namespace LibGit2Sharp.Tests
         [InlineData("new_tracked_file.txt", FileStatus.Added, true, FileStatus.Added, true, 0)]
         public void CanStage(string relativePath, FileStatus currentStatus, bool doesCurrentlyExistInTheIndex, FileStatus expectedStatusOnceStaged, bool doesExistInTheIndexOnceStaged, int expectedIndexCountVariation)
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 int count = repo.Index.Count;
@@ -36,7 +36,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanStageTheUpdationOfAStagedFile()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 int count = repo.Index.Count;
@@ -106,7 +106,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanStageTheRemovalOfAStagedFile()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 int count = repo.Index.Count;
@@ -132,7 +132,7 @@ namespace LibGit2Sharp.Tests
         [InlineData("!bang/unit_test.txt")]
         public void CanStageANewFileInAPersistentManner(string filename)
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 Assert.Equal(FileStatus.Nonexistent, repo.RetrieveStatus(filename));
@@ -167,7 +167,7 @@ namespace LibGit2Sharp.Tests
             //InconclusiveIf(() => IsFileSystemCaseSensitive && ignorecase,
             //    "Skipping 'ignorecase = true' test on case-sensitive file system.");
 
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
 
             using (var repo = new Repository(path))
             {
@@ -204,7 +204,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanStageANewFileWithARelativePathContainingNativeDirectorySeparatorCharacters()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 int count = repo.Index.Count;
@@ -227,7 +227,7 @@ namespace LibGit2Sharp.Tests
         public void StagingANewFileWithAFullPathWhichEscapesOutOfTheWorkingDirThrows()
         {
             SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 string fullPath = Touch(scd.RootedDirectoryPath, "unit_test.txt", "some contents");
@@ -276,7 +276,7 @@ namespace LibGit2Sharp.Tests
         [InlineData("new_*file.txt", 1)]
         public void CanStageWithPathspec(string relativePath, int expectedIndexCountVariation)
         {
-            using (var repo = new Repository(CloneStandardTestRepo()))
+            using (var repo = new Repository(SandboxStandardTestRepo()))
             {
                 int count = repo.Index.Count;
 
@@ -289,7 +289,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanStageWithMultiplePathspecs()
         {
-            using (var repo = new Repository(CloneStandardTestRepo()))
+            using (var repo = new Repository(SandboxStandardTestRepo()))
             {
                 int count = repo.Index.Count;
 
@@ -304,7 +304,7 @@ namespace LibGit2Sharp.Tests
         [InlineData("ignored_folder/file.txt")]
         public void CanIgnoreIgnoredPaths(string path)
         {
-            using (var repo = new Repository(CloneStandardTestRepo()))
+            using (var repo = new Repository(SandboxStandardTestRepo()))
             {
                 Touch(repo.Info.WorkingDirectory, ".gitignore", "ignored_file.txt\nignored_folder/\n");
                 Touch(repo.Info.WorkingDirectory, path, "This file is ignored.");
@@ -320,7 +320,7 @@ namespace LibGit2Sharp.Tests
         [InlineData("ignored_folder/file.txt")]
         public void CanStageIgnoredPaths(string path)
         {
-            using (var repo = new Repository(CloneStandardTestRepo()))
+            using (var repo = new Repository(SandboxStandardTestRepo()))
             {
                 Touch(repo.Info.WorkingDirectory, ".gitignore", "ignored_file.txt\nignored_folder/\n");
                 Touch(repo.Info.WorkingDirectory, path, "This file is ignored.");

@@ -202,7 +202,7 @@ namespace LibGit2Sharp.Tests
         [InlineData("1")]
         public void CanCreateATreeByAlteringAnExistingOne(string targetPath)
         {
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 var blob = repo.Lookup<Blob>(new ObjectId("a8233120f6ad708f843d861ce2b7228ec4e3dec6"));
@@ -218,7 +218,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCreateATreeByRemovingEntriesFromExistingOne()
         {
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 TreeDefinition td = TreeDefinition.From(repo.Head.Tip.Tree)
@@ -239,7 +239,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void RemovingANonExistingEntryFromATreeDefinitionHasNoSideEffect()
         {
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 Tree head = repo.Head.Tip.Tree;
@@ -275,7 +275,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanReplaceAnExistingTreeWithAnotherPersitedTree()
         {
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 TreeDefinition td = TreeDefinition.From(repo.Head.Tip.Tree);
@@ -296,7 +296,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCreateATreeContainingABlobFromAFileInTheWorkingDirectory()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 Assert.Equal(FileStatus.Nonexistent, repo.RetrieveStatus("hello.txt"));
@@ -328,7 +328,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCreateATreeContainingAGitLinkFromAnUntrackedSubmoduleInTheWorkingDirectory()
         {
-            string path = CloneSubmoduleTestRepo();
+            string path = SandboxSubmoduleTestRepo();
             using (var repo = new Repository(path))
             {
                 const string submodulePath = "sm_added_and_uncommited";
@@ -394,7 +394,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCreateATreeFromIndex()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
 
             using (var repo = new Repository(path))
             {
@@ -416,7 +416,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCreateACommit()
         {
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 Branch head = repo.Head;
@@ -456,7 +456,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCreateATagAnnotationPointingToAGitObject()
         {
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 var blob = repo.Head.Tip["README"].Target as Blob;
@@ -549,7 +549,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCreateATagAnnotationWithAnEmptyMessage()
         {
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 var tagAnnotation = repo.ObjectDatabase.CreateTagAnnotation(
@@ -621,7 +621,7 @@ namespace LibGit2Sharp.Tests
              * dea509d097ce692e167dfc6a48a7a280cc5e877e
              */
 
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 repo.Config.Set("core.abbrev", 4);

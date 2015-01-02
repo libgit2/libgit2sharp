@@ -139,7 +139,7 @@ namespace LibGit2Sharp.Tests
         [InlineData("modified_unstaged_file.txt", FileStatus.Modified, "deleted_unstaged_file.txt", FileStatus.Missing, FileStatus.Removed, FileStatus.Staged)]
         public void CanMoveAnExistingFileOverANonExistingFile(string sourcePath, FileStatus sourceStatus, string destPath, FileStatus destStatus, FileStatus sourcePostStatus, FileStatus destPostStatus)
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 Assert.Equal(sourceStatus, repo.RetrieveStatus(sourcePath));
@@ -282,7 +282,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanResetFullyMergedIndexFromTree()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
 
             const string testFile = "new_tracked_file.txt";
 
@@ -313,7 +313,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanResetIndexWithUnmergedEntriesFromTree()
         {
-            string path = CloneMergedTestRepo();
+            string path = SandboxMergedTestRepo();
 
             const string testFile = "one.txt";
 
@@ -344,7 +344,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanClearTheIndex()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             const string testFile = "1.txt";
 
             // It is sufficient to check just one of the stage area changes, such as the modified file,

@@ -11,7 +11,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanArchiveACommitWithDirectoryAsTar()
         {
-            var path = CloneBareTestRepo();
+            var path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 // This tests generates an archive of the bare test repo, and compares it with

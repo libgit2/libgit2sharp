@@ -9,7 +9,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void StagingHonorsTheAttributesFiles()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 CreateAttributesFile(repo);

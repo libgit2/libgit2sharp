@@ -12,7 +12,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CannotAddStashAgainstBareRepository()
         {
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 var stasher = Constants.Signature;
@@ -24,7 +24,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanAddAndRemoveStash()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 var stasher = Constants.Signature;
@@ -83,7 +83,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void AddingAStashWithNoMessageGeneratesADefaultOne()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 var stasher = Constants.Signature;
@@ -102,7 +102,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void AddStashWithBadParamsShouldThrows()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 Assert.Throws<ArgumentNullException>(() => repo.Stashes.Add(default(Signature), options: StashModifiers.Default));
@@ -112,7 +112,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void StashingAgainstCleanWorkDirShouldReturnANullStash()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 var stasher = Constants.Signature;
@@ -129,7 +129,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanStashWithoutOptions()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 var stasher = Constants.Signature;
@@ -158,7 +158,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanStashAndKeepIndex()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 var stasher = Constants.Signature;
@@ -179,7 +179,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanStashIgnoredFiles()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 const string gitIgnore = ".gitignore";
@@ -209,7 +209,7 @@ namespace LibGit2Sharp.Tests
         [InlineData(-42)]
         public void RemovingStashWithBadParamShouldThrow(int badIndex)
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 Assert.Throws<ArgumentException>(() => repo.Stashes.Remove(badIndex));
@@ -219,7 +219,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanGetStashByIndexer()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 var stasher = Constants.Signature;

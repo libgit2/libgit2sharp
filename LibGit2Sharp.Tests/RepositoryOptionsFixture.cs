@@ -53,7 +53,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanProvideADifferentWorkDirToAStandardRepo()
         {
-            var path1 = CloneStandardTestRepo();
+            var path1 = SandboxStandardTestRepo();
             using (var repo = new Repository(path1))
             {
                 Assert.Equal(FileStatus.Unaltered, repo.RetrieveStatus("1/branch_file.txt"));
@@ -61,7 +61,7 @@ namespace LibGit2Sharp.Tests
 
             var options = new RepositoryOptions { WorkingDirectoryPath = newWorkdir };
 
-            var path2 = CloneStandardTestRepo();
+            var path2 = SandboxStandardTestRepo();
             using (var repo = new Repository(path2, options))
             {
                 Assert.Equal(FileStatus.Missing, repo.RetrieveStatus("1/branch_file.txt"));
@@ -71,7 +71,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanProvideADifferentIndexToAStandardRepo()
         {
-            var path1 = CloneStandardTestRepo();
+            var path1 = SandboxStandardTestRepo();
             using (var repo = new Repository(path1))
             {
                 Assert.Equal(FileStatus.Untracked, repo.RetrieveStatus("new_untracked_file.txt"));
@@ -85,7 +85,7 @@ namespace LibGit2Sharp.Tests
 
             var options = new RepositoryOptions { IndexPath = newIndex };
 
-            var path2 = CloneStandardTestRepo();
+            var path2 = SandboxStandardTestRepo();
             using (var repo = new Repository(path2, options))
             {
                 Assert.Equal(FileStatus.Added, repo.RetrieveStatus("new_untracked_file.txt"));
@@ -102,7 +102,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanSneakAdditionalCommitsIntoAStandardRepoWithoutAlteringTheWorkdirOrTheIndex()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 Branch head = repo.Head;

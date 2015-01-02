@@ -25,7 +25,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void SoftResetToTheHeadOfARepositoryDoesNotChangeTheTargetOfTheHead()
         {
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 Branch oldHead = repo.Head;
@@ -39,7 +39,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void SoftResetToAParentCommitChangesTheTargetOfTheHead()
         {
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 var headCommit = repo.Head.Tip;
@@ -53,7 +53,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void SoftResetSetsTheHeadToTheDereferencedCommitOfAChainedTag()
         {
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 Tag tag = repo.Tags["test"];
@@ -222,7 +222,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void HardResetUpdatesTheContentOfTheWorkingDirectory()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 var names = new DirectoryInfo(repo.Info.WorkingDirectory).GetFileSystemInfos().Select(fsi => fsi.Name).ToList();

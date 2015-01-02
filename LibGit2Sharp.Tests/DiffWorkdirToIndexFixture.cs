@@ -105,7 +105,7 @@ namespace LibGit2Sharp.Tests
         {
             const string file = "1/branch_file.txt";
 
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 TreeEntry entry = repo.Head[file];

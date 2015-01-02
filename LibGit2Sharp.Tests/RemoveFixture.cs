@@ -47,7 +47,7 @@ namespace LibGit2Sharp.Tests
         public void CanRemoveAnUnalteredFileFromTheIndexWithoutRemovingItFromTheWorkingDirectory(
             bool removeFromWorkdir, string filename, bool throws, FileStatus initialStatus, bool existsBeforeRemove, bool existsAfterRemove, FileStatus lastStatus)
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 int count = repo.Index.Count;
@@ -83,7 +83,7 @@ namespace LibGit2Sharp.Tests
         {
             const string filename = "modified_staged_file.txt";
 
-            var path = CloneStandardTestRepo();
+            var path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 string fullpath = Path.Combine(repo.Info.WorkingDirectory, filename);
@@ -101,7 +101,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanRemoveAFolderThroughUsageOfPathspecsForNewlyAddedFiles()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 repo.Stage(Touch(repo.Info.WorkingDirectory, "2/subdir1/2.txt", "whone"));
@@ -122,7 +122,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanRemoveAFolderThroughUsageOfPathspecsForFilesAlreadyInTheIndexAndInTheHEAD()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 int count = repo.Index.Count;

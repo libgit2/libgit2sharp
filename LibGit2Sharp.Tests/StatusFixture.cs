@@ -26,7 +26,7 @@ namespace LibGit2Sharp.Tests
         [InlineData(StatusShowOption.IndexOnly, FileStatus.Nonexistent)]
         public void CanLimitStatusToWorkDirOnly(StatusShowOption show, FileStatus expected)
         {
-            var clone = CloneStandardTestRepo();
+            var clone = SandboxStandardTestRepo();
 
             using (var repo = new Repository(clone))
             {
@@ -43,7 +43,7 @@ namespace LibGit2Sharp.Tests
         [InlineData(StatusShowOption.IndexOnly, FileStatus.Added)]
         public void CanLimitStatusToIndexOnly(StatusShowOption show, FileStatus expected)
         {
-            var clone = CloneStandardTestRepo();
+            var clone = SandboxStandardTestRepo();
 
             using (var repo = new Repository(clone))
             {
@@ -81,7 +81,7 @@ namespace LibGit2Sharp.Tests
         [InlineData("dir!/file.txt")]
         public void CanRetrieveTheStatusOfAnUntrackedFile(string filePath)
         {
-            var clone = CloneStandardTestRepo();
+            var clone = SandboxStandardTestRepo();
 
             using (var repo = new Repository(clone))
             {
@@ -104,7 +104,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanRetrieveTheStatusOfTheWholeWorkingDirectory()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 const string file = "modified_staged_file.txt";
@@ -148,7 +148,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanRetrieveTheStatusOfRenamedFilesInWorkDir()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 Touch(repo.Info.WorkingDirectory, "old_name.txt",
@@ -177,7 +177,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanRetrieveTheStatusOfRenamedFilesInIndex()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 File.Move(
@@ -315,7 +315,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void RetrievingTheStatusOfTheRepositoryHonorsTheGitIgnoreDirectives()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 string relativePath = Path.Combine("1", "look-ma.txt");
@@ -457,7 +457,7 @@ namespace LibGit2Sharp.Tests
         {
             char dirSep = Path.DirectorySeparatorChar;
 
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 Touch(repo.Info.WorkingDirectory, "bin/look-ma.txt", "I'm going to be ignored!");
@@ -490,7 +490,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanRetrieveStatusOfFilesInSubmodule()
         {
-            var path = CloneSubmoduleTestRepo();
+            var path = SandboxSubmoduleTestRepo();
             using (var repo = new Repository(path))
             {
                 string[] expected = new string[] {
@@ -510,7 +510,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanExcludeStatusOfFilesInSubmodule()
         {
-            var path = CloneSubmoduleTestRepo();
+            var path = SandboxSubmoduleTestRepo();
             using (var repo = new Repository(path))
             {
                 string[] expected = new string[] {
@@ -525,7 +525,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanRetrieveTheStatusOfARelativeWorkingDirectory()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 const string file = "just_a_dir/other.txt";
@@ -547,7 +547,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanRetrieveTheStatusOfMultiplePathSpec()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 const string file = "just_a_dir/other.txt";
@@ -565,7 +565,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanRetrieveTheStatusOfAGlobSpec()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 const string file = "just_a_dir/other.txt";

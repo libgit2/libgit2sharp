@@ -72,7 +72,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCompareATextualBlobAgainstABinaryBlob()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 Blob binBlob = CreateBinaryBlob(repo);

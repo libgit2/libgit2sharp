@@ -46,7 +46,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanUnsetAnEntryFromTheLocalConfiguration()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 Assert.Null(repo.Config.Get<bool>("unittests.boolsetting"));
@@ -231,7 +231,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanSetBooleanValue()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 repo.Config.Set("unittests.boolsetting", true);
@@ -252,7 +252,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanSetIntValue()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 repo.Config.Set("unittests.intsetting", 3);
@@ -264,7 +264,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanSetLongValue()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 repo.Config.Set("unittests.longsetting", (long)451);
@@ -276,7 +276,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanSetStringValue()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 repo.Config.Set("unittests.stringsetting", "val");
@@ -288,7 +288,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanSetAndReadUnicodeStringValue()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 repo.Config.Set("unittests.stringsetting", "Juliën");
@@ -346,7 +346,7 @@ namespace LibGit2Sharp.Tests
 
             var options = BuildFakeConfigs(scd);
 
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path, options))
             {
                 Assert.True(repo.Config.HasConfig(ConfigurationLevel.Local));

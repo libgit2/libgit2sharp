@@ -15,7 +15,7 @@ namespace LibGit2Sharp.Tests
 
         public FilterBranchFixture()
         {
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             repo = new Repository(path);
         }
 

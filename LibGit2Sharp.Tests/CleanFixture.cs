@@ -9,7 +9,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCleanWorkingDirectory()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 // Verify that there are the expected number of entries and untracked files

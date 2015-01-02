@@ -19,7 +19,7 @@ namespace LibGit2Sharp.Tests
         [InlineData("diff-test-cases")]
         public void CanCheckoutAnExistingBranch(string branchName)
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 Branch master = repo.Branches["master"];
@@ -62,7 +62,7 @@ namespace LibGit2Sharp.Tests
         [InlineData("diff-test-cases")]
         public void CanCheckoutAnExistingBranchByName(string branchName)
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 Branch master = repo.Branches["master"];
@@ -104,7 +104,7 @@ namespace LibGit2Sharp.Tests
         [InlineData("HEAD~2", false, "4c062a6361ae6959e06292c1fa5e2822d9c96345")]
         public void CanCheckoutAnArbitraryCommit(string commitPointer, bool checkoutByCommitOrBranchSpec, string expectedReflogTarget)
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 Branch master = repo.Branches["master"];
@@ -237,7 +237,7 @@ namespace LibGit2Sharp.Tests
             // 4) Create conflicting change
             // 5) Forcefully checkout master
 
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 Branch master = repo.Branches["master"];
@@ -699,7 +699,7 @@ namespace LibGit2Sharp.Tests
         [InlineData("origin/master")]
         public void CheckingOutRemoteBranchResultsInDetachedHead(string remoteBranchSpec)
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 Branch master = repo.Branches["master"];
@@ -719,7 +719,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CheckingOutABranchDoesNotAlterBinaryFiles()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 // $ git hash-object square-logo.png
@@ -748,7 +748,7 @@ namespace LibGit2Sharp.Tests
         [InlineData("e90810^{}")]
         public void CheckoutFromDetachedHead(string commitPointer)
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 // Set the working directory to the current head
@@ -774,7 +774,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CheckoutBranchFromDetachedHead()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 // Set the working directory to the current head
@@ -799,7 +799,7 @@ namespace LibGit2Sharp.Tests
         [InlineData("heads/master", "refs/heads/master")]
         public void CheckoutBranchByShortNameAttachesTheHead(string shortBranchName, string referenceName)
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 // Set the working directory to the current head
@@ -820,7 +820,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CheckoutPreviousCheckedOutBranch()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 // Set the working directory to the current head
@@ -842,7 +842,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CheckoutCurrentReference()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 Branch master = repo.Branches["master"];
@@ -898,7 +898,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCheckoutAttachedHead()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 Assert.False(repo.Info.IsHeadDetached);
@@ -914,7 +914,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCheckoutDetachedHead()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 repo.Checkout(repo.Head.Tip.Sha);
@@ -936,7 +936,7 @@ namespace LibGit2Sharp.Tests
         [InlineData("i-do-numbers", "diff-test-cases", "numbers.txt", FileStatus.Staged)]
         public void CanCheckoutPath(string originalBranch, string checkoutFrom, string path, FileStatus expectedStatus)
         {
-            string repoPath = CloneStandardTestRepo();
+            string repoPath = SandboxStandardTestRepo();
             using (var repo = new Repository(repoPath))
             {
                 // Set the working directory to the current head
@@ -955,7 +955,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCheckoutPaths()
         {
-            string repoPath = CloneStandardTestRepo();
+            string repoPath = SandboxStandardTestRepo();
             var checkoutPaths = new[] { "numbers.txt", "super-file.txt" };
 
             using (var repo = new Repository(repoPath))
@@ -976,7 +976,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CannotCheckoutPathsWithEmptyOrNullPathArgument()
         {
-            string repoPath = CloneStandardTestRepo();
+            string repoPath = SandboxStandardTestRepo();
 
             using (var repo = new Repository(repoPath))
             {
@@ -999,7 +999,7 @@ namespace LibGit2Sharp.Tests
         [InlineData("1.txt")]
         public void CanCheckoutPathFromCurrentBranch(string fileName)
         {
-            string repoPath = CloneStandardTestRepo();
+            string repoPath = SandboxStandardTestRepo();
 
             using (var repo = new Repository(repoPath))
             {

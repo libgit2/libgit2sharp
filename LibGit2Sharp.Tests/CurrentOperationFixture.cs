@@ -41,7 +41,7 @@ namespace LibGit2Sharp.Tests
         [InlineData("rebase-merge/whatever", CurrentOperation.RebaseMerge)]
         public void CurrentOperationHasExpectedPendingOperationValues(string stateFile, CurrentOperation expectedState)
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
 
             Touch(Path.Combine(path, ".git"), stateFile);
 

@@ -26,7 +26,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCorrectlyCountCommitsWhenSwitchingToAnotherBranch()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 // Hard reset and then remove untracked files
@@ -61,7 +61,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanEnumerateCommitsInDetachedHeadState()
         {
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 ObjectId parentOfHead = repo.Head.Tip.Parents.First().Id;
@@ -111,7 +111,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void QueryingTheCommitHistoryFromACorruptedReferenceThrows()
         {
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 CreateCorruptedDeadBeefHead(repo.Info.Path);
@@ -255,7 +255,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanEnumerateFromDetachedHead()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repoClone = new Repository(path))
             {
                 // Hard reset and then remove untracked files
@@ -400,7 +400,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanEnumerateCommitsFromATagWhichPointsToATree()
         {
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 string headTreeSha = repo.Head.Tip.Tree.Sha;
@@ -575,7 +575,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CommitParentsAreMergeHeads()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 repo.Reset(ResetMode.Hard, "c47800");
@@ -786,7 +786,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanAmendACommitWithMoreThanOneParent()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 var mergedCommit = repo.Lookup<Commit>("be3563a");
@@ -842,7 +842,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanRetrieveChildrenOfASpecificCommit()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 const string parentSha = "5b5b025afb0b4c913b4c338a42934a3863bf3644";
@@ -874,7 +874,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCorrectlyDistinguishAuthorFromCommitter()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 var author = new Signature("Wilbert van Dolleweerd", "getit@xs4all.nl",
@@ -914,7 +914,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanNotCommitAnEmptyCommit()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 repo.Reset(ResetMode.Hard);
@@ -927,7 +927,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCommitAnEmptyCommitWhenForced()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 repo.Reset(ResetMode.Hard);
@@ -941,7 +941,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanNotAmendAnEmptyCommit()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 repo.Reset(ResetMode.Hard);
@@ -958,7 +958,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanAmendAnEmptyCommitWhenForced()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 repo.Reset(ResetMode.Hard);
@@ -976,7 +976,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCommitAnEmptyCommitWhenMerging()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 repo.Reset(ResetMode.Hard);
@@ -997,7 +997,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanAmendAnEmptyMergeCommit()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 repo.Reset(ResetMode.Hard);

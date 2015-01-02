@@ -14,7 +14,7 @@ namespace LibGit2Sharp.Tests
         [InlineData(false)]
         public void CanCherryPick(bool fromDetachedHead)
         {
-            string path = CloneMergeTestRepo();
+            string path = SandboxMergeTestRepo();
             using (var repo = new Repository(path))
             {
                 if (fromDetachedHead)
@@ -42,7 +42,7 @@ namespace LibGit2Sharp.Tests
             const string secondBranchFileName = "second branch file.txt";
             const string sharedBranchFileName = "first+second branch file.txt";
 
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 var firstBranch = repo.CreateBranch("FirstBranch");
@@ -83,7 +83,7 @@ namespace LibGit2Sharp.Tests
             const string conflictFile = "a.txt";
             const string conflictBranchName = "conflicts";
 
-            string path = CloneMergeTestRepo();
+            string path = SandboxMergeTestRepo();
             using (var repo = new Repository(path))
             {
                 Branch branch = repo.Branches[conflictBranchName];

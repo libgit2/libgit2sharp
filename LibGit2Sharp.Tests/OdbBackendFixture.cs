@@ -188,7 +188,7 @@ namespace LibGit2Sharp.Tests
              * dea509d097ce692e167dfc6a48a7a280cc5e877e
              */
 
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 repo.ObjectDatabase.AddBackend(new MockOdbBackend(), 5);

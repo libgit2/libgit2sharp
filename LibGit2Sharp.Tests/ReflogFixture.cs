@@ -112,7 +112,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CommitOnDetachedHeadShouldInsertReflogEntry()
         {
-            string repoPath = CloneStandardTestRepo();
+            string repoPath = SandboxStandardTestRepo();
 
             using (var repo = new Repository(repoPath))
             {

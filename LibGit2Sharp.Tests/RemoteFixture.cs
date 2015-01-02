@@ -53,7 +53,7 @@ namespace LibGit2Sharp.Tests
         [InlineData(TagFetchMode.None)]
         public void CanSetTagFetchMode(TagFetchMode tagFetchMode)
         {
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 const string name = "upstream";
@@ -73,7 +73,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanSetRemoteUrl()
         {
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 const string name = "upstream";
@@ -94,7 +94,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCheckEqualityOfRemote()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 Remote oneOrigin = repo.Network.Remotes["origin"];
@@ -116,7 +116,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CreatingANewRemoteAddsADefaultRefSpec()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 const string name = "upstream";
@@ -139,7 +139,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanAddANewRemoteWithAFetchRefSpec()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 const string name = "pull-requests";
@@ -194,7 +194,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CreatingARemoteAddsADefaultFetchRefSpec()
         {
-            var path = CloneStandardTestRepo();
+            var path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 var remote = repo.Network.Remotes.Add("one", "http://github.com/up/stream");
@@ -205,7 +205,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCreateARemoteWithASpecifiedFetchRefSpec()
         {
-            var path = CloneStandardTestRepo();
+            var path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 var remote = repo.Network.Remotes.Add("two", "http://github.com/up/stream", "+refs/heads/*:refs/remotes/grmpf/*");
@@ -216,7 +216,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanDeleteExistingRemote()
         {
-            var path = CloneStandardTestRepo();
+            var path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 Assert.NotNull(repo.Network.Remotes["origin"]);
@@ -241,7 +241,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanRenameExistingRemote()
         {
-            var path = CloneStandardTestRepo();
+            var path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 Assert.NotNull(repo.Network.Remotes["origin"]);
@@ -273,7 +273,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void ReportsRemotesWithNonDefaultRefSpecs()
         {
-            var path = CloneStandardTestRepo();
+            var path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 Assert.NotNull(repo.Network.Remotes["origin"]);
@@ -295,7 +295,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void DoesNotReportRemotesWithAlreadyExistingRefSpec()
         {
-            var path = CloneStandardTestRepo();
+            var path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 Assert.NotNull(repo.Network.Remotes["origin"]);
@@ -318,7 +318,7 @@ namespace LibGit2Sharp.Tests
             const string name = "upstream";
             const string url = "https://github.com/libgit2/libgit2sharp.git";
 
-            var path = CloneStandardTestRepo();
+            var path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 Assert.NotNull(repo.Network.Remotes["origin"]);

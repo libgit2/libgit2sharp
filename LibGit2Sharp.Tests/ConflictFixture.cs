@@ -66,7 +66,7 @@ namespace LibGit2Sharp.Tests
         public void CanResolveConflictsByRemovingFromTheIndex(
             bool removeFromWorkdir, string filename, bool existsBeforeRemove, bool existsAfterRemove, FileStatus lastStatus, int removedIndexEntries)
         {
-            var path = CloneMergedTestRepo();
+            var path = SandboxMergedTestRepo();
             using (var repo = new Repository(path))
             {
                 int count = repo.Index.Count;
@@ -92,7 +92,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanGetOriginalNamesOfRenameConflicts()
         {
-            var path = CloneMergeRenamesTestRepo();
+            var path = SandboxMergeRenamesTestRepo();
             using (var repo = new Repository(path))
             {
                 var expected = RenameConflictData;

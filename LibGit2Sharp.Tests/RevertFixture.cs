@@ -17,7 +17,7 @@ namespace LibGit2Sharp.Tests
             const string revertBranchName = "refs/heads/revert";
             const string revertedFile = "a.txt";
 
-            string path = CloneRevertTestRepo();
+            string path = SandboxRevertTestRepo();
             using (var repo = new Repository(path))
             {
                 // Checkout the revert branch.
@@ -64,7 +64,7 @@ namespace LibGit2Sharp.Tests
             const string revertBranchName = "refs/heads/revert";
             const string revertedFile = "a.txt";
 
-            string path = CloneRevertTestRepo();
+            string path = SandboxRevertTestRepo();
             using (var repo = new Repository(path))
             {
                 string modifiedFileFullPath = Path.Combine(repo.Info.WorkingDirectory, revertedFile);
@@ -108,7 +108,7 @@ namespace LibGit2Sharp.Tests
             // and the file whose contents we expect to be reverted.
             const string revertBranchName = "refs/heads/revert";
 
-            string path = CloneRevertTestRepo();
+            string path = SandboxRevertTestRepo();
             using (var repo = new Repository(path))
             {
                 // Checkout the revert branch.
@@ -146,7 +146,7 @@ namespace LibGit2Sharp.Tests
             const string revertBranchName = "refs/heads/revert";
             const string conflictedFilePath = "a.txt";
 
-            string path = CloneRevertTestRepo();
+            string path = SandboxRevertTestRepo();
             using (var repo = new Repository(path))
             {
                 // Checkout the revert branch.
@@ -198,7 +198,7 @@ namespace LibGit2Sharp.Tests
         {
             const string revertBranchName = "refs/heads/revert";
 
-            string repoPath = CloneRevertTestRepo();
+            string repoPath = SandboxRevertTestRepo();
             using (var repo = new Repository(repoPath))
             {
                 // Checkout the revert branch.
@@ -223,7 +223,7 @@ namespace LibGit2Sharp.Tests
         {
             const string revertBranchName = "refs/heads/revert";
 
-            string repoPath = CloneRevertTestRepo();
+            string repoPath = SandboxRevertTestRepo();
             using (var repo = new Repository(repoPath))
             {
                 // Checkout the revert branch.
@@ -263,7 +263,7 @@ namespace LibGit2Sharp.Tests
             const string expectedBlobId = "0ff3bbb9c8bba2291654cd64067fa417ff54c508";
             const string modifiedFilePath = "d_renamed.txt";
 
-            string repoPath = CloneRevertTestRepo();
+            string repoPath = SandboxRevertTestRepo();
             using (var repo = new Repository(repoPath))
             {
                 Branch currentBranch = repo.Checkout(revertBranchName);
@@ -320,7 +320,7 @@ namespace LibGit2Sharp.Tests
             const string revertBranchName = "refs/heads/revert_merge";
             const string commitIdToRevert = "2747045";
 
-            string repoPath = CloneRevertTestRepo();
+            string repoPath = SandboxRevertTestRepo();
             using (var repo = new Repository(repoPath))
             {
                 Branch branch = repo.Checkout(revertBranchName);
@@ -379,7 +379,7 @@ namespace LibGit2Sharp.Tests
             const string revertBranchName = "refs/heads/revert_merge";
             const string commitIdToRevert = "2747045";
 
-            string repoPath = CloneRevertTestRepo();
+            string repoPath = SandboxRevertTestRepo();
             using (var repo = new Repository(repoPath))
             {
                 Branch branch = repo.Checkout(revertBranchName);
@@ -400,7 +400,7 @@ namespace LibGit2Sharp.Tests
             // The branch name to perform the revert on
             const string revertBranchName = "refs/heads/revert";
 
-            string path = CloneRevertTestRepo();
+            string path = SandboxRevertTestRepo();
             using (var repo = new Repository(path))
             {
                 // Checkout the revert branch.
@@ -441,7 +441,7 @@ namespace LibGit2Sharp.Tests
             // The branch name to perform the revert on
             const string revertBranchName = "refs/heads/revert";
 
-            string path = CloneRevertTestRepo();
+            string path = SandboxRevertTestRepo();
             using (var repo = new Repository(path))
             {
                 // Checkout the revert branch.

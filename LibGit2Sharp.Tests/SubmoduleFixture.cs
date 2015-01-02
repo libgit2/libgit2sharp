@@ -12,7 +12,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void RetrievingSubmoduleForNormalDirectoryReturnsNull()
         {
-            var path = CloneSubmoduleTestRepo();
+            var path = SandboxSubmoduleTestRepo();
             using (var repo = new Repository(path))
             {
                 var submodule = repo.Submodules["just_a_dir"];
@@ -31,7 +31,7 @@ namespace LibGit2Sharp.Tests
         [InlineData("sm_unchanged", SubmoduleStatus.InConfig | SubmoduleStatus.InHead | SubmoduleStatus.InIndex | SubmoduleStatus.InWorkDir)]
         public void CanRetrieveTheStatusOfASubmodule(string name, SubmoduleStatus expectedStatus)
         {
-            var path = CloneSubmoduleTestRepo();
+            var path = SandboxSubmoduleTestRepo();
             using (var repo = new Repository(path))
             {
                 var submodule = repo.Submodules[name];
@@ -55,7 +55,7 @@ namespace LibGit2Sharp.Tests
         [InlineData("sm_unchanged", "480095882d281ed676fe5b863569520e54a7d5c0", "480095882d281ed676fe5b863569520e54a7d5c0", "480095882d281ed676fe5b863569520e54a7d5c0")]
         public void CanRetrieveTheCommitIdsOfASubmodule(string name, string headId, string indexId, string workDirId)
         {
-            var path = CloneSubmoduleTestRepo();
+            var path = SandboxSubmoduleTestRepo();
             using (var repo = new Repository(path))
             {
                 var submodule = repo.Submodules[name];
@@ -92,7 +92,7 @@ namespace LibGit2Sharp.Tests
                 "sm_unchanged",
             };
 
-            var path = CloneSubmoduleTestRepo();
+            var path = SandboxSubmoduleTestRepo();
             using (var repo = new Repository(path))
             {
                 var submodules = repo.Submodules.OrderBy(s => s.Name, StringComparer.Ordinal);
@@ -111,7 +111,7 @@ namespace LibGit2Sharp.Tests
         {
             submodulePath += appendPathSeparator ? Path.DirectorySeparatorChar : default(char?);
 
-            var path = CloneSubmoduleTestRepo();
+            var path = SandboxSubmoduleTestRepo();
             using (var repo = new Repository(path))
             {
                 var submodule = repo.Submodules[submodulePath];
@@ -134,7 +134,7 @@ namespace LibGit2Sharp.Tests
         {
             submodulePath += appendPathSeparator ? Path.DirectorySeparatorChar : default(char?);
 
-            var path = CloneSubmoduleTestRepo();
+            var path = SandboxSubmoduleTestRepo();
             using (var repo = new Repository(path))
             {
                 var submodule = repo.Submodules[submodulePath];
