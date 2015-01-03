@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>LibGit2.Native</id>
+    <version>0.21.3</version>
+    <authors>The LibGit2 Authors</authors>
+    <owners>nulltoken</owners>
+    <licenseUrl>https://github.com/libgit2/objective-git/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/libgit2/libgit2/</projectUrl>
+    <iconUrl>https://github.com/libgit2/libgit2sharp/raw/master/square-logo.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Native libraries for LibGit2, primarily for use with LibGit2Sharp.</description>
+    <tags>libgit2 libgit2sharp git wrapper bindings API dvcs vcs</tags>
+  </metadata>
+  <files>
+    <file src="..\..\LibGit2.Native.targets" target="build" />
+    <file src="..\..\..\Lib\NativeBinaries\amd64\*.dll" target="libs\NativeBinaries\x64" />
+    <file src="..\..\..\Lib\NativeBinaries\amd64\*.pdb" target="libs\NativeBinaries\x64" />
+    <file src="..\..\..\Lib\NativeBinaries\x86\*.dll" target="libs\NativeBinaries\x86" />
+    <file src="..\..\..\Lib\NativeBinaries\x86\*.pdb" target="libs\NativeBinaries\x86" />
+    <file src="..\..\..\README.md" target="App_Readme\LibGit2Sharp.README.md" />
+    <file src="..\..\..\LICENSE.md" target="App_Readme\LibGit2Sharp.LICENSE.md" />
+    <file src="..\..\..\CHANGES.md" target="App_Readme\LibGit2Sharp.CHANGES.md" />
+    <file src="..\..\..\Lib\NativeBinaries\libgit2.license.txt" target="App_Readme" />
+  </files>
+</package>
