@@ -27,6 +27,7 @@ ECHO ON
 SET CommitSha=%~1
 SET ExtraDefine=%~2
 
+"%BASEDIR%Lib/NuGet/NuGet.exe" restore "%BASEDIR%LibGit2Sharp.sln"
 "%FrameworkDir%\%FrameworkVersion%\msbuild.exe" "%BASEDIR%CI\build.msbuild" /property:CommitSha=%CommitSha% /property:ExtraDefine="%ExtraDefine%"
 
 ENDLOCAL

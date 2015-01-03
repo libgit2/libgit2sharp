@@ -17,6 +17,7 @@ environment:
     Arch: 32
 
 build_script:
+- nuget restore "C:\projects\libgit2sharp\LibGit2Sharp.sln"
 - msbuild "C:\projects\libgit2sharp\LibGit2Sharp.sln" /verbosity:normal /p:Configuration=Release /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /property:ExtraDefine="LEAKS_IDENTIFYING"
 
 test_script:
