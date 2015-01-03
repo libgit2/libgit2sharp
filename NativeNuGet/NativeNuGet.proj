@@ -46,6 +46,8 @@
   <Target Name="Clean" DependsOnTargets="$(CoreCleanDependsOn)">
     <RemoveDir Directories="$(OutputPath)" />
   </Target>
+  <Target Name="GetNativeManifest" />
+  <Target Name="GetCopyToOutputDirectoryItems" />
   <Target Name="Build" DependsOnTargets="$(BuildDependsOn)" />
   <Target Name="Rebuild" DependsOnTargets="Clean;Build" />
   <Import Project="$(ProjectDir)NativeNuGet.targets" />
