@@ -831,7 +831,7 @@ namespace LibGit2Sharp.Tests
 
         private static void CreateAndStageANewFile(IRepository repo)
         {
-            string relativeFilepath = string.Format("new-file-{0}.txt", Guid.NewGuid());
+            string relativeFilepath = string.Format("new-file-{0}.txt", Path.GetRandomFileName());
             Touch(repo.Info.WorkingDirectory, relativeFilepath, "brand new content\n");
             repo.Stage(relativeFilepath);
         }

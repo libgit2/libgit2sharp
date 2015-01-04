@@ -543,14 +543,11 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void DiscoverReturnsNullWhenNoRepoCanBeFound()
         {
-            string path = Path.GetTempFileName();
-            string suffix = "." + Guid.NewGuid().ToString().Substring(0, 7);
+            string path = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
 
-            SelfCleaningDirectory scd = BuildSelfCleaningDirectory(path + suffix);
+            SelfCleaningDirectory scd = BuildSelfCleaningDirectory(path);
             Directory.CreateDirectory(scd.RootedDirectoryPath);
             Assert.Null(Repository.Discover(scd.RootedDirectoryPath));
-
-            File.Delete(path);
         }
 
         [Fact]

@@ -26,7 +26,7 @@ namespace LibGit2Sharp.Tests
                 var commit = repo.Lookup<Commit>("4c062a6361ae6959e06292c1fa5e2822d9c96345");
 
                 var scd = BuildSelfCleaningDirectory();
-                var archivePath = Path.Combine(scd.RootedDirectoryPath, Guid.NewGuid() + ".tar");
+                var archivePath = Path.Combine(scd.RootedDirectoryPath, Path.GetRandomFileName() + ".tar");
                 Directory.CreateDirectory(scd.RootedDirectoryPath);
 
                 repo.ObjectDatabase.Archive(commit, archivePath);

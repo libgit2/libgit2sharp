@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
@@ -159,7 +160,7 @@ namespace LibGit2Sharp.Tests
         private Commit AddCommitToRepo(IRepository repository)
         {
 
-            string random = Guid.NewGuid().ToString();
+            string random = Path.GetRandomFileName();
             string filename = random + ".txt";
 
             Touch(repository.Info.WorkingDirectory, filename, random);
