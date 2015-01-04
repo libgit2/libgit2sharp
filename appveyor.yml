@@ -1,0 +1,30 @@
+version: '{build}'
+
+branches:
+  only:
+  - master
+  - vNext
+
+skip_tags: true
+
+clone_folder: C:\projects\libgit2sharp
+
+environment:
+  matrix:
+  - xunit_runner: xunit.console.clr4.exe
+    Arch: 64
+  - xunit_runner: xunit.console.clr4.x86.exe
+    Arch: 32
+
+build_script:
+- msbuild "C:\projects\libgit2sharp\LibGit2Sharp.sln" /verbosity:normal /p:Configuration=Release /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /property:ExtraDefine="LEAKS_IDENTIFYING"
+
+test_script:
+- '%xunit_runner%  "C:\projects\libgit2sharp\LibGit2Sharp.Tests\bin\Release\LibGit2Sharp.Tests.dll" /appveyor'
+- IF %ERRORLEVEL% NEQ 0 EXIT /B %ERRORLEVEL%
+
+notifications:
+- provider: Email
+  to:
+    - emeric.fermas@gmail.com
+  on_build_status_changed: true
