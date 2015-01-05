@@ -129,6 +129,7 @@
   </PropertyGroup>
   <Import Project="..\LibGit2Sharp\CopyWindowsNativeDependencies.targets" />
   <Import Project="..\LibGit2Sharp\ExtraDefine.targets" />
+  <Import Project="VisualStudio.Tests.targets" />
   <PropertyGroup>
     <PreBuildEvent>
     </PreBuildEvent>
