@@ -13,15 +13,9 @@ But first things first...
 * Submit a ticket for your issue, assuming one does not already exist.
   * Clearly describe the issue including steps to reproduce when it is a bug.
   * Make sure you fill in the earliest version that you know has the issue.
-* Fork the repository on GitHub by clicking on the "Clone in Desktop" button or 
-  run the following command in a git shell.
-```
-git clone git@github.com:libgit2/libgit2sharp.git
-
-git clone --recursive
-```
+* Fork the repository on GitHub, then clone it using your favorite Git client.
 * Make sure the project builds and all tests pass on your machine by running 
-  the `build.libgit2sharp.cmd` script on Windows and `build.libgit2sharp.sh` on Linux/Mac.
+  the `build.libgit2sharp.cmd` script on Windows or `build.libgit2sharp.sh` on Linux/Mac.
 
 ## LibGit2
 
