@@ -494,6 +494,20 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
+        public void LookingUpByAWrongRevParseExpressionThrows()
+        {
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
+            {
+                Assert.Throws<InvalidSpecificationException>(() => repo.Lookup("tags/point_to_blob^{tree}"));
+                Assert.Throws<InvalidSpecificationException>(() => repo.Lookup("tags/point_to_blob^{commit}"));
+                Assert.Throws<InvalidSpecificationException>(() => repo.Lookup<Commit>("tags/point_to_blob^{commit}"));
+                Assert.Throws<InvalidSpecificationException>(() => repo.Lookup("master^{tree}^{blob}"));
+                Assert.Throws<InvalidSpecificationException>(() => repo.Lookup<Blob>("master^{blob}"));
+            }
+        }
+
+        [Fact]
         public void LookingUpAGitLinkThrows()
         {
             string path = SandboxBareTestRepo();
