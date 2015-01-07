@@ -683,10 +683,12 @@ namespace LibGit2Sharp.Tests
             string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
-                Branch branch = repo.CreateBranch(testBranchName);
+                Branch trackedBranch = repo.Branches[trackedBranchName];
+                Assert.True(trackedBranch.IsRemote);
+
+                Branch branch = repo.CreateBranch(testBranchName, trackedBranch.Tip);
                 Assert.False(branch.IsTracking);
 
-                Branch trackedBranch = repo.Branches[trackedBranchName];
                 repo.Branches.Update(branch,
                     b => b.TrackedBranch = trackedBranch.CanonicalName);
 
@@ -743,10 +745,12 @@ namespace LibGit2Sharp.Tests
             string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
-                Branch branch = repo.CreateBranch(testBranchName);
+                Branch trackedBranch = repo.Branches[trackedBranchName];
+                Assert.True(trackedBranch.IsRemote);
+
+                Branch branch = repo.CreateBranch(testBranchName, trackedBranch.Tip);
                 Assert.False(branch.IsTracking);
 
-                Branch trackedBranch = repo.Branches[trackedBranchName];
                 Branch updatedBranch = repo.Branches.Update(branch,
                     b => b.Remote = remoteName,
                     b => b.UpstreamBranch = upstreamBranchName);
@@ -773,10 +777,11 @@ namespace LibGit2Sharp.Tests
             string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
-                Branch branch = repo.CreateBranch(testBranchName);
-                Assert.False(branch.IsTracking);
-
                 Branch trackedBranch = repo.Branches[localTrackedBranchName];
+                Assert.False(trackedBranch.IsRemote);
+
+                Branch branch = repo.CreateBranch(testBranchName, trackedBranch.Tip);
+                Assert.False(branch.IsTracking);
 
                 repo.Branches.Update(branch,
                     b => b.TrackedBranch = trackedBranch.CanonicalName);
@@ -811,11 +816,13 @@ namespace LibGit2Sharp.Tests
             string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
-                Branch branch = repo.CreateBranch(testBranchName);
+                Branch trackedBranch = repo.Branches[trackedBranchName];
+
+                Branch branch = repo.CreateBranch(testBranchName, trackedBranch.Tip);
                 Assert.False(branch.IsTracking);
 
                 branch = repo.Branches.Update(branch,
-                    b => b.TrackedBranch = trackedBranchName);
+                    b => b.TrackedBranch = trackedBranch.CanonicalName);
 
                 // Got the updated branch from the Update() method
                 Assert.True(branch.IsTracking);
