@@ -504,6 +504,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Throws<InvalidSpecificationException>(() => repo.Lookup<Commit>("tags/point_to_blob^{commit}"));
                 Assert.Throws<InvalidSpecificationException>(() => repo.Lookup("master^{tree}^{blob}"));
                 Assert.Throws<InvalidSpecificationException>(() => repo.Lookup<Blob>("master^{blob}"));
+                Assert.Throws<PeelException>(() => repo.Lookup<Blob>("tags/e90810b^{blob}"));
             }
         }
 
