@@ -1493,28 +1493,41 @@ namespace LibGit2Sharp
                 diffModifiers |= DiffModifiers.IncludeIgnored;
             }
 
-            var changes = Diff.Compare<TreeChanges>(diffModifiers, paths, explicitPathsOptions);
+            var changes = Diff.Compare<TreeChanges>(diffModifiers, paths, explicitPathsOptions,
+                new CompareOptions { Similarity = SimilarityOptions.None });
 
-            foreach (var treeEntryChanges in changes)
+            var unexpectedTypesOfChanges = changes
+                .Where(
+                    tec => tec.Status != ChangeKind.Added &&
+                           tec.Status != ChangeKind.Modified &&
+                           tec.Status != ChangeKind.Unmodified &&
+                           tec.Status != ChangeKind.Deleted).ToList();
+
+            if (unexpectedTypesOfChanges.Count > 0)
+            {
+                throw new InvalidOperationException(
+                    string.Format(CultureInfo.InvariantCulture,
+                        "Entry '{0}' bears an unexpected ChangeKind '{1}'",
+                        unexpectedTypesOfChanges[0].Path, unexpectedTypesOfChanges[0].Status));
+            }
+
+            foreach (TreeEntryChanges treeEntryChanges in changes
+                .Where(tec => tec.Status == ChangeKind.Deleted))
+            {
+                RemoveFromIndex(treeEntryChanges.Path);
+            }
+
+            foreach (TreeEntryChanges treeEntryChanges in changes)
             {
                 switch (treeEntryChanges.Status)
                 {
-                    case ChangeKind.Unmodified:
-                        continue;
-
-                    case ChangeKind.Deleted:
-                        RemoveFromIndex(treeEntryChanges.Path);
-                        continue;
-
                     case ChangeKind.Added:
-                    /* Fall through */
                     case ChangeKind.Modified:
                         AddToIndex(treeEntryChanges.Path);
-                        continue;
+                        break;
 
                     default:
-                        throw new InvalidOperationException(
-                            string.Format(CultureInfo.InvariantCulture, "Entry '{0}' bears an unexpected ChangeKind '{1}'", treeEntryChanges.Path, treeEntryChanges.Status));
+                        continue;
                 }
             }
 

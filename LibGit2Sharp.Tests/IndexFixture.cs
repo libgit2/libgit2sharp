@@ -443,5 +443,39 @@ namespace LibGit2Sharp.Tests
                 Assert.Throws<NotFoundException>(() => repo.Index.Add(filePath));
             }
         }
+
+        [Fact]
+        public void CanMimicGitAddAll()
+        {
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
+            {
+                var before = repo.RetrieveStatus();
+                Assert.True(before.Any(se => se.State == FileStatus.Untracked));
+                Assert.True(before.Any(se => se.State == FileStatus.Modified));
+                Assert.True(before.Any(se => se.State == FileStatus.Missing));
+
+                AddSomeCornerCases(repo);
+
+                repo.Stage("*");
+
+                var after = repo.RetrieveStatus();
+                Assert.False(after.Any(se => se.State == FileStatus.Untracked));
+                Assert.False(after.Any(se => se.State == FileStatus.Modified));
+                Assert.False(after.Any(se => se.State == FileStatus.Missing));
+            }
+        }
+
+        private static void AddSomeCornerCases(Repository repo)
+        {
+            // Turn 1.txt into a directory in the Index
+            repo.Index.Remove("1.txt");
+            var blob = repo.Lookup<Blob>("a8233120f6ad708f843d861ce2b7228ec4e3dec6");
+            repo.Index.Add(blob, "1.txt/Sneaky", Mode.NonExecutableFile);
+
+            // Turn README into a symlink
+            Blob linkContent = OdbHelper.CreateBlob(repo, "1.txt/sneaky");
+            repo.Index.Add(linkContent, "README", Mode.SymbolicLink);
+        }
     }
 }
