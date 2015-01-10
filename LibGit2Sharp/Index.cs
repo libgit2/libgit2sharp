@@ -198,6 +198,36 @@ namespace LibGit2Sharp
             UpdatePhysicalIndex();
         }
 
+        /// <summary>
+        /// Adds an entry in the <see cref="Index"/> from a <see cref="Blob"/>.
+        /// <para>
+        ///   If an entry with the same path already exists in the <see cref="Index"/>,
+        ///   the newly added one will overwrite it.
+        /// </para>
+        /// </summary>
+        /// <param name="blob">The <see cref="Blob"/> which content should be added to the <see cref="Index"/>.</param>
+        /// <param name="indexEntryPath">The path to be used in the <see cref="Index"/>.</param>
+        /// <param name="indexEntryMode">Either <see cref="Mode.NonExecutableFile"/>, <see cref="Mode.ExecutableFile"/>
+        /// or <see cref="Mode.SymbolicLink"/>.</param>
+        public virtual void Add(Blob blob, string indexEntryPath, Mode indexEntryMode)
+        {
+            Ensure.ArgumentConformsTo(indexEntryMode, m => m.HasAny(TreeEntryDefinition.BlobModes), "indexEntryMode");
+
+            if (blob == null)
+            {
+                throw new ArgumentNullException("blob");
+            }
+
+            if (indexEntryPath == null)
+            {
+                throw new ArgumentNullException("indexEntryPath");
+            }
+
+            AddEntryToTheIndex(indexEntryPath, blob.Id, indexEntryMode);
+
+            UpdatePhysicalIndex();
+        }
+
         private void UpdatePhysicalIndex()
         {
             Proxy.git_index_write(handle);
@@ -219,7 +249,11 @@ namespace LibGit2Sharp
                     case ChangeKind.Deleted:
                         /* Fall through */
                     case ChangeKind.Modified:
-                        ReplaceIndexEntryWith(treeEntryChanges);
+                        AddEntryToTheIndex(
+                            treeEntryChanges.OldPath,
+                            treeEntryChanges.OldOid,
+                            treeEntryChanges.OldMode);
+
                         continue;
 
                     default:
@@ -241,13 +275,13 @@ namespace LibGit2Sharp
             }
         }
 
-        private void ReplaceIndexEntryWith(TreeEntryChanges treeEntryChanges)
+        private void AddEntryToTheIndex(string path, ObjectId id, Mode mode)
         {
             var indexEntry = new GitIndexEntry
             {
-                Mode = (uint)treeEntryChanges.OldMode,
-                Id = treeEntryChanges.OldOid.Oid,
-                Path = StrictFilePathMarshaler.FromManaged(treeEntryChanges.OldPath),
+                Mode = (uint)mode,
+                Id = id.Oid,
+                Path = StrictFilePathMarshaler.FromManaged(path),
             };
 
             Proxy.git_index_add(handle, indexEntry);

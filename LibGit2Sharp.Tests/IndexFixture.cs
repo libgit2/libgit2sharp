@@ -412,6 +412,25 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
+        public void CanAddAnEntryToTheIndexFromABlob()
+        {
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
+            {
+                const string targetIndexEntryPath = "1.txt";
+                var before = repo.RetrieveStatus(targetIndexEntryPath);
+                Assert.Equal(FileStatus.Unaltered, before);
+
+                var blob = repo.Lookup<Blob>("a8233120f6ad708f843d861ce2b7228ec4e3dec6");
+
+                repo.Index.Add(blob, targetIndexEntryPath, Mode.NonExecutableFile);
+
+                var after = repo.RetrieveStatus(targetIndexEntryPath);
+                Assert.Equal(FileStatus.Staged | FileStatus.Modified, after);
+            }
+        }
+
+        [Fact]
         public void AddingAnEntryToTheIndexFromAUnknwonFileInTheWorkdirThrows()
         {
             var path = SandboxStandardTestRepoGitDir();
