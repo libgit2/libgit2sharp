@@ -162,6 +162,22 @@ namespace LibGit2Sharp
             Proxy.git_index_remove_bypath(handle, relativePath);
         }
 
+        /// <summary>
+        /// Removes a specified entry from the index.
+        /// </summary>
+        /// <param name="indexEntryPath">The path of the <see cref="Index"/> entry to be removed.</param>
+        public virtual void Remove(string indexEntryPath)
+        {
+            if (indexEntryPath == null)
+            {
+                throw new ArgumentNullException("indexEntryPath");
+            }
+
+            RemoveFromIndex(indexEntryPath);
+
+            UpdatePhysicalIndex();
+        }
+
         private void UpdatePhysicalIndex()
         {
             Proxy.git_index_write(handle);

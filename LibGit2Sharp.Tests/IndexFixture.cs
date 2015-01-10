@@ -373,5 +373,24 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(FileStatus.Removed | FileStatus.Untracked, repo.RetrieveStatus(testFile));
             }
         }
+
+        [Theory]
+        [InlineData("new_tracked_file.txt", FileStatus.Added, FileStatus.Untracked)]
+        [InlineData("modified_staged_file.txt", FileStatus.Staged, FileStatus.Removed | FileStatus.Untracked)]
+        [InlineData("i_dont_exist.txt", FileStatus.Nonexistent, FileStatus.Nonexistent)]
+        public void CanRemoveAnEntryFromTheIndex(string pathInTheIndex, FileStatus expectedBeforeStatus, FileStatus expectedAfterStatus)
+        {
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
+            {
+                var before = repo.RetrieveStatus(pathInTheIndex);
+                Assert.Equal(expectedBeforeStatus, before);
+
+                repo.Index.Remove(pathInTheIndex);
+
+                var after = repo.RetrieveStatus(pathInTheIndex);
+                Assert.Equal(expectedAfterStatus, after);
+            }
+        }
     }
 }
