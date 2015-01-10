@@ -392,5 +392,37 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(expectedAfterStatus, after);
             }
         }
+
+        [Theory]
+        [InlineData("new_untracked_file.txt", FileStatus.Untracked, FileStatus.Added)]
+        [InlineData("modified_unstaged_file.txt", FileStatus.Modified, FileStatus.Staged)]
+        public void CanAddAnEntryToTheIndexFromAFileInTheWorkdir(string pathInTheWorkdir, FileStatus expectedBeforeStatus, FileStatus expectedAfterStatus)
+        {
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
+            {
+                var before = repo.RetrieveStatus(pathInTheWorkdir);
+                Assert.Equal(expectedBeforeStatus, before);
+
+                repo.Index.Add(pathInTheWorkdir);
+
+                var after = repo.RetrieveStatus(pathInTheWorkdir);
+                Assert.Equal(expectedAfterStatus, after);
+            }
+        }
+
+        [Fact]
+        public void AddingAnEntryToTheIndexFromAUnknwonFileInTheWorkdirThrows()
+        {
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
+            {
+                const string filePath = "i_dont_exist.txt";
+                var before = repo.RetrieveStatus(filePath);
+                Assert.Equal(FileStatus.Nonexistent, before);
+
+                Assert.Throws<NotFoundException>(() => repo.Index.Add(filePath));
+            }
+        }
     }
 }

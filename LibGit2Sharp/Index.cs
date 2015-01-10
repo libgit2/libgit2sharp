@@ -178,6 +178,26 @@ namespace LibGit2Sharp
             UpdatePhysicalIndex();
         }
 
+        /// <summary>
+        /// Adds a file from the workdir in the <see cref="Index"/>.
+        /// <para>
+        ///   If an entry with the same path already exists in the <see cref="Index"/>,
+        ///   the newly added one will overwrite it.
+        /// </para>
+        /// </summary>
+        /// <param name="pathInTheWorkdir">The path, in the working directory, of the file to be added.</param>
+        public virtual void Add(string pathInTheWorkdir)
+        {
+            if (pathInTheWorkdir == null)
+            {
+                throw new ArgumentNullException("pathInTheWorkdir");
+            }
+
+            Proxy.git_index_add_bypath(handle, pathInTheWorkdir);
+
+            UpdatePhysicalIndex();
+        }
+
         private void UpdatePhysicalIndex()
         {
             Proxy.git_index_write(handle);
