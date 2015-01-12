@@ -17,7 +17,7 @@
 
  [1]: http://nuget.org/List/Packages/LibGit2Sharp
  [2]: https://github.com/libgit2/libgit2sharp/
- [3]: http://teamcity.codebetter.com/project.html?projectId=project127&guest=1
+ [3]: http://teamcity.codebetter.com/project.html?projectId=LibGit2Sharp&guest=1
 
 ## Troubleshooting and support
 
