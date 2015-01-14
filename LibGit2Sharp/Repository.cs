@@ -556,16 +556,21 @@ namespace LibGit2Sharp
                     Bare = options.IsBare ? 1 : 0,
                     CheckoutOpts = gitCheckoutOptions,
                     RemoteCallbacks = gitRemoteCallbacks,
-                    CheckoutBranch = StrictUtf8Marshaler.FromManaged(options.BranchName)
                 };
 
-                FilePath repoPath;
-                using (RepositorySafeHandle repo = Proxy.git_clone(sourceUrl, workdirPath, ref cloneOpts))
+                try
                 {
-                    repoPath = Proxy.git_repository_path(repo);
-                }
+                    cloneOpts.CheckoutBranch = StrictUtf8Marshaler.FromManaged(options.BranchName);
 
-                return repoPath.Native;
+                    using (RepositorySafeHandle repo = Proxy.git_clone(sourceUrl, workdirPath, ref cloneOpts))
+                    {
+                        return Proxy.git_repository_path(repo).Native;
+                    }
+                }
+                finally
+                {
+                    EncodingMarshaler.Cleanup(cloneOpts.CheckoutBranch);
+                }
             }
         }
 
