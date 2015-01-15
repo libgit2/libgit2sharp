@@ -14,7 +14,17 @@ namespace LibGit2Sharp
         /// Constructor.
         /// </summary>
         public PullOptions()
-        { }
+        {
+            Fetch = true;
+        }
+
+        /// <summary>
+        /// Whether a fetch should be performed or not.  This is true by
+        /// default, meaning a pull will perform a fetch then merge the
+        /// branch that was fetched.  If you have previously performed a
+        /// fetch yourself and want to merge that data, this may be false.
+        /// </summary>
+        public bool Fetch { get; set; }
 
         /// <summary>
         /// Parameters controlling Fetch behavior.
