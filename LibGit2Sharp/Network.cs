@@ -343,7 +343,11 @@ namespace LibGit2Sharp
                 throw new LibGit2SharpException("No upstream remote for the current branch.");
             }
 
-            Fetch(currentBranch.Remote, options.FetchOptions);
+            if (options.Fetch)
+            {
+                Fetch(currentBranch.Remote, options.FetchOptions);
+            }
+
             return repository.MergeFetchHeads(merger, options.MergeOptions);
         }
 
