@@ -608,6 +608,68 @@ namespace LibGit2Sharp.Core
 
         #endregion
 
+        #region git_describe_
+
+        public static string git_describe_commit(
+            RepositorySafeHandle repo,
+            ObjectId committishId,
+            DescribeOptions options)
+        {
+            Ensure.ArgumentPositiveInt32(options.MinimumCommitIdAbbreviatedSize,
+                "options.MinimumCommitIdAbbreviatedSize");
+
+            using (ThreadAffinity())
+            using (var osw = new ObjectSafeWrapper(committishId, repo))
+            {
+                GitDescribeOptions opts = new GitDescribeOptions
+                {
+                    Version = 1,
+                    DescribeStrategy = options.Strategy,
+                    MaxCandidatesTags = 10,
+                    OnlyFollowFirstParent = false,
+                    ShowCommitOidAsFallback = options.UseCommitIdAsFallback,
+                };
+
+                DescribeResultSafeHandle describeHandle = null;
+
+                try
+                {
+                    int res = NativeMethods.git_describe_commit(out describeHandle, osw.ObjectPtr, ref opts);
+                    Ensure.ZeroResult(res);
+
+                    using (var buf = new GitBuf())
+                    {
+                        GitDescribeFormatOptions formatOptions = new GitDescribeFormatOptions
+                        {
+                            Version = 1,
+                            MinAbbreviatedSize = (uint)options.MinimumCommitIdAbbreviatedSize,
+                            AlwaysUseLongFormat = options.AlwaysRenderLongFormat,
+                        };
+
+                        res = NativeMethods.git_describe_format(buf, describeHandle, ref formatOptions);
+                        Ensure.ZeroResult(res);
+
+                        describeHandle.Dispose();
+                        return LaxUtf8Marshaler.FromNative(buf.ptr);
+                    }
+                }
+                finally
+                {
+                    if (describeHandle != null)
+                    {
+                        describeHandle.Dispose();
+                    }
+                }
+            }
+        }
+
+        public static void git_describe_free(IntPtr iter)
+        {
+            NativeMethods.git_describe_result_free(iter);
+        }
+
+        #endregion
+
         #region git_diff_
 
         public static void git_diff_blobs(

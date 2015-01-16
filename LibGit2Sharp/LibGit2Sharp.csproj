@@ -68,8 +68,12 @@
     <Compile Include="CommitOptions.cs" />
     <Compile Include="CommitSortStrategies.cs" />
     <Compile Include="CompareOptions.cs" />
+    <Compile Include="DescribeOptions.cs" />
+    <Compile Include="DescribeStrategy.cs" />
+    <Compile Include="Core\GitDescribeFormatOptions.cs" />
     <Compile Include="Core\GitIndexReucEntry.cs" />
     <Compile Include="Core\GitSubmoduleOptions.cs" />
+    <Compile Include="Core\Handles\DescribeResultSafeHandle.cs" />
     <Compile Include="Core\Handles\IndexNameEntrySafeHandle.cs" />
     <Compile Include="Core\Handles\IndexReucEntrySafeHandle.cs" />
     <Compile Include="EntryExistsException.cs" />

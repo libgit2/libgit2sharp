@@ -199,6 +199,21 @@ namespace LibGit2Sharp.Core
         }
 
         /// <summary>
+        /// Checks an argument is a positive integer.
+        /// </summary>
+        /// <param name="argumentValue">The argument value to check.</param>
+        /// <param name="argumentName">The name of the argument.</param>
+        public static void ArgumentPositiveInt32(long argumentValue, string argumentName)
+        {
+            if (argumentValue >= 0 && argumentValue <= uint.MaxValue)
+            {
+                return;
+            }
+
+            throw new ArgumentException(argumentName);
+        }
+
+        /// <summary>
         /// Check that the result of a C call that returns a non-null GitObject
         /// using the default exception builder.
         /// <para>

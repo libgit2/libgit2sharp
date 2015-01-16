@@ -423,6 +423,21 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof (StrictUtf8Marshaler))] string password);
 
         [DllImport(libgit2)]
+        internal static extern int git_describe_commit(
+            out DescribeResultSafeHandle describe,
+            GitObjectSafeHandle committish,
+            ref GitDescribeOptions options);
+
+        [DllImport(libgit2)]
+        internal static extern int git_describe_format(
+            GitBuf buf,
+            DescribeResultSafeHandle describe,
+            ref GitDescribeFormatOptions options);
+
+        [DllImport(libgit2)]
+        internal static extern void git_describe_result_free(IntPtr describe);
+
+        [DllImport(libgit2)]
         internal static extern void git_diff_free(IntPtr diff);
 
         [DllImport(libgit2)]

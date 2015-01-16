@@ -1891,6 +1891,30 @@ namespace LibGit2Sharp
             return removed;
         }
 
+        /// <summary>
+        /// Finds the most recent annotated tag that is reachable from a commit.
+        /// <para>
+        ///   If the tag points to the commit, then only the tag is shown. Otherwise,
+        ///   it suffixes the tag name with the number of additional commits on top
+        ///   of the tagged object and the abbreviated object name of the most recent commit.
+        /// </para>
+        /// <para>
+        ///   Optionally, the <paramref name="options"/> parameter allow to tweak the
+        ///   search strategy (considering lightweith tags, or even branches as reference points)
+        ///   and the formatting of the returned identifier.
+        /// </para>
+        /// </summary>
+        /// <param name="commit">The commit to be described.</param>
+        /// <param name="options">Determines how the commit will be described.</param>
+        /// <returns>A descriptive identifier for the commit based on the nearest annotated tag.</returns>
+        public string Describe(Commit commit, DescribeOptions options)
+        {
+            Ensure.ArgumentNotNull(commit, "commit");
+            Ensure.ArgumentNotNull(options, "options");
+
+            return Proxy.git_describe_commit(handle, commit.Id, options);
+        }
+
         private string DebuggerDisplay
         {
             get

@@ -738,5 +738,21 @@ namespace LibGit2Sharp
             Proxy.git_index_read(repository.Index.Handle);
             return new RepositoryStatus((Repository)repository, null);
         }
+
+        /// <summary>
+        /// Finds the most recent annotated tag that is reachable from a commit.
+        /// <para>
+        ///   If the tag points to the commit, then only the tag is shown. Otherwise,
+        ///   it suffixes the tag name with the number of additional commits on top
+        ///   of the tagged object and the abbreviated object name of the most recent commit.
+        /// </para>
+        /// </summary>
+        /// <param name="repository">The <see cref="IRepository"/> being worked with.</param>
+        /// <param name="commit">The commit to be described.</param>
+        /// <returns>A descriptive identifier for the commit based on the nearest annotated tag.</returns>
+        public static string Describe(this IRepository repository, Commit commit)
+        {
+            return repository.Describe(commit, new DescribeOptions());
+        }
     }
 }
