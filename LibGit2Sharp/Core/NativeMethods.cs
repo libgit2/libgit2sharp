@@ -1503,8 +1503,30 @@ namespace LibGit2Sharp.Core
 
         internal delegate void git_trace_cb(LogLevel level, IntPtr message);
 
-        [DllImport(libgit2)]
-        internal static extern int git_trace_set(LogLevel level, git_trace_cb trace_cb);
+        /// <summary>
+        /// A variable to hold a reference to the installed callback function
+        /// because it needs to persist until another callback is installed
+        /// or tracing is disabled.  The trace callback is special because its
+        /// use is not limited to the duration of the downcall.
+        /// </summary>
+        private static git_trace_cb static_trace_cb;
+
+        /// <summary>
+        /// Make git_trace_set() a wrapper around actual library routine to
+        /// ensure that we hold a reference to the callback.
+        /// </summary>
+        public static int git_trace_set(LogLevel level, git_trace_cb trace_cb)
+        {
+            static_trace_cb = trace_cb;
+            return _dll__git_trace_set(level, static_trace_cb);
+        }
+
+        /// <summary>
+        /// Forward calls to _dll__git_trace_set() to the actual git_trace_set()
+        /// inside LibGit2.dll
+        /// </summary>
+        [DllImport(libgit2, EntryPoint="git_trace_set")]
+        internal static extern int _dll__git_trace_set(LogLevel level, git_trace_cb trace_cb);
 
         internal delegate int git_transfer_progress_callback(ref GitTransferProgress stats, IntPtr payload);
 
