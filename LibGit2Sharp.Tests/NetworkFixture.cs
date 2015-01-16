@@ -228,6 +228,33 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        [Fact]
+        public void CanMergeFetchedRefs()
+        {
+            string url = "https://github.com/libgit2/TestGitRepository";
+
+            var scd = BuildSelfCleaningDirectory();
+            string clonedRepoPath = Repository.Clone(url, scd.DirectoryPath);
+
+            using (var repo = new Repository(clonedRepoPath))
+            {
+                repo.Reset(ResetMode.Hard, "HEAD~1");
+
+                Assert.False(repo.RetrieveStatus().Any());
+                Assert.Equal(repo.Lookup<Commit>("refs/remotes/origin/master~1"), repo.Head.Tip);
+
+                repo.Network.Fetch(repo.Head.Remote);
+
+                MergeOptions mergeOptions = new MergeOptions()
+                {
+                    FastForwardStrategy = FastForwardStrategy.NoFastFoward
+                };
+
+                MergeResult mergeResult = repo.MergeFetchedRefs(Constants.Signature, mergeOptions);
+                Assert.Equal(mergeResult.Status, MergeStatus.NonFastForward);
+            }
+        }
+
         /*
         * git ls-remote http://github.com/libgit2/TestGitRepository
         * 49322bb17d3acc9146f98c97d078513228bbf3c0        HEAD
