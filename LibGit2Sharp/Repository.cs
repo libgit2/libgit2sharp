@@ -23,7 +23,7 @@ namespace LibGit2Sharp
         private readonly CommitLog commits;
         private readonly Lazy<Configuration> config;
         private readonly RepositorySafeHandle handle;
-        private readonly Index index;
+        private readonly Lazy<Index> index;
         private readonly ReferenceCollection refs;
         private readonly TagCollection tags;
         private readonly StashCollection stashes;
@@ -98,7 +98,7 @@ namespace LibGit2Sharp
 
                 if (!isBare)
                 {
-                    index = indexBuilder();
+                    index = new Lazy<Index>(() => indexBuilder());
                 }
 
                 commits = new CommitLog(this);
@@ -120,7 +120,7 @@ namespace LibGit2Sharp
                 pathCase = new Lazy<PathCase>(() => new PathCase(this));
                 submodules = new SubmoduleCollection(this);
 
-                EagerlyLoadTheConfigIfAnyPathHaveBeenPassed(options);
+                EagerlyLoadComponentsWithSpecifiedPaths(options);
             }
             catch
             {
@@ -153,26 +153,33 @@ namespace LibGit2Sharp
             return true;
         }
 
-        private void EagerlyLoadTheConfigIfAnyPathHaveBeenPassed(RepositoryOptions options)
+        private void EagerlyLoadComponentsWithSpecifiedPaths(RepositoryOptions options)
         {
             if (options == null)
             {
                 return;
             }
 
-            if (options.GlobalConfigurationLocation == null &&
-                options.XdgConfigurationLocation == null &&
-                options.SystemConfigurationLocation == null)
+            if (options.GlobalConfigurationLocation != null ||
+                options.XdgConfigurationLocation != null ||
+                options.SystemConfigurationLocation != null)
             {
-                return;
+                // Dirty hack to force the eager load of the configuration
+                // without Resharper pestering about useless code
+
+                if (!Config.HasConfig(ConfigurationLevel.Local))
+                {
+                    throw new InvalidOperationException("Unexpected state.");
+                }
             }
 
-            // Dirty hack to force the eager load of the configuration
-            // without Resharper pestering about useless code
-
-            if (!Config.HasConfig(ConfigurationLevel.Local))
+            if (!string.IsNullOrEmpty(options.IndexPath))
             {
-                throw new InvalidOperationException("Unexpected state.");
+                // Another dirty hack to avoid warnings
+                if (Index.Count < 0)
+                {
+                    throw new InvalidOperationException("Unexpected state.");
+                }
             }
         }
 
@@ -224,7 +231,7 @@ namespace LibGit2Sharp
                     throw new BareRepositoryException("Index is not available in a bare repository.");
                 }
 
-                return index;
+                return index.Value;
             }
         }
 
