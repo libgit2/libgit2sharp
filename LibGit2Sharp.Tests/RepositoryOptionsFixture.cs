@@ -53,6 +53,18 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
+        public void CanOpenABareRepoWithOptions()
+        {
+            var options = new RepositoryOptions { GlobalConfigurationLocation = null };
+
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path, options))
+            {
+                Assert.True(repo.Info.IsBare);
+            }
+        }
+
+        [Fact]
         public void CanProvideADifferentWorkDirToAStandardRepo()
         {
             var path1 = SandboxStandardTestRepo();
