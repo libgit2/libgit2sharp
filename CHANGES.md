@@ -7,8 +7,32 @@
  - Issue tracker: <https://github.com/libgit2/libgit2sharp/issues>
  - @libgit2sharp: <http://twitter.com/libgit2sharp>
  - CI servers:
-  - CodeBetter TeamCity: <http://teamcity.codebetter.com/project.html?projectId=LibGit2Sharp&guest=1>
-  - Travis: <https://travis-ci.org/libgit2/libgit2sharp>
+  - Windows (x86/amd64): <https://ci.appveyor.com/project/libgit2/libgit2sharp>
+  - Linux/MacOsX: <https://travis-ci.org/libgit2/libgit2sharp>
+
+## v0.21 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.20.2...v0.21))
+
+### Additions
+
+ - Introduce repo.Index.Add() and repo.Index.Remove() (#907)
+ - Introduce repo.Describe() (#848)
+ - Teach Repository.Clone to accept a specific branch to checkout (#650, #882)
+ - Expose IndexEntry.AssumeUnchanged (#928, #929)
+ - Introduce GlobalSettings.Version.InformationalVersion (#921)
+
+### Changes
+
+ - Deprecate Branch.Checkout() (#937)
+ - Deprecate GlobalSettings.Version.MajorMinorPatch (#921)
+ - Change Blob.Size output to a long (#892)
+ - Update libgit2 binaries to libgit2/libgit2@e0902fb
+
+### Fixes
+
+ - Fix Network.Fetch() tags retrieval (#927)
+ - Fix repo.Stage("*") behavior (#907)
+ - Plug some memory leaks (#883, #910)
+ - Protect Repository.Clone() from null parameters (#891)
 
 ## v0.20.2 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.20.1...v0.20.2))
 
