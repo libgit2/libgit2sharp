@@ -17,7 +17,7 @@ using System.Runtime.InteropServices;
 #endif
 
 [assembly: AssemblyProduct("LibGit2Sharp")]
-[assembly: AssemblyCopyright("Copyright © 2011-2014 LibGit2Sharp contributors")]
+[assembly: AssemblyCopyright("Copyright © LibGit2Sharp contributors")]
 
 [assembly: CLSCompliant(true)]
 
