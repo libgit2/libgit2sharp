@@ -2959,6 +2959,18 @@ namespace LibGit2Sharp.Core
 
         #region git_trace_
 
+        /// <summary>
+        /// Install/Enable logging inside of LibGit2 to send messages back to LibGit2Sharp.
+        ///
+        /// Since the given callback will be passed into and retained by C code,
+        /// it is very important that you pass an actual delegate here (and don't
+        /// let the compiler create/cast a temporary one for you).  Furthermore, you
+        /// must hold a reference to this delegate until you turn off logging.
+        ///
+        /// This callback is unlike other callbacks because logging persists in the
+        /// process until disabled; in contrast, most callbacks are only defined for
+        /// the duration of the down-call.
+        /// </summary>
         public static void git_trace_set(LogLevel level, NativeMethods.git_trace_cb callback)
         {
             using (ThreadAffinity())
