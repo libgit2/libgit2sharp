@@ -1498,84 +1498,6 @@ namespace LibGit2Sharp.Core
 
         #endregion
 
-        #region git_push_
-
-        public static void git_push_add_refspec(PushSafeHandle push, string pushRefSpec)
-        {
-            using (ThreadAffinity())
-            {
-                int res = NativeMethods.git_push_add_refspec(push, pushRefSpec);
-                Ensure.ZeroResult(res);
-            }
-        }
-
-        public static void git_push_finish(PushSafeHandle push)
-        {
-            using (ThreadAffinity())
-            {
-                int res = NativeMethods.git_push_finish(push);
-                Ensure.ZeroResult(res);
-            }
-        }
-
-        public static void git_push_free(IntPtr push)
-        {
-            NativeMethods.git_push_free(push);
-        }
-
-        public static PushSafeHandle git_push_new(RemoteSafeHandle remote)
-        {
-            using (ThreadAffinity())
-            {
-                PushSafeHandle handle;
-                int res = NativeMethods.git_push_new(out handle, remote);
-                Ensure.ZeroResult(res);
-                return handle;
-            }
-        }
-
-        public static void git_push_set_callbacks(
-            PushSafeHandle push,
-            NativeMethods.git_push_transfer_progress pushTransferProgress,
-            NativeMethods.git_packbuilder_progress packBuilderProgress)
-        {
-            using (ThreadAffinity())
-            {
-                int res = NativeMethods.git_push_set_callbacks(push, packBuilderProgress, IntPtr.Zero, pushTransferProgress, IntPtr.Zero);
-                Ensure.ZeroResult(res);
-            }
-        }
-
-        public static void git_push_set_options(PushSafeHandle push, GitPushOptions options)
-        {
-            using (ThreadAffinity())
-            {
-                int res = NativeMethods.git_push_set_options(push, options);
-                Ensure.ZeroResult(res);
-            }
-        }
-
-        public static void git_push_status_foreach(PushSafeHandle push, NativeMethods.push_status_foreach_cb status_cb)
-        {
-            using (ThreadAffinity())
-            {
-                int res = NativeMethods.git_push_status_foreach(push, status_cb, IntPtr.Zero);
-                Ensure.ZeroResult(res);
-            }
-        }
-
-        public static void git_push_update_tips(PushSafeHandle push, Signature signature, string logMessage)
-        {
-            using (ThreadAffinity())
-            using (var sigHandle = signature.BuildHandle())
-            {
-                int res = NativeMethods.git_push_update_tips(push, sigHandle, logMessage);
-                Ensure.ZeroResult(res);
-            }
-        }
-
-        #endregion
-
         #region git_reference_
 
         public static ReferenceSafeHandle git_reference_create(RepositorySafeHandle repo, string name, ObjectId targetId, bool allowOverwrite,
@@ -1965,6 +1887,29 @@ namespace LibGit2Sharp.Core
                 finally
                 {
                     array.Dispose();
+                }
+            }
+        }
+
+        public static void git_remote_push(RemoteSafeHandle remote, IEnumerable<string> refSpecs, GitPushOptions opts, Signature signature, string reflogMessage)
+        {
+            using (ThreadAffinity())
+            {
+                using (var sigHandle = signature.BuildHandle())
+                {
+                    var array = new GitStrArrayManaged();
+
+                    try
+                    {
+                        array = GitStrArrayManaged.BuildFrom(refSpecs.ToArray());
+
+                        int res = NativeMethods.git_remote_push(remote, ref array.Array, opts, sigHandle, reflogMessage);
+                        Ensure.ZeroResult(res);
+                    }
+                    finally
+                    {
+                        array.Dispose();
+                    }
                 }
             }
         }
@@ -3076,12 +3021,12 @@ namespace LibGit2Sharp.Core
 
         #region git_treebuilder_
 
-        public static TreeBuilderSafeHandle git_treebuilder_create(RepositorySafeHandle repo)
+        public static TreeBuilderSafeHandle git_treebuilder_new(RepositorySafeHandle repo)
         {
             using (ThreadAffinity())
             {
                 TreeBuilderSafeHandle builder;
-                int res = NativeMethods.git_treebuilder_create(out builder, repo, IntPtr.Zero);
+                int res = NativeMethods.git_treebuilder_new(out builder, repo, IntPtr.Zero);
                 Ensure.ZeroResult(res);
 
                 return builder;

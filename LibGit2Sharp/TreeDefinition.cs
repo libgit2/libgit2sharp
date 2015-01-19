@@ -373,7 +373,7 @@ namespace LibGit2Sharp
 
             public TreeBuilder(Repository repo)
             {
-                handle = Proxy.git_treebuilder_create(repo.Handle);
+                handle = Proxy.git_treebuilder_new(repo.Handle);
             }
 
             public void Insert(string name, TreeEntryDefinition treeEntryDefinition)
