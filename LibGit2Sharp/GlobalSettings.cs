@@ -97,7 +97,7 @@ namespace LibGit2Sharp
                 }
                 else
                 {
-                    Proxy.git_trace_set(value.Level, value.GitTraceHandler);
+                    Proxy.git_trace_set(value.Level, value.GitTraceCallback);
 
                     Log.Write(LogLevel.Info, "Logging enabled at level {0}", value.Level);
                 }
