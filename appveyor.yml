@@ -21,6 +21,7 @@ matrix:
 
 install:
 - ps: |
+    Write-Host "Commit being built = $($Env:APPVEYOR_REPO_COMMIT)"
     Write-Host "Current build version = $($Env:APPVEYOR_BUILD_VERSION)"
     Write-Host "Target branch = $($Env:APPVEYOR_REPO_BRANCH)"
     Write-Host "Is a Pull Request = $($Env:APPVEYOR_PULL_REQUEST_NUMBER -ne $null)"
