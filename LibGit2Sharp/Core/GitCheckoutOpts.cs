@@ -119,6 +119,10 @@ namespace LibGit2Sharp.Core
             UIntPtr total_steps,
             IntPtr payload);
 
+    internal delegate int perfdata_cb(
+            IntPtr perfdata,
+            IntPtr payload);
+
     [StructLayout(LayoutKind.Sequential)]
     internal struct GitCheckoutOpts
     {
@@ -146,6 +150,9 @@ namespace LibGit2Sharp.Core
         public IntPtr ancestor_label;
         public IntPtr our_label;
         public IntPtr their_label;
+
+        public perfdata_cb perfdata_cb;
+        public IntPtr perfdata_payload;
     }
 
     /// <summary>
