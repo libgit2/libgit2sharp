@@ -17,6 +17,18 @@ namespace LibGit2Sharp
             CredentialsProvider = credentialsProvider;
         }
 
+        internal RemoteCallbacks(PushOptions pushOptions)
+        {
+            if (pushOptions == null)
+            {
+                return;
+            }
+
+            PushTransferProgress = pushOptions.OnPushTransferProgress;
+            PackBuilderProgress = pushOptions.OnPackBuilderProgress;
+            CredentialsProvider = pushOptions.CredentialsProvider;
+        }
+
         internal RemoteCallbacks(FetchOptionsBase fetchOptions)
         {
             if (fetchOptions == null)
@@ -48,6 +60,16 @@ namespace LibGit2Sharp
         /// </summary>
         private readonly TransferProgressHandler DownloadTransferProgress;
 
+        /// <summary>
+        /// Push transfer progress callback.
+        /// </summary>
+        private readonly PushTransferProgressHandler PushTransferProgress;
+
+        /// <summary>
+        /// Pack builder creation progress callback.
+        /// </summary>
+        private readonly PackBuilderProgressHandler PackBuilderProgress;
+
         #endregion
 
         /// <summary>
@@ -77,6 +99,16 @@ namespace LibGit2Sharp
             if (DownloadTransferProgress != null)
             {
                 callbacks.download_progress = GitDownloadTransferProgressHandler;
+            }
+
+            if (PushTransferProgress != null)
+            {
+                callbacks.push_transfer_progress = GitPushTransferProgressHandler;
+            }
+
+            if (PackBuilderProgress != null)
+            {
+                callbacks.pack_progress = GitPackbuilderProgressHandler;
             }
 
             return callbacks;
@@ -145,6 +177,30 @@ namespace LibGit2Sharp
             if (DownloadTransferProgress != null)
             {
                 shouldContinue = DownloadTransferProgress(new TransferProgress(progress));
+            }
+
+            return Proxy.ConvertResultToCancelFlag(shouldContinue);
+        }
+
+        private int GitPushTransferProgressHandler(uint current, uint total, UIntPtr bytes, IntPtr payload)
+        {
+            bool shouldContinue = true;
+
+            if (PushTransferProgress != null)
+            {
+                shouldContinue = PushTransferProgress((int)current, (int)total, (long)bytes);
+            }
+
+            return Proxy.ConvertResultToCancelFlag(shouldContinue);
+        }
+
+        private int GitPackbuilderProgressHandler(int stage, uint current, uint total, IntPtr payload)
+        {
+            bool shouldContinue = true;
+
+            if (PackBuilderProgress != null)
+            {
+                shouldContinue = PackBuilderProgress((PackBuilderStage)stage, (int)current, (int)total);
             }
 
             return Proxy.ConvertResultToCancelFlag(shouldContinue);

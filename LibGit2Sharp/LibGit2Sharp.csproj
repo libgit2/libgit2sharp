@@ -205,7 +205,6 @@
     <Compile Include="Core\TarWriter.cs" />
     <Compile Include="DiffTargets.cs" />
     <Compile Include="FetchHead.cs" />
-    <Compile Include="Core\Handles\PushSafeHandle.cs" />
     <Compile Include="Handlers.cs" />
     <Compile Include="Ignore.cs" />
     <Compile Include="MergeConflictException.cs" />

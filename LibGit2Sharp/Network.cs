@@ -248,14 +248,6 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(remote, "remote");
             Ensure.ArgumentNotNull(pushRefSpecs, "pushRefSpecs");
 
-            // The following local variables are protected from garbage collection
-            // by a GC.KeepAlive call at the end of the method. Otherwise,
-            // random crashes during push progress reporting could occur.
-            PushTransferCallbacks pushTransferCallbacks;
-            PackbuilderCallbacks packBuilderCallbacks;
-            NativeMethods.git_push_transfer_progress pushProgress;
-            NativeMethods.git_packbuilder_progress packBuilderProgress;
-
             // Return early if there is nothing to push.
             if (!pushRefSpecs.Any())
             {
@@ -267,58 +259,28 @@ namespace LibGit2Sharp
                 pushOptions = new PushOptions();
             }
 
-            PushCallbacks pushStatusUpdates = new PushCallbacks(pushOptions.OnPushStatusError);
-
             // Load the remote.
             using (RemoteSafeHandle remoteHandle = Proxy.git_remote_lookup(repository.Handle, remote.Name, true))
             {
-                var callbacks = new RemoteCallbacks(pushOptions.CredentialsProvider);
+                var callbacks = new RemoteCallbacks(pushOptions);
                 GitRemoteCallbacks gitCallbacks = callbacks.GenerateCallbacks();
                 Proxy.git_remote_set_callbacks(remoteHandle, ref gitCallbacks);
 
                 try
                 {
                     Proxy.git_remote_connect(remoteHandle, GitDirection.Push);
-
-                    // Perform the actual push.
-                    using (PushSafeHandle pushHandle = Proxy.git_push_new(remoteHandle))
-                    {
-                        pushTransferCallbacks = new PushTransferCallbacks(pushOptions.OnPushTransferProgress);
-                        packBuilderCallbacks = new PackbuilderCallbacks(pushOptions.OnPackBuilderProgress);
-
-                        pushProgress = pushTransferCallbacks.GenerateCallback();
-                        packBuilderProgress = packBuilderCallbacks.GenerateCallback();
-
-                        Proxy.git_push_set_callbacks(pushHandle, pushProgress, packBuilderProgress);
-
-                        // Set push options.
-                        Proxy.git_push_set_options(pushHandle,
-                            new GitPushOptions()
-                            {
-                                PackbuilderDegreeOfParallelism = pushOptions.PackbuilderDegreeOfParallelism
-                            });
-
-                        // Add refspecs.
-                        foreach (string pushRefSpec in pushRefSpecs)
+                    Proxy.git_remote_push(remoteHandle, pushRefSpecs, 
+                        new GitPushOptions()
                         {
-                            Proxy.git_push_add_refspec(pushHandle, pushRefSpec);
-                        }
-
-                        Proxy.git_push_finish(pushHandle);
-                        Proxy.git_push_status_foreach(pushHandle, pushStatusUpdates.Callback);
-                        Proxy.git_push_update_tips(pushHandle, signature.OrDefault(repository.Config), logMessage);
-                    }
+                            PackbuilderDegreeOfParallelism = pushOptions.PackbuilderDegreeOfParallelism
+                        },
+                        signature.OrDefault(repository.Config), logMessage);
                 }
                 finally
                 {
                     Proxy.git_remote_disconnect(remoteHandle);
                 }
             }
-
-            GC.KeepAlive(pushProgress);
-            GC.KeepAlive(packBuilderProgress);
-            GC.KeepAlive(pushTransferCallbacks);
-            GC.KeepAlive(packBuilderCallbacks);
         }
 
         /// <summary>
@@ -359,47 +321,6 @@ namespace LibGit2Sharp
                 return Proxy.git_repository_fetchhead_foreach(
                     repository.Handle,
                     (name, url, oid, isMerge) => new FetchHead(repository, name, url, oid, isMerge, i++));
-            }
-        }
-
-        /// <summary>
-        /// Helper class to handle callbacks during push.
-        /// </summary>
-        private class PushCallbacks
-        {
-            readonly PushStatusErrorHandler onError;
-
-            public PushCallbacks(PushStatusErrorHandler onError)
-            {
-                this.onError = onError;
-            }
-
-            public int Callback(IntPtr referenceNamePtr, IntPtr msgPtr, IntPtr payload)
-            {
-                // Exit early if there is no callback.
-                if (onError == null)
-                {
-                    return 0;
-                }
-
-                // The reference name pointer should never be null - if it is,
-                // this indicates a bug somewhere (libgit2, server, etc).
-                if (referenceNamePtr == IntPtr.Zero)
-                {
-                    Proxy.giterr_set_str(GitErrorCategory.Invalid, "Not expecting null for reference name in push status.");
-                    return -1;
-                }
-
-                // Only report updates where there is a message - indicating
-                // that there was an error.
-                if (msgPtr != IntPtr.Zero)
-                {
-                    string referenceName = LaxUtf8Marshaler.FromNative(referenceNamePtr);
-                    string msg = LaxUtf8Marshaler.FromNative(msgPtr);
-                    onError(new PushStatusError(referenceName, msg));
-                }
-
-                return 0;
             }
         }
     }
