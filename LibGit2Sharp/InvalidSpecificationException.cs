@@ -5,7 +5,10 @@ using LibGit2Sharp.Core;
 namespace LibGit2Sharp
 {
     /// <summary>
-    /// The exception that is thrown when the provided specification is syntactically incorrect.
+    /// The exception that is thrown when a provided specification is bad. This
+    /// can happen if the provided specification is syntactically incorrect, or
+    /// if the spec refers to an object of an incorrect type (e.g. asking to
+    /// create a branch from a blob, or peeling a blob to a commit).
     /// </summary>
     [Serializable]
     public class InvalidSpecificationException : LibGit2SharpException
