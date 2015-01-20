@@ -1,4 +1,4 @@
-version: '{build}'
+version: '0.20.1.{build}'
 
 branches:
   only:
@@ -16,13 +16,53 @@ environment:
   - xunit_runner: xunit.console.clr4.x86.exe
     Arch: 32
 
-build_script:
+matrix:
+  fast_finish: true
+
+install:
+- ps: |
+    Write-Host "Current build version = $($Env:APPVEYOR_BUILD_VERSION)"
+    Write-Host "Target branch = $($Env:APPVEYOR_REPO_BRANCH)"
+    Write-Host "Is a Pull Request = $($Env:APPVEYOR_PULL_REQUEST_NUMBER -ne $null)"
+    $VersionSuffix = ""
+    If ($Env:APPVEYOR_REPO_BRANCH -ne "master")
+    {
+      $VersionSuffix = "-pre"
+    }
+    $Version = "$($Env:APPVEYOR_BUILD_VERSION)$($VersionSuffix)"
+    $Env:ASSEMBLY_INFORMATIONAL_VERSION = $Version
+    Write-Host "Assembly informational version = $($Env:ASSEMBLY_INFORMATIONAL_VERSION)"
+    $ShouldBuildNuget = "$($env:APPVEYOR_PULL_REQUEST_NUMBER -eq $null)"
+    $Env:SHOULD_BUILD_NUGET = $ShouldBuildNuget
+    Write-Host "Should build Nuget = $($Env:SHOULD_BUILD_NUGET)"
+
+assembly_info:
+  patch: true
+  file: LibGit2Sharp\Properties\AssemblyInfo.cs
+  assembly_version: '{version}'
+  assembly_file_version: '{version}'
+  assembly_informational_version: '$(ASSEMBLY_INFORMATIONAL_VERSION)'
+
+cache:
+  - packages
+
+before_build:
 - nuget restore "C:\projects\libgit2sharp\LibGit2Sharp.sln"
+
+build_script:
 - msbuild "C:\projects\libgit2sharp\LibGit2Sharp.sln" /verbosity:normal /p:Configuration=Release /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /property:ExtraDefine="LEAKS_IDENTIFYING"
 
 test_script:
 - '%xunit_runner%  "C:\projects\libgit2sharp\LibGit2Sharp.Tests\bin\Release\LibGit2Sharp.Tests.dll" /appveyor'
 - IF %ERRORLEVEL% NEQ 0 EXIT /B %ERRORLEVEL%
+
+on_success:
+- ps: |
+    If ($Env:SHOULD_BUILD_NUGET -eq $True)
+    {
+      & "C:\projects\libgit2sharp\nuget.package\BuildNugetPackage.ps1" "$env:APPVEYOR_REPO_COMMIT"
+      Get-ChildItem "C:\projects\libgit2sharp\LibGit2sharp\*.nupkg" | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
+    }
 
 notifications:
 - provider: Email
