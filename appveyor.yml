@@ -1,4 +1,4 @@
-version: '{build}'
+version: '0.20.1.{build}'
 
 branches:
   only:
@@ -16,8 +16,16 @@ environment:
   - xunit_runner: xunit.console.clr4.x86.exe
     Arch: 32
 
-build_script:
+matrix:
+  fast_finish: true
+
+cache:
+  - packages
+
+before_build:
 - nuget restore "C:\projects\libgit2sharp\LibGit2Sharp.sln"
+
+build_script:
 - msbuild "C:\projects\libgit2sharp\LibGit2Sharp.sln" /verbosity:normal /p:Configuration=Release /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /property:ExtraDefine="LEAKS_IDENTIFYING"
 
 test_script:
