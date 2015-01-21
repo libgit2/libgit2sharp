@@ -1,5 +1,7 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using LibGit2Sharp.Core;
 
@@ -24,14 +26,30 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Returns the <see cref="System.Version" /> of the 
+        /// Returns the <see cref="System.Version" /> of the
         /// the LibGit2Sharp library.
         /// </summary>
+        [Obsolete("This property will be removed in the next release. Please use InformationalVersion instead.")]
         public virtual System.Version MajorMinorPatch
         {
             get
             {
                 return assembly.GetName().Version;
+            }
+        }
+
+        /// <summary>
+        /// Returns version of the LibGit2Sharp library.
+        /// </summary>
+        public virtual string InformationalVersion
+        {
+            get
+            {
+                var attribute = (AssemblyInformationalVersionAttribute)assembly
+                   .GetCustomAttributes(typeof(AssemblyInformationalVersionAttribute), false)
+                   .Single();
+
+                return attribute.InformationalVersion;
             }
         }
 
@@ -49,7 +67,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Returns the SHA hash for the libgit2 library. 
+        /// Returns the SHA hash for the libgit2 library.
         /// </summary>
         public virtual string LibGit2CommitSha
         {
@@ -90,7 +108,7 @@ namespace LibGit2Sharp
             return string.Format(
                 CultureInfo.InvariantCulture,
                 "{0}-{1}-{2} ({3} - {4})",
-                MajorMinorPatch.ToString(3),
+                InformationalVersion,
                 LibGit2SharpCommitSha,
                 LibGit2CommitSha,
                 NativeMethods.ProcessorArchitecture,
