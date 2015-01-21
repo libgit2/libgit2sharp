@@ -10,6 +10,12 @@
   - CodeBetter TeamCity: <http://teamcity.codebetter.com/project.html?projectId=LibGit2Sharp&guest=1>
   - Travis: <https://travis-ci.org/libgit2/libgit2sharp>
 
+## v0.20.2 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.20.1...v0.20.2))
+
+### Fixes
+
+ - Update libgit2 to prevent issues around symbolic links to ".git" folders in trees on Mac
+
 ## v0.20.1 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.20...v0.20.1))
 
 ### Fixes
