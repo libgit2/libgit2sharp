@@ -1074,6 +1074,22 @@ namespace LibGit2Sharp.Core
 
         #region git_merge_
 
+        public static IndexSafeHandle git_merge_trees(RepositorySafeHandle repo, GitObjectSafeHandle ancestorTree, GitObjectSafeHandle ourTree, GitObjectSafeHandle theirTree)
+        {
+            using (ThreadAffinity())
+            {
+                IndexSafeHandle index;
+                GitMergeOpts opts = new GitMergeOpts { Version = 1 };
+                int res = NativeMethods.git_merge_trees(out index, repo, ancestorTree, ourTree, theirTree, ref opts);
+                if (res != (int) GitErrorCode.Ok || index == null)
+                {
+                    return null;
+                }
+
+                return index;
+            }
+        }
+
         public static ObjectId git_merge_base_many(RepositorySafeHandle repo, GitOid[] commitIds)
         {
             using (ThreadAffinity())

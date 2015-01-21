@@ -406,5 +406,34 @@ namespace LibGit2Sharp
 
             return gitObject.Sha.Substring(0, minLength.Value);
         }
+
+        /// <summary>
+        /// Returns whether merging <paramref name="one"/> into <paramref name="another"/>
+        /// would result in merge conflicts.
+        /// </summary>
+        /// <param name="one">The commit wrapping the base tree to merge into.</param>
+        /// <param name="another">The commit wrapping the tree to merge into <paramref name="one"/>.</param>
+        /// <returns>True if the merge does not result in a conflict, false otherwise.</returns>
+        public virtual bool CanMergeWithoutConflict(Commit one, Commit another)
+        {
+            Ensure.ArgumentNotNull(one, "one");
+            Ensure.ArgumentNotNull(another, "another");
+
+            using (var ourHandle = Proxy.git_object_peel(repo.Handle, one.Id, GitObjectType.Tree, true))
+            using (var theirHandle = Proxy.git_object_peel(repo.Handle, another.Id, GitObjectType.Tree, true))
+            {
+                var ancestorCommit = repo.Commits.FindMergeBase(one, another);
+
+                var ancestorHandle = ancestorCommit != null
+                    ? Proxy.git_object_peel(repo.Handle, ancestorCommit.Id, GitObjectType.Tree, false)
+                    : new NullGitObjectSafeHandle();
+
+                using (ancestorHandle)
+                using (var indexHandle = Proxy.git_merge_trees(repo.Handle, ancestorHandle, ourHandle, theirHandle))
+                {
+                    return !Proxy.git_index_has_conflicts(indexHandle);
+                }
+            }
+        }
     }
 }
