@@ -69,6 +69,7 @@
     <Compile Include="CommitSortStrategies.cs" />
     <Compile Include="CompareOptions.cs" />
     <Compile Include="Core\GitIndexReucEntry.cs" />
+    <Compile Include="Core\GitSubmoduleOptions.cs" />
     <Compile Include="Core\Handles\IndexNameEntrySafeHandle.cs" />
     <Compile Include="Core\Handles\IndexReucEntrySafeHandle.cs" />
     <Compile Include="EntryExistsException.cs" />
@@ -133,6 +134,7 @@
     <Compile Include="Log.cs" />
     <Compile Include="LogConfiguration.cs" />
     <Compile Include="LogLevel.cs" />
+    <Compile Include="SubmoduleUpdateOptions.cs" />
     <Compile Include="UnbornBranchException.cs" />
     <Compile Include="LockedFileException.cs" />
     <Compile Include="Core\GitRepositoryInitOptions.cs" />

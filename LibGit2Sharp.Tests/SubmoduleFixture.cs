@@ -151,5 +151,129 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(SubmoduleStatus.IndexModified, statusAfter & SubmoduleStatus.IndexModified);
             }
         }
+
+        [Fact]
+        public void CanInitSubmodule()
+        {
+            var path = SandboxSubmoduleSmallTestRepo();
+            string submoduleName = "submodule_target_wd";
+            string expectedSubmodulePath = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(path), submoduleName));
+            string expectedSubmoduleUrl = expectedSubmodulePath.Replace('\\', '/');
+
+            using (var repo = new Repository(path))
+            {
+                var submodule = repo.Submodules[submoduleName];
+
+                Assert.NotNull(submodule);
+                Assert.True(submodule.RetrieveStatus().HasFlag(SubmoduleStatus.WorkDirUninitialized));
+
+                var configEntryBeforeInit = repo.Config.Get<string>(string.Format("submodule.{0}.url", submoduleName));
+                Assert.Null(configEntryBeforeInit);
+
+                repo.Submodules.Init(submodule.Name, false);
+
+                var configEntryAfterInit = repo.Config.Get<string>(string.Format("submodule.{0}.url", submoduleName));
+                Assert.NotNull(configEntryAfterInit);
+                Assert.Equal(expectedSubmoduleUrl, configEntryAfterInit.Value);
+            }
+        }
+
+        [Fact]
+        public void UpdatingUninitializedSubmoduleThrows()
+        {
+            var path = SandboxSubmoduleSmallTestRepo();
+            string submoduleName = "submodule_target_wd";
+
+            using (var repo = new Repository(path))
+            {
+                var submodule = repo.Submodules[submoduleName];
+
+                Assert.NotNull(submodule);
+                Assert.True(submodule.RetrieveStatus().HasFlag(SubmoduleStatus.WorkDirUninitialized));
+
+                Assert.Throws<LibGit2SharpException>(() => repo.Submodules.Update(submodule.Name, new SubmoduleUpdateOptions()));
+            }
+        }
+
+        [Fact]
+        public void CanUpdateSubmodule()
+        {
+            var path = SandboxSubmoduleSmallTestRepo();
+            string submoduleName = "submodule_target_wd";
+
+            using (var repo = new Repository(path))
+            {
+                var submodule = repo.Submodules[submoduleName];
+
+                Assert.NotNull(submodule);
+                Assert.True(submodule.RetrieveStatus().HasFlag(SubmoduleStatus.WorkDirUninitialized));
+
+                repo.Submodules.Init(submodule.Name, false);
+                repo.Submodules.Update(submodule.Name, new SubmoduleUpdateOptions());
+
+                Assert.True(submodule.RetrieveStatus().HasFlag(SubmoduleStatus.InWorkDir));
+                Assert.Equal((ObjectId)"480095882d281ed676fe5b863569520e54a7d5c0", submodule.HeadCommitId);
+                Assert.Equal((ObjectId)"480095882d281ed676fe5b863569520e54a7d5c0", submodule.IndexCommitId);
+                Assert.Equal((ObjectId)"480095882d281ed676fe5b863569520e54a7d5c0", submodule.WorkDirCommitId);
+            }
+        }
+
+        [Fact]
+        public void CanInitializeAndUpdateSubmodule()
+        {
+            var path = SandboxSubmoduleSmallTestRepo();
+            string submoduleName = "submodule_target_wd";
+
+            using (var repo = new Repository(path))
+            {
+                var submodule = repo.Submodules[submoduleName];
+
+                Assert.NotNull(submodule);
+                Assert.True(submodule.RetrieveStatus().HasFlag(SubmoduleStatus.WorkDirUninitialized));
+
+                repo.Submodules.Update(submodule.Name, new SubmoduleUpdateOptions() { Init = true });
+
+                Assert.True(submodule.RetrieveStatus().HasFlag(SubmoduleStatus.InWorkDir));
+                Assert.Equal((ObjectId)"480095882d281ed676fe5b863569520e54a7d5c0", submodule.HeadCommitId);
+                Assert.Equal((ObjectId)"480095882d281ed676fe5b863569520e54a7d5c0", submodule.IndexCommitId);
+                Assert.Equal((ObjectId)"480095882d281ed676fe5b863569520e54a7d5c0", submodule.WorkDirCommitId);
+            }
+        }
+
+        [Fact]
+        public void CanUpdateSubmoduleAfterCheckout()
+        {
+            var path = SandboxSubmoduleSmallTestRepo();
+            string submoduleName = "submodule_target_wd";
+
+            using (var repo = new Repository(path))
+            {
+                var submodule = repo.Submodules[submoduleName];
+
+                Assert.NotNull(submodule);
+                Assert.True(submodule.RetrieveStatus().HasFlag(SubmoduleStatus.WorkDirUninitialized));
+
+                repo.Submodules.Init(submodule.Name, false);
+                repo.Submodules.Update(submodule.Name, new SubmoduleUpdateOptions());
+
+                Assert.True(submodule.RetrieveStatus().HasFlag(SubmoduleStatus.InWorkDir));
+
+                repo.Checkout("alternate");
+                Assert.True(submodule.RetrieveStatus().HasFlag(SubmoduleStatus.WorkDirModified));
+
+                submodule = repo.Submodules[submoduleName];
+
+                Assert.Equal((ObjectId)"5e4963595a9774b90524d35a807169049de8ccad", submodule.HeadCommitId);
+                Assert.Equal((ObjectId)"5e4963595a9774b90524d35a807169049de8ccad", submodule.IndexCommitId);
+                Assert.Equal((ObjectId)"480095882d281ed676fe5b863569520e54a7d5c0", submodule.WorkDirCommitId);
+
+                repo.Submodules.Update(submodule.Name, new SubmoduleUpdateOptions());
+                submodule = repo.Submodules[submoduleName];
+
+                Assert.Equal((ObjectId)"5e4963595a9774b90524d35a807169049de8ccad", submodule.HeadCommitId);
+                Assert.Equal((ObjectId)"5e4963595a9774b90524d35a807169049de8ccad", submodule.IndexCommitId);
+                Assert.Equal((ObjectId)"5e4963595a9774b90524d35a807169049de8ccad", submodule.WorkDirCommitId);
+            }
+        }
     }
 }

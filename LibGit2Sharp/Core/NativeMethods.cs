@@ -1336,6 +1336,12 @@ namespace LibGit2Sharp.Core
             RepositorySafeHandle repo,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictFilePathMarshaler))] FilePath name);
 
+        [DllImport(libgit2)]
+        internal static extern int git_submodule_update(
+            SubmoduleSafeHandle sm,
+            [MarshalAs(UnmanagedType.Bool)] bool init,
+            ref GitSubmoduleOptions submoduleUpdateOptions);
+
         internal delegate int submodule_callback(
             IntPtr sm,
             IntPtr name,
@@ -1387,7 +1393,7 @@ namespace LibGit2Sharp.Core
             SubmoduleSafeHandle submodule);
 
         [DllImport(libgit2)]
-        internal static extern SubmoduleUpdate git_submodule_update(
+        internal static extern SubmoduleUpdate git_submodule_update_strategy(
             SubmoduleSafeHandle submodule);
 
         [DllImport(libgit2)]
@@ -1403,6 +1409,11 @@ namespace LibGit2Sharp.Core
         internal static extern int git_submodule_status(
             out SubmoduleStatus status,
             SubmoduleSafeHandle submodule);
+
+        [DllImport(libgit2)]
+        internal static extern int git_submodule_init(
+            SubmoduleSafeHandle submodule,
+            [MarshalAs(UnmanagedType.Bool)] bool overwrite);
 
         [DllImport(libgit2)]
         internal static extern int git_tag_annotation_create(

@@ -49,6 +49,70 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        /// Initialize specified submodule.
+        /// </summary>
+        /// <param name="name">The name of the submodule to update.</param>
+        /// <param name="overwrite">Overwrite existing entries.</param>
+        public virtual void Init(string name, bool overwrite)
+        {
+            using (var handle = Proxy.git_submodule_lookup(repo.Handle, name))
+            {
+                if (handle == null)
+                {
+                    throw new NotFoundException(string.Format(
+                        CultureInfo.InvariantCulture,
+                        "Submodule lookup failed for '{0}'.", name));
+                }
+
+                Proxy.git_submodule_init(handle, overwrite);
+            }
+        }
+
+        /// <summary>
+        /// Update specified submodule.
+        /// <para>
+        ///   This will:
+        ///   1) Optionally initialize the if it not already initialzed,
+        ///   2) clone the sub repository if it has not already been cloned, and
+        ///   3) checkout the commit ID for the submodule in the sub repository.
+        /// </para>
+        /// </summary>
+        /// <param name="name">The name of the submodule to update.</param>
+        /// <param name="options">Options controlling submodule udpate behavior and callbacks.</param>
+        public virtual void Update(string name, SubmoduleUpdateOptions options)
+        {
+            options = options ?? new SubmoduleUpdateOptions();
+
+            using (var handle = Proxy.git_submodule_lookup(repo.Handle, name))
+            {
+                if (handle == null)
+                {
+                    throw new NotFoundException(string.Format(
+                        CultureInfo.InvariantCulture,
+                        "Submodule lookup failed for '{0}'.", name));
+                }
+
+                using (GitCheckoutOptsWrapper checkoutOptionsWrapper = new GitCheckoutOptsWrapper(options))
+                {
+                    var gitCheckoutOptions = checkoutOptionsWrapper.Options;
+
+                    var remoteCallbacks = new RemoteCallbacks(options);
+                    var gitRemoteCallbacks = remoteCallbacks.GenerateCallbacks();
+
+                    var gitSubmoduleUpdateOpts = new GitSubmoduleOptions
+                    {
+                        Version = 1,
+                        CheckoutOptions = gitCheckoutOptions,
+                        RemoteCallbacks = gitRemoteCallbacks,
+                        CloneCheckoutStrategy = CheckoutStrategy.GIT_CHECKOUT_SAFE_CREATE
+                    };
+
+                    Proxy.git_submodule_update(handle, options.Init, ref gitSubmoduleUpdateOpts);
+                }
+            }
+        }
+
+        /// <summary>
         /// Returns an enumerator that iterates through the collection.
         /// </summary>
         /// <returns>An <see cref="IEnumerator{T}"/> object that can be used to iterate through the collection.</returns>

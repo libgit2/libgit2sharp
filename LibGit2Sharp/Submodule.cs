@@ -46,7 +46,7 @@ namespace LibGit2Sharp
             var rules = new SubmoduleLazyGroup(repo, name);
             fetchRecurseSubmodulesRule = rules.AddLazy(Proxy.git_submodule_fetch_recurse_submodules);
             ignoreRule = rules.AddLazy(Proxy.git_submodule_ignore);
-            updateRule = rules.AddLazy(Proxy.git_submodule_update);
+            updateRule = rules.AddLazy(Proxy.git_submodule_update_strategy);
         }
 
         /// <summary>
