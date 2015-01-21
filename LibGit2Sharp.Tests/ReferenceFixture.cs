@@ -73,7 +73,7 @@ namespace LibGit2Sharp.Tests
             string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
-                Assert.Throws<LibGit2SharpException>(() => repo.Refs.Add(name, "master^42"));
+                Assert.Throws<NotFoundException>(() => repo.Refs.Add(name, "master^42"));
             }
         }
 
@@ -610,7 +610,7 @@ namespace LibGit2Sharp.Tests
             string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
-                Assert.Throws<LibGit2SharpException>(() => repo.Refs.UpdateTarget(repo.Refs["refs/heads/master"], "refs/heads/nope"));
+                Assert.Throws<NotFoundException>(() => repo.Refs.UpdateTarget(repo.Refs["refs/heads/master"], "refs/heads/nope"));
             }
         }
 

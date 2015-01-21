@@ -98,6 +98,7 @@
     <Compile Include="GitObjectMetadata.cs" />
     <Compile Include="PatchEntryChanges.cs" />
     <Compile Include="PatchStats.cs" />
+    <Compile Include="PeelException.cs" />
     <Compile Include="PullOptions.cs" />
     <Compile Include="RefSpec.cs" />
     <Compile Include="RefSpecCollection.cs" />

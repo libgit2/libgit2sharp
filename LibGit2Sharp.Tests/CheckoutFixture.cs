@@ -383,7 +383,7 @@ namespace LibGit2Sharp.Tests
             string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
-                Assert.Throws<LibGit2SharpException>(() => repo.Checkout("i-do-not-exist"));
+                Assert.Throws<NotFoundException>(() => repo.Checkout("i-do-not-exist"));
             }
         }
 
@@ -895,7 +895,7 @@ namespace LibGit2Sharp.Tests
             string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
-                Assert.Throws<LibGit2SharpException>(() => repo.Checkout("head"));
+                Assert.Throws<NotFoundException>(() => repo.Checkout("head"));
             }
         }
 

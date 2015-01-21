@@ -258,7 +258,7 @@ namespace LibGit2Sharp.Tests
             string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
-                Assert.Throws<LibGit2SharpException>(() => repo.ApplyTag("mytagnorev", "aaaaaaaaaaa"));
+                Assert.Throws<NotFoundException>(() => repo.ApplyTag("mytagnorev", "aaaaaaaaaaa"));
             }
         }
 
@@ -269,7 +269,7 @@ namespace LibGit2Sharp.Tests
             string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
-                Assert.Throws<LibGit2SharpException>(() => repo.ApplyTag("mytagnorev", Constants.UnknownSha));
+                Assert.Throws<NotFoundException>(() => repo.ApplyTag("mytagnorev", Constants.UnknownSha));
             }
         }
 
@@ -507,7 +507,7 @@ namespace LibGit2Sharp.Tests
             string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
-                Assert.Throws<LibGit2SharpException>(() => repo.Tags.Add("test_tag", Constants.UnknownSha, signatureTim, "message"));
+                Assert.Throws<NotFoundException>(() => repo.Tags.Add("test_tag", Constants.UnknownSha, signatureTim, "message"));
             }
         }
 
@@ -623,7 +623,7 @@ namespace LibGit2Sharp.Tests
             string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
-                Assert.Throws<LibGit2SharpException>(() => repo.Tags.Remove("unknown-tag"));
+                Assert.Throws<NotFoundException>(() => repo.Tags.Remove("unknown-tag"));
             }
         }
 
