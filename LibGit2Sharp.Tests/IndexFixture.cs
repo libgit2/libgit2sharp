@@ -373,5 +373,109 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(FileStatus.Removed | FileStatus.Untracked, repo.RetrieveStatus(testFile));
             }
         }
+
+        [Theory]
+        [InlineData("new_tracked_file.txt", FileStatus.Added, FileStatus.Untracked)]
+        [InlineData("modified_staged_file.txt", FileStatus.Staged, FileStatus.Removed | FileStatus.Untracked)]
+        [InlineData("i_dont_exist.txt", FileStatus.Nonexistent, FileStatus.Nonexistent)]
+        public void CanRemoveAnEntryFromTheIndex(string pathInTheIndex, FileStatus expectedBeforeStatus, FileStatus expectedAfterStatus)
+        {
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
+            {
+                var before = repo.RetrieveStatus(pathInTheIndex);
+                Assert.Equal(expectedBeforeStatus, before);
+
+                repo.Index.Remove(pathInTheIndex);
+
+                var after = repo.RetrieveStatus(pathInTheIndex);
+                Assert.Equal(expectedAfterStatus, after);
+            }
+        }
+
+        [Theory]
+        [InlineData("new_untracked_file.txt", FileStatus.Untracked, FileStatus.Added)]
+        [InlineData("modified_unstaged_file.txt", FileStatus.Modified, FileStatus.Staged)]
+        public void CanAddAnEntryToTheIndexFromAFileInTheWorkdir(string pathInTheWorkdir, FileStatus expectedBeforeStatus, FileStatus expectedAfterStatus)
+        {
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
+            {
+                var before = repo.RetrieveStatus(pathInTheWorkdir);
+                Assert.Equal(expectedBeforeStatus, before);
+
+                repo.Index.Add(pathInTheWorkdir);
+
+                var after = repo.RetrieveStatus(pathInTheWorkdir);
+                Assert.Equal(expectedAfterStatus, after);
+            }
+        }
+
+        [Fact]
+        public void CanAddAnEntryToTheIndexFromABlob()
+        {
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
+            {
+                const string targetIndexEntryPath = "1.txt";
+                var before = repo.RetrieveStatus(targetIndexEntryPath);
+                Assert.Equal(FileStatus.Unaltered, before);
+
+                var blob = repo.Lookup<Blob>("a8233120f6ad708f843d861ce2b7228ec4e3dec6");
+
+                repo.Index.Add(blob, targetIndexEntryPath, Mode.NonExecutableFile);
+
+                var after = repo.RetrieveStatus(targetIndexEntryPath);
+                Assert.Equal(FileStatus.Staged | FileStatus.Modified, after);
+            }
+        }
+
+        [Fact]
+        public void AddingAnEntryToTheIndexFromAUnknwonFileInTheWorkdirThrows()
+        {
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
+            {
+                const string filePath = "i_dont_exist.txt";
+                var before = repo.RetrieveStatus(filePath);
+                Assert.Equal(FileStatus.Nonexistent, before);
+
+                Assert.Throws<NotFoundException>(() => repo.Index.Add(filePath));
+            }
+        }
+
+        [Fact]
+        public void CanMimicGitAddAll()
+        {
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
+            {
+                var before = repo.RetrieveStatus();
+                Assert.True(before.Any(se => se.State == FileStatus.Untracked));
+                Assert.True(before.Any(se => se.State == FileStatus.Modified));
+                Assert.True(before.Any(se => se.State == FileStatus.Missing));
+
+                AddSomeCornerCases(repo);
+
+                repo.Stage("*");
+
+                var after = repo.RetrieveStatus();
+                Assert.False(after.Any(se => se.State == FileStatus.Untracked));
+                Assert.False(after.Any(se => se.State == FileStatus.Modified));
+                Assert.False(after.Any(se => se.State == FileStatus.Missing));
+            }
+        }
+
+        private static void AddSomeCornerCases(Repository repo)
+        {
+            // Turn 1.txt into a directory in the Index
+            repo.Index.Remove("1.txt");
+            var blob = repo.Lookup<Blob>("a8233120f6ad708f843d861ce2b7228ec4e3dec6");
+            repo.Index.Add(blob, "1.txt/Sneaky", Mode.NonExecutableFile);
+
+            // Turn README into a symlink
+            Blob linkContent = OdbHelper.CreateBlob(repo, "1.txt/sneaky");
+            repo.Index.Add(linkContent, "README", Mode.SymbolicLink);
+        }
     }
 }
