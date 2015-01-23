@@ -50,6 +50,10 @@ namespace LibGit2Sharp
 
         /// <summary>
         /// Initialize specified submodule.
+        /// <para>
+        /// Existing entries in the config file for this submodule are not be
+        /// modified unless <paramref name="overwrite"/> is true.
+        /// </para>
         /// </summary>
         /// <param name="name">The name of the submodule to update.</param>
         /// <param name="overwrite">Overwrite existing entries.</param>
