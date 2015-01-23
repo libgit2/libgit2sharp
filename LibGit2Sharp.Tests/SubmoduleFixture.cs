@@ -289,5 +289,25 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal((ObjectId)"5e4963595a9774b90524d35a807169049de8ccad", submodule.WorkDirCommitId);
             }
         }
+
+        [Fact]
+        public void CanReadSubmoduleProperties()
+        {
+            var path = SandboxSubmoduleSmallTestRepo();
+            string submoduleName = "submodule_target_wd";
+
+            using (var repo = new Repository(path))
+            {
+                var submodule = repo.Submodules[submoduleName];
+
+                Assert.Equal(SubmoduleUpdate.Checkout, submodule.UpdateRule);
+                Assert.Equal(SubmoduleIgnore.None, submodule.IgnoreRule);
+
+                // Libgit2 currently returns No by default, which seems incorrect -
+                // I would expect OnDemand. For now, just test that we can query
+                // lg2 for this property.
+                Assert.Equal(SubmoduleRecurse.No, submodule.FetchRecurseSubmodulesRule);
+            }
+        }
     }
 }

@@ -134,6 +134,7 @@
     <Compile Include="Log.cs" />
     <Compile Include="LogConfiguration.cs" />
     <Compile Include="LogLevel.cs" />
+    <Compile Include="SubmoduleRecurse.cs" />
     <Compile Include="SubmoduleUpdateOptions.cs" />
     <Compile Include="UnbornBranchException.cs" />
     <Compile Include="LockedFileException.cs" />

@@ -21,7 +21,7 @@ namespace LibGit2Sharp
         private readonly ILazy<ObjectId> headCommitId;
         private readonly ILazy<ObjectId> indexCommitId;
         private readonly ILazy<ObjectId> workdirCommitId;
-        private readonly ILazy<bool> fetchRecurseSubmodulesRule;
+        private readonly ILazy<SubmoduleRecurse> fetchRecurseSubmodulesRule;
         private readonly ILazy<SubmoduleIgnore> ignoreRule;
         private readonly ILazy<SubmoduleUpdate> updateRule;
 
@@ -85,7 +85,7 @@ namespace LibGit2Sharp
         /// Note that at this time, LibGit2Sharp does not honor this setting and the
         /// fetch functionality current ignores submodules.
         /// </summary>
-        public virtual bool FetchRecurseSubmodulesRule { get { return fetchRecurseSubmodulesRule.Value; } }
+        public virtual SubmoduleRecurse FetchRecurseSubmodulesRule { get { return fetchRecurseSubmodulesRule.Value; } }
 
         /// <summary>
         /// The ignore rule of the submodule.

@@ -2764,7 +2764,7 @@ namespace LibGit2Sharp.Core
             return NativeMethods.git_submodule_update_strategy(submodule);
         }
 
-        public static bool git_submodule_fetch_recurse_submodules(SubmoduleSafeHandle submodule)
+        public static SubmoduleRecurse git_submodule_fetch_recurse_submodules(SubmoduleSafeHandle submodule)
         {
             return NativeMethods.git_submodule_fetch_recurse_submodules(submodule);
         }

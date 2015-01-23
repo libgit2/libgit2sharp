@@ -1397,7 +1397,7 @@ namespace LibGit2Sharp.Core
             SubmoduleSafeHandle submodule);
 
         [DllImport(libgit2)]
-        internal static extern bool git_submodule_fetch_recurse_submodules(
+        internal static extern SubmoduleRecurse git_submodule_fetch_recurse_submodules(
             SubmoduleSafeHandle submodule);
 
         [DllImport(libgit2)]
