@@ -466,6 +466,20 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        [Fact]
+        public void RetrievingAssumedUnchangedMarkedIndexEntries()
+        {
+            var path = SandboxAssumeUnchangedTestRepo();
+            using (var repo = new Repository(path))
+            {             
+                var regularFile = repo.Index["hello.txt"];
+                Assert.False(regularFile.AssumeUnchanged);
+
+                var assumeUnchangedFile = repo.Index["world.txt"];
+                Assert.True(assumeUnchangedFile.AssumeUnchanged);                
+            }
+        }
+
         private static void AddSomeCornerCases(Repository repo)
         {
             // Turn 1.txt into a directory in the Index

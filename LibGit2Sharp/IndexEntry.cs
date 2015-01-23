@@ -31,6 +31,11 @@ namespace LibGit2Sharp
         public virtual StageLevel StageLevel { get; private set; }
 
         /// <summary>
+        /// Whether the file is marked as assume-unchanged
+        /// </summary>
+        public virtual bool AssumeUnchanged { get; private set; }
+
+        /// <summary>
         /// Gets the id of the <see cref="Blob"/> pointed at by this index entry.
         /// </summary>
         public virtual ObjectId Id { get; private set; }
@@ -51,7 +56,8 @@ namespace LibGit2Sharp
                            Path = path.Native,
                            Id = entry.Id,
                            StageLevel = Proxy.git_index_entry_stage(handle),
-                           Mode = (Mode)entry.Mode
+                           Mode = (Mode)entry.Mode,
+                           AssumeUnchanged = (GitIndexEntry.GIT_IDXENTRY_VALID & entry.Flags) == GitIndexEntry.GIT_IDXENTRY_VALID
                        };
         }
 
