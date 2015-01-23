@@ -208,10 +208,24 @@ namespace LibGit2Sharp.Tests
                 Assert.NotNull(submodule);
                 Assert.True(submodule.RetrieveStatus().HasFlag(SubmoduleStatus.WorkDirUninitialized));
 
+                bool checkoutProgressCalled = false;
+                bool checkoutNotifyCalled = false;
+                bool updateTipsCalled = false;
+                var options = new SubmoduleUpdateOptions()
+                {
+                    OnCheckoutProgress = (x, y, z) => checkoutProgressCalled = true,
+                    OnCheckoutNotify = (x, y) => { checkoutNotifyCalled = true; return true; },
+                    CheckoutNotifyFlags = CheckoutNotifyFlags.Updated,
+                    OnUpdateTips = (x, y, z) => { updateTipsCalled = true; return true; },
+                };
+
                 repo.Submodules.Init(submodule.Name, false);
-                repo.Submodules.Update(submodule.Name, new SubmoduleUpdateOptions());
+                repo.Submodules.Update(submodule.Name, options);
 
                 Assert.True(submodule.RetrieveStatus().HasFlag(SubmoduleStatus.InWorkDir));
+                Assert.True(checkoutProgressCalled);
+                Assert.True(checkoutNotifyCalled);
+                Assert.True(updateTipsCalled);
                 Assert.Equal((ObjectId)"480095882d281ed676fe5b863569520e54a7d5c0", submodule.HeadCommitId);
                 Assert.Equal((ObjectId)"480095882d281ed676fe5b863569520e54a7d5c0", submodule.IndexCommitId);
                 Assert.Equal((ObjectId)"480095882d281ed676fe5b863569520e54a7d5c0", submodule.WorkDirCommitId);
