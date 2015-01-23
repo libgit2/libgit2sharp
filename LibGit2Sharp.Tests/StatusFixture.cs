@@ -581,5 +581,16 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(2, status.Untracked.Count());
             }
         }
+
+        [Fact]
+        public void RetrievingTheStatusHonorsAssumedUnchangedMarkedIndexEntries()
+        {
+            var path = SandboxAssumeUnchangedTestRepo();
+            using (var repo = new Repository(path))
+            {
+                var status = repo.RetrieveStatus();
+                Assert.Equal("hello.txt", status.Modified.Single().FilePath);
+            }
+        }
     }
 }
