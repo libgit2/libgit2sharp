@@ -147,10 +147,10 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Theory(Skip = "Skipping due to recent github handling modification of --include-tag.")]
+        [Theory]
         [InlineData(TagFetchMode.All, 4)]
         [InlineData(TagFetchMode.None, 0)]
-        [InlineData(TagFetchMode.Auto, 3)]
+        //[InlineData(TagFetchMode.Auto, 3)] // TODO: Skipping due to github modification of --include-tag handling."
         public void FetchRespectsConfiguredAutoTagSetting(TagFetchMode tagFetchMode, int expectedTagCount)
         {
             string url = "http://github.com/libgit2/TestGitRepository";
