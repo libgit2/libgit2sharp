@@ -173,5 +173,20 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(expectedTagCount, repo.Tags.Count());
             }
         }
+
+        [Fact]
+        public void CanFetchAllTagsAfterAnInitialClone()
+        {
+            var scd = BuildSelfCleaningDirectory();
+
+            const string url = "https://github.com/libgit2/TestGitRepository";
+
+            string clonedRepoPath = Repository.Clone(url, scd.DirectoryPath);
+
+            using (var repo = new Repository(clonedRepoPath))
+            {
+                repo.Fetch("origin", new FetchOptions { TagFetchMode = TagFetchMode.All });
+            }
+        }
     }
 }
