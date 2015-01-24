@@ -16,7 +16,9 @@ namespace LibGit2Sharp.Tests
         [InlineData("git://github.com/libgit2/TestGitRepository.git")]
         public void CanFetchIntoAnEmptyRepository(string url)
         {
-            using (var repo = InitIsolatedRepository())
+            string path = InitNewRepository();
+
+            using (var repo = new Repository(path))
             {
                 Remote remote = repo.Network.Remotes.Add(remoteName, url);
 
@@ -53,7 +55,9 @@ namespace LibGit2Sharp.Tests
             InconclusiveIf(() => string.IsNullOrEmpty(Constants.PrivateRepoUrl),
                 "Populate Constants.PrivateRepo* to run this test");
 
-            using (var repo = InitIsolatedRepository())
+            string path = InitNewRepository();
+
+            using (var repo = new Repository(path))
             {
                 Remote remote = repo.Network.Remotes.Add(remoteName, Constants.PrivateRepoUrl);
 
@@ -71,7 +75,9 @@ namespace LibGit2Sharp.Tests
         [InlineData("git://github.com/libgit2/TestGitRepository.git")]
         public void CanFetchAllTagsIntoAnEmptyRepository(string url)
         {
-            using (var repo = InitIsolatedRepository())
+            string path = InitNewRepository();
+
+            using (var repo = new Repository(path))
             {
                 Remote remote = repo.Network.Remotes.Add(remoteName, url);
 
@@ -112,7 +118,9 @@ namespace LibGit2Sharp.Tests
         [InlineData("git://github.com/libgit2/TestGitRepository.git", "master", "first-merge")]
         public void CanFetchCustomRefSpecsIntoAnEmptyRepository(string url, string localBranchName, string remoteBranchName)
         {
-            using (var repo = InitIsolatedRepository())
+            string path = InitNewRepository();
+
+            using (var repo = new Repository(path))
             {
                 Remote remote = repo.Network.Remotes.Add(remoteName, url);
 
@@ -139,15 +147,17 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Theory(Skip = "Skipping due to recent github handling modification of --include-tag.")]
+        [Theory]
         [InlineData(TagFetchMode.All, 4)]
         [InlineData(TagFetchMode.None, 0)]
-        [InlineData(TagFetchMode.Auto, 3)]
+        //[InlineData(TagFetchMode.Auto, 3)] // TODO: Skipping due to github modification of --include-tag handling."
         public void FetchRespectsConfiguredAutoTagSetting(TagFetchMode tagFetchMode, int expectedTagCount)
         {
             string url = "http://github.com/libgit2/TestGitRepository";
 
-            using (var repo = InitIsolatedRepository())
+            string path = InitNewRepository();
+
+            using (var repo = new Repository(path))
             {
                 Remote remote = repo.Network.Remotes.Add(remoteName, url);
                 Assert.NotNull(remote);
@@ -161,6 +171,21 @@ namespace LibGit2Sharp.Tests
 
                 // Verify the number of fetched tags.
                 Assert.Equal(expectedTagCount, repo.Tags.Count());
+            }
+        }
+
+        [Fact]
+        public void CanFetchAllTagsAfterAnInitialClone()
+        {
+            var scd = BuildSelfCleaningDirectory();
+
+            const string url = "https://github.com/libgit2/TestGitRepository";
+
+            string clonedRepoPath = Repository.Clone(url, scd.DirectoryPath);
+
+            using (var repo = new Repository(clonedRepoPath))
+            {
+                repo.Fetch("origin", new FetchOptions { TagFetchMode = TagFetchMode.All });
             }
         }
     }
