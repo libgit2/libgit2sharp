@@ -33,9 +33,9 @@ install:
     $Version = "$($Env:APPVEYOR_BUILD_VERSION)$($VersionSuffix)"
     $Env:ASSEMBLY_INFORMATIONAL_VERSION = $Version
     Write-Host "Assembly informational version = $($Env:ASSEMBLY_INFORMATIONAL_VERSION)"
-    $ShouldBuildNuget = "$($env:APPVEYOR_PULL_REQUEST_NUMBER -eq $null)"
-    $Env:SHOULD_BUILD_NUGET = $ShouldBuildNuget
-    Write-Host "Should build Nuget = $($Env:SHOULD_BUILD_NUGET)"
+    $ShouldPublishNugetArtifact = "$($env:APPVEYOR_PULL_REQUEST_NUMBER -eq $null)"
+    $Env:SHOULD_PUBLISH_NUGET_ARTIFACT = $ShouldPublishNugetArtifact
+    Write-Host "Should publish Nuget artifact = $($Env:SHOULD_PUBLISH_NUGET_ARTIFACT)"
 
 assembly_info:
   patch: true
@@ -59,9 +59,10 @@ test_script:
 
 on_success:
 - ps: |
-    If ($Env:SHOULD_BUILD_NUGET -eq $True)
+- ps: |
+    & "C:\projects\libgit2sharp\nuget.package\BuildNugetPackage.ps1" "$env:APPVEYOR_REPO_COMMIT"
+    If ($Env:SHOULD_PUBLISH_NUGET_ARTIFACT -eq $True)
     {
-      & "C:\projects\libgit2sharp\nuget.package\BuildNugetPackage.ps1" "$env:APPVEYOR_REPO_COMMIT"
       Get-ChildItem "C:\projects\libgit2sharp\LibGit2sharp\*.nupkg" | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
     }
 
