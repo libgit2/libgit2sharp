@@ -162,7 +162,7 @@ namespace LibGit2Sharp.Tests
                 // Checkout other_branch
                 Branch otherBranch = repo.Branches[otherBranchName];
                 Assert.NotNull(otherBranch);
-                otherBranch.Checkout();
+                repo.Checkout(otherBranch);
 
                 // Verify working directory is updated
                 Assert.False(repo.RetrieveStatus().IsDirty);
@@ -190,7 +190,7 @@ namespace LibGit2Sharp.Tests
                 // Checkout other_branch
                 Branch otherBranch = repo.Branches[otherBranchName];
                 Assert.NotNull(otherBranch);
-                otherBranch.Checkout();
+                repo.Checkout(otherBranch);
 
                 // Verify working directory is updated
                 Assert.False(repo.RetrieveStatus().IsDirty);
@@ -218,7 +218,7 @@ namespace LibGit2Sharp.Tests
                 // Checkout other_branch
                 Branch otherBranch = repo.Branches[otherBranchName];
                 Assert.NotNull(otherBranch);
-                otherBranch.Checkout();
+                repo.Checkout(otherBranch);
 
                 // Verify working directory is updated
                 Assert.False(repo.RetrieveStatus().IsDirty);
@@ -410,7 +410,8 @@ namespace LibGit2Sharp.Tests
                 bool wasCalled = false;
 
                 Branch branch = repo.Branches[otherBranchName];
-                branch.Checkout(new CheckoutOptions() { OnCheckoutProgress = (path, completed, total) => wasCalled = true});
+                repo.Checkout(branch,
+                    new CheckoutOptions { OnCheckoutProgress = (path, completed, total) => wasCalled = true});
 
                 Assert.True(wasCalled);
             }
@@ -684,7 +685,7 @@ namespace LibGit2Sharp.Tests
 
                 Assert.False(repo.Info.IsHeadDetached);
 
-                initial.Checkout();
+                repo.Checkout(initial);
 
                 // Head should point at initial commit.
                 Assert.Equal(repo.Head.Tip, initialCommit);

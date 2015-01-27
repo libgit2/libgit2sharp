@@ -225,6 +225,7 @@ namespace LibGit2Sharp
         /// the named branch. Otherwise, will checkout the tip commit as a
         /// detached HEAD.
         /// </summary>
+        [Obsolete("This method will be removed in the next release. Please use IRepository.Checkout() instead.")]
         public virtual void Checkout()
         {
             repo.Checkout(this);
@@ -239,6 +240,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="options"><see cref="CheckoutOptions"/> controlling checkout behavior.</param>
         /// <param name="signature">Identity for use when updating the reflog.</param>
+        [Obsolete("This method will be removed in the next release. Please use IRepository.Checkout() instead.")]
         public virtual void Checkout(CheckoutOptions options, Signature signature = null)
         {
             Ensure.ArgumentNotNull(options, "options");

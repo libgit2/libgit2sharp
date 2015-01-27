@@ -46,7 +46,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path))
             {
                 var firstBranch = repo.CreateBranch("FirstBranch");
-                firstBranch.Checkout();
+                repo.Checkout(firstBranch);
 
                 // Commit with ONE new file to both first & second branch (SecondBranch is created on this commit).
                 AddFileCommitToRepo(repo, sharedBranchFileName);
@@ -56,7 +56,7 @@ namespace LibGit2Sharp.Tests
                 AddFileCommitToRepo(repo, firstBranchFileName);
                 AddFileCommitToRepo(repo, sharedBranchFileName, "The first branches comment");  // Change file in first branch
 
-                secondBranch.Checkout();
+                repo.Checkout(secondBranch);
                 // Commit with ONE new file to second branch (FirstBranch and SecondBranch now point to separate commits that both have the same parent commit).
                 AddFileCommitToRepo(repo, secondBranchFileName);
                 AddFileCommitToRepo(repo, sharedBranchFileName, "The second branches comment");  // Change file in second branch
