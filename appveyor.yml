@@ -61,6 +61,8 @@ on_success:
 - ps: |
 - ps: |
     & "C:\projects\libgit2sharp\nuget.package\BuildNugetPackage.ps1" "$env:APPVEYOR_REPO_COMMIT"
+    Add-Type -Path "C:\projects\libgit2sharp\LibGit2Sharp\bin\Release\LibGit2Sharp.dll"
+    Write-Host "LibGit2Sharp version = $([LibGit2Sharp.GlobalSettings]::Version)" -ForegroundColor "Magenta"
     If ($Env:SHOULD_PUBLISH_NUGET_ARTIFACT -eq $True)
     {
       Get-ChildItem "C:\projects\libgit2sharp\LibGit2sharp\*.nupkg" | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
