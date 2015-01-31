@@ -20,6 +20,11 @@ namespace LibGit2Sharp
         public CheckoutNotifyFlags CheckoutNotifyFlags { get; set; }
 
         /// <summary>
+        /// How conflicting index entries should be written out during checkout.
+        /// </summary>
+        public CheckoutFileConflictStrategy FileConflictStrategy { get; set; }
+
+        /// <summary>
         /// Delegate to be called during checkout for files that match
         /// desired filter specified with the NotifyFlags property.
         /// </summary>
@@ -34,8 +39,16 @@ namespace LibGit2Sharp
         {
             get
             {
-                return CheckoutModifiers.HasFlag(CheckoutModifiers.Force) ?
-                    CheckoutStrategy.GIT_CHECKOUT_FORCE : CheckoutStrategy.GIT_CHECKOUT_SAFE;
+                var strategy = GitCheckoutOptsWrapper.CheckoutStrategyFromFileConflictStrategy(FileConflictStrategy);
+                if (strategy != default(CheckoutStrategy))
+                    return CheckoutModifiers.HasFlag(CheckoutModifiers.Force)
+                        ? CheckoutStrategy.GIT_CHECKOUT_FORCE | strategy
+                        : strategy;
+
+                if (CheckoutModifiers.HasFlag(CheckoutModifiers.Force))
+                    return CheckoutStrategy.GIT_CHECKOUT_FORCE;
+
+                return CheckoutStrategy.GIT_CHECKOUT_SAFE;
             }
         }
 

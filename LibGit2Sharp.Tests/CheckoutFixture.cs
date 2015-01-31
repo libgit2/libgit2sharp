@@ -280,6 +280,67 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
+        public void CanCheckoutWithMergeConflictsSelectingTheirs()
+        {
+            const string firstBranchFileName = "first branch file.txt";
+            const string secondBranchFileName = "second branch file.txt";
+            const string sharedBranchFileName = "first+second branch file.txt";
+            const string firstBranchContent = "The first branches comment";
+            const string secondBranchContent = "The second branches comment";
+
+            string path = InitNewRepository();
+            using (var repo = new Repository(path))
+            {
+                PopulateBasicRepository(repo);
+
+                var firstBranch = repo.CreateBranch("FirstBranch");
+                repo.Checkout("FirstBranch");
+
+                // Commit with ONE new file to both first & second branch (SecondBranch is created on this commit).
+                AddFileCommitToRepo(repo, sharedBranchFileName);
+
+                var secondBranch = repo.CreateBranch("SecondBranch");
+                // Commit with ONE new file to first branch (FirstBranch moves forward as it is checked out, SecondBranch stays back one).
+                AddFileCommitToRepo(repo, firstBranchFileName);
+                AddFileCommitToRepo(repo, sharedBranchFileName, firstBranchContent);  // Change file in first branch
+
+                repo.Checkout("SecondBranch");
+                // Commit with ONE new file to second branch (FirstBranch and SecondBranch now point to separate commits that both have the same parent commit).
+                AddFileCommitToRepo(repo, secondBranchFileName);
+                AddFileCommitToRepo(repo, sharedBranchFileName, secondBranchContent);  // Change file in second branch
+
+                MergeResult mergeResult = repo.Merge(repo.Branches["FirstBranch"].Tip, Constants.Signature);
+
+                Assert.Equal(MergeStatus.Conflicts, mergeResult.Status);
+
+                Assert.Null(mergeResult.Commit);
+                Assert.Equal(1, repo.Index.Conflicts.Count());
+
+                var conflict = repo.Index.Conflicts.First();
+                var theirBlob = repo.Lookup<Blob>(conflict.Theirs.Id);
+
+                //Checkout 'their' file
+                repo.CheckoutPaths(firstBranch.CanonicalName, new[] { conflict.Theirs.Path },
+                    new CheckoutOptions() { FileConflictStrategy = CheckoutFileConflictStrategy.Theirs, CheckoutModifiers = CheckoutModifiers.Force });
+
+                //Stage and commit to resolve the conflict
+                repo.Stage(conflict.Theirs.Path);
+                var commit = repo.Commit("Commmits their file", Constants.Signature, Constants.Signature);
+
+                Assert.NotNull(commit);
+                Assert.True(repo.Index.IsFullyMerged);
+
+                IndexEntry entry = repo.Index[conflict.Theirs.Path];
+                var mergedBlob = repo.Lookup<Blob>(entry.Id);
+                var changes = repo.Diff.Compare(theirBlob, mergedBlob);
+
+                Assert.Equal(0, changes.LinesAdded);
+                Assert.Equal(0, changes.LinesDeleted);
+                Assert.Equal(theirBlob.GetContentText(), mergedBlob.GetContentText());
+            }
+        }
+
+        [Fact]
         public void CheckingOutWithMergeConflictsThrows()
         {
             string repoPath = InitNewRepository();
@@ -1055,6 +1116,15 @@ namespace LibGit2Sharp.Tests
 
             // Clean the working directory.
             repo.RemoveUntrackedFiles();
+        }
+
+        private Commit AddFileCommitToRepo(IRepository repository, string filename, string content = null)
+        {
+            Touch(repository.Info.WorkingDirectory, filename, content);
+
+            repository.Stage(filename);
+
+            return repository.Commit("New commit", Constants.Signature, Constants.Signature);
         }
     }
 }
