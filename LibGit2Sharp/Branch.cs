@@ -219,34 +219,6 @@ namespace LibGit2Sharp
             return Proxy.git_branch_remote_name(repo.Handle, CanonicalName, false);
         }
 
-        /// <summary>
-        /// Checkout the tip commit of this <see cref="Branch"/> object.
-        /// If this commit is the current tip of the branch, will checkout
-        /// the named branch. Otherwise, will checkout the tip commit as a
-        /// detached HEAD.
-        /// </summary>
-        [Obsolete("This method will be removed in the next release. Please use IRepository.Checkout() instead.")]
-        public virtual void Checkout()
-        {
-            repo.Checkout(this);
-        }
-
-        /// <summary>
-        /// Checkout the tip commit of this <see cref="Branch"/> object with
-        /// <see cref="CheckoutOptions"/> parameter specifying checkout
-        /// behavior. If this commit is the current tip of the branch, will
-        /// checkout the named branch. Otherwise, will checkout the tip
-        /// commit as a detached HEAD.
-        /// </summary>
-        /// <param name="options"><see cref="CheckoutOptions"/> controlling checkout behavior.</param>
-        /// <param name="signature">Identity for use when updating the reflog.</param>
-        [Obsolete("This method will be removed in the next release. Please use IRepository.Checkout() instead.")]
-        public virtual void Checkout(CheckoutOptions options, Signature signature = null)
-        {
-            Ensure.ArgumentNotNull(options, "options");
-            repo.Checkout(this, options, signature);
-        }
-
         private Branch ResolveTrackedBranch()
         {
             if (IsRemote)

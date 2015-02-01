@@ -26,19 +26,6 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Returns the <see cref="System.Version" /> of the
-        /// the LibGit2Sharp library.
-        /// </summary>
-        [Obsolete("This property will be removed in the next release. Please use InformationalVersion instead.")]
-        public virtual System.Version MajorMinorPatch
-        {
-            get
-            {
-                return assembly.GetName().Version;
-            }
-        }
-
-        /// <summary>
         /// Returns version of the LibGit2Sharp library.
         /// </summary>
         public virtual string InformationalVersion
