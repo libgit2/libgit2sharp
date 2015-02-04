@@ -1242,7 +1242,7 @@ namespace LibGit2Sharp
                 case GitMergePreference.GIT_MERGE_PREFERENCE_FASTFORWARD_ONLY:
                     return FastForwardStrategy.FastForwardOnly;
                 case GitMergePreference.GIT_MERGE_PREFERENCE_NO_FASTFORWARD:
-                    return FastForwardStrategy.NoFastFoward;
+                    return FastForwardStrategy.NoFastForward;
                 default:
                     throw new InvalidOperationException(String.Format("Unknown merge preference: {0}", preference));
             }
@@ -1308,7 +1308,7 @@ namespace LibGit2Sharp
                         throw new NonFastForwardException("Cannot perform fast-forward merge.");
                     }
                     break;
-                case FastForwardStrategy.NoFastFoward:
+                case FastForwardStrategy.NoFastForward:
                     if (mergeAnalysis.HasFlag(GitMergeAnalysis.GIT_MERGE_ANALYSIS_NORMAL))
                     {
                         mergeResult = NormalMerge(annotatedCommits, merger, options);

@@ -132,7 +132,7 @@ namespace LibGit2Sharp.Tests
 
         [Theory]
         [InlineData(FastForwardStrategy.Default)]
-        [InlineData(FastForwardStrategy.NoFastFoward)]
+        [InlineData(FastForwardStrategy.NoFastForward)]
         public void CanPull(FastForwardStrategy fastForwardStrategy)
         {
             string url = "https://github.com/libgit2/TestGitRepository";

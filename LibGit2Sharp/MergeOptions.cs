@@ -1,5 +1,6 @@
 ﻿using LibGit2Sharp.Core;
 using LibGit2Sharp.Handlers;
+using System;
 
 namespace LibGit2Sharp
 {
@@ -118,7 +119,13 @@ namespace LibGit2Sharp
         /// <summary>
         /// Do not fast-forward. Always creates a merge commit.
         /// </summary>
+        [Obsolete("This enum member will be removed in the next release. Please use NoFastForward instead.")]
         NoFastFoward = 1, /* GIT_MERGE_NO_FASTFORWARD */
+
+        /// <summary>
+        /// Do not fast-forward. Always creates a merge commit.
+        /// </summary>
+        NoFastForward = 1, /* GIT_MERGE_NO_FASTFORWARD */
 
         /// <summary>
         /// Only perform fast-forward merges.
