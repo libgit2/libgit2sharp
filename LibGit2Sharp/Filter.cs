@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Handles;
 
@@ -101,14 +103,17 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Decides if a given source needs to be filtered.
+        /// Decides if a given source needs to be filtered by checking if the filter
+        /// matches the current file extension.
         /// </summary>
         /// <param name="filterForAttributes">The filterForAttributes that this filter was created for.</param>
         /// <param name="filterSource">The source of the filter</param>
         /// <returns>0 if successful and -30 to skip and pass through</returns>
         protected virtual int Check(IEnumerable<string> filterForAttributes, FilterSource filterSource)
         {
-            return 0;
+            var fileInfo = new FileInfo(filterSource.Path);
+            var matches = filterForAttributes.Any(currentExtension => fileInfo.Extension == currentExtension);
+            return matches ? 0 : -30;
         }
 
         /// <summary>
