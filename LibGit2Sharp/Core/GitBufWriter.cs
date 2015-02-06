@@ -9,7 +9,7 @@ namespace LibGit2Sharp.Core
     /// <summary>
     /// Writes data to a <see cref="GitBuf"/> pointer
     /// </summary>
-    public class GitBufWriter : BinaryWriter
+    public class GitBufWriter 
     {
         private readonly IntPtr gitBufPointer;
         private readonly GitBuf gitBuf;
@@ -24,7 +24,7 @@ namespace LibGit2Sharp.Core
         /// Write bytes to the <see cref="GitBuf"/> pointer
         /// </summary>
         /// <param name="bytes">The bytes to write</param>
-        public override void Write(byte[] bytes)
+        public void Write(byte[] bytes)
         {
             IntPtr reverseBytesPointer = Marshal.AllocHGlobal(bytes.Length);
             Marshal.Copy(bytes, 0, reverseBytesPointer, bytes.Length);
@@ -42,10 +42,13 @@ namespace LibGit2Sharp.Core
     /// <summary>
     /// Reads data from a <see cref="GitBuf"/> pointer
     /// </summary>
-    public class GitBufReader : BinaryReader
+    public class GitBufReader
     {
-        internal GitBufReader(IntPtr gitBufPointer) : base(WrapGifBufPointer(gitBufPointer))
+        private readonly IntPtr gitBufPointer;
+
+        internal GitBufReader(IntPtr gitBufPointer)
         {
+            this.gitBufPointer = gitBufPointer;
             var gitBuf = gitBufPointer.MarshalAs<GitBuf>();
             Size = ConvertToLong(gitBuf.size);
             Allocated = ConvertToLong(gitBuf.asize);
@@ -67,9 +70,12 @@ namespace LibGit2Sharp.Core
         /// <returns></returns>
         public byte[] ReadAll()
         {
-            var outMessage = new byte[Size];
-            Read(outMessage, 0, (int)Size);
-            return outMessage;
+            using (var unmanagedStream = WrapGifBufPointer(gitBufPointer))
+            {
+                var outMessage = new byte[Size];
+                unmanagedStream.Read(outMessage, 0, (int)Size);
+                return outMessage;
+            }
         }
 
         internal static long ConvertToLong(UIntPtr len)
