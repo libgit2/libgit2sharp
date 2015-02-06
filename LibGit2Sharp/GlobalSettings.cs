@@ -116,7 +116,11 @@ namespace LibGit2Sharp
         public static void RegisterFilter(Filter filter)
         {
             var nativeFilter = new GitFilterSafeHandle(filter.ManagedFilter);
-            Proxy.git_filter_register(filter.Name, nativeFilter, 0);
+
+            // Register the filter with a priority of 200 allowing the custom filter 
+            // to imitate a core Git filter driver. 
+            // It will be run last on checkout and first on checkin.
+            Proxy.git_filter_register(filter.Name, nativeFilter, 200);
         }
 
         /// <summary>
