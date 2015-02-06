@@ -24,7 +24,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void AFullyMergedRepoOnlyContainsStagedIndexEntries()
         {
-            using (var repo = new Repository(StandardTestRepoWorkingDirPath))
+            string path = SandboxStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.Equal(true, repo.Index.IsFullyMerged);
 
@@ -38,7 +39,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void SoftResetARepoWithUnmergedEntriesThrows()
         {
-            using (var repo = new Repository(MergedTestRepoWorkingDirPath))
+            var path = SandboxMergedTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.Equal(false, repo.Index.IsFullyMerged);
 
@@ -52,7 +54,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CommitAgainARepoWithUnmergedEntriesThrows()
         {
-            using (var repo = new Repository(MergedTestRepoWorkingDirPath))
+            var path = SandboxMergedTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.Equal(false, repo.Index.IsFullyMerged);
 
@@ -65,7 +68,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanRetrieveTheBranchBeingMerged()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 const string firstBranch = "9fd738e8f7967c078dceed8190330fc8648ee56a";
@@ -86,12 +89,12 @@ namespace LibGit2Sharp.Tests
             const string secondBranchFileName = "second branch file.txt";
             const string sharedBranchFileName = "first+second branch file.txt";
 
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
 
             using (var repo = new Repository(path))
             {
                 var firstBranch = repo.CreateBranch("FirstBranch");
-                firstBranch.Checkout();
+                repo.Checkout(firstBranch);
                 var originalTreeCount = firstBranch.Tip.Tree.Count;
 
                 // Commit with ONE new file to both first & second branch (SecondBranch is created on this commit).
@@ -108,7 +111,7 @@ namespace LibGit2Sharp.Tests
                 }
                 else
                 {
-                    secondBranch.Checkout();
+                    repo.Checkout(secondBranch);
                 }
 
                 // Commit with ONE new file to second branch (FirstBranch and SecondBranch now point to separate commits that both have the same parent commit).
@@ -136,18 +139,18 @@ namespace LibGit2Sharp.Tests
         {
             const string sharedBranchFileName = "first+second branch file.txt";
 
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 var firstBranch = repo.CreateBranch("FirstBranch");
-                firstBranch.Checkout();
+                repo.Checkout(firstBranch);
 
                 // Commit with ONE new file to both first & second branch (SecondBranch is created on this commit).
                 AddFileCommitToRepo(repo, sharedBranchFileName);
 
                 var secondBranch = repo.CreateBranch("SecondBranch");
 
-                secondBranch.Checkout();
+                repo.Checkout(secondBranch);
 
                 MergeResult mergeResult = repo.Merge(repo.Branches["FirstBranch"].Tip, Constants.Signature);
 
@@ -163,7 +166,7 @@ namespace LibGit2Sharp.Tests
             const string firstBranchFileName = "first branch file.txt";
             const string sharedBranchFileName = "first+second branch file.txt";
 
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 // Reset the index and the working tree.
@@ -173,7 +176,7 @@ namespace LibGit2Sharp.Tests
                 repo.RemoveUntrackedFiles();
 
                 var firstBranch = repo.CreateBranch("FirstBranch");
-                firstBranch.Checkout();
+                repo.Checkout(firstBranch);
 
                 // Commit with ONE new file to both first & second branch (SecondBranch is created on this commit).
                 AddFileCommitToRepo(repo, sharedBranchFileName);
@@ -190,7 +193,7 @@ namespace LibGit2Sharp.Tests
                 }
                 else
                 {
-                    secondBranch.Checkout();
+                    repo.Checkout(secondBranch);
                 }
 
                 Assert.Equal(shouldMergeOccurInDetachedHeadState, repo.Info.IsHeadDetached);
@@ -220,11 +223,11 @@ namespace LibGit2Sharp.Tests
             const string secondBranchFileName = "second branch file.txt";
             const string sharedBranchFileName = "first+second branch file.txt";
 
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 var firstBranch = repo.CreateBranch("FirstBranch");
-                firstBranch.Checkout();
+                repo.Checkout(firstBranch);
 
                 // Commit with ONE new file to both first & second branch (SecondBranch is created on this commit).
                 AddFileCommitToRepo(repo, sharedBranchFileName);
@@ -234,7 +237,7 @@ namespace LibGit2Sharp.Tests
                 AddFileCommitToRepo(repo, firstBranchFileName);
                 AddFileCommitToRepo(repo, sharedBranchFileName, "The first branches comment");  // Change file in first branch
 
-                secondBranch.Checkout();
+                repo.Checkout(secondBranch);
                 // Commit with ONE new file to second branch (FirstBranch and SecondBranch now point to separate commits that both have the same parent commit).
                 AddFileCommitToRepo(repo, secondBranchFileName);
                 AddFileCommitToRepo(repo, sharedBranchFileName, "The second branches comment");  // Change file in second branch
@@ -260,11 +263,11 @@ namespace LibGit2Sharp.Tests
             const string secondBranchFileName = "second branch file.bin";
             const string sharedBranchFileName = "first+second branch file.bin";
 
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 var firstBranch = repo.CreateBranch("FirstBranch");
-                firstBranch.Checkout();
+                repo.Checkout(firstBranch);
 
                 // Commit with ONE new file to both first & second branch (SecondBranch is created on this commit).
                 AddFileCommitToRepo(repo, sharedBranchFileName);
@@ -274,7 +277,7 @@ namespace LibGit2Sharp.Tests
                 AddFileCommitToRepo(repo, firstBranchFileName);
                 AddFileCommitToRepo(repo, sharedBranchFileName, "\0The first branches comment\0");  // Change file in first branch
 
-                secondBranch.Checkout();
+                repo.Checkout(secondBranch);
                 // Commit with ONE new file to second branch (FirstBranch and SecondBranch now point to separate commits that both have the same parent commit).
                 AddFileCommitToRepo(repo, secondBranchFileName);
                 AddFileCommitToRepo(repo, sharedBranchFileName, "\0The second branches comment\0");  // Change file in second branch
@@ -300,7 +303,7 @@ namespace LibGit2Sharp.Tests
         [InlineData(false, FastForwardStrategy.FastForwardOnly, fastForwardBranchInitialId, MergeStatus.FastForward)]
         public void CanFastForwardCommit(bool fromDetachedHead, FastForwardStrategy fastForwardStrategy, string expectedCommitId, MergeStatus expectedMergeStatus)
         {
-            string path = CloneMergeTestRepo();
+            string path = SandboxMergeTestRepo();
             using (var repo = new Repository(path))
             {
                 if(fromDetachedHead)
@@ -321,12 +324,12 @@ namespace LibGit2Sharp.Tests
 
         [Theory]
         [InlineData(true, FastForwardStrategy.Default, MergeStatus.NonFastForward)]
-        [InlineData(true, FastForwardStrategy.NoFastFoward, MergeStatus.NonFastForward)]
+        [InlineData(true, FastForwardStrategy.NoFastForward, MergeStatus.NonFastForward)]
         [InlineData(false, FastForwardStrategy.Default, MergeStatus.NonFastForward)]
-        [InlineData(false, FastForwardStrategy.NoFastFoward, MergeStatus.NonFastForward)]
+        [InlineData(false, FastForwardStrategy.NoFastForward, MergeStatus.NonFastForward)]
         public void CanNonFastForwardMergeCommit(bool fromDetachedHead, FastForwardStrategy fastForwardStrategy, MergeStatus expectedMergeStatus)
         {
-            string path = CloneMergeTestRepo();
+            string path = SandboxMergeTestRepo();
             using (var repo = new Repository(path))
             {
                 if (fromDetachedHead)
@@ -347,7 +350,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void MergeReportsCheckoutProgress()
         {
-            string repoPath = CloneMergeTestRepo();
+            string repoPath = SandboxMergeTestRepo();
             using (var repo = new Repository(repoPath))
             {
                 Commit commitToMerge = repo.Branches["normal_merge"].Tip;
@@ -368,7 +371,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void MergeReportsCheckoutNotifications()
         {
-            string repoPath = CloneMergeTestRepo();
+            string repoPath = SandboxMergeTestRepo();
             using (var repo = new Repository(repoPath))
             {
                 Commit commitToMerge = repo.Branches["normal_merge"].Tip;
@@ -392,7 +395,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void FastForwardMergeReportsCheckoutProgress()
         {
-            string repoPath = CloneMergeTestRepo();
+            string repoPath = SandboxMergeTestRepo();
             using (var repo = new Repository(repoPath))
             {
                 Commit commitToMerge = repo.Branches["fast_forward"].Tip;
@@ -413,7 +416,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void FastForwardMergeReportsCheckoutNotifications()
         {
-            string repoPath = CloneMergeTestRepo();
+            string repoPath = SandboxMergeTestRepo();
             using (var repo = new Repository(repoPath))
             {
                 Commit commitToMerge = repo.Branches["fast_forward"].Tip;
@@ -446,7 +449,7 @@ namespace LibGit2Sharp.Tests
             // but the merge will fail with conflicts if this
             // change is not detected as a rename.
 
-            string repoPath = CloneMergeTestRepo();
+            string repoPath = SandboxMergeTestRepo();
             using (var repo = new Repository(repoPath))
             {
                 Branch currentBranch = repo.Checkout("rename_source");
@@ -463,7 +466,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void FastForwardNonFastForwardableMergeThrows()
         {
-            string path = CloneMergeTestRepo();
+            string path = SandboxMergeTestRepo();
             using (var repo = new Repository(path))
             {
                 Commit commitToMerge = repo.Branches["normal_merge"].Tip;
@@ -474,7 +477,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanForceFastForwardMergeThroughConfig()
         {
-            string path = CloneMergeTestRepo();
+            string path = SandboxMergeTestRepo();
             using (var repo = new Repository(path))
             {
                 repo.Config.Set("merge.ff", "only");
@@ -487,7 +490,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanMergeAndNotCommit()
         {
-            string path = CloneMergeTestRepo();
+            string path = SandboxMergeTestRepo();
             using (var repo = new Repository(path))
             {
                 Commit commitToMerge = repo.Branches["normal_merge"].Tip;
@@ -508,12 +511,12 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanForceNonFastForwardMerge()
         {
-            string path = CloneMergeTestRepo();
+            string path = SandboxMergeTestRepo();
             using (var repo = new Repository(path))
             {
                 Commit commitToMerge = repo.Branches["fast_forward"].Tip;
 
-                MergeResult result = repo.Merge(commitToMerge, Constants.Signature, new MergeOptions() { FastForwardStrategy = FastForwardStrategy.NoFastFoward });
+                MergeResult result = repo.Merge(commitToMerge, Constants.Signature, new MergeOptions() { FastForwardStrategy = FastForwardStrategy.NoFastForward });
 
                 Assert.Equal(MergeStatus.NonFastForward, result.Status);
                 Assert.Equal("f58f780d5a0ae392efd4a924450b1bbdc0577d32", result.Commit.Id.Sha);
@@ -524,7 +527,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanForceNonFastForwardMergeThroughConfig()
         {
-            string path = CloneMergeTestRepo();
+            string path = SandboxMergeTestRepo();
             using (var repo = new Repository(path))
             {
                 repo.Config.Set("merge.ff", "false");
@@ -542,12 +545,12 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void VerifyUpToDateMerge()
         {
-            string path = CloneMergeTestRepo();
+            string path = SandboxMergeTestRepo();
             using (var repo = new Repository(path))
             {
                 Commit commitToMerge = repo.Branches["master"].Tip;
 
-                MergeResult result = repo.Merge(commitToMerge, Constants.Signature, new MergeOptions() { FastForwardStrategy = FastForwardStrategy.NoFastFoward });
+                MergeResult result = repo.Merge(commitToMerge, Constants.Signature, new MergeOptions() { FastForwardStrategy = FastForwardStrategy.NoFastForward });
 
                 Assert.Equal(MergeStatus.UpToDate, result.Status);
                 Assert.Equal(null, result.Commit);
@@ -562,7 +565,7 @@ namespace LibGit2Sharp.Tests
         [InlineData("fast_forward", FastForwardStrategy.Default, MergeStatus.FastForward)]
         public void CanMergeCommittish(string committish, FastForwardStrategy strategy, MergeStatus expectedMergeStatus)
         {
-            string path = CloneMergeTestRepo();
+            string path = SandboxMergeTestRepo();
             using (var repo = new Repository(path))
             {
                 MergeResult result = repo.Merge(committish, Constants.Signature, new MergeOptions() { FastForwardStrategy = strategy });
@@ -575,8 +578,8 @@ namespace LibGit2Sharp.Tests
         [Theory]
         [InlineData(true, FastForwardStrategy.FastForwardOnly)]
         [InlineData(false, FastForwardStrategy.FastForwardOnly)]
-        [InlineData(true, FastForwardStrategy.NoFastFoward)]
-        [InlineData(false, FastForwardStrategy.NoFastFoward)]
+        [InlineData(true, FastForwardStrategy.NoFastForward)]
+        [InlineData(false, FastForwardStrategy.NoFastForward)]
         public void MergeWithWorkDirConflictsThrows(bool shouldStage, FastForwardStrategy strategy)
         {
             // Merging the fast_forward branch results in a change to file
@@ -585,7 +588,7 @@ namespace LibGit2Sharp.Tests
             // due to merge conflicts.
             string committishToMerge = "fast_forward";
 
-            using (var repo = new Repository(CloneMergeTestRepo()))
+            using (var repo = new Repository(SandboxMergeTestRepo()))
             {
                 Touch(repo.Info.WorkingDirectory, "b.txt", "this is an alternate change");
 
@@ -606,7 +609,7 @@ namespace LibGit2Sharp.Tests
             const string conflictFile = "a.txt";
             const string conflictBranchName = "conflicts";
 
-            string path = CloneMergeTestRepo();
+            string path = SandboxMergeTestRepo();
             using (var repo = new Repository(path))
             {
                 Branch branch = repo.Branches[conflictBranchName];
@@ -657,7 +660,7 @@ namespace LibGit2Sharp.Tests
             const string conflictFile = "a.txt";
             const string conflictBranchName = "conflicts";
 
-            string path = CloneMergeTestRepo();
+            string path = SandboxMergeTestRepo();
             using (var repo = InitIsolatedRepository(path))
             {
                 Branch branch = repo.Branches[conflictBranchName];
@@ -709,7 +712,7 @@ namespace LibGit2Sharp.Tests
         [InlineData("fast_forward", FastForwardStrategy.Default, MergeStatus.FastForward)]
         public void CanMergeBranch(string branchName, FastForwardStrategy strategy, MergeStatus expectedMergeStatus)
         {
-            string path = CloneMergeTestRepo();
+            string path = SandboxMergeTestRepo();
             using (var repo = new Repository(path))
             {
                 Branch branch = repo. Branches[branchName];
@@ -723,7 +726,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanMergeIntoOrphanedBranch()
         {
-            string path = CloneMergeTestRepo();
+            string path = SandboxMergeTestRepo();
             using (var repo = new Repository(path))
             {
                 repo.Refs.Add("HEAD", "refs/heads/orphan", true);

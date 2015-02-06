@@ -32,7 +32,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void ResettingInABareRepositoryThrows()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.Throws<BareRepositoryException>(() => repo.Reset());
             }
@@ -61,7 +62,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void ResetTheIndexWithTheHeadUnstagesEverything()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 RepositoryStatus oldStatus = repo.RetrieveStatus();
@@ -82,7 +83,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanResetTheIndexToTheContentOfACommitWithCommittishAsArgument()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 repo.Reset("be3563a");
@@ -100,7 +101,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanResetTheIndexToTheContentOfACommitWithCommitAsArgument()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 repo.Reset(repo.Lookup<Commit>("be3563a"));
@@ -118,7 +119,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanResetTheIndexToASubsetOfTheContentOfACommitWithCommittishAsArgument()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 repo.Reset("5b5b025", new[]{ "new.txt" });
@@ -131,7 +132,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanResetTheIndexToASubsetOfTheContentOfACommitWithCommitAsArgumentAndLaxUnmatchedExplicitPathsValidation()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 repo.Reset(repo.Lookup<Commit>("5b5b025"), new[] { "new.txt", "non-existent-path-28.txt" },
@@ -145,7 +146,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void ResettingTheIndexToASubsetOfTheContentOfACommitWithCommitAsArgumentAndStrictUnmatchedPathspecsValidationThrows()
         {
-            using (var repo = new Repository(CloneStandardTestRepo()))
+            using (var repo = new Repository(SandboxStandardTestRepo()))
             {
                 Assert.Throws<UnmatchedPathException>(() =>
                     repo.Reset(repo.Lookup<Commit>("5b5b025"), new[] { "new.txt", "non-existent-path-28.txt" }, new ExplicitPathsOptions()));
@@ -155,7 +156,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanResetTheIndexWhenARenameExists()
         {
-            using (var repo = new Repository(CloneStandardTestRepo()))
+            using (var repo = new Repository(SandboxStandardTestRepo()))
             {
                 repo.Move("branch_file.txt", "renamed_branch_file.txt");
                 repo.Reset(repo.Lookup<Commit>("32eab9c"));
@@ -168,7 +169,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanResetSourceOfARenameInIndex()
         {
-            using (var repo = new Repository(CloneStandardTestRepo()))
+            using (var repo = new Repository(SandboxStandardTestRepo()))
             {
                 repo.Move("branch_file.txt", "renamed_branch_file.txt");
 
@@ -189,7 +190,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanResetTargetOfARenameInIndex()
         {
-            using (var repo = new Repository(CloneStandardTestRepo()))
+            using (var repo = new Repository(SandboxStandardTestRepo()))
             {
                 repo.Move("branch_file.txt", "renamed_branch_file.txt");
 

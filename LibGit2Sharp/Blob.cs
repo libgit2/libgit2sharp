@@ -32,7 +32,7 @@ namespace LibGit2Sharp
         /// can be used.
         /// </para>
         /// </summary>
-        public virtual int Size { get { return (int)lazySize.Value; } }
+        public virtual long Size { get { return lazySize.Value; } }
 
         /// <summary>
         ///  Determine if the blob content is most certainly binary or not.

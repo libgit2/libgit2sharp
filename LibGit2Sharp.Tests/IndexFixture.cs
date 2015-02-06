@@ -28,7 +28,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCountEntriesInIndex()
         {
-            using (var repo = new Repository(StandardTestRepoPath))
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
             {
                 Assert.Equal(expectedEntries.Count(), repo.Index.Count);
             }
@@ -37,7 +38,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanEnumerateIndex()
         {
-            using (var repo = new Repository(StandardTestRepoPath))
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
             {
                 Assert.Equal(expectedEntries,
                     repo.Index.Select(e => e.Path).OrderBy(p => p, StringComparer.Ordinal).ToArray());
@@ -47,7 +49,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanFetchAnIndexEntryByItsName()
         {
-            using (var repo = new Repository(StandardTestRepoPath))
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
             {
                 IndexEntry entry = repo.Index["README"];
                 Assert.Equal("README", entry.Path);
@@ -65,7 +68,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void FetchingAnUnknownIndexEntryReturnsNull()
         {
-            using (var repo = new Repository(StandardTestRepoPath))
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
             {
                 IndexEntry entry = repo.Index["I-do-not-exist.txt"];
                 Assert.Null(entry);
@@ -75,7 +79,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void ReadIndexWithBadParamsFails()
         {
-            using (var repo = new Repository(StandardTestRepoPath))
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
             {
                 Assert.Throws<ArgumentNullException>(() => { IndexEntry entry = repo.Index[null]; });
                 Assert.Throws<ArgumentException>(() => { IndexEntry entry = repo.Index[string.Empty]; });
@@ -139,7 +144,7 @@ namespace LibGit2Sharp.Tests
         [InlineData("modified_unstaged_file.txt", FileStatus.Modified, "deleted_unstaged_file.txt", FileStatus.Missing, FileStatus.Removed, FileStatus.Staged)]
         public void CanMoveAnExistingFileOverANonExistingFile(string sourcePath, FileStatus sourceStatus, string destPath, FileStatus destStatus, FileStatus sourcePostStatus, FileStatus destPostStatus)
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 Assert.Equal(sourceStatus, repo.RetrieveStatus(sourcePath));
@@ -178,9 +183,10 @@ namespace LibGit2Sharp.Tests
             InvalidMoveUseCases(sourcePath, sourceStatus, destPaths);
         }
 
-        private static void InvalidMoveUseCases(string sourcePath, FileStatus sourceStatus, IEnumerable<string> destPaths)
+        private void InvalidMoveUseCases(string sourcePath, FileStatus sourceStatus, IEnumerable<string> destPaths)
         {
-            using (var repo = new Repository(StandardTestRepoPath))
+            var repoPath = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(repoPath))
             {
                 Assert.Equal(sourceStatus, repo.RetrieveStatus(sourcePath));
 
@@ -224,7 +230,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanReadIndexEntryAttributes()
         {
-            using (var repo = new Repository(StandardTestRepoPath))
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
             {
                 Assert.Equal(Mode.NonExecutableFile, repo.Index["README"].Mode);
                 Assert.Equal(Mode.ExecutableFile, repo.Index["1/branch_file.txt"].Mode);
@@ -282,7 +289,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanResetFullyMergedIndexFromTree()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
 
             const string testFile = "new_tracked_file.txt";
 
@@ -313,7 +320,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanResetIndexWithUnmergedEntriesFromTree()
         {
-            string path = CloneMergedTestRepo();
+            string path = SandboxMergedTestRepo();
 
             const string testFile = "one.txt";
 
@@ -344,7 +351,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanClearTheIndex()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             const string testFile = "1.txt";
 
             // It is sufficient to check just one of the stage area changes, such as the modified file,
@@ -365,6 +372,124 @@ namespace LibGit2Sharp.Tests
             {
                 Assert.Equal(FileStatus.Removed | FileStatus.Untracked, repo.RetrieveStatus(testFile));
             }
+        }
+
+        [Theory]
+        [InlineData("new_tracked_file.txt", FileStatus.Added, FileStatus.Untracked)]
+        [InlineData("modified_staged_file.txt", FileStatus.Staged, FileStatus.Removed | FileStatus.Untracked)]
+        [InlineData("i_dont_exist.txt", FileStatus.Nonexistent, FileStatus.Nonexistent)]
+        public void CanRemoveAnEntryFromTheIndex(string pathInTheIndex, FileStatus expectedBeforeStatus, FileStatus expectedAfterStatus)
+        {
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
+            {
+                var before = repo.RetrieveStatus(pathInTheIndex);
+                Assert.Equal(expectedBeforeStatus, before);
+
+                repo.Index.Remove(pathInTheIndex);
+
+                var after = repo.RetrieveStatus(pathInTheIndex);
+                Assert.Equal(expectedAfterStatus, after);
+            }
+        }
+
+        [Theory]
+        [InlineData("new_untracked_file.txt", FileStatus.Untracked, FileStatus.Added)]
+        [InlineData("modified_unstaged_file.txt", FileStatus.Modified, FileStatus.Staged)]
+        public void CanAddAnEntryToTheIndexFromAFileInTheWorkdir(string pathInTheWorkdir, FileStatus expectedBeforeStatus, FileStatus expectedAfterStatus)
+        {
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
+            {
+                var before = repo.RetrieveStatus(pathInTheWorkdir);
+                Assert.Equal(expectedBeforeStatus, before);
+
+                repo.Index.Add(pathInTheWorkdir);
+
+                var after = repo.RetrieveStatus(pathInTheWorkdir);
+                Assert.Equal(expectedAfterStatus, after);
+            }
+        }
+
+        [Fact]
+        public void CanAddAnEntryToTheIndexFromABlob()
+        {
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
+            {
+                const string targetIndexEntryPath = "1.txt";
+                var before = repo.RetrieveStatus(targetIndexEntryPath);
+                Assert.Equal(FileStatus.Unaltered, before);
+
+                var blob = repo.Lookup<Blob>("a8233120f6ad708f843d861ce2b7228ec4e3dec6");
+
+                repo.Index.Add(blob, targetIndexEntryPath, Mode.NonExecutableFile);
+
+                var after = repo.RetrieveStatus(targetIndexEntryPath);
+                Assert.Equal(FileStatus.Staged | FileStatus.Modified, after);
+            }
+        }
+
+        [Fact]
+        public void AddingAnEntryToTheIndexFromAUnknwonFileInTheWorkdirThrows()
+        {
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
+            {
+                const string filePath = "i_dont_exist.txt";
+                var before = repo.RetrieveStatus(filePath);
+                Assert.Equal(FileStatus.Nonexistent, before);
+
+                Assert.Throws<NotFoundException>(() => repo.Index.Add(filePath));
+            }
+        }
+
+        [Fact]
+        public void CanMimicGitAddAll()
+        {
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
+            {
+                var before = repo.RetrieveStatus();
+                Assert.True(before.Any(se => se.State == FileStatus.Untracked));
+                Assert.True(before.Any(se => se.State == FileStatus.Modified));
+                Assert.True(before.Any(se => se.State == FileStatus.Missing));
+
+                AddSomeCornerCases(repo);
+
+                repo.Stage("*");
+
+                var after = repo.RetrieveStatus();
+                Assert.False(after.Any(se => se.State == FileStatus.Untracked));
+                Assert.False(after.Any(se => se.State == FileStatus.Modified));
+                Assert.False(after.Any(se => se.State == FileStatus.Missing));
+            }
+        }
+
+        [Fact]
+        public void RetrievingAssumedUnchangedMarkedIndexEntries()
+        {
+            var path = SandboxAssumeUnchangedTestRepo();
+            using (var repo = new Repository(path))
+            {             
+                var regularFile = repo.Index["hello.txt"];
+                Assert.False(regularFile.AssumeUnchanged);
+
+                var assumeUnchangedFile = repo.Index["world.txt"];
+                Assert.True(assumeUnchangedFile.AssumeUnchanged);                
+            }
+        }
+
+        private static void AddSomeCornerCases(Repository repo)
+        {
+            // Turn 1.txt into a directory in the Index
+            repo.Index.Remove("1.txt");
+            var blob = repo.Lookup<Blob>("a8233120f6ad708f843d861ce2b7228ec4e3dec6");
+            repo.Index.Add(blob, "1.txt/Sneaky", Mode.NonExecutableFile);
+
+            // Turn README into a symlink
+            Blob linkContent = OdbHelper.CreateBlob(repo, "1.txt/sneaky");
+            repo.Index.Add(linkContent, "README", Mode.SymbolicLink);
         }
     }
 }

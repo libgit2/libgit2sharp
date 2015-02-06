@@ -27,8 +27,6 @@ namespace LibGit2Sharp.Tests.TestHelpers
         {
             // Do the set up in the static ctor so it only happens once
             SetUpTestEnvironment();
-
-            DirectoryHelper.DeleteSubdirectories(Constants.TemporaryReposPath);
         }
 
         public static string BareTestRepoPath { get; private set; }
@@ -40,6 +38,10 @@ namespace LibGit2Sharp.Tests.TestHelpers
         public static string MergeRenamesTestRepoWorkingDirPath { get; private set; }
         public static string RevertTestRepoWorkingDirPath { get; private set; }
         public static string SubmoduleTestRepoWorkingDirPath { get; private set; }
+        private static string SubmoduleTargetTestRepoWorkingDirPath { get; set; }
+        private static string AssumeUnchangedRepoWorkingDirPath { get; set; }
+        private static string SubmoduleSmallTestRepoWorkingDirPath { get; set; }
+
         public static DirectoryInfo ResourcesDirectory { get; private set; }
 
         public static bool IsFileSystemCaseSensitive { get; private set; }
@@ -54,32 +56,27 @@ namespace LibGit2Sharp.Tests.TestHelpers
         {
             IsFileSystemCaseSensitive = IsFileSystemCaseSensitiveInternal();
 
-            var source = new DirectoryInfo(@"../../Resources");
-            ResourcesDirectory = new DirectoryInfo(string.Format(@"Resources/{0}", Guid.NewGuid()));
-            var parent = new DirectoryInfo(@"Resources");
-
-            if (parent.Exists)
-            {
-                DirectoryHelper.DeleteSubdirectories(parent.FullName);
-            }
-
-            DirectoryHelper.CopyFilesRecursively(source, ResourcesDirectory);
+            const string sourceRelativePath = @"../../Resources";
+            ResourcesDirectory = new DirectoryInfo(sourceRelativePath);
 
             // Setup standard paths to our test repositories
-            BareTestRepoPath = Path.Combine(ResourcesDirectory.FullName, "testrepo.git");
-            StandardTestRepoWorkingDirPath = Path.Combine(ResourcesDirectory.FullName, "testrepo_wd");
-            StandardTestRepoPath = Path.Combine(StandardTestRepoWorkingDirPath, ".git");
-            ShallowTestRepoPath = Path.Combine(ResourcesDirectory.FullName, "shallow.git");
-            MergedTestRepoWorkingDirPath = Path.Combine(ResourcesDirectory.FullName, "mergedrepo_wd");
-            MergeRenamesTestRepoWorkingDirPath = Path.Combine(ResourcesDirectory.FullName, "mergerenames_wd");
-            MergeTestRepoWorkingDirPath = Path.Combine(ResourcesDirectory.FullName, "merge_testrepo_wd");
-            RevertTestRepoWorkingDirPath = Path.Combine(ResourcesDirectory.FullName, "revert_testrepo_wd");
-            SubmoduleTestRepoWorkingDirPath = Path.Combine(ResourcesDirectory.FullName, "submodule_wd");
+            BareTestRepoPath = Path.Combine(sourceRelativePath, "testrepo.git");
+            StandardTestRepoWorkingDirPath = Path.Combine(sourceRelativePath, "testrepo_wd");
+            StandardTestRepoPath = Path.Combine(StandardTestRepoWorkingDirPath, "dot_git");
+            ShallowTestRepoPath = Path.Combine(sourceRelativePath, "shallow.git");
+            MergedTestRepoWorkingDirPath = Path.Combine(sourceRelativePath, "mergedrepo_wd");
+            MergeRenamesTestRepoWorkingDirPath = Path.Combine(sourceRelativePath, "mergerenames_wd");
+            MergeTestRepoWorkingDirPath = Path.Combine(sourceRelativePath, "merge_testrepo_wd");
+            RevertTestRepoWorkingDirPath = Path.Combine(sourceRelativePath, "revert_testrepo_wd");
+            SubmoduleTestRepoWorkingDirPath = Path.Combine(sourceRelativePath, "submodule_wd");
+            SubmoduleTargetTestRepoWorkingDirPath = Path.Combine(sourceRelativePath, "submodule_target_wd");
+            AssumeUnchangedRepoWorkingDirPath = Path.Combine(sourceRelativePath, "assume_unchanged_wd");
+            SubmoduleSmallTestRepoWorkingDirPath = Path.Combine(ResourcesDirectory.FullName, "submodule_small_wd");
         }
 
         private static bool IsFileSystemCaseSensitiveInternal()
         {
-            var mixedPath = Path.Combine(Constants.TemporaryReposPath, "mIxEdCase");
+            var mixedPath = Path.Combine(Constants.TemporaryReposPath, "mIxEdCase-" + Path.GetRandomFileName());
 
             if (Directory.Exists(mixedPath))
             {
@@ -120,43 +117,56 @@ namespace LibGit2Sharp.Tests.TestHelpers
             return new SelfCleaningDirectory(this, path);
         }
 
-        protected string CloneBareTestRepo()
+        protected string SandboxBareTestRepo()
         {
-            return Clone(BareTestRepoPath);
+            return Sandbox(BareTestRepoPath);
         }
 
-        protected string CloneStandardTestRepo()
+        protected string SandboxStandardTestRepo()
         {
-            return Clone(StandardTestRepoWorkingDirPath);
+            return Sandbox(StandardTestRepoWorkingDirPath);
         }
 
-        protected string CloneMergedTestRepo()
+        protected string SandboxMergedTestRepo()
         {
-            return Clone(MergedTestRepoWorkingDirPath);
+            return Sandbox(MergedTestRepoWorkingDirPath);
         }
 
-        protected string CloneMergeRenamesTestRepo()
+        protected string SandboxStandardTestRepoGitDir()
         {
-            return Clone(MergeRenamesTestRepoWorkingDirPath);
+            return Sandbox(Path.Combine(StandardTestRepoWorkingDirPath));
         }
 
-        protected string CloneMergeTestRepo()
+        protected string SandboxMergeTestRepo()
         {
-            return Clone(MergeTestRepoWorkingDirPath);
+            return Sandbox(MergeTestRepoWorkingDirPath);
         }
 
-        protected string CloneRevertTestRepo()
+        protected string SandboxRevertTestRepo()
         {
-            return Clone(RevertTestRepoWorkingDirPath);
+            return Sandbox(RevertTestRepoWorkingDirPath);
         }
 
-        public string CloneSubmoduleTestRepo()
+        public string SandboxSubmoduleTestRepo()
+        {
+            return Sandbox(SubmoduleTestRepoWorkingDirPath, SubmoduleTargetTestRepoWorkingDirPath);
+        }
+
+        public string SandboxAssumeUnchangedTestRepo()
+        {
+            return Sandbox(AssumeUnchangedRepoWorkingDirPath);
+        }
+        
+        public string SandboxSubmoduleSmallTestRepo()
         {
             var submoduleTarget = Path.Combine(ResourcesDirectory.FullName, "submodule_target_wd");
-            return Clone(SubmoduleTestRepoWorkingDirPath, submoduleTarget);
+            var path = Sandbox(SubmoduleSmallTestRepoWorkingDirPath, submoduleTarget);
+            Directory.CreateDirectory(Path.Combine(path, "submodule_target_wd"));
+
+            return path;
         }
 
-        private string Clone(string sourceDirectoryPath, params string[] additionalSourcePaths)
+        protected string Sandbox(string sourceDirectoryPath, params string[] additionalSourcePaths)
         {
             var scd = BuildSelfCleaningDirectory();
             var source = new DirectoryInfo(sourceDirectoryPath);

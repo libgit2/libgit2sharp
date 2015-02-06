@@ -23,7 +23,7 @@ namespace LibGit2Sharp
         private readonly CommitLog commits;
         private readonly Lazy<Configuration> config;
         private readonly RepositorySafeHandle handle;
-        private readonly Index index;
+        private readonly Lazy<Index> index;
         private readonly ReferenceCollection refs;
         private readonly TagCollection tags;
         private readonly StashCollection stashes;
@@ -76,7 +76,10 @@ namespace LibGit2Sharp
                             "When overriding the opening of a bare repository, both RepositoryOptions.WorkingDirectoryPath an RepositoryOptions.IndexPath have to be provided.");
                     }
 
-                    isBare = false;
+                    if (!isWorkDirNull)
+                    {
+                        isBare = false;
+                    }
 
                     if (!isIndexNull)
                     {
@@ -95,7 +98,7 @@ namespace LibGit2Sharp
 
                 if (!isBare)
                 {
-                    index = indexBuilder();
+                    index = new Lazy<Index>(() => indexBuilder());
                 }
 
                 commits = new CommitLog(this);
@@ -117,7 +120,7 @@ namespace LibGit2Sharp
                 pathCase = new Lazy<PathCase>(() => new PathCase(this));
                 submodules = new SubmoduleCollection(this);
 
-                EagerlyLoadTheConfigIfAnyPathHaveBeenPassed(options);
+                EagerlyLoadComponentsWithSpecifiedPaths(options);
             }
             catch
             {
@@ -150,26 +153,33 @@ namespace LibGit2Sharp
             return true;
         }
 
-        private void EagerlyLoadTheConfigIfAnyPathHaveBeenPassed(RepositoryOptions options)
+        private void EagerlyLoadComponentsWithSpecifiedPaths(RepositoryOptions options)
         {
             if (options == null)
             {
                 return;
             }
 
-            if (options.GlobalConfigurationLocation == null &&
-                options.XdgConfigurationLocation == null &&
-                options.SystemConfigurationLocation == null)
+            if (options.GlobalConfigurationLocation != null ||
+                options.XdgConfigurationLocation != null ||
+                options.SystemConfigurationLocation != null)
             {
-                return;
+                // Dirty hack to force the eager load of the configuration
+                // without Resharper pestering about useless code
+
+                if (!Config.HasConfig(ConfigurationLevel.Local))
+                {
+                    throw new InvalidOperationException("Unexpected state.");
+                }
             }
 
-            // Dirty hack to force the eager load of the configuration
-            // without Resharper pestering about useless code
-
-            if (!Config.HasConfig(ConfigurationLevel.Local))
+            if (!string.IsNullOrEmpty(options.IndexPath))
             {
-                throw new InvalidOperationException("Unexpected state.");
+                // Another dirty hack to avoid warnings
+                if (Index.Count < 0)
+                {
+                    throw new InvalidOperationException("Unexpected state.");
+                }
             }
         }
 
@@ -221,7 +231,7 @@ namespace LibGit2Sharp
                     throw new BareRepositoryException("Index is not available in a bare repository.");
                 }
 
-                return index;
+                return index.Value;
             }
         }
 
@@ -538,6 +548,9 @@ namespace LibGit2Sharp
         public static string Clone(string sourceUrl, string workdirPath,
             CloneOptions options = null)
         {
+            Ensure.ArgumentNotNull(sourceUrl, "sourceUrl");
+            Ensure.ArgumentNotNull(workdirPath, "workdirPath");
+
             options = options ?? new CloneOptions();
 
             using (GitCheckoutOptsWrapper checkoutOptionsWrapper = new GitCheckoutOptsWrapper(options))
@@ -553,16 +566,21 @@ namespace LibGit2Sharp
                     Bare = options.IsBare ? 1 : 0,
                     CheckoutOpts = gitCheckoutOptions,
                     RemoteCallbacks = gitRemoteCallbacks,
-                    CheckoutBranch = StrictUtf8Marshaler.FromManaged(options.BranchName)
                 };
 
-                FilePath repoPath;
-                using (RepositorySafeHandle repo = Proxy.git_clone(sourceUrl, workdirPath, ref cloneOpts))
+                try
                 {
-                    repoPath = Proxy.git_repository_path(repo);
-                }
+                    cloneOpts.CheckoutBranch = StrictUtf8Marshaler.FromManaged(options.BranchName);
 
-                return repoPath.Native;
+                    using (RepositorySafeHandle repo = Proxy.git_clone(sourceUrl, workdirPath, ref cloneOpts))
+                    {
+                        return Proxy.git_repository_path(repo).Native;
+                    }
+                }
+                finally
+                {
+                    EncodingMarshaler.Cleanup(cloneOpts.CheckoutBranch);
+                }
             }
         }
 
@@ -1224,7 +1242,7 @@ namespace LibGit2Sharp
                 case GitMergePreference.GIT_MERGE_PREFERENCE_FASTFORWARD_ONLY:
                     return FastForwardStrategy.FastForwardOnly;
                 case GitMergePreference.GIT_MERGE_PREFERENCE_NO_FASTFORWARD:
-                    return FastForwardStrategy.NoFastFoward;
+                    return FastForwardStrategy.NoFastForward;
                 default:
                     throw new InvalidOperationException(String.Format("Unknown merge preference: {0}", preference));
             }
@@ -1290,7 +1308,7 @@ namespace LibGit2Sharp
                         throw new NonFastForwardException("Cannot perform fast-forward merge.");
                     }
                     break;
-                case FastForwardStrategy.NoFastFoward:
+                case FastForwardStrategy.NoFastForward:
                     if (mergeAnalysis.HasFlag(GitMergeAnalysis.GIT_MERGE_ANALYSIS_NORMAL))
                     {
                         mergeResult = NormalMerge(annotatedCommits, merger, options);
@@ -1475,28 +1493,41 @@ namespace LibGit2Sharp
                 diffModifiers |= DiffModifiers.IncludeIgnored;
             }
 
-            var changes = Diff.Compare<TreeChanges>(diffModifiers, paths, explicitPathsOptions);
+            var changes = Diff.Compare<TreeChanges>(diffModifiers, paths, explicitPathsOptions,
+                new CompareOptions { Similarity = SimilarityOptions.None });
 
-            foreach (var treeEntryChanges in changes)
+            var unexpectedTypesOfChanges = changes
+                .Where(
+                    tec => tec.Status != ChangeKind.Added &&
+                           tec.Status != ChangeKind.Modified &&
+                           tec.Status != ChangeKind.Unmodified &&
+                           tec.Status != ChangeKind.Deleted).ToList();
+
+            if (unexpectedTypesOfChanges.Count > 0)
+            {
+                throw new InvalidOperationException(
+                    string.Format(CultureInfo.InvariantCulture,
+                        "Entry '{0}' bears an unexpected ChangeKind '{1}'",
+                        unexpectedTypesOfChanges[0].Path, unexpectedTypesOfChanges[0].Status));
+            }
+
+            foreach (TreeEntryChanges treeEntryChanges in changes
+                .Where(tec => tec.Status == ChangeKind.Deleted))
+            {
+                RemoveFromIndex(treeEntryChanges.Path);
+            }
+
+            foreach (TreeEntryChanges treeEntryChanges in changes)
             {
                 switch (treeEntryChanges.Status)
                 {
-                    case ChangeKind.Unmodified:
-                        continue;
-
-                    case ChangeKind.Deleted:
-                        RemoveFromIndex(treeEntryChanges.Path);
-                        continue;
-
                     case ChangeKind.Added:
-                    /* Fall through */
                     case ChangeKind.Modified:
                         AddToIndex(treeEntryChanges.Path);
-                        continue;
+                        break;
 
                     default:
-                        throw new InvalidOperationException(
-                            string.Format(CultureInfo.InvariantCulture, "Entry '{0}' bears an unexpected ChangeKind '{1}'", treeEntryChanges.Path, treeEntryChanges.Status));
+                        continue;
                 }
             }
 
@@ -1858,6 +1889,30 @@ namespace LibGit2Sharp
             }
 
             return removed;
+        }
+
+        /// <summary>
+        /// Finds the most recent annotated tag that is reachable from a commit.
+        /// <para>
+        ///   If the tag points to the commit, then only the tag is shown. Otherwise,
+        ///   it suffixes the tag name with the number of additional commits on top
+        ///   of the tagged object and the abbreviated object name of the most recent commit.
+        /// </para>
+        /// <para>
+        ///   Optionally, the <paramref name="options"/> parameter allow to tweak the
+        ///   search strategy (considering lightweith tags, or even branches as reference points)
+        ///   and the formatting of the returned identifier.
+        /// </para>
+        /// </summary>
+        /// <param name="commit">The commit to be described.</param>
+        /// <param name="options">Determines how the commit will be described.</param>
+        /// <returns>A descriptive identifier for the commit based on the nearest annotated tag.</returns>
+        public string Describe(Commit commit, DescribeOptions options)
+        {
+            Ensure.ArgumentNotNull(commit, "commit");
+            Ensure.ArgumentNotNull(options, "options");
+
+            return Proxy.git_describe_commit(handle, commit.Id, options);
         }
 
         private string DebuggerDisplay

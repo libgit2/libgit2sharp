@@ -10,7 +10,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void ComparingABlobAgainstItselfReturnsNoDifference()
         {
-            using (var repo = new Repository(StandardTestRepoPath))
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
             {
                 var blob = repo.Lookup<Blob>("7909961");
 
@@ -25,7 +26,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCompareTwoVersionsOfABlobWithADiffOfTwoHunks()
         {
-            using (var repo = new Repository(StandardTestRepoPath))
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
             {
                 var oldblob = repo.Lookup<Blob>("7909961");
                 var newblob = repo.Lookup<Blob>("4e935b7");
@@ -72,7 +74,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCompareATextualBlobAgainstABinaryBlob()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 Blob binBlob = CreateBinaryBlob(repo);
@@ -91,7 +93,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCompareABlobAgainstANullBlob()
         {
-            using (var repo = new Repository(StandardTestRepoPath))
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
             {
                 var blob = repo.Lookup<Blob>("7909961");
 
@@ -112,7 +115,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void ComparingTwoNullBlobsReturnsAnEmptyContentChanges()
         {
-            using (var repo = new Repository(StandardTestRepoPath))
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
             {
                 ContentChanges changes = repo.Diff.Compare((Blob)null, (Blob)null);
 

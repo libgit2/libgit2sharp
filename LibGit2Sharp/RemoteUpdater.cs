@@ -28,7 +28,7 @@ namespace LibGit2Sharp
             fetchRefSpecs = new UpdatingCollection<string>(GetFetchRefSpecs, SetFetchRefSpecs);
             pushRefSpecs = new UpdatingCollection<string>(GetPushRefSpecs, SetPushRefSpecs);
 
-            remoteHandle = Proxy.git_remote_load(repo.Handle, remote.Name, true);
+            remoteHandle = Proxy.git_remote_lookup(repo.Handle, remote.Name, true);
         }
 
         private IEnumerable<string> GetFetchRefSpecs()

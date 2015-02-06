@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
@@ -17,7 +18,7 @@ namespace LibGit2Sharp.Tests
         {
             var scd = BuildSelfCleaningDirectory();
 
-            string originalRepoPath = CloneBareTestRepo();
+            string originalRepoPath = SandboxBareTestRepo();
             string clonedRepoPath = Repository.Clone(originalRepoPath, scd.DirectoryPath);
 
             using (var originalRepo = new Repository(originalRepoPath))
@@ -159,7 +160,7 @@ namespace LibGit2Sharp.Tests
         private Commit AddCommitToRepo(IRepository repository)
         {
 
-            string random = Guid.NewGuid().ToString();
+            string random = Path.GetRandomFileName();
             string filename = random + ".txt";
 
             Touch(repository.Info.WorkingDirectory, filename, random);

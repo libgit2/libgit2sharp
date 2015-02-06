@@ -13,7 +13,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void StagingANewVersionOfAFileThenUnstagingItRevertsTheBlobToTheVersionOfHead()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 int count = repo.Index.Count;
@@ -40,7 +40,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanStageAndUnstageAnIgnoredFile()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 Touch(repo.Info.WorkingDirectory, ".gitignore", "*.ign" + Environment.NewLine);
@@ -69,7 +69,7 @@ namespace LibGit2Sharp.Tests
             string relativePath, FileStatus currentStatus, bool doesCurrentlyExistInTheIndex,
             FileStatus expectedStatusOnceStaged, bool doesExistInTheIndexOnceStaged, int expectedIndexCountVariation)
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 int count = repo.Index.Count;
@@ -89,7 +89,7 @@ namespace LibGit2Sharp.Tests
         [InlineData("where-am-I.txt", FileStatus.Nonexistent)]
         public void UnstagingUnknownPathsWithStrictUnmatchedExplicitPathsValidationThrows(string relativePath, FileStatus currentStatus)
         {
-            using (var repo = new Repository(CloneStandardTestRepo()))
+            using (var repo = new Repository(SandboxStandardTestRepo()))
             {
                 Assert.Equal(currentStatus, repo.RetrieveStatus(relativePath));
 
@@ -102,7 +102,7 @@ namespace LibGit2Sharp.Tests
         [InlineData("where-am-I.txt", FileStatus.Nonexistent)]
         public void CanUnstageUnknownPathsWithLaxUnmatchedExplicitPathsValidation(string relativePath, FileStatus currentStatus)
         {
-            using (var repo = new Repository(CloneStandardTestRepo()))
+            using (var repo = new Repository(SandboxStandardTestRepo()))
             {
                 Assert.Equal(currentStatus, repo.RetrieveStatus(relativePath));
 
@@ -114,7 +114,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanUnstageTheRemovalOfAFile()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 int count = repo.Index.Count;
@@ -159,7 +159,7 @@ namespace LibGit2Sharp.Tests
         [InlineData("where-am-I.txt", FileStatus.Nonexistent)]
         public void UnstagingUnknownPathsAgainstAnOrphanedHeadWithStrictUnmatchedExplicitPathsValidationThrows(string relativePath, FileStatus currentStatus)
         {
-            using (var repo = new Repository(CloneStandardTestRepo()))
+            using (var repo = new Repository(SandboxStandardTestRepo()))
             {
                 repo.Refs.UpdateTarget("HEAD", "refs/heads/orphaned");
                 Assert.True(repo.Info.IsHeadUnborn);
@@ -175,7 +175,7 @@ namespace LibGit2Sharp.Tests
         [InlineData("where-am-I.txt", FileStatus.Nonexistent)]
         public void CanUnstageUnknownPathsAgainstAnOrphanedHeadWithLaxUnmatchedExplicitPathsValidation(string relativePath, FileStatus currentStatus)
         {
-            using (var repo = new Repository(CloneStandardTestRepo()))
+            using (var repo = new Repository(SandboxStandardTestRepo()))
             {
                 repo.Refs.UpdateTarget("HEAD", "refs/heads/orphaned");
                 Assert.True(repo.Info.IsHeadUnborn);
@@ -192,7 +192,7 @@ namespace LibGit2Sharp.Tests
         public void UnstagingANewFileWithAFullPathWhichEscapesOutOfTheWorkingDirThrows()
         {
             SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 DirectoryInfo di = Directory.CreateDirectory(scd.DirectoryPath);
@@ -225,7 +225,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void UnstagingFileWithBadParamsThrows()
         {
-            using (var repo = new Repository(StandardTestRepoPath))
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
             {
                 Assert.Throws<ArgumentException>(() => repo.Unstage(string.Empty));
                 Assert.Throws<ArgumentNullException>(() => repo.Unstage((string)null));
@@ -237,7 +238,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanUnstageSourceOfARename()
         {
-            using (var repo = new Repository(CloneStandardTestRepo()))
+            using (var repo = new Repository(SandboxStandardTestRepo()))
             {
                 repo.Move("branch_file.txt", "renamed_branch_file.txt");
 
@@ -258,7 +259,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanUnstageTargetOfARename()
         {
-            using (var repo = new Repository(CloneStandardTestRepo()))
+            using (var repo = new Repository(SandboxStandardTestRepo()))
             {
                 repo.Move("branch_file.txt", "renamed_branch_file.txt");
 
@@ -278,7 +279,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanUnstageBothSidesOfARename()
         {
-            using (var repo = new Repository(CloneStandardTestRepo()))
+            using (var repo = new Repository(SandboxStandardTestRepo()))
             {
                 repo.Move("branch_file.txt", "renamed_branch_file.txt");
                 repo.Unstage(new string[] { "branch_file.txt", "renamed_branch_file.txt" });

@@ -30,7 +30,13 @@ namespace LibGit2Sharp.Core
             [MethodImpl(MethodImplOptions.NoInlining)]
             public LibraryLifetimeObject()
             {
-                Ensure.ZeroResult(git_threads_init());
+                int res = git_libgit2_init();
+                Ensure.Int32Result(res);
+                if (res == 1)
+                {
+                    // Ignore the error that this propagates. Call it in case openssl is being used.
+                    git_openssl_set_locking();
+                }
                 AddHandle();
             }
 
@@ -52,7 +58,7 @@ namespace LibGit2Sharp.Core
             int count = Interlocked.Decrement(ref handlesCount);
             if (count == 0)
             {
-                git_threads_shutdown();
+                git_libgit2_shutdown();
             }
         }
 
@@ -425,6 +431,21 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof (StrictUtf8Marshaler))] string password);
 
         [DllImport(libgit2)]
+        internal static extern int git_describe_commit(
+            out DescribeResultSafeHandle describe,
+            GitObjectSafeHandle committish,
+            ref GitDescribeOptions options);
+
+        [DllImport(libgit2)]
+        internal static extern int git_describe_format(
+            GitBuf buf,
+            DescribeResultSafeHandle describe,
+            ref GitDescribeFormatOptions options);
+
+        [DllImport(libgit2)]
+        internal static extern void git_describe_result_free(IntPtr describe);
+
+        [DllImport(libgit2)]
         internal static extern void git_diff_free(IntPtr diff);
 
         [DllImport(libgit2)]
@@ -703,9 +724,9 @@ namespace LibGit2Sharp.Core
         internal static extern int git_note_create(
             out GitOid noteOid,
             RepositorySafeHandle repo,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string notes_ref,
             SignatureSafeHandle author,
             SignatureSafeHandle committer,
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string notes_ref,
             ref GitOid oid,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string note,
             int force);
@@ -828,54 +849,9 @@ namespace LibGit2Sharp.Core
         [DllImport(libgit2)]
         internal static extern void git_patch_free(IntPtr patch);
 
-        [DllImport(libgit2)]
-        internal static extern int git_push_new(out PushSafeHandle push, RemoteSafeHandle remote);
-
         /* Push network progress notification function */
         internal delegate int git_push_transfer_progress(uint current, uint total, UIntPtr bytes, IntPtr payload);
         internal delegate int git_packbuilder_progress(int stage, uint current, uint total, IntPtr payload);
-
-        [DllImport(libgit2)]
-        internal static extern int git_push_set_callbacks(
-            PushSafeHandle push,
-            git_packbuilder_progress pack_progress_cb,
-            IntPtr pack_progress_cb_payload,
-            git_push_transfer_progress transfer_progress_cb,
-            IntPtr transfer_progress_cb_payload);
-
-        [DllImport(libgit2)]
-        internal static extern int git_push_set_options(PushSafeHandle push, GitPushOptions options);
-
-        [DllImport(libgit2)]
-        internal static extern int git_push_add_refspec(
-            PushSafeHandle push,
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string pushRefSpec);
-
-        [DllImport(libgit2)]
-        internal static extern int git_push_finish(PushSafeHandle push);
-
-        [DllImport(libgit2)]
-        internal static extern void git_push_free(IntPtr push);
-
-        [DllImport(libgit2)]
-        internal static extern int git_push_status_foreach(
-            PushSafeHandle push,
-            push_status_foreach_cb status_cb,
-            IntPtr data);
-
-        internal delegate int push_status_foreach_cb(
-            IntPtr reference,
-            IntPtr msg,
-            IntPtr data);
-
-        [DllImport(libgit2)]
-        internal static extern int git_push_unpack_ok(PushSafeHandle push);
-
-        [DllImport(libgit2)]
-        internal static extern int git_push_update_tips(
-            PushSafeHandle push,
-            SignatureSafeHandle signature,
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string log_message);
 
         [DllImport(libgit2)]
         internal static extern int git_reference_create(
@@ -1092,6 +1068,14 @@ namespace LibGit2Sharp.Core
         internal static extern int git_remote_get_push_refspecs(out GitStrArray array, RemoteSafeHandle remote);
 
         [DllImport(libgit2)]
+        internal static extern int git_remote_push(
+            RemoteSafeHandle remote,
+            ref GitStrArray refSpecs,
+            GitPushOptions opts,
+            SignatureSafeHandle signature,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string reflogMessage);
+
+        [DllImport(libgit2)]
         internal static extern UIntPtr git_remote_refspec_count(RemoteSafeHandle remote);
 
         [DllImport(libgit2)]
@@ -1113,7 +1097,7 @@ namespace LibGit2Sharp.Core
         internal static extern int git_remote_list(out GitStrArray array, RepositorySafeHandle repo);
 
         [DllImport(libgit2)]
-        internal static extern int git_remote_load(
+        internal static extern int git_remote_lookup(
             out RemoteSafeHandle remote,
             RepositorySafeHandle repo,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string name);
@@ -1390,6 +1374,12 @@ namespace LibGit2Sharp.Core
             RepositorySafeHandle repo,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictFilePathMarshaler))] FilePath name);
 
+        [DllImport(libgit2)]
+        internal static extern int git_submodule_update(
+            SubmoduleSafeHandle sm,
+            [MarshalAs(UnmanagedType.Bool)] bool init,
+            ref GitSubmoduleOptions submoduleUpdateOptions);
+
         internal delegate int submodule_callback(
             IntPtr sm,
             IntPtr name,
@@ -1441,11 +1431,11 @@ namespace LibGit2Sharp.Core
             SubmoduleSafeHandle submodule);
 
         [DllImport(libgit2)]
-        internal static extern SubmoduleUpdate git_submodule_update(
+        internal static extern SubmoduleUpdate git_submodule_update_strategy(
             SubmoduleSafeHandle submodule);
 
         [DllImport(libgit2)]
-        internal static extern bool git_submodule_fetch_recurse_submodules(
+        internal static extern SubmoduleRecurse git_submodule_fetch_recurse_submodules(
             SubmoduleSafeHandle submodule);
 
         [DllImport(libgit2)]
@@ -1457,6 +1447,11 @@ namespace LibGit2Sharp.Core
         internal static extern int git_submodule_status(
             out SubmoduleStatus status,
             SubmoduleSafeHandle submodule);
+
+        [DllImport(libgit2)]
+        internal static extern int git_submodule_init(
+            SubmoduleSafeHandle submodule,
+            [MarshalAs(UnmanagedType.Bool)] bool overwrite);
 
         [DllImport(libgit2)]
         internal static extern int git_tag_annotation_create(
@@ -1513,10 +1508,13 @@ namespace LibGit2Sharp.Core
         internal static extern GitObjectType git_tag_target_type(GitObjectSafeHandle tag);
 
         [DllImport(libgit2)]
-        internal static extern int git_threads_init();
+        internal static extern int git_libgit2_init();
 
         [DllImport(libgit2)]
-        internal static extern void git_threads_shutdown();
+        internal static extern int git_libgit2_shutdown();
+
+        [DllImport(libgit2)]
+        internal static extern int git_openssl_set_locking();
 
         internal delegate void git_trace_cb(LogLevel level, IntPtr message);
 
@@ -1572,7 +1570,7 @@ namespace LibGit2Sharp.Core
         internal static extern UIntPtr git_tree_entrycount(GitObjectSafeHandle tree);
 
         [DllImport(libgit2)]
-        internal static extern int git_treebuilder_create(out TreeBuilderSafeHandle builder, IntPtr src);
+        internal static extern int git_treebuilder_new(out TreeBuilderSafeHandle builder, RepositorySafeHandle repo, IntPtr src);
 
         [DllImport(libgit2)]
         internal static extern int git_treebuilder_insert(
@@ -1583,7 +1581,7 @@ namespace LibGit2Sharp.Core
             uint attributes);
 
         [DllImport(libgit2)]
-        internal static extern int git_treebuilder_write(out GitOid id, RepositorySafeHandle repo, TreeBuilderSafeHandle bld);
+        internal static extern int git_treebuilder_write(out GitOid id, TreeBuilderSafeHandle bld);
 
         [DllImport(libgit2)]
         internal static extern void git_treebuilder_free(IntPtr bld);

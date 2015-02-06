@@ -359,9 +359,9 @@ namespace LibGit2Sharp.Tests
 
                 expectedPath = CommitFileOnBranch(repo, branchName, content);
 
-                repo.Branches["master"].Checkout();
+                repo.Checkout("master");
 
-                repo.Branches[branchName].Checkout();
+                repo.Checkout(branchName);
             }
             return expectedPath;
         }
@@ -369,7 +369,7 @@ namespace LibGit2Sharp.Tests
         private static FileInfo CommitFileOnBranch(Repository repo, string branchName, String content)
         {
             var branch = repo.CreateBranch(branchName);
-            branch.Checkout();
+            repo.Checkout(branch.Name);
 
             FileInfo expectedPath = StageNewFile(repo, content);
             repo.Commit("Commit");

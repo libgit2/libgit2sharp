@@ -21,7 +21,7 @@ namespace LibGit2Sharp.Tests
         {
             const string name = "refs/heads/unit_test";
 
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 EnableRefLog(repo);
@@ -46,7 +46,7 @@ namespace LibGit2Sharp.Tests
             const string name = "refs/heads/extendedShaSyntaxRulz";
             const string logMessage = "Create new ref";
 
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 EnableRefLog(repo);
@@ -70,10 +70,10 @@ namespace LibGit2Sharp.Tests
         {
             const string name = "refs/heads/extendedShaSyntaxRulz";
 
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
-                Assert.Throws<LibGit2SharpException>(() => repo.Refs.Add(name, "master^42"));
+                Assert.Throws<NotFoundException>(() => repo.Refs.Add(name, "master^42"));
             }
         }
 
@@ -83,7 +83,7 @@ namespace LibGit2Sharp.Tests
             const string name = "refs/heads/unit_test";
             const string target = "refs/heads/master";
 
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 var newRef = (SymbolicReference)repo.Refs.Add(name, target);
@@ -99,7 +99,7 @@ namespace LibGit2Sharp.Tests
             const string target = "refs/heads/master";
             const string logMessage = "unit_test reference init";
 
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 EnableRefLog(repo);
@@ -126,7 +126,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void BlindlyCreatingADirectReferenceOverAnExistingOneThrows()
         {
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 Assert.Throws<NameConflictException>(() => repo.Refs.Add("refs/heads/master", "be3563ae3f795b2b4353bcce3a527ad0a4f7f644"));
@@ -136,7 +136,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void BlindlyCreatingASymbolicReferenceOverAnExistingOneThrows()
         {
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 Assert.Throws<NameConflictException>(() => repo.Refs.Add("HEAD", "refs/heads/br2"));
@@ -150,7 +150,7 @@ namespace LibGit2Sharp.Tests
             const string target = "4c062a6361ae6959e06292c1fa5e2822d9c96345";
             const string logMessage = "Create new ref";
 
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 EnableRefLog(repo);
@@ -177,7 +177,7 @@ namespace LibGit2Sharp.Tests
             const string target = "refs/heads/br2";
             const string logMessage = "Create new ref";
 
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 EnableRefLog(repo);
@@ -200,7 +200,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void AddWithEmptyStringForTargetThrows()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.Throws<ArgumentException>(() => repo.Refs.Add("refs/heads/newref", string.Empty));
             }
@@ -209,7 +210,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void AddWithEmptyStringThrows()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.Throws<ArgumentException>(() => repo.Refs.Add(string.Empty, "refs/heads/master"));
             }
@@ -218,7 +220,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void AddWithNullForTargetThrows()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.Throws<ArgumentNullException>(() => repo.Refs.Add("refs/heads/newref", (string)null));
                 Assert.Throws<ArgumentNullException>(() => repo.Refs.Add("refs/heads/newref", (ObjectId)null));
@@ -228,7 +231,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void AddWithNullStringThrows()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.Throws<ArgumentNullException>(() => repo.Refs.Add(null, "refs/heads/master"));
             }
@@ -237,7 +241,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanRemoveAReference()
         {
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 repo.Refs.Remove("refs/heads/packed");
@@ -247,7 +251,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanRemoveANonExistingReference()
         {
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 const string unknown = "refs/heads/dahlbyk/has/hawkeyes";
@@ -261,7 +265,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void ARemovedReferenceCannotBeLookedUp()
         {
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 const string refName = "refs/heads/test";
@@ -274,7 +278,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void RemovingAReferenceDecreasesTheRefsCount()
         {
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 const string refName = "refs/heads/test";
@@ -294,7 +298,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void RemoveWithEmptyNameThrows()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.Throws<ArgumentException>(() => repo.Refs.Remove(string.Empty));
             }
@@ -303,7 +308,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void RemoveWithNullNameThrows()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.Throws<ArgumentNullException>(() => repo.Refs.Remove((string)null));
                 Assert.Throws<ArgumentNullException>(() => repo.Refs.Remove((Reference)null));
@@ -313,7 +319,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanListAllReferencesEvenCorruptedOnes()
         {
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 CreateCorruptedDeadBeefHead(repo.Info.Path);
@@ -327,7 +333,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanResolveHeadByName()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 var head = (SymbolicReference)repo.Refs.Head;
                 Assert.NotNull(head);
@@ -348,7 +355,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanResolveReferenceToALightweightTag()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 var lwTag = (DirectReference)repo.Refs["refs/tags/lw"];
                 Assert.NotNull(lwTag);
@@ -362,7 +370,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanResolveReferenceToAnAnnotatedTag()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 var annTag = (DirectReference)repo.Refs["refs/tags/test"];
                 Assert.NotNull(annTag);
@@ -376,7 +385,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanResolveRefsByName()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 var master = (DirectReference)repo.Refs["refs/heads/master"];
                 Assert.NotNull(master);
@@ -390,7 +400,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void ResolvingWithEmptyStringThrows()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.Throws<ArgumentException>(() => { Reference head = repo.Refs[string.Empty]; });
             }
@@ -399,7 +410,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void ResolvingWithNullThrows()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.Throws<ArgumentNullException>(() => { Reference head = repo.Refs[null]; });
             }
@@ -409,7 +421,7 @@ namespace LibGit2Sharp.Tests
         public void CanUpdateTargetOfADirectReference()
         {
             const string masterRef = "refs/heads/master";
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 string sha = repo.Refs["refs/heads/test"].ResolveToDirectReference().Target.Sha;
@@ -429,7 +441,7 @@ namespace LibGit2Sharp.Tests
         public void CanUpdateTargetOfADirectReferenceWithAnAbbreviatedSha()
         {
             const string masterRef = "refs/heads/master";
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 string sha = repo.Refs["refs/heads/test"].ResolveToDirectReference().Target.Sha;
@@ -449,7 +461,7 @@ namespace LibGit2Sharp.Tests
         public void CanUpdateTargetOfASymbolicReference()
         {
             const string name = "refs/heads/unit_test";
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 var newRef = (SymbolicReference)repo.Refs.Add(name, "refs/heads/master");
@@ -467,7 +479,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanUpdateHeadWithARevparseSpec()
         {
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 Branch test = repo.Branches["test"];
@@ -485,7 +497,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanUpdateHeadWithEitherAnObjectIdOrAReference()
         {
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 EnableRefLog(repo);
@@ -522,7 +534,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanUpdateTargetOfADirectReferenceWithARevparseSpec()
         {
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 EnableRefLog(repo);
@@ -553,7 +565,7 @@ namespace LibGit2Sharp.Tests
         public void UpdatingADirectRefWithSymbolFails()
         {
             const string name = "refs/heads/unit_test";
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 var newRef = (SymbolicReference)repo.Refs.Add(name, "refs/heads/master");
@@ -570,7 +582,7 @@ namespace LibGit2Sharp.Tests
         public void CanUpdateTargetOfADirectReferenceWithAShortReferenceNameAsARevparseSpec()
         {
             const string masterRef = "refs/heads/master";
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 Reference updatedMaster = repo.Refs.UpdateTarget(masterRef, "heads/test");
@@ -581,7 +593,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void UpdatingAReferenceTargetWithBadParametersFails()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.Throws<ArgumentException>(() => repo.Refs.UpdateTarget(string.Empty, "refs/heads/packed"));
                 Assert.Throws<ArgumentException>(() => repo.Refs.UpdateTarget("refs/heads/master", string.Empty));
@@ -594,16 +607,17 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void UpdatingADirectReferenceTargetWithARevparsePointingAtAnUnknownObjectFails()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
-                Assert.Throws<LibGit2SharpException>(() => repo.Refs.UpdateTarget(repo.Refs["refs/heads/master"], "refs/heads/nope"));
+                Assert.Throws<NotFoundException>(() => repo.Refs.UpdateTarget(repo.Refs["refs/heads/master"], "refs/heads/nope"));
             }
         }
 
         [Fact]
         public void CanRenameAReferenceToADeeperReferenceHierarchy()
         {
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 const string newName = "refs/tags/test/deep";
@@ -617,7 +631,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanRenameAReferenceToAUpperReferenceHierarchy()
         {
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 const string newName = "refs/heads/o/sole";
@@ -633,7 +647,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanRenameAReferenceToADifferentReferenceHierarchy()
         {
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 const string oldName = "refs/tags/test";
@@ -656,7 +670,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void RenamingANonExistingReferenceThrows()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.Throws<LibGit2SharpException>(() => repo.Refs.Rename("refs/tags/i-am-void", "refs/atic/tagtest"));
             }
@@ -665,7 +680,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanRenameAndOverWriteAExistingReference()
         {
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 const string oldName = "refs/heads/packed";
@@ -681,7 +696,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void BlindlyOverwritingAExistingReferenceThrows()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.Throws<NameConflictException>(() => repo.Refs.Rename("refs/heads/packed", "refs/heads/br2"));
             }
@@ -690,7 +706,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void RenamingAReferenceDoesNotDecreaseTheRefsCount()
         {
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 const string oldName = "refs/tags/test";
@@ -712,7 +728,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanLookupARenamedReference()
         {
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 const string oldName = "refs/tags/test";
@@ -728,7 +744,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanFilterReferencesWithAGlob()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.Equal(13, repo.Refs.FromGlob("*").Count());
                 Assert.Equal(5, repo.Refs.FromGlob("refs/heads/*").Count());
@@ -750,17 +767,13 @@ namespace LibGit2Sharp.Tests
         [InlineData("/", false)]
         public void CanTellIfAReferenceIsValid(string refname, bool expectedResult)
         {
-            using (var repo = new Repository(BareTestRepoPath))
-            {
-                Assert.Equal(expectedResult, Reference.IsValidName(refname));
-            }
+            Assert.Equal(expectedResult, Reference.IsValidName(refname));
         }
 
         [Fact]
         public void CanUpdateTheTargetOfASymbolicReferenceWithAnotherSymbolicReference()
         {
-            string repoPath = CloneBareTestRepo();
-
+            string repoPath = SandboxBareTestRepo();
             using (var repo = new Repository(repoPath))
             {
                 Reference symbolicRef = repo.Refs.Add("refs/heads/unit_test", "refs/heads/master");
@@ -775,7 +788,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void LookingForLowerCaseHeadThrows()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.Throws<InvalidSpecificationException>(() => repo.Refs["head"]);
             }
@@ -789,14 +803,16 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanIdentifyReferenceKind()
         {
-            using (var repo = new Repository(StandardTestRepoWorkingDirPath))
+            string path = SandboxStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.True(repo.Refs["refs/heads/master"].IsLocalBranch());
                 Assert.True(repo.Refs["refs/remotes/origin/master"].IsRemoteTrackingBranch());
                 Assert.True(repo.Refs["refs/tags/lw"].IsTag());
             }
 
-            using (var repo = new Repository(BareTestRepoPath))
+            path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.True(repo.Refs["refs/notes/commits"].IsNote());
             }
@@ -805,7 +821,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanQueryReachability()
         {
-            using (var repo = new Repository(StandardTestRepoWorkingDirPath))
+            string path = SandboxStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 var result = repo.Refs.ReachableFrom(
                     new[] { repo.Lookup<Commit>("f8d44d7"), repo.Lookup<Commit>("6dcf9bf") });
@@ -827,7 +844,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanQueryReachabilityAmongASubsetOfreferences()
         {
-            using (var repo = new Repository(StandardTestRepoWorkingDirPath))
+            string path = SandboxStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 var result = repo.Refs.ReachableFrom(
                     repo.Refs.Where(r => r.IsTag()),
@@ -847,7 +865,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanHandleInvalidArguments()
         {
-            using (var repo = new Repository(StandardTestRepoWorkingDirPath))
+            string path = SandboxStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.Throws<ArgumentNullException>(() => repo.Refs.ReachableFrom(null));
                 Assert.Throws<ArgumentNullException>(() => repo.Refs.ReachableFrom(null, repo.Commits.Take(2)));

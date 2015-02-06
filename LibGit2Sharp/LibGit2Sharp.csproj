@@ -72,6 +72,11 @@
     <Compile Include="Core\GitFilter.cs" />
     <Compile Include="Core\GitIndexReucEntry.cs" />
     <Compile Include="Core\Handles\GitFilterSafeHandle.cs" />
+    <Compile Include="DescribeOptions.cs" />
+    <Compile Include="DescribeStrategy.cs" />
+    <Compile Include="Core\GitDescribeFormatOptions.cs" />
+    <Compile Include="Core\GitSubmoduleOptions.cs" />
+    <Compile Include="Core\Handles\DescribeResultSafeHandle.cs" />
     <Compile Include="Core\Handles\IndexNameEntrySafeHandle.cs" />
     <Compile Include="Core\Handles\IndexReucEntrySafeHandle.cs" />
     <Compile Include="EntryExistsException.cs" />
@@ -104,6 +109,7 @@
     <Compile Include="GitObjectMetadata.cs" />
     <Compile Include="PatchEntryChanges.cs" />
     <Compile Include="PatchStats.cs" />
+    <Compile Include="PeelException.cs" />
     <Compile Include="PullOptions.cs" />
     <Compile Include="RefSpec.cs" />
     <Compile Include="RefSpecCollection.cs" />
@@ -138,6 +144,8 @@
     <Compile Include="Log.cs" />
     <Compile Include="LogConfiguration.cs" />
     <Compile Include="LogLevel.cs" />
+    <Compile Include="SubmoduleRecurse.cs" />
+    <Compile Include="SubmoduleUpdateOptions.cs" />
     <Compile Include="UnbornBranchException.cs" />
     <Compile Include="LockedFileException.cs" />
     <Compile Include="Core\GitRepositoryInitOptions.cs" />
@@ -211,7 +219,6 @@
     <Compile Include="Core\TarWriter.cs" />
     <Compile Include="DiffTargets.cs" />
     <Compile Include="FetchHead.cs" />
-    <Compile Include="Core\Handles\PushSafeHandle.cs" />
     <Compile Include="Handlers.cs" />
     <Compile Include="Ignore.cs" />
     <Compile Include="MergeConflictException.cs" />

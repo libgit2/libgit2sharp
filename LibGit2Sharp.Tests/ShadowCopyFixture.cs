@@ -17,7 +17,7 @@ namespace LibGit2Sharp.Tests
             Assembly assembly = type.Assembly;
 
             // Build a new domain which will shadow copy assemblies
-            string cachePath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+            string cachePath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
             Directory.CreateDirectory(cachePath);
 
             var setup = new AppDomainSetup

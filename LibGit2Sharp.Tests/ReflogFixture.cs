@@ -13,8 +13,8 @@ namespace LibGit2Sharp.Tests
         {
             const int expectedReflogEntriesCount = 3;
 
-
-            using (var repo = new Repository(StandardTestRepoWorkingDirPath))
+            string path = SandboxStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 var reflog = repo.Refs.Log(repo.Refs.Head);
 
@@ -34,7 +34,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void ReflogOfUnbornReferenceIsEmpty()
         {
-            using (var repo = new Repository(StandardTestRepoWorkingDirPath))
+            string path = SandboxStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.Empty(repo.Refs.Log("refs/heads/toto"));
             }
@@ -43,7 +44,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void ReadingReflogOfInvalidReferenceNameThrows()
         {
-            using (var repo = new Repository(StandardTestRepoWorkingDirPath))
+            string path = SandboxStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.Throws<InvalidSpecificationException>(() => repo.Refs.Log("toto").Count());
             }
@@ -112,7 +114,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CommitOnDetachedHeadShouldInsertReflogEntry()
         {
-            string repoPath = CloneStandardTestRepo();
+            string repoPath = SandboxStandardTestRepo();
 
             using (var repo = new Repository(repoPath))
             {

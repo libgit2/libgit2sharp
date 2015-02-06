@@ -11,7 +11,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void TemporaryRulesShouldApplyUntilCleared()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 Touch(repo.Info.WorkingDirectory, "Foo.cs", "Bar");
@@ -31,7 +31,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void IsPathIgnoredShouldVerifyWhetherPathIsIgnored()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 Touch(repo.Info.WorkingDirectory, "Foo.cs", "Bar");
@@ -51,7 +51,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CallingIsPathIgnoredWithBadParamsThrows()
         {
-            using (var repo = new Repository(StandardTestRepoWorkingDirPath))
+            string path = SandboxStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.Throws<ArgumentException>(() => repo.Ignore.IsPathIgnored(string.Empty));
                 Assert.Throws<ArgumentNullException>(() => repo.Ignore.IsPathIgnored(null));
@@ -61,7 +62,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void AddingATemporaryRuleWithBadParamsThrows()
         {
-            using (var repo = new Repository(StandardTestRepoWorkingDirPath))
+            string path = SandboxStandardTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.Throws<ArgumentNullException>(() => repo.Ignore.AddTemporaryRules(null));
             }
@@ -70,7 +72,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCheckIfAPathIsIgnoredUsingThePreferedPlatformDirectorySeparatorChar()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 Touch(repo.Info.WorkingDirectory, ".gitignore", "/NewFolder\n/NewFolder/NewFolder");

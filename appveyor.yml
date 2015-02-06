@@ -1,0 +1,75 @@
+version: '0.21.0.{build}'
+
+branches:
+  only:
+  - master
+  - vNext
+
+skip_tags: true
+
+clone_folder: C:\projects\libgit2sharp
+
+environment:
+  matrix:
+  - xunit_runner: xunit.console.clr4.exe
+    Arch: 64
+  - xunit_runner: xunit.console.clr4.x86.exe
+    Arch: 32
+
+matrix:
+  fast_finish: true
+
+install:
+- ps: |
+    Write-Host "Commit being built = $($Env:APPVEYOR_REPO_COMMIT)"
+    Write-Host "Current build version = $($Env:APPVEYOR_BUILD_VERSION)"
+    Write-Host "Target branch = $($Env:APPVEYOR_REPO_BRANCH)"
+    Write-Host "Is a Pull Request = $($Env:APPVEYOR_PULL_REQUEST_NUMBER -ne $null)"
+    $VersionSuffix = ""
+    If ($Env:APPVEYOR_REPO_BRANCH -ne "master")
+    {
+      $VersionSuffix = "-pre"
+    }
+    $Version = "$($Env:APPVEYOR_BUILD_VERSION)$($VersionSuffix)"
+    $Env:ASSEMBLY_INFORMATIONAL_VERSION = $Version
+    Write-Host "Assembly informational version = $($Env:ASSEMBLY_INFORMATIONAL_VERSION)"
+    $ShouldPublishNugetArtifact = "$($env:APPVEYOR_PULL_REQUEST_NUMBER -eq $null)"
+    $Env:SHOULD_PUBLISH_NUGET_ARTIFACT = $ShouldPublishNugetArtifact
+    Write-Host "Should publish Nuget artifact = $($Env:SHOULD_PUBLISH_NUGET_ARTIFACT)"
+
+assembly_info:
+  patch: true
+  file: LibGit2Sharp\Properties\AssemblyInfo.cs
+  assembly_version: '{version}'
+  assembly_file_version: '{version}'
+  assembly_informational_version: '$(ASSEMBLY_INFORMATIONAL_VERSION)'
+
+cache:
+  - packages
+
+before_build:
+- nuget restore "C:\projects\libgit2sharp\LibGit2Sharp.sln"
+
+build_script:
+- msbuild "C:\projects\libgit2sharp\LibGit2Sharp.sln" /verbosity:normal /p:Configuration=Release /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /property:ExtraDefine="LEAKS_IDENTIFYING"
+
+test_script:
+- '%xunit_runner%  "C:\projects\libgit2sharp\LibGit2Sharp.Tests\bin\Release\LibGit2Sharp.Tests.dll" /appveyor'
+- IF %ERRORLEVEL% NEQ 0 EXIT /B %ERRORLEVEL%
+
+on_success:
+- ps: |
+- ps: |
+    & "C:\projects\libgit2sharp\nuget.package\BuildNugetPackage.ps1" "$env:APPVEYOR_REPO_COMMIT"
+    Add-Type -Path "C:\projects\libgit2sharp\LibGit2Sharp\bin\Release\LibGit2Sharp.dll"
+    Write-Host "LibGit2Sharp version = $([LibGit2Sharp.GlobalSettings]::Version)" -ForegroundColor "Magenta"
+    If ($Env:SHOULD_PUBLISH_NUGET_ARTIFACT -eq $True)
+    {
+      Get-ChildItem "C:\projects\libgit2sharp\LibGit2sharp\*.nupkg" | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
+    }
+
+notifications:
+- provider: Email
+  to:
+    - emeric.fermas@gmail.com
+  on_build_status_changed: true

@@ -17,7 +17,8 @@ namespace LibGit2Sharp.Tests
         [InlineData("deadbeefdeadbeefdeadbeefdeadbeefdeadbeef", false)]
         public void CanTellIfObjectsExists(string sha, bool shouldExists)
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 var oid = new ObjectId(sha);
 
@@ -202,7 +203,7 @@ namespace LibGit2Sharp.Tests
         [InlineData("1")]
         public void CanCreateATreeByAlteringAnExistingOne(string targetPath)
         {
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 var blob = repo.Lookup<Blob>(new ObjectId("a8233120f6ad708f843d861ce2b7228ec4e3dec6"));
@@ -218,7 +219,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCreateATreeByRemovingEntriesFromExistingOne()
         {
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 TreeDefinition td = TreeDefinition.From(repo.Head.Tip.Tree)
@@ -239,7 +240,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void RemovingANonExistingEntryFromATreeDefinitionHasNoSideEffect()
         {
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 Tree head = repo.Head.Tip.Tree;
@@ -275,7 +276,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanReplaceAnExistingTreeWithAnotherPersitedTree()
         {
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 TreeDefinition td = TreeDefinition.From(repo.Head.Tip.Tree);
@@ -296,7 +297,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCreateATreeContainingABlobFromAFileInTheWorkingDirectory()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 Assert.Equal(FileStatus.Nonexistent, repo.RetrieveStatus("hello.txt"));
@@ -328,7 +329,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCreateATreeContainingAGitLinkFromAnUntrackedSubmoduleInTheWorkingDirectory()
         {
-            string path = CloneSubmoduleTestRepo();
+            string path = SandboxSubmoduleTestRepo();
             using (var repo = new Repository(path))
             {
                 const string submodulePath = "sm_added_and_uncommited";
@@ -370,7 +371,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CannotCreateATreeContainingABlobFromARelativePathAgainstABareRepository()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 var td = new TreeDefinition()
                     .Add("1/new file", "hello.txt", Mode.NonExecutableFile);
@@ -382,7 +384,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CreatingATreeFromIndexWithUnmergedEntriesThrows()
         {
-            using (var repo = new Repository(MergedTestRepoWorkingDirPath))
+            var path = SandboxMergedTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.False(repo.Index.IsFullyMerged);
 
@@ -394,7 +397,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCreateATreeFromIndex()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
 
             using (var repo = new Repository(path))
             {
@@ -416,7 +419,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCreateACommit()
         {
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 Branch head = repo.Head;
@@ -456,7 +459,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCreateATagAnnotationPointingToAGitObject()
         {
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 var blob = repo.Head.Tip["README"].Target as Blob;
@@ -482,7 +485,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanEnumerateTheGitObjectsFromBareRepository()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 int count = 0;
 
@@ -504,7 +508,8 @@ namespace LibGit2Sharp.Tests
         [InlineData("\0\0\0")]
         public void CreatingACommitWithMessageContainingZeroByteThrows(string message)
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.Throws<ArgumentException>(() => repo.ObjectDatabase.CreateCommit(
                     Constants.Signature, Constants.Signature, message, repo.Head.Tip.Tree, Enumerable.Empty<Commit>(), false));
@@ -519,7 +524,8 @@ namespace LibGit2Sharp.Tests
         [InlineData("\0\0\0")]
         public void CreatingATagAnnotationWithNameOrMessageContainingZeroByteThrows(string input)
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.Throws<ArgumentException>(() => repo.ObjectDatabase.CreateTagAnnotation(
                     input, repo.Head.Tip, Constants.Signature, "message"));
@@ -531,7 +537,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CreatingATagAnnotationWithBadParametersThrows()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.Throws<ArgumentNullException>(() => repo.ObjectDatabase.CreateTagAnnotation(
                     null, repo.Head.Tip, Constants.Signature, "message"));
@@ -549,7 +556,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCreateATagAnnotationWithAnEmptyMessage()
         {
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 var tagAnnotation = repo.ObjectDatabase.CreateTagAnnotation(
@@ -566,7 +573,8 @@ namespace LibGit2Sharp.Tests
             string sinceSha, string untilSha,
             string expectedAncestorSha, int? expectedAheadBy, int? expectedBehindBy)
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 var since = repo.Lookup<Commit>(sinceSha);
                 var until = repo.Lookup<Commit>(untilSha);
@@ -585,7 +593,8 @@ namespace LibGit2Sharp.Tests
             string sinceSha, string untilSha,
             int? expectedAheadBy, int? expectedBehindBy)
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 var since = repo.Lookup<Commit>(sinceSha);
                 var until = repo.Lookup<Commit>(untilSha);
@@ -601,7 +610,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CalculatingHistoryDivergenceWithBadParamsThrows()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.Throws<ArgumentNullException>(
                     () => repo.ObjectDatabase.CalculateHistoryDivergence(repo.Head.Tip, null));
@@ -621,7 +631,7 @@ namespace LibGit2Sharp.Tests
              * dea509d097ce692e167dfc6a48a7a280cc5e877e
              */
 
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 repo.Config.Set("core.abbrev", 4);

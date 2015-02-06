@@ -15,7 +15,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void RetrievingNotesFromANonExistingGitObjectYieldsNoResult()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 var notes = repo.Notes[ObjectId.Zero];
 
@@ -26,7 +27,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void RetrievingNotesFromAGitObjectWhichHasNoNoteYieldsNoResult()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 var notes = repo.Notes[new ObjectId("4c062a6361ae6959e06292c1fa5e2822d9c96345")];
 
@@ -56,7 +58,8 @@ namespace LibGit2Sharp.Tests
         {
             var expectedMessages = new [] { "Just Note, don't you understand?\n", "Nope\n", "Not Nope, Note!\n" };
 
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 var notes = repo.Notes[new ObjectId("4a202b346bb0fb0db7eff3cffeb3c70babbd2045")];
 
@@ -68,7 +71,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanRetrieveASpecificNoteFromAKnownNamespace()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 var singleNote = repo.Notes["answer", new ObjectId("4a202b346bb0fb0db7eff3cffeb3c70babbd2045")];
                 Assert.Equal("Nope\n", singleNote.Message);
@@ -80,7 +84,8 @@ namespace LibGit2Sharp.Tests
         {
             var expectedNamespaces = new[] { "answer", "answer2", "commits", };
 
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.Equal(expectedNamespaces,
                              repo.Notes.Namespaces.OrderBy(n => n, StringComparer.Ordinal).ToArray());
@@ -110,7 +115,7 @@ namespace LibGit2Sharp.Tests
         {
             var expectedNamespaces = new[] { "Just Note, don't you understand?\n", "Nope\n", "Not Nope, Note!\n" };
 
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 var commit = repo.Lookup<Commit>("4a202b346bb0fb0db7eff3cffeb3c70babbd2045");
@@ -127,7 +132,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanAddANoteOnAGitObject()
         {
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 var commit = repo.Lookup<Commit>("9fd738e8f7967c078dceed8190330fc8648ee56a");
@@ -144,7 +149,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CreatingANoteWhichAlreadyExistsOverwritesThePreviousNote()
         {
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 var commit = repo.Lookup<Commit>("5b5b025afb0b4c913b4c338a42934a3863bf3644");
@@ -165,7 +170,7 @@ namespace LibGit2Sharp.Tests
         {
             string configPath = CreateConfigurationWithDummyUser(Constants.Signature);
             var options = new RepositoryOptions { GlobalConfigurationLocation = configPath };
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
 
             using (var repo = new Repository(path, options))
             {
@@ -185,7 +190,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCompareTwoUniqueNotes()
         {
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 var commit = repo.Lookup<Commit>("9fd738e8f7967c078dceed8190330fc8648ee56a");
@@ -220,7 +225,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanRemoveANoteFromAGitObject()
         {
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 var commit = repo.Lookup<Commit>("8496071c1b46c854b31185ea97743be6a8774479");
@@ -248,7 +253,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void RemovingANonExistingNoteDoesntThrow()
         {
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 var commit = repo.Lookup<Commit>("5b5b025afb0b4c913b4c338a42934a3863bf3644");
@@ -262,7 +267,7 @@ namespace LibGit2Sharp.Tests
         {
             string configPath = CreateConfigurationWithDummyUser(Constants.Signature);
             RepositoryOptions options = new RepositoryOptions() { GlobalConfigurationLocation = configPath };
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
 
             using (var repo = new Repository(path, options))
             {
@@ -288,7 +293,8 @@ namespace LibGit2Sharp.Tests
                 new { Blob = "1a550e416326cdb4a8e127a04dd69d7a01b11cf4", Target = "4a202b346bb0fb0db7eff3cffeb3c70babbd2045" },
             };
 
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.Equal(expectedNotes,
                              SortedNotes(repo.Notes["commits"], n => new { Blob = n.BlobId.Sha, Target = n.TargetObjectId.Sha }));

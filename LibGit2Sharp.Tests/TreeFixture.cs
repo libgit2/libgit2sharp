@@ -13,7 +13,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCompareTwoTreeEntries()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 var tree = repo.Lookup<Tree>(sha);
                 TreeEntry treeEntry1 = tree["README"];
@@ -26,7 +27,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanConvertEntryToBlob()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 var tree = repo.Lookup<Tree>(sha);
                 TreeEntry treeEntry = tree["README"];
@@ -39,7 +41,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanConvertEntryToTree()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 var tree = repo.Lookup<Tree>(sha);
                 TreeEntry treeEntry = tree["1"];
@@ -52,7 +55,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanEnumerateBlobs()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 var tree = repo.Lookup<Tree>(sha);
 
@@ -68,7 +72,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanEnumerateSubTrees()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 var tree = repo.Lookup<Tree>(sha);
 
@@ -84,7 +89,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanEnumerateTreeEntries()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 var tree = repo.Lookup<Tree>(sha);
                 Assert.Equal(tree.Count, tree.Count());
@@ -96,7 +102,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanGetEntryByName()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 var tree = repo.Lookup<Tree>(sha);
                 TreeEntry treeEntry = tree["README"];
@@ -108,7 +115,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void GettingAnUknownTreeEntryReturnsNull()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 var tree = repo.Lookup<Tree>(sha);
                 TreeEntry treeEntry = tree["I-do-not-exist"];
@@ -119,7 +127,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanGetEntryCountFromTree()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 var tree = repo.Lookup<Tree>(sha);
                 Assert.Equal(4, tree.Count);
@@ -129,7 +138,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanReadEntryAttributes()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 var tree = repo.Lookup<Tree>(sha);
                 Assert.Equal(Mode.NonExecutableFile, tree["README"].Mode);
@@ -139,7 +149,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanReadTheTreeData()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 var tree = repo.Lookup<Tree>(sha);
                 Assert.NotNull(tree);
@@ -149,7 +160,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void TreeDataIsPresent()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 GitObject tree = repo.Lookup(sha);
                 Assert.NotNull(tree);
@@ -159,7 +171,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanRetrieveTreeEntryPath()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 /* From a commit tree */
                 var commitTree = repo.Lookup<Commit>("4c062a6").Tree;
@@ -204,7 +217,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanParseSymlinkTreeEntries()
         {
-            var path = CloneBareTestRepo();
+            var path = SandboxBareTestRepo();
 
             using (var repo = new Repository(path))
             {

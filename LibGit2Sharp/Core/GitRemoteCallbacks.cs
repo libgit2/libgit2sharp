@@ -23,6 +23,12 @@ namespace LibGit2Sharp.Core
 
         internal NativeMethods.remote_update_tips_callback update_tips;
 
+        internal NativeMethods.git_packbuilder_progress pack_progress;
+
+        internal NativeMethods.git_push_transfer_progress push_transfer_progress;
+
+        internal IntPtr push_update_reference;
+
         internal IntPtr payload;
     }
 }

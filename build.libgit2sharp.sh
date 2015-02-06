@@ -27,6 +27,11 @@ export MONO_OPTIONS=--debug
 
 echo $DYLD_LIBRARY_PATH
 echo $LD_LIBRARY_PATH
+
+# Required for NuGet package restore to run.
+mozroots --import --sync
+
+mono Lib/NuGet/NuGet.exe restore LibGit2Sharp.sln
 xbuild CI/build.msbuild /target:Deploy /property:ExtraDefine="$EXTRADEFINE"
 
 exit $?

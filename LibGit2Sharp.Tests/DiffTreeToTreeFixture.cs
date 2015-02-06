@@ -15,7 +15,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void ComparingATreeAgainstItselfReturnsNoDifference()
         {
-            using (var repo = new Repository(StandardTestRepoPath))
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
             {
                 Tree tree = repo.Head.Tip.Tree;
 
@@ -31,7 +32,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void RetrievingANonExistentFileChangeReturnsNull()
         {
-            using (var repo = new Repository(StandardTestRepoPath))
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
             {
                 Tree tree = repo.Head.Tip.Tree;
 
@@ -49,7 +51,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCompareACommitTreeAgainstItsParent()
         {
-            using (var repo = new Repository(StandardTestRepoPath))
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
             {
                 Tree commitTree = repo.Head.Tip.Tree;
                 Tree parentCommitTree = repo.Head.Tip.Parents.Single().Tree;
@@ -89,7 +92,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanDetectABinaryChange()
         {
-            using (var repo = new Repository(CloneStandardTestRepo()))
+            using (var repo = new Repository(SandboxStandardTestRepo()))
             {
                 const string filename = "binfile.foo";
                 var filepath = Path.Combine(repo.Info.WorkingDirectory, filename);
@@ -115,7 +118,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanDetectABinaryDeletion()
         {
-            using (var repo = new Repository(CloneStandardTestRepo()))
+            using (var repo = new Repository(SandboxStandardTestRepo()))
             {
                 const string filename = "binfile.foo";
                 var filepath = Path.Combine(repo.Info.WorkingDirectory, filename);
@@ -151,7 +154,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCompareASubsetofTheTreeAgainstOneOfItsAncestor()
         {
-            using (var repo = new Repository(StandardTestRepoPath))
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
             {
                 Tree tree = repo.Head.Tip.Tree;
                 Tree ancestor = repo.Lookup<Commit>("9fd738e").Tree;
@@ -181,7 +185,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCompareACommitTreeAgainstATreeWithNoCommonAncestor()
         {
-            using (var repo = new Repository(StandardTestRepoPath))
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
             {
                 Tree commitTree = repo.Head.Tip.Tree;
                 Tree commitTreeWithDifferentAncestor = repo.Branches["refs/remotes/origin/test"].Tip.Tree;
@@ -206,7 +211,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCompareATreeAgainstAnotherTreeWithLaxExplicitPathsValidationAndNonExistentPath()
         {
-            using (var repo = new Repository(StandardTestRepoPath))
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
             {
                 Tree commitTree = repo.Head.Tip.Tree;
                 Tree commitTreeWithDifferentAncestor = repo.Branches["refs/remotes/origin/test"].Tip.Tree;
@@ -224,7 +230,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void ComparingATreeAgainstAnotherTreeWithStrictExplicitPathsValidationThrows()
         {
-            using (var repo = new Repository(StandardTestRepoPath))
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
             {
                 Tree commitTree = repo.Head.Tip.Tree;
                 Tree commitTreeWithDifferentAncestor = repo.Branches["refs/remotes/origin/test"].Tip.Tree;
@@ -256,7 +263,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void DetectsTheRenamingOfAModifiedFileByDefault()
         {
-            using (var repo = new Repository(StandardTestRepoPath))
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
             {
                 Tree rootCommitTree = repo.Lookup<Commit>("f8d44d7").Tree;
                 Tree commitTreeWithRenamedFile = repo.Lookup<Commit>("4be51d6").Tree;
@@ -771,7 +779,8 @@ namespace LibGit2Sharp.Tests
         [InlineData(4, 193)]
         public void CanCompareTwoVersionsOfAFileWithATrailingNewlineDeletion(int contextLines, int expectedPatchLength)
         {
-            using (var repo = new Repository(StandardTestRepoPath))
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
             {
                 Tree rootCommitTree = repo.Lookup<Commit>("f8d44d7").Tree;
                 Tree commitTreeWithUpdatedFile = repo.Lookup<Commit>("ec9e401").Tree;
@@ -866,7 +875,8 @@ namespace LibGit2Sharp.Tests
                 Similarity = SimilarityOptions.None,
             };
 
-            using (var repo = new Repository(StandardTestRepoPath))
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
             {
                 Tree rootCommitTree = repo.Lookup<Commit>("f8d44d7").Tree;
                 Tree mergedCommitTree = repo.Lookup<Commit>("7252fe2").Tree;
@@ -964,7 +974,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCompareATreeAgainstANullTree()
         {
-            using (var repo = new Repository(StandardTestRepoPath))
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
             {
                 Tree tree = repo.Branches["refs/remotes/origin/test"].Tip.Tree;
 
@@ -987,7 +998,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void ComparingTwoNullTreesReturnsAnEmptyTreeChanges()
         {
-            using (var repo = new Repository(StandardTestRepoPath))
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
             {
                 var changes = repo.Diff.Compare<TreeChanges>(default(Tree), default(Tree));
 
@@ -1000,7 +1012,7 @@ namespace LibGit2Sharp.Tests
         {
             const string file = "1/branch_file.txt";
 
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 TreeEntry entry = repo.Head[file];
@@ -1100,7 +1112,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CallingCompareWithAnUnsupportedGenericParamThrows()
         {
-            using (var repo = new Repository(StandardTestRepoPath))
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
             {
                 Assert.Throws<LibGit2SharpException>(() => repo.Diff.Compare<string>(default(Tree), default(Tree)));
                 Assert.Throws<LibGit2SharpException>(() => repo.Diff.Compare<string>());

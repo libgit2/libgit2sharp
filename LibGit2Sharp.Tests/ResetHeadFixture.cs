@@ -25,7 +25,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void SoftResetToTheHeadOfARepositoryDoesNotChangeTheTargetOfTheHead()
         {
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 Branch oldHead = repo.Head;
@@ -39,7 +39,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void SoftResetToAParentCommitChangesTheTargetOfTheHead()
         {
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 var headCommit = repo.Head.Tip;
@@ -53,7 +53,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void SoftResetSetsTheHeadToTheDereferencedCommitOfAChainedTag()
         {
-            string path = CloneBareTestRepo();
+            string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
                 Tag tag = repo.Tags["test"];
@@ -65,13 +65,14 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void ResettingWithBadParamsThrows()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.Throws<ArgumentNullException>(() => repo.Reset(ResetMode.Soft, (string)null));
                 Assert.Throws<ArgumentNullException>(() => repo.Reset(ResetMode.Soft, (Commit)null));
                 Assert.Throws<ArgumentException>(() => repo.Reset(ResetMode.Soft, ""));
-                Assert.Throws<LibGit2SharpException>(() => repo.Reset(ResetMode.Soft, Constants.UnknownSha));
-                Assert.Throws<LibGit2SharpException>(() => repo.Reset(ResetMode.Soft, repo.Head.Tip.Tree.Sha));
+                Assert.Throws<NotFoundException>(() => repo.Reset(ResetMode.Soft, Constants.UnknownSha));
+                Assert.Throws<InvalidSpecificationException>(() => repo.Reset(ResetMode.Soft, repo.Head.Tip.Tree.Sha));
             }
         }
 
@@ -204,7 +205,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void MixedResetInABareRepositoryThrows()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.Throws<BareRepositoryException>(() => repo.Reset(ResetMode.Mixed));
             }
@@ -213,7 +215,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void HardResetInABareRepositoryThrows()
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 Assert.Throws<BareRepositoryException>(() => repo.Reset(ResetMode.Hard));
             }
@@ -222,7 +225,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void HardResetUpdatesTheContentOfTheWorkingDirectory()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 var names = new DirectoryInfo(repo.Info.WorkingDirectory).GetFileSystemInfos().Select(fsi => fsi.Name).ToList();

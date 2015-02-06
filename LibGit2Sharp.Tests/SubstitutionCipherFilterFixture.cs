@@ -31,7 +31,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(0, filter.SmudgeCalledCount);
 
                 var branch = repo.CreateBranch("delete-files");
-                branch.Checkout();
+                repo.Checkout(branch.Name);
 
                 DeleteFile(repo, fileName);
 

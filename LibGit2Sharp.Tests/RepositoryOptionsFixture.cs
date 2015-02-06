@@ -31,7 +31,8 @@ namespace LibGit2Sharp.Tests
 
             var options = new RepositoryOptions { WorkingDirectoryPath = newWorkdir, IndexPath = newIndex };
 
-            using (var repo = new Repository(BareTestRepoPath, options))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path, options))
             {
                 var st = repo.RetrieveStatus("1/branch_file.txt");
                 Assert.Equal(FileStatus.Missing, st);
@@ -43,7 +44,8 @@ namespace LibGit2Sharp.Tests
         {
             var options = new RepositoryOptions { WorkingDirectoryPath = newWorkdir, IndexPath = newIndex };
 
-            using (var repo = new Repository(BareTestRepoPath, options))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path, options))
             {
                 var st = repo.RetrieveStatus("1/branch_file.txt");
                 Assert.Equal(FileStatus.Removed, st);
@@ -51,9 +53,21 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
+        public void CanOpenABareRepoWithOptions()
+        {
+            var options = new RepositoryOptions { GlobalConfigurationLocation = null };
+
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path, options))
+            {
+                Assert.True(repo.Info.IsBare);
+            }
+        }
+
+        [Fact]
         public void CanProvideADifferentWorkDirToAStandardRepo()
         {
-            var path1 = CloneStandardTestRepo();
+            var path1 = SandboxStandardTestRepo();
             using (var repo = new Repository(path1))
             {
                 Assert.Equal(FileStatus.Unaltered, repo.RetrieveStatus("1/branch_file.txt"));
@@ -61,7 +75,7 @@ namespace LibGit2Sharp.Tests
 
             var options = new RepositoryOptions { WorkingDirectoryPath = newWorkdir };
 
-            var path2 = CloneStandardTestRepo();
+            var path2 = SandboxStandardTestRepo();
             using (var repo = new Repository(path2, options))
             {
                 Assert.Equal(FileStatus.Missing, repo.RetrieveStatus("1/branch_file.txt"));
@@ -71,7 +85,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanProvideADifferentIndexToAStandardRepo()
         {
-            var path1 = CloneStandardTestRepo();
+            var path1 = SandboxStandardTestRepo();
             using (var repo = new Repository(path1))
             {
                 Assert.Equal(FileStatus.Untracked, repo.RetrieveStatus("new_untracked_file.txt"));
@@ -85,7 +99,7 @@ namespace LibGit2Sharp.Tests
 
             var options = new RepositoryOptions { IndexPath = newIndex };
 
-            var path2 = CloneStandardTestRepo();
+            var path2 = SandboxStandardTestRepo();
             using (var repo = new Repository(path2, options))
             {
                 Assert.Equal(FileStatus.Added, repo.RetrieveStatus("new_untracked_file.txt"));
@@ -95,14 +109,15 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void OpeningABareRepoWithoutProvidingBothWorkDirAndIndexThrows()
         {
-            Assert.Throws<ArgumentException>(() => new Repository(BareTestRepoPath, new RepositoryOptions {IndexPath = newIndex}));
-            Assert.Throws<ArgumentException>(() => new Repository(BareTestRepoPath, new RepositoryOptions {WorkingDirectoryPath = newWorkdir}));
+            string path = SandboxBareTestRepo();
+            Assert.Throws<ArgumentException>(() => new Repository(path, new RepositoryOptions {IndexPath = newIndex}));
+            Assert.Throws<ArgumentException>(() => new Repository(path, new RepositoryOptions {WorkingDirectoryPath = newWorkdir}));
         }
 
         [Fact]
         public void CanSneakAdditionalCommitsIntoAStandardRepoWithoutAlteringTheWorkdirOrTheIndex()
         {
-            string path = CloneStandardTestRepo();
+            string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
             {
                 Branch head = repo.Head;
@@ -163,7 +178,8 @@ namespace LibGit2Sharp.Tests
                 SystemConfigurationLocation = systemLocation,
             };
 
-            using (var repo = new Repository(BareTestRepoPath, options))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path, options))
             {
                 Assert.True(repo.Config.HasConfig(ConfigurationLevel.Global));
                 Assert.Equal(name, repo.Config.Get<string>("user.name").Value);

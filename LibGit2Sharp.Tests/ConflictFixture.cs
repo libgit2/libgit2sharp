@@ -66,7 +66,7 @@ namespace LibGit2Sharp.Tests
         public void CanResolveConflictsByRemovingFromTheIndex(
             bool removeFromWorkdir, string filename, bool existsBeforeRemove, bool existsAfterRemove, FileStatus lastStatus, int removedIndexEntries)
         {
-            var path = CloneMergedTestRepo();
+            var path = SandboxMergedTestRepo();
             using (var repo = new Repository(path))
             {
                 int count = repo.Index.Count;
@@ -92,7 +92,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanGetOriginalNamesOfRenameConflicts()
         {
-            var path = CloneMergeRenamesTestRepo();
+            var path = Sandbox(MergeRenamesTestRepoWorkingDirPath);
             using (var repo = new Repository(path))
             {
                 var expected = RenameConflictData;
@@ -115,7 +115,8 @@ namespace LibGit2Sharp.Tests
         [Theory, PropertyData("ConflictData")]
         public void CanRetrieveSingleConflictByPath(string filepath, string ancestorId, string ourId, string theirId)
         {
-            using (var repo = new Repository(MergedTestRepoWorkingDirPath))
+            var path = SandboxMergedTestRepo();
+            using (var repo = new Repository(path))
             {
                 Conflict conflict = repo.Index.Conflicts[filepath];
                 Assert.NotNull(conflict);
@@ -162,7 +163,8 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanRetrieveAllConflicts()
         {
-            using (var repo = new Repository(MergedTestRepoWorkingDirPath))
+            var path = SandboxMergedTestRepo();
+            using (var repo = new Repository(path))
             {
                 var expected = repo.Index.Conflicts.Select(c => new[] { GetPath(c), GetId(c.Ancestor), GetId(c.Ours), GetId(c.Theirs) }).ToArray();
                 Assert.Equal(expected, ConflictData);

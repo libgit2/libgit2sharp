@@ -100,6 +100,8 @@ namespace LibGit2Sharp.Core
                     { GitErrorCode.NonFastForward, (m, r, c) => new NonFastForwardException(m, r, c) },
                     { GitErrorCode.MergeConflict, (m, r, c) => new MergeConflictException(m, r, c) },
                     { GitErrorCode.LockedFile, (m, r, c) => new LockedFileException(m, r, c) },
+                    { GitErrorCode.NotFound, (m, r, c) => new NotFoundException(m, r, c) },
+                    { GitErrorCode.Peel, (m, r, c) => new PeelException(m, r, c)  },
                 };
 
         private static void HandleError(int result)
@@ -197,6 +199,21 @@ namespace LibGit2Sharp.Core
         }
 
         /// <summary>
+        /// Checks an argument is a positive integer.
+        /// </summary>
+        /// <param name="argumentValue">The argument value to check.</param>
+        /// <param name="argumentName">The name of the argument.</param>
+        public static void ArgumentPositiveInt32(long argumentValue, string argumentName)
+        {
+            if (argumentValue >= 0 && argumentValue <= uint.MaxValue)
+            {
+                return;
+            }
+
+            throw new ArgumentException(argumentName);
+        }
+
+        /// <summary>
         /// Check that the result of a C call that returns a non-null GitObject
         /// using the default exception builder.
         /// <para>
@@ -215,7 +232,7 @@ namespace LibGit2Sharp.Core
             }
             else
             {
-                exceptionBuilder = m => new LibGit2SharpException(m);
+                exceptionBuilder = m => new NotFoundException(m);
             }
 
             GitObjectIsNotNull(gitObject, identifier, exceptionBuilder);

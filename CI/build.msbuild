@@ -6,7 +6,7 @@
     <DeployFolder>$(RootDir)\Build</DeployFolder>
   </PropertyGroup>
 
-  <UsingTask AssemblyFile="$(RootDir)\Lib\xUnit\xunit.runner.msbuild.dll"
+  <UsingTask AssemblyFile="$(RootDir)\packages\xunit.runners.1.9.2\tools\xunit.runner.msbuild.dll"
                TaskName="Xunit.Runner.MSBuild.xunit" />
   <Target Name="Clean">
     <Message Text="Commit SHA = $(CommitSha)" />
@@ -41,15 +41,17 @@
   </Target>
 
   <Target Name="Deploy" DependsOnTargets="Test">
-    <CreateItem Include="$(TestBuildDir)\LibGit2*.*">
-        <Output TaskParameter="Include" ItemName="OutputFiles" />
-    </CreateItem>
+    <ItemGroup>
+      <OutputFiles Include="$(TestBuildDir)\LibGit2*.*" />
+    </ItemGroup>
+
     <Copy SourceFiles="@(OutputFiles)"
         DestinationFiles="@(OutputFiles->'$(DeployFolder)\%(RecursiveDir)%(Filename)%(Extension)')" />
 
-    <CreateItem Include="$(TestBuildDir)\NativeBinaries\**\*.*">
-        <Output TaskParameter="Include" ItemName="NativeBinaries" />
-    </CreateItem>
+    <ItemGroup>
+      <NativeBinaries Include="$(TestBuildDir)\NativeBinaries\**\*.*" />
+    </ItemGroup>
+
     <Copy SourceFiles="@(NativeBinaries)"
       DestinationFiles="@(NativeBinaries->'$(DeployFolder)\NativeBinaries\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
   </Target>

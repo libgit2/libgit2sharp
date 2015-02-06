@@ -35,7 +35,8 @@ namespace LibGit2Sharp.Tests
         [InlineData(null, "be3563a", "-")]
         public void FindCommonAncestorForTwoCommits(string result, string sha1, string sha2)
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 var first = sha1 == "-" ? CreateOrphanedCommit(repo) : repo.Lookup<Commit>(sha1);
                 var second = sha2 == "-" ? CreateOrphanedCommit(repo) : repo.Lookup<Commit>(sha2);
@@ -65,7 +66,8 @@ namespace LibGit2Sharp.Tests
         [InlineData(null, new[] { "4c062a6", "-" }, MergeBaseFindingStrategy.Standard)]
         public void FindCommonAncestorForCommitsAsEnumerable(string result, string[] shas, MergeBaseFindingStrategy strategy)
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 var commits = shas.Select(sha => sha == "-" ? CreateOrphanedCommit(repo) : repo.Lookup<Commit>(sha)).ToArray();
 
@@ -88,7 +90,8 @@ namespace LibGit2Sharp.Tests
         [InlineData("0000000", "4c062a6")]
         public void FindCommonAncestorForTwoCommitsThrows(string sha1, string sha2)
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 var first = repo.Lookup<Commit>(sha1);
                 var second = repo.Lookup<Commit>(sha2);
@@ -104,7 +107,8 @@ namespace LibGit2Sharp.Tests
         [InlineData(new[] { "4c062a6", "be3563a", "000000" }, MergeBaseFindingStrategy.Standard)]
         public void FindCommonAncestorForCommitsAsEnumerableThrows(string[] shas, MergeBaseFindingStrategy strategy)
         {
-            using (var repo = new Repository(BareTestRepoPath))
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
             {
                 var commits = shas.Select(sha => sha == "-" ? CreateOrphanedCommit(repo) : repo.Lookup<Commit>(sha)).ToArray();
 

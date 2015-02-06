@@ -24,6 +24,7 @@ script:
 branches:
  only:
    - vNext
+   - master
 
 # Notify of build changes
 notifications:

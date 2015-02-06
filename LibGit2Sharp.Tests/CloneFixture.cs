@@ -79,7 +79,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCloneALocalRepositoryFromALocalUri()
         {
-            var uri = new Uri(BareTestRepoPath);
+            var uri = new Uri(Path.GetFullPath(BareTestRepoPath));
             AssertLocalClone(uri.AbsoluteUri, BareTestRepoPath);
         }
 
@@ -92,7 +92,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanCloneALocalRepositoryFromANewlyCreatedTemporaryPath()
         {
-            var path = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString().Substring(0, 8));
+            var path = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
             SelfCleaningDirectory scd = BuildSelfCleaningDirectory(path);
             Repository.Init(scd.DirectoryPath);
             AssertLocalClone(scd.DirectoryPath, isCloningAnEmptyRepository: true);
@@ -226,6 +226,21 @@ namespace LibGit2Sharp.Tests
             var scd = BuildSelfCleaningDirectory();
 
             Assert.Throws<InvalidSpecificationException>(() => Repository.Clone("http://github.com", scd.DirectoryPath));
+        }
+
+        [Theory]
+        [InlineData("git://github.com/libgit2/TestGitRepository")]
+        public void CloningWithoutWorkdirPathThrows(string url)
+        {
+            Assert.Throws<ArgumentNullException>(() => Repository.Clone(url, null));
+        }
+
+        [Fact]
+        public void CloningWithoutUrlThrows()
+        {
+            var scd = BuildSelfCleaningDirectory();
+
+            Assert.Throws<ArgumentNullException>(() => Repository.Clone(null, scd.DirectoryPath));
         }
     }
 }
