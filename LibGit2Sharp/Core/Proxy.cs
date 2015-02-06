@@ -754,7 +754,7 @@ namespace LibGit2Sharp.Core
                 int res = NativeMethods.git_filter_register(name, filter, priority);
                 if (res == (int)GitErrorCode.Exists)
                 {
-                    var message = string.Format("A filter with the name '{0}' is already registered.", name);
+                    var message = string.Format("A filter with the name '{0}' is already registered", name);
                     throw new EntryExistsException(message);
                 }
                 Ensure.ZeroResult(res);
