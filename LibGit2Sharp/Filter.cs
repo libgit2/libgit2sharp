@@ -50,9 +50,7 @@ namespace LibGit2Sharp
                 attributes = GitFilter.GetAttributesFromManaged(attributes),
                 init = InitializeCallback,
                 apply = ApplyCallback,
-                check = CheckCallback,
-                shutdown = ShutdownCallback,
-                cleanup = CleanUpCallback
+                check = CheckCallback
             };
         }
 
@@ -138,28 +136,6 @@ namespace LibGit2Sharp
         protected virtual int Smudge(string path, GitBufReader input, GitBufWriter output)
         {
             return (int)GitErrorCode.PassThrough;
-        }
-
-        /// <summary>
-        /// Shutdown callback on filter
-        /// 
-        /// Specified as `filter.shutdown`, this is an optional callback invoked
-        /// when the filter is unregistered or when libgit2 is shutting down.  It
-        /// will be called once at most and should release resources as needed.
-        /// This may be called even if the `initialize` callback was not made.
-        /// Typically this function will free the `git_filter` object itself.
-        /// </summary>
-        protected virtual void ShutDown()
-        {
-        }
-
-        /// <summary>
-        /// Callback to clean up after filtering has been applied. Specified as `filter.cleanup`, this is an optional callback invoked
-        /// after the filter has been applied.  If the `check` or `apply` callbacks allocated a `payload` 
-        /// to keep per-source filter state, use this  callback to free that payload and release resources as required.
-        /// </summary>
-        protected virtual void CleanUp()
-        {
         }
 
         /// <summary>
@@ -272,30 +248,6 @@ namespace LibGit2Sharp
             return filterSource.SourceMode == FilterMode.Clean ? 
                 Clean(filterSource.Path,reader, writer) :
                 Smudge(filterSource.Path, reader, writer);
-        }
-
-        /// <summary>
-        /// Shutdown callback on filter
-        /// 
-        /// Specified as `filter.shutdown`, this is an optional callback invoked
-        /// when the filter is unregistered or when libgit2 is shutting down.  It
-        /// will be called once at most and should release resources as needed.
-        /// This may be called even if the `initialize` callback was not made.
-        /// Typically this function will free the `git_filter` object itself.
-        /// </summary>
-        void ShutdownCallback(IntPtr gitFilter)
-        {
-            ShutDown();
-        }
-
-        /// <summary>
-        /// Callback to clean up after filtering has been applied. Specified as `filter.cleanup`, this is an optional callback invoked
-        /// after the filter has been applied.  If the `check` or `apply` callbacks allocated a `payload` 
-        /// to keep per-source filter state, use this  callback to free that payload and release resources as required.
-        /// </summary>
-        void CleanUpCallback(IntPtr gitFilter, IntPtr payload)
-        {
-            CleanUp();
         }
     }
 }

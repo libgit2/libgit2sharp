@@ -125,6 +125,12 @@ namespace LibGit2Sharp
         public static void DeregisterFilter(Filter filter)
         {
             DeregisterFilter(filter.Name);
+
+            var disposableFilter = filter as IDisposable;
+            if (disposableFilter != null)
+            {
+                disposableFilter.Dispose();
+            }
         }
 
         /// <summary>

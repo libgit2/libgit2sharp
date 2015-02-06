@@ -15,8 +15,6 @@ namespace LibGit2Sharp.Tests
         readonly Func<FilterSource, IEnumerable<string>, int> checkPassThrough = (source, attr) => GitPassThrough;
         readonly Func<GitBufReader, GitBufWriter, int> successCallback = (reader, writer) => 0;
         readonly Func<FilterSource, IEnumerable<string>, int> checkSuccess = (source, attr) => 0;
-        readonly Func<int> cleanUpSuccess = () => 0;
-        readonly Func<int> initSuccess = () => 0;
 
         private const string FilterName = "the-filter";
         const string Attribute = "test";
@@ -161,92 +159,6 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
-        public void CleanUpIsCalledAfterStage()
-        {
-            bool called = false;
-
-            Func<int> cleanUpCallback = () =>
-            {
-                called = true;
-                return 0;
-            };
-
-            string repoPath = InitNewRepository();
-
-            var filter = new FakeFilter(FilterName + 8, Attribute,
-                checkSuccess,
-                successCallback,
-                successCallback,
-                cleanUpSuccess,
-                () => { },
-                cleanUpCallback);
-
-            GlobalSettings.RegisterFilter(filter);
-
-            using (var repo = CreateTestRepository(repoPath))
-            {
-                StageNewFile(repo);
-            }
-
-            GlobalSettings.DeregisterFilter(filter);
-
-            Assert.True(called);
-        }
-
-
-        [Fact]
-        public void ShutdownCallbackNotMadeWhenFilterNeverUsed()
-        {
-            bool called = false;
-            Action shutdownCallback = () =>
-            {
-                called = true;
-            };
-
-            var filter = new FakeFilter(FilterName + 9, Attribute,
-                checkSuccess,
-                successCallback,
-                successCallback,
-                cleanUpSuccess,
-                shutdownCallback);
-
-            GlobalSettings.RegisterFilter(filter);
-            Assert.False(called);
-
-            GlobalSettings.DeregisterFilter(filter);
-            Assert.False(called);
-        }
-
-        [Fact]
-        public void ShutdownCallbackMadeOnDeregisterOfFilter()
-        {
-            bool called = false;
-            Action shutdownCallback = () =>
-            {
-                called = true;
-            };
-
-            var filter = new FakeFilter(FilterName + 10, Attribute,
-                checkSuccess,
-                successCallback,
-                successCallback,
-                initSuccess,
-                shutdownCallback);
-
-            GlobalSettings.RegisterFilter(filter);
-
-            string repoPath = InitNewRepository();
-            using (var repo = CreateTestRepository(repoPath))
-            {
-                StageNewFile(repo);
-                Assert.False(called);
-            }
-
-            GlobalSettings.DeregisterFilter(filter);
-            Assert.True(called);
-        }
-
-        [Fact]
         public void InitCallbackNotMadeWhenFilterNeverUsed()
         {
             bool called = false;
@@ -260,9 +172,7 @@ namespace LibGit2Sharp.Tests
                 checkSuccess,
                 successCallback,
                 successCallback,
-                initializeCallback,
-                () => { },
-                cleanUpSuccess);
+                initializeCallback);
 
             GlobalSettings.RegisterFilter(filter);
 
@@ -494,24 +404,18 @@ namespace LibGit2Sharp.Tests
             private readonly Func<GitBufReader, GitBufWriter, int> cleanCallback;
             private readonly Func<GitBufReader, GitBufWriter, int> smudgeCallback;
             private readonly Func<int> initCallback;
-            private readonly Action shutdownCallback;
-            private readonly Func<int> cleanUpCallback;
 
             public FakeFilter(string name, string attributes,
                 Func<FilterSource, IEnumerable<string>, int> checkCallBack = null,
                 Func<GitBufReader, GitBufWriter, int> cleanCallback = null,
                 Func<GitBufReader, GitBufWriter, int> smudgeCallback = null,
-                Func<int> initCallback = null,
-                Action shutdownCallback = null,
-                Func<int> cleanUpCallback = null)
+                Func<int> initCallback = null)
                 : base(name, attributes)
             {
                 this.checkCallBack = checkCallBack;
                 this.cleanCallback = cleanCallback;
                 this.smudgeCallback = smudgeCallback;
                 this.initCallback = initCallback;
-                this.shutdownCallback = shutdownCallback;
-                this.cleanUpCallback = cleanUpCallback;
             }
 
             protected override int Check(IEnumerable<string> attributes, FilterSource filterSource)
@@ -529,33 +433,9 @@ namespace LibGit2Sharp.Tests
                 return smudgeCallback != null ? smudgeCallback(input, output) : base.Smudge(path, input, output);
             }
 
-            protected override void ShutDown()
-            {
-                if (shutdownCallback != null)
-                {
-                    shutdownCallback();
-                }
-                else
-                {
-                    base.ShutDown();
-                }
-            }
-
             protected override int Initialize()
             {
                 return initCallback != null ? initCallback() : base.Initialize();
-            }
-
-            protected override void CleanUp()
-            {
-                if (cleanUpCallback != null)
-                {
-                    cleanUpCallback();
-                }
-                else
-                {
-                    base.CleanUp();
-                }
             }
         }
     }
