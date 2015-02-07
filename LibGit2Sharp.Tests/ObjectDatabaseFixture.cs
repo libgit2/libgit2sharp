@@ -654,6 +654,50 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        [Fact]
+        public void TestMergeIntoSelfHasNoConflicts()
+        {
+            string path = SandboxMergeTestRepo();
+            using (var repo = new Repository(path))
+            {
+                var master = repo.Lookup<Commit>("master");
+
+                var result = repo.ObjectDatabase.CanMergeWithoutConflict(master, master);
+
+                Assert.True(result);
+            }
+        }
+
+        [Fact]
+        public void TestMergeIntoOtherBranchHasNoConflicts()
+        {
+            string path = SandboxMergeTestRepo();
+            using (var repo = new Repository(path))
+            {
+                var master = repo.Lookup<Commit>("master");
+                var branch = repo.Lookup<Commit>("fast_forward");
+
+                var result = repo.ObjectDatabase.CanMergeWithoutConflict(master, branch);
+
+                Assert.True(result);
+            }
+        }
+
+        [Fact]
+        public void TestMergeIntoWrongBranchHasConflicts()
+        {
+            string path = SandboxMergeTestRepo();
+            using (var repo = new Repository(path))
+            {
+                var master = repo.Lookup<Commit>("master");
+                var branch = repo.Lookup<Commit>("conflicts");
+
+                var result = repo.ObjectDatabase.CanMergeWithoutConflict(master, branch);
+
+                Assert.False(result);
+            }
+        }
+
         private static Blob CreateBlob(Repository repo, string content)
         {
             using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(content)))
