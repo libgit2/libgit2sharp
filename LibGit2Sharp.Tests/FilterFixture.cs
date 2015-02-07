@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using LibGit2Sharp.Core;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
 
@@ -13,7 +12,7 @@ namespace LibGit2Sharp.Tests
         private const int GitPassThrough = -30;
 
         readonly Func<FilterSource, IEnumerable<string>, int> checkPassThrough = (source, attr) => GitPassThrough;
-        readonly Func<GitBufReader, GitBufWriter, int> successCallback = (reader, writer) => 0;
+        readonly Func<Stream, Stream, int> successCallback = (reader, writer) => 0;
         readonly Func<FilterSource, IEnumerable<string>, int> checkSuccess = (source, attr) => 0;
 
         private const string FilterName = "the-filter";
@@ -113,7 +112,7 @@ namespace LibGit2Sharp.Tests
         {
             bool called = false;
 
-            Func<GitBufReader, GitBufWriter, int> applyCallback = (reader, writer) =>
+            Func<Stream, Stream, int> applyCallback = (reader, writer) =>
             {
                 called = true;
                 return 0; //successCallback
@@ -138,7 +137,7 @@ namespace LibGit2Sharp.Tests
         {
             bool called = false;
 
-            Func<GitBufReader, GitBufWriter, int> applyCallback = (reader, writer) =>
+            Func<Stream, Stream, int> applyCallback = (reader, writer) =>
             {
                 called = true;
                 return 0;
@@ -278,7 +277,7 @@ namespace LibGit2Sharp.Tests
             string repoPath = InitNewRepository();
             bool called = false;
 
-            Func<GitBufReader, GitBufWriter, int> clean = (reader, writer) =>
+            Func<Stream, Stream, int> clean = (reader, writer) =>
             {
                 called = true;
                 return GitPassThrough;
@@ -304,7 +303,7 @@ namespace LibGit2Sharp.Tests
 
             string repoPath = InitNewRepository();
 
-            Func<GitBufReader, GitBufWriter, int> cleanCallback = SubstitutionCipherFilter.RotateByThirteenPlaces;
+            Func<Stream, Stream, int> cleanCallback = SubstitutionCipherFilter.RotateByThirteenPlaces;
 
             var filter = new FakeFilter(FilterName + 16, Attribute, checkSuccess, cleanCallback);
 
@@ -334,7 +333,7 @@ namespace LibGit2Sharp.Tests
             const string branchName = "branch";
             string repoPath = InitNewRepository();
 
-            Func<GitBufReader, GitBufWriter, int> smudgeCallback = SubstitutionCipherFilter.RotateByThirteenPlaces;
+            Func<Stream, Stream, int> smudgeCallback = SubstitutionCipherFilter.RotateByThirteenPlaces;
 
             var filter = new FakeFilter(FilterName + 17, Attribute, checkSuccess, null, smudgeCallback);
             GlobalSettings.RegisterFilter(filter);
@@ -401,14 +400,14 @@ namespace LibGit2Sharp.Tests
         class FakeFilter : Filter
         {
             private readonly Func<FilterSource, IEnumerable<string>, int> checkCallBack;
-            private readonly Func<GitBufReader, GitBufWriter, int> cleanCallback;
-            private readonly Func<GitBufReader, GitBufWriter, int> smudgeCallback;
+            private readonly Func<Stream, Stream, int> cleanCallback;
+            private readonly Func<Stream, Stream, int> smudgeCallback;
             private readonly Func<int> initCallback;
 
             public FakeFilter(string name, string attributes,
                 Func<FilterSource, IEnumerable<string>, int> checkCallBack = null,
-                Func<GitBufReader, GitBufWriter, int> cleanCallback = null,
-                Func<GitBufReader, GitBufWriter, int> smudgeCallback = null,
+                Func<Stream, Stream, int> cleanCallback = null,
+                Func<Stream, Stream, int> smudgeCallback = null,
                 Func<int> initCallback = null)
                 : base(name, attributes)
             {
@@ -423,12 +422,12 @@ namespace LibGit2Sharp.Tests
                 return checkCallBack != null ? checkCallBack(filterSource, attributes) : base.Check(attributes, filterSource);
             }
 
-            protected override int Clean(string path, GitBufReader input, GitBufWriter output)
+            protected override int Clean(string path, Stream input, Stream output)
             {
                 return cleanCallback != null ? cleanCallback(input, output) : base.Clean(path, input, output);
             }
 
-            protected override int Smudge(string path, GitBufReader input, GitBufWriter output)
+            protected override int Smudge(string path, Stream input, Stream output)
             {
                 return smudgeCallback != null ? smudgeCallback(input, output) : base.Smudge(path, input, output);
             }

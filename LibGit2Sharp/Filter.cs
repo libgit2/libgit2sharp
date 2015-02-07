@@ -28,7 +28,7 @@ namespace LibGit2Sharp
         /// <param name="attributes">A list of filterForAttributes which this filter applies to</param>
         /// </summary>
         protected Filter(string name, IEnumerable<string> attributes)
-            : this(name, string.Join(",", attributes)) 
+            : this(name, string.Join(",", attributes))
         { }
 
         /// <summary>
@@ -121,7 +121,7 @@ namespace LibGit2Sharp
         /// <param name="input">The git buf input reader</param>
         /// <param name="output">The git buf output writer</param>
         /// <returns>0 if successful and -30 to skip and pass through</returns>
-        protected virtual int Clean(string path, GitBufReader input, GitBufWriter output)
+        protected virtual int Clean(string path, Stream input, Stream output)
         {
             return (int)GitErrorCode.PassThrough;
         }
@@ -133,7 +133,7 @@ namespace LibGit2Sharp
         /// <param name="input">The git buf input reader</param>
         /// <param name="output">The git buf output writer</param>
         /// <returns>0 if successful and -30 to skip and pass through</returns>
-        protected virtual int Smudge(string path, GitBufReader input, GitBufWriter output)
+        protected virtual int Smudge(string path, Stream input, Stream output)
         {
             return (int)GitErrorCode.PassThrough;
         }
@@ -238,16 +238,17 @@ namespace LibGit2Sharp
         /// 
         /// The `payload` value will refer to any payload that was set by the `check` callback.  It may be read from or written to as needed.
         /// </summary>
-        int ApplyCallback(GitFilter gitFilter, IntPtr payload, 
+        int ApplyCallback(GitFilter gitFilter, IntPtr payload,
             IntPtr gitBufferToPtr, IntPtr gitBufferFromPtr, IntPtr filterSourcePtr)
         {
             var filterSource = FilterSource.FromNativePtr(filterSourcePtr);
-            var reader = new GitBufReader(gitBufferFromPtr);
-            var writer = new GitBufWriter(gitBufferToPtr);
-
-            return filterSource.SourceMode == FilterMode.Clean ? 
-                Clean(filterSource.Path,reader, writer) :
-                Smudge(filterSource.Path, reader, writer);
+            using (var reader = new GitBufReadStream(gitBufferFromPtr))
+            using (var writer = new GitBufWriteStream(gitBufferToPtr))
+            {
+                return filterSource.SourceMode == FilterMode.Clean ?
+                    Clean(filterSource.Path, reader, writer) :
+                    Smudge(filterSource.Path, reader, writer);
+            }
         }
     }
 }

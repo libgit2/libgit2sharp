@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp.Tests.TestHelpers
 {
@@ -23,34 +22,41 @@ namespace LibGit2Sharp.Tests.TestHelpers
             return base.Check(attributes, filterSource);
         }
 
-        protected override int Clean(string path, GitBufReader input, GitBufWriter output)
+        protected override int Clean(string path, Stream input, Stream output)
         {
             CleanCalledCount++;
             return RotateByThirteenPlaces(input, output);
         }
 
-        protected override int Smudge(string path, GitBufReader input, GitBufWriter output)
+        protected override int Smudge(string path, Stream input, Stream output)
         {
             SmudgeCalledCount++;
             return RotateByThirteenPlaces(input, output);
         }
 
-        public static int RotateByThirteenPlaces(GitBufReader input, GitBufWriter output)
+        public static int RotateByThirteenPlaces(Stream input, Stream output)
         {
-            var inputString = Encoding.UTF8.GetString(input.ReadAll());
-            char[] array = inputString.ToCharArray();
-            char value;
-            for (int i = 0; i < inputString.Length; i++)
+
+            using (var streamReader = new StreamReader(input, Encoding.UTF8))
             {
-                value = inputString[i];
-                if ((value >= 'a' && value <= 'm') || (value >= 'A' && value <= 'M'))
-                    array[i] = (char)(value + 13);
-                else if ((value >= 'n' && value <= 'z') || (value >= 'N' && value <= 'Z'))
-                    array[i] = (char)(value - 13);
+                var inputString = streamReader.ReadToEnd();
+                char[] array = inputString.ToCharArray();
+                for (int i = 0; i < inputString.Length; i++)
+                {
+                    var value = inputString[i];
+                    if ((value >= 'a' && value <= 'm') || (value >= 'A' && value <= 'M'))
+                        array[i] = (char)(value + 13);
+                    else if ((value >= 'n' && value <= 'z') || (value >= 'N' && value <= 'Z'))
+                        array[i] = (char)(value - 13);
+                }
+
+                using (var streamWriter = new StreamWriter(output, Encoding.UTF8))
+                {
+                    streamWriter.Write(array);
+                }
+
+                return 0;
             }
-            var outputString = new string(array);
-            output.Write(Encoding.UTF8.GetBytes(outputString));
-            return 0;
         }
     }
 }
