@@ -243,7 +243,7 @@ namespace LibGit2Sharp
         {
             var filterSource = FilterSource.FromNativePtr(filterSourcePtr);
             using (var reader = new GitBufReadStream(gitBufferFromPtr))
-            using (var writer = new GitBufWriteStream(gitBufferToPtr))
+            using (var writer = new GitBufWriteStream2(gitBufferToPtr))
             {
                 return filterSource.SourceMode == FilterMode.Clean ?
                     Clean(filterSource.Path, reader, writer) :
