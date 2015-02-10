@@ -225,9 +225,6 @@ namespace LibGit2Sharp.Core
         internal static extern int git_buf_put(GitBuf buffer, IntPtr data, UIntPtr len);
 
         [DllImport(libgit2)]
-        internal static extern int git_buf_set(GitBuf buffer, IntPtr data, UIntPtr targetSize);
-
-        [DllImport(libgit2)]
         internal static extern int git_remote_rename(
             ref GitStrArray problems,
             RepositorySafeHandle repo,
