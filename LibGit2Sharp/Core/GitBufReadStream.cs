@@ -25,14 +25,6 @@ namespace LibGit2Sharp.Core
             this.gitBuf = gitBuf;
         }
 
-        protected override void Dispose(bool disposing)
-        {
-            base.Dispose(disposing);
-
-            if (disposing && gitBuf != default(GitBuf))
-                gitBuf.Dispose();
-        }
-
         private static long ConvertToLong(UIntPtr len)
         {
             if (len.ToUInt64() > long.MaxValue)
