@@ -43,6 +43,8 @@ namespace LibGit2Sharp.Core
             NativeMethods.git_buf_put(gitBuf, bytesPtr, (UIntPtr)count);
 
             Marshal.FreeHGlobal(bytesPtr);
+
+            Marshal.StructureToPtr(gitBuf, gitBufPointer, true);
         }
 
         public override bool CanRead
