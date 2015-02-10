@@ -304,7 +304,7 @@ namespace LibGit2Sharp.Tests
 
             string repoPath = InitNewRepository();
 
-            Func<GitBufReader, GitBufWriter, int> cleanCallback = SubstitutionCipherFilter.RotatByThirteenPlaces;
+            Func<GitBufReader, GitBufWriter, int> cleanCallback = SubstitutionCipherFilter.RotateByThirteenPlaces;
 
             var filter = new FakeFilter(FilterName + 16, Attribute, checkSuccess, cleanCallback);
 
@@ -334,7 +334,7 @@ namespace LibGit2Sharp.Tests
             const string branchName = "branch";
             string repoPath = InitNewRepository();
 
-            Func<GitBufReader, GitBufWriter, int> smudgeCallback = SubstitutionCipherFilter.RotatByThirteenPlaces;
+            Func<GitBufReader, GitBufWriter, int> smudgeCallback = SubstitutionCipherFilter.RotateByThirteenPlaces;
 
             var filter = new FakeFilter(FilterName + 17, Attribute, checkSuccess, null, smudgeCallback);
             GlobalSettings.RegisterFilter(filter);
