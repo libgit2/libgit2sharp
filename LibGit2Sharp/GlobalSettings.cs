@@ -120,7 +120,7 @@ namespace LibGit2Sharp
         }
         /// <summary>
         /// Register a filter globally with given priority for execution.
-        /// A filter with the priority of 200 It will be run last on checkout and first on checkin.
+        /// A filter with the priority of 200 will be run last on checkout and first on checkin.
         /// A filter with the priority of 0 will be run first on checkout and last on checkin.
         /// </summary>
         public static void RegisterFilter(Filter filter, int priority)
