@@ -347,6 +347,35 @@ namespace LibGit2Sharp.Tests
             GlobalSettings.DeregisterFilter(filter);
         }
 
+        [Fact]
+        public void FilterStreamsAreCoherent()
+        {
+
+            string repoPath = InitNewRepository();
+            bool called = false;
+
+            Func<Stream, Stream, int> assertor = (input, output) =>
+            {
+                Assert.False(input.CanWrite);
+                Assert.True(input.CanRead);
+                Assert.False(output.CanRead);
+                Assert.True(output.CanWrite);
+
+                return GitPassThrough;
+            };
+
+            var filter = new FakeFilter(FilterName + 18, Attribute, checkSuccess, assertor, assertor);
+
+            GlobalSettings.RegisterFilter(filter);
+
+            using (var repo = CreateTestRepository(repoPath))
+            {
+                StageNewFile(repo);
+            }
+
+            GlobalSettings.DeregisterFilter(filter);
+        }
+
         private FileInfo CheckoutFileForSmudge(string repoPath, string branchName, string content)
         {
             FileInfo expectedPath;
