@@ -20,9 +20,7 @@ namespace LibGit2Sharp.Tests.TestHelpers
         protected override int Check(IEnumerable<string> attributes, FilterSource filterSource)
         {
             CheckCalledCount++;
-            var fileInfo = new FileInfo(filterSource.Path);
-            var matches = attributes.Any(currentExtension => fileInfo.Extension == currentExtension);
-            return matches ? 0 : -30;
+            return base.Check(attributes, filterSource);
         }
 
         protected override int Clean(string path, GitBufReader input, GitBufWriter output)
