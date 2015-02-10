@@ -222,9 +222,6 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string canonical_branch_name);
 
         [DllImport(libgit2)]
-        internal static extern int git_buf_grow(GitBuf buffer, UIntPtr targetSize);
-
-        [DllImport(libgit2)]
         internal static extern int git_buf_set(GitBuf buffer, IntPtr data, UIntPtr targetSize);
 
         [DllImport(libgit2)]
