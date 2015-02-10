@@ -1,4 +1,5 @@
-﻿namespace LibGit2Sharp.Handlers
+﻿using System;
+namespace LibGit2Sharp.Handlers
 {
     /// <summary>
     /// Delegate definition to handle Progress callback.
@@ -36,6 +37,27 @@
     /// <param name="progress">The <see cref="TransferProgress"/> object containing progress information.</param>
     /// <returns>True to continue, false to cancel.</returns>
     public delegate bool TransferProgressHandler(TransferProgress progress);
+
+    /// <summary>
+    /// Delegate definition to indicate that a repository is about to be operated on.
+    /// (In the context of a recursive operation).
+    /// </summary>
+    /// <param name="context"></param>
+    /// <returns>true to continue, false to cancel.</returns>
+    public delegate bool RepositoryOperationStarting(RepositoryOperationContext context);
+
+    /// <summary>
+    /// Delegate definition to indicate that an operation is done in a repository.
+    /// (In the context of a recursive operation).
+    /// </summary>
+    /// <remarks>
+    /// If an exception is raised when recursing through submodules, and this exception
+    /// is not bubled through the calling function, then it is reported through this
+    /// callback.
+    /// </remarks>
+    /// <param name="context"></param>
+    /// <param name="recursiveException"></param>
+    public delegate void RepositoryOperationCompleted(RepositoryOperationContext context, Exception recursiveException);
 
     /// <summary>
     /// Delegate definition for callback reporting push network progress.

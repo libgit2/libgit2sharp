@@ -552,6 +552,20 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(workdirPath, "workdirPath");
 
             options = options ?? new CloneOptions();
+            string repoPath;
+
+            // context variable that contains information on the repository that
+            // we are cloning.
+            var context = new RepositoryOperationContext(Path.GetFullPath(workdirPath));
+
+            // Notify caller that we are starting to work with the current repository.
+            bool continueOperation = OnRepositoryOperationStarting(options.RepositoryOperationStarting,
+                                                                   context);
+
+            if(!continueOperation)
+            {
+                throw new UserCancelledException("Clone cancelled by the user.");
+            }
 
             using (GitCheckoutOptsWrapper checkoutOptionsWrapper = new GitCheckoutOptsWrapper(options))
             {
@@ -574,13 +588,145 @@ namespace LibGit2Sharp
 
                     using (RepositorySafeHandle repo = Proxy.git_clone(sourceUrl, workdirPath, ref cloneOpts))
                     {
-                        return Proxy.git_repository_path(repo).Native;
+                        repoPath = Proxy.git_repository_path(repo).Native;
                     }
                 }
                 finally
                 {
                     EncodingMarshaler.Cleanup(cloneOpts.CheckoutBranch);
                 }
+
+                // Notify caller that we are done with the current repository.
+                OnRepositoryOperationCompleted(options.RepositoryOperationCompleted,
+                                               context,
+                                               null);
+
+                // Recursively clone submodules if requested.
+                RecursivelyCloneSubmodules(options, repoPath, 1);
+
+                return repoPath;
+            }
+        }
+
+        /// <summary>
+        /// Recursively clone submodules if directed to do so by the clone options.
+        /// </summary>
+        /// <param name="options">Options controlling clone behavior.</param>
+        /// <param name="repoPath">Path of the parent repository.</param>
+        /// <param name="recursionDepth">The current depth of the recursion.</param>
+        private static bool RecursivelyCloneSubmodules(CloneOptions options, string repoPath, int recursionDepth)
+        {
+            bool continueOperation = true;
+
+            if (options.RecurseSubmodules)
+            {
+                    List<string> submodules = new List<string>();
+
+                    using (Repository repo = new Repository(repoPath))
+                    {
+                        SubmoduleUpdateOptions updateOptions = new SubmoduleUpdateOptions()
+                        {
+                            Init = true,
+                            CredentialsProvider = options.CredentialsProvider,
+                            OnCheckoutProgress = options.OnCheckoutProgress,
+                            OnProgress = options.OnProgress,
+                            OnTransferProgress = options.OnTransferProgress,
+                            OnUpdateTips = options.OnUpdateTips,
+                        };
+
+                        string parentRepoWorkDir = repo.Info.WorkingDirectory;
+
+                        foreach (var sm in repo.Submodules)
+                        {
+                            string fullSubmodulePath = Path.Combine(parentRepoWorkDir, sm.Path);
+
+                            var context = new RepositoryOperationContext(fullSubmodulePath,
+                                                                         parentRepoWorkDir,
+                                                                         sm.Name,
+                                                                         recursionDepth);
+
+                            Exception recursiveEx = null;
+                            continueOperation = OnRepositoryOperationStarting(options.RepositoryOperationStarting,
+                                                                              context);
+
+                            if (continueOperation)
+                            {
+                                try
+                                {
+                                    repo.Submodules.Update(sm.Name, updateOptions);
+                                }
+                                catch (Exception ex)
+                                {
+                                    recursiveEx = ex;
+                                    continueOperation = false;
+                                }
+                            }
+                            else
+                            {
+                                // If user has cancelled the operation, then populate the exception
+                                recursiveEx = new UserCancelledException("Clone of submoudule cancelled by user.");
+                            }
+
+                            OnRepositoryOperationCompleted(options.RepositoryOperationCompleted,
+                                                           context,
+                                                           recursiveEx);
+
+                            if (!continueOperation)
+                            {
+                                break;
+                            }
+
+                            submodules.Add(Path.Combine(repo.Info.WorkingDirectory, sm.Path));
+                        }
+                    }
+
+                // If we are continuing the recursive operation, then
+                // recurse into nested submodules.
+                if (continueOperation)
+                {
+                    // Check submodules to see if they have their own submodules.
+                    foreach (string submodule in submodules)
+                    {
+                        continueOperation = RecursivelyCloneSubmodules(options, submodule, recursionDepth + 1);
+
+                        if (!continueOperation)
+                        {
+                            break;
+                        }
+                    }
+                }
+            }
+
+            return continueOperation;
+        }
+
+        /// <summary>
+        /// If a callback has been provided to notify callers that we are
+        /// either starting to work on a repository.
+        /// </summary>
+        /// <param name="repositoryChangedCallback">The callback to notify change.</param>
+        /// <param name="context">Context of the repository this operation affects.</param>
+        /// <returns>true to continue the operation, false to cancel.</returns>
+        private static bool OnRepositoryOperationStarting(RepositoryOperationStarting repositoryChangedCallback,
+                                                          RepositoryOperationContext context)
+        {
+            bool continueOperation = true;
+
+            if (repositoryChangedCallback != null)
+            {
+                continueOperation = repositoryChangedCallback(context);
+            }
+
+            return continueOperation;
+        }
+
+        private static void OnRepositoryOperationCompleted(RepositoryOperationCompleted repositoryChangedCallback,
+                                                           RepositoryOperationContext context,
+                                                           Exception ex)
+        {
+            if (repositoryChangedCallback != null)
+            {
+                repositoryChangedCallback(context, ex);
             }
         }
 
