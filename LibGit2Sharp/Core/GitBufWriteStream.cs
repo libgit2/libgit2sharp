@@ -19,20 +19,19 @@ namespace LibGit2Sharp.Core
 
         protected override void Dispose(bool disposing)
         {
-            using (var gitBuf = gitBufPointer.MarshalAs<GitBuf>())
-                WriteTo(gitBuf);
+            if (base.CanSeek) // False if stream has already been written/closed
+            {
+                using (var gitBuf = gitBufPointer.MarshalAs<GitBuf>())
+                {
+                    WriteTo(gitBuf);
+                }
+            }
 
             base.Dispose(disposing);
         }
 
         private void WriteTo(GitBuf gitBuf)
         {
-            if (!base.CanSeek)
-            {
-                // Already closed; already written
-                return;
-            }
-
             Seek(0, SeekOrigin.Begin);
 
             var length = (int)Length;
