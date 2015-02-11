@@ -241,16 +241,30 @@ namespace LibGit2Sharp.Core
 
         #region git_buf_
 
-        public static void git_buf_put(GitBuf gitBuf, IntPtr gitBufPointer, byte[] data, int offset, int count)
+        public static void git_buf_grow(IntPtr gitBufPointer, uint target_size)
         {
-            IntPtr bytesPtr = Marshal.AllocHGlobal(count);
-            Marshal.Copy(data, offset, bytesPtr, count);
+            using (ThreadAffinity())
+            {
+                var res = NativeMethods.git_buf_grow(gitBufPointer, (UIntPtr)target_size);
+                Ensure.ZeroResult(res);
+            }
+        }
 
-            NativeMethods.git_buf_put(gitBuf, bytesPtr, (UIntPtr)count);
+        public static void git_buf_put(IntPtr gitBufPointer, byte[] data, int offset, int count)
+        {
+            using (ThreadAffinity())
+            {
+                var gitBuf = gitBufPointer.MarshalAs<GitBuf>();
+                IntPtr bytesPtr = Marshal.AllocHGlobal(count);
+                Marshal.Copy(data, offset, bytesPtr, count);
 
-            Marshal.FreeHGlobal(bytesPtr);
+                var res = NativeMethods.git_buf_put(gitBufPointer, bytesPtr, (UIntPtr)count);
+                Ensure.ZeroResult(res);
 
-            Marshal.StructureToPtr(gitBuf, gitBufPointer, true);
+                Marshal.FreeHGlobal(bytesPtr);
+
+                //Marshal.StructureToPtr(gitBuf, gitBufPointer, true);
+            }
         }
 
         public static void git_buf_free(GitBuf buf)
