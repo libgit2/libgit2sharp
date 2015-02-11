@@ -351,7 +351,6 @@ namespace LibGit2Sharp.Tests
         public void FilterStreamsAreCoherent()
         {
             string repoPath = InitNewRepository();
-            bool called = false;
 
             bool inputCanWrite = true, inputCanRead = false, inputCanSeek = true;
             bool outputCanWrite = false, outputCanRead = true, outputCanSeek = true;
