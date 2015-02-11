@@ -22,10 +22,7 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNull(blob, "blob");
 
-            using (var reader = new StreamReader(blob.GetContentStream(), encoding ?? Encoding.UTF8, encoding == null))
-            {
-                return reader.ReadToEnd();
-            }
+            return ReadToEnd(blob.GetContentStream, encoding);
         }
 
         /// <summary>
@@ -43,7 +40,12 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(blob, "blob");
             Ensure.ArgumentNotNull(filteringOptions, "filteringOptions");
 
-            using (var reader = new StreamReader(blob.GetContentStream(filteringOptions), encoding ?? Encoding.UTF8, encoding == null))
+            return ReadToEnd(() => blob.GetContentStream(filteringOptions), encoding);
+        }
+
+        private static string ReadToEnd(Func<Stream> streamProvider, Encoding encoding)
+        {
+            using (var reader = new StreamReader(streamProvider(), encoding ?? Encoding.UTF8, encoding == null))
             {
                 return reader.ReadToEnd();
             }
