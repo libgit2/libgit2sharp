@@ -91,9 +91,9 @@ namespace LibGit2Sharp.Core
     {
         private static readonly LaxUtf8Marshaler staticInstance = new LaxUtf8Marshaler();
 
-        private static readonly Encoding encoding = new UTF8Encoding(false, false);
+        public static readonly Encoding Encoding = new UTF8Encoding(false, false);
 
-        public LaxUtf8Marshaler() : base(encoding)
+        public LaxUtf8Marshaler() : base(Encoding)
         { }
 
         public static ICustomMarshaler GetInstance(String cookie)
@@ -113,22 +113,22 @@ namespace LibGit2Sharp.Core
 
         public static string FromNative(IntPtr pNativeData)
         {
-            return FromNative(encoding, pNativeData);
+            return FromNative(Encoding, pNativeData);
         }
 
         public static string FromNative(IntPtr pNativeData, int length)
         {
-            return FromNative(encoding, pNativeData, length);
+            return FromNative(Encoding, pNativeData, length);
         }
 
         public static string FromBuffer(byte[] buffer)
         {
-            return FromBuffer(encoding, buffer);
+            return FromBuffer(Encoding, buffer);
         }
 
         public static string FromBuffer(byte[] buffer, int length)
         {
-            return FromBuffer(encoding, buffer, length);
+            return FromBuffer(Encoding, buffer, length);
         }
     }
 }
