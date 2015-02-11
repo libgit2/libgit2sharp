@@ -352,8 +352,8 @@ namespace LibGit2Sharp.Tests
         {
             string repoPath = InitNewRepository();
 
-            bool inputCanWrite = true, inputCanRead = false, inputCanSeek = true;
-            bool outputCanWrite = false, outputCanRead = true, outputCanSeek = true;
+            bool? inputCanWrite = null, inputCanRead = null, inputCanSeek = null;
+            bool? outputCanWrite = null, outputCanRead = null, outputCanSeek = null;
 
             Func<Stream, Stream, int> assertor = (input, output) =>
             {
@@ -379,13 +379,20 @@ namespace LibGit2Sharp.Tests
 
             GlobalSettings.DeregisterFilter(filter);
 
-            Assert.True(inputCanRead);
-            Assert.False(inputCanWrite);
-            Assert.False(inputCanSeek);
+            Assert.True(inputCanRead.HasValue);
+            Assert.True(inputCanWrite.HasValue);
+            Assert.True(inputCanSeek.HasValue);
+            Assert.True(outputCanRead.HasValue);
+            Assert.True(outputCanWrite.HasValue);
+            Assert.True(outputCanSeek.HasValue);
 
-            Assert.False(outputCanRead);
-            Assert.True(outputCanWrite);
-            Assert.False(outputCanSeek);
+            Assert.True(inputCanRead.Value);
+            Assert.False(inputCanWrite.Value);
+            Assert.False(inputCanSeek.Value);
+
+            Assert.False(outputCanRead.Value);
+            Assert.True(outputCanWrite.Value);
+            Assert.False(outputCanSeek.Value);
         }
 
         private FileInfo CheckoutFileForSmudge(string repoPath, string branchName, string content)
