@@ -37,14 +37,7 @@ namespace LibGit2Sharp.Core
 
         public override void Write(byte[] buffer, int offset, int count)
         {
-            IntPtr bytesPtr = Marshal.AllocHGlobal(count);
-            Marshal.Copy(buffer, offset, bytesPtr, count);
-
-            NativeMethods.git_buf_put(gitBuf, bytesPtr, (UIntPtr)count);
-
-            Marshal.FreeHGlobal(bytesPtr);
-
-            Marshal.StructureToPtr(gitBuf, gitBufPointer, true);
+            Proxy.git_buf_put(gitBuf, gitBufPointer, buffer, offset, count);
         }
 
         public override bool CanRead
