@@ -358,8 +358,11 @@ namespace LibGit2Sharp.Tests
             {
                 Assert.False(input.CanWrite);
                 Assert.True(input.CanRead);
+                Assert.False(input.CanSeek);
+
                 Assert.False(output.CanRead);
                 Assert.True(output.CanWrite);
+                Assert.False(input.CanSeek);
 
                 return GitPassThrough;
             };

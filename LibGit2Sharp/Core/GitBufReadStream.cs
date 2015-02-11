@@ -34,5 +34,15 @@ namespace LibGit2Sharp.Core
 
             return (long)len.ToUInt64();
         }
+
+        public override long Seek(long offset, SeekOrigin loc)
+        {
+            throw new NotSupportedException();
+        }
+
+        public override bool CanSeek
+        {
+            get { return false; }
+        }
     }
 }
