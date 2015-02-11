@@ -10,8 +10,6 @@ namespace LibGit2Sharp.Core
     /// </summary>
     internal class GitBufReadStream : UnmanagedMemoryStream
     {
-        private readonly GitBuf gitBuf;
-
         internal GitBufReadStream(IntPtr gitBufPointer)
             : this(gitBufPointer.MarshalAs<GitBuf>())
         { }
@@ -21,9 +19,7 @@ namespace LibGit2Sharp.Core
                    ConvertToLong(gitBuf.size),
                    ConvertToLong(gitBuf.asize),
                    FileAccess.Read)
-        {
-            this.gitBuf = gitBuf;
-        }
+        { }
 
         private static long ConvertToLong(UIntPtr len)
         {
