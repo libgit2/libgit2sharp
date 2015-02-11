@@ -350,19 +350,21 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void FilterStreamsAreCoherent()
         {
-
             string repoPath = InitNewRepository();
             bool called = false;
 
+            bool inputCanWrite = true, inputCanRead = false, inputCanSeek = true;
+            bool outputCanWrite = false, outputCanRead = true, outputCanSeek = true;
+
             Func<Stream, Stream, int> assertor = (input, output) =>
             {
-                Assert.False(input.CanWrite);
-                Assert.True(input.CanRead);
-                Assert.False(input.CanSeek);
+                inputCanRead = input.CanRead;
+                inputCanWrite = input.CanWrite;
+                inputCanSeek = input.CanSeek;
 
-                Assert.False(output.CanRead);
-                Assert.True(output.CanWrite);
-                Assert.False(input.CanSeek);
+                outputCanRead = output.CanRead;
+                outputCanWrite = output.CanWrite;
+                outputCanSeek = output.CanSeek;
 
                 return GitPassThrough;
             };
@@ -377,6 +379,14 @@ namespace LibGit2Sharp.Tests
             }
 
             GlobalSettings.DeregisterFilter(filter);
+
+            Assert.True(inputCanRead);
+            Assert.False(inputCanWrite);
+            Assert.False(inputCanSeek);
+
+            Assert.False(outputCanRead);
+            Assert.True(outputCanWrite);
+            Assert.False(outputCanSeek);
         }
 
         private FileInfo CheckoutFileForSmudge(string repoPath, string branchName, string content)
