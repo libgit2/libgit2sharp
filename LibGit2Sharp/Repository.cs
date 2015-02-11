@@ -1084,6 +1084,111 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        /// Perform a rebase.
+        /// </summary>
+        /// <param name="branch">The branch to rebase.</param>
+        /// <param name="upstream">The starting commit to rebase.</param>
+        /// <param name="onto">The branch to rebase onto.</param>
+        /// <param name="committer"></param>
+        /// <param name="options"></param>
+        /// <returns>true if completed successfully, false if conflicts encountered.</returns>
+        public RebaseResult Rebase(Branch branch, Branch upstream, Branch onto, Signature committer, RebaseOptions options)
+        {
+            Ensure.ArgumentNotNull(upstream, "upstream");
+
+            options = options ?? new RebaseOptions();
+
+            if (this.Info.CurrentOperation != CurrentOperation.None)
+            {
+                throw new LibGit2SharpException(string.Format(
+                    "A {0} operation is already in progress.", this.Info.CurrentOperation));
+            }
+
+            ReferenceSafeHandle branchRefPtr = null;
+            ReferenceSafeHandle upstreamRefPtr = null;
+            ReferenceSafeHandle ontoRefPtr = null;
+
+            GitAnnotatedCommitHandle annotatedBranchCommitHandle = null;
+            GitAnnotatedCommitHandle annotatedUpstreamRefPtrCommitHandle = null;
+            GitAnnotatedCommitHandle annotatedOntoRefPtrCommitHandle = null;
+
+            try
+            {
+                branchRefPtr = (branch == null) ?
+                    this.Refs.RetrieveReferencePtr(this.Head.CanonicalName) :
+                    this.Refs.RetrieveReferencePtr(branch.CanonicalName);
+
+                upstreamRefPtr = (upstream == null) ?
+                    null : this.Refs.RetrieveReferencePtr(upstream.CanonicalName);
+
+                ontoRefPtr = (onto == null) ?
+                    null : this.Refs.RetrieveReferencePtr(onto.CanonicalName);
+
+                annotatedBranchCommitHandle = (branchRefPtr == null) ?
+                    new GitAnnotatedCommitHandle() :
+                    Proxy.git_annotated_commit_from_ref(this.Handle, branchRefPtr);
+
+                annotatedUpstreamRefPtrCommitHandle = (upstreamRefPtr == null) ?
+                    new GitAnnotatedCommitHandle() :
+                    Proxy.git_annotated_commit_from_ref(this.Handle, upstreamRefPtr);
+
+                annotatedOntoRefPtrCommitHandle = (ontoRefPtr == null) ?
+                    new GitAnnotatedCommitHandle() :
+                    Proxy.git_annotated_commit_from_ref(this.Handle, ontoRefPtr);
+
+                GitRebaseOptions gitRebaseOptions = new GitRebaseOptions()
+                {
+                    version = 1,
+                };
+
+                RebaseSafeHandle rebaseOperationHandle = Proxy.git_rebase_init(this.Handle,
+                    annotatedBranchCommitHandle,
+                    annotatedUpstreamRefPtrCommitHandle,
+                    annotatedOntoRefPtrCommitHandle,
+                    null, ref gitRebaseOptions);
+
+                var rebaseDriver = new RebaseOperationImpl(rebaseOperationHandle, this, committer, options);
+                RebaseResult rebaseResult = rebaseDriver.Run();
+
+                return rebaseResult;
+            }
+            finally
+            {
+                branchRefPtr.SafeDispose();
+                branchRefPtr = null;
+                upstreamRefPtr.SafeDispose();
+                upstreamRefPtr = null;
+                ontoRefPtr.SafeDispose();
+                ontoRefPtr = null;
+
+                annotatedBranchCommitHandle.SafeDispose();
+                annotatedBranchCommitHandle = null;
+                annotatedUpstreamRefPtrCommitHandle.SafeDispose();
+                annotatedUpstreamRefPtrCommitHandle = null;
+                annotatedOntoRefPtrCommitHandle.SafeDispose();
+                annotatedOntoRefPtrCommitHandle = null;
+            }
+        }
+
+        /// <summary>
+        /// Get the current rebase operation in progress (if any).
+        /// Currently only returns for rebase merge. If a rebase merge
+        /// operation is not progress, returns null.
+        /// </summary>
+        public RebaseOperation CurrentRebaseOperation
+        {
+            get
+            {
+                if (Info.CurrentOperation == LibGit2Sharp.CurrentOperation.RebaseMerge)
+                {
+                    return new RebaseOperation(this);
+                }
+
+                return null;
+            }
+        }
+
+        /// <summary>
         /// Revert the specified commit.
         /// <para>
         ///  If the revert is successful but there are no changes to commit,

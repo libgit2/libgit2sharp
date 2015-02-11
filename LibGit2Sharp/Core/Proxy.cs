@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -1572,6 +1573,156 @@ namespace LibGit2Sharp.Core
                 Ensure.ZeroResult(res);
                 return new Tuple<int, int>((int)add, (int)del);
             }
+        }
+
+        #endregion
+
+        #region git_rebase
+
+        public static RebaseSafeHandle git_rebase_init(
+            RepositorySafeHandle repo,
+            GitAnnotatedCommitHandle branch,
+            GitAnnotatedCommitHandle upstream,
+            GitAnnotatedCommitHandle onto,
+            GitSignature signature,
+            ref GitRebaseOptions options)
+        {
+            RebaseSafeHandle rebase = null;
+
+            using (ThreadAffinity())
+            {
+                int result = NativeMethods.git_rebase_init(out rebase, repo, branch, upstream, onto, signature, ref options);
+                Ensure.ZeroResult(result);
+            }
+
+            return rebase;
+        }
+
+        public static RebaseSafeHandle git_rebase_open(RepositorySafeHandle repo)
+        {
+            RebaseSafeHandle rebase = null;
+
+            using (ThreadAffinity())
+            {
+                int result = NativeMethods.git_rebase_open(out rebase, repo);
+                Ensure.ZeroResult(result);
+            }
+
+            return rebase;
+        }
+
+        public static int git_rebase_operation_entrycount(RebaseSafeHandle rebase)
+        {
+            UIntPtr count = NativeMethods.git_rebase_operation_entrycount(rebase);
+            int entryCountAsInt = (int) count; // What to convert to
+            return entryCountAsInt;
+        }
+
+        public static int git_rebase_operation_current(RebaseSafeHandle rebase)
+        {
+            UIntPtr current = NativeMethods.git_rebase_operation_current(rebase);
+            int currentEntryAsInt = (int) current; // What to convert to
+            return currentEntryAsInt;
+        }
+
+        public static GitRebaseOperation git_rebase_operation_byindex(
+            RebaseSafeHandle rebase,
+            int index)
+        {
+            Debug.Assert(index >= 0);
+            IntPtr ptr = NativeMethods.git_rebase_operation_byindex(rebase, ((UIntPtr) index));
+            return ptr.MarshalAs<GitRebaseOperation>();
+        }
+
+        /// <summary>
+        /// Returns null when finished.
+        /// </summary>
+        /// <param name="rebase"></param>
+        /// <param name="options"></param>
+        /// <returns></returns>
+        public static GitRebaseOperation git_rebase_next(RebaseSafeHandle rebase,
+            ref GitCheckoutOpts options)
+        {
+            GitRebaseOperation operation = null;
+            using (ThreadAffinity())
+            {
+                IntPtr ptr;
+                int result = NativeMethods.git_rebase_next(out ptr, rebase, ref options);
+                if (result == (int)GitErrorCode.IterOver)
+                {
+                    return null;
+                }
+                Ensure.ZeroResult(result);
+
+                // If successsful, then marshal native struct to managed struct.
+                operation = ptr.MarshalAs<GitRebaseOperation>();
+            }
+
+            return operation;
+        }
+
+        public static GitOid git_rebase_commit(
+            RebaseSafeHandle rebase,
+            Signature author,
+            Signature committer)
+        {
+            Ensure.ArgumentNotNull(rebase, "rebase");
+            Ensure.ArgumentNotNull(committer, "committer");
+
+            GitOid commitId = new GitOid();
+
+            using (ThreadAffinity())
+            {
+                SignatureSafeHandle authorHandle = null;
+                SignatureSafeHandle committerHandle = null;
+
+                try
+                {
+                    committerHandle = committer.BuildHandle();
+                    authorHandle = author == null ? 
+                        new SignatureSafeHandle() : author.BuildHandle();
+
+                    int result = NativeMethods.git_rebase_commit(ref commitId, rebase, authorHandle, committerHandle, IntPtr.Zero, IntPtr.Zero);
+                    Ensure.ZeroResult(result);
+                }
+                finally
+                {
+                    committerHandle.Dispose();
+                    committerHandle = null;
+
+                    authorHandle.SafeDispose();
+                    authorHandle = null;
+                }
+            }
+
+            return commitId;
+        }
+
+        public static void git_rebase_abort(
+            RebaseSafeHandle rebase,
+            GitSignature signature)
+        {
+            using (ThreadAffinity())
+            {
+                int result = NativeMethods.git_rebase_abort(rebase, signature);
+            }
+        }
+
+        public static void git_rebase_finish(
+            RebaseSafeHandle repo,
+            GitSignature signature,
+            GitRebaseOptions options)
+        {
+            using (ThreadAffinity())
+            {
+                int result = NativeMethods.git_rebase_finish(repo, signature, ref options);
+                Ensure.ZeroResult(result);
+            }
+        }
+
+        public static void git_rebase_free(IntPtr rebase)
+        {
+            NativeMethods.git_rebase_free(rebase);
         }
 
         #endregion

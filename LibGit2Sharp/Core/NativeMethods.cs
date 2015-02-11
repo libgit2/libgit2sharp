@@ -219,6 +219,64 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string canonical_branch_name);
 
         [DllImport(libgit2)]
+        internal static extern int git_rebase_init(
+            out RebaseSafeHandle rebase,
+            RepositorySafeHandle repo,
+            GitAnnotatedCommitHandle branch,
+            GitAnnotatedCommitHandle upstream,
+            GitAnnotatedCommitHandle onto,
+            GitSignature signature,
+            ref GitRebaseOptions options);
+
+        [DllImport(libgit2)]
+        internal static extern int git_rebase_open(
+            out RebaseSafeHandle rebase,
+            RepositorySafeHandle repo);
+
+        [DllImport(libgit2)]
+        internal static extern UIntPtr git_rebase_operation_entrycount(
+            RebaseSafeHandle rebase);
+
+        [DllImport(libgit2)]
+        internal static extern UIntPtr git_rebase_operation_current(
+            RebaseSafeHandle rebase);
+
+        [DllImport(libgit2)]
+        internal static extern IntPtr git_rebase_operation_byindex(
+            RebaseSafeHandle rebase,
+            UIntPtr index);
+
+        [DllImport(libgit2)]
+        internal static extern int git_rebase_next(
+            out IntPtr operation,
+            RebaseSafeHandle rebase,
+            ref GitCheckoutOpts options);
+
+        [DllImport(libgit2)]
+        internal static extern int git_rebase_commit(
+            ref GitOid id,
+            RebaseSafeHandle rebase,
+            SignatureSafeHandle author,
+            SignatureSafeHandle committer,
+            IntPtr message_encoding,
+            IntPtr message);
+
+        [DllImport(libgit2)]
+        internal static extern int git_rebase_abort(
+            RebaseSafeHandle rebase,
+            GitSignature signature);
+
+        [DllImport(libgit2)]
+        internal static extern int git_rebase_finish(
+            RebaseSafeHandle repo,
+            GitSignature signature,
+            ref GitRebaseOptions options);
+
+        [DllImport(libgit2)]
+        internal static extern void git_rebase_free(
+            IntPtr rebase);
+
+        [DllImport(libgit2)]
         internal static extern int git_remote_rename(
             ref GitStrArray problems,
             RepositorySafeHandle repo,
@@ -228,7 +286,6 @@ namespace LibGit2Sharp.Core
         internal delegate int git_remote_rename_problem_cb(
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(LaxUtf8NoCleanupMarshaler))] string problematic_refspec,
             IntPtr payload);
-
 
         [DllImport(libgit2)]
         internal static extern int git_branch_upstream_name(

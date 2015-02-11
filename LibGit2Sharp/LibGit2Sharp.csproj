@@ -43,9 +43,11 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AfterRebaseStepInfo.cs" />
     <Compile Include="AmbiguousSpecificationException.cs" />
     <Compile Include="ArchiverBase.cs" />
     <Compile Include="BareRepositoryException.cs" />
+    <Compile Include="BeforeRebaseStepInfo.cs" />
     <Compile Include="BlameHunkCollection.cs" />
     <Compile Include="BlameHunk.cs" />
     <Compile Include="BlameOptions.cs" />
@@ -68,6 +70,9 @@
     <Compile Include="CommitOptions.cs" />
     <Compile Include="CommitSortStrategies.cs" />
     <Compile Include="CompareOptions.cs" />
+    <Compile Include="Core\GitRebaseOperation.cs" />
+    <Compile Include="Core\GitRebaseOptions.cs" />
+    <Compile Include="Core\Handles\RebaseSafeHandle.cs" />
     <Compile Include="DescribeOptions.cs" />
     <Compile Include="DescribeStrategy.cs" />
     <Compile Include="Core\GitDescribeFormatOptions.cs" />
@@ -105,6 +110,11 @@
     <Compile Include="PatchStats.cs" />
     <Compile Include="PeelException.cs" />
     <Compile Include="PullOptions.cs" />
+    <Compile Include="RebaseOperationImpl.cs" />
+    <Compile Include="RebaseOptions.cs" />
+    <Compile Include="RebaseResult.cs" />
+    <Compile Include="RebaseOperation.cs" />
+    <Compile Include="RebaseStepInfo.cs" />
     <Compile Include="RefSpec.cs" />
     <Compile Include="RefSpecCollection.cs" />
     <Compile Include="Core\EncodingMarshaler.cs" />

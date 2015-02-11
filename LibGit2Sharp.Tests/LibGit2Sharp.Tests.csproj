@@ -59,6 +59,7 @@
     <Compile Include="DescribeFixture.cs" />
     <Compile Include="GlobalSettingsFixture.cs" />
     <Compile Include="PatchStatsFixture.cs" />
+    <Compile Include="RebaseFixture.cs" />
     <Compile Include="RefSpecFixture.cs" />
     <Compile Include="EqualityFixture.cs" />
     <Compile Include="RevertFixture.cs" />
