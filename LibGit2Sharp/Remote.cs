@@ -106,6 +106,31 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        /// Gets the configured behavior regarding the deletion
+        /// of stale remote tracking branches.
+        /// <para>
+        ///   If defined, will return the value of the <code>remote.&lt;name&gt;.prune</code> entry.
+        ///   Otherwise return the value of <code>fetch.prune</code>.
+        /// </para>
+        /// </summary>
+        public virtual bool AutomaticallyPruneOnFetch
+        {
+            get
+            {
+                var remotePrune = repository.Config.Get<bool>("remote", Name, "prune");
+
+                if (remotePrune != null)
+                {
+                    return remotePrune.Value;
+                }
+
+                var fetchPrune = repository.Config.Get<bool>("fetch.prune");
+
+                return fetchPrune != null && fetchPrune.Value;
+            }
+        }
+
+        /// <summary>
         /// Determines whether the specified <see cref="Object"/> is equal to the current <see cref="Remote"/>.
         /// </summary>
         /// <param name="obj">The <see cref="Object"/> to compare with the current <see cref="Remote"/>.</param>
