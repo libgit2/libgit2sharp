@@ -254,7 +254,6 @@ namespace LibGit2Sharp.Core
         {
             using (ThreadAffinity())
             {
-                var gitBuf = gitBufPointer.MarshalAs<GitBuf>();
                 IntPtr bytesPtr = Marshal.AllocHGlobal(count);
                 Marshal.Copy(data, offset, bytesPtr, count);
 
@@ -262,8 +261,6 @@ namespace LibGit2Sharp.Core
                 Ensure.ZeroResult(res);
 
                 Marshal.FreeHGlobal(bytesPtr);
-
-                //Marshal.StructureToPtr(gitBuf, gitBufPointer, true);
             }
         }
 
