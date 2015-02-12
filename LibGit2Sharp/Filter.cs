@@ -93,7 +93,7 @@ namespace LibGit2Sharp
         /// 
         /// If non-NULL, the filter's `initialize` callback will be invoked right
         /// before the first use of the filter, so you can defer expensive
-        /// initialization operations (in case libgit2 is being used in a way that doesn't need the filter).
+        /// initialization operations (in case the library is being used in a way that doesn't need the filter).
         /// </summary>
         protected virtual int Initialize()
         {
