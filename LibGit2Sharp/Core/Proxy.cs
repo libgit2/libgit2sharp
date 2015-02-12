@@ -254,13 +254,17 @@ namespace LibGit2Sharp.Core
         {
             using (ThreadAffinity())
             {
-                IntPtr bytesPtr = Marshal.AllocHGlobal(count);
-                Marshal.Copy(data, offset, bytesPtr, count);
+                unsafe
+                {
+                    int res;
 
-                var res = NativeMethods.git_buf_put(gitBufPointer, bytesPtr, (UIntPtr)count);
-                Ensure.ZeroResult(res);
+                    fixed (byte* ptr = data)
+                    {
+                        res = NativeMethods.git_buf_put(gitBufPointer, (IntPtr)ptr, (UIntPtr)count);
+                    }
 
-                Marshal.FreeHGlobal(bytesPtr);
+                    Ensure.ZeroResult(res);
+                }
             }
         }
 
