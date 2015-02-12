@@ -37,7 +37,7 @@ namespace LibGit2Sharp
         /// <param name="name">The unique name with which this filtered is registered with</param>
         /// <param name="attributes">Either a single attribute, or a comma separated list of filterForAttributes for which this filter applies to</param>
         /// </summary>
-        protected Filter(string name, string attributes)
+        private Filter(string name, string attributes)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
             Ensure.ArgumentNotNullOrEmptyEnumerable(attributes, "filterForAttributes");
