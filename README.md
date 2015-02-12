@@ -7,7 +7,7 @@
 ## Prerequisites
 
  - **Windows:** .Net 4.0+
- - **Linux/MacOsX:** Mono 3.6+
+ - **Linux/Mac OS X:** Mono 3.6+
 
 ## Online resources
 
@@ -30,7 +30,7 @@
 ## Current project build status
 The CI builds are generously hosted and run on the [Travis][travis] and [AppVeyor][appveyor] infrastructures.
 
-|  | Windows (x86/amd64) | Linux/MacOsX |
+|  | Windows (x86/amd64) | Linux/Mac OS X |
 | :------ | :------: | :------: |
 | **master** | [![master win][master-win-badge]][master-win] | [![master nix][master-nix-badge]][master-nix] |
 | **vNext** | [![vNext win][vNext-win-badge]][vNext-win] | [![vNext nix][vNext-nix-badge]][vNext-nix] |
