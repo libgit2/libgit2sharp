@@ -223,7 +223,7 @@ namespace LibGit2Sharp
 
             var cred = CredentialsProvider(url, username, types);
 
-            return cred.GitCredentialHandler(out ptr, cUrl, usernameFromUrl, credTypes, payload);
+            return cred.GitCredentialHandler(out ptr);
         }
 
         #endregion
