@@ -41,7 +41,7 @@ namespace LibGit2Sharp
         private Filter(string name, string attributes)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
-            Ensure.ArgumentNotNullOrEmptyEnumerable(attributes, "filterForAttributes");
+            Ensure.ArgumentNotNullOrEmptyEnumerable(attributes, "attributes");
 
             this.name = name;
             this.attributes = attributes;
@@ -79,7 +79,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// The marshelled filter
+        /// The marshalled filter
         /// </summary>
         internal GitFilter ManagedFilter
         {
@@ -94,7 +94,8 @@ namespace LibGit2Sharp
         /// 
         /// If non-NULL, the filter's `initialize` callback will be invoked right
         /// before the first use of the filter, so you can defer expensive
-        /// initialization operations (in case the library is being used in a way that doesn't need the filter).
+        /// initialization operations (in case the library is being used in a way
+        /// that doesn't need the filter.
         /// </summary>
         protected virtual int Initialize()
         {
@@ -111,8 +112,8 @@ namespace LibGit2Sharp
         protected virtual int Check(IEnumerable<string> filterForAttributes, FilterSource filterSource)
         {
             var fileInfo = new FileInfo(filterSource.Path);
-            var matches = filterForAttributes.Any(currentExtension => fileInfo.Extension == currentExtension);
-            return matches ? 0 : -30;
+            var matches = filterForAttributes.Any(currentExtension => string.Equals(fileInfo.Extension, currentExtension, StringComparison.Ordinal));
+            return matches ? 0 : (int)GitErrorCode.PassThrough;
         }
 
         /// <summary>
