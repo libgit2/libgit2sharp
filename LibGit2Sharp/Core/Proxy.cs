@@ -241,7 +241,7 @@ namespace LibGit2Sharp.Core
 
         #region git_buf_
 
-        public static void git_buf_grow(IntPtr gitBufPointer, uint target_size)
+        public static void git_buf_grow(IntPtr gitBufPointer, ulong target_size)
         {
             using (ThreadAffinity())
             {

@@ -46,10 +46,11 @@ namespace LibGit2Sharp.Core
         {
             var gitBuf = gitBufPointer.MarshalAs<GitBuf>();
 
-            var asize = (uint)gitBuf.asize;
-            var size = (uint)gitBuf.size;
+            var ulongCount = Convert.ToUInt64(count);
+            var asize = (ulong)gitBuf.asize;
+            var size = (ulong)gitBuf.size;
 
-            var isBufferLargeEnoughToHoldTheNewData = (asize - size) > count;
+            var isBufferLargeEnoughToHoldTheNewData = (asize - size) > ulongCount;
             var filledBufferPercentage = (100.0 * size / asize);
 
             if (isBufferLargeEnoughToHoldTheNewData && filledBufferPercentage < 90)
@@ -57,7 +58,7 @@ namespace LibGit2Sharp.Core
                 return;
             }
 
-            var targetSize = (uint)(1.5 * (asize + count));
+            var targetSize = (ulong)(1.5 * (asize + ulongCount));
 
             Proxy.git_buf_grow(gitBufPointer, targetSize);
         }
