@@ -1,7 +1,5 @@
 using System;
 using System.Runtime.InteropServices;
-using System.Text;
-
 namespace LibGit2Sharp.Core
 {
     /// <summary>
@@ -89,21 +87,6 @@ namespace LibGit2Sharp.Core
         /// to keep per-source filter state, use this  callback to free that payload and release resources as required.
         /// </summary>
         public delegate void git_filter_cleanup_fn(IntPtr gitFilter, IntPtr payload);
-
-        public static string GetAttributesFromPointer(IntPtr intPtr)
-        {
-            return EncodingMarshaler.FromNative(Encoding.UTF8, intPtr);
-        }
-
-        public string ManagedAttributes()
-        {
-            return GetAttributesFromPointer(attributes);
-        }
-
-        public static IntPtr GetAttributesFromManaged(string attributes)
-        {
-            return EncodingMarshaler.FromManaged(Encoding.UTF8, attributes);
-        }
     }
     /// <summary>
     /// The file source being filtered

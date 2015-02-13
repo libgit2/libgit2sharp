@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Handles;
 
@@ -47,7 +48,7 @@ namespace LibGit2Sharp
 
             managedFilter = new GitFilter
             {
-                attributes = GitFilter.GetAttributesFromManaged(attributes),
+                attributes = EncodingMarshaler.FromManaged(Encoding.UTF8, attributes),
                 init = InitializeCallback,
                 apply = ApplyCallback,
                 check = CheckCallback
@@ -58,7 +59,7 @@ namespace LibGit2Sharp
         {
             this.name = name;
             managedFilter = filterPtr.MarshalFromNative();
-            attributes = managedFilter.ManagedAttributes();
+            attributes = EncodingMarshaler.FromNative(Encoding.UTF8, managedFilter.attributes);
         }
 
         /// <summary>
@@ -221,10 +222,9 @@ namespace LibGit2Sharp
         /// <returns></returns>
         int CheckCallback(GitFilter gitFilter, IntPtr payload, IntPtr filterSourcePtr, IntPtr attributeValues)
         {
-            //string filterForAttributes = GitFilter.GetAttributesFromPointer(attributeValues);
-            string attributes1 = GitFilter.GetAttributesFromPointer(gitFilter.attributes);
+            string filterForAttributes = EncodingMarshaler.FromNative(Encoding.UTF8, gitFilter.attributes);
             var filterSource = FilterSource.FromNativePtr(filterSourcePtr);
-            return Check(attributes1.Split(','), filterSource);
+            return Check(filterForAttributes.Split(','), filterSource);
         }
 
 
