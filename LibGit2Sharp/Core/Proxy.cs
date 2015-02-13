@@ -836,7 +836,7 @@ namespace LibGit2Sharp.Core
 
         #region git_filter_
 
-        public static void git_filter_register(string name, GitFilterSafeHandle filter, int priority)
+        public static void git_filter_register(string name, IntPtr filter, int priority)
         {
             using (ThreadAffinity())
             {

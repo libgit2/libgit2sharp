@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using LibGit2Sharp.Core;
-using LibGit2Sharp.Core.Handles;
 
 namespace LibGit2Sharp
 {
@@ -53,13 +52,6 @@ namespace LibGit2Sharp
                 apply = ApplyCallback,
                 check = CheckCallback
             };
-        }
-
-        internal Filter(string name, GitFilterSafeHandle filterPtr)
-        {
-            this.name = name;
-            managedFilter = filterPtr.MarshalFromNative();
-            attributes = EncodingMarshaler.FromNative(Encoding.UTF8, managedFilter.attributes);
         }
 
         /// <summary>

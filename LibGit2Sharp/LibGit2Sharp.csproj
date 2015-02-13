@@ -72,7 +72,6 @@
     <Compile Include="Core\GitBufWriteStream.cs" />
     <Compile Include="Core\GitFilter.cs" />
     <Compile Include="Core\GitIndexReucEntry.cs" />
-    <Compile Include="Core\Handles\GitFilterSafeHandle.cs" />
     <Compile Include="DescribeOptions.cs" />
     <Compile Include="DescribeStrategy.cs" />
     <Compile Include="Core\GitDescribeFormatOptions.cs" />
@@ -83,6 +82,7 @@
     <Compile Include="EntryExistsException.cs" />
     <Compile Include="FetchOptionsBase.cs" />
     <Compile Include="FilterMode.cs" />
+    <Compile Include="FilterRegistration.cs" />
     <Compile Include="FilterSource.cs" />
     <Compile Include="IBelongToARepository.cs" />
     <Compile Include="Filter.cs" />

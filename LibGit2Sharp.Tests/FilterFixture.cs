@@ -30,22 +30,22 @@ namespace LibGit2Sharp.Tests
         {
             var filter = new EmptyFilter(FilterName + 1, attributes);
 
-            GlobalSettings.RegisterFilter(filter);
-            GlobalSettings.DeregisterFilter(filter.Name);
+            var registration = GlobalSettings.RegisterFilter(filter);
+            GlobalSettings.DeregisterFilter(registration);
 
-            GlobalSettings.RegisterFilter(filter);
-            GlobalSettings.DeregisterFilter(filter.Name);
+            var secondRegistration = GlobalSettings.RegisterFilter(filter);
+            GlobalSettings.DeregisterFilter(secondRegistration);
         }
 
         [Fact]
         public void CanRegisterAndDeregisterAfterGarbageCollection()
         {
             var filter = new EmptyFilter(FilterName + 2, attributes);
-            GlobalSettings.RegisterFilter(filter);
+            var filterRegistration = GlobalSettings.RegisterFilter(filter);
 
             GC.Collect();
 
-            GlobalSettings.DeregisterFilter(filter.Name);
+            GlobalSettings.DeregisterFilter(filterRegistration);
         }
 
         [Fact]
@@ -90,14 +90,14 @@ namespace LibGit2Sharp.Tests
 
             var filter = new FakeFilter(FilterName + 5, attributes, checkCallBack);
 
-            GlobalSettings.RegisterFilter(filter);
+            var filterRegistration = GlobalSettings.RegisterFilter(filter);
             using (var repo = CreateTestRepository(repoPath))
             {
                 StageNewFile(repo);
                 Assert.True(called);
             }
 
-            GlobalSettings.DeregisterFilter(filter.Name);
+            GlobalSettings.DeregisterFilter(filterRegistration);
         }
 
         [Fact]
@@ -114,13 +114,13 @@ namespace LibGit2Sharp.Tests
             string repoPath = InitNewRepository();
             var filter = new FakeFilter(FilterName + 6, attributes, checkSuccess, applyCallback);
 
-            GlobalSettings.RegisterFilter(filter);
+            var filterRegistration = GlobalSettings.RegisterFilter(filter);
             using (var repo = CreateTestRepository(repoPath))
             {
                 StageNewFile(repo);
             }
 
-            GlobalSettings.DeregisterFilter(filter.Name);
+            GlobalSettings.DeregisterFilter(filterRegistration);
 
             Assert.True(called);
         }
@@ -139,13 +139,13 @@ namespace LibGit2Sharp.Tests
             string repoPath = InitNewRepository();
             var filter = new FakeFilter(FilterName + 7, attributes, checkPassThrough, applyCallback);
 
-            GlobalSettings.RegisterFilter(filter);
+            var filterRegistration = GlobalSettings.RegisterFilter(filter);
             using (var repo = CreateTestRepository(repoPath))
             {
                 StageNewFile(repo);
             }
 
-            GlobalSettings.DeregisterFilter(filter.Name);
+            GlobalSettings.DeregisterFilter(filterRegistration);
 
             Assert.False(called);
         }
@@ -166,11 +166,11 @@ namespace LibGit2Sharp.Tests
                 successCallback,
                 initializeCallback);
 
-            GlobalSettings.RegisterFilter(filter);
+            var filterRegistration = GlobalSettings.RegisterFilter(filter);
 
             Assert.False(called);
 
-            GlobalSettings.DeregisterFilter(filter.Name);
+            GlobalSettings.DeregisterFilter(filterRegistration);
         }
 
         [Fact]
@@ -189,7 +189,7 @@ namespace LibGit2Sharp.Tests
                 successCallback,
                 initializeCallback);
 
-            GlobalSettings.RegisterFilter(filter);
+            var filterRegistration = GlobalSettings.RegisterFilter(filter);
             Assert.False(called);
 
             string repoPath = InitNewRepository();
@@ -199,7 +199,7 @@ namespace LibGit2Sharp.Tests
                 Assert.True(called);
             }
 
-            GlobalSettings.DeregisterFilter(filter.Name);
+            GlobalSettings.DeregisterFilter(filterRegistration);
         }
 
         [Fact]
@@ -220,7 +220,7 @@ namespace LibGit2Sharp.Tests
 
             var filter = new FakeFilter(FilterName + 13, attributes, callback);
 
-            GlobalSettings.RegisterFilter(filter);
+            var filterRegistration = GlobalSettings.RegisterFilter(filter);
 
             using (var repo = CreateTestRepository(repoPath))
             {
@@ -231,7 +231,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(attributes, actualAttributes);
             }
 
-            GlobalSettings.DeregisterFilter(filter.Name);
+            GlobalSettings.DeregisterFilter(filterRegistration);
         }
 
 
@@ -254,14 +254,14 @@ namespace LibGit2Sharp.Tests
 
             var filter = new FakeFilter(FilterName + 14, attributes, callback);
 
-            GlobalSettings.RegisterFilter(filter);
+            var filterRegistration = GlobalSettings.RegisterFilter(filter);
 
             FileInfo expectedFile = CheckoutFileForSmudge(repoPath, branchName, "hello");
             Assert.Equal(FilterMode.Smudge, calledWithMode);
             Assert.Equal(expectedFile.FullName, actualPath);
             Assert.Equal(attributes, actualAttributes);
 
-            GlobalSettings.DeregisterFilter(filter.Name);
+            GlobalSettings.DeregisterFilter(filterRegistration);
         }
 
         [Fact]
@@ -277,7 +277,7 @@ namespace LibGit2Sharp.Tests
             };
             var filter = new FakeFilter(FilterName + 15, attributes, checkSuccess, clean);
 
-            GlobalSettings.RegisterFilter(filter);
+            var filterRegistration = GlobalSettings.RegisterFilter(filter);
 
             using (var repo = CreateTestRepository(repoPath))
             {
@@ -285,7 +285,7 @@ namespace LibGit2Sharp.Tests
                 Assert.True(called);
             }
 
-            GlobalSettings.DeregisterFilter(filter.Name);
+            GlobalSettings.DeregisterFilter(filterRegistration);
         }
 
         [Fact]
@@ -300,7 +300,7 @@ namespace LibGit2Sharp.Tests
 
             var filter = new FakeFilter(FilterName + 16, attributes, checkSuccess, cleanCallback);
 
-            GlobalSettings.RegisterFilter(filter);
+            var filterRegistration = GlobalSettings.RegisterFilter(filter);
 
             using (var repo = CreateTestRepository(repoPath))
             {
@@ -313,7 +313,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(encodedInput, textDetected);
             }
 
-            GlobalSettings.DeregisterFilter(filter.Name);
+            GlobalSettings.DeregisterFilter(filterRegistration);
         }
 
 
@@ -329,7 +329,7 @@ namespace LibGit2Sharp.Tests
             Func<Stream, Stream, int> smudgeCallback = SubstitutionCipherFilter.RotateByThirteenPlaces;
 
             var filter = new FakeFilter(FilterName + 17, attributes, checkSuccess, null, smudgeCallback);
-            GlobalSettings.RegisterFilter(filter);
+            var filterRegistration = GlobalSettings.RegisterFilter(filter);
 
             FileInfo expectedFile = CheckoutFileForSmudge(repoPath, branchName, encodedInput);
 
@@ -337,7 +337,7 @@ namespace LibGit2Sharp.Tests
             string readAllText = File.ReadAllText(combine);
             Assert.Equal(decodedInput, readAllText);
 
-            GlobalSettings.DeregisterFilter(filter.Name);
+            GlobalSettings.DeregisterFilter(filterRegistration);
         }
 
         [Fact]
@@ -363,14 +363,14 @@ namespace LibGit2Sharp.Tests
 
             var filter = new FakeFilter(FilterName + 18, attributes, checkSuccess, assertor, assertor);
 
-            GlobalSettings.RegisterFilter(filter);
+            var filterRegistration = GlobalSettings.RegisterFilter(filter);
 
             using (var repo = CreateTestRepository(repoPath))
             {
                 StageNewFile(repo);
             }
 
-            GlobalSettings.DeregisterFilter(filter.Name);
+            GlobalSettings.DeregisterFilter(filterRegistration);
 
             Assert.True(inputCanRead.HasValue);
             Assert.True(inputCanWrite.HasValue);

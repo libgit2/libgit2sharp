@@ -16,7 +16,7 @@ namespace LibGit2Sharp.Tests
 
             var attributes = new List<string> { ".rot13" };
             var filter = new SubstitutionCipherFilter("ROT13", attributes);
-            GlobalSettings.RegisterFilter(filter);
+            var filterRegistration = GlobalSettings.RegisterFilter(filter);
 
             string repoPath = InitNewRepository();
             string fileName = Guid.NewGuid() + ".rot13";
@@ -44,7 +44,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(decodedInput, fileContents);
             }
 
-            GlobalSettings.DeregisterFilter(filter.Name);
+            GlobalSettings.DeregisterFilter(filterRegistration);
         }
 
         [Fact]
@@ -54,7 +54,7 @@ namespace LibGit2Sharp.Tests
 
             var attributes = new List<string> { ".rot13" };
             var filter = new SubstitutionCipherFilter("ROT13", attributes);
-            GlobalSettings.RegisterFilter(filter);
+            var filterRegistration = GlobalSettings.RegisterFilter(filter);
 
             string repoPath = InitNewRepository();
             string fileName = Guid.NewGuid() + ".rot131";
@@ -70,7 +70,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(1, filter.CheckCalledCount);
             }
 
-            GlobalSettings.DeregisterFilter(filter.Name);
+            GlobalSettings.DeregisterFilter(filterRegistration);
         }
 
         private static string ReadTextFromFile(Repository repo, string fileName)
