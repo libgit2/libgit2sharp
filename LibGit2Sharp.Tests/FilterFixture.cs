@@ -32,10 +32,10 @@ namespace LibGit2Sharp.Tests
             var filter = new EmptyFilter(FilterName + 1, attributes);
 
             GlobalSettings.RegisterFilter(filter);
-            GlobalSettings.DeregisterFilter(filter);
+            GlobalSettings.DeregisterFilter(filter.Name);
 
             GlobalSettings.RegisterFilter(filter);
-            GlobalSettings.DeregisterFilter(filter);
+            GlobalSettings.DeregisterFilter(filter.Name);
         }
 
         [Fact]
@@ -46,7 +46,7 @@ namespace LibGit2Sharp.Tests
 
             GC.Collect();
 
-            GlobalSettings.DeregisterFilter(filter);
+            GlobalSettings.DeregisterFilter(filter.Name);
         }
 
         [Fact]
@@ -98,7 +98,7 @@ namespace LibGit2Sharp.Tests
                 Assert.True(called);
             }
 
-            GlobalSettings.DeregisterFilter(filter);
+            GlobalSettings.DeregisterFilter(filter.Name);
         }
 
         [Fact]
@@ -121,7 +121,7 @@ namespace LibGit2Sharp.Tests
                 StageNewFile(repo);
             }
 
-            GlobalSettings.DeregisterFilter(filter);
+            GlobalSettings.DeregisterFilter(filter.Name);
 
             Assert.True(called);
         }
@@ -146,7 +146,7 @@ namespace LibGit2Sharp.Tests
                 StageNewFile(repo);
             }
 
-            GlobalSettings.DeregisterFilter(filter);
+            GlobalSettings.DeregisterFilter(filter.Name);
 
             Assert.False(called);
         }
@@ -171,7 +171,7 @@ namespace LibGit2Sharp.Tests
 
             Assert.False(called);
 
-            GlobalSettings.DeregisterFilter(filter);
+            GlobalSettings.DeregisterFilter(filter.Name);
         }
 
         [Fact]
@@ -200,7 +200,7 @@ namespace LibGit2Sharp.Tests
                 Assert.True(called);
             }
 
-            GlobalSettings.DeregisterFilter(filter);
+            GlobalSettings.DeregisterFilter(filter.Name);
         }
 
         [Fact]
@@ -232,7 +232,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(attributes, actualAttributes);
             }
 
-            GlobalSettings.DeregisterFilter(filter);
+            GlobalSettings.DeregisterFilter(filter.Name);
         }
 
 
@@ -262,7 +262,7 @@ namespace LibGit2Sharp.Tests
             Assert.Equal(expectedFile.FullName, actualPath);
             Assert.Equal(attributes, actualAttributes);
 
-            GlobalSettings.DeregisterFilter(filter);
+            GlobalSettings.DeregisterFilter(filter.Name);
         }
 
         [Fact]
@@ -286,7 +286,7 @@ namespace LibGit2Sharp.Tests
                 Assert.True(called);
             }
 
-            GlobalSettings.DeregisterFilter(filter);
+            GlobalSettings.DeregisterFilter(filter.Name);
         }
 
         [Fact]
@@ -314,7 +314,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(encodedInput, textDetected);
             }
 
-            GlobalSettings.DeregisterFilter(filter);
+            GlobalSettings.DeregisterFilter(filter.Name);
         }
 
 
@@ -338,7 +338,7 @@ namespace LibGit2Sharp.Tests
             string readAllText = File.ReadAllText(combine);
             Assert.Equal(decodedInput, readAllText);
 
-            GlobalSettings.DeregisterFilter(filter);
+            GlobalSettings.DeregisterFilter(filter.Name);
         }
 
         private FileInfo CheckoutFileForSmudge(string repoPath, string branchName, string content)

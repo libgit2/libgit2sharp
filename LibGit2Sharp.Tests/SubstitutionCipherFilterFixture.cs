@@ -44,7 +44,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(decodedInput, fileContents);
             }
 
-            GlobalSettings.DeregisterFilter(filter);
+            GlobalSettings.DeregisterFilter(filter.Name);
         }
 
         [Fact]
@@ -70,7 +70,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(1, filter.CheckCalledCount);
             }
 
-            GlobalSettings.DeregisterFilter(filter);
+            GlobalSettings.DeregisterFilter(filter.Name);
         }
 
         private static string ReadTextFromFile(Repository repo, string fileName)
