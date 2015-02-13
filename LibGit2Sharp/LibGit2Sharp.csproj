@@ -68,6 +68,8 @@
     <Compile Include="CommitOptions.cs" />
     <Compile Include="CommitSortStrategies.cs" />
     <Compile Include="CompareOptions.cs" />
+    <Compile Include="Core\GitBufReadStream.cs" />
+    <Compile Include="Core\GitBufWriteStream.cs" />
     <Compile Include="Core\GitFilter.cs" />
     <Compile Include="Core\GitIndexReucEntry.cs" />
     <Compile Include="Core\Handles\GitFilterSafeHandle.cs" />
@@ -82,8 +84,6 @@
     <Compile Include="FetchOptionsBase.cs" />
     <Compile Include="FilterMode.cs" />
     <Compile Include="FilterSource.cs" />
-    <Compile Include="GitBufReader.cs" />
-    <Compile Include="GitBufWriter.cs" />
     <Compile Include="IBelongToARepository.cs" />
     <Compile Include="Filter.cs" />
     <Compile Include="IndexNameEntryCollection.cs" />
