@@ -241,6 +241,33 @@ namespace LibGit2Sharp.Core
 
         #region git_buf_
 
+        public static void git_buf_grow(IntPtr gitBufPointer, uint target_size)
+        {
+            using (ThreadAffinity())
+            {
+                var res = NativeMethods.git_buf_grow(gitBufPointer, (UIntPtr)target_size);
+                Ensure.ZeroResult(res);
+            }
+        }
+
+        public static void git_buf_put(IntPtr gitBufPointer, byte[] data, int offset, int count)
+        {
+            using (ThreadAffinity())
+            {
+                unsafe
+                {
+                    int res;
+
+                    fixed (byte* ptr = data)
+                    {
+                        res = NativeMethods.git_buf_put(gitBufPointer, (IntPtr)ptr, (UIntPtr)count);
+                    }
+
+                    Ensure.ZeroResult(res);
+                }
+            }
+        }
+
         public static void git_buf_free(GitBuf buf)
         {
             NativeMethods.git_buf_free(buf);

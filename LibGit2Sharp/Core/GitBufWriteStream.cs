@@ -1,53 +1,91 @@
 using System;
 using System.IO;
-using System.Runtime.InteropServices;
 using LibGit2Sharp.Core.Handles;
 
 namespace LibGit2Sharp.Core
 {
-    /// <summary>
-    /// Writes data to a <see cref="GitBuf"/> pointer
-    /// </summary>
-    internal class GitBufWriteStream : MemoryStream
+    internal class GitBufWriteStream : Stream
     {
         private readonly IntPtr gitBufPointer;
 
         internal GitBufWriteStream(IntPtr gitBufPointer)
         {
             this.gitBufPointer = gitBufPointer;
+
+            //Preallocate the buffer
+            Proxy.git_buf_grow(gitBufPointer, 1024);
         }
 
-        protected override void Dispose(bool disposing)
+        public override void Flush()
         {
-            if (base.CanSeek) // False if stream has already been written/closed
+        }
+
+        public override long Seek(long offset, SeekOrigin origin)
+        {
+            throw new NotSupportedException();
+        }
+
+        public override void SetLength(long value)
+        {
+            throw new NotSupportedException();
+        }
+
+        public override int Read(byte[] buffer, int offset, int count)
+        {
+            throw new NotSupportedException();
+        }
+
+        public override void Write(byte[] buffer, int offset, int count)
+        {
+            AutoGrowBuffer(count);
+
+            Proxy.git_buf_put(gitBufPointer, buffer, offset, count);
+        }
+
+        private void AutoGrowBuffer(int count)
+        {
+            var gitBuf = gitBufPointer.MarshalAs<GitBuf>();
+
+            var asize = (uint)gitBuf.asize;
+            var size = (uint)gitBuf.size;
+
+            var isBufferLargeEnoughToHoldTheNewData = (asize - size) > count;
+            var filledBufferPercentage = (100.0 * size / asize);
+
+            if (isBufferLargeEnoughToHoldTheNewData && filledBufferPercentage < 90)
             {
-                using (var gitBuf = gitBufPointer.MarshalAs<GitBuf>())
-                {
-                    WriteTo(gitBuf);
-                }
+                return;
             }
 
-            base.Dispose(disposing);
+            var targetSize = (uint)(1.5 * (asize + count));
+
+            Proxy.git_buf_grow(gitBufPointer, targetSize);
         }
 
-        private void WriteTo(GitBuf gitBuf)
+        public override bool CanRead
         {
-            Seek(0, SeekOrigin.Begin);
+            get { return false; }
+        }
 
-            var length = (int)Length;
-            var bytes = new byte[length];
-            Read(bytes, 0, length);
+        public override bool CanSeek
+        {
+            get { return false; }
+        }
 
-            IntPtr reverseBytesPointer = Marshal.AllocHGlobal(length);
-            Marshal.Copy(bytes, 0, reverseBytesPointer, bytes.Length);
+        public override bool CanWrite
+        {
+            get { return true; }
+        }
 
-            var size = (UIntPtr)length;
-            var allocatedSize = (UIntPtr)length;
-            NativeMethods.git_buf_set(gitBuf, reverseBytesPointer, size);
-            gitBuf.size = size;
-            gitBuf.asize = allocatedSize;
+        public override long Length
+        {
+            get { throw new NotSupportedException(); }
+        }
 
-            Marshal.StructureToPtr(gitBuf, gitBufPointer, true);
+        public override long Position
+        {
+            get { throw new NotSupportedException(); }
+            set { throw new NotSupportedException(); }
         }
     }
 }

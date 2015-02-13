@@ -347,6 +347,54 @@ namespace LibGit2Sharp.Tests
             GlobalSettings.DeregisterFilter(filter);
         }
 
+        [Fact]
+        public void FilterStreamsAreCoherent()
+        {
+            string repoPath = InitNewRepository();
+
+            bool? inputCanWrite = null, inputCanRead = null, inputCanSeek = null;
+            bool? outputCanWrite = null, outputCanRead = null, outputCanSeek = null;
+
+            Func<Stream, Stream, int> assertor = (input, output) =>
+            {
+                inputCanRead = input.CanRead;
+                inputCanWrite = input.CanWrite;
+                inputCanSeek = input.CanSeek;
+
+                outputCanRead = output.CanRead;
+                outputCanWrite = output.CanWrite;
+                outputCanSeek = output.CanSeek;
+
+                return GitPassThrough;
+            };
+
+            var filter = new FakeFilter(FilterName + 18, Attribute, checkSuccess, assertor, assertor);
+
+            GlobalSettings.RegisterFilter(filter);
+
+            using (var repo = CreateTestRepository(repoPath))
+            {
+                StageNewFile(repo);
+            }
+
+            GlobalSettings.DeregisterFilter(filter);
+
+            Assert.True(inputCanRead.HasValue);
+            Assert.True(inputCanWrite.HasValue);
+            Assert.True(inputCanSeek.HasValue);
+            Assert.True(outputCanRead.HasValue);
+            Assert.True(outputCanWrite.HasValue);
+            Assert.True(outputCanSeek.HasValue);
+
+            Assert.True(inputCanRead.Value);
+            Assert.False(inputCanWrite.Value);
+            Assert.False(inputCanSeek.Value);
+
+            Assert.False(outputCanRead.Value);
+            Assert.True(outputCanWrite.Value);
+            Assert.False(outputCanSeek.Value);
+        }
+
         private FileInfo CheckoutFileForSmudge(string repoPath, string branchName, string content)
         {
             FileInfo expectedPath;

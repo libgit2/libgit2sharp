@@ -10,8 +10,6 @@ namespace LibGit2Sharp.Core
     /// </summary>
     internal class GitBufReadStream : UnmanagedMemoryStream
     {
-        private readonly GitBuf gitBuf;
-
         internal GitBufReadStream(IntPtr gitBufPointer)
             : this(gitBufPointer.MarshalAs<GitBuf>())
         { }
@@ -21,17 +19,7 @@ namespace LibGit2Sharp.Core
                    ConvertToLong(gitBuf.size),
                    ConvertToLong(gitBuf.asize),
                    FileAccess.Read)
-        {
-            this.gitBuf = gitBuf;
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            base.Dispose(disposing);
-
-            if (disposing && gitBuf != default(GitBuf))
-                gitBuf.Dispose();
-        }
+        { }
 
         private static long ConvertToLong(UIntPtr len)
         {
@@ -45,6 +33,16 @@ namespace LibGit2Sharp.Core
             }
 
             return (long)len.ToUInt64();
+        }
+
+        public override long Seek(long offset, SeekOrigin loc)
+        {
+            throw new NotSupportedException();
+        }
+
+        public override bool CanSeek
+        {
+            get { return false; }
         }
     }
 }
