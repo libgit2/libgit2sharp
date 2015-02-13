@@ -132,20 +132,6 @@ namespace LibGit2Sharp
         /// <summary>
         /// Remove the filter from the registry, and frees the native heap allocation.
         /// </summary>
-        public static void DeregisterFilter(Filter filter)
-        {
-            DeregisterFilter(filter.Name);
-
-            var disposableFilter = filter as IDisposable;
-            if (disposableFilter != null)
-            {
-                disposableFilter.Dispose();
-            }
-        }
-
-        /// <summary>
-        /// Remove the filter from the registry, and frees the native heap allocation.
-        /// </summary>
         public static void DeregisterFilter(string name)
         {
             Proxy.git_filter_unregister(name);

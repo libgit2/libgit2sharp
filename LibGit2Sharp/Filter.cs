@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Handles;
 
@@ -37,17 +38,17 @@ namespace LibGit2Sharp
         /// <param name="name">The unique name with which this filtered is registered with</param>
         /// <param name="attributes">Either a single attribute, or a comma separated list of filterForAttributes for which this filter applies to</param>
         /// </summary>
-        protected Filter(string name, string attributes)
+        private Filter(string name, string attributes)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
-            Ensure.ArgumentNotNullOrEmptyEnumerable(attributes, "filterForAttributes");
+            Ensure.ArgumentNotNullOrEmptyEnumerable(attributes, "attributes");
 
             this.name = name;
             this.attributes = attributes;
 
             managedFilter = new GitFilter
             {
-                attributes = GitFilter.GetAttributesFromManaged(attributes),
+                attributes = EncodingMarshaler.FromManaged(Encoding.UTF8, attributes),
                 init = InitializeCallback,
                 apply = ApplyCallback,
                 check = CheckCallback
@@ -58,7 +59,7 @@ namespace LibGit2Sharp
         {
             this.name = name;
             managedFilter = filterPtr.MarshalFromNative();
-            attributes = managedFilter.ManagedAttributes();
+            attributes = EncodingMarshaler.FromNative(Encoding.UTF8, managedFilter.attributes);
         }
 
         /// <summary>
@@ -78,7 +79,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// The marshelled filter
+        /// The marshalled filter
         /// </summary>
         internal GitFilter ManagedFilter
         {
@@ -93,7 +94,8 @@ namespace LibGit2Sharp
         ///
         /// If non-NULL, the filter's `initialize` callback will be invoked right
         /// before the first use of the filter, so you can defer expensive
-        /// initialization operations (in case libgit2 is being used in a way that doesn't need the filter).
+        /// initialization operations (in case the library is being used in a way
+        /// that doesn't need the filter.
         /// </summary>
         protected virtual int Initialize()
         {
@@ -110,8 +112,8 @@ namespace LibGit2Sharp
         protected virtual int Check(IEnumerable<string> filterForAttributes, FilterSource filterSource)
         {
             var fileInfo = new FileInfo(filterSource.Path);
-            var matches = filterForAttributes.Any(currentExtension => fileInfo.Extension == currentExtension);
-            return matches ? 0 : -30;
+            var matches = filterForAttributes.Any(currentExtension => string.Equals(fileInfo.Extension, currentExtension, StringComparison.Ordinal));
+            return matches ? 0 : (int)GitErrorCode.PassThrough;
         }
 
         /// <summary>
@@ -221,10 +223,9 @@ namespace LibGit2Sharp
         /// <returns></returns>
         int CheckCallback(GitFilter gitFilter, IntPtr payload, IntPtr filterSourcePtr, IntPtr attributeValues)
         {
-            //string filterForAttributes = GitFilter.GetAttributesFromPointer(attributeValues);
-            string attributes1 = GitFilter.GetAttributesFromPointer(gitFilter.attributes);
+            string filterForAttributes = EncodingMarshaler.FromNative(Encoding.UTF8, gitFilter.attributes);
             var filterSource = FilterSource.FromNativePtr(filterSourcePtr);
-            return Check(attributes1.Split(','), filterSource);
+            return Check(filterForAttributes.Split(','), filterSource);
         }
 
 

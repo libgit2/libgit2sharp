@@ -166,9 +166,6 @@ namespace LibGit2Sharp.Core
         internal static extern IntPtr git_blob_rawcontent(GitObjectSafeHandle blob);
 
         [DllImport(libgit2)]
-        internal static extern IntPtr git_blob_rawcontent(IntPtr blob);
-
-        [DllImport(libgit2)]
         internal static extern Int64 git_blob_rawsize(GitObjectSafeHandle blob);
 
         [DllImport(libgit2)]

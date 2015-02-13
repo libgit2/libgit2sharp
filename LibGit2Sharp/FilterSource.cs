@@ -17,7 +17,6 @@ namespace LibGit2Sharp
         {
             SourceMode = mode;
             ObjectId = new ObjectId(source.oid);
-            RepositoryHandle = source.repository;
             Path = path.Native;
         }
 
@@ -43,11 +42,6 @@ namespace LibGit2Sharp
         /// The relative path to the file
         /// </summary>
         public virtual string Path { get; private set; }
-
-        /// <summary>
-        /// A pointer to the repository
-        /// </summary>
-        public virtual IntPtr RepositoryHandle { get; private set; }
 
         /// <summary>
         /// The blob id

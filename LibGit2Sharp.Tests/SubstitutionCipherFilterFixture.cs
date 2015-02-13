@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
@@ -13,7 +14,8 @@ namespace LibGit2Sharp.Tests
             const string decodedInput = "This is a substitution cipher";
             const string encodedInput = "Guvf vf n fhofgvghgvba pvcure";
 
-            var filter = new SubstitutionCipherFilter("ROT13", ".rot13");
+            var attributes = new List<string> { ".rot13" };
+            var filter = new SubstitutionCipherFilter("ROT13", attributes);
             GlobalSettings.RegisterFilter(filter);
 
             string repoPath = InitNewRepository();
@@ -42,7 +44,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(decodedInput, fileContents);
             }
 
-            GlobalSettings.DeregisterFilter(filter);
+            GlobalSettings.DeregisterFilter(filter.Name);
         }
 
         [Fact]
@@ -50,7 +52,8 @@ namespace LibGit2Sharp.Tests
         {
             const string decodedInput = "This is a substitution cipher";
 
-            var filter = new SubstitutionCipherFilter("ROT13", ".rot13");
+            var attributes = new List<string> { ".rot13" };
+            var filter = new SubstitutionCipherFilter("ROT13", attributes);
             GlobalSettings.RegisterFilter(filter);
 
             string repoPath = InitNewRepository();
@@ -67,7 +70,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(1, filter.CheckCalledCount);
             }
 
-            GlobalSettings.DeregisterFilter(filter);
+            GlobalSettings.DeregisterFilter(filter.Name);
         }
 
         private static string ReadTextFromFile(Repository repo, string fileName)

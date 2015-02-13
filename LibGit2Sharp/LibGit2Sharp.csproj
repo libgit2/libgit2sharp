@@ -84,6 +84,7 @@
     <Compile Include="FetchOptionsBase.cs" />
     <Compile Include="FilterMode.cs" />
     <Compile Include="FilterSource.cs" />
+    <Compile Include="GitBufReader.cs" />
     <Compile Include="IBelongToARepository.cs" />
     <Compile Include="Filter.cs" />
     <Compile Include="IndexNameEntryCollection.cs" />

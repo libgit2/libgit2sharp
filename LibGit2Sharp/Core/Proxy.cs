@@ -861,11 +861,8 @@ namespace LibGit2Sharp.Core
 
         public static FilterMode git_filter_source_mode(IntPtr filterSource)
         {
-            using (ThreadAffinity())
-            {
-                var res = NativeMethods.git_filter_source_mode(filterSource);
-                return (FilterMode)res;
-            }
+            var res = NativeMethods.git_filter_source_mode(filterSource);
+            return (FilterMode)res;
         }
 
         public static void git_filter_free(IntPtr gitFilter)

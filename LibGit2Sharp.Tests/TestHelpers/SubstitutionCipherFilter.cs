@@ -10,7 +10,7 @@ namespace LibGit2Sharp.Tests.TestHelpers
         public int CleanCalledCount = 0;
         public int SmudgeCalledCount = 0;
 
-        public SubstitutionCipherFilter(string name, string attributes)
+        public SubstitutionCipherFilter(string name, IEnumerable<string> attributes)
             : base(name, attributes)
         {
         }
