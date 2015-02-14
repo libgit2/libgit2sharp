@@ -96,7 +96,7 @@
     <Compile Include="ResetIndexFixture.cs" />
     <Compile Include="SmartSubtransportFixture.cs" />
     <Compile Include="StatusFixture.cs" />
-    <Compile Include="SubstitutionCipherFilterFixture.cs" />
+    <Compile Include="FilterSubstitutionCipherFixture.cs" />
     <Compile Include="TestHelpers\BaseFixture.cs" />
     <Compile Include="BlobFixture.cs" />
     <Compile Include="BranchFixture.cs" />

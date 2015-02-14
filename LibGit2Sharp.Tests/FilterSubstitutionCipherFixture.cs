@@ -6,7 +6,7 @@ using Xunit;
 
 namespace LibGit2Sharp.Tests
 {
-    public class SubstitutionCipherFilterFixture : BaseFixture
+    public class FilterSubstitutionCipherFixture : BaseFixture
     {
         [Fact]
         public void CorrectlyEncodesAndDecodesInput()
