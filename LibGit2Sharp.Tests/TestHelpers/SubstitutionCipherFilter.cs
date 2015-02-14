@@ -35,23 +35,22 @@ namespace LibGit2Sharp.Tests.TestHelpers
 
         public static int RotateByThirteenPlaces(Stream input, Stream output)
         {
-
             using (var streamReader = new StreamReader(input, Encoding.UTF8))
+            using (var streamWriter = new StreamWriter(output, Encoding.UTF8))
             {
-                var inputString = streamReader.ReadToEnd();
-                char[] array = inputString.ToCharArray();
-                for (int i = 0; i < inputString.Length; i++)
+                while (!streamReader.EndOfStream)
                 {
-                    var value = inputString[i];
+                    var value = streamReader.Read();
                     if ((value >= 'a' && value <= 'm') || (value >= 'A' && value <= 'M'))
-                        array[i] = (char)(value + 13);
+                    {
+                        value += 13;
+                    }
                     else if ((value >= 'n' && value <= 'z') || (value >= 'N' && value <= 'Z'))
-                        array[i] = (char)(value - 13);
-                }
+                    {
+                        value -= 13;
+                    }
 
-                using (var streamWriter = new StreamWriter(output, Encoding.UTF8))
-                {
-                    streamWriter.Write(array);
+                    streamWriter.Write((char)value);
                 }
 
                 return 0;
