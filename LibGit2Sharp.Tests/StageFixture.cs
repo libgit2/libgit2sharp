@@ -195,7 +195,7 @@ namespace LibGit2Sharp.Tests
             {
                 repo.Stage(path);
                 Assert.Equal(FileStatus.Added, repo.RetrieveStatus(path));
-                repo.Reset();
+                repo.Index.Replace(repo.Head.Tip);
                 Assert.Equal(FileStatus.Untracked, repo.RetrieveStatus(path));
             }
             catch (ArgumentException)

@@ -819,17 +819,10 @@ namespace LibGit2Sharp
         /// If set, the passed <paramref name="paths"/> will be treated as explicit paths.
         /// Use these options to determine how unmatched explicit paths should be handled.
         /// </param>
+        [Obsolete("This method will be removed in the next release. Please use Index.Replace() instead.")]
         public void Reset(Commit commit, IEnumerable<string> paths, ExplicitPathsOptions explicitPathsOptions)
         {
-            if (Info.IsBare)
-            {
-                throw new BareRepositoryException("Reset is not allowed in a bare repository");
-            }
-
-            Ensure.ArgumentNotNull(commit, "commit");
-
-            var changes = Diff.Compare<TreeChanges>(commit.Tree, DiffTargets.Index, paths, explicitPathsOptions, new CompareOptions { Similarity = SimilarityOptions.None });
-            Index.Replace(changes);
+            Index.Replace(commit, paths, explicitPathsOptions);
         }
 
         /// <summary>
@@ -1573,7 +1566,7 @@ namespace LibGit2Sharp
             }
             else
             {
-                this.Reset("HEAD", paths, explicitPathsOptions);
+                Index.Replace(Head.Tip, paths, explicitPathsOptions);
             }
         }
 

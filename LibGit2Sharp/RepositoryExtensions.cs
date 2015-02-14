@@ -183,6 +183,7 @@ namespace LibGit2Sharp
         /// If set, the passed <paramref name="paths"/> will be treated as explicit paths.
         /// Use these options to determine how unmatched explicit paths should be handled.
         /// </param>
+        [Obsolete("This method will be removed in the next release. Please use Index.Replace() instead.")]
         public static void Reset(this IRepository repository, string committish = "HEAD", IEnumerable<string> paths = null, ExplicitPathsOptions explicitPathsOptions = null)
         {
             if (repository.Info.IsBare)
@@ -194,7 +195,7 @@ namespace LibGit2Sharp
 
             Commit commit = LookUpCommit(repository, committish);
 
-            repository.Reset(commit, paths, explicitPathsOptions);
+            repository.Index.Replace(commit, paths, explicitPathsOptions);
         }
 
         private static Commit LookUpCommit(IRepository repository, string committish)
@@ -541,9 +542,10 @@ namespace LibGit2Sharp
         /// <param name="repository">The <see cref="IRepository"/> being worked with.</param>
         /// <param name="commit">The target commit object.</param>
         /// <param name="paths">The list of paths (either files or directories) that should be considered.</param>
+        [Obsolete("This method will be removed in the next release. Please use Index.Replace() instead.")]
         public static void Reset(this IRepository repository, Commit commit, IEnumerable<string> paths)
         {
-            repository.Reset(commit, paths, null);
+            repository.Index.Replace(commit, paths, null);
         }
 
         /// <summary>
@@ -551,9 +553,10 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="repository">The <see cref="IRepository"/> being worked with.</param>
         /// <param name="commit">The target commit object.</param>
+        [Obsolete("This method will be removed in the next release. Please use Index.Replace() instead.")]
         public static void Reset(this IRepository repository, Commit commit)
         {
-            repository.Reset(commit, null, null);
+            repository.Index.Replace(commit, null, null);
         }
 
         /// <summary>
