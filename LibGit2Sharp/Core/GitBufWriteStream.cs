@@ -13,7 +13,7 @@ namespace LibGit2Sharp.Core
             this.gitBufPointer = gitBufPointer;
 
             //Preallocate the buffer
-            Proxy.git_buf_grow(gitBufPointer, 1024);
+            Proxy.git_buf_grow(gitBufPointer, 4096);
         }
 
         public override void Flush()
