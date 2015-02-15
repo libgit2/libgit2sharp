@@ -29,8 +29,6 @@ namespace LibGit2Sharp.Tests
         [InlineData("true", "hey there\r\n")]
         public void CanGetBlobAsFilteredText(string autocrlf, string expectedText)
         {
-            SkipIfNotSupported(autocrlf);
-
             var path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
@@ -131,8 +129,6 @@ namespace LibGit2Sharp.Tests
         [InlineData("true", "hey there\r\n")]
         public void CanReadBlobFilteredStream(string autocrlf, string expectedContent)
         {
-            SkipIfNotSupported(autocrlf);
-
             var path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
@@ -218,11 +214,6 @@ namespace LibGit2Sharp.Tests
                 var blob = repo.Lookup<Blob>("a8233120f6ad708f843d861ce2b7228ec4e3dec6");
                 Assert.Equal(false, blob.IsBinary);
             }
-        }
-
-        private static void SkipIfNotSupported(string autocrlf)
-        {
-            InconclusiveIf(() => autocrlf == "true" && IsRunningOnLinux(), "Non-Windows does not support core.autocrlf = true");
         }
     }
 }
