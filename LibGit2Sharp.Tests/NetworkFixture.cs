@@ -247,7 +247,7 @@ namespace LibGit2Sharp.Tests
 
                 MergeOptions mergeOptions = new MergeOptions()
                 {
-                    FastForwardStrategy = FastForwardStrategy.NoFastFoward
+                    FastForwardStrategy = FastForwardStrategy.NoFastForward
                 };
 
                 MergeResult mergeResult = repo.MergeFetchedRefs(Constants.Signature, mergeOptions);
