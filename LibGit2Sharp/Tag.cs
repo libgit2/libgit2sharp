@@ -41,6 +41,27 @@
         }
 
         /// <summary>
+        /// Gets the peeled <see cref="GitObject"/> that this tag points to.
+        /// </summary>
+        public virtual GitObject PeeledTarget
+        {
+            get
+            {
+                GitObject target = TargetObject;
+
+                var annotation = target as TagAnnotation;
+
+                while (annotation != null)
+                {
+                    target = annotation.Target;
+                    annotation = target as TagAnnotation;
+                }
+
+                return target;
+            }
+        }
+
+        /// <summary>
         /// Indicates whether the tag holds any metadata.
         /// </summary>
         public virtual bool IsAnnotated
