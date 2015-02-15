@@ -217,7 +217,10 @@ namespace LibGit2Sharp.Tests
 
                 Assert.NotNull(matches);
                 Assert.Equal(new[] { "unittests.intsetting", "unittests.longsetting" },
-                             matches.Select(m => m.Key).ToArray());
+                             matches
+                             .Select(m => m.Key)
+                             .OrderBy(s => s)
+                             .ToArray());
             }
         }
 
