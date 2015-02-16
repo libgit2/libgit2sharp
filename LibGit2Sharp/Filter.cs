@@ -20,7 +20,6 @@ namespace LibGit2Sharp
 
         private readonly GitFilter managedFilter;
 
-
         /// <summary>
         /// Initializes a new instance of the <see cref="Filter"/> class.
         /// And allocates the filter natively.
