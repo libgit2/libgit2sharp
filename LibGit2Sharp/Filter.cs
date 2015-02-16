@@ -100,7 +100,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="filterForAttributes">The filterForAttributes that this filter was created for.</param>
         /// <param name="filterSource">The source of the filter</param>
-        /// <returns>0 if successful and -30 to skip and pass through</returns>
+        /// <returns>0 if successful and <see cref="GitErrorCode.PassThrough"/> to skip and pass through</returns>
         protected virtual int Check(IEnumerable<string> filterForAttributes, FilterSource filterSource)
         {
             var fileInfo = new FileInfo(filterSource.Path);
@@ -114,7 +114,7 @@ namespace LibGit2Sharp
         /// <param name="path">The path of the file being filtered</param>
         /// <param name="input">The git buf input reader</param>
         /// <param name="output">The git buf output writer</param>
-        /// <returns>0 if successful and -30 to skip and pass through</returns>
+        /// <returns>0 if successful and <see cref="GitErrorCode.PassThrough"/> to skip and pass through</returns>
         protected virtual int Clean(string path, Stream input, Stream output)
         {
             return (int)GitErrorCode.PassThrough;
@@ -126,7 +126,7 @@ namespace LibGit2Sharp
         /// <param name="path">The path of the file being filtered</param>
         /// <param name="input">The git buf input reader</param>
         /// <param name="output">The git buf output writer</param>
-        /// <returns>0 if successful and -30 to skip and pass through</returns>
+        /// <returns>0 if successful and <see cref="GitErrorCode.PassThrough"/> to skip and pass through</returns>
         protected virtual int Smudge(string path, Stream input, Stream output)
         {
             return (int)GitErrorCode.PassThrough;
