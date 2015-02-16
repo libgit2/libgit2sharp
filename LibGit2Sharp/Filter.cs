@@ -8,7 +8,8 @@ using LibGit2Sharp.Core;
 namespace LibGit2Sharp
 {
     /// <summary>
-    /// A filter
+    /// A filter is a way to execute code against a file as it moves to and from the git
+    /// repository and into the working directory. 
     /// </summary>
     public abstract class Filter : IEquatable<Filter>
     {
