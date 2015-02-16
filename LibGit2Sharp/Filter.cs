@@ -19,7 +19,7 @@ namespace LibGit2Sharp
         private readonly string name;
         private readonly string attributes;
 
-        private readonly GitFilter managedFilter;
+        private readonly GitFilter gitFilter;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Filter"/> class.
@@ -45,7 +45,7 @@ namespace LibGit2Sharp
             this.name = name;
             this.attributes = attributes;
 
-            managedFilter = new GitFilter
+            gitFilter = new GitFilter
             {
                 attributes = EncodingMarshaler.FromManaged(Encoding.UTF8, attributes),
                 init = InitializeCallback,
@@ -73,9 +73,9 @@ namespace LibGit2Sharp
         /// <summary>
         /// The marshalled filter
         /// </summary>
-        internal GitFilter ManagedFilter
+        internal GitFilter GitFilter
         {
-            get { return managedFilter; }
+            get { return gitFilter; }
         }
 
         /// <summary>
@@ -193,7 +193,7 @@ namespace LibGit2Sharp
         /// before the first use of the filter, so you can defer expensive
         /// initialization operations (in case libgit2 is being used in a way that doesn't need the filter).
         /// </summary>
-        int InitializeCallback(IntPtr gitFilter)
+        int InitializeCallback(IntPtr filterPointer)
         {
             return Initialize();
         }
@@ -213,9 +213,9 @@ namespace LibGit2Sharp
         /// callback to free the payload.
         /// </summary>
         /// <returns></returns>
-        int CheckCallback(GitFilter gitFilter, IntPtr payload, IntPtr filterSourcePtr, IntPtr attributeValues)
+        int CheckCallback(GitFilter filter, IntPtr payload, IntPtr filterSourcePtr, IntPtr attributeValues)
         {
-            string filterForAttributes = EncodingMarshaler.FromNative(Encoding.UTF8, gitFilter.attributes);
+            string filterForAttributes = EncodingMarshaler.FromNative(Encoding.UTF8, filter.attributes);
             var filterSource = FilterSource.FromNativePtr(filterSourcePtr);
             return Check(filterForAttributes.Split(','), filterSource);
         }
@@ -231,7 +231,7 @@ namespace LibGit2Sharp
         ///
         /// The `payload` value will refer to any payload that was set by the `check` callback.  It may be read from or written to as needed.
         /// </summary>
-        int ApplyCallback(GitFilter gitFilter, IntPtr payload,
+        int ApplyCallback(GitFilter filter, IntPtr payload,
             IntPtr gitBufferToPtr, IntPtr gitBufferFromPtr, IntPtr filterSourcePtr)
         {
             var filterSource = FilterSource.FromNativePtr(filterSourcePtr);
