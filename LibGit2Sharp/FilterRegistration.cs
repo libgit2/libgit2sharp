@@ -14,8 +14,8 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(filter, "filter");
             Name = filter.Name;
 
-            FilterPointer = Marshal.AllocHGlobal(Marshal.SizeOf(filter.ManagedFilter));
-            Marshal.StructureToPtr(filter.ManagedFilter, FilterPointer, false);
+            FilterPointer = Marshal.AllocHGlobal(Marshal.SizeOf(filter.GitFilter));
+            Marshal.StructureToPtr(filter.GitFilter, FilterPointer, false);
         }
 
         /// <summary>
