@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
 using LibGit2Sharp.Core;
 
@@ -49,8 +48,7 @@ namespace LibGit2Sharp
             {
                 attributes = EncodingMarshaler.FromManaged(Encoding.UTF8, attributes),
                 init = InitializeCallback,
-                apply = ApplyCallback,
-                check = CheckCallback
+                apply = ApplyCallback
             };
         }
 
@@ -92,20 +90,6 @@ namespace LibGit2Sharp
         protected virtual int Initialize()
         {
             return 0;
-        }
-
-        /// <summary>
-        /// Decides if a given source needs to be filtered by checking if the filter
-        /// matches the current file extension.
-        /// </summary>
-        /// <param name="filterForAttributes">The filterForAttributes that this filter was created for.</param>
-        /// <param name="filterSource">The source of the filter</param>
-        /// <returns>0 if successful and <see cref="GitErrorCode.PassThrough"/> to skip and pass through</returns>
-        protected virtual int Check(IEnumerable<string> filterForAttributes, FilterSource filterSource)
-        {
-            var fileInfo = new FileInfo(filterSource.Path);
-            var matches = filterForAttributes.Any(currentExtension => string.Equals(fileInfo.Extension, currentExtension, StringComparison.Ordinal));
-            return matches ? 0 : (int)GitErrorCode.PassThrough;
         }
 
         /// <summary>
@@ -197,29 +181,6 @@ namespace LibGit2Sharp
         {
             return Initialize();
         }
-
-        /// <summary>
-        /// Callback to decide if a given source needs this filter
-        /// Specified as `filter.check`, this is an optional callback that checks if filtering is needed for a given source.
-        ///
-        /// It should return 0 if the filter should be applied (i.e. success), GIT_PASSTHROUGH if the filter should
-        /// not be applied, or an error code to fail out of the filter processing pipeline and return to the caller.
-        ///
-        /// The `attr_values` will be set to the values of any filterForAttributes given in the filter definition.  See `git_filter` below for more detail.
-        ///
-        /// The `payload` will be a pointer to a reference payload for the filter. This will start as NULL, but `check` can assign to this
-        /// pointer for later use by the `apply` callback.  Note that the value should be heap allocated (not stack), so that it doesn't go
-        /// away before the `apply` callback can use it.  If a filter allocates and assigns a value to the `payload`, it will need a `cleanup`
-        /// callback to free the payload.
-        /// </summary>
-        /// <returns></returns>
-        int CheckCallback(GitFilter filter, IntPtr payload, IntPtr filterSourcePtr, IntPtr attributeValues)
-        {
-            string filterForAttributes = EncodingMarshaler.FromNative(Encoding.UTF8, filter.attributes);
-            var filterSource = FilterSource.FromNativePtr(filterSourcePtr);
-            return Check(filterForAttributes.Split(','), filterSource);
-        }
-
 
         /// <summary>
         /// Callback to actually perform the data filtering

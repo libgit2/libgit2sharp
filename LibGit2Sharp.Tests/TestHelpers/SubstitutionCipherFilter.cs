@@ -5,19 +5,12 @@ namespace LibGit2Sharp.Tests.TestHelpers
 {
     public class SubstitutionCipherFilter : Filter
     {
-        public int CheckCalledCount = 0;
         public int CleanCalledCount = 0;
         public int SmudgeCalledCount = 0;
 
         public SubstitutionCipherFilter(string name, IEnumerable<string> attributes)
             : base(name, attributes)
         {
-        }
-
-        protected override int Check(IEnumerable<string> attributes, FilterSource filterSource)
-        {
-            CheckCalledCount++;
-            return base.Check(attributes, filterSource);
         }
 
         protected override int Clean(string path, Stream input, Stream output)
