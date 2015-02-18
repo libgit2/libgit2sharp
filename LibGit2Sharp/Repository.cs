@@ -541,6 +541,12 @@ namespace LibGit2Sharp
         /// <summary>
         /// Clone with specified options.
         /// </summary>
+        /// <remarks>
+        /// Exceptions that occur as part of recursing through submodules are not thrown up through
+        /// the calling function. If an exception is raised when recursing through submodules, and
+        /// this exception is not bubbled through the calling function, then it is reported through
+        /// this callback.
+        /// </remarks>
         /// <param name="sourceUrl">URI for the remote repository</param>
         /// <param name="workdirPath">Local path to clone into</param>
         /// <param name="options"><see cref="CloneOptions"/> controlling clone behavior</param>
@@ -556,7 +562,7 @@ namespace LibGit2Sharp
 
             // context variable that contains information on the repository that
             // we are cloning.
-            var context = new RepositoryOperationContext(Path.GetFullPath(workdirPath));
+            var context = new RepositoryOperationContext(Path.GetFullPath(workdirPath), sourceUrl);
 
             // Notify caller that we are starting to work with the current repository.
             bool continueOperation = OnRepositoryOperationStarting(options.RepositoryOperationStarting,
@@ -640,7 +646,13 @@ namespace LibGit2Sharp
                         {
                             string fullSubmodulePath = Path.Combine(parentRepoWorkDir, sm.Path);
 
+
+                            // Resolve the URL in the .gitmodule file to the one actually used
+                            // to clone
+                            string resolvedUrl = Proxy.git_submodule_resolve_url(repo.Handle, sm.Url);
+
                             var context = new RepositoryOperationContext(fullSubmodulePath,
+                                                                         resolvedUrl,
                                                                          parentRepoWorkDir,
                                                                          sm.Name,
                                                                          recursionDepth);

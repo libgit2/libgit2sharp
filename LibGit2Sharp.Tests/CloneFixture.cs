@@ -256,6 +256,11 @@ namespace LibGit2Sharp.Tests
             public bool CheckoutProgressCalled { get; set; }
 
             /// <summary>
+            /// The reported remote URL.
+            /// </summary>
+            public string RemoteUrl { get; set; }
+
+            /// <summary>
             /// Was remote ref update called.
             /// </summary>
             public bool RemoteRefUpdateCalled { get; set; }
@@ -272,6 +277,9 @@ namespace LibGit2Sharp.Tests
             /// </summary>
             public bool FinishedWorkInRepositoryCalled { get; set; }
 
+            /// <summary>
+            /// The reported recursion depth.
+            /// </summary>
             public int RecursionDepth { get; set; }
         }
 
@@ -281,6 +289,10 @@ namespace LibGit2Sharp.Tests
             var uri = new Uri(Path.GetFullPath(SandboxSubmoduleSmallTestRepo()));
             var scd = BuildSelfCleaningDirectory();
             string relativeSubmodulePath = "submodule_target_wd";
+
+            // Construct the expected URL the submodule will clone from.
+            string expectedSubmoduleUrl = Path.Combine(Path.GetDirectoryName(uri.AbsolutePath), relativeSubmodulePath);
+            expectedSubmoduleUrl = expectedSubmoduleUrl.Replace('\\', '/');
 
             Dictionary<string, CloneCallbackInfo> callbacks = new Dictionary<string, CloneCallbackInfo>();
 
@@ -329,6 +341,7 @@ namespace LibGit2Sharp.Tests
                     currentEntry = new CloneCallbackInfo();
                     currentEntry.StartingWorkInRepositoryCalled = true;
                     currentEntry.RecursionDepth = x.RecursionDepth;
+                    currentEntry.RemoteUrl = x.RemoteUrl;
                     callbacks.Add(x.RepositoryPath, currentEntry);
 
                     return true;
@@ -374,6 +387,7 @@ namespace LibGit2Sharp.Tests
             expectedCallbackInfo.Add(workDirPath, new CloneCallbackInfo()
                 {
                     RecursionDepth = 0,
+                    RemoteUrl = uri.AbsolutePath,
                     StartingWorkInRepositoryCalled = true,
                     FinishedWorkInRepositoryCalled = true,
                     CheckoutProgressCalled = true,
@@ -383,6 +397,7 @@ namespace LibGit2Sharp.Tests
             expectedCallbackInfo.Add(Path.Combine(workDirPath, relativeSubmodulePath), new CloneCallbackInfo()
             {
                 RecursionDepth = 1,
+                RemoteUrl = expectedSubmoduleUrl,
                 StartingWorkInRepositoryCalled = true,
                 FinishedWorkInRepositoryCalled = true,
                 CheckoutProgressCalled = true,
@@ -395,6 +410,7 @@ namespace LibGit2Sharp.Tests
                 CloneCallbackInfo entry = null;
                 Assert.True(callbacks.TryGetValue(kvp.Key, out entry), string.Format("{0} was not found in callbacks.", kvp.Key));
 
+                Assert.Equal(kvp.Value.RemoteUrl, entry.RemoteUrl);
                 Assert.Equal(kvp.Value.RecursionDepth, entry.RecursionDepth);
                 Assert.Equal(kvp.Value.StartingWorkInRepositoryCalled, entry.StartingWorkInRepositoryCalled);
                 Assert.Equal(kvp.Value.FinishedWorkInRepositoryCalled, entry.FinishedWorkInRepositoryCalled);

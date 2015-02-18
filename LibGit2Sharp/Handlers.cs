@@ -42,7 +42,7 @@ namespace LibGit2Sharp.Handlers
     /// Delegate definition to indicate that a repository is about to be operated on.
     /// (In the context of a recursive operation).
     /// </summary>
-    /// <param name="context"></param>
+    /// <param name="context">Context on the repository that is being operated on.</param>
     /// <returns>true to continue, false to cancel.</returns>
     public delegate bool RepositoryOperationStarting(RepositoryOperationContext context);
 
@@ -51,12 +51,14 @@ namespace LibGit2Sharp.Handlers
     /// (In the context of a recursive operation).
     /// </summary>
     /// <remarks>
-    /// If an exception is raised when recursing through submodules, and this exception
-    /// is not bubled through the calling function, then it is reported through this
-    /// callback.
+    /// Exceptions that occur as part of recursing through submodules are not thrown up through
+    /// the calling function. If an exception is raised when recursing through submodules, and
+    /// this exception is not bubbled through the calling function, then it is reported through
+    /// this callback.
     /// </remarks>
-    /// <param name="context"></param>
-    /// <param name="recursiveException"></param>
+    /// <param name="context">Context on the repository that is being operated on.</param>
+    /// <param name="recursiveException">The exception that occured as part of working on
+    /// this repository, if it is not bubbled up through the calling function.</param>
     public delegate void RepositoryOperationCompleted(RepositoryOperationContext context, Exception recursiveException);
 
     /// <summary>
