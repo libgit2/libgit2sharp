@@ -3,19 +3,20 @@ using System.Collections.Generic;
 using System.IO;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
+using Xunit.Extensions;
 
 namespace LibGit2Sharp.Tests
 {
     public class FilterSubstitutionCipherFixture : BaseFixture
     {
         [Fact]
-        public void CorrectlyEncodesAndDecodesInput()
+        public void SmugdeIsNotCalledForFileWhichDoesNotMatchAnAttributeEntry()
         {
             const string decodedInput = "This is a substitution cipher";
             const string encodedInput = "Guvf vf n fhofgvghgvba pvcure";
 
-            var attributes = new List<string> { ".rot13" };
-            var filter = new SubstitutionCipherFilter("ROT13", attributes);
+            var attributes = new List<string> { "filter=rot13" };
+            var filter = new SubstitutionCipherFilter("cipher-filter", attributes);
             var filterRegistration = GlobalSettings.RegisterFilter(filter);
 
             string repoPath = InitNewRepository();
@@ -23,8 +24,9 @@ namespace LibGit2Sharp.Tests
             string configPath = CreateConfigurationWithDummyUser(Constants.Signature);
             var repositoryOptions = new RepositoryOptions { GlobalConfigurationLocation = configPath };
             using (var repo = new Repository(repoPath, repositoryOptions))
-
             {
+                CreateAttributesFile(repo, "*.rot13 filter=rot13");
+
                 var blob = CommitOnBranchAndReturnDatabaseBlob(repo, fileName, decodedInput);
                 var textDetected = blob.GetContentText();
 
@@ -48,26 +50,72 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
-        public void WhenAttributesDoNotMatchFileIsNotFilterd()
+        public void CorrectlyEncodesAndDecodesInput()
         {
             const string decodedInput = "This is a substitution cipher";
+            const string encodedInput = "Guvf vf n fhofgvghgvba pvcure";
 
-            var attributes = new List<string> { ".rot13" };
-            var filter = new SubstitutionCipherFilter("ROT13", attributes);
+            var attributes = new List<string> { "filter=rot13" };
+            var filter = new SubstitutionCipherFilter("cipher-filter", attributes);
             var filterRegistration = GlobalSettings.RegisterFilter(filter);
 
             string repoPath = InitNewRepository();
-            string fileName = Guid.NewGuid() + ".rot131";
+            string fileName = Guid.NewGuid() + ".rot13";
+            string configPath = CreateConfigurationWithDummyUser(Constants.Signature);
+            var repositoryOptions = new RepositoryOptions { GlobalConfigurationLocation = configPath };
+            using (var repo = new Repository(repoPath, repositoryOptions))
+            {
+                CreateAttributesFile(repo, "*.rot13 filter=rot13");
+
+                var blob = CommitOnBranchAndReturnDatabaseBlob(repo, fileName, decodedInput);
+                var textDetected = blob.GetContentText();
+
+                Assert.Equal(encodedInput, textDetected);
+                Assert.Equal(1, filter.CleanCalledCount);
+                Assert.Equal(0, filter.SmudgeCalledCount);
+
+                var branch = repo.CreateBranch("delete-files");
+                repo.Checkout(branch.Name);
+
+                DeleteFile(repo, fileName);
+
+                repo.Checkout("master");
+
+                var fileContents = ReadTextFromFile(repo, fileName);
+                Assert.Equal(1, filter.SmudgeCalledCount);
+                Assert.Equal(decodedInput, fileContents);
+            }
+
+            GlobalSettings.DeregisterFilter(filterRegistration);
+        }
+
+        [Theory]
+        [InlineData("*.txt", ".bat", 0, 0)]
+        [InlineData("*.txt", ".txt", 1, 0)]
+        public void WhenStagedFileDoesNotMatchPathSpecFileIsNotFiltered(string pathSpec, string fileExtension, int cleanCount, int smudgeCount)
+        {
+            const string filterName = "filter=rot13";
+            const string decodedInput = "This is a substitution cipher";
+            string attributeFileEntry = string.Format("{0} {1}", pathSpec, filterName);
+
+            var filterForAttributes = new List<string> { filterName };
+            var filter = new SubstitutionCipherFilter("cipher-filter", filterForAttributes);
+
+            var filterRegistration = GlobalSettings.RegisterFilter(filter);
+
+            string repoPath = InitNewRepository();
+            string fileName = Guid.NewGuid() + fileExtension;
 
             string configPath = CreateConfigurationWithDummyUser(Constants.Signature);
             var repositoryOptions = new RepositoryOptions { GlobalConfigurationLocation = configPath };
             using (var repo = new Repository(repoPath, repositoryOptions))
             {
+                CreateAttributesFile(repo, attributeFileEntry);
+
                 CommitOnBranchAndReturnDatabaseBlob(repo, fileName, decodedInput);
 
-                Assert.Equal(0, filter.CleanCalledCount);
-                Assert.Equal(0, filter.SmudgeCalledCount);
-                Assert.Equal(1, filter.CheckCalledCount);
+                Assert.Equal(cleanCount, filter.CleanCalledCount);
+                Assert.Equal(smudgeCount, filter.SmudgeCalledCount);
             }
 
             GlobalSettings.DeregisterFilter(filterRegistration);
@@ -94,6 +142,11 @@ namespace LibGit2Sharp.Tests
 
             var blob = (Blob)commit.Tree[fileName].Target;
             return blob;
+        }
+
+        private static void CreateAttributesFile(IRepository repo, string attributeEntry)
+        {
+            Touch(repo.Info.WorkingDirectory, ".gitattributes", attributeEntry);
         }
     }
 }
