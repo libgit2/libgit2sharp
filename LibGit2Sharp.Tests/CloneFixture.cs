@@ -20,7 +20,7 @@ namespace LibGit2Sharp.Tests
         {
             var scd = BuildSelfCleaningDirectory();
 
-            string clonedRepoPath = Repository.Clone(url, scd.DirectoryPath);
+            string clonedRepoPath = Repository.Clone(url, scd.DirectoryPath).RepoPath;
 
             using (var repo = new Repository(clonedRepoPath))
             {
@@ -46,7 +46,7 @@ namespace LibGit2Sharp.Tests
         {
             var scd = BuildSelfCleaningDirectory();
 
-            string clonedRepoPath = Repository.Clone(BareTestRepoPath, scd.DirectoryPath, new CloneOptions { BranchName = branchName });
+            string clonedRepoPath = Repository.Clone(BareTestRepoPath, scd.DirectoryPath, new CloneOptions { BranchName = branchName }).RepoPath;
 
             using (var repo = new Repository(clonedRepoPath))
             {
@@ -62,7 +62,7 @@ namespace LibGit2Sharp.Tests
         {
             var scd = BuildSelfCleaningDirectory();
 
-            string clonedRepoPath = Repository.Clone(url, scd.DirectoryPath);
+            string clonedRepoPath = Repository.Clone(url, scd.DirectoryPath).RepoPath;
 
             using (var clonedRepo = new Repository(clonedRepoPath))
             using (var originalRepo = new Repository(path ?? url))
@@ -112,7 +112,7 @@ namespace LibGit2Sharp.Tests
             string clonedRepoPath = Repository.Clone(url, scd.DirectoryPath, new CloneOptions
                 {
                     IsBare = true
-                });
+                }).RepoPath;
 
             using (var repo = new Repository(clonedRepoPath))
             {
@@ -135,7 +135,7 @@ namespace LibGit2Sharp.Tests
             string clonedRepoPath = Repository.Clone(url, scd.DirectoryPath, new CloneOptions()
             {
                 Checkout = false
-            });
+            }).RepoPath;
 
             using (var repo = new Repository(clonedRepoPath))
             {
@@ -180,7 +180,7 @@ namespace LibGit2Sharp.Tests
                 new CloneOptions()
                 {
                     CredentialsProvider = Constants.PrivateRepoCredentials
-                });
+                }).RepoPath;
 
 
             using (var repo = new Repository(clonedRepoPath))
@@ -208,7 +208,7 @@ namespace LibGit2Sharp.Tests
                     Username = user,
                     Password = pass,
                 }
-            });
+            }).RepoPath;
 
             using (var repo = new Repository(clonedRepoPath))
             {
@@ -347,7 +347,7 @@ namespace LibGit2Sharp.Tests
                     return true;
                 };
 
-            RepositoryOperationCompleted repositoryOperationCompleted = (x, ex) =>
+            RepositoryOperationCompleted repositoryOperationCompleted = (x) =>
                 {
                     if (currentEntry != null)
                     {
@@ -371,7 +371,7 @@ namespace LibGit2Sharp.Tests
                 RepositoryOperationCompleted = repositoryOperationCompleted,
             };
 
-            string clonedRepoPath = Repository.Clone(uri.AbsolutePath, scd.DirectoryPath, options);
+            string clonedRepoPath = Repository.Clone(uri.AbsolutePath, scd.DirectoryPath, options).RepoPath;
             string workDirPath;
 
             using(Repository repo = new Repository(clonedRepoPath))
@@ -440,23 +440,16 @@ namespace LibGit2Sharp.Tests
             string relativeSubmodulePath = "submodule_target_wd";
 
             int cancelDepth = 0;
-            Exception recursiveException = null;
 
             RepositoryOperationStarting repositoryOperationStarting = (x) =>
             {
                 return !(x.RecursionDepth >= cancelDepth);
             };
 
-            RepositoryOperationCompleted repositoryOperationCompleted = (x, ex) =>
-            {
-                recursiveException = ex;
-            };
-
             CloneOptions options = new CloneOptions()
             {
                 RecurseSubmodules = true,
                 RepositoryOperationStarting = repositoryOperationStarting,
-                RepositoryOperationCompleted = repositoryOperationCompleted,
             };
 
             Assert.Throws<UserCancelledException>(() =>
@@ -465,17 +458,17 @@ namespace LibGit2Sharp.Tests
             // Cancel after super repository is cloned, but before submodule is cloned.
             cancelDepth = 1;
 
-            string clonedRepoPath = Repository.Clone(uri.AbsolutePath, scd.DirectoryPath, options);
+            CloneResult result = Repository.Clone(uri.AbsolutePath, scd.DirectoryPath, options);
 
             // Verify that the submodule was not initialized.
-            using(Repository repo = new Repository(clonedRepoPath))
+            using(Repository repo = new Repository(result.RepoPath))
             {
                 var submoduleStatus = repo.Submodules[relativeSubmodulePath].RetrieveStatus();
                 Assert.Equal(SubmoduleStatus.InConfig | SubmoduleStatus.InHead | SubmoduleStatus.InIndex | SubmoduleStatus.WorkDirUninitialized,
                              submoduleStatus);
 
-                Assert.NotNull(recursiveException);
-                Assert.Equal(typeof(UserCancelledException), recursiveException.GetType());
+                Assert.NotNull(result.RecursiveException);
+                Assert.Equal(typeof(UserCancelledException), result.RecursiveException.GetType());
             }
         }
     }

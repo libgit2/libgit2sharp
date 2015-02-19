@@ -82,7 +82,7 @@ namespace LibGit2Sharp.Tests
 
             var scd = BuildSelfCleaningDirectory();
 
-            string clonedRepoPath = Repository.Clone(url, scd.DirectoryPath);
+            string clonedRepoPath = Repository.Clone(url, scd.DirectoryPath).RepoPath;
 
             using (var repo = new Repository(clonedRepoPath))
             {
@@ -138,7 +138,7 @@ namespace LibGit2Sharp.Tests
             string url = "https://github.com/libgit2/TestGitRepository";
 
             var scd = BuildSelfCleaningDirectory();
-            string clonedRepoPath = Repository.Clone(url, scd.DirectoryPath);
+            string clonedRepoPath = Repository.Clone(url, scd.DirectoryPath).RepoPath;
 
             using (var repo = new Repository(clonedRepoPath))
             {
@@ -200,7 +200,7 @@ namespace LibGit2Sharp.Tests
         public void PullWithoutMergeBranchThrows()
         {
             var scd = BuildSelfCleaningDirectory();
-            string clonedRepoPath = Repository.Clone(StandardTestRepoPath, scd.DirectoryPath);
+            string clonedRepoPath = Repository.Clone(StandardTestRepoPath, scd.DirectoryPath).RepoPath;
 
             using (var repo = new Repository(clonedRepoPath))
             {
@@ -234,7 +234,7 @@ namespace LibGit2Sharp.Tests
             string url = "https://github.com/libgit2/TestGitRepository";
 
             var scd = BuildSelfCleaningDirectory();
-            string clonedRepoPath = Repository.Clone(url, scd.DirectoryPath);
+            string clonedRepoPath = Repository.Clone(url, scd.DirectoryPath).RepoPath;
 
             using (var repo = new Repository(clonedRepoPath))
             {

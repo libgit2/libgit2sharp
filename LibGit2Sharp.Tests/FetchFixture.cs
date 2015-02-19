@@ -183,7 +183,7 @@ namespace LibGit2Sharp.Tests
 
             const string url = "https://github.com/libgit2/TestGitRepository";
 
-            string clonedRepoPath = Repository.Clone(url, scd.DirectoryPath);
+            string clonedRepoPath = Repository.Clone(url, scd.DirectoryPath).RepoPath;
 
             using (var repo = new Repository(clonedRepoPath))
             {
@@ -199,7 +199,7 @@ namespace LibGit2Sharp.Tests
 
             var scd = BuildSelfCleaningDirectory();
 
-            string clonedRepoPath = Repository.Clone(url, scd.DirectoryPath);
+            string clonedRepoPath = Repository.Clone(url, scd.DirectoryPath).RepoPath;
 
             var options = BuildFakeConfigs(BuildSelfCleaningDirectory());
 

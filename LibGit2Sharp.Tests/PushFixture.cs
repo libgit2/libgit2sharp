@@ -19,7 +19,7 @@ namespace LibGit2Sharp.Tests
             var scd = BuildSelfCleaningDirectory();
 
             string originalRepoPath = SandboxBareTestRepo();
-            string clonedRepoPath = Repository.Clone(originalRepoPath, scd.DirectoryPath);
+            string clonedRepoPath = Repository.Clone(originalRepoPath, scd.DirectoryPath).RepoPath;
 
             using (var originalRepo = new Repository(originalRepoPath))
             using (var clonedRepo = new Repository(clonedRepoPath))
@@ -145,7 +145,7 @@ namespace LibGit2Sharp.Tests
         {
             // Perform a fresh clone of the upstream repository
             var scd = BuildSelfCleaningDirectory();
-            string clonedRepoPath = Repository.Clone(remoteRepoPath, scd.DirectoryPath);
+            string clonedRepoPath = Repository.Clone(remoteRepoPath, scd.DirectoryPath).RepoPath;
 
             using (var clonedRepo = new Repository(clonedRepoPath))
             {

@@ -64,6 +64,7 @@
     <Compile Include="CherryPickOptions.cs" />
     <Compile Include="CherryPickResult.cs" />
     <Compile Include="CloneOptions.cs" />
+    <Compile Include="CloneResult.cs" />
     <Compile Include="CommitFilter.cs" />
     <Compile Include="CommitOptions.cs" />
     <Compile Include="CommitSortStrategies.cs" />

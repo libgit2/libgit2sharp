@@ -1063,7 +1063,7 @@ namespace LibGit2Sharp.Tests
 
             SelfCleaningDirectory scd2 = BuildSelfCleaningDirectory();
 
-            string clonedRepoPath = Repository.Clone(uri.AbsoluteUri, scd2.DirectoryPath);
+            string clonedRepoPath = Repository.Clone(uri.AbsoluteUri, scd2.DirectoryPath).RepoPath;
 
             using (var repo = new Repository(clonedRepoPath))
             {
