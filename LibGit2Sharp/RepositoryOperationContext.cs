@@ -49,13 +49,17 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Full path to parent repository.
+        /// If this is a submodule repository, the full path to the parent
+        /// repository. If this is not a submodule repository, then
+        /// this is empty.
         /// </summary>
         public virtual string ParentRepositoryPath { get; private set; }
 
         /// <summary>
-        /// The recursion depth for the current repository. The initial
-        /// repository is at depth 0.
+        /// The recursion depth for the current repository being operated on
+        /// with respect to the repository the original operation was run
+        /// against. The initial repository has a recursion depth of 0,
+        /// the 1st level of subrepositories has a recursion depth of 1.
         /// </summary>
         public virtual int RecursionDepth { get; private set; }
 
@@ -70,7 +74,9 @@ namespace LibGit2Sharp
         public virtual string RepositoryPath { get; private set; }
 
         /// <summary>
-        /// If this is a submodule, the submodules name in the parent repository.
+        /// The submodule's logical name in the parent repository, if this is a
+        /// submodule repository. If this is not a submodule repository, then
+        /// this is empty.
         /// </summary>
         public virtual string SubmoduleName { get; private set; }
     }
