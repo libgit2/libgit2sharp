@@ -223,6 +223,24 @@ namespace LibGit2Sharp
         MergeResult Merge(string committish, Signature merger, MergeOptions options);
 
         /// <summary>
+        /// Perform a rebase.
+        /// </summary>
+        /// <param name="branch">The branch to rebase.</param>
+        /// <param name="upstream">The starting commit to rebase.</param>
+        /// <param name="onto">The branch to rebase onto.</param>
+        /// <param name="committer"></param>
+        /// <param name="options"></param>
+        /// <returns>true if completed successfully, false if conflicts encountered.</returns>
+        RebaseResult Rebase(Branch branch, Branch upstream, Branch onto, Signature committer, RebaseOptions options);
+
+        /// <summary>
+        /// Get the current rebase operation in progress (if any).
+        /// Currently only returns for rebase merge. If a rebase merge
+        /// operation is not progress, returns null.
+        /// </summary>
+        RebaseOperation CurrentRebaseOperation { get; }
+
+        /// <summary>
         /// Merge the reference that was recently fetched. This will merge
         /// the branch on the fetched remote that corresponded to the
         /// current local branch when we did the fetch. This is the

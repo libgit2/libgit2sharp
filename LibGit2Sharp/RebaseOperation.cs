@@ -53,6 +53,12 @@ namespace LibGit2Sharp
     {
         internal readonly Repository repository;
 
+        /// <summary>
+        /// Needed for mocking purposes.
+        /// </summary>
+        protected RebaseOperation()
+        { }
+
         internal RebaseOperation(Repository repo)
         {
             this.repository = repo;
@@ -61,7 +67,7 @@ namespace LibGit2Sharp
         /// <summary>
         /// Continue the current rebase.
         /// </summary>
-        public RebaseResult Continue(Signature committer, RebaseOptions options)
+        public virtual RebaseResult Continue(Signature committer, RebaseOptions options)
         {
             Ensure.ArgumentNotNull(committer, "committer");
 
@@ -104,7 +110,7 @@ namespace LibGit2Sharp
         /// <summary>
         /// Abort the rebase operation.
         /// </summary>
-        public void Abort()
+        public virtual void Abort()
         {
             RebaseSafeHandle rebase = null;
             try
@@ -122,7 +128,7 @@ namespace LibGit2Sharp
         /// <summary>
         /// Skip this rebase step.
         /// </summary>
-        public void Skip()
+        public virtual void Skip()
         {
             throw new NotImplementedException();
         }
@@ -130,7 +136,7 @@ namespace LibGit2Sharp
         /// <summary>
         /// The info on the current step.
         /// </summary>
-        public RebaseStepInfo CurrentStepInfo
+        public virtual RebaseStepInfo CurrentStepInfo
         {
             get
             {

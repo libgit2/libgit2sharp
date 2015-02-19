@@ -11,6 +11,12 @@ namespace LibGit2Sharp
     /// </summary>
     public class RebaseStepInfo
     {
+        /// <summary>
+        /// Needed for mocking purposes.
+        /// </summary>
+        protected RebaseStepInfo()
+        { }
+
         internal RebaseStepInfo(RebaseStepOperation type, ObjectId id, string exec, int stepIndex, int totalStepCount)
         {
             Type = type;
@@ -23,26 +29,26 @@ namespace LibGit2Sharp
         /// <summary>
         /// The rebase operation type.
         /// </summary>
-        public RebaseStepOperation Type { get; private set; }
+        public virtual RebaseStepOperation Type { get; private set; }
 
         /// <summary>
         /// The object ID the step is operating on.
         /// </summary>
-        public ObjectId ID { get; private set; }
+        public virtual ObjectId ID { get; private set; }
 
         /// <summary>
         /// Command to execute, if any.
         /// </summary>
-        public string Exec { get; private set; }
+        public virtual string Exec { get; private set; }
 
         /// <summary>
         /// The index of this step.
         /// </summary>
-        public int StepIndex { get; private set; }
+        public virtual int StepIndex { get; private set; }
 
         /// <summary>
         /// The total number of steps.
         /// </summary>
-        public int TotalStepCount { get; private set; }
+        public virtual int TotalStepCount { get; private set; }
     }
 }

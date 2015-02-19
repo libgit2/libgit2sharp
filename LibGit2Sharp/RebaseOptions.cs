@@ -10,7 +10,7 @@ namespace LibGit2Sharp
     /// <summary>
     /// Options controlling rebase behavior.
     /// </summary>
-    public class RebaseOptions : IConvertableToGitCheckoutOpts
+    public sealed class RebaseOptions : IConvertableToGitCheckoutOpts
     {
         /// <summary>
         /// Delegate that is called before each rebase step.

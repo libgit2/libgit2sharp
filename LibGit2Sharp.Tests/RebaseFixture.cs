@@ -222,6 +222,7 @@ namespace LibGit2Sharp.Tests
                 }
         }
 
+        [Fact]
         public void CurrentRebaseOperationIsNullWhenNotRebasing()
         {
             SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
