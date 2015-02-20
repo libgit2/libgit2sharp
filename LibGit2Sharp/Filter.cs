@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using LibGit2Sharp.Core;
 
@@ -16,7 +17,7 @@ namespace LibGit2Sharp
         new LambdaEqualityHelper<Filter>(x => x.Name, x => x.Attributes);
 
         private readonly string name;
-        private readonly string attributes;
+        private readonly IEnumerable<FilterAttribute> attributes;
 
         private readonly GitFilter gitFilter;
 
@@ -24,29 +25,20 @@ namespace LibGit2Sharp
         /// Initializes a new instance of the <see cref="Filter"/> class.
         /// And allocates the filter natively.
         /// <param name="name">The unique name with which this filtered is registered with</param>
-        /// <param name="attributes">A list of filterForAttributes which this filter applies to</param>
+        /// <param name="filterAttributes">A list of attributes which this filter applies to</param>
         /// </summary>
-        protected Filter(string name, IEnumerable<string> attributes)
-            : this(name, string.Join(",", attributes))
-        { }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Filter"/> class.
-        /// And allocates the filter natively.
-        /// <param name="name">The unique name with which this filtered is registered with</param>
-        /// <param name="attributes">Either a single attribute, or a comma separated list of filterForAttributes for which this filter applies to</param>
-        /// </summary>
-        private Filter(string name, string attributes)
+        protected Filter(string name, IEnumerable<FilterAttribute> attributes)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
-            Ensure.ArgumentNotNullOrEmptyEnumerable(attributes, "attributes");
+            Ensure.ArgumentNotNull(attributes, "attributes");
 
             this.name = name;
             this.attributes = attributes;
+            var attributesAsString = string.Join(",", this.attributes.Select(attr => attr.FilterDefinition));
 
             gitFilter = new GitFilter
             {
-                attributes = EncodingMarshaler.FromManaged(Encoding.UTF8, attributes),
+                attributes = EncodingMarshaler.FromManaged(Encoding.UTF8, attributesAsString),
                 init = InitializeCallback,
                 apply = ApplyCallback
             };
@@ -63,9 +55,9 @@ namespace LibGit2Sharp
         /// <summary>
         /// The filter filterForAttributes.
         /// </summary>
-        public IEnumerable<string> Attributes
+        public IEnumerable<FilterAttribute> Attributes
         {
-            get { return attributes.Split(','); }
+            get { return attributes; }
         }
 
         /// <summary>

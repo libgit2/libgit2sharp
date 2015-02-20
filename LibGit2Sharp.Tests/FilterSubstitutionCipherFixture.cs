@@ -15,7 +15,7 @@ namespace LibGit2Sharp.Tests
             const string decodedInput = "This is a substitution cipher";
             const string encodedInput = "Guvf vf n fhofgvghgvba pvcure";
 
-            var attributes = new List<string> { "filter=rot13" };
+            var attributes = new List<FilterAttribute> { new FilterAttribute("filter=rot13") };
             var filter = new SubstitutionCipherFilter("cipher-filter", attributes);
             var filterRegistration = GlobalSettings.RegisterFilter(filter);
 
@@ -55,7 +55,7 @@ namespace LibGit2Sharp.Tests
             const string decodedInput = "This is a substitution cipher";
             const string encodedInput = "Guvf vf n fhofgvghgvba pvcure";
 
-            var attributes = new List<string> { "filter=rot13" };
+            var attributes = new List<FilterAttribute> { new FilterAttribute("filter=rot13") };
             var filter = new SubstitutionCipherFilter("cipher-filter", attributes);
             var filterRegistration = GlobalSettings.RegisterFilter(filter);
 
@@ -98,7 +98,7 @@ namespace LibGit2Sharp.Tests
             const string decodedInput = "This is a substitution cipher";
             string attributeFileEntry = string.Format("{0} {1}", pathSpec, filterName);
 
-            var filterForAttributes = new List<string> { filterName };
+            var filterForAttributes = new List<FilterAttribute> { new FilterAttribute(filterName) };
             var filter = new SubstitutionCipherFilter("cipher-filter", filterForAttributes);
 
             var filterRegistration = GlobalSettings.RegisterFilter(filter);
@@ -125,13 +125,17 @@ namespace LibGit2Sharp.Tests
         [InlineData("filter=rot13", "*.txt filter=rot13", 1)]
         [InlineData("filter=rot13", "*.txt filter=fake", 0)]
         [InlineData("filter=rot13", "*.bat filter=rot13", 0)]
-        [InlineData("rot13", "*.bat filter=rot13", 1)]
-        [InlineData("rot13", "*.bat filter=fake", 0)]
+        [InlineData("rot13", "*.txt filter=rot13", 1)]
+        [InlineData("rot13", "*.txt filter=fake", 0)]
+        [InlineData("fake", "*.txt filter=fake", 1)]
+        [InlineData("filter=fake", "*.txt filter=fake", 1)]
+        [InlineData("filter=fake", "*.bat filter=fake", 0)]
+        [InlineData("filter=rot13", "*.txt filter=rot13 -crlf", 1)]
         public void CleanIsCalledIfAttributeEntryMatches(string filterAttribute, string attributeEntry, int cleanCount)
         {
             const string decodedInput = "This is a substitution cipher";
 
-            var filterForAttributes = new List<string> { filterAttribute };
+            var filterForAttributes = new List<FilterAttribute> { new FilterAttribute(filterAttribute) };
             var filter = new SubstitutionCipherFilter("cipher-filter", filterForAttributes);
 
             var filterRegistration = GlobalSettings.RegisterFilter(filter);
@@ -157,13 +161,14 @@ namespace LibGit2Sharp.Tests
         [InlineData("filter=rot13", "*.txt filter=rot13", 1)]
         [InlineData("filter=rot13", "*.txt filter=fake", 0)]
         [InlineData("filter=rot13", "*.bat filter=rot13", 0)]
-        [InlineData("rot13", "*.bat filter=rot13", 1)]
-        [InlineData("rot13", "*.bat filter=fake", 0)]
+        [InlineData("rot13", "*.txt filter=rot13", 1)]
+        [InlineData("rot13", "*.txt filter=fake", 0)]
+        [InlineData("filter=rot13", "*.txt filter=rot13 -crlf", 1)]
         public void SmudgeIsCalledIfAttributeEntryMatches(string filterAttribute, string attributeEntry, int smudgeCount)
         {
             const string decodedInput = "This is a substitution cipher";
 
-            var filterForAttributes = new List<string> { filterAttribute };
+            var filterForAttributes = new List<FilterAttribute> { new FilterAttribute(filterAttribute) };
             var filter = new SubstitutionCipherFilter("cipher-filter", filterForAttributes);
 
             var filterRegistration = GlobalSettings.RegisterFilter(filter);
@@ -190,6 +195,7 @@ namespace LibGit2Sharp.Tests
             }
 
             GlobalSettings.DeregisterFilter(filterRegistration);
+
         }
 
         private static string ReadTextFromFile(Repository repo, string fileName)

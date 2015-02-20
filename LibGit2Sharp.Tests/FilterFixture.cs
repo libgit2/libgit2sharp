@@ -13,7 +13,7 @@ namespace LibGit2Sharp.Tests
         readonly Func<Stream, Stream, int> successCallback = (reader, writer) => 0;
 
         private const string FilterName = "the-filter";
-        readonly List<string> attributes = new List<string>{"test"};
+        readonly List<FilterAttribute> attributes = new List<FilterAttribute> { new FilterAttribute("test") };
 
         [Fact]
         public void CanRegisterFilterWithSingleAttribute()
@@ -271,7 +271,7 @@ namespace LibGit2Sharp.Tests
 
         class EmptyFilter : Filter
         {
-            public EmptyFilter(string name, IEnumerable<string> attributes)
+            public EmptyFilter(string name, IEnumerable<FilterAttribute> attributes)
                 : base(name, attributes)
             { }
         }
@@ -282,7 +282,7 @@ namespace LibGit2Sharp.Tests
             private readonly Func<Stream, Stream, int> smudgeCallback;
             private readonly Func<int> initCallback;
 
-            public FakeFilter(string name, IEnumerable<string> attributes,
+            public FakeFilter(string name, IEnumerable<FilterAttribute> attributes,
                 Func<Stream, Stream, int> cleanCallback = null,
                 Func<Stream, Stream, int> smudgeCallback = null,
                 Func<int> initCallback = null)
