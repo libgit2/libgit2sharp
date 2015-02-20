@@ -9,30 +9,25 @@ namespace LibGit2Sharp
 {
     internal class RebaseOperationImpl
     {
-        private RebaseSafeHandle rebaseOperationHandle;
-        private Repository repository;
-        private Signature committer;
-        private RebaseOptions options;
 
-        public RebaseOperationImpl(RebaseSafeHandle rebaseOp, Repository repo, Signature committer, RebaseOptions options)
+        /// <summary>
+        /// Run a rebase to completion, a conflict, or a requested stop point.
+        /// </summary>
+        /// <param name="rebaseOperationHandle">Handle to the rebase operation.</param>
+        /// <param name="repository">Repository in which rebase operation is being run.</param>
+        /// <param name="committer">Committer signature to use for the rebased commits.</param>
+        /// <param name="options">Options controlling rebase behavior.</param>
+        /// <returns>RebaseResult - describing the result of the rebase operation.</returns>
+        public static RebaseResult Run(RebaseSafeHandle rebaseOperationHandle,
+            Repository repository,
+            Signature committer,
+            RebaseOptions options)
         {
-            Ensure.ArgumentNotNull(rebaseOp, "rebaseOp");
-            Ensure.ArgumentNotNull(repo, "repo");
+            Ensure.ArgumentNotNull(rebaseOperationHandle, "rebaseOperationHandle");
+            Ensure.ArgumentNotNull(repository, "repository");
             Ensure.ArgumentNotNull(committer, "committer");
             Ensure.ArgumentNotNull(options, "options");
 
-            this.rebaseOperationHandle = rebaseOp;
-            this.repository = repo;
-            this.committer = committer;
-            this.options = options;
-        }
-
-        /// <summary>
-        /// Run a rebase to completion or conflict.
-        /// </summary>
-        /// <returns>true if completed successfully, false if conflicts encountered.</returns>
-        public RebaseResult Run()
-        {
             GitCheckoutOptsWrapper checkoutOptionsWrapper = new GitCheckoutOptsWrapper(options);
             GitCheckoutOpts gitCheckoutOpts = checkoutOptionsWrapper.Options;
             RebaseResult rebaseResult = null;

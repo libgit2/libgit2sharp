@@ -96,8 +96,7 @@ namespace LibGit2Sharp
                     options.RebaseStepCompleted(new AfterRebaseStepInfo(stepInfo, new ObjectId(id)));
                 }
 
-                var rebaseDriver = new RebaseOperationImpl(rebase, repository, committer, options);
-                RebaseResult rebaseResult = rebaseDriver.Run();
+                RebaseResult rebaseResult = RebaseOperationImpl.Run(rebase, repository, committer, options);
                 return rebaseResult;
             }
             finally
@@ -140,16 +139,26 @@ namespace LibGit2Sharp
         {
             get
             {
-                var rebase = Proxy.git_rebase_open(repository.Handle);
-                int currentStepIndex = Proxy.git_rebase_operation_current(rebase);
-                int totalStepCount = Proxy.git_rebase_operation_entrycount(rebase);
-                GitRebaseOperation gitRebasestepInfo = Proxy.git_rebase_operation_byindex(rebase, currentStepIndex);
-                var stepInfo = new RebaseStepInfo(gitRebasestepInfo.type,
-                                                  gitRebasestepInfo.id,
-                                                  LaxUtf8NoCleanupMarshaler.FromNative(gitRebasestepInfo.exec),
-                                                  currentStepIndex,
-                                                  totalStepCount);
-                return stepInfo;
+                RebaseSafeHandle rebaseHandle = null;
+
+                try
+                {
+                    rebaseHandle = Proxy.git_rebase_open(repository.Handle);
+                    int currentStepIndex = Proxy.git_rebase_operation_current(rebaseHandle);
+                    int totalStepCount = Proxy.git_rebase_operation_entrycount(rebaseHandle);
+                    GitRebaseOperation gitRebasestepInfo = Proxy.git_rebase_operation_byindex(rebaseHandle, currentStepIndex);
+                    var stepInfo = new RebaseStepInfo(gitRebasestepInfo.type,
+                                                      gitRebasestepInfo.id,
+                                                      LaxUtf8NoCleanupMarshaler.FromNative(gitRebasestepInfo.exec),
+                                                      currentStepIndex,
+                                                      totalStepCount);
+                    return stepInfo;
+                }
+                finally
+                {
+                    rebaseHandle.SafeDispose();
+                    rebaseHandle = null;
+                }
             }
         }
     }
