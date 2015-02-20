@@ -7,5 +7,10 @@
             Proxy.git_signature_free(handle);
             return true;
         }
+
+        internal GitSignature MarshalAsGitSignature()
+        {
+            return handle.MarshalAs<GitSignature>();
+        }
     }
 }

@@ -2789,6 +2789,18 @@ namespace LibGit2Sharp.Core
             }
         }
 
+        public static SignatureSafeHandle git_signature_now(string name, string email)
+        {
+            using (ThreadAffinity())
+            {
+                SignatureSafeHandle handle;
+                int res = NativeMethods.git_signature_now(out handle, name, email);
+                Ensure.ZeroResult(res);
+
+                return handle;
+            }
+        }
+
         public static IntPtr git_signature_dup(IntPtr sig)
         {
             using (ThreadAffinity())

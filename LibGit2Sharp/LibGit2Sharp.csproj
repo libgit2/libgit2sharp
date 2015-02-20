@@ -142,6 +142,7 @@
     <Compile Include="RevertResult.cs" />
     <Compile Include="SignatureExtensions.cs" />
     <Compile Include="RevertOptions.cs" />
+    <Compile Include="SignatureGenerator.cs" />
     <Compile Include="StageOptions.cs" />
     <Compile Include="StatusOptions.cs" />
     <Compile Include="SimilarityOptions.cs" />
