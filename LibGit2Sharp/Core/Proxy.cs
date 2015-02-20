@@ -1670,8 +1670,8 @@ namespace LibGit2Sharp.Core
 
         public static GitOid git_rebase_commit(
             RebaseSafeHandle rebase,
-            Signature author,
-            Signature committer)
+            ISignature author,
+            ISignature committer)
         {
             Ensure.ArgumentNotNull(rebase, "rebase");
             Ensure.ArgumentNotNull(committer, "committer");
@@ -1707,7 +1707,7 @@ namespace LibGit2Sharp.Core
 
         public static void git_rebase_abort(
             RebaseSafeHandle rebase,
-            Signature signature)
+            ISignature signature)
         {
             Ensure.ArgumentNotNull(rebase, "rebase");
             Ensure.ArgumentNotNull(signature, "signature");
@@ -1721,7 +1721,7 @@ namespace LibGit2Sharp.Core
 
         public static void git_rebase_finish(
             RebaseSafeHandle rebase,
-            Signature signature,
+            ISignature signature,
             GitRebaseOptions options)
         {
             Ensure.ArgumentNotNull(rebase, "rebase");

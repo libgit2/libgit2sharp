@@ -231,7 +231,7 @@ namespace LibGit2Sharp
         /// <param name="committer"></param>
         /// <param name="options"></param>
         /// <returns>true if completed successfully, false if conflicts encountered.</returns>
-        RebaseResult Rebase(Branch branch, Branch upstream, Branch onto, Signature committer, RebaseOptions options);
+        RebaseResult Rebase(Branch branch, Branch upstream, Branch onto, ISignature committer, RebaseOptions options);
 
         /// <summary>
         /// Access to Rebase functionality.

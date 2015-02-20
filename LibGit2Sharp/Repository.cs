@@ -1105,7 +1105,7 @@ namespace LibGit2Sharp
         /// <param name="committer"></param>
         /// <param name="options"></param>
         /// <returns>true if completed successfully, false if conflicts encountered.</returns>
-        public RebaseResult Rebase(Branch branch, Branch upstream, Branch onto, Signature committer, RebaseOptions options)
+        public RebaseResult Rebase(Branch branch, Branch upstream, Branch onto, ISignature committer, RebaseOptions options)
         {
             Ensure.ArgumentNotNull(upstream, "upstream");
 

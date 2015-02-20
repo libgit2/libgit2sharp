@@ -7,9 +7,30 @@ using LibGit2Sharp.Core.Handles;
 namespace LibGit2Sharp
 {
     /// <summary>
+    /// Interface for classes that can generate a signature.
+    /// </summary>
+    public interface ISignature
+    {
+        /// <summary>
+        /// Gets the name.
+        /// </summary>
+        string Name { get; }
+
+        /// <summary>
+        /// Gets the Email.
+        /// </summary>
+        string Email { get; }
+
+        /// <summary>
+        /// Gets the date for this signature.
+        /// </summary>
+        DateTimeOffset When { get; }
+    }
+
+    /// <summary>
     /// A signature
     /// </summary>
-    public sealed class Signature : IEquatable<Signature>
+    public sealed class Signature : IEquatable<Signature>, ISignature
     {
         private readonly DateTimeOffset when;
         private readonly string name;
@@ -25,6 +46,15 @@ namespace LibGit2Sharp
             name = LaxUtf8Marshaler.FromNative(handle.Name);
             email = LaxUtf8Marshaler.FromNative(handle.Email);
             when = Epoch.ToDateTimeOffset(handle.When.Time, handle.When.Offset);
+        }
+
+        internal Signature(SignatureSafeHandle signaturePtr)
+        {
+            var gitSignature = signaturePtr.MarshalAsGitSignature();
+
+            name = LaxUtf8Marshaler.FromNative(gitSignature.Name);
+            email = LaxUtf8Marshaler.FromNative(gitSignature.Email);
+            when = Epoch.ToDateTimeOffset(gitSignature.When.Time, gitSignature.When.Offset);
         }
 
         /// <summary>
@@ -132,6 +162,77 @@ namespace LibGit2Sharp
         public override string ToString()
         {
             return string.Format(CultureInfo.InvariantCulture, "{0} <{1}>", Name, Email);
+        }
+    }
+
+    /// <summary>
+    /// Returns a signature with the current time
+    /// </summary>
+    public class CurrentTimeSignature : ISignature
+    {
+        private string name;
+        private string email;
+
+        /// <summary>
+        /// This generator will generate new signatures with the  the name and
+        /// email from the passed in signature, but will use current time
+        /// stamps.
+        /// </summary>
+        /// <param name="signature"></param>
+        public CurrentTimeSignature(Signature signature)
+        {
+            name = signature.Name;
+            email = signature.Email;
+        }
+
+        public CurrentTimeSignature(string name, string email)
+        {
+            this.name = name;
+            this.email = email;
+        }
+
+        /// <summary>
+        /// Gets the name.
+        /// </summary>
+        public string Name
+        {
+            get
+            {
+                return name;
+            }
+        }
+
+        /// <summary>
+        /// Gets the Email.
+        /// </summary>
+        public string Email
+        {
+            get
+            {
+                return email;
+            }
+        }
+
+        /// <summary>
+        /// Gets the current time.
+        /// </summary>
+        public DateTimeOffset When
+        {
+            get
+            {
+                return DateTimeOffset.Now;
+            }
+        }
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public static class ISignatureExtensions
+    {
+        internal static SignatureSafeHandle BuildHandle(this ISignature signature)
+        {
+            return Proxy.git_signature_new(signature.Name, signature.Email, signature.When);
         }
     }
 }

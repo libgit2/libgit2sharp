@@ -20,7 +20,7 @@ namespace LibGit2Sharp
         /// <returns>RebaseResult - describing the result of the rebase operation.</returns>
         public static RebaseResult Run(RebaseSafeHandle rebaseOperationHandle,
             Repository repository,
-            Signature committer,
+            ISignature committer,
             RebaseOptions options)
         {
             Ensure.ArgumentNotNull(rebaseOperationHandle, "rebaseOperationHandle");
