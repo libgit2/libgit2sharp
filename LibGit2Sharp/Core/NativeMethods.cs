@@ -264,12 +264,12 @@ namespace LibGit2Sharp.Core
         [DllImport(libgit2)]
         internal static extern int git_rebase_abort(
             RebaseSafeHandle rebase,
-            GitSignature signature);
+            SignatureSafeHandle signature);
 
         [DllImport(libgit2)]
         internal static extern int git_rebase_finish(
             RebaseSafeHandle repo,
-            GitSignature signature,
+            SignatureSafeHandle signature,
             ref GitRebaseOptions options);
 
         [DllImport(libgit2)]

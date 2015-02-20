@@ -187,7 +187,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(0, rebaseResult.CompletedStepCount);
                 Assert.Equal(3, rebaseResult.TotalStepCount);
 
-                repo.CurrentRebaseOperation.Abort();
+                repo.CurrentRebaseOperation.Abort(Constants.Signature);
                 Assert.False(repo.RetrieveStatus().IsDirty);
                 Assert.True(repo.Index.IsFullyMerged);
                 Assert.Equal(CurrentOperation.None, repo.Info.CurrentOperation);

@@ -53,7 +53,7 @@ namespace LibGit2Sharp
                         // Rebase is completed!
                         // currentStep is the last completed - increment it to account
                         // for the fact that we have moved past last step index.
-                        Proxy.git_rebase_finish(rebaseOperationHandle, null, gitRebaseOptions);
+                        Proxy.git_rebase_finish(rebaseOperationHandle, committer, gitRebaseOptions);
                         rebaseResult = new RebaseResult(RebaseStatus.Complete,
                                                         currentStepIndex + 1,
                                                         totalStepCount,

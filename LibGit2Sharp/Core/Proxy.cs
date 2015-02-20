@@ -1707,22 +1707,28 @@ namespace LibGit2Sharp.Core
 
         public static void git_rebase_abort(
             RebaseSafeHandle rebase,
-            GitSignature signature)
+            Signature signature)
         {
+            Ensure.ArgumentNotNull(signature, "signature");
+
             using (ThreadAffinity())
+            using (var signatureHandle = signature.BuildHandle())
             {
-                int result = NativeMethods.git_rebase_abort(rebase, signature);
+                int result = NativeMethods.git_rebase_abort(rebase, signatureHandle);
             }
         }
 
         public static void git_rebase_finish(
             RebaseSafeHandle repo,
-            GitSignature signature,
+            Signature signature,
             GitRebaseOptions options)
         {
+            Ensure.ArgumentNotNull(signature, "signature");
+
             using (ThreadAffinity())
+            using (var signatureHandle = signature.BuildHandle())
             {
-                int result = NativeMethods.git_rebase_finish(repo, signature, ref options);
+                int result = NativeMethods.git_rebase_finish(repo, signatureHandle, ref options);
                 Ensure.ZeroResult(result);
             }
         }

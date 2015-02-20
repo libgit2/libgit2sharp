@@ -67,6 +67,8 @@ namespace LibGit2Sharp
         /// <summary>
         /// Continue the current rebase.
         /// </summary>
+        /// <param name="committer">The <see cref="Signature"/> of who added the change to the repository.</param>
+        /// <param name="options">The <see cref="RebaseOptions"/> that specify the commit behavior.</param>
         public virtual RebaseResult Continue(Signature committer, RebaseOptions options)
         {
             Ensure.ArgumentNotNull(committer, "committer");
@@ -109,13 +111,16 @@ namespace LibGit2Sharp
         /// <summary>
         /// Abort the rebase operation.
         /// </summary>
-        public virtual void Abort()
+        /// <param name="signature">The <see cref="Signature"/> of who is reborting the rebase.</param>
+        public virtual void Abort(Signature signature)
         {
+            Ensure.ArgumentNotNull(signature, "signature");
+
             RebaseSafeHandle rebase = null;
             try
             {
                 rebase = Proxy.git_rebase_open(repository.Handle);
-                Proxy.git_rebase_abort(rebase, null);
+                Proxy.git_rebase_abort(rebase, signature);
             }
             finally
             {
