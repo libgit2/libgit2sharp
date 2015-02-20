@@ -1709,6 +1709,7 @@ namespace LibGit2Sharp.Core
             RebaseSafeHandle rebase,
             Signature signature)
         {
+            Ensure.ArgumentNotNull(rebase, "rebase");
             Ensure.ArgumentNotNull(signature, "signature");
 
             using (ThreadAffinity())
@@ -1719,16 +1720,17 @@ namespace LibGit2Sharp.Core
         }
 
         public static void git_rebase_finish(
-            RebaseSafeHandle repo,
+            RebaseSafeHandle rebase,
             Signature signature,
             GitRebaseOptions options)
         {
+            Ensure.ArgumentNotNull(rebase, "rebase");
             Ensure.ArgumentNotNull(signature, "signature");
 
             using (ThreadAffinity())
             using (var signatureHandle = signature.BuildHandle())
             {
-                int result = NativeMethods.git_rebase_finish(repo, signatureHandle, ref options);
+                int result = NativeMethods.git_rebase_finish(rebase, signatureHandle, ref options);
                 Ensure.ZeroResult(result);
             }
         }

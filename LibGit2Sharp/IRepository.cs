@@ -234,11 +234,9 @@ namespace LibGit2Sharp
         RebaseResult Rebase(Branch branch, Branch upstream, Branch onto, Signature committer, RebaseOptions options);
 
         /// <summary>
-        /// Get the current rebase operation in progress (if any).
-        /// Currently only returns for rebase merge. If a rebase merge
-        /// operation is not progress, returns null.
+        /// Access to Rebase functionality.
         /// </summary>
-        RebaseOperation CurrentRebaseOperation { get; }
+        Rebase RebaseOperation { get; }
 
         /// <summary>
         /// Merge the reference that was recently fetched. This will merge

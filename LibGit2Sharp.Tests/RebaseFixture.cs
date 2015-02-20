@@ -114,7 +114,7 @@ namespace LibGit2Sharp.Tests
 
                 Assert.True(repo.Index.IsFullyMerged);
 
-                RebaseResult continuedRebaseResult = repo.CurrentRebaseOperation.Continue(Constants.Signature, options);
+                RebaseResult continuedRebaseResult = repo.RebaseOperation.Continue(Constants.Signature, options);
 
                 Assert.NotNull(continuedRebaseResult);
                 Assert.Equal(RebaseStatus.Complete, continuedRebaseResult.Status);
@@ -155,7 +155,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(0, rebaseResult.CompletedStepCount);
                 Assert.Equal(3, rebaseResult.TotalStepCount);
 
-                RebaseStepInfo info = repo.CurrentRebaseOperation.CurrentStepInfo;
+                RebaseStepInfo info = repo.RebaseOperation.GetCurrentStepInfo();
                 Assert.Equal(0, info.StepIndex);
                 Assert.Equal(3, info.TotalStepCount);
                 Assert.Equal(RebaseStepOperation.Pick, info.Type);
@@ -187,7 +187,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(0, rebaseResult.CompletedStepCount);
                 Assert.Equal(3, rebaseResult.TotalStepCount);
 
-                repo.CurrentRebaseOperation.Abort(Constants.Signature);
+                repo.RebaseOperation.Abort(Constants.Signature);
                 Assert.False(repo.RetrieveStatus().IsDirty);
                 Assert.True(repo.Index.IsFullyMerged);
                 Assert.Equal(CurrentOperation.None, repo.Info.CurrentOperation);
@@ -223,7 +223,7 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
-        public void CurrentRebaseOperationIsNullWhenNotRebasing()
+        public void CurrentStepInfoIsNullWhenNotRebasing()
         {
             SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
             var path = Repository.Init(scd.DirectoryPath);
@@ -232,12 +232,13 @@ namespace LibGit2Sharp.Tests
                 ConstructRebaseTestRepository(repo);
                 repo.Checkout(topicBranch1Name);
 
-                Assert.Null(repo.CurrentRebaseOperation);
+                Assert.Null(repo.RebaseOperation.GetCurrentStepInfo());
             }
         }
 
         private void ConstructRebaseTestRepository(Repository repo)
         {
+            // Constructs a graph that looks like:
             //                         * -- * -- *   (modifications to c.txt)
             //                        /          |
             //                       /           T2
@@ -256,8 +257,6 @@ namespace LibGit2Sharp.Tests
 
             string filePathA = "a.txt";
             const string fileContentA1 = "A1";
-            // const string fileContentA2 = "A2";
-            // const string fileContentA3 = "A3";
 
             string filePathB = "b.txt";
             const string fileContentB1 = "B1";

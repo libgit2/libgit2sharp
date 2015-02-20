@@ -49,17 +49,17 @@ namespace LibGit2Sharp
     /// <summary>
     /// Encapsulates a rebase operation.
     /// </summary>
-    public class RebaseOperation
+    public class Rebase
     {
         internal readonly Repository repository;
 
         /// <summary>
         /// Needed for mocking purposes.
         /// </summary>
-        protected RebaseOperation()
+        protected Rebase()
         { }
 
-        internal RebaseOperation(Repository repo)
+        internal Rebase(Repository repo)
         {
             this.repository = repo;
         }
@@ -80,21 +80,21 @@ namespace LibGit2Sharp
             {
                 rebase = Proxy.git_rebase_open(repository.Handle);
 
-                // Get information on the current step
-                int currentStepIndex = Proxy.git_rebase_operation_current(rebase);
-                int totalStepCount = Proxy.git_rebase_operation_entrycount(rebase);
-                GitRebaseOperation gitRebasestepInfo = Proxy.git_rebase_operation_byindex(rebase, currentStepIndex);
-
-                GitOid id = Proxy.git_rebase_commit(rebase, null, committer);
-
                 // Report that we just completed the step
                 if (options.RebaseStepCompleted != null)
                 {
+                    // Get information on the current step
+                    int currentStepIndex = Proxy.git_rebase_operation_current(rebase);
+                    int totalStepCount = Proxy.git_rebase_operation_entrycount(rebase);
+                    GitRebaseOperation gitRebasestepInfo = Proxy.git_rebase_operation_byindex(rebase, currentStepIndex);
+
                     var stepInfo = new RebaseStepInfo(gitRebasestepInfo.type,
                                                       new ObjectId(gitRebasestepInfo.id),
                                                       LaxUtf8NoCleanupMarshaler.FromNative(gitRebasestepInfo.exec),
                                                       currentStepIndex,
                                                       totalStepCount);
+
+                    GitOid id = Proxy.git_rebase_commit(rebase, null, committer);
                     options.RebaseStepCompleted(new AfterRebaseStepInfo(stepInfo, new ObjectId(id)));
                 }
 
@@ -140,30 +140,32 @@ namespace LibGit2Sharp
         /// <summary>
         /// The info on the current step.
         /// </summary>
-        public virtual RebaseStepInfo CurrentStepInfo
+        public virtual RebaseStepInfo GetCurrentStepInfo()
         {
-            get
+            if (repository.Info.CurrentOperation != LibGit2Sharp.CurrentOperation.RebaseMerge)
             {
-                RebaseSafeHandle rebaseHandle = null;
+                return null;
+            }
 
-                try
-                {
-                    rebaseHandle = Proxy.git_rebase_open(repository.Handle);
-                    int currentStepIndex = Proxy.git_rebase_operation_current(rebaseHandle);
-                    int totalStepCount = Proxy.git_rebase_operation_entrycount(rebaseHandle);
-                    GitRebaseOperation gitRebasestepInfo = Proxy.git_rebase_operation_byindex(rebaseHandle, currentStepIndex);
-                    var stepInfo = new RebaseStepInfo(gitRebasestepInfo.type,
-                                                      gitRebasestepInfo.id,
-                                                      LaxUtf8NoCleanupMarshaler.FromNative(gitRebasestepInfo.exec),
-                                                      currentStepIndex,
-                                                      totalStepCount);
-                    return stepInfo;
-                }
-                finally
-                {
-                    rebaseHandle.SafeDispose();
-                    rebaseHandle = null;
-                }
+            RebaseSafeHandle rebaseHandle = null;
+
+            try
+            {
+                rebaseHandle = Proxy.git_rebase_open(repository.Handle);
+                int currentStepIndex = Proxy.git_rebase_operation_current(rebaseHandle);
+                int totalStepCount = Proxy.git_rebase_operation_entrycount(rebaseHandle);
+                GitRebaseOperation gitRebasestepInfo = Proxy.git_rebase_operation_byindex(rebaseHandle, currentStepIndex);
+                var stepInfo = new RebaseStepInfo(gitRebasestepInfo.type,
+                                                  gitRebasestepInfo.id,
+                                                  LaxUtf8NoCleanupMarshaler.FromNative(gitRebasestepInfo.exec),
+                                                  currentStepIndex,
+                                                  totalStepCount);
+                return stepInfo;
+            }
+            finally
+            {
+                rebaseHandle.SafeDispose();
+                rebaseHandle = null;
             }
         }
     }
