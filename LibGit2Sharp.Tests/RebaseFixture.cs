@@ -108,7 +108,7 @@ namespace LibGit2Sharp.Tests
                 {
                     Touch(repo.Info.WorkingDirectory,
                           conflict.Theirs.Path,
-                          repo.Lookup<Blob>(conflict.Theirs.Id).GetContentStream(new FilteringOptions(conflict.Theirs.Path)));
+                          repo.Lookup<Blob>(conflict.Theirs.Id).GetContentText(new FilteringOptions(conflict.Theirs.Path)));
                     repo.Stage(conflict.Theirs.Path);
                 }
 
