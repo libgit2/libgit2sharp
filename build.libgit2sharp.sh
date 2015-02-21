@@ -5,7 +5,7 @@ SHORTSHA=${LIBGIT2SHA:0:7}
 EXTRADEFINE="$1"
 
 cd libgit2
-git fetch origin refs/pull/2798/head:refs/remotes/pr/2798
+git fetch origin refs/pull/2798/merge:refs/remotes/pr/2798
 git checkout refs/remotes/pr/2798
 cd ..
 
