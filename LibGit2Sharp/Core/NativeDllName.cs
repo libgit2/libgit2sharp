@@ -2,6 +2,6 @@ namespace LibGit2Sharp.Core
 {
 	internal static class NativeDllName
 	{
-		public const string Name = "git2-b55aae0";
+		public const string Name = "git2-a248208";
 	}
 }
