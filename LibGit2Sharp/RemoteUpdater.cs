@@ -76,6 +76,18 @@ namespace LibGit2Sharp
                 Proxy.git_remote_save(remoteHandle);
             }
         }
+        
+        /// <summary>
+        /// Sets the push url defined for this <see cref="Remote"/>
+        /// </summary>
+        public virtual string PushUrl
+        {
+            set
+            {
+                Proxy.git_remote_set_pushurl(remoteHandle, value);
+                Proxy.git_remote_save(remoteHandle);
+            }
+        }
 
         /// <summary>
         /// Sets the list of <see cref="RefSpec"/>s defined for this <see cref="Remote"/> that are intended to

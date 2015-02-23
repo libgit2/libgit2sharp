@@ -2040,6 +2040,15 @@ namespace LibGit2Sharp.Core
                 Ensure.ZeroResult(res);
             }
         }
+        
+        public static void git_remote_set_pushurl(RemoteSafeHandle remote, string url)
+        {
+            using (ThreadAffinity())
+            {
+                int res = NativeMethods.git_remote_set_pushurl(remote, url);
+                Ensure.ZeroResult(res);
+            }
+        }
 
         public static void git_remote_fetch(RemoteSafeHandle remote, Signature signature, string logMessage)
         {
@@ -2221,6 +2230,11 @@ namespace LibGit2Sharp.Core
         public static string git_remote_url(RemoteSafeHandle remote)
         {
             return NativeMethods.git_remote_url(remote);
+        }
+
+        public static string git_remote_pushurl(RemoteSafeHandle remote)
+        {
+            return NativeMethods.git_remote_pushurl(remote);
         }
 
         #endregion

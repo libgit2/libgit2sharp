@@ -15,7 +15,7 @@ namespace LibGit2Sharp
     public class Remote : IEquatable<Remote>, IBelongToARepository
     {
         private static readonly LambdaEqualityHelper<Remote> equalityHelper =
-            new LambdaEqualityHelper<Remote>(x => x.Name, x => x.Url);
+            new LambdaEqualityHelper<Remote>(x => x.Name, x => x.Url, x => x.PushUrl);
 
         internal readonly Repository repository;
 
@@ -32,6 +32,7 @@ namespace LibGit2Sharp
             this.repository = repository;
             Name = Proxy.git_remote_name(handle);
             Url = Proxy.git_remote_url(handle);
+            PushUrl = Proxy.git_remote_pushurl(handle);
             TagFetchMode = Proxy.git_remote_autotag(handle);
             refSpecs = new RefSpecCollection(handle);
         }
@@ -52,6 +53,12 @@ namespace LibGit2Sharp
         /// Gets the url to use to communicate with this remote repository.
         /// </summary>
         public virtual string Url { get; private set; }
+
+        /// <summary>
+        /// Gets the distinct push url for this remote repository, if set.
+        /// If no separate push url is specified, PushUrl is null.
+        /// </summary>
+        public virtual string PushUrl { get; private set; }
 
         /// <summary>
         /// Gets the Tag Fetch Mode of the remote - indicating how tags are fetched.
