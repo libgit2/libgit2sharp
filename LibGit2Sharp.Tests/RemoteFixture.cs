@@ -110,6 +110,10 @@ namespace LibGit2Sharp.Tests
                 Remote remote = repo.Network.Remotes[name];
                 Assert.NotNull(remote);
 
+                // before setting push, both push and fetch urls should match
+                Assert.Equal(url, remote.Url);
+                Assert.Equal(url, remote.PushUrl);
+
                 Remote updatedremote = repo.Network.Remotes.Update(remote,
                     r => r.PushUrl = pushurl);
 
