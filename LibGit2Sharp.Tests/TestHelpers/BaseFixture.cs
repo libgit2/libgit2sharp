@@ -156,7 +156,7 @@ namespace LibGit2Sharp.Tests.TestHelpers
         {
             return Sandbox(AssumeUnchangedRepoWorkingDirPath);
         }
-        
+
         public string SandboxSubmoduleSmallTestRepo()
         {
             var submoduleTarget = Path.Combine(ResourcesDirectory.FullName, "submodule_target_wd");
