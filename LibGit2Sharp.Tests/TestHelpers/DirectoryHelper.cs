@@ -53,7 +53,7 @@ namespace LibGit2Sharp.Tests.TestHelpers
                 return;
             }
             NormalizeAttributes(directoryPath);
-            TryDeleteDirectory(directoryPath, 5, 16, 2);
+            TryDeleteDirectory(directoryPath, maxAttempts: 5, initialTimeout: 16, timeoutFactor: 2);
         }
 
         private static void NormalizeAttributes(string directoryPath)
@@ -72,7 +72,7 @@ namespace LibGit2Sharp.Tests.TestHelpers
             File.SetAttributes(directoryPath, FileAttributes.Normal);
         }
 
-        private static Type[] whitelist = new[] { typeof(DirectoryNotFoundException), typeof(IOException), typeof(UnauthorizedAccessException) };
+        private static readonly Type[] whitelist = { typeof(IOException), typeof(UnauthorizedAccessException) };
 
         private static void TryDeleteDirectory(string directoryPath, int maxAttempts, int initialTimeout, int timeoutFactor)
         {
@@ -85,7 +85,9 @@ namespace LibGit2Sharp.Tests.TestHelpers
                 }
                 catch (Exception ex)
                 {
-                    if (!whitelist.Contains(ex.GetType()))
+                    var caughtExceptionType = ex.GetType();
+
+                    if (!whitelist.Any(knownExceptionType => knownExceptionType.IsAssignableFrom(caughtExceptionType)))
                     {
                         throw;
                     }
@@ -96,13 +98,13 @@ namespace LibGit2Sharp.Tests.TestHelpers
                         continue;
                     }
 
-                    Trace.WriteLine(string.Format("{0}The directory '{1}' could not be deleted due to a {2}: {3}" +
+                    Trace.WriteLine(string.Format("{0}The directory '{1}' could not be deleted ({2} attempts were made) due to a {3}: {4}" +
                                                   "{0}Most of the time, this is due to an external process accessing the files in the temporary repositories created during the test runs, and keeping a handle on the directory, thus preventing the deletion of those files." +
                                                   "{0}Known and common causes include:" +
                                                   "{0}- Windows Search Indexer (go to the Indexing Options, in the Windows Control Panel, and exclude the bin folder of LibGit2Sharp.Tests)" +
                                                   "{0}- Antivirus (exclude the bin folder of LibGit2Sharp.Tests from the paths scanned by your real-time antivirus)" +
                                                   "{0}- TortoiseGit (change the 'Icon Overlays' settings, e.g., adding the bin folder of LibGit2Sharp.Tests to 'Exclude paths' and appending an '*' to exclude all subfolders as well)",
-                        Environment.NewLine, Path.GetFullPath(directoryPath), ex.GetType(), ex.Message));
+                        Environment.NewLine, Path.GetFullPath(directoryPath), maxAttempts, caughtExceptionType, ex.Message));
                 }
             }
         }
