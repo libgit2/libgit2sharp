@@ -20,6 +20,7 @@ namespace LibGit2Sharp
         internal readonly Repository repository;
 
         private readonly RefSpecCollection refSpecs;
+        private string pushUrl;
 
         /// <summary>
         /// Needed for mocking purposes.
@@ -56,9 +57,18 @@ namespace LibGit2Sharp
 
         /// <summary>
         /// Gets the distinct push url for this remote repository, if set.
-        /// If no separate push url is specified, PushUrl is null.
+        /// Defaults to the fetch url (<see cref="Url"/>) if not set.
         /// </summary>
-        public virtual string PushUrl { get; private set; }
+        public virtual string PushUrl {
+            get
+            {
+                return pushUrl ?? Url;
+            }
+            private set
+            {
+                pushUrl = value;
+            }
+        }
 
         /// <summary>
         /// Gets the Tag Fetch Mode of the remote - indicating how tags are fetched.

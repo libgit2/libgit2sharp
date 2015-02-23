@@ -91,6 +91,8 @@ namespace LibGit2Sharp.Tests
                     r => r.Url = newUrl);
 
                 Assert.Equal(newUrl, updatedremote.Url);
+                // with no push url set, PushUrl defaults to the fetch url
+                Assert.Equal(newUrl, updatedremote.PushUrl);
             }
         }
 
@@ -111,6 +113,8 @@ namespace LibGit2Sharp.Tests
                 Remote updatedremote = repo.Network.Remotes.Update(remote,
                     r => r.PushUrl = pushurl);
 
+                // url should not change, push url should be set to new value
+                Assert.Equal(url, updatedremote.Url);
                 Assert.Equal(pushurl, updatedremote.PushUrl);
             }
         }
