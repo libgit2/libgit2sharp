@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <UsingTask TaskName="GenerateNativeDllNameTask" AssemblyFile="..\Lib\CustomBuildTasks\CustomBuildTasks.dll" />
+
+  <PropertyGroup>
+    <LibGit2SharpPath Condition="'$(MSBuildThisFileDirectory)' == ''">.</LibGit2SharpPath>
+    <LibGit2SharpPath Condition="'$(MSBuildThisFileDirectory)' != ''">$(MSBuildThisFileDirectory)</LibGit2SharpPath>
+    <NativeDllNamePath>$(LibGit2SharpPath)\Core\NativeDllName.cs</NativeDllNamePath>
+    <CoreCompileDependsOn>$(CoreCompileDependsOn);GenerateNativeDllNameCs</CoreCompileDependsOn>
+    <CoreCleanDependsOn>$(CoreCleanDependsOn);CleanNativeDllNameCs</CoreCleanDependsOn>
+  </PropertyGroup>
+
+  <Target Name="GenerateNativeDllNameCs"
+          Inputs="@(EmbeddedResource)"
+          Outputs="$(NativeDllNamePath)">
+    <GenerateNativeDllNameTask InputHashFile="@(EmbeddedResource)" Condition=" '%(Filename)%(Extension)' == 'libgit2_hash.txt' " OutputFile="$(NativeDllNamePath)" />
+  </Target>
+
+ <Target Name="CleanNativeDllNameCs">
+    <Delete Files="$(NativeDllNamePath)" />
+  </Target>
+</Project>

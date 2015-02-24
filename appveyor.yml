@@ -63,7 +63,7 @@ test_script:
 
 on_success:
 - ps: |
-    & "$env:APPVEYOR_BUILD_FOLDER\nuget.package\BuildNugetPackage.ps1" -commitSha "$env:APPVEYOR_REPO_COMMIT" -postBuild  { sourcelink index -pr LibGit2Sharp.csproj -pp Configuration Release -nf Core\UniqueIdentifier.cs -nf Properties\AssemblyInfo.cs -r .. -u 'https://raw.githubusercontent.com/libgit2/libgit2sharp/{0}/%var2%' }
+    & "$env:APPVEYOR_BUILD_FOLDER\nuget.package\BuildNugetPackage.ps1" -commitSha "$env:APPVEYOR_REPO_COMMIT" -postBuild  { sourcelink index -pr LibGit2Sharp.csproj -pp Configuration Release -nf Core\NativeDllName.cs -nf Core\UniqueIdentifier.cs -nf Properties\AssemblyInfo.cs -r .. -u 'https://raw.githubusercontent.com/libgit2/libgit2sharp/{0}/%var2%' }
     Add-Type -Path "$env:APPVEYOR_BUILD_FOLDER\LibGit2Sharp\bin\Release\LibGit2Sharp.dll"
     Write-Host "LibGit2Sharp version = $([LibGit2Sharp.GlobalSettings]::Version)" -ForegroundColor "Magenta"
     If ($Env:SHOULD_PUBLISH_NUGET_ARTIFACT -eq $True)
