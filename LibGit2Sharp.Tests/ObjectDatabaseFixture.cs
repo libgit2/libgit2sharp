@@ -669,6 +669,46 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
+        public void TestMergeIntoOtherUnbornBranchHasNoConflicts()
+        {
+            string path = SandboxMergeTestRepo();
+            using (var repo = new Repository(path))
+            {
+                repo.Refs.UpdateTarget("HEAD", "refs/heads/unborn");
+
+                Touch(repo.Info.WorkingDirectory, "README", "Yeah!\n");
+                repo.Index.Clear();
+                repo.Stage("README");
+
+                repo.Commit("A new world, free of the burden of the history", Constants.Signature, Constants.Signature);
+
+                var master = repo.Branches["master"].Tip;
+                var branch = repo.Branches["unborn"].Tip;
+
+                Assert.True(repo.ObjectDatabase.CanMergeWithoutConflict(master, branch));
+            }
+        }
+
+        [Fact]
+        public void TestMergeIntoOtherUnbornBranchHasConflicts()
+        {
+            string path = SandboxMergeTestRepo();
+            using (var repo = new Repository(path))
+            {
+                repo.Refs.UpdateTarget("HEAD", "refs/heads/unborn");
+
+                repo.Index.Replace(repo.Lookup<Commit>("conflicts"));
+
+                repo.Commit("A conflicting world, free of the burden of the history", Constants.Signature, Constants.Signature);
+
+                var master = repo.Branches["master"].Tip;
+                var branch = repo.Branches["unborn"].Tip;
+
+                Assert.False(repo.ObjectDatabase.CanMergeWithoutConflict(master, branch));
+            }
+        }
+
+        [Fact]
         public void TestMergeIntoOtherBranchHasNoConflicts()
         {
             string path = SandboxMergeTestRepo();
