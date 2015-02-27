@@ -85,6 +85,14 @@
     <Compile Include="FollowFilter.cs" />
     <Compile Include="IBelongToARepository.cs" />
     <Compile Include="Identity.cs" />
+    <Compile Include="Core\GitBufReadStream.cs" />
+    <Compile Include="Core\GitBufWriteStream.cs" />
+    <Compile Include="Core\GitFilter.cs" />
+    <Compile Include="FilterAttributeEntry.cs" />
+    <Compile Include="FilterMode.cs" />
+    <Compile Include="FilterRegistration.cs" />
+    <Compile Include="FilterSource.cs" />
+    <Compile Include="Filter.cs" />
     <Compile Include="IndexNameEntryCollection.cs" />
     <Compile Include="ContentChangeStats.cs" />
     <Compile Include="BuiltInFeatures.cs" />

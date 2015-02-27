@@ -192,6 +192,12 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string canonical_branch_name);
 
         [DllImport(libgit2)]
+        internal static extern int git_buf_grow(IntPtr buffer, UIntPtr targetSize);
+
+        [DllImport(libgit2)]
+        internal static extern int git_buf_put(IntPtr buffer, IntPtr data, UIntPtr len);
+
+        [DllImport(libgit2)]
         internal static extern int git_remote_rename(
             ref GitStrArray problems,
             RepositorySafeHandle repo,
@@ -201,7 +207,6 @@ namespace LibGit2Sharp.Core
         internal delegate int git_remote_rename_problem_cb(
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(LaxUtf8NoCleanupMarshaler))] string problematic_refspec,
             IntPtr payload);
-
 
         [DllImport(libgit2)]
         internal static extern int git_branch_upstream_name(
@@ -497,6 +502,21 @@ namespace LibGit2Sharp.Core
 
         [DllImport(libgit2)]
         internal static extern IntPtr git_diff_get_delta(DiffSafeHandle diff, UIntPtr idx);
+
+        [DllImport(libgit2)]
+        internal static extern int git_filter_register(
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string name,
+            IntPtr gitFilter, int priority);
+
+        [DllImport(libgit2)]
+        internal static extern int git_filter_unregister(
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))]string name);
+
+        [DllImport(libgit2)]
+        internal static extern int git_filter_source_mode(IntPtr source);
+
+        [DllImport(libgit2)]
+        internal static extern void git_filter_free(IntPtr filterSafeHandle);
 
         [DllImport(libgit2)]
         internal static extern int git_libgit2_features();

@@ -169,5 +169,39 @@ namespace LibGit2Sharp
             nativeLibraryPathLocked = true;
             return nativeLibraryPath;
         }
+
+        /// <summary>
+        /// Register a filter globally with a default priority of 200 allowing the custom filter 
+        /// to imitate a core Git filter driver. It will be run last on checkout and first on checkin.
+        /// </summary>
+        public static FilterRegistration RegisterFilter(Filter filter)
+        {
+            return RegisterFilter(filter, 200);
+        }
+
+        /// <summary>
+        /// Register a filter globally with given priority for execution.
+        /// A filter with the priority of 200 will be run last on checkout and first on checkin.
+        /// A filter with the priority of 0 will be run first on checkout and last on checkin.
+        /// </summary>
+        public static FilterRegistration RegisterFilter(Filter filter, int priority)
+        {
+            var registration = new FilterRegistration(filter);
+
+            Proxy.git_filter_register(filter.Name, registration.FilterPointer, priority);
+
+            return registration;
+        }
+
+        /// <summary>
+        /// Remove the filter from the registry, and frees the native heap allocation.
+        /// </summary>
+        public static void DeregisterFilter(FilterRegistration registration)
+        {
+            Ensure.ArgumentNotNull(registration, "registration");
+
+            Proxy.git_filter_unregister(registration.Name);
+            registration.Free();
+        }
     }
 }
