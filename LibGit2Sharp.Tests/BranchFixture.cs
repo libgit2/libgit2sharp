@@ -443,8 +443,8 @@ namespace LibGit2Sharp.Tests
         {
             var path = SandboxStandardTestRepo();
 
-            var fetchRefSpec = "+refs/heads/*:refs/remotes/origin/*";
-            var url = "http://github.com/libgit2/TestGitRepository";
+            const string fetchRefSpec = "+refs/heads/*:refs/remotes/origin/*";
+            const string url = "http://github.com/libgit2/TestGitRepository";
 
             using (var repo = InitIsolatedRepository(path))
             {
