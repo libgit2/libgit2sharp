@@ -1108,6 +1108,12 @@ namespace LibGit2Sharp.Core
             ref GitOid newId,
             IntPtr data);
 
+        internal delegate int push_update_reference_callback(
+            IntPtr refName,
+            IntPtr status,
+            IntPtr data
+            );
+
         [DllImport(libgit2)]
         internal static extern int git_repository_discover(
             GitBuf buf,
