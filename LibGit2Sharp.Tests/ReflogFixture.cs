@@ -21,7 +21,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(expectedReflogEntriesCount, reflog.Count());
 
                 // Initial commit assertions
-                Assert.Equal("timothy.clem@gmail.com", reflog.Last().Commiter.Email);
+                Assert.Equal("timothy.clem@gmail.com", reflog.Last().Committer.Email);
                 Assert.True(reflog.Last().Message.StartsWith("clone: from"));
                 Assert.Equal(ObjectId.Zero, reflog.Last().From);
 
@@ -74,14 +74,14 @@ namespace LibGit2Sharp.Tests
                 // Assert a reflog entry is created on HEAD
                 Assert.Equal(1, repo.Refs.Log("HEAD").Count());
                 var reflogEntry = repo.Refs.Log("HEAD").First();
-                Assert.Equal(author, reflogEntry.Commiter);
+                Assert.Equal(author, reflogEntry.Committer);
                 Assert.Equal(commit.Id, reflogEntry.To);
                 Assert.Equal(ObjectId.Zero, reflogEntry.From);
 
                 // Assert the same reflog entry is created on refs/heads/master
                 Assert.Equal(1, repo.Refs.Log("refs/heads/master").Count());
                 reflogEntry = repo.Refs.Log("HEAD").First();
-                Assert.Equal(author, reflogEntry.Commiter);
+                Assert.Equal(author, reflogEntry.Committer);
                 Assert.Equal(commit.Id, reflogEntry.To);
                 Assert.Equal(ObjectId.Zero, reflogEntry.From);
 
@@ -134,7 +134,7 @@ namespace LibGit2Sharp.Tests
 
                 // Assert a reflog entry is created on HEAD
                 var reflogEntry = repo.Refs.Log("HEAD").First();
-                Assert.Equal(author, reflogEntry.Commiter);
+                Assert.Equal(author, reflogEntry.Committer);
                 Assert.Equal(commit.Id, reflogEntry.To);
                 Assert.Equal(string.Format("commit: {0}", commitMessage), repo.Refs.Log("HEAD").First().Message);
             }

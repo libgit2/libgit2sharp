@@ -51,8 +51,8 @@ namespace LibGit2Sharp.Tests
                 var reflogEntry = repo.Refs.Log(repo.Refs.Head).First();
                 Assert.Equal(master.Tip.Id, reflogEntry.From);
                 Assert.Equal(branch.Tip.Id, reflogEntry.To);
-                Assert.NotNull(reflogEntry.Commiter.Email);
-                Assert.NotNull(reflogEntry.Commiter.Name);
+                Assert.NotNull(reflogEntry.Committer.Email);
+                Assert.NotNull(reflogEntry.Committer.Name);
                 Assert.Equal(string.Format("checkout: moving from master to {0}", branchName), reflogEntry.Message);
             }
         }
@@ -89,8 +89,8 @@ namespace LibGit2Sharp.Tests
                 var reflogEntry = repo.Refs.Log(repo.Refs.Head).First();
                 Assert.Equal(master.Tip.Id, reflogEntry.From);
                 Assert.Equal(repo.Branches[branchName].Tip.Id, reflogEntry.To);
-                Assert.NotNull(reflogEntry.Commiter.Email);
-                Assert.NotNull(reflogEntry.Commiter.Name);
+                Assert.NotNull(reflogEntry.Committer.Email);
+                Assert.NotNull(reflogEntry.Committer.Name);
                 Assert.Equal(string.Format("checkout: moving from master to {0}", branchName), reflogEntry.Message);
             }
         }
@@ -138,8 +138,8 @@ namespace LibGit2Sharp.Tests
                 var reflogEntry = repo.Refs.Log(repo.Refs.Head).First();
                 Assert.Equal(master.Tip.Id, reflogEntry.From);
                 Assert.Equal(commit.Sha, reflogEntry.To.Sha);
-                Assert.NotNull(reflogEntry.Commiter.Email);
-                Assert.NotNull(reflogEntry.Commiter.Name);
+                Assert.NotNull(reflogEntry.Committer.Email);
+                Assert.NotNull(reflogEntry.Committer.Name);
                 Assert.Equal(string.Format("checkout: moving from master to {0}", expectedReflogTarget), reflogEntry.Message);
             }
         }
@@ -769,8 +769,8 @@ namespace LibGit2Sharp.Tests
                 var reflogEntry = repo.Refs.Log(repo.Refs.Head).First();
                 Assert.Equal(initialHead.Tip.Id, reflogEntry.From);
                 Assert.Equal(commitSha, reflogEntry.To.Sha);
-                Assert.NotNull(reflogEntry.Commiter.Email);
-                Assert.NotNull(reflogEntry.Commiter.Name);
+                Assert.NotNull(reflogEntry.Committer.Email);
+                Assert.NotNull(reflogEntry.Committer.Name);
                 Assert.Equal(string.Format("checkout: moving from {0} to {1}", initialHead.Tip.Sha, commitPointer), reflogEntry.Message);
             }
         }

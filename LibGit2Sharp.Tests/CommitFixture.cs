@@ -615,8 +615,8 @@ namespace LibGit2Sharp.Tests
                 // Assert reflog entry is created
                 var reflogEntry = repo.Refs.Log(repo.Refs.Head).First();
                 Assert.Equal(repo.Head.Tip.Id, reflogEntry.To);
-                Assert.NotNull(reflogEntry.Commiter.Email);
-                Assert.NotNull(reflogEntry.Commiter.Name);
+                Assert.NotNull(reflogEntry.Committer.Email);
+                Assert.NotNull(reflogEntry.Committer.Name);
                 Assert.Equal(string.Format("commit (merge): {0}", newMergedCommit.MessageShort), reflogEntry.Message);
             }
         }
@@ -691,7 +691,7 @@ namespace LibGit2Sharp.Tests
                 // Assert a reflog entry is created on HEAD
                 Assert.Equal(1, repo.Refs.Log("HEAD").Count());
                 var reflogEntry = repo.Refs.Log("HEAD").First();
-                Assert.Equal(author, reflogEntry.Commiter);
+                Assert.Equal(author, reflogEntry.Committer);
                 Assert.Equal(commit.Id, reflogEntry.To);
                 Assert.Equal(ObjectId.Zero, reflogEntry.From);
                 Assert.Equal(string.Format("commit (initial): {0}", shortMessage), reflogEntry.Message);
