@@ -919,7 +919,6 @@ namespace LibGit2Sharp.Core
 
         public static Conflict git_index_conflict_get(
             IndexSafeHandle index,
-            Repository repo,
             FilePath path)
         {
             IndexEntrySafeHandle ancestor, ours, theirs;

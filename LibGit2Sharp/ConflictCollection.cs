@@ -13,7 +13,7 @@ namespace LibGit2Sharp
     /// </summary>
     public class ConflictCollection : IEnumerable<Conflict>
     {
-        private readonly Repository repo;
+        private readonly Index index;
 
         /// <summary>
         /// Needed for mocking purposes.
@@ -21,9 +21,9 @@ namespace LibGit2Sharp
         protected ConflictCollection()
         { }
 
-        internal ConflictCollection(Repository repo)
+        internal ConflictCollection(Index index)
         {
-            this.repo = repo;
+            this.index = index;
         }
 
         /// <summary>
@@ -36,7 +36,7 @@ namespace LibGit2Sharp
         {
             get
             {
-                return Proxy.git_index_conflict_get(repo.Index.Handle, repo, path);
+                return Proxy.git_index_conflict_get(index.Handle, path);
             }
         }
 
@@ -48,7 +48,7 @@ namespace LibGit2Sharp
         {
             get
             {
-                return new IndexReucEntryCollection(repo);
+                return new IndexReucEntryCollection(index);
             }
         }
 
@@ -60,7 +60,7 @@ namespace LibGit2Sharp
         {
             get
             {
-                return new IndexNameEntryCollection(repo);
+                return new IndexNameEntryCollection(index);
             }
         }
 
@@ -72,7 +72,7 @@ namespace LibGit2Sharp
             IndexEntry ancestor = null, ours = null, theirs = null;
             string currentPath = null;
 
-            foreach (IndexEntry entry in repo.Index)
+            foreach (IndexEntry entry in index)
             {
                 if (entry.StageLevel == StageLevel.Staged)
                 {

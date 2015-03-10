@@ -13,7 +13,7 @@ namespace LibGit2Sharp
     /// </summary>
     public class IndexNameEntryCollection : IEnumerable<IndexNameEntry>
     {
-        private readonly Repository repo;
+        private readonly Index index;
 
         /// <summary>
         /// Needed for mocking purposes.
@@ -21,16 +21,16 @@ namespace LibGit2Sharp
         protected IndexNameEntryCollection()
         { }
 
-        internal IndexNameEntryCollection(Repository repo)
+        internal IndexNameEntryCollection(Index index)
         {
-            this.repo = repo;
+            this.index = index;
         }
 
-        private IndexNameEntry this[int index]
+        private IndexNameEntry this[int idx]
         {
             get
             {
-                IndexNameEntrySafeHandle entryHandle = Proxy.git_index_name_get_byindex(repo.Index.Handle, (UIntPtr)index);
+                IndexNameEntrySafeHandle entryHandle = Proxy.git_index_name_get_byindex(index.Handle, (UIntPtr)idx);
                 return IndexNameEntry.BuildFromPtr(entryHandle);
             }
         }
@@ -41,7 +41,7 @@ namespace LibGit2Sharp
         {
             var list = new List<IndexNameEntry>();
 
-            int count = Proxy.git_index_name_entrycount(repo.Index.Handle);
+            int count = Proxy.git_index_name_entrycount(index.Handle);
 
             for (int i = 0; i < count; i++)
             {
