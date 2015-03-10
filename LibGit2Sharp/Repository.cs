@@ -38,23 +38,48 @@ namespace LibGit2Sharp
         private readonly Lazy<PathCase> pathCase;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Repository"/> class, providing ooptional behavioral overrides through <paramref name="options"/> parameter.
-        /// <para>For a standard repository, <paramref name="path"/> should either point to the ".git" folder or to the working directory. For a bare repository, <paramref name="path"/> should directly point to the repository folder.</para>
+        /// Initializes a new instance of the <see cref="Repository"/> class.
+        /// <para>For a standard repository, <paramref name="path"/> may
+        /// either point to the ".git" folder or to the working directory.
+        /// For a bare repository, <paramref name="path"/> should directly
+        /// point to the repository folder.</para>
         /// </summary>
         /// <param name="path">
-        /// The path to the git repository to open, can be either the path to the git directory (for non-bare repositories this
-        /// would be the ".git" folder inside the working directory) or the path to the working directory.
+        /// The path to the git repository to open, can be either the
+        /// path to the git directory (for non-bare repositories this
+        /// would be the ".git" folder inside the working directory)
+        /// or the path to the working directory.
+        /// </param>
+        public Repository(string path) :
+            this(path, null)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Repository"/> class,
+        /// providing optional behavioral overrides through the
+        /// <paramref name="options"/> parameter.
+        /// <para>For a standard repository, <paramref name="path"/> may
+        /// either point to the ".git" folder or to the working directory.
+        /// For a bare repository, <paramref name="path"/> should directly
+        /// point to the repository folder.</para>
+        /// </summary>
+        /// <param name="path">
+        /// The path to the git repository to open, can be either the
+        /// path to the git directory (for non-bare repositories this
+        /// would be the ".git" folder inside the working directory)
+        /// or the path to the working directory.
         /// </param>
         /// <param name="options">
         /// Overrides to the way a repository is opened.
         /// </param>
-        public Repository(string path, RepositoryOptions options = null)
+        public Repository(string path, RepositoryOptions options)
         {
             Ensure.ArgumentNotNullOrEmptyString(path, "path");
 
             try
             {
-                handle = Proxy.git_repository_open(path);
+                handle = (path != null) ? Proxy.git_repository_open(path) : Proxy.git_repository_new();
                 RegisterForCleanup(handle);
 
                 isBare = Proxy.git_repository_is_bare(handle);
@@ -739,7 +764,7 @@ namespace LibGit2Sharp
             IConvertableToGitCheckoutOpts opts)
         {
 
-            using(GitCheckoutOptsWrapper checkoutOptionsWrapper = new GitCheckoutOptsWrapper(opts, ToFilePaths(paths)))
+            using (GitCheckoutOptsWrapper checkoutOptionsWrapper = new GitCheckoutOptsWrapper(opts, ToFilePaths(paths)))
             {
                 var options = checkoutOptionsWrapper.Options;
                 Proxy.git_checkout_tree(Handle, tree.Id, ref options);
@@ -910,7 +935,7 @@ namespace LibGit2Sharp
                     return;
                 }
 
-                var symRef = (SymbolicReference) reference;
+                var symRef = (SymbolicReference)reference;
 
                 reference = symRef.Target;
 
@@ -1269,7 +1294,7 @@ namespace LibGit2Sharp
             FastForwardStrategy fastForwardStrategy = (options.FastForwardStrategy != FastForwardStrategy.Default) ?
                 options.FastForwardStrategy : FastForwardStrategyFromMergePreference(mergePreference);
 
-            switch(fastForwardStrategy)
+            switch (fastForwardStrategy)
             {
                 case FastForwardStrategy.Default:
                     if (mergeAnalysis.HasFlag(GitMergeAnalysis.GIT_MERGE_ANALYSIS_FASTFORWARD))
@@ -1337,14 +1362,14 @@ namespace LibGit2Sharp
             MergeResult mergeResult;
 
             var mergeOptions = new GitMergeOpts
-                {
-                    Version = 1,
-                    MergeFileFavorFlags = options.MergeFileFavor,
-                    MergeTreeFlags = options.FindRenames ? GitMergeTreeFlags.GIT_MERGE_TREE_FIND_RENAMES :
-                                                           GitMergeTreeFlags.GIT_MERGE_TREE_NORMAL,
-                    RenameThreshold = (uint) options.RenameThreshold,
-                    TargetLimit = (uint) options.TargetLimit,
-                };
+            {
+                Version = 1,
+                MergeFileFavorFlags = options.MergeFileFavor,
+                MergeTreeFlags = options.FindRenames ? GitMergeTreeFlags.GIT_MERGE_TREE_FIND_RENAMES :
+                                                       GitMergeTreeFlags.GIT_MERGE_TREE_NORMAL,
+                RenameThreshold = (uint)options.RenameThreshold,
+                TargetLimit = (uint)options.TargetLimit,
+            };
 
             using (GitCheckoutOptsWrapper checkoutOptionsWrapper = new GitCheckoutOptsWrapper(options))
             {
@@ -1382,7 +1407,7 @@ namespace LibGit2Sharp
         private MergeResult FastForwardMerge(GitAnnotatedCommitHandle annotatedCommit, Signature merger, MergeOptions options)
         {
             ObjectId id = Proxy.git_annotated_commit_id(annotatedCommit);
-            Commit fastForwardCommit = (Commit) Lookup(id, ObjectType.Commit);
+            Commit fastForwardCommit = (Commit)Lookup(id, ObjectType.Commit);
             Ensure.GitObjectIsNotNull(fastForwardCommit, id.Sha);
 
             CheckoutTree(fastForwardCommit.Tree, null, new FastForwardCheckoutOptionsAdapter(options));
@@ -1857,7 +1882,7 @@ namespace LibGit2Sharp
                     case ChangeKind.Unmodified:
                         if (removeFromWorkingDirectory && (
                             status.HasFlag(FileStatus.Staged) ||
-                            status.HasFlag(FileStatus.Added) ))
+                            status.HasFlag(FileStatus.Added)))
                         {
                             throw new RemoveFromIndexException(string.Format(CultureInfo.InvariantCulture, "Unable to remove file '{0}', as it has changes staged in the index. You can call the Remove() method with removeFromWorkingDirectory=false if you want to remove it from the index only.",
                                 treeEntryChanges.Path));
