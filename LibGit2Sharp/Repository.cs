@@ -37,6 +37,25 @@ namespace LibGit2Sharp
         private readonly SubmoduleCollection submodules;
         private readonly Lazy<PathCase> pathCase;
 
+        private enum RepositoryRequiredParameter
+        {
+            None = 0,
+            Path = 1,
+            Options = 2,
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Repository"/> class
+        /// that does not point to an on-disk Git repository.  This is
+        /// suitable only for custom, in-memory Git repositories that are
+        /// configured with custom object database, reference database and/or
+        /// configuration backends.
+        /// </summary>
+        public Repository()
+            : this(null, null, RepositoryRequiredParameter.None)
+        {
+        }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="Repository"/> class.
         /// <para>For a standard repository, <paramref name="path"/> may
@@ -51,7 +70,7 @@ namespace LibGit2Sharp
         /// or the path to the working directory.
         /// </param>
         public Repository(string path) :
-            this(path, null)
+            this(path, null, RepositoryRequiredParameter.Path)
         {
         }
 
@@ -73,9 +92,22 @@ namespace LibGit2Sharp
         /// <param name="options">
         /// Overrides to the way a repository is opened.
         /// </param>
-        public Repository(string path, RepositoryOptions options)
+        public Repository(string path, RepositoryOptions options) :
+            this(path, options, RepositoryRequiredParameter.Path | RepositoryRequiredParameter.Options)
         {
-            Ensure.ArgumentNotNullOrEmptyString(path, "path");
+        }
+
+        private Repository(string path, RepositoryOptions options, RepositoryRequiredParameter requiredParameter)
+        {
+            if ((requiredParameter & RepositoryRequiredParameter.Path) == RepositoryRequiredParameter.Path)
+            {
+                Ensure.ArgumentNotNullOrEmptyString(path, "path");
+            }
+
+            if ((requiredParameter & RepositoryRequiredParameter.Options) == RepositoryRequiredParameter.Options)
+            {
+                Ensure.ArgumentNotNull(options, "options");
+            }
 
             try
             {
@@ -83,6 +115,14 @@ namespace LibGit2Sharp
                 RegisterForCleanup(handle);
 
                 isBare = Proxy.git_repository_is_bare(handle);
+
+                /* TODO: bug in libgit2, update when fixed by
+                 * https://github.com/libgit2/libgit2/pull/2970
+                 */
+                if (path == null)
+                {
+                    isBare = true;
+                }
 
                 Func<Index> indexBuilder = () => new Index(this);
 
@@ -764,7 +804,7 @@ namespace LibGit2Sharp
             IConvertableToGitCheckoutOpts opts)
         {
 
-            using (GitCheckoutOptsWrapper checkoutOptionsWrapper = new GitCheckoutOptsWrapper(opts, ToFilePaths(paths)))
+            using(GitCheckoutOptsWrapper checkoutOptionsWrapper = new GitCheckoutOptsWrapper(opts, ToFilePaths(paths)))
             {
                 var options = checkoutOptionsWrapper.Options;
                 Proxy.git_checkout_tree(Handle, tree.Id, ref options);
@@ -935,7 +975,7 @@ namespace LibGit2Sharp
                     return;
                 }
 
-                var symRef = (SymbolicReference)reference;
+                var symRef = (SymbolicReference) reference;
 
                 reference = symRef.Target;
 
@@ -1294,7 +1334,7 @@ namespace LibGit2Sharp
             FastForwardStrategy fastForwardStrategy = (options.FastForwardStrategy != FastForwardStrategy.Default) ?
                 options.FastForwardStrategy : FastForwardStrategyFromMergePreference(mergePreference);
 
-            switch (fastForwardStrategy)
+            switch(fastForwardStrategy)
             {
                 case FastForwardStrategy.Default:
                     if (mergeAnalysis.HasFlag(GitMergeAnalysis.GIT_MERGE_ANALYSIS_FASTFORWARD))
@@ -1362,14 +1402,14 @@ namespace LibGit2Sharp
             MergeResult mergeResult;
 
             var mergeOptions = new GitMergeOpts
-            {
-                Version = 1,
-                MergeFileFavorFlags = options.MergeFileFavor,
-                MergeTreeFlags = options.FindRenames ? GitMergeTreeFlags.GIT_MERGE_TREE_FIND_RENAMES :
-                                                       GitMergeTreeFlags.GIT_MERGE_TREE_NORMAL,
-                RenameThreshold = (uint)options.RenameThreshold,
-                TargetLimit = (uint)options.TargetLimit,
-            };
+                {
+                    Version = 1,
+                    MergeFileFavorFlags = options.MergeFileFavor,
+                    MergeTreeFlags = options.FindRenames ? GitMergeTreeFlags.GIT_MERGE_TREE_FIND_RENAMES :
+                                                           GitMergeTreeFlags.GIT_MERGE_TREE_NORMAL,
+                    RenameThreshold = (uint) options.RenameThreshold,
+                    TargetLimit = (uint) options.TargetLimit,
+                };
 
             using (GitCheckoutOptsWrapper checkoutOptionsWrapper = new GitCheckoutOptsWrapper(options))
             {
@@ -1407,7 +1447,7 @@ namespace LibGit2Sharp
         private MergeResult FastForwardMerge(GitAnnotatedCommitHandle annotatedCommit, Signature merger, MergeOptions options)
         {
             ObjectId id = Proxy.git_annotated_commit_id(annotatedCommit);
-            Commit fastForwardCommit = (Commit)Lookup(id, ObjectType.Commit);
+            Commit fastForwardCommit = (Commit) Lookup(id, ObjectType.Commit);
             Ensure.GitObjectIsNotNull(fastForwardCommit, id.Sha);
 
             CheckoutTree(fastForwardCommit.Tree, null, new FastForwardCheckoutOptionsAdapter(options));
@@ -1882,7 +1922,7 @@ namespace LibGit2Sharp
                     case ChangeKind.Unmodified:
                         if (removeFromWorkingDirectory && (
                             status.HasFlag(FileStatus.Staged) ||
-                            status.HasFlag(FileStatus.Added)))
+                            status.HasFlag(FileStatus.Added) ))
                         {
                             throw new RemoveFromIndexException(string.Format(CultureInfo.InvariantCulture, "Unable to remove file '{0}', as it has changes staged in the index. You can call the Remove() method with removeFromWorkingDirectory=false if you want to remove it from the index only.",
                                 treeEntryChanges.Path));

@@ -1194,6 +1194,10 @@ namespace LibGit2Sharp.Core
             RepositorySafeHandle repository);
 
         [DllImport(libgit2)]
+        internal static extern int git_repository_new(
+            out RepositorySafeHandle repository);
+
+        [DllImport(libgit2)]
         internal static extern int git_repository_odb(out ObjectDatabaseSafeHandle odb, RepositorySafeHandle repo);
 
         [DllImport(libgit2)]

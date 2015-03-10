@@ -2345,6 +2345,19 @@ namespace LibGit2Sharp.Core
             }
         }
 
+        public static RepositorySafeHandle git_repository_new()
+        {
+            using (ThreadAffinity())
+            {
+                RepositorySafeHandle repo;
+
+                int res = NativeMethods.git_repository_new(out repo);
+                Ensure.ZeroResult(res);
+
+                return repo;
+            }
+        }
+
         public static ObjectDatabaseSafeHandle git_repository_odb(RepositorySafeHandle repo)
         {
             using (ThreadAffinity())

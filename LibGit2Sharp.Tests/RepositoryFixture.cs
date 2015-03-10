@@ -652,5 +652,18 @@ namespace LibGit2Sharp.Tests
                 Assert.False(repo.Info.IsShallow);
             }
         }
+
+        [Fact]
+        public void CanCreateInMemoryRepository()
+        {
+            using (var repo = new Repository())
+            {
+                Assert.True(repo.Info.IsBare);
+                Assert.Null(repo.Info.Path);
+                Assert.Null(repo.Info.WorkingDirectory);
+
+                Assert.Throws<BareRepositoryException>(() => { var idx = repo.Index; });
+            }
+        }
     }
 }
