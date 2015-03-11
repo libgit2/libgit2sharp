@@ -231,7 +231,7 @@ namespace LibGit2Sharp
                     throw new BareRepositoryException("Index is not available in a bare repository.");
                 }
 
-                return index.Value;
+                return index != null ? index.Value : null;
             }
         }
 

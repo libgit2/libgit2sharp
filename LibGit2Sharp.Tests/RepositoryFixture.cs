@@ -26,6 +26,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Null(repo.Info.WorkingDirectory);
                 Assert.Equal(Path.GetFullPath(repoPath), repo.Info.Path);
                 Assert.True(repo.Info.IsBare);
+                Assert.Throws<BareRepositoryException>(() => { var idx = repo.Index; });
 
                 AssertInitializedRepository(repo, "refs/heads/master");
 
