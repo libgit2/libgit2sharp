@@ -100,7 +100,9 @@
     <Compile Include="IndexReucEntry.cs" />
     <Compile Include="IndexReucEntryCollection.cs" />
     <Compile Include="IndexNameEntry.cs" />
+    <Compile Include="MergeAndCheckoutOptionsBase.cs" />
     <Compile Include="MergeOptions.cs" />
+    <Compile Include="MergeOptionsBase.cs" />
     <Compile Include="MergeResult.cs" />
     <Compile Include="MergeTreeOptions.cs" />
     <Compile Include="MergeTreeResult.cs" />
