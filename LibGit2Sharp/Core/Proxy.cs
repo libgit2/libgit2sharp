@@ -939,6 +939,50 @@ namespace LibGit2Sharp.Core
                 IndexEntry.BuildFromPtr(theirs));
         }
 
+        public static ConflictIteratorSafeHandle git_index_conflict_iterator_new(IndexSafeHandle index)
+        {
+            using (ThreadAffinity())
+            {
+                ConflictIteratorSafeHandle iter;
+                int res = NativeMethods.git_index_conflict_iterator_new(out iter, index);
+                Ensure.ZeroResult(res);
+
+                return iter;
+            }
+        }
+
+        public static Conflict git_index_conflict_next(ConflictIteratorSafeHandle iterator)
+        {
+            IndexEntrySafeHandle ancestor, ours, theirs;
+
+            using (ThreadAffinity())
+            {
+                int res = NativeMethods.git_index_conflict_next(out ancestor, out ours, out theirs, iterator);
+
+                if (res == (int)GitErrorCode.IterOver)
+                {
+                    return null;
+                }
+
+                Ensure.ZeroResult(res);
+
+                using (ancestor)
+                using (ours)
+                using (theirs)
+                {
+                    return new Conflict(
+                        IndexEntry.BuildFromPtr(ancestor),
+                        IndexEntry.BuildFromPtr(ours),
+                        IndexEntry.BuildFromPtr(theirs));
+                }
+            }
+        }
+
+        public static void git_index_conflict_iterator_free(IntPtr iterator)
+        {
+            NativeMethods.git_index_conflict_iterator_free(iterator);
+        }
+
         public static int git_index_entrycount(IndexSafeHandle index)
         {
             UIntPtr count = NativeMethods.git_index_entrycount(index);
@@ -1053,12 +1097,24 @@ namespace LibGit2Sharp.Core
             }
         }
 
-        public static ObjectId git_tree_create_fromindex(Index index)
+        public static ObjectId git_index_write_tree(IndexSafeHandle index)
         {
             using (ThreadAffinity())
             {
                 GitOid treeOid;
-                int res = NativeMethods.git_index_write_tree(out treeOid, index.Handle);
+                int res = NativeMethods.git_index_write_tree(out treeOid, index);
+                Ensure.ZeroResult(res);
+
+                return treeOid;
+            }
+        }
+
+        public static ObjectId git_index_write_tree_to(IndexSafeHandle index, RepositorySafeHandle repo)
+        {
+            using (ThreadAffinity())
+            {
+                GitOid treeOid;
+                int res = NativeMethods.git_index_write_tree_to(out treeOid, index, repo);
                 Ensure.ZeroResult(res);
 
                 return treeOid;
@@ -1087,13 +1143,12 @@ namespace LibGit2Sharp.Core
 
         #region git_merge_
 
-        public static IndexSafeHandle git_merge_trees(RepositorySafeHandle repo, GitObjectSafeHandle ancestorTree, GitObjectSafeHandle ourTree, GitObjectSafeHandle theirTree)
+        public static IndexSafeHandle git_merge_commits(RepositorySafeHandle repo, GitObjectSafeHandle ourCommit, GitObjectSafeHandle theirCommit, GitMergeOpts opts)
         {
             using (ThreadAffinity())
             {
                 IndexSafeHandle index;
-                GitMergeOpts opts = new GitMergeOpts { Version = 1 };
-                int res = NativeMethods.git_merge_trees(out index, repo, ancestorTree, ourTree, theirTree, ref opts);
+                int res = NativeMethods.git_merge_commits(out index, repo, ourCommit, theirCommit, ref opts);
                 Ensure.ZeroResult(res);
 
                 return index;

@@ -69,6 +69,7 @@
     <Compile Include="CommitSortStrategies.cs" />
     <Compile Include="CompareOptions.cs" />
     <Compile Include="Core\Platform.cs" />
+    <Compile Include="Core\Handles\ConflictIteratorSafeHandle.cs" />
     <Compile Include="DescribeOptions.cs" />
     <Compile Include="DescribeStrategy.cs" />
     <Compile Include="Core\GitDescribeFormatOptions.cs" />
@@ -101,6 +102,8 @@
     <Compile Include="IndexNameEntry.cs" />
     <Compile Include="MergeOptions.cs" />
     <Compile Include="MergeResult.cs" />
+    <Compile Include="MergeTreeOptions.cs" />
+    <Compile Include="MergeTreeResult.cs" />
     <Compile Include="NotFoundException.cs" />
     <Compile Include="GitObjectMetadata.cs" />
     <Compile Include="PatchEntryChanges.cs" />

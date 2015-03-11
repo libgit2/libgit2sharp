@@ -274,7 +274,7 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNull(index, "index");
 
-            var treeId = Proxy.git_tree_create_fromindex(index);
+            var treeId = Proxy.git_index_write_tree(index.Handle);
             return this.repo.Lookup<Tree>(treeId);
         }
 
@@ -419,21 +419,8 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(one, "one");
             Ensure.ArgumentNotNull(another, "another");
 
-            using (var ourHandle = Proxy.git_object_peel(repo.Handle, one.Id, GitObjectType.Tree, true))
-            using (var theirHandle = Proxy.git_object_peel(repo.Handle, another.Id, GitObjectType.Tree, true))
-            {
-                var ancestorCommit = FindMergeBase(one, another);
-
-                var ancestorHandle = ancestorCommit != null
-                    ? Proxy.git_object_peel(repo.Handle, ancestorCommit.Id, GitObjectType.Tree, false)
-                    : new NullGitObjectSafeHandle();
-
-                using (ancestorHandle)
-                using (var indexHandle = Proxy.git_merge_trees(repo.Handle, ancestorHandle, ourHandle, theirHandle))
-                {
-                    return !Proxy.git_index_has_conflicts(indexHandle);
-                }
-            }
+            var result = repo.ObjectDatabase.MergeCommits(one, another, null);
+            return (result.Status == MergeTreeStatus.Succeeded);
         }
 
         /// <summary>
@@ -492,6 +479,64 @@ namespace LibGit2Sharp
             }
 
             return id == null ? null : repo.Lookup<Commit>(id);
+        }
+
+        /// <summary>
+        /// Perform a three-way merge of two commits, looking up their
+        /// commit ancestor. The returned index will contain the results
+        /// of the merge and can be examined for conflicts. The returned
+        /// index must be disposed.
+        /// </summary>
+        /// <param name="ours">The first tree</param>
+        /// <param name="theirs">The second tree</param>
+        /// <param name="options">The <see cref="MergeTreeOptions"/> controlling the merge</param>
+        /// <returns>The <see cref="Index"/> containing the merged trees and any conflicts</returns>
+        public virtual MergeTreeResult MergeCommits(Commit ours, Commit theirs, MergeTreeOptions options)
+        {
+            Ensure.ArgumentNotNull(ours, "ours");
+            Ensure.ArgumentNotNull(theirs, "theirs");
+
+            options = options ?? new MergeTreeOptions();
+
+            var mergeOptions = new GitMergeOpts
+            {
+                Version = 1,
+                MergeFileFavorFlags = options.MergeFileFavor,
+                MergeTreeFlags = options.FindRenames ? GitMergeTreeFlags.GIT_MERGE_TREE_FIND_RENAMES :
+                                                       GitMergeTreeFlags.GIT_MERGE_TREE_NORMAL,
+                RenameThreshold = (uint)options.RenameThreshold,
+                TargetLimit = (uint)options.TargetLimit,
+            };
+
+            using (var oneHandle = Proxy.git_object_lookup(repo.Handle, ours.Id, GitObjectType.Commit))
+            using (var twoHandle = Proxy.git_object_lookup(repo.Handle, theirs.Id, GitObjectType.Commit))
+            using (var indexHandle = Proxy.git_merge_commits(repo.Handle, oneHandle, twoHandle, mergeOptions))
+            {
+                MergeTreeResult mergeResult;
+
+                if (Proxy.git_index_has_conflicts(indexHandle))
+                {
+                    List<Conflict> conflicts = new List<Conflict>();
+                    Conflict conflict;
+
+                    using (ConflictIteratorSafeHandle iterator = Proxy.git_index_conflict_iterator_new(indexHandle))
+                    {
+                        while ((conflict = Proxy.git_index_conflict_next(iterator)) != null)
+                        {
+                            conflicts.Add(conflict);
+                        }
+                    }
+
+                    mergeResult = new MergeTreeResult(conflicts);
+                }
+                else
+                {
+                    var treeId = Proxy.git_index_write_tree_to(indexHandle, repo.Handle);
+                    mergeResult = new MergeTreeResult(this.repo.Lookup<Tree>(treeId));
+                }
+
+                return mergeResult;
+            }
         }
     }
 }

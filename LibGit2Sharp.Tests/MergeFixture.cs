@@ -748,6 +748,106 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+
+        [Fact]
+        public void CanMergeTreeIntoSameTree()
+        {
+            string path = SandboxMergeTestRepo();
+            using (var repo = new Repository(path))
+            {
+                var master = repo.Branches["master"].Tip;
+
+                var result = repo.ObjectDatabase.MergeCommits(master, master, null);
+                Assert.Equal(MergeTreeStatus.Succeeded, result.Status);
+                Assert.Equal(0, result.Conflicts.Count());
+            }
+        }
+
+        [Fact]
+        public void CanMergeTreeIntoTreeFromUnbornBranch()
+        {
+            string path = SandboxMergeTestRepo();
+            using (var repo = new Repository(path))
+            {
+                repo.Refs.UpdateTarget("HEAD", "refs/heads/unborn");
+
+                Touch(repo.Info.WorkingDirectory, "README", "Yeah!\n");
+                repo.Index.Clear();
+                repo.Stage("README");
+
+                repo.Commit("A new world, free of the burden of the history", Constants.Signature, Constants.Signature);
+
+                var master = repo.Branches["master"].Tip;
+                var branch = repo.Branches["unborn"].Tip;
+
+                var result = repo.ObjectDatabase.MergeCommits(master, branch, null);
+                Assert.Equal(MergeTreeStatus.Succeeded, result.Status);
+                Assert.NotNull(result.Tree);
+                Assert.Equal(0, result.Conflicts.Count());
+            }
+        }
+
+        [Fact]
+        public void CanMergeCommitsAndDetectConflicts()
+        {
+            string path = SandboxMergeTestRepo();
+            using (var repo = new Repository(path))
+            {
+                repo.Refs.UpdateTarget("HEAD", "refs/heads/unborn");
+
+                repo.Index.Replace(repo.Lookup<Commit>("conflicts"));
+
+                repo.Commit("A conflicting world, free of the burden of the history", Constants.Signature, Constants.Signature);
+
+                var master = repo.Branches["master"].Tip;
+                var branch = repo.Branches["unborn"].Tip;
+
+                var result = repo.ObjectDatabase.MergeCommits(master, branch, null);
+                Assert.Equal(MergeTreeStatus.Conflicts, result.Status);
+                Assert.Null(result.Tree);
+                Assert.NotEqual(0, result.Conflicts.Count());
+            }
+        }
+
+        [Fact]
+        public void CanMergeFastForwardTreeWithoutConflicts()
+        {
+            string path = SandboxMergeTestRepo();
+            using (var repo = new Repository(path))
+            {
+                var master = repo.Lookup<Commit>("master");
+                var branch = repo.Lookup<Commit>("fast_forward");
+
+                var result = repo.ObjectDatabase.MergeCommits(master, branch, null);
+                Assert.Equal(MergeTreeStatus.Succeeded, result.Status);
+                Assert.NotNull(result.Tree);
+                Assert.Equal(0, result.Conflicts.Count());
+            }
+        }
+
+        [Fact]
+        public void CanIdentifyConflictsInMergeCommits()
+        {
+            string path = SandboxMergeTestRepo();
+            using (var repo = new Repository(path))
+            {
+                var master = repo.Lookup<Commit>("master");
+                var branch = repo.Lookup<Commit>("conflicts");
+
+                var result = repo.ObjectDatabase.MergeCommits(master, branch, null);
+
+                Assert.Equal(MergeTreeStatus.Conflicts, result.Status);
+
+                Assert.Null(result.Tree);
+                Assert.Equal(1, result.Conflicts.Count());
+
+                var conflict = result.Conflicts.First();
+                Assert.Equal(new ObjectId("8e9daea300fbfef6c0da9744c6214f546d55b279"), conflict.Ancestor.Id);
+                Assert.Equal(new ObjectId("610b16886ca829cebd2767d9196f3c4378fe60b5"), conflict.Ours.Id);
+                Assert.Equal(new ObjectId("3dd9738af654bbf1c363f6c3bbc323bacdefa179"), conflict.Theirs.Id);
+            }
+        }
+
         private Commit AddFileCommitToRepo(IRepository repository, string filename, string content = null)
         {
             Touch(repository.Info.WorkingDirectory, filename, content);

@@ -543,6 +543,22 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictFilePathMarshaler))] FilePath path);
 
         [DllImport(libgit2)]
+        internal static extern int git_index_conflict_iterator_new(
+            out ConflictIteratorSafeHandle iterator,
+            IndexSafeHandle index);
+
+        [DllImport(libgit2)]
+        internal static extern int git_index_conflict_next(
+            out IndexEntrySafeHandle ancestor,
+            out IndexEntrySafeHandle ours,
+            out IndexEntrySafeHandle theirs,
+            ConflictIteratorSafeHandle iterator);
+
+        [DllImport(libgit2)]
+        internal static extern void git_index_conflict_iterator_free(
+            IntPtr iterator);
+
+        [DllImport(libgit2)]
         internal static extern UIntPtr git_index_entrycount(IndexSafeHandle index);
 
         [DllImport(libgit2)]
@@ -603,6 +619,9 @@ namespace LibGit2Sharp.Core
         internal static extern int git_index_write_tree(out GitOid treeOid, IndexSafeHandle index);
 
         [DllImport(libgit2)]
+        internal static extern int git_index_write_tree_to(out GitOid treeOid, IndexSafeHandle index, RepositorySafeHandle repo);
+
+        [DllImport(libgit2)]
         internal static extern int git_index_read_tree(IndexSafeHandle index, GitObjectSafeHandle tree);
 
         [DllImport(libgit2)]
@@ -661,12 +680,11 @@ namespace LibGit2Sharp.Core
             ref GitCheckoutOpts checkout_opts);
 
         [DllImport(libgit2)]
-        internal static extern int git_merge_trees(
+        internal static extern int git_merge_commits(
             out IndexSafeHandle index,
             RepositorySafeHandle repo,
-            GitObjectSafeHandle ancestor_tree,
-            GitObjectSafeHandle our_tree,
-            GitObjectSafeHandle their_tree,
+            GitObjectSafeHandle our_commit,
+            GitObjectSafeHandle their_commit,
             ref GitMergeOpts merge_opts);
 
         [DllImport(libgit2)]
