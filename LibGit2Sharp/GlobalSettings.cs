@@ -15,6 +15,7 @@ namespace LibGit2Sharp
         private static LogConfiguration logConfiguration = LogConfiguration.None;
 
         private static string nativeLibraryPath;
+        private static bool nativeLibraryPathLocked;
 
         static GlobalSettings()
         {
@@ -154,8 +155,19 @@ namespace LibGit2Sharp
                     throw new LibGit2SharpException("Setting the native hint path is only supported on Windows platforms");
                 }
 
+                if (nativeLibraryPathLocked)
+                {
+                    throw new LibGit2SharpException("You cannot set the native library path after it has been loaded");
+                }
+
                 nativeLibraryPath = value;
             }
+        }
+
+        internal static string GetAndLockNativeLibraryPath()
+        {
+            nativeLibraryPathLocked = true;
+            return nativeLibraryPath;
         }
     }
 }

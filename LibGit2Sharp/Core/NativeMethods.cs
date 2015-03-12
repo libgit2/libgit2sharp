@@ -66,7 +66,9 @@ namespace LibGit2Sharp.Core
         {
             if (Platform.OperatingSystem == OperatingSystemType.Windows)
             {
-                string path = Path.Combine(GlobalSettings.NativeLibraryPath, Platform.ProcessorArchitecture);
+                string nativeLibraryPath = GlobalSettings.GetAndLockNativeLibraryPath();
+
+                string path = Path.Combine(nativeLibraryPath, Platform.ProcessorArchitecture);
 
                 const string pathEnvVariable = "PATH";
                 Environment.SetEnvironmentVariable(pathEnvVariable,
