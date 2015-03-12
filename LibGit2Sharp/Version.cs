@@ -98,7 +98,7 @@ namespace LibGit2Sharp
                 InformationalVersion,
                 LibGit2SharpCommitSha,
                 LibGit2CommitSha,
-                NativeMethods.ProcessorArchitecture,
+                Platform.ProcessorArchitecture,
                 features);
         }
 

@@ -55,5 +55,14 @@ namespace LibGit2Sharp.Tests
                 Assert.True(matchGroups[i].Success);
             }
         }
+
+        [Fact]
+        public void TryingToResetNativeLibraryPathAfterLoadedThrows()
+        {
+            // Do something that loads the native library
+            Assert.NotNull(GlobalSettings.Version.Features);
+
+            Assert.Throws<LibGit2SharpException>(() => { GlobalSettings.NativeLibraryPath = "C:/Foo"; });
+        }
     }
 }

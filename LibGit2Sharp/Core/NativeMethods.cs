@@ -64,42 +64,17 @@ namespace LibGit2Sharp.Core
 
         static NativeMethods()
         {
-            if (!IsRunningOnUnix())
+            if (Platform.OperatingSystem == OperatingSystemType.Windows)
             {
-                string originalAssemblypath = new Uri(Assembly.GetExecutingAssembly().EscapedCodeBase).LocalPath;
-
-                string currentArchSubPath = "NativeBinaries/" + ProcessorArchitecture;
-
-                string path = Path.Combine(Path.GetDirectoryName(originalAssemblypath), currentArchSubPath);
+                string path = Path.Combine(GlobalSettings.NativeLibraryPath, Platform.ProcessorArchitecture);
 
                 const string pathEnvVariable = "PATH";
                 Environment.SetEnvironmentVariable(pathEnvVariable,
-                                                   String.Format(CultureInfo.InvariantCulture, "{0}{1}{2}", path, Path.PathSeparator, Environment.GetEnvironmentVariable(pathEnvVariable)));
+                    String.Format(CultureInfo.InvariantCulture, "{0}{1}{2}", path, Path.PathSeparator, Environment.GetEnvironmentVariable(pathEnvVariable)));
             }
 
             // See LibraryLifetimeObject description.
             lifetimeObject = new LibraryLifetimeObject();
-        }
-
-        public static string ProcessorArchitecture
-        {
-            get
-            {
-                if (Environment.Is64BitProcess)
-                {
-                    return "amd64";
-                }
-
-                return "x86";
-            }
-        }
-
-        // Should match LibGit2Sharp.Tests.TestHelpers.BaseFixture.IsRunningOnUnix()
-        private static bool IsRunningOnUnix()
-        {
-            // see http://mono-project.com/FAQ%3a_Technical#Mono_Platforms
-            var p = (int)Environment.OSVersion.Platform;
-            return (p == 4) || (p == 6) || (p == 128);
         }
 
         [DllImport(libgit2)]
