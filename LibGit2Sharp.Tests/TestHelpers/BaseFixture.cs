@@ -91,8 +91,8 @@ namespace LibGit2Sharp.Tests.TestHelpers
             return !isInsensitive;
         }
 
-        // Should match LibGit2Sharp.Core.NativeMethods.IsRunningOnLinux()
-        protected static bool IsRunningOnLinux()
+        // Should match LibGit2Sharp.Core.NativeMethods.IsRunningOnUnix()
+        protected static bool IsRunningOnUnix()
         {
             // see http://mono-project.com/FAQ%3a_Technical#Mono_Platforms
             var p = (int)Environment.OSVersion.Platform;

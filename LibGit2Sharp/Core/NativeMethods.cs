@@ -64,7 +64,7 @@ namespace LibGit2Sharp.Core
 
         static NativeMethods()
         {
-            if (!IsRunningOnLinux())
+            if (!IsRunningOnUnix())
             {
                 string originalAssemblypath = new Uri(Assembly.GetExecutingAssembly().EscapedCodeBase).LocalPath;
 
@@ -94,8 +94,8 @@ namespace LibGit2Sharp.Core
             }
         }
 
-        // Should match LibGit2Sharp.Tests.TestHelpers.BaseFixture.IsRunningOnLinux()
-        private static bool IsRunningOnLinux()
+        // Should match LibGit2Sharp.Tests.TestHelpers.BaseFixture.IsRunningOnUnix()
+        private static bool IsRunningOnUnix()
         {
             // see http://mono-project.com/FAQ%3a_Technical#Mono_Platforms
             var p = (int)Environment.OSVersion.Platform;
