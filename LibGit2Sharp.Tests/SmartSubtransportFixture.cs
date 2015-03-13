@@ -55,7 +55,7 @@ namespace LibGit2Sharp.Tests
                     }
 
                     // Add the expected tags
-                    string[] expectedTagNames = { "blob", "commit_tree" };
+                    string[] expectedTagNames = { "blob", "commit_tree", "annotated_tag" };
                     foreach (string tagName in expectedTagNames)
                     {
                         TestRemoteInfo.ExpectedTagInfo expectedTagInfo = expectedResults.Tags[tagName];
