@@ -39,7 +39,7 @@ install:
     $ShouldPublishNugetArtifact = "$($env:APPVEYOR_PULL_REQUEST_NUMBER -eq $null)"
     $Env:SHOULD_PUBLISH_NUGET_ARTIFACT = $ShouldPublishNugetArtifact
     Write-Host "Should publish Nuget artifact = $($Env:SHOULD_PUBLISH_NUGET_ARTIFACT)"
-- cinst gitlink -Pre
+- cinst gitlink -Pre -y
 
 assembly_info:
   patch: true
@@ -55,7 +55,7 @@ before_build:
 - nuget restore "C:\projects\libgit2sharp\LibGit2Sharp.sln"
 
 after_build:
-  cmd: gitlink c:\projects\libgit2sharp -u https://github.com/libgit2/libgit2sharp -b appveyor.$(APPVEYOR_REPO_BRANCH) -s appveyor.$(APPVEYOR_REPO_COMMIT)
+  cmd: gitlink c:\projects\libgit2sharp -u https://github.com/libgit2/libgit2sharp -b $env:APPVEYOR_REPO_BRANCH -s $env:APPVEYOR_REPO_COMMIT
 
 build_script:
 - msbuild "C:\projects\libgit2sharp\LibGit2Sharp.sln" /verbosity:normal /p:Configuration=Release /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /property:ExtraDefine="LEAKS_IDENTIFYING"
