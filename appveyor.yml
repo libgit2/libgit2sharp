@@ -55,7 +55,7 @@ before_build:
 - nuget restore "C:\projects\libgit2sharp\LibGit2Sharp.sln"
 
 after_build:
-  cmd: gitlink c:\projects\libgit2sharp -u https://github.com/libgit2sharp/libgit2sharp -b $($Env:APPVEYOR_REPO_BRANCH) -s $($Env:APPVEYOR_REPO_COMMIT)
+  cmd: gitlink c:\projects\libgit2sharp -u https://github.com/libgit2/libgit2sharp -b $($Env:APPVEYOR_REPO_BRANCH) -s $($Env:APPVEYOR_REPO_COMMIT)
 
 build_script:
 - msbuild "C:\projects\libgit2sharp\LibGit2Sharp.sln" /verbosity:normal /p:Configuration=Release /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /property:ExtraDefine="LEAKS_IDENTIFYING"
