@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using LibGit2Sharp.Handlers;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
 
@@ -62,7 +63,7 @@ namespace LibGit2Sharp.Tests
         public void CanPushABranchTrackingAnUpstreamBranch()
         {
             bool packBuilderCalled = false;
-            Handlers.PackBuilderProgressHandler packBuilderCb = (x, y, z) => { packBuilderCalled = true; return true; };
+            PackBuilderProgressHandler packBuilderCb = (x, y, z) => { packBuilderCalled = true; return true; };
 
             AssertPush(repo => repo.Network.Push(repo.Head));
             AssertPush(repo => repo.Network.Push(repo.Branches["master"]));

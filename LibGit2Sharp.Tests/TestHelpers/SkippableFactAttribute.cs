@@ -1,4 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Xml;
+using Xunit;
+using Xunit.Extensions;
+using Xunit.Sdk;
 //**********************************************************************
 //* This file is based on the DynamicSkipExample.cs in xUnit which is
 //* provided under the following Ms-PL license:
@@ -58,12 +64,6 @@
 //* portion of the software in compiled or object code form, you may
 //* only do so under a license that complies with this license.
 //**********************************************************************
-using System.Collections.Generic;
-using System.Linq;
-using System.Xml;
-using Xunit;
-using Xunit.Extensions;
-using Xunit.Sdk;
 
 namespace LibGit2Sharp.Tests.TestHelpers
 {
