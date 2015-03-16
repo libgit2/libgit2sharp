@@ -108,7 +108,7 @@ namespace LibGit2Sharp
                         Version = 1,
                         CheckoutOptions = gitCheckoutOptions,
                         RemoteCallbacks = gitRemoteCallbacks,
-                        CloneCheckoutStrategy = CheckoutStrategy.GIT_CHECKOUT_SAFE_CREATE
+                        CloneCheckoutStrategy = CheckoutStrategy.GIT_CHECKOUT_SAFE
                     };
 
                     Proxy.git_submodule_update(handle, options.Init, ref gitSubmoduleUpdateOpts);

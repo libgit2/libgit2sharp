@@ -50,7 +50,7 @@ namespace LibGit2Sharp
             get
             {
                 return this.Checkout ?
-                    CheckoutStrategy.GIT_CHECKOUT_SAFE_CREATE :
+                    CheckoutStrategy.GIT_CHECKOUT_SAFE :
                     CheckoutStrategy.GIT_CHECKOUT_NONE;
             }
         }

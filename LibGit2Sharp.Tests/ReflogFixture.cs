@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
@@ -56,7 +57,9 @@ namespace LibGit2Sharp.Tests
         {
             string repoPath = InitNewRepository();
 
-            using (var repo = new Repository(repoPath))
+            var identity = Constants.Identity;
+
+            using (var repo = new Repository(repoPath, new RepositoryOptions{ Identity = identity }))
             {
                 // setup refs as HEAD => unit_test => master
                 var newRef = repo.Refs.Add("refs/heads/unit_test", "refs/heads/master");
@@ -74,14 +77,26 @@ namespace LibGit2Sharp.Tests
                 // Assert a reflog entry is created on HEAD
                 Assert.Equal(1, repo.Refs.Log("HEAD").Count());
                 var reflogEntry = repo.Refs.Log("HEAD").First();
-                Assert.Equal(author, reflogEntry.Committer);
+
+                Assert.Equal(identity.Name, reflogEntry.Committer.Name);
+                Assert.Equal(identity.Email, reflogEntry.Committer.Email);
+
+                var now = DateTimeOffset.Now;
+                Assert.InRange(reflogEntry.Committer.When, now - TimeSpan.FromSeconds(1), now);
+
                 Assert.Equal(commit.Id, reflogEntry.To);
                 Assert.Equal(ObjectId.Zero, reflogEntry.From);
 
                 // Assert the same reflog entry is created on refs/heads/master
                 Assert.Equal(1, repo.Refs.Log("refs/heads/master").Count());
                 reflogEntry = repo.Refs.Log("HEAD").First();
-                Assert.Equal(author, reflogEntry.Committer);
+
+                Assert.Equal(identity.Name, reflogEntry.Committer.Name);
+                Assert.Equal(identity.Email, reflogEntry.Committer.Email);
+
+                now = DateTimeOffset.Now;
+                Assert.InRange(reflogEntry.Committer.When, now - TimeSpan.FromSeconds(1), now);
+
                 Assert.Equal(commit.Id, reflogEntry.To);
                 Assert.Equal(ObjectId.Zero, reflogEntry.From);
 
@@ -116,7 +131,9 @@ namespace LibGit2Sharp.Tests
         {
             string repoPath = SandboxStandardTestRepo();
 
-            using (var repo = new Repository(repoPath))
+            var identity = Constants.Identity;
+
+            using (var repo = new Repository(repoPath, new RepositoryOptions { Identity = identity }))
             {
                 Assert.False(repo.Info.IsHeadDetached);
 
@@ -134,7 +151,13 @@ namespace LibGit2Sharp.Tests
 
                 // Assert a reflog entry is created on HEAD
                 var reflogEntry = repo.Refs.Log("HEAD").First();
-                Assert.Equal(author, reflogEntry.Committer);
+
+                Assert.Equal(identity.Name, reflogEntry.Committer.Name);
+                Assert.Equal(identity.Email, reflogEntry.Committer.Email);
+
+                var now = DateTimeOffset.Now;
+                Assert.InRange(reflogEntry.Committer.When, now - TimeSpan.FromSeconds(1), now);
+
                 Assert.Equal(commit.Id, reflogEntry.To);
                 Assert.Equal(string.Format("commit: {0}", commitMessage), repo.Refs.Log("HEAD").First().Message);
             }
@@ -174,7 +197,7 @@ namespace LibGit2Sharp.Tests
         public void UnsignedMethodsWriteCorrectlyToTheReflog()
         {
             var repoPath = InitNewRepository(true);
-            using (var repo = new Repository(repoPath))
+            using (var repo = new Repository(repoPath, new RepositoryOptions{ Identity = Constants.Identity }))
             {
                 EnableRefLog(repo);
 
@@ -184,7 +207,7 @@ namespace LibGit2Sharp.Tests
                                                  tree, Enumerable.Empty<Commit>(), false);
 
                 var direct = repo.Refs.Add("refs/heads/direct", commit.Id);
-                AssertRefLogEntry(repo, direct.CanonicalName, direct.ResolveToDirectReference().Target.Id, null);
+                AssertRefLogEntry(repo, direct.CanonicalName, null, null, direct.ResolveToDirectReference().Target.Id, Constants.Identity, DateTimeOffset.Now);
 
                 var symbolic = repo.Refs.Add("refs/heads/symbolic", direct);
                 Assert.Empty(repo.Refs.Log(symbolic)); // creation of symbolic refs doesn't update the reflog

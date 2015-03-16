@@ -779,7 +779,7 @@ namespace LibGit2Sharp.Tests
         public void CheckoutBranchFromDetachedHead()
         {
             string path = SandboxStandardTestRepo();
-            using (var repo = new Repository(path))
+            using (var repo = new Repository(path, new RepositoryOptions{ Identity = Constants.Identity }))
             {
                 // Set the working directory to the current head
                 ResetAndCleanWorkingDirectory(repo);
@@ -789,12 +789,12 @@ namespace LibGit2Sharp.Tests
 
                 Assert.True(repo.Info.IsHeadDetached);
 
-                Branch newHead = repo.Checkout(repo.Branches["master"], Constants.Signature);
+                Branch newHead = repo.Checkout(repo.Branches["master"]);
 
                 // Assert reflog entry is created
-                AssertRefLogEntry(repo, "HEAD", newHead.Tip.Id,
+                AssertRefLogEntry(repo, "HEAD",
                     string.Format("checkout: moving from {0} to {1}", initialHead.Tip.Sha, newHead.Name),
-                    initialHead.Tip.Id, Constants.Signature);
+                    initialHead.Tip.Id, newHead.Tip.Id, Constants.Identity, DateTimeOffset.Now);
             }
         }
 
@@ -847,7 +847,7 @@ namespace LibGit2Sharp.Tests
         public void CheckoutCurrentReference()
         {
             string path = SandboxStandardTestRepo();
-            using (var repo = new Repository(path))
+            using (var repo = new Repository(path, new RepositoryOptions { Identity = Constants.Identity }))
             {
                 Branch master = repo.Branches["master"];
                 Assert.True(master.IsCurrentRepositoryHead);
@@ -866,8 +866,8 @@ namespace LibGit2Sharp.Tests
                 repo.Checkout(master.Tip.Sha);
 
                 Assert.True(repo.Info.IsHeadDetached);
-                AssertRefLogEntry(repo, "HEAD", master.Tip.Id,
-                    string.Format("checkout: moving from master to {0}", master.Tip.Sha), master.Tip.Id);
+                AssertRefLogEntry(repo, "HEAD",
+                    string.Format("checkout: moving from master to {0}", master.Tip.Sha), master.Tip.Id, master.Tip.Id, Constants.Identity, DateTimeOffset.Now);
 
                 // Checkout detached "HEAD" => nothing should happen
                 reflogEntriesCount = repo.Refs.Log(repo.Refs.Head).Count();

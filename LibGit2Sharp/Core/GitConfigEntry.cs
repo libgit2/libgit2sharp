@@ -9,5 +9,7 @@ namespace LibGit2Sharp.Core
         public IntPtr namePtr;
         public IntPtr valuePtr;
         public uint level;
+        public IntPtr freePtr;
+        public IntPtr payloadPtr;
     }
 }

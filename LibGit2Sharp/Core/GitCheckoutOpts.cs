@@ -17,14 +17,14 @@ namespace LibGit2Sharp.Core
         GIT_CHECKOUT_SAFE = (1 << 0),
 
         /// <summary>
-        /// Allow safe updates plus creation of missing files.
-        /// </summary>
-        GIT_CHECKOUT_SAFE_CREATE = (1 << 1),
-
-        /// <summary>
         /// Allow update of entries in working dir that are modified from HEAD.
         /// </summary>
-        GIT_CHECKOUT_FORCE = (1 << 2),
+        GIT_CHECKOUT_FORCE = (1 << 1),
+
+        /// <summary>
+        /// Allow checkout to recreate missing files.
+        /// </summary>
+        GIT_CHECKOUT_RECREATE_MISSING = (1 << 2),
 
         /// <summary>
         /// Allow checkout to make safe updates even if conflicts are found
@@ -48,6 +48,7 @@ namespace LibGit2Sharp.Core
 
         /// <summary>
         /// Normally checkout updates index entries as it goes; this stops that
+        /// Implies `GIT_CHECKOUT_DONT_WRITE_INDEX`.
         /// </summary>
         GIT_CHECKOUT_DONT_UPDATE_INDEX = (1 << 8),
 
@@ -93,6 +94,18 @@ namespace LibGit2Sharp.Core
         /// Include common ancestor data in diff3 format files for conflicts
         /// </summary>
         GIT_CHECKOUT_CONFLICT_STYLE_DIFF3 = (1 << 21),
+
+        /// <summary>
+        /// Don't overwrite existing files or folders
+        /// </summary>
+        GIT_CHECKOUT_DONT_REMOVE_EXISTING = (1 << 22),
+
+        /// <summary>
+        /// Normally checkout writes the index upon completion; this prevents that.
+        /// </summary>
+        GIT_CHECKOUT_DONT_WRITE_INDEX = (1 << 23),
+
+        // THE FOLLOWING OPTIONS ARE NOT YET IMPLEMENTED
 
         /// <summary>
         /// Recursively checkout submodules with same options (NOT IMPLEMENTED)

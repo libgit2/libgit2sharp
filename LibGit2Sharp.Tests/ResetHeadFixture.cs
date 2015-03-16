@@ -94,7 +94,7 @@ namespace LibGit2Sharp.Tests
         {
             string repoPath = InitNewRepository();
 
-            using (var repo = new Repository(repoPath))
+            using (var repo = new Repository(repoPath, new RepositoryOptions{ Identity = Constants.Identity }))
             {
                 FeedTheRepository(repo);
 
@@ -118,38 +118,40 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(FileStatus.Staged, repo.RetrieveStatus("a.txt"));
 
                 AssertRefLogEntry(repo, "HEAD",
-                                  tag.Target.Id,
                                   string.Format("reset: moving to {0}", tag.Target.Sha),
-                                  oldHeadId);
+                                  oldHeadId,
+                                  tag.Target.Id,
+                                  Constants.Identity, DateTimeOffset.Now);
 
                 if (!shouldHeadBeDetached)
                 {
                     AssertRefLogEntry(repo, branch.CanonicalName,
-                                      tag.Target.Id,
                                       string.Format("reset: moving to {0}", tag.Target.Sha),
-                                      oldHeadId);
+                                      oldHeadId,
+                                      tag.Target.Id,
+                                      Constants.Identity, DateTimeOffset.Now);
                 }
 
                 /* Reset --soft the Head to a commit through its sha */
-                repo.Reset(ResetMode.Soft, branch.Tip.Sha, Constants.Signature, "FOO");
+                repo.Reset(ResetMode.Soft, branch.Tip.Sha);
                 Assert.Equal(expectedHeadName, repo.Head.Name);
                 Assert.Equal(branch.Tip.Sha, repo.Head.Tip.Sha);
 
                 Assert.Equal(FileStatus.Unaltered, repo.RetrieveStatus("a.txt"));
 
                 AssertRefLogEntry(repo, "HEAD",
-                                  branch.Tip.Id,
-                                  "FOO",
+                                  string.Format("reset: moving to {0}", branch.Tip.Sha),
                                   tag.Target.Id,
-                                  Constants.Signature);
+                                  branch.Tip.Id,
+                                  Constants.Identity, DateTimeOffset.Now);
 
                 if (!shouldHeadBeDetached)
                 {
                     AssertRefLogEntry(repo, branch.CanonicalName,
-                                  branch.Tip.Id,
-                                  "FOO",
+                                  string.Format("reset: moving to {0}", branch.Tip.Sha),
                                   tag.Target.Id,
-                                  Constants.Signature);
+                                  branch.Tip.Id,
+                                  Constants.Identity, DateTimeOffset.Now);
                 }
             }
         }
@@ -178,7 +180,7 @@ namespace LibGit2Sharp.Tests
         {
             string repoPath = InitNewRepository();
 
-            using (var repo = new Repository(repoPath))
+            using (var repo = new Repository(repoPath, new RepositoryOptions { Identity = Constants.Identity }))
             {
                 FeedTheRepository(repo);
 
@@ -191,14 +193,16 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(FileStatus.Modified, repo.RetrieveStatus("a.txt"));
 
                 AssertRefLogEntry(repo, "HEAD",
-                                  tag.Target.Id,
                                   string.Format("reset: moving to {0}", tag.Target.Sha),
-                                  oldHeadId);
+                                  oldHeadId,
+                                  tag.Target.Id,
+                                  Constants.Identity, DateTimeOffset.Now);
 
                 AssertRefLogEntry(repo, "refs/heads/mybranch",
-                                  tag.Target.Id,
                                   string.Format("reset: moving to {0}", tag.Target.Sha),
-                                  oldHeadId);
+                                  oldHeadId,
+                                  tag.Target.Id,
+                                  Constants.Identity, DateTimeOffset.Now);
             }
         }
 

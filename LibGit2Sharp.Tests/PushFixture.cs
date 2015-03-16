@@ -98,7 +98,7 @@ namespace LibGit2Sharp.Tests
 
             // Create a new repository
             string localRepoPath = InitNewRepository();
-            using (var localRepo = new Repository(localRepoPath))
+            using (var localRepo = new Repository(localRepoPath, new RepositoryOptions { Identity = Constants.Identity }))
             {
                 // Add a commit
                 Commit first = AddCommitToRepo(localRepo);
@@ -129,8 +129,9 @@ namespace LibGit2Sharp.Tests
                 AssertRemoteHeadTipEquals(localRepo, second.Sha);
 
                 AssertRefLogEntry(localRepo, "refs/remotes/origin/master",
-                    localRepo.Head.Tip.Id, "update by push",
-                    oldId);
+                    "update by push",
+                    oldId, localRepo.Head.Tip.Id,
+                    Constants.Identity, DateTimeOffset.Now);
             }
         }
 
