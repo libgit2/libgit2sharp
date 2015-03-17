@@ -44,6 +44,20 @@ namespace LibGit2Sharp
             this.when = when;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Signature"/> class.
+        /// </summary>
+        /// <param name="identity">The identity.</param>
+        /// <param name="when">The when.</param>
+        public Signature(Identity identity, DateTimeOffset when)
+        {
+            Ensure.ArgumentNotNull(identity, "identity");
+
+            this.name = identity.Name;
+            this.email = identity.Email;
+            this.when = when;
+        }
+
         internal SignatureSafeHandle BuildHandle()
         {
             return Proxy.git_signature_new(name, email, when);
