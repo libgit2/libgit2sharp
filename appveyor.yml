@@ -52,26 +52,26 @@ cache:
   - packages
 
 before_build:
-- nuget restore "C:\projects\libgit2sharp\LibGit2Sharp.sln"
+- nuget restore "%APPVEYOR_BUILD_FOLDER%\LibGit2Sharp.sln"
 
 after_build:
-  cmd: gitlink c:\projects\libgit2sharp -u https://github.com/libgit2/libgit2sharp -b %APPVEYOR_REPO_BRANCH% -s %APPVEYOR_REPO_COMMIT%
+  cmd: gitlink %APPVEYOR_BUILD_FOLDER% -u https://github.com/libgit2/libgit2sharp -b %APPVEYOR_REPO_BRANCH% -s %APPVEYOR_REPO_COMMIT%
 
 build_script:
-- msbuild "C:\projects\libgit2sharp\LibGit2Sharp.sln" /verbosity:normal /p:Configuration=Release /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /property:ExtraDefine="LEAKS_IDENTIFYING"
+- msbuild "%APPVEYOR_BUILD_FOLDER%\LibGit2Sharp.sln" /verbosity:normal /p:Configuration=Release /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /property:ExtraDefine="LEAKS_IDENTIFYING"
 
 test_script:
-- '%xunit_runner%  "C:\projects\libgit2sharp\LibGit2Sharp.Tests\bin\Release\LibGit2Sharp.Tests.dll" /appveyor'
+- '%xunit_runner%  "%APPVEYOR_BUILD_FOLDER%\LibGit2Sharp.Tests\bin\Release\LibGit2Sharp.Tests.dll" /appveyor'
 - IF %ERRORLEVEL% NEQ 0 EXIT /B %ERRORLEVEL%
 
 on_success:
 - ps: |
-    & "C:\projects\libgit2sharp\nuget.package\BuildNugetPackage.ps1" "$env:APPVEYOR_REPO_COMMIT"
-    Add-Type -Path "C:\projects\libgit2sharp\LibGit2Sharp\bin\Release\LibGit2Sharp.dll"
+    & "%APPVEYOR_BUILD_FOLDER%\nuget.package\BuildNugetPackage.ps1" "$env:APPVEYOR_REPO_COMMIT"
+    Add-Type -Path "%APPVEYOR_BUILD_FOLDER%\LibGit2Sharp\bin\Release\LibGit2Sharp.dll"
     Write-Host "LibGit2Sharp version = $([LibGit2Sharp.GlobalSettings]::Version)" -ForegroundColor "Magenta"
     If ($Env:SHOULD_PUBLISH_NUGET_ARTIFACT -eq $True)
     {
-      Get-ChildItem "C:\projects\libgit2sharp\LibGit2sharp\*.nupkg" | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
+      Get-ChildItem "%APPVEYOR_BUILD_FOLDER%\LibGit2sharp\*.nupkg" | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
     }
 
 notifications:
