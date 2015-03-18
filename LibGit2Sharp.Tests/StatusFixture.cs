@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -590,6 +591,53 @@ namespace LibGit2Sharp.Tests
             {
                 var status = repo.RetrieveStatus();
                 Assert.Equal("hello.txt", status.Modified.Single().FilePath);
+            }
+        }
+
+        [Fact]
+        public void CanHandleTwoStatusEntryChangesWithTheSamePath()
+        {
+            var path = InitNewRepository();
+
+            using (Repository repo = new Repository(path))
+            {
+                Blob mainContent = OdbHelper.CreateBlob(repo, "awesome content\n");
+                Blob linkContent = OdbHelper.CreateBlob(repo, "../../objc/Nu.h");
+
+                const string filePath = "include/Nu/Nu.h";
+
+                var tdOld = new TreeDefinition()
+                    .Add(filePath, linkContent, Mode.SymbolicLink)
+                    .Add("objc/Nu.h", mainContent, Mode.NonExecutableFile);
+
+                Tree tree = repo.ObjectDatabase.CreateTree(tdOld);
+
+                Commit commit = repo.ObjectDatabase.CreateCommit(Constants.Signature, Constants.Signature, "A symlink", tree, Enumerable.Empty<Commit>(), false);
+                repo.Refs.UpdateTarget("HEAD", commit.Id.Sha);
+                repo.Reset(ResetMode.Mixed);
+
+                string parentPath = Path.Combine(repo.Info.WorkingDirectory, "include/Nu");
+
+                Touch(parentPath, "Nu.h", "awesome content\n");
+
+                RepositoryStatus status = repo.RetrieveStatus(
+                    new StatusOptions{ DetectRenamesInIndex = true, DetectRenamesInWorkDir = true });
+
+                Assert.Equal(2, status.Count());
+
+                var expected = Path.Combine("include", "Nu", "Nu.h");
+
+                if (IsRunningOnUnix())
+                {
+                    Assert.Equal(expected, status.RenamedInWorkDir.Single().FilePath);
+                    Assert.Equal(expected, status.Missing.Single().FilePath);
+                }
+                else
+                {
+                    Assert.Equal(expected, status.Modified.Single().FilePath);
+                    Assert.Equal(Path.Combine("objc", "Nu.h"), status.Missing.Single().FilePath);
+                }
+
             }
         }
     }
