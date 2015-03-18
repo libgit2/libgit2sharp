@@ -10,6 +10,12 @@
   - Windows (x86/amd64): <https://ci.appveyor.com/project/libgit2/libgit2sharp>
   - Linux/Mac OS X: <https://travis-ci.org/libgit2/libgit2sharp>
 
+## v0.21.1 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.21...v0.21.1))
+
+### Changes
+
+- Fix Fetch() related tests to cope with recent GitHub policy change regarding include-tag handling (#995, #1001)
+
 ## v0.21 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.20.2...v0.21))
 
 ### Additions
