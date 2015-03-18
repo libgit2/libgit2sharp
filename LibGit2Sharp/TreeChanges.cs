@@ -17,7 +17,7 @@ namespace LibGit2Sharp
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class TreeChanges : IEnumerable<TreeEntryChanges>
     {
-        private readonly IDictionary<FilePath, TreeEntryChanges> changes = new Dictionary<FilePath, TreeEntryChanges>();
+        private readonly List<TreeEntryChanges> changes = new List<TreeEntryChanges>();
         private readonly List<TreeEntryChanges> added = new List<TreeEntryChanges>();
         private readonly List<TreeEntryChanges> deleted = new List<TreeEntryChanges>();
         private readonly List<TreeEntryChanges> modified = new List<TreeEntryChanges>();
@@ -64,7 +64,7 @@ namespace LibGit2Sharp
             var treeEntryChanges = new TreeEntryChanges(delta);
 
             fileDispatcher[treeEntryChanges.Status](this, treeEntryChanges);
-            changes.Add(treeEntryChanges.Path, treeEntryChanges);
+            changes.Add(treeEntryChanges);
         }
 
         #region IEnumerable<TreeEntryChanges> Members
@@ -75,7 +75,7 @@ namespace LibGit2Sharp
         /// <returns>An <see cref="IEnumerator{T}"/> object that can be used to iterate through the collection.</returns>
         public virtual IEnumerator<TreeEntryChanges> GetEnumerator()
         {
-            return changes.Values.GetEnumerator();
+            return changes.GetEnumerator();
         }
 
         /// <summary>
@@ -89,27 +89,6 @@ namespace LibGit2Sharp
 
         #endregion
 
-        /// <summary>
-        /// Gets the <see cref="TreeEntryChanges"/> corresponding to the specified <paramref name="path"/>.
-        /// </summary>
-        public virtual TreeEntryChanges this[string path]
-        {
-            get { return this[(FilePath)path]; }
-        }
-
-        private TreeEntryChanges this[FilePath path]
-        {
-            get
-            {
-                TreeEntryChanges treeEntryChanges;
-                if (changes.TryGetValue(path, out treeEntryChanges))
-                {
-                    return treeEntryChanges;
-                }
-
-                return null;
-            }
-        }
 
         /// <summary>
         /// List of <see cref="TreeEntryChanges"/> that have been been added.
