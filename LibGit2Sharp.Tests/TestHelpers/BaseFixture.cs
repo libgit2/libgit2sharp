@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
@@ -91,8 +91,8 @@ namespace LibGit2Sharp.Tests.TestHelpers
             return !isInsensitive;
         }
 
-        // Should match LibGit2Sharp.Core.NativeMethods.IsRunningOnLinux()
-        protected static bool IsRunningOnLinux()
+        // Should match LibGit2Sharp.Core.NativeMethods.IsRunningOnUnix()
+        protected static bool IsRunningOnUnix()
         {
             // see http://mono-project.com/FAQ%3a_Technical#Mono_Platforms
             var p = (int)Environment.OSVersion.Platform;
@@ -405,8 +405,8 @@ namespace LibGit2Sharp.Tests.TestHelpers
         }
 
         protected static void AssertRefLogEntry(IRepository repo, string canonicalName,
-                                                ObjectId to, string message, ObjectId @from = null,
-                                                Signature committer = null)
+                                                string message, ObjectId @from, ObjectId to,
+                                                Identity committer, DateTimeOffset when)
         {
             var reflogEntry = repo.Refs.Log(canonicalName).First();
 
@@ -414,9 +414,8 @@ namespace LibGit2Sharp.Tests.TestHelpers
             Assert.Equal(message, reflogEntry.Message);
             Assert.Equal(@from ?? ObjectId.Zero, reflogEntry.From);
 
-            committer = committer ?? repo.Config.BuildSignature(DateTimeOffset.Now);
-            Assert.Equal(committer.Email, reflogEntry.Commiter.Email);
-            Assert.InRange(reflogEntry.Commiter.When, committer.When - TimeSpan.FromSeconds(5), committer.When);
+            Assert.Equal(committer.Email, reflogEntry.Committer.Email);
+            Assert.InRange(reflogEntry.Committer.When, when - TimeSpan.FromSeconds(5), when);
         }
 
         protected static void EnableRefLog(IRepository repository, bool enable = true)

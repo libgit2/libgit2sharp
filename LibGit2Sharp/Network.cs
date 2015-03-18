@@ -88,7 +88,7 @@ namespace LibGit2Sharp
             }
         }
 
-        static void DoFetch(RemoteSafeHandle remoteHandle, FetchOptions options, Signature signature, string logMessage)
+        static void DoFetch(RemoteSafeHandle remoteHandle, FetchOptions options, string logMessage)
         {
             if (options == null)
             {
@@ -113,7 +113,7 @@ namespace LibGit2Sharp
             // GC occuring in between setting the remote callbacks and actual usage in one of the functions afterwords.
             Proxy.git_remote_set_callbacks(remoteHandle, ref gitCallbacks);
 
-            Proxy.git_remote_fetch(remoteHandle, signature, logMessage);
+            Proxy.git_remote_fetch(remoteHandle, logMessage);
         }
 
         /// <summary>
@@ -121,17 +121,15 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="remote">The remote to fetch</param>
         /// <param name="options"><see cref="FetchOptions"/> controlling fetch behavior</param>
-        /// <param name="signature">Identity for use when updating the reflog.</param>
         /// <param name="logMessage">Message to use when updating the reflog.</param>
         public virtual void Fetch(Remote remote, FetchOptions options = null,
-            Signature signature = null,
             string logMessage = null)
         {
             Ensure.ArgumentNotNull(remote, "remote");
 
             using (RemoteSafeHandle remoteHandle = Proxy.git_remote_lookup(repository.Handle, remote.Name, true))
             {
-                DoFetch(remoteHandle, options, signature.OrDefault(repository.Config), logMessage);
+                DoFetch(remoteHandle, options, logMessage);
             }
         }
 
@@ -141,10 +139,8 @@ namespace LibGit2Sharp
         /// <param name="remote">The remote to fetch</param>
         /// <param name="refspecs">Refspecs to use, replacing the remote's fetch refspecs</param>
         /// <param name="options"><see cref="FetchOptions"/> controlling fetch behavior</param>
-        /// <param name="signature">Identity for use when updating the reflog.</param>
         /// <param name="logMessage">Message to use when updating the reflog.</param>
         public virtual void Fetch(Remote remote, IEnumerable<string> refspecs, FetchOptions options = null,
-            Signature signature = null,
             string logMessage = null)
         {
             Ensure.ArgumentNotNull(remote, "remote");
@@ -154,7 +150,7 @@ namespace LibGit2Sharp
             {
                 Proxy.git_remote_set_fetch_refspecs(remoteHandle, refspecs);
 
-                DoFetch(remoteHandle, options, signature.OrDefault(repository.Config), logMessage);
+                DoFetch(remoteHandle, options, logMessage);
             }
         }
 
@@ -164,13 +160,11 @@ namespace LibGit2Sharp
         /// <param name="url">The url to fetch from</param>
         /// <param name="refspecs">The list of resfpecs to use</param>
         /// <param name="options"><see cref="FetchOptions"/> controlling fetch behavior</param>
-        /// <param name="signature">Identity for use when updating the reflog.</param>
         /// <param name="logMessage">Message to use when updating the reflog.</param>
         public virtual void Fetch(
             string url,
             IEnumerable<string> refspecs,
             FetchOptions options = null,
-            Signature signature = null,
             string logMessage = null)
         {
             Ensure.ArgumentNotNull(url, "url");
@@ -180,7 +174,7 @@ namespace LibGit2Sharp
             {
                 Proxy.git_remote_set_fetch_refspecs(remoteHandle, refspecs);
 
-                DoFetch(remoteHandle, options, signature.OrDefault(repository.Config), logMessage);
+                DoFetch(remoteHandle, options, logMessage);
             }
         }
 
@@ -191,22 +185,18 @@ namespace LibGit2Sharp
         /// <param name="objectish">The source objectish to push.</param>
         /// <param name="destinationSpec">The reference to update on the remote.</param>
         /// <param name="pushOptions"><see cref="PushOptions"/> controlling push behavior</param>
-        /// <param name="signature">Identity for use when updating the reflog.</param>
-        /// <param name="logMessage">Message to use when updating the reflog.</param>
         public virtual void Push(
             Remote remote,
             string objectish,
             string destinationSpec,
-            PushOptions pushOptions = null,
-            Signature signature = null,
-            string logMessage = null)
+            PushOptions pushOptions = null)
         {
             Ensure.ArgumentNotNull(remote, "remote");
             Ensure.ArgumentNotNull(objectish, "objectish");
             Ensure.ArgumentNotNullOrEmptyString(destinationSpec, destinationSpec);
 
             Push(remote, string.Format(CultureInfo.InvariantCulture,
-                "{0}:{1}", objectish, destinationSpec), pushOptions, signature, logMessage);
+                "{0}:{1}", objectish, destinationSpec), pushOptions);
         }
 
         /// <summary>
@@ -215,19 +205,15 @@ namespace LibGit2Sharp
         /// <param name="remote">The <see cref="Remote"/> to push to.</param>
         /// <param name="pushRefSpec">The pushRefSpec to push.</param>
         /// <param name="pushOptions"><see cref="PushOptions"/> controlling push behavior</param>
-        /// <param name="signature">Identity for use when updating the reflog.</param>
-        /// <param name="logMessage">Message to use when updating the reflog.</param>
         public virtual void Push(
             Remote remote,
             string pushRefSpec,
-            PushOptions pushOptions = null,
-            Signature signature = null,
-            string logMessage = null)
+            PushOptions pushOptions = null)
         {
             Ensure.ArgumentNotNull(remote, "remote");
             Ensure.ArgumentNotNullOrEmptyString(pushRefSpec, "pushRefSpec");
 
-            Push(remote, new[] { pushRefSpec }, pushOptions, signature, logMessage);
+            Push(remote, new[] { pushRefSpec }, pushOptions);
         }
 
         /// <summary>
@@ -236,14 +222,10 @@ namespace LibGit2Sharp
         /// <param name="remote">The <see cref="Remote"/> to push to.</param>
         /// <param name="pushRefSpecs">The pushRefSpecs to push.</param>
         /// <param name="pushOptions"><see cref="PushOptions"/> controlling push behavior</param>
-        /// <param name="signature">Identity for use when updating the reflog.</param>
-        /// <param name="logMessage">Message to use when updating the reflog.</param>
         public virtual void Push(
             Remote remote,
             IEnumerable<string> pushRefSpecs,
-            PushOptions pushOptions = null,
-            Signature signature = null,
-            string logMessage = null)
+            PushOptions pushOptions = null)
         {
             Ensure.ArgumentNotNull(remote, "remote");
             Ensure.ArgumentNotNull(pushRefSpecs, "pushRefSpecs");
@@ -269,12 +251,11 @@ namespace LibGit2Sharp
                 try
                 {
                     Proxy.git_remote_connect(remoteHandle, GitDirection.Push);
-                    Proxy.git_remote_push(remoteHandle, pushRefSpecs, 
+                    Proxy.git_remote_push(remoteHandle, pushRefSpecs,
                         new GitPushOptions()
                         {
                             PackbuilderDegreeOfParallelism = pushOptions.PackbuilderDegreeOfParallelism
-                        },
-                        signature.OrDefault(repository.Config), logMessage);
+                        });
                 }
                 finally
                 {

@@ -52,5 +52,15 @@
         /// </para>
         /// </summary>
         public string SystemConfigurationLocation { get; set; }
+
+        /// <summary>
+        /// Overrides the default identity to be used when creating reflog entries.
+        /// <para>
+        ///   When unset the identity will be retreived from the repository's configuration.
+        ///   When no identity can be found in the repository configuration stores, a fake
+        ///   identity ("unknown" as both name and email), will be used.
+        /// </para>
+        /// </summary>
+        public Identity Identity { get; set; }
     }
 }

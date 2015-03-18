@@ -27,6 +27,7 @@ namespace LibGit2Sharp
             PushTransferProgress = pushOptions.OnPushTransferProgress;
             PackBuilderProgress = pushOptions.OnPackBuilderProgress;
             CredentialsProvider = pushOptions.CredentialsProvider;
+            PushStatusError = pushOptions.OnPushStatusError;
         }
 
         internal RemoteCallbacks(FetchOptionsBase fetchOptions)
@@ -53,6 +54,12 @@ namespace LibGit2Sharp
         /// UpdateTips callback. Corresponds to libgit2 update_tips callback.
         /// </summary>
         private readonly UpdateTipsHandler UpdateTips;
+
+        /// <summary>
+        /// PushStatusError callback. It will be called when the libgit2 push_update_reference returns a non null status message, 
+        /// which means that the update was rejected by the remote server.
+        /// </summary>
+        private readonly PushStatusErrorHandler PushStatusError;
 
         /// <summary>
         /// Managed delegate to be called in response to a git_transfer_progress_callback callback from libgit2.
@@ -89,6 +96,11 @@ namespace LibGit2Sharp
             if (UpdateTips != null)
             {
                 callbacks.update_tips = GitUpdateTipsHandler;
+            }
+
+            if (PushStatusError != null)
+            {
+                callbacks.push_update_reference = GitPushUpdateReference;
             }
 
             if (CredentialsProvider != null)
@@ -162,6 +174,30 @@ namespace LibGit2Sharp
             }
 
             return Proxy.ConvertResultToCancelFlag(shouldContinue);
+        }
+
+        /// <summary>
+        /// The delegate with the signature that matches the native push_update_reference function's signature
+        /// </summary>
+        /// <param name="str">IntPtr to string, the name of the reference</param>
+        /// <param name="status">IntPtr to string, the update status message</param>
+        /// <param name="data">IntPtr to optional payload passed back to the callback.</param>
+        /// <returns>0 on success; a negative value to abort the process.</returns>
+        private int GitPushUpdateReference(IntPtr str, IntPtr status, IntPtr data)
+        {
+            PushStatusErrorHandler onPushError = PushStatusError;            
+
+            if (onPushError != null)
+            {
+                string reference = LaxUtf8Marshaler.FromNative(str);
+                string message = LaxUtf8Marshaler.FromNative(status);
+                if (message != null)
+                {
+                    onPushError(new PushStatusError(reference, message));
+                }
+            }
+
+            return Proxy.ConvertResultToCancelFlag(true);
         }
 
         /// <summary>

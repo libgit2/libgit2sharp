@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Reflection;
 using System.Security;
@@ -62,7 +62,7 @@ namespace LibGit2Sharp.Tests
             string cachedAssembliesPath = Path.Combine(setup.CachePath, setup.ApplicationName);
             Assert.True(cachedAssemblyLocation.StartsWith(cachedAssembliesPath));
 
-            if (!IsRunningOnLinux())
+            if (!IsRunningOnUnix())
             {
                 // ...that this cache doesn't contain the `NativeBinaries` folder
                 string cachedAssemblyParentPath = Path.GetDirectoryName(cachedAssemblyLocation);

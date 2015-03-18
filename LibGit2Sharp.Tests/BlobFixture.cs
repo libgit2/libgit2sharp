@@ -222,7 +222,7 @@ namespace LibGit2Sharp.Tests
 
         private static void SkipIfNotSupported(string autocrlf)
         {
-            InconclusiveIf(() => autocrlf == "true" && IsRunningOnLinux(), "Non-Windows does not support core.autocrlf = true");
+            InconclusiveIf(() => autocrlf == "true" && IsRunningOnUnix(), "Non-Windows does not support core.autocrlf = true");
         }
     }
 }

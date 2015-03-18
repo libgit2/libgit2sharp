@@ -1,4 +1,6 @@
 ﻿using System;
+using System.IO;
+using System.Reflection;
 using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
@@ -11,6 +13,18 @@ namespace LibGit2Sharp
         private static readonly Lazy<Version> version = new Lazy<Version>(Version.Build);
 
         private static LogConfiguration logConfiguration = LogConfiguration.None;
+
+        private static string nativeLibraryPath;
+        private static bool nativeLibraryPathLocked;
+
+        static GlobalSettings()
+        {
+            if (Platform.OperatingSystem == OperatingSystemType.Windows)
+            {
+                string managedPath = new Uri(Assembly.GetExecutingAssembly().EscapedCodeBase).LocalPath;
+                nativeLibraryPath = Path.Combine(Path.GetDirectoryName(managedPath), "NativeBinaries");
+            }
+        }
 
         /// <summary>
         /// Returns information related to the current LibGit2Sharp
@@ -107,6 +121,53 @@ namespace LibGit2Sharp
             {
                 return logConfiguration;
             }
+        }
+
+        /// <summary>
+        /// Sets a hint path for searching for native binaries: when
+        /// specified, native binaries will first be searched in a
+        /// subdirectory of the given path corresponding to the architecture
+        /// (eg, "x86" or "amd64") before falling back to the default
+        /// path ("NativeBinaries\x86" or "NativeBinaries\amd64" next
+        /// to the application).
+        /// <para>
+        /// This must be set before any other calls to the library,
+        /// and is not available on Unix platforms: see your dynamic
+        /// library loader's documentation for details.
+        /// </para>
+        /// </summary>
+        public static string NativeLibraryPath
+        {
+            get
+            {
+                if (Platform.OperatingSystem != OperatingSystemType.Windows)
+                {
+                    throw new LibGit2SharpException("Querying the native hint path is only supported on Windows platforms");
+                }
+
+                return nativeLibraryPath;
+            }
+
+            set
+            {
+                if (Platform.OperatingSystem != OperatingSystemType.Windows)
+                {
+                    throw new LibGit2SharpException("Setting the native hint path is only supported on Windows platforms");
+                }
+
+                if (nativeLibraryPathLocked)
+                {
+                    throw new LibGit2SharpException("You cannot set the native library path after it has been loaded");
+                }
+
+                nativeLibraryPath = value;
+            }
+        }
+
+        internal static string GetAndLockNativeLibraryPath()
+        {
+            nativeLibraryPathLocked = true;
+            return nativeLibraryPath;
         }
     }
 }

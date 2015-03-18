@@ -1,5 +1,4 @@
-﻿using System;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 
 namespace LibGit2Sharp.Core
 {
@@ -13,7 +12,5 @@ namespace LibGit2Sharp.Core
         public GitRemoteCallbacks RemoteCallbacks;
 
         public CheckoutStrategy CloneCheckoutStrategy;
-
-        public IntPtr Signature;
     }
 }

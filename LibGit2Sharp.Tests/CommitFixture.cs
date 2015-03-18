@@ -615,8 +615,8 @@ namespace LibGit2Sharp.Tests
                 // Assert reflog entry is created
                 var reflogEntry = repo.Refs.Log(repo.Refs.Head).First();
                 Assert.Equal(repo.Head.Tip.Id, reflogEntry.To);
-                Assert.NotNull(reflogEntry.Commiter.Email);
-                Assert.NotNull(reflogEntry.Commiter.Name);
+                Assert.NotNull(reflogEntry.Committer.Email);
+                Assert.NotNull(reflogEntry.Committer.Name);
                 Assert.Equal(string.Format("commit (merge): {0}", newMergedCommit.MessageShort), reflogEntry.Message);
             }
         }
@@ -661,7 +661,9 @@ namespace LibGit2Sharp.Tests
         {
             string repoPath = InitNewRepository();
 
-            using (var repo = new Repository(repoPath))
+            var identity = Constants.Identity;
+
+            using (var repo = new Repository(repoPath, new RepositoryOptions { Identity = identity }))
             {
                 string dir = repo.Info.Path;
                 Assert.True(Path.IsPathRooted(dir));
@@ -691,7 +693,13 @@ namespace LibGit2Sharp.Tests
                 // Assert a reflog entry is created on HEAD
                 Assert.Equal(1, repo.Refs.Log("HEAD").Count());
                 var reflogEntry = repo.Refs.Log("HEAD").First();
-                Assert.Equal(author, reflogEntry.Commiter);
+
+                Assert.Equal(identity.Name, reflogEntry.Committer.Name);
+                Assert.Equal(identity.Email, reflogEntry.Committer.Email);
+
+                var now = DateTimeOffset.Now;
+                Assert.InRange(reflogEntry.Committer.When, now - TimeSpan.FromSeconds(1), now);
+
                 Assert.Equal(commit.Id, reflogEntry.To);
                 Assert.Equal(ObjectId.Zero, reflogEntry.From);
                 Assert.Equal(string.Format("commit (initial): {0}", shortMessage), reflogEntry.Message);
@@ -805,7 +813,7 @@ namespace LibGit2Sharp.Tests
         public void CanAmendACommitWithMoreThanOneParent()
         {
             string path = SandboxStandardTestRepo();
-            using (var repo = new Repository(path))
+            using (var repo = new Repository(path, new RepositoryOptions { Identity = Constants.Identity }))
             {
                 var mergedCommit = repo.Lookup<Commit>("be3563a");
                 Assert.NotNull(mergedCommit);
@@ -822,10 +830,10 @@ namespace LibGit2Sharp.Tests
                 AssertCommitHasBeenAmended(repo, amendedCommit, mergedCommit);
 
                 AssertRefLogEntry(repo, "HEAD",
-                                  amendedCommit.Id,
                                   string.Format("commit (amend): {0}", commitMessage),
                                   mergedCommit.Id,
-                                  amendedCommit.Committer);
+                                  amendedCommit.Id,
+                                  Constants.Identity, DateTimeOffset.Now);
             }
         }
 

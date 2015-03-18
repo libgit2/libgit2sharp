@@ -150,7 +150,7 @@ namespace LibGit2Sharp.Tests
             Assert.Equal(FileAttributes.Hidden, (attribs & FileAttributes.Hidden));
         }
 
-        [Fact(Skip = "Skipping due to recent github handling modification of --include-tag.")]
+        [Fact]
         public void CanFetchFromRemoteByName()
         {
             string remoteName = "testRemote";
