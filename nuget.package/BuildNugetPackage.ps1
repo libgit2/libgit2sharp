@@ -58,9 +58,6 @@ $projectPath = Join-Path $root "..\LibGit2Sharp"
 
 Remove-Item (Join-Path $projectPath "*.nupkg")
 
-Clean-OutputFolder (Join-Path $projectPath "bin\")
-Clean-OutputFolder (Join-Path $projectPath "obj\")
-
 # The nuspec file needs to be next to the csproj, so copy it there during the pack operation
 Copy-Item (Join-Path $root "LibGit2Sharp.nuspec") $projectPath
 
@@ -71,8 +68,7 @@ try {
   Run-Command { & "$(Join-Path $projectPath "..\Lib\NuGet\Nuget.exe")" Restore "$(Join-Path $projectPath "..\LibGit2Sharp.sln")" }
 
   # Cf. https://stackoverflow.com/questions/21728450/nuget-exclude-files-from-symbols-package-in-nuspec
-  Run-Command { & "$(Join-Path $projectPath "..\Lib\NuGet\Nuget.exe")" Pack -Build -Symbols "$(Join-Path $projectPath "LibGit2Sharp.csproj")" -Prop Configuration=Release -Exclude "**/NativeBinaries/**/*.*"}
-  Run-Command { & "$(Join-Path $projectPath "..\Lib\NuGet\Nuget.exe")" Pack "$(Join-Path $projectPath "LibGit2Sharp.csproj")" -Prop Configuration=Release }
+  Run-Command { & "$(Join-Path $projectPath "..\Lib\NuGet\Nuget.exe")" Pack -Prop Configuration=Release }
 }
 finally {
   Pop-Location
