@@ -58,9 +58,6 @@ $projectPath = Join-Path $root "..\LibGit2Sharp"
 
 Remove-Item (Join-Path $projectPath "*.nupkg")
 
-Clean-OutputFolder (Join-Path $projectPath "bin\")
-Clean-OutputFolder (Join-Path $projectPath "obj\")
-
 # The nuspec file needs to be next to the csproj, so copy it there during the pack operation
 Copy-Item (Join-Path $root "LibGit2Sharp.nuspec") $projectPath
 
