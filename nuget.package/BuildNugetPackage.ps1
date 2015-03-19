@@ -71,7 +71,7 @@ try {
   Run-Command { & "$(Join-Path $projectPath "..\Lib\NuGet\Nuget.exe")" Restore "$(Join-Path $projectPath "..\LibGit2Sharp.sln")" }
 
   # Cf. https://stackoverflow.com/questions/21728450/nuget-exclude-files-from-symbols-package-in-nuspec
-  Run-Command { & "$(Join-Path $projectPath "..\Lib\NuGet\Nuget.exe")" Pack -Build "$(Join-Path $projectPath "LibGit2Sharp.csproj")" -Prop Configuration=Release }
+  Run-Command { & "$(Join-Path $projectPath "..\Lib\NuGet\Nuget.exe")" Pack -Prop Configuration=Release }
 }
 finally {
   Pop-Location
