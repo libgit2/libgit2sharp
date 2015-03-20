@@ -6,68 +6,76 @@ using LibGit2Sharp.Core.Handles;
 
 namespace LibGit2Sharp.Advanced
 {
+    /// <summary>
+    /// The Indexer is our implementation of the git-index-pack command. It is used to process the packfile
+    /// which comes from the remote side on a fetch in order to create the corresponding .idx file.
+    /// </summary>
     public class Indexer : IDisposable
     {
 
         readonly IndexerSafeHandle handle;
         readonly TransferProgressHandler callback;
 
-        GitTransferProgress progress;
-        byte[] buffer;
-
-        /// <summary>
-        /// The indexing progress
-        /// </summary>
-        /// <value>The progres information for the current operation.</value>
-        public TransferProgress Progress
-        {
-            get
-            {
-                return new TransferProgress(progress);
-            }
-        }
-
-        public Indexer(string prefix, uint mode, ObjectDatabase odb = null, TransferProgressHandler onProgress = null)
+        Indexer(string prefix, uint mode, ObjectDatabase odb = null, TransferProgressHandler onProgress = null)
         {
             /* The runtime won't let us pass null as a SafeHandle, wo create a "dummy" one to represent NULL */
             ObjectDatabaseSafeHandle odbHandle = odb != null ? odb.Handle : new ObjectDatabaseSafeHandle();
             callback = onProgress;
             handle = Proxy.git_indexer_new(prefix, odbHandle, mode, GitDownloadTransferProgressHandler);
-            progress = new GitTransferProgress();
         }
 
         /// <summary>
-        /// Index the packfile at the specified path. This function runs synchronously and should usually be run
+        /// Index the specified stream. This function runs synchronously; you may want to run it
         /// in a background thread.
         /// </summary>
-        /// <param name="path">The packfile's path</param>
-        public ObjectId Index(string path)
+        /// <param name="progress">The amount of objects processed etc will be written to this structure on exit</param>
+        /// <param name="stream">Stream to run the indexing process on</param>
+        /// <param name="prefix">Path in which to store the pack and index files</param>
+        /// <param name="mode">Filemode to use for creating the pack and index files</param>
+        /// <param name="odb">Optional object db to use if the pack contains thin deltas</param>
+        /// <param name="onProgress">Function to call to report progress. It returns a boolean indicating whether
+        /// to continue working on the stream</param>
+        public static ObjectId Index(out TransferProgress progress, Stream stream, string prefix, uint mode, ObjectDatabase odb = null, TransferProgressHandler onProgress = null)
         {
-            using (var fs = new FileStream(path, FileMode.Open, FileAccess.Read))
+            var buffer = new byte[65536];
+            int read;
+            var indexProgress = default(GitTransferProgress);
+
+            using (var idx = new Indexer(prefix, mode, odb, onProgress))
             {
-                return Index(fs);
+                var handle = idx.handle;
+
+                do
+                {
+                    read = stream.Read(buffer, 0, buffer.Length);
+                    Proxy.git_indexer_append(handle, buffer, (UIntPtr)read, ref indexProgress);
+                } while (read > 0);
+
+                Proxy.git_indexer_commit(handle, ref indexProgress);
+
+                progress = new TransferProgress(indexProgress);
+                return Proxy.git_indexer_hash(handle);
             }
         }
 
         /// <summary>
-        /// Index the packfile from the specified stream. This function runs synchronously and should usually be run
+        /// Index the packfile at the specified path. This function runs synchronously; you may want to run it
         /// in a background thread.
+        /// <param name="progress">The amount of objects processed etc will be written to this structure on exit</param>
+        /// <param name="path">Path to the file to index</param>
+        /// <param name="prefix">Path in which to store the pack and index files</param>
+        /// <param name="mode">Filemode to use for creating the pack and index files</param>
+        /// <param name="odb">Optional object db to use if the pack contains thin deltas</param>
+        /// <param name="onProgress">Function to call to report progress. It returns a boolean indicating whether
+        /// to continue working on the stream</param>
+
         /// </summary>
-        /// <param name="stream">The stream from which to read the packfile data</param>
-        public ObjectId Index(Stream stream)
+        public static ObjectId Index(out TransferProgress progress, string path, string prefix, uint mode, ObjectDatabase odb = null, TransferProgressHandler onProgress = null)
         {
-            buffer = new byte[65536];
-            int read;
-
-            do
+            using (var fs = new FileStream(path, FileMode.Open, FileAccess.Read))
             {
-                read = stream.Read(buffer, 0, buffer.Length);
-                Proxy.git_indexer_append(handle, buffer, (UIntPtr)read, ref progress);
-            } while (read > 0);
-
-            Proxy.git_indexer_commit(handle, ref progress);
-
-            return Proxy.git_indexer_hash(handle);
+                return Index(out progress, fs, prefix, mode, odb, onProgress);
+            }
         }
 
         // This comes from RemoteCallbacks

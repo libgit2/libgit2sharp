@@ -14,17 +14,18 @@ namespace LibGit2Sharp.Tests
             TransferProgress copiedProgress = default(TransferProgress);
             using (var repo = new Repository(SandboxStandardTestRepoGitDir()))
             {
+                var expectedId = new ObjectId("a81e489679b7d3418f9ab594bda8ceb37dd4c695");
                 var path = Path.Combine(repo.Info.Path, "objects/pack/pack-a81e489679b7d3418f9ab594bda8ceb37dd4c695.pack");
-                using (var indexer = new Indexer(repo.Info.WorkingDirectory, 438 /* 0666 */,
+                TransferProgress progress;
+                var packId = Indexer.Index(out progress, path, repo.Info.WorkingDirectory, 438 /* 0666 */,
                     onProgress: (p) => {
                         copiedProgress = p;
                         return true;
-                    }))
-                {
-                    indexer.Index(path);
-                    Assert.Equal(1628, indexer.Progress.TotalObjects);
-                    Assert.Equal(indexer.Progress.TotalObjects, copiedProgress.TotalObjects);
-                }
+                    });
+
+                Assert.Equal(expectedId, packId);
+                Assert.Equal(1628, progress.TotalObjects);
+                Assert.Equal(1628, copiedProgress.TotalObjects);
             }
         }
 
@@ -33,12 +34,14 @@ namespace LibGit2Sharp.Tests
         {
             using (var repo = new Repository(SandboxStandardTestRepoGitDir()))
             {
+                var expectedId = new ObjectId("a81e489679b7d3418f9ab594bda8ceb37dd4c695");
                 var path = Path.Combine(repo.Info.Path, "objects/pack/pack-a81e489679b7d3418f9ab594bda8ceb37dd4c695.pack");
-                using (var indexer = new Indexer(repo.Info.WorkingDirectory, 438 /* 0666 */))
+                TransferProgress progress;
                 using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read))
                 {
-                    indexer.Index(stream);
-                    Assert.Equal(1628, indexer.Progress.TotalObjects);
+                    var packId = Indexer.Index(out progress, stream, repo.Info.WorkingDirectory, 438 /* 0666 */);
+                    Assert.Equal(expectedId, packId);
+                    Assert.Equal(1628, progress.TotalObjects);
                 }
             }
         }
