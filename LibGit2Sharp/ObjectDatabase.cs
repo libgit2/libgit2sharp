@@ -60,6 +60,11 @@ namespace LibGit2Sharp
 
         #endregion
 
+        internal ObjectDatabaseSafeHandle Handle
+        {
+            get { return handle; }
+        }
+
         /// <summary>
         /// Determines if the given object can be found in the object database.
         /// </summary>

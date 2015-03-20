@@ -1578,6 +1578,27 @@ namespace LibGit2Sharp.Core
 
         [DllImport(libgit2)]
         internal static extern int git_cherrypick(RepositorySafeHandle repo, GitObjectSafeHandle commit, GitCherryPickOptions options);
+
+        [DllImport(libgit2)]
+        public static extern int git_indexer_new(
+            out IndexerSafeHandle handle,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictFilePathMarshaler))] FilePath prefix,
+            uint mode,
+            ObjectDatabaseSafeHandle odbHandle,
+            git_transfer_progress_callback progress_callback,
+            IntPtr payload);
+
+        [DllImport(libgit2)]
+        public static extern int git_indexer_append(IndexerSafeHandle idx, byte[] data, UIntPtr size, ref GitTransferProgress progress);
+
+        [DllImport(libgit2)]
+        public static extern int git_indexer_commit(IndexerSafeHandle idx, ref GitTransferProgress progress);
+
+        [DllImport(libgit2)]
+        public static extern OidSafeHandle git_indexer_hash(IndexerSafeHandle idx);
+
+        [DllImport(libgit2)]
+        public static extern void git_indexer_free(IntPtr idx);
     }
 }
 // ReSharper restore InconsistentNaming

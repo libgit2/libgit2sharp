@@ -340,6 +340,8 @@
     <Compile Include="Core\RawContentStream.cs" />
     <Compile Include="Core\Handles\OdbStreamSafeHandle.cs" />
     <Compile Include="SupportedCredentialTypes.cs" />
+    <Compile Include="Core\Handles\IndexerSafeHandle.cs" />
+    <Compile Include="Advanced\Indexer.cs" />
   </ItemGroup>
   <ItemGroup>
     <CodeAnalysisDictionary Include="CustomDictionary.xml" />

@@ -1086,6 +1086,52 @@ namespace LibGit2Sharp.Core
 
         #endregion
 
+        #region git_indexer_
+
+        public static IndexerSafeHandle git_indexer_new(FilePath prefix, ObjectDatabaseSafeHandle odbHandle, uint mode,
+                                                        NativeMethods.git_transfer_progress_callback progressCallback)
+        {
+            using (ThreadAffinity())
+            {
+                IndexerSafeHandle handle;
+
+                int res = NativeMethods.git_indexer_new(out handle, prefix, mode, odbHandle, progressCallback, IntPtr.Zero);
+                Ensure.ZeroResult(res);
+
+                return handle;
+            }
+        }
+
+        public static void git_indexer_append(IndexerSafeHandle handle, byte[] data, UIntPtr length, ref GitTransferProgress progress)
+        {
+            using (ThreadAffinity())
+            {
+                int res = NativeMethods.git_indexer_append(handle, data, length, ref progress);
+                Ensure.ZeroResult(res);
+            }
+        }
+
+        public static void git_indexer_commit(IndexerSafeHandle handle, ref GitTransferProgress progress)
+        {
+            using (ThreadAffinity())
+            {
+                int res = NativeMethods.git_indexer_commit(handle, ref progress);
+                Ensure.ZeroResult(res);
+            }
+        }
+
+        public static ObjectId git_indexer_hash(IndexerSafeHandle handle)
+        {
+            return NativeMethods.git_indexer_hash(handle).MarshalAsObjectId();
+        }
+
+        public static void git_indexer_free(IntPtr handle)
+        {
+            NativeMethods.git_indexer_free(handle);
+        }
+
+        #endregion
+
         #region git_merge_
 
         public static IndexSafeHandle git_merge_trees(RepositorySafeHandle repo, GitObjectSafeHandle ancestorTree, GitObjectSafeHandle ourTree, GitObjectSafeHandle theirTree)
