@@ -200,7 +200,7 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(directRef, "directRef");
             Ensure.ArgumentNotNull(targetId, "targetId");
 
-            if (directRef.CanonicalName == "HEAD")
+            if (directRef.CanonicalName == Head.CanonicalName)
             {
                 return UpdateHeadTarget(targetId, logMessage);
             }
@@ -240,7 +240,7 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(symbolicRef, "symbolicRef");
             Ensure.ArgumentNotNull(targetRef, "targetRef");
 
-            if (symbolicRef.CanonicalName == "HEAD")
+			if (symbolicRef.CanonicalName == Head.CanonicalName)
             {
                 return UpdateHeadTarget(targetRef, logMessage);
             }
