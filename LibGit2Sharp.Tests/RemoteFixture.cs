@@ -91,6 +91,35 @@ namespace LibGit2Sharp.Tests
                     r => r.Url = newUrl);
 
                 Assert.Equal(newUrl, updatedremote.Url);
+                // with no push url set, PushUrl defaults to the fetch url
+                Assert.Equal(newUrl, updatedremote.PushUrl);
+            }
+        }
+
+        [Fact]
+        public void CanSetRemotePushUrl()
+        {
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
+            {
+                const string name = "upstream";
+                const string url = "https://github.com/libgit2/libgit2sharp.git";
+                const string pushurl = "https://github.com/libgit2/libgit2.git";
+
+                repo.Network.Remotes.Add(name, url);
+                Remote remote = repo.Network.Remotes[name];
+                Assert.NotNull(remote);
+
+                // before setting push, both push and fetch urls should match
+                Assert.Equal(url, remote.Url);
+                Assert.Equal(url, remote.PushUrl);
+
+                Remote updatedremote = repo.Network.Remotes.Update(remote,
+                    r => r.PushUrl = pushurl);
+
+                // url should not change, push url should be set to new value
+                Assert.Equal(url, updatedremote.Url);
+                Assert.Equal(pushurl, updatedremote.PushUrl);
             }
         }
 
@@ -333,6 +362,44 @@ namespace LibGit2Sharp.Tests
 
                 Assert.Throws<NameConflictException>(() => repo.Network.Remotes.Rename("origin", "upstream"));
             }
+        }
+
+        [Theory]
+        [InlineData(null, null, false)]
+        [InlineData(null, false, false)]
+        [InlineData(null, true, true)]
+        [InlineData(false, null, false)]
+        [InlineData(false, false, false)]
+        [InlineData(false, true, true)]
+        [InlineData(true, null, true)]
+        [InlineData(true, false, false)]
+        [InlineData(true, true, true)]
+        public void ShoudlPruneOnFetchReflectsTheConfiguredSetting(bool? fetchPrune, bool? remotePrune, bool expectedFetchPrune)
+        {
+            var path = SandboxStandardTestRepo();
+            var scd = BuildSelfCleaningDirectory();
+
+            using (var repo = new Repository(path, BuildFakeConfigs(scd)))
+            {
+                Assert.Null(repo.Config.Get<bool>("fetch.prune"));
+                Assert.Null(repo.Config.Get<bool>("remote.origin.prune"));
+
+                SetIfNotNull(repo, "fetch.prune", fetchPrune);
+                SetIfNotNull(repo, "remote.origin.prune", remotePrune);
+
+                var remote = repo.Network.Remotes["origin"];
+                Assert.Equal(expectedFetchPrune, remote.AutomaticallyPruneOnFetch);
+            }
+        }
+
+        private void SetIfNotNull(IRepository repo, string configName, bool? value)
+        {
+            if (!value.HasValue)
+            {
+                return;
+            }
+
+            repo.Config.Set(configName, value.Value);
         }
     }
 }

@@ -3,8 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
-using System.IO;
-using System.Linq;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Handles;
 
@@ -54,7 +52,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Gets the number of <see cref="IndexEntry"/> in the index.
+        /// Gets the number of <see cref="IndexEntry"/> in the <see cref="Index"/>.
         /// </summary>
         public virtual int Count
         {
@@ -62,7 +60,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Determines if the index is free from conflicts.
+        /// Determines if the <see cref="Index"/> is free from conflicts.
         /// </summary>
         public virtual bool IsFullyMerged
         {
@@ -128,9 +126,9 @@ namespace LibGit2Sharp
         #endregion
 
         /// <summary>
-        /// Replaces entries in the staging area with entries from the specified tree.
+        /// Replaces entries in the <see cref="Index"/> with entries from the specified <see cref="Tree"/>.
         /// <para>
-        ///   This overwrites all existing state in the staging area.
+        ///   This overwrites all existing state in the <see cref="Index"/>.
         /// </para>
         /// </summary>
         /// <param name="source">The <see cref="Tree"/> to read the entries from.</param>
@@ -145,10 +143,10 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Clears all entries the index. This is semantically equivalent to
-        /// creating an empty tree object and resetting the index to that tree.
+        /// Clears all entries the <see cref="Index"/>. This is semantically equivalent to
+        /// creating an empty <see cref="Tree"/> object and resetting the <see cref="Index"/> to that <see cref="Tree"/>.
         /// <para>
-        ///   This overwrites all existing state in the staging area.
+        ///   This overwrites all existing state in the <see cref="Index"/>.
         /// </para>
         /// </summary>
         public virtual void Clear()
@@ -163,7 +161,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Removes a specified entry from the index.
+        /// Removes a specified entry from the <see cref="Index"/>.
         /// </summary>
         /// <param name="indexEntryPath">The path of the <see cref="Index"/> entry to be removed.</param>
         public virtual void Remove(string indexEntryPath)
@@ -179,7 +177,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Adds a file from the workdir in the <see cref="Index"/>.
+        /// Adds a file from the working directory in the <see cref="Index"/>.
         /// <para>
         ///   If an entry with the same path already exists in the <see cref="Index"/>,
         ///   the newly added one will overwrite it.
@@ -295,6 +293,42 @@ namespace LibGit2Sharp
                 return string.Format(CultureInfo.InvariantCulture,
                     "Count = {0}", Count);
             }
+        }
+
+        /// <summary>
+        /// Replaces entries in the <see cref="Index"/> with entries from the specified <see cref="Commit"/>.
+        /// </summary>
+        /// <param name="commit">The target <see cref="Commit"/> object.</param>
+        public virtual void Replace(Commit commit)
+        {
+            Replace(commit, null, null);
+        }
+
+        /// <summary>
+        /// Replaces entries in the <see cref="Index"/> with entries from the specified <see cref="Commit"/>.
+        /// </summary>
+        /// <param name="commit">The target <see cref="Commit"/> object.</param>
+        /// <param name="paths">The list of paths (either files or directories) that should be considered.</param>
+        public virtual void Replace(Commit commit, IEnumerable<string> paths)
+        {
+            Replace(commit, paths, null);
+        }
+
+        /// <summary>
+        /// Replaces entries in the <see cref="Index"/> with entries from the specified <see cref="Commit"/>.
+        /// </summary>
+        /// <param name="commit">The target <see cref="Commit"/> object.</param>
+        /// <param name="paths">The list of paths (either files or directories) that should be considered.</param>
+        /// <param name="explicitPathsOptions">
+        /// If set, the passed <paramref name="paths"/> will be treated as explicit paths.
+        /// Use these options to determine how unmatched explicit paths should be handled.
+        /// </param>
+        public virtual void Replace(Commit commit, IEnumerable<string> paths, ExplicitPathsOptions explicitPathsOptions)
+        {
+            Ensure.ArgumentNotNull(commit, "commit");
+
+            var changes = repo.Diff.Compare<TreeChanges>(commit.Tree, DiffTargets.Index, paths, explicitPathsOptions, new CompareOptions { Similarity = SimilarityOptions.None });
+            Replace(changes);
         }
     }
 }

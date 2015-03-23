@@ -9,10 +9,10 @@ namespace LibGit2Sharp.Tests
 {
     public class CheckoutFixture : BaseFixture
     {
-        private static readonly string originalFilePath = "a.txt";
-        private static readonly string originalFileContent = "Hello";
-        private static readonly string alternateFileContent = "There again";
-        private static readonly string otherBranchName = "other";
+        private const string originalFilePath = "a.txt";
+        private const string originalFileContent = "Hello";
+        private const string alternateFileContent = "There again";
+        private const string otherBranchName = "other";
 
         [Theory]
         [InlineData("i-do-numbers")]
@@ -51,8 +51,8 @@ namespace LibGit2Sharp.Tests
                 var reflogEntry = repo.Refs.Log(repo.Refs.Head).First();
                 Assert.Equal(master.Tip.Id, reflogEntry.From);
                 Assert.Equal(branch.Tip.Id, reflogEntry.To);
-                Assert.NotNull(reflogEntry.Commiter.Email);
-                Assert.NotNull(reflogEntry.Commiter.Name);
+                Assert.NotNull(reflogEntry.Committer.Email);
+                Assert.NotNull(reflogEntry.Committer.Name);
                 Assert.Equal(string.Format("checkout: moving from master to {0}", branchName), reflogEntry.Message);
             }
         }
@@ -89,8 +89,8 @@ namespace LibGit2Sharp.Tests
                 var reflogEntry = repo.Refs.Log(repo.Refs.Head).First();
                 Assert.Equal(master.Tip.Id, reflogEntry.From);
                 Assert.Equal(repo.Branches[branchName].Tip.Id, reflogEntry.To);
-                Assert.NotNull(reflogEntry.Commiter.Email);
-                Assert.NotNull(reflogEntry.Commiter.Name);
+                Assert.NotNull(reflogEntry.Committer.Email);
+                Assert.NotNull(reflogEntry.Committer.Name);
                 Assert.Equal(string.Format("checkout: moving from master to {0}", branchName), reflogEntry.Message);
             }
         }
@@ -138,8 +138,8 @@ namespace LibGit2Sharp.Tests
                 var reflogEntry = repo.Refs.Log(repo.Refs.Head).First();
                 Assert.Equal(master.Tip.Id, reflogEntry.From);
                 Assert.Equal(commit.Sha, reflogEntry.To.Sha);
-                Assert.NotNull(reflogEntry.Commiter.Email);
-                Assert.NotNull(reflogEntry.Commiter.Name);
+                Assert.NotNull(reflogEntry.Committer.Email);
+                Assert.NotNull(reflogEntry.Committer.Name);
                 Assert.Equal(string.Format("checkout: moving from master to {0}", expectedReflogTarget), reflogEntry.Message);
             }
         }
@@ -319,7 +319,7 @@ namespace LibGit2Sharp.Tests
 
             using (var repo = new Repository(repoPath))
             {
-                string relativePath = "a.txt";
+                const string relativePath = "a.txt";
                 Touch(repo.Info.WorkingDirectory, relativePath, "Hello\n");
 
                 repo.Stage(relativePath);
@@ -451,13 +451,13 @@ namespace LibGit2Sharp.Tests
             {
                 PopulateBasicRepository(repo);
 
-                string relativePathUpdated = "updated.txt";
+                const string relativePathUpdated = "updated.txt";
                 Touch(repo.Info.WorkingDirectory, relativePathUpdated, "updated file text A");
                 repo.Stage(relativePathUpdated);
                 repo.Commit("Commit initial update file", Constants.Signature, Constants.Signature);
 
                 // Create conflicting change
-                string relativePathConflict = "conflict.txt";
+                const string relativePathConflict = "conflict.txt";
                 Touch(repo.Info.WorkingDirectory, relativePathConflict, "conflict file text A");
                 repo.Stage(relativePathConflict);
                 repo.Commit("Initial commit of conflict.txt and update.txt", Constants.Signature, Constants.Signature);
@@ -492,7 +492,7 @@ namespace LibGit2Sharp.Tests
                 Touch(repo.Info.WorkingDirectory, relativePathIgnore, "ignored file");
 
                 // Create untracked change
-                string relativePathUntracked = "untracked.txt";
+                const string relativePathUntracked = "untracked.txt";
                 Touch(repo.Info.WorkingDirectory, relativePathUntracked, "untracked file");
 
                 bool wasCalled = false;
@@ -769,8 +769,8 @@ namespace LibGit2Sharp.Tests
                 var reflogEntry = repo.Refs.Log(repo.Refs.Head).First();
                 Assert.Equal(initialHead.Tip.Id, reflogEntry.From);
                 Assert.Equal(commitSha, reflogEntry.To.Sha);
-                Assert.NotNull(reflogEntry.Commiter.Email);
-                Assert.NotNull(reflogEntry.Commiter.Name);
+                Assert.NotNull(reflogEntry.Committer.Email);
+                Assert.NotNull(reflogEntry.Committer.Name);
                 Assert.Equal(string.Format("checkout: moving from {0} to {1}", initialHead.Tip.Sha, commitPointer), reflogEntry.Message);
             }
         }
@@ -779,7 +779,7 @@ namespace LibGit2Sharp.Tests
         public void CheckoutBranchFromDetachedHead()
         {
             string path = SandboxStandardTestRepo();
-            using (var repo = new Repository(path))
+            using (var repo = new Repository(path, new RepositoryOptions{ Identity = Constants.Identity }))
             {
                 // Set the working directory to the current head
                 ResetAndCleanWorkingDirectory(repo);
@@ -789,12 +789,12 @@ namespace LibGit2Sharp.Tests
 
                 Assert.True(repo.Info.IsHeadDetached);
 
-                Branch newHead = repo.Checkout(repo.Branches["master"], Constants.Signature);
+                Branch newHead = repo.Checkout(repo.Branches["master"]);
 
                 // Assert reflog entry is created
-                AssertRefLogEntry(repo, "HEAD", newHead.Tip.Id,
+                AssertRefLogEntry(repo, "HEAD",
                     string.Format("checkout: moving from {0} to {1}", initialHead.Tip.Sha, newHead.Name),
-                    initialHead.Tip.Id, Constants.Signature);
+                    initialHead.Tip.Id, newHead.Tip.Id, Constants.Identity, DateTimeOffset.Now);
             }
         }
 
@@ -847,7 +847,7 @@ namespace LibGit2Sharp.Tests
         public void CheckoutCurrentReference()
         {
             string path = SandboxStandardTestRepo();
-            using (var repo = new Repository(path))
+            using (var repo = new Repository(path, new RepositoryOptions { Identity = Constants.Identity }))
             {
                 Branch master = repo.Branches["master"];
                 Assert.True(master.IsCurrentRepositoryHead);
@@ -866,8 +866,8 @@ namespace LibGit2Sharp.Tests
                 repo.Checkout(master.Tip.Sha);
 
                 Assert.True(repo.Info.IsHeadDetached);
-                AssertRefLogEntry(repo, "HEAD", master.Tip.Id,
-                    string.Format("checkout: moving from master to {0}", master.Tip.Sha), master.Tip.Id);
+                AssertRefLogEntry(repo, "HEAD",
+                    string.Format("checkout: moving from master to {0}", master.Tip.Sha), master.Tip.Id, master.Tip.Id, Constants.Identity, DateTimeOffset.Now);
 
                 // Checkout detached "HEAD" => nothing should happen
                 reflogEntriesCount = repo.Refs.Log(repo.Refs.Head).Count();

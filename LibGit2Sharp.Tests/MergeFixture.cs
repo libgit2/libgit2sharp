@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
@@ -324,9 +323,9 @@ namespace LibGit2Sharp.Tests
 
         [Theory]
         [InlineData(true, FastForwardStrategy.Default, MergeStatus.NonFastForward)]
-        [InlineData(true, FastForwardStrategy.NoFastFoward, MergeStatus.NonFastForward)]
+        [InlineData(true, FastForwardStrategy.NoFastForward, MergeStatus.NonFastForward)]
         [InlineData(false, FastForwardStrategy.Default, MergeStatus.NonFastForward)]
-        [InlineData(false, FastForwardStrategy.NoFastFoward, MergeStatus.NonFastForward)]
+        [InlineData(false, FastForwardStrategy.NoFastForward, MergeStatus.NonFastForward)]
         public void CanNonFastForwardMergeCommit(bool fromDetachedHead, FastForwardStrategy fastForwardStrategy, MergeStatus expectedMergeStatus)
         {
             string path = SandboxMergeTestRepo();
@@ -516,7 +515,7 @@ namespace LibGit2Sharp.Tests
             {
                 Commit commitToMerge = repo.Branches["fast_forward"].Tip;
 
-                MergeResult result = repo.Merge(commitToMerge, Constants.Signature, new MergeOptions() { FastForwardStrategy = FastForwardStrategy.NoFastFoward });
+                MergeResult result = repo.Merge(commitToMerge, Constants.Signature, new MergeOptions() { FastForwardStrategy = FastForwardStrategy.NoFastForward });
 
                 Assert.Equal(MergeStatus.NonFastForward, result.Status);
                 Assert.Equal("f58f780d5a0ae392efd4a924450b1bbdc0577d32", result.Commit.Id.Sha);
@@ -550,7 +549,7 @@ namespace LibGit2Sharp.Tests
             {
                 Commit commitToMerge = repo.Branches["master"].Tip;
 
-                MergeResult result = repo.Merge(commitToMerge, Constants.Signature, new MergeOptions() { FastForwardStrategy = FastForwardStrategy.NoFastFoward });
+                MergeResult result = repo.Merge(commitToMerge, Constants.Signature, new MergeOptions() { FastForwardStrategy = FastForwardStrategy.NoFastForward });
 
                 Assert.Equal(MergeStatus.UpToDate, result.Status);
                 Assert.Equal(null, result.Commit);
@@ -578,8 +577,8 @@ namespace LibGit2Sharp.Tests
         [Theory]
         [InlineData(true, FastForwardStrategy.FastForwardOnly)]
         [InlineData(false, FastForwardStrategy.FastForwardOnly)]
-        [InlineData(true, FastForwardStrategy.NoFastFoward)]
-        [InlineData(false, FastForwardStrategy.NoFastFoward)]
+        [InlineData(true, FastForwardStrategy.NoFastForward)]
+        [InlineData(false, FastForwardStrategy.NoFastForward)]
         public void MergeWithWorkDirConflictsThrows(bool shouldStage, FastForwardStrategy strategy)
         {
             // Merging the fast_forward branch results in a change to file

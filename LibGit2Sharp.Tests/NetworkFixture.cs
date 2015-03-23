@@ -132,7 +132,7 @@ namespace LibGit2Sharp.Tests
 
         [Theory]
         [InlineData(FastForwardStrategy.Default)]
-        [InlineData(FastForwardStrategy.NoFastFoward)]
+        [InlineData(FastForwardStrategy.NoFastForward)]
         public void CanPull(FastForwardStrategy fastForwardStrategy)
         {
             string url = "https://github.com/libgit2/TestGitRepository";
@@ -225,6 +225,33 @@ namespace LibGit2Sharp.Tests
 
                 Assert.True(didPullThrow, "Pull did not throw.");
                 Assert.True(thrownException.Message.Contains("refs/heads/another_master"), "Exception message did not contain expected reference.");
+            }
+        }
+
+        [Fact]
+        public void CanMergeFetchedRefs()
+        {
+            string url = "https://github.com/libgit2/TestGitRepository";
+
+            var scd = BuildSelfCleaningDirectory();
+            string clonedRepoPath = Repository.Clone(url, scd.DirectoryPath);
+
+            using (var repo = new Repository(clonedRepoPath))
+            {
+                repo.Reset(ResetMode.Hard, "HEAD~1");
+
+                Assert.False(repo.RetrieveStatus().Any());
+                Assert.Equal(repo.Lookup<Commit>("refs/remotes/origin/master~1"), repo.Head.Tip);
+
+                repo.Network.Fetch(repo.Head.Remote);
+
+                MergeOptions mergeOptions = new MergeOptions()
+                {
+                    FastForwardStrategy = FastForwardStrategy.NoFastForward
+                };
+
+                MergeResult mergeResult = repo.MergeFetchedRefs(Constants.Signature, mergeOptions);
+                Assert.Equal(mergeResult.Status, MergeStatus.NonFastForward);
             }
         }
 

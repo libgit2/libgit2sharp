@@ -254,12 +254,50 @@ namespace LibGit2Sharp.Tests
                     (!m.IsVirtual || m.IsFinal))
                 .ToList();
 
-            foreach (var method in nonVirtualGetEnumeratorMethods)
+            if (nonVirtualGetEnumeratorMethods.Any())
             {
-                Debug.WriteLine(String.Format("GetEnumerator in type '{0}' isn't virtual.", method.DeclaringType));
-            }
+                var sb = new StringBuilder();
 
-            Assert.Empty(nonVirtualGetEnumeratorMethods);
+                foreach (var method in nonVirtualGetEnumeratorMethods)
+                {
+                    sb.AppendFormat("GetEnumerator in type '{0}' isn't virtual.{1}",
+                        method.DeclaringType, Environment.NewLine);
+                }
+
+                Assert.True(false, Environment.NewLine + sb.ToString());
+            }
+        }
+
+        [Fact]
+        public void NoPublicTypesUnderLibGit2SharpCoreNamespace()
+        {
+            const string coreNamespace = "LibGit2Sharp.Core";
+
+            var types = Assembly.GetAssembly(typeof(IRepository))
+                .GetExportedTypes()
+                .Where(t => t.FullName.StartsWith(coreNamespace + "."))
+
+                // Ugly hack to circumvent a Mono bug
+                // cf. https://bugzilla.xamarin.com/show_bug.cgi?id=27010
+                .Where(t => !t.FullName.Contains("+"))
+
+#if LEAKS_IDENTIFYING
+                .Where(t => t != typeof(LibGit2Sharp.Core.LeaksContainer))
+#endif
+                .ToList();
+
+            if (types.Any())
+            {
+                var sb = new StringBuilder();
+
+                foreach (var type in types)
+                {
+                    sb.AppendFormat("Public type '{0}' under the '{1}' namespace.{2}",
+                        type.FullName, coreNamespace, Environment.NewLine);
+                }
+
+                Assert.True(false, Environment.NewLine + sb.ToString());
+            }
         }
     }
 }

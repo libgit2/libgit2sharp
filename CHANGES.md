@@ -8,7 +8,7 @@
  - @libgit2sharp: <http://twitter.com/libgit2sharp>
  - CI servers:
   - Windows (x86/amd64): <https://ci.appveyor.com/project/libgit2/libgit2sharp>
-  - Linux/MacOsX: <https://travis-ci.org/libgit2/libgit2sharp>
+  - Linux/Mac OS X: <https://travis-ci.org/libgit2/libgit2sharp>
 
 ## v0.21.1 - ([diff](https://github.com/libgit2/libgit2sharp/compare/v0.21...v0.21.1))
 

@@ -4,6 +4,7 @@ using System.Linq;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
+using Xunit.Extensions;
 
 namespace LibGit2Sharp.Tests
 {
@@ -737,6 +738,35 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path))
             {
                 Assert.Throws<ArgumentNullException>(() => { Tag t = repo.Tags[null]; });
+            }
+        }
+
+        [Fact]
+        public void CanRetrieveThePeeledTargetOfATagPointingToATag()
+        {
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
+            {
+                Tag tag = repo.Tags["test"];
+
+                Assert.True(tag.Target is TagAnnotation);
+                Assert.True(tag.PeeledTarget is Commit);
+            }
+        }
+
+        [Theory]
+        [InlineData("e90810b")]
+        [InlineData("lw")]
+        [InlineData("point_to_blob")]
+        [InlineData("tag_without_tagger")]
+        public void PeeledTargetAndTargetAreEqualWhenTagIsNotChained(string tagName)
+        {
+            string path = SandboxBareTestRepo();
+            using (var repo = new Repository(path))
+            {
+                Tag tag = repo.Tags[tagName];
+
+                Assert.Equal<GitObject>(tag.Target, tag.PeeledTarget);
             }
         }
 

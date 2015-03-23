@@ -184,7 +184,7 @@ namespace LibGit2Sharp.Core
 	$buildProperties = @"
 <?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-	<ItemGroup>
+	<ItemGroup Condition=" '`$(OS)' == 'Windows_NT' ">
 		<None Include="`$(MSBuildThisFileDirectory)\..\..\lib\net40\NativeBinaries\amd64\$binaryFilename.dll">
 			<Link>NativeBinaries\amd64\$binaryFilename.dll</Link>
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

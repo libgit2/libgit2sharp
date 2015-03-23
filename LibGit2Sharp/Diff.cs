@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Handles;
-using Environment = System.Environment;
 
 namespace LibGit2Sharp
 {

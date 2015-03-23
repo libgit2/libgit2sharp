@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Diagnostics;
 using System.Globalization;
+using System.Linq;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Handles;
 
@@ -15,11 +15,12 @@ namespace LibGit2Sharp
     public class Remote : IEquatable<Remote>, IBelongToARepository
     {
         private static readonly LambdaEqualityHelper<Remote> equalityHelper =
-            new LambdaEqualityHelper<Remote>(x => x.Name, x => x.Url);
+            new LambdaEqualityHelper<Remote>(x => x.Name, x => x.Url, x => x.PushUrl);
 
         internal readonly Repository repository;
 
         private readonly RefSpecCollection refSpecs;
+        private string pushUrl;
 
         /// <summary>
         /// Needed for mocking purposes.
@@ -32,6 +33,7 @@ namespace LibGit2Sharp
             this.repository = repository;
             Name = Proxy.git_remote_name(handle);
             Url = Proxy.git_remote_url(handle);
+            PushUrl = Proxy.git_remote_pushurl(handle);
             TagFetchMode = Proxy.git_remote_autotag(handle);
             refSpecs = new RefSpecCollection(handle);
         }
@@ -52,6 +54,21 @@ namespace LibGit2Sharp
         /// Gets the url to use to communicate with this remote repository.
         /// </summary>
         public virtual string Url { get; private set; }
+
+        /// <summary>
+        /// Gets the distinct push url for this remote repository, if set.
+        /// Defaults to the fetch url (<see cref="Url"/>) if not set.
+        /// </summary>
+        public virtual string PushUrl {
+            get
+            {
+                return pushUrl ?? Url;
+            }
+            private set
+            {
+                pushUrl = value;
+            }
+        }
 
         /// <summary>
         /// Gets the Tag Fetch Mode of the remote - indicating how tags are fetched.
@@ -103,6 +120,31 @@ namespace LibGit2Sharp
         public static bool IsValidName(string name)
         {
             return Proxy.git_remote_is_valid_name(name);
+        }
+
+        /// <summary>
+        /// Gets the configured behavior regarding the deletion
+        /// of stale remote tracking branches.
+        /// <para>
+        ///   If defined, will return the value of the <code>remote.&lt;name&gt;.prune</code> entry.
+        ///   Otherwise return the value of <code>fetch.prune</code>.
+        /// </para>
+        /// </summary>
+        public virtual bool AutomaticallyPruneOnFetch
+        {
+            get
+            {
+                var remotePrune = repository.Config.Get<bool>("remote", Name, "prune");
+
+                if (remotePrune != null)
+                {
+                    return remotePrune.Value;
+                }
+
+                var fetchPrune = repository.Config.Get<bool>("fetch.prune");
+
+                return fetchPrune != null && fetchPrune.Value;
+            }
         }
 
         /// <summary>

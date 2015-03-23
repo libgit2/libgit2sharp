@@ -41,7 +41,7 @@ namespace LibGit2Sharp.Tests
                 var first = sha1 == "-" ? CreateOrphanedCommit(repo) : repo.Lookup<Commit>(sha1);
                 var second = sha2 == "-" ? CreateOrphanedCommit(repo) : repo.Lookup<Commit>(sha2);
 
-                Commit ancestor = repo.Commits.FindMergeBase(first, second);
+                Commit ancestor = repo.ObjectDatabase.FindMergeBase(first, second);
 
                 if (result == null)
                 {
@@ -71,7 +71,7 @@ namespace LibGit2Sharp.Tests
             {
                 var commits = shas.Select(sha => sha == "-" ? CreateOrphanedCommit(repo) : repo.Lookup<Commit>(sha)).ToArray();
 
-                Commit ancestor = repo.Commits.FindMergeBase(commits, strategy);
+                Commit ancestor = repo.ObjectDatabase.FindMergeBase(commits, strategy);
 
                 if (result == null)
                 {
@@ -96,7 +96,7 @@ namespace LibGit2Sharp.Tests
                 var first = repo.Lookup<Commit>(sha1);
                 var second = repo.Lookup<Commit>(sha2);
 
-                Assert.Throws<ArgumentNullException>(() => repo.Commits.FindMergeBase(first, second));
+                Assert.Throws<ArgumentNullException>(() => repo.ObjectDatabase.FindMergeBase(first, second));
             }
         }
 
@@ -112,7 +112,7 @@ namespace LibGit2Sharp.Tests
             {
                 var commits = shas.Select(sha => sha == "-" ? CreateOrphanedCommit(repo) : repo.Lookup<Commit>(sha)).ToArray();
 
-                Assert.Throws<ArgumentException>(() => repo.Commits.FindMergeBase(commits, strategy));
+                Assert.Throws<ArgumentException>(() => repo.ObjectDatabase.FindMergeBase(commits, strategy));
             }
         }
 

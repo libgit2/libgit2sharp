@@ -1,5 +1,4 @@
-﻿using System;
-using System.Globalization;
+﻿using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -23,19 +22,6 @@ namespace LibGit2Sharp
         internal static Version Build()
         {
             return new Version();
-        }
-
-        /// <summary>
-        /// Returns the <see cref="System.Version" /> of the
-        /// the LibGit2Sharp library.
-        /// </summary>
-        [Obsolete("This property will be removed in the next release. Please use InformationalVersion instead.")]
-        public virtual System.Version MajorMinorPatch
-        {
-            get
-            {
-                return assembly.GetName().Version;
-            }
         }
 
         /// <summary>
@@ -111,7 +97,7 @@ namespace LibGit2Sharp
                 InformationalVersion,
                 LibGit2SharpCommitSha,
                 LibGit2CommitSha,
-                NativeMethods.ProcessorArchitecture,
+                Platform.ProcessorArchitecture,
                 features);
         }
 

@@ -406,5 +406,92 @@ namespace LibGit2Sharp
 
             return gitObject.Sha.Substring(0, minLength.Value);
         }
+
+        /// <summary>
+        /// Returns whether merging <paramref name="one"/> into <paramref name="another"/>
+        /// would result in merge conflicts.
+        /// </summary>
+        /// <param name="one">The commit wrapping the base tree to merge into.</param>
+        /// <param name="another">The commit wrapping the tree to merge into <paramref name="one"/>.</param>
+        /// <returns>True if the merge does not result in a conflict, false otherwise.</returns>
+        public virtual bool CanMergeWithoutConflict(Commit one, Commit another)
+        {
+            Ensure.ArgumentNotNull(one, "one");
+            Ensure.ArgumentNotNull(another, "another");
+
+            using (var ourHandle = Proxy.git_object_peel(repo.Handle, one.Id, GitObjectType.Tree, true))
+            using (var theirHandle = Proxy.git_object_peel(repo.Handle, another.Id, GitObjectType.Tree, true))
+            {
+                var ancestorCommit = FindMergeBase(one, another);
+
+                var ancestorHandle = ancestorCommit != null
+                    ? Proxy.git_object_peel(repo.Handle, ancestorCommit.Id, GitObjectType.Tree, false)
+                    : new NullGitObjectSafeHandle();
+
+                using (ancestorHandle)
+                using (var indexHandle = Proxy.git_merge_trees(repo.Handle, ancestorHandle, ourHandle, theirHandle))
+                {
+                    return !Proxy.git_index_has_conflicts(indexHandle);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Find the best possible merge base given two <see cref="Commit"/>s.
+        /// </summary>
+        /// <param name="first">The first <see cref="Commit"/>.</param>
+        /// <param name="second">The second <see cref="Commit"/>.</param>
+        /// <returns>The merge base or null if none found.</returns>
+        public virtual Commit FindMergeBase(Commit first, Commit second)
+        {
+            Ensure.ArgumentNotNull(first, "first");
+            Ensure.ArgumentNotNull(second, "second");
+
+            return FindMergeBase(new[] { first, second }, MergeBaseFindingStrategy.Standard);
+        }
+
+        /// <summary>
+        /// Find the best possible merge base given two or more <see cref="Commit"/> according to the <see cref="MergeBaseFindingStrategy"/>.
+        /// </summary>
+        /// <param name="commits">The <see cref="Commit"/>s for which to find the merge base.</param>
+        /// <param name="strategy">The strategy to leverage in order to find the merge base.</param>
+        /// <returns>The merge base or null if none found.</returns>
+        public virtual Commit FindMergeBase(IEnumerable<Commit> commits, MergeBaseFindingStrategy strategy)
+        {
+            Ensure.ArgumentNotNull(commits, "commits");
+
+            ObjectId id;
+            List<GitOid> ids = new List<GitOid>(8);
+            int count = 0;
+
+            foreach (var commit in commits)
+            {
+                if (commit == null)
+                {
+                    throw new ArgumentException("Enumerable contains null at position: " + count.ToString(CultureInfo.InvariantCulture), "commits");
+                }
+                ids.Add(commit.Id.Oid);
+                count++;
+            }
+
+            if (count < 2)
+            {
+                throw new ArgumentException("The enumerable must contains at least two commits.", "commits");
+            }
+
+            switch (strategy)
+            {
+                case MergeBaseFindingStrategy.Standard:
+                    id = Proxy.git_merge_base_many(repo.Handle, ids.ToArray());
+                    break;
+                case MergeBaseFindingStrategy.Octopus:
+                    id = Proxy.git_merge_base_octopus(repo.Handle, ids.ToArray());
+                    break;
+                default:
+                    throw new ArgumentException("", "strategy");
+            }
+
+            return id == null ? null : repo.Lookup<Commit>(id);
+        }
     }
 }

@@ -78,9 +78,8 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="branch">The <see cref="Branch"/> to check out.</param>
         /// <param name="options"><see cref="CheckoutOptions"/> controlling checkout behavior.</param>
-        /// <param name="signature">Identity for use when updating the reflog.</param>
         /// <returns>The <see cref="Branch"/> that was checked out.</returns>
-        Branch Checkout(Branch branch, CheckoutOptions options, Signature signature);
+        Branch Checkout(Branch branch, CheckoutOptions options);
 
         /// <summary>
         /// Checkout the specified branch, reference or SHA.
@@ -91,9 +90,8 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="committishOrBranchSpec">A revparse spec for the commit or branch to checkout.</param>
         /// <param name="options"><see cref="CheckoutOptions"/> controlling checkout behavior.</param>
-        /// <param name="signature">Identity for use when updating the reflog.</param>
         /// <returns>The <see cref="Branch"/> that was checked out.</returns>
-        Branch Checkout(string committishOrBranchSpec, CheckoutOptions options, Signature signature);
+        Branch Checkout(string committishOrBranchSpec, CheckoutOptions options);
 
         /// <summary>
         /// Checkout the specified <see cref="LibGit2Sharp.Commit"/>.
@@ -103,9 +101,8 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="commit">The <see cref="LibGit2Sharp.Commit"/> to check out.</param>
         /// <param name="options"><see cref="CheckoutOptions"/> controlling checkout behavior.</param>
-        /// <param name="signature">Identity for use when updating the reflog.</param>
         /// <returns>The <see cref="Branch"/> that was checked out.</returns>
-        Branch Checkout(Commit commit, CheckoutOptions options, Signature signature);
+        Branch Checkout(Commit commit, CheckoutOptions options);
 
         /// <summary>
         /// Updates specifed paths in the index and working directory with the versions from the specified branch, reference, or SHA.
@@ -166,9 +163,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="resetMode">Flavor of reset operation to perform.</param>
         /// <param name="commit">The target commit object.</param>
-        /// <param name="signature">Identity for use when updating the reflog.</param>
-        /// <param name="logMessage">Message to use when updating the reflog.</param>
-        void Reset(ResetMode resetMode, Commit commit, Signature signature, string logMessage);
+        void Reset(ResetMode resetMode, Commit commit);
 
         /// <summary>
         /// Replaces entries in the <see cref="Repository.Index"/> with entries from the specified commit.
@@ -179,6 +174,7 @@ namespace LibGit2Sharp
         /// If set, the passed <paramref name="paths"/> will be treated as explicit paths.
         /// Use these options to determine how unmatched explicit paths should be handled.
         /// </param>
+        [Obsolete("This method will be removed in the next release. Please use Index.Replace() instead.")]
         void Reset(Commit commit, IEnumerable<string> paths, ExplicitPathsOptions explicitPathsOptions);
 
         /// <summary>
@@ -221,6 +217,18 @@ namespace LibGit2Sharp
         /// <param name="options">Specifies optional parameters controlling merge behavior; if null, the defaults are used.</param>
         /// <returns>The <see cref="MergeResult"/> of the merge.</returns>
         MergeResult Merge(string committish, Signature merger, MergeOptions options);
+
+        /// <summary>
+        /// Merge the reference that was recently fetched. This will merge
+        /// the branch on the fetched remote that corresponded to the
+        /// current local branch when we did the fetch. This is the
+        /// second step in performing a pull operation (after having
+        /// performed said fetch).
+        /// </summary>
+        /// <param name="merger">The <see cref="Signature"/> of who is performing the merge.</param>
+        /// <param name="options">Specifies optional parameters controlling merge behavior; if null, the defaults are used.</param>
+        /// <returns>The <see cref="MergeResult"/> of the merge.</returns>
+        MergeResult MergeFetchedRefs(Signature merger, MergeOptions options);
 
         /// <summary>
         /// Cherry picks changes from the commit into the branch pointed at by HEAD.

@@ -24,5 +24,6 @@
     <file src="..\CHANGES.md" target="App_Readme\LibGit2Sharp.CHANGES.md" />
     <file src="..\nuget.package\build\*.*" target="build\net40" />
     <file src="..\Lib\NativeBinaries\libgit2.license.txt" target="App_Readme" />
+    <file src="bin\$configuration$\$id$.pdb" target="lib\net40" />
   </files>
 </package>

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace LibGit2Sharp
+﻿namespace LibGit2Sharp
 {
     /// <summary>
     /// Flags controlling what files are reported by status.

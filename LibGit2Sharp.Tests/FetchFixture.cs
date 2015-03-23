@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
@@ -186,6 +188,45 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(clonedRepoPath))
             {
                 repo.Fetch("origin", new FetchOptions { TagFetchMode = TagFetchMode.All });
+            }
+        }
+
+        [Fact]
+        public void FetchHonorsTheFetchPruneConfigurationEntry()
+        {
+            var source = SandboxBareTestRepo();
+            var url = new Uri(Path.GetFullPath(source)).AbsoluteUri;
+
+            var scd = BuildSelfCleaningDirectory();
+
+            string clonedRepoPath = Repository.Clone(url, scd.DirectoryPath);
+
+            var options = BuildFakeConfigs(BuildSelfCleaningDirectory());
+
+            using (var clonedRepo = new Repository(clonedRepoPath, options))
+            {
+                Assert.Equal(5, clonedRepo.Branches.Count(b => b.IsRemote));
+
+                // Drop one of the branches in the remote repository
+                using (var sourceRepo = new Repository(source))
+                {
+                    sourceRepo.Branches.Remove("packed-test");
+                }
+
+                // No pruning when the configuration entry isn't defined
+                Assert.Null(clonedRepo.Config.Get<bool>("fetch.prune"));
+                clonedRepo.Fetch("origin");
+                Assert.Equal(5, clonedRepo.Branches.Count(b => b.IsRemote));
+
+                // No pruning when the configuration entry is set to false
+                clonedRepo.Config.Set<bool>("fetch.prune", false);
+                clonedRepo.Fetch("origin");
+                Assert.Equal(5, clonedRepo.Branches.Count(b => b.IsRemote));
+
+                // Auto pruning when the configuration entry is set to true
+                clonedRepo.Config.Set<bool>("fetch.prune", true);
+                clonedRepo.Fetch("origin");
+                Assert.Equal(4, clonedRepo.Branches.Count(b => b.IsRemote));
             }
         }
     }

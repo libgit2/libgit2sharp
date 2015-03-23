@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Text;
 using LibGit2Sharp.Core;
 
@@ -22,10 +21,7 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNull(blob, "blob");
 
-            using (var reader = new StreamReader(blob.GetContentStream(), encoding ?? Encoding.UTF8, encoding == null))
-            {
-                return reader.ReadToEnd();
-            }
+            return ReadToEnd(blob.GetContentStream(), encoding);
         }
 
         /// <summary>
@@ -43,7 +39,12 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(blob, "blob");
             Ensure.ArgumentNotNull(filteringOptions, "filteringOptions");
 
-            using (var reader = new StreamReader(blob.GetContentStream(filteringOptions), encoding ?? Encoding.UTF8, encoding == null))
+            return ReadToEnd(blob.GetContentStream(filteringOptions), encoding);
+        }
+
+        private static string ReadToEnd(Stream stream, Encoding encoding)
+        {
+            using (var reader = new StreamReader(stream, encoding ?? LaxUtf8Marshaler.Encoding, encoding == null))
             {
                 return reader.ReadToEnd();
             }

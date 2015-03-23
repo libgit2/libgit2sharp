@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Handles;
@@ -73,6 +74,18 @@ namespace LibGit2Sharp
             set
             {
                 Proxy.git_remote_set_url(remoteHandle, value);
+                Proxy.git_remote_save(remoteHandle);
+            }
+        }
+        
+        /// <summary>
+        /// Sets the push url defined for this <see cref="Remote"/>
+        /// </summary>
+        public virtual string PushUrl
+        {
+            set
+            {
+                Proxy.git_remote_set_pushurl(remoteHandle, value);
                 Proxy.git_remote_save(remoteHandle);
             }
         }
@@ -157,7 +170,7 @@ namespace LibGit2Sharp
                 return list.Value.GetEnumerator();
             }
 
-            System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+            IEnumerator IEnumerable.GetEnumerator()
             {
                 return list.Value.GetEnumerator();
             }

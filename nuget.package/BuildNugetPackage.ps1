@@ -8,7 +8,8 @@
 
 Param(
     [Parameter(Mandatory=$true)]
-    [string]$commitSha
+    [string]$commitSha,
+    [scriptblock]$postBuild
 )
 
 $ErrorActionPreference = "Stop"
@@ -51,10 +52,19 @@ function Clean-OutputFolder($folder) {
     }
 }
 
+# From http://www.dougfinke.com/blog/index.php/2010/12/01/note-to-self-how-to-programmatically-get-the-msbuild-path-in-powershell/
+
+Function Get-MSBuild {
+    $lib = [System.Runtime.InteropServices.RuntimeEnvironment]
+    $rtd = $lib::GetRuntimeDirectory()
+    Join-Path $rtd msbuild.exe
+}
+
 #################
 
 $root = Split-Path -Parent -Path $MyInvocation.MyCommand.Definition
 $projectPath = Join-Path $root "..\LibGit2Sharp"
+$slnPath = Join-Path $projectPath "..\LibGit2Sharp.sln"
 
 Remove-Item (Join-Path $projectPath "*.nupkg")
 
@@ -68,11 +78,15 @@ Push-Location $projectPath
 
 try {
   Set-Content -Encoding ASCII $(Join-Path $projectPath "libgit2sharp_hash.txt") $commitSha
-  Run-Command { & "$(Join-Path $projectPath "..\Lib\NuGet\Nuget.exe")" Restore "$(Join-Path $projectPath "..\LibGit2Sharp.sln")" }
+  Run-Command { & "$(Join-Path $projectPath "..\Lib\NuGet\Nuget.exe")" Restore "$slnPath" }
+  Run-Command { & (Get-MSBuild) "$slnPath" "/verbosity:minimal" "/p:Configuration=Release" }
 
-  # Cf. https://stackoverflow.com/questions/21728450/nuget-exclude-files-from-symbols-package-in-nuspec
-  Run-Command { & "$(Join-Path $projectPath "..\Lib\NuGet\Nuget.exe")" Pack -Build -Symbols "$(Join-Path $projectPath "LibGit2Sharp.csproj")" -Prop Configuration=Release -Exclude "**/NativeBinaries/**/*.*"}
-  Run-Command { & "$(Join-Path $projectPath "..\Lib\NuGet\Nuget.exe")" Pack "$(Join-Path $projectPath "LibGit2Sharp.csproj")" -Prop Configuration=Release }
+  If ($postBuild) {
+    Write-Host -ForegroundColor "Green" "Run post build script..."
+    Run-Command { & ($postBuild) }
+  }
+
+  Run-Command { & "$(Join-Path $projectPath "..\Lib\NuGet\Nuget.exe")" Pack -Prop Configuration=Release }
 }
 finally {
   Pop-Location

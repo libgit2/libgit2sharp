@@ -27,7 +27,7 @@ namespace LibGit2Sharp.Core
 
         internal NativeMethods.git_push_transfer_progress push_transfer_progress;
 
-        internal IntPtr push_update_reference;
+        internal NativeMethods.push_update_reference_callback push_update_reference;
 
         internal IntPtr payload;
     }

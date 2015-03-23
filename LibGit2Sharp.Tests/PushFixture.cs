@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using LibGit2Sharp.Handlers;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
 
@@ -62,7 +63,7 @@ namespace LibGit2Sharp.Tests
         public void CanPushABranchTrackingAnUpstreamBranch()
         {
             bool packBuilderCalled = false;
-            Handlers.PackBuilderProgressHandler packBuilderCb = (x, y, z) => { packBuilderCalled = true; return true; };
+            PackBuilderProgressHandler packBuilderCb = (x, y, z) => { packBuilderCalled = true; return true; };
 
             AssertPush(repo => repo.Network.Push(repo.Head));
             AssertPush(repo => repo.Network.Push(repo.Branches["master"]));
@@ -97,7 +98,7 @@ namespace LibGit2Sharp.Tests
 
             // Create a new repository
             string localRepoPath = InitNewRepository();
-            using (var localRepo = new Repository(localRepoPath))
+            using (var localRepo = new Repository(localRepoPath, new RepositoryOptions { Identity = Constants.Identity }))
             {
                 // Add a commit
                 Commit first = AddCommitToRepo(localRepo);
@@ -128,8 +129,9 @@ namespace LibGit2Sharp.Tests
                 AssertRemoteHeadTipEquals(localRepo, second.Sha);
 
                 AssertRefLogEntry(localRepo, "refs/remotes/origin/master",
-                    localRepo.Head.Tip.Id, "update by push",
-                    oldId);
+                    "update by push",
+                    oldId, localRepo.Head.Tip.Id,
+                    Constants.Identity, DateTimeOffset.Now);
             }
         }
 

@@ -5,7 +5,7 @@ namespace LibGit2Sharp.Core
     /// <summary>
     /// Provides helper methods to help converting between Epoch (unix timestamp) and <see cref="DateTimeOffset"/>.
     /// </summary>
-    public static class Epoch
+    internal static class Epoch
     {
         private static readonly DateTimeOffset epochDateTimeOffset = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero);
 
