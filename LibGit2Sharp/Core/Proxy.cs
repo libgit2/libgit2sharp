@@ -2571,7 +2571,7 @@ namespace LibGit2Sharp.Core
 
         #region git_revparse_
 
-        public static Tuple<GitObjectSafeHandle, ReferenceSafeHandle> git_revparse_ext(RepositorySafeHandle repo, string objectish)
+        public static DisposableTuple<GitObjectSafeHandle, ReferenceSafeHandle> git_revparse_ext(RepositorySafeHandle repo, string objectish)
         {
             using (ThreadAffinity())
             {
@@ -2592,22 +2592,8 @@ namespace LibGit2Sharp.Core
                         break;
                 }
 
-                return new Tuple<GitObjectSafeHandle, ReferenceSafeHandle>(obj, reference);
+                return new DisposableTuple<GitObjectSafeHandle, ReferenceSafeHandle>(obj, reference);
             }
-        }
-
-        public static GitObjectSafeHandle git_revparse_single(RepositorySafeHandle repo, string objectish)
-        {
-            var handles = git_revparse_ext(repo, objectish);
-
-            if (handles == null)
-            {
-                return null;
-            }
-
-            handles.Item2.Dispose();
-
-            return handles.Item1;
         }
 
         #endregion

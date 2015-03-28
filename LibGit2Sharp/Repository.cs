@@ -485,9 +485,9 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNullOrEmptyString(objectish, "objectish");
 
             GitObject obj;
-            using (GitObjectSafeHandle sh = Proxy.git_revparse_single(handle, objectish))
+            using (DisposableTuple<GitObjectSafeHandle, ReferenceSafeHandle> handles = Proxy.git_revparse_ext(handle, objectish))
             {
-                if (sh == null)
+                if (handles == null)
                 {
                     if (lookUpOptions.HasFlag(LookUpOptions.ThrowWhenNoGitObjectHasBeenFound))
                     {
@@ -497,14 +497,15 @@ namespace LibGit2Sharp
                     return null;
                 }
 
-                GitObjectType objType = Proxy.git_object_type(sh);
+                var objH = handles.Item1;
+                GitObjectType objType = Proxy.git_object_type(objH);
 
                 if (type != GitObjectType.Any && objType != type)
                 {
                     return null;
                 }
 
-                obj = GitObject.BuildFrom(this, Proxy.git_object_id(sh), objType, PathFromRevparseSpec(objectish));
+                obj = GitObject.BuildFrom(this, Proxy.git_object_id(objH), objType, PathFromRevparseSpec(objectish));
             }
 
             if (lookUpOptions.HasFlag(LookUpOptions.DereferenceResultToCommit))
@@ -752,17 +753,18 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNullOrEmptyString(committishOrBranchSpec, "committishOrBranchSpec");
             Ensure.ArgumentNotNull(options, "options");
 
-            var handles = Proxy.git_revparse_ext(Handle, committishOrBranchSpec);
-            if (handles == null)
-            {
-                Ensure.GitObjectIsNotNull(null, committishOrBranchSpec);
-            }
-
-            var objH = handles.Item1;
-            var refH = handles.Item2;
             GitObject obj;
-            try
+
+            using (DisposableTuple<GitObjectSafeHandle, ReferenceSafeHandle> handles = Proxy.git_revparse_ext(Handle, committishOrBranchSpec))
             {
+                if (handles == null)
+                {
+                    Ensure.GitObjectIsNotNull(null, committishOrBranchSpec);
+                }
+
+                var objH = handles.Item1;
+                var refH = handles.Item2;
+
                 if (!refH.IsInvalid)
                 {
                     var reference = Reference.BuildFromPtr<Reference>(refH, this);
@@ -775,11 +777,6 @@ namespace LibGit2Sharp
 
                 obj = GitObject.BuildFrom(this, Proxy.git_object_id(objH), Proxy.git_object_type(objH),
                                               PathFromRevparseSpec(committishOrBranchSpec));
-            }
-            finally
-            {
-                objH.Dispose();
-                refH.Dispose();
             }
 
             Commit commit = obj.DereferenceToCommit(true);

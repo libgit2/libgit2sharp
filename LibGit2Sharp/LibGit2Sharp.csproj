@@ -69,6 +69,7 @@
     <Compile Include="CommitSortStrategies.cs" />
     <Compile Include="CompareOptions.cs" />
     <Compile Include="Core\FileHistory.cs" />
+    <Compile Include="Core\DisposableTuple.cs" />
     <Compile Include="Core\Platform.cs" />
     <Compile Include="Core\Handles\ConflictIteratorSafeHandle.cs" />
     <Compile Include="DescribeOptions.cs" />
