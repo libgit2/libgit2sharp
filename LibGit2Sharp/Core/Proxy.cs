@@ -2723,6 +2723,32 @@ namespace LibGit2Sharp.Core
             }
         }
 
+        public static void git_stash_apply(
+            RepositorySafeHandle repo,
+            int index,
+            ref GitCheckoutOpts opts,
+            StashApplyModifiers flags)
+        {
+            using (ThreadAffinity())
+            {
+                int res = NativeMethods.git_stash_apply(repo, (UIntPtr)index, ref opts, flags);
+                Ensure.ZeroResult(res);
+            }
+        }
+
+        public static void git_stash_pop(
+            RepositorySafeHandle repo,
+            int index,
+            ref GitCheckoutOpts opts,
+            StashApplyModifiers flags)
+        {
+            using (ThreadAffinity())
+            {
+                int res = NativeMethods.git_stash_pop(repo, (UIntPtr)index, ref opts, flags);
+                Ensure.ZeroResult(res);
+            }
+        }
+
         #endregion
 
         #region git_status_
