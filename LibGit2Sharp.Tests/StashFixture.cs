@@ -213,7 +213,9 @@ namespace LibGit2Sharp.Tests
                 var stasher = Constants.Signature;
 
                 const string filename = "staged_file_path.txt";
-                Touch(repo.Info.WorkingDirectory, filename, "I'm staged\n");
+                const string contents = "I'm staged\n";
+                string contentsNew = "I'm staged" + Environment.NewLine;
+                Touch(repo.Info.WorkingDirectory, filename, contents);
                 repo.Stage(filename);
 
                 repo.Stashes.Add(stasher, "This stash with default options");
@@ -221,6 +223,7 @@ namespace LibGit2Sharp.Tests
 
                 Assert.Equal(FileStatus.Untracked, repo.RetrieveStatus(filename));
                 Assert.Equal(0, repo.Stashes.Count());
+                Assert.Equal(contentsNew, File.ReadAllText(Path.Combine(repo.Info.WorkingDirectory, filename)));
             }
         }
 
@@ -233,21 +236,25 @@ namespace LibGit2Sharp.Tests
                 var stasher = Constants.Signature;
 
                 const string filename = "staged_file_path.txt";
+                const string originalContents = "I'm pre-stash.";
                 const string filename2 = "unstaged_file_path.txt";
-                Touch(repo.Info.WorkingDirectory, filename, "I'm staged\n");
+                const string newContents = "I'm post-stash.";
+
+                Touch(repo.Info.WorkingDirectory, filename, originalContents);
                 repo.Stage(filename);
-                Touch(repo.Info.WorkingDirectory, filename2, "I'm unstaged\n");
+                Touch(repo.Info.WorkingDirectory, filename2, originalContents);
 
                 repo.Stashes.Add(stasher, "This stash with default options");
 
-                Touch(repo.Info.WorkingDirectory, filename, "I'm another staged\n");
+                Touch(repo.Info.WorkingDirectory, filename, newContents);
                 repo.Stage(filename);
-                Touch(repo.Info.WorkingDirectory, filename2, "I'm unstaged another staged\n");
+                Touch(repo.Info.WorkingDirectory, filename2, newContents);
 
                 Assert.Equal(StashApplyStatus.Conflicts, repo.Stashes.Pop(0, StashApplyModifiers.ReinstateIndex));
+                Assert.Equal(1, repo.Stashes.Count());
+                Assert.Equal(originalContents, File.ReadAllText(Path.Combine(repo.Info.WorkingDirectory, filename)));
+                Assert.Equal(originalContents, File.ReadAllText(Path.Combine(repo.Info.WorkingDirectory, filename2)));
 
-                // TODO: Find out why repo.Index.Conflicts doesn't have any data.
-                Assert.NotNull(repo.Index.Conflicts[filename]);
             }
         }
 
