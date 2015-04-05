@@ -2723,7 +2723,21 @@ namespace LibGit2Sharp.Core
             }
         }
 
-        public static void git_stash_apply(
+        static StashApplyStatus get_stash_status(int res)
+        {
+            if (res == (int)GitErrorCode.MergeConflict)
+            {
+                return StashApplyStatus.Conflicts;
+            }
+            if (res == (int)GitErrorCode.Exists)
+            {
+                return StashApplyStatus.UntrackedExist;
+            }
+            Ensure.ZeroResult(res);
+            return StashApplyStatus.Applied;
+        }
+
+        public static StashApplyStatus git_stash_apply(
             RepositorySafeHandle repo,
             int index,
             ref GitCheckoutOpts opts,
@@ -2731,12 +2745,11 @@ namespace LibGit2Sharp.Core
         {
             using (ThreadAffinity())
             {
-                int res = NativeMethods.git_stash_apply(repo, (UIntPtr)index, ref opts, flags);
-                Ensure.ZeroResult(res);
+                return get_stash_status(NativeMethods.git_stash_apply(repo, (UIntPtr)index, ref opts, flags));
             }
         }
 
-        public static void git_stash_pop(
+        public static StashApplyStatus git_stash_pop(
             RepositorySafeHandle repo,
             int index,
             ref GitCheckoutOpts opts,
@@ -2744,8 +2757,7 @@ namespace LibGit2Sharp.Core
         {
             using (ThreadAffinity())
             {
-                int res = NativeMethods.git_stash_pop(repo, (UIntPtr)index, ref opts, flags);
-                Ensure.ZeroResult(res);
+                return get_stash_status(NativeMethods.git_stash_pop(repo, (UIntPtr)index, ref opts, flags));
             }
         }
 

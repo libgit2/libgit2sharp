@@ -120,12 +120,12 @@ namespace LibGit2Sharp
         /// <param name="index">the index of the stash to remove (0 being the most recent one).</param>
         /// <param name="options">the options to use for checking out the stash.</param>
         /// <param name="flags">the flags to use for applying the changes.</param>
-        public virtual void Apply(int index, CheckoutOptions options = null, StashApplyModifiers flags = StashApplyModifiers.Default)
+        public virtual StashApplyStatus Apply(int index, StashApplyModifiers flags = StashApplyModifiers.Default, CheckoutOptions options = null)
         {
-            using (GitCheckoutOptsWrapper checkoutOptionsWrapper = new GitCheckoutOptsWrapper(options))
+            using (GitCheckoutOptsWrapper checkoutOptionsWrapper = new GitCheckoutOptsWrapper(options ?? new CheckoutOptions()))
             {
                 var opts = checkoutOptionsWrapper.Options;
-                Proxy.git_stash_apply(repo.Handle, index, ref opts, flags);
+                return Proxy.git_stash_apply(repo.Handle, index, ref opts, flags);
             }
         }
 
@@ -135,12 +135,12 @@ namespace LibGit2Sharp
         /// <param name="index">the index of the stash to remove (0 being the most recent one).</param>
         /// <param name="options">the options to use for checking out the stash.</param>
         /// <param name="flags">the flags to use for applying the changes.</param>
-        public virtual void Pop(int index, CheckoutOptions options = null, StashApplyModifiers flags = StashApplyModifiers.Default)
+        public virtual StashApplyStatus Pop(int index, StashApplyModifiers flags = StashApplyModifiers.Default, CheckoutOptions options = null)
         {
-            using (GitCheckoutOptsWrapper checkoutOptionsWrapper = new GitCheckoutOptsWrapper(options))
+            using (GitCheckoutOptsWrapper checkoutOptionsWrapper = new GitCheckoutOptsWrapper(options ?? new CheckoutOptions()))
             {
                 var opts = checkoutOptionsWrapper.Options;
-                Proxy.git_stash_pop(repo.Handle, index, ref opts, flags);
+                return Proxy.git_stash_pop(repo.Handle, index, ref opts, flags);
             }
         }
 
