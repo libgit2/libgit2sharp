@@ -2719,7 +2719,7 @@ namespace LibGit2Sharp.Core
             using (ThreadAffinity())
             {
                 int res = NativeMethods.git_stash_drop(repo, (UIntPtr) index);
-                Ensure.BooleanResult(res);
+                Ensure.ZeroResult(res);
             }
         }
 
