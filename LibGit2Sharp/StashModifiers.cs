@@ -31,4 +31,23 @@ namespace LibGit2Sharp
         /// </summary>
         IncludeIgnored = (1 << 2),
     }
+
+    ///<summary>
+    /// Options controlling Stash applying behavior.
+    ///</summary>
+    [Flags]
+    public enum StashApplyModifiers
+    {
+        /// <summary>
+        /// Default. Reinstante working directory stashed
+        /// changes.
+        /// </summary>
+        Default = 0,
+
+        /// <summary>
+        /// Reinstate both index and working directory stashed
+        /// changes.
+        /// </summary>
+        ReinstateIndex = (1 << 0),
+    }
 }

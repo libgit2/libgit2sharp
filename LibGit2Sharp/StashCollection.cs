@@ -114,6 +114,36 @@ namespace LibGit2Sharp
             Proxy.git_stash_drop(repo.Handle, index);
         }
 
+        /// <summary>
+        /// Applies a single stashed state from the stash list
+        /// </summary>
+        /// <param name="index">the index of the stash to remove (0 being the most recent one).</param>
+        /// <param name="options">the options to use for checking out the stash.</param>
+        /// <param name="flags">the flags to use for applying the changes.</param>
+        public virtual StashApplyStatus Apply(int index, StashApplyModifiers flags = StashApplyModifiers.Default, CheckoutOptions options = null)
+        {
+            using (GitCheckoutOptsWrapper checkoutOptionsWrapper = new GitCheckoutOptsWrapper(options ?? new CheckoutOptions()))
+            {
+                var opts = checkoutOptionsWrapper.Options;
+                return Proxy.git_stash_apply(repo.Handle, index, ref opts, flags);
+            }
+        }
+
+        /// <summary>
+        /// Pops a single stashed state from the stash list
+        /// </summary>
+        /// <param name="index">the index of the stash to remove (0 being the most recent one).</param>
+        /// <param name="options">the options to use for checking out the stash.</param>
+        /// <param name="flags">the flags to use for applying the changes.</param>
+        public virtual StashApplyStatus Pop(int index, StashApplyModifiers flags = StashApplyModifiers.Default, CheckoutOptions options = null)
+        {
+            using (GitCheckoutOptsWrapper checkoutOptionsWrapper = new GitCheckoutOptsWrapper(options ?? new CheckoutOptions()))
+            {
+                var opts = checkoutOptionsWrapper.Options;
+                return Proxy.git_stash_pop(repo.Handle, index, ref opts, flags);
+            }
+        }
+
         private string DebuggerDisplay
         {
             get

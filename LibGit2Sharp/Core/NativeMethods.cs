@@ -744,7 +744,7 @@ namespace LibGit2Sharp.Core
 
         [DllImport(libgit2)]
         internal static extern int git_note_default_ref(
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(LaxUtf8NoCleanupMarshaler))] out string notes_ref,
+            GitBuf buf,
             RepositorySafeHandle repo);
 
         internal delegate int git_note_foreach_cb(
@@ -1342,6 +1342,20 @@ namespace LibGit2Sharp.Core
 
         [DllImport(libgit2)]
         internal static extern int git_stash_drop(RepositorySafeHandle repo, UIntPtr index);
+
+        [DllImport(libgit2)]
+        internal static extern int git_stash_apply(
+            RepositorySafeHandle repo,
+            UIntPtr index,
+            ref GitCheckoutOpts opts,
+            StashApplyModifiers flags);
+
+        [DllImport(libgit2)]
+        internal static extern int git_stash_pop(
+            RepositorySafeHandle repo,
+            UIntPtr index,
+            ref GitCheckoutOpts opts,
+            StashApplyModifiers flags);
 
         [DllImport(libgit2)]
         internal static extern int git_status_file(

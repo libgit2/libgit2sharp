@@ -1298,12 +1298,12 @@ namespace LibGit2Sharp.Core
         public static string git_note_default_ref(RepositorySafeHandle repo)
         {
             using (ThreadAffinity())
+            using (var buf = new GitBuf())
             {
-                string notes_ref;
-                int res = NativeMethods.git_note_default_ref(out notes_ref, repo);
+                int res = NativeMethods.git_note_default_ref(buf, repo);
                 Ensure.ZeroResult(res);
 
-                return notes_ref;
+                return LaxUtf8Marshaler.FromNative(buf.ptr);
             }
         }
 
@@ -2719,7 +2719,47 @@ namespace LibGit2Sharp.Core
             using (ThreadAffinity())
             {
                 int res = NativeMethods.git_stash_drop(repo, (UIntPtr) index);
-                Ensure.BooleanResult(res);
+                Ensure.ZeroResult(res);
+            }
+        }
+
+        private static StashApplyStatus get_stash_status(int res)
+        {
+            if (res == (int)GitErrorCode.MergeConflict)
+            {
+                return StashApplyStatus.Conflicts;
+            }
+
+            if (res == (int)GitErrorCode.Exists)
+            {
+                return StashApplyStatus.UntrackedExist;
+            }
+
+            Ensure.ZeroResult(res);
+            return StashApplyStatus.Applied;
+        }
+
+        public static StashApplyStatus git_stash_apply(
+            RepositorySafeHandle repo,
+            int index,
+            ref GitCheckoutOpts opts,
+            StashApplyModifiers flags)
+        {
+            using (ThreadAffinity())
+            {
+                return get_stash_status(NativeMethods.git_stash_apply(repo, (UIntPtr)index, ref opts, flags));
+            }
+        }
+
+        public static StashApplyStatus git_stash_pop(
+            RepositorySafeHandle repo,
+            int index,
+            ref GitCheckoutOpts opts,
+            StashApplyModifiers flags)
+        {
+            using (ThreadAffinity())
+            {
+                return get_stash_status(NativeMethods.git_stash_pop(repo, (UIntPtr)index, ref opts, flags));
             }
         }
 

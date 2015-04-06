@@ -80,7 +80,8 @@ namespace LibGit2Sharp
 
             private static int Subtransport(
                 out IntPtr subtransport,
-                IntPtr transport)
+                IntPtr transport,
+                IntPtr payload)
             {
                 subtransport = IntPtr.Zero;
 
