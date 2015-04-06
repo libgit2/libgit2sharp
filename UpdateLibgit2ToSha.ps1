@@ -38,8 +38,8 @@ if ($test.IsPresent) { $build_clar = 'ON' }
 $configuration = "RelWithDebInfo"
 if ($debug.IsPresent) { $configuration = "Debug" }
 
-if (![string]::IsNullOrEmpty($libgit2Name)) {
-	$embed_ssh = '-DEMBED_SSH_PATH="$ssh"'
+if (![string]::IsNullOrEmpty($ssh)) {
+	$embed_ssh = "-D EMBED_SSH_PATH=""$ssh"""
 } else {
 	$embed_ssh = ''
 }
