@@ -21,7 +21,7 @@ cmake -DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo \
 cmake --build .
 
 shopt -s nocasematch
-[[ USESSH == "ON" ]] && echo "True" > $SSH_FILE || echo "False" > $SSH_FILE
+[[ $USESSH == "ON" ]] && echo "True" > $SSH_FILE || echo "False" > $SSH_FILE
 shopt -u nocasematch
 
 export LD_LIBRARY_PATH=$_BINPATH:$LD_LIBRARY_PATH
