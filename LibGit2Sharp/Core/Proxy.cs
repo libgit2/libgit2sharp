@@ -2723,16 +2723,18 @@ namespace LibGit2Sharp.Core
             }
         }
 
-        static StashApplyStatus get_stash_status(int res)
+        private static StashApplyStatus get_stash_status(int res)
         {
             if (res == (int)GitErrorCode.MergeConflict)
             {
                 return StashApplyStatus.Conflicts;
             }
+
             if (res == (int)GitErrorCode.Exists)
             {
                 return StashApplyStatus.UntrackedExist;
             }
+
             Ensure.ZeroResult(res);
             return StashApplyStatus.Applied;
         }
