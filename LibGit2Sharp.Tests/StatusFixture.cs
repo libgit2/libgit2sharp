@@ -601,7 +601,8 @@ namespace LibGit2Sharp.Tests
 
             using (Repository repo = new Repository(path))
             {
-                Blob mainContent = OdbHelper.CreateBlob(repo, "awesome content\n");
+                var awesomeContent = new string('!', 4096) + "awesome content\n";
+                Blob mainContent = OdbHelper.CreateBlob(repo, awesomeContent);
                 Blob linkContent = OdbHelper.CreateBlob(repo, "../../objc/Nu.h");
 
                 const string filePath = "include/Nu/Nu.h";
@@ -620,7 +621,7 @@ namespace LibGit2Sharp.Tests
 
                 string parentPath = Path.Combine(repo.Info.WorkingDirectory, "include/Nu");
 
-                Touch(parentPath, "Nu.h", "awesome content\n");
+                Touch(parentPath, "Nu.h", awesomeContent);
 
                 RepositoryStatus status = repo.RetrieveStatus(
                     new StatusOptions { DetectRenamesInIndex = true, DetectRenamesInWorkDir = true });
