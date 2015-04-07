@@ -2811,6 +2811,18 @@ namespace LibGit2Sharp.Core
             }
         }
 
+        public static string git_submodule_resolve_url(RepositorySafeHandle repo, string url)
+        {
+            using (ThreadAffinity())
+            using (var buf = new GitBuf())
+            {
+                int res = NativeMethods.git_submodule_resolve_url(buf, repo, url);
+
+                Ensure.ZeroResult(res);
+                return LaxUtf8Marshaler.FromNative(buf.ptr);
+            }
+        }
+
         public static ICollection<TResult> git_submodule_foreach<TResult>(RepositorySafeHandle repo, Func<IntPtr, IntPtr, TResult> resultSelector)
         {
             return git_foreach(resultSelector, c => NativeMethods.git_submodule_foreach(repo, (x, y, p) => c(x, y, p), IntPtr.Zero));

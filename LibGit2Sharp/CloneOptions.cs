@@ -34,6 +34,11 @@ namespace LibGit2Sharp
         public string BranchName { get; set; }
 
         /// <summary>
+        /// Recursively clone submodules.
+        /// </summary>
+        public bool RecurseSubmodules { get; set; }
+
+        /// <summary>
         /// Handler for checkout progress information.
         /// </summary>
         public CheckoutProgressHandler OnCheckoutProgress { get; set; }

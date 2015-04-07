@@ -1,4 +1,5 @@
-﻿namespace LibGit2Sharp.Handlers
+﻿using System;
+namespace LibGit2Sharp.Handlers
 {
     /// <summary>
     /// Delegate definition to handle Progress callback.
@@ -36,6 +37,21 @@
     /// <param name="progress">The <see cref="TransferProgress"/> object containing progress information.</param>
     /// <returns>True to continue, false to cancel.</returns>
     public delegate bool TransferProgressHandler(TransferProgress progress);
+
+    /// <summary>
+    /// Delegate definition to indicate that a repository is about to be operated on.
+    /// (In the context of a recursive operation).
+    /// </summary>
+    /// <param name="context">Context on the repository that is being operated on.</param>
+    /// <returns>true to continue, false to cancel.</returns>
+    public delegate bool RepositoryOperationStarting(RepositoryOperationContext context);
+
+    /// <summary>
+    /// Delegate definition to indicate that an operation is done in a repository.
+    /// (In the context of a recursive operation).
+    /// </summary>
+    /// <param name="context">Context on the repository that is being operated on.</param>
+    public delegate void RepositoryOperationCompleted(RepositoryOperationContext context);
 
     /// <summary>
     /// Delegate definition for callback reporting push network progress.
