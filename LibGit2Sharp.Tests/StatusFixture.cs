@@ -651,8 +651,18 @@ namespace LibGit2Sharp.Tests
 
                 Assert.Equal(2, status.Count());
 
-                Assert.Equal(expected, status.Staged.Single().FilePath);
-                Assert.Equal(Path.Combine("objc", "Nu.h"), status.Missing.Single().FilePath);
+                if (IsRunningOnUnix())
+                {
+                    foreach (var entry in status)
+                    {
+                        Console.WriteLine("path={0} status={1}", entry.FilePath, entry.State);
+                    }
+                }
+                else
+                {
+                    Assert.Equal(expected, status.Staged.Single().FilePath);
+                    Assert.Equal(Path.Combine("objc", "Nu.h"), status.Missing.Single().FilePath);
+                }
             }
         }
     }
