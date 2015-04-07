@@ -614,6 +614,8 @@ namespace LibGit2Sharp.Tests
 
                 Commit commit = repo.ObjectDatabase.CreateCommit(Constants.Signature, Constants.Signature, "A symlink", tree, Enumerable.Empty<Commit>(), false);
                 repo.Refs.UpdateTarget("HEAD", commit.Id.Sha);
+
+                // Sets the index to the just created commit
                 repo.Reset(ResetMode.Mixed);
 
                 string parentPath = Path.Combine(repo.Info.WorkingDirectory, "include/Nu");
@@ -621,12 +623,14 @@ namespace LibGit2Sharp.Tests
                 Touch(parentPath, "Nu.h", "awesome content\n");
 
                 RepositoryStatus status = repo.RetrieveStatus(
-                    new StatusOptions{ DetectRenamesInIndex = true, DetectRenamesInWorkDir = true });
+                    new StatusOptions { DetectRenamesInIndex = true, DetectRenamesInWorkDir = true });
 
                 Assert.Equal(2, status.Count());
 
                 var expected = Path.Combine("include", "Nu", "Nu.h");
 
+                // Two different code paths here because both HEAD and the Index contains a symlink
+                // But we can't trust a Windows filesystem to correctly handle this kind of filemode
                 if (IsRunningOnUnix())
                 {
                     Assert.Equal(expected, status.RenamedInWorkDir.Single().FilePath);
@@ -638,6 +642,16 @@ namespace LibGit2Sharp.Tests
                     Assert.Equal(Path.Combine("objc", "Nu.h"), status.Missing.Single().FilePath);
                 }
 
+                // Replace the symlink in the index with a plain file
+                repo.Stage(parentPath);
+
+                status = repo.RetrieveStatus(
+                    new StatusOptions { DetectRenamesInIndex = true, DetectRenamesInWorkDir = true });
+
+                Assert.Equal(2, status.Count());
+
+                Assert.Equal(expected, status.Staged.Single().FilePath);
+                Assert.Equal(Path.Combine("objc", "Nu.h"), status.Missing.Single().FilePath);
             }
         }
     }
