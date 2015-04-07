@@ -4,7 +4,7 @@ LIBGIT2SHA=`cat ./LibGit2Sharp/libgit2_hash.txt`
 SHORTSHA=${LIBGIT2SHA:0:7}
 EXTRADEFINE="$1"
 USESSH=${1-OFF}
-SSH_FILE="LibGit2Sharp.Tests/ssh_used.txt"
+SSH_FILE="$(pwd)/LibGit2Sharp.Tests/ssh_used.txt"
 
 rm -rf libgit2/build
 mkdir libgit2/build
