@@ -628,19 +628,20 @@ namespace LibGit2Sharp.Tests
 
                 Assert.Equal(2, status.Count());
 
-                var expected = Path.Combine("include", "Nu", "Nu.h");
+                var oldContentFilePath = Path.Combine("objc", "Nu.h");
+                var newContentFilePath = Path.Combine("include", "Nu", "Nu.h");
 
                 // Two different code paths here because both HEAD and the Index contains a symlink
                 // But we can't trust a Windows filesystem to correctly handle this kind of filemode
                 if (IsRunningOnUnix())
                 {
-                    Assert.Equal(expected, status.RenamedInWorkDir.Single().FilePath);
-                    Assert.Equal(expected, status.Missing.Single().FilePath);
+                    Assert.Equal(newContentFilePath, status.RenamedInWorkDir.Single().FilePath);
+                    Assert.Equal(newContentFilePath, status.Missing.Single().FilePath);
                 }
                 else
                 {
-                    Assert.Equal(expected, status.Modified.Single().FilePath);
-                    Assert.Equal(Path.Combine("objc", "Nu.h"), status.Missing.Single().FilePath);
+                    Assert.Equal(newContentFilePath, status.Modified.Single().FilePath);
+                    Assert.Equal(oldContentFilePath, status.Missing.Single().FilePath);
                 }
 
                 // Replace the symlink in the index with a plain file
@@ -653,23 +654,17 @@ namespace LibGit2Sharp.Tests
 
                 if (IsRunningOnUnix())
                 {
-                    Assert.Equal(expected, status.Missing.Single().FilePath);
-                    Assert.Equal(expected, status.RenamedInWorkDir.Single().FilePath);
+                    Assert.Equal(newContentFilePath, status.Missing.Single().FilePath);
+                    Assert.Equal(newContentFilePath, status.RenamedInWorkDir.Single().FilePath);
 
                     var indexToWorkDirRenameDetails = status.RenamedInWorkDir.Single().IndexToWorkDirRenameDetails;
-                    Console.WriteLine("old={0}", indexToWorkDirRenameDetails.OldFilePath);
-                    Console.WriteLine("new={0}", indexToWorkDirRenameDetails.NewFilePath);
-                    foreach (var entry in status)
-                    {
-                        // path=include/Nu/Nu.h status=Missing
-		                // path=include/Nu/Nu.h status=RenamedInWorkDir
-                        //Console.WriteLine("path={0} status={1}", entry.FilePath, entry.State);
-                    }
+                    Assert.Equal(oldContentFilePath, indexToWorkDirRenameDetails.OldFilePath);
+                    Assert.Equal(newContentFilePath, indexToWorkDirRenameDetails.NewFilePath);
                 }
                 else
                 {
-                    Assert.Equal(expected, status.Staged.Single().FilePath);
-                    Assert.Equal(Path.Combine("objc", "Nu.h"), status.Missing.Single().FilePath);
+                    Assert.Equal(newContentFilePath, status.Staged.Single().FilePath);
+                    Assert.Equal(oldContentFilePath, status.Missing.Single().FilePath);
                 }
             }
         }
