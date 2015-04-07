@@ -653,9 +653,17 @@ namespace LibGit2Sharp.Tests
 
                 if (IsRunningOnUnix())
                 {
+                    Assert.Equal(expected, status.Missing.Single().FilePath);
+                    Assert.Equal(expected, status.RenamedInWorkDir.Single().FilePath);
+
+                    var indexToWorkDirRenameDetails = status.RenamedInWorkDir.Single().IndexToWorkDirRenameDetails;
+                    Console.WriteLine("old={0}", indexToWorkDirRenameDetails.OldFilePath);
+                    Console.WriteLine("new={0}", indexToWorkDirRenameDetails.NewFilePath);
                     foreach (var entry in status)
                     {
-                        Console.WriteLine("path={0} status={1}", entry.FilePath, entry.State);
+                        // path=include/Nu/Nu.h status=Missing
+		                // path=include/Nu/Nu.h status=RenamedInWorkDir
+                        //Console.WriteLine("path={0} status={1}", entry.FilePath, entry.State);
                     }
                 }
                 else
