@@ -1479,7 +1479,8 @@ namespace LibGit2Sharp
                     tec => tec.Status != ChangeKind.Added &&
                            tec.Status != ChangeKind.Modified &&
                            tec.Status != ChangeKind.Unmodified &&
-                           tec.Status != ChangeKind.Deleted).ToList();
+                           tec.Status != ChangeKind.Deleted &&
+                           tec.Status != ChangeKind.TypeChanged).ToList();
 
             if (unexpectedTypesOfChanges.Count > 0)
             {
