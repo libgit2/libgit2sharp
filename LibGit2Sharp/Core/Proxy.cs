@@ -3461,5 +3461,28 @@ namespace LibGit2Sharp.Core
             return result ? 0 : (int)GitErrorCode.User;
         }
     }
+
+    /// <summary>
+    /// Class to hold extension methods used by the proxy class.
+    /// </summary>
+    static class ProxyExtensions
+    {
+        /// <summary>
+        /// Convert a UIntPtr to a int value. Will throw
+        /// exception if there is an overflow.
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        public static int ConvertToInt(this UIntPtr input)
+        {
+            ulong ulongValue = (ulong)input;
+            if (ulongValue > int.MaxValue)
+            {
+                throw new LibGit2SharpException("value exceeds size of an int");
+            }
+
+            return (int)input;
+        }
+    }
 }
 // ReSharper restore InconsistentNaming
