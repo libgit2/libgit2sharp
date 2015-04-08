@@ -942,12 +942,8 @@ namespace LibGit2Sharp.Core
 
         public static int git_index_entrycount(IndexSafeHandle index)
         {
-            UIntPtr count = NativeMethods.git_index_entrycount(index);
-            if ((long)count > int.MaxValue)
-            {
-                throw new LibGit2SharpException("Index entry count exceeds size of int");
-            }
-            return (int)count;
+            return NativeMethods.git_index_entrycount(index)
+                .ConvertToInt();
         }
 
         public static StageLevel git_index_entry_stage(IndexEntrySafeHandle index)
@@ -982,12 +978,8 @@ namespace LibGit2Sharp.Core
 
         public static int git_index_name_entrycount(IndexSafeHandle index)
         {
-            uint count = NativeMethods.git_index_name_entrycount(index);
-            if ((long)count > int.MaxValue)
-            {
-                throw new LibGit2SharpException("Index name entry count exceeds size of int");
-            }
-            return (int)count;
+            return NativeMethods.git_index_name_entrycount(index)
+                .ConvertToInt();
         }
 
         public static IndexNameEntrySafeHandle git_index_name_get_byindex(IndexSafeHandle index, UIntPtr n)
@@ -1027,12 +1019,8 @@ namespace LibGit2Sharp.Core
 
         public static int git_index_reuc_entrycount(IndexSafeHandle index)
         {
-            uint count = NativeMethods.git_index_reuc_entrycount(index);
-            if ((long)count > int.MaxValue)
-            {
-                throw new LibGit2SharpException("Index REUC entry count exceeds size of int");
-            }
-            return (int)count;
+            return NativeMethods.git_index_reuc_entrycount(index)
+                .ConvertToInt();
         }
 
         public static IndexReucEntrySafeHandle git_index_reuc_get_byindex(IndexSafeHandle index, UIntPtr n)
