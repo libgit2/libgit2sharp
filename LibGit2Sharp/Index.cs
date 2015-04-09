@@ -30,7 +30,7 @@ namespace LibGit2Sharp
             this.repo = repo;
 
             handle = Proxy.git_repository_index(repo.Handle);
-            conflicts = new ConflictCollection(repo);
+            conflicts = new ConflictCollection(this);
 
             repo.RegisterForCleanup(handle);
         }
@@ -41,7 +41,7 @@ namespace LibGit2Sharp
 
             handle = Proxy.git_index_open(indexPath);
             Proxy.git_repository_set_index(repo.Handle, handle);
-            conflicts = new ConflictCollection(repo);
+            conflicts = new ConflictCollection(this);
 
             repo.RegisterForCleanup(handle);
         }

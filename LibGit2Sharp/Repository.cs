@@ -970,7 +970,7 @@ namespace LibGit2Sharp
                 throw new UnbornBranchException("Can not amend anything. The Head doesn't point at any commit.");
             }
 
-            var treeId = Proxy.git_tree_create_fromindex(Index);
+            var treeId = Proxy.git_index_write_tree(Index.Handle);
             var tree = this.Lookup<Tree>(treeId);
 
             var parents = RetrieveParentsOfTheCommitBeingCreated(options.AmendPreviousCommit).ToList();
