@@ -11,6 +11,8 @@
 	If set, run the libgit2 tests on the desired version.
 .PARAMETER debug
 	If set, build the "Debug" configuration of libgit2, rather than "RelWithDebInfo" (default).
+.PARAMETER ssh
+	If set embeds SSH at the path pointed to by the value.
 #>
 
 Param(
@@ -18,7 +20,8 @@ Param(
 	[string]$vs = '10',
 	[string]$libgit2Name = '',
 	[switch]$test,
-	[switch]$debug
+	[switch]$debug,
+	[string]$ssh = ''
 )
 
 Set-StrictMode -Version Latest
@@ -28,11 +31,18 @@ $libgit2sharpDirectory = Split-Path $MyInvocation.MyCommand.Path
 $libgit2Directory = Join-Path $libgit2sharpDirectory "libgit2"
 $x86Directory = Join-Path $libgit2sharpDirectory "Lib\NativeBinaries\x86"
 $x64Directory = Join-Path $libgit2sharpDirectory "Lib\NativeBinaries\amd64"
+$sshFile = Join-Path $libgit2sharpDirectory "LibGit2Sharp.Tests\ssh_used.txt"
 
 $build_clar = 'OFF'
 if ($test.IsPresent) { $build_clar = 'ON' }
 $configuration = "RelWithDebInfo"
 if ($debug.IsPresent) { $configuration = "Debug" }
+
+if (![string]::IsNullOrEmpty($ssh)) {
+	$embed_ssh = "-D EMBED_SSH_PATH=""$ssh"""
+} else {
+	$embed_ssh = ''
+}
 
 function Run-Command([scriptblock]$Command, [switch]$Fatal, [switch]$Quiet) {
     $output = ""
@@ -144,7 +154,7 @@ function Assert-Consistent-Naming($expected, $path) {
 	Run-Command -Quiet { & remove-item build -recurse -force }
 	Run-Command -Quiet { & mkdir build }
 	cd build
-	Run-Command -Quiet -Fatal { & $cmake -G "Visual Studio $vs" -D ENABLE_TRACE=ON -D "BUILD_CLAR=$build_clar" -D "LIBGIT2_FILENAME=$binaryFilename" -DSTDCALL=ON .. }
+	Run-Command -Quiet -Fatal { & $cmake -G "Visual Studio $vs" -D THREADSAFE=ON -D ENABLE_TRACE=ON -D "BUILD_CLAR=$build_clar" -D "LIBGIT2_FILENAME=$binaryFilename" -DSTDCALL=ON $embed_ssh .. }
 	Run-Command -Quiet -Fatal { & $cmake --build . --config $configuration }
 	if ($test.IsPresent) { Run-Command -Quiet -Fatal { & $ctest -V . } }
 	cd $configuration
@@ -157,7 +167,7 @@ function Assert-Consistent-Naming($expected, $path) {
 	cd ..
 	Run-Command -Quiet { & mkdir build64 }
 	cd build64
-	Run-Command -Quiet -Fatal { & $cmake -G "Visual Studio $vs Win64" -D THREADSAFE=ON -D ENABLE_TRACE=ON -D "BUILD_CLAR=$build_clar" -D "LIBGIT2_FILENAME=$binaryFilename" -DSTDCALL=ON ../.. }
+	Run-Command -Quiet -Fatal { & $cmake -G "Visual Studio $vs Win64" -D THREADSAFE=ON -D ENABLE_TRACE=ON -D "BUILD_CLAR=$build_clar" -D "LIBGIT2_FILENAME=$binaryFilename" -DSTDCALL=ON $embed_ssh ../.. }
 	Run-Command -Quiet -Fatal { & $cmake --build . --config $configuration }
 	if ($test.IsPresent) { Run-Command -Quiet -Fatal { & $ctest -V . } }
 	cd $configuration
@@ -180,6 +190,7 @@ namespace LibGit2Sharp.Core
 
 	sc -Encoding ASCII (Join-Path $libgit2sharpDirectory "Libgit2sharp\Core\NativeDllName.cs") $dllNameClass
 	sc -Encoding ASCII (Join-Path $libgit2sharpDirectory "Libgit2sharp\libgit2_hash.txt") $sha
+	sc -Encoding ASCII (Join-Path $libgit2sharpDirectory "Libgit2sharp.Tests\ssh_used.txt") (![string]::IsNullOrEmpty($ssh))
 
 	$buildProperties = @"
 <?xml version="1.0" encoding="utf-8"?>

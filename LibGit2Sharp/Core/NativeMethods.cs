@@ -399,6 +399,24 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof (StrictUtf8Marshaler))] string password);
 
         [DllImport(libgit2)]
+        internal static extern int git_cred_ssh_key_new(
+            out IntPtr cred,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string username,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string publickey,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string privatekey,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string passphrase);
+
+        [DllImport(libgit2)]
+        internal static extern int git_cred_username_new(
+            out IntPtr cred,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string username);
+
+        [DllImport(libgit2)]
+        internal static extern int git_cred_ssh_key_from_agent(
+            out IntPtr cred,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string username);
+
+        [DllImport(libgit2)]
         internal static extern int git_describe_commit(
             out DescribeResultSafeHandle describe,
             GitObjectSafeHandle committish,
