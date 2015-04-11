@@ -124,7 +124,7 @@ namespace LibGit2Sharp
         public static Branch CreateBranch(this IRepository repository, string branchName)
         {
             var head = repository.Head;
-            var reflogName = head is DetachedHead ? head.Tip.Sha : head.Name;
+            var reflogName = head is DetachedHead ? head.Tip.Sha : head.FriendlyName;
 
             return CreateBranch(repository, branchName, reflogName);
         }

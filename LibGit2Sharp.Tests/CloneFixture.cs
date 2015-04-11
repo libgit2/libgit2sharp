@@ -33,7 +33,7 @@ namespace LibGit2Sharp.Tests
                 Assert.False(repo.Info.IsBare);
 
                 Assert.True(File.Exists(Path.Combine(scd.RootedDirectoryPath, "master.txt")));
-                Assert.Equal(repo.Head.Name, "master");
+                Assert.Equal(repo.Head.FriendlyName, "master");
                 Assert.Equal(repo.Head.Tip.Id.ToString(), "49322bb17d3acc9146f98c97d078513228bbf3c0");
             }
         }
@@ -52,7 +52,7 @@ namespace LibGit2Sharp.Tests
             {
                 var head = repo.Head;
 
-                Assert.Equal(branchName, head.Name);
+                Assert.Equal(branchName, head.FriendlyName);
                 Assert.True(head.IsTracking);
                 Assert.Equal(headTipId, head.Tip.Sha);
             }

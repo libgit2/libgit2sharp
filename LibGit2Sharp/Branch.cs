@@ -182,7 +182,7 @@ namespace LibGit2Sharp
 
         private string UpstreamBranchCanonicalNameFromLocalBranch()
         {
-            ConfigurationEntry<string> mergeRefEntry = repo.Config.Get<string>("branch", Name, "merge");
+            ConfigurationEntry<string> mergeRefEntry = repo.Config.Get<string>("branch", FriendlyName, "merge");
 
             if (mergeRefEntry == null)
             {
@@ -194,7 +194,7 @@ namespace LibGit2Sharp
 
         private string RemoteNameFromLocalBranch()
         {
-            ConfigurationEntry<string> remoteEntry = repo.Config.Get<string>("branch", Name, "remote");
+            ConfigurationEntry<string> remoteEntry = repo.Config.Get<string>("branch", FriendlyName, "remote");
 
             if (remoteEntry == null)
             {

@@ -80,7 +80,7 @@ namespace LibGit2Sharp.Tests
         public void SoftResetSetsTheHeadToTheSpecifiedCommit()
         {
             /* Make the Head point to a branch through its name */
-            AssertSoftReset(b => b.Name, false, b => b.Name);
+            AssertSoftReset(b => b.FriendlyName, false, b => b.FriendlyName);
         }
 
         [Fact]
@@ -107,12 +107,12 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(shouldHeadBeDetached, repo.Info.IsHeadDetached);
 
                 string expectedHeadName = expectedHeadNameRetriever(branch);
-                Assert.Equal(expectedHeadName, repo.Head.Name);
+                Assert.Equal(expectedHeadName, repo.Head.FriendlyName);
                 Assert.Equal(branch.Tip.Sha, repo.Head.Tip.Sha);
 
                 /* Reset --soft the Head to a tag through its canonical name */
                 repo.Reset(ResetMode.Soft, tag.CanonicalName);
-                Assert.Equal(expectedHeadName, repo.Head.Name);
+                Assert.Equal(expectedHeadName, repo.Head.FriendlyName);
                 Assert.Equal(tag.Target.Id, repo.Head.Tip.Id);
 
                 Assert.Equal(FileStatus.Staged, repo.RetrieveStatus("a.txt"));
@@ -134,7 +134,7 @@ namespace LibGit2Sharp.Tests
 
                 /* Reset --soft the Head to a commit through its sha */
                 repo.Reset(ResetMode.Soft, branch.Tip.Sha);
-                Assert.Equal(expectedHeadName, repo.Head.Name);
+                Assert.Equal(expectedHeadName, repo.Head.FriendlyName);
                 Assert.Equal(branch.Tip.Sha, repo.Head.Tip.Sha);
 
                 Assert.Equal(FileStatus.Unaltered, repo.RetrieveStatus("a.txt"));

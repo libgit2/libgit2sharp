@@ -26,7 +26,7 @@ namespace LibGit2Sharp.Tests
 
                 Branch newBranch = repo.CreateBranch(name, committish);
                 Assert.NotNull(newBranch);
-                Assert.Equal(name, newBranch.Name);
+                Assert.Equal(name, newBranch.FriendlyName);
                 Assert.Equal("refs/heads/" + name, newBranch.CanonicalName);
                 Assert.NotNull(newBranch.Tip);
                 Assert.Equal(committish, newBranch.Tip.Sha);
@@ -36,7 +36,7 @@ namespace LibGit2Sharp.Tests
                 // when they're read back:
                 // - from InlineData: C5-00-6E-00-67-00-73-00-74-00-72-00-F6-00-6D-00
                 // - from filesystem: 41-00-0A-03-6E-00-67-00-73-00-74-00-72-00-6F-00-08-03-6D-00
-                Assert.NotNull(repo.Branches.SingleOrDefault(p => p.Name.Normalize() == name));
+                Assert.NotNull(repo.Branches.SingleOrDefault(p => p.FriendlyName.Normalize() == name));
 
                 AssertRefLogEntry(repo, newBranch.CanonicalName,
                                   "branch: Created from " + committish,
@@ -44,7 +44,7 @@ namespace LibGit2Sharp.Tests
                                   newBranch.Tip.Id,
                                   Constants.Identity, DateTimeOffset.Now);
 
-                repo.Branches.Remove(newBranch.Name);
+                repo.Branches.Remove(newBranch.FriendlyName);
                 Assert.Null(repo.Branches[name]);
             }
         }
@@ -122,12 +122,12 @@ namespace LibGit2Sharp.Tests
                 const string name = "unit_test";
                 Branch newBranch = repo.CreateBranch(name);
                 Assert.NotNull(newBranch);
-                Assert.Equal(name, newBranch.Name);
+                Assert.Equal(name, newBranch.FriendlyName);
                 Assert.Equal("refs/heads/" + name, newBranch.CanonicalName);
                 Assert.False(newBranch.IsCurrentRepositoryHead);
                 Assert.NotNull(newBranch.Tip);
                 Assert.Equal("32eab9cb1f450b5fe7ab663462b77d7f4b703344", newBranch.Tip.Sha);
-                Assert.NotNull(repo.Branches.SingleOrDefault(p => p.Name == name));
+                Assert.NotNull(repo.Branches.SingleOrDefault(p => p.FriendlyName == name));
 
                 AssertRefLogEntry(repo, newBranch.CanonicalName,
                                   "branch: Created from " + headCommitOrBranchSpec,
@@ -303,7 +303,7 @@ namespace LibGit2Sharp.Tests
             string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
-                Assert.Equal(expectedBranches, SortedBranches(repo.Branches, b => b.Name));
+                Assert.Equal(expectedBranches, SortedBranches(repo.Branches, b => b.FriendlyName));
 
                 Assert.Equal(5, repo.Branches.Count());
             }
@@ -324,7 +324,7 @@ namespace LibGit2Sharp.Tests
                                              };
 
                 Assert.Equal(expectedWdBranches,
-                             SortedBranches(repo.Branches.Where(b => !b.IsRemote), b => b.Name));
+                             SortedBranches(repo.Branches.Where(b => !b.IsRemote), b => b.FriendlyName));
             }
         }
 
@@ -341,7 +341,7 @@ namespace LibGit2Sharp.Tests
                                                  "origin/test"
                                              };
 
-                Assert.Equal(expectedWdBranches, SortedBranches(repo.Branches, b => b.Name));
+                Assert.Equal(expectedWdBranches, SortedBranches(repo.Branches, b => b.FriendlyName));
             }
         }
 
@@ -366,7 +366,7 @@ namespace LibGit2Sharp.Tests
                                                                   new { Name = "origin/test", Sha = "e90810b8df3e80c413d903f631643c716887138d", IsRemote = true },
                                                               };
                 Assert.Equal(expectedBranchesIncludingRemoteRefs,
-                             SortedBranches(repo.Branches, b => new { b.Name, b.Tip.Sha, b.IsRemote }));
+                             SortedBranches(repo.Branches, b => new { Name = b.FriendlyName, b.Tip.Sha, b.IsRemote }));
             }
         }
 
@@ -483,11 +483,11 @@ namespace LibGit2Sharp.Tests
             {
                 Branch branch = repo.Branches["refs/heads/br2"];
                 Assert.NotNull(branch);
-                Assert.Equal("br2", branch.Name);
+                Assert.Equal("br2", branch.FriendlyName);
 
                 Branch branch2 = repo.Branches["refs/heads/br2"];
                 Assert.NotNull(branch2);
-                Assert.Equal("br2", branch2.Name);
+                Assert.Equal("br2", branch2.FriendlyName);
 
                 Assert.Equal(branch, branch2);
                 Assert.True((branch2 == branch));
@@ -503,7 +503,7 @@ namespace LibGit2Sharp.Tests
                 Branch master = repo.Branches["master"];
                 Assert.NotNull(master);
                 Assert.False(master.IsRemote);
-                Assert.Equal("master", master.Name);
+                Assert.Equal("master", master.FriendlyName);
                 Assert.Equal("refs/heads/master", master.CanonicalName);
                 Assert.True(master.IsCurrentRepositoryHead);
                 Assert.Equal("4c062a6361ae6959e06292c1fa5e2822d9c96345", master.Tip.Sha);
@@ -551,7 +551,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(0, head.Commits.Count());
                 Assert.True(head.IsCurrentRepositoryHead);
                 Assert.False(head.IsRemote);
-                Assert.Equal("master", head.Name);
+                Assert.Equal("master", head.FriendlyName);
                 Assert.Null(head.Tip);
                 Assert.Null(head["huh?"]);
 
@@ -916,7 +916,7 @@ namespace LibGit2Sharp.Tests
             string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
-                Assert.Throws<LibGit2SharpException>(() => repo.Branches.Remove(repo.Head.Name));
+                Assert.Throws<LibGit2SharpException>(() => repo.Branches.Remove(repo.Head.FriendlyName));
             }
         }
 
@@ -988,7 +988,7 @@ namespace LibGit2Sharp.Tests
 
                 Branch newBranch = repo.Branches.Rename("br2", "br3");
 
-                Assert.Equal("br3", newBranch.Name);
+                Assert.Equal("br3", newBranch.FriendlyName);
 
                 Assert.Null(repo.Branches["br2"]);
                 Assert.NotNull(repo.Branches["br3"]);
@@ -1026,7 +1026,7 @@ namespace LibGit2Sharp.Tests
                 Assert.NotNull(br2);
 
                 Branch newBranch = repo.Branches.Rename("br2", "test", true);
-                Assert.Equal("test", newBranch.Name);
+                Assert.Equal("test", newBranch.FriendlyName);
 
                 Assert.Null(repo.Branches["br2"]);
 
@@ -1085,7 +1085,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(clonedRepoPath))
             {
                 Assert.Empty(Directory.GetFiles(scd2.RootedDirectoryPath));
-                Assert.Equal(repo.Head.Name, "master");
+                Assert.Equal(repo.Head.FriendlyName, "master");
 
                 Assert.Null(repo.Head.Tip);
                 Assert.NotNull(repo.Head.TrackedBranch);

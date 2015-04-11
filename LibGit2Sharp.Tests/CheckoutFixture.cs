@@ -128,7 +128,7 @@ namespace LibGit2Sharp.Tests
 
                 Assert.True(detachedHead.IsCurrentRepositoryHead);
                 Assert.False(detachedHead.IsRemote);
-                Assert.Equal(detachedHead.Name, detachedHead.CanonicalName);
+                Assert.Equal(detachedHead.FriendlyName, detachedHead.CanonicalName);
 
                 Assert.Equal("(no branch)", detachedHead.CanonicalName);
 
@@ -793,7 +793,7 @@ namespace LibGit2Sharp.Tests
 
                 // Assert reflog entry is created
                 AssertRefLogEntry(repo, "HEAD",
-                    string.Format("checkout: moving from {0} to {1}", initialHead.Tip.Sha, newHead.Name),
+                    string.Format("checkout: moving from {0} to {1}", initialHead.Tip.Sha, newHead.FriendlyName),
                     initialHead.Tip.Id, newHead.Tip.Id, Constants.Identity, DateTimeOffset.Now);
             }
         }
