@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace LibGit2Sharp.Core
 {
@@ -12,18 +9,13 @@ namespace LibGit2Sharp.Core
         MacOSX
     }
 
-    internal class Platform
+    internal static class Platform
     {
         public static string ProcessorArchitecture
         {
             get
             {
-                if (Environment.Is64BitProcess)
-                {
-                    return "amd64";
-                }
-
-                return "x86";
+                return Environment.Is64BitProcess ? "amd64" : "x86";
             }
         }
 
@@ -32,8 +24,6 @@ namespace LibGit2Sharp.Core
             get
             {
                 // See http://www.mono-project.com/docs/faq/technical/#how-to-detect-the-execution-platform
-                var platformId = (int)Environment.OSVersion.Platform;
-
                 switch ((int)Environment.OSVersion.Platform)
                 {
                     case 4:
