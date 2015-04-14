@@ -57,6 +57,7 @@
     <Compile Include="CheckoutFixture.cs" />
     <Compile Include="CherryPickFixture.cs" />
     <Compile Include="DescribeFixture.cs" />
+    <Compile Include="FileHistoryFixture.cs" />
     <Compile Include="GlobalSettingsFixture.cs" />
     <Compile Include="PatchStatsFixture.cs" />
     <Compile Include="RefSpecFixture.cs" />

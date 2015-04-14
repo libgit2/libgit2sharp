@@ -16,6 +16,21 @@ namespace LibGit2Sharp
         ICommitLog QueryBy(CommitFilter filter);
 
         /// <summary>
+        /// Returns the list of commits of the repository representing the history of a file beyond renames.
+        /// </summary>
+        /// <param name="path">The file's path.</param>
+        /// <returns>A list of file history entries, ready to be enumerated.</returns>
+        IEnumerable<LogEntry> QueryBy(string path);
+
+        /// <summary>
+        /// Returns the list of commits of the repository representing the history of a file beyond renames.
+        /// </summary>
+        /// <param name="path">The file's path.</param>
+        /// <param name="filter">The options used to control which commits will be returned.</param>
+        /// <returns>A list of file history entries, ready to be enumerated.</returns>
+        IEnumerable<LogEntry> QueryBy(string path, FollowFilter filter);
+
+        /// <summary>
         /// Find the best possible merge base given two <see cref="Commit"/>s.
         /// </summary>
         /// <param name="first">The first <see cref="Commit"/>.</param>

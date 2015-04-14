@@ -68,6 +68,7 @@
     <Compile Include="CommitOptions.cs" />
     <Compile Include="CommitSortStrategies.cs" />
     <Compile Include="CompareOptions.cs" />
+    <Compile Include="Core\FileHistory.cs" />
     <Compile Include="Core\Platform.cs" />
     <Compile Include="Core\Handles\ConflictIteratorSafeHandle.cs" />
     <Compile Include="DescribeOptions.cs" />
@@ -80,6 +81,8 @@
     <Compile Include="Core\Handles\IndexReucEntrySafeHandle.cs" />
     <Compile Include="EntryExistsException.cs" />
     <Compile Include="FetchOptionsBase.cs" />
+    <Compile Include="LogEntry.cs" />
+    <Compile Include="FollowFilter.cs" />
     <Compile Include="IBelongToARepository.cs" />
     <Compile Include="Identity.cs" />
     <Compile Include="IndexNameEntryCollection.cs" />
