@@ -806,7 +806,7 @@ namespace LibGit2Sharp
             {
                 throw new UnbornBranchException(
                     string.Format(CultureInfo.InvariantCulture,
-                    "The tip of branch '{0}' is null. There's nothing to checkout.", branch.Name));
+                    "The tip of branch '{0}' is null. There's nothing to checkout.", branch.FriendlyName));
             }
 
             if (!branch.IsRemote && !(branch is DetachedHead) &&

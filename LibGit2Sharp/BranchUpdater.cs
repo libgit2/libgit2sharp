@@ -125,7 +125,7 @@ namespace LibGit2Sharp
         /// <param name="mergeBranchName">The merge branch in the upstream remote's namespace.</param>
         private void SetUpstreamBranch(string mergeBranchName)
         {
-            string configKey = string.Format(CultureInfo.InvariantCulture, "branch.{0}.merge", branch.Name);
+            string configKey = string.Format(CultureInfo.InvariantCulture, "branch.{0}.merge", branch.FriendlyName);
 
             if (string.IsNullOrEmpty(mergeBranchName))
             {
@@ -143,7 +143,7 @@ namespace LibGit2Sharp
         /// <param name="remoteName">The name of the remote to set as the upstream branch.</param>
         private void SetUpstreamRemote(string remoteName)
         {
-            string configKey = string.Format(CultureInfo.InvariantCulture, "branch.{0}.remote", branch.Name);
+            string configKey = string.Format(CultureInfo.InvariantCulture, "branch.{0}.remote", branch.FriendlyName);
 
             if (string.IsNullOrEmpty(remoteName))
             {

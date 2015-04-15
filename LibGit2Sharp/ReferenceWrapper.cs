@@ -52,11 +52,20 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Gets the name of this reference.
+        /// Gets the human-friendly name of this reference.
         /// </summary>
-        public virtual string Name
+        public virtual string FriendlyName
         {
             get { return Shorten(); }
+        }
+
+        /// <summary>
+        /// Gets the name of this reference.
+        /// </summary>
+        [Obsolete("This property will be removed in the next release. Please use FriendlyName instead.")]
+        public virtual string Name
+        {
+            get { return FriendlyName; }
         }
 
         /// <summary>

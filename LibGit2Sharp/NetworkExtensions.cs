@@ -46,7 +46,7 @@ namespace LibGit2Sharp
                         string.Format(
                             CultureInfo.InvariantCulture,
                             "The branch '{0}' (\"{1}\") that you are trying to push does not track an upstream branch.",
-                            branch.Name, branch.CanonicalName));
+                            branch.FriendlyName, branch.CanonicalName));
                 }
             }
 
