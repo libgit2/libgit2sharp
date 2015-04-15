@@ -17,7 +17,7 @@ namespace LibGit2Sharp.Tests
             Assembly assembly = type.Assembly;
 
             // Build a new domain which will shadow copy assemblies
-            string cachePath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+            string cachePath = Path.Combine(Constants.TemporaryReposPath, Path.GetRandomFileName());
             Directory.CreateDirectory(cachePath);
 
             var setup = new AppDomainSetup
@@ -51,11 +51,6 @@ namespace LibGit2Sharp.Tests
 
             // ...but are currently loaded from different locations...
             string cachedAssemblyLocation = wrapper.AssemblyLocation;
-            if (cachedAssemblyLocation.StartsWith("/private"))
-            {
-                // On OS X, sometimes you get /private/var/… instead of /var/…, but they map to the same place.
-                cachedAssemblyLocation = cachedAssemblyLocation.Substring("/private".Length);
-            }
             Assert.NotEqual(sourceAssembly.Location, cachedAssemblyLocation);
 
             // ...that the assembly in the other domain is stored in the shadow copy cache...

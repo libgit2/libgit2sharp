@@ -1,10 +1,11 @@
 ﻿using System;
+using System.IO;
 
 namespace LibGit2Sharp.Tests.TestHelpers
 {
     public static class Constants
     {
-        public const string TemporaryReposPath = "TestRepos";
+        public static readonly string TemporaryReposPath = BuildPath();
         public const string UnknownSha = "deadbeefdeadbeefdeadbeefdeadbeefdeadbeef";
         public static readonly Identity Identity = new Identity("A. U. Thor", "thor@valhalla.asgard.com");
         public static readonly Signature Signature = new Signature(Identity, new DateTimeOffset(2011, 06, 16, 10, 58, 27, TimeSpan.FromHours(2)));
@@ -29,6 +30,29 @@ namespace LibGit2Sharp.Tests.TestHelpers
                                                          SupportedCredentialTypes types)
         {
             return null;
+        }
+
+        public static string BuildPath()
+        {
+            string tempPath;
+
+            var unixPath = Type.GetType("Mono.Unix.UnixPath, Mono.Posix, Version=2.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756");
+
+            if (unixPath != null)
+            {
+                // We're running on Mono/*nix. Let's unwrap the path
+                tempPath = (string)unixPath.InvokeMember("GetCompleteRealPath",
+                    System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.FlattenHierarchy |
+                    System.Reflection.BindingFlags.InvokeMethod | System.Reflection.BindingFlags.Public,
+                    null, unixPath, new object[] { Path.GetTempPath() });
+            }
+            else
+            {
+                // We're running on .Net/Windows
+                tempPath = Path.GetTempPath();
+            }
+
+            return Path.Combine(tempPath, "LibGit2Sharp-TestRepos");
         }
     }
 }

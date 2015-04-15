@@ -72,6 +72,21 @@ namespace LibGit2Sharp.Tests.TestHelpers
             SubmoduleTargetTestRepoWorkingDirPath = Path.Combine(sourceRelativePath, "submodule_target_wd");
             AssumeUnchangedRepoWorkingDirPath = Path.Combine(sourceRelativePath, "assume_unchanged_wd");
             SubmoduleSmallTestRepoWorkingDirPath = Path.Combine(sourceRelativePath, "submodule_small_wd");
+
+            CleanupTestReposOlderThan(TimeSpan.FromMinutes(15));
+        }
+
+        private static void CleanupTestReposOlderThan(TimeSpan olderThan)
+        {
+            var oldTestRepos = new DirectoryInfo(Constants.TemporaryReposPath)
+                .EnumerateDirectories()
+                .Where(di => di.CreationTimeUtc < DateTimeOffset.Now.Subtract(olderThan))
+                .Select(di => di.FullName);
+
+            foreach (var dir in oldTestRepos)
+            {
+                DirectoryHelper.DeleteDirectory(dir);
+            }
         }
 
         private static bool IsFileSystemCaseSensitiveInternal()
