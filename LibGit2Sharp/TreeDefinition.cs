@@ -310,7 +310,12 @@ namespace LibGit2Sharp
                 builtTreeEntryDefinitions.ForEach(t => entries[t.Item1] = t.Item2);
 
                 ObjectId treeId = builder.Write();
-                return repository.Lookup<Tree>(treeId);
+                var result = repository.Lookup<Tree>(treeId);
+                if (result == null)
+                {
+                    throw new LibGit2SharpException("Unable to read created tree");
+                }
+                return result;
             }
         }
 
