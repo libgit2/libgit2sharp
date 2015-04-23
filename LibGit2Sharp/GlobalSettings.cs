@@ -188,7 +188,7 @@ namespace LibGit2Sharp
         {
             var registration = new FilterRegistration(filter);
 
-            Proxy.git_filter_register(filter.Name, registration.FilterPointer, priority);
+            Proxy.git_filter_register(filter.Name, registration, priority);
 
             return registration;
         }

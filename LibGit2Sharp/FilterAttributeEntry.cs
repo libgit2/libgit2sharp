@@ -1,3 +1,4 @@
+using System;
 using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
@@ -21,18 +22,23 @@ namespace LibGit2Sharp
         protected FilterAttributeEntry() { }
 
         /// <summary>
-        /// The name of the filter found in a .gitattributes file
+        /// The name of the filter found in a .gitattributes file.
         /// </summary>
-        /// <param name="filterName">The name of the filter</param>
+        /// <param name="filterName">The name of the filter as found in the .gitattributes file without the "filter=" prefix</param>
+        /// <remarks>
+        /// "filter=" will be prepended to the filterDefinition, therefore the "filter=" portion of the filter
+        /// name shouldbe omitted on declaration. Inclusion of the "filter=" prefix will cause the FilterDefinition to
+        /// fail to match the .gitattributes entry and thefore no be invoked correctly.
+        /// </remarks>
         public FilterAttributeEntry(string filterName)
         {
             Ensure.ArgumentNotNullOrEmptyString(filterName, "filterName");
-
-            if (!filterName.Contains(AttributeFilterDefinition))
+            if (filterName.StartsWith("filter=", StringComparison.OrdinalIgnoreCase))
             {
-                filterName = string.Format("{0}{1}", AttributeFilterDefinition, filterName);
+                throw new ArgumentException("The filterName parameter should not begin with \"filter=\"", filterName);
             }
 
+            filterName = AttributeFilterDefinition + filterName;
             this.filterDefinition = filterName;
         }
 

@@ -13,19 +13,19 @@ namespace LibGit2Sharp.Tests.TestHelpers
         {
         }
 
-        protected override int Clean(string path, Stream input, Stream output)
+        protected override void Clean(string path, string root, Stream input, Stream output)
         {
             CleanCalledCount++;
-            return RotateByThirteenPlaces(input, output);
+            RotateByThirteenPlaces(input, output);
         }
 
-        protected override int Smudge(string path, Stream input, Stream output)
+        protected override void Smudge(string path, string root, Stream input, Stream output)
         {
             SmudgeCalledCount++;
-            return RotateByThirteenPlaces(input, output);
+            RotateByThirteenPlaces(input, output);
         }
 
-        public static int RotateByThirteenPlaces(Stream input, Stream output)
+        public static void RotateByThirteenPlaces(Stream input, Stream output)
         {
             int value;
 
@@ -42,8 +42,6 @@ namespace LibGit2Sharp.Tests.TestHelpers
 
                 output.WriteByte((byte)value);
             }
-
-            return 0;
         }
     }
 }

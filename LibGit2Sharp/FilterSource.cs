@@ -11,13 +11,14 @@ namespace LibGit2Sharp
         /// <summary>
         /// Needed for mocking purposes
         /// </summary>
-        protected FilterSource() {  }
+        protected FilterSource() { }
 
         internal FilterSource(FilePath path, FilterMode mode, GitFilterSource source)
         {
             SourceMode = mode;
             ObjectId = new ObjectId(source.oid);
             Path = path.Native;
+            Root = Proxy.git_repository_workdir(source.repository).Native;
         }
 
         /// <summary>
@@ -47,5 +48,10 @@ namespace LibGit2Sharp
         /// The blob id
         /// </summary>
         public virtual ObjectId ObjectId { get; private set; }
+
+        /// <summary>
+        /// The working directory
+        /// </summary>
+        public virtual string Root { get; private set; }
     }
 }

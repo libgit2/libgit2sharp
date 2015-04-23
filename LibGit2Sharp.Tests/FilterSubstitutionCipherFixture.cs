@@ -15,7 +15,7 @@ namespace LibGit2Sharp.Tests
             const string decodedInput = "This is a substitution cipher";
             const string encodedInput = "Guvf vf n fhofgvghgvba pvcure";
 
-            var attributes = new List<FilterAttributeEntry> { new FilterAttributeEntry("filter=rot13") };
+            var attributes = new List<FilterAttributeEntry> { new FilterAttributeEntry("rot13") };
             var filter = new SubstitutionCipherFilter("cipher-filter", attributes);
             var filterRegistration = GlobalSettings.RegisterFilter(filter);
 
@@ -55,7 +55,7 @@ namespace LibGit2Sharp.Tests
             const string decodedInput = "This is a substitution cipher";
             const string encodedInput = "Guvf vf n fhofgvghgvba pvcure";
 
-            var attributes = new List<FilterAttributeEntry> { new FilterAttributeEntry("filter=rot13") };
+            var attributes = new List<FilterAttributeEntry> { new FilterAttributeEntry("rot13") };
             var filter = new SubstitutionCipherFilter("cipher-filter", attributes);
             var filterRegistration = GlobalSettings.RegisterFilter(filter);
 
@@ -94,9 +94,9 @@ namespace LibGit2Sharp.Tests
         [InlineData("*.txt", ".txt", 1, 0)]
         public void WhenStagedFileDoesNotMatchPathSpecFileIsNotFiltered(string pathSpec, string fileExtension, int cleanCount, int smudgeCount)
         {
-            const string filterName = "filter=rot13";
+            const string filterName = "rot13";
             const string decodedInput = "This is a substitution cipher";
-            string attributeFileEntry = string.Format("{0} {1}", pathSpec, filterName);
+            string attributeFileEntry = string.Format("{0} filter={1}", pathSpec, filterName);
 
             var filterForAttributes = new List<FilterAttributeEntry> { new FilterAttributeEntry(filterName) };
             var filter = new SubstitutionCipherFilter("cipher-filter", filterForAttributes);
@@ -122,15 +122,13 @@ namespace LibGit2Sharp.Tests
         }
 
         [Theory]
-        [InlineData("filter=rot13", "*.txt filter=rot13", 1)]
-        [InlineData("filter=rot13", "*.txt filter=fake", 0)]
-        [InlineData("filter=rot13", "*.bat filter=rot13", 0)]
         [InlineData("rot13", "*.txt filter=rot13", 1)]
         [InlineData("rot13", "*.txt filter=fake", 0)]
+        [InlineData("rot13", "*.bat filter=rot13", 0)]
+        [InlineData("rot13", "*.txt filter=fake", 0)]
         [InlineData("fake", "*.txt filter=fake", 1)]
-        [InlineData("filter=fake", "*.txt filter=fake", 1)]
-        [InlineData("filter=fake", "*.bat filter=fake", 0)]
-        [InlineData("filter=rot13", "*.txt filter=rot13 -crlf", 1)]
+        [InlineData("fake", "*.bat filter=fake", 0)]
+        [InlineData("rot13", "*.txt filter=rot13 -crlf", 1)]
         public void CleanIsCalledIfAttributeEntryMatches(string filterAttribute, string attributeEntry, int cleanCount)
         {
             const string decodedInput = "This is a substitution cipher";
@@ -158,12 +156,10 @@ namespace LibGit2Sharp.Tests
         }
 
         [Theory]
-        [InlineData("filter=rot13", "*.txt filter=rot13", 1)]
-        [InlineData("filter=rot13", "*.txt filter=fake", 0)]
-        [InlineData("filter=rot13", "*.bat filter=rot13", 0)]
+
         [InlineData("rot13", "*.txt filter=rot13", 1)]
         [InlineData("rot13", "*.txt filter=fake", 0)]
-        [InlineData("filter=rot13", "*.txt filter=rot13 -crlf", 1)]
+        [InlineData("rot13", "*.txt filter=rot13 -crlf", 1)]
         public void SmudgeIsCalledIfAttributeEntryMatches(string filterAttribute, string attributeEntry, int smudgeCount)
         {
             const string decodedInput = "This is a substitution cipher";

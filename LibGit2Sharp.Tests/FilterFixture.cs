@@ -8,9 +8,10 @@ namespace LibGit2Sharp.Tests
 {
     public class FilterFixture : BaseFixture
     {
-        private const int GitPassThrough = -30;
-
-        readonly Func<Stream, Stream, int> successCallback = (reader, writer) => 0;
+        readonly Action<Stream, Stream> successCallback = (reader, writer) =>
+        {
+            reader.CopyTo(writer);
+        };
 
         private const string FilterName = "the-filter";
         readonly List<FilterAttributeEntry> attributes = new List<FilterAttributeEntry> { new FilterAttributeEntry("test") };
@@ -19,7 +20,7 @@ namespace LibGit2Sharp.Tests
         public void CanRegisterFilterWithSingleAttribute()
         {
             var filter = new EmptyFilter(FilterName, attributes);
-            Assert.Equal( attributes , filter.Attributes);
+            Assert.Equal(attributes, filter.Attributes);
         }
 
         [Fact]
@@ -56,10 +57,9 @@ namespace LibGit2Sharp.Tests
         public void InitCallbackNotMadeWhenFilterNeverUsed()
         {
             bool called = false;
-            Func<int> initializeCallback = () =>
+            Action initializeCallback = () =>
             {
                 called = true;
-                return 0;
             };
 
             var filter = new FakeFilter(FilterName + 11, attributes,
@@ -78,10 +78,9 @@ namespace LibGit2Sharp.Tests
         public void InitCallbackMadeWhenUsingTheFilter()
         {
             bool called = false;
-            Func<int> initializeCallback = () =>
+            Action initializeCallback = () =>
             {
                 called = true;
-                return 0;
             };
 
             var filter = new FakeFilter(FilterName + 12, attributes,
@@ -108,10 +107,10 @@ namespace LibGit2Sharp.Tests
             string repoPath = InitNewRepository();
             bool called = false;
 
-            Func<Stream, Stream, int> clean = (reader, writer) =>
+            Action<Stream, Stream> clean = (reader, writer) =>
             {
                 called = true;
-                return GitPassThrough;
+                reader.CopyTo(writer);
             };
             var filter = new FakeFilter(FilterName + 15, attributes, clean);
 
@@ -134,7 +133,7 @@ namespace LibGit2Sharp.Tests
 
             string repoPath = InitNewRepository();
 
-            Func<Stream, Stream, int> cleanCallback = SubstitutionCipherFilter.RotateByThirteenPlaces;
+            Action<Stream, Stream> cleanCallback = SubstitutionCipherFilter.RotateByThirteenPlaces;
 
             var filter = new FakeFilter(FilterName + 16, attributes, cleanCallback);
 
@@ -154,7 +153,6 @@ namespace LibGit2Sharp.Tests
             GlobalSettings.DeregisterFilter(filterRegistration);
         }
 
-
         [Fact]
         public void WhenCheckingOutAFileFileSmudgeWritesCorrectFileToWorkingDirectory()
         {
@@ -164,7 +162,7 @@ namespace LibGit2Sharp.Tests
             const string branchName = "branch";
             string repoPath = InitNewRepository();
 
-            Func<Stream, Stream, int> smudgeCallback = SubstitutionCipherFilter.RotateByThirteenPlaces;
+            Action<Stream, Stream> smudgeCallback = SubstitutionCipherFilter.RotateByThirteenPlaces;
 
             var filter = new FakeFilter(FilterName + 17, attributes, null, smudgeCallback);
             var filterRegistration = GlobalSettings.RegisterFilter(filter);
@@ -237,14 +235,14 @@ namespace LibGit2Sharp.Tests
 
         class FakeFilter : Filter
         {
-            private readonly Func<Stream, Stream, int> cleanCallback;
-            private readonly Func<Stream, Stream, int> smudgeCallback;
-            private readonly Func<int> initCallback;
+            private readonly Action<Stream, Stream> cleanCallback;
+            private readonly Action<Stream, Stream> smudgeCallback;
+            private readonly Action initCallback;
 
             public FakeFilter(string name, IEnumerable<FilterAttributeEntry> attributes,
-                Func<Stream, Stream, int> cleanCallback = null,
-                Func<Stream, Stream, int> smudgeCallback = null,
-                Func<int> initCallback = null)
+                Action<Stream, Stream> cleanCallback = null,
+                Action<Stream, Stream> smudgeCallback = null,
+                Action initCallback = null)
                 : base(name, attributes)
             {
                 this.cleanCallback = cleanCallback;
@@ -252,19 +250,40 @@ namespace LibGit2Sharp.Tests
                 this.initCallback = initCallback;
             }
 
-            protected override int Clean(string path, Stream input, Stream output)
+            protected override void Clean(string path, string root, Stream input, Stream output)
             {
-                return cleanCallback != null ? cleanCallback(input, output) : base.Clean(path, input, output);
+                if (cleanCallback == null)
+                {
+                    base.Clean(path, root, input, output);
+                }
+                else
+                {
+                    cleanCallback(input, output);
+                }
             }
 
-            protected override int Smudge(string path, Stream input, Stream output)
+            protected override void Smudge(string path, string root, Stream input, Stream output)
             {
-                return smudgeCallback != null ? smudgeCallback(input, output) : base.Smudge(path, input, output);
+                if (smudgeCallback == null)
+                {
+                    base.Smudge(path, root, input, output);
+                }
+                else
+                {
+                    smudgeCallback(input, output);
+                }
             }
 
-            protected override int Initialize()
+            protected override void Initialize()
             {
-                return initCallback != null ? initCallback() : base.Initialize();
+                if (initCallback == null)
+                {
+                    base.Initialize();
+                }
+                else
+                {
+                    initCallback();
+                }
             }
         }
     }

@@ -25,6 +25,9 @@ namespace LibGit2Sharp.Core
         public git_filter_apply_fn apply;
 
         [MarshalAs(UnmanagedType.FunctionPtr)]
+        public git_filter_stream_fn stream;
+
+        [MarshalAs(UnmanagedType.FunctionPtr)]
         public git_filter_cleanup_fn cleanup;
 
         /* The libgit2 structure definition ends here. Subsequent fields are for libgit2sharp bookkeeping. */
@@ -80,6 +83,9 @@ namespace LibGit2Sharp.Core
         /// </summary>
         public delegate int git_filter_apply_fn(
             GitFilter gitFilter, IntPtr payload, IntPtr gitBufTo, IntPtr gitBufFrom, IntPtr filterSource);
+
+        public delegate int git_filter_stream_fn(
+            out IntPtr git_writestream_out, GitFilter self, IntPtr payload, IntPtr filterSource, IntPtr git_writestream_next);
 
         /// <summary>
         /// Callback to clean up after filtering has been applied. Specified as `filter.cleanup`, this is an optional callback invoked
