@@ -85,7 +85,7 @@ namespace LibGit2Sharp.Core
         [DllImport(libgit2)]
         internal static extern void giterr_set_str(
             GitErrorCategory error_class,
-            string errorString);
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string errorString);
 
         [DllImport(libgit2)]
         internal static extern void giterr_set_oom();
