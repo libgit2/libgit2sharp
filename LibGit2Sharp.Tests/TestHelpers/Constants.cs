@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 
 namespace LibGit2Sharp.Tests.TestHelpers
@@ -34,7 +35,7 @@ namespace LibGit2Sharp.Tests.TestHelpers
 
         public static string BuildPath()
         {
-            string tempPath;
+            string tempPath = null;
 
             var unixPath = Type.GetType("Mono.Unix.UnixPath, Mono.Posix, Version=2.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756");
 
@@ -48,11 +49,24 @@ namespace LibGit2Sharp.Tests.TestHelpers
             }
             else
             {
+                const string LibGit2TestPath = "LibGit2TestPath";
                 // We're running on .Net/Windows
-                tempPath = Path.GetTempPath();
+                if (Environment.GetEnvironmentVariables().Contains(LibGit2TestPath))
+                {
+                    Trace.TraceInformation("{0} environment variable detected", LibGit2TestPath);
+                    tempPath = Environment.GetEnvironmentVariables()[LibGit2TestPath] as String;
+                }
+
+                if (String.IsNullOrWhiteSpace(tempPath) || !Directory.Exists(tempPath))
+                {
+                    Trace.TraceInformation("Using default test path value");
+                    tempPath = Path.GetTempPath();
+                }
             }
 
-            return Path.Combine(tempPath, "LibGit2Sharp-TestRepos");
+            string testWorkingDirectory = Path.Combine(tempPath, "LibGit2Sharp-TestRepos");
+            Trace.TraceInformation("Test working directory set to '{0}'", testWorkingDirectory);
+            return testWorkingDirectory;
         }
     }
 }
