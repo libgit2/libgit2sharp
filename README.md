@@ -57,6 +57,17 @@ More thorough information available in the [wiki][wiki].
 
  [wiki]: https://github.com/libgit2/libgit2sharp/wiki
 
+## Optimizing unit testing
+LibGit2Sharp strives to have comprehensive and robust unit test suite to insure the quality of the software and to assist new contributors and users who can use the tests as sample to jump start development. There are over one-thousand unit-tests for LibGit2Sharp, this number will only grow as functionality is added.
+
+You can do a few things to optimize running unit-tests on Windows:
+
+1. Set the `LibGit2TestPath` environment variable to a path in your development environment.
+  * If the unit-test framework cannot find the specified folder at runtime, it will fall back to the default location.
+2. Configure your anti-virus software to ignore the `LibGit2TestPath` path.
+3. Install a RAM disk like [IMDisk](http://www.ltr-data.se/opencode.html/#ImDisk) and set `LibGit2TestPath` to use it.
+  * Use `imdisk.exe -a -s 256M -m X: -p "/fs:fat /q /v:ramdisk /y"` to create a RAM disk. This command requires elevated privileges and can be placed into a scheduled task or run manually before you begin unit-testing.
+
 ## Authors
 
  - **Code:** The LibGit2Sharp [contributors][committers]
