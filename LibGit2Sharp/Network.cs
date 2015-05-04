@@ -248,19 +248,11 @@ namespace LibGit2Sharp
                 GitRemoteCallbacks gitCallbacks = callbacks.GenerateCallbacks();
                 Proxy.git_remote_set_callbacks(remoteHandle, ref gitCallbacks);
 
-                try
-                {
-                    Proxy.git_remote_connect(remoteHandle, GitDirection.Push);
-                    Proxy.git_remote_push(remoteHandle, pushRefSpecs,
-                        new GitPushOptions()
-                        {
-                            PackbuilderDegreeOfParallelism = pushOptions.PackbuilderDegreeOfParallelism
-                        });
-                }
-                finally
-                {
-                    Proxy.git_remote_disconnect(remoteHandle);
-                }
+                Proxy.git_remote_push(remoteHandle, pushRefSpecs,
+                    new GitPushOptions()
+                    {
+                        PackbuilderDegreeOfParallelism = pushOptions.PackbuilderDegreeOfParallelism
+                    });
             }
         }
 
