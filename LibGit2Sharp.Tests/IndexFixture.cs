@@ -431,7 +431,7 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
-        public void AddingAnEntryToTheIndexFromAUnknwonFileInTheWorkdirThrows()
+        public void AddingAnEntryToTheIndexFromAUnknownFileInTheWorkdirThrows()
         {
             var path = SandboxStandardTestRepoGitDir();
             using (var repo = new Repository(path))
