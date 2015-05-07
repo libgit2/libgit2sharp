@@ -531,6 +531,31 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        [Fact]
+        public void CanSkipOverUpdatingIndexUsingCallback()
+        {
+            const string fileName = "new-file.txt";
+
+            var path = SandboxAssumeUnchangedTestRepo();
+            using (var repo = new Repository(path))
+            {
+                repo.Index.Clear();
+
+                Touch(repo.Info.WorkingDirectory, fileName, "hello test file\n");
+
+                repo.Index.Add(fileName);
+                var first = repo.Index[fileName].Id;
+
+                Touch(repo.Info.WorkingDirectory, fileName, "rewrite the file\n");
+                IndexUpdaterHandler callback = (file, pathspec) => 1;
+                repo.Index.Update(callback);
+
+                var second = repo.Index[fileName].Id;
+                Assert.Equal(first, second);
+            }
+        }
+
+
         private static void AddSomeCornerCases(Repository repo)
         {
             // Turn 1.txt into a directory in the Index
