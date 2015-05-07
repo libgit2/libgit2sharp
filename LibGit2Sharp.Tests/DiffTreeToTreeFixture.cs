@@ -1133,5 +1133,75 @@ namespace LibGit2Sharp.Tests
                 Assert.Throws<LibGit2SharpException>(() => repo.Diff.Compare<string>());
             }
         }
+
+        [Fact]
+        public void UsingPatienceAlgorithmCompareOptionProducesPatienceDiff()
+        {
+            string repoPath = InitNewRepository();
+            using (var repo = new Repository(repoPath))
+            {
+                Func<string, Tree> fromString =
+                    s =>
+                        repo.ObjectDatabase.CreateTree(new TreeDefinition().Add("file.txt",
+                            OdbHelper.CreateBlob(repo, s), Mode.NonExecutableFile));
+
+                Tree treeOld = fromString(new StringBuilder()
+                    .Append("aaaaaa\n")
+                    .Append("aaaaaa\n")
+                    .Append("bbbbbb\n")
+                    .Append("bbbbbb\n")
+                    .Append("cccccc\n")
+                    .Append("cccccc\n")
+                    .Append("abc\n").ToString());
+
+                Tree treeNew = fromString(new StringBuilder()
+                    .Append("abc\n")
+                    .Append("aaaaaa\n")
+                    .Append("aaaaaa\n")
+                    .Append("bbbbbb\n")
+                    .Append("bbbbbb\n")
+                    .Append("cccccc\n")
+                    .Append("cccccc\n").ToString());
+
+                string diffDefault = new StringBuilder()
+                    .Append("diff --git a/file.txt b/file.txt\n")
+                    .Append("index 3299d68..accc3bd 100644\n")
+                    .Append("--- a/file.txt\n")
+                    .Append("+++ b/file.txt\n")
+                    .Append("@@ -1,7 +1,7 @@\n")
+                    .Append("+abc\n")
+                    .Append(" aaaaaa\n")
+                    .Append(" aaaaaa\n")
+                    .Append(" bbbbbb\n")
+                    .Append(" bbbbbb\n")
+                    .Append(" cccccc\n")
+                    .Append(" cccccc\n")
+                    .Append("-abc\n").ToString();
+
+                string diffPatience = new StringBuilder()
+                    .Append("diff --git a/file.txt b/file.txt\n")
+                    .Append("index 3299d68..accc3bd 100644\n")
+                    .Append("--- a/file.txt\n")
+                    .Append("+++ b/file.txt\n")
+                    .Append("@@ -1,7 +1,7 @@\n")
+                    .Append("-aaaaaa\n")
+                    .Append("-aaaaaa\n")
+                    .Append("-bbbbbb\n")
+                    .Append("-bbbbbb\n")
+                    .Append("-cccccc\n")
+                    .Append("-cccccc\n")
+                    .Append(" abc\n")
+                    .Append("+aaaaaa\n")
+                    .Append("+aaaaaa\n")
+                    .Append("+bbbbbb\n")
+                    .Append("+bbbbbb\n")
+                    .Append("+cccccc\n")
+                    .Append("+cccccc\n").ToString();
+
+                Assert.Equal(diffDefault, repo.Diff.Compare<Patch>(treeOld, treeNew));
+                Assert.Equal(diffPatience, repo.Diff.Compare<Patch>(treeOld, treeNew,
+                    compareOptions: new CompareOptions { UsePatienceAlgorithm = true }));
+            }
+        }
     }
 }

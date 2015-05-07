@@ -35,5 +35,10 @@ namespace LibGit2Sharp
         /// Include "unmodified" entries in the results.
         /// </summary>
         public bool IncludeUnmodified { get; set; }
+
+        /// <summary>
+        /// Use the "patience diff" algorithm.
+        /// </summary>
+        public bool UsePatienceAlgorithm { get; set; }
     }
 }

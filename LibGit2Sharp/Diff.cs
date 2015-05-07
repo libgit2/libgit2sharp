@@ -49,6 +49,11 @@ namespace LibGit2Sharp
                 options.Flags |= GitDiffOptionFlags.GIT_DIFF_INCLUDE_UNMODIFIED;
             }
 
+            if (compareOptions.UsePatienceAlgorithm)
+            {
+                options.Flags |= GitDiffOptionFlags.GIT_DIFF_PATIENCE;
+            }
+
             if (diffOptions.HasFlag(DiffModifiers.DisablePathspecMatch))
             {
                 options.Flags |= GitDiffOptionFlags.GIT_DIFF_DISABLE_PATHSPEC_MATCH;
