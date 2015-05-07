@@ -226,11 +226,36 @@ namespace LibGit2Sharp
             UpdatePhysicalIndex();
         }
 
+        /// <summary>
+        /// Update all files in the index
+        /// </summary>
         public virtual void Update()
         {
-            FilePath defaultPath = "*";
-            Proxy.git_index_update_all(Handle, new [] { defaultPath });
+            Proxy.git_index_update_all(Handle, new [] { "*" });
         }
+
+        /// <summary>
+        /// Update files for a given pathspec
+        /// </summary>
+        /// <param name="pathSpec">
+        /// Limit the scope of paths to update to the provided pathspecs
+        /// </param>
+        public virtual void Update(string pathSpec)
+        {
+            Proxy.git_index_update_all(Handle, new[] { pathSpec });
+        }
+
+        /// <summary>
+        /// Update files for given pathspecs
+        /// </summary>
+        /// <param name="pathSpecs">
+        /// Limit the scope of paths to update to the provided pathspecs
+        /// </param>
+        public virtual void Update(IEnumerable<string> pathSpecs)
+        {
+            Proxy.git_index_update_all(Handle, pathSpecs);
+        }
+
 
         private void UpdatePhysicalIndex()
         {
