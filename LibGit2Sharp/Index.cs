@@ -226,6 +226,12 @@ namespace LibGit2Sharp
             UpdatePhysicalIndex();
         }
 
+        public virtual void Update()
+        {
+            FilePath defaultPath = "*";
+            Proxy.git_index_update_all(Handle, new [] { defaultPath });
+        }
+
         private void UpdatePhysicalIndex()
         {
             Proxy.git_index_write(handle);

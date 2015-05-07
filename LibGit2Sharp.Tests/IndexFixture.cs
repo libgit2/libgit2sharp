@@ -480,6 +480,16 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        [Fact]
+        public void CanUpdateIndexWhenNothingHappened()
+        {
+            var path = SandboxAssumeUnchangedTestRepo();
+            using (var repo = new Repository(path))
+            {
+                repo.Index.Update();
+            }
+        }
+
         private static void AddSomeCornerCases(Repository repo)
         {
             // Turn 1.txt into a directory in the Index
