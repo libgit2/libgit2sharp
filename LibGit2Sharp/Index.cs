@@ -3,8 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
+using System.Linq;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Handles;
+using LibGit2Sharp.Handlers;
 
 namespace LibGit2Sharp
 {
@@ -231,7 +233,7 @@ namespace LibGit2Sharp
         /// </summary>
         public virtual void Update()
         {
-            Proxy.git_index_update_all(Handle, new [] { "*" });
+            Proxy.git_index_update_all(Handle, new [] { "*" }, null);
         }
 
         /// <summary>
@@ -242,20 +244,33 @@ namespace LibGit2Sharp
         /// </param>
         public virtual void Update(string pathSpec)
         {
-            Proxy.git_index_update_all(Handle, new[] { pathSpec });
+            Proxy.git_index_update_all(Handle, new[] { pathSpec }, null);
         }
 
         /// <summary>
-        /// Update files for given pathspecs
+        /// Update files for a given set of pathspecs
         /// </summary>
         /// <param name="pathSpecs">
         /// Limit the scope of paths to update to the provided pathspecs
         /// </param>
         public virtual void Update(IEnumerable<string> pathSpecs)
         {
-            Proxy.git_index_update_all(Handle, pathSpecs);
+            Proxy.git_index_update_all(Handle, pathSpecs, null);
         }
 
+        /// <summary>
+        /// Update files based on a given callback
+        /// </summary>
+        /// <param name="indexUpdaterHandler">
+        /// Callback to process file programatically
+        /// </param>
+        public virtual void Update(IndexUpdaterHandler indexUpdaterHandler)
+        {
+            var callback = IndexCallbacks.ToCallback(indexUpdaterHandler);
+
+            Proxy.git_index_update_all(Handle, new[] { "*" }, callback);
+
+        }
 
         private void UpdatePhysicalIndex()
         {

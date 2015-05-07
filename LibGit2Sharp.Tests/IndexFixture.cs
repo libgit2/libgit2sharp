@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using LibGit2Sharp.Handlers;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
 using Xunit.Extensions;
@@ -503,6 +504,32 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        [Fact]
+        public void CanSpecifyCallbackWhenIsInvokedByUpdating()
+        {
+            const string fileName = "new-file.txt";
+
+            var path = SandboxAssumeUnchangedTestRepo();
+            using (var repo = new Repository(path))
+            {
+                repo.Index.Clear();
+
+                Touch(repo.Info.WorkingDirectory, fileName, "hello test file\n");
+
+                repo.Index.Add(fileName);
+
+                var count = 0;
+                Touch(repo.Info.WorkingDirectory, fileName, "rewrite the file\n");
+                IndexUpdaterHandler callback = (file, pathspec) =>
+                {
+                    count++;
+                    return 0;
+                };
+                repo.Index.Update(callback);
+
+                Assert.Equal(1, count);
+            }
+        }
 
         private static void AddSomeCornerCases(Repository repo)
         {
