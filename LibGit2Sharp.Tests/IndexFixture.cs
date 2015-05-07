@@ -481,16 +481,6 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
-        public void CanUpdateIndexWhenNothingHappened()
-        {
-            var path = SandboxAssumeUnchangedTestRepo();
-            using (var repo = new Repository(path))
-            {
-                repo.Index.Update();
-            }
-        }
-
-        [Fact]
         public void IndexIsUpdatedAfterAddingFile()
         {
             const string fileName = "new-file.txt";
@@ -498,20 +488,17 @@ namespace LibGit2Sharp.Tests
             var path = SandboxAssumeUnchangedTestRepo();
             using (var repo = new Repository(path))
             {
-                // create a file on disk
+                repo.Index.Clear();
+
                 Touch(repo.Info.WorkingDirectory, fileName, "hello test file\n");
 
-                repo.Index.Clear();
                 repo.Index.Add(fileName);
-
                 var first = repo.Index[fileName].Id;
 
                 Touch(repo.Info.WorkingDirectory, fileName, "rewrite the file\n");
-
                 repo.Index.Update();
 
                 var second = repo.Index[fileName].Id;
-
                 Assert.NotEqual(first, second);
             }
         }
