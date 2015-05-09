@@ -503,7 +503,7 @@ namespace LibGit2Sharp.Tests
 
                 // Verify that there is a staged entry.
                 Assert.Equal(1, repoStatus.Count());
-                Assert.Equal(FileStatus.Staged, repo.RetrieveStatus("b.txt"));
+                Assert.Equal(FileStatus.ModifiedInIndex, repo.RetrieveStatus("b.txt"));
             }
         }
 

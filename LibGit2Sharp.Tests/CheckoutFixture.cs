@@ -527,13 +527,13 @@ namespace LibGit2Sharp.Tests
 
                 // Verify that there is an untracked entry.
                 Assert.Equal(1, repo.RetrieveStatus().Untracked.Count());
-                Assert.Equal(FileStatus.Untracked, repo.RetrieveStatus(fullPathFileB));
+                Assert.Equal(FileStatus.NewInWorkdir, repo.RetrieveStatus(fullPathFileB));
 
                 repo.Checkout(otherBranchName);
 
                 // Verify untracked entry still exists.
                 Assert.Equal(1, repo.RetrieveStatus().Untracked.Count());
-                Assert.Equal(FileStatus.Untracked, repo.RetrieveStatus(fullPathFileB));
+                Assert.Equal(FileStatus.NewInWorkdir, repo.RetrieveStatus(fullPathFileB));
             }
         }
 
@@ -551,13 +551,13 @@ namespace LibGit2Sharp.Tests
 
                 // Verify that there is an untracked entry.
                 Assert.Equal(1, repo.RetrieveStatus().Untracked.Count());
-                Assert.Equal(FileStatus.Untracked, repo.RetrieveStatus(fullPathFileB));
+                Assert.Equal(FileStatus.NewInWorkdir, repo.RetrieveStatus(fullPathFileB));
 
                 repo.Checkout(otherBranchName, new CheckoutOptions() { CheckoutModifiers = CheckoutModifiers.Force });
 
                 // Verify untracked entry still exists.
                 Assert.Equal(1, repo.RetrieveStatus().Untracked.Count());
-                Assert.Equal(FileStatus.Untracked, repo.RetrieveStatus(fullPathFileB));
+                Assert.Equal(FileStatus.NewInWorkdir, repo.RetrieveStatus(fullPathFileB));
             }
         }
 
@@ -575,13 +575,13 @@ namespace LibGit2Sharp.Tests
 
                 // Verify that there is a modified entry.
                 Assert.Equal(1, repo.RetrieveStatus().Modified.Count());
-                Assert.Equal(FileStatus.Modified, repo.RetrieveStatus(fullPathFileA));
+                Assert.Equal(FileStatus.ModifiedInWorkdir, repo.RetrieveStatus(fullPathFileA));
 
                 repo.Checkout(otherBranchName);
 
                 // Verify modified entry still exists.
                 Assert.Equal(1, repo.RetrieveStatus().Modified.Count());
-                Assert.Equal(FileStatus.Modified, repo.RetrieveStatus(fullPathFileA));
+                Assert.Equal(FileStatus.ModifiedInWorkdir, repo.RetrieveStatus(fullPathFileA));
             }
         }
 
@@ -600,13 +600,13 @@ namespace LibGit2Sharp.Tests
 
                 // Verify that there is a staged entry.
                 Assert.Equal(1, repo.RetrieveStatus().Staged.Count());
-                Assert.Equal(FileStatus.Staged, repo.RetrieveStatus(fullPathFileA));
+                Assert.Equal(FileStatus.ModifiedInIndex, repo.RetrieveStatus(fullPathFileA));
 
                 repo.Checkout(otherBranchName);
 
                 // Verify staged entry still exists.
                 Assert.Equal(1, repo.RetrieveStatus().Staged.Count());
-                Assert.Equal(FileStatus.Staged, repo.RetrieveStatus(fullPathFileA));
+                Assert.Equal(FileStatus.ModifiedInIndex, repo.RetrieveStatus(fullPathFileA));
             }
         }
 
@@ -935,10 +935,10 @@ namespace LibGit2Sharp.Tests
         }
 
         [Theory]
-        [InlineData("master", "6dcf9bf", "readme.txt", FileStatus.Added)]
-        [InlineData("master", "refs/tags/lw", "readme.txt", FileStatus.Added)]
-        [InlineData("master", "i-do-numbers", "super-file.txt", FileStatus.Added)]
-        [InlineData("i-do-numbers", "diff-test-cases", "numbers.txt", FileStatus.Staged)]
+        [InlineData("master", "6dcf9bf", "readme.txt", FileStatus.NewInIndex)]
+        [InlineData("master", "refs/tags/lw", "readme.txt", FileStatus.NewInIndex)]
+        [InlineData("master", "i-do-numbers", "super-file.txt", FileStatus.NewInIndex)]
+        [InlineData("i-do-numbers", "diff-test-cases", "numbers.txt", FileStatus.ModifiedInIndex)]
         public void CanCheckoutPath(string originalBranch, string checkoutFrom, string path, FileStatus expectedStatus)
         {
             string repoPath = SandboxStandardTestRepo();
@@ -973,7 +973,7 @@ namespace LibGit2Sharp.Tests
 
                 foreach (string checkoutPath in checkoutPaths)
                 {
-                    Assert.Equal(FileStatus.Added, repo.RetrieveStatus(checkoutPath));
+                    Assert.Equal(FileStatus.NewInIndex, repo.RetrieveStatus(checkoutPath));
                 }
             }
         }

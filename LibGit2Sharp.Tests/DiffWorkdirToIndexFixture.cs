@@ -42,7 +42,7 @@ namespace LibGit2Sharp.Tests
         }
 
         [Theory]
-        [InlineData("new_untracked_file.txt", FileStatus.Untracked)]
+        [InlineData("new_untracked_file.txt", FileStatus.NewInWorkdir)]
         [InlineData("really-i-cant-exist.txt", FileStatus.Nonexistent)]
         public void CanCompareTheWorkDirAgainstTheIndexWithLaxUnmatchedExplicitPathsValidation(string relativePath, FileStatus currentStatus)
         {
@@ -60,7 +60,7 @@ namespace LibGit2Sharp.Tests
         }
 
         [Theory]
-        [InlineData("new_untracked_file.txt", FileStatus.Untracked)]
+        [InlineData("new_untracked_file.txt", FileStatus.NewInWorkdir)]
         [InlineData("really-i-cant-exist.txt", FileStatus.Nonexistent)]
         public void ComparingTheWorkDirAgainstTheIndexWithStrictUnmatchedExplicitPathsValidationAndANonExistentPathspecThrows(string relativePath, FileStatus currentStatus)
         {
@@ -74,7 +74,7 @@ namespace LibGit2Sharp.Tests
         }
 
         [Theory]
-        [InlineData("new_untracked_file.txt", FileStatus.Untracked)]
+        [InlineData("new_untracked_file.txt", FileStatus.NewInWorkdir)]
         [InlineData("where-am-I.txt", FileStatus.Nonexistent)]
         public void CallbackForUnmatchedExplicitPathsIsCalledWhenSet(string relativePath, FileStatus currentStatus)
         {

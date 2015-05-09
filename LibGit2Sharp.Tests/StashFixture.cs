@@ -150,7 +150,7 @@ namespace LibGit2Sharp.Tests
                 Assert.NotNull(stash.Index[staged]);
 
                 //It should leave untracked files untracked
-                Assert.Equal(FileStatus.Untracked, repo.RetrieveStatus(untracked));
+                Assert.Equal(FileStatus.NewInWorkdir, repo.RetrieveStatus(untracked));
                 Assert.Null(stash.Untracked);
             }
         }
@@ -171,7 +171,7 @@ namespace LibGit2Sharp.Tests
 
                 Assert.NotNull(stash);
                 Assert.NotNull(stash.Index[filename]);
-                Assert.Equal(FileStatus.Added, repo.RetrieveStatus(filename));
+                Assert.Equal(FileStatus.NewInIndex, repo.RetrieveStatus(filename));
                 Assert.Null(stash.Untracked);
             }
         }

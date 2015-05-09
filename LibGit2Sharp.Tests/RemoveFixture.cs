@@ -14,36 +14,36 @@ namespace LibGit2Sharp.Tests
          *   'git rm --cached <file>' works (file removed only from index).
          *   'git rm <file>' works (file removed from both index and workdir).
          */
-        [InlineData(false, "1/branch_file.txt", false, FileStatus.Unaltered, true, true, FileStatus.Untracked | FileStatus.Removed)]
-        [InlineData(true, "1/branch_file.txt", false, FileStatus.Unaltered, true, false, FileStatus.Removed)]
+        [InlineData(false, "1/branch_file.txt", false, FileStatus.Unaltered, true, true, FileStatus.NewInWorkdir | FileStatus.DeletedFromIndex)]
+        [InlineData(true, "1/branch_file.txt", false, FileStatus.Unaltered, true, false, FileStatus.DeletedFromIndex)]
         /***
          * Test case: file exists in the index, and has been removed from the wd.
          *   'git rm <file> and 'git rm --cached <file>' both work (file removed from the index)
          */
-        [InlineData(true, "deleted_unstaged_file.txt", false, FileStatus.Missing, false, false, FileStatus.Removed)]
-        [InlineData(false, "deleted_unstaged_file.txt", false, FileStatus.Missing, false, false, FileStatus.Removed)]
+        [InlineData(true, "deleted_unstaged_file.txt", false, FileStatus.DeletedFromWorkdir, false, false, FileStatus.DeletedFromIndex)]
+        [InlineData(false, "deleted_unstaged_file.txt", false, FileStatus.DeletedFromWorkdir, false, false, FileStatus.DeletedFromIndex)]
         /***
          * Test case: modified file in wd, the modifications have not been promoted to the index yet.
          *   'git rm --cached <file>' works (removes the file from the index)
          *   'git rm <file>' fails ("error: '<file>' has local modifications").
          */
-        [InlineData(false, "modified_unstaged_file.txt", false, FileStatus.Modified, true, true, FileStatus.Untracked | FileStatus.Removed)]
-        [InlineData(true, "modified_unstaged_file.txt", true,  FileStatus.Modified, true, true, 0)]
+        [InlineData(false, "modified_unstaged_file.txt", false, FileStatus.ModifiedInWorkdir, true, true, FileStatus.NewInWorkdir | FileStatus.DeletedFromIndex)]
+        [InlineData(true, "modified_unstaged_file.txt", true,  FileStatus.ModifiedInWorkdir, true, true, 0)]
         /***
          * Test case: modified file in wd, the modifications have already been promoted to the index.
          *   'git rm --cached <file>' works (removes the file from the index)
          *   'git rm <file>' fails ("error: '<file>' has changes staged in the index")
          */
-        [InlineData(false, "modified_staged_file.txt", false, FileStatus.Staged, true, true, FileStatus.Untracked | FileStatus.Removed)]
-        [InlineData(true, "modified_staged_file.txt", true, FileStatus.Staged, true, true, 0)]
+        [InlineData(false, "modified_staged_file.txt", false, FileStatus.ModifiedInIndex, true, true, FileStatus.NewInWorkdir | FileStatus.DeletedFromIndex)]
+        [InlineData(true, "modified_staged_file.txt", true, FileStatus.ModifiedInIndex, true, true, 0)]
         /***
          * Test case: modified file in wd, the modifications have already been promoted to the index, and
          * the file does not exist in the HEAD.
          *   'git rm --cached <file>' works (removes the file from the index)
          *   'git rm <file>' throws ("error: '<file>' has changes staged in the index")
          */
-        [InlineData(false, "new_tracked_file.txt", false, FileStatus.Added, true, true, FileStatus.Untracked)]
-        [InlineData(true, "new_tracked_file.txt", true, FileStatus.Added, true, true, 0)]
+        [InlineData(false, "new_tracked_file.txt", false, FileStatus.NewInIndex, true, true, FileStatus.NewInWorkdir)]
+        [InlineData(true, "new_tracked_file.txt", true, FileStatus.NewInIndex, true, true, 0)]
         public void CanRemoveAnUnalteredFileFromTheIndexWithoutRemovingItFromTheWorkingDirectory(
             bool removeFromWorkdir, string filename, bool throws, FileStatus initialStatus, bool existsBeforeRemove, bool existsAfterRemove, FileStatus lastStatus)
         {
@@ -91,7 +91,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(true, File.Exists(fullpath));
 
                 File.AppendAllText(fullpath, "additional content");
-                Assert.Equal(FileStatus.Staged | FileStatus.Modified, repo.RetrieveStatus(filename));
+                Assert.Equal(FileStatus.ModifiedInIndex | FileStatus.ModifiedInWorkdir, repo.RetrieveStatus(filename));
 
                 Assert.Throws<RemoveFromIndexException>(() => repo.Remove(filename));
                 Assert.Throws<RemoveFromIndexException>(() => repo.Remove(filename, false));
@@ -136,7 +136,7 @@ namespace LibGit2Sharp.Tests
         }
 
         [Theory]
-        [InlineData("deleted_staged_file.txt", FileStatus.Removed)]
+        [InlineData("deleted_staged_file.txt", FileStatus.DeletedFromIndex)]
         [InlineData("1/I-do-not-exist.txt", FileStatus.Nonexistent)]
         public void RemovingAnUnknownFileWithLaxExplicitPathsValidationDoesntThrow(string relativePath, FileStatus status)
         {
@@ -156,7 +156,7 @@ namespace LibGit2Sharp.Tests
         }
 
         [Theory]
-        [InlineData("deleted_staged_file.txt", FileStatus.Removed)]
+        [InlineData("deleted_staged_file.txt", FileStatus.DeletedFromIndex)]
         [InlineData("1/I-do-not-exist.txt", FileStatus.Nonexistent)]
         public void RemovingAnUnknownFileThrowsIfExplicitPath(string relativePath, FileStatus status)
         {

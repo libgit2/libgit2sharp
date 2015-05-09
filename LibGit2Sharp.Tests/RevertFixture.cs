@@ -83,7 +83,7 @@ namespace LibGit2Sharp.Tests
 
                 // Verify workspace is dirty.
                 FileStatus fileStatus = repo.RetrieveStatus(revertedFile);
-                Assert.Equal(FileStatus.Staged, fileStatus);
+                Assert.Equal(FileStatus.ModifiedInIndex, fileStatus);
 
                 // This is the ID of the blob containing the expected content.
                 Blob expectedBlob = repo.Lookup<Blob>("bc90ea420cf6c5ae3db7dcdffa0d79df567f219b");
@@ -131,8 +131,8 @@ namespace LibGit2Sharp.Tests
                 Assert.NotNull(repo.Index.Conflicts["a.txt"]);
 
                 // Verify the non-conflicting paths are staged.
-                Assert.Equal(FileStatus.Staged, repo.RetrieveStatus("b.txt"));
-                Assert.Equal(FileStatus.Staged, repo.RetrieveStatus("c.txt"));
+                Assert.Equal(FileStatus.ModifiedInIndex, repo.RetrieveStatus("b.txt"));
+                Assert.Equal(FileStatus.ModifiedInIndex, repo.RetrieveStatus("c.txt"));
             }
         }
 

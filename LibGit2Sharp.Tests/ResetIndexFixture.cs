@@ -30,17 +30,17 @@ namespace LibGit2Sharp.Tests
 
         private static bool IsStaged(StatusEntry entry)
         {
-            if ((entry.State & FileStatus.Added) == FileStatus.Added)
+            if ((entry.State & FileStatus.NewInIndex) == FileStatus.NewInIndex)
             {
                 return true;
             }
 
-            if ((entry.State & FileStatus.Staged) == FileStatus.Staged)
+            if ((entry.State & FileStatus.ModifiedInIndex) == FileStatus.ModifiedInIndex)
             {
                 return true;
             }
 
-            if ((entry.State & FileStatus.Removed) == FileStatus.Removed)
+            if ((entry.State & FileStatus.DeletedFromIndex) == FileStatus.DeletedFromIndex)
             {
                 return true;
             }
@@ -140,8 +140,8 @@ namespace LibGit2Sharp.Tests
 
                 RepositoryStatus newStatus = repo.RetrieveStatus();
                 Assert.Equal(0, newStatus.RenamedInIndex.Count());
-                Assert.Equal(FileStatus.Missing, newStatus["branch_file.txt"].State);
-                Assert.Equal(FileStatus.Added, newStatus["renamed_branch_file.txt"].State);
+                Assert.Equal(FileStatus.DeletedFromWorkdir, newStatus["branch_file.txt"].State);
+                Assert.Equal(FileStatus.NewInIndex, newStatus["renamed_branch_file.txt"].State);
             }
         }
 
@@ -160,8 +160,8 @@ namespace LibGit2Sharp.Tests
 
                 RepositoryStatus newStatus = repo.RetrieveStatus();
                 Assert.Equal(0, newStatus.RenamedInIndex.Count());
-                Assert.Equal(FileStatus.Untracked, newStatus["renamed_branch_file.txt"].State);
-                Assert.Equal(FileStatus.Removed, newStatus["branch_file.txt"].State);
+                Assert.Equal(FileStatus.NewInWorkdir, newStatus["renamed_branch_file.txt"].State);
+                Assert.Equal(FileStatus.DeletedFromIndex, newStatus["branch_file.txt"].State);
             }
         }
     }

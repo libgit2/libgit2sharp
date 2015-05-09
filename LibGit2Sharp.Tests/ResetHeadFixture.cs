@@ -115,7 +115,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(expectedHeadName, repo.Head.FriendlyName);
                 Assert.Equal(tag.Target.Id, repo.Head.Tip.Id);
 
-                Assert.Equal(FileStatus.Staged, repo.RetrieveStatus("a.txt"));
+                Assert.Equal(FileStatus.ModifiedInIndex, repo.RetrieveStatus("a.txt"));
 
                 AssertRefLogEntry(repo, "HEAD",
                                   string.Format("reset: moving to {0}", tag.Target.Sha),
@@ -190,7 +190,7 @@ namespace LibGit2Sharp.Tests
 
                 repo.Reset(ResetMode.Mixed, tag.CanonicalName);
 
-                Assert.Equal(FileStatus.Modified, repo.RetrieveStatus("a.txt"));
+                Assert.Equal(FileStatus.ModifiedInWorkdir, repo.RetrieveStatus("a.txt"));
 
                 AssertRefLogEntry(repo, "HEAD",
                                   string.Format("reset: moving to {0}", tag.Target.Sha),
