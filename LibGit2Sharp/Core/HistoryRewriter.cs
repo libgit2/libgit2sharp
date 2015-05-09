@@ -59,7 +59,11 @@ namespace LibGit2Sharp.Core
                 // before A.
                 foreach (var reference in refsToRewrite.OrderBy(ReferenceDepth))
                 {
-                    // TODO: Check how rewriting of notes actually behaves
+                    // TODO: Rewrite refs/notes/* properly
+                    if (reference.CanonicalName.StartsWith("refs/notes/"))
+                    {
+                        continue;
+                    }
 
                     RewriteReference(reference);
                 }
