@@ -69,17 +69,15 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Get a configuration value for the given key,
-        /// or <paramref name="defaultValue" /> if the key is not set.
+        /// Get a configuration value for the given key.
         /// </summary>
         /// <typeparam name="T">The configuration value type.</typeparam>
         /// <param name="config">The configuration being worked with.</param>
         /// <param name="key">The key</param>
-        /// <param name="defaultValue">The default value if the key is not set.</param>
-        /// <returns>The configuration value, or the default.</returns>
-        public static T GetValueOrDefault<T>(this Configuration config, string key, T defaultValue = default(T))
+        /// <returns>The configuration value, or the default value for the selected <see typeparamref="T"/>if not found</returns>
+        public static T GetValueOrDefault<T>(this Configuration config, string key)
         {
-            return ValueOrDefault(config.Get<T>(key), defaultValue);
+            return ValueOrDefault(config.Get<T>(key), default(T));
         }
 
         /// <summary>
@@ -87,14 +85,53 @@ namespace LibGit2Sharp
         /// or <paramref name="defaultValue" /> if the key is not set.
         /// </summary>
         /// <typeparam name="T">The configuration value type.</typeparam>
+        /// <param name="config">The configuration being worked with.</param>
+        /// <param name="key">The key</param>
+        /// <param name="defaultValue">The default value if the key is not set.</param>
+        /// <returns>The configuration value, or the default value</returns>
+        public static T GetValueOrDefault<T>(this Configuration config, string key, T defaultValue)
+        {
+            return ValueOrDefault(config.Get<T>(key), defaultValue);
+        }
+
+        /// <summary>
+        /// Get a configuration value for the given key
+        /// </summary>
+        /// <typeparam name="T">The configuration value type.</typeparam>
         ///  <param name="config">The configuration being worked with.</param>
         /// <param name="key">The key.</param>
         /// <param name="level">The configuration file into which the key should be searched for.</param>
+        /// <returns>The configuration value, or the default value for <see typeparamref="T"/> if not found</returns>
+        public static T GetValueOrDefault<T>(this Configuration config, string key, ConfigurationLevel level)
+        {
+            return ValueOrDefault(config.Get<T>(key, level), default(T));
+        }
+
+        /// <summary>
+        /// Get a configuration value for the given key,
+        /// or <paramref name="defaultValue" /> if the key is not set.
+        /// </summary>
+        /// <typeparam name="T">The configuration value type.</typeparam>
+        /// <param name="config">The configuration being worked with.</param>
+        /// <param name="key">The key.</param>
+        /// <param name="level">The configuration file into which the key should be searched for.</param>
         /// <param name="defaultValue">The selector used to generate a default value if the key is not set.</param>
-        /// <returns>The configuration value, or the default.</returns>
-        public static T GetValueOrDefault<T>(this Configuration config, string key, ConfigurationLevel level, T defaultValue = default(T))
+        /// <returns>The configuration value, or the default value.</returns>
+        public static T GetValueOrDefault<T>(this Configuration config, string key, ConfigurationLevel level, T defaultValue)
         {
             return ValueOrDefault(config.Get<T>(key, level), defaultValue);
+        }
+
+        /// <summary>
+        /// Get a configuration value for the given key parts
+        /// </summary>
+        /// <typeparam name="T">The configuration value type.</typeparam>
+        /// <param name="config">The configuration being worked with.</param>
+        /// <param name="keyParts">The key parts.</param>
+        /// <returns>The configuration value, or the default value for<see typeparamref="T"/> if not found</returns>
+        public static T GetValueOrDefault<T>(this Configuration config, string[] keyParts)
+        {
+            return ValueOrDefault(config.Get<T>(keyParts), default(T));
         }
 
         /// <summary>
@@ -105,10 +142,24 @@ namespace LibGit2Sharp
         /// <param name="config">The configuration being worked with.</param>
         /// <param name="keyParts">The key parts.</param>
         /// <param name="defaultValue">The default value if the key is not set.</param>
-        /// <returns>The configuration value, or the default.</returns>
-        public static T GetValueOrDefault<T>(this Configuration config, string[] keyParts, T defaultValue = default(T))
+        /// <returns>The configuration value, or the default value.</returns>
+        public static T GetValueOrDefault<T>(this Configuration config, string[] keyParts, T defaultValue)
         {
             return ValueOrDefault(config.Get<T>(keyParts), defaultValue);
+        }
+
+        /// <summary>
+        /// Get a configuration value for the given key parts.
+        /// </summary>
+        /// <typeparam name="T">The configuration value type.</typeparam>
+        /// <param name="config">The configuration being worked with.</param>
+        /// <param name="firstKeyPart">The first key part.</param>
+        /// <param name="secondKeyPart">The second key part.</param>
+        /// <param name="thirdKeyPart">The third key part.</param>
+        /// <returns>The configuration value, or the default value for the selected <see typeparamref="T"/> if not found</returns>
+        public static T GetValueOrDefault<T>(this Configuration config, string firstKeyPart, string secondKeyPart, string thirdKeyPart)
+        {
+            return ValueOrDefault(config.Get<T>(firstKeyPart, secondKeyPart, thirdKeyPart), default(T));
         }
 
         /// <summary>
@@ -122,7 +173,7 @@ namespace LibGit2Sharp
         /// <param name="thirdKeyPart">The third key part.</param>
         /// <param name="defaultValue">The default value if the key is not set.</param>
         /// <returns>The configuration value, or the default.</returns>
-        public static T GetValueOrDefault<T>(this Configuration config, string firstKeyPart, string secondKeyPart, string thirdKeyPart, T defaultValue = default(T))
+        public static T GetValueOrDefault<T>(this Configuration config, string firstKeyPart, string secondKeyPart, string thirdKeyPart, T defaultValue)
         {
             return ValueOrDefault(config.Get<T>(firstKeyPart, secondKeyPart, thirdKeyPart), defaultValue);
         }
