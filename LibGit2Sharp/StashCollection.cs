@@ -80,10 +80,41 @@ namespace LibGit2Sharp
         /// Creates a stash with the specified message.
         /// </summary>
         /// <param name="stasher">The <see cref="Signature"/> of the user who stashes </param>
+        /// <returns>the newly created <see cref="Stash"/></returns>
+        public virtual Stash Add(Signature stasher)
+        {
+            return Add(stasher, null, StashModifiers.Default);
+        }
+        /// <summary>
+        /// Creates a stash with the specified message.
+        /// </summary>
+        /// <param name="stasher">The <see cref="Signature"/> of the user who stashes </param>
+        /// <param name="options">A combination of <see cref="StashModifiers"/> flags</param>
+        /// <returns>the newly created <see cref="Stash"/></returns>
+        public virtual Stash Add(Signature stasher, StashModifiers options)
+        {
+            return Add(stasher, null, options);
+        }
+
+        /// <summary>
+        /// Creates a stash with the specified message.
+        /// </summary>
+        /// <param name="stasher">The <see cref="Signature"/> of the user who stashes </param>
+        /// <param name="message">The message of the stash.</param>
+        /// <returns>the newly created <see cref="Stash"/></returns>
+        public virtual Stash Add(Signature stasher, string message)
+        {
+            return Add(stasher, message, StashModifiers.Default);
+        }
+
+        /// <summary>
+        /// Creates a stash with the specified message.
+        /// </summary>
+        /// <param name="stasher">The <see cref="Signature"/> of the user who stashes </param>
         /// <param name="message">The message of the stash.</param>
         /// <param name="options">A combination of <see cref="StashModifiers"/> flags</param>
         /// <returns>the newly created <see cref="Stash"/></returns>
-        public virtual Stash Add(Signature stasher, string message = null, StashModifiers options = StashModifiers.Default)
+        public virtual Stash Add(Signature stasher, string message, StashModifiers options)
         {
             Ensure.ArgumentNotNull(stasher, "stasher");
 
