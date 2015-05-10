@@ -37,7 +37,18 @@ namespace LibGit2Sharp
         private readonly Lazy<PathCase> pathCase;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Repository"/> class, providing ooptional behavioral overrides through <paramref name="options"/> parameter.
+        /// Initializes a new instance of the <see cref="Repository"/> class.
+        /// <para>For a standard repository, <paramref name="path"/> should either point to the ".git" folder or to the working directory. For a bare repository, <paramref name="path"/> should directly point to the repository folder.</para>
+        /// </summary>
+        /// <param name="path">
+        /// The path to the git repository to open, can be either the path to the git directory (for non-bare repositories this
+        /// would be the ".git" folder inside the working directory) or the path to the working directory.
+        /// </param>
+        public Repository(string path) : this(path, null)
+        { }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Repository"/> class, providing optional behavioral overrides through <paramref name="options"/> parameter.
         /// <para>For a standard repository, <paramref name="path"/> should either point to the ".git" folder or to the working directory. For a bare repository, <paramref name="path"/> should directly point to the repository folder.</para>
         /// </summary>
         /// <param name="path">
@@ -47,7 +58,7 @@ namespace LibGit2Sharp
         /// <param name="options">
         /// Overrides to the way a repository is opened.
         /// </param>
-        public Repository(string path, RepositoryOptions options = null)
+        public Repository(string path, RepositoryOptions options)
         {
             Ensure.ArgumentNotNullOrEmptyString(path, "path");
 
@@ -369,9 +380,19 @@ namespace LibGit2Sharp
         /// Initialize a repository at the specified <paramref name="path"/>.
         /// </summary>
         /// <param name="path">The path to the working folder when initializing a standard ".git" repository. Otherwise, when initializing a bare repository, the path to the expected location of this later.</param>
+        /// <returns>The path to the created repository.</returns>
+        public static string Init(string path)
+        {
+            return Init(path, false);
+        }
+
+        /// <summary>
+        /// Initialize a repository at the specified <paramref name="path"/>.
+        /// </summary>
+        /// <param name="path">The path to the working folder when initializing a standard ".git" repository. Otherwise, when initializing a bare repository, the path to the expected location of this later.</param>
         /// <param name="isBare">true to initialize a bare repository. False otherwise, to initialize a standard ".git" repository.</param>
         /// <returns>The path to the created repository.</returns>
-        public static string Init(string path, bool isBare = false)
+        public static string Init(string path, bool isBare)
         {
             Ensure.ArgumentNotNullOrEmptyString(path, "path");
 
@@ -543,6 +564,24 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        /// Clone using default options.
+        /// </summary>
+        /// <exception cref="RecurseSubmodulesException">This exception is thrown when there
+        /// is an error is encountered while recursively cloning submodules. The inner exception
+        /// will contain the original exception. The initially cloned repository would
+        /// be reported through the <see cref="RecurseSubmodulesException.InitialRepositoryPath"/>
+        /// property.</exception>"
+        /// <exception cref="UserCancelledException">Exception thrown when the cancelling
+        /// the clone of the initial repository.</exception>"
+        /// <param name="sourceUrl">URI for the remote repository</param>
+        /// <param name="workdirPath">Local path to clone into</param>
+        /// <returns>The path to the created repository.</returns>
+        public static string Clone(string sourceUrl, string workdirPath)
+        {
+            return Clone(sourceUrl, workdirPath, null);
+        }
+
+        /// <summary>
         /// Clone with specified options.
         /// </summary>
         /// <exception cref="RecurseSubmodulesException">This exception is thrown when there
@@ -557,7 +596,7 @@ namespace LibGit2Sharp
         /// <param name="options"><see cref="CloneOptions"/> controlling clone behavior</param>
         /// <returns>The path to the created repository.</returns>
         public static string Clone(string sourceUrl, string workdirPath,
-            CloneOptions options = null)
+            CloneOptions options)
         {
             Ensure.ArgumentNotNull(sourceUrl, "sourceUrl");
             Ensure.ArgumentNotNull(workdirPath, "workdirPath");
