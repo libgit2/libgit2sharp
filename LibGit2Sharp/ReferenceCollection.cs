@@ -72,9 +72,21 @@ namespace LibGit2Sharp
         /// <param name="name">The canonical name of the reference to create.</param>
         /// <param name="targetId">Id of the target object.</param>
         /// <param name="logMessage">The optional message to log in the <see cref="ReflogCollection"/> when adding the <see cref="DirectReference"/></param>
+        /// <returns>A new <see cref="Reference"/>.</returns>
+        public virtual DirectReference Add(string name, ObjectId targetId, string logMessage)
+        {
+            return Add(name, targetId, logMessage, false);
+        }
+
+        /// <summary>
+        /// Creates a direct reference with the specified name and target
+        /// </summary>
+        /// <param name="name">The canonical name of the reference to create.</param>
+        /// <param name="targetId">Id of the target object.</param>
+        /// <param name="logMessage">The optional message to log in the <see cref="ReflogCollection"/> when adding the <see cref="DirectReference"/></param>
         /// <param name="allowOverwrite">True to allow silent overwriting a potentially existing reference, false otherwise.</param>
         /// <returns>A new <see cref="Reference"/>.</returns>
-        public virtual DirectReference Add(string name, ObjectId targetId, string logMessage, bool allowOverwrite = false)
+        public virtual DirectReference Add(string name, ObjectId targetId, string logMessage, bool allowOverwrite)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
             Ensure.ArgumentNotNull(targetId, "targetId");
@@ -90,9 +102,20 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="name">The canonical name of the reference to create.</param>
         /// <param name="targetId">Id of the target object.</param>
+        /// <returns>A new <see cref="Reference"/>.</returns>
+        public virtual DirectReference Add(string name, ObjectId targetId)
+        {
+            return Add(name, targetId, null, false);
+        }
+
+        /// <summary>
+        /// Creates a direct reference with the specified name and target
+        /// </summary>
+        /// <param name="name">The canonical name of the reference to create.</param>
+        /// <param name="targetId">Id of the target object.</param>
         /// <param name="allowOverwrite">True to allow silent overwriting a potentially existing reference, false otherwise.</param>
         /// <returns>A new <see cref="Reference"/>.</returns>
-        public virtual DirectReference Add(string name, ObjectId targetId, bool allowOverwrite = false)
+        public virtual DirectReference Add(string name, ObjectId targetId, bool allowOverwrite)
         {
             return Add(name, targetId, null, allowOverwrite);
         }
@@ -103,9 +126,21 @@ namespace LibGit2Sharp
         /// <param name="name">The canonical name of the reference to create.</param>
         /// <param name="targetRef">The target reference.</param>
         /// <param name="logMessage">The optional message to log in the <see cref="ReflogCollection"/> when adding the <see cref="SymbolicReference"/></param>
+        /// <returns>A new <see cref="Reference"/>.</returns>
+        public virtual SymbolicReference Add(string name, Reference targetRef, string logMessage)
+        {
+            return Add(name, targetRef, logMessage, false);
+        }
+
+        /// <summary>
+        /// Creates a symbolic reference with the specified name and target
+        /// </summary>
+        /// <param name="name">The canonical name of the reference to create.</param>
+        /// <param name="targetRef">The target reference.</param>
+        /// <param name="logMessage">The optional message to log in the <see cref="ReflogCollection"/> when adding the <see cref="SymbolicReference"/></param>
         /// <param name="allowOverwrite">True to allow silent overwriting a potentially existing reference, false otherwise.</param>
         /// <returns>A new <see cref="Reference"/>.</returns>
-        public virtual SymbolicReference Add(string name, Reference targetRef, string logMessage, bool allowOverwrite = false)
+        public virtual SymbolicReference Add(string name, Reference targetRef, string logMessage, bool allowOverwrite)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
             Ensure.ArgumentNotNull(targetRef, "targetRef");
@@ -122,9 +157,20 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="name">The canonical name of the reference to create.</param>
         /// <param name="targetRef">The target reference.</param>
+        /// <returns>A new <see cref="Reference"/>.</returns>
+        public virtual SymbolicReference Add(string name, Reference targetRef)
+        {
+            return Add(name, targetRef, null, false);
+        }
+
+        /// <summary>
+        /// Creates a symbolic reference with the specified name and target
+        /// </summary>
+        /// <param name="name">The canonical name of the reference to create.</param>
+        /// <param name="targetRef">The target reference.</param>
         /// <param name="allowOverwrite">True to allow silent overwriting a potentially existing reference, false otherwise.</param>
         /// <returns>A new <see cref="Reference"/>.</returns>
-        public virtual SymbolicReference Add(string name, Reference targetRef, bool allowOverwrite = false)
+        public virtual SymbolicReference Add(string name, Reference targetRef, bool allowOverwrite)
         {
             return Add(name, targetRef, null, allowOverwrite);
         }
@@ -146,9 +192,21 @@ namespace LibGit2Sharp
         /// <param name="reference">The reference to rename.</param>
         /// <param name="newName">The new canonical name.</param>
         /// <param name="logMessage">Message added to the reflog.</param>
+        /// <returns>A new <see cref="Reference"/>.</returns>
+        public virtual Reference Rename(Reference reference, string newName, string logMessage)
+        {
+            return Rename(reference, newName, logMessage, false);
+        }
+
+        /// <summary>
+        /// Rename an existing reference with a new name, and update the reflog
+        /// </summary>
+        /// <param name="reference">The reference to rename.</param>
+        /// <param name="newName">The new canonical name.</param>
+        /// <param name="logMessage">Message added to the reflog.</param>
         /// <param name="allowOverwrite">True to allow silent overwriting a potentially existing reference, false otherwise.</param>
         /// <returns>A new <see cref="Reference"/>.</returns>
-        public virtual Reference Rename(Reference reference, string newName, string logMessage = null, bool allowOverwrite = false)
+        public virtual Reference Rename(Reference reference, string newName, string logMessage, bool allowOverwrite)
         {
             Ensure.ArgumentNotNull(reference, "reference");
             Ensure.ArgumentNotNullOrEmptyString(newName, "newName");
@@ -171,9 +229,20 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="reference">The reference to rename.</param>
         /// <param name="newName">The new canonical name.</param>
+        /// <returns>A new <see cref="Reference"/>.</returns>
+        public virtual Reference Rename(Reference reference, string newName)
+        {
+            return Rename(reference, newName, null, false);
+        }
+
+        /// <summary>
+        /// Rename an existing reference with a new name
+        /// </summary>
+        /// <param name="reference">The reference to rename.</param>
+        /// <param name="newName">The new canonical name.</param>
         /// <param name="allowOverwrite">True to allow silent overwriting a potentially existing reference, false otherwise.</param>
         /// <returns>A new <see cref="Reference"/>.</returns>
-        public virtual Reference Rename(Reference reference, string newName, bool allowOverwrite = false)
+        public virtual Reference Rename(Reference reference, string newName, bool allowOverwrite)
         {
             return Rename(reference, newName, null, allowOverwrite);
         }
