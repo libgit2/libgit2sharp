@@ -111,9 +111,20 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="name">The name of the branch.</param>
         /// <param name="committish">Revparse spec for the target commit.</param>
+        /// <returns>A new <see cref="Branch"/>.</returns>
+        public virtual Branch Add(string name, string committish)
+        {
+            return Add(name, committish, false);
+        }
+
+        /// <summary>
+        /// Create a new local branch with the specified name
+        /// </summary>
+        /// <param name="name">The name of the branch.</param>
+        /// <param name="committish">Revparse spec for the target commit.</param>
         /// <param name="allowOverwrite">True to allow silent overwriting a potentially existing branch, false otherwise.</param>
         /// <returns>A new <see cref="Branch"/>.</returns>
-        public virtual Branch Add(string name, string committish, bool allowOverwrite = false)
+        public virtual Branch Add(string name, string committish, bool allowOverwrite)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
             Ensure.ArgumentNotNullOrEmptyString(committish, "committish");
@@ -143,9 +154,20 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="branch">The current local branch.</param>
         /// <param name="newName">The new name the existing branch should bear.</param>
+        /// <returns>A new <see cref="Branch"/>.</returns>
+        public virtual Branch Rename(Branch branch, string newName)
+        {
+            return Rename(branch, newName, false);
+        }
+
+        /// <summary>
+        /// Rename an existing local branch
+        /// </summary>
+        /// <param name="branch">The current local branch.</param>
+        /// <param name="newName">The new name the existing branch should bear.</param>
         /// <param name="allowOverwrite">True to allow silent overwriting a potentially existing branch, false otherwise.</param>
         /// <returns>A new <see cref="Branch"/>.</returns>
-        public virtual Branch Rename(Branch branch, string newName, bool allowOverwrite = false)
+        public virtual Branch Rename(Branch branch, string newName, bool allowOverwrite)
         {
             Ensure.ArgumentNotNull(branch, "branch");
             Ensure.ArgumentNotNullOrEmptyString(newName, "newName");
