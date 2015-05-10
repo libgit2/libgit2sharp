@@ -77,9 +77,26 @@ namespace LibGit2Sharp
         /// Access configuration values without a repository. Generally you want to access configuration via an instance of <see cref="Repository"/> instead.
         /// </summary>
         /// <param name="globalConfigurationFileLocation">Path to a Global configuration file. If null, the default path for a global configuration file will be probed.</param>
+        public Configuration(string globalConfigurationFileLocation)
+            : this(null, globalConfigurationFileLocation, null, null)
+        { }
+
+        /// <summary>
+        /// Access configuration values without a repository. Generally you want to access configuration via an instance of <see cref="Repository"/> instead.
+        /// </summary>
+        /// <param name="globalConfigurationFileLocation">Path to a Global configuration file. If null, the default path for a global configuration file will be probed.</param>
+        /// <param name="xdgConfigurationFileLocation">Path to a XDG configuration file. If null, the default path for a XDG configuration file will be probed.</param>
+        public Configuration(string globalConfigurationFileLocation, string xdgConfigurationFileLocation)
+            : this(null, globalConfigurationFileLocation, xdgConfigurationFileLocation, null)
+        { }
+
+        /// <summary>
+        /// Access configuration values without a repository. Generally you want to access configuration via an instance of <see cref="Repository"/> instead.
+        /// </summary>
+        /// <param name="globalConfigurationFileLocation">Path to a Global configuration file. If null, the default path for a global configuration file will be probed.</param>
         /// <param name="xdgConfigurationFileLocation">Path to a XDG configuration file. If null, the default path for a XDG configuration file will be probed.</param>
         /// <param name="systemConfigurationFileLocation">Path to a System configuration file. If null, the default path for a system configuration file will be probed.</param>
-        public Configuration(string globalConfigurationFileLocation = null, string xdgConfigurationFileLocation = null, string systemConfigurationFileLocation = null)
+        public Configuration(string globalConfigurationFileLocation, string xdgConfigurationFileLocation, string systemConfigurationFileLocation)
             : this(null, globalConfigurationFileLocation, xdgConfigurationFileLocation, systemConfigurationFileLocation)
         {
         }
@@ -111,11 +128,20 @@ namespace LibGit2Sharp
         #endregion
 
         /// <summary>
+        /// Unset a configuration variable (key and value) in the local configuration.
+        /// </summary>
+        /// <param name="key">The key to unset.</param>
+        public virtual void Unset(string key)
+        {
+            Unset(key, ConfigurationLevel.Local);
+        }
+
+        /// <summary>
         /// Unset a configuration variable (key and value).
         /// </summary>
         /// <param name="key">The key to unset.</param>
         /// <param name="level">The configuration file which should be considered as the target of this operation</param>
-        public virtual void Unset(string key, ConfigurationLevel level = ConfigurationLevel.Local)
+        public virtual void Unset(string key, ConfigurationLevel level)
         {
             Ensure.ArgumentNotNullOrEmptyString(key, "key");
 
@@ -210,6 +236,27 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        /// Set a configuration value for a key in the local configuration. Keys are in the form 'section.name'.
+        /// <para>
+        ///   For example in order to set the value for this in a .git\config file:
+        ///
+        ///   [test]
+        ///   boolsetting = true
+        ///
+        ///   You would call:
+        ///
+        ///   repo.Config.Set("test.boolsetting", true);
+        /// </para>
+        /// </summary>
+        /// <typeparam name="T">The configuration value type</typeparam>
+        /// <param name="key">The key parts</param>
+        /// <param name="value">The value</param>
+        public virtual void Set<T>(string key, T value)
+        {
+            Set(key, value, ConfigurationLevel.Local);
+        }
+
+        /// <summary>
         /// Set a configuration value for a key. Keys are in the form 'section.name'.
         /// <para>
         ///   For example in order to set the value for this in a .git\config file:
@@ -226,7 +273,7 @@ namespace LibGit2Sharp
         /// <param name="key">The key parts</param>
         /// <param name="value">The value</param>
         /// <param name="level">The configuration file which should be considered as the target of this operation</param>
-        public virtual void Set<T>(string key, T value, ConfigurationLevel level = ConfigurationLevel.Local)
+        public virtual void Set<T>(string key, T value, ConfigurationLevel level)
         {
             Ensure.ArgumentNotNull(value, "value");
             Ensure.ArgumentNotNullOrEmptyString(key, "key");
@@ -246,10 +293,19 @@ namespace LibGit2Sharp
         /// Find configuration entries matching <paramref name="regexp"/>.
         /// </summary>
         /// <param name="regexp">A regular expression.</param>
+        /// <returns>Matching entries.</returns>
+        public virtual IEnumerable<ConfigurationEntry<string>> Find(string regexp)
+        {
+            return Find(regexp, ConfigurationLevel.Local);
+        }
+
+        /// <summary>
+        /// Find configuration entries matching <paramref name="regexp"/>.
+        /// </summary>
+        /// <param name="regexp">A regular expression.</param>
         /// <param name="level">The configuration file into which the key should be searched for.</param>
         /// <returns>Matching entries.</returns>
-        public virtual IEnumerable<ConfigurationEntry<string>> Find(string regexp,
-                                                                     ConfigurationLevel level = ConfigurationLevel.Local)
+        public virtual IEnumerable<ConfigurationEntry<string>> Find(string regexp, ConfigurationLevel level)
         {
             Ensure.ArgumentNotNullOrEmptyString(regexp, "regexp");
 
