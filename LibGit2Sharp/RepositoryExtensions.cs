@@ -152,13 +152,24 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Sets the current <see cref="Repository.Head"/> to the specified commit and optionally resets the <see cref="Index"/> and
+        /// Sets the current <see cref="Repository.Head"/> and resets the <see cref="Index"/> and
+        /// the content of the working tree to match.
+        /// </summary>
+        /// <param name="repository">The <see cref="Repository"/> being worked with.</param>
+        /// <param name="resetMode">Flavor of reset operation to perform.</param>
+        public static void Reset(this IRepository repository, ResetMode resetMode)
+        {
+            repository.Reset(resetMode, "HEAD");
+        }
+
+        /// <summary>
+        /// Sets the current <see cref="Repository.Head"/> to the specified commitish and optionally resets the <see cref="Index"/> and
         /// the content of the working tree to match.
         /// </summary>
         /// <param name="repository">The <see cref="Repository"/> being worked with.</param>
         /// <param name="resetMode">Flavor of reset operation to perform.</param>
         /// <param name="committish">A revparse spec for the target commit object.</param>
-        public static void Reset(this IRepository repository, ResetMode resetMode, string committish = "HEAD")
+        public static void Reset(this IRepository repository, ResetMode resetMode, string committish)
         {
             Ensure.ArgumentNotNullOrEmptyString(committish, "committish");
 
@@ -207,9 +218,23 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="repository">The <see cref="Repository"/> being worked with.</param>
         /// <param name="message">The description of why a change was made to the repository.</param>
+        /// <returns>The generated <see cref="LibGit2Sharp.Commit"/>.</returns>
+        public static Commit Commit(this IRepository repository, string message)
+        {
+            return repository.Commit(message, (CommitOptions)null);
+        }
+
+        /// <summary>
+        /// Stores the content of the <see cref="Repository.Index"/> as a new <see cref="LibGit2Sharp.Commit"/> into the repository.
+        /// The tip of the <see cref="Repository.Head"/> will be used as the parent of this new Commit.
+        /// Once the commit is created, the <see cref="Repository.Head"/> will move forward to point at it.
+        /// <para>Both the Author and Committer will be guessed from the Git configuration. An exception will be raised if no configuration is reachable.</para>
+        /// </summary>
+        /// <param name="repository">The <see cref="Repository"/> being worked with.</param>
+        /// <param name="message">The description of why a change was made to the repository.</param>
         /// <param name="options">The <see cref="CommitOptions"/> that specify the commit behavior.</param>
         /// <returns>The generated <see cref="LibGit2Sharp.Commit"/>.</returns>
-        public static Commit Commit(this IRepository repository, string message, CommitOptions options = null)
+        public static Commit Commit(this IRepository repository, string message, CommitOptions options)
         {
             Signature author = repository.Config.BuildSignature(DateTimeOffset.Now, true);
 
@@ -225,9 +250,25 @@ namespace LibGit2Sharp
         /// <param name="repository">The <see cref="Repository"/> being worked with.</param>
         /// <param name="author">The <see cref="Signature"/> of who made the change.</param>
         /// <param name="message">The description of why a change was made to the repository.</param>
+        /// <returns>The generated <see cref="LibGit2Sharp.Commit"/>.</returns>
+        public static Commit Commit(this IRepository repository, string message, Signature author)
+        {
+            return repository.Commit(message, author, (CommitOptions)null);
+        }
+
+
+        /// <summary>
+        /// Stores the content of the <see cref="Repository.Index"/> as a new <see cref="LibGit2Sharp.Commit"/> into the repository.
+        /// The tip of the <see cref="Repository.Head"/> will be used as the parent of this new Commit.
+        /// Once the commit is created, the <see cref="Repository.Head"/> will move forward to point at it.
+        /// <para>The Committer will be guessed from the Git configuration. An exception will be raised if no configuration is reachable.</para>
+        /// </summary>
+        /// <param name="repository">The <see cref="Repository"/> being worked with.</param>
+        /// <param name="author">The <see cref="Signature"/> of who made the change.</param>
+        /// <param name="message">The description of why a change was made to the repository.</param>
         /// <param name="options">The <see cref="CommitOptions"/> that specify the commit behavior.</param>
         /// <returns>The generated <see cref="LibGit2Sharp.Commit"/>.</returns>
-        public static Commit Commit(this IRepository repository, string message, Signature author, CommitOptions options = null)
+        public static Commit Commit(this IRepository repository, string message, Signature author, CommitOptions options)
         {
             Signature committer = repository.Config.BuildSignature(DateTimeOffset.Now, true);
 
@@ -239,8 +280,18 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="repository">The <see cref="Repository"/> being worked with.</param>
         /// <param name="remoteName">The name of the <see cref="Remote"/> to fetch from.</param>
+        public static void Fetch(this IRepository repository, string remoteName)
+        {
+            repository.Fetch(remoteName, null);
+        }
+
+        /// <summary>
+        /// Fetch from the specified remote.
+        /// </summary>
+        /// <param name="repository">The <see cref="Repository"/> being worked with.</param>
+        /// <param name="remoteName">The name of the <see cref="Remote"/> to fetch from.</param>
         /// <param name="options"><see cref="FetchOptions"/> controlling fetch behavior</param>
-        public static void Fetch(this IRepository repository, string remoteName, FetchOptions options = null)
+        public static void Fetch(this IRepository repository, string remoteName, FetchOptions options)
         {
             Ensure.ArgumentNotNull(repository, "repository");
             Ensure.ArgumentNotNullOrEmptyString(remoteName, "remoteName");
