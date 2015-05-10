@@ -14,9 +14,22 @@ namespace LibGit2Sharp
         /// <param name="objectish">Revparse spec for the target object.</param>
         /// <param name="tagger">The tagger.</param>
         /// <param name="message">The message.</param>
+        /// <param name="tags">The <see cref="TagCollection"/> being worked with.</param>
+        public static Tag Add(this TagCollection tags, string name, string objectish, Signature tagger, string message)
+        {
+            return tags.Add(name, objectish, tagger, message, false);
+        }
+
+        /// <summary>
+        /// Creates an annotated tag with the specified name.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="objectish">Revparse spec for the target object.</param>
+        /// <param name="tagger">The tagger.</param>
+        /// <param name="message">The message.</param>
         /// <param name="allowOverwrite">True to allow silent overwriting a potentially existing tag, false otherwise.</param>
         /// <param name="tags">The <see cref="TagCollection"/> being worked with.</param>
-        public static Tag Add(this TagCollection tags, string name, string objectish, Signature tagger, string message, bool allowOverwrite = false)
+        public static Tag Add(this TagCollection tags, string name, string objectish, Signature tagger, string message, bool allowOverwrite)
         {
             Ensure.ArgumentNotNullOrEmptyString(objectish, "target");
 
@@ -30,9 +43,20 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="name">The name.</param>
         /// <param name="objectish">Revparse spec for the target object.</param>
+        /// <param name="tags">The <see cref="TagCollection"/> being worked with.</param>
+        public static Tag Add(this TagCollection tags, string name, string objectish)
+        {
+            return tags.Add(name, objectish, false);
+        }
+
+        /// <summary>
+        /// Creates a lightweight tag with the specified name.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="objectish">Revparse spec for the target object.</param>
         /// <param name="allowOverwrite">True to allow silent overwriting a potentially existing tag, false otherwise.</param>
         /// <param name="tags">The <see cref="TagCollection"/> being worked with.</param>
-        public static Tag Add(this TagCollection tags, string name, string objectish, bool allowOverwrite = false)
+        public static Tag Add(this TagCollection tags, string name, string objectish, bool allowOverwrite)
         {
             Ensure.ArgumentNotNullOrEmptyString(objectish, "objectish");
 
