@@ -1,12 +1,12 @@
 # LibGit2Sharp
 
-**LibGit2Sharp brings all the might and speed of [libgit2][libgit2], a native Git implementation, to the managed world of .Net and Mono.**
+**LibGit2Sharp brings all the might and speed of [libgit2][libgit2], a native Git implementation, to the managed world of .NET and Mono.**
 
  [libgit2]: http://libgit2.github.com/
 
 ## Prerequisites
 
- - **Windows:** .Net 4.0+
+ - **Windows:** .NET 4.0+
  - **Linux/Mac OS X:** Mono 3.6+
 
 ## Online resources
