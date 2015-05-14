@@ -106,14 +106,6 @@ namespace LibGit2Sharp.Tests.TestHelpers
             return !isInsensitive;
         }
 
-        // Should match LibGit2Sharp.Core.NativeMethods.IsRunningOnUnix()
-        protected static bool IsRunningOnUnix()
-        {
-            // see http://mono-project.com/FAQ%3a_Technical#Mono_Platforms
-            var p = (int)Environment.OSVersion.Platform;
-            return (p == 4) || (p == 6) || (p == 128);
-        }
-
         protected void CreateCorruptedDeadBeefHead(string repoPath)
         {
             const string deadbeef = "deadbeef";

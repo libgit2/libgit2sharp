@@ -52,6 +52,9 @@
     <Compile Include="..\LibGit2Sharp\Core\Epoch.cs">
       <Link>TestHelpers\Epoch.cs</Link>
     </Compile>
+    <Compile Include="..\LibGit2Sharp\Core\Platform.cs">
+      <Link>TestHelpers\Platform.cs</Link>
+    </Compile>
     <Compile Include="BlameFixture.cs" />
     <Compile Include="ArchiveTarFixture.cs" />
     <Compile Include="CheckoutFixture.cs" />
