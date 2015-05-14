@@ -1135,6 +1135,26 @@ namespace LibGit2Sharp.Core
             return NativeMethods.git_index_reuc_get_bypath(index, path);
         }
 
+        public static void git_index_update_all(IndexSafeHandle index, IEnumerable<string> filePaths, NativeMethods.git_index_matched_path_cb callback)
+        {
+            // maybe not?
+            using (ThreadAffinity())
+            {
+                var array = new GitStrArrayManaged();
+
+                try
+                {
+                    array = GitStrArrayManaged.BuildFrom(filePaths.ToArray());
+                    var res = NativeMethods.git_index_update_all(index, ref array.Array, callback, IntPtr.Zero);
+                    Ensure.ZeroResult(res);
+                }
+                finally
+                {
+                    array.Dispose();
+                }
+            }
+        }
+
         public static void git_index_write(IndexSafeHandle index)
         {
             using (ThreadAffinity())

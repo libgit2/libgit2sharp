@@ -612,6 +612,18 @@ namespace LibGit2Sharp.Core
             IndexSafeHandle handle,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictFilePathMarshaler))] FilePath path);
 
+        internal delegate int git_index_matched_path_cb(
+            string path,
+            string matched_pathspec,
+            IntPtr payload);
+
+        [DllImport(libgit2)]
+        internal static extern int git_index_update_all(
+            IndexSafeHandle index,
+            ref GitStrArray pathArray,
+            git_index_matched_path_cb callback,
+            IntPtr payload);
+
         [DllImport(libgit2)]
         internal static extern int git_index_write(IndexSafeHandle index);
 

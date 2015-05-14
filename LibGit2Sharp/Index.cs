@@ -3,8 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
+using System.Linq;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Handles;
+using LibGit2Sharp.Handlers;
 
 namespace LibGit2Sharp
 {
@@ -224,6 +226,80 @@ namespace LibGit2Sharp
             AddEntryToTheIndex(indexEntryPath, blob.Id, indexEntryMode);
 
             UpdatePhysicalIndex();
+        }
+
+        /// <summary>
+        /// Update all files in the index
+        /// </summary>
+        public virtual void Update()
+        {
+            Proxy.git_index_update_all(Handle, new [] { "*" }, null);
+        }
+
+        /// <summary>
+        /// Update files for a given pathspec
+        /// </summary>
+        /// <param name="pathSpec">
+        /// Limit the scope of paths to update to the provided pathspec
+        /// </param>
+        public virtual void Update(string pathSpec)
+        {
+            Update(new[] { pathSpec });
+        }
+
+        /// <summary>
+        /// Update files for a given pathspec
+        /// </summary>
+        /// <param name="options">
+        /// Optional parameters to provide</param>
+        public virtual void Update(IndexUpdateOptions options)
+        {
+            Update(new[] { "*" }, options);
+        }
+
+        /// <summary>
+        /// Update files for a given pathspec
+        /// </summary>
+        /// <param name="pathSpec">
+        /// Limit the scope of paths to update to the provided pathspec
+        /// </param>
+        /// <param name="options">
+        /// Optional parameters to provide</param>
+        public virtual void Update(string pathSpec, IndexUpdateOptions options)
+        {
+            Update(new [] { pathSpec }, options);
+        }
+
+        /// <summary>
+        /// Update files for a given set of pathspecs
+        /// </summary>
+        /// <param name="pathSpecs">
+        /// Limit the scope of paths to update to the provided pathspecs
+        /// </param>
+        public virtual void Update(IEnumerable<string> pathSpecs)
+        {
+            Update(pathSpecs, null);
+        }
+
+        /// <summary>
+        /// Update files for a given set of pathspecs
+        /// </summary>
+        /// <param name="pathSpecs">
+        /// Limit the scope of paths to update to the provided pathspecs
+        /// </param>
+        /// <param name="options"></param>
+        public virtual void Update(IEnumerable<string> pathSpecs, IndexUpdateOptions options)
+        {
+            Ensure.ArgumentNotNullOrEmptyEnumerable(pathSpecs, "pathSpecs");
+
+            if (options == null)
+            {
+                options = new IndexUpdateOptions();
+            }
+
+            var nativeCallback = IndexCallbacks.ToCallback(options.IndexUpdateHandler);
+
+            Proxy.git_index_update_all(Handle, pathSpecs, nativeCallback);
         }
 
         private void UpdatePhysicalIndex()

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using LibGit2Sharp.Handlers;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
 using Xunit.Extensions;
@@ -431,7 +432,7 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
-        public void AddingAnEntryToTheIndexFromAUnknwonFileInTheWorkdirThrows()
+        public void AddingAnEntryToTheIndexFromAUnknownFileInTheWorkdirThrows()
         {
             var path = SandboxStandardTestRepoGitDir();
             using (var repo = new Repository(path))
@@ -479,6 +480,90 @@ namespace LibGit2Sharp.Tests
                 Assert.True(assumeUnchangedFile.AssumeUnchanged);
             }
         }
+
+        [Fact]
+        public void IndexIsUpdatedAfterAddingFile()
+        {
+            const string fileName = "new-file.txt";
+
+            var path = SandboxAssumeUnchangedTestRepo();
+            using (var repo = new Repository(path))
+            {
+                repo.Index.Clear();
+
+                Touch(repo.Info.WorkingDirectory, fileName, "hello test file\n");
+
+                repo.Index.Add(fileName);
+                var first = repo.Index[fileName].Id;
+
+                Touch(repo.Info.WorkingDirectory, fileName, "rewrite the file\n");
+                repo.Index.Update();
+
+                var second = repo.Index[fileName].Id;
+                Assert.NotEqual(first, second);
+            }
+        }
+
+        [Fact]
+        public void CanSpecifyCallbackWhenIsInvokedByUpdating()
+        {
+            const string fileName = "new-file.txt";
+
+            var path = SandboxAssumeUnchangedTestRepo();
+            using (var repo = new Repository(path))
+            {
+                repo.Index.Clear();
+
+                Touch(repo.Info.WorkingDirectory, fileName, "hello test file\n");
+
+                repo.Index.Add(fileName);
+
+                var count = 0;
+                Touch(repo.Info.WorkingDirectory, fileName, "rewrite the file\n");
+
+                var options = new IndexUpdateOptions
+                {
+                    IndexUpdateHandler = (file, pathspec) =>
+                    {
+                        count++;
+                        return 0;
+                    }
+                };
+
+                repo.Index.Update(options);
+
+                Assert.Equal(1, count);
+            }
+        }
+
+        [Fact]
+        public void CanSkipOverUpdatingIndexUsingCallback()
+        {
+            const string fileName = "new-file.txt";
+
+            var path = SandboxAssumeUnchangedTestRepo();
+            using (var repo = new Repository(path))
+            {
+                repo.Index.Clear();
+
+                Touch(repo.Info.WorkingDirectory, fileName, "hello test file\n");
+
+                repo.Index.Add(fileName);
+                var first = repo.Index[fileName].Id;
+
+                Touch(repo.Info.WorkingDirectory, fileName, "rewrite the file\n");
+
+                var options = new IndexUpdateOptions
+                {
+                    IndexUpdateHandler = (file, pathspec) => 1
+                };
+                repo.Index.Update(options);
+
+                var second = repo.Index[fileName].Id;
+                Assert.Equal(first, second);
+            }
+        }
+
 
         private static void AddSomeCornerCases(Repository repo)
         {

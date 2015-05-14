@@ -113,6 +113,16 @@ namespace LibGit2Sharp.Handlers
     public delegate void RemoteRenameFailureHandler(string problematicRefspec);
 
     /// <summary>
+    /// Delegate definition for index updater callback
+    /// </summary>
+    /// <param name="path">Path of the file to be updated.</param>
+    /// <param name="pathSpec">Pathspec which caught the path.</param>
+    /// <returns>
+    /// 0 to update the file, a positive number to skip the file, or a negative number to signal an error
+    /// </returns>
+    public delegate int IndexUpdateHandler(string path, string pathSpec);
+
+    /// <summary>
     /// The stages of pack building.
     /// </summary>
     public enum PackBuilderStage
