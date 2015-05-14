@@ -8,9 +8,11 @@ namespace LibGit2Sharp.Core
     {
         public IntPtr SubtransportCallback;
         public uint Rpc;
+        public IntPtr Param;
 
         public delegate int create_callback(
             out IntPtr subtransport,
-            IntPtr transport);
+            IntPtr transport,
+            IntPtr param);
     }
 }
