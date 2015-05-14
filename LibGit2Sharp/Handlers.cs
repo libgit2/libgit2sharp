@@ -120,7 +120,7 @@ namespace LibGit2Sharp.Handlers
     /// <returns>
     /// 0 to update the file, a positive number to skip the file, or a negative number to signal an error
     /// </returns>
-    public delegate int IndexUpdaterHandler(string path, string pathSpec);
+    public delegate int IndexUpdateHandler(string path, string pathSpec);
 
     /// <summary>
     /// The stages of pack building.

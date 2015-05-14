@@ -9,7 +9,7 @@ namespace LibGit2Sharp
 {
     internal class IndexCallbacks
     {
-        public static NativeMethods.git_index_matched_path_cb ToCallback(IndexUpdaterHandler handler)
+        public static NativeMethods.git_index_matched_path_cb ToCallback(IndexUpdateHandler handler)
         {
             NativeMethods.git_index_matched_path_cb cb = (path, pathSpec, intPtr) =>
             {
@@ -21,5 +21,16 @@ namespace LibGit2Sharp
             };
             return cb;
         }
+    }
+
+    /// <summary>
+    /// Options for updating foo bar baz
+    /// </summary>
+    public class IndexUpdateOptions
+    {
+        /// <summary>
+        /// Callback for matching paths
+        /// </summary>
+        public IndexUpdateHandler IndexUpdateHandler { get; set; }
     }
 }

@@ -520,12 +520,17 @@ namespace LibGit2Sharp.Tests
 
                 var count = 0;
                 Touch(repo.Info.WorkingDirectory, fileName, "rewrite the file\n");
-                IndexUpdaterHandler callback = (file, pathspec) =>
+
+                var options = new IndexUpdateOptions
                 {
-                    count++;
-                    return 0;
+                    IndexUpdateHandler = (file, pathspec) =>
+                    {
+                        count++;
+                        return 0;
+                    }
                 };
-                repo.Index.Update(callback);
+
+                repo.Index.Update(options);
 
                 Assert.Equal(1, count);
             }
@@ -547,8 +552,12 @@ namespace LibGit2Sharp.Tests
                 var first = repo.Index[fileName].Id;
 
                 Touch(repo.Info.WorkingDirectory, fileName, "rewrite the file\n");
-                IndexUpdaterHandler callback = (file, pathspec) => 1;
-                repo.Index.Update(callback);
+
+                var options = new IndexUpdateOptions
+                {
+                    IndexUpdateHandler = (file, pathspec) => 1
+                };
+                repo.Index.Update(options);
 
                 var second = repo.Index[fileName].Id;
                 Assert.Equal(first, second);
