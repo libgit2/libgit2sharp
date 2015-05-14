@@ -334,5 +334,21 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(FileStatus.NewInIndex, repo.RetrieveStatus(path));
             }
         }
+
+        [Theory]
+        [InlineData("new_untracked_file.txt", FileStatus.Ignored)]
+        [InlineData("modified_unstaged_file.txt", FileStatus.ModifiedInIndex)]
+        public void IgnoredFilesAreOnlyStagedIfTheyreInTheRepo(string filename, FileStatus expected)
+        {
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
+            {
+                File.WriteAllText(Path.Combine(repo.Info.WorkingDirectory, ".gitignore"),
+                    String.Format("{0}\n", filename));
+
+                repo.Stage(filename);
+                Assert.Equal(expected, repo.RetrieveStatus(filename));
+            }
+        }
     }
 }
