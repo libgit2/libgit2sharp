@@ -143,6 +143,7 @@
     <Compile Include="RenameDetails.cs" />
     <Compile Include="RevertResult.cs" />
     <Compile Include="RevertOptions.cs" />
+    <Compile Include="SecureUsernamePasswordCredentials.cs" />
     <Compile Include="StageOptions.cs" />
     <Compile Include="StatusOptions.cs" />
     <Compile Include="SimilarityOptions.cs" />

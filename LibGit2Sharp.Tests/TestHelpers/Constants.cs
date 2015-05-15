@@ -22,6 +22,9 @@ namespace LibGit2Sharp.Tests.TestHelpers
         // ... return new UsernamePasswordCredentials { Username = "username", Password = "swordfish" };
         //
         // Or:
+        // ... return new SecureUsernamePasswordCredentials() { Username = "username", Password = StringToSecureString("swordfish") };
+        //
+        // Or:
         // public const string PrivateRepoUrl = "https://tfs.contoso.com/tfs/DefaultCollection/project/_git/project";
         // ... return new DefaultCredentials();
 
@@ -67,6 +70,22 @@ namespace LibGit2Sharp.Tests.TestHelpers
             string testWorkingDirectory = Path.Combine(tempPath, "LibGit2Sharp-TestRepos");
             Trace.TraceInformation("Test working directory set to '{0}'", testWorkingDirectory);
             return testWorkingDirectory;
+        }
+
+        // To help with creating secure strings to test with.
+        private static System.Security.SecureString StringToSecureString(string str)
+        {
+            var chars = str.ToCharArray();
+
+            var secure = new System.Security.SecureString();
+            for (var i = 0; i < chars.Length; i++)
+            {
+                secure.AppendChar(chars[i]);
+            }
+
+            secure.MakeReadOnly();
+
+            return secure;
         }
     }
 }
