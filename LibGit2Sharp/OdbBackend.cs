@@ -440,12 +440,10 @@ namespace LibGit2Sharp
             private static int WriteStream(
                 out IntPtr stream_out,
                 IntPtr backend,
-                UIntPtr len,
+                long len,
                 GitObjectType type)
             {
                 stream_out = IntPtr.Zero;
-
-                long length = ConverToLong(len);
 
                 OdbBackend odbBackend = MarshalOdbBackend(backend);
                 if (odbBackend == null)
@@ -458,7 +456,7 @@ namespace LibGit2Sharp
                 try
                 {
                     OdbBackendStream stream;
-                    int toReturn = odbBackend.WriteStream(length, objectType, out stream);
+                    int toReturn = odbBackend.WriteStream(len, objectType, out stream);
 
                     if (toReturn == 0)
                     {

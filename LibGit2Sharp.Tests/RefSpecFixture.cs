@@ -183,7 +183,7 @@ namespace LibGit2Sharp.Tests
                 var remote = repo.Network.Remotes["origin"];
                 var oldRefSpecs = remote.RefSpecs.Select(r => r.Specification).ToList();
 
-                Assert.Throws<LibGit2SharpException>(() =>
+                Assert.Throws<InvalidSpecificationException>(() =>
                     repo.Network.Remotes.Update(remote, r => r.FetchRefSpecs.Add(refSpec)));
 
                 var newRemote = repo.Network.Remotes["origin"];

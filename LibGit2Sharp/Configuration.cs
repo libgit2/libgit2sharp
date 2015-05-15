@@ -151,6 +151,16 @@ namespace LibGit2Sharp
             }
         }
 
+        internal void UnsetMultivar(string key, ConfigurationLevel level)
+        {
+            Ensure.ArgumentNotNullOrEmptyString(key, "key");
+
+            using (ConfigurationSafeHandle h = RetrieveConfigurationHandle(level, true, configHandle))
+            {
+                Proxy.git_config_delete_multivar(h, key);
+            }
+        }
+
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>

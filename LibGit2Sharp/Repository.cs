@@ -628,7 +628,7 @@ namespace LibGit2Sharp
                     Version = 1,
                     Bare = options.IsBare ? 1 : 0,
                     CheckoutOpts = gitCheckoutOptions,
-                    RemoteCallbacks = gitRemoteCallbacks,
+                    FetchOpts = new GitFetchOptions { RemoteCallbacks = gitRemoteCallbacks },
                 };
 
                 string clonedRepoPath;

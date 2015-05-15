@@ -131,10 +131,10 @@ namespace LibGit2Sharp
         private class Processor
         {
             private readonly Stream stream;
-            private readonly int? numberOfBytesToConsume;
+            private readonly long? numberOfBytesToConsume;
             private int totalNumberOfReadBytes;
 
-            public Processor(Stream stream, int? numberOfBytesToConsume)
+            public Processor(Stream stream, long? numberOfBytesToConsume)
             {
                 this.stream = stream;
                 this.numberOfBytesToConsume = numberOfBytesToConsume;
@@ -148,11 +148,11 @@ namespace LibGit2Sharp
 
                 if (numberOfBytesToConsume.HasValue)
                 {
-                    int totalRemainingBytesToRead = numberOfBytesToConsume.Value - totalNumberOfReadBytes;
+                    long totalRemainingBytesToRead = numberOfBytesToConsume.Value - totalNumberOfReadBytes;
 
                     if (totalRemainingBytesToRead < max_length)
                     {
-                        bytesToRead = totalRemainingBytesToRead;
+                        bytesToRead = totalRemainingBytesToRead > int.MaxValue ? int.MaxValue : (int)totalRemainingBytesToRead;
                     }
                 }
 
@@ -208,12 +208,12 @@ namespace LibGit2Sharp
         /// <param name="hintpath">The hintpath is used to determine what git filters should be applied to the object before it can be placed to the object database.</param>
         /// <param name="numberOfBytesToConsume">The number of bytes to consume from the stream.</param>
         /// <returns>The created <see cref="Blob"/>.</returns>
-        public virtual Blob CreateBlob(Stream stream, string hintpath, int numberOfBytesToConsume)
+        public virtual Blob CreateBlob(Stream stream, string hintpath, long numberOfBytesToConsume)
         {
-            return CreateBlob(stream, hintpath, (int?)numberOfBytesToConsume);
+            return CreateBlob(stream, hintpath, (long?)numberOfBytesToConsume);
         }
 
-        internal Blob CreateBlob(Stream stream, string hintpath, int? numberOfBytesToConsume)
+        private Blob CreateBlob(Stream stream, string hintpath, long? numberOfBytesToConsume)
         {
             Ensure.ArgumentNotNull(stream, "stream");
 
@@ -240,7 +240,7 @@ namespace LibGit2Sharp
         /// <param name="stream">The stream from which will be read the content of the blob to be created.</param>
         /// <param name="numberOfBytesToConsume">Number of bytes to consume from the stream.</param>
         /// <returns>The created <see cref="Blob"/>.</returns>
-        public virtual Blob CreateBlob(Stream stream, int numberOfBytesToConsume)
+        public virtual Blob CreateBlob(Stream stream, long numberOfBytesToConsume)
         {
             Ensure.ArgumentNotNull(stream, "stream");
 
@@ -249,15 +249,15 @@ namespace LibGit2Sharp
                 throw new ArgumentException("The stream cannot be read from.", "stream");
             }
 
-            using (var odbStream = Proxy.git_odb_open_wstream(handle, (UIntPtr)numberOfBytesToConsume, GitObjectType.Blob))
+            using (var odbStream = Proxy.git_odb_open_wstream(handle, numberOfBytesToConsume, GitObjectType.Blob))
             {
                 var buffer = new byte[4*1024];
-                int totalRead = 0;
+                long totalRead = 0;
 
                 while (totalRead < numberOfBytesToConsume)
                 {
-                    var left = numberOfBytesToConsume - totalRead;
-                    var toRead = left < buffer.Length ? left : buffer.Length;
+                    long left = numberOfBytesToConsume - totalRead;
+                    int toRead = left < buffer.Length ? (int)left : buffer.Length;
                     var read = stream.Read(buffer, 0, toRead);
 
                     if (read == 0)

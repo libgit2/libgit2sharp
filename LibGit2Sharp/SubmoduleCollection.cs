@@ -107,7 +107,7 @@ namespace LibGit2Sharp
                     {
                         Version = 1,
                         CheckoutOptions = gitCheckoutOptions,
-                        RemoteCallbacks = gitRemoteCallbacks,
+                        FetchOptions = new GitFetchOptions { RemoteCallbacks = gitRemoteCallbacks },
                         CloneCheckoutStrategy = CheckoutStrategy.GIT_CHECKOUT_SAFE
                     };
 

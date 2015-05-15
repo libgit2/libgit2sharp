@@ -31,6 +31,11 @@ namespace LibGit2Sharp.Core
         /// Flags for automerging content.
         /// </summary>
         public MergeFileFavor MergeFileFavorFlags;
+
+        /// <summary>
+        /// File merging flags.
+        /// </summary>
+        public GitMergeFileFlags FileFlags;
     }
 
     /// <summary>
@@ -63,11 +68,11 @@ namespace LibGit2Sharp.Core
         /// </summary>
         GIT_MERGE_ANALYSIS_FASTFORWARD = (1 << 2),
 
-        /**
-         * The HEAD of the current repository is "unborn" and does not point to
-         * a valid commit.  No merge can be performed, but the caller may wish
-         * to simply set HEAD to the target commit(s).
-         */
+        /// <summary>
+        /// The HEAD of the current repository is "unborn" and does not point to
+        /// a valid commit.  No merge can be performed, but the caller may wish
+        /// to simply set HEAD to the target commit(s).
+        /// </summary>
         GIT_MERGE_ANALYSIS_UNBORN = (1 << 3),
     }
 
@@ -104,5 +109,54 @@ namespace LibGit2Sharp.Core
         /// GIT_MERGE_TREE_FIND_RENAMES in libgit2
         /// </summary>
         GIT_MERGE_TREE_FIND_RENAMES = (1 << 0),
+    }
+
+    [Flags]
+    internal enum GitMergeFileFlags
+    {
+        /// <summary>
+        /// Defaults
+        /// </summary>
+        GIT_MERGE_FILE_DEFAULT = 0,
+
+        /// <summary>
+        /// Create standard conflicted merge files
+        /// </summary>
+        GIT_MERGE_FILE_STYLE_MERGE = (1 << 0),
+
+        /// <summary>
+        /// Create diff3-style files
+        /// </summary>
+        GIT_MERGE_FILE_STYLE_DIFF3 = (1 << 1),
+
+        /// <summary>
+        /// Condense non-alphanumeric regions for simplified diff file
+        /// </summary>
+        GIT_MERGE_FILE_SIMPLIFY_ALNUM = (1 << 2),
+
+        /// <summary>
+        /// Ignore all whitespace
+        /// </summary>
+        GIT_MERGE_FILE_IGNORE_WHITESPACE = (1 << 3),
+
+        /// <summary>
+        /// Ignore changes in amount of whitespace
+        /// </summary>
+        GIT_MERGE_FILE_IGNORE_WHITESPACE_CHANGE = (1 << 4),
+
+        /// <summary>
+        /// Ignore whitespace at end of line
+        /// </summary>
+        GIT_MERGE_FILE_IGNORE_WHITESPACE_EOL = (1 << 5),
+
+        /// <summary>
+        /// Use the "patience diff" algorithm
+        /// </summary>
+        GIT_MERGE_FILE_DIFF_PATIENCE = (1 << 6),
+
+        /// <summary>
+        /// Take extra time to find minimal diff
+        /// </summary>
+        GIT_MERGE_FILE_DIFF_MINIMAL = (1 << 7),
     }
 }

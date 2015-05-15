@@ -158,6 +158,7 @@ namespace LibGit2Sharp.Core
         public GitStrArray paths;
 
         public IntPtr baseline;
+        public IntPtr baseline_index;
         public IntPtr target_directory;
 
         public IntPtr ancestor_label;

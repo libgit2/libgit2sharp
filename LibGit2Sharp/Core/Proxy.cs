@@ -472,6 +472,24 @@ namespace LibGit2Sharp.Core
             }
         }
 
+        const string anyValue = ".*";
+
+        public static bool git_config_delete_multivar(ConfigurationSafeHandle config, string name)
+        {
+            using (ThreadAffinity())
+            {
+                int res = NativeMethods.git_config_delete_multivar(config, name, anyValue);
+
+                if (res == (int)GitErrorCode.NotFound)
+                {
+                    return false;
+                }
+
+                Ensure.ZeroResult(res);
+                return true;
+            }
+        }
+
         public static FilePath git_config_find_global()
         {
             return ConvertPath(NativeMethods.git_config_find_global);
@@ -1399,12 +1417,12 @@ namespace LibGit2Sharp.Core
         public static string git_note_default_ref(RepositorySafeHandle repo)
         {
             using (ThreadAffinity())
+            using (var buf = new GitBuf())
             {
-                string notes_ref;
-                int res = NativeMethods.git_note_default_ref(out notes_ref, repo);
+                int res = NativeMethods.git_note_default_ref(buf, repo);
                 Ensure.ZeroResult(res);
 
-                return notes_ref;
+                return LaxUtf8Marshaler.FromNative(buf.ptr);
             }
         }
 
@@ -1609,7 +1627,7 @@ namespace LibGit2Sharp.Core
                     IntPtr.Zero));
         }
 
-        public static OdbStreamSafeHandle git_odb_open_wstream(ObjectDatabaseSafeHandle odb, UIntPtr size, GitObjectType type)
+        public static OdbStreamSafeHandle git_odb_open_wstream(ObjectDatabaseSafeHandle odb, long size, GitObjectType type)
         {
             using (ThreadAffinity())
             {
@@ -1996,23 +2014,23 @@ namespace LibGit2Sharp.Core
             }
         }
 
-        public static RemoteSafeHandle git_remote_create_anonymous(RepositorySafeHandle repo, string url, string refspec)
+        public static RemoteSafeHandle git_remote_create_anonymous(RepositorySafeHandle repo, string url)
         {
             using (ThreadAffinity())
             {
                 RemoteSafeHandle handle;
-                int res = NativeMethods.git_remote_create_anonymous(out handle, repo, url, refspec);
+                int res = NativeMethods.git_remote_create_anonymous(out handle, repo, url);
                 Ensure.ZeroResult(res);
 
                 return handle;
             }
         }
 
-        public static void git_remote_connect(RemoteSafeHandle remote, GitDirection direction)
+        public static void git_remote_connect(RemoteSafeHandle remote, GitDirection direction, ref GitRemoteCallbacks remoteCallbacks)
         {
             using (ThreadAffinity())
             {
-                int res = NativeMethods.git_remote_connect(remote, direction);
+                int res = NativeMethods.git_remote_connect(remote, direction, ref remoteCallbacks);
                 Ensure.ZeroResult(res);
             }
         }
@@ -2102,7 +2120,45 @@ namespace LibGit2Sharp.Core
             }
         }
 
-        public static void git_remote_set_fetch_refspecs(RemoteSafeHandle remote, IEnumerable<string> refSpecs)
+        public static void git_remote_set_url(RepositorySafeHandle repo, string remote, string url)
+        {
+            using (ThreadAffinity())
+            {
+                int res = NativeMethods.git_remote_set_url(repo, remote, url);
+                Ensure.ZeroResult(res);
+            }
+        }
+
+        public static void git_remote_add_fetch(RepositorySafeHandle repo, string remote, string url)
+        {
+            using (ThreadAffinity())
+            {
+                int res = NativeMethods.git_remote_add_fetch(repo, remote, url);
+                Ensure.ZeroResult(res);
+            }
+        }
+
+        public static void git_remote_set_pushurl(RepositorySafeHandle repo, string remote, string url)
+        {
+            using (ThreadAffinity())
+            {
+                int res = NativeMethods.git_remote_set_pushurl(repo, remote, url);
+                Ensure.ZeroResult(res);
+            }
+        }
+
+        public static void git_remote_add_push(RepositorySafeHandle repo, string remote, string url)
+        {
+            using (ThreadAffinity())
+            {
+                int res = NativeMethods.git_remote_add_push(repo, remote, url);
+                Ensure.ZeroResult(res);
+            }
+        }
+
+        public static void git_remote_fetch(
+            RemoteSafeHandle remote, IEnumerable<string> refSpecs,
+            GitFetchOptions fetchOptions, string logMessage)
         {
             using (ThreadAffinity())
             {
@@ -2112,63 +2168,7 @@ namespace LibGit2Sharp.Core
                 {
                     array = GitStrArrayManaged.BuildFrom(refSpecs.ToArray());
 
-                    int res = NativeMethods.git_remote_set_fetch_refspecs(remote, ref array.Array);
-                    Ensure.ZeroResult(res);
-                }
-                finally
-                {
-                    array.Dispose();
-                }
-            }
-        }
-
-        public static void git_remote_set_push_refspecs(RemoteSafeHandle remote, IEnumerable<string> refSpecs)
-        {
-            using (ThreadAffinity())
-            {
-                var array = new GitStrArrayManaged();
-
-                try
-                {
-                    array = GitStrArrayManaged.BuildFrom(refSpecs.ToArray());
-
-                    int res = NativeMethods.git_remote_set_push_refspecs(remote, ref array.Array);
-                    Ensure.ZeroResult(res);
-                }
-                finally
-                {
-                    array.Dispose();
-                }
-            }
-        }
-
-        public static void git_remote_set_url(RemoteSafeHandle remote, string url)
-        {
-            using (ThreadAffinity())
-            {
-                int res = NativeMethods.git_remote_set_url(remote, url);
-                Ensure.ZeroResult(res);
-            }
-        }
-
-        public static void git_remote_set_pushurl(RemoteSafeHandle remote, string url)
-        {
-            using (ThreadAffinity())
-            {
-                int res = NativeMethods.git_remote_set_pushurl(remote, url);
-                Ensure.ZeroResult(res);
-            }
-        }
-
-        public static void git_remote_fetch(RemoteSafeHandle remote, string logMessage)
-        {
-            using (ThreadAffinity())
-            {
-                var array = new GitStrArrayNative();
-
-                try
-                {
-                    int res = NativeMethods.git_remote_fetch(remote, ref array.Array, logMessage);
+                    int res = NativeMethods.git_remote_fetch(remote, ref array.Array, fetchOptions, logMessage);
                     Ensure.ZeroResult(res);
                 }
                 finally
@@ -2313,27 +2313,9 @@ namespace LibGit2Sharp.Core
             }
         }
 
-        public static void git_remote_save(RemoteSafeHandle remote)
+        public static void git_remote_set_autotag(RepositorySafeHandle repo, string remote, TagFetchMode value)
         {
-            using (ThreadAffinity())
-            {
-                int res = NativeMethods.git_remote_save(remote);
-                Ensure.ZeroResult(res);
-            }
-        }
-
-        public static void git_remote_set_autotag(RemoteSafeHandle remote, TagFetchMode value)
-        {
-            NativeMethods.git_remote_set_autotag(remote, value);
-        }
-
-        public static void git_remote_set_callbacks(RemoteSafeHandle remote, ref GitRemoteCallbacks callbacks)
-        {
-            using (ThreadAffinity())
-            {
-                int res = NativeMethods.git_remote_set_callbacks(remote, ref callbacks);
-                Ensure.ZeroResult(res);
-            }
+            NativeMethods.git_remote_set_autotag(repo, remote, value);
         }
 
         public static string git_remote_url(RemoteSafeHandle remote)
