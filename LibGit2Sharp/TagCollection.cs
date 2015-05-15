@@ -76,9 +76,22 @@ namespace LibGit2Sharp
         /// <param name="target">The target <see cref="GitObject"/>.</param>
         /// <param name="tagger">The tagger.</param>
         /// <param name="message">The message.</param>
+        /// <returns>The added <see cref="Tag"/>.</returns>
+        public virtual Tag Add(string name, GitObject target, Signature tagger, string message)
+        {
+            return Add(name, target, tagger, message, false);
+        }
+
+        /// <summary>
+        /// Creates an annotated tag with the specified name.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="target">The target <see cref="GitObject"/>.</param>
+        /// <param name="tagger">The tagger.</param>
+        /// <param name="message">The message.</param>
         /// <param name="allowOverwrite">True to allow silent overwriting a potentially existing tag, false otherwise.</param>
         /// <returns>The added <see cref="Tag"/>.</returns>
-        public virtual Tag Add(string name, GitObject target, Signature tagger, string message, bool allowOverwrite = false)
+        public virtual Tag Add(string name, GitObject target, Signature tagger, string message, bool allowOverwrite)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
             Ensure.ArgumentNotNull(target, "target");
@@ -97,9 +110,20 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="name">The name.</param>
         /// <param name="target">The target <see cref="GitObject"/>.</param>
+        /// <returns>The added <see cref="Tag"/>.</returns>
+        public virtual Tag Add(string name, GitObject target)
+        {
+            return Add(name, target, false);
+        }
+
+        /// <summary>
+        /// Creates a lightweight tag with the specified name.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="target">The target <see cref="GitObject"/>.</param>
         /// <param name="allowOverwrite">True to allow silent overwriting a potentially existing tag, false otherwise.</param>
         /// <returns>The added <see cref="Tag"/>.</returns>
-        public virtual Tag Add(string name, GitObject target, bool allowOverwrite = false)
+        public virtual Tag Add(string name, GitObject target, bool allowOverwrite)
         {
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
             Ensure.ArgumentNotNull(target, "target");

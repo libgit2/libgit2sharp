@@ -299,5 +299,59 @@ namespace LibGit2Sharp.Tests
                 Assert.True(false, Environment.NewLine + sb.ToString());
             }
         }
+
+        [Fact]
+        public void NoOptionalParametersinMethods()
+        {
+            IEnumerable<string> mis =
+                from t in Assembly.GetAssembly(typeof(IRepository))
+                    .GetExportedTypes()
+                from m in t.GetMethods()
+                where !m.IsObsolete()
+                from p in m.GetParameters()
+                where p.IsOptional
+                select m.DeclaringType + "." + m.Name;
+
+            var sb = new StringBuilder();
+
+            foreach (var method in mis.Distinct())
+            {
+                sb.AppendFormat("At least one overload of method '{0}' accepts an optional parameter.{1}",
+                    method, Environment.NewLine);
+            }
+
+            Assert.Equal("", sb.ToString());
+        }
+
+        [Fact]
+        public void NoOptionalParametersinConstructors()
+        {
+            IEnumerable<string> mis =
+                from t in Assembly.GetAssembly(typeof(IRepository))
+                    .GetExportedTypes()
+                from c in t.GetConstructors()
+                from p in c.GetParameters()
+                where p.IsOptional
+                select c.DeclaringType.Name;
+
+            var sb = new StringBuilder();
+
+            foreach (var method in mis.Distinct())
+            {
+                sb.AppendFormat("At least one constructor of type '{0}' accepts an optional parameter.{1}",
+                    method, Environment.NewLine);
+            }
+
+            Assert.Equal("", sb.ToString());
+        }
+    }
+
+    internal static class TypeExtensions
+    {
+        internal static bool IsObsolete(this MethodInfo methodInfo)
+        {
+            var attributes = methodInfo.GetCustomAttributes(false);
+            return attributes.Any(a => a is ObsoleteAttribute);
+        }
     }
 }

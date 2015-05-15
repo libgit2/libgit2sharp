@@ -256,7 +256,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void SettingLocalConfigurationOutsideAReposThrows()
         {
-            using (var config = new Configuration())
+            using (var config = new Configuration(null, null, null))
             {
                 Assert.Throws<LibGit2SharpException>(() => config.Set("unittests.intsetting", 3));
             }

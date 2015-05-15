@@ -75,7 +75,7 @@ namespace LibGit2Sharp
         /// <summary>
         /// Retrieves the header of a GitObject from the object database. The header contains the Size
         /// and Type of the object. Note that most backends do not support reading only the header
-        /// of an object, so the whole object will be read and then size would be returned.  
+        /// of an object, so the whole object will be read and then size would be returned.
         /// </summary>
         /// <param name="objectId">Object Id of the queried object</param>
         /// <returns>GitObjectMetadata object instance containg object header information</returns>
@@ -182,10 +182,38 @@ namespace LibGit2Sharp
         /// <para>Optionally, git filters will be applied to the content before storing it.</para>
         /// </summary>
         /// <param name="stream">The stream from which will be read the content of the blob to be created.</param>
+        /// <returns>The created <see cref="Blob"/>.</returns>
+        public virtual Blob CreateBlob(Stream stream)
+        {
+            return CreateBlob(stream, null, null);
+        }
+
+        /// <summary>
+        /// Inserts a <see cref="Blob"/> into the object database, created from the content of a stream.
+        /// <para>Optionally, git filters will be applied to the content before storing it.</para>
+        /// </summary>
+        /// <param name="stream">The stream from which will be read the content of the blob to be created.</param>
+        /// <param name="hintpath">The hintpath is used to determine what git filters should be applied to the object before it can be placed to the object database.</param>
+        /// <returns>The created <see cref="Blob"/>.</returns>
+        public virtual Blob CreateBlob(Stream stream, string hintpath)
+        {
+            return CreateBlob(stream, hintpath, null);
+        }
+
+        /// <summary>
+        /// Inserts a <see cref="Blob"/> into the object database, created from the content of a stream.
+        /// <para>Optionally, git filters will be applied to the content before storing it.</para>
+        /// </summary>
+        /// <param name="stream">The stream from which will be read the content of the blob to be created.</param>
         /// <param name="hintpath">The hintpath is used to determine what git filters should be applied to the object before it can be placed to the object database.</param>
         /// <param name="numberOfBytesToConsume">The number of bytes to consume from the stream.</param>
         /// <returns>The created <see cref="Blob"/>.</returns>
-        public virtual Blob CreateBlob(Stream stream, string hintpath = null, int? numberOfBytesToConsume = null)
+        public virtual Blob CreateBlob(Stream stream, string hintpath, int numberOfBytesToConsume)
+        {
+            return CreateBlob(stream, hintpath, (int?)numberOfBytesToConsume);
+        }
+
+        internal Blob CreateBlob(Stream stream, string hintpath, int? numberOfBytesToConsume)
         {
             Ensure.ArgumentNotNull(stream, "stream");
 
@@ -295,9 +323,32 @@ namespace LibGit2Sharp
         /// <param name="tree">The <see cref="Tree"/> of the <see cref="Commit"/> to be created.</param>
         /// <param name="parents">The parents of the <see cref="Commit"/> to be created.</param>
         /// <param name="prettifyMessage">True to prettify the message, or false to leave it as is.</param>
-        /// <param name="commentChar">Character that lines start with to be stripped if prettifyMessage is true.</param>
         /// <returns>The created <see cref="Commit"/>.</returns>
-        public virtual Commit CreateCommit(Signature author, Signature committer, string message, Tree tree, IEnumerable<Commit> parents, bool prettifyMessage, char? commentChar = null)
+        public virtual Commit CreateCommit(Signature author, Signature committer, string message, Tree tree, IEnumerable<Commit> parents, bool prettifyMessage)
+        {
+            return CreateCommit(author, committer, message, tree, parents, prettifyMessage, null);
+        }
+
+        /// <summary>
+        /// Inserts a <see cref="Commit"/> into the object database, referencing an existing <see cref="Tree"/>.
+        /// <para>
+        /// Prettifing the message includes:
+        /// * Removing empty lines from the beginning and end.
+        /// * Removing trailing spaces from every line.
+        /// * Turning multiple consecutive empty lines between paragraphs into just one empty line.
+        /// * Ensuring the commit message ends with a newline.
+        /// * Removing every line starting with the <paramref name="commentChar"/>.
+        /// </para>
+        /// </summary>
+        /// <param name="author">The <see cref="Signature"/> of who made the change.</param>
+        /// <param name="committer">The <see cref="Signature"/> of who added the change to the repository.</param>
+        /// <param name="message">The description of why a change was made to the repository.</param>
+        /// <param name="tree">The <see cref="Tree"/> of the <see cref="Commit"/> to be created.</param>
+        /// <param name="parents">The parents of the <see cref="Commit"/> to be created.</param>
+        /// <param name="prettifyMessage">True to prettify the message, or false to leave it as is.</param>
+        /// <param name="commentChar">When non null, lines starting with this character will be stripped if prettifyMessage is true.</param>
+        /// <returns>The created <see cref="Commit"/>.</returns>
+        public virtual Commit CreateCommit(Signature author, Signature committer, string message, Tree tree, IEnumerable<Commit> parents, bool prettifyMessage, char? commentChar)
         {
             Ensure.ArgumentNotNull(message, "message");
             Ensure.ArgumentDoesNotContainZeroByte(message, "message");
@@ -387,11 +438,23 @@ namespace LibGit2Sharp
         /// string representation for a <see cref="GitObject"/>.
         /// </summary>
         /// <param name="gitObject">The <see cref="GitObject"/> which identifier should be shortened.</param>
+        /// <returns>A short string representation of the <see cref="ObjectId"/>.</returns>
+        public virtual string ShortenObjectId(GitObject gitObject)
+        {
+            var shortSha = Proxy.git_object_short_id(repo.Handle, gitObject.Id);
+            return shortSha;
+        }
+
+        /// <summary>
+        /// Calculates the current shortest abbreviated <see cref="ObjectId"/>
+        /// string representation for a <see cref="GitObject"/>.
+        /// </summary>
+        /// <param name="gitObject">The <see cref="GitObject"/> which identifier should be shortened.</param>
         /// <param name="minLength">Minimum length of the shortened representation.</param>
         /// <returns>A short string representation of the <see cref="ObjectId"/>.</returns>
-        public virtual string ShortenObjectId(GitObject gitObject, int? minLength = null)
+        public virtual string ShortenObjectId(GitObject gitObject, int minLength)
         {
-            if (minLength.HasValue && (minLength <= 0 || minLength > ObjectId.HexSize))
+            if (minLength <= 0 || minLength > ObjectId.HexSize)
             {
                 throw new ArgumentOutOfRangeException("minLength", minLength,
                     string.Format("Expected value should be greater than zero and less than or equal to {0}.", ObjectId.HexSize));
@@ -399,12 +462,12 @@ namespace LibGit2Sharp
 
             string shortSha = Proxy.git_object_short_id(repo.Handle, gitObject.Id);
 
-            if (minLength == null || (minLength <= shortSha.Length))
+            if (minLength <= shortSha.Length)
             {
                 return shortSha;
             }
 
-            return gitObject.Sha.Substring(0, minLength.Value);
+            return gitObject.Sha.Substring(0, minLength);
         }
 
         /// <summary>
