@@ -272,7 +272,9 @@ namespace LibGit2Sharp.Core
         internal static extern OidSafeHandle git_commit_tree_id(GitObjectSafeHandle commit);
 
         [DllImport(libgit2)]
-        internal static extern int git_config_delete_entry(ConfigurationSafeHandle cfg, string name);
+        internal static extern int git_config_delete_entry(
+            ConfigurationSafeHandle cfg,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof (StrictUtf8Marshaler))] string name);
 
         [DllImport(libgit2)]
         internal static extern int git_config_find_global(GitBuf global_config_path);
