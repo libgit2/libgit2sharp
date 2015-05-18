@@ -98,7 +98,7 @@ namespace LibGit2Sharp
         public virtual SubmoduleUpdate UpdateRule { get { return updateRule.Value; } }
 
         /// <summary>
-        /// Retrieves the state of this submodule in the working directory compared to the staging area and the latest commmit.
+        /// Retrieves the state of this submodule in the working directory compared to the staging area and the latest commit.
         /// </summary>
         /// <returns>The <see cref="SubmoduleStatus"/> of this submodule.</returns>
         public virtual SubmoduleStatus RetrieveStatus()
