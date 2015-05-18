@@ -774,7 +774,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Retrieves the state of all files in the working directory, comparing them against the staging area and the latest commmit.
+        /// Retrieves the state of all files in the working directory, comparing them against the staging area and the latest commit.
         /// </summary>
         /// <returns>A <see cref="RepositoryStatus"/> holding the state of all the files.</returns>
         /// <param name="repository">The <see cref="IRepository"/> being worked with.</param>
