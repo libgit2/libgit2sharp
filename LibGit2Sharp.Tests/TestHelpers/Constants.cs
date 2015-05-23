@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Reflection;
+using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp.Tests.TestHelpers
 {
@@ -30,6 +32,15 @@ namespace LibGit2Sharp.Tests.TestHelpers
 
         public const string PrivateRepoUrl = "";
 
+        public static bool IsRunningOnUnix
+        {
+            get
+            {
+                return Platform.OperatingSystem == OperatingSystemType.MacOSX ||
+                       Platform.OperatingSystem == OperatingSystemType.Unix;
+            }
+        }
+
         public static Credentials PrivateRepoCredentials(string url, string usernameFromUrl,
                                                          SupportedCredentialTypes types)
         {
@@ -40,19 +51,15 @@ namespace LibGit2Sharp.Tests.TestHelpers
         {
             string tempPath = null;
 
-            var unixPath = Type.GetType("Mono.Unix.UnixPath, Mono.Posix, Version=2.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756");
-
-            if (unixPath != null)
+            if (IsRunningOnUnix)
             {
                 // We're running on Mono/*nix. Let's unwrap the path
-                tempPath = (string)unixPath.InvokeMember("GetCompleteRealPath",
-                    System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.FlattenHierarchy |
-                    System.Reflection.BindingFlags.InvokeMethod | System.Reflection.BindingFlags.Public,
-                    null, unixPath, new object[] { Path.GetTempPath() });
+                tempPath = UnwrapUnixTempPath();
             }
             else
             {
                 const string LibGit2TestPath = "LibGit2TestPath";
+
                 // We're running on .Net/Windows
                 if (Environment.GetEnvironmentVariables().Contains(LibGit2TestPath))
                 {
@@ -70,6 +77,16 @@ namespace LibGit2Sharp.Tests.TestHelpers
             string testWorkingDirectory = Path.Combine(tempPath, "LibGit2Sharp-TestRepos");
             Trace.TraceInformation("Test working directory set to '{0}'", testWorkingDirectory);
             return testWorkingDirectory;
+        }
+
+        private static string UnwrapUnixTempPath()
+        {
+            var type = Type.GetType("Mono.Unix.UnixPath, Mono.Posix, Version=2.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756");
+
+            return (string)type.InvokeMember("GetCompleteRealPath",
+                BindingFlags.Static | BindingFlags.FlattenHierarchy |
+                BindingFlags.InvokeMethod | BindingFlags.Public,
+                null, type, new object[] { Path.GetTempPath() });
         }
 
         // To help with creating secure strings to test with.
