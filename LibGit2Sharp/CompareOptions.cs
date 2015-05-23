@@ -1,3 +1,5 @@
+using System;
+
 namespace LibGit2Sharp
 {
     /// <summary>
@@ -12,6 +14,7 @@ namespace LibGit2Sharp
         {
             ContextLines = 3;
             InterhunkLines = 0;
+            Algorithm = DiffAlgorithm.Meyers;
         }
 
         /// <summary>
@@ -39,6 +42,13 @@ namespace LibGit2Sharp
         /// <summary>
         /// Use the "patience diff" algorithm.
         /// </summary>
+        [Obsolete("This property will be removed in the next release. Please use Algorithm instead.")]
         public bool UsePatienceAlgorithm { get; set; }
+
+        /// <summary>
+        /// Algorithm to be used when performing a Diff.
+        /// By default, <see cref="DiffAlgorithm.Meyers"/> will be used.
+        /// </summary>
+        public DiffAlgorithm Algorithm { get; set; }
     }
 }

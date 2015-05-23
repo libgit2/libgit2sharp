@@ -1200,7 +1200,7 @@ namespace LibGit2Sharp.Tests
 
                 Assert.Equal(diffDefault, repo.Diff.Compare<Patch>(treeOld, treeNew));
                 Assert.Equal(diffPatience, repo.Diff.Compare<Patch>(treeOld, treeNew,
-                    compareOptions: new CompareOptions { UsePatienceAlgorithm = true }));
+                    compareOptions: new CompareOptions { Algorithm = DiffAlgorithm.Patience }));
             }
         }
     }
