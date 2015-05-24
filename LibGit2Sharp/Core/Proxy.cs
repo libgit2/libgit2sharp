@@ -2032,14 +2032,6 @@ namespace LibGit2Sharp.Core
             }
         }
 
-        public static void git_remote_disconnect(RemoteSafeHandle remote)
-        {
-            using (ThreadAffinity())
-            {
-                NativeMethods.git_remote_disconnect(remote);
-            }
-        }
-
         public static GitRefSpecHandle git_remote_get_refspec(RemoteSafeHandle remote, int n)
         {
             return NativeMethods.git_remote_get_refspec(remote, (UIntPtr)n);
