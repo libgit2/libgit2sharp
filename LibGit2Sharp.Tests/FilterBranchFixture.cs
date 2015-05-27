@@ -162,7 +162,8 @@ namespace LibGit2Sharp.Tests
 
             AssertSucceedingButNotError();
 
-            var nonBackedUpRefs = repo.Refs.Where(x => !x.CanonicalName.StartsWith("refs/original"));
+            var nonBackedUpRefs = repo.Refs.Where(
+                x => !x.CanonicalName.StartsWith("refs/original/") && !x.CanonicalName.StartsWith("refs/notes/"));
             Assert.Empty(repo.Commits.QueryBy(new CommitFilter { Since = nonBackedUpRefs })
                              .Where(c => c.Author.Name != "Ben Straub"));
         }
@@ -799,6 +800,26 @@ namespace LibGit2Sharp.Tests
             Reference backedUpTag = repo.Refs["refs/original/tags/lightweightA"];
             Assert.NotNull(backedUpTag);
             Assert.Equal(annotationB, backedUpTag.ResolveToDirectReference().Target);
+        }
+
+        [Fact]
+        public void RewritingNotesHasNoEffect()
+        {
+            var notesRefsRetriever = new Func<IEnumerable<Reference>>(() => repo.Refs.Where(r => r.CanonicalName.StartsWith("refs/notes/")));
+            var originalNotesRefs = notesRefsRetriever().ToList();
+            var commits = repo.Commits.QueryBy(new CommitFilter { Since = originalNotesRefs }).ToArray();
+
+            repo.Refs.RewriteHistory(new RewriteHistoryOptions
+            {
+                OnError = OnError,
+                OnSucceeding = OnSucceeding,
+                CommitHeaderRewriter =
+                    c => CommitRewriteInfo.From(c, author: Constants.Signature),
+            }, commits);
+
+            AssertSucceedingButNotError();
+
+            Assert.Equal(originalNotesRefs.OrderBy(r => r.CanonicalName), notesRefsRetriever().OrderBy(r => r.CanonicalName));
         }
 
         private static string TagNameRewriter(string name, bool isAnnotated, string target)
