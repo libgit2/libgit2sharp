@@ -49,7 +49,7 @@ namespace LibGit2Sharp
                 options.Flags |= GitDiffOptionFlags.GIT_DIFF_INCLUDE_UNMODIFIED;
             }
 
-            if (compareOptions.UsePatienceAlgorithm)
+            if (compareOptions.Algorithm == DiffAlgorithm.Patience)
             {
                 options.Flags |= GitDiffOptionFlags.GIT_DIFF_PATIENCE;
             }
