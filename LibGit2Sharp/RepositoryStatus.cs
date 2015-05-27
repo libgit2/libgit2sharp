@@ -35,15 +35,15 @@ namespace LibGit2Sharp
         {
             return new Dictionary<FileStatus, Action<RepositoryStatus, StatusEntry>>
                        {
-                           { FileStatus.Untracked, (rs, s) => rs.untracked.Add(s) },
-                           { FileStatus.Modified, (rs, s) => rs.modified.Add(s) },
-                           { FileStatus.Missing, (rs, s) => rs.missing.Add(s) },
-                           { FileStatus.Added, (rs, s) => rs.added.Add(s) },
-                           { FileStatus.Staged, (rs, s) => rs.staged.Add(s) },
-                           { FileStatus.Removed, (rs, s) => rs.removed.Add(s) },
+                           { FileStatus.NewInWorkdir, (rs, s) => rs.untracked.Add(s) },
+                           { FileStatus.ModifiedInWorkdir, (rs, s) => rs.modified.Add(s) },
+                           { FileStatus.DeletedFromWorkdir, (rs, s) => rs.missing.Add(s) },
+                           { FileStatus.NewInIndex, (rs, s) => rs.added.Add(s) },
+                           { FileStatus.ModifiedInIndex, (rs, s) => rs.staged.Add(s) },
+                           { FileStatus.DeletedFromIndex, (rs, s) => rs.removed.Add(s) },
                            { FileStatus.RenamedInIndex, (rs, s) => rs.renamedInIndex.Add(s) },
                            { FileStatus.Ignored, (rs, s) => rs.ignored.Add(s) },
-                           { FileStatus.RenamedInWorkDir, (rs, s) => rs.renamedInWorkDir.Add(s) },
+                           { FileStatus.RenamedInWorkdir, (rs, s) => rs.renamedInWorkDir.Add(s) },
                        };
         }
 
@@ -157,7 +157,7 @@ namespace LibGit2Sharp
                     (int)deltaHeadToIndex.Similarity);
             }
 
-            if ((gitStatus & FileStatus.RenamedInWorkDir) == FileStatus.RenamedInWorkDir)
+            if ((gitStatus & FileStatus.RenamedInWorkdir) == FileStatus.RenamedInWorkdir)
             {
                 indexToWorkDirRenameDetails = new RenameDetails(
                     LaxFilePathMarshaler.FromNative(deltaIndexToWorkDir.OldFile.Path).Native,

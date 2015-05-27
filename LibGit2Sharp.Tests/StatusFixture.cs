@@ -17,13 +17,13 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path))
             {
                 FileStatus status = repo.RetrieveStatus("new_tracked_file.txt");
-                Assert.Equal(FileStatus.Added, status);
+                Assert.Equal(FileStatus.NewInIndex, status);
             }
         }
 
         [Theory]
-        [InlineData(StatusShowOption.IndexAndWorkDir, FileStatus.Untracked)]
-        [InlineData(StatusShowOption.WorkDirOnly, FileStatus.Untracked)]
+        [InlineData(StatusShowOption.IndexAndWorkDir, FileStatus.NewInWorkdir)]
+        [InlineData(StatusShowOption.WorkDirOnly, FileStatus.NewInWorkdir)]
         [InlineData(StatusShowOption.IndexOnly, FileStatus.Nonexistent)]
         public void CanLimitStatusToWorkDirOnly(StatusShowOption show, FileStatus expected)
         {
@@ -39,9 +39,9 @@ namespace LibGit2Sharp.Tests
         }
 
         [Theory]
-        [InlineData(StatusShowOption.IndexAndWorkDir, FileStatus.Added)]
+        [InlineData(StatusShowOption.IndexAndWorkDir, FileStatus.NewInIndex)]
         [InlineData(StatusShowOption.WorkDirOnly, FileStatus.Nonexistent)]
-        [InlineData(StatusShowOption.IndexOnly, FileStatus.Added)]
+        [InlineData(StatusShowOption.IndexOnly, FileStatus.NewInIndex)]
         public void CanLimitStatusToIndexOnly(StatusShowOption show, FileStatus expected)
         {
             var clone = SandboxStandardTestRepo();
@@ -89,7 +89,7 @@ namespace LibGit2Sharp.Tests
                 Touch(repo.Info.WorkingDirectory, filePath, "content");
 
                 FileStatus status = repo.RetrieveStatus(filePath);
-                Assert.Equal(FileStatus.Untracked, status);
+                Assert.Equal(FileStatus.NewInWorkdir, status);
             }
         }
 
@@ -115,7 +115,7 @@ namespace LibGit2Sharp.Tests
 
                 RepositoryStatus status = repo.RetrieveStatus(new StatusOptions() { IncludeUnaltered = includeUnaltered });
 
-                Assert.Equal(FileStatus.Staged, status[file].State);
+                Assert.Equal(FileStatus.ModifiedInIndex, status[file].State);
 
                 Assert.NotNull(status);
                 Assert.Equal(6 + unalteredCount, status.Count());
@@ -131,10 +131,10 @@ namespace LibGit2Sharp.Tests
                 File.AppendAllText(Path.Combine(repo.Info.WorkingDirectory, file),
                                    "Tclem's favorite commit message: boom");
 
-                Assert.Equal(FileStatus.Staged | FileStatus.Modified, repo.RetrieveStatus(file));
+                Assert.Equal(FileStatus.ModifiedInIndex | FileStatus.ModifiedInWorkdir, repo.RetrieveStatus(file));
 
                 RepositoryStatus status2 = repo.RetrieveStatus(new StatusOptions() { IncludeUnaltered = includeUnaltered });
-                Assert.Equal(FileStatus.Staged | FileStatus.Modified, status2[file].State);
+                Assert.Equal(FileStatus.ModifiedInIndex | FileStatus.ModifiedInWorkdir, status2[file].State);
 
                 Assert.NotNull(status2);
                 Assert.Equal(6 + unalteredCount, status2.Count());
@@ -173,7 +173,7 @@ namespace LibGit2Sharp.Tests
                         DetectRenamesInWorkDir = true
                     });
 
-                Assert.Equal(FileStatus.Added | FileStatus.RenamedInWorkDir, status["rename_target.txt"].State);
+                Assert.Equal(FileStatus.NewInIndex | FileStatus.RenamedInWorkdir, status["rename_target.txt"].State);
                 Assert.Equal(100, status["rename_target.txt"].IndexToWorkDirRenameDetails.Similarity);
             }
         }
@@ -225,7 +225,7 @@ namespace LibGit2Sharp.Tests
                 RepositoryStatus status = repo.RetrieveStatus(opts);
 
                 // This passes as expected
-                Assert.Equal(FileStatus.RenamedInWorkDir, status.Single().State);
+                Assert.Equal(FileStatus.RenamedInWorkdir, status.Single().State);
 
                 repo.Stage("file.txt");
                 repo.Stage("renamed.txt");
@@ -239,7 +239,7 @@ namespace LibGit2Sharp.Tests
 
                 status = repo.RetrieveStatus(opts);
 
-                Assert.Equal(FileStatus.RenamedInWorkDir | FileStatus.RenamedInIndex,
+                Assert.Equal(FileStatus.RenamedInWorkdir | FileStatus.RenamedInIndex,
                     status.Single().State);
             }
         }
@@ -409,7 +409,7 @@ namespace LibGit2Sharp.Tests
 
         [Theory]
         [InlineData(true, FileStatus.Unaltered, FileStatus.Unaltered)]
-        [InlineData(false, FileStatus.Missing, FileStatus.Untracked)]
+        [InlineData(false, FileStatus.DeletedFromWorkdir, FileStatus.NewInWorkdir)]
         public void RetrievingTheStatusOfAFilePathHonorsTheIgnoreCaseConfigurationSetting(
             bool shouldIgnoreCase,
             FileStatus expectedlowerCasedFileStatus,
@@ -484,7 +484,7 @@ namespace LibGit2Sharp.Tests
                 Touch(repo.Info.WorkingDirectory, gitIgnore, sb.ToString());
 
                 Assert.Equal(FileStatus.Ignored, repo.RetrieveStatus("bin/look-ma.txt"));
-                Assert.Equal(FileStatus.Untracked, repo.RetrieveStatus("bin/what-about-me.txt"));
+                Assert.Equal(FileStatus.NewInWorkdir, repo.RetrieveStatus("bin/what-about-me.txt"));
 
                 newStatus = repo.RetrieveStatus();
 

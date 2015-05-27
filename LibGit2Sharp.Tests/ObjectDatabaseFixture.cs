@@ -41,7 +41,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal("dc53d4c6b8684c21b0b57db29da4a2afea011565", blob.Sha);
 
                 /* The file is unknown from the Index nor the Head ... */
-                Assert.Equal(FileStatus.Untracked, repo.RetrieveStatus("hello.txt"));
+                Assert.Equal(FileStatus.NewInWorkdir, repo.RetrieveStatus("hello.txt"));
 
                 /* ...however, it's indeed stored in the repository. */
                 var fetchedBlob = repo.Lookup<Blob>(blob.Id);

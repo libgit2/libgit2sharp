@@ -1774,13 +1774,13 @@ namespace LibGit2Sharp
                 }
 
                 FileStatus sourceStatus = keyValuePair.Key.Item2;
-                if (sourceStatus.HasAny(new Enum[] { FileStatus.Nonexistent, FileStatus.Removed, FileStatus.Untracked, FileStatus.Missing }))
+                if (sourceStatus.HasAny(new Enum[] { FileStatus.Nonexistent, FileStatus.DeletedFromIndex, FileStatus.NewInWorkdir, FileStatus.DeletedFromWorkdir }))
                 {
                     throw new LibGit2SharpException(string.Format(CultureInfo.InvariantCulture, "Unable to move file '{0}'. Its current status is '{1}'.", sourcePath, sourceStatus));
                 }
 
                 FileStatus desStatus = keyValuePair.Value.Item2;
-                if (desStatus.HasAny(new Enum[] { FileStatus.Nonexistent, FileStatus.Missing }))
+                if (desStatus.HasAny(new Enum[] { FileStatus.Nonexistent, FileStatus.DeletedFromWorkdir }))
                 {
                     continue;
                 }
@@ -2015,8 +2015,8 @@ namespace LibGit2Sharp
 
                     case ChangeKind.Unmodified:
                         if (removeFromWorkingDirectory && (
-                            status.HasFlag(FileStatus.Staged) ||
-                            status.HasFlag(FileStatus.Added) ))
+                            status.HasFlag(FileStatus.ModifiedInIndex) ||
+                            status.HasFlag(FileStatus.NewInIndex) ))
                         {
                             throw new RemoveFromIndexException(string.Format(CultureInfo.InvariantCulture, "Unable to remove file '{0}', as it has changes staged in the index. You can call the Remove() method with removeFromWorkingDirectory=false if you want to remove it from the index only.",
                                 treeEntryChanges.Path));
@@ -2025,7 +2025,7 @@ namespace LibGit2Sharp
                         continue;
 
                     case ChangeKind.Modified:
-                        if (status.HasFlag(FileStatus.Modified) && status.HasFlag(FileStatus.Staged))
+                        if (status.HasFlag(FileStatus.ModifiedInWorkdir) && status.HasFlag(FileStatus.ModifiedInIndex))
                         {
                             throw new RemoveFromIndexException(string.Format(CultureInfo.InvariantCulture, "Unable to remove file '{0}', as it has staged content different from both the working directory and the HEAD.",
                                 treeEntryChanges.Path));
