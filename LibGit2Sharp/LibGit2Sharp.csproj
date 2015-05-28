@@ -105,6 +105,7 @@
     <Compile Include="IndexReucEntryCollection.cs" />
     <Compile Include="IndexNameEntry.cs" />
     <Compile Include="MergeAndCheckoutOptionsBase.cs" />
+    <Compile Include="MergeConflictException.cs" />
     <Compile Include="MergeOptions.cs" />
     <Compile Include="MergeOptionsBase.cs" />
     <Compile Include="MergeResult.cs" />
@@ -228,7 +229,7 @@
     <Compile Include="FetchHead.cs" />
     <Compile Include="Handlers.cs" />
     <Compile Include="Ignore.cs" />
-    <Compile Include="MergeConflictException.cs" />
+    <Compile Include="CheckoutConflictException.cs" />
     <Compile Include="MergeHead.cs" />
     <Compile Include="NameConflictException.cs" />
     <Compile Include="NetworkExtensions.cs" />

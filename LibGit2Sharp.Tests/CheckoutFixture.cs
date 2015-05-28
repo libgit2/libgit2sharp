@@ -266,7 +266,7 @@ namespace LibGit2Sharp.Tests
 
                 // Assert that normal checkout throws exception
                 // for the conflict.
-                Assert.Throws<MergeConflictException>(() => repo.Checkout(master.CanonicalName));
+                Assert.Throws<CheckoutConflictException>(() => repo.Checkout(master.CanonicalName));
 
                 // Checkout with force option should succeed.
                 repo.Checkout(master.CanonicalName, new CheckoutOptions() { CheckoutModifiers = CheckoutModifiers.Force});
@@ -304,11 +304,11 @@ namespace LibGit2Sharp.Tests
 
                 // Assert that checking out master throws
                 // when there are unstaged commits
-                Assert.Throws<MergeConflictException>(() => repo.Checkout("master"));
+                Assert.Throws<CheckoutConflictException>(() => repo.Checkout("master"));
 
                 // And when there are staged commits
                 repo.Stage(originalFilePath);
-                Assert.Throws<MergeConflictException>(() => repo.Checkout("master"));
+                Assert.Throws<CheckoutConflictException>(() => repo.Checkout("master"));
             }
         }
 
@@ -505,7 +505,7 @@ namespace LibGit2Sharp.Tests
                     CheckoutNotifyFlags = notifyFlags,
                 };
 
-                Assert.Throws<MergeConflictException>(() => repo.Checkout("master", options));
+                Assert.Throws<CheckoutConflictException>(() => repo.Checkout("master", options));
 
                 Assert.True(wasCalled);
                 Assert.Equal(expectedNotificationPath, actualNotificationPath);

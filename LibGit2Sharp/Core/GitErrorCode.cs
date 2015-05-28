@@ -56,9 +56,10 @@
         InvalidSpecification = -12,
 
         /// <summary>
-        /// A conflicting change has been detected.
+        /// A conflicting change has been detected in the index
+        /// or working directory.
         /// </summary>
-        MergeConflict = -13,
+        Conflict = -13,
 
         /// <summary>
         /// A file operation failed because the file was locked.
