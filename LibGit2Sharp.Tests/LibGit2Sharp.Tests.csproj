@@ -139,10 +139,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <NativeBinariesDirectory>$(MSBuildProjectDirectory)\..\Lib\NativeBinaries</NativeBinariesDirectory>
-  </PropertyGroup>
-  <Import Project="..\LibGit2Sharp\CopyWindowsNativeDependencies.targets" />
   <Import Project="..\LibGit2Sharp\ExtraDefine.targets" />
   <Import Project="VisualStudio.Tests.targets" />
   <PropertyGroup>
