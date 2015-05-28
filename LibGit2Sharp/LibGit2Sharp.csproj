@@ -75,6 +75,7 @@
     <Compile Include="Core\Platform.cs" />
     <Compile Include="Core\Handles\ConflictIteratorSafeHandle.cs" />
     <Compile Include="Core\GitWriteStream.cs" />
+    <Compile Include="Core\WriteStream.cs" />
     <Compile Include="DescribeOptions.cs" />
     <Compile Include="DescribeStrategy.cs" />
     <Compile Include="Core\GitDescribeFormatOptions.cs" />
