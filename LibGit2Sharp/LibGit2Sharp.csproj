@@ -146,6 +146,7 @@
     <Compile Include="RevertOptions.cs" />
     <Compile Include="SecureUsernamePasswordCredentials.cs" />
     <Compile Include="StageOptions.cs" />
+    <Compile Include="StashApplyStatus.cs" />
     <Compile Include="StatusOptions.cs" />
     <Compile Include="SimilarityOptions.cs" />
     <Compile Include="Log.cs" />

@@ -31,6 +31,11 @@ namespace LibGit2Sharp.Core
         /// Flags for automerging content.
         /// </summary>
         public MergeFileFavor MergeFileFavorFlags;
+
+        /// <summary>
+        /// Flags to use for file merging.
+        /// </summary>
+        public GitMergeFileFlags FileFlags;
     }
 
     /// <summary>
@@ -104,5 +109,54 @@ namespace LibGit2Sharp.Core
         /// GIT_MERGE_TREE_FIND_RENAMES in libgit2
         /// </summary>
         GIT_MERGE_TREE_FIND_RENAMES = (1 << 0),
+    }
+
+    [Flags]
+    internal enum GitMergeFileFlags
+    {
+        /// <summary>
+        /// No options.
+        /// </summary>
+        GIT_MERGE_FILE_DEFAULT = 0,
+
+        /// <summary>
+        /// Creates standard conflicted merge files.
+        /// </summary>
+        GIT_MERGE_FILE_STYLE_MERGE = (1 << 0),
+
+        /// <summary>
+        /// Creates diff3 style files.
+        /// </summary>
+        GIT_MERGE_FILE_STYLE_DIFF3 = (1 << 1),
+
+        /// <summary>
+        /// Condenses non-alphanumeric regions for simplified diff files.
+        /// </summary>
+        GIT_MERGE_FILE_SIMPLIFY_ALNUM = (1 << 2),
+
+        /// <summary>
+        /// Ignores all whitespace.
+        /// </summary>
+        GIT_MERGE_FILE_IGNORE_WHITESPACE = (1 << 3),
+
+        /// <summary>
+        /// Ignores changes in amount of whitespace.
+        /// </summary>
+        GIT_MERGE_FILE_IGNORE_WHITESPACE_CHANGE = (1 << 4),
+
+        /// <summary>
+        /// Ignores whitespace at the end of the line.
+        /// </summary>
+        GIT_MERGE_FILE_IGNORE_WHITESPACE_EOL = (1 << 5),
+
+        /// <summary>
+        /// Uses the 'patience' diff algorithm.
+        /// </summary>
+        GIT_MERGE_FILE_DIFF_PATIENCE = (1 << 6),
+
+        /// <summary>
+        /// Take extra time to find the minimal diff.
+        /// </summary>
+        GIT_MERGE_FILE_DIFF_MINIMAL = (1 << 7),
     }
 }
