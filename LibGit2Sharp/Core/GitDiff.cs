@@ -80,6 +80,13 @@ namespace LibGit2Sharp.Core
         /// </summary>
         GIT_DIFF_IGNORE_CASE = (1 << 10),
 
+
+        /// <summary>
+        /// May be combined with `GIT_DIFF_IGNORE_CASE` to specify that a file
+        /// that has changed case will be returned as an add/delete pair.
+        /// </summary>
+        GIT_DIFF_INCLUDE_CASECHANGE = (1 << 11),
+
         /// <summary>
         /// If the pathspec is set in the diff options, this flags means to
         /// apply it as an exact match instead of as an fnmatch pattern.

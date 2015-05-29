@@ -7,10 +7,16 @@
     public enum TagFetchMode
     {
         /// <summary>
-        /// Default behavior. Will automatically retrieve tags that
+        /// Use the setting from the configuration
+        /// or, when there isn't any, fallback to default behavior.
+        /// </summary>
+        FromConfigurationOrDefault = 0,  // GIT_REMOTE_DOWNLOAD_TAGS_FALLBACK
+
+        /// <summary>
+        /// Will automatically retrieve tags that
         /// point to objects retrieved during this fetch.
         /// </summary>
-        Auto = 0,  // GIT_REMOTE_DOWNLOAD_TAGS_AUTO
+        Auto,  // GIT_REMOTE_DOWNLOAD_TAGS_AUTO
 
         /// <summary>
         /// No tag will be retrieved.

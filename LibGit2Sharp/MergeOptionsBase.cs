@@ -1,8 +1,4 @@
-﻿using LibGit2Sharp.Core;
-using LibGit2Sharp.Handlers;
-using System;
-
-namespace LibGit2Sharp
+﻿namespace LibGit2Sharp
 {
     /// <summary>
     /// Options controlling the behavior of actions that use merge (merge
@@ -14,7 +10,7 @@ namespace LibGit2Sharp
         /// Initializes a new instance of the <see cref="MergeOptionsBase"/> class.
         /// The default behavior is to attempt to find renames.
         /// </summary>
-        public MergeOptionsBase()
+        protected MergeOptionsBase()
         {
             FindRenames = true;
             RenameThreshold = 50;

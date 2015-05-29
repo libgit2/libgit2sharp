@@ -9,7 +9,7 @@ namespace LibGit2Sharp.Core
 
         public GitCheckoutOpts CheckoutOptions;
 
-        public GitRemoteCallbacks RemoteCallbacks;
+        public GitFetchOptions FetchOptions;
 
         public CheckoutStrategy CloneCheckoutStrategy;
     }

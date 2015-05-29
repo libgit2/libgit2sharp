@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using LibGit2Sharp.Core;
@@ -70,14 +71,15 @@ namespace LibGit2Sharp
 
             using (RemoteSafeHandle remoteHandle = Proxy.git_remote_lookup(repository.Handle, remote.Name, true))
             {
+                var gitCallbacks = new GitRemoteCallbacks {version = 1};
+
                 if (credentialsProvider != null)
                 {
                     var callbacks = new RemoteCallbacks(credentialsProvider);
-                    GitRemoteCallbacks gitCallbacks = callbacks.GenerateCallbacks();
-                    Proxy.git_remote_set_callbacks(remoteHandle, ref gitCallbacks);
+                    gitCallbacks = callbacks.GenerateCallbacks();
                 }
 
-                Proxy.git_remote_connect(remoteHandle, GitDirection.Fetch);
+                Proxy.git_remote_connect(remoteHandle, GitDirection.Fetch, ref gitCallbacks);
                 return Proxy.git_remote_ls(repository, remoteHandle);
             }
         }
@@ -97,39 +99,67 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNull(url, "url");
 
-            using (RemoteSafeHandle remoteHandle = Proxy.git_remote_create_anonymous(repository.Handle, url, null))
+            using (RemoteSafeHandle remoteHandle = Proxy.git_remote_create_anonymous(repository.Handle, url))
             {
-                Proxy.git_remote_connect(remoteHandle, GitDirection.Fetch);
+                GitRemoteCallbacks gitCallbacks = new GitRemoteCallbacks { version = 1 };
+                Proxy.git_remote_connect(remoteHandle, GitDirection.Fetch, ref gitCallbacks);
                 return Proxy.git_remote_ls(repository, remoteHandle);
             }
         }
 
-        static void DoFetch(RemoteSafeHandle remoteHandle, FetchOptions options, string logMessage)
+        static RemoteSafeHandle BuildRemoteSafeHandle(RepositorySafeHandle repoHandle, Remote remote, string url)
+        {
+            Debug.Assert((remote == null) ^ (url == null));
+
+            RemoteSafeHandle remoteHandle;
+
+            if (url != null)
+            {
+                remoteHandle = Proxy.git_remote_create_anonymous(repoHandle, url);
+            }
+            else
+            {
+                remoteHandle = Proxy.git_remote_lookup(repoHandle, remote.Name, true);
+            }
+
+            return remoteHandle;
+        }
+
+        static void DoFetch(RepositorySafeHandle repoHandle, Remote remote, string url,
+            FetchOptions options, string logMessage,
+            IEnumerable<string> refspecs)
         {
             if (options == null)
             {
                 options = new FetchOptions();
             }
 
-            if (options.TagFetchMode.HasValue)
+            using (RemoteSafeHandle remoteHandle = BuildRemoteSafeHandle(repoHandle, remote, url))
             {
-                Proxy.git_remote_set_autotag(remoteHandle, options.TagFetchMode.Value);
+                var callbacks = new RemoteCallbacks(options);
+                GitRemoteCallbacks gitCallbacks = callbacks.GenerateCallbacks();
+
+                // It is OK to pass the reference to the GitCallbacks directly here because libgit2 makes a copy of
+                // the data in the git_remote_callbacks structure. If, in the future, libgit2 changes its implementation
+                // to store a reference to the git_remote_callbacks structure this would introduce a subtle bug
+                // where the managed layer could move the git_remote_callbacks to a different location in memory,
+                // but libgit2 would still reference the old address.
+                //
+                // Also, if GitRemoteCallbacks were a class instead of a struct, we would need to guard against
+                // GC occuring in between setting the remote callbacks and actual usage in one of the functions afterwords.
+                var fetchOptions = new GitFetchOptions
+                                    {
+                                        RemoteCallbacks = gitCallbacks,
+                                        download_tags = Proxy.git_remote_autotag(remoteHandle),
+                                    };
+
+                if (options.TagFetchMode.HasValue)
+                {
+                    fetchOptions.download_tags =  options.TagFetchMode.Value;
+                }
+
+                Proxy.git_remote_fetch(remoteHandle, refspecs, fetchOptions, logMessage);
             }
-
-            var callbacks = new RemoteCallbacks(options);
-            GitRemoteCallbacks gitCallbacks = callbacks.GenerateCallbacks();
-
-            // It is OK to pass the reference to the GitCallbacks directly here because libgit2 makes a copy of
-            // the data in the git_remote_callbacks structure. If, in the future, libgit2 changes its implementation
-            // to store a reference to the git_remote_callbacks structure this would introduce a subtle bug
-            // where the managed layer could move the git_remote_callbacks to a different location in memory,
-            // but libgit2 would still reference the old address.
-            //
-            // Also, if GitRemoteCallbacks were a class instead of a struct, we would need to guard against
-            // GC occuring in between setting the remote callbacks and actual usage in one of the functions afterwords.
-            Proxy.git_remote_set_callbacks(remoteHandle, ref gitCallbacks);
-
-            Proxy.git_remote_fetch(remoteHandle, logMessage);
         }
 
         /// <summary>
@@ -171,10 +201,7 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNull(remote, "remote");
 
-            using (RemoteSafeHandle remoteHandle = Proxy.git_remote_lookup(repository.Handle, remote.Name, true))
-            {
-                DoFetch(remoteHandle, options, logMessage);
-            }
+            DoFetch(repository.Handle, remote, null, options, logMessage, new string[0]);
         }
 
         /// <summary>
@@ -221,12 +248,7 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(remote, "remote");
             Ensure.ArgumentNotNull(refspecs, "refspecs");
 
-            using (RemoteSafeHandle remoteHandle = Proxy.git_remote_lookup(repository.Handle, remote.Name, true))
-            {
-                Proxy.git_remote_set_fetch_refspecs(remoteHandle, refspecs);
-
-                DoFetch(remoteHandle, options, logMessage);
-            }
+            DoFetch(repository.Handle, remote, null, options, logMessage, refspecs);
         }
 
         /// <summary>
@@ -285,12 +307,7 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(url, "url");
             Ensure.ArgumentNotNull(refspecs, "refspecs");
 
-            using (RemoteSafeHandle remoteHandle = Proxy.git_remote_create_anonymous(repository.Handle, url, null))
-            {
-                Proxy.git_remote_set_fetch_refspecs(remoteHandle, refspecs);
-
-                DoFetch(remoteHandle, options, logMessage);
-            }
+            DoFetch(repository.Handle, null, url, options, logMessage, refspecs);
         }
 
         /// <summary>
@@ -402,12 +419,12 @@ namespace LibGit2Sharp
             {
                 var callbacks = new RemoteCallbacks(pushOptions);
                 GitRemoteCallbacks gitCallbacks = callbacks.GenerateCallbacks();
-                Proxy.git_remote_set_callbacks(remoteHandle, ref gitCallbacks);
 
                 Proxy.git_remote_push(remoteHandle, pushRefSpecs,
                     new GitPushOptions()
                     {
-                        PackbuilderDegreeOfParallelism = pushOptions.PackbuilderDegreeOfParallelism
+                        PackbuilderDegreeOfParallelism = pushOptions.PackbuilderDegreeOfParallelism,
+                        RemoteCallbacks = gitCallbacks,
                     });
             }
         }

@@ -29,6 +29,10 @@ namespace LibGit2Sharp.Core
 
         internal NativeMethods.push_update_reference_callback push_update_reference;
 
+        internal NativeMethods.push_negotiation_callback push_negotiation;
+
+        internal IntPtr transport;
+
         internal IntPtr payload;
     }
 }
