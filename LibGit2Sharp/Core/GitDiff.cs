@@ -231,6 +231,7 @@ namespace LibGit2Sharp.Core
         GIT_DIFF_FLAG_BINARY = (1 << 0),
         GIT_DIFF_FLAG_NOT_BINARY = (1 << 1),
         GIT_DIFF_FLAG_VALID_ID = (1 << 2),
+        GIT_DIFF_FLAG_EXISTS = (1 << 3),
     }
 
     [StructLayout(LayoutKind.Sequential)]
