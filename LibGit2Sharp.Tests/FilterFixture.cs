@@ -176,6 +176,113 @@ namespace LibGit2Sharp.Tests
             GlobalSettings.DeregisterFilter(filterRegistration);
         }
 
+        [Fact]
+        public void CanFilterLargeFiles()
+        {
+            const int ContentLength = 128 * 1024 * 1024;
+            const char ContentValue = 'x';
+
+            char[] content = (new string(ContentValue, 1024)).ToCharArray();
+
+            string repoPath = InitNewRepository();
+
+            var filter = new FileExportFilter("exportFilter", attributes);
+            var filterRegistration = GlobalSettings.RegisterFilter(filter);
+
+            string filePath = Path.Combine(Directory.GetParent(repoPath).Parent.FullName, Guid.NewGuid().ToString() + ".blob");
+            FileInfo contentFile = new FileInfo(filePath);
+            using (var writer = new StreamWriter(contentFile.OpenWrite()) { AutoFlush = true })
+            {
+                for (int i = 0; i < ContentLength / content.Length; i++)
+                {
+                    writer.Write(content);
+                }
+            }
+
+            string attributesPath = Path.Combine(Directory.GetParent(repoPath).Parent.FullName, ".gitattributes");
+            FileInfo attributesFile = new FileInfo(attributesPath);
+
+            string configPath = CreateConfigurationWithDummyUser(Constants.Signature);
+            var repositoryOptions = new RepositoryOptions { GlobalConfigurationLocation = configPath };
+
+            using (Repository repo = new Repository(repoPath, repositoryOptions))
+            {
+                File.WriteAllText(attributesPath, "*.blob filter=test");
+                repo.Stage(attributesFile.Name);
+                repo.Stage(contentFile.Name);
+                repo.Commit("test");
+                contentFile.Delete();
+                repo.Checkout("HEAD", new CheckoutOptions() { CheckoutModifiers = CheckoutModifiers.Force });
+            }
+
+            contentFile = new FileInfo(filePath);
+            Assert.True(contentFile.Exists, "Contents not restored correctly by forced checkout.");
+            using (StreamReader reader = contentFile.OpenText())
+            {
+                int totalRead = 0;
+                char[] block = new char[1024];
+                int read;
+                while ((read = reader.Read(block, 0, block.Length)) > 0)
+                {
+                    Assert.True(CharArrayAreEqual(block, content, read));
+                    totalRead += read;
+                }
+
+                Assert.Equal(ContentLength, totalRead);
+            }
+
+            contentFile.Delete();
+
+            GlobalSettings.DeregisterFilter(filterRegistration);
+        }
+
+        private unsafe bool CharArrayAreEqual(char[] array1, char[] array2, int count)
+        {
+            if (Object.ReferenceEquals(array1, array2))
+            {
+                return true;
+            }
+            if (Object.ReferenceEquals(array1, null) || Object.ReferenceEquals(null, array2))
+            {
+                return false;
+            }
+            if (array1.Length < count || array2.Length < count)
+            {
+                return false;
+            }
+
+            int len = count * sizeof(char);
+            int cnt = len / sizeof(long);
+
+            fixed (char* c1 = array1, c2 = array2)
+            {
+                long* p1 = (long*)c1,
+                      p2 = (long*)c2;
+
+                for (int i = 0; i < cnt; i++)
+                {
+                    if (p1[i] != p2[i])
+                    {
+                        return false;
+                    }
+                }
+
+                byte* b1 = (byte*)c1,
+                      b2 = (byte*)c2;
+
+                for (int i = len * sizeof(long); i < len; i++)
+                {
+                    if (b1[i] != b2[i])
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+
+
         private FileInfo CheckoutFileForSmudge(string repoPath, string branchName, string content)
         {
             FileInfo expectedPath;
