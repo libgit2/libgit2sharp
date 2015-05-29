@@ -4,11 +4,11 @@ using System.Runtime.InteropServices;
 namespace LibGit2Sharp.Core
 {
     [StructLayout(LayoutKind.Sequential)]
-    internal class GitPushUpdate
+    internal struct GitPushUpdate
     {
-        IntPtr src_refname;
-        IntPtr dst_refname;
-        GitOid src;
-        GitOid dst;
+        public IntPtr src_refname;
+        public IntPtr dst_refname;
+        public GitOid src;
+        public GitOid dst;
     }
 }

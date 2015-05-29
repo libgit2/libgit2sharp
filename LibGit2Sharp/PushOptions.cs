@@ -39,5 +39,11 @@ namespace LibGit2Sharp
         /// be more than once every 0.5 seconds (in general).
         /// </summary>
         public PackBuilderProgressHandler OnPackBuilderProgress { get; set; }
+
+        /// <summary>
+        /// Called once between the negotiation step and the upload. It provides 
+        /// information about what updates will be performed.
+        /// </summary>
+        public PrePushHandler OnNegotiationCompletedBeforePush { get; set; }
     }
 }
