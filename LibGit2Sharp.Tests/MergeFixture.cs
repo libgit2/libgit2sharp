@@ -584,7 +584,7 @@ namespace LibGit2Sharp.Tests
             // Merging the fast_forward branch results in a change to file
             // b.txt. In this test we modify the file in the working directory
             // and then attempt to perform a merge. We expect the merge to fail
-            // due to merge conflicts.
+            // due to checkout conflicts.
             string committishToMerge = "fast_forward";
 
             using (var repo = new Repository(SandboxMergeTestRepo()))
@@ -596,7 +596,7 @@ namespace LibGit2Sharp.Tests
                     repo.Stage("b.txt");
                 }
 
-                Assert.Throws<MergeConflictException>(() => repo.Merge(committishToMerge, Constants.Signature, new MergeOptions() { FastForwardStrategy = strategy }));
+                Assert.Throws<CheckoutConflictException>(() => repo.Merge(committishToMerge, Constants.Signature, new MergeOptions() { FastForwardStrategy = strategy }));
             }
         }
 
