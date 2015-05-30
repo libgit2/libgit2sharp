@@ -14,35 +14,6 @@ namespace LibGit2Sharp.Tests
             AssertValueInConfigFile(configFilePath, regex);
         }
 
-        private static string RetrieveGlobalConfigLocation()
-        {
-            string[] variables = { "HOME", "USERPROFILE", };
-
-            foreach (string variable in variables)
-            {
-                string potentialLocation = Environment.GetEnvironmentVariable(variable);
-                if (string.IsNullOrEmpty(potentialLocation))
-                {
-                    continue;
-                }
-
-                string potentialPath = Path.Combine(potentialLocation, ".gitconfig");
-
-                if (File.Exists(potentialPath))
-                {
-                    return potentialPath;
-                }
-            }
-
-            throw new InvalidOperationException("Unable to determine the location of '.gitconfig' file.");
-        }
-
-        private static void AssertValueInGlobalConfigFile(string regex)
-        {
-            string configFilePath = RetrieveGlobalConfigLocation();
-            AssertValueInConfigFile(configFilePath, regex);
-        }
-
         [Fact]
         public void CanUnsetAnEntryFromTheLocalConfiguration()
         {
