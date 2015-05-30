@@ -227,7 +227,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void SettingLocalConfigurationOutsideAReposThrows()
         {
-            using (var config = new Configuration(null, null, null))
+            using (var config = Configuration.BuildFrom(null, null, null, null))
             {
                 Assert.Throws<LibGit2SharpException>(() => config.Set("unittests.intsetting", 3));
             }
@@ -364,6 +364,27 @@ namespace LibGit2Sharp.Tests
                 Assert.True(repo.Config.HasConfig(ConfigurationLevel.System));
 
                 Assert.Null(repo.Config.Get<string>("MCHammer.You-cant-touch-this", ConfigurationLevel.System));
+            }
+        }
+
+        [Fact]
+        public void CanAccessConfigurationWithoutARepository()
+        {
+            var path = SandboxStandardTestRepoGitDir();
+
+            string globalConfigPath = CreateConfigurationWithDummyUser(Constants.Signature);
+            var options = new RepositoryOptions { GlobalConfigurationLocation = globalConfigPath };
+
+            using (var repo = new Repository(path, options))
+            {
+                repo.Config.Set("my.key", "local");
+                repo.Config.Set("my.key", "mouse", ConfigurationLevel.Global);
+            }
+
+            using (var config = Configuration.BuildFrom(Path.Combine(path, ".git", "config"), globalConfigPath))
+            {
+                Assert.Equal("local", config.Get<string>("my.key").Value);
+                Assert.Equal("mouse", config.Get<string>("my.key", ConfigurationLevel.Global).Value);
             }
         }
     }

@@ -337,18 +337,18 @@ namespace LibGit2Sharp.Tests.TestHelpers
         {
             SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
             Directory.CreateDirectory(scd.DirectoryPath);
-            string configFilePath = Path.Combine(scd.DirectoryPath, "global-config");
+            string configFilePath = Path.Combine(scd.DirectoryPath, "fake-config");
 
-            using (Configuration config = new Configuration(configFilePath))
+            using (Configuration config = Configuration.BuildFrom(configFilePath))
             {
                 if (name != null)
                 {
-                    config.Set("user.name", name, ConfigurationLevel.Global);
+                    config.Set("user.name", name);
                 }
 
                 if (email != null)
                 {
-                    config.Set("user.email", email, ConfigurationLevel.Global);
+                    config.Set("user.email", email);
                 }
             }
 
