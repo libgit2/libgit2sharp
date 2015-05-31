@@ -336,8 +336,8 @@ namespace LibGit2Sharp.Tests.TestHelpers
         protected string CreateConfigurationWithDummyUser(string name, string email)
         {
             SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
-            Directory.CreateDirectory(scd.DirectoryPath);
-            string configFilePath = Path.Combine(scd.DirectoryPath, "fake-config");
+
+            string configFilePath = Touch(scd.DirectoryPath, "fake-config");
 
             using (Configuration config = Configuration.BuildFrom(configFilePath))
             {

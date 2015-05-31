@@ -31,7 +31,11 @@ namespace LibGit2Sharp
         internal Configuration(Repository repository, string repositoryConfigurationFileLocation, string globalConfigurationFileLocation,
             string xdgConfigurationFileLocation, string systemConfigurationFileLocation)
         {
-            repoConfigPath = repositoryConfigurationFileLocation;
+            if (repositoryConfigurationFileLocation != null)
+            {
+                repoConfigPath = NormalizeConfigPath(repositoryConfigurationFileLocation);
+            }
+
             globalConfigPath = globalConfigurationFileLocation ?? Proxy.git_config_find_global();
             xdgConfigPath = xdgConfigurationFileLocation ?? Proxy.git_config_find_xdg();
             systemConfigPath = systemConfigurationFileLocation ?? Proxy.git_config_find_system();
@@ -75,13 +79,46 @@ namespace LibGit2Sharp
             }
         }
 
+        private FilePath NormalizeConfigPath(FilePath path)
+        {
+            if (File.Exists(path.Native))
+            {
+                return path;
+            }
+
+            if (!Directory.Exists(path.Native))
+            {
+                throw new FileNotFoundException("Cannot find repository configuration file", path.Native);
+            }
+
+            var configPath = Path.Combine(path.Native, "config");
+
+            if (File.Exists(configPath))
+            {
+                return configPath;
+            }
+
+            var gitConfigPath = Path.Combine(path.Native, ".git", "config");
+
+            if (File.Exists(gitConfigPath))
+            {
+                return gitConfigPath;
+            }
+
+            throw new FileNotFoundException("Cannot find repository configuration file", path.Native);
+        }
+
         /// <summary>
         /// Access configuration values without a repository.
         /// <para>
         ///   Generally you want to access configuration via an instance of <see cref="Repository"/> instead.
         /// </para>
+        /// <para>
+        ///   <paramref name="repositoryConfigurationFileLocation"/> can either contains a path to a file or a directory. In the latter case,
+        ///   this can be the working directory, the .git directory or the directory containing a bare repository.
+        /// </para>
         /// </summary>
-        /// <param name="repositoryConfigurationFileLocation">Path to a Repository configuration file.</param>
+        /// <param name="repositoryConfigurationFileLocation">Path to an existing Repository configuration file.</param>
         /// <returns>An instance of <see cref="Configuration"/>.</returns>
         public static Configuration BuildFrom(
             string repositoryConfigurationFileLocation)
@@ -94,8 +131,12 @@ namespace LibGit2Sharp
         /// <para>
         ///   Generally you want to access configuration via an instance of <see cref="Repository"/> instead.
         /// </para>
+        /// <para>
+        ///   <paramref name="repositoryConfigurationFileLocation"/> can either contains a path to a file or a directory. In the latter case,
+        ///   this can be the working directory, the .git directory or the directory containing a bare repository.
+        /// </para>
         /// </summary>
-        /// <param name="repositoryConfigurationFileLocation">Path to a Repository configuration file.</param>
+        /// <param name="repositoryConfigurationFileLocation">Path to an existing Repository configuration file.</param>
         /// <param name="globalConfigurationFileLocation">Path to a Global configuration file. If null, the default path for a Global configuration file will be probed.</param>
         /// <returns>An instance of <see cref="Configuration"/>.</returns>
         public static Configuration BuildFrom(
@@ -110,8 +151,12 @@ namespace LibGit2Sharp
         /// <para>
         ///   Generally you want to access configuration via an instance of <see cref="Repository"/> instead.
         /// </para>
+        /// <para>
+        ///   <paramref name="repositoryConfigurationFileLocation"/> can either contains a path to a file or a directory. In the latter case,
+        ///   this can be the working directory, the .git directory or the directory containing a bare repository.
+        /// </para>
         /// </summary>
-        /// <param name="repositoryConfigurationFileLocation">Path to a Repository configuration file.</param>
+        /// <param name="repositoryConfigurationFileLocation">Path to an existing Repository configuration file.</param>
         /// <param name="globalConfigurationFileLocation">Path to a Global configuration file. If null, the default path for a Global configuration file will be probed.</param>
         /// <param name="xdgConfigurationFileLocation">Path to a XDG configuration file. If null, the default path for a XDG configuration file will be probed.</param>
         /// <returns>An instance of <see cref="Configuration"/>.</returns>
@@ -128,8 +173,12 @@ namespace LibGit2Sharp
         /// <para>
         ///   Generally you want to access configuration via an instance of <see cref="Repository"/> instead.
         /// </para>
+        /// <para>
+        ///   <paramref name="repositoryConfigurationFileLocation"/> can either contains a path to a file or a directory. In the latter case,
+        ///   this can be the working directory, the .git directory or the directory containing a bare repository.
+        /// </para>
         /// </summary>
-        /// <param name="repositoryConfigurationFileLocation">Path to a Repository configuration file.</param>
+        /// <param name="repositoryConfigurationFileLocation">Path to an existing Repository configuration file.</param>
         /// <param name="globalConfigurationFileLocation">Path to a Global configuration file. If null, the default path for a Global configuration file will be probed.</param>
         /// <param name="xdgConfigurationFileLocation">Path to a XDG configuration file. If null, the default path for a XDG configuration file will be probed.</param>
         /// <param name="systemConfigurationFileLocation">Path to a System configuration file. If null, the default path for a System configuration file will be probed.</param>

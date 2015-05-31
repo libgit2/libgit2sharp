@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
+using Xunit.Extensions;
 
 namespace LibGit2Sharp.Tests
 {
@@ -367,8 +369,21 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Fact]
-        public void CanAccessConfigurationWithoutARepository()
+        public static IEnumerable<object[]> ConfigAccessors
+        {
+            get
+            {
+                return new List<object[]>
+                {
+                    new[] { new Func<string, string>(p => Path.Combine(p, ".git", "config")) },
+                    new[] { new Func<string, string>(p => Path.Combine(p, ".git")) },
+                    new[] { new Func<string, string>(p => p) },
+                };
+            }
+        }
+
+        [Theory, PropertyData("ConfigAccessors")]
+        public void CanAccessConfigurationWithoutARepository(Func<string, string> localConfigurationPathProvider)
         {
             var path = SandboxStandardTestRepoGitDir();
 
@@ -381,11 +396,18 @@ namespace LibGit2Sharp.Tests
                 repo.Config.Set("my.key", "mouse", ConfigurationLevel.Global);
             }
 
-            using (var config = Configuration.BuildFrom(Path.Combine(path, ".git", "config"), globalConfigPath))
+            using (var config = Configuration.BuildFrom(localConfigurationPathProvider(path), globalConfigPath))
             {
                 Assert.Equal("local", config.Get<string>("my.key").Value);
                 Assert.Equal("mouse", config.Get<string>("my.key", ConfigurationLevel.Global).Value);
             }
+        }
+
+        [Fact]
+        public void PassingANonExistingLocalConfigurationFileToBuildFromthrowss()
+        {
+            Assert.Throws<FileNotFoundException>(() => Configuration.BuildFrom(
+                Path.Combine(Path.GetTempPath(), Path.GetRandomFileName())));
         }
     }
 }
