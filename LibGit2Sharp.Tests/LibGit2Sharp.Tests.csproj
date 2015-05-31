@@ -124,6 +124,7 @@
     <Compile Include="TestHelpers\SignatureExtensions.cs" />
     <Compile Include="TestHelpers\SkippableFactAttribute.cs" />
     <Compile Include="LogFixture.cs" />
+    <Compile Include="TestHelpers\TestRemoteRefs.cs" />
     <Compile Include="TreeDefinitionFixture.cs" />
     <Compile Include="TreeFixture.cs" />
     <Compile Include="UnstageFixture.cs" />

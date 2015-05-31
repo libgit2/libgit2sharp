@@ -2167,6 +2167,16 @@ namespace LibGit2Sharp.Core
             return repo;
         }
 
+        public static RepositorySafeHandle git_repository_new()
+        {
+            RepositorySafeHandle repo;
+            int res = NativeMethods.git_repository_new(out repo);
+
+            Ensure.ZeroResult(res);
+
+            return repo;
+        }
+
         public static void git_repository_open_ext(string path, RepositoryOpenFlags flags, string ceilingDirs)
         {
             int res;
