@@ -69,6 +69,7 @@
     <Compile Include="RebaseFixture.cs" />
     <Compile Include="RefSpecFixture.cs" />
     <Compile Include="EqualityFixture.cs" />
+    <Compile Include="RefTransactionFixture.cs" />
     <Compile Include="RevertFixture.cs" />
     <Compile Include="SetErrorFixture.cs" />
     <Compile Include="SignatureFixture.cs" />

@@ -74,6 +74,8 @@
     <Compile Include="Core\GitPushUpdate.cs" />
     <Compile Include="Core\GitSubmoduleIgnore.cs" />
     <Compile Include="Core\Handles\PackBuilderSafeHandle.cs" />
+    <Compile Include="Core\GitRefdbIterator.cs" />
+    <Compile Include="Core\Handles\TransactionSafeHandle.cs" />
     <Compile Include="Core\Platform.cs" />
     <Compile Include="Core\Handles\ConflictIteratorSafeHandle.cs" />
     <Compile Include="Core\GitWriteStream.cs" />
@@ -142,6 +144,7 @@
     <Compile Include="RebaseResult.cs" />
     <Compile Include="Rebase.cs" />
     <Compile Include="RebaseStepInfo.cs" />
+    <Compile Include="RefdbIterator.cs" />
     <Compile Include="RefSpec.cs" />
     <Compile Include="RefSpecCollection.cs" />
     <Compile Include="Core\EncodingMarshaler.cs" />
@@ -158,6 +161,7 @@
     <Compile Include="Core\GitBuf.cs" />
     <Compile Include="FilteringOptions.cs" />
     <Compile Include="MergeFetchHeadNotFoundException.cs" />
+    <Compile Include="RefTransaction.cs" />
     <Compile Include="RepositoryOperationContext.cs" />
     <Compile Include="ResetMode.cs" />
     <Compile Include="RefSpecDirection.cs" />

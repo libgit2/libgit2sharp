@@ -71,6 +71,15 @@ namespace LibGit2Sharp
         #endregion
 
         /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public virtual RefTransaction NewRefTransaction()
+        {
+            return new RefTransaction(this.repo);
+        }
+
+        /// <summary>
         /// Creates a direct or symbolic reference with the specified name and target
         /// </summary>
         /// <param name="name">The name of the reference to create.</param>
