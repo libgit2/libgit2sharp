@@ -113,6 +113,13 @@ namespace LibGit2Sharp.Handlers
     public delegate void RemoteRenameFailureHandler(string problematicRefspec);
 
     /// <summary>
+    /// Delegate definition for stash application callback.
+    /// </summary>
+    /// <param name="progress">The current step of the stash application.</param>
+    /// <returns>True to continue checkout operation; false to cancel checkout operation.</returns>
+    public delegate bool StashApplyProgressHandler(StashApplyProgress progress);
+
+    /// <summary>
     /// The stages of pack building.
     /// </summary>
     public enum PackBuilderStage
