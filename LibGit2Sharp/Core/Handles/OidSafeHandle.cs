@@ -7,7 +7,7 @@ namespace LibGit2Sharp.Core.Handles
     {
         private GitOid? MarshalAsGitOid()
         {
-            return IsInvalid ? null : (GitOid?)MarshalAsGitOid(handle);
+            return IsZero || IsInvalid ? null : (GitOid?)MarshalAsGitOid(handle);
         }
 
         private static GitOid MarshalAsGitOid(IntPtr data)
