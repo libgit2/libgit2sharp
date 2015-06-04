@@ -183,6 +183,13 @@ after_test:
         cat .\curl-out.txt
     }
 
+deploy:
+  - provider: NuGet
+    api_key:
+      secure: A/hHqzkaA9isGv9CS3x+rLbz3OI+BRevvYEQRY4J5J3kwLKM5WPhVpBPzrQQH4tc
+    skip_symbols: true
+    artifact: /.*\.nupkg/
+
 notifications:
 - provider: Email
   to:
