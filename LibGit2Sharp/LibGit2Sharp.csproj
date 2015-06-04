@@ -47,6 +47,7 @@
     <Compile Include="AfterRebaseStepInfo.cs" />
     <Compile Include="AmbiguousSpecificationException.cs" />
     <Compile Include="ArchiverBase.cs" />
+    <Compile Include="AuthenticationException.cs" />
     <Compile Include="BareRepositoryException.cs" />
     <Compile Include="BeforeRebaseStepInfo.cs" />
     <Compile Include="BlameHunkCollection.cs" />
@@ -167,6 +168,8 @@
     <Compile Include="RevertResult.cs" />
     <Compile Include="RevertOptions.cs" />
     <Compile Include="SecureUsernamePasswordCredentials.cs" />
+    <Compile Include="SshAgentCredentials.cs" />
+    <Compile Include="SshUserKeyCredentials.cs" />
     <Compile Include="StageOptions.cs" />
     <Compile Include="StatusOptions.cs" />
     <Compile Include="SimilarityOptions.cs" />
@@ -363,6 +366,7 @@
     <Compile Include="TreeEntryDefinition.cs" />
     <Compile Include="UserCanceledException.cs" />
     <Compile Include="UsernamePasswordCredentials.cs" />
+    <Compile Include="UsernameQueryCredentials.cs" />
     <Compile Include="Version.cs" />
     <Compile Include="VoidReference.cs" />
     <Compile Include="Core\RawContentStream.cs" />
