@@ -49,14 +49,13 @@ install:
     Write-Host "Assembly informational version = " -NoNewLine
     Write-Host $Env:ASSEMBLY_INFORMATIONAL_VERSION -ForegroundColor "Green"
 
-    $ShouldPublishNugetArtifact = $($Env:APPVEYOR_PULL_REQUEST_NUMBER -eq $null)
-    $Env:SHOULD_PUBLISH_NUGET_ARTIFACT = $ShouldPublishNugetArtifact
-    Write-Host "Should publish Nuget artifact = " -NoNewLine
-    Write-Host $Env:SHOULD_PUBLISH_NUGET_ARTIFACT -ForegroundColor "Green"
-
     $Env:SHOULD_PUBLISH_COVERITY_ANALYSIS = $($Env:APPVEYOR_SCHEDULED_BUILD -eq $True)
     Write-Host "Should publish Coverity analysis = " -NoNewLine
     Write-Host $Env:SHOULD_PUBLISH_COVERITY_ANALYSIS -ForegroundColor "Green"
+
+    $Env:SHOULD_PUBLISH_NUGET_ARTIFACT = $($Env:APPVEYOR_PULL_REQUEST_NUMBER -eq $null -and $Env:SHOULD_PUBLISH_COVERITY_ANALYSIS -eq $False)
+    Write-Host "Should publish Nuget artifact = " -NoNewLine
+    Write-Host $Env:SHOULD_PUBLISH_NUGET_ARTIFACT -ForegroundColor "Green"
 
     cinst sourcelink -y
 
