@@ -22,12 +22,14 @@ matrix:
 
 install:
 - ps: |
-    Write-Host "Commit being built = $($Env:APPVEYOR_REPO_COMMIT)"
-    Write-Host "Current build version = $($Env:VERSION)"
-    Write-Host "Target branch = $($Env:APPVEYOR_REPO_BRANCH)"
+    Write-Host "Commit being built = $Env:APPVEYOR_REPO_COMMIT"
+    Write-Host "Current build version = $Env:VERSION"
+    Write-Host "Target branch = $Env:APPVEYOR_REPO_BRANCH"
     Write-Host "Is a Pull Request = $($Env:APPVEYOR_PULL_REQUEST_NUMBER -ne $null)"
+
     $BuildDate = (Get-Date).ToUniversalTime().ToString("yyyyMMddHHmmss")
     Write-Host "Build UTC date = $BuildDate"
+
     $VersionSuffix = ""
     If ($Env:APPVEYOR_REPO_BRANCH -ne "master")
     {
@@ -35,10 +37,12 @@ install:
     }
     $Version = "$($Env:VERSION)$($VersionSuffix)"
     $Env:ASSEMBLY_INFORMATIONAL_VERSION = $Version
-    Write-Host "Assembly informational version = $($Env:ASSEMBLY_INFORMATIONAL_VERSION)"
-    $ShouldPublishNugetArtifact = "$($env:APPVEYOR_PULL_REQUEST_NUMBER -eq $null)"
+    Write-Host "Assembly informational version = $Env:ASSEMBLY_INFORMATIONAL_VERSION"
+
+    $ShouldPublishNugetArtifact = $($Env:APPVEYOR_PULL_REQUEST_NUMBER -eq $null)
     $Env:SHOULD_PUBLISH_NUGET_ARTIFACT = $ShouldPublishNugetArtifact
-    Write-Host "Should publish Nuget artifact = $($Env:SHOULD_PUBLISH_NUGET_ARTIFACT)"
+    Write-Host "Should publish Nuget artifact = $Env:SHOULD_PUBLISH_NUGET_ARTIFACT"
+
     cinst sourcelink -y
 
 assembly_info:
@@ -52,23 +56,33 @@ cache:
   - packages
 
 before_build:
-- nuget restore "%APPVEYOR_BUILD_FOLDER%\LibGit2Sharp.sln"
+- ps: nuget restore "$Env:APPVEYOR_BUILD_FOLDER\LibGit2Sharp.sln"
 
 build_script:
 - msbuild "%APPVEYOR_BUILD_FOLDER%\LibGit2Sharp.sln" /verbosity:normal /p:Configuration=Release /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /property:ExtraDefine="LEAKS_IDENTIFYING"
 
 test_script:
-- '%xunit_runner%  "%APPVEYOR_BUILD_FOLDER%\LibGit2Sharp.Tests\bin\Release\LibGit2Sharp.Tests.dll" /appveyor'
-- IF %ERRORLEVEL% NEQ 0 EXIT /B %ERRORLEVEL%
+- ps: & "$Env:xunit_runner" "$Env:APPVEYOR_BUILD_FOLDER\LibGit2Sharp.Tests\bin\Release\LibGit2Sharp.Tests.dll" /appveyor
 
 on_success:
 - ps: |
-    & "$env:APPVEYOR_BUILD_FOLDER\nuget.package\BuildNugetPackage.ps1" -commitSha "$env:APPVEYOR_REPO_COMMIT" -postBuild  { sourcelink index -pr LibGit2Sharp.csproj -pp Configuration Release -nf Core\NativeDllName.cs -nf Core\UniqueIdentifier.cs -nf Properties\AssemblyInfo.cs -r .. -u 'https://raw.githubusercontent.com/libgit2/libgit2sharp/{0}/%var2%' }
-    Add-Type -Path "$env:APPVEYOR_BUILD_FOLDER\LibGit2Sharp\bin\Release\LibGit2Sharp.dll"
+    & "$Env:APPVEYOR_BUILD_FOLDER\nuget.package\BuildNugetPackage.ps1" `
+      -commitSha "$Env:APPVEYOR_REPO_COMMIT" `
+      -postBuild  { sourcelink index `
+                      -pr LibGit2Sharp.csproj `
+                      -pp Configuration Release `
+                      -nf Core\NativeDllName.cs `
+                      -nf Core\UniqueIdentifier.cs `
+                      -nf Properties\AssemblyInfo.cs `
+                      -r .. `
+                      -u 'https://raw.githubusercontent.com/libgit2/libgit2sharp/{0}/%var2%' }
+
+    Add-Type -Path "$Env:APPVEYOR_BUILD_FOLDER\LibGit2Sharp\bin\Release\LibGit2Sharp.dll"
     Write-Host "LibGit2Sharp version = $([LibGit2Sharp.GlobalSettings]::Version)" -ForegroundColor "Magenta"
+
     If ($Env:SHOULD_PUBLISH_NUGET_ARTIFACT -eq $True)
     {
-      Get-ChildItem "$env:APPVEYOR_BUILD_FOLDER\LibGit2sharp\*.nupkg" | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
+      Get-ChildItem "$Env:APPVEYOR_BUILD_FOLDER\LibGit2sharp\*.nupkg" | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
     }
 
 notifications:
