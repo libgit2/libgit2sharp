@@ -336,19 +336,19 @@ namespace LibGit2Sharp.Tests.TestHelpers
         protected string CreateConfigurationWithDummyUser(string name, string email)
         {
             SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
-            Directory.CreateDirectory(scd.DirectoryPath);
-            string configFilePath = Path.Combine(scd.DirectoryPath, "global-config");
 
-            using (Configuration config = new Configuration(configFilePath))
+            string configFilePath = Touch(scd.DirectoryPath, "fake-config");
+
+            using (Configuration config = Configuration.BuildFrom(configFilePath))
             {
                 if (name != null)
                 {
-                    config.Set("user.name", name, ConfigurationLevel.Global);
+                    config.Set("user.name", name);
                 }
 
                 if (email != null)
                 {
-                    config.Set("user.email", email, ConfigurationLevel.Global);
+                    config.Set("user.email", email);
                 }
             }
 

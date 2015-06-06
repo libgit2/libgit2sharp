@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
+using Xunit.Extensions;
 
 namespace LibGit2Sharp.Tests
 {
@@ -11,35 +13,6 @@ namespace LibGit2Sharp.Tests
         private static void AssertValueInLocalConfigFile(string repoPath, string regex)
         {
             var configFilePath = Path.Combine(repoPath, ".git/config");
-            AssertValueInConfigFile(configFilePath, regex);
-        }
-
-        private static string RetrieveGlobalConfigLocation()
-        {
-            string[] variables = { "HOME", "USERPROFILE", };
-
-            foreach (string variable in variables)
-            {
-                string potentialLocation = Environment.GetEnvironmentVariable(variable);
-                if (string.IsNullOrEmpty(potentialLocation))
-                {
-                    continue;
-                }
-
-                string potentialPath = Path.Combine(potentialLocation, ".gitconfig");
-
-                if (File.Exists(potentialPath))
-                {
-                    return potentialPath;
-                }
-            }
-
-            throw new InvalidOperationException("Unable to determine the location of '.gitconfig' file.");
-        }
-
-        private static void AssertValueInGlobalConfigFile(string regex)
-        {
-            string configFilePath = RetrieveGlobalConfigLocation();
             AssertValueInConfigFile(configFilePath, regex);
         }
 
@@ -256,7 +229,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void SettingLocalConfigurationOutsideAReposThrows()
         {
-            using (var config = new Configuration(null, null, null))
+            using (var config = Configuration.BuildFrom(null, null, null, null))
             {
                 Assert.Throws<LibGit2SharpException>(() => config.Set("unittests.intsetting", 3));
             }
@@ -394,6 +367,47 @@ namespace LibGit2Sharp.Tests
 
                 Assert.Null(repo.Config.Get<string>("MCHammer.You-cant-touch-this", ConfigurationLevel.System));
             }
+        }
+
+        public static IEnumerable<object[]> ConfigAccessors
+        {
+            get
+            {
+                return new List<object[]>
+                {
+                    new[] { new Func<string, string>(p => Path.Combine(p, ".git", "config")) },
+                    new[] { new Func<string, string>(p => Path.Combine(p, ".git")) },
+                    new[] { new Func<string, string>(p => p) },
+                };
+            }
+        }
+
+        [Theory, PropertyData("ConfigAccessors")]
+        public void CanAccessConfigurationWithoutARepository(Func<string, string> localConfigurationPathProvider)
+        {
+            var path = SandboxStandardTestRepoGitDir();
+
+            string globalConfigPath = CreateConfigurationWithDummyUser(Constants.Signature);
+            var options = new RepositoryOptions { GlobalConfigurationLocation = globalConfigPath };
+
+            using (var repo = new Repository(path, options))
+            {
+                repo.Config.Set("my.key", "local");
+                repo.Config.Set("my.key", "mouse", ConfigurationLevel.Global);
+            }
+
+            using (var config = Configuration.BuildFrom(localConfigurationPathProvider(path), globalConfigPath))
+            {
+                Assert.Equal("local", config.Get<string>("my.key").Value);
+                Assert.Equal("mouse", config.Get<string>("my.key", ConfigurationLevel.Global).Value);
+            }
+        }
+
+        [Fact]
+        public void PassingANonExistingLocalConfigurationFileToBuildFromthrowss()
+        {
+            Assert.Throws<FileNotFoundException>(() => Configuration.BuildFrom(
+                Path.Combine(Path.GetTempPath(), Path.GetRandomFileName())));
         }
     }
 }

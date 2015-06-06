@@ -125,7 +125,7 @@ namespace LibGit2Sharp
                 config =
                     new Lazy<Configuration>(
                         () =>
-                        RegisterForCleanup(new Configuration(this, configurationGlobalFilePath, configurationXDGFilePath,
+                        RegisterForCleanup(new Configuration(this, null, configurationGlobalFilePath, configurationXDGFilePath,
                                                              configurationSystemFilePath)));
                 odb = new Lazy<ObjectDatabase>(() => new ObjectDatabase(this));
                 diff = new Diff(this);
