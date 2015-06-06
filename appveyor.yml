@@ -26,13 +26,18 @@ matrix:
 
 install:
 - ps: |
-    Write-Host "Commit being built = $Env:APPVEYOR_REPO_COMMIT"
-    Write-Host "Current build version = $Env:VERSION"
-    Write-Host "Target branch = $Env:APPVEYOR_REPO_BRANCH"
-    Write-Host "Is a Pull Request = $($Env:APPVEYOR_PULL_REQUEST_NUMBER -ne $null)"
+    Write-Host "Commit being built = " -NoNewLine
+    Write-Host $Env:APPVEYOR_REPO_COMMIT -ForegroundColor "Green"
+    Write-Host "Current build version = " -NoNewLine
+    Write-Host $Env:VERSION -ForegroundColor "Green"
+    Write-Host "Target branch = " -NoNewLine
+    Write-Host $Env:APPVEYOR_REPO_BRANCH -ForegroundColor "Green"
+    Write-Host "Is a Pull Request = " -NoNewLine
+    Write-Host $($Env:APPVEYOR_PULL_REQUEST_NUMBER -ne $null) -ForegroundColor "Green"
 
     $BuildDate = (Get-Date).ToUniversalTime().ToString("yyyyMMddHHmmss")
-    Write-Host "Build UTC date = $BuildDate"
+    Write-Host "Build UTC date = " -NoNewLine
+    Write-Host $BuildDate -ForegroundColor "Green"
 
     $VersionSuffix = ""
     If ($Env:APPVEYOR_REPO_BRANCH -ne "master")
@@ -41,14 +46,17 @@ install:
     }
     $Version = "$($Env:VERSION)$($VersionSuffix)"
     $Env:ASSEMBLY_INFORMATIONAL_VERSION = $Version
-    Write-Host "Assembly informational version = $Env:ASSEMBLY_INFORMATIONAL_VERSION"
+    Write-Host "Assembly informational version = " -NoNewLine
+    Write-Host $Env:ASSEMBLY_INFORMATIONAL_VERSION -ForegroundColor "Green"
 
     $ShouldPublishNugetArtifact = $($Env:APPVEYOR_PULL_REQUEST_NUMBER -eq $null)
     $Env:SHOULD_PUBLISH_NUGET_ARTIFACT = $ShouldPublishNugetArtifact
-    Write-Host "Should publish Nuget artifact = $Env:SHOULD_PUBLISH_NUGET_ARTIFACT"
+    Write-Host "Should publish Nuget artifact = " -NoNewLine
+    Write-Host $Env:SHOULD_PUBLISH_NUGET_ARTIFACT -ForegroundColor "Green"
 
     $Env:SHOULD_PUBLISH_COVERITY_ANALYSIS = $($Env:APPVEYOR_SCHEDULED_BUILD -eq $True)
-    Write-Host "Should publish Coverity analysis = $Env:SHOULD_PUBLISH_COVERITY_ANALYSIS"
+    Write-Host "Should publish Coverity analysis = " -NoNewLine
+    Write-Host $Env:SHOULD_PUBLISH_COVERITY_ANALYSIS -ForegroundColor "Green"
 
     cinst sourcelink -y
 
