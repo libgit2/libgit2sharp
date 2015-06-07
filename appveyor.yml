@@ -16,10 +16,12 @@ environment:
     secure: eGVilNg1Yuq+Xj+SW8r3WCtjnzhoDV0sNJkma4NRq7A=
   version : 0.22.0
   matrix:
-  - xunit_runner: xunit.console.clr4.exe
-    Arch: 64
   - xunit_runner: xunit.console.clr4.x86.exe
     Arch: 32
+    publish_on_success: False
+  - xunit_runner: xunit.console.clr4.exe
+    Arch: 64
+    publish_on_success: True
 
 matrix:
   fast_finish: true
@@ -49,16 +51,27 @@ install:
     Write-Host "Assembly informational version = " -NoNewLine
     Write-Host $Env:ASSEMBLY_INFORMATIONAL_VERSION -ForegroundColor "Green"
 
-    $ShouldPublishNugetArtifact = $($Env:APPVEYOR_PULL_REQUEST_NUMBER -eq $null)
-    $Env:SHOULD_PUBLISH_NUGET_ARTIFACT = $ShouldPublishNugetArtifact
-    Write-Host "Should publish Nuget artifact = " -NoNewLine
-    Write-Host $Env:SHOULD_PUBLISH_NUGET_ARTIFACT -ForegroundColor "Green"
+    $Env:SHOULD_RUN_COVERITY_ANALYSIS = $($Env:APPVEYOR_SCHEDULED_BUILD -eq $True)
+    Write-Host "Should run Coverity analysis = " -NoNewLine
+    Write-Host $Env:SHOULD_RUN_COVERITY_ANALYSIS -ForegroundColor "Green"
 
-    $Env:SHOULD_PUBLISH_COVERITY_ANALYSIS = $($Env:APPVEYOR_SCHEDULED_BUILD -eq $True)
-    Write-Host "Should publish Coverity analysis = " -NoNewLine
-    Write-Host $Env:SHOULD_PUBLISH_COVERITY_ANALYSIS -ForegroundColor "Green"
+    $Env:SHOULD_PACKAGE_NUGET_ARTIFACT = $($Env:APPVEYOR_PULL_REQUEST_NUMBER -eq $null `
+                                               -and $Env:APPVEYOR_SCHEDULED_BUILD -eq $False)
+    Write-Host "Should package Nuget artifact = " -NoNewLine
+    Write-Host $Env:SHOULD_PACKAGE_NUGET_ARTIFACT -ForegroundColor "Green"
 
-    cinst sourcelink -y
+    Write-Host "Should publish on success = " -NoNewLine
+    Write-Host $Env:publish_on_success -ForegroundColor "Green"
+
+    If ($Env:SHOULD_PACKAGE_NUGET_ARTIFACT -eq $True)
+    {
+      cinst sourcelink -y
+    }
+
+    If ($Env:SHOULD_RUN_COVERITY_ANALYSIS -eq $True)
+    {
+      cinst curl -y
+    }
 
 assembly_info:
   patch: true
@@ -83,14 +96,14 @@ build_script:
 
 test_script:
 - ps: |
-    If ($Env:SHOULD_PUBLISH_COVERITY_ANALYSIS -eq $False)
+    If ($Env:SHOULD_RUN_COVERITY_ANALYSIS -eq $False)
     {
       & "$Env:xunit_runner" "$Env:APPVEYOR_BUILD_FOLDER\LibGit2Sharp.Tests\bin\Release\LibGit2Sharp.Tests.dll" /appveyor
     }
 
 after_test:
 - ps: |
-    If ($Env:SHOULD_PUBLISH_COVERITY_ANALYSIS -eq $False)
+    If ($Env:SHOULD_PACKAGE_NUGET_ARTIFACT -eq $True -and $Env:publish_on_success -eq $True)
     {
       & "$Env:APPVEYOR_BUILD_FOLDER\nuget.package\BuildNugetPackage.ps1" `
         -commitSha "$Env:APPVEYOR_REPO_COMMIT" `
@@ -106,27 +119,28 @@ after_test:
       Add-Type -Path "$Env:APPVEYOR_BUILD_FOLDER\LibGit2Sharp\bin\Release\LibGit2Sharp.dll"
       Write-Host "LibGit2Sharp version = $([LibGit2Sharp.GlobalSettings]::Version)" -ForegroundColor "Magenta"
 
-      If ($Env:SHOULD_PUBLISH_NUGET_ARTIFACT -eq $True)
-      {
-        Get-ChildItem "$Env:APPVEYOR_BUILD_FOLDER\LibGit2sharp\*.nupkg" | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
-      }
+      Get-ChildItem "$Env:APPVEYOR_BUILD_FOLDER\LibGit2sharp\*.nupkg" | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
     }
-    Else
+
+    If ($Env:SHOULD_RUN_COVERITY_ANALYSIS -eq $True -and $Env:publish_on_success -eq $True)
     {
-      & nuget install PublishCoverity -Version 0.9.0 -ExcludeVersion -OutputDirectory .\packages
+      7z a "$Env:APPVEYOR_BUILD_FOLDER\$Env:APPVEYOR_PROJECT_NAME.zip" "$Env:APPVEYOR_BUILD_FOLDER\cov-int\"
 
-      & .\packages\PublishCoverity\PublishCoverity.exe compress `
-        -i "$Env:APPVEYOR_BUILD_FOLDER\cov-int" `
-        -o "$Env:APPVEYOR_BUILD_FOLDER\$Env:APPVEYOR_PROJECT_NAME.zip"
+      # cf. http://stackoverflow.com/a/25045154/335418
+      Remove-item alias:curl
 
-      & .\packages\PublishCoverity\PublishCoverity.exe publish `
-        -t "$Env:coverity_token" `
-        -e "$Env:coverity_email" `
-        -r "$Env:APPVEYOR_REPO_NAME" `
-        -z "$Env:APPVEYOR_BUILD_FOLDER\$env:APPVEYOR_PROJECT_NAME.zip" `
-        -d "CI server scheduled build." `
-        --codeVersion "$Env:ASSEMBLY_INFORMATIONAL_VERSION" `
-        --nologo
+      Write-Host "Uploading Coverity analysis result..." -ForegroundColor "Green"
+
+      curl --silent --show-error `
+        --output curl-out.txt `
+        --form token="$Env:coverity_token" `
+        --form email="$Env:coverity_email" `
+        --form "file=@$Env:APPVEYOR_BUILD_FOLDER\$Env:APPVEYOR_PROJECT_NAME.zip" `
+        --form version="$Env:APPVEYOR_REPO_COMMIT" `
+        --form description="CI server scheduled build." `
+        https://scan.coverity.com/builds?project=libgit2%2Flibgit2sharp
+
+        cat .\curl-out.txt
     }
 
 notifications:
