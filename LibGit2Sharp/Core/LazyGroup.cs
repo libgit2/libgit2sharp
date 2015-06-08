@@ -24,18 +24,19 @@ namespace LibGit2Sharp.Core
 
         public void Evaluate()
         {
-            if (evaluated)
-                return;
-
             lock (@lock)
             {
                 if (evaluated)
+                {
                     return;
+                }
 
                 EvaluateInternal(input =>
                                  {
                                      foreach (var e in evaluators)
+                                     {
                                          e.Evaluate(input);
+                                     }
                                  });
                 evaluated = true;
             }

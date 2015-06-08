@@ -66,7 +66,15 @@ namespace LibGit2Sharp.Core
         /// </summary>
         public static IEnumerable<string> TypeNames
         {
-            get { return _typeNames.ToArray(); }
+            get
+            {
+                string[] result = null;
+                lock (_lockpad)
+                {
+                    result = _typeNames.ToArray();
+                }
+                return result;
+            }
         }
     }
 }
