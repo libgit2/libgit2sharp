@@ -476,7 +476,7 @@ namespace LibGit2Sharp
 
             using (GitObjectSafeHandle obj = Proxy.git_object_lookup(handle, id, type))
             {
-                if (obj == null)
+                if (obj == null || obj.IsInvalid)
                 {
                     return null;
                 }
