@@ -71,7 +71,7 @@ namespace LibGit2Sharp
 
             using (RemoteSafeHandle remoteHandle = Proxy.git_remote_lookup(repository.Handle, remote.Name, true))
             {
-                var gitCallbacks = new GitRemoteCallbacks {version = 1};
+                var gitCallbacks = new GitRemoteCallbacks { version = 1 };
 
                 if (credentialsProvider != null)
                 {
@@ -148,14 +148,14 @@ namespace LibGit2Sharp
                 // Also, if GitRemoteCallbacks were a class instead of a struct, we would need to guard against
                 // GC occuring in between setting the remote callbacks and actual usage in one of the functions afterwords.
                 var fetchOptions = new GitFetchOptions
-                                    {
-                                        RemoteCallbacks = gitCallbacks,
-                                        download_tags = Proxy.git_remote_autotag(remoteHandle),
-                                    };
+                {
+                    RemoteCallbacks = gitCallbacks,
+                    download_tags = Proxy.git_remote_autotag(remoteHandle),
+                };
 
                 if (options.TagFetchMode.HasValue)
                 {
-                    fetchOptions.download_tags =  options.TagFetchMode.Value;
+                    fetchOptions.download_tags = options.TagFetchMode.Value;
                 }
 
                 Proxy.git_remote_fetch(remoteHandle, refspecs, fetchOptions, logMessage);
