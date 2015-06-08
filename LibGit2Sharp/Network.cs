@@ -111,13 +111,13 @@ namespace LibGit2Sharp
         {
             Debug.Assert((remote == null) ^ (url == null));
 
-            RemoteSafeHandle remoteHandle;
+            RemoteSafeHandle remoteHandle = null;
 
             if (url != null)
             {
                 remoteHandle = Proxy.git_remote_create_anonymous(repoHandle, url);
             }
-            else
+            else if (remote != null)
             {
                 remoteHandle = Proxy.git_remote_lookup(repoHandle, remote.Name, true);
             }
