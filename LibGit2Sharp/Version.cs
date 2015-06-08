@@ -57,10 +57,7 @@ namespace LibGit2Sharp
         /// </summary>
         public virtual string LibGit2CommitSha
         {
-            get
-            {
-                return ReadContentFromResource(assembly, "libgit2_hash.txt").Substring(0, 7);
-            }
+            get { return RetrieveAbbrevShaFrom("libgit2_hash.txt"); }
         }
 
         /// <summary>
@@ -68,10 +65,14 @@ namespace LibGit2Sharp
         /// </summary>
         public virtual string LibGit2SharpCommitSha
         {
-            get
-            {
-                return ReadContentFromResource(assembly, "libgit2sharp_hash.txt").Substring(0, 7);
-            }
+            get { return RetrieveAbbrevShaFrom("libgit2sharp_hash.txt"); }
+        }
+
+        private string RetrieveAbbrevShaFrom(string name)
+        {
+            string sha = ReadContentFromResource(assembly, name) ?? "unknown";
+
+            return sha.Substring(0, 7);
         }
 
         /// <summary>
