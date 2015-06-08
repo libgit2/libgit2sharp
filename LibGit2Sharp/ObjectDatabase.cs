@@ -365,7 +365,9 @@ namespace LibGit2Sharp
 
             ObjectId commitId = Proxy.git_commit_create(repo.Handle, null, author, committer, message, tree, parentIds);
 
-            return repo.Lookup<Commit>(commitId);
+            Commit commit = repo.Lookup<Commit>(commitId);
+            Ensure.GitObjectIsNotNull(commit, commitId.Sha);
+            return commit;
         }
 
         /// <summary>
@@ -454,6 +456,8 @@ namespace LibGit2Sharp
         /// <returns>A short string representation of the <see cref="ObjectId"/>.</returns>
         public virtual string ShortenObjectId(GitObject gitObject, int minLength)
         {
+            Ensure.ArgumentNotNull(gitObject, "gitObject");
+
             if (minLength <= 0 || minLength > ObjectId.HexSize)
             {
                 throw new ArgumentOutOfRangeException("minLength", minLength,
@@ -461,6 +465,11 @@ namespace LibGit2Sharp
             }
 
             string shortSha = Proxy.git_object_short_id(repo.Handle, gitObject.Id);
+
+            if (shortSha == null)
+            {
+                throw new LibGit2SharpException("Unable to abbreviate SHA-1 value for GitObject " + gitObject.Id);
+            }
 
             if (minLength <= shortSha.Length)
             {
