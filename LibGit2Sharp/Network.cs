@@ -71,7 +71,7 @@ namespace LibGit2Sharp
 
             using (RemoteSafeHandle remoteHandle = Proxy.git_remote_lookup(repository.Handle, remote.Name, true))
             {
-                var gitCallbacks = new GitRemoteCallbacks {version = 1};
+                var gitCallbacks = new GitRemoteCallbacks { version = 1 };
 
                 if (credentialsProvider != null)
                 {
@@ -113,7 +113,7 @@ namespace LibGit2Sharp
             Debug.Assert(remote != null && remote.Name != null);
 
             RemoteSafeHandle remoteHandle = Proxy.git_remote_lookup(repoHandle, remote.Name, true);
-            Debug.Assert(remoteHandle != null && !remoteHandle.IsClosed && !remoteHandle.IsInvalid);
+            Debug.Assert(remoteHandle != null && !(remoteHandle.IsClosed || remoteHandle.IsInvalid));
 
             return remoteHandle;
         }
@@ -124,7 +124,7 @@ namespace LibGit2Sharp
             Debug.Assert(url != null);
 
             RemoteSafeHandle remoteHandle = Proxy.git_remote_create_anonymous(repoHandle, url);
-            Debug.Assert(remoteHandle != null && !remoteHandle.IsClosed && !remoteHandle.IsInvalid);
+            Debug.Assert(remoteHandle != null && !(remoteHandle.IsClosed || remoteHandle.IsInvalid));
 
             return remoteHandle;
         }
