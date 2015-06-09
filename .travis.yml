@@ -15,11 +15,7 @@ mono:
 before_install:
  - date -u
  - uname -a
- - export PATH=/opt/mono/bin:$PATH
  - env | sort
-
-# Make sure CMake and Mono are installed
-install: ./CI/travis.${TRAVIS_OS_NAME}.install.deps.sh
 
 # Build libgit2, LibGit2Sharp and run the tests
 script:
