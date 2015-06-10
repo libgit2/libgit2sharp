@@ -87,6 +87,33 @@ namespace LibGit2Sharp.Core
                     "Zero bytes ('\\0') are not allowed. A zero byte has been found at position {0}.", zeroPos), argumentName);
         }
 
+        /// <summary>
+        /// Checks an argument to ensure it isn't a IntPtr.Zero (aka null).
+        /// </summary>
+        /// <param name="argumentValue">The argument value to check.</param>
+        /// <param name="argumentName">The name of the argument.</param>
+        public static void ArgumentNotZeroIntPtr(IntPtr argumentValue, string argumentName)
+        {
+            if (argumentValue == IntPtr.Zero)
+            {
+                throw new ArgumentNullException(argumentName);
+            }
+        }
+
+        /// <summary>
+        /// Checks a pointer argument to ensure it is the expected pointer value.
+        /// </summary>
+        /// <param name="argumentValue">The argument value to check.</param>
+        /// <param name="expectedValue">The expected value.</param>
+        /// <param name="argumentName">The name of the argument.</param>
+        public static void ArgumentIsExpectedIntPtr(IntPtr argumentValue, IntPtr expectedValue, string argumentName)
+        {
+            if (argumentValue != expectedValue)
+            {
+                throw new ArgumentException("Unexpected IntPtr value", argumentName);
+            }
+        }
+
         private static readonly Dictionary<GitErrorCode, Func<string, GitErrorCode, GitErrorCategory, LibGit2SharpException>>
             GitErrorsToLibGit2SharpExceptions =
                 new Dictionary<GitErrorCode, Func<string, GitErrorCode, GitErrorCategory, LibGit2SharpException>>

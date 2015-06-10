@@ -74,6 +74,8 @@
     <Compile Include="Core\GitPushUpdate.cs" />
     <Compile Include="Core\Platform.cs" />
     <Compile Include="Core\Handles\ConflictIteratorSafeHandle.cs" />
+    <Compile Include="Core\GitWriteStream.cs" />
+    <Compile Include="Core\WriteStream.cs" />
     <Compile Include="DescribeOptions.cs" />
     <Compile Include="DescribeStrategy.cs" />
     <Compile Include="Core\GitDescribeFormatOptions.cs" />
@@ -90,6 +92,12 @@
     <Compile Include="FollowFilter.cs" />
     <Compile Include="IBelongToARepository.cs" />
     <Compile Include="Identity.cs" />
+    <Compile Include="Core\GitFilter.cs" />
+    <Compile Include="FilterAttributeEntry.cs" />
+    <Compile Include="FilterMode.cs" />
+    <Compile Include="FilterRegistration.cs" />
+    <Compile Include="FilterSource.cs" />
+    <Compile Include="Filter.cs" />
     <Compile Include="IndexNameEntryCollection.cs" />
     <Compile Include="ContentChangeStats.cs" />
     <Compile Include="BuiltInFeatures.cs" />

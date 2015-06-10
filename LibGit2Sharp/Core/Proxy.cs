@@ -247,7 +247,7 @@ namespace LibGit2Sharp.Core
                 int res = NativeMethods.git_branch_remote_name(buf, repo, canonical_branch_name);
 
                 if (!shouldThrowIfNotFound &&
-                    (res == (int) GitErrorCode.NotFound || res == (int) GitErrorCode.Ambiguous))
+                    (res == (int)GitErrorCode.NotFound || res == (int)GitErrorCode.Ambiguous))
                 {
                     return null;
                 }
@@ -262,7 +262,7 @@ namespace LibGit2Sharp.Core
             using (var buf = new GitBuf())
             {
                 int res = NativeMethods.git_branch_upstream_name(buf, handle, canonicalReferenceName);
-                if (res == (int) GitErrorCode.NotFound)
+                if (res == (int)GitErrorCode.NotFound)
                 {
                     return null;
                 }
@@ -801,7 +801,34 @@ namespace LibGit2Sharp.Core
 
         public static GitDiffDelta git_diff_get_delta(DiffSafeHandle diff, int idx)
         {
-            return NativeMethods.git_diff_get_delta(diff, (UIntPtr) idx).MarshalAs<GitDiffDelta>(false);
+            return NativeMethods.git_diff_get_delta(diff, (UIntPtr)idx).MarshalAs<GitDiffDelta>(false);
+        }
+
+        #endregion
+
+        #region git_filter_
+
+        public static void git_filter_register(string name, FilterRegistration filterRegistration, int priority)
+        {
+            int res = NativeMethods.git_filter_register(name, filterRegistration.FilterPointer, priority);
+            if (res == (int)GitErrorCode.Exists)
+            {
+                var message = string.Format("A filter with the name '{0}' is already registered", name);
+                throw new EntryExistsException(message);
+            }
+            Ensure.ZeroResult(res);
+        }
+
+        public static void git_filter_unregister(string name)
+        {
+            int res = NativeMethods.git_filter_unregister(name);
+            Ensure.ZeroResult(res);
+        }
+
+        public static FilterMode git_filter_source_mode(IntPtr filterSource)
+        {
+            var res = NativeMethods.git_filter_source_mode(filterSource);
+            return (FilterMode)res;
         }
 
         #endregion
@@ -1749,7 +1776,7 @@ namespace LibGit2Sharp.Core
 
         public static TagFetchMode git_remote_autotag(RemoteSafeHandle remote)
         {
-            return (TagFetchMode) NativeMethods.git_remote_autotag(remote);
+            return (TagFetchMode)NativeMethods.git_remote_autotag(remote);
         }
 
         public static RemoteSafeHandle git_remote_create(RepositorySafeHandle repo, string name, string url)
@@ -2230,6 +2257,11 @@ namespace LibGit2Sharp.Core
         }
 
         public static FilePath git_repository_workdir(RepositorySafeHandle repo)
+        {
+            return NativeMethods.git_repository_workdir(repo);
+        }
+
+        public static FilePath git_repository_workdir(IntPtr repo)
         {
             return NativeMethods.git_repository_workdir(repo);
         }
