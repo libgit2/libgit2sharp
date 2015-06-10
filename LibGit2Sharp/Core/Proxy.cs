@@ -2452,6 +2452,38 @@ namespace LibGit2Sharp.Core
             Ensure.BooleanResult(res);
         }
 
+        private static StashApplyStatus get_stash_status(int res)
+        {
+            if (res == (int)GitErrorCode.Conflict)
+            {
+                return StashApplyStatus.Conflicts;
+            }
+
+            if (res == (int)GitErrorCode.NotFound)
+            {
+                return StashApplyStatus.NotFound;
+            }
+
+            Ensure.ZeroResult(res);
+            return StashApplyStatus.Applied;
+        }
+
+        public static StashApplyStatus git_stash_apply(
+            RepositorySafeHandle repo,
+            int index,
+            GitStashApplyOpts opts)
+        {
+            return get_stash_status(NativeMethods.git_stash_apply(repo, (UIntPtr)index, opts));
+        }
+
+        public static StashApplyStatus git_stash_pop(
+            RepositorySafeHandle repo,
+            int index,
+            GitStashApplyOpts opts)
+        {
+            return get_stash_status(NativeMethods.git_stash_pop(repo, (UIntPtr)index, opts));
+        }
+
         #endregion
 
         #region git_status_
