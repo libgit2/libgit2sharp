@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+
 namespace LibGit2Sharp.Handlers
 {
     /// <summary>
@@ -70,6 +72,13 @@ namespace LibGit2Sharp.Handlers
     /// <param name="total">The total number of objects to process for the current stage.</param>
     /// <returns>True to continue, false to cancel.</returns>
     public delegate bool PackBuilderProgressHandler(PackBuilderStage stage, int current, int total);
+
+    /// <summary>
+    /// Provides information about what updates will be performed before a push occurs
+    /// </summary>
+    /// <param name="updates">List of updates about to be performed via push</param>
+    /// <returns>True to continue, false to cancel.</returns>
+    public delegate bool PrePushHandler(IEnumerable<PushUpdate> updates);
 
     /// <summary>
     /// Delegate definition to handle reporting errors when updating references on the remote.

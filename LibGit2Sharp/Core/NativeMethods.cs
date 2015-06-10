@@ -1141,10 +1141,9 @@ namespace LibGit2Sharp.Core
             IntPtr data);
 
         internal delegate int push_negotiation_callback(
-            IntPtr updates, // GitPushUpdate?
+            IntPtr updates,
             UIntPtr len,
-            IntPtr payload
-            );
+            IntPtr payload);
 
         internal delegate int push_update_reference_callback(
             IntPtr refName,

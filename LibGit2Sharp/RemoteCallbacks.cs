@@ -28,6 +28,7 @@ namespace LibGit2Sharp
             PackBuilderProgress = pushOptions.OnPackBuilderProgress;
             CredentialsProvider = pushOptions.CredentialsProvider;
             PushStatusError = pushOptions.OnPushStatusError;
+            PrePushCallback = pushOptions.OnNegotiationCompletedBeforePush;
         }
 
         internal RemoteCallbacks(FetchOptionsBase fetchOptions)
@@ -77,6 +78,11 @@ namespace LibGit2Sharp
         /// </summary>
         private readonly PackBuilderProgressHandler PackBuilderProgress;
 
+        /// <summary>
+        /// Called during remote push operation after negotiation, before upload
+        /// </summary>
+        private readonly PrePushHandler PrePushCallback;
+
         #endregion
 
         /// <summary>
@@ -86,7 +92,7 @@ namespace LibGit2Sharp
 
         internal GitRemoteCallbacks GenerateCallbacks()
         {
-            var callbacks = new GitRemoteCallbacks {version = 1};
+            var callbacks = new GitRemoteCallbacks { version = 1 };
 
             if (Progress != null)
             {
@@ -121,6 +127,11 @@ namespace LibGit2Sharp
             if (PackBuilderProgress != null)
             {
                 callbacks.pack_progress = GitPackbuilderProgressHandler;
+            }
+
+            if (PrePushCallback != null)
+            {
+                callbacks.push_negotiation = GitPushNegotiationHandler;
             }
 
             return callbacks;
@@ -185,7 +196,7 @@ namespace LibGit2Sharp
         /// <returns>0 on success; a negative value to abort the process.</returns>
         private int GitPushUpdateReference(IntPtr str, IntPtr status, IntPtr data)
         {
-            PushStatusErrorHandler onPushError = PushStatusError;            
+            PushStatusErrorHandler onPushError = PushStatusError;
 
             if (onPushError != null)
             {
@@ -260,6 +271,49 @@ namespace LibGit2Sharp
             var cred = CredentialsProvider(url, username, types);
 
             return cred.GitCredentialHandler(out ptr);
+        }
+
+        private int GitPushNegotiationHandler(IntPtr updates, UIntPtr len, IntPtr payload)
+        {
+            if (updates == IntPtr.Zero)
+            {
+                return (int)GitErrorCode.Error;
+            }
+
+            bool result = false;
+            try
+            {
+
+                int length = len.ConvertToInt();
+                PushUpdate[] pushUpdates = new PushUpdate[length];
+
+                unsafe
+                {
+                    IntPtr* ptr = (IntPtr*)updates.ToPointer();
+
+                    for (int i = 0; i < length; i++)
+                    {
+                        if (ptr[i] == IntPtr.Zero)
+                        {
+                            throw new NullReferenceException("Unexpected null git_push_update pointer was encountered");
+                        }
+
+                        GitPushUpdate gitPushUpdate = ptr[i].MarshalAs<GitPushUpdate>();
+                        PushUpdate pushUpdate = new PushUpdate(gitPushUpdate);
+                        pushUpdates[i] = pushUpdate;
+                    }
+
+                    result = PrePushCallback(pushUpdates);
+                }
+            }
+            catch (Exception exception)
+            {
+                Log.Write(LogLevel.Error, exception.ToString());
+                Proxy.giterr_set_str(GitErrorCategory.Callback, exception);
+                result = false;
+            }
+
+            return Proxy.ConvertResultToCancelFlag(result);
         }
 
         #endregion

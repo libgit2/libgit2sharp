@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using LibGit2Sharp.Handlers;
@@ -76,6 +77,63 @@ namespace LibGit2Sharp.Tests
 
             AssertPush(repo => repo.Network.Push(repo.Network.Remotes["origin"], "HEAD", @"refs/heads/master", options));
             Assert.True(packBuilderCalled);
+        }
+
+        [Fact]
+        public void CanInvokePrePushCallbackAndSucceed()
+        {
+            bool packBuilderCalled = false;
+            bool prePushHandlerCalled = false;
+            PackBuilderProgressHandler packBuilderCb = (x, y, z) => { packBuilderCalled = true; return true; };
+            PrePushHandler prePushHook = (IEnumerable<PushUpdate> updates) =>
+            {
+                Assert.True(updates.Count() == 1, "Expected 1 update, received " + updates.Count());
+                prePushHandlerCalled = true;
+                return true;
+            };
+
+            AssertPush(repo => repo.Network.Push(repo.Head));
+            AssertPush(repo => repo.Network.Push(repo.Branches["master"]));
+
+            PushOptions options = new PushOptions()
+            {
+                OnPushStatusError = OnPushStatusError,
+                OnPackBuilderProgress = packBuilderCb,
+                OnNegotiationCompletedBeforePush = prePushHook,
+            };
+
+            AssertPush(repo => repo.Network.Push(repo.Network.Remotes["origin"], "HEAD", @"refs/heads/master", options));
+            Assert.True(packBuilderCalled);
+            Assert.True(prePushHandlerCalled);
+        }
+
+        [Fact]
+        public void CanInvokePrePushCallbackAndFail()
+        {
+            bool packBuilderCalled = false;
+            bool prePushHandlerCalled = false;
+            PackBuilderProgressHandler packBuilderCb = (x, y, z) => { packBuilderCalled = true; return true; };
+            PrePushHandler prePushHook = (IEnumerable<PushUpdate> updates) =>
+            {
+                Assert.True(updates.Count() == 1, "Expected 1 update, received " + updates.Count());
+                prePushHandlerCalled = true;
+                return false;
+            };
+
+            AssertPush(repo => repo.Network.Push(repo.Head));
+            AssertPush(repo => repo.Network.Push(repo.Branches["master"]));
+
+            PushOptions options = new PushOptions()
+            {
+                OnPushStatusError = OnPushStatusError,
+                OnPackBuilderProgress = packBuilderCb,
+                OnNegotiationCompletedBeforePush = prePushHook
+            };
+
+            Assert.Throws<UserCancelledException>(() => { AssertPush(repo => repo.Network.Push(repo.Network.Remotes["origin"], "HEAD", @"refs/heads/master", options)); });
+
+            Assert.False(packBuilderCalled);
+            Assert.True(prePushHandlerCalled);
         }
 
         [Fact]
