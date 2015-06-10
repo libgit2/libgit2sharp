@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
+using Xunit.Extensions;
 
 namespace LibGit2Sharp.Tests
 {
@@ -649,6 +650,65 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path))
             {
                 Assert.False(repo.Info.IsShallow);
+            }
+        }
+
+        [SkippableFact]
+        public void CanListRemoteReferencesWithCredentials()
+        {
+            InconclusiveIf(() => string.IsNullOrEmpty(Constants.PrivateRepoUrl),
+                "Populate Constants.PrivateRepo* to run this test");
+
+            IEnumerable<DirectReference> references = Repository.ListRemoteReferences(Constants.PrivateRepoUrl,
+                Constants.PrivateRepoCredentials);
+
+            foreach (var reference in references)
+            {
+                Assert.NotNull(reference);
+            }
+        }
+
+        [Theory]
+        [InlineData("http://github.com/libgit2/TestGitRepository")]
+        [InlineData("https://github.com/libgit2/TestGitRepository")]
+        [InlineData("git://github.com/libgit2/TestGitRepository.git")]
+        public void CanListRemoteReferences(string url)
+        {
+            IEnumerable<DirectReference> references = Repository.ListRemoteReferences(url);
+
+            List<Tuple<string, string>> actualRefs = references.
+                Select(directRef => new Tuple<string, string>(directRef.CanonicalName, directRef.TargetIdentifier)).ToList();
+
+            Assert.Equal(TestRemoteRefs.ExpectedRemoteRefs.Count, actualRefs.Count);
+            for (int i = 0; i < TestRemoteRefs.ExpectedRemoteRefs.Count; i++)
+            {
+                Assert.Equal(TestRemoteRefs.ExpectedRemoteRefs[i].Item2, actualRefs[i].Item2);
+                Assert.Equal(TestRemoteRefs.ExpectedRemoteRefs[i].Item1, actualRefs[i].Item1);
+            }
+        }
+
+        [Theory]
+        [InlineData("http://github.com/libgit2/TestGitRepository")]
+        public void ReadingReferenceRepositoryThroughListRemoteReferencesThrows(string url)
+        {
+            IEnumerable<DirectReference> references = Repository.ListRemoteReferences(url);
+
+            foreach (var reference in references)
+            {
+                IBelongToARepository repositoryReference = reference;
+                Assert.Throws<InvalidOperationException>(() => repositoryReference.Repository);
+            }
+        }
+
+        [Theory]
+        [InlineData("http://github.com/libgit2/TestGitRepository")]
+        public void ReadingReferenceTargetFromListRemoteReferencesThrows(string url)
+        {
+            IEnumerable<DirectReference> references = Repository.ListRemoteReferences(url);
+
+            foreach (var reference in references)
+            {
+                Assert.Throws<InvalidOperationException>(() => reference.Target);
             }
         }
     }

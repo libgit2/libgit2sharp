@@ -546,6 +546,52 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        /// Lists the Remote Repository References.
+        /// </summary>
+        /// <para>
+        /// Does not require a local Repository. The retrieved
+        /// <see cref="IBelongToARepository.Repository"/>
+        /// throws <see cref="InvalidOperationException"/> in this case.
+        /// </para>
+        /// <param name="url">The url to list from.</param>
+        /// <returns>The references in the remote repository.</returns>
+        public static IEnumerable<DirectReference> ListRemoteReferences(string url)
+        {
+            return ListRemoteReferences(url, null);
+        }
+
+        /// <summary>
+        /// Lists the Remote Repository References.
+        /// </summary>
+        /// <para>
+        /// Does not require a local Repository. The retrieved
+        /// <see cref="IBelongToARepository.Repository"/>
+        /// throws <see cref="InvalidOperationException"/> in this case.
+        /// </para>
+        /// <param name="url">The url to list from.</param>
+        /// <param name="credentialsProvider">The <see cref="Func{Credentials}"/> used to connect to remote repository.</param>
+        /// <returns>The references in the remote repository.</returns>
+        public static IEnumerable<DirectReference> ListRemoteReferences(string url, CredentialsHandler credentialsProvider)
+        {
+            Ensure.ArgumentNotNull(url, "url");
+
+            using (RepositorySafeHandle repositoryHandle = Proxy.git_repository_new())
+            using (RemoteSafeHandle remoteHandle = Proxy.git_remote_create_anonymous(repositoryHandle, url))
+            {
+                var gitCallbacks = new GitRemoteCallbacks { version = 1 };
+
+                if (credentialsProvider != null)
+                {
+                    var callbacks = new RemoteCallbacks(credentialsProvider);
+                    gitCallbacks = callbacks.GenerateCallbacks();
+                }
+
+                Proxy.git_remote_connect(remoteHandle, GitDirection.Fetch, ref gitCallbacks);
+                return Proxy.git_remote_ls(null, remoteHandle);
+            }
+        }
+
+        /// <summary>
         /// Probe for a git repository.
         /// <para>The lookup start from <paramref name="startingPath"/> and walk upward parent directories if nothing has been found.</para>
         /// </summary>

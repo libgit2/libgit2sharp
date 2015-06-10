@@ -199,6 +199,17 @@ namespace LibGit2Sharp
             }
         }
 
-        IRepository IBelongToARepository.Repository { get { return repo; } }
+        IRepository IBelongToARepository.Repository
+        {
+            get
+            {
+                if (repo == null)
+                {
+                    throw new InvalidOperationException("Repository requires a local repository");
+                }
+
+                return repo;
+            }
+        }
     }
 }

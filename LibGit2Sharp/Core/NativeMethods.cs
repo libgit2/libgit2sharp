@@ -1286,6 +1286,9 @@ namespace LibGit2Sharp.Core
         internal static extern FilePath git_repository_workdir(RepositorySafeHandle repository);
 
         [DllImport(libgit2)]
+        internal static extern int git_repository_new(out RepositorySafeHandle repo);
+
+        [DllImport(libgit2)]
         internal static extern int git_reset(
             RepositorySafeHandle repo,
             GitObjectSafeHandle target,
