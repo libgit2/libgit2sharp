@@ -357,6 +357,10 @@
     <Compile Include="Core\RawContentStream.cs" />
     <Compile Include="Core\Handles\OdbStreamSafeHandle.cs" />
     <Compile Include="SupportedCredentialTypes.cs" />
+    <Compile Include="StashApplyProgress.cs" />
+    <Compile Include="StashApplyOptions.cs" />
+    <Compile Include="StashApplyStatus.cs" />
+    <Compile Include="Core\GitStashApplyOpts.cs" />
   </ItemGroup>
   <ItemGroup>
     <CodeAnalysisDictionary Include="CustomDictionary.xml" />

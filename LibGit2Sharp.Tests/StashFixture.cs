@@ -204,6 +204,156 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        [Fact]
+        public void CanStashAndApplyWithOptions()
+        {
+            string path = SandboxStandardTestRepo();
+            using (var repo = new Repository(path))
+            {
+                var stasher = Constants.Signature;
+
+                const string filename = "staged_file_path.txt";
+                Touch(repo.Info.WorkingDirectory, filename, "I'm staged\n");
+                repo.Stage(filename);
+
+                repo.Stashes.Add(stasher, "This stash with default options");
+                Assert.Equal(StashApplyStatus.Applied, repo.Stashes.Apply(0));
+
+                Assert.Equal(FileStatus.NewInWorkdir, repo.RetrieveStatus(filename));
+                Assert.Equal(1, repo.Stashes.Count());
+
+                repo.Stage(filename);
+
+                repo.Stashes.Add(stasher, "This stash with default options");
+                Assert.Equal(StashApplyStatus.Applied, repo.Stashes.Apply(
+                    0,
+                    new StashApplyOptions
+                    {
+                        ApplyModifiers = StashApplyModifiers.ReinstateIndex,
+                    }));
+
+                Assert.Equal(FileStatus.NewInIndex, repo.RetrieveStatus(filename));
+                Assert.Equal(2, repo.Stashes.Count());
+            }
+        }
+
+        [Fact]
+        public void CanStashAndPop()
+        {
+            string path = SandboxStandardTestRepo();
+            using (var repo = new Repository(path))
+            {
+                var stasher = Constants.Signature;
+
+                Assert.Equal(0, repo.Stashes.Count());
+
+                const string filename = "staged_file_path.txt";
+                const string contents = "I'm staged";
+                Touch(repo.Info.WorkingDirectory, filename, contents);
+                repo.Stage(filename);
+
+                repo.Stashes.Add(stasher, "This stash with default options");
+                Assert.Equal(1, repo.Stashes.Count());
+
+                Assert.Equal(StashApplyStatus.Applied, repo.Stashes.Pop(0));
+                Assert.Equal(0, repo.Stashes.Count());
+
+                Assert.Equal(FileStatus.NewInWorkdir, repo.RetrieveStatus(filename));
+                Assert.Equal(contents, File.ReadAllText(Path.Combine(repo.Info.WorkingDirectory, filename)));
+            }
+        }
+
+        [Fact]
+        public void StashReportsConflictsWhenReinstated()
+        {
+            string path = SandboxStandardTestRepo();
+            using (var repo = new Repository(path))
+            {
+                var stasher = Constants.Signature;
+
+                const string filename = "staged_file_path.txt";
+                const string originalContents = "I'm pre-stash.";
+                const string filename2 = "unstaged_file_path.txt";
+                const string newContents = "I'm post-stash.";
+
+                Touch(repo.Info.WorkingDirectory, filename, originalContents);
+                repo.Stage(filename);
+                Touch(repo.Info.WorkingDirectory, filename2, originalContents);
+
+                repo.Stashes.Add(stasher, "This stash with default options");
+
+                Touch(repo.Info.WorkingDirectory, filename, newContents);
+                repo.Stage(filename);
+                Touch(repo.Info.WorkingDirectory, filename2, newContents);
+
+                Assert.Equal(StashApplyStatus.Conflicts, repo.Stashes.Pop(0, new StashApplyOptions
+                    {
+                        ApplyModifiers = StashApplyModifiers.ReinstateIndex,
+                    }));
+                Assert.Equal(1, repo.Stashes.Count());
+                Assert.Equal(newContents, File.ReadAllText(Path.Combine(repo.Info.WorkingDirectory, filename)));
+                Assert.Equal(newContents, File.ReadAllText(Path.Combine(repo.Info.WorkingDirectory, filename2)));
+            }
+        }
+
+        [Fact]
+        public void StashCallsTheCallback()
+        {
+            string path = SandboxStandardTestRepo();
+            using (var repo = new Repository(path))
+            {
+                var stasher = Constants.Signature;
+                bool called;
+
+                const string filename = "staged_file_path.txt";
+                const string filename2 = "unstaged_file_path.txt";
+                const string originalContents = "I'm pre-stash.";
+
+                Touch(repo.Info.WorkingDirectory, filename, originalContents);
+                repo.Stage(filename);
+                Touch(repo.Info.WorkingDirectory, filename2, originalContents);
+
+                repo.Stashes.Add(stasher, "This stash with default options");
+
+                called = false;
+                repo.Stashes.Apply(0, new StashApplyOptions
+                    {
+                        ProgressHandler = (progress) => { called = true; return true; }
+                    });
+
+                Assert.Equal(true, called);
+
+                repo.Reset(ResetMode.Hard);
+
+                called = false;
+                repo.Stashes.Pop(0, new StashApplyOptions
+                    {
+                        ProgressHandler = (progress) => { called = true; return true; }
+                    });
+
+                Assert.Equal(true, called);
+            }
+        }
+
+        [Fact]
+        public void StashApplyReportsNotFound()
+        {
+            string path = SandboxStandardTestRepo();
+            using (var repo = new Repository(path))
+            {
+                var stasher = Constants.Signature;
+
+                const string filename = "unstaged_file_path.txt";
+                Touch(repo.Info.WorkingDirectory, filename, "I'm unstaged\n");
+
+                repo.Stashes.Add(stasher, "This stash with default options", StashModifiers.IncludeUntracked);
+                Touch(repo.Info.WorkingDirectory, filename, "I'm another unstaged\n");
+
+                Assert.Equal(StashApplyStatus.NotFound, repo.Stashes.Pop(1));
+                Assert.Throws<ArgumentException>(() => repo.Stashes.Pop(-1));
+            }
+        }
+
         [Theory]
         [InlineData(-1)]
         [InlineData(-42)]

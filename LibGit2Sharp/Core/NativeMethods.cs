@@ -1367,6 +1367,18 @@ namespace LibGit2Sharp.Core
         internal static extern int git_stash_drop(RepositorySafeHandle repo, UIntPtr index);
 
         [DllImport(libgit2)]
+        internal static extern int git_stash_apply(
+            RepositorySafeHandle repo,
+            UIntPtr index,
+            GitStashApplyOpts opts);
+
+        [DllImport(libgit2)]
+        internal static extern int git_stash_pop(
+            RepositorySafeHandle repo,
+            UIntPtr index,
+            GitStashApplyOpts opts);
+
+        [DllImport(libgit2)]
         internal static extern int git_status_file(
             out FileStatus statusflags,
             RepositorySafeHandle repo,
