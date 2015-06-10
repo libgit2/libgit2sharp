@@ -6,7 +6,7 @@
     public enum BlameStrategy
     {
         /// <summary>
-        /// Track renames of the file, but no block movement.
+        /// Track renames of the file using diff rename detection, but no block movement.
         /// </summary>
         Default,
 
@@ -21,6 +21,16 @@
 
         // Track copies across all files in all commits. (NOT SUPPORTED IN LIBGIT2 YET)
         //TrackCopiesAnyCommitCopies
+
+        /// <summary>
+        /// Track renames of the file using only exact renames.
+        /// </summary>
+        FollowExactRenames = (1 << 5),
+
+        /// <summary>
+        /// Don't track renames of the file.
+        /// </summary>
+        DontFollowRenames = (1 << 6),
     }
 
     /// <summary>
