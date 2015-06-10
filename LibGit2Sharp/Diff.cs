@@ -544,7 +544,7 @@ namespace LibGit2Sharp
             var similarityOptions = (compareOptions == null) ? null : compareOptions.Similarity;
             if (similarityOptions == null || similarityOptions.RenameDetectionMode == RenameDetectionMode.Default)
             {
-                Proxy.git_diff_find_similar(diffList, null);
+                Proxy.git_diff_find_similar(diffList, IntPtr.Zero);
                 return;
             }
 
@@ -555,6 +555,7 @@ namespace LibGit2Sharp
 
             var opts = new GitDiffFindOptions
             {
+                Version = 1,
                 RenameThreshold = (ushort)similarityOptions.RenameThreshold,
                 RenameFromRewriteThreshold = (ushort)similarityOptions.RenameFromRewriteThreshold,
                 CopyThreshold = (ushort)similarityOptions.CopyThreshold,
