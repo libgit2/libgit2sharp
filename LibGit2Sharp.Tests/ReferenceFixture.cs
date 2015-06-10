@@ -26,6 +26,8 @@ namespace LibGit2Sharp.Tests
             {
                 EnableRefLog(repo);
 
+                var before = DateTimeOffset.Now.TruncateMilliseconds();
+
                 var newRef = (DirectReference)repo.Refs.Add(name, "be3563ae3f795b2b4353bcce3a527ad0a4f7f644");
                 Assert.NotNull(newRef);
                 Assert.Equal(name, newRef.CanonicalName);
@@ -36,7 +38,7 @@ namespace LibGit2Sharp.Tests
 
                 AssertRefLogEntry(repo, name,
                     "branch: Created from be3563ae3f795b2b4353bcce3a527ad0a4f7f644",
-                    null, newRef.ResolveToDirectReference().Target.Id, Constants.Identity, DateTimeOffset.Now
+                    null, newRef.ResolveToDirectReference().Target.Id, Constants.Identity, before
                     );
             }
         }
@@ -52,6 +54,8 @@ namespace LibGit2Sharp.Tests
             {
                 EnableRefLog(repo);
 
+                var before = DateTimeOffset.Now.TruncateMilliseconds();
+
                 var newRef = (DirectReference)repo.Refs.Add(name, "master^1^2", logMessage);
                 Assert.NotNull(newRef);
                 Assert.Equal(name, newRef.CanonicalName);
@@ -62,7 +66,7 @@ namespace LibGit2Sharp.Tests
 
                 AssertRefLogEntry(repo, name, logMessage,
                                   null, newRef.ResolveToDirectReference().Target.Id,
-                                  Constants.Identity, DateTimeOffset.Now);
+                                  Constants.Identity, before);
             }
         }
 
@@ -157,6 +161,9 @@ namespace LibGit2Sharp.Tests
                 EnableRefLog(repo);
 
                 var oldRef = repo.Refs[name];
+
+                var before = DateTimeOffset.Now.TruncateMilliseconds();
+
                 var newRef = (DirectReference)repo.Refs.Add(name, target, logMessage, true);
                 Assert.NotNull(newRef);
                 Assert.Equal(name, newRef.CanonicalName);
@@ -167,7 +174,7 @@ namespace LibGit2Sharp.Tests
                 AssertRefLogEntry(repo, name,
                                   logMessage, ((DirectReference)oldRef).Target.Id,
                                   newRef.ResolveToDirectReference().Target.Id,
-                                  Constants.Identity, DateTimeOffset.Now);
+                                  Constants.Identity, before);
             }
         }
 
@@ -184,6 +191,9 @@ namespace LibGit2Sharp.Tests
                 EnableRefLog(repo);
 
                 var oldtarget = repo.Refs[name].ResolveToDirectReference().Target.Id;
+
+                var before = DateTimeOffset.Now.TruncateMilliseconds();
+
                 var newRef = (SymbolicReference)repo.Refs.Add(name, target, logMessage, true);
                 Assert.NotNull(newRef);
                 Assert.Equal(name, newRef.CanonicalName);
@@ -194,7 +204,7 @@ namespace LibGit2Sharp.Tests
                 AssertRefLogEntry(repo, name, logMessage,
                                   oldtarget,
                                   newRef.ResolveToDirectReference().Target.Id,
-                                  Constants.Identity, DateTimeOffset.Now);
+                                  Constants.Identity, before);
             }
         }
 
@@ -506,6 +516,8 @@ namespace LibGit2Sharp.Tests
                 Reference head = repo.Refs.Head;
                 Reference test = repo.Refs["refs/heads/test"];
 
+                var before = DateTimeOffset.Now.TruncateMilliseconds();
+
                 Reference direct = repo.Refs.UpdateTarget(head, new ObjectId(test.TargetIdentifier), null);
                 Assert.True((direct is DirectReference));
                 Assert.Equal(test.TargetIdentifier, direct.TargetIdentifier);
@@ -515,9 +527,12 @@ namespace LibGit2Sharp.Tests
                 AssertRefLogEntry(repo, "HEAD", null,
                                   head.ResolveToDirectReference().Target.Id,
                                   testTargetId,
-                                  Constants.Identity, DateTimeOffset.Now);
+                                  Constants.Identity, before);
 
                 const string secondLogMessage = "second update target message";
+
+                before = DateTimeOffset.Now.TruncateMilliseconds();
+
                 Reference symref = repo.Refs.UpdateTarget(head, test, secondLogMessage);
                 Assert.True((symref is SymbolicReference));
                 Assert.Equal(test.CanonicalName, symref.TargetIdentifier);
@@ -527,7 +542,7 @@ namespace LibGit2Sharp.Tests
                                   secondLogMessage,
                                   testTargetId,
                                   testTargetId,
-                                  Constants.Identity, DateTimeOffset.Now);
+                                  Constants.Identity, before);
             }
         }
 
@@ -545,6 +560,9 @@ namespace LibGit2Sharp.Tests
                 var @from = master.Target.Id;
 
                 const string logMessage = "update target message";
+
+                var before = DateTimeOffset.Now.TruncateMilliseconds();
+
                 var newRef = (DirectReference)repo.Refs.UpdateTarget(master, "master^1^2", logMessage);
                 Assert.NotNull(newRef);
                 Assert.Equal(name, newRef.CanonicalName);
@@ -557,7 +575,7 @@ namespace LibGit2Sharp.Tests
                                   logMessage,
                                   @from,
                                   newRef.Target.Id,
-                                  Constants.Identity, DateTimeOffset.Now);
+                                  Constants.Identity, before);
             }
         }
 
@@ -657,6 +675,8 @@ namespace LibGit2Sharp.Tests
 
                 var oldId = repo.Refs[oldName].ResolveToDirectReference().Target.Id;
 
+                var before = DateTimeOffset.Now.TruncateMilliseconds();
+
                 Reference renamed = repo.Refs.Rename(oldName, newName);
                 Assert.NotNull(renamed);
                 Assert.Equal(newName, renamed.CanonicalName);
@@ -666,7 +686,7 @@ namespace LibGit2Sharp.Tests
                     string.Format("reference: renamed {0} to {1}", oldName, newName),
                     oldId,
                     renamed.ResolveToDirectReference().Target.Id,
-                    Constants.Identity, DateTimeOffset.Now);
+                    Constants.Identity, before);
             }
         }
 

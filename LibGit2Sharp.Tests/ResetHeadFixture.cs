@@ -110,6 +110,8 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(expectedHeadName, repo.Head.FriendlyName);
                 Assert.Equal(branch.Tip.Sha, repo.Head.Tip.Sha);
 
+                var before = DateTimeOffset.Now.TruncateMilliseconds();
+
                 /* Reset --soft the Head to a tag through its canonical name */
                 repo.Reset(ResetMode.Soft, tag.CanonicalName);
                 Assert.Equal(expectedHeadName, repo.Head.FriendlyName);
@@ -121,7 +123,7 @@ namespace LibGit2Sharp.Tests
                                   string.Format("reset: moving to {0}", tag.Target.Sha),
                                   oldHeadId,
                                   tag.Target.Id,
-                                  Constants.Identity, DateTimeOffset.Now);
+                                  Constants.Identity, before);
 
                 if (!shouldHeadBeDetached)
                 {
@@ -129,8 +131,10 @@ namespace LibGit2Sharp.Tests
                                       string.Format("reset: moving to {0}", tag.Target.Sha),
                                       oldHeadId,
                                       tag.Target.Id,
-                                      Constants.Identity, DateTimeOffset.Now);
+                                      Constants.Identity, before);
                 }
+
+                before = DateTimeOffset.Now.TruncateMilliseconds();
 
                 /* Reset --soft the Head to a commit through its sha */
                 repo.Reset(ResetMode.Soft, branch.Tip.Sha);
@@ -143,7 +147,7 @@ namespace LibGit2Sharp.Tests
                                   string.Format("reset: moving to {0}", branch.Tip.Sha),
                                   tag.Target.Id,
                                   branch.Tip.Id,
-                                  Constants.Identity, DateTimeOffset.Now);
+                                  Constants.Identity, before);
 
                 if (!shouldHeadBeDetached)
                 {
@@ -151,7 +155,7 @@ namespace LibGit2Sharp.Tests
                                   string.Format("reset: moving to {0}", branch.Tip.Sha),
                                   tag.Target.Id,
                                   branch.Tip.Id,
-                                  Constants.Identity, DateTimeOffset.Now);
+                                  Constants.Identity, before);
                 }
             }
         }
@@ -188,6 +192,8 @@ namespace LibGit2Sharp.Tests
 
                 Tag tag = repo.Tags["mytag"];
 
+                var before = DateTimeOffset.Now.TruncateMilliseconds();
+
                 repo.Reset(ResetMode.Mixed, tag.CanonicalName);
 
                 Assert.Equal(FileStatus.ModifiedInWorkdir, repo.RetrieveStatus("a.txt"));
@@ -196,13 +202,13 @@ namespace LibGit2Sharp.Tests
                                   string.Format("reset: moving to {0}", tag.Target.Sha),
                                   oldHeadId,
                                   tag.Target.Id,
-                                  Constants.Identity, DateTimeOffset.Now);
+                                  Constants.Identity, before);
 
                 AssertRefLogEntry(repo, "refs/heads/mybranch",
                                   string.Format("reset: moving to {0}", tag.Target.Sha),
                                   oldHeadId,
                                   tag.Target.Id,
-                                  Constants.Identity, DateTimeOffset.Now);
+                                  Constants.Identity, before);
             }
         }
 

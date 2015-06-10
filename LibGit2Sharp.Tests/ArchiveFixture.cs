@@ -18,6 +18,8 @@ namespace LibGit2Sharp.Tests
 
                 var archiver = new MockArchiver();
 
+                var before = DateTimeOffset.Now.TruncateMilliseconds();
+
                 repo.ObjectDatabase.Archive(tree, archiver);
 
                 var expected = new ArrayList
@@ -30,7 +32,7 @@ namespace LibGit2Sharp.Tests
                 };
                 Assert.Equal(expected, archiver.Files);
                 Assert.Null(archiver.ReceivedCommitSha);
-                Assert.InRange(archiver.ModificationTime, DateTimeOffset.UtcNow.Subtract(TimeSpan.FromMilliseconds(100)), DateTimeOffset.UtcNow);
+                Assert.InRange(archiver.ModificationTime, before, DateTimeOffset.UtcNow);
             }
         }
 

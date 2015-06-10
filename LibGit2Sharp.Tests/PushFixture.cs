@@ -182,6 +182,9 @@ namespace LibGit2Sharp.Tests
 
                 // Force push the new commit
                 string pushRefSpec = string.Format("+{0}:{0}", localRepo.Head.CanonicalName);
+
+                var before = DateTimeOffset.Now.TruncateMilliseconds();
+
                 localRepo.Network.Push(localRepo.Network.Remotes.Single(), pushRefSpec);
 
                 AssertRemoteHeadTipEquals(localRepo, second.Sha);
@@ -189,7 +192,7 @@ namespace LibGit2Sharp.Tests
                 AssertRefLogEntry(localRepo, "refs/remotes/origin/master",
                     "update by push",
                     oldId, localRepo.Head.Tip.Id,
-                    Constants.Identity, DateTimeOffset.Now);
+                    Constants.Identity, before);
             }
         }
 

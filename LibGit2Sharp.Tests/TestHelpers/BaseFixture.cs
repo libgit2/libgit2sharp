@@ -412,7 +412,7 @@ namespace LibGit2Sharp.Tests.TestHelpers
 
         protected static void AssertRefLogEntry(IRepository repo, string canonicalName,
                                                 string message, ObjectId @from, ObjectId to,
-                                                Identity committer, DateTimeOffset when)
+                                                Identity committer, DateTimeOffset before)
         {
             var reflogEntry = repo.Refs.Log(canonicalName).First();
 
@@ -421,7 +421,7 @@ namespace LibGit2Sharp.Tests.TestHelpers
             Assert.Equal(@from ?? ObjectId.Zero, reflogEntry.From);
 
             Assert.Equal(committer.Email, reflogEntry.Committer.Email);
-            Assert.InRange(reflogEntry.Committer.When, when - TimeSpan.FromSeconds(5), when);
+            Assert.InRange(reflogEntry.Committer.When, before, DateTimeOffset.Now);
         }
 
         protected static void EnableRefLog(IRepository repository, bool enable = true)
