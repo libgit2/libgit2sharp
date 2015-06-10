@@ -72,6 +72,9 @@ namespace LibGit2Sharp.Tests
 
                 var author = Constants.Signature;
                 const string commitMessage = "Hope reflog behaves as it should";
+
+                var before = DateTimeOffset.Now.TruncateMilliseconds();
+
                 Commit commit = repo.Commit(commitMessage, author, author);
 
                 // Assert a reflog entry is created on HEAD
@@ -82,7 +85,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(identity.Email, reflogEntry.Committer.Email);
 
                 var now = DateTimeOffset.Now;
-                Assert.InRange(reflogEntry.Committer.When, now - TimeSpan.FromSeconds(1), now);
+                Assert.InRange(reflogEntry.Committer.When, before, now);
 
                 Assert.Equal(commit.Id, reflogEntry.To);
                 Assert.Equal(ObjectId.Zero, reflogEntry.From);
@@ -94,8 +97,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(identity.Name, reflogEntry.Committer.Name);
                 Assert.Equal(identity.Email, reflogEntry.Committer.Email);
 
-                now = DateTimeOffset.Now;
-                Assert.InRange(reflogEntry.Committer.When, now - TimeSpan.FromSeconds(1), now);
+                Assert.InRange(reflogEntry.Committer.When, before, now);
 
                 Assert.Equal(commit.Id, reflogEntry.To);
                 Assert.Equal(ObjectId.Zero, reflogEntry.From);
@@ -147,6 +149,9 @@ namespace LibGit2Sharp.Tests
 
                 var author = Constants.Signature;
                 const string commitMessage = "Commit on detached head";
+
+                var before = DateTimeOffset.Now.TruncateMilliseconds();
+
                 var commit = repo.Commit(commitMessage, author, author);
 
                 // Assert a reflog entry is created on HEAD
@@ -156,7 +161,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(identity.Email, reflogEntry.Committer.Email);
 
                 var now = DateTimeOffset.Now;
-                Assert.InRange(reflogEntry.Committer.When, now - TimeSpan.FromSeconds(1), now);
+                Assert.InRange(reflogEntry.Committer.When, before, now);
 
                 Assert.Equal(commit.Id, reflogEntry.To);
                 Assert.Equal(string.Format("commit: {0}", commitMessage), repo.Refs.Log("HEAD").First().Message);
@@ -206,8 +211,11 @@ namespace LibGit2Sharp.Tests
                 var commit = repo.ObjectDatabase.CreateCommit(Constants.Signature, Constants.Signature, "yoink",
                                                  tree, Enumerable.Empty<Commit>(), false);
 
+                var before = DateTimeOffset.Now.TruncateMilliseconds();
+
                 var direct = repo.Refs.Add("refs/heads/direct", commit.Id);
-                AssertRefLogEntry(repo, direct.CanonicalName, null, null, direct.ResolveToDirectReference().Target.Id, Constants.Identity, DateTimeOffset.Now);
+                AssertRefLogEntry(repo, direct.CanonicalName, null, null,
+                    direct.ResolveToDirectReference().Target.Id, Constants.Identity, before);
 
                 var symbolic = repo.Refs.Add("refs/heads/symbolic", direct);
                 Assert.Empty(repo.Refs.Log(symbolic)); // creation of symbolic refs doesn't update the reflog

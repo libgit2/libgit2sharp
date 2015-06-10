@@ -682,6 +682,8 @@ namespace LibGit2Sharp.Tests
                 const string shortMessage = "Initial egotistic commit";
                 const string commitMessage = shortMessage + "\n\nOnly the coolest commits from us";
 
+                var before = DateTimeOffset.Now.TruncateMilliseconds();
+
                 Commit commit = repo.Commit(commitMessage, author, author);
 
                 AssertBlobContent(repo.Head[relativeFilepath], "nulltoken\n");
@@ -698,7 +700,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(identity.Email, reflogEntry.Committer.Email);
 
                 var now = DateTimeOffset.Now;
-                Assert.InRange(reflogEntry.Committer.When, now - TimeSpan.FromSeconds(1), now);
+                Assert.InRange(reflogEntry.Committer.When, before, now);
 
                 Assert.Equal(commit.Id, reflogEntry.To);
                 Assert.Equal(ObjectId.Zero, reflogEntry.From);
@@ -824,6 +826,8 @@ namespace LibGit2Sharp.Tests
                 CreateAndStageANewFile(repo);
                 const string commitMessage = "I'm rewriting the history!";
 
+                var before = DateTimeOffset.Now.TruncateMilliseconds();
+
                 Commit amendedCommit = repo.Commit(commitMessage, Constants.Signature, Constants.Signature,
                     new CommitOptions { AmendPreviousCommit = true });
 
@@ -833,7 +837,7 @@ namespace LibGit2Sharp.Tests
                                   string.Format("commit (amend): {0}", commitMessage),
                                   mergedCommit.Id,
                                   amendedCommit.Id,
-                                  Constants.Identity, DateTimeOffset.Now);
+                                  Constants.Identity, before);
             }
         }
 

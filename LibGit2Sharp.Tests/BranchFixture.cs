@@ -24,6 +24,8 @@ namespace LibGit2Sharp.Tests
 
                 const string committish = "be3563ae3f795b2b4353bcce3a527ad0a4f7f644";
 
+                var before = DateTimeOffset.Now.TruncateMilliseconds();
+
                 Branch newBranch = repo.CreateBranch(name, committish);
                 Assert.NotNull(newBranch);
                 Assert.Equal(name, newBranch.FriendlyName);
@@ -42,7 +44,7 @@ namespace LibGit2Sharp.Tests
                                   "branch: Created from " + committish,
                                   null,
                                   newBranch.Tip.Id,
-                                  Constants.Identity, DateTimeOffset.Now);
+                                  Constants.Identity, before);
 
                 repo.Branches.Remove(newBranch.FriendlyName);
                 Assert.Null(repo.Branches[name]);
@@ -95,6 +97,8 @@ namespace LibGit2Sharp.Tests
                 const string name = "unit_test";
                 const string committish = "be3563a";
 
+                var before = DateTimeOffset.Now.TruncateMilliseconds();
+
                 Branch newBranch = repo.CreateBranch(name, committish);
                 Assert.Equal("refs/heads/" + name, newBranch.CanonicalName);
                 Assert.Equal("be3563ae3f795b2b4353bcce3a527ad0a4f7f644", newBranch.Tip.Sha);
@@ -103,7 +107,7 @@ namespace LibGit2Sharp.Tests
                                   "branch: Created from " + committish,
                                   null,
                                   newBranch.Tip.Id,
-                                  Constants.Identity, DateTimeOffset.Now);
+                                  Constants.Identity, before);
             }
         }
 
@@ -120,6 +124,9 @@ namespace LibGit2Sharp.Tests
                 repo.Checkout(headCommitOrBranchSpec);
 
                 const string name = "unit_test";
+
+                var before = DateTimeOffset.Now.TruncateMilliseconds();
+
                 Branch newBranch = repo.CreateBranch(name);
                 Assert.NotNull(newBranch);
                 Assert.Equal(name, newBranch.FriendlyName);
@@ -133,7 +140,7 @@ namespace LibGit2Sharp.Tests
                                   "branch: Created from " + headCommitOrBranchSpec,
                                   null,
                                   newBranch.Tip.Id,
-                                  Constants.Identity, DateTimeOffset.Now);
+                                  Constants.Identity, before);
             }
         }
 
@@ -150,6 +157,9 @@ namespace LibGit2Sharp.Tests
                 repo.Checkout(headCommitOrBranchSpec);
 
                 const string name = "unit_test";
+
+                var before = DateTimeOffset.Now.TruncateMilliseconds();
+
                 Branch newBranch = repo.CreateBranch(name, "HEAD");
                 Assert.NotNull(newBranch);
                 Assert.Equal("32eab9cb1f450b5fe7ab663462b77d7f4b703344", newBranch.Tip.Sha);
@@ -158,7 +168,7 @@ namespace LibGit2Sharp.Tests
                                   "branch: Created from HEAD",
                                   null,
                                   newBranch.Tip.Id,
-                                  Constants.Identity, DateTimeOffset.Now);
+                                  Constants.Identity, before);
             }
         }
 
@@ -172,6 +182,9 @@ namespace LibGit2Sharp.Tests
 
                 const string name = "unit_test";
                 var commit = repo.Lookup<Commit>("HEAD");
+
+                var before = DateTimeOffset.Now.TruncateMilliseconds();
+
                 Branch newBranch = repo.CreateBranch(name, commit);
                 Assert.NotNull(newBranch);
                 Assert.Equal("4c062a6361ae6959e06292c1fa5e2822d9c96345", newBranch.Tip.Sha);
@@ -180,7 +193,7 @@ namespace LibGit2Sharp.Tests
                                   "branch: Created from " + newBranch.Tip.Sha,
                                   null,
                                   newBranch.Tip.Id,
-                                  Constants.Identity, DateTimeOffset.Now);
+                                  Constants.Identity, before);
             }
         }
 
@@ -195,6 +208,8 @@ namespace LibGit2Sharp.Tests
                 const string name = "revparse_branch";
                 const string committish = "master~2";
 
+                var before = DateTimeOffset.Now.TruncateMilliseconds();
+
                 Branch newBranch = repo.CreateBranch(name, committish);
                 Assert.NotNull(newBranch);
                 Assert.Equal("9fd738e8f7967c078dceed8190330fc8648ee56a", newBranch.Tip.Sha);
@@ -203,7 +218,7 @@ namespace LibGit2Sharp.Tests
                                   "branch: Created from " + committish,
                                   null,
                                   newBranch.Tip.Id,
-                                  Constants.Identity, DateTimeOffset.Now);
+                                  Constants.Identity, before);
             }
         }
 
@@ -219,6 +234,8 @@ namespace LibGit2Sharp.Tests
 
                 const string name = "i-peel-tag";
 
+                var before = DateTimeOffset.Now.TruncateMilliseconds();
+
                 Branch newBranch = repo.CreateBranch(name, committish);
                 Assert.NotNull(newBranch);
                 Assert.Equal("e90810b8df3e80c413d903f631643c716887138d", newBranch.Tip.Sha);
@@ -227,7 +244,7 @@ namespace LibGit2Sharp.Tests
                                   "branch: Created from " + committish,
                                   null,
                                   newBranch.Tip.Id,
-                                  Constants.Identity, DateTimeOffset.Now);
+                                  Constants.Identity, before);
             }
         }
 
@@ -986,6 +1003,8 @@ namespace LibGit2Sharp.Tests
                 var br2 = repo.Branches["br2"];
                 Assert.NotNull(br2);
 
+                var before = DateTimeOffset.Now.TruncateMilliseconds();
+
                 Branch newBranch = repo.Branches.Rename("br2", "br3");
 
                 Assert.Equal("br3", newBranch.FriendlyName);
@@ -997,7 +1016,7 @@ namespace LibGit2Sharp.Tests
                                   string.Format("branch: renamed {0} to {1}", br2.CanonicalName, newBranch.CanonicalName),
                                   br2.Tip.Id,
                                   newBranch.Tip.Id,
-                                  Constants.Identity, DateTimeOffset.Now);
+                                  Constants.Identity, before);
             }
         }
 
@@ -1025,6 +1044,8 @@ namespace LibGit2Sharp.Tests
                 Branch br2 = repo.Branches["br2"];
                 Assert.NotNull(br2);
 
+                var before = DateTimeOffset.Now.TruncateMilliseconds();
+
                 Branch newBranch = repo.Branches.Rename("br2", "test", true);
                 Assert.Equal("test", newBranch.FriendlyName);
 
@@ -1040,7 +1061,7 @@ namespace LibGit2Sharp.Tests
                                   string.Format("branch: renamed {0} to {1}", br2.CanonicalName, newBranch.CanonicalName),
                                   br2.Tip.Id,
                                   newTest.Tip.Id,
-                                  Constants.Identity, DateTimeOffset.Now);
+                                  Constants.Identity, before);
             }
         }
 
@@ -1149,19 +1170,24 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path, new RepositoryOptions { Identity = Constants.Identity }))
             {
                 EnableRefLog(repo);
+
+                var before = DateTimeOffset.Now.TruncateMilliseconds();
+
                 var branch = repo.Branches.Add("foo", repo.Head.Tip);
 
                 AssertRefLogEntry(repo, branch.CanonicalName,
                                   string.Format("branch: Created from {0}", repo.Head.Tip.Sha),
                                   null, branch.Tip.Id,
-                                  Constants.Identity, DateTimeOffset.Now);
+                                  Constants.Identity, before);
+
+                before = DateTimeOffset.Now.TruncateMilliseconds();
 
                 branch = repo.Branches.Add("bar", repo.Head.Tip);
 
                 AssertRefLogEntry(repo, branch.CanonicalName,
                                   "branch: Created from " + repo.Head.Tip.Sha,
                                   null, repo.Head.Tip.Id,
-                                  Constants.Identity, DateTimeOffset.Now);
+                                  Constants.Identity, before);
             }
         }
 
@@ -1173,15 +1199,20 @@ namespace LibGit2Sharp.Tests
             {
                 EnableRefLog(repo);
                 var master = repo.Branches["master"];
+
+                var before = DateTimeOffset.Now.TruncateMilliseconds();
+
                 var newMaster = repo.Branches.Rename(master, "new-master");
                 AssertRefLogEntry(repo, newMaster.CanonicalName, "branch: renamed refs/heads/master to refs/heads/new-master",
                                   newMaster.Tip.Id, newMaster.Tip.Id,
-                                  Constants.Identity, DateTimeOffset.Now);
+                                  Constants.Identity, before);
+
+                before = DateTimeOffset.Now.TruncateMilliseconds();
 
                 var newMaster2 = repo.Branches.Rename(newMaster, "new-master2");
                 AssertRefLogEntry(repo, newMaster2.CanonicalName, "branch: renamed refs/heads/new-master to refs/heads/new-master2",
                                   newMaster.Tip.Id, newMaster2.Tip.Id,
-                                  Constants.Identity, DateTimeOffset.Now);
+                                  Constants.Identity, before);
             }
         }
     }
