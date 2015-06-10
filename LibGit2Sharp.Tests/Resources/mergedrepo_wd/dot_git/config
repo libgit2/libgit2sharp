@@ -6,3 +6,4 @@
 	symlinks = false
 	ignorecase = true
 	hideDotFiles = dotGitOnly
+	autocrlf = false
