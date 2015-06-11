@@ -35,7 +35,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(0, filter.SmudgeCalledCount);
 
                 var branch = repo.CreateBranch("delete-files");
-                repo.Checkout(branch.Name);
+                repo.Checkout(branch.FriendlyName);
 
                 DeleteFile(repo, fileName);
 
@@ -75,7 +75,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(0, filter.SmudgeCalledCount);
 
                 var branch = repo.CreateBranch("delete-files");
-                repo.Checkout(branch.Name);
+                repo.Checkout(branch.FriendlyName);
 
                 DeleteFile(repo, fileName);
 
@@ -181,7 +181,7 @@ namespace LibGit2Sharp.Tests
                 CommitOnBranchAndReturnDatabaseBlob(repo, fileName, decodedInput);
 
                 var branch = repo.CreateBranch("delete-files");
-                repo.Checkout(branch.Name);
+                repo.Checkout(branch.FriendlyName);
 
                 DeleteFile(repo, fileName);
 

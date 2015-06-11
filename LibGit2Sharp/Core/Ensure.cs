@@ -250,44 +250,21 @@ namespace LibGit2Sharp.Core
         /// <param name="identifier">The <see cref="GitObject"/> identifier to examine.</param>
         public static void GitObjectIsNotNull(GitObject gitObject, string identifier)
         {
-            Func<string, LibGit2SharpException> exceptionBuilder;
-
-            if (string.Equals("HEAD", identifier, StringComparison.Ordinal))
-            {
-                exceptionBuilder = m => new UnbornBranchException(m);
-            }
-            else
-            {
-                exceptionBuilder = m => new NotFoundException(m);
-            }
-
-            GitObjectIsNotNull(gitObject, identifier, exceptionBuilder);
-        }
-
-
-        /// <summary>
-        /// Check that the result of a C call that returns a non-null GitObject
-        /// using the default exception builder.
-        /// <para>
-        ///   The native function is expected to return a valid object value.
-        /// </para>
-        /// </summary>
-        /// <param name="gitObject">The <see cref="GitObject"/> to examine.</param>
-        /// <param name="identifier">The <see cref="GitObject"/> identifier to examine.</param>
-        /// <param name="exceptionBuilder">The builder which constructs an <see cref="LibGit2SharpException"/> from a message.</param>
-        public static void GitObjectIsNotNull(
-            GitObject gitObject,
-            string identifier,
-            Func<string, LibGit2SharpException> exceptionBuilder)
-        {
             if (gitObject != null)
             {
                 return;
             }
 
-            throw exceptionBuilder(string.Format(CultureInfo.InvariantCulture,
-                                                     "No valid git object identified by '{0}' exists in the repository.",
-                                                     identifier));
+            var message = string.Format(CultureInfo.InvariantCulture,
+                "No valid git object identified by '{0}' exists in the repository.",
+                identifier);
+
+            if (string.Equals("HEAD", identifier, StringComparison.Ordinal))
+            {
+                throw new UnbornBranchException(message);
+            }
+
+            throw new NotFoundException(message);
         }
     }
 }

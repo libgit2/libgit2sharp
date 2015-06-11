@@ -28,6 +28,7 @@
  [twitter]: http://twitter.com/libgit2sharp
 
 ## Current project build status
+
 The CI builds are generously hosted and run on the [Travis][travis] and [AppVeyor][appveyor] infrastructures.
 
 |  | Windows (x86/amd64) | Linux/Mac OS X |
@@ -35,9 +36,17 @@ The CI builds are generously hosted and run on the [Travis][travis] and [AppVeyo
 | **master** | [![master win][master-win-badge]][master-win] | [![master nix][master-nix-badge]][master-nix] |
 | **vNext** | [![vNext win][vNext-win-badge]][vNext-win] | [![vNext nix][vNext-nix-badge]][vNext-nix] |
 
+The security oriented static code analysis is kindly run through the [Coverity][coverity] service.
 
- [travis]: http://travis-ci.org/
+|       | Analysis result |
+|-------|-----------------|
+| **vNext** |  [![coverity][coverity-badge]][coverity-project] |
+
+
+ [travis]: https://travis-ci.org/
  [appveyor]: http://appveyor.com/
+ [coverity]: https://scan.coverity.com/
+
  [master-win-badge]: https://ci.appveyor.com/api/projects/status/8qxcoqdo9kp7x2w9/branch/master?svg=true
  [master-win]: https://ci.appveyor.com/project/libgit2/libgit2sharp/branch/master
  [master-nix-badge]: https://travis-ci.org/libgit2/libgit2sharp.svg?branch=master
@@ -46,6 +55,9 @@ The CI builds are generously hosted and run on the [Travis][travis] and [AppVeyo
  [vNext-win]: https://ci.appveyor.com/project/libgit2/libgit2sharp/branch/vNext
  [vNext-nix-badge]: https://travis-ci.org/libgit2/libgit2sharp.svg?branch=vNext
  [vNext-nix]: https://travis-ci.org/libgit2/libgit2sharp/branches
+
+ [coverity-project]: https://scan.coverity.com/projects/2088
+ [coverity-badge]: https://scan.coverity.com/projects/2088/badge.svg
 
 ## Quick contributing guide
 

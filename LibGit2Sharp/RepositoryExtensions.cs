@@ -98,7 +98,7 @@ namespace LibGit2Sharp
         {
             Commit commit = repository.Head.Tip;
 
-            Ensure.GitObjectIsNotNull(commit, "HEAD", m => new UnbornBranchException(m));
+            Ensure.GitObjectIsNotNull(commit, "HEAD");
 
             return commit;
         }

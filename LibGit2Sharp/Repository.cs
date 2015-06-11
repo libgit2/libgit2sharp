@@ -1006,14 +1006,17 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNullOrEmptyString(committishOrBranchSpec, "committishOrBranchSpec");
             Ensure.ArgumentNotNull(paths, "paths");
 
+            var listOfPaths = paths.ToList();
+
             // If there are no paths, then there is nothing to do.
-            if (!paths.Any())
+            if (listOfPaths.Count == 0)
             {
                 return;
             }
 
             Commit commit = LookupCommit(committishOrBranchSpec);
-            CheckoutTree(commit.Tree, paths.ToList(), checkoutOptions ?? new CheckoutOptions());
+
+            CheckoutTree(commit.Tree, listOfPaths, checkoutOptions ?? new CheckoutOptions());
         }
 
         /// <summary>
