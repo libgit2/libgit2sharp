@@ -55,5 +55,10 @@ namespace LibGit2Sharp
         /// Entry is unreadable.
         /// </summary>
         Unreadable = 9,
+
+        /// <summary>
+        /// Entry is currently in conflict.
+        /// </summary>
+        Conflicted = 10,
     }
 }

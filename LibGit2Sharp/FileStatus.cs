@@ -125,5 +125,10 @@ namespace LibGit2Sharp
         /// The file is <see cref="NewInWorkdir"/> but its name and/or path matches an exclude pattern in a <c>gitignore</c> file.
         /// </summary>
         Ignored = (1 << 14), /* GIT_STATUS_IGNORED */
+
+        /// <summary>
+        /// The file is <see cref="Conflicted"/> due to a merge.
+        /// </summary>
+        Conflicted = (1 << 15), /* GIT_STATUS_CONFLICTED */
     }
 }

@@ -1705,6 +1705,7 @@ namespace LibGit2Sharp
                 .Where(
                     tec => tec.Status != ChangeKind.Added &&
                            tec.Status != ChangeKind.Modified &&
+                           tec.Status != ChangeKind.Conflicted &&
                            tec.Status != ChangeKind.Unmodified &&
                            tec.Status != ChangeKind.Deleted).ToList();
 
@@ -1716,10 +1717,25 @@ namespace LibGit2Sharp
                         unexpectedTypesOfChanges[0].Path, unexpectedTypesOfChanges[0].Status));
             }
 
-            foreach (TreeEntryChanges treeEntryChanges in changes
-                .Where(tec => tec.Status == ChangeKind.Deleted))
+            /* Remove files from the index that don't exist on disk */
+            foreach (TreeEntryChanges treeEntryChanges in changes)
             {
-                RemoveFromIndex(treeEntryChanges.Path);
+                switch (treeEntryChanges.Status)
+                {
+                    case ChangeKind.Conflicted:
+                        if (!treeEntryChanges.Exists)
+                        {
+                            RemoveFromIndex(treeEntryChanges.Path);
+                        }
+                        break;
+
+                    case ChangeKind.Deleted:
+                        RemoveFromIndex(treeEntryChanges.Path);
+                        break;
+
+                    default:
+                        continue;
+                }
             }
 
             foreach (TreeEntryChanges treeEntryChanges in changes)
@@ -1729,6 +1745,13 @@ namespace LibGit2Sharp
                     case ChangeKind.Added:
                     case ChangeKind.Modified:
                         AddToIndex(treeEntryChanges.Path);
+                        break;
+
+                    case ChangeKind.Conflicted:
+                        if (treeEntryChanges.Exists)
+                        {
+                            AddToIndex(treeEntryChanges.Path);
+                        }
                         break;
 
                     default:

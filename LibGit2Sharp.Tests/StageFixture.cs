@@ -334,5 +334,43 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(FileStatus.NewInIndex, repo.RetrieveStatus(path));
             }
         }
+
+        [Theory]
+        [InlineData("new_untracked_file.txt", FileStatus.Ignored)]
+        [InlineData("modified_unstaged_file.txt", FileStatus.ModifiedInIndex)]
+        public void IgnoredFilesAreOnlyStagedIfTheyreInTheRepo(string filename, FileStatus expected)
+        {
+            var path = SandboxStandardTestRepoGitDir();
+            using (var repo = new Repository(path))
+            {
+                File.WriteAllText(Path.Combine(repo.Info.WorkingDirectory, ".gitignore"),
+                    String.Format("{0}\n", filename));
+
+                repo.Stage(filename);
+                Assert.Equal(expected, repo.RetrieveStatus(filename));
+            }
+        }
+
+        [Theory]
+        [InlineData("ancestor-and-ours.txt", FileStatus.Unaltered)]
+        [InlineData("ancestor-and-theirs.txt", FileStatus.NewInIndex)]
+        [InlineData("ancestor-only.txt", FileStatus.Nonexistent)]
+        [InlineData("conflicts-one.txt", FileStatus.ModifiedInIndex)]
+        [InlineData("conflicts-two.txt", FileStatus.ModifiedInIndex)]
+        [InlineData("ours-only.txt", FileStatus.Unaltered)]
+        [InlineData("ours-and-theirs.txt", FileStatus.ModifiedInIndex)]
+        [InlineData("theirs-only.txt", FileStatus.NewInIndex)]
+        public void CanStageConflictedIgnoredFiles(string filename, FileStatus expected)
+        {
+            var path = SandboxMergedTestRepo();
+            using (var repo = new Repository(path))
+            {
+                File.WriteAllText(Path.Combine(repo.Info.WorkingDirectory, ".gitignore"),
+                    String.Format("{0}\n", filename));
+
+                repo.Stage(filename);
+                Assert.Equal(expected, repo.RetrieveStatus(filename));
+            }
+        }
     }
 }

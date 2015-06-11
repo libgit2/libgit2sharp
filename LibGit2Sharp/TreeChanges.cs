@@ -25,6 +25,7 @@ namespace LibGit2Sharp
         private readonly List<TreeEntryChanges> unmodified = new List<TreeEntryChanges>();
         private readonly List<TreeEntryChanges> renamed = new List<TreeEntryChanges>();
         private readonly List<TreeEntryChanges> copied = new List<TreeEntryChanges>();
+        private readonly List<TreeEntryChanges> conflicted = new List<TreeEntryChanges>();
 
         private readonly IDictionary<ChangeKind, Action<TreeChanges, TreeEntryChanges>> fileDispatcher = Build();
 
@@ -39,6 +40,7 @@ namespace LibGit2Sharp
                            { ChangeKind.Unmodified,  (de, d) => de.unmodified.Add(d) },
                            { ChangeKind.Renamed,     (de, d) => de.renamed.Add(d) },
                            { ChangeKind.Copied,      (de, d) => de.copied.Add(d) },
+                           { ChangeKind.Conflicted,  (de, d) => de.conflicted.Add(d) },
                        };
         }
 
@@ -144,6 +146,14 @@ namespace LibGit2Sharp
         public virtual IEnumerable<TreeEntryChanges> Unmodified
         {
             get { return unmodified; }
+        }
+
+        /// <summary>
+        /// List of <see cref="TreeEntryChanges"/> which are conflicted
+        /// </summary>
+        public virtual IEnumerable<TreeEntryChanges> Conflicted
+        {
+            get { return conflicted; }
         }
 
         private string DebuggerDisplay
