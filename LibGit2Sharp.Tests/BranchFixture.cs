@@ -919,6 +919,24 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        [Fact]
+        public void CanCreateBranchInDeletedNestedBranchNamespace()
+        {
+            const string namespaceName = "level_one";
+            string branchWithNamespaceName = string.Join("/", namespaceName, "level_two");
+
+            string path = SandboxStandardTestRepo();
+            using (var repo = new Repository(path))
+            {
+                Commit commit = repo.Head.Tip;
+
+                Branch branchWithNamespace = repo.Branches.Add(branchWithNamespaceName, commit);
+                repo.Branches.Remove(branchWithNamespace);
+
+                repo.Branches.Add(namespaceName, commit);
+            }
+        }
+
         [Theory]
         [InlineData("I-donot-exist", false)]
         [InlineData("me/neither", true)]
