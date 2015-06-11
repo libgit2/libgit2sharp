@@ -304,7 +304,7 @@ namespace LibGit2Sharp.Tests
         private static FileInfo CommitFileOnBranch(Repository repo, string branchName, String content)
         {
             var branch = repo.CreateBranch(branchName);
-            repo.Checkout(branch.Name);
+            repo.Checkout(branch.FriendlyName);
 
             FileInfo expectedPath = StageNewFile(repo, content);
             repo.Commit("Commit");
