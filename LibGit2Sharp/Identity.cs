@@ -20,7 +20,7 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
             Ensure.ArgumentNotNullOrEmptyString(email, "email");
             Ensure.ArgumentDoesNotContainZeroByte(name, "name");
-            Ensure.ArgumentDoesNotContainZeroByte(name, "email");
+            Ensure.ArgumentDoesNotContainZeroByte(email, "email");
 
             _name = name;
             _email = email;
