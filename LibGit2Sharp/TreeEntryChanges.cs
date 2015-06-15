@@ -55,7 +55,7 @@ namespace LibGit2Sharp
         /// be false during a conflict that deletes both the
         /// "ours" and "theirs" sides, or when the diff is a
         /// delete and the status is
-        /// <see cref="ChangeType.Deleted"/>.
+        /// <see cref="ChangeKind.Deleted"/>.
         /// </summary>
         public virtual bool Exists { get; private set; }
 
@@ -85,7 +85,7 @@ namespace LibGit2Sharp
         /// side to a conflict.  This will be false during a
         /// conflict that involves both the "ours" and "theirs"
         /// side being added, or when the diff is an add and the
-        /// status is <see cref="ChangeType.Added"/>.
+        /// status is <see cref="ChangeKind.Added"/>.
         /// </summary>
         public virtual bool OldExists { get; private set; }
 
