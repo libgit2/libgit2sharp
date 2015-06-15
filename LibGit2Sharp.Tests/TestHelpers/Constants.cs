@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
+using System.Security;
 using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp.Tests.TestHelpers
@@ -90,11 +91,11 @@ namespace LibGit2Sharp.Tests.TestHelpers
         }
 
         // To help with creating secure strings to test with.
-        private static System.Security.SecureString StringToSecureString(string str)
+        private static SecureString StringToSecureString(string str)
         {
             var chars = str.ToCharArray();
 
-            var secure = new System.Security.SecureString();
+            var secure = new SecureString();
             for (var i = 0; i < chars.Length; i++)
             {
                 secure.AppendChar(chars[i]);

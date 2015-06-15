@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace LibGit2Sharp
+﻿namespace LibGit2Sharp
 {
     /// <summary>
     /// Class to convey information about the repository that is being operated on
