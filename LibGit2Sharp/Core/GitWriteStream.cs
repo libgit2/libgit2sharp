@@ -13,7 +13,7 @@ namespace LibGit2Sharp.Core
         public close_fn close;
 
         [MarshalAs(UnmanagedType.FunctionPtr)]
-        public free_fn free;        
+        public free_fn free;
 
         public delegate int write_fn(IntPtr stream, IntPtr buffer, UIntPtr len);
         public delegate int close_fn(IntPtr stream);

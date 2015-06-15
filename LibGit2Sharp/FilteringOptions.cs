@@ -22,6 +22,6 @@ namespace LibGit2Sharp
         /// The path to "hint" to the filters will be used to apply
         /// attributes.
         /// </summary>
-        public string HintPath { get; private set;  }
+        public string HintPath { get; private set; }
     }
 }

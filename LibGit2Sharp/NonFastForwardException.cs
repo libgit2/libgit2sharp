@@ -15,8 +15,7 @@ namespace LibGit2Sharp
         /// Initializes a new instance of the <see cref="LibGit2Sharp.NonFastForwardException"/> class.
         /// </summary>
         public NonFastForwardException()
-        {
-        }
+        { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="LibGit2Sharp.NonFastForwardException"/> class with a specified error message.
@@ -24,8 +23,7 @@ namespace LibGit2Sharp
         /// <param name="message">A message that describes the error.</param>
         public NonFastForwardException(string message)
             : base(message)
-        {
-        }
+        { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="LibGit2Sharp.NonFastForwardException"/> class with a specified error message and a reference to the inner exception that is the cause of this exception.
@@ -34,8 +32,7 @@ namespace LibGit2Sharp
         /// <param name="innerException">The exception that is the cause of the current exception. If the <paramref name="innerException"/> parameter is not a null reference, the current exception is raised in a catch block that handles the inner exception.</param>
         public NonFastForwardException(string message, Exception innerException)
             : base(message, innerException)
-        {
-        }
+        { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="LibGit2Sharp.NonFastForwardException"/> class with a serialized data.
@@ -44,12 +41,10 @@ namespace LibGit2Sharp
         /// <param name="context">The <see cref="StreamingContext"/> that contains contextual information about the source or destination.</param>
         protected NonFastForwardException(SerializationInfo info, StreamingContext context)
             : base(info, context)
-        {
-        }
+        { }
 
         internal NonFastForwardException(string message, GitErrorCode code, GitErrorCategory category)
             : base(message, code, category)
-        {
-        }
+        { }
     }
 }

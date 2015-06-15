@@ -59,15 +59,10 @@ namespace LibGit2Sharp
         /// Gets the distinct push url for this remote repository, if set.
         /// Defaults to the fetch url (<see cref="Url"/>) if not set.
         /// </summary>
-        public virtual string PushUrl {
-            get
-            {
-                return pushUrl ?? Url;
-            }
-            private set
-            {
-                pushUrl = value;
-            }
+        public virtual string PushUrl
+        {
+            get { return pushUrl ?? Url; }
+            private set { pushUrl = value; }
         }
 
         /// <summary>
@@ -202,8 +197,7 @@ namespace LibGit2Sharp
         {
             get
             {
-                return string.Format(CultureInfo.InvariantCulture,
-                    "{0} => {1}", Name, Url);
+                return string.Format(CultureInfo.InvariantCulture, "{0} => {1}", Name, Url);
             }
         }
 

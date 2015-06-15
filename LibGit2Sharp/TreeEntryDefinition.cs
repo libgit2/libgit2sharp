@@ -19,8 +19,7 @@ namespace LibGit2Sharp
         /// Needed for mocking purposes.
         /// </summary>
         protected TreeEntryDefinition()
-        {
-        }
+        { }
 
         /// <summary>
         /// Gets file mode.
@@ -45,23 +44,23 @@ namespace LibGit2Sharp
         internal static TreeEntryDefinition From(TreeEntry treeEntry)
         {
             return new TreeEntryDefinition
-                       {
-                           Mode = treeEntry.Mode,
-                           TargetType = treeEntry.TargetType,
-                           TargetId = treeEntry.TargetId,
-                           target = new Lazy<GitObject>(() => treeEntry.Target)
-                       };
+            {
+                Mode = treeEntry.Mode,
+                TargetType = treeEntry.TargetType,
+                TargetId = treeEntry.TargetId,
+                target = new Lazy<GitObject>(() => treeEntry.Target)
+            };
         }
 
         internal static TreeEntryDefinition From(Blob blob, Mode mode)
         {
             return new TreeEntryDefinition
-                       {
-                           Mode = mode,
-                           TargetType = TreeEntryTargetType.Blob,
-                           TargetId = blob.Id,
-                           target = new Lazy<GitObject>(() => blob)
-                       };
+            {
+                Mode = mode,
+                TargetType = TreeEntryTargetType.Blob,
+                TargetId = blob.Id,
+                target = new Lazy<GitObject>(() => blob)
+            };
         }
 
         internal static TreeEntryDefinition TransientBlobFrom(string filePath, Mode mode)
@@ -69,32 +68,32 @@ namespace LibGit2Sharp
             Ensure.ArgumentConformsTo(mode, m => m.HasAny(BlobModes), "mode");
 
             return new TransientBlobTreeEntryDefinition
-                       {
-                           Builder = odb => odb.CreateBlob(filePath),
-                           Mode = mode,
-                       };
+            {
+                Builder = odb => odb.CreateBlob(filePath),
+                Mode = mode,
+            };
         }
 
         internal static TreeEntryDefinition From(ObjectId objectId)
         {
             return new TreeEntryDefinition
-                       {
-                           Mode = Mode.GitLink,
-                           TargetType = TreeEntryTargetType.GitLink,
-                           TargetId = objectId,
-                           target = new Lazy<GitObject>(() => { throw new InvalidOperationException("Shouldn't be necessary."); }),
-                       };
+            {
+                Mode = Mode.GitLink,
+                TargetType = TreeEntryTargetType.GitLink,
+                TargetId = objectId,
+                target = new Lazy<GitObject>(() => { throw new InvalidOperationException("Shouldn't be necessary."); }),
+            };
         }
 
         internal static TreeEntryDefinition From(Tree tree)
         {
             return new TreeEntryDefinition
-                       {
-                           Mode = Mode.Directory,
-                           TargetType = TreeEntryTargetType.Tree,
-                           TargetId = tree.Id,
-                           target = new Lazy<GitObject>(() => tree)
-                       };
+            {
+                Mode = Mode.Directory,
+                TargetType = TreeEntryTargetType.Tree,
+                TargetId = tree.Id,
+                target = new Lazy<GitObject>(() => tree)
+            };
         }
 
         /// <summary>

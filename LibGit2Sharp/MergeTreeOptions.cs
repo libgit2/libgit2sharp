@@ -13,7 +13,6 @@
         /// </para>
         /// </summary>
         public MergeTreeOptions()
-        {
-        }
+        { }
     }
 }

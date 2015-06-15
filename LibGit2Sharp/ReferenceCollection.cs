@@ -245,8 +245,11 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
             Ensure.ArgumentNotNull(targetRef, "targetRef");
 
-            using (ReferenceSafeHandle handle = Proxy.git_reference_symbolic_create(repo.Handle, name, targetRef.CanonicalName,
-                allowOverwrite, logMessage))
+            using (ReferenceSafeHandle handle = Proxy.git_reference_symbolic_create(repo.Handle,
+                                                                                    name,
+                                                                                    targetRef.CanonicalName,
+                                                                                    allowOverwrite,
+                                                                                    logMessage))
             {
                 return (SymbolicReference)Reference.BuildFromPtr<Reference>(handle, repo);
             }
@@ -331,8 +334,13 @@ namespace LibGit2Sharp
 
             if (logMessage == null)
             {
-                logMessage = string.Format(CultureInfo.InvariantCulture, "{0}: renamed {1} to {2}",
-                    reference.IsLocalBranch ? "branch" : "reference", reference.CanonicalName, newName);
+                logMessage = string.Format(CultureInfo.InvariantCulture,
+                                           "{0}: renamed {1} to {2}",
+                                           reference.IsLocalBranch
+                                               ? "branch"
+                                               : "reference",
+                                           reference.CanonicalName,
+                                           newName);
             }
 
             using (ReferenceSafeHandle referencePtr = RetrieveReferencePtr(reference.CanonicalName))
@@ -433,7 +441,9 @@ namespace LibGit2Sharp
 
             using (ReferenceSafeHandle referencePtr = RetrieveReferencePtr(name, false))
             {
-                return referencePtr == null ? null : Reference.BuildFromPtr<T>(referencePtr, repo);
+                return referencePtr == null
+                    ? null
+                    : Reference.BuildFromPtr<T>(referencePtr, repo);
             }
         }
 
@@ -633,7 +643,8 @@ namespace LibGit2Sharp
             else
             {
                 throw new ArgumentException(string.Format(CultureInfo.InvariantCulture,
-                    "'{0}' is not a valid target type.", typeof(T)));
+                                                          "'{0}' is not a valid target type.",
+                                                          typeof(T)));
             }
 
             return repo.Refs.Head;
@@ -761,8 +772,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="targets">The set of <see cref="Commit"/>s that are interesting.</param>
         /// <returns>The list of <see cref="Reference"/> that can reach at least one <see cref="Commit"/> within <paramref name="targets"/>.</returns>
-        public virtual IEnumerable<Reference> ReachableFrom(
-            IEnumerable<Commit> targets)
+        public virtual IEnumerable<Reference> ReachableFrom(IEnumerable<Commit> targets)
         {
             return ReachableFrom(this, targets);
         }
@@ -771,8 +781,7 @@ namespace LibGit2Sharp
         {
             get
             {
-                return string.Format(CultureInfo.InvariantCulture,
-                    "Count = {0}", this.Count());
+                return string.Format(CultureInfo.InvariantCulture, "Count = {0}", this.Count());
             }
         }
 

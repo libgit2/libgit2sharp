@@ -94,8 +94,7 @@ namespace LibGit2Sharp.Core
         {
             public LazyWrapper(Func<TType> evaluator)
                 : base(evaluator)
-            {
-            }
+            { }
         }
     }
 }

@@ -28,18 +28,18 @@ namespace LibGit2Sharp
         public static CommitRewriteInfo From(Commit commit)
         {
             return new CommitRewriteInfo
-                {
-                    Author = commit.Author,
-                    Committer = commit.Committer,
-                    Message = commit.Message
-                };
+            {
+                Author = commit.Author,
+                Committer = commit.Committer,
+                Message = commit.Message
+            };
         }
 
-         /// <summary>
-         /// Build a <see cref="CommitRewriteInfo"/> from the <see cref="Commit"/> passed in,
-         /// optionally overriding some of its properties
-         /// </summary>
-         /// <param name="commit">The <see cref="Commit"/> whose information is to be copied</param>
+        /// <summary>
+        /// Build a <see cref="CommitRewriteInfo"/> from the <see cref="Commit"/> passed in,
+        /// optionally overriding some of its properties
+        /// </summary>
+        /// <param name="commit">The <see cref="Commit"/> whose information is to be copied</param>
         /// <param name="author">Optional override for the author</param>
         /// <returns>A new <see cref="CommitRewriteInfo"/> object that matches the info for the
         /// <paramref name="commit"/> with the optional parameters replaced..</returns>
@@ -85,10 +85,11 @@ namespace LibGit2Sharp
         /// <param name="message">Optional override for the message</param>
         /// <returns>A new <see cref="CommitRewriteInfo"/> object that matches the info for the
         /// <paramref name="commit"/> with the optional parameters replaced..</returns>
-        public static CommitRewriteInfo From(Commit commit,
-                                             Signature author,
-                                             Signature committer,
-                                             string message)
+        public static CommitRewriteInfo From(
+            Commit commit,
+            Signature author,
+            Signature committer,
+            string message)
         {
             var cri = From(commit);
             cri.Author = author ?? cri.Author;

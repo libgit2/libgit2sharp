@@ -110,9 +110,11 @@ namespace LibGit2Sharp
         {
             get
             {
-                return string.Format(
-                    CultureInfo.InvariantCulture,
-                    "{0} -> {1} [{2}%]", OldFilePath, NewFilePath, Similarity);
+                return string.Format(CultureInfo.InvariantCulture,
+                                     "{0} -> {1} [{2}%]",
+                                     OldFilePath,
+                                     NewFilePath,
+                                     Similarity);
             }
         }
     }

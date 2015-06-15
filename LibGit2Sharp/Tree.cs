@@ -107,7 +107,9 @@ namespace LibGit2Sharp
             get
             {
                 return string.Format(CultureInfo.InvariantCulture,
-                    "{0}, Count = {1}", Id.ToString(7), Count);
+                                     "{0}, Count = {1}", 
+                                     Id.ToString(7), 
+                                     Count);
             }
         }
     }

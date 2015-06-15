@@ -75,7 +75,7 @@ namespace LibGit2Sharp
         /// <param name="path"></param>
         public virtual ContentChangeStats this[string path]
         {
-            get { return this[(FilePath) path]; }
+            get { return this[(FilePath)path]; }
         }
 
         private ContentChangeStats this[FilePath path]
@@ -111,8 +111,10 @@ namespace LibGit2Sharp
         {
             get
             {
-                return string.Format(CultureInfo.InvariantCulture, "+{0} -{1}",
-                    TotalLinesAdded, TotalLinesDeleted);
+                return string.Format(CultureInfo.InvariantCulture,
+                                     "+{0} -{1}",
+                                     TotalLinesAdded,
+                                     TotalLinesDeleted);
             }
         }
     }

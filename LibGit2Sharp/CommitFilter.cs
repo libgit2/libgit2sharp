@@ -73,12 +73,12 @@ namespace LibGit2Sharp
             }
 
             var types = new[]
-                            {
-                                typeof(string), typeof(ObjectId),
-                                typeof(Commit), typeof(TagAnnotation),
-                                typeof(Tag), typeof(Branch), typeof(DetachedHead),
-                                typeof(Reference), typeof(DirectReference), typeof(SymbolicReference)
-                            };
+                        {
+                            typeof(string), typeof(ObjectId),
+                            typeof(Commit), typeof(TagAnnotation),
+                            typeof(Tag), typeof(Branch), typeof(DetachedHead),
+                            typeof(Reference), typeof(DirectReference), typeof(SymbolicReference)
+                        };
 
             if (types.Contains(obj.GetType()))
             {

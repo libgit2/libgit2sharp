@@ -15,11 +15,13 @@ namespace LibGit2Sharp.Core
 
         protected override void EvaluateInternal(Action<SubmoduleSafeHandle> evaluator)
         {
-            repo.Submodules.Lookup(name, handle =>
-                                             {
-                                                 evaluator(handle);
-                                                 return default(object);
-                                             }, true);
+            repo.Submodules.Lookup(name,
+                                   handle =>
+                                   {
+                                       evaluator(handle);
+                                       return default(object);
+                                   },
+                                   true);
         }
     }
 }

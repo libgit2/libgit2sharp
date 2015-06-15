@@ -10,8 +10,7 @@
         /// By default the cherry pick will be committed if there are no conflicts.
         /// </summary>
         public CherryPickOptions()
-        {
-        }
+        { }
 
         /// <summary>
         /// When cherry picking a merge commit, the parent number to consider as

@@ -29,8 +29,7 @@ namespace LibGit2Sharp.Core
         public override long Length { get { throw new InvalidOperationException(); } }
 
         public override void Flush()
-        {
-        }
+        { }
 
         public override void SetLength(long value)
         {

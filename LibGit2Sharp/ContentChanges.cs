@@ -25,7 +25,10 @@ namespace LibGit2Sharp
             Proxy.git_diff_blobs(repo.Handle,
                                  oldBlob != null ? oldBlob.Id : null,
                                  newBlob != null ? newBlob.Id : null,
-                                 options, FileCallback, HunkCallback, LineCallback);
+                                 options,
+                                 FileCallback,
+                                 HunkCallback,
+                                 LineCallback);
         }
 
         internal ContentChanges(bool isBinaryComparison)
@@ -120,7 +123,9 @@ namespace LibGit2Sharp
             get
             {
                 return string.Format(CultureInfo.InvariantCulture,
-                    @"{{+{0}, -{1}}}", LinesAdded, LinesDeleted);
+                                     @"{{+{0}, -{1}}}",
+                                     LinesAdded, 
+                                     LinesDeleted);
             }
         }
     }

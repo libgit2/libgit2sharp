@@ -189,7 +189,8 @@ namespace LibGit2Sharp
             else
             {
                 throw new ArgumentException(string.Format(CultureInfo.InvariantCulture,
-                    "'{0}' does not look like a valid canonical branch name.", canonicalName));
+                                                          "'{0}' does not look like a valid canonical branch name.",
+                                                          canonicalName));
             }
         }
     }

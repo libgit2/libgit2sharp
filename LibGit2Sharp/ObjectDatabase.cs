@@ -42,7 +42,7 @@ namespace LibGit2Sharp
         public virtual IEnumerator<GitObject> GetEnumerator()
         {
             ICollection<GitOid> oids = Proxy.git_odb_foreach(handle,
-                ptr => ptr.MarshalAs<GitOid>());
+                                                             ptr => ptr.MarshalAs<GitOid>());
 
             return oids
                 .Select(gitOid => repo.Lookup<GitObject>(new ObjectId(gitOid)))
@@ -99,14 +99,14 @@ namespace LibGit2Sharp
 
             if (repo.Info.IsBare && !Path.IsPathRooted(path))
             {
-                throw new InvalidOperationException(
-                    string.Format(CultureInfo.InvariantCulture,
-                        "Cannot create a blob in a bare repository from a relative path ('{0}').", path));
+                throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture,
+                                                    "Cannot create a blob in a bare repository from a relative path ('{0}').",
+                                                    path));
             }
 
             ObjectId id = Path.IsPathRooted(path)
-                               ? Proxy.git_blob_create_fromdisk(repo.Handle, path)
-                               : Proxy.git_blob_create_fromfile(repo.Handle, path);
+                ? Proxy.git_blob_create_fromdisk(repo.Handle, path)
+                : Proxy.git_blob_create_fromfile(repo.Handle, path);
 
             return repo.Lookup<Blob>(id);
         }
@@ -152,7 +152,9 @@ namespace LibGit2Sharp
 
                     if (totalRemainingBytesToRead < max_length)
                     {
-                        bytesToRead = totalRemainingBytesToRead > int.MaxValue ? int.MaxValue : (int)totalRemainingBytesToRead;
+                        bytesToRead = totalRemainingBytesToRead > int.MaxValue
+                            ? int.MaxValue
+                            : (int)totalRemainingBytesToRead;
                     }
                 }
 
@@ -163,8 +165,7 @@ namespace LibGit2Sharp
 
                 int numberOfReadBytes = stream.Read(local, 0, bytesToRead);
 
-                if (numberOfBytesToConsume.HasValue
-                    && numberOfReadBytes == 0)
+                if (numberOfBytesToConsume.HasValue && numberOfReadBytes == 0)
                 {
                     return (int)GitErrorCode.User;
                 }
@@ -251,7 +252,7 @@ namespace LibGit2Sharp
 
             using (var odbStream = Proxy.git_odb_open_wstream(handle, numberOfBytesToConsume, GitObjectType.Blob))
             {
-                var buffer = new byte[4*1024];
+                var buffer = new byte[4 * 1024];
                 long totalRead = 0;
 
                 while (totalRead < numberOfBytesToConsume)
@@ -488,8 +489,10 @@ namespace LibGit2Sharp
 
             if (minLength <= 0 || minLength > ObjectId.HexSize)
             {
-                throw new ArgumentOutOfRangeException("minLength", minLength,
-                    string.Format("Expected value should be greater than zero and less than or equal to {0}.", ObjectId.HexSize));
+                throw new ArgumentOutOfRangeException("minLength", 
+                                                      minLength,
+                                                      string.Format("Expected value should be greater than zero and less than or equal to {0}.", 
+                                                                    ObjectId.HexSize));
             }
 
             string shortSha = Proxy.git_object_short_id(repo.Handle, gitObject.Id);
@@ -571,9 +574,11 @@ namespace LibGit2Sharp
                 case MergeBaseFindingStrategy.Standard:
                     id = Proxy.git_merge_base_many(repo.Handle, ids.ToArray());
                     break;
+
                 case MergeBaseFindingStrategy.Octopus:
                     id = Proxy.git_merge_base_octopus(repo.Handle, ids.ToArray());
                     break;
+
                 default:
                     throw new ArgumentException("", "strategy");
             }
@@ -602,8 +607,8 @@ namespace LibGit2Sharp
             {
                 Version = 1,
                 MergeFileFavorFlags = options.MergeFileFavor,
-                MergeTreeFlags = options.FindRenames ? GitMergeTreeFlags.GIT_MERGE_TREE_FIND_RENAMES :
-                                                       GitMergeTreeFlags.GIT_MERGE_TREE_NORMAL,
+                MergeTreeFlags = options.FindRenames ? GitMergeTreeFlags.GIT_MERGE_TREE_FIND_RENAMES
+                                                     : GitMergeTreeFlags.GIT_MERGE_TREE_NORMAL,
                 RenameThreshold = (uint)options.RenameThreshold,
                 TargetLimit = (uint)options.TargetLimit,
             };

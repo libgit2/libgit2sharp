@@ -45,9 +45,8 @@ namespace LibGit2Sharp
             {
                 if (!AllowedSortStrategies.Contains(value))
                 {
-                    throw new ArgumentException(
-                        "Unsupported sort strategy. Only 'Topological', 'Time', or 'Topological | Time' are allowed.",
-                        "value");
+                    throw new ArgumentException("Unsupported sort strategy. Only 'Topological', 'Time', or 'Topological | Time' are allowed.",
+                                                "value");
                 }
 
                 _sortBy = value;

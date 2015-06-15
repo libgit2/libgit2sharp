@@ -15,12 +15,12 @@ namespace LibGit2Sharp
     {
         internal static IDictionary<Type, ObjectType> TypeToKindMap =
             new Dictionary<Type, ObjectType>
-                {
-                    { typeof(Commit), ObjectType.Commit },
-                    { typeof(Tree), ObjectType.Tree },
-                    { typeof(Blob), ObjectType.Blob },
-                    { typeof(TagAnnotation), ObjectType.Tag },
-                };
+            {
+                { typeof(Commit), ObjectType.Commit },
+                { typeof(Tree), ObjectType.Tree },
+                { typeof(Blob), ObjectType.Blob },
+                { typeof(TagAnnotation), ObjectType.Tag },
+            };
 
         private static readonly LambdaEqualityHelper<GitObject> equalityHelper =
             new LambdaEqualityHelper<GitObject>(x => x.Id);
@@ -66,12 +66,16 @@ namespace LibGit2Sharp
             {
                 case GitObjectType.Commit:
                     return new Commit(repo, id);
+
                 case GitObjectType.Tree:
                     return new Tree(repo, id, path);
+
                 case GitObjectType.Tag:
                     return new TagAnnotation(repo, id);
+
                 case GitObjectType.Blob:
                     return new Blob(repo, id);
+
                 default:
                     throw new LibGit2SharpException(CultureInfo.InvariantCulture,
                                                     "Unexpected type '{0}' for object '{1}'.",

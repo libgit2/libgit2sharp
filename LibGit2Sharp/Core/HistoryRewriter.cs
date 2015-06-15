@@ -110,24 +110,33 @@ namespace LibGit2Sharp.Core
             var sref = reference as SymbolicReference;
             if (sref != null)
             {
-                return RewriteReference(
-                    sref, old => old.Target, RewriteReference,
-                    (refs, old, target, logMessage) => refs.UpdateTarget(old, target, logMessage));
+                return RewriteReference(sref,
+                                        old => old.Target,
+                                        RewriteReference,
+                                        (refs, old, target, logMessage) => refs.UpdateTarget(old,
+                                                                                             target,
+                                                                                             logMessage));
             }
 
             var dref = reference as DirectReference;
             if (dref != null)
             {
-                return RewriteReference(
-                    dref, old => old.Target, RewriteTarget,
-                    (refs, old, target, logMessage) => refs.UpdateTarget(old, target.Id, logMessage));
+                return RewriteReference(dref,
+                                        old => old.Target,
+                                        RewriteTarget,
+                                        (refs, old, target, logMessage) => refs.UpdateTarget(old,
+                                                                                             target.Id,
+                                                                                             logMessage));
             }
 
             return reference;
         }
 
         private delegate Reference ReferenceUpdater<in TRef, in TTarget>(
-            ReferenceCollection refs, TRef origRef, TTarget origTarget, string logMessage)
+            ReferenceCollection refs,
+            TRef origRef,
+            TTarget origTarget,
+            string logMessage)
             where TRef : Reference
             where TTarget : class;
 
@@ -145,7 +154,8 @@ namespace LibGit2Sharp.Core
             {
                 newRefName = Reference.TagPrefix +
                              options.TagNameRewriter(oldRef.CanonicalName.Substring(Reference.TagPrefix.Length),
-                                                     false, oldRef.TargetIdentifier);
+                                                     false,
+                                                     oldRef.TargetIdentifier);
             }
 
             var newTarget = rewriteTarget(oldRefTarget);
@@ -160,10 +170,10 @@ namespace LibGit2Sharp.Core
 
             if (repo.Refs.Resolve<Reference>(backupName) != null)
             {
-                throw new InvalidOperationException(
-                    String.Format(
-                        CultureInfo.InvariantCulture, "Can't back up reference '{0}' - '{1}' already exists",
-                        oldRef.CanonicalName, backupName));
+                throw new InvalidOperationException(String.Format(CultureInfo.InvariantCulture,
+                                                                  "Can't back up reference '{0}' - '{1}' already exists",
+                                                                  oldRef.CanonicalName,
+                                                                  backupName));
             }
 
             repo.Refs.Add(backupName, oldRef.TargetIdentifier, "filter-branch: backup");
@@ -221,8 +231,7 @@ namespace LibGit2Sharp.Core
 
             // Create the new commit
             var mappedNewParents = newParents
-                .Select(oldParent =>
-                        objectMap.ContainsKey(oldParent)
+                .Select(oldParent => objectMap.ContainsKey(oldParent)
                             ? objectMap[oldParent] as Commit
                             : oldParent)
                 .Where(newParent => newParent != null)
@@ -293,8 +302,10 @@ namespace LibGit2Sharp.Core
                 newName = options.TagNameRewriter(annotation.Name, true, annotation.Target.Sha);
             }
 
-            var newAnnotation = repo.ObjectDatabase.CreateTagAnnotation(newName, newTarget, annotation.Tagger,
-                                                              annotation.Message);
+            var newAnnotation = repo.ObjectDatabase.CreateTagAnnotation(newName, 
+                                                                        newTarget, 
+                                                                        annotation.Tagger,
+                                                                        annotation.Message);
             objectMap[annotation] = newAnnotation;
             return newAnnotation;
         }
@@ -303,8 +314,8 @@ namespace LibGit2Sharp.Core
         {
             var dref = reference as DirectReference;
             return dref == null
-                       ? 1 + ReferenceDepth(((SymbolicReference)reference).Target)
-                       : 1;
+                ? 1 + ReferenceDepth(((SymbolicReference)reference).Target)
+                : 1;
         }
     }
 }

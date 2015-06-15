@@ -17,8 +17,7 @@ namespace LibGit2Sharp
         /// </para>
         /// </summary>
         public MergeOptions()
-        {
-        }
+        { }
 
         /// <summary>
         /// The type of merge to perform.

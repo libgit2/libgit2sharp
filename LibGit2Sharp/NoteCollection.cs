@@ -65,10 +65,7 @@ namespace LibGit2Sharp
         /// </summary>
         public virtual IEnumerable<string> Namespaces
         {
-            get
-            {
-                return NamespaceRefs.Select(UnCanonicalizeName);
-            }
+            get { return NamespaceRefs.Select(UnCanonicalizeName); }
         }
 
         internal IEnumerable<string> NamespaceRefs
@@ -108,8 +105,9 @@ namespace LibGit2Sharp
 
                 string canonicalNamespace = NormalizeToCanonicalName(@namespace);
 
-                return Proxy.git_note_foreach(repo.Handle, canonicalNamespace,
-                    (blobId,annotatedObjId) => this[canonicalNamespace, annotatedObjId]);
+                return Proxy.git_note_foreach(repo.Handle,
+                                              canonicalNamespace,
+                                              (blobId, annotatedObjId) => this[canonicalNamespace, annotatedObjId]);
             }
         }
 
@@ -242,8 +240,7 @@ namespace LibGit2Sharp
         {
             get
             {
-                return string.Format(CultureInfo.InvariantCulture,
-                    "Count = {0}", this.Count());
+                return string.Format(CultureInfo.InvariantCulture, "Count = {0}", this.Count());
             }
         }
     }

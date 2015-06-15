@@ -60,8 +60,7 @@ namespace LibGit2Sharp
         /// Override this method to add additional cleanup steps to your subclass. Be sure to call base.Close().
         /// </summary>
         protected virtual void Close()
-        {
-        }
+        { }
 
         /// <summary>
         /// Invoked by libgit2 when this subtransport is being freed. Override this method to add additional

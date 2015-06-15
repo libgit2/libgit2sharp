@@ -25,8 +25,7 @@ namespace LibGit2Sharp
         /// <param name="canonicalName">The full name of the reference</param>
         internal Branch(Repository repo, Reference reference, string canonicalName)
             : this(repo, reference, _ => canonicalName)
-        {
-        }
+        { }
 
         /// <summary>
         /// Initializes a new instance of an orphaned <see cref="Branch"/> class.
@@ -38,8 +37,7 @@ namespace LibGit2Sharp
         /// <param name="reference">The reference.</param>
         internal Branch(Repository repo, Reference reference)
             : this(repo, reference, r => r.TargetIdentifier)
-        {
-        }
+        { }
 
         private Branch(Repository repo, Reference reference, Func<Reference, string> canonicalNameSelector)
             : base(repo, reference, canonicalNameSelector)
@@ -264,9 +262,9 @@ namespace LibGit2Sharp
                 return CanonicalName.Substring(Reference.RemoteTrackingBranchPrefix.Length);
             }
 
-            throw new ArgumentException(
-                string.Format(CultureInfo.InvariantCulture,
-                    "'{0}' does not look like a valid branch name.", CanonicalName));
+            throw new ArgumentException(string.Format(CultureInfo.InvariantCulture,
+                                                      "'{0}' does not look like a valid branch name.",
+                                                      CanonicalName));
         }
     }
 }

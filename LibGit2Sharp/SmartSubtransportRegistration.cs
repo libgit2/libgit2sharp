@@ -27,23 +27,11 @@ namespace LibGit2Sharp
         /// <summary>
         /// The URI scheme (eg "http") for this transport.
         /// </summary>
-        public string Scheme
-        {
-            get;
-            private set;
-        }
+        public string Scheme { get; private set; }
 
-        internal IntPtr RegistrationPointer
-        {
-            get;
-            private set;
-        }
+        internal IntPtr RegistrationPointer { get; private set; }
 
-        internal IntPtr FunctionPointer
-        {
-            get;
-            private set;
-        }
+        internal IntPtr FunctionPointer { get; private set; }
 
         private IntPtr CreateRegistrationPointer()
         {

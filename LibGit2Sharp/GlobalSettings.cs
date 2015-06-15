@@ -61,10 +61,9 @@ namespace LibGit2Sharp
 
             try
             {
-                Proxy.git_transport_register(
-                    registration.Scheme,
-                    registration.FunctionPointer,
-                    registration.RegistrationPointer);
+                Proxy.git_transport_register(registration.Scheme,
+                                             registration.FunctionPointer,
+                                             registration.RegistrationPointer);
             }
             catch (Exception)
             {

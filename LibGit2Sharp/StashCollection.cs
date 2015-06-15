@@ -42,8 +42,9 @@ namespace LibGit2Sharp
         /// <returns>An <see cref="IEnumerator{T}"/> object that can be used to iterate through the collection.</returns>
         public virtual IEnumerator<Stash> GetEnumerator()
         {
-            return Proxy.git_stash_foreach(repo.Handle,
-                (index, message, commitId) => new Stash(repo, new ObjectId(commitId), index)).GetEnumerator();
+            Func<int, IntPtr, GitOid, Stash> resultSelector = (index, message, commitId) => new Stash(repo, new ObjectId(commitId), index);
+
+            return Proxy.git_stash_foreach(repo.Handle, resultSelector).GetEnumerator();
         }
 
         /// <summary>
@@ -69,10 +70,15 @@ namespace LibGit2Sharp
                     throw new ArgumentOutOfRangeException("index", "The passed index must be a positive integer.");
                 }
 
-                GitObject stashCommit = repo.Lookup(
-                    string.Format(CultureInfo.InvariantCulture, "stash@{{{0}}}", index), GitObjectType.Commit, LookUpOptions.None);
+                GitObject stashCommit = repo.Lookup(string.Format(CultureInfo.InvariantCulture,
+                                                                  "stash@{{{0}}}",
+                                                                  index),
+                                                    GitObjectType.Commit,
+                                                    LookUpOptions.None);
 
-                return stashCommit == null ? null : new Stash(repo, stashCommit.Id, index);
+                return stashCommit == null
+                    ? null
+                    : new Stash(repo, stashCommit.Id, index);
             }
         }
 
@@ -235,8 +241,7 @@ namespace LibGit2Sharp
         {
             get
             {
-                return string.Format(CultureInfo.InvariantCulture,
-                    "Count = {0}", this.Count());
+                return string.Format(CultureInfo.InvariantCulture, "Count = {0}", this.Count());
             }
         }
     }

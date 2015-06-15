@@ -28,8 +28,12 @@ namespace LibGit2Sharp
         protected Configuration()
         { }
 
-        internal Configuration(Repository repository, string repositoryConfigurationFileLocation, string globalConfigurationFileLocation,
-            string xdgConfigurationFileLocation, string systemConfigurationFileLocation)
+        internal Configuration(
+            Repository repository,
+            string repositoryConfigurationFileLocation,
+            string globalConfigurationFileLocation,
+            string xdgConfigurationFileLocation,
+            string systemConfigurationFileLocation)
         {
             if (repositoryConfigurationFileLocation != null)
             {
@@ -120,8 +124,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="repositoryConfigurationFileLocation">Path to an existing Repository configuration file.</param>
         /// <returns>An instance of <see cref="Configuration"/>.</returns>
-        public static Configuration BuildFrom(
-            string repositoryConfigurationFileLocation)
+        public static Configuration BuildFrom(string repositoryConfigurationFileLocation)
         {
             return BuildFrom(repositoryConfigurationFileLocation, null, null, null);
         }
@@ -227,7 +230,7 @@ namespace LibGit2Sharp
         /// </summary>
         public virtual bool HasConfig(ConfigurationLevel level)
         {
-            using (ConfigurationSafeHandle snapshot = Snapshot ())
+            using (ConfigurationSafeHandle snapshot = Snapshot())
             using (ConfigurationSafeHandle handle = RetrieveConfigurationHandle(level, false, snapshot))
             {
                 return handle != null;
@@ -690,9 +693,9 @@ namespace LibGit2Sharp
 
             if (handle == null && throwIfStoreHasNotBeenFound)
             {
-                throw new LibGit2SharpException(
-                    string.Format(CultureInfo.InvariantCulture, "No {0} configuration file has been found.",
-                    Enum.GetName(typeof(ConfigurationLevel), level)));
+                throw new LibGit2SharpException(string.Format(CultureInfo.InvariantCulture,
+                                                              "No {0} configuration file has been found.",
+                                                              Enum.GetName(typeof(ConfigurationLevel), level)));
             }
 
             return handle;
@@ -765,14 +768,20 @@ namespace LibGit2Sharp
         {
             const string userNameKey = "user.name";
             var name = this.GetValueOrDefault<string>(userNameKey);
-            var normalizedName = NormalizeUserSetting(shouldThrowIfNotFound, userNameKey, name,
-                () => "unknown");
+            var normalizedName = NormalizeUserSetting(shouldThrowIfNotFound,
+                                                      userNameKey,
+                                                      name,
+                                                      () => "unknown");
 
             const string userEmailKey = "user.email";
             var email = this.GetValueOrDefault<string>(userEmailKey);
-            var normalizedEmail = NormalizeUserSetting(shouldThrowIfNotFound, userEmailKey, email,
-                () => string.Format(
-                    CultureInfo.InvariantCulture, "{0}@{1}", Environment.UserName, Environment.UserDomainName));
+            var normalizedEmail = NormalizeUserSetting(shouldThrowIfNotFound,
+                                                       userEmailKey,
+                                                       email,
+                                                       () => string.Format(CultureInfo.InvariantCulture,
+                                                                           "{0}@{1}",
+                                                                           Environment.UserName,
+                                                                           Environment.UserDomainName));
 
             return new Signature(normalizedName, normalizedEmail, now);
         }

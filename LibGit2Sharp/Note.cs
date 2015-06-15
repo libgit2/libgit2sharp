@@ -12,6 +12,9 @@ namespace LibGit2Sharp
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class Note : IEquatable<Note>
     {
+        private static readonly LambdaEqualityHelper<Note> equalityHelper =
+            new LambdaEqualityHelper<Note>(x => x.BlobId, x => x.TargetObjectId, x => x.Namespace);
+
         /// <summary>
         /// Needed for mocking purposes.
         /// </summary>
@@ -54,9 +57,6 @@ namespace LibGit2Sharp
 
             return new Note(oid, message, targetObjectId, @namespace);
         }
-
-        private static readonly LambdaEqualityHelper<Note> equalityHelper =
-            new LambdaEqualityHelper<Note>(x => x.BlobId, x => x.TargetObjectId, x => x.Namespace);
 
         /// <summary>
         /// Determines whether the specified <see cref="Object"/> is equal to the current <see cref="Note"/>.
@@ -114,8 +114,10 @@ namespace LibGit2Sharp
             get
             {
                 return string.Format(CultureInfo.InvariantCulture,
-                    "Target \"{0}\", Namespace \"{1}\": {2}",
-                    TargetObjectId.ToString(7), Namespace, Message);
+                                     "Target \"{0}\", Namespace \"{1}\": {2}",
+                                     TargetObjectId.ToString(7), 
+                                     Namespace, 
+                                     Message);
             }
         }
     }

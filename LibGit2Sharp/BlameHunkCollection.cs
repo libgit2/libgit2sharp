@@ -31,10 +31,12 @@ namespace LibGit2Sharp
                 MinLine = (uint)options.MinLine,
                 MaxLine = (uint)options.MaxLine,
             };
+
             if (options.StartingAt != null)
             {
                 rawopts.NewestCommit = repo.Committish(options.StartingAt).Oid;
             }
+
             if (options.StoppingAt != null)
             {
                 rawopts.OldestCommit = repo.Committish(options.StoppingAt).Oid;

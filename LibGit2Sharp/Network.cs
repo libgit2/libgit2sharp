@@ -152,11 +152,12 @@ namespace LibGit2Sharp
             return remoteHandle;
         }
 
-        static void DoFetch(RepositorySafeHandle repoHandle,
-                            Remote remote,
-                            FetchOptions options,
-                            string logMessage,
-                            IEnumerable<string> refspecs)
+        static void DoFetch(
+            RepositorySafeHandle repoHandle,
+            Remote remote,
+            FetchOptions options,
+            string logMessage,
+            IEnumerable<string> refspecs)
         {
             using (RemoteSafeHandle remoteHandle = BuildRemoteSafeHandle(repoHandle, remote))
             {
@@ -164,11 +165,12 @@ namespace LibGit2Sharp
             }
         }
 
-        static void DoFetch(RepositorySafeHandle repoHandle,
-                            string url,
-                            FetchOptions options,
-                            string logMessage,
-                            IEnumerable<string> refspecs)
+        static void DoFetch(
+            RepositorySafeHandle repoHandle,
+            string url,
+            FetchOptions options,
+            string logMessage,
+            IEnumerable<string> refspecs)
         {
             using (RemoteSafeHandle remoteHandle = BuildRemoteSafeHandle(repoHandle, url))
             {
@@ -301,9 +303,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="url">The url to fetch from</param>
         /// <param name="refspecs">The list of resfpecs to use</param>
-        public virtual void Fetch(
-            string url,
-            IEnumerable<string> refspecs)
+        public virtual void Fetch(string url, IEnumerable<string> refspecs)
         {
             Fetch(url, refspecs, null, null);
         }
@@ -314,10 +314,7 @@ namespace LibGit2Sharp
         /// <param name="url">The url to fetch from</param>
         /// <param name="refspecs">The list of resfpecs to use</param>
         /// <param name="options"><see cref="FetchOptions"/> controlling fetch behavior</param>
-        public virtual void Fetch(
-            string url,
-            IEnumerable<string> refspecs,
-            FetchOptions options)
+        public virtual void Fetch(string url, IEnumerable<string> refspecs, FetchOptions options)
         {
             Fetch(url, refspecs, options, null);
         }
@@ -328,10 +325,7 @@ namespace LibGit2Sharp
         /// <param name="url">The url to fetch from</param>
         /// <param name="refspecs">The list of resfpecs to use</param>
         /// <param name="logMessage">Message to use when updating the reflog.</param>
-        public virtual void Fetch(
-            string url,
-            IEnumerable<string> refspecs,
-            string logMessage)
+        public virtual void Fetch(string url, IEnumerable<string> refspecs, string logMessage)
         {
             Fetch(url, refspecs, null, logMessage);
         }
@@ -435,8 +429,11 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(objectish, "objectish");
             Ensure.ArgumentNotNullOrEmptyString(destinationSpec, "destinationSpec");
 
-            Push(remote, string.Format(CultureInfo.InvariantCulture,
-                "{0}:{1}", objectish, destinationSpec));
+            Push(remote, 
+                 string.Format(CultureInfo.InvariantCulture,
+                               "{0}:{1}", 
+                               objectish, 
+                               destinationSpec));
         }
 
         /// <summary>
@@ -455,8 +452,12 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(objectish, "objectish");
             Ensure.ArgumentNotNullOrEmptyString(destinationSpec, "destinationSpec");
 
-            Push(remote, string.Format(CultureInfo.InvariantCulture,
-                "{0}:{1}", objectish, destinationSpec), pushOptions);
+            Push(remote, 
+                 string.Format(CultureInfo.InvariantCulture,
+                               "{0}:{1}", 
+                               objectish, 
+                               destinationSpec), 
+                 pushOptions);
         }
 
         /// <summary>
@@ -464,9 +465,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="remote">The <see cref="Remote"/> to push to.</param>
         /// <param name="pushRefSpec">The pushRefSpec to push.</param>
-        public virtual void Push(
-            Remote remote,
-            string pushRefSpec)
+        public virtual void Push(Remote remote, string pushRefSpec)
         {
             Ensure.ArgumentNotNullOrEmptyString(pushRefSpec, "pushRefSpec");
 
@@ -493,9 +492,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="remote">The <see cref="Remote"/> to push to.</param>
         /// <param name="pushRefSpecs">The pushRefSpecs to push.</param>
-        public virtual void Push(
-            Remote remote,
-            IEnumerable<string> pushRefSpecs)
+        public virtual void Push(Remote remote, IEnumerable<string> pushRefSpecs)
         {
             Push(remote, pushRefSpecs, null);
         }
@@ -506,10 +503,7 @@ namespace LibGit2Sharp
         /// <param name="remote">The <see cref="Remote"/> to push to.</param>
         /// <param name="pushRefSpecs">The pushRefSpecs to push.</param>
         /// <param name="pushOptions"><see cref="PushOptions"/> controlling push behavior</param>
-        public virtual void Push(
-            Remote remote,
-            IEnumerable<string> pushRefSpecs,
-            PushOptions pushOptions)
+        public virtual void Push(Remote remote, IEnumerable<string> pushRefSpecs, PushOptions pushOptions)
         {
             Ensure.ArgumentNotNull(remote, "remote");
             Ensure.ArgumentNotNull(pushRefSpecs, "pushRefSpecs");
@@ -531,12 +525,13 @@ namespace LibGit2Sharp
                 var callbacks = new RemoteCallbacks(pushOptions);
                 GitRemoteCallbacks gitCallbacks = callbacks.GenerateCallbacks();
 
-                Proxy.git_remote_push(remoteHandle, pushRefSpecs,
-                    new GitPushOptions()
-                    {
-                        PackbuilderDegreeOfParallelism = pushOptions.PackbuilderDegreeOfParallelism,
-                        RemoteCallbacks = gitCallbacks,
-                    });
+                Proxy.git_remote_push(remoteHandle,
+                                      pushRefSpecs,
+                                      new GitPushOptions()
+                                      {
+                                          PackbuilderDegreeOfParallelism = pushOptions.PackbuilderDegreeOfParallelism,
+                                          RemoteCallbacks = gitCallbacks,
+                                      });
             }
         }
 
@@ -575,9 +570,10 @@ namespace LibGit2Sharp
             {
                 int i = 0;
 
-                return Proxy.git_repository_fetchhead_foreach(
-                    repository.Handle,
-                    (name, url, oid, isMerge) => new FetchHead(repository, name, url, oid, isMerge, i++));
+                Func<string, string, GitOid, bool, FetchHead> resultSelector = 
+                    (name, url, oid, isMerge) => new FetchHead(repository, name, url, oid, isMerge, i++);
+
+                return Proxy.git_repository_fetchhead_foreach(repository.Handle, resultSelector);
             }
         }
     }

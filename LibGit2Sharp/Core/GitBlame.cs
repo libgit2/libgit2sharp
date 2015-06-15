@@ -37,7 +37,7 @@ namespace LibGit2Sharp.Core
         /// Restrict the search of commits to those reachable
         /// following only the first parents.
         /// </summary>
-        GIT_BLAME_FIRST_PARENT = (1<<4),
+        GIT_BLAME_FIRST_PARENT = (1 << 4),
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -79,8 +79,9 @@ namespace LibGit2Sharp.Core
                     return GitBlameOptionFlags.GIT_BLAME_NORMAL;
 
                 default:
-                    throw new NotSupportedException(
-                        string.Format(CultureInfo.InvariantCulture, "{0} is not supported at this time", strategy));
+                    throw new NotSupportedException(string.Format(CultureInfo.InvariantCulture, 
+                                                                  "{0} is not supported at this time", 
+                                                                  strategy));
             }
         }
     }

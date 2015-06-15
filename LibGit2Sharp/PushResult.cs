@@ -18,10 +18,7 @@ namespace LibGit2Sharp
         /// </summary>
         public virtual IEnumerable<PushStatusError> FailedPushUpdates
         {
-            get
-            {
-                return failedPushUpdates;
-            }
+            get { return failedPushUpdates; }
         }
 
         /// <summary>
@@ -30,10 +27,7 @@ namespace LibGit2Sharp
         /// </summary>
         public virtual bool HasErrors
         {
-            get
-            {
-                return failedPushUpdates.Count > 0;
-            }
+            get { return failedPushUpdates.Count > 0; }
         }
 
         internal PushResult(List<PushStatusError> failedPushUpdates)

@@ -231,7 +231,9 @@ namespace LibGit2Sharp
             get
             {
                 return string.Format(CultureInfo.InvariantCulture,
-                    "{0} => \"{1}\"", CanonicalName, TargetIdentifier);
+                                     "{0} => \"{1}\"", 
+                                     CanonicalName, 
+                                     TargetIdentifier);
             }
         }
 

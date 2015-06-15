@@ -34,8 +34,9 @@ namespace LibGit2Sharp
         {
             get
             {
-                return CheckoutModifiers.HasFlag(CheckoutModifiers.Force) ?
-                    CheckoutStrategy.GIT_CHECKOUT_FORCE : CheckoutStrategy.GIT_CHECKOUT_SAFE;
+                return CheckoutModifiers.HasFlag(CheckoutModifiers.Force) 
+                    ? CheckoutStrategy.GIT_CHECKOUT_FORCE 
+                    : CheckoutStrategy.GIT_CHECKOUT_SAFE;
             }
         }
 
