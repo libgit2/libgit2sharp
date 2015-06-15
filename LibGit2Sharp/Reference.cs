@@ -59,7 +59,7 @@ namespace LibGit2Sharp
                     break;
 
                 default:
-                    throw new LibGit2SharpException(String.Format(CultureInfo.InvariantCulture, "Unable to build a new reference from a type '{0}'.", type));
+                    throw new LibGit2SharpException(CultureInfo.InvariantCulture, "Unable to build a new reference from a type '{0}'.", type);
             }
 
             return reference as T;

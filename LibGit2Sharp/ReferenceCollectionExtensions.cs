@@ -256,7 +256,10 @@ namespace LibGit2Sharp
                 return refsColl.UpdateTarget(symbolicReference, targetRef, logMessage);
             }
 
-            throw new LibGit2SharpException(string.Format(CultureInfo.InvariantCulture, "Reference '{0}' has an unexpected type ('{1}').", name, reference.GetType()));
+            throw new LibGit2SharpException(CultureInfo.InvariantCulture,
+                                            "Reference '{0}' has an unexpected type ('{1}').",
+                                            name,
+                                            reference.GetType());
         }
 
         /// <summary>

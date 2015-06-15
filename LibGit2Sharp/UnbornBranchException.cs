@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.Runtime.Serialization;
 
 namespace LibGit2Sharp
@@ -23,6 +24,17 @@ namespace LibGit2Sharp
         /// <param name="message">A message that describes the error.</param>
         public UnbornBranchException(string message)
             : base(message)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="UnbornBranchException"/> class with a specified error message.
+        /// </summary>
+        /// <param name="cultureInfo">An object that supplies culture-specific formatting information.</param>
+        /// <param name="format">A composite format string for use in <see cref="String.Format(IFormatProvider, string, object[])"/>.</param>
+        /// <param name="args">An object array that contains zero or more objects to format.</param>
+        public UnbornBranchException(CultureInfo cultureInfo, string format, params object[] args)
+            : base(String.Format(cultureInfo, format, args))
         {
         }
 
