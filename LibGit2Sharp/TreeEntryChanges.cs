@@ -79,7 +79,7 @@ namespace LibGit2Sharp
         /// </summary>
         public virtual ObjectId OldOid { get; private set; }
 
-        /// <summary>        
+        /// <summary>
         /// The file exists in the old side of the diff.
         /// This is useful in determining if you have an ancestor
         /// side to a conflict.  This will be false during a

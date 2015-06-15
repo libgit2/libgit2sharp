@@ -10,7 +10,7 @@ namespace LibGit2Sharp
     public sealed class StashApplyOptions
     {
         /// <summary>
-        /// <see cref="StashApplyModifiers"/> for controlling checkout index reinstating./> 
+        /// <see cref="StashApplyModifiers"/> for controlling checkout index reinstating./>
         /// </summary>
         /// <value>The flags.</value>
         public StashApplyModifiers ApplyModifiers { get; set; }
