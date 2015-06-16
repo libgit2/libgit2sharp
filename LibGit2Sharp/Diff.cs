@@ -212,9 +212,11 @@ namespace LibGit2Sharp
 
             if (!ChangesBuilders.TryGetValue(typeof (T), out builder))
             {
-                throw new LibGit2SharpException(string.Format(CultureInfo.InvariantCulture,
-                    "Unexpected type '{0}' passed to Compare. Supported values are either '{1}' or '{2}'.", typeof (T),
-                    typeof (TreeChanges), typeof (Patch)));
+                throw new LibGit2SharpException(CultureInfo.InvariantCulture,
+                                                "Unexpected type '{0}' passed to Compare. Supported values are either '{1}' or '{2}'.",
+                                                typeof(T),
+                                                typeof(TreeChanges),
+                                                typeof(Patch));
             }
 
             var comparer = TreeToTree(repo);
@@ -323,9 +325,11 @@ namespace LibGit2Sharp
 
             if (!ChangesBuilders.TryGetValue(typeof (T), out builder))
             {
-                throw new LibGit2SharpException(string.Format(CultureInfo.InvariantCulture,
-                    "Unexpected type '{0}' passed to Compare. Supported values are either '{1}' or '{2}'.", typeof (T),
-                    typeof (TreeChanges), typeof (Patch)));
+                throw new LibGit2SharpException(CultureInfo.InvariantCulture,
+                                                "Unexpected type '{0}' passed to Compare. Supported values are either '{1}' or '{2}'.",
+                                                typeof(T),
+                                                typeof(TreeChanges),
+                                                typeof(Patch));
             }
 
             var comparer = HandleRetrieverDispatcher[diffTargets](repo);
@@ -453,9 +457,11 @@ namespace LibGit2Sharp
 
             if (!ChangesBuilders.TryGetValue(typeof (T), out builder))
             {
-                throw new LibGit2SharpException(string.Format(CultureInfo.InvariantCulture,
-                    "Unexpected type '{0}' passed to Compare. Supported values are either '{1}' or '{2}'.", typeof (T),
-                    typeof (TreeChanges), typeof (Patch)));
+                throw new LibGit2SharpException(CultureInfo.InvariantCulture,
+                                                "Unexpected type '{0}' passed to Compare. Supported values are either '{1}' or '{2}'.",
+                                                typeof(T),
+                                                typeof(TreeChanges),
+                                                typeof(Patch));
             }
 
             var comparer = WorkdirToIndex(repo);

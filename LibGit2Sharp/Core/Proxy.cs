@@ -2334,8 +2334,9 @@ namespace LibGit2Sharp.Core
                     return null;
 
                 case (int)GitErrorCode.Ambiguous:
-                    throw new AmbiguousSpecificationException(string.Format(CultureInfo.InvariantCulture,
-                        "Provided abbreviated ObjectId '{0}' is too short.", objectish));
+                    throw new AmbiguousSpecificationException(CultureInfo.InvariantCulture,
+                                                              "Provided abbreviated ObjectId '{0}' is too short.",
+                                                              objectish);
 
                 default:
                     Ensure.ZeroResult(res);
@@ -2541,10 +2542,10 @@ namespace LibGit2Sharp.Core
                     return FileStatus.Nonexistent;
 
                 case (int)GitErrorCode.Ambiguous:
-                    throw new AmbiguousSpecificationException(string.Format(CultureInfo.InvariantCulture,
-                        "More than one file matches the pathspec '{0}'. " +
-                        "You can either force a literal path evaluation (GIT_STATUS_OPT_DISABLE_PATHSPEC_MATCH), or use git_status_foreach().",
-                        path));
+                    throw new AmbiguousSpecificationException(CultureInfo.InvariantCulture,
+                                                              "More than one file matches the pathspec '{0}'. " +
+                                                              "You can either force a literal path evaluation (GIT_STATUS_OPT_DISABLE_PATHSPEC_MATCH), or use git_status_foreach().",
+                                                              path);
 
                 default:
                     Ensure.ZeroResult(res);

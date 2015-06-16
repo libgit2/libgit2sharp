@@ -174,9 +174,9 @@ namespace LibGit2Sharp
 
             if (branch.IsRemote)
             {
-                throw new LibGit2SharpException(
-                    string.Format(CultureInfo.InvariantCulture,
-                        "Cannot rename branch '{0}'. It's a remote tracking branch.", branch.FriendlyName));
+                throw new LibGit2SharpException(CultureInfo.InvariantCulture,
+                                                "Cannot rename branch '{0}'. It's a remote tracking branch.",
+                                                branch.FriendlyName);
             }
 
             using (ReferenceSafeHandle referencePtr = repo.Refs.RetrieveReferencePtr(Reference.LocalBranchPrefix + branch.FriendlyName))
