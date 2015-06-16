@@ -42,7 +42,7 @@ namespace LibGit2Sharp.Tests
 
             AssertExpectedExceptionMessage(expectedMessage, exceptionToThrow);
         }
-        
+
         [Fact]
         public void FormatAggregateException()
         {

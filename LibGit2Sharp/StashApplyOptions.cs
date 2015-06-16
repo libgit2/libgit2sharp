@@ -1,5 +1,4 @@
 ﻿using System;
-using LibGit2Sharp.Core;
 using LibGit2Sharp.Handlers;
 
 namespace LibGit2Sharp
@@ -10,7 +9,7 @@ namespace LibGit2Sharp
     public sealed class StashApplyOptions
     {
         /// <summary>
-        /// <see cref="StashApplyModifiers"/> for controlling checkout index reinstating./> 
+        /// <see cref="StashApplyModifiers"/> for controlling checkout index reinstating./>
         /// </summary>
         /// <value>The flags.</value>
         public StashApplyModifiers ApplyModifiers { get; set; }

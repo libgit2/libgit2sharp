@@ -1,7 +1,4 @@
-﻿using LibGit2Sharp.Core;
-using LibGit2Sharp.Handlers;
-
-namespace LibGit2Sharp
+﻿namespace LibGit2Sharp
 {
     /// <summary>
     /// Options controlling CherryPick behavior.

@@ -171,7 +171,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Register a filter globally with a default priority of 200 allowing the custom filter 
+        /// Register a filter globally with a default priority of 200 allowing the custom filter
         /// to imitate a core Git filter driver. It will be run last on checkout and first on checkin.
         /// </summary>
         public static FilterRegistration RegisterFilter(Filter filter)

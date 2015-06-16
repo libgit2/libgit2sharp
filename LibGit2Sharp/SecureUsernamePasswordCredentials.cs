@@ -1,7 +1,7 @@
 ﻿using System;
-using LibGit2Sharp.Core;
-using System.Security;
 using System.Runtime.InteropServices;
+using System.Security;
+using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
 {

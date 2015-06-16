@@ -238,11 +238,11 @@ namespace LibGit2Sharp.Tests
 
         private unsafe bool CharArrayAreEqual(char[] array1, char[] array2, int count)
         {
-            if (Object.ReferenceEquals(array1, array2))
+            if (ReferenceEquals(array1, array2))
             {
                 return true;
             }
-            if (Object.ReferenceEquals(array1, null) || Object.ReferenceEquals(null, array2))
+            if (ReferenceEquals(array1, null) || ReferenceEquals(null, array2))
             {
                 return false;
             }

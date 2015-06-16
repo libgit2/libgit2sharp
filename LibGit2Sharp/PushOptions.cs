@@ -41,7 +41,7 @@ namespace LibGit2Sharp
         public PackBuilderProgressHandler OnPackBuilderProgress { get; set; }
 
         /// <summary>
-        /// Called once between the negotiation step and the upload. It provides 
+        /// Called once between the negotiation step and the upload. It provides
         /// information about what updates will be performed.
         /// </summary>
         public PrePushHandler OnNegotiationCompletedBeforePush { get; set; }
