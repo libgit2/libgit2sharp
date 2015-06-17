@@ -26,6 +26,7 @@ namespace LibGit2Sharp
             Path = path.Native;
             WorkingDirectory = workingDirectoryPath == null ? null : workingDirectoryPath.Native;
             IsShallow = Proxy.git_repository_is_shallow(repo.Handle);
+            isEmpty = new Lazy<bool>(() => Proxy.git_repository_is_empty(repo.Handle));
         }
 
         /// <summary>
@@ -54,9 +55,12 @@ namespace LibGit2Sharp
         /// <summary>
         /// Indicates whether the repository is empty.
         /// </summary>
-        public virtual bool IsEmpty {
-            get { return Proxy.git_repository_is_empty(repo.Handle); }
+        public virtual bool IsEmpty
+        {
+            get { return isEmpty.Value; }
         }
+
+        private readonly Lazy<bool> isEmpty;
 
         /// <summary>
         /// Indicates whether the Head points to an arbitrary commit instead of the tip of a local branch.
