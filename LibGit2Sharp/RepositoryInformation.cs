@@ -26,6 +26,7 @@ namespace LibGit2Sharp
             Path = path.Native;
             WorkingDirectory = workingDirectoryPath == null ? null : workingDirectoryPath.Native;
             IsShallow = Proxy.git_repository_is_shallow(repo.Handle);
+            IsEmpty = Proxy.git_repository_is_empty(repo.Handle);
         }
 
         /// <summary>
