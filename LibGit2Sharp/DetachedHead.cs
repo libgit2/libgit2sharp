@@ -3,9 +3,12 @@
     internal class DetachedHead : Branch
     {
         internal DetachedHead(Repository repo, Reference reference)
-            : base(repo, reference, "(no branch)")
-        {
-        }
+            : base(repo,
+                   reference,
+                   reference == null || reference.TargetIdentifier == null || reference.TargetIdentifier.Length < 7
+                      ? "(no branch)"
+                      : string.Format("detatched from {0}", reference.TargetIdentifier.Substring(0, 7)))
+        { }
 
         protected override string Shorten()
         {
