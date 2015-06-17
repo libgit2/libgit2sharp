@@ -114,9 +114,9 @@ namespace LibGit2Sharp
         /// Determine if the current <see cref="Reference"/> is a note.
         /// </summary>
         /// <returns>true if the current <see cref="Reference"/> is a note, false otherwise.</returns>
-        public virtual bool IsNote()
+        public virtual bool IsNote
         {
-            return CanonicalName.LooksLikeNote();
+            get { return CanonicalName.LooksLikeNote(); }
         }
 
         /// <summary>

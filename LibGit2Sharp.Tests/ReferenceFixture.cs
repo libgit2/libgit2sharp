@@ -837,7 +837,7 @@ namespace LibGit2Sharp.Tests
             path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
-                Assert.True(repo.Refs["refs/notes/commits"].IsNote());
+                Assert.True(repo.Refs["refs/notes/commits"].IsNote);
             }
         }
 
