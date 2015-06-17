@@ -51,7 +51,6 @@
     <Compile Include="BlameHunk.cs" />
     <Compile Include="BlameOptions.cs" />
     <Compile Include="Blob.cs" />
-    <Compile Include="BlobExtensions.cs" />
     <Compile Include="Branch.cs" />
     <Compile Include="BranchCollection.cs" />
     <Compile Include="BranchCollectionExtensions.cs" />
