@@ -219,7 +219,6 @@
     <Compile Include="CommitLog.cs" />
     <Compile Include="Configuration.cs" />
     <Compile Include="ConfigurationEntry.cs" />
-    <Compile Include="ConfigurationExtensions.cs" />
     <Compile Include="ContentChanges.cs" />
     <Compile Include="InvalidSpecificationException.cs" />
     <Compile Include="Core\GitCheckoutOpts.cs" />
