@@ -84,6 +84,42 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        /// Determine if the current <see cref="Reference"/> is a local branch.
+        /// </summary>
+        /// <returns>true if the current <see cref="Reference"/> is a local branch, false otherwise.</returns>
+        public virtual bool IsLocalBranch()
+        {
+            return CanonicalName.LooksLikeLocalBranch();
+        }
+
+        /// <summary>
+        /// Determine if the current <see cref="Reference"/> is a remote tracking branch.
+        /// </summary>
+        /// <returns>true if the current <see cref="Reference"/> is a remote tracking branch, false otherwise.</returns>
+        public virtual bool IsRemoteTrackingBranch()
+        {
+            return CanonicalName.LooksLikeRemoteTrackingBranch();
+        }
+
+        /// <summary>
+        /// Determine if the current <see cref="Reference"/> is a tag.
+        /// </summary>
+        /// <returns>true if the current <see cref="Reference"/> is a tag, false otherwise.</returns>
+        public virtual bool IsTag()
+        {
+            return CanonicalName.LooksLikeTag();
+        }
+
+        /// <summary>
+        /// Determine if the current <see cref="Reference"/> is a note.
+        /// </summary>
+        /// <returns>true if the current <see cref="Reference"/> is a note, false otherwise.</returns>
+        public virtual bool IsNote()
+        {
+            return CanonicalName.LooksLikeNote();
+        }
+
+        /// <summary>
         /// Gets the full name of this reference.
         /// </summary>
         public virtual string CanonicalName
