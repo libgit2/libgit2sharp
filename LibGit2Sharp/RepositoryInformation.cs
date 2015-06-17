@@ -54,7 +54,8 @@ namespace LibGit2Sharp
         /// <summary>
         /// Indicates whether the repository is empty.
         /// </summary>
-        public virtual bool IsEmpty {
+        public virtual bool IsEmpty
+        {
             get { return Proxy.git_repository_is_empty(repo.Handle); }
         }
 
