@@ -851,7 +851,7 @@ namespace LibGit2Sharp
                 if (!refH.IsInvalid)
                 {
                     var reference = Reference.BuildFromPtr<Reference>(refH, this);
-                    if (reference.IsLocalBranch())
+                    if (reference.IsLocalBranch)
                     {
                         Branch branch = Branches[reference.CanonicalName];
                         return Checkout(branch, options);

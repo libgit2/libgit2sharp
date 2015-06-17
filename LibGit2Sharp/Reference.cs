@@ -87,9 +87,9 @@ namespace LibGit2Sharp
         /// Determine if the current <see cref="Reference"/> is a local branch.
         /// </summary>
         /// <returns>true if the current <see cref="Reference"/> is a local branch, false otherwise.</returns>
-        public virtual bool IsLocalBranch()
+        public virtual bool IsLocalBranch
         {
-            return CanonicalName.LooksLikeLocalBranch();
+            get { return CanonicalName.LooksLikeLocalBranch(); }
         }
 
         /// <summary>

@@ -214,7 +214,7 @@ namespace LibGit2Sharp
             if (logMessage == null)
             {
                 logMessage = string.Format(CultureInfo.InvariantCulture, "{0}: renamed {1} to {2}",
-                    reference.IsLocalBranch() ? "branch" : "reference", reference.CanonicalName, newName);
+                    reference.IsLocalBranch ? "branch" : "reference", reference.CanonicalName, newName);
             }
 
             using (ReferenceSafeHandle referencePtr = RetrieveReferencePtr(reference.CanonicalName))
