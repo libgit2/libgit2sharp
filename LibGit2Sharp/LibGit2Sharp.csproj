@@ -242,7 +242,6 @@
     <Compile Include="CheckoutConflictException.cs" />
     <Compile Include="MergeHead.cs" />
     <Compile Include="NameConflictException.cs" />
-    <Compile Include="NetworkExtensions.cs" />
     <Compile Include="NonFastForwardException.cs" />
     <Compile Include="PushResult.cs" />
     <Compile Include="PushStatusError.cs" />
