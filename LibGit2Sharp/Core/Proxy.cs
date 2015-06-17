@@ -701,7 +701,7 @@ namespace LibGit2Sharp.Core
             {
                 int res = NativeMethods.git_diff_blobs(
                     osw1.ObjectPtr, null, osw2.ObjectPtr, null,
-                    options, fileCallback, hunkCallback, lineCallback, IntPtr.Zero);
+                    options, fileCallback, null, hunkCallback, lineCallback, IntPtr.Zero);
 
                 Ensure.ZeroResult(res);
             }
@@ -713,7 +713,7 @@ namespace LibGit2Sharp.Core
             NativeMethods.git_diff_hunk_cb hunkCallback,
             NativeMethods.git_diff_line_cb lineCallback)
         {
-            int res = NativeMethods.git_diff_foreach(diff, fileCallback, hunkCallback, lineCallback, IntPtr.Zero);
+            int res = NativeMethods.git_diff_foreach(diff, fileCallback, null, hunkCallback, lineCallback, IntPtr.Zero);
             Ensure.ZeroResult(res);
         }
 
