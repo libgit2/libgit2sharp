@@ -53,7 +53,6 @@
     <Compile Include="Blob.cs" />
     <Compile Include="Branch.cs" />
     <Compile Include="BranchCollection.cs" />
-    <Compile Include="BranchCollectionExtensions.cs" />
     <Compile Include="BranchTrackingDetails.cs" />
     <Compile Include="BranchUpdater.cs" />
     <Compile Include="CheckoutCallbacks.cs" />
