@@ -363,4 +363,33 @@ namespace LibGit2Sharp.Core
         // TODO
         public IntPtr SimilarityMetric;
     }
+
+    [Flags]
+    enum GitDiffBinaryType
+    {
+        // There is no binary delta.
+        GIT_DIFF_BINARY_NONE = 0,
+
+        // The binary data is the literal contents of the file. */
+        GIT_DIFF_BINARY_LITERAL,
+
+        // The binary data is the delta from one side to the other. */
+        GIT_DIFF_BINARY_DELTA,
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    internal class GitDiffBinaryFile
+    {
+        public GitDiffBinaryType Type;
+        public IntPtr Data;
+        public UIntPtr DataLen;
+        public UIntPtr InflatedLen;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    internal class GitDiffBinary
+    {
+        public GitDiffBinaryFile OldFile;
+        public GitDiffBinaryFile NewFile;
+    }
 }

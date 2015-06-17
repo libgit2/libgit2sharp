@@ -473,6 +473,11 @@ namespace LibGit2Sharp.Core
             [In] GitDiffLine line,
             IntPtr payload);
 
+        internal delegate int git_diff_binary_cb(
+	        [In] GitDiffDelta delta,
+	        [In] GitDiffBinary binary,
+	        IntPtr payload);
+
         [DllImport(libgit2)]
         internal static extern int git_diff_blobs(
             GitObjectSafeHandle oldBlob,
@@ -481,6 +486,7 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictFilePathMarshaler))] FilePath new_as_path,
             GitDiffOptions options,
             git_diff_file_cb fileCallback,
+            git_diff_binary_cb binaryCallback,
             git_diff_hunk_cb hunkCallback,
             git_diff_line_cb lineCallback,
             IntPtr payload);
@@ -489,6 +495,7 @@ namespace LibGit2Sharp.Core
         internal static extern int git_diff_foreach(
             DiffSafeHandle diff,
             git_diff_file_cb fileCallback,
+            git_diff_binary_cb binaryCallback,
             git_diff_hunk_cb hunkCallback,
             git_diff_line_cb lineCallback,
             IntPtr payload);
