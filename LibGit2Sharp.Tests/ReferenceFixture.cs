@@ -830,7 +830,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path))
             {
                 Assert.True(repo.Refs["refs/heads/master"].IsLocalBranch);
-                Assert.True(repo.Refs["refs/remotes/origin/master"].IsRemoteTrackingBranch());
+                Assert.True(repo.Refs["refs/remotes/origin/master"].IsRemoteTrackingBranch);
                 Assert.True(repo.Refs["refs/tags/lw"].IsTag());
             }
 

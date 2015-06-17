@@ -96,9 +96,9 @@ namespace LibGit2Sharp
         /// Determine if the current <see cref="Reference"/> is a remote tracking branch.
         /// </summary>
         /// <returns>true if the current <see cref="Reference"/> is a remote tracking branch, false otherwise.</returns>
-        public virtual bool IsRemoteTrackingBranch()
+        public virtual bool IsRemoteTrackingBranch
         {
-            return CanonicalName.LooksLikeRemoteTrackingBranch();
+            get { return CanonicalName.LooksLikeRemoteTrackingBranch(); }
         }
 
         /// <summary>
