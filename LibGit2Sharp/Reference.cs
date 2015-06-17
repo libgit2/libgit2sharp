@@ -105,9 +105,9 @@ namespace LibGit2Sharp
         /// Determine if the current <see cref="Reference"/> is a tag.
         /// </summary>
         /// <returns>true if the current <see cref="Reference"/> is a tag, false otherwise.</returns>
-        public virtual bool IsTag()
+        public virtual bool IsTag
         {
-            return CanonicalName.LooksLikeTag();
+            get { return CanonicalName.LooksLikeTag(); }
         }
 
         /// <summary>

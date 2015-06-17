@@ -831,7 +831,7 @@ namespace LibGit2Sharp.Tests
             {
                 Assert.True(repo.Refs["refs/heads/master"].IsLocalBranch);
                 Assert.True(repo.Refs["refs/remotes/origin/master"].IsRemoteTrackingBranch);
-                Assert.True(repo.Refs["refs/tags/lw"].IsTag());
+                Assert.True(repo.Refs["refs/tags/lw"].IsTag);
             }
 
             path = SandboxBareTestRepo();
@@ -871,7 +871,7 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path))
             {
                 var result = repo.Refs.ReachableFrom(
-                    repo.Refs.Where(r => r.IsTag()),
+                    repo.Refs.Where(r => r.IsTag),
                     new[] { repo.Lookup<Commit>("f8d44d7"), repo.Lookup<Commit>("6dcf9bf") });
 
                 var expected = new[]
