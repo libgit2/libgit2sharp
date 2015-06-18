@@ -228,7 +228,7 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
             Ensure.ArgumentNotNullOrEmptyString(canonicalRefNameOrObjectish, "canonicalRefNameOrObjectish");
 
-            if (name == "HEAD")
+            if (name == refsColl.Head.CanonicalName)
             {
                 return refsColl.UpdateHeadTarget(canonicalRefNameOrObjectish, logMessage);
             }

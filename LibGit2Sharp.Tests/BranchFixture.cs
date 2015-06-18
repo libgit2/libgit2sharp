@@ -608,6 +608,32 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+		[Fact]
+		public void CanGetTrackingInformationFromHeadSharingNoHistoryWithItsTrackedBranch()
+		{
+			string path = SandboxStandardTestRepo();
+			using (var repo = new Repository(path))
+			{
+				Branch master = repo.Branches["master"];
+				const string logMessage = "update target message";
+				repo.Refs.UpdateTarget("HEAD", "origin/test", logMessage);
+
+				Assert.True(master.IsTracking);
+				Assert.NotNull(master.TrackedBranch);
+				AssertBelongsToARepository(repo, master.TrackedBranch);
+
+				Assert.NotNull(master.TrackingDetails);
+				Assert.Equal(2, master.TrackingDetails.AheadBy);
+				Assert.Equal(2, master.TrackingDetails.BehindBy);
+				Assert.Null(repo.Head.TrackingDetails.CommonAncestor);
+
+				// Assert reflog entry is created
+				var reflogEntry = repo.Refs.Log("HEAD").First();
+				Assert.Equal(repo.Branches["origin/test"].Tip.Id, reflogEntry.To);
+				Assert.Equal(logMessage, reflogEntry.Message);
+			}
+		}
+
         [Fact]
         public void TrackingInformationIsEmptyForBranchTrackingPrunedRemoteBranch()
         {
