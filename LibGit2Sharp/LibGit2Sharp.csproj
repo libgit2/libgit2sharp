@@ -252,7 +252,6 @@
     <Compile Include="SmartSubtransportStream.cs" />
     <Compile Include="Core\GitSmartSubtransport.cs" />
     <Compile Include="Core\GitSmartSubtransportStream.cs" />
-    <Compile Include="TagCollectionExtensions.cs" />
     <Compile Include="Core\FilePath.cs" />
     <Compile Include="Core\FilePathExtensions.cs" />
     <Compile Include="Core\FilePathMarshaler.cs" />
