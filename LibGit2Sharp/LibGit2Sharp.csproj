@@ -245,7 +245,6 @@
     <Compile Include="NonFastForwardException.cs" />
     <Compile Include="PushResult.cs" />
     <Compile Include="PushStatusError.cs" />
-    <Compile Include="ReferenceCollectionExtensions.cs" />
     <Compile Include="Core\GitRemoteCallbacks.cs" />
     <Compile Include="RemoteCallbacks.cs" />
     <Compile Include="RemoteCompletionType.cs" />
