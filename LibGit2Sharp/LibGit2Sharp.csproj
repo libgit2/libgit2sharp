@@ -147,7 +147,6 @@
     <Compile Include="MergeFetchHeadNotFoundException.cs" />
     <Compile Include="RepositoryOperationContext.cs" />
     <Compile Include="ResetMode.cs" />
-    <Compile Include="NoteCollectionExtensions.cs" />
     <Compile Include="RefSpecDirection.cs" />
     <Compile Include="Core\GitStatusEntry.cs" />
     <Compile Include="Core\GitStatusOptions.cs" />
