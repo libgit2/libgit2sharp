@@ -50,7 +50,9 @@ namespace LibGit2Sharp
         /// <returns>The references in the <see cref="Remote"/> repository.</returns>
         public virtual IEnumerable<DirectReference> ListReferences(Remote remote)
         {
-            return ListReferences(remote, null);
+            Ensure.ArgumentNotNull(remote, "remote");
+
+            return ListReferencesInternal(remote.Url, null);
         }
 
         /// <summary>
@@ -68,20 +70,9 @@ namespace LibGit2Sharp
         public virtual IEnumerable<DirectReference> ListReferences(Remote remote, CredentialsHandler credentialsProvider)
         {
             Ensure.ArgumentNotNull(remote, "remote");
+            Ensure.ArgumentNotNull(credentialsProvider, "credentialsProvider");
 
-            using (RemoteSafeHandle remoteHandle = Proxy.git_remote_lookup(repository.Handle, remote.Name, true))
-            {
-                var gitCallbacks = new GitRemoteCallbacks { version = 1 };
-
-                if (credentialsProvider != null)
-                {
-                    var callbacks = new RemoteCallbacks(credentialsProvider);
-                    gitCallbacks = callbacks.GenerateCallbacks();
-                }
-
-                Proxy.git_remote_connect(remoteHandle, GitDirection.Fetch, ref gitCallbacks);
-                return Proxy.git_remote_ls(repository, remoteHandle);
-            }
+            return ListReferencesInternal(remote.Url, credentialsProvider);
         }
 
         /// <summary>
@@ -99,9 +90,41 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNull(url, "url");
 
-            using (RemoteSafeHandle remoteHandle = Proxy.git_remote_create_anonymous(repository.Handle, url))
+            return ListReferencesInternal(url, null);
+        }
+
+        /// <summary>
+        /// List references in a remote repository.
+        /// <para>
+        /// When the remote tips are ahead of the local ones, the retrieved
+        /// <see cref="DirectReference"/>s may point to non existing
+        /// <see cref="GitObject"/>s in the local repository. In that
+        /// case, <see cref="DirectReference.Target"/> will return <c>null</c>.
+        /// </para>
+        /// </summary>
+        /// <param name="url">The url to list from.</param>
+        /// <param name="credentialsProvider">The <see cref="Func{Credentials}"/> used to connect to remote repository.</param>
+        /// <returns>The references in the remote repository.</returns>
+        public virtual IEnumerable<DirectReference> ListReferences(string url, CredentialsHandler credentialsProvider)
+        {
+            Ensure.ArgumentNotNull(url, "url");
+            Ensure.ArgumentNotNull(credentialsProvider, "credentialsProvider");
+
+            return ListReferencesInternal(url, credentialsProvider);
+        }
+
+        private IEnumerable<DirectReference> ListReferencesInternal(string url, CredentialsHandler credentialsProvider)
+        {
+            using (RemoteSafeHandle remoteHandle = BuildRemoteSafeHandle(repository.Handle, url))
             {
                 GitRemoteCallbacks gitCallbacks = new GitRemoteCallbacks { version = 1 };
+
+                if (credentialsProvider != null)
+                {
+                    var callbacks = new RemoteCallbacks(credentialsProvider);
+                    gitCallbacks = callbacks.GenerateCallbacks();
+                }
+
                 Proxy.git_remote_connect(remoteHandle, GitDirection.Fetch, ref gitCallbacks);
                 return Proxy.git_remote_ls(repository, remoteHandle);
             }
