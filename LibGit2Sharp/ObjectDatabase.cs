@@ -395,6 +395,34 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        /// Create a TAR archive of the given tree.
+        /// </summary>
+        /// <param name="tree">The tree.</param>
+        /// <param name="archivePath">The archive path.</param>
+        public virtual void Archive(Tree tree, string archivePath)
+        {
+            using (var output = new FileStream(archivePath, FileMode.Create))
+            using (var archiver = new TarArchiver(output))
+            {
+                Archive(tree, archiver);
+            }
+        }
+
+        /// <summary>
+        /// Create a TAR archive of the given commit.
+        /// </summary>
+        /// <param name="commit">commit.</param>
+        /// <param name="archivePath">The archive path.</param>
+        public virtual void Archive(Commit commit, string archivePath)
+        {
+            using (var output = new FileStream(archivePath, FileMode.Create))
+            using (var archiver = new TarArchiver(output))
+            {
+                Archive(commit, archiver);
+            }
+        }
+
+        /// <summary>
         /// Archive the given commit.
         /// </summary>
         /// <param name="commit">The commit.</param>

@@ -141,7 +141,7 @@ namespace LibGit2Sharp.Core
             var oldRefTarget = selectTarget(oldRef);
 
             string newRefName = oldRef.CanonicalName;
-            if (oldRef.IsTag() && options.TagNameRewriter != null)
+            if (oldRef.IsTag && options.TagNameRewriter != null)
             {
                 newRefName = Reference.TagPrefix +
                              options.TagNameRewriter(oldRef.CanonicalName.Substring(Reference.TagPrefix.Length),

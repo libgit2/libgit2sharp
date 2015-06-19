@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
@@ -343,6 +345,38 @@ namespace LibGit2Sharp.Tests
             }
 
             Assert.Equal("", sb.ToString());
+        }
+
+        [Fact]
+        public void PublicExtensionMethodsShouldonlyTargetInterfacesOrEnums()
+        {
+            IEnumerable<string> mis =
+                from m in GetInvalidPublicExtensionMethods()
+                select m.DeclaringType + "." + m.Name;
+
+            var sb = new StringBuilder();
+
+            foreach (var method in mis.Distinct())
+            {
+                sb.AppendFormat("'{0}' is a public extension method that doesn't target an interface or an enum.{1}",
+                    method, Environment.NewLine);
+            }
+
+            Assert.Equal("", sb.ToString());
+        }
+
+        // Inspired from http://stackoverflow.com/a/299526
+
+        static IEnumerable<MethodInfo> GetInvalidPublicExtensionMethods()
+        {
+            var query = from type in (Assembly.GetAssembly(typeof(IRepository))).GetTypes()
+                        where type.IsSealed && !type.IsGenericType && !type.IsNested && type.IsPublic
+                        from method in type.GetMethods(BindingFlags.Static | BindingFlags.Public)
+                        where method.IsDefined(typeof(ExtensionAttribute), false)
+                        let parameterType = method.GetParameters()[0].ParameterType
+                        where parameterType != null && !parameterType.IsInterface && !parameterType.IsEnum
+                        select method;
+            return query;
         }
     }
 

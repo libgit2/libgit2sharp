@@ -962,7 +962,8 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path))
             {
                 Assert.Throws<ArgumentException>(() => repo.Branches.Remove(string.Empty));
-                Assert.Throws<ArgumentNullException>(() => repo.Branches.Remove(null));
+                Assert.Throws<ArgumentNullException>(() => repo.Branches.Remove(default(string)));
+                Assert.Throws<ArgumentNullException>(() => repo.Branches.Remove(default(Branch)));
             }
         }
 

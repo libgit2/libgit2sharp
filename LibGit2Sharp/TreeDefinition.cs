@@ -58,6 +58,24 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        /// Removes the <see cref="TreeEntryDefinition"/> located at each of the
+        /// specified <paramref name="treeEntryPaths"/>.
+        /// </summary>
+        /// <param name="treeEntryPaths">The paths within this <see cref="TreeDefinition"/>.</param>
+        /// <returns>The current <see cref="TreeDefinition"/>.</returns>
+        public virtual TreeDefinition Remove(IEnumerable<string> treeEntryPaths)
+        {
+            Ensure.ArgumentNotNull(treeEntryPaths, "treeEntryPaths");
+
+            foreach (var treeEntryPath in treeEntryPaths)
+            {
+                Remove(treeEntryPath);
+            }
+
+            return this;
+        }
+
+        /// <summary>
         /// Removes a <see cref="TreeEntryDefinition"/> located the specified <paramref name="treeEntryPath"/> path.
         /// </summary>
         /// <param name="treeEntryPath">The path within this <see cref="TreeDefinition"/>.</param>

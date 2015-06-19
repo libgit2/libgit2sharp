@@ -51,10 +51,8 @@
     <Compile Include="BlameHunk.cs" />
     <Compile Include="BlameOptions.cs" />
     <Compile Include="Blob.cs" />
-    <Compile Include="BlobExtensions.cs" />
     <Compile Include="Branch.cs" />
     <Compile Include="BranchCollection.cs" />
-    <Compile Include="BranchCollectionExtensions.cs" />
     <Compile Include="BranchTrackingDetails.cs" />
     <Compile Include="BranchUpdater.cs" />
     <Compile Include="CheckoutCallbacks.cs" />
@@ -149,7 +147,6 @@
     <Compile Include="MergeFetchHeadNotFoundException.cs" />
     <Compile Include="RepositoryOperationContext.cs" />
     <Compile Include="ResetMode.cs" />
-    <Compile Include="NoteCollectionExtensions.cs" />
     <Compile Include="RefSpecDirection.cs" />
     <Compile Include="Core\GitStatusEntry.cs" />
     <Compile Include="Core\GitStatusOptions.cs" />
@@ -191,7 +188,6 @@
     <Compile Include="Core\RepositoryOpenFlags.cs" />
     <Compile Include="RewriteHistoryOptions.cs" />
     <Compile Include="StashModifiers.cs" />
-    <Compile Include="TreeDefinitionExtensions.cs" />
     <Compile Include="TreeEntryTargetType.cs" />
     <Compile Include="UnmatchedPathException.cs" />
     <Compile Include="Core\Handles\ReflogEntrySafeHandle.cs" />
@@ -216,12 +212,10 @@
     <Compile Include="SubmoduleUpdate.cs" />
     <Compile Include="UnmergedIndexEntriesException.cs" />
     <Compile Include="Core\StringExtensions.cs" />
-    <Compile Include="ObjectDatabaseExtensions.cs" />
     <Compile Include="Commit.cs" />
     <Compile Include="CommitLog.cs" />
     <Compile Include="Configuration.cs" />
     <Compile Include="ConfigurationEntry.cs" />
-    <Compile Include="ConfigurationExtensions.cs" />
     <Compile Include="ContentChanges.cs" />
     <Compile Include="InvalidSpecificationException.cs" />
     <Compile Include="Core\GitCheckoutOpts.cs" />
@@ -245,11 +239,9 @@
     <Compile Include="CheckoutConflictException.cs" />
     <Compile Include="MergeHead.cs" />
     <Compile Include="NameConflictException.cs" />
-    <Compile Include="NetworkExtensions.cs" />
     <Compile Include="NonFastForwardException.cs" />
     <Compile Include="PushResult.cs" />
     <Compile Include="PushStatusError.cs" />
-    <Compile Include="ReferenceCollectionExtensions.cs" />
     <Compile Include="Core\GitRemoteCallbacks.cs" />
     <Compile Include="RemoteCallbacks.cs" />
     <Compile Include="RemoteCompletionType.cs" />
@@ -260,7 +252,6 @@
     <Compile Include="SmartSubtransportStream.cs" />
     <Compile Include="Core\GitSmartSubtransport.cs" />
     <Compile Include="Core\GitSmartSubtransportStream.cs" />
-    <Compile Include="TagCollectionExtensions.cs" />
     <Compile Include="Core\FilePath.cs" />
     <Compile Include="Core\FilePathExtensions.cs" />
     <Compile Include="Core\FilePathMarshaler.cs" />

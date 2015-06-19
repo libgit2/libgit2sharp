@@ -68,8 +68,10 @@ namespace LibGit2Sharp.Tests
             string path = SandboxBareTestRepo();
             using (var repo = new Repository(path))
             {
-                Assert.Throws<ArgumentNullException>(() => repo.ObjectDatabase.Archive((Commit)null, null));
-                Assert.Throws<ArgumentNullException>(() => repo.ObjectDatabase.Archive((Tree)null, null));
+                Assert.Throws<ArgumentNullException>(() => repo.ObjectDatabase.Archive(default(Commit), default(ArchiverBase)));
+                Assert.Throws<ArgumentNullException>(() => repo.ObjectDatabase.Archive(default(Commit), default(string)));
+                Assert.Throws<ArgumentNullException>(() => repo.ObjectDatabase.Archive(default(Tree), default(ArchiverBase)));
+                Assert.Throws<ArgumentNullException>(() => repo.ObjectDatabase.Archive(default(Tree), default(string)));
             }
         }
 
