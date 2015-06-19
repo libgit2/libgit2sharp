@@ -49,16 +49,16 @@ namespace LibGit2Sharp.Core
 
         public override void Write(byte[] buffer, int offset, int count)
         {
+            int res;
             unsafe
             {
                 fixed (byte* bufferPtr = &buffer[offset])
                 {
-                    if (nextStream.write(nextPtr, (IntPtr)bufferPtr, (UIntPtr)count) < 0)
-                    {
-                        throw new LibGit2SharpException("failed to write to next buffer");
-                    }
+                    res = nextStream.write(nextPtr, (IntPtr)bufferPtr, (UIntPtr)count);
                 }
             }
+
+            Ensure.Int32Result(res);
         }
     }
 }
