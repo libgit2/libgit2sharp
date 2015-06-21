@@ -58,6 +58,8 @@ namespace LibGit2Sharp
         /// <returns>True if this hunk contains the given line.</returns>
         public virtual bool ContainsLine(int line)
         {
+            Ensure.ArgumentPositiveInt32(line, "line");
+
             return FinalStartLineNumber <= line && line < FinalStartLineNumber + LineCount;
         }
 

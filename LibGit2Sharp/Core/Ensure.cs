@@ -225,18 +225,18 @@ namespace LibGit2Sharp.Core
         }
 
         /// <summary>
-        /// Checks an argument is a positive integer.
+        /// Checks an argument is a positive integer (in [0, int.MaxValue] range).
         /// </summary>
         /// <param name="argumentValue">The argument value to check.</param>
         /// <param name="argumentName">The name of the argument.</param>
         public static void ArgumentPositiveInt32(long argumentValue, string argumentName)
         {
-            if (argumentValue >= 0 && argumentValue <= uint.MaxValue)
+            if (argumentValue >= 0 && argumentValue <= int.MaxValue)
             {
                 return;
             }
 
-            throw new ArgumentException(argumentName);
+            throw new ArgumentOutOfRangeException(argumentName, argumentValue, "Expected range of possible values is [0, int.MaxValue].");
         }
 
         /// <summary>

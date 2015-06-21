@@ -28,8 +28,8 @@ namespace LibGit2Sharp
 
         /// <summary>
         /// Gets the size in bytes of the raw content of a blob.
-        /// <para> Please note that this would load entire blob content in the memory to compute the Size.
-        /// In order to read blob size from header, Repository.ObjectMetadata.RetrieveObjectMetadata(Blob.Id).Size
+        /// <para> Please note that this will load the entire blob content in the memory to compute the Size.
+        /// In order to only read the blob size from header, <see cref="ObjectDatabase.RetrieveObjectMetadata"/>
         /// can be used.
         /// </para>
         /// </summary>
@@ -61,7 +61,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Gets the blob content, decoded with UTF8 encoding if the encoding cannot be detected from the byte order mark
+        /// Gets the blob content, decoded with UTF8 encoding if the encoding cannot be detected from the byte order mark.
         /// </summary>
         /// <returns>Blob content as text.</returns>
         public virtual string GetContentText()
@@ -70,8 +70,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Gets the blob content decoded with the specified encoding,
-        /// or according to byte order marks, or the specified encoding as a fallback
+        /// Gets the blob content decoded with the specified encoding.
         /// </summary>
         /// <param name="encoding">The encoding of the text to use, if it cannot be detected</param>
         /// <returns>Blob content as text.</returns>
@@ -83,27 +82,28 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Gets the blob content, decoded with UTF8 encoding if the encoding cannot be detected
+        /// Gets the blob content, decoded with UTF8 encoding if the encoding cannot be detected from the byte order mark.
         /// </summary>
         /// <param name="filteringOptions">Parameter controlling content filtering behavior</param>
         /// <returns>Blob content as text.</returns>
         public virtual string GetContentText(FilteringOptions filteringOptions)
         {
-            return GetContentText(filteringOptions, null);
+            Ensure.ArgumentNotNull(filteringOptions, "filteringOptions");
+
+            return ReadToEnd(GetContentStream(filteringOptions), null);
         }
 
         /// <summary>
         /// Gets the blob content as it would be checked out to the
-        /// working directory, decoded with the specified encoding,
-        /// or according to byte order marks, with UTF8 as fallback,
-        /// if <paramref name="encoding"/> is null.
+        /// working directory, decoded with the specified encoding.
         /// </summary>
         /// <param name="filteringOptions">Parameter controlling content filtering behavior</param>
-        /// <param name="encoding">The encoding of the text. (default: detected or UTF8)</param>
+        /// <param name="encoding">The encoding of the text.</param>
         /// <returns>Blob content as text.</returns>
         public virtual string GetContentText(FilteringOptions filteringOptions, Encoding encoding)
         {
             Ensure.ArgumentNotNull(filteringOptions, "filteringOptions");
+            Ensure.ArgumentNotNull(encoding, "encoding");
 
             return ReadToEnd(GetContentStream(filteringOptions), encoding);
         }

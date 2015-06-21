@@ -73,6 +73,8 @@ namespace LibGit2Sharp
             {
                 return hunk;
             }
+
+            //TODO: Should we really thow here?
             throw new ArgumentOutOfRangeException("line", "No hunk for that line");
         }
 
