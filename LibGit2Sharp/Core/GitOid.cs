@@ -27,5 +27,13 @@ namespace LibGit2Sharp.Core
         {
             return oid == null ? null : new ObjectId(oid.Value);
         }
+
+        /// <summary>
+        /// Static convenience property to return an id (all zeros).
+        /// </summary>
+        public static GitOid Empty
+        {
+            get { return new GitOid(); }
+        }
     }
 }

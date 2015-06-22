@@ -12,7 +12,10 @@ namespace LibGit2Sharp.Tests.TestHelpers
         public static readonly string TemporaryReposPath = BuildPath();
         public const string UnknownSha = "deadbeefdeadbeefdeadbeefdeadbeefdeadbeef";
         public static readonly Identity Identity = new Identity("A. U. Thor", "thor@valhalla.asgard.com");
+        public static readonly Identity Identity2 = new Identity("nulltoken", "emeric.fermas@gmail.com");
+
         public static readonly Signature Signature = new Signature(Identity, new DateTimeOffset(2011, 06, 16, 10, 58, 27, TimeSpan.FromHours(2)));
+        public static readonly Signature Signature2 = new Signature(Identity2, DateTimeOffset.Parse("Wed, Dec 14 2011 08:29:03 +0100"));
 
         // Populate these to turn on live credential tests:  set the
         // PrivateRepoUrl to the URL of a repository that requires
