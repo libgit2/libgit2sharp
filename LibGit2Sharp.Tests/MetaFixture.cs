@@ -9,6 +9,7 @@ using System.Text;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
 using Xunit.Extensions;
+using Moq;
 
 namespace LibGit2Sharp.Tests
 {
@@ -104,6 +105,28 @@ namespace LibGit2Sharp.Tests
                 }
 
                 if (!HasEmptyPublicOrProtectedConstructor(type))
+                {
+                    nonTestableTypes.Add(type, new List<string>());
+                }
+
+                if (type.IsAbstract)
+                {
+                    continue;
+                }
+
+                try
+                {
+                    if (type.ContainsGenericParameters)
+                    {
+                        var constructType = type.MakeGenericType(Enumerable.Repeat(typeof(object), type.GetGenericArguments().Length).ToArray());
+                        Activator.CreateInstance(constructType, true);
+                    }
+                    else
+                    {
+                        Activator.CreateInstance(type, true);
+                    }
+                }
+                catch (Exception ex)
                 {
                     nonTestableTypes.Add(type, new List<string>());
                 }
@@ -246,7 +269,7 @@ namespace LibGit2Sharp.Tests
             var nonVirtualGetEnumeratorMethods = Assembly.GetAssembly(typeof(IRepository))
                 .GetExportedTypes()
                 .Where(t =>
-                    t.Namespace == typeof (IRepository).Namespace &&
+                    t.Namespace == typeof(IRepository).Namespace &&
                     !t.IsSealed &&
                     !t.IsAbstract &&
                     t.GetInterfaces().Any(i => i.IsAssignableFrom(typeof(IEnumerable<>))))

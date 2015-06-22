@@ -10,6 +10,8 @@ skip_tags: true
 clone_folder: C:\projects\libgit2sharp
 
 environment:
+  coveralls_token:
+    secure: ixIsBslo9NheDb5lJknF58EYdgvZ0r3/L0ecRiXjfXmjHBLvoSU6/ZRwaMM+BAlG
   coverity_token:
     secure: nuzUT+HecXGIi3KaPd/1hgFEZJan/j6+oNbPV75JKjk=
   coverity_email:
@@ -60,12 +62,23 @@ install:
     Write-Host "Should package Nuget artifact = " -NoNewLine
     Write-Host $Env:SHOULD_PACKAGE_NUGET_ARTIFACT -ForegroundColor "Green"
 
+    $Env:SHOULD_RUN_COVERALLS = $($Env:APPVEYOR_PULL_REQUEST_NUMBER -eq $null `
+                                               -and $Env:APPVEYOR_SCHEDULED_BUILD -eq $False)
+    Write-Host "Should run Coveralls = " -NoNewLine
+    Write-Host $Env:SHOULD_RUN_COVERALLS -ForegroundColor "Green"
+
     Write-Host "Should publish on success = " -NoNewLine
     Write-Host $Env:publish_on_success -ForegroundColor "Green"
 
     If ($Env:SHOULD_PACKAGE_NUGET_ARTIFACT -eq $True)
     {
       cinst sourcelink -y
+    }
+
+    If ($Env:SHOULD_RUN_COVERALLS -eq $True)
+    {
+      nuget install OpenCover -Version 4.5.3723 -ExcludeVersion -OutputDirectory .\packages
+      nuget install coveralls.net -Version 0.5.0 -ExcludeVersion -OutputDirectory .\packages
     }
 
     If ($Env:SHOULD_RUN_COVERITY_ANALYSIS -eq $True)
@@ -98,7 +111,20 @@ test_script:
 - ps: |
     If ($Env:SHOULD_RUN_COVERITY_ANALYSIS -eq $False)
     {
-      & "$Env:xunit_runner" "$Env:APPVEYOR_BUILD_FOLDER\LibGit2Sharp.Tests\bin\Release\LibGit2Sharp.Tests.dll" /appveyor
+      If ($Env:SHOULD_RUN_COVERALLS -eq $True -and $Env:publish_on_success -eq $True)
+      {
+        .\packages\OpenCover\OpenCover.Console.exe `
+          -register:user `
+          -target:$Env:xunit_runner `
+          "-targetargs:""$Env:APPVEYOR_BUILD_FOLDER\LibGit2Sharp.Tests\bin\Release\LibGit2Sharp.Tests.dll"" /noshadow /appveyor" `
+          "-filter:+[LibGit2Sharp]* -[LibGit2Sharp.Tests]*" `
+          -hideskipped:All `
+          -output:opencoverCoverage.xml
+      }
+      Else
+      {
+        & "$Env:xunit_runner" "$Env:APPVEYOR_BUILD_FOLDER\LibGit2Sharp.Tests\bin\Release\LibGit2Sharp.Tests.dll" /appveyor
+      }
     }
 
 after_test:
@@ -120,6 +146,23 @@ after_test:
       Write-Host "LibGit2Sharp version = $([LibGit2Sharp.GlobalSettings]::Version)" -ForegroundColor "Magenta"
 
       Get-ChildItem "$Env:APPVEYOR_BUILD_FOLDER\LibGit2sharp\*.nupkg" | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
+    }
+
+    If ($Env:SHOULD_RUN_COVERALLS -eq $True -and $Env:publish_on_success -eq $True)
+    {
+      Write-Host "Uploading code coverage result..." -ForegroundColor "Green"
+
+      .\packages\coveralls.net\csmacnz.Coveralls.exe `
+        --opencover -i opencoverCoverage.xml `
+        --repoToken $Env:coveralls_token `
+        --commitId $Env:APPVEYOR_REPO_COMMIT `
+        --commitBranch $Env:APPVEYOR_REPO_BRANCH `
+        --commitAuthor $Env:APPVEYOR_REPO_COMMIT_AUTHOR `
+        --commitEmail $Env:APPVEYOR_REPO_COMMIT_AUTHOR_EMAIL `
+        --commitMessage $Env:APPVEYOR_REPO_COMMIT_MESSAGE `
+        --useRelativePaths `
+        --basePath "$Env:APPVEYOR_BUILD_FOLDER\"`
+        --jobId $Env:APPVEYOR_JOB_ID
     }
 
     If ($Env:SHOULD_RUN_COVERITY_ANALYSIS -eq $True -and $Env:publish_on_success -eq $True)
