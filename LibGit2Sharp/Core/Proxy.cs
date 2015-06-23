@@ -3193,6 +3193,60 @@ namespace LibGit2Sharp.Core
             return (BuiltInFeatures)NativeMethods.git_libgit2_features();
         }
 
+        // C# equivalent of libgit2's git_libgit2_opt_t
+        private enum LibGitOption
+        {
+            GetMWindowSize,        // GIT_OPT_GET_MWINDOW_SIZE
+            SetMWindowSize,        // GIT_OPT_SET_MWINDOW_SIZE
+            GetMWindowMappedLimit, // GIT_OPT_GET_MWINDOW_MAPPED_LIMIT
+            SetMWindowMappedLimit, // GIT_OPT_SET_MWINDOW_MAPPED_LIMIT
+            GetSearchPath,         // GIT_OPT_GET_SEARCH_PATH
+            SetSearchPath,         // GIT_OPT_SET_SEARCH_PATH
+            SetCacheObjectLimit,   // GIT_OPT_SET_CACHE_OBJECT_LIMIT
+            SetCacheMaxSize,       // GIT_OPT_SET_CACHE_MAX_SIZE
+            EnableCaching,         // GIT_OPT_ENABLE_CACHING
+            GetCachedMemory,       // GIT_OPT_GET_CACHED_MEMORY
+            GetTemplatePath,       // GIT_OPT_GET_TEMPLATE_PATH
+            SetTemplatePath,       // GIT_OPT_SET_TEMPLATE_PATH
+            SetSslCertLocations,   // GIT_OPT_SET_SSL_CERT_LOCATIONS
+        }
+
+        /// <summary>
+        /// Get the paths under which libgit2 searches for the configuration file of a given level.
+        /// </summary>
+        /// <param name="level">The level (global/system/XDG) of the config.</param>
+        /// <returns>
+        ///     The paths delimited by 'GIT_PATH_LIST_SEPARATOR' (<see cref="GlobalSettings.PathListSeparator"/>).
+        /// </returns>
+        public static string git_libgit2_opts_get_search_path(ConfigurationLevel level)
+        {
+            string path;
+
+            using (var buf = new GitBuf())
+            {
+                var res = NativeMethods.git_libgit2_opts((int)LibGitOption.GetSearchPath, (uint)level, buf);
+                Ensure.ZeroResult(res);
+
+                path = LaxUtf8Marshaler.FromNative(buf.ptr) ?? string.Empty;
+            }
+
+            return path;
+        }
+
+        /// <summary>
+        /// Set the path(s) under which libgit2 searches for the configuration file of a given level.
+        /// </summary>
+        /// <param name="level">The level (global/system/XDG) of the config.</param>
+        /// <param name="path">
+        ///     A string of paths delimited by 'GIT_PATH_LIST_SEPARATOR' (<see cref="GlobalSettings.PathListSeparator"/>).
+        ///     Pass null to reset the search path to the default.
+        /// </param>
+        public static void git_libgit2_opts_set_search_path(ConfigurationLevel level, string path)
+        {
+            var res = NativeMethods.git_libgit2_opts((int)LibGitOption.SetSearchPath, (uint)level, path);
+            Ensure.ZeroResult(res);
+        }
+
         #endregion
 
         private static ICollection<TResult> git_foreach<T, TResult>(

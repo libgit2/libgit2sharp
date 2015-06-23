@@ -431,5 +431,127 @@ namespace LibGit2Sharp.Tests
                 Assert.Null(signature);
             }
         }
+
+        [Fact]
+        public void CanSetAndGetSearchPath()
+        {
+            string globalPath = Path.Combine(Constants.TemporaryReposPath, Path.GetRandomFileName());
+            string systemPath = Path.Combine(Constants.TemporaryReposPath, Path.GetRandomFileName());
+            string xdgPath    = Path.Combine(Constants.TemporaryReposPath, Path.GetRandomFileName());
+
+            GlobalSettings.SetConfigSearchPaths(ConfigurationLevel.Global, globalPath);
+            GlobalSettings.SetConfigSearchPaths(ConfigurationLevel.System, systemPath);
+            GlobalSettings.SetConfigSearchPaths(ConfigurationLevel.Xdg,    xdgPath);
+
+            Assert.Equal(globalPath, GlobalSettings.GetConfigSearchPaths(ConfigurationLevel.Global).Single());
+            Assert.Equal(systemPath, GlobalSettings.GetConfigSearchPaths(ConfigurationLevel.System).Single());
+            Assert.Equal(xdgPath,    GlobalSettings.GetConfigSearchPaths(ConfigurationLevel.Xdg).Single());
+
+            // reset the search paths to their defaults
+            GlobalSettings.SetConfigSearchPaths(ConfigurationLevel.Global, null);
+            GlobalSettings.SetConfigSearchPaths(ConfigurationLevel.System, null);
+            GlobalSettings.SetConfigSearchPaths(ConfigurationLevel.Xdg,    null);
+        }
+
+        [Fact]
+        public void CanSetAndGetMultipleSearchPaths()
+        {
+            string[] paths =
+            {
+                Path.Combine(Constants.TemporaryReposPath, Path.GetRandomFileName()),
+                Path.Combine(Constants.TemporaryReposPath, Path.GetRandomFileName()),
+                Path.Combine(Constants.TemporaryReposPath, Path.GetRandomFileName()),
+            };
+
+            GlobalSettings.SetConfigSearchPaths(ConfigurationLevel.Global, paths);
+
+            Assert.Equal(paths, GlobalSettings.GetConfigSearchPaths(ConfigurationLevel.Global));
+
+            // set back to the defaults
+            GlobalSettings.SetConfigSearchPaths(ConfigurationLevel.Global, null);
+        }
+
+        [Fact]
+        public void CanResetSearchPaths()
+        {
+            // all of these calls should reset the config path to the default
+            Action[] resetActions =
+            {
+                () => GlobalSettings.SetConfigSearchPaths(ConfigurationLevel.Global),
+                () => GlobalSettings.SetConfigSearchPaths(ConfigurationLevel.Global, null),
+                () => GlobalSettings.SetConfigSearchPaths(ConfigurationLevel.Global, string.Empty),
+                () => GlobalSettings.SetConfigSearchPaths(ConfigurationLevel.Global, new string[] { }),
+            };
+
+            // record the default search path
+            GlobalSettings.SetConfigSearchPaths(ConfigurationLevel.Global, null);
+            var oldPaths = GlobalSettings.GetConfigSearchPaths(ConfigurationLevel.Global);
+            Assert.NotNull(oldPaths);
+
+            // generate a non-default path to set
+            var newPaths = new string[] { Path.Combine(Constants.TemporaryReposPath, Path.GetRandomFileName()) };
+
+            foreach (var tryToReset in resetActions)
+            {
+                // change to the non-default path
+                GlobalSettings.SetConfigSearchPaths(ConfigurationLevel.Global, newPaths);
+                Assert.Equal(newPaths, GlobalSettings.GetConfigSearchPaths(ConfigurationLevel.Global));
+
+                // set it back to the default
+                tryToReset();
+                Assert.Equal(oldPaths, GlobalSettings.GetConfigSearchPaths(ConfigurationLevel.Global));
+            }
+
+            // make sure the config paths are reset after the test ends
+            GlobalSettings.SetConfigSearchPaths(ConfigurationLevel.Global, null);
+        }
+
+        [Fact]
+        public void CanAppendToSearchPaths()
+        {
+            string appendMe = Path.Combine(Constants.TemporaryReposPath, Path.GetRandomFileName());
+            var prevPaths = GlobalSettings.GetConfigSearchPaths(ConfigurationLevel.Global);
+
+            // append using the special name $PATH
+            GlobalSettings.SetConfigSearchPaths(ConfigurationLevel.Global, "$PATH", appendMe);
+
+            var currentPaths = GlobalSettings.GetConfigSearchPaths(ConfigurationLevel.Global);
+            Assert.Equal(currentPaths, prevPaths.Concat(new[] { appendMe }));
+
+            // set it back to the default
+            GlobalSettings.SetConfigSearchPaths(ConfigurationLevel.Global, null);
+        }
+
+        [Fact]
+        public void CanRedirectConfigAccess()
+        {
+            var scd1 = BuildSelfCleaningDirectory();
+            var scd2 = BuildSelfCleaningDirectory();
+
+            Touch(scd1.RootedDirectoryPath, ".gitconfig");
+            Touch(scd2.RootedDirectoryPath, ".gitconfig");
+
+            // redirect global access to the first path
+            GlobalSettings.SetConfigSearchPaths(ConfigurationLevel.Global, scd1.RootedDirectoryPath);
+
+            // set a value in the first config
+            using (var config = Configuration.BuildFrom(null))
+            {
+                config.Set("luggage.code", 9876, ConfigurationLevel.Global);
+                Assert.Equal(9876, config.Get<int>("luggage.code", ConfigurationLevel.Global).Value);
+            }
+
+            // redirect global config access to path2
+            GlobalSettings.SetConfigSearchPaths(ConfigurationLevel.Global, scd2.RootedDirectoryPath);
+
+            // if the redirect succeeds, the value set in the prior config should not be visible
+            using (var config = Configuration.BuildFrom(null))
+            {
+                Assert.Equal(-1, config.GetValueOrDefault<int>("luggage.code", ConfigurationLevel.Global, -1));
+            }
+
+            // reset the search path to the default
+            GlobalSettings.SetConfigSearchPaths(ConfigurationLevel.Global, null);
+        }
     }
 }

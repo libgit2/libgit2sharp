@@ -581,6 +581,25 @@ namespace LibGit2Sharp.Core
         [DllImport(libgit2)]
         internal static extern int git_libgit2_features();
 
+        #region git_libgit2_opts
+
+        // Bindings for git_libgit2_opts(int option, ...):
+        // Currently only GIT_OPT_GET_SEARCH_PATH and GIT_OPT_SET_SEARCH_PATH are supported,
+        // but other overloads could be added using a similar pattern.
+        // CallingConvention.Cdecl is used to allow binding the the C varargs signature, and each possible call signature must be enumerated.
+        // __argslist was an option, but is an undocumented feature that should likely not be used here.
+
+        // git_libgit2_opts(GIT_OPT_GET_SEARCH_PATH, int level, git_buf *buf)
+        [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int git_libgit2_opts(int option, uint level, GitBuf buf);
+
+        // git_libgit2_opts(GIT_OPT_SET_SEARCH_PATH, int level, const char *path)
+        [DllImport(libgit2, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int git_libgit2_opts(int option, uint level,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))]string path);
+
+        #endregion
+
         [DllImport(libgit2)]
         internal static extern int git_graph_ahead_behind(out UIntPtr ahead, out UIntPtr behind, RepositorySafeHandle repo, ref GitOid one, ref GitOid two);
 
