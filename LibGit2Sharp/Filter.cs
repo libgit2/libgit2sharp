@@ -15,14 +15,9 @@ namespace LibGit2Sharp
     public abstract class Filter : IEquatable<Filter>
     {
         private static readonly LambdaEqualityHelper<Filter> equalityHelper =
-        new LambdaEqualityHelper<Filter>(x => x.Name, x => x.Attributes);
+            new LambdaEqualityHelper<Filter>(x => x.Name, x => x.Attributes);
         // 64K is optimal buffer size per https://technet.microsoft.com/en-us/library/cc938632.aspx
         private const int BufferSize = 64 * 1024;
-
-        private readonly string name;
-        private readonly IEnumerable<FilterAttributeEntry> attributes;
-
-        private readonly GitFilter gitFilter;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Filter"/> class.
@@ -46,6 +41,18 @@ namespace LibGit2Sharp
                 stream = StreamCreateCallback,
             };
         }
+        /// <summary>
+        /// Finalizer called by the <see cref="GC"/>, deregisters and frees native memory associated with the registered filter in libgit2.
+        /// </summary>
+        ~Filter()
+        {
+            GlobalSettings.DeregisterFilter(this);
+        }
+
+        private readonly string name;
+        private readonly IEnumerable<FilterAttributeEntry> attributes;
+        private readonly GitFilter gitFilter;
+        private readonly object @lock = new object();
 
         private GitWriteStream thisStream;
         private GitWriteStream nextStream;
