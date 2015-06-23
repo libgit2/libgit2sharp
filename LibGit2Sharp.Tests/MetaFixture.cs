@@ -126,7 +126,7 @@ namespace LibGit2Sharp.Tests
                         Activator.CreateInstance(type, true);
                     }
                 }
-                catch (Exception ex)
+                catch
                 {
                     nonTestableTypes.Add(type, new List<string>());
                 }
