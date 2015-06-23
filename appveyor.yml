@@ -62,8 +62,7 @@ install:
     Write-Host "Should package Nuget artifact = " -NoNewLine
     Write-Host $Env:SHOULD_PACKAGE_NUGET_ARTIFACT -ForegroundColor "Green"
 
-    $Env:SHOULD_RUN_COVERALLS = $($Env:APPVEYOR_PULL_REQUEST_NUMBER -eq $null `
-                                               -and $Env:APPVEYOR_SCHEDULED_BUILD -eq $False)
+    $Env:SHOULD_RUN_COVERALLS = $($Env:APPVEYOR_SCHEDULED_BUILD -eq $True)
     Write-Host "Should run Coveralls = " -NoNewLine
     Write-Host $Env:SHOULD_RUN_COVERALLS -ForegroundColor "Green"
 
@@ -109,22 +108,19 @@ build_script:
 
 test_script:
 - ps: |
-    If ($Env:SHOULD_RUN_COVERITY_ANALYSIS -eq $False)
+    If ($Env:SHOULD_RUN_COVERALLS -eq $True -and $Env:publish_on_success -eq $True)
     {
-      If ($Env:SHOULD_RUN_COVERALLS -eq $True -and $Env:publish_on_success -eq $True)
-      {
-        .\packages\OpenCover\OpenCover.Console.exe `
-          -register:user `
-          -target:$Env:xunit_runner `
-          "-targetargs:""$Env:APPVEYOR_BUILD_FOLDER\LibGit2Sharp.Tests\bin\Release\LibGit2Sharp.Tests.dll"" /noshadow /appveyor" `
-          "-filter:+[LibGit2Sharp]* -[LibGit2Sharp.Tests]*" `
-          -hideskipped:All `
-          -output:opencoverCoverage.xml
-      }
-      Else
-      {
-        & "$Env:xunit_runner" "$Env:APPVEYOR_BUILD_FOLDER\LibGit2Sharp.Tests\bin\Release\LibGit2Sharp.Tests.dll" /appveyor
-      }
+      .\packages\OpenCover\OpenCover.Console.exe `
+        -register:user `
+        -target:$Env:xunit_runner `
+        "-targetargs:""$Env:APPVEYOR_BUILD_FOLDER\LibGit2Sharp.Tests\bin\Release\LibGit2Sharp.Tests.dll"" /noshadow /appveyor" `
+        "-filter:+[LibGit2Sharp]* -[LibGit2Sharp.Tests]*" `
+        -hideskipped:All `
+        -output:opencoverCoverage.xml
+    }
+    ElseIf ($Env:SHOULD_RUN_COVERITY_ANALYSIS -eq $False)
+    {
+      & "$Env:xunit_runner" "$Env:APPVEYOR_BUILD_FOLDER\LibGit2Sharp.Tests\bin\Release\LibGit2Sharp.Tests.dll" /appveyor
     }
 
 after_test:
