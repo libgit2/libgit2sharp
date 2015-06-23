@@ -31,6 +31,7 @@ namespace LibGit2Sharp
         private readonly NoteCollection notes;
         private readonly Lazy<ObjectDatabase> odb;
         private readonly Lazy<Network> network;
+        private readonly Lazy<Rebase> rebaseOperation;
         private readonly Stack<IDisposable> toCleanup = new Stack<IDisposable>();
         private readonly Ignore ignore;
         private readonly SubmoduleCollection submodules;
@@ -132,6 +133,7 @@ namespace LibGit2Sharp
                 notes = new NoteCollection(this);
                 ignore = new Ignore(this);
                 network = new Lazy<Network>(() => new Network(this));
+                rebaseOperation = new Lazy<Rebase>(() => new Rebase(this));
                 pathCase = new Lazy<PathCase>(() => new PathCase(this));
                 submodules = new SubmoduleCollection(this);
 
@@ -269,6 +271,17 @@ namespace LibGit2Sharp
             get
             {
                 return network.Value;
+            }
+        }
+
+        /// <summary>
+        /// Provides access to rebase functionality for a repository.
+        /// </summary>
+        public Rebase Rebase
+        {
+            get
+            {
+                return rebaseOperation.Value;
             }
         }
 

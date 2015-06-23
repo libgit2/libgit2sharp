@@ -128,6 +128,18 @@ namespace LibGit2Sharp.Handlers
     public delegate bool StashApplyProgressHandler(StashApplyProgress progress);
 
     /// <summary>
+    /// Delegate to report information on a rebase step that is about to be performed.
+    /// </summary>
+    /// <param name="beforeRebaseStep"></param>
+    public delegate void RebaseStepStartingHandler(BeforeRebaseStepInfo beforeRebaseStep);
+
+    /// <summary>
+    /// Delegate to report information on the rebase step that was just completed.
+    /// </summary>
+    /// <param name="afterRebaseStepInfo"></param>
+    public delegate void RebaseStepCompletedHandler(AfterRebaseStepInfo afterRebaseStepInfo);
+
+    /// <summary>
     /// The stages of pack building.
     /// </summary>
     public enum PackBuilderStage

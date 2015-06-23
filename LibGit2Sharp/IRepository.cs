@@ -219,6 +219,11 @@ namespace LibGit2Sharp
         MergeResult Merge(string committish, Signature merger, MergeOptions options);
 
         /// <summary>
+        /// Access to Rebase functionality.
+        /// </summary>
+        Rebase Rebase { get; }
+
+        /// <summary>
         /// Merge the reference that was recently fetched. This will merge
         /// the branch on the fetched remote that corresponded to the
         /// current local branch when we did the fetch. This is the

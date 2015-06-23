@@ -1,4 +1,5 @@
 ﻿using LibGit2Sharp.Core;
+using LibGit2Sharp.Core.Handles;
 
 namespace LibGit2Sharp
 {
@@ -40,6 +41,30 @@ namespace LibGit2Sharp
         public string Name
         {
             get { return _name; }
+        }
+
+        internal SignatureSafeHandle BuildNowSignatureHandle()
+        {
+            return Proxy.git_signature_now(Name, Email);
+        }
+    }
+
+    internal static class IdentityHelpers
+    {
+        /// <summary>
+        /// Build the handle for the Indentity with the current time, or return a handle
+        /// to an empty signature.
+        /// </summary>
+        /// <param name="identity"></param>
+        /// <returns></returns>
+        public static SignatureSafeHandle SafeBuildNowSignatureHandle(this Identity identity)
+        {
+            if (identity == null)
+            {
+                return new SignatureSafeHandle();
+            }
+
+            return identity.BuildNowSignatureHandle();
         }
     }
 }

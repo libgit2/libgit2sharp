@@ -147,4 +147,23 @@ namespace LibGit2Sharp
             return string.Format(CultureInfo.InvariantCulture, "{0} <{1}>", Name, Email);
         }
     }
+
+    internal static class SignatureHelpers
+    {
+        /// <summary>
+        /// Build the handle for the Signature, or return a handle
+        /// to an empty signature.
+        /// </summary>
+        /// <param name="signature"></param>
+        /// <returns></returns>
+        public static SignatureSafeHandle SafeBuildHandle(this Signature signature)
+        {
+            if (signature == null)
+            {
+                return new SignatureSafeHandle();
+            }
+
+            return signature.BuildHandle();
+        }
+    }
 }
