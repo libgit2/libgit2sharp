@@ -59,7 +59,7 @@ namespace LibGit2Sharp.Core
 
         public static unsafe IntPtr FromManaged(Encoding encoding, String value)
         {
-            if (value == null)
+            if (encoding == null || value == null)
             {
                 return IntPtr.Zero;
             }
