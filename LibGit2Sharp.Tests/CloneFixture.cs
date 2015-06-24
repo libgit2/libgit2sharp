@@ -195,19 +195,34 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        static Credentials CreateUsernamePasswordCredentials (string user, string pass, bool secure)
+        {
+            if (secure)
+            {
+                return new SecureUsernamePasswordCredentials
+                {
+                    Username = user,
+                    Password = Constants.StringToSecureString(pass),
+                };
+            }
+
+            return new UsernamePasswordCredentials
+            {
+                Username = user,
+                Password = pass,
+            };
+        }
+
         [Theory]
-        [InlineData("https://libgit2@bitbucket.org/libgit2/testgitrepository.git", "libgit3", "libgit3")]
-        public void CanCloneFromBBWithCredentials(string url, string user, string pass)
+        [InlineData("https://libgit2@bitbucket.org/libgit2/testgitrepository.git", "libgit3", "libgit3", true)]
+        [InlineData("https://libgit2@bitbucket.org/libgit2/testgitrepository.git", "libgit3", "libgit3", false)]
+        public void CanCloneFromBBWithCredentials(string url, string user, string pass, bool secure)
         {
             var scd = BuildSelfCleaningDirectory();
 
             string clonedRepoPath = Repository.Clone(url, scd.DirectoryPath, new CloneOptions()
             {
-                CredentialsProvider = (_url, _user, _cred) => new UsernamePasswordCredentials
-                {
-                    Username = user,
-                    Password = pass,
-                }
+                CredentialsProvider = (_url, _user, _cred) => CreateUsernamePasswordCredentials (user, pass, secure)
             });
 
             using (var repo = new Repository(clonedRepoPath))

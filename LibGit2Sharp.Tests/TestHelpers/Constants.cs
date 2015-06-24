@@ -94,7 +94,7 @@ namespace LibGit2Sharp.Tests.TestHelpers
         }
 
         // To help with creating secure strings to test with.
-        private static SecureString StringToSecureString(string str)
+        internal static SecureString StringToSecureString(string str)
         {
             var chars = str.ToCharArray();
 
