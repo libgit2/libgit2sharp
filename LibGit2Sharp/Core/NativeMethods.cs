@@ -29,6 +29,9 @@ namespace LibGit2Sharp.Core
             [MethodImpl(MethodImplOptions.NoInlining)]
             public LibraryLifetimeObject()
             {
+#if LEAKS_CRTDBG
+                CrtDbg.SetCallbacks();
+#endif
                 int res = git_libgit2_init();
                 Ensure.Int32Result(res);
                 if (res == 1)
@@ -1721,6 +1724,15 @@ namespace LibGit2Sharp.Core
 
         [DllImport(libgit2)]
         internal static extern int git_cherrypick(RepositorySafeHandle repo, GitObjectSafeHandle commit, GitCherryPickOptions options);
+
+#if LEAKS_CRTDBG
+        internal delegate void git_win32__stack__aux_cb_alloc(out uint aux_id);
+        internal delegate void git_win32__stack__aux_cb_lookup(uint aux_id, IntPtr buf, uint buf_len);
+
+        [DllImport(libgit2)]
+        internal static extern int git_win32__stack__set_aux_cb(git_win32__stack__aux_cb_alloc cb_alloc, git_win32__stack__aux_cb_lookup cb_lookup);
+#endif
+
     }
 }
 // ReSharper restore InconsistentNaming
