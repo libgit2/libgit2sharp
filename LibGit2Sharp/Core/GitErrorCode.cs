@@ -92,6 +92,21 @@
         Peel = -19,
 
         /// <summary>
+        /// Unexpected EOF.
+        /// </summary>
+        EndOfFile = -20,
+
+        /// <summary>
+        /// Invalid operation or input.
+        /// </summary>
+        Invalid = -21,
+
+        /// <summary>
+        /// Uncommitted changes in index prevented operation.
+        /// </summary>
+        Uncommitted = -22,
+
+        /// <summary>
         /// Skip and passthrough the given ODB backend.
         /// </summary>
         PassThrough = -30,

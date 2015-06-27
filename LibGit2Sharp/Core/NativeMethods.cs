@@ -1527,10 +1527,6 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.Bool)] bool write_index);
 
         [DllImport(libgit2)]
-        internal static extern int git_submodule_save(
-            SubmoduleSafeHandle submodule);
-
-        [DllImport(libgit2)]
         internal static extern void git_submodule_free(
             IntPtr submodule);
 
@@ -1576,7 +1572,9 @@ namespace LibGit2Sharp.Core
         [DllImport(libgit2)]
         internal static extern int git_submodule_status(
             out SubmoduleStatus status,
-            SubmoduleSafeHandle submodule);
+            RepositorySafeHandle repo,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictFilePathMarshaler))] FilePath name,
+            GitSubmoduleIgnore ignore);
 
         [DllImport(libgit2)]
         internal static extern int git_submodule_init(
