@@ -41,7 +41,7 @@ namespace LibGit2Sharp.Core
                 uint value;
                 if (!_dict.TryGetValue(key, out value))
                 {
-                    value = (uint)_dict.Count;
+                    value = (uint)_dict.Count + 1; // aux_id 0 is reserved
                     _dict.Add(key, value);
                 }
                 return value;
@@ -56,6 +56,13 @@ namespace LibGit2Sharp.Core
         /// <returns>true if aux_id found</returns>
         private static bool ReverseLookup(uint value, out string key)
         {
+            if (value == 0)
+            {
+                // aux_id 0 is reserved.
+                key = null;
+                return false;
+            }
+
             lock (_lock)
             {
                 foreach (KeyValuePair<string, uint> p in _dict)
