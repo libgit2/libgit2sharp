@@ -4,8 +4,6 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>8.0.30703</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{EE6ED99F-CB12-4683-B055-D28FC7357A34}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
@@ -14,6 +12,8 @@
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -23,10 +23,16 @@
     <DefineConstants>TRACE;DEBUG;NET40</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <DocumentationFile>bin\Debug\LibGit2Sharp.xml</DocumentationFile>
+    <CustomCommands>
+      <CustomCommands>
+        <Command type="BeforeBuild" command="xbuild Lib/CustomBuildTasks/CustomBuildTasksExe/CustomBuildTasksExe.csproj" workingdir="${SolutionDir}" Condition=" '$(OS)' != 'Windows_NT' "/>
+        <Command type="BeforeBuild" command="mono ../Lib/CustomBuildTasks/CustomBuildTasksExe/CustomBuildTasksExe.exe UniqueIdentifierTask" workingdir="${ProjectDir}" Condition=" '$(OS)' != 'Windows_NT' " />
+        <Command type="BeforeBuild" command="mono ../Lib/CustomBuildTasks/CustomBuildTasksExe/CustomBuildTasksExe.exe NativeDllNameTask" workingdir="${ProjectDir}" Condition=" '$(OS)' != 'Windows_NT' " />
+      </CustomCommands>
+    </CustomCommands>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -36,8 +42,14 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <DocumentationFile>bin\Release\LibGit2Sharp.xml</DocumentationFile>
+    <CustomCommands>
+      <CustomCommands>
+        <Command type="BeforeBuild" command="xbuild Lib/CustomBuildTasks/CustomBuildTasksExe/CustomBuildTasksExe.csproj" workingdir="${SolutionDir}" Condition=" '$(OS)' != 'Windows_NT' "/>
+        <Command type="BeforeBuild" command="mono ../Lib/CustomBuildTasks/CustomBuildTasksExe/CustomBuildTasksExe.exe UniqueIdentifierTask" workingdir="${ProjectDir}" Condition=" '$(OS)' != 'Windows_NT' " />
+        <Command type="BeforeBuild" command="mono ../Lib/CustomBuildTasks/CustomBuildTasksExe/CustomBuildTasksExe.exe NativeDllNameTask" workingdir="${ProjectDir}" Condition=" '$(OS)' != 'Windows_NT' " />
+      </CustomCommands>
+    </CustomCommands>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -382,8 +394,8 @@
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="UniqueIdentifier.targets" />
-  <Import Project="NativeDllName.targets" />
+  <Import Project="UniqueIdentifier.targets" Condition=" '$(OS)' == 'Windows_NT' " />
+  <Import Project="NativeDllName.targets" Condition=" '$(OS)' == 'Windows_NT' " />
   <Import Project="ExtraDefine.targets" />
   <PropertyGroup>
     <PreBuildEvent>

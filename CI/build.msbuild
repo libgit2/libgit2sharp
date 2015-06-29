@@ -17,6 +17,9 @@
       Overwrite="true" />
 
     <!-- Workaround for xbuild -->
+    <Exec Condition=" ('$(OS)' != 'Windows_NT') " Command=" xbuild ../Lib/CustomBuildTasks/CustomBuildTasksExe/CustomBuildTasksExe.csproj "  />
+    <Exec Condition=" ('$(OS)' != 'Windows_NT') " Command=" cd LibGit2Sharp; mono ../Lib/CustomBuildTasks/CustomBuildTasksExe/CustomBuildTasksExe.exe UniqueIdentifierTask ; cd .. " />
+    <Exec Condition=" ('$(OS)' != 'Windows_NT') " Command=" cd LibGit2Sharp; mono ../Lib/CustomBuildTasks/CustomBuildTasksExe/CustomBuildTasksExe.exe NativeDllNameTask ; cd .. " />
     <Exec Condition=" ('$(OS)' != 'Windows_NT') " Command=" rm -r -f $(DeployFolder) " />
     <Exec Condition=" ('$(OS)' != 'Windows_NT') " Command=" rm -r -f $(TestBuildDir) " />
 

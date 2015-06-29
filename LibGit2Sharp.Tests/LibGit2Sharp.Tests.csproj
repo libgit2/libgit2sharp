@@ -12,6 +12,13 @@
     <RootNamespace>LibGit2Sharp.Tests</RootNamespace>
     <AssemblyName>LibGit2Sharp.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <CustomCommands>
+      <CustomCommands>
+        <Command type="BeforeBuild" command="xbuild Lib/CustomBuildTasks/CustomBuildTasksExe/CustomBuildTasksExe.csproj" workingdir="${SolutionDir}" Condition=" '$(OS)' != 'Windows_NT' "/>
+        <Command type="BeforeBuild" command="mono ../Lib/CustomBuildTasks/CustomBuildTasksExe/CustomBuildTasksExe.exe UniqueIdentifierTask" workingdir="${ProjectDir}" Condition=" '$(OS)' != 'Windows_NT' " />
+        <Command type="BeforeBuild" command="mono ../Lib/CustomBuildTasks/CustomBuildTasksExe/CustomBuildTasksExe.exe NativeDllNameTask" workingdir="${ProjectDir}" Condition=" '$(OS)' != 'Windows_NT' " />
+      </CustomCommands>
+    </CustomCommands>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -24,6 +31,13 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <CustomCommands>
+      <CustomCommands>
+        <Command type="BeforeBuild" command="xbuild Lib/CustomBuildTasks/CustomBuildTasksExe/CustomBuildTasksExe.csproj" workingdir="${SolutionDir}" Condition=" '$(OS)' != 'Windows_NT' "/>
+        <Command type="BeforeBuild" command="mono ../Lib/CustomBuildTasks/CustomBuildTasksExe/CustomBuildTasksExe.exe UniqueIdentifierTask" workingdir="${ProjectDir}" Condition=" '$(OS)' != 'Windows_NT' " />
+        <Command type="BeforeBuild" command="mono ../Lib/CustomBuildTasks/CustomBuildTasksExe/CustomBuildTasksExe.exe NativeDllNameTask" workingdir="${ProjectDir}" Condition=" '$(OS)' != 'Windows_NT' " />
+      </CustomCommands>
+    </CustomCommands>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -33,6 +47,13 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <CustomCommands>
+      <CustomCommands>
+        <Command type="BeforeBuild" command="xbuild Lib/CustomBuildTasks/CustomBuildTasksExe/CustomBuildTasksExe.csproj" workingdir="${SolutionDir}" Condition=" '$(OS)' != 'Windows_NT' "/>
+        <Command type="BeforeBuild" command="mono ../Lib/CustomBuildTasks/CustomBuildTasksExe/CustomBuildTasksExe.exe UniqueIdentifierTask" workingdir="${ProjectDir}" Condition=" '$(OS)' != 'Windows_NT' " />
+        <Command type="BeforeBuild" command="mono ../Lib/CustomBuildTasks/CustomBuildTasksExe/CustomBuildTasksExe.exe NativeDllNameTask" workingdir="${ProjectDir}" Condition=" '$(OS)' != 'Windows_NT' " />
+      </CustomCommands>
+    </CustomCommands>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Moq, Version=4.2.1409.1722, Culture=neutral, PublicKeyToken=69f491c39445e920, processorArchitecture=MSIL">
