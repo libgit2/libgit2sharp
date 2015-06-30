@@ -1,0 +1,23 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CustomBuildTasksExe", "CustomBuildTasksExe.csproj", "{3A032B41-0FE8-411E-B60B-AD6D22B1BBFE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CustomBuildTasks", "..\CustomBuildTasks.csproj", "{B6138573-A4B9-44E7-83C2-8964CAF51EDA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3A032B41-0FE8-411E-B60B-AD6D22B1BBFE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3A032B41-0FE8-411E-B60B-AD6D22B1BBFE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3A032B41-0FE8-411E-B60B-AD6D22B1BBFE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3A032B41-0FE8-411E-B60B-AD6D22B1BBFE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B6138573-A4B9-44E7-83C2-8964CAF51EDA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B6138573-A4B9-44E7-83C2-8964CAF51EDA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B6138573-A4B9-44E7-83C2-8964CAF51EDA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B6138573-A4B9-44E7-83C2-8964CAF51EDA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

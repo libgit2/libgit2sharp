@@ -5,6 +5,7 @@ Thumbs.db
 *.obj
 *.exe
 *.pdb
+*.mdb
 *.user
 *.aps
 *.pch
