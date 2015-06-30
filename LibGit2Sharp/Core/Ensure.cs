@@ -133,7 +133,13 @@ namespace LibGit2Sharp.Core
         private static void HandleError(int result)
         {
             string errorMessage;
-            GitError error = NativeMethods.giterr_last().MarshalAsGitError();
+            GitError error = null;
+            var errHandle = NativeMethods.giterr_last();
+
+            if (errHandle != null && !errHandle.IsInvalid)
+            {
+                error = errHandle.MarshalAsGitError();
+            }
 
             if (error == null)
             {
