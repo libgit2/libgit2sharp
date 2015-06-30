@@ -1731,6 +1731,11 @@ namespace LibGit2Sharp.Core
 
         [DllImport(libgit2)]
         internal static extern int git_win32__stack__set_aux_cb(git_win32__stack__aux_cb_alloc cb_alloc, git_win32__stack__aux_cb_lookup cb_lookup);
+
+        [DllImport(libgit2)]
+        internal static extern int git_win32__crtdbg_stacktrace__dump(
+            CrtDbg.CrtDbgDumpFlags flags,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string label);
 #endif
 
     }

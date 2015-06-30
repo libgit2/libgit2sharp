@@ -140,6 +140,43 @@ namespace LibGit2Sharp.Core
             // while C is still using them.
             NativeMethods.git_win32__stack__set_aux_cb(_cb_alloc, _cb_lookup);
         }
+
+        /// <summary>
+        /// Flags/options to control checkpoint dump of leaks
+        /// </summary>
+        [Flags]
+        public enum CrtDbgDumpFlags
+        {
+            /// <summary>
+            /// Checkpoint current memory state.
+            /// </summary>
+            SET_MARK = (1 << 0),
+            /// <summary>
+            /// Count and/or print leaks since last checkpoint.
+            /// </summary>
+            LEAKS_SINCE_MARK = (1 << 1),
+            /// <summary>
+            /// Count and/or print leaks since startup.
+            /// </summary>
+            LEAKS_TOTAL = (1 << 2),
+            /// <summary>
+            /// Suppress output.
+            /// </summary>
+            QUIET = (1 << 3)
+        };
+
+        /// <summary>
+        /// Checkpoint C memory state and/or dump current leaks.
+        /// </summary>
+        /// <param name="flags"></param>
+        /// <param name="label">Message to be printed with checkpoint dump.</param>
+        /// <returns>Count of current leaks when a LEAK_ flag given. Otherwise 0 or error.</returns>
+        public static int Dump(CrtDbgDumpFlags flags, string label)
+        {
+            int r = NativeMethods.git_win32__crtdbg_stacktrace__dump(flags, label);
+
+            return r;
+        }
     }
 }
 #endif
