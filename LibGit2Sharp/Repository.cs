@@ -563,7 +563,7 @@ namespace LibGit2Sharp
         /// </para>
         /// <param name="url">The url to list from.</param>
         /// <returns>The references in the remote repository.</returns>
-        public static IEnumerable<DirectReference> ListRemoteReferences(string url)
+        public static IEnumerable<Reference> ListRemoteReferences(string url)
         {
             return ListRemoteReferences(url, null);
         }
@@ -579,7 +579,7 @@ namespace LibGit2Sharp
         /// <param name="url">The url to list from.</param>
         /// <param name="credentialsProvider">The <see cref="Func{Credentials}"/> used to connect to remote repository.</param>
         /// <returns>The references in the remote repository.</returns>
-        public static IEnumerable<DirectReference> ListRemoteReferences(string url, CredentialsHandler credentialsProvider)
+        public static IEnumerable<Reference> ListRemoteReferences(string url, CredentialsHandler credentialsProvider)
         {
             Ensure.ArgumentNotNull(url, "url");
 

@@ -199,9 +199,9 @@ namespace LibGit2Sharp.Tests
         private static void AssertRemoteHeadTipEquals(IRepository localRepo, string sha)
         {
             var remoteReferences = localRepo.Network.ListReferences(localRepo.Network.Remotes.Single());
-            DirectReference remoteHead = remoteReferences.Single(r => r.CanonicalName == "HEAD");
+            Reference remoteHead = remoteReferences.Single(r => r.CanonicalName == "HEAD");
 
-            Assert.Equal(sha, remoteHead.TargetIdentifier);
+            Assert.Equal(sha, remoteHead.ResolveToDirectReference().TargetIdentifier);
         }
 
         private void UpdateTheRemoteRepositoryWithANewCommit(string remoteRepoPath)

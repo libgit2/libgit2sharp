@@ -2147,7 +2147,7 @@ namespace LibGit2Sharp.Core
             }
         }
 
-        public static IEnumerable<DirectReference> git_remote_ls(Repository repository, RemoteSafeHandle remote)
+        public static IEnumerable<Reference> git_remote_ls(Repository repository, RemoteSafeHandle remote)
         {
             IntPtr heads;
             UIntPtr count;
@@ -2162,25 +2162,51 @@ namespace LibGit2Sharp.Core
                 throw new OverflowException();
             }
 
-            var refs = new List<DirectReference>();
+            var directRefs = new Dictionary<string, Reference>();
+            var symRefs = new Dictionary<string, string>();
+
             IntPtr currentHead = heads;
 
             for (int i = 0; i < intCount; i++)
             {
                 var remoteHead = Marshal.ReadIntPtr(currentHead).MarshalAs<GitRemoteHead>();
 
+                string name = LaxUtf8Marshaler.FromNative(remoteHead.NamePtr);
+                string symRefTarget = LaxUtf8Marshaler.FromNative(remoteHead.SymRefTargetPtr);
+
                 // The name pointer should never be null - if it is,
                 // this indicates a bug somewhere (libgit2, server, etc).
-                if (remoteHead.NamePtr == IntPtr.Zero)
+                if (string.IsNullOrEmpty(name))
                 {
                     throw new InvalidOperationException("Not expecting null value for reference name.");
                 }
 
-                string name = LaxUtf8Marshaler.FromNative(remoteHead.NamePtr);
-                refs.Add(new DirectReference(name, repository, remoteHead.Oid));
+                if (!string.IsNullOrEmpty(symRefTarget))
+                {
+                    symRefs.Add(name, symRefTarget);
+                }
+                else
+                {
+                    directRefs.Add(name, new DirectReference(name, repository, remoteHead.Oid));
+                }
 
                 currentHead = IntPtr.Add(currentHead, IntPtr.Size);
             }
+
+            for (int i = 0; i < symRefs.Count; i++)
+            {
+                var symRef = symRefs.ElementAt(i);
+
+                if (!directRefs.ContainsKey(symRef.Value))
+                {
+                    throw new InvalidOperationException("Symbolic reference target not found in direct reference results.");
+                }
+
+                directRefs.Add(symRef.Key, new SymbolicReference(repository, symRef.Key, symRef.Value, directRefs[symRef.Value]));
+            }
+
+            var refs = directRefs.Values.ToList();
+            refs.Sort((r1, r2) => String.CompareOrdinal(r1.CanonicalName, r2.CanonicalName));
 
             return refs;
         }
