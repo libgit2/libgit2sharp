@@ -320,7 +320,6 @@ namespace LibGit2Sharp
                 Ensure.ArgumentNotZeroIntPtr(buffer, "buffer");
                 Ensure.ArgumentIsExpectedIntPtr(stream, thisPtr, "stream");
 
-                string tempFileName = Path.GetTempFileName();
                 using (UnmanagedMemoryStream input = new UnmanagedMemoryStream((byte*)buffer.ToPointer(), (long)len))
                 using (BufferedStream outputBuffer = new BufferedStream(output, BufferSize))
                 {
@@ -339,9 +338,6 @@ namespace LibGit2Sharp
                             return (int)GitErrorCode.Ambiguous;
                     }
                 }
-
-                // clean up after outselves
-                File.Delete(tempFileName);
             }
             catch (Exception exception)
             {
