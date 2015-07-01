@@ -19,6 +19,20 @@ namespace LibGit2Sharp.Tests.TestHelpers
             FilesFiltered = new HashSet<string>();
         }
 
+        protected override void Create(string path, string root, FilterMode mode)
+        {
+            if (mode == FilterMode.Clean)
+            {
+                string filename = Path.GetFileName(path);
+                string cachePath = Path.Combine(root, ".git", filename);
+
+                if (File.Exists(cachePath))
+                {
+                    File.Delete(cachePath);
+                }
+            }
+        }
+
         protected override void Clean(string path, string root, Stream input, Stream output)
         {
             CleanCalledCount++;
