@@ -66,6 +66,11 @@ namespace LibGit2Sharp
             PatchEntryChanges currentChange = this[filePath];
             string prefix = string.Empty;
 
+            if (currentChange == null)
+            {
+                return (int)GitErrorCode.NotFound;
+            }
+
             switch (line.lineOrigin)
             {
                 case GitDiffLineOrigin.GIT_DIFF_LINE_CONTEXT:
