@@ -275,7 +275,15 @@ namespace LibGit2Sharp
 
             var cred = CredentialsProvider(url, username, types);
 
-            return cred.GitCredentialHandler(out ptr);
+            if (cred == null)
+            {
+                ptr = IntPtr.Zero;
+                return -1;
+            }
+            else
+            {
+                return cred.GitCredentialHandler(out ptr);
+            }
         }
 
         private int GitPushNegotiationHandler(IntPtr updates, UIntPtr len, IntPtr payload)
