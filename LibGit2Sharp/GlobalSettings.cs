@@ -251,7 +251,7 @@ namespace LibGit2Sharp
 
                 // do nothing if the filter isn't registered
                 if (registeredFilters.ContainsKey(filter))
-                {                    
+                {
                     // remove the register from the global tracking list
                     registeredFilters.Remove(filter);
                     // clean up native allocations
@@ -264,12 +264,15 @@ namespace LibGit2Sharp
         {
             System.Diagnostics.Debug.Assert(filter != null);
 
-            // do nothing if the filter isn't registered
-            if (registeredFilters.ContainsKey(filter))
+            lock (registeredFilters)
             {
-                var registration = registeredFilters[filter];
-                // unregister the filter
-                DeregisterFilter(registration);
+                // do nothing if the filter isn't registered
+                if (registeredFilters.ContainsKey(filter))
+                {
+                    var registration = registeredFilters[filter];
+                    // unregister the filter
+                    DeregisterFilter(registration);
+                }
             }
         }
     }
