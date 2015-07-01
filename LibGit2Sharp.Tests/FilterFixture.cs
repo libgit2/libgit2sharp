@@ -219,9 +219,13 @@ namespace LibGit2Sharp.Tests
                 FileInfo contentFile = new FileInfo(filePath);
                 using (var writer = new StreamWriter(contentFile.OpenWrite()) { AutoFlush = true })
                 {
-                    for (int i = 0; i < ContentLength / content.Length; i++)
+                    int remain = ContentLength;
+
+                    while (remain > 0)
                     {
-                        writer.Write(content);
+                        int chunkSize = remain > content.Length ? content.Length : remain;
+                        writer.Write(content, 0, chunkSize);
+                        remain -= chunkSize;
                     }
                 }
 
