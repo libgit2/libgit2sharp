@@ -20,6 +20,9 @@
     <Exec Condition=" ('$(OS)' != 'Windows_NT') " Command=" rm -r -f $(DeployFolder) " />
     <Exec Condition=" ('$(OS)' != 'Windows_NT') " Command=" rm -r -f $(TestBuildDir) " />
 
+    <Exec Condition=" ('$(OS)' == 'Unix') " Command=" xbuild ../Lib/CustomBuildTasks/CustomBuildTasksExe/CustomBuildTasksExe.sln "  />
+    <Exec Condition=" ('$(OS)' == 'Unix') " Command=" cd ../LibGit2Sharp; mono ../Lib/CustomBuildTasks/CustomBuildTasksExe/CustomBuildTasksExe.exe UniqueIdentifierTask ; cd .. " />
+    <Exec Condition=" ('$(OS)' == 'Unix') " Command=" cd ../LibGit2Sharp; mono ../Lib/CustomBuildTasks/CustomBuildTasksExe/CustomBuildTasksExe.exe NativeDllNameTask ; cd .. " />
     <RemoveDir Directories="$(DeployFolder)" Condition="Exists('$(DeployFolder)')" />
     <RemoveDir Directories="$(TestBuildDir)" Condition="Exists('$(TestBuildDir)')" />
   </Target>
@@ -37,7 +40,9 @@
   </Target>
 
   <Target Name="Test" DependsOnTargets="Build">
-    <xunit Assembly="$(TestBuildDir)/LibGit2Sharp.Tests.dll" ShadowCopy="false" Xml="$(DeployFolder)/Test-result.xml" />
+    <xunit Condition=" ('$(OS)' == 'Windows_NT') " Assembly="$(TestBuildDir)/LibGit2Sharp.Tests.dll" ShadowCopy="false" Xml="$(DeployFolder)/Test-result.xml" />
+    <Exec Condition=" ('$(OS)' == 'Unix') " Command=" cd $(TestBuildDir); LD_LIBRARY_PATH=. mono ../../../packages/xunit.runners.1.9.2/tools/xunit.console.exe LibGit2Sharp.Tests.dll /xml Test-result.xml " />
+    <Exec Condition=" ('$(OS)' == 'Unix') " Command=" cp $(TestBuildDir)/Test-result.xml $(DeployFolder) " />
   </Target>
 
   <Target Name="Deploy" DependsOnTargets="Test">

@@ -1,7 +1,7 @@
 #!/bin/bash
 set -ev
 
-MONO_VER=3.6.0
+MONO_VER=4.0.2
 
 brew update
 which cmake || brew install cmake
