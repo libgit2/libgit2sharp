@@ -372,6 +372,14 @@
     <Compile Include="StashApplyOptions.cs" />
     <Compile Include="StashApplyStatus.cs" />
     <Compile Include="Core\GitStashApplyOpts.cs" />
+    <Compile Include="Core\GitCertificateType.cs" />
+    <Compile Include="Core\GitCertificate.cs" />
+    <Compile Include="Core\GitCertificateX509.cs" />
+    <Compile Include="Certificate.cs" />
+    <Compile Include="CertificateX509.cs" />
+    <Compile Include="Core\GitCertificateSsh.cs" />
+    <Compile Include="Core\GitCertificateSshType.cs" />
+    <Compile Include="CertificateSsh.cs" />
   </ItemGroup>
   <ItemGroup>
     <CodeAnalysisDictionary Include="CustomDictionary.xml" />
