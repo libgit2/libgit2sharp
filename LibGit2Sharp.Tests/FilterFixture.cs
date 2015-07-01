@@ -177,7 +177,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanFilterLargeFiles()
         {
-            const int ContentLength = 128 * 1024 * 1024 + 17;
+            const int ContentLength = 128 * 1024 * 1024 - 13;
             const char ContentValue = 'x';
 
             char[] content = (new string(ContentValue, 1024)).ToCharArray();
