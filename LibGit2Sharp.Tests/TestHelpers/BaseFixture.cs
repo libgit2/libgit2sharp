@@ -49,7 +49,7 @@ namespace LibGit2Sharp.Tests.TestHelpers
         protected static DateTimeOffset TruncateSubSeconds(DateTimeOffset dto)
         {
             int seconds = dto.ToSecondsSinceEpoch();
-            return Epoch.ToDateTimeOffset(seconds, (int) dto.Offset.TotalMinutes);
+            return Epoch.ToDateTimeOffset(seconds, (int)dto.Offset.TotalMinutes);
         }
 
         private static void SetUpTestEnvironment()
@@ -258,7 +258,7 @@ namespace LibGit2Sharp.Tests.TestHelpers
                 throw new InvalidOperationException("Cannot access Mono.RunTime.GetDisplayName() method.");
             }
 
-            var version = (string) displayName.Invoke(null, null);
+            var version = (string)displayName.Invoke(null, null);
 
             System.Version current;
 
@@ -459,6 +459,11 @@ namespace LibGit2Sharp.Tests.TestHelpers
             where T : IBelongToARepository
         {
             Assert.Same(repo, ((IBelongToARepository)instance).Repository);
+        }
+
+        protected void CreateAttributesFile(IRepository repo, string attributeEntry)
+        {
+            Touch(repo.Info.WorkingDirectory, ".gitattributes", attributeEntry);
         }
     }
 }
