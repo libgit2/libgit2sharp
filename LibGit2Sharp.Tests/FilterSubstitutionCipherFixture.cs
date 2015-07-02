@@ -216,10 +216,5 @@ namespace LibGit2Sharp.Tests
             var blob = (Blob)commit.Tree[fileName].Target;
             return blob;
         }
-
-        private static void CreateAttributesFile(IRepository repo, string attributeEntry)
-        {
-            Touch(repo.Info.WorkingDirectory, ".gitattributes", attributeEntry);
-        }
     }
 }
