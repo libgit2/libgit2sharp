@@ -2679,6 +2679,11 @@ namespace LibGit2Sharp.Core
                 return StashApplyStatus.Conflicts;
             }
 
+            if (res == (int)GitErrorCode.Uncommitted)
+            {
+                return StashApplyStatus.UncommittedChanges;
+            }
+
             if (res == (int)GitErrorCode.NotFound)
             {
                 return StashApplyStatus.NotFound;
@@ -2805,12 +2810,6 @@ namespace LibGit2Sharp.Core
             Ensure.ZeroResult(res);
         }
 
-        public static void git_submodule_save(SubmoduleSafeHandle submodule)
-        {
-            var res = NativeMethods.git_submodule_save(submodule);
-            Ensure.ZeroResult(res);
-        }
-
         public static void git_submodule_update(SubmoduleSafeHandle submodule, bool init, ref GitSubmoduleOptions options)
         {
             var res = NativeMethods.git_submodule_update(submodule, init, ref options);
@@ -2868,10 +2867,10 @@ namespace LibGit2Sharp.Core
             Ensure.ZeroResult(res);
         }
 
-        public static SubmoduleStatus git_submodule_status(SubmoduleSafeHandle submodule)
+        public static SubmoduleStatus git_submodule_status(RepositorySafeHandle repo, string name)
         {
             SubmoduleStatus status;
-            var res = NativeMethods.git_submodule_status(out status, submodule);
+            var res = NativeMethods.git_submodule_status(out status, repo, name, GitSubmoduleIgnore.Unspecified);
             Ensure.ZeroResult(res);
             return status;
         }

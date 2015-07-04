@@ -219,7 +219,7 @@ namespace LibGit2Sharp.Tests
                 repo.Stashes.Add(stasher, "This stash with default options");
                 Assert.Equal(StashApplyStatus.Applied, repo.Stashes.Apply(0));
 
-                Assert.Equal(FileStatus.NewInWorkdir, repo.RetrieveStatus(filename));
+                Assert.Equal(FileStatus.NewInIndex, repo.RetrieveStatus(filename));
                 Assert.Equal(1, repo.Stashes.Count());
 
                 repo.Stage(filename);
@@ -258,13 +258,13 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal(StashApplyStatus.Applied, repo.Stashes.Pop(0));
                 Assert.Equal(0, repo.Stashes.Count());
 
-                Assert.Equal(FileStatus.NewInWorkdir, repo.RetrieveStatus(filename));
+                Assert.Equal(FileStatus.NewInIndex, repo.RetrieveStatus(filename));
                 Assert.Equal(contents, File.ReadAllText(Path.Combine(repo.Info.WorkingDirectory, filename)));
             }
         }
 
         [Fact]
-        public void StashReportsConflictsWhenReinstated()
+        public void StashFailsWithUncommittedChangesIntheIndex()
         {
             string path = SandboxStandardTestRepo();
             using (var repo = new Repository(path))
@@ -286,7 +286,7 @@ namespace LibGit2Sharp.Tests
                 repo.Stage(filename);
                 Touch(repo.Info.WorkingDirectory, filename2, newContents);
 
-                Assert.Equal(StashApplyStatus.Conflicts, repo.Stashes.Pop(0, new StashApplyOptions
+                Assert.Equal(StashApplyStatus.UncommittedChanges, repo.Stashes.Pop(0, new StashApplyOptions
                     {
                         ApplyModifiers = StashApplyModifiers.ReinstateIndex,
                     }));
