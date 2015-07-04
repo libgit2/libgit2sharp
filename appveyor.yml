@@ -18,10 +18,10 @@ environment:
     secure: eGVilNg1Yuq+Xj+SW8r3WCtjnzhoDV0sNJkma4NRq7A=
   version : 0.22.0
   matrix:
-  - xunit_runner: xunit.console.clr4.x86.exe
+  - xunit_runner: xunit.console.x86.exe
     Arch: 32
     publish_on_success: False
-  - xunit_runner: xunit.console.clr4.exe
+  - xunit_runner: xunit.console.exe
     Arch: 64
     publish_on_success: True
 
@@ -112,15 +112,16 @@ test_script:
     {
       .\packages\OpenCover\OpenCover.Console.exe `
         -register:user `
-        -target:$Env:xunit_runner `
-        "-targetargs:""$Env:APPVEYOR_BUILD_FOLDER\LibGit2Sharp.Tests\bin\Release\LibGit2Sharp.Tests.dll"" /noshadow /appveyor" `
+        "-target:""$Env:APPVEYOR_BUILD_FOLDER\packages\xunit.runner.console.2.0.0\tools\$Env:xunit_runner""" `
+        "-targetargs:""$Env:APPVEYOR_BUILD_FOLDER\LibGit2Sharp.Tests\bin\Release\LibGit2Sharp.Tests.dll"" -noshadow" `
         "-filter:+[LibGit2Sharp]* -[LibGit2Sharp.Tests]*" `
         -hideskipped:All `
         -output:opencoverCoverage.xml
     }
     ElseIf ($Env:SHOULD_RUN_COVERITY_ANALYSIS -eq $False)
     {
-      & "$Env:xunit_runner" "$Env:APPVEYOR_BUILD_FOLDER\LibGit2Sharp.Tests\bin\Release\LibGit2Sharp.Tests.dll" /appveyor
+      & "$Env:APPVEYOR_BUILD_FOLDER\packages\xunit.runner.console.2.0.0\tools\$Env:xunit_runner" `
+          "$Env:APPVEYOR_BUILD_FOLDER\LibGit2Sharp.Tests\bin\Release\LibGit2Sharp.Tests.dll" -noshadow
     }
 
 after_test:

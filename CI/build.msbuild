@@ -6,7 +6,7 @@
     <DeployFolder>$(RootDir)\Build</DeployFolder>
   </PropertyGroup>
 
-  <UsingTask AssemblyFile="$(RootDir)\packages\xunit.runners.1.9.2\tools\xunit.runner.msbuild.dll"
+  <UsingTask AssemblyFile="$(RootDir)\packages\xunit.runner.msbuild.2.0.0\build\portable-net45+win+wpa81+wp80+monotouch+monoandroid+Xamarin.iOS\xunit.runner.msbuild.dll"
                TaskName="Xunit.Runner.MSBuild.xunit" />
   <Target Name="Clean">
     <Message Text="Commit SHA = $(CommitSha)" />
@@ -37,7 +37,7 @@
   </Target>
 
   <Target Name="Test" DependsOnTargets="Build">
-    <xunit Assembly="$(TestBuildDir)/LibGit2Sharp.Tests.dll" ShadowCopy="false" Xml="$(DeployFolder)/Test-result.xml" />
+    <xunit Assemblies="$(TestBuildDir)/LibGit2Sharp.Tests.dll" ShadowCopy="false" Xml="$(DeployFolder)/Test-result.xml" />
   </Target>
 
   <Target Name="Deploy" DependsOnTargets="Test">
