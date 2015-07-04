@@ -56,8 +56,10 @@ namespace LibGit2Sharp.Tests.TestHelpers
         {
             IsFileSystemCaseSensitive = IsFileSystemCaseSensitiveInternal();
 
+            string initialAssemblyParentFolder = Directory.GetParent(new Uri(Assembly.GetExecutingAssembly().EscapedCodeBase).LocalPath).FullName;
+
             const string sourceRelativePath = @"../../Resources";
-            ResourcesDirectory = new DirectoryInfo(sourceRelativePath);
+            ResourcesDirectory = new DirectoryInfo(Path.Combine(initialAssemblyParentFolder, sourceRelativePath));
 
             // Setup standard paths to our test repositories
             BareTestRepoPath = Path.Combine(sourceRelativePath, "testrepo.git");
