@@ -103,10 +103,7 @@ namespace LibGit2Sharp
         /// <returns>The <see cref="SubmoduleStatus"/> of this submodule.</returns>
         public virtual SubmoduleStatus RetrieveStatus()
         {
-            using (var handle = Proxy.git_submodule_lookup(repo.Handle, Name))
-            {
-                return Proxy.git_submodule_status(handle);
-            }
+            return Proxy.git_submodule_status(repo.Handle, Name);
         }
 
         /// <summary>

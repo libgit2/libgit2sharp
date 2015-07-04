@@ -19,5 +19,10 @@
         /// The stash index given was not found.
         /// </summary>
         NotFound,
+
+        /// <summary>
+        /// The stash application was aborted due to uncommitted changes in the index.
+        /// </summary>
+        UncommittedChanges,
     }
 }

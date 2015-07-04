@@ -56,7 +56,7 @@ namespace LibGit2Sharp.Tests.TestHelpers
         {
             IsFileSystemCaseSensitive = IsFileSystemCaseSensitiveInternal();
 
-            string initialAssemblyParentFolder = Directory.GetParent(new Uri(Assembly.GetExecutingAssembly().EscapedCodeBase).LocalPath).FullName;
+            string initialAssemblyParentFolder = Directory.GetParent(new Uri(typeof(BaseFixture).Assembly.EscapedCodeBase).LocalPath).FullName;
 
             const string sourceRelativePath = @"../../Resources";
             ResourcesDirectory = new DirectoryInfo(Path.Combine(initialAssemblyParentFolder, sourceRelativePath));

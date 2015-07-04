@@ -69,9 +69,14 @@ namespace LibGit2Sharp.Tests
                                         initializeCallback);
             var registration = GlobalSettings.RegisterFilter(filter);
 
-            Assert.False(called);
-
-            GlobalSettings.DeregisterFilter(registration);
+            try
+            {
+                Assert.False(called);
+            }
+            finally
+            {
+                GlobalSettings.DeregisterFilter(registration);
+            }
         }
 
         [Fact]
@@ -89,16 +94,22 @@ namespace LibGit2Sharp.Tests
                                         successCallback,
                                         initializeCallback);
             var registration = GlobalSettings.RegisterFilter(filter);
-            Assert.False(called);
 
-            string repoPath = InitNewRepository();
-            using (var repo = CreateTestRepository(repoPath))
+            try
             {
-                StageNewFile(repo);
-                Assert.True(called);
-            }
+                Assert.False(called);
 
-            GlobalSettings.DeregisterFilter(registration);
+                string repoPath = InitNewRepository();
+                using (var repo = CreateTestRepository(repoPath))
+                {
+                    StageNewFile(repo);
+                    Assert.True(called);
+                }
+            }
+            finally
+            {
+                GlobalSettings.DeregisterFilter(registration);
+            }
         }
 
         [Fact]
@@ -116,13 +127,18 @@ namespace LibGit2Sharp.Tests
             var filter = new FakeFilter(FilterName, attributes, clean);
             var registration = GlobalSettings.RegisterFilter(filter);
 
-            using (var repo = CreateTestRepository(repoPath))
+            try
             {
-                StageNewFile(repo);
-                Assert.True(called);
+                using (var repo = CreateTestRepository(repoPath))
+                {
+                    StageNewFile(repo);
+                    Assert.True(called);
+                }
             }
-
-            GlobalSettings.DeregisterFilter(registration);
+            finally
+            {
+                GlobalSettings.DeregisterFilter(registration);
+            }
         }
 
         [Fact]
@@ -138,17 +154,22 @@ namespace LibGit2Sharp.Tests
             var filter = new FakeFilter(FilterName, attributes, cleanCallback);
             var registration = GlobalSettings.RegisterFilter(filter);
 
-            using (var repo = CreateTestRepository(repoPath))
+            try
             {
-                FileInfo expectedFile = StageNewFile(repo, decodedInput);
-                var commit = repo.Commit("Clean that file");
-                var blob = (Blob)commit.Tree[expectedFile.Name].Target;
+                using (var repo = CreateTestRepository(repoPath))
+                {
+                    FileInfo expectedFile = StageNewFile(repo, decodedInput);
+                    var commit = repo.Commit("Clean that file");
+                    var blob = (Blob)commit.Tree[expectedFile.Name].Target;
 
-                var textDetected = blob.GetContentText();
-                Assert.Equal(encodedInput, textDetected);
+                    var textDetected = blob.GetContentText();
+                    Assert.Equal(encodedInput, textDetected);
+                }
             }
-
-            GlobalSettings.DeregisterFilter(registration);
+            finally
+            {
+                GlobalSettings.DeregisterFilter(registration);
+            }
         }
 
         [Fact]
@@ -165,19 +186,24 @@ namespace LibGit2Sharp.Tests
             var filter = new FakeFilter(FilterName, attributes, null, smudgeCallback);
             var registration = GlobalSettings.RegisterFilter(filter);
 
-            FileInfo expectedFile = CheckoutFileForSmudge(repoPath, branchName, encodedInput);
+            try
+            {
+                FileInfo expectedFile = CheckoutFileForSmudge(repoPath, branchName, encodedInput);
 
-            string combine = Path.Combine(repoPath, "..", expectedFile.Name);
-            string readAllText = File.ReadAllText(combine);
-            Assert.Equal(decodedInput, readAllText);
-
-            GlobalSettings.DeregisterFilter(registration);
+                string combine = Path.Combine(repoPath, "..", expectedFile.Name);
+                string readAllText = File.ReadAllText(combine);
+                Assert.Equal(decodedInput, readAllText);
+            }
+            finally
+            {
+                GlobalSettings.DeregisterFilter(registration);
+            }
         }
 
         [Fact]
         public void CanFilterLargeFiles()
         {
-            const int ContentLength = 128 * 1024 * 1024;
+            const int ContentLength = 128 * 1024 * 1024 - 13;
             const char ContentValue = 'x';
 
             char[] content = (new string(ContentValue, 1024)).ToCharArray();
@@ -187,51 +213,60 @@ namespace LibGit2Sharp.Tests
             var filter = new FileExportFilter(FilterName, attributes);
             var registration = GlobalSettings.RegisterFilter(filter);
 
-            string filePath = Path.Combine(Directory.GetParent(repoPath).Parent.FullName, Guid.NewGuid().ToString() + ".blob");
-            FileInfo contentFile = new FileInfo(filePath);
-            using (var writer = new StreamWriter(contentFile.OpenWrite()) { AutoFlush = true })
+            try
             {
-                for (int i = 0; i < ContentLength / content.Length; i++)
+                string filePath = Path.Combine(Directory.GetParent(repoPath).Parent.FullName, Guid.NewGuid().ToString() + ".blob");
+                FileInfo contentFile = new FileInfo(filePath);
+                using (var writer = new StreamWriter(contentFile.OpenWrite()) { AutoFlush = true })
                 {
-                    writer.Write(content);
+                    int remain = ContentLength;
+
+                    while (remain > 0)
+                    {
+                        int chunkSize = remain > content.Length ? content.Length : remain;
+                        writer.Write(content, 0, chunkSize);
+                        remain -= chunkSize;
+                    }
                 }
-            }
 
-            string attributesPath = Path.Combine(Directory.GetParent(repoPath).Parent.FullName, ".gitattributes");
-            FileInfo attributesFile = new FileInfo(attributesPath);
+                string attributesPath = Path.Combine(Directory.GetParent(repoPath).Parent.FullName, ".gitattributes");
+                FileInfo attributesFile = new FileInfo(attributesPath);
 
-            string configPath = CreateConfigurationWithDummyUser(Constants.Signature);
-            var repositoryOptions = new RepositoryOptions { GlobalConfigurationLocation = configPath };
+                string configPath = CreateConfigurationWithDummyUser(Constants.Signature);
+                var repositoryOptions = new RepositoryOptions { GlobalConfigurationLocation = configPath };
 
-            using (Repository repo = new Repository(repoPath, repositoryOptions))
-            {
-                File.WriteAllText(attributesPath, "*.blob filter=test");
-                repo.Stage(attributesFile.Name);
-                repo.Stage(contentFile.Name);
-                repo.Commit("test");
+                using (Repository repo = new Repository(repoPath, repositoryOptions))
+                {
+                    File.WriteAllText(attributesPath, "*.blob filter=test");
+                    repo.Stage(attributesFile.Name);
+                    repo.Stage(contentFile.Name);
+                    repo.Commit("test");
+                    contentFile.Delete();
+                    repo.Checkout("HEAD", new CheckoutOptions() { CheckoutModifiers = CheckoutModifiers.Force });
+                }
+
+                contentFile = new FileInfo(filePath);
+                Assert.True(contentFile.Exists, "Contents not restored correctly by forced checkout.");
+                using (StreamReader reader = contentFile.OpenText())
+                {
+                    int totalRead = 0;
+                    char[] block = new char[1024];
+                    int read;
+                    while ((read = reader.Read(block, 0, block.Length)) > 0)
+                    {
+                        Assert.True(CharArrayAreEqual(block, content, read));
+                        totalRead += read;
+                    }
+
+                    Assert.Equal(ContentLength, totalRead);
+                }
+
                 contentFile.Delete();
-                repo.Checkout("HEAD", new CheckoutOptions() { CheckoutModifiers = CheckoutModifiers.Force });
             }
-
-            contentFile = new FileInfo(filePath);
-            Assert.True(contentFile.Exists, "Contents not restored correctly by forced checkout.");
-            using (StreamReader reader = contentFile.OpenText())
+            finally
             {
-                int totalRead = 0;
-                char[] block = new char[1024];
-                int read;
-                while ((read = reader.Read(block, 0, block.Length)) > 0)
-                {
-                    Assert.True(CharArrayAreEqual(block, content, read));
-                    totalRead += read;
-                }
-
-                Assert.Equal(ContentLength, totalRead);
+                GlobalSettings.DeregisterFilter(registration);
             }
-
-            contentFile.Delete();
-
-            GlobalSettings.DeregisterFilter(registration);
         }
 
         [Fact]
