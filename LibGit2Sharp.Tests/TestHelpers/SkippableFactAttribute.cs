@@ -1,144 +1,172 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Xml;
+using System.Threading;
+using System.Threading.Tasks;
 using Xunit;
-using Xunit.Extensions;
+using Xunit.Abstractions;
 using Xunit.Sdk;
+
 //**********************************************************************
 //* This file is based on the DynamicSkipExample.cs in xUnit which is
-//* provided under the following Ms-PL license:
+//* provided under the following Apache license.
 //*
-//* This license governs use of the accompanying software. If you use
-//* the software, you accept this license. If you do not accept the
-//* license, do not use the software.
 //*
-//* 1. Definitions
+//* Copyright 2014 Outercurve Foundation
 //*
-//* The terms "reproduce," "reproduction," "derivative works," and
-//* "distribution" have the same meaning here as under U.S. copyright
-//* law.
+//* Licensed under the Apache License, Version 2.0 (the "License");
+//* you may not use this file except in compliance with the License.
+//* You may obtain a copy of the License at
 //*
-//* A "contribution" is the original software, or any additions or
-//* changes to the software.
+//*     http://www.apache.org/licenses/LICENSE-2.0
 //*
-//* A "contributor" is any person that distributes its contribution
-//* under this license.
+//* Unless required by applicable law or agreed to in writing, software
+//* distributed under the License is distributed on an "AS IS" BASIS,
+//* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//* See the License for the specific language governing permissions and
+//* limitations under the License.
 //*
-//* "Licensed patents" are a contributor's patent claims that read
-//* directly on its contribution.
 //*
-//* 2. Grant of Rights
-//*
-//* (A) Copyright Grant- Subject to the terms of this license, including
-//* the license conditions and limitations in section 3, each
-//* contributor grants you a non-exclusive, worldwide, royalty-free
-//* copyright license to reproduce its contribution, prepare derivative
-//* works of its contribution, and distribute its contribution or any
-//* derivative works that you create.
-//*
-//* (B) Patent Grant- Subject to the terms of this license, including
-//* the license conditions and limitations in section 3, each
-//* contributor grants you a non-exclusive, worldwide, royalty-free
-//* license under its licensed patents to make, have made, use, sell,
-//* offer for sale, import, and/or otherwise dispose of its contribution
-//* in the software or derivative works of the contribution in the
-//* software.
-//*
-//* 3. Conditions and Limitations
-//*
-//* (A) No Trademark License- This license does not grant you rights to
-//* use any contributors' name, logo, or trademarks.
-//*
-//* (B) If you bring a patent claim against any contributor over patents
-//* that you claim are infringed by the software, your patent license
-//* from such contributor to the software ends automatically.
-//*
-//* (C) If you distribute any portion of the software, you must retain
-//* all copyright, patent, trademark, and attribution notices that are
-//* present in the software.
-//*
-//* (D) If you distribute any portion of the software in source code
-//* form, you may do so only under this license by including a complete
-//* copy of this license with your distribution. If you distribute any
-//* portion of the software in compiled or object code form, you may
-//* only do so under a license that complies with this license.
+//* Refs:
+//*  - https://github.com/xunit/samples.xunit/tree/master/DynamicSkipExample
+//*  - https://github.com/xunit/samples.xunit/blob/master/license.txt
 //**********************************************************************
 
 namespace LibGit2Sharp.Tests.TestHelpers
 {
-    class SkippableFactAttribute : FactAttribute
+    [XunitTestCaseDiscoverer("LibGit2Sharp.Tests.TestHelpers.SkippableTheoryDiscoverer", "LibGit2Sharp.Tests")]
+    public class SkippableTheoryAttribute : TheoryAttribute { }
+
+    [XunitTestCaseDiscoverer("LibGit2Sharp.Tests.TestHelpers.SkippableFactDiscoverer", "LibGit2Sharp.Tests")]
+    public class SkippableFactAttribute : FactAttribute { }
+
+    public class SkippableFactDiscoverer : IXunitTestCaseDiscoverer
     {
-        protected override IEnumerable<ITestCommand> EnumerateTestCommands(IMethodInfo method)
+        readonly IMessageSink diagnosticMessageSink;
+
+        public SkippableFactDiscoverer(IMessageSink diagnosticMessageSink)
         {
-            return base.EnumerateTestCommands(method).Select(SkippableTestCommand.Wrap(method));
+            this.diagnosticMessageSink = diagnosticMessageSink;
+        }
+
+        public IEnumerable<IXunitTestCase> Discover(ITestFrameworkDiscoveryOptions discoveryOptions, ITestMethod testMethod, IAttributeInfo factAttribute)
+        {
+            yield return new SkippableFactTestCase(diagnosticMessageSink, discoveryOptions.MethodDisplayOrDefault(), testMethod);
         }
     }
 
-    class SkippableTheoryAttribute : TheoryAttribute
+    public class SkippableFactTestCase : XunitTestCase
     {
-        protected override IEnumerable<ITestCommand> EnumerateTestCommands(IMethodInfo method)
-        {
-            return base.EnumerateTestCommands(method).Select(SkippableTestCommand.Wrap(method));
-        }
-    }
+        [Obsolete("Called by the de-serializer; should only be called by deriving classes for de-serialization purposes")]
+        public SkippableFactTestCase() { }
 
-    class SkippableTestCommand : ITestCommand
-    {
-        public static Func<ITestCommand, ITestCommand> Wrap(IMethodInfo method)
-        {
-            return c => new SkippableTestCommand(method, c);
-        }
+        public SkippableFactTestCase(IMessageSink diagnosticMessageSink, TestMethodDisplay defaultMethodDisplay, ITestMethod testMethod, object[] testMethodArguments = null)
+            : base(diagnosticMessageSink, defaultMethodDisplay, testMethod, testMethodArguments) { }
 
-        private readonly IMethodInfo method;
-        private readonly ITestCommand inner;
-
-        private SkippableTestCommand(IMethodInfo method, ITestCommand inner)
+        public override async Task<RunSummary> RunAsync(IMessageSink diagnosticMessageSink,
+                                                        IMessageBus messageBus,
+                                                        object[] constructorArguments,
+                                                        ExceptionAggregator aggregator,
+                                                        CancellationTokenSource cancellationTokenSource)
         {
-            this.method = method;
-            this.inner = inner;
-        }
-
-        public MethodResult Execute(object testClass)
-        {
-            try
+            var skipMessageBus = new SkippableFactMessageBus(messageBus);
+            var result = await base.RunAsync(diagnosticMessageSink, skipMessageBus, constructorArguments, aggregator, cancellationTokenSource);
+            if (skipMessageBus.DynamicallySkippedTestCount > 0)
             {
-                return inner.Execute(testClass);
+                result.Failed -= skipMessageBus.DynamicallySkippedTestCount;
+                result.Skipped += skipMessageBus.DynamicallySkippedTestCount;
             }
-            catch (SkipException e)
-            {
-                return new SkipResult(method, DisplayName, e.Reason);
-            }
-        }
 
-        public XmlNode ToStartXml()
-        {
-            return inner.ToStartXml();
-        }
-
-        public string DisplayName
-        {
-            get { return inner.DisplayName; }
-        }
-
-        public bool ShouldCreateInstance
-        {
-            get { return inner.ShouldCreateInstance; }
-        }
-
-        public int Timeout
-        {
-            get { return inner.Timeout; }
+            return result;
         }
     }
 
-    class SkipException : Exception
+    public class SkippableTheoryDiscoverer : IXunitTestCaseDiscoverer
     {
-        public SkipException(string reason)
+        readonly IMessageSink diagnosticMessageSink;
+        readonly TheoryDiscoverer theoryDiscoverer;
+
+        public SkippableTheoryDiscoverer(IMessageSink diagnosticMessageSink)
         {
-            Reason = reason;
+            this.diagnosticMessageSink = diagnosticMessageSink;
+
+            theoryDiscoverer = new TheoryDiscoverer(diagnosticMessageSink);
         }
 
-        public string Reason { get; private set; }
+        public IEnumerable<IXunitTestCase> Discover(ITestFrameworkDiscoveryOptions discoveryOptions, ITestMethod testMethod, IAttributeInfo factAttribute)
+        {
+            var defaultMethodDisplay = discoveryOptions.MethodDisplayOrDefault();
+
+            // Unlike fact discovery, the underlying algorithm for theories is complex, so we let the theory discoverer
+            // do its work, and do a little on-the-fly conversion into our own test cases.
+            return theoryDiscoverer.Discover(discoveryOptions, testMethod, factAttribute)
+                                   .Select(testCase => testCase is XunitTheoryTestCase
+                                                           ? (IXunitTestCase)new SkippableTheoryTestCase(diagnosticMessageSink, defaultMethodDisplay, testCase.TestMethod)
+                                                           : new SkippableFactTestCase(diagnosticMessageSink, defaultMethodDisplay, testCase.TestMethod, testCase.TestMethodArguments));
+        }
+    }
+
+    public class SkippableTheoryTestCase : XunitTheoryTestCase
+    {
+        [Obsolete("Called by the de-serializer; should only be called by deriving classes for de-serialization purposes")]
+        public SkippableTheoryTestCase() { }
+
+        public SkippableTheoryTestCase(IMessageSink diagnosticMessageSink, TestMethodDisplay defaultMethodDisplay, ITestMethod testMethod)
+            : base(diagnosticMessageSink, defaultMethodDisplay, testMethod) { }
+
+        public override async Task<RunSummary> RunAsync(IMessageSink diagnosticMessageSink,
+                                                        IMessageBus messageBus,
+                                                        object[] constructorArguments,
+                                                        ExceptionAggregator aggregator,
+                                                        CancellationTokenSource cancellationTokenSource)
+        {
+            // Duplicated code from SkippableFactTestCase. I'm sure we could find a way to de-dup with some thought.
+            var skipMessageBus = new SkippableFactMessageBus(messageBus);
+            var result = await base.RunAsync(diagnosticMessageSink, skipMessageBus, constructorArguments, aggregator, cancellationTokenSource);
+            if (skipMessageBus.DynamicallySkippedTestCount > 0)
+            {
+                result.Failed -= skipMessageBus.DynamicallySkippedTestCount;
+                result.Skipped += skipMessageBus.DynamicallySkippedTestCount;
+            }
+
+            return result;
+        }
+    }
+
+    public class SkippableFactMessageBus : IMessageBus
+    {
+        readonly IMessageBus innerBus;
+
+        public SkippableFactMessageBus(IMessageBus innerBus)
+        {
+            this.innerBus = innerBus;
+        }
+
+        public int DynamicallySkippedTestCount { get; private set; }
+
+        public void Dispose() { }
+
+        public bool QueueMessage(IMessageSinkMessage message)
+        {
+            var testFailed = message as ITestFailed;
+            if (testFailed != null)
+            {
+                var exceptionType = testFailed.ExceptionTypes.FirstOrDefault();
+                if (exceptionType == typeof(SkipTestException).FullName)
+                {
+                    DynamicallySkippedTestCount++;
+                    return innerBus.QueueMessage(new TestSkipped(testFailed.Test, testFailed.Messages.FirstOrDefault()));
+                }
+            }
+
+            // Nothing we care about, send it on its way
+            return innerBus.QueueMessage(message);
+        }
+    }
+
+    class SkipTestException : Exception
+    {
+        public SkipTestException(string reason)
+            : base(reason) { }
     }
 }

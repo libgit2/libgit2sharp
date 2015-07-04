@@ -3,7 +3,6 @@ using System.IO;
 using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
-using Xunit.Extensions;
 
 namespace LibGit2Sharp.Tests
 {
@@ -106,7 +105,7 @@ namespace LibGit2Sharp.Tests
             {
                 Assert.Equal(currentStatus, repo.RetrieveStatus(relativePath));
 
-                Assert.DoesNotThrow(() => repo.Unstage(relativePath, new ExplicitPathsOptions() { ShouldFailOnUnmatchedPath = false }));
+                repo.Unstage(relativePath, new ExplicitPathsOptions() { ShouldFailOnUnmatchedPath = false });
                 Assert.Equal(currentStatus, repo.RetrieveStatus(relativePath));
             }
         }
@@ -182,8 +181,8 @@ namespace LibGit2Sharp.Tests
 
                 Assert.Equal(currentStatus, repo.RetrieveStatus(relativePath));
 
-                Assert.DoesNotThrow(() => repo.Unstage(relativePath));
-                Assert.DoesNotThrow(() => repo.Unstage(relativePath, new ExplicitPathsOptions { ShouldFailOnUnmatchedPath = false }));
+                repo.Unstage(relativePath);
+                repo.Unstage(relativePath, new ExplicitPathsOptions { ShouldFailOnUnmatchedPath = false });
                 Assert.Equal(currentStatus, repo.RetrieveStatus(relativePath));
             }
         }

@@ -112,7 +112,7 @@ test_script:
     {
       .\packages\OpenCover\OpenCover.Console.exe `
         -register:user `
-        "-target:""$Env:APPVEYOR_BUILD_FOLDER\packages\xunit.runner.console.2.0.0\tools\$Env:xunit_runner""" `
+        "-target:""$Env:APPVEYOR_BUILD_FOLDER\packages\xunit.runner.console.2.1.0-beta4-build3042\tools\$Env:xunit_runner""" `
         "-targetargs:""$Env:APPVEYOR_BUILD_FOLDER\LibGit2Sharp.Tests\bin\Release\LibGit2Sharp.Tests.dll"" -noshadow" `
         "-filter:+[LibGit2Sharp]* -[LibGit2Sharp.Tests]*" `
         -hideskipped:All `
@@ -120,7 +120,7 @@ test_script:
     }
     ElseIf ($Env:SHOULD_RUN_COVERITY_ANALYSIS -eq $False)
     {
-      & "$Env:APPVEYOR_BUILD_FOLDER\packages\xunit.runner.console.2.0.0\tools\$Env:xunit_runner" `
+      & "$Env:APPVEYOR_BUILD_FOLDER\packages\xunit.runner.console.2.1.0-beta4-build3042\tools\$Env:xunit_runner" `
           "$Env:APPVEYOR_BUILD_FOLDER\LibGit2Sharp.Tests\bin\Release\LibGit2Sharp.Tests.dll" -noshadow
     }
 

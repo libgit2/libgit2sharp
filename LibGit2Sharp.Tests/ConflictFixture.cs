@@ -3,7 +3,6 @@ using System.IO;
 using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
-using Xunit.Extensions;
 
 namespace LibGit2Sharp.Tests
 {
@@ -112,7 +111,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Theory, PropertyData("ConflictData")]
+        [Theory, MemberData("ConflictData")]
         public void CanRetrieveSingleConflictByPath(string filepath, string ancestorId, string ourId, string theirId)
         {
             var path = SandboxMergedTestRepo();

@@ -6,7 +6,7 @@
     <DeployFolder>$(RootDir)\Build</DeployFolder>
   </PropertyGroup>
 
-  <UsingTask AssemblyFile="$(RootDir)\packages\xunit.runner.msbuild.2.0.0\build\portable-net45+win+wpa81+wp80+monotouch+monoandroid+Xamarin.iOS\xunit.runner.msbuild.dll"
+  <UsingTask AssemblyFile="$(RootDir)\packages\xunit.runner.msbuild.2.1.0-beta4-build3042\build\portable-net45+win+wpa81+wp80+monotouch+monoandroid+Xamarin.iOS\xunit.runner.msbuild.dll"
                TaskName="Xunit.Runner.MSBuild.xunit" />
   <Target Name="Clean">
     <Message Text="Commit SHA = $(CommitSha)" />
