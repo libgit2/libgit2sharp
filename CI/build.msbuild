@@ -37,7 +37,7 @@
   </Target>
 
   <Target Name="Test" DependsOnTargets="Build">
-    <xunit Assemblies="$(TestBuildDir)/LibGit2Sharp.Tests.dll" ShadowCopy="false" Xml="$(DeployFolder)/Test-result.xml" />
+    <xunit Assemblies="$(TestBuildDir)/LibGit2Sharp.Tests.dll" ShadowCopy="false" WorkingFolder="$(TestBuildDir)" Xml="$(DeployFolder)/Test-result.xml" />
   </Target>
 
   <Target Name="Deploy" DependsOnTargets="Test">
