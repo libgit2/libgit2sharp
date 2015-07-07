@@ -12,7 +12,7 @@ namespace LibGit2Sharp
     public static class GlobalSettings
     {
         private static readonly Lazy<Version> version = new Lazy<Version>(Version.Build);
-        private static readonly Dictionary<Filter, FilterRegistration> registeredFilters;
+        private static readonly Dictionary<string, FilterRegistration> registeredFilters;
 
         private static LogConfiguration logConfiguration = LogConfiguration.None;
 
@@ -27,7 +27,7 @@ namespace LibGit2Sharp
                 nativeLibraryPath = Path.Combine(Path.GetDirectoryName(managedPath), "NativeBinaries");
             }
 
-            registeredFilters = new Dictionary<Filter, FilterRegistration>();
+            registeredFilters = new Dictionary<string, FilterRegistration>(StringComparer.OrdinalIgnoreCase);
         }
 
         /// <summary>
@@ -192,47 +192,92 @@ namespace LibGit2Sharp
         /// Register a filter globally with a default priority of 200 allowing the custom filter
         /// to imitate a core Git filter driver. It will be run last on checkout and first on checkin.
         /// </summary>
-        public static FilterRegistration RegisterFilter(Filter filter)
+        /// <param name="name">The name of the filter, must be unique.</param>
+        /// <param name="attribute">The attirbute which invokes the filter.</param>
+        /// <exception cref="ArgumentNullException">
+        /// Throws if <paramref name="name"/> is null.
+        /// Throws if <paramref name="attribute"/> is null.
+        /// </exception>
+        /// <exception cref="ArgumentException">
+        /// Throws if <paramref name="attribute"/> is empty.
+        /// </exception>
+        public static FilterRegistration<TFilter> RegisterFilter<TFilter>(string name, string attribute)
+             where TFilter : Filter, new()
         {
-            return RegisterFilter(filter, 200);
+            return RegisterFilter<TFilter>(name, attribute, FilterRegistration.DefaultFilterPriority, null);
         }
 
         /// <summary>
-        /// Registers a <see cref="Filter"/> to be invoked when <see cref="Filter.Name"/> matches .gitattributes 'filter=name'
+        /// Reigisters a filter for callback when moving files from the work tree to the odb or the odb to the work tree.
         /// </summary>
-        /// <param name="filter">The filter to be invoked at run time.</param>
-        /// <param name="priority">The priroty of the filter to invoked. 
-        /// A value of 0 (<see cref="FilterRegistration.FilterPriorityMin"/>) will be run first on checkout and last on checkin.
-        /// A value of 200 (<see cref="FilterRegistration.FilterPriorityMax"/>) will be run last on checkout and first on checkin.
-        /// </param>
-        /// <returns>A <see cref="FilterRegistration"/> object used to manage the lifetime of the registration.</returns>
-        public static FilterRegistration RegisterFilter(Filter filter, int priority)
+        /// <typeparam name="TFilter">A decendant of `Filter` which implements the `Apply` method.</typeparam>
+        /// <param name="name">The name of the filter, must be unique.</param>
+        /// <param name="attribute">The attirbute which invokes the filter.</param>
+        /// <param name="priority">The priority of the filter.</param>
+        /// <returns>A new registration object which should be used to <see cref="UnregisterFilter"/> the filter.</returns>
+        /// <exception cref="ArgumentNullException">
+        /// Throws if <paramref name="name"/> is null.
+        /// Throws if <paramref name="attribute"/> is null.
+        /// </exception>
+        /// <exception cref="ArgumentException">
+        /// Throws if <paramref name="attribute"/> is empty.
+        /// </exception>
+        public static FilterRegistration<TFilter> RegisterFilter<TFilter>(string name, string attribute, int priority)
+            where TFilter : Filter, new()
         {
-            Ensure.ArgumentNotNull(filter, "filter");
-            if (priority < FilterRegistration.FilterPriorityMin || priority > FilterRegistration.FilterPriorityMax)
-            {
-                throw new ArgumentOutOfRangeException("priority",
-                                                      priority,
-                                                      String.Format(System.Globalization.CultureInfo.InvariantCulture,
-                                                                    "Filter priorities must be within the inclusive range of [{0}, {1}].",
-                                                                    FilterRegistration.FilterPriorityMin,
-                                                                    FilterRegistration.FilterPriorityMax));
-            }
+            return RegisterFilter<TFilter>(name, attribute, priority, null);
+        }
 
-            FilterRegistration registration = null;
+        /// <summary>
+        /// Reigisters a filter for callback when moving files from the work tree to the odb or the odb to the work tree.
+        /// </summary>
+        /// <typeparam name="TFilter">A decendant of `Filter` which implements the `Apply` method.</typeparam>
+        /// <param name="name">The name of the filter, must be unique.</param>
+        /// <param name="attribute">The attirbute which invokes the filter.</param>
+        /// <param name="priority">The priority of the filter.</param>
+        /// <param name="initializationCallback">
+        /// <para>
+        /// Initialize callback on filter	
+        /// <para>	
+        /// </para>		
+        /// Specified as `filter.initialize`, this is an optional callback invoked		
+        /// before a filter is first used.  It will be called once at most.		
+        ///	</para>
+        /// <para>
+        /// If non-NULL, the filter's `initialize` callback will be invoked right		
+        /// before the first use of the filter, so you can defer expensive		
+        /// initialization operations (in case the library is being used in a way		
+        /// that doesn't need the filter.	
+        /// </para>			
+        /// </param>
+        /// <returns>A new registration object which should be used to <see cref="UnregisterFilter"/> the filter.</returns>
+        /// <exception cref="ArgumentNullException">
+        /// Throws if <paramref name="name"/> is null.
+        /// Throws if <paramref name="attribute"/> is null.
+        /// </exception>
+        /// <exception cref="ArgumentException">
+        /// Throws if <paramref name="attribute"/> is empty.
+        /// </exception>
+        public static FilterRegistration<TFilter> RegisterFilter<TFilter>(string name, string attribute, int priority, FilterRegistrationIntializationCallback initializationCallback)
+            where TFilter : Filter, new()
+        {
+            Ensure.ArgumentNotNull(name, "name");
+            Ensure.ArgumentNotNullOrEmptyString(attribute, "attribute");
+
+            FilterRegistration<TFilter> registration = null;
 
             lock (registeredFilters)
             {
                 // if the filter has already been registered 
-                if (registeredFilters.ContainsKey(filter))
+                if (registeredFilters.ContainsKey(name))
                 {
                     throw new EntryExistsException("The filter has already been registered.", GitErrorCode.Exists, GitErrorCategory.Filter);
                 }
 
                 // allocate the registration object
-                registration = new FilterRegistration(filter, priority);
+                registration = new FilterRegistration<TFilter>(name, attribute, priority, initializationCallback);
                 // add the filter and registration object to the global tracking list
-                registeredFilters.Add(filter, registration);
+                registeredFilters.Add(name, registration);
             }
 
             return registration;
@@ -242,35 +287,26 @@ namespace LibGit2Sharp
         /// Unregisters the associated filter.
         /// </summary>
         /// <param name="registration">Registration object with an associated filter.</param>
-        public static void DeregisterFilter(FilterRegistration registration)
+        /// <exception cref="ArgumentNullException">
+        /// Throw if <paramref name="registration"/> is null.
+        /// </exception>
+        public static bool UnregisterFilter<TFilter>(FilterRegistration<TFilter> registration)
+            where TFilter : Filter, new()
         {
             Ensure.ArgumentNotNull(registration, "registration");
 
             lock (registeredFilters)
             {
-                var filter = registration.Filter;
-
                 // do nothing if the filter isn't registered
-                if (registeredFilters.ContainsKey(filter))
-                {                    
-                    // remove the register from the global tracking list
-                    registeredFilters.Remove(filter);
+                if (registeredFilters.ContainsKey(registration.Name))
+                {
                     // clean up native allocations
                     registration.Free();
+                    // remove the register from the global tracking list
+                    return registeredFilters.Remove(registration.Name);
                 }
-            }
-        }
 
-        internal static void DeregisterFilter(Filter filter)
-        {
-            System.Diagnostics.Debug.Assert(filter != null);
-
-            // do nothing if the filter isn't registered
-            if (registeredFilters.ContainsKey(filter))
-            {
-                var registration = registeredFilters[filter];
-                // unregister the filter
-                DeregisterFilter(registration);
+                return false;
             }
         }
     }

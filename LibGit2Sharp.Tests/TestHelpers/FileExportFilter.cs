@@ -6,92 +6,105 @@ namespace LibGit2Sharp.Tests.TestHelpers
 {
     class FileExportFilter : Filter
     {
-        public int CleanCalledCount = 0;
-        public int CompleteCalledCount = 0;
-        public int SmudgeCalledCount = 0;
-        public readonly HashSet<string> FilesFiltered;
+        public static int CleanCalledCount = 0;
+        public static int CompleteCalledCount = 0;
+        public static int SmudgeCalledCount = 0;
+        public static readonly HashSet<string> FilesFiltered = new HashSet<string>();
 
-        private bool clean;
-
-        public FileExportFilter(string name, IEnumerable<FilterAttributeEntry> attributes)
-            : base(name, attributes)
+        public static void Initialize()
         {
-            FilesFiltered = new HashSet<string>();
+            CleanCalledCount = 0;
+            CompleteCalledCount = 0;
+            SmudgeCalledCount = 0;
+            FilesFiltered.Clear();
         }
 
-        protected override void Create(string path, string root, FilterMode mode)
+        protected override void Create(string root, string path, FilterMode mode, string verb)
         {
-            if (mode == FilterMode.Clean)
-            {
-                string filename = Path.GetFileName(path);
-                string cachePath = Path.Combine(root, ".git", filename);
+            string cachePath = GetCachePath(root, path);
 
-                if (File.Exists(cachePath))
-                {
-                    File.Delete(cachePath);
-                }
+            switch (mode)
+            {
+                case FilterMode.Clean:
+                    {
+                        using (File.Create(cachePath)) { }
+                    }
+                    break;
             }
         }
 
-        protected override void Clean(string path, string root, Stream input, Stream output)
+        protected override void Apply(string root, string path, Stream input, Stream output, FilterMode mode, string verb)
         {
-            CleanCalledCount++;
+            string cachePath = GetCachePath(root, path);
 
-            string filename = Path.GetFileName(path);
-            string cachePath = Path.Combine(root, ".git", filename);
-
-            using (var file = File.Exists(cachePath) ? File.Open(cachePath, FileMode.Append, FileAccess.Write, FileShare.None) : File.Create(cachePath))
+            switch (mode)
             {
-                input.CopyTo(file);
-            }
+                case FilterMode.Clean:
+                    {
+                        CleanCalledCount++;
 
-            clean = true;
+                        using (var file = File.Open(cachePath, FileMode.Append, FileAccess.Write, FileShare.None))
+                        {
+                            input.CopyTo(file);
+                        }
+                    }
+                    break;
+
+                case FilterMode.Smudge:
+                    {
+                        SmudgeCalledCount++;
+
+                        StringBuilder text = new StringBuilder();
+
+                        byte[] buffer = new byte[64 * 1024];
+                        int read;
+                        while ((read = input.Read(buffer, 0, buffer.Length)) > 0)
+                        {
+                            string decoded = Encoding.UTF8.GetString(buffer, 0, read);
+                            text.Append(decoded);
+                        }
+
+                        if (!FilesFiltered.Contains(text.ToString()))
+                            throw new FileNotFoundException();
+                    }
+                    break;
+            }
         }
 
-        protected override void Complete(string path, string root, Stream output)
+        protected override void Complete(string root, string path, Stream output, FilterMode mode, string verb)
         {
             CompleteCalledCount++;
 
-            string filename = Path.GetFileName(path);
-            string cachePath = Path.Combine(root, ".git", filename);
+            string cachePath = GetCachePath(root, path);
 
-            if (clean)
+            switch (mode)
             {
-                byte[] bytes = Encoding.UTF8.GetBytes(path);
-                output.Write(bytes, 0, bytes.Length);
-                FilesFiltered.Add(path);
-            }
-            else
-            {
-                if (File.Exists(cachePath))
-                {
-                    using (var file = File.Open(cachePath, FileMode.OpenOrCreate, FileAccess.Read, FileShare.None))
+                case FilterMode.Clean:
                     {
-                        file.CopyTo(output);
+                        byte[] bytes = Encoding.UTF8.GetBytes(path);
+                        output.Write(bytes, 0, bytes.Length);
+                        FilesFiltered.Add(path);
                     }
-                }
+                    break;
+
+                case FilterMode.Smudge:
+                    {
+                        if (File.Exists(cachePath))
+                        {
+                            using (var file = File.Open(cachePath, FileMode.OpenOrCreate, FileAccess.Read, FileShare.None))
+                            {
+                                file.CopyTo(output);
+                            }
+                        }
+                    }
+                    break;
             }
         }
 
-        protected override void Smudge(string path, string root, Stream input, Stream output)
+        private static string GetCachePath(string root, string path)
         {
-            SmudgeCalledCount++;
-
             string filename = Path.GetFileName(path);
-            StringBuilder text = new StringBuilder();
-
-            byte[] buffer = new byte[64 * 1024];
-            int read;
-            while ((read = input.Read(buffer, 0, buffer.Length)) > 0)
-            {
-                string decoded = Encoding.UTF8.GetString(buffer, 0, read);
-                text.Append(decoded);
-            }
-
-            if (!FilesFiltered.Contains(text.ToString()))
-                throw new FileNotFoundException();
-
-            clean = false;
+            return Path.Combine(root, ".git", filename);
         }
     }
 }

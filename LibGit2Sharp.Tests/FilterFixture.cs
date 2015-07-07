@@ -9,194 +9,182 @@ namespace LibGit2Sharp.Tests
 {
     public class FilterFixture : BaseFixture
     {
-        readonly Action<Stream, Stream> successCallback = (reader, writer) =>
-        {
-            reader.CopyTo(writer);
-        };
+        const string DecodedInput = "This is a substitution cipher";
+        const string EncodedInput = "Guvf vf n fhofgvghgvba pvcure";
 
         private const string FilterName = "the-filter";
-        readonly List<FilterAttributeEntry> attributes = new List<FilterAttributeEntry> { new FilterAttributeEntry("test") };
+        private readonly string FilterAttribute = "test";
 
         [Fact]
         public void CanRegisterFilterWithSingleAttribute()
         {
-            var filter = new EmptyFilter(FilterName, attributes);
-            Assert.Equal(attributes, filter.Attributes);
+            var regitration = GlobalSettings.RegisterFilter<EmptyFilter>(FilterName, FilterAttribute);
+            try
+            {
+                Assert.Equal(FilterAttribute, regitration.Attribute);
+            }
+            finally
+            {
+                GlobalSettings.UnregisterFilter(regitration);
+            }
         }
 
         [Fact]
         public void CanRegisterAndUnregisterTheSameFilter()
         {
-            var filter = new EmptyFilter(FilterName, attributes);
+            var firstRegistration = GlobalSettings.RegisterFilter<EmptyFilter>(FilterName, FilterAttribute);
+            GlobalSettings.UnregisterFilter(firstRegistration);
 
-            var registration = GlobalSettings.RegisterFilter(filter);
-            GlobalSettings.DeregisterFilter(registration);
-
-            var secondRegistration = GlobalSettings.RegisterFilter(filter);
-            GlobalSettings.DeregisterFilter(secondRegistration);
+            var secondRegistration = GlobalSettings.RegisterFilter<EmptyFilter>(FilterName, FilterAttribute);
+            GlobalSettings.UnregisterFilter(secondRegistration);
         }
 
         [Fact]
         public void CanRegisterAndDeregisterAfterGarbageCollection()
         {
-            var filterRegistration = GlobalSettings.RegisterFilter(new EmptyFilter(FilterName, attributes));
+            FakeFilter.Clear();
 
-            GC.Collect();
+            var registration = GlobalSettings.RegisterFilter<EmptyFilter>(FilterName, FilterAttribute);
 
-            GlobalSettings.DeregisterFilter(filterRegistration);
+            try
+            {
+                GC.Collect();
+            }
+            finally
+            {
+                GlobalSettings.UnregisterFilter(registration);
+            }
         }
 
         [Fact]
-        public void SameFilterIsEqual()
+        public void SameFilterRegistrationIsEqual()
         {
-            var filter = new EmptyFilter(FilterName, attributes);
-            Assert.Equal(filter, filter);
+            FakeFilter.Clear();
+
+            var registration = GlobalSettings.RegisterFilter<EmptyFilter>(FilterName, FilterAttribute);
+
+            try
+            {
+                Assert.Equal(registration, registration);
+            }
+            finally
+            {
+                GlobalSettings.UnregisterFilter(registration);
+            }
         }
 
         [Fact]
         public void InitCallbackNotMadeWhenFilterNeverUsed()
         {
-            bool called = false;
-            Action initializeCallback = () =>
-            {
-                called = true;
-            };
+            FakeFilter.Clear();
 
-            var filter = new FakeFilter(FilterName,
-                                        attributes,
-                                        successCallback,
-                                        successCallback,
-                                        initializeCallback);
-            var registration = GlobalSettings.RegisterFilter(filter);
+            var registration = GlobalSettings.RegisterFilter<FakeFilter>(FilterName, FilterAttribute);
 
             try
             {
-                Assert.False(called);
+                Assert.Equal(0, FakeFilter.InitializeCallCount);
             }
             finally
             {
-                GlobalSettings.DeregisterFilter(registration);
+                GlobalSettings.UnregisterFilter(registration);
             }
         }
 
         [Fact]
         public void InitCallbackMadeWhenUsingTheFilter()
         {
-            bool called = false;
-            Action initializeCallback = () =>
-            {
-                called = true;
-            };
+            FakeFilter.Clear();
 
-            var filter = new FakeFilter(FilterName,
-                                        attributes,
-                                        successCallback,
-                                        successCallback,
-                                        initializeCallback);
-            var registration = GlobalSettings.RegisterFilter(filter);
+            var registration = GlobalSettings.RegisterFilter<FakeFilter>(FilterName, FilterAttribute, FilterRegistration.DefaultFilterPriority, FakeFilter.Initialize);
 
             try
             {
-                Assert.False(called);
+                Assert.Equal(0, FakeFilter.InitializeCallCount);
 
                 string repoPath = InitNewRepository();
                 using (var repo = CreateTestRepository(repoPath))
                 {
-                    StageNewFile(repo);
-                    Assert.True(called);
+                    StageNewTxtFile(repo);
+                    Assert.Equal(1, FakeFilter.InitializeCallCount);
                 }
             }
             finally
             {
-                GlobalSettings.DeregisterFilter(registration);
+                GlobalSettings.UnregisterFilter(registration);
             }
         }
 
         [Fact]
         public void WhenStagingFileApplyIsCalledWithCleanForCorrectPath()
         {
+            FakeFilter.Clear();
+
             string repoPath = InitNewRepository();
-            bool called = false;
 
-            Action<Stream, Stream> clean = (reader, writer) =>
-            {
-                called = true;
-                reader.CopyTo(writer);
-            };
-
-            var filter = new FakeFilter(FilterName, attributes, clean);
-            var registration = GlobalSettings.RegisterFilter(filter);
+            var registration = GlobalSettings.RegisterFilter<FakeFilter>(FilterName, FilterAttribute);
 
             try
             {
                 using (var repo = CreateTestRepository(repoPath))
                 {
-                    StageNewFile(repo);
-                    Assert.True(called);
+                    StageNewTxtFile(repo);
+                    Assert.Equal(1, FakeFilter.CleanCallCount);
                 }
             }
             finally
             {
-                GlobalSettings.DeregisterFilter(registration);
+                GlobalSettings.UnregisterFilter(registration);
             }
         }
 
         [Fact]
         public void CleanFilterWritesOutputToObjectTree()
         {
-            const string decodedInput = "This is a substitution cipher";
-            const string encodedInput = "Guvf vf n fhofgvghgvba pvcure";
-
             string repoPath = InitNewRepository();
 
-            Action<Stream, Stream> cleanCallback = SubstitutionCipherFilter.RotateByThirteenPlaces;
-
-            var filter = new FakeFilter(FilterName, attributes, cleanCallback);
-            var registration = GlobalSettings.RegisterFilter(filter);
+            var registration = GlobalSettings.RegisterFilter<SubstitutionCipherFilter>(FilterName, FilterAttribute);
 
             try
             {
                 using (var repo = CreateTestRepository(repoPath))
                 {
-                    FileInfo expectedFile = StageNewFile(repo, decodedInput);
+                    FileInfo expectedFile = StageNewTxtFile(repo, DecodedInput);
                     var commit = repo.Commit("Clean that file");
                     var blob = (Blob)commit.Tree[expectedFile.Name].Target;
 
                     var textDetected = blob.GetContentText();
-                    Assert.Equal(encodedInput, textDetected);
+                    Assert.Equal(EncodedInput, textDetected);
                 }
             }
             finally
             {
-                GlobalSettings.DeregisterFilter(registration);
+                GlobalSettings.UnregisterFilter(registration);
             }
         }
 
         [Fact]
         public void WhenCheckingOutAFileFileSmudgeWritesCorrectFileToWorkingDirectory()
         {
-            const string decodedInput = "This is a substitution cipher";
-            const string encodedInput = "Guvf vf n fhofgvghgvba pvcure";
-
-            const string branchName = "branch";
             string repoPath = InitNewRepository();
 
-            Action<Stream, Stream> smudgeCallback = SubstitutionCipherFilter.RotateByThirteenPlaces;
-
-            var filter = new FakeFilter(FilterName, attributes, null, smudgeCallback);
-            var registration = GlobalSettings.RegisterFilter(filter);
+            var registration = GlobalSettings.RegisterFilter<SubstitutionCipherFilter>(FilterName, FilterAttribute);
 
             try
             {
-                FileInfo expectedFile = CheckoutFileForSmudge(repoPath, branchName, encodedInput);
+                using (var repo = CreateTestRepository(repoPath))
+                {
+                    FileInfo expectedFile = StageNewTxtFile(repo, DecodedInput);
+                    var commit = repo.Commit("Clean that file");
 
-                string combine = Path.Combine(repoPath, "..", expectedFile.Name);
-                string readAllText = File.ReadAllText(combine);
-                Assert.Equal(decodedInput, readAllText);
+                    var blob = (Blob)commit.Tree[expectedFile.Name].Target;
+
+                    var textDetected = blob.GetContentText();
+                    Assert.Equal(EncodedInput, textDetected);
+                }
             }
             finally
             {
-                GlobalSettings.DeregisterFilter(registration);
+                GlobalSettings.UnregisterFilter(registration);
             }
         }
 
@@ -210,8 +198,7 @@ namespace LibGit2Sharp.Tests
 
             string repoPath = InitNewRepository();
 
-            var filter = new FileExportFilter(FilterName, attributes);
-            var registration = GlobalSettings.RegisterFilter(filter);
+            var registration = GlobalSettings.RegisterFilter<FileExportFilter>(FilterName, FilterAttribute);
 
             try
             {
@@ -265,7 +252,7 @@ namespace LibGit2Sharp.Tests
             }
             finally
             {
-                GlobalSettings.DeregisterFilter(registration);
+                GlobalSettings.UnregisterFilter(registration);
             }
         }
 
@@ -274,24 +261,28 @@ namespace LibGit2Sharp.Tests
         {
             Assert.Equal(0, GlobalSettings.GetRegisteredFilters().Count());
 
-            var filter = new EmptyFilter(FilterName, attributes);
-            var registration = GlobalSettings.RegisterFilter(filter);
+            var registration = GlobalSettings.RegisterFilter<EmptyFilter>(FilterName, FilterAttribute);
+            try
+            {
+                Assert.Throws<EntryExistsException>(() => { GlobalSettings.RegisterFilter<EmptyFilter>(FilterName, FilterAttribute); });
+                Assert.Equal(1, GlobalSettings.GetRegisteredFilters().Count());
 
-            Assert.Throws<EntryExistsException>(() => { GlobalSettings.RegisterFilter(filter); });
-            Assert.Equal(1, GlobalSettings.GetRegisteredFilters().Count());
+                Assert.True(registration.IsValid, "FilterRegistration.IsValid should be true.");
+            }
+            finally
+            {
+                GlobalSettings.UnregisterFilter(registration);
+            }
 
-            Assert.True(registration.IsValid, "FilterRegistration.IsValid should be true.");
-
-            GlobalSettings.DeregisterFilter(registration);
             Assert.Equal(0, GlobalSettings.GetRegisteredFilters().Count());
-
             Assert.False(registration.IsValid, "FilterRegistration.IsValid should be false.");
 
-            GlobalSettings.DeregisterFilter(registration);
+            GlobalSettings.UnregisterFilter(registration);
             Assert.Equal(0, GlobalSettings.GetRegisteredFilters().Count());
 
             Assert.False(registration.IsValid, "FilterRegistration.IsValid should be false.");
         }
+
 
         private unsafe bool CharArrayAreEqual(char[] array1, char[] array2, int count)
         {
@@ -339,36 +330,7 @@ namespace LibGit2Sharp.Tests
             return true;
         }
 
-
-        private FileInfo CheckoutFileForSmudge(string repoPath, string branchName, string content)
-        {
-            FileInfo expectedPath;
-            using (var repo = CreateTestRepository(repoPath))
-            {
-                StageNewFile(repo, content);
-
-                repo.Commit("Initial commit");
-
-                expectedPath = CommitFileOnBranch(repo, branchName, content);
-
-                repo.Checkout("master");
-
-                repo.Checkout(branchName);
-            }
-            return expectedPath;
-        }
-
-        private static FileInfo CommitFileOnBranch(Repository repo, string branchName, String content)
-        {
-            var branch = repo.CreateBranch(branchName);
-            repo.Checkout(branch.FriendlyName);
-
-            FileInfo expectedPath = StageNewFile(repo, content);
-            repo.Commit("Commit");
-            return expectedPath;
-        }
-
-        private static FileInfo StageNewFile(IRepository repo, string contents = "null")
+        private static FileInfo StageNewTxtFile(IRepository repo, string contents = "null")
         {
             string newFilePath = Touch(repo.Info.WorkingDirectory, Guid.NewGuid() + ".txt", contents);
             var stageNewFile = new FileInfo(newFilePath);
@@ -392,62 +354,45 @@ namespace LibGit2Sharp.Tests
 
         class EmptyFilter : Filter
         {
-            public EmptyFilter(string name, IEnumerable<FilterAttributeEntry> attributes)
-                : base(name, attributes)
+            public EmptyFilter()
+                : base()
             { }
         }
 
         class FakeFilter : Filter
         {
-            private readonly Action<Stream, Stream> cleanCallback;
-            private readonly Action<Stream, Stream> smudgeCallback;
-            private readonly Action initCallback;
+            public static int CleanCallCount = 0;
+            public static int InitializeCallCount = 0;
+            public static int SmudgeCallCount = 0;
 
-            public FakeFilter(string name, IEnumerable<FilterAttributeEntry> attributes,
-                Action<Stream, Stream> cleanCallback = null,
-                Action<Stream, Stream> smudgeCallback = null,
-                Action initCallback = null)
-                : base(name, attributes)
+            public static void Initialize()
             {
-                this.cleanCallback = cleanCallback;
-                this.smudgeCallback = smudgeCallback;
-                this.initCallback = initCallback;
+                InitializeCallCount++;
             }
 
-            protected override void Clean(string path, string root, Stream input, Stream output)
+            public static void Clear()
             {
-                if (cleanCallback == null)
-                {
-                    base.Clean(path, root, input, output);
-                }
-                else
-                {
-                    cleanCallback(input, output);
-                }
+                CleanCallCount = 0;
+                InitializeCallCount = 0;
+                SmudgeCallCount = 0;
             }
 
-            protected override void Smudge(string path, string root, Stream input, Stream output)
-            {
-                if (smudgeCallback == null)
-                {
-                    base.Smudge(path, root, input, output);
-                }
-                else
-                {
-                    smudgeCallback(input, output);
-                }
-            }
+            public FakeFilter() { }
 
-            protected override void Initialize()
+            protected override void Apply(string path, string root, Stream input, Stream output, FilterMode mode, string verb)
             {
-                if (initCallback == null)
+                switch (mode)
                 {
-                    base.Initialize();
+                    case FilterMode.Clean:
+                        CleanCallCount++;
+                        break;
+
+                    case FilterMode.Smudge:
+                        SmudgeCallCount++;
+                        break;
                 }
-                else
-                {
-                    initCallback();
-                }
+
+                base.Apply(path, root, input, output, FilterMode.Clean, verb);
             }
         }
     }

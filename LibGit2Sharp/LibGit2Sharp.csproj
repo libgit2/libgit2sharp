@@ -100,7 +100,6 @@
     <Compile Include="IBelongToARepository.cs" />
     <Compile Include="Identity.cs" />
     <Compile Include="Core\GitFilter.cs" />
-    <Compile Include="FilterAttributeEntry.cs" />
     <Compile Include="FilterMode.cs" />
     <Compile Include="FilterRegistration.cs" />
     <Compile Include="FilterSource.cs" />
