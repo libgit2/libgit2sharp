@@ -100,7 +100,7 @@ before_build:
 
 build_script:
 - ps: |
-    & cov-build.exe --dir cov-int msbuild "$Env:APPVEYOR_BUILD_FOLDER\LibGit2Sharp.sln" `
+    & msbuild "$Env:APPVEYOR_BUILD_FOLDER\LibGit2Sharp.sln" `
       /verbosity:normal `
       /p:Configuration=Release `
       /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" `
