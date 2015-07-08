@@ -227,6 +227,21 @@ namespace LibGit2Sharp
         MergeResult Merge(string committish, Signature merger, MergeOptions options);
 
         /// <summary>
+        /// Analyze the possibilities of updating HEAD with the given commit(s).
+        /// </summary>
+        /// <param name="commits">Commits to merge into HEAD</param>
+        /// <returns>Which update methods are possible and which preference the user has specified</returns>
+        MergeAnalysisResult AnalyzeMerge(params Commit[] commits);
+
+
+        /// <summary>
+        /// Analyze the possibilities of updating HEAD with the given reference(s)
+        /// </summary>
+        /// <param name="references">References to merge into HEAD</param>
+        /// <returns>Which update methods are possible and which preference the user has specified</returns>
+        MergeAnalysisResult AnalyzeMerge(params Reference[] references);
+
+        /// <summary>
         /// Access to Rebase functionality.
         /// </summary>
         Rebase Rebase { get; }

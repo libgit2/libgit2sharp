@@ -119,10 +119,13 @@
     <Compile Include="IndexReucEntry.cs" />
     <Compile Include="IndexReucEntryCollection.cs" />
     <Compile Include="IndexNameEntry.cs" />
+    <Compile Include="MergeAnalysis.cs" />
+    <Compile Include="MergeAnalysisResult.cs" />
     <Compile Include="MergeAndCheckoutOptionsBase.cs" />
     <Compile Include="CheckoutConflictException.cs" />
     <Compile Include="MergeOptions.cs" />
     <Compile Include="MergeOptionsBase.cs" />
+    <Compile Include="MergePreference.cs" />
     <Compile Include="MergeResult.cs" />
     <Compile Include="MergeTreeOptions.cs" />
     <Compile Include="MergeTreeResult.cs" />
@@ -355,6 +358,7 @@
     <Compile Include="Commands\Stage.cs" />
     <Compile Include="Commands\Remove.cs" />
     <Compile Include="Commands\Checkout.cs" />
+    <Compile Include="Core\DisposableArray.cs" />
   </ItemGroup>
   <ItemGroup>
     <CodeAnalysisDictionary Include="CustomDictionary.xml" />
