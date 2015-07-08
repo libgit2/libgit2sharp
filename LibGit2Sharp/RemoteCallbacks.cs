@@ -253,7 +253,12 @@ namespace LibGit2Sharp
             return Proxy.ConvertResultToCancelFlag(shouldContinue);
         }
 
-        private int GitCredentialHandler(out IntPtr ptr, IntPtr cUrl, IntPtr usernameFromUrl, GitCredentialType credTypes, IntPtr payload)
+        private int GitCredentialHandler(
+            out IntPtr ptr, 
+            IntPtr cUrl, 
+            IntPtr usernameFromUrl, 
+            GitCredentialType credTypes, 
+            IntPtr payload)
         {
             string url = LaxUtf8Marshaler.FromNative(cUrl);
             string username = LaxUtf8Marshaler.FromNative(usernameFromUrl);

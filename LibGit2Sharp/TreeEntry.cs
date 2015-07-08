@@ -84,10 +84,9 @@ namespace LibGit2Sharp
                     return GitObject.BuildFrom(repo, targetOid, TargetType.ToGitObjectType(), Path);
 
                 default:
-                    throw new InvalidOperationException(
-                        string.Format(CultureInfo.InvariantCulture,
-                                      "TreeEntry target of type '{0}' is not supported.",
-                                      TargetType));
+                    throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture,
+                                                                      "TreeEntry target of type '{0}' is not supported.",
+                                                                      TargetType));
             }
         }
 

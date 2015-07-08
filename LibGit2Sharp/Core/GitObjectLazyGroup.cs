@@ -26,7 +26,9 @@ namespace LibGit2Sharp.Core
             return Singleton(() =>
             {
                 using (var osw = new ObjectSafeWrapper(id, repo.Handle))
+                {
                     return resultSelector(osw.ObjectPtr);
+                }
             });
         }
     }

@@ -210,7 +210,7 @@ namespace LibGit2Sharp
         {
             Func<DiffSafeHandle, object> builder;
 
-            if (!ChangesBuilders.TryGetValue(typeof (T), out builder))
+            if (!ChangesBuilders.TryGetValue(typeof(T), out builder))
             {
                 throw new LibGit2SharpException(CultureInfo.InvariantCulture,
                                                 "Unexpected type '{0}' passed to Compare. Supported values are either '{1}' or '{2}'.",
@@ -228,15 +228,13 @@ namespace LibGit2Sharp
             {
                 diffOptions |= DiffModifiers.DisablePathspecMatch;
 
-                if (explicitPathsOptions.ShouldFailOnUnmatchedPath ||
-                    explicitPathsOptions.OnUnmatchedPath != null)
+                if (explicitPathsOptions.ShouldFailOnUnmatchedPath || explicitPathsOptions.OnUnmatchedPath != null)
                 {
                     diffOptions |= DiffModifiers.IncludeUnmodified;
                 }
             }
 
-            using (DiffSafeHandle diff = BuildDiffList(oldTreeId, newTreeId, comparer,
-                diffOptions, paths, explicitPathsOptions, compareOptions))
+            using (DiffSafeHandle diff = BuildDiffList(oldTreeId, newTreeId, comparer, diffOptions, paths, explicitPathsOptions, compareOptions))
             {
                 return (T)builder(diff);
             }
@@ -323,7 +321,7 @@ namespace LibGit2Sharp
         {
             Func<DiffSafeHandle, object> builder;
 
-            if (!ChangesBuilders.TryGetValue(typeof (T), out builder))
+            if (!ChangesBuilders.TryGetValue(typeof(T), out builder))
             {
                 throw new LibGit2SharpException(CultureInfo.InvariantCulture,
                                                 "Unexpected type '{0}' passed to Compare. Supported values are either '{1}' or '{2}'.",
@@ -343,15 +341,13 @@ namespace LibGit2Sharp
             {
                 diffOptions |= DiffModifiers.DisablePathspecMatch;
 
-                if (explicitPathsOptions.ShouldFailOnUnmatchedPath ||
-                    explicitPathsOptions.OnUnmatchedPath != null)
+                if (explicitPathsOptions.ShouldFailOnUnmatchedPath || explicitPathsOptions.OnUnmatchedPath != null)
                 {
                     diffOptions |= DiffModifiers.IncludeUnmodified;
                 }
             }
 
-            using (DiffSafeHandle diff = BuildDiffList(oldTreeId, null, comparer,
-                diffOptions, paths, explicitPathsOptions, compareOptions))
+            using (DiffSafeHandle diff = BuildDiffList(oldTreeId, null, comparer, diffOptions, paths, explicitPathsOptions, compareOptions))
             {
                 return (T)builder(diff);
             }
@@ -421,8 +417,7 @@ namespace LibGit2Sharp
         /// <typeparam name="T">Can be either a <see cref="TreeChanges"/> if you are only interested in the list of files modified, added, ..., or
         /// a <see cref="Patch"/> if you want the actual patch content for the whole diff and for individual files.</typeparam>
         /// <returns>A <typeparamref name="T"/> containing the changes between the working directory and the index.</returns>
-        public virtual T Compare<T>(IEnumerable<string> paths, bool includeUntracked,
-            ExplicitPathsOptions explicitPathsOptions) where T : class
+        public virtual T Compare<T>(IEnumerable<string> paths, bool includeUntracked, ExplicitPathsOptions explicitPathsOptions) where T : class
         {
             return Compare<T>(includeUntracked ? DiffModifiers.IncludeUntracked : DiffModifiers.None, paths, explicitPathsOptions);
         }
@@ -444,18 +439,24 @@ namespace LibGit2Sharp
         /// <typeparam name="T">Can be either a <see cref="TreeChanges"/> if you are only interested in the list of files modified, added, ..., or
         /// a <see cref="Patch"/> if you want the actual patch content for the whole diff and for individual files.</typeparam>
         /// <returns>A <typeparamref name="T"/> containing the changes between the working directory and the index.</returns>
-        public virtual T Compare<T>(IEnumerable<string> paths, bool includeUntracked, ExplicitPathsOptions explicitPathsOptions,
+        public virtual T Compare<T>(
+            IEnumerable<string> paths,
+            bool includeUntracked,
+            ExplicitPathsOptions explicitPathsOptions,
             CompareOptions compareOptions) where T : class
         {
             return Compare<T>(includeUntracked ? DiffModifiers.IncludeUntracked : DiffModifiers.None, paths, explicitPathsOptions, compareOptions);
         }
 
-        internal virtual T Compare<T>(DiffModifiers diffOptions, IEnumerable<string> paths = null,
-                                     ExplicitPathsOptions explicitPathsOptions = null, CompareOptions compareOptions = null) where T : class
+        internal virtual T Compare<T>(
+            DiffModifiers diffOptions,
+            IEnumerable<string> paths = null,
+            ExplicitPathsOptions explicitPathsOptions = null,
+            CompareOptions compareOptions = null) where T : class
         {
             Func<DiffSafeHandle, object> builder;
 
-            if (!ChangesBuilders.TryGetValue(typeof (T), out builder))
+            if (!ChangesBuilders.TryGetValue(typeof(T), out builder))
             {
                 throw new LibGit2SharpException(CultureInfo.InvariantCulture,
                                                 "Unexpected type '{0}' passed to Compare. Supported values are either '{1}' or '{2}'.",
@@ -470,15 +471,13 @@ namespace LibGit2Sharp
             {
                 diffOptions |= DiffModifiers.DisablePathspecMatch;
 
-                if (explicitPathsOptions.ShouldFailOnUnmatchedPath ||
-                    explicitPathsOptions.OnUnmatchedPath != null)
+                if (explicitPathsOptions.ShouldFailOnUnmatchedPath || explicitPathsOptions.OnUnmatchedPath != null)
                 {
                     diffOptions |= DiffModifiers.IncludeUnmodified;
                 }
             }
 
-            using (DiffSafeHandle diff = BuildDiffList(null, null, comparer,
-                diffOptions, paths, explicitPathsOptions, compareOptions))
+            using (DiffSafeHandle diff = BuildDiffList(null, null, comparer, diffOptions, paths, explicitPathsOptions, compareOptions))
             {
                 return (T)builder(diff);
             }
@@ -523,8 +522,13 @@ namespace LibGit2Sharp
             return (oh, nh, o) => Proxy.git_diff_tree_to_index(repo.Handle, repo.Index.Handle, oh, o);
         }
 
-        private DiffSafeHandle BuildDiffList(ObjectId oldTreeId, ObjectId newTreeId, TreeComparisonHandleRetriever comparisonHandleRetriever,
-            DiffModifiers diffOptions, IEnumerable<string> paths, ExplicitPathsOptions explicitPathsOptions,
+        private DiffSafeHandle BuildDiffList(
+            ObjectId oldTreeId,
+            ObjectId newTreeId,
+            TreeComparisonHandleRetriever comparisonHandleRetriever,
+            DiffModifiers diffOptions,
+            IEnumerable<string> paths,
+            ExplicitPathsOptions explicitPathsOptions,
             CompareOptions compareOptions)
         {
             var matchedPaths = new MatchedPathsAggregator();
@@ -556,8 +560,7 @@ namespace LibGit2Sharp
         private static void DetectRenames(DiffSafeHandle diffList, CompareOptions compareOptions)
         {
             var similarityOptions = (compareOptions == null) ? null : compareOptions.Similarity;
-            if (similarityOptions == null ||
-                similarityOptions.RenameDetectionMode == RenameDetectionMode.Default)
+            if (similarityOptions == null || similarityOptions.RenameDetectionMode == RenameDetectionMode.Default)
             {
                 Proxy.git_diff_find_similar(diffList, null);
                 return;
@@ -620,9 +623,10 @@ namespace LibGit2Sharp
             Proxy.git_diff_find_similar(diffList, opts);
         }
 
-        private static void DispatchUnmatchedPaths(ExplicitPathsOptions explicitPathsOptions,
-                                                       IEnumerable<FilePath> filePaths,
-                                                       IEnumerable<FilePath> matchedPaths)
+        private static void DispatchUnmatchedPaths(
+            ExplicitPathsOptions explicitPathsOptions,
+            IEnumerable<FilePath> filePaths,
+            IEnumerable<FilePath> matchedPaths)
         {
             List<FilePath> unmatchedPaths = (filePaths != null ?
                 filePaths.Except(matchedPaths) : Enumerable.Empty<FilePath>()).ToList();

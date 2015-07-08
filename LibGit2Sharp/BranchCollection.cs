@@ -92,7 +92,8 @@ namespace LibGit2Sharp
         public virtual IEnumerator<Branch> GetEnumerator()
         {
             return Proxy.git_branch_iterator(repo, GitBranchType.GIT_BRANCH_ALL)
-                        .ToList().GetEnumerator();
+                        .ToList()
+                        .GetEnumerator();
         }
 
         /// <summary>
@@ -154,7 +155,8 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
             Ensure.ArgumentNotNullOrEmptyString(committish, "committish");
 
-            using (Proxy.git_branch_create_from_annotated(repo.Handle, name, committish, allowOverwrite)) { }
+            using (Proxy.git_branch_create_from_annotated(repo.Handle, name, committish, allowOverwrite))
+            { }
 
             var branch = this[ShortToLocalName(name)];
             return branch;
@@ -269,8 +271,7 @@ namespace LibGit2Sharp
             using (ReferenceSafeHandle referencePtr = repo.Refs.RetrieveReferencePtr(Reference.LocalBranchPrefix + branch.FriendlyName))
             {
                 using (Proxy.git_branch_move(referencePtr, newName, allowOverwrite))
-                {
-                }
+                { }
             }
 
             var newBranch = this[newName];
@@ -304,11 +305,7 @@ namespace LibGit2Sharp
 
         private string DebuggerDisplay
         {
-            get
-            {
-                return string.Format(CultureInfo.InvariantCulture,
-                    "Count = {0}", this.Count());
-            }
+            get { return string.Format(CultureInfo.InvariantCulture, "Count = {0}", this.Count()); }
         }
     }
 }

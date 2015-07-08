@@ -173,7 +173,7 @@ namespace LibGit2Sharp.Core
             return new RawContentStream(handle, NativeMethods.git_blob_rawcontent, h => size);
         }
 
-        public static Int64 git_blob_rawsize(GitObjectSafeHandle obj)
+        public static long git_blob_rawsize(GitObjectSafeHandle obj)
         {
             return NativeMethods.git_blob_rawsize(obj);
         }
@@ -211,21 +211,19 @@ namespace LibGit2Sharp.Core
 
         public static IEnumerable<Branch> git_branch_iterator(Repository repo, GitBranchType branchType)
         {
-            return git_iterator(
-                (out BranchIteratorSafeHandle iter_out) =>
-                NativeMethods.git_branch_iterator_new(out iter_out, repo.Handle, branchType),
-                (BranchIteratorSafeHandle iter, out ReferenceSafeHandle ref_out, out int res) =>
-                    {
-                        GitBranchType type_out;
-                        res = NativeMethods.git_branch_next(out ref_out, out type_out, iter);
-                        return new { BranchType = type_out };
-                    },
-                (handle, payload) =>
-                    {
-                        var reference = Reference.BuildFromPtr<Reference>(handle, repo);
-                        return new Branch(repo, reference, reference.CanonicalName);
-                    }
-                );
+            return git_iterator((out BranchIteratorSafeHandle iter_out) =>
+                                    NativeMethods.git_branch_iterator_new(out iter_out, repo.Handle, branchType),
+                                (BranchIteratorSafeHandle iter, out ReferenceSafeHandle ref_out, out int res) =>
+                                    {
+                                        GitBranchType type_out;
+                                        res = NativeMethods.git_branch_next(out ref_out, out type_out, iter);
+                                        return new { BranchType = type_out };
+                                    },
+                                (handle, payload) =>
+                                    {
+                                        var reference = Reference.BuildFromPtr<Reference>(handle, repo);
+                                        return new Branch(repo, reference, reference.CanonicalName);
+                                    });
         }
 
         public static void git_branch_iterator_free(IntPtr iter)
@@ -362,10 +360,16 @@ namespace LibGit2Sharp.Core
 
                 var treeOid = tree.Id.Oid;
 
-                int res = NativeMethods.git_commit_create_from_ids(
-                    out commitOid, repo, referenceName, authorHandle,
-                    committerHandle, null, message,
-                    ref treeOid, (UIntPtr)parentPtrs.Count, parentPtrs.ToArray());
+                int res = NativeMethods.git_commit_create_from_ids(out commitOid,
+                                                                   repo,
+                                                                   referenceName,
+                                                                   authorHandle,
+                                                                   committerHandle,
+                                                                   null,
+                                                                   message,
+                                                                   ref treeOid,
+                                                                   (UIntPtr)parentPtrs.Count,
+                                                                   parentPtrs.ToArray());
 
                 Ensure.ZeroResult(res);
 
@@ -503,8 +507,8 @@ namespace LibGit2Sharp.Core
             }
 
             return new ConfigurationEntry<T>(LaxUtf8Marshaler.FromNative(entry.namePtr),
-                (T)configurationParser[typeof(T)](LaxUtf8Marshaler.FromNative(entry.valuePtr)),
-                (ConfigurationLevel)entry.level);
+                                             (T)configurationParser[typeof(T)](LaxUtf8Marshaler.FromNative(entry.valuePtr)),
+                                             (ConfigurationLevel)entry.level);
         }
 
         public static ConfigurationSafeHandle git_config_new()
@@ -594,19 +598,18 @@ namespace LibGit2Sharp.Core
             string regexp,
             Func<IntPtr, ConfigurationEntry<string>> resultSelector)
         {
-            return git_iterator(
-                (out ConfigurationIteratorSafeHandle iter) =>
-                NativeMethods.git_config_iterator_glob_new(out iter, config, regexp),
-                (ConfigurationIteratorSafeHandle iter, out SafeHandleBase handle, out int res) =>
-                    {
-                        handle = null;
+            return git_iterator((out ConfigurationIteratorSafeHandle iter) =>
+                                    NativeMethods.git_config_iterator_glob_new(out iter, config, regexp),
+                                (ConfigurationIteratorSafeHandle iter, out SafeHandleBase handle, out int res) =>
+                                    {
+                                        handle = null;
 
-                        IntPtr entry;
-                        res = NativeMethods.git_config_next(out entry, iter);
-                        return new { EntryPtr = entry };
-                    },
-                (handle, payload) => resultSelector(payload.EntryPtr)
-                );
+                                        IntPtr entry;
+                                        res = NativeMethods.git_config_next(out entry, iter);
+                                        return new { EntryPtr = entry };
+                                    },
+                                (handle, payload) =>
+                                    resultSelector(payload.EntryPtr));
         }
 
         public static void git_config_iterator_free(IntPtr iter)
@@ -632,8 +635,7 @@ namespace LibGit2Sharp.Core
             ObjectId committishId,
             DescribeOptions options)
         {
-            Ensure.ArgumentPositiveInt32(options.MinimumCommitIdAbbreviatedSize,
-                "options.MinimumCommitIdAbbreviatedSize");
+            Ensure.ArgumentPositiveInt32(options.MinimumCommitIdAbbreviatedSize, "options.MinimumCommitIdAbbreviatedSize");
 
             using (var osw = new ObjectSafeWrapper(committishId, repo))
             {
@@ -700,9 +702,16 @@ namespace LibGit2Sharp.Core
             using (var osw1 = new ObjectSafeWrapper(oldBlob, repo, true))
             using (var osw2 = new ObjectSafeWrapper(newBlob, repo, true))
             {
-                int res = NativeMethods.git_diff_blobs(
-                    osw1.ObjectPtr, null, osw2.ObjectPtr, null,
-                    options, fileCallback, null, hunkCallback, lineCallback, IntPtr.Zero);
+                int res = NativeMethods.git_diff_blobs(osw1.ObjectPtr, 
+                                                       null, 
+                                                       osw2.ObjectPtr, 
+                                                       null, 
+                                                       options, 
+                                                       fileCallback, 
+                                                       null, 
+                                                       hunkCallback, 
+                                                       lineCallback, 
+                                                       IntPtr.Zero);
 
                 Ensure.ZeroResult(res);
             }
@@ -914,8 +923,11 @@ namespace LibGit2Sharp.Core
         {
             IndexEntrySafeHandle ancestor, ours, theirs;
 
-            int res = NativeMethods.git_index_conflict_get(
-                out ancestor, out ours, out theirs, index, path);
+            int res = NativeMethods.git_index_conflict_get(out ancestor,
+                                                           out ours,
+                                                           out theirs,
+                                                           index,
+                                                           path);
 
             if (res == (int)GitErrorCode.NotFound)
             {
@@ -924,10 +936,9 @@ namespace LibGit2Sharp.Core
 
             Ensure.ZeroResult(res);
 
-            return new Conflict(
-                IndexEntry.BuildFromPtr(ancestor),
-                IndexEntry.BuildFromPtr(ours),
-                IndexEntry.BuildFromPtr(theirs));
+            return new Conflict(IndexEntry.BuildFromPtr(ancestor),
+                                IndexEntry.BuildFromPtr(ours),
+                                IndexEntry.BuildFromPtr(theirs));
         }
 
         public static ConflictIteratorSafeHandle git_index_conflict_iterator_new(IndexSafeHandle index)
@@ -956,10 +967,9 @@ namespace LibGit2Sharp.Core
             using (ours)
             using (theirs)
             {
-                return new Conflict(
-                    IndexEntry.BuildFromPtr(ancestor),
-                    IndexEntry.BuildFromPtr(ours),
-                    IndexEntry.BuildFromPtr(theirs));
+                return new Conflict(IndexEntry.BuildFromPtr(ancestor),
+                                    IndexEntry.BuildFromPtr(ours),
+                                    IndexEntry.BuildFromPtr(theirs));
             }
         }
 
@@ -1184,12 +1194,11 @@ namespace LibGit2Sharp.Core
         {
             IntPtr[] their_heads = heads.Select(head => head.DangerousGetHandle()).ToArray();
 
-            int res = NativeMethods.git_merge(
-                repo,
-                their_heads,
-                (UIntPtr)their_heads.Length,
-                ref mergeOptions,
-                ref checkoutOptions);
+            int res = NativeMethods.git_merge(repo,
+                                              their_heads,
+                                              (UIntPtr)their_heads.Length,
+                                              ref mergeOptions,
+                                              ref checkoutOptions);
 
             Ensure.ZeroResult(res);
         }
@@ -1202,12 +1211,11 @@ namespace LibGit2Sharp.Core
         {
             IntPtr[] their_heads = heads.Select(head => head.DangerousGetHandle()).ToArray();
 
-            int res = NativeMethods.git_merge_analysis(
-                out analysis_out,
-                out preference_out,
-                repo,
-                their_heads,
-                their_heads.Length);
+            int res = NativeMethods.git_merge_analysis(out analysis_out,
+                                                       out preference_out,
+                                                       repo,
+                                                       their_heads,
+                                                       their_heads.Length);
 
             Ensure.ZeroResult(res);
         }
@@ -1282,8 +1290,10 @@ namespace LibGit2Sharp.Core
 
         public static ICollection<TResult> git_note_foreach<TResult>(RepositorySafeHandle repo, string notes_ref, Func<GitOid, GitOid, TResult> resultSelector)
         {
-            return git_foreach(resultSelector, c => NativeMethods.git_note_foreach(repo, notes_ref,
-                (ref GitOid x, ref GitOid y, IntPtr p) => c(x, y, p), IntPtr.Zero));
+            return git_foreach(resultSelector, c => NativeMethods.git_note_foreach(repo,
+                                                                                   notes_ref,
+                                                                                   (ref GitOid x, ref GitOid y, IntPtr p) => c(x, y, p),
+                                                                                   IntPtr.Zero));
         }
 
         public static void git_note_free(IntPtr note)
@@ -1425,7 +1435,8 @@ namespace LibGit2Sharp.Core
                 throw new LibGit2SharpException(String.Format(CultureInfo.InvariantCulture,
                                                               "Unable to allocate {0} bytes; out of memory",
                                                               len),
-                                                GitErrorCode.Error, GitErrorCategory.NoMemory);
+                                                GitErrorCode.Error,
+                                                GitErrorCategory.NoMemory);
             }
 
             return toReturn;
@@ -1457,12 +1468,10 @@ namespace LibGit2Sharp.Core
             ObjectDatabaseSafeHandle odb,
             Func<IntPtr, TResult> resultSelector)
         {
-            return git_foreach(
-                resultSelector,
-                c => NativeMethods.git_odb_foreach(
-                    odb,
-                    (x, p) => c(x, p),
-                    IntPtr.Zero));
+            return git_foreach(resultSelector,
+                               c => NativeMethods.git_odb_foreach(odb,
+                                                                  (x, p) => c(x, p),
+                                                                  IntPtr.Zero));
         }
 
         public static OdbStreamSafeHandle git_odb_open_wstream(ObjectDatabaseSafeHandle odb, long size, GitObjectType type)
@@ -1710,7 +1719,11 @@ namespace LibGit2Sharp.Core
 
         #region git_reference_
 
-        public static ReferenceSafeHandle git_reference_create(RepositorySafeHandle repo, string name, ObjectId targetId, bool allowOverwrite,
+        public static ReferenceSafeHandle git_reference_create(
+            RepositorySafeHandle repo,
+            string name,
+            ObjectId targetId,
+            bool allowOverwrite,
             string logMessage)
         {
             GitOid oid = targetId.Oid;
@@ -1722,7 +1735,11 @@ namespace LibGit2Sharp.Core
             return handle;
         }
 
-        public static ReferenceSafeHandle git_reference_symbolic_create(RepositorySafeHandle repo, string name, string target, bool allowOverwrite,
+        public static ReferenceSafeHandle git_reference_symbolic_create(
+            RepositorySafeHandle repo,
+            string name,
+            string target,
+            bool allowOverwrite,
             string logMessage)
         {
             ReferenceSafeHandle handle;
@@ -1802,7 +1819,10 @@ namespace LibGit2Sharp.Core
             return NativeMethods.git_reference_target(reference).MarshalAsObjectId();
         }
 
-        public static ReferenceSafeHandle git_reference_rename(ReferenceSafeHandle reference, string newName, bool allowOverwrite,
+        public static ReferenceSafeHandle git_reference_rename(
+            ReferenceSafeHandle reference,
+            string newName,
+            bool allowOverwrite,
             string logMessage)
         {
             ReferenceSafeHandle ref_out;
@@ -2195,16 +2215,14 @@ namespace LibGit2Sharp.Core
 
             try
             {
-                int res = NativeMethods.git_remote_rename(
-                    ref array.Array,
-                    repo,
-                    name,
-                    new_name);
+                int res = NativeMethods.git_remote_rename(ref array.Array,
+                                                          repo,
+                                                          name,
+                                                          new_name);
 
                 if (res == (int)GitErrorCode.NotFound)
                 {
-                    throw new NotFoundException(
-                        string.Format("Remote '{0}' does not exist and cannot be renamed.", name));
+                    throw new NotFoundException(string.Format("Remote '{0}' does not exist and cannot be renamed.", name));
                 }
 
                 Ensure.ZeroResult(res);
@@ -2253,13 +2271,12 @@ namespace LibGit2Sharp.Core
             RepositorySafeHandle repo,
             Func<string, string, GitOid, bool, TResult> resultSelector)
         {
-            return git_foreach(
-                resultSelector,
-                c => NativeMethods.git_repository_fetchhead_foreach(
-                    repo,
-                    (IntPtr w, IntPtr x, ref GitOid y, bool z, IntPtr p)
-                        => c(LaxUtf8Marshaler.FromNative(w), LaxUtf8Marshaler.FromNative(x), y, z, p), IntPtr.Zero),
-                    GitErrorCode.NotFound);
+            return git_foreach(resultSelector,
+                               c => NativeMethods.git_repository_fetchhead_foreach(repo,
+                                                                                   (IntPtr w, IntPtr x, ref GitOid y, bool z, IntPtr p)
+                                                                                       => c(LaxUtf8Marshaler.FromNative(w), LaxUtf8Marshaler.FromNative(x), y, z, p),
+                                                                                   IntPtr.Zero),
+                               GitErrorCode.NotFound);
         }
 
         public static void git_repository_free(IntPtr repo)
@@ -2316,11 +2333,10 @@ namespace LibGit2Sharp.Core
             RepositorySafeHandle repo,
             Func<GitOid, TResult> resultSelector)
         {
-            return git_foreach(
-                resultSelector,
-                c => NativeMethods.git_repository_mergehead_foreach(
-                    repo, (ref GitOid x, IntPtr p) => c(x, p), IntPtr.Zero),
-                GitErrorCode.NotFound);
+            return git_foreach(resultSelector,
+                               c => NativeMethods.git_repository_mergehead_foreach(repo,
+                                                                                   (ref GitOid x, IntPtr p) => c(x, p), IntPtr.Zero),
+                               GitErrorCode.NotFound);
         }
 
         public static string git_repository_message(RepositorySafeHandle repo)
@@ -2355,7 +2371,8 @@ namespace LibGit2Sharp.Core
             if (res == (int)GitErrorCode.NotFound)
             {
                 throw new RepositoryNotFoundException(String.Format(CultureInfo.InvariantCulture,
-                    "Path '{0}' doesn't point at a valid Git repository or workdir.", path));
+                                                                    "Path '{0}' doesn't point at a valid Git repository or workdir.",
+                                                                    path));
             }
 
             Ensure.ZeroResult(res);
@@ -2385,7 +2402,8 @@ namespace LibGit2Sharp.Core
             if (res == (int)GitErrorCode.NotFound)
             {
                 throw new RepositoryNotFoundException(String.Format(CultureInfo.InvariantCulture,
-                    "Path '{0}' doesn't point at a valid Git repository or workdir.", path));
+                                                                    "Path '{0}' doesn't point at a valid Git repository or workdir.",
+                                                                    path));
             }
 
             Ensure.ZeroResult(res);
@@ -2659,11 +2677,12 @@ namespace LibGit2Sharp.Core
             RepositorySafeHandle repo,
             Func<int, IntPtr, GitOid, TResult> resultSelector)
         {
-            return git_foreach(
-                resultSelector,
-                c => NativeMethods.git_stash_foreach(
-                    repo, (UIntPtr i, IntPtr m, ref GitOid x, IntPtr p) => c((int)i, m, x, p), IntPtr.Zero),
-                GitErrorCode.NotFound);
+            return git_foreach(resultSelector,
+                               c => NativeMethods.git_stash_foreach(repo,
+                                                                    (UIntPtr i, IntPtr m, ref GitOid x, IntPtr p) 
+                                                                        => c((int)i, m, x, p), 
+                                                                    IntPtr.Zero),
+                               GitErrorCode.NotFound);
         }
 
         public static void git_stash_drop(RepositorySafeHandle repo, int index)
@@ -2726,7 +2745,8 @@ namespace LibGit2Sharp.Core
                 case (int)GitErrorCode.Ambiguous:
                     throw new AmbiguousSpecificationException(CultureInfo.InvariantCulture,
                                                               "More than one file matches the pathspec '{0}'. " +
-                                                              "You can either force a literal path evaluation (GIT_STATUS_OPT_DISABLE_PATHSPEC_MATCH), or use git_status_foreach().",
+                                                              "You can either force a literal path evaluation " + 
+                                                              "(GIT_STATUS_OPT_DISABLE_PATHSPEC_MATCH), or use git_status_foreach().",
                                                               path);
 
                 default:

@@ -123,8 +123,9 @@ namespace LibGit2Sharp
                 if ((State & FileStatus.RenamedInIndex) == FileStatus.RenamedInIndex ||
                     (State & FileStatus.RenamedInWorkdir) == FileStatus.RenamedInWorkdir)
                 {
-                    string oldFilePath = ((State & FileStatus.RenamedInIndex) == FileStatus.RenamedInIndex) ?
-                        HeadToIndexRenameDetails.OldFilePath : IndexToWorkDirRenameDetails.OldFilePath;
+                    string oldFilePath = ((State & FileStatus.RenamedInIndex) != 0)
+                        ? HeadToIndexRenameDetails.OldFilePath
+                        : IndexToWorkDirRenameDetails.OldFilePath;
 
                     return string.Format(CultureInfo.InvariantCulture, "{0}: {1} -> {2}", State, oldFilePath, FilePath);
                 }

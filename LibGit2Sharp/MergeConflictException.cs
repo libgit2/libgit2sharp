@@ -10,6 +10,5 @@ namespace LibGit2Sharp
     [Serializable]
     [Obsolete("This type will be removed in the next release. Please use CheckoutConflictException instead.")]
     public class MergeConflictException : CheckoutConflictException
-    {
-    }
+    { }
 }

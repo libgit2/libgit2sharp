@@ -19,10 +19,10 @@ namespace LibGit2Sharp.Core
         public static GitRepositoryInitOptions BuildFrom(FilePath workdirPath, bool isBare)
         {
             var opts = new GitRepositoryInitOptions
-                           {
-                               Flags = GitRepositoryInitFlags.GIT_REPOSITORY_INIT_MKPATH,
-                               Mode = 0  /* GIT_REPOSITORY_INIT_SHARED_UMASK  */
-                           };
+            {
+                Flags = GitRepositoryInitFlags.GIT_REPOSITORY_INIT_MKPATH,
+                Mode = 0  /* GIT_REPOSITORY_INIT_SHARED_UMASK  */
+            };
 
             if (workdirPath != null)
             {

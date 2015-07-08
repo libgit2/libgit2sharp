@@ -32,16 +32,16 @@ namespace LibGit2Sharp
         private static IDictionary<ChangeKind, Action<TreeChanges, TreeEntryChanges>> Build()
         {
             return new Dictionary<ChangeKind, Action<TreeChanges, TreeEntryChanges>>
-                       {
-                           { ChangeKind.Modified,    (de, d) => de.modified.Add(d) },
-                           { ChangeKind.Deleted,     (de, d) => de.deleted.Add(d) },
-                           { ChangeKind.Added,       (de, d) => de.added.Add(d) },
-                           { ChangeKind.TypeChanged, (de, d) => de.typeChanged.Add(d) },
-                           { ChangeKind.Unmodified,  (de, d) => de.unmodified.Add(d) },
-                           { ChangeKind.Renamed,     (de, d) => de.renamed.Add(d) },
-                           { ChangeKind.Copied,      (de, d) => de.copied.Add(d) },
-                           { ChangeKind.Conflicted,  (de, d) => de.conflicted.Add(d) },
-                       };
+            {
+                { ChangeKind.Modified,    (de, d) => de.modified.Add(d) },
+                { ChangeKind.Deleted,     (de, d) => de.deleted.Add(d) },
+                { ChangeKind.Added,       (de, d) => de.added.Add(d) },
+                { ChangeKind.TypeChanged, (de, d) => de.typeChanged.Add(d) },
+                { ChangeKind.Unmodified,  (de, d) => de.unmodified.Add(d) },
+                { ChangeKind.Renamed,     (de, d) => de.renamed.Add(d) },
+                { ChangeKind.Copied,      (de, d) => de.copied.Add(d) },
+                { ChangeKind.Conflicted,  (de, d) => de.conflicted.Add(d) },
+            };
         }
 
         /// <summary>
@@ -161,9 +161,13 @@ namespace LibGit2Sharp
             get
             {
                 return string.Format(CultureInfo.InvariantCulture,
-                    "+{0} ~{1} -{2} \u00B1{3} R{4} C{5}",
-                    Added.Count(), Modified.Count(), Deleted.Count(),
-                    TypeChanged.Count(), Renamed.Count(), Copied.Count());
+                                     "+{0} ~{1} -{2} \u00B1{3} R{4} C{5}",
+                                     Added.Count(), 
+                                     Modified.Count(), 
+                                     Deleted.Count(),
+                                     TypeChanged.Count(), 
+                                     Renamed.Count(), 
+                                     Copied.Count());
             }
         }
     }

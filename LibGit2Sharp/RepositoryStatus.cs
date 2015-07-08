@@ -34,17 +34,17 @@ namespace LibGit2Sharp
         private static IDictionary<FileStatus, Action<RepositoryStatus, StatusEntry>> Build()
         {
             return new Dictionary<FileStatus, Action<RepositoryStatus, StatusEntry>>
-                       {
-                           { FileStatus.NewInWorkdir, (rs, s) => rs.untracked.Add(s) },
-                           { FileStatus.ModifiedInWorkdir, (rs, s) => rs.modified.Add(s) },
-                           { FileStatus.DeletedFromWorkdir, (rs, s) => rs.missing.Add(s) },
-                           { FileStatus.NewInIndex, (rs, s) => rs.added.Add(s) },
-                           { FileStatus.ModifiedInIndex, (rs, s) => rs.staged.Add(s) },
-                           { FileStatus.DeletedFromIndex, (rs, s) => rs.removed.Add(s) },
-                           { FileStatus.RenamedInIndex, (rs, s) => rs.renamedInIndex.Add(s) },
-                           { FileStatus.Ignored, (rs, s) => rs.ignored.Add(s) },
-                           { FileStatus.RenamedInWorkdir, (rs, s) => rs.renamedInWorkDir.Add(s) },
-                       };
+            {
+                { FileStatus.NewInWorkdir, (rs, s) => rs.untracked.Add(s) },
+                { FileStatus.ModifiedInWorkdir, (rs, s) => rs.modified.Add(s) },
+                { FileStatus.DeletedFromWorkdir, (rs, s) => rs.missing.Add(s) },
+                { FileStatus.NewInIndex, (rs, s) => rs.added.Add(s) },
+                { FileStatus.ModifiedInIndex, (rs, s) => rs.staged.Add(s) },
+                { FileStatus.DeletedFromIndex, (rs, s) => rs.removed.Add(s) },
+                { FileStatus.RenamedInIndex, (rs, s) => rs.renamedInIndex.Add(s) },
+                { FileStatus.Ignored, (rs, s) => rs.ignored.Add(s) },
+                { FileStatus.RenamedInWorkdir, (rs, s) => rs.renamedInWorkDir.Add(s) },
+            };
         }
 
         /// <summary>
@@ -151,23 +151,23 @@ namespace LibGit2Sharp
 
             if ((gitStatus & FileStatus.RenamedInIndex) == FileStatus.RenamedInIndex)
             {
-                headToIndexRenameDetails = new RenameDetails(
-                    LaxFilePathMarshaler.FromNative(deltaHeadToIndex.OldFile.Path).Native,
-                    LaxFilePathMarshaler.FromNative(deltaHeadToIndex.NewFile.Path).Native,
-                    (int)deltaHeadToIndex.Similarity);
+                headToIndexRenameDetails =
+                    new RenameDetails(LaxFilePathMarshaler.FromNative(deltaHeadToIndex.OldFile.Path).Native,
+                                      LaxFilePathMarshaler.FromNative(deltaHeadToIndex.NewFile.Path).Native,
+                                      (int)deltaHeadToIndex.Similarity);
             }
 
             if ((gitStatus & FileStatus.RenamedInWorkdir) == FileStatus.RenamedInWorkdir)
             {
-                indexToWorkDirRenameDetails = new RenameDetails(
-                    LaxFilePathMarshaler.FromNative(deltaIndexToWorkDir.OldFile.Path).Native,
-                    LaxFilePathMarshaler.FromNative(deltaIndexToWorkDir.NewFile.Path).Native,
-                    (int)deltaIndexToWorkDir.Similarity);
+                indexToWorkDirRenameDetails =
+                    new RenameDetails(LaxFilePathMarshaler.FromNative(deltaIndexToWorkDir.OldFile.Path).Native,
+                                      LaxFilePathMarshaler.FromNative(deltaIndexToWorkDir.NewFile.Path).Native,
+                                      (int)deltaIndexToWorkDir.Similarity);
             }
 
-            var filePath = (deltaIndexToWorkDir != null) ?
-                LaxFilePathMarshaler.FromNative(deltaIndexToWorkDir.NewFile.Path).Native :
-                LaxFilePathMarshaler.FromNative(deltaHeadToIndex.NewFile.Path).Native;
+            var filePath = (deltaIndexToWorkDir != null)
+                ? LaxFilePathMarshaler.FromNative(deltaIndexToWorkDir.NewFile.Path).Native
+                : LaxFilePathMarshaler.FromNative(deltaHeadToIndex.NewFile.Path).Native;
 
             StatusEntry statusEntry = new StatusEntry(filePath, gitStatus, headToIndexRenameDetails, indexToWorkDirRenameDetails);
 
@@ -323,12 +323,15 @@ namespace LibGit2Sharp
         {
             get
             {
-                return string.Format(
-                    CultureInfo.InvariantCulture,
-                    "+{0} ~{1} -{2} | +{3} ~{4} -{5} | i{6}",
-                    Added.Count(), Staged.Count(), Removed.Count(),
-                    Untracked.Count(), Modified.Count(), Missing.Count(),
-                    Ignored.Count());
+                return string.Format(CultureInfo.InvariantCulture,
+                                     "+{0} ~{1} -{2} | +{3} ~{4} -{5} | i{6}",
+                                     Added.Count(),
+                                     Staged.Count(),
+                                     Removed.Count(),
+                                     Untracked.Count(),
+                                     Modified.Count(),
+                                     Missing.Count(),
+                                     Ignored.Count());
             }
         }
     }

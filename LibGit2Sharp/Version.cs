@@ -46,10 +46,7 @@ namespace LibGit2Sharp
         /// <returns>A <see cref="BuiltInFeatures"/> enumeration.</returns>
         public virtual BuiltInFeatures Features
         {
-            get
-            {
-                return Proxy.git_libgit2_features();
-            }
+            get { return Proxy.git_libgit2_features(); }
         }
 
         /// <summary>
@@ -92,14 +89,13 @@ namespace LibGit2Sharp
         {
             string features = Features.ToString();
 
-            return string.Format(
-                CultureInfo.InvariantCulture,
-                "{0}-{1}-{2} ({3} - {4})",
-                InformationalVersion,
-                LibGit2SharpCommitSha,
-                LibGit2CommitSha,
-                Platform.ProcessorArchitecture,
-                features);
+            return string.Format(CultureInfo.InvariantCulture,
+                                 "{0}-{1}-{2} ({3} - {4})",
+                                 InformationalVersion,
+                                 LibGit2SharpCommitSha,
+                                 LibGit2CommitSha,
+                                 Platform.ProcessorArchitecture,
+                                 features);
         }
 
         private string ReadContentFromResource(Assembly assembly, string partialResourceName)

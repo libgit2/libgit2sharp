@@ -75,8 +75,21 @@ namespace LibGit2Sharp.Core
             WriteExtendedHeader(fileNameExtendedHeader, linkExtendedHeader, entrySha, modificationTime);
 
             // Note: in case of links, we won't add a content, but the size in the header will still be != 0. It seems strange, but it seem to be what git.git is doing?
-            WriteHeader(fileNameExtendedHeader.Name, fileNameExtendedHeader.Prefix, modificationTime, (data != null) ? data.Length : 0, mode,
-                userId, groupId, typeflag, linkExtendedHeader.Link, userName, groupName, deviceMajorNumber, deviceMinorNumber);
+            WriteHeader(fileNameExtendedHeader.Name,
+                        fileNameExtendedHeader.Prefix,
+                        modificationTime,
+                        (data != null)
+                            ? data.Length
+                            : 0,
+                        mode,
+                        userId,
+                        groupId,
+                        typeflag,
+                        linkExtendedHeader.Link,
+                        userName,
+                        groupName,
+                        deviceMajorNumber,
+                        deviceMinorNumber);
 
             // folders have no data, and so do links
             if (data != null && !isLink)
@@ -94,7 +107,9 @@ namespace LibGit2Sharp.Core
             {
                 int bytesRead = data.Read(buffer, 0, buffer.Length);
                 if (bytesRead < 0)
+                {
                     throw new IOException("TarWriter unable to read from provided stream");
+                }
 
                 dest.Write(buffer, 0, bytesRead);
                 count -= bytesRead;
@@ -103,7 +118,10 @@ namespace LibGit2Sharp.Core
             {
                 int bytesRead = data.Read(buffer, 0, (int)count);
                 if (bytesRead < 0)
+                {
                     throw new IOException("TarWriter unable to read from provided stream");
+                }
+
                 if (bytesRead == 0)
                 {
                     while (count > 0)
@@ -113,7 +131,9 @@ namespace LibGit2Sharp.Core
                     }
                 }
                 else
+                {
                     dest.Write(buffer, 0, bytesRead);
+                }
             }
         }
 
@@ -143,8 +163,19 @@ namespace LibGit2Sharp.Core
             string deviceMajorNumber,
             string deviceMinorNumber)
         {
-            var tarHeader = new UsTarHeader(fileName, namePrefix, lastModificationTime, count, mode,
-                userId, groupId, typeflag, link, userName, groupName, deviceMajorNumber, deviceMinorNumber);
+            var tarHeader = new UsTarHeader(fileName,
+                                            namePrefix,
+                                            lastModificationTime,
+                                            count,
+                                            mode,
+                                            userId,
+                                            groupId,
+                                            typeflag,
+                                            link,
+                                            userName,
+                                            groupName,
+                                            deviceMajorNumber,
+                                            deviceMinorNumber);
             var header = tarHeader.GetHeaderValue();
             OutStream.Write(header, 0, header.Length);
         }
@@ -168,7 +199,10 @@ namespace LibGit2Sharp.Core
                     if (data.Length > 100)
                     {
                         return new LinkExtendedHeader(link,
-                            string.Format(CultureInfo.InvariantCulture, "see %s.paxheader{0}", entrySha), true);
+                                                      string.Format(CultureInfo.InvariantCulture,
+                                                                    "see %s.paxheader{0}",
+                                                                    entrySha),
+                                                      true);
                     }
 
                     return new LinkExtendedHeader(link, link, false);
@@ -198,8 +232,20 @@ namespace LibGit2Sharp.Core
 
             using (var stream = new MemoryStream(Encoding.ASCII.GetBytes(extHeader)))
             {
-                Write(string.Format(CultureInfo.InvariantCulture, "{0}.paxheader", entrySha), stream, modificationTime, "666".OctalToInt32(),
-                    "0", "0", 'x', "root", "root", "0", "0", entrySha, false);
+                Write(string.Format(CultureInfo.InvariantCulture,
+                                    "{0}.paxheader",
+                                    entrySha),
+                      stream, modificationTime,
+                      "666".OctalToInt32(),
+                      "0",
+                      "0",
+                      'x',
+                      "root",
+                      "root",
+                      "0",
+                      "0",
+                      entrySha,
+                      false);
             }
         }
 
@@ -208,7 +254,9 @@ namespace LibGit2Sharp.Core
             // "%u %s=%s\n"
             int len = key.Length + value.Length + 3;
             for (int i = len; i > 9; i /= 10)
+            {
                 len++;
+            }
 
             return string.Format(CultureInfo.InvariantCulture, "{0} {1}={2}\n", len, key, value);
         }
@@ -410,8 +458,12 @@ namespace LibGit2Sharp.Core
                         return new FileNameExtendedHeader(posixPath, posixPath.Substring(0, position), posixPath.Substring(position, posixPath.Length - position), false);
                     }
 
-                    return new FileNameExtendedHeader(posixPath, string.Empty,
-                        string.Format(CultureInfo.InvariantCulture, "{0}.data", entrySha), true);
+                    return new FileNameExtendedHeader(posixPath,
+                                                      string.Empty,
+                                                      string.Format(CultureInfo.InvariantCulture, 
+                                                                    "{0}.data", 
+                                                                    entrySha), 
+                                                      true);
                 }
 
                 return new FileNameExtendedHeader(posixPath, string.Empty, posixPath, false);

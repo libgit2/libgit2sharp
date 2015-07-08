@@ -10,8 +10,7 @@
         /// By default the revert will be committed if there are no conflicts.
         /// </summary>
         public RevertOptions()
-        {
-        }
+        { }
 
         /// <summary>
         /// When reverting a merge commit, the parent number to consider as

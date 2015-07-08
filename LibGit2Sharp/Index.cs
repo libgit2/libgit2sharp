@@ -245,17 +245,17 @@ namespace LibGit2Sharp
                         continue;
 
                     case ChangeKind.Deleted:
-                        /* Fall through */
                     case ChangeKind.Modified:
-                        AddEntryToTheIndex(
-                            treeEntryChanges.OldPath,
-                            treeEntryChanges.OldOid,
-                            treeEntryChanges.OldMode);
-
+                        AddEntryToTheIndex(treeEntryChanges.OldPath,
+                                           treeEntryChanges.OldOid,
+                                           treeEntryChanges.OldMode);
                         continue;
 
                     default:
-                        throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "Entry '{0}' bears an unexpected ChangeKind '{1}'", treeEntryChanges.Path, treeEntryChanges.Status));
+                        throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture,
+                                                                          "Entry '{0}' bears an unexpected ChangeKind '{1}'",
+                                                                          treeEntryChanges.Path,
+                                                                          treeEntryChanges.Status));
                 }
             }
 
@@ -267,10 +267,7 @@ namespace LibGit2Sharp
         /// </summary>
         public virtual ConflictCollection Conflicts
         {
-            get
-            {
-                return conflicts;
-            }
+            get { return conflicts; }
         }
 
         private void AddEntryToTheIndex(string path, ObjectId id, Mode mode)
@@ -290,8 +287,7 @@ namespace LibGit2Sharp
         {
             get
             {
-                return string.Format(CultureInfo.InvariantCulture,
-                    "Count = {0}", Count);
+                return string.Format(CultureInfo.InvariantCulture, "Count = {0}", Count);
             }
         }
 

@@ -52,13 +52,13 @@ namespace LibGit2Sharp
             FilePath path = LaxFilePathMarshaler.FromNative(entry.Path);
 
             return new IndexEntry
-                       {
-                           Path = path.Native,
-                           Id = entry.Id,
-                           StageLevel = Proxy.git_index_entry_stage(handle),
-                           Mode = (Mode)entry.Mode,
-                           AssumeUnchanged = (GitIndexEntry.GIT_IDXENTRY_VALID & entry.Flags) == GitIndexEntry.GIT_IDXENTRY_VALID
-                       };
+            {
+                Path = path.Native,
+                Id = entry.Id,
+                StageLevel = Proxy.git_index_entry_stage(handle),
+                Mode = (Mode)entry.Mode,
+                AssumeUnchanged = (GitIndexEntry.GIT_IDXENTRY_VALID & entry.Flags) == GitIndexEntry.GIT_IDXENTRY_VALID
+            };
         }
 
         /// <summary>
@@ -117,7 +117,10 @@ namespace LibGit2Sharp
             get
             {
                 return string.Format(CultureInfo.InvariantCulture,
-                    "{0} ({1}) => \"{2}\"", Path, StageLevel, Id.ToString(7));
+                                     "{0} ({1}) => \"{2}\"", 
+                                     Path, 
+                                     StageLevel, 
+                                     Id.ToString(7));
             }
         }
     }

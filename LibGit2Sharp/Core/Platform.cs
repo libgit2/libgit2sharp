@@ -13,10 +13,7 @@ namespace LibGit2Sharp.Core
     {
         public static string ProcessorArchitecture
         {
-            get
-            {
-                return Environment.Is64BitProcess ? "amd64" : "x86";
-            }
+            get { return Environment.Is64BitProcess ? "amd64" : "x86"; }
         }
 
         public static OperatingSystemType OperatingSystem
@@ -29,8 +26,10 @@ namespace LibGit2Sharp.Core
                     case 4:
                     case 128:
                         return OperatingSystemType.Unix;
+
                     case 6:
                         return OperatingSystemType.MacOSX;
+
                     default:
                         return OperatingSystemType.Windows;
                 }

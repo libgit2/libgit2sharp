@@ -262,8 +262,8 @@ namespace LibGit2Sharp.Core
             }
 
             var message = string.Format(CultureInfo.InvariantCulture,
-                "No valid git object identified by '{0}' exists in the repository.",
-                identifier);
+                                        "No valid git object identified by '{0}' exists in the repository.",
+                                        identifier);
 
             if (string.Equals("HEAD", identifier, StringComparison.Ordinal))
             {

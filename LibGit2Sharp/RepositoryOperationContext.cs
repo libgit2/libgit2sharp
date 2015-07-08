@@ -20,8 +20,7 @@
         /// <param name="remoteUrl">The URL that this operation will download from.</param>
         internal RepositoryOperationContext(string repositoryPath, string remoteUrl)
             : this(repositoryPath, remoteUrl, string.Empty, string.Empty, 0)
-        {
-        }
+        { }
 
         /// <summary>
         /// Constructor suitable for use on the sub repositories.
@@ -31,10 +30,11 @@
         /// <param name="parentRepositoryPath">The path to the super repository.</param>
         /// <param name="submoduleName">The logical name of this submodule.</param>
         /// <param name="recursionDepth">The depth of this sub repository from the original super repository.</param>
-        internal RepositoryOperationContext(string repositoryPath,
-                                            string remoteUrl,
-                                            string parentRepositoryPath,
-                                            string submoduleName, int recursionDepth)
+        internal RepositoryOperationContext(
+            string repositoryPath,
+            string remoteUrl,
+            string parentRepositoryPath,
+            string submoduleName, int recursionDepth)
         {
             RepositoryPath = repositoryPath;
             RemoteUrl = remoteUrl;

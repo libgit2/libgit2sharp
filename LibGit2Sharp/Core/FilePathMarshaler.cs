@@ -68,8 +68,9 @@ namespace LibGit2Sharp.Core
 
             if (null == filePath)
             {
-                throw new MarshalDirectiveException(
-                    string.Format(CultureInfo.InvariantCulture, "{0} must be used on a FilePath.", GetType().Name));
+                throw new MarshalDirectiveException(string.Format(CultureInfo.InvariantCulture, 
+                                                    "{0} must be used on a FilePath.", 
+                                                    GetType().Name));
             }
 
             return FromManaged(filePath);

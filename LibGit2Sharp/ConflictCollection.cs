@@ -102,10 +102,10 @@ namespace LibGit2Sharp
                         theirs = entry;
                         break;
                     default:
-                        throw new InvalidOperationException(string.Format(
-                            CultureInfo.InvariantCulture,
-                            "Entry '{0}' bears an unexpected StageLevel '{1}'",
-                            entry.Path, entry.StageLevel));
+                        throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture,
+                                                                          "Entry '{0}' bears an unexpected StageLevel '{1}'",
+                                                                          entry.Path, 
+                                                                          entry.StageLevel));
                 }
             }
 

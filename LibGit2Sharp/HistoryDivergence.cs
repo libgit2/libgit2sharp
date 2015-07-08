@@ -64,10 +64,7 @@ namespace LibGit2Sharp
         /// </summary>
         public virtual Commit CommonAncestor
         {
-            get
-            {
-                return commonAncestor.Value;
-            }
+            get { return commonAncestor.Value; }
         }
     }
 

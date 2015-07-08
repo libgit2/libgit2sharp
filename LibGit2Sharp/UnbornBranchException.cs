@@ -15,8 +15,7 @@ namespace LibGit2Sharp
         /// Initializes a new instance of the <see cref="UnbornBranchException"/> class.
         /// </summary>
         public UnbornBranchException()
-        {
-        }
+        { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="UnbornBranchException"/> class with a specified error message.
@@ -24,8 +23,7 @@ namespace LibGit2Sharp
         /// <param name="message">A message that describes the error.</param>
         public UnbornBranchException(string message)
             : base(message)
-        {
-        }
+        { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="UnbornBranchException"/> class with a specified error message.
@@ -35,8 +33,7 @@ namespace LibGit2Sharp
         /// <param name="args">An object array that contains zero or more objects to format.</param>
         public UnbornBranchException(CultureInfo cultureInfo, string format, params object[] args)
             : base(String.Format(cultureInfo, format, args))
-        {
-        }
+        { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="UnbornBranchException"/> class with a specified error message and a reference to the inner exception that is the cause of this exception.
@@ -45,8 +42,7 @@ namespace LibGit2Sharp
         /// <param name="innerException">The exception that is the cause of the current exception. If the <paramref name="innerException"/> parameter is not a null reference, the current exception is raised in a catch block that handles the inner exception.</param>
         public UnbornBranchException(string message, Exception innerException)
             : base(message, innerException)
-        {
-        }
+        { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="UnbornBranchException"/> class with a serialized data.
@@ -55,7 +51,6 @@ namespace LibGit2Sharp
         /// <param name="context">The <see cref="StreamingContext"/> that contains contextual information about the source or destination.</param>
         protected UnbornBranchException(SerializationInfo info, StreamingContext context)
             : base(info, context)
-        {
-        }
+        { }
     }
 }

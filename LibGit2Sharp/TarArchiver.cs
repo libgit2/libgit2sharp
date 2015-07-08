@@ -29,11 +29,23 @@ namespace LibGit2Sharp
             }
 
             // Store the sha in the pax_global_header
-            using (var stream = new MemoryStream(Encoding.ASCII.GetBytes(
-                string.Format(CultureInfo.InvariantCulture, "52 comment={0}\n", oid.Sha))))
+            using (var stream =
+                new MemoryStream(Encoding.ASCII.GetBytes(string.Format(CultureInfo.InvariantCulture,
+                                                                       "52 comment={0}\n",
+                                                                       oid.Sha))))
             {
-                writer.Write("pax_global_header", stream, modificationTime, "666".OctalToInt32(),
-                    "0", "0", 'g', "root", "root", "0", "0", oid.Sha, false);
+                writer.Write("pax_global_header",
+                             stream, modificationTime,
+                             "666".OctalToInt32(),
+                             "0",
+                             "0",
+                             'g',
+                             "root",
+                             "root",
+                             "0",
+                             "0",
+                             oid.Sha,
+                             false);
             }
         }
 
@@ -43,27 +55,55 @@ namespace LibGit2Sharp
             {
                 case Mode.GitLink:
                 case Mode.Directory:
-                    writer.Write(path + "/", null, modificationTime, "775".OctalToInt32(),
-                        "0", "0", '5', "root", "root", "0", "0", entry.TargetId.Sha, false);
+                    writer.Write(path + "/",
+                                 null,
+                                 modificationTime,
+                                 "775".OctalToInt32(),
+                                 "0",
+                                 "0",
+                                 '5',
+                                 "root",
+                                 "root",
+                                 "0",
+                                 "0",
+                                 entry.TargetId.Sha,
+                                 false);
                     break;
                 case Mode.ExecutableFile:
                 case Mode.NonExecutableFile:
                 case Mode.NonExecutableGroupWritableFile:
-                    var blob = ((Blob) entry.Target);
+                    var blob = ((Blob)entry.Target);
 
-                    WriteStream(path, entry, modificationTime,
-                        () => blob.IsBinary ? blob.GetContentStream() : blob.GetContentStream(new FilteringOptions(path)));
+                    WriteStream(path,
+                                entry,
+                                modificationTime,
+                                () => blob.IsBinary
+                                    ? blob.GetContentStream()
+                                    : blob.GetContentStream(new FilteringOptions(path)));
                     break;
                 case Mode.SymbolicLink:
                     using (Stream contentStream = ((Blob)entry.Target).GetContentStream(new FilteringOptions(path)))
                     {
-                        writer.Write(path, contentStream, modificationTime, "777".OctalToInt32(),
-                            "0", "0", '2', "root", "root", "0", "0", entry.TargetId.Sha, true);
+                        writer.Write(path,
+                                     contentStream,
+                                     modificationTime,
+                                     "777".OctalToInt32(),
+                                     "0",
+                                     "0",
+                                     '2',
+                                     "root",
+                                     "root",
+                                     "0",
+                                     "0",
+                                     entry.TargetId.Sha,
+                                     true);
                     }
                     break;
                 default:
-                    throw new InvalidOperationException(
-                        string.Format(CultureInfo.InvariantCulture, "Unsupported file mode: {0} (sha1: {1}).", entry.Mode, entry.TargetId.Sha));
+                    throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, 
+                                                                      "Unsupported file mode: {0} (sha1: {1}).", 
+                                                                      entry.Mode, 
+                                                                      entry.TargetId.Sha));
             }
         }
 
@@ -71,9 +111,21 @@ namespace LibGit2Sharp
         {
             using (Stream contentStream = streamer())
             {
-                writer.Write(path, contentStream, modificationTime,
-                    (entry.Mode == Mode.ExecutableFile) ? "775".OctalToInt32() : "664".OctalToInt32(),
-                    "0", "0", '0', "root", "root", "0", "0", entry.TargetId.Sha, false);
+                writer.Write(path, 
+                             contentStream, 
+                             modificationTime,
+                             (entry.Mode == Mode.ExecutableFile) 
+                                 ? "775".OctalToInt32() 
+                                 : "664".OctalToInt32(),
+                             "0", 
+                             "0", 
+                             '0', 
+                             "root", 
+                             "root", 
+                             "0", 
+                             "0", 
+                             entry.TargetId.Sha, 
+                             false);
             }
         }
 

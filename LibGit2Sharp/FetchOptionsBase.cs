@@ -8,8 +8,7 @@ namespace LibGit2Sharp
     public abstract class FetchOptionsBase
     {
         internal FetchOptionsBase()
-        {
-        }
+        { }
 
         /// <summary>
         /// Handler for network transfer and indexing progress information.

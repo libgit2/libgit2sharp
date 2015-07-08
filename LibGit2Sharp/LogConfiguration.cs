@@ -33,8 +33,7 @@ namespace LibGit2Sharp
         }
 
         private LogConfiguration()
-        {
-        }
+        { }
 
         internal LogLevel Level { get; private set; }
         internal LogHandler Handler { get; private set; }

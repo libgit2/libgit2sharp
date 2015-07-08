@@ -14,8 +14,7 @@ namespace LibGit2Sharp
         /// Initializes a new instance of the <see cref="RecurseSubmodulesException"/> class.
         /// </summary>
         public RecurseSubmodulesException()
-        {
-        }
+        { }
 
         /// <summary>
         /// The path to the initial repository the operation was run on.

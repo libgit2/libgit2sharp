@@ -31,12 +31,15 @@ namespace LibGit2Sharp
 
             GitIndexNameEntry entry = handle.MarshalAsGitIndexNameEntry();
 
-            string ancestor = entry.Ancestor != IntPtr.Zero ?
-                LaxFilePathMarshaler.FromNative(entry.Ancestor).Native : null;
-            string ours = entry.Ours != IntPtr.Zero ?
-                LaxFilePathMarshaler.FromNative(entry.Ours).Native : null;
-            string theirs = entry.Theirs != IntPtr.Zero ?
-                LaxFilePathMarshaler.FromNative(entry.Theirs).Native : null;
+            string ancestor = entry.Ancestor != IntPtr.Zero
+                ? LaxFilePathMarshaler.FromNative(entry.Ancestor).Native
+                : null;
+            string ours = entry.Ours != IntPtr.Zero
+                ? LaxFilePathMarshaler.FromNative(entry.Ours).Native
+                : null;
+            string theirs = entry.Theirs != IntPtr.Zero
+                ? LaxFilePathMarshaler.FromNative(entry.Theirs).Native
+                : null;
 
             return new IndexNameEntry
             {
@@ -117,7 +120,10 @@ namespace LibGit2Sharp
             get
             {
                 return string.Format(CultureInfo.InvariantCulture,
-                    "{0} {1} {2}", Ancestor, Ours, Theirs);
+                                     "{0} {1} {2}", 
+                                     Ancestor, 
+                                     Ours, 
+                                     Theirs);
             }
         }
     }

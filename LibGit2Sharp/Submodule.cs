@@ -148,8 +148,7 @@ namespace LibGit2Sharp
         {
             get
             {
-                return string.Format(CultureInfo.InvariantCulture,
-                    "{0} => {1}", Name, Url);
+                return string.Format(CultureInfo.InvariantCulture, "{0} => {1}", Name, Url);
             }
         }
 

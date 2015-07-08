@@ -15,9 +15,9 @@ namespace LibGit2Sharp
     {
         private static readonly LambdaEqualityHelper<IndexReucEntry> equalityHelper =
             new LambdaEqualityHelper<IndexReucEntry>(x => x.Path,
-                x => x.AncestorId, x => x.AncestorMode,
-                x => x.OurId, x => x.OurMode,
-                x => x.TheirId, x => x.TheirMode);
+                                                     x => x.AncestorId, x => x.AncestorMode,
+                                                     x => x.OurId, x => x.OurMode,
+                                                     x => x.TheirId, x => x.TheirMode);
 
         /// <summary>
         /// Needed for mocking purposes.
@@ -145,7 +145,11 @@ namespace LibGit2Sharp
             get
             {
                 return string.Format(CultureInfo.InvariantCulture,
-                    "{0}: {1} {2} {3}", Path, AncestorId, OurId, TheirId);
+                                     "{0}: {1} {2} {3}", 
+                                     Path, 
+                                     AncestorId, 
+                                     OurId, 
+                                     TheirId);
             }
         }
     }
