@@ -1433,6 +1433,43 @@ namespace LibGit2Sharp
             return result;
         }
 
+        private MergeAnalysisResult AnalyzeMerge(AnnotatedCommitHandle[] annotatedCommits)
+        {
+            GitMergeAnalysis mergeAnalysis;
+            GitMergePreference mergePreference;
+
+            Proxy.git_merge_analysis(Handle, annotatedCommits, out mergeAnalysis, out mergePreference);
+            return new MergeAnalysisResult(mergeAnalysis, mergePreference);
+        }
+
+        /// <summary>
+        /// Analyze the possibilities of updating HEAD with the given commit(s).
+        /// </summary>
+        /// <param name="commits">Commits to merge into HEAD</param>
+        /// <returns>Which update methods are possible and which preference the user has specified</returns>
+        public MergeAnalysisResult AnalyzeMerge(params Commit[] commits)
+        {
+            using (var handles = new DisposableArray<AnnotatedCommitHandle>(commits.Select(commit =>
+                Proxy.git_annotated_commit_lookup(Handle, commit.Id.Oid)).ToArray()))
+            {
+                return AnalyzeMerge(handles);
+            }
+        }
+
+        /// <summary>
+        /// Analyze the possibilities of updating HEAD with the given reference(s)
+        /// </summary>
+        /// <param name="references">References to merge into HEAD</param>
+        /// <returns>Which update methods are possible and which preference the user has specified</returns>
+        public MergeAnalysisResult AnalyzeMerge(params Reference[] references)
+        {
+            using (var refHandles = new DisposableArray<ReferenceHandle>(references.Select(r => refs.RetrieveReferencePtr(r.CanonicalName))))
+            using (var handles = new DisposableArray<AnnotatedCommitHandle>(refHandles.Array.Select(rh => Proxy.git_annotated_commit_from_ref(Handle, rh))))
+            {
+                return AnalyzeMerge(handles);
+            }
+        }
+
         private FastForwardStrategy FastForwardStrategyFromMergePreference(GitMergePreference preference)
         {
             switch (preference)
