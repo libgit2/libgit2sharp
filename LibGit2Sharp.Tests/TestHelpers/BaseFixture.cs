@@ -30,6 +30,7 @@ namespace LibGit2Sharp.Tests.TestHelpers
         }
 
         public static string BareTestRepoPath { get; private set; }
+        public static string CrossHistoryRepoWorkingDirPath { get; private set; }
         public static string StandardTestRepoWorkingDirPath { get; private set; }
         public static string StandardTestRepoPath { get; private set; }
         public static string ShallowTestRepoPath { get; private set; }
@@ -63,6 +64,7 @@ namespace LibGit2Sharp.Tests.TestHelpers
 
             // Setup standard paths to our test repositories
             BareTestRepoPath = Path.Combine(sourceRelativePath, "testrepo.git");
+            CrossHistoryRepoWorkingDirPath = Path.Combine(sourceRelativePath, "crosshistory_wd");
             StandardTestRepoWorkingDirPath = Path.Combine(sourceRelativePath, "testrepo_wd");
             StandardTestRepoPath = Path.Combine(StandardTestRepoWorkingDirPath, "dot_git");
             ShallowTestRepoPath = Path.Combine(sourceRelativePath, "shallow.git");
@@ -129,6 +131,11 @@ namespace LibGit2Sharp.Tests.TestHelpers
         protected string SandboxBareTestRepo()
         {
             return Sandbox(BareTestRepoPath);
+        }
+
+        protected string SandboxCrossHistoryRepo()
+        {
+            return Sandbox(CrossHistoryRepoWorkingDirPath);
         }
 
         protected string SandboxStandardTestRepo()

@@ -71,6 +71,8 @@
     <Compile Include="CompareOptions.cs" />
     <Compile Include="Core\FileHistory.cs" />
     <Compile Include="Core\GitFetchOptions.cs" />
+    <Compile Include="Core\GitOidArray.cs" />
+    <Compile Include="Core\GitOidArrayNative.cs" />
     <Compile Include="Core\GitPushUpdate.cs" />
     <Compile Include="Core\GitSubmoduleIgnore.cs" />
     <Compile Include="Core\Platform.cs" />

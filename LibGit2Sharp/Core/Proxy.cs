@@ -1126,6 +1126,29 @@ namespace LibGit2Sharp.Core
             return ret;
         }
 
+        public static ObjectId[] git_merge_bases_many(RepositorySafeHandle repo, GitOid[] commitIds)
+        {
+            var array = new GitOidArrayNative();
+
+            try
+            {
+                int res = NativeMethods.git_merge_bases_many(out array.Array, repo, commitIds.Length, commitIds);
+
+                if (res == (int)GitErrorCode.NotFound)
+                {
+                    return null;
+                }
+
+                Ensure.ZeroResult(res);
+
+                return Array.ConvertAll(array.ReadOids(), id => (ObjectId)id);
+            }
+            finally
+            {
+                array.Dispose();
+            }
+        }
+
         public static ObjectId git_merge_base_octopus(RepositorySafeHandle repo, GitOid[] commitIds)
         {
             GitOid ret;

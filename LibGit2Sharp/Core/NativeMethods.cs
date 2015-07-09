@@ -715,11 +715,22 @@ namespace LibGit2Sharp.Core
             [In] GitOid[] input_array);
 
         [DllImport(libgit2)]
+        internal static extern int git_merge_bases_many(
+            out GitOidArray mergeBases,
+            RepositorySafeHandle repo,
+            int length,
+            [In] GitOid[] input_array);
+
+        [DllImport(libgit2)]
         internal static extern int git_merge_base_octopus(
             out GitOid mergeBase,
             RepositorySafeHandle repo,
             int length,
             [In] GitOid[] input_array);
+
+        [DllImport(libgit2)]
+        internal static extern void git_oidarray_free(
+            ref GitOidArray array);
 
         [DllImport(libgit2)]
         internal static extern int git_annotated_commit_from_ref(

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
@@ -81,6 +82,29 @@ namespace LibGit2Sharp.Tests
                 {
                     Assert.NotNull(ancestor);
                     Assert.Equal(result, ancestor.Id.Sha);
+                }
+            }
+        }
+
+        [Theory]
+        [InlineData(new[] { "0350717031bebea6b2600b89a33159935541cee1", "ebc932c47f8800bffdd150c560e111d87bb74f4f" }, new[] { "152325a", "c9a2051" })]
+        public void FindCommonAncestorsForCommitsAsEnumerable(string[] results, string[] shas)
+        {
+            string path = SandboxCrossHistoryRepo();
+            using (var repo = new Repository(path))
+            {
+                var commits = shas.Select(sha => sha == "-" ? CreateOrphanedCommit(repo) : repo.Lookup<Commit>(sha)).ToArray();
+
+                List<Commit> ancestors = repo.ObjectDatabase.FindMergeBases(commits);
+
+                if (results == null)
+                {
+                    Assert.Null(ancestors);
+                }
+                else
+                {
+                    Assert.NotNull(ancestors);
+                    Assert.Equal(results, ancestors.Select(a => a.Id.Sha));
                 }
             }
         }

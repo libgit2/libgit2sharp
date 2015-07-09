@@ -587,6 +587,38 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
+        /// Find all best possible merge bases given two or more <see cref="Commit"/> according to the <see cref="MergeBaseFindingStrategy"/>.
+        /// </summary>
+        /// <param name="commits">The <see cref="Commit"/>s for which to find the merge bases.</param>
+        /// <returns>The merge bases or null if none found.</returns>
+        public virtual List<Commit> FindMergeBases(IEnumerable<Commit> commits)
+        {
+            Ensure.ArgumentNotNull(commits, "commits");
+
+            List<GitOid> ids = new List<GitOid>(8);
+            int count = 0;
+
+            foreach (var commit in commits)
+            {
+                if (commit == null)
+                {
+                    throw new ArgumentException("Enumerable contains null at position: " + count.ToString(CultureInfo.InvariantCulture), "commits");
+                }
+                ids.Add(commit.Id.Oid);
+                count++;
+            }
+
+            if (count < 2)
+            {
+                throw new ArgumentException("The enumerable must contains at least two commits.", "commits");
+            }
+
+            var baseIds = Proxy.git_merge_bases_many(repo.Handle, ids.ToArray());
+
+            return baseIds == null ? null : baseIds.Select(id => repo.Lookup<Commit>(id)).ToList();
+        }
+
+        /// <summary>
         /// Perform a three-way merge of two commits, looking up their
         /// commit ancestor. The returned index will contain the results
         /// of the merge and can be examined for conflicts. The returned
