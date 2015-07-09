@@ -57,8 +57,7 @@ install:
     Write-Host "Should run Coverity analysis = " -NoNewLine
     Write-Host $Env:SHOULD_RUN_COVERITY_ANALYSIS -ForegroundColor "Green"
 
-    $Env:SHOULD_PACKAGE_NUGET_ARTIFACT = $($($Env:APPVEYOR_PULL_REQUEST_NUMBER -eq $null) `
-                                               -and $($Env:APPVEYOR_SCHEDULED_BUILD -eq $False))
+    $Env:SHOULD_PACKAGE_NUGET_ARTIFACT = -not $Env:APPVEYOR_PULL_REQUEST_NUMBER -and -not $Env:APPVEYOR_SCHEDULED_BUILD
     Write-Host "Should package Nuget artifact = " -NoNewLine
     Write-Host $Env:SHOULD_PACKAGE_NUGET_ARTIFACT -ForegroundColor "Green"
 
