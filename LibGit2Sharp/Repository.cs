@@ -155,7 +155,12 @@ namespace LibGit2Sharp
         /// <returns>True if a repository can be resolved through this path; false otherwise</returns>
         static public bool IsValid(string path)
         {
-            Ensure.ArgumentNotNullOrEmptyString(path, "path");
+            // should only throw on null arguments
+            Ensure.ArgumentNotNull(path, "path");
+            if (string.IsNullOrWhiteSpace(path))
+            {
+                return false;
+            }
 
             try
             {
