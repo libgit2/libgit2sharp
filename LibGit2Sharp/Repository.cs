@@ -157,7 +157,7 @@ namespace LibGit2Sharp
         {
             // should only throw on null arguments
             Ensure.ArgumentNotNull(path, "path");
-            if (path.Trim() == string.Empty)
+            if (string.IsNullOrWhiteSpace(path))
             {
                 return false;
             }
