@@ -57,6 +57,26 @@ namespace LibGit2Sharp.Tests
             Assert.False(Repository.IsValid(scd.DirectoryPath));
         }
 
+
+        [Fact]
+        public void IsValidWithNullPathThrows()
+        {
+            Assert.Throws<ArgumentNullException>(() => Repository.IsValid(null));
+        }
+
+        [Fact]
+        public void IsNotValidWithEmptyPath()
+        {
+            Assert.False(Repository.IsValid(string.Empty));
+        }
+
+        [Fact]
+        public void IsValidWithValidPath()
+        {
+            string repoPath = InitNewRepository();
+            Assert.True(Repository.IsValid(repoPath));
+        }
+
         [Fact]
         public void CanCreateStandardRepo()
         {
