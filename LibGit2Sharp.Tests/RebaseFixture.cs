@@ -190,15 +190,21 @@ namespace LibGit2Sharp.Tests
         /// <summary>
         /// Verify a single rebase, but in more detail.
         /// </summary>
-        [Fact]
-        public void VerifyRebaseDetailed()
+        [Theory]
+        [InlineData("* text=auto", "\r\n", new[] { "2cad6e96a0028f1764dcbde6292a9a1471acb114", "18fd3deebe6124b5dacc8426d589d617a968e8d1", "048977d8cb90d530e83cc615a17a49f3068f68c1" })]
+        [InlineData("* text=auto", "\n", new[] { "2cad6e96a0028f1764dcbde6292a9a1471acb114", "18fd3deebe6124b5dacc8426d589d617a968e8d1", "048977d8cb90d530e83cc615a17a49f3068f68c1" })]
+        [InlineData("* text=auto\n*.txt eol=lf", "\n", new[] { "577d176b00a55e88e9b34da87e4357dfc9a486fd", "ea0ad4d8b500394a61874ebfda5904376e2b1098", "521b8383ca3fde9e369587492e7a3945677f1b2c" })]
+        [InlineData("* text=auto\r\n*.txt eol=crlf", "\r\n", new[] { "67d29fdf654ac4773c9405ab4b54aa7ff092f339", "7b70c02e175d378b44ea28aeeece775cd972047a", "81f203dbfe00a5c1ecd9c0e6b03705e6cffda5c0" })]
+        [InlineData("* binary", "\r\n", new[] { "f5a5ded935597108709224170accddc5aeb5c287", "518adb8bb1ea1058d1825d3fe08d27f80c0e829b", "d2db503ab553c970d34e1b5e3ff68768adef05bc" })]
+        [InlineData("* binary", "\n", new[] { "93a0e9680246d1f1e43fbd5308f7936424d9e81a", "5fd40bffbdd884632c330a254a2bd1dfaaaad3c1", "4df5c91b2d8318781b07d04f6bfa77304c372f1e" })]
+        public void VerifyRebaseDetailed(string attributes, string lineEnding, string[] expectedIds)
         {
             SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
             var path = Repository.Init(scd.DirectoryPath);
 
             using (Repository repo = new Repository(path))
             {
-                ConstructRebaseTestRepository(repo);
+                ConstructRebaseTestRepository(repo, attributes, lineEnding);
 
                 Branch initialBranch = repo.Branches[topicBranch1Name];
                 Branch upstreamBranch = repo.Branches[masterBranch2Name];
@@ -262,9 +268,9 @@ namespace LibGit2Sharp.Tests
 
                 List<ObjectId> expectedTreeIds = new List<ObjectId>()
                 {
-                    new ObjectId("447bad85bcc1882037848370620a6f88e8ee264e"),
-                    new ObjectId("3b0fc846952496a64b6149064cde21215daca8f8"),
-                    new ObjectId("a2d114246012daf3ef8e7ccbfbe91889a24e1e60"),
+                    new ObjectId(expectedIds[0]),
+                    new ObjectId(expectedIds[1]),
+                    new ObjectId(expectedIds[2]),
                 };
 
                 List<Commit> rebasedCommits = repo.Commits.QueryBy(commitFilter).ToList();
@@ -591,18 +597,24 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Fact]
-        public void CanRebaseHandlePatchAlreadyApplied()
+        [Theory]
+        [InlineData("* text=auto", "\r\n", "379e80ed7824be7672e1e30ddd8f44aa081d57d4")]
+        [InlineData("* text=auto", "\n", "379e80ed7824be7672e1e30ddd8f44aa081d57d4")]
+        [InlineData("* text=auto\n*.txt eol=lf", "\n", "94121eeebf7cfe0acf22425eab36fcdc737132b6")]
+        [InlineData("* text=auto\r\n*.txt eol=crlf", "\r\n", "dad06142cc632aea81cbc8486583011c4d622580")]
+        [InlineData("* binary", "\r\n", "44492d98b725189cfc0203d4192dfbb1fd34bf02")]
+        [InlineData("* binary", "\n", "f4b5b95de77f4cd97b4728617bae2dd8ba9af914")]
+        public void CanRebaseHandlePatchAlreadyApplied(string attributes, string lineEnding, string expectedShaText)
         {
             SelfCleaningDirectory scd = BuildSelfCleaningDirectory();
             var path = Repository.Init(scd.DirectoryPath);
             using (Repository repo = new Repository(path))
             {
-                ConstructRebaseTestRepository(repo);
+                ConstructRebaseTestRepository(repo, attributes, lineEnding);
 
                 repo.Checkout(topicBranch1Name);
 
-                 Branch topicBranch1Prime = repo.CreateBranch(topicBranch1PrimeName, masterBranch1Name);
+                Branch topicBranch1Prime = repo.CreateBranch(topicBranch1PrimeName, masterBranch1Name);
 
                 string newFileRelativePath = "new_file.txt";
                 Touch(repo.Info.WorkingDirectory, newFileRelativePath, "New Content");
@@ -631,7 +643,7 @@ namespace LibGit2Sharp.Tests
                 };
 
                 repo.Rebase.Start(null, upstreamBranch, null, Constants.Identity2, options);
-                ObjectId secondCommitExpectedTreeId = new ObjectId("ac04bf04980c9be72f64ba77fd0d9088a40ed681");
+                ObjectId secondCommitExpectedTreeId = new ObjectId(expectedShaText);
                 Signature secondCommitAuthorSignature = Constants.Signature;
                 Identity secondCommitCommiterIdentity = Constants.Identity2;
 
@@ -642,7 +654,7 @@ namespace LibGit2Sharp.Tests
                 Assert.NotNull(rebaseResults[1].Commit);
 
                 // This is the expected tree ID of the new commit.
-                Assert.True(ObjectId.Equals(secondCommitExpectedTreeId, rebaseResults[1].Commit.Tree.Id));
+                Assert.Equal(secondCommitExpectedTreeId, rebaseResults[1].Commit.Tree.Id);
                 Assert.True(Signature.Equals(secondCommitAuthorSignature, rebaseResults[1].Commit.Author));
                 Assert.Equal<string>(secondCommitCommiterIdentity.Name, rebaseResults[1].Commit.Committer.Name, StringComparer.Ordinal);
                 Assert.Equal<string>(secondCommitCommiterIdentity.Email, rebaseResults[1].Commit.Committer.Email, StringComparer.Ordinal);
@@ -664,7 +676,7 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        private void ConstructRebaseTestRepository(Repository repo)
+        private void ConstructRebaseTestRepository(Repository repo, string attributes = "* text=auto", string lineEnding = "\r\n")
         {
             // Constructs a graph that looks like:
             //                         * -- * -- *   (modifications to c.txt)
@@ -700,6 +712,11 @@ namespace LibGit2Sharp.Tests
             string workdir = repo.Info.WorkingDirectory;
             Commit commit = null;
 
+            CreateAttributesFile(repo, attributes);
+
+            repo.Stage(".gitattributes");
+            commit = repo.Commit("setup", Constants.Signature, Constants.Signature, new CommitOptions());
+
             Touch(workdir, filePathA, fileContentA1);
             repo.Stage(filePathA);
             commit = repo.Commit("commit 1", Constants.Signature, Constants.Signature, new CommitOptions());
@@ -714,29 +731,29 @@ namespace LibGit2Sharp.Tests
 
             Branch masterBranch1 = repo.CreateBranch(masterBranch1Name, commit);
 
-            Touch(workdir, filePathB, string.Join(Environment.NewLine, fileContentB1, fileContentB2));
+            Touch(workdir, filePathB, string.Join(lineEnding, fileContentB1, fileContentB2));
             repo.Stage(filePathB);
             commit = repo.Commit("commit 4", Constants.Signature, Constants.Signature, new CommitOptions());
 
-            Touch(workdir, filePathB, string.Join(Environment.NewLine, fileContentB1, fileContentB2, fileContentB3));
+            Touch(workdir, filePathB, string.Join(lineEnding, fileContentB1, fileContentB2, fileContentB3));
             repo.Stage(filePathB);
             commit = repo.Commit("commit 5", Constants.Signature, Constants.Signature, new CommitOptions());
 
-            Touch(workdir, filePathB, string.Join(Environment.NewLine, fileContentB1, fileContentB2, fileContentB3, fileContentB4));
+            Touch(workdir, filePathB, string.Join(lineEnding, fileContentB1, fileContentB2, fileContentB3, fileContentB4));
             repo.Stage(filePathB);
             commit = repo.Commit("commit 6", Constants.Signature, Constants.Signature, new CommitOptions());
 
             repo.CreateBranch(topicBranch1Name, commit);
 
-            Touch(workdir, filePathC, string.Join(Environment.NewLine, fileContentC1, fileContentC2));
+            Touch(workdir, filePathC, string.Join(lineEnding, fileContentC1, fileContentC2));
             repo.Stage(filePathC);
             commit = repo.Commit("commit 7", Constants.Signature, Constants.Signature, new CommitOptions());
 
-            Touch(workdir, filePathC, string.Join(Environment.NewLine, fileContentC1, fileContentC2, fileContentC3));
+            Touch(workdir, filePathC, string.Join(lineEnding, fileContentC1, fileContentC2, fileContentC3));
             repo.Stage(filePathC);
             commit = repo.Commit("commit 8", Constants.Signature, Constants.Signature, new CommitOptions());
 
-            Touch(workdir, filePathC, string.Join(Environment.NewLine, fileContentC1, fileContentC2, fileContentC3, fileContentC4));
+            Touch(workdir, filePathC, string.Join(lineEnding, fileContentC1, fileContentC2, fileContentC3, fileContentC4));
             repo.Stage(filePathC);
             commit = repo.Commit("commit 9", Constants.Signature, Constants.Signature, new CommitOptions());
 
@@ -747,18 +764,18 @@ namespace LibGit2Sharp.Tests
             repo.Stage(filePathD);
             commit = repo.Commit("commit 10", Constants.Signature, Constants.Signature, new CommitOptions());
 
-            Touch(workdir, filePathD, string.Join(Environment.NewLine, fileContentD1, fileContentD2));
+            Touch(workdir, filePathD, string.Join(lineEnding, fileContentD1, fileContentD2));
             repo.Stage(filePathD);
             commit = repo.Commit("commit 11", Constants.Signature, Constants.Signature, new CommitOptions());
 
-            Touch(workdir, filePathD, string.Join(Environment.NewLine, fileContentD1, fileContentD2, fileContentD3));
+            Touch(workdir, filePathD, string.Join(lineEnding, fileContentD1, fileContentD2, fileContentD3));
             repo.Stage(filePathD);
             commit = repo.Commit("commit 12", Constants.Signature, Constants.Signature, new CommitOptions());
 
             repo.CreateBranch(masterBranch2Name, commit);
 
             // Create commit / branch that conflicts with T1 and T2
-            Touch(workdir, filePathB, string.Join(Environment.NewLine, fileContentB1, fileContentB2 + fileContentB3 + fileContentB4));
+            Touch(workdir, filePathB, string.Join(lineEnding, fileContentB1, fileContentB2 + fileContentB3 + fileContentB4));
             repo.Stage(filePathB);
             commit = repo.Commit("commit 13", Constants.Signature, Constants.Signature, new CommitOptions());
             repo.CreateBranch(conflictBranch1Name, commit);

@@ -339,7 +339,6 @@ namespace LibGit2Sharp.Tests
             return true;
         }
 
-
         private FileInfo CheckoutFileForSmudge(string repoPath, string branchName, string content)
         {
             FileInfo expectedPath;
@@ -383,11 +382,6 @@ namespace LibGit2Sharp.Tests
             var repository = new Repository(path, repositoryOptions);
             CreateAttributesFile(repository, "* filter=test");
             return repository;
-        }
-
-        private static void CreateAttributesFile(IRepository repo, string attributeEntry)
-        {
-            Touch(repo.Info.WorkingDirectory, ".gitattributes", attributeEntry);
         }
 
         class EmptyFilter : Filter
