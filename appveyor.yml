@@ -39,8 +39,9 @@ install:
     Write-Host "Is a Pull Request = " -NoNewLine
     Write-Host $($Env:APPVEYOR_PULL_REQUEST_NUMBER -ne $null) -ForegroundColor "Green"
 
-    $BuildDate = (Get-Date).ToUniversalTime().ToString("yyyyMMddHHmmss")
-    Write-Host "Build UTC date = " -NoNewLine
+    $CommitDate = [DateTime]::Parse($Env:APPVEYOR_REPO_COMMIT_TIMESTAMP)
+    $BuildDate = $CommitDate.ToUniversalTime().ToString("yyyyMMddHHmmss")
+    Write-Host "Merge commit UTC timestamp = " -NoNewLine
     Write-Host $BuildDate -ForegroundColor "Green"
 
     $VersionSuffix = ""
