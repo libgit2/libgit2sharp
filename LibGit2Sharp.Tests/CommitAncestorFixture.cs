@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
 using Xunit.Extensions;
@@ -9,6 +10,8 @@ namespace LibGit2Sharp.Tests
 {
     public class CommitAncestorFixture : BaseFixture
     {
+        private static int orphans;
+
         /*
          * BareTestRepoPath structure
          *
@@ -28,7 +31,7 @@ namespace LibGit2Sharp.Tests
          *  |
          *  * commit 8496071c1b46c854b31185ea97743be6a877447
          *
-        */
+         */
 
         [Theory]
         [InlineData("5b5b025afb0b4c913b4c338a42934a3863bf3644", "c47800c", "9fd738e")]
@@ -88,6 +91,8 @@ namespace LibGit2Sharp.Tests
 
         [Theory]
         [InlineData(new[] { "0350717031bebea6b2600b89a33159935541cee1", "ebc932c47f8800bffdd150c560e111d87bb74f4f" }, new[] { "152325a", "c9a2051" })]
+        [InlineData(new[] { "0350717031bebea6b2600b89a33159935541cee1", "ebc932c47f8800bffdd150c560e111d87bb74f4f" }, new[] { "152325a", "c9a2051", "-" })]
+        [InlineData(new string[0], new[] { "-", "-" })]
         public void FindCommonAncestorsForCommitsAsEnumerable(string[] results, string[] shas)
         {
             string path = SandboxCrossHistoryRepo();
@@ -140,7 +145,7 @@ namespace LibGit2Sharp.Tests
             Commit orphanedCommit = repo.ObjectDatabase.CreateCommit(
                 random.Author,
                 random.Committer,
-                "This is a test commit created by 'CommitFixture.CannotFindCommonAncestorForCommmitsWithoutCommonAncestor'",
+                string.Format("This is a test commit (#{0}) created by 'CommitFixture.CannotFindCommonAncestorForCommmitsWithoutCommonAncestor'", Interlocked.Increment(ref orphans)),
                 random.Tree,
                 Enumerable.Empty<Commit>(),
                 false);
