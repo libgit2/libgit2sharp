@@ -1136,7 +1136,7 @@ namespace LibGit2Sharp.Core
 
                 if (res == (int)GitErrorCode.NotFound)
                 {
-                    return null;
+                    return new ObjectId[0];
                 }
 
                 Ensure.ZeroResult(res);

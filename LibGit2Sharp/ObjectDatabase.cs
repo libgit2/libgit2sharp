@@ -587,11 +587,11 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Find all best possible merge bases given two or more <see cref="Commit"/> according to the <see cref="MergeBaseFindingStrategy"/>.
+        /// Find all best possible merge bases given two or more <see cref="Commit"/>.
         /// </summary>
         /// <param name="commits">The <see cref="Commit"/>s for which to find the merge bases.</param>
-        /// <returns>The merge bases or null if none found.</returns>
-        public virtual List<Commit> FindMergeBases(IEnumerable<Commit> commits)
+        /// <returns>An enumerable collection containing all best possible merge bases.</returns>
+        public virtual IEnumerable<Commit> FindMergeBases(IEnumerable<Commit> commits)
         {
             Ensure.ArgumentNotNull(commits, "commits");
 
@@ -615,7 +615,7 @@ namespace LibGit2Sharp
 
             var baseIds = Proxy.git_merge_bases_many(repo.Handle, ids.ToArray());
 
-            return baseIds == null ? null : baseIds.Select(id => repo.Lookup<Commit>(id)).ToList();
+            return baseIds.Select(id => repo.Lookup<Commit>(id)).ToList();
         }
 
         /// <summary>

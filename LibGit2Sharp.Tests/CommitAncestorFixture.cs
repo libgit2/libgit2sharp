@@ -95,17 +95,10 @@ namespace LibGit2Sharp.Tests
             {
                 var commits = shas.Select(sha => sha == "-" ? CreateOrphanedCommit(repo) : repo.Lookup<Commit>(sha)).ToArray();
 
-                List<Commit> ancestors = repo.ObjectDatabase.FindMergeBases(commits);
+                var ancestors = repo.ObjectDatabase.FindMergeBases(commits).ToArray();
 
-                if (results == null)
-                {
-                    Assert.Null(ancestors);
-                }
-                else
-                {
-                    Assert.NotNull(ancestors);
-                    Assert.Equal(results, ancestors.Select(a => a.Id.Sha));
-                }
+                Assert.NotNull(ancestors);
+                Assert.Equal(results, ancestors.Select(a => a.Id.Sha));
             }
         }
 
