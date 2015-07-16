@@ -27,6 +27,7 @@ namespace LibGit2Sharp
             PushTransferProgress = pushOptions.OnPushTransferProgress;
             PackBuilderProgress = pushOptions.OnPackBuilderProgress;
             CredentialsProvider = pushOptions.CredentialsProvider;
+            CertificateCheck = pushOptions.CertificateCheck;
             PushStatusError = pushOptions.OnPushStatusError;
             PrePushCallback = pushOptions.OnNegotiationCompletedBeforePush;
         }
@@ -42,6 +43,7 @@ namespace LibGit2Sharp
             DownloadTransferProgress = fetchOptions.OnTransferProgress;
             UpdateTips = fetchOptions.OnUpdateTips;
             CredentialsProvider = fetchOptions.CredentialsProvider;
+            CertificateCheck = fetchOptions.CertificateCheck;
         }
 
         #region Delegates
@@ -90,6 +92,11 @@ namespace LibGit2Sharp
         /// </summary>
         private readonly CredentialsHandler CredentialsProvider;
 
+        /// <summary>
+        /// Callback to perform validation on the certificate
+        /// </summary>
+        private readonly CertificateCheckHandler CertificateCheck;
+
         internal GitRemoteCallbacks GenerateCallbacks()
         {
             var callbacks = new GitRemoteCallbacks { version = 1 };
@@ -112,6 +119,11 @@ namespace LibGit2Sharp
             if (CredentialsProvider != null)
             {
                 callbacks.acquire_credentials = GitCredentialHandler;
+            }
+
+            if (CertificateCheck != null)
+            {
+                callbacks.certificate_check = GitCertificateCheck;
             }
 
             if (DownloadTransferProgress != null)
@@ -276,6 +288,35 @@ namespace LibGit2Sharp
             var cred = CredentialsProvider(url, username, types);
 
             return cred.GitCredentialHandler(out ptr);
+        }
+
+        private int GitCertificateCheck(IntPtr certPtr, int valid, IntPtr cHostname, IntPtr payload)
+        {
+            string hostname = LaxUtf8Marshaler.FromNative(cHostname);
+            GitCertificate baseCert = certPtr.MarshalAs<GitCertificate>();
+            Certificate cert = null;
+
+            switch (baseCert.type)
+            {
+                case GitCertificateType.X509:
+                    cert = new CertificateX509(certPtr.MarshalAs<GitCertificateX509>());
+                    break;
+                case GitCertificateType.Hostkey:
+                    cert = new CertificateSsh(certPtr.MarshalAs<GitCertificateSsh>());
+                    break;
+            }
+
+            bool result = false;
+            try
+            {
+                result = CertificateCheck(cert, valid != 0, hostname);
+            }
+            catch (Exception exception)
+            {
+                Proxy.giterr_set_str(GitErrorCategory.Callback, exception);
+            }
+
+            return Proxy.ConvertResultToCancelFlag(result);
         }
 
         private int GitPushNegotiationHandler(IntPtr updates, UIntPtr len, IntPtr payload)

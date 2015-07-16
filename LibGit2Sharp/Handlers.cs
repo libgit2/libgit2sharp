@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Security.Cryptography.X509Certificates;
 
 namespace LibGit2Sharp.Handlers
 {
@@ -31,6 +32,15 @@ namespace LibGit2Sharp.Handlers
     /// <param name="usernameFromUrl">Username which was extracted from the url, if any</param>
     /// <param name="types">Credential types which the server accepts</param>
     public delegate Credentials CredentialsHandler(string url, string usernameFromUrl, SupportedCredentialTypes types);
+
+    /// <summary>
+    /// Delegate definition for the certificate validation
+    /// </summary>
+    /// <param name="certificate">The certificate which the server sent</param>
+    /// <param name="host">The hostname which we tried to connect to</param>
+    /// <param name="valid">Whether libgit2 thinks this certificate is valid</param>
+    /// <returns>True to continue, false to cancel</returns>
+    public delegate bool CertificateCheckHandler(Certificate certificate, bool valid, string host);
 
     /// <summary>
     /// Delegate definition for transfer progress callback.

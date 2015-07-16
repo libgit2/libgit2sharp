@@ -17,7 +17,7 @@ namespace LibGit2Sharp.Core
 
         internal NativeMethods.git_cred_acquire_cb acquire_credentials;
 
-        internal IntPtr certificate_check;
+        internal NativeMethods.git_transport_certificate_check_cb certificate_check;
 
         internal NativeMethods.git_transfer_progress_callback download_progress;
 
