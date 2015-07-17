@@ -679,7 +679,7 @@ namespace LibGit2Sharp.Tests
             InconclusiveIf(() => string.IsNullOrEmpty(Constants.PrivateRepoUrl),
                 "Populate Constants.PrivateRepo* to run this test");
 
-            IEnumerable<DirectReference> references = Repository.ListRemoteReferences(Constants.PrivateRepoUrl,
+            IEnumerable<Reference> references = Repository.ListRemoteReferences(Constants.PrivateRepoUrl,
                 Constants.PrivateRepoCredentials);
 
             foreach (var reference in references)
@@ -694,12 +694,13 @@ namespace LibGit2Sharp.Tests
         [InlineData("git://github.com/libgit2/TestGitRepository.git")]
         public void CanListRemoteReferences(string url)
         {
-            IEnumerable<DirectReference> references = Repository.ListRemoteReferences(url);
+            IEnumerable<Reference> references = Repository.ListRemoteReferences(url).ToList();
 
             List<Tuple<string, string>> actualRefs = references.
-                Select(directRef => new Tuple<string, string>(directRef.CanonicalName, directRef.TargetIdentifier)).ToList();
+                Select(reference => new Tuple<string, string>(reference.CanonicalName, reference.ResolveToDirectReference().TargetIdentifier)).ToList();
 
             Assert.Equal(TestRemoteRefs.ExpectedRemoteRefs.Count, actualRefs.Count);
+            Assert.True(references.Single(reference => reference.CanonicalName == "HEAD") is SymbolicReference);
             for (int i = 0; i < TestRemoteRefs.ExpectedRemoteRefs.Count; i++)
             {
                 Assert.Equal(TestRemoteRefs.ExpectedRemoteRefs[i].Item2, actualRefs[i].Item2);
@@ -707,11 +708,35 @@ namespace LibGit2Sharp.Tests
             }
         }
 
+        [Fact]
+        public void CanListRemoteReferencesWithDetachedRemoteHead()
+        {
+            string originalRepoPath = SandboxStandardTestRepo();
+
+            string detachedHeadSha;
+
+            using (var originalRepo = new Repository(originalRepoPath))
+            {
+                detachedHeadSha = originalRepo.Head.Tip.Sha;
+                originalRepo.Checkout(detachedHeadSha);
+
+                Assert.True(originalRepo.Info.IsHeadDetached);
+            }
+
+            IEnumerable<Reference> references = Repository.ListRemoteReferences(originalRepoPath);
+
+            Reference head = references.SingleOrDefault(reference => reference.CanonicalName == "HEAD");
+
+            Assert.NotNull(head);
+            Assert.True(head is DirectReference);
+            Assert.Equal(detachedHeadSha, head.TargetIdentifier);
+        }
+
         [Theory]
         [InlineData("http://github.com/libgit2/TestGitRepository")]
         public void ReadingReferenceRepositoryThroughListRemoteReferencesThrows(string url)
         {
-            IEnumerable<DirectReference> references = Repository.ListRemoteReferences(url);
+            IEnumerable<Reference> references = Repository.ListRemoteReferences(url);
 
             foreach (var reference in references)
             {
@@ -724,11 +749,14 @@ namespace LibGit2Sharp.Tests
         [InlineData("http://github.com/libgit2/TestGitRepository")]
         public void ReadingReferenceTargetFromListRemoteReferencesThrows(string url)
         {
-            IEnumerable<DirectReference> references = Repository.ListRemoteReferences(url);
+            IEnumerable<Reference> references = Repository.ListRemoteReferences(url);
 
             foreach (var reference in references)
             {
-                Assert.Throws<InvalidOperationException>(() => reference.Target);
+                Assert.Throws<InvalidOperationException>(() =>
+                {
+                    var target = reference.ResolveToDirectReference().Target;
+                });
             }
         }
     }

@@ -22,19 +22,22 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(repoPath))
             {
                 Remote remote = repo.Network.Remotes.Add(remoteName, url);
-                IList<DirectReference> references = repo.Network.ListReferences(remote).ToList();
+                IList<Reference> references = repo.Network.ListReferences(remote).ToList();
 
-                foreach (var directReference in references)
+
+                foreach (var reference in references)
                 {
                     // None of those references point to an existing
                     // object in this brand new repository
-                    Assert.Null(directReference.Target);
+                    Assert.Null(reference.ResolveToDirectReference().Target);
                 }
 
                 List<Tuple<string, string>> actualRefs = references.
-                    Select(directRef => new Tuple<string, string>(directRef.CanonicalName, directRef.TargetIdentifier)).ToList();
+                    Select(directRef => new Tuple<string, string>(directRef.CanonicalName, directRef.ResolveToDirectReference()
+                        .TargetIdentifier)).ToList();
 
                 Assert.Equal(TestRemoteRefs.ExpectedRemoteRefs.Count, actualRefs.Count);
+                Assert.True(references.Single(reference => reference.CanonicalName == "HEAD") is SymbolicReference);
                 for (int i = 0; i < TestRemoteRefs.ExpectedRemoteRefs.Count; i++)
                 {
                     Assert.Equal(TestRemoteRefs.ExpectedRemoteRefs[i].Item2, actualRefs[i].Item2);
@@ -53,19 +56,21 @@ namespace LibGit2Sharp.Tests
 
             using (var repo = new Repository(repoPath))
             {
-                IList<DirectReference> references = repo.Network.ListReferences(url).ToList();
+                IList<Reference> references = repo.Network.ListReferences(url).ToList();
 
-                foreach (var directReference in references)
+                foreach (var reference in references)
                 {
                     // None of those references point to an existing
                     // object in this brand new repository
-                    Assert.Null(directReference.Target);
+                    Assert.Null(reference.ResolveToDirectReference().Target);
                 }
 
                 List<Tuple<string, string>> actualRefs = references.
-                    Select(directRef => new Tuple<string, string>(directRef.CanonicalName, directRef.TargetIdentifier)).ToList();
+                    Select(directRef => new Tuple<string, string>(directRef.CanonicalName, directRef.ResolveToDirectReference()
+                        .TargetIdentifier)).ToList();
 
                 Assert.Equal(TestRemoteRefs.ExpectedRemoteRefs.Count, actualRefs.Count);
+                Assert.True(references.Single(reference => reference.CanonicalName == "HEAD") is SymbolicReference);
                 for (int i = 0; i < TestRemoteRefs.ExpectedRemoteRefs.Count; i++)
                 {
                     Assert.Equal(TestRemoteRefs.ExpectedRemoteRefs[i].Item2, actualRefs[i].Item2);
@@ -87,18 +92,22 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(clonedRepoPath))
             {
                 Remote remote = repo.Network.Remotes[remoteName];
-                IEnumerable<DirectReference> references = repo.Network.ListReferences(remote);
+                IEnumerable<Reference> references = repo.Network.ListReferences(remote).ToList();
 
                 var actualRefs = new List<Tuple<string,string>>();
 
-                foreach(DirectReference reference in references)
+                foreach(Reference reference in references)
                 {
                     Assert.NotNull(reference.CanonicalName);
-                    Assert.NotNull(reference.Target);
-                    actualRefs.Add(new Tuple<string, string>(reference.CanonicalName, reference.Target.Id.Sha));
+
+                    var directReference = reference.ResolveToDirectReference();
+
+                    Assert.NotNull(directReference.Target);
+                    actualRefs.Add(new Tuple<string, string>(reference.CanonicalName, directReference.Target.Id.Sha));
                 }
 
                 Assert.Equal(TestRemoteRefs.ExpectedRemoteRefs.Count, actualRefs.Count);
+                Assert.True(references.Single(reference => reference.CanonicalName == "HEAD") is SymbolicReference);
                 for (int i = 0; i < TestRemoteRefs.ExpectedRemoteRefs.Count; i++)
                 {
                     Assert.Equal(TestRemoteRefs.ExpectedRemoteRefs[i].Item1, actualRefs[i].Item1);
@@ -123,9 +132,9 @@ namespace LibGit2Sharp.Tests
 
                 var references = repo.Network.ListReferences(remote, Constants.PrivateRepoCredentials);
 
-                foreach (var directReference in references)
+                foreach (var reference in references)
                 {
-                    Assert.NotNull(directReference);
+                    Assert.NotNull(reference);
                 }
             }
         }

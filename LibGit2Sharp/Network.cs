@@ -48,7 +48,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="remote">The <see cref="Remote"/> to list from.</param>
         /// <returns>The references in the <see cref="Remote"/> repository.</returns>
-        public virtual IEnumerable<DirectReference> ListReferences(Remote remote)
+        public virtual IEnumerable<Reference> ListReferences(Remote remote)
         {
             Ensure.ArgumentNotNull(remote, "remote");
 
@@ -67,7 +67,7 @@ namespace LibGit2Sharp
         /// <param name="remote">The <see cref="Remote"/> to list from.</param>
         /// <param name="credentialsProvider">The <see cref="Func{Credentials}"/> used to connect to remote repository.</param>
         /// <returns>The references in the <see cref="Remote"/> repository.</returns>
-        public virtual IEnumerable<DirectReference> ListReferences(Remote remote, CredentialsHandler credentialsProvider)
+        public virtual IEnumerable<Reference> ListReferences(Remote remote, CredentialsHandler credentialsProvider)
         {
             Ensure.ArgumentNotNull(remote, "remote");
             Ensure.ArgumentNotNull(credentialsProvider, "credentialsProvider");
@@ -86,7 +86,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="url">The url to list from.</param>
         /// <returns>The references in the remote repository.</returns>
-        public virtual IEnumerable<DirectReference> ListReferences(string url)
+        public virtual IEnumerable<Reference> ListReferences(string url)
         {
             Ensure.ArgumentNotNull(url, "url");
 
@@ -105,7 +105,7 @@ namespace LibGit2Sharp
         /// <param name="url">The url to list from.</param>
         /// <param name="credentialsProvider">The <see cref="Func{Credentials}"/> used to connect to remote repository.</param>
         /// <returns>The references in the remote repository.</returns>
-        public virtual IEnumerable<DirectReference> ListReferences(string url, CredentialsHandler credentialsProvider)
+        public virtual IEnumerable<Reference> ListReferences(string url, CredentialsHandler credentialsProvider)
         {
             Ensure.ArgumentNotNull(url, "url");
             Ensure.ArgumentNotNull(credentialsProvider, "credentialsProvider");
@@ -113,7 +113,7 @@ namespace LibGit2Sharp
             return ListReferencesInternal(url, credentialsProvider);
         }
 
-        private IEnumerable<DirectReference> ListReferencesInternal(string url, CredentialsHandler credentialsProvider)
+        private IEnumerable<Reference> ListReferencesInternal(string url, CredentialsHandler credentialsProvider)
         {
             using (RemoteSafeHandle remoteHandle = BuildRemoteSafeHandle(repository.Handle, url))
             {
