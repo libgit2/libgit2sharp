@@ -17,15 +17,15 @@
     </references>
   </metadata>
   <files>
-    <file src="..\build\Release\x64\*.dll" target="lib\net35\x64" />
-    <file src="..\build\Release\x64\*.pdb" target="lib\net35\x64" />
-    <file src="..\build\Release\x86\*.dll" target="lib\net35\x86" />
-    <file src="..\build\Release\x86\*.pdb" target="lib\net35\x86" />
-    <file src="..\README.md" target="App_Readme\LibGit2Sharp.README.md" />
-    <file src="..\LICENSE.md" target="App_Readme\LibGit2Sharp.LICENSE.md" />
-    <file src="..\CHANGES.md" target="App_Readme\LibGit2Sharp.CHANGES.md" />
-    <file src="..\build\Release\LibGit2Sharp-RedGate.dll" target="lib\net35" />
-    <file src="..\build\Release\LibGit2Sharp-RedGate.xml" target="lib\net35" />
-    <file src="..\Lib\NativeBinaries\libgit2.license.txt" target="App_Readme" />
+    <file src="build\Release\x64\*.dll" target="lib\net35\x64" />
+    <file src="build\Release\x64\*.pdb" target="lib\net35\x64" />
+    <file src="build\Release\x86\*.dll" target="lib\net35\x86" />
+    <file src="build\Release\x86\*.pdb" target="lib\net35\x86" />
+    <file src="README.md" target="App_Readme\LibGit2Sharp.README.md" />
+    <file src="LICENSE.md" target="App_Readme\LibGit2Sharp.LICENSE.md" />
+    <file src="CHANGES.md" target="App_Readme\LibGit2Sharp.CHANGES.md" />
+    <file src="build\Release\LibGit2Sharp-RedGate.dll" target="lib\net35" />
+    <file src="build\Release\LibGit2Sharp-RedGate.xml" target="lib\net35" />
+    <file src="Lib\NativeBinaries\libgit2.license.txt" target="App_Readme" />
   </files>
 </package>
