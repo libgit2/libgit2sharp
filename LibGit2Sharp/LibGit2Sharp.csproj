@@ -376,4 +376,5 @@
     </CreateItem>
     <Copy SourceFiles="@(NativeBinaries)" DestinationFiles="@(NativeBinaries->'$(OutputPath)%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
   </Target>
+  <Import Project="..\SharedMsBuild\RedGate.Build.targets" Condition="'$(BuildingInsideVisualStudio)' == ''" />
 </Project>
