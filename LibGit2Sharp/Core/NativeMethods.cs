@@ -1384,6 +1384,12 @@ namespace LibGit2Sharp.Core
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string spec);
 
         [DllImport(libgit2)]
+        internal static extern int git_revparse_single(out GitObjectSafeHandle objectHandle, RepositorySafeHandle repo, [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string spec);
+
+        [DllImport(libgit2)]
+        internal static extern int git_revparse(out GitRevSpec revspec, RepositorySafeHandle repo, [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string spec);
+
+        [DllImport(libgit2)]
         internal static extern void git_revwalk_free(IntPtr walker);
 
         [DllImport(libgit2)]

@@ -27,6 +27,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <DocumentationFile>bin\Debug\LibGit2Sharp.xml</DocumentationFile>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -38,6 +39,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <DocumentationFile>bin\Release\LibGit2Sharp.xml</DocumentationFile>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -72,6 +74,7 @@
     <Compile Include="Core\FileHistory.cs" />
     <Compile Include="Core\GitFetchOptions.cs" />
     <Compile Include="Core\GitPushUpdate.cs" />
+    <Compile Include="Core\GitRevSpec.cs" />
     <Compile Include="Core\GitSubmoduleIgnore.cs" />
     <Compile Include="Core\Platform.cs" />
     <Compile Include="Core\Handles\ConflictIteratorSafeHandle.cs" />
@@ -166,6 +169,8 @@
     <Compile Include="RenameDetails.cs" />
     <Compile Include="RevertResult.cs" />
     <Compile Include="RevertOptions.cs" />
+    <Compile Include="RevSpecType.cs" />
+    <Compile Include="RevSpec.cs" />
     <Compile Include="SecureUsernamePasswordCredentials.cs" />
     <Compile Include="StageOptions.cs" />
     <Compile Include="StatusOptions.cs" />
