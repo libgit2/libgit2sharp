@@ -144,6 +144,7 @@ namespace LibGit2Sharp
                 Sort(filter.SortBy);
                 Push(filter.SinceList);
                 Hide(filter.UntilList);
+                PushRange(filter.RangeList);
                 FirstParentOnly(filter.FirstParentOnly);
             }
 
@@ -206,6 +207,14 @@ namespace LibGit2Sharp
             private void Push(IList<object> identifier)
             {
                 InternalHidePush(identifier, Proxy.git_revwalk_push);
+            }
+
+            private void PushRange(IEnumerable<string> ranges)
+            {
+                foreach (var range in ranges)
+                {
+                    Proxy.git_revwalk_push_range(handle, range);
+                }
             }
 
             private void Hide(IList<object> identifier)
