@@ -108,10 +108,11 @@ namespace LibGit2Sharp
             if (obj is string)
             {
                 list.Add((string)obj);
-                return list;
+            } 
+            else if (obj is IEnumerable)
+            {
+                list.AddRange(((IEnumerable)obj).OfType<string>());
             }
-
-            list.AddRange(((IEnumerable)obj).OfType<string>());
             return list;
         }
     }
