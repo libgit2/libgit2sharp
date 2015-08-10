@@ -2620,6 +2620,24 @@ namespace LibGit2Sharp.Core
             Ensure.ZeroResult(res);
         }
 
+        public static void git_revwalk_push_range(RevWalkerSafeHandle walker, string range)
+        {
+            int res = NativeMethods.git_revwalk_push_range(walker, range);
+            Ensure.ZeroResult(res);
+        }
+
+        public static void git_revwalk_push_ref(RevWalkerSafeHandle walker, string refname)
+        {
+            int res = NativeMethods.git_revwalk_push_ref(walker, refname);
+            Ensure.ZeroResult(res);
+        }
+
+        public static void git_revwalk_push_glob(RevWalkerSafeHandle walker, string glob)
+        {
+            int res = NativeMethods.git_revwalk_push_glob(walker, glob);
+            Ensure.ZeroResult(res);
+        }
+        
         public static void git_revwalk_reset(RevWalkerSafeHandle walker)
         {
             NativeMethods.git_revwalk_reset(walker);

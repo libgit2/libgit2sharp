@@ -1399,6 +1399,18 @@ namespace LibGit2Sharp.Core
         internal static extern int git_revwalk_push(RevWalkerSafeHandle walker, ref GitOid id);
 
         [DllImport(libgit2)]
+        internal static extern int git_revwalk_push_range(RevWalkerSafeHandle walker, [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string range);
+
+        [DllImport(libgit2)]
+        internal static extern int git_revwalk_push_ref(RevWalkerSafeHandle walker, [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string refname);
+
+        [DllImport(libgit2)]
+        internal static extern int git_revwalk_push_glob(RevWalkerSafeHandle walker, [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string glob);
+
+        [DllImport(libgit2)]
+        internal static extern int git_revwalk_push_head(RevWalkerSafeHandle walker);
+
+        [DllImport(libgit2)]
         internal static extern void git_revwalk_reset(RevWalkerSafeHandle walker);
 
         [DllImport(libgit2)]
