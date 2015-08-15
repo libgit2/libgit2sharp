@@ -97,8 +97,8 @@ namespace LibGit2Sharp.Tests
                 // Verify the chain of source commits that were rebased.
                 CommitFilter sourceCommitFilter = new CommitFilter()
                 {
-                    Since = expectedSinceCommit,
-                    Until = expectedUntilCommit,
+                    IncludeReachableFrom = expectedSinceCommit,
+                    ExcludeReachableFrom = expectedUntilCommit,
                     SortBy = CommitSortStrategies.Reverse | CommitSortStrategies.Topological,
                 };
                 Assert.Equal(repo.Commits.QueryBy(sourceCommitFilter), PreRebaseCommits);
@@ -261,8 +261,8 @@ namespace LibGit2Sharp.Tests
                 // Verify the chain of resultant rebased commits.
                 CommitFilter commitFilter = new CommitFilter()
                 {
-                    Since = repo.Head.Tip,
-                    Until = upstreamBranch.Tip,
+                    IncludeReachableFrom = repo.Head.Tip,
+                    ExcludeReachableFrom = upstreamBranch.Tip,
                     SortBy = CommitSortStrategies.Reverse | CommitSortStrategies.Topological,
                 };
 

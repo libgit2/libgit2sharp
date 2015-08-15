@@ -45,7 +45,7 @@ namespace LibGit2Sharp.Core
 
                 var filter = new CommitFilter
                 {
-                    Since = refsToRewrite,
+                    IncludeReachableFrom = refsToRewrite,
                     SortBy = CommitSortStrategies.Reverse | CommitSortStrategies.Topological
                 };
 

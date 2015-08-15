@@ -122,7 +122,7 @@ namespace LibGit2Sharp
         /// </summary>
         public virtual ICommitLog Commits
         {
-            get { return repo.Commits.QueryBy(new CommitFilter { Since = this }); }
+            get { return repo.Commits.QueryBy(new CommitFilter { IncludeReachableFrom = this }); }
         }
 
         /// <summary>
