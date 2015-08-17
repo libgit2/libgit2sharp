@@ -173,7 +173,7 @@ namespace LibGit2Sharp
         /// <returns>The note which was just saved.</returns>
         public virtual Note Add(ObjectId targetId, string message, string @namespace)
         {
-            Signature author = repo.Config.BuildSignature(DateTimeOffset.Now, true);
+            Signature author = repo.Config.BuildSignatureOrThrow(DateTimeOffset.Now);
 
             return Add(targetId, message, author, author, @namespace);
         }
@@ -212,7 +212,7 @@ namespace LibGit2Sharp
         /// <param name="namespace">The namespace on which the note will be removed. It can be either a canonical namespace or an abbreviated namespace ('refs/notes/myNamespace' or just 'myNamespace').</param>
         public virtual void Remove(ObjectId targetId, string @namespace)
         {
-            Signature author = repo.Config.BuildSignature(DateTimeOffset.Now, true);
+            Signature author = repo.Config.BuildSignatureOrThrow(DateTimeOffset.Now);
 
             Remove(targetId, author, author, @namespace);
         }

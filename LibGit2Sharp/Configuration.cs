@@ -743,12 +743,8 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// Builds a <see cref="Signature"/> based on current configuration.
-        /// <para>
-        ///    Name is populated from the user.name setting, and is "unknown" if unspecified.
-        ///    Email is populated from the user.email setting, and is built from
-        ///    <see cref="Environment.UserName"/> and <see cref="Environment.UserDomainName"/> if unspecified.
-        /// </para>
+        /// Builds a <see cref="Signature"/> based on current configuration. If it is not found or
+        /// some configuration is missing, <code>null</code> is returned.
         /// <para>
         ///    The same escalation logic than in git.git will be used when looking for the key in the config files:
         ///       - local: the Git file in the current repository
@@ -758,51 +754,30 @@ namespace LibGit2Sharp
         /// </para>
         /// </summary>
         /// <param name="now">The timestamp to use for the <see cref="Signature"/>.</param>
-        /// <returns>The signature.</returns>
+        /// <returns>The signature or null if no user identity can be found in the configuration.</returns>
         public virtual Signature BuildSignature(DateTimeOffset now)
         {
-            return BuildSignature(now, false);
-        }
+            var name = this.GetValueOrDefault<string>("user.name");
+            var email = this.GetValueOrDefault<string>("user.email");
 
-        internal Signature BuildSignature(DateTimeOffset now, bool shouldThrowIfNotFound)
-        {
-            const string userNameKey = "user.name";
-            var name = this.GetValueOrDefault<string>(userNameKey);
-            var normalizedName = NormalizeUserSetting(shouldThrowIfNotFound,
-                                                      userNameKey,
-                                                      name,
-                                                      () => "unknown");
-
-            const string userEmailKey = "user.email";
-            var email = this.GetValueOrDefault<string>(userEmailKey);
-            var normalizedEmail = NormalizeUserSetting(shouldThrowIfNotFound,
-                                                       userEmailKey,
-                                                       email,
-                                                       () => string.Format(CultureInfo.InvariantCulture,
-                                                                           "{0}@{1}",
-                                                                           Environment.UserName,
-                                                                           Environment.UserDomainName));
-
-            return new Signature(normalizedName, normalizedEmail, now);
-        }
-
-        private string NormalizeUserSetting(bool shouldThrowIfNotFound, string entryName, string currentValue, Func<string> defaultValue)
-        {
-            if (!string.IsNullOrEmpty(currentValue))
+            if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(email))
             {
-                return currentValue;
+                return null;
             }
 
-            string message = string.Format("Configuration value '{0}' is missing or invalid.", entryName);
+            return new Signature(name, email, now);
+        }
 
-            if (shouldThrowIfNotFound)
+        internal Signature BuildSignatureOrThrow(DateTimeOffset now)
+        {
+            var signature = BuildSignature(now);
+            if (signature == null)
             {
-                throw new LibGit2SharpException(message);
+                throw new LibGit2SharpException("This overload requires 'user.name' and 'user.email' to be set. " +
+                                                "Use a different overload or set those variables in the configuation");
             }
 
-            Log.Write(LogLevel.Warning, message);
-
-            return defaultValue();
+            return signature;
         }
 
         private ConfigurationSafeHandle Snapshot()
