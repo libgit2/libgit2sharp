@@ -57,7 +57,7 @@ namespace LibGit2Sharp
 
         internal IList<object> SinceList
         {
-            get { return ToList(Since); }
+            get { return ToList(IncludeReachableFrom); }
         }
 
         /// <summary>
@@ -87,7 +87,7 @@ namespace LibGit2Sharp
 
         internal IList<object> UntilList
         {
-            get { return ToList(Until); }
+            get { return ToList(ExcludeReachableFrom); }
         }
 
         /// <summary>

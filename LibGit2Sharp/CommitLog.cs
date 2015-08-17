@@ -73,8 +73,8 @@ namespace LibGit2Sharp
         public ICommitLog QueryBy(CommitFilter filter)
         {
             Ensure.ArgumentNotNull(filter, "filter");
-            Ensure.ArgumentNotNull(filter.Since, "filter.Since");
-            Ensure.ArgumentNotNullOrEmptyString(filter.Since.ToString(), "filter.Since");
+            Ensure.ArgumentNotNull(filter.IncludeReachableFrom, "filter.IncludeReachableFrom");
+            Ensure.ArgumentNotNullOrEmptyString(filter.IncludeReachableFrom.ToString(), "filter.IncludeReachableFrom");
 
             return new CommitLog(repo, filter);
         }
