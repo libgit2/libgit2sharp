@@ -4,6 +4,7 @@ branches:
   only:
   - master
   - vNext
+  - ntk/strongnamesign
 
 skip_tags: true
 
