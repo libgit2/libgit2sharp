@@ -236,7 +236,7 @@ namespace LibGit2Sharp
         /// <returns>The generated <see cref="LibGit2Sharp.Commit"/>.</returns>
         public static Commit Commit(this IRepository repository, string message, CommitOptions options)
         {
-            Signature author = repository.Config.BuildSignature(DateTimeOffset.Now, true);
+            Signature author = repository.Config.BuildSignatureOrThrow(DateTimeOffset.Now);
 
             return repository.Commit(message, author, options);
         }
@@ -270,7 +270,7 @@ namespace LibGit2Sharp
         /// <returns>The generated <see cref="LibGit2Sharp.Commit"/>.</returns>
         public static Commit Commit(this IRepository repository, string message, Signature author, CommitOptions options)
         {
-            Signature committer = repository.Config.BuildSignature(DateTimeOffset.Now, true);
+            Signature committer = repository.Config.BuildSignatureOrThrow(DateTimeOffset.Now);
 
             return repository.Commit(message, author, committer, options);
         }
