@@ -175,7 +175,10 @@ namespace LibGit2Sharp.Tests
             using (var repo = new Repository(path, options))
             {
                 var commit = repo.Lookup<Commit>("9fd738e8f7967c078dceed8190330fc8648ee56a");
-                var note = repo.Notes.Add(commit.Id, "I'm batman!\n", "batmobile");
+
+                Signature signature = repo.Config.BuildSignature(DateTimeOffset.Now);
+
+                var note = repo.Notes.Add(commit.Id, "I'm batman!\n", signature, signature, "batmobile");
 
                 var newNote = commit.Notes.Single();
                 Assert.Equal(note, newNote);
