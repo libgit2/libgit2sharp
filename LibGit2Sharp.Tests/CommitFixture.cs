@@ -538,27 +538,6 @@ namespace LibGit2Sharp.Tests
             }
         }
 
-        [Theory]
-        [InlineData(null, "x@example.com")]
-        [InlineData("", "x@example.com")]
-        [InlineData("X", null)]
-        [InlineData("X", "")]
-        public void CommitWithInvalidSignatureConfigThrows(string name, string email)
-        {
-            string repoPath = InitNewRepository();
-            string configPath = CreateConfigurationWithDummyUser(name, email);
-            var options = new RepositoryOptions { GlobalConfigurationLocation = configPath };
-
-            using (var repo = new Repository(repoPath, options))
-            {
-                Assert.Equal(name, repo.Config.GetValueOrDefault<string>("user.name"));
-                Assert.Equal(email, repo.Config.GetValueOrDefault<string>("user.email"));
-
-                Assert.Throws<LibGit2SharpException>(
-                    () => repo.Commit("Initial egotistic commit", new CommitOptions { AllowEmptyCommit = true }));
-            }
-        }
-
         [Fact]
         public void CanCommitWithSignatureFromConfig()
         {
