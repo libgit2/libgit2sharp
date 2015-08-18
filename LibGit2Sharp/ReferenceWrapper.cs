@@ -166,8 +166,8 @@ namespace LibGit2Sharp
             {
                 return string.Format(CultureInfo.InvariantCulture,
                                      "{0} => \"{1}\"", CanonicalName,
-                                     (TargetObject != null) 
-                                        ? TargetObject.Id.ToString(7) 
+                                     (TargetObject != null)
+                                        ? TargetObject.Id.ToString(7)
                                         : "?");
             }
         }

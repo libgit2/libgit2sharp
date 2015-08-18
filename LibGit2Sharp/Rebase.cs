@@ -91,7 +91,7 @@ namespace LibGit2Sharp
                     this.repository.Refs.RetrieveReferencePtr(b.CanonicalName);
             };
 
-            Func<ReferenceSafeHandle, GitAnnotatedCommitHandle> AnnotatedCommitHandleFromRefHandle = 
+            Func<ReferenceSafeHandle, GitAnnotatedCommitHandle> AnnotatedCommitHandleFromRefHandle =
                 (ReferenceSafeHandle refHandle) =>
             {
                 return (refHandle == null) ?
@@ -273,7 +273,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <returns></returns>
         public virtual long GetCurrentStepIndex()
@@ -290,7 +290,7 @@ namespace LibGit2Sharp
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <returns></returns>
         public virtual long GetTotalStepCount()

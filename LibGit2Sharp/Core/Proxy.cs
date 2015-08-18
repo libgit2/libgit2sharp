@@ -702,15 +702,15 @@ namespace LibGit2Sharp.Core
             using (var osw1 = new ObjectSafeWrapper(oldBlob, repo, true))
             using (var osw2 = new ObjectSafeWrapper(newBlob, repo, true))
             {
-                int res = NativeMethods.git_diff_blobs(osw1.ObjectPtr, 
-                                                       null, 
-                                                       osw2.ObjectPtr, 
-                                                       null, 
-                                                       options, 
-                                                       fileCallback, 
-                                                       null, 
-                                                       hunkCallback, 
-                                                       lineCallback, 
+                int res = NativeMethods.git_diff_blobs(osw1.ObjectPtr,
+                                                       null,
+                                                       osw2.ObjectPtr,
+                                                       null,
+                                                       options,
+                                                       fileCallback,
+                                                       null,
+                                                       hunkCallback,
+                                                       lineCallback,
                                                        IntPtr.Zero);
 
                 Ensure.ZeroResult(res);
@@ -2705,8 +2705,8 @@ namespace LibGit2Sharp.Core
         {
             return git_foreach(resultSelector,
                                c => NativeMethods.git_stash_foreach(repo,
-                                                                    (UIntPtr i, IntPtr m, ref GitOid x, IntPtr p) 
-                                                                        => c((int)i, m, x, p), 
+                                                                    (UIntPtr i, IntPtr m, ref GitOid x, IntPtr p)
+                                                                        => c((int)i, m, x, p),
                                                                     IntPtr.Zero),
                                GitErrorCode.NotFound);
         }
@@ -2771,7 +2771,7 @@ namespace LibGit2Sharp.Core
                 case (int)GitErrorCode.Ambiguous:
                     throw new AmbiguousSpecificationException(CultureInfo.InvariantCulture,
                                                               "More than one file matches the pathspec '{0}'. " +
-                                                              "You can either force a literal path evaluation " + 
+                                                              "You can either force a literal path evaluation " +
                                                               "(GIT_STATUS_OPT_DISABLE_PATHSPEC_MATCH), or use git_status_foreach().",
                                                               path);
 

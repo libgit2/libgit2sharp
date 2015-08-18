@@ -79,8 +79,8 @@ namespace LibGit2Sharp.Core
                     return GitBlameOptionFlags.GIT_BLAME_NORMAL;
 
                 default:
-                    throw new NotSupportedException(string.Format(CultureInfo.InvariantCulture, 
-                                                                  "{0} is not supported at this time", 
+                    throw new NotSupportedException(string.Format(CultureInfo.InvariantCulture,
+                                                                  "{0} is not supported at this time",
                                                                   strategy));
             }
         }

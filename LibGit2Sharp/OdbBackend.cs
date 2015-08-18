@@ -637,7 +637,7 @@ namespace LibGit2Sharp
             {
                 throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture,
                                                                   "Provided length ({0}) exceeds long.MaxValue ({1}).",
-                                                                  len.ToUInt64(), 
+                                                                  len.ToUInt64(),
                                                                   long.MaxValue));
             }
 

@@ -60,8 +60,8 @@ namespace LibGit2Sharp.Core
 
         public bool Equals(FilePath other)
         {
-            return other == null 
-                ? posix == null 
+            return other == null
+                ? posix == null
                 : string.Equals(posix, other.posix, StringComparison.Ordinal);
         }
 

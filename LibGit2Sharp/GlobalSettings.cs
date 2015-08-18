@@ -200,7 +200,7 @@ namespace LibGit2Sharp
         /// Registers a <see cref="Filter"/> to be invoked when <see cref="Filter.Name"/> matches .gitattributes 'filter=name'
         /// </summary>
         /// <param name="filter">The filter to be invoked at run time.</param>
-        /// <param name="priority">The priroty of the filter to invoked. 
+        /// <param name="priority">The priroty of the filter to invoked.
         /// A value of 0 (<see cref="FilterRegistration.FilterPriorityMin"/>) will be run first on checkout and last on checkin.
         /// A value of 200 (<see cref="FilterRegistration.FilterPriorityMax"/>) will be run last on checkout and first on checkin.
         /// </param>
@@ -222,7 +222,7 @@ namespace LibGit2Sharp
 
             lock (registeredFilters)
             {
-                // if the filter has already been registered 
+                // if the filter has already been registered
                 if (registeredFilters.ContainsKey(filter))
                 {
                     throw new EntryExistsException("The filter has already been registered.", GitErrorCode.Exists, GitErrorCategory.Filter);
@@ -251,7 +251,7 @@ namespace LibGit2Sharp
 
                 // do nothing if the filter isn't registered
                 if (registeredFilters.ContainsKey(filter))
-                {                    
+                {
                     // remove the register from the global tracking list
                     registeredFilters.Remove(filter);
                     // clean up native allocations

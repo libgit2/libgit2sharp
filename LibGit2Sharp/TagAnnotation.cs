@@ -23,11 +23,11 @@ namespace LibGit2Sharp
             : base(repo, id)
         {
             lazyName = GitObjectLazyGroup.Singleton(repo, id, Proxy.git_tag_name);
-            lazyTarget = GitObjectLazyGroup.Singleton(repo, 
+            lazyTarget = GitObjectLazyGroup.Singleton(repo,
                                                       id,
-                                                      obj => BuildFrom(repo, 
-                                                                       Proxy.git_tag_target_id(obj), 
-                                                                       Proxy.git_tag_target_type(obj), 
+                                                      obj => BuildFrom(repo,
+                                                                       Proxy.git_tag_target_id(obj),
+                                                                       Proxy.git_tag_target_type(obj),
                                                                        null));
 
             group = new GitObjectLazyGroup(repo, id);

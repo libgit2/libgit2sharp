@@ -297,9 +297,9 @@ namespace LibGit2Sharp
                     return false;
                 }
 
-                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, 
-                                                          "'{0}' is not a valid object identifier. Its length should be {1}.", 
-                                                          objectId, 
+                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture,
+                                                          "'{0}' is not a valid object identifier. Its length should be {1}.",
+                                                          objectId,
                                                           HexSize),
                                             "objectId");
             }

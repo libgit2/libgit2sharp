@@ -489,9 +489,9 @@ namespace LibGit2Sharp
 
             if (minLength <= 0 || minLength > ObjectId.HexSize)
             {
-                throw new ArgumentOutOfRangeException("minLength", 
+                throw new ArgumentOutOfRangeException("minLength",
                                                       minLength,
-                                                      string.Format("Expected value should be greater than zero and less than or equal to {0}.", 
+                                                      string.Format("Expected value should be greater than zero and less than or equal to {0}.",
                                                                     ObjectId.HexSize));
             }
 

@@ -100,9 +100,9 @@ namespace LibGit2Sharp
                     }
                     break;
                 default:
-                    throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, 
-                                                                      "Unsupported file mode: {0} (sha1: {1}).", 
-                                                                      entry.Mode, 
+                    throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture,
+                                                                      "Unsupported file mode: {0} (sha1: {1}).",
+                                                                      entry.Mode,
                                                                       entry.TargetId.Sha));
             }
         }
@@ -111,20 +111,20 @@ namespace LibGit2Sharp
         {
             using (Stream contentStream = streamer())
             {
-                writer.Write(path, 
-                             contentStream, 
+                writer.Write(path,
+                             contentStream,
                              modificationTime,
-                             (entry.Mode == Mode.ExecutableFile) 
-                                 ? "775".OctalToInt32() 
+                             (entry.Mode == Mode.ExecutableFile)
+                                 ? "775".OctalToInt32()
                                  : "664".OctalToInt32(),
-                             "0", 
-                             "0", 
-                             '0', 
-                             "root", 
-                             "root", 
-                             "0", 
-                             "0", 
-                             entry.TargetId.Sha, 
+                             "0",
+                             "0",
+                             '0',
+                             "root",
+                             "root",
+                             "0",
+                             "0",
+                             entry.TargetId.Sha,
                              false);
             }
         }

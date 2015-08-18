@@ -460,9 +460,9 @@ namespace LibGit2Sharp.Core
 
                     return new FileNameExtendedHeader(posixPath,
                                                       string.Empty,
-                                                      string.Format(CultureInfo.InvariantCulture, 
-                                                                    "{0}.data", 
-                                                                    entrySha), 
+                                                      string.Format(CultureInfo.InvariantCulture,
+                                                                    "{0}.data",
+                                                                    entrySha),
                                                       true);
                 }
 

@@ -145,10 +145,10 @@ namespace LibGit2Sharp
             get
             {
                 return string.Format(CultureInfo.InvariantCulture,
-                                     "{0}: {1} {2} {3}", 
-                                     Path, 
-                                     AncestorId, 
-                                     OurId, 
+                                     "{0}: {1} {2} {3}",
+                                     Path,
+                                     AncestorId,
+                                     OurId,
                                      TheirId);
             }
         }

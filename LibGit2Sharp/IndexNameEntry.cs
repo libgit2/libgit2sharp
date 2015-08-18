@@ -120,9 +120,9 @@ namespace LibGit2Sharp
             get
             {
                 return string.Format(CultureInfo.InvariantCulture,
-                                     "{0} {1} {2}", 
-                                     Ancestor, 
-                                     Ours, 
+                                     "{0} {1} {2}",
+                                     Ancestor,
+                                     Ours,
                                      Theirs);
             }
         }

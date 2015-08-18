@@ -256,7 +256,6 @@ namespace LibGit2Sharp
             return repository.Commit(message, author, (CommitOptions)null);
         }
 
-
         /// <summary>
         /// Stores the content of the <see cref="Repository.Index"/> as a new <see cref="LibGit2Sharp.Commit"/> into the repository.
         /// The tip of the <see cref="Repository.Head"/> will be used as the parent of this new Commit.
@@ -357,7 +356,7 @@ namespace LibGit2Sharp
             {
                 throw new ArgumentException(string.Format(CultureInfo.InvariantCulture,
                                                           "Unable to process file '{0}'. This file is not located under the working directory of the repository ('{1}').",
-                                                          normalizedPath, 
+                                                          normalizedPath,
                                                           repo.Info.WorkingDirectory));
             }
 

@@ -237,7 +237,7 @@ namespace LibGit2Sharp
                 current = stepToApplyIndex,
                 total = totalStepCount,
             };
-            
+
             return progress;
         }
 

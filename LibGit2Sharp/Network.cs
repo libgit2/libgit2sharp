@@ -429,10 +429,10 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(objectish, "objectish");
             Ensure.ArgumentNotNullOrEmptyString(destinationSpec, "destinationSpec");
 
-            Push(remote, 
+            Push(remote,
                  string.Format(CultureInfo.InvariantCulture,
-                               "{0}:{1}", 
-                               objectish, 
+                               "{0}:{1}",
+                               objectish,
                                destinationSpec));
         }
 
@@ -452,11 +452,11 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(objectish, "objectish");
             Ensure.ArgumentNotNullOrEmptyString(destinationSpec, "destinationSpec");
 
-            Push(remote, 
+            Push(remote,
                  string.Format(CultureInfo.InvariantCulture,
-                               "{0}:{1}", 
-                               objectish, 
-                               destinationSpec), 
+                               "{0}:{1}",
+                               objectish,
+                               destinationSpec),
                  pushOptions);
         }
 
@@ -570,7 +570,7 @@ namespace LibGit2Sharp
             {
                 int i = 0;
 
-                Func<string, string, GitOid, bool, FetchHead> resultSelector = 
+                Func<string, string, GitOid, bool, FetchHead> resultSelector =
                     (name, url, oid, isMerge) => new FetchHead(repository, name, url, oid, isMerge, i++);
 
                 return Proxy.git_repository_fetchhead_foreach(repository.Handle, resultSelector);

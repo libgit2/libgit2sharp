@@ -302,8 +302,8 @@ namespace LibGit2Sharp.Core
                 newName = options.TagNameRewriter(annotation.Name, true, annotation.Target.Sha);
             }
 
-            var newAnnotation = repo.ObjectDatabase.CreateTagAnnotation(newName, 
-                                                                        newTarget, 
+            var newAnnotation = repo.ObjectDatabase.CreateTagAnnotation(newName,
+                                                                        newTarget,
                                                                         annotation.Tagger,
                                                                         annotation.Message);
             objectMap[annotation] = newAnnotation;
