@@ -168,7 +168,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanAddANoteWithSignatureFromConfig()
         {
-            string configPath = CreateConfigurationWithDummyUser(Constants.Signature);
+            string configPath = CreateConfigurationWithDummyUser(Constants.Identity);
             var options = new RepositoryOptions { GlobalConfigurationLocation = configPath };
             string path = SandboxBareTestRepo();
 
@@ -183,7 +183,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal("I'm batman!\n", newNote.Message);
                 Assert.Equal("batmobile", newNote.Namespace);
 
-                AssertCommitSignaturesAre(repo.Lookup<Commit>("refs/notes/batmobile"), Constants.Signature);
+                AssertCommitIdentitiesAre(repo.Lookup<Commit>("refs/notes/batmobile"), Constants.Identity);
             }
         }
 
@@ -265,7 +265,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanRemoveANoteWithSignatureFromConfig()
         {
-            string configPath = CreateConfigurationWithDummyUser(Constants.Signature);
+            string configPath = CreateConfigurationWithDummyUser(Constants.Identity);
             RepositoryOptions options = new RepositoryOptions() { GlobalConfigurationLocation = configPath };
             string path = SandboxBareTestRepo();
 
@@ -280,7 +280,7 @@ namespace LibGit2Sharp.Tests
 
                 Assert.Empty(notes);
 
-                AssertCommitSignaturesAre(repo.Lookup<Commit>("refs/notes/" + repo.Notes.DefaultNamespace), Constants.Signature);
+                AssertCommitIdentitiesAre(repo.Lookup<Commit>("refs/notes/" + repo.Notes.DefaultNamespace), Constants.Identity);
             }
         }
 

@@ -328,11 +328,11 @@ namespace LibGit2Sharp.Tests.TestHelpers
         /// Creates a configuration file with user.name and user.email set to signature
         /// </summary>
         /// <remarks>The configuration file will be removed automatically when the tests are finished</remarks>
-        /// <param name="signature">The signature to use for user.name and user.email</param>
+        /// <param name="identity">The identity to use for user.name and user.email</param>
         /// <returns>The path to the configuration file</returns>
-        protected string CreateConfigurationWithDummyUser(Signature signature)
+        protected string CreateConfigurationWithDummyUser(Identity identity)
         {
-            return CreateConfigurationWithDummyUser(signature.Name, signature.Email);
+            return CreateConfigurationWithDummyUser(identity.Name, identity.Email);
         }
 
         protected string CreateConfigurationWithDummyUser(string name, string email)
@@ -361,13 +361,13 @@ namespace LibGit2Sharp.Tests.TestHelpers
         /// Asserts that the commit has been authored and committed by the specified signature
         /// </summary>
         /// <param name="commit">The commit</param>
-        /// <param name="signature">The signature to compare author and commiter to</param>
-        protected void AssertCommitSignaturesAre(Commit commit, Signature signature)
+        /// <param name="identity">The identity to compare author and commiter to</param>
+        protected void AssertCommitIdentitiesAre(Commit commit, Identity identity)
         {
-            Assert.Equal(signature.Name, commit.Author.Name);
-            Assert.Equal(signature.Email, commit.Author.Email);
-            Assert.Equal(signature.Name, commit.Committer.Name);
-            Assert.Equal(signature.Email, commit.Committer.Email);
+            Assert.Equal(identity.Name, commit.Author.Name);
+            Assert.Equal(identity.Email, commit.Author.Email);
+            Assert.Equal(identity.Name, commit.Committer.Name);
+            Assert.Equal(identity.Email, commit.Committer.Email);
         }
 
         protected static string Touch(string parent, string file, string content = null, Encoding encoding = null)

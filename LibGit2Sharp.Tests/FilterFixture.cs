@@ -232,7 +232,7 @@ namespace LibGit2Sharp.Tests
                 string attributesPath = Path.Combine(Directory.GetParent(repoPath).Parent.FullName, ".gitattributes");
                 FileInfo attributesFile = new FileInfo(attributesPath);
 
-                string configPath = CreateConfigurationWithDummyUser(Constants.Signature);
+                string configPath = CreateConfigurationWithDummyUser(Constants.Identity);
                 var repositoryOptions = new RepositoryOptions { GlobalConfigurationLocation = configPath };
 
                 using (Repository repo = new Repository(repoPath, repositoryOptions))
@@ -377,7 +377,7 @@ namespace LibGit2Sharp.Tests
 
         private Repository CreateTestRepository(string path)
         {
-            string configPath = CreateConfigurationWithDummyUser(Constants.Signature);
+            string configPath = CreateConfigurationWithDummyUser(Constants.Identity);
             var repositoryOptions = new RepositoryOptions { GlobalConfigurationLocation = configPath };
             var repository = new Repository(path, repositoryOptions);
             CreateAttributesFile(repository, "* filter=test");

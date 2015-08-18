@@ -143,7 +143,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanEnumerateGlobalConfig()
         {
-            string configPath = CreateConfigurationWithDummyUser(Constants.Signature);
+            string configPath = CreateConfigurationWithDummyUser(Constants.Identity);
             var options = new RepositoryOptions { GlobalConfigurationLocation = configPath };
 
             var path = SandboxStandardTestRepoGitDir();
@@ -200,7 +200,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanFindInGlobalConfig()
         {
-            string configPath = CreateConfigurationWithDummyUser(Constants.Signature);
+            string configPath = CreateConfigurationWithDummyUser(Constants.Identity);
             var options = new RepositoryOptions { GlobalConfigurationLocation = configPath };
 
             var path = SandboxStandardTestRepoGitDir();
@@ -387,7 +387,7 @@ namespace LibGit2Sharp.Tests
         {
             var path = SandboxStandardTestRepoGitDir();
 
-            string globalConfigPath = CreateConfigurationWithDummyUser(Constants.Signature);
+            string globalConfigPath = CreateConfigurationWithDummyUser(Constants.Identity);
             var options = new RepositoryOptions { GlobalConfigurationLocation = globalConfigPath };
 
             using (var repo = new Repository(path, options))
