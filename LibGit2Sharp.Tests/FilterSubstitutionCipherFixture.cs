@@ -203,7 +203,7 @@ namespace LibGit2Sharp.Tests
         {
             File.Delete(Path.Combine(repo.Info.WorkingDirectory, fileName));
             repo.Stage(fileName);
-            repo.Commit("remove file");
+            repo.Commit("remove file", Constants.Signature, Constants.Signature);
         }
 
         private static Blob CommitOnBranchAndReturnDatabaseBlob(Repository repo, string fileName, string input)
@@ -211,7 +211,7 @@ namespace LibGit2Sharp.Tests
             Touch(repo.Info.WorkingDirectory, fileName, input);
             repo.Stage(fileName);
 
-            var commit = repo.Commit("new file");
+            var commit = repo.Commit("new file", Constants.Signature, Constants.Signature);
 
             var blob = (Blob)commit.Tree[fileName].Target;
             return blob;

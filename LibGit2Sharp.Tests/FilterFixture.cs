@@ -159,7 +159,7 @@ namespace LibGit2Sharp.Tests
                 using (var repo = CreateTestRepository(repoPath))
                 {
                     FileInfo expectedFile = StageNewFile(repo, decodedInput);
-                    var commit = repo.Commit("Clean that file");
+                    var commit = repo.Commit("Clean that file", Constants.Signature, Constants.Signature);
                     var blob = (Blob)commit.Tree[expectedFile.Name].Target;
 
                     var textDetected = blob.GetContentText();
@@ -240,7 +240,7 @@ namespace LibGit2Sharp.Tests
                     File.WriteAllText(attributesPath, "*.blob filter=test");
                     repo.Stage(attributesFile.Name);
                     repo.Stage(contentFile.Name);
-                    repo.Commit("test");
+                    repo.Commit("test", Constants.Signature, Constants.Signature);
                     contentFile.Delete();
                     repo.Checkout("HEAD", new CheckoutOptions() { CheckoutModifiers = CheckoutModifiers.Force });
                 }
@@ -346,7 +346,7 @@ namespace LibGit2Sharp.Tests
             {
                 StageNewFile(repo, content);
 
-                repo.Commit("Initial commit");
+                repo.Commit("Initial commit", Constants.Signature, Constants.Signature);
 
                 expectedPath = CommitFileOnBranch(repo, branchName, content);
 
@@ -363,7 +363,7 @@ namespace LibGit2Sharp.Tests
             repo.Checkout(branch.FriendlyName);
 
             FileInfo expectedPath = StageNewFile(repo, content);
-            repo.Commit("Commit");
+            repo.Commit("Commit", Constants.Signature, Constants.Signature);
             return expectedPath;
         }
 

@@ -560,7 +560,9 @@ namespace LibGit2Sharp.Tests
 
                 Assert.Null(repo.Head[relativeFilepath]);
 
-                Commit commit = repo.Commit("Initial egotistic commit");
+                Signature signature = repo.Config.BuildSignature(DateTimeOffset.Now);
+
+                Commit commit = repo.Commit("Initial egotistic commit", signature, signature);
 
                 AssertBlobContent(repo.Head[relativeFilepath], "nulltoken\n");
                 AssertBlobContent(commit[relativeFilepath], "nulltoken\n");
