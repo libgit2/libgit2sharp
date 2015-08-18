@@ -279,7 +279,9 @@ namespace LibGit2Sharp.Tests
 
                 Assert.NotEmpty(notes);
 
-                repo.Notes.Remove(commit.Id, repo.Notes.DefaultNamespace);
+                Signature signature = repo.Config.BuildSignature(DateTimeOffset.Now);
+
+                repo.Notes.Remove(commit.Id, signature, signature, repo.Notes.DefaultNamespace);
 
                 Assert.Empty(notes);
 

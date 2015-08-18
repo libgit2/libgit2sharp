@@ -211,6 +211,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="targetId">The target <see cref="ObjectId"/>, for which the note will be created.</param>
         /// <param name="namespace">The namespace on which the note will be removed. It can be either a canonical namespace or an abbreviated namespace ('refs/notes/myNamespace' or just 'myNamespace').</param>
+        [Obsolete("This method will be removed in the next release. Please use Remove(ObjectId, Signature, Signature, string) instead.")]
         public virtual void Remove(ObjectId targetId, string @namespace)
         {
             Signature author = repo.Config.BuildSignatureOrThrow(DateTimeOffset.Now);
