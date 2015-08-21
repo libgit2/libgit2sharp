@@ -628,6 +628,15 @@ namespace LibGit2Sharp.Core
 
         #endregion
 
+        #region git_cred_
+
+        public static void git_cred_free(IntPtr cred)
+        {
+            NativeMethods.git_cred_free(cred);
+        }
+
+        #endregion
+
         #region git_describe_
 
         public static string git_describe_commit(
@@ -3177,6 +3186,15 @@ namespace LibGit2Sharp.Core
             }
 
             Ensure.ZeroResult(res);
+        }
+
+        #endregion
+
+        #region git_transport_smart_
+
+        public static int git_transport_smart_credentials(out IntPtr cred, IntPtr transport, string user, int methods)
+        {
+            return NativeMethods.git_transport_smart_credentials(out cred, transport, user, methods);
         }
 
         #endregion
