@@ -4,6 +4,7 @@ using System.IO;
 using System.Net;
 using System.Net.Security;
 using LibGit2Sharp.Tests.TestHelpers;
+using LibGit2Sharp.Core;
 using Xunit;
 using Xunit.Extensions;
 
@@ -63,6 +64,58 @@ namespace LibGit2Sharp.Tests
 
                     // Perform the actual fetch
                     repo.Network.Fetch(remote, new FetchOptions { OnUpdateTips = expectedFetchState.RemoteUpdateTipsHandler, TagFetchMode = TagFetchMode.Auto });
+
+                    // Verify the expected
+                    expectedFetchState.CheckUpdatedReferences(repo);
+                }
+            }
+            finally
+            {
+                GlobalSettings.UnregisterSmartSubtransport(registration);
+
+                ServicePointManager.ServerCertificateValidationCallback -= certificateValidationCallback;
+            }
+        }
+
+        [Theory]
+        [InlineData("https", "https://bitbucket.org/libgit2/testgitrepository.git", "libgit3", "libgit3")]
+        public void CanUseCredentials(string scheme, string url, string user, string pass)
+        {
+            string remoteName = "testRemote";
+
+            var scd = BuildSelfCleaningDirectory();
+            var repoPath = Repository.Init(scd.RootedDirectoryPath);
+
+            SmartSubtransportRegistration<MockSmartSubtransport> registration = null;
+
+            try
+            {
+                // Disable server certificate validation for testing.
+                // Do *NOT* enable this in production.
+                ServicePointManager.ServerCertificateValidationCallback = certificateValidationCallback;
+
+                registration = GlobalSettings.RegisterSmartSubtransport<MockSmartSubtransport>(scheme);
+                Assert.NotNull(registration);
+
+                using (var repo = new Repository(scd.DirectoryPath))
+                {
+                    Remote remote = repo.Network.Remotes.Add(remoteName, url);
+
+                    // Set up structures for the expected results
+                    // and verifying the RemoteUpdateTips callback.
+                    TestRemoteInfo expectedResults = TestRemoteInfo.TestRemoteInstance;
+                    ExpectedFetchState expectedFetchState = new ExpectedFetchState(remoteName);
+
+                    // Add expected branch objects
+                    foreach (KeyValuePair<string, ObjectId> kvp in expectedResults.BranchTips)
+                    {
+                        expectedFetchState.AddExpectedBranch(kvp.Key, ObjectId.Zero, kvp.Value);
+                    }
+
+                    // Perform the actual fetch
+                    repo.Network.Fetch(remote, new FetchOptions { OnUpdateTips = expectedFetchState.RemoteUpdateTipsHandler, TagFetchMode = TagFetchMode.Auto,
+                        CredentialsProvider = (_user, _valid, _hostname) => new UsernamePasswordCredentials() { Username = "libgit3", Password = "libgit3" },
+                    });
 
                     // Verify the expected
                     expectedFetchState.CheckUpdatedReferences(repo);
@@ -234,13 +287,38 @@ namespace LibGit2Sharp.Tests
                             }
                         }
 
-                        response = (HttpWebResponse)request.GetResponse();
+                        try
+                        {
+                            response = (HttpWebResponse)request.GetResponse();
+                        }
+                        catch (WebException ex)
+                        {
+                            response = ex.Response as HttpWebResponse;
+                            if (response.StatusCode == HttpStatusCode.Unauthorized)
+                            {
+                                Credentials cred;
+                                int ret = SmartTransport.AcquireCredentials(out cred, null, typeof(UsernamePasswordCredentials));
+                                if (ret != 0)
+                                {
+                                    throw new InvalidOperationException("dunno");
+                                }
+
+                                request = CreateWebRequest(EndpointUrl, IsPost, ContentType);
+                                UsernamePasswordCredentials userpass = (UsernamePasswordCredentials)cred;
+                                request.Credentials = new NetworkCredential(userpass.Username, userpass.Password);
+                                continue;
+                            }
+
+                            // rethrow if it's not 401
+                            throw ex;
+                        }
 
                         if (response.StatusCode == HttpStatusCode.Moved || response.StatusCode == HttpStatusCode.Redirect)
                         {
                             request = CreateWebRequest(response.Headers["Location"], IsPost, ContentType);
                             continue;
                         }
+
 
                         break;
                     }
