@@ -1,4 +1,6 @@
 ﻿using LibGit2Sharp.Core;
+using System;
+using System.Runtime.InteropServices;
 
 namespace LibGit2Sharp
 {
@@ -48,6 +50,32 @@ namespace LibGit2Sharp
 
             HashSHA1 = new byte[20];
             cert.HashSHA1.CopyTo(HashSHA1, 0);
+        }
+
+        internal IntPtr ToPointer()
+        {
+            GitCertificateSshType sshCertType = 0;
+            if (HasMD5)
+            {
+                sshCertType |= GitCertificateSshType.MD5;
+            }
+            if (HasSHA1)
+            {
+                sshCertType |= GitCertificateSshType.SHA1;
+            }
+
+            var gitCert = new GitCertificateSsh
+            {
+                cert_type = GitCertificateType.Hostkey,
+                type = sshCertType,
+            };
+            HashMD5.CopyTo(gitCert.HashMD5, 0);
+            HashSHA1.CopyTo(gitCert.HashSHA1, 0);
+
+            var ptr = Marshal.AllocHGlobal(Marshal.SizeOf(gitCert));
+            Marshal.StructureToPtr(gitCert, ptr, false);
+
+            return ptr;
         }
     }
 }
