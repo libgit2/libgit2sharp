@@ -380,6 +380,7 @@
     <Compile Include="Core\GitCertificateSsh.cs" />
     <Compile Include="Core\GitCertificateSshType.cs" />
     <Compile Include="CertificateSsh.cs" />
+    <Compile Include="IDiffResult.cs" />
   </ItemGroup>
   <ItemGroup>
     <CodeAnalysisDictionary Include="CustomDictionary.xml" />

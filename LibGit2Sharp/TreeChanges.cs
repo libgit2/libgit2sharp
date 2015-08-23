@@ -15,7 +15,7 @@ namespace LibGit2Sharp
     /// <para>To obtain the actual patch of the diff, use the <see cref="Patch"/> class when calling Compare.</para>.
     /// </summary>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public class TreeChanges : IEnumerable<TreeEntryChanges>
+    public class TreeChanges : IEnumerable<TreeEntryChanges>, IDiffResult
     {
         private readonly List<TreeEntryChanges> changes = new List<TreeEntryChanges>();
         private readonly List<TreeEntryChanges> added = new List<TreeEntryChanges>();
@@ -90,7 +90,6 @@ namespace LibGit2Sharp
         }
 
         #endregion
-
 
         /// <summary>
         /// List of <see cref="TreeEntryChanges"/> that have been been added.

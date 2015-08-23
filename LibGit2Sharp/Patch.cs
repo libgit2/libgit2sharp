@@ -16,7 +16,7 @@ namespace LibGit2Sharp
     /// deleted, modified, ..., then consider using a simpler <see cref="TreeChanges"/>.</para>
     /// </summary>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public class Patch : IEnumerable<PatchEntryChanges>
+    public class Patch : IEnumerable<PatchEntryChanges>, IDiffResult
     {
         private readonly StringBuilder fullPatchBuilder = new StringBuilder();
 
@@ -41,7 +41,6 @@ namespace LibGit2Sharp
                     AddFileChange(delta);
                     Proxy.git_patch_print(patch, PrintCallBack);
                 }
-
             }
         }
 

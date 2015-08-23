@@ -13,7 +13,7 @@ namespace LibGit2Sharp
     /// <para>The individual patches for each file can be accessed through the indexer of this class.</para>
     /// </summary>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public class PatchStats : IEnumerable<ContentChangeStats>
+    public class PatchStats : IEnumerable<ContentChangeStats>, IDiffResult
     {
         private readonly IDictionary<FilePath, ContentChangeStats> changes = new Dictionary<FilePath, ContentChangeStats>();
         private readonly int totalLinesAdded;
