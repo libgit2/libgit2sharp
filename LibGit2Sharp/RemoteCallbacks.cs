@@ -59,7 +59,7 @@ namespace LibGit2Sharp
         private readonly UpdateTipsHandler UpdateTips;
 
         /// <summary>
-        /// PushStatusError callback. It will be called when the libgit2 push_update_reference returns a non null status message, 
+        /// PushStatusError callback. It will be called when the libgit2 push_update_reference returns a non null status message,
         /// which means that the update was rejected by the remote server.
         /// </summary>
         private readonly PushStatusErrorHandler PushStatusError;
@@ -266,10 +266,10 @@ namespace LibGit2Sharp
         }
 
         private int GitCredentialHandler(
-            out IntPtr ptr, 
-            IntPtr cUrl, 
-            IntPtr usernameFromUrl, 
-            GitCredentialType credTypes, 
+            out IntPtr ptr,
+            IntPtr cUrl,
+            IntPtr usernameFromUrl,
+            GitCredentialType credTypes,
             IntPtr payload)
         {
             string url = LaxUtf8Marshaler.FromNative(cUrl);

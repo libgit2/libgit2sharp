@@ -70,9 +70,9 @@ namespace LibGit2Sharp.Core
         /// callback to free the payload.
         /// </summary>
         public delegate int git_filter_check_fn(
-            GitFilter gitFilter, 
-            IntPtr payload, 
-            IntPtr filterSource, 
+            GitFilter gitFilter,
+            IntPtr payload,
+            IntPtr filterSource,
             IntPtr attributeValues);
 
         /// <summary>
@@ -86,17 +86,17 @@ namespace LibGit2Sharp.Core
         /// The `payload` value will refer to any payload that was set by the `check` callback.  It may be read from or written to as needed.
         /// </summary>
         public delegate int git_filter_apply_fn(
-            GitFilter gitFilter, 
-            IntPtr payload, 
-            IntPtr gitBufTo, 
-            IntPtr gitBufFrom, 
+            GitFilter gitFilter,
+            IntPtr payload,
+            IntPtr gitBufTo,
+            IntPtr gitBufFrom,
             IntPtr filterSource);
 
         public delegate int git_filter_stream_fn(
-            out IntPtr git_writestream_out, 
-            GitFilter self, 
-            IntPtr payload, 
-            IntPtr filterSource, 
+            out IntPtr git_writestream_out,
+            GitFilter self,
+            IntPtr payload,
+            IntPtr filterSource,
             IntPtr git_writestream_next);
 
         /// <summary>

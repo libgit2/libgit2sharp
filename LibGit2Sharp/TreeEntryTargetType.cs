@@ -38,8 +38,8 @@ namespace LibGit2Sharp
                     return GitObjectType.Blob;
 
                 default:
-                    throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, 
-                                                                      "Cannot map {0} to a GitObjectType.", 
+                    throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture,
+                                                                      "Cannot map {0} to a GitObjectType.",
                                                                       type));
             }
         }

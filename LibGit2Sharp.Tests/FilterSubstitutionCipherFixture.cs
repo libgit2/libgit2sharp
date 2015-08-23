@@ -21,7 +21,7 @@ namespace LibGit2Sharp.Tests
 
             string repoPath = InitNewRepository();
             string fileName = Guid.NewGuid() + ".rot13";
-            string configPath = CreateConfigurationWithDummyUser(Constants.Signature);
+            string configPath = CreateConfigurationWithDummyUser(Constants.Identity);
             var repositoryOptions = new RepositoryOptions { GlobalConfigurationLocation = configPath };
             using (var repo = new Repository(repoPath, repositoryOptions))
             {
@@ -61,7 +61,7 @@ namespace LibGit2Sharp.Tests
 
             string repoPath = InitNewRepository();
             string fileName = Guid.NewGuid() + ".rot13";
-            string configPath = CreateConfigurationWithDummyUser(Constants.Signature);
+            string configPath = CreateConfigurationWithDummyUser(Constants.Identity);
             var repositoryOptions = new RepositoryOptions { GlobalConfigurationLocation = configPath };
             using (var repo = new Repository(repoPath, repositoryOptions))
             {
@@ -106,7 +106,7 @@ namespace LibGit2Sharp.Tests
             string repoPath = InitNewRepository();
             string fileName = Guid.NewGuid() + fileExtension;
 
-            string configPath = CreateConfigurationWithDummyUser(Constants.Signature);
+            string configPath = CreateConfigurationWithDummyUser(Constants.Identity);
             var repositoryOptions = new RepositoryOptions { GlobalConfigurationLocation = configPath };
             using (var repo = new Repository(repoPath, repositoryOptions))
             {
@@ -141,7 +141,7 @@ namespace LibGit2Sharp.Tests
             string repoPath = InitNewRepository();
             string fileName = Guid.NewGuid() + ".txt";
 
-            string configPath = CreateConfigurationWithDummyUser(Constants.Signature);
+            string configPath = CreateConfigurationWithDummyUser(Constants.Identity);
             var repositoryOptions = new RepositoryOptions { GlobalConfigurationLocation = configPath };
             using (var repo = new Repository(repoPath, repositoryOptions))
             {
@@ -172,7 +172,7 @@ namespace LibGit2Sharp.Tests
             string repoPath = InitNewRepository();
             string fileName = Guid.NewGuid() + ".txt";
 
-            string configPath = CreateConfigurationWithDummyUser(Constants.Signature);
+            string configPath = CreateConfigurationWithDummyUser(Constants.Identity);
             var repositoryOptions = new RepositoryOptions { GlobalConfigurationLocation = configPath };
             using (var repo = new Repository(repoPath, repositoryOptions))
             {
@@ -203,7 +203,7 @@ namespace LibGit2Sharp.Tests
         {
             File.Delete(Path.Combine(repo.Info.WorkingDirectory, fileName));
             repo.Stage(fileName);
-            repo.Commit("remove file");
+            repo.Commit("remove file", Constants.Signature, Constants.Signature);
         }
 
         private static Blob CommitOnBranchAndReturnDatabaseBlob(Repository repo, string fileName, string input)
@@ -211,7 +211,7 @@ namespace LibGit2Sharp.Tests
             Touch(repo.Info.WorkingDirectory, fileName, input);
             repo.Stage(fileName);
 
-            var commit = repo.Commit("new file");
+            var commit = repo.Commit("new file", Constants.Signature, Constants.Signature);
 
             var blob = (Blob)commit.Tree[fileName].Target;
             return blob;

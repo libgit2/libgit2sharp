@@ -115,8 +115,8 @@ namespace LibGit2Sharp
             {
                 return string.Format(CultureInfo.InvariantCulture,
                                      "Target \"{0}\", Namespace \"{1}\": {2}",
-                                     TargetObjectId.ToString(7), 
-                                     Namespace, 
+                                     TargetObjectId.ToString(7),
+                                     Namespace,
                                      Message);
             }
         }

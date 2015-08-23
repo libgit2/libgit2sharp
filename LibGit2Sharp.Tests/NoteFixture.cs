@@ -168,14 +168,17 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanAddANoteWithSignatureFromConfig()
         {
-            string configPath = CreateConfigurationWithDummyUser(Constants.Signature);
+            string configPath = CreateConfigurationWithDummyUser(Constants.Identity);
             var options = new RepositoryOptions { GlobalConfigurationLocation = configPath };
             string path = SandboxBareTestRepo();
 
             using (var repo = new Repository(path, options))
             {
                 var commit = repo.Lookup<Commit>("9fd738e8f7967c078dceed8190330fc8648ee56a");
-                var note = repo.Notes.Add(commit.Id, "I'm batman!\n", "batmobile");
+
+                Signature signature = repo.Config.BuildSignature(DateTimeOffset.Now);
+
+                var note = repo.Notes.Add(commit.Id, "I'm batman!\n", signature, signature, "batmobile");
 
                 var newNote = commit.Notes.Single();
                 Assert.Equal(note, newNote);
@@ -183,7 +186,7 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal("I'm batman!\n", newNote.Message);
                 Assert.Equal("batmobile", newNote.Namespace);
 
-                AssertCommitSignaturesAre(repo.Lookup<Commit>("refs/notes/batmobile"), Constants.Signature);
+                AssertCommitIdentitiesAre(repo.Lookup<Commit>("refs/notes/batmobile"), Constants.Identity);
             }
         }
 
@@ -265,7 +268,7 @@ namespace LibGit2Sharp.Tests
         [Fact]
         public void CanRemoveANoteWithSignatureFromConfig()
         {
-            string configPath = CreateConfigurationWithDummyUser(Constants.Signature);
+            string configPath = CreateConfigurationWithDummyUser(Constants.Identity);
             RepositoryOptions options = new RepositoryOptions() { GlobalConfigurationLocation = configPath };
             string path = SandboxBareTestRepo();
 
@@ -276,11 +279,13 @@ namespace LibGit2Sharp.Tests
 
                 Assert.NotEmpty(notes);
 
-                repo.Notes.Remove(commit.Id, repo.Notes.DefaultNamespace);
+                Signature signature = repo.Config.BuildSignature(DateTimeOffset.Now);
+
+                repo.Notes.Remove(commit.Id, signature, signature, repo.Notes.DefaultNamespace);
 
                 Assert.Empty(notes);
 
-                AssertCommitSignaturesAre(repo.Lookup<Commit>("refs/notes/" + repo.Notes.DefaultNamespace), Constants.Signature);
+                AssertCommitIdentitiesAre(repo.Lookup<Commit>("refs/notes/" + repo.Notes.DefaultNamespace), Constants.Identity);
             }
         }
 

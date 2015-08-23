@@ -95,9 +95,9 @@ namespace LibGit2Sharp
             {
                 return string.Format(CultureInfo.InvariantCulture,
                                      "Path = {0}, File {1}",
-                                     !string.IsNullOrEmpty(Path) 
-                                         ? Path 
-                                         : OldPath, 
+                                     !string.IsNullOrEmpty(Path)
+                                         ? Path
+                                         : OldPath,
                                      Status);
             }
         }

@@ -19,7 +19,7 @@ namespace LibGit2Sharp
         public const int FilterPriorityMin = 0;
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="filter"></param>
         /// <param name="priority"></param>

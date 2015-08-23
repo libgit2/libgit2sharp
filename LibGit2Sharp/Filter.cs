@@ -10,7 +10,7 @@ namespace LibGit2Sharp
 {
     /// <summary>
     /// A filter is a way to execute code against a file as it moves to and from the git
-    /// repository and into the working directory. 
+    /// repository and into the working directory.
     /// </summary>
     public abstract class Filter : IEquatable<Filter>
     {
@@ -87,7 +87,7 @@ namespace LibGit2Sharp
 
         /// <summary>
         /// Complete callback on filter
-        /// 
+        ///
         /// This optional callback will be invoked when the upstream filter is
         /// closed. Gives the filter a chance to perform any final actions or
         /// necissary clean up.

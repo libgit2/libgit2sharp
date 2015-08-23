@@ -105,8 +105,8 @@ namespace LibGit2Sharp.Core
 
         public override IntPtr MarshalManagedToNative(object managedObj)
         {
-            throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, 
-                                                              "{0} cannot be used to pass data to libgit2.", 
+            throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture,
+                                                              "{0} cannot be used to pass data to libgit2.",
                                                               GetType().Name));
         }
 

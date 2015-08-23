@@ -162,11 +162,11 @@ namespace LibGit2Sharp
             {
                 return string.Format(CultureInfo.InvariantCulture,
                                      "+{0} ~{1} -{2} \u00B1{3} R{4} C{5}",
-                                     Added.Count(), 
-                                     Modified.Count(), 
+                                     Added.Count(),
+                                     Modified.Count(),
                                      Deleted.Count(),
-                                     TypeChanged.Count(), 
-                                     Renamed.Count(), 
+                                     TypeChanged.Count(),
+                                     Renamed.Count(),
                                      Copied.Count());
             }
         }

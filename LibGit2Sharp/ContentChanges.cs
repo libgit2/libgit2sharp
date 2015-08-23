@@ -124,7 +124,7 @@ namespace LibGit2Sharp
             {
                 return string.Format(CultureInfo.InvariantCulture,
                                      @"{{+{0}, -{1}}}",
-                                     LinesAdded, 
+                                     LinesAdded,
                                      LinesDeleted);
             }
         }

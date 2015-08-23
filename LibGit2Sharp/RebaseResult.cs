@@ -26,7 +26,7 @@ namespace LibGit2Sharp
         /// </summary>
         Stop,
     };
-    
+
     /// <summary>
     /// Information on a rebase operation.
     /// </summary>

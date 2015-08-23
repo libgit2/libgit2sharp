@@ -118,8 +118,8 @@ namespace LibGit2Sharp
             get
             {
                 return string.Format(CultureInfo.InvariantCulture,
-                                     "{0} {1}", 
-                                     Id.ToString(7), 
+                                     "{0} {1}",
+                                     Id.ToString(7),
                                      MessageShort);
             }
         }
