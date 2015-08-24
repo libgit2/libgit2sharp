@@ -17,7 +17,7 @@ namespace LibGit2Sharp.Tests
     {
         private static readonly HashSet<Type> explicitOnlyInterfaces = new HashSet<Type>
         {
-            typeof(IBelongToARepository),
+            typeof(IBelongToARepository), typeof(IDiffResult),
         };
 
         [Fact]
@@ -400,6 +400,20 @@ namespace LibGit2Sharp.Tests
                         where parameterType != null && !parameterType.IsInterface && !parameterType.IsEnum
                         select method;
             return query;
+        }
+
+        [Fact]
+        public void AllIDiffResultsAreInChangesBuilder()
+        {
+            var diff = typeof(Diff).GetField("ChangesBuilders", BindingFlags.NonPublic | BindingFlags.Static);
+            var changesBuilders = (System.Collections.IDictionary)diff.GetValue(null);
+
+            IEnumerable<Type> diffResults = typeof(Diff).Assembly.GetExportedTypes()
+                .Where(type => type.GetInterface("IDiffResult") != null);
+
+            var nonBuilderTypes = diffResults.Where(diffResult => !changesBuilders.Contains(diffResult));
+            Assert.False(nonBuilderTypes.Any(), "Classes which implement IDiffResult but are not registered under ChangesBuilders in Diff:" + Environment.NewLine +
+                string.Join(Environment.NewLine, nonBuilderTypes.Select(type => type.FullName)));
         }
     }
 

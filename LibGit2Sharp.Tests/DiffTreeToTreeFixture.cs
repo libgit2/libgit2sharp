@@ -1124,17 +1124,6 @@ namespace LibGit2Sharp.Tests
         }
 
         [Fact]
-        public void CallingCompareWithAnUnsupportedGenericParamThrows()
-        {
-            var path = SandboxStandardTestRepoGitDir();
-            using (var repo = new Repository(path))
-            {
-                Assert.Throws<LibGit2SharpException>(() => repo.Diff.Compare<string>(default(Tree), default(Tree)));
-                Assert.Throws<LibGit2SharpException>(() => repo.Diff.Compare<string>());
-            }
-        }
-
-        [Fact]
         public void UsingPatienceAlgorithmCompareOptionProducesPatienceDiff()
         {
             string repoPath = InitNewRepository();
