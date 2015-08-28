@@ -939,6 +939,51 @@ namespace LibGit2Sharp.Core
         internal delegate int git_packbuilder_progress(int stage, uint current, uint total, IntPtr payload);
 
         [DllImport(libgit2)]
+        internal static extern void git_packbuilder_free(IntPtr packbuilder);
+
+        [DllImport(libgit2)]
+        internal static extern int git_packbuilder_insert(
+            PackBuilderSafeHandle packbuilder,
+            ref GitOid id,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string name);
+
+        [DllImport(libgit2)]
+        internal static extern int git_packbuilder_insert_commit(
+            PackBuilderSafeHandle packbuilder,
+            ref GitOid id);
+
+        [DllImport(libgit2)]
+        internal static extern int git_packbuilder_insert_recur(
+            PackBuilderSafeHandle packbuilder,
+            ref GitOid id,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictUtf8Marshaler))] string name);
+
+        [DllImport(libgit2)]
+        internal static extern int git_packbuilder_insert_tree(
+            PackBuilderSafeHandle packbuilder,
+            ref GitOid id);
+
+        [DllImport(libgit2)]
+        internal static extern int git_packbuilder_new(out PackBuilderSafeHandle packbuilder, RepositorySafeHandle repo);
+
+        [DllImport(libgit2)]
+        internal static extern UInt32 git_packbuilder_object_count(PackBuilderSafeHandle packbuilder);
+
+        [DllImport(libgit2)]
+        internal static extern UInt32 git_packbuilder_set_threads(PackBuilderSafeHandle packbuilder, UInt32 numThreads);
+
+        [DllImport(libgit2)]
+        internal static extern int git_packbuilder_write(
+            PackBuilderSafeHandle packbuilder,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = UniqueId.UniqueIdentifier, MarshalTypeRef = typeof(StrictFilePathMarshaler))] FilePath path,
+            uint mode,
+            IntPtr progressCallback,
+            IntPtr payload);
+
+        [DllImport(libgit2)]
+        internal static extern UInt32 git_packbuilder_written(PackBuilderSafeHandle packbuilder);
+
+        [DllImport(libgit2)]
         internal static extern int git_reference_create(
             out ReferenceSafeHandle reference,
             RepositorySafeHandle repo,

@@ -643,5 +643,66 @@ namespace LibGit2Sharp
                 return mergeResult;
             }
         }
+
+        /// <summary>
+        /// Packs all the objects in the <see cref="ObjectDatabase"/> and write a pack (.pack) and index (.idx) files for them.
+        /// </summary>
+        /// <param name="options">Packing options</param>
+        /// This method will invoke the default action of packing all objects in an arbitrary order.
+        /// <returns>Packing results</returns>
+        public virtual PackBuilderResults Pack(PackBuilderOptions options)
+        {
+            return InternalPack(options, builder =>
+            {
+                foreach (GitObject obj in repo.ObjectDatabase)
+                {
+                    builder.Add(obj.Id);
+                }
+            });
+        }
+
+        /// <summary>
+        /// Packs objects in the <see cref="ObjectDatabase"/> chosen by the packDelegate action
+        /// and write a pack (.pack) and index (.idx) files for them
+        /// </summary>
+        /// <param name="options">Packing options</param>
+        /// <param name="packDelegate">Packing action</param>
+        /// <returns>Packing results</returns>
+        public virtual PackBuilderResults Pack(PackBuilderOptions options, Action<PackBuilder> packDelegate)
+        {
+            return InternalPack(options, packDelegate);
+        }
+
+        /// <summary>
+        /// Packs objects in the <see cref="ObjectDatabase"/> and write a pack (.pack) and index (.idx) files for them.
+        /// For internal use only.
+        /// </summary>
+        /// <param name="options">Packing options</param>
+        /// <param name="packDelegate">Packing action</param>
+        /// <returns>Packing results</returns>
+        private PackBuilderResults InternalPack(PackBuilderOptions options, Action<PackBuilder> packDelegate)
+        {
+            Ensure.ArgumentNotNull(options, "options");
+            Ensure.ArgumentNotNull(packDelegate, "packDelegate");
+
+            PackBuilderResults results = new PackBuilderResults();
+
+            using (PackBuilder builder = new PackBuilder(repo))
+            {
+                // set pre-build options
+                builder.SetMaximumNumberOfThreads(options.MaximumNumberOfThreads);
+
+                // call the provided action
+                packDelegate(builder);
+
+                // writing the pack and index files
+                builder.Write(options.PackDirectoryPath);
+
+                // adding the results to the PackBuilderResults object
+                results.WrittenObjectsCount = builder.WrittenObjectsCount;
+            }
+
+            return results;
+        }
     }
 }
