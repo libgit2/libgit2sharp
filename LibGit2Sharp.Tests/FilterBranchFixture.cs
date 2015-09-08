@@ -191,10 +191,10 @@ namespace LibGit2Sharp.Tests
             AssertSucceedingButNotError();
 
             var lightweightTag = repo.Tags["so-lonely"];
-            Assert.Equal("Bam!\n", ((Commit)lightweightTag.Target).Message);
+            Assert.Equal("Bam!", ((Commit)lightweightTag.Target).Message);
 
             var annotatedTag = repo.Tags["so-lonely-but-annotated"];
-            Assert.Equal("Bam!\n", ((Commit)annotatedTag.Target).Message);
+            Assert.Equal("Bam!", ((Commit)annotatedTag.Target).Message);
         }
 
         [Fact]
@@ -495,7 +495,7 @@ namespace LibGit2Sharp.Tests
             var parents = repo.Branches["br2"].Tip.Parents.ToList();
             Assert.Equal(2, parents.Count());
             Assert.NotEmpty(parents.Where(c => c.Sha.StartsWith("9fd738e")));
-            Assert.Equal("abc\n", parents.Single(c => !c.Sha.StartsWith("9fd738e")).Message);
+            Assert.Equal("abc", parents.Single(c => !c.Sha.StartsWith("9fd738e")).Message);
         }
 
         [Fact]
@@ -530,7 +530,7 @@ namespace LibGit2Sharp.Tests
             AssertErrorFired(ex);
             AssertSucceedingNotFired();
 
-            Assert.Equal("abc\n", repo.Head.Tip.Message);
+            Assert.Equal("abc", repo.Head.Tip.Message);
 
             var newOriginalRefs = repo.Refs.FromGlob("refs/original/*").OrderBy(r => r.CanonicalName).ToArray();
             Assert.Equal(originalRefs, newOriginalRefs);
@@ -791,7 +791,7 @@ namespace LibGit2Sharp.Tests
             var newCommit = newAnnotationC.Target as Commit;
             Assert.NotNull(newCommit);
             Assert.NotEqual(newCommit, theCommit);
-            Assert.Equal("Rewrote\n", newCommit.Message);
+            Assert.Equal("Rewrote", newCommit.Message);
 
             // Ensure the original tag doesn't exist anymore
             Assert.Null(repo.Tags["lightweightA"]);
