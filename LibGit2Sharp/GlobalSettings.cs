@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Collections.Generic;
 using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
@@ -271,6 +272,33 @@ namespace LibGit2Sharp
                 // unregister the filter
                 DeregisterFilter(registration);
             }
+        }
+
+        /// <summary>
+        /// Get the paths under which libgit2 searches for the configuration file of a given level.
+        /// </summary>
+        /// <param name="level">The level (global/system/XDG) of the config.</param>
+        /// <returns>The paths that are searched</returns>
+        public static IEnumerable<string> GetConfigSearchPaths(ConfigurationLevel level)
+        {
+            return Proxy.git_libgit2_opts_get_search_path(level).Split(Path.PathSeparator);
+        }
+
+        /// <summary>
+        /// Set the paths under which libgit2 searches for the configuration file of a given level.
+        ///
+        /// <seealso cref="RepositoryOptions"/>.
+        /// </summary>
+        /// <param name="level">The level (global/system/XDG) of the config.</param>
+        /// <param name="paths">
+        ///     The new search paths to set.
+        ///     Pass null to reset to the default.
+        ///     The special string "$PATH" will be substituted with the current search path.
+        /// </param>
+        public static void SetConfigSearchPaths(ConfigurationLevel level, params string[] paths)
+        {
+            var pathString = (paths == null) ? null : string.Join(Path.PathSeparator.ToString(), paths);
+            Proxy.git_libgit2_opts_set_search_path(level, pathString);
         }
     }
 }

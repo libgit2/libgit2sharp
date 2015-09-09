@@ -32,6 +32,7 @@
         ///   The path has either to lead to an existing valid configuration file,
         ///   or to a non existent configuration file which will be eventually created.
         /// </para>
+        /// <seealso cref="GlobalSettings.SetConfigSearchPaths"/>.
         /// </summary>
         public string GlobalConfigurationLocation { get; set; }
 
@@ -41,6 +42,7 @@
         ///   The path has either to lead to an existing valid configuration file,
         ///   or to a non existent configuration file which will be eventually created.
         /// </para>
+        /// <seealso cref="GlobalSettings.SetConfigSearchPaths"/>.
         /// </summary>
         public string XdgConfigurationLocation { get; set; }
 
@@ -50,6 +52,7 @@
         ///   The path has to lead to an existing valid configuration file,
         ///   or to a non existent configuration file which will be eventually created.
         /// </para>
+        /// <seealso cref="GlobalSettings.SetConfigSearchPaths"/>.
         /// </summary>
         public string SystemConfigurationLocation { get; set; }
 
