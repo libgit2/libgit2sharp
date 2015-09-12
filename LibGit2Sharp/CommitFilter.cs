@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using LibGit2Sharp.Core;
 
 namespace LibGit2Sharp
 {
@@ -120,6 +122,44 @@ namespace LibGit2Sharp
 
             list.AddRange(((IEnumerable)obj).Cast<object>());
             return list;
+        }
+
+        public static CommitFilter Parse(string expression)
+        {
+            Ensure.ArgumentNotNullOrEmptyString(expression, "expression");
+
+            if (expression.Contains(" "))
+            {
+                throw new NotSupportedException();
+            }
+
+            if (expression.Contains("..."))
+            {
+                return MergeRangeParse(expression);
+            }
+
+            if (expression.Contains(".."))
+            {
+                return RangeParse(expression);
+            }
+
+            return new CommitFilter { IncludeReachableFrom = expression };
+        }
+
+        private static CommitFilter MergeRangeParse(string expression)
+        {
+            throw new NotImplementedException();
+        }
+
+        private static CommitFilter RangeParse(string expression)
+        {
+            var parts = expression.Split(new[] { ".." }, StringSplitOptions.None);
+
+            Debug.Assert(parts.Length == 2);
+
+            Func<string, string> nullify = (s) => s == string.Empty ? null : s;
+
+            return new CommitFilter { IncludeReachableFrom = nullify(parts[1]), ExcludeReachableFrom = nullify(parts[0]) };
         }
     }
 }
