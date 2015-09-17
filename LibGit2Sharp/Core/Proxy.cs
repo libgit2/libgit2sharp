@@ -644,7 +644,7 @@ namespace LibGit2Sharp.Core
                     Version = 1,
                     DescribeStrategy = options.Strategy,
                     MaxCandidatesTags = 10,
-                    OnlyFollowFirstParent = false,
+                    OnlyFollowFirstParent = options.OnlyFollowFirstParent,
                     ShowCommitOidAsFallback = options.UseCommitIdAsFallback,
                 };
 
