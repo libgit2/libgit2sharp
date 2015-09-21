@@ -1,6 +1,7 @@
 using System.Linq;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
+using System;
 
 namespace LibGit2Sharp.Tests
 {
@@ -47,6 +48,36 @@ namespace LibGit2Sharp.Tests
                 Assert.Equal("test", repo.Describe(anotherTip));
                 Assert.Equal("test-0-g7b43849", repo.Describe(anotherTip,
                     new DescribeOptions{ AlwaysRenderLongFormat = true }));
+            }
+        }
+
+        [Fact]
+        public void CanFollowFirstParent()
+        {
+            string path = SandboxStandardTestRepo();
+            using (var repo = new Repository(path))
+            {
+                var branch = repo.CreateBranch("branch");
+
+                // Make an earlier tag on master
+                repo.Commit("A", Constants.Signature, Constants.Signature, new CommitOptions { AllowEmptyCommit = true });
+                repo.ApplyTag("firstParentTag");
+
+                // Make a later tag on branch
+                repo.Checkout(branch);
+                repo.Commit("B", Constants.Signature, Constants.Signature, new CommitOptions { AllowEmptyCommit = true });
+                repo.ApplyTag("mostRecentTag");
+
+                repo.Checkout("master");
+                repo.Commit("C", Constants.Signature, Constants.Signature, new CommitOptions { AllowEmptyCommit = true });
+                repo.Merge(branch, Constants.Signature, new MergeOptions() { FastForwardStrategy = FastForwardStrategy.NoFastForward });
+
+                // With OnlyFollowFirstParent = false, the most recent tag reachable should be returned
+                Assert.Equal("mostRecentTag-3-gf17be71", repo.Describe(repo.Head.Tip, new DescribeOptions { OnlyFollowFirstParent = false, Strategy = DescribeStrategy.Tags }));
+
+                // With OnlyFollowFirstParent = true, the most recent tag on the current branch should be returned
+                Assert.Equal("firstParentTag-2-gf17be71", repo.Describe(repo.Head.Tip, new DescribeOptions { OnlyFollowFirstParent = true, Strategy = DescribeStrategy.Tags }));
+
             }
         }
     }

@@ -21,6 +21,7 @@ namespace LibGit2Sharp
         {
             Strategy = DescribeStrategy.Default;
             MinimumCommitIdAbbreviatedSize = 7;
+            OnlyFollowFirstParent = false;
         }
 
         /// <summary>
@@ -54,5 +55,14 @@ namespace LibGit2Sharp
         /// </para>
         /// </summary>
         public bool AlwaysRenderLongFormat { get; set; }
+
+        /// <summary>
+        /// Follow only the first parent commit upon seeing a merge commit.
+        /// <para>
+        ///   This is useful when you wish to not match tags on branches merged in
+        ///   the history of the target commit.
+        /// </para>
+        /// </summary>
+        public bool OnlyFollowFirstParent { get; set; }
     }
 }
