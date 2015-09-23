@@ -31,7 +31,7 @@
   <Target Name="Build" DependsOnTargets="Init">
     <Message Text="ExtraDefine = $(ExtraDefine)" />
     <MSBuild
-      Projects="$(RootDir)\Developer.sln"
+      Projects="$(RootDir)\LibGit2Sharp.LocalDev.sln"
       Targets="Build"
       Properties="Configuration=$(Configuration);TrackFileAccess=false;ExtraDefine=$(ExtraDefine)" />
   </Target>

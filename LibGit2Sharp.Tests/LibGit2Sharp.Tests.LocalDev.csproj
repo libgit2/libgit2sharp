@@ -138,7 +138,7 @@
     <Compile Include="UnstageFixture.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\LibGit2Sharp\Developer.csproj">
+    <ProjectReference Include="..\LibGit2Sharp\LibGit2Sharp.LocalDev.csproj">
       <Project>{91B31384-CCEB-4F0A-B0F4-F5913658CC4B}</Project>
       <Name>LibGit2Sharp</Name>
     </ProjectReference>

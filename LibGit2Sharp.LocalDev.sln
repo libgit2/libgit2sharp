@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibGit2SharpDeveloper", "LibGit2Sharp\Developer.csproj", "{91B31384-CCEB-4F0A-B0F4-F5913658CC4B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibGit2Sharp.LocalDev", "LibGit2Sharp\LibGit2Sharp.LocalDev.csproj", "{91B31384-CCEB-4F0A-B0F4-F5913658CC4B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibGit2SharpDeveloper.Tests", "LibGit2Sharp.Tests\Developer.Tests.csproj", "{7DFE89AD-BA3E-4012-A71B-BB860440BBEA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibGit2Sharp.Tests.LocalDev", "LibGit2Sharp.Tests\LibGit2Sharp.Tests.LocalDev.csproj", "{7DFE89AD-BA3E-4012-A71B-BB860440BBEA}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{19D079A4-A273-4630-B2D2-79EADE3E7CA1}"
 	ProjectSection(SolutionItems) = preProject
