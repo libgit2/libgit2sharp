@@ -72,6 +72,15 @@ namespace LibGit2Sharp.Core
                 const string pathEnvVariable = "PATH";
                 Environment.SetEnvironmentVariable(pathEnvVariable,
                     String.Format(CultureInfo.InvariantCulture, "{0}{1}{2}", path, Path.PathSeparator, Environment.GetEnvironmentVariable(pathEnvVariable)));
+
+                // In the "LocalDebug" configuration we target a locally-built version of the LibGit2 DLL.
+                // Let them give us a hint to where it is.
+                string pathLocalDebug = Environment.GetEnvironmentVariable("LIBGIT2_LOCALDEBUG");
+                if (pathLocalDebug != null)
+                {
+                    Environment.SetEnvironmentVariable(pathEnvVariable,
+                        String.Format(CultureInfo.InvariantCulture, "{0}{1}{2}", pathLocalDebug, Path.PathSeparator, Environment.GetEnvironmentVariable(pathEnvVariable)));
+                }
             }
 
             // See LibraryLifetimeObject description.

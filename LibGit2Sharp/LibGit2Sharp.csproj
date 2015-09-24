@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="..\packages\LibGit2Sharp.NativeBinaries.1.0.81\build\LibGit2Sharp.NativeBinaries.props" Condition="Exists('..\packages\LibGit2Sharp.NativeBinaries.1.0.81\build\LibGit2Sharp.NativeBinaries.props')" />
   <PropertyGroup>
@@ -38,6 +38,17 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <DocumentationFile>bin\Release\LibGit2Sharp.xml</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'LocalDebug|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\LocalDebug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;NET40</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DocumentationFile>bin\Debug\LibGit2Sharp.xml</DocumentationFile>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -182,7 +193,8 @@
     <Compile Include="Core\GitStrArray.cs" />
     <Compile Include="Core\GitStrArrayManaged.cs" />
     <Compile Include="Core\GitStrArrayNative.cs" />
-    <Compile Include="Core\NativeDllName.cs" />
+    <Compile Include="Core\NativeDllName.cs" Condition="'$(Configuration)' != 'LocalDebug'" />
+    <Compile Include="Core\NativeDllName_LocalDebug.cs" Condition="'$(Configuration)' == 'LocalDebug'" />
     <Compile Include="CommitRewriteInfo.cs" />
     <Compile Include="DiffModifiers.cs" />
     <Compile Include="ObjectType.cs" />
