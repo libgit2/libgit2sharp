@@ -2,7 +2,6 @@ using System;
 using System.IO;
 using LibGit2Sharp.Tests.TestHelpers;
 using Xunit;
-using Xunit.Extensions;
 
 namespace LibGit2Sharp.Tests
 {
@@ -83,8 +82,8 @@ namespace LibGit2Sharp.Tests
                 Assert.Null(repo.Index[relativePath]);
                 Assert.Equal(status, repo.RetrieveStatus(relativePath));
 
-                Assert.DoesNotThrow(() => repo.Stage(relativePath));
-                Assert.DoesNotThrow(() => repo.Stage(relativePath, new StageOptions { ExplicitPathsOptions = new ExplicitPathsOptions { ShouldFailOnUnmatchedPath = false } }));
+                repo.Stage(relativePath);
+                repo.Stage(relativePath, new StageOptions { ExplicitPathsOptions = new ExplicitPathsOptions { ShouldFailOnUnmatchedPath = false } });
 
                 Assert.Equal(status, repo.RetrieveStatus(relativePath));
             }
@@ -387,8 +386,7 @@ namespace LibGit2Sharp.Tests
 
                     repo.Stage("test.txt");
 
-                    Assert.DoesNotThrow(() => repo.Commit(
-                                "Commit", Constants.Signature, Constants.Signature));
+                   repo.Commit("Commit", Constants.Signature, Constants.Signature);
                 }
             }
         }
