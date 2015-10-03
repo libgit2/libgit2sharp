@@ -1098,7 +1098,8 @@ namespace LibGit2Sharp.Core
         internal static extern int git_remote_connect(
             RemoteSafeHandle remote,
             GitDirection direction,
-            ref GitRemoteCallbacks callbacks);
+            ref GitRemoteCallbacks callbacks,
+            ref GitStrArray custom_headers);
 
         [DllImport(libgit2)]
         internal static extern int git_remote_create(

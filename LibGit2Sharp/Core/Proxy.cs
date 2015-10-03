@@ -1997,8 +1997,17 @@ namespace LibGit2Sharp.Core
 
         public static void git_remote_connect(RemoteSafeHandle remote, GitDirection direction, ref GitRemoteCallbacks remoteCallbacks)
         {
-            int res = NativeMethods.git_remote_connect(remote, direction, ref remoteCallbacks);
-            Ensure.ZeroResult(res);
+            GitStrArrayManaged customHeaders = new GitStrArrayManaged();
+
+            try
+            {
+                int res = NativeMethods.git_remote_connect(remote, direction, ref remoteCallbacks, ref customHeaders.Array);
+                Ensure.ZeroResult(res);
+            }
+            catch (Exception)
+            {
+                customHeaders.Dispose();
+            }
         }
 
         public static void git_remote_delete(RepositorySafeHandle repo, string name)
@@ -3216,7 +3225,7 @@ namespace LibGit2Sharp.Core
         /// </summary>
         /// <param name="level">The level (global/system/XDG) of the config.</param>
         /// <returns>
-        ///     The paths delimited by 'GIT_PATH_LIST_SEPARATOR' (<see cref="GlobalSettings.PathListSeparator"/>).
+        ///     The paths delimited by 'GIT_PATH_LIST_SEPARATOR'.
         /// </returns>
         public static string git_libgit2_opts_get_search_path(ConfigurationLevel level)
         {
@@ -3238,7 +3247,7 @@ namespace LibGit2Sharp.Core
         /// </summary>
         /// <param name="level">The level (global/system/XDG) of the config.</param>
         /// <param name="path">
-        ///     A string of paths delimited by 'GIT_PATH_LIST_SEPARATOR' (<see cref="GlobalSettings.PathListSeparator"/>).
+        ///     A string of paths delimited by 'GIT_PATH_LIST_SEPARATOR'.
         ///     Pass null to reset the search path to the default.
         /// </param>
         public static void git_libgit2_opts_set_search_path(ConfigurationLevel level, string path)
