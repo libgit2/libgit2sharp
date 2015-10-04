@@ -1432,9 +1432,9 @@ namespace LibGit2Sharp.Core
 
             if (IntPtr.Zero == toReturn)
             {
-                throw new LibGit2SharpException(String.Format(CultureInfo.InvariantCulture,
+                throw new LibGit2SharpException(CultureInfo.InvariantCulture,
                                                               "Unable to allocate {0} bytes; out of memory",
-                                                              len),
+                                                              len,
                                                 GitErrorCode.Error,
                                                 GitErrorCategory.NoMemory);
             }

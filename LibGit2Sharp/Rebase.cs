@@ -1,6 +1,7 @@
 ﻿using System;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Handles;
+using System.Globalization;
 
 namespace LibGit2Sharp
 {
@@ -80,8 +81,9 @@ namespace LibGit2Sharp
 
             if (this.repository.Info.CurrentOperation != CurrentOperation.None)
             {
-                throw new LibGit2SharpException(string.Format(
-                    "A {0} operation is already in progress.", this.repository.Info.CurrentOperation));
+                throw new LibGit2SharpException(CultureInfo.InvariantCulture,
+                    "A {0} operation is already in progress.", 
+                    this.repository.Info.CurrentOperation);
             }
 
             Func<Branch, ReferenceSafeHandle> RefHandleFromBranch = (Branch b) =>

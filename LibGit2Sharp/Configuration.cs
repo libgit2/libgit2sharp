@@ -693,9 +693,9 @@ namespace LibGit2Sharp
 
             if (handle == null && throwIfStoreHasNotBeenFound)
             {
-                throw new LibGit2SharpException(string.Format(CultureInfo.InvariantCulture,
+                throw new LibGit2SharpException(CultureInfo.InvariantCulture,
                                                               "No {0} configuration file has been found.",
-                                                              Enum.GetName(typeof(ConfigurationLevel), level)));
+                                                              Enum.GetName(typeof(ConfigurationLevel), level));
             }
 
             return handle;

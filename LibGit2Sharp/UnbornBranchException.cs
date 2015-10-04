@@ -32,7 +32,7 @@ namespace LibGit2Sharp
         /// <param name="format">A composite format string for use in <see cref="String.Format(IFormatProvider, string, object[])"/>.</param>
         /// <param name="args">An object array that contains zero or more objects to format.</param>
         public UnbornBranchException(CultureInfo cultureInfo, string format, params object[] args)
-            : base(String.Format(cultureInfo, format, args))
+            : base(cultureInfo, format, args)
         { }
 
         /// <summary>
