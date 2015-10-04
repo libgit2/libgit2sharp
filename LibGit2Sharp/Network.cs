@@ -400,10 +400,9 @@ namespace LibGit2Sharp
                 if (string.IsNullOrEmpty(branch.UpstreamBranchCanonicalName))
                 {
                     throw new LibGit2SharpException(
-                        string.Format(
                             CultureInfo.InvariantCulture,
                             "The branch '{0}' (\"{1}\") that you are trying to push does not track an upstream branch.",
-                            branch.FriendlyName, branch.CanonicalName));
+                            branch.FriendlyName, branch.CanonicalName);
                 }
             }
 
