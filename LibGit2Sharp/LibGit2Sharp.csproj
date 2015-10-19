@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\packages\LibGit2Sharp.NativeBinaries.0.21.1.2-msft\build\LibGit2Sharp.NativeBinaries.props" Condition="Exists('..\packages\LibGit2Sharp.NativeBinaries.0.21.1.2-msft\build\LibGit2Sharp.NativeBinaries.props')" />
+  <Import Project="..\packages\Mseng.LibGit2.14.0.23414.0\build\Mseng.LibGit2.props" Condition="Exists('..\packages\Mseng.LibGit2.14.0.23414.0\build\Mseng.LibGit2.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -382,7 +382,88 @@
     <EmbeddedResource Include="libgit2sharp_hash.txt" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="libgit2-src.zip" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="include\git2.h" />
+    <Content Include="include\git2\annotated_commit.h" />
+    <Content Include="include\git2\attr.h" />
+    <Content Include="include\git2\blame.h" />
+    <Content Include="include\git2\blob.h" />
+    <Content Include="include\git2\branch.h" />
+    <Content Include="include\git2\buffer.h" />
+    <Content Include="include\git2\checkout.h" />
+    <Content Include="include\git2\cherrypick.h" />
+    <Content Include="include\git2\clone.h" />
+    <Content Include="include\git2\commit.h" />
+    <Content Include="include\git2\common.h" />
+    <Content Include="include\git2\config.h" />
+    <Content Include="include\git2\cred_helpers.h" />
+    <Content Include="include\git2\describe.h" />
+    <Content Include="include\git2\diff.h" />
+    <Content Include="include\git2\errors.h" />
+    <Content Include="include\git2\filter.h" />
+    <Content Include="include\git2\global.h" />
+    <Content Include="include\git2\graph.h" />
+    <Content Include="include\git2\ignore.h" />
+    <Content Include="include\git2\index.h" />
+    <Content Include="include\git2\indexer.h" />
+    <Content Include="include\git2\inttypes.h" />
+    <Content Include="include\git2\merge.h" />
+    <Content Include="include\git2\message.h" />
+    <Content Include="include\git2\net.h" />
+    <Content Include="include\git2\notes.h" />
+    <Content Include="include\git2\object.h" />
+    <Content Include="include\git2\odb.h" />
+    <Content Include="include\git2\odb_backend.h" />
+    <Content Include="include\git2\oid.h" />
+    <Content Include="include\git2\oidarray.h" />
+    <Content Include="include\git2\pack.h" />
+    <Content Include="include\git2\patch.h" />
+    <Content Include="include\git2\pathspec.h" />
+    <Content Include="include\git2\rebase.h" />
+    <Content Include="include\git2\refdb.h" />
+    <Content Include="include\git2\reflog.h" />
+    <Content Include="include\git2\refs.h" />
+    <Content Include="include\git2\refspec.h" />
+    <Content Include="include\git2\remote.h" />
+    <Content Include="include\git2\repository.h" />
+    <Content Include="include\git2\reset.h" />
+    <Content Include="include\git2\revert.h" />
+    <Content Include="include\git2\revparse.h" />
+    <Content Include="include\git2\revwalk.h" />
+    <Content Include="include\git2\signature.h" />
+    <Content Include="include\git2\stash.h" />
+    <Content Include="include\git2\status.h" />
+    <Content Include="include\git2\stdint.h" />
+    <Content Include="include\git2\strarray.h" />
+    <Content Include="include\git2\submodule.h" />
+    <Content Include="include\git2\sys\commit.h" />
+    <Content Include="include\git2\sys\config.h" />
+    <Content Include="include\git2\sys\diff.h" />
+    <Content Include="include\git2\sys\filter.h" />
+    <Content Include="include\git2\sys\hashsig.h" />
+    <Content Include="include\git2\sys\index.h" />
+    <Content Include="include\git2\sys\mempack.h" />
+    <Content Include="include\git2\sys\odb_backend.h" />
+    <Content Include="include\git2\sys\openssl.h" />
+    <Content Include="include\git2\sys\refdb_backend.h" />
+    <Content Include="include\git2\sys\reflog.h" />
+    <Content Include="include\git2\sys\refs.h" />
+    <Content Include="include\git2\sys\repository.h" />
+    <Content Include="include\git2\sys\stream.h" />
+    <Content Include="include\git2\sys\transport.h" />
+    <Content Include="include\git2\tag.h" />
+    <Content Include="include\git2\trace.h" />
+    <Content Include="include\git2\transaction.h" />
+    <Content Include="include\git2\transport.h" />
+    <Content Include="include\git2\tree.h" />
+    <Content Include="include\git2\types.h" />
+    <Content Include="include\git2\version.h" />
+    <Content Include="libgit2_filename.txt" />
+    <Content Include="libgit2_hash.txt" />
+    <Content Include="OSS_README.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="UniqueIdentifier.targets" />
@@ -396,7 +477,7 @@
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\LibGit2Sharp.NativeBinaries.0.21.1.2-msft\build\LibGit2Sharp.NativeBinaries.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\LibGit2Sharp.NativeBinaries.0.21.1.2-msft\build\LibGit2Sharp.NativeBinaries.props'))" />
+    <Error Condition="!Exists('..\packages\Mseng.LibGit2.14.0.23414.0\build\Mseng.LibGit2.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Mseng.LibGit2.14.0.23414.0\build\Mseng.LibGit2.props'))" />
   </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
